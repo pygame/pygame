@@ -483,14 +483,21 @@ class RenderClear(Group):
 
            Clears the area of all drawn sprites. the bgd
            argument should be Surface which is the same
-           dimensions as the surface."""
-        surface_blit = surface.blit
-        for r in self.lostsprites:
-            surface_blit(bgd, r, r)
-        self.lostsprites = []
-        for r in self.spritedict.values():
-            if r is not 0:
+           dimensions as the surface. The bgd can also be
+	   a function which gets called with the passed
+	   surface and the area to be cleared."""
+	if callable(bgd):
+            for r in self.lostsprites:
+                bgd(surface, r)
+            for r in self.spritedict.values():
+                if r is not 0: bgd(surface, r)
+	else:
+            surface_blit = surface.blit
+            for r in self.lostsprites:
                 surface_blit(bgd, r, r)
+            for r in self.spritedict.values():
+                if r is not 0: surface_blit(bgd, r, r)
+        self.lostsprites = []
 
 
 class RenderUpdates(RenderClear):
