@@ -63,16 +63,16 @@ def drawcube():
     for face in CUBE_QUAD_VERTS:
         for vert in face:
             pos, color = allpoints[vert]
-            glColor3(color)
-            glVertex3(pos)
+            glColor3fv(color)
+            glVertex3fv(pos)
     glEnd()
 
-    glColor3((1.0, 1.0, 1.0))
+    glColor3f(1.0, 1.0, 1.0)
     glBegin(GL_LINES)
     for line in CUBE_EDGES:
         for vert in line:
             pos, color = allpoints[vert]
-            glVertex3(pos)
+            glVertex3fv(pos)
 
     glEnd()
 
@@ -87,8 +87,8 @@ def main():
     #setup the camera
     glMatrixMode(GL_PROJECTION)
     gluPerspective(45.0,640/480.0,0.1,100.0)    #setup lens
-    glTranslate(0.0, 0.0, -3.0)                 #move back
-    glRotate(25, 1, 0, 0)                       #orbit higher
+    glTranslatef(0.0, 0.0, -3.0)                #move back
+    glRotatef(25, 1, 0, 0)                       #orbit higher
 
 
     while 1:
@@ -101,7 +101,7 @@ def main():
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
 
         #orbit camera around by 1 degree
-        glRotate(1, 0, 1, 0)                    
+        glRotatef(1, 0, 1, 0)                    
 
         drawcube()
         pygame.display.flip()
