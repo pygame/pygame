@@ -636,8 +636,11 @@ static PyObject* Font(PyObject* self, PyObject* args)
 			return RAISE(PyExc_RuntimeError, "default font not found");
 		filename = font_defaultpath;
 	}
-	else if(PyString_Check(fileobj))
-		filename = PyString_AS_STRING(fileobj);
+	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
+	{
+		if(!PyArg_ParseTuple(args, "si", &filename, &fontsize))
+			return NULL;
+	}
 	else
 		return RAISE(PyExc_TypeError, "font name must be string or None");
 

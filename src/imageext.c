@@ -56,9 +56,10 @@ static PyObject* image_load_ext(PyObject* self, PyObject* arg)
 
 	VIDEO_INIT_CHECK();
 
-	if(PyString_Check(file))
+	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
-		name = PyString_AsString(file);
+		if(!PyArg_ParseTuple(arg, "s|O", &name, &file))
+			return NULL;
 		Py_BEGIN_ALLOW_THREADS
 		surf = IMG_Load(name);
 		Py_END_ALLOW_THREADS

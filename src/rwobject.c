@@ -53,8 +53,20 @@ static SDL_RWops* RWopsFromPython(PyObject* obj)
 	if(!obj)
 		return (SDL_RWops*)RAISE(PyExc_TypeError, "Invalid filetype object");
 
-	if(PyString_Check(obj))
-		rw = SDL_RWFromFile(PyString_AsString(obj), "rb");
+	if(PyString_Check(obj) || PyUnicode_Check(obj))
+	{
+		int result;
+		char* name;
+		PyObject* tuple = PyTuple_New(1);
+		PyTuple_SET_ITEM(tuple, 0, obj);
+		Py_INCREF(obj);
+		if(!tuple) return NULL;
+		result = PyArg_ParseTuple(tuple, "s", &name);
+		Py_DECREF(tuple);
+		if(!result)
+			return NULL;
+		rw = SDL_RWFromFile(name, "rb");
+	}
 	else if(PyFile_Check(obj))
 		rw = SDL_RWFromFP(PyFile_AsFile(obj), 1);
 	else
