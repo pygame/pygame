@@ -335,7 +335,7 @@ static PyObject* surf_get_locked(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	return PyInt_FromLong(surf->lockcount);
+	return PyInt_FromLong(surf->surf->pixels != NULL);
 }
 
 
@@ -625,7 +625,7 @@ static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
     /*DOC*/    "overall surface transparency. You'll need to change the actual\n"
     /*DOC*/    "pixel transparency to make changes.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "If your image also has pixel alpha values, will be used repeatedly, you\n"
+    /*DOC*/    "If your image also has pixel alpha values, or will be used repeatedly, you\n"
     /*DOC*/    "will probably want to pass the RLEACCEL flag to the call. This\n"
     /*DOC*/    "will take a short time to compile your surface, and increase the\n"
     /*DOC*/    "blitting speed.\n"
@@ -1714,8 +1714,7 @@ static void surface_cleanup(PySurfaceObject* self)
             if(!(self->surf->flags&SDL_HWSURFACE) || SDL_WasInit(SDL_INIT_VIDEO))
             {
                     /*unsafe to free hardware surfaces without video init*/
-                    while(self->lockcount > 0)
-                            PySurface_Unlock((PyObject*)self);
+                    /*i question SDL's ability to free a locked hardware surface*/
                     SDL_FreeSurface(self->surf);
             }
             self->surf = NULL;
@@ -1726,8 +1725,6 @@ static void surface_cleanup(PySurfaceObject* self)
 		PyMem_Del(self->subsurface);
                 self->subsurface = NULL;
 	}
-        self->lockcount = 0;
-        self->didlock = 0;
 }
 
 
@@ -1870,8 +1867,6 @@ static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     {
         self->surf = NULL;
         self->subsurface = NULL;
-        self->lockcount = 0;
-        self->didlock = 0;
         self->weakreflist = NULL;
     }
     return (PyObject *)self;
@@ -1979,8 +1974,6 @@ static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds)
 	{
 		self->surf = surface;
 		self->subsurface = NULL;
-		self->didlock = 0;
-		self->lockcount = 0;
 	}
 
         return 0;

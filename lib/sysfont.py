@@ -228,7 +228,7 @@ def SysFont(name, size, bold=0, italic=0):
 
     if not Sysfonts:
         initsysfonts()
-
+    
     fontname = None
     if name:
         allnames = name
