@@ -586,11 +586,9 @@ def spritecollideany(sprite, group):
        bit quicker.
        
        all sprites must have a "rect" method, which is a
-       rectangle of the sprite area. if the dokill argument
-       is true, the sprites that do collide will be
-       automatically removed from all groups."""
+       rectangle of the sprite area.""" 
     spritecollide = sprite.rect.colliderect
     for s in group.sprites():
         if spritecollide(s.rect):
-            return 1
-    return 0
+            return s
+    return None
