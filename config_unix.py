@@ -15,7 +15,7 @@ def writesetupfile(flags):
         line = origsetup.readline()
         if not line: break
         if line.startswith('SDL = '):
-            line = 'SDL = ' + flags
+            line = 'SDL = ' + flags + '\n'
         newsetup.write(line)
     
 
