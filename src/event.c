@@ -160,7 +160,7 @@ static PyObject* our_unichr(long uni)
 
 	if (bltin_unichr == NULL) {
 		PyObject* bltins;
-		
+
 		bltins = PyImport_ImportModule("__builtin__");
 		bltin_unichr = PyObject_GetAttrString(bltins, "unichr");
 
@@ -177,7 +177,7 @@ static PyObject* our_empty_ustr(void)
 	if (empty_ustr == NULL) {
 		PyObject* bltins;
 		PyObject* bltin_unicode;
-		
+
 		bltins = PyImport_ImportModule("__builtin__");
 		bltin_unicode = PyObject_GetAttrString(bltins, "unicode");
 		empty_ustr = PyEval_CallFunction(bltin_unicode, "(s)", "");
@@ -271,7 +271,7 @@ static PyObject* dict_from_event(SDL_Event* event)
 		hx = hy = 0;
 		if(event->jhat.value&SDL_HAT_UP) hy = 1;
 		else if(event->jhat.value&SDL_HAT_DOWN) hy = -1;
-		if(event->jhat.value&SDL_HAT_LEFT) hx = 1;
+		if(event->jhat.value&SDL_HAT_RIGHT) hx = 1;
 		else if(event->jhat.value&SDL_HAT_LEFT) hx = -1;
 		insobj(dict, "value", Py_BuildValue("(ii)", hx, hy));
 		break;
@@ -303,7 +303,7 @@ static void event_dealloc(PyObject* self)
 {
 	PyEventObject* e = (PyEventObject*)self;
 	Py_XDECREF(e->dict);
-	PyObject_DEL(self);	
+	PyObject_DEL(self);
 }
 
 
@@ -361,7 +361,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "lookups will be passed through to the Event's dictionary values.\n"
     /*DOC*/    "\n"
     /*DOC*/    "While debugging and experimenting, you can print the Event\n"
-    /*DOC*/    "objects for a quick display of its type and members.\n" __SECRET_COLON__ 
+    /*DOC*/    "objects for a quick display of its type and members.\n" __SECRET_COLON__
     /*DOC*/    "Events that come from the system will have a guaranteed set of\n"
     /*DOC*/    "member items based on the type. Here is a list of the Event members\n"
     /*DOC*/    "that are defined with each type.<br><table align=center>"
@@ -396,7 +396,7 @@ static PyNumberMethods event_as_number = {
 	(binaryfunc)NULL,		/*divmod*/
 	(ternaryfunc)NULL,		/*power*/
 	(unaryfunc)NULL,		/*negative*/
-	(unaryfunc)NULL,		/*pos*/ 
+	(unaryfunc)NULL,		/*pos*/
 	(unaryfunc)NULL,		/*abs*/
 	(inquiry)event_nonzero,	/*nonzero*/
 	(unaryfunc)NULL,		/*invert*/
@@ -667,7 +667,7 @@ static PyObject* pygame_wait(PyObject* self, PyObject* args)
 static PyObject* poll(PyObject* self, PyObject* args)
 {
 	SDL_Event event;
-	
+
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -779,7 +779,7 @@ static PyObject* event_get(PyObject* self, PyObject* args)
 		else
 			return RAISE(PyExc_TypeError, "get type must be numeric or a sequence");
 	}
-	
+
 	list = PyList_New(0);
 	if(!list)
 		return NULL;
@@ -852,7 +852,7 @@ static PyObject* event_peek(PyObject* self, PyObject* args)
 		else
 			return RAISE(PyExc_TypeError, "peek type must be numeric or a sequence");
 	}
-	
+
 	SDL_PumpEvents();
 	result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, mask);
 
