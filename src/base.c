@@ -44,13 +44,6 @@ QDGlobals qd;
 #endif
 #endif
 
-#if defined(darwin)
-extern void StartTheApplication(void);
-extern void WeAreDoneFreeSomeMemory(void);
-#endif
-
-
-
 static PyObject* quitfunctions = NULL;
 static PyObject* PyExc_SDLError;
 static void install_parachute(void);
@@ -240,9 +233,6 @@ static void atexit_quit(void)
 	}
 	Py_DECREF(privatefuncs);
 	SDL_Quit();
-#if defined(darwin)
-	WeAreDoneFreeSomeMemory();
-#endif
 }
 
 
@@ -739,9 +729,6 @@ void initbase(void)
 #if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
 	SDL_InitQuickDraw(&qd);
 #endif
-#endif
-#if defined(darwin)
-	StartTheApplication();
 #endif
 }
 

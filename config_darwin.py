@@ -4,16 +4,6 @@ import os, sys, string
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
-configcommand = os.environ.get('SDL_CONFIG')
-if not configcommand:
-    hardcoded = '/usr/local/bin/sdl-config'
-    if os.path.isfile(hardcoded):
-       configcommand = hardcoded
-    else:
-    	configcommand = 'sdl-config'
-configcommand = configcommand + ' --version --cflags --libs'
-
-
 class Dependency:
     libext = '.dylib'
     def __init__(self, name, checkhead, checklib, lib):
@@ -53,7 +43,7 @@ class FrameworkDependency(Dependency):
           print 'Framework '+self.lib+' found'
           self.found = 1
           self.inc_dir = n+self.lib+'.framework/Versions/Current/Headers'
-          self.cflags = '-Ddarwin -Xlinker "-F'+n+self.lib+'.framework" -Xlinker "-framework" -Xlinker "'+self.lib+'"'
+          self.cflags = '-Xlinker "-framework" -Xlinker "'+self.lib+'"'
           self.origlib = self.lib
           self.lib = ''
           return
@@ -90,18 +80,12 @@ class DependencyPython:
         else:
             print self.name + '        '[len(self.name):] + ': not found'
 
-
-
-sdl_lib_name = 'SDL'
-if sys.platform.find('bsd') != -1:
-    sdl_lib_name = 'SDL-1.2'
-
 DEPS = [
-    FrameworkDependency('SDL', 'SDL.h', 'lib'+sdl_lib_name, 'SDL'),
+    FrameworkDependency('SDL', 'SDL.h', 'libSDL', 'SDL'),
     FrameworkDependency('FONT', 'SDL_ttf.h', 'libSDL_ttf', 'SDL_ttf'),
     FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image'),
     FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer'),
-    Dependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
+    FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
     DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h')
 ]
 
@@ -110,54 +94,13 @@ from distutils.util import split_quoted
 def main():
     global DEPS
     
-    print 'calling "sdl-config"'
-    configinfo = "-I/usr/local/include -framework SDL" # This line is in case sdl-config not found but SDL installed (not likely)
-    try:
-        configinfo = os.popen(configcommand).readlines()
-        print 'Found SDL version:', configinfo[0]
-        configinfo = ' '.join(configinfo[1:])
-        configinfo = configinfo.split()
-        configinfo.append("-framework SDL")
-        for w in configinfo[:]:
-            if ',' in w: configinfo.remove(w)
-        configinfo = ' '.join(configinfo)
-        #print 'Flags:', configinfo
-    except:
-        raise SystemExit, """Cannot locate command, "sdl-config". Default SDL compile
-flags have been used, which will likely require a little editing."""
-
     print 'Hunting dependencies...'
-    incdirs = ['/usr/local/include/smpeg']
+    incdirs = []
     libdirs = []
-    extralib = []
     newconfig = []
-    eat_next = None
-    for arg in split_quoted(configinfo):
-      if eat_next:
-        eat_next.append(arg)  
-        eat_next=None
-        continue
-      if arg[:2] == '-I':
-        incdirs.append(arg[2:])
-        newconfig.append(arg)
-      elif arg[:2] == '-L':
-        libdirs.append(arg[2:])
-        newconfig.append(arg)
-      elif arg[:2] == '-F':
-        extralib.append(arg)
-      elif arg == '-framework':
-        extralib.append(arg)
-        eat_next = extralib
     for d in DEPS:
       d.configure(incdirs, libdirs)
-
-    newconfig.extend(map(lambda x:'-Xlinker "%s"'%x,extralib))
-    if sys.platform.find('darwin') != -1:
-      newconfig.append('-Ddarwin')
-    configinfo = ' '.join(newconfig)
-    DEPS[0].inc_dirs = []
-    DEPS[0].lib_dirs = []
-    DEPS[0].cflags = configinfo
+    DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
     return DEPS
 
     

@@ -83,10 +83,6 @@ def writesetupfile(deps, basepath):
     while line.find('#--EndConfig') == -1:
         line = origsetup.readline()
 
-    if string.find(sys.platform, 'darwin') != -1:
-        newsetup.write('EXTRABASE = src/SDLmain.m\n')
-    else:
-        newsetup.write('EXTRABASE = \n')
     if basepath:
         newsetup.write('BASE = ' + basepath + '\n')
     for d in deps:
@@ -101,7 +97,7 @@ def writesetupfile(deps, basepath):
                     useit = 0
                     newsetup.write('#'+line)
                     break
-        if useit:          
+        if useit:
             newsetup.write(line)
 
 

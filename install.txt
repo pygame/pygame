@@ -67,24 +67,19 @@
 
    Macintosh Binaries
 
-     There are separate binaries for both MacOS and OSX. For both these
-     operating systems, there are several remaining problems with the
-     Python and SDL dependencies. Therefore the binary packages for
-     pygame also come with fixed versions of python and the SDL
-     libraries.
-
      For MacOS 9.x, binaries are available on the pygame downloads page.
      http://www.pygame.org/download.shtml. Unfortunately the binaries
      are stuck at pygame version-1.1. This also only works with an old
      copy of MacPython 2.1.
 
-     For OSX, we are creeping along towards binary compatability.
-     Previously there was a hefty "kitchen sink" package which included
-     a heavily patched version of python and dependencies, also many
-     extra libraries like pyopengl. Nowadays those patches have made
-     their way into the real dependencies, so the need for the "kitchen
-     sink" should no longer be necessary. Once Python 2.3 is released we
-     should be able to make a simple binary package for OSX.
+     For OS X 10.2 (and later), binaries are available from 
+     Bob Ippolito's Package Manager repository.  Note that versions of
+     Python prior to 2.3, versions of OS X prior to 10.2, and Fink's
+     version of Python are not supported.  The package and instructions
+     are at http://undefined.org/python/pimp/ and will automatically
+     install dependencies.  Instructions for making application bundles
+     for OS X that use pygame are forthcoming, but read up on 
+     bundlebuilder in the meantime.
      _________________________________________________________________
 
    Installing From Source
@@ -168,11 +163,8 @@
      SDL libs installed in /usr/local. The command for this situation is
      "LOCALBASE=/usr/local python setup.py install".
 
-   OSX Compiling Info
+   OS X Compiling Info
 
-     OSX Support is coming along slowly. With the release of Python 2.3
-     coming, things should actually be much smoother. Soon after that
-     there should be a pygame 1.6 release, with out-of-the-box support
-     for OSX. Currently it works fairly well, follow along the regular
-     UNIX compile instructions, and report your results, we need more
-     feedback.
+     Make sure to have Numeric, PyObjC, PIL, and the SDL development 
+     frameworks installed.  Compilation is only supported for Python 2.3 
+     under OS X 10.2 and later.

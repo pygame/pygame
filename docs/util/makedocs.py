@@ -24,7 +24,7 @@ MODULETOC = ""
 mainindex_desc = """
 <tr><td>
 The <b>pygame documentation</b> is mainly generated automatically from the
-documentation. Each module and object in the package is broken into its
+source code. Each module and object in the package is broken into its
 own page in the reference documentation. The names of the objects are
 capitalized, while the regular module names are lower case.
 <br>&nbsp;<br>
