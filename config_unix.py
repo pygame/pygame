@@ -27,6 +27,8 @@ def main():
         print 'Found SDL version:', configinfo[0]
         configinfo = ' '.join(configinfo[1:])
         configinfo = configinfo.split()
+        for w in configinfo[:]:
+            if ',' in w: configinfo.remove(w)
         configinfo = ' '.join(configinfo)
         print 'Flags:', configinfo
     except:
