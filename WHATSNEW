@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+pygame-14
+January 29, 2002
+	everything bumped for the 1.4 release
+
 January 28, 2002
 	update SDL_rotozoom to 2.0.3
 
