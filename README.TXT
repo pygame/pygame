@@ -4,7 +4,7 @@ April 4th, 2001
 Python Game Development
 by Pete Shinners
 
-http://pygame.seul.org
+http://www.pygame.org
 pete@shinners.org
 
 
@@ -83,7 +83,7 @@ kept this project going, and basically made my life easer; thanks!
 
 LINKS
 
-Pygame Website : http://pygame.seul.org
+Pygame Website : http://www.pygame.org
 Python Website : http://www.python.org
 SDL Website    : http://www.libsdl.org
 
