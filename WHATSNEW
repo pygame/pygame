@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+November 12, 2002
+	AdvanceMAME Scale2X scaling now in transform.scale2x()
+
 October 22, 2002
     	mixer can queue sounds and music
 	channels can send finished event for sounds

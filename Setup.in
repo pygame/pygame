@@ -50,7 +50,7 @@ time src/time.c $(SDL)
 joystick src/joystick.c $(SDL)
 draw src/draw.c $(SDL)
 image src/image.c $(SDL)
-transform src/transform.c src/rotozoom.c $(SDL)
+transform src/transform.c src/rotozoom.c src/scale2x.c $(SDL)
 #macosx src/macosx.c src/setproctitle.c -Isrc
 
 
