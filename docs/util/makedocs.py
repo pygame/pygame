@@ -179,7 +179,7 @@ def parsedocs(docs):
 
 
 def getdocinfo(file, prefix=''):
-    path = os.path.join(prefix, file[3:])
+    path = '/'.join((prefix, file[3:]))
     prettyname = (os.path.splitext(os.path.split(file)[-1])[0])
     prettyname = prettyname[0].capitalize() + prettyname[1:]
     if file.find('html') >= 0:
