@@ -47,8 +47,17 @@ def initsysfonts_win32():
     mods = 'demibold', 'narrow', 'light', 'unicode', 'bt', 'mt'
     fontdir = os.path.join(os.environ['WINDIR'], "Fonts")
 
-    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts")
+    #find the right place in registry
+    try:
+        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                    r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts")
+    except WindowsError:
+        try:
+            key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                        r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts")
+        except WindowsError:
+            return fonts
+
     fontdict = {}
     for i in range(_winreg.QueryInfoKey(key)[1]):
         try: name, font, t = _winreg.EnumValue(key,i)

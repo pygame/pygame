@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 21, 2003
+	Fix sysfont registry bug on winNT arch
+
 September 18, 2003
 	Fix color problem when saving opengl screenshot
 
