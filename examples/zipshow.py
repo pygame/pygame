@@ -8,6 +8,10 @@ try to find one in the current directory.
 Also note, if your SDL_image doesn't support
 .JPG, you won't see all the images available"""
 
+#note, if not using SDL_image-1.1.0 or greater,
+#you will likely crash when loading a non-image
+#(don't blame me, it's a bug in older SDL_image)
+
 
 import zipfile, sys, glob, os
 import pygame, pygame.image
@@ -31,12 +35,12 @@ def zipslideshow(zipfilename):
     
     zip = zipfile.ZipFile(zipfilename)
     for file in zip.namelist():
-        #curse you SDL_image for this crude hack!
-        if(os.path.splitext(file)[1] == '.txt'): continue
         #get data from zipfile
         data = zip.read(file)
+        #create stringio for data (a file-like object)
+        data_io = StringIO(data)
         #load from a stringio object
-        try: surf = pygame.image.load(StringIO(data), file)
+        try: surf = pygame.image.load(data_io, file)
         except: continue
         #get image on the screen
         showimage(surf, file)
