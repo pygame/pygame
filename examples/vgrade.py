@@ -71,7 +71,7 @@ def DisplayGradient(surf):
 def main():
     pygame.init()
     size = 640, 480
-    screen = pygame.display.set_mode(size, 0, 24)
+    screen = pygame.display.set_mode(size)
 
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
     pygame.time.set_timer(500, USEREVENT)

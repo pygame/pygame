@@ -21,7 +21,7 @@
 */
 
 /*
- *  mixer module for PyGAME
+ *  music module for PyGAME
  */
 #define PYGAMEAPI_MUSIC_INTERNAL
 #include "pygame.h"
@@ -30,7 +30,17 @@
 
 
 static Mix_Music* current_music = NULL;
+static int endmusic_event = SDL_NOEVENT;
 
+
+static void endmusic_callback()
+{
+	if(endmusic_event && SDL_WasInit(SDL_INIT_VIDEO))
+	{
+		SDL_Event e = {endmusic_event};
+		SDL_PushEvent(&e);
+	}
+}
 
 
 static void autoquit()
@@ -49,7 +59,10 @@ static void autoquit()
 
 static PyObject* autoinit(PyObject* self, PyObject* arg)
 {
-	return PyMixer_AutoInit(self, arg);
+	PyObject* ret = PyMixer_AutoInit(self, arg);
+	if(PyObject_IsTrue(ret))
+		Mix_HookMusicFinished(endmusic_callback);
+	return ret;
 }
 
 
@@ -309,6 +322,47 @@ static PyObject* get_volume(PyObject* self, PyObject* args)
 
 
 
+    /*DOC*/ static char doc_set_endevent[] =
+    /*DOC*/    "pygame.music.set_endevent([eventid]) -> None\n"
+    /*DOC*/    "sets music finished event\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When the music has finished playing, you can optionally have\n"
+    /*DOC*/    "pygame place a user defined message on the event queue. If the\n"
+    /*DOC*/    "eventid field is omittied or NOEVENT, no messages will be sent\n"
+    /*DOC*/    "when the music finishes playing. Once the endevent is set, it\n"
+    /*DOC*/    "will be called every time the music finished playing.\n"
+    /*DOC*/ ;
+
+static PyObject* set_endevent(PyObject* self, PyObject* args)
+{
+	int eventid = SDL_NOEVENT;
+
+	if(!PyArg_ParseTuple(args, "i", &eventid))
+		return NULL;
+	endmusic_event = eventid;
+	RETURN_NONE;
+}
+
+
+
+    /*DOC*/ static char doc_get_endevent[] =
+    /*DOC*/    "pygame.music.get_endevent([eventid]) -> int\n"
+    /*DOC*/    "query the current music finished event\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When the music has finished playing, you can optionally have\n"
+    /*DOC*/    "pygame place a user defined message on the event queue. If there\n"
+    /*DOC*/    "is no callback event set, NOEVENT will be returned. Otherwise it\n"
+    /*DOC*/    "will return the id of the current music finishe event.\n"
+    /*DOC*/ ;
+
+static PyObject* get_endevent(PyObject* self, PyObject* args)
+{
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+	return PyInt_FromLong(endmusic_event);
+}
+
+
 
     /*DOC*/ static char doc_load[] =
     /*DOC*/    "pygame.music.load(filename) -> None\n"
@@ -354,7 +408,8 @@ static PyMethodDef music_builtins[] =
 	{ "quit", quit, 1, doc_quit },
 	{ "get_init", get_init, 1, doc_get_init },
 
-/*	{ "music_endevent", music_endevent, 1, doc_music_endevent },*/
+	{ "set_endevent", set_endevent, 1, doc_set_endevent },
+	{ "get_endevent", get_endevent, 1, doc_get_endevent },
 
 	{ "play", play, 1, doc_play },
 	{ "get_busy", get_busy, 1, doc_get_busy },

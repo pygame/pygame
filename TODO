@@ -1,17 +1,27 @@
 
-TODO list for the 1.0 release:
+Pygame is currently aiming for a 1.0 release near the end of the year.
+This doesn't mean pygame is in a useless state, it is in fact getting
+quite robust.
 
- * Joystick and CDROM modules need to be cleaned up
- * Support for OpenGL
- * Support for Piddle
- * More testing and general usage cleanup
- * Surfarray with alpha and colormap support
-
-The plan is to ramp up to a 1.0 release within a couple months. At
-that point the only real plan will be keeping in stride with SDL
-and other dependency version releases.
+At this point the biggest needs are to get the functionality for
+all of SDL and the other libraries fully covered. We're almost there,
+but still need to get the more esoteric functions all wrapped up.
+The functions you'll need for 95% of your projects is already done.
 
 Until that point, consider the current interface to be a bit flexible.
 Things could change that will break code relying on older versions. Any
 changes will be easy to make. There will be warning of coming changes,
 but just know that it will likely happen.
+
+Here are some main things i'd like to have done (or at least well
+looked at) by the time 1.0 rolls around. Most of these are ideas
+for covering other libraries and routiens SDL does not offer.
+
+ * Joystick and CDROM modules cleaned up
+ * Support for OpenGL (need to experiment with pyopengl)
+ * Support for Piddle (drawing lines, shapes, text)
+ * Surfarray with alpha and colormap support
+ * Interface with PIL images
+ * GUI library. There's a few out there, this is a biggie
+ * Simple image transforms; flip, rotate-90, double
+
