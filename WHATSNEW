@@ -5,10 +5,11 @@
 # BUG   = fixed a bug that was crashing
 
 Apr 18, 2001
-	added opengl support
+	added opengl support (with example)
 	fixed display.get_init()
 	current music is free'd when mixer is quit
 	better thread sharing in various video calls
+	fixed GCC compiler error in constants.c
 
 Apr 10, 2001
 	mixer now uses the requested sample format/size
