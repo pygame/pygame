@@ -324,7 +324,9 @@ pygame.sprite.RenderClear.clear(surface, bgd)
 </tt></font><ul>
            Clears the area of all drawn sprites. the bgd
            argument should be Surface which is the same
-           dimensions as the surface.
+           dimensions as the surface. The bgd can also be
+	   a function which gets called with the passed
+	   surface and the area to be cleared.
 </ul><br>&nbsp;<br>
 
 <a name=RenderClear.draw><font size=+2><b>RenderClear.draw

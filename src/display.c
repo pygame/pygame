@@ -702,7 +702,6 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	high = screen->h;
 	if(screen->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot update an OPENGL display");
-
         
 	/*determine type of argument we got*/
 	if(PyTuple_Size(arg) == 0)
@@ -780,7 +779,8 @@ static PyObject* update(PyObject* self, PyObject* arg)
                         ++count;
                 }
         
-                SDL_UpdateRects(screen, count, rects);
+                if(count)
+                    SDL_UpdateRects(screen, count, rects);
                 PyMem_Free((char*)rects);
 	}
 	RETURN_NONE

@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 4, 2002
+        sprite.RenderClear can accept a function as bgd
+
 February 19, 2002
 	event.peek() returns next event [BREAK?]
 	Event objects have 'truth' operator
