@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 7, 2002
+	added the sndarray module
+	added surfarray.make_surface()
+
 April 25, 2002
 	added gl_set_attribute(), gl_get_attribute()
 

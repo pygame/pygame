@@ -1099,6 +1099,74 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 }
 
 
+    /*DOC*/ static char doc_make_surface[] =
+    /*DOC*/    "pygame.surfarray.make_surface(array) -> Surface\n"
+    /*DOC*/    "create a new Surface from array data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Create a new software surface that closely resembles\n"
+    /*DOC*/    "the data and format of the image array data.\n"
+    /*DOC*/ ;
+
+PyObject* make_surface(PyObject* self, PyObject* arg)
+{
+	PyObject *arrayobj, *surfobj, *args;
+	SDL_Surface* surf;
+	SDL_PixelFormat *format;
+	PyArrayObject* array;
+	int sizex, sizey, bitsperpixel;
+        Uint32 rmask, gmask, bmask;
+
+	if(!PyArg_ParseTuple(arg, "O!", &PyArray_Type, &arrayobj))
+		return NULL;
+        array = (PyArrayObject*)arrayobj;
+        
+	if(!(array->nd == 2 || (array->nd == 3 && array->dimensions[2] == 3)))
+		return RAISE(PyExc_ValueError, "must be a valid 2d or 3d array\n");
+        if(array->descr->type_num > PyArray_LONG)
+                return RAISE(PyExc_ValueError, "Invalid array datatype for surface");
+        
+        if(array->nd == 2)
+        {
+            bitsperpixel = 8;
+            rmask = gmask = bmask = 0;
+        }
+        else
+        {
+            bitsperpixel = 32;
+            rmask = 0xFF<<16; gmask = 0xFF<<8; bmask = 0xFF;
+        }
+        sizex = array->dimensions[0];
+        sizey = array->dimensions[1];
+
+        surf = SDL_CreateRGBSurface(0, sizex, sizey, bitsperpixel, rmask, gmask, bmask, 0);
+        if(!surf)
+                return RAISE(PyExc_SDLError, SDL_GetError());
+        surfobj = PySurface_New(surf);
+        if(!surfobj)
+        {
+            SDL_FreeSurface(surf);
+            return NULL;
+        }
+        
+        args = Py_BuildValue("(OO)", surfobj, array);
+        if(!args)
+        {
+            Py_DECREF(surfobj);
+            return NULL;
+        }
+        blit_array(NULL, args);
+        Py_DECREF(args);
+        
+        if(PyErr_Occurred())
+        {
+            Py_DECREF(surfobj);
+            return NULL;
+        }
+        return surfobj;
+}
+
+    
+
 static PyMethodDef surfarray_builtins[] =
 {
 	{ "pixels2d", pixels2d, 1, doc_pixels2d },
@@ -1112,6 +1180,7 @@ static PyMethodDef surfarray_builtins[] =
 /*	{ "unmap_array", unmap_array, 1, doc_unmap_array },*/
 	{ "blit_array", blit_array, 1, doc_blit_array },
 /*	{ "clamp_array", clamp_array, 1, doc_clamp_array }, not quick enough to be worthwhile :[ */
+        { "make_surface", make_surface, 1, doc_make_surface },
 
 	{ NULL, NULL }
 };

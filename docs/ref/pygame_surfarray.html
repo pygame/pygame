@@ -77,6 +77,10 @@ get an array with a surface colorkey values</td></tr>
 quickly transfer an array to a Surface</td></tr>
 
 
+<tr><td><a href=#make_surface>make_surface</a></td><td> -
+create a new Surface from array data</td></tr>
+
+
 <tr><td><a href=#map_array>map_array</a></td><td> -
 map an array with RGB values into mapped colors</td></tr>
 
@@ -158,6 +162,14 @@ array type to any surface format in one step, no
 internal conversions.
 <br>&nbsp;<br>
 This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
+
+<a name=make_surface><font size=+2><b>make_surface
+</b></font><br><font size=+1><tt>
+pygame.surfarray.make_surface(array) -> Surface
+</tt></font><ul>
+Create a new software surface that closely resembles
+the data and format of the image array data.
 </ul><br>&nbsp;<br>
 
 <a name=map_array><font size=+2><b>map_array
