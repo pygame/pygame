@@ -949,12 +949,12 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 		{
 		    rect = GameRect_FromObject(args, &temp);
 		    if(!rect)
-			    return RAISE(PyExc_ValueError, "invalid rectstyle object");
+		        return RAISE(PyExc_ValueError, "invalid rectstyle object");
+		    sdlrect.x = rect->x;
+		    sdlrect.y = rect->y;
+		    sdlrect.h = rect->h;
+		    sdlrect.w = rect->w;
 		}
-                sdlrect.x = rect->x;
-                sdlrect.y = rect->y;
-                sdlrect.h = rect->h;
-                sdlrect.w = rect->w;
                 result = SDL_SetClipRect(surf, &sdlrect);
 	}
         else

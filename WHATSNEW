@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 28, 2004
+    Surface.set_clip(None) crashed [BUG]
+
 June 27, 2004
     Fix several negative or zero size problems [BUG]
     draw.arc outside image crashed [BUG]
