@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+April 16, 2002
+        mixer keeps a reference to playing Sound objects
+        channel.set_volume() can take 2 volumes for panning
+        music.play() can take a starting position for the song
+
 April 14, 2002
 	bug when re-initializing pygame.display [BUG]
 

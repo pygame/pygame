@@ -44,14 +44,28 @@ static int request_size = MIX_DEFAULT_FORMAT;
 static int request_stereo = MIX_DEFAULT_CHANNELS;
 static int request_chunksize = MIX_DEFAULT_CHUNKSIZE;
 
+static PyObject **channelsounds = NULL;
+static int numchannelsounds = 0;
+
 Mix_Music** current_music;
 
 
 static void autoquit(void)
 {
+        int i;
 	if(SDL_WasInit(SDL_INIT_AUDIO))
 	{
 		Mix_HaltMusic();
+
+                if(channelsounds)
+                {
+/*printf("FREE CHANNELSOUNDS, %p\n", channelsounds);*/
+                    for(i=0; i<numchannelsounds; ++i)
+                        Py_XDECREF(channelsounds[i]);
+                    free(channelsounds);
+                    channelsounds = NULL;
+                    numchannelsounds = 0;
+                }
 
 		if(current_music)
 		{
@@ -92,6 +106,15 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
 	{
 		PyGame_RegisterQuit(autoquit);
+                
+                if(!channelsounds) /*should always be null*/
+                {
+                    channelsounds = (PyObject**)malloc(sizeof(PyObject*)*8);
+                    numchannelsounds = 8;
+                    for(i=0; i < numchannelsounds; ++i)
+                        channelsounds[i] = NULL;
+/*printf("ALLOC CHANNELSOUNDS, %p\n", channelsounds);*/
+                }
 
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
 			return PyInt_FromLong(0);
@@ -101,6 +124,9 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 			return PyInt_FromLong(0);
 		}
+#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=4
+                /*Mix_ChannelFinished(some_callback);*/
+#endif
 	}
 	return PyInt_FromLong(1);
 }
@@ -249,6 +275,10 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 	if(channelnum == -1)
 		RETURN_NONE
 
+        Py_XDECREF(channelsounds[channelnum]);
+        channelsounds[channelnum] = self;
+        Py_INCREF(self);
+                    
 	//make sure volume on this arbitrary channel is set to full
 	Mix_Volume(channelnum, 128);
 
@@ -370,6 +400,7 @@ static PyObject* snd_stop(PyObject* self, PyObject* args)
     /*DOC*/    "Set the play volume for this sound. This will effect any channels\n"
     /*DOC*/    "currently playing this sound, along with all subsequent calls to\n"
     /*DOC*/    "play. The value is 0.0 to 1.0.\n"
+
     /*DOC*/ ;
 
 static PyObject* snd_set_volume(PyObject* self, PyObject* args)
@@ -432,7 +463,8 @@ static PyMethodDef sound_builtins[] =
 
 static void sound_dealloc(PyObject* self)
 {
-	Mix_Chunk* chunk = PySound_AsChunk(self);
+    	Mix_Chunk* chunk = PySound_AsChunk(self);
+/*printf("DELETE SOUND\n");*/
 	Mix_FreeChunk(chunk);
 	PyObject_DEL(self);
 }
@@ -510,7 +542,12 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
 	channelnum = Mix_PlayChannelTimed(channelnum, chunk, loops, playtime);
 	if(channelnum != -1)
 		Mix_GroupChannel(channelnum, (int)chunk);
-	
+
+        Py_XDECREF(channelsounds[channelnum]);
+        channelsounds[channelnum] = sound;
+        Py_INCREF(sound);
+
+        	
 	RETURN_NONE
 }
 
@@ -622,24 +659,38 @@ static PyObject* chan_unpause(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_chan_set_volume[] =
-    /*DOC*/    "Channel.set_volume(val) -> None\n"
+    /*DOC*/    "Channel.set_volume(val, [stereoval]) -> None\n"
     /*DOC*/    "set volume for channel\n"
     /*DOC*/    "\n"
     /*DOC*/    "Sets the volume for the channel. The channel's volume level is\n"
     /*DOC*/    "mixed with the volume for the active sound object. The value is\n"
     /*DOC*/    "between 0.0 and 1.0.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "If mixer is using stereo, you can set the panning for audio\n"
+    /*DOC*/    "by supplying a volume for the left and right channels. If\n"
+    /*DOC*/    "SDL_mixer cannot set the panning, it will average the two\n"
+    /*DOC*/    "volumes. Panning requires SDL_mixer-1.2.1.\n"
     /*DOC*/ ;
 
 static PyObject* chan_set_volume(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	float volume;
+	float volume, stereovolume=-1.11f;
 
-	if(!PyArg_ParseTuple(args, "f", &volume))
+	if(!PyArg_ParseTuple(args, "f|f", &volume, &stereovolume))
 		return NULL;
 
 	MIXER_INIT_CHECK();
-
+#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=1
+        if(stereovolume != -1.11f)
+            Mix_SetPanning(channelnum, (Uint8)(volume*255), (Uint8)(stereovolume*255));
+        else
+            Mix_SetPanning(channelnum, (Uint8)255, (Uint8)255);
+        volume = 1.0f;
+#else
+        if(stereovolume != -1.11f)
+            volume = (volume + stereovolume) * 0.5f;
+#endif
 	Mix_Volume(channelnum, (int)(volume*128));
 	RETURN_NONE
 }
@@ -774,12 +825,20 @@ static PyObject* get_num_channels(PyObject* self, PyObject* args)
 
 static PyObject* set_num_channels(PyObject* self, PyObject* args)
 {
-	int numchans;
+	int numchans, i;
 	if(!PyArg_ParseTuple(args, "i", &numchans))
 		return NULL;
 
 	MIXER_INIT_CHECK();
 
+        if(numchans > numchannelsounds)
+        {
+            channelsounds = (PyObject**)realloc(channelsounds, sizeof(PyObject*)*numchans);
+            for(i = numchannelsounds; i < numchans; ++i)
+                channelsounds[i] = NULL;
+            numchannelsounds = numchans;
+        }
+        
 	Mix_AllocateChannels(numchans);
 	RETURN_NONE
 }
