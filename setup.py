@@ -72,7 +72,7 @@ for e in extensions[:]:
 
 
 setup (name = "pygame",
-       version = '0.4',
+       version = '0.5',
        maintainer = "Pete Shinners",
        maintainer_email = "pygame@seul.org",
        description = "Python Game Development module",

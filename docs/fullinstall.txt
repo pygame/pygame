@@ -1,5 +1,5 @@
 Build instructions for building and installing pygame
-Nov 20, 2000
+Jan 5, 2000
 -------------------------------------------------------------
 pygame is built and installed using the python distutils.
 
@@ -16,11 +16,13 @@ daughter libraries, like SDL_image and SDL_ttf.
 
 If installing under Windows without a compiler, or without
 needing any of the pygame dependencies. You can download
-the Windows Precompiled Binaries Release. Download and
-extract this zipfile into the same directory as pygame.
-Now you don't need to worry about any of the Setup files,
-just type "python setup.py install" and you will be set.
+the Windows Precompiled Binaries Release.
+
+Also, you can download just the pygame dependencies precompiled.
 http://pygame.seul.org/ftp/pygame-dependencies.zip
+Download from the URL and extract into your pygame folder.
+The config.py script will find these prebuilt binaries and ask
+if you would like to use them.
 
 
 You control the compilation of pygame with the "Setup"
@@ -54,8 +56,10 @@ flags to control where pygame will be installed.
 Assuming no errors stopped the install, you are good to go.
 Head to the examples directory and start trying things out.
 
-If you do have problems, first check the error. It is likely
-a problem with your Setup file. 
+If you do have problems compiling, first check the error. It
+is likely a problem with your Setup file. If you get errors
+while running the config script, you may have to finish editing
+the Setup file by hand. (which is well commented and pretty simple)
 
 
 Pete Shinners

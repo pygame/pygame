@@ -1,14 +1,14 @@
-Version: 0.4
-December 13, 2000
+Version: 0.5
+January 6th, 2000
 
 Quick installation instructions can be found in the file "install.txt"
-in this directory. Look in the docs directory for an "install.txt" with
-further details.
+in this directory. Look in the docs directory for "fullinstall.txt"
+with further details.
 
-With the 0.4 release things are looking really good. We've reached
+With the 0.5 release things are looking really good. We've reached
 the point where full python games are approachable with pygame.
 Thanks to all that have helped push things along this far. 
-(Especially coming through the bumpy road that was 0.2 through 0.3)
+We plan on moving up to version 1.0 within a couple months.
 
 
 pygame is a cross-platfrom library designed to make it easy to write

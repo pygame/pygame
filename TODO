@@ -1,27 +1,23 @@
+The core modules of pygame are becoming pretty solid. With this
+0.5 release things are quickly approaching the 1.0 mark. After
+this I'm planning to release pygame 0.9 when SDL reaches version
+1.2. (this should happen around end of January). Pygame 0.9 will
+be a release candidate quickly followed by the real 1.0 release.
 
-Pygame is currently aiming for a 1.0 release first quarter this year (2001).
-This doesn't mean pygame is in a useless state, it is in fact getting
-quite robust.
+At the point it will help to look at pygame as if it were a 1.0
+release and see where it falls short. There's not too much more
+functionality going in before we move along to 1.0. The cursors
+module will get a bit of attention though.
 
-At this point the biggest needs are to get the functionality for
-all of SDL and the other libraries fully covered. We're almost there,
-but still need to get the more esoteric functions all wrapped up.
-The functions you'll need for 95% of your projects are already done.
 
-Until that point, consider the current interface to be a bit flexible.
-Things could change that will break code relying on older versions. Any
-changes will be easy to make. There will be warning of coming changes,
-but just know that it will likely happen.
-(with the 0.4 release, the interface cement is stiff)
+At some point it would be nice to add support for more external
+python libraries, here are some ideas
 
-Here are some main things i'd like to have done (or at least well
-looked at) by the time 1.0 rolls around. Most of these are ideas
-for covering other libraries and routiens SDL does not offer.
-
- * Support for OpenGL (need to experiment with pyopengl)
+ * Support for OpenGL (initial testing not so good)
  * Support for Piddle (drawing lines, shapes, text)
  * Surfarray with alpha and colormap support
  * Interface with PIL images
- * GUI library. There's a few out there, this is a biggie
+ * GUI library. There's a few out there
  * Simple image transforms; flip, rotate-90, double
+ * MPEG video playback with smpeg
 
