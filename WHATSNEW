@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Aug 30, 2001
+	added VIDEOEXPOSE event
+
 Aug 29, 2001
 	changed initializations, to allow easier embedding
 
