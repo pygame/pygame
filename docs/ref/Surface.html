@@ -52,13 +52,13 @@ hardware memory, which can be hardware accelerated. Surfaces that
 are 8 bits per pixel use a colormap to represent their color
 values. All Surfaces with higher bits per pixel use a packed
 pixels to store their color values.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 Surfaces can have many extra attributes like alpha planes,
 colorkeys, source rectangle clipping. These functions mainly
 effect how the Surface is blitted to other Surfaces. The blit
 routines will attempt to use hardware acceleration when possible,
 otherwise will use highly optimized software blitting methods.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 There is support for pixel access for the Surfaces. Pixel access
 on hardware surfaces is slow and not recommended. Pixels can be
 accessed using the <a href=#get_at>get_at()</a> and <a href=#set_at>set_at()</a> functions. These methods
@@ -74,11 +74,11 @@ for multiple locking and unlocking of the surface. It is best to lock
 the surface manually before making the function call many times, and
 then unlocking when you are finished. All functions that need a locked
 surface will say so in their docs.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 Also remember that you will want to leave the surface locked for the
 shortest amount of time needed.
-&lt;br&gt;&nbsp;&lt;br&gt;
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
+<br>&nbsp;<br>
 Here is the quick breakdown of how packed pixels work (don't worry if
 you don't quite understand this, it is only here for informational
 purposes, it is not needed). Each colorplane mask can be used to
@@ -258,10 +258,10 @@ When sourcerect isn't supplied, the blit will copy the
 entire source surface. If you would like to copy only a portion
 of the source, use the sourcerect argument to control
 what area is copied.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The blit is subject to be clipped by the active clipping
 rectangle. The return value contains the actual area blitted.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 As a shortcut, the destination position can be passed as a
 rectangle. If a rectangle is given, the blit will use the topleft
 corner of the rectangle as the blit destination position. The
@@ -289,7 +289,7 @@ The new surface will be in a format suited for quick blitting to
 the given format with per pixel alpha. If no surface is given,
 the new surface will be optimized for blittint to the current
 display.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 Unlike the <a href=#convert>convert()</a> method, the pixel format for the new image
 will not be exactly the same as the requested source, but it will
 be optimized for fast alpha blitting to the destination.
@@ -302,9 +302,9 @@ Surface.fill(color, [rectstyle])) -> Rect
 Fills the specified area of the Surface with the mapped color
 value. If no destination rectangle is supplied, it will fill the
 entire Surface.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The color argument can be a RGBA sequence or a mapped color integer.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The fill is subject to be clipped by the active clipping
 rectangle. The return value contains the actual area filled.
 </ul><br>&nbsp;<br>
@@ -323,7 +323,7 @@ Surface.get_at([x, y]) -> RGBA
 </tt></font><ul>
 Returns the RGB color values at a given pixel. If the
 Surface has no per-pixel alpha, the alpha will be 255 (opaque).
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
@@ -439,7 +439,7 @@ and height the same size as the image.
 </b></font><br><font size=+1><tt>
 Surface.get_shifts() -> redshift, greenshift, blueshift,
 </tt></font><ul>
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 Returns the bitshifts used for each color plane. The shift is
 determine how many bits left-shifted a colorplane value is in a
 mapped color value.
@@ -469,13 +469,13 @@ always a good idea to lock the surface before entering a block of
 code that changes or accesses the pixel values. The surface must
 not be locked when performing other pyGame functions on it like
 fill and blit.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 You can doublecheck to really make sure a lock is needed by
 calling the <a href=#mustlock>mustlock()</a> member. This should not be needed, since
 it is usually recommended to lock anyways and work with all
 surface types. If the surface does not need to be locked, the
 operation will return quickly with minute overhead.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 On some platforms a necessary lock can shut off some parts of the
 system. This is not a problem unless you leave surfaces locked
 for long periouds of time. Only keep the surface locked when you
@@ -490,7 +490,7 @@ lazy.
 Surface.map_rgb(RGBA) -> int
 </tt></font><ul>
 Uses the Surface format to convert RGBA into a mapped color value.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 This function is not as needed as normal C code using SDL. The pygame
 functions do not used mapped colors, so there is no need to map them.
 </ul><br>&nbsp;<br>
@@ -520,11 +520,11 @@ Surface.set_alpha([alpha, [flags]]) -> None
 Set the overall transparency for the surface. If no alpha is
 passed, alpha blending is disabled for the surface. An alpha of 0
 is fully transparent, an alpha of 255 is fully opaque.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 If your surface has a pixel alpha channel, it will override the
 overall surface transparency. You'll need to change the actual
 pixel transparency to make changes.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 If your image also has pixel alpha values, will be used repeatedly, you
 will probably want to pass the RLEACCEL flag to the call. This
 will take a short time to compile your surface, and increase the
@@ -537,11 +537,11 @@ Surface.set_at([x, y], RGBA) -> None
 </tt></font><ul>
 Assigns color to the image at the give position. Color can be a
 RGBA sequence or a mapped color integer.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 In some situations just using the <a href=#fill>fill()</a> function with a one-pixel
 sized rectangle will be quicker. Also the fill function does not
 require the surface to be locked.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
@@ -564,9 +564,9 @@ Surface.set_colorkey([color, [flags]]) -> None
 Set the colorkey for the surface by passing a mapped color value
 as the color argument. If no arguments are passed, colorkeying
 will be disabled for this surface.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The color argument can be either a RGBA sequence or a mapped integer.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 If your image is nonchanging and will be used repeatedly, you
 will probably want to pass the RLEACCEL flag to the call. This
 will take a short time to compile your surface, and increase the
@@ -603,7 +603,7 @@ Surface.unlock() -> None
 </tt></font><ul>
 After a surface has been locked, you will need to unlock it when
 you are done.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 You can doublecheck to really make sure a lock is needed by
 calling the <a href=#mustlock>mustlock()</a> member. This should not be needed, since
 it is usually recommended to lock anyways and work with all
@@ -617,7 +617,7 @@ Surface.unmap_rgb(color) -> RGBA
 </tt></font><ul>
 This function returns the RGBA components for a mapped color
 value. If Surface has no per-pixel alpha, alpha will be 255 (opaque).
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 This function is not as needed as normal C code using SDL. The pygame
 functions do not used mapped colors, so there is no need to unmap them.
 </ul><br>&nbsp;<br>

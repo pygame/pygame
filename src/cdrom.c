@@ -518,7 +518,7 @@ static PyObject* cd_get_current(PyObject* self, PyObject* args)
     /*DOC*/    "get number of tracks on cd\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the number of available tracks on the CD. Note that not\n"
-    /*DOC*/    "all of these tracks contain audio data. Use CD.get_audio() to check\n"
+    /*DOC*/    "all of these tracks contain audio data. Use CD.get_track_audio() to check\n"
     /*DOC*/    "the track type before playing.\n"
     /*DOC*/ ;
 

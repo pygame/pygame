@@ -360,7 +360,7 @@ static PyMethodDef music_builtins[] =
     /*DOC*/    "\n"
     /*DOC*/    "The music module has many of the same types of functions as the\n"
     /*DOC*/    "Sound objects. The main difference is only one music object can\n"
-    /*DOC*/    "be loaded at a time, with the pygame.music.load() function. Music\n"
+    /*DOC*/    "be loaded at a time, with the load() function. Music\n"
     /*DOC*/    "must be stored in an individual file on the system, it cannot be\n"
     /*DOC*/    "loaded from special file-like objects through python.\n"
     /*DOC*/ ;

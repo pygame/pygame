@@ -50,7 +50,7 @@ Contains routines for dealing with the mouse. All mouse events
 are retrieved through the pygame.event module. The mouse module
 can be used to get the current state of the mouse. It can also be
 used to set the state of the system cursor.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 If you hide the mouse cursor with <a href=#set_visible>pygame.mouse.set_visible(0)</a> and
 lock the mouse focus to your game with <a href=pygame_event.html#set_grab>pygame.event.set_grab(1)</a>,
 the hidden mouse will be forced to the center of the screen. This
@@ -134,7 +134,7 @@ pygame.mouse.get_rel() -> x, y
 Returns the total distance the mouse has moved since your last
 call to <u>get_rel()</u>. On the first call to get_rel the movement will
 always be 0,0.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 When the mouse is at the edges of the screen, the relative
 movement will be stopped. See mouse_visible for a way to resolve
 this.
@@ -151,7 +151,7 @@ Hotspot is a sequence containing the cursor hotspot position.
 xormasks is a sequence of bytes containing the cursor xor data
 masks. Lastly is andmasks, a sequence of bytes containting the
 cursor bitmask data.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 Width must be a multiple of 8, and the mask arrays must be the
 correct size for the given width and height. Otherwise an exception.
 </ul><br>&nbsp;<br>
@@ -171,7 +171,7 @@ pygame.mouse.set_visible(bool) -> bool
 </tt></font><ul>
 Shows or hides the mouse cursor. This will return the previous
 visible state of the mouse cursor.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 Note that when the cursor is hidden and the application has
 grabbed the input. pygame will force the mouse to stay in the
 center of the screen. Since the mouse is hidden it won't matter

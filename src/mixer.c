@@ -406,7 +406,7 @@ static PyObject* sound_getattr(PyObject* self, char* attrname)
 
     /*DOC*/ static char doc_Sound_MODULE[] =
     /*DOC*/    "Sound objects represent actual sound data. Sound objects are\n"
-    /*DOC*/    "created from the function pygame.mixer.load(). Sound objects can\n"
+    /*DOC*/    "created from the function pygame.mixer.Sound(). Sound objects can\n"
     /*DOC*/    "be playing on multiple channels simultaneously. Calling functions\n"
     /*DOC*/    "like Sound.stop() from the sound objects will effect all channels\n"
     /*DOC*/    "playing that Sound object.\n"
@@ -1041,7 +1041,7 @@ static PyObject* PyChannel_New(int channelnum)
     /*DOC*/    "pygame.init() and not have to worry about the pygame module\n"
     /*DOC*/    "initialization order.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Sound objects are created from the pygame.mixer.load() function.\n"
+    /*DOC*/    "Sound objects are created from the pygame.mixer.Sound() function.\n"
     /*DOC*/    "Simple sound playback can simply use the Sound.play() method to\n"
     /*DOC*/    "play the sound. Each Sound object can be played multiple times\n"
     /*DOC*/    "simultaneously. If you desire more specific control over the\n"
@@ -1060,7 +1060,7 @@ static PyObject* PyChannel_New(int channelnum)
     /*DOC*/    "resources will result in a cleaner conversion.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The mixer also contains a special channel for music. You can\n"
-    /*DOC*/    "control the music channel through pygame.mixer.music./\n"
+    /*DOC*/    "control the music channel through pygame.mixer.music.\n"
     /*DOC*/ ;
 
 PYGAME_EXPORT

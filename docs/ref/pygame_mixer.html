@@ -54,31 +54,31 @@ several optional arguments. These arguments control the playback
 rates and datatypes for the sound playback. If you do need
 specific control over the playback rate, but don't want to bother
 with hand-initializing the modules, there is a function named
-pygame.mixer.pre_init() which takes the same arguments as <a href=pygame.html#init>init()</a>,
+<a href=#pre_init>pygame.mixer.pre_init()</a> which takes the same arguments as <a href=pygame.html#init>init()</a>,
 but only sets the new default values. You can call this before
-pygame.init() and not have to worry about the pygame module
+<a href=pygame.html#init>pygame.init()</a> and not have to worry about the pygame module
 initialization order.
-&lt;br&gt;&nbsp;&lt;br&gt;
-Sound objects are created from the pygame.mixer.load() function.
+<br>&nbsp;<br>
+Sound objects are created from the <a href=#Sound>pygame.mixer.Sound()</a> function.
 Simple sound playback can simply use the <a href=Sound.html#play>Sound.play()</a> method to
 play the sound. Each Sound object can be played multiple times
 simultaneously. If you desire more specific control over the
 Sound objects, you can access the Channel objects with functions
 like <a href=#Channel>pygame.mixer.Channel()</a>.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The mixer defaults to supporting 8 simultaneous soundfiles.
 You can change the number of available sound channels at any
 time with the <a href=#set_num_channels>set_num_channels()</a> function.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 All loaded Sound objects are resampled to match the same format
 that pygame.mixer is initialized to. The current SDL resampling
 functions are not that good, so it is best if you initialize
 pygame.mixer to the same format as your sound resources. Also
 setting the mixer frequency to even multiples of your sound
 resources will result in a cleaner conversion.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The mixer also contains a special channel for music. You can
-control the music channel through pygame.mixer.music./
+control the music channel through pygame.mixer.music.
 
 <hr>
 
@@ -215,12 +215,12 @@ Initializes the mixer module. Usually no arguments will be
 needed, the defaults are 22050 frequency data in stereo with
 signed 16bit data. The size argument can be 8 or 16 for unsigned
 data, or -8 or -16 for signed data.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 On many platforms it is important that the display module is
 initialized before the audio. (that is, if the display will be
 initialized at all). You can easily use the <a href=pygame.html#init>pygame.init()</a>
 function to cleanly initialize everything, but first use the
-pygame.mixer.pre_init() function to change the default values for
+<a href=#pre_init>pygame.mixer.pre_init()</a> function to change the default values for
 this <a href=pygame.html#init>init()</a>.
 </ul><br>&nbsp;<br>
 

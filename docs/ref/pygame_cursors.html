@@ -48,16 +48,16 @@
 <h2 align=center>pygame.cursors</h2>
 Set of cursor resources available for use. These cursors come
 in a sequence of values that are needed as the arguments for
-pygame.mouse.set_cursor(). to dereference the sequence in place
+<a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>. to dereference the sequence in place
 and create the cursor in one step, call like this;
-pygame.mouse.set_cursor(*pygame.cursors.arrow).
-&lt;br&gt;&nbsp;&lt;br&gt;
+<a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor(*pygame.cursors.arrow)</a>.
+<br>&nbsp;<br>
 Here is a list of available cursors; arrow, diamond, ball,
         broken_x, tri_left, tri_right
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 There is also a sample string cursor named 'thickarrow_strings'.
 The <a href=#compile>compile()</a> function can convert these string cursors into cursor byte data.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 
 <hr>
 
@@ -81,16 +81,16 @@ pygame.cursors.compile(strings, black, white) -> data, mask
 This takes a set of strings with equal length and computes
 the binary data for that cursor. The string widths must be
 divisible by 8.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The black and white arguments are single letter strings that
 tells which characters will represent black pixels, and which
 characters represent white pixels. All other characters are
 considered clear.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 This returns a tuple containing the cursor data and cursor mask
 data. Both these arguments are used when setting a cursor with
-pygame.mouse.set_cursor().
-&lt;br&gt;&nbsp;&lt;br&gt;
+<a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>.
+<br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
 <a name=load_xbm><font size=+2><b>load_xbm
@@ -100,7 +100,7 @@ pygame.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
 Arguments can either be filenames or filelike objects
 with the readlines method. Not largely tested, but
 should work with typical XBM files.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
 

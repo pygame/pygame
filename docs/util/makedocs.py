@@ -178,17 +178,26 @@ def lookupdoc(docs, name, category):
 def htmlize(doc, obj, func):
     for i in range(len(doc)):
         line = doc[i]
-        line = line.replace('<', '&lt;').replace('>', '&gt;')
+        line = line.replace('<<', '&lt;&lt;').replace('>>', '&gt;&gt;')
         pos = 0
         while 1:
             pos = line.find('(', pos+1)
             if pos == -1: break
             if line[pos-1].isspace(): continue
             start = line.rfind(' ', 0, pos)
-            if start == -1: continue
+            start2 = line.rfind('\n', 0, pos)
+            start = max(max(start, start2), 0)
             lookname = line[start+1:pos]
+            if lookname.startswith('ygame'):
+                lookname = 'p' + lookname
+                start -= 1
+            elif lookname[1:].startswith('pygame'):
+                lookname = lookname[1:]
+                start += 1
             match = lookupdoc(func, lookname, obj['category'])
-            if not match: continue
+            if not match:
+                print 'NOMATCH: "'+ obj['category'] +'" "' + lookname + '"'
+                continue
             end = line.find(')', pos)+1
             if match['fullname'] == obj['fullname']:
                 link = '<u>%s</u>' % line[start+1:end]
