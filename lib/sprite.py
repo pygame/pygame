@@ -537,7 +537,7 @@ def spritecollide(sprite, group, dokill):
        given a sprite and a group of sprites, this will
        return a list of all the sprites that intersect
        the given sprite.
-       all sprites must have a "rect" method, which is a
+       all sprites must have a "rect" value, which is a
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
        automatically removed from all groups."""
@@ -585,7 +585,7 @@ def spritecollideany(sprite, group):
        spritecollide function, this function will be a
        bit quicker.
        
-       all sprites must have a "rect" method, which is a
+       all sprites must have a "rect" value, which is a
        rectangle of the sprite area.""" 
     spritecollide = sprite.rect.colliderect
     for s in group.sprites():
