@@ -16,10 +16,8 @@ from pygame import Surface
 from pygame.surfarray import blit_array, make_surface, pixels3d, pixels2d
 import Numeric
 
-from objc import YES, NO
-from Foundation import NSString, NSNumber, NSMutableData
+from Foundation import *
 from AppKit import *
-#from AppKit import NSImage, NSBitmapImageRep, NSView, NSFontManager, NSFont, NSDeviceRGBColorSpace
 
 def _getColor(color=None):
     if color is None:
@@ -29,9 +27,9 @@ def _getColor(color=None):
         color = tuple(color) + (255.0,)
     return NSColor.colorWithDeviceRed_green_blue_alpha_(*map(div255, color))
 
-def _getBitmapImageRep(size, hasAlpha=YES):
+def _getBitmapImageRep(size, hasAlpha=True):
     width, height = map(int, size)
-    return NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(None, width, height, 8, 4, hasAlpha, NO, NSDeviceRGBColorSpace, width*4, 32)
+    return NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(None, width, height, 8, 4, hasAlpha, False, NSDeviceRGBColorSpace, width*4, 32)
 
 class SysFont(object):
     def __init__(self, name, size):
