@@ -33,6 +33,7 @@ static PyObject* self_module = NULL;
 
 staticforward PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
+static void do_set_icon(PyObject *surface);
 static PyObject* DisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 
@@ -1184,6 +1185,13 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
 	return Py_BuildValue("()");
 }
 
+static void do_set_icon(PyObject *surface)
+{
+	SDL_Surface* surf = PySurface_AsSurface(surface);
+	surf = PySurface_AsSurface(surface);
+	SDL_WM_SetIcon(surf, NULL);
+	icon_was_set = 1;
+}
 
     /*DOC*/ static char doc_set_icon[] =
     /*DOC*/    "pygame.display.set_icon(Surface) -> None\n"
@@ -1200,14 +1208,6 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
     /*DOC*/    "Some window managers on X11 don't allow you to change the \n"
     /*DOC*/    "icon after the window has been shown the first time.\n"
     /*DOC*/ ;
-
-static void do_set_icon(PyObject *surface)
-{
-	SDL_Surface* surf = PySurface_AsSurface(surface);
-	surf = PySurface_AsSurface(surface);
-	SDL_WM_SetIcon(surf, NULL);
-	icon_was_set = 1;
-}
 
 static PyObject* set_icon(PyObject* self, PyObject* arg)
 {
