@@ -258,7 +258,7 @@ static PyObject* aalines(PyObject* self, PyObject* arg)
 		&points, &blend))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
-	
+
 	if(surf->format->BytesPerPixel !=3 && surf->format->BytesPerPixel != 4)
 		return RAISE(PyExc_ValueError, "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
@@ -464,7 +464,7 @@ static PyObject* arc(PyObject* self, PyObject* arg)
 	double angle_start, angle_stop;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!OOdd|i", &PySurface_Type, &surfobj, &colorobj, &rectobj, 
+	if(!PyArg_ParseTuple(arg, "O!OOdd|i", &PySurface_Type, &surfobj, &colorobj, &rectobj,
 			                      &angle_start, &angle_stop, &width))
 		return NULL;
 	rect = GameRect_FromObject(rectobj, &temp);
@@ -676,7 +676,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "O!OO|i", &PySurface_Type, &surfobj, &colorobj, &points, &width))
 		return NULL;
 
-	
+
 	if(width)
 	{
 		PyObject *args, *ret;
@@ -943,28 +943,28 @@ static int clipaaline(float* pts, int left, int top, int right, int bottom)
 				swaptmp = y2; y2 = y1; y1 = swaptmp;
 				intswaptmp = code2; code2 = code1; code1 = intswaptmp;
 			}
-			if(x2 != x1)	  
+			if(x2 != x1)
 				m = (y2 - y1) / (x2 - x1);
 			else
 				m = 1.0f;
 			if(code1 & LEFT_EDGE) {
 				y1 += ((float)left - x1) * m;
-				x1 = (float)left; 
-			} 
+				x1 = (float)left;
+			}
 			else if(code1 & RIGHT_EDGE) {
 				y1 += ((float)right - x1) * m;
-				x1 = (float)right; 
-			} 
+				x1 = (float)right;
+			}
 			else if(code1 & BOTTOM_EDGE) {
 				if(x2 != x1)
 					x1 += ((float)bottom - y1) / m;
 				y1 = (float)bottom;
-			} 
+			}
 			else if(code1 & TOP_EDGE) {
 				if(x2 != x1)
 					x1 += ((float)top - y1) / m;
 				y1 = (float)top;
-			} 
+			}
 		}
 	}
 	if(draw) {
@@ -1001,28 +1001,28 @@ static int clipline(int* pts, int left, int top, int right, int bottom)
 				swaptmp = y2; y2 = y1; y1 = swaptmp;
 				swaptmp = code2; code2 = code1; code1 = swaptmp;
 			}
-			if(x2 != x1)	  
+			if(x2 != x1)
 				m = (y2 - y1) / (float)(x2 - x1);
 			else
 				m = 1.0f;
 			if(code1 & LEFT_EDGE) {
 				y1 += (int)((left - x1) * m);
-				x1 = left; 
-			} 
+				x1 = left;
+			}
 			else if(code1 & RIGHT_EDGE) {
 				y1 += (int)((right - x1) * m);
-				x1 = right; 
-			} 
+				x1 = right;
+			}
 			else if(code1 & BOTTOM_EDGE) {
 				if(x2 != x1)
 					x1 += (int)((bottom - y1) / m);
 				y1 = bottom;
-			} 
+			}
 			else if(code1 & TOP_EDGE) {
 				if(x2 != x1)
 					x1 += (int)((top - y1) / m);
 				y1 = top;
-			} 
+			}
 		}
 	}
 	if(draw) {
@@ -1131,7 +1131,7 @@ static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, floa
 		brightness2 =    FRAC(yend) * xgap;
 		pixel = pm + pixx * ix2 + pixy * iy2;
 		DRAWPIX32(pixel, colorptr, brightness1, blend)
-		pixel += pixy; 
+		pixel += pixy;
 		DRAWPIX32(pixel, colorptr, brightness2, blend)
 		for(x=ix1+1; x<ix2; ++x) {
 			brightness1=INVFRAC(yf);
@@ -1163,7 +1163,7 @@ static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, floa
 		DRAWPIX32(pixel, colorptr, brightness1, blend)
 		pixel += pixx;
 		DRAWPIX32(pixel, colorptr, brightness2, blend)
-		yend = trunc(y2)+0.5; 
+		yend = trunc(y2)+0.5;
 		xend = x2+grad*(yend-y2);
 		ygap = FRAC(y2);
 		iy2 = (int)yend;
@@ -1172,7 +1172,7 @@ static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, floa
 		brightness2 =    FRAC(xend) * ygap;
 		pixel = pm + pixx * ix2 + pixy * iy2;
 		DRAWPIX32(pixel, colorptr, brightness1, blend)
-		pixel += pixx; 
+		pixel += pixx;
 		DRAWPIX32(pixel, colorptr, brightness2, blend)
 		for(y=iy1+1; y<iy2; ++y) {
 			brightness1=INVFRAC(xf);
@@ -1422,7 +1422,7 @@ static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 
 	int xmi, xpi, ymj, ypj;
 	int xmj, xpj, ymi, ypi;
 	int xmk, xpk, ymh, yph;
-	
+
 	if (rx==0 && ry==0) {  /* Special case - draw a single pixel */
 		set_at( dst, x, y, color);
 		return;
@@ -1546,20 +1546,20 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 
 	/* Init vars */
 	oh = oi = oj = ok = 0xFFFF;
-	
+
 	/* Draw */
 	if (rx >= ry) {
 		ix = 0;
 		iy = rx * 64;
-		
+
 		do {
-			h = (ix + 4/*32*/) >> 6;
-			i = (iy + 4/*32*/) >> 6;
+			h = (ix + 8) >> 6;
+			i = (iy + 8) >> 6;
 			j = (h * ry) / rx;
 			k = (i * ry) / rx;
-			if ((ok!=k) && (oj!=k)) {
-				drawhorzlineclip(dst, color, x-h, y+k, x+h-1);
+			if ((ok!=k) && (oj!=k) && (k<ry)) {
 				drawhorzlineclip(dst, color, x-h, y-k-1, x+h-1);
+				drawhorzlineclip(dst, color, x-h, y+k, x+h-1);
 				ok=k;
 			}
 			if ((oj!=j) && (ok!=j) && (k!=j))  {
@@ -1569,19 +1569,19 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 			}
 			ix = ix + iy / rx;
 			iy = iy - ix / rx;
-			
+
 		} while (i > h);
 	} else {
 		ix = 0;
 		iy = ry * 64;
-		
+
 		do {
-			h = (ix + 32) >> 6;
-			i = (iy + 32) >> 6;
+			h = (ix + 8) >> 6;
+			i = (iy + 8) >> 6;
 			j = (h * rx) / ry;
 			k = (i * rx) / ry;
-			
-			if ((oi!=i) && (oh!=i)) {
+
+			if ((oi!=i) && (oh!=i) && (i<ry)) {
 				drawhorzlineclip(dst, color, x-j, y+i, x+j-1);
 				drawhorzlineclip(dst, color, x-j, y-i-1, x+j-1);
 				oi=i;
@@ -1591,10 +1591,10 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 				drawhorzlineclip(dst, color, x-k, y-h-1, x+k-1);
 				oh=h;
 			}
-			
+
 			ix = ix + iy / ry;
 			iy = iy - ix / ry;
-			
+
 		} while(i > h);
 	}
 }
@@ -1616,7 +1616,7 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 	int ints;
 	int *polyints = PyMem_New(int, n);
 
-	
+
 	/* Determine Y maxima */
 	miny = vy[0];
 	maxy = vy[0];
@@ -1625,7 +1625,7 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 		miny = min(miny, vy[i]);
 		maxy = max(maxy, vy[i]);
 	}
-	
+
 	/* Draw, scanning y */
 	for(y=miny; (y <= maxy); y++) {
 		ints = 0;
@@ -1657,7 +1657,7 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 			}
 		}
 		qsort(polyints, ints, sizeof(int), compare_int);
-		
+
 		for (i=0; (i<ints); i+=2) {
 			drawhorzlineclip(dst, color, polyints[i], y, polyints[i+1]);
 		}
