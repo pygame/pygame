@@ -1,95 +1,194 @@
 #/usr/bin/env python
-
-"""This simple example is used for the line-by-line tutorial
+"""
+This simple example is used for the line-by-line tutorial
 that comes with pygame. It is based on a 'popular' web banner.
 Note there are comments here, but for the full explanation, 
-follow along in the tutorial. This code contains little error
-checking to make it a little clearer. The full tutorial explains
-where and how better error checking will help."""
+follow along in the tutorial.
+"""
 
 
-#Import Modoules
-import os
-import pygame, pygame.font, pygame.image, pygame.mixer
+#Import Modules
+import os, sys
+import pygame, pygame.sprite, pygame.transform, pygame.image
 from pygame.locals import *
+try:
+    import pygame.font
+except ImportError:
+    print 'Warning, fonts disabled'
+    pygame.font = None
+try:
+    import pygame.mixer
+except ImportError:
+    print 'Warning, sound disabled'
+    pygame.mixer = None
 
 
-#Resource Filenames
-chimpfile = os.path.join('data', 'chimp.bmp')
-fistfile = os.path.join('data', 'fist.bmp')
-hitfile = os.path.join('data', 'punch.wav')
-missfile = os.path.join('data', 'whiff.wav')
+#functions to create our resources
+def load_image(name, colorkey=None):
+    fullname = os.path.join('data', name)
+    try:
+        image = pygame.image.load(fullname)
+    except pygame.error, message:
+        print 'Cannot load image:', name
+        raise SystemExit, message
+    image = image.convert()
+    if colorkey is not None:
+        if colorkey is -1:
+            colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, RLEACCEL)
+    return image, image.get_rect()
 
+def load_sound(name):
+    class NoneSound:
+        def play(self): pass
+    if not pygame.mixer:
+        return NoneSound()
+    fullname = os.path.join('data', name)
+    try:
+        sound = pygame.mixer.Sound(fullname)
+    except pygame.error, message:
+        print 'Cannot load sound:', wav
+        raise SystemExit, message
+    return sound
+        
+
+#classes for our game objects
+class Fist(pygame.sprite.Sprite):
+    """moves a clenched fist on the screen, following the mouse"""
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self) #call Sprite initializer
+        self.image, self.rect = load_image('fist.bmp', -1)
+        self.rect = self.image.get_rect()
+        self.punching = 0
+
+    def update(self):
+        "move the fist based on the mouse position"
+        pos = pygame.mouse.get_pos()
+        self.rect.midtop = pos
+        if self.punching:
+            self.rect.move_ip(5, 10)
+
+    def punch(self, target):
+        "returns true if the fist collides with the target"
+        if not self.punching:
+            self.punching = 1
+            hitbox = self.rect.inflate(-5, -5)
+            return hitbox.colliderect(target.rect)
+
+    def unpunch(self):
+        "called to pull the fist back"
+        self.punching = 0
+
+
+class Chimp(pygame.sprite.Sprite):
+    """moves a monkey critter across the screen. it can spin the
+       monkey when it is punched."""
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+        self.image, self.rect = load_image('chimp.bmp', -1)
+        screen = pygame.display.get_surface()
+        self.area = screen.get_rect()
+        self.rect.bottomright = self.area.bottomright
+        self.move = 9
+        self.dizzy = 0
+
+    def update(self):
+        "walk or spin, depending on the monkeys state"
+        if self.dizzy:
+            self._spin()
+        else:
+            self._walk()
+
+    def _walk(self):
+        "move the monkey across the screen, and turn at the ends"
+        newpos = self.rect.move((self.move, 0))
+        if not self.area.contains(newpos):
+            self.move = -self.move
+            newpos = self.rect.move((self.move, 0))
+            self.image = pygame.transform.flip(self.image, 1, 0)
+        self.rect = newpos
+
+    def _spin(self):
+        "spin the monkey image"
+        center = self.rect.center
+        self.dizzy += 12
+        if self.dizzy >= 360:
+            self.dizzy = 0
+            self.image = self.original
+        else:
+            rotate = pygame.transform.rotate
+            self.image = rotate(self.original, self.dizzy)
+        self.rect = self.image.get_rect()
+        self.rect.center = center
+
+    def punched(self):
+        "this will cause the monkey to start spinning"
+        if not self.dizzy:
+            self.dizzy = 1
+            self.original = self.image
+        
 
 def main():
+    """this function is called when the program starts.
+       it initializes everything it needs, then runs in
+       a loop until the function returns."""
 #Initialize Everything
     pygame.init()
-    screen = pygame.display.set_mode((468, 60), HWSURFACE|DOUBLEBUF)
+    screen = pygame.display.set_mode((468, 60))
     pygame.display.set_caption('Monkey Fever')
     pygame.mouse.set_visible(0)
-     
+
 #Create The Backgound
     background = pygame.Surface(screen.get_size())
     background.fill((250, 250, 250))
     
 #Put Text On The Background, Centered
-    font = pygame.font.Font(None, 36)
-    text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
-    textpos = text.get_rect()
-    textpos.centerx = background.get_rect().centerx
-    background.blit(text, textpos)
+    if pygame.font:
+        font = pygame.font.Font(None, 36)
+        text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
+        textpos = text.get_rect()
+        textpos.centerx = background.get_rect().centerx
+        background.blit(text, textpos)
 
-#Display The Background While Setup Finishes
+#Display The Background
     screen.blit(background, (0, 0))
     pygame.display.flip()
     
-#Load Resources
-    chimp = pygame.image.load(chimpfile).convert()
-    chimp.set_colorkey(chimp.get_at((0, 0)))
-    fist = pygame.image.load(fistfile).convert()
-    fist.set_colorkey(chimp.get_at((0, 0)))
-    whiffsound = pygame.mixer.Sound(missfile)
-    hitsound = pygame.mixer.Sound(hitfile)
+#Prepare Game Objects
+    clock = pygame.time.Clock()
+    whiff_sound = load_sound('whiff.wav')
+    punch_sound = load_sound('punch.wav')
+    chimp = Chimp()
+    fist = Fist()
+    allsprites = pygame.sprite.RenderPlain((fist, chimp))
     
-#Prepare To Animate
-    chimppos = chimp.get_rect()
-    chimppos.bottom = screen.get_height()
-    chimpmove = 2
-    reload = 0
-
 #Main Loop
     while 1:
-    
-    #Handle Input, Check For Quit
-        event = pygame.event.poll()
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-            break
-    
-    #Move The Monkey
-        chimppos.left = chimppos.left + chimpmove
-        if not screen.get_rect().contains(chimppos):
-            chimpmove = -chimpmove
-    
-    #Move And Punch The Fist
-        fistpos = pygame.mouse.get_pos()    
-        pressed = pygame.mouse.get_pressed()[0]
-        if not reload and pressed:
-            if chimppos.collidepoint(fistpos):
-                hitsound.play()
-            else:
-                whiffsound.play()
-        reload = pressed
-        if not reload:
-            fistpos = fistpos[0] - 20, fistpos[1] - 10
+    #Handle Input Events
+        for event in pygame.event.get():
+            if event.type is QUIT:
+                return
+            elif event.type is KEYDOWN and event.key is K_ESCAPE:
+                return
+            elif event.type is MOUSEBUTTONDOWN:
+                if fist.punch(chimp):
+                    punch_sound.play() #punch
+                    chimp.punched()
+                else:
+                    whiff_sound.play() #miss
+            elif event.type is MOUSEBUTTONUP:
+                fist.unpunch()
 
-    #Draw The Entire Scene
+        allsprites.update()
+
+    #Draw Everything
         screen.blit(background, (0, 0))
-        screen.blit(chimp, chimppos)
-        screen.blit(fist, fistpos)
+        allsprites.draw(screen)
         pygame.display.flip()
+        clock.tick(60)
 
 #Game Over
 
 
-#this is python code to kickstart the program if not imported
+#this calls the 'main' function when this script is executed
 if __name__ == '__main__': main()

@@ -14,12 +14,6 @@ oldalien.py - This more closely resembles a port of the SDL Aliens
     blitting routines are not as optimized as they should/could be,
     but the code is easier to follow, and it plays quick enough.
 
-winaliens.pyw - Just an example launcher for windows platforms.
-	with the .PYW extension, windows will not open a DOS box
-	for the running python script, giving everything a more
-	professional look. (the script will run fine on linux too)
-	this script launches aliens.py in fullscreen mode
-
 stars.py - A simple starfield example. You can change the center of
     perspective by leftclicking the mouse on the screen.
 

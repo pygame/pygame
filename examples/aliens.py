@@ -1,85 +1,54 @@
 #! /usr/bin/env python
 
-"""This is a pretty full-fledged example of a miniature
-game with pygame. It's not what you'd call commercial grade
-quality, but it does demonstrate just about all of the
-important modules for pygame. Note the methods it uses to
-detect the availability of the font and mixer modules.
-This example actually gets a bit large. A better starting
-point for beginners would be the oldaliens.py example."""
+import random, os.path, sys
 
-
-import whrandom, os.path, sys
-import pygame, pygame.image, pygame.transform
+#import basic pygame modules
+import pygame, pygame.image, pygame.transform, pygame.sprite
 from pygame.locals import *
+
+#see if we can load more than standard BMP
+if not pygame.image.get_extended():
+    raise SystemExit, "Sorry, extended image module required"
+
+
+#try importing pygame optional modules
+try:
+    import pygame.font as font
+except ImportError:
+    print 'Warning, no fonts'
+    font = None
 try:
     import pygame.mixer
-    pygame.mixer.pre_init(11025)
-except:
+except ImportError:
+    print 'Warning, no sound'
     pygame.mixer = None
 
-#see if we can get some font lovin'
-try:
-    import pygame.font
-    font = pygame.font
-except ImportError:
-    font = None
 
-if not pygame.image.get_extended():
-    raise SystemExit, "Requires the extnded image loading from SDL_image"
-
-
-#constants
-FRAMES_PER_SEC = 45
-PLAYER_SPEED   = 6
-MAX_SHOTS      = 2
-SHOT_SPEED     = 9
-BOMB_SPEED     = 9
-MAX_ALIENS     = 30
-ALIEN_SPEED    = 9
-ALIEN_ODDS     = 29
-ALIEN_RELOAD   = 12
-EXPLODE_TIME   = 35
-MAX_EXPLOSIONS = 4
+#game constants
+MAX_SHOTS      = 2      #most player bullets onscreen
+ALIEN_ODDS     = 29     #chances a new alien appears
+ALIEN_RELOAD   = 12     #frames between new aliens
+BOMB_ODDS      = 200
 SCREENRECT     = Rect(0, 0, 640, 480)
-ANIMCYCLE      = 12
-PLODECYCLE     = 7
-BULLET_OFFSET  = 11
-BOUNCEWIDTH    = PLAYER_SPEED * 4
-DIFFICULTY     = 8
-BOMB_ODDS      = 130
-DANGER         = 10
-SORRYSCORE     = 15
-GOODSCORE      = 33
 
-#some globals for friendly access
-dirtyrects = [] # list of update_rects
-class Img: pass # container for images
-class Snd: pass # container for sounds
-
-
-
-
-#first, we define some utility functions
-
-class dummysound:
-    def play(self): pass
 
     
-def load_image(file, transparent=0):
+def load_image(file):
     "loads an image, prepares it for play"
     file = os.path.join('data', file)
     try:
         surface = pygame.image.load(file)
     except pygame.error:
         raise SystemExit, 'Could not load image "%s" %s'%(file, pygame.get_error())
-    if transparent:
-        corner = surface.get_at((0, 0))
-        surface.set_colorkey(corner, RLEACCEL)
     return surface.convert()
 
+def load_images(*files):
+    return [load_image(file) for file in files]
 
 
+class dummysound:
+    def play(self): pass
+    
 def load_sound(file):
     if not pygame.mixer: return dummysound()
     file = os.path.join('data', file)
@@ -89,366 +58,244 @@ def load_sound(file):
     except pygame.error:
         print 'Warning, unable to load,', file
     return dummysound()
-    
-
-
-last_tick = 0
-ticks_per_frame = int((1.0 / FRAMES_PER_SEC) * 1000.0)
-def wait_frame():
-    "wait for the correct fps time to expire"
-    global last_tick, ticks_per_frame
-    now = pygame.time.get_ticks()
-    wait = ticks_per_frame - (now - last_tick)
-    pygame.time.delay(wait)
-    last_tick = pygame.time.get_ticks()
 
 
 
-# The logic for all the different sprite types
 
-class Actor:
-    "An enhanced sort of sprite class"
-    def __init__(self, image):
-        self.image = image
-        self.rect = image.get_rect()
-        self.clearrect = self.rect
-        
-    def update(self):
-        "update the sprite state for this frame"
-        pass
-    
-    def draw(self, screen):
-        "draws the sprite into the screen"
-        r = screen.blit(self.image, self.rect)
-        dirtyrects.append(r.union(self.clearrect))
-        
-    def erase(self, screen, background):
-        "gets the sprite off of the screen"
-        r = screen.blit(background, self.rect, self.rect)
-        self.clearrect = r
-
-
-class Player(Actor):
-    "Cheer for our hero"
+class Player(pygame.sprite.Sprite):
+    speed = 11
+    bounce = 24
+    gun_offset = 11
+    images = []
     def __init__(self):
-        Actor.__init__(self, Img.player[0])
-        self.alive = 1
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
         self.reloading = 0
         self.rect.centerx = SCREENRECT.centerx
         self.rect.bottom = SCREENRECT.bottom - 1
         self.origtop = self.rect.top
+        self.facing = -1
+
+    def update(self): pass
 
     def move(self, direction):
-        self.rect = self.rect.move(direction*PLAYER_SPEED, 0).clamp(SCREENRECT)
+        if direction: self.facing = direction
+        self.rect.move_ip(direction*self.speed, 0)
+        self.rect = self.rect.clamp(SCREENRECT)
         if direction < 0:
-            self.image = Img.player[0]
+            self.image = self.images[0]
         elif direction > 0:
-            self.image = Img.player[1]
-        self.rect.top = self.origtop - (self.rect.left/BOUNCEWIDTH%2)
+            self.image = self.images[1]
+        self.rect.top = self.origtop - (self.rect.left/self.bounce%2)
+
+    def gunpos(self):
+        pos = self.facing*self.gun_offset + self.rect.centerx
+        return pos, self.rect.top
 
 
-class Alien(Actor):
-    "Destroy him or suffer"
+class Alien(pygame.sprite.Sprite):
+    speed = 15 
+    animcycle = 12
+    images = []
     def __init__(self):
-        Actor.__init__(self, Img.alien[0])
-        self.facing = whrandom.choice((-1,1)) * ALIEN_SPEED
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
+        self.facing = random.choice((-1,1)) * Alien.speed
         self.frame = 0
         if self.facing < 0:
             self.rect.right = SCREENRECT.right
             
     def update(self):
-        global SCREENRECT
-        self.rect[0] = self.rect[0] + self.facing
+        self.rect.move_ip(self.facing, 0)
         if not SCREENRECT.contains(self.rect):
             self.facing = -self.facing;
             self.rect.top = self.rect.bottom + 1
             self.rect = self.rect.clamp(SCREENRECT)
         self.frame = self.frame + 1
-        self.image = Img.alien[self.frame/ANIMCYCLE%3]
+        self.image = self.images[self.frame/self.animcycle%3]
 
 
-class Explosion(Actor):
-    "Beware the fury"
-    def __init__(self, actor, longer=0):
-        Snd.explosion.play()
-        Actor.__init__(self, Img.explosion[0])
-        self.life = EXPLODE_TIME
+class Explosion(pygame.sprite.Sprite):
+    defaultlife = 10
+    animcycle = 3
+    images = []
+    def __init__(self, actor, longer):
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
+        self.life = self.defaultlife * (longer+1)
         self.rect.center = actor.rect.center
-        if longer:
-            self.life = self.life * 2
         
     def update(self):
         self.life = self.life - 1
-        self.image = Img.explosion[self.life/PLODECYCLE%2]
+        self.image = self.images[self.life/self.animcycle%2]
+        if self.life <= 0: self.kill()
 
 
-class Shot(Actor):
-    "The big payload"
-    def __init__(self, player):
-        Snd.shot.play()
-        Actor.__init__(self, Img.shot)
-        self.rect.centerx = player.rect.centerx
-        self.rect.top = player.rect.top - 10
-        if player.image is Img.player[0]:
-            self.rect.left = self.rect.left + BULLET_OFFSET
-        elif player.image is Img.player[1]:
-            self.rect.left = self.rect.left - BULLET_OFFSET
+class Shot(pygame.sprite.Sprite):
+    speed = -13
+    images = []
+    def __init__(self, pos):
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
+        self.rect.midbottom = pos
 
     def update(self):
-        self.rect = self.rect.move(0, -SHOT_SPEED)
-        
-class Bomb(Actor):
-    "The big payload"
+        self.rect.move_ip(0, self.speed)
+        if self.rect.top <= 0:
+            self.kill()
+
+
+class Bomb(pygame.sprite.Sprite):
+    speed = 11
+    images = []
     def __init__(self, alien):
-        Actor.__init__(self, Img.bomb)
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
         self.rect.centerx = alien.rect.centerx
         self.rect.bottom = alien.rect.bottom + 5
 
     def update(self):
-        self.rect = self.rect.move(0, BOMB_SPEED)
+        self.rect.move_ip(0, self.speed)
+        if self.rect.bottom >= 470:
+            Explosion(self, 0)
+            self.kill()
 
-class Danger(Actor):
-    "Here comes trouble"
-    def __init__(self):
-        Actor.__init__(self, Img.danger)
-        self.life = 1
-        self.tick = 0
-        self.rect.center = SCREENRECT.center[0]-30, 30
-        self.startleft = self.rect.left
-        
-    def update(self):
-        self.tick = self.tick + 1
-        self.rect.left = self.startleft + (self.tick/25%2)*60
 
 
 def main(winstyle = 0):
-    "Run me for adrenaline"
-    global dirtyrects
-
-    # Initialize SDL components
+    # Initialize pygame
     pygame.init()
 
-    # Attempt to create a window icon
-    try:
-        icon = pygame.image.load(os.path.join('data', 'alien1.gif'))
-        icon.set_colorkey(icon.get_at((0, 0)))
-        icon = pygame.transform.scale(icon, (32, 32))
-        pygame.display.set_icon(icon)
-    except pygame.error:
-        pass
-
     # Set the display mode
+    winstyle = 0  #|FULLSCREEN
     bestdepth = pygame.display.mode_ok(SCREENRECT.size, winstyle, 32)
     screen = pygame.display.set_mode(SCREENRECT.size, winstyle, bestdepth)
 
-    if pygame.joystick.get_init() and pygame.joystick.get_count():
-        joy = pygame.joystick.Joystick(0)
-        joy.init()
-        if not joy.get_numaxes() or not joy.get_numbuttons():
-            print 'warning: joystick disabled. requires at least one axis and one button'
-            joy.quit()
-            joy = None
-    else:
-        joy = None
+    #Load images, assign to sprite classes
+    #(do this before the classes are used, after screen setup)
+    img = load_image('player1.gif')
+    Player.images = [img, pygame.transform.flip(img, 1, 0)]
+    img = load_image('explosion1.gif')
+    Explosion.images = [img, pygame.transform.flip(img, 1, 1)]
+    Alien.images = load_images('alien1.gif', 'alien2.gif', 'alien3.gif')
+    Bomb.images = [load_image('bomb.gif')]
+    Shot.images = [load_image('shot.gif')]
 
-    # Check that audio actually initialized
-    if pygame.mixer and not pygame.mixer.get_init():
-        pygame.mixer = None
-    if not pygame.mixer:
-        print 'Warning, sound disabled'
-
-
-    # Load the Resources
-    Img.background = load_image('background.gif', 0)
-    Img.shot = load_image('shot.gif', 1)
-    Img.bomb = load_image('bomb.gif', 1)
-    Img.danger = load_image('danger.gif', 1)
-    Img.alien = load_image('alien1.gif', 1), \
-                load_image('alien2.gif', 1), \
-                load_image('alien3.gif', 1)
-    img = load_image('player1.gif', 1)
-    Img.player = img, pygame.transform.flip(img, 1, 0)
-    img = load_image('explosion1.gif', 1)
-    Img.explosion = img, pygame.transform.flip(img, 1, 1)
-    Img.explosion[0].set_alpha(128, RLEACCEL)
-    Img.explosion[1].set_alpha(128, RLEACCEL)
-    Img.danger.set_alpha(128, RLEACCEL)
-
-    Snd.explosion = load_sound('boom.wav')
-    Snd.shot = load_sound('car_door.wav')
-
-    # Create the background
-    background = pygame.Surface(SCREENRECT.size)
-    for x in range(0, SCREENRECT.width, Img.background.get_width()):
-        background.blit(Img.background, (x, 0))
-    screen.blit(background, (0,0))
-    pygame.display.flip()
+    #decorate the game window
+    icon = pygame.transform.scale(Alien.images[0], (32, 32))
+    pygame.display.set_icon(icon)
+    pygame.display.set_caption('Pygame Aliens')
     pygame.mouse.set_visible(0)
 
-    # Initialize Game Actors
-    player = Player()
-    aliens = [Alien()]
-    shots = []
-    bombs = []
-    explosions = []
-    misc = []
-    alienreload = ALIEN_RELOAD
-    difficulty = DIFFICULTY
-    bomb_odds = BOMB_ODDS
-    kills = 0
+    #create the background, tile the bgd image
+    bgdtile = load_image('background.gif')
+    background = pygame.Surface(SCREENRECT.size)
+    for x in range(0, SCREENRECT.width, bgdtile.get_width()):
+        background.blit(bgdtile, (x, 0))
+    screen.blit(background, (0,0))
+    pygame.display.flip()
 
-    # Soundtrack
+    #load the sound effects
+    boom_sound = load_sound('boom.wav')
+    shoot_sound = load_sound('car_door.wav')
     if pygame.mixer:
         music = os.path.join('data', 'house_lo.wav')
         pygame.mixer.music.load(music)
-        pygame.mixer.music.play(-1)
+        pygame.mixer.music.play()
 
-    # Main loop
-    while player.alive or explosions:
-        wait_frame()
+    # Initialize Game Groups
+    aliens = pygame.sprite.Group()
+    shots = pygame.sprite.Group()
+    bombs = pygame.sprite.Group()
+    all = pygame.sprite.RenderUpdates()
+    lastalien = pygame.sprite.GroupSingle()
 
-        # Gather Events
+    #assign default groups to each sprite class
+    Player.containers = all
+    Alien.containers = aliens, all, lastalien
+    Shot.containers = shots, all
+    Bomb.containers = bombs, all
+    Explosion.containers = all
+
+    #Create Some Starting Values
+    alienreload = ALIEN_RELOAD
+    kills = 0
+    clock = pygame.time.Clock()
+
+    #initialize our starting sprites
+    player = Player()
+    Alien() #note, this 'lives' because it goes into a sprite group
+
+
+    while player.alive():
+        # update keyboard state
         pygame.event.pump()
         keystate = pygame.key.get_pressed()
         if keystate[K_ESCAPE] or pygame.event.peek(QUIT):
             break
+
+        # clear/erase the last drawn sprites
+        all.clear(screen, background)
+
+        #update all the sprites
+        all.update()
         
-
-        if difficulty:
-            difficulty = difficulty - 1
-        else:
-            difficulty = DIFFICULTY
-            if bomb_odds > DANGER:
-                bomb_odds = bomb_odds - 1
-                if bomb_odds == DANGER:
-                    misc.append(Danger())
-
-        # Clear screen and update actors
-        for actor in [player] + aliens + shots + bombs + explosions + misc:
-            actor.erase(screen, background)
-            actor.update()
-        
-        # Clean Dead Explosions and Bullets
-        for e in explosions:
-            if e.life <= 0:
-                dirtyrects.append(e.clearrect)
-                explosions.remove(e)
-        for s in shots:
-            if s.rect.top <= 0:
-                dirtyrects.append(s.clearrect)
-                shots.remove(s)
-        for b in bombs:
-            if b.rect.bottom >= 470:
-                if player.alive:
-                    explosions.append(Explosion(b))
-                dirtyrects.append(b.clearrect)
-                bombs.remove(b)
-
-        # Handle Input, Control Tank
-        if player.alive:
-            direction = keystate[K_RIGHT] - keystate[K_LEFT]
-            firing = keystate[K_SPACE]
-            if joy:
-                direction = direction + joy.get_axis(0)
-                firing = firing + joy.get_button(0)
-            player.move(direction)
-            if not player.reloading and firing and len(shots) < MAX_SHOTS:
-                shots.append(Shot(player))
-            player.reloading = firing
+        #handle player input
+        direction = keystate[K_RIGHT] - keystate[K_LEFT]
+        player.move(direction)
+        firing = keystate[K_SPACE]
+        if not player.reloading and firing and len(shots) < MAX_SHOTS:
+            Shot(player.gunpos())
+            shoot_sound.play()
+        player.reloading = firing
 
         # Create new alien
         if alienreload:
-            alienreload = alienreload - 1
-        elif player.alive and not int(whrandom.random() * ALIEN_ODDS):
-            aliens.append(Alien())
+            alienreload -= 1
+        elif not int(random.random() * ALIEN_ODDS):
+            Alien()
             alienreload = ALIEN_RELOAD
 
         # Drop bombs
-        if player.alive and aliens and not int(whrandom.random() * bomb_odds):
-            bombs.append(Bomb(aliens[-1]))
+        if lastalien and not int(random.random() * BOMB_ODDS):
+            Bomb(lastalien.sprite)
 
         # Detect collisions
-        alienrects = []
-        for a in aliens: alienrects.append(a.rect)
+        for a in pygame.sprite.spritecollide(player, aliens, 1):
+            boom_sound.play()
+            Explosion(a, 0)
+            Explosion(player, 1)
+            kills += 1
+            player.kill()
 
-        hit = player.rect.collidelist(alienrects)
-        if hit != -1:
-            alien = aliens[hit]
-            explosions.append(Explosion(alien))
-            explosions.append(Explosion(player, 1))
-            dirtyrects.append(alien.clearrect)
-            aliens.remove(alien)
-            kills = kills + 1
-            player.alive = 0
-        for shot in shots:
-            hit = shot.rect.collidelist(alienrects)
-            if hit != -1:
-                alien = aliens[hit]
-                explosions.append(Explosion(alien))
-                dirtyrects.append(shot.clearrect)
-                dirtyrects.append(alien.clearrect)
-                shots.remove(shot)
-                aliens.remove(alien)
-                kills = kills + 1
-                break
-        bombrects = []
-        for b in bombs: bombrects.append(b.rect)
+        for alien in pygame.sprite.groupcollide(shots, aliens, 1, 1).keys():
+            boom_sound.play()
+            Explosion(alien, 0)
+            kills += 1
+                    
+        for bomb in pygame.sprite.spritecollide(player, bombs, 1):         
+            boom_sound.play()
+            Explosion(bomb, 0)
 
-        hit = player.rect.collidelist(bombrects)
-        if hit != -1:
-            bomb = bombs[hit]
-            explosions.append(Explosion(bomb))
-            explosions.append(Explosion(player, 1))
-            dirtyrects.append(bomb.clearrect)
-            bombs.remove(bomb)
-            player.alive = 0
+        #draw the scene
+        dirty = all.draw(screen)
+        pygame.display.update(dirty)
 
-        #prune the explosion list
-        diff = len(explosions) - MAX_EXPLOSIONS
-        if diff > 0:
-            for x in range(diff):
-                dirtyrects.append(explosions[x].clearrect)
-            explosions = explosions[diff:]
+        #cap the framerate
+        clock.tick(30)
 
-        # Draw everybody
-        for actor in [player] + bombs + aliens + shots + explosions + misc:
-            actor.draw(screen)
+    pygame.mixer.music.fadeout(1000)
+    pygame.time.delay(1000)
 
-        pygame.display.update(dirtyrects)
-        dirtyrects = []
-
-    if pygame.mixer:
-        pygame.mixer.music.fadeout(1200)
-
-    #attempt to show game over (if font installed)
-    if font:
-        f = font.Font(None, 100) #None means default font
-        f.set_italic(1)
-        text = f.render('Game Over', 1, (200, 200, 200))
-        textrect = Rect((0, 0), text.get_size())
-        textrect.center = SCREENRECT.center
-        screen.blit(text, textrect)
-        pygame.display.flip()
-
-    #wait a beat
-    if pygame.mixer:
-        while pygame.mixer.music.get_busy():
-            pygame.time.delay(200)
-    else:
-        pygame.time.delay(800)
+#no need to clean up, python automatically cleans up after us
+   
 
 
-    #scoreboard
-    print 'Total Kills =', kills
-    if kills <= SORRYSCORE: print 'Sorry!'
-    elif kills >= GOODSCORE: print 'Excellent!'
-    elif kills >= GOODSCORE-6: print 'Almost Excellent!'
-
-
-
-    
-
-#if python says run, let's run!
-if __name__ == '__main__':
-    main()
+#call the "main" function if running this script
+if __name__ == '__main__': main()
     
