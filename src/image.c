@@ -109,11 +109,12 @@ static SDL_Surface* opengltosdl()
         int typeflag=0, formatflag=0;
         SDL_Surface *surf;
         Uint32 rmask, gmask, bmask, amask;
-        int depth, doalpha=0;
+        int i, depth, doalpha=0;
         unsigned char *pixels;
         PyObject *data;
-        int i;
 
+        surf = SDL_GetVideoSurface();
+    
         pyopengl = PyImport_ImportModule("OpenGL.GL");
         if(pyopengl)
         {
@@ -205,7 +206,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 	PyObject* surfobj, *file;
 	SDL_Surface *surf;
 	SDL_Surface *temp = NULL;
-	int i, result;
+	int result;
 	
 	if(!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &file))
 		return NULL;
