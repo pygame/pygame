@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 24, 2002
+	Ole Martin Bjoerndalen's CD.play fix
+
 July 17, 2002
 	Michael Hudson's unicode cleanups
 
