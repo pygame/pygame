@@ -433,9 +433,8 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 	if(!PySequence_Check(list))
 		return RAISE(PyExc_ValueError, "Argument must be a sequence type");
 
-
 	if(!pal)
-		return RAISE(PyExc_SDLError, "Surface is not palettized\n");
+		return RAISE(PyExc_SDLError, "Surface has no palette\n");
 
 	len = min(pal->ncolors, PySequence_Length(list));
 

@@ -217,11 +217,322 @@ PyObject* image_get_extended(PyObject* self, PyObject* arg)
 }
 
 
+    /*DOC*/ static char doc_tostring[] =
+    /*DOC*/    "pygame.image.tostring(Surface, format) -> string\n"
+    /*DOC*/    "create a raw string buffer of the surface data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will copy the image data into a large string buffer.\n"
+    /*DOC*/    "This can be used to transfer images to other libraries like\n"
+    /*DOC*/    "PIL's fromstring() and PyOpenGL's glTexImage2D(). \n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The format argument is a string representing which type of\n"
+    /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
+    /*DOC*/    "for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"\n"
+    /*DOC*/    "for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "These flags are a subset of the formats supported the PIL\n"
+    /*DOC*/    "Python Image Library. Note that the \"P\" format only will\n"
+    /*DOC*/    "work for 8bit Surfaces.\n"
+    /*DOC*/ ;
+
+PyObject* image_tostring(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *string=NULL;
+	char *format, *data, *pixels;
+	SDL_Surface *surf;
+	int w, h, color, len;
+	int Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss, Gloss, Bloss, Aloss;
+
+	if(!PyArg_ParseTuple(arg, "O!s", &PySurface_Type, &surfobj, &format))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+
+	Rmask = surf->format->Rmask; Gmask = surf->format->Gmask;
+	Bmask = surf->format->Bmask; Amask = surf->format->Amask;
+	Rshift = surf->format->Rshift; Gshift = surf->format->Gshift;
+	Bshift = surf->format->Bshift; Ashift = surf->format->Ashift;
+	Rloss = surf->format->Rloss; Gloss = surf->format->Gloss;
+	Bloss = surf->format->Bloss; Aloss = surf->format->Aloss;
+
+	if(!strcmp(format, "P"))
+	{
+		if(surf->format->BytesPerPixel != 1)
+			return RAISE(PyExc_ValueError, "Can only create \"P\" format data with 8bit Surfaces");
+		string = PyString_FromStringAndSize(NULL, surf->w*surf->h);
+		if(!string)
+			return NULL;
+		PyString_AsStringAndSize(string, &data, &len);
+
+		PySurface_Lock(surfobj);
+		pixels = (char*)surf->pixels;
+		for(h=0; h<surf->h; ++h)
+			memcpy(data+(h*surf->w), pixels+(h*surf->pitch), surf->w);
+		PySurface_Unlock(surfobj);
+	}
+	else if(!strcmp(format, "RGB"))
+	{
+		string = PyString_FromStringAndSize(NULL, surf->w*surf->h*3);
+		if(!string)
+			return NULL;
+		PyString_AsStringAndSize(string, &data, &len);
+
+		PySurface_Lock(surfobj);
+		pixels = (char*)surf->pixels;
+		switch(surf->format->BytesPerPixel)
+		{
+		case 1:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[0] = (char)surf->format->palette->colors[color].r;
+					data[1] = (char)surf->format->palette->colors[color].g;
+					data[2] = (char)surf->format->palette->colors[color].b;
+					data += 3;
+				}
+			}break;
+		case 2:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint16* ptr = (Uint16*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+					data += 3;
+				}
+			}break;
+		case 3:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+					color = ptr[0] + (ptr[1]<<8) + (ptr[2]<<16);
+#else
+					color = ptr[2] + (ptr[1]<<8) + (ptr[0]<<16);
+#endif
+					ptr += 3;
+					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+					data += 3;
+				}
+			}break;
+		case 4:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint32* ptr = (Uint32*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
+					data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
+					data += 3;
+				}
+			}break;
+		}
+		PySurface_Unlock(surfobj);
+	}
+	else if(!strcmp(format, "RGBX") || !strcmp(format, "RGBA"))
+	{
+		string = PyString_FromStringAndSize(NULL, surf->w*surf->h*4);
+		if(!string)
+			return NULL;
+		PyString_AsStringAndSize(string, &data, &len);
+
+		PySurface_Lock(surfobj);
+		pixels = (char*)surf->pixels;
+		switch(surf->format->BytesPerPixel)
+		{
+		case 1:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[0] = (char)surf->format->palette->colors[color].r;
+					data[1] = (char)surf->format->palette->colors[color].g;
+					data[2] = (char)surf->format->palette->colors[color].b;
+					data[3] = (char)255;
+					data += 4;
+				}
+			}break;
+		case 2:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint16* ptr = (Uint16*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+					data[3] = (char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
+					data += 4;
+				}
+			}break;
+		case 3:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+					color = ptr[0] + (ptr[1]<<8) + (ptr[2]<<16);
+#else
+					color = ptr[2] + (ptr[1]<<8) + (ptr[0]<<16);
+#endif
+					ptr += 3;
+					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
+					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
+					data[3] = (char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
+					data += 4;
+				}
+			}break;
+		case 4:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint32* ptr = (Uint32*)((Uint8*)surf->pixels + (h*surf->pitch));
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
+					data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
+					data[3] = (char)(Amask ? (((color & Amask) >> Ashift) << Rloss) : 255);
+					data += 4;
+				}
+			}break;
+		}
+		PySurface_Unlock(surfobj);
+	}
+	else
+		return RAISE(PyExc_ValueError, "Unrecognized type of format");
+
+	return string;
+}
+
+
+
+    /*DOC*/ static char doc_fromstring[] =
+    /*DOC*/    "pygame.image.fromstring(size, format, string) -> Surface\n"
+    /*DOC*/    "create a surface from a raw string buffer\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will create a new Surface from a copy of raw data in\n"
+    /*DOC*/    "a string. This can be used to transfer images from other\n"
+    /*DOC*/    "libraries like PIL's fromstring(). \n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The format argument is a string representing which type of\n"
+    /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
+    /*DOC*/    "for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"\n"
+    /*DOC*/    "for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "These flags are a subset of the formats supported the PIL\n"
+    /*DOC*/    "Python Image Library. Note that the \"P\" format only create\n"
+    /*DOC*/    "an 8bit surface, but the colormap will be all black.\n"
+    /*DOC*/ ;
+
+PyObject* image_fromstring(PyObject* self, PyObject* arg)
+{
+	PyObject *string;
+	char *format, *data, *pixels;
+	SDL_Surface *surf = NULL;
+	int w, h, len;
+	int loopw, looph;
+
+	if(!PyArg_ParseTuple(arg, "(ii)sO!", &w, &h, &format, &PyString_Type, &string))
+		return NULL;
+
+	if(w < 1 || h < 1)
+		return RAISE(PyExc_ValueError, "Resolution must be positive values");
+
+	PyString_AsStringAndSize(string, &data, &len);
+
+	if(!strcmp(format, "P"))
+	{
+		if(len != w*h)
+			return RAISE(PyExc_ValueError, "String length does not equal format and resolution size");
+		surf = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
+		if(!surf)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		SDL_LockSurface(surf);
+		pixels = (char*)surf->pixels;
+		for(looph=0; looph<h; ++looph)
+			memcpy(pixels+looph*surf->pitch, data+looph*w, w);
+		SDL_UnlockSurface(surf);
+	}
+	else if(!strcmp(format, "RGB"))
+	{
+		if(len != w*h*3)
+			return RAISE(PyExc_ValueError, "String length does not equal format and resolution size");
+		surf = SDL_CreateRGBSurface(0, w, h, 24, 0xFF<<16, 0xFF<<8, 0xFF, 0);
+		if(!surf)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		SDL_LockSurface(surf);
+		pixels = (char*)surf->pixels;
+		for(looph=0; looph<h; ++looph)
+		{
+			Uint8* pix = (Uint8*)(pixels+looph*surf->pitch);
+			for(loopw=0; loopw<w; ++loopw)
+			{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+				pix[2] = data[0]; pix[1] = data[1]; pix[0] = data[2];
+#else
+				pix[0] = data[0]; pix[1] = data[1]; pix[2] = data[2];
+#endif
+				pix += 3;
+				data += 3;
+			}
+		}
+		SDL_UnlockSurface(surf);
+	}
+	else if(!strcmp(format, "RGBA") || !strcmp(format, "RGBX"))
+	{
+		int alphamult = !strcmp(format, "RGBA");
+		if(len != w*h*4)
+			return RAISE(PyExc_ValueError, "String length does not equal format and resolution size");
+		surf = SDL_CreateRGBSurface(0, w, h, 32, 0xFF<<16, 0xFF<<8, 0xFF,
+					(!strcmp(format, "RGBA")) ? 0xFF<<24 : 0);
+		if(!surf)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		SDL_LockSurface(surf);
+		pixels = (char*)surf->pixels;
+		for(looph=0; looph<h; ++looph)
+		{
+			Uint32* pix = (Uint32*)(pixels+looph*surf->pitch);
+			for(loopw=0; loopw<w; ++loopw)
+			{
+				*pix++ = data[0]<<16 | data[1]<<8 | data[2] | (data[3]*alphamult) << 24;
+				data += 4;
+			}
+		}
+		SDL_UnlockSurface(surf);
+	}
+	else
+		return RAISE(PyExc_ValueError, "Unrecognized type of format");
+
+	if(!surf)
+		return NULL;
+	return PySurface_New(surf);
+}
+
 static PyMethodDef image_builtins[] =
 {
 	{ "load_basic", image_load_basic, 1, doc_load },
 	{ "save", image_save, 1, doc_save },
 	{ "get_extended", image_get_extended, 1, doc_get_extended },
+
+	{ "tostring", image_tostring, 1, doc_tostring },
+	{ "fromstring", image_fromstring, 1, doc_fromstring },
 
 	{ NULL, NULL }
 };
