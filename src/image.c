@@ -145,13 +145,11 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 			if(!data)
 				return NULL;
 			pixels = (unsigned char*)PyString_AsString(data);
-
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define IMGMASKS 0x000000FF, 0x0000FF00, 0x00FF0000, 0
 #else
 #define IMGMASKS 0x00FF0000, 0x0000FF00, 0x000000FF, 0
 #endif
-
 			temp = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 24, IMGMASKS);
 			if(!temp)
 			{
@@ -466,7 +464,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 PyObject* image_fromstring(PyObject* self, PyObject* arg)
 {
 	PyObject *string;
-	char *format, *data, *pixels;
+	char *format, *data;
 	SDL_Surface *surf = NULL;
 	int w, h, len, flipped=0;
 	int loopw, looph;
@@ -487,9 +485,8 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 		if(!surf)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 		SDL_LockSurface(surf);
-		pixels = (char*)surf->pixels;
 		for(looph=0; looph<h; ++looph)
-			memcpy(pixels+looph*surf->pitch, DATAROW(data, looph, w, h, flipped), w);
+			memcpy(((char*)surf->pixels)+looph*surf->pitch, DATAROW(data, looph, w, h, flipped), w);
 		SDL_UnlockSurface(surf);
 	}
 	else if(!strcmp(format, "RGB"))
@@ -500,7 +497,6 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 		if(!surf)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 		SDL_LockSurface(surf);
-		pixels = (char*)surf->pixels;
 		for(looph=0; looph<h; ++looph)
 		{
 			Uint8* pix = (Uint8*)DATAROW(surf->pixels, looph, surf->pitch, h, flipped);
@@ -520,21 +516,24 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 	else if(!strcmp(format, "RGBA") || !strcmp(format, "RGBX"))
 	{
 		int alphamult = !strcmp(format, "RGBA");
-		if(len != w*h*4)
+                if(len != w*h*4)
 			return RAISE(PyExc_ValueError, "String length does not equal format and resolution size");
-		surf = SDL_CreateRGBSurface(0, w, h, 32, 0xFF<<16, 0xFF<<8, 0xFF,
-					(!strcmp(format, "RGBA")) ? 0xFF<<24 : 0);
+		surf = SDL_CreateRGBSurface((alphamult?SDL_SRCALPHA:0), w, h, 32,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                                        0xFF, 0xFF<<8, 0xFF<<16, (alphamult?0xFF<<24:0));
+#else
+                                        0xFF<<24, 0xFF<<16, 0xFF<<8, (alphamult?0xFF:0));
+#endif
 		if(!surf)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 		SDL_LockSurface(surf);
-		pixels = (char*)surf->pixels;
 		for(looph=0; looph<h; ++looph)
 		{
 			Uint32* pix = (Uint32*)DATAROW(surf->pixels, looph, surf->pitch, h, flipped);
 			for(loopw=0; loopw<w; ++loopw)
 			{
-				*pix++ = data[0]<<16 | data[1]<<8 | data[2] | (data[3]*alphamult) << 24;
-				data += 4;
+                                *pix++ = *((Uint32*)data);
+                                data += 4;
 			}
 		}
 		SDL_UnlockSurface(surf);
