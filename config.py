@@ -105,9 +105,9 @@ def writesetupfile(deps, basepath):
 
 def main():
     if os.path.isfile('Setup'):
-        if confirm('Backup existing "Setup" file'):
+        if "-auto" in sys.argv or confirm('Backup existing "Setup" file'):
             shutil.copyfile('Setup', 'Setup.bak')
-    if os.path.isdir('build'):
+    if not "-auto" in sys.argv and os.path.isdir('build'):
         if confirm('Remove old build directory (force recompile)'):
             shutil.rmtree('build', 0)
 
