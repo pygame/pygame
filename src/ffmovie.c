@@ -572,17 +572,15 @@ static int decode_thread(void *arg)
 {
 /* DECODE THREAD */
     FFMovie *movie = arg;
-    int ret;
+    int status;
     AVPacket pkt1, *pkt = &pkt1;
 
-printf("  ~decode thread, enter mainloop\n");
     while(!movie->abort_request) {
         /* read if the queues have room */
         if (movie->audioq.size < MAX_AUDIOQ_SIZE &&
             !movie->dest_showtime) {
 
-            ret = av_read_packet(movie->context, pkt);
-            if (ret < 0) {
+            if (av_read_packet(movie->context, pkt) < 0) {
                 break;
             }
             if (movie->audio_st &&
@@ -590,9 +588,9 @@ printf("  ~decode thread, enter mainloop\n");
                 packet_queue_put(&movie->audioq, pkt);
             } else if (movie->video_st &&
                     pkt->stream_index == movie->video_st->index) {
-                ret = video_read_packet(movie, pkt);
+                status = video_read_packet(movie, pkt);
                 av_free_packet(pkt);
-                if(ret < 0) {
+                if(status < 0) {
                     break;
                 }
             } else {
@@ -624,12 +622,7 @@ printf("  ~decode thread, enter mainloop\n");
         }
     }
 
-    ret = 0;
-printf("  ~decode thread: cleanup\n");
-
     ffmovie_cleanup(movie);
-
-printf("  ~decode thread: done\n");
     return 0;
 }
 
@@ -764,6 +757,7 @@ FFMovie *ffmovie_open(const char *filename)
 
     movie->frame_count = 0;
     movie->time_offset = 0.0;
+    movie->paused = 1;
 
     movie->decode_thread = SDL_CreateThread(decode_thread, movie);
     if (!movie->decode_thread) {
@@ -782,10 +776,22 @@ void ffmovie_close(FFMovie *movie)
     av_free(movie);
 }
 
+void ffmovie_play(FFMovie *movie) {
+    movie->paused = 0;
+}
 
-void ffmovie_pause(FFMovie *movie)
-{
-    movie->paused = !movie->paused;
+void ffmovie_stop(FFMovie *movie) {
+    movie->paused = 1;
+    /*should force blit of current frame to source*/
+    /*even better, to rgb not just yuv*/
+}
+
+void ffmovie_pause(FFMovie *movie) {
+    if(movie->paused) {
+        ffmovie_play(movie);
+    } else {
+        ffmovie_stop(movie);
+    }
 }
 
 int ffmovie_finished(FFMovie *movie) {
@@ -797,8 +803,8 @@ void ffmovie_setdisplay(FFMovie *movie, SDL_Surface *dest, SDL_Rect *rect)
 {
 /*MAIN THREAD*/
 
-    if(!movie->video_st || movie->abort_request) {
-        /*This movie has no video stream*/
+    if(!movie->video_st || movie->abort_request || movie->context==NULL) {
+        /*This movie has no video stream, or finished*/
         return;
     }
 
@@ -857,5 +863,15 @@ void ffmovie_setdisplay(FFMovie *movie, SDL_Surface *dest, SDL_Rect *rect)
     }
 
     SDL_UnlockMutex(movie->dest_mutex);
+    
+    /*set display time to now, force redraw*/
+    movie->dest_showtime = get_master_clock(movie);
+   
 }
 
+void ffmovie_setvolume(FFMovie *movie, int volume) {
+    if(movie->audio_st) {
+        movie->audio_volume = volume;
+        /*note, i'll need to multiply the sound data myself*/
+    }
+}

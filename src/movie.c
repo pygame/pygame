@@ -58,7 +58,6 @@ static PyObject* PyMovie_New(FFMovie*);
     /*DOC*/ ;
 
 /*FIX, needs looping, which needs a 'rewind'*/
-/*FIX, does nothing for now, movies autoplay*/
 
 static PyObject* movie_play(PyObject* self, PyObject* args)
 {
@@ -67,7 +66,7 @@ static PyObject* movie_play(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "|i", &loops))
 		return NULL;
         Py_BEGIN_ALLOW_THREADS
-//	ffmovie_play(movie);
+	ffmovie_play(movie);
         Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
@@ -89,7 +88,7 @@ static PyObject* movie_stop(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
         Py_BEGIN_ALLOW_THREADS
-//	ffmovie_stop(movie);
+	ffmovie_stop(movie);
         Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
@@ -126,7 +125,7 @@ static PyObject* movie_pause(PyObject* self, PyObject* args)
 
 static PyObject* movie_rewind(PyObject* self, PyObject* args)
 {
-	FFMovie* movie = PyMovie_AsFFMovie(self);
+/*	FFMovie* movie = PyMovie_AsFFMovie(self);*/
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
         Py_BEGIN_ALLOW_THREADS
@@ -142,18 +141,16 @@ static PyObject* movie_rewind(PyObject* self, PyObject* args)
     /*DOC*/    "Set the play volume for this Movie. The volume value is between\n"
     /*DOC*/    "0.0 and 1.0.\n"
     /*DOC*/ ;
-/*FIX, currently a noop*/
 
 static PyObject* movie_set_volume(PyObject* self, PyObject* args)
 {
 	FFMovie* movie = PyMovie_AsFFMovie(self);
 	float value;
-	int volume;
 	if(!PyArg_ParseTuple(args, "f", &value))
 		return NULL;
 
         Py_BEGIN_ALLOW_THREADS
-
+        ffmovie_setvolume(movie, (int)(value*128));
         Py_END_ALLOW_THREADS
 
 	RETURN_NONE
@@ -181,7 +178,6 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 	PyObject* surfobj, *posobj=NULL;
         SDL_Rect* sdlrect, sdltemp;
 	GAME_Rect *rect, temp;
-	int x=0, y=0;
 	if(!PyArg_ParseTuple(args, "O|O", &surfobj, &posobj))
 		return NULL;
 
@@ -219,7 +215,6 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 	    if(surfobj != Py_None)
 		       return RAISE(PyExc_TypeError, "destination must be a Surface");
 	}
-printf("Set Display: end\n");
 
 	RETURN_NONE;
 }
@@ -315,7 +310,7 @@ static PyObject* movie_get_time(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	return PyInt_FromLong(movie->frame_timer);
+	return PyFloat_FromDouble(movie->frame_last_pts);
 }
 
     /*DOC*/ static char doc_movie_get_length[] =
@@ -327,7 +322,7 @@ static PyObject* movie_get_time(PyObject* self, PyObject* args)
 /*FIX, currently a no op*/
 static PyObject* movie_get_length(PyObject* self, PyObject* args)
 {
-	FFMovie* movie = PyMovie_AsFFMovie(self);
+/*	FFMovie* movie = PyMovie_AsFFMovie(self);*/
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
