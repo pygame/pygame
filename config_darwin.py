@@ -9,8 +9,8 @@ if not configcommand:
     hardcoded = '/usr/local/bin/sdl-config'
     if os.path.isfile(hardcoded):
        configcommand = hardcoded
-else:
-    configcommand = 'sdl-config'
+    else:
+    	configcommand = 'sdl-config'
 configcommand = configcommand + ' --version --cflags --libs'
 
 
