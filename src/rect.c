@@ -282,8 +282,7 @@ static PyObject* rect_collidepoint(PyObject* oself, PyObject* args)
     /*DOC*/    "check overlapping rectangles\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns true if any area of the two rectangles\n"
-    /*DOC*/    "overlaps. If rectangles only share an edge, they\n"
-    /*DOC*/    "will be counted as overlapping.\n"
+    /*DOC*/    "overlaps.\n"
     /*DOC*/ ;
 
 static PyObject* rect_colliderect(PyObject* oself, PyObject* args)
