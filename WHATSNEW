@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 26, 2003
+	add GL_STEREO
+
 July 22, 2003
 	add GL_MULTISAMPLEBUFFERS and GL_MULTISAMPLESAMPLES
 
