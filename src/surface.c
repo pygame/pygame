@@ -1178,9 +1178,9 @@ static PyObject* surf_get_losses(PyObject* self, PyObject* args)
     /*DOC*/    "Surface.save(file) -> None\n"
     /*DOC*/    "save surface as BMP data\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will save your surface in the BMP format. The given file\n"
-    /*DOC*/    "argument can be either a filename or a python file-like object\n"
-    /*DOC*/    "to save the BMP image to.\n"
+    /*DOC*/    "This function is depracated, please don't use it. It will print\n"
+    /*DOC*/    "a warning when called, but eventually be removed from pygame.\n"
+    /*DOC*/    "You should now use the enhanced pygame.image.save() function.\n"
     /*DOC*/ ;
 
 static PyObject* surf_save(PyObject* self, PyObject* arg)
@@ -1189,6 +1189,14 @@ static PyObject* surf_save(PyObject* self, PyObject* arg)
 	PyObject* file;
 	SDL_RWops *rw;
 	int result;
+	static int warned = 0;
+
+	if(!warned)
+	{
+		warned = 1;
+		fprintf(stderr, "Surface.save() is now depracated. Please don't use.\n");
+	}
+
 	if(!PyArg_ParseTuple(arg, "O", &file))
 		return NULL;
 

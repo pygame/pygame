@@ -15,8 +15,8 @@ from pygame.locals import *
 
 
 #Resource Filenames
-chimpfile = os.path.join('data', 'chimp.gif')
-fistfile = os.path.join('data', 'fist.gif')
+chimpfile = os.path.join('data', 'chimp.bmp')
+fistfile = os.path.join('data', 'fist.bmp')
 hitfile = os.path.join('data', 'punch.wav')
 missfile = os.path.join('data', 'whiff.wav')
 
@@ -45,7 +45,9 @@ def main():
     
 #Load Resources
     chimp = pygame.image.load(chimpfile).convert()
+    chimp.set_colorkey(chimp.get_at((0, 0)))
     fist = pygame.image.load(fistfile).convert()
+    fist.set_colorkey(chimp.get_at((0, 0)))
     whiffsound = pygame.mixer.Sound(missfile)
     hitsound = pygame.mixer.Sound(hitfile)
     

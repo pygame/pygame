@@ -22,7 +22,7 @@ def main():
     screen = pygame.display.set_mode((640, 480), HWSURFACE|DOUBLEBUF, 8)
 
     #load image
-    imagename = os.path.join('data', 'liquid.gif')
+    imagename = os.path.join('data', 'liquid.bmp')
     bitmap = pygame.image.load(imagename)
 
     #get the image and screen in the same format

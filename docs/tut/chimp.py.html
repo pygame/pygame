@@ -1,99 +1,158 @@
-<HTML><HEAD><TITLE>..\..\examples\chimp.py</TITLE></HEAD>
-		  <BODY BGCOLOR=#FFFFFF>
-		  <!--header-->
-		  <!--script--><PRE><FONT COLOR=#1111CC>#/usr/bin/env python</FONT>
-
-<FONT COLOR=#115511>"""This simple example is used for the line-by-line tutorial
-that comes with pygame. It is based on a 'popular' web banner.
-Note there are comments here, but for the full explanation, 
-follow along in the tutorial. This code contains little error
-checking to make it a little clearer. The full tutorial explains
-where and how better error checking will help."""</FONT>
-
-
-<FONT COLOR=#1111CC>#Import Modoules</FONT>
-<FONT COLOR=#3333CC><B>import</B></FONT> os
-<FONT COLOR=#3333CC><B>import</B></FONT> pygame, pygame.font, pygame.image, pygame.mixer
-<FONT COLOR=#3333CC><B>from</B></FONT> pygame.locals <FONT COLOR=#3333CC><B>import</B></FONT> *
-
-
-<FONT COLOR=#1111CC>#Resource Filenames</FONT>
-chimpfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'chimp.gif'</FONT>)
-fistfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'fist.gif'</FONT>)
-hitfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'punch.wav'</FONT>)
-missfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'whiff.wav'</FONT>)
-
-
-<FONT COLOR=#3333CC><B>def</B></FONT><A NAME="main"><FONT COLOR=#CC0000><B> main</B></FONT></A>():
-<FONT COLOR=#1111CC>#Initialize Everything</FONT>
-    pygame.init()
-    screen = pygame.display.set_mode((468, 60), HWSURFACE|DOUBLEBUF)
-    pygame.display.set_caption(<FONT COLOR=#115511>'Monkey Fever'</FONT>)
-    pygame.mouse.set_visible(0)
-     
-<FONT COLOR=#1111CC>#Create The Backgound</FONT>
-    background = pygame.Surface(screen.get_size())
-    background.fill((250, 250, 250))
-    
-<FONT COLOR=#1111CC>#Put Text On The Background, Centered</FONT>
-    font = pygame.font.Font(None, 36)
-    text = font.render(<FONT COLOR=#115511>"Pummel The Chimp, And Win $$$"</FONT>, 1, (10, 10, 10))
-    textpos = text.get_rect()
-    textpos.centerx = background.get_rect().centerx
-    background.blit(text, textpos)
-
-<FONT COLOR=#1111CC>#Display The Background While Setup Finishes</FONT>
-    screen.blit(background, (0, 0))
-    pygame.display.flip()
-    
-<FONT COLOR=#1111CC>#Load Resources</FONT>
-    chimp = pygame.image.load(chimpfile).convert()
-    fist = pygame.image.load(fistfile).convert()
-    whiffsound = pygame.mixer.Sound(missfile)
-    hitsound = pygame.mixer.Sound(hitfile)
-    
-<FONT COLOR=#1111CC>#Prepare To Animate</FONT>
-    chimppos = chimp.get_rect()
-    chimppos.bottom = screen.get_height()
-    chimpmove = 2
-    reload = 0
-
-<FONT COLOR=#1111CC>#Main Loop</FONT>
-    <FONT COLOR=#3333CC><B>while</B></FONT> 1:
-    
-    <FONT COLOR=#1111CC>#Handle Input, Check For Quit</FONT>
-        event = pygame.event.poll()
-        <FONT COLOR=#3333CC><B>if</B></FONT> event.type == QUIT <FONT COLOR=#3333CC><B>or</B></FONT> (event.type == KEYDOWN <FONT COLOR=#3333CC><B>and</B></FONT> event.key == K_ESCAPE):
-            <FONT COLOR=#3333CC><B>break</B></FONT>
-    
-    <FONT COLOR=#1111CC>#Move The Monkey</FONT>
-        chimppos.left += chimpmove
-        <FONT COLOR=#3333CC><B>if</B></FONT> <FONT COLOR=#3333CC><B>not</B></FONT> screen.get_rect().contains(chimppos):
-            chimpmove = -chimpmove
-    
-    <FONT COLOR=#1111CC>#Move And Punch The Fist</FONT>
-        fistpos = pygame.mouse.get_pos()    
-        pressed = pygame.mouse.get_pressed()[0]
-        <FONT COLOR=#3333CC><B>if</B></FONT> <FONT COLOR=#3333CC><B>not</B></FONT> reload <FONT COLOR=#3333CC><B>and</B></FONT> pressed:
-            <FONT COLOR=#3333CC><B>if</B></FONT> chimppos.collidepoint(fistpos):
-                hitsound.play()
-            <FONT COLOR=#3333CC><B>else</B></FONT>:
-                whiffsound.play()
-        reload = pressed
-        <FONT COLOR=#3333CC><B>if</B></FONT> <FONT COLOR=#3333CC><B>not</B></FONT> reload:
-            fistpos = fistpos[0] - 20, fistpos[1] - 10
-
-    <FONT COLOR=#1111CC>#Draw The Entire Scene</FONT>
-        screen.blit(background, (0, 0))
-        screen.blit(chimp, chimppos)
-        screen.blit(fist, fistpos)
-        pygame.display.flip()
-
-<FONT COLOR=#1111CC>#Game Over</FONT>
-
-
-<FONT COLOR=#1111CC>#this is python code to kickstart the program if not imported</FONT>
-<FONT COLOR=#3333CC><B>if</B></FONT> __name__ == <FONT COLOR=#115511>'__main__'</FONT>: main()
-</PRE>
-		  <!--footer-->
-		  </BODY>
+<HTML>
+<HEAD>
+<STYLE>
+.S0 {
+	color: #808080;
+}
+.S1 {
+	font-family: Comic Sans MS;
+	color: #007F00;
+	font-size: 9pt;
+}
+.S2 {
+	color: #007F7F;
+}
+.S3 {
+	font-family: Courier New;
+	color: #7F007F;
+	font-size: 10pt;
+}
+.S4 {
+	font-family: Courier New;
+	color: #7F007F;
+	font-size: 10pt;
+}
+.S5 {
+	font-weight: bold;
+	color: #00007F;
+}
+.S6 {
+	color: #7F0000;
+}
+.S7 {
+	color: #7F0000;
+}
+.S8 {
+	font-weight: bold;
+	color: #0000FF;
+}
+.S9 {
+	font-weight: bold;
+	color: #007F7F;
+}
+.S10 {
+	font-weight: bold;
+}
+.S12 {
+	color: #7F7F7F;
+}
+.S13 {
+	font-family: Courier New;
+	color: #000000;
+	background: #E0C0E0;
+	font-size: 10pt;
+}
+SPAN {
+	font-family: Verdana;
+	font-size: 10pt;
+}
+</STYLE>
+</HEAD>
+<BODY>
+<SPAN class=S0></SPAN><SPAN class=S1>#/usr/bin/env&nbsp;python</SPAN><SPAN class=S0><BR>
+<BR>
+</SPAN><SPAN class=S7>"""This&nbsp;simple&nbsp;example&nbsp;is&nbsp;used&nbsp;for&nbsp;the&nbsp;line-by-line&nbsp;tutorial<BR>
+that&nbsp;comes&nbsp;with&nbsp;pygame.&nbsp;It&nbsp;is&nbsp;based&nbsp;on&nbsp;a&nbsp;'popular'&nbsp;web&nbsp;banner.<BR>
+Note&nbsp;there&nbsp;are&nbsp;comments&nbsp;here,&nbsp;but&nbsp;for&nbsp;the&nbsp;full&nbsp;explanation,&nbsp;<BR>
+follow&nbsp;along&nbsp;in&nbsp;the&nbsp;tutorial.&nbsp;This&nbsp;code&nbsp;contains&nbsp;little&nbsp;error<BR>
+checking&nbsp;to&nbsp;make&nbsp;it&nbsp;a&nbsp;little&nbsp;clearer.&nbsp;The&nbsp;full&nbsp;tutorial&nbsp;explains<BR>
+where&nbsp;and&nbsp;how&nbsp;better&nbsp;error&nbsp;checking&nbsp;will&nbsp;help."""</SPAN><SPAN class=S0><BR>
+<BR>
+<BR>
+</SPAN><SPAN class=S1>#Import&nbsp;Modoules</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S5>import</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>os</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S5>import</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>font</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>image</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>mixer</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S5>from</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>locals</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>import</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>*</SPAN><SPAN class=S0><BR>
+<BR>
+<BR>
+</SPAN><SPAN class=S1>#Resource&nbsp;Filenames</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S11>chimpfile</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>os</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>path</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>join</SPAN><SPAN class=S10>(</SPAN><SPAN class=S4>'data'</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S4>'chimp.bmp'</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S11>fistfile</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>os</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>path</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>join</SPAN><SPAN class=S10>(</SPAN><SPAN class=S4>'data'</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S4>'fist.bmp'</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S11>hitfile</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>os</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>path</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>join</SPAN><SPAN class=S10>(</SPAN><SPAN class=S4>'data'</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S4>'punch.wav'</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S11>missfile</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>os</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>path</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>join</SPAN><SPAN class=S10>(</SPAN><SPAN class=S4>'data'</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S4>'whiff.wav'</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+<BR>
+<BR>
+</SPAN><SPAN class=S5>def</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S9>main</SPAN><SPAN class=S10>():</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S1>#Initialize&nbsp;Everything</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>init</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>display</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>set_mode</SPAN><SPAN class=S10>((</SPAN><SPAN class=S2>468</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>60</SPAN><SPAN class=S10>),</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>HWSURFACE</SPAN><SPAN class=S10>|</SPAN><SPAN class=S11>DOUBLEBUF</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>display</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>set_caption</SPAN><SPAN class=S10>(</SPAN><SPAN class=S4>'Monkey&nbsp;Fever'</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>mouse</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>set_visible</SPAN><SPAN class=S10>(</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+</SPAN><SPAN class=S1>#Create&nbsp;The&nbsp;Backgound</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>background</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>Surface</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_size</SPAN><SPAN class=S10>())</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>background</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>fill</SPAN><SPAN class=S10>((</SPAN><SPAN class=S2>250</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>250</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>250</SPAN><SPAN class=S10>))</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+</SPAN><SPAN class=S1>#Put&nbsp;Text&nbsp;On&nbsp;The&nbsp;Background,&nbsp;Centered</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>font</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>font</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>Font</SPAN><SPAN class=S10>(</SPAN><SPAN class=S5>None</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>36</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>text</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>font</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>render</SPAN><SPAN class=S10>(</SPAN><SPAN class=S3>"Pummel&nbsp;The&nbsp;Chimp,&nbsp;And&nbsp;Win&nbsp;$$$"</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>1</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>(</SPAN><SPAN class=S2>10</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>10</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>10</SPAN><SPAN class=S10>))</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>textpos</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>text</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_rect</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>textpos</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>centerx</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>background</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_rect</SPAN><SPAN class=S10>().</SPAN><SPAN class=S11>centerx</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>background</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>blit</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>text</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>textpos</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+<BR>
+</SPAN><SPAN class=S1>#Display&nbsp;The&nbsp;Background&nbsp;While&nbsp;Setup&nbsp;Finishes</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>blit</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>background</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>(</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>))</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>display</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>flip</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+</SPAN><SPAN class=S1>#Load&nbsp;Resources</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>chimp</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>image</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>load</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>chimpfile</SPAN><SPAN class=S10>).</SPAN><SPAN class=S11>convert</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>chimp</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>set_colorkey</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>chimp</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_at</SPAN><SPAN class=S10>((</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>)))</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>fist</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>image</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>load</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>fistfile</SPAN><SPAN class=S10>).</SPAN><SPAN class=S11>convert</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>fist</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>set_colorkey</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>chimp</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_at</SPAN><SPAN class=S10>((</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>)))</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>whiffsound</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>mixer</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>Sound</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>missfile</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>hitsound</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>mixer</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>Sound</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>hitfile</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+</SPAN><SPAN class=S1>#Prepare&nbsp;To&nbsp;Animate</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>chimppos</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>chimp</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_rect</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>chimppos</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>bottom</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_height</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>chimpmove</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>2</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>reload</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>0</SPAN><SPAN class=S0><BR>
+<BR>
+</SPAN><SPAN class=S1>#Main&nbsp;Loop</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>while</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>1</SPAN><SPAN class=S10>:</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S1>#Handle&nbsp;Input,&nbsp;Check&nbsp;For&nbsp;Quit</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>event</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>event</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>poll</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>if</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>event</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>type</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>==</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>QUIT</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>or</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>event</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>type</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>==</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>KEYDOWN</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>and</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>event</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>key</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>==</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>K_ESCAPE</SPAN><SPAN class=S10>):</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>break</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S1>#Move&nbsp;The&nbsp;Monkey</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>chimppos</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>left</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>+=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>chimpmove</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>if</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>not</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_rect</SPAN><SPAN class=S10>().</SPAN><SPAN class=S11>contains</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>chimppos</SPAN><SPAN class=S10>):</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>chimpmove</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>-</SPAN><SPAN class=S11>chimpmove</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S1>#Move&nbsp;And&nbsp;Punch&nbsp;The&nbsp;Fist</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>fistpos</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>mouse</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_pos</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0>&nbsp;&nbsp;&nbsp;&nbsp;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>pressed</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>mouse</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>get_pressed</SPAN><SPAN class=S10>()[</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>]</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>if</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>not</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>reload</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>and</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pressed</SPAN><SPAN class=S10>:</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>if</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>chimppos</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>collidepoint</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>fistpos</SPAN><SPAN class=S10>):</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>hitsound</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>play</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>else</SPAN><SPAN class=S10>:</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>whiffsound</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>play</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>reload</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>pressed</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S5>if</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S5>not</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>reload</SPAN><SPAN class=S10>:</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>fistpos</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>=</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>fistpos</SPAN><SPAN class=S10>[</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>]</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>-</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>20</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>fistpos</SPAN><SPAN class=S10>[</SPAN><SPAN class=S2>1</SPAN><SPAN class=S10>]</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>-</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>10</SPAN><SPAN class=S0><BR>
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S1>#Draw&nbsp;The&nbsp;Entire&nbsp;Scene</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>blit</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>background</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>(</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S2>0</SPAN><SPAN class=S10>))</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>blit</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>chimp</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>chimppos</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>screen</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>blit</SPAN><SPAN class=S10>(</SPAN><SPAN class=S11>fist</SPAN><SPAN class=S10>,</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>fistpos</SPAN><SPAN class=S10>)</SPAN><SPAN class=S0><BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</SPAN><SPAN class=S11>pygame</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>display</SPAN><SPAN class=S10>.</SPAN><SPAN class=S11>flip</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+<BR>
+</SPAN><SPAN class=S1>#Game&nbsp;Over</SPAN><SPAN class=S0><BR>
+<BR>
+<BR>
+</SPAN><SPAN class=S1>#this&nbsp;is&nbsp;python&nbsp;code&nbsp;to&nbsp;kickstart&nbsp;the&nbsp;program&nbsp;if&nbsp;not&nbsp;imported</SPAN><SPAN class=S0><BR>
+</SPAN><SPAN class=S5>if</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>__name__</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S10>==</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S4>'__main__'</SPAN><SPAN class=S10>:</SPAN><SPAN class=S0>&nbsp;</SPAN><SPAN class=S11>main</SPAN><SPAN class=S10>()</SPAN><SPAN class=S0><BR>
+</SPAN></BODY>
+</HTML>

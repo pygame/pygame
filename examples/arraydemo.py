@@ -25,7 +25,7 @@ def surfdemo_show(array_img, name):
         e = pygame.event.poll()
         if e.type == MOUSEBUTTONDOWN: break
         elif e.type == KEYDOWN and e.key == K_s:
-            screen.save(name+'.bmp')
+            pygame.image.save(screen, name+'.bmp')
         elif e.type == QUIT: raise SystemExit
 
 
@@ -44,7 +44,7 @@ surfdemo_show(striped, 'striped')
 
 
 #imgarray
-imagename = os.path.join('data', 'arraydemo.jpg')
+imagename = os.path.join('data', 'arraydemo.bmp')
 imgsurface = pygame.image.load(imagename)
 imgarray = surfarray.array2d(imgsurface)
 surfdemo_show(imgarray, 'imgarray')

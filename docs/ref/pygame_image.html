@@ -46,20 +46,43 @@
 </td></tr></table>
 <br>
 <h2 align=center>pygame.image</h2>
-Contains routines to load Surfaces from image files. This
-module must be manually imported, since it requires the use of
-the SDL_image library.
+This module contains functions to transfer images in and out
+of Surfaces. At the minimum the included <a href=pygame_mixer_music.html#load>load()</a> function will
+support BMP files. If SDL_image is properly installed when
+pygame is installed, it will support all the formats included
+with SDL_image. You can call the <a href=#get_extended>get_extended()</a> function to test
+if the SDL_image support is available.
+<br>&nbsp;<br>
+Some functions that communicate with other libraries will require
+that those libraries are properly installed. For example, the <a href=Surface.html#save>save()</a>
+function can only save OPENGL surfaces if pyopengl is available.
 
 <hr>
 
 <table>
+<tr><td><a href=#get_extended>get_extended</a></td><td> -
+save surface as BMP data</td></tr>
+
+
 <tr><td><a href=#load>load</a></td><td> -
 load an image to a new Surface</td></tr>
+
+
+<tr><td><a href=#save>save</a></td><td> -
+save surface as BMP data</td></tr>
 
 
 </table>
 
 <hr>
+
+<a name=get_extended><font size=+2><b>get_extended
+</b></font><br><font size=+1><tt>
+pygame.image.get_extended() -> int
+</tt></font><ul>
+This will return a true value if the extended image formats
+from SDL_image are available for loading.
+</ul><br>&nbsp;<br>
 
 <a name=load><font size=+2><b>load
 </b></font><br><font size=+1><tt>
@@ -72,10 +95,20 @@ from. If you pass a file-like object that isn't actually a file
 either the filename or extension as the namehint string. The
 namehint can help the loader determine the filetype.
 <br>&nbsp;<br>
-You will only be able to load the types of images supported by
-your build of SDL_image. This will always include GIF, BMP, PPM,
-PCX, and TGA. SDL_image can also load JPG, PNG, and TIF, but they are
-optional.
+If pygame was installed without SDL_image support, the load
+will only work with BMP images. You can test if SDL_image is
+available with the <a href=#get_extended>get_extended()</a> function. These extended
+file formats usually include GIF, PNG, JPG, PCX, TGA, and more.
+</ul><br>&nbsp;<br>
+
+<a name=save><font size=+2><b>save
+</b></font><br><font size=+1><tt>
+pygame.image.save(Surface, file) -> None
+</tt></font><ul>
+This will save your surface in the BMP format. The given file
+argument can be either a filename or a python file-like object
+to save the BMP image to. This will also work for an opengl
+display surface.
 </ul><br>&nbsp;<br>
 
 

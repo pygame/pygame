@@ -4,7 +4,12 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
-Mar 14, 2001
+May 15, 2001
+	image module is now builtin, but formats are optional
+	enhanced save function in image (handles opengl)
+	Surface.save is now depracated
+
+May 14, 2001
 	smarter internal module handling
 	fixed blit() (broken on May 9th change)
 

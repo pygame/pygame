@@ -17,6 +17,9 @@ import whrandom, os.path, sys
 import pygame, pygame.image
 from pygame.locals import *
 
+if not pygame.image.get_extended():
+    raise SystemExit, "Requires the extended image loading from SDL_image"
+
 
 #constants
 FRAMES_PER_SEC = 50
