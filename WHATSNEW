@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 9, 2004
+    help protect int overflow
+
 December 25, 2003
     sprite groups are now iterators
     SysFont better unix parsing

@@ -273,9 +273,17 @@ static int IntFromObj(PyObject* obj, int* val)
 	if(PyNumber_Check(obj))
 	{
 		if(!(intobj = PyNumber_Int(obj)))
+                {
+                        PyErr_Clear();
 			return 0;
+                }
 		*val = PyInt_AsLong(intobj);
 		Py_DECREF(intobj);
+                if(PyErr_Occurred())
+                {
+                    PyErr_Clear();
+                    return 0;
+                }
 		return 1;
 	}
 	return 0;
