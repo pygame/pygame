@@ -131,6 +131,7 @@ static char* name_from_eventtype(int type)
 	case SDL_QUIT:			return "Quit";
 	case SDL_SYSWMEVENT:	return "SysWMEvent";
 	case SDL_VIDEORESIZE:	return "VideoResize";
+	case SDL_VIDEOEXPOSE:	return "VideoExpose";
 	case SDL_NOEVENT:		return "NoEvent";
 	}
 	if(type >= SDL_USEREVENT && type < SDL_NUMEVENTS)
@@ -235,13 +236,12 @@ static PyObject* dict_from_event(SDL_Event* event)
 		obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
 		insobj(dict, "size", obj);
 		break;
+/* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
 	}
 	if(event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
 	{
 		insobj(dict, "code", PyInt_FromLong(event->user.code));
-/*		insobj(dict, "data1", PyInt_FromLong((int)event->user.data1));
-		insobj(dict, "data2", PyInt_FromLong((int)event->user.data2));
-*/	}
+	}
 
 	return dict;
 }
@@ -317,6 +317,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "Events that come from the system will have a guaranteed set of\n"
     /*DOC*/    "member items based on the type. Here is a list of the Event members\n"
     /*DOC*/    "that are defined with each type.<br><table align=center>"
+    /*DOC*/    "<tr><td><b>QUIT</b></td><td><i>none</i></td></tr>\n"
     /*DOC*/    "<tr><td><b>ACTIVEEVENT</b></td><td>gain, state</td></tr>\n"
     /*DOC*/    "<tr><td><b>KEYDOWN</b></td><td>unicode, key, mod</td></tr>\n"
     /*DOC*/    "<tr><td><b>KEYUP</b></td><td>key, mod</td></tr>\n"
@@ -329,6 +330,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "<tr><td><b>JOYBUTTONUP</b></td><td>joy, button</td></tr>\n"
     /*DOC*/    "<tr><td><b>JOYBUTTONDOWN</b></td><td>joy, button</td></tr>\n"
     /*DOC*/    "<tr><td><b>VIDEORESIZE</b></td><td>size</td></tr>\n"
+    /*DOC*/    "<tr><td><b>VIDEOEXPOSE</b></td><td><i>none</i></td></tr>\n"
     /*DOC*/    "<tr><td><b>USEREVENT</b></td><td>code</td></tr></table>\n"
     /*DOC*/ ;
 
