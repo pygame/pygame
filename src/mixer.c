@@ -1144,7 +1144,7 @@ void initmixer(void)
 	import_pygame_rwobject();
 
 	music = PyImport_ImportModule("pygame.mixer_music");
-	if(music) 
+        if(music) 
 	{
 		PyObject* ptr, *dict;
 		PyModule_AddObject(module, "music", music);
@@ -1154,8 +1154,8 @@ void initmixer(void)
 	}	
 	else /*music module not compiled? cleanly ignore*/
 	{
-		current_music = NULL;
-		PyErr_Clear();
+            current_music = NULL;
+            PyErr_Clear();
 	}
 }
 
