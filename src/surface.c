@@ -984,7 +984,7 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
     /*DOC*/    "Surface.blit(source, destpos, [sourcerect]) -> Rect\n"
     /*DOC*/    "copy a one Surface to another.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The blitting will transfer one surface to another. It will\n"
+    /*DOC*/    "The blitting will copy pixels from the source. It will\n"
     /*DOC*/    "respect any special modes like colorkeying and alpha. If hardware\n"
     /*DOC*/    "support is available, it will be used. The given source is the\n"
     /*DOC*/    "Surface to copy from. The destoffset is a 2-number-sequence that\n"
