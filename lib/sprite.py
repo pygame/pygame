@@ -92,10 +92,10 @@ class Sprite(object):
         if groups: self.add(groups)
 
     def add(self, *groups):
-        """add a sprite to container
+        """add(group or list of of groups, ...)
+           add a sprite to container
 
-           Add the sprite to a group or sequence of groups. You can
-           use add(group), add([group1, group2]), or add(group1, group2)."""
+           Add the sprite to a group or sequence of groups."""
         has = self.__g.has_key
         for group in groups:
             if hasattr(group, '_spritegroup'):
@@ -105,10 +105,10 @@ class Sprite(object):
             else: self.add(*group)
 
     def remove(self, *groups):
-        """remove a sprite from container
+        """remove(group or list of groups, ...)
+           remove a sprite from container
 
-           Remove the sprite from a group or sequence of groups. The syntax
-           is the same as the add function."""
+           Remove the sprite from a group or sequence of groups."""
         has = self.__g.has_key
         for group in groups:
             if hasattr(group, '_spritegroup'):
@@ -127,7 +127,8 @@ class Sprite(object):
         pass
 
     def kill(self):
-        """remove this sprite from all groups
+        """kill()
+           remove this sprite from all groups
 
            Removes the sprite from all the groups that contain
            it. The sprite still exists after calling this,
@@ -138,14 +139,16 @@ class Sprite(object):
         self.__g.clear()
 
     def groups(self):
-        """list used sprite containers
+        """groups() -> list of groups
+           list used sprite containers
 
            Returns a list of all the groups that contain this
            sprite. These are not returned in any meaningful order."""
         return self.__g.keys()
 
     def alive(self):
-        """check to see if the sprite is in any groups
+        """alive() -> bool
+           check to see if the sprite is in any groups
 
            Returns true if this sprite is a member of any groups."""
         return (len(self.__g) != 0)
@@ -154,8 +157,7 @@ class Sprite(object):
         return "<%s sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
 
 class AbstractGroup(object):
-    """a base for containers for sprites
-       This is the base sprite group class. It does everything
+    """A base for containers for sprites. It does everything
        needed to behave as a normal group. You can easily inherit
        a new group class from this, or the other groups below,
        if you want to add more features.
@@ -176,7 +178,8 @@ class AbstractGroup(object):
 
            Returns an object that can be looped over with a 'for' loop.
            (For now it is always a list, but newer version of Python
-           could return different objects, like iterators.)"""
+           could return different iterators.) You can also iterate directly
+           over the sprite group."""
         return self.spritedict.keys()
 
     def add_internal(self, sprite):
@@ -200,23 +203,13 @@ class AbstractGroup(object):
         return self.__class__(self.sprites())
 
     def __iter__(self):
-        """for sprite in group: ...
-           iterate through the sprites in this group
-
-           Sprite groups are iterable, so 'for sprite in group' is the same
-           as 'for sprite in group.sprites()'."""
         return iter(self.sprites())
 
     def __contains__(self, sprite):
-        """if sprite in group: ...
-           check if a sprite is in this group
-
-           You can use 'if sprite in group' rather than
-           'if sprite in group.sprites()' and it may be faster."""
         return self.has(sprite)
 
     def add(self, *sprites):
-        """add(sprite or group, ...)
+        """add(sprite, list, or group, ...)
            add sprite to group
 
            Add a sprite or sequence of sprites to a group."""
@@ -248,7 +241,7 @@ class AbstractGroup(object):
                         sprite.add_internal(self)
 
     def remove(self, *sprites):
-        """remove(sprite or group, ...)
+        """remove(sprite, list, or group, ...)
            remove sprite from group
 
            Remove a sprite or sequence of sprites from a group."""
@@ -279,7 +272,8 @@ class AbstractGroup(object):
            ask if group has a sprite or sprites
 
            Returns true if the given sprite or sprites are
-           contained in the group"""
+           contained in the group. You can also use 'sprite in group'
+           or 'subgroup in group'."""
         # Again, this follows the basic pattern of Group.add and
         # Group.remove.
         for sprite in sprites:
@@ -350,12 +344,6 @@ class AbstractGroup(object):
             s.remove_internal(self)
 
     def __nonzero__(self):
-        """if sprite: ...
-           ask if group is empty
-
-           Returns true if the group has any sprites. This
-           lets you check if the group has any sprites by
-           using it in a logical if statement."""
         return (len(self.sprites()) != 0)
 
     def __len__(self):
@@ -369,12 +357,11 @@ class AbstractGroup(object):
         return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
 
 class Group(AbstractGroup):
-    """Group(sprite or group, ...)
-       This is the basic Group class you will want to use. It supports
-       all of the above operations and methods.
+    """The basic Group class you will want to use.
+       It supports all of the above operations and methods.
 
-       The RenderPlain and RenderClear groups are just aliases to this
-       group, for compatibility."""
+       The RenderPlain and RenderClear groups are aliases to Group
+       for compatibility."""
     
     def __init__(self, *sprites):
         AbstractGroup.__init__(self)
@@ -384,11 +371,10 @@ RenderPlain = Group
 RenderClear = Group
 
 class RenderUpdates(Group):
-    """RenderUpdates(sprite or group, ...)
-
-       This group supports drawing to the screen, but also, its draw
-       method returns a list of the Rects updated by the draw (and any
-       clears in between the last draw and the current one). So, you
+    """A sprite group that's more efficient at updating.
+       This group supports drawing to the screen, but its draw method
+       also returns a list of the Rects updated by the draw (and any
+       clears in between the last draw and the current one). You
        can use pygame.display.update(renderupdates_group.draw(screen))
        to minimize the updated part of the screen. This can usually
        make things much faster."""
@@ -414,10 +400,9 @@ class RenderUpdates(Group):
        return dirty
 
 class OrderedUpdates(RenderUpdates):
-    """OrderedUpdates(sprite or group, ...)
-       This class is like RenderUpdates, but the sprites are drawn
-       in the order they were added; more recently added sprites are
-       drawn last (and so, above other sprites)."""
+    """RenderUpdates, but the sprites are drawn in the order they were added.
+       More recently added sprites are drawn last (and so, above other
+       sprites)."""
 
     def __init__(self, *sprites):
         self._spritelist = []
@@ -434,8 +419,7 @@ class OrderedUpdates(RenderUpdates):
         self._spritelist.remove(sprite)
 
 class GroupSingle(AbstractGroup):
-    """GroupSingle(sprite = None)
-       a group container that holds a single most recent item
+    """A group container that holds a single most recent item.
        This class works just like a regular group, but it only
        keeps a single sprite in the group. Whatever sprite has
        been added to the group last, will be the only sprite in
