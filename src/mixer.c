@@ -105,19 +105,17 @@ static PyObject* quit(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.mixer.init([freq, [size, [stereo]]]) -> None\n"
     /*DOC*/    "initialize mixer module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Initializes the mixer module. Usually no arguments\n"
-    /*DOC*/    "will be needed, the defaults are 22050 frequency\n"
-    /*DOC*/    "data in stereo with signed 16bit data. The size\n"
-    /*DOC*/    "argument can be 8 or 16 for unsigned data, or -8\n"
-    /*DOC*/    "or -16 for signed data.\n"
+    /*DOC*/    "Initializes the mixer module. Usually no arguments will be\n"
+    /*DOC*/    "needed, the defaults are 22050 frequency data in stereo with\n"
+    /*DOC*/    "signed 16bit data. The size argument can be 8 or 16 for unsigned\n"
+    /*DOC*/    "data, or -8 or -16 for signed data.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "On many platforms it is important that the display\n"
-    /*DOC*/    "module is initialized before the audio. (that is,\n"
-    /*DOC*/    "if the display will be initialized at all). You\n"
-    /*DOC*/    "can easily use the pygame.init() function to\n"
-    /*DOC*/    "cleanly initialize everything, but first use the\n"
-    /*DOC*/    "pygame.mixer.pre_init() function to change the\n"
-    /*DOC*/    "default values for this init().\n"
+    /*DOC*/    "On many platforms it is important that the display module is\n"
+    /*DOC*/    "initialized before the audio. (that is, if the display will be\n"
+    /*DOC*/    "initialized at all). You can easily use the pygame.init()\n"
+    /*DOC*/    "function to cleanly initialize everything, but first use the\n"
+    /*DOC*/    "pygame.mixer.pre_init() function to change the default values for\n"
+    /*DOC*/    "this init().\n"
     /*DOC*/ ;
 
 static PyObject* init(PyObject* self, PyObject* arg)
@@ -156,13 +154,11 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.mixer.pre_init([freq, [size, [stereo]]]) -> None\n"
     /*DOC*/    "presets the init default values\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This routine is usefull when you want to customize\n"
-    /*DOC*/    "the sound mixer playback modes. The values you\n"
-    /*DOC*/    "pass will change the default values used by\n"
-    /*DOC*/    "pygame.mixer.init(). This way you can still use\n"
-    /*DOC*/    "the pygame automatic initialization to ensure\n"
-    /*DOC*/    "everything happens in the right order, but set the\n"
-    /*DOC*/    "desired mixer mode.\n"
+    /*DOC*/    "This routine is usefull when you want to customize the sound\n"
+    /*DOC*/    "mixer playback modes. The values you pass will change the default\n"
+    /*DOC*/    "values used by pygame.mixer.init(). This way you can still use\n"
+    /*DOC*/    "the pygame automatic initialization to ensure everything happens\n"
+    /*DOC*/    "in the right order, but set the desired mixer mode.\n"
     /*DOC*/ ;
 
 static PyObject* pre_init(PyObject* self, PyObject* arg)
@@ -187,16 +183,15 @@ static PyObject* pre_init(PyObject* self, PyObject* arg)
     /*DOC*/    "Sound.play([loops, [maxtime]]) -> Channel\n"
     /*DOC*/    "play sound\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Starts playing a song on an available channel. If\n"
-    /*DOC*/    "no channels are available, it will not play and\n"
-    /*DOC*/    "return None. Loops controls how many extra times\n"
-    /*DOC*/    "the sound will play, a negative loop will play\n"
-    /*DOC*/    "indefinitely, it defaults to 0.  Maxtime is the\n"
-    /*DOC*/    "number of total milliseconds that the sound will\n"
-    /*DOC*/    "play. It defaults to forever (-1).\n"
+    /*DOC*/    "Starts playing a song on an available channel. If no channels are\n"
+    /*DOC*/    "available, it will not play and return None. Loops controls how\n"
+    /*DOC*/    "many extra times the sound will play, a negative loop will play\n"
+    /*DOC*/    "indefinitely, it defaults to 0. Maxtime is the number of total\n"
+    /*DOC*/    "milliseconds that the sound will play. It defaults to forever\n"
+    /*DOC*/    "(-1).\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns a channel object for the channel that is\n"
-    /*DOC*/    "selected to play the sound.\n"
+    /*DOC*/    "Returns a channel object for the channel that is selected to play\n"
+    /*DOC*/    "the sound.\n"
     /*DOC*/ ;
 
 static PyObject* snd_play(PyObject* self, PyObject* args)
@@ -223,10 +218,9 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
     /*DOC*/    "Sound.get_num_channels() -> int\n"
     /*DOC*/    "number of channels with sound\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the number of channels that have been\n"
-    /*DOC*/    "using this sound. The channels may have already\n"
-    /*DOC*/    "finished, but have not started playing any other\n"
-    /*DOC*/    "sounds.\n"
+    /*DOC*/    "Returns the number of channels that have been using this sound.\n"
+    /*DOC*/    "The channels may have already finished, but have not started\n"
+    /*DOC*/    "playing any other sounds.\n"
     /*DOC*/ ;
 
 static PyObject* snd_get_num_channels(PyObject* self, PyObject* args)
@@ -285,9 +279,9 @@ static PyObject* snd_get_channel(PyObject* self, PyObject* args)
     /*DOC*/    "Sound.fadeout(millisec) -> None\n"
     /*DOC*/    "fadeout all channels playing this sound\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Fade out all the playing channels playing this\n"
-    /*DOC*/    "sound over the. All channels playing this sound\n"
-    /*DOC*/    "will be stopped after the given milliseconds.\n"
+    /*DOC*/    "Fade out all the playing channels playing this sound over the.\n"
+    /*DOC*/    "All channels playing this sound will be stopped after the given\n"
+    /*DOC*/    "milliseconds.\n"
     /*DOC*/ ;
 
 static PyObject* snd_fadeout(PyObject* self, PyObject* args)
@@ -308,8 +302,7 @@ static PyObject* snd_fadeout(PyObject* self, PyObject* args)
     /*DOC*/    "Sound.stop() -> None\n"
     /*DOC*/    "stop all channels playing this sound\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will instantly stop all channels playing this\n"
-    /*DOC*/    "sound.\n"
+    /*DOC*/    "This will instantly stop all channels playing this sound.\n"
     /*DOC*/ ;
 
 static PyObject* snd_stop(PyObject* self, PyObject* args)
@@ -329,10 +322,9 @@ static PyObject* snd_stop(PyObject* self, PyObject* args)
     /*DOC*/    "Sound.set_volume(val) -> None\n"
     /*DOC*/    "change volume for sound\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Set the play volume for this sound. This will\n"
-    /*DOC*/    "effect any channels currently playing this sound,\n"
-    /*DOC*/    "along with all subsequent calls to play. The value\n"
-    /*DOC*/    "is 0.0 to 1.0.\n"
+    /*DOC*/    "Set the play volume for this sound. This will effect any channels\n"
+    /*DOC*/    "currently playing this sound, along with all subsequent calls to\n"
+    /*DOC*/    "play. The value is 0.0 to 1.0.\n"
     /*DOC*/ ;
 
 static PyObject* snd_set_volume(PyObject* self, PyObject* args)
@@ -354,8 +346,8 @@ static PyObject* snd_set_volume(PyObject* self, PyObject* args)
     /*DOC*/    "Sound.get_volume() -> val\n"
     /*DOC*/    "query volume for sound\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the current volume for this sound object.\n"
-    /*DOC*/    "The value is 0.0 to 1.0.\n"
+    /*DOC*/    "Returns the current volume for this sound object. The value is\n"
+    /*DOC*/    "0.0 to 1.0.\n"
     /*DOC*/ ;
 
 static PyObject* snd_get_volume(PyObject* self, PyObject* args)
@@ -408,7 +400,14 @@ static PyObject* sound_getattr(PyObject* self, char* attrname)
 
 
     /*DOC*/ static char doc_Sound_MODULE[] =
-    /*DOC*/    "Sound object represents actual sound data.\n"
+    /*DOC*/    "Sound objects represent actual sound data. Sound objects are\n"
+    /*DOC*/    "created from the function pygame.mixer.load(). Sound objects can\n"
+    /*DOC*/    "be playing on multiple channels simultaneously. Calling functions\n"
+    /*DOC*/    "like Sound.stop() from the sound objects will effect all channels\n"
+    /*DOC*/    "playing that Sound object.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "All sound objects have the same frequency and format as the\n"
+    /*DOC*/    "pygame.mixer module's initialization.\n"
     /*DOC*/ ;
 
 static PyTypeObject PySound_Type = 
@@ -434,14 +433,13 @@ static PyTypeObject PySound_Type =
     /*DOC*/    "Channel.play(Sound, [loops, [maxtime]]) -> None\n"
     /*DOC*/    "play a sound on this channel\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Starts playing a given sound on this channel. If\n"
-    /*DOC*/    "the channels is currently playing a different\n"
-    /*DOC*/    "sound, it will be replaced/restarted with the\n"
-    /*DOC*/    "given sound. Loops controls how many extra times\n"
-    /*DOC*/    "the sound will play, a negative loop will play\n"
-    /*DOC*/    "indefinitely, it defaults to 0. Maxtime is the\n"
-    /*DOC*/    "number of totalmilliseconds that the sound will\n"
-    /*DOC*/    "play. It defaults to forever (-1).\n"
+    /*DOC*/    "Starts playing a given sound on this channel. If the channels is\n"
+    /*DOC*/    "currently playing a different sound, it will be\n"
+    /*DOC*/    "replaced/restarted with the given sound. Loops controls how many\n"
+    /*DOC*/    "extra times the sound will play, a negative loop will play\n"
+    /*DOC*/    "indefinitely, it defaults to 0. Maxtime is the number of\n"
+    /*DOC*/    "totalmilliseconds that the sound will play. It defaults to\n"
+    /*DOC*/    "forever (-1).\n"
     /*DOC*/ ;
 
 static PyObject* chan_play(PyObject* self, PyObject* args)
@@ -469,8 +467,8 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
     /*DOC*/    "Channel.get_busy() -> bool\n"
     /*DOC*/    "query state of the channel\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true when there is a sound actively\n"
-    /*DOC*/    "playing on this channel.\n"
+    /*DOC*/    "Returns true when there is a sound actively playing on this\n"
+    /*DOC*/    "channel.\n"
     /*DOC*/ ;
 
 static PyObject* chan_get_busy(PyObject* self, PyObject* args)
@@ -573,10 +571,9 @@ static PyObject* chan_unpause(PyObject* self, PyObject* args)
     /*DOC*/    "Channel.set_volume(val) -> None\n"
     /*DOC*/    "set volume for channel\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Sets the volume for the channel. The channel's\n"
-    /*DOC*/    "volume level is mixed with the volume for the\n"
-    /*DOC*/    "active sound object. The value is between 0.0 and\n"
-    /*DOC*/    "1.0.\n"
+    /*DOC*/    "Sets the volume for the channel. The channel's volume level is\n"
+    /*DOC*/    "mixed with the volume for the active sound object. The value is\n"
+    /*DOC*/    "between 0.0 and 1.0.\n"
     /*DOC*/ ;
 
 static PyObject* chan_set_volume(PyObject* self, PyObject* args)
@@ -598,8 +595,8 @@ static PyObject* chan_set_volume(PyObject* self, PyObject* args)
     /*DOC*/    "Channel.get_volume() -> val\n"
     /*DOC*/    "query the volume for the\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the current volume for this sound object.\n"
-    /*DOC*/    "The value is between 0.0 and 1.0.\n"
+    /*DOC*/    "Returns the current volume for this sound object. The value is\n"
+    /*DOC*/    "between 0.0 and 1.0.\n"
     /*DOC*/ ;
 
 static PyObject* chan_get_volume(PyObject* self, PyObject* args)
@@ -650,7 +647,17 @@ static PyObject* channel_getattr(PyObject* self, char* attrname)
 
 
     /*DOC*/ static char doc_Channel_MODULE[] =
-    /*DOC*/    "Channel objects controls playback of sound.\n"
+    /*DOC*/    "Channel objects represent a single channel of sound. Each channel\n"
+    /*DOC*/    "can only playback one Sound object at a time. If your application\n"
+    /*DOC*/    "only requires simply sound playback, you will usually not need to\n"
+    /*DOC*/    "bother with the Channel objects, they exist for finer playback\n"
+    /*DOC*/    "control.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Sound objects can be retrieved from the pygame.mixer module with\n"
+    /*DOC*/    "functions like pygame.mixer.get_channel() and\n"
+    /*DOC*/    "pygame.mixer.find_channel(). Also, each time you call\n"
+    /*DOC*/    "Sound.play() a Channel object will be returned, representing the\n"
+    /*DOC*/    "channel that sound is playing on.\n"
     /*DOC*/ ;
 
 
@@ -676,10 +683,9 @@ static PyTypeObject PyChannel_Type =
     /*DOC*/    "pygame.mixer.get_num_channels() -> int\n"
     /*DOC*/    "query the number of channels\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Gets the current number of channels available for\n"
-    /*DOC*/    "the mixer. This value can be changed with\n"
-    /*DOC*/    "set_num_channels(). This value defaults to 8 when\n"
-    /*DOC*/    "the mixer is first initialized.\n"
+    /*DOC*/    "Gets the current number of channels available for the mixer. This\n"
+    /*DOC*/    "value can be changed with set_num_channels(). This value defaults\n"
+    /*DOC*/    "to 8 when the mixer is first initialized.\n"
     /*DOC*/ ;
 
 static PyObject* get_num_channels(PyObject* self, PyObject* args)
@@ -697,11 +703,10 @@ static PyObject* get_num_channels(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mixer.set_num_channels(int) -> None\n"
     /*DOC*/    "sets the number of available channels\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Sets the current number of channels available for\n"
-    /*DOC*/    "the mixer. This value defaults to 8 when the mixer\n"
-    /*DOC*/    "is first initialized. If the value is decreased,\n"
-    /*DOC*/    "sounds playing in channels above the new value\n"
-    /*DOC*/    "will stop.\n"
+    /*DOC*/    "Sets the current number of channels available for the mixer. This\n"
+    /*DOC*/    "value defaults to 8 when the mixer is first initialized. If the\n"
+    /*DOC*/    "value is decreased, sounds playing in channels above the new\n"
+    /*DOC*/    "value will stop.\n"
     /*DOC*/ ;
 
 static PyObject* set_num_channels(PyObject* self, PyObject* args)
@@ -721,9 +726,8 @@ static PyObject* set_num_channels(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mixer.set_reserved(int) -> None\n"
     /*DOC*/    "reserves first given channels\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Reserves the first channels. Reserved channels\n"
-    /*DOC*/    "won't be used when a sound is played without using\n"
-    /*DOC*/    "a specific channel object.\n"
+    /*DOC*/    "Reserves the first channels. Reserved channels won't be used when\n"
+    /*DOC*/    "a sound is played without using a specific channel object.\n"
     /*DOC*/ ;
 
 static PyObject* set_reserved(PyObject* self, PyObject* args)
@@ -743,9 +747,9 @@ static PyObject* set_reserved(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mixer.get_busy() -> int\n"
     /*DOC*/    "query busy channels\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the number of current active channels.\n"
-    /*DOC*/    "This is not the total channels, but the number of\n"
-    /*DOC*/    "channels that are currently playing sound.\n"
+    /*DOC*/    "Returns the number of current active channels. This is not the\n"
+    /*DOC*/    "total channels, but the number of channels that are currently\n"
+    /*DOC*/    "playing sound.\n"
     /*DOC*/ ;
 
 static PyObject* get_busy(PyObject* self, PyObject* args)
@@ -764,9 +768,8 @@ static PyObject* get_busy(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mixer.get_channel(int) -> Channel\n"
     /*DOC*/    "get channel object\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Get a channel object for the given channel. This\n"
-    /*DOC*/    "number must be less that the current number of\n"
-    /*DOC*/    "channels.\n"
+    /*DOC*/    "Get a channel object for the given channel. This number must be\n"
+    /*DOC*/    "less that the current number of channels.\n"
     /*DOC*/ ;
 
 static PyObject* get_channel(PyObject* self, PyObject* args)
@@ -784,12 +787,12 @@ static PyObject* get_channel(PyObject* self, PyObject* args)
 
     /*DOC*/ static char doc_find_channel[] =
     /*DOC*/    "pygame.mixer.find_channel([force]) -> Channel\n"
+    /*DOC*/    "find an available sound channel\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Find a channel that is not busy. If force is\n"
-    /*DOC*/    "passed as a nonzero number, this will return the\n"
-    /*DOC*/    "channel of the longest running sound. If not\n"
-    /*DOC*/    "forced, and there are no available channels,\n"
-    /*DOC*/    "returns None.\n"
+    /*DOC*/    "Find a sound channel that is not busy. If the force argument is\n"
+    /*DOC*/    "passed as a nonzero number, this will return the channel of the\n"
+    /*DOC*/    "longest running sound. If not forced, and there are no available\n"
+    /*DOC*/    "channels, returns None.\n"
     /*DOC*/ ;
 
 static PyObject* find_channel(PyObject* self, PyObject* args)
@@ -815,8 +818,8 @@ static PyObject* find_channel(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mixer.fadeout(millisec) -> None\n"
     /*DOC*/    "fadeout all channels\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Fade out all the playing channels over the given\n"
-    /*DOC*/    "number of milliseconds.\n"
+    /*DOC*/    "Fade out all the playing channels over the given number of\n"
+    /*DOC*/    "milliseconds.\n"
     /*DOC*/ ;
 
 static PyObject* fadeout(PyObject* self, PyObject* args)
@@ -855,8 +858,7 @@ static PyObject* stop(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mixer.pause() -> None\n"
     /*DOC*/    "pause all channels\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Temporarily stops playback on all the mixer\n"
-    /*DOC*/    "channels.\n"
+    /*DOC*/    "Temporarily stops playback on all the mixer channels.\n"
     /*DOC*/ ;
 
 static PyObject* pause(PyObject* self, PyObject* args)
@@ -895,10 +897,9 @@ static PyObject* unpause(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mixer.load(file) -> Sound\n"
     /*DOC*/    "load a new soundfile\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Loads a new sound object from a WAV file. File can\n"
-    /*DOC*/    "be a filename or a file-like object. The sound\n"
-    /*DOC*/    "will be converted to match the current mode of the\n"
-    /*DOC*/    "mixer.\n"
+    /*DOC*/    "Loads a new sound object from a WAV file. File can be a filename\n"
+    /*DOC*/    "or a file-like object. The sound will be converted to match the\n"
+    /*DOC*/    "current mode of the mixer.\n"
     /*DOC*/ ;
 
 static PyObject* load(PyObject* self, PyObject* arg)
@@ -996,7 +997,32 @@ static PyObject* PyChannel_New(int channelnum)
 
 
     /*DOC*/ static char doc_pygame_mixer_MODULE[] =
-    /*DOC*/    "Contains sound mixer routines and objects.\n"
+    /*DOC*/    "Contains sound mixer routines and objects. The mixer module is an\n"
+    /*DOC*/    "optional pygame module, dependent on the SDL_mixer library. This\n"
+    /*DOC*/    "module contains the usual routines needed to initialize the\n"
+    /*DOC*/    "module. One difference is the pygame.mixer.init() function takes\n"
+    /*DOC*/    "several optional arguments. These arguments control the playback\n"
+    /*DOC*/    "rates and datatypes for the sound playback. If you do need\n"
+    /*DOC*/    "specific control over the playback rate, but don't want to bother\n"
+    /*DOC*/    "with hand-initializing the modules, there is a function named\n"
+    /*DOC*/    "pygame.mixer.pre_init() which takes the same arguments as init(),\n"
+    /*DOC*/    "but only sets the new default values. You can call this before\n"
+    /*DOC*/    "pygame.init() and not have to worry about the pygame module\n"
+    /*DOC*/    "initialization order.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Sound objects are created from the pygame.mixer.load() function.\n"
+    /*DOC*/    "Simple sound playback can simply use the Sound.play() method to\n"
+    /*DOC*/    "play the sound. Each Sound object can be played multiple times\n"
+    /*DOC*/    "simultaneously. If you desire more specific control over the\n"
+    /*DOC*/    "Sound objects, you can access the Channel objects with functions\n"
+    /*DOC*/    "like pygame.mixer.get_channel().\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "All loaded Sound objects are resampled to match the same format\n"
+    /*DOC*/    "that pygame.mixer is initialized to. The current SDL resampling\n"
+    /*DOC*/    "functions are not that good, so it is best if you initialize\n"
+    /*DOC*/    "pygame.mixer to the same format as your sound resources. Also\n"
+    /*DOC*/    "setting the mixer frequency to even multiples of your sound\n"
+    /*DOC*/    "resources will result in a clean conversion.\n"
     /*DOC*/ ;
 
 void initmixer()

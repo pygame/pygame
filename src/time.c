@@ -27,12 +27,10 @@
 
     /*DOC*/ static char doc_get_ticks[] =
     /*DOC*/    "pygame.time.get_ticks() -> int\n"
-    /*DOC*/    "milliseconds since initialization\n"
+    /*DOC*/    "milliseconds since startup\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This is the time in milliseconds since the\n"
-    /*DOC*/    "beginning. The timer has a resolution of about 10\n"
-    /*DOC*/    "milliseconds (give or take depending on the\n"
-    /*DOC*/    "platform).\n"
+    /*DOC*/    "This is the time in milliseconds since the pygame.time was\n"
+    /*DOC*/    "imported.\n"
     /*DOC*/ ;
 
 static PyObject* get_ticks(PyObject* self, PyObject* arg)
@@ -76,7 +74,11 @@ static PyMethodDef time_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_time_MODULE[] =
-    /*DOC*/    "Contains routines to help keep track of time.\n"
+    /*DOC*/    "Contains routines to help keep track of time. The timer\n"
+    /*DOC*/    "resolution on most systems is around 10ms.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "All times are represented in milliseconds, which is simply\n"
+    /*DOC*/    "Seconds*1000.(therefore 2500 milliseconds is 2.5 seconds)\n"
     /*DOC*/ ;
 
 void inittime()

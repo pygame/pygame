@@ -33,11 +33,9 @@
     /*DOC*/    "pygame.mouse.set_pos(pos) -> None\n"
     /*DOC*/    "moves the cursor position\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Moves the mouse cursor to the specified position.\n"
-    /*DOC*/    "This will generate a MOUSEMOTION event on the\n"
-    /*DOC*/    "input queue. The pos argument is a\n"
-    /*DOC*/    "2-number-sequence containing the desired x and y\n"
-    /*DOC*/    "position.\n"
+    /*DOC*/    "Moves the mouse cursor to the specified position. This will\n"
+    /*DOC*/    "generate a MOUSEMOTION event on the input queue. The pos argument\n"
+    /*DOC*/    "is a 2-number-sequence containing the desired x and y position.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_set_pos(PyObject* self, PyObject* args)
@@ -58,8 +56,8 @@ static PyObject* mouse_set_pos(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mouse.get_pos() -> x, y\n"
     /*DOC*/    "gets the cursor position\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the current position of the mouse cursor.\n"
-    /*DOC*/    "This is the absolute mouse position on the screen.\n"
+    /*DOC*/    "Returns the current position of the mouse cursor. This is the\n"
+    /*DOC*/    "absolute mouse position on the screen.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_get_pos(PyObject* self, PyObject* args)
@@ -80,13 +78,13 @@ static PyObject* mouse_get_pos(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mouse.get_rel() -> x, y\n"
     /*DOC*/    "gets the movement of the mouse\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the total distance the mouse has moved\n"
-    /*DOC*/    "since your last call to get_rel(). On the first\n"
-    /*DOC*/    "call to get_rel the movement will always be 0,0.\n"
+    /*DOC*/    "Returns the total distance the mouse has moved since your last\n"
+    /*DOC*/    "call to get_rel(). On the first call to get_rel the movement will\n"
+    /*DOC*/    "always be 0,0.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "When the mouse is at the edges of the screen, the\n"
-    /*DOC*/    "relative movement will be stopped. See\n"
-    /*DOC*/    "mouse_visible for a way to resolve this.\n"
+    /*DOC*/    "When the mouse is at the edges of the screen, the relative\n"
+    /*DOC*/    "movement will be stopped. See mouse_visible for a way to resolve\n"
+    /*DOC*/    "this.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_get_rel(PyObject* self, PyObject* args)
@@ -108,8 +106,8 @@ static PyObject* mouse_get_rel(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mouse.get_pressed() -> button1, button2, button3\n"
     /*DOC*/    "state of the mouse buttons\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will return a small sequence containing the\n"
-    /*DOC*/    "pressed state of the mouse buttons.\n"
+    /*DOC*/    "This will return a small sequence containing the pressed state of\n"
+    /*DOC*/    "the mouse buttons.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_get_pressed(PyObject* self, PyObject* args)
@@ -139,16 +137,14 @@ static PyObject* mouse_get_pressed(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mouse.set_visible(bool) -> bool\n"
     /*DOC*/    "show or hide the mouse cursor\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Shows or hides the mouse cursor. This will return\n"
-    /*DOC*/    "the previous visible state of the mouse cursor.\n"
+    /*DOC*/    "Shows or hides the mouse cursor. This will return the previous\n"
+    /*DOC*/    "visible state of the mouse cursor.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Note that when the cursor is hidden and the\n"
-    /*DOC*/    "application has grabbed the input. pyGame will\n"
-    /*DOC*/    "force the mouse to stay in the center of the\n"
-    /*DOC*/    "screen. Since the mouse is hidden it won't matter\n"
-    /*DOC*/    "that it's not moving, but it will keep the mouse\n"
-    /*DOC*/    "from the edges of the screen so the relative mouse\n"
-    /*DOC*/    "position will always be true.\n"
+    /*DOC*/    "Note that when the cursor is hidden and the application has\n"
+    /*DOC*/    "grabbed the input. pyGame will force the mouse to stay in the\n"
+    /*DOC*/    "center of the screen. Since the mouse is hidden it won't matter\n"
+    /*DOC*/    "that it's not moving, but it will keep the mouse from the edges\n"
+    /*DOC*/    "of the screen so the relative mouse position will always be true.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_set_visible(PyObject* self, PyObject* args)
@@ -169,8 +165,8 @@ static PyObject* mouse_set_visible(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.mouse.get_focused() -> bool\n"
     /*DOC*/    "state of mouse input focus\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true when the application is receiving the\n"
-    /*DOC*/    "mouse input focus.\n"
+    /*DOC*/    "Returns true when the application is receiving the mouse input\n"
+    /*DOC*/    "focus.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_get_focused(PyObject* self, PyObject* args)
@@ -200,7 +196,16 @@ static PyMethodDef mouse_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_mouse_MODULE[] =
-    /*DOC*/    "Contains routines for dealing with the mouse.\n"
+    /*DOC*/    "Contains routines for dealing with the mouse. All mouse events\n"
+    /*DOC*/    "are retrieved through the pygame.event module. The mouse module\n"
+    /*DOC*/    "can be used to get the current state of the mouse. It can also be\n"
+    /*DOC*/    "used to set the state of the system cursor.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "If you hide the mouse cursor with pygame.mouse.set_visible(0) and\n"
+    /*DOC*/    "lock the mouse focus to your game with pygame.event.set_grab(1),\n"
+    /*DOC*/    "the hidden mouse will be forced to the center of the screen. This\n"
+    /*DOC*/    "will help your relative mouse motions keep from getting stuck on\n"
+    /*DOC*/    "the edges of the screen.\n"
     /*DOC*/ ;
 
 void initmouse()

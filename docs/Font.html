@@ -4,9 +4,9 @@
 
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
 <td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
-<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
-	<a href=../>
-      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<tr height=86 align=left><td valign=middle><font color=#ffffff size=+5>
+	<a href=../><font size=+5 color=#ffffff><i><b>
+      pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
 	PyGame<br>Documentation</font>
 </td></tr></table></td><td width=100% height=100% align=center valign=middle>
@@ -25,23 +25,32 @@
 <a href=Surface.html>Surface</a> || 
 <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
-<a href=pygame_display.html>display</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_constants.html>constants</a> ||<br>
+|| <a href=pygame_display.html>display</a> || 
+<a href=pygame_event.html>event</a> || 
 <a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
-<a href=pygame_joystick.html>joystick</a> || 
-<a href=pygame_key.html>key</a> ||<br>
-|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_joystick.html>joystick</a> ||<br>
+|| <a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
 <a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_surfarray.html>surfarray</a> ||<br>
+|| <a href=pygame_time.html>time</a> ||<br>
 
 
 </td></tr></table>
 <br>
 <h2 align=center>Font</h2>
-Font objects can control and render text.
+The font object is created only from pygame.font.font(). Once a
+font is created it's size and TTF file cannot be changed. The
+Font objects are mainly used to render() text into a new Surface.
+The Font objects also have a few states that can be set with
+set_underline(bool), set_bold(bool), set_italic(bool). Each of
+these functions contains an equivalent get_XXX() routine to find
+the current state. There are also many routines to query the
+dimensions of the text. The rendering functions work with both
+normal python strings, as well as with unicode strings.
 
 <hr>
 
@@ -102,110 +111,98 @@ size of rendered text</td></tr>
 </b></font><br><font size=+1><tt>
 Font.get_ascent() -> int
 </tt></font><ul>
-Returns the ascent for the font. The ascent is the
-number of pixels from the font baseline to the top
-of the font.
+Returns the ascent for the font. The ascent is the number of
+pixels from the font baseline to the top of the font.
 </ul><br>&nbsp;<br>
 
 <a name=get_bold><font size=+2><b>get_bold
 </b></font><br><font size=+1><tt>
 Font.get_bold() -> bool
 </tt></font><ul>
-Get the current status of the font's bold
-attribute
+Get the current status of the font's bold attribute
 </ul><br>&nbsp;<br>
 
 <a name=get_bold><font size=+2><b>get_bold
 </b></font><br><font size=+1><tt>
 Font.get_bold() -> bool
 </tt></font><ul>
-Get the current status of the font's italic
-attribute
+Get the current status of the font's italic attribute
 </ul><br>&nbsp;<br>
 
 <a name=get_descent><font size=+2><b>get_descent
 </b></font><br><font size=+1><tt>
 Font.get_descent() -> int
 </tt></font><ul>
-Returns the descent for the font. The descent is
-the number of pixels from the font baseline to the
-bottom of the font.
+Returns the descent for the font. The descent is the number of
+pixels from the font baseline to the bottom of the font.
 </ul><br>&nbsp;<br>
 
 <a name=get_height><font size=+2><b>get_height
 </b></font><br><font size=+1><tt>
 Font.get_height() -> int
 </tt></font><ul>
-Returns the average size of each glyph in the
-font.
+Returns the average size of each glyph in the font.
 </ul><br>&nbsp;<br>
 
 <a name=get_linesize><font size=+2><b>get_linesize
 </b></font><br><font size=+1><tt>
 Font.get_linesize() -> int
 </tt></font><ul>
-Returns the linesize for the font. Each font comes
-with it's own recommendation for the spacing
-number of pixels between each line of the font.
+Returns the linesize for the font. Each font comes with it's own
+recommendation for the spacing number of pixels between each line
+of the font.
 </ul><br>&nbsp;<br>
 
 <a name=get_underline><font size=+2><b>get_underline
 </b></font><br><font size=+1><tt>
 Font.get_underline() -> bool
 </tt></font><ul>
-Get the current status of the font's underline
-attribute
+Get the current status of the font's underline attribute
 </ul><br>&nbsp;<br>
 
 <a name=render><font size=+2><b>render
 </b></font><br><font size=+1><tt>
 Font.render(text, antialias, fgcolor, [bgcolor]) -> Surface
 </tt></font><ul>
-Render the given text onto a new image surface.
-The given text can be standard python text or
-unicode. Antialiasing will smooth the edges of the
-font for a much cleaner look. The foreground color
-is a 3-number-sequence containing the desired RGB
-components for the text. The background color is
-also a 3-number-sequence of RGB. This sets the
-background color for the text. If the background
-color is omitted, the text will have a transparent
-background.
+Render the given text onto a new image surface. The given text
+can be standard python text or unicode. Antialiasing will smooth
+the edges of the font for a much cleaner look. The foreground
+color is a 3-number-sequence containing the desired RGB
+components for the text. The background color is also a
+3-number-sequence of RGB. This sets the background color for the
+text. If the background color is omitted, the text will have a
+transparent background.
 </ul><br>&nbsp;<br>
 
 <a name=set_bold><font size=+2><b>set_bold
 </b></font><br><font size=+1><tt>
 Font.set_bold(bool) -> None
 </tt></font><ul>
-Enables or disables the bold attribute for the
-font. Making the font bold does not work as well
-as you expect.
+Enables or disables the bold attribute for the font. Making the
+font bold does not work as well as you expect.
 </ul><br>&nbsp;<br>
 
 <a name=set_italic><font size=+2><b>set_italic
 </b></font><br><font size=+1><tt>
 Font.set_italic(bool) -> None
 </tt></font><ul>
-Enables or disables the italic attribute for the
-font.
+Enables or disables the italic attribute for the font.
 </ul><br>&nbsp;<br>
 
 <a name=set_underline><font size=+2><b>set_underline
 </b></font><br><font size=+1><tt>
 Font.set_underline(bool) -> None
 </tt></font><ul>
-Enables or disables the underline attribute for
-the font.
+Enables or disables the underline attribute for the font.
 </ul><br>&nbsp;<br>
 
 <a name=size><font size=+2><b>size
 </b></font><br><font size=+1><tt>
 Font.size(text) -> width, height
 </tt></font><ul>
-Computes the rendered size of the given text. The
-text can be standard python text or unicode. Know
-that changing the bold and italic attributes will
-change the size of the rendered text.
+Computes the rendered size of the given text. The text can be
+standard python text or unicode. Changing the bold and italic
+attributes can change the size of the rendered text.
 </ul><br>&nbsp;<br>
 
 

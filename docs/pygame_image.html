@@ -4,9 +4,9 @@
 
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
 <td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
-<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
-	<a href=../>
-      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<tr height=86 align=left><td valign=middle><font color=#ffffff size=+5>
+	<a href=../><font size=+5 color=#ffffff><i><b>
+      pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
 	PyGame<br>Documentation</font>
 </td></tr></table></td><td width=100% height=100% align=center valign=middle>
@@ -25,26 +25,26 @@
 <a href=Surface.html>Surface</a> || 
 <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
-<a href=pygame_display.html>display</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_constants.html>constants</a> ||<br>
+|| <a href=pygame_display.html>display</a> || 
+<a href=pygame_event.html>event</a> || 
 <a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
-<a href=pygame_joystick.html>joystick</a> || 
-<a href=pygame_key.html>key</a> ||<br>
-|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_joystick.html>joystick</a> ||<br>
+|| <a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
 <a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_surfarray.html>surfarray</a> ||<br>
+|| <a href=pygame_time.html>time</a> ||<br>
 
 
 </td></tr></table>
 <br>
 <h2 align=center>pygame.image</h2>
-Contains routines to load and (someday) save
-surfaces. This module must be manually imported,
-since it requires the use of the SDL_image
-library.
+Contains routines to load and (someday) save surfaces. This
+module must be manually imported, since it requires the use of
+the SDL_image library.
 
 <hr>
 
@@ -61,19 +61,16 @@ load an image to a new Surface</td></tr>
 </b></font><br><font size=+1><tt>
 pygame.image.load(file, [namehint]) -> Surface
 </tt></font><ul>
-This will load an image into a new surface. You
-can pass it either a filename, or a python
-file-like object to load the image from. If you
-pass a file-like object that isn't actually a file
-(like the StringIO class), then you might want to
-also pass either the filename or extension as the
-namehint string. The namehint can help the loader
-determine the filetype.
-
-You will only be able to load the types of images
-supported by your build of SDL_image. This will
-always include GIF, BMP, PPM, PCX, and TIF.
-SDL_image can also load JPG and PNG, but they are
+This will load an image into a new surface. You can pass it
+either a filename, or a python file-like object to load the image
+from. If you pass a file-like object that isn't actually a file
+(like the StringIO class), then you might want to also pass
+either the filename or extension as the namehint string. The
+namehint can help the loader determine the filetype.
+<br>&nbsp;<br>
+You will only be able to load the types of images supported by
+your build of SDL_image. This will always include GIF, BMP, PPM,
+PCX, and TIF. SDL_image can also load JPG and PNG, but they are
 optional.
 </ul><br>&nbsp;<br>
 

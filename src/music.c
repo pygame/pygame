@@ -57,8 +57,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.music.quit() -> None\n"
     /*DOC*/    "uninitialize music module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Stops playback of any music and uninitializes the\n"
-    /*DOC*/    "module.\n"
+    /*DOC*/    "Stops playback of any music and uninitializes the module.\n"
     /*DOC*/ ;
 
 static PyObject* quit(PyObject* self, PyObject* arg)
@@ -76,13 +75,11 @@ static PyObject* quit(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.music.init([freq, [size, [stereo]]]) -> None\n"
     /*DOC*/    "initialize the music module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Initializes the music module. Since the music\n"
-    /*DOC*/    "requires use of the mixer, the mixer module will\n"
-    /*DOC*/    "also be initialized with this call. See the mixer\n"
-    /*DOC*/    "init function for more details on the arguments.\n"
-    /*DOC*/    "Don't be fooled though, just because the mixer\n"
-    /*DOC*/    "module is initialized, does not mean the music is\n"
-    /*DOC*/    "initialized.\n"
+    /*DOC*/    "Initializes the music module. Since the music requires use of the\n"
+    /*DOC*/    "mixer, the mixer module will also be initialized with this call.\n"
+    /*DOC*/    "See the mixer init function for more details on the arguments.\n"
+    /*DOC*/    "Don't be fooled though, just because the mixer module is\n"
+    /*DOC*/    "initialized, does not mean the music is initialized.\n"
     /*DOC*/ ;
 
 static PyObject* init(PyObject* self, PyObject* arg)
@@ -126,11 +123,10 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.music.play([loops]) -> None\n"
     /*DOC*/    "play the current loaded music\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Starts playing the current loaded music. This will\n"
-    /*DOC*/    "restart the sound if it is playing. Loops controls\n"
-    /*DOC*/    "how many extra time the sound will play, a\n"
-    /*DOC*/    "negative loop will play indefinitely, it defaults\n"
-    /*DOC*/    "to 0.\n"
+    /*DOC*/    "Starts playing the current loaded music. This will restart the\n"
+    /*DOC*/    "sound if it is playing. Loops controls how many extra time the\n"
+    /*DOC*/    "sound will play, a negative loop will play indefinitely, it\n"
+    /*DOC*/    "defaults to 0.\n"
     /*DOC*/ ;
 
 static PyObject* play(PyObject* self, PyObject* args)
@@ -175,8 +171,8 @@ static PyObject* get_busy(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.music.fadeout(millisec) -> None\n"
     /*DOC*/    "fadeout current music\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Fades out the current playing music and stops it\n"
-    /*DOC*/    "over the given milliseconds.\n"
+    /*DOC*/    "Fades out the current playing music and stops it over the given\n"
+    /*DOC*/    "milliseconds.\n"
     /*DOC*/ ;
 
 static PyObject* fadeout(PyObject* self, PyObject* args)
@@ -234,8 +230,7 @@ static PyObject* pause(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.music.unpause() -> None\n"
     /*DOC*/    "restarts the paused music\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Restarts playback of the current music object when\n"
-    /*DOC*/    "paused.\n"
+    /*DOC*/    "Restarts playback of the current music object when paused.\n"
     /*DOC*/ ;
 
 static PyObject* unpause(PyObject* self, PyObject* args)
@@ -319,10 +314,9 @@ static PyObject* get_volume(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.music.load(filename) -> None\n"
     /*DOC*/    "load current music\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Load a music object as the current music. The\n"
-    /*DOC*/    "music only handles one music as the current. If\n"
-    /*DOC*/    "music is currently playing, it will be stopped and\n"
-    /*DOC*/    "replaced with the given one. Loading music only\n"
+    /*DOC*/    "Load a music object as the current music. The music only handles\n"
+    /*DOC*/    "one music as the current. If music is currently playing, it will\n"
+    /*DOC*/    "be stopped and replaced with the given one. Loading music only\n"
     /*DOC*/    "supports filenames, not file-like objects.\n"
     /*DOC*/ ;
 
@@ -379,7 +373,20 @@ static PyMethodDef music_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_music_MODULE[] =
-    /*DOC*/    "Contains music routines\n"
+    /*DOC*/    "The music module is tied closely to the pygame.mixer module. It\n"
+    /*DOC*/    "is an optional module since it depends on the SDL_mixer library.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The difference between playback of music and playback of sounds\n"
+    /*DOC*/    "is that the music object is not loaded and decoded all at once,\n"
+    /*DOC*/    "instead the music data is streamed and decoded during playback.\n"
+    /*DOC*/    "There can only be one music file loaded at a single time. Loading\n"
+    /*DOC*/    "a new music file will replace any currently loaded music.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The music module has many of the same types of functions as the\n"
+    /*DOC*/    "Sound objects. The main difference is only one music object can\n"
+    /*DOC*/    "be loaded at a time, with the pygame.music.load() function. Music\n"
+    /*DOC*/    "must be stored in an individual file on the system, it cannot be\n"
+    /*DOC*/    "loaded from special file-like objects through python.\n"
     /*DOC*/ ;
 
 void initmusic()

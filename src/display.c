@@ -56,9 +56,8 @@ printf("...done\n");
     /*DOC*/    "pygame.display.quit() -> None\n"
     /*DOC*/    "uninitialize the display module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Manually uninitialize SDL's video subsystem. It is\n"
-    /*DOC*/    "safe to call this if the video is currently not\n"
-    /*DOC*/    "initialized.\n"
+    /*DOC*/    "Manually uninitialize SDL's video subsystem. It is safe to call\n"
+    /*DOC*/    "this if the video is currently not initialized.\n"
     /*DOC*/ ;
 
 static PyObject* quit(PyObject* self, PyObject* arg)
@@ -76,10 +75,9 @@ static PyObject* quit(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.init() -> None\n"
     /*DOC*/    "initialize the display module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Manually initialize SDL's video subsystem. Will\n"
-    /*DOC*/    "raise an exception if it cannot be initialized. It\n"
-    /*DOC*/    "is safe to call this function if the video has is\n"
-    /*DOC*/    "currently initialized.\n"
+    /*DOC*/    "Manually initialize SDL's video subsystem. Will raise an\n"
+    /*DOC*/    "exception if it cannot be initialized. It is safe to call this\n"
+    /*DOC*/    "function if the video has is currently initialized.\n"
     /*DOC*/ ;
 
 static PyObject* init(PyObject* self, PyObject* arg)
@@ -99,8 +97,7 @@ static PyObject* init(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.get_init() -> bool\n"
     /*DOC*/    "get status of display module initialization\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true if SDL's video system is currently\n"
-    /*DOC*/    "intialized.\n"
+    /*DOC*/    "Returns true if SDL's video system is currently intialized.\n"
     /*DOC*/ ;
 
 static PyObject* get_init(PyObject* self, PyObject* arg)
@@ -117,11 +114,9 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.get_active() -> bool\n"
     /*DOC*/    "get state of display mode\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the current display is active on\n"
-    /*DOC*/    "the screen. This done with the call to\n"
-    /*DOC*/    "pygame.display.set_mode(). It is potentially\n"
-    /*DOC*/    "subject to the activity of a running window\n"
-    /*DOC*/    "manager.\n"
+    /*DOC*/    "Returns true if the current display is active on the screen. This\n"
+    /*DOC*/    "done with the call to pygame.display.set_mode(). It is\n"
+    /*DOC*/    "potentially subject to the activity of a running window manager.\n"
     /*DOC*/ ;
 
 static PyObject* get_active(PyObject* self, PyObject* arg)
@@ -250,15 +245,14 @@ static PyObject* PyVidInfo_New(const SDL_VideoInfo* i)
 
 /* display functions */
 
-    /*DOC*/ static char doc_set_driver[] =
+    /*DOC*/ static char docXX_set_driver[] =
     /*DOC*/    "pygame.display.set_driver(name) -> None\n"
     /*DOC*/    "override the default sdl video driver\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Changes the SDL environment to initialize with the\n"
-    /*DOC*/    "given named videodriver. This can only be changed\n"
-    /*DOC*/    "before the display is initialized. If this is not\n"
-    /*DOC*/    "called, SDL will use it's default video driver, or\n"
-    /*DOC*/    "the one in the environment variable\n"
+    /*DOC*/    "Changes the SDL environment to initialize with the given named\n"
+    /*DOC*/    "videodriver. This can only be changed before the display is\n"
+    /*DOC*/    "initialized. If this is not called, SDL will use it's default\n"
+    /*DOC*/    "video driver, or the one in the environment variable\n"
     /*DOC*/    "SDL_VIDEODRIVER.\n"
     /*DOC*/ ;
 
@@ -282,10 +276,9 @@ static PyObject* set_driver(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.get_driver() -> name\n"
     /*DOC*/    "get the current sdl video driver\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Once the display is initialized, this will return\n"
-    /*DOC*/    "the name of the currently running video driver.\n"
-    /*DOC*/    "There is no way to get a list of all the supported\n"
-    /*DOC*/    "video drivers.\n"
+    /*DOC*/    "Once the display is initialized, this will return the name of the\n"
+    /*DOC*/    "currently running video driver. There is no way to get a list of\n"
+    /*DOC*/    "all the supported video drivers.\n"
     /*DOC*/ ;
 
 static PyObject* get_driver(PyObject* self, PyObject* args)
@@ -311,11 +304,11 @@ static PyObject* get_driver(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.display.get_info() -> VidInfo\n"
     /*DOC*/    "get display capabilities and settings\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Gets a vidinfo object that contains information\n"
-    /*DOC*/    "about the capabilities and current state of the\n"
-    /*DOC*/    "video driver. This can be called before the\n"
-    /*DOC*/    "display mode is set, to determine the current\n"
+    /*DOC*/    "Gets a vidinfo object that contains information about the\n"
+    /*DOC*/    "capabilities and current state of the video driver. This can be\n"
+    /*DOC*/    "called before the display mode is set, to determine the current\n"
     /*DOC*/    "video mode of a display.\n"
+    /*DOC*/    "You can print the VidInfo object to see all its members and values.\n"
     /*DOC*/ ;
 
 static PyObject* get_info(PyObject* self, PyObject* arg)
@@ -338,9 +331,8 @@ static PyObject* get_info(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.get_surface() -> Surface\n"
     /*DOC*/    "get current display surface\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns a Surface object representing the current\n"
-    /*DOC*/    "display. Will return None if called before the\n"
-    /*DOC*/    "display mode is set.\n"
+    /*DOC*/    "Returns a Surface object representing the current display. Will\n"
+    /*DOC*/    "return None if called before the display mode is set.\n"
     /*DOC*/ ;
 
 static PyObject* get_surface(PyObject* self, PyObject* arg)
@@ -363,29 +355,23 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.set_mode(size, [flags, [depth]]) -> Surface\n"
     /*DOC*/    "set the display mode\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Sets the current display mode. If calling this\n"
-    /*DOC*/    "after the mode has already been set, this will\n"
-    /*DOC*/    "change the display mode to the desired type.\n"
-    /*DOC*/    "Sometimes an exact match for the requested video\n"
-    /*DOC*/    "mode is not available. In this case SDL will try\n"
-    /*DOC*/    "to find the closest match and work with that\n"
-    /*DOC*/    "instead.\n"
+    /*DOC*/    "Sets the current display mode. If calling this after the mode has\n"
+    /*DOC*/    "already been set, this will change the display mode to the\n"
+    /*DOC*/    "desired type. Sometimes an exact match for the requested video\n"
+    /*DOC*/    "mode is not available. In this case SDL will try to find the\n"
+    /*DOC*/    "closest match and work with that instead.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The size is a 2-number-sequence containing the\n"
-    /*DOC*/    "width and height of the desired display mode.\n"
-    /*DOC*/    "Flags represents a set of different options for\n"
-    /*DOC*/    "the new display mode. If omitted or given as 0, it\n"
-    /*DOC*/    "will default to a simple software window. You can\n"
-    /*DOC*/    "mix several flags together with the bitwise-or (|)\n"
-    /*DOC*/    "operator. Possible flags are HWSURFACE (or the\n"
-    /*DOC*/    "value 1), HWPALETTE, DOUBLEBUF, and/or FULLSCREEN.\n"
-    /*DOC*/    "There are other flags available but these are the\n"
-    /*DOC*/    "most usual. A full list of flags can be found in\n"
-    /*DOC*/    "the SDL documentation.\n"
-    /*DOC*/    "The optional depth arguement is the requested bits\n"
-    /*DOC*/    "per pixel. It will usually be left omitted, in\n"
-    /*DOC*/    "which case the display will use the best/fastest\n"
-    /*DOC*/    "pixel depth available.\n"
+    /*DOC*/    "The size is a 2-number-sequence containing the width and height\n"
+    /*DOC*/    "of the desired display mode. Flags represents a set of different\n"
+    /*DOC*/    "options for the new display mode. If omitted or given as 0, it\n"
+    /*DOC*/    "will default to a simple software window. You can mix several\n"
+    /*DOC*/    "flags together with the bitwise-or (|) operator. Possible flags\n"
+    /*DOC*/    "are HWSURFACE (or the value 1), HWPALETTE, DOUBLEBUF, and/or\n"
+    /*DOC*/    "FULLSCREEN. There are other flags available but these are the\n"
+    /*DOC*/    "most usual. A full list of flags can be found in the SDL\n"
+    /*DOC*/    "documentation. The optional depth arguement is the requested bits\n"
+    /*DOC*/    "per pixel. It will usually be left omitted, in which case the\n"
+    /*DOC*/    "display will use the best/fastest pixel depth available.\n"
     /*DOC*/ ;
 
 static PyObject* set_mode(PyObject* self, PyObject* arg)
@@ -418,27 +404,22 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
     /*DOC*/    "query a specific display mode\n"
     /*DOC*/    "\n"
     /*DOC*/    "This uses the same arguments as the call to\n"
-    /*DOC*/    "pygame.display.set_mode(). It is used to determine\n"
-    /*DOC*/    "if a requested display mode is available. It will\n"
-    /*DOC*/    "return 0 if the requested mode is not possible.\n"
-    /*DOC*/    "Otherwise it will return the best and closest\n"
+    /*DOC*/    "pygame.display.set_mode(). It is used to determine if a requested\n"
+    /*DOC*/    "display mode is available. It will return 0 if the requested mode\n"
+    /*DOC*/    "is not possible. Otherwise it will return the best and closest\n"
     /*DOC*/    "matching bit depth for the mode requested.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The size is a 2-number-sequence containing the\n"
-    /*DOC*/    "width and height of the desired display mode.\n"
-    /*DOC*/    "Flags represents a set of different options for\n"
-    /*DOC*/    "the display mode. If omitted or given as 0, it\n"
-    /*DOC*/    "will default to a simple software window. You can\n"
-    /*DOC*/    "mix several flags together with the bitwise-or (|)\n"
-    /*DOC*/    "operator. Possible flags are HWSURFACE (or the\n"
-    /*DOC*/    "value 1), HWPALETTE, DOUBLEBUF, and/or FULLSCREEN.\n"
-    /*DOC*/    "There are other flags available but these are the\n"
-    /*DOC*/    "most usual. A full list of flags can be found in\n"
-    /*DOC*/    "the SDL documentation.\n"
-    /*DOC*/    "The optional depth arguement is the requested bits\n"
-    /*DOC*/    "per pixel. It will usually be left omitted, in\n"
-    /*DOC*/    "which case the display will use the best/fastest\n"
-    /*DOC*/    "pixel depth available.\n"
+    /*DOC*/    "The size is a 2-number-sequence containing the width and height\n"
+    /*DOC*/    "of the desired display mode. Flags represents a set of different\n"
+    /*DOC*/    "options for the display mode. If omitted or given as 0, it will\n"
+    /*DOC*/    "default to a simple software window. You can mix several flags\n"
+    /*DOC*/    "together with the bitwise-or (|) operator. Possible flags are\n"
+    /*DOC*/    "HWSURFACE (or the value 1), HWPALETTE, DOUBLEBUF, and/or\n"
+    /*DOC*/    "FULLSCREEN. There are other flags available but these are the\n"
+    /*DOC*/    "most usual. A full list of flags can be found in the SDL\n"
+    /*DOC*/    "documentation. The optional depth arguement is the requested bits\n"
+    /*DOC*/    "per pixel. It will usually be left omitted, in which case the\n"
+    /*DOC*/    "display will use the best/fastest pixel depth available.\n"
     /*DOC*/ ;
 
 static PyObject* mode_ok(PyObject* self, PyObject* args)
@@ -463,20 +444,17 @@ static PyObject* mode_ok(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.display.list_modes([depth, [flags]]) -> [[x,y],...] | -1\n"
     /*DOC*/    "query all resolutions for requested mode\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This function returns a list of possible\n"
-    /*DOC*/    "dimensions for a specified color depth. The return\n"
-    /*DOC*/    "value will be an empty list of no display modes\n"
-    /*DOC*/    "are available with the given arguments. A return\n"
-    /*DOC*/    "value of -1 means that any requested resolution\n"
-    /*DOC*/    "should work (this is likely the case for windowed\n"
-    /*DOC*/    "modes). Mode sizes are sorted from biggest to\n"
-    /*DOC*/    "smallest.\n"
+    /*DOC*/    "This function returns a list of possible dimensions for a\n"
+    /*DOC*/    "specified color depth. The return value will be an empty list of\n"
+    /*DOC*/    "no display modes are available with the given arguments. A return\n"
+    /*DOC*/    "value of -1 means that any requested resolution should work (this\n"
+    /*DOC*/    "is likely the case for windowed modes). Mode sizes are sorted\n"
+    /*DOC*/    "from biggest to smallest.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "If depth is not passed or 0, SDL will choose the\n"
-    /*DOC*/    "current/best color depth for the display. You will\n"
-    /*DOC*/    "usually want to pass FULLSCREEN when using the\n"
-    /*DOC*/    "flags, if flags is omitted, FULLSCREEN is the\n"
-    /*DOC*/    "default.\n"
+    /*DOC*/    "If depth is not passed or 0, SDL will choose the current/best\n"
+    /*DOC*/    "color depth for the display. You will usually want to pass\n"
+    /*DOC*/    "FULLSCREEN when using the flags, if flags is omitted, FULLSCREEN\n"
+    /*DOC*/    "is the default.\n"
     /*DOC*/ ;
 
 static PyObject* list_modes(PyObject* self, PyObject* args)
@@ -524,12 +502,11 @@ static PyObject* list_modes(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.display.flip() -> None\n"
     /*DOC*/    "update the display\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will update the contents of the entire\n"
-    /*DOC*/    "display. If your display mode is using the flags\n"
-    /*DOC*/    "HWSURFACE and DOUBLEBUF, this will wait for a\n"
-    /*DOC*/    "vertical retrace and swap the surfaces. If you are\n"
-    /*DOC*/    "using a different type of display mode, it will\n"
-    /*DOC*/    "simply update the entire contents of the surface.\n"
+    /*DOC*/    "This will update the contents of the entire display. If your\n"
+    /*DOC*/    "display mode is using the flags HWSURFACE and DOUBLEBUF, this\n"
+    /*DOC*/    "will wait for a vertical retrace and swap the surfaces. If you\n"
+    /*DOC*/    "are using a different type of display mode, it will simply update\n"
+    /*DOC*/    "the entire contents of the surface.\n"
     /*DOC*/ ;
 
 static PyObject* flip(PyObject* self, PyObject* arg)
@@ -569,14 +546,13 @@ static void screencroprect(GAME_Rect* r, int w, int h)
     /*DOC*/    "pygame.display.update([rectstyle]) -> None\n"
     /*DOC*/    "update an area of the display\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This call will update a section (or sections) of\n"
-    /*DOC*/    "the display screen. You must update an area of\n"
-    /*DOC*/    "your display when you change its contents. If\n"
-    /*DOC*/    "passed with no arguments, this will update the\n"
-    /*DOC*/    "entire display surface. If you have many lists\n"
-    /*DOC*/    "that need updating, it is best to combine them\n"
-    /*DOC*/    "into a sequence and pass them all at once. This call\n"
-    /*DOC*/    "will accept a sequence of rectstyle arguments\n"
+    /*DOC*/    "This call will update a section (or sections) of the display\n"
+    /*DOC*/    "screen. You must update an area of your display when you change\n"
+    /*DOC*/    "its contents. If passed with no arguments, this will update the\n"
+    /*DOC*/    "entire display surface. If you have many lists that need\n"
+    /*DOC*/    "updating, it is best to combine them into a sequence and pass\n"
+    /*DOC*/    "them all at once. This call will accept a sequence of rectstyle\n"
+    /*DOC*/    "arguments\n"
     /*DOC*/ ;
 
 static PyObject* update(PyObject* self, PyObject* arg)
@@ -651,15 +627,13 @@ static PyObject* update(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.set_gamma(r, [g, b]) -> bool\n"
     /*DOC*/    "change the brightness of the display\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Sets the display gamma to the given amounts. If\n"
-    /*DOC*/    "green and blue are ommitted, the red value will be\n"
-    /*DOC*/    "used for all three colors. The color arguments are\n"
-    /*DOC*/    "floating point values with 1.0 being the normal\n"
-    /*DOC*/    "value.\n"
-    /*DOC*/    "If you are using a display mode with a hardware\n"
-    /*DOC*/    "palette, this will simply update the palette you\n"
-    /*DOC*/    "are using. Not all hardware supports gamma. The\n"
-    /*DOC*/    "return value will be true on success.\n"
+    /*DOC*/    "Sets the display gamma to the given amounts. If green and blue\n"
+    /*DOC*/    "are ommitted, the red value will be used for all three colors.\n"
+    /*DOC*/    "The color arguments are floating point values with 1.0 being the\n"
+    /*DOC*/    "normal value. If you are using a display mode with a hardware\n"
+    /*DOC*/    "palette, this will simply update the palette you are using. Not\n"
+    /*DOC*/    "all hardware supports gamma. The return value will be true on\n"
+    /*DOC*/    "success.\n"
     /*DOC*/ ;
 
 static PyObject* set_gamma(PyObject* self, PyObject* arg)
@@ -684,13 +658,10 @@ static PyObject* set_gamma(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.set_caption(title, [icontitle]) -> None\n"
     /*DOC*/    "changes the title of the window\n"
     /*DOC*/    "\n"
-    /*DOC*/    "If the display has a window title, this routine\n"
-    /*DOC*/    "will change the\n"
-    /*DOC*/    "name on the window. Some environments support a\n"
-    /*DOC*/    "shorter icon title\n"
-    /*DOC*/    "to be used when the display is minimized. If\n"
-    /*DOC*/    "icontitle is omittied\n"
-    /*DOC*/    "it will be the same as caption title.\n"
+    /*DOC*/    "If the display has a window title, this routine will change the\n"
+    /*DOC*/    "name on the window. Some environments support a shorter icon\n"
+    /*DOC*/    "title to be used when the display is minimized. If icontitle is\n"
+    /*DOC*/    "omittied it will be the same as caption title.\n"
     /*DOC*/ ;
 
 static PyObject* set_caption(PyObject* self, PyObject* arg)
@@ -716,8 +687,7 @@ static PyObject* set_caption(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.get_caption() -> title, icontitle\n"
     /*DOC*/    "get the current title of the window\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the current title and icontitle for the\n"
-    /*DOC*/    "display window.\n"
+    /*DOC*/    "Returns the current title and icontitle for the display window.\n"
     /*DOC*/ ;
 
 static PyObject* get_caption(PyObject* self, PyObject* arg)
@@ -743,11 +713,10 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.iconify() -> bool\n"
     /*DOC*/    "minimize the display window\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Tells the window manager (if available) to\n"
-    /*DOC*/    "minimize the application. The call will return\n"
-    /*DOC*/    "true if successful. You will receive an APPACTIVE\n"
-    /*DOC*/    "event on the event queue when the window has been\n"
-    /*DOC*/    "minimized.\n"
+    /*DOC*/    "Tells the window manager (if available) to minimize the\n"
+    /*DOC*/    "application. The call will return true if successful. You will\n"
+    /*DOC*/    "receive an APPACTIVE event on the event queue when the window has\n"
+    /*DOC*/    "been minimized.\n"
     /*DOC*/ ;
 
 static PyObject* iconify(PyObject* self, PyObject* arg)
@@ -768,10 +737,10 @@ static PyObject* iconify(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.display.toggle_fullscreen() -> bool\n"
     /*DOC*/    "switch the display fullscreen mode\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Tells the window manager (if available) to switch\n"
-    /*DOC*/    "between windowed and fullscreen mode. If available\n"
-    /*DOC*/    "and successfull, will return true. Note, there is\n"
-    /*DOC*/    "currently limited platform support for this call.\n"
+    /*DOC*/    "Tells the window manager (if available) to switch between\n"
+    /*DOC*/    "windowed and fullscreen mode. If available and successfull, will\n"
+    /*DOC*/    "return true. Note, there is currently limited platform support\n"
+    /*DOC*/    "for this call.\n"
     /*DOC*/ ;
 
 static PyObject* toggle_fullscreen(PyObject* self, PyObject* arg)
@@ -802,8 +771,8 @@ static PyMethodDef display_builtins[] =
 	{ "get_active", get_active, 1, doc_get_active },
 
 /*	{ "set_driver", set_driver, 1, doc_set_driver },
-	{ "get_driver", get_driver, 1, doc_get_driver },
-*/	{ "get_info", get_info, 1, doc_get_info },
+*/	{ "get_driver", get_driver, 1, doc_get_driver },
+	{ "get_info", get_info, 1, doc_get_info },
 	{ "get_surface", get_surface, 1, doc_get_surface },
 
 	{ "set_mode", set_mode, 1, doc_set_mode },
@@ -829,9 +798,44 @@ static PyMethodDef display_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_display_MODULE[] =
-    /*DOC*/    "Contains routines to work with the display. Mainly\n"
-    /*DOC*/    "used for setting the display mode and updating the\n"
-    /*DOC*/    "display surface.\n"
+    /*DOC*/    "Contains routines to work with the display. Mainly used for\n"
+    /*DOC*/    "setting the display mode and updating the display surface.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Pygame offers a fairly simple interface to the display buffer.\n"
+    /*DOC*/    "The buffer is represented as an offscreen surface to which you\n"
+    /*DOC*/    "can write directly. If you want the screen to show what you have\n"
+    /*DOC*/    "written, the pygame.display.update() function will guarantee the\n"
+    /*DOC*/    "the desired portion of the screen is updated. You can call\n"
+    /*DOC*/    "pygame.display.flip() to update the entire screen, and also flip\n"
+    /*DOC*/    "a hardware surface created with DOUBLEBUF.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "There are a number of ways to start the video display. The\n"
+    /*DOC*/    "easiest way is to pick a common screen resolution and depth and\n"
+    /*DOC*/    "just initialize the video, checking for exceptions. You will\n"
+    /*DOC*/    "probably get what you want, but pygame may be emulating your\n"
+    /*DOC*/    "requested mode and converting the display on update (this is not\n"
+    /*DOC*/    "the fastest method). When calling pygame.display.set_mode() with\n"
+    /*DOC*/    "the bit depth omitted or set to zero, pygame will determine the\n"
+    /*DOC*/    "best video mode available and set to that. You can also query for\n"
+    /*DOC*/    "more information on video modes with pygame.display.mode_ok(),\n"
+    /*DOC*/    "pygame.display.list_modes(), and\n"
+    /*DOC*/    "pygame.display.get_vidinfo().get_info().\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When using a display depth other than what you graphic resources\n"
+    /*DOC*/    "may be saved at, it is best to call the Surface.convert() routine\n"
+    /*DOC*/    "to convert them to the same format as the display, this will\n"
+    /*DOC*/    "result in the fastest blitting.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Pygame currently supports any but depth >= 8 bits per pixl. 8bpp\n"
+    /*DOC*/    "formats are considered to be 8-bit palettized modes, while 12,\n"
+    /*DOC*/    "15, 16, 24, and 32 bits per pixel are considered 'packed pixel'\n"
+    /*DOC*/    "modes, meaning each pixel contains the RGB color componsents\n"
+    /*DOC*/    "packed into the bits of the pixel.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "After you have initialized your video mode, you can take the\n"
+    /*DOC*/    "surface that was returned and write to it like any other Surface\n"
+    /*DOC*/    "object. Be sure to call update() or flip() to keep what is on the\n"
+    /*DOC*/    "screen synchronized with what is on the surface.\n"
     /*DOC*/ ;
 
 void initdisplay()

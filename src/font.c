@@ -66,9 +66,8 @@ static PyObject* font_autoinit(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.font.quit() -> none\n"
     /*DOC*/    "uninitialize the font module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Manually uninitialize SDL's video subsystem. It is\n"
-    /*DOC*/    "safe to call this if font is currently not\n"
-    /*DOC*/    "initialized.\n"
+    /*DOC*/    "Manually uninitialize SDL's video subsystem. It is safe to call\n"
+    /*DOC*/    "this if font is currently not initialized.\n"
     /*DOC*/ ;
 
 static PyObject* font_quit(PyObject* self, PyObject* arg)
@@ -86,10 +85,9 @@ static PyObject* font_quit(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.font.init() -> None\n"
     /*DOC*/    "initialize the display module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Manually initialize the font module. Will raise an\n"
-    /*DOC*/    "exception if it cannot be initialized. It is safe\n"
-    /*DOC*/    "to call this function if font is currently\n"
-    /*DOC*/    "initialized.\n"
+    /*DOC*/    "Manually initialize the font module. Will raise an exception if\n"
+    /*DOC*/    "it cannot be initialized. It is safe to call this function if\n"
+    /*DOC*/    "font is currently initialized.\n"
     /*DOC*/ ;
 
 static PyObject* font_init(PyObject* self, PyObject* arg)
@@ -115,8 +113,7 @@ static PyObject* font_init(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.font.get_init() -> bool\n"
     /*DOC*/    "get status of font module initialization\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the font module is currently\n"
-    /*DOC*/    "intialized.\n"
+    /*DOC*/    "Returns true if the font module is currently intialized.\n"
     /*DOC*/ ;
 
 static PyObject* get_init(PyObject* self, PyObject* arg)
@@ -137,8 +134,7 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
     /*DOC*/    "Font.get_height() -> int\n"
     /*DOC*/    "average height of font glyph\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the average size of each glyph in the\n"
-    /*DOC*/    "font.\n"
+    /*DOC*/    "Returns the average size of each glyph in the font.\n"
     /*DOC*/ ;
 
 static PyObject* font_get_height(PyObject* self, PyObject* args)
@@ -157,9 +153,8 @@ static PyObject* font_get_height(PyObject* self, PyObject* args)
     /*DOC*/    "Font.get_descent() -> int\n"
     /*DOC*/    "gets the font descent\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the descent for the font. The descent is\n"
-    /*DOC*/    "the number of pixels from the font baseline to the\n"
-    /*DOC*/    "bottom of the font.\n"
+    /*DOC*/    "Returns the descent for the font. The descent is the number of\n"
+    /*DOC*/    "pixels from the font baseline to the bottom of the font.\n"
     /*DOC*/ ;
 
 static PyObject* font_get_descent(PyObject* self, PyObject* args)
@@ -178,9 +173,8 @@ static PyObject* font_get_descent(PyObject* self, PyObject* args)
     /*DOC*/    "Font.get_ascent() -> int\n"
     /*DOC*/    "gets the font ascent\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the ascent for the font. The ascent is the\n"
-    /*DOC*/    "number of pixels from the font baseline to the top\n"
-    /*DOC*/    "of the font.\n"
+    /*DOC*/    "Returns the ascent for the font. The ascent is the number of\n"
+    /*DOC*/    "pixels from the font baseline to the top of the font.\n"
     /*DOC*/ ;
 
 static PyObject* font_get_ascent(PyObject* self, PyObject* args)
@@ -199,9 +193,9 @@ static PyObject* font_get_ascent(PyObject* self, PyObject* args)
     /*DOC*/    "Font.get_linesize() -> int\n"
     /*DOC*/    "gets the font recommended linesize\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the linesize for the font. Each font comes\n"
-    /*DOC*/    "with it's own recommendation for the spacing\n"
-    /*DOC*/    "number of pixels between each line of the font.\n"
+    /*DOC*/    "Returns the linesize for the font. Each font comes with it's own\n"
+    /*DOC*/    "recommendation for the spacing number of pixels between each line\n"
+    /*DOC*/    "of the font.\n"
     /*DOC*/ ;
 
 static PyObject* font_get_linesize(PyObject* self, PyObject* args)
@@ -220,8 +214,7 @@ static PyObject* font_get_linesize(PyObject* self, PyObject* args)
     /*DOC*/    "Font.get_bold() -> bool\n"
     /*DOC*/    "status of the bold attribute\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Get the current status of the font's bold\n"
-    /*DOC*/    "attribute\n"
+    /*DOC*/    "Get the current status of the font's bold attribute\n"
     /*DOC*/ ;
 
 static PyObject* font_get_bold(PyObject* self, PyObject* args)
@@ -240,9 +233,8 @@ static PyObject* font_get_bold(PyObject* self, PyObject* args)
     /*DOC*/    "Font.set_bold(bool) -> None\n"
     /*DOC*/    "assign the bold attribute\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Enables or disables the bold attribute for the\n"
-    /*DOC*/    "font. Making the font bold does not work as well\n"
-    /*DOC*/    "as you expect.\n"
+    /*DOC*/    "Enables or disables the bold attribute for the font. Making the\n"
+    /*DOC*/    "font bold does not work as well as you expect.\n"
     /*DOC*/ ;
 
 static PyObject* font_set_bold(PyObject* self, PyObject* args)
@@ -269,8 +261,7 @@ static PyObject* font_set_bold(PyObject* self, PyObject* args)
     /*DOC*/    "Font.get_bold() -> bool\n"
     /*DOC*/    "status of the italic attribute\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Get the current status of the font's italic\n"
-    /*DOC*/    "attribute\n"
+    /*DOC*/    "Get the current status of the font's italic attribute\n"
     /*DOC*/ ;
 
 static PyObject* font_get_italic(PyObject* self, PyObject* args)
@@ -289,8 +280,7 @@ static PyObject* font_get_italic(PyObject* self, PyObject* args)
     /*DOC*/    "Font.set_italic(bool) -> None\n"
     /*DOC*/    "assign the italic attribute\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Enables or disables the italic attribute for the\n"
-    /*DOC*/    "font.\n"
+    /*DOC*/    "Enables or disables the italic attribute for the font.\n"
     /*DOC*/ ;
 
 static PyObject* font_set_italic(PyObject* self, PyObject* args)
@@ -317,8 +307,7 @@ static PyObject* font_set_italic(PyObject* self, PyObject* args)
     /*DOC*/    "Font.get_underline() -> bool\n"
     /*DOC*/    "status of the underline attribute\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Get the current status of the font's underline\n"
-    /*DOC*/    "attribute\n"
+    /*DOC*/    "Get the current status of the font's underline attribute\n"
     /*DOC*/ ;
 
 static PyObject* font_get_underline(PyObject* self, PyObject* args)
@@ -337,8 +326,7 @@ static PyObject* font_get_underline(PyObject* self, PyObject* args)
     /*DOC*/    "Font.set_underline(bool) -> None\n"
     /*DOC*/    "assign the underline attribute\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Enables or disables the underline attribute for\n"
-    /*DOC*/    "the font.\n"
+    /*DOC*/    "Enables or disables the underline attribute for the font.\n"
     /*DOC*/ ;
 
 static PyObject* font_set_underline(PyObject* self, PyObject* args)
@@ -365,16 +353,14 @@ static PyObject* font_set_underline(PyObject* self, PyObject* args)
     /*DOC*/    "Font.render(text, antialias, fgcolor, [bgcolor]) -> Surface\n"
     /*DOC*/    "render text to a new image\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Render the given text onto a new image surface.\n"
-    /*DOC*/    "The given text can be standard python text or\n"
-    /*DOC*/    "unicode. Antialiasing will smooth the edges of the\n"
-    /*DOC*/    "font for a much cleaner look. The foreground color\n"
-    /*DOC*/    "is a 3-number-sequence containing the desired RGB\n"
-    /*DOC*/    "components for the text. The background color is\n"
-    /*DOC*/    "also a 3-number-sequence of RGB. This sets the\n"
-    /*DOC*/    "background color for the text. If the background\n"
-    /*DOC*/    "color is omitted, the text will have a transparent\n"
-    /*DOC*/    "background.\n"
+    /*DOC*/    "Render the given text onto a new image surface. The given text\n"
+    /*DOC*/    "can be standard python text or unicode. Antialiasing will smooth\n"
+    /*DOC*/    "the edges of the font for a much cleaner look. The foreground\n"
+    /*DOC*/    "color is a 3-number-sequence containing the desired RGB\n"
+    /*DOC*/    "components for the text. The background color is also a\n"
+    /*DOC*/    "3-number-sequence of RGB. This sets the background color for the\n"
+    /*DOC*/    "text. If the background color is omitted, the text will have a\n"
+    /*DOC*/    "transparent background.\n"
     /*DOC*/ ;
 
 static PyObject* font_render(PyObject* self, PyObject* args)
@@ -440,10 +426,9 @@ static PyObject* font_render(PyObject* self, PyObject* args)
     /*DOC*/    "Font.size(text) -> width, height\n"
     /*DOC*/    "size of rendered text\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Computes the rendered size of the given text. The\n"
-    /*DOC*/    "text can be standard python text or unicode. Know\n"
-    /*DOC*/    "that changing the bold and italic attributes will\n"
-    /*DOC*/    "change the size of the rendered text.\n"
+    /*DOC*/    "Computes the rendered size of the given text. The text can be\n"
+    /*DOC*/    "standard python text or unicode. Changing the bold and italic\n"
+    /*DOC*/    "attributes can change the size of the rendered text.\n"
     /*DOC*/ ;
 
 static PyObject* font_size(PyObject* self, PyObject* args)
@@ -519,7 +504,15 @@ static PyObject* font_getattr(PyObject* self, char* attrname)
 
 
     /*DOC*/ static char doc_Font_MODULE[] =
-    /*DOC*/    "Font objects can control and render text.\n"
+    /*DOC*/    "The font object is created only from pygame.font.font(). Once a\n"
+    /*DOC*/    "font is created it's size and TTF file cannot be changed. The\n"
+    /*DOC*/    "Font objects are mainly used to render() text into a new Surface.\n"
+    /*DOC*/    "The Font objects also have a few states that can be set with\n"
+    /*DOC*/    "set_underline(bool), set_bold(bool), set_italic(bool). Each of\n"
+    /*DOC*/    "these functions contains an equivalent get_XXX() routine to find\n"
+    /*DOC*/    "the current state. There are also many routines to query the\n"
+    /*DOC*/    "dimensions of the text. The rendering functions work with both\n"
+    /*DOC*/    "normal python strings, as well as with unicode strings.\n"
     /*DOC*/ ;
 
 static PyTypeObject PyFont_Type = 
@@ -542,10 +535,10 @@ static PyTypeObject PyFont_Type =
     /*DOC*/    "pygame.font(file, size) -> Font\n"
     /*DOC*/    "create a new font object\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will create a new font object. The given file\n"
-    /*DOC*/    "must be an existing filename. The font loader does\n"
-    /*DOC*/    "not work with python file-like objects. The size\n"
-    /*DOC*/    "represents the height of the font in pixels.\n"
+    /*DOC*/    "This will create a new font object. The given file must be an\n"
+    /*DOC*/    "existing filename. The font loader does not work with python\n"
+    /*DOC*/    "file-like objects. The size represents the height of the font in\n"
+    /*DOC*/    "pixels.\n"
     /*DOC*/ ;
 
 static PyObject* font_font(PyObject* self, PyObject* args)
@@ -601,8 +594,15 @@ static PyObject* PyFont_New(TTF_Font* font)
 
 
     /*DOC*/ static char doc_pygame_font_MODULE[] =
-    /*DOC*/    "Contains the font object and the functions used to\n"
-    /*DOC*/    "create them.\n"
+    /*DOC*/    "The font module allows for rendering TrueType fonts into a new\n"
+    /*DOC*/    "Surface object. This module is optional and requires SDL_ttf as a\n"
+    /*DOC*/    "dependency. You may want to check for pygame.font to import and\n"
+    /*DOC*/    "initialize before attempting to use the module.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Most of the work done with fonts are done by using the actual\n"
+    /*DOC*/    "Font objects. The module by itself only has routines to\n"
+    /*DOC*/    "initialize the module and create Font objects with\n"
+    /*DOC*/    "pygame.font.font().\n"
     /*DOC*/ ;
 
 void initfont()

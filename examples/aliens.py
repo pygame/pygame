@@ -1,5 +1,13 @@
 #! /usr/bin/env python
 
+"""This is a pretty full-fledged example of a miniature
+game with pygame. It's not what you'd call commercial grade
+quality, but it does demonstrate just about all of the
+important modules for pygame. Note the methods it uses to
+detect the availability of the font and mixer modules.
+This example actually gets a bit large. A better starting
+point for beginners would be the oldaliens.py example."""
+
 
 import whrandom, os.path, sys
 import pygame, pygame.image
@@ -9,6 +17,7 @@ try:
     import pygame.music
     pygame.mixer.pre_init(11025)
 except ImportError:
+    print 'Warning, sound not initialized'
     pygame.mixer = pygame.music = None
 
 #see if we can get some font lovin'

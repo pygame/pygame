@@ -1,5 +1,15 @@
+#!/usr/bin/env python
 
-#test out surface arrays
+"""This example demonstrates creating an image with Numeric
+python, and displaying that through SDL. You can look at the
+method of importing numeric and pygame.surfarray. This method
+will fail 'gracefully' if it is not available.
+I've tried mixing in a lot of comments where the code might
+not be self explanatory, nonetheless it may still seem a bit
+strange. Learning to use numeric for images like this takes a
+bit of learning, but the payoff is extremely fast image
+manipulation in python."""
+
 
 import pygame
 from pygame.locals import *

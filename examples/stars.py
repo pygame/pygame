@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+"""A simple starfield example. Note you can move the 'center' of
+the starfield by leftclicking in the window. This example show
+the basics of creating a window, simple pixel plotting, and input
+event management"""
+
+
 import time, random, math
 
 import pygame
@@ -46,7 +52,7 @@ def move_stars(stars):
 	for vel, pos in stars:
 		pos[0] += vel[0]
 		pos[1] += vel[1]
-		if pos[0] < 0 or pos[1] < 0 or pos[0] >= WINSIZE[0] or pos[1] >= WINSIZE[1]:
+		if not 0 <= pos[0] <= WINSIZE[0] or not 0 <= pos[1] <= WINSIZE[1]:
 			vel[:], pos[:] = init_star()
 		else:
 			vel[0] *= 1.05
@@ -81,7 +87,6 @@ def main():
 				break
 			elif e.type == MOUSEBUTTONDOWN and e.button == 1:
 				WINCENTER[:] = list(e.pos)
-
 
 
 # if python says run, then we should run

@@ -4,10 +4,14 @@ a simple textfile for easy editing"""
 
 import fnmatch
 
-docpattern = 'static char*doc*=*'
+docpattern = '*static char*doc_*=*'
 
 def src2txt(infile, outfile):
     global commentpattern
+    if type(infile) == type('x'):
+        infile = open(infile)
+    if type(outfile) == type('x'):
+        outfile = open(outfile, 'w')
     while 1:
         line = infile.readline()
         if not line: break
@@ -15,14 +19,33 @@ def src2txt(infile, outfile):
             docname = line[:line.find('[')]
             docname = docname[docname.rfind(' '):]
             outfile.write('#START:'+ docname+ '\n')
+            docs = []
             while 1:
                 line = infile.readline()
-                if not line or line.find(';') != -1: break
+                if not line: break
+                if line.find('"') == -1:
+                    if line.find(';') != -1:
+                        break
+                    continue
+                origline = line
+                line = line[line.find('"'):]
+                line = line.replace(';', ' ')                
                 line = line.replace('"', ' ').strip()
                 if line[-2:] == '\\n':
                     line = line[:-2]
-                outfile.write(line + '\n')
-            outfile.write('#END\n\n');
+                if not line:
+                    line = '\n\n'
+                else:
+                    line += ' '
+                #outfile.write(line)
+                docs.append(line)
+                if origline.find(';') != -1: break;
+            if docname.find('MODULE') == -1 and docname.find('EXTRA') == -1:
+                docs[0] += '\n'
+                docs[1] += '\n'
+                docs[2] = '\n'
+            outfile.write(''.join(docs))
+            outfile.write('\n#END\n\n');
 
                 
 
