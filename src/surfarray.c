@@ -163,9 +163,11 @@ static PyObject* pixels2d(PyObject* self, PyObject* arg)
     /*DOC*/    "as a 2d image array with a mapped pixel value at\n"
     /*DOC*/    "each index.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You'll need the surface to be locked if that is\n"
-    /*DOC*/    "required. Once the array is created you can unlock\n"
-    /*DOC*/    "the surface.\n"
+    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
+    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
+    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
+    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
+    /*DOC*/    "outside of that loop.\n"
     /*DOC*/ ;
 
 PyObject* array2d(PyObject* self, PyObject* arg)
@@ -261,9 +263,11 @@ PyObject* array2d(PyObject* self, PyObject* arg)
     /*DOC*/    "as a 2d image array with an RGB array for each\n"
     /*DOC*/    "pixel value.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You'll need the surface to be locked if that is\n"
-    /*DOC*/    "required. Once the array is created you can unlock\n"
-    /*DOC*/    "the surface.\n"
+    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
+    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
+    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
+    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
+    /*DOC*/    "outside of that loop.\n"
     /*DOC*/ ;
 
 PyObject* array3d(PyObject* self, PyObject* arg)
@@ -561,7 +565,7 @@ PyObject* map_array(PyObject* self, PyObject* arg)
 	}	}
 
 
-
+#define TEMP_UNLOCK 	if(didlock) SDL_UnlockSurface(surf)
 
     /*DOC*/ static char doc_blit_array[] =
     /*DOC*/    "pygame.surfarray.blit_array(surf, array) -> None\n"
@@ -576,6 +580,12 @@ PyObject* map_array(PyObject* self, PyObject* arg)
     /*DOC*/    "arrays. Plus it allows you to blit from any image\n"
     /*DOC*/    "array type to any surface format in one step, no\n"
     /*DOC*/    "conversions.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
+    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
+    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
+    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
+    /*DOC*/    "outside of that loop.\n"
     /*DOC*/ ;
 
 PyObject* blit_array(PyObject* self, PyObject* arg)
@@ -587,6 +597,8 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 	int loopx, loopy;
 	int stridex, stridey, stridez=0, stridez2=0, sizex, sizey;
 	int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
+	PyObject* exc_type;
+	const char* exc_string;
 
 	if(!PyArg_ParseTuple(arg, "O!O!", &PySurface_Type, &surfobj, &PyArray_Type, &arrayobj))
 		return NULL;
@@ -615,6 +627,13 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 	if(sizex != surf->w || sizey != surf->h)
 		return RAISE(PyExc_ValueError, "array must match surface dimensions");
 
+	if(!surf->pixels)
+	{
+		if(SDL_LockSurface(surf) == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError();
+		didlock = 1;
+	}
+
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
@@ -622,9 +641,9 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 			switch(array->descr->elsize) {
 				case sizeof(Uint8):  COPYMACRO_2D(Uint8, Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D(Uint8, Uint16)  break;
-				case sizeof(Uint32):   COPYMACRO_2D(Uint8, Uint32)  break;
+				case sizeof(Uint32): COPYMACRO_2D(Uint8, Uint32)  break;
 				default: 
-					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
@@ -633,17 +652,17 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 			switch(array->descr->elsize) {
 				case sizeof(Uint8):  COPYMACRO_2D(Uint16, Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D(Uint16, Uint16)  break;
-				case sizeof(Uint32):   COPYMACRO_2D(Uint16, Uint32)  break;
+				case sizeof(Uint32): COPYMACRO_2D(Uint16, Uint32)  break;
 				default: 
-					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		} else {
 			switch(array->descr->elsize) {
 				case sizeof(Uint8): COPYMACRO_3D(Uint16, Uint8)  break;
 				case sizeof(Uint16):COPYMACRO_3D(Uint16, Uint16)  break;
-				case sizeof(Uint32):  COPYMACRO_3D(Uint16, Uint32)  break;
+				case sizeof(Uint32):COPYMACRO_3D(Uint16, Uint32)  break;
 				default: 
-					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
@@ -652,17 +671,17 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 			switch(array->descr->elsize) {
 				case sizeof(Uint8):  COPYMACRO_2D_24(Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D_24(Uint16)  break;
-				case sizeof(Uint32):   COPYMACRO_2D_24(Uint32)  break;
+				case sizeof(Uint32): COPYMACRO_2D_24(Uint32)  break;
 				default: 
-					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		} else {
 			switch(array->descr->elsize) {
 				case sizeof(Uint8): COPYMACRO_3D_24(Uint8)  break;
 				case sizeof(Uint16):COPYMACRO_3D_24(Uint16)  break;
-				case sizeof(Uint32):  COPYMACRO_3D_24(Uint32)  break;
+				case sizeof(Uint32):COPYMACRO_3D_24(Uint32)  break;
 				default: 
-					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
@@ -671,24 +690,26 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 			switch(array->descr->elsize) {
 				case sizeof(Uint8):  COPYMACRO_2D(Uint32, Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D(Uint32, Uint16)  break;
-				case sizeof(Uint32):   COPYMACRO_2D(Uint32, Uint32)  break;
+				case sizeof(Uint32): COPYMACRO_2D(Uint32, Uint32)  break;
 			default: 
-					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		} else {
 			switch(array->descr->elsize) {
 				case sizeof(Uint8): COPYMACRO_3D(Uint32, Uint8)  break;
 				case sizeof(Uint16):COPYMACRO_3D(Uint32, Uint16)  break;
-				case sizeof(Uint32):  COPYMACRO_3D(Uint32, Uint32)  break;
+				case sizeof(Uint32):COPYMACRO_3D(Uint32, Uint32)  break;
 				default: 
-					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
 	default:
-		return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
+		TEMP_UNLOCK; return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
 	}
-	RETURN_NONE;
+
+	TEMP_UNLOCK;
+	RETURN_NONE
 }
 
 

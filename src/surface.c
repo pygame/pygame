@@ -42,7 +42,12 @@ static PyObject* PySurface_New(SDL_Surface* info);
     /*DOC*/    "\n"
     /*DOC*/    "Returns the RGB color values at a given pixel. If the\n"
     /*DOC*/    "Surface has no per-pixel alpha, the alpha will be 255 (opaque).\n"
-    /*DOC*/    "The surface must be locked for this to work correctly.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
+    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
+    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
+    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
+    /*DOC*/    "outside of that loop.\n"
     /*DOC*/ ;
 
 static PyObject* surf_get_at(PyObject* self, PyObject* arg)
@@ -50,6 +55,7 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	SDL_PixelFormat* format = surf->format;
 	Uint8* pixels = (Uint8*)surf->pixels;
+	int didlock = 0;
 	int x, y;
 	Uint32 color;
 	Uint8* pix;
@@ -61,8 +67,14 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
 		return RAISE(PyExc_IndexError, "pixel index out of range");
 
-	if(!pixels)
-		return RAISE(PyExc_SDLError, "Surface must be locked for pixel access");
+	if(!surf->pixels)
+	{
+		didlock = 1;
+		if(SDL_LockSurface(surf) == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+	}
+	pixels = (Uint8*)surf->pixels;
+
 
 	switch(format->BytesPerPixel)
 	{
@@ -84,8 +96,10 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 			color = *((Uint32*)(pixels + y * surf->pitch) + x);
 			break;
 		default:
+			if(didlock) SDL_UnlockSurface(surf);
 			return RAISE(PyExc_RuntimeError, "Unable to determine color depth.");
 	}
+	if(didlock) SDL_UnlockSurface(surf);
 
 	SDL_GetRGBA(color, format, &r, &g, &b, &a);
 	return Py_BuildValue("(bbbb)", r, g, b, a);
@@ -98,23 +112,29 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
     /*DOC*/    "set pixel at given position\n"
     /*DOC*/    "\n"
     /*DOC*/    "Assigns RGBA color to the image at the give position.\n"
-    /*DOC*/    "The surface must be locked for this to work correctly.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "In many situations just using the fill() function with a one-pixel\n"
+    /*DOC*/    "In some situations just using the fill() function with a one-pixel\n"
     /*DOC*/    "sized rectangle will be quicker. Also the fill function does not\n"
-    /*DOC*/    "requirethe surface to be locked.\n"
+    /*DOC*/    "require the surface to be locked.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
+    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
+    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
+    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
+    /*DOC*/    "outside of that loop.\n"
     /*DOC*/ ;
 
 static PyObject* surf_set_at(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	SDL_PixelFormat* format = surf->format;
-	Uint8* pixels = (Uint8*)surf->pixels;
+	Uint8* pixels;
 	int x, y;
 	Uint32 color;
 	Uint8 rgba[4];
 	PyObject* rgba_obj;
 	Uint8* byte_buf;
+	int didlock = 0;
 
 	if(!PyArg_ParseTuple(args, "(ii)O", &x, &y, &rgba_obj))
 		return NULL;
@@ -126,12 +146,17 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 		return NULL;
 	}
 
-	if(!pixels)
-		return RAISE(PyExc_SDLError, "Surface must be locked for pixel access");
-
 	if(!RGBAFromObj(rgba_obj, rgba))
 		return RAISE(PyExc_TypeError, "Invalid RGBA object");
 	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+
+	if(!surf->pixels)
+	{
+		didlock = 1;
+		if(SDL_LockSurface(surf) == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+	}
+	pixels = (Uint8*)surf->pixels;
 
 	switch(format->BytesPerPixel)
 	{
@@ -151,9 +176,11 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 			*((Uint32*)(pixels + y * surf->pitch) + x) = color;
 			break;
 		default:
+			if(didlock) SDL_UnlockSurface(surf);
 			return RAISE(PyExc_SDLError, "Unable to determine color depth.");
 	}
 
+	if(didlock) SDL_UnlockSurface(surf);
 	RETURN_NONE
 }
 
@@ -1353,7 +1380,7 @@ static PyMethodDef surface_builtins[] =
     /*DOC*/ static char doc_pygame_surface_MODULE[] =
     /*DOC*/    "The surface module doesn't have much in the line of functions. It\n"
     /*DOC*/    "does have the Surface object, and one routine to create new\n"
-    /*DOC*/    "surfaces, pygame.surface().\n"
+    /*DOC*/    "surfaces, pygame.Surface().\n"
     /*DOC*/ ;
 
 void initsurface(void)

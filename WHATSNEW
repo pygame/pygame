@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 24, 2001
+	funcs that need locked surfaces will temporarily lock them
+	   (Surface.set_at, Surface.get_at, surfarray.arrayXd)
+
 Jan 23, 2001
 	display.update() no longer effects input Rects [BREAK]
 	Surface.fill() no longer effects input Rect [BREAK]

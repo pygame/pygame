@@ -87,9 +87,11 @@ This returns a new contigous 2d array. Think of it
 as a 2d image array with a mapped pixel value at
 each index.
 <br>&nbsp;<br>
-You'll need the surface to be locked if that is
-required. Once the array is created you can unlock
-the surface.
+Some surfaces will require the surface to be locked for pixel access.
+If locking is needed and the surface is not locked, it will be temporarily
+locked in this function. If you will be calling this function many times
+in one loop, it is will be much better to lock and unlock the surface
+outside of that loop.
 </ul><br>&nbsp;<br>
 
 <a name=array3d><font size=+2><b>array3d
@@ -100,9 +102,11 @@ This returns a new contigous 3d array. Think of it
 as a 2d image array with an RGB array for each
 pixel value.
 <br>&nbsp;<br>
-You'll need the surface to be locked if that is
-required. Once the array is created you can unlock
-the surface.
+Some surfaces will require the surface to be locked for pixel access.
+If locking is needed and the surface is not locked, it will be temporarily
+locked in this function. If you will be calling this function many times
+in one loop, it is will be much better to lock and unlock the surface
+outside of that loop.
 </ul><br>&nbsp;<br>
 
 <a name=blit_array><font size=+2><b>blit_array
@@ -118,6 +122,12 @@ because of it's smarter handling of noncontiguous
 arrays. Plus it allows you to blit from any image
 array type to any surface format in one step, no
 conversions.
+<br>&nbsp;<br>
+Some surfaces will require the surface to be locked for pixel access.
+If locking is needed and the surface is not locked, it will be temporarily
+locked in this function. If you will be calling this function many times
+in one loop, it is will be much better to lock and unlock the surface
+outside of that loop.
 </ul><br>&nbsp;<br>
 
 <a name=map_array><font size=+2><b>map_array
