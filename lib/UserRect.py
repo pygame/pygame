@@ -18,14 +18,28 @@
 ##    Pete Shinners
 ##    pete@shinners.org
 
-"UserRect, python class wrapped around the pygame Rect type"
+"""UserRect, python class wrapped around the pygame Rect type. This allows
+you to do things like inherit the rectangle object into a sprite class. While
+this makes for some neat features, current testing has shown there is a bit of
+a peformance penalty. (as opposed to just keeping a Rect value inside the class)
+"""
 
-from pygame.rect import Rect
+#sadly, we need to hide the rect from the documentation finder for now
+import pygame.rect as rectmodule
+R = [rectmodule.Rect]
+del rectmodule
+
 
 class UserRect:
-    "Python class for the pygame Rect type"
+    """pygame.UserRect.UserRect() -> class instance
+Python class for the pygame Rect type
+
+This python class can be treated exactly like a normal Rect
+object. The only difference is it is a real python class
+object, not a C extension type.
+"""
     def __init__(self, *args):
-        try: self.__dict__['rect'] = Rect(*args)
+        try: self.__dict__['rect'] = R[0](*args)
         except TypeError:
             raise TypeError, 'Argument must be rectstyle object'
         for a in dir(self.rect):

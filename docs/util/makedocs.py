@@ -9,7 +9,7 @@ DOCPATTERN = '*static char*doc_*=*'
 SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
 OUTPUTDIR = '../ref/'
-
+PYTHONSRC = ['cursors', 'version', 'UserRect']
 PAGETEMPLATE = open('pagelate.html').readlines()
 DOCTEMPLATE = open('doclate.html').readlines()
 LISTTEMPLATE = open('listlate.html').readlines()
@@ -80,6 +80,27 @@ def readsource(filename):
             documents.append(lines)
     return documents
 
+
+def getpydoclines(doc):
+    lines = []
+    for line in doc.split('\n'):
+        if line == '':
+            line = '<br>&nbsp;<br>'
+        lines.append(line)
+    return lines
+
+
+def readpysource(name):
+    modulename = 'pygame.' + name
+    documents = []
+    module = getattr(__import__(modulename), name)
+    title = '    /*DOC*/ static char doc_pygame_' + name + '_MODULE[] =\n'
+    documents.append([title] + getpydoclines(module.__doc__))
+    for name, obj in module.__dict__.items():
+        if hasattr(obj, '__doc__'):
+            title = '    /*DOC*/ static char doc_' + name + '[] =\n'
+            documents.append([title] + getpydoclines(obj.__doc__))
+    return documents
 
 
 def parsedocs(docs):
@@ -254,10 +275,15 @@ def main():
             files.remove(f)
 
     #load all sources
-    print 'read sources...'
+    print 'read c sources...'
     rawdocs = []
     for f in files:
         rawdocs += readsource(f)
+
+    print 'read python sources...'
+    for f in PYTHONSRC:
+        rawdocs += readpysource(f)
+
 
     #parse sources
     alldocs = parsedocs(rawdocs)

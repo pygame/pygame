@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 17, 2001
+	documentation updated to include python modules too
+
 Jan 16, 2001
 	cursors module beefed up
 
