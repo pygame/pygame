@@ -266,8 +266,8 @@ corner of the rectangle as the blit destination position. The
 rectangle sizes will be ignored.
 
 <br>&nbsp;<br>
-Note that blitting alpha surfaces onto an 8bit destination will
-crash SDL. Pygame will disable the alpha when these blits are attempted.
+Note that blitting surfaces with alpha onto 8bit destinations will
+not use the surface alpha values.
 
 </ul><br>&nbsp;<br>
 
@@ -511,9 +511,9 @@ outweight the overhead of just locking any surface before access.
 </b></font><br><font size=+1><tt>
 Surface.save(file) -> None
 </tt></font><ul>
-This will save your surface in the BMP format. The given file
-argument can be either a filename or a python file-like object
-to save the BMP image to.
+This function is depracated, please don't use it. It will print
+a warning when called, but eventually be removed from pygame.
+You should now use the enhanced <a href=pygame_image.html#save>pygame.image.save()</a> function.
 </ul><br>&nbsp;<br>
 
 <a name=set_alpha><font size=+2><b>set_alpha

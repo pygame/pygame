@@ -22,6 +22,9 @@ except:
 try: import pygame.font as font
 except ImportError: font = None
 
+if not pygame.image.get_extended():
+    raise SystemExit, "Requires the extended image loading from SDL_image"
+
 
 #constants
 FRAMES_PER_SEC = 45

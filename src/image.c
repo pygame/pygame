@@ -24,22 +24,10 @@
  *  image module for pygame
  */
 #include "pygame.h"
-#include <SDL_image.h>
 
 
-static char* find_extension(char* fullname)
-{
-	char* dot;
+static int is_extended = 0;
 
-	if(!fullname)
-		return NULL;
-
-	dot = strrchr(fullname, '.');
-	if(!dot)
-		return fullname;
-
-	return dot+1;
-}
 
 
 
@@ -54,13 +42,13 @@ static char* find_extension(char* fullname)
     /*DOC*/    "either the filename or extension as the namehint string. The\n"
     /*DOC*/    "namehint can help the loader determine the filetype.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You will only be able to load the types of images supported by\n"
-    /*DOC*/    "your build of SDL_image. This will always include GIF, BMP, PPM,\n"
-    /*DOC*/    "PCX, and TGA. SDL_image can also load JPG, PNG, and TIF, but they are\n"
-    /*DOC*/    "optional.\n"
+    /*DOC*/    "If pygame was installed without SDL_image support, the load\n"
+    /*DOC*/    "will only work with BMP images. You can test if SDL_image is\n"
+    /*DOC*/    "available with the get_extended() function. These extended\n"
+    /*DOC*/    "file formats usually include GIF, PNG, JPG, PCX, TGA, and more.\n"
     /*DOC*/ ;
 
-static PyObject* load(PyObject* self, PyObject* arg)
+static PyObject* image_load_basic(PyObject* self, PyObject* arg)
 {
 	PyObject* file, *final;
 	char* name = NULL;
@@ -75,7 +63,7 @@ static PyObject* load(PyObject* self, PyObject* arg)
 	{
 		name = PyString_AsString(file);
 		Py_BEGIN_ALLOW_THREADS
-		surf = IMG_Load(name);
+		surf = SDL_LoadBMP(name);
 		Py_END_ALLOW_THREADS
 	}
 	else
@@ -86,16 +74,16 @@ static PyObject* load(PyObject* self, PyObject* arg)
 		if(!(rw = RWopsFromPython(file)))
 			return NULL;
 		if(RWopsCheckPython(rw))
-			surf = IMG_LoadTyped_RW(rw, 1, find_extension(name));
+			surf = SDL_LoadBMP_RW(rw, 1);
 		else
 		{
 			Py_BEGIN_ALLOW_THREADS
-			surf = IMG_LoadTyped_RW(rw, 1, find_extension(name));
+			surf = SDL_LoadBMP_RW(rw, 1);
 			Py_END_ALLOW_THREADS
 		}
 	}
 	if(!surf)
-		return RAISE(PyExc_SDLError, IMG_GetError());
+		return RAISE(PyExc_SDLError, SDL_GetError());
 
 	final = PySurface_New(surf);
 	if(!final)
@@ -105,9 +93,135 @@ static PyObject* load(PyObject* self, PyObject* arg)
 
 
 
+    /*DOC*/ static char doc_save[] =
+    /*DOC*/    "pygame.image.save(Surface, file) -> None\n"
+    /*DOC*/    "save surface as BMP data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will save your surface in the BMP format. The given file\n"
+    /*DOC*/    "argument can be either a filename or a python file-like object\n"
+    /*DOC*/    "to save the BMP image to. This will also work for an opengl\n"
+    /*DOC*/    "display surface.\n"
+    /*DOC*/ ;
+
+PyObject* image_save(PyObject* self, PyObject* arg)
+{
+	PyObject* surfobj, *file;
+	SDL_Surface *surf;
+	SDL_Surface *temp = NULL;
+	int i, result;
+	
+	if(!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &file))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+
+	if(surf->flags & SDL_OPENGL)
+	{
+		/*we need to get ahold of the pyopengl glReadPixels function*/
+		/*we use pyopengl's so we don't need to link with opengl at compiletime*/
+		PyObject *pyopengl, *readpixels = NULL;
+		int typeflag, formatflag;
+
+		pyopengl = PyImport_ImportModule("OpenGL.GL");
+		if(pyopengl)
+		{
+			PyObject* dict = PyModule_GetDict(pyopengl);
+			if(dict)
+			{
+				formatflag = PyInt_AsLong(PyDict_GetItemString(dict, "GL_RGB"));
+				typeflag = PyInt_AsLong(PyDict_GetItemString(dict, "GL_UNSIGNED_BYTE"));
+				readpixels = PyDict_GetItemString(dict, "glReadPixels");
+			}
+			Py_DECREF(pyopengl);
+		}
+
+		if(readpixels)
+		{
+			unsigned char *pixels;
+			PyObject *data;
+
+			data = PyObject_CallFunction(readpixels, "iiiiii", 
+						0, 0, surf->w, surf->h, formatflag, typeflag);
+			if(!data)
+				return NULL;
+			pixels = PyString_AsString(data);
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define IMGMASKS 0x000000FF, 0x0000FF00, 0x00FF0000, 0
+#else
+#define IMGMASKS 0x00FF0000, 0x0000FF00, 0x000000FF, 0
+#endif
+
+			temp = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 24, IMGMASKS);
+			if(!temp)
+			{
+				Py_DECREF(data);
+				return NULL;
+			}
+#undef IMGMASKS
+
+			for(i=0; i<surf->h; ++i)
+				memcpy(((char *) temp->pixels) + temp->pitch * i, pixels + 3*surf->w * (surf->h-i-1), surf->w*3);
+			
+			Py_DECREF(data);
+		}
+		else
+			return RAISE(PyExc_SDLError, "Cannot locate pyopengl module for OPENGL Surface save");
+
+		surf = temp;
+	}
+	else
+		PySurface_Prep(surfobj);
+
+	if(PyString_Check(file))
+	{
+		char* name = PyString_AsString(file);
+		Py_BEGIN_ALLOW_THREADS
+		result = SDL_SaveBMP(surf, name);
+		Py_END_ALLOW_THREADS
+	}
+	else
+	{
+		SDL_RWops* rw;
+		if(!(rw = RWopsFromPython(file)))
+			return NULL;
+		result = SDL_SaveBMP_RW(surf, rw, 1);
+	}
+
+
+	if(temp)
+		SDL_FreeSurface(temp);
+	else
+		PySurface_Unprep(surfobj);
+
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	RETURN_NONE
+}
+
+
+
+    /*DOC*/ static char doc_get_extended[] =
+    /*DOC*/    "pygame.image.get_extended() -> int\n"
+    /*DOC*/    "save surface as BMP data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will return a true value if the extended image formats\n"
+    /*DOC*/    "from SDL_image are available for loading.\n"
+    /*DOC*/ ;
+
+PyObject* image_get_extended(PyObject* self, PyObject* arg)
+{
+	if(!PyArg_ParseTuple(arg, ""))
+		return NULL;
+	return PyInt_FromLong(is_extended);
+}
+
+
 static PyMethodDef image_builtins[] =
 {
-	{ "load", load, 1, doc_load },
+	{ "load_basic", image_load_basic, 1, doc_load },
+	{ "save", image_save, 1, doc_save },
+	{ "get_extended", image_get_extended, 1, doc_get_extended },
 
 	{ NULL, NULL }
 };
@@ -115,19 +229,52 @@ static PyMethodDef image_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_image_MODULE[] =
-    /*DOC*/    "Contains routines to load Surfaces from image files. This\n"
-    /*DOC*/    "module must be manually imported, since it requires the use of\n"
-    /*DOC*/    "the SDL_image library.\n"
+    /*DOC*/    "This module contains functions to transfer images in and out\n"
+    /*DOC*/    "of Surfaces. At the minimum the included load() function will\n"
+    /*DOC*/    "support BMP files. If SDL_image is properly installed when\n"
+    /*DOC*/    "pygame is installed, it will support all the formats included\n"
+    /*DOC*/    "with SDL_image. You can call the get_extended() function to test\n"
+    /*DOC*/    "if the SDL_image support is available.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some functions that communicate with other libraries will require\n"
+    /*DOC*/    "that those libraries are properly installed. For example, the save()\n"
+    /*DOC*/    "function can only save OPENGL surfaces if pyopengl is available.\n"
     /*DOC*/ ;
 
 PYGAME_EXPORT
 void initimage(void)
 {
 	PyObject *module, *dict;
+	PyObject *extmodule;
 
     /* create the module */
 	module = Py_InitModule3("image", image_builtins, doc_pygame_image_MODULE);
 	dict = PyModule_GetDict(module);
+
+
+	/* try to get extended formats */
+	extmodule = PyImport_ImportModule("pygame.imageext");
+	if(extmodule)
+	{
+		PyObject *extdict = PyModule_GetDict(extmodule);
+		PyObject* extload = PyDict_GetItemString(extdict, "load_extended");
+		PyDict_SetItemString(dict, "load_extended", extload);
+		PyDict_SetItemString(dict, "load", extload);
+		Py_INCREF(extload);
+		Py_INCREF(extload);
+		is_extended = 1;
+	}
+	else
+	{
+		PyObject* basicload = PyDict_GetItemString(dict, "load_basic");
+		PyErr_Clear();
+		PyDict_SetItemString(dict, "load_extended", Py_None);
+		PyDict_SetItemString(dict, "load", basicload);
+		Py_INCREF(Py_None);
+		Py_INCREF(basicload);
+		is_extended = 0;
+	}
+
 
 	/*imported needed apis*/
 	import_pygame_base();

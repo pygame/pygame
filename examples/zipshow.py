@@ -19,6 +19,7 @@ from cStringIO import StringIO
 from pygame.locals import *
 
 
+
 def showimage(imgsurface, name):
     "put a loaded image onto the screen"
     size = imgsurface.get_size()
