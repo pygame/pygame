@@ -123,8 +123,8 @@ def readpysource(name):
             except AttributeError:
                 documents.append([title] + ['%s.%s'&(modname,name),'noclassdocs'])
             for methname, meth in obj.__dict__.items():
-                if methname in ('__init__',): continue
-                if type(meth)  is not types.MethodType: continue
+                if methname[0] == '_': continue
+                if type(meth)  is not types.FunctionType: continue
                 title = '    /*DOC*/ static char doc_%s_%s[] =\n'%(name,methname)
                 try:
                     docs = getpydoclines(meth.__doc__)
