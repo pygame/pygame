@@ -103,10 +103,16 @@ def writesetupfile(DEPS, basepath):
         line = origsetup.readline()
     while line.find('#--EndConfig') == -1:
         line = origsetup.readline()
+
+    if not DEPS[0].path: #fudge SDL if not found
+        DEPS[0].line = 'SDL = -I/pathto/SDL/include -L/pathto/SDL/lib -lSDL'
+        DEPS[0].path = 'xxxx'
+
     if basepath:
         newsetup.write('BASE=' + basepath + '\n')
     for d in DEPS:
         newsetup.write(d.line + '\n')
+
     while line:
         line = origsetup.readline()
         useit = 1
