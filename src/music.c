@@ -330,8 +330,8 @@ static PyMethodDef music_builtins[] =
 	{ "pause", pause, 1, doc_pause },
 	{ "unpause", unpause, 1, doc_unpause },
 	{ "rewind", mus_rewind, 1, doc_rewind },
-	{ "set", set_volume, 1, doc_set_volume },
-	{ "get", get_volume, 1, doc_get_volume },
+	{ "set_volume", set_volume, 1, doc_set_volume },
+	{ "get_volume", get_volume, 1, doc_get_volume },
 
 	{ "load", load, 1, doc_load },
 

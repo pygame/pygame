@@ -1,5 +1,10 @@
 #This is a list of changes in pygame's history.
 
+pygame-04
+Dec 14, 2000
+	music module had incorrect names for volume functions
+	chimp example and full tutorial added
+
 Dec 13, 2000
 	display.update() is entirely better in many ways [BUG]
 
