@@ -11,7 +11,7 @@ TUTORIAL:Line by Line Descriptions of the Chimp Example
 <h2 align="center">by Pete Shinners<br>
      <font size="-1">pete@shinners.org</font></h2>
            
-<h3 align="center">Revision 2.0, November 21st, 2001</h3>
+<h3 align="center">Revision 2.1, January 9, 2001</h3>
       <br>
      <br>
              
@@ -62,17 +62,12 @@ ad,   its the screenshot)</font><br>
         <tr>
           <td>              
 <pre>import os, sys
-import pygame, pygame.sprite, pygame.transform, pygame.image
+import pygame
 from pygame.locals import *
-try:
-import pygame.font
-except ImportError:
-print 'Warning, fonts disabled'
-pygame.font = None<br>try:
-import pygame.mixer
-except ImportError:
-print 'Warning, sound disabled'
-pygame.mixer = None</pre>
+
+if not pygame.font: print 'Warning, fonts disabled'
+if not pygame.mixer: print 'Warning, sound disabled'
+</pre>
         </td>
          </tr>
                    
@@ -82,13 +77,9 @@ pygame.mixer = None</pre>
     First, we import the standard "os" and "sys" python modules. These allow
   us to do things like create platform independent file paths.<br>
       <br>
-    In the next line, we import pygame and several of the standard pygame 
-modules.  pygame.sprite gives us some higher level classes to manage game 
-objects. pygame.transform allows us to deform images, with scaling, rotation, 
-and flipping. The pygame.image module loads images from files. Actually pygame
- comes with a basic image module and an enhanced one. The basic image module
- can only load BMP images. Since this game only uses BMP images, we don't
-need to check if we actually got the more extended image library.<br>
+    In the next line, we import the pygame package. When pygame is imported
+it imports all the modules belonging to pygame. Some pygame modules are optional,
+and if they aren't found, their value is set to "None".<br>
       <br>
       There is a special <i>pygame</i> module named "locals". This module 
  contains  a subset of <i>pygame</i>. The members of this module are commonly
@@ -100,14 +91,8 @@ into  the global namespace  like this is entirely optional. If you choose
 not to  import it, all the members  of locals are always available in the
 <i>pygame</i>   module.<br>
       <br>
-    Next we attempt to import pygame.font and pygame.mixer. Both these modules
-  are optional in a pygame installation. Most likely they will be available.
-  But on systems with limited SDL support, they might not be available. By
- attempting to import these images in a "try" block, we can catch any exceptions
- raised when importing. If there is a problem with one of these modules,
-we  warn the user with a small printed message, and set a placeholder variable
- where the module would have gone. This allows us to easily test if this
-module  is available later in the program.<br>
+    Lastly, we decide to print a nice warning message if the font or sound
+modules in pygame are not available.<br>
        <br>
            
 <h2>Loading Resources</h2>
