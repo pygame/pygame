@@ -1,0 +1,10 @@
+You may only copy and distribute this program consistent with the requirements
+and distribute this Program consistent with the requirements of either the GNU
+General Public License (GPL) and GNU Lesser General Public License (LGPL) or
+the Sun Industry Standards Source License (SISSL), respectively, depending on
+whether you elected to obtain access to this program via the GPL/LGPL Option or
+the SISSL Option. Copies of the GPL, LGPL and SISSL licenses can be found
+http://www.openoffice.org/project/www/license.html
+
+------------------------------------
+Copyright 2000 OpenOffice.org. All rights reserved.
