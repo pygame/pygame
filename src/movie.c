@@ -617,6 +617,123 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+/*movie module methods*/
+
+
+static PyObject* gomovie(PyObject* self, PyObject* arg)
+{
+	char* name = NULL;
+        FFMovie *movie;
+        int finished;
+	if(!PyArg_ParseTuple(arg, "s", &name))
+		return NULL;
+
+//        Py_BEGIN_ALLOW_THREADS
+
+        av_register_all();
+        movie = ffmovie_open(name, SDL_GetVideoSurface());
+
+    finished = 0;
+    while(!finished) {
+        SDL_Event event;
+        SDL_WaitEvent(&event);
+        switch(event.type) {
+        case SDL_KEYDOWN:
+            switch(event.key.keysym.sym) {
+            case SDLK_ESCAPE:
+            case SDLK_q:
+                ffmovie_close(movie);
+                finished = 1;
+                break;
+            case SDLK_p:
+            case SDLK_SPACE:
+                ffmovie_pause(movie);
+                break;
+            default:
+                break;
+            }
+            break;
+        }
+    }
+
+
+//        Py_END_ALLOW_THREADS
+	RETURN_NONE;
+}
+
+
+#if 0
+static PyObject* movie_getbusy(PyObject* self, PyObject* arg)
+{
+    return PyInt_FromLong(
+}
+
+
+#endif
+
+
+
+
+
+
+PYGAME_EXPORT
+void initffmovie(void)
+{
+	PyObject *module, *dict;
+
+//	PyType_Init(PyMovie_Type);
+
+	/* create the module */
+	module = Py_InitModule3("ffmovie", mixer_builtins, "ffmovie");
+	dict = PyModule_GetDict(module);
+
+
+	/*imported needed apis*/
+	import_pygame_base();
+//	import_pygame_surface();
+//	import_pygame_rwobject();
+//	import_pygame_rect();
+}
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static PyMethodDef mixer_builtins[] =
 {
 	{ "Movie", Movie, 1, doc_Movie },
