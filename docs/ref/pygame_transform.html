@@ -98,8 +98,8 @@ exact original image.
 pygame.transform.rotate(Surface, angle) -> Surface
 </tt></font><ul>
 Rotates the image clockwise with the given angle (in degrees).
-The image can be any floating point value, and negative
-rotation amounts will do counter-clockwise rotations.
+The angle can be any floating point value (negative
+rotation amounts will do counter-clockwise rotations)
 <br>&nbsp;<br>
 Unless rotating by 90 degree increments, the resulting image
 size will be larger than the original. There will be newly
@@ -113,6 +113,8 @@ the current colorkey for the Surface, or the topleft pixel value.
 pygame.transform.scale(Surface, size) -> Surface
 </tt></font><ul>
 This will resize a surface to the given resolution.
+The size is simply any 2 number sequence representing
+the width and height.
 </ul><br>&nbsp;<br>
 
 

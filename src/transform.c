@@ -236,6 +236,8 @@ static void stretch(SDL_Surface *src, SDL_Surface *dst)
     /*DOC*/    "scale a Surface to an arbitrary size\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will resize a surface to the given resolution.\n"
+    /*DOC*/    "The size is simply any 2 number sequence representing\n"
+    /*DOC*/    "the width and height.\n"
     /*DOC*/ ;
 
 static PyObject* surf_scale(PyObject* self, PyObject* arg)
@@ -271,8 +273,8 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
     /*DOC*/    "rotate a Surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Rotates the image clockwise with the given angle (in degrees).\n"
-    /*DOC*/    "The image can be any floating point value, and negative\n"
-    /*DOC*/    "rotation amounts will do counter-clockwise rotations.\n"
+    /*DOC*/    "The angle can be any floating point value (negative\n"
+    /*DOC*/    "rotation amounts will do counter-clockwise rotations)\n"
     /*DOC*/    "\n"
     /*DOC*/    "Unless rotating by 90 degree increments, the resulting image\n"
     /*DOC*/    "size will be larger than the original. There will be newly\n"
