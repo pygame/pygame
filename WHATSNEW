@@ -6,6 +6,7 @@
 
 December 20, 2001
 	Surface.set_alpha() and set_colorkey() accept None
+	event.set_allowed() and set_blocked() accept None
 
 pygame-13
 December 17, 2001

@@ -274,6 +274,8 @@ pygame.event.set_allowed(type) -> None
 By default, all events will appear from the queue. After you have
 blocked some event types, you can use this to re-enable them. You
 can optionally pass a sequence of event types.
+<br>&nbsp;<br>
+You can pass None and this will allow no events on the queue.
 </ul><br>&nbsp;<br>
 
 <a name=set_blocked><font size=+2><b>set_blocked
@@ -283,6 +285,8 @@ pygame.event.set_blocked(type) -> None
 By default, all events will appear from the queue. This will
 allow you to prevent event types from appearing on the queue. You
 can optionally pass a sequence of event types.
+<br>&nbsp;<br>
+You can pass None and this will allow all events on the queue.
 </ul><br>&nbsp;<br>
 
 <a name=set_grab><font size=+2><b>set_grab

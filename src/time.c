@@ -82,7 +82,7 @@ static int accurate_delay(int ticks)
     /*DOC*/    "imported. Always returns 0 before pygame.init() is called.\n"
     /*DOC*/ ;
 
-static PyObject* get_ticks(PyObject* self, PyObject* arg)
+static PyObject* time_get_ticks(PyObject* self, PyObject* arg)
 {
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
@@ -105,7 +105,7 @@ static PyObject* get_ticks(PyObject* self, PyObject* arg)
     /*DOC*/    "This returns the actual number of milliseconds used.\n"
     /*DOC*/ ;
 
-static PyObject* delay(PyObject* self, PyObject* arg)
+static PyObject* time_delay(PyObject* self, PyObject* arg)
 {
 	int ticks;
 	PyObject* arg0;
@@ -137,7 +137,7 @@ static PyObject* delay(PyObject* self, PyObject* arg)
     /*DOC*/    "This returns the actual number of milliseconds used.\n"
     /*DOC*/ ;
 
-static PyObject* wait(PyObject* self, PyObject* arg)
+static PyObject* time_wait(PyObject* self, PyObject* arg)
 {
 	int ticks, start;
 	PyObject* arg0;
@@ -175,7 +175,7 @@ static PyObject* wait(PyObject* self, PyObject* arg)
     /*DOC*/    "milliseconds.\n"
     /*DOC*/ ;
 
-static PyObject* set_timer(PyObject* self, PyObject* arg)
+static PyObject* time_set_timer(PyObject* self, PyObject* arg)
 {
 	SDL_TimerID newtimer;
 	int ticks = 0, event = SDL_NOEVENT;
@@ -470,10 +470,10 @@ PyObject* ClockInit(PyObject* self, PyObject* arg)
 
 static PyMethodDef time_builtins[] =
 {
-	{ "get_ticks", get_ticks, 1, doc_get_ticks },
-	{ "delay", delay, 1, doc_delay },
-	{ "wait", wait, 1, doc_wait },
-	{ "set_timer", set_timer, 1, doc_set_timer },
+	{ "get_ticks", time_get_ticks, 1, doc_get_ticks },
+	{ "delay", time_delay, 1, doc_delay },
+	{ "wait", time_wait, 1, doc_wait },
+	{ "set_timer", time_set_timer, 1, doc_set_timer },
 
         { "Clock", ClockInit, 1, doc_Clockinit },
         
