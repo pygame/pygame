@@ -197,6 +197,10 @@ pygame.display.get_active() -> bool
 Returns true if the current display is active on the screen. This
 done with the call to <a href=#set_mode>pygame.display.set_mode()</a>. It is
 potentially subject to the activity of a running window manager.
+<br>&nbsp;<br>
+Calling <a href=#set_mode>set_mode()</a> will change all existing display surface
+to reference the new display mode. The old display surface will
+be lost after this call.
 </ul><br>&nbsp;<br>
 
 <a name=get_caption><font size=+2><b>get_caption

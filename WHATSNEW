@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+June 24, 2001
+	calling set_mode will change all existing display surfaces too
+
 pygame-11
 Jun 23, 2001
 	removed smooth underline font render protection
