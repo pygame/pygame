@@ -1,0 +1,125 @@
+<html>
+<title>pygame.color</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_constants.html>constants</a> || 
+<a href=pygame_display.html>display</a> || 
+<a href=pygame_draw.html>draw</a> || 
+<a href=pygame_event.html>event</a> ||<br>
+|| <a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
+|| <a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_movie.html>movie</a> || 
+<a href=pygame_sndarray.html>sndarray</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> || 
+<a href=pygame_transform.html>transform</a> ||<br>
+&nbsp;<br>|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Clock.html>Clock</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Movie.html>Movie</a> ||<br>
+|| <a href=Rect.html>Rect</a> || 
+<a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> ||<br>
+&nbsp;<br>|| <a href=pygame_color.html>color</a> || 
+<a href=pygame_cursors.html>cursors</a> || 
+<a href=pygame_sprite.html>sprite</a> ||<br>
+
+
+</td></tr></table></td></tr></table>
+<br>
+<h2 align=center>pygame.color</h2>
+Manipulate colors
+
+<hr>
+
+<table>
+<tr><td><a href=#Color>Color</a></td><td> -
+       Get RGB values from common color names</td></tr>
+
+
+<tr><td><a href=#add>add</a></td><td> -
+       add two colors</td></tr>
+
+
+<tr><td><a href=#multiply>multiply</a></td><td> -
+       multiply two colors</td></tr>
+
+
+<tr><td><a href=#subtract>subtract</a></td><td> -
+       subtract two colors</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=Color><font size=+2><b>Color
+</b></font><br><font size=+1><tt>
+pygame.color.Color(colorname) -> RGBA
+</tt></font><ul>
+       The color name can be the name of a common english color,
+       or a "web" style color in the form of 0xFF00FF. The english
+       color names are defined by the standard 'rgb' colors for X11.
+       With the hex color formatting you may optionally include an
+       alpha value, the formatting is 0xRRGGBBAA. You may also specify
+       a hex formatted color by starting the string with a '#'.
+    
+</ul><br>&nbsp;<br>
+
+<a name=add><font size=+2><b>add
+</b></font><br><font size=+1><tt>
+pygame.color.add(color1, color2) -> RGBA
+</tt></font><ul>
+       Add the RGB values of two colors together. If one of the
+       colors is only a single numeric value, it is applied to the
+       RGB components of the first color. Color values will be clamped
+       to the maximum color value of 255.
+    
+</ul><br>&nbsp;<br>
+
+<a name=multiply><font size=+2><b>multiply
+</b></font><br><font size=+1><tt>
+pygame.color.multiply(color1, color2) -> RGBA
+</tt></font><ul>
+       Multiply the RGB values of two colors together. If one of the
+       colors is only a single numeric value, it is applied to the
+       RGB components of the first color.
+    
+</ul><br>&nbsp;<br>
+
+<a name=subtract><font size=+2><b>subtract
+</b></font><br><font size=+1><tt>
+pygame.color.subtract(color1, color2) -> RGBA
+</tt></font><ul>
+       Subtract the RGB values of two colors together. If one of the
+       colors is only a single numeric value, it is applied to the
+       RGB components of the first color. Color values will be clamped
+       to the minimum color value of 0.
+    
+</ul><br>&nbsp;<br>
+
+
+<hr>
+</body></html>
