@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 11, 2002
+        Rect unionall() and unionall_ip() fixed
+
 February 10, 2002
         pygame.init() not required for proper cleanup [BUG]
         CD.play() fixed for tracks above 0
