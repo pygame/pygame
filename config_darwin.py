@@ -6,11 +6,11 @@ from distutils.sysconfig import get_python_inc
 
 configcommand = os.environ.get('SDL_CONFIG')
 if not configcommand:
-	hardcoded = '/usr/local/bin/sdl-config'
-	if os.path.isfile(hardcoded)
-	configcommand = hardcoded
+    hardcoded = '/usr/local/bin/sdl-config'
+    if os.path.isfile(hardcoded):
+       configcommand = hardcoded
 else:
-	configcommand = 'sdl-config'
+    configcommand = 'sdl-config'
 configcommand = configcommand + ' --version --cflags --libs'
 
 

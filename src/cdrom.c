@@ -260,17 +260,24 @@ static PyObject* cd_get_init(PyObject* self, PyObject* args)
     /*DOC*/    "end time in seconds, only that portion of the audio\n"
     /*DOC*/    "track will be played. If you only provide a start time\n"
     /*DOC*/    "and no end time, this will play to the end of the track.\n"
+    /*DOC*/    "You can also pass 'None' as the ending time, and it will\n"
+    /*DOC*/    "play to the end of the cd.\n"
     /*DOC*/ ;
 
 static PyObject* cd_play(PyObject* self, PyObject* args)
 {
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
-	int result, track, startframe, numframes;
+	int result, track, startframe, numframes, playforever=0;
 	float start=0.0f, end=0.0f;
+	PyObject *endobject=NULL;
 
-	if(!PyArg_ParseTuple(args, "i|ff", &track, &start, &end))
-		return NULL;
+	if(!PyArg_ParseTuple(args, "i|fO", &track, &start, &endobject))
+	    return NULL;
+	if(endobject == Py_None)
+	    playforever = 1;
+	else if(!PyArg_ParseTuple(args, "i|ff", &track, &start, &end))
+	    return NULL;
 
 	CDROM_INIT_CHECK();
 	if(!cdrom)
@@ -280,8 +287,13 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 		return RAISE(PyExc_IndexError, "Invalid track number");
 	if(cdrom->track[track].type != SDL_AUDIO_TRACK)
 		return RAISE(PyExc_SDLError, "CD track type is not audio");
-
+	
 	/*validate times*/
+	if(playforever)
+	    end = start;
+	else if(start == end && start != 0.0f)
+	    RETURN_NONE;
+	
 	startframe = (int)(start * CD_FPS);
 	numframes = 0;
 	if(startframe < 0)
