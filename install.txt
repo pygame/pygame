@@ -29,8 +29,8 @@
      and installation package. This will add easy links to the different
      documentation and games that come with pygame. The installer for
      this is found next to the other windows binary downloads. The
-     filename looks like this; "pygame-docs-1.3.exe". And this would
-     install the documentation and examples for pygame-1.3.
+     filename looks like this; "pygame-docs-1.6.exe". And this would
+     install the documentation and examples for pygame-1.6.
 
      One other thing the windows binaries are missing is the Numeric
      Python package. You can easily install this separately and it will
@@ -67,19 +67,18 @@
 
    Macintosh Binaries
 
+     For OSX 10.2 and aboce, binary packages are availaboe from Bob
+     Ippolito's Package Manager repository. This package requires python
+     2.3, and does not work with the 'Fink' version of Python. The
+     package and instructions are at http://undefined.org/python/pimp/
+     and will automatically install dependencies. Instructions for
+     making application bundles for OS X that use pygame are
+     forthcoming, but read up on bundlebuilder in the meantime.
+
      For MacOS 9.x, binaries are available on the pygame downloads page.
      http://www.pygame.org/download.shtml. Unfortunately the binaries
      are stuck at pygame version-1.1. This also only works with an old
      copy of MacPython 2.1.
-
-     For OS X 10.2 (and later), binaries are available from 
-     Bob Ippolito's Package Manager repository.  Note that versions of
-     Python prior to 2.3, versions of OS X prior to 10.2, and Fink's
-     version of Python are not supported.  The package and instructions
-     are at http://undefined.org/python/pimp/ and will automatically
-     install dependencies.  Instructions for making application bundles
-     for OS X that use pygame are forthcoming, but read up on 
-     bundlebuilder in the meantime.
      _________________________________________________________________
 
    Installing From Source
@@ -165,6 +164,6 @@
 
    OS X Compiling Info
 
-     Make sure to have Numeric, PyObjC, PIL, and the SDL development 
-     frameworks installed.  Compilation is only supported for Python 2.3 
-     under OS X 10.2 and later.
+     Make sure to have Numeric, PyObjC, PIL, and the SDL development
+     frameworks installed. Compilation should work just same as the unix
+     compiling instructions. Python 2.3 and OSX 10.2 are required.

@@ -33,8 +33,8 @@ You will also probably want to install the windows documentation and
 installation package. This will add easy links to the different documentation
 and games that come with pygame. The installer for this is found
 next to the other windows binary downloads. The filename looks like this;
-"pygame-docs-1.3.exe". And this would install the documentation and
-examples for pygame-1.3.
+"pygame-docs-1.6.exe". And this would install the documentation and
+examples for pygame-1.6.
 </p><p>
 One other thing the windows binaries are missing is the Numeric Python
 package. You can easily install this separately and it will allow you to use
@@ -59,7 +59,7 @@ archives.  Visit the debian pygame page for more information.
 <a href=http://packages.qa.debian.org/p/pygame.html>http://packages.qa.debian.org/p/pygame.html</a>
 </p><p>
 FreeBSD also has an active pygame package. While techinicaly it
-isn't binary, it is automatically built and installed by the 
+isn't binary, it is automatically built and installed by the
 ports manager. See the FreeBSD package page for more information.
 <a href=http://www.freebsd.org/cgi/ports.cgi?query=py-game&stype=name>http://www.freebsd.org/cgi/ports.cgi?query=py-game&stype=name</a>
 </p><p>
@@ -69,19 +69,18 @@ your system as it installs, similar to BSD,
 </p></blockquote><br>
 
 <big><b><u>Macintosh Binaries</u></b></big><blockquote><p>
-For MacOS 9.x, binaries are available on the pygame downloads page. 
+For OSX 10.2 and aboce, binary packages are availaboe from Bob Ippolito's
+Package Manager repository. This package requires python 2.3, and does
+not work with the 'Fink' version of Python. The package and instructions
+are at <a href="http://undefined.org/python/pimp/">http://undefined.org/python/pimp/</a> and will automatically
+install dependencies.  Instructions for making application bundles
+for OS X that use pygame are forthcoming, but read up on
+bundlebuilder in the meantime.
+</p><p>
+For MacOS 9.x, binaries are available on the pygame downloads page.
 <a href=http://www.pygame.org/download.shtml>http://www.pygame.org/download.shtml</a>.
 Unfortunately the binaries are stuck at pygame version-1.1. This also only works with
 an old copy of <tt>MacPython 2.1</tt>.
-</p><p>
- For OS X 10.2 (and later), binaries are available from
- Bob Ippolito's Package Manager repository.  Note that versions of
- Python prior to 2.3, versions of OS X prior to 10.2, and Fink's
- version of Python are not supported.  The package and instructions
- are at <a href="http://undefined.org/python/pimp/">http://undefined.org/python/pimp/</a> and will automatically
- install dependencies.  Instructions for making application bundles
- for OS X that use pygame are forthcoming, but read up on
- bundlebuilder in the meantime.
 </p></blockquote><br>
 
 <hr><br>
@@ -92,7 +91,7 @@ Pygame also comes with some scripts to automatically configure
 the flags needed to build pygame. Use the "setup.py" script to
 start the installation.
 <p></p>
-The first time you run the setup script, it will call the 
+The first time you run the setup script, it will call the
 "<tt>config.py</tt>" script. This will build a "<tt>Setup</tt>" file which
 stores all the information needed to compile. The "config.py"
 will do a good job of detecting what dependencies are available
@@ -122,7 +121,7 @@ subdirectory. The autoconfigure "config.py" script will find
 this prebuilt directory and make use of it for you.
 <a href=http://www.pygame.org/ftp/win32-dependencies.zip>http://www.pygame.org/ftp/win32-dependencies.zip</a>.
 If you don't use the prebuilt binaries directory, the autoconfig
-script will scan the neighboring directory trees to find the 
+script will scan the neighboring directory trees to find the
 dependencies.
 <p></p>
 When installing on windows, the "setup.py" script will also copy
@@ -154,7 +153,7 @@ will need to make sure the packages like "<tt>SDL-dev</tt>" are
 installed.
 <p></p>
 You can check to see if SDL is ready to be built from by running
-the command <tt>sdl-config</tt> and seeing if it is found. If the 
+the command <tt>sdl-config</tt> and seeing if it is found. If the
 <tt>sdl-config</tt> script is not on the path (or you have more than
 one?) Set the environment variable <tt>SDL_CONFIG</tt> to its location.
 </p>
@@ -169,7 +168,7 @@ is "<tt>LOCALBASE=/usr/local python setup.py install</tt>".
 
 <big><b><u>OS X Compiling Info</u></b></big><blockquote><p>
 Make sure to have Numeric, PyObjC, PIL, and the SDL development frameworks
-installed.  Compilation is only supported for Python 2.3 under
-OS X 10.2 and later.
+installed.  Compilation should work just same as the unix compiling
+instructions. Python 2.3 and OSX 10.2 are required.
 </p></blockquote><br>
 
