@@ -267,7 +267,6 @@ def main():
     global MODULETOC
     pathed_toc = create_toc(alldocs[2], 'ref/')
     MODULETOC = create_toc(alldocs[2])
-    print MODULETOC
 
 
     #categorize

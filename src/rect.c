@@ -951,7 +951,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 static PyTypeObject PyRect_Type = { 
 	PyObject_HEAD_INIT(0)
 	0,							/*size*/
-	"rect",						/*name*/
+	"Rect",						/*name*/
 	sizeof(PyRectObject),		/*basicsize*/
 	0,							/*itemsize*/
 	/* methods */

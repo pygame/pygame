@@ -43,89 +43,6 @@ static void endmusic_callback()
 }
 
 
-static void autoquit()
-{
-	if(SDL_WasInit(SDL_INIT_AUDIO))
-	{
-		if(current_music)
-		{
-			Mix_FreeMusic(current_music);
-			current_music = NULL;
-		}
-	}
-	PyMixer_AutoQuit();
-}
-
-
-static PyObject* autoinit(PyObject* self, PyObject* arg)
-{
-	PyObject* ret = PyMixer_AutoInit(self, arg);
-	if(PyObject_IsTrue(ret))
-		Mix_HookMusicFinished(endmusic_callback);
-	return ret;
-}
-
-
-    /*DOC*/ static char doc_quit[] =
-    /*DOC*/    "pygame.music.quit() -> None\n"
-    /*DOC*/    "uninitialize music module\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Stops playback of any music and uninitializes the module.\n"
-    /*DOC*/ ;
-
-static PyObject* quit(PyObject* self, PyObject* arg)
-{
-	if(!PyArg_ParseTuple(arg, ""))
-		return NULL;
-
-	autoquit();
-
-	RETURN_NONE
-}
-
-
-    /*DOC*/ static char doc_init[] =
-    /*DOC*/    "pygame.music.init([freq, [size, [stereo]]]) -> None\n"
-    /*DOC*/    "initialize the music module\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Initializes the music module. Since the music requires use of the\n"
-    /*DOC*/    "mixer, the mixer module will also be initialized with this call.\n"
-    /*DOC*/    "See the mixer init function for more details on the arguments.\n"
-    /*DOC*/    "Don't be fooled though, just because the mixer module is\n"
-    /*DOC*/    "initialized, does not mean the music is initialized.\n"
-    /*DOC*/ ;
-
-static PyObject* init(PyObject* self, PyObject* arg)
-{
-	PyObject* result;
-	int value;
-
-	result = autoinit(self, arg);
-	value = PyObject_IsTrue(result);
-	Py_DECREF(result);
-	if(!value)
-		return RAISE(PyExc_SDLError, SDL_GetError());
-
-	RETURN_NONE
-}
-
-
-    /*DOC*/ static char doc_get_init[] =
-    /*DOC*/    "pygame.music.get_init() -> bool\n"
-    /*DOC*/    "query the music module\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the music module is initialized.\n"
-    /*DOC*/ ;
-
-static PyObject* get_init(PyObject* self, PyObject* arg)
-{
-	if(!PyArg_ParseTuple(arg, ""))
-		return NULL;
-
-	return PyInt_FromLong(SDL_WasInit(SDL_INIT_AUDIO));
-}
-
-
 
 
 
@@ -163,7 +80,7 @@ static PyObject* play(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_get_busy[] =
-    /*DOC*/    "pygame.music.get_busy() -> bool\n"
+    /*DOC*/    "pygame.mixer.music.get_busy() -> bool\n"
     /*DOC*/    "query state of the music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns true if music is currently playing\n"
@@ -181,7 +98,7 @@ static PyObject* get_busy(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_fadeout[] =
-    /*DOC*/    "pygame.music.fadeout(millisec) -> None\n"
+    /*DOC*/    "pygame.mixer.music.fadeout(millisec) -> None\n"
     /*DOC*/    "fadeout current music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Fades out the current playing music and stops it over the given\n"
@@ -202,7 +119,7 @@ static PyObject* fadeout(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_stop[] =
-    /*DOC*/    "pygame.music.stop() -> None\n"
+    /*DOC*/    "pygame.mixer.music.stop() -> None\n"
     /*DOC*/    "stop the playing music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Stops playback of the current music.\n"
@@ -221,7 +138,7 @@ static PyObject* stop(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_pause[] =
-    /*DOC*/    "pygame.music.pause() -> None\n"
+    /*DOC*/    "pygame.mixer.music.pause() -> None\n"
     /*DOC*/    "pause the playing music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Temporarily stops the current music.\n"
@@ -240,7 +157,7 @@ static PyObject* pause(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_unpause[] =
-    /*DOC*/    "pygame.music.unpause() -> None\n"
+    /*DOC*/    "pygame.mixer.music.unpause() -> None\n"
     /*DOC*/    "restarts the paused music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Restarts playback of the current music object when paused.\n"
@@ -259,7 +176,7 @@ static PyObject* unpause(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_rewind[] =
-    /*DOC*/    "pygame.music.rewind() -> None\n"
+    /*DOC*/    "pygame.mixer.music.rewind() -> None\n"
     /*DOC*/    "restarts music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Restarts playback of the current music.\n"
@@ -278,7 +195,7 @@ static PyObject* mus_rewind(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_set_volume[] =
-    /*DOC*/    "pygame.music.set_volume(val) -> None\n"
+    /*DOC*/    "pygame.mixer.music.set_volume(val) -> None\n"
     /*DOC*/    "set music volume\n"
     /*DOC*/    "\n"
     /*DOC*/    "Sets the current volume for the music. Value is\n"
@@ -300,7 +217,7 @@ static PyObject* set_volume(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_get_volume[] =
-    /*DOC*/    "pygame.music.get_volume() -> val\n"
+    /*DOC*/    "pygame.mixer.music.get_volume() -> val\n"
     /*DOC*/    "query music volume\n"
     /*DOC*/    "\n"
     /*DOC*/    "Get the current volume for the music. Value is\n"
@@ -323,7 +240,7 @@ static PyObject* get_volume(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_set_endevent[] =
-    /*DOC*/    "pygame.music.set_endevent([eventid]) -> None\n"
+    /*DOC*/    "pygame.mixer.music.set_endevent([eventid]) -> None\n"
     /*DOC*/    "sets music finished event\n"
     /*DOC*/    "\n"
     /*DOC*/    "When the music has finished playing, you can optionally have\n"
@@ -346,7 +263,7 @@ static PyObject* set_endevent(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_get_endevent[] =
-    /*DOC*/    "pygame.music.get_endevent([eventid]) -> int\n"
+    /*DOC*/    "pygame.mixer.music.get_endevent([eventid]) -> int\n"
     /*DOC*/    "query the current music finished event\n"
     /*DOC*/    "\n"
     /*DOC*/    "When the music has finished playing, you can optionally have\n"
@@ -365,7 +282,7 @@ static PyObject* get_endevent(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_load[] =
-    /*DOC*/    "pygame.music.load(filename) -> None\n"
+    /*DOC*/    "pygame.mixer.music.load(filename) -> None\n"
     /*DOC*/    "load current music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Load a music object as the current music. The music only handles\n"
@@ -403,11 +320,6 @@ static PyObject* load(PyObject* self, PyObject* args)
 
 static PyMethodDef music_builtins[] =
 {
-	{ "__PYGAMEinit__", autoinit, 1, doc_init },
-	{ "init", init, 1, doc_init },
-	{ "quit", quit, 1, doc_quit },
-	{ "get_init", get_init, 1, doc_get_init },
-
 	{ "set_endevent", set_endevent, 1, doc_set_endevent },
 	{ "get_endevent", get_endevent, 1, doc_get_endevent },
 
@@ -430,9 +342,12 @@ static PyMethodDef music_builtins[] =
 
 
 
-    /*DOC*/ static char doc_pygame_music_MODULE[] =
+    /*DOC*/ static char doc_pygame_mixer_music_MODULE[] =
     /*DOC*/    "The music module is tied closely to the pygame.mixer module. It\n"
     /*DOC*/    "is an optional module since it depends on the SDL_mixer library.\n"
+    /*DOC*/    "You should not manually import the music library. Instead it is\n"
+    /*DOC*/    "automatically included as a part of the mixer library. The default\n"
+    /*DOC*/    "module path to music is pygame.mixer.music.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The difference between playback of music and playback of sounds\n"
     /*DOC*/    "is that the music object is not loaded and decoded all at once,\n"
@@ -447,16 +362,15 @@ static PyMethodDef music_builtins[] =
     /*DOC*/    "loaded from special file-like objects through python.\n"
     /*DOC*/ ;
 
-void initmusic()
+void initmixer_music()
 {
 	PyObject *module, *dict;
 
     /* create the module */
-	module = Py_InitModule3("music", music_builtins, doc_pygame_music_MODULE);
+	module = Py_InitModule3("mixer_music", music_builtins, doc_pygame_mixer_music_MODULE);
 	dict = PyModule_GetDict(module);
 
 	/*imported needed apis*/
 	import_pygame_base();
-	import_pygame_mixer();
 }
 

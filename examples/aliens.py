@@ -14,11 +14,10 @@ import pygame, pygame.image
 from pygame.locals import *
 try:
     import pygame.mixer
-    import pygame.music
     pygame.mixer.pre_init(11025)
 except ImportError:
     print 'Warning, sound not initialized'
-    pygame.mixer = pygame.music = None
+    pygame.mixer = None
 
 #see if we can get some font lovin'
 try: import pygame.font as font
@@ -106,7 +105,7 @@ class Actor:
     "An enhanced sort of sprite class"
     def __init__(self, image):
         self.image = image
-        self.rect = rect((0, 0), image.get_size())
+        self.rect = image.get_rect()
         self.clearrect = self.rect
         
     def update(self):
@@ -120,8 +119,7 @@ class Actor:
         
     def erase(self, screen, background):
         "gets the sprite off of the screen"
-        pos = self.rect.topleft
-        r = screen.blit(background, pos, pos, self.rect.size)
+        r = screen.blit(background, self.rect.topleft, self.rect)
         self.clearrect = r
 
 
@@ -247,7 +245,7 @@ def main(winstyle = 0):
 
     # Create the background
     background = pygame.surface(SCREENRECT.size)
-    for x in range(0, SCREENRECT.width, Img.background.get_size()[0]):
+    for x in range(0, SCREENRECT.width, Img.background.get_width()):
         background.blit(Img.background, (x, 0))
     screen.blit(background, (0,0))
     pygame.display.flip()
@@ -266,10 +264,10 @@ def main(winstyle = 0):
     kills = 0
 
     # Soundtrack
-    if pygame.music:
+    if pygame.mixer:
         music = os.path.join('data', 'house_lo.wav')
-        pygame.music.load(music)
-        pygame.music.play(-1)
+        pygame.mixer.music.load(music)
+        pygame.mixer.music.play(-1)
 
     # Main loop
     while player.alive or explosions:
@@ -378,8 +376,8 @@ def main(winstyle = 0):
         pygame.display.update(dirtyrects)
         dirtyrects = []
 
-    if pygame.music:
-        pygame.music.fadeout(1200)
+    if pygame.mixer:
+        pygame.mixer.music.fadeout(1200)
 
     #attempt to show game over (if font installed)
     if font:
@@ -392,8 +390,8 @@ def main(winstyle = 0):
         pygame.display.flip()
 
     #wait a beat
-    if pygame.music:
-        while pygame.music.get_busy():
+    if pygame.mixer:
+        while pygame.mixer.music.get_busy():
             pygame.time.delay(200)
     else:
         pygame.time.delay(800)

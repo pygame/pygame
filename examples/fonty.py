@@ -7,6 +7,7 @@ font management."""
 
 
 import pygame, pygame.font, os.path
+import pygame.cursors
 from pygame.locals import *
 
 
@@ -14,6 +15,7 @@ def main():
     #initialize
     pygame.init()
     screen = pygame.display.set_mode((400, 200))
+    pygame.mouse.set_cursor(*pygame.cursors.diamond)
 
     #fill background
     screen.fill(screen.map_rgb((40, 40, 90)))

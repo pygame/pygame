@@ -181,6 +181,133 @@ static PyObject* mouse_get_focused(PyObject* self, PyObject* args)
 
 
 
+    /*DOC*/ static char doc_mouse_set_cursor[] =
+    /*DOC*/    "pygame.mouse.set_cursor(size, hotspot, xormasks, andmasks) -> None\n"
+    /*DOC*/    "state of shape of the mouse cursor\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When the mouse cursor is visible, it will be displayed\n"
+    /*DOC*/    "as a black and white bitmap using the given bitmask arrays.\n"
+    /*DOC*/    "The size is a sequence containing the cursor with and height.\n"
+    /*DOC*/    "Hotspot is a sequence containing the cursor hotspot position.\n"
+    /*DOC*/    "xormasks is a sequence of bytes containing the cursor xor data\n"
+    /*DOC*/    "masks. Lastly is andmasks, a sequence of bytes containting the\n"
+    /*DOC*/    "cursor bitmask data.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Width must be a multiple of 8, and the mask arrays must be the\n"
+    /*DOC*/    "correct size for the given width and height. Otherwise an exception.\n"
+    /*DOC*/ ;
+
+static PyObject* mouse_set_cursor(PyObject* self, PyObject* args)
+{
+	int w, h, spotx, spoty;
+	PyObject *xormask, *andmask;
+	Uint8 *xordata=NULL, *anddata=NULL;
+	int xorsize, andsize, loop;
+	short val;
+	SDL_Cursor *lastcursor, *cursor = NULL;
+
+	if(!PyArg_ParseTuple(args, "(ii)(ii)OO", &w, &h, &spotx, &spoty, &xormask, &andmask))
+		return NULL;
+
+	VIDEO_INIT_CHECK();
+
+	if(!PySequence_Check(xormask) || !PySequence_Check(andmask))
+		return RAISE(PyExc_TypeError, "xormask and andmask must be sequences");
+
+	if(w % 8)
+		return RAISE(PyExc_ValueError, "Cursor width must be divisible by 8.");
+
+	xorsize = PySequence_Length(xormask);
+	andsize = PySequence_Length(andmask);
+
+	if(xorsize != w*h/8 || andsize != w*h/8)
+		return RAISE(PyExc_ValueError, "bitmasks must be sized width*height/8");
+
+	xordata = (Uint8*)malloc(xorsize);
+	anddata = (Uint8*)malloc(andsize);
+
+	for(loop = 0; loop < xorsize; ++loop)
+	{
+		if(!ShortFromObjIndex(xormask, loop, &val))
+			goto interror;
+		xordata[loop] = (Uint8)val;
+		if(!ShortFromObjIndex(andmask, loop, &val))
+			goto interror;
+		anddata[loop] = (Uint8)val;
+	}
+
+	cursor = SDL_CreateCursor(xordata, anddata, w, h, spotx, spoty);
+	free(xordata);
+	free(anddata);
+	xordata = NULL;
+	anddata = NULL;
+
+	if(!cursor)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	lastcursor = SDL_GetCursor();
+	SDL_SetCursor(cursor);	
+	SDL_FreeCursor(lastcursor);
+
+	RETURN_NONE;
+
+interror:
+	if(xordata) free(xordata);
+	if(anddata) free(anddata);
+	return RAISE(PyExc_TypeError, "Invalid number in mask array");
+}
+
+
+    /*DOC*/ static char doc_mouse_get_cursor[] =
+    /*DOC*/    "pygame.mouse.get_cursor() -> size, hotspot, xormasks, andmasks\n"
+    /*DOC*/    "get mouse cursor data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The mouse cursor data is the same as those passed into set_cursor.\n"
+    /*DOC*/ ;
+
+static PyObject* mouse_get_cursor(PyObject* self, PyObject* args)
+{
+	SDL_Cursor *cursor = NULL;
+	PyObject* xordata, *anddata;
+	int size, loop, w, h, spotx, spoty;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	VIDEO_INIT_CHECK();
+
+	cursor = SDL_GetCursor();
+	if(!cursor)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	w = cursor->area.w;
+	h = cursor->area.h;
+	spotx = cursor->hot_x;
+	spoty = cursor->hot_y;
+
+	size = cursor->area.w * cursor->area.h / 8;
+	xordata = PyTuple_New(size);
+	if(!xordata)
+		return NULL;
+	anddata = PyTuple_New(size);
+	if(!anddata)
+	{
+		Py_DECREF(anddata);
+		return NULL;
+	}
+
+	for(loop = 0; loop < size; ++loop)
+	{
+		PyTuple_SET_ITEM(xordata, loop, PyInt_FromLong(cursor->data[loop]));
+		PyTuple_SET_ITEM(anddata, loop, PyInt_FromLong(cursor->mask[loop]));
+	}
+
+	return Py_BuildValue("((ii)(ii)OO)", w, h, spotx, spoty, xordata, anddata);
+}
+
+
+
+
 static PyMethodDef mouse_builtins[] =
 {
 	{ "set_pos", mouse_set_pos, 1, doc_mouse_set_pos },
@@ -189,6 +316,8 @@ static PyMethodDef mouse_builtins[] =
 	{ "get_pressed", mouse_get_pressed, 1, doc_mouse_get_pressed },
 	{ "set_visible", mouse_set_visible, 1, doc_mouse_set_visible },
 	{ "get_focused", mouse_get_focused, 1, doc_mouse_get_focused },
+	{ "set_cursor", mouse_set_cursor, 1, doc_mouse_set_cursor },
+	{ "get_cursor", mouse_get_cursor, 1, doc_mouse_get_cursor },
 
 	{ NULL, NULL }
 };

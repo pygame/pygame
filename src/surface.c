@@ -727,18 +727,15 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	GAME_Rect *rect, temp;
-	PyObject* r = NULL;
+	GAME_Rect *rect=NULL, temp;
 	int result;
-	
-	if(!PyArg_ParseTuple(args, "|O", &r))
-		return NULL;
 
-	if(!r)
-		rect = NULL;
-	else if(!(rect = GameRect_FromObject(r, &temp)))
-		return RAISE(PyExc_ValueError, "invalid rectstyle object");
-
+	if(PyTuple_Size(args))
+	{
+		rect = GameRect_FromObject(args, &temp);
+		if(!rect)
+			return RAISE(PyExc_ValueError, "invalid rectstyle object");
+	}
 	result = SDL_SetClipRect(surf, (SDL_Rect*)rect);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
@@ -821,7 +818,7 @@ static void screencroprect(GAME_Rect* r, int w, int h)
 
 
     /*DOC*/ static char doc_surf_blit[] =
-    /*DOC*/    "Surface.blit(source, destoffset, [srcoffset, [size]]) -> Rect\n"
+    /*DOC*/    "Surface.blit(source, destoffset, [sourcerect]) -> Rect\n"
     /*DOC*/    "copy a one Surface to another.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The blitting will transfer one surface to another. It will\n"
@@ -829,9 +826,9 @@ static void screencroprect(GAME_Rect* r, int w, int h)
     /*DOC*/    "support is available, it will be used. The given source is the\n"
     /*DOC*/    "Surface to copy from. The destoffset is a 2-number-sequence that\n"
     /*DOC*/    "specifies where on the destination Surface the blit happens.\n"
-    /*DOC*/    "Without srcoffset and size supplied, the blit will copy the\n"
+    /*DOC*/    "When sourcerect isn't supplied, the blit will copy the\n"
     /*DOC*/    "entire source surface. If you would like to copy only a portion\n"
-    /*DOC*/    "of the source, use the srcoffset and size arguements to control\n"
+    /*DOC*/    "of the source, use the sourcerect argument to control\n"
     /*DOC*/    "what area is copied.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The blit is subject to be clipped by the active clipping\n"
@@ -841,40 +838,70 @@ static void screencroprect(GAME_Rect* r, int w, int h)
 static PyObject* surf_blit(PyObject* self, PyObject* args)
 {
 	SDL_Surface* src, *dest = PySurface_AsSurface(self);
-	PyObject* srcobject;
-	int w, h, dx, dy, sx, sy;
-	SDL_Rect dest_rect, src_rect;
-	int result;
+	GAME_Rect* src_rect, temp;
+	PyObject* srcobject, *argrect = NULL;
+	int dx, dy, result;
+	SDL_Rect dest_rect;
 
-	dx = dy = sx = sy = w = h = 0;
-
-	if(!PyArg_ParseTuple(args, "O!(ii)|(ii)(ii)", &PySurface_Type, &srcobject,
-				&dx, &dy, &sx, &sy, &w, &h))
+	if(!PyArg_ParseTuple(args, "O!(ii)|O", &PySurface_Type, &srcobject, &dx, &dy, &argrect))
 		return NULL;
 	src = PySurface_AsSurface(srcobject);
 
-	if(w && h)
+	if(argrect)
 	{
-		dest_rect.w = src_rect.w = (unsigned short)w;
-		dest_rect.h = src_rect.h = (unsigned short)h;
+		if(!(src_rect = GameRect_FromObject(argrect, &temp)))
+			return RAISE(PyExc_TypeError, "Invalid rectstyle argument");
 	}
 	else
 	{
-		dest_rect.w = src_rect.w = src->w;
-		dest_rect.h = src_rect.h = src->h;
+		temp.x = temp.y = 0;
+		temp.w = src->w;
+		temp.h = src->h;
+		src_rect = &temp;
 	}
+
 	dest_rect.x = (short)dx;
 	dest_rect.y = (short)dy;
-	src_rect.x = (short)sx;
-	src_rect.y = (short)sy;
+	dest_rect.w = (unsigned short)src_rect->w;
+	dest_rect.h = (unsigned short)src_rect->h;
 
-	result = SDL_BlitSurface(src, &src_rect, dest, &dest_rect);
+	result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
 	return PyRect_New((GAME_Rect*)&dest_rect);
 }
 
+
+    /*DOC*/ static char doc_surf_get_flags[] =
+    /*DOC*/    "Surface.get_flags() -> flags\n"
+    /*DOC*/    "query the surface width\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the current state flags for the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_get_flags(PyObject* self, PyObject* args)
+{
+	SDL_Surface* surf = PySurface_AsSurface(self);
+	return PyInt_FromLong(surf->flags);
+}
+
+
+
+    /*DOC*/ static char doc_surf_get_pitch[] =
+    /*DOC*/    "Surface.get_pitch() -> pitch\n"
+    /*DOC*/    "query the surface pitch\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The surface pitch is the number of bytes used in each\n"
+    /*DOC*/    "scanline. This function should rarely needed, mainly for\n"
+    /*DOC*/    "any special-case debugging.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_get_pitch(PyObject* self, PyObject* args)
+{
+	SDL_Surface* surf = PySurface_AsSurface(self);
+	return PyInt_FromLong(surf->pitch);
+}
 
 
 
@@ -1058,12 +1085,12 @@ static struct PyMethodDef surface_methods[] =
 	{"fill",			surf_fill,			1, doc_surf_fill },
 	{"blit",			surf_blit,			1, doc_surf_blit },
 
-/*	{"get_flags",		surf_get_flags,		1, doc_surf_get_flags },*/
+	{"get_flags",		surf_get_flags,		1, doc_surf_get_flags },
 	{"get_size",		surf_get_size,		1, doc_surf_get_size },
 	{"get_width",		surf_get_width,		1, doc_surf_get_width },
 	{"get_height",		surf_get_height,	1, doc_surf_get_height },
 	{"get_rect",		surf_get_rect,		1, doc_surf_get_rect },
-/*	{"get_pitch",		surf_get_pitch,		1, doc_surf_get_pitch },*/
+	{"get_pitch",		surf_get_pitch,		1, doc_surf_get_pitch },
 	{"get_bitsize",		surf_get_bitsize,	1, doc_surf_get_bitsize },
 	{"get_bytesize",	surf_get_bytesize,	1, doc_surf_get_bytesize },
 	{"get_masks",		surf_get_masks,		1, doc_surf_get_masks },
