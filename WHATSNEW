@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+May 29, 2001
+	set display physical palette with display.set_palette()
+
 May 26, 2001
 	code compiles with macos now
 

@@ -706,6 +706,86 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	RETURN_NONE
 }
 
+    /*DOC*/ static char doc_set_palette[] =
+    /*DOC*/    "pygame.display.set_palette([[r, g, b], ...]) -> None\n"
+    /*DOC*/    "set the palette\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Displays with a HWPALETTE have two palettes. The display Surface\n"
+    /*DOC*/    "palette and the visible 'onscreen' palette.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will change the video display's visible colormap. It does\n"
+    /*DOC*/    "not effect the display Surface's base palette, only how it is\n"
+    /*DOC*/    "displayed. Setting the palette for the display Surface will\n"
+    /*DOC*/    "override this visible palette. Also passing no args will reset\n"
+    /*DOC*/    "the display palette back to the Surface's palette.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can pass an incomplete list of RGB values, and\n"
+    /*DOC*/    "this will only change the first colors in the palette.\n"
+    /*DOC*/ ;
+
+static PyObject* set_palette(PyObject* self, PyObject* args)
+{
+	SDL_Surface* surf;
+	SDL_Palette* pal;
+	SDL_Color* colors;
+	PyObject* list, *item = NULL;
+	int i, len;
+	short r, g, b;
+	
+	VIDEO_INIT_CHECK();
+	if(!PyArg_ParseTuple(args, "|O", &list))
+		return NULL;
+	surf = SDL_GetVideoSurface();
+	if(!surf)
+		return RAISE(PyExc_SDLError, "No display mode is set");
+	pal = surf->format->palette;
+	if(surf->format->BytesPerPixel != 1 || !pal)
+		return RAISE(PyExc_SDLError, "Display mode is not colormapped");
+
+	if(!list)
+	{
+		colors = pal->colors;
+		len = pal->ncolors;
+		SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0, len);
+		RETURN_NONE
+	}
+	
+	
+	if(!PySequence_Check(list))
+		return RAISE(PyExc_ValueError, "Argument must be a sequence type");
+
+	len = min(pal->ncolors, PySequence_Length(list));
+
+	colors = (SDL_Color*)malloc(len * sizeof(SDL_Color));
+	if(!colors)
+		return NULL;
+	
+	for(i = 0; i < len; i++)
+	{
+		item = PySequence_GetItem(list, i);
+
+		if(!PySequence_Check(item) || PySequence_Length(item) != 3)
+		{
+			Py_DECREF(item);
+			free((char*)colors);
+			return RAISE(PyExc_TypeError, "takes a sequence of sequence of RGB");
+		}
+		if(!ShortFromObjIndex(item, 0, &r) || !ShortFromObjIndex(item, 1, &g) || !ShortFromObjIndex(item, 2, &b))
+			return RAISE(PyExc_TypeError, "RGB sequence must contain numeric values");
+
+		colors[i].r = (unsigned char)r;
+		colors[i].g = (unsigned char)g;
+		colors[i].b = (unsigned char)b;
+	
+		Py_DECREF(item);
+	}
+
+	SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0, len);
+
+	free((char*)colors);
+	RETURN_NONE
+}
+
 
     /*DOC*/ static char doc_set_gamma[] =
     /*DOC*/    "pygame.display.set_gamma(r, [g, b]) -> bool\n"
@@ -866,6 +946,7 @@ static PyMethodDef display_builtins[] =
 	{ "flip", flip, 1, doc_flip },
 	{ "update", update, 1, doc_update },
 
+	{ "set_palette", set_palette, 1, doc_set_palette },
 	{ "set_gamma", set_gamma, 1, doc_set_gamma },
 	/*gammaramp support will be added later, if needed?*/
 

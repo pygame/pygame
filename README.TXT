@@ -53,13 +53,10 @@ TODO
 At some point it would be nice to add support for more external
 python libraries, here are some ideas...
 
-- Support for OpenGL (initial testing not so good)
-- more drawing primitives in the draw module
-- Interface with PIL images
-- GUI library. There's a few out there
-- Image transforms like flip, rotate, scale
-- MPEG video playback with smpeg
-- Macintosh support (just needs to compile)
+ - more drawing primitives in the draw module
+ - GUI library. There's a few out there
+ - Image transforms like flip, rotate, scale
+ - MPEG video playback with smpeg
 
 
 
@@ -77,7 +74,7 @@ Thanks to everyone who made this possible, including:
 - And our dutiful bug hunters; Angus Young and Guillaume Proux
 
 There's many more folks out there who've submitted helpful ideas,
-kept this project going, and basically made my life easer; thanks!
+kept this project going, and basically made my life easer, Thanks!
 
 
 
