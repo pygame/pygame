@@ -532,7 +532,7 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 /*BAD things happen when out-of-bound rects go to updaterect*/
 static int screencroprect(GAME_Rect* r, int w, int h)
 {
-	if(r->x >= w || r->y >= h || r->x < 0 || r->y < 0)
+	if(r->x >= w || r->y >= h || (r->x + w->w) < 0 || (r->y + r->h) < 0)
 		return 0;
 	else
 	{

@@ -6,6 +6,7 @@
 
 Apr 08, 2001
 	properly free SDL objects on malloc errors
+	fixed rectangle cropping in pygame.display.update()
 
 pygame-10
 Apr 05, 2001
