@@ -99,9 +99,9 @@ exact original image.
 </b></font><br><font size=+1><tt>
 pygame.transform.rotate(Surface, angle) -> Surface
 </tt></font><ul>
-Rotates the image clockwise with the given angle (in degrees).
-The angle can be any floating point value (negative
-rotation amounts will do counter-clockwise rotations)
+Rotates the image counterclockwise with the given angle
+(in degrees). The angle can be any floating point value
+(negative rotation amounts will do clockwise rotations)
 <br>&nbsp;<br>
 Unless rotating by 90 degree increments, the resulting image
 size will be larger than the original. There will be newly
@@ -119,7 +119,7 @@ pygame.transform.rotozoom(Surface, angle, zoom) -> Surface
 This will smoothly rotate and scale an image in one pass.
 The resulting image will always be a 32bit version of the
 original surface. The scale is a multiplier for the image
-size, and angle is the degrees to rotate in degrees.
+size, and angle is the degrees to rotate counter clockwise.
 <br>&nbsp;<br>
 It calls the SDL_rotozoom library which is compiled in.
 </ul><br>&nbsp;<br>
