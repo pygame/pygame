@@ -2,25 +2,22 @@
 pkgdata is a simple, extensible way for a package to acquire data file 
 resources.
 
-The functions are equivalent to the standard idioms, such as the following
-minimal implementation:
+The getResource function is equivalent to the standard idioms, such as
+the following minimal implementation:
     
     import sys, os
 
-    def getResourcePath(identifier, pkgname=__name__):
+    def getResource(identifier, pkgname=__name__):
         pkgpath = os.path.dirname(sys.modules[pkgname].__file__)
         path = os.path.join(pkgpath, identifier)
-        if not os.path.exists(path):
-            raise IOError, "%r not found near %s" % (identifier, pkgname)
-
-    def getResource(identifier, pkgname=__name__):
-        return file(getResourcePath(pkgname, identifier), mode='rb')
+        return file(os.path.normpath(path), mode='rb')
 
 When a __loader__ is present on the module given by __name__, it will defer
-getResource to its get_data implementation.
+getResource to its get_data implementation and return it as a file-like
+object (such as StringIO).
 """
 
-__all__ = ['getResourcePath', 'getResource']
+__all__ = ['getResource']
 import sys
 import os
 from cStringIO import StringIO
@@ -35,6 +32,11 @@ def getResource(identifier, pkgname=__name__):
 
     Note that the package name must be fully qualified, if given, such
     that it would be found in sys.modules.
+
+    In some cases, getResource will return a real file object.  In that
+    case, it may be useful to use its name attribute to get the path
+    rather than use it as a file-like object.  For example, you may
+    be handing data off to a C API.
     """
 
     mod = sys.modules[pkgname]
@@ -50,28 +52,4 @@ def getResource(identifier, pkgname=__name__):
             pass
         else:
             return StringIO(data)
-    return file(path, 'rb')
-
-def getResourcePath(identifier, pkgname=__name__):
-    """
-    Acquire a full path name for a given package name and identifier.
-    An IOError will be raised if the resource can not be found.
-
-    For example:
-        mydatafile = getResourcePath('mypkgdata.jpg')
-
-    Note that the package name must be fully qualified, if given, such
-    that it would be found in sys.modules.    
-
-    Also note that getResource(...) is preferable, as it will work
-    more often.
-    """
-    
-    mod = sys.modules[pkgname]
-    fn = getattr(mod, '__file__', None)
-    if fn is None:
-        raise IOError, "%r has no __file__!"
-    path = os.path.join(os.path.dirname(fn), identifier)
-    if not os.path.exists(path):
-        raise IOError, "%r not found near %r" % (identifier, mod)
-    return path
+    return file(os.path.normpath(path), 'rb')
