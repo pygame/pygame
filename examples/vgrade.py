@@ -77,14 +77,14 @@ def DisplayGradient(surf):
 
 def main():
     pygame.init()
-    size = 640, 480
+    size = 600, 400
     screen = pygame.display.set_mode(size, NOFRAME, 0)
 
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
     pygame.time.set_timer(USEREVENT, 500)
 
     while 1:
-        event = pygame.event.poll()
+        event = pygame.event.wait()
         if event.type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
             break
         elif event.type == USEREVENT:

@@ -313,7 +313,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "lookups will be passed through to the Event's dictionary values.\n"
     /*DOC*/    "\n"
     /*DOC*/    "While debugging and experimenting, you can print the Event\n"
-    /*DOC*/    "objects for a quick display of its type and members.\n"    __SECRET_COLON__ 
+    /*DOC*/    "objects for a quick display of its type and members.\n" __SECRET_COLON__ 
     /*DOC*/    "Events that come from the system will have a guaranteed set of\n"
     /*DOC*/    "member items based on the type. Here is a list of the Event members\n"
     /*DOC*/    "that are defined with each type.<br><table align=center>"
@@ -334,7 +334,36 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "<tr><td><b>USEREVENT</b></td><td>code</td></tr></table>\n"
     /*DOC*/ ;
 
+static int event_nonzero(PyEventObject *self)
+{
+	return self->type != SDL_NOEVENT;
+}
 
+static PyNumberMethods event_as_number = {
+	(binaryfunc)NULL,		/*add*/
+	(binaryfunc)NULL,		/*subtract*/
+	(binaryfunc)NULL,		/*multiply*/
+	(binaryfunc)NULL,		/*divide*/
+	(binaryfunc)NULL,		/*remainder*/
+	(binaryfunc)NULL,		/*divmod*/
+	(ternaryfunc)NULL,		/*power*/
+	(unaryfunc)NULL,		/*negative*/
+	(unaryfunc)NULL,		/*pos*/ 
+	(unaryfunc)NULL,		/*abs*/
+	(inquiry)event_nonzero,	/*nonzero*/
+	(unaryfunc)NULL,		/*invert*/
+	(binaryfunc)NULL,		/*lshift*/
+	(binaryfunc)NULL,		/*rshift*/
+	(binaryfunc)NULL,		/*and*/
+	(binaryfunc)NULL,		/*xor*/
+	(binaryfunc)NULL,		/*or*/
+	(coercion)NULL,			/*coerce*/
+	(unaryfunc)NULL,		/*int*/
+	(unaryfunc)NULL,		/*long*/
+	(unaryfunc)NULL,		/*float*/
+	(unaryfunc)NULL,		/*oct*/
+	(unaryfunc)NULL,		/*hex*/
+};
 
 
 static PyTypeObject PyEvent_Type =
@@ -350,7 +379,7 @@ static PyTypeObject PyEvent_Type =
 	NULL,					/*setattr*/
 	NULL,					/*compare*/
 	event_str,				/*repr*/
-	NULL,					/*as_number*/
+	&event_as_number,		/*as_number*/
 	NULL,					/*as_sequence*/
 	NULL,					/*as_mapping*/
 	(hashfunc)NULL, 		/*hash*/
@@ -366,11 +395,17 @@ static PyObject* PyEvent_New(SDL_Event* event)
 {
 	PyEventObject* e;
 	e = PyObject_NEW(PyEventObject, &PyEvent_Type);
+	if(!e) return NULL;
 
-	if(e)
+	if(event)
 	{
 		e->type = event->type;
 		e->dict = dict_from_event(event);
+	}
+	else
+	{
+		e->type = SDL_NOEVENT;
+		e->dict = PyDict_New();
 	}
 	return (PyObject*)e;
 }
@@ -585,10 +620,9 @@ static PyObject* poll(PyObject* self, PyObject* args)
 
 	VIDEO_INIT_CHECK();
 
-	if(!SDL_PollEvent(&event))
-		return PyEvent_New2(SDL_NOEVENT, NULL);
-
-	return PyEvent_New(&event);
+	if(SDL_PollEvent(&event))
+		return PyEvent_New(&event);
+	return PyEvent_New(NULL);
 }
 
 
@@ -613,7 +647,7 @@ static PyObject* get(PyObject* self, PyObject* args)
 	short val;
 
 	if(PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
-		return RAISE(PyExc_ValueError, "peek requires 0 or 1 argument");
+		return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
 
 	VIDEO_INIT_CHECK();
 
@@ -635,7 +669,7 @@ static PyObject* get(PyObject* self, PyObject* args)
 		else if(ShortFromObj(type, &val))
 			mask = SDL_EVENTMASK(val);
 		else
-			return RAISE(PyExc_TypeError, "peek type must be numeric or a sequence");
+			return RAISE(PyExc_TypeError, "get type must be numeric or a sequence");
 	}
 	
 	list = PyList_New(0);
@@ -667,8 +701,8 @@ static PyObject* get(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "Pass this a type of event that you are interested in, and it will\n"
     /*DOC*/    "return true if there are any of that type of event on the queue.\n"
-    /*DOC*/    "If no types are passed, this will return true if any events are\n"
-    /*DOC*/    "on the queue. You may also optionally pass a sequence of event\n"
+    /*DOC*/    "If no types are passed, this will return the next event on the queue\n"
+    /*DOC*/    "without removing it. You may also optionally pass a sequence of event\n"
     /*DOC*/    "types. For example, to find if any keyboard events are on the\n"
     /*DOC*/    "queue, you would call, 'pygame.event.peek([KEYDOWN,KEYUP])'.\n"
     /*DOC*/ ;
@@ -678,7 +712,7 @@ static PyObject* event_peek(PyObject* self, PyObject* args)
 	SDL_Event event;
 	int result;
 	int mask = 0;
-	int loop, num;
+	int loop, num, noargs=0;
 	PyObject* type;
 	short val;
 
@@ -688,7 +722,10 @@ static PyObject* event_peek(PyObject* self, PyObject* args)
 	VIDEO_INIT_CHECK();
 
 	if(PyTuple_Size(args) == 0)
+	{
 		mask = SDL_ALLEVENTS;
+		noargs=1;
+	}
 	else
 	{
 		type = PyTuple_GET_ITEM(args, 0);
@@ -710,6 +747,9 @@ static PyObject* event_peek(PyObject* self, PyObject* args)
 	
 	SDL_PumpEvents();
 	result = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, mask);
+
+	if(noargs)
+		return PyEvent_New(&event);
 	return PyInt_FromLong(result == 1);
 }
 
