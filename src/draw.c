@@ -302,11 +302,12 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 
     /*DOC*/ static char doc_polygon[] =
     /*DOC*/    "pygame.draw.polygon(Surface, color, pointslist, width) -> Rect\n"
-    /*DOC*/    "draw multiple connected lines on a surface\n"
+    /*DOC*/    "draws a polygon on a surface\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Draws a polygonal shape on the Surface. The given points\n"
-    /*DOC*/    "is the list of points to connect. If you pass a true\n"
-    /*DOC*/    "value for the filled argument, the polygon will be filled in.\n"
+    /*DOC*/    "Draws a polygonal shape on the Surface. The given pointlist\n"
+    /*DOC*/    "is the vertices of the polygon. The width argument is\n"
+    /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
+    /*DOC*/    "the ellipse will be filled.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
     /*DOC*/    "\n"
