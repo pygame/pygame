@@ -1358,7 +1358,8 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
     /*DOC*/    "height]]. Also, if a method takes a rectstyle\n"
     /*DOC*/    "argument as its only argument, you can simply pass\n"
     /*DOC*/    "four arguments representing xpos, ypos, width,\n"
-    /*DOC*/    "height.\n"
+    /*DOC*/    "height. A rectstyle argument can also be _any_ python\n"
+    /*DOC*/    "object with an attribute named 'rect'.\n"
     /*DOC*/ ;
 
 static PyTypeObject PyRect_Type = { 
