@@ -13,11 +13,6 @@ if not pygame.image.get_extended():
 
 #try importing pygame optional modules
 try:
-    import pygame.font as font
-except ImportError:
-    print 'Warning, no fonts'
-    font = None
-try:
     import pygame.mixer
 except ImportError:
     print 'Warning, no sound'
@@ -27,8 +22,8 @@ except ImportError:
 #game constants
 MAX_SHOTS      = 2      #most player bullets onscreen
 ALIEN_ODDS     = 29     #chances a new alien appears
+BOMB_ODDS      = 150    #chances a new bomb will drop
 ALIEN_RELOAD   = 12     #frames between new aliens
-BOMB_ODDS      = 200
 SCREENRECT     = Rect(0, 0, 640, 480)
 
 
@@ -61,9 +56,17 @@ def load_sound(file):
 
 
 
+# each type of game object gets an init and an
+# update function. the update function is called
+# once per frame, and it is when each object should
+# change it's current position and state. the Player
+# object actually gets a "move" function instead of
+# update, since it is passed extra information about
+# the keyboard
+
 
 class Player(pygame.sprite.Sprite):
-    speed = 11
+    speed = 10
     bounce = 24
     gun_offset = -11
     images = []
@@ -76,8 +79,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.bottom = SCREENRECT.bottom - 1
         self.origtop = self.rect.top
         self.facing = -1
-
-    def update(self): pass
 
     def move(self, direction):
         if direction: self.facing = direction
@@ -95,7 +96,7 @@ class Player(pygame.sprite.Sprite):
 
 
 class Alien(pygame.sprite.Sprite):
-    speed = 15 
+    speed = 13 
     animcycle = 12
     images = []
     def __init__(self):
@@ -118,7 +119,7 @@ class Alien(pygame.sprite.Sprite):
 
 
 class Explosion(pygame.sprite.Sprite):
-    defaultlife = 10
+    defaultlife = 12
     animcycle = 3
     images = []
     def __init__(self, actor, longer):
@@ -135,7 +136,7 @@ class Explosion(pygame.sprite.Sprite):
 
 
 class Shot(pygame.sprite.Sprite):
-    speed = -13
+    speed = -11
     images = []
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self, self.containers)
@@ -150,7 +151,7 @@ class Shot(pygame.sprite.Sprite):
 
 
 class Bomb(pygame.sprite.Sprite):
-    speed = 11
+    speed = 9
     images = []
     def __init__(self, alien):
         pygame.sprite.Sprite.__init__(self, self.containers)
@@ -170,9 +171,12 @@ class Bomb(pygame.sprite.Sprite):
 def main(winstyle = 0):
     # Initialize pygame
     pygame.init()
+    if pygame.mixer and not pygame.mixer.get_init():
+        print 'Warning, no sound'
+        pygame.mixer = None
 
     # Set the display mode
-    winstyle = 0  #|FULLSCREEN
+    winstyle = 0  # |FULLSCREEN
     bestdepth = pygame.display.mode_ok(SCREENRECT.size, winstyle, 32)
     screen = pygame.display.set_mode(SCREENRECT.size, winstyle, bestdepth)
 
@@ -182,7 +186,7 @@ def main(winstyle = 0):
     Player.images = [img, pygame.transform.flip(img, 1, 0)]
     img = load_image('explosion1.gif')
     Explosion.images = [img, pygame.transform.flip(img, 1, 1)]
-    Alien.images = load_images('alien1.gif', 'alien2.gif', 'alien3.gif')
+    Alien.images = [load_images('alien1.gif', 'alien2.gif', 'alien3.gif')]
     Bomb.images = [load_image('bomb.gif')]
     Shot.images = [load_image('shot.gif')]
 
@@ -233,11 +237,13 @@ def main(winstyle = 0):
 
 
     while player.alive():
-        # update keyboard state
-        pygame.event.pump()
+
+        #get input
+        for event in pygame.event.get():
+            if event.type == QUIT or \
+			(event.type == KEYDOWN and event.key == K_ESCAPE):
+			    return
         keystate = pygame.key.get_pressed()
-        if keystate[K_ESCAPE] or pygame.event.peek(QUIT):
-            break
 
         # clear/erase the last drawn sprites
         all.clear(screen, background)
@@ -280,19 +286,19 @@ def main(winstyle = 0):
                     
         for bomb in pygame.sprite.spritecollide(player, bombs, 1):         
             boom_sound.play()
-            Explosion(bomb, 0)
+            Explosion(player, 0)
+            player.kill()
 
         #draw the scene
         dirty = all.draw(screen)
         pygame.display.update(dirty)
 
         #cap the framerate
-        clock.tick(30)
+        clock.tick(40)
 
-    pygame.mixer.music.fadeout(1000)
-    pygame.time.delay(1000)
-
-#no need to clean up, python automatically cleans up after us
+    if pygame.mixer:
+        pygame.mixer.music.fadeout(1000)
+    pygame.time.wait(1000)
    
 
 
