@@ -70,7 +70,7 @@
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, Rene
-   Dudfield
+   Dudfield, Michael Benfield
 
    There's many more folks out there who've submitted helpful ideas, kept
    this project going, and basically made my life easer, Thanks!

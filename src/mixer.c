@@ -44,10 +44,53 @@ static int request_size = MIX_DEFAULT_FORMAT;
 static int request_stereo = MIX_DEFAULT_CHANNELS;
 static int request_chunksize = MIX_DEFAULT_CHUNKSIZE;
 
-static PyObject **channelsounds = NULL;
-static int numchannelsounds = 0;
+struct ChannelData
+{
+    PyObject* sound;
+    PyObject* queue;
+    int endevent;
+};
+static struct ChannelData *channeldata = NULL;
+static int numchanneldata = 0;
+
+static int endsound_event = SDL_NOEVENT;
 
 Mix_Music** current_music;
+Mix_Music** queue_music;
+
+
+static void endsound_callback(int channel)
+{
+printf("CHANNEL FINISHED: %d\n", channel);
+    if(channeldata)
+    {
+	if(channeldata[channel].endevent && SDL_WasInit(SDL_INIT_VIDEO))
+	{
+	    SDL_Event e;
+printf("  sending end event %d\n", channeldata[channel].endevent);
+	    memset(&e, 0, sizeof(e));
+	    e.type = channeldata[channel].endevent;
+	    SDL_PushEvent(&e);
+	}
+	if(channeldata[channel].queue)
+	{
+	    int channelnum;
+	    Mix_Chunk* sound = PySound_AsChunk(channeldata[channel].queue);
+printf("  queueing %p  (%p=cur)\n", channeldata[channel].queue, channeldata[channel].sound);
+	    Py_XDECREF(channeldata[channel].sound);
+	    channeldata[channel].sound = channeldata[channel].queue;
+	    channeldata[channel].queue = NULL;
+	    channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
+	    if(channelnum != -1)
+	    	Mix_GroupChannel(channelnum, (int)sound);
+	}
+	else
+	{
+	    Py_XDECREF(channeldata[channel].sound);
+	    channeldata[channel].sound = NULL;
+	}
+    }
+}
 
 
 static void autoquit(void)
@@ -57,13 +100,16 @@ static void autoquit(void)
 	{
 		Mix_HaltMusic();
 
-                if(channelsounds)
+                if(channeldata)
                 {
-                    for(i=0; i<numchannelsounds; ++i)
-                        Py_XDECREF(channelsounds[i]);
-                    free(channelsounds);
-                    channelsounds = NULL;
-                    numchannelsounds = 0;
+                    for(i=0; i<numchanneldata; ++i)
+		    {
+                        Py_XDECREF(channeldata[i].sound);
+			Py_XDECREF(channeldata[i].queue);
+		    }
+                    free(channeldata);
+                    channeldata = NULL;
+                    numchanneldata = 0;
                 }
 
 		if(current_music)
@@ -74,6 +120,15 @@ static void autoquit(void)
 				*current_music = NULL;
 			}
 			current_music = NULL;
+		}
+		if(queue_music)
+		{
+			if(*queue_music)
+			{
+				Mix_FreeMusic(*queue_music);
+				*queue_music = NULL;
+			}
+			queue_music = NULL;
 		}
 
 		Mix_CloseAudio();
@@ -111,12 +166,17 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 	{
 		PyGame_RegisterQuit(autoquit);
                 
-                if(!channelsounds) /*should always be null*/
+                if(!channeldata) /*should always be null*/
                 {
-                    numchannelsounds = MIX_CHANNELS;
-                    channelsounds = (PyObject**)malloc(sizeof(PyObject*)*numchannelsounds);
-                    for(i=0; i < numchannelsounds; ++i)
-                        channelsounds[i] = NULL;
+                    numchanneldata = MIX_CHANNELS;
+                    channeldata = (struct ChannelData*)malloc(
+			    sizeof(struct ChannelData)*numchanneldata);
+                    for(i=0; i < numchanneldata; ++i)
+		    {
+                        channeldata[i].sound = NULL;
+			channeldata[i].queue = NULL;
+			channeldata[i].endevent = 0;
+		    }
                 }
 
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
@@ -128,7 +188,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 			return PyInt_FromLong(0);
 		}
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
-                /*Mix_ChannelFinished(some_callback);*/
+                Mix_ChannelFinished(endsound_callback);
 #endif
                 
               	Mix_VolumeMusic(127);
@@ -280,8 +340,10 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 	if(channelnum == -1)
 		RETURN_NONE
 
-        Py_XDECREF(channelsounds[channelnum]);
-        channelsounds[channelnum] = self;
+        Py_XDECREF(channeldata[channelnum].sound);
+	Py_XDECREF(channeldata[channelnum].queue);
+	channeldata[channelnum].queue = NULL;
+        channeldata[channelnum].sound = self;
         Py_INCREF(self);
                     
 	//make sure volume on this arbitrary channel is set to full
@@ -547,10 +609,59 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
 	if(channelnum != -1)
 		Mix_GroupChannel(channelnum, (int)chunk);
 
-        Py_XDECREF(channelsounds[channelnum]);
-        channelsounds[channelnum] = sound;
+        Py_XDECREF(channeldata[channelnum].sound);
+	Py_XDECREF(channeldata[channelnum].queue);
+        channeldata[channelnum].sound = sound;
+	channeldata[channelnum].queue = NULL;
         Py_INCREF(sound);
 
+        	
+	RETURN_NONE
+}
+
+
+
+    /*DOC*/ static char doc_chan_queue[] =
+    /*DOC*/    "Channel.queue(Sound) -> None\n"
+    /*DOC*/    "queue a sound on this channel\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When you queue a sound on a channel, it will begin playing\n"
+    /*DOC*/    "immediately when the current playing sound finishes. Each\n"
+    /*DOC*/    "channel can only have a single Sound object queued. The\n"
+    /*DOC*/    "queued sound will only play when the current Sound finishes\n"
+    /*DOC*/    "naturally, not from another call to stop() or play().\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "If there is no currently playing sound on this Channel\n"
+    /*DOC*/    "it will begin playback immediately.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will only work with SDL_mixer greater than version 1.2.3\n"
+    /*DOC*/ ;
+
+static PyObject* chan_queue(PyObject* self, PyObject* args)
+{
+	int channelnum = PyChannel_AsInt(self);
+	PyObject* sound;
+	Mix_Chunk* chunk;
+	
+	if(!PyArg_ParseTuple(args, "O!", &PySound_Type, &sound))
+		return NULL;
+	chunk = PySound_AsChunk(sound);
+
+	if(!channeldata[channelnum].sound) /*nothing playing*/
+	{
+	    channelnum = Mix_PlayChannelTimed(channelnum, chunk, 0, -1);
+	    if(channelnum != -1)
+		    Mix_GroupChannel(channelnum, (int)chunk);
+
+            channeldata[channelnum].sound = sound;
+            Py_INCREF(sound);
+	}
+	else
+	{
+	    Py_XDECREF(channeldata[channelnum].queue);
+	    channeldata[channelnum].queue = sound;
+	    Py_INCREF(sound);
+	}
         	
 	RETURN_NONE
 }
@@ -725,10 +836,118 @@ static PyObject* chan_get_volume(PyObject* self, PyObject* args)
 
 
 
+    /*DOC*/ static char doc_chan_get_sound[] =
+    /*DOC*/    "Channel.get_sound() -> Sound\n"
+    /*DOC*/    "get the currently playing sound object\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Return the currently playing Sound object on this channel.\n"
+    /*DOC*/    "This will return None if there is nothing playing.\n"
+    /*DOC*/ ;
+
+static PyObject* chan_get_sound(PyObject* self, PyObject* args)
+{
+	int channelnum = PyChannel_AsInt(self);
+	int volume;
+	PyObject* sound;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	sound = channeldata[channelnum].sound;
+	if(!sound)
+	    RETURN_NONE
+		    
+	Py_INCREF(sound);
+	return sound;
+}
+
+
+
+    /*DOC*/ static char doc_chan_get_queue[] =
+    /*DOC*/    "Channel.get_queue() -> Sound\n"
+    /*DOC*/    "get the currently queued sound object\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Return the currently queued Sound object on this channel.\n"
+    /*DOC*/    "This will return None if there is nothing queued.\n"
+    /*DOC*/ ;
+
+static PyObject* chan_get_queue(PyObject* self, PyObject* args)
+{
+	int channelnum = PyChannel_AsInt(self);
+	int volume;
+	PyObject* sound;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	sound = channeldata[channelnum].queue;
+	if(!sound)
+	    RETURN_NONE
+		    
+	Py_INCREF(sound);
+	return sound;
+}
+
+
+
+
+
+    /*DOC*/ static char doc_chan_set_endevent[] =
+    /*DOC*/    "Channel.set_endevent([event_type]) -> None\n"
+    /*DOC*/    "set an endevent for a channel\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When you set an endevent for a channel, that event type\n"
+    /*DOC*/    "will be put on the pygame event queue everytime a sound stops\n"
+    /*DOC*/    "playing on that channel. This is slightly different than the\n"
+    /*DOC*/    "music object end event, because this will trigger an event\n"
+    /*DOC*/    "anytime the music stops. If you call stop() or play() on the\n"
+    /*DOC*/    "channel, it will fire an event. An event will also be fired when\n"
+    /*DOC*/    "playback switches to a queued Sound.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Pass no argument to stop this channel from firing events\n"
+    /*DOC*/ ;
+
+static PyObject* chan_set_endevent(PyObject* self, PyObject* args)
+{
+	int channelnum = PyChannel_AsInt(self);
+	int event = SDL_NOEVENT;
+	PyObject* sound;
+
+	if(!PyArg_ParseTuple(args, "|i", &event))
+		return NULL;
+
+	channeldata[channelnum].endevent = event;
+    	RETURN_NONE
+}
+
+
+    /*DOC*/ static char doc_chan_get_endevent[] =
+    /*DOC*/    "Channel.get_endevent() -> event_type\n"
+    /*DOC*/    "get the endevent for a channel\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the end event type for this Channel. If the\n"
+    /*DOC*/    "return value is NOEVENT, then no events will be sent\n"
+    /*DOC*/    "when playback ends.\n"
+    /*DOC*/ ;
+
+static PyObject* chan_get_endevent(PyObject* self, PyObject* args)
+{
+	int channelnum = PyChannel_AsInt(self);
+	PyObject* sound;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	return PyInt_FromLong(channeldata[channelnum].endevent);
+}
+
+
+
 
 static PyMethodDef channel_builtins[] =
 {
 	{ "play", chan_play, 1, doc_chan_play },
+	{ "queue", chan_queue, 1, doc_chan_queue },
 	{ "get_busy", chan_get_busy, 1, doc_chan_get_busy },
 	{ "fadeout", chan_fadeout, 1, doc_chan_fadeout },
 	{ "stop", chan_stop, 1, doc_chan_stop },
@@ -736,6 +955,12 @@ static PyMethodDef channel_builtins[] =
 	{ "unpause", chan_unpause, 1, doc_chan_unpause },
 	{ "set_volume", chan_set_volume, 1, doc_chan_set_volume },
 	{ "get_volume", chan_get_volume, 1, doc_chan_get_volume },
+
+	{ "get_sound", chan_get_sound, 1, doc_chan_get_sound },
+	{ "get_queue", chan_get_queue, 1, doc_chan_get_queue },
+		
+	{ "set_endevent", chan_set_endevent, 1, doc_chan_set_endevent },
+	{ "get_endevent", chan_get_endevent, 1, doc_chan_get_endevent },
 
 	{ NULL, NULL }
 };
@@ -835,12 +1060,18 @@ static PyObject* set_num_channels(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-        if(numchans > numchannelsounds)
+        if(numchans > numchanneldata)
         {
-            channelsounds = (PyObject**)realloc(channelsounds, sizeof(PyObject*)*numchans);
-            for(i = numchannelsounds; i < numchans; ++i)
-                channelsounds[i] = NULL;
-            numchannelsounds = numchans;
+            channeldata= (struct ChannelData*)realloc(channeldata,
+		    sizeof(struct ChannelData*) * numchans);
+            for(i = numchanneldata; i < numchans; ++i)
+	    {
+		Py_XDECREF(channeldata[i].sound);
+		Py_XDECREF(channeldata[i].queue);
+		channeldata[i].sound = NULL;
+		channeldata[i].queue = NULL;
+	    }
+            numchanneldata = numchans;
         }
         
 	Mix_AllocateChannels(numchans);
@@ -1214,6 +1445,8 @@ void initmixer(void)
 		dict = PyModule_GetDict(music);
 		ptr = PyDict_GetItemString(dict, "_MUSIC_POINTER");
 		current_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
+		ptr = PyDict_GetItemString(dict, "_QUEUE_POINTER");
+		queue_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
 	}	
 	else /*music module not compiled? cleanly ignore*/
 	{
