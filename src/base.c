@@ -49,8 +49,8 @@ QDGlobals qd;
 
 static PyObject* quitfunctions = NULL;
 static PyObject* PyExc_SDLError;
-static void installparachute(void);
-static void uninstallparachute(void);
+static void install_parachute(void);
+static void uninstall_parachute(void);
 
 
 static int PyGame_Video_AutoInit(void);
@@ -213,7 +213,7 @@ static void atexit_quit(void)
 	privatefuncs = quitfunctions;
 	quitfunctions = NULL;
 
-	uninstallparachute();
+	uninstall_parachute();
 
 	num = PyList_Size(privatefuncs);
 	while(num--) /*quit in reverse order*/
@@ -497,7 +497,7 @@ static void install_parachute(void)
 }
 
 
-static void uninstallparachute(void)
+static void uninstall_parachute(void)
 {
 	int i;
 	void (*ohandler)(int);
