@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 9, 2003
+	Bug in Clock.tick() was delaying double
+
 February 26, 2003
 	Sprite and Group now new-style classes
 

@@ -264,7 +264,6 @@ static PyObject* clock_tick(PyObject* self, PyObject* arg)
             delay = accurate_delay(delay);
             if(delay == -1)
                 return NULL;
-            accurate_delay(delay);
         }
         
         nowtime = SDL_GetTicks();
