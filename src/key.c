@@ -41,6 +41,10 @@
     /*DOC*/    "are passed, keyboard repeat will be disabled.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The default values for delay and interval are 500 and 30.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Delay is the amount of milliseconds before the first repeated\n"
+    /*DOC*/    "KEYDOWN event is received. The interval is the amount of\n"
+    /*DOC*/    "milliseconds for each repeated KEYDOWN event after that.\n"
     /*DOC*/ ;
 
 static PyObject* key_set_repeat(PyObject* self, PyObject* args)

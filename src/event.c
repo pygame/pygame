@@ -405,7 +405,7 @@ static PyObject* PyEvent_New2(int type, PyObject* dict)
     /*DOC*/    "create new event object\n"
     /*DOC*/    "\n"
     /*DOC*/    "Creates a new event object. The type should be one of SDL's\n"
-    /*DOC*/    "event numbers, or above USER_EVENT. The given dictionary contains\n"
+    /*DOC*/    "event numbers, or above USEREVENT. The given dictionary contains\n"
     /*DOC*/    "the keys that will be members of the new event.\n"
     /*DOC*/    "\n"
     /*DOC*/    "Also, instead of passing a dictionary to create the event\n"
