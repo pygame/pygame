@@ -16,25 +16,95 @@
 	<a href=../index.html>Help Contents</a> &nbsp;||
 	<br>&nbsp;<br>
 
-|| <a href=Surface.html>Surface</a> || 
-<a href=pygame.html>pygame</a> ||<br>
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> || 
+<a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> ||<br>
+|| <a href=pygame.html>pygame</a> || 
+<a href=pygame_UserRect.html>UserRect</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_constants.html>constants</a> || 
+<a href=pygame_cursors.html>cursors</a> || 
+<a href=pygame_display.html>display</a> || 
+<a href=pygame_draw.html>draw</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
+|| <a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> || 
+<a href=pygame_version.html>version</a> ||<br>
 
 
 </td></tr></table>
 <br>
 <h2 align=center>pygame</h2>
-{module}
+Contains the core routines that are used by the rest of the
+pygame modules. It's routines are merged directly into the pygame
+namespace. This mainly includes the auto-initialization <a href=#init>init()</a> and
+quit() routines.
+<br>&nbsp;<br>
+There is a small module named 'locals' that also gets merged into
+this namespace. This contains all the constants needed by pygame.
+Object constructors also get placed into this namespace, you can
+call functions like rect() and surface() to create objects of
+that type. As a convenience, you can import the members of
+pygame.locals directly into your module's namespace with 'from
+pygame.locals import *'. Most of the pygame examples do this if
+you'd like to take a look.
 
 <hr>
 
 <table>
+<tr><td><a href=#Rect>Rect</a></td><td> -
+create a new rectangle</td></tr>
+
+
 <tr><td><a href=#Surface>Surface</a></td><td> -
 create a new Surface</td></tr>
+
+
+<tr><td><a href=#get_error>get_error</a></td><td> -
+get current error message</td></tr>
+
+
+<tr><td><a href=#get_grab>get_grab</a></td><td> -
+query the state of input grabbing</td></tr>
+
+
+<tr><td><a href=#init>init</a></td><td> -
+autoinitialize all imported pygame modules</td></tr>
+
+
+<tr><td><a href=#quit>quit</a></td><td> -
+uninitialize all pygame modules</td></tr>
+
+
+<tr><td><a href=#register_quit>register_quit</a></td><td> -
+routine to call when pyGame quits</td></tr>
 
 
 </table>
 
 <hr>
+
+<a name=Rect><font size=+2><b>Rect
+</b></font><br><font size=+1><tt>
+pygame.Rect(rectstyle) -> Rect
+</tt></font><ul>
+Creates a new rectangle object. The given
+rectstyle represents one of the various ways of
+representing rectangle data. This is usually a
+sequence of x and y position for the topleft
+corner, and the width and height.
+</ul><br>&nbsp;<br>
 
 <a name=Surface><font size=+2><b>Surface
 </b></font><br><font size=+1><tt>
@@ -56,6 +126,73 @@ enabled. SDL will use these flags to help optimize the surface
 for use with the blitters. Also, for a plain software surface, 0
 can be used for the flag. A plain hardware surface can just use 1
 for the flag.
+</ul><br>&nbsp;<br>
+
+<a name=get_error><font size=+2><b>get_error
+</b></font><br><font size=+1><tt>
+pygame.get_error() -> errorstring
+</tt></font><ul>
+SDL maintains an internal current error message. This message is
+usually given to you when an SDL related exception occurs, but
+sometimes you may want to call this directly yourself.
+</ul><br>&nbsp;<br>
+
+<a name=get_grab><font size=+2><b>get_grab
+</b></font><br><font size=+1><tt>
+pygame.get_grab() -> bool
+</tt></font><ul>
+Returns true if the input is currently grabbed to your
+application.
+</ul><br>&nbsp;<br>
+
+<a name=init><font size=+2><b>init
+</b></font><br><font size=+1><tt>
+pygame.init() -> passed, failed
+</tt></font><ul>
+Initialize all imported pygame modules. Including pygame modules
+that are not part of the base modules (like font and image).
+<br>&nbsp;<br>
+It does not raise exceptions, but instead silently counts which
+modules have failed to init. The return argument contains a count
+of the number of modules initialized, and the number of modules
+that failed to initialize.
+<br>&nbsp;<br>
+You can always initialize the modules you want by hand. The
+modules that need it have an <u>init()</u> and <a href=#quit>quit()</a> routine built in,
+which you can call directly. They also have a <a href=pygame_cdrom.html#get_init>get_init()</a> routine
+which you can use to doublecheck the initialization. Note that
+the manual <u>init()</u> routines will raise an exception on error. Be
+aware that most platforms require the display module to be
+initialized before others. This <u>init()</u> will handle that for you,
+but if you initialize by hand, be aware of this constraint.
+<br>&nbsp;<br>
+As with the manual <u>init()</u> routines. It is safe to call this
+init() as often as you like. If you have imported pygame modules
+since the.
+</ul><br>&nbsp;<br>
+
+<a name=quit><font size=+2><b>quit
+</b></font><br><font size=+1><tt>
+pygame.quit() -> none
+</tt></font><ul>
+Uninitialize all pygame modules that have been initialized. Even
+if you initialized the module by hand, this <u>quit()</u> will
+uninitialize it for you.
+<br>&nbsp;<br>
+All the pygame modules are uninitialized automatically when your
+program exits, so you will usually not need this routine. If you
+program plans to keep running after it is done with pygame, then
+would be a good time to make this call.
+</ul><br>&nbsp;<br>
+
+<a name=register_quit><font size=+2><b>register_quit
+</b></font><br><font size=+1><tt>
+pygame.register_quit(callback) -> None
+</tt></font><ul>
+The given callback routine will be called when. pygame is
+quitting. Quit callbacks are served on a 'last in, first out'
+basis. Also be aware that your callback may be called more than
+once.
 </ul><br>&nbsp;<br>
 
 

@@ -49,26 +49,26 @@
 Contains sound mixer routines and objects. The mixer module is an
 optional pygame module, dependent on the SDL_mixer library. This
 module contains the usual routines needed to initialize the
-module. One difference is the pygame.mixer.init() function takes
+module. One difference is the <a href=#init>pygame.mixer.init()</a> function takes
 several optional arguments. These arguments control the playback
 rates and datatypes for the sound playback. If you do need
 specific control over the playback rate, but don't want to bother
 with hand-initializing the modules, there is a function named
-pygame.mixer.pre_init() which takes the same arguments as init(),
+pygame.mixer.pre_init() which takes the same arguments as <a href=pygame.html#init>init()</a>,
 but only sets the new default values. You can call this before
 pygame.init() and not have to worry about the pygame module
 initialization order.
 <br>&nbsp;<br>
 Sound objects are created from the pygame.mixer.load() function.
-Simple sound playback can simply use the Sound.play() method to
+Simple sound playback can simply use the <a href=Sound.html#play>Sound.play()</a> method to
 play the sound. Each Sound object can be played multiple times
 simultaneously. If you desire more specific control over the
 Sound objects, you can access the Channel objects with functions
-like pygame.mixer.Channel().
+like <a href=#Channel>pygame.mixer.Channel()</a>.
 <br>&nbsp;<br>
 The mixer defaults to supporting 8 simultaneous soundfiles.
 You can change the number of available sound channels at any
-time with the set_num_channels() function.
+time with the <a href=#set_num_channels>set_num_channels()</a> function.
 <br>&nbsp;<br>
 All loaded Sound objects are resampled to match the same format
 that pygame.mixer is initialized to. The current SDL resampling

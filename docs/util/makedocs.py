@@ -5,9 +5,9 @@ import fnmatch, glob, os
 
 DOCPATTERN = '*static char*doc_*=*'
 
-SOURCES = ['../../src/surface*.c']
+SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
-PYTHONSRC = []#['cursors', 'version', 'UserRect']
+PYTHONSRC = ['cursors', 'version', 'UserRect']
 
 OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()

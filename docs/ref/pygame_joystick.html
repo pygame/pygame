@@ -48,7 +48,7 @@
 <h2 align=center>pygame.joystick</h2>
 The joystick module provides a few functions to initialize
 the joystick subsystem and to manage the Joystick objects. These
-objects are created with the pygame.joystick.Joystick() function.
+objects are created with the <a href=#Joystick>pygame.joystick.Joystick()</a> function.
 This function needs a joystick device number to work on. All
 joystick devices on the system are enumerated for use as a Joystick
 object. To access most of the Joystick functions, you'll need to
@@ -57,11 +57,11 @@ be initialized). When multiple Joysticks objects are created for the
 same joystick device, the state and values for those Joystick objects
 will be shared.
 <br>&nbsp;<br>
-You can call the Joystick.get_name() and Joystick.get_id() functions
+You can call the <a href=Joystick.html#get_name>Joystick.get_name()</a> and <a href=Joystick.html#get_id>Joystick.get_id()</a> functions
 without initializing the Joystick object.
 <br>&nbsp;<br>
 Joystick control values are only updated during the calls to the event
-queue. Call pygame.event.pump() if you are not using the event queue for
+queue. Call <a href=pygame_event.html#pump>pygame.event.pump()</a> if you are not using the event queue for
 any input handling. Once a joystick object has been initialized, it will
 start to send joystick events to the input queue.
 <br>&nbsp;<br>

@@ -1,5 +1,5 @@
 <html>
-<title>pygame.cursors</title>
+<title>pygame.draw</title>
 <body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
 
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
@@ -45,58 +45,34 @@
 
 </td></tr></table>
 <br>
-<h2 align=center>pygame.cursors</h2>
-Set of cursor resources available for use. These cursors come
-in a sequence of values that are needed as the arguments for
-pygame.mouse.set_cursor(). to dereference the sequence in place
-and create the cursor in one step, call like this;
-pygame.mouse.set_cursor(*pygame.cursors.arrow).
+<h2 align=center>pygame.draw</h2>
+Contains routines to draw onto a surface.
 <br>&nbsp;<br>
-Here is a list of available cursors; arrow, diamond, ball,
-        broken_x, tri_left, tri_right
-<br>&nbsp;<br>
-There is also a sample string cursor named 'thickarrow_strings'.
-The <a href=#compile>compile()</a> function can convert these string cursors into cursor byte data.
-<br>&nbsp;<br>
+Note that all
+drawing routines use direct pixel access, so the surfaces
+must be locked for use. The draw functions will temporarily
+lock the surface if needed, but if performing many drawing
+routines together, it would be best to surround the drawing
+code with a lock/unlock pair.
 
 <hr>
 
 <table>
-<tr><td><a href=#compile>compile</a></td><td> -
-compile cursor strings into cursor data</td></tr>
-
-
-<tr><td><a href=#load_xbm>load_xbm</a></td><td> -
-reads a pair of XBM files into set_cursor arguments</td></tr>
+<tr><td><a href=#line>line</a></td><td> -
+draw a line on a surface</td></tr>
 
 
 </table>
 
 <hr>
 
-<a name=compile><font size=+2><b>compile
+<a name=line><font size=+2><b>line
 </b></font><br><font size=+1><tt>
-pygame.cursors.compile(strings, black, white) -> data
+pygame.draw.line(Surface, color, startpos, endpos) -> Rect
 </tt></font><ul>
-This takes a set of strings with equal length and computes
-the binary data for that cursor. The string widths must be
-divisible by 6. The data returned are suitable for passing
-to <a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>.
-<br>&nbsp;<br>
-The black and white arguments are single letter strings that
-tells which characters will represent black pixels, and which
-characters represent white pixels. All other characters are
-considered clear.
-<br>&nbsp;<br>
-</ul><br>&nbsp;<br>
-
-<a name=load_xbm><font size=+2><b>load_xbm
-</b></font><br><font size=+1><tt>
-pygame.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
-</tt></font><ul>
-Arguments can either be strings or filelike objects
-with the readlines method. Not largely tested, but
-should work with typical XBM files.
+Draws a line on a surface. This will respect the clipping
+rectangle. A bounding box of the effected area is returned
+as a rectangle.
 <br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
