@@ -95,10 +95,10 @@ static void PySurface_Unprep(PyObject* surfobj)
 static int PySurface_Lock(PyObject* surfobj)
 {
 	PySurfaceObject* surf = (PySurfaceObject*)surfobj;
+	if(surf->subsurface)
+		PySurface_Prep(surfobj);
 	if(!surf->lockcount && (surf->subsurface || !surf->surf->pixels))
 	{
-		if(surf->subsurface)
-			PySurface_Prep(surfobj);
 		if(SDL_LockSurface(surf->surf) == -1)
 		{
 			PyErr_SetString(PyExc_RuntimeError, "error locking surface");

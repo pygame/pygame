@@ -53,8 +53,6 @@ All transformation functions take a source Surface and
 return a new copy of that surface in the same format as
 the original.
 <br>&nbsp;<br>
-These transform routines are not filtered or smoothed.
-<br>&nbsp;<br>
 Some of the
 filters are 'destructive', which means if you transform
 the image one way, you can't transform the image back to
@@ -71,6 +69,10 @@ flips a surface on either axis</td></tr>
 
 <tr><td><a href=#rotate>rotate</a></td><td> -
 rotate a Surface</td></tr>
+
+
+<tr><td><a href=#rotozoom>rotozoom</a></td><td> -
+smoothly scale and/or rotate an image</td></tr>
 
 
 <tr><td><a href=#scale>scale</a></td><td> -
@@ -106,6 +108,20 @@ size will be larger than the original. There will be newly
 uncovered areas in the image. These will filled with either
 the current colorkey for the Surface, or the topleft pixel value.
 (with the alpha channel zeroed out if available)
+<br>&nbsp;<br>
+This transformation is not filtered.
+</ul><br>&nbsp;<br>
+
+<a name=rotozoom><font size=+2><b>rotozoom
+</b></font><br><font size=+1><tt>
+pygame.transform.rotozoom(Surface, angle, zoom) -> Surface
+</tt></font><ul>
+This will smoothly rotate and scale an image in one pass.
+The resulting image will always be a 32bit version of the
+original surface. The scale is a multiplier for the image
+size, and angle is the degrees to rotate in degrees.
+<br>&nbsp;<br>
+It calls the SDL_rotozoom library which is compiled in.
 </ul><br>&nbsp;<br>
 
 <a name=scale><font size=+2><b>scale
@@ -115,6 +131,8 @@ pygame.transform.scale(Surface, size) -> Surface
 This will resize a surface to the given resolution.
 The size is simply any 2 number sequence representing
 the width and height.
+<br>&nbsp;<br>
+This transformation is not filtered.
 </ul><br>&nbsp;<br>
 
 
