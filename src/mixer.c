@@ -49,6 +49,8 @@ static void autoquit(void)
 {
 	if(SDL_WasInit(SDL_INIT_AUDIO))
 	{
+		Mix_HaltMusic();
+
 		if(current_music)
 		{
 			if(*current_music)
@@ -148,18 +150,32 @@ static PyObject* init(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_get_init[] =
-    /*DOC*/    "pygame.mixer.get_init() -> bool\n"
+    /*DOC*/    "pygame.mixer.get_init() -> (frequency,format,stereo)\n"
     /*DOC*/    "query initialization for the mixer\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the mixer module is initialized.\n"
+    /*DOC*/    "Returns a tuple containing the initialized state of the mixer\n"
+    /*DOC*/    "module. If the module has not been initialized, it will return\n"
+    /*DOC*/    "None.\n"
+    /*DOC*/    "\n"
     /*DOC*/ ;
 
 static PyObject* get_init(PyObject* self, PyObject* arg)
 {
+	int freq, channels, realform;
+	Uint16 format;
+
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
 
-	return PyInt_FromLong(SDL_WasInit(SDL_INIT_AUDIO));
+	if(!SDL_WasInit(SDL_INIT_AUDIO))
+		RETURN_NONE
+
+	if(!Mix_QuerySpec(&freq, &format, &channels))
+		RETURN_NONE
+
+	//create a signed or unsigned number of bits per sample
+	realform = format&~0xff ? -(format&0xff) : format&0xff;	
+	return Py_BuildValue("(iii)", freq, realform, channels>1);
 }
 
 
