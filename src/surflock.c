@@ -31,6 +31,19 @@
 /*extra Surface documentation*/
 #if 0 /*extra help, only for docs, not docstrings*/
     /*DOC*/ static char doc_Surface_EXTRA[] =
+    /*DOC*/    "Any functions that directly access a surface's pixel data will\n"
+    /*DOC*/    "need that surface to be lock()'ed. These functions can lock()\n"
+    /*DOC*/    "and unlock() the surfaces themselves without assistance. But, if\n"
+    /*DOC*/    "a function will be called many times, there will be a lot of overhead\n"
+    /*DOC*/    "for multiple locking and unlocking of the surface. It is best to lock\n"
+    /*DOC*/    "the surface manually before making the function call many times, and\n"
+    /*DOC*/    "then unlocking when you are finished. All functions that need a locked\n"
+    /*DOC*/    "surface will say so in their docs.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Also remember that you will want to leave the surface locked for the\n"
+    /*DOC*/    "shortest amount of time needed.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "\n"
     /*DOC*/    "Here is the quick breakdown of how packed pixels work (don't worry if\n"
     /*DOC*/    "you don't quite understand this, it is only here for informational\n"
     /*DOC*/    "purposes, it is not needed). Each colorplane mask can be used to\n"

@@ -37,14 +37,12 @@
     /*DOC*/    "pixel value.\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will only work for 24 and 32 bit surfaces,\n"
-    /*DOC*/    "where the RGB components can be accessed without\n"
-    /*DOC*/    "requiring any masking.\n"
+    /*DOC*/    "where the RGB components can be accessed as 8-bit\n"
+    /*DOC*/    "components.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You'll need the surface to be locked if that is\n"
-    /*DOC*/    "required. Also be aware that between unlocking and\n"
-    /*DOC*/    "relocking a surface, the pixel data can be moved,\n"
-    /*DOC*/    "so don't hang onto this array after you have\n"
-    /*DOC*/    "unlocked the surface.\n"
+    /*DOC*/    "This function will lock the given surface, and it\n"
+    /*DOC*/    "will remained locked for as long as the pixel array\n"
+    /*DOC*/    "exists\n"
     /*DOC*/ ;
 
 static PyObject* pixels3d(PyObject* self, PyObject* arg)
@@ -118,11 +116,9 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
     /*DOC*/    "is no native 24bit data type to access the pixel\n"
     /*DOC*/    "values.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You'll need the surface to be locked if that is\n"
-    /*DOC*/    "required. Also be aware that between unlocking and\n"
-    /*DOC*/    "relocking a surface, the pixel data can be moved,\n"
-    /*DOC*/    "so don't hang onto this array after you have\n"
-    /*DOC*/    "unlocked the surface.\n"
+    /*DOC*/    "This function will lock the given surface, and it\n"
+    /*DOC*/    "will remained locked for as long as the pixel array\n"
+    /*DOC*/    "exists\n"
     /*DOC*/ ;
 
 static PyObject* pixels2d(PyObject* self, PyObject* arg)
@@ -165,11 +161,9 @@ static PyObject* pixels2d(PyObject* self, PyObject* arg)
     /*DOC*/    "This will only work for 32bit surfaces with a pixel\n"
     /*DOC*/    "alpha channel enabled.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You'll need the surface to be locked if that is\n"
-    /*DOC*/    "required. Also be aware that between unlocking and\n"
-    /*DOC*/    "relocking a surface, the pixel data can be moved,\n"
-    /*DOC*/    "so don't hang onto this array after you have\n"
-    /*DOC*/    "unlocked the surface.\n"
+    /*DOC*/    "This function will lock the given surface, and it\n"
+    /*DOC*/    "will remained locked for as long as the pixel array\n"
+    /*DOC*/    "exists\n"
     /*DOC*/ ;
 
 static PyObject* pixels_alpha(PyObject* self, PyObject* arg)
@@ -216,11 +210,7 @@ static PyObject* pixels_alpha(PyObject* self, PyObject* arg)
     /*DOC*/    "as a 2d image array with a mapped pixel value at\n"
     /*DOC*/    "each index.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
-    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
-    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
-    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
-    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 PyObject* array2d(PyObject* self, PyObject* arg)
@@ -321,11 +311,7 @@ PyObject* array2d(PyObject* self, PyObject* arg)
     /*DOC*/    "as a 2d image array with an RGB array for each\n"
     /*DOC*/    "pixel value.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
-    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
-    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
-    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
-    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 PyObject* array3d(PyObject* self, PyObject* arg)
@@ -454,11 +440,7 @@ PyObject* array3d(PyObject* self, PyObject* arg)
     /*DOC*/    "surface has no alpha, an array of all opaque values\n"
     /*DOC*/    "is returned.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
-    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
-    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
-    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
-    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 PyObject* array_alpha(PyObject* self, PyObject* arg)
@@ -563,11 +545,7 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
     /*DOC*/    "surface has no colorkey, an array of all opaque values\n"
     /*DOC*/    "is returned. Otherwise the array is either 0's or 255's.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
-    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
-    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
-    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
-    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 PyObject* array_colorkey(PyObject* self, PyObject* arg)
@@ -871,13 +849,9 @@ PyObject* map_array(PyObject* self, PyObject* arg)
     /*DOC*/    "because of it's smarter handling of noncontiguous\n"
     /*DOC*/    "arrays. Plus it allows you to blit from any image\n"
     /*DOC*/    "array type to any surface format in one step, no\n"
-    /*DOC*/    "conversions.\n"
+    /*DOC*/    "internal conversions.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
-    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
-    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
-    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
-    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 PyObject* blit_array(PyObject* self, PyObject* arg)

@@ -100,11 +100,7 @@ This returns a new contigous 2d array. Think of it
 as a 2d image array with a mapped pixel value at
 each index.
 <br>&nbsp;<br>
-Some surfaces will require the surface to be locked for pixel access.
-If locking is needed and the surface is not locked, it will be temporarily
-locked in this function. If you will be calling this function many times
-in one loop, it is will be much better to lock and unlock the surface
-outside of that loop.
+This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=array3d><font size=+2><b>array3d
@@ -115,11 +111,7 @@ This returns a new contigous 3d array. Think of it
 as a 2d image array with an RGB array for each
 pixel value.
 <br>&nbsp;<br>
-Some surfaces will require the surface to be locked for pixel access.
-If locking is needed and the surface is not locked, it will be temporarily
-locked in this function. If you will be calling this function many times
-in one loop, it is will be much better to lock and unlock the surface
-outside of that loop.
+This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=array_alpha><font size=+2><b>array_alpha
@@ -131,11 +123,7 @@ alpha values of an image as unsigned bytes. If the
 surface has no alpha, an array of all opaque values
 is returned.
 <br>&nbsp;<br>
-Some surfaces will require the surface to be locked for pixel access.
-If locking is needed and the surface is not locked, it will be temporarily
-locked in this function. If you will be calling this function many times
-in one loop, it is will be much better to lock and unlock the surface
-outside of that loop.
+This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=array_colorkey><font size=+2><b>array_colorkey
@@ -147,11 +135,7 @@ colorkey values of an image as unsigned bytes. If the
 surface has no colorkey, an array of all opaque values
 is returned. Otherwise the array is either 0's or 255's.
 <br>&nbsp;<br>
-Some surfaces will require the surface to be locked for pixel access.
-If locking is needed and the surface is not locked, it will be temporarily
-locked in this function. If you will be calling this function many times
-in one loop, it is will be much better to lock and unlock the surface
-outside of that loop.
+This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=blit_array><font size=+2><b>blit_array
@@ -166,13 +150,9 @@ using this blit method will usually be quicker
 because of it's smarter handling of noncontiguous
 arrays. Plus it allows you to blit from any image
 array type to any surface format in one step, no
-conversions.
+internal conversions.
 <br>&nbsp;<br>
-Some surfaces will require the surface to be locked for pixel access.
-If locking is needed and the surface is not locked, it will be temporarily
-locked in this function. If you will be calling this function many times
-in one loop, it is will be much better to lock and unlock the surface
-outside of that loop.
+This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=map_array><font size=+2><b>map_array
@@ -200,11 +180,9 @@ This will not work on 24bit surfaces, since there
 is no native 24bit data type to access the pixel
 values.
 <br>&nbsp;<br>
-You'll need the surface to be locked if that is
-required. Also be aware that between unlocking and
-relocking a surface, the pixel data can be moved,
-so don't hang onto this array after you have
-unlocked the surface.
+This function will lock the given surface, and it
+will remained locked for as long as the pixel array
+exists
 </ul><br>&nbsp;<br>
 
 <a name=pixels3d><font size=+2><b>pixels3d
@@ -217,14 +195,12 @@ as a 2d image array with an RGB array for each
 pixel value.
 <br>&nbsp;<br>
 This will only work for 24 and 32 bit surfaces,
-where the RGB components can be accessed without
-requiring any masking.
+where the RGB components can be accessed as 8-bit
+components.
 <br>&nbsp;<br>
-You'll need the surface to be locked if that is
-required. Also be aware that between unlocking and
-relocking a surface, the pixel data can be moved,
-so don't hang onto this array after you have
-unlocked the surface.
+This function will lock the given surface, and it
+will remained locked for as long as the pixel array
+exists
 </ul><br>&nbsp;<br>
 
 <a name=pixels_alpha><font size=+2><b>pixels_alpha
@@ -237,11 +213,9 @@ effects a Surface's alpha contents.
 This will only work for 32bit surfaces with a pixel
 alpha channel enabled.
 <br>&nbsp;<br>
-You'll need the surface to be locked if that is
-required. Also be aware that between unlocking and
-relocking a surface, the pixel data can be moved,
-so don't hang onto this array after you have
-unlocked the surface.
+This function will lock the given surface, and it
+will remained locked for as long as the pixel array
+exists
 </ul><br>&nbsp;<br>
 
 

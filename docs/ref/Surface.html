@@ -66,13 +66,20 @@ are fine for simple access, but will be considerably slow when
 doing of pixel work with them. If you plan on doing a lot of
 pixel level work, it is recommended to use the pygame.surfarray
 module, which can treat the surfaces like large multidimensional
-arrays (and it's quite quick). Some surfaces need to be locked
-before they can be used. Surfaces with flags like HWSURFACE and
-RLEACCEL generally require calls to <a href=#lock>lock()</a> and <a href=#unlock>unlock()</a>
-surrounding pixel access. It is safe to <a href=#lock>lock()</a> and <a href=#unlock>unlock()</a>
-surfaces that do not require locking. Nonetheless, you can check
-to see if a Surface really needs to be locked with the <a href=#mustlock>mustlock()</a>
-function.<p>&nbsp;</p>Here is the quick breakdown of how packed pixels work (don't worry if
+arrays (and it's quite quick).<p>&nbsp;</p>Any functions that directly access a surface's pixel data will
+need that surface to be <a href=#lock>lock()</a>'ed. These functions can <a href=#lock>lock()</a>
+and <a href=#unlock>unlock()</a> the surfaces themselves without assistance. But, if
+a function will be called many times, there will be a lot of overhead
+for multiple locking and unlocking of the surface. It is best to lock
+the surface manually before making the function call many times, and
+then unlocking when you are finished. All functions that need a locked
+surface will say so in their docs.
+<br>&nbsp;<br>
+Also remember that you will want to leave the surface locked for the
+shortest amount of time needed.
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+Here is the quick breakdown of how packed pixels work (don't worry if
 you don't quite understand this, it is only here for informational
 purposes, it is not needed). Each colorplane mask can be used to
 isolate the values for a colorplane from the packed pixel color.
@@ -81,7 +88,7 @@ REDPLANE is not exactly the red color value, but it is the red
 color value bitwise left shifted a certain amount. The losses and
 masks can be used to convert back and forth between each
 colorplane and the actual color for that plane. Here are the
-final formulas used be map and unmap (not exactly, heh).
+final formulas used be map and unmap.
 PACKED_COLOR = RED&gt;&gt;losses[0]&lt;&lt;shifts[0] |
       GREEN&gt;&gt;losses[1]&lt;&lt;shifts[1] | BLUE&gt;&gt;losses[2]&lt;&lt;shifts[2]
 RED = PACKED_COLOR & masks[0] &gt;&gt; shifts[0] &lt;&lt; losses[0]
@@ -140,6 +147,10 @@ query the surface width</td></tr>
 
 <tr><td><a href=#get_height>get_height</a></td><td> -
 query the surface height</td></tr>
+
+
+<tr><td><a href=#get_locked>get_locked</a></td><td> -
+check if the surface needs locking</td></tr>
 
 
 <tr><td><a href=#get_losses>get_losses</a></td><td> -
@@ -311,11 +322,7 @@ Surface.get_at([x, y]) -> RGBA
 Returns the RGB color values at a given pixel. If the
 Surface has no per-pixel alpha, the alpha will be 255 (opaque).
 <br>&nbsp;<br>
-Some surfaces will require the surface to be locked for pixel access.
-If locking is needed and the surface is not locked, it will be temporarily
-locked in this function. If you will be calling this function many times
-in one loop, it is will be much better to lock and unlock the surface
-outside of that loop.
+This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=get_bitsize><font size=+2><b>get_bitsize
@@ -364,6 +371,13 @@ Returns the current state flags for the surface.
 Surface.get_height() -> height
 </tt></font><ul>
 Returns the height of the Surface.
+</ul><br>&nbsp;<br>
+
+<a name=get_locked><font size=+2><b>get_locked
+</b></font><br><font size=+1><tt>
+Surface.get_locked() -> bool
+</tt></font><ul>
+Returns true if the surface is currently locked.
 </ul><br>&nbsp;<br>
 
 <a name=get_losses><font size=+2><b>get_losses
@@ -525,11 +539,7 @@ In some situations just using the <a href=#fill>fill()</a> function with a one-p
 sized rectangle will be quicker. Also the fill function does not
 require the surface to be locked.
 <br>&nbsp;<br>
-Some surfaces will require the surface to be locked for pixel access.
-If locking is needed and the surface is not locked, it will be temporarily
-locked in this function. If you will be calling this function many times
-in one loop, it is will be much better to lock and unlock the surface
-outside of that loop.
+This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=set_clip><font size=+2><b>set_clip
@@ -580,9 +590,6 @@ Surface.subsurface(rectstyle) -> Surface
 Creates a new surface that shares pixel data of the given surface.
 Note that only the pixel data is shared. Things like clipping rectangles
 and colorkeys will be unique for the new surface.
-<br>&nbsp;<br>
-The fill is subject to be clipped by the active clipping
-rectangle. The return value contains the actual area filled.
 </ul><br>&nbsp;<br>
 
 <a name=unlock><font size=+2><b>unlock
