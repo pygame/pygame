@@ -210,6 +210,7 @@ static PyObject* init(PyObject* self,PyObject* args)
 static void atexit_quit(void)
 {
 	PyObject* quit;
+	PyObject* privatefuncs;
 	int num;
 
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
@@ -217,10 +218,13 @@ static void atexit_quit(void)
 	if(!quitfunctions)
 		return;
 
-	num = PyList_Size(quitfunctions);
+	privatefuncs = quitfunctions;
+	quitfunctions = NULL;
+
+	num = PyList_Size(privatefuncs);
 	while(num--) /*quit in reverse order*/
 	{
-		quit = PyList_GET_ITEM(quitfunctions, num);
+		quit = PyList_GET_ITEM(privatefuncs, num);
 		if(PyCallable_Check(quit))
 			PyObject_CallObject(quit, NULL);
 		else if(PyCObject_Check(quit))
@@ -230,9 +234,7 @@ static void atexit_quit(void)
 		}
 	}
 
-	Py_DECREF(quitfunctions);
-	quitfunctions = NULL;
-
+	Py_DECREF(privatefuncs);
 	SDL_Quit(); /*catch anything left*/
 }
 
