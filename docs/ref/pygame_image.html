@@ -131,6 +131,10 @@ If pygame was installed without SDL_image support, the load
 will only work with BMP images. You can test if SDL_image is
 available with the <a href=#get_extended>get_extended()</a> function. These extended
 file formats usually include GIF, PNG, JPG, PCX, TGA, and more.
+<br>&nbsp;<br>
+If the image format supports colorkeys and pixel alphas, the
+load() function will properly load and configure these types
+of transparency.
 </ul><br>&nbsp;<br>
 
 <a name=save><font size=+2><b>save
