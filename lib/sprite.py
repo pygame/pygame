@@ -530,7 +530,11 @@ class RenderUpdates(RenderClear):
             if r is 0:
                 dirty_append(newrect)
             else:
-                dirty_append(newrect.union(r))
+                if newrect.colliderect(r):
+                    dirty_append(newrect.union(r))
+                else:
+                    dirty_append(newrect)
+                    dirty_append(r)
             spritedict[s] = newrect
         return dirty
 
