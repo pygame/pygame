@@ -983,6 +983,97 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 }
 
 
+/*this internal blit function is accessable through the C api*/
+int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Rect *srcrect)
+{
+    SDL_Surface *src = PySurface_AsSurface(srcobj);
+    SDL_Surface *dst = PySurface_AsSurface(dstobj);
+    SDL_Surface *subsurface = NULL;
+    int dx, dy, result, suboffsetx, suboffsety;
+    SDL_Rect orig_clip, sub_clip;
+    short sx, sy;
+    int didconvert = 0;
+
+    /*passthrough blits to the real surface*/
+    if(((PySurfaceObject*)dstobj)->subsurface)
+    {
+	    PyObject *owner;
+	    struct SubSurface_Data *subdata;
+
+	    subdata = ((PySurfaceObject*)dstobj)->subsurface;
+	    owner = subdata->owner;
+            subsurface = PySurface_AsSurface(owner);
+	    suboffsetx = subdata->offsetx;
+	    suboffsety = subdata->offsety;
+
+	    while(((PySurfaceObject*)owner)->subsurface)
+	    {
+		subdata = ((PySurfaceObject*)owner)->subsurface;
+    		owner = subdata->owner;
+	        subsurface = PySurface_AsSurface(owner);
+	    	suboffsetx += subdata->offsetx;
+    	    	suboffsety += subdata->offsety;
+	    }
+
+	    SDL_GetClipRect(subsurface, &orig_clip);
+	    SDL_GetClipRect(dst, &sub_clip);
+	    sub_clip.x += suboffsetx;
+	    sub_clip.y += suboffsety;
+	    SDL_SetClipRect(subsurface, &sub_clip);
+	    dstrect->x += suboffsetx;
+	    dstrect->y += suboffsety;
+	    dst = subsurface;
+    }
+    else
+    {
+	    PySurface_Prep(dstobj);
+	    subsurface = NULL;
+    }
+
+    PySurface_Prep(srcobj);
+/*    Py_BEGIN_ALLOW_THREADS */
+
+    /*can't blit alpha to 8bit, crashes SDL*/
+    if(dst->format->BytesPerPixel==1 && (src->format->Amask || src->flags&SDL_SRCALPHA))
+    {
+	    didconvert = 1;
+	    src = SDL_DisplayFormat(src);
+    }
+
+    /*see if we should handle alpha ourselves*/
+    if(dst->format->Amask && dst->flags&SDL_SRCALPHA &&
+                (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel==4))
+    {
+        result = pygame_AlphaBlit(src, srcrect, dst, dstrect);
+    }
+    else
+    {
+        result = SDL_BlitSurface(src, srcrect, dst, dstrect);
+    }
+
+    if(didconvert)
+	    SDL_FreeSurface(src);
+
+/*    Py_END_ALLOW_THREADS */
+    if(subsurface)
+    {
+	    SDL_SetClipRect(subsurface, &orig_clip);
+	    dstrect->x -= suboffsetx;
+	    dstrect->y -= suboffsety;
+    }
+    else
+	PySurface_Unprep(dstobj);
+    PySurface_Unprep(srcobj);
+
+    if(result == -1)
+	    RAISE(PyExc_SDLError, SDL_GetError());
+    if(result == -2)
+	    RAISE(PyExc_SDLError, "Surface was lost");
+
+    return result != 0;
+}
+
+
 
 
     /*DOC*/ static char doc_surf_blit[] =
@@ -1061,7 +1152,14 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	dest_rect.y = (short)dy;
 	dest_rect.w = (unsigned short)src_rect->w;
 	dest_rect.h = (unsigned short)src_rect->h;
-
+#if 1
+	
+	result = PySurface_Blit(self, srcobject, &dest_rect, (SDL_Rect*)src_rect);
+	if(result != 0)
+	    return NULL;
+	
+#else
+	
 	/*passthrough blits to the real surface*/
 	if(((PySurfaceObject*)self)->subsurface)
 	{
@@ -1138,7 +1236,7 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 	if(result == -2)
 		return RAISE(PyExc_SDLError, "Surface was lost");
-
+#endif
 	return PyRect_New((GAME_Rect*)&dest_rect);
 }
 
@@ -1872,6 +1970,7 @@ void initsurface(void)
 	/* export the c api */
 	c_api[0] = &PySurface_Type;
 	c_api[1] = PySurface_New;
+	c_api[2] = PySurface_Blit;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
@@ -1891,7 +1990,7 @@ void initsurface(void)
 			for(i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i)
 				PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i];
 		}
+		Py_DECREF(lockmodule);
 	}
-	Py_XDECREF(lockmodule);
 }
 

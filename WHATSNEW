@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 2, 2002
+	experimental pygame.draw.tilerow()
+
 November 14, 2002
 	fix unicode bugs in Font (thanks, hcyun)
 
