@@ -946,7 +946,7 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 
     /*DOC*/ static char doc_surf_get_flags[] =
     /*DOC*/    "Surface.get_flags() -> flags\n"
-    /*DOC*/    "query the surface width\n"
+    /*DOC*/    "query the surface flags\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the current state flags for the surface.\n"
     /*DOC*/ ;
