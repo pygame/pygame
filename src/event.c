@@ -60,7 +60,7 @@ static char* name_from_eventtype(int type)
 	if(type >= SDL_USEREVENT && type < SDL_NUMEVENTS)
 		return "UserEvent";
 
-	return "Unkown";
+	return "Unknown";
 }
 
 

@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+May 10, 2001
+	8bit subsurfaces inherit their parents colormap
+	blit keeps SDL from crashing with alpha onto 8bit
+
 Apr 30, 2001
 	loading Sounds from python objects now works [BUG]
 	loading from python objects now thread safe [BUG]

@@ -902,6 +902,11 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
     /*DOC*/    "rectangle. If a rectangle is given, the blit will use the topleft\n"
     /*DOC*/    "corner of the rectangle as the blit destination position. The\n"
     /*DOC*/    "rectangle sizes will be ignored.\n"
+#if 0  /* "" */
+    /*DOC*/    "\n"
+    /*DOC*/    "Note that blitting alpha surfaces onto an 8bit destination will\n"
+    /*DOC*/    "crash SDL. Pygame will disable the alpha when these blits are attempted.\n"
+#endif /* "" */
     /*DOC*/ ;
 
 static PyObject* surf_blit(PyObject* self, PyObject* args)
@@ -912,6 +917,7 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	int dx, dy, result;
 	SDL_Rect dest_rect;
 	short sx, sy;
+	int didconvert;
 
 	VIDEO_INIT_CHECK();
 
@@ -956,7 +962,15 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	PySurface_Prep(self);
 	PySurface_Prep(srcobject);
 	Py_BEGIN_ALLOW_THREADS
+	/*can't blit alpha to 8bit, crashes SDL*/
+	if(dest->format->BytesPerPixel==1 && (src->format->Amask || src->flags&SDL_SRCALPHA))
+	{
+		didconvert = 1;
+		src = SDL_DisplayFormat(src);
+	}
 	result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
+	if(didconvert)
+		SDL_FreeSurface(src);
 	Py_END_ALLOW_THREADS
 	PySurface_Unprep(self);
 	PySurface_Unprep(srcobject);
@@ -1245,9 +1259,14 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 				surf->pitch, format->Rmask, format->Gmask, format->Bmask, format->Amask);
 
 	PySurface_Unlock(self);
-		
+
 	if(!sub)
 		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	/*copy the colormap if we need it*/
+	if(surf->format->BytesPerPixel == 1 && surf->format->palette)
+		SDL_SetPalette(sub, SDL_LOGPAL, surf->format->palette->colors, 0, surf->format->palette->ncolors);
+
 
 	data = PyMem_New(struct SubSurface_Data, 1);
 	if(!data) return NULL;
@@ -1263,6 +1282,8 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	data->owner = self;
 	data->pixeloffset = pixeloffset;
 	((PySurfaceObject*)subobj)->subsurface = data;
+
+
 
 	return subobj;
 }
