@@ -199,6 +199,10 @@ which can be set to any dummy value.
        collision detection between sprite and group</td></tr>
 
 
+<tr><td><a href=#spritecollideany>spritecollideany</a></td><td> -
+       finds any sprites that collide</td></tr>
+
+
 </table>
 
 <hr>
@@ -452,6 +456,25 @@ pygame.sprite.spritecollide(sprite, group, dokill) -> list
        given a sprite and a group of sprites, this will
        return a list of all the sprites that intersect
        the given sprite.
+       all sprites must have a "rect" method, which is a
+       rectangle of the sprite area. if the dokill argument
+       is true, the sprites that do collide will be
+       automatically removed from all groups.
+</ul><br>&nbsp;<br>
+
+<a name=spritecollideany><font size=+2><b>spritecollideany
+</b></font><br><font size=+1><tt>
+pygame.sprite.spritecollideany(sprite, group) -> sprite
+</tt></font><ul>
+       given a sprite and a group of sprites, this will
+       return return any single sprite that collides with
+       with the given sprite. If there are no collisions
+       this returns None.
+       
+       if you don't need all the features of the
+       spritecollide function, this function will be a
+       bit quicker.
+       
        all sprites must have a "rect" method, which is a
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
