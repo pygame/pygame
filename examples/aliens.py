@@ -43,8 +43,8 @@ BOUNCEWIDTH    = PLAYER_SPEED * 4
 DIFFICULTY     = 8
 BOMB_ODDS      = 130
 DANGER         = 10
-SORRYSCORE     = 20
-GOODSCORE      = 60
+SORRYSCORE     = 18
+GOODSCORE      = 50
 
 #some globals for friendly access
 dirtyrects = [] # list of update_rects
