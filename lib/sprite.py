@@ -214,8 +214,14 @@ class Group(object):
            Returns an object that can be looped over with
            a 'for' loop. (For now it is always a list, but
            newer version of python could return different
-           objects, like iterators.)"""
+           objects, like iterators.)
+
+           Group is now a python iterator itself, easier to
+           loop over sprites like that."""
         return self.spritedict.keys()
+
+    def __iter__(self):
+        return iter(self.spritedict.iterkeys())
 
     def add(self, sprite):
         """add(sprite)
@@ -366,6 +372,12 @@ class GroupSingle(object):
         if self.sprite is not 0:
             return [self.sprite]
         return []
+
+    def __iter__(self):
+        if self.sprite:
+            return iter((self.sprite,))
+        else:
+            return iter(())
 
     def add(self, sprite):
         if hasattr(sprite, '_spritegroup'):
@@ -558,12 +570,12 @@ def spritecollide(sprite, group, dokill):
     crashed = []
     spritecollide = sprite.rect.colliderect
     if dokill:
-        for s in group.sprites():
+        for s in group:
             if spritecollide(s.rect):
                 s.kill()
                 crashed.append(s)
     else:
-        for s in group.sprites():
+        for s in group:
             if spritecollide(s.rect):
                 crashed.append(s)
     return crashed
@@ -584,13 +596,13 @@ def groupcollide(groupa, groupb, dokilla, dokillb):
     crashed = {}
     SC = spritecollide
     if dokilla:
-        for s in groupa.sprites():
+        for s in groupa:
             c = SC(s, groupb, dokillb)
             if c:
                 crashed[s] = c
                 s.kill()
     else:
-        for s in groupa.sprites():
+        for s in groupa:
             c = SC(s, groupb, dokillb)
             if c:
                 crashed[s] = c
@@ -613,7 +625,7 @@ def spritecollideany(sprite, group):
        all sprites must have a "rect" value, which is a
        rectangle of the sprite area."""
     spritecollide = sprite.rect.colliderect
-    for s in group.sprites():
+    for s in group:
         if spritecollide(s.rect):
             return s
     return None

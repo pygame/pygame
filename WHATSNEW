@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 25, 2003
+    sprite groups are now iterators
+    SysFont better unix parsing
+
 November 18, 2003
     Remove legacy python code. Ver 2.2 is minimum
 
