@@ -92,19 +92,6 @@ they want add and remove themselves from containers. The
 containers must also have a member named "_spritegroup",
 which can be set to any dummy value.
 <br>&nbsp;<br>
-The term "sprite" is a holdover from older computer and
-game machines. These older boxes were unable to draw
-and erase normal graphics fast enough for them to work
-as games. These machines had special hardware to handle
-game like objects that needed to animate very quickly.
-These objects were called 'sprites' and had special
-limitations, but could be drawn and updated very fast.
-They usually existed in special overlay buffers in the
-video. These days computers have become generally fast
-enough to handle sprite like objects without dedicated
-hardware. The term sprite is still used to represent
-just about anything in a 2D game that is animated.
-<br>&nbsp;<br>
 
 <hr>
 
@@ -137,12 +124,12 @@ just about anything in a 2D game that is animated.
            ask if group has sprite</td></tr>
 
 
-<tr><td><a href=#Group.loop>Group.loop</a></td><td> -
-           return an object to loop each sprite</td></tr>
-
-
 <tr><td><a href=#Group.remove>Group.remove</a></td><td> -
            remove sprite from group</td></tr>
+
+
+<tr><td><a href=#Group.sprites>Group.sprites</a></td><td> -
+           return an object to loop over each sprite</td></tr>
 
 
 <tr><td><a href=#Group.update>Group.update</a></td><td> -
@@ -205,12 +192,12 @@ just about anything in a 2D game that is animated.
            remove a sprite from container</td></tr>
 
 
+<tr><td><a href=#groupcollide>groupcollide</a></td><td> -
+       collision detection between group and group</td></tr>
+
+
 <tr><td><a href=#spritecollide>spritecollide</a></td><td> -
        collision detection between sprite and group</td></tr>
-
-
-<tr><td><a href=#spritecollide>spritecollide</a></td><td> -
-       collision detection between group and group</td></tr>
 
 
 </table>
@@ -277,21 +264,21 @@ pygame.sprite.Group.has(sprite) -> bool
            contained in the group
 </ul><br>&nbsp;<br>
 
-<a name=Group.loop><font size=+2><b>Group.loop
-</b></font><br><font size=+1><tt>
-pygame.sprite.Group.loop() -> iterator
-</tt></font><ul>
-           Returns an object that can be looped over with
-           a 'for' loop. (For now it is always a list, but
-           newer version of python could return different
-           objects, like iterators.)
-</ul><br>&nbsp;<br>
-
 <a name=Group.remove><font size=+2><b>Group.remove
 </b></font><br><font size=+1><tt>
 pygame.sprite.Group.remove(sprite)
 </tt></font><ul>
            Remove a sprite or sequence of sprites from a group.
+</ul><br>&nbsp;<br>
+
+<a name=Group.sprites><font size=+2><b>Group.sprites
+</b></font><br><font size=+1><tt>
+pygame.sprite.Group.sprites() -> iterator
+</tt></font><ul>
+           Returns an object that can be looped over with
+           a 'for' loop. (For now it is always a list, but
+           newer version of python could return different
+           objects, like iterators.)
 </ul><br>&nbsp;<br>
 
 <a name=Group.update><font size=+2><b>Group.update
@@ -445,21 +432,9 @@ pygame.sprite.Sprite.remove(group)
            Remove the sprite from a group or sequence of groups.
 </ul><br>&nbsp;<br>
 
-<a name=spritecollide><font size=+2><b>spritecollide
+<a name=groupcollide><font size=+2><b>groupcollide
 </b></font><br><font size=+1><tt>
-pygame.sprite.spritecollide(sprite, group, dokill)
-</tt></font><ul>
-       given a sprite and a group of sprites, this will
-       return a list of all the sprites that intersect.
-       all sprites must have a "rect" method, which is a
-       rectangle of the sprite area. if the dokill argument
-       is true, the sprites that do collide will be
-       automatically removed from all groups.
-</ul><br>&nbsp;<br>
-
-<a name=spritecollide><font size=+2><b>spritecollide
-</b></font><br><font size=+1><tt>
-pygame.sprite.spritecollide(sprite, group, dokill)
+pygame.sprite.groupcollide(sprite, group, dokill) -> dict
 </tt></font><ul>
        given two groups, this will find the intersections
        between all sprites in each group. it returns a
@@ -469,6 +444,18 @@ pygame.sprite.spritecollide(sprite, group, dokill)
        collides with. the two dokill arguments control if
        the sprites from either group will be automatically
        removed from all groups.
+</ul><br>&nbsp;<br>
+
+<a name=spritecollide><font size=+2><b>spritecollide
+</b></font><br><font size=+1><tt>
+pygame.sprite.spritecollide(sprite, group, dokill) -> list
+</tt></font><ul>
+       given a sprite and a group of sprites, this will
+       return a list of all the sprites that intersect.
+       all sprites must have a "rect" method, which is a
+       rectangle of the sprite area. if the dokill argument
+       is true, the sprites that do collide will be
+       automatically removed from all groups.
 </ul><br>&nbsp;<br>
 
 

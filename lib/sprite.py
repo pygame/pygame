@@ -59,19 +59,6 @@ can be any python object that has "add_internal" and
 they want add and remove themselves from containers. The
 containers must also have a member named "_spritegroup",
 which can be set to any dummy value.
-
-The term "sprite" is a holdover from older computer and
-game machines. These older boxes were unable to draw
-and erase normal graphics fast enough for them to work
-as games. These machines had special hardware to handle
-game like objects that needed to animate very quickly.
-These objects were called 'sprites' and had special
-limitations, but could be drawn and updated very fast.
-They usually existed in special overlay buffers in the
-video. These days computers have become generally fast
-enough to handle sprite like objects without dedicated
-hardware. The term sprite is still used to represent
-just about anything in a 2D game that is animated.
 """
 
 ##todo
@@ -206,9 +193,9 @@ class Group:
            Returns a copy of the group that is the same class
            type, and has the same contained sprites."""
         return self.__class__(self.spritedict.keys())
-    def loop(self):
-        """loop() -> iterator
-           return an object to loop each sprite
+    def sprites(self):
+        """sprites() -> iterator
+           return an object to loop over each sprite
 
            Returns an object that can be looped over with
            a 'for' loop. (For now it is always a list, but
@@ -326,7 +313,7 @@ class GroupSingle:
             return GroupSingle(self.sprite)
         return GroupSingle()
 
-    def loop(self):
+    def sprites(self):
         return [self.sprite]
 
     def add(self, sprite):
@@ -481,7 +468,7 @@ class RenderUpdates(RenderClear):
         return dirty
 
 def spritecollide(sprite, group, dokill):
-    """pygame.sprite.spritecollide(sprite, group, dokill)
+    """pygame.sprite.spritecollide(sprite, group, dokill) -> list
        collision detection between sprite and group
 
        given a sprite and a group of sprites, this will
@@ -492,16 +479,15 @@ def spritecollide(sprite, group, dokill):
        automatically removed from all groups."""
     spritecollide = sprite.rect.colliderect
     crashed = []
-    for s in group.loop():
+    for s in group.sprites():
         if spritecollide(s.rect):
-            if dokill:
-                s.kill()
+            if dokill: s.kill()
             crashed.append(s)
     return crashed
 
 
 def groupcollide(groupa, groupb, dokilla, dokillb):
-    """pygame.sprite.spritecollide(sprite, group, dokill)
+    """pygame.sprite.groupcollide(sprite, group, dokill) -> dict
        collision detection between group and group
 
        given two groups, this will find the intersections
@@ -513,11 +499,10 @@ def groupcollide(groupa, groupb, dokilla, dokillb):
        the sprites from either group will be automatically
        removed from all groups."""
     crashed = {}
-    for s in groupa.loop():
+    for s in groupa.sprites():
         c = spritecollide(s, groupb, dokillb)
         if c:
             crashed[s] = c
-            if dokilla:
-                s.kill()
+            if dokilla: s.kill()
     return crashed
 

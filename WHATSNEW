@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 15, 2001
+	small changes to sprite before release
+
 December 2, 2001
 	small protection for display Surfaces after display.quit()
 
