@@ -949,9 +949,10 @@ static PyObject* Sound(PyObject* self, PyObject* arg)
 		return NULL;
 
 	MIXER_INIT_CHECK();
-	if(PyString_Check(file))
+	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
-		name = PyString_AsString(file);
+		if(!PyArg_ParseTuple(arg, "s", &name))
+			return NULL;
 		Py_BEGIN_ALLOW_THREADS
 		chunk = Mix_LoadWAV(name);
 		Py_END_ALLOW_THREADS

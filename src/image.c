@@ -61,9 +61,10 @@ static PyObject* image_load_basic(PyObject* self, PyObject* arg)
 
 	VIDEO_INIT_CHECK();
 
-	if(PyString_Check(file))
+	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
-		name = PyString_AsString(file);
+		if(!PyArg_ParseTuple(arg, "s|O", &name, &file))
+			return NULL;
 		Py_BEGIN_ALLOW_THREADS
 		surf = SDL_LoadBMP(name);
 		Py_END_ALLOW_THREADS
@@ -174,9 +175,11 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 	else
 		PySurface_Prep(surfobj);
 
-	if(PyString_Check(file))
+	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
-		char* name = PyString_AsString(file);
+		char* name;
+		if(!PyArg_ParseTuple(arg, "s|O", &name, &file))
+			return NULL;
 		Py_BEGIN_ALLOW_THREADS
 		result = SDL_SaveBMP(surf, name);
 		Py_END_ALLOW_THREADS
