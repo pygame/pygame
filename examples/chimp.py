@@ -9,18 +9,11 @@ follow along in the tutorial.
 
 #Import Modules
 import os, sys
-import pygame, pygame.sprite, pygame.transform, pygame.image
+import pygame
 from pygame.locals import *
-try:
-    import pygame.font
-except ImportError:
-    print 'Warning, fonts disabled'
-    pygame.font = None
-try:
-    import pygame.mixer
-except ImportError:
-    print 'Warning, sound disabled'
-    pygame.mixer = None
+
+if not pygame.font: print 'Warning, fonts disabled'
+if not pygame.mixer: print 'Warning, sound disabled'
 
 
 #functions to create our resources

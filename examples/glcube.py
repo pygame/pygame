@@ -103,7 +103,7 @@ def main():
 
         drawcube()
         pygame.display.flip()
-        pygame.time.delay(10)
+        pygame.time.wait(10)
 
 
 if __name__ == '__main__': main()

@@ -64,7 +64,6 @@
 
 
 /* older python compatability */
-
 #if PYTHON_API_VERSION < 1009
 #define PyObject_DEL(op)		free(op)
 #define PyMem_New(type, n)  	((type*)PyMem_Malloc((n) * sizeof(type)))

@@ -6,8 +6,7 @@ it makes a great example for basic window, event, and
 font management."""
 
 
-import pygame, pygame.font, os.path
-import pygame.cursors
+import pygame
 from pygame.locals import *
 
 

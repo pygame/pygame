@@ -12,9 +12,7 @@ mixer = pygame.mixer
 time = pygame.time
 
 #choose a desired audio format
-mixer.init(11025)
-if not mixer.get_init():
-    raise SystemExit, 'Cannot Initialize Mixer'
+mixer.init(11025) #raises exception on fail
 
 
 #load the sound    
@@ -30,7 +28,7 @@ channel = sound.play()
 #poll until finished
 while channel.get_busy(): #still playing
     print '  ...still going...'
-    time.delay(1000)
+    time.wait(1000)
 print '...Finished'
 
 

@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 5, 2001
+        new and upgraded importing [BREAK?]
+        fixed numberhandling in set_alpha and set_colorkey
+
 January 2, 2001
 	Group add/remove methods work
 

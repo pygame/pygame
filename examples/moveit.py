@@ -12,7 +12,7 @@ error codes.
 
 
 #import everything
-import os, pygame, pygame.image
+import os, pygame
 from pygame.locals import *
 
 #our game object class

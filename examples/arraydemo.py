@@ -1,18 +1,17 @@
 import os
 try:
     import pygame
-    import pygame.image
     import Numeric as N
-    import pygame.surfarray as surfarray
     from pygame.locals import *
+    surfarray = pygame.surfarray
+    if not surfarray: raise ImportError
 except ImportError:
-    raise ImportError, 'Error Importing Pygame/surfarray/image or Numeric'
+    raise ImportError, 'Error Importing Pygame/surfarray or Numeric'
 
 
 pygame.init()
 print 'Press the mouse button to advance image.'
 print 'Press the "s" key to save the current image.'
-
 
 
 def surfdemo_show(array_img, name):

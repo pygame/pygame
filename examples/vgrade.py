@@ -26,7 +26,6 @@ from pygame.locals import *
 try:
     from Numeric import *
     from RandomArray import *
-    import pygame.surfarray
 except ImportError:
     raise SystemExit, 'This example requires Numeric and the pygame surfarray module'
 

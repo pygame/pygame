@@ -3,20 +3,12 @@
 import random, os.path, sys
 
 #import basic pygame modules
-import pygame, pygame.image, pygame.transform, pygame.sprite
+import pygame
 from pygame.locals import *
 
 #see if we can load more than standard BMP
 if not pygame.image.get_extended():
     raise SystemExit, "Sorry, extended image module required"
-
-
-#try importing pygame optional modules
-try:
-    import pygame.mixer
-except ImportError:
-    print 'Warning, no sound'
-    pygame.mixer = None
 
 
 #game constants
@@ -186,7 +178,7 @@ def main(winstyle = 0):
     Player.images = [img, pygame.transform.flip(img, 1, 0)]
     img = load_image('explosion1.gif')
     Explosion.images = [img, pygame.transform.flip(img, 1, 1)]
-    Alien.images = [load_images('alien1.gif', 'alien2.gif', 'alien3.gif')]
+    Alien.images = load_images('alien1.gif', 'alien2.gif', 'alien3.gif')
     Bomb.images = [load_image('bomb.gif')]
     Shot.images = [load_image('shot.gif')]
 
