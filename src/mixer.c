@@ -948,7 +948,6 @@ static PyObject* Sound(PyObject* self, PyObject* arg)
 		return NULL;
 
 	MIXER_INIT_CHECK();
-
 	if(PyString_Check(file))
 	{
 		name = PyString_AsString(file);
@@ -960,9 +959,14 @@ static PyObject* Sound(PyObject* self, PyObject* arg)
 	{
 		if(!(rw = RWopsFromPython(file)))
 			return NULL;
-		Py_BEGIN_ALLOW_THREADS
-		chunk = Mix_LoadWAV_RW(rw, 1);
-		Py_END_ALLOW_THREADS
+		if(RWopsCheckPython(rw))
+			chunk = Mix_LoadWAV_RW(rw, 1);
+		else
+		{
+			Py_BEGIN_ALLOW_THREADS
+			chunk = Mix_LoadWAV_RW(rw, 1);
+			Py_END_ALLOW_THREADS
+		}
 	}
 
 	if(!chunk)
@@ -971,6 +975,7 @@ static PyObject* Sound(PyObject* self, PyObject* arg)
 	final = PySound_New(chunk);
 	if(!final)
 		Mix_FreeChunk(chunk);
+
 	return final;
 }
 
@@ -1106,6 +1111,7 @@ void initmixer(void)
 
 	/*imported needed apis*/
 	import_pygame_base();
+	import_pygame_rwobject();
 
 	music = PyImport_ImportModule("pygame.mixer_music");
 	if(music) 

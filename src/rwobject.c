@@ -44,6 +44,7 @@ static int rw_close(SDL_RWops* context);
 
 
 
+
 static SDL_RWops* RWopsFromPython(PyObject* obj)
 {
 	SDL_RWops* rw;
@@ -105,6 +106,19 @@ static SDL_RWops* RWopsFromPython(PyObject* obj)
 	return rw;
 }
 
+
+static int RWopsCheckPython(SDL_RWops* rw)
+{
+	if(rw->close)
+		return rw->close == rw_close;
+	if(rw->read)
+		return rw->read == rw_read;
+	if(rw->write)
+		return rw->write == rw_write;
+	if(rw->seek)
+		return rw->seek == rw_seek;
+	return 0;
+}
 
 
 static int rw_seek(SDL_RWops* context, int offset, int whence)
@@ -228,6 +242,7 @@ void initrwobject(void)
 
 	/* export the c api */
 	c_api[0] = RWopsFromPython;
+	c_api[1] = RWopsCheckPython;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
