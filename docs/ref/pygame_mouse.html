@@ -35,9 +35,8 @@
 <a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mixer_music.html>mixer_music</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> ||<br>
-|| <a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
 
 
 </td></tr></table>
@@ -57,6 +56,10 @@ the edges of the screen.
 <hr>
 
 <table>
+<tr><td><a href=#get_cursor>get_cursor</a></td><td> -
+get mouse cursor data</td></tr>
+
+
 <tr><td><a href=#get_focused>get_focused</a></td><td> -
 state of mouse input focus</td></tr>
 
@@ -73,6 +76,10 @@ state of the mouse buttons</td></tr>
 gets the movement of the mouse</td></tr>
 
 
+<tr><td><a href=#set_cursor>set_cursor</a></td><td> -
+state of shape of the mouse cursor</td></tr>
+
+
 <tr><td><a href=#set_pos>set_pos</a></td><td> -
 moves the cursor position</td></tr>
 
@@ -84,6 +91,13 @@ show or hide the mouse cursor</td></tr>
 </table>
 
 <hr>
+
+<a name=get_cursor><font size=+2><b>get_cursor
+</b></font><br><font size=+1><tt>
+pygame.mouse.get_cursor() -> size, hotspot, xormasks, andmasks
+</tt></font><ul>
+The mouse cursor data is the same as those passed into set_cursor.
+</ul><br>&nbsp;<br>
 
 <a name=get_focused><font size=+2><b>get_focused
 </b></font><br><font size=+1><tt>
@@ -120,6 +134,22 @@ always be 0,0.
 When the mouse is at the edges of the screen, the relative
 movement will be stopped. See mouse_visible for a way to resolve
 this.
+</ul><br>&nbsp;<br>
+
+<a name=set_cursor><font size=+2><b>set_cursor
+</b></font><br><font size=+1><tt>
+pygame.mouse.set_cursor(size, hotspot, xormasks, andmasks) -> None
+</tt></font><ul>
+When the mouse cursor is visible, it will be displayed
+as a black and white bitmap using the given bitmask arrays.
+The size is a sequence containing the cursor with and height.
+Hotspot is a sequence containing the cursor hotspot position.
+xormasks is a sequence of bytes containing the cursor xor data
+masks. Lastly is andmasks, a sequence of bytes containting the
+cursor bitmask data.
+<br>&nbsp;<br>
+Width must be a multiple of 8, and the mask arrays must be the
+correct size for the given width and height. Otherwise an exception.
 </ul><br>&nbsp;<br>
 
 <a name=set_pos><font size=+2><b>set_pos

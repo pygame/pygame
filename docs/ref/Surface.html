@@ -35,9 +35,8 @@
 <a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mixer_music.html>mixer_music</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> ||<br>
-|| <a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
 
 
 </td></tr></table>
@@ -141,6 +140,10 @@ query the clipping area</td></tr>
 query colorkey</td></tr>
 
 
+<tr><td><a href=#get_flags>get_flags</a></td><td> -
+query the surface width</td></tr>
+
+
 <tr><td><a href=#get_height>get_height</a></td><td> -
 query the surface height</td></tr>
 
@@ -159,6 +162,10 @@ get the palette</td></tr>
 
 <tr><td><a href=#get_palette_at>get_palette_at</a></td><td> -
 get a palette entry</td></tr>
+
+
+<tr><td><a href=#get_pitch>get_pitch</a></td><td> -
+query the surface pitch</td></tr>
 
 
 <tr><td><a href=#get_rect>get_rect</a></td><td> -
@@ -235,16 +242,16 @@ convert mapped color into RGBA</td></tr>
 
 <a name=blit><font size=+2><b>blit
 </b></font><br><font size=+1><tt>
-Surface.blit(source, destoffset, [srcoffset, [size]]) -> Rect
+Surface.blit(source, destoffset, [sourcerect]) -> Rect
 </tt></font><ul>
 The blitting will transfer one surface to another. It will
 respect any special modes like colorkeying and alpha. If hardware
 support is available, it will be used. The given source is the
 Surface to copy from. The destoffset is a 2-number-sequence that
 specifies where on the destination Surface the blit happens.
-Without srcoffset and size supplied, the blit will copy the
+When sourcerect isn't supplied, the blit will copy the
 entire source surface. If you would like to copy only a portion
-of the source, use the srcoffset and size arguements to control
+of the source, use the sourcerect argument to control
 what area is copied.
 <br>&nbsp;<br>
 The blit is subject to be clipped by the active clipping
@@ -340,6 +347,13 @@ colorkeying. If colorkeying is not enabled for this surface, it
 returns None
 </ul><br>&nbsp;<br>
 
+<a name=get_flags><font size=+2><b>get_flags
+</b></font><br><font size=+1><tt>
+Surface.get_flags() -> flags
+</tt></font><ul>
+Returns the current state flags for the surface.
+</ul><br>&nbsp;<br>
+
 <a name=get_height><font size=+2><b>get_height
 </b></font><br><font size=+1><tt>
 Surface.get_height() -> height
@@ -380,6 +394,15 @@ Surface.get_palette_at(index) -> r, g, b
 </tt></font><ul>
 This will retreive an individual color entry from the Surface's
 palette.
+</ul><br>&nbsp;<br>
+
+<a name=get_pitch><font size=+2><b>get_pitch
+</b></font><br><font size=+1><tt>
+Surface.get_pitch() -> pitch
+</tt></font><ul>
+The surface pitch is the number of bytes used in each
+scanline. This function should rarely needed, mainly for
+any special-case debugging.
 </ul><br>&nbsp;<br>
 
 <a name=get_rect><font size=+2><b>get_rect

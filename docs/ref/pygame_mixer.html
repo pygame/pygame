@@ -35,9 +35,8 @@
 <a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mixer_music.html>mixer_music</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> ||<br>
-|| <a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
 
 
 </td></tr></table>
@@ -63,12 +62,19 @@ simultaneously. If you desire more specific control over the
 Sound objects, you can access the Channel objects with functions
 like pygame.mixer.get_channel().
 <br>&nbsp;<br>
+The mixer defaults to supporting 8 simultaneous soundfiles.
+You can change the number of available sound channels at any
+time with the set_num_channels() function.
+<br>&nbsp;<br>
 All loaded Sound objects are resampled to match the same format
 that pygame.mixer is initialized to. The current SDL resampling
 functions are not that good, so it is best if you initialize
 pygame.mixer to the same format as your sound resources. Also
 setting the mixer frequency to even multiples of your sound
 resources will result in a clean conversion.
+<br>&nbsp;<br>
+The mixer also contains a special channel for music. You can
+control the music channel through pygame.mixer.music./
 
 <hr>
 
