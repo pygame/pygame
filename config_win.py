@@ -3,15 +3,12 @@
 import os, sys, shutil
 from glob import glob
 
-huntpaths = ['..', '..'+os.sep+'..', '..'+os.sep+'*', \
-             '..'+os.sep+'..'+os.sep+'*']
+huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
 
 class Dependency:
     inc_hunt = ['include']
-    lib_hunt = [os.path.join('VisualC', 'SDL', 'Release'),
-                os.path.join('VisualC', 'Release'),
-                'Release', 'lib']
+    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
     def __init__(self, name, wildcard, lib, required = 0):
         self.name = name
         self.wildcard = wildcard
@@ -21,8 +18,8 @@ class Dependency:
         self.inc_dir = None
         self.lib_dir = None
         self.lib = lib
-        self.varname = '$('+name+')'
-        self.line = ""
+        self.found = 0
+        self.cflags = ''
                  
     def hunt(self):
         parent = os.path.abspath('..')
@@ -64,89 +61,41 @@ class Dependency:
         self.hunt()
         self.choosepath()
         if self.path:
+            self.found = 1
             self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt)
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
 
-    def buildline(self, basepath):
-        inc = lid = lib = " "
-        if basepath:
-            if self.inc_dir: inc = ' -I$(BASE)'+self.inc_dir[len(basepath):]
-            if self.lib_dir: lid = ' -L$(BASE)'+self.lib_dir[len(basepath):]
-        else:
-            if self.inc_dir: inc = ' -I' + self.inc_dir
-            if self.lib_dir: lid = ' -L' + self.lib_dir
-        if self.lib: lib = ' -l'+self.lib
-        self.line = self.name+' =' + inc + lid + lib
-            
-        
 
-DEPS = (
+
+
+DEPS = [
     Dependency('SDL', 'SDL-[0-9].*', 'SDL', 1),
     Dependency('FONT', 'SDL_ttf-[0-9].*', 'SDL_ttf'),
     Dependency('IMAGE', 'SDL_image-[0-9].*', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer-[0-9].*', 'SDL_mixer'),
 #copy only dependencies
     Dependency('SMPEG', 'smpeg-[0-9].*', 'smpeg')
-)
+]
 
 
-
-
-    
-
-def writesetupfile(DEPS, basepath):
-    origsetup = open('Setup.in', 'r')
-    newsetup = open('Setup', 'w')
-    line = ''
-    while line.find('#--StartConfig') == -1:
-        newsetup.write(line)
-        line = origsetup.readline()
-    while line.find('#--EndConfig') == -1:
-        line = origsetup.readline()
-
-    if not DEPS[0].path: #fudge SDL if not found
-        DEPS[0].line = 'SDL = -I/pathto/SDL/include -L/pathto/SDL/lib -lSDL'
-        DEPS[0].path = 'xxxx'
-
-    if basepath:
-        newsetup.write('BASE=' + basepath + '\n')
-    for d in DEPS:
-        newsetup.write(d.line + '\n')
-
-    while line:
-        line = origsetup.readline()
-        useit = 1
-        for d in DEPS:
-            if line.find(d.varname)!=-1 and not d.path:
-                useit = 0
-                newsetup.write('#'+line)
-                break
-        if useit:          
-            newsetup.write(line)
     
 
 def main():
     global DEPS
 
-    allpaths = []
+    if os.path.isdir('prebuilt'):
+        import config
+        if config.confirm('Use the win32 prebuilt directory'):
+            shutil.copyfile('prebuilt\\Setup', 'Setup')
+            return None
+
     for d in DEPS:
         d.configure()
-        if d.path:
-            allpaths.append(d.inc_dir)
-            allpaths.append(d.lib_dir)
 
-    basepath = os.path.commonprefix(allpaths)
-    lastslash = basepath.rfind('/')
-    if(lastslash < 3 or len(basepath) < 3):
-        basepath = ""
-    else:
-        basepath = basepath[:lastslash]
+    return DEPS    
 
-    for d in DEPS:
-        d.buildline(basepath)
 
-    writesetupfile(DEPS, basepath)
-    
+
 
 if __name__ == '__main__':
     print """This is the configuration subscript for Windows.

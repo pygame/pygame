@@ -6,22 +6,40 @@ from glob import glob
 
 configcommand = 'sdl-config --version --cflags --libs'
 
-    
 
-def writesetupfile(flags):
-    origsetup = open('Setup.in', 'r')
-    newsetup = open('Setup', 'w')
-    while 1:
-        line = origsetup.readline()
-        if not line: break
-        if line.startswith('SDL = '):
-            line = 'SDL = ' + flags + '\n'
-        newsetup.write(line)
+class Dependency:
+    inc_hunt = ['include']
+    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
+    def __init__(self, name, checkhead, checklib, lib):
+        self.name = name
+        self.inc_dir = None
+        self.lib_dir = None
+        self.lib = lib
+        self.found = 0
+        self.checklib = checklib
+        self.checkhead = checkhead
+        self.cflags = ''
     
+    def configure(self, incdir, libdir):
+        inc = os.path.join(incdir, self.checkhead)
+        lib = os.path.join(libdir, self.checklib)
+        if os.path.isfile(inc) and glob(lib):
+            self.found = 1
+
+
+DEPS = [
+    Dependency('SDL', 'SDL.h', 'libSDL.so', '-lSDL'),
+    Dependency('FONT', 'SDL_ttf.h.h', 'libSDL_ttf.so', '-lSDL_ttf'),
+    Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', '-lSDL_image'),
+    Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', '-lSDL_mixer'),
+]
+
 
 def main():
-    configinfo = "-I/usr/include/SDL -D_REENTRANT -lSDL"
+    global DEPS
+    
     print 'calling "sdl-config"'
+    configinfo = "-I/usr/local/include/SDL -L/usr/local/lib -D_REENTRANT -lSDL"
     try:
         configinfo = os.popen(configcommand).readlines()
         print 'Found SDL version:', configinfo[0]
@@ -35,10 +53,23 @@ def main():
         raise SystemExit, """Cannot locate command, "sdl-config". Default SDL compile
 flags have been used, which will likely require a little editing."""
 
-    print '\n--Creating new "Setup" file...'
-    writesetupfile(configinfo)
-    print '--Finished'
+    print 'Hunting optional dependencies...'
+    incdir = libdir = ''
+    for arg in configinfo.split():
+        if arg.startswith('-I'):
+            incdir = arg[2:]
+        elif arg.startswith('-L'):
+            libdir = arg[2:]
+    #print 'INCDIR', incdir
+    #print 'LIBDIR', libdir
+    for d in DEPS:
+        d.configure(incdir, libdir)
 
+    d[0].inc_dir = None
+    d[0].lib_dir = None
+    d[0].cflags = configinfo
+
+    return DEPS
 
     
 if __name__ == '__main__':

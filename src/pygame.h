@@ -88,7 +88,7 @@
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
 #define PYGAMEAPI_BASE_NUMSLOTS 10
 #ifndef PYGAMEAPI_BASE_INTERNAL
-#define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 0])
+#define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 #define PyGame_RegisterQuit \
 			(*(void(*)(void(*)(void)))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 1])
 #define ShortFromObj \

@@ -772,6 +772,32 @@ static PyObject* toggle_fullscreen(PyObject* self, PyObject* arg)
 }
 
 
+PyObject* testgl1(PyObject* self, PyObject* arg)
+{
+	if(!PyArg_ParseTuple(arg, ""))
+		return NULL;
+	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
+	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
+	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
+	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
+	RETURN_NONE
+}
+
+PyObject* testgl2(PyObject* self, PyObject* arg)
+{
+	int r, g, b, d;
+	if(!PyArg_ParseTuple(arg, ""))
+		return NULL;
+	SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &r );
+	SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &g );
+	SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &b );
+	SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &d );
+
+	printf("R,G,B,D = %d,%d,%d, %d\n", r, g, b, d);
+
+	RETURN_NONE
+}
+
 
 static PyMethodDef display_builtins[] =
 {
@@ -801,6 +827,9 @@ static PyMethodDef display_builtins[] =
 	/*{ "set_icon", set_icon, 1, doc_set_icon }, need to wait for surface objects*/
 	{ "iconify", iconify, 1, doc_iconify },
 	{ "toggle_fullscreen", toggle_fullscreen, 1, doc_toggle_fullscreen },
+
+	{ "testgl1", testgl1, 1, NULL },
+	{ "testgl2", testgl2, 1, NULL },
 
 	{ NULL, NULL }
 };
