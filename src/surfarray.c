@@ -265,15 +265,13 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 
 PyObject* array3d(PyObject* self, PyObject* arg)
 {
-	int dim[3];
+	int dim[3], loopy;
 	Uint8* data;
 	PyObject* array;
 	SDL_Surface* surf;
-	SDL_Surface* temp;
 	SDL_PixelFormat* format;
-	SDL_Rect bounds;
-	Uint32 surface_flags, colorkey;
-	Uint8 alpha;
+	int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift;
+	int stridex, stridey, stridez;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -284,42 +282,67 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	dim[1] = surf->h;
 	dim[2] = 3;
 
-	if(format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for surface array");
 
 	array = PyArray_FromDims(3, dim, PyArray_UBYTE);
 	if(!array) return NULL;
 
+	stridex = ((PyArrayObject*)array)->strides[0];
+	stridey = ((PyArrayObject*)array)->strides[1];
+	stridez = ((PyArrayObject*)array)->strides[2];
+
 	data = (Uint8*)((PyArrayObject*)array)->data;
-	temp = SDL_CreateRGBSurfaceFrom(data, surf->w, surf->h, 24,
-				surf->w*3, 0xFF, 0xFF<<8, 0xFF<<16, 0);
-
-	/*stash original surface alpha states*/
-	surface_flags = surf->flags;
-	if ( (surface_flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY ) {
-		colorkey = format->colorkey;
-		SDL_SetColorKey(surf, 0, 0);
+	Rmask = format->Rmask; Gmask = format->Gmask; Bmask = format->Bmask;
+	Rshift = format->Rshift; Gshift = format->Gshift; Bshift = format->Bshift;
+	
+	switch(surf->format->BytesPerPixel)
+	{
+	case 1:
+		return RAISE(PyExc_ValueError, "colormaps unsupported");
+	case 2:
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			short* pix = (short*)(((char*)surf->pixels)+loopy*surf->pitch);
+			short* end = (short*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
+			while(pix < end)
+			{
+				short color = *pix++;
+				data[0] = (color&Rmask)>>Rshift;
+				data[1] = (color&Gmask)>>Gshift;
+				data[2] = (color&Bmask)>>Bshift;
+				data += stridez;
+			}
+		}break;
+	case 3:
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			char* pix = (char*)(((char*)surf->pixels)+loopy*surf->pitch);
+			char* end = (char*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
+			while(pix < end)
+			{
+				int color = (pix[0]) + (pix[1]<<8) + (pix[2]<<16); pix += 3;
+				*data++ = (color&Rmask)>>Rshift;
+				*data++ = (color&Gmask)>>Gshift;
+				*data++ = (color&Bmask)>>Bshift;
+			}
+		}break;
+	default: /*case 4*/
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			int* pix = (int*)(((char*)surf->pixels)+loopy*surf->pitch);
+			int* end = (int*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+				int color = *pix++;
+				data[0] = (color&Rmask)>>Rshift;
+				data[1] = (color&Gmask)>>Gshift;
+				data[2] = (color&Bmask)>>Bshift;
+				data += stridex;
+			}
+		}break;
 	}
-	if ( (surface_flags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
-		alpha = format->alpha;
-		SDL_SetAlpha(surf, 0, 0);
-	}
-
-	/* Copy over the image data */
-	bounds.x = 0;
-	bounds.y = 0;
-	bounds.w = surf->w;
-	bounds.h = surf->h;
-	SDL_LowerBlit(surf, &bounds, temp, &bounds);
-
-	/* Clean up the original surface, and update converted surface */
-	if((surface_flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY)
-		SDL_SetColorKey(surf, surface_flags&(SDL_SRCCOLORKEY|SDL_RLEACCELOK), 
-					colorkey);
-	if((surface_flags & SDL_SRCALPHA) == SDL_SRCALPHA)
-		SDL_SetAlpha(surf, surface_flags&SDL_SRCALPHA, alpha);
-
-	SDL_FreeSurface(temp);
 
 	return array;
 }
