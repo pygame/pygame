@@ -408,7 +408,6 @@ static int PyGame_Video_AutoInit(void)
 static void pygame_parachute(int sig)
 {
 	char* signaltype = "Unknown Signal";
-	PyThreadState *tstate;
 
 	signal(sig, SIG_DFL);
 	switch (sig)
