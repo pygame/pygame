@@ -91,8 +91,8 @@ void initconstants(void)
 	DEC_CONST(GL_MULTISAMPLEBUFFERS);
 	DEC_CONST(GL_MULTISAMPLESAMPLES);
 #else
-	PyModule_AddIntConstant(module, "GL_MULTISAMPLEBUFFERS", 0);
-	PyModule_AddIntConstant(module, "GL_MULTISAMPLESAMPLES", 0);
+	PyModule_AddIntConstant(module, "GL_MULTISAMPLEBUFFERS", -1);
+	PyModule_AddIntConstant(module, "GL_MULTISAMPLESAMPLES", -1);
 #endif
 
 	DEC_CONSTN(AUDIO_U8);

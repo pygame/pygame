@@ -400,12 +400,13 @@ static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
 	VIDEO_INIT_CHECK();
 
     	if(!PyArg_ParseTuple(arg, "ii", &flag, &value))
-
 		return NULL;
+        if(flag == -1) /*an undefined/unsupported val, ignore*/
+            RETURN_NONE
+
 	result = SDL_GL_SetAttribute(flag, value);
         if(result == -1)
             return RAISE(PyExc_SDLError, SDL_GetError());
-
         RETURN_NONE
 }
 
