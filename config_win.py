@@ -85,7 +85,7 @@ def setup_prebuilt():
         if line.startswith('SDL = '):
             line = 'SDL = -Iprebuilt/include -Lprebuilt/lib -lSDL\n'
         setup.write(line)
-
+    setup.write('COPYLIB_png $(SDL) -lzlib -llibpng1\n')
 
 
 def main():
