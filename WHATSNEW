@@ -25,7 +25,7 @@ December 2, 2001
 	small protection for display Surfaces after display.quit()
 
 December 1, 2001
-	made time.delay() more accurate
+	made time.delay() more accurate [BREAK]
 	created time.wait() to work like old delay()
 	added time.Clock objects for framerate tracking
 
