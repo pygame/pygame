@@ -709,9 +709,10 @@ static PyTypeObject PyFont_Type =
 	0,					/* tp_dictoffset */
 	(initproc)font_init,			/* tp_init */
 	0,					/* tp_alloc */
-	PyType_GenericNew,	                /* tp_new */
+	0,	                /* tp_new */
 };
 
+	//PyType_GenericNew,	                /* tp_new */
 
 
 /*font module methods*/
@@ -807,6 +808,9 @@ void initfont(void)
             return;
 
     /* create the module */
+        PyFont_Type.ob_type = &PyType_Type;
+        PyFont_Type.tp_new = &PyType_GenericNew;
+
 	module = Py_InitModule3("font", font_builtins, doc_pygame_font_MODULE);
 	self_module = module;
 
