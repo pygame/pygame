@@ -25,8 +25,6 @@
 #include<SDL_byteorder.h>
 
 
-#define TEMP_UNLOCK 	if(didlock) SDL_UnlockSurface(surf)
-
 
 
     /*DOC*/ static char doc_pixels3d[] =
@@ -57,6 +55,7 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 	char* startpixel;
 	int pixelstep;
 	const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
+	PyObject* lifelock;
 	
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -64,6 +63,9 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 
 	if(surf->format->BytesPerPixel <= 2 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for 3D reference array");
+
+	lifelock = PySurface_LockLifetime(array);
+	if(!lifelock) return NULL;
 
 	/*must discover information about how data is packed*/
 	if(surf->format->Rmask == 0xff<<16 && 
@@ -96,8 +98,7 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 		((PyArrayObject*)array)->strides[2] = pixelstep;
 		((PyArrayObject*)array)->strides[1] = surf->pitch;
 		((PyArrayObject*)array)->strides[0] = surf->format->BytesPerPixel;
-		((PyArrayObject*)array)->base = array;
-		Py_INCREF(array);
+		((PyArrayObject*)array)->base = lifelock;
 	}
 	return array;
 }
@@ -247,12 +248,7 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 	stridex = ((PyArrayObject*)array)->strides[0];
 	stridey = ((PyArrayObject*)array)->strides[1];
 
-	if(!surf->pixels)
-	{
-		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		didlock = 1;
-	}
+	if(!PySurface_Lock(array)) return NULL;
 
 	switch(surf->format->BytesPerPixel)
 	{
@@ -311,7 +307,7 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 		}break;
 	}
 
-	TEMP_UNLOCK;
+	if(!PySurface_Unlock(array)) return NULL;
 	return array;
 }
 
@@ -366,19 +362,14 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	stridex = ((PyArrayObject*)array)->strides[0];
 	stridey = ((PyArrayObject*)array)->strides[1];
 
-	if(!surf->pixels)
-	{
-		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		didlock = 1;
-	}
+	if(!PySurface_Lock(array)) return NULL;
 	
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
 		if(!format->palette)
 		{
-			TEMP_UNLOCK;
+			if(!PySurface_Unlock(array)) return NULL;
 			return RAISE(PyExc_RuntimeError, "8bit surface has no palette");
 		}
 		palette = format->palette->colors;
@@ -447,7 +438,7 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 		}break;
 	}
 
-	TEMP_UNLOCK;
+	if(!PySurface_Unlock(array)) return NULL;
 	return array;
 }
 
@@ -507,12 +498,7 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
 	stridex = ((PyArrayObject*)array)->strides[0];
 	stridey = ((PyArrayObject*)array)->strides[1];
 
-	if(!surf->pixels)
-	{
-		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		didlock = 1;
-	}
+	if(!PySurface_Lock(array)) return NULL;
 
 	switch(surf->format->BytesPerPixel)
 	{
@@ -562,7 +548,7 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
 		}break;
 	}
 
-	TEMP_UNLOCK;
+	if(!PySurface_Unlock(array)) return NULL;
 	return array;
 }
 
@@ -617,12 +603,8 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 	stridex = ((PyArrayObject*)array)->strides[0];
 	stridey = ((PyArrayObject*)array)->strides[1];
 
-	if(!surf->pixels)
-	{
-		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		didlock = 1;
-	}
+	if(!PySurface_Lock(array)) return NULL;
+
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
@@ -684,7 +666,7 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 		}break;
 	}
 
-	TEMP_UNLOCK;
+	if(!PySurface_Lock(array)) return NULL;
 	return array;
 }
 
@@ -935,13 +917,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 
 	if(sizex != surf->w || sizey != surf->h)
 		return RAISE(PyExc_ValueError, "array must match surface dimensions");
-
-	if(!surf->pixels)
-	{
-		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		didlock = 1;
-	}
+	if(!PySurface_Lock(surfobj)) return NULL;
 
 	switch(surf->format->BytesPerPixel)
 	{
@@ -952,7 +928,8 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint16): COPYMACRO_2D(Uint8, Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D(Uint8, Uint32)  break;
 				default: 
-					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					if(!PySurface_Unlock(surfobj)) return NULL;
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
@@ -963,7 +940,8 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint16): COPYMACRO_2D(Uint16, Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D(Uint16, Uint32)  break;
 				default: 
-					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					if(!PySurface_Unlock(surfobj)) return NULL;
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		} else {
 			switch(array->descr->elsize) {
@@ -971,7 +949,8 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint16):COPYMACRO_3D(Uint16, Uint16)  break;
 				case sizeof(Uint32):COPYMACRO_3D(Uint16, Uint32)  break;
 				default: 
-					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					if(!PySurface_Unlock(surfobj)) return NULL;
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
@@ -982,7 +961,8 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint16): COPYMACRO_2D_24(Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D_24(Uint32)  break;
 				default: 
-					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					if(!PySurface_Unlock(surfobj)) return NULL;
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		} else {
 			switch(array->descr->elsize) {
@@ -990,7 +970,8 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint16):COPYMACRO_3D_24(Uint16)  break;
 				case sizeof(Uint32):COPYMACRO_3D_24(Uint32)  break;
 				default: 
-					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					if(!PySurface_Unlock(surfobj)) return NULL;
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
@@ -1001,7 +982,8 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint16): COPYMACRO_2D(Uint32, Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D(Uint32, Uint32)  break;
 			default: 
-					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					if(!PySurface_Unlock(surfobj)) return NULL;
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		} else {
 			switch(array->descr->elsize) {
@@ -1009,15 +991,17 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint16):COPYMACRO_3D(Uint32, Uint16)  break;
 				case sizeof(Uint32):COPYMACRO_3D(Uint32, Uint32)  break;
 				default: 
-					TEMP_UNLOCK; return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+					if(!PySurface_Unlock(surfobj)) return NULL;
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
 			}
 		}
 		break;
 	default:
-		TEMP_UNLOCK; return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
+		if(!PySurface_Unlock(surfobj)) return NULL;
+		return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
 	}
 
-	TEMP_UNLOCK;
+	if(!PySurface_Unlock(surfobj)) return NULL;
 	RETURN_NONE
 }
 
@@ -1037,7 +1021,6 @@ static PyMethodDef surfarray_builtins[] =
 
 	{ NULL, NULL }
 };
-
 
 
 

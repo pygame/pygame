@@ -15,7 +15,6 @@ python libraries, here are some ideas
 
  * Support for OpenGL (initial testing not so good)
  * Support for Piddle (drawing lines, shapes, text)
- * Surfarray with alpha and colormap support
  * Interface with PIL images
  * GUI library. There's a few out there
  * Simple image transforms; flip, rotate-90, double

@@ -49,7 +49,6 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	int pts[4];
 	Uint8 rgba[4];
 	Uint32 color;
-	int didlock = 0;
 
 	/*get all the arguments*/
 	if(!PyArg_ParseTuple(arg, "O!OOO", &PySurface_Type, &surfobj, &colorobj, &start, &end))
@@ -76,21 +75,14 @@ static PyObject* line(PyObject* self, PyObject* arg)
 				surf->clip_rect.y + surf->clip_rect.h - 1))
 		return PyRect_New4(startx, starty, 0, 0);
 
-	if(!surf->pixels)
-	{
-		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		didlock = 1;
-	}
+	if(!PySurface_Lock(surfobj)) return NULL;
 
-	/*a nice help would be horizontal and vertical drawers too*/
 	if(pts[1] == pts[3])
 		drawhorzline(surf, color, pts[0], pts[1], pts[2], pts[3]);
 	else
 		drawline(surf, color, pts[0], pts[1], pts[2], pts[3]);
 
-	if(didlock)
-		SDL_UnlockSurface(surf);
+	if(!PySurface_Unlock(surfobj)) return NULL;
 
 	/*compute return rect*/
 	if(startx < endx)
