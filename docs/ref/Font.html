@@ -67,16 +67,16 @@ gets the font ascent</td></tr>
 status of the bold attribute</td></tr>
 
 
-<tr><td><a href=#get_bold>get_bold</a></td><td> -
-status of the italic attribute</td></tr>
-
-
 <tr><td><a href=#get_descent>get_descent</a></td><td> -
 gets the font descent</td></tr>
 
 
 <tr><td><a href=#get_height>get_height</a></td><td> -
 average height of font glyph</td></tr>
+
+
+<tr><td><a href=#get_italic>get_italic</a></td><td> -
+status of the italic attribute</td></tr>
 
 
 <tr><td><a href=#get_linesize>get_linesize</a></td><td> -
@@ -126,13 +126,6 @@ Font.get_bold() -> bool
 Get the current status of the font's bold attribute
 </ul><br>&nbsp;<br>
 
-<a name=get_bold><font size=+2><b>get_bold
-</b></font><br><font size=+1><tt>
-Font.get_bold() -> bool
-</tt></font><ul>
-Get the current status of the font's italic attribute
-</ul><br>&nbsp;<br>
-
 <a name=get_descent><font size=+2><b>get_descent
 </b></font><br><font size=+1><tt>
 Font.get_descent() -> int
@@ -146,6 +139,13 @@ pixels from the font baseline to the bottom of the font.
 Font.get_height() -> int
 </tt></font><ul>
 Returns the average size of each glyph in the font.
+</ul><br>&nbsp;<br>
+
+<a name=get_italic><font size=+2><b>get_italic
+</b></font><br><font size=+1><tt>
+Font.get_italic() -> bool
+</tt></font><ul>
+Get the current status of the font's italic attribute
 </ul><br>&nbsp;<br>
 
 <a name=get_linesize><font size=+2><b>get_linesize
