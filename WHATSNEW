@@ -2,9 +2,13 @@ This is a list of changes in pygame's history.
 
 
 Nov 15, 2000
- BREAK:	Moved pygame.music to a member of pygame.mixer
- BREAK:	Surface.blit takes a source rectangle instead of pos, size
- BUG:	pygame.display.set_clip() correctly accepts rectstyle arg
+	time.set_timer() now handles multiple timers
+	rect(), surface(), event() renamed to \
+		new_rect, new_surface(), new_event() [BREAK]
+	all new_XX() functions were added to pygame.locals
+	Moved pygame.music to a member of pygame.mixer [BREAK]
+	Surface.blit takes a source rectangle instead of pos, size [BREAK]
+ 	pygame.display.set_clip() correctly accepts rectstyle arg [BUG]
 	Added Surface.get_flags() and Surface.get_pitch()
 	Added set_cursor and get_cursor to pygame.mouse
 	New module, pygame.cursors, contains sample cursors
@@ -16,7 +20,7 @@ Nov 14, 2000
 	surfarray.blit_array() supports all bit depths
 
 Nov 11, 2000
- BUG:	pygame.display.set_mode() uses int, not short, for size
+ 	pygame.display.set_mode() uses int, not short, for size [BUG]
 
 Nov 10, 2000
 	Committed to CVS
@@ -24,5 +28,5 @@ Nov 10, 2000
 
 
 
- BREAK:	change breaks existing code
- BUG:	fixed a bug that was crashing
+BREAK = change breaks existing code
+BUG   = fixed a bug that was crashing

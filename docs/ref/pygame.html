@@ -75,20 +75,20 @@ query the state of input grabbing</td></tr>
 autoinitialize all imported pygame modules</td></tr>
 
 
+<tr><td><a href=#new_rect>new_rect</a></td><td> -
+create a new rectangle</td></tr>
+
+
+<tr><td><a href=#new_surface>new_surface</a></td><td> -
+Surface</td></tr>
+
+
 <tr><td><a href=#quit>quit</a></td><td> -
 uninitialize all pygame modules</td></tr>
 
 
-<tr><td><a href=#rect>rect</a></td><td> -
-create a new rectangle</td></tr>
-
-
 <tr><td><a href=#register_quit>register_quit</a></td><td> -
 routine to call when pyGame quits</td></tr>
-
-
-<tr><td><a href=#surface>surface</a></td><td> -
-Surface</td></tr>
 
 
 </table>
@@ -148,23 +148,9 @@ init() as often as you like. If you have imported pygame modules
 since the.
 </ul><br>&nbsp;<br>
 
-<a name=quit><font size=+2><b>quit
+<a name=new_rect><font size=+2><b>new_rect
 </b></font><br><font size=+1><tt>
-pygame.quit() -> none
-</tt></font><ul>
-Uninitialize all pygame modules that have been initialized. Even
-if you initialized the module by hand, this <u>quit()</u> will
-uninitialize it for you.
-<br>&nbsp;<br>
-All the pygame modules are uninitialized automatically when your
-program exits, so you will usually not need this routine. If you
-program plans to keep running after it is done with pygame, then
-would be a good time to make this call.
-</ul><br>&nbsp;<br>
-
-<a name=rect><font size=+2><b>rect
-</b></font><br><font size=+1><tt>
-pygame.rect(rectstyle) -> Rect
+pygame.new_rect(rectstyle) -> Rect
 </tt></font><ul>
 Creates a new rectangle object. The given
 rectstyle represents one of the various ways of
@@ -173,19 +159,9 @@ sequence of x and y position for the topleft
 corner, and the width and height.
 </ul><br>&nbsp;<br>
 
-<a name=register_quit><font size=+2><b>register_quit
+<a name=new_surface><font size=+2><b>new_surface
 </b></font><br><font size=+1><tt>
-pygame.register_quit(callback) -> None
-</tt></font><ul>
-The given callback routine will be called when. pygame is
-quitting. Quit callbacks are served on a 'last in, first out'
-basis. Also be aware that your callback may be called more than
-once.
-</ul><br>&nbsp;<br>
-
-<a name=surface><font size=+2><b>surface
-</b></font><br><font size=+1><tt>
-pygame.surface(size, [flags, [depth|Surface, [masks]]]) ->
+pygame.new_surface(size, [flags, [depth|Surface, [masks]]]) ->
 </tt></font><ul>
 <br>&nbsp;<br>
 Creates a new surface object. Size is a 2-int-sequence containing
@@ -204,6 +180,30 @@ enabled. SDL will use these flags to help optimize the surface
 for use with the blitters. Also, for a plain software surface, 0
 can be used for the flag. A plain hardware surface can just use 1
 for the flag.
+</ul><br>&nbsp;<br>
+
+<a name=quit><font size=+2><b>quit
+</b></font><br><font size=+1><tt>
+pygame.quit() -> none
+</tt></font><ul>
+Uninitialize all pygame modules that have been initialized. Even
+if you initialized the module by hand, this <u>quit()</u> will
+uninitialize it for you.
+<br>&nbsp;<br>
+All the pygame modules are uninitialized automatically when your
+program exits, so you will usually not need this routine. If you
+program plans to keep running after it is done with pygame, then
+would be a good time to make this call.
+</ul><br>&nbsp;<br>
+
+<a name=register_quit><font size=+2><b>register_quit
+</b></font><br><font size=+1><tt>
+pygame.register_quit(callback) -> None
+</tt></font><ul>
+The given callback routine will be called when. pygame is
+quitting. Quit callbacks are served on a 'last in, first out'
+basis. Also be aware that your callback may be called more than
+once.
 </ul><br>&nbsp;<br>
 
 

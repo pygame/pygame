@@ -419,10 +419,19 @@ static PyTypeObject PySound_Type =
 	0,
 	sound_dealloc,	
 	0,
-	sound_getattr
+	sound_getattr,
+	NULL,					/*setattr*/
+	NULL,					/*compare*/
+	NULL,					/*repr*/
+	NULL,					/*as_number*/
+	NULL,					/*as_sequence*/
+	NULL,					/*as_mapping*/
+	(hashfunc)NULL,			/*hash*/
+	(ternaryfunc)NULL,		/*call*/
+	(reprfunc)NULL,			/*str*/
+	0L,0L,0L,0L,
+	doc_Sound_MODULE /* Documentation string */
 };
-
-
 
 
 
@@ -670,10 +679,19 @@ static PyTypeObject PyChannel_Type =
 	0,
 	channel_dealloc,	
 	0,
-	channel_getattr
+	channel_getattr,
+	NULL,					/*setattr*/
+	NULL,					/*compare*/
+	NULL,					/*repr*/
+	NULL,					/*as_number*/
+	NULL,					/*as_sequence*/
+	NULL,					/*as_mapping*/
+	(hashfunc)NULL,			/*hash*/
+	(ternaryfunc)NULL,		/*call*/
+	(reprfunc)NULL,			/*str*/
+	0L,0L,0L,0L,
+	doc_Channel_MODULE /* Documentation string */
 };
-
-
 
 
 

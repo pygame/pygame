@@ -36,7 +36,7 @@ ALIEN_ODDS     = 36
 ALIEN_RELOAD   = 12
 EXPLODE_TIME   = 40
 MAX_EXPLOSIONS = 4
-SCREENRECT     = rect(0, 0, 640, 480)
+SCREENRECT     = new_rect(0, 0, 640, 480)
 ANIMCYCLE      = 18
 PLODECYCLE     = 7
 BULLET_OFFSET  = 11
@@ -244,7 +244,7 @@ def main(winstyle = 0):
     Snd.shot = load_sound('car_door.wav')
 
     # Create the background
-    background = pygame.surface(SCREENRECT.size)
+    background = new_surface(SCREENRECT.size)
     for x in range(0, SCREENRECT.width, Img.background.get_width()):
         background.blit(Img.background, (x, 0))
     screen.blit(background, (0,0))
@@ -384,7 +384,7 @@ def main(winstyle = 0):
         fontname = os.path.join('data', 'billbrdi.ttf')
         f = font.font(fontname, 100)
         text = f.render('Game Over', 1, (200, 200, 200))
-        textrect = rect((0, 0), text.get_size())
+        textrect = new_rect((0, 0), text.get_size())
         textrect.center = SCREENRECT.center
         screen.blit(text, textrect.topleft)
         pygame.display.flip()

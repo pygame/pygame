@@ -24,4 +24,6 @@
 the local namespace for your module"""
 
 from constants import *
-from rect import rect
+from rect import new_rect
+from surface import new_surface
+from event import new_event
