@@ -3,6 +3,7 @@ This is a list of changes in pygame's history.
 
      Nov 10, 2000
 	Committed to CVS and documentation expanded
+	Added pygame.display.get_driver()
 
 0.2: Nov 3, 2000
 	Documentation takes a step forward
