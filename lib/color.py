@@ -39,6 +39,7 @@ def Color(colorname):
        With the hex color formatting you may optionally include an
        alpha value, the formatting is 0xRRGGBBAA. You may also specify
        a hex formatted color by starting the string with a '#'.
+       The color name used is case insensitive and whitespace is ignored.
     """
 
     if colorname[:2] == '0x' or colorname[0] == '#': #webstyle
@@ -61,9 +62,9 @@ def Color(colorname):
         #no spaces and lowercase
         name = colorname.replace(' ', '').lower()
         try:
-            return THECOLORS[colorname]
+            return THECOLORS[name]
         except KeyError:
-            raise ValueError, "Illegal color name"
+            raise ValueError, "Illegal color name, " + name
 
 
 
