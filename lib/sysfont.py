@@ -218,24 +218,26 @@ def SysFont(name, size, bold=0, italic=0):
         initsysfonts()
 
     fontname = None
-    allnames = name
-    for name in allnames.split(','):
-        origbold = bold
-        origitalic = italic
-        name = _simplename(name)
-        styles = Sysfonts.get(name)
-        if not styles:
-            styles = Sysalias.get(name)
-        if styles:
-            while not fontname:
-                fontname = styles.get((bold, italic))
-                if italic:
-                    italic = 0
-                elif bold:
-                    bold = 0
-                elif not fontname:
-                    fontname = styles.values()[0]
-        if fontname: break
+    origbold = origitalic = 0
+    if name:
+        allnames = name
+        for name in allnames.split(','):
+            origbold = bold
+            origitalic = italic
+            name = _simplename(name)
+            styles = Sysfonts.get(name)
+            if not styles:
+                styles = Sysalias.get(name)
+            if styles:
+                while not fontname:
+                    fontname = styles.get((bold, italic))
+                    if italic:
+                        italic = 0
+                    elif bold:
+                        bold = 0
+                    elif not fontname:
+                        fontname = styles.values()[0]
+            if fontname: break
 
     font = pygame.font.Font(fontname, size)
     if origbold and not bold:
