@@ -140,7 +140,7 @@ class Sprite:
     def remove_internal(self, group):
         del self.__g[group]
 
-    def update(self, *args, **kwargs):
+    def update(self, *args):
         #note, this just ignores all args
         pass
 
@@ -302,16 +302,20 @@ class Group:
             s.remove_internal(self)
         self.spritedict.clear()
 
-    def update(self, *args, **kwargs):
+    def update(self, *args):
         """update(...)
            call update for all member sprites
 
-           calls the update method for all sprites in
-           the group. any arguments are passed to the update
-           function."""
-        a=apply
-        for s in self.spritedict.keys():
-            a(s.update, args, kwargs)
+           calls the update method for all sprites in the group.
+           passes all arguments are to the Sprite update function."""
+        if args:
+            a=apply
+            for s in self.spritedict.keys():
+                a(s.update, args)
+        else:
+            for s in self.spritedict.keys():
+                s.update()
+        
 
     def __nonzero__(self):
         """__nonzero__() -> bool
@@ -407,9 +411,9 @@ class GroupSingle:
             self.sprite.remove_internal(self)
             self.sprite = 0
 
-    def update(self, *args, **kwargs):
+    def update(self, *args):
         if self.sprite:
-            apply(self.sprite.update(args, kwargs))
+            apply(self.sprite.update(args))
 
     def __nonzero__(self):
         return self.sprite is not 0
@@ -475,7 +479,7 @@ class RenderClear(Group):
         spritedict = self.spritedict
         surface_blit = surface.blit
         for s in spritedict.keys():
-            spritedict[s] = surface_blit(s.image, s)
+            spritedict[s] = surface_blit(s.image, s.rect)
 
     def clear(self, surface, bgd):
         """clear(surface, bgd)
@@ -484,14 +488,14 @@ class RenderClear(Group):
            Clears the area of all drawn sprites. the bgd
            argument should be Surface which is the same
            dimensions as the surface. The bgd can also be
-	   a function which gets called with the passed
-	   surface and the area to be cleared."""
+           a function which gets called with the passed
+           surface and the area to be cleared."""
 	if callable(bgd):
             for r in self.lostsprites:
                 bgd(surface, r)
             for r in self.spritedict.values():
                 if r is not 0: bgd(surface, r)
-	else:
+        else:
             surface_blit = surface.blit
             for r in self.lostsprites:
                 surface_blit(bgd, r, r)
@@ -541,20 +545,17 @@ def spritecollide(sprite, group, dokill):
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
        automatically removed from all groups."""
-    spritecollide = sprite.rect.colliderect
     crashed = []
-#    d = getattr(group, 'spritedict', None)
-#    if d:
-#        for s,junk in sprite.rect.collidedictall(d):
-#            if dokill: s.kill()
-#            crashed.append(s)
-#    else:
-    if 1:
+    spritecollide = sprite.rect.colliderect
+    if dokill:
         for s in group.sprites():
             if spritecollide(s.rect):
-                if dokill: s.kill()
+                s.kill()
                 crashed.append(s)
-
+    else:
+        for s in group.sprites():
+            if spritecollide(s.rect):
+                crashed.append(s)
     return crashed
 
 
@@ -572,11 +573,17 @@ def groupcollide(groupa, groupb, dokilla, dokillb):
        removed from all groups."""
     crashed = {}
     SC = spritecollide
-    for s in groupa.sprites():
-        c = SC(s, groupb, dokillb)
-        if c:
-            crashed[s] = c
-            if dokilla: s.kill()
+    if dokilla:
+        for s in groupa.sprites():
+            c = SC(s, groupb, dokillb)
+            if c:
+                crashed[s] = c
+                s.kill()
+    else:
+        for s in groupa.sprites():
+            c = SC(s, groupb, dokillb)
+            if c:
+                crashed[s] = c
     return crashed
 
 

@@ -39,13 +39,14 @@ static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 {
 	short val;
-        PyObject *rectattr;
+	int length;
+    PyObject *rectattr;
 
 	if(PyRect_Check(obj))
 		return &((PyRectObject*)obj)->r;
-	if(PySequence_Check(obj))
+	if(PySequence_Check(obj) && (length=PySequence_Length(obj))>0)
 	{
-		if(PySequence_Length(obj) == 4)
+		if(length == 4)
 		{
 			if(!ShortFromObjIndex(obj, 0, &val)) return NULL; temp->x = val;
 			if(!ShortFromObjIndex(obj, 1, &val)) return NULL; temp->y = val;
@@ -53,7 +54,7 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 			if(!ShortFromObjIndex(obj, 3, &val)) return NULL; temp->h = val;
 			return temp;
 		}
-		if(PySequence_Length(obj) == 2)
+		if(length == 2)
 		{
 			PyObject* sub = PySequence_GetItem(obj, 0);
 			if(!sub || !PySequence_Check(sub) || PySequence_Length(sub)!=2)
@@ -69,28 +70,28 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 			Py_DECREF(sub);
 			return temp;
 		}
-		if(PyTuple_Check(obj) && PyTuple_Size(obj) == 1) /*looks like an arg?*/
+		if(PyTuple_Check(obj) && length == 1) /*looks like an arg?*/
 		{
 			PyObject* sub = PyTuple_GET_ITEM(obj, 0);
 			if(sub)
 				return GameRect_FromObject(sub, temp);
 		}
 	}
-        if((rectattr = PyObject_GetAttrString(obj, "rect")))
+    if((rectattr = PyObject_GetAttrString(obj, "rect")))
+    {
+        GAME_Rect *returnrect;
+        if(PyCallable_Check(rectattr)) /*call if it's a method*/
         {
-            GAME_Rect *returnrect;
-            if(PyCallable_Check(rectattr)) /*call if it's a method*/
-            {
-                PyObject *rectresult = PyObject_CallObject(rectattr, NULL);
-                Py_DECREF(rectattr);
-                if(!rectresult)
-                    return NULL;
-                rectattr = rectresult;
-            }
-            returnrect = GameRect_FromObject(rectattr, temp);
+            PyObject *rectresult = PyObject_CallObject(rectattr, NULL);
             Py_DECREF(rectattr);
-            return returnrect;
+            if(!rectresult)
+                return NULL;
+            rectattr = rectresult;
         }
+        returnrect = GameRect_FromObject(rectattr, temp);
+        Py_DECREF(rectattr);
+        return returnrect;
+    }
 	return NULL;
 }
 
@@ -609,6 +610,11 @@ static PyObject* rect_collidelistall(PyObject* oself, PyObject* args)
     /*DOC*/    "overlap is found, this will stop checking the\n"
     /*DOC*/    "remaining list. If no overlap is found, it will\n"
     /*DOC*/    "return None.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Remember python dictionary keys must be immutable,\n"
+    /*DOC*/    "Rects are not immutable, so they cannot directly be,\n"
+    /*DOC*/    "dictionary keys. You can convert the Rect to a tuple\n"
+    /*DOC*/    "with the tuple() builtin command.\n"
     /*DOC*/ ;
 
 static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
@@ -655,6 +661,11 @@ static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
     /*DOC*/    "rectangles overlapping the base rectangle. If no\n"
     /*DOC*/    "overlap is found, it will return an empty\n"
     /*DOC*/    "sequence.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Remember python dictionary keys must be immutable,\n"
+    /*DOC*/    "Rects are not immutable, so they cannot directly be,\n"
+    /*DOC*/    "dictionary keys. You can convert the Rect to a tuple\n"
+    /*DOC*/    "with the tuple() builtin command.\n"
     /*DOC*/ ;
 
 static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
