@@ -656,9 +656,8 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 static GAME_Rect* screencroprect(GAME_Rect* r, int w, int h, GAME_Rect* cur)
 {
 	if(r->x > w || r->y > h || (r->x + r->w) <= 0 || (r->y + r->h) <= 0)
-{printf("update rejecting rect %d,%d,%d,%d\n", (int)r->x, (int)r->y, (int)r->w, (int)r->h);
                 return 0;
-}       else
+        else
 	{
 		int right = min(r->x + r->w, w);
 		int bottom = min(r->y + r->h, h);
