@@ -173,7 +173,10 @@ can be standard python text or unicode. Antialiasing will smooth
 the edges of the font for a much cleaner look. The foreground
 and background color are both RGBA, the alpha component is ignored
 if given. If the background color is omitted, the text will have a
-a transparent background.
+transparent background.
+<br>&nbsp;<br>
+Note that font rendering is not thread safe, therefore only one
+thread can render text at any given time.
 </ul><br>&nbsp;<br>
 
 <a name=set_bold><font size=+2><b>set_bold
