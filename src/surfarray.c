@@ -596,7 +596,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 	SDL_PixelFormat* format;
 	PyArrayObject* array;
 	int loopx, loopy;
-	int stridex, stridey, stridez, stridez2, sizex, sizey;
+	int stridex, stridey, stridez=0, stridez2=0, sizex, sizey;
 	int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
 
 	if(!PyArg_ParseTuple(arg, "O!O!", &PySurface_Type, &surfobj, &PyArray_Type, &arrayobj))
@@ -726,7 +726,7 @@ static PyMethodDef surfarray_builtins[] =
     /*DOC*/    "surfaces\n"
     /*DOC*/ ;
 
-void initsurfarray()
+void initsurfarray(void)
 {
 	PyObject *module, *dict;
 

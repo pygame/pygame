@@ -28,13 +28,12 @@
 static SDL_Joystick* joystick_stickdata[JOYSTICK_MAXSTICKS] = {NULL};
 
 
-staticforward PyTypeObject Joystick_Type;
+staticforward PyTypeObject PyJoystick_Type;
 static PyObject* PyJoystick_New(int);
 #define PyJoystick_Check(x) ((x)->ob_type == &PyJoystick_Type)
 
 
-
-static void joy_autoquit()
+static void joy_autoquit(void)
 {
 	int loop;
 	for(loop = 0; loop < JOYSTICK_MAXSTICKS; ++loop)
@@ -578,7 +577,12 @@ static PyTypeObject PyJoystick_Type =
 	0,
 	0,
 	NULL,
-	0
+	0, 
+	(hashfunc)NULL,
+	(ternaryfunc)NULL,
+	(reprfunc)NULL,
+	0L,0L,0L,0L,
+	doc_Joystick_MODULE /* Documentation string */
 };
 
 
@@ -640,7 +644,7 @@ static PyMethodDef joystick_builtins[] =
     /*DOC*/    "and the Joystick objects.\n"
     /*DOC*/ ;
 
-void initjoystick()
+void initjoystick(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_JOYSTICK_NUMSLOTS];

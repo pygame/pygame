@@ -214,7 +214,7 @@ static PyMethodDef key_builtins[] =
     /*DOC*/    "keysyms.\n"
     /*DOC*/ ;
 
-void initkey()
+void initkey(void)
 {
 	PyObject *module, *dict;
 

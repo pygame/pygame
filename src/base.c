@@ -34,18 +34,18 @@ extern int SDL_RegisterApp(char*, Uint32, void*);
 #endif
 
 
-extern int pygame_video_priority_init();
+extern int pygame_video_priority_init(void);
 
 static PyObject* quitfunctions = NULL;
 static PyObject* PyExc_SDLError;
 
 
-static int PyGame_Video_AutoInit();
+static int PyGame_Video_AutoInit(void);
 
 
 
 
-static int CheckSDLVersions() /*compare compiled to linked*/
+static int CheckSDLVersions(void) /*compare compiled to linked*/
 {
 	SDL_version compiled;
 	const SDL_version* linked;
@@ -190,7 +190,7 @@ static PyObject* init(PyObject* self,PyObject* args)
 }
 
 
-static void atexit_quit()
+static void atexit_quit(void)
 {
 	PyObject* quit;
 	int num;
@@ -376,13 +376,13 @@ static PyObject* get_error(PyObject* self, PyObject* arg)
 /*video init needs to be here, because of it's
  *important init order priority
  */
-static void PyGame_Video_AutoQuit()
+static void PyGame_Video_AutoQuit(void)
 {
 	if(SDL_WasInit(SDL_INIT_VIDEO))
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-static int PyGame_Video_AutoInit()
+static int PyGame_Video_AutoInit(void)
 {
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
@@ -431,7 +431,7 @@ static PyMethodDef init__builtins__[] =
     /*DOC*/    "you'd like to take a look.\n"
     /*DOC*/ ;
 
-void initbase()
+void initbase(void)
 {
 	static int initialized_once = 0;
 	PyObject *module, *dict, *apiobj;

@@ -765,19 +765,6 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 }
 
 
-/*clip blit source rect to source image*/
-static void screencroprect(GAME_Rect* r, int w, int h)
-{
-	if(r->x >= w || r->y >= h)
-		r->x = r->y = r->w = r->h = 0;
-	else
-	{
-		if(r->x < 0) r->x = 0;
-		if(r->y < 0) r->y = 0;
-		if(r->x + r->w >= w) r->w = (w-1)-r->x;
-		if(r->y + r->h >= h) r->h = (h-1)-r->y;
-	}
-}
 
 
 
@@ -817,7 +804,7 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		return NULL;
 	src = PySurface_AsSurface(srcobject);
 
-	if(src_rect = GameRect_FromObject(argpos, &temp))
+	if((src_rect = GameRect_FromObject(argpos, &temp)))
 	{
 		dx = src_rect->x;
 		dy = src_rect->y;
@@ -1122,6 +1109,8 @@ static struct PyMethodDef surface_methods[] =
 	{"get_shifts",		surf_get_shifts,	1, doc_surf_get_shifts },
 	{"get_losses",		surf_get_losses,	1, doc_surf_get_losses },
 
+	{"save",		surf_save,		1, doc_surf_save }, 
+
 	{NULL,		NULL}
 };
 
@@ -1359,7 +1348,7 @@ static PyMethodDef surface_builtins[] =
     /*DOC*/    "surfaces, pygame.surface().\n"
     /*DOC*/ ;
 
-void initsurface()
+void initsurface(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_SURFACE_NUMSLOTS];

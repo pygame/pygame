@@ -112,7 +112,7 @@ static PyMethodDef image_builtins[] =
     /*DOC*/    "the SDL_image library.\n"
     /*DOC*/ ;
 
-void initimage()
+void initimage(void)
 {
 	PyObject *module, *dict;
 
