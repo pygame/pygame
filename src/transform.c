@@ -713,6 +713,109 @@ static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 }
 
 
+static SDL_Surface* chop(SDL_Surface *src, int x, int y, int width, int height)
+{
+  SDL_Surface* dst;
+  int dstwidth,dstheight;
+  char *srcpix, *dstpix, *srcrow, *dstrow;
+  int srcstepx, srcstepy, dststepx, dststepy;
+  int loopx,loopy;
+
+  if((x+width) > src->w)
+    width=src->w-x;
+  if((y+height) > src->h)
+    height=src->h-y;
+  if(x < 0)
+    {
+      width-=(-x);
+      x=0;
+    }
+  if(y < 0)
+    {
+      height-=(-y);
+      y=0;
+    }
+
+  dstwidth=src->w-width;
+  dstheight=src->h-height;
+
+  dst=newsurf_fromsurf(src,dstwidth,dstheight);
+  if(!dst)
+    return NULL;
+  SDL_LockSurface(dst);
+  srcrow=(char*)src->pixels;
+  dstrow=(char*)dst->pixels;
+  srcstepx=dststepx=src->format->BytesPerPixel;
+  srcstepy=src->pitch;
+  dststepy=dst->pitch;
+
+  for(loopy=0; loopy < src->h; loopy++)
+    {
+      if((loopy < y) || (loopy >= (y+height)))
+	{
+	  dstpix=dstrow;
+	  srcpix=srcrow;
+	  for(loopx=0; loopx < src->w; loopx++)
+	    {
+	      if((loopx < x) || (loopx>= (x+width)))
+		{
+		  switch(src->format->BytesPerPixel)
+		    {
+		    case 1:
+		      *dstpix=*srcpix;
+		      break;
+		    case 2:
+		      *(Uint16*) dstpix=*(Uint16*) srcpix;
+		      break;
+		    case 3:
+		      dstpix[0] = srcpix[0];
+		      dstpix[1] = srcpix[1];
+		      dstpix[2] = srcpix[2];    
+		      break;
+		    case 4:
+		      *(Uint32*) dstpix=*(Uint32*) srcpix;
+		      break;
+		    }
+		  dstpix+=dststepx;
+		}
+	      srcpix+=srcstepx;
+	    }
+	  dstrow+=dststepy;
+	}
+      srcrow+=srcstepy;
+    }
+  SDL_UnlockSurface(dst);
+  return dst;
+}
+
+
+    /*DOC*/ static char doc_chop[] =
+    /*DOC*/    "pygame.transform.chop(Surface, rectstyle) -> Surface\n"
+    /*DOC*/    "remove a region of an surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Removes an interior set of columns and rows from a Surface.\n"
+    /*DOC*/    "All vertical and horizontal pixels surrounding the given\n"
+    /*DOC*/    "rectangle area are removed. The resulting image is shrunken\n"
+    /*DOC*/    "by the size of pixels removed.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_chop(PyObject* self, PyObject* arg)
+{
+  PyObject *surfobj, *rectobj;
+  SDL_Surface* surf, *newsurf;
+  GAME_Rect* rect, temp;
+	
+  if(!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &rectobj))
+    return NULL;
+  if(!(rect = GameRect_FromObject(rectobj, &temp)))
+    return RAISE(PyExc_TypeError, "Rect argument is invalid");
+
+  surf=PySurface_AsSurface(surfobj);
+  newsurf=chop(surf, rect->x, rect->y, rect->w, rect->h);
+
+  return PySurface_New(newsurf);
+}
+
 
 static PyMethodDef transform_builtins[] =
 {
@@ -720,6 +823,7 @@ static PyMethodDef transform_builtins[] =
 	{ "rotate", surf_rotate, 1, doc_rotate },
 	{ "flip", surf_flip, 1, doc_flip },
 	{ "rotozoom", surf_rotozoom, 1, doc_rotozoom},
+	{ "chop", surf_chop, 1, doc_chop},
 	{ "scale2x", surf_scale2x, 1, doc_scale2x},
 		
 	{ NULL, NULL }
