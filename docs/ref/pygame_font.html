@@ -90,11 +90,14 @@ uninitialize the font module</td></tr>
 </b></font><br><font size=+1><tt>
 pygame.font.Font(file, size) -> Font
 </tt></font><ul>
-This will create a new font object. The given file must be a
-filename to a TTF file. The font loader does not work with python
-file-like objects. The size represents the height of the font in
-pixels. The file argument can be 'None', which will use a plain
-default font.
+This will create a new font object. The given file can
+be a filename or any python file-like object.
+The size represents the height of the font in
+pixels. The file argument can be 'None', which will
+use a plain default font.
+<br>&nbsp;<br>
+You must have at least SDL_ttf-2.0.6 for file object
+support. You can load truetype fonts or FON fonts.
 </ul><br>&nbsp;<br>
 
 <a name=get_default_font><font size=+2><b>get_default_font

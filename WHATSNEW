@@ -6,6 +6,7 @@
 
 March 9, 2003
 	Bug in Clock.tick() was delaying double
+	load Font objects from any python file-like object
 
 February 26, 2003
 	Sprite and Group now new-style classes
