@@ -207,6 +207,9 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 	if(channelnum == -1)
 		RETURN_NONE
 
+	//make sure volume on this arbitrary channel is set to full
+	Mix_Volume(channelnum, 128);
+
 	Mix_GroupChannel(channelnum, (int)chunk);
 	return PyChannel_New(channelnum);
 }
