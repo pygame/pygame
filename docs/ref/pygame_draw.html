@@ -85,6 +85,10 @@ draws a polygon on a surface</td></tr>
 draws a rectangle on a surface</td></tr>
 
 
+<tr><td><a href=#tilerow>tilerow</a></td><td> -
+draws a row of tile images to a Surface</td></tr>
+
+
 </table>
 
 <hr>
@@ -179,6 +183,20 @@ This function will temporarily lock the surface.
 Keep in mind the <a href=Surface.html#fill>Surface.fill()</a> method works just as well
 for drawing filled rectangles. In fact the <a href=Surface.html#fill>Surface.fill()</a>
 can be hardware accelerated when the moons are in alignement.
+</ul><br>&nbsp;<br>
+
+<a name=tilerow><font size=+2><b>tilerow
+</b></font><br><font size=+1><tt>
+pygame.draw.tilerow(Surface, Surface_sequence, pos) -> None
+</tt></font><ul>
+Draws a sequence of tiles as a row on the destination surface.
+Each image will be drawn, offset by the width of the previous
+image. Usually all tile images will be the same size, but this
+would allow for some slight changes.
+<br>&nbsp;<br>
+If None is one of the sequence elements, then that tile area will
+be skipped. The width of the skipped tile will be determined by its
+neighbor.
 </ul><br>&nbsp;<br>
 
 

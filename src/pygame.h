@@ -266,7 +266,7 @@ typedef struct {
 
 /* SURFACE */
 #define PYGAMEAPI_SURFACE_FIRSTSLOT 40
-#define PYGAMEAPI_SURFACE_NUMSLOTS 2
+#define PYGAMEAPI_SURFACE_NUMSLOTS 3
 typedef struct {
 	PyObject_HEAD
 	SDL_Surface* surf;
@@ -279,6 +279,7 @@ typedef struct {
 #define PySurface_Check(x) ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
 #define PySurface_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
 #define PySurface_New (*(PyObject*(*)(SDL_Surface*))PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
+#define PySurface_Blit (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*))PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
 #define import_pygame_surface() { \
 	PyObject *module = PyImport_ImportModule("pygame.surface"); \
 	if (module != NULL) { \
@@ -303,7 +304,7 @@ typedef struct {
 
 
 /* SURFLOCK */    /*auto import/init by surface*/
-#define PYGAMEAPI_SURFLOCK_FIRSTSLOT 43
+#define PYGAMEAPI_SURFLOCK_FIRSTSLOT 44
 #define PYGAMEAPI_SURFLOCK_NUMSLOTS 5
 struct SubSurface_Data
 {

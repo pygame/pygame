@@ -8,6 +8,18 @@ configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '') #do we still need this?
 
+
+
+def confirm(message):
+    "ask a yes/no question, return result"
+    reply = raw_input('\n' + message + ' [Y/n]:')
+    if reply and string.lower(reply[0]) == 'n':
+        return 0
+    return 1
+
+
+
+
 class DependencyProg:
     def __init__(self, name, envname, exename, minver, defaultlib):
         self.name = name
@@ -130,7 +142,7 @@ def main():
     if not DEPS[0].found:
         print 'Unable to run "sdl-config". Please make sure a development version of SDL is installed.'
         raise SystemExit
-
+		
 
     if localbase: #unneeded?
         incdirs = [localbase + '/include/SDL']
@@ -145,6 +157,16 @@ def main():
                 libdirs.append(arg[2:])
     for d in DEPS:
         d.configure(incdirs, libdirs)
+
+
+    for d in DEPS[1:]:
+	if not d.found:
+		if not confirm("""
+Warning, some of the pygame dependencies were not found. Pygame can still
+compile and install, but games that require on those missing dependencies
+will not run. Would you like to continue the configuration?"""):
+			raise SystemExit
+		break
 
     return DEPS
 

@@ -85,7 +85,7 @@ packed into the bits of the pixel.
 <br>&nbsp;<br>
 After you have initialized your video mode, you can take the
 surface that was returned and write to it like any other Surface
-object. Be sure to call <a href=#update>update()</a> or <a href=pygame_transform.html#flip>flip()</a> to keep what is on the
+object. Be sure to call <a href=#update>update()</a> or <a href=#flip>flip()</a> to keep what is on the
 screen synchronized with what is on the surface. Be sure not to call
 display routines that modify the display surface while it is locked.
 
@@ -428,7 +428,7 @@ display will use the best/fastest pixel depth available.
 <br>&nbsp;<br>
 You can create an OpenGL surface (for use with PyOpenGL)
 by passing the OPENGL flag. You will likely want to use the
-DOUBLEBUF flag when using OPENGL. In which case, the <a href=pygame_transform.html#flip>flip()</a>
+DOUBLEBUF flag when using OPENGL. In which case, the <a href=#flip>flip()</a>
 function will perform the GL buffer swaps. When you are using
 an OPENGL video mode, you will not be able to perform most of the
 pygame drawing functions (fill, set_at, etc) on the display surface.
