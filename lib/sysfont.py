@@ -28,6 +28,8 @@ def _simplename(name):
     for char in '_ -':
         name = name.replace(char, '')
     name = name.lower()
+    name = name.replace('-', '')
+    name = name.replace("'", '')
     return name
 
 
