@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 7, 2001
+	fixed sprite.Group.has
+
 January 6, 2001
 	Merge with bob's inital MacOSX changes
 
