@@ -1773,6 +1773,8 @@ PyObject* surface_str(PyObject* self)
     /*DOC*/    "values. All Surfaces with higher bits per pixel use a packed\n"
     /*DOC*/    "pixels to store their color values.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "Creating a new Surface().\n"
+    /*DOC*/    "\n"
     /*DOC*/    "Surfaces can have many extra attributes like alpha planes,\n"
     /*DOC*/    "colorkeys, source rectangle clipping. These functions mainly\n"
     /*DOC*/    "effect how the Surface is blitted to other Surfaces. The blit\n"
