@@ -82,7 +82,7 @@ class Dependency:
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
-                if filter(os.path.isfile, glob(path+*)):
+                if filter(os.path.isfile, glob(path+'*')):
                     self.lib_dir = dir
                 
         if self.lib_dir and self.inc_dir:
@@ -148,8 +148,8 @@ def main():
         incdirs = [localbase + '/include/SDL']
         libdirs = [localbase + '/lib']
     else:
-        incdirs = []
-        libdirs = []
+        incdirs = ['/usr/include']
+        libdirs = ['/usr/lib']
         for arg in string.split(DEPS[0].cflags):
             if arg[:2] == '-I':
                 incdirs.append(arg[2:])
@@ -163,7 +163,7 @@ def main():
 	if not d.found:
 		if not confirm("""
 Warning, some of the pygame dependencies were not found. Pygame can still
-compile and install, but games that require on those missing dependencies
+compile and install, but games that depend on those missing dependencies
 will not run. Would you like to continue the configuration?"""):
 			raise SystemExit
 		break
