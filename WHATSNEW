@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jun 15, 2001
+	new inplace Rect calls: move_ip, union_ip, etc
+
 Jun 11, 2001
 	smarter locking with subsurfaces
 	added transform.rotozoom(), which uses builtin SDL_rotozoom
