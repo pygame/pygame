@@ -187,7 +187,7 @@ static PyObject* mouse_get_focused(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "When the mouse cursor is visible, it will be displayed\n"
     /*DOC*/    "as a black and white bitmap using the given bitmask arrays.\n"
-    /*DOC*/    "The size is a sequence containing the cursor with and height.\n"
+    /*DOC*/    "The size is a sequence containing the cursor width and height.\n"
     /*DOC*/    "Hotspot is a sequence containing the cursor hotspot position.\n"
     /*DOC*/    "xormasks is a sequence of bytes containing the cursor xor data\n"
     /*DOC*/    "masks. Lastly is andmasks, a sequence of bytes containting the\n"
