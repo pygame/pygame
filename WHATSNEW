@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Mar 14, 2001
+	smarter internal module handling
+	fixed blit() (broken on May 9th change)
+
 May 10, 2001
 	USEREVENT events now pass through the queue
 	Event() may be called with keyword args and/or a dict

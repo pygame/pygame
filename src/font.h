@@ -50,7 +50,7 @@ typedef struct {
 		if(PyCObject_Check(c_api)) {\
 			void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
 			memcpy(PyFONT_C_API, localptr, sizeof(void*)*PYGAMEAPI_FONT_NUMSLOTS); \
-} } }
+} Py_DECREF(module); } }
 #endif
 
 

@@ -880,7 +880,6 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 
 
 
-
     /*DOC*/ static char doc_surf_blit[] =
     /*DOC*/    "Surface.blit(source, destpos, [sourcerect]) -> Rect\n"
     /*DOC*/    "copy a one Surface to another.\n"
@@ -904,8 +903,8 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
     /*DOC*/    "rectangle sizes will be ignored.\n"
 #if 0  /* "" */
     /*DOC*/    "\n"
-    /*DOC*/    "Note that blitting alpha surfaces onto an 8bit destination will\n"
-    /*DOC*/    "crash SDL. Pygame will disable the alpha when these blits are attempted.\n"
+    /*DOC*/    "Note that blitting surfaces with alpha onto 8bit destinations will\n"
+    /*DOC*/    "not use the surface alpha values.\n"
 #endif /* "" */
     /*DOC*/ ;
 
@@ -917,15 +916,19 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	int dx, dy, result;
 	SDL_Rect dest_rect;
 	short sx, sy;
-	int didconvert;
+	int didconvert = 0;
 
 	VIDEO_INIT_CHECK();
+
 	if(!PyArg_ParseTuple(args, "O!O|O", &PySurface_Type, &srcobject, &argpos, &argrect))
 		return NULL;
 	src = PySurface_AsSurface(srcobject);
 
 	if(dest->flags & SDL_OPENGL && !(dest->flags&(SDL_OPENGLBLIT&~SDL_OPENGL)))
 		return RAISE(PyExc_SDLError, "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
+
+	if(dest->format->BytesPerPixel == 1 && (src->flags&SDL_SRCALPHA || src->format->Amask))
+		return RAISE(PyExc_SDLError, "Alpha blits to 8bit surfaces currently unimplemented");
 
 	if((src_rect = GameRect_FromObject(argpos, &temp)))
 	{
@@ -961,18 +964,21 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	PySurface_Prep(self);
 	PySurface_Prep(srcobject);
 	Py_BEGIN_ALLOW_THREADS
+
 	/*can't blit alpha to 8bit, crashes SDL*/
-	if(dest->format->BytesPerPixel==1 && (src->format->Amask || src->flags&SDL_SRCALPHA))
-	{
-		didconvert = 1;
-		src = SDL_DisplayFormat(src);
-	}
+ 	if(dest->format->BytesPerPixel==1 && (src->format->Amask || src->flags&SDL_SRCALPHA))
+ 	{
+ 		didconvert = 1;
+ 		src = SDL_DisplayFormat(src);
+ 	}
 	result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
-	if(didconvert)
-		SDL_FreeSurface(src);
+ 	if(didconvert)
+ 		SDL_FreeSurface(src);
+
 	Py_END_ALLOW_THREADS
 	PySurface_Unprep(self);
 	PySurface_Unprep(srcobject);
+
 
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
@@ -1600,7 +1606,7 @@ void initsurface(void)
 
 	/*import the surflock module manually*/
 	lockmodule = PyImport_ImportModule("pygame.surflock");
-	if (module != NULL)
+	if(lockmodule != NULL)
 	{
 		PyObject *dict = PyModule_GetDict(lockmodule);
 		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY);
@@ -1611,5 +1617,6 @@ void initsurface(void)
 				PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i];
 		}
 	}
+	Py_XDECREF(lockmodule);
 }
 
