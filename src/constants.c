@@ -308,8 +308,6 @@ void initconstants(void)
     /*DOC*/    "RESIZABLE - display window is resizeable<br>\n"
     /*DOC*/    "ASYNCBLIT - surface blits happen asynchronously (threaded)<br>\n"
     /*DOC*/    "OPENGL - display surface will be controlled by opengl<br>\n"
-    /*DOC*/    "OPENGLBLIT - opengl controlled display surface will allow sdl\n"
-    /*DOC*/    "blits<br>\n"
     /*DOC*/    "HWPALETTE - display surface has animatable hardware palette\n"
     /*DOC*/    "entries<br>\n"
     /*DOC*/    "DOUBLEBUF - hardware display surface is page flippable<br>\n"

@@ -397,9 +397,6 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
     /*DOC*/    "function will perform the GL buffer swaps. When you are using\n"
     /*DOC*/    "an OPENGL video mode, you will not be able to perform most of the\n"
     /*DOC*/    "pygame drawing functions (fill, set_at, etc) on the display surface.\n"
-    /*DOC*/    "You can also use the special display flag OPENGLBLIT which will\n"
-    /*DOC*/    "create a full OpenGL display, but also allow for limited pygame\n"
-    /*DOC*/    "blitting.\n"
     /*DOC*/ ;
 
 static PyObject* set_mode(PyObject* self, PyObject* arg)
