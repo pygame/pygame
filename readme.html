@@ -1,0 +1,127 @@
+<html><title>Pygame Readme</title><body>
+
+<table width=100% border=1><tr><td colspan=3 align=center>
+<font size=+5><b>Pygame Readme</b></font>
+</td></tr><tr><td align=left width=33%><big>
+
+Version 1.4 <br>January 27, 2002
+
+
+</td><td align=center width=34%><big>
+Python Game Development<br>
+by Pete Shinners</big>
+</td><td align=right width=33%>
+<a href=http://www.pygame.org>http://www.pygame.org</a><br>
+<a href=mailto:pete@shinners.org>pete@shinners.org</a></p>
+</td></tr></table></p><br>
+
+
+<p><big><b><u>About</u></b></big><br><blockquote><p>
+Pygame is a cross-platfrom library designed to make it easy to write
+multimedia software, such as games, in Python. Pygame requires the
+Python language and SDL multimedia library. It can also make use of
+several other popular libraries.
+</p></blockquote></p><br>
+
+
+
+<p><big><b><u>Installation</u></b></big><br><blockquote><p>
+You should definitely begin by installing a binary package
+for your system. The binary packages usually come with or
+give the information needed for dependencies. Choose an
+appropriate installer for your system and version of python
+from the pygame downloads page.
+<a href=http://www.pygame.org/download.shtml>http://www.pygame.org/download.shtml</a>
+</p><p>
+Installing from source is fairly automated. The most work will involve
+compiling and installing all the pygame dependencies. Once that is done
+run the "<u>setup.py</u>" script which will attempt to auto-configure, build,
+and install pygame. This works for just about all cases, but more
+information can be found in the "<u>fullinstall.txt</u>" file in the "<u>docs</u>"
+directory.
+</p><p>
+Much more information about installing and compiling is available in the
+<a href=install.html>install.html</a> file.
+</p></blockquote></p><br>
+
+
+
+<p><big><b><u>Help</u></b></big><br><blockquote><p>
+If you are just getting started with pygame, you should be able
+to get started fairly quickly. Pygame comes with many tutorials
+and introductions. There is also full reference documentation for
+the entire library. Best of all the examples directory has many
+playable small programs which can make a good test bed for your
+own experimentation.
+</p></blockquote></p><br>
+
+
+
+
+<p><big><b><u>Credits</u></b></big><br><blockquote><p>
+Thanks to everyone who has helped contribute to this library.
+Special thanks are also in order.
+<li>David Clark - for filling the right-hand-man position</li>
+<li>Ed Boraas and Francis Irving - Debian packages</li>
+<li>Maxim Sobolev - FreeBSD packaging</li>
+<li>Bob Ippolito - MacOS and OSX porting (much work!)</li>
+<li>Jan Ekhol, Ray Kelm, and Peter Nicolai - putting up
+with my early design ideas</li>
+<li>Nat Pryce for starting our unit tests</li>
+<li>TheCorruptor for his incredible logos and graphics</li>
+<li>Thanks to those sending in patches and fixes:
+    Niki Spahiev, Gordon Tyler, Nathaniel Pryce, 
+    Dave Wallace, John Popplewell</li>
+<li>And our bug hunters above and beyond:
+    Angus, Guillaume Proux, Frank Raiser,
+    Austin Henry, Kaweh Kazemi, Arturo Aldama,
+    Mike Mulcheck</li>
+</p><p>
+There's many more folks out there who've submitted helpful ideas,
+kept this project going, and basically made my life easer, Thanks!
+</p><p>
+Also a big thanks to Roger Dingledine and the crew at SEUL.ORG
+for our excellent hosting.
+</p></blockquote></p><br>
+
+
+
+
+<p><big><b><u>Dependencies</u></b></big><br><blockquote><p>
+Pygame is obviously strongly dependent on SDL and Python. It also
+links to and embeds several other smaller libraries. The font module
+relies on SDL_tff, which is dependent on freetype. The mixer (and
+mixer.music) modules depend on SDL_mixer. The image module depends
+on SDL_image, which also can use libjpeg and libpng. The transform
+module has an embedded version of SDL_rotozoom for its own rotozoom
+function. The surfarray module requires the python Numeric package
+for its multidimensional numeric arrays.
+</p></blockquote></p><br>
+
+
+
+<p><big><b><u>Todo</u></b></big><br><ul>
+<li>smarten the config.py and setup.py stuff</li>
+<li>unify the types/classes for python 2.2 and above</li>
+<li>transform.skew() function</li>
+</ul></p><br>
+
+
+
+
+<p><big><b><u>License</u></b></big><br><blockquote><p>
+This library is distributed under GNU LGPL version 2.1, which can be
+found in the file  "doc/LGPL".	I reserve the right to place future
+versions of this library under a different license.
+<a href=http://www.gnu.org/copyleft/lesser.html>http://www.gnu.org/copyleft/lesser.html</a>
+</p><p>
+This basically means you can use pygame in any project you want, but
+if you make any changes or additions to pygame itself, those must be
+released with a compatible license. (preferably submitted back to the
+pygame project). Closed source and commercial games are fine.
+</p><p>
+The programs in the "<u>examples</u>" subdirectory are in the public domain.
+</p></blockquote></p><br>
+
+
+</body></html>
