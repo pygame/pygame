@@ -310,7 +310,7 @@ static PyObject* surf_unlock(PyObject* self, PyObject* args)
 static PyObject* surf_mustlock(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	return PyInt_FromLong(SDL_MUSTLOCK(surf));
+	return PyInt_FromLong(SDL_MUSTLOCK(surf) || ((PySurfaceObject*)self)->subsurface);
 }
 
 
@@ -1364,7 +1364,11 @@ static void surface_dealloc(PyObject* self)
 	struct SubSurface_Data* data = ((PySurfaceObject*)self)->subsurface;
 
 	if(SDL_WasInit(SDL_INIT_VIDEO))
+	{
+		while(surf->lockcount > 0)
+			PySurface_Unlock(self);
 		SDL_FreeSurface(surf->surf);
+	}
 	if(data)
 	{
 		Py_XDECREF(data->owner);

@@ -27,7 +27,6 @@
 
 
 
-
 static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 {
 	SDL_Surface* newsurf;
@@ -238,6 +237,8 @@ static void stretch(SDL_Surface *src, SDL_Surface *dst)
     /*DOC*/    "This will resize a surface to the given resolution.\n"
     /*DOC*/    "The size is simply any 2 number sequence representing\n"
     /*DOC*/    "the width and height.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This transformation is not filtered.\n"
     /*DOC*/ ;
 
 static PyObject* surf_scale(PyObject* self, PyObject* arg)
@@ -281,6 +282,8 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
     /*DOC*/    "uncovered areas in the image. These will filled with either\n"
     /*DOC*/    "the current colorkey for the Surface, or the topleft pixel value.\n"
     /*DOC*/    "(with the alpha channel zeroed out if available)\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This transformation is not filtered.\n"
     /*DOC*/ ;
 
 static PyObject* surf_rotate(PyObject* self, PyObject* arg)
@@ -499,7 +502,37 @@ static PyObject* surf_flip(PyObject* self, PyObject* arg)
 
 
 
+extern SDL_Surface *rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
+    /*DOC*/ static char doc_rotozoom[] =
+    /*DOC*/    "pygame.transform.rotozoom(Surface, angle, zoom) -> Surface\n"
+    /*DOC*/    "smoothly scale and/or rotate an image\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will smoothly rotate and scale an image in one pass.\n"
+    /*DOC*/    "The resulting image will always be a 32bit version of the\n"
+    /*DOC*/    "original surface. The scale is a multiplier for the image\n"
+    /*DOC*/    "size, and angle is the degrees to rotate in degrees.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "It calls the SDL_rotozoom library which is compiled in.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj;
+	SDL_Surface *surf, *newsurf;
+	float scale, angle;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!ff", &PySurface_Type, &surfobj, &angle, &scale))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+
+	PySurface_Lock(surfobj);
+	newsurf = rotozoomSurface(surf, angle, scale, 1);
+	PySurface_Unlock(surfobj);
+
+	return PySurface_New(newsurf);
+}
 
 
 
@@ -508,6 +541,7 @@ static PyMethodDef transform_builtins[] =
 	{ "scale", surf_scale, 1, doc_scale },
 	{ "rotate", surf_rotate, 1, doc_rotate },
 	{ "flip", surf_flip, 1, doc_flip },
+	{ "rotozoom", surf_rotozoom, 1, doc_rotozoom},
 
 	{ NULL, NULL }
 };
@@ -520,8 +554,6 @@ static PyMethodDef transform_builtins[] =
     /*DOC*/    "All transformation functions take a source Surface and\n"
     /*DOC*/    "return a new copy of that surface in the same format as\n"
     /*DOC*/    "the original.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "These transform routines are not filtered or smoothed.\n"
     /*DOC*/    "\n"
     /*DOC*/    "Some of the\n"
     /*DOC*/    "filters are 'destructive', which means if you transform\n"
