@@ -95,13 +95,13 @@ static int Rect_SetRight(GAME_Rect* r, short val)
 }
 static int Rect_SetWidth(GAME_Rect* r, short val)
 {
-	r->x -= val - r->w;
+//	r->x -= val - r->w;
 	r->w = val;
 	return 0;
 }
 static int Rect_SetHeight(GAME_Rect* r, short val)
 {
-	r->y -= val - r->h;
+//	r->y -= val - r->h;
 	r->h = val;
 	return 0;
 }

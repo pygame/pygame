@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Feb 9, 2001
+	setting rectangle width/height/size changes the
+		right/bottom edges (instead of top/right) [BREAK]
+
 Feb 6, 2001
 	fixed the music unpause() function
 
