@@ -31,7 +31,7 @@ time src/time.c $(SDL)
 font src/font.c $(SDL) $(FONT)
 image src/image.c $(SDL) $(IMAGE)
 mixer src/mixer.c $(SDL) $(MIXER)
-music src/music.c $(SDL) $(MIXER)
+mixer_music src/music.c $(SDL) $(MIXER)
 
 
 #the following are placeholders. setup.py can use

@@ -56,7 +56,7 @@ static char* find_extension(char* fullname)
     /*DOC*/    "\n"
     /*DOC*/    "You will only be able to load the types of images supported by\n"
     /*DOC*/    "your build of SDL_image. This will always include GIF, BMP, PPM,\n"
-    /*DOC*/    "PCX, and TIF. SDL_image can also load JPG and PNG, but they are\n"
+    /*DOC*/    "PCX, and TGA. SDL_image can also load JPG, PNG, and TIF, but they are\n"
     /*DOC*/    "optional.\n"
     /*DOC*/ ;
 

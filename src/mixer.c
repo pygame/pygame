@@ -1021,17 +1021,24 @@ static PyObject* PyChannel_New(int channelnum)
     /*DOC*/    "Sound objects, you can access the Channel objects with functions\n"
     /*DOC*/    "like pygame.mixer.get_channel().\n"
     /*DOC*/    "\n"
+    /*DOC*/    "The mixer defaults to supporting 8 simultaneous soundfiles.\n"
+    /*DOC*/    "You can change the number of available sound channels at any\n"
+    /*DOC*/    "time with the set_num_channels() function.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "All loaded Sound objects are resampled to match the same format\n"
     /*DOC*/    "that pygame.mixer is initialized to. The current SDL resampling\n"
     /*DOC*/    "functions are not that good, so it is best if you initialize\n"
     /*DOC*/    "pygame.mixer to the same format as your sound resources. Also\n"
     /*DOC*/    "setting the mixer frequency to even multiples of your sound\n"
     /*DOC*/    "resources will result in a clean conversion.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The mixer also contains a special channel for music. You can\n"
+    /*DOC*/    "control the music channel through pygame.mixer.music./\n"
     /*DOC*/ ;
 
 void initmixer()
 {
-	PyObject *module, *dict, *apiobj;
+	PyObject *module, *dict, *apiobj, *music;
 	static void* c_api[PYGAMEAPI_MIXER_NUMSLOTS];
 
 	PyType_Init(PySound_Type);
@@ -1054,5 +1061,11 @@ void initmixer()
 
 	/*imported needed apis*/
 	import_pygame_base();
+
+	music = PyImport_ImportModule("pygame.mixer_music");
+	if(music) 
+		PyModule_AddObject(module, "music", music);
+	else /*music module not compiled? cleanly ignore*/
+		PyErr_Clear();
 }
 

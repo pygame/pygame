@@ -68,7 +68,7 @@ class Actor:
     "An enhanced sort of sprite class"
     def __init__(self, image):
         self.image = image
-        self.rect = rect((0, 0), image.get_size())
+        self.rect = image.get_rect()
         
     def update(self):
         "update the sprite state for this frame"
@@ -81,8 +81,7 @@ class Actor:
         
     def erase(self, screen, background):
         "gets the sprite off of the screen"
-        pos = self.rect.topleft
-        r = screen.blit(background, pos, pos, self.rect.size)
+        r = screen.blit(background, self.rect.topleft, self.rect)
         dirtyrects.append(r)
 
 
@@ -159,7 +158,7 @@ def main():
 
     # Create the background
     background = pygame.surface(SCREENRECT.size)
-    for x in range(0, SCREENRECT.width, Img.background.get_size()[0]):
+    for x in range(0, SCREENRECT.width, Img.background.get_width()):
         background.blit(Img.background, (x, 0))
     screen.blit(background, (0,0))
     pygame.display.flip()
