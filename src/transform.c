@@ -61,17 +61,15 @@ static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sa
 	int srcpitch = src->pitch;
 	int dstpitch = dst->pitch;
 
-        /*int cx = dst->w/2;*/
-        int cy = dst->h/2;
+    int cy = dst->h / 2;
+	int xd = ((src->w - dst->w) << 15);
+	int yd = ((src->h - dst->h) << 15);
     
-	int xd = ((src->w - dst->w + 0) << 15);
-	int yd = ((src->h - dst->h + 0) << 15);
-    
-        int isin = (int)(sangle*65536);
-        int icos = (int)(cangle*65536);
+    int isin = (int)(sangle*65536);
+    int icos = (int)(cangle*65536);
    
-	int ax = (dst->w << 15) - (int)(cangle * (dst->w << 15));
-	int ay = (dst->h << 15) - (int)(sangle * (dst->w << 15));
+	int ax = ((dst->w) << 15) - (int)(cangle * ((dst->w-1) << 15));
+	int ay = ((dst->h) << 15) - (int)(sangle * ((dst->w-1) << 15));
 
 	int xmaxval = ((src->w) << 16) - 1;
 	int ymaxval = ((src->h) << 16) - 1;
@@ -340,8 +338,8 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 #else
 			bgcolor = (((Uint8*)surf->pixels)[2]) + (((Uint8*)surf->pixels)[1]<<8) + (((Uint8*)surf->pixels)[0]<<16);
 #endif
-			bgcolor &= ~surf->format->Amask;
 		}
+		bgcolor &= ~surf->format->Amask;
 	}
 
 	SDL_LockSurface(newsurf);
