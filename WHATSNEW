@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+May 20, 2001
+	applied dave wallace's patch to fix memory freeing
+
 May 17, 2001
 	a few small compile time warning cleanups
 

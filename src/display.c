@@ -132,7 +132,7 @@ static PyObject* get_active(PyObject* self, PyObject* arg)
 
 static void vidinfo_dealloc(PyObject* self)
 {
-	PyMem_DEL(self);	
+	PyObject_DEL(self);	
 }
 
 

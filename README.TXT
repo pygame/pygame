@@ -71,7 +71,7 @@ Thanks to everyone who made this possible, including:
 - David Clark for RPMs and all around help
 - Francis Irving for Debian packaging
 - Maxim Sobolev for FreeBSD port maintenance
-- Niki Spahiev and Gordon Tyler for great patches
+- Niki Spahiev, Gordon Tyler, and Dave Wallace for great patches
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
 - And our dutiful bug hunters; Angus Young and Guillaume Proux
 

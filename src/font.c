@@ -553,7 +553,7 @@ static void font_dealloc(PyObject* self)
 	if(font_initialized)
 		TTF_CloseFont(font);
 
-	PyMem_DEL(self);
+	PyObject_DEL(self);
 }
 
 

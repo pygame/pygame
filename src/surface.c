@@ -1369,7 +1369,7 @@ static void surface_dealloc(PyObject* self)
 		PyMem_Del(data);
 	}
 
-	PyMem_DEL(self);	
+	PyObject_DEL(self);	
 }
 
 
