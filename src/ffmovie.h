@@ -65,6 +65,7 @@ typedef struct FFMovie {
     uint8_t *audio_pkt_data;
     int audio_pkt_size;
     int64_t audio_pkt_ipts;
+    int audio_volume; /*must self implement*/
 
     int16_t sample_array[SAMPLE_ARRAY_SIZE];
     int sample_array_index;
@@ -99,7 +100,10 @@ typedef struct FFMovie {
 
 FFMovie *ffmovie_open(const char *filename);
 void ffmovie_close(FFMovie *movie);
+void ffmovie_play(FFMovie *movie);
+void ffmovie_stop(FFMovie *movie);
 void ffmovie_pause(FFMovie *movie);
+void ffmovie_setvolume(FFMovie *movie, int volume);
 void ffmovie_setdisplay(FFMovie *movie, SDL_Surface *dest, SDL_Rect *rect);
 
 
