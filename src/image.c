@@ -377,7 +377,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)surf->format->palette->colors[color].r;
 					data[1] = (char)surf->format->palette->colors[color].g;
 					data[2] = (char)surf->format->palette->colors[color].b;
-					data[3] = hascolorkey ? (char)(color==colorkey)*255 : (char)255;
+					data[3] = hascolorkey ? (char)(color!=colorkey)*255 : (char)255;
 					data += 4;
 				}
 			}break;
@@ -391,7 +391,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
 					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-					data[3] = hascolorkey ? (char)(color==colorkey)*255 : 
+					data[3] = hascolorkey ? (char)(color!=colorkey)*255 : 
 								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
 					data += 4;
 				}
@@ -411,7 +411,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
 					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-					data[3] = hascolorkey ? (char)(color==colorkey)*255 :
+					data[3] = hascolorkey ? (char)(color!=colorkey)*255 :
 								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
 					data += 4;
 				}
@@ -426,7 +426,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
 					data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
-					data[3] = hascolorkey ? (char)(color==colorkey)*255 :
+					data[3] = hascolorkey ? (char)(color!=colorkey)*255 :
 								(char)(Amask ? (((color & Amask) >> Ashift) << Rloss) : 255);
 					data += 4;
 				}
