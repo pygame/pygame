@@ -42,7 +42,7 @@ and run the chimp demo for yourself in the examples directory.
          <tr>
            <td align="center"> <font size="-1">(no, this is not a banner
 ad,   its the screenshot)</font><br>
-      <img src="chimpshot.gif" alt="Chimp Screenshot" width="474" height="85">
+      <img src="chimpshot.gif" alt="Chimp Screenshot" width="468" height="60">
            <br>
       <a href="chimp.py.html">Full Source</a> </td>
          </tr>
@@ -253,7 +253,7 @@ is  colliding with the given target sprite.<br>
         self.image, self.rect = load_image('chimp.bmp', -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
-        self.rect.bottomright = self.area.bottomright
+        self.rect.topleft = 10, 10
         self.move = 9
         self.dizzy = 0
 
@@ -268,6 +268,8 @@ is  colliding with the given target sprite.<br>
         "move the monkey across the screen, and turn at the ends"
         newpos = self.rect.move((self.move, 0))
         if not self.area.contains(newpos):
+	if self.rect.left < self.area.left or \
+		self.rect.right > self.area.right:
             self.move = -self.move
             newpos = self.rect.move((self.move, 0))
             self.image = pygame.transform.flip(self.image, 1, 0)
