@@ -74,7 +74,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
 			return PyInt_FromLong(0);
 
-		if(Mix_OpenAudio(freq, MIX_DEFAULT_FORMAT, stereo, 1024) == -1)
+		if(Mix_OpenAudio(freq, size, stereo, 1024) == -1)
 		{
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 			return PyInt_FromLong(0);
