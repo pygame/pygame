@@ -132,8 +132,8 @@ static PyObject* line(PyObject* self, PyObject* arg)
     /*DOC*/    "gaps between the lines. Therefore wide lines and sharp corners won't\n"
     /*DOC*/    "be joined seamlessly.\n"
     /*DOC*/    "\n"
-	/*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
-	/*DOC*/    "effected area is returned as a rectangle.\n"
+    /*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
+    /*DOC*/    "effected area is returned as a rectangle.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
     /*DOC*/    "\n"
@@ -175,7 +175,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	length = PySequence_Length(points);
 	if(length < 2)
 		return RAISE(PyExc_ValueError, "points argument must contain more than 1 points");
-printf("LINES: closed=%d length=%d width=%d\n", closed, length, width);
+
 	item = PySequence_GetItem(points, 0);
 	result = TwoShortsFromObj(item, &x, &y);
 	Py_DECREF(item);
@@ -300,6 +300,70 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 
 
 
+    /*DOC*/ static char doc_circle[] =
+    /*DOC*/    "pygame.draw.circle(Surface, color, pos, radius, width) -> Rect\n"
+    /*DOC*/    "draw a circle on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws a circular shape on the Surface. The given position\n"
+    /*DOC*/    "is the center of the circle, and radius is the size. The width\n"
+    /*DOC*/    "argument is the thickness to draw the outer edge. If width is\n"
+    /*DOC*/    "zero then the ellipse will be filled.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* circle(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj;
+	SDL_Surface* surf;
+	Uint8 rgba[4];
+	Uint32 color;
+	int posx, posy, radius;
+	int width, result, loop;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!O(ii)ii", &PySurface_Type, &surfobj, &colorobj, &posx, &posy, &radius, &width))
+		return NULL;
+
+	surf = PySurface_AsSurface(surfobj);
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
+
+	if(PyInt_Check(colorobj))
+		color = (Uint32)PyInt_AsLong(colorobj);
+	else if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
+
+
+	if(!PySurface_Lock(surfobj)) return NULL;
+
+	if(!width)
+		result = draw_fillellipse(surf, (Sint16)posx, (Sint16)posy,
+					(Sint16)radius, (Sint16)radius, color);
+	else
+	{
+		result = 0;
+		for(loop=0; loop<width; ++loop)
+		{
+			result += draw_ellipse(surf, posx, posy, radius-loop, radius-loop, color);
+		}
+	}
+
+	if(!PySurface_Unlock(surfobj)) return NULL;
+
+	if(!result)
+		RETURN_NONE
+	return PyRect_New4((short)(posx-radius), (short)(posy-radius),
+				(short)(radius*2), (short)(radius*2));
+}
+
+
+
+
     /*DOC*/ static char doc_polygon[] =
     /*DOC*/    "pygame.draw.polygon(Surface, color, pointslist, width) -> Rect\n"
     /*DOC*/    "draws a polygon on a surface\n"
@@ -332,14 +396,13 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	if(width)
 	{
 		PyObject *args, *ret;
-printf("POLY: falling back to lines (%d)\n", width);
 		args = Py_BuildValue("(OOiOi)", surfobj, colorobj, 1, points, width);
 		if(!args) return NULL;
 		ret = lines(NULL, args);
 		Py_DECREF(args);
 		return ret;
 	}
-	
+
 	
 	surf = PySurface_AsSurface(surfobj);
 
@@ -409,6 +472,50 @@ printf("POLY: falling back to lines (%d)\n", width);
 }
 
 
+    /*DOC*/ static char doc_rect[] =
+    /*DOC*/    "pygame.draw.rect(Surface, color, Rect, width) -> Rect\n"
+    /*DOC*/    "draws a polygon on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws a polygonal shape on the Surface. The given Rect\n"
+    /*DOC*/    "is the area of the rectangle. The width argument is\n"
+    /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
+    /*DOC*/    "the ellipse will be filled.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Keep in mind the Surface.fill() method works just as well\n"
+    /*DOC*/    "for drawing filled rectangles. In fact the Surface.fill()\n"
+    /*DOC*/    "can be hardware accelerated when the moons are in alignement.\n"
+    /*DOC*/ ;
+
+static PyObject* rect(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj, *rectobj, *points, *args, *ret=NULL;
+	GAME_Rect* rect, temp;
+	int t, l, b, r, width;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!OOi", &PySurface_Type, &surfobj, &colorobj, &rectobj, &width))
+		return NULL;
+
+	if(!(rect = GameRect_FromObject(rectobj, &temp)))
+		return RAISE(PyExc_TypeError, "Rect argument is invalid");
+
+	l = rect->x; r = rect->x + rect->w;
+	t = rect->y; b = rect->y + rect->h;
+
+	/*build the pointlist*/
+	points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);
+
+	args = Py_BuildValue("(OOOi)", surfobj, colorobj, points, width);
+	if(args) ret = polygon(NULL, args);
+
+	Py_XDECREF(args);
+	Py_XDECREF(points);
+	return ret;
+}
 
 
 
@@ -1044,9 +1151,10 @@ static PyMethodDef draw_builtins[] =
 {
 	{ "line", line, 1, doc_line },
 	{ "lines", lines, 1, doc_lines },
-
 	{ "ellipse", ellipse, 1, doc_ellipse },
+	{ "circle", circle, 1, doc_circle },
 	{ "polygon", polygon, 1, doc_polygon },
+	{ "rect", rect, 1, doc_rect },
 
 	{ NULL, NULL }
 };
