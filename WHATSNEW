@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 31, 2001
+	fixed mixer.music refcount
+
 July 26, 2001
 	 custom events work with event.peek() and event.get()
 	 added event.get_blocked() function to query blocked types
