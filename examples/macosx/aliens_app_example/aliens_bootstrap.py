@@ -21,9 +21,6 @@ NibClassBuilder.extractClasses("MainMenu")
 class PygameAppDelegate(NibClassBuilder.AutoBaseClass):
     def applicationDidFinishLaunching_(self, aNotification):
         try:
-            import pkgdata_nsbundle
-            import os
-            os.chdir(NSBundle.mainBundle().resourcePath())
             import aliens
             aliens.main()
         except:
