@@ -643,11 +643,14 @@ static PyObject* get_default_font(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.font.Font(file, size) -> Font\n"
     /*DOC*/    "create a new font object\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will create a new font object. The given file must be a\n"
-    /*DOC*/    "filename to a TTF file. The font loader does not work with python\n"
-    /*DOC*/    "file-like objects. The size represents the height of the font in\n"
-    /*DOC*/    "pixels. The file argument can be 'None', which will use a plain\n"
-    /*DOC*/    "default font.\n"
+    /*DOC*/    "This will create a new font object. The given file can\n"
+    /*DOC*/    "be a filename or any python file-like object.\n"
+    /*DOC*/    "The size represents the height of the font in\n"
+    /*DOC*/    "pixels. The file argument can be 'None', which will\n"
+    /*DOC*/    "use a plain default font.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You must have at least SDL_ttf-2.0.6 for file object\n"
+    /*DOC*/    "support. You can load truetype fonts or FON fonts.\n"
     /*DOC*/ ;
 
 static PyObject* Font(PyObject* self, PyObject* args)
@@ -663,27 +666,44 @@ static PyObject* Font(PyObject* self, PyObject* args)
 	if(!font_initialized)
 		return RAISE(PyExc_SDLError, "font not initialized");
 
+	if(fontsize <= 1)
+		fontsize = 1;
+
 	if(fileobj == Py_None)
 	{
 		if(!font_defaultpath)
 			return RAISE(PyExc_RuntimeError, "default font not found");
-		filename = font_defaultpath;
 		/*keep sizing consistent with previous default fonts*/
 		fontsize = (int)(fontsize * .6875);
+                if(fontsize <= 1)
+                        fontsize = 1;
+
+                Py_BEGIN_ALLOW_THREADS
+                font = TTF_OpenFont(font_defaultpath, fontsize);
+                Py_END_ALLOW_THREADS
 	}
 	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{
 		if(!PyArg_ParseTuple(args, "si", &filename, &fontsize))
 			return NULL;
+
+                Py_BEGIN_ALLOW_THREADS
+                font = TTF_OpenFont(filename, fontsize);
+                Py_END_ALLOW_THREADS
 	}
 	else
-		return RAISE(PyExc_TypeError, "font name must be string or None");
-
-	Py_BEGIN_ALLOW_THREADS
-	if(fontsize <= 1)
-		fontsize = 1;
-	font = TTF_OpenFont(filename, fontsize);
-	Py_END_ALLOW_THREADS
+        {
+#ifdef TTF_MAJOR_VERSION
+                SDL_RWops *rw;
+		if(!(rw = RWopsFromPython(fileobj)))
+			return NULL;
+                Py_BEGIN_ALLOW_THREADS
+                font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+                Py_END_ALLOW_THREADS
+#else
+                return RAISE(PyExc_NotImplementedError, "nonstring fonts require SDL_ttf-2.0.6");
+#endif
+        }
 	
 	if(!font)
 		return RAISE(PyExc_RuntimeError, SDL_GetError());
