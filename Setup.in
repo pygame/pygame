@@ -16,7 +16,7 @@ NUMERIC = -I/usr/include/python2.0/Numeric
 #--EndConfig
 
 #Movie needs libavcodec and friends, must hand configure
-#movie src/movie.c $(SDL) src/ffmovie.c -lavcodec -lavformat
+#movie src/movie.c  src/ffmovie.c $(SDL) -lavcodec -lavformat
 
 
 
@@ -28,7 +28,6 @@ imageext src/imageext.c $(SDL) $(IMAGE)
 font src/font.c $(SDL) $(FONT)
 mixer src/mixer.c $(SDL) $(MIXER)
 mixer_music src/music.c $(SDL) $(MIXER)
-movie src/movie.c $(SDL) $(SMPEG)
 surfarray src/surfarray.c $(SDL) $(NUMERIC)
 sndarray src/sndarray.c $(SDL) $(NUMERIC) $(MIXER)
 
