@@ -1,4 +1,5 @@
-#/usr/bin/env python
+#!/usr/bin/env python
+
 """
 ÜberBall python source by Geoff Howland.  04-28-02
 

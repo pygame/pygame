@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 """This examples demonstrates a simplish water effect of an
 image. It attempts to create a hardware display surface that
