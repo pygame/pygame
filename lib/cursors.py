@@ -151,8 +151,8 @@ considered clear.
 
 
 
-def read_xbm(curs, mask):
-    """pygame.cursors.read_xbm(cursorfile, maskfile) -> cursor_args
+def load_xbm(curs, mask):
+    """pygame.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
 reads a pair of XBM files into set_cursor arguments
 
 Arguments can either be strings or filelike objects
