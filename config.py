@@ -100,11 +100,12 @@ def writesetupfile(deps, basepath):
     while line:
         line = origsetup.readline()
         useit = 1
-        for d in deps:
-            if line.find(d.varname)!=-1 and not d.found:
-                useit = 0
-                newsetup.write('#'+line)
-                break
+        if not line.startswith('COPYLIB'):
+            for d in deps:
+                if line.find(d.varname)!=-1 and not d.found:
+                    useit = 0
+                    newsetup.write('#'+line)
+                    break
         if useit:          
             newsetup.write(line)
 
