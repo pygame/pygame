@@ -645,7 +645,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	SDL_PumpEvents();
 
 	if(DisplaySurfaceObject)
-		PySurface_AsSurface(DisplaySurfaceObject) = surf;
+		((PySurfaceObject*)DisplaySurfaceObject)->surf = surf;
 	else
 		DisplaySurfaceObject = PySurface_New(surf);
 
@@ -653,8 +653,6 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 #if !defined(darwin)
 	if(!icon_was_set)
 	{
-		char* iconpath = NULL;
-		SDL_Surface* icon = NULL;
 		PyObject* iconsurf = display_resource(icon_defaultname);
 		if (!iconsurf)
 			PyErr_Clear();
