@@ -11,7 +11,7 @@ TUTORIAL:Sprite Module Introduction
 <h2 align="center">by Pete Shinners<br>
  <font size="-1">pete@shinners.org</font></h2>
    
-<h3 align="center">Revision 1.01 December 15th, 2001</h3>
+<h3 align="center">Revision 1.1, April 12th, 2002</h3>
   <br>
  <br>
     Pygame version 1.3 comes with a new module, pygame.sprite. This module 
@@ -280,7 +280,11 @@ like this; each key in the dictionary is a sprite from group1 that had a collisi
 The value for that key is a list of the sprites that it collided with. Perhaps
 another quick code sample explains it best<br>
      
-    <pre>	&gt;&gt;&gt; for alien in sprite.groupcollide(aliens,&nbsp;shots, 1, 1).keys()<br>	...     boom_sound.play()<br>	...     Explosion(alien, 0)<br>	...     kills += 1<br></pre>
+    <pre>	&gt;&gt;&gt; for alien in sprite.groupcollide(aliens, shots, 1, 1).keys()
+    ...     boom_sound.play()
+    ...     Explosion(alien, 0)
+    ...     kills += 1
+</pre>
  This code checks for the collisions between player bullets and all the aliens 
 they might intersect. In this case we only loop over the dictionary keys, 
 but we could loop over the values() or items() if we wanted to do something 
@@ -299,27 +303,61 @@ The code in the sprite collision functions is very optimized, but you could
 speed it up slightly by taking out some functionality you don't need.<br>
      <br>
      
-    <h2>Advanced Appendix</h2>
+    <h2>Common Problems</h2>
+   <p>Currently there is one main problem that catches new users. When you
+derive your new sprite class with the Sprite base, you <b>must</b> call the
+Sprite.__init__() method from your own class __init__() method. If you forget
+to call the Sprite.__init__() method, you get a cryptic error, like this;
+<tt>AttributeError: 'mysprite' instance has no attribute '_Sprite__g'</tt>.
+</p>
+    <br>
+
+    <h2>Extending Your Own Classes <i>(Advanced)</i></h2>
+
+   <p>Because of speed concerns, the current Group classes try to
+only do exactly what they need, and not handle a lot of general situations. If you
+decide you need extra features, you may want to create your own Group class.</p>
+
+    <p>The Sprite and Group classes were designed to be extended, so feel free
+to create your own Group classes to do specialized things. The best place to start
+is probably the actual python source code for the sprite module. Looking at the
+current Sprite groups should be enough example on how to create your own.</p>
+
+   <p>For example, here is the source code for a rendering Group that calls a
+render() method for each sprite, instead of just blitting an "image" variable from it.
+Since we want it to also handle updated areas, we will start with a copy of the original
+RenderUpdates group, here is the code:
+<pre>
+class RenderUpdatesDraw(RenderClear):
+    """call sprite.draw(screen) to render sprites"""
+    def draw(self, surface):
+        dirty = self.lostsprites
+        self.lostsprites = []
+        for s, r in self.spritedict.items():
+            newrect = s.draw(screen) #Here's the big change
+            if r is 0:
+                dirty.append(newrect)
+            else:
+                dirty.append(newrect.union(r))
+            self.spritedict[s] = newrect
+        return dirty
+</pre></p>
+
+    <p>Following is more information on how you could create your own Sprite
+and Group objects from scratch. </p>
      
-    <p>The Sprite and Group classes are very flexible, it should be very straightforward
-to derive from then and make your own. Although really there's no need to
-inherit from them. You could create your own class entirely, or even use
-C extension objects. Definitely spend time with the source in the sprite
-module if yo plan to do this sort of thing.&nbsp;Here's a list of what's
-required for a "compatible" Sprite and Group. </p>
-     
-    <p>The sprite objects only "require" two methods. "add_internal" and "remove_internal".
+    <p>The Sprite objects only "require" two methods. "add_internal()" and "remove_internal()".
 These are called by the Group classes when they are removing a sprite from
 themselves. The add_internal() and remove_internal() have a single argument
-which is a group. Your sprite also probably will need some way to also keep
-track of the groups it belongs to. You will likely want to try to match the
+which is a group. Your Sprite will need some way to also keep
+track of the Groups it belongs to. You will likely want to try to match the
 other methods and arguments to the real Sprite class, but if you're not going
-to use those methods, you sure don't need them.&nbsp;</p>
+to use those methods, you sure don't need them.</p>
      
     <p>It is almost the same requirements for creating your own Group. In 
 fact, if you look at the source you'll see the GroupSingle isn't derived from
 the Group class, it just implements the same methods so you can't really tell
-the difference. Again you need an "add_internal" and "remove_internal" method
+the difference. Again you need an "add_internal()" and "remove_internal()" method
 that the sprites call when they want to belong or remove themselves from
 the group. The add_internal() and remove_internal() have a single argument 
 which is a sprite. The only other requirement for the Group classes is they 
@@ -330,7 +368,7 @@ container. (This is important, because several sprite methods can take an
 argument of a single group, or a sequence of groups. Since they both look
 similar, this is the most flexible way to "see" the difference.)</p>
      
-    <p>You may just want to read through the code for the sprite module. While
+    <p>You should through the code for the sprite module. While
 the code is a bit "tuned", it's got enough comments to help you follow along.
 There's even a todo section in the source if you feel like contributing.</p>
                               

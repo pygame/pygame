@@ -197,6 +197,11 @@ in the dict that overlaps the base rectangle. Once an
 overlap is found, this will stop checking the
 remaining list. If no overlap is found, it will
 return None.
+<br>&nbsp;<br>
+Remember python dictionary keys must be immutable,
+Rects are not immutable, so they cannot directly be,
+dictionary keys. You can convert the Rect to a tuple
+with the tuple() builtin command.
 </ul><br>&nbsp;<br>
 
 <a name=collidedictall><font size=+2><b>collidedictall
@@ -207,6 +212,11 @@ Returns a list of the indexes that contain
 rectangles overlapping the base rectangle. If no
 overlap is found, it will return an empty
 sequence.
+<br>&nbsp;<br>
+Remember python dictionary keys must be immutable,
+Rects are not immutable, so they cannot directly be,
+dictionary keys. You can convert the Rect to a tuple
+with the tuple() builtin command.
 </ul><br>&nbsp;<br>
 
 <a name=collidelist><font size=+2><b>collidelist
