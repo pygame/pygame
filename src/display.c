@@ -394,8 +394,8 @@ static PyObject* get_wm_info(PyObject* self, PyObject* args)
 #elif defined(ENABLE_NANOX)
         PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
 #elif defined(WIN32)
-        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
-        PyDict_SetItemString(dict, "hglrc", PyInt_FromLong(info.hglrc));
+        PyDict_SetItemString(dict, "window", PyInt_FromLong((long)info.window));
+        PyDict_SetItemString(dict, "hglrc", PyInt_FromLong((long)info.hglrc));
 #elif defined(__riscos__)
         PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
         PyDict_SetItemString(dict, "wimpVersion", PyInt_FromLong(info.wimpVersion));
