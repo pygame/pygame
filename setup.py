@@ -16,10 +16,6 @@ from distutils.extension import read_setup_file
 from distutils.ccompiler import new_compiler
 
 
-if sys.version_info[0] < 2:
-    raise SystemExit, """pygame requires python 2.0 or higher"""
-
-
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
 

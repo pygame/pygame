@@ -1,5 +1,8 @@
 #This is a list of changes in pygame's history.
 
+Jan 2, 2001
+	surfarray cleanups and improvements (still not 100%)
+
 Dec 22, 2000
 	timer threads properly shutdown
 

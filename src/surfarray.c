@@ -62,7 +62,8 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for 3D reference array");
 
 	/*must discover information about how data is packed*/
-	if(SDL_BYTEORDER == SDL_LIL_ENDIAN) /*intel-style*/
+	/*argh, endian not working, for now intelstyle will be the only way*/
+	if(1 || SDL_BYTEORDER == SDL_BIG_ENDIAN) /*intel-style*/
 	{
 		if(surf->format->Rmask == 0xff<<16 && 
 					surf->format->Gmask == 0xff<<8 &&
@@ -207,46 +208,43 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 	if(!array) return NULL;
 
 	data = (int*)((PyArrayObject*)array)->data;
-	
+#if 1	
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
 		for(loopy = 0; loopy < surf->h; ++loopy)
 		{
 			char* pix = (char*)(((char*)surf->pixels)+loopy*surf->pitch);
-			char* end = (char*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
-			while(pix <= end)
+			char* end = (char*)(((char*)pix)+surf->w);
+			while(pix < end)
 				*data++ = *pix++;
 		}break;
 	case 2:
 		for(loopy = 0; loopy < surf->h; ++loopy)
 		{
 			short* pix = (short*)(((char*)surf->pixels)+loopy*surf->pitch);
-			short* end = (short*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
-			while(pix <= end)
+			short* end = (short*)(((char*)pix)+surf->w*2);
+			while(pix < end)
 				*data++ = *pix++;
 		}break;
 	case 3:
 		for(loopy = 0; loopy < surf->h; ++loopy)
 		{
-			char* pix = (char*)(((char*)surf->pixels)+loopy*surf->pitch);
-			char* end = (char*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
-			while(pix <= end)
-			{
-				*data++ = (*(int*)pix) >> 8;
-				pix += 3;
-			}
+			unsigned char* pix = (unsigned char*)(((char*)surf->pixels)+loopy*surf->pitch);
+			unsigned char* end = pix+surf->w*3;
+			while(pix < end)
+				{*data++ = (pix[0]) + (pix[1]<<8) + (pix[2]<<16); pix += 3;}
 		}break;
 	default: /*case 4*/
 		for(loopy = 0; loopy < surf->h; ++loopy)
 		{
 			int* pix = (int*)(((char*)surf->pixels)+loopy*surf->pitch);
-			int* end = (int*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
-			while(pix <= end)
+			int* end = (int*)(((char*)pix)+surf->w*4);
+			while(pix < end)
 				*data++ = *pix++;
 		}break;
 	}
-
+#endif
 	return array;
 }
 
@@ -267,12 +265,15 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 
 PyObject* array3d(PyObject* self, PyObject* arg)
 {
-	int dim[3], loopy;
+	int dim[3];
 	Uint8* data;
 	PyObject* array;
 	SDL_Surface* surf;
+	SDL_Surface* temp;
 	SDL_PixelFormat* format;
-	int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift;
+	SDL_Rect bounds;
+	Uint32 surface_flags, colorkey;
+	Uint8 alpha;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -283,60 +284,42 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	dim[1] = surf->h;
 	dim[2] = 3;
 
-	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+	if(format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for surface array");
 
 	array = PyArray_FromDims(3, dim, PyArray_UBYTE);
 	if(!array) return NULL;
 
 	data = (Uint8*)((PyArrayObject*)array)->data;
-	Rmask = format->Rmask; Gmask = format->Gmask; Bmask = format->Bmask;
-	Rshift = format->Rshift; Gshift = format->Gshift; Bshift = format->Bshift;
-	
-	switch(surf->format->BytesPerPixel)
-	{
-	case 1:
-		return RAISE(PyExc_ValueError, "colormaps unsupported");
-	case 2:
-		for(loopy = 0; loopy < surf->h; ++loopy)
-		{
-			short* pix = (short*)(((char*)surf->pixels)+loopy*surf->pitch);
-			short* end = (short*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
-			while(pix <= end)
-			{
-				short color = *pix++;
-				*data++ = (color&Rmask)>>Rshift;
-				*data++ = (color&Gmask)>>Gshift;
-				*data++ = (color&Bmask)>>Bshift;
-			}
-		}break;
-	case 3:
-		for(loopy = 0; loopy < surf->h; ++loopy)
-		{
-			char* pix = (char*)(((char*)surf->pixels)+loopy*surf->pitch);
-			char* end = (char*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
-			while(pix <= end)
-			{
-				int color = (*(int*)pix++) >> 8;
-				*data++ = (color&Rmask)>>Rshift;
-				*data++ = (color&Gmask)>>Gshift;
-				*data++ = (color&Bmask)>>Bshift;
-			}
-		}break;
-	default: /*case 4*/
-		for(loopy = 0; loopy < surf->h; ++loopy)
-		{
-			int* pix = (int*)(((char*)surf->pixels)+loopy*surf->pitch);
-			int* end = (int*)(((char*)pix)+surf->w*surf->format->BytesPerPixel);
-			while(pix <= end)
-			{
-				int color = *pix++;
-				*data++ = (color&Rmask)>>Rshift;
-				*data++ = (color&Gmask)>>Gshift;
-				*data++ = (color&Bmask)>>Bshift;
-			}
-		}break;
+	temp = SDL_CreateRGBSurfaceFrom(data, surf->w, surf->h, 24,
+				surf->w*3, 0xFF, 0xFF<<8, 0xFF<<16, 0);
+
+	/*stash original surface alpha states*/
+	surface_flags = surf->flags;
+	if ( (surface_flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY ) {
+		colorkey = format->colorkey;
+		SDL_SetColorKey(surf, 0, 0);
 	}
+	if ( (surface_flags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
+		alpha = format->alpha;
+		SDL_SetAlpha(surf, 0, 0);
+	}
+
+	/* Copy over the image data */
+	bounds.x = 0;
+	bounds.y = 0;
+	bounds.w = surf->w;
+	bounds.h = surf->h;
+	SDL_LowerBlit(surf, &bounds, temp, &bounds);
+
+	/* Clean up the original surface, and update converted surface */
+	if((surface_flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY)
+		SDL_SetColorKey(surf, surface_flags&(SDL_SRCCOLORKEY|SDL_RLEACCELOK), 
+					colorkey);
+	if((surface_flags & SDL_SRCALPHA) == SDL_SRCALPHA)
+		SDL_SetAlpha(surf, surface_flags&SDL_SRCALPHA, alpha);
+
+	SDL_FreeSurface(temp);
 
 	return array;
 }
@@ -403,7 +386,7 @@ PyObject* map_array(PyObject* self, PyObject* arg)
 		stridez = array->strides[1];
 		sizex = 1;
 		sizey = array->dimensions[0];
-#if 0 /*kinda like a scalar here, use normal map_rgb*/
+#if 1 /*kinda like a scalar here, use normal map_rgb*/
 	case 1: /*single color*/
 		dims[0] = 1;
 		newarray = PyArray_FromDims(1, dims, PyArray_INT);
@@ -522,9 +505,9 @@ PyObject* map_array(PyObject* self, PyObject* arg)
 		char* data = ((char*)surf->pixels) + surf->pitch * loopy; \
 		char* pix = array->data + stridey * loopy; \
 		for(loopx = 0; loopx < sizex; ++loopx) { \
-			*data++ = (char)*(SRC*)(pix); \
-			*data++ = (char)*(SRC*)(pix+stridez); \
 			*data++ = (char)*(SRC*)(pix+stridez2); \
+			*data++ = (char)*(SRC*)(pix+stridez); \
+			*data++ = (char)*(SRC*)(pix); \
 			pix += stridex; \
 	}	}
 
