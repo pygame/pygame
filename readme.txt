@@ -92,7 +92,6 @@
      Numeric package for its multidimensional numeric arrays.
 
    Todo / Ideas (feel free to submit)
-     * unify more types/classes for python 2.2
      * transform.skew() function
      * transform.scroll() function
      * image filtering (colors,blurs,etc)
@@ -102,6 +101,9 @@
      * draw with transparancy
      * draw large sets of primitives with a single call
      * drawing offsets, perhaps as subsurfaces
+     * new scale2x, scale3x, and scale4x from hiend3d
+     * switch Numeric to numarray (see docs on how to do both)
+     * audio resampling
 
    License
 
