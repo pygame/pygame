@@ -130,7 +130,7 @@ static PyObject* set_timer(PyObject* self, PyObject* arg)
 	/*just doublecheck that timer is initialized*/
 	if(!SDL_WasInit(SDL_INIT_TIMER))
 	{
-		if(SDL_Init(SDL_INIT_TIMER))
+		if(SDL_InitSubSystem(SDL_INIT_TIMER))
 			return RAISE(PyExc_SDLError, SDL_GetError());
 	}
 
