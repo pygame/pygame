@@ -80,20 +80,20 @@ create a new font object</td></tr>
 get the name of the default font</td></tr>
 
 
+<tr><td><a href=#get_fonts>get_fonts</a></td><td> -
+       get a list of system font names</td></tr>
+
+
 <tr><td><a href=#get_init>get_init</a></td><td> -
 get status of font module initialization</td></tr>
-
-
-<tr><td><a href=#get_system_fonts>get_system_fonts</a></td><td> -
-       get a list of system font names</td></tr>
 
 
 <tr><td><a href=#init>init</a></td><td> -
 initialize the display module</td></tr>
 
 
-<tr><td><a href=#match_system_font>match_system_font</a></td><td> -
-       find the filename for the system font</td></tr>
+<tr><td><a href=#match_font>match_font</a></td><td> -
+       find the filename for the named system font</td></tr>
 
 
 <tr><td><a href=#quit>quit</a></td><td> -
@@ -145,22 +145,22 @@ pygame.font.get_default_font() -> string
 returns the filename for the default truetype font.
 </ul><br>&nbsp;<br>
 
-<a name=get_init><font size=+2><b>get_init
+<a name=get_fonts><font size=+2><b>get_fonts
 </b></font><br><font size=+1><tt>
-pygame.font.get_init() -> bool
-</tt></font><ul>
-Returns true if the font module is currently intialized.
-</ul><br>&nbsp;<br>
-
-<a name=get_system_fonts><font size=+2><b>get_system_fonts
-</b></font><br><font size=+1><tt>
-pygame.font.get_system_fonts() -> list
+pygame.font.get_fonts() -> list
 </tt></font><ul>
        Returns the list of all found system fonts. Note that
        the names of the fonts will be all lowercase with spaces
        removed. This is how pygame internally stores the font
        names for matching.
     
+</ul><br>&nbsp;<br>
+
+<a name=get_init><font size=+2><b>get_init
+</b></font><br><font size=+1><tt>
+pygame.font.get_init() -> bool
+</tt></font><ul>
+Returns true if the font module is currently intialized.
 </ul><br>&nbsp;<br>
 
 <a name=init><font size=+2><b>init
@@ -172,9 +172,9 @@ it cannot be initialized. It is safe to call this function if
 font is currently initialized.
 </ul><br>&nbsp;<br>
 
-<a name=match_system_font><font size=+2><b>match_system_font
+<a name=match_font><font size=+2><b>match_font
 </b></font><br><font size=+1><tt>
-pygame.font.match_system_font(name, bold=0, italic=0) -> name
+pygame.font.match_font(name, bold=0, italic=0) -> name
 </tt></font><ul>
        This performs the same font search as the <a href=#SysFont>SysFont()</a>
        function, only it returns the path to the TTF file
@@ -189,7 +189,7 @@ pygame.font.match_system_font(name, bold=0, italic=0) -> name
 </b></font><br><font size=+1><tt>
 pygame.font.quit() -> none
 </tt></font><ul>
-Manually uninitialize SDL's video subsystem. It is safe to call
+Manually uninitialize SDL_ttf's font system. It is safe to call
 this if font is currently not initialized.
 </ul><br>&nbsp;<br>
 
