@@ -427,13 +427,12 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 static PyObject* mode_ok(PyObject* self, PyObject* args)
 {
 	int flags=SDL_SWSURFACE, depth=0;
-	short w, h;
+	int w, h;
 
 	VIDEO_INIT_CHECK();
 
 	if(!PyArg_ParseTuple(args, "(ii)|ii", &w, &h, &flags, &depth))
 		return NULL;
-
 	if(!depth)
 		depth = SDL_GetVideoInfo()->vfmt->BitsPerPixel;
 
