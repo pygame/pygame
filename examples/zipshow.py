@@ -13,8 +13,7 @@ Also note, if your SDL_image doesn't support
 #(don't blame me, it's a bug in older SDL_image)
 
 
-import zipfile, sys, glob, os
-import pygame, pygame.image
+import zipfile, sys, glob, pygame
 from cStringIO import StringIO
 from pygame.locals import *
 

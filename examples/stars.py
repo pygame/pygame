@@ -6,9 +6,7 @@ the basics of creating a window, simple pixel plotting, and input
 event management"""
 
 
-import time, random, math
-
-import pygame
+import random, math, pygame
 from pygame.locals import *
 
 #constants

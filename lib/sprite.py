@@ -127,12 +127,12 @@ class Sprite:
         if hasattr(group, '_spritegroup'):
             if has(group):
                 group.remove_internal(self)
-                del self.__g[g]
+                del self.__g[group]
         else:
             for g in group:
                 if has(g):
                     g.remove_internal(self)
-                    del self.__g[g]
+                    del self.__g[group]
 
     def add_internal(self, group):
         self.__g[group] = 0
@@ -270,7 +270,21 @@ class Group:
            Returns true if the given sprite or sprites are
            contained in the group"""
         has = self.spritedict.has_key
-        if hasattr(sprites, '_spritegroup'):
+        if hasattr(sprite, '_spritegroup'):
+            for sprite in sprite.sprites():
+                if not has(sprite):
+                    return 0
+        else:
+            try: len(sprite) #see if its a sequence
+            except (TypeError, AttributeError):
+                return has(sprite)
+            else:
+                for sprite in sprite:
+                    if not has(sprite):
+                        return 0
+        return 1
+
+        if hasattr(sprite, '_spritegroup'):
             return sprite in has(sprite)
         sprites = sprite
         for sprite in sprites:
@@ -353,8 +367,8 @@ class GroupSingle:
                 sprite = sprite[-1]
             except (TypeError, AttributeError): pass
         if sprite is not self.sprite:
-			self.add_internal(sprite)
-			sprite.add_internal(self)
+            self.add_internal(sprite)
+            sprite.add_internal(self)
 
     def remove(self, sprite):
         if hasattr(sprite, '_spritegroup'):

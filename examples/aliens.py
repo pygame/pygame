@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import random, os.path, sys
+import random, os.path
 
 #import basic pygame modules
 import pygame
@@ -114,11 +114,11 @@ class Explosion(pygame.sprite.Sprite):
     defaultlife = 12
     animcycle = 3
     images = []
-    def __init__(self, actor, longer):
+    def __init__(self, actor):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = self.images[0]
         self.rect = self.image.get_rect()
-        self.life = self.defaultlife * (longer+1)
+        self.life = self.defaultlife
         self.rect.center = actor.rect.center
         
     def update(self):
@@ -155,7 +155,7 @@ class Bomb(pygame.sprite.Sprite):
     def update(self):
         self.rect.move_ip(0, self.speed)
         if self.rect.bottom >= 470:
-            Explosion(self, 0)
+            Explosion(self)
             self.kill()
 
 
@@ -233,16 +233,16 @@ def main(winstyle = 0):
         #get input
         for event in pygame.event.get():
             if event.type == QUIT or \
-			(event.type == KEYDOWN and event.key == K_ESCAPE):
-			    return
+                (event.type == KEYDOWN and event.key == K_ESCAPE):
+                    return
         keystate = pygame.key.get_pressed()
 
         # clear/erase the last drawn sprites
         all.clear(screen, background)
-
+        
         #update all the sprites
         all.update()
-        
+
         #handle player input
         direction = keystate[K_RIGHT] - keystate[K_LEFT]
         player.move(direction)
@@ -264,21 +264,22 @@ def main(winstyle = 0):
             Bomb(lastalien.sprite)
 
         # Detect collisions
-        for a in pygame.sprite.spritecollide(player, aliens, 1):
+        for alien in pygame.sprite.spritecollide(player, aliens, 1):
             boom_sound.play()
-            Explosion(a, 0)
-            Explosion(player, 1)
-            kills += 1
+            Explosion(alien)
+            Explosion(player)
+            kills = kills + 1
             player.kill()
 
         for alien in pygame.sprite.groupcollide(shots, aliens, 1, 1).keys():
             boom_sound.play()
-            Explosion(alien, 0)
-            kills += 1
+            Explosion(alien)
+            kills = kills + 1
                     
         for bomb in pygame.sprite.spritecollide(player, bombs, 1):         
             boom_sound.play()
-            Explosion(player, 0)
+            Explosion(player)
+            Explosion(bomb)
             player.kill()
 
         #draw the scene
