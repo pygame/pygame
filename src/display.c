@@ -385,6 +385,9 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 
 	VIDEO_INIT_CHECK();
 
+	if(!depth)
+		flags |= SDL_ANYFORMAT;
+
 	surf = SDL_SetVideoMode(w, h, depth, flags);
 	if(!surf)
 		return RAISE(PyExc_SDLError, SDL_GetError());
