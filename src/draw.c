@@ -33,7 +33,7 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty
 
 
     /*DOC*/ static char doc_line[] =
-    /*DOC*/    "pygame.draw.line(Surface, color, startpos, endpos) -> Rect\n"
+    /*DOC*/    "pygame.draw.line(Surface, color, startpos, endpos, width=1) -> Rect\n"
     /*DOC*/    "draw a line on a surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Draws a line on a surface. This will respect the clipping\n"
