@@ -6,7 +6,7 @@ aliens.py - This started off as a port of the SDL demonstration,
     Aliens. Now it has evolved into something sort of resembling
     fun. This demonstrates a lot of different uses of sprites and
     optimized blitting. Also transparancy, colorkeys, fonts, sound,
-    music, and more. (PS, my high score is 117! goodluck)
+    music, joystick, and more. (PS, my high score is 117! goodluck)
 
 oldalien.py - This more closely resembles a port of the SDL Aliens
     demo. The code is a lot simpler, so it makes a better starting
