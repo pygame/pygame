@@ -26,7 +26,6 @@
 #define PYGAMEAPI_DISPLAY_INTERNAL
 #include "pygame.h"
 
-
 static char* icon_defaultname = "pygame_icon.bmp";
 static PyObject* self_module = NULL;
 
@@ -163,7 +162,7 @@ static PyObject* get_active(PyObject* self, PyObject* arg)
 
 static void vidinfo_dealloc(PyObject* self)
 {
-	PyObject_DEL(self);
+	PyObject_DEL(self);	
 }
 
 
@@ -207,7 +206,7 @@ static PyObject *vidinfo_getattr(PyObject *self, char *name)
 	else if(!strcmp(name, "losses"))
 		return Py_BuildValue("(iiii)", info->vfmt->Rloss, info->vfmt->Gloss,
 					info->vfmt->Bloss, info->vfmt->Aloss);
-
+	
 	return RAISE(PyExc_AttributeError, "does not exist in vidinfo");
 }
 
@@ -263,7 +262,7 @@ static PyObject* PyVidInfo_New(const SDL_VideoInfo* i)
 	PyVidInfoObject* info;
 
 	if(!i) return RAISE(PyExc_SDLError, SDL_GetError());
-
+	
 	info = PyObject_NEW(PyVidInfoObject, &PyVidInfo_Type);
 	if(!info) return NULL;
 
@@ -314,7 +313,7 @@ static PyObject* set_driver(PyObject* self, PyObject* arg)
 static PyObject* get_driver(PyObject* self, PyObject* args)
 {
 	char buf[256];
-
+	
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -396,7 +395,7 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
 static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
 {
         int flag, value, result;
-
+    
 	VIDEO_INIT_CHECK();
 
     	if(!PyArg_ParseTuple(arg, "ii", &flag, &value))
@@ -405,7 +404,7 @@ static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
 	result = SDL_GL_SetAttribute(flag, value);
         if(result == -1)
             return RAISE(PyExc_SDLError, SDL_GetError());
-
+        
         RETURN_NONE
 }
 
@@ -429,7 +428,7 @@ static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
 static PyObject* gl_get_attribute(PyObject* self, PyObject* arg)
 {
         int flag, value, result;
-
+    
 	VIDEO_INIT_CHECK();
 
 	if(!PyArg_ParseTuple(arg, "i", &flag))
@@ -438,12 +437,12 @@ static PyObject* gl_get_attribute(PyObject* self, PyObject* arg)
 	result = SDL_GL_GetAttribute(flag, &value);
         if(result == -1)
             return RAISE(PyExc_SDLError, SDL_GetError());
-
+        
         return PyInt_FromLong(value);
 }
 
 
-
+            
     /*DOC*/ static char doc_set_mode[] =
     /*DOC*/    "pygame.display.set_mode(size, [flags, [depth]]) -> Surface\n"
     /*DOC*/    "set the display mode\n"
@@ -522,7 +521,6 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 		if(!surf)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 	}
-
 	SDL_WM_GetCaption(&title, &icontitle);
 	if(!title || !*title)
 		SDL_WM_SetCaption("pygame window", "pygame");
@@ -534,6 +532,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 		((PySurfaceObject*)DisplaySurfaceObject)->surf = surf;
 	else
 		DisplaySurfaceObject = PySurface_New(surf);
+
 
 #if !defined(darwin)
 	if(!icon_was_set)
@@ -638,7 +637,7 @@ static PyObject* list_modes(PyObject* self, PyObject* args)
 	SDL_Rect** rects;
 	int flags=SDL_FULLSCREEN;
 	PyObject *list, *size;
-
+	
 	format.BitsPerPixel = 0;
 	if(PyTuple_Size(args)!=0 && !PyArg_ParseTuple(args, "|bi", &format.BitsPerPixel, &flags))
 		return NULL;
@@ -763,7 +762,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	high = screen->h;
 	if(screen->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot update an OPENGL display");
-
+        
 	/*determine type of argument we got*/
 	if(PyTuple_Size(arg) == 0)
         {
@@ -806,7 +805,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
                 seq = PyTuple_GET_ITEM(arg, 0);
                 if(!seq || !PySequence_Check(seq))
                         return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
-
+        
                 num = PySequence_Length(seq);
                 rects = PyMem_New(SDL_Rect, num);
                 if(!rects) return NULL;
@@ -814,7 +813,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
                 for(loop = 0; loop < num; ++loop)
                 {
                         GAME_Rect* cur_rect = (GAME_Rect*)(rects + count);
-
+        
                         /*get rect from the sequence*/
                         r = PySequence_GetItem(seq, loop);
                         if(r == Py_None)
@@ -829,17 +828,17 @@ static PyObject* update(PyObject* self, PyObject* arg)
                                 PyMem_Free((char*)rects);
                                 return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
                         }
-
+                        
                         if(gr->w < 1 && gr->h < 1)
                                 continue;
-
+        
                         /*bail out if rect not onscreen*/
                         if(!screencroprect(gr, wide, high, cur_rect))
                                 continue;
-
+        
                         ++count;
                 }
-
+        
                 if(count)
                     SDL_UpdateRects(screen, count, rects);
                 PyMem_Free((char*)rects);
@@ -872,7 +871,7 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 	PyObject* list, *item = NULL;
 	int i, len;
 	short r, g, b;
-
+	
 	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "|O", &list))
 		return NULL;
@@ -890,8 +889,8 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 		SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0, len);
 		RETURN_NONE
 	}
-
-
+	
+	
 	if(!PySequence_Check(list))
 		return RAISE(PyExc_ValueError, "Argument must be a sequence type");
 
@@ -900,7 +899,7 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 	colors = (SDL_Color*)malloc(len * sizeof(SDL_Color));
 	if(!colors)
 		return NULL;
-
+	
 	for(i = 0; i < len; i++)
 	{
 		item = PySequence_GetItem(list, i);
@@ -917,7 +916,7 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 		colors[i].r = (unsigned char)r;
 		colors[i].g = (unsigned char)g;
 		colors[i].b = (unsigned char)b;
-
+	
 		Py_DECREF(item);
 	}
 
@@ -957,7 +956,93 @@ static PyObject* set_gamma(PyObject* self, PyObject* arg)
 	return PyInt_FromLong(result == 0);
 }
 
+static int convert_to_uint16(PyObject* python_array, Uint16* c_uint16_array)
+{
+        int i;
+        PyObject* item;
 
+	if (!c_uint16_array) {
+	        RAISE(PyExc_RuntimeError, "Memory not allocated for c_uint16_array.");
+		return 0;
+	}
+
+	if (!PySequence_Check(python_array))
+        {
+	        RAISE(PyExc_TypeError, "Array must be sequence type");
+	        return 0;
+        }
+
+	if (PySequence_Size(python_array) != 256)
+        {
+		RAISE(PyExc_ValueError, "gamma ramp must be 256 elements long");
+                return 0;
+        }
+	for (i=0; i<256; i++)
+        {
+                item = PySequence_GetItem(python_array, i);
+                if(!PyInt_Check(item))
+                {
+		    RAISE(PyExc_ValueError, "gamma ramp must contain integer elements");
+                    return 0;
+                }
+		c_uint16_array[i] = PyInt_AsLong(item);
+        }
+	return 1;
+}
+
+    /*DOC*/ static char doc_set_gamma_ramp[] =
+    /*DOC*/    "pygame.display.set_gamma_ramp(r, g, b) -> bool\n"
+    /*DOC*/    "advanced control over the display gamma ramps\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Pass three sequences with 256 elements. Each element must be a\n"
+    /*DOC*/    "'16bit' unsigned integer value. This is from 0 to 65536.\n"
+    /*DOC*/    "If you are using a display mode with a hardware\n"
+    /*DOC*/    "palette, this will simply update the palette you are using.\n"
+    /*DOC*/    "Not all hardware supports gamma. The return value will be\n"
+    /*DOC*/    "true on success.\n";
+
+static PyObject* set_gamma_ramp(PyObject* self, PyObject* arg)
+{
+ 	Uint16 *r, *g, *b;
+
+	int result;
+ 
+	r = (Uint16 *)malloc(256 * sizeof(Uint16));
+	if (!r)
+	        return NULL;
+	g = (Uint16 *)malloc(256 * sizeof(Uint16));
+	if (!g)
+        {
+                free(r);
+	        return NULL;
+        }
+	b = (Uint16 *)malloc(256 * sizeof(Uint16));
+	if (!b)
+        {
+                free(r);
+                free(g);
+	        return NULL;
+        }
+
+	if(!PyArg_ParseTuple(arg, "O&O&O&", 
+			     convert_to_uint16, r,
+			     convert_to_uint16, g,
+			     convert_to_uint16, b))
+        {
+                free(r); free(g); free(b);
+	        return NULL;
+        }
+
+        VIDEO_INIT_CHECK();
+	
+	result = SDL_SetGammaRamp(r, g, b);
+
+	free((char*)r);
+	free((char*)g);
+	free((char*)b);
+
+	return PyInt_FromLong(result == 0);
+}
 
     /*DOC*/ static char doc_set_caption[] =
     /*DOC*/    "pygame.display.set_caption(title, [icontitle]) -> None\n"
@@ -1001,7 +1086,7 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
 		return NULL;
 
 	SDL_WM_GetCaption(&title, &icontitle);
-
+	
 	if(title && *title)
 		return Py_BuildValue("(ss)", title, icontitle);
 
@@ -1114,7 +1199,7 @@ static PyMethodDef display_builtins[] =
 
 	{ "set_palette", set_palette, 1, doc_set_palette },
 	{ "set_gamma", set_gamma, 1, doc_set_gamma },
-	/*gammaramp support will be added later, if needed?*/
+	{ "set_gamma_ramp", set_gamma_ramp, 1, doc_set_gamma_ramp },
 
 	{ "set_caption", set_caption, 1, doc_set_caption },
 	{ "get_caption", get_caption, 1, doc_get_caption },

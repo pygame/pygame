@@ -64,7 +64,8 @@
      TheCorruptor for his incredible logos and graphics
 
      Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
-   Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman
+   Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
+   Andrew Straw
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, Rene
