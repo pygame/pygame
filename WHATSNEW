@@ -7,6 +7,8 @@
 January 23, 2002
 	transform.rotate() does alpha if image has alphaplane
 	transform.rotate() no longer "off by one" in the x axis
+	added CD.get_all() to get information for all tracks
+	CD.play() can now take an option start and end time
 
 January 17, 2002
         smarter importing code

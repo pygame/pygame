@@ -252,10 +252,14 @@ static PyObject* cd_get_init(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_cd_play[] =
-    /*DOC*/    "CD.play(track) -> None\n"
+    /*DOC*/    "CD.play(track, [start, end]) -> None\n"
     /*DOC*/    "play music from cdrom\n"
     /*DOC*/    "\n"
     /*DOC*/    "Play an audio track on a cdrom disk.\n"
+    /*DOC*/    "You may also optionally pass a starting and ending\n"
+    /*DOC*/    "time to play of the song. If you pass the start end\n"
+    /*DOC*/    "end time in seconds, only that portion of the audio\n"
+    /*DOC*/    "track will be played\n"
     /*DOC*/ ;
 
 static PyObject* cd_play(PyObject* self, PyObject* args)
@@ -263,8 +267,10 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
 	int result, track, offset, length;
-	
-	if(!PyArg_ParseTuple(args, "i", &track))
+	float start=0.0f, end=6000.0f;
+	int startframe, endframe;
+
+	if(!PyArg_ParseTuple(args, "i|ff", &track, &start, &end))
 		return NULL;
 
 	CDROM_INIT_CHECK();
@@ -278,7 +284,17 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 
 	offset = cdrom->track[track].offset;
 	length = cdrom->track[track].length;
-
+	startframe = (int)(start * CD_FPS);
+	endframe = (int)(end * CD_FPS);
+	if(startframe < 0)
+		startframe = 0;
+	if(endframe < startframe || offset+startframe > length)
+		RETURN_NONE;
+	offset += startframe;
+	length = min(length-startframe, endframe-startframe);
+printf("CDPLAY: %d to %d  (track=%d to %d)\n", offset, length,
+(int)cdrom->track[track].offset,
+(int)cdrom->track[track].length);
 	result = SDL_CDPlay(cdrom, offset, length);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
@@ -665,6 +681,59 @@ static PyObject* cd_get_track_start(PyObject* self, PyObject* args)
 }
 
 
+    /*DOC*/ static char doc_cd_get_all[] =
+    /*DOC*/    "CD.get_all() -> tuple\n"
+    /*DOC*/    "get all track information for the cd\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a tuple with values for each track on the CD.\n"
+    /*DOC*/    "Each item in the tuple is a tuple with 4 values for each\n"
+    /*DOC*/    "track. First is a boolean set to true if this is an audio\n"
+    /*DOC*/    "track. The next 3 values are the start time, end time, and\n"
+    /*DOC*/    "length of the track.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_all(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int track;
+	PyObject *tuple, *item;
+	
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+
+	SDL_CDStatus(cdrom);
+	tuple = PyTuple_New(cdrom->numtracks);
+	if(!tuple)
+		return NULL;
+	for(track=0; track < cdrom->numtracks; track++)
+	{
+		int audio = cdrom->track[track].type == SDL_AUDIO_TRACK;
+		double start = cdrom->track[track].offset / (double)CD_FPS;
+		double length = cdrom->track[track].length / (double)CD_FPS;
+		double end = start + length;
+		item = PyTuple_New(4);
+		if(!item)
+		{
+			Py_DECREF(tuple);
+			return NULL;
+		}
+		PyTuple_SET_ITEM(item, 0, PyInt_FromLong(audio));
+		PyTuple_SET_ITEM(item, 1, PyFloat_FromDouble(start));
+		PyTuple_SET_ITEM(item, 2, PyFloat_FromDouble(end));
+		PyTuple_SET_ITEM(item, 3, PyFloat_FromDouble(length));
+		PyTuple_SET_ITEM(tuple, track, item);
+	}
+
+	return tuple;
+}
+
+
+
 
 static PyMethodDef cd_builtins[] =
 {
@@ -685,6 +754,7 @@ static PyMethodDef cd_builtins[] =
 	{ "get_numtracks", cd_get_numtracks, 1, doc_cd_get_numtracks },
 	{ "get_id", cd_get_id, 1, doc_cd_get_id },
 	{ "get_name", cd_get_name, 1, doc_cd_get_name },
+	{ "get_all", cd_get_all, 1, doc_cd_get_all },
 
 	{ "get_track_audio", cd_get_track_audio, 1, doc_cd_get_track_audio },
 	{ "get_track_length", cd_get_track_length, 1, doc_cd_get_track_length },
