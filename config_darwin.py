@@ -103,6 +103,10 @@ def main():
     for d in DEPS:
       d.configure(incdirs, libdirs)
     DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
+    try:
+        import objc
+    except ImportError:
+        raise SystemExit, "Pygame requires PyObjC version 1.1 or above."
     return DEPS
 
 

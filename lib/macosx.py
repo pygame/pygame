@@ -10,6 +10,7 @@ __all__ = ['init']
 # Need to do this if not running with a nib
 def setupAppleMenu(app):
     appleMenuController = NSAppleMenuController.alloc().init()
+    appleMenuController.retain()
     appleMenu = NSMenu.alloc().initWithTitle_('')
     appleMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('', None, '')
     appleMenuItem.setSubmenu_(appleMenu)
@@ -20,6 +21,7 @@ def setupAppleMenu(app):
 # Need to do this if not running with a nib
 def setupWindowMenu(app):
     windowMenu = NSMenu.alloc().initWithTitle_('Window')
+    windowMenu.retain()
     menuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Minimize', 'performMiniaturize:', 'm')
     windowMenu.addItem_(menuItem)
     windowMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Window', None, '')
@@ -28,11 +30,24 @@ def setupWindowMenu(app):
     app.setWindowsMenu_(windowMenu)
 
 # Used to cleanly terminate
-class PyGameAppDelegate(NSObject, NSApplicationDelegate):
+class PyGameAppDelegate(NSObject):
     def applicationShouldTerminate_(self, app):
         import pygame.event
         pygame.event.post(pygame.event.Event(pygame.QUIT))
         return NSTerminateLater
+
+    def windowUpdateNotification_(self, notification):
+        # Seems to be a retain count bug in SDL.. workaround!
+        win = notification.object()
+        LameClass = objc.lookUpClass('SDL_QuartzWindow')
+        if isinstance(win, LameClass):
+            """
+            Only do this for one window
+            """
+            win.retain()
+            NSNotificationCenter.defaultCenter().removeObserver_name_object_(
+                self, NSWindowDidUpdateNotification, None)
+            self.release()
 
 def setIcon(app):
     try:
@@ -45,11 +60,16 @@ def setIcon(app):
             app.setApplicationIconImage_(img)
 
 def install():
-    global _applicationDelegate
     app = NSApplication.sharedApplication()
     setIcon(app)
-    _applicationDelegate = PyGameAppDelegate.alloc().init()
-    app.setDelegate_(_applicationDelegate)
+    appDelegate = PyGameAppDelegate.alloc().init()
+    app.setDelegate_(appDelegate)
+    appDelegate.retain()
+    NSNotificationCenter.defaultCenter().addObserver_selector_name_object_(
+        appDelegate,
+        'windowUpdateNotification:',
+        NSWindowDidUpdateNotification,
+        None)
     if not app.mainMenu():
         mainMenu = NSMenu.alloc().init()
         app.setMainMenu_(mainMenu)
