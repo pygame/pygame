@@ -1,5 +1,5 @@
 <html>
-<title>pygame.movie</title>
+<title>pygame.sndarray</title>
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
@@ -50,39 +50,55 @@
 
 </td></tr></table></td></tr></table>
 <br>
-<h2 align=center>pygame.movie</h2>
-The movie module is an optional pygame module that
-allows for decoding and playback of MPEG movie files.
-The module only contains a single function, <a href=#Movie>Movie()</a>
-which creates a new Movie object.
-<br>&nbsp;<br>
-Movies are played back in background threads, so there
-is very little management needed on the user end. Just
-load the Movie, set the destination, and <a href=Movie.html#play>Movie.play()</a>
-<br>&nbsp;<br>
-Movies will only playback audio if the pygame.mixer
-module is not initialized. It is easy to temporarily
-call <a href=pygame_mixer.html#quit>pygame.mixer.quit()</a> to disable audio, then create
-and play your movie. Finally calling <a href=pygame_mixer.html#init>pygame.mixer.init()</a>
-again when finished with the Movie.
+<h2 align=center>pygame.sndarray</h2>
+Contains routines for mixing numeric arrays with
+sounds
 
 <hr>
 
 <table>
-<tr><td><a href=#Movie>Movie</a></td><td> -
-load a new MPEG stream</td></tr>
+<tr><td><a href=#array>array</a></td><td> -
+get an array copied from a sound</td></tr>
+
+
+<tr><td><a href=#make_sound>make_sound</a></td><td> -
+create a new Sound object from array data</td></tr>
+
+
+<tr><td><a href=#samples>samples</a></td><td> -
+get a reference to the sound samples</td></tr>
 
 
 </table>
 
 <hr>
 
-<a name=Movie><font size=+2><b>Movie
+<a name=array><font size=+2><b>array
 </b></font><br><font size=+1><tt>
-pygame.movie.Movie(file) -> Movie
+pygame.sndarray.array(Sound) -> Array
 </tt></font><ul>
-Loads a new movie stream from a MPEG file. The file
-argument is either a filename, or any python file-like object
+Creates an array with a copy of the sound data.
+</ul><br>&nbsp;<br>
+
+<a name=make_sound><font size=+2><b>make_sound
+</b></font><br><font size=+1><tt>
+pygame.sndarray.make_sound(array) -> Sound
+</tt></font><ul>
+Create a new playable Sound object from array data
+the Sound will be a copy of the array samples.
+<br>&nbsp;<br>
+The samples must be in the same format of the initialized
+mixer module. This means you must match the data type
+(8bit or 16bit) as well as match the number of channels
+(usually stereo or mono).
+</ul><br>&nbsp;<br>
+
+<a name=samples><font size=+2><b>samples
+</b></font><br><font size=+1><tt>
+pygame.sndarray.samples(Surface) -> Array
+</tt></font><ul>
+This will return an array that directly references the samples
+in the array.
 </ul><br>&nbsp;<br>
 
 

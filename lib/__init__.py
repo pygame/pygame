@@ -116,10 +116,10 @@ except (ImportError,IOError):sndarray=None
 #there's also a couple "internal" modules not needed
 #by users, but putting them here helps "dependency finder"
 #programs get everything they need (like py2exe)
-try: import pygame.imageext; del imageext
+try: import pygame.imageext; del pygame.imageext
 except (ImportError,IOError):pass
 
-try: import pygame.mixer_music; del mixer_music
+try: import pygame.mixer_music; del pygame.mixer_music
 except (ImportError,IOError):pass
 
 
