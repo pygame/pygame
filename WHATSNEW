@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+November 13, 2001
+	added sprite module
+
 November 12, 2001
 	image.tostring() "RGBA" works with colorkey
 
