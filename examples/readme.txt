@@ -1,5 +1,6 @@
 These examples should help get you started with pyGame. Here is a
-brief rundown of what you get.
+brief rundown of what you get. The source code for these examples
+is in the public domain. Feel free to use for your own projects.
 
 
 aliens.py - This started off as a port of the SDL demonstration,
