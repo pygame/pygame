@@ -30,38 +30,36 @@ def _simplename(name):
     name = name.lower()
     return name
 
+
 #insert a font and style into the font dictionary
 def _addfont(name, bold, italic, font, fontdict):
     if not fontdict.has_key(name):
         fontdict[name] = {}
     fontdict[name][bold, italic] = font
 
+
 #read the fonts on windows
 def initsysfonts_win32():
     import _winreg
     fonts = {}
     mods = 'demibold', 'narrow', 'light', 'unicode', 'bt', 'mt'
-    WindowsDir = win32api.GetWindowsDirectory()
-    FontDir = os.path.join(WindowsDir, 'Fonts')
-    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                r"SOFTWARE\Microsoft\Windows\CurrentVersion")
-    windir = _winreg.QueryValue(key, "SystemRoot")
-    fontdir = os.path.join(windir, "Fonts")
+    fontdir = os.path.join(os.environ['WINDIR'], "Fonts")
 
-    key = _winreg.OpenKey(key, "Fonts")
-    fontdict={}
-    subkeys, subvals, modtime = _winreg.QueryInfoKey(key)
-    for i in range(subvals):
-        try:
-            name, font, t = _winreg.EnumValue(aKey,i)
-        except EnvironmentError:
-            break
+    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts")
+    fontdict = {}
+    for i in range(_winreg.QueryInfoKey(key)[1]):
+        try: name, font, t = _winreg.EnumValue(key,i)
+        except EnvironmentError: break
+        font = str(font)
+        if font[-4:].lower() != ".ttf":
+            continue
         if os.sep not in font:
             font = os.path.join(fontdir, font)
 
-        if name[-11:] != '(TrueType)':
-            continue
-        name = name[:-11].lower().split()
+        if name[-10:] == '(TrueType)':
+                name = name[:-11]
+        name = name.lower().split()
 
         bold = italic = 0
         for m in mods:
@@ -79,7 +77,7 @@ def initsysfonts_win32():
     return fonts
 
 
-#read of the fonts on osx (eek, fill me in!)
+#read of the fonts on osx (fill me in!)
 def initsysfonts_darwin():
     return {}
 
@@ -128,33 +126,40 @@ def _fontwalk(fonts, path, files):
 
 #read the fonts on unix
 def initsysfonts_unix():
-    paths = ['/usr/X11R6/lib/X11/fonts',
-             '/usr/share/fonts']
+    paths = ['/usr/X11R6/lib/X11/fonts', '/usr/share/fonts']
     fonts = {}
     for p in paths:
-        os.path.walk(p, _fontwalk, fonts)
+        if os.path.isdir(p):
+                os.path.walk(p, _fontwalk, fonts)
     return fonts
 
 
 #create alias entries
 def create_aliases():
     aliases = (
-        ('monospace', 'misc-fixed', 'courier', 'newcourier', 'console', 'fixed', 'mono', 'freemono', 'bitstreamverasansmono'),
-        ('sansserif', 'helvetica', 'swiss', 'freesans', 'bitstreamverasans'),
-        ('serif', 'times', 'freeserif', 'bitstreamveraserif'),
-        ('roman', 'timesroman', 'timesnewroman', 'dutch'),
+        ('monospace', 'misc-fixed', 'courier', 'couriernew', 'console',
+                'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
+                'verasansmono', 'monotype', 'lucidaconsole'),
+        ('sans', 'arial', 'helvetica', 'swiss', 'freesans', 'bitstreamverasans',
+                'verasans', 'verdana', 'tahoma'),
+        ('serif', 'times', 'freeserif', 'bitstreamveraserif', 'roman',
+                'timesroman', 'timesnewroman', 'dutch', 'veraserif',
+                'georgia'),
         ('wingdings', 'wingbats'),
     )
     for set in aliases:
         found = None
+        fname = None
         for name in set:
             if Sysfonts.has_key(name):
                 found = Sysfonts[name]
+                fname = name
                 break
         if not found:
-            break
+            continue
         for name in set:
             if not Sysfonts.has_key(name):
+                print 'ALIAS:', fname, '->', name
                 Sysalias[name] = found
 
 
