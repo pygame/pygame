@@ -1,7 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
-<head>
-<!--
+<html><head><!--
 TUTORIAL:Sprite Module Introduction
 -->
   <title>Pygame Tutorials - Sprite Module Intoduction</title>
@@ -14,12 +11,12 @@ TUTORIAL:Sprite Module Introduction
 <h2 align="center">by Pete Shinners<br>
  <font size="-1">pete@shinners.org</font></h2>
    
-<h3 align="center">Revision 1.0, December 15th, 2001</h3>
+<h3 align="center">Revision 1.01 December 15th, 2001</h3>
   <br>
  <br>
     Pygame version 1.3 comes with a new module, pygame.sprite. This module 
 is written in python and includes some higher level classes to manage your 
-game objects. By using this module to it's full potential, you can easily 
+game objects. By using this module to its full potential, you can easily 
 manage and draw your game objects. The sprite classes are very optimized, 
 so it's likely your game will run faster with the sprite module than without.<br>
  <br>
@@ -229,12 +226,9 @@ want pygame updating the entire screen (since it doesn't need to). This type
 of game usually involves erasing the old position of each object, then drawing 
 it in a new place for each frame. This way we are only changing what is necessary. 
 Most of the time you will just want to use the RenderUpdates class here. Since
-you will also want to pass this list of changes to the display.update() function.
-In the case where you have a hardware surface, or hardware doublebuffering, 
-you don't need to worry about these types of updates, so you can just use 
-the RenderClear, which doesn't have the overhead of calculating changed areas.<br>
-   <br>
- Also note that the RenderUpdates class also does a good job an minimizing 
+you will also want to pass this list of changes to the display.update() function.<br>
+ <br>
+ The RenderUpdates class also does a good job an minimizing 
 overalapping areas in the list of updated rectangles. If the previous position 
 and current position of an object overlap, it will merge them into a single 
 rectangle. Combine this with the fact that is properly handles deleted objects 
@@ -245,7 +239,14 @@ objects that can be deleted at anytime. All this work is reduced down to
 a clear() and draw() method with this monster class. Plus with the overlap 
 checking, it is likely faster than if you did it yourself.<br>
    <br>
-   
+ Also note that there's nothing stopping you from mixing and matching these
+render groups in your game. You should definitely use multiple rendering groups
+when you want to do layering with your sprites. Also if the screen is split into
+multiple sections, perhaps each section of the screen should use an appropriate
+render group?<br>
+ <br>
+
+
   <h2>Collision Detection</h2>
  The sprite module also comes with two very generic collision detection functions. 
 For more complex games, these really won't work for you, but you can easily 
@@ -331,10 +332,6 @@ similar, this is the most flexible way to "see" the difference.)</p>
      
     <p>You may just want to read through the code for the sprite module. While
 the code is a bit "tuned", it's got enough comments to help you follow along.
-There's even a todo section in the source if your feeling like contributing.</p>
-     
-    <blockquote><tt><br>
-               </tt></blockquote>
-                         
-      </body>
-      </html>
+There's even a todo section in the source if you feel like contributing.</p>
+                              
+</body></html>
