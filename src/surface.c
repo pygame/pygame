@@ -429,6 +429,9 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 	if(!pal)
 		return RAISE(PyExc_SDLError, "Surface has no palette\n");
 
+	if(!SDL_WasInit(SDL_INIT_VIDEO))
+		return RAISE(PyExc_SDLError, "cannot set palette without pygame.display initialized");
+
 	len = min(pal->ncolors, PySequence_Length(list));
 
 	colors = (SDL_Color*)malloc(len * sizeof(SDL_Color));
@@ -451,14 +454,11 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 		colors[i].r = (unsigned char)r;
 		colors[i].g = (unsigned char)g;
 		colors[i].b = (unsigned char)b;
-	
 		Py_DECREF(item);
 	}
 
 	SDL_SetColors(surf, colors, 0, len);
-
 	free((char*)colors);
-
 	RETURN_NONE
 }
 
@@ -493,6 +493,9 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 		PyErr_SetString(PyExc_IndexError, "index out of bounds");
 		return NULL;
 	}
+
+	if(!SDL_WasInit(SDL_INIT_VIDEO))
+		return RAISE(PyExc_SDLError, "cannot set palette without pygame.display initialized");
 
 	color.r = r;
 	color.g = g;

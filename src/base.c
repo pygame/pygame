@@ -434,12 +434,65 @@ static int PyGame_Video_AutoInit(void)
 }
 
 
+#if PY_MAJOR_VERSION >= 2 && PY_MINOR_VERSION >= 2
+#define DO_CRASH_TRACEBACK
+
+#include<pystate.h>
+#include<compile.h>
+#include<frameobject.h>
+
+#ifdef MPW
+	/* This is needed by MPW's File and Line commands */
+#define FMT "  File \"%.500s\"; line %d # in %.500s\n"
+#else
+	/* This is needed by Emacs' compile command */
+#define FMT "  File \"%.500s\", line %d, in %.500s\n"
+#endif
+
+static void print_traceback(PyObject *tb)
+{
+    PyObject *next;
+    while(tb && tb != Py_None)
+    {
+            PyFrameObject *frame;
+            PyObject *getobj;
+            int line, lasti;
+            const char *filename, *name;
+            
+            frame = (PyFrameObject*)PyObject_GetAttrString(tb, "tb_frame");
+            Py_DECREF(frame); //won't really kill it
+            getobj = PyObject_GetAttrString(tb, "tb_lineno");
+            line = PyInt_AsLong(getobj);
+            Py_DECREF(getobj);
+            
+            filename = PyString_AsString(frame->f_code->co_filename);
+            name = PyString_AsString(frame->f_code->co_name);
+            if (Py_OptimizeFlag)
+            {
+                    getobj = PyObject_GetAttrString(tb, "tb_lasti");
+                    lasti = PyInt_AsLong(getobj);
+                    Py_DECREF(getobj);
+                    line = PyCode_Addr2Line(frame->f_code, lasti);
+            }
+            fprintf(stderr, FMT, filename, line, name);
+            next = PyObject_GetAttrString(tb, "tb_next");
+            Py_DECREF(tb);
+            tb = next;
+    }
+}
+#endif
+
+
 
 /*error signal handlers (replacing SDL parachute)*/
 static void pygame_parachute(int sig)
 {
 	char* signaltype;
-
+#ifdef DO_CRASH_TRACEBACK
+        PyThreadState* thread;
+        PyInterpreterState *interp;
+#endif    
+    
 	signal(sig, SIG_DFL);
 	switch (sig)
 	{
@@ -467,6 +520,19 @@ static void pygame_parachute(int sig)
 			signaltype = "(pygame parachute) Unknown Signal"; break;
 	}
 
+#ifdef DO_CRASH_TRACEBACK
+printf("DOING TRACEBACK, experimental...\n");
+        interp = PyInterpreterState_Head();
+        for(thread=PyInterpreterState_ThreadHead(interp); thread; thread = PyThreadState_Next(thread))
+        {
+            PyTraceBack_Here(thread->frame);
+            Py_INCREF(thread->curexc_traceback);
+            print_traceback(thread->curexc_traceback);
+        }
+#else
+printf("  (No Traceback Without Python2.2)\n");
+#endif
+        
 	atexit_quit();
 	Py_FatalError(signaltype);
 }
@@ -497,6 +563,7 @@ static void install_parachute(void)
 	int i;
 	void (*ohandler)(int);
 
+#if 1
 	/* Set a handler for any fatal signal not already handled */
 	for ( i=0; fatal_signals[i]; ++i )
 	{
@@ -515,6 +582,7 @@ static void install_parachute(void)
 		if ( oaction.sa_handler != SIG_DFL )
 			sigaction(SIGALRM, &oaction, NULL);
 	}
+#endif
 #endif
 	return;
 }
@@ -540,6 +608,13 @@ static void uninstall_parachute(void)
 
 /* bind functions to python */
 
+static PyObject* do_segfault(PyObject* self, PyObject* args)
+{
+    //force crash
+    *((int*)1) = 45;    
+    RETURN_NONE
+}
+
 
 static PyMethodDef init__builtins__[] =
 {
@@ -547,6 +622,8 @@ static PyMethodDef init__builtins__[] =
 	{ "quit", quit, 1, doc_quit },
 	{ "register_quit", register_quit, 1, doc_register_quit },
 	{ "get_error", get_error, 1, doc_get_error },
+
+{ "segfault", do_segfault, "crash" },
 	{ NULL, NULL }
 };
 

@@ -155,6 +155,7 @@ static PyObject* time_wait(PyObject* self, PyObject* arg)
 
         start = SDL_GetTicks();
 	Py_BEGIN_ALLOW_THREADS
+
 	SDL_Delay(ticks);
 	Py_END_ALLOW_THREADS
 	
