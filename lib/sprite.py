@@ -419,7 +419,7 @@ class GroupSingle(object):
 
     def update(self, *args):
         if self.sprite:
-            apply(self.sprite.update(args))
+            apply(self.sprite.update, args)
 
     def __nonzero__(self):
         return self.sprite is not 0
