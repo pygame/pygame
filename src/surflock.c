@@ -191,6 +191,7 @@ static PyMethodDef surflock__builtins__[] =
 };
 
 
+PYGAME_EXPORT
 void initsurflock(void)
 {
 	PyObject *module, *dict, *apiobj;

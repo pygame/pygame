@@ -1126,6 +1126,7 @@ static PyMethodDef surfarray_builtins[] =
     /*DOC*/    "surfaces\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initsurfarray(void)
 {
 	PyObject *module, *dict;

@@ -1059,6 +1059,7 @@ static PyObject* PyChannel_New(int channelnum)
     /*DOC*/    "control the music channel through pygame.mixer.music./\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initmixer(void)
 {
 	PyObject *module, *dict, *apiobj, *music;

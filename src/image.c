@@ -112,6 +112,7 @@ static PyMethodDef image_builtins[] =
     /*DOC*/    "the SDL_image library.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initimage(void)
 {
 	PyObject *module, *dict;

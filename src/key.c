@@ -214,6 +214,7 @@ static PyMethodDef key_builtins[] =
     /*DOC*/    "keysyms.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initkey(void)
 {
 	PyObject *module, *dict;

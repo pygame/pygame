@@ -748,6 +748,7 @@ static PyMethodDef event_builtins[] =
     /*DOC*/    "the joystick module.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initevent(void)
 {
 	PyObject *module, *dict, *apiobj;

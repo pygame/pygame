@@ -644,6 +644,7 @@ static PyMethodDef joystick_builtins[] =
     /*DOC*/    "and the Joystick objects.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initjoystick(void)
 {
 	PyObject *module, *dict, *apiobj;

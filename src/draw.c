@@ -443,6 +443,7 @@ static PyMethodDef draw_builtins[] =
     /*DOC*/    "code with a lock/unlock pair.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initdraw(void)
 {
 	PyObject *module, *dict;

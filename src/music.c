@@ -365,6 +365,7 @@ static PyMethodDef music_builtins[] =
     /*DOC*/    "loaded from special file-like objects through python.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initmixer_music(void)
 {
 	PyObject *module, *dict;

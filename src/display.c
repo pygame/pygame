@@ -894,6 +894,7 @@ static PyMethodDef display_builtins[] =
     /*DOC*/    "display routines that modify the display surface while it is locked.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initdisplay(void)
 {
 	PyObject *module, *dict, *apiobj;

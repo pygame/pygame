@@ -46,7 +46,7 @@ static PyMethodDef builtins[] =
     /*DOC*/    "'from pygame.locals import *'.\n"
     /*DOC*/ ;
 
-
+PYGAME_EXPORT
 void initconstants(void)
 {
 	PyObject* module;

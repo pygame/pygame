@@ -786,7 +786,7 @@ static PyMethodDef cdrom_builtins[] =
     /*DOC*/    "and the CD objects.\n"
     /*DOC*/ ;
 
-
+PYGAME_EXPORT
 void initcdrom(void)
 {
 	PyObject *module, *dict, *apiobj;

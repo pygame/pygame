@@ -29,12 +29,24 @@
  * the module and the various SDL subsystems
 */
 
+/*platform specific init stuff*/
+
 #ifdef MS_WIN32 /*python gives us MS_WIN32*/
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
 #include<windows.h>
 extern int SDL_RegisterApp(char*, Uint32, void*);
 #endif
+
+#if defined(macintosh)
+#if !defined(__MWERKS__) && !TARGET_API_MAC_CARBON
+QDGlobals qd;
+#endif
+#endif
+
+
+
+
 
 
 extern int pygame_video_priority_init(void);
@@ -533,6 +545,7 @@ static PyMethodDef init__builtins__[] =
     /*DOC*/    "you'd like to take a look.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initbase(void)
 {
 	static int initialized_once = 0;
@@ -568,6 +581,12 @@ void initbase(void)
 #ifdef MS_WIN32
 		SDL_RegisterApp("pygame window", 0, GetModuleHandle(NULL));
 #endif
+#if defined(macintosh)
+#if !TARGET_API_MAC_CARBON
+	SDL_InitQuickDraw(&qd);
+#endif
+#endif
+
 		/*nice to initialize timer, so startup time will be correct before init call*/
 		SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
 		initialized_once = 1;

@@ -214,7 +214,7 @@ static PyMethodDef rwobject__builtins__[] =
 
 
 
-
+PYGAME_EXPORT
 void initrwobject(void)
 {
 	PyObject *module, *dict, *apiobj;
