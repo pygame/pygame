@@ -36,8 +36,36 @@ static PyObject* PyFont_New(TTF_Font*);
 
 static int font_initialized = 0;
 static char* font_defaultname = "freesansbold.ttf";
-static char* font_defaultpath = NULL;
+PyObject* font_defaultpath = NULL;
 static PyObject* self_module = NULL;
+
+static char* pkgdatamodule_name = "pygame.pkgdata";
+static char* resourcepathfunc_name = "getResourcePath";
+
+static PyObject *font_resourcepath(char *filename) {
+	PyObject* pkgdatamodule = NULL;
+	PyObject* resourcepathfunc = NULL;
+	PyObject* result = NULL;
+
+	pkgdatamodule = PyImport_ImportModule(pkgdatamodule_name);
+	if (!pkgdatamodule)
+		return NULL;
+
+	resourcepathfunc = PyObject_GetAttrString(pkgdatamodule, resourcepathfunc_name);
+	Py_DECREF(pkgdatamodule);
+	if (!resourcepathfunc) {
+		return NULL;
+	}
+
+	result = PyObject_CallFunction(resourcepathfunc, "s", filename);
+	Py_DECREF(resourcepathfunc);
+
+	return result;
+}
+
+
+
+
 
 static void font_autoquit(void)
 {
@@ -48,7 +76,7 @@ static void font_autoquit(void)
 	}
 	if(font_defaultpath)
 	{
-		PyMem_Free(font_defaultpath);
+		Py_DECREF(font_defaultpath);
 		font_defaultpath = NULL;
 	}
 }
@@ -69,31 +97,10 @@ static PyObject* font_autoinit(PyObject* self, PyObject* arg)
 
 		if(!font_defaultpath)
 		{
-			char* path = PyModule_GetFilename(self_module);
-			if(!path)
-			{
+			font_defaultpath = font_resourcepath(font_defaultname);
+			if (!font_defaultpath) {
 				PyErr_Clear();
-			}
-			else
-			{
-				char* end = strstr(path, "font.");
-				if(end)
-				{
-					font_defaultpath = PyMem_Malloc(strlen(path) + 16);
-					if(font_defaultpath)
-					{
-						strcpy(font_defaultpath, path);
-						end = strstr(font_defaultpath, "font.");
-						strcpy(end, font_defaultname);
-					}
-				}
-			}
-
-			if(!font_defaultpath)
-			{
-				font_defaultpath = PyMem_Malloc(strlen(font_defaultname) + 1);
-				if(font_defaultpath)
-					strcpy(font_defaultpath, font_defaultname);
+				font_defaultpath = PyString_FromString(font_defaultname);
 			}
 		}
 	}
@@ -656,7 +663,6 @@ static PyObject* get_default_font(PyObject* self, PyObject* args)
 static PyObject* Font(PyObject* self, PyObject* args)
 {
 	PyObject* fileobj;
-	char* filename;
 	int fontsize;
 	TTF_Font* font;
 	PyObject* fontobj;
@@ -669,51 +675,45 @@ static PyObject* Font(PyObject* self, PyObject* args)
 	if(fontsize <= 1)
 		fontsize = 1;
 
-	if(fileobj == Py_None)
-	{
+	if(fileobj == Py_None) {
 		if(!font_defaultpath)
 			return RAISE(PyExc_RuntimeError, "default font not found");
-		/*keep sizing consistent with previous default fonts*/
+		fileobj = font_defaultpath;
 		fontsize = (int)(fontsize * .6875);
-                if(fontsize <= 1)
-                        fontsize = 1;
-
-                Py_BEGIN_ALLOW_THREADS
-                font = TTF_OpenFont(font_defaultpath, fontsize);
-                Py_END_ALLOW_THREADS
+		if(fontsize <= 1)
+			fontsize = 1;
 	}
-	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
+	if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{
 		FILE* test;
+		char* filename = PyString_AsString(fileobj);
 
-		if(!PyArg_ParseTuple(args, "si", &filename, &fontsize))
+		if(!filename)
 			return NULL;
 
-                /*check if it is a valid file, else SDL_ttf segfaults*/
-                test = fopen(filename, "rb");
-                if(!test)
-                {
-                        return RAISE(PyExc_IOError, "unable to read font filename");
-                }
-                fclose(test);
+		/*check if it is a valid file, else SDL_ttf segfaults*/
+		test = fopen(filename, "rb");
+		if(!test)
+			return RAISE(PyExc_IOError, "unable to read font filename");
+		fclose(test);
 
-                Py_BEGIN_ALLOW_THREADS
-                font = TTF_OpenFont(filename, fontsize);
-                Py_END_ALLOW_THREADS
+				Py_BEGIN_ALLOW_THREADS
+				font = TTF_OpenFont(filename, fontsize);
+				Py_END_ALLOW_THREADS
 	}
 	else
-        {
+	{
 #ifdef TTF_MAJOR_VERSION
-                SDL_RWops *rw;
+		SDL_RWops *rw;
 		if(!(rw = RWopsFromPython(fileobj)))
 			return NULL;
-                Py_BEGIN_ALLOW_THREADS
-                font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-                Py_END_ALLOW_THREADS
+		Py_BEGIN_ALLOW_THREADS
+		font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+		Py_END_ALLOW_THREADS
 #else
-                return RAISE(PyExc_NotImplementedError, "nonstring fonts require SDL_ttf-2.0.6");
+		return RAISE(PyExc_NotImplementedError, "nonstring fonts require SDL_ttf-2.0.6");
 #endif
-        }
+	}
 
 	if(!font)
 		return RAISE(PyExc_RuntimeError, SDL_GetError());

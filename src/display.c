@@ -26,6 +26,9 @@
 #define PYGAMEAPI_DISPLAY_INTERNAL
 #include "pygame.h"
 
+static char* pkgdatamodule_name = "pygame.pkgdata";
+static char* resourcepathfunc_name = "getResourcePath";
+
 static char* icon_defaultname = "pygame_icon.bmp";
 static PyObject* self_module = NULL;
 
@@ -35,6 +38,26 @@ static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
 static PyObject* DisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 
+static PyObject *display_resourcepath(char *filename) {
+	PyObject* pkgdatamodule = NULL;
+	PyObject* resourcepathfunc = NULL;
+	PyObject* result = NULL;
+
+	pkgdatamodule = PyImport_ImportModule(pkgdatamodule_name);
+	if (!pkgdatamodule)
+		return NULL;
+	
+	resourcepathfunc = PyObject_GetAttrString(pkgdatamodule, resourcepathfunc_name);
+	Py_DECREF(pkgdatamodule);
+	if (!resourcepathfunc) {
+		return NULL;
+	}
+
+	result = PyObject_CallFunction(resourcepathfunc, "s", filename);
+	Py_DECREF(resourcepathfunc);
+
+	return result;
+}
 
 #if 0
 /*quick internal test to see if gamma is supported*/
@@ -541,34 +564,23 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 #if !defined(darwin)
 	if(!icon_was_set)
 	{
-		SDL_Surface* icon;
-		char* iconpath;
-		char* path = PyModule_GetFilename(self_module);
+		SDL_Surface* icon = NULL;
+		PyObject* iconstr = display_resourcepath(icon_defaultname);
 		icon_was_set = 1;
-		if(!path)
-			PyErr_Clear();
-		else
-		{
-			char* end = strstr(path, "display.");
-			if(end)
-			{
-				iconpath = PyMem_Malloc(strlen(path) + 20);
-				if(iconpath)
-				{
-					strcpy(iconpath, path);
-					end = strstr(iconpath, "display.");
-					strcpy(end, icon_defaultname);
 
-					icon = SDL_LoadBMP(iconpath);
-					if(icon)
-					{
-						SDL_SetColorKey(icon, SDL_SRCCOLORKEY, 0);
-						SDL_WM_SetIcon(icon, NULL);
-						SDL_FreeSurface(icon);
-					}
-					PyMem_Free(iconpath);
-				}
+		if (!iconpath)
+			PyErr_Clear();
+		else {
+			char* iconpath = PyString_AsString(iconstr);
+			if (iconpath) 
+				icon = SDL_LoadBMP(iconpath);
+			if(icon)
+			{
+				SDL_SetColorKey(icon, SDL_SRCCOLORKEY, 0);
+				SDL_WM_SetIcon(icon, NULL);
+				SDL_FreeSurface(icon);
 			}
+			Py_DECREF(iconstr);
 		}
 	}
 #endif

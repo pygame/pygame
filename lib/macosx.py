@@ -3,6 +3,7 @@ from Foundation import NSObject, NSLog, NSBundle, NSDictionary
 from AppKit import NSApplicationDelegate, NSTerminateLater, NSApplication, NSCriticalRequest, NSImage, NSApp, NSMenu, NSMenuItem
 import os, sys
 import pygame
+from pygame.pkgdata import getResourcePath
 
 # Make a good guess at the name of the application
 if len(sys.argv) > 1:
@@ -40,14 +41,16 @@ class MyAppDelegate(NSObject, NSApplicationDelegate):
         pass
 
     def applicationShouldTerminate_(self, app):
-        import pygame
         pygame.event.post(pygame.event.Event(pyame.QUIT))
         return NSTerminateLater
 
 # Start it up!
 app = NSApplication.sharedApplication()
-defaultIcon = os.path.join(os.path.split(__file__)[0], 'pygame_icon.tiff')
-if os.path.exists(defaultIcon):
+try:
+    defaultIcon = getResourcePath('pygame_icon.tiff')
+except IOError:
+    pass
+else:
     img = NSImage.alloc().initWithContentsOfFile_(defaultIcon)
     if img:
         app.setApplicationIconImage_(img)
