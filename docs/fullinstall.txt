@@ -1,5 +1,5 @@
 Build instructions for building and installing pygame
-Jan 5, 2000
+Apr 9, 2001
 -------------------------------------------------------------
 pygame is built and installed using the python distutils.
 
@@ -7,22 +7,23 @@ The majority of your work will likely be preparing the
 dependencies for pygame. You will obviously need Python 2.0
 installed and ready for development work. The only other
 requirement is SDL. You should be able to get this compiled
-without difficulty. (There is an available devel download
-for windows which will suit your needs on that platform).
-This is all you'll need for the base pygame installation.
-There are extra modules you can use which require other
-dependencies like Numeric Python and many of the SDL
-daughter libraries, like SDL_image and SDL_ttf.
+without difficulty. This is all you'll need for the base
+pygame installation. There are extra modules you can use
+which require other dependencies like Numeric Python and
+many of the SDL daughter libraries, like SDL_image and
+SDL_ttf, but these extra modules are optional.
 
 If installing under Windows without a compiler, or without
 needing any of the pygame dependencies. You can download
-the Windows Precompiled Binaries Release.
+the Windows Precompiled Binaries Release. This is a self
+installing .EXE file that contains everything you need
+(except Python and Numeric Python) to install.
 
-Also, you can download just the pygame dependencies precompiled.
-http://pygame.seul.org/ftp/pygame-dependencies.zip
-Download from the URL and extract into your pygame folder.
-The config.py script will find these prebuilt binaries and ask
-if you would like to use them.
+If you would like to compile on windows, but don't want the
+effort of preparing all the SDL dependencies, you can
+download just the pygame dependencies precompiled. The
+config.py script can automatically find the prebuilt
+files if they are extracted into the pygame folder.
 
 
 You control the compilation of pygame with the "Setup"
@@ -48,13 +49,13 @@ cannot find the needed dependency libraries. You will want to
 hand-copy the needed DLLs to somewhere on your windows path or
 into the installed pygame package directory.
 
-On unix, you will likely need to be root to install the
-library. The installation needs to create directories in
-the python include and site directories. Distutils offers
-flags to control where pygame will be installed.
+On unix, you will likely need to be root to install the library.
+The installation needs to create directories in the python
+include and site directories. Distutils offers flags to control
+where pygame will be installed.
 
 Assuming no errors stopped the install, you are good to go.
-Head to the examples directory and start trying things out.
+Change to the examples directory and start trying things out.
 
 If you do have problems compiling, first check the error. It
 is likely a problem with your Setup file. If you get errors
