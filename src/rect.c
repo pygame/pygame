@@ -878,6 +878,16 @@ static PyObject* rect_clamp_ip(PyObject* oself, PyObject* args)
 }
 
 
+/* for pickling */
+static PyObject* rect_reduce(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+        return Py_BuildValue("(O(iiii))", oself->ob_type,
+                    (int)self->r.x, (int)self->r.y, (int)self->r.w, (int)self->r.h);
+}
+
+
+
 static struct PyMethodDef rect_methods[] =
 {
 	{"normalize",		(PyCFunction)rect_normalize,	1, doc_normalize},
@@ -905,6 +915,9 @@ static struct PyMethodDef rect_methods[] =
 /* these are totally unwritten. volunteers? */
 /*	{"cleanup",			(PyCFunction)rect_cleanup,		1, doc_cleanup}, */
 /*	{"remove",			(PyCFunction)rect_remove,		1, doc_remove}, */
+        
+        {"__reduce__",          (PyCFunction)rect_reduce, 0, NULL},
+        
 	{NULL,		NULL}
 };
 
@@ -1174,8 +1187,10 @@ static PyObject *rect_getattr(PyRectObject *self, char *name)
 		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y);
 	else if(!strcmp(name, "midbottom"))
 		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y + r->h);
-	
-	else
+
+	else if(!strcmp(name, "__safe_for_unpickling__"))
+                ret = PyInt_FromLong(1);
+	else 
 		ret = Py_FindMethod(rect_methods, (PyObject *)self, name);
 
 	return ret;

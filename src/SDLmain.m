@@ -168,8 +168,18 @@ void StartTheApplication (void)
 
 void WeAreDoneFreeSomeMemory(void)
 {
+
+  /* The next lines should free memory when pygame quits, but instead
+     cause a segfault or bus error.  I don't know what's going on, and
+     I don't know how to fix it.  By commenting them out, I've
+     probably just fixed the symptom and not found a cure, but this
+     gets pygame running without throwing errors for now.  -- Andrew
+     Straw 8 March 2003 */
+
+  /*
     [sdlMain release];
     [global_pool release];
+  */
 }
 
 @end
