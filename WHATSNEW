@@ -4,8 +4,12 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 17, 2001
+        smarter importing code
+        default pygame icon for window
+
 January 16, 2001
-	implemented basic unit tests
+	started implementing basic unit tests
 	several bug cleanups with Rects (thx unit tests)
 
 January 14, 2001
