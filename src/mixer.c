@@ -61,13 +61,11 @@ Mix_Music** queue_music;
 
 static void endsound_callback(int channel)
 {
-printf("CHANNEL FINISHED: %d\n", channel);
     if(channeldata)
     {
 	if(channeldata[channel].endevent && SDL_WasInit(SDL_INIT_VIDEO))
 	{
 	    SDL_Event e;
-printf("  sending end event %d\n", channeldata[channel].endevent);
 	    memset(&e, 0, sizeof(e));
 	    e.type = channeldata[channel].endevent;
 	    SDL_PushEvent(&e);
@@ -76,7 +74,6 @@ printf("  sending end event %d\n", channeldata[channel].endevent);
 	{
 	    int channelnum;
 	    Mix_Chunk* sound = PySound_AsChunk(channeldata[channel].queue);
-printf("  queueing %p  (%p=cur)\n", channeldata[channel].queue, channeldata[channel].sound);
 	    Py_XDECREF(channeldata[channel].sound);
 	    channeldata[channel].sound = channeldata[channel].queue;
 	    channeldata[channel].queue = NULL;
