@@ -1,0 +1,429 @@
+<html>
+<title>sprite</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Movie.html>Movie</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=UserRect.html>UserRect</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_constants.html>constants</a> ||<br>
+|| <a href=pygame_cursors.html>cursors</a> || 
+<a href=pygame_display.html>display</a> || 
+<a href=pygame_draw.html>draw</a> || 
+<a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> ||<br>
+|| <a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mixer_music.html>mixer_music</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_movie.html>movie</a> ||<br>
+|| <a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> || 
+<a href=pygame_transform.html>transform</a> || 
+<a href=pygame_version.html>version</a> || 
+<a href=sprite.html>sprite</a> ||<br>
+
+
+</td></tr></table></td></tr></table>
+<br>
+<h2 align=center>sprite</h2>
+{module}
+
+<hr>
+
+<table>
+<tr><td><a href=#Group>Group</a></td><td> -
+a class</td></tr>
+
+
+<tr><td><a href=#GroupSingle>GroupSingle</a></td><td> -
+a class</td></tr>
+
+
+<tr><td><a href=#Group__len__>Group__len__</a></td><td> -
+           number of sprites in group</td></tr>
+
+
+<tr><td><a href=#Group__nonzero__>Group__nonzero__</a></td><td> -
+           ask if group is empty</td></tr>
+
+
+<tr><td><a href=#Groupadd>Groupadd</a></td><td> -
+           add sprite to group</td></tr>
+
+
+<tr><td><a href=#Groupadd_internal>Groupadd_internal</a></td><td> -
+           internal function to add sprite</td></tr>
+
+
+<tr><td><a href=#Groupcopy>Groupcopy</a></td><td> -
+           copy a group with all the same sprites</td></tr>
+
+
+<tr><td><a href=#Groupempty>Groupempty</a></td><td> -
+           remove all sprites</td></tr>
+
+
+<tr><td><a href=#Grouphas>Grouphas</a></td><td> -
+           ask if group has sprite</td></tr>
+
+
+<tr><td><a href=#Grouploop>Grouploop</a></td><td> -
+           return an object to loop each sprite</td></tr>
+
+
+<tr><td><a href=#Groupremove>Groupremove</a></td><td> -
+           remove sprite from group</td></tr>
+
+
+<tr><td><a href=#Groupremove_internal>Groupremove_internal</a></td><td> -
+           internal function to remove sprite</td></tr>
+
+
+<tr><td><a href=#RenderClear>RenderClear</a></td><td> -
+a class</td></tr>
+
+
+<tr><td><a href=#RenderClearclear>RenderClearclear</a></td><td> -
+           erase the previous position of all sprites</td></tr>
+
+
+<tr><td><a href=#RenderCleardraw>RenderCleardraw</a></td><td> -
+           draw all sprites onto a surface</td></tr>
+
+
+<tr><td><a href=#RenderPlain>RenderPlain</a></td><td> -
+a class</td></tr>
+
+
+<tr><td><a href=#RenderPlaindraw>RenderPlaindraw</a></td><td> -
+           draw all sprites onto a surface</td></tr>
+
+
+<tr><td><a href=#RenderUpdates>RenderUpdates</a></td><td> -
+a class</td></tr>
+
+
+<tr><td><a href=#RenderUpdatesdraw>RenderUpdatesdraw</a></td><td> -
+           draw all sprites onto the surface</td></tr>
+
+
+<tr><td><a href=#Sprite>Sprite</a></td><td> -
+a class</td></tr>
+
+
+<tr><td><a href=#Spriteadd>Spriteadd</a></td><td> -
+           add a sprite to container</td></tr>
+
+
+<tr><td><a href=#Spriteadd_internal>Spriteadd_internal</a></td><td> -
+           internal function for adding</td></tr>
+
+
+<tr><td><a href=#Spritealive>Spritealive</a></td><td> -
+           ask the life of a sprite</td></tr>
+
+
+<tr><td><a href=#Spritekill>Spritekill</a></td><td> -
+           list used sprite containers</td></tr>
+
+
+<tr><td><a href=#Spritekill>Spritekill</a></td><td> -
+           end life of sprite, remove from all groups</td></tr>
+
+
+<tr><td><a href=#Spriteremove>Spriteremove</a></td><td> -
+           remove a sprite from container</td></tr>
+
+
+<tr><td><a href=#Spriteremove_internal>Spriteremove_internal</a></td><td> -
+           internal function for removing</td></tr>
+
+
+<tr><td><a href=#spritecollide>spritecollide</a></td><td> -
+       collision detection between sprite and group</td></tr>
+
+
+<tr><td><a href=#spritecollide>spritecollide</a></td><td> -
+       collision detection between group and group</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=Group><font size=+2><b>Group
+</b></font><br><font size=+1><tt>
+sprite.Group()
+</tt></font><ul>
+       needed to behave as a normal group. You can easily inherit
+       a new group class from this if you want to add more features.
+</ul><br>&nbsp;<br>
+
+<a name=GroupSingle><font size=+2><b>GroupSingle
+</b></font><br><font size=+1><tt>
+sprite.GroupSingle()
+</tt></font><ul>
+       keeps a single sprite in the group. Whatever sprite has
+       been added to the group last, will be the only sprite in
+       the group.
+</ul><br>&nbsp;<br>
+
+<a name=Group__len__><font size=+2><b>Group__len__
+</b></font><br><font size=+1><tt>
+sprite.Group__len__()
+</tt></font><ul>
+           Returns the number of sprites contained in the group.
+</ul><br>&nbsp;<br>
+
+<a name=Group__nonzero__><font size=+2><b>Group__nonzero__
+</b></font><br><font size=+1><tt>
+sprite.Group__nonzero__()
+</tt></font><ul>
+           Returns true if the group has any sprites. This
+           lets you check if the group has any sprites by
+           using it in a logical if statement.
+</ul><br>&nbsp;<br>
+
+<a name=Groupadd><font size=+2><b>Groupadd
+</b></font><br><font size=+1><tt>
+sprite.Groupadd(sprite)
+</tt></font><ul>
+           Add a sprite or multiple sprites to a group.
+</ul><br>&nbsp;<br>
+
+<a name=Groupadd_internal><font size=+2><b>Groupadd_internal
+</b></font><br><font size=+1><tt>
+sprite.Groupadd_internal()
+</tt></font><ul>
+           Only used by sprite classes when they want to add
+           themselves to the group.
+</ul><br>&nbsp;<br>
+
+<a name=Groupcopy><font size=+2><b>Groupcopy
+</b></font><br><font size=+1><tt>
+sprite.Groupcopy()
+</tt></font><ul>
+           Returns a copy of the group that is the same class
+           type, and has the same contained sprites.
+</ul><br>&nbsp;<br>
+
+<a name=Groupempty><font size=+2><b>Groupempty
+</b></font><br><font size=+1><tt>
+sprite.Groupempty()
+</tt></font><ul>
+           Removes all the sprites from the group.
+</ul><br>&nbsp;<br>
+
+<a name=Grouphas><font size=+2><b>Grouphas
+</b></font><br><font size=+1><tt>
+sprite.Grouphas(sprite)
+</tt></font><ul>
+           Returns true if the given sprite or sprites are
+           contained in the group
+</ul><br>&nbsp;<br>
+
+<a name=Grouploop><font size=+2><b>Grouploop
+</b></font><br><font size=+1><tt>
+sprite.Grouploop()
+</tt></font><ul>
+           Returns an object that can be looped over with
+           a 'for' loop. (For now it is always a list, but
+           newer version of python could return different
+           objects, like iterators.)
+</ul><br>&nbsp;<br>
+
+<a name=Groupremove><font size=+2><b>Groupremove
+</b></font><br><font size=+1><tt>
+sprite.Groupremove()
+</tt></font><ul>
+           Remove a sprite or multiple sprites from a group.
+</ul><br>&nbsp;<br>
+
+<a name=Groupremove_internal><font size=+2><b>Groupremove_internal
+</b></font><br><font size=+1><tt>
+sprite.Groupremove_internal()
+</tt></font><ul>
+           Only used by sprite classes when they want to remove
+           themselves from the group.
+</ul><br>&nbsp;<br>
+
+<a name=RenderClear><font size=+2><b>RenderClear
+</b></font><br><font size=+1><tt>
+sprite.RenderClear()
+</tt></font><ul>
+       but it can draw and clear the sprites. Any sprites
+       used in this group must contain member elements
+       named "image" and "rect". These are a pygame Surface
+       and Rect, which are passed to a blit call.
+</ul><br>&nbsp;<br>
+
+<a name=RenderClearclear><font size=+2><b>RenderClearclear
+</b></font><br><font size=+1><tt>
+sprite.RenderClearclear(surface, bgd)
+</tt></font><ul>
+           Clears the area of all drawn sprites. the bgd
+           argument should be Surface which is the same
+           dimensions as the surface.
+</ul><br>&nbsp;<br>
+
+<a name=RenderCleardraw><font size=+2><b>RenderCleardraw
+</b></font><br><font size=+1><tt>
+sprite.RenderCleardraw(surface)
+</tt></font><ul>
+           Draws all the sprites onto the given surface.
+</ul><br>&nbsp;<br>
+
+<a name=RenderPlain><font size=+2><b>RenderPlain
+</b></font><br><font size=+1><tt>
+sprite.RenderPlain()
+</tt></font><ul>
+       it just adds a "draw" method. Any sprites used with
+       this group to draw must contain two member elements
+       named "image" and "rect". These are a pygame Surface
+       and Rect object that are passed to blit.
+</ul><br>&nbsp;<br>
+
+<a name=RenderPlaindraw><font size=+2><b>RenderPlaindraw
+</b></font><br><font size=+1><tt>
+sprite.RenderPlaindraw(surface)
+</tt></font><ul>
+           Draws all the sprites onto the given surface.
+</ul><br>&nbsp;<br>
+
+<a name=RenderUpdates><font size=+2><b>RenderUpdates
+</b></font><br><font size=+1><tt>
+sprite.RenderUpdates()
+</tt></font><ul>
+       and keeps track of all the areas drawn and cleared. It
+       also smartly handles overlapping areas between where a
+       sprite was drawn and cleared when generating the update
+       rectangles.
+</ul><br>&nbsp;<br>
+
+<a name=RenderUpdatesdraw><font size=+2><b>RenderUpdatesdraw
+</b></font><br><font size=+1><tt>
+sprite.RenderUpdatesdraw(surface)
+</tt></font><ul>
+           Draws all the sprites onto the given surface. It
+           returns a list of rectangles, which should be passed
+           to <a href=pygame_display.html#update>pygame.display.update()</a>
+</ul><br>&nbsp;<br>
+
+<a name=Sprite><font size=+2><b>Sprite
+</b></font><br><font size=+1><tt>
+sprite.Sprite()
+</tt></font><ul>
+       for the objects in your game. It just provides functions
+       to maintain itself in different groups. A sprite is
+       considered 'alive' as long as it is a member of one
+       or more groups. The kill() method simply removes this
+       sprite from all groups.
+</ul><br>&nbsp;<br>
+
+<a name=Spriteadd><font size=+2><b>Spriteadd
+</b></font><br><font size=+1><tt>
+sprite.Spriteadd(group)
+</tt></font><ul>
+           Add the sprite to a group or multiple groups.
+</ul><br>&nbsp;<br>
+
+<a name=Spriteadd_internal><font size=+2><b>Spriteadd_internal
+</b></font><br><font size=+1><tt>
+sprite.Spriteadd_internal(group)
+</tt></font><ul>
+           Only used by group classes when they want to add
+           this sprite to itself.
+</ul><br>&nbsp;<br>
+
+<a name=Spritealive><font size=+2><b>Spritealive
+</b></font><br><font size=+1><tt>
+sprite.Spritealive()
+</tt></font><ul>
+           Returns true if this sprite is a member of any groups.
+</ul><br>&nbsp;<br>
+
+<a name=Spritekill><font size=+2><b>Spritekill
+</b></font><br><font size=+1><tt>
+sprite.Spritekill()
+</tt></font><ul>
+           Returns a list of all the groups that contain this
+           sprite.
+</ul><br>&nbsp;<br>
+
+<a name=Spritekill><font size=+2><b>Spritekill
+</b></font><br><font size=+1><tt>
+sprite.Spritekill()
+</tt></font><ul>
+           Removes the sprite from all the groups that contain
+           it. The sprite is still fine after calling this kill()
+           so you could use it to remove a sprite from all groups,
+           and then add it to some other groups.
+</ul><br>&nbsp;<br>
+
+<a name=Spriteremove><font size=+2><b>Spriteremove
+</b></font><br><font size=+1><tt>
+sprite.Spriteremove(group)
+</tt></font><ul>
+           Remove the sprite from a group or multiple groups.
+</ul><br>&nbsp;<br>
+
+<a name=Spriteremove_internal><font size=+2><b>Spriteremove_internal
+</b></font><br><font size=+1><tt>
+sprite.Spriteremove_internal(group)
+</tt></font><ul>
+           Only used by group classes when they want to remove
+           this sprite to itself.
+</ul><br>&nbsp;<br>
+
+<a name=spritecollide><font size=+2><b>spritecollide
+</b></font><br><font size=+1><tt>
+sprite.spritecollide(sprite, group, dokill)
+</tt></font><ul>
+       given a sprite and a group of sprites, this will
+       return a list of all the sprites that intersect.
+       all sprites must have a "rect" method, which is a
+       rectangle of the sprite area. if the dokill argument
+       is true, the sprites that do collide will be
+       automatically removed from all groups.
+</ul><br>&nbsp;<br>
+
+<a name=spritecollide><font size=+2><b>spritecollide
+</b></font><br><font size=+1><tt>
+sprite.spritecollide(sprite, group, dokill)
+</tt></font><ul>
+       given two groups, this will find the intersections
+       between all sprites in each group. it returns a
+       dictionary of all sprites in the first group that
+       collide. the value for each item in the dictionary
+       is a list of the sprites in the second group it
+       collides with. the two dokill arguments control if
+       the sprites from either group will be automatically
+       removed from all groups.
+</ul><br>&nbsp;<br>
+
+
+<hr>
+</body></html>

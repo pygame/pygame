@@ -20,29 +20,30 @@
 <a href=ref/Font.html>Font</a> || 
 <a href=ref/Joystick.html>Joystick</a> || 
 <a href=ref/Movie.html>Movie</a> || 
-<a href=ref/Rect.html>Rect</a> || 
-<a href=ref/Sound.html>Sound</a> ||<br>
-|| <a href=ref/Surface.html>Surface</a> || 
+<a href=ref/Rect.html>Rect</a> ||<br>
+|| <a href=ref/Sound.html>Sound</a> || 
+<a href=ref/Surface.html>Surface</a> || 
+<a href=ref/UserRect.html>UserRect</a> || 
 <a href=ref/pygame.html>pygame</a> || 
-<a href=ref/pygame_UserRect.html>UserRect</a> || 
 <a href=ref/pygame_cdrom.html>cdrom</a> || 
-<a href=ref/pygame_constants.html>constants</a> || 
-<a href=ref/pygame_cursors.html>cursors</a> || 
-<a href=ref/pygame_display.html>display</a> ||<br>
-|| <a href=ref/pygame_draw.html>draw</a> || 
+<a href=ref/pygame_constants.html>constants</a> ||<br>
+|| <a href=ref/pygame_cursors.html>cursors</a> || 
+<a href=ref/pygame_display.html>display</a> || 
+<a href=ref/pygame_draw.html>draw</a> || 
 <a href=ref/pygame_event.html>event</a> || 
 <a href=ref/pygame_font.html>font</a> || 
-<a href=ref/pygame_image.html>image</a> || 
-<a href=ref/pygame_joystick.html>joystick</a> || 
+<a href=ref/pygame_image.html>image</a> ||<br>
+|| <a href=ref/pygame_joystick.html>joystick</a> || 
 <a href=ref/pygame_key.html>key</a> || 
-<a href=ref/pygame_mixer.html>mixer</a> ||<br>
-|| <a href=ref/pygame_mixer_music.html>mixer_music</a> || 
+<a href=ref/pygame_mixer.html>mixer</a> || 
+<a href=ref/pygame_mixer_music.html>mixer_music</a> || 
 <a href=ref/pygame_mouse.html>mouse</a> || 
-<a href=ref/pygame_movie.html>movie</a> || 
-<a href=ref/pygame_surfarray.html>surfarray</a> || 
+<a href=ref/pygame_movie.html>movie</a> ||<br>
+|| <a href=ref/pygame_surfarray.html>surfarray</a> || 
 <a href=ref/pygame_time.html>time</a> || 
 <a href=ref/pygame_transform.html>transform</a> || 
-<a href=ref/pygame_version.html>version</a> ||<br>
+<a href=ref/pygame_version.html>version</a> || 
+<a href=ref/sprite.html>sprite</a> ||<br>
 
 
 </td></tr></table></td></tr></table>
@@ -207,13 +208,13 @@ You can find links to these tutorials and other documentation files below.
 <a href=ref/Surface.html#subsurface>Surface.subsurface</a> - create a new surface that shares pixel data<br>
 <a href=ref/Surface.html#unlock>Surface.unlock</a> - locks Surface for pixel access<br>
 <a href=ref/Surface.html#unmap_rgb>Surface.unmap_rgb</a> - convert mapped color into RGB<br>
+<a href=ref/UserRect.html#UserRect>UserRect.UserRect</a> - a class<br>
 <a href=ref/pygame.html#Rect>pygame.Rect</a> - create a new rectangle<br>
 <a href=ref/pygame.html#Surface>pygame.Surface</a> - create a new Surface<br>
 <a href=ref/pygame.html#get_error>pygame.get_error</a> - get current error message<br>
 <a href=ref/pygame.html#init>pygame.init</a> - autoinitialize all imported pygame modules<br>
 <a href=ref/pygame.html#quit>pygame.quit</a> - uninitialize all pygame modules<br>
 <a href=ref/pygame.html#register_quit>pygame.register_quit</a> - routine to call when pygame quits<br>
-<a href=ref/pygame_UserRect.html#UserRect>pygame.UserRect.UserRect</a> - Python class for the pygame Rect type<br>
 <a href=ref/pygame_cdrom.html#CD>pygame.cdrom.CD</a> - create new CD object<br>
 <a href=ref/pygame_cdrom.html#get_count>pygame.cdrom.get_count</a> - query number of cdroms on system<br>
 <a href=ref/pygame_cdrom.html#get_init>pygame.cdrom.get_init</a> - query init of cdrom module<br>
@@ -337,6 +338,35 @@ You can find links to these tutorials and other documentation files below.
 <a href=ref/pygame_transform.html#rotozoom>pygame.transform.rotozoom</a> - smoothly scale and/or rotate an image<br>
 <a href=ref/pygame_transform.html#scale>pygame.transform.scale</a> - scale a Surface to an arbitrary size<br>
 <a href=ref/pygame_version.html#ver>pygame.version.ver</a> - The current pygame version info<br>
+<a href=ref/sprite.html#Group>sprite.Group</a> - a class<br>
+<a href=ref/sprite.html#GroupSingle>sprite.GroupSingle</a> - a class<br>
+<a href=ref/sprite.html#Group__len__>sprite.Group__len__</a> -            number of sprites in group<br>
+<a href=ref/sprite.html#Group__nonzero__>sprite.Group__nonzero__</a> -            ask if group is empty<br>
+<a href=ref/sprite.html#Groupadd>sprite.Groupadd</a> -            add sprite to group<br>
+<a href=ref/sprite.html#Groupadd_internal>sprite.Groupadd_internal</a> -            internal function to add sprite<br>
+<a href=ref/sprite.html#Groupcopy>sprite.Groupcopy</a> -            copy a group with all the same sprites<br>
+<a href=ref/sprite.html#Groupempty>sprite.Groupempty</a> -            remove all sprites<br>
+<a href=ref/sprite.html#Grouphas>sprite.Grouphas</a> -            ask if group has sprite<br>
+<a href=ref/sprite.html#Grouploop>sprite.Grouploop</a> -            return an object to loop each sprite<br>
+<a href=ref/sprite.html#Groupremove>sprite.Groupremove</a> -            remove sprite from group<br>
+<a href=ref/sprite.html#Groupremove_internal>sprite.Groupremove_internal</a> -            internal function to remove sprite<br>
+<a href=ref/sprite.html#RenderClear>sprite.RenderClear</a> - a class<br>
+<a href=ref/sprite.html#RenderClearclear>sprite.RenderClearclear</a> -            erase the previous position of all sprites<br>
+<a href=ref/sprite.html#RenderCleardraw>sprite.RenderCleardraw</a> -            draw all sprites onto a surface<br>
+<a href=ref/sprite.html#RenderPlain>sprite.RenderPlain</a> - a class<br>
+<a href=ref/sprite.html#RenderPlaindraw>sprite.RenderPlaindraw</a> -            draw all sprites onto a surface<br>
+<a href=ref/sprite.html#RenderUpdates>sprite.RenderUpdates</a> - a class<br>
+<a href=ref/sprite.html#RenderUpdatesdraw>sprite.RenderUpdatesdraw</a> -            draw all sprites onto the surface<br>
+<a href=ref/sprite.html#Sprite>sprite.Sprite</a> - a class<br>
+<a href=ref/sprite.html#Spriteadd>sprite.Spriteadd</a> -            add a sprite to container<br>
+<a href=ref/sprite.html#Spriteadd_internal>sprite.Spriteadd_internal</a> -            internal function for adding<br>
+<a href=ref/sprite.html#Spritealive>sprite.Spritealive</a> -            ask the life of a sprite<br>
+<a href=ref/sprite.html#Spritekill>sprite.Spritekill</a> -            end life of sprite, remove from all groups<br>
+<a href=ref/sprite.html#Spritekill>sprite.Spritekill</a> -            list used sprite containers<br>
+<a href=ref/sprite.html#Spriteremove>sprite.Spriteremove</a> -            remove a sprite from container<br>
+<a href=ref/sprite.html#Spriteremove_internal>sprite.Spriteremove_internal</a> -            internal function for removing<br>
+<a href=ref/sprite.html#spritecollide>sprite.spritecollide</a> -        collision detection between group and group<br>
+<a href=ref/sprite.html#spritecollide>sprite.spritecollide</a> -        collision detection between sprite and group<br>
 <!--ENDINDEX-->
 </ul>
 

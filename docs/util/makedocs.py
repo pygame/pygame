@@ -1,13 +1,13 @@
 """take all the PyGame source and create html documentation"""
 
-import fnmatch, glob, os
+import fnmatch, glob, os, types
 
 
 DOCPATTERN = '*static char*doc_*=*'
 
 SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
-PYTHONSRC = ['cursors', 'version', 'UserRect']
+PYTHONSRC = ['cursors', 'version', 'UserRect', 'sprite']
 
 OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()
@@ -86,6 +86,7 @@ def readsource(filename):
 
 
 def getpydoclines(doc):
+    if doc is None: return
     lines = []
     for line in doc.split('\n'):
         if line == '':
@@ -100,8 +101,31 @@ def readpysource(name):
     module = getattr(__import__(modulename), name)
     title = '    /*DOC*/ static char doc_pygame_' + name + '_MODULE[] =\n'
     documents.append([title] + getpydoclines(module.__doc__))
+    modname = name
     for name, obj in module.__dict__.items():
-        if hasattr(obj, '__doc__'):
+        if type(obj) is types.ClassType:
+            title = '    /*DOC*/ static char doc_%s[] =\n'%(name)
+#            if hasattr(obj, '__init__'):
+#                
+            try:
+                docs = getpydoclines(obj.__doc__)
+                if docs:
+                    docs = [('%s.%s()'%(modname,name)), 'a class']+docs
+                    documents.append([title] + docs)
+                    
+            except AttributeError: 
+                documents.append([title] + ['%s.%s'&(modname,name),'noclassdocs'])
+            for methname, meth in obj.__dict__.items():
+                if methname is '__init__': continue
+                title = '    /*DOC*/ static char doc_%s_%s[] =\n'%(name,methname)
+                try:
+                    docs = getpydoclines(meth.__doc__)
+                    if docs:
+                        docs[0] = ('%s.%s'%(modname,name))+docs[0]
+                        documents.append([title] + docs)
+                except AttributeError: pass
+                
+        elif hasattr(obj, '__doc__'):
             title = '    /*DOC*/ static char doc_' + name + '[] =\n'
             documents.append([title] + getpydoclines(obj.__doc__))
     return documents
@@ -127,6 +151,7 @@ def parsedocs(docs):
         else:
             obj = {'docs':['no documentation']}
             #name = d[1][:d[1].rfind('(')]
+            print d
             name = d[1][:d[1].find('(')]
             dot = name.rfind('.')
             if dot == -1:
@@ -255,7 +280,7 @@ def create_toc(allfuncs, prefix=''):
         l.append(str)
     l.sort()
     str = ''
-    items_per_line = 7
+    items_per_line = 6
     for x in range(0, len(l), items_per_line):
         row = l[x:x+items_per_line]
         str += '|| ' + ' || \n'.join(row) + ' ||<br>\n'
