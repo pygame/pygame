@@ -484,7 +484,7 @@ void initconstants(void)
     /*DOC*/    "\n"
     /*DOC*/    "KMOD_NONE, KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT, KMOD_CAPS,<br>\n"
     /*DOC*/    "KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,<br>\n"
-    /*DOC*/    "KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, kMOD_MODE<br>\n"
+    /*DOC*/    "KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, KMOD_MODE<br>\n"
     /*DOC*/ ;
 
     /*DOC*/ static char doc_zdeprecated[] =
