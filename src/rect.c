@@ -274,7 +274,7 @@ static PyObject* rect_inflate_ip(PyObject* oself, PyObject* args)
     /*DOC*/    "Rect.union(rectstyle) -> Rect\n"
     /*DOC*/    "makes new rectangle covering both inputs\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Creates a new Rect to completely cover the\n"
+    /*DOC*/    "Returns a new Rect to completely cover the\n"
     /*DOC*/    "given input. There may be area inside the new\n"
     /*DOC*/    "Rect that is not covered by either input.\n"
     /*DOC*/ ;
@@ -379,7 +379,7 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
     /*DOC*/    "Rect.unionall_ip(sequence_of_rectstyles) -> None\n"
     /*DOC*/    "rectangle covering all inputs\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle that completely covers all the\n"
+    /*DOC*/    "Resizes the rectangle to completely cover all the\n"
     /*DOC*/    "given inputs. There may be area inside the new\n"
     /*DOC*/    "rectangle that is not covered by the inputs.\n"
     /*DOC*/ ;
