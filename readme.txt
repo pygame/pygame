@@ -112,3 +112,6 @@
 
      The programs in the "examples" subdirectory are in the public
      domain.
+
+   The default font "Helmet Bold" is from the OpenOffice project and is
+   dual licensed under the GPL, LGPL, and SISSL.
