@@ -23,9 +23,7 @@
      Installing from source is fairly automated. The most work will
      involve compiling and installing all the pygame dependencies. Once
      that is done run the "setup.py" script which will attempt to
-     auto-configure, build, and install pygame. This works for just
-     about all cases, but more information can be found in the
-     "fullinstall.txt" file in the "docs" directory.
+     auto-configure, build, and install pygame.
 
      Much more information about installing and compiling is available
      in the install.html file.
@@ -35,9 +33,16 @@
      If you are just getting started with pygame, you should be able to
      get started fairly quickly. Pygame comes with many tutorials and
      introductions. There is also full reference documentation for the
-     entire library. Best of all the examples directory has many
-     playable small programs which can make a good test bed for your own
-     experimentation.
+     entire library. Browse the documentation from the documenantation
+     index. docs/index.html.
+
+     On the pygame website, there is also an online copy of this
+     documentation. You should know that the online documentation stays
+     up to date with the development version of pygame in cvs. This may
+     be a bit newer than the version of pygame you are using.
+
+     Best of all the examples directory has many playable small programs
+     which can get started playing with the code right away.
 
    Credits
 

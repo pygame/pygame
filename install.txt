@@ -19,16 +19,23 @@
      Once that is in place, you want to download the appropriate windows
      binary. From the pygame downloads page you can find the .EXE file
      you need. This will automatically install all of pygame and all the
-     SDL dependencies.
+     SDL dependencies. The windows binaries have filenames like this;
+     "pygame-1.3.win32-py2.1.exe". This would be the installer for
+     pygame version 1.3, for python version 2.1. You shouldn't have
+     trouble finding the correct binary from the "Windows" section of
+     the download page. http://www.pygame.org/download.shtml.
 
      You will also probably want to install the windows documentation
      and installation package. This will add easy links to the different
      documentation and games that come with pygame. The installer for
-     this is easily found next to the other windows binary downloads.
+     this is found next to the other windows binary downloads. The
+     filename looks like this; "pygame-docs-1.3.exe". And this would
+     install the documentation and examples for pygame-1.3.
 
      One other thing the windows binaries are missing is the Numeric
      Python package. You can easily install this separately and it will
-     allow you to use the pygame "surfarray" module. There are binary
+     allow you to use the pygame "surfarray" module. This module is
+     optional, so there is no need to do this. There are binary
      installers from the Numeric download page.
      http://sourceforge.net/project/showfiles.php?group_id=1369.
 
