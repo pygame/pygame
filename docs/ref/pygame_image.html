@@ -76,7 +76,7 @@ load an image to a new Surface</td></tr>
 
 
 <tr><td><a href=#save>save</a></td><td> -
-save surface as BMP data</td></tr>
+save surface data</td></tr>
 
 
 <tr><td><a href=#tostring>tostring</a></td><td> -
@@ -137,10 +137,12 @@ file formats usually include GIF, PNG, JPG, PCX, TGA, and more.
 </b></font><br><font size=+1><tt>
 pygame.image.save(Surface, file) -> None
 </tt></font><ul>
-This will save your surface in the BMP format. The given file
-argument can be either a filename or a python file-like object
-to save the BMP image to. This will also work for an opengl
-display surface.
+This will save your surface as a BMP or TGA image. The given
+file argument can be either a filename or a python file-like
+object. This will also work under OPENGL display modes.
+<br>&nbsp;<br>
+The image will default to save with the TGA format. If the
+filename has the BMP extension, it will use the BMP format.
 </ul><br>&nbsp;<br>
 
 <a name=tostring><font size=+2><b>tostring
