@@ -105,7 +105,7 @@ thickarrow_strings = (               #sized 24x24
 
 
 def compile(strings, black, white):
-    """pygame.cursors.compile(strings, black, white) -> data
+    """pygame.cursors.compile(strings, black, white) -> data, mask
 compile cursor strings into cursor data
 
 This takes a set of strings with equal length and computes
@@ -117,6 +117,10 @@ The black and white arguments are single letter strings that
 tells which characters will represent black pixels, and which
 characters represent white pixels. All other characters are
 considered clear.
+
+This returns a tuple containing the cursor data and cursor mask
+data. Both these arguments are used when setting a cursor with
+pygame.mouse.set_cursor().
 """
     
     #first check for consistent lengths
