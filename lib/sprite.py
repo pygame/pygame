@@ -528,7 +528,8 @@ def spritecollide(sprite, group, dokill):
        collision detection between sprite and group
 
        given a sprite and a group of sprites, this will
-       return a list of all the sprites that intersect.
+       return a list of all the sprites that intersect
+       the given sprite.
        all sprites must have a "rect" method, which is a
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
@@ -543,7 +544,7 @@ def spritecollide(sprite, group, dokill):
 
 
 def groupcollide(groupa, groupb, dokilla, dokillb):
-    """pygame.sprite.groupcollide(sprite, group, dokill) -> dict
+    """pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
        collision detection between group and group
 
        given two groups, this will find the intersections
