@@ -40,7 +40,6 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 {
 	short val;
 	int length;
-    PyObject *rectattr;
 
 	if(PyRect_Check(obj))
 		return &((PyRectObject*)obj)->r;
@@ -77,9 +76,11 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 				return GameRect_FromObject(sub, temp);
 		}
 	}
-    if((rectattr = PyObject_GetAttrString(obj, "rect")))
+    if(PyObject_HasAttrString(obj, "rect"))
     {
+		PyObject *rectattr;
         GAME_Rect *returnrect;
+		rectattr = PyObject_GetAttrString(obj, "rect");
         if(PyCallable_Check(rectattr)) /*call if it's a method*/
         {
             PyObject *rectresult = PyObject_CallObject(rectattr, NULL);
