@@ -22,6 +22,8 @@
 
 #define PYGAMEAPI_BASE_INTERNAL
 #include "pygame.h"
+#include <signal.h>
+
 
 /* This file controls all the initialization of
  * the module and the various SDL subsystems
@@ -402,6 +404,104 @@ static int PyGame_Video_AutoInit(void)
 
 
 
+/*error signal handlers (replacing SDL parachute)*/
+static void pygame_parachute(int sig)
+{
+	char* signaltype = "Unknown Signal";
+	PyThreadState *tstate;
+
+	signal(sig, SIG_DFL);
+	switch (sig)
+	{
+		case SIGSEGV:
+			signaltype = "Segmentation Fault"; break;
+#ifdef SIGBUS
+#if SIGBUS != SIGSEGV
+		case SIGBUS:
+			signaltype = "Bus Error"; break;
+#endif
+#endif
+#ifdef SIGFPE
+		case SIGFPE:
+			signaltype = "Floating Point Exception"; break;
+#endif /* SIGFPE */
+#ifdef SIGQUIT
+		case SIGQUIT:
+			signaltype = "Keyboard Quit"; break;
+#endif /* SIGQUIT */
+#ifdef SIGPIPE
+		case SIGPIPE:
+			signaltype = "Broken Pipe"; break;
+#endif /* SIGPIPE */
+		default:
+			signaltype = "# %d", sig; break;
+	}
+
+#if 0
+/*try to print traceback, ARGH*/
+	tstate = PyThreadState_GET();
+	if(tstate && PyTraceBack_Here(tstate->frame) != -1)
+		PyObject_Print(tstate->exc_traceback, stderr, Py_PRINT_RAW);
+#endif
+
+	atexit_quit();
+	Py_FatalError(signaltype);
+}
+
+
+static void install_parachute(void)
+{
+	int i;
+	void (*ohandler)(int);
+	int fatal_signals[] =
+	{
+		SIGSEGV,
+#ifdef SIGBUS
+		SIGBUS,
+#endif
+#ifdef SIGFPE
+		SIGFPE,
+#endif
+#ifdef SIGQUIT
+		SIGQUIT,
+#endif
+#ifdef SIGPIPE
+		SIGPIPE,
+#endif
+		0 /*end of list*/
+	};
+
+	/* Set a handler for any fatal signal not already handled */
+	for ( i=0; fatal_signals[i]; ++i )
+	{
+		ohandler = signal(fatal_signals[i], pygame_parachute);
+		if ( ohandler != SIG_DFL )
+			signal(fatal_signals[i], ohandler);
+	}
+#ifdef SIGALRM
+	/* Set SIGALRM to be ignored -- necessary on Solaris */
+	{
+		struct sigaction action, oaction;
+
+		/* Set SIG_IGN action */
+		memset(&action, 0, (sizeof action));
+		action.sa_handler = SIG_IGN;
+		sigaction(SIGALRM, &action, &oaction);
+
+		/* Reset original action if it was already being handled */
+		if ( oaction.sa_handler != SIG_DFL ) {
+			sigaction(SIGALRM, &oaction, NULL);
+		}
+	}
+#endif
+	return;
+}
+
+
+
+
+
+
 /* bind functions to python */
 
 
@@ -466,9 +566,11 @@ void initbase(void)
 #ifdef MS_WIN32
 		SDL_RegisterApp("pygame window", 0, GetModuleHandle(NULL));
 #endif
-		SDL_Init(SDL_INIT_TIMER);
+		/*nice to initialize timer, so startup time will be correct before init call*/
+		SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
 		initialized_once = 1;
 		Py_AtExit(atexit_quit);
+		install_parachute();
 	}
 
 	/*touch PyGAME_C_API to keep compiler from warning*/

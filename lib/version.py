@@ -18,6 +18,6 @@
 ##    Pete Shinners
 ##    pete@shinners.org
 
-"""simple pygame version info, easily accessable"""
+"""simple pygame version info, current version is stored in 'ver' as string"""
 
-version = '0.5'
+ver = '0.5'
