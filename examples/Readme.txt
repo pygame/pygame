@@ -53,6 +53,10 @@ liquid.py - This example was created in a quick comparison with the
 	BlitzBasic gaming language. Nonetheless, it demonstrates a quick
 	8-bit setup (with colormap).
 
+glcube.py - Using PyOpenGL and Pygame, this creates a spinning 3D
+	multicolored cube.
+
+
 data/ - directory with the resources for the examples
 sdllogos.zip - zipfile with unofficial sdl logos
 
