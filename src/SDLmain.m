@@ -6,12 +6,19 @@
        Feel free to customize this file to suit your needs
 */
 
+#import "Python.h"
+
 #import "SDL.h"
 #import <sys/param.h>
 #import <unistd.h>
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import "CPS.h"
+
+@interface SDLApplication : NSApplication {}
+- (void)quit:(id)sender;
+- (void)terminate:(id)sender;
+@end
 
 @interface SDLMain : NSObject
 @end
@@ -74,7 +81,7 @@ void setupWindowMenu(void)
 }
 
 /* The main class of the application, the application's delegate */
-@implementation SDLApplication
+@implementation SDLApplication : NSApplication
 - (void)quit:(id)sender
 {
     /* Post a SDL_QUIT event */
@@ -103,7 +110,33 @@ void StartTheApplication (void)
     CPSProcessSerNum PSN;
     NSImage *pygameIcon;
     global_pool = [[NSAutoreleasePool alloc] init];
-    
+    char* pygame_icon_path = NULL;
+
+    /*get the path to the icon*/
+
+    PyObject* init_module = PyImport_ImportModule("pygame");
+    if (!init_module)
+        PyErr_Clear();
+    else 
+    {
+        char* path = PyModule_GetFilename(init_module);
+	if(!path)
+	    PyErr_Clear();
+	else 
+	{
+	    char* endp = strstr(path, "__init__.");
+	    if(endp) 
+	    {
+	        pygame_icon_path = PyMem_Malloc(strlen(path)+20);
+		if(pygame_icon_path) 
+		{
+		    strncpy(pygame_icon_path, path, endp-path);
+		    strcpy(pygame_icon_path+(endp-path), "pygame_icon.tiff");
+		}
+	    }
+	}
+    }
+
     /*ensure application object is initialized*/
     [SDLApplication sharedApplication];
     
@@ -125,9 +158,10 @@ void StartTheApplication (void)
     [NSApp finishLaunching];
     [NSApp requestUserAttention:NSCriticalRequest];
     [NSApp updateWindows];
-    
+
+
     /*set icon*/
-    pygameIcon = [[NSImage alloc] initWithContentsOfFile: @"/Library/Frameworks/Python.framework/Versions/Current/lib/python2.2/site-packages/pygame/pygame_icon.tiff"];
+    pygameIcon = [[NSImage alloc] initWithContentsOfFile: [NSString stringWithCString: pygame_icon_path]];
     [NSApp setApplicationIconImage:pygameIcon];
 
 }
