@@ -609,7 +609,7 @@ static PyObject* get_grab(PyObject* self, PyObject* arg)
     /*DOC*/    "queue for too long, the system may decide your program has locked up.\n"
     /*DOC*/ ;
 
-static PyObject* pump(PyObject* self, PyObject* args)
+static PyObject* pygame_pump(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -664,7 +664,7 @@ static PyObject* pygame_wait(PyObject* self, PyObject* args)
     /*DOC*/    "queue, this will return an event with type NOEVENT.\n"
     /*DOC*/ ;
 
-static PyObject* poll(PyObject* self, PyObject* args)
+static PyObject* pygame_poll(PyObject* self, PyObject* args)
 {
 	SDL_Event event;
 
@@ -1040,9 +1040,9 @@ static PyMethodDef event_builtins[] =
 	{ "set_grab", set_grab, 1, doc_set_grab },
 	{ "get_grab", get_grab, 1, doc_get_grab },
 
-	{ "pump", pump, 1, doc_pump },
+	{ "pump", pygame_pump, 1, doc_pump },
 	{ "wait", pygame_wait, 1, doc_wait },
-	{ "poll", poll, 1, doc_poll },
+	{ "poll", pygame_poll, 1, doc_poll },
 	{ "clear", event_clear, 1, doc_event_clear },
 	{ "get", event_get, 1, doc_event_get },
 	{ "peek", event_peek, 1, doc_peek },

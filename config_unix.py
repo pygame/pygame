@@ -82,7 +82,7 @@ class Dependency:
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
-                if os.path.isfile(path):
+                if filter(os.path.isfile, glob(path+*)):
                     self.lib_dir = dir
                 
         if self.lib_dir and self.inc_dir:
