@@ -29,6 +29,7 @@
 static int is_extended = 0;
 static int SaveTGA(SDL_Surface *surface, char *file, int rle);
 static int SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle);
+static SDL_Surface* opengltosdl();
 
 
 #define DATAROW(data, row, width, height, flipped) \
@@ -108,13 +109,13 @@ static SDL_Surface* opengltosdl()
         PyObject *pyopengl, *readpixels = NULL;
         int typeflag=0, formatflag=0;
         SDL_Surface *surf;
-        Uint32 rmask, gmask, bmask, amask;
-        int i, depth, doalpha=0;
+        Uint32 rmask, gmask, bmask;
+        int i;
         unsigned char *pixels;
         PyObject *data;
 
         surf = SDL_GetVideoSurface();
-    
+
         pyopengl = PyImport_ImportModule("OpenGL.GL");
         if(pyopengl)
         {
@@ -139,7 +140,7 @@ static SDL_Surface* opengltosdl()
             return NULL;
         }
 
-        data = PyObject_CallFunction(readpixels, "iiiiii", 
+        data = PyObject_CallFunction(readpixels, "iiiiii",
                                 0, 0, surf->w, surf->h, formatflag, typeflag);
         if(!data)
         {
@@ -147,31 +148,17 @@ static SDL_Surface* opengltosdl()
                 return NULL;
         }
         pixels = (unsigned char*)PyString_AsString(data);
-        
+
         if(SDL_BYTEORDER == SDL_LIL_ENDIAN)
         {
-            if(doalpha)
-            {
-                rmask=0x000000FF; gmask=0x0000FF00; bmask=0x00FF00; amask=0xFF000000; depth=32;
-            }
-            else
-            {
-                rmask=0x000000FF; gmask=0x0000FF00; bmask=0x00FF00; amask=0x00000000; depth=24;
-            }
+            rmask=0x000000FF; gmask=0x0000FF00; bmask=0x00FF0000;
         }
         else
         {
-            if(doalpha)
-            {
-                rmask=0xFF000000; gmask=0x00FF0000; bmask=0x00FF00; amask=0x00000000; depth=32;
-            }
-            else
-            {
-                rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF; amask=0x00000000; depth=24;
-            }
+            rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF;
         }
-        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, depth,
-                    rmask, gmask, bmask, amask);
+        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 24,
+                    rmask, gmask, bmask, 0);
         if(!surf)
         {
                 Py_DECREF(data);
@@ -181,7 +168,7 @@ static SDL_Surface* opengltosdl()
 
         for(i=0; i<surf->h; ++i)
                 memcpy(((char *) surf->pixels) + surf->pitch * i, pixels + 3*surf->w * (surf->h-i-1), surf->w*3);
-        
+
         Py_DECREF(data);
         return surf;
 }
@@ -207,7 +194,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 	SDL_Surface *surf;
 	SDL_Surface *temp = NULL;
 	int result;
-	
+
 	if(!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &file))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
@@ -317,7 +304,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
                 if(!surf)
                     return NULL;
 	}
-        
+
 	Rmask = surf->format->Rmask; Gmask = surf->format->Gmask;
 	Bmask = surf->format->Bmask; Amask = surf->format->Amask;
 	Rshift = surf->format->Rshift; Gshift = surf->format->Gshift;
@@ -453,7 +440,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
 					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-					data[3] = hascolorkey ? (char)(color!=colorkey)*255 : 
+					data[3] = hascolorkey ? (char)(color!=colorkey)*255 :
 								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
 					data += 4;
 				}
