@@ -77,7 +77,7 @@ Thanks to everyone who made this possible, including:
 	Angus, Guillaume Proux,
 	Austin Henry, and Kaweh Kazemi
 
-Cheers to Gareth Noyce for his incredible work on the pygame logo.
+Cheers to TheCorruptor for his incredible work on the pygame logo.
 
 There's many more folks out there who've submitted helpful ideas,
 kept this project going, and basically made my life easer, Thanks!
