@@ -911,7 +911,7 @@ static PyNumberMethods rect_as_number = {
 /* object type functions */
 static void rect_dealloc(PyRectObject *self)
 {
-	PyObject_Del(self);
+	PyObject_DEL(self);
 }
 
 
