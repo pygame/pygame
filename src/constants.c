@@ -311,6 +311,7 @@ void initconstants(void)
     /*DOC*/    "FULLSCREEN - display surface is fullscreen (nonwindowed)<br>\n"
     /*DOC*/    "RLEACCEL - compile for quick alpha blits, only set in alpha or\n"
     /*DOC*/    "colorkey funcs<br>\n"
+    /*DOC*/    "NOFRAME - no window decorations<br>\n"
     /*DOC*/ ;
 
     /*DOC*/ static char doc_events[] =

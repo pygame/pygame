@@ -79,7 +79,7 @@ class Chimp(pygame.sprite.Sprite):
         self.image, self.rect = load_image('chimp.bmp', -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
-        self.rect.bottomright = self.area.bottomright
+        self.rect.topleft = 10, 10
         self.move = 9
         self.dizzy = 0
 
@@ -93,7 +93,8 @@ class Chimp(pygame.sprite.Sprite):
     def _walk(self):
         "move the monkey across the screen, and turn at the ends"
         newpos = self.rect.move((self.move, 0))
-        if not self.area.contains(newpos):
+	if self.rect.left < self.area.left or \
+	   self.rect.right > self.area.right:
             self.move = -self.move
             newpos = self.rect.move((self.move, 0))
             self.image = pygame.transform.flip(self.image, 1, 0)
