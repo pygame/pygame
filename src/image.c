@@ -98,12 +98,14 @@ static PyObject* image_load_basic(PyObject* self, PyObject* arg)
 
     /*DOC*/ static char doc_save[] =
     /*DOC*/    "pygame.image.save(Surface, file) -> None\n"
-    /*DOC*/    "save surface as BMP data\n"
+    /*DOC*/    "save surface data\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will save your surface in the BMP format. The given file\n"
-    /*DOC*/    "argument can be either a filename or a python file-like object\n"
-    /*DOC*/    "to save the BMP image to. This will also work for an opengl\n"
-    /*DOC*/    "display surface.\n"
+    /*DOC*/    "This will save your surface as a BMP or TGA image. The given\n"
+    /*DOC*/    "file argument can be either a filename or a python file-like\n"
+    /*DOC*/    "object. This will also work under OPENGL display modes.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The image will default to save with the TGA format. If the\n"
+    /*DOC*/    "filename has the BMP extension, it will use the BMP format.\n"
     /*DOC*/ ;
 
 PyObject* image_save(PyObject* self, PyObject* arg)

@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 6, 2002
+    	added event.clear() to efficiently clear the queue
+
 October 1, 2002
 	sprite.RenderGroups wasn't clearing killed sprites after draw()
 
