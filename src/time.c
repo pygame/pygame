@@ -217,7 +217,7 @@ static PyObject* time_set_timer(PyObject* self, PyObject* arg)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 	}
 
-	newtimer = SDL_AddTimer((ticks/10)*10, timer_callback, (void*)event);
+	newtimer = SDL_AddTimer(ticks, timer_callback, (void*)event);
 	if(!newtimer)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 	event_timers[event] = newtimer;
@@ -545,13 +545,12 @@ static PyMethodDef time_builtins[] =
 PYGAME_EXPORT
 void inittime(void)
 {
-	PyObject *module, *dict;
+	PyObject *module;
 
 	PyType_Init(PyClock_Type);
     
     /* create the module */
 	module = Py_InitModule3("time", time_builtins, doc_pygame_time_MODULE);
-	dict = PyModule_GetDict(module);
 
 	/*need to import base module, just so SDL is happy*/
 	import_pygame_base();
