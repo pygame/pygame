@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+May 23, 2001
+	fixed line drawing of width 1
+	draw.lines() was broken with sections outside clip
+
 May 22, 2001
 	added midleft, midright, midtop, and midbottom to Rect
 	added Rect.unionall() function to union a list of Rects
