@@ -303,6 +303,8 @@ Fills the specified area of the Surface with the mapped color
 value. If no destination rectangle is supplied, it will fill the
 entire Surface.
 <br>&nbsp;<br>
+The color argument can be a RGBA sequence or a mapped color integer.
+<br>&nbsp;<br>
 The fill is subject to be clipped by the active clipping
 rectangle. The return value contains the actual area filled.
 </ul><br>&nbsp;<br>
@@ -533,7 +535,8 @@ blitting speed.
 </b></font><br><font size=+1><tt>
 Surface.set_at([x, y], RGBA) -> None
 </tt></font><ul>
-Assigns RGBA color to the image at the give position.
+Assigns color to the image at the give position. Color can be a
+RGBA sequence or a mapped color integer.
 <br>&nbsp;<br>
 In some situations just using the <a href=#fill>fill()</a> function with a one-pixel
 sized rectangle will be quicker. Also the fill function does not
@@ -556,11 +559,13 @@ the Surface.
 
 <a name=set_colorkey><font size=+2><b>set_colorkey
 </b></font><br><font size=+1><tt>
-Surface.set_colorkey([RGBA, [flags]]) -> None
+Surface.set_colorkey([color, [flags]]) -> None
 </tt></font><ul>
 Set the colorkey for the surface by passing a mapped color value
 as the color argument. If no arguments are passed, colorkeying
 will be disabled for this surface.
+<br>&nbsp;<br>
+The color argument can be either a RGBA sequence or a mapped integer.
 <br>&nbsp;<br>
 If your image is nonchanging and will be used repeatedly, you
 will probably want to pass the RLEACCEL flag to the call. This

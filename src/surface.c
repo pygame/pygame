@@ -101,7 +101,8 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
     /*DOC*/    "Surface.set_at([x, y], RGBA) -> None\n"
     /*DOC*/    "set pixel at given position\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Assigns RGBA color to the image at the give position.\n"
+    /*DOC*/    "Assigns color to the image at the give position. Color can be a\n"
+    /*DOC*/    "RGBA sequence or a mapped color integer.\n"
     /*DOC*/    "\n"
     /*DOC*/    "In some situations just using the fill() function with a one-pixel\n"
     /*DOC*/    "sized rectangle will be quicker. Also the fill function does not\n"
@@ -134,9 +135,12 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 	if(format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
 		return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
 
-	if(!RGBAFromObj(rgba_obj, rgba))
-		return RAISE(PyExc_TypeError, "Invalid RGBA object");
-	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	if(PyInt_Check(rgba_obj))
+		color = (Uint32)PyInt_AsLong(rgba_obj);
+	else if(RGBAFromObj(rgba_obj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
 
 	if(!PySurface_Lock(self)) return NULL;
 	pixels = (Uint8*)surf->pixels;
@@ -500,12 +504,14 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_set_colorkey[] =
-    /*DOC*/    "Surface.set_colorkey([RGBA, [flags]]) -> None\n"
+    /*DOC*/    "Surface.set_colorkey([color, [flags]]) -> None\n"
     /*DOC*/    "change colorkey information\n"
     /*DOC*/    "\n"
     /*DOC*/    "Set the colorkey for the surface by passing a mapped color value\n"
     /*DOC*/    "as the color argument. If no arguments are passed, colorkeying\n"
     /*DOC*/    "will be disabled for this surface.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGBA sequence or a mapped integer.\n"
     /*DOC*/    "\n"
     /*DOC*/    "If your image is nonchanging and will be used repeatedly, you\n"
     /*DOC*/    "will probably want to pass the RLEACCEL flag to the call. This\n"
@@ -516,7 +522,7 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	Uint32 flags = 0, key = 0;
+	Uint32 flags = 0, color = 0;
 	PyObject* rgba_obj = NULL;
 	Uint8 rgba[4];
 	int result;
@@ -524,18 +530,18 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
 		return NULL;
 
-	if(rgba_obj)
-	{
-		if(!RGBAFromObj(rgba_obj, rgba))
-			return RAISE(PyExc_TypeError, "Invalid RGBA argument");
-		key = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-	}
+	if(PyInt_Check(rgba_obj))
+		color = (Uint32)PyInt_AsLong(rgba_obj);
+	else if(RGBAFromObj(rgba_obj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
 
 	if(PyTuple_Size(args) > 0)
 		flags |= SDL_SRCCOLORKEY;
 
 	PySurface_Prep(self);
-	result = SDL_SetColorKey(surf, flags, key);
+	result = SDL_SetColorKey(surf, flags, color);
 	PySurface_Unprep(self);
 
 	if(result == -1)
@@ -771,6 +777,8 @@ static PyObject* surf_get_clip(PyObject* self, PyObject* args)
     /*DOC*/    "value. If no destination rectangle is supplied, it will fill the\n"
     /*DOC*/    "entire Surface.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be a RGBA sequence or a mapped color integer.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "The fill is subject to be clipped by the active clipping\n"
     /*DOC*/    "rectangle. The return value contains the actual area filled.\n"
     /*DOC*/ ;
@@ -788,9 +796,12 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "O|O", &rgba_obj, &r))
 		return NULL;
 
-	if(!RGBAFromObj(rgba_obj, rgba))
-		return RAISE(PyExc_TypeError, "Invalid RGBA argument");
-	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	if(PyInt_Check(rgba_obj))
+		color = (Uint32)PyInt_AsLong(rgba_obj);
+	else if(RGBAFromObj(rgba_obj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
 
 	if(!r)
 	{

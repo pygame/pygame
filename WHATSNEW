@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 31, 2001
+	functions taking RGBA colors can also accept mapped ints
+
 Jan 30, 2001
 	added draw.lines()
 
