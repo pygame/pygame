@@ -46,15 +46,17 @@ static int accurate_delay(int ticks)
         int funcstart, delay;
         if(ticks <= 0)
             return 0;
-    
+
         if(!SDL_WasInit(SDL_INIT_TIMER))
 	{
 		if(SDL_InitSubSystem(SDL_INIT_TIMER))
+                {
 			RAISE(PyExc_SDLError, SDL_GetError());
                         return -1;
+                }
 	}
+
         funcstart = SDL_GetTicks();
-        
         if(ticks >= WORST_CLOCK_ACCURACY)
         {
             delay = (ticks - 2) - (ticks % WORST_CLOCK_ACCURACY);
@@ -65,7 +67,6 @@ static int accurate_delay(int ticks)
                 Py_END_ALLOW_THREADS
             }
         }
-        
 	do{
 		delay = ticks - (SDL_GetTicks() - funcstart);	
         }while(delay > 0);
@@ -121,7 +122,10 @@ static PyObject* time_delay(PyObject* self, PyObject* arg)
 	if(ticks < 0)
 		ticks = 0;
 
-        return PyInt_FromLong(accurate_delay(ticks));
+        ticks = accurate_delay(ticks);
+        if(ticks == -1)
+            return NULL;
+        return PyInt_FromLong(ticks);
 }
 
 
@@ -149,6 +153,16 @@ static PyObject* time_wait(PyObject* self, PyObject* arg)
 	if(!PyInt_Check(arg0))
 		return RAISE(PyExc_TypeError, "delay requires one integer argument");
 
+        if(!SDL_WasInit(SDL_INIT_TIMER))
+	{
+		if(SDL_InitSubSystem(SDL_INIT_TIMER))
+                {
+			RAISE(PyExc_SDLError, SDL_GetError());
+                        return NULL;
+                }
+	}
+
+        
 	ticks = PyInt_AsLong(arg0);
 	if(ticks < 0)
 		ticks = 0;
@@ -247,6 +261,9 @@ static PyObject* clock_tick(PyObject* self, PyObject* arg)
             int delay, endtime = (int)((1.0f/framerate) * 1000.0f);
             clock->rawpassed = SDL_GetTicks() - clock->last_tick;
             delay = endtime - clock->rawpassed;
+            delay = accurate_delay(delay);
+            if(delay == -1)
+                return NULL;
             accurate_delay(delay);
         }
         

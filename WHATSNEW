@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Februrary 12, 2003
+	fix immediate returns for first time.delay and time.wait
+
 February 11, 2003
 	more OSX SDLmain.m patches from Andrew Straw
 
