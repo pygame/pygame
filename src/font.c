@@ -626,7 +626,7 @@ static PyObject* Font(PyObject* self, PyObject* args)
 			return RAISE(PyExc_RuntimeError, "default font not found");
 		filename = font_defaultpath;
 		/*keep sizing consistent with previous default fonts*/
-		fontsize = (int)(fontsize * .75);
+		fontsize = (int)(fontsize * .7);
                 /*helmetb seems to err for this one size*/
                 if(fontsize==16) fontsize = 17;
 	}
