@@ -60,7 +60,7 @@ typedef struct {
 		if(PyCObject_Check(c_api)) {\
 			void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
 			memcpy(PyMIXER_C_API, localptr, sizeof(void*)*PYGAMEAPI_MIXER_NUMSLOTS); \
-} } }
+} Py_DECREF(module); } }
 #endif
 
 
