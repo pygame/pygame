@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 29, 2001
+	extremely revamped surface locking mechnisms
+	new Surface.subsurface for shared surfaces
+
 Jan 25, 2001
 	added the draw module, with clipped line function
 	added alpha routines in surfarray module

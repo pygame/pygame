@@ -244,6 +244,9 @@ typedef struct {
 typedef struct {
 	PyObject_HEAD
 	SDL_Surface* surf;
+	struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a subsurface)*/
+	int lockcount;
+	int didlock;
 } PySurfaceObject;
 #define PySurface_AsSurface(x) (((PySurfaceObject*)x)->surf)
 #ifndef PYGAMEAPI_SURFACE_INTERNAL
@@ -259,12 +262,40 @@ typedef struct {
 			int i; void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
 			for(i = 0; i < PYGAMEAPI_SURFACE_NUMSLOTS; ++i) \
 				PyGAME_C_API[i + PYGAMEAPI_SURFACE_FIRSTSLOT] = localptr[i]; \
+	} } \
+	module = PyImport_ImportModule("pygame.surflock"); \
+	if (module != NULL) { \
+		PyObject *dict = PyModule_GetDict(module); \
+		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \
+		if(PyCObject_Check(c_api)) {\
+			int i; void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
+			for(i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i) \
+				PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i]; \
 } } }
 #endif
 
 
+
+/* SURFLOCK */    /*auto import/init by surface*/
+#define PYGAMEAPI_SURFLOCK_FIRSTSLOT 43
+#define PYGAMEAPI_SURFLOCK_NUMSLOTS 5
+struct SubSurface_Data
+{
+	PyObject* owner;
+	int pixeloffset;
+};
+#ifndef PYGAMEAPI_SURFLOCK_INTERNAL
+#define PySurface_Prep(x) if(((PySurfaceObject*)x)->subsurface)(*(*(void(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 0]))(x)
+#define PySurface_Unprep(x) if(((PySurfaceObject*)x)->subsurface)(*(*(void(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 1]))(x)
+#define PySurface_Lock (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 2])
+#define PySurface_Unlock (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 3])
+#define PySurface_LockLifetime (*(PyObject*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 4])
+#endif
+
+
+
 /* EVENT */
-#define PYGAMEAPI_EVENT_FIRSTSLOT 45
+#define PYGAMEAPI_EVENT_FIRSTSLOT 49
 #define PYGAMEAPI_EVENT_NUMSLOTS 2
 typedef struct {
 	PyObject_HEAD
@@ -290,7 +321,7 @@ typedef struct {
 
 /* RWOBJECT */
 /*the rwobject are only needed for C side work, not accessable from python*/
-#define PYGAMEAPI_RWOBJECT_FIRSTSLOT 50
+#define PYGAMEAPI_RWOBJECT_FIRSTSLOT 53
 #define PYGAMEAPI_RWOBJECT_NUMSLOTS 1
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define RWopsFromPython (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])

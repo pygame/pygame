@@ -218,6 +218,10 @@ set the palette</td></tr>
 set a palette entry</td></tr>
 
 
+<tr><td><a href=#subsurface>subsurface</a></td><td> -
+create a new surface that shares pixel data</td></tr>
+
+
 <tr><td><a href=#unlock>unlock</a></td><td> -
 locks Surface for pixel access</td></tr>
 
@@ -567,6 +571,18 @@ information you provide.
 Surface.set_palette_at(index, [r, g, b]) -> None
 </tt></font><ul>
 This function sets the palette color at a specific entry.
+</ul><br>&nbsp;<br>
+
+<a name=subsurface><font size=+2><b>subsurface
+</b></font><br><font size=+1><tt>
+Surface.subsurface(rectstyle) -> Surface
+</tt></font><ul>
+Creates a new surface that shares pixel data of the given surface.
+Note that only the pixel data is shared. Things like clipping rectangles
+and colorkeys will be unique for the new surface.
+<br>&nbsp;<br>
+The fill is subject to be clipped by the active clipping
+rectangle. The return value contains the actual area filled.
 </ul><br>&nbsp;<br>
 
 <a name=unlock><font size=+2><b>unlock
