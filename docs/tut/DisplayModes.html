@@ -7,7 +7,7 @@ TUTORIAL:Choosing and Configuring Display Modes
  
 <h1 align=center><font size=-1>Pygame Tutorials</font><br>Setting Display Modes</h1>
 <h2 align=center>by Pete Shinners<br><font size=-1>pete@shinners.org</font></h2>
-<h3 align=center>Revision 1.01, November 14th, 2000</h3>
+<h3 align=center>Revision 1.1, May 21, 2002</h3>
 <br><br>
  
 <h2>Introduction</h2>
@@ -43,8 +43,8 @@ display capabilities, and setting the display mode for your game.<br>
 mode. The display mode may be set at anytime after the <u>pygame.display</u>
  module has been initialized. If you have previously set the display mode,
 setting it again will change the current mode. Setting the display mode is
-handled with the function <u><tt>pygame.display.set_mode((width, height), depth,
-flags)</tt></u>. The only required argument in this function is a sequence containing
+handled with the function <u><tt>pygame.display.set_mode((width, height), flags, depth)</tt></u>.
+The only required argument in this function is a sequence containing
 the width and height of the new display mode. The depth flag is the requested 
 bits per pixel for the surface. If the given depth is 8, <i>pygame</i> will
 create a color-mapped surface. When given a higher bit depth, <i>pygame</i>
@@ -68,7 +68,7 @@ want to call them before setting the display mode. First, <u><tt>pygame.display.
  will return a special object type of VidInfo, which can tell you a lot about 
 the graphics driver capabilities. The function <u><tt>pygame.display.list_modes(depth, 
 flags)</tt></u> can be used to find the supported graphic modes by the system.
-<u><tt>Pygame.display.mode_ok((width, height), depth, flags)</tt></u> takes the same
+<u><tt>Pygame.display.mode_ok((width, height), flags, depth)</tt></u> takes the same
 arguments as <u><tt>set_mode()</tt></u>, but returns the closest matching bit depth
 to the one you request. Lastly, <u><tt>pygame.display.get_driver()</tt></u> will return
 the name of the graphics driver selected by <i>pygame</i>.<br>
@@ -83,16 +83,15 @@ your graphic resources to that format when they are loaded. You let
 or a depth of 0, or you can call mode_ok() to find a closest matching
 bit depth to what you need.<br>
  <br>
-  When your display mode is windowed, your best bet is to go with the same 
-bit depth as the desktop. When you are fullscreen, you can sometimes go
-with a bit depth that best suits your needs, but there are platforms (like X)
-which cannot change resolution on the fly. You can find the depth  of the
+  When your display mode is windowed, you usually must math the same
+bit depth as the desktop. When you are fullscreen, some platforms can switch
+to any bit depth that best suits your needs. You can find the depth of the
 current desktop if you get a VidInfo object before ever setting your display
 mode.<br>
 <br>
   After setting the display mode, you can find out information about it's 
-settings by getting a VidInfo object, or by calling any of the get_X() 
-routines on the display surface.<br>
+settings by getting a VidInfo object, or by calling any of the Surface.get* 
+methods on the display surface.<br>
   <br>
  <br>
  
@@ -102,7 +101,7 @@ mode. You can find more information about these functions in the display module
 documentation. <br>
  <br>
  
-<blockquote><u><tt>pygame.display.mode_ok(size, depth, flags)</tt></u><br>
+<blockquote><u><tt>pygame.display.mode_ok(size, flags, depth)</tt></u><br>
    
   <blockquote> This function takes the exact same arguments as pygame.display.set_mode(). 
 It returns the best available bit depth for the mode you have described. 
@@ -156,18 +155,18 @@ x 480 windowed display<br>
  	&gt;&gt;&gt; <b>pygame.display.set_mode((640, 480))</b><br>
              <br>
  	&gt;&gt;&gt; #give me the biggest 16bit display available<br>
- 	&gt;&gt;&gt; <b>modes = pygame.display.list_modes(16, FULLSCREEN)</b><br>
+ 	&gt;&gt;&gt; <b>modes = pygame.display.list_modes(16)</b><br>
  	&gt;&gt;&gt; <b>if not modes:</b><br>
  	...	    <b>&nbsp;&nbsp;&nbsp;&nbsp;print '16bit not supported'</b><br>
  	... <b>else:</b><br>
  	...     <b>&nbsp;&nbsp;&nbsp;&nbsp;print 'Found Resolution:', modes[0]</b><br>
- 	...     <b>&nbsp;&nbsp;&nbsp;&nbsp;pygame.display.set.mode(modes[0], 16, FULLSCREEN)</b><br>
+ 	...     <b>&nbsp;&nbsp;&nbsp;&nbsp;pygame.display.set.mode(modes[0], FULLSCREEN, 16)</b><br>
              <br>
      &gt;&gt;&gt; #need an 8bit surface, nothing else will do<br>
-     &gt;&gt;&gt; <b>if pygame.mode_ok((800, 600), 8) != 8:</b><br>
+     &gt;&gt;&gt; <b>if pygame.mode_ok((800, 600), 0, 8) != 8:</b><br>
      ...     <b>&nbsp;&nbsp;&nbsp;&nbsp;print 'Can only work with an 8bit display, sorry'</b><br>
      ... <b>else:</b><br>
-     ... <b>&nbsp;&nbsp;&nbsp;&nbsp;pygame.set_mode((800, 600), 8)</b><br>
+     ... <b>&nbsp;&nbsp;&nbsp;&nbsp;pygame.set_mode((800, 600), 0, 8)</b><br>
              <br>
              </tt></blockquote>
    
