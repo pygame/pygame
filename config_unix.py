@@ -1,6 +1,6 @@
 """Config on Unix"""
 
-import os, sys, shutil, string
+import os, sys, string
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
