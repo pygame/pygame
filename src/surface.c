@@ -855,7 +855,7 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_set_clip[] =
-    /*DOC*/    "Surface.set_clip([rectstyle])) -> None\n"
+    /*DOC*/    "Surface.set_clip([rectstyle]) -> None\n"
     /*DOC*/    "assign destination clipping rectangle\n"
     /*DOC*/    "\n"
     /*DOC*/    "Assigns the destination clipping rectangle for the Surface. When\n"
@@ -869,14 +869,19 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
+        PyObject* item;
 	GAME_Rect *rect=NULL, temp;
 	int result;
 
 	if(PyTuple_Size(args))
 	{
-		rect = GameRect_FromObject(args, &temp);
-		if(!rect)
-			return RAISE(PyExc_ValueError, "invalid rectstyle object");
+                item = PyTuple_GET_ITEM(args, 0);
+                if(!(item == Py_None && PyTuple_Size(args) == 1))
+                {
+                    rect = GameRect_FromObject(args, &temp);
+                    if(!rect)
+                            return RAISE(PyExc_ValueError, "invalid rectstyle object");
+                }
 	}
 		
 	result = SDL_SetClipRect(surf, (SDL_Rect*)rect);
