@@ -63,10 +63,6 @@ static PyObject* get_ticks(PyObject* self, PyObject* arg)
     /*DOC*/    "delay for a number of milliseconds\n"
     /*DOC*/    "\n"
     /*DOC*/    "Will pause for a given number of milliseconds.\n"
-    /*DOC*/    "The maximum resolution of this delay is 10 milliseconds. The\n"
-    /*DOC*/    "time you request to delay will be truncated down to the nearest\n"
-    /*DOC*/    "10 milliseconds. This will help delay() return a little before\n"
-    /*DOC*/    "the requested time has passed, instead of a little afterwards.\n"
     /*DOC*/ ;
 
 static PyObject* delay(PyObject* self, PyObject* arg)
@@ -75,8 +71,11 @@ static PyObject* delay(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "i", &ticks))
 		return NULL;
 
+	if(ticks < 0)
+		ticks = 0;
+
 	Py_BEGIN_ALLOW_THREADS
-	SDL_Delay((ticks/10)*10);
+	SDL_Delay(ticks);
 	Py_END_ALLOW_THREADS
 
 	RETURN_NONE

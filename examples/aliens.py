@@ -15,7 +15,7 @@ from pygame.locals import *
 try:
     import pygame.mixer
     pygame.mixer.pre_init(11025)
-except ImportError:
+except:
     print 'Warning, sound not initialized'
     pygame.mixer = None
 
@@ -26,30 +26,29 @@ except ImportError: font = None
 
 #constants
 FRAMES_PER_SEC = 45
-PLAYER_SPEED   = 5
+PLAYER_SPEED   = 6
 MAX_SHOTS      = 2
-SHOT_SPEED     = 6
-BOMB_SPEED     = 6
+SHOT_SPEED     = 9
+BOMB_SPEED     = 9
 MAX_ALIENS     = 30
-ALIEN_SPEED    = 6
-ALIEN_ODDS     = 36
+ALIEN_SPEED    = 9
+ALIEN_ODDS     = 29
 ALIEN_RELOAD   = 12
-EXPLODE_TIME   = 40
+EXPLODE_TIME   = 35
 MAX_EXPLOSIONS = 4
 SCREENRECT     = Rect(0, 0, 640, 480)
-ANIMCYCLE      = 18
+ANIMCYCLE      = 12
 PLODECYCLE     = 7
 BULLET_OFFSET  = 11
 BOUNCEWIDTH    = PLAYER_SPEED * 4
-DIFFICULTY     = 14
-BOMB_ODDS      = 150
+DIFFICULTY     = 16
+BOMB_ODDS      = 130
 DANGER         = 10
 SORRYSCORE     = 20
 GOODSCORE      = 60
 
 #some globals for friendly access
 dirtyrects = [] # list of update_rects
-next_tick = 0   # used for timing
 class Img: pass # container for images
 class Snd: pass # container for sounds
 
@@ -88,14 +87,18 @@ def load_sound(file):
     
 
 
-
+last_tick = 0
+ticks_per_frame = int((1.0 / FRAMES_PER_SEC) * 1000.0)
 def wait_frame():
     "wait for the correct fps time to expire"
-    global next_tick
-    this_tick = pygame.time.get_ticks()
-    if this_tick < next_tick:
-        pygame.time.delay(next_tick - this_tick)
-    next_tick = this_tick + (1000/FRAMES_PER_SEC)
+    global last_tick, ticks_per_frame
+    now = pygame.time.get_ticks()
+    wait = ticks_per_frame - (now - last_tick)
+    #strange bug i'm hunting...
+    if type(wait) != type(1):
+        print 'attn: pete@shinners.org\n', wait, type(wait), now, type(now)
+    pygame.time.delay(wait)
+    last_tick = pygame.time.get_ticks()
 
 
 
@@ -414,6 +417,8 @@ def main(winstyle = 0):
     if kills <= SORRYSCORE: print 'Sorry!'
     elif kills >= GOODSCORE: print 'Excellent!'
     elif kills >= GOODSCORE-12: print 'Almost Excellent!'
+
+
 
     
 
