@@ -11,7 +11,10 @@
 
 */
 
+#define NO_PYGAME_C_API
 #include "pygame.h"
+
+
 typedef struct tColorRGBA {
 	Uint8 r; Uint8 g; Uint8 b; Uint8 a;
 } tColorRGBA;
