@@ -76,14 +76,6 @@ if sys.platform == 'win32':
                 data_files.append(p)
 
 
-#clean up the list of extensions
-for e in extensions[:]:
-    if e.name.startswith('COPYLIB_'):
-        extensions.remove(e) #don't compile the COPYLIBs, just clean them
-    else:
-        e.name = 'pygame.' + e.name #prepend package name on modules
-
-
 #we can detect the presence of python dependencies, remove any unfound
 pythondeps = {'surfarray': ['Numeric']}
 for e in extensions[:]:
@@ -96,6 +88,14 @@ for e in extensions[:]:
         except ImportError:
             print 'NOTE: Not compiling:', e.name, ' (module not found='+module+')'
             extensions.remove(e)
+
+
+#clean up the list of extensions
+for e in extensions[:]:
+    if e.name.startswith('COPYLIB_'):
+        extensions.remove(e) #don't compile the COPYLIBs, just clean them
+    else:
+        e.name = 'pygame.' + e.name #prepend package name on modules
 
 
 

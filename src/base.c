@@ -67,9 +67,11 @@ static int CheckSDLVersions(void) /*compare compiled to linked*/
 	SDL_VERSION(&compiled);
 	linked = SDL_Linked_Version();
 
+	/*only check the major and minor version numbers.
+	  we will relax any differences in 'patch' version.*/
+	 
 	if(compiled.major != linked->major ||
-				compiled.minor != linked->minor ||
-				compiled.patch != linked->patch)
+				compiled.minor != linked->minor)
 	{
 		char err[1024];
 		sprintf(err, "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
