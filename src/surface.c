@@ -37,13 +37,13 @@ static PyObject* PySurface_New(SDL_Surface* info);
 
 
     /*DOC*/ static char doc_surf_get_at[] =
-    /*DOC*/    "Surface.get_at([x, y]) -> RGBA\n"
+    /*DOC*/    "Surface.get_at(position) -> RGBA\n"
     /*DOC*/    "get a pixel color\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the RGB color values at a given pixel. If the\n"
     /*DOC*/    "Surface has no per-pixel alpha, the alpha will be 255 (opaque).\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/    "This function will need to temporarily lock the surface.\n"
     /*DOC*/ ;
 
 static PyObject* surf_get_at(PyObject* self, PyObject* arg)
@@ -100,7 +100,7 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_surf_set_at[] =
-    /*DOC*/    "Surface.set_at([x, y], RGBA) -> None\n"
+    /*DOC*/    "Surface.set_at(position, RGBA) -> None\n"
     /*DOC*/    "set pixel at given position\n"
     /*DOC*/    "\n"
     /*DOC*/    "Assigns color to the image at the give position. Color can be a\n"
@@ -110,7 +110,7 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
     /*DOC*/    "sized rectangle will be quicker. Also the fill function does not\n"
     /*DOC*/    "require the surface to be locked.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/    "This function will need to temporarily lock the surface.\n"
     /*DOC*/ ;
 
 static PyObject* surf_set_at(PyObject* self, PyObject* args)

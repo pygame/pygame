@@ -326,12 +326,12 @@ is disabled for the Surface, it returns None.
 
 <a name=get_at><font size=+2><b>get_at
 </b></font><br><font size=+1><tt>
-Surface.get_at([x, y]) -> RGBA
+Surface.get_at(position) -> RGBA
 </tt></font><ul>
 Returns the RGB color values at a given pixel. If the
 Surface has no per-pixel alpha, the alpha will be 255 (opaque).
 <br>&nbsp;<br>
-This function will temporarily lock the surface.
+This function will need to temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=get_bitsize><font size=+2><b>get_bitsize
@@ -531,7 +531,7 @@ blitting speed.
 
 <a name=set_at><font size=+2><b>set_at
 </b></font><br><font size=+1><tt>
-Surface.set_at([x, y], RGBA) -> None
+Surface.set_at(position, RGBA) -> None
 </tt></font><ul>
 Assigns color to the image at the give position. Color can be a
 RGBA sequence or a mapped color integer.
@@ -540,7 +540,7 @@ In some situations just using the <a href=#fill>fill()</a> function with a one-p
 sized rectangle will be quicker. Also the fill function does not
 require the surface to be locked.
 <br>&nbsp;<br>
-This function will temporarily lock the surface.
+This function will need to temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=set_clip><font size=+2><b>set_clip
