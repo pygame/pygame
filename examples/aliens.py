@@ -93,9 +93,6 @@ def wait_frame():
     global last_tick, ticks_per_frame
     now = pygame.time.get_ticks()
     wait = ticks_per_frame - (now - last_tick)
-    #strange bug i'm hunting...
-    if type(wait) != type(1):
-        print 'attn: pete@shinners.org\n', wait, type(wait), now, type(now)
     pygame.time.delay(wait)
     last_tick = pygame.time.get_ticks()
 

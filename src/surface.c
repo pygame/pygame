@@ -42,6 +42,7 @@ static PyObject* PySurface_New(SDL_Surface* info);
     /*DOC*/    "\n"
     /*DOC*/    "Returns the RGB color values at a given pixel. If the\n"
     /*DOC*/    "Surface has no per-pixel alpha, the alpha will be 255 (opaque).\n"
+    /*DOC*/    "The surface must be locked for this to work correctly.\n"
     /*DOC*/ ;
 
 static PyObject* surf_get_at(PyObject* self, PyObject* arg)
@@ -96,6 +97,11 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
     /*DOC*/    "set pixel at given position\n"
     /*DOC*/    "\n"
     /*DOC*/    "Assigns RGBA color to the image at the give position.\n"
+    /*DOC*/    "The surface must be locked for this to work correctly.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "In many situations just using the fill() function with a one-pixel\n"
+    /*DOC*/    "sized rectangle will be quicker. Also the fill function does not\n"
+    /*DOC*/    "requirethe surface to be locked.\n"
     /*DOC*/ ;
 
 static PyObject* surf_set_at(PyObject* self, PyObject* args)

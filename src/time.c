@@ -69,7 +69,19 @@ static PyObject* delay(PyObject* self, PyObject* arg)
 {
 	int ticks;
 	if(!PyArg_ParseTuple(arg, "i", &ticks))
+	{
+		printf("HMM, BAD ARGUMENTS.\nLet's try to troubleshoot this little bug...\n");
+		printf("Python Says you passed %d arguments.\n", PyTuple_Size(arg));
+		if(PyTuple_Size(arg)>= 1)
+		{
+			PyObject* arg1 = PyTuple_GET_ITEM(arg, 1);
+			printf("Argument 1 is type %s:", arg1->ob_type->tp_name);
+			PyObject_Print(arg1, stdout, Py_PRINT_RAW);
+		}
+		printf("Please report results to pygame@seul.org, thanks!\n");
+		printf("Here comes your exception, sorry.\n");
 		return NULL;
+	}
 
 	if(ticks < 0)
 		ticks = 0;
