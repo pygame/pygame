@@ -1,3 +1,12 @@
+This is the README file for SDL_Rotozoom
+note that this source has had some changes from version 1.4 of SDL_rotozoom
+
+The rotozoom function has been changed to always return a 32bit surface
+if smoothing has been requested.
+
+
+
+The following is the original README file...
 
 
 Rotozoom/Zoom function for SDL
