@@ -50,7 +50,7 @@ static void endmusic_callback()
 /*music module methods*/
 
     /*DOC*/ static char doc_play[] =
-    /*DOC*/    "pygame.music.play([loops]) -> None\n"
+    /*DOC*/    "pygame.mixer.music.play([loops]) -> None\n"
     /*DOC*/    "play the current loaded music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Starts playing the current loaded music. This will restart the\n"

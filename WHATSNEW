@@ -3,7 +3,6 @@ This is a list of changes in pygame's history.
 
 Nov 15, 2000
  BREAK:	Moved pygame.music to a member of pygame.mixer
- BREAK:	Constructor functions capitalized: Rect(), Event(), Surface()
  BREAK:	Surface.blit takes a source rectangle instead of pos, size
  BUG:	pygame.display.set_clip() correctly accepts rectstyle arg
 	Added Surface.get_flags() and Surface.get_pitch()
