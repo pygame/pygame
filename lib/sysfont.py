@@ -47,44 +47,51 @@ def initsysfonts_win32():
     mods = 'demibold', 'narrow', 'light', 'unicode', 'bt', 'mt'
     fontdir = os.path.join(os.environ['WINDIR'], "Fonts")
 
-    #find the right place in registry
-    try:
-        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                    r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts")
-    except WindowsError:
+    #this is a list of registry keys containing information
+    #about fonts installed on the system.
+    keys = []
+
+    #find valid registry keys containing font information.
+    possible_keys = [
+        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts",
+        r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+        ]
+
+    for key_name in possible_keys:
         try:
-            key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,
-                        r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts")
+            key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, key_name)
+            keys.append(key)
         except WindowsError:
-            return fonts
+            pass
 
-    fontdict = {}
-    for i in range(_winreg.QueryInfoKey(key)[1]):
-        try: name, font, t = _winreg.EnumValue(key,i)
-        except EnvironmentError: break
-        font = str(font)
-        if font[-4:].lower() != ".ttf":
-            continue
-        if os.sep not in font:
-            font = os.path.join(fontdir, font)
+    for key in keys:
+        fontdict = {}
+        for i in range(_winreg.QueryInfoKey(key)[1]):
+            try: name, font, t = _winreg.EnumValue(key,i)
+            except EnvironmentError: break
+            font = str(font)
+            if font[-4:].lower() != ".ttf":
+                continue
+            if os.sep not in font:
+                font = os.path.join(fontdir, font)
 
-        if name[-10:] == '(TrueType)':
-                name = name[:-11]
-        name = name.lower().split()
+            if name[-10:] == '(TrueType)':
+                    name = name[:-11]
+            name = name.lower().split()
 
-        bold = italic = 0
-        for m in mods:
-            if m in name:
-                name.remove(m)
-        if 'bold' in name:
-            name.remove('bold')
-            bold = 1
-        if 'italic' in name:
-            name.remove('italic')
-            italic = 1
-        name = ''.join(name)
+            bold = italic = 0
+            for m in mods:
+                if m in name:
+                    name.remove(m)
+            if 'bold' in name:
+                name.remove('bold')
+                bold = 1
+            if 'italic' in name:
+                name.remove('italic')
+                italic = 1
+            name = ''.join(name)
 
-        _addfont(name, bold, italic, font, fonts)
+            _addfont(name, bold, italic, font, fonts)
     return fonts
 
 
@@ -304,3 +311,5 @@ def match_font(name, bold=0, italic=0):
                     fontname = styles.values()[0]
         if fontname: break
     return fontname
+
+
