@@ -52,7 +52,7 @@ setting the display mode and updating the display surface.
 Pygame offers a fairly simple interface to the display buffer.
 The buffer is represented as an offscreen surface to which you
 can write directly. If you want the screen to show what you have
-written, the pygame.display.update() function will guarantee the
+written, the <a href=#update>pygame.display.update()</a> function will guarantee the
 the desired portion of the screen is updated. You can call
 pygame.display.flip() to update the entire screen, and also flip
 a hardware surface created with DOUBLEBUF.
@@ -62,15 +62,15 @@ easiest way is to pick a common screen resolution and depth and
 just initialize the video, checking for exceptions. You will
 probably get what you want, but pygame may be emulating your
 requested mode and converting the display on update (this is not
-the fastest method). When calling pygame.display.set_mode() with
+the fastest method). When calling <a href=#set_mode>pygame.display.set_mode()</a> with
 the bit depth omitted or set to zero, pygame will determine the
 best video mode available and set to that. You can also query for
-more information on video modes with pygame.display.mode_ok(),
+more information on video modes with <a href=#mode_ok>pygame.display.mode_ok()</a>,
 pygame.display.list_modes(), and
 pygame.display.get_vidinfo().get_info().
 <br>&nbsp;<br>
 When using a display depth other than what you graphic resources
-may be saved at, it is best to call the Surface.convert() routine
+may be saved at, it is best to call the <a href=Surface.html#convert>Surface.convert()</a> routine
 to convert them to the same format as the display, this will
 result in the fastest blitting.
 <br>&nbsp;<br>
@@ -82,7 +82,7 @@ packed into the bits of the pixel.
 <br>&nbsp;<br>
 After you have initialized your video mode, you can take the
 surface that was returned and write to it like any other Surface
-object. Be sure to call update() or flip() to keep what is on the
+object. Be sure to call <a href=#update>update()</a> or <a href=#flip>flip()</a> to keep what is on the
 screen synchronized with what is on the surface. Be sure not to call
 display routines that modify the display surface while it is locked.
 
