@@ -510,8 +510,8 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
     /*DOC*/    "change colorkey information\n"
     /*DOC*/    "\n"
     /*DOC*/    "Set the colorkey for the surface by passing a mapped color value\n"
-    /*DOC*/    "as the color argument. If no arguments are passed, colorkeying\n"
-    /*DOC*/    "will be disabled for this surface.\n"
+    /*DOC*/    "as the color argument. If no arguments or None is passed,\n"
+    /*DOC*/    "colorkeying will be disabled for this surface.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The color argument can be either a RGBA sequence or a mapped integer.\n"
     /*DOC*/    "\n"
@@ -527,7 +527,7 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 	Uint32 flags = 0, color = 0;
 	PyObject* rgba_obj = NULL;
 	Uint8 rgba[4];
-	int result;
+	int result, hascolor=0;
 
 	if(!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
 		return NULL;
@@ -535,7 +535,7 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
-	if(rgba_obj)
+	if(rgba_obj && rgba_obj!=Py_None)
 	{
 		if(PyInt_Check(rgba_obj))
 			color = (Uint32)PyInt_AsLong(rgba_obj);
@@ -543,9 +543,9 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 			color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 		else
 			return RAISE(PyExc_TypeError, "invalid color argument");
+		hascolor = 1;
 	}
-
-	if(PyTuple_Size(args) > 0)
+	if(hascolor)
 		flags |= SDL_SRCCOLORKEY;
 
 	PySurface_Prep(self);
@@ -593,7 +593,8 @@ static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "Set the overall transparency for the surface. If no alpha is\n"
     /*DOC*/    "passed, alpha blending is disabled for the surface. An alpha of 0\n"
-    /*DOC*/    "is fully transparent, an alpha of 255 is fully opaque.\n"
+    /*DOC*/    "is fully transparent, an alpha of 255 is fully opaque. If no\n"
+    /*DOC*/    "arguments or None is passed, this will disable the surface alpha.\n"
     /*DOC*/    "\n"
     /*DOC*/    "If your surface has a pixel alpha channel, it will override the\n"
     /*DOC*/    "overall surface transparency. You'll need to change the actual\n"
@@ -609,17 +610,30 @@ static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	Uint32 flags = 0;
-	Uint8 alpha = 0;
-	int result;
+	PyObject* alpha_obj = NULL;
+	Uint8 alpha;
+	int result, alphaval=0, hasalpha=0;
 
-	if(!PyArg_ParseTuple(args, "|bi", &alpha, &flags))
+	if(!PyArg_ParseTuple(args, "|Oi", &alpha_obj, &flags))
 		return NULL;
 
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
-	if(PyTuple_Size(args) > 0)
+	if(alpha_obj && alpha_obj!=Py_None)
+	{
+		if(PyInt_Check(alpha_obj))
+			alphaval = (int)PyInt_AsLong(alpha_obj);
+		else
+			return RAISE(PyExc_TypeError, "invalid alpha argument");
+		hasalpha = 1;
+	}
+	if(hasalpha)
 		flags |= SDL_SRCALPHA;
+
+	if(alphaval>255) alpha = 255;
+	else if(alphaval<0) alpha = 0;
+	else alpha = (Uint8)alphaval;
 
 	PySurface_Prep(self);
 	result = SDL_SetAlpha(surf, flags, alpha);

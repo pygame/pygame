@@ -519,7 +519,8 @@ Surface.set_alpha([alpha, [flags]]) -> None
 </tt></font><ul>
 Set the overall transparency for the surface. If no alpha is
 passed, alpha blending is disabled for the surface. An alpha of 0
-is fully transparent, an alpha of 255 is fully opaque.
+is fully transparent, an alpha of 255 is fully opaque. If no
+arguments or None is passed, this will disable the surface alpha.
 <br>&nbsp;<br>
 If your surface has a pixel alpha channel, it will override the
 overall surface transparency. You'll need to change the actual
@@ -562,8 +563,8 @@ the Surface.
 Surface.set_colorkey([color, [flags]]) -> None
 </tt></font><ul>
 Set the colorkey for the surface by passing a mapped color value
-as the color argument. If no arguments are passed, colorkeying
-will be disabled for this surface.
+as the color argument. If no arguments or None is passed,
+colorkeying will be disabled for this surface.
 <br>&nbsp;<br>
 The color argument can be either a RGBA sequence or a mapped integer.
 <br>&nbsp;<br>
