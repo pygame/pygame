@@ -140,7 +140,7 @@ static int DoRectsIntersect(GAME_Rect *A, GAME_Rect *B)
 {
 	return ((A->x >= B->x && A->x < B->x+B->w)  ||
 		    (B->x >= A->x && B->x < A->x+A->w)) &&
-		   ((A->y >= B->y && A->y < B->y+B->h)  ||
+		   ((A->y >= B->y && A->y < B->y+B->h)	||
 		    (B->y >= A->y && B->y < A->y+A->h));
 }
 
@@ -706,10 +706,10 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 static struct PyMethodDef rect_methods[] =
 {
 	{"normalize",		(PyCFunction)rect_normalize,	1, doc_normalize},
-	{"clip",			(PyCFunction)rect_clip,			1, doc_clip},
+	{"clip",			(PyCFunction)rect_clip, 		1, doc_clip},
 	{"clamp",			(PyCFunction)rect_clamp,		1, doc_clamp},
 
-	{"move",			(PyCFunction)rect_move,			1, doc_move},
+	{"move",			(PyCFunction)rect_move, 		1, doc_move},
 	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},		
 	{"union",			(PyCFunction)rect_union,		1, doc_union},
 	{"unionall",		(PyCFunction)rect_unionall,		1, doc_unionall},
@@ -717,11 +717,11 @@ static struct PyMethodDef rect_methods[] =
 	{"move_ip",			(PyCFunction)rect_move_ip,		1, doc_move_ip},
 	{"inflate_ip",		(PyCFunction)rect_inflate_ip,	1, doc_inflate_ip},		
 	{"union_ip",		(PyCFunction)rect_union_ip,		1, doc_union_ip},
-	{"unionall_ip",		(PyCFunction)rect_unionall_ip,	1, doc_unionall_ip},
+	{"unionall_ip", 	(PyCFunction)rect_unionall_ip,	1, doc_unionall_ip},
 
-	{"collidepoint",	(PyCFunction)rect_collidepoint,	1, doc_collidepoint},
-	{"colliderect",		(PyCFunction)rect_colliderect,	1, doc_colliderect},
-	{"collidelist",		(PyCFunction)rect_collidelist,	1, doc_collidelist},
+	{"collidepoint",	(PyCFunction)rect_collidepoint, 1, doc_collidepoint},
+	{"colliderect", 	(PyCFunction)rect_colliderect,	1, doc_colliderect},
+	{"collidelist", 	(PyCFunction)rect_collidelist,	1, doc_collidelist},
 	{"collidelistall",	(PyCFunction)rect_collidelistall,1,doc_collidelistall},
 	{"contains",		(PyCFunction)rect_contains,		1, doc_contains},
 /* these are totally unwritten. volunteers? */
@@ -911,7 +911,7 @@ static PyNumberMethods rect_as_number = {
 /* object type functions */
 static void rect_dealloc(PyRectObject *self)
 {
-	PyMem_DEL(self);
+	PyObject_Del(self);
 }
 
 
@@ -1187,7 +1187,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 static PyTypeObject PyRect_Type = { 
 	PyObject_HEAD_INIT(0)
 	0,							/*size*/
-	"Rect",						/*name*/
+	"Rect", 					/*name*/
 	sizeof(PyRectObject),		/*basicsize*/
 	0,							/*itemsize*/
 	/* methods */
@@ -1199,8 +1199,8 @@ static PyTypeObject PyRect_Type = {
 	(reprfunc)rect_repr,		/*repr*/
 	&rect_as_number,			/*as_number*/
 	&rect_as_sequence,			/*as_sequence*/
-	NULL,			 			/*as_mapping*/
-	(hashfunc)NULL,				/*hash*/
+	NULL,						/*as_mapping*/
+	(hashfunc)NULL, 			/*hash*/
 	(ternaryfunc)NULL,			/*call*/
 	(reprfunc)rect_str,			/*str*/
 
