@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 26, 2003
+	Sprite and Group now new-style classes
+
 Februrary 12, 2003
 	fix immediate returns for first time.delay and time.wait
 
