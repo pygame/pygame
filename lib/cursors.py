@@ -73,8 +73,8 @@ tri_right = ((16, 16), (14, 1),
 
 
 #here is an example string resource cursor. to use this;
-#  curs, mask = pygame.cursors.compile_cursor(pygame.cursors.arrow_strings)
-#  pygame.mouse.set_cursor((16, 16), (0, 0), curs, mask)
+#  curs, mask = pygame.cursors.compile_cursor(pygame.cursors.thickarrow_strings)
+#  pygame.mouse.set_cursor((24, 24), (0, 0), curs, mask)
 
 thickarrow_strings = (               #sized 24x24
   "XX                      ",

@@ -433,6 +433,9 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	if(!title || !*title)
 		SDL_WM_SetCaption("pygame window", "pygame");
 
+	/*probably won't do much, but can't hurt, and might help*/
+	SDL_PumpEvents();
+
 	return PySurface_New(surf);
 }
 
