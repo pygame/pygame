@@ -475,7 +475,7 @@ class RenderClear(Group):
         spritedict = self.spritedict
         surface_blit = surface.blit
         for s in spritedict.keys():
-            spritedict[s] = surface_blit(s.image, s.rect)
+            spritedict[s] = surface_blit(s.image, s)
 
     def clear(self, surface, bgd):
         """clear(surface, bgd)
@@ -541,12 +541,25 @@ def spritecollide(sprite, group, dokill):
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
        automatically removed from all groups."""
-    spritecollide = sprite.rect.colliderect
+#    spritecollide = sprite.rect.colliderect
     crashed = []
-    for s in group.sprites():
-        if spritecollide(s.rect):
+#    d = getattr(group, 'spritedict', None)
+#    if d:
+    if 1:
+#        for s,junk in sprite.rect.collidedictall(d):
+#            if dokill: s.kill()
+#            crashed.append(s)
+#    else:
+#    for s in group.sprites():
+#        if spritecollide(s.rect):
+#            if dokill: s.kill()
+#            crashed.append(s)
+        allsprites = group.sprites()
+        for i in sprite.rect.collidelistall(allsprites):
+            s = allsprites[i]
             if dokill: s.kill()
             crashed.append(s)
+
     return crashed
 
 

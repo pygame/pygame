@@ -39,10 +39,10 @@ static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 {
 	short val;
+        PyObject *rectattr;
 
 	if(PyRect_Check(obj))
 		return &((PyRectObject*)obj)->r;
-
 	if(PySequence_Check(obj))
 	{
 		if(PySequence_Length(obj) == 4)
@@ -76,6 +76,21 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 				return GameRect_FromObject(sub, temp);
 		}
 	}
+        if((rectattr = PyObject_GetAttrString(obj, "rect")))
+        {
+            GAME_Rect *returnrect;
+            if(PyCallable_Check(rectattr)) /*call if it's a method*/
+            {
+                PyObject *rectresult = PyObject_CallObject(rectattr, NULL);
+                Py_DECREF(rectattr);
+                if(!rectresult)
+                    return NULL;
+                rectattr = rectresult;
+            }
+            returnrect = GameRect_FromObject(rectattr, temp);
+            Py_DECREF(rectattr);
+            return returnrect;
+        }
 	return NULL;
 }
 
@@ -526,8 +541,9 @@ static PyObject* rect_collidelist(PyObject* oself, PyObject* args)
 }
 
 
+
     /*DOC*/ static char doc_collidelistall[] =
-    /*DOC*/    "Rect.collidelistall(rectstyle list) -> int index\n"
+    /*DOC*/    "Rect.collidelistall(rectstyle list) -> index list\n"
     /*DOC*/    "find all overlapping rectangles\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns a list of the indexes that contain\n"
@@ -578,6 +594,102 @@ static PyObject* rect_collidelistall(PyObject* oself, PyObject* args)
 			Py_DECREF(num);
 		}
 		Py_DECREF(obj);
+	}
+
+	return ret;	
+}
+
+
+    /*DOC*/ static char doc_collidedict[] =
+    /*DOC*/    "Rect.collidedict(dict if rectstyle keys) -> key/value pair\n"
+    /*DOC*/    "find overlapping rectangle in a dictionary\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the key/value pair of the first rectangle key\n"
+    /*DOC*/    "in the dict that overlaps the base rectangle. Once an\n"
+    /*DOC*/    "overlap is found, this will stop checking the\n"
+    /*DOC*/    "remaining list. If no overlap is found, it will\n"
+    /*DOC*/    "return None.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	GAME_Rect *argrect, temp;
+	int loop=0;
+	PyObject* dict, *key, *val;
+	PyObject* ret = NULL;
+
+	if(!PyArg_ParseTuple(args, "O", &dict))
+		return NULL;
+	if(!PyDict_Check(dict))
+		return RAISE(PyExc_TypeError, "Argument must be a dict with rectstyle keys.");
+
+        while(PyDict_Next(dict, &loop, &key, &val))
+	{
+		if(!(argrect = GameRect_FromObject(key, &temp)))
+		{	
+			RAISE(PyExc_TypeError, "Argument must be a dict with rectstyle keys.");
+			break;
+		}
+		if(DoRectsIntersect(&self->r, argrect))
+		{
+			ret = Py_BuildValue("(OO)", key, val);
+			break;
+		}
+	}
+
+        if(!ret)
+        {
+            Py_INCREF(Py_None);
+            ret = Py_None;
+        }
+	return ret;	
+}
+
+
+    /*DOC*/ static char doc_collidedictall[] =
+    /*DOC*/    "Rect.collidedictall(rectstyle list) -> key/val list\n"
+    /*DOC*/    "find all overlapping rectangles\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a list of the indexes that contain\n"
+    /*DOC*/    "rectangles overlapping the base rectangle. If no\n"
+    /*DOC*/    "overlap is found, it will return an empty\n"
+    /*DOC*/    "sequence.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	GAME_Rect *argrect, temp;
+	int loop=0;
+	PyObject* dict, *key, *val;
+	PyObject* ret = NULL;
+
+	if(!PyArg_ParseTuple(args, "O", &dict))
+		return NULL;
+	if(!PyDict_Check(dict))
+		return RAISE(PyExc_TypeError, "Argument must be a dict with rectstyle keys.");
+
+	ret = PyList_New(0);
+	if(!ret)
+		return NULL;
+
+        while(PyDict_Next(dict, &loop, &key, &val))
+	{
+		if(!(argrect = GameRect_FromObject(key, &temp)))
+		{	
+			Py_DECREF(ret);
+			return RAISE(PyExc_TypeError, "Argument must be a dict with rectstyle keys.");
+		}
+
+		if(DoRectsIntersect(&self->r, argrect))
+		{
+			PyObject* num = Py_BuildValue("(OO)", key, val);
+			if(!num)
+				return NULL;
+			PyList_Append(ret, num);
+			Py_DECREF(num);
+		}
 	}
 
 	return ret;	
@@ -773,8 +885,10 @@ static struct PyMethodDef rect_methods[] =
 
 	{"collidepoint",	(PyCFunction)rect_collidepoint, 1, doc_collidepoint},
 	{"colliderect", 	(PyCFunction)rect_colliderect,	1, doc_colliderect},
-	{"collidelist", 	(PyCFunction)rect_collidelist,	1, doc_collidelist},
-	{"collidelistall",	(PyCFunction)rect_collidelistall,1,doc_collidelistall},
+	{"collidelist", 	(PyCFunction)rect_collidedict,	1, doc_collidedict},
+	{"collidelistall",	(PyCFunction)rect_collidedictall,1,doc_collidedictall},
+	{"collidedict", 	(PyCFunction)rect_collidelist,	1, doc_collidelist},
+	{"collidedictall",	(PyCFunction)rect_collidelistall,1,doc_collidelistall},
 	{"contains",		(PyCFunction)rect_contains,		1, doc_contains},
 /* these are totally unwritten. volunteers? */
 /*	{"cleanup",			(PyCFunction)rect_cleanup,		1, doc_cleanup}, */
