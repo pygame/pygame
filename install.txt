@@ -1,0 +1,23 @@
+More complete installation instructions are available in the docs directory.
+
+Note that basic installation requires at least Python 2.0 and SDL-1.1.5 to
+be installed. The latest version of each is recommended. Support for extra
+SDL daughter libraries is optional, but also recommended.
+
+The basic way to get pygame compiled and installed is to run the included
+"config.py" script. This will do a reasonably automated config for your
+platform type. eventually this will create a customized copy of the "Setup.in"
+file, named "Setup". It is also easy to make your own copy of "Setup.in"
+and edit by hand.
+
+Once your "Setup" file is created, you need to run distutils. This is done
+by the command, "python setup.py install". This will (hopefully) compile and
+install all available pygame modules.
+
+From here either head to the more complete installation instructions in the
+docs directory. Or, if no errors, head to the examples directory to
+see everything working.
+
+
+Pete Shinners
+shredwheat@mediaone.net
