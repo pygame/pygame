@@ -188,7 +188,7 @@ should work with typical XBM files.
     for line in range(len(curs)):
         if curs[line].startswith('static char') or curs[line].startswith('static unsigned char'):
             break
-    data = ' '.join(curs[line+1:]).replace('};', '').replace(',', '')
+    data = ' '.join(curs[line+1:]).replace('};', '').replace(',', ' ')
     cursdata = []
     for x in data.split():
         cursdata.append(bitswap(int(x, 16)))
@@ -197,7 +197,7 @@ should work with typical XBM files.
     for line in range(len(mask)):
         if mask[line].startswith('static char') or mask[line].startswith('static unsigned char'):
             break
-    data = ' '.join(mask[line+1:]).replace('};', '').replace(',', '')
+    data = ' '.join(mask[line+1:]).replace('};', '').replace(',', ' ')
     maskdata = []
     for x in data.split():
         maskdata.append(bitswap(int(x, 16)))

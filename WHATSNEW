@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+August 15, 2002
+        Hervé Cauwelier's fix for xbm cursors without spaces
+
 Auguest 14, 2002
 	switched to FSF's FreeSansBold default font
 	new font.get_default_font()

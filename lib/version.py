@@ -27,5 +27,5 @@ The python version information should always compare greater than any previous
 releases. (hmm, until we get to versions > 10)
 """
 
-ver = '1.5.2'
+ver = '1.5.3'
 
