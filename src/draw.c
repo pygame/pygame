@@ -536,7 +536,7 @@ static int clipline(int* pts, int left, int top, int right, int bottom)
 				swaptmp = y2; y2 = y1; y1 = swaptmp;
 				swaptmp = code2; code2 = code1; code1 = swaptmp;
 			}
-			if(x2 != x1)      
+			if(x2 != x1)	  
 				m = (y2 - y1) / (float)(x2 - x1);
 			else
 				m = 1.0f;
@@ -580,12 +580,12 @@ static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, in
 	Uint8 *pixel;
 	Uint8 *colorptr;
 
- 	deltax = x2 - x1;
- 	deltay = y2 - y1;
- 	signx = (deltax < 0) ? -1 : 1;
- 	signy = (deltay < 0) ? -1 : 1;
- 	deltax = signx * deltax + 1;
- 	deltay = signy * deltay + 1;
+	deltax = x2 - x1;
+	deltay = y2 - y1;
+	signx = (deltax < 0) ? -1 : 1;
+	signy = (deltay < 0) ? -1 : 1;
+	deltax = signx * deltax + 1;
+	deltay = signy * deltay + 1;
 
 	pixx = surf->format->BytesPerPixel;
 	pixy = surf->pitch;

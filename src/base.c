@@ -401,7 +401,7 @@ static int PyGame_Video_AutoInit(void)
 {
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		int status = SDL_InitSubSystem(SDL_INIT_VIDEO);		
+		int status = SDL_InitSubSystem(SDL_INIT_VIDEO); 	
 		if(status)
 			return 0;
 		SDL_EnableUNICODE(1);

@@ -20,15 +20,6 @@
     pete@shinners.org
 */
 
-/**
-COMPILE_INFO_BEGIN
-	module = surface
-	libs = sdl
-	source = 
-	required = 1
-COMPILE_INFO_END
-**/
-
 /*
  *  pygame Surface module
  */
@@ -1015,14 +1006,14 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	Py_BEGIN_ALLOW_THREADS
 
 	/*can't blit alpha to 8bit, crashes SDL*/
- 	if(dest->format->BytesPerPixel==1 && (src->format->Amask || src->flags&SDL_SRCALPHA))
- 	{
- 		didconvert = 1;
- 		src = SDL_DisplayFormat(src);
- 	}
+	if(dest->format->BytesPerPixel==1 && (src->format->Amask || src->flags&SDL_SRCALPHA))
+	{
+		didconvert = 1;
+		src = SDL_DisplayFormat(src);
+	}
 	result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
- 	if(didconvert)
- 		SDL_FreeSurface(src);
+	if(didconvert)
+		SDL_FreeSurface(src);
 
 	Py_END_ALLOW_THREADS
 	PySurface_Unprep(self);
@@ -1306,11 +1297,11 @@ static struct PyMethodDef surface_methods[] =
 	{"set_at",			surf_set_at,		1, doc_surf_set_at },
 
 	{"map_rgb",			surf_map_rgb,		1, doc_surf_map_rgb },
-	{"unmap_rgb",		surf_unmap_rgb,		1, doc_surf_unmap_rgb },
+	{"unmap_rgb",		surf_unmap_rgb, 	1, doc_surf_unmap_rgb },
 
-	{"get_palette",		surf_get_palette,	1, doc_surf_get_palette },
+	{"get_palette", 	surf_get_palette,	1, doc_surf_get_palette },
 	{"get_palette_at",	surf_get_palette_at,1, doc_surf_get_palette_at },
-	{"set_palette",		surf_set_palette,	1, doc_surf_set_palette },
+	{"set_palette", 	surf_set_palette,	1, doc_surf_set_palette },
 	{"set_palette_at",	surf_set_palette_at,1, doc_surf_set_palette_at },
 
 	{"lock",			surf_lock,			1, doc_surf_lock },
@@ -1320,8 +1311,8 @@ static struct PyMethodDef surface_methods[] =
 
 	{"set_colorkey",	surf_set_colorkey,	1, doc_surf_set_colorkey },
 	{"get_colorkey",	surf_get_colorkey,	1, doc_surf_get_colorkey },
-	{"set_alpha",		surf_set_alpha,		1, doc_surf_set_alpha },
-	{"get_alpha",		surf_get_alpha,		1, doc_surf_get_alpha },
+	{"set_alpha",		surf_set_alpha, 	1, doc_surf_set_alpha },
+	{"get_alpha",		surf_get_alpha, 	1, doc_surf_get_alpha },
 
 	{"convert",			surf_convert,		1, doc_surf_convert },
 	{"convert_alpha",	surf_convert_alpha,	1, doc_surf_convert_alpha },
@@ -1332,15 +1323,15 @@ static struct PyMethodDef surface_methods[] =
 	{"fill",			surf_fill,			1, doc_surf_fill },
 	{"blit",			surf_blit,			1, doc_surf_blit },
 
-	{"get_flags",		surf_get_flags,		1, doc_surf_get_flags },
+	{"get_flags",		surf_get_flags, 	1, doc_surf_get_flags },
 	{"get_size",		surf_get_size,		1, doc_surf_get_size },
-	{"get_width",		surf_get_width,		1, doc_surf_get_width },
+	{"get_width",		surf_get_width, 	1, doc_surf_get_width },
 	{"get_height",		surf_get_height,	1, doc_surf_get_height },
 	{"get_rect",		surf_get_rect,		1, doc_surf_get_rect },
-	{"get_pitch",		surf_get_pitch,		1, doc_surf_get_pitch },
-	{"get_bitsize",		surf_get_bitsize,	1, doc_surf_get_bitsize },
+	{"get_pitch",		surf_get_pitch, 	1, doc_surf_get_pitch },
+	{"get_bitsize", 	surf_get_bitsize,	1, doc_surf_get_bitsize },
 	{"get_bytesize",	surf_get_bytesize,	1, doc_surf_get_bytesize },
-	{"get_masks",		surf_get_masks,		1, doc_surf_get_masks },
+	{"get_masks",		surf_get_masks, 	1, doc_surf_get_masks },
 	{"get_shifts",		surf_get_shifts,	1, doc_surf_get_shifts },
 	{"get_losses",		surf_get_losses,	1, doc_surf_get_losses },
 
@@ -1434,9 +1425,9 @@ static PyTypeObject PySurface_Type =
 	NULL,					/*as_number*/
 	NULL,					/*as_sequence*/
 	NULL,					/*as_mapping*/
-	(hashfunc)NULL,			/*hash*/
+	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
-	(reprfunc)NULL,			/*str*/
+	(reprfunc)NULL, 		/*str*/
 	0L,0L,0L,0L,
 	doc_Surface_MODULE /* Documentation string */
 };

@@ -1,5 +1,5 @@
 <html>
-<title>pygame.UserRect</title>
+<title>pygame.movie</title>
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
@@ -47,32 +47,28 @@
 
 </td></tr></table></td></tr></table>
 <br>
-<h2 align=center>pygame.UserRect</h2>
-UserRect, python class wrapped around the pygame Rect type. This allows
-you to do things like inherit the rectangle object into a sprite class. While
-this makes for some neat features, current testing has shown there is a bit of
-a peformance penalty. (as opposed to just keeping a Rect value inside the class)
+<h2 align=center>pygame.movie</h2>
+movie module allows you to create Movie objects.
+currently only video is supported, no audio.
 <br>&nbsp;<br>
 
 <hr>
 
 <table>
-<tr><td><a href=#UserRect>UserRect</a></td><td> -
-Python class for the pygame Rect type</td></tr>
+<tr><td><a href=#Movie>Movie</a></td><td> -
+load a new MPEG stream</td></tr>
 
 
 </table>
 
 <hr>
 
-<a name=UserRect><font size=+2><b>UserRect
+<a name=Movie><font size=+2><b>Movie
 </b></font><br><font size=+1><tt>
-pygame.UserRect.UserRect() -> class instance
+pygame.movie.Movie(file) -> Movie
 </tt></font><ul>
-This python class can be treated exactly like a normal Rect
-object. The only difference is it is a real python class
-object, not a C extension type.
-<br>&nbsp;<br>
+Loads a new movie stream  from a MPG file. File is a filename.
+or opened file object, no other python file-like objects.
 </ul><br>&nbsp;<br>
 
 

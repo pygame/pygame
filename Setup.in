@@ -23,6 +23,7 @@ imageext src/imageext.c $(SDL) $(IMAGE)
 font src/font.c $(SDL) $(FONT)
 mixer src/mixer.c $(SDL) $(MIXER)
 mixer_music src/music.c $(SDL) $(MIXER)
+movie src/movie.c $(SDL) $(SMPEG)
 
 
 
