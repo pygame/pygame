@@ -1,5 +1,5 @@
 ##    pygame - Python Game Library
-##    Copyright (C) 2000-2001  Pete Shinners
+##    Copyright (C) 2000-2003  Pete Shinners
 ##
 ##    This library is free software; you can redistribute it and/or
 ##    modify it under the terms of the GNU Library General Public
@@ -121,7 +121,7 @@ This returns a tuple containing the cursor data and cursor mask
 data. Both these arguments are used when setting a cursor with
 pygame.mouse.set_cursor().
 """
-    
+
     #first check for consistent lengths
     size = len(strings[0]), len(strings)
     if size[0] % 8 or size[1] % 8:
@@ -192,7 +192,7 @@ should work with typical XBM files.
     else:
         hotx = hoty = 0
 
-    info = width, height, hotx, hoty    
+    info = width, height, hotx, hoty
 
     for line in range(len(curs)):
         if curs[line].startswith('static char') or curs[line].startswith('static unsigned char'):

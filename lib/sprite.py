@@ -1,5 +1,5 @@
 ##    pygame - Python Game Library
-##    Copyright (C) 2000-2001  Pete Shinners
+##    Copyright (C) 2000-2003  Pete Shinners
 ##
 ##    This library is free software; you can redistribute it and/or
 ##    modify it under the terms of the GNU Library General Public
@@ -321,7 +321,7 @@ class Group(object):
         else:
             for s in self.spritedict.keys():
                 s.update()
-        
+
 
     def __nonzero__(self):
         """__nonzero__() -> bool
@@ -487,7 +487,7 @@ class RenderClear(Group):
         for s in spritedict.keys():
             spritedict[s] = surface_blit(s.image, s.rect)
         self.lostsprites = []
-	
+
     def clear(self, surface, bgd):
         """clear(surface, bgd)
            erase the previous position of all sprites
@@ -606,13 +606,13 @@ def spritecollideany(sprite, group):
        return return any single sprite that collides with
        with the given sprite. If there are no collisions
        this returns None.
-       
+
        if you don't need all the features of the
        spritecollide function, this function will be a
        bit quicker.
-       
+
        all sprites must have a "rect" value, which is a
-       rectangle of the sprite area.""" 
+       rectangle of the sprite area."""
     spritecollide = sprite.rect.colliderect
     for s in group.sprites():
         if spritecollide(s.rect):
