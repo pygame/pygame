@@ -42,12 +42,23 @@ static int request_frequency = MIX_DEFAULT_FREQUENCY;
 static int request_size = MIX_DEFAULT_FORMAT;
 static int request_stereo = 1;
 
+Mix_Music** current_music;
 
 
 static void autoquit(void)
 {
 	if(SDL_WasInit(SDL_INIT_AUDIO))
 	{
+		if(current_music)
+		{
+			if(*current_music)
+			{
+				Mix_FreeMusic(*current_music);
+				*current_music = NULL;
+			}
+			current_music = NULL;
+		}
+
 		Mix_CloseAudio();
 		SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	}
@@ -1097,8 +1108,17 @@ void initmixer(void)
 
 	music = PyImport_ImportModule("pygame.mixer_music");
 	if(music) 
+	{
+		PyObject* ptr, *dict;
 		PyModule_AddObject(module, "music", music);
+		dict = PyModule_GetDict(music);
+		ptr = PyDict_GetItemString(dict, "_MUSIC_POINTER");
+		current_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
+	}	
 	else /*music module not compiled? cleanly ignore*/
+	{
+		current_music = NULL;
 		PyErr_Clear();
+	}
 }
 

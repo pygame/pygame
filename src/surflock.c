@@ -99,7 +99,7 @@ static int PySurface_Lock(PyObject* surfobj)
 	{
 		if(surf->subsurface)
 			PySurface_Prep(surfobj);
-		if(SDL_LockSurface(surf->surf) == -1)
+		if(SDL_LockSurface(surf->surf) >= -1)
 		{
 			PyErr_SetString(PyExc_RuntimeError, "error locking surface");
 			return 0;

@@ -104,7 +104,7 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
 
-	return PyInt_FromLong(SDL_WasInit(SDL_INIT_CDROM)!=0);
+	return PyInt_FromLong(SDL_WasInit(SDL_INIT_VIDEO)!=0);
 }
 
 
@@ -371,13 +371,23 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
     /*DOC*/    "documentation. The optional depth arguement is the requested bits\n"
     /*DOC*/    "per pixel. It will usually be left omitted, in which case the\n"
     /*DOC*/    "display will use the best/fastest pixel depth available.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can also create an OpenGL surface (for use with PyOpenGL)\n"
+    /*DOC*/    "by passing the OPENGL flag. You will likely want to use the\n"
+    /*DOC*/    "DOUBLEBUF flag when using OPENGL. In which case, the flip()\n"
+    /*DOC*/    "function will perform the GL buffer swaps. When you are using\n"
+    /*DOC*/    "an OPENGL video mode, you will not be able to perform most of the\n"
+    /*DOC*/    "pygame drawing functions (fill, set_at, etc) on the display surface.\n"
+    /*DOC*/    "You can also use the special display flag OPENGLBLIT which will\n"
+    /*DOC*/    "create a full OpenGL display, but also allow for limited pygame\n"
+    /*DOC*/    "blitting.\n"
     /*DOC*/ ;
 
 static PyObject* set_mode(PyObject* self, PyObject* arg)
 {
 	SDL_Surface* surf;
 	int flags = SDL_SWSURFACE, depth = 0;
-	int w, h;
+	int w, h, hasbuf;
 	char* title, *icontitle;
 
 	if(!PyArg_ParseTuple(arg, "(ii)|ii", &w, &h, &flags, &depth))
@@ -385,12 +395,39 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 
 	VIDEO_INIT_CHECK();
 
-	if(!depth)
-		flags |= SDL_ANYFORMAT;
+	if(flags & SDL_OPENGL)
+	{
+		if(flags & SDL_DOUBLEBUF)
+		{
+			flags &= ~SDL_DOUBLEBUF;
+			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+		}
+		else
+			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
+		if(depth)
+			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth);
+		Py_BEGIN_ALLOW_THREADS
+		surf = SDL_SetVideoMode(w, h, depth, flags);
+		Py_END_ALLOW_THREADS
+		if(!surf)
+			return RAISE(PyExc_SDLError, SDL_GetError());
 
-	surf = SDL_SetVideoMode(w, h, depth, flags);
-	if(!surf)
-		return RAISE(PyExc_SDLError, SDL_GetError());
+		SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &hasbuf);
+		if(hasbuf)
+		{
+			surf->flags |= SDL_DOUBLEBUF;
+		}
+	}
+	else
+	{
+		if(!depth)
+			flags |= SDL_ANYFORMAT;
+		Py_BEGIN_ALLOW_THREADS
+		surf = SDL_SetVideoMode(w, h, depth, flags);
+		Py_END_ALLOW_THREADS
+		if(!surf)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+	}
 
 	SDL_WM_GetCaption(&title, &icontitle);
 	if(!title || !*title)
@@ -508,11 +545,14 @@ static PyObject* list_modes(PyObject* self, PyObject* args)
     /*DOC*/    "will wait for a vertical retrace and swap the surfaces. If you\n"
     /*DOC*/    "are using a different type of display mode, it will simply update\n"
     /*DOC*/    "the entire contents of the surface.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When using an OPENGL display mode this will perform a gl buffer swap.\n"
     /*DOC*/ ;
 
 static PyObject* flip(PyObject* self, PyObject* arg)
 {
 	SDL_Surface* screen;
+	int status = 0;
 
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
@@ -521,10 +561,18 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 
 	screen = SDL_GetVideoSurface();
 	if(!screen)
+		return RAISE(PyExc_SDLError, "Display mode not set");
+
+	Py_BEGIN_ALLOW_THREADS
+	if(screen->flags & SDL_OPENGL)
+		SDL_GL_SwapBuffers();
+	else
+		status = SDL_Flip(screen) == -1;
+	Py_END_ALLOW_THREADS
+
+	if(status == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	if(SDL_Flip(screen) == -1)
-		return RAISE(PyExc_SDLError, SDL_GetError());
-	
+
 	RETURN_NONE
 }
 
@@ -555,6 +603,9 @@ static int screencroprect(GAME_Rect* r, int w, int h)
     /*DOC*/    "updating, it is best to combine them into a sequence and pass\n"
     /*DOC*/    "them all at once. This call will accept a sequence of rectstyle\n"
     /*DOC*/    "arguments. Any None's in the list will be ignored.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This call cannot be used on OPENGL displays, and will generate\n"
+    /*DOC*/    "an exception.\n"
     /*DOC*/ ;
 
 static PyObject* update(PyObject* self, PyObject* arg)
@@ -584,6 +635,10 @@ static PyObject* update(PyObject* self, PyObject* arg)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 	wide = screen->w;
 	high = screen->h;
+
+
+	if(screen->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot update() an OPENGL display");
 
 	if(gr) /*single or no rect given*/
 	{
@@ -788,44 +843,6 @@ static PyObject* toggle_fullscreen(PyObject* self, PyObject* arg)
 }
 
 
-PyObject* testgl1(PyObject* self, PyObject* arg)
-{
-	if(!PyArg_ParseTuple(arg, ""))
-		return NULL;
-	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
-	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
-	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
-	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
-	RETURN_NONE
-}
-
-PyObject* testgl2(PyObject* self, PyObject* arg)
-{
-	int r, g, b, d;
-	if(!PyArg_ParseTuple(arg, ""))
-		return NULL;
-	SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &r );
-	SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &g );
-	SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &b );
-	SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &d );
-
-	printf("R,G,B,D = %d,%d,%d, %d\n", r, g, b, d);
-
-	RETURN_NONE
-}
-
-static PyObject* gl_swap_buffers(PyObject* self, PyObject* arg)
-{
-    if(!PyArg_ParseTuple(arg, ""))
-        return NULL;
-
-    VIDEO_INIT_CHECK();
-
-    SDL_GL_SwapBuffers();
-
-    RETURN_NONE
-}
-
 
 static PyMethodDef display_builtins[] =
 {
@@ -855,10 +872,6 @@ static PyMethodDef display_builtins[] =
 	/*{ "set_icon", set_icon, 1, doc_set_icon }, need to wait for surface objects*/
 	{ "iconify", iconify, 1, doc_iconify },
 	{ "toggle_fullscreen", toggle_fullscreen, 1, doc_toggle_fullscreen },
-
-	{ "testgl1", testgl1, 1, NULL },
-	{ "testgl2", testgl2, 1, NULL },
-{ "gl_swap_buffers", gl_swap_buffers, 1, NULL },
 
 	{ NULL, NULL }
 };

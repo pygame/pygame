@@ -4,6 +4,12 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Apr 18, 2001
+	added opengl support
+	fixed display.get_init()
+	current music is free'd when mixer is quit
+	better thread sharing in various video calls
+
 Apr 10, 2001
 	mixer now uses the requested sample format/size
 
