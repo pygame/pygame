@@ -6,10 +6,10 @@
 
 Apr 30, 2001
 	loading Sounds from python objects now works [BUG]
-	loading anything from python objects now thread safe [BUG]
+	loading from python objects now thread safe [BUG]
 
 Apr 19, 2001
-	applied Niki Spahiev's memory leak in event.c
+	applied Niki Spahiev's memory leak patch in event.c
 	removed minor memleak from each module's init
 
 Apr 18, 2001
