@@ -673,7 +673,7 @@ static PyObject* get(PyObject* self, PyObject* args)
     /*DOC*/    "queue, you would call, 'pygame.event.peek([KEYDOWN,KEYUP])'.\n"
     /*DOC*/ ;
 
-static PyObject* peek(PyObject* self, PyObject* args)
+static PyObject* event_peek(PyObject* self, PyObject* args)
 {
 	SDL_Event event;
 	int result;
@@ -727,7 +727,7 @@ static PyObject* peek(PyObject* self, PyObject* args)
     /*DOC*/    "'pos' and 'button'.\n"
     /*DOC*/ ;
 
-static PyObject* post(PyObject* self, PyObject* args)
+static PyObject* event_post(PyObject* self, PyObject* args)
 {
 	PyEventObject* e;
 	SDL_Event event;
@@ -896,8 +896,8 @@ static PyMethodDef event_builtins[] =
 	{ "wait", pygame_wait, 1, doc_wait },
 	{ "poll", poll, 1, doc_poll },
 	{ "get", get, 1, doc_get },
-	{ "peek", peek, 1, doc_peek },
-	{ "post", post, 1, doc_post },
+	{ "peek", event_peek, 1, doc_peek },
+	{ "post", event_post, 1, doc_post },
 
 	{ "set_allowed", set_allowed, 1, doc_set_allowed },
 	{ "set_blocked", set_blocked, 1, doc_set_blocked },
