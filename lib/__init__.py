@@ -158,27 +158,5 @@ def __rect_reduce(r):
 	return __rect_constructor, (r.x, r.y, r.w, r.h)
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
-if sys.platform == 'darwin':
-    # replace pygame.init() with a MacOS X specific hook if applicable
-    def init(_init=init):
-        import MacOS
-        if not MacOS.WMAvailable():
-            raise ImportError, "Can not access the window manager, use bundlebuilder or execute with the pythonw script"
-        try:
-            import AppKit
-        except ImportError:
-            raise ImportError, "PyObjC is required for pygame on OS X"
-        if not AppKit.NSApp():
-            # install MacOS X specific handlers for when running outside
-            # of an app bundle
-            import macosx
-            macosx.install()
-        # we need to do these imports again here because the global versions
-        # went away
-        import os, sys
-        if (os.getcwd() == '/') and len(sys.argv):
-            os.chdir(os.path.basedir(sys.argv[0]))
-        return _init()
-
 #cleanup namespace
 del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg

@@ -459,7 +459,26 @@ static int PyGame_Video_AutoInit(void)
 {
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		int status = SDL_InitSubSystem(SDL_INIT_VIDEO);
+		int status;
+#if defined(__APPLE__) && defined(darwin)
+		PyObject *module;
+		PyObject *rval;
+		module = PyImport_ImportModule("pygame.macosx");
+		if (!module) {
+			return -1;
+		}
+		rval = PyObject_CallMethod(module, "init", "");
+		Py_DECREF(module);
+		if (!rval) {
+			return -1;
+		}
+		status = PyObject_IsTrue(rval);
+		Py_DECREF(rval);
+		if (status != 1) {
+			return 0;
+		}
+#endif
+		status = SDL_InitSubSystem(SDL_INIT_VIDEO);
 		if(status)
 			return 0;
 		SDL_EnableUNICODE(1);
