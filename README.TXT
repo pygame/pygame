@@ -11,23 +11,26 @@ pete@shinners.org
 
 
 INTRO
-
+-----
 Pygame is a cross-platfrom library designed to make it easy to write
 multimedia software, such as games, in Python.
 
-Pygame depends on SDL >= 1.1.7 and Python >= 2.0. It also is optionally
+Pygame depends on SDL >= 1.1.7 and Python >= 1.5.2. It also is optionally
 dependent on SDL_ttf, SDL_image, SDL_mixer, and Numeric.
 
 
 
 
 INSTALLATION
-
+------------
 Full installation instructions are found in docs/fullinstall.txt
+There are many binaries available for different platforms. Check
+the pygame website for downloads. Also, use appropriate installers
+for platforms like Debian and FreeBSD for automatic installation.
 
-Compilation/Installation is handled by the python distutils. Just
-run "python setup.py" to perform the installation. This will make a
-worthwhile attempt at configuring the compiler variables and getting
+Compilation/Installation from source is handled by the python distutils.
+Just run "python setup.py" to perform the installation. This will make
+a worthwhile attempt at configuring the compiler variables and getting
 everything installed.
 
 Distutils has a lot of installation options. To get started with them
@@ -39,7 +42,7 @@ a Makefile)
 
 
 HELP
-
+----
 The best way to learn how to use pygame is to check out the example files
 the "examples" subdirectory. All modules, functions, and objects in the
 pygame package contain helpful docstrings. Full HTML reference and 
@@ -49,7 +52,7 @@ tutorials are also included in the docs directory.
 
 
 TODO
-
+----
 At some point it would be nice to add support for more external
 python libraries, here are some ideas...
  - more collision detection stuff: pixel2pixel, point2poly, etc
@@ -59,7 +62,7 @@ python libraries, here are some ideas...
 
 
 CREDITS
-
+-------
 Thanks to everyone who made this possible, including:
 
 - David Clark for RPMs and all around help
@@ -67,12 +70,12 @@ Thanks to everyone who made this possible, including:
 - Maxim Sobolev for FreeBSD port maintenance
 - Bob Ippolito for the MacOS porting
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial reviews
-- Our list of valiant bugfixers:
+- Our list of valiant bug fixers:
 	Niki Spahiev, Gordon Tyler,
 	Dave Wallace, and John Popplewell
 - And our dutiful bug hunters:
 	Angus, Guillaume Proux, Frank Raiser,
-	Austin Henry, and Kaweh Kazemi
+	Austin Henry, Kaweh Kazemi, Arturo Aldama
 
 Cheers to TheCorruptor for his incredible work on the pygame logo.
 
@@ -86,7 +89,7 @@ for our excellent site hosting.
 
 
 LIBRARIES
-
+---------
 Pygame is obviously strongly dependent on SDL and Python. It also
 links to and embeds several other smaller libraries. The font module
 relies on SDL_tff, which is dependent on freetype. The mixer (and
@@ -100,7 +103,7 @@ for its multidimensional numeric arrays.
 
 
 LINKS
-
+-----
 Pygame Website : http://www.pygame.org
 Python Website : http://www.python.org
 SDL Website    : http://www.libsdl.org
@@ -109,7 +112,7 @@ SDL Website    : http://www.libsdl.org
 
 
 LICENSE
-
+-------
 This library is distributed under GNU LGPL version 2.1, which can be
 found in the file  "doc/LGPL".	I reserve the right to place future
 versions of this library under a different license.

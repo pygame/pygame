@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+November 2, 2001
+	pygame.time.get_ticks() returns 0 before pygame.init()
+
 October 22, 2001
 	small fix for filled ellipses/circles
 
