@@ -24,20 +24,20 @@
  *  movie playback for pygame
  */
 #include "pygame.h"
-#include "smpeg.h"
+#include "ffmovie.h"
 
 
 typedef struct {
   PyObject_HEAD
-  SMPEG* movie;
+  FFMovie* movie;
   PyObject* surftarget;
   PyObject* filesource;
 } PyMovieObject;
-#define PyMovie_AsSMPEG(x) (((PyMovieObject*)x)->movie)
+#define PyMovie_AsFFMovie(x) (((PyMovieObject*)x)->movie)
 
 
 staticforward PyTypeObject PyMovie_Type;
-static PyObject* PyMovie_New(SMPEG*);
+static PyObject* PyMovie_New(FFMovie*);
 #define PyMovie_Check(x) ((x)->ob_type == &PyMovie_Type)
 
 
@@ -57,15 +57,17 @@ static PyObject* PyMovie_New(SMPEG*);
     /*DOC*/    "number of times the movie loops while playing.\n"
     /*DOC*/ ;
 
+/*FIX, needs looping, which needs a 'rewind'*/
+/*FIX, does nothing for now, movies autoplay*/
+
 static PyObject* movie_play(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 	int loops=0;
 	if(!PyArg_ParseTuple(args, "|i", &loops))
 		return NULL;
         Py_BEGIN_ALLOW_THREADS
-	SMPEG_loop(movie, loops);
-	SMPEG_play(movie);
+//	ffmovie_play(movie);
         Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
@@ -79,14 +81,15 @@ static PyObject* movie_play(PyObject* self, PyObject* args)
     /*DOC*/    "Stops playback of a movie. If sound and video are being\n"
     /*DOC*/    "rendered, both will be stopped at their current position.\n"
     /*DOC*/ ;
+/*FIX, movies cannot stop, only kill or pause*/
 
 static PyObject* movie_stop(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
         Py_BEGIN_ALLOW_THREADS
-	SMPEG_stop(movie);
+//	ffmovie_stop(movie);
         Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
@@ -102,11 +105,11 @@ static PyObject* movie_stop(PyObject* self, PyObject* args)
 
 static PyObject* movie_pause(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
         Py_BEGIN_ALLOW_THREADS
-	SMPEG_pause(movie);
+	ffmovie_pause(movie);
         Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
@@ -119,35 +122,14 @@ static PyObject* movie_pause(PyObject* self, PyObject* args)
     /*DOC*/    "Sets the movie playback position to the start of\n"
     /*DOC*/    "the movie.\n"
     /*DOC*/ ;
+/*need something for this, if anything reinit a new movie and start*/
 
 static PyObject* movie_rewind(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
         Py_BEGIN_ALLOW_THREADS
-	SMPEG_rewind(movie);
-        Py_END_ALLOW_THREADS
-	RETURN_NONE
-}
-
-    /*DOC*/ static char doc_movie_skip[] =
-    /*DOC*/    "Movie.skip(seconds) -> None\n"
-    /*DOC*/    "skip the movie playback position forward\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Sets the movie playback position ahead by the given\n"
-    /*DOC*/    "amount of seconds. the seconds value is a floating\n"
-    /*DOC*/    "point value\n"
-    /*DOC*/ ;
-
-static PyObject* movie_skip(PyObject* self, PyObject* args)
-{
-	SMPEG* movie = PyMovie_AsSMPEG(self);
-	float seconds;
-	if(!PyArg_ParseTuple(args, "f", &seconds))
-		return NULL;
-        Py_BEGIN_ALLOW_THREADS
-	SMPEG_skip(movie, seconds);
         Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
@@ -160,20 +142,18 @@ static PyObject* movie_skip(PyObject* self, PyObject* args)
     /*DOC*/    "Set the play volume for this Movie. The volume value is between\n"
     /*DOC*/    "0.0 and 1.0.\n"
     /*DOC*/ ;
+/*FIX, currently a noop*/
 
 static PyObject* movie_set_volume(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 	float value;
 	int volume;
 	if(!PyArg_ParseTuple(args, "f", &value))
 		return NULL;
 
         Py_BEGIN_ALLOW_THREADS
-	volume = (int)(value * 100);
-	if(volume<0) volume = 0;
-	if(volume>100) volume = 100;
-	SMPEG_setvolume(movie, volume);
+
         Py_END_ALLOW_THREADS
 
 	RETURN_NONE
@@ -181,16 +161,15 @@ static PyObject* movie_set_volume(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_movie_set_display[] =
-    /*DOC*/    "Movie.set_display(Surface, [pos]) -> None\n"
+    /*DOC*/    "Movie.set_display(Surface, [rect]) -> None\n"
     /*DOC*/    "change the video output surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Set the output surface for the Movie's video. You may\n"
     /*DOC*/    "also specify a position for the topleft corner of the\n"
-    /*DOC*/    "video. The position defaults to (0,0) if not given.\n"
+    /*DOC*/    "video.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The position argument can optionally be a rectangle,\n"
-    /*DOC*/    "in which case the video will be stretched to fill the\n"
-    /*DOC*/    "rectangular area.\n"
+    /*DOC*/    "The position argument must be a rectstyle if given.\n"
+    /*DOC*/    "The video will be stretched to fill the rectangular area.\n"
     /*DOC*/    "\n"
     /*DOC*/    "You may also pass None as the destination Surface, and\n"
     /*DOC*/    "no video will be rendered for the movie playback.\n"
@@ -198,8 +177,9 @@ static PyObject* movie_set_volume(PyObject* self, PyObject* args)
 
 static PyObject* movie_set_display(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 	PyObject* surfobj, *posobj=NULL;
+        SDL_Rect* sdlrect, sdltemp;
 	GAME_Rect *rect, temp;
 	int x=0, y=0;
 	if(!PyArg_ParseTuple(args, "O|O", &surfobj, &posobj))
@@ -210,46 +190,36 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 
 	if(PySurface_Check(surfobj))
 	{
-	    SMPEG_Info info;
-	    SDL_Surface* surf;
+                SDL_Surface* surf = PySurface_AsSurface(surfobj);
 
 		if(posobj == NULL)
 		{
-			SMPEG_Info info;
-			SMPEG_getinfo(movie, &info);
-			SMPEG_scaleXY(movie, info.width, info.height);
-			x = y = 0;
-		}
-		else if(TwoIntsFromObj(posobj, &x, &y))
-		{
-			SMPEG_Info info;
-			SMPEG_getinfo(movie, &info);
-			SMPEG_scaleXY(movie, info.width, info.height);
+			sdlrect = NULL;
 		}
 		else if((rect = GameRect_FromObject(posobj, &temp)))
-		{
-			x = rect->x;
-			y = rect->y;
-			SMPEG_scaleXY(movie, rect->w, rect->h);
-		}
-		else
+                {
+                        sdlrect = &sdltemp;
+                        sdltemp.x = rect->x;
+                        sdltemp.y = rect->y;
+                        sdltemp.w = rect->w;
+                        sdltemp.h = rect->h;
+                }
+                else
 			return RAISE(PyExc_TypeError, "Invalid position argument");
 
-	    surf = PySurface_AsSurface(surfobj);
-
-            SMPEG_getinfo(movie, &info);
-	    SMPEG_enablevideo(movie, 1);
-	    SMPEG_setdisplay(movie, surf, NULL, NULL);
-	    SMPEG_move(movie, x, y);
+            Py_BEGIN_ALLOW_THREADS            
+            ffmovie_setdisplay(movie, surf, sdlrect);
+            Py_END_ALLOW_THREADS
 	}
 	else
 	{
             Py_BEGIN_ALLOW_THREADS
-	    SMPEG_enablevideo(movie, 0);
+	    ffmovie_setdisplay(movie, NULL, NULL);
             Py_END_ALLOW_THREADS
 	    if(surfobj != Py_None)
 		       return RAISE(PyExc_TypeError, "destination must be a Surface");
 	}
+printf("Set Display: end\n");
 
 	RETURN_NONE;
 }
@@ -266,16 +236,12 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 
 static PyObject* movie_has_video(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
-	SMPEG_Info info;
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-        Py_BEGIN_ALLOW_THREADS
-	SMPEG_getinfo(movie, &info);
-        Py_END_ALLOW_THREADS
-	return PyInt_FromLong(info.has_video);
+	return PyInt_FromLong(movie->video_st != NULL);
 }
 
     /*DOC*/ static char doc_movie_has_audio[] =
@@ -288,16 +254,12 @@ static PyObject* movie_has_video(PyObject* self, PyObject* args)
 
 static PyObject* movie_has_audio(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
-	SMPEG_Info info;
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-        Py_BEGIN_ALLOW_THREADS
-	SMPEG_getinfo(movie, &info);
-        Py_END_ALLOW_THREADS
-	return PyInt_FromLong(info.has_audio);
+	return PyInt_FromLong(movie->audio_st != NULL);
 }
 
     /*DOC*/ static char doc_movie_get_size[] =
@@ -309,16 +271,17 @@ static PyObject* movie_has_audio(PyObject* self, PyObject* args)
 
 static PyObject* movie_get_size(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
-	SMPEG_Info info;
+	FFMovie* movie = PyMovie_AsFFMovie(self);
+        int w=0, h=0;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-        Py_BEGIN_ALLOW_THREADS
-	SMPEG_getinfo(movie, &info);
-        Py_END_ALLOW_THREADS
-	return Py_BuildValue("(ii)", info.width, info.height);
+	if(movie->video_st != NULL) {
+                w = movie->video_st->codec.width;
+                h = movie->video_st->codec.height;
+        }
+	return Py_BuildValue("(ii)", w, h);
 }
 
     /*DOC*/ static char doc_movie_get_frame[] =
@@ -330,16 +293,12 @@ static PyObject* movie_get_size(PyObject* self, PyObject* args)
 
 static PyObject* movie_get_frame(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
-	SMPEG_Info info;
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-        Py_BEGIN_ALLOW_THREADS
-	SMPEG_getinfo(movie, &info);
-        Py_END_ALLOW_THREADS
-	return PyInt_FromLong(info.current_frame);
+	return PyInt_FromLong(movie->frame_count);
 }
 
     /*DOC*/ static char doc_movie_get_time[] =
@@ -347,21 +306,16 @@ static PyObject* movie_get_frame(PyObject* self, PyObject* args)
     /*DOC*/    "query the current time in the movie\n"
     /*DOC*/    "\n"
     /*DOC*/    "Gets the current time (in seconds) for the movie.\n"
-    /*DOC*/    "(currently not working? SMPEG always reports 0)\n"
     /*DOC*/ ;
 
 static PyObject* movie_get_time(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
-	SMPEG_Info info;
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-        Py_BEGIN_ALLOW_THREADS
-	SMPEG_getinfo(movie, &info);
-        Py_END_ALLOW_THREADS
-	return PyFloat_FromDouble(info.current_time);
+	return PyInt_FromLong(movie->frame_timer);
 }
 
     /*DOC*/ static char doc_movie_get_length[] =
@@ -370,20 +324,17 @@ static PyObject* movie_get_time(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "Returns the total time (in seconds) of the movie.\n"
     /*DOC*/ ;
-
+/*FIX, currently a no op*/
 static PyObject* movie_get_length(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
-	SMPEG_Info info;
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-        Py_BEGIN_ALLOW_THREADS
-	SMPEG_getinfo(movie, &info);
-        Py_END_ALLOW_THREADS
-	return PyFloat_FromDouble(info.total_time);
+	return PyFloat_FromDouble(0.0);
 }
+
 
     /*DOC*/ static char doc_movie_get_busy[] =
     /*DOC*/    "Movie.get_busy() -> bool\n"
@@ -394,37 +345,19 @@ static PyObject* movie_get_length(PyObject* self, PyObject* args)
 
 static PyObject* movie_get_busy(PyObject* self, PyObject* args)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	return PyInt_FromLong(SMPEG_status(movie) == SMPEG_PLAYING);
+	return PyInt_FromLong(movie->context != NULL);
 }
 
-
-
-    /*DOC*/ static char doc_movie_render_frame[] =
-    /*DOC*/    "Movie.render_frame(framenum) -> int\n"
-    /*DOC*/    "Render a specfic numbered frame.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the current frame number.\n"
-    /*DOC*/ ;
-
-static PyObject* movie_render_frame(PyObject* self, PyObject* args)
+static PyObject* movie_noop(PyObject* self, PyObject* args)
 {
-        SMPEG* movie = PyMovie_AsSMPEG(self);
-        SMPEG_Info info;
-        int framenum;
-
-        if(!PyArg_ParseTuple(args, "i", &framenum))
-                return NULL;
-        Py_BEGIN_ALLOW_THREADS
-        SMPEG_renderFrame(movie, framenum);
-        SMPEG_getinfo(movie, &info);
-        Py_END_ALLOW_THREADS
-        return PyInt_FromLong(info.current_frame);
+	return PyInt_FromLong(0);
 }
+
 
 
 static PyMethodDef movie_builtins[] =
@@ -433,7 +366,6 @@ static PyMethodDef movie_builtins[] =
 	{ "stop", movie_stop, 1, doc_movie_stop },
 	{ "pause", movie_pause, 1, doc_movie_pause },
 	{ "rewind", movie_rewind, 1, doc_movie_rewind },
-	{ "skip", movie_skip, 1, doc_movie_skip },
 
 	{ "set_volume", movie_set_volume, 1, doc_movie_set_volume },
 	{ "set_display", movie_set_display, 1, doc_movie_set_display },
@@ -445,7 +377,9 @@ static PyMethodDef movie_builtins[] =
 	{ "get_time", movie_get_time, 1, doc_movie_get_time },
 	{ "get_length", movie_get_length, 1, doc_movie_get_length },
 	{ "get_busy", movie_get_busy, 1, doc_movie_get_busy },
-        { "render_frame", movie_render_frame, 1, doc_movie_render_frame},
+
+	{ "skip", movie_noop, 1, "obsolete, does nothing" },
+        { "render_frame", movie_noop, 1, "obsolete, does nothing"},
 
 	{ NULL, NULL }
 };
@@ -455,9 +389,9 @@ static PyMethodDef movie_builtins[] =
 
 static void movie_dealloc(PyObject* self)
 {
-	SMPEG* movie = PyMovie_AsSMPEG(self);
+	FFMovie* movie = PyMovie_AsFFMovie(self);
         Py_BEGIN_ALLOW_THREADS
-	SMPEG_delete(movie);
+	ffmovie_close(movie);
         Py_END_ALLOW_THREADS
 	Py_XDECREF(((PyMovieObject*)self)->surftarget);
 	Py_XDECREF(((PyMovieObject*)self)->filesource);
@@ -551,64 +485,35 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 {
 	PyObject* file, *final, *filesource=NULL;
 	char* name = NULL;
-	SMPEG* movie=NULL;
-	SMPEG_Info info;
+	FFMovie* movie=NULL;
 	SDL_Surface* screen;
-	char* error;
-	int audioavail = 0;
 	if(!PyArg_ParseTuple(arg, "O", &file))
 		return NULL;
-
-	if(!SDL_WasInit(SDL_INIT_AUDIO))
-		audioavail = 1;
-
+printf("MOVIE ENTER\n");fflush(stdout);
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
 		if(!PyArg_ParseTuple(arg, "s", &name))
 			return NULL;
-		movie = SMPEG_new(name, &info, audioavail);
+printf("  ^opening movie %s\n", name);fflush(stdout);
+		movie = ffmovie_open(name);
+printf("  ^done %p\n", movie);fflush(stdout);
 	}
-	else if(PyFile_Check(file))
-	{
-		SDL_RWops *rw = SDL_RWFromFP(PyFile_AsFile(file), 0);
-		movie = SMPEG_new_rwops(rw, &info, audioavail);
-		filesource = file;
-		Py_INCREF(file);
-	}
-	else
-	{
-		SDL_RWops *rw;
-                if(!(rw = RWopsFromPythonThreaded(file)))
-			return NULL;
-                Py_BEGIN_ALLOW_THREADS
-		movie = SMPEG_new_rwops(rw, &info, audioavail);
-                Py_END_ALLOW_THREADS
-	}
-
+        
 	if(!movie)
 		return RAISE(PyExc_SDLError, "Cannot create Movie object");
 
-	error = SMPEG_error(movie);
-	if(error)
-	{
-/* while this would seem correct, it causes a crash, so don't delete */
-/*	    SMPEG_delete(movie);*/
-	    return RAISE(PyExc_SDLError, error);
-	}
+      	screen = SDL_GetVideoSurface();
 
         Py_BEGIN_ALLOW_THREADS
-	SMPEG_enableaudio(movie, audioavail);
 
-	screen = SDL_GetVideoSurface();
-	if(screen)
-		SMPEG_setdisplay(movie, screen, NULL, NULL);
+//	if(screen)
+//		SMPEG_setdisplay(movie, screen, NULL, NULL);
 
-	SMPEG_scaleXY(movie, info.width, info.height);
         Py_END_ALLOW_THREADS
 
 	final = PyMovie_New(movie);
 	if(!final)
-		SMPEG_delete(movie);
+		ffmovie_close(movie);
 	((PyMovieObject*)final)->filesource = filesource;
 
 	return final;
@@ -618,123 +523,7 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 
 
 
-
-
-
-
-
-
-
-
-
-
-#if 0
-/*movie module methods*/
-
-
-static PyObject* gomovie(PyObject* self, PyObject* arg)
-{
-	char* name = NULL;
-        FFMovie *movie;
-        int finished;
-	if(!PyArg_ParseTuple(arg, "s", &name))
-		return NULL;
-
-//        Py_BEGIN_ALLOW_THREADS
-
-        av_register_all();
-        movie = ffmovie_open(name, SDL_GetVideoSurface());
-
-    finished = 0;
-    while(!finished) {
-        SDL_Event event;
-        SDL_WaitEvent(&event);
-        switch(event.type) {
-        case SDL_KEYDOWN:
-            switch(event.key.keysym.sym) {
-            case SDLK_ESCAPE:
-            case SDLK_q:
-                ffmovie_close(movie);
-                finished = 1;
-                break;
-            case SDLK_p:
-            case SDLK_SPACE:
-                ffmovie_pause(movie);
-                break;
-            default:
-                break;
-            }
-            break;
-        }
-    }
-
-
-//        Py_END_ALLOW_THREADS
-	RETURN_NONE;
-}
-
-
-#if 0
-static PyObject* movie_getbusy(PyObject* self, PyObject* arg)
-{
-    return PyInt_FromLong(
-}
-
-
-#endif
-
-
-
-
-
-
-PYGAME_EXPORT
-void initffmovie(void)
-{
-	PyObject *module, *dict;
-
-//	PyType_Init(PyMovie_Type);
-
-	/* create the module */
-	module = Py_InitModule3("ffmovie", mixer_builtins, "ffmovie");
-	dict = PyModule_GetDict(module);
-
-
-	/*imported needed apis*/
-	import_pygame_base();
-//	import_pygame_surface();
-//	import_pygame_rwobject();
-//	import_pygame_rect();
-}
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-static PyMethodDef mixer_builtins[] =
+static PyMethodDef moviemod_builtins[] =
 {
 	{ "Movie", Movie, 1, doc_Movie },
 
@@ -743,7 +532,7 @@ static PyMethodDef mixer_builtins[] =
 
 
 
-static PyObject* PyMovie_New(SMPEG* movie)
+static PyObject* PyMovie_New(FFMovie* movie)
 {
 	PyMovieObject* movieobj;
 
@@ -787,11 +576,11 @@ void initmovie(void)
 	PyType_Init(PyMovie_Type);
 
 	/* create the module */
-	module = Py_InitModule3("movie", mixer_builtins, doc_pygame_movie_MODULE);
+	module = Py_InitModule3("movie", moviemod_builtins, doc_pygame_movie_MODULE);
 	dict = PyModule_GetDict(module);
 
 	PyDict_SetItemString(dict, "MovieType", (PyObject *)&PyMovie_Type);
-
+printf("  #movie module initialized\n");
 	/*imported needed apis*/
 	import_pygame_base();
 	import_pygame_surface();

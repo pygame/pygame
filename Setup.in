@@ -15,6 +15,9 @@ SMPEG = -lsmpeg
 NUMERIC = -I/usr/include/python2.0/Numeric
 #--EndConfig
 
+#Movie needs libavcodec and friends, must hand configure
+#movie src/movie.c $(SDL) src/ffmovie.c -lavcodec -lavformat
+
 
 
 #the following modules are optional. you will want to compile
