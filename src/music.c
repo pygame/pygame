@@ -77,15 +77,15 @@ static void mixmusic_callback(void *udata, Uint8 *stream, int len)
     /*DOC*/    "song starts playing. The starting position is dependent on the\n"
     /*DOC*/    "format of music playing. MP3 and OGG use the position as time\n"
     /*DOC*/    "(in seconds). MOD music it is the pattern order number. Passing\n"
-    /*DOC*/    "a startpos will raise an exception if it cannot set the starting\n"
-    /*DOC*/    "position (or your version of SDL_mixer is too old)\n"
+    /*DOC*/    "a startpos will raise a NotImplementedError if it cannot set the\n"
+    /*DOC*/    "start position (or your version of SDL_mixer is too old)\n"
     /*DOC*/ ;
 
 static PyObject* music_play(PyObject* self, PyObject* args)
 {
 	int loops=0;
         float startpos=0.0;
-	int val;
+	int val, volume;
 
 	if(!PyArg_ParseTuple(args, "|if", &loops, &startpos))
 		return NULL;
@@ -101,7 +101,9 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 	music_pos_time = SDL_GetTicks();
 
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
-        val = Mix_FadeInMusicPos(current_music, loops, 1, startpos);
+        volume = Mix_VolumeMusic(-1);
+        val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
+        Mix_VolumeMusic(volume);
 #else
         if(startpos)
             return RAISE(PyExc_NotImplementedError, "music start position requires SDL_mixer-1.2.4");
@@ -471,8 +473,7 @@ void initmixer_music(void)
 	PyObject *module;
 
 	PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*clean an unused warning*/
-
-    /* create the module */
+        /* create the module */
 	module = Py_InitModule3("mixer_music", music_builtins, doc_pygame_mixer_music_MODULE);
 	PyModule_AddObject(module, "_MUSIC_POINTER", PyCObject_FromVoidPtr(&current_music, NULL));
 

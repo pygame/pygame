@@ -130,6 +130,8 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
                 /*Mix_ChannelFinished(some_callback);*/
 #endif
+                
+              	Mix_VolumeMusic(127);
 	}
 	return PyInt_FromLong(1);
 }
