@@ -225,8 +225,8 @@ static void atexit_quit(void)
 	quitfunctions = NULL;
 
 	uninstall_parachute();
-
 	num = PyList_Size(privatefuncs);
+
 	while(num--) /*quit in reverse order*/
 	{
 		quit = PyList_GET_ITEM(privatefuncs, num);
