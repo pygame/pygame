@@ -5,6 +5,7 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 
 June 11, 2003
+	Surface.set_at() respects clip area
 	cleaned fill circle draw
 
 June 8, 2003
