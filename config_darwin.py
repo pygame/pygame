@@ -15,7 +15,7 @@ class Dependency:
         self.checklib = checklib+self.libext
         self.checkhead = checkhead
         self.cflags = ''
-    
+
     def configure(self, incdirs, libdirs):
         incname = self.checkhead
         libnames = self.checklib, string.lower(self.name)
@@ -29,7 +29,7 @@ class Dependency:
                 path = os.path.join(dir, name)
                 if os.path.isfile(path):
                     self.lib_dir = dir
-                    break 
+                    break
         if self.lib_dir and self.inc_dir:
             print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
@@ -38,12 +38,14 @@ class Dependency:
 
 class FrameworkDependency(Dependency):
     def configure(self, incdirs, libdirs):
-      for n in '/Library/Frameworks/','~/Library/Frameworks/','/System/Library/Frameworks/':
+      for n in '/Library/Frameworks/','$HOME/Library/Frameworks/','/System/Library/Frameworks/':
+        n = os.path.expandvars(n)
         if os.path.isfile(n+self.lib+'.framework/Versions/Current/'+self.lib):
           print 'Framework '+self.lib+' found'
           self.found = 1
           self.inc_dir = n+self.lib+'.framework/Versions/Current/Headers'
           self.cflags = '-Xlinker "-framework" -Xlinker "'+self.lib+'"'
+          self.cflags += ' -Xlinker "-F'+n+'"'
           self.origlib = self.lib
           self.lib = ''
           return
@@ -61,7 +63,7 @@ class DependencyPython:
         self.ver = '0'
         self.module = module
         self.header = header
- 
+
     def configure(self, incdirs, libdirs):
         self.found = 1
         if self.module:
@@ -93,7 +95,7 @@ DEPS = [
 from distutils.util import split_quoted
 def main():
     global DEPS
-    
+
     print 'Hunting dependencies...'
     incdirs = []
     libdirs = []
@@ -103,7 +105,7 @@ def main():
     DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
     return DEPS
 
-    
+
 if __name__ == '__main__':
-    print """This is the configuration subscript for Unix.
+    print """This is the configuration subscript for OSX Darwin.
              Please run "config.py" for full configuration."""

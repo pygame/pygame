@@ -107,7 +107,10 @@ def initsysfonts_darwin():
 def read_unix_fontscache(dir, file, fonts):
     file = open(os.path.join(dir, file))
     for line in file.readlines():
-        font, num, vals = line.split(' ', 2)
+        try:
+            font, num, vals = line.split(' ', 2)
+        except ValueError:
+            continue
         font = font.replace('"', '')
         if font[-4:].lower() != '.ttf':
             continue
