@@ -24,6 +24,7 @@
  *  font module for pygame
  */
 #define PYGAMEAPI_FONT_INTERNAL
+#include <stdio.h>
 #include <string.h>
 #include "pygame.h"
 #include "font.h"
@@ -35,7 +36,7 @@ static PyObject* PyFont_New(TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-static char* font_defaultname = "freesansbold.ttf";
+static char* font_defaultname = "_freesansbold.ttf";
 PyObject* font_defaultpath = NULL;
 static PyObject* self_module = NULL;
 
@@ -572,7 +573,7 @@ static void font_dealloc(PyFontObject* self)
 {
 	TTF_Font* font = PyFont_AsFont(self);
 
-	if(font_initialized)
+	if(font && font_initialized)
 		TTF_CloseFont(font);
 
         if(self->weakreflist)
@@ -587,6 +588,7 @@ static int font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 	TTF_Font* font;
 	PyObject* fileobj;
     
+        self->font = NULL;
 	if(!PyArg_ParseTuple(args, "Oi", &fileobj, &fontsize))
 		return -1;
 
@@ -620,14 +622,18 @@ static int font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 
 		/*check if it is a valid file, else SDL_ttf segfaults*/
 		test = fopen(filename, "rb");
+printf("filetest %p\n", test);
 		if(!test)
                 {
-			RAISE(PyExc_IOError, "unable to read font filename");
+printf("FAILED!\n");
+			PyErr_SetString(PyExc_IOError, "unable to read font filename");
                         return -1;
                 }
+printf("SUCCESS!\n");
 		fclose(test);
 
                 Py_BEGIN_ALLOW_THREADS
+printf("opening font %s %d\n", filename, fontsize);
                 font = TTF_OpenFont(filename, fontsize);
                 Py_END_ALLOW_THREADS
 	}
@@ -766,8 +772,9 @@ static PyObject* PyFont_New(TTF_Font* font)
 
 	if(!font)
 		return RAISE(PyExc_RuntimeError, "unable to load font.");
-
+printf("PyFont_New font=%p\n",font);
 	fontobj = (PyFontObject *)PyFont_Type.tp_new(&PyFont_Type, NULL, NULL);
+printf("PyFont_New fontobj=%p\n",fontobj);
 
 	if(fontobj)
 		fontobj->font = font;

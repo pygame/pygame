@@ -4,8 +4,12 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 3, 2004
+    Newstyle fonts crashing with bad filenames [BUG]
+
 June 28, 2004
     Surface.set_clip(None) crashed [BUG]
+    Remove pygame's (now) redundant lock counting
 
 June 27, 2004
     Fix several negative or zero size problems [BUG]

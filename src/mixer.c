@@ -221,7 +221,10 @@ static PyObject* quit(PyObject* self, PyObject* arg)
     /*DOC*/    "data, or -8 or -16 for signed data. The default buffersize is\n"
     /*DOC*/    "1024 samples, sometimes a larger value is required.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "On many platforms it is important that the display module is\n"
+    /*DOC*/    "The stereo argument is either 1 or 2 to represent mono or\n"
+    /*DOC*/    "stereo. Pygame does not support more than 2 channel stereo.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "On some platforms it is important that the display module is\n"
     /*DOC*/    "initialized before the audio. (that is, if the display will be\n"
     /*DOC*/    "initialized at all). You can easily use the pygame.init()\n"
     /*DOC*/    "function to cleanly initialize everything, but first use the\n"
@@ -286,6 +289,9 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
     /*DOC*/    "values used by pygame.mixer.init(). This way you can still use\n"
     /*DOC*/    "the pygame automatic initialization to ensure everything happens\n"
     /*DOC*/    "in the right order, but set the desired mixer mode.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The stereo argument is either 1 or 2 to represent mono or\n"
+    /*DOC*/    "stereo. Pygame does not support more than 2 channel stereo.\n"
     /*DOC*/ ;
 
 static PyObject* pre_init(PyObject* self, PyObject* arg)
