@@ -66,6 +66,10 @@ initialize the module and create Font objects with
 create a new font object</td></tr>
 
 
+<tr><td><a href=#get_default_font>get_default_font</a></td><td> -
+get the name of the default font</td></tr>
+
+
 <tr><td><a href=#get_init>get_init</a></td><td> -
 get status of font module initialization</td></tr>
 
@@ -91,6 +95,13 @@ filename to a TTF file. The font loader does not work with python
 file-like objects. The size represents the height of the font in
 pixels. The file argument can be 'None', which will use a plain
 default font.
+</ul><br>&nbsp;<br>
+
+<a name=get_default_font><font size=+2><b>get_default_font
+</b></font><br><font size=+1><tt>
+pygame.font.get_default_font() -> string
+</tt></font><ul>
+returns the name for the default truetype font.
 </ul><br>&nbsp;<br>
 
 <a name=get_init><font size=+2><b>get_init
