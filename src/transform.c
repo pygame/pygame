@@ -60,7 +60,6 @@ static SDL_Surface* rotate90(SDL_Surface *src, int angle)
 
     if(numturns<0)
         numturns = 4+numturns;
-printf("ROT90: angle=%d  numturns=%d\n", angle, numturns);    
     if(!(numturns % 2))
     {
         dstwidth = src->w;
@@ -71,7 +70,6 @@ printf("ROT90: angle=%d  numturns=%d\n", angle, numturns);
         dstwidth = src->h;
         dstheight = src->w;
     }
-printf("ROT90: src=%d,%d   dst=%d,%d\n", src->w,src->h,dstwidth,dstheight);
     
     dst = newsurf_fromsurf(src, dstwidth, dstheight);
     if(!dst)
@@ -149,7 +147,6 @@ printf("ROT90: src=%d,%d   dst=%d,%d\n", src->w,src->h,dstwidth,dstheight);
             dstrow += dststepy; srcrow += srcstepy;
         }break;
     }
-printf("ROT90:\n");
     return dst;
 }
 
