@@ -34,7 +34,7 @@ Written by:
 
 
 
-PyGame heavily dependent on both Python and SDL. Sourcecode for both
+Pygame heavily dependent on both Python and SDL. Sourcecode for both
 of these is available from their web sites.
 http://www.pythonlabs.com
 http://www.libsdl.org

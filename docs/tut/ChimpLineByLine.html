@@ -1,0 +1,347 @@
+<!--
+Line by Line Descriptions of the Chimp Example
+--><html><head>
+
+<title>Pygame Tutorials - Setting Display Modes</title>
+</head><body>
+ 
+<h1 align=center><font size=-1>Pygame Tutorials</font><br>Line By Line Chimp</h1>
+<h2 align=center>by Pete Shinners<br><font size=-1>pete@shinners.org</font></h2>
+<h3 align=center>Revision 1.0, December 14th, 2000</h3>
+<br><br>
+
+
+<h2>Introduction</h2>
+
+In the <i>pygame</i> examples there is a simple example named, "chimp". This
+example simulates a punchable monkey moving around a small screen with
+promises of riches and reward. The example itself is very simple, and
+a bit thin on errorchecking code. This sample program demonstrates
+many abilities like creating a graphics window, loading images and
+sound files, rendering TTF text, streaming music, and basic input and
+mouse handling.
+
+This tutorial will go through the code block by block. Explaining how
+the code works. There will also be mention of how the code could be
+improved and what errorchecking could help out. 
+
+This is an exellent tutorial for people getting their first look at the
+<i>pygame</i> code. Once <i>pygame</i> is fully installed, you can find and run the
+chimp demo for yourself in the examples directory.
+<br>
+
+<br>
+<h2>Import Modules</h2>
+
+This is the code that imports all the needed modules into your
+program.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+import os
+import pygame, pygame.font, pygame.image, pygame.mixer
+from pygame.locals import *
+</td></tr></table><br>
+
+The os module is imported to simple help us create cross platform
+pathnames.<br>
+<br>
+You'll see there is a good sized list of different <i>pygame</i> modules
+that we actually need. Importing just <i>pygame</i> will give you many
+modules that support the functionality of SDL. <i>Pygame</i> comes with
+other modules that require extra dependencies. These modules are
+optional to install, but will generally all be available. In this
+example we specifically need font, image, and mixer.<br>
+<br>
+There is a special <i>pygame</i> module named "locals". This module 
+contains a subset of <i>pygame</i>. The members of this module are commonly
+used constants and functions that have proven useful to put into your
+program's global namespace. This locals module includes functions like
+"Rect" to create a rectangle object, and many constants like "QUIT, HWSURFACE"
+that are used to interact with the rest of <i>pygame</i>. Importing the locals
+module into the global namespace like this is entirely optional. If you
+choose not to import it, all the members of locals are available in the
+<i>pygame</i> module.<br>
+<br>
+When importing the pygame modules, it can be nice to test optional
+modules as they are imported. Python raises an "ImportError" exception
+when a module cannot be imported.<br>
+
+<br>
+<h2>Names For Resources</h2>
+
+Crossplatform file paths.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+chimpfile = os.path.join('data', 'chimp.gif')
+fistfile = os.path.join('data', 'fist.gif')
+hitfile = os.path.join('data', 'punch.wav')
+missfile = os.path.join('data', 'whiff.wav')
+</td></tr></table><br>
+
+With a little extra care, we can make sure our datafiles
+will have a correct path on any platform. This is more of a python
+specific issue, but comes up frequently when creating your games.<br>
+<br>
+
+
+<br>
+<h2>Initialize Everything</h2>
+
+Before we can do much with pygame, we need to make sure its modules
+are initialized. In this case we will also open a simple graphics window.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+pygame.init()
+screen = pygame.display.set_mode((468, 60), HWSURFACE|DOUBLEBUF)
+pygame.display.set_caption('Monkey Fever')
+pygame.mouse.set_visible(0)
+</td></tr></table><br>
+
+The first line to initialize <i>pygame</i> takes care of a bit of work for us.
+It checks through the imported <i>pygame</i> modules and attempts to initialize
+each one of them. It is possible to go back and check if modules failed
+to initialize, but we won't bother here. It is also possible to take a lot more
+control and initialize each specific module by hand. That type of control
+is generally not needed, but is available if you desire.<br>
+<br>
+Next we set up the display graphics mode. Note that the pygame.display
+module is used to control all the display settings. In this case we
+are asking for a simple skinny window, using some hardware acceleration
+if possible. There is an entire separate tutorial on setting up the
+graphics mode, but if we really don't care, <i>pygame</i> will do a good job of
+getting us something that works. If the system doesn't support hardware
+graphics or doublebuffered displays, it does not matter, <i>pygame</i> will
+give us the best possible match.<br>
+<br>
+Last we set the window title and turn of the mouse cursor for our
+window. Very basic to do, and now we have a small black window ready
+to do our bidding.<br>
+<br>
+
+<br>
+<h2>Create The Background</h2>
+
+Our program is going to have text message in the background. It would
+be nice for us to create a single surface to represent the background
+and repeatedly use that. The first step is to create the surface.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+background = pygame.Surface(screen.get_size()).convert()
+background.fill((250, 250, 250))
+</td></tr></table><br>
+
+This creates a new surface for us that is the same size as the display
+window. Note the extra call to convert() after creating the Surface.
+The convert with no arguments will make sure our background is the same
+format as the display window, which will give us the fastest results.<br>
+<br>
+We also fill the entire background with a solid white-ish color. Fill
+takes an RGB triplet as the color argument. <i>(or RGBA quadruplet)</i> <br>
+<br>
+
+<br>
+<h2>Put Text On The Background, Centered</h2>
+
+Now that we have a background surface, lets get the text rendered to it.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+font = pygame.font.Font(None, 36)
+text = font.render("Pummel The Chimp, And Win $$$", 1, (20, 20, 20))
+textpos = text.get_rect()
+textpos.centerx = background.get_rect().centerx
+background.blit(text, textpos.topleft)
+</td></tr></table><br>
+
+As you see, there are a couple steps to getting this done. First we
+must create the font object and render it into a new surface. We then
+find the center of that new surface and blit (paste) it onto the background.<br>
+<br>
+The font is created with the font module's Font() constructor. Usually
+you will pass the name of a truetype font file to this function, but we
+can also pass None, which will use a default font. The Font constructor
+also needs to know the size of font we want to create.<br>
+<br>
+We then render that font into a new surface. the render function creates
+a new surface that is the appropriate size for our text. In this case
+we are also telling render to create antialiased text (for a nice smooth
+look) and to use a dark grey color.<br>
+<br>
+Next we need to find the centered position of the text on our display.
+We create a "Rect" object from the text dimensions, which allows us to
+easily assign it to the screen center.<br>
+<br>
+Finally we blit (blit is like a copy or paste) the text onto the background
+image.<br>
+<br>
+
+<br>
+<h2>Display The Background While Setup Finishes</h2>
+
+We still have a black window on the screen. Lets show our background
+while we wait for the other resources to load.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+screen.blit(background, (0, 0))
+pygame.display.flip()
+</td></tr></table><br>
+
+This will blit our entire background onto the display window. The blit
+is self explanatory, but what about this flip routine?<br>
+<br>
+In pygame, changes to the display surface are not immediately visible.
+Normally, a display must be updated in areas that have changed for them
+to be visible to the user. With double buffered displays the display must be
+swapped (or flipped) for the changes to become visible. In this case
+the flip() function works nicely because it simply handles the entire
+window area for both types of displays.<br>
+<br>
+
+<br>
+<h2>Load Resources</h2>
+
+Loading the needed graphics and sound effects is easy.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+chimp = pygame.image.load(chimpfile).convert()
+fist = pygame.image.load(fistfile).convert()
+whiffsound = pygame.mixer.Sound(missfile)
+hitsound = pygame.mixer.Sound(hitfile)
+</td></tr></table><br>
+
+First we load two graphics files as new Surfaces. In this case the
+graphics are GIF files with transparancy information already set.
+Note that after loading we use convert to make them the same format
+as the screen. This will keep them running as fast as possible.<br>
+<br>
+Loading the sound effects is even easier. The sound constructor
+can take the filename of the source sound. These sounds will be
+resampled to match the playback rate of the mixer module.<br>
+<br>
+
+<br>
+<h2>Prepare To Animate</h2>
+
+Getting ready to animate, we just need to initialize some state
+information.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+chimppos = chimp.get_rect()
+chimppos.bottom = screen.get_height()
+chimpmove = 2
+reload = 0
+</td></tr></table><br>
+
+Nothing very specific to <i>pygame</i> here, but you can see set the monkey
+position at the bottom left of the screen. Also setting a couple other
+variables that will help us out.<br>
+<br>
+
+<br>
+<h2>Main Loop</h2>
+
+Nothing much here, just an infinite loop.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+while 1:
+</td></tr></table><br>
+
+All games run in some sort of loop. The usual order of things is to
+check on the state of the computer and user input, move and update the
+state of all the objects, and then draw them to the screen. You'll see
+that this example is no different.<br>
+<br>
+
+<br>
+<h2>Handle Input, Check For Quit</h2>
+
+This is an extremely simple case of working the event queue.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+event = pygame.event.poll()
+if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+    break
+</td></tr></table><br>
+
+Here we simply check to see if there is a QUIT event on the
+event queue, and if so, break out of our infinite loop. We will also
+quit if the user has pressed escape.<br>
+<br>
+In all your programs it is important there there is some interaction
+with the event queue. Even if you never check any of the queue events,
+you should at least call pygame.event.pump() each time through the 
+main loop. When you make the call to the queue functions, <i>pygame</i> takes
+some time to also communicate with the platform. This keeps your program
+running well on the system, and also makes sure things like input devices
+are all up to date.<br>
+<br>
+
+<br>
+<h2>Move The Monkey</h2>
+
+Simple python code to strafe the monkey<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+chimppos.left += chimpmove
+if not screen.get_rect().contains(chimppos):
+    chimpmove = -chimpmove
+</td></tr></table><br>
+
+This code simple moves the monkeys position rectangle to either side. It 
+then checks that the monkeys rectangle is still inside the area of the
+display window. If not we simple turn the monkey movement around.<br>
+<br>
+
+<br>
+<h2>Move And Punch The Fist</h2>
+
+This is the biggest block of code in the game, and it's pretty basic.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+fistpos = pygame.mouse.get_pos()	
+pressed = pygame.mouse.get_button()[0]
+if not reload and pressed:
+    if chimppos.collidepoint(fistpos):
+        hitsound.play()
+    else:
+        whiffsound.play()
+reload = pressed
+if reload:
+    fistpos = fistpos[0] - 20, fistpos[1] - 10
+</td></tr></table><br>
+
+First we set the position of the fist based on the position of the mouse.
+Then we check if the mouse button has been pressed. When the mouse button
+is pressed we play a sound effect. We
+use the reload variable to make sure the hit actions don't happen again
+until the mouse is released. Finally, we move the fist position up if
+the mouse button is not down.<br>
+<br>
+
+<br>
+<h2>Draw The Entire Scene</h2>
+
+Now that we have all the sprite information gathered, its time to
+present that to the user.<br>
+
+<br><table border=1 bgcolor=#ddcc88><tr><td><pre>
+screen.blit(background, (0, 0))
+screen.blit(chimp, chimppos.topleft)
+screen.blit(fist, fistpos)
+pygame.display.flip()
+</td></tr></table><br>
+
+First we set the entire display to the background image. This will 
+effectively erase any information from the previous frame. Then we
+draw the monkey and hand images. Finally, we again flip the screen
+to make sure our changes are visible on the display.<br>
+<br>
+
+<br>
+<h2>Game Over</h2>
+
+User has quit, time to clean up<br>
+<br>
+Cleaning up the running game in <i>pygame</i> is extremely simple. In fact
+since all variables are automatically destructed, we really don't have
+to do anything.<br>
+<br>
