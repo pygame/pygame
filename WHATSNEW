@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 23, 2002
+	big config.py update
+
 March 20, 2002
 	sprite.spritecollideany() now works as described
 

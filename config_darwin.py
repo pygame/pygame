@@ -51,6 +51,39 @@ class FrameworkDependency(Dependency):
           return
       print 'Framework '+self.lib+' not found'
 
+
+class DependencyPython:
+    def __init__(self, name, module, header):
+        self.name = name
+        self.lib_dir = ''
+        self.inc_dir = ''
+        self.lib = ''
+        self.cflags = ''
+        self.found = 0
+        self.ver = '0'
+        self.module = module
+        self.header = header
+ 
+    def configure(self, incdirs, libdirs):
+        self.found = 1
+        if self.module:
+            try:
+                self.ver = __import__(self.module).__version__
+            except ImportError:
+                self.found = 0
+        if self.found and self.header:
+            fullpath = os.path.join(get_python_inc(0), self.header)
+            if not os.path.isfile(fullpath):
+                found = 0
+            else:
+                self.inc_dir = os.path.split(fullpath)[0]
+        if self.found:
+            print self.name + '        '[len(self.name):] + ': found', self.ver
+        else:
+            print self.name + '        '[len(self.name):] + ': not found'
+
+
+
 sdl_lib_name = 'SDL'
 if sys.platform.find('bsd') != -1:
     sdl_lib_name = 'SDL-1.2'
@@ -61,6 +94,7 @@ DEPS = [
     FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image'),
     FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer'),
     Dependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
+    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h')
 ]
 
 

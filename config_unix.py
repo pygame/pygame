@@ -2,12 +2,52 @@
 
 import os, sys, shutil, string
 from glob import glob
+from distutils.sysconfig import get_python_inc
 
-configcommand = os.environ.get('SDL_CONFIG', 'sdl-config')
+configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
-localbase = os.environ.get('LOCALBASE', '')
+localbase = os.environ.get('LOCALBASE', '') #do we still need this?
 
+class DependencyProg:
+    def __init__(self, name, envname, exename, minver, defaultlib):
+        self.name = name
+        command = os.environ.get(envname, exename)
+        self.lib_dir = ''
+        self.inc_dir = ''
+        self.lib = ''
+        self.cflags = ''
+        try:
+            config = os.popen(command + ' --version --cflags --libs').readlines()
+            flags = string.split(string.join(config[1:], ' '))
+            self.ver = string.strip(config[0])
+            if minver and self.ver < minver:
+                err= 'WARNING: requires %s version %s (%s found)' % (self.name, self.ver, minver)
+                raise ValueError, err
+            self.found = 1
+            self.cflags = ''
+            for f in flags:
+                #if f[:2] == '-L':
+                #    self.lib_dir += f[2:] + ' '
+                #elif f[:2] == 'I':
+                #    self.inc_dir += f[2:] + ' '
+                if f[:2] in ('-l', '-D', '-I', '-L'):
+                    self.cflags += f + ' '
+                elif f[:3] == '-Wl':
+                    self.cflags += '-Xlinker ' + f + ' '
+        except:
+            print 'WARNING: "%s" failed!' % command    
+            self.found = 0
+            self.ver = '0'
+            self.lib = defaultlib
 
+    def configure(self, incdirs, libdir):
+        if self.found:
+            print self.name + '        '[len(self.name):] + ': found ' + self.ver
+            self.found = 1
+        else:
+            print self.name + '        '[len(self.name):] + ': not found'
+
+                    
 class Dependency:
     def __init__(self, name, checkhead, checklib, lib):
         self.name = name
@@ -39,57 +79,72 @@ class Dependency:
         else:
             print self.name + '        '[len(self.name):] + ': not found'
 
+class DependencyPython:
+    def __init__(self, name, module, header):
+        self.name = name
+        self.lib_dir = ''
+        self.inc_dir = ''
+        self.lib = ''
+        self.cflags = ''
+        self.found = 0
+        self.ver = '0'
+        self.module = module
+        self.header = header
+ 
+    def configure(self, incdirs, libdirs):
+        self.found = 1
+        if self.module:
+            try:
+                self.ver = __import__(self.module).__version__
+            except ImportError:
+                self.found = 0
+        if self.found and self.header:
+            fullpath = os.path.join(get_python_inc(0), self.header)
+            if not os.path.isfile(fullpath):
+                found = 0
+            else:
+                self.inc_dir = os.path.split(fullpath)[0]
+        if self.found:
+            print self.name + '        '[len(self.name):] + ': found', self.ver
+        else:
+            print self.name + '        '[len(self.name):] + ': not found'
+
 
 
 sdl_lib_name = 'SDL'
 if sys.platform.find('bsd') != -1:
     sdl_lib_name = 'SDL-1.2'
 
-DEPS = [
-    Dependency('SDL', 'SDL.h', 'lib'+sdl_lib_name+'.so', sdl_lib_name),
-    Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', 'SDL_ttf'),
-    Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
-    Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
-    Dependency('SMPEG', 'smpeg.h', 'libsmpeg.so', 'smpeg'),
-]
-
 
 def main():
-    global DEPS
-    
-    print 'calling "sdl-config"'
-    configinfo = "-I/usr/local/include/SDL -L/usr/local/lib -D_REENTRANT -lSDL"
-    try:
-        configinfo = os.popen(configcommand).readlines()
-        print 'Found SDL version:', configinfo[0]
-        configinfo = ' '.join(configinfo[1:])
-        configinfo = configinfo.split()
-        for w in configinfo[:]:
-            if ',' in w: configinfo.remove(w)
-        configinfo = ' '.join(configinfo)
-        #print 'Flags:', configinfo
-    except:
-        raise SystemExit, """Cannot locate command, "sdl-config". Default SDL compile
-flags have been used, which will likely require a little editing."""
+    print '\nHunting dependencies...'
+    DEPS = [
+        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', 'sdl'),
+        Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', 'SDL_ttf'),
+        Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
+        Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
+        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', 'smpeg'),
+        DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h')
+    ]
 
-    print 'Hunting dependencies...'
-    if localbase:
+    if not DEPS[0].found:
+        print 'Unable to run "sdl-config". Please make sure a development version of SDL is installed.'
+        raise SystemExit
+
+
+    if localbase: #unneeded?
         incdirs = [localbase + '/include/SDL']
         libdirs = [localbase + '/lib']
     else:
         incdirs = []
         libdirs = []
-        for arg in configinfo.split():
+        for arg in string.split(DEPS[0].cflags):
             if arg[:2] == '-I':
                 incdirs.append(arg[2:])
             elif arg[:2] == '-L':
                 libdirs.append(arg[2:])
     for d in DEPS:
         d.configure(incdirs, libdirs)
-
-    DEPS[0].inc_dirs = []
-    DEPS[0].lib_dirs = []
-    DEPS[0].cflags = configinfo
 
     return DEPS
 

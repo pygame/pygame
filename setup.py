@@ -116,7 +116,12 @@ for e in extensions[:]:
         extensions.remove(e) #don't compile the COPYLIBs, just clean them
     else:
         e.name = 'pygame.' + e.name #prepend package name on modules
-
+        
+        #this cleans up a silly distutils bug
+        for flag in e.extra_compile_args:
+            if flag[:2] == '-C':
+                index = e.extra_compile_args.index(flag)
+                e.extra_compile_args[index] = flag[2:]
 
 
 #data installer with improved intelligence over distutils
