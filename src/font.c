@@ -61,6 +61,8 @@ static PyObject* font_autoinit(PyObject* self, PyObject* arg)
 
 	if(!font_initialized)
 	{
+		PyGame_RegisterQuit(font_autoquit);
+
 		if(TTF_Init())
 			return PyInt_FromLong(0);
 		font_initialized = 1;
