@@ -24,7 +24,6 @@
  *  font module for pygame
  */
 #define PYGAMEAPI_FONT_INTERNAL
-#include <stdio.h>
 #include <string.h>
 #include "pygame.h"
 #include "font.h"

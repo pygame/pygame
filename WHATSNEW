@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 15, 2003
+    Rects now stored with ints (not shorts)
+
 October 2, 2003
     Add ARGB support to fromstring and tostring
 

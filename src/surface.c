@@ -429,7 +429,7 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 	SDL_Color* colors;
 	PyObject* list, *item;
 	int i, len;
-	short r, g, b;
+	int r, g, b;
 
 	if(!PyArg_ParseTuple(args, "O", &list))
 		return NULL;
@@ -458,7 +458,7 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 			free((char*)colors);
 			return RAISE(PyExc_TypeError, "takes a sequence of sequence of RGB");
 		}
-		if(!ShortFromObjIndex(item, 0, &r) || !ShortFromObjIndex(item, 1, &g) || !ShortFromObjIndex(item, 2, &b))
+		if(!IntFromObjIndex(item, 0, &r) || !IntFromObjIndex(item, 1, &g) || !IntFromObjIndex(item, 2, &b))
 			return RAISE(PyExc_TypeError, "RGB sequence must contain numeric values");
 
 		colors[i].r = (unsigned char)r;
@@ -739,10 +739,10 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 		}
 		else
 		{
-			short bpp;
+			int bpp;
 			SDL_PixelFormat format;
 			memcpy(&format, surf->format, sizeof(format));
-			if(ShortFromObj(argobject, &bpp))
+			if(IntFromObj(argobject, &bpp))
 			{
 				int Rmask, Gmask, Bmask, Amask;
 				if(flags!=-1 && flags&SDL_SRCALPHA)
@@ -889,6 +889,7 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	PyObject* item;
 	GAME_Rect *rect=NULL, temp;
+        SDL_Rect sdlrect;
 	int result;
 
 	if(PyTuple_Size(args))
@@ -902,7 +903,11 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 		}
 	}
 
-	result = SDL_SetClipRect(surf, (SDL_Rect*)rect);
+        sdlrect.x = rect->x;
+        sdlrect.y = rect->y;
+        sdlrect.h = rect->h;
+        sdlrect.w = rect->w;
+	result = SDL_SetClipRect(surf, &sdlrect);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
@@ -923,7 +928,7 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 static PyObject* surf_get_clip(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	return PyRect_New((GAME_Rect*)&surf->clip_rect);
+	return PyRect_New(&surf->clip_rect);
 }
 
 
@@ -951,6 +956,7 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	int result;
 	PyObject* rgba_obj;
 	Uint8 rgba[4];
+        SDL_Rect sdlrect;
 
 	if(!PyArg_ParseTuple(args, "O|O", &rgba_obj, &r))
 		return NULL;
@@ -968,7 +974,7 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	if(!r)
 	{
 		rect = &temp;
-		temp.x = temp.y = (short)0;
+		temp.x = temp.y = 0;
 		temp.w = surf->w;
 		temp.h = surf->h;
 	}
@@ -982,13 +988,18 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 		rect = &temp;
 	}
 
+        sdlrect.x = rect->x;
+        sdlrect.y = rect->y;
+        sdlrect.w = rect->w;
+        sdlrect.h = rect->h;
+
 	PySurface_Prep(self);
-	result = SDL_FillRect(surf, (SDL_Rect*)rect, color);
+	result = SDL_FillRect(surf, &sdlrect, color);
 	PySurface_Unprep(self);
 
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	return PyRect_New(rect);
+	return PyRect_New(&sdlrect);
 }
 
 
@@ -1119,8 +1130,8 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	GAME_Rect* src_rect, temp;
 	PyObject* srcobject, *argpos, *argrect = NULL;
 	int dx, dy, result;
-	SDL_Rect dest_rect;
-	short sx, sy;
+	SDL_Rect dest_rect, sdlsrc_rect;
+	int sx, sy;
 
 	if(!PyArg_ParseTuple(args, "O!O|O", &PySurface_Type, &srcobject, &argpos, &argrect))
 		return NULL;
@@ -1134,10 +1145,10 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		dx = src_rect->x;
 		dy = src_rect->y;
 	}
-	else if(TwoShortsFromObj(argpos, &sx, &sy))
+	else if(TwoIntsFromObj(argpos, &sx, &sy))
 	{
-		dx = (int)sx;
-		dy = (int)sy;
+		dx = sx;
+		dy = sy;
 	}
 	else
 		return RAISE(PyExc_TypeError, "invalid destination position for blit");
@@ -1159,12 +1170,16 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	dest_rect.y = (short)dy;
 	dest_rect.w = (unsigned short)src_rect->w;
 	dest_rect.h = (unsigned short)src_rect->h;
+        sdlsrc_rect.x = (short)src_rect->x;
+        sdlsrc_rect.y = (short)src_rect->y;
+        sdlsrc_rect.w = (unsigned short)src_rect->w;
+        sdlsrc_rect.h = (unsigned short)src_rect->h;
 
-	result = PySurface_Blit(self, srcobject, &dest_rect, (SDL_Rect*)src_rect);
+	result = PySurface_Blit(self, srcobject, &dest_rect, &sdlsrc_rect);
 	if(result != 0)
 	    return NULL;
 
-	return PyRect_New((GAME_Rect*)&dest_rect);
+	return PyRect_New(&dest_rect);
 }
 
 
@@ -1258,7 +1273,7 @@ static PyObject* surf_get_height(PyObject* self, PyObject* args)
 static PyObject* surf_get_rect(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	return PyRect_New4(0, 0, (short)surf->w, (short)surf->h);
+	return PyRect_New4(0, 0, surf->w, surf->h);
 }
 
 
@@ -1767,7 +1782,7 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	Uint32 flags = 0;
 	int width, height;
 	PyObject *depth=NULL, *masks=NULL, *final;
-	short bpp;
+	int bpp;
 	Uint32 Rmask, Gmask, Bmask, Amask;
 	SDL_Surface* surface;
 	SDL_PixelFormat default_format;
@@ -1778,7 +1793,7 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	{
 		if(PySurface_Check(depth))
 			return RAISE(PyExc_ValueError, "cannot pass surface for depth and color masks");
-		if(!ShortFromObj(depth, &bpp))
+		if(!IntFromObj(depth, &bpp))
 			return RAISE(PyExc_ValueError, "invalid bits per pixel depth argument");
 		if(!PySequence_Check(masks) || PySequence_Length(masks)!=4)
 			return RAISE(PyExc_ValueError, "masks argument must be sequence of four numbers");
@@ -1788,7 +1803,7 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	}
 	else if(depth && PyNumber_Check(depth))/*use default masks*/
 	{
-		if(!ShortFromObj(depth, &bpp))
+		if(!IntFromObj(depth, &bpp))
 			return RAISE(PyExc_ValueError, "invalid bits per pixel depth argument");
 		if(flags & SDL_SRCALPHA)
 		{
