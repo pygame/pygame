@@ -553,7 +553,10 @@ static PyObject* font_font(PyObject* self, PyObject* args)
 	if(!font_initialized)
 		return RAISE(PyExc_SDLError, "font not initialized");
 
+	Py_BEGIN_ALLOW_THREADS
 	font = TTF_OpenFont(filename, fontsize);
+	Py_END_ALLOW_THREADS
+	
 	if(!font)
 		return RAISE(PyExc_RuntimeError, SDL_GetError());
 	fontobj = PyFont_New(font);

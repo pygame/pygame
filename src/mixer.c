@@ -916,13 +916,17 @@ static PyObject* load(PyObject* self, PyObject* arg)
 	if(PyString_Check(file))
 	{
 		name = PyString_AsString(file);
+		Py_BEGIN_ALLOW_THREADS
 		chunk = Mix_LoadWAV(name);
+		Py_END_ALLOW_THREADS
 	}
 	else
 	{
 		if(!(rw = RWopsFromPython(file)))
 			return NULL;
+		Py_BEGIN_ALLOW_THREADS
 		chunk = Mix_LoadWAV_RW(rw, 1);
+		Py_END_ALLOW_THREADS
 	}
 
 	if(!chunk)

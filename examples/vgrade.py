@@ -8,7 +8,8 @@ I've tried mixing in a lot of comments where the code might
 not be self explanatory, nonetheless it may still seem a bit
 strange. Learning to use numeric for images like this takes a
 bit of learning, but the payoff is extremely fast image
-manipulation in python."""
+manipulation in python.
+The code also demonstrates use of the timer events."""
 
 
 import pygame
@@ -71,11 +72,13 @@ def main():
     screen = pygame.display.set_mode(size, 0, 32)
     finished = 0
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
+    pygame.time.set_timer(500, USEREVENT+5)
     while 1:
-        if pygame.event.poll().type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
+        event = pygame.event.poll()
+        if event.type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
             break
-        DisplayGradient(screen)
-        pygame.time.delay(500)
+        elif event.type == USEREVENT+5:
+            DisplayGradient(screen)
 
     
 

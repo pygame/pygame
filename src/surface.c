@@ -935,7 +935,7 @@ static PyObject* surf_get_height(PyObject* self, PyObject* args)
 static PyObject* surf_get_rect(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	return PyRect_New4(0, 0, surf->w, surf->h);
+	return PyRect_New4(0, 0, (short)surf->w, (short)surf->h);
 }
 
 

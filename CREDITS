@@ -1,22 +1,23 @@
-
-PyGame CREDITS
+pygame credits
 Thanks to everyone who made this possible, including:
-
-- Python and all the members behind it, headed by Guido van Rossum
-
-- SDL and all the people behind it, headed by Sam Lantinga
 
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design help
 
-- Mark Baker for his efforts with the pysdl library
+- David Clark for packaging and help with releases
 
-- David Clark for his great pysdl documentation and help
+- Python and the team behind it, headed by Guido van Rossum
+  http://www.python.org
+
+- SDL and all the folks behind it, headed by Sam Lantinga
+  http://www.libsdl.org
 
 
 
 
- And a big hand to everyone else who gave me appreciation, advice,
- and suggestions, especially the good folks on the PySDL mailing list.
+
+ And a big hand to everyone else who gave me appreciation,
+ advice, and suggestions, especially the good folks on the
+ old PySDL mailing list.
 
 THANKS!
 

@@ -351,7 +351,13 @@ static int PyGame_Video_AutoInit()
 {
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		if(SDL_InitSubSystem(SDL_INIT_VIDEO))
+		int status;
+
+		Py_BEGIN_ALLOW_THREADS
+		status = SDL_InitSubSystem(SDL_INIT_VIDEO);
+		Py_END_ALLOW_THREADS
+		
+		if(status)
 			return 0;
 		SDL_EnableUNICODE(1); /*the controversy!*/
 		PyGame_RegisterQuit(PyGame_Video_AutoQuit);
@@ -422,9 +428,9 @@ void initbase()
 	if(!initialized_once)
 	{
 #ifdef MS_WIN32
-		SDL_RegisterApp("PySDLWindow", 0, GetModuleHandle(NULL));
+		SDL_RegisterApp("pygame window", 0, GetModuleHandle(NULL));
 #endif
-		SDL_Init(0);
+		SDL_Init(SDL_INIT_TIMER);
 		initialized_once = 1;
 		Py_AtExit(atexit_quit);
 	}

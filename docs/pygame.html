@@ -3,13 +3,13 @@
 <body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
 
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
-<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<td rowspan=2><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
 <tr height=86 align=left><td valign=middle><font color=#ffffff size=+5>
 	<a href=../><font size=+5 color=#ffffff><i><b>
       pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
 	PyGame<br>Documentation</font>
-</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+</td></tr></table></td><td width=100% align=center valign=middle>
 
 	||&nbsp;
 	<a href=../>Home</a> &nbsp;||&nbsp;
@@ -21,22 +21,16 @@
 <a href=Font.html>Font</a> || 
 <a href=Joystick.html>Joystick</a> || 
 <a href=Rect.html>Rect</a> ||<br>
-|| <a href=Sound.html>Sound</a> || 
-<a href=Surface.html>Surface</a> || 
-<a href=pygame.html>pygame</a> || 
+|| <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
-<a href=pygame_constants.html>constants</a> ||<br>
-|| <a href=pygame_display.html>display</a> || 
-<a href=pygame_event.html>event</a> || 
-<a href=pygame_font.html>font</a> || 
-<a href=pygame_image.html>image</a> || 
-<a href=pygame_joystick.html>joystick</a> ||<br>
-|| <a href=pygame_key.html>key</a> || 
+<a href=pygame_constants.html>constants</a> || 
+<a href=pygame_display.html>display</a> || 
+<a href=pygame_event.html>event</a> ||<br>
+|| <a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> || 
 <a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> ||<br>
-|| <a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_music.html>music</a> ||<br>
 
 
 </td></tr></table>
@@ -52,8 +46,8 @@ this namespace. This contains all the constants needed by pygame.
 Object constructors also get placed into this namespace, you can
 call functions like rect() and surface() to create objects of
 that type. As a convenience, you can import the members of
-pygame.locals directly into your module's namespace with "from
-pygame.locals import *". Most of the pygame examples do this if
+pygame.locals directly into your module's namespace with 'from
+pygame.locals import *'. Most of the pygame examples do this if
 you'd like to take a look.
 
 <hr>
@@ -118,8 +112,8 @@ sometimes you may want to call this directly yourself.
 </b></font><br><font size=+1><tt>
 pygame.get_grab() -> bool
 </tt></font><ul>
-Returns true if the input is currently grabbed to
-your application.
+Returns true if the input is currently grabbed to your
+application.
 </ul><br>&nbsp;<br>
 
 <a name=init><font size=+2><b>init
