@@ -74,7 +74,8 @@ Thanks to everyone who made this possible, including:
 	Dave Wallace, John Popplewell
 - And our dutiful bug hunters:
 	Angus, Guillaume Proux, Frank Raiser,
-	Austin Henry, Kaweh Kazemi, Arturo Aldama
+	Austin Henry, Kaweh Kazemi, Arturo Aldama,
+        Mike Mulcheck
 
 Cheers to TheCorruptor for his incredible work on the pygame logo.
 

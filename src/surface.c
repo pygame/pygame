@@ -1404,8 +1404,15 @@ PyObject* surface_str(PyObject* self)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	const char* type;
 
-	type = (surf->flags&SDL_HWSURFACE)?"HW":"SW";
-	sprintf(str, "<Surface(%dx%dx%d %s)>", surf->w, surf->h, surf->format->BitsPerPixel, type);
+        if(surf)
+        {
+            type = (surf->flags&SDL_HWSURFACE)?"HW":"SW";
+            sprintf(str, "<Surface(%dx%dx%d %s)>", surf->w, surf->h, surf->format->BitsPerPixel, type);
+        }
+        else
+        {
+            strcpy(str, "<Surface(Dead Display)>");
+        }
 
 	return PyString_FromString(str);
 }

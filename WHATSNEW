@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 2, 2001
+	small protection for display Surfaces after display.quit()
+
 December 1, 2001
 	made time.delay() more accurate
 	created time.wait() to work like old delay()

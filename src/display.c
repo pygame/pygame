@@ -52,8 +52,12 @@ printf("...done\n");
 /* init routines */
 static void display_autoquit(void)
 {
-	Py_XDECREF(DisplaySurfaceObject);
-	DisplaySurfaceObject = NULL;
+        if(DisplaySurfaceObject)
+        {
+                /*Ack, this still leaves pretty deadly Surface objs around*/
+		((PySurfaceObject*)DisplaySurfaceObject)->surf = NULL;
+                Py_DECREF(DisplaySurfaceObject);
+        }
 }
 
 static PyObject* display_autoinit(PyObject* self, PyObject* arg)
