@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 31, 2001
+        pygame parachute does tracebacks with python2.2
+
 December 20, 2001
 	Surface.set_alpha() and set_colorkey() accept None
 	event.set_allowed() and set_blocked() accept None
