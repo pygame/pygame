@@ -26,23 +26,10 @@
 #include "pygame.h"
 #include <math.h>
 
-#if !defined(__FreeBSD_version) || __FreeBSD_version < 502119
-#ifdef _MSC_VER
-#pragma warning (disable:4244)
-
-float trunc(float d)
-{
-    if (d >= 0)
-        return floor(d);
-    return ceil(d);
-}
-
-#endif
-#endif
-
-
-#define FRAC(z) (z-trunc(z))
-#define INVFRAC(z) (1-(z-trunc(z)))
+/* Many C libraries seem to lack the trunc call (added in C99) */
+#define trunc(d)   (((d) >= 0.0) ? (floor(d)) : (ceil(d)))
+#define FRAC(z)    ((z) - trunc(z))
+#define INVFRAC(z) (1 - FRAC(z))
 
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts);
 static int clip_and_draw_aaline(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, float* pts, int blend);
