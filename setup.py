@@ -8,17 +8,16 @@
 DESCRIPTION = """Pygame is a Python wrapper module for the
 SDL multimedia library. It contains python functions and classes
 that will allow you to use SDL's support for playing cdroms,
-audio and video output, and keyboard, mouse and joystick input.
-Pygame also includes support for the Numerical Python extension."""
+audio and video output, and keyboard, mouse and joystick input."""
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.3",
+    "version":          "1.3.1",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners",
-    "author_email":     "pygame@seul.org",
-    "description":      "Python Game Development Package",
+    "author_email":     "pete@shinners.org",
+    "description":      "Python Game Development",
     "long_description": DESCRIPTION,
 }
 

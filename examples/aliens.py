@@ -206,7 +206,7 @@ def main(winstyle = 0):
     if pygame.mixer:
         music = os.path.join('data', 'house_lo.wav')
         pygame.mixer.music.load(music)
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
 
     # Initialize Game Groups
     aliens = pygame.sprite.Group()
