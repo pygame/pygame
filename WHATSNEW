@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 20, 2001
+	Surface.set_alpha() and set_colorkey() accept None
+
 pygame-13
 December 17, 2001
 	small preps for the full 1.3 release
