@@ -1003,7 +1003,7 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
     /*DOC*/    "rectangle sizes will be ignored.\n"
 #if 0  /* "" */
     /*DOC*/    "\n"
-    /*DOC*/    "Note that blitting surfaces with alpha onto 8bit destinations will\n"
+    /*DOC*/    "Blitting surfaces with pixel alphas onto an 8bit destination will\n"
     /*DOC*/    "not use the surface alpha values.\n"
 #endif /* "" */
     /*DOC*/ ;
@@ -1011,10 +1011,11 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 static PyObject* surf_blit(PyObject* self, PyObject* args)
 {
 	SDL_Surface* src, *dest = PySurface_AsSurface(self);
+        SDL_Surface* subsurface = NULL;
 	GAME_Rect* src_rect, temp;
 	PyObject* srcobject, *argpos, *argrect = NULL;
 	int dx, dy, result;
-	SDL_Rect dest_rect;
+	SDL_Rect dest_rect, orig_clip, sub_clip;
 	short sx, sy;
 	int didconvert = 0;
 
@@ -1059,7 +1060,29 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	dest_rect.w = (unsigned short)src_rect->w;
 	dest_rect.h = (unsigned short)src_rect->h;
 
-	PySurface_Prep(self);
+        /*passthrough blits to the real surface*/
+        if(((PySurfaceObject*)self)->subsurface)
+        {
+            int offsetx, offsety, offset;
+            offset = ((PySurfaceObject*)self)->subsurface->pixeloffset;
+            subsurface = PySurface_AsSurface(((PySurfaceObject*)self)->subsurface->owner);
+            
+            offsetx = (offset/subsurface->format->BytesPerPixel) % subsurface->pitch;
+            offsety = offset / subsurface->pitch;
+            SDL_GetClipRect(subsurface, &orig_clip);
+            SDL_GetClipRect(dest, &sub_clip);
+            sub_clip.x += offsetx;
+            sub_clip.y += offsety;
+            SDL_SetClipRect(subsurface, &sub_clip);
+            dest_rect.x += offsetx;
+            dest_rect.y += offsety;
+            dest = subsurface;
+        }
+        else
+        {
+	    PySurface_Prep(self);
+            subsurface = NULL;
+        }
 	PySurface_Prep(srcobject);
 	Py_BEGIN_ALLOW_THREADS
 
@@ -1074,7 +1097,12 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		SDL_FreeSurface(src);
 
 	Py_END_ALLOW_THREADS
-	PySurface_Unprep(self);
+        if(subsurface)
+        {
+            SDL_SetClipRect(subsurface, &orig_clip);
+        }
+        else
+	    PySurface_Unprep(self);
 	PySurface_Unprep(srcobject);
 
 
@@ -1275,6 +1303,8 @@ static PyObject* surf_get_losses(PyObject* self, PyObject* args)
     /*DOC*/    "The new subsurface will inherit the palette, colorkey, and surface alpha\n"
     /*DOC*/    "values from the base image.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "You cannot subsurface an image that is already a subsurface.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "You should not use the RLEACCEL flag for parent surfaces of subsurfaces,\n"
     /*DOC*/    "for the most part it will work, but it will cause a lot of extra work,\n"
     /*DOC*/    "every time you change the subsurface, you must decode and recode the\n"
@@ -1299,6 +1329,9 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
+        if((PySurfaceObject*)self)->subsurface)
+                return RAISE(PyExc_ValueError, "cannot subsurface a subsurface");
+        
 	if(!(rect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_ValueError, "invalid rectstyle argument");
 	if(rect->x < 0 || rect-> y < 0 || rect->x + rect->w > surf->w || rect->y + rect->h > surf->h)

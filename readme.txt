@@ -1,6 +1,6 @@
                         Pygame Readme
-   Version 1.4
-   January 27, 2002 Python Game Development
+   Version 1.4.9
+   May 8, 2002 Python Game Development
    by Pete Shinners http://www.pygame.org
    pete@shinners.org
 
@@ -88,13 +88,11 @@
      Numeric package for its multidimensional numeric arrays.
 
    Todo / Ideas (feel free to submit)
-     * smarten the config.py and setup.py stuff
-     * unify the types/classes for python 2.2
+     * unify more types/classes for python 2.2
      * transform.skew() function
      * transform.scroll() function
      * image filtering (colors,blurs,etc)
      * quake-like console with python interpreter
-     * soundarray module
      * game lobby. client, simple server, and protocol
      * surfarrays should be able to do RGBA along with RGB
 
