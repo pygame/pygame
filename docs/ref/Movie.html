@@ -69,6 +69,22 @@ call <a href=pygame_mixer.html#quit>pygame.mixer.quit()</a> to disable audio, th
 and play your movie. Finally calling <a href=pygame_mixer.html#init>pygame.mixer.init()</a>
 again when finished with the Movie.
 <br>&nbsp;<br>
+NOTE: When disabling the mixer so a movie may play audio,
+you must disable the audio before calling pygame.movie.Movie
+or the movie will not realise that it may access the audio.
+Before reinitialising the mixer, You must remove all
+references to the movie before calling <a href=pygame_mixer.html#init>pygame.mixer.init()</a>
+or the init will fail, leading to errors when you attempt to
+use the mixer.
+<br>&nbsp;<br>
+eg.
+<a href=pygame_mixer.html#quit>pygame.mixer.quit()</a>
+movie=pygame.movie.Movie(\"my.mpg\")
+movie.play()
+# process events until movie finished here
+movie.stop()
+movie=None # if you don't do this bit the init will fail
+<a href=pygame_mixer.html#init>pygame.mixer.init()</a>
 
 <hr>
 
