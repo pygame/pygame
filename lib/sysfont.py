@@ -218,7 +218,6 @@ def SysFont(name, size, bold=0, italic=0):
         initsysfonts()
 
     fontname = None
-    origbold = origitalic = 0
     if name:
         allnames = name
         for name in allnames.split(','):
@@ -240,10 +239,17 @@ def SysFont(name, size, bold=0, italic=0):
             if fontname: break
 
     font = pygame.font.Font(fontname, size)
-    if origbold and not bold:
-        font.set_bold(1)
-    if origitalic and not italic:
-        font.set_italic(1)
+    if name:
+        if origbold and not bold:
+            font.set_bold(1)
+        if origitalic and not italic:
+            font.set_italic(1)
+    else:
+        if bold:
+            font.set_bold(1)
+        elif italic:
+            font.set_italic(1)
+
     return font
 
 
