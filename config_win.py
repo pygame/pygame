@@ -1,6 +1,6 @@
 """Config on Windows"""
 
-import os, sys, shutil
+import os, sys
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
