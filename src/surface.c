@@ -1144,7 +1144,6 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	SDL_PixelFormat* format = surf->format;
 	GAME_Rect *rect, temp;
-	PyObject* r;
 	SDL_Surface* sub;
 	PyObject* subobj;
 	int didlock = 0;
@@ -1152,11 +1151,9 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	char* startpixel;
 	struct SubSurface_Data* data;
 
-	if(!PyArg_ParseTuple(args, "O", &r))
-		return NULL;
 
-	if(!(rect = GameRect_FromObject(r, &temp)))
-		return RAISE(PyExc_ValueError, "invalid rectstyle object");
+	if(!(rect = GameRect_FromObject(args, &temp)))
+		return RAISE(PyExc_ValueError, "invalid rectstyle argument");
 	if(rect->x < 0 || rect-> y < 0 || rect->x + rect->w > surf->w || rect->y + rect->h > surf->h)
 		return RAISE(PyExc_ValueError, "subsurface rectangle outside surface area");
 
