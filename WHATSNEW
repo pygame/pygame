@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 15, 2004
+    small cleanups to internal Sprite and Group
+
 February 9, 2004
     help protect int overflow
 

@@ -116,13 +116,13 @@ class Sprite(object):
         if hasattr(group, '_spritegroup'):
             if not has(group):
                 group.add_internal(self)
-                self.__g[group] = 0
+                self.add_internal(group)
         else:
             groups = group
             for group in groups:
                 if not has(group):
                     group.add_internal(self)
-                    self.__g[group] = 0
+                    self.add_internal(group)
 
     def remove(self, group):
         """remove(group)
@@ -133,12 +133,12 @@ class Sprite(object):
         if hasattr(group, '_spritegroup'):
             if has(group):
                 group.remove_internal(self)
-                del self.__g[group]
+                self.remove_internal(g)
         else:
             for g in group:
                 if has(g):
                     g.remove_internal(self)
-                    del self.__g[group]
+                    self.remove_internal(g)
 
     def add_internal(self, group):
         self.__g[group] = 0
@@ -570,7 +570,7 @@ def spritecollide(sprite, group, dokill):
     crashed = []
     spritecollide = sprite.rect.colliderect
     if dokill:
-        for s in group:
+        for s in group.sprites():
             if spritecollide(s.rect):
                 s.kill()
                 crashed.append(s)
@@ -596,7 +596,7 @@ def groupcollide(groupa, groupb, dokilla, dokillb):
     crashed = {}
     SC = spritecollide
     if dokilla:
-        for s in groupa:
+        for s in groupa.sprites():
             c = SC(s, groupb, dokillb)
             if c:
                 crashed[s] = c
