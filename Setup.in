@@ -22,6 +22,7 @@ rect src/rect.c $(SDL)
 rwobject src/rwobject.c $(SDL)
 surface src/surface.c $(SDL)
 time src/time.c $(SDL)
+joystick src/joystick.c $(SDL)
 
 
 #the following modules are optional. you will want to compile
