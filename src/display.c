@@ -390,7 +390,7 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
     /*DOC*/    "\n"
     /*DOC*/    "The OPENGL flags are; GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE,\n"
     /*DOC*/    "GL_ACCUM_RED_SIZE, GL_ACCUM_GREEN_SIZE, GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE\n"
-    /*DOC*/    "GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES\n"
+    /*DOC*/    "GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO\n"
     /*DOC*/ ;
 
 static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
