@@ -33,9 +33,7 @@ static PyObject* PySurface_New(SDL_Surface* info);
 extern int pygame_AlphaBlit(SDL_Surface *src, SDL_Rect *srcrect,
                         SDL_Surface *dst, SDL_Rect *dstrect);
 
-#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
 static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-#endif
 
 
 
@@ -1665,7 +1663,7 @@ PyObject* surface_str(PyObject* self)
 	return PyString_FromString(str);
 }
 
-#if PYTHON_API_VERSION < 1011 /*PYTHON2.2*/
+#if 0
     /*DOC*/ static char doc_Surface_MODULE[] =
     /*DOC*/    "Surface objects represent a simple memory buffer of pixels.\n"
     /*DOC*/    "Surface objects can reside in system memory, or in special\n"
@@ -1713,31 +1711,25 @@ PyObject* surface_str(PyObject* self)
 static PyTypeObject PySurface_Type =
 {
 	PyObject_HEAD_INIT(NULL)
-	0,						/*size*/
-	"Surface",				/*name*/
-	sizeof(PySurfaceObject),/*basic size*/
-	0,						/*itemsize*/
-	surface_dealloc,		/*dealloc*/
-	0,						/*print*/
+	0,                              /*size*/
+	"Surface",                      /*name*/
+	sizeof(PySurfaceObject),        /*basic size*/
+	0,                              /*itemsize*/
+	surface_dealloc,                /*dealloc*/
+	0,                              /*print*/
 	surface_getattr,		/*getattr*/
-	NULL,					/*setattr*/
-	NULL,					/*compare*/
+	NULL,                           /*setattr*/
+	NULL,                           /*compare*/
 	surface_str,			/*repr*/
-	NULL,					/*as_number*/
-	NULL,					/*as_sequence*/
-	NULL,					/*as_mapping*/
+	NULL,                           /*as_number*/
+	NULL,                           /*as_sequence*/
+	NULL,                           /*as_mapping*/
 	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
 	(reprfunc)NULL, 		/*str*/
 	0L,0L,0L,
-#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
 	doc_Surface, /* Documentation string */
-#else
-	0,					/* tp_flags */
-	doc_Surface_MODULE, /* Documentation string */
-#endif
-#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
 	0,					/* tp_traverse */
 	0,					/* tp_clear */
 	0,					/* tp_richcompare */
@@ -1755,7 +1747,6 @@ static PyTypeObject PySurface_Type =
 	0,					/* tp_init */
 	0,					/* tp_alloc */
 	surface_new,		/* tp_new */
-#endif
 };
 
 
@@ -1868,21 +1859,16 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	return final;
 }
 
-#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
 static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
 	return Surface(NULL, args);
 }
-#endif
 
 
 
 
 static PyMethodDef surface_builtins[] =
 {
-#if PYTHON_API_VERSION < 1011 /*PYTHON2.2*/
-	{ "Surface", Surface, 1, doc_Surface },
-#endif
 	{ NULL, NULL }
 };
 
@@ -1907,9 +1893,7 @@ void initsurface(void)
 	dict = PyModule_GetDict(module);
 
 	PyDict_SetItemString(dict, "SurfaceType", (PyObject *)&PySurface_Type);
-#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
 	PyDict_SetItemString(dict, "Surface", (PyObject *)&PySurface_Type);
-#endif
 
 	/* export the c api */
 	c_api[0] = &PySurface_Type;

@@ -12,7 +12,7 @@ audio and video output, and keyboard, mouse and joystick input."""
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.6",
+    "version":          "1.6.1",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners",
@@ -21,10 +21,9 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
-try:
-    import distutils
-except ImportError:
-    raise SystemExit, "Pygame requires distutils to build and install."
+import sys
+if not hasattr(sys, 'version_info') or sys.version_info < (2,2):
+    raise SystemExit, "Pygame requires Python version 2.2 or above."
 
 
 #get us to the correct directory
