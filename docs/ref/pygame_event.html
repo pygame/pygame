@@ -56,8 +56,8 @@ input queue is heavily dependent on the pygame display module. If
 the display has not been initialized and a video mode not set,
 the event queue will not really work.
 <br>&nbsp;<br>
-The queue is a stack of Event objects, there are a variety of
-ways to access the data on the queue. From simply checking for
+The queue is a regular queue of Event objects, there are a variety of
+ways to access the events it contains. From simply checking for
 the existance of events, to grabbing them directly off the stack.
 <br>&nbsp;<br>
 All events have a type identifier. This event type is in between
