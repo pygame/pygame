@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 16, 2001
+	cursors module beefed up
+
 Jan 15, 2001
 	fix Surface.get_at() for 24bit surfaces
 	endian cleanups for surfarray
