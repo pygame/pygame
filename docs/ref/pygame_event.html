@@ -120,6 +120,10 @@ that are defined with each type.<br><table align=center>
 create new event object</td></tr>
 
 
+<tr><td><a href=#clear>clear</a></td><td> -
+remove all of an event type from the queue</td></tr>
+
+
 <tr><td><a href=#event_name>event_name</a></td><td> -
 name for event type</td></tr>
 
@@ -181,8 +185,21 @@ event numbers, or above USEREVENT. The given dictionary contains
 the keys that will be members of the new event.
 <br>&nbsp;<br>
 Also, instead of passing a dictionary to create the event
-members, you also/or pass a list of keyword arguments that
-will become data members in the new event.
+members, you can pass keyword arguments that will become the
+attributes of the new event.
+</ul><br>&nbsp;<br>
+
+<a name=clear><font size=+2><b>clear
+</b></font><br><font size=+1><tt>
+pygame.event.clear([type]) -> None
+</tt></font><ul>
+Pass this a type of event to discard, and it will
+remove all matching event types from the queue. If no
+types are passed, this will remove all the events from the queue.
+You may also optionally pass a sequence of event types. For
+example, to remove all the mouse events from the queue, you
+would call,
+'<u>pygame.event.clear([MOUSEBUTTONUP,MOUSEBUTTONDOWN,MOUSEMOTION])</u>'.
 </ul><br>&nbsp;<br>
 
 <a name=event_name><font size=+2><b>event_name
@@ -259,11 +276,16 @@ the standard MOUSEBUTTONDOWN attributes to be available, like
 </b></font><br><font size=+1><tt>
 pygame.event.pump() -> None
 </tt></font><ul>
-Pumping the message queue is important if you are not getting
-events off the message queue. The pump will allow pygame to
-communicate with the window manager, which helps keep your
-application responsive, as well as updating the state for various
-input devices.
+For each frame of your game, you will need to make some sort
+of call to the event queue. This ensures your program can internally
+interact with the rest of the operating system. If you are not using
+other event functions in your game, you should call <u>pump()</u> to allow
+pygame to handle internal actions.
+<br>&nbsp;<br>
+There are important things that must be dealt with internally in the
+event queue. The main window may need to be repainted. Certain joysticks
+must be polled for their values. If you fail to make a call to the event
+queue for too long, the system may decide your program has locked up.
 </ul><br>&nbsp;<br>
 
 <a name=set_allowed><font size=+2><b>set_allowed

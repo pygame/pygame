@@ -488,8 +488,8 @@ static PyObject* PyEvent_New2(int type, PyObject* dict)
     /*DOC*/    "the keys that will be members of the new event.\n"
     /*DOC*/    "\n"
     /*DOC*/    "Also, instead of passing a dictionary to create the event\n"
-    /*DOC*/    "members, you also/or pass a list of keyword arguments that\n"
-    /*DOC*/    "will become data members in the new event.\n"
+    /*DOC*/    "members, you can pass keyword arguments that will become the\n"
+    /*DOC*/    "attributes of the new event.\n"
     /*DOC*/ ;
 
 static PyObject* Event(PyObject* self, PyObject* arg, PyObject* keywords)
@@ -597,11 +597,16 @@ static PyObject* get_grab(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.event.pump() -> None\n"
     /*DOC*/    "update the internal messages\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Pumping the message queue is important if you are not getting\n"
-    /*DOC*/    "events off the message queue. The pump will allow pygame to\n"
-    /*DOC*/    "communicate with the window manager, which helps keep your\n"
-    /*DOC*/    "application responsive, as well as updating the state for various\n"
-    /*DOC*/    "input devices.\n"
+    /*DOC*/    "For each frame of your game, you will need to make some sort\n"
+    /*DOC*/    "of call to the event queue. This ensures your program can internally\n"
+    /*DOC*/    "interact with the rest of the operating system. If you are not using\n"
+    /*DOC*/    "other event functions in your game, you should call pump() to allow\n"
+    /*DOC*/    "pygame to handle internal actions.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "There are important things that must be dealt with internally in the\n"
+    /*DOC*/    "event queue. The main window may need to be repainted. Certain joysticks\n"
+    /*DOC*/    "must be polled for their values. If you fail to make a call to the event\n"
+    /*DOC*/    "queue for too long, the system may decide your program has locked up.\n"
     /*DOC*/ ;
 
 static PyObject* pump(PyObject* self, PyObject* args)
@@ -674,7 +679,63 @@ static PyObject* poll(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_get[] =
+    /*DOC*/ static char doc_event_clear[] =
+    /*DOC*/    "pygame.event.clear([type]) -> None\n"
+    /*DOC*/    "remove all of an event type from the queue\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Pass this a type of event to discard, and it will\n"
+    /*DOC*/    "remove all matching event types from the queue. If no\n"
+    /*DOC*/    "types are passed, this will remove all the events from the queue.\n"
+    /*DOC*/    "You may also optionally pass a sequence of event types. For\n"
+    /*DOC*/    "example, to remove all the mouse events from the queue, you\n"
+    /*DOC*/    "would call,\n"
+    /*DOC*/    "'pygame.event.clear([MOUSEBUTTONUP,MOUSEBUTTONDOWN,MOUSEMOTION])'.\n"
+    /*DOC*/ ;
+
+static PyObject* event_clear(PyObject* self, PyObject* args)
+{
+	SDL_Event event;
+	int mask = 0;
+	int loop, num;
+	PyObject* type,  *e;
+	short val;
+
+	if(PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
+		return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
+
+	VIDEO_INIT_CHECK();
+
+	if(PyTuple_Size(args) == 0)
+		mask = SDL_ALLEVENTS;
+	else
+	{
+		type = PyTuple_GET_ITEM(args, 0);
+		if(PySequence_Check(type))
+		{
+			num = PySequence_Size(type);
+			for(loop=0; loop<num; ++loop)
+			{
+				if(!ShortFromObjIndex(type, loop, &val))
+					return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
+				mask |= SDL_EVENTMASK(val);
+			}
+		}
+		else if(ShortFromObj(type, &val))
+			mask = SDL_EVENTMASK(val);
+		else
+			return RAISE(PyExc_TypeError, "get type must be numeric or a sequence");
+	}
+
+	SDL_PumpEvents();
+
+	while(SDL_PeepEvents(&event, 1, SDL_GETEVENT, mask) == 1)
+	{}
+
+	RETURN_NONE;
+}
+
+
+    /*DOC*/ static char doc_event_get[] =
     /*DOC*/    "pygame.event.get([type]) -> list of Events\n"
     /*DOC*/    "get all of an event type from the queue\n"
     /*DOC*/    "\n"
@@ -686,7 +747,7 @@ static PyObject* poll(PyObject* self, PyObject* args)
     /*DOC*/    "would call, 'pygame.event.get([KEYDOWN,KEYUP])'.\n"
     /*DOC*/ ;
 
-static PyObject* get(PyObject* self, PyObject* args)
+static PyObject* event_get(PyObject* self, PyObject* args)
 {
 	SDL_Event event;
 	int mask = 0;
@@ -983,7 +1044,8 @@ static PyMethodDef event_builtins[] =
 	{ "pump", pump, 1, doc_pump },
 	{ "wait", pygame_wait, 1, doc_wait },
 	{ "poll", poll, 1, doc_poll },
-	{ "get", get, 1, doc_get },
+	{ "clear", event_clear, 1, doc_event_clear },
+	{ "get", event_get, 1, doc_event_get },
 	{ "peek", event_peek, 1, doc_peek },
 	{ "post", event_post, 1, doc_post },
 

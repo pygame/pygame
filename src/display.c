@@ -621,7 +621,7 @@ static PyObject* mode_ok(PyObject* self, PyObject* args)
     /*DOC*/    "query all resolutions for requested mode\n"
     /*DOC*/    "\n"
     /*DOC*/    "This function returns a list of possible dimensions for a\n"
-    /*DOC*/    "specified color depth. The return value will be an empty list of\n"
+    /*DOC*/    "specified color depth. The return value will be an empty list if\n"
     /*DOC*/    "no display modes are available with the given arguments. A return\n"
     /*DOC*/    "value of -1 means that any requested resolution should work (this\n"
     /*DOC*/    "is likely the case for windowed modes). Mode sizes are sorted\n"
