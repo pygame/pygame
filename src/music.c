@@ -1,6 +1,6 @@
 /*
     pygame - Python Game Library
-    Copyright (C) 2000  Pete Shinners
+    Copyright (C) 2000-2001  Pete Shinners
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -307,9 +307,10 @@ static PyObject* load(PyObject* self, PyObject* args)
 		Mix_FreeMusic(current_music);
 		current_music = NULL;
 	}
-
 	Py_BEGIN_ALLOW_THREADS
+printf("Mix_loadMUS:call\n");
 	current_music = Mix_LoadMUS(filename);
+printf("Mix_loadMUS:ok %p\n", current_music);
 	Py_END_ALLOW_THREADS
 	
 	if(!current_music)

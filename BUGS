@@ -1,8 +1,10 @@
-surfarray module
-	still some problems on big endian architectures (non-intel)
+The current release is surprisingly tested and stable.
+Not claiming there aren't any bugs, but most of the code
+is a wrapper over different libraries, so things should
+work pretty straightforward.
 
 
-Keep your eye out for more! :]
+Keep your eye out for any nasties! :]
 
 
 Pete Shinners       -       pete@shinners.org

@@ -1,6 +1,6 @@
 /*
     pygame - Python Game Library
-    Copyright (C) 2000  Pete Shinners
+    Copyright (C) 2000-2001  Pete Shinners
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -71,6 +71,11 @@ void initconstants(void)
 	DEC_CONST(RLEACCEL);
 	DEC_CONST(SRCALPHA);
 	DEC_CONST(PREALLOC);
+#if SDL_VERSIONNUM(1, 1, 8) <= SDL_VERSIONNUM(SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL) 
+	DEC_CONST(NOFRAME);
+#else
+	PyModule_AddIntConstant(module, "NOFRAME", 0);
+#endif
 
 	DEC_CONST(GL_RED_SIZE);
 	DEC_CONST(GL_GREEN_SIZE);

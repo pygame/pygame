@@ -14,6 +14,9 @@ Just so you know how this breaks down. For each sampling of
 time, 30% goes to each creating the gradient and blitting the
 array. The final 40% goes to flipping/updating the display surface
 
+If using an SDL version at least 1.1.8 the window will have
+no border decorations.
+
 The code also demonstrates use of the timer events."""
 
 
@@ -76,7 +79,7 @@ def DisplayGradient(surf):
 def main():
     pygame.init()
     size = 640, 480
-    screen = pygame.display.set_mode(size)
+    screen = pygame.display.set_mode(size, NOFRAME, 0)
 
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
     pygame.time.set_timer(USEREVENT, 500)

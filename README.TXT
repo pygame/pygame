@@ -1,14 +1,21 @@
-Version: 0.5
-January 6th, 2000
+Version: 0.9
+February 12th, 2001
 
 Quick installation instructions can be found in the file "install.txt"
 in this directory. Look in the docs directory for "fullinstall.txt"
 with further details.
 
-With the 0.5 release things are looking really good. We've reached
-the point where full python games are approachable with pygame.
-Thanks to all that have helped push things along this far. 
-We plan on moving up to version 1.0 within a couple months.
+Note that basic installation requires at least Python 2.0 and SDL-1.1.7 to
+be installed. The latest version of each is recommended. Support for extra
+SDL daughter libraries is optional, but also recommended.
+
+
+With the 0.9 release things are looking really good. We've reached
+the point where full python games are ready with pygame.
+This is the final release before 1.0, and is intended to iron
+out any last hiding bugs or problems. Pygame 1.0 will be released
+shortly after SDL-1.2 is available. There is no plan for new features
+between this release and 1.0.
 
 
 pygame is a cross-platfrom library designed to make it easy to write
