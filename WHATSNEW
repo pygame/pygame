@@ -6,6 +6,7 @@
 
 October 22, 2002
     	mixer can queue sounds and music
+	channels can send finished event for sounds
 
 October 19, 2002
     	can free software surfaces without video initialized
