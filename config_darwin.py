@@ -48,12 +48,14 @@ class Dependency:
 
 class FrameworkDependency(Dependency):
     def configure(self, incdirs, libdirs):
-      for n in '/Library/Frameworks/','~/Library/Frameworks/','/System/Library/Frameworks/':
-        if os.path.isfile(n+self.lib+'.framework/Versions/Current/'+self.lib):
+      default_frameworks = ['/Library/Frameworks','/Local/Library/Frameworks/','/System/Library/Frameworks/']
+      user_frameworks = [os.path.expanduser('~/Library/Frameworks/')]
+      for framework_root in default_frameworks + user_frameworks:
+        if os.path.isfile(framework_root+self.lib+'.framework/Versions/Current/'+self.lib):
           print 'Framework '+self.lib+' found'
           self.found = 1
-          self.inc_dir = n+self.lib+'.framework/Versions/Current/Headers'
-          self.cflags = '-Ddarwin -Xlinker "-F'+n+self.lib+'.framework" -Xlinker "-framework" -Xlinker "'+self.lib+'"'
+          self.inc_dir = framework_root+self.lib+'.framework/Versions/Current/Headers'
+          self.cflags = '-Ddarwin -Xlinker "-F'+framework_root+self.lib+'.framework" -Xlinker "-framework" -Xlinker "'+self.lib+'"'
           self.origlib = self.lib
           self.lib = ''
           return
@@ -111,20 +113,25 @@ def main():
     global DEPS
     
     print 'calling "sdl-config"'
-    configinfo = "-I/usr/local/include -framework SDL" # This line is in case sdl-config not found but SDL installed (not likely)
     try:
         configinfo = os.popen(configcommand).readlines()
-        print 'Found SDL version:', configinfo[0]
+        if configinfo:
+            print 'Found SDL version:', configinfo[0]
+        else:
+            raise RuntimeError('"%s" did not return string'%configcommand)
         configinfo = ' '.join(configinfo[1:])
         configinfo = configinfo.split()
         configinfo.append("-framework SDL")
         for w in configinfo[:]:
             if ',' in w: configinfo.remove(w)
         configinfo = ' '.join(configinfo)
-        #print 'Flags:', configinfo
     except:
-        raise SystemExit, """Cannot locate command, "sdl-config". Default SDL compile
-flags have been used, which will likely require a little editing."""
+        print """Error running "sdl-config". Default SDL compile flags
+have been used, which may require a little editing.  (E.g. If you are
+using the Mac OS X SDL binary framework install, try appending
+-Xlinker "/Users/YOUR_USERNAME/Library/Frameworks" to the SDL line in
+the file Setup)"""
+        configinfo = "-framework SDL" # This line is in case sdl-config not found but SDL installed (e.g. if SDL binary framework distribution used)
 
     print 'Hunting dependencies...'
     incdirs = ['/usr/local/include/smpeg']
