@@ -23,5 +23,5 @@
 """Set of functions from PyGame that are handy to have in
 the local namespace for your module"""
 
-from constants import *
-from rect import Rect
+from pygame.constants import *
+from pygame.rect import Rect
