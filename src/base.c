@@ -239,6 +239,22 @@ static void atexit_quit(void)
 }
 
 
+    /*DOC*/ static char doc_get_version[] =
+    /*DOC*/    "pygame.get_version() -> (major, minor, patchlevel)\n"
+    /*DOC*/    "get the version of the linked SDL runtime\n"
+    /*DOC*/ ;
+
+static PyObject* get_version(PyObject* self, PyObject* args)
+{
+	const SDL_version *v;
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+	
+	v = SDL_Linked_Version();
+	return Py_BuildValue("iii", v->major, v->minor, v->patch);
+}
+
+
     /*DOC*/ static char doc_quit[] =
     /*DOC*/    "pygame.quit() -> none\n"
     /*DOC*/    "uninitialize all pygame modules\n"
@@ -679,8 +695,9 @@ static PyMethodDef init__builtins__[] =
 	{ "quit", quit, 1, doc_quit },
 	{ "register_quit", register_quit, 1, doc_register_quit },
 	{ "get_error", get_error, 1, doc_get_error },
+	{ "get_version", get_version, 1, doc_get_version },
 
-{ "segfault", do_segfault, 1, "crash" },
+	{ "segfault", do_segfault, 1, "crash" },
 	{ NULL, NULL }
 };
 

@@ -4,6 +4,7 @@ import os, sys
 import objc
 import MacOS
 from pygame.pkgdata import getResource
+from pygame.base import get_version
 
 __all__ = ['init']
 
@@ -37,17 +38,13 @@ class PyGameAppDelegate(NSObject):
         return NSTerminateLater
 
     def windowUpdateNotification_(self, notification):
-        # Seems to be a retain count bug in SDL.. workaround!
         win = notification.object()
-        LameClass = objc.lookUpClass('SDL_QuartzWindow')
-        if isinstance(win, LameClass):
-            """
-            Only do this for one window
-            """
+        if get_version() < (1, 2, 8) and isinstance(win, objc.lookUpClass('SDL_QuartzWindow')):
+            # Seems to be a retain count bug in SDL.. workaround!
             win.retain()
-            NSNotificationCenter.defaultCenter().removeObserver_name_object_(
-                self, NSWindowDidUpdateNotification, None)
-            self.release()
+        NSNotificationCenter.defaultCenter().removeObserver_name_object_(
+            self, NSWindowDidUpdateNotification, None)
+        self.release()
 
 def setIcon(app):
     try:
