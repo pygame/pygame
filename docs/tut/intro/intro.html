@@ -1,0 +1,351 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"> <!--
+TUTORIAL:Pygame Python Introduction
+-->
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>Pygame Intro</title>
+</head>
+<body>
+<h1 style="text-align: center;">Python Pygame Introduction</h1>
+<br>
+<h2 style="text-align: center;">by Pete Shinners</h2>
+<h3 style="text-align: center;">pete@shinners.org</h3>
+<br>
+<br>
+This article is an introduction to the <a href="http://www.pygame.org">Pygame
+library</a> for <a href="http://www.python.org">Python programmers</a>.
+The original version appeared in the <a href="http://www.pyzine.com/">Py
+Zine</a>, volume 1 issue 3. This version contains minor revisions, to
+create an all around better article. Pygame is a Python extension
+library that wraps the <a href="http://www.libsdl.org">SDL</a> library
+and it's helpers.<br>
+<br>
+<br>
+<h2>HISTORY</h2>
+Pygame started in the summer of 2000. Being a C programmer of many
+years, I discovered both Python and SDL at about the same time. You are
+already familiar with Python, which was at version 1.5.2. You may need
+an introduction to SDL, which is the Simple Directmedia Library.&nbsp;
+Created by Sam Lantinga, SDL is a cross-platform C library for
+controlling multimedia, comparable to DirectX. It has been used for
+hundreds commercial and open source games. I was impressed at how clean
+and straightforward both projects were and it wasn't long before I
+realized mixing Python and SDL was an interesting proposal.<br>
+<br>
+I discovered a small project already underway with exactly the same
+idea, PySDL. Created by Mark Baker, PySDL was a straightforward
+implementation of SDL as a Python extension. The interface was cleaner
+than a generic SWIG wrapping, but I felt it forced a "C style" of code.
+The sudden death of PySDL prompted me to take on a new project of my
+own.<br>
+<br>
+I wanted to put together a project that really took advantage of
+Python. My goal was to make it easy to do the simple things, and
+straightforward to do the difficult things. Pygame was started in
+October, 2000. Six months later Pygame version 1.0 was released.<br>
+<br>
+<br>
+<h2>TASTE</h2>
+I find the best way to understand a new library is to jump straight
+into an example. In the early days of Pygame, I created a bouncing ball
+animation with 7 lines of code. Let's take a look at a friendlier
+version of that same thing. This should be simple enough to follow
+along, and a complete breakdown follows.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">&nbsp;1&nbsp;&nbsp;
+&nbsp;import sys, pygame<img src="ball.gif" title="" alt=""
+ style="width: 111px; height: 111px;" align="right"></span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;2&nbsp;&nbsp;
+&nbsp;pygame.init()</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;3</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;4&nbsp;&nbsp; &nbsp;size =
+width, height = 320, 240</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;5&nbsp;&nbsp; &nbsp;speed =
+[2, 2]</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;6&nbsp;&nbsp; &nbsp;black =
+0, 0, 0</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;7</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;8&nbsp; &nbsp; screen =
+pygame.display.set_mode(size)</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;9</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">10&nbsp;&nbsp; &nbsp;ball =
+pygame.image.load("ball.bmp")</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">11&nbsp;&nbsp; &nbsp;ballrect =
+ball.get_rect()</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">12</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">13&nbsp;&nbsp; &nbsp;while 1:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">14&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;for event in pygame.event.get():</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">15&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;if event.type == pygame.QUIT: sys.exit()</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">16</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">17&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;ballrect = ballrect.move(speed)</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">18&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;if ballrect.left &lt; 0 or ballrect.right &gt; width:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">19&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;speed[0] = -speed[0]</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">20&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;if ballrect.top &lt; 0 or ballrect.bottom &gt; height:</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">21&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;speed[1] = -speed[1]</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">22</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">23&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;screen.fill(black)</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">24&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;screen.blit(ball, ballrect)</span><br
+ style="font-family: monospace;">
+<span style="font-family: monospace;">25&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;pygame.display.flip()</span><br>
+</div>
+<br>
+This is as simple as you can get for a bouncing animation. First we see
+importing and initializing Pygame is nothing noteworthy. The "<span
+ style="font-family: monospace;">import pygame</span>" imports the
+package with all the available Pygame modules. The call to "<span
+ style="font-family: monospace;">pygame.init()</span>" initializes each
+of these modules.<br>
+<br>
+On <span style="text-decoration: underline;">line 8</span> we create a
+graphical window with the call to "<span style="font-family: monospace;">pygame.display.set_mode()</span>".
+Pygame and SDL make this easy by defaulting to the best graphics modes
+for the graphics hardware. You can override the mode and SDL will
+compensate for anything the hardware cannot do. Pygame represents
+images as <span style="font-style: italic;">Surface</span> objects.
+The "<span style="font-family: monospace;">display.set_mode()</span>"
+function creates a new <span style="font-style: italic;">Surface</span>
+object that represents the actual displayed graphics. Any drawing you
+do to this Surface will become visible on the monitor.<br>
+<br>
+At <span style="text-decoration: underline;">line 10</span> we load
+our ball image. Pygame supports a variety of image formats through the
+SDL_image library, including JPG, PNG, TGA, and GIF. The "<span
+ style="font-family: monospace;">pygame.image.load()</span>" function
+returns us a Surface with the ball data. The Surface will keep any
+colorkey or alpha transparency from the file. After loading the ball
+image we create a variable named ballrect. Pygame comes with a
+convenient utility object type named <span style="font-style: italic;">Rect</span>,
+which represents a rectangular area. Later, in the animation part of
+the code, we will see what the <span style="font-style: italic;">Rect</span>
+objects can do.<br>
+<br>
+At this point, <span style="text-decoration: underline;">line 13</span>,
+our program is initialized and ready to run. Inside an infinite loop we
+check for user input, move the ball, and then draw the ball. If you are
+familiar with GUI programming, you have had experience with events and
+event loops. In Pygame this is no different, we check if a <span
+ style="font-style: italic;">QUIT</span> event has happened. If so we
+simply exit the program, Pygame will ensure everything is cleanly
+shutdown.<br>
+<br>
+It is time to update our position for the ball. <span
+ style="text-decoration: underline;">Lines 17 to 21</span> move the
+ballrect variable by the current speed. If the ball has moved outside
+the screen, we reverse the speed in that direction. Not exactly
+Newtonian physics, but it is all we need.<br>
+<br>
+On <span style="text-decoration: underline;">line 23</span> we erase
+the the screen by filling it with a black RGB color. If you have never
+worked with animations this may seem strange. You may be asking "Why do
+we need to erase anything, why don't we just move the ball on the
+screen?" That is not quite the way computer animation works. Animation
+is nothing more than a series of single images, when displayed in
+sequence does a very good job of fooling the human eye into seeing
+motion. The screen is just a single image that the user sees. If we did
+not take the time to erase the ball from the screen, we would actually
+see a "trail" of the ball as we continuously draw the ball in its new
+positions.<br>
+<br>
+On <span style="text-decoration: underline;">line 24</span> we draw
+the ball image onto the screen. Drawing of images is handled by the "<span
+ style="font-family: monospace;">Surface.blit()</span>" method. A blit
+basically means copying pixel colors from one image to another. We pass
+the blit method a source <span style="font-style: italic;">Surface</span>
+to copy from, and a position to place the source onto the destination.<br>
+<br>
+The last thing we need to do is actually update the visible display.
+Pygame manages the display with a double buffer. When we are finished
+drawing we call the "<span style="font-family: monospace;">pygame.display.flip()</span>"
+method. This makes everything we have drawn on the screen Surface
+become visible. This buffering makes sure we only see completely drawn
+frames on the screen. Without it, the user would see the half completed
+parts of the screen as they are being created.<br>
+<br>
+That concludes this short introduction to Pygame. Pygame also has
+modules to do things like input handling for the keyboard, mouse, and
+joystick. It can mix audio and decode streaming music. With the <span
+ style="font-style: italic;">Surfaces</span> you can draw simple
+shapes, rotate, scale, the picture.&nbsp; Even manipulate the pixels of
+an image in realtime as Numeric Python arrays. There is MPEG video
+playback, and audio CD support. Pygame also has the ability to act as a
+cross platform display layer for PyOpenGL. Most of the Pygame modules
+are written in C, few are actually done in Python.<br>
+<br>
+The Pygame website has full reference documentation for every Pygame
+function and tutorials for all ranges of users. The Pygame source comes
+with many examples of things like monkey punching and UFO shooting.<br>
+<br>
+<br>
+<h2>PYTHON AND GAMING</h2>
+"Is Python suitable for gaming?" The answer is, "It depends on the
+game."<br>
+<br>
+Python is actually quite capable at running games. It will likely even
+surprise you how much is possible in under 30 milliseconds. Still, it
+is not hard to reach the ceiling once your game begins to get more
+complex. Any game running in realtime will be making full use of the
+computer.<br>
+<br>
+<img src="blade.jpg" title="" alt=""
+ style="width: 200px; height: 150px;" align="right">Over the past
+several years there has been an interesting trend in game development,
+the move towards higher level languages. Usually a game is split into
+two major parts. The game engine, which must be as fast as possible,
+and the game logic, which makes the engine actually do something. It
+wasn't long ago when the engine of game was written in assembly, with
+portions written in C. Nowadays, C has moved to the game engine, while
+often the game itself is written in higher level scripting languages.
+Games like Quake3 and Unreal run these scripts as portable bytecode.<br>
+<br>
+In early 2001, developer Rebel Act Studios finished their game,
+Severance: Blade of Darkness. Using their own custom 3D engine, the
+rest of the game is written with Python. The game is a bloody action
+3rd person perspective fighter. You control medieval warriors into
+intricate decapitating combination attacks while exploring dungeons and
+castles. You can download third party addons for this game, and find
+they are nothing more than Python source files.<br>
+<br>
+More recently, Python has been used a variety of games like Freedom
+Force, and Humungous' Backyard Sports Series.<br>
+<br>
+<img src="freedom.jpg" title="" alt=""
+ style="width: 200px; height: 150px;" align="right">Pygame and SDL
+serve as an excellent C engine for 2D games. Games will still find the
+largest part of their runtime is spent inside SDL handling the
+graphics. SDL can take advantage of graphics hardware acceleration.
+Enabling this can change a game from running around 40 frames per
+second to over 200 frames per second. When you see your Python game
+running at 200 frames per second, you realize that Python and games can
+work together.<br>
+<br>
+It is impressive how well both Python and SDL work on multiple
+platforms. For example, in May of 2001 I released my own full Pygame
+project, SolarWolf, an arcade style action game. One thing that has
+surprised me is that one year later there has been no need for any
+patches, bug fixes, or updates. The game was developed entirely on
+windows, but runs on Linux, Mac OSX, and many Unixes without any extra
+work on my end.<br>
+<br>
+Still, there are very clear limitations. The best way to manage
+hardware accelerated graphics is not always the way to get fastest
+results from software rendering. Hardware support is not available on
+all platforms. When a game gets more complex, it often must commit to
+one or the other. SDL has some other design limitations, things like
+full screen scrolling graphics can quickly bring your game down to
+unplayable speeds. While SDL is not suitable all types of games,
+remember companies like Loki have used SDL to run a wide variety of
+retail quality titles.<br>
+<br>
+Pygame is faily low level when it comes to writing games. You'll
+quickly find yourself needing to wrap common functions into your own
+game environment. The great thing abuot this is there is nothing inside
+pygame to get in your way. Your program is in full control of
+everything. The side effect of that is you will find yourself borrowing
+a lot of code to get a more advanced framework put together. You'll
+need a better understanding of what you are doing.<br>
+<br>
+<br>
+<h2>CLOSING</h2>
+<table cellpadding="2" cellspacing="2" border="1"
+ style="text-align: left; width: 100%; background-color: rgb(255, 255, 204);">
+  <tbody>
+  </tbody>
+</table>
+Developing games is very rewarding, there is something exciting about
+being able to see and interact with the code you've written. Pygame
+currently has almost 30 other projects using it. Several of them are
+ready to play now. You may be surprised to visit the Pygame website,
+and see what other users have been able to do with Python.<br>
+<br>
+One thing that has caught my attention is the amount of people coming
+to Python for the first time to try game development. I can see why
+games are a draw for new programmers, but it can be difficult since
+creating games requires a firmer understanding of the language. I've
+tried to support this group of users by writing many examples and
+Pygame tutorials for people new to these concepts.<br>
+<br>
+In the end, my advice is to keep it simple. I cannot stress this
+enough. If you are planning to create your first game, there is a&nbsp;
+lot to learn. Even a simpler game will challenge your designs, and
+complex games don't necessarily mean fun games. When you understand
+Python, you can use Pygame to create a simple game in only one or two
+weeks. From there you'll need a surprising amount of time needed to add
+the polish to make that into a full presentable game.<br>
+<br>
+<br>
+<br>
+<br>
+<h3>Pygame Modules Overview</h3>
+<table cellpadding="2" cellspacing="2" border="1"
+ style="text-align: left; width: 100%;">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">cdrom<br>
+cursors<br>
+display<br>
+draw<br>
+event<br>
+font<br>
+image<br>
+joystick<br>
+key<br>
+mouse<br>
+movie<br>
+sndarray<br>
+surfarray<br>
+time<br>
+transform</td>
+      <td style="vertical-align: top;">manage cdrom devices and audio
+playback<br>
+load cursor images, includes standard cursors<br>
+control the display window or screen<br>
+draw simple shapes onto a Surface<br>
+manage events and the event queue<br>
+create and render Truetype fonts<br>
+save and load images<br>
+manage joystick devices<br>
+manage the keyboard<br>
+manage the mouse<br>
+playback of mpeg movies<br>
+manipulate sounds with Numeric<br>
+manipulate images with Numeric<br>
+control timing<br>
+scale, rotate, and flip images<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>
