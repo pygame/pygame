@@ -58,25 +58,29 @@ into your namespace allows you to just use <a href=pygame.html#Rect>Rect()</a>.
 <br>&nbsp;<br>
 Rect contains helpful methods, as well as a list of
 modifiable members:
-top, bottom, left, right, topleft, topright,
-bottomleft, bottomright, size, width, height,
-center, centerx, centery, midleft, midright, midtop,
-midbottom. When changing thesemembers, the rectangle
+<table border="0" cellspacing=0 cellpadding=0 width=66%><tr valign=top><td align=left><ul><li>top<li>bottom<li>left<li>right</ul></td>
+<td align=left><ul><li>topleft<li>topright<li>bottomleft<li>bottomright</ul></td>
+<td align=left><ul><li>midleft<li>midright<li>midtop<li>midbottom</ul></td>
+<td align=left><ul><li>center<li>centerx<li>centery</ul></td>
+<td align=left><ul><li>size<li>width<li>height</ul></td>
+</tr></table><br>
+When changing these members, the rectangle
 will be moved to the given assignment. (except when
 changing the size, width, or height member, which will
 resize the rectangle from the topleft corner)
 <br>&nbsp;<br>
 The rectstyle arguments used frequently with the
 Rect object (and elsewhere in pygame) is one of
-the following things. First, an actual Rect
-object. Second, a sequence of [xpos, ypos, width,
-height]. Lastly, a pair of sequences, representing
-the position and size [[xpos, ypos], [width,
-height]]. Also, if a method takes a rectstyle
-argument as its only argument, you can simply pass
-four arguments representing xpos, ypos, width,
-height. A rectstyle argument can also be _any_ python
-object with an attribute named 'rect'.
+the following things.
+<table border=0 cellspacing=0 cellpadding=0 width=80%>
+<tr align=left valign=top><td align=left valign=middle width=20%><blockquote> </blockquote></td><td align=left valign=top><ul>
+<li>an actual Rect object. 
+<li>a sequence of [xpos, ypos, width, height]. 
+<li>a pair of sequences, representing the position and size [[xpos, ypos], [width,height]]. 
+<li>if a method takes a rectstyle argument <b>as its <i>only</i> argument</b>, you can simply pass four arguments representing xpos, ypos, width, height. 
+</ul>and perhaps most importantly:
+<ul><li>A rectstyle argument can also be <b><strong>_any_ python object</b> with an attribute named <b>'rect'.</b></strong>
+</ul></td></tr></table>
 
 <hr>
 

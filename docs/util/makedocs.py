@@ -72,6 +72,7 @@ def readsource(filename):
             lines = [line]
             while 1:
                 line = file.readline()
+                if line.find("NODOC") >= 0 or line[0]=='#': continue
                 if not line or line.find('"') == -1: break
                 line = line[line.find('"')+1:line.rfind('"')]
                 line = line.rstrip()

@@ -100,17 +100,17 @@ static int Rect_SetTop(GAME_Rect* r, short val)
 {
 	r->y = val;
 	return 0;
-}	
+}
 static int Rect_SetBottom(GAME_Rect* r, short val)
 {
 	r->y = val - r->h;
 	return 0;
-}	
+}
 static int Rect_SetLeft(GAME_Rect* r, short val)
 {
 	r->x = val;
 	return 0;
-}	
+}
 static int Rect_SetRight(GAME_Rect* r, short val)
 {
 	r->x = val - r->w;
@@ -134,7 +134,7 @@ PyObject* PyRect_New(GAME_Rect* r)
 	PyRectObject* rect = PyObject_NEW(PyRectObject, &PyRect_Type);
 	if(!rect)
 		return NULL;
-	
+
 	rect->r.x = r->x;
 	rect->r.y = r->y;
 	rect->r.w = r->w;
@@ -148,7 +148,7 @@ PyObject* PyRect_New4(short x, short y, short w, short h)
 	PyRectObject* rect = PyObject_NEW(PyRectObject, &PyRect_Type);
 	if(!rect)
 		return NULL;
-	
+
 	rect->r.x = x;
 	rect->r.y = y;
 	rect->r.w = w;
@@ -303,7 +303,7 @@ static PyObject* rect_union(PyObject* oself, PyObject* args)
 	short x, y, w, h;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
-	
+
 	x = min(self->r.x, argrect->x);
 	y = min(self->r.y, argrect->y);
 	w = max(self->r.x+self->r.w, argrect->x+argrect->w) - x;
@@ -330,7 +330,7 @@ static PyObject* rect_union_ip(PyObject* oself, PyObject* args)
 	short x, y, w, h;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
-	
+
 	x = min(self->r.x, argrect->x);
 	y = min(self->r.y, argrect->y);
 	w = max(self->r.x+self->r.w, argrect->x+argrect->w) - x;
@@ -465,7 +465,7 @@ static PyObject* rect_collidepoint(PyObject* oself, PyObject* args)
 	if(!TwoShortsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "argument must contain two numbers");
 
-	inside = x>=self->r.x && x<self->r.x+self->r.w && 
+	inside = x>=self->r.x && x<self->r.x+self->r.w &&
 				y>=self->r.y && y<self->r.y+self->r.h;
 
 	return PyInt_FromLong(inside);
@@ -523,7 +523,7 @@ static PyObject* rect_collidelist(PyObject* oself, PyObject* args)
 	{
 		obj = PySequence_GetItem(list, loop);
 		if(!obj || !(argrect = GameRect_FromObject(obj, &temp)))
-		{	
+		{
 			RAISE(PyExc_TypeError, "Argument must be a sequence of rectstyle objects.");
 			Py_XDECREF(obj);
 			break;
@@ -539,7 +539,7 @@ static PyObject* rect_collidelist(PyObject* oself, PyObject* args)
 	if(loop == size)
 		ret = PyInt_FromLong(-1);
 
-	return ret;	
+	return ret;
 }
 
 
@@ -578,7 +578,7 @@ static PyObject* rect_collidelistall(PyObject* oself, PyObject* args)
 		obj = PySequence_GetItem(list, loop);
 
 		if(!obj || !(argrect = GameRect_FromObject(obj, &temp)))
-		{	
+		{
 			Py_XDECREF(obj);
 			Py_DECREF(ret);
 			return RAISE(PyExc_TypeError, "Argument must be a sequence of rectstyle objects.");
@@ -598,7 +598,7 @@ static PyObject* rect_collidelistall(PyObject* oself, PyObject* args)
 		Py_DECREF(obj);
 	}
 
-	return ret;	
+	return ret;
 }
 
 
@@ -634,7 +634,7 @@ static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
         while(PyDict_Next(dict, &loop, &key, &val))
 	{
 		if(!(argrect = GameRect_FromObject(key, &temp)))
-		{	
+		{
 			RAISE(PyExc_TypeError, "Argument must be a dict with rectstyle keys.");
 			break;
 		}
@@ -650,7 +650,7 @@ static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
             Py_INCREF(Py_None);
             ret = Py_None;
         }
-	return ret;	
+	return ret;
 }
 
 
@@ -689,7 +689,7 @@ static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
         while(PyDict_Next(dict, &loop, &key, &val))
 	{
 		if(!(argrect = GameRect_FromObject(key, &temp)))
-		{	
+		{
 			Py_DECREF(ret);
 			return RAISE(PyExc_TypeError, "Argument must be a dict with rectstyle keys.");
 		}
@@ -704,7 +704,7 @@ static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
 		}
 	}
 
-	return ret;	
+	return ret;
 }
 
 
@@ -742,7 +742,7 @@ static PyObject* rect_clip(PyObject* self, PyObject* args)
 		w = (B->x+B->w) - x;
 	else
 		goto nointersect;
-	
+
 	/* Top */
 	if((A->y >= B->y) && (A->y < (B->y+B->h)))
 		y = A->y;
@@ -896,12 +896,12 @@ static struct PyMethodDef rect_methods[] =
 	{"clamp_ip",			 (PyCFunction)rect_clamp_ip,		  1,	    doc_clamp_ip},
 
 	{"move",			(PyCFunction)rect_move, 		1, doc_move},
-	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},		
+	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},
 	{"union",			(PyCFunction)rect_union,		1, doc_union},
 	{"unionall",		(PyCFunction)rect_unionall,		1, doc_unionall},
 
 	{"move_ip",			(PyCFunction)rect_move_ip,		1, doc_move_ip},
-	{"inflate_ip",		(PyCFunction)rect_inflate_ip,	1, doc_inflate_ip},		
+	{"inflate_ip",		(PyCFunction)rect_inflate_ip,	1, doc_inflate_ip},
 	{"union_ip",		(PyCFunction)rect_union_ip,		1, doc_union_ip},
 	{"unionall_ip", 	(PyCFunction)rect_unionall_ip,	1, doc_unionall_ip},
 
@@ -915,9 +915,9 @@ static struct PyMethodDef rect_methods[] =
 /* these are totally unwritten. volunteers? */
 /*	{"cleanup",			(PyCFunction)rect_cleanup,		1, doc_cleanup}, */
 /*	{"remove",			(PyCFunction)rect_remove,		1, doc_remove}, */
-        
+
         {"__reduce__",          (PyCFunction)rect_reduce, 0, NULL},
-        
+
 	{NULL,		NULL}
 };
 
@@ -964,7 +964,7 @@ static PyObject* rect_slice(PyRectObject *self, int ilow, int ihigh)
 	PyObject *list;
 	short* data = (short*)&self->r;
 	int numitems, loop, l = 4;
-	
+
 	if (ihigh < 0) ihigh += l;
 	if (ilow  < 0) ilow  += l;
 	if (ilow < 0) ilow = 0;
@@ -988,7 +988,7 @@ static int rect_ass_slice(PyRectObject *self, int ilow, int ihigh, PyObject *v)
 	short* data = (short*)&self->r;
 	int numitems, loop, l = 4;
 	short val;
-	
+
 	if(!PySequence_Check(v))
 	{
 		RAISE(PyExc_TypeError, "Assigned slice must be a sequence");
@@ -1081,7 +1081,7 @@ static PyNumberMethods rect_as_number = {
 	(binaryfunc)NULL,		/*divmod*/
 	(ternaryfunc)NULL,		/*power*/
 	(unaryfunc)NULL,		/*negative*/
-	(unaryfunc)NULL,		/*pos*/ 
+	(unaryfunc)NULL,		/*pos*/
 	(unaryfunc)NULL,		/*abs*/
 	(inquiry)rect_nonzero,	/*nonzero*/
 	(unaryfunc)NULL,		/*invert*/
@@ -1108,8 +1108,8 @@ static void rect_dealloc(PyRectObject *self)
 
 static PyObject *rect_repr(PyRectObject *self)
 {
-	char string[256];	
-	sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y, self->r.w, self->r.h);	
+	char string[256];
+	sprintf(string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y, self->r.w, self->r.h);
 	return PyString_FromString(string);
 }
 
@@ -1148,7 +1148,7 @@ static PyObject *rect_getattr(PyRectObject *self, char *name)
 {
 	PyObject *ret = NULL;
 	GAME_Rect *r = &self->r;
-	
+
 	if(!strcmp(name, "top") || !strcmp(name, "y"))
 		ret = PyInt_FromLong(r->y);
 	else if(!strcmp(name, "bottom"))
@@ -1190,7 +1190,7 @@ static PyObject *rect_getattr(PyRectObject *self, char *name)
 
 	else if(!strcmp(name, "__safe_for_unpickling__"))
                 ret = PyInt_FromLong(1);
-	else 
+	else
 		ret = Py_FindMethod(rect_methods, (PyObject *)self, name);
 
 	return ret;
@@ -1201,37 +1201,37 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	int ret = -1;
 	short val1, val2;
 	GAME_Rect *r = &self->r;
-	
+
 	if(!strcmp(name, "top") || !strcmp(name, "y"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetTop(r, val1);
-	}	
+	}
 	else if(!strcmp(name, "bottom"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetBottom(r, val1);
-	}	
+	}
 	else if(!strcmp(name, "left") || !strcmp(name, "x"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetLeft(r, val1);
-	}	
+	}
 	else if(!strcmp(name, "right"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetRight(r, val1);
-	}	
+	}
 	else if(!strcmp(name, "width") || !strcmp(name, "w"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetWidth(r, val1);
-	}	
+	}
 	else if(!strcmp(name, "height") || !strcmp(name, "h"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetHeight(r, val1);
-	}	
+	}
 	else if(!strcmp(name, "topleft"))
 	{
 		if(TwoShortsFromObj(op, &val1, &val2))
@@ -1239,7 +1239,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 			Rect_SetLeft(r, val1);
 			ret = Rect_SetTop(r, val2);
 		}
-	}	
+	}
 	else if(!strcmp(name, "bottomleft"))
 	{
 		if(TwoShortsFromObj(op, &val1, &val2))
@@ -1247,7 +1247,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 			Rect_SetLeft(r, val1);
 			ret = Rect_SetBottom(r, val2);
 		}
-	}	
+	}
 	else if(!strcmp(name, "topright"))
 	{
 		if(TwoShortsFromObj(op, &val1, &val2))
@@ -1255,7 +1255,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 			Rect_SetRight(r, val1);
 			ret = Rect_SetTop(r, val2);
 		}
-	}	
+	}
 	else if(!strcmp(name, "bottomright"))
 	{
 		if(TwoShortsFromObj(op, &val1, &val2))
@@ -1263,7 +1263,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 			Rect_SetRight(r, val1);
 			ret = Rect_SetBottom(r, val2);
 		}
-	}	
+	}
 	else if(!strcmp(name, "size"))
 	{
 		if(TwoShortsFromObj(op, &val1, &val2))
@@ -1271,7 +1271,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 			Rect_SetWidth(r, val1);
 			ret = Rect_SetHeight(r, val2);
 		}
-	}	
+	}
 	else if(!strcmp(name, "center"))
 	{
 		if(TwoShortsFromObj(op, &val1, &val2))
@@ -1334,8 +1334,8 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 			ret = 0;
 		}
 	}
-	
-	else	
+
+	else
 	{
 		RAISE(PyExc_AttributeError, "Attribute cannot be modified");
 		return -1;
@@ -1351,34 +1351,57 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
     /*DOC*/ static char doc_Rect_MODULE[] =
     /*DOC*/    "The rectangle object is a useful object\n"
     /*DOC*/    "representing a rectangle area. Rectangles are\n"
-	/*DOC*/    "created from the pygame.Rect() function. This routine\n"
-	/*DOC*/    "is also in the locals module, so importing the locals\n"
-	/*DOC*/    "into your namespace allows you to just use Rect().\n"
+    /*DOC*/    "created from the pygame.Rect() function. This routine\n"
+    /*DOC*/    "is also in the locals module, so importing the locals\n"
+    /*DOC*/    "into your namespace allows you to just use Rect().\n"
     /*DOC*/    "\n"
     /*DOC*/    "Rect contains helpful methods, as well as a list of\n"
     /*DOC*/    "modifiable members:\n"
-    /*DOC*/    "top, bottom, left, right, topleft, topright,\n"
-    /*DOC*/    "bottomleft, bottomright, size, width, height,\n"
-    /*DOC*/    "center, centerx, centery, midleft, midright, midtop,\n"
-	/*DOC*/    "midbottom. When changing thesemembers, the rectangle\n"
+#if 1
+  /*NODOC*/    "top, bottom, left, right, topleft, topright,\n"
+  /*NODOC*/    "bottomleft, bottomright, size, width, height,\n"
+  /*NODOC*/    "center, centerx, centery, midleft, midright, midtop,\n"
+  /*NODOC*/    "midbottom.\n"
+#else
+    /*DOC*/    "<table border="0" cellspacing=0 cellpadding=0 width=66%><tr valign=top><td align=left><ul><li>top<li>bottom<li>left<li>right</ul></td>\n"
+    /*DOC*/    "<td align=left><ul><li>topleft<li>topright<li>bottomleft<li>bottomright</ul></td>\n"
+    /*DOC*/    "<td align=left><ul><li>midleft<li>midright<li>midtop<li>midbottom</ul></td>\n"
+    /*DOC*/    "<td align=left><ul><li>center<li>centerx<li>centery</ul></td>\n"
+    /*DOC*/    "<td align=left><ul><li>size<li>width<li>height</ul></td>\n"
+    /*DOC*/    "</tr></table><br>\n"
+#endif
+    /*DOC*/    "When changing these members, the rectangle\n"
     /*DOC*/    "will be moved to the given assignment. (except when\n"
     /*DOC*/    "changing the size, width, or height member, which will\n"
     /*DOC*/    "resize the rectangle from the topleft corner)\n"
     /*DOC*/    "\n"
     /*DOC*/    "The rectstyle arguments used frequently with the\n"
     /*DOC*/    "Rect object (and elsewhere in pygame) is one of\n"
-    /*DOC*/    "the following things. First, an actual Rect\n"
-    /*DOC*/    "object. Second, a sequence of [xpos, ypos, width,\n"
-    /*DOC*/    "height]. Lastly, a pair of sequences, representing\n"
-    /*DOC*/    "the position and size [[xpos, ypos], [width,\n"
-    /*DOC*/    "height]]. Also, if a method takes a rectstyle\n"
-    /*DOC*/    "argument as its only argument, you can simply pass\n"
-    /*DOC*/    "four arguments representing xpos, ypos, width,\n"
-    /*DOC*/    "height. A rectstyle argument can also be _any_ python\n"
-    /*DOC*/    "object with an attribute named 'rect'.\n"
+    /*DOC*/    "the following things.\n"
+#if 1
+  /*NODOC*/    "First, an actual Rect\n"
+  /*NODOC*/    "object. Second, a sequence of [xpos, ypos, width,\n"
+  /*NODOC*/    "height]. Lastly, a pair of sequences, representing\n"
+  /*NODOC*/    "the position and size [[xpos, ypos], [width,\n"
+  /*NODOC*/    "height]]. Also, if a method takes a rectstyle\n"
+  /*NODOC*/    "argument as its only argument, you can simply pass\n"
+  /*NODOC*/    "four arguments representing xpos, ypos, width,\n"
+  /*NODOC*/    "height. A rectstyle argument can also be _any_ python\n"
+  /*NODOC*/    "object with an attribute named 'rect'.\n"
+#else
+    /*DOC*/    "<table border=0 cellspacing=0 cellpadding=0 width=80%>\n"
+    /*DOC*/    "<tr align=left valign=top><td align=left valign=middle width=20%><blockquote> </blockquote></td><td align=left valign=top><ul>\n"
+    /*DOC*/    "<li>an actual Rect object. \n"
+    /*DOC*/    "<li>a sequence of [xpos, ypos, width, height]. \n"
+    /*DOC*/    "<li>a pair of sequences, representing the position and size [[xpos, ypos], [width,height]]. \n"
+    /*DOC*/    "<li>if a method takes a rectstyle argument <b>as its <i>only</i> argument</b>, you can simply pass four arguments representing xpos, ypos, width, height. \n"
+    /*DOC*/    "</ul>and perhaps most importantly:\n"
+    /*DOC*/    "<ul><li>A rectstyle argument can also be <b><strong>_any_ python object</b> with an attribute named <b>'rect'.</b></strong>\n"
+    /*DOC*/    "</ul></td></tr></table>\n"
+#endif
     /*DOC*/ ;
 
-static PyTypeObject PyRect_Type = { 
+static PyTypeObject PyRect_Type = {
 	PyObject_HEAD_INIT(0)
 	0,							/*size*/
 	"Rect", 					/*name*/
@@ -1473,7 +1496,7 @@ static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyMethodDef rect__builtins__[] =
 {
 #if PYTHON_API_VERSION < 1011 /*PYTHON2.2*/
-	{ "Rect", RectInit, 1, doc_Rect }, 
+	{ "Rect", RectInit, 1, doc_Rect },
 #endif
 	{NULL, NULL}
 };
@@ -1489,7 +1512,7 @@ void initrect(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_RECT_NUMSLOTS];
-	
+
 	/* Create the module and add the functions */
 	PyType_Init(PyRect_Type);
 

@@ -313,7 +313,7 @@ class Group(object):
            call update for all member sprites
 
            calls the update method for all sprites in the group.
-           passes all arguments are to the Sprite update function."""
+           Passes all arguments on to the Sprite update function."""
         if args:
             a=apply
             for s in self.spritedict.keys():
