@@ -467,7 +467,6 @@ static PyMethodDef sound_builtins[] =
 static void sound_dealloc(PyObject* self)
 {
     	Mix_Chunk* chunk = PySound_AsChunk(self);
-printf("DELETE SOUND %p(%p)\n", self, chunk);
 	Mix_FreeChunk(chunk);
 	PyObject_DEL(self);
 }
@@ -1067,7 +1066,6 @@ static PyObject* Sound(PyObject* self, PyObject* arg)
 	final = PySound_New(chunk);
 	if(!final)
 		Mix_FreeChunk(chunk);
-printf("ALLOC SOUND %p(%p)\n", final, chunk);
 
 	return final;
 }

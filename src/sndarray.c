@@ -90,7 +90,7 @@ PyObject* sndarray_array(PyObject* self, PyObject* arg)
         array = sndarray_samples(self, arg);
         if(array)
         {
-            arraycopy = PyArray_Copy(array);
+            arraycopy = PyArray_Copy((PyArrayObject*)array);
             Py_DECREF(array);
         }
         return arraycopy;
@@ -104,10 +104,8 @@ PyObject* sndarray_array(PyObject* self, PyObject* arg)
     /*DOC*/    "Create a new playable Sound object from array data\n"
     /*DOC*/    "the Sound will be a copy of the array samples.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The samples must be in the same format of the initialized\n"
-    /*DOC*/    "mixer module. This means you must match the data type\n"
-    /*DOC*/    "(8bit or 16bit) as well as match the number of channels\n"
-    /*DOC*/    "(usually stereo or mono).\n"
+    /*DOC*/    "The array must be 1-dimensional for mono sound, and.\n"
+    /*DOC*/    "2-dimensional for stereo.\n"
     /*DOC*/ ;
 
 PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
@@ -116,8 +114,8 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     PyArrayObject *array;
     Mix_Chunk *chunk;
     Uint16 format;
-    int numchannels, samplesize;
-    int loop1, loop2, step1, step2;
+    int numchannels, samplesize, mixerbytes;
+    int loop1, loop2, step1, step2, length, length2;
     Uint8 *src, *dst;
 
     if(!PyArg_ParseTuple(arg, "O!", &PyArray_Type, &arrayobj))
@@ -126,15 +124,13 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     
     if(!Mix_QuerySpec(NULL, &format, &numchannels))
         return RAISE(PyExc_SDLError, "Mixer not initialized");
+    if(array->descr->type_num > PyArray_LONG)
+            return RAISE(PyExc_ValueError, "Invalid array datatype for sound");
 
-    /*test sample size*/
     if(format==AUDIO_S8 || format==AUDIO_U8)
-    {
-        if(array->descr->elsize != 1)
-            return RAISE(PyExc_ValueError, "Array must contain 8bit audio, to match mixer");
-    }
-    else if(array->descr->elsize != 2)
-        return RAISE(PyExc_ValueError, "Array must contain 16bit audio, to match mixer");
+        mixerbytes = 1;
+    else
+        mixerbytes = 2;
     
     /*test array dimensions*/
     if(numchannels==1)
@@ -149,39 +145,59 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
         if(array->dimensions[1] != numchannels)
             return RAISE(PyExc_ValueError, "Array depth must match number of mixer channels");
     }
-
+    length = array->dimensions[0];
+    if(array->nd == 2)
+        length2 = array->dimensions[1];
+    
     /*create chunk, we are screwed if SDL_mixer ever does more than malloc/free*/
     chunk = (Mix_Chunk *)malloc(sizeof(Mix_Chunk));
     if ( chunk == NULL )
         return RAISE(PyExc_MemoryError, "Cannot allocate chunk\n");
     /*let's hope Mix_Chunk never changes also*/
-    chunk->alen = array->descr->elsize * array->dimensions[0] * numchannels;
+    chunk->alen = mixerbytes * length * numchannels;
     chunk->abuf = (Uint8*)malloc(chunk->alen);
     chunk->allocated = 1;
     chunk->volume = 128;
-    
-    
+
     if(array->nd == 1)
     {
         step1 = array->strides[0];
         src = (Uint8*)array->data;
         dst = (Uint8*)chunk->abuf;
-        if(array->descr->elsize == 1)
+        if(mixerbytes == 1)
         {
-            for(loop1 = 0; loop1 < array->dimensions[0]; loop1++)
+            switch(array->descr->elsize)
             {
-                *dst = *src;
-                dst += 1;
-                src += step1;
+            case 1:
+                for(loop1=0; loop1<length; loop1++, dst+=1, src+=step1)
+                    *(Uint8*)dst = (Uint8)*((Uint8*)src);
+                break;
+            case 2:
+                for(loop1=0; loop1<length; loop1++, dst+=1, src+=step1)
+                    *(Uint8*)dst = (Uint8)*((Uint16*)src);
+                break;
+            case 4:
+                for(loop1=0; loop1<length; loop1++, dst+=1, src+=step1)
+                    *(Uint8*)dst = (Uint8)*((Uint32*)src);
+                break;
             }
         }
         else
         {
-            for(loop1 = 0; loop1 < array->dimensions[0]; loop1++)
+            switch(array->descr->elsize)
             {
-                *(Uint16*)dst = *(Uint16*)src;
-                dst += 2;
-                src += step1;
+            case 1:
+                for(loop1=0; loop1<length; loop1++, dst+=2, src+=step1)
+                    *(Uint16*)dst = (Uint16)((*((Uint8*)src))<<8);
+                break;
+            case 2:
+                for(loop1=0; loop1<length; loop1++, dst+=2, src+=step1)
+                    *(Uint16*)dst = (Uint16)*((Uint16*)src);
+                break;
+            case 4:
+                for(loop1=0; loop1<length; loop1++, dst+=2, src+=step1)
+                    *(Uint16*)dst = (Uint16)*((Uint32*)src);
+                break;
             }
         }
     }
@@ -190,33 +206,52 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
         step1 = array->strides[0];
         step2 = array->strides[1];
         dst = (Uint8*)chunk->abuf;
-        if(array->descr->elsize == 1)
+        if(mixerbytes == 1)
         {
-            for(loop1 = 0; loop1 < array->dimensions[0]; loop1++)
+            for(loop1=0; loop1<length; loop1++)
             {
                 src = (Uint8*)array->data + loop1*step1;
-                for(loop2 = 0; loop2 < array->dimensions[1]; loop2++)
+                switch(array->descr->elsize)
                 {
-                    *dst = *(src+loop2*step2);
-                    dst += 1;
+                case 1:
+                    for(loop2=0; loop2<length2; loop1++, dst+=1, src+=step2)
+                        *(Uint8*)dst = (Uint8)*((Uint8*)src);
+                    break;
+                case 2:
+                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                        *(Uint8*)dst = (Uint8)*((Uint16*)src);
+                    break;
+                case 4:
+                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                        *(Uint8*)dst = (Uint8)*((Uint32*)src);
+                    break;
                 }
             }
         }
         else
         {
-            for(loop1 = 0; loop1 < array->dimensions[0]; loop1++)
+            for(loop1 = 0; loop1 < length; loop1++)
             {
                 src = (Uint8*)array->data + loop1*step1;
-                for(loop2 = 0; loop2 < array->dimensions[1]; loop2++)
+               switch(array->descr->elsize)
                 {
-                    *(Uint16*)dst = *(Uint16*)(src+loop2*step2);
-                    dst += 2;
+                case 1:
+                    for(loop2=0; loop2<length2; loop1++, dst+=1, src+=step2)
+                        *(Uint16*)dst = (Uint16)(*((Uint8*)src)<<8);
+                    break;
+                case 2:
+                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                        *(Uint16*)dst = (Uint16)*((Uint16*)src);
+                    break;
+                case 4:
+                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                        *(Uint16*)dst = (Uint16)*((Uint32*)src);
+                    break;
                 }
             }
         }
     }
-    
-printf("%%returnsound\n");
+
     return PySound_New(chunk);
 }
 

@@ -87,10 +87,8 @@ pygame.sndarray.make_sound(array) -> Sound
 Create a new playable Sound object from array data
 the Sound will be a copy of the array samples.
 <br>&nbsp;<br>
-The samples must be in the same format of the initialized
-mixer module. This means you must match the data type
-(8bit or 16bit) as well as match the number of channels
-(usually stereo or mono).
+The array must be 1-dimensional for mono sound, and.
+2-dimensional for stereo.
 </ul><br>&nbsp;<br>
 
 <a name=samples><font size=+2><b>samples
