@@ -354,17 +354,22 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "O!(ii)", &PySurface_Type, &surfobj, &width, &height))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
-
+	if(width < 0 || height < 0)
+		return RAISE(PyExc_ValueError, "Cannot scale to negative size");
+	
 	newsurf = newsurf_fromsurf(surf, width, height);
 	if(!newsurf) return NULL;
 
-	SDL_LockSurface(newsurf);
-	PySurface_Lock(surfobj);
-
-	stretch(surf, newsurf);
-
-	PySurface_Unlock(surfobj);
-	SDL_UnlockSurface(newsurf);
+	if(width && height)
+	{
+		SDL_LockSurface(newsurf);
+		PySurface_Lock(surfobj);
+	
+		stretch(surf, newsurf);
+	
+		PySurface_Unlock(surfobj);
+		SDL_UnlockSurface(newsurf);
+	}
 
 	return PySurface_New(newsurf);
 }
@@ -686,6 +691,11 @@ static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "O!ff", &PySurface_Type, &surfobj, &angle, &scale))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
+	if(scale == 0.0)
+	{
+		newsurf = newsurf_fromsurf(surf, surf->w, surf->h);
+		return PySurface_New(newsurf);
+	}
 
 	if(surf->format->BitsPerPixel == 32)
 	{
@@ -699,11 +709,7 @@ static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 		SDL_BlitSurface(surf, NULL, surf32, NULL);
 	}
 
-/* don't special case the 90 degrees, makes the rotating image pop
-	if(scale == 1.0 && !(((int)angle)%90))
-		newsurf = rotate90(surf32, (int)angle);
-	else
-*/		newsurf = rotozoomSurface(surf32, angle, scale, 1);
+	newsurf = rotozoomSurface(surf32, angle, scale, 1);
 
 	if(surf32 == surf)
 		PySurface_Unlock(surfobj);

@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 27, 2004
+    Fix several negative or zero size problems [BUG]
+    draw.arc outside image crashed [BUG]
+    draw.arc artifacts cleaned
+
 June 26, 2004
     Rect.fit() added
     Surface.get_rect() accepts keyword args for assignment

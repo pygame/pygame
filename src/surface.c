@@ -1041,17 +1041,25 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 		rect = &temp;
 	}
 
-        sdlrect.x = rect->x;
-        sdlrect.y = rect->y;
-        sdlrect.w = rect->w;
-        sdlrect.h = rect->h;
-
-	PySurface_Prep(self);
-	result = SDL_FillRect(surf, &sdlrect, color);
-	PySurface_Unprep(self);
-
-	if(result == -1)
-		return RAISE(PyExc_SDLError, SDL_GetError());
+	if(rect->w < 0 || rect->h < 0)
+	{
+		sdlrect.x = sdlrect.y = 0;
+		sdlrect.w = sdlrect.h = 0;
+	}
+	else
+	{
+		sdlrect.x = rect->x;
+		sdlrect.y = rect->y;
+		sdlrect.w = rect->w;
+		sdlrect.h = rect->h;
+	
+		PySurface_Prep(self);
+		result = SDL_FillRect(surf, &sdlrect, color);
+		PySurface_Unprep(self);
+	
+		if(result == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+	}
 	return PyRect_New(&sdlrect);
 }
 
@@ -1882,7 +1890,7 @@ static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds)
 	if(!PyArg_ParseTuple(args, "(ii)|iOO", &width, &height, &flags, &depth, &masks))
 		return -1;
         
-        if(width <= 0 || height <= 0)
+        if(width < 0 || height < 0)
         {
             RAISE(PyExc_SDLError, "Invalid resolution for Surface");
             return -1;

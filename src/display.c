@@ -510,6 +510,9 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "(ii)|ii", &w, &h, &flags, &depth))
 		return NULL;
 
+	if(w <= 0 || h <= 0)
+		return RAISE(PyExc_SDLError, "Cannot set 0 sized display mode");
+		
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
 		/*note SDL works special like this too*/

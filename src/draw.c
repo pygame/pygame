@@ -1413,9 +1413,12 @@ static void draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
     x_last = x+cos(angle_start)*radius1;
     y_last = y-sin(angle_start)*radius2;
     for(a=angle_start+aStep; a<=angle_stop; a+=aStep) {
+      int points[4];
       x_next = x+cos(a)*radius1;
       y_next = y-sin(a)*radius2;
-      drawline(dst, color, x_last, y_last, x_next, y_next);
+      points[0] = x_last; points[1] = y_last;
+      points[2] = x_next; points[3] = y_next;
+      clip_and_draw_line(dst, &dst->clip_rect, color, points);
       x_last = x_next;
       y_last = y_next;
     }

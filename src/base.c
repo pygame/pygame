@@ -470,7 +470,7 @@ static int PyGame_Video_AutoInit(void)
 }
 
 
-
+#if 0
 #include<pystate.h>
 #include<compile.h>
 #include<frameobject.h>
@@ -514,16 +514,18 @@ static void print_traceback(PyObject *tb)
 	    tb = next;
     }
 }
-
+#endif
 
 /*error signal handlers (replacing SDL parachute)*/
 static void pygame_parachute(int sig)
 {
 	char* signaltype;
+#if 0
 	PyThreadState* thread;
 	PyInterpreterState *interp;
 	int thread_id;
-
+#endif
+    
 	signal(sig, SIG_DFL);
 	switch (sig)
 	{
@@ -547,7 +549,8 @@ static void pygame_parachute(int sig)
 			signaltype = "(pygame parachute) Unknown Signal"; break;
 	}
 
-
+#if 0
+/*this traceback hacking has gotten a bit treacherous*/
 	printf("Pygame Parachute Traceback:\n");
 	interp = PyInterpreterState_Head();
 	thread=PyInterpreterState_ThreadHead(interp);
@@ -566,7 +569,7 @@ static void pygame_parachute(int sig)
 	    Py_INCREF(thread->curexc_traceback);
 	    print_traceback(thread->curexc_traceback);
 	}
-
+#endif
 	atexit_quit();
 	Py_FatalError(signaltype);
 }
