@@ -58,7 +58,7 @@ static UserEventObject* user_event_addobject(PyObject* obj)
 }
 
 /*note, we doublecheck to make sure the pointer is in our list,
- *not just some random pointer. this should keep us safe(r).
+ *not just some random pointer. this will keep us safe(r).
  */
 static PyObject* user_event_getobject(UserEventObject* userobj)
 {
@@ -761,6 +761,8 @@ static PyObject* post(PyObject* self, PyObject* args)
     /*DOC*/    "By default, all events will appear from the queue. After you have\n"
     /*DOC*/    "blocked some event types, you can use this to re-enable them. You\n"
     /*DOC*/    "can optionally pass a sequence of event types.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can pass None and this will allow no events on the queue.\n"
     /*DOC*/ ;
 
 static PyObject* set_allowed(PyObject* self, PyObject* args)
@@ -785,6 +787,8 @@ static PyObject* set_allowed(PyObject* self, PyObject* args)
 			SDL_EventState((Uint8)val, SDL_ENABLE);
 		}
 	}
+	else if(type == Py_None)
+		SDL_EventState((Uint8)0xFF, SDL_IGNORE);
 	else if(ShortFromObj(type, &val))
 		SDL_EventState((Uint8)val, SDL_ENABLE);
 	else
@@ -801,6 +805,8 @@ static PyObject* set_allowed(PyObject* self, PyObject* args)
     /*DOC*/    "By default, all events will appear from the queue. This will\n"
     /*DOC*/    "allow you to prevent event types from appearing on the queue. You\n"
     /*DOC*/    "can optionally pass a sequence of event types.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can pass None and this will allow all events on the queue.\n"
     /*DOC*/ ;
 
 static PyObject* set_blocked(PyObject* self, PyObject* args)
@@ -825,6 +831,8 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 			SDL_EventState((Uint8)val, SDL_IGNORE);
 		}
 	}
+	else if(type == Py_None)
+		SDL_EventState((Uint8)0, SDL_IGNORE);
 	else if(ShortFromObj(type, &val))
 		SDL_EventState((Uint8)val, SDL_IGNORE);
 	else
