@@ -55,10 +55,9 @@ TODO
 ----
 At some point it would be nice to add support for more external
 python libraries, here are some ideas...
- - more collision detection stuff: pixel2pixel, point2poly, etc
  - smarten the config.py and setup.py stuff
-
-
+ - wide line drawing should be drawn as a polygon?
+ - make object constructors (Rect, Surface) the actual type
 
 
 CREDITS
@@ -69,10 +68,10 @@ Thanks to everyone who made this possible, including:
 - Ed Boraas and Francis Irving for Debian packaging
 - Maxim Sobolev for FreeBSD port maintenance
 - Bob Ippolito for the MacOS porting
-- Jan Ekhol, Ray Kelm, and Peter Nicolai for initial reviews
+- Jan Ekhol, Ray Kelm, and Peter Nicolai for early design reviews
 - Our list of valiant bug fixers:
 	Niki Spahiev, Gordon Tyler,
-	Dave Wallace, and John Popplewell
+	Dave Wallace, John Popplewell
 - And our dutiful bug hunters:
 	Angus, Guillaume Proux, Frank Raiser,
 	Austin Henry, Kaweh Kazemi, Arturo Aldama

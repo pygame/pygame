@@ -815,8 +815,7 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 	default: /*case 4*/
 		for(; pixel <= end; pixel+=4) {
 			*(Uint32*)pixel = color;
-/*			  *(Uint32*)pixel = ~(*(Uint32*)pixel)*31;
-*/		  }break;
+		  }break;
 	}
 }
 
@@ -825,18 +824,20 @@ static void drawhorzlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, in
 	if(y1 < surf->clip_rect.y || y1 >= surf->clip_rect.y + surf->clip_rect.h)
 		return;
 
-	if ( x2 < x1 )
+	if( x2 < x1 )
 	{
-	 int temp = x1;
-	 x1 = x2; x2 = temp;
+                int temp = x1;
+                x1 = x2; x2 = temp;
 	}
 
-	if(y1 < surf->clip_rect.y || y1 > surf->clip_rect.y + surf->clip_rect.h)
-		return;
 	x1 = max(x1, surf->clip_rect.x);
 	x2 = min(x2, surf->clip_rect.x + surf->clip_rect.w-1);
+
+        if(x2 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
+                return;
+
 	if(x1 == x2)
-		set_at( surf, x1, y1, color);
+		set_at(surf, x1, y1, color);
 	else
 		drawhorzline(surf, color, x1, y1, x2);
 }
