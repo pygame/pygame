@@ -221,7 +221,8 @@ def main(winstyle = 0):
 
     # Initialize SDL components
     pygame.init()
-    screen = pygame.display.set_mode(SCREENRECT.size, winstyle)
+    bestdepth = pygame.display.mode_ok(SCREENRECT.size, winstyle, 32)
+    screen = pygame.display.set_mode(SCREENRECT.size, winstyle, bestdepth)
 
     if pygame.joystick.get_init() and pygame.joystick.get_count():
         joy = pygame.joystick.Joystick(0)
