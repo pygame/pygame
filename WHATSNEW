@@ -4,31 +4,35 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
-January 17, 2001
+January 23, 2002
+	transform.rotate() does alpha if image has alphaplane
+	transform.rotate() no longer "off by one" in the x axis
+
+January 17, 2002
         smarter importing code
         default pygame icon for window
 
-January 16, 2001
+January 16, 2002
 	started implementing basic unit tests
 	several bug cleanups with Rects (thx unit tests)
 
-January 14, 2001
+January 14, 2002
 	display.update() boundaries fixed
 
-January 11, 2001
+January 11, 2002
 	Surface.set_clip() can take None to clear the clipping
 
-January 7, 2001
+January 7, 2002
 	fixed sprite.Group.has
 
-January 6, 2001
+January 6, 2002
 	Merge with bob's inital MacOSX changes
 
-January 5, 2001
+January 5, 2002
         new and upgraded importing [BREAK?]
         fixed numberhandling in set_alpha and set_colorkey
 
-January 2, 2001
+January 2, 2002
 	Group add/remove methods work
 
 December 31, 2001

@@ -477,7 +477,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 
     /*DOC*/ static char doc_rect[] =
     /*DOC*/    "pygame.draw.rect(Surface, color, Rect, width) -> Rect\n"
-    /*DOC*/    "draws a polygon on a surface\n"
+    /*DOC*/    "draws a rectangle on a surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Draws a rectangular shape on the Surface. The given Rect\n"
     /*DOC*/    "is the area of the rectangle. The width argument is\n"
