@@ -41,7 +41,7 @@ DEPS = [
     Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
 #not a real dependency, but found in setup
-#    Dependency('SMPEG', '', '', 'SMPEG'),
+    Dependency('SMPEG', '', '', 'SMPEG'),
 ]
 
 
