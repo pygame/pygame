@@ -8,8 +8,6 @@ configcommand = 'sdl-config --version --cflags --libs'
 
 
 class Dependency:
-    inc_hunt = ['include']
-    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
     def __init__(self, name, checkhead, checklib, lib):
         self.name = name
         self.inc_dir = None
@@ -24,14 +22,19 @@ class Dependency:
         inc = os.path.join(incdir, self.checkhead)
         lib = os.path.join(libdir, self.checklib)
         if os.path.isfile(inc) and glob(lib):
+	    print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
+	else:
+	    print self.name + '        '[len(self.name):] + ': not found'
 
 
 DEPS = [
-    Dependency('SDL', 'SDL.h', 'libSDL.so', '-lSDL'),
-    Dependency('FONT', 'SDL_ttf.h.h', 'libSDL_ttf.so', '-lSDL_ttf'),
-    Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', '-lSDL_image'),
-    Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', '-lSDL_mixer'),
+    Dependency('SDL', 'SDL.h', 'libSDL.so', 'SDL'),
+    Dependency('FONT', 'SDL_ttf.h.h', 'libSDL_ttf.so', 'SDL_ttf'),
+    Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
+    Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
+#not a real dependency, but found in setup
+    Dependency('SMPEG', '', '', 'SMPEG'),
 ]
 
 
@@ -48,12 +51,12 @@ def main():
         for w in configinfo[:]:
             if ',' in w: configinfo.remove(w)
         configinfo = ' '.join(configinfo)
-        print 'Flags:', configinfo
+        #print 'Flags:', configinfo
     except:
         raise SystemExit, """Cannot locate command, "sdl-config". Default SDL compile
 flags have been used, which will likely require a little editing."""
 
-    print 'Hunting optional dependencies...'
+    print 'Hunting dependencies...'
     incdir = libdir = ''
     for arg in configinfo.split():
         if arg.startswith('-I'):
@@ -65,9 +68,9 @@ flags have been used, which will likely require a little editing."""
     for d in DEPS:
         d.configure(incdir, libdir)
 
-    d[0].inc_dir = None
-    d[0].lib_dir = None
-    d[0].cflags = configinfo
+    DEPS[0].inc_dir = None
+    DEPS[0].lib_dir = None
+    DEPS[0].cflags = configinfo
 
     return DEPS
 

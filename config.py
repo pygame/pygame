@@ -40,6 +40,7 @@ def confirm(message):
     return 0
 
 
+#hmm, findbasepath is failing on irix, we'll avoid it for now
 def findbasepath(deps):
     "find a common prefix in all paths"
     allpaths = []
@@ -58,6 +59,9 @@ def findbasepath(deps):
 
 def prepdep(dep, basepath):
     "add some vars to a dep"
+    dep.line = dep.name + ' = -l' + dep.lib
+    dep.varname = '$('+dep.name+')'
+    
     if not dep.found:
         if dep.name == 'SDL': #fudge if this is unfound SDL
             dep.line = 'SDL = -I/NEED_INC_PATH_FIX -L/NEED_LIB_PATH_FIX -lSDL'
@@ -74,7 +78,6 @@ def prepdep(dep, basepath):
         if dep.lib_dir: lid = ' -L' + dep.lib_dir
     if dep.lib: lib = ' -l'+dep.lib
     dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + lib
-    dep.varname = '$('+dep.name+')'
 
 
 
@@ -118,17 +121,17 @@ def main():
 
     deps = CFG.main()
     if deps:
-        basepath = findbasepath(deps)
+        basepath = None  #findbasepath(deps)
         for d in deps:
             prepdep(d, basepath)
         writesetupfile(deps, basepath)
 
 
     if os.path.isfile('Setup'):
-        print """Doublecheck that the new "Setup" file looks correct, then
+        print """\nDoublecheck that the new "Setup" file looks correct, then
 run "python setup.py install" to build and install pygame."""
     else:
-        print """There was an error creating the Setup file, check for errors
+        print """\nThere was an error creating the Setup file, check for errors
 or make a copy of "Setup.in" and edit by hand."""
 
 
