@@ -1415,8 +1415,8 @@ static PyTypeObject PyRect_Type = {
 	/* methods */
 	(destructor)rect_dealloc,	        /*dealloc*/
 	(printfunc)NULL,			/*print*/
-NULL,//	(getattrfunc)rect_getattr,	        /*getattr*/
-NULL,//	(setattrfunc)rect_setattr,	        /*setattr*/
+        NULL,	                                /*getattr*/
+        NULL,	                                /*setattr*/
 	(cmpfunc)rect_compare,		        /*compare*/
 	(reprfunc)rect_repr,		        /*repr*/
 	&rect_as_number,			/*as_number*/

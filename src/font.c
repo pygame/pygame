@@ -27,7 +27,7 @@
 #include <string.h>
 #include "pygame.h"
 #include "font.h"
-
+#include "structmember.h"
 
 
 staticforward PyTypeObject PyFont_Type;
@@ -116,7 +116,7 @@ static PyObject* font_autoinit(PyObject* self, PyObject* arg)
     /*DOC*/    "this if font is currently not initialized.\n"
     /*DOC*/ ;
 
-static PyObject* font_quit(PyObject* self, PyObject* arg)
+static PyObject* fontmodule_quit(PyObject* self, PyObject* arg)
 {
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
@@ -136,7 +136,7 @@ static PyObject* font_quit(PyObject* self, PyObject* arg)
     /*DOC*/    "font is currently initialized.\n"
     /*DOC*/ ;
 
-static PyObject* font_init(PyObject* self, PyObject* arg)
+static PyObject* fontmodule_init(PyObject* self, PyObject* arg)
 {
 	PyObject* result;
 	int istrue;
@@ -544,7 +544,7 @@ static PyObject* font_size(PyObject* self, PyObject* args)
 
 
 
-static PyMethodDef fontobj_builtins[] =
+static PyMethodDef font_methods[] =
 {
 	{ "get_height", font_get_height, 1, doc_font_get_height },
 	{ "get_descent", font_get_descent, 1, doc_font_get_descent },
@@ -568,24 +568,92 @@ static PyMethodDef fontobj_builtins[] =
 
 /*font object internals*/
 
-static void font_dealloc(PyObject* self)
+static void font_dealloc(PyFontObject* self)
 {
 	TTF_Font* font = PyFont_AsFont(self);
 
 	if(font_initialized)
 		TTF_CloseFont(font);
 
-	PyObject_DEL(self);
+        if(self->weakreflist)
+            PyObject_ClearWeakRefs((PyObject*)self);
+	self->ob_type->tp_free((PyObject*)self);
 }
 
 
-static PyObject* font_getattr(PyObject* self, char* attrname)
+static int font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 {
-	if(font_initialized)
-		return Py_FindMethod(fontobj_builtins, self, attrname);
+	int fontsize;
+	TTF_Font* font;
+	PyObject* fileobj;
+    
+	if(!PyArg_ParseTuple(args, "Oi", &fileobj, &fontsize))
+		return -1;
 
-	PyErr_SetString(PyExc_NameError, attrname);
-	return NULL;
+	if(!font_initialized)
+        {
+		RAISE(PyExc_SDLError, "font not initialized");
+                return -1;
+        }
+
+	if(fontsize <= 1)
+		fontsize = 1;
+
+	if(fileobj == Py_None) {
+		if(!font_defaultpath)
+                {
+			RAISE(PyExc_RuntimeError, "default font not found");
+                        return -1;
+                }
+		fileobj = font_defaultpath;
+		fontsize = (int)(fontsize * .6875);
+		if(fontsize <= 1)
+			fontsize = 1;
+	}
+	if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
+	{
+		FILE* test;
+		char* filename = PyString_AsString(fileobj);
+
+		if(!filename)
+			return -1;
+
+		/*check if it is a valid file, else SDL_ttf segfaults*/
+		test = fopen(filename, "rb");
+		if(!test)
+                {
+			RAISE(PyExc_IOError, "unable to read font filename");
+                        return -1;
+                }
+		fclose(test);
+
+                Py_BEGIN_ALLOW_THREADS
+                font = TTF_OpenFont(filename, fontsize);
+                Py_END_ALLOW_THREADS
+	}
+	else
+	{
+#ifdef TTF_MAJOR_VERSION
+		SDL_RWops *rw;
+		if(!(rw = RWopsFromPython(fileobj)))
+			return -1;
+		Py_BEGIN_ALLOW_THREADS
+		font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
+		Py_END_ALLOW_THREADS
+#else
+		RAISE(PyExc_NotImplementedError, "nonstring fonts require SDL_ttf-2.0.6");
+                return -1;
+#endif
+	}
+
+	if(!font)
+        {
+		RAISE(PyExc_RuntimeError, SDL_GetError());
+                return -1;
+        }
+
+    self->font = font;
+    return 0;
 }
 
 
@@ -605,12 +673,12 @@ static PyTypeObject PyFont_Type =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"Font",
+	"pygame.font.Font",
 	sizeof(PyFontObject),
 	0,
-	font_dealloc,
+	(destructor)font_dealloc,
 	0,
-	font_getattr,
+	0/*font_getattr*/, /*getattr*/
 	0,
 	0,
 	0,
@@ -620,8 +688,26 @@ static PyTypeObject PyFont_Type =
 	(hashfunc)NULL,
 	(ternaryfunc)NULL,
 	(reprfunc)NULL,
-	0L,0L,0L,0L,
-	doc_Font_MODULE /* Documentation string */
+	0L,0L,0L,
+    	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+	doc_Font_MODULE, /* Documentation string */
+	0,					/* tp_traverse */
+	0,					/* tp_clear */
+	0,					/* tp_richcompare */
+	offsetof(PyFontObject, weakreflist),    /* tp_weaklistoffset */
+	0,					/* tp_iter */
+	0,					/* tp_iternext */
+	font_methods,			        /* tp_methods */
+	0,				        /* tp_members */
+	0,				        /* tp_getset */
+	0,					/* tp_base */
+	0,					/* tp_dict */
+	0,					/* tp_descr_get */
+	0,					/* tp_descr_set */
+	0,					/* tp_dictoffset */
+	(initproc)font_init,			/* tp_init */
+	0,					/* tp_alloc */
+	PyType_GenericNew,	                /* tp_new */
 };
 
 
@@ -645,7 +731,7 @@ static PyObject* get_default_font(PyObject* self, PyObject* args)
 
 
 /*font module methods*/
-
+#if 0
     /*DOC*/ static char doc_Font[] =
     /*DOC*/    "pygame.font.Font(file, size) -> Font\n"
     /*DOC*/    "create a new font object\n"
@@ -659,82 +745,16 @@ static PyObject* get_default_font(PyObject* self, PyObject* args)
     /*DOC*/    "You must have at least SDL_ttf-2.0.6 for file object\n"
     /*DOC*/    "support. You can load TTF and FON fonts.\n"
     /*DOC*/ ;
-
-static PyObject* Font(PyObject* self, PyObject* args)
-{
-	PyObject* fileobj;
-	int fontsize;
-	TTF_Font* font;
-	PyObject* fontobj;
-	if(!PyArg_ParseTuple(args, "Oi", &fileobj, &fontsize))
-		return NULL;
-
-	if(!font_initialized)
-		return RAISE(PyExc_SDLError, "font not initialized");
-
-	if(fontsize <= 1)
-		fontsize = 1;
-
-	if(fileobj == Py_None) {
-		if(!font_defaultpath)
-			return RAISE(PyExc_RuntimeError, "default font not found");
-		fileobj = font_defaultpath;
-		fontsize = (int)(fontsize * .6875);
-		if(fontsize <= 1)
-			fontsize = 1;
-	}
-	if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
-	{
-		FILE* test;
-		char* filename = PyString_AsString(fileobj);
-
-		if(!filename)
-			return NULL;
-
-		/*check if it is a valid file, else SDL_ttf segfaults*/
-		test = fopen(filename, "rb");
-		if(!test)
-			return RAISE(PyExc_IOError, "unable to read font filename");
-		fclose(test);
-
-				Py_BEGIN_ALLOW_THREADS
-				font = TTF_OpenFont(filename, fontsize);
-				Py_END_ALLOW_THREADS
-	}
-	else
-	{
-#ifdef TTF_MAJOR_VERSION
-		SDL_RWops *rw;
-		if(!(rw = RWopsFromPython(fileobj)))
-			return NULL;
-		Py_BEGIN_ALLOW_THREADS
-		font = TTF_OpenFontIndexRW(rw, 1, fontsize, 0);
-		Py_END_ALLOW_THREADS
-#else
-		return RAISE(PyExc_NotImplementedError, "nonstring fonts require SDL_ttf-2.0.6");
 #endif
-	}
-
-	if(!font)
-		return RAISE(PyExc_RuntimeError, SDL_GetError());
-
-	fontobj = PyFont_New(font);
-	if(!fontobj)
-		TTF_CloseFont(font);
-	return fontobj;
-}
-
 
 
 static PyMethodDef font_builtins[] =
 {
 	{ "__PYGAMEinit__", font_autoinit, 1, doc_init },
-	{ "init", font_init, 1, doc_init },
-	{ "quit", font_quit, 1, doc_quit },
+	{ "init", fontmodule_init, 1, doc_init },
+	{ "quit", fontmodule_quit, 1, doc_quit },
 	{ "get_init", get_init, 1, doc_get_init },
 	{ "get_default_font", get_default_font, 1, doc_get_default_font },
-
-	{ "Font", Font, 1, doc_Font },
 	{ NULL, NULL }
 };
 
@@ -747,7 +767,8 @@ static PyObject* PyFont_New(TTF_Font* font)
 	if(!font)
 		return RAISE(PyExc_RuntimeError, "unable to load font.");
 
-	fontobj = PyObject_NEW(PyFontObject, &PyFont_Type);
+	fontobj = (PyFontObject *)PyFont_Type.tp_new(&PyFont_Type, NULL, NULL);
+
 	if(fontobj)
 		fontobj->font = font;
 
@@ -782,6 +803,8 @@ void initfont(void)
 	PyFONT_C_API[0] = PyFONT_C_API[0]; /*clean an unused warning*/
 
 	PyType_Init(PyFont_Type);
+        if (PyType_Ready(&PyFont_Type) < 0)
+            return;
 
     /* create the module */
 	module = Py_InitModule3("font", font_builtins, doc_pygame_font_MODULE);
@@ -789,6 +812,7 @@ void initfont(void)
 	self_module = module;
 
 	PyDict_SetItemString(dict, "FontType", (PyObject *)&PyFont_Type);
+	PyDict_SetItemString(dict, "Font", (PyObject *)&PyFont_Type);
 
 	/* export the c api */
 	c_api[0] = &PyFont_Type;

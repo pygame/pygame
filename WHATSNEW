@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 25, 2004
+    Font becomes new style type, inheritable, weakrefable
+
 June 22, 2004
     Rect type updated, weakrefable
     (warning, Rect attributes broken for now)
