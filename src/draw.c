@@ -206,7 +206,7 @@ static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, in
 	int x = 0, y = 0;
 	int swaptmp;
 	Uint8 *pixel;
-	Uint8 *color_24;
+	Uint8 *colorptr;
 
  	deltax = x2 - x1;
  	deltay = y2 - y1;
@@ -240,11 +240,12 @@ static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, in
 			y += deltay; if(y >= deltax) {y -= deltax; pixel += pixy;}
 		}break;
 	case 3:
-		color_24 = (Uint8*)&color;
+		if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8;
+		colorptr = (Uint8*)&color;
 		for(; x < deltax; x++, pixel += pixx) {
-			pixel[0] = color_24[0];
-			pixel[1] = color_24[1];
-			pixel[2] = color_24[2];
+			pixel[0] = colorptr[0];
+			pixel[1] = colorptr[1];
+			pixel[2] = colorptr[2];
 			y += deltay; if(y >= deltax) {y -= deltax; pixel += pixy;}
 		}break;
 	default: /*case 4*/
@@ -260,7 +261,7 @@ static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, in
 static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, int y2)
 {
 	Uint8 *pixel, *end;
-	Uint8 *color_24;
+	Uint8 *colorptr;
 
 	if(x1 == x2) return;
 
@@ -287,11 +288,12 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 			*(Uint16*)pixel = (Uint16)color;
 		}break;
 	case 3:
-		color_24 = (Uint8*)&color;
+		if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8;
+		colorptr = (Uint8*)&color;
 		for(; pixel <= end; ++pixel) {
-			pixel[0] = color_24[0];
-			pixel[1] = color_24[1];
-			pixel[2] = color_24[2];
+			pixel[0] = colorptr[0];
+			pixel[1] = colorptr[1];
+			pixel[2] = colorptr[2];
 		}break;
 	default: /*case 4*/
 		for(; pixel <= end; ++pixel) {
