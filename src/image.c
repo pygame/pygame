@@ -209,7 +209,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
-                int namelen;
+		int namelen;
 		char* name;
 		if(!PyArg_ParseTuple(arg, "O|s", &file, &name))
 			return NULL;
@@ -300,9 +300,9 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 	surf = PySurface_AsSurface(surfobj);
 	if(surf->flags & SDL_OPENGL)
 	{
-                temp = surf = opengltosdl();
-                if(!surf)
-                    return NULL;
+		temp = surf = opengltosdl();
+		if(!surf)
+			return NULL;
 	}
 
 	Rmask = surf->format->Rmask; Gmask = surf->format->Gmask;
