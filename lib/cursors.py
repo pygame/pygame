@@ -186,7 +186,7 @@ should work with typical XBM files.
     info = width, height, hotx, hoty    
 
     for line in range(len(curs)):
-        if curs[line].startswith('static char'):
+        if curs[line].startswith('static char') or curs[line].startswith('static unsigned char'):
             break
     data = ' '.join(curs[line+1:]).replace('};', '').replace(',', '')
     cursdata = []
@@ -195,7 +195,7 @@ should work with typical XBM files.
     cursdata = tuple(cursdata)
 
     for line in range(len(mask)):
-        if mask[line].startswith('static char'):
+        if mask[line].startswith('static char') or mask[line].startswith('static unsigned char'):
             break
     data = ' '.join(mask[line+1:]).replace('};', '').replace(',', '')
     maskdata = []
