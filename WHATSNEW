@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 17, 2004
+    SysFont extra styles being applied incorrect
+
 July 16, 2004
     mixer.set_num_channels() no longer crashes [BUG]
     mixer.music.get_pos() properly tracks when paused
