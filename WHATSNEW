@@ -6,6 +6,7 @@
 
 September 29, 2003
     Replaced Objective C with PyObjC code for MacOS X
+    Fixed 1 pixel horizontal/vertical line draw
 
 September 27, 2003
 	Fix reading from file file-like objects (thx Timothy Stranex)

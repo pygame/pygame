@@ -1252,7 +1252,11 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 	Uint8 *pixel, *end;
 	Uint8 *colorptr;
 
-	if(x1 == x2) return;
+	if(x1 == x2)
+        {
+            set_at(surf, x1, y1, color);
+            return;
+        }
 
 	pixel = ((Uint8*)surf->pixels) + surf->pitch * y1;
 	if(x1 < x2)
@@ -1319,7 +1323,11 @@ static void drawvertline(SDL_Surface* surf, Uint32 color, int x1, int y1, int y2
        Uint8   *colorptr;
        Uint32  pitch = surf->pitch;
 
-       if(y1 == y2) return;
+       if(y1 == y2)
+       {
+           set_at(surf, x1, y1, color);
+           return;
+       }
 
        pixel = ((Uint8*)surf->pixels) + x1 * surf->format->BytesPerPixel;
        if(y1 < y2)
