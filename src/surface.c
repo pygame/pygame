@@ -1213,6 +1213,18 @@ static PyObject* surf_get_losses(PyObject* self, PyObject* args)
     /*DOC*/    "Creates a new surface that shares pixel data of the given surface.\n"
     /*DOC*/    "Note that only the pixel data is shared. Things like clipping rectangles\n"
     /*DOC*/    "and colorkeys will be unique for the new surface.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The new subsurface will inherit the palette, colorkey, and surface alpha\n"
+    /*DOC*/    "values from the base image.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You should not use the RLEACCEL flag for parent surfaces of subsurfaces,\n"
+    /*DOC*/    "for the most part it will work, but it will cause a lot of extra work,\n"
+    /*DOC*/    "every time you change the subsurface, you must decode and recode the\n"
+    /*DOC*/    "RLEACCEL data for the parent surface.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "As for using RLEACCEL with the subsurfaces, that will work as you'd\n"
+    /*DOC*/    "expect, but changes the the parent Surface will not always take effect\n"
+    /*DOC*/    "in the subsurface.\n"
     /*DOC*/ ;
 
 static PyObject* surf_subsurface(PyObject* self, PyObject* args)
@@ -1251,6 +1263,10 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	/*copy the colormap if we need it*/
 	if(surf->format->BytesPerPixel == 1 && surf->format->palette)
 		SDL_SetPalette(sub, SDL_LOGPAL, surf->format->palette->colors, 0, surf->format->palette->ncolors);
+	if(surf->flags & SDL_SRCALPHA)
+		SDL_SetAlpha(sub, surf->flags&SDL_SRCALPHA, format->alpha);
+	if(surf->flags & SDL_SRCCOLORKEY)
+		SDL_SetColorKey(sub, surf->flags&(SDL_SRCCOLORKEY|SDL_RLEACCEL), format->colorkey);
 
 
 	data = PyMem_New(struct SubSurface_Data, 1);

@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was (or could have been) crashing
 
+July 21, 2001
+	all events can be posted, not just USEREVENT
+	subsurfaces inherit colorkey and alpha settings
+
 Jul 20, 2001
 	default font "finding" is smarter
 

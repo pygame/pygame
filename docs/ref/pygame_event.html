@@ -107,7 +107,7 @@ that are defined with each type.<br><table align=center>
 <tr><td><b>JOYBUTTONUP</b></td><td>joy, button</td></tr>
 <tr><td><b>JOYBUTTONDOWN</b></td><td>joy, button</td></tr>
 <tr><td><b>VIDEORESIZE</b></td><td>size</td></tr>
-<tr><td><b>USEREVENT</b></td><td>code, data1, data2</td></tr></table>
+<tr><td><b>USEREVENT</b></td><td>code</td></tr></table>
 
 <hr>
 
@@ -230,10 +230,12 @@ queue, this will return an event with type NOEVENT.
 </b></font><br><font size=+1><tt>
 pygame.event.post(Event) -> None
 </tt></font><ul>
-This will place an event onto the queue. This is most useful for
-putting your own events onto the queue. When the given event
-is a USEREVENT type, the event data will be passed through the
-event queue.
+This will post your own event objects onto the event queue.
+You can past any event type you want, but some care must be
+taken. For example, if you post a MOUSEBUTTONDOWN event to the
+queue, it is likely any code receiving the event will excpect
+the standard MOUSEBUTTONDOWN attributes to be available, like
+'pos' and 'button'.
 </ul><br>&nbsp;<br>
 
 <a name=pump><font size=+2><b>pump

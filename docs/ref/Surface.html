@@ -595,6 +595,18 @@ Surface.subsurface(rectstyle) -> Surface
 Creates a new surface that shares pixel data of the given surface.
 Note that only the pixel data is shared. Things like clipping rectangles
 and colorkeys will be unique for the new surface.
+<br>&nbsp;<br>
+The new subsurface will inherit the palette, colorkey, and surface alpha
+values from the base image.
+<br>&nbsp;<br>
+You should not use the RLEACCEL flag for parent surfaces of subsurfaces,
+for the most part it will work, but it will cause a lot of extra work,
+every time you change the subsurface, you must decode and recode the
+RLEACCEL data for the parent surface.
+<br>&nbsp;<br>
+As for using RLEACCEL with the subsurfaces, that will work as you'd
+expect, but changes the the parent Surface will not always take effect
+in the subsurface.
 </ul><br>&nbsp;<br>
 
 <a name=unlock><font size=+2><b>unlock
