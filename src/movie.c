@@ -214,7 +214,7 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 			SMPEG_getinfo(movie, &info);
 			SMPEG_scaleXY(movie, info.width, info.height);
 		}
-		else if(rect = GameRect_FromObject(posobj, &temp))
+		else if((rect = GameRect_FromObject(posobj, &temp)))
 		{
 			x = rect->x;
 			y = rect->y;
