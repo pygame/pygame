@@ -66,6 +66,10 @@ function can only save OPENGL surfaces if pyopengl is available.
 <hr>
 
 <table>
+<tr><td><a href=#frombuffer>frombuffer</a></td><td> -
+create a surface from a python memory buffer</td></tr>
+
+
 <tr><td><a href=#fromstring>fromstring</a></td><td> -
 create a surface from a raw string buffer</td></tr>
 
@@ -90,6 +94,18 @@ create a raw string buffer of the surface data</td></tr>
 
 <hr>
 
+<a name=frombuffer><font size=+2><b>frombuffer
+</b></font><br><font size=+1><tt>
+pygame.image.frombuffer(string, size, format) -> Surface
+</tt></font><ul>
+This works like the <a href=#fromstring>fromstring()</a> method, but uses Python
+buffer objects. It is about 20 times faster than <a href=#fromstring>fromstring()</a>.
+Strings and memory maps are examples of buffers in Python.
+<br>&nbsp;<br>
+See the <a href=#fromstring>fromstring()</a> function for information about the size
+and format arguments.
+</ul><br>&nbsp;<br>
+
 <a name=fromstring><font size=+2><b>fromstring
 </b></font><br><font size=+1><tt>
 pygame.image.fromstring(string, size, format, flipped=0) -> Surface
@@ -97,6 +113,9 @@ pygame.image.fromstring(string, size, format, flipped=0) -> Surface
 This will create a new Surface from a copy of raw data in
 a string. This can be used to transfer images from other
 libraries like PIL's <u>fromstring()</u>. 
+<br>&nbsp;<br>
+In most cases you can use the <a href=#frombuffer>frombuffer()</a> which accepts strings
+and is about 20 times faster.
 <br>&nbsp;<br>
 The flipped argument should be set to true if the image in
 the string is.

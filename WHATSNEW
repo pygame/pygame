@@ -5,6 +5,7 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 
 July 17, 2004
+    image.frombuffer() for lightning fast fromstring()'s
     SysFont extra styles being applied incorrect
     psuedo "configure" and "Makefile" for foolproof installs
     draw.aaline now works with pixel alphas
