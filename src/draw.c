@@ -147,6 +147,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	Uint32 color;
 	int closed;
 	int result, loop, length, drawn;
+	int startx, starty;
 
 	/*get all the arguments*/
 	if(!PyArg_ParseTuple(arg, "O!OOO|i", &PySurface_Type, &surfobj, &colorobj, &closedobj, &points, &width))
@@ -176,8 +177,8 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	Py_DECREF(item);
 	if(!result) return RAISE(PyExc_TypeError, "points must be number pairs");
 
-	pts[0] = left = right = x;
-	pts[1] = top = bottom = y;
+	startx = pts[0] = left = right = x;
+	starty = pts[1] = top = bottom = y;
 
 	if(width < 1)
 		return PyRect_New4((short)left, (short)top, 0, 0);
@@ -192,9 +193,10 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 		Py_DECREF(item);
 		if(!result) continue; /*note, we silently skip over bad points :[ */
 		++drawn;
-		pts[2] = x;
-		pts[3] = y;
-
+		pts[0] = startx;
+		pts[1] = starty;
+		startx = pts[2] = x;
+		starty = pts[3] = y;
 		if(clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts))
 		{
 			left = min(min(pts[0], pts[2]), left);
@@ -202,9 +204,6 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 			right = max(max(pts[0], pts[2]), right);
 			bottom = max(max(pts[1], pts[3]), bottom);
 		}
-
-		pts[0] = pts[2];
-		pts[1] = pts[3];
 	}
 	if(closed && drawn > 2)
 	{
@@ -213,6 +212,8 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 		Py_DECREF(item);
 		if(result)
 		{
+			pts[0] = startx;
+			pts[1] = starty;
 			pts[2] = x;
 			pts[3] = y;
 			clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
@@ -252,7 +253,6 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 	int range[4];
 	int anydrawn = 0;
 
-
 	if(abs(pts[0]-pts[2]) > abs(pts[1]-pts[3]))
 		yinc = 1;
 	else
@@ -270,7 +270,7 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 		range[2] = range[3] = -10000;
 	}
 
-	for(loop = 0; loop < width; loop += 2)
+	for(loop = 1; loop < width; loop += 2)
 	{
 		newpts[0] = pts[0] + xinc*(loop/2+1);
 		newpts[1] = pts[1] + yinc*(loop/2+1);
