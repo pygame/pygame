@@ -156,6 +156,10 @@ pygame.mixer.music.get_pos() -> val
 </tt></font><ul>
 Get the current (interpolated) time position of the music.
 Value is in ms, just like <a href=pygame_time.html#get_ticks>get_ticks()</a>.
+<br>&nbsp;<br>
+The returned time is only tracking the amount of music
+played. It will not reflect the result of starting the
+music at an offset.
 </ul><br>&nbsp;<br>
 
 <a name=get_volume><font size=+2><b>get_volume

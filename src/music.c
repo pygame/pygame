@@ -100,8 +100,8 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 	music_pos = 0;
 	music_pos_time = SDL_GetTicks();
 
-#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=4
-        val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
+#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
+        val = Mix_FadeInMusicPos(current_music, loops, 1, startpos);
 #else
         if(startpos)
             return RAISE(PyExc_NotImplementedError, "music start position requires SDL_mixer-1.2.4");
@@ -280,6 +280,10 @@ static PyObject* music_get_volume(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "Get the current (interpolated) time position of the music.\n"
     /*DOC*/    "Value is in ms, just like get_ticks().\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The returned time is only tracking the amount of music\n"
+    /*DOC*/    "played. It will not reflect the result of starting the\n"
+    /*DOC*/    "music at an offset.\n"
     /*DOC*/ ;
 
 static PyObject* music_get_pos(PyObject* self, PyObject* args)
