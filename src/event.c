@@ -283,6 +283,9 @@ static PyObject* dict_from_event(SDL_Event* event)
 	case SDL_VIDEORESIZE:
 		obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
 		insobj(dict, "size", obj);
+		insobj(dict, "w", PyInt_FromLong(event->resize.w));
+		insobj(dict, "h", PyInt_FromLong(event->resize.h));
+
 		break;
 /* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
 	}
