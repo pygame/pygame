@@ -72,7 +72,7 @@ draw multiple connected lines on a surface</td></tr>
 
 
 <tr><td><a href=#polygon>polygon</a></td><td> -
-draw multiple connected lines on a surface</td></tr>
+draws a polygon on a surface</td></tr>
 
 
 </table>
@@ -129,9 +129,10 @@ This function will temporarily lock the surface.
 </b></font><br><font size=+1><tt>
 pygame.draw.polygon(Surface, color, pointslist, width) -> Rect
 </tt></font><ul>
-Draws a polygonal shape on the Surface. The given points
-is the list of points to connect. If you pass a true
-value for the filled argument, the polygon will be filled in.
+Draws a polygonal shape on the Surface. The given pointlist
+is the vertices of the polygon. The width argument is
+the thickness to draw the outer edge. If width is zero then
+the ellipse will be filled.
 <br>&nbsp;<br>
 The color argument can be either a RGB sequence or mapped color integer.
 <br>&nbsp;<br>
