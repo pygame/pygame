@@ -73,12 +73,12 @@ pygame.event.set_blocked() to work with this filtering. All
 events default to allowed.
 <br>&nbsp;<br>
 Also know that you will not receive any events from a joystick
-device, until you have opened that joystick from the joystick
-module.<p>&nbsp;</p>An Event object contains an event type and a readonly set of
+device, until you have initialized that individual joystick from
+the joystick module.<p>&nbsp;</p>An Event object contains an event type and a readonly set of
 member data. The Event object contains no method functions, just
 member data. Event objects are retrieved from the pygame event
 queue. You can create your own new events with the
-pygame.event.event() function.
+pygame.event.Event() function.
 <br>&nbsp;<br>
 All Event objects contain an event type identifier in the
 Event.type member. You may also get full access to the Event's

@@ -415,8 +415,8 @@ static PyMethodDef init__builtins__[] =
 
     /*DOC*/ static char doc_pygame_MODULE[] =
     /*DOC*/    "Contains the core routines that are used by the rest of the\n"
-    /*DOC*/    "pyGame modules. It's routines are merged directly into the pygame\n"
-    /*DOC*/    "namespace. This mainly includes the autoinitialization init() and\n"
+    /*DOC*/    "pygame modules. It's routines are merged directly into the pygame\n"
+    /*DOC*/    "namespace. This mainly includes the auto-initialization init() and\n"
     /*DOC*/    "quit() routines.\n"
     /*DOC*/    "\n"
     /*DOC*/    "There is a small module named 'locals' that also gets merged into\n"

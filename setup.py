@@ -23,13 +23,16 @@ if sys.version_info[0] < 2:
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
 
+
 #get compile info for all extensions
 try:
     extensions = read_setup_file('Setup')
 except IOError:
     raise SystemExit, 'Need a "Setup" file for compiling.' + morehelp
 
+
 #extra files to install
+data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 data_files = []
 
 #add non .py files in lib directory
@@ -50,10 +53,12 @@ if sys.platform == 'win32':
             if os.path.isfile(p) and p not in data_files:
                 data_files.append(p)
 
+
 #don't need to actually compile the COPYLIB modules, remove them
 for e in extensions[:]:
     if e.name.startswith('COPYLIB_'):
         extensions.remove(e)
+
 
 #we can detect the presence of python dependencies, remove any unfound
 pythondeps = {'surfarray': ['Numeric']}
@@ -71,9 +76,9 @@ for e in extensions[:]:
 
 
 setup (name = "pygame",
-       version = '0.3',
+       version = '0.4',
        maintainer = "Pete Shinners",
-       maintainer_email = "shredwheat@mediaone.net",
+       maintainer_email = "pygame@seul.org",
        description = "Python Game Development module",
        url = "http://pygame.seul.org",
        packages = [''],
@@ -81,5 +86,5 @@ setup (name = "pygame",
        extra_path = ('pygame/ignore', 'pygame'),
        headers = headers,
        ext_modules = extensions,
-       data_files = [['pygame', data_files]]
+       data_files = [[data_path, data_files]]
      )  

@@ -211,7 +211,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "member data. The Event object contains no method functions, just\n"
     /*DOC*/    "member data. Event objects are retrieved from the pygame event\n"
     /*DOC*/    "queue. You can create your own new events with the\n"
-    /*DOC*/    "pygame.event.event() function.\n"
+    /*DOC*/    "pygame.event.Event() function.\n"
     /*DOC*/    "\n"
     /*DOC*/    "All Event objects contain an event type identifier in the\n"
     /*DOC*/    "Event.type member. You may also get full access to the Event's\n"
@@ -744,8 +744,8 @@ static PyMethodDef event_builtins[] =
     /*DOC*/    "events default to allowed.\n"
     /*DOC*/    "\n"
     /*DOC*/    "Also know that you will not receive any events from a joystick\n"
-    /*DOC*/    "device, until you have opened that joystick from the joystick\n"
-    /*DOC*/    "module.\n"
+    /*DOC*/    "device, until you have initialized that individual joystick from\n"
+    /*DOC*/    "the joystick module.\n"
     /*DOC*/ ;
 
 void initevent()

@@ -701,7 +701,7 @@ static PyObject* cd_getattr(PyObject* self, char* attrname)
 
     /*DOC*/ static char doc_CD_MODULE[] =
     /*DOC*/    "The CD object represents a CDROM drive and allows you to\n"
-    /*DOC*/    "access the CD inside that drive. All functions (except get_name())\n"
+    /*DOC*/    "access the CD inside that drive. All functions (except get_name() and get_id())\n"
     /*DOC*/    "require the CD object to be initialized. This is done with the\n"
     /*DOC*/    "CD.init() function.\n"
     /*DOC*/    "\n"

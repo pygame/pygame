@@ -291,6 +291,7 @@ def main(winstyle = 0):
         keystate = pygame.key.get_pressed()
         if keystate[K_ESCAPE] or pygame.event.peek(QUIT):
             break
+        
 
         if difficulty:
             difficulty -= 1

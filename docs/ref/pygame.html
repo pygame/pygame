@@ -43,8 +43,8 @@
 <br>
 <h2 align=center>pygame</h2>
 Contains the core routines that are used by the rest of the
-pyGame modules. It's routines are merged directly into the pygame
-namespace. This mainly includes the autoinitialization init() and
+pygame modules. It's routines are merged directly into the pygame
+namespace. This mainly includes the auto-initialization init() and
 quit() routines.
 <br>&nbsp;<br>
 There is a small module named 'locals' that also gets merged into
@@ -64,7 +64,7 @@ create a new rectangle</td></tr>
 
 
 <tr><td><a href=#Surface>Surface</a></td><td> -
-Surface</td></tr>
+create a new Surface</td></tr>
 
 
 <tr><td><a href=#get_error>get_error</a></td><td> -
@@ -104,9 +104,8 @@ corner, and the width and height.
 
 <a name=Surface><font size=+2><b>Surface
 </b></font><br><font size=+1><tt>
-pygame.Surface(size, [flags, [depth|Surface, [masks]]]) ->
+pygame.Surface(size, [flags, [depth|Surface, [masks]]]) -> Surface
 </tt></font><ul>
-<br>&nbsp;<br>
 Creates a new surface object. Size is a 2-int-sequence containing
 width and height. Depth is the number of bits used per pixel. If
 omitted, depth will use the current display depth. Masks is a

@@ -1,12 +1,12 @@
-Version: 0.3
-November 20, 2000
+Version: 0.4
+December 13, 2000
 (Installation instructions and more in the "docs" directory...)
 
 
-With the 0.3 release things are looking really good. We've reached
+With the 0.4 release things are looking really good. We've reached
 the point where full python games are approachable with pygame.
 Thanks to all that have helped push things along this far. 
-
+(Especially coming through the bumpy road that was 0.2 through 0.3)
 
 
 pygame is a cross-platfrom library designed to make it easy to write

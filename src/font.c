@@ -660,7 +660,7 @@ static PyObject* PyFont_New(TTF_Font* font)
     /*DOC*/    "Most of the work done with fonts are done by using the actual\n"
     /*DOC*/    "Font objects. The module by itself only has routines to\n"
     /*DOC*/    "initialize the module and create Font objects with\n"
-    /*DOC*/    "pygame.font.font().\n"
+    /*DOC*/    "pygame.font.Font().\n"
     /*DOC*/ ;
 
 void initfont()
