@@ -80,13 +80,13 @@ def main():
 		move_stars(stars)
 		draw_stars(screen, stars, white)
 		pygame.display.update()
-
 		for e in pygame.event.get():
 			if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
 				done = 1
 				break
 			elif e.type == MOUSEBUTTONDOWN and e.button == 1:
 				WINCENTER[:] = list(e.pos)
+
 
 
 # if python says run, then we should run

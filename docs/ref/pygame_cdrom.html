@@ -42,13 +42,29 @@
 </td></tr></table>
 <br>
 <h2 align=center>pygame.cdrom</h2>
-thin wrapper around the SDL CDROM api, likely to
-change
+The cdrom module provides a few functions to initialize
+the CDROM subsystem and to manage the CD objects. The CD
+objects are created with the pygame.cdrom.CD() function.
+This function needs a cdrom device number to work on. All
+cdrom drives on the system are enumerated for use as a CD
+object. To access most of the CD functions, you'll need to
+Init() the CD object. (note that the cdrom module will already
+be initialized). When multiple CD objects are created for the
+same CDROM device, the state and values for those CD objects
+will be shared.
+<br>&nbsp;<br>
+You can call the CD.get_name() function withouth initializing
+the CD object. This function returns the system name given to
+that CDROM drive.
 
 <hr>
 
 <table>
-<tr><td><a href=#count>count</a></td><td> -
+<tr><td><a href=#CD>CD</a></td><td> -
+create new CD object</td></tr>
+
+
+<tr><td><a href=#get_count>get_count</a></td><td> -
 query number of cdroms on system</td></tr>
 
 
@@ -60,14 +76,6 @@ query init of cdrom module</td></tr>
 initialize the cdrom subsystem</td></tr>
 
 
-<tr><td><a href=#name>name</a></td><td> -
-query name of cdrom drive</td></tr>
-
-
-<tr><td><a href=#open>open</a></td><td> -
-open cd device</td></tr>
-
-
 <tr><td><a href=#quit>quit</a></td><td> -
 uninitialize the cdrom subsystem</td></tr>
 
@@ -76,12 +84,20 @@ uninitialize the cdrom subsystem</td></tr>
 
 <hr>
 
-<a name=count><font size=+2><b>count
+<a name=CD><font size=+2><b>CD
 </b></font><br><font size=+1><tt>
-pygame.cdrom.count() -> int
+pygame.cdrom.CD(id) -> CD
+</tt></font><ul>
+Creates a new CD object for the given CDROM id. The given id
+must be less than the value from <a href=#get_count>pygame.cdrom.get_count()</a>.
+</ul><br>&nbsp;<br>
+
+<a name=get_count><font size=+2><b>get_count
+</b></font><br><font size=+1><tt>
+pygame.cdrom.get_count() -> int
 </tt></font><ul>
 Returns the number of CDROM drives available on
-the system
+the system.
 </ul><br>&nbsp;<br>
 
 <a name=get_init><font size=+2><b>get_init
@@ -96,21 +112,6 @@ Returns true of the cdrom module is initialized
 pygame.cdrom.init() -> None
 </tt></font><ul>
 Initialize the CDROM module manually
-</ul><br>&nbsp;<br>
-
-<a name=name><font size=+2><b>name
-</b></font><br><font size=+1><tt>
-pygame.cdrom.name(id) -> string
-</tt></font><ul>
-Returns the name of the CDROM device, given by the
-system.
-</ul><br>&nbsp;<br>
-
-<a name=open><font size=+2><b>open
-</b></font><br><font size=+1><tt>
-pygame.cdrom.open(id) -> CD
-</tt></font><ul>
-Creates a new CD object for the given CDROM id.
 </ul><br>&nbsp;<br>
 
 <a name=quit><font size=+2><b>quit

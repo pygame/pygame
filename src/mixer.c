@@ -663,7 +663,7 @@ static PyObject* channel_getattr(PyObject* self, char* attrname)
     /*DOC*/    "control.\n"
     /*DOC*/    "\n"
     /*DOC*/    "Sound objects can be retrieved from the pygame.mixer module with\n"
-    /*DOC*/    "functions like pygame.mixer.get_channel() and\n"
+    /*DOC*/    "functions like pygame.mixer.Channel() and\n"
     /*DOC*/    "pygame.mixer.find_channel(). Also, each time you call\n"
     /*DOC*/    "Sound.play() a Channel object will be returned, representing the\n"
     /*DOC*/    "channel that sound is playing on.\n"
@@ -782,15 +782,15 @@ static PyObject* get_busy(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_get_channel[] =
-    /*DOC*/    "pygame.mixer.get_channel(int) -> Channel\n"
+    /*DOC*/ static char doc_Channel[] =
+    /*DOC*/    "pygame.mixer.Channel(int) -> Channel\n"
     /*DOC*/    "get channel object\n"
     /*DOC*/    "\n"
     /*DOC*/    "Get a channel object for the given channel. This number must be\n"
     /*DOC*/    "less that the current number of channels.\n"
     /*DOC*/ ;
 
-static PyObject* get_channel(PyObject* self, PyObject* args)
+static PyObject* Channel(PyObject* self, PyObject* args)
 {
 	int chan;
 	if(!PyArg_ParseTuple(args, "i", &chan))
@@ -911,8 +911,8 @@ static PyObject* unpause(PyObject* self, PyObject* args)
 
 
 
-    /*DOC*/ static char doc_load[] =
-    /*DOC*/    "pygame.mixer.load(file) -> Sound\n"
+    /*DOC*/ static char doc_Sound[] =
+    /*DOC*/    "pygame.mixer.Sound(file) -> Sound\n"
     /*DOC*/    "load a new soundfile\n"
     /*DOC*/    "\n"
     /*DOC*/    "Loads a new sound object from a WAV file. File can be a filename\n"
@@ -920,7 +920,7 @@ static PyObject* unpause(PyObject* self, PyObject* args)
     /*DOC*/    "current mode of the mixer.\n"
     /*DOC*/ ;
 
-static PyObject* load(PyObject* self, PyObject* arg)
+static PyObject* Sound(PyObject* self, PyObject* arg)
 {
 	PyObject* file;
 	char* name = NULL;
@@ -969,7 +969,7 @@ static PyMethodDef mixer_builtins[] =
 	{ "set_reserved", set_reserved, 1, doc_set_reserved },
 
 	{ "get_busy", get_busy, 1, doc_get_busy },
-	{ "get_channel", get_channel, 1, doc_get_channel },
+	{ "Channel", Channel, 1, doc_Channel },
 	{ "find_channel", find_channel, 1, doc_find_channel },
 	{ "fadeout", fadeout, 1, doc_fadeout },
 	{ "stop", stop, 1, doc_stop },
@@ -977,7 +977,7 @@ static PyMethodDef mixer_builtins[] =
 	{ "unpause", unpause, 1, doc_unpause },
 /*	{ "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
 
-	{ "load", load, 1, doc_load },
+	{ "Sound", Sound, 1, doc_Sound },
 
 	{ NULL, NULL }
 };
@@ -1037,7 +1037,7 @@ static PyObject* PyChannel_New(int channelnum)
     /*DOC*/    "play the sound. Each Sound object can be played multiple times\n"
     /*DOC*/    "simultaneously. If you desire more specific control over the\n"
     /*DOC*/    "Sound objects, you can access the Channel objects with functions\n"
-    /*DOC*/    "like pygame.mixer.get_channel().\n"
+    /*DOC*/    "like pygame.mixer.Channel().\n"
     /*DOC*/    "\n"
     /*DOC*/    "The mixer defaults to supporting 8 simultaneous soundfiles.\n"
     /*DOC*/    "You can change the number of available sound channels at any\n"

@@ -277,8 +277,8 @@ static PyObject* PyEvent_New2(int type, PyObject* dict)
 /* event module functions */
 
 
-    /*DOC*/ static char doc_new_event[] =
-    /*DOC*/    "pygame.event.new_event(type, dict) -> Event\n"
+    /*DOC*/ static char doc_Event[] =
+    /*DOC*/    "pygame.event.Event(type, dict) -> Event\n"
     /*DOC*/    "create new event object\n"
     /*DOC*/    "\n"
     /*DOC*/    "Creates a new event object. The type should be one\n"
@@ -288,7 +288,7 @@ static PyObject* PyEvent_New2(int type, PyObject* dict)
     /*DOC*/    "object.\n"
     /*DOC*/ ;
 
-static PyObject* new_event(PyObject* self, PyObject* arg)
+static PyObject* Event(PyObject* self, PyObject* arg)
 {
 	PyObject* dict;
 	int type;
@@ -685,7 +685,7 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 
 static PyMethodDef event_builtins[] =
 {
-	{ "new_event", new_event, 1, doc_new_event },
+	{ "Event", Event, 1, doc_Event },
 	{ "event_name", event_name, 1, doc_event_name },
 
 	{ "set_grab", set_grab, 1, doc_set_grab },

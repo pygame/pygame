@@ -36,7 +36,7 @@ ALIEN_ODDS     = 36
 ALIEN_RELOAD   = 12
 EXPLODE_TIME   = 40
 MAX_EXPLOSIONS = 4
-SCREENRECT     = new_rect(0, 0, 640, 480)
+SCREENRECT     = Rect(0, 0, 640, 480)
 ANIMCYCLE      = 18
 PLODECYCLE     = 7
 BULLET_OFFSET  = 11
@@ -80,7 +80,7 @@ def load_sound(file):
     if not pygame.mixer: return dummysound()
     file = os.path.join('data', file)
     try:
-        sound = pygame.mixer.load(file)
+        sound = pygame.mixer.Sound(file)
         return sound
     except pygame.error:
         print 'Warning, unable to load,', file
@@ -244,7 +244,7 @@ def main(winstyle = 0):
     Snd.shot = load_sound('car_door.wav')
 
     # Create the background
-    background = new_surface(SCREENRECT.size)
+    background = pygame.Surface(SCREENRECT.size)
     for x in range(0, SCREENRECT.width, Img.background.get_width()):
         background.blit(Img.background, (x, 0))
     screen.blit(background, (0,0))
@@ -381,10 +381,10 @@ def main(winstyle = 0):
 
     #attempt to show game over (if font installed)
     if font:
-        f = font.new_font(None, 100) #None means default font
+        f = font.Font(None, 100) #None means default font
         f.set_italic(1)
         text = f.render('Game Over', 1, (200, 200, 200))
-        textrect = new_rect((0, 0), text.get_size())
+        textrect = Rect((0, 0), text.get_size())
         textrect.center = SCREENRECT.center
         screen.blit(text, textrect.topleft)
         pygame.display.flip()

@@ -157,13 +157,13 @@ typedef struct {
 #define PYGAMEAPI_CDROM_NUMSLOTS 2
 typedef struct {
 	PyObject_HEAD
-	SDL_CD* cd;
+	int id;
 } PyCDObject;
-#define PyCD_AsCD(x) (((PyCDObject*)x)->cd)
+#define PyCD_AsID(x) (((PyCDObject*)x)->id)
 #ifndef PYGAMEAPI_CDROM_INTERNAL
 #define PyCD_Check(x) ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
 #define PyCD_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 0])
-#define PyCD_New (*(PyObject*(*)(SDL_CD*))PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 1])
+#define PyCD_New (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 1])
 #define import_pygame_cd() { \
 	PyObject *module = PyImport_ImportModule("pygame.cdrom"); \
 	if (module != NULL) { \

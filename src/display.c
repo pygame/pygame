@@ -31,7 +31,7 @@
 staticforward PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
 
-
+#if 0
 /*quick internal test to see if gamma is supported*/
 static int check_hasgamma()
 {
@@ -44,7 +44,7 @@ printf("...done\n");
 */
 	return result;
 }
-
+#endif
 
 
 
@@ -299,8 +299,8 @@ static PyObject* get_driver(PyObject* self, PyObject* args)
 
 
 
-    /*DOC*/ static char doc_get_info[] =
-    /*DOC*/    "pygame.display.get_info() -> VidInfo\n"
+    /*DOC*/ static char doc_Info[] =
+    /*DOC*/    "pygame.display.Info() -> VidInfo\n"
     /*DOC*/    "get display capabilities and settings\n"
     /*DOC*/    "\n"
     /*DOC*/    "Gets a vidinfo object that contains information about the\n"
@@ -310,7 +310,7 @@ static PyObject* get_driver(PyObject* self, PyObject* args)
     /*DOC*/    "You can print the VidInfo object to see all its members and values.\n"
     /*DOC*/ ;
 
-static PyObject* get_info(PyObject* self, PyObject* arg)
+static PyObject* Info(PyObject* self, PyObject* arg)
 {
 	const SDL_VideoInfo* info;
 
@@ -769,9 +769,9 @@ static PyMethodDef display_builtins[] =
 	{ "get_init", get_init, 1, doc_get_init },
 	{ "get_active", get_active, 1, doc_get_active },
 
-/*	{ "set_driver", set_driver, 1, doc_set_driver },
-*/	{ "get_driver", get_driver, 1, doc_get_driver },
-	{ "get_info", get_info, 1, doc_get_info },
+/*	{ "set_driver", set_driver, 1, doc_set_driver },*/
+	{ "get_driver", get_driver, 1, doc_get_driver },
+	{ "Info", Info, 1, doc_Info },
 	{ "get_surface", get_surface, 1, doc_get_surface },
 
 	{ "set_mode", set_mode, 1, doc_set_mode },

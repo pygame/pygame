@@ -26,7 +26,7 @@ def main():
     screen.fill(wincolor)
 
     #load font, prepare values
-    font = pygame.font.new_font(None, 80)
+    font = pygame.font.Font(None, 80)
     text = 'Fonty'
     size = font.size(text)
 

@@ -16,7 +16,7 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 ##    Pete Shinners
-##    pete@shinnerso.org
+##    pete@shinners.org
 
 
 
@@ -24,6 +24,4 @@
 the local namespace for your module"""
 
 from constants import *
-from rect import new_rect
-from surface import new_surface
-from event import new_event
+from rect import Rect

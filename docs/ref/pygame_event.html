@@ -91,16 +91,16 @@ objects for a quick display of its type and members.
 <hr>
 
 <table>
+<tr><td><a href=#Event>Event</a></td><td> -
+create new event object</td></tr>
+
+
 <tr><td><a href=#event_name>event_name</a></td><td> -
 name for event type</td></tr>
 
 
 <tr><td><a href=#get>get</a></td><td> -
 get all of an event type from the queue</td></tr>
-
-
-<tr><td><a href=#new_event>new_event</a></td><td> -
-create new event object</td></tr>
 
 
 <tr><td><a href=#peek>peek</a></td><td> -
@@ -139,6 +139,17 @@ wait for an event</td></tr>
 
 <hr>
 
+<a name=Event><font size=+2><b>Event
+</b></font><br><font size=+1><tt>
+pygame.event.Event(type, dict) -> Event
+</tt></font><ul>
+Creates a new event object. The type should be one
+of SDL's event numbers, or above USER_EVENT. The
+given dictionary contains a list of readonly
+attributes that will be members of the event
+object.
+</ul><br>&nbsp;<br>
+
 <a name=event_name><font size=+2><b>event_name
 </b></font><br><font size=+1><tt>
 pygame.event.event_name(event type) -> string
@@ -158,17 +169,6 @@ types are passed, this will return all the events from the queue.
 You may also optionally pass a sequence of event types. For
 example, to fetch all the keyboard events from the queue, you
 would call, 'pygame.event.get([KEYDOWN,KEYUP])'.
-</ul><br>&nbsp;<br>
-
-<a name=new_event><font size=+2><b>new_event
-</b></font><br><font size=+1><tt>
-pygame.event.new_event(type, dict) -> Event
-</tt></font><ul>
-Creates a new event object. The type should be one
-of SDL's event numbers, or above USER_EVENT. The
-given dictionary contains a list of readonly
-attributes that will be members of the event
-object.
 </ul><br>&nbsp;<br>
 
 <a name=peek><font size=+2><b>peek

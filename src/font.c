@@ -573,8 +573,8 @@ static PyTypeObject PyFont_Type =
 
 /*font module methods*/
 
-    /*DOC*/ static char doc_font_font[] =
-    /*DOC*/    "pygame.font.new_font(file, size) -> Font\n"
+    /*DOC*/ static char doc_Font[] =
+    /*DOC*/    "pygame.font.Font(file, size) -> Font\n"
     /*DOC*/    "create a new font object\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will create a new font object. The given file must be a\n"
@@ -584,7 +584,7 @@ static PyTypeObject PyFont_Type =
     /*DOC*/    "default font.\n"
     /*DOC*/ ;
 
-static PyObject* font_font(PyObject* self, PyObject* args)
+static PyObject* Font(PyObject* self, PyObject* args)
 {
 	PyObject* fileobj;
 	char* filename;
@@ -627,7 +627,7 @@ static PyMethodDef font_builtins[] =
 	{ "quit", font_quit, 1, doc_quit },
 	{ "get_init", get_init, 1, doc_get_init },
 
-	{ "new_font", font_font, 1, doc_font_font },
+	{ "Font", Font, 1, doc_Font },
 
 	{ NULL, NULL }
 };
