@@ -56,11 +56,11 @@ Rect contains helpful methods, as well as a list of
 modifiable members:
 top, bottom, left, right, topleft, topright,
 bottomleft, bottomright, size, width, height,
-center, centerx, centery. When changing these
-members, the rectangle will be moved to the given
-assignment. (except when changing the size, width,
-or height member, which will resize the rectangle
-around the center).
+center, centerx, centery, midleft, midright, midtop,
+midbottom. When changing thesemembers, the rectangle
+will be moved to the given assignment. (except when
+changing the size, width, or height member, which will
+resize the rectangle from the topleft corner)
 <br>&nbsp;<br>
 The rectstyle arguments used frequently with the
 Rect object (and elsewhere in pygame) is one of
@@ -118,6 +118,10 @@ corrects negative sizes</td></tr>
 
 <tr><td><a href=#union>union</a></td><td> -
 rectangle covering both input</td></tr>
+
+
+<tr><td><a href=#unionall>unionall</a></td><td> -
+rectangle covering all inputs</td></tr>
 
 
 </table>
@@ -223,6 +227,15 @@ place.
 Rect.union(rectstyle) -> Rect
 </tt></font><ul>
 Returns a new rectangle that completely covers the
+given inputs. There may be area inside the new
+rectangle that is not covered by the inputs.
+</ul><br>&nbsp;<br>
+
+<a name=unionall><font size=+2><b>unionall
+</b></font><br><font size=+1><tt>
+Rect.unionall(sequence_of_rectstyles) -> Rect
+</tt></font><ul>
+Returns a new rectangle that completely covers all the
 given inputs. There may be area inside the new
 rectangle that is not covered by the inputs.
 </ul><br>&nbsp;<br>

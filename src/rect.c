@@ -253,6 +253,57 @@ static PyObject* rect_union(PyObject* oself, PyObject* args)
 }
 
 
+    /*DOC*/ static char doc_unionall[] =
+    /*DOC*/    "Rect.unionall(sequence_of_rectstyles) -> Rect\n"
+    /*DOC*/    "rectangle covering all inputs\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a new rectangle that completely covers all the\n"
+    /*DOC*/    "given inputs. There may be area inside the new\n"
+    /*DOC*/    "rectangle that is not covered by the inputs.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_unionall(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	GAME_Rect *argrect, temp;
+	int loop, size;
+	PyObject* list, *obj;
+	int t, l, b, r;
+
+	if(!PyArg_ParseTuple(args, "O", &list))
+		return NULL;
+	if(!PySequence_Check(list))
+		return RAISE(PyExc_TypeError, "Argument must be a sequence of rectstyle objects.");
+
+	l = self->r.x;
+	t = self->r.y;
+	r = self->r.x + self->r.w;
+	b = self->r.y + self->r.h;
+
+	size = PySequence_Length(list); /*warning, size could be -1 on error?*/
+	if(size < 1)
+		return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
+
+	for(loop = 0; loop < size; ++loop)
+	{
+		obj = PySequence_GetItem(list, loop);
+		if(!obj || !(argrect = GameRect_FromObject(obj, &temp)))
+		{
+			RAISE(PyExc_TypeError, "Argument must be a sequence of rectstyle objects.");
+			Py_XDECREF(obj);
+			break;
+		}
+		t = min(t, argrect->x);
+		l = min(l, argrect->y);
+		r = max(b, argrect->x+argrect->w);
+		b = max(b, argrect->y+argrect->h);
+		Py_DECREF(obj);
+	}
+
+	return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
+}
+
+
     /*DOC*/ static char doc_collidepoint[] =
     /*DOC*/    "Rect.collidepoint(x, y) -> bool\n"
     /*DOC*/    "point inside rectangle\n"
@@ -535,6 +586,7 @@ static struct PyMethodDef rect_methods[] =
 	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},		
 	{"clip",			(PyCFunction)rect_clip,			1, doc_clip},
 	{"union",			(PyCFunction)rect_union,		1, doc_union},
+	{"unionall",		(PyCFunction)rect_unionall,		1, doc_unionall},
 	{"collidepoint",	(PyCFunction)rect_collidepoint,	1, doc_collidepoint},
 	{"colliderect",		(PyCFunction)rect_colliderect,	1, doc_colliderect},
 	{"collidelist",		(PyCFunction)rect_collidelist,	1, doc_collidelist},
@@ -791,6 +843,7 @@ static PyObject *rect_getattr(PyRectObject *self, char *name)
 		ret = PyInt_FromLong(r->x+r->w/2);
 	else if(!strcmp(name, "centery"))
 		ret = PyInt_FromLong(r->y+r->h/2);
+
 	else if(!strcmp(name, "topleft"))
 		ret = Py_BuildValue("(ii)", r->x, r->y);
 	else if(!strcmp(name, "bottomleft"))
@@ -803,6 +856,16 @@ static PyObject *rect_getattr(PyRectObject *self, char *name)
 		ret = Py_BuildValue("(ii)", r->w, r->h);
 	else if(!strcmp(name, "center"))
 		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y + r->h / 2);
+
+	else if(!strcmp(name, "midleft"))
+		ret = Py_BuildValue("(ii)", r->x, r->y + r->h / 2);
+	else if(!strcmp(name, "midright"))
+		ret = Py_BuildValue("(ii)", r->x + r->w, r->y + r->h / 2);
+	else if(!strcmp(name, "midtop"))
+		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y);
+	else if(!strcmp(name, "midbottom"))
+		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y + r->h);
+	
 	else
 		ret = Py_FindMethod(rect_methods, (PyObject *)self, name);
 
@@ -910,7 +973,45 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 			ret = 0;
 		}
 	}
-	else
+
+	else if(!strcmp(name, "midleft"))
+	{
+		if(TwoShortsFromObj(op, &val1, &val2))
+		{
+			r->x = val1;
+			r->y += val2 - (r->y + r->h / 2);
+			ret = 0;
+		}
+	}
+	else if(!strcmp(name, "midright"))
+	{
+		if(TwoShortsFromObj(op, &val1, &val2))
+		{
+			r->x = val1 - r->w;
+			r->y += val2 - (r->y + r->h / 2);
+			ret = 0;
+		}
+	}
+	else if(!strcmp(name, "midtop"))
+	{
+		if(TwoShortsFromObj(op, &val1, &val2))
+		{
+			r->x += val1 - (r->x + r->w / 2);
+			r->y = val2;
+			ret = 0;
+		}
+	}
+	else if(!strcmp(name, "midbottom"))
+	{
+		if(TwoShortsFromObj(op, &val1, &val2))
+		{
+			r->x += val1 - (r->x + r->w / 2);
+			r->y = val2 - r->h;
+			ret = 0;
+		}
+	}
+	
+	else	
 	{
 		RAISE(PyExc_AttributeError, "Attribute cannot be modified");
 		return -1;
@@ -934,11 +1035,11 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
     /*DOC*/    "modifiable members:\n"
     /*DOC*/    "top, bottom, left, right, topleft, topright,\n"
     /*DOC*/    "bottomleft, bottomright, size, width, height,\n"
-    /*DOC*/    "center, centerx, centery. When changing these\n"
-    /*DOC*/    "members, the rectangle will be moved to the given\n"
-    /*DOC*/    "assignment. (except when changing the size, width,\n"
-    /*DOC*/    "or height member, which will resize the rectangle\n"
-    /*DOC*/    "around the center).\n"
+    /*DOC*/    "center, centerx, centery, midleft, midright, midtop,\n"
+	/*DOC*/    "midbottom. When changing thesemembers, the rectangle\n"
+    /*DOC*/    "will be moved to the given assignment. (except when\n"
+    /*DOC*/    "changing the size, width, or height member, which will\n"
+    /*DOC*/    "resize the rectangle from the topleft corner)\n"
     /*DOC*/    "\n"
     /*DOC*/    "The rectstyle arguments used frequently with the\n"
     /*DOC*/    "Rect object (and elsewhere in pygame) is one of\n"
