@@ -85,41 +85,41 @@ The following constants are made available, but generally not needed</td></tr>
 </b></font><br><font size=+1><tt>
 pygame.constants.display (constants)
 </tt></font><ul>
-HWSURFACE - surface in hardware video memory. (equal to 1)<br>
-RESIZEABLE - display window is resizeable<br>
-ASYNCBLIT - surface blits happen asynchronously (threaded)<br>
-OPENGL - display surface will be controlled by opengl<br>
+HWSURFACE - surface in hardware video memory. (equal to 1)&lt;br&gt;
+RESIZEABLE - display window is resizeable&lt;br&gt;
+ASYNCBLIT - surface blits happen asynchronously (threaded)&lt;br&gt;
+OPENGL - display surface will be controlled by opengl&lt;br&gt;
 OPENGLBLIT - opengl controlled display surface will allow sdl
-blits<br>
+blits&lt;br&gt;
 HWPALETTE - display surface has animatable hardware palette
-entries<br>
-DOUBLEBUF - hardware display surface is page flippable<br>
-FULLSCREEN - display surface is fullscreen (nonwindowed)<br>
+entries&lt;br&gt;
+DOUBLEBUF - hardware display surface is page flippable&lt;br&gt;
+FULLSCREEN - display surface is fullscreen (nonwindowed)&lt;br&gt;
 RLEACCEL - compile for quick alpha blits, only set in alpha or
-colorkey funcs<br>
+colorkey funcs&lt;br&gt;
 </ul><br>&nbsp;<br>
 
 <a name=events ><font size=+2><b>events 
 </b></font><br><font size=+1><tt>
 pygame.constants.events (constants)
 </tt></font><ul>
-NOEVENT - no event, represents an empty event list, equal to 0<br>
-ACTIVEEVENT - window has gain/lost mouse/keyboard/visiblity focus<br>
-KEYDOWN - keyboard button has been pressed (or down and repeating)<br>
-KEYUP - keyboard button has been released<br>
-MOUSEMOTION - mouse has moved<br>
-MOUSEBUTTONDOWN- mouse button has been pressed<br>
-MOUSEBUTTONUP - mouse button has been released<br>
-JOYAXISMOTION - an opened joystick axis has changed<br>
-JOYBALLMOTION - an opened joystick ball has moved<br>
-JOYHATMOTION - an opened joystick hat has moved<br>
-JOYBUTTONDOWN - an opened joystick button has been pressed<br>
-JOYBUTTONUP - an opened joystick button has been released<br>
-VIDEORESIZE - the display window has been resized by the user<br>
-QUIT - the user has requested the game to quit<br>
-SYSWMEVENT - currently unsupported, system dependant<br>
-USEREVENTS - all user messages are this or higher<br>
-NUMEVENTS - all user messages must be lower than this, equal to 32<br>
+NOEVENT - no event, represents an empty event list, equal to 0&lt;br&gt;
+ACTIVEEVENT - window has gain/lost mouse/keyboard/visiblity focus&lt;br&gt;
+KEYDOWN - keyboard button has been pressed (or down and repeating)&lt;br&gt;
+KEYUP - keyboard button has been released&lt;br&gt;
+MOUSEMOTION - mouse has moved&lt;br&gt;
+MOUSEBUTTONDOWN- mouse button has been pressed&lt;br&gt;
+MOUSEBUTTONUP - mouse button has been released&lt;br&gt;
+JOYAXISMOTION - an opened joystick axis has changed&lt;br&gt;
+JOYBALLMOTION - an opened joystick ball has moved&lt;br&gt;
+JOYHATMOTION - an opened joystick hat has moved&lt;br&gt;
+JOYBUTTONDOWN - an opened joystick button has been pressed&lt;br&gt;
+JOYBUTTONUP - an opened joystick button has been released&lt;br&gt;
+VIDEORESIZE - the display window has been resized by the user&lt;br&gt;
+QUIT - the user has requested the game to quit&lt;br&gt;
+SYSWMEVENT - currently unsupported, system dependant&lt;br&gt;
+USEREVENTS - all user messages are this or higher&lt;br&gt;
+NUMEVENTS - all user messages must be lower than this, equal to 32&lt;br&gt;
 </ul><br>&nbsp;<br>
 
 <a name=keyboard ><font size=+2><b>keyboard 
@@ -129,9 +129,9 @@ pygame.constants.keyboard (constants)
 There are many keyboard constants, they are used to represent
 keys on the keyboard. The following is a list of all keyboard
 constants
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 K_UNKNOWN, K_FIRST, K_BACKSPACE, K_TAB, K_CLEAR, K_RETURN,
-K_PAUSE,<br>
+K_PAUSE,&lt;br&gt;
 .... list unfinished, sorry :-P
 </ul><br>&nbsp;<br>
 
@@ -141,10 +141,10 @@ pygame.constants.modifiers (constants)
 </tt></font><ul>
 Their states are treated slightly differently than normal
 keyboard button states, and you can temporarily set their states.
-<br>&nbsp;<br>
-KMOD_NONE, KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT, KMOD_CAPS,<br>
-KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,<br>
-KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, kMOD_MODE<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
+KMOD_NONE, KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT, KMOD_CAPS,&lt;br&gt;
+KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,&lt;br&gt;
+KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, kMOD_MODE&lt;br&gt;
 </ul><br>&nbsp;<br>
 
 <a name=zdepracated ><font size=+2><b>zdepracated 
@@ -153,20 +153,19 @@ pygame.constants.zdepracated (constants)
 </tt></font><ul>
 The flags labeled as readonly should never be used,
 except when comparing checking flags against <a href=Surface.html#get_flags>Surface.get_flags()</a>.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 SWSURFACE - not really usable as a surface flag, equates to 0 and
-is always default<br>
+is always default&lt;br&gt;
 ANYFORMAT - used to create surfaces, pygame defaults to this flag
-if you don't specifya bit depth<br>
-HWACCEL - surface is hardware accelerated, readonly<br>
-SRCCOLORKEY- surface has a colorkey for blits, readonly<br>
-SRCALPHA - surface has alpha enabled, readonly<br>
+if you don't specifya bit depth&lt;br&gt;
+HWACCEL - surface is hardware accelerated, readonly&lt;br&gt;
+SRCCOLORKEY- surface has a colorkey for blits, readonly&lt;br&gt;
+SRCALPHA - surface has alpha enabled, readonly&lt;br&gt;
 RLEACCELOK - surface is rle accelerated, but hasn't been compiled
-yet, readonly<br>
-PREALLOC - not even sure?<br>
+yet, readonly&lt;br&gt;
+PREALLOC - not even sure?&lt;br&gt;
 </ul><br>&nbsp;<br>
 
 
 <hr>
-
 </body></html>
