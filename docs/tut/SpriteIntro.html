@@ -107,7 +107,7 @@ this will likely use iterators for better performance.<br>
  As a shortcut, the Group also has an update() method, which will call an 
 update() method on every sprite in the group. Passing the same arguments to
 each one. Usually in a game you need some function that updates the state 
-of a game object. It's very easy to call your own methods using the Group.loop() 
+of a game object. It's very easy to call your own methods using the Group.sprites() 
 method, but this is a shortcut that's used enough to be included. Also note 
 that the base Sprite class has a "dummy" update() method that takes any sort 
 of arguments and does nothing.<br>
@@ -133,9 +133,9 @@ pellet, we can change the state for all ghost objects by effecting everything
 in the Ghost group. This is quicker and simpler than looping through a list 
 of all the game objects and checking which ones are ghosts.<br>
  <br>
- Adding and removing groups and sprites from each other is a very fast operation. 
-Much quicker than using lists to store everything. Therefore you can very 
-efficiently change group memberships. Therefore you can use groups to work 
+ Adding and removing groups and sprites from each other is a very fast operation, 
+quicker than using lists to store everything. Therefore you can very 
+efficiently change group memberships. Groups can be used to work 
 like simple attributes for each game object. Instead of tracking some attribute 
 like "close_to_player" for a bunch of enemy objects, you could add them to 
 a separate group. Then when you need to access all the enemies that are near 
@@ -151,7 +151,7 @@ are referencing other objects, sometimes deleting an object can be the hardest
 part, since it can't go away until it is not referenced by anyone. Say we 
 have an object that is "chasing" another object. The chaser can keep a simple 
 Group that references the object (or objects) it is chasing. If the object 
-is chasee happens to be destroyed, we don't need to worry about notifying 
+being chased happens to be destroyed, we don't need to worry about notifying 
 the chaser to stop chasing. The chaser can see for itself that its group is
 now empty, and perhaps find a new target.<br>
  <br>
@@ -164,8 +164,8 @@ this.<br>
  
 <h2>The Many Group Types</h2>
  The above examples and reasons to use Sprites and Groups are only a tip
-of the iceberg. The other huge benefit is that the sprite module comes with 
-several different type of Groups. These groups all work just like a regular 
+of the iceberg. Another advantage is that the sprite module comes with 
+several different types of Groups. These groups all work just like a regular 
 old Group, but they also have added functionality (or slightly different functionality).
 Here's a list of the Group classes included with the sprite module.<br>
  
@@ -194,7 +194,7 @@ the clear() method is called.<br>
    <br>
    <b>RenderUpdates</b><br>
  This is the cadillac of rendering Groups. It is inherited from RenderClear, 
-but changes the draw() method to also return a list of Rects, which represent 
+but changes the draw() method to also return a list of pygame Rects, which represent 
 all the areas onscreen that have been changed.<br>
    <br>
    </blockquote>
