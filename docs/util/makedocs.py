@@ -158,7 +158,7 @@ def findtutorials():
     tuts2 = ['tut/' + os.path.split(x)[1] for x in tuts1]
     tuts3 = [os.path.splitext(x)[0] for x in tuts2]
     tuts4 = [open(x).readlines(2)[1] for x in tuts1]
-    tuts = [fileline%x for x in zip(tuts2, tuts3, tuts4)]
+    tuts = [fileline%(x[0],x[1],x[2][9:]) for x in zip(tuts2, tuts3, tuts4) if x[2].startswith('TUTORIAL:')]
     finaltut = tuthead + '\n'.join(tuts)
     return finaltext + '<br>&nbsp;<br>' + finaltut
 
