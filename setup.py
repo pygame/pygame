@@ -23,8 +23,13 @@ METADATA = {
 }
 
 
+import sys
+if int(sys.version[0]) < 2:
+    raise SystemExit, "Pygame requires python 2.0 or higher"
 
-import os.path, glob, sys
+
+
+import os.path, glob
 import distutils.sysconfig 
 from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
@@ -75,10 +80,12 @@ for f in glob.glob(os.path.join('lib', '*')):
 if sys.platform == 'win32':
     tempcompiler = new_compiler()
     for e in extensions:
-        paths = [os.path.join(d, \
-                 tempcompiler.shared_lib_format%(l, \
-                     tempcompiler.shared_lib_extension)) \
-                 for d in e.library_dirs for l in e.libraries]
+        paths = []
+        ext = tempcompiler.shared_lib_extension
+        for d in e.library_dirs:
+             for l in e.libraries:
+                    name = tempcompiler.shared_lib_format%(l, ext)
+                    paths.append(os.path.join(d, name))
         for p in paths:
             if os.path.isfile(p) and p not in data_files:
                 data_files.append(p)
