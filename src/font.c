@@ -627,6 +627,8 @@ static PyObject* Font(PyObject* self, PyObject* args)
 		filename = font_defaultpath;
 		/*keep sizing consistent with previous default fonts*/
 		fontsize = (int)(fontsize * .75);
+                /*helmetb seems to err for this one size*/
+                if(fontsize==16) fontsize = 17;
 	}
 	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{
