@@ -1,7 +1,7 @@
 """Config on Unix"""
 #would be nice if it auto-discovered which other modules where available
 
-import os, sys, shutil
+import os, sys, shutil, string
 from glob import glob
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config')
@@ -21,8 +21,16 @@ class Dependency:
         self.cflags = ''
     
     def configure(self, incdir, libdir):
+
         inc = os.path.join(incdir, self.checkhead)
         lib = os.path.join(libdir, self.checklib)
+
+        if not os.path.isfile(inc):
+            newdir = os.path.join(os.path.split(incdir)[0], string.lower(self.name))
+            inc = os.path.join(newdir, self.checkhead)
+            if os.path.isfile(inc):
+                self.inc_dir = newdir
+
         if os.path.isfile(inc) and glob(lib):
             print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
@@ -33,7 +41,7 @@ class Dependency:
 
 sdl_lib_name = 'SDL'
 if sys.platform.find('bsd') != -1:
-    sdl_lib_name = 'SDL-1.1'
+    sdl_lib_name = 'SDL-1.2'
 
 DEPS = [
     Dependency('SDL', 'SDL.h', 'lib'+sdl_lib_name+'.so', sdl_lib_name),
