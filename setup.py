@@ -15,7 +15,7 @@ METADATA = {
     "name":             "pygame",
     "version":          "1.0.1",
     "license":          "LGPL",
-    "url":              "http://pygame.seul.org",
+    "url":              "http://www.pygame.org",
     "author":           "Pete Shinners",
     "author_email":     "pygame@seul.org",
     "description":      "Python Game Development Package",
