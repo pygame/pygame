@@ -69,6 +69,8 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
 	{
+		PyGame_RegisterQuit(autoquit);
+
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
 			return PyInt_FromLong(0);
 

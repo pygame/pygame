@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Mar 20, 2001
+	font and mixer now properly auto quit()
+
 Mar 19, 2001
 	Surfaces won't crash after display module is quit [BUG]
 
