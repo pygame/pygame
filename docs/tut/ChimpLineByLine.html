@@ -303,7 +303,7 @@ This is the biggest block of code in the game, and it's pretty basic.<br>
 
 <br><table border=1 bgcolor=#ddcc88><tr><td><pre>
 fistpos = pygame.mouse.get_pos()	
-pressed = pygame.mouse.get_button()[0]
+pressed = pygame.mouse.get_pressed()[0]
 if not reload and pressed:
     if chimppos.collidepoint(fistpos):
         hitsound.play()
