@@ -104,12 +104,13 @@ def main():
     global DEPS
     
     print 'calling "sdl-config"'
-    configinfo = "-I/usr/local/include/SDL -L/usr/local/lib -D_REENTRANT -lSDL"
+    configinfo = "-I/usr/local/include -framework SDL" # This line is in case sdl-config not found but SDL installed (not likely)
     try:
         configinfo = os.popen(configcommand).readlines()
         print 'Found SDL version:', configinfo[0]
         configinfo = ' '.join(configinfo[1:])
         configinfo = configinfo.split()
+        configinfo.append("-framework SDL")
         for w in configinfo[:]:
             if ',' in w: configinfo.remove(w)
         configinfo = ' '.join(configinfo)
