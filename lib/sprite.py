@@ -151,7 +151,9 @@ class Sprite:
 
     def remove_internal(self, group):
         del self.__g[group]
-
+    def update(self, *args, **kwargs):
+        #note, this just ignores all args
+        pass
     def kill(self):
         """kill()
            end life of sprite, remove from all groups
@@ -165,14 +167,14 @@ class Sprite:
         self.__g.clear()
 
     def groups(self):
-        """groups()
+        """groups() -> list
            list used sprite containers
 
            Returns a list of all the groups that contain this
            sprite."""
         return self.__g.keys()
     def alive(self):
-        """alive()
+        """alive() -> bool
            ask the life of a sprite
 
            Returns true if this sprite is a member of any groups."""
@@ -198,14 +200,14 @@ class Group:
             self.add(sprite)
 
     def copy(self):
-        """copy()
+        """copy() -> Group
            copy a group with all the same sprites
 
            Returns a copy of the group that is the same class
            type, and has the same contained sprites."""
         return self.__class__(self.spritedict.keys())
     def loop(self):
-        """loop()
+        """loop() -> iterator
            return an object to loop each sprite
 
            Returns an object that can be looped over with
@@ -253,7 +255,7 @@ class Group:
         del self.spritedict[sprite]
 
     def has(self, sprite):
-        """has(sprite)
+        """has(sprite) -> bool
            ask if group has sprite
 
            Returns true if the given sprite or sprites are
@@ -276,9 +278,19 @@ class Group:
             self.remove_internal(s)
             s.remove_internal(self)
         self.spritedict.clear()
+    def update(self, *args, **kwargs):
+        """update(...)
+           call update for all member sprites
+
+           calls the update method for all sprites in
+           the group. any arguments are passed to the update
+           function."""
+        a=apply
+        for s in self.spritedict.keys():
+            a(s.update, args, kwargs)
 
     def __nonzero__(self):
-        """__nonzero__()
+        """__nonzero__() -> bool
            ask if group is empty
 
            Returns true if the group has any sprites. This
@@ -287,7 +299,7 @@ class Group:
         return len(self.spritedict)
 
     def __len__(self):
-        """__len__()
+        """__len__() -> int
            number of sprites in group
 
            Returns the number of sprites contained in the group."""
@@ -358,6 +370,9 @@ class GroupSingle:
         if self.sprite is not 0:
             self.sprite.remove_internal(self)
             self.sprite = 0
+    def update(self, *args, **kwargs):
+        if self.sprite:
+            apply(self.sprite.update(args, kwargs))
 
     def __nonzero__(self):
         return self.sprite is not 0
