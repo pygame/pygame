@@ -233,7 +233,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_ellipse[] =
-    /*DOC*/    "pygame.draw.ellipse(Surface, color, Rect, width) -> Rect\n"
+    /*DOC*/    "pygame.draw.ellipse(Surface, color, Rect, width=0) -> Rect\n"
     /*DOC*/    "draw an ellipse on a surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Draws an elliptical shape on the Surface. The given rectangle\n"
@@ -253,10 +253,10 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	Uint8 rgba[4];
 	Uint32 color;
-	int width, loop, t, l, b, r;
+	int width=0, loop, t, l, b, r;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!OOi", &PySurface_Type, &surfobj, &colorobj, &rectobj, &width))
+	if(!PyArg_ParseTuple(arg, "O!OO|i", &PySurface_Type, &surfobj, &colorobj, &rectobj, &width))
 		return NULL;
 	rect = GameRect_FromObject(rectobj, &temp);
 	if(!rect)
@@ -305,7 +305,7 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_circle[] =
-    /*DOC*/    "pygame.draw.circle(Surface, color, pos, radius, width) -> Rect\n"
+    /*DOC*/    "pygame.draw.circle(Surface, color, pos, radius, width=0) -> Rect\n"
     /*DOC*/    "draw a circle on a surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Draws a circular shape on the Surface. The given position\n"
@@ -325,10 +325,10 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 	Uint8 rgba[4];
 	Uint32 color;
 	int posx, posy, radius, t, l, b, r;
-	int width, loop;
+	int width=0, loop;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!O(ii)ii", &PySurface_Type, &surfobj, &colorobj, &posx, &posy, &radius, &width))
+	if(!PyArg_ParseTuple(arg, "O!O(ii)i|i", &PySurface_Type, &surfobj, &colorobj, &posx, &posy, &radius, &width))
 		return NULL;
 
 	surf = PySurface_AsSurface(surfobj);
@@ -371,7 +371,7 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_polygon[] =
-    /*DOC*/    "pygame.draw.polygon(Surface, color, pointslist, width) -> Rect\n"
+    /*DOC*/    "pygame.draw.polygon(Surface, color, pointslist, width=0) -> Rect\n"
     /*DOC*/    "draws a polygon on a surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Draws a polygonal shape on the Surface. The given pointlist\n"
@@ -390,12 +390,12 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	Uint8 rgba[4];
 	Uint32 color;
-	int width, length, loop, numpoints;
+	int width=0, length, loop, numpoints;
 	int *xlist, *ylist;
 	short x, y, top, left, bottom, right, result;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!OOi", &PySurface_Type, &surfobj, &colorobj, &points, &width))
+	if(!PyArg_ParseTuple(arg, "O!OO|i", &PySurface_Type, &surfobj, &colorobj, &points, &width))
 		return NULL;
 
 	
@@ -476,7 +476,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_rect[] =
-    /*DOC*/    "pygame.draw.rect(Surface, color, Rect, width) -> Rect\n"
+    /*DOC*/    "pygame.draw.rect(Surface, color, Rect, width=0) -> Rect\n"
     /*DOC*/    "draws a rectangle on a surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Draws a rectangular shape on the Surface. The given Rect\n"
@@ -497,10 +497,10 @@ static PyObject* rect(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj, *colorobj, *rectobj, *points, *args, *ret=NULL;
 	GAME_Rect* rect, temp;
-	int t, l, b, r, width;
+	int t, l, b, r, width=0;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!OOi", &PySurface_Type, &surfobj, &colorobj, &rectobj, &width))
+	if(!PyArg_ParseTuple(arg, "O!OO|i", &PySurface_Type, &surfobj, &colorobj, &rectobj, &width))
 		return NULL;
 
 	if(!(rect = GameRect_FromObject(rectobj, &temp)))

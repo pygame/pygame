@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 13, 2002
+        all draw primitives have a default width
+
 February 11, 2002
         Rect unionall() and unionall_ip() fixed
 
