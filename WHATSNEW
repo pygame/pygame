@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 7, 2005
+    sysfont patch, which checks two places for fonts on weird windows machines from Atul Varma.
+    pygame.get_sdl_version() from Bob Ippolito.
+    
+
 August 8, 2004
     cleanup aaline drawing, from Michael Urman
 
