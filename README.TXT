@@ -77,6 +77,8 @@ Thanks to everyone who made this possible, including:
 	Angus, Guillaume Proux,
 	Austin Henry, and Kaweh Kazemi
 
+Cheers to Gareth Noyce for his incredible work on the pygame logo.
+
 There's many more folks out there who've submitted helpful ideas,
 kept this project going, and basically made my life easer, Thanks!
 
@@ -112,7 +114,7 @@ SDL Website    : http://www.libsdl.org
 LICENSE
 
 This library is distributed under GNU LGPL version 2.1, which can be
-found in the file  "doc/LGPL".  I reserve the right to place future
+found in the file  "doc/LGPL".	I reserve the right to place future
 versions of this library under a different license.
 http://www.gnu.org/copyleft/lesser.html
 
