@@ -110,6 +110,10 @@ static SDL_Surface* opengltosdl()
         SDL_Surface *surf;
         Uint32 rmask, gmask, bmask, amask;
         int depth, doalpha=0;
+        unsigned char *pixels;
+        PyObject *data;
+        int i;
+
         pyopengl = PyImport_ImportModule("OpenGL.GL");
         if(pyopengl)
         {
@@ -133,10 +137,6 @@ static SDL_Surface* opengltosdl()
             RAISE(PyExc_ImportError, "Cannot import PyOpenGL");
             return NULL;
         }
-
-        unsigned char *pixels;
-        PyObject *data;
-        int i;
 
         data = PyObject_CallFunction(readpixels, "iiiiii", 
                                 0, 0, surf->w, surf->h, formatflag, typeflag);
