@@ -127,7 +127,7 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 
 static void cd_dealloc(PyObject* self)
 {
-	PyObject_DEL(self);	
+	PyObject_DEL(self);
 }
 
 
@@ -142,7 +142,7 @@ static void cd_dealloc(PyObject* self)
 
 static PyObject* CD(PyObject* self, PyObject* args)
 {
-	int id;	
+	int id;
 	if(!PyArg_ParseTuple(args, "i", &id))
 		return NULL;
 
@@ -256,7 +256,7 @@ static PyObject* cd_get_init(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "Play an audio track on a cdrom disk.\n"
     /*DOC*/    "You may also optionally pass a starting and ending\n"
-    /*DOC*/    "time to play of the song. If you pass the start end\n"
+    /*DOC*/    "time to play of the song. If you pass the start and\n"
     /*DOC*/    "end time in seconds, only that portion of the audio\n"
     /*DOC*/    "track will be played. If you only provide a start time\n"
     /*DOC*/    "and no end time, this will play to the end of the track.\n"
@@ -266,9 +266,8 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 {
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
-	int result, track, offset, length;
-	float start=0.0f, end=6000000.0f;
-	int startframe, endframe;
+	int result, track, startframe, endframe;
+	float start=0.0f, end=0.0f;
 
 	if(!PyArg_ParseTuple(args, "i|ff", &track, &start, &end))
 		return NULL;
@@ -281,17 +280,19 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 		return RAISE(PyExc_IndexError, "Invalid track number");
 	if(cdrom->track[track].type != SDL_AUDIO_TRACK)
 		return RAISE(PyExc_SDLError, "CD track type is not audio");
-	offset = cdrom->track[track].offset;
-	length = cdrom->track[track].length * CD_FPS;
-	startframe = (int)(start * CD_FPS);
-	endframe = (int)(end * CD_FPS);
+
+        /*validate times*/
+        startframe = (int)(start * CD_FPS);
 	if(startframe < 0)
 		startframe = 0;
-	if(endframe < startframe || startframe > length)
-            RETURN_NONE;
-	offset += startframe;
-	length = min(length-startframe, endframe-startframe);
-	result = SDL_CDPlay(cdrom, offset, length);
+	if(endframe < startframe || startframe > cdrom->track[track].length * CD_FPS)
+                RETURN_NONE;
+        if(end)
+                endframe = (int)((end-start) * CD_FPS);
+        else
+                endframe = cdrom->track[track].length - startframe;
+
+        result = SDL_CDPlayTracks(cdrom, track, startframe, 0, endframe);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
@@ -583,7 +584,7 @@ static PyObject* cd_get_id(PyObject* self, PyObject* args)
 static PyObject* cd_get_name(PyObject* self, PyObject* args)
 {
 	int cd_id = PyCD_AsID(self);
-	
+
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -605,7 +606,7 @@ static PyObject* cd_get_track_audio(PyObject* self, PyObject* args)
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
 	int track;
-	
+
 	if(!PyArg_ParseTuple(args, "i", &track))
 		return NULL;
 
@@ -633,7 +634,7 @@ static PyObject* cd_get_track_length(PyObject* self, PyObject* args)
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
 	int track;
-	
+
 	if(!PyArg_ParseTuple(args, "i", &track))
 		return NULL;
 
@@ -662,7 +663,7 @@ static PyObject* cd_get_track_start(PyObject* self, PyObject* args)
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
 	int track;
-	
+
 	if(!PyArg_ParseTuple(args, "i", &track))
 		return NULL;
 
@@ -694,7 +695,7 @@ static PyObject* cd_get_all(PyObject* self, PyObject* args)
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
 	int track;
 	PyObject *tuple, *item;
-	
+
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -791,7 +792,7 @@ static PyTypeObject PyCD_Type =
 	0,
 	0,
 	NULL,
-	0, 
+	0,
 	(hashfunc)NULL,
 	(ternaryfunc)NULL,
 	(reprfunc)NULL,
@@ -807,7 +808,7 @@ static PyObject* PyCD_New(int id)
 
 	if(id < 0 || id >= CDROM_MAXDRIVES || id >= SDL_CDNumDrives())
 		return RAISE(PyExc_SDLError, "Invalid cdrom device number");
-	
+
 	cd = PyObject_NEW(PyCDObject, &PyCD_Type);
 	if(!cd) return NULL;
 
