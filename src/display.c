@@ -551,10 +551,10 @@ static int screencroprect(GAME_Rect* r, int w, int h)
     /*DOC*/    "This call will update a section (or sections) of the display\n"
     /*DOC*/    "screen. You must update an area of your display when you change\n"
     /*DOC*/    "its contents. If passed with no arguments, this will update the\n"
-    /*DOC*/    "entire display surface. If you have many lists that need\n"
+    /*DOC*/    "entire display surface. If you have many rects that need\n"
     /*DOC*/    "updating, it is best to combine them into a sequence and pass\n"
     /*DOC*/    "them all at once. This call will accept a sequence of rectstyle\n"
-    /*DOC*/    "arguments\n"
+    /*DOC*/    "arguments. (any None's in the list will be ignored.\n"
     /*DOC*/ ;
 
 static PyObject* update(PyObject* self, PyObject* arg)
