@@ -626,7 +626,7 @@ static PyTypeObject PyFont_Type =
     /*DOC*/    "pygame.font.get_default_font() -> string\n"
     /*DOC*/    "get the name of the default font\n"
     /*DOC*/    "\n"
-    /*DOC*/    "returns the name for the default truetype font.\n"
+    /*DOC*/    "returns the filename for the default truetype font.\n"
     /*DOC*/ ;
 
 static PyObject* get_default_font(PyObject* self, PyObject* args)
@@ -651,7 +651,7 @@ static PyObject* get_default_font(PyObject* self, PyObject* args)
     /*DOC*/    "use a plain default font.\n"
     /*DOC*/    "\n"
     /*DOC*/    "You must have at least SDL_ttf-2.0.6 for file object\n"
-    /*DOC*/    "support. You can load truetype fonts or FON fonts.\n"
+    /*DOC*/    "support. You can load TTF and FON fonts.\n"
     /*DOC*/ ;
 
 static PyObject* Font(PyObject* self, PyObject* args)
@@ -767,6 +767,11 @@ static PyObject* PyFont_New(TTF_Font* font)
     /*DOC*/    "Font objects. The module by itself only has routines to\n"
     /*DOC*/    "initialize the module and create Font objects with\n"
     /*DOC*/    "pygame.font.Font().\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can load fonts from the standard system fonts by using the\n"
+    /*DOC*/    "pygame.font.SysFont() method. There are also other functions to\n"
+    /*DOC*/    "help you work with system fonts.\n"
+    /*DOC*/    "\n"
     /*DOC*/ ;
 
 PYGAME_EXPORT
