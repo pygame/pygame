@@ -65,7 +65,7 @@ static void mixmusic_callback(void *udata, Uint8 *stream, int len)
 /*music module methods*/
 
     /*DOC*/ static char doc_play[] =
-    /*DOC*/    "pygame.mixer.music.play(loops=0, starttime=0) -> None\n"
+    /*DOC*/    "pygame.mixer.music.play(loops=0, startpos=0.0) -> None\n"
     /*DOC*/    "play the current loaded music\n"
     /*DOC*/    "\n"
     /*DOC*/    "Starts playing the current loaded music. This will restart the\n"
@@ -73,18 +73,21 @@ static void mixmusic_callback(void *udata, Uint8 *stream, int len)
     /*DOC*/    "sound will play, a negative loop will play indefinitely, it\n"
     /*DOC*/    "defaults to 0.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The starting time argument is given in milliseconds, and controls\n"
-    /*DOC*/    "the offset to start playing the music. Setting the starting time\n"
-    /*DOC*/    "is only available on SDL_mixer-1.2.4, otherwise it will raise a\n"
-    /*DOC*/    "NotImplementedError\n"
+    /*DOC*/    "The starting position argument controls where in the music the\n"
+    /*DOC*/    "song starts playing. The starting position is dependent on the\n"
+    /*DOC*/    "format of music playing. MP3 and OGG use the position as time\n"
+    /*DOC*/    "(in seconds). MOD music it is the pattern order number. Passing\n"
+    /*DOC*/    "a startpos will raise an exception if it cannot set the starting\n"
+    /*DOC*/    "position (or your version of SDL_mixer is too old)\n"
     /*DOC*/ ;
 
 static PyObject* music_play(PyObject* self, PyObject* args)
 {
-	int loops=0, starttime=0;
+	int loops=0;
+        float startpos=0.0;
 	int val;
 
-	if(!PyArg_ParseTuple(args, "|ii", &loops, &starttime))
+	if(!PyArg_ParseTuple(args, "|if", &loops, &startpos))
 		return NULL;
 
 	MIXER_INIT_CHECK();
@@ -98,11 +101,10 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 	music_pos_time = SDL_GetTicks();
 
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=4
-/*printf("Starting Music At Offset %d\n", starttime);*/
-        val = Mix_FadeInMusicPos(current_music, loops, 0, starttime/1000.0);
+        val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
 #else
-        if(starttime)
-            return RAISE(PyExc_NotImplementedError, "music start time requires SDL_mixer-1.2.4");
+        if(startpos)
+            return RAISE(PyExc_NotImplementedError, "music start position requires SDL_mixer-1.2.4");
 	val = Mix_PlayMusic(current_music, loops);
 #endif
      	if(val == -1)

@@ -185,17 +185,19 @@ Temporarily stops the current music.
 
 <a name=play><font size=+2><b>play
 </b></font><br><font size=+1><tt>
-pygame.mixer.music.play(loops=0, starttime=0) -> None
+pygame.mixer.music.play(loops=0, startpos=0.0) -> None
 </tt></font><ul>
 Starts playing the current loaded music. This will restart the
 sound if it is playing. Loops controls how many extra time the
 sound will play, a negative loop will play indefinitely, it
 defaults to 0.
 <br>&nbsp;<br>
-The starting time argument is given in milliseconds, and controls
-the offset to start playing the music. Setting the starting time
-is only available on SDL_mixer-1.2.4, otherwise it will raise a
-NotImplementedError
+The starting position argument controls where in the music the
+song starts playing. The starting position is dependent on the
+format of music playing. MP3 and OGG use the position as time
+(in seconds). MOD music it is the pattern order number. Passing
+a startpos will raise an exception if it cannot set the starting
+position (or your version of SDL_mixer is too old)
 </ul><br>&nbsp;<br>
 
 <a name=rewind><font size=+2><b>rewind
