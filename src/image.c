@@ -392,7 +392,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
 					data[3] = hascolorkey ? (char)(color==colorkey)*255 : 
-								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss)*255 : 255);
+								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
 					data += 4;
 				}
 			}break;
@@ -412,7 +412,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
 					data[3] = hascolorkey ? (char)(color==colorkey)*255 :
-								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss)*255 : 255);
+								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
 					data += 4;
 				}
 			}break;
@@ -427,7 +427,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
 					data[3] = hascolorkey ? (char)(color==colorkey)*255 :
-								(char)(Amask ? (((color & Amask) >> Ashift) << Rloss)*255 : 255);
+								(char)(Amask ? (((color & Amask) >> Ashift) << Rloss) : 255);
 					data += 4;
 				}
 			}break;
