@@ -625,12 +625,14 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 #if !defined(darwin)
 	if(!icon_was_set)
 	{
-        char* iconpath;
+		char* iconpath = NULL;
 		SDL_Surface* icon = NULL;
 		PyObject* iconstr = display_resourcepath(icon_defaultname);
 
-		icon_was_set = 1;
-		iconpath = PyString_AsString(iconstr);
+		if (iconstr) {
+			icon_was_set = 1;
+			iconpath = PyString_AsString(iconstr);
+		}
 
 		if (!iconpath)
 			PyErr_Clear();
