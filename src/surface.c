@@ -658,7 +658,7 @@ static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_convert[] =
-    /*DOC*/    "Surface.convert([src_surface]) -> Surface\n"
+    /*DOC*/    "Surface.convert([src_surface] OR depth, [flags] OR masks) -> Surface\n"
     /*DOC*/    "new copy of surface with different format\n"
     /*DOC*/    "\n"
     /*DOC*/    "Creates a new copy of the surface with the desired pixel format.\n"
@@ -683,6 +683,9 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 	SDL_Surface* src;
 	SDL_Surface* newsurf;
 	Uint32 flags=-1;
+
+	if(SDL_WasInit(SDL_INIT_VIDEO))
+		return RAISE(PyExc_SDLError, "cannot convert without pygame.display initialized");
 
 	if(!PyArg_ParseTuple(args, "|Oi", &argobject, &flags))
 		return NULL;
@@ -748,7 +751,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 							!UintFromObjIndex(argobject, 3, &format.Amask))
 				{
 					PySurface_Unprep(self);
-					return RAISE(PyExc_ValueError, "nonstandard color masks given");
+					return RAISE(PyExc_ValueError, "invalid color masks given");
 				}
 				mask = format.Rmask|format.Gmask|format.Bmask|format.Amask;
 				for(bpp=0; bpp<32; ++bpp)
@@ -760,7 +763,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 				return RAISE(PyExc_ValueError, "invalid argument specifying new format to convert to");
 			}
 			format.BitsPerPixel = (Uint8)bpp;
-			format.BytesPerPixel = (bpp+3)/4;
+			format.BytesPerPixel = (bpp+7)/8;
 			if(flags == -1)
 				flags = surf->flags;
 			if(format.Amask)
