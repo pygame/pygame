@@ -61,6 +61,14 @@ code with a lock/unlock pair.
 <hr>
 
 <table>
+<tr><td><a href=#aaline>aaline</a></td><td> -
+draw a line on a surface</td></tr>
+
+
+<tr><td><a href=#aalines>aalines</a></td><td> -
+draw multiple connected anti-aliased lines on a surface</td></tr>
+
+
 <tr><td><a href=#circle>circle</a></td><td> -
 draw a circle on a surface</td></tr>
 
@@ -88,6 +96,40 @@ draws a rectangle on a surface</td></tr>
 </table>
 
 <hr>
+
+<a name=aaline><font size=+2><b>aaline
+</b></font><br><font size=+1><tt>
+pygame.draw.aaline(Surface, color, startpos, endpos, blend=1) -> Rect
+</tt></font><ul>
+Draws an anti-aliased line on a surface. This will respect the
+clipping rectangle. A bounding box of the effected area is returned
+returned as a rectangle.  The if blend is true, the shades will be
+be blended with existing pixel shades instead of overwriting them.
+This function accepts floating point values for the end points.
+<br>&nbsp;<br>
+The color argument must be a RGB sequence.
+<br>&nbsp;<br>
+This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
+
+<a name=aalines><font size=+2><b>aalines
+</b></font><br><font size=+1><tt>
+pygame.draw.aalines(Surface, color, closed, point_array, blend=1) -> Rect
+</tt></font><ul>
+Draws a sequence on a surface. You must pass at least two points
+in the sequence of points. The closed argument is a simple boolean
+and if true, a line will be draw between the first and last points.
+The boolean blend argument set to true will blend the shades with
+existing shades instead of overwriting them.
+This function accepts floating point values for the end points.
+<br>&nbsp;<br>
+This will respect the clipping rectangle. A bounding box of the
+effected area is returned as a rectangle.
+<br>&nbsp;<br>
+The color argument must be an RGB sequence.
+<br>&nbsp;<br>
+This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
 
 <a name=circle><font size=+2><b>circle
 </b></font><br><font size=+1><tt>

@@ -318,6 +318,50 @@ static int TwoShortsFromObj(PyObject* obj, short* val1, short* val2)
 	return 1;
 }
 
+
+static int FloatFromObj(PyObject* obj, float* val)
+{
+	PyObject* floatobj;
+
+	if(PyNumber_Check(obj))
+	{
+		if(!(floatobj = PyNumber_Float(obj)))
+			return 0;
+		*val = (float)PyFloat_AsDouble(floatobj);
+		Py_DECREF(floatobj);
+		return 1;
+	}
+	return 0;
+}
+
+static float FloatFromObjIndex(PyObject* obj, int index, float* val)
+{
+	float result = 0;
+	PyObject* item;
+	item = PySequence_GetItem(obj, index);
+	if(item)
+	{
+		result = FloatFromObj(item, val);
+		Py_DECREF(item);
+	}
+	return result;
+}
+
+static int TwoFloatsFromObj(PyObject* obj, float* val1, float* val2)
+{
+	if(PyTuple_Check(obj) && PyTuple_Size(obj)==1)
+		return TwoFloatsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
+
+	if(!PySequence_Check(obj) || PySequence_Length(obj) != 2)
+		return 0;
+
+	if(!FloatFromObjIndex(obj, 0, val1) || !FloatFromObjIndex(obj, 1, val2))
+		return 0;
+
+	return 1;
+}
+
+
 static int UintFromObj(PyObject* obj, Uint32* val)
 {
 	PyObject* intobj;
@@ -673,11 +717,14 @@ void initbase(void)
 	c_api[2] = ShortFromObj;
 	c_api[3] = ShortFromObjIndex;
 	c_api[4] = TwoShortsFromObj;
-	c_api[5] = UintFromObj;
-	c_api[6] = UintFromObjIndex;
-	c_api[7] = PyGame_Video_AutoQuit;
-	c_api[8] = PyGame_Video_AutoInit;
-	c_api[9] = RGBAFromObj;
+	c_api[5] = FloatFromObj;
+	c_api[6] = FloatFromObjIndex;
+	c_api[7] = TwoFloatsFromObj;
+	c_api[8] = UintFromObj;
+	c_api[9] = UintFromObjIndex;
+	c_api[10] = PyGame_Video_AutoQuit;
+	c_api[11] = PyGame_Video_AutoInit;
+	c_api[12] = RGBAFromObj;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
