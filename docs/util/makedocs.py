@@ -13,7 +13,7 @@ OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()
 DOCTEMPLATE = open('doclate.html').readlines()
 LISTTEMPLATE = open('listlate.html').readlines()
-INDEXTEMPLATE = ['<a href={category}.html#{name}>{mod}.{name}</a> - {quick}<br>']
+INDEXTEMPLATE = ['<a href=ref/{category}.html#{name}>{mod}.{name}</a> - {quick}<br>']
 
 INDEXSTART = "\n<br><hr><br><font size=+1><b>Full Index</b></font><ul>\n<!--FULLINDEX-->\n"
 INDEXEND = "<!--ENDINDEX-->\n</ul>\n"
@@ -23,15 +23,15 @@ MODULETOC = ""
 
 
 mainindex_desc = """
-The pygame documentation is broken into several parts. First there is
-the reference docs. These are automatically generated from the pygame
-sources. They have the most up to date information about each function
-and module.<br>
-<br>
-There is also the set of tutorials, which is currently slim, but in
-the process of expanding. The navigation links on the top of this page
-should be enough to get you comfortable around the site. The list of
-tutorials is offered below.<br>"""
+The <b>pygame documentation</b> is mainly generated automatically from the
+documentation. Each module and object in the package is broken into its
+own page in the reference documentation. The names of the objects are
+capitalized, while the regular module names are lower case.
+<br>&nbsp;<br>
+The <b>pygame documentation</b> also comes with a full set of tutorials.
+You can find links to these tutorials and other documentation files below.
+
+"""
 
 
 
@@ -150,11 +150,11 @@ def findtutorials():
     fileline = '<li><a href=%s>%s</a> - %s</li>'
     texthead = '<font size=+1><b>Text File Documentation</b></font><br>'
     tuthead = '<font size=+1><b>Tutorials</b></font><br>'
-    texts1 = glob.glob('../*.txt')
+    texts1 = glob.glob('../*.txt') + ['../LGPL']
     texts1.sort()
     texts2 = [os.path.split(x)[1] for x in texts1]
     texts3 = [os.path.splitext(x)[0] for x in texts2]
-    texts4 = [open(x).readline() for x in texts1]
+    texts4 = [open(x).readline().strip().capitalize() for x in texts1]
     texts = [fileline%x for x in zip(texts2, texts3, texts4)]
     finaltext = texthead + '\n'.join(texts)
     tuts1 =  glob.glob('../tut/*.html')
@@ -286,7 +286,6 @@ def writefuncdoc(alldocs):
 def makefullindex(alldocs):
     modules, extras, funcs = alldocs
     fullindex = []
-    indexstring = '<a href={category}.html#{name}>{mod}.{name}</a> - {quick}<br>'
     for cat, docs in funcs.items():
         htmldocs = []
         htmllist = []
