@@ -74,14 +74,6 @@ remove a region of an surface</td></tr>
 flips a surface on either axis</td></tr>
 
 
-<tr><td><a href=#flip>flip</a></td><td> -
-flips a surface on either axis</td></tr>
-
-
-<tr><td><a href=#rotate>rotate</a></td><td> -
-rotate a Surface</td></tr>
-
-
 <tr><td><a href=#rotate>rotate</a></td><td> -
 rotate a Surface</td></tr>
 
@@ -90,20 +82,8 @@ rotate a Surface</td></tr>
 smoothly scale and/or rotate an image</td></tr>
 
 
-<tr><td><a href=#rotozoom>rotozoom</a></td><td> -
-smoothly scale and/or rotate an image</td></tr>
-
-
 <tr><td><a href=#scale>scale</a></td><td> -
 scale a Surface to an arbitrary size</td></tr>
-
-
-<tr><td><a href=#scale>scale</a></td><td> -
-scale a Surface to an arbitrary size</td></tr>
-
-
-<tr><td><a href=#scale2x>scale2x</a></td><td> -
-doubles the size of the image with advanced scaling</td></tr>
 
 
 <tr><td><a href=#scale2x>scale2x</a></td><td> -
@@ -136,35 +116,6 @@ as many times as you like, and always be able to recreate the
 exact original image.
 </ul><br>&nbsp;<br>
 
-<a name=flip><font size=+2><b>flip
-</b></font><br><font size=+1><tt>
-pygame.transform.flip(Surface, xaxis, yaxis) -> Surface
-</tt></font><ul>
-Flips the image on the x-axis or the y-axis if the argument
-for that axis is true.
-<br>&nbsp;<br>
-The flip operation is nondestructive, you may flip the image
-as many times as you like, and always be able to recreate the
-exact original image.
-</ul><br>&nbsp;<br>
-
-<a name=rotate><font size=+2><b>rotate
-</b></font><br><font size=+1><tt>
-pygame.transform.rotate(Surface, angle) -> Surface
-</tt></font><ul>
-Rotates the image counterclockwise with the given angle
-(in degrees). The angle can be any floating point value
-(negative rotation amounts will do clockwise rotations)
-<br>&nbsp;<br>
-Unless rotating by 90 degree increments, the resulting image
-size will be larger than the original. There will be newly
-uncovered areas in the image. These will filled with either
-the current colorkey for the Surface, or the topleft pixel value.
-(with the alpha channel zeroed out if available)
-<br>&nbsp;<br>
-This transformation is not filtered.
-</ul><br>&nbsp;<br>
-
 <a name=rotate><font size=+2><b>rotate
 </b></font><br><font size=+1><tt>
 pygame.transform.rotate(Surface, angle) -> Surface
@@ -200,24 +151,6 @@ Note that the code in SDL_rotozoom is fairly messy and your
 resulting image could be shifted and contain artifacts.
 </ul><br>&nbsp;<br>
 
-<a name=rotozoom><font size=+2><b>rotozoom
-</b></font><br><font size=+1><tt>
-pygame.transform.rotozoom(Surface, angle, zoom) -> Surface
-</tt></font><ul>
-The angle argument is the number of degrees to rotate
-counter-clockwise. The angle can be any floating point value.
-(negative rotation amounts will do clockwise rotations)
-<br>&nbsp;<br>
-This will smoothly rotate and scale an image in one pass.
-The resulting image will always be a 32bit version of the
-original surface. The scale is a multiplier for the image
-size, and angle is the degrees to rotate counter clockwise.
-<br>&nbsp;<br>
-It calls the SDL_rotozoom library which is compiled in.
-Note that the code in SDL_rotozoom is fairly messy and your
-resulting image could be shifted and contain artifacts.
-</ul><br>&nbsp;<br>
-
 <a name=scale><font size=+2><b>scale
 </b></font><br><font size=+1><tt>
 pygame.transform.scale(Surface, size) -> Surface
@@ -227,30 +160,6 @@ The size is simply any 2 number sequence representing
 the width and height.
 <br>&nbsp;<br>
 This transformation is not filtered.
-</ul><br>&nbsp;<br>
-
-<a name=scale><font size=+2><b>scale
-</b></font><br><font size=+1><tt>
-pygame.transform.scale(Surface, size) -> Surface
-</tt></font><ul>
-This will resize a surface to the given resolution.
-The size is simply any 2 number sequence representing
-the width and height.
-<br>&nbsp;<br>
-This transformation is not filtered.
-</ul><br>&nbsp;<br>
-
-<a name=scale2x><font size=+2><b>scale2x
-</b></font><br><font size=+1><tt>
-pygame.transform.scale2x(Surface) -> Surface
-</tt></font><ul>
-This will return a new image that is double the size of
-the original. It uses the AdvanceMAME Scale2X algorithm
-which does a 'jaggie-less' scale of bitmap graphics.
-<br>&nbsp;<br>
-This really only has an effect on simple images with solid
-colors. On photographic and antialiased images it will look
-like a regular unfiltered scale.
 </ul><br>&nbsp;<br>
 
 <a name=scale2x><font size=+2><b>scale2x
