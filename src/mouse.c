@@ -47,7 +47,7 @@ static PyObject* mouse_set_pos(PyObject* self, PyObject* args)
 
 	VIDEO_INIT_CHECK();
 
-	SDL_WarpMouse(x, y);
+	SDL_WarpMouse((Uint16)x, (Uint16)y);
 
 	RETURN_NONE
 }

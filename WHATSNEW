@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+pygame-16
+October 23, 2003
+    final updates for 1.6
+
 October 15, 2003
     Rects now stored with ints (not shorts)
 
@@ -44,13 +48,13 @@ June 8, 2003
 	add system font; SysFont,get_system_fonts,match_system_font
 
 June 7, 2003
-        Font() no longer segfaults on bad filename [BUG]
-        add color module for simple color manipulations
+	Font() no longer segfaults on bad filename [BUG]
+	add color module for simple color manipulations
 
 June 6, 2003
 	set_palette_at() index 0 fix
-        draw.arc() (thanks Lalo Martins)
-        Rects are pickleable
+	draw.arc() (thanks Lalo Martins)
+	Rects are pickleable
 
 May 12, 2003
 	Brett Calcott's quick fix for 'trunc' on visualc
@@ -94,11 +98,11 @@ November 12, 2002
 	AdvanceMAME Scale2X scaling now in transform.scale2x()
 
 October 22, 2002
-    	mixer can queue sounds and music
+	mixer can queue sounds and music
 	channels can send finished event for sounds
 
 October 19, 2002
-    	can free software surfaces without video initialized
+	can free software surfaces without video initialized
 	added "x", "y", "w", and "h" attribs to Rect (like SDL)
 	RenderUpdates.draw() doesn't union nonoverlapping
 
@@ -108,7 +112,7 @@ October 16, 2002
 	added Surface.get_parent() and get_abs_parent()
 
 October 6, 2002
-    	added event.clear() to efficiently clear the queue
+	added event.clear() to efficiently clear the queue
 
 October 1, 2002
 	sprite.RenderGroups wasn't clearing killed sprites after draw()
@@ -125,7 +129,7 @@ August 20, 2002
 	fix rectstyle arguments
 
 August 15, 2002
-        Hervé Cauwelier's fix for xbm cursors without spaces
+	Hervé Cauwelier's fix for xbm cursors without spaces
 
 Auguest 14, 2002
 	switched to FSF's FreeSansBold default font
@@ -175,15 +179,15 @@ April 25, 2002
 	added gl_set_attribute(), gl_get_attribute()
 
 April 16, 2002
-        mixer keeps a reference to playing Sound objects
-        channel.set_volume() can take 2 volumes for panning
-        music.play() can take a starting position for the song
+	mixer keeps a reference to playing Sound objects
+	channel.set_volume() can take 2 volumes for panning
+	music.play() can take a starting position for the song
 
 April 14, 2002
 	bug when re-initializing pygame.display [BUG]
 
 April 8, 2002
-        rectstyle now includes any object with a "rect" attrib
+	rectstyle now includes any object with a "rect" attrib
 	rects now have collidedict() and collidedictall()
 
 March 27, 2002
@@ -197,21 +201,21 @@ March 20, 2002
 	sprite.spritecollideany() now works as described
 
 March 4, 2002
-        sprite.RenderClear can accept a function as bgd
+	sprite.RenderClear can accept a function as bgd
 
 February 19, 2002
 	event.peek() returns next event [BREAK?]
 	Event objects have 'truth' operator
 
 February 13, 2002
-        all draw primitives have a default width
+	all draw primitives have a default width
 
 February 11, 2002
-        Rect unionall() and unionall_ip() fixed
+	Rect unionall() and unionall_ip() fixed
 
 February 10, 2002
-        pygame.init() not required for proper cleanup [BUG]
-        CD.play() fixed for tracks above 0
+	pygame.init() not required for proper cleanup [BUG]
+	CD.play() fixed for tracks above 0
 
 February 8, 2002
 	Rect and Surface subclassable types
@@ -243,8 +247,8 @@ January 23, 2002
 	CD.play() can now take an option start and end time
 
 January 17, 2002
-        smarter importing code
-        default pygame icon for window
+	smarter importing code
+	default pygame icon for window
 
 January 16, 2002
 	started implementing basic unit tests
@@ -263,14 +267,14 @@ January 6, 2002
 	Merge with bob's inital MacOSX changes
 
 January 5, 2002
-        new and upgraded importing [BREAK?]
-        fixed numberhandling in set_alpha and set_colorkey
+	new and upgraded importing [BREAK?]
+	fixed numberhandling in set_alpha and set_colorkey
 
 January 2, 2002
 	Group add/remove methods work
 
 December 31, 2001
-        pygame parachute does tracebacks with python2.2
+	pygame parachute does tracebacks with python2.2
 
 December 20, 2001
 	Surface.set_alpha() and set_colorkey() accept None
@@ -292,14 +296,14 @@ December 1, 2001
 	added time.Clock objects for framerate tracking
 
 November 26, 2001
-        Surface.convert() doesn't segfault before pygame.init()
+	Surface.convert() doesn't segfault before pygame.init()
 
 November 20, 2001
 	added pygame.sprite.Group.update()
 	Surface.blit() protection for alpha->8bit relaxed
 
 November 19, 2001
-        fixed image.fromstring() for "RGBA" mode
+	fixed image.fromstring() for "RGBA" mode
 
 November 18, 2001
 	can stream python file-like objects to SDL threads
@@ -314,8 +318,8 @@ November 12, 2001
 	image.tostring() "RGBA" works with colorkey
 
 November 3, 2001
-        filled shape drawing now clips properly [BUG]
-        Rect object correctly compare (==,<,>)
+	filled shape drawing now clips properly [BUG]
+	Rect object correctly compare (==,<,>)
 
 November 2, 2001
 	pygame.time.get_ticks() returns 0 before pygame.init()
