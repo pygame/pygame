@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was (or could have been) crashing
 
+Jul 17, 2001
+	added polygon() and ellipse() to pygame.draw
+	lines with width>2 are now correct (was one too small)
+
 Jul 16, 2001
 	can work with software surfaces before pygame.init()
 	Surface.convert() now can take arguments like pygame.Surface()

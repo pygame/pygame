@@ -59,6 +59,10 @@ code with a lock/unlock pair.
 <hr>
 
 <table>
+<tr><td><a href=#ellipse>ellipse</a></td><td> -
+draw an ellipse on a surface</td></tr>
+
+
 <tr><td><a href=#line>line</a></td><td> -
 draw a line on a surface</td></tr>
 
@@ -67,9 +71,27 @@ draw a line on a surface</td></tr>
 draw multiple connected lines on a surface</td></tr>
 
 
+<tr><td><a href=#polygon>polygon</a></td><td> -
+draw multiple connected lines on a surface</td></tr>
+
+
 </table>
 
 <hr>
+
+<a name=ellipse><font size=+2><b>ellipse
+</b></font><br><font size=+1><tt>
+pygame.draw.ellipse(Surface, color, Rect, width) -> Rect
+</tt></font><ul>
+Draws a circular shape on the Surface. The given rectangle
+is the area that the circle will fill. The width argument is
+the thickness to draw the outer edge. If width is zero then
+the ellipse will be filled.
+<br>&nbsp;<br>
+The color argument can be either a RGB sequence or mapped color integer.
+<br>&nbsp;<br>
+This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
 
 <a name=line><font size=+2><b>line
 </b></font><br><font size=+1><tt>
@@ -97,6 +119,19 @@ be joined seamlessly.
 <br>&nbsp;<br>
 This will respect the clipping rectangle. A bounding box of the
 effected area is returned as a rectangle.
+<br>&nbsp;<br>
+The color argument can be either a RGB sequence or mapped color integer.
+<br>&nbsp;<br>
+This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
+
+<a name=polygon><font size=+2><b>polygon
+</b></font><br><font size=+1><tt>
+pygame.draw.polygon(Surface, color, pointslist, width) -> Rect
+</tt></font><ul>
+Draws a polygonal shape on the Surface. The given points
+is the list of points to connect. If you pass a true
+value for the filled argument, the polygon will be filled in.
 <br>&nbsp;<br>
 The color argument can be either a RGB sequence or mapped color integer.
 <br>&nbsp;<br>

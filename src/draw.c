@@ -30,6 +30,10 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 static int clipline(int* pts, int left, int top, int right, int bottom);
 static void drawline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx, int endy);
 static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx);
+static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
+static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
+static int draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
+
 
 
     /*DOC*/ static char doc_line[] =
@@ -171,7 +175,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	length = PySequence_Length(points);
 	if(length < 2)
 		return RAISE(PyExc_ValueError, "points argument must contain more than 1 points");
-
+printf("LINES: closed=%d length=%d width=%d\n", closed, length, width);
 	item = PySequence_GetItem(points, 0);
 	result = TwoShortsFromObj(item, &x, &y);
 	Py_DECREF(item);
@@ -226,6 +230,184 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	/*compute return rect*/
 	return PyRect_New4((short)left, (short)top, (short)(right-left+1), (short)(bottom-top+1));
 }
+
+
+    /*DOC*/ static char doc_ellipse[] =
+    /*DOC*/    "pygame.draw.ellipse(Surface, color, Rect, width) -> Rect\n"
+    /*DOC*/    "draw an ellipse on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws a circular shape on the Surface. The given rectangle\n"
+    /*DOC*/    "is the area that the circle will fill. The width argument is\n"
+    /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
+    /*DOC*/    "the ellipse will be filled.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* ellipse(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj, *rectobj;
+	GAME_Rect *rect, temp;
+	SDL_Surface* surf;
+	Uint8 rgba[4];
+	Uint32 color;
+	int width, result, loop;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!OOi", &PySurface_Type, &surfobj, &colorobj, &rectobj, &width))
+		return NULL;
+	rect = GameRect_FromObject(rectobj, &temp);
+	if(!rect)
+		return RAISE(PyExc_TypeError, "Invalid recstyle argument");
+
+	surf = PySurface_AsSurface(surfobj);
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
+
+	if(PyInt_Check(colorobj))
+		color = (Uint32)PyInt_AsLong(colorobj);
+	else if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
+
+
+	if(!PySurface_Lock(surfobj)) return NULL;
+
+	if(!width)
+		result = draw_fillellipse(surf, (Sint16)(rect->x+rect->w/2), (Sint16)(rect->y+rect->h/2),
+					(Sint16)(rect->w/2), (Sint16)(rect->h/2), color);
+	else
+	{
+		width = min(width, min(rect->w, rect->h) / 2);
+		result = 0;
+		
+		for(loop=0; loop<width; ++loop)
+		{
+			result += draw_ellipse(surf, rect->x+rect->w/2, rect->y+rect->h/2,
+						rect->w/2-loop, rect->h/2-loop, color);
+		}
+	}
+
+	if(!PySurface_Unlock(surfobj)) return NULL;
+
+	if(!result)
+		RETURN_NONE
+	return PyRect_New4(rect->x, rect->y, rect->w, rect->h);
+}
+
+
+
+    /*DOC*/ static char doc_polygon[] =
+    /*DOC*/    "pygame.draw.polygon(Surface, color, pointslist, width) -> Rect\n"
+    /*DOC*/    "draw multiple connected lines on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws a polygonal shape on the Surface. The given points\n"
+    /*DOC*/    "is the list of points to connect. If you pass a true\n"
+    /*DOC*/    "value for the filled argument, the polygon will be filled in.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* polygon(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj, *points, *item;
+	SDL_Surface* surf;
+	Uint8 rgba[4];
+	Uint32 color;
+	int width, length, loop, numpoints;
+	int *xlist, *ylist;
+	short x, y, top, left, bottom, right, result;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!OOi", &PySurface_Type, &surfobj, &colorobj, &points, &width))
+		return NULL;
+
+	
+	if(width)
+	{
+		PyObject *args, *ret;
+printf("POLY: falling back to lines (%d)\n", width);
+		args = Py_BuildValue("(OOiOi)", surfobj, colorobj, 1, points, width);
+		if(!args) return NULL;
+		ret = lines(NULL, args);
+		Py_DECREF(args);
+		return ret;
+	}
+	
+	
+	surf = PySurface_AsSurface(surfobj);
+
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
+
+	if(PyInt_Check(colorobj))
+		color = (Uint32)PyInt_AsLong(colorobj);
+	else if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
+
+	if(!PySequence_Check(points))
+		return RAISE(PyExc_TypeError, "points argument must be a sequence of number pairs");
+	length = PySequence_Length(points);
+	if(length < 3)
+		return RAISE(PyExc_ValueError, "points argument must contain more than 2 points");
+
+
+	item = PySequence_GetItem(points, 0);
+	result = TwoShortsFromObj(item, &x, &y);
+	Py_DECREF(item);
+	if(!result) return RAISE(PyExc_TypeError, "points must be number pairs");
+	left = right = x;
+	top = bottom = y;
+
+	xlist = PyMem_New(int, length);
+	ylist = PyMem_New(int, length);
+
+	numpoints = 0;
+	for(loop = 0; loop < length; ++loop)
+	{
+		item = PySequence_GetItem(points, loop);
+		result = TwoShortsFromObj(item, &x, &y);
+		Py_DECREF(item);
+		if(!result) continue; /*note, we silently skip over bad points :[ */
+		xlist[numpoints] = x;
+		ylist[numpoints] = y;
+		++numpoints;
+		left = min(x, left);
+		top = min(y, top);
+		right = max(x, right);
+		bottom = max(y, bottom);
+	}
+
+	if(!PySurface_Lock(surfobj))
+	{
+		PyMem_Del(xlist); PyMem_Del(ylist);
+		return NULL;
+	}
+
+	result = draw_fillpoly(surf, xlist, ylist, numpoints, color);
+
+	PyMem_Del(xlist); PyMem_Del(ylist);
+	if(!PySurface_Unlock(surfobj))
+		return NULL;
+
+	if(!result)
+		RETURN_NONE
+
+	left = max(left, surf->clip_rect.x);
+	top = max(top, surf->clip_rect.y);
+	right = min(right, surf->clip_rect.x + surf->clip_rect.w);
+	bottom = min(bottom, surf->clip_rect.y + surf->clip_rect.h);
+	return PyRect_New4(left, top, (short)(right-left+1), (short)(bottom-top+1));
+}
+
+
 
 
 
@@ -286,10 +468,10 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 		}
 		if(loop+1<width)
 		{
-			newpts[0] = pts[0] - xinc*loop/2;
-			newpts[1] = pts[1] - yinc*loop/2;
-			newpts[2] = pts[2] - xinc*loop/2;
-			newpts[3] = pts[3] - yinc*loop/2;
+			newpts[0] = pts[0] - xinc*(loop/2+1);
+			newpts[1] = pts[1] - yinc*(loop/2+1);
+			newpts[2] = pts[2] - xinc*(loop/2+1);
+			newpts[3] = pts[3] - yinc*(loop/2+1);
 			if(clip_and_draw_line(surf, rect, color, newpts))
 			{
 				anydrawn = 1;
@@ -465,7 +647,6 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 		end = pixel + x1 * surf->format->BytesPerPixel;
 		pixel += x2 * surf->format->BytesPerPixel;
 	}
-
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
@@ -486,10 +667,375 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 		}break;
 	default: /*case 4*/
 		for(; pixel <= end; pixel+=4) {
-			*(Uint32*)pixel = (Uint32)color;
+			*(Uint32*)pixel = color;
 		}break;
 	}
 }
+
+static void drawhorzlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2)
+{
+	if(y1 < surf->clip_rect.y || y1 > surf->clip_rect.y + surf->clip_rect.h)
+		return;
+	x1 = max(x1, surf->clip_rect.x);
+	x2 = min(x2, surf->clip_rect.x + surf->clip_rect.w);
+	if(x2 - x1 < 1)
+		return;
+	drawhorzline(surf, color, x1, y1, x2);
+}
+
+
+static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
+{
+	SDL_PixelFormat* format = surf->format;
+	Uint8* pixels = (Uint8*)surf->pixels;
+	Uint8* byte_buf, rgb[4];
+
+	if(x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
+				y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h)
+	return 0;
+
+	switch(format->BytesPerPixel)
+	{
+		case 1:
+			*((Uint8*)pixels + y * surf->pitch + x) = (Uint8)color;
+			break;
+		case 2:
+			*((Uint16*)(pixels + y * surf->pitch) + x) = (Uint16)color;
+			break;
+		case 4:
+			*((Uint32*)(pixels + y * surf->pitch) + x) = color;
+			break;
+		default:/*case 3:*/
+			SDL_GetRGB(color, format, rgb, rgb+1, rgb+2);
+			byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
+			*(byte_buf + (format->Rshift >> 3)) = rgb[0];
+			*(byte_buf + (format->Gshift >> 3)) = rgb[1];
+			*(byte_buf + (format->Bshift >> 3)) = rgb[2];	
+			break;
+	}
+	return 1;
+}
+
+
+static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
+{
+	int result;
+	int ix, iy;
+	int h, i, j, k;
+	int oh, oi, oj, ok;
+	int xmh, xph, ypk, ymk;
+	int xmi, xpi, ymj, ypj;
+	int xmj, xpj, ymi, ypi;
+	int xmk, xpk, ymh, yph;
+	
+#if 0
+	/* Special case for rx=0 - draw a vline */
+	if (rx==0)
+		return(vlineColor (dst, x, (Sint16)(y-ry), (Sint16)(y+ry), color));  
+	/* Special case for ry=0 - draw a hline */
+	if (ry==0)
+		return(hlineColor (dst, (Sint16)(x-rx), (Sint16)(x+rx), y, color));  
+	
+	/* Test bounding box */
+	x1=x-rx;
+	y1=y-ry;
+	x2=x+rx;
+	y2=y+ry;
+	if (!(clipLine(dst,&x1,&y1,&x2,&y2))) {
+		return(0);
+	}
+#endif
+	
+	/* Init vars */
+	oh = oi = oj = ok = 0xFFFF;
+	
+	/* Draw */
+	result=0;
+
+	if (rx > ry) {
+		ix = 0;
+		iy = rx * 64;
+		do {
+			h = (ix + 32) >> 6;
+			i = (iy + 32) >> 6;
+			j = (h * ry) / rx;
+			k = (i * ry) / rx;
+			
+			if (((ok!=k) && (oj!=k)) || ((oj!=j) && (ok!=j)) || (k!=j)) {
+				xph=x+h;
+				xmh=x-h;
+				if (k>0) {
+					ypk=y+k;
+					ymk=y-k;
+					set_at(dst, xmh, ypk, color);
+					set_at(dst, xph, ypk, color);
+					set_at(dst, xmh, ymk, color);
+					set_at(dst, xph, ymk, color);
+				} else {
+					set_at(dst, xmh, y, color);
+					set_at(dst, xph, y, color);
+				}
+				ok=k;
+				xpi=x+i;
+				xmi=x-i;
+				if (j>0) {
+					ypj=y+j;
+					ymj=y-j;
+					set_at(dst, xmi, ypj, color);
+					set_at(dst, xpi, ypj, color);
+					set_at(dst, xmi, ymj, color);
+					set_at(dst, xpi, ymj, color);
+				} else {
+					set_at(dst, xmi, y, color);
+					set_at(dst, xpi, y, color);
+				}
+				oj=j;
+			}
+			ix = ix + iy / rx;
+			iy = iy - ix / rx;
+			
+		} while (i > h);
+	} else {
+		ix = 0;
+		iy = ry * 64;
+		do {
+			h = (ix + 32) >> 6;
+			i = (iy + 32) >> 6;
+			j = (h * rx) / ry;
+			k = (i * rx) / ry;
+			
+			if (((oi!=i) && (oh!=i)) || ((oh!=h) && (oi!=h) && (i!=h))) {
+				xmj=x-j;
+				xpj=x+j;
+				if (i>0) {
+					ypi=y+i;
+					ymi=y-i;
+					set_at(dst, xmj, ypi,color);
+					set_at(dst, xpj, ypi,color);
+					set_at(dst, xmj, ymi,color);
+					set_at(dst, xpj, ymi,color);
+				} else {
+					set_at(dst, xmj, y,color);
+					set_at(dst, xpj, y,color);
+				}
+				oi=i;
+				xmk=x-k;
+				xpk=x+k;
+				if (h>0) {
+					yph=y+h;
+					ymh=y-h;
+					set_at(dst, xmk, yph, color);
+					set_at(dst, xpk, yph, color);
+					set_at(dst, xmk, ymh, color);
+					set_at(dst, xpk, ymh, color);
+				} else {
+					set_at(dst, xmk, y, color);
+					set_at(dst, xpk, y, color);			 
+				}
+				oh=h;
+			}
+			ix = ix + iy / ry;
+			iy = iy - ix / ry;
+		} while(i > h);
+	}
+	
+	return 1;
+}
+
+
+
+
+
+
+
+static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
+{
+	int result;
+	int ix, iy;
+	int h, i, j, k;
+	int oh, oi, oj, ok;
+	int xmh, xph;
+	int xmi, xpi;
+	int xmj, xpj;
+	int xmk, xpk;
+	
+	
+#if 0
+	/* Special case for rx=0 - draw a vline */
+	if (rx==0) {
+		return(vlineColor (dst, x, (Sint16)(y-ry), (Sint16)(y+ry), color));  
+	}
+	/* Special case for ry=0 - draw a hline */
+	if (ry==0) {
+		return(hlineColor (dst, (Sint16)(x-rx), (Sint16)(x+rx), y, color));  
+	}
+	
+	/* Test bounding box */
+	x1=x-rx;
+	y1=y-ry;
+	x2=x+rx;
+	y2=y+ry;
+	if (!(clipLine(dst,&x1,&y1,&x2,&y2))) {
+		return(0);
+	}
+#endif
+	
+	/* Init vars */
+	oh = oi = oj = ok = 0xFFFF;
+	
+	/* Draw */
+	result=0;  
+	if (rx > ry) {
+		ix = 0;
+		iy = rx * 64;
+		
+		do {
+			h = (ix + 32) >> 6;
+			i = (iy + 32) >> 6;
+			j = (h * ry) / rx;
+			k = (i * ry) / rx;
+			
+			if ((ok!=k) && (oj!=k)) {
+				xph=x+h;
+				xmh=x-h;
+				if (k>0) {
+					drawhorzlineclip(dst, color, xmh, y+k, xph);
+					drawhorzlineclip(dst, color, xmh, y-k, xph);
+				} else {
+					drawhorzlineclip(dst, color, xmh,  y, xph);
+				}
+				ok=k;
+			}
+			if ((oj!=j) && (ok!=j) && (k!=j))  {
+				xmi=x-i;
+				xpi=x+i;
+				if (j>0) {
+					drawhorzlineclip(dst, color, xmi, y+j, xpi);
+					drawhorzlineclip(dst, color, xmi, y-j, xpi);
+				} else {
+					drawhorzlineclip(dst, color, xmi, y, xpi);
+				}
+				oj=j;
+			}
+			
+			ix = ix + iy / rx;
+			iy = iy - ix / rx;
+			
+		} while (i > h);
+	} else {
+		ix = 0;
+		iy = ry * 64;
+		
+		do {
+			h = (ix + 32) >> 6;
+			i = (iy + 32) >> 6;
+			j = (h * rx) / ry;
+			k = (i * rx) / ry;
+			
+			if ((oi!=i) && (oh!=i)) {
+				xmj=x-j;
+				xpj=x+j; 
+				if (i>0) {
+					drawhorzlineclip(dst, color, xmj, y+i, xpj);
+					drawhorzlineclip(dst, color, xmj, y-i, xpj);
+				} else {
+					drawhorzlineclip(dst, color, xmj, y, xpj);
+				}
+				oi=i;
+			}
+			if ((oh!=h) && (oi!=h) && (i!=h)) {
+				xmk=x-k;
+				xpk=x+k;
+				if (h>0) {
+					drawhorzlineclip(dst, color, xmk, y+h, xpk);
+					drawhorzlineclip(dst, color, xmk, y-h, xpk);
+				} else {
+					drawhorzlineclip(dst, color, xmk, y, xpk);
+				}
+				oh=h;
+			}
+			
+			ix = ix + iy / ry;
+			iy = iy - ix / ry;
+			
+		} while(i > h);
+	}
+	
+	return(result);
+}
+
+
+static int compare_int(const void *a, const void *b)
+{
+	return (*(const int *)a) - (*(const int *)b);
+}
+
+static int draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
+{
+	int result;
+	int i;
+	int y;
+	int miny, maxy;
+	int x1, y1;
+	int x2, y2;
+	int ind1, ind2;
+	int ints;
+	int *polyints = PyMem_New(int, n);
+
+	
+	/* Determine Y maxima */
+	miny = vy[0];
+	maxy = vy[0];
+	for (i=1; (i < n); i++)
+	{
+		miny = min(miny, vy[i]);
+		maxy = max(maxy, vy[i]);
+	}
+	
+	/* Draw, scanning y */
+	result=0;
+	for(y=miny; (y <= maxy); y++) {
+		ints = 0;
+		for (i=0; (i < n); i++) {
+			if (!i) {
+				ind1 = n-1;
+				ind2 = 0;
+			} else {
+				ind1 = i-1;
+				ind2 = i;
+			}
+			y1 = vy[ind1];
+			y2 = vy[ind2];
+			if (y1 < y2) {
+				x1 = vx[ind1];
+				x2 = vx[ind2];
+			} else if (y1 > y2) {
+				y2 = vy[ind1];
+				y1 = vy[ind2];
+				x2 = vx[ind1];
+				x1 = vx[ind2];
+			} else {
+				continue;
+			}
+			if ((y >= y1) && (y < y2)) {
+				polyints[ints++] = (y-y1) * (x2-x1) / (y2-y1) + x1;
+			} else if ((y == maxy) && (y > y1) && (y <= y2)) {
+				polyints[ints++] = (y-y1) * (x2-x1) / (y2-y1) + x1;
+			}
+		}
+		qsort(polyints, ints, sizeof(int), compare_int);
+		
+		for (i=0; (i<ints); i+=2) {
+			drawhorzlineclip(dst, color, polyints[i], y, polyints[i+1]);
+		}
+	}
+	
+	return 1;
+}
+
+
+
+
 
 
 
@@ -497,6 +1043,9 @@ static PyMethodDef draw_builtins[] =
 {
 	{ "line", line, 1, doc_line },
 	{ "lines", lines, 1, doc_lines },
+
+	{ "ellipse", ellipse, 1, doc_ellipse },
+	{ "polygon", polygon, 1, doc_polygon },
 
 	{ NULL, NULL }
 };
