@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 16, 2004
+    mixer.set_num_channels() no longer crashes [BUG]
+    mixer.music.get_pos() properly tracks when paused
+    pygame.display.get_wm_info() added, gets a dictionary
+
 July 6, 2004
     Sound object newstyle types
     added Sound.get_length()

@@ -122,6 +122,10 @@ get status of display module initialization</td></tr>
 get current display surface</td></tr>
 
 
+<tr><td><a href=#get_wm_info>get_wm_info</a></td><td> -
+get settings from the system window manager</td></tr>
+
+
 <tr><td><a href=#gl_get_attribute>gl_get_attribute</a></td><td> -
 get special OPENGL attributes</td></tr>
 
@@ -252,6 +256,19 @@ pygame.display.get_surface() -> Surface
 </tt></font><ul>
 Returns a Surface object representing the current display. Will
 return None if called before the display mode is set.
+</ul><br>&nbsp;<br>
+
+<a name=get_wm_info><font size=+2><b>get_wm_info
+</b></font><br><font size=+1><tt>
+pygame.display.get_wm_info() -> dictionary
+</tt></font><ul>
+Creates a dictionary filled with name and value pairs.
+Most platforms will have a 'window' value, set to the
+system's window id number or handle.
+Different platforms will get different key values, which
+are entirely dependent on SDL.
+On rare platforms this is unimplmented in the SDL system, and
+you will get an empty dictionary.
 </ul><br>&nbsp;<br>
 
 <a name=gl_get_attribute><font size=+2><b>gl_get_attribute
