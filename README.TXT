@@ -1,5 +1,5 @@
-Pygame Version 1.0 (pre)
-March 28th, 2001
+Pygame Version 1.0
+April 4th, 2001
 
 Python Game Development
 by Pete Shinners
