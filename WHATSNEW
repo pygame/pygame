@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 1, 2002
+	locking problem with 90 degree rotate [BUG]
+
 January 31, 2002
 	removed emberrasing debug printing
 	draw.rect does inside edge for bottomright
