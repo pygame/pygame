@@ -64,6 +64,10 @@ and the CD objects.
 ejects cdrom drive</td></tr>
 
 
+<tr><td><a href=#get_all>get_all</a></td><td> -
+get all track information for the cd</td></tr>
+
+
 <tr><td><a href=#get_busy>get_busy</a></td><td> -
 checks if the cd is currently playing</td></tr>
 
@@ -142,6 +146,17 @@ CD.eject() -> None
 </tt></font><ul>
 Ejects the media from the CDROM drive. If the drive is empty, this
 will open the CDROM drive.
+</ul><br>&nbsp;<br>
+
+<a name=get_all><font size=+2><b>get_all
+</b></font><br><font size=+1><tt>
+CD.get_all() -> tuple
+</tt></font><ul>
+Returns a tuple with values for each track on the CD.
+Each item in the tuple is a tuple with 4 values for each
+track. First is a boolean set to true if this is an audio
+track. The next 3 values are the start time, end time, and
+length of the track.
 </ul><br>&nbsp;<br>
 
 <a name=get_busy><font size=+2><b>get_busy
@@ -251,9 +266,13 @@ do nothing.
 
 <a name=play><font size=+2><b>play
 </b></font><br><font size=+1><tt>
-CD.play(track) -> None
+CD.play(track, [start, end]) -> None
 </tt></font><ul>
 Play an audio track on a cdrom disk.
+You may also optionally pass a starting and ending
+time to play of the song. If you pass the start end
+end time in seconds, only that portion of the audio
+track will be played
 </ul><br>&nbsp;<br>
 
 <a name=quit><font size=+2><b>quit
