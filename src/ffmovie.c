@@ -31,6 +31,9 @@ The ffmpeg library is released as LGPL software.
 #endif
 
 
+static int Global_abort_all = 0;
+static int Global_num_active = 0;
+
 
 static void print_error(const char *filename, int err)
 {
@@ -124,7 +127,7 @@ static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
     SDL_LockMutex(q->mutex);
 
     for(;;) {
-        if (q->abort_request) {
+        if (q->abort_request || Global_abort_all) {
             ret = -1;
             break;
         }
@@ -158,7 +161,6 @@ static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
 static void video_display(FFMovie *movie)
 {
 /*DECODE THREAD - from video_refresh_timer*/
-/*would prefer from the decode thread mainloop when time is right*/
 
     SDL_LockMutex(movie->dest_mutex);
     if (movie->dest_overlay) {
@@ -186,21 +188,11 @@ static double get_audio_clock(FFMovie *movie)
     return pts;
 }
 
-#if 0
-/* THIS SEEMS TO RETURN THE SAME TIME EVERYTIME? */
-static double get_master_clock(FFMovie *movie)
-{
-    int64_t ti;
-    ti = av_gettime();
-//    return movie->external_clock + ((ti - movie->external_clock_time) * 1e-6);
-    return ti * 1e-6;
-}
-#else
+
 static double get_master_clock(FFMovie *movie) {
     Uint32 ticks = SDL_GetTicks();
     return (ticks / 1000.0) - movie->time_offset;
 }
-#endif
 
 
 
@@ -209,6 +201,7 @@ static void video_refresh_timer(FFMovie* movie)
 {
 /*moving to DECODE THREAD, from queue_frame*/
     double actual_delay, delay, sync_threshold, ref_clock, diff;
+    int skipframe = 0;
 
     if (movie->video_st) { /*shouldn't ever even get this far if no video_st*/
 
@@ -235,10 +228,12 @@ static void video_refresh_timer(FFMovie* movie)
         if (delay > sync_threshold)
             sync_threshold = delay;
         if (fabs(diff) < AV_NOSYNC_THRESHOLD) {
-            if (diff <= -sync_threshold)
+            if (diff <= -sync_threshold) {
+                skipframe = 1;
                 delay = 0;
-            else if (diff >= sync_threshold)
+            } else if (diff >= sync_threshold) {
                 delay = 2 * delay;
+            }
         }
 
         movie->frame_timer += delay;
@@ -247,6 +242,10 @@ static void video_refresh_timer(FFMovie* movie)
 //                (float)delay, (float)movie->frame_timer, (float)movie->video_clock);
         if (actual_delay > 0.010) {
             movie->dest_showtime = movie->frame_timer;
+        }
+        if (skipframe) {
+            movie->dest_showtime = 0;
+            /*movie->dest_showtime = get_master_clock(movie); this shows every frame*/
         }
     }
 }
@@ -373,8 +372,6 @@ movie->frame_count++; /*this should probably represent displayed frames, not dec
 
 
 
-
-
 /* return the new audio buffer size (samples can be added or deleted
    to get better sync if video or external master clock) */
 static int synchronize_audio(FFMovie *movie, short *samples,
@@ -455,7 +452,7 @@ static int audio_decode_frame(FFMovie *movie, uint8_t *audio_buf, double *pts_pt
     double pts;
 
     for(;;) {
-        if (movie->paused || movie->audioq.abort_request) {
+        if (movie->paused || movie->audioq.abort_request || Global_abort_all) {
             return -1;
         }
         while (movie->audio_pkt_size > 0) {
@@ -515,8 +512,7 @@ void sdl_audio_callback(void *opaque, Uint8 *stream, int len)
                movie->audio_buf_size = 1024;
                memset(movie->audio_buf, 0, movie->audio_buf_size);
            } else {
-               audio_size = synchronize_audio(movie, (int16_t *)movie->audio_buf, audio_size,
-                                              pts);
+               audio_size = synchronize_audio(movie, (int16_t*)movie->audio_buf, audio_size, pts);
                movie->audio_buf_size = audio_size;
            }
            movie->audio_buf_index = 0;
@@ -564,6 +560,8 @@ static void ffmovie_cleanup(FFMovie *movie) {
         SDL_FreeYUVOverlay(movie->dest_overlay);
         movie->dest_overlay = NULL;
     }
+
+    Global_num_active--;
 }
 
 
@@ -575,7 +573,7 @@ static int decode_thread(void *arg)
     int status;
     AVPacket pkt1, *pkt = &pkt1;
 
-    while(!movie->abort_request) {
+    while(!movie->abort_request && !Global_abort_all) {
         /* read if the queues have room */
         if (movie->audioq.size < MAX_AUDIOQ_SIZE &&
             !movie->dest_showtime) {
@@ -613,7 +611,7 @@ static int decode_thread(void *arg)
         
         if(movie->paused) {
             double endpause, startpause = SDL_GetTicks() / 1000.0;
-            while(movie->paused && !movie->abort_request) {
+            while(movie->paused && !movie->abort_request && !Global_abort_all) {
                 SDL_Delay(100);
             }
             endpause = SDL_GetTicks() / 1000.0;
@@ -632,7 +630,7 @@ static int audiostream_init(FFMovie *movie, AVStream *stream)
 /* MAIN THREAD */
     AVCodec *codec;
     SDL_AudioSpec wanted_spec, spec;
-    
+
     codec = avcodec_find_decoder(stream->codec.codec_id);
     if (!codec || avcodec_open(&stream->codec, codec) < 0) {
         return -1;
@@ -759,6 +757,7 @@ FFMovie *ffmovie_open(const char *filename)
     movie->time_offset = 0.0;
     movie->paused = 1;
 
+    Global_num_active++;
     movie->decode_thread = SDL_CreateThread(decode_thread, movie);
     if (!movie->decode_thread) {
         ffmovie_cleanup(movie);
@@ -771,9 +770,12 @@ FFMovie *ffmovie_open(const char *filename)
 void ffmovie_close(FFMovie *movie)
 {
 /*MAIN THREAD*/
-    movie->abort_request = 1;
+   movie->abort_request = 1;
+printf("ffmovie_close, wait thread %p\n", movie);
     SDL_WaitThread(movie->decode_thread, NULL);
+printf("ffmovie_close, freemem %p\n", movie);
     av_free(movie);
+printf("ffmovie_close, finished\n");
 }
 
 void ffmovie_play(FFMovie *movie) {
@@ -874,4 +876,16 @@ void ffmovie_setvolume(FFMovie *movie, int volume) {
         movie->audio_volume = volume;
         /*note, i'll need to multiply the sound data myself*/
     }
+}
+
+
+
+void ffmovie_abortall() {
+    Global_abort_all = 1;
+printf("Movie abort all waiting for %d movies...\n", Global_num_active);
+    while(Global_num_active > 0) {
+        SDL_Delay(200);
+    }
+printf("Movie abort all, finished\n");
+    Global_abort_all = 0;
 }
