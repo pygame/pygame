@@ -615,7 +615,7 @@ printf("  ~decode thread, enter mainloop\n");
         
         if(movie->paused) {
             double endpause, startpause = SDL_GetTicks() / 1000.0;
-            while(movie->paused && !movie->abortrequested) {
+            while(movie->paused && !movie->abort_request) {
                 SDL_Delay(100);
             }
             endpause = SDL_GetTicks() / 1000.0;

@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 1, 2004
+    updated sprite module, Joe Wresching
+
 March 29, 2004
     checkin movie current rewrite, still rough, libavcodec
 
