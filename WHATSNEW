@@ -1,7 +1,8 @@
 #This is a list of changes in pygame's history.
 
-Jan 2, 2001
-	surfarray cleanups and improvements (still not 100%)
+Jan 4, 2001
+	Surface.blit() allows for rects as dest position
+	surfarray cleanups and improvements
 
 Dec 22, 2000
 	timer threads properly shutdown
