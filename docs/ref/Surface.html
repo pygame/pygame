@@ -264,6 +264,11 @@ As a shortcut, the destination position can be passed as a
 rectangle. If a rectangle is given, the blit will use the topleft
 corner of the rectangle as the blit destination position. The
 rectangle sizes will be ignored.
+
+<br>&nbsp;<br>
+Note that blitting alpha surfaces onto an 8bit destination will
+crash SDL. Pygame will disable the alpha when these blits are attempted.
+
 </ul><br>&nbsp;<br>
 
 <a name=convert><font size=+2><b>convert
