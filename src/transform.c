@@ -123,11 +123,7 @@ static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, int cx, i
 			for(x = 0; x < dst->w; x++) {
 				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval)
 				{
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
 					dstpos[0] = ((Uint8*)&bgcolor)[0]; dstpos[1] = ((Uint8*)&bgcolor)[1]; dstpos[2] = ((Uint8*)&bgcolor)[2];
-#else
-					dstpos[0] = ((Uint8*)&bgcolor)[4]; dstpos[3] = ((Uint8*)&bgcolor)[1]; dstpos[2] = ((Uint8*)&bgcolor)[2];
-#endif
 					dstpos += 3;
 				}
 				else {
@@ -159,8 +155,6 @@ static void stretch(SDL_Surface *src, SDL_Surface *dst)
 	int dstwidth2 = dst->w << 1;
 	int dstheight2 = dst->h << 1;
 
-	int srcwidth = src->w;
-	int srcheight = src->h;
 	int srcwidth2 = src->w << 1;
 	int srcheight2 = src->h << 1;
 
@@ -241,7 +235,7 @@ static void stretch(SDL_Surface *src, SDL_Surface *dst)
     /*DOC*/    "pygame.transform.scale(Surface, size) -> Surface\n"
     /*DOC*/    "scale a Surface to an arbitrary size\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Scale the image to the new resolution.\n"
+    /*DOC*/    "This will resize a surface to the given resolution.\n"
     /*DOC*/ ;
 
 static PyObject* surf_scale(PyObject* self, PyObject* arg)
@@ -277,8 +271,14 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
     /*DOC*/    "rotate a Surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Rotates the image clockwise with the given angle (in degrees).\n"
-    /*DOC*/    "The result size will likely be a different resolution than the\n"
-    /*DOC*/    "original.\n"
+    /*DOC*/    "The image can be any floating point value, and negative\n"
+    /*DOC*/    "rotation amounts will do counter-clockwise rotations.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Unless rotating by 90 degree increments, the resulting image\n"
+    /*DOC*/    "size will be larger than the original. There will be newly\n"
+    /*DOC*/    "uncovered areas in the image. These will filled with either\n"
+    /*DOC*/    "the current colorkey for the Surface, or the topleft pixel value.\n"
+    /*DOC*/    "(with the alpha channel zeroed out if available)\n"
     /*DOC*/ ;
 
 static PyObject* surf_rotate(PyObject* self, PyObject* arg)
@@ -322,7 +322,9 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 
 	/* get the background color */
 	if(surf->flags & SDL_SRCCOLORKEY)
+	{
 		bgcolor = surf->format->colorkey;
+	}
 	else
 	{
 		switch(surf->format->BytesPerPixel)
@@ -336,6 +338,7 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 #else
 			bgcolor = (((Uint8*)surf->pixels)[2]) + (((Uint8*)surf->pixels)[1]<<8) + (((Uint8*)surf->pixels)[0]<<16);
 #endif
+			bgcolor &= ~surf->format->Amask;
 		}
 	}
 
@@ -512,7 +515,14 @@ static PyMethodDef transform_builtins[] =
     /*DOC*/    "return a new copy of that surface in the same format as\n"
     /*DOC*/    "the original.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "These routines are not filtered or smoothed.\n"
+    /*DOC*/    "These transform routines are not filtered or smoothed.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some of the\n"
+    /*DOC*/    "filters are 'destructive', which means if you transform\n"
+    /*DOC*/    "the image one way, you can't transform the image back to\n"
+    /*DOC*/    "the exact same way as it was before. If you plan on doing\n"
+    /*DOC*/    "many transforms, it is good practice to keep the original\n"
+    /*DOC*/    "untransformed image, and only translate that image.\n"
     /*DOC*/ ;
 
 PYGAME_EXPORT
