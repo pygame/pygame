@@ -150,10 +150,10 @@ def findtutorials():
     fileline = '<li><a href=%s>%s</a> - %s</li>'
     texthead = '<font size=+1><b>Text File Documentation</b></font><br>'
     tuthead = '<font size=+1><b>Tutorials</b></font><br>'
-    texts1 = glob.glob('../*.txt') + ['../LGPL']
+    texts1 = glob.glob('../*.txt') + ['../LGPL', '../../README.TXT']
     texts1.sort()
-    texts2 = [os.path.split(x)[1] for x in texts1]
-    texts3 = [os.path.splitext(x)[0] for x in texts2]
+    texts2 = [x[3:] for x in texts1]
+    texts3 = [os.path.splitext(os.path.split(x)[-1])[0] for x in texts2]
     texts4 = [open(x).readline().strip().capitalize() for x in texts1]
     texts = [fileline%x for x in zip(texts2, texts3, texts4)]
     finaltext = texthead + '\n'.join(texts)
