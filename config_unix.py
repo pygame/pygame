@@ -7,10 +7,7 @@ from distutils.sysconfig import get_python_inc
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '') #do we still need this?
-incdirs.append("/usr/include")
-incdirs.append("/include")
-libdirs.append("/usr/lib")
-libdirs.append("/lib")
+
 
 
 
@@ -146,31 +143,29 @@ def main():
     if not DEPS[0].found:
         print 'Unable to run "sdl-config". Please make sure a development version of SDL is installed.'
         raise SystemExit
-		
 
+    incdirs = ['/usr/include', '/include']
+    libdirs = ['/usr/lib', '/lib']
     if localbase: #unneeded?
         incdirs = [localbase + '/include/SDL']
         libdirs = [localbase + '/lib']
-    else:
-        incdirs = ['/usr/include']
-        libdirs = ['/usr/lib']
-        for arg in string.split(DEPS[0].cflags):
-            if arg[:2] == '-I':
-                incdirs.append(arg[2:])
-            elif arg[:2] == '-L':
-                libdirs.append(arg[2:])
+    for arg in string.split(DEPS[0].cflags):
+        if arg[:2] == '-I':
+            incdirs.append(arg[2:])
+        elif arg[:2] == '-L':
+            libdirs.append(arg[2:])
     for d in DEPS:
         d.configure(incdirs, libdirs)
 
 
     for d in DEPS[1:]:
-	if not d.found:
-		if not confirm("""
+        if not d.found:
+            if not confirm("""
 Warning, some of the pygame dependencies were not found. Pygame can still
 compile and install, but games that depend on those missing dependencies
 will not run. Would you like to continue the configuration?"""):
-			raise SystemExit
-		break
+                raise SystemExit
+            break
 
     return DEPS
 
