@@ -1,3 +1,4 @@
+Version: 0.3
 
 pygame is a cross-platfrom library designed to make it easy to write
 multimedia software, such as games, in Python.

@@ -11,10 +11,9 @@ will probably not find the correct directory.
 import os, sys, shutil
 from glob import glob
 
-
-
 huntpaths = ['..', '..'+os.sep+'..', '..'+os.sep+'*', \
              '..'+os.sep+'..'+os.sep+'*']
+
 
 class Dependency:
     inc_hunt = ['include']
