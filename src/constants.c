@@ -53,6 +53,12 @@ void initconstants(void)
 
 	module = Py_InitModule3("constants", builtins, doc_pygame_constants_MODULE);
 
+	DEC_CONST(YV12_OVERLAY);
+	DEC_CONST(IYUV_OVERLAY);
+	DEC_CONST(YUY2_OVERLAY);
+	DEC_CONST(UYVY_OVERLAY);
+	DEC_CONST(YVYU_OVERLAY);
+
 	DEC_CONST(SWSURFACE);
 	DEC_CONST(HWSURFACE);
 	DEC_CONST(RESIZABLE);

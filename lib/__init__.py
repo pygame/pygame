@@ -106,6 +106,9 @@ except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
 
+try: from pygame.overlay import *
+except (ImportError,IOError):Overlay = lambda:Missing_Function
+
 try: import pygame.time
 except (ImportError,IOError), msg:time=MissingModule("time", msg, 1)
 
