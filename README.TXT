@@ -57,6 +57,7 @@ At some point it would be nice to add support for more external
 python libraries, here are some ideas...
  - smarten the config.py and setup.py stuff
  - make object constructors (Rect, Surface) the actual type
+ - transform.skew() function
 
 
 CREDITS
@@ -66,7 +67,7 @@ Thanks to everyone who made this possible, including:
 - David Clark for RPMs and all around help
 - Ed Boraas and Francis Irving for Debian packaging
 - Maxim Sobolev for FreeBSD port maintenance
-- Bob Ippolito for the MacOS porting
+- Bob Ippolito for the MacOS and OSX porting (much work!)
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for early design reviews
 - Our list of valiant bug fixers:
 	Niki Spahiev, Gordon Tyler,
