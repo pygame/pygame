@@ -55,7 +55,7 @@
 
      Maxim Sobolev - FreeBSD packaging
 
-     Bob Ippolito - MacOS and OSX porting (much work!)
+     Bob Ippolito - MacOS and OS X porting (much work!)
 
      Jan Ekhol, Ray Kelm, and Peter Nicolai - putting up with my early
    design ideas
