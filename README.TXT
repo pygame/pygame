@@ -1,7 +1,9 @@
 Version: 0.4
 December 13, 2000
-(Installation instructions and more in the "docs" directory...)
 
+Quick installation instructions can be found in the file "install.txt"
+in this directory. Look in the docs directory for an "install.txt" with
+further details.
 
 With the 0.4 release things are looking really good. We've reached
 the point where full python games are approachable with pygame.
