@@ -55,12 +55,11 @@ static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 
 static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, int cx, int cy, int isin, int icos)
 {
-	int x, y, dx, dy, sdx, sdy;
+	int x, y, dx, dy;
 
 	Uint8 *srcpix = (Uint8*)src->pixels;
 	Uint8 *dstrow = (Uint8*)dst->pixels;
 
-	int pixsize = src->format->BytesPerPixel;
 	int srcpitch = src->pitch;
 	int dstpitch = dst->pitch;
 
@@ -70,28 +69,77 @@ static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, int cx, i
 	int ax = (cx << 16) - (icos * cx);
 	int ay = (cy << 16) - (isin * cx);
 
-	for(y = 0; y < dst->h; y++)
+	int minval = (1 << 16) - 1;
+	int xmaxval = src->w << 16;
+	int ymaxval = src->h << 16;
+
+	switch(src->format->BytesPerPixel)
 	{
-		Uint8 *srcpos, *dstpos = (Uint8*)dstrow;
-		dy = cy - y;
-		sdx = (ax + (isin * dy)) + xd;
-		sdy = (ay - (icos * dy)) + yd;
-		for(x = 0; x < dst->w; x++)
-		{
-			dx = sdx >> 16;
-			dy = sdy >> 16;
-			if((dx >= 0) && (dy >= 0) && (dx < src->w) && (dy < src->h))
-			{
-				srcpos = (Uint8*)(srcpix + (dy * srcpitch) + (dx * pixsize));
-				*dstpos++ = *srcpos;
+	case 1:
+		for(y = 0; y < dst->h; y++) {
+			Uint8 *dstpos = (Uint8*)dstrow;
+			dy = cy - y;
+			dx = (ax + (isin * dy)) + xd;
+			dy = (ay - (icos * dy)) + yd;
+			for(x = 0; x < dst->w; x++) {
+				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval) *dstpos++ = bgcolor;
+				else *dstpos++ = *(Uint8*)(srcpix + ((dy>>16) * srcpitch) + (dx>>16));
+				dx += icos; dy += isin;
 			}
-			else
-				*dstpos++ = bgcolor;
-			sdx += icos;
-			sdy += isin;
-		}
-		dstrow += dstpitch;
-	}  
+			dstrow += dstpitch;
+		}break;
+	case 2:
+		for(y = 0; y < dst->h; y++) {
+			Uint16 *dstpos = (Uint16*)dstrow;
+			dy = cy - y;
+			dx = (ax + (isin * dy)) + xd;
+			dy = (ay - (icos * dy)) + yd;
+			for(x = 0; x < dst->w; x++) {
+				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval) *dstpos++ = bgcolor;
+				else *dstpos++ = *(Uint16*)(srcpix + ((dy>>16) * srcpitch) + (dx>>16<<1));
+				dx += icos; dy += isin;
+			}
+			dstrow += dstpitch;
+		}break;
+	case 4:
+		for(y = 0; y < dst->h; y++) {
+			Uint32 *dstpos = (Uint32*)dstrow;
+			dy = cy - y;
+			dx = (ax + (isin * dy)) + xd;
+			dy = (ay - (icos * dy)) + yd;
+			for(x = 0; x < dst->w; x++) {
+				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval) *dstpos++ = bgcolor;
+				else *dstpos++ = *(Uint32*)(srcpix + ((dy>>16) * srcpitch) + (dx>>16<<2));
+				dx += icos; dy += isin;
+			}
+			dstrow += dstpitch;
+		}break;
+	default: /*case 3:*/
+		for(y = 0; y < dst->h; y++) {
+			Uint8 *dstpos = (Uint8*)dstrow;
+			dy = cy - y;
+			dx = (ax + (isin * dy)) + xd;
+			dy = (ay - (icos * dy)) + yd;
+			for(x = 0; x < dst->w; x++) {
+				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval)
+				{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+					dstpos[0] = ((Uint8*)&bgcolor)[0]; dstpos[1] = ((Uint8*)&bgcolor)[1]; dstpos[2] = ((Uint8*)&bgcolor)[2];
+#else
+					dstpos[0] = ((Uint8*)&bgcolor)[4]; dstpos[3] = ((Uint8*)&bgcolor)[1]; dstpos[2] = ((Uint8*)&bgcolor)[2];
+#endif
+					dstpos += 3;
+				}
+				else {
+					Uint8* srcpos = (Uint8*)(srcpix + ((dy>>16) * srcpitch) + ((dx>>16) * 3));
+					dstpos[0] = srcpos[0]; dstpos[1] = srcpos[1]; dstpos[2] = srcpos[2];
+					dstpos += 3;
+				}
+				dx += icos; dy += isin;
+			}
+			dstrow += dstpitch;
+		}break;
+	}
 }
 
 
@@ -305,6 +353,143 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 
 
 
+    /*DOC*/ static char doc_flip[] =
+    /*DOC*/    "pygame.transform.flip(Surface, xaxis, yaxis) -> Surface\n"
+    /*DOC*/    "flips a surface on either axis\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Flips the image on the x-axis or the y-axis if the argument\n"
+    /*DOC*/    "for that axis is true.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_flip(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj;
+	SDL_Surface* surf, *newsurf;
+	int xaxis, yaxis;
+	int loopx, loopy;
+	int pixsize, srcpitch, dstpitch;
+	Uint8 *srcpix, *dstpix;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!ii", &PySurface_Type, &surfobj, &xaxis, &yaxis))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+
+	newsurf = newsurf_fromsurf(surf, surf->w, surf->h);
+	if(!newsurf) return NULL;
+
+	pixsize = surf->format->BytesPerPixel;
+	srcpitch = surf->pitch;
+	dstpitch = newsurf->pitch;
+
+	SDL_LockSurface(newsurf);
+	PySurface_Lock(surfobj);
+
+	srcpix = (Uint8*)surf->pixels;
+	dstpix = (Uint8*)newsurf->pixels;
+
+	if(!xaxis)
+	{
+		if(!yaxis)
+		{
+			for(loopy = 0; loopy < surf->h; ++loopy)
+				memcpy(dstpix+loopy*dstpitch, srcpix+loopy*srcpitch, surf->w*surf->format->BytesPerPixel);
+		}
+		else
+		{
+			for(loopy = 0; loopy < surf->h; ++loopy)
+				memcpy(dstpix+loopy*dstpitch, srcpix+(surf->h-1-loopy)*srcpitch, surf->w*surf->format->BytesPerPixel);
+		}
+	}
+	else /*if (xaxis)*/
+	{
+		if(yaxis)
+		{
+			switch(surf->format->BytesPerPixel)
+			{
+			case 1:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
+					Uint8* src = ((Uint8*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+						*dst++ = *src--;
+				}break;
+			case 2:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint16* dst = (Uint16*)(dstpix+loopy*dstpitch);
+					Uint16* src = ((Uint16*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+						*dst++ = *src--;
+				}break;
+			case 4:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint32* dst = (Uint32*)(dstpix+loopy*dstpitch);
+					Uint32* src = ((Uint32*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+						*dst++ = *src--;
+				}break;
+			case 3:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
+					Uint8* src = ((Uint8*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w*3;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+					{
+						dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2];
+						dst += 3;
+						src -= 3;
+					}
+				}break;
+			}
+		}
+		else
+		{
+			switch(surf->format->BytesPerPixel)
+			{
+			case 1:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
+					Uint8* src = ((Uint8*)(srcpix+loopy*srcpitch)) + surf->w;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+						*dst++ = *src--;
+				}break;
+			case 2:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint16* dst = (Uint16*)(dstpix+loopy*dstpitch);
+					Uint16* src = ((Uint16*)(srcpix+loopy*srcpitch)) + surf->w;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+						*dst++ = *src--;
+				}break;
+			case 4:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint32* dst = (Uint32*)(dstpix+loopy*dstpitch);
+					Uint32* src = ((Uint32*)(srcpix+loopy*srcpitch)) + surf->w;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+						*dst++ = *src--;
+				}break;
+			case 3:
+				for(loopy = 0; loopy < surf->h; ++loopy) {
+					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
+					Uint8* src = ((Uint8*)(srcpix+loopy*srcpitch)) + surf->w*3;
+					for(loopx = 0; loopx < surf->w; ++loopx)
+					{
+						dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2];
+						dst += 3;
+						src -= 3;
+					}
+				}break;
+			}
+		}
+	}
+
+	PySurface_Unlock(surfobj);
+	SDL_UnlockSurface(newsurf);
+
+	return PySurface_New(newsurf);
+}
+
+
+
+
 
 
 
@@ -313,6 +498,7 @@ static PyMethodDef transform_builtins[] =
 {
 	{ "scale", surf_scale, 1, doc_scale },
 	{ "rotate", surf_rotate, 1, doc_rotate },
+	{ "flip", surf_flip, 1, doc_flip },
 
 	{ NULL, NULL }
 };

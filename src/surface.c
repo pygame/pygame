@@ -134,7 +134,7 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 
 	if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
 	{
-		PyErr_SetString(PyExc_IndexError, "pixel index out of range");
+		PyErr_SetString(PyExc_IndexError, "pixel coordinate out of range");
 		return NULL;
 	}
 
