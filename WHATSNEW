@@ -4,7 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
-Mar 29, 2002
+Apr 03, 2001
+	swapped endian-ness for pixels_alpha()
+
+Mar 29, 2001
 	fixed key.set_mods() (thanks rubysdl)
 	rework setup scripts for 1.0 release
 	relaxed sdl version checking
