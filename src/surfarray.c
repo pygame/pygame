@@ -597,8 +597,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 	int loopx, loopy;
 	int stridex, stridey, stridez=0, stridez2=0, sizex, sizey;
 	int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
-	PyObject* exc_type;
-	const char* exc_string;
+	int didlock = 0;
 
 	if(!PyArg_ParseTuple(arg, "O!O!", &PySurface_Type, &surfobj, &PyArray_Type, &arrayobj))
 		return NULL;
@@ -630,7 +629,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 	if(!surf->pixels)
 	{
 		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError();
+			return RAISE(PyExc_SDLError, SDL_GetError());
 		didlock = 1;
 	}
 
