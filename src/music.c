@@ -297,8 +297,43 @@ static PyObject* get_endevent(PyObject* self, PyObject* args)
 
 static PyObject* load(PyObject* self, PyObject* args)
 {
-	char* filename;
+#if 0
+/*argh, can't do it this way, SDL_mixer doesn't support music RWops*/
+	char* name = NULL;
+        PyObject* file;
+	SDL_RWops *rw;
+	if(!PyArg_ParseTuple(args, "O", &file))
+		return NULL;
+	MIXER_INIT_CHECK();
+	if(current_music)
+	{
+		Mix_FreeMusic(current_music);
+		current_music = NULL;
+	}
 
+	if(PyString_Check(file) || PyUnicode_Check(file))
+	{
+		if(!PyArg_ParseTuple(args, "s", &name))
+			return NULL;
+		Py_BEGIN_ALLOW_THREADS
+		current_music = Mix_LoadMUS(name);
+		Py_END_ALLOW_THREADS
+	}
+	else
+	{
+		if(!(rw = RWopsFromPythonThreaded(file)))
+			return NULL;
+		if(RWopsCheckPythonThreaded(rw))
+			current_music = Mix_LoadMUS_RW(rw, 1);
+		else
+		{
+			Py_BEGIN_ALLOW_THREADS
+			current_music = Mix_LoadMUS_RW(rw, 1);
+			Py_END_ALLOW_THREADS
+		}
+	}
+#else
+	char* filename;
 	if(!PyArg_ParseTuple(args, "s", &filename))
 		return NULL;
 
@@ -312,7 +347,7 @@ static PyObject* load(PyObject* self, PyObject* args)
 	Py_BEGIN_ALLOW_THREADS
 	current_music = Mix_LoadMUS(filename);
 	Py_END_ALLOW_THREADS
-	
+#endif	
 	if(!current_music)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 

@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+November 18, 2001
+	can stream python file-like objects to threads
+
 November 15, 2001
 	cleanups for transform.rotate
 

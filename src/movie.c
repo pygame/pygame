@@ -63,8 +63,10 @@ static PyObject* movie_play(PyObject* self, PyObject* args)
 	int loops=0;
 	if(!PyArg_ParseTuple(args, "|i", &loops))
 		return NULL;
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_loop(movie, loops);
 	SMPEG_play(movie);
+        Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
 
@@ -83,7 +85,9 @@ static PyObject* movie_stop(PyObject* self, PyObject* args)
 	SMPEG* movie = PyMovie_AsSMPEG(self);
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_stop(movie);
+        Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
 
@@ -101,7 +105,9 @@ static PyObject* movie_pause(PyObject* self, PyObject* args)
 	SMPEG* movie = PyMovie_AsSMPEG(self);
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_pause(movie);
+        Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
 
@@ -119,7 +125,9 @@ static PyObject* movie_rewind(PyObject* self, PyObject* args)
 	SMPEG* movie = PyMovie_AsSMPEG(self);
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_rewind(movie);
+        Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
 
@@ -138,7 +146,9 @@ static PyObject* movie_skip(PyObject* self, PyObject* args)
 	float seconds;
 	if(!PyArg_ParseTuple(args, "f", &seconds))
 		return NULL;
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_skip(movie, seconds);
+        Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
 
@@ -159,11 +169,13 @@ static PyObject* movie_set_volume(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "f", &value))
 		return NULL;
 
+        Py_BEGIN_ALLOW_THREADS
 	volume = (int)(value * 100);
 	if(volume<0) volume = 0;
 	if(volume>100) volume = 100;
-
 	SMPEG_setvolume(movie, volume);
+        Py_END_ALLOW_THREADS
+        
 	RETURN_NONE
 }
 
@@ -223,15 +235,18 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 		else
 			return RAISE(PyExc_TypeError, "Invalid position argument");
 
-	    SMPEG_getinfo(movie, &info);
 	    surf = PySurface_AsSurface(surfobj);
+
+            SMPEG_getinfo(movie, &info);
 	    SMPEG_enablevideo(movie, 1);
 	    SMPEG_setdisplay(movie, surf, NULL, NULL);
 	    SMPEG_move(movie, x, y);
 	}
 	else
 	{
+            Py_BEGIN_ALLOW_THREADS
 	    SMPEG_enablevideo(movie, 0);
+            Py_END_ALLOW_THREADS
 	    if(surfobj != Py_None)
 		       return RAISE(PyExc_TypeError, "destination must be a Surface");
 	}
@@ -257,7 +272,9 @@ static PyObject* movie_has_video(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_getinfo(movie, &info);
+        Py_END_ALLOW_THREADS
 	return PyInt_FromLong(info.has_video);
 }
 
@@ -277,7 +294,9 @@ static PyObject* movie_has_audio(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_getinfo(movie, &info);
+        Py_END_ALLOW_THREADS
 	return PyInt_FromLong(info.has_audio);
 }
 
@@ -296,7 +315,9 @@ static PyObject* movie_get_size(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_getinfo(movie, &info);
+        Py_END_ALLOW_THREADS
 	return Py_BuildValue("(ii)", info.width, info.height);
 }
 
@@ -315,7 +336,9 @@ static PyObject* movie_get_frame(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_getinfo(movie, &info);
+        Py_END_ALLOW_THREADS
 	return PyInt_FromLong(info.current_frame);
 }
 
@@ -335,7 +358,9 @@ static PyObject* movie_get_time(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_getinfo(movie, &info);
+        Py_END_ALLOW_THREADS
 	return PyFloat_FromDouble(info.current_time);
 }
 
@@ -354,7 +379,9 @@ static PyObject* movie_get_length(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_getinfo(movie, &info);
+        Py_END_ALLOW_THREADS
 	return PyFloat_FromDouble(info.total_time);
 }
 
@@ -404,7 +431,9 @@ static PyMethodDef movie_builtins[] =
 static void movie_dealloc(PyObject* self)
 {
 	SMPEG* movie = PyMovie_AsSMPEG(self);
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_delete(movie);
+        Py_END_ALLOW_THREADS
 	Py_XDECREF(((PyMovieObject*)self)->surftarget);
 	Py_XDECREF(((PyMovieObject*)self)->filesource);
 	PyObject_DEL(self);
@@ -474,8 +503,7 @@ static PyTypeObject PyMovie_Type =
     /*DOC*/    "load a new MPEG stream\n"
     /*DOC*/    "\n"
     /*DOC*/    "Loads a new movie stream from a MPEG file. The file\n"
-    /*DOC*/    "argument is either a filename, or an opened file object.\n"
-    /*DOC*/    "Movies cannot stream from any other python objects.\n"
+    /*DOC*/    "argument is either a filename, or any python file-like object\n"
     /*DOC*/ ;
 
 static PyObject* Movie(PyObject* self, PyObject* arg)
@@ -506,21 +534,15 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 		filesource = file;
 		Py_INCREF(file);
 	}
-#if 0
-/*this don't work, the rwops is passed to a background
-thread, which obviously can't make calls to python code
-whenever it pleases. (perhaps python rw objects could
-be made safer, to wait for the global interp-lock before
-calling the functions. that could potentially work?)
-*/
 	else
 	{
 		SDL_RWops *rw;
-		if(!(rw = RWopsFromPython(file)))
+                if(!(rw = RWopsFromPythonThreaded(file)))
 			return NULL;
+                Py_BEGIN_ALLOW_THREADS
 		movie = SMPEG_new_rwops(rw, &info, audioavail);
+                Py_END_ALLOW_THREADS
 	}
-#endif
 
 	if(!movie)
 		return RAISE(PyExc_SDLError, "Cannot create Movie object");
@@ -528,18 +550,20 @@ calling the functions. that could potentially work?)
 	error = SMPEG_error(movie);
 	if(error)
 	{
-/* while this would seem correct, it causes a crash */
+/* while this would seem correct, it causes a crash, so don't delete */
 /*	    SMPEG_delete(movie);*/
 	    return RAISE(PyExc_SDLError, error);
 	}
 
+        Py_BEGIN_ALLOW_THREADS
 	SMPEG_enableaudio(movie, audioavail);
 
 	screen = SDL_GetVideoSurface();
 	if(screen)
 		SMPEG_setdisplay(movie, screen, NULL, NULL);
-
+        
 	SMPEG_scaleXY(movie, info.width, info.height);
+        Py_END_ALLOW_THREADS
 
 	final = PyMovie_New(movie);
 	if(!final)
