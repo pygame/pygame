@@ -163,10 +163,10 @@ x 480 windowed display<br>
  	...     <b>&nbsp;&nbsp;&nbsp;&nbsp;pygame.display.set.mode(modes[0], FULLSCREEN, 16)</b><br>
              <br>
      &gt;&gt;&gt; #need an 8bit surface, nothing else will do<br>
-     &gt;&gt;&gt; <b>if pygame.mode_ok((800, 600), 0, 8) != 8:</b><br>
+     &gt;&gt;&gt; <b>if pygame.display.mode_ok((800, 600), 0, 8) != 8:</b><br>
      ...     <b>&nbsp;&nbsp;&nbsp;&nbsp;print 'Can only work with an 8bit display, sorry'</b><br>
      ... <b>else:</b><br>
-     ... <b>&nbsp;&nbsp;&nbsp;&nbsp;pygame.set_mode((800, 600), 0, 8)</b><br>
+     ... <b>&nbsp;&nbsp;&nbsp;&nbsp;pygame.display.set_mode((800, 600), 0, 8)</b><br>
              <br>
              </tt></blockquote>
    
