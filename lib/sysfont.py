@@ -79,7 +79,17 @@ def initsysfonts_win32():
 
 #read of the fonts on osx (fill me in!)
 def initsysfonts_darwin():
-    return {}
+    paths = ['/Library/Fonts',
+             '~/Library/Fonts',
+             '/Local/Library/Fonts',
+             '/Network/Library/Fonts']
+    fonts = {}
+    for p in paths:
+        if os.path.isdir(p):
+            pass
+            #os.path.walk(p, _fontwalk, fonts)
+    return fonts
+
 
 
 #read the fonts from a unix 'fonts.cache-1' file
@@ -130,7 +140,7 @@ def initsysfonts_unix():
     fonts = {}
     for p in paths:
         if os.path.isdir(p):
-                os.path.walk(p, _fontwalk, fonts)
+            os.path.walk(p, _fontwalk, fonts)
     return fonts
 
 
@@ -140,8 +150,8 @@ def create_aliases():
         ('monospace', 'misc-fixed', 'courier', 'couriernew', 'console',
                 'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
                 'verasansmono', 'monotype', 'lucidaconsole'),
-        ('sans', 'arial', 'helvetica', 'swiss', 'freesans', 'bitstreamverasans',
-                'verasans', 'verdana', 'tahoma'),
+        ('sans', 'arial', 'helvetica', 'swiss', 'freesans',
+                'bitstreamverasans', 'verasans', 'verdana', 'tahoma'),
         ('serif', 'times', 'freeserif', 'bitstreamveraserif', 'roman',
                 'timesroman', 'timesnewroman', 'dutch', 'veraserif',
                 'georgia'),
@@ -159,7 +169,6 @@ def create_aliases():
             continue
         for name in set:
             if not Sysfonts.has_key(name):
-                print 'ALIAS:', fname, '->', name
                 Sysalias[name] = found
 
 
@@ -225,7 +234,6 @@ def SysFont(name, size, bold=0, italic=0):
                 elif not fontname:
                     fontname = styles.values()[0]
         if fontname: break
-    print 'SYSFONT SELECTED:', fontname
 
     font = pygame.font.Font(fontname, size)
     if origbold and not bold:
@@ -235,8 +243,8 @@ def SysFont(name, size, bold=0, italic=0):
     return font
 
 
-def get_system_fonts():
-    """pygame.font.get_system_fonts() -> list
+def get_fonts():
+    """pygame.font.get_fonts() -> list
        get a list of system font names
 
        Returns the list of all found system fonts. Note that
@@ -249,9 +257,9 @@ def get_system_fonts():
     return Sysfonts.keys()
 
 
-def match_system_font(name, bold=0, italic=0):
-    """pygame.font.match_system_font(name, bold=0, italic=0) -> name
-       find the filename for the system font
+def match_font(name, bold=0, italic=0):
+    """pygame.font.match_font(name, bold=0, italic=0) -> name
+       find the filename for the named system font
 
        This performs the same font search as the SysFont()
        function, only it returns the path to the TTF file
