@@ -35,6 +35,7 @@
 typedef struct {
   PyObject_HEAD
   TTF_Font* font;
+  PyObject* weakreflist;
 } PyFontObject;
 #define PyFont_AsFont(x) (((PyFontObject*)x)->font)
 #ifndef PYGAMEAPI_FONT_INTERNAL
