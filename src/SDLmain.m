@@ -16,6 +16,35 @@
 @interface SDLMain : NSObject
 @end
 
+@interface NSAppleMenuController:NSObject {}
+- (void)controlMenu:(NSMenu *)aMenu;
+@end
+
+void setupAppleMenu(void)
+{
+    /* warning: this code is very odd */
+    NSAppleMenuController *appleMenuController;
+    NSMenu *appleMenu;
+    NSMenuItem *appleMenuItem;
+
+    appleMenuController = [[NSAppleMenuController alloc] init];
+    appleMenu = [[NSMenu alloc] initWithTitle:@""];
+    appleMenuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
+    
+    [appleMenuItem setSubmenu:appleMenu];
+
+    /* yes, we do need to add it and then remove it --
+       if you don't add it, it doesn't get displayed
+       if you don't remove it, you have an extra, titleless item in the menubar
+       when you remove it, it appears to stick around
+       very, very odd */
+    [[NSApp mainMenu] addItem:appleMenuItem];
+    [appleMenuController controlMenu:appleMenu];
+    [[NSApp mainMenu] removeItem:appleMenuItem];
+    [appleMenu release];
+    [appleMenuItem release];
+}
+
 /* Create a window menu */
 void setupWindowMenu(void)
 {
@@ -45,7 +74,7 @@ void setupWindowMenu(void)
 }
 
 /* The main class of the application, the application's delegate */
-@implementation SDLMain
+@implementation SDLApplication
 - (void)quit:(id)sender
 {
     /* Post a SDL_QUIT event */
@@ -61,30 +90,43 @@ void setupWindowMenu(void)
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
 }
+@end
 
+@implementation SDLMain
 
 NSAutoreleasePool *global_pool;
 SDLMain *sdlMain;
 
-void StartTheDamnApplication (void)
+void StartTheApplication (void)
 {
-    CPSProcessSerNum PSN;
     //OSErr err;
+    CPSProcessSerNum PSN;
     NSImage *pygameIcon;
     global_pool = [[NSAutoreleasePool alloc] init];
-    [NSApplication sharedApplication];
+    
+    /*ensure application object is initialized*/
+    [SDLApplication sharedApplication];
+    
+    /*tell the dock about us*/
     if (!CPSGetCurrentProcess(&PSN))
         if (!CPSSetProcessName(&PSN,"pygame"))
             if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103))
                 if (!CPSSetFrontProcess(&PSN))
                     [NSApplication sharedApplication];
+		    
+    /*setup menubar*/
     [NSApp setMainMenu:[[NSMenu alloc] init]];
+    setupAppleMenu();
     setupWindowMenu();
+    
+    /*create app and delegate*/
     sdlMain = [[SDLMain alloc] init];
     [NSApp setDelegate:sdlMain];
     [NSApp finishLaunching];
     [NSApp requestUserAttention:NSCriticalRequest];
     [NSApp updateWindows];
+    
+    /*set icon*/
     pygameIcon = [[NSImage alloc] initWithContentsOfFile: @"/Library/Frameworks/Python.framework/Versions/Current/lib/python2.2/site-packages/pygame/pygame_icon.tiff"];
     [NSApp setApplicationIconImage:pygameIcon];
 
