@@ -7,7 +7,7 @@ DOCPATTERN = '*static char*doc_*=*'
 
 SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
-PYTHONSRC =['cursors', 'version', 'UserRect', 'sprite']
+PYTHONSRC =['cursors', 'version', 'sprite']
 
 OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()
