@@ -5,8 +5,8 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 
 November 20, 2001
-	added pygame.sprite.Group.Update()
-	Surface.blit() was too overzealous pretecting alpha to 8bit
+	added pygame.sprite.Group.update()
+	Surface.blit() protection for alpha->8bit relaxed
 
 November 19, 2001
         fixed image.fromstring() for "RGBA" mode
