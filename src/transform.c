@@ -647,10 +647,11 @@ static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 		SDL_BlitSurface(surf, NULL, surf32, NULL);
 	}
 
+/* don't special case the 90 degrees, makes the rotating image pop
 	if(scale == 1.0 && !(((int)angle)%90))
 		newsurf = rotate90(surf32, (int)angle);
 	else
-		newsurf = rotozoomSurface(surf32, angle, scale, 1);
+*/		newsurf = rotozoomSurface(surf32, angle, scale, 1);
 
 	if(surf32 == surf)
 		PySurface_Unlock(surfobj);
