@@ -34,11 +34,12 @@
 <a href=pygame_transform.html>transform</a> ||<br>
 &nbsp;<br>|| <a href=CD.html>CD</a> || 
 <a href=Channel.html>Channel</a> || 
+<a href=Clock.html>Clock</a> || 
 <a href=Font.html>Font</a> || 
 <a href=Joystick.html>Joystick</a> || 
-<a href=Movie.html>Movie</a> || 
-<a href=Rect.html>Rect</a> ||<br>
-|| <a href=Sound.html>Sound</a> || 
+<a href=Movie.html>Movie</a> ||<br>
+|| <a href=Rect.html>Rect</a> || 
+<a href=Sound.html>Sound</a> || 
 <a href=Surface.html>Surface</a> ||<br>
 &nbsp;<br>|| <a href=pygame_UserRect.html>UserRect</a> || 
 <a href=pygame_cursors.html>cursors</a> || 
@@ -144,10 +145,6 @@ just about anything in a 2D game that is animated.
            remove sprite from group</td></tr>
 
 
-<tr><td><a href=#Group.update>Group.update</a></td><td> -
-           call update for all member sprites</td></tr>
-
-
 <tr><td><a href=#GroupSingle>GroupSingle</a></td><td> -
 <b>(class)</b> - a group container that holds a single most recent item</td></tr>
 
@@ -232,14 +229,14 @@ the Group class is a container for sprites
 
 <a name=Group.__len__><font size=+2><b>Group.__len__
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group.__len__() -> int
+pygame.sprite.Group.__len__()
 </tt></font><ul>
            Returns the number of sprites contained in the group.
 </ul><br>&nbsp;<br>
 
 <a name=Group.__nonzero__><font size=+2><b>Group.__nonzero__
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group.__nonzero__() -> bool
+pygame.sprite.Group.__nonzero__()
 </tt></font><ul>
            Returns true if the group has any sprites. This
            lets you check if the group has any sprites by
@@ -255,7 +252,7 @@ pygame.sprite.Group.add(sprite)
 
 <a name=Group.copy><font size=+2><b>Group.copy
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group.copy() -> Group
+pygame.sprite.Group.copy()
 </tt></font><ul>
            Returns a copy of the group that is the same class
            type, and has the same contained sprites.
@@ -270,7 +267,7 @@ pygame.sprite.Group.empty()
 
 <a name=Group.has><font size=+2><b>Group.has
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group.has(sprite) -> bool
+pygame.sprite.Group.has(sprite)
 </tt></font><ul>
            Returns true if the given sprite or sprites are
            contained in the group
@@ -278,7 +275,7 @@ pygame.sprite.Group.has(sprite) -> bool
 
 <a name=Group.loop><font size=+2><b>Group.loop
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group.loop() -> iterator
+pygame.sprite.Group.loop()
 </tt></font><ul>
            Returns an object that can be looped over with
            a 'for' loop. (For now it is always a list, but
@@ -291,15 +288,6 @@ pygame.sprite.Group.loop() -> iterator
 pygame.sprite.Group.remove(sprite)
 </tt></font><ul>
            Remove a sprite or sequence of sprites from a group.
-</ul><br>&nbsp;<br>
-
-<a name=Group.update><font size=+2><b>Group.update
-</b></font><br><font size=+1><tt>
-pygame.sprite.Group.update(...)
-</tt></font><ul>
-           calls the update method for all sprites in
-           the group. any arguments are passed to the update
-           function.
 </ul><br>&nbsp;<br>
 
 <a name=GroupSingle><font size=+2><b>GroupSingle
@@ -414,14 +402,14 @@ pygame.sprite.Sprite.add(group)
 
 <a name=Sprite.alive><font size=+2><b>Sprite.alive
 </b></font><br><font size=+1><tt>
-pygame.sprite.Sprite.alive() -> bool
+pygame.sprite.Sprite.alive()
 </tt></font><ul>
            Returns true if this sprite is a member of any groups.
 </ul><br>&nbsp;<br>
 
 <a name=Sprite.groups><font size=+2><b>Sprite.groups
 </b></font><br><font size=+1><tt>
-pygame.sprite.Sprite.groups() -> list
+pygame.sprite.Sprite.groups()
 </tt></font><ul>
            Returns a list of all the groups that contain this
            sprite.
