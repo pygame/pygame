@@ -76,6 +76,7 @@ Thanks to everyone who made this possible, including:
 	Angus, Guillaume Proux, Frank Raiser,
 	Austin Henry, Kaweh Kazemi, Arturo Aldama,
         Mike Mulcheck
+- Nat Pryce for starting our unit tests
 
 Cheers to TheCorruptor for his incredible work on the pygame logo.
 
