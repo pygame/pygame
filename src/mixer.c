@@ -44,7 +44,7 @@ static int request_stereo = 1;
 
 
 
-static void autoquit()
+static void autoquit(void)
 {
 	if(SDL_WasInit(SDL_INIT_AUDIO))
 	{
@@ -1054,10 +1054,12 @@ static PyObject* PyChannel_New(int channelnum)
     /*DOC*/    "control the music channel through pygame.mixer.music./\n"
     /*DOC*/ ;
 
-void initmixer()
+void initmixer(void)
 {
 	PyObject *module, *dict, *apiobj, *music;
 	static void* c_api[PYGAMEAPI_MIXER_NUMSLOTS];
+
+	PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*this cleans an unused warning*/
 
 	PyType_Init(PySound_Type);
 	PyType_Init(PyChannel_Type);
