@@ -1758,6 +1758,8 @@ PyObject* surface_str(PyObject* self)
 	return PyString_FromString(str);
 }
 
+
+
 #if 0
     /*DOC*/ static char doc_Surface_MODULE[] =
     /*DOC*/    "Surface objects represent a simple memory buffer of pixels.\n"
@@ -1801,8 +1803,7 @@ PyObject* surface_str(PyObject* self)
     /*DOC*/    "For a plain software surface, 0 can be used for the flag. \n"
     /*DOC*/    "A plain hardware surface can just use 1 for the flag.\n"
     /*DOC*/ ;
-
-
+   
 static PyTypeObject PySurface_Type =
 {
 	PyObject_HEAD_INIT(NULL)
@@ -1812,7 +1813,7 @@ static PyTypeObject PySurface_Type =
 	0,                              /*itemsize*/
 	surface_dealloc,                /*dealloc*/
 	0,                              /*print*/
-	NULL/*surface_getattr*/,		/*getattr*/
+	NULL,		/*getattr*/
 	NULL,                           /*setattr*/
 	NULL,                           /*compare*/
 	surface_str,			/*repr*/
@@ -1822,7 +1823,8 @@ static PyTypeObject PySurface_Type =
 	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
 	(reprfunc)NULL, 		/*str*/
-	0L,0L,0L,
+	0,
+        0L,0L,
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
 	doc_Surface, /* Documentation string */
 	0,					/* tp_traverse */
@@ -1833,7 +1835,7 @@ static PyTypeObject PySurface_Type =
 	0,					/* tp_iternext */
 	surface_methods,			/* tp_methods */
 	0,					/* tp_members */
-	0,					/* tp_getset */
+	0,				/* tp_getset */
 	0,					/* tp_base */
 	0,					/* tp_dict */
 	0,					/* tp_descr_get */
@@ -1999,10 +2001,9 @@ void initsurface(void)
 	PyObject *module, *dict, *apiobj, *lockmodule;
 	static void* c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
 
-	PyType_Init(PySurface_Type);
         if (PyType_Ready(&PySurface_Type) < 0)
             return;
-
+        
     /* create the module */
 	module = Py_InitModule3("surface", surface_builtins, doc_pygame_surface_MODULE);
 	dict = PyModule_GetDict(module);
@@ -2017,6 +2018,9 @@ void initsurface(void)
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
+        Py_INCREF(PySurface_Type.tp_dict);
+        PyDict_SetItemString(dict, "_dict", PySurface_Type.tp_dict);
+        
 	/*imported needed apis*/
 	import_pygame_base();
 	import_pygame_rect();

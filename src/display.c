@@ -560,7 +560,8 @@ static PyObject* gl_get_attribute(PyObject* self, PyObject* arg)
 static PyObject* set_mode(PyObject* self, PyObject* arg)
 {
 	SDL_Surface* surf;
-	int flags = SDL_SWSURFACE, depth = 0;
+	int depth = 0;
+        int flags = SDL_SWSURFACE;
 	int w, h, hasbuf;
 	char *title, *icontitle;
 
@@ -678,8 +679,9 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 
 static PyObject* mode_ok(PyObject* self, PyObject* args)
 {
-	int flags=SDL_SWSURFACE, depth=0;
+	int depth=0;
 	int w, h;
+        int flags = SDL_SWSURFACE;
 
 	VIDEO_INIT_CHECK();
 

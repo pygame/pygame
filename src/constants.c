@@ -25,9 +25,9 @@
 
 
 /* macros used to create each constant */
-#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, SDL_##x);
-#define DEC_CONSTK(x) PyModule_AddIntConstant(module, #x, SDL##x);
-#define DEC_CONSTN(x) PyModule_AddIntConstant(module, #x, x);
+#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) SDL_##x);
+#define DEC_CONSTK(x) PyModule_AddIntConstant(module, #x, (int) SDL##x);
+#define DEC_CONSTN(x) PyModule_AddIntConstant(module, #x, (int) x);
 
 
 static PyMethodDef builtins[] =
@@ -502,22 +502,5 @@ void initconstants(void)
     /*DOC*/    "KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,<br>\n"
     /*DOC*/    "KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, KMOD_MODE<br>\n"
     /*DOC*/ ;
-
-    /*DOC*/ static char doc_zdeprecated[] =
-    /*DOC*/    "pygame.constants.zdepracated (constants)\n"
-    /*DOC*/    "The following constants are made available, but generally not needed\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The flags labeled as readonly should never be used,\n"
-    /*DOC*/    "except when comparing checking flags against Surface.get_flags().\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "SWSURFACE - not really usable as a surface flag, equates to 0 and\n"
-    /*DOC*/    "is always default<br>\n"
-    /*DOC*/    "ANYFORMAT - creates a display with in best possible bit depth<br>\n"
-    /*DOC*/    "HWACCEL - surface is hardware accelerated, readonly<br>\n"
-    /*DOC*/    "SRCCOLORKEY- surface has a colorkey for blits, readonly<br>\n"
-    /*DOC*/    "SRCALPHA - surface has alpha enabled, readonly<br>\n"
-    /*DOC*/    "RLEACCELOK - surface is rle accelrated but uncompiled, readonly\n"
-    /*DOC*/ ;
-
 
 #endif

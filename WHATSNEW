@@ -7,6 +7,7 @@
 July 17, 2004
     SysFont extra styles being applied incorrect
     psuedo "configure" and "Makefile" for foolproof installs
+    draw.aaline now works with pixel alphas
 
 July 16, 2004
     mixer.set_num_channels() no longer crashes [BUG]
