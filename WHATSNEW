@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Feb 15, 2001
+	calling Sound.play() will make sure the channel
+		that gets selected has volume set to full
+
 Feb 14, 2001
 	fixed Surface.set_colorkey() with no args [BUG]
 
