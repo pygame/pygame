@@ -136,9 +136,8 @@ try:
     import pygame.font
     import pygame.sysfont
     pygame.font.SysFont = pygame.sysfont.SysFont
-    pygame.font.get_system_fonts = pygame.sysfont.get_system_fonts
-    pygame.font.match_system_font = pygame.sysfont.match_system_font
-
+    pygame.font.get_fonts = pygame.sysfont.get_fonts
+    pygame.font.match_font = pygame.sysfont.match_font
 except (ImportError,IOError), msg:font=MissingModule("font", msg, 0)
 
 try: import pygame.mixer

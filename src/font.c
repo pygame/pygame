@@ -106,7 +106,7 @@ static PyObject* font_autoinit(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.font.quit() -> none\n"
     /*DOC*/    "uninitialize the font module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Manually uninitialize SDL's video subsystem. It is safe to call\n"
+    /*DOC*/    "Manually uninitialize SDL_ttf's font system. It is safe to call\n"
     /*DOC*/    "this if font is currently not initialized.\n"
     /*DOC*/ ;
 

@@ -12,7 +12,7 @@ audio and video output, and keyboard, mouse and joystick input."""
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.5.5",
+    "version":          "1.5.6",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners",
@@ -35,7 +35,7 @@ os.chdir(path)
 
 
 import os.path, glob
-import distutils.sysconfig 
+import distutils.sysconfig
 from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
 from distutils.ccompiler import new_compiler
@@ -100,12 +100,12 @@ for e in extensions[:]:
         extensions.remove(e) #don't compile the COPYLIBs, just clean them
     else:
         e.name = 'pygame.' + e.name #prepend package name on modules
-        
+
 
 #data installer with improved intelligence over distutils
 #data files are copied into the project directory instead
 #of willy-nilly
-class smart_install_data(install_data):   
+class smart_install_data(install_data):
     def run(self):
         #need to change self.install_dir to the actual library dir
         install_cmd = self.get_finalized_command('install')
@@ -117,7 +117,7 @@ class smart_install_data(install_data):
 
 
 
-#finally, 
+#finally,
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    {'install_data': smart_install_data},
