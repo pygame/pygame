@@ -36,7 +36,7 @@ static PyObject* PyFont_New(TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-static char* font_defaultname = "_freesansbold.ttf";
+static char* font_defaultname = "freesansbold.ttf";
 PyObject* font_defaultpath = NULL;
 static PyObject* self_module = NULL;
 
