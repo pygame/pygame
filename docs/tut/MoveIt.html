@@ -342,19 +342,19 @@ pick the best colordepth and pixel format for us.<br>
 </pre></blockquote>
 <br>
 <h2>Handling Some Input</h2>
-We desparately need to change the main loop to look for any user input, like
-when the user closes the window. Without checking for events from the user,
-our program will seem "frozen" to the user, since it doesn't do anything.
-What we do is the same for all types of graphical programs. There is a main
-loop where we process user events, doing different things for the different
-types of events. Here's what the code should look like. Instead of looping
-for 100 frames, we'll keep looping until the user asks us to stop.<br>
+We desparately need to change the main loop to look for any user input, (like
+when the user closes the window). We need to add "event handling" to our
+program. All graphical programs use this Event Based design. The program
+gets events like "keyboard pressed" or "mouse moved" from the computer. Then
+the program responds to the different events. Here's what the code should
+look like. Instead of looping for 100 frames, we'll keep looping until the
+user asks us to stop.<br>
 <blockquote><pre>
 <b>&gt;&gt;&gt;</b> while 1:
 <b>...</b>    for event in pygame.event.get():
 <b>...</b>        if event.type in (QUIT, KEYDOWN):
 <b>...</b>            sys.exit()
-<b>...</b>        move_and_draw_all_game_objects()
+<b>...</b>    move_and_draw_all_game_objects()
 </pre></blockquote>
 What this code simply does is, first loop forever, then check if there are
 any events from the user. We exit the program if the user presses the keyboard
