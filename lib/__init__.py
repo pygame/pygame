@@ -86,6 +86,8 @@ from pygame.version import *
 from pygame.rect import Rect
 import pygame.rwobject
 import pygame.surflock
+import pygame.color
+Color = color.Color
 __version__ = ver
 
 #next, the "standard" modules
@@ -155,5 +157,15 @@ try: import pygame.mixer_music; del pygame.mixer_music
 except (ImportError,IOError):pass
 
 
+#make Rects pickleable
+import copy_reg
+def __rect_constructor(x,y,w,h):
+	return Rect(x,y,w,h)
+def __rect_reduce(r):
+	assert type(r) == Rect
+	return __rect_constructor, (r.x, r.y, r.w, r.h)
+copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
+
+
 #cleanup namespace
-del pygame, os, sys, rwobject, surflock, MissingModule
+del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg
