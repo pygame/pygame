@@ -127,7 +127,7 @@ def read_unix_fontsdir(dir, file, fonts):
     file = open(os.path.join(dir, file))
     numfonts = int(file.readline())
     for line in file.readlines():
-        font, descr = [[line.split(' ', 1)] + ['']][:2]
+        font, descr = [[line.split(' ', 1)] + ['', '']][:2]
         if font[-4:].lower() != ".ttf":
             continue
         font = os.path.join(dir, font)
