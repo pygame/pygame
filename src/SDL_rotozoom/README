@@ -1,0 +1,85 @@
+
+
+Rotozoom/Zoom function for SDL
+========================================================================================
+
+(c) LGPL, A. Schiffler, aschiffler@home.com
+
+
+INTERFACE
+---------
+ 
+ 
+SDL_Surface * rotozoomSurface (SDL_Surface *src, double angle, double zoom, int smooth);
+
+ Rotates and zoomes a 32bit or 8bit 'src' surface to newly created 'dst' surface.
+ 'angle' is the rotation in degrees. 'zoom' a scaling factor. If 'smooth' is 1
+ then the destination 32bit surface is anti-aliased. If the surface is not 8bit
+ or 32bit RGBA/ABGR it will be converted into a 32bit RGBA format on the fly.
+
+
+
+SDL_Surface * zoomSurface (SDL_Surface *src, double zoomx, double zoomy, int smooth);
+
+ Zoomes a 32bit or 8bit 'src' surface to newly created 'dst' surface.
+ 'zoomx' and 'zoomy' are scaling factors for width and height. If 'smooth' is 1
+ then the destination 32bit surface is anti-aliased. If the surface is not 8bit
+ or 32bit RGBA/ABGR it will be converted into a 32bit RGBA format on the fly.
+
+
+Smoothing (interpolation) flags work only on 32bit surfaces:
+
+ #define SMOOTHING_OFF		0
+ #define SMOOTHING_ON		1
+
+
+EXAMPLE
+-------
+
+Run 
+	./configure
+	make
+
+Test with
+	./testrotozoom
+
+Check out the testrotozoom.c code for how to preprocess non-32bit surfaces
+for better speed.
+
+
+CHANGES
+-------
+
+Ver 1.0 - Fri Mar 16 08:16:06 EST 2001
+* Initial release
+
+Ver 1.1 - Wed May 23 15:04:42 EDT 2001
+* Added automake/autoconf scripts and testprogram.
+
+Ver 1.2 - Wed May 30 18:18:05 EDT 2001
+* Fixed the completely broken 32bit routine's pointer arithmetic.
+* Uses SDL_SoftStretch in certain cases (angle=0, smooth=0).
+* Convert source surface on the fly if not 8/32bit.
+* Added license file - was empty before (duh).
+
+Ver 1.3 - Thu May 31 08:37:36 EDT 2001
+* Modified code to handle RGBA or ABGR source surfaces transparently.
+* More error checking, source surface locking.
+* Slighly expanded test program with event handling.
+
+Ver 1.4 - Mon Jun  4 12:15:31 EDT 2001
+* Removed SDL_SoftStretch call again in favour of an internal zoom routine.
+* Added new zoomSurface() function with seperate X and Y zoom factors.
+
+
+COMMENTS
+--------
+
+The code is not super optimal - but it should be fast enough even for some
+realtime effects if the bitmaps are kept small.
+
+The routines are mostly meant to be used for pre-rendering stuff in higher 
+quality (i.e. smoothing) - that's also a reason why the API differs from 
+SDL_BlitRect() and creates new target surfaces. The final rendering speed 
+is dependent on the target surface size as as it is beeing xy-scanned when
+rendering.
