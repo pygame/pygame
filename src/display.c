@@ -456,15 +456,11 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 
 
 	if(DisplaySurfaceObject)
-	{
 		((PySurfaceObject*)DisplaySurfaceObject)->surf = surf;
-		Py_INCREF(DisplaySurfaceObject);
-	}
 	else
-	{
 		DisplaySurfaceObject = PySurface_New(surf);
-	}
 
+	Py_INCREF(DisplaySurfaceObject);
 	return DisplaySurfaceObject;
 }
 
