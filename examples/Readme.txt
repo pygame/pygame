@@ -5,7 +5,8 @@ brief rundown of what you get.
 aliens.py - This started off as a port of the SDL demonstration,
     Aliens. Now it has evolved into something sort of resembling
     fun. This demonstrates a lot of different uses of sprites and
-    optimized blitting.
+    optimized blitting. Also transparancy, colorkeys, fonts, sound,
+    music, and more. (PS, my high score is 117! goodluck)
 
 oldalien.py - This more closely resembles a port of the SDL Aliens
     demo. The code is a lot simpler, so it makes a better starting
@@ -41,8 +42,11 @@ vgrade.py - Demonstrates creating a vertical gradient with
     Numeric arrays, don't worry about the source for this one :]
 
 sound.py - Extremely basic testing of the mixer module. Load a
-	sound and play it. 
+	sound and play it. All from the command shell, no graphics.
 
+liquid.py - This example was created in a quick comparison with the
+	BlitzBasic gaming language. Nonetheless, it demonstrates a quick
+	8-bit setup (with colormap).
 
 data/ - directory with the resources for the examples
 sdllogos.zip - zipfile with unofficial sdl logos

@@ -60,7 +60,7 @@
 
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), NULL)
-#define RETURN_NONE {Py_INCREF(Py_None); return Py_None;}
+#define RETURN_NONE return (Py_INCREF(Py_None), Py_None);
 #define PyType_Init(x) (((x).ob_type) = &PyType_Type)
 #define PYGAMEAPI_LOCAL_ENTRY "_PYGAME_C_API"
 #ifndef min

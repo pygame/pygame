@@ -1,34 +1,34 @@
 Version: 0.3
+November 20, 2000
+(Installation instructions and more in the "docs" directory...)
+
+
+With the 0.3 release things are looking really good. We've reached
+the point where full python games are approachable with pygame.
+Thanks to all that have helped push things along this far. 
+
+
 
 pygame is a cross-platfrom library designed to make it easy to write
 multimedia software, such as games, in Python.
 
-Website and Source code are at: http://pygame.seul.org
-
-Installation instructions are located in docs/install.txt
+Website and sourcecode are at: http://pygame.seul.org
 
 
 This library is distributed under GNU LGPL version 2, which can be
 found in the file  "COPYING".  I reserve the right to place future
 versions of this library under a different license.
 
-The best way to learn how to use SDL is to check out the example files
-the "examples" subdirectory. There are also full docstrings provided
-with the modules, and a rough breakdown of that is currently in the
-"docs" directory.
+The best way to learn how to use pygame is to check out the example files
+the "examples" subdirectory. All modules, functions, and objects in the
+pygame package contain helpful docstrings. Full HTML reference and 
+tutorials are also included.
 
 The programs in the "examples" subdirectory are in the public domain.
 
 
-October 10, 2000
---
 Written by:
 	Pete Shinners				(pete@shinners.org)
-
-
-
-
-
 
 
 
