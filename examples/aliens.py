@@ -30,7 +30,10 @@ def load_image(file):
     return surface.convert()
 
 def load_images(*files):
-    return [load_image(file) for file in files]
+    imgs = []
+    for file in files:
+        imgs.append(load_image(file))
+    return imgs
 
 
 class dummysound:
@@ -276,7 +279,7 @@ def main(winstyle = 0):
 
         # Create new alien
         if alienreload:
-            alienreload -= 1
+            alienreload = alienreload - 1
         elif not int(random.random() * ALIEN_ODDS):
             Alien()
             alienreload = ALIEN_RELOAD

@@ -281,18 +281,19 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 	if(cdrom->track[track].type != SDL_AUDIO_TRACK)
 		return RAISE(PyExc_SDLError, "CD track type is not audio");
 
-        /*validate times*/
-        startframe = (int)(start * CD_FPS);
+	/*validate times*/
+	startframe = (int)(start * CD_FPS);
+	endframe = 0;
 	if(startframe < 0)
 		startframe = 0;
-	if(endframe < startframe || startframe > cdrom->track[track].length * CD_FPS)
-                RETURN_NONE;
-        if(end)
-                endframe = (int)((end-start) * CD_FPS);
-        else
-                endframe = cdrom->track[track].length - startframe;
+	if(end)
+		endframe = (int)((end-start) * CD_FPS);
+	else
+		endframe = cdrom->track[track].length - startframe;
+	if(endframe < startframe || startframe > (int)(cdrom->track[track].length * CD_FPS))
+		RETURN_NONE;
 
-        result = SDL_CDPlayTracks(cdrom, track, startframe, 0, endframe);
+	result = SDL_CDPlayTracks(cdrom, track, startframe, 0, endframe);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 

@@ -93,7 +93,6 @@ class PlayGameState:
 	def __init__(self):
 		self.menuMode = 0
 		self.score = 0
-		self.lives = 3
 		self.level = 1
 		self.effectCurrent = 0
 		self.effectDuration = 0
@@ -101,24 +100,14 @@ class PlayGameState:
 	def NewGame(self):
 		self.menuMode = 2 # Game
 		self.score = 0
-		self.lives = 3
 		self.level = 1
 		self.effectCurrent = 0
 		self.effectDuration = 0
 		
 		# Load level
-		
-	def Death(self):
-		self.lives -= 1
-		
-		if self.lives < 0:
-			self.GameOver ()			
-
-	def GameOver(self):
-		self.menuMode = 0
 
 	def ScoreAdd(self, scoreAdd):
-		self.score += scoreAdd
+		self.score = self.score + scoreAdd
 
 #classes for our game objects
 class Paddle(pygame.sprite.Sprite):
@@ -162,7 +151,7 @@ class PowerUp(pygame.sprite.Sprite):
 
 	def update(self):
 		# Fall
-		self.rect.centery += self.speed
+		self.rect.top = self.rect.top + self.speed
 
 	def collide (self, test):
 		if self.rect.colliderect (test.rect):
@@ -180,8 +169,7 @@ class Ball(pygame.sprite.Sprite):
 		self.image, self.rect = render_ball(Ball.radii[size], (50, 200, 200))
 		screen = pygame.display.get_surface()
 		self.area = screen.get_rect()
-		self.area.right += 5
-		self.area.left -= 10
+		self.area.left = self.area.left - 5
 		
 		self.rect.centerx = x
 		self.rect.centery = y
@@ -189,7 +177,8 @@ class Ball(pygame.sprite.Sprite):
 		self.moveY = 4 + (2 * size)
 		self.lastRect = self.rect
 
-	def setType(self, size):
+	def changeType(self):
+		size = not self.size
 		self.size = size
 		x = self.rect.centerx
 		y = self.rect.centery
@@ -198,14 +187,12 @@ class Ball(pygame.sprite.Sprite):
 		self.rect.centery = y
 		
 		# Set the speed based on the size, and keep its direction
-		if self.moveX >= 0:
-			self.moveX = 4 + (2 * size)
+		if size:
+			self.moveX = self.moveX * 2
+			self.moveY = self.moveY * 2
 		else:
-			self.moveX = -4 + (2 * size)
-		if self.moveY >= 0:
-			self.moveY = 4 + (2 * size)
-		else:
-			self.moveY = -4 + (2 * size)
+			self.moveX = self.moveX / 2
+			self.moveY = self.moveY / 2
 
 	def update(self):
 		self.lastRect = self.rect
@@ -342,7 +329,7 @@ class GameMode:
 				self.gameState.ScoreAdd (10)
 				# Randomly create a power up
 				if not randint(0, self.powerchance):
-					self.powerchance = 20
+					self.powerchance = len(self.allballs) * 2
 					center = brick.rect.center
 					powerUp = PowerUp(randint(0,1), randint(3,7), center[0], center[1])
 					powerUp.add((self.allpowerups, self.allsprites))
@@ -353,7 +340,7 @@ class GameMode:
 		for ball in pygame.sprite.spritecollide(self.paddle, self.allballs, 0):
 			ball.collidePaddle(self.paddle)
 			self.bong_sound.play()
-			self.gameState.ScoreAdd (10)
+			self.gameState.ScoreAdd(10)
 
 		# Check powerups against paddle
 		for powerUp in pygame.sprite.spritecollide(self.paddle, self.allpowerups, 1):
@@ -365,20 +352,13 @@ class GameMode:
 					newBall.moveX = -ball.moveX
 					newBall.moveY = -ball.moveY
 					newBall.add((self.allballs, self.allsprites))
-			elif powerUp.type == 2: # Convert the balls
+			else: # Convert the balls
 				for ball in self.allballs.sprites():
-					ball.setType (randint(0,1))
+					ball.changeType()
 
 		# If all the balls are gone
 		if not self.allballs:
-			self.gameState.Death ()
-			
-			if self.gameState.lives > 0:
-				# Create a ball
-				newBall = Ball (randint(0,1))
-				newBall.add((self.allsprites, self.allballs))
-			else:
-				self.gameControl.setMode (0)	# Back to the main menu
+			self.gameControl.setMode(0)	# Back to the main menu
 
 	def draw(self, background, screen):
 		#Draw Everything
@@ -392,8 +372,8 @@ class GameMode:
 		textposScore.left = background.get_rect().left + 10
 		screen.blit(textScore, textposScore)
 
-		# Draw lives
-		textLives = self.fontLives.render(str(self.gameState.lives), 1, (255, 255, 255))
+		# Draw balls
+		textLives = self.fontLives.render(str(len(self.allballs)), 1, (255, 255, 255))
 		textposLives = textLives.get_rect()
 		textposLives.bottom = background.get_rect().bottom - 5
 		textposLives.right = background.get_rect().right - 10
@@ -418,15 +398,15 @@ class MainMenuMode:
 		if self.gameControl.gameEvent.keystate[K_ESCAPE]:
 			self.gameControl.setMode (-1)	# -1 is exit the game
 	
-		# Move selection up nad down
-		if self.gameControl.gameEvent.keystate[K_DOWN] and self.menuSelect < self.menuMax-1:
-			self.menuSelect += 1
+		# Move selection up and down
+		if self.gameControl.gameEvent.newkeys[K_DOWN] and self.menuSelect < self.menuMax-1:
+			self.menuSelect = self.menuSelect + 1
 			
-		if self.gameControl.gameEvent.keystate[K_UP] and self.menuSelect > 0:
-			self.menuSelect -= 1
+		if self.gameControl.gameEvent.newkeys[K_UP] and self.menuSelect > 0:
+			self.menuSelect = self.menuSelect - 1
 		
 		# Process current selection
-		if self.gameControl.gameEvent.keystate[K_RETURN]:
+		if self.gameControl.gameEvent.newkeys[K_RETURN]:
 			if self.menuSelect == 0:
 				self.gameControl.setMode (2)
 			if self.menuSelect == 1:
@@ -487,9 +467,9 @@ class HighScoreMenuMode:
 
 	def eventHandle(self):
 		# Quit on any keys
-		if self.gameControl.gameEvent.keystateTime[K_RETURN] == self.gameControl.gameEvent.ticks:
+		if self.gameControl.gameEvent.keystate[K_RETURN]:
 			self.gameControl.setMode (0)
-		if self.gameControl.gameEvent.keystateTime[K_SPACE] == self.gameControl.gameEvent.ticks:
+		if self.gameControl.gameEvent.keystate[K_SPACE]:
 			self.gameControl.setMode (0)
 		
 	def update(self):
@@ -532,22 +512,26 @@ class GameEvent:
 		Otherwise repeats occur that we dont desire."""
 		
 	def __init__(self):
-	        # Setup the keystate and keystateTime initial values
-	        self.keystate = pygame.key.get_pressed()
-
 		# Run update to init all the variables
+		self.keystate = None
 		self.update()
 
 	def update(self):
 		pygame.event.pump() #keep messages alive
 
 		# Get the key state
-		self.keystate = pygame.key.get_pressed()
-	        
+		if self.keystate:
+			oldstate = self.keystate
+			self.keystate = pygame.key.get_pressed()
+			self.newkeys = map(lambda o,c: c and not o, oldstate, self.keystate)
+		else:
+			self.keystate = pygame.key.get_pressed()
+			self.newkeys = self.keystate
+
 		# Get the mouse data
 		self.mousePos = pygame.mouse.get_pos()
 		self.mouseButtons = pygame.mouse.get_pressed()
-	        
+
 	        # Get the time
 	        self.ticks = pygame.time.get_ticks()
 

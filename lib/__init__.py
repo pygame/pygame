@@ -24,7 +24,7 @@ language. The package is highly portable, with games running on
 Windows, MacOS, OSX, BeOS, FreeBSD, IRIX, and Linux.
 """
 
-import sys, os
+import sys, os, string
 if sys.platform=='darwin':
     # this may change someday, but we want to chdir to where our file is if we're in / for no
     # good reason..
@@ -49,15 +49,16 @@ class MissingModule:
         self.name = name
         self.info = str(info)
         self.urgent = urgent
-        self.ver = sys.version_info
+        self.ver = map(int, string.split(sys.version, '.')[:2])
         if urgent:
             self.warn()
 
     def __getattr__(self, var):
         if not self.urgent:
             self.warn()
-        MissingModule = "%s module not available"%self.name
-        raise NotImplementedError, MissingModule
+            self.urgent = 1
+        MissingPygameModule = "%s module not available" % self.name
+        raise NotImplementedError, MissingPygameModule
 
     def __nonzero__(self):
         return 0
@@ -74,7 +75,7 @@ class MissingModule:
         else:
             print message
 
-    
+
 
 #we need to import like this, each at a time. the cleanest way to import
 #our modules is with the import command (not the __import__ function)
