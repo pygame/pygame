@@ -50,7 +50,6 @@ class Fist(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) #call Sprite initializer
         self.image, self.rect = load_image('fist.bmp', -1)
-        self.rect = self.image.get_rect()
         self.punching = 0
 
     def update(self):
