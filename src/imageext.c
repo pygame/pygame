@@ -53,7 +53,6 @@ static PyObject* image_load_ext(PyObject* self, PyObject* arg)
 	SDL_RWops *rw;
 	if(!PyArg_ParseTuple(arg, "O|s", &file, &name))
 		return NULL;
-
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
 		if(!PyArg_ParseTuple(arg, "s|O", &name, &file))

@@ -197,9 +197,8 @@ Pass this a type of event to discard, and it will
 remove all matching event types from the queue. If no
 types are passed, this will remove all the events from the queue.
 You may also optionally pass a sequence of event types. For
-example, to remove all the mouse events from the queue, you
-would call,
-'<u>pygame.event.clear([MOUSEBUTTONUP,MOUSEBUTTONDOWN,MOUSEMOTION])</u>'.
+example, to remove all the mouse motion events from the queue, you
+would call, '<u>pygame.event.clear(MOUSEMOTION)</u>'.
 </ul><br>&nbsp;<br>
 
 <a name=event_name><font size=+2><b>event_name

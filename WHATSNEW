@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 16, 2002
+	fix crash with subsubsurface blits [BUG]
+	added Surface.get_offset() and get_abs_offset()
+	added Surface.get_parent() and get_abs_parent()
+
 October 6, 2002
     	added event.clear() to efficiently clear the queue
 
