@@ -684,7 +684,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 	SDL_Surface* newsurf;
 	Uint32 flags=-1;
 
-	if(SDL_WasInit(SDL_INIT_VIDEO))
+	if(!SDL_WasInit(SDL_INIT_VIDEO))
 		return RAISE(PyExc_SDLError, "cannot convert without pygame.display initialized");
 
 	if(!PyArg_ParseTuple(args, "|Oi", &argobject, &flags))
