@@ -70,7 +70,7 @@ static PyObject* delay(PyObject* self, PyObject* arg)
 	int ticks;
 	if(!PyArg_ParseTuple(arg, "i", &ticks))
 	{
-		printf("HMM, BAD ARGUMENTS.\nLet's try to troubleshoot this little bug...\n");
+		printf("HMM, BAD ARGUMENTS IN time.delay().\nLet's try to troubleshoot this little bug...\n");
 		printf("Python Says you passed %d arguments.\n", PyTuple_Size(arg));
 		if(PyTuple_Size(arg)>= 1)
 		{

@@ -18,19 +18,6 @@
 ##    Pete Shinners
 ##    pete@shinners.org
 
-# main pygame source
-# lets get things coordinated
+"""simple pygame version info, easily accessable"""
 
-from pygame.version import version
-
-from pygame.base import *
-from pygame.surface import *
-from pygame.rect import *
-from pygame.locals import *
-import pygame.cdrom
-import pygame.display
-import pygame.event
-import pygame.key
-import pygame.mouse
-import pygame.time
-import pygame.joystick
+version = '0.5'
