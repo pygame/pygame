@@ -52,49 +52,51 @@ static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 
 
 
-static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, int cx, int cy, int isin, int icos)
+static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle, double cangle)
 {
 	int x, y, dx, dy;
-
+    
 	Uint8 *srcpix = (Uint8*)src->pixels;
 	Uint8 *dstrow = (Uint8*)dst->pixels;
-
 	int srcpitch = src->pitch;
 	int dstpitch = dst->pitch;
 
-	int xd = (src->w - dst->w) << 15;
-	int yd = (src->h - dst->h) << 15;
+        /*int cx = dst->w/2;*/
+        int cy = dst->h/2;
+    
+	int xd = ((src->w - dst->w + 0) << 15);
+	int yd = ((src->h - dst->h + 0) << 15);
+    
+        int isin = (int)(sangle*65536);
+        int icos = (int)(cangle*65536);
+   
+	int ax = (dst->w << 15) - (int)(cangle * (dst->w << 15));
+	int ay = (dst->h << 15) - (int)(sangle * (dst->w << 15));
 
-	int ax = (cx << 16) - (icos * cx);
-	int ay = (cy << 16) - (isin * cx);
-
-	int minval = (1 << 16) - 1;
-	int xmaxval = src->w << 16;
-	int ymaxval = src->h << 16;
-
+	int xmaxval = ((src->w) << 16) - 1;
+	int ymaxval = ((src->h) << 16) - 1;
+    
 	switch(src->format->BytesPerPixel)
 	{
 	case 1:
 		for(y = 0; y < dst->h; y++) {
 			Uint8 *dstpos = (Uint8*)dstrow;
-			dy = cy - y;
-			dx = (ax + (isin * dy)) + xd;
-			dy = (ay - (icos * dy)) + yd;
+			dx = (ax + (isin * (cy - y))) + xd;
+			dy = (ay - (icos * (cy - y))) + yd;
 			for(x = 0; x < dst->w; x++) {
-				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval) *dstpos++ = bgcolor;
+				if(dx<0 || dy<0 || dx>xmaxval || dy>ymaxval) *dstpos++ = bgcolor;
 				else *dstpos++ = *(Uint8*)(srcpix + ((dy>>16) * srcpitch) + (dx>>16));
 				dx += icos; dy += isin;
 			}
 			dstrow += dstpitch;
 		}break;
-	case 2:
+        case 2:
 		for(y = 0; y < dst->h; y++) {
 			Uint16 *dstpos = (Uint16*)dstrow;
-			dy = cy - y;
-			dx = (ax + (isin * dy)) + xd;
-			dy = (ay - (icos * dy)) + yd;
+			dx = (ax + (isin * (cy - y))) + xd;
+			dy = (ay - (icos * (cy - y))) + yd;
 			for(x = 0; x < dst->w; x++) {
-				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval) *dstpos++ = bgcolor;
+				if(dx<0 || dy<0 || dx>xmaxval || dy>ymaxval) *dstpos++ = bgcolor;
 				else *dstpos++ = *(Uint16*)(srcpix + ((dy>>16) * srcpitch) + (dx>>16<<1));
 				dx += icos; dy += isin;
 			}
@@ -103,11 +105,10 @@ static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, int cx, i
 	case 4:
 		for(y = 0; y < dst->h; y++) {
 			Uint32 *dstpos = (Uint32*)dstrow;
-			dy = cy - y;
-			dx = (ax + (isin * dy)) + xd;
-			dy = (ay - (icos * dy)) + yd;
+			dx = (ax + (isin * (cy - y))) + xd;
+			dy = (ay - (icos * (cy - y))) + yd;
 			for(x = 0; x < dst->w; x++) {
-				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval) *dstpos++ = bgcolor;
+				if(dx<0 || dy<0 || dx>xmaxval || dy>ymaxval) *dstpos++ = bgcolor;
 				else *dstpos++ = *(Uint32*)(srcpix + ((dy>>16) * srcpitch) + (dx>>16<<2));
 				dx += icos; dy += isin;
 			}
@@ -116,11 +117,10 @@ static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, int cx, i
 	default: /*case 3:*/
 		for(y = 0; y < dst->h; y++) {
 			Uint8 *dstpos = (Uint8*)dstrow;
-			dy = cy - y;
-			dx = (ax + (isin * dy)) + xd;
-			dy = (ay - (icos * dy)) + yd;
+			dx = (ax + (isin * (cy - y))) + xd;
+			dy = (ay - (icos * (cy - y))) + yd;
 			for(x = 0; x < dst->w; x++) {
-				if(dx<minval || dy < minval || dx > xmaxval || dy > ymaxval)
+				if(dx<0 || dy<0 || dx>xmaxval || dy>ymaxval)
 				{
 					dstpos[0] = ((Uint8*)&bgcolor)[0]; dstpos[1] = ((Uint8*)&bgcolor)[1]; dstpos[2] = ((Uint8*)&bgcolor)[2];
 					dstpos += 3;
@@ -293,7 +293,6 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	float angle;
 
 	double radangle, sangle, cangle;
-	int dstwidthhalf, dstheighthalf;
 	double x, y, cx, cy, sx, sy;
 	int nxmax,nymax;
 	Uint32 bgcolor;
@@ -310,19 +309,21 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	radangle = angle*.01745329251994329;
 	sangle = sin(radangle);
 	cangle = cos(radangle);
-	
-	x = surf->w/2;
-	y = surf->h/2;
+
+printf("ANGLE: %.2f\n", angle);
+	x = surf->w;
+	y = surf->h;
 	cx = cangle*x;
 	cy = cangle*y;
 	sx = sangle*x;
 	sy = sangle*y;
-	nxmax = (int)ceil(max(max(max(fabs(cx+sy), fabs(cx-sy)), fabs(-cx+sy)), fabs(-cx-sy)));
-	nymax = (int)ceil(max(max(max(fabs(sx+cy), fabs(sx-cy)), fabs(-sx+cy)), fabs(-sx-cy)));
-	dstwidthhalf = nxmax ? nxmax : 1;
-	dstheighthalf = nymax ? nymax : 1;
+        nxmax = (int)(max(max(max(fabs(cx+sy), fabs(cx-sy)), fabs(-cx+sy)), fabs(-cx-sy)));
+	nymax = (int)(max(max(max(fabs(sx+cy), fabs(sx-cy)), fabs(-sx+cy)), fabs(-sx-cy)));
 
-	newsurf = newsurf_fromsurf(surf, dstwidthhalf*2, dstheighthalf*2);
+
+printf("  insize: %d x %d  outsize: %d x %d\n", (int)surf->w, (int)surf->h, nxmax, nymax);
+
+	newsurf = newsurf_fromsurf(surf, nxmax, nymax);
 	if(!newsurf) return NULL;
 
 	/* get the background color */
@@ -350,7 +351,7 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	SDL_LockSurface(newsurf);
 	PySurface_Lock(surfobj);
 
-	rotate(surf, newsurf, bgcolor, dstwidthhalf, dstheighthalf, (int)(sangle*65536), (int)(cangle*65536));
+	rotate(surf, newsurf, bgcolor, sangle, cangle);
 
 	PySurface_Unlock(surfobj);
 	SDL_UnlockSurface(newsurf);
