@@ -438,7 +438,7 @@ static PyObject* music_load(PyObject* self, PyObject* args)
 	Py_BEGIN_ALLOW_THREADS
 	current_music = Mix_LoadMUS(filename);
 	Py_END_ALLOW_THREADS
-#endif	
+#endif
 	if(!current_music)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 	if(queue_music)
@@ -447,7 +447,7 @@ static PyObject* music_load(PyObject* self, PyObject* args)
 		queue_music = NULL;
 	}
 
-	
+
 	RETURN_NONE;
 }
 
@@ -480,7 +480,7 @@ static PyObject* music_queue(PyObject* self, PyObject* args)
 	Py_BEGIN_ALLOW_THREADS
 	queue_music = Mix_LoadMUS(filename);
 	Py_END_ALLOW_THREADS
-		
+
     	RETURN_NONE
 }
 
