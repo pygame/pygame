@@ -520,16 +520,18 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 	PyObject* rgba_obj = NULL;
 	Uint8 rgba[4];
 	int result;
-
 	if(!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
 		return NULL;
 
-	if(PyInt_Check(rgba_obj))
-		color = (Uint32)PyInt_AsLong(rgba_obj);
-	else if(RGBAFromObj(rgba_obj, rgba))
-		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-	else
-		return RAISE(PyExc_TypeError, "invalid color argument");
+	if(rgba_obj)
+	{
+		if(PyInt_Check(rgba_obj))
+			color = (Uint32)PyInt_AsLong(rgba_obj);
+		else if(RGBAFromObj(rgba_obj, rgba))
+			color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+		else
+			return RAISE(PyExc_TypeError, "invalid color argument");
+	}
 
 	if(PyTuple_Size(args) > 0)
 		flags |= SDL_SRCCOLORKEY;

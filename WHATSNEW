@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Feb 14, 2001
+	fixed Surface.set_colorkey() with no args [BUG]
+
 Feb 13, 2001
 	fixed return rect from line drawing routines
 	small fix when drawing horizontal lines
