@@ -191,7 +191,7 @@ static PyObject* mus_rewind(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-	Mix_ResumeMusic();
+	Mix_RewindMusic();
 	RETURN_NONE
 }
 

@@ -110,7 +110,7 @@ compile cursor strings into cursor data
 
 This takes a set of strings with equal length and computes
 the binary data for that cursor. The string widths must be
-divisible by 6. The data returned are suitable for passing
+divisible by 8. The data returned are suitable for passing
 to pygame.mouse.set_cursor().
 
 The black and white arguments are single letter strings that
@@ -155,7 +155,7 @@ def load_xbm(curs, mask):
     """pygame.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
 reads a pair of XBM files into set_cursor arguments
 
-Arguments can either be strings or filelike objects
+Arguments can either be filenames or filelike objects
 with the readlines method. Not largely tested, but
 should work with typical XBM files.
 """
