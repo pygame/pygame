@@ -378,7 +378,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 {
 	SDL_Surface* surf;
 	int flags = SDL_SWSURFACE, depth = 0;
-	short w, h;
+	int w, h;
 	char* title, *icontitle;
 
 	if(!PyArg_ParseTuple(arg, "(ii)|ii", &w, &h, &flags, &depth))
