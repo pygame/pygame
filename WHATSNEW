@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 26, 2004
+    Rect.fit() added
+    Surface.get_rect() accepts keyword args for assignment
+
 June 25, 2004
     Font becomes new style type, inheritable, weakrefable
 

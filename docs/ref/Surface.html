@@ -115,6 +115,10 @@ new copy of surface with different format</td></tr>
 new copy of surface with different format and per pixel alpha</td></tr>
 
 
+<tr><td><a href=#copy>copy</a></td><td> -
+creates a new copy of a Surface</td></tr>
+
+
 <tr><td><a href=#fill>fill</a></td><td> -
 fill areas of a Surface</td></tr>
 
@@ -318,6 +322,17 @@ will not be exactly the same as the requested source, but it will
 be optimized for fast alpha blitting to the destination.
 </ul><br>&nbsp;<br>
 
+<a name=copy><font size=+2><b>copy
+</b></font><br><font size=+1><tt>
+Surface.copy() -> Surface
+</tt></font><ul>
+Creates an exact duplicate of the Surface. The new Surface will
+get the same palette and surface flags as the original.
+<br>&nbsp;<br>
+If the Surface is a subsurface this will return a copy of
+the pixel data. The new copy will not reference pixel data.
+</ul><br>&nbsp;<br>
+
 <a name=fill><font size=+2><b>fill
 </b></font><br><font size=+1><tt>
 Surface.fill(color, [rectstyle])) -> Rect
@@ -488,11 +503,17 @@ any special-case debugging.
 
 <a name=get_rect><font size=+2><b>get_rect
 </b></font><br><font size=+1><tt>
-Surface.get_rect() -> rect
+Surface.get_rect(**kwargs) -> rect
 </tt></font><ul>
 Returns a new rectangle covering the entire surface.
 This rectangle will always start at 0, 0 with a width.
 and height the same size as the image.
+<br>&nbsp;<br>
+You can pass keyword argument values to this function.
+These named values will be applied to the attributes of
+the Rect before it is returned. An example would be
+'mysurf.get_rect(center=(100,100))' to create a rectangle
+for the Surface centered at a given position.
 </ul><br>&nbsp;<br>
 
 <a name=get_shifts><font size=+2><b>get_shifts

@@ -803,6 +803,53 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 }
 
 
+
+    /*DOC*/ static char doc_fit[] =
+    /*DOC*/    "Rect.fit(rectstyle) -> Rect\n"
+    /*DOC*/    "Fill as much of the argument as possible, maintains aspect ratio\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a new rectangle that fills as much of the rectangle\n"
+    /*DOC*/    "argumement as possible. The new rectangle maintains the same\n"
+    /*DOC*/    "aspect ratio as the original rectangle. This can be used to\n"
+    /*DOC*/    "find scaling sizes that fill an area but won't distort the image.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_fit(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	GAME_Rect *argrect, temp;
+	int w, h, x, y;
+	float xratio, yratio, maxratio;
+	if(!(argrect = GameRect_FromObject(args, &temp)))
+		return RAISE(PyExc_TypeError, "Argument must be rect style object");
+
+	xratio = (float)self->r.w / (float)argrect->w;
+	yratio = (float)self->r.h / (float)argrect->h;
+	maxratio = (xratio>yratio)?xratio:yratio;
+	
+	if(xratio > 1 || yratio > 1)
+	{
+		w = self->r.w / maxratio;
+		h = self->r.h / maxratio;
+	}
+	if(xratio < 1 && yratio < 1)
+	{
+		w = self->r.w * maxratio;
+		h = self->r.h * maxratio;
+	}
+	else
+	{
+		w = self->r.w;
+		h = self->r.h;
+	}
+	
+	x = argrect->x + (argrect->w - w)/2;
+	y = argrect->y + (argrect->h - h)/2;
+
+	return PyRect_New4(x, y, w, h);
+}
+
+
     /*DOC*/ static char doc_clamp_ip[] =
     /*DOC*/    "Rect.clamp_ip(rectstyle) -> None\n"
     /*DOC*/    "moves the rectangle inside another\n"
@@ -869,6 +916,7 @@ static struct PyMethodDef rect_methods[] =
 	{"clip",			(PyCFunction)rect_clip, 		1, doc_clip},
 	{"clamp",			(PyCFunction)rect_clamp,		1, doc_clamp},
 	{"clamp_ip",			 (PyCFunction)rect_clamp_ip,		  1,	    doc_clamp_ip},
+	{"fit",			(PyCFunction)rect_fit,		1, doc_fit},
 
 	{"move",			(PyCFunction)rect_move, 		1, doc_move},
 	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},
@@ -887,9 +935,6 @@ static struct PyMethodDef rect_methods[] =
 	{"collidedict", 	(PyCFunction)rect_collidedict,	1, doc_collidedict},
 	{"collidedictall",	(PyCFunction)rect_collidedictall,1,doc_collidedictall},
 	{"contains",		(PyCFunction)rect_contains,		1, doc_contains},
-/* these are totally unwritten. volunteers? */
-/*	{"cleanup",			(PyCFunction)rect_cleanup,		1, doc_cleanup}, */
-/*	{"remove",			(PyCFunction)rect_remove,		1, doc_remove}, */
 
         {"__reduce__",          (PyCFunction)rect_reduce, 0, NULL},
         {"__copy__",            (PyCFunction)rect_copy, 0, NULL},

@@ -80,108 +80,101 @@ of a group, and not add sprites to a group if it already
 exists. You may also pass a sequence of sprites or groups
 to these functions and each one will be used.
 <br>&nbsp;<br>
-The design of the sprites and groups is very flexible.
-There's no need to inherit from the provided classes, you
-can use any object you want for the sprites, as long as it
-contains "add_internal" and "remove_internal" methods,
-which are called by the groups when they remove and add
-sprites. The same is true for containers. A container
-can be any python object that has "add_internal" and
-"remove_internal" methods that the sprites call when
-they want add and remove themselves from containers. The
-containers must also have a member named "_spritegroup",
-which can be set to any dummy value.
+While it is possible to design sprite and group classes
+that don't derive from the Sprite and AbstractGroup classes
+below, it is strongly recommended that you extend those
+when you add a Sprite or Group class.
 <br>&nbsp;<br>
 
 <hr>
 
 <table>
-<tr><td><a href=#Group>Group</a></td><td> -
-<b>(class)</b> - the Group class is a container for sprites</td></tr>
+<tr><td><a href=#AbstractGroup>AbstractGroup</a></td><td> -
+<b>(class)</b> - a base for containers for sprites</td></tr>
 
 
-<tr><td><a href=#Group.add>Group.add</a></td><td> -
+<tr><td><a href=#AbstractGroup.add>AbstractGroup.add</a></td><td> -
            add sprite to group</td></tr>
 
 
-<tr><td><a href=#Group.copy>Group.copy</a></td><td> -
-           copy a group with all the same sprites</td></tr>
-
-
-<tr><td><a href=#Group.empty>Group.empty</a></td><td> -
-           remove all sprites</td></tr>
-
-
-<tr><td><a href=#Group.has>Group.has</a></td><td> -
-           ask if group has sprite</td></tr>
-
-
-<tr><td><a href=#Group.remove>Group.remove</a></td><td> -
-           remove sprite from group</td></tr>
-
-
-<tr><td><a href=#Group.sprites>Group.sprites</a></td><td> -
-           return an object to loop over each sprite</td></tr>
-
-
-<tr><td><a href=#Group.update>Group.update</a></td><td> -
-           call update for all member sprites</td></tr>
-
-
-<tr><td><a href=#GroupSingle>GroupSingle</a></td><td> -
-<b>(class)</b> - a group container that holds a single most recent item</td></tr>
-
-
-<tr><td><a href=#RenderClear>RenderClear</a></td><td> -
-<b>(class)</b> - a group container that can draw and clear its sprites</td></tr>
-
-
-<tr><td><a href=#RenderClear.clear>RenderClear.clear</a></td><td> -
+<tr><td><a href=#AbstractGroup.clear>AbstractGroup.clear</a></td><td> -
            erase the previous position of all sprites</td></tr>
 
 
-<tr><td><a href=#RenderClear.draw>RenderClear.draw</a></td><td> -
-           draw all sprites onto a surface</td></tr>
+<tr><td><a href=#AbstractGroup.copy>AbstractGroup.copy</a></td><td> -
+           copy a group with all the same sprites</td></tr>
 
 
-<tr><td><a href=#RenderPlain>RenderPlain</a></td><td> -
-<b>(class)</b> - a sprite group that can draw all its sprites</td></tr>
-
-
-<tr><td><a href=#RenderPlain.draw>RenderPlain.draw</a></td><td> -
-           draw all sprites onto a surface</td></tr>
-
-
-<tr><td><a href=#RenderUpdates>RenderUpdates</a></td><td> -
-<b>(class)</b> - a sprite group that can draw and clear with update rectangles</td></tr>
-
-
-<tr><td><a href=#RenderUpdates.draw>RenderUpdates.draw</a></td><td> -
+<tr><td><a href=#AbstractGroup.draw>AbstractGroup.draw</a></td><td> -
            draw all sprites onto the surface</td></tr>
 
 
+<tr><td><a href=#AbstractGroup.empty>AbstractGroup.empty</a></td><td> -
+           remove all sprites</td></tr>
+
+
+<tr><td><a href=#AbstractGroup.has>AbstractGroup.has</a></td><td> -
+           ask if group has a sprite or sprites</td></tr>
+
+
+<tr><td><a href=#AbstractGroup.remove>AbstractGroup.remove</a></td><td> -
+           remove sprite from group</td></tr>
+
+
+<tr><td><a href=#AbstractGroup.sprites>AbstractGroup.sprites</a></td><td> -
+           get a list of sprites in the group</td></tr>
+
+
+<tr><td><a href=#AbstractGroup.update>AbstractGroup.update</a></td><td> -
+           call update for all member sprites</td></tr>
+
+
+<tr><td><a href=#Group>Group</a></td><td> -
+<b>(class)</b> - Group(sprite or group, ...)</td></tr>
+
+
+<tr><td><a href=#GroupSingle>GroupSingle</a></td><td> -
+<b>(class)</b> - GroupSingle(sprite = None)</td></tr>
+
+
+<tr><td><a href=#OrderedUpdates>OrderedUpdates</a></td><td> -
+<b>(class)</b> - OrderedUpdates(sprite or group, ...)</td></tr>
+
+
+<tr><td><a href=#RenderClear>RenderClear</a></td><td> -
+<b>(class)</b> - Group(sprite or group, ...)</td></tr>
+
+
+<tr><td><a href=#RenderPlain>RenderPlain</a></td><td> -
+<b>(class)</b> - Group(sprite or group, ...)</td></tr>
+
+
+<tr><td><a href=#RenderUpdates>RenderUpdates</a></td><td> -
+<b>(class)</b> - RenderUpdates(sprite or group, ...)</td></tr>
+
+
 <tr><td><a href=#Sprite>Sprite</a></td><td> -
-<b>(class)</b> - the base class for your visible game objects.</td></tr>
+<b>(class)</b> - The base class for your visible game objects.</td></tr>
 
 
-<tr><td><a href=#Sprite.add>Sprite.add</a></td><td> -
-           add a sprite to container</td></tr>
+<tr><td><a href=#Sprite.add a sprite to containe>Sprite.add a sprite to containe</a></td><td> -
+<br>&nbsp;<br></td></tr>
 
 
-<tr><td><a href=#Sprite.alive>Sprite.alive</a></td><td> -
-           ask the life of a sprite</td></tr>
+<tr><td><a href=#Sprite.check to see if the sprite is in any group>Sprite.check to see if the sprite is in any group</a></td><td> -
+<br>&nbsp;<br></td></tr>
 
 
-<tr><td><a href=#Sprite.groups>Sprite.groups</a></td><td> -
-           list used sprite containers</td></tr>
+<tr><td><a href=#Sprite.list used sprite container>Sprite.list used sprite container</a></td><td> -
+<br>&nbsp;<br></td></tr>
 
 
-<tr><td><a href=#Sprite.kill>Sprite.kill</a></td><td> -
-           end life of sprite, remove from all groups</td></tr>
+<tr><td><a href=#Sprite.remove a sprite from containe>Sprite.remove a sprite from containe</a></td><td> -
+<br>&nbsp;<br></td></tr>
 
 
-<tr><td><a href=#Sprite.remove>Sprite.remove</a></td><td> -
-           remove a sprite from container</td></tr>
+<tr><td><a href=#Sprite.remove this sprite from all group>Sprite.remove this sprite from all group</a></td><td> -
+<br>&nbsp;<br></td></tr>
 
 
 <tr><td><a href=#groupcollide>groupcollide</a></td><td> -
@@ -200,103 +193,31 @@ which can be set to any dummy value.
 
 <hr>
 
-<a name=Group><font size=+2><b>Group
+<a name=AbstractGroup><font size=+2><b>AbstractGroup
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group(sprite=())
+pygame.sprite.AbstractGroup()
 </tt></font><ul>
-the Group class is a container for sprites
+a base for containers for sprites
        This is the base sprite group class. It does everything
        needed to behave as a normal group. You can easily inherit
-       a new group class from this if you want to add more features.
+       a new group class from this, or the other groups below,
+       if you want to add more features.
 <br>&nbsp;<br>
+       Any AbstractGroup-derived sprite groups act like sequences,
+       and support iteration, len, and so on.
 <br>&nbsp;<br>
-           You can initialize a group by passing it a
-           sprite or sequence of sprites to be contained.
 </ul><br>&nbsp;<br>
 
-<a name=Group.add><font size=+2><b>Group.add
+<a name=AbstractGroup.add><font size=+2><b>AbstractGroup.add
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group.add(sprite)
+pygame.sprite.AbstractGroup.add(sprite or group, ...)
 </tt></font><ul>
            Add a sprite or sequence of sprites to a group.
 </ul><br>&nbsp;<br>
 
-<a name=Group.copy><font size=+2><b>Group.copy
+<a name=AbstractGroup.clear><font size=+2><b>AbstractGroup.clear
 </b></font><br><font size=+1><tt>
-pygame.sprite.Group.copy() -> Group
-</tt></font><ul>
-           Returns a copy of the group that is the same class
-           type, and has the same contained sprites.
-</ul><br>&nbsp;<br>
-
-<a name=Group.empty><font size=+2><b>Group.empty
-</b></font><br><font size=+1><tt>
-pygame.sprite.Group.empty()
-</tt></font><ul>
-           Removes all the sprites from the group.
-</ul><br>&nbsp;<br>
-
-<a name=Group.has><font size=+2><b>Group.has
-</b></font><br><font size=+1><tt>
-pygame.sprite.Group.has(sprite) -> bool
-</tt></font><ul>
-           Returns true if the given sprite or sprites are
-           contained in the group
-</ul><br>&nbsp;<br>
-
-<a name=Group.remove><font size=+2><b>Group.remove
-</b></font><br><font size=+1><tt>
-pygame.sprite.Group.remove(sprite)
-</tt></font><ul>
-           Remove a sprite or sequence of sprites from a group.
-</ul><br>&nbsp;<br>
-
-<a name=Group.sprites><font size=+2><b>Group.sprites
-</b></font><br><font size=+1><tt>
-pygame.sprite.Group.sprites() -> iterator
-</tt></font><ul>
-           Returns an object that can be looped over with
-           a 'for' loop. (For now it is always a list, but
-           newer version of python could return different
-           objects, like iterators.)
-</ul><br>&nbsp;<br>
-
-<a name=Group.update><font size=+2><b>Group.update
-</b></font><br><font size=+1><tt>
-pygame.sprite.Group.update(...)
-</tt></font><ul>
-           calls the update method for all sprites in the group.
-           Passes all arguments on to the Sprite update function.
-</ul><br>&nbsp;<br>
-
-<a name=GroupSingle><font size=+2><b>GroupSingle
-</b></font><br><font size=+1><tt>
-pygame.sprite.GroupSingle()
-</tt></font><ul>
-a group container that holds a single most recent item
-       This class works just like a regular group, but it only
-       keeps a single sprite in the group. Whatever sprite has
-       been added to the group last, will be the only sprite in
-       the group.
-<br>&nbsp;<br>
-</ul><br>&nbsp;<br>
-
-<a name=RenderClear><font size=+2><b>RenderClear
-</b></font><br><font size=+1><tt>
-pygame.sprite.RenderClear()
-</tt></font><ul>
-a group container that can draw and clear its sprites
-       The RenderClear group is just like a normal group,
-       but it can draw and clear the sprites. Any sprites
-       used in this group must contain member elements
-       named "image" and "rect". These are a pygame Surface
-       and Rect, which are passed to a blit call.
-<br>&nbsp;<br>
-</ul><br>&nbsp;<br>
-
-<a name=RenderClear.clear><font size=+2><b>RenderClear.clear
-</b></font><br><font size=+1><tt>
-pygame.sprite.RenderClear.clear(surface, bgd)
+pygame.sprite.AbstractGroup.clear(surface, bgd)
 </tt></font><ul>
            Clears the area of all drawn sprites. the bgd
            argument should be Surface which is the same
@@ -305,112 +226,195 @@ pygame.sprite.RenderClear.clear(surface, bgd)
            surface and the area to be cleared.
 </ul><br>&nbsp;<br>
 
-<a name=RenderClear.draw><font size=+2><b>RenderClear.draw
+<a name=AbstractGroup.copy><font size=+2><b>AbstractGroup.copy
 </b></font><br><font size=+1><tt>
-pygame.sprite.RenderClear.draw(surface)
+pygame.sprite.AbstractGroup.copy()
+</tt></font><ul>
+           Returns a copy of the group that is the same class
+           type, and has the same sprites in it.
+</ul><br>&nbsp;<br>
+
+<a name=AbstractGroup.draw><font size=+2><b>AbstractGroup.draw
+</b></font><br><font size=+1><tt>
+pygame.sprite.AbstractGroup.draw(surface)
 </tt></font><ul>
            Draws all the sprites onto the given surface.
+</ul><br>&nbsp;<br>
+
+<a name=AbstractGroup.empty><font size=+2><b>AbstractGroup.empty
+</b></font><br><font size=+1><tt>
+pygame.sprite.AbstractGroup.empty()
+</tt></font><ul>
+           Removes all the sprites from the group.
+</ul><br>&nbsp;<br>
+
+<a name=AbstractGroup.has><font size=+2><b>AbstractGroup.has
+</b></font><br><font size=+1><tt>
+pygame.sprite.AbstractGroup.has(sprite or group, ...)
+</tt></font><ul>
+           Returns true if the given sprite or sprites are
+           contained in the group
+</ul><br>&nbsp;<br>
+
+<a name=AbstractGroup.remove><font size=+2><b>AbstractGroup.remove
+</b></font><br><font size=+1><tt>
+pygame.sprite.AbstractGroup.remove(sprite or group, ...)
+</tt></font><ul>
+           Remove a sprite or sequence of sprites from a group.
+</ul><br>&nbsp;<br>
+
+<a name=AbstractGroup.sprites><font size=+2><b>AbstractGroup.sprites
+</b></font><br><font size=+1><tt>
+pygame.sprite.AbstractGroup.sprites()
+</tt></font><ul>
+           Returns an object that can be looped over with a 'for' loop.
+           (For now it is always a list, but newer version of Python
+           could return different objects, like iterators.)
+</ul><br>&nbsp;<br>
+
+<a name=AbstractGroup.update><font size=+2><b>AbstractGroup.update
+</b></font><br><font size=+1><tt>
+pygame.sprite.AbstractGroup.update(*args)
+</tt></font><ul>
+           calls the update method for all sprites in the group.
+           Passes all arguments on to the Sprite update function.
+</ul><br>&nbsp;<br>
+
+<a name=Group><font size=+2><b>Group
+</b></font><br><font size=+1><tt>
+pygame.sprite.Group()
+</tt></font><ul>
+Group(sprite or group, ...)
+       This is the basic Group class you will want to use. It supports
+       all of the above operations and methods.
+<br>&nbsp;<br>
+       The RenderPlain and RenderClear groups are just aliases to this
+       group, for compatibility.
+<br>&nbsp;<br>
+</ul><br>&nbsp;<br>
+
+<a name=GroupSingle><font size=+2><b>GroupSingle
+</b></font><br><font size=+1><tt>
+pygame.sprite.GroupSingle()
+</tt></font><ul>
+GroupSingle(sprite = None)
+       a group container that holds a single most recent item
+       This class works just like a regular group, but it only
+       keeps a single sprite in the group. Whatever sprite has
+       been added to the group last, will be the only sprite in
+       the group.
+<br>&nbsp;<br>
+       You can access its one sprite as the .sprite attribute.
+       Assigning to this attribute will properly remove the old
+       sprite and then add the new one.
+<br>&nbsp;<br>
+</ul><br>&nbsp;<br>
+
+<a name=OrderedUpdates><font size=+2><b>OrderedUpdates
+</b></font><br><font size=+1><tt>
+pygame.sprite.OrderedUpdates()
+</tt></font><ul>
+OrderedUpdates(sprite or group, ...)
+       This class is like RenderUpdates, but the sprites are drawn
+       in the order they were added; more recently added sprites are
+       drawn last (and so, above other sprites).
+<br>&nbsp;<br>
+</ul><br>&nbsp;<br>
+
+<a name=RenderClear><font size=+2><b>RenderClear
+</b></font><br><font size=+1><tt>
+pygame.sprite.RenderClear()
+</tt></font><ul>
+Group(sprite or group, ...)
+       This is the basic Group class you will want to use. It supports
+       all of the above operations and methods.
+<br>&nbsp;<br>
+       The RenderPlain and RenderClear groups are just aliases to this
+       group, for compatibility.
+<br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
 <a name=RenderPlain><font size=+2><b>RenderPlain
 </b></font><br><font size=+1><tt>
-pygame.sprite.RenderPlain(sprite=())
+pygame.sprite.RenderPlain()
 </tt></font><ul>
-a sprite group that can draw all its sprites
-       The RenderPlain group is just like a normal group,
-       it just adds a "draw" method. Any sprites used with
-       this group to draw must contain two member elements
-       named "image" and "rect". These are a pygame Surface
-       and Rect object that are passed to blit.
+Group(sprite or group, ...)
+       This is the basic Group class you will want to use. It supports
+       all of the above operations and methods.
 <br>&nbsp;<br>
+       The RenderPlain and RenderClear groups are just aliases to this
+       group, for compatibility.
 <br>&nbsp;<br>
-           You can initialize a group by passing it a
-           sprite or sequence of sprites to be contained.
-</ul><br>&nbsp;<br>
-
-<a name=RenderPlain.draw><font size=+2><b>RenderPlain.draw
-</b></font><br><font size=+1><tt>
-pygame.sprite.RenderPlain.draw(surface)
-</tt></font><ul>
-           Draws all the sprites onto the given surface.
 </ul><br>&nbsp;<br>
 
 <a name=RenderUpdates><font size=+2><b>RenderUpdates
 </b></font><br><font size=+1><tt>
 pygame.sprite.RenderUpdates()
 </tt></font><ul>
-a sprite group that can draw and clear with update rectangles
-       The RenderUpdates is derived from the RenderClear group
-       and keeps track of all the areas drawn and cleared. It
-       also smartly handles overlapping areas between where a
-       sprite was drawn and cleared when generating the update
-       rectangles.
+RenderUpdates(sprite or group, ...)
 <br>&nbsp;<br>
-</ul><br>&nbsp;<br>
-
-<a name=RenderUpdates.draw><font size=+2><b>RenderUpdates.draw
-</b></font><br><font size=+1><tt>
-pygame.sprite.RenderUpdates.draw(surface)
-</tt></font><ul>
-           Draws all the sprites onto the given surface. It
-           returns a list of rectangles, which should be passed
-           to <a href=pygame_display.html#update>pygame.display.update()</a>
+       This group supports drawing to the screen, but also, its draw
+       method returns a list of the Rects updated by the draw (and any
+       clears in between the last draw and the current one). So, you
+       can use <a href=pygame_display.html#update>pygame.display.update(renderupdates_group.draw(screen)</a>)
+       to minimize the updated part of the screen. This can usually
+       make things much faster.
+<br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
 <a name=Sprite><font size=+2><b>Sprite
 </b></font><br><font size=+1><tt>
-pygame.sprite.Sprite(group=())
+pygame.sprite.Sprite()
 </tt></font><ul>
-the base class for your visible game objects.
+The base class for your visible game objects.
        The sprite class is meant to be used as a base class
        for the objects in your game. It just provides functions
-       to maintain itself in different groups. A sprite is
-       considered 'alive' as long as it is a member of one
-       or more groups. The kill() method simply removes this
-       sprite from all groups.
+       to maintain itself in different groups.
 <br>&nbsp;<br>
+       You can initialize a sprite by passing it a group or sequence
+       of groups to be contained in.
 <br>&nbsp;<br>
-           You can initialize a sprite by passing it a
-           group or sequence of groups to be contained in.
+       When you subclass Sprite, you must call this
+       pygame.sprite.Sprite.__init__(self) before you add the sprite
+       to any groups, or you will get an error.
+<br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
-<a name=Sprite.add><font size=+2><b>Sprite.add
+<a name=Sprite.add a sprite to containe><font size=+2><b>Sprite.add a sprite to containe
 </b></font><br><font size=+1><tt>
-pygame.sprite.Sprite.add(group)
+pygame.sprite.Sprite.add a sprite to container
 </tt></font><ul>
-           Add the sprite to a group or sequence of groups.
+           use <a href=pygame_color.html#add>add(group)</a>, <a href=pygame_color.html#add>add([group1, group2])</a>, or <a href=pygame_color.html#add>add(group1, group2)</a>.
 </ul><br>&nbsp;<br>
 
-<a name=Sprite.alive><font size=+2><b>Sprite.alive
+<a name=Sprite.check to see if the sprite is in any group><font size=+2><b>Sprite.check to see if the sprite is in any group
 </b></font><br><font size=+1><tt>
-pygame.sprite.Sprite.alive() -> bool
+pygame.sprite.Sprite.check to see if the sprite is in any groups
 </tt></font><ul>
-           Returns true if this sprite is a member of any groups.
+{docs}
 </ul><br>&nbsp;<br>
 
-<a name=Sprite.groups><font size=+2><b>Sprite.groups
+<a name=Sprite.list used sprite container><font size=+2><b>Sprite.list used sprite container
 </b></font><br><font size=+1><tt>
-pygame.sprite.Sprite.groups() -> list
+pygame.sprite.Sprite.list used sprite containers
 </tt></font><ul>
-           Returns a list of all the groups that contain this
-           sprite.
+           sprite. These are not returned in any meaningful order.
 </ul><br>&nbsp;<br>
 
-<a name=Sprite.kill><font size=+2><b>Sprite.kill
+<a name=Sprite.remove a sprite from containe><font size=+2><b>Sprite.remove a sprite from containe
 </b></font><br><font size=+1><tt>
-pygame.sprite.Sprite.kill()
+pygame.sprite.Sprite.remove a sprite from container
 </tt></font><ul>
-           Removes the sprite from all the groups that contain
-           it. The sprite is still fine after calling this kill()
+           is the same as the add function.
+</ul><br>&nbsp;<br>
+
+<a name=Sprite.remove this sprite from all group><font size=+2><b>Sprite.remove this sprite from all group
+</b></font><br><font size=+1><tt>
+pygame.sprite.Sprite.remove this sprite from all groups
+</tt></font><ul>
+           it. The sprite still exists after calling this,
            so you could use it to remove a sprite from all groups,
            and then add it to some other groups.
-</ul><br>&nbsp;<br>
-
-<a name=Sprite.remove><font size=+2><b>Sprite.remove
-</b></font><br><font size=+1><tt>
-pygame.sprite.Sprite.remove(group)
-</tt></font><ul>
-           Remove the sprite from a group or sequence of groups.
 </ul><br>&nbsp;<br>
 
 <a name=groupcollide><font size=+2><b>groupcollide

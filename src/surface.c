@@ -1321,19 +1321,41 @@ static PyObject* surf_get_height(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_get_rect[] =
-    /*DOC*/    "Surface.get_rect() -> rect\n"
+    /*DOC*/    "Surface.get_rect(**kwargs) -> rect\n"
     /*DOC*/    "get a rectangle covering the entire surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns a new rectangle covering the entire surface.\n"
     /*DOC*/    "This rectangle will always start at 0, 0 with a width.\n"
     /*DOC*/    "and height the same size as the image.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can pass keyword argument values to this function.\n"
+    /*DOC*/    "These named values will be applied to the attributes of\n"
+    /*DOC*/    "the Rect before it is returned. An example would be\n"
+    /*DOC*/    "'mysurf.get_rect(center=(100,100))' to create a rectangle\n"
+    /*DOC*/    "for the Surface centered at a given position.\n"
     /*DOC*/ ;
 
-static PyObject* surf_get_rect(PyObject* self, PyObject* args)
+static PyObject* surf_get_rect(PyObject* self, PyObject* args, PyObject* kw)
 {
+	PyObject *rect;
 	SDL_Surface* surf = PySurface_AsSurface(self);
         if(!surf) return RAISE(PyExc_SDLError, "display Surface quit");
-	return PyRect_New4(0, 0, surf->w, surf->h);
+
+	rect = PyRect_New4(0, 0, surf->w, surf->h);
+	if(rect && kw)
+	{
+		PyObject *key, *value;
+		int pos=0;
+		while(PyDict_Next(kw, &pos, &key, &value))
+		{
+			if((PyObject_SetAttr(rect, key, value) == -1))
+			{
+				Py_DECREF(rect);
+				return NULL;
+			}
+		}
+	}
+	return rect;
 }
 
 
@@ -1657,7 +1679,7 @@ static struct PyMethodDef surface_methods[] =
 	{"get_size",		surf_get_size,		1, doc_surf_get_size },
 	{"get_width",		surf_get_width, 	1, doc_surf_get_width },
 	{"get_height",		surf_get_height,	1, doc_surf_get_height },
-	{"get_rect",		surf_get_rect,		1, doc_surf_get_rect },
+	{"get_rect",		surf_get_rect,		METH_KEYWORDS, doc_surf_get_rect },
 	{"get_pitch",		surf_get_pitch, 	1, doc_surf_get_pitch },
 	{"get_bitsize", 	surf_get_bitsize,	1, doc_surf_get_bitsize },
 	{"get_bytesize",	surf_get_bytesize,	1, doc_surf_get_bytesize },

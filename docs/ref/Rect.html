@@ -125,6 +125,10 @@ check overlapping rectangles</td></tr>
 check if rectangle fully inside another</td></tr>
 
 
+<tr><td><a href=#fit>fit</a></td><td> -
+Fill as much of the argument as possible, maintains aspect ratio</td></tr>
+
+
 <tr><td><a href=#inflate>inflate</a></td><td> -
 new rectangle with size changed</td></tr>
 
@@ -270,6 +274,16 @@ Rect.contains(rectstyle) -> bool
 </tt></font><ul>
 Returns true when the given rectangle is entirely
 inside the base rectangle.
+</ul><br>&nbsp;<br>
+
+<a name=fit><font size=+2><b>fit
+</b></font><br><font size=+1><tt>
+Rect.fit(rectstyle) -> Rect
+</tt></font><ul>
+Returns a new rectangle that fills as much of the rectangle
+argumement as possible. The new rectangle maintains the same
+aspect ratio as the original rectangle. This can be used to
+find scaling sizes that fill an area but won't distort the image.
 </ul><br>&nbsp;<br>
 
 <a name=inflate><font size=+2><b>inflate

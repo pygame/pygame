@@ -94,8 +94,20 @@ movie=None # if you don't do this bit the init will fail
 query the playback state</td></tr>
 
 
+<tr><td><a href=#get_busy>get_busy</a></td><td> -
+query the playback state</td></tr>
+
+
 <tr><td><a href=#get_frame>get_frame</a></td><td> -
 query the current frame in the movie</td></tr>
+
+
+<tr><td><a href=#get_frame>get_frame</a></td><td> -
+query the current frame in the movie</td></tr>
+
+
+<tr><td><a href=#get_length>get_length</a></td><td> -
+query playback time of the movie</td></tr>
 
 
 <tr><td><a href=#get_length>get_length</a></td><td> -
@@ -106,8 +118,20 @@ query playback time of the movie</td></tr>
 query the size of the video image</td></tr>
 
 
+<tr><td><a href=#get_size>get_size</a></td><td> -
+query the size of the video image</td></tr>
+
+
 <tr><td><a href=#get_time>get_time</a></td><td> -
 query the current time in the movie</td></tr>
+
+
+<tr><td><a href=#get_time>get_time</a></td><td> -
+query the current time in the movie</td></tr>
+
+
+<tr><td><a href=#has_audio>has_audio</a></td><td> -
+query if movie stream has audio</td></tr>
 
 
 <tr><td><a href=#has_audio>has_audio</a></td><td> -
@@ -118,8 +142,20 @@ query if movie stream has audio</td></tr>
 query if movie stream has video</td></tr>
 
 
+<tr><td><a href=#has_video>has_video</a></td><td> -
+query if movie stream has video</td></tr>
+
+
 <tr><td><a href=#pause>pause</a></td><td> -
 pause/resume movie playback</td></tr>
+
+
+<tr><td><a href=#pause>pause</a></td><td> -
+pause/resume movie playback</td></tr>
+
+
+<tr><td><a href=#play>play</a></td><td> -
+start movie playback</td></tr>
 
 
 <tr><td><a href=#play>play</a></td><td> -
@@ -134,6 +170,14 @@ Render a specfic numbered frame.</td></tr>
 set playback position to the beginning of the movie</td></tr>
 
 
+<tr><td><a href=#rewind>rewind</a></td><td> -
+set playback position to the beginning of the movie</td></tr>
+
+
+<tr><td><a href=#set_display>set_display</a></td><td> -
+change the video output surface</td></tr>
+
+
 <tr><td><a href=#set_display>set_display</a></td><td> -
 change the video output surface</td></tr>
 
@@ -142,8 +186,20 @@ change the video output surface</td></tr>
 change volume for sound</td></tr>
 
 
+<tr><td><a href=#set_volume>set_volume</a></td><td> -
+change volume for sound</td></tr>
+
+
 <tr><td><a href=#skip>skip</a></td><td> -
 skip the movie playback position forward</td></tr>
+
+
+<tr><td><a href=#skip>skip</a></td><td> -
+skip ahead a given amount of time</td></tr>
+
+
+<tr><td><a href=#stop>stop</a></td><td> -
+stop movie playback</td></tr>
 
 
 <tr><td><a href=#stop>stop</a></td><td> -
@@ -161,6 +217,20 @@ Movie.get_busy() -> bool
 Returns true if the movie is currently playing.
 </ul><br>&nbsp;<br>
 
+<a name=get_busy><font size=+2><b>get_busy
+</b></font><br><font size=+1><tt>
+Movie.get_busy() -> bool
+</tt></font><ul>
+Returns true if the movie is currently playing.
+</ul><br>&nbsp;<br>
+
+<a name=get_frame><font size=+2><b>get_frame
+</b></font><br><font size=+1><tt>
+Movie.get_frame() -> int
+</tt></font><ul>
+Gets the current video frame number for the movie.
+</ul><br>&nbsp;<br>
+
 <a name=get_frame><font size=+2><b>get_frame
 </b></font><br><font size=+1><tt>
 Movie.get_frame() -> int
@@ -173,6 +243,20 @@ Gets the current video frame number for the movie.
 Movie.get_length() -> float
 </tt></font><ul>
 Returns the total time (in seconds) of the movie.
+</ul><br>&nbsp;<br>
+
+<a name=get_length><font size=+2><b>get_length
+</b></font><br><font size=+1><tt>
+Movie.get_length() -> float
+</tt></font><ul>
+Returns the total time (in seconds) of the movie.
+</ul><br>&nbsp;<br>
+
+<a name=get_size><font size=+2><b>get_size
+</b></font><br><font size=+1><tt>
+Movie.get_size() -> width,height
+</tt></font><ul>
+Returns the size of the video image the mpeg provides.
 </ul><br>&nbsp;<br>
 
 <a name=get_size><font size=+2><b>get_size
@@ -190,6 +274,21 @@ Gets the current time (in seconds) for the movie.
 (currently not working? SMPEG always reports 0)
 </ul><br>&nbsp;<br>
 
+<a name=get_time><font size=+2><b>get_time
+</b></font><br><font size=+1><tt>
+Movie.get_time() -> float
+</tt></font><ul>
+Gets the current time (in seconds) for the movie.
+</ul><br>&nbsp;<br>
+
+<a name=has_audio><font size=+2><b>has_audio
+</b></font><br><font size=+1><tt>
+Movie.has_audio() -> bool
+</tt></font><ul>
+Returns a true value when the Movie object has a valid
+audio stream.
+</ul><br>&nbsp;<br>
+
 <a name=has_audio><font size=+2><b>has_audio
 </b></font><br><font size=+1><tt>
 Movie.has_audio() -> bool
@@ -204,6 +303,22 @@ Movie.has_video() -> bool
 </tt></font><ul>
 Returns a true value when the Movie object has a valid
 video stream.
+</ul><br>&nbsp;<br>
+
+<a name=has_video><font size=+2><b>has_video
+</b></font><br><font size=+1><tt>
+Movie.has_video() -> bool
+</tt></font><ul>
+Returns a true value when the Movie object has a valid
+video stream.
+</ul><br>&nbsp;<br>
+
+<a name=pause><font size=+2><b>pause
+</b></font><br><font size=+1><tt>
+Movie.pause() -> None
+</tt></font><ul>
+This will temporarily stop playback of the movie. When called
+a second time, playback will resume where it left off.
 </ul><br>&nbsp;<br>
 
 <a name=pause><font size=+2><b>pause
@@ -225,6 +340,14 @@ You can specify an optional argument which will be the
 number of times the movie loops while playing.
 </ul><br>&nbsp;<br>
 
+<a name=play><font size=+2><b>play
+</b></font><br><font size=+1><tt>
+Movie.play() -> None
+</tt></font><ul>
+Starts playback of a movie. If audio or video is enabled
+for the Movie, those outputs will be created. 
+</ul><br>&nbsp;<br>
+
 <a name=render_frame><font size=+2><b>render_frame
 </b></font><br><font size=+1><tt>
 Movie.render_frame(framenum) -> int
@@ -238,6 +361,21 @@ Movie.rewind() -> None
 </tt></font><ul>
 Sets the movie playback position to the start of
 the movie.
+</ul><br>&nbsp;<br>
+
+<a name=rewind><font size=+2><b>rewind
+</b></font><br><font size=+1><tt>
+Movie.rewind() -> None
+</tt></font><ul>
+Sets the movie playback position to the start of
+the movie. This can raise a ValueError if the movie
+cannot be rewound.
+<br>&nbsp;<br>
+The movie will automatically start playing if the movie
+is currently playing.
+<br>&nbsp;<br>
+If rewinding the movie fails, it will invalidate this Movie
+object.
 </ul><br>&nbsp;<br>
 
 <a name=set_display><font size=+2><b>set_display
@@ -256,6 +394,29 @@ You may also pass None as the destination Surface, and
 no video will be rendered for the movie playback.
 </ul><br>&nbsp;<br>
 
+<a name=set_display><font size=+2><b>set_display
+</b></font><br><font size=+1><tt>
+Movie.set_display(Surface, [rect]) -> None
+</tt></font><ul>
+Set the output surface for the Movie's video. You may
+also specify a position for the topleft corner of the
+video.
+<br>&nbsp;<br>
+The position argument must be a rectstyle if given.
+The video will be stretched to fill the rectangular area.
+<br>&nbsp;<br>
+You may also pass None as the destination Surface, and
+no video will be rendered for the movie playback.
+</ul><br>&nbsp;<br>
+
+<a name=set_volume><font size=+2><b>set_volume
+</b></font><br><font size=+1><tt>
+Movie.set_volume(val) -> None
+</tt></font><ul>
+Set the play volume for this Movie. The volume value is between
+0.0 and 1.0.
+</ul><br>&nbsp;<br>
+
 <a name=set_volume><font size=+2><b>set_volume
 </b></font><br><font size=+1><tt>
 Movie.set_volume(val) -> None
@@ -271,6 +432,22 @@ Movie.skip(seconds) -> None
 Sets the movie playback position ahead by the given
 amount of seconds. the seconds value is a floating
 point value
+</ul><br>&nbsp;<br>
+
+<a name=skip><font size=+2><b>skip
+</b></font><br><font size=+1><tt>
+Movie.skip(seconds) -> None
+</tt></font><ul>
+Skips ahead in the movie a given number of seconds.
+Totally experimental, and doesn't work very foos.
+</ul><br>&nbsp;<br>
+
+<a name=stop><font size=+2><b>stop
+</b></font><br><font size=+1><tt>
+Movie.stop() -> None
+</tt></font><ul>
+Stops playback of a movie. If sound and video are being
+rendered, both will be stopped at their current position.
 </ul><br>&nbsp;<br>
 
 <a name=stop><font size=+2><b>stop
