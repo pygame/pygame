@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Apr 10, 2001
+	mixer now uses the requested sample format/size
+
 Apr 08, 2001
 	properly free SDL objects on malloc errors
 	fixed rectangle cropping in pygame.display.update()
