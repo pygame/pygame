@@ -118,6 +118,10 @@ This transformation is not filtered.
 </b></font><br><font size=+1><tt>
 pygame.transform.rotozoom(Surface, angle, zoom) -> Surface
 </tt></font><ul>
+The angle argument is the number of degrees to rotate
+counter-clockwise. The angle can be any floating point value.
+(negative rotation amounts will do clockwise rotations)
+<br>&nbsp;<br>
 This will smoothly rotate and scale an image in one pass.
 The resulting image will always be a 32bit version of the
 original surface. The scale is a multiplier for the image
