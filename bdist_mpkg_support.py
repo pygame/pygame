@@ -9,6 +9,9 @@ class bdist_mpkg(_bdist_mpkg):
         self.scheme_descriptions['examples'] = u'(Optional) pygame example code'
         self.scheme_map['examples'] = '/Developer/Python/pygame/Examples'
         self.scheme_copy['examples'] = 'examples'
+        self.scheme_descriptions['docs'] = u'(Optional) pygame documentation'
+        self.scheme_map['docs'] = '/Developer/Python/pygame/Documentation'
+        self.scheme_copy['docs'] = 'docs'
         for framework in FRAMEWORKS:
             self.scheme_descriptions[framework] = u'(Required) %s.framework' % (framework,)
             self.scheme_map[framework] = '/Library/Frameworks/%s.framework' % (framework,)

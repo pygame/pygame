@@ -6,9 +6,8 @@
 
 March 7, 2005
     sysfont patch, which checks two places for fonts on weird windows machines from Atul Varma.
-    pygame.get_sdl_version() from Bob Ippolito.
+    pygame.get_sdl_version(), improved Mac OS X support from Bob Ippolito.
     new sound_array.py example from Rene Dudfield based on ShreadWheats example.
-    
 
 August 8, 2004
     cleanup aaline drawing, from Michael Urman
