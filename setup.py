@@ -2,11 +2,19 @@
 # To use:
 #       python setup.py install
 #
+
+morehelp = """
+You can copy the file, "Setup.in" to "Setup" and configure
+by hand. You can also run one of the configuration helper
+scripts to do this for you: configwin.py or configunix.py"""
+
+
 import os.path, glob, sys
 import distutils.sysconfig 
 from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
 from distutils.ccompiler import new_compiler
+
 
 if sys.version_info[0] < 2:
     raise SystemExit, """pygame requires python 2.0 or higher"""
@@ -19,7 +27,7 @@ headers = glob.glob(os.path.join('src', '*.h'))
 try:
     extensions = read_setup_file('Setup')
 except IOError:
-    raise SystemExit, """Need a "Setup" file for compiling."""
+    raise SystemExit, 'Need a "Setup" file for compiling.' + morehelp
 
 #extra files to install
 data_files = []

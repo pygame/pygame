@@ -1,7 +1,7 @@
 pygame credits
 Thanks to everyone who made this possible, including:
 
-- Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design help
+- Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design advise
 
 - David Clark for packaging and help with releases
 
@@ -10,9 +10,6 @@ Thanks to everyone who made this possible, including:
 
 - SDL and all the folks behind it, headed by Sam Lantinga
   http://www.libsdl.org
-
-
-
 
 
  And a big hand to everyone else who gave me appreciation,

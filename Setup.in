@@ -23,6 +23,7 @@ rwobject src/rwobject.c $(SDL)
 surface src/surface.c $(SDL)
 time src/time.c $(SDL)
 
+
 #the following modules are optional. you will want to compile
 #everything you can, but you can ignore ones you don't have
 #dependencies for, just comment them out
@@ -34,8 +35,9 @@ mixer src/mixer.c $(SDL) $(MIXER)
 mixer_music src/music.c $(SDL) $(MIXER)
 
 
-#the following are placeholders. setup.py can use
-#them to help auto-copy needed DLLs into the pygame
-#installation folder. if you aren't going to use this,
-#you can likely just leave these lines alone
+
+#the following are placeholders. setup.py can use them to help
+#auto-copy needed DLLs into the pygame installation folder.
+#you can simply ignore these lines under other OS, no need to
+#comment out.
 COPYLIB_smpeg $(SMPEG)

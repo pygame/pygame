@@ -6,12 +6,13 @@ quite robust.
 At this point the biggest needs are to get the functionality for
 all of SDL and the other libraries fully covered. We're almost there,
 but still need to get the more esoteric functions all wrapped up.
-The functions you'll need for 95% of your projects is already done.
+The functions you'll need for 95% of your projects are already done.
 
 Until that point, consider the current interface to be a bit flexible.
 Things could change that will break code relying on older versions. Any
 changes will be easy to make. There will be warning of coming changes,
 but just know that it will likely happen.
+(with the 0.3 release, the interface cement is drying!)(not joy and cd)
 
 Here are some main things i'd like to have done (or at least well
 looked at) by the time 1.0 rolls around. Most of these are ideas

@@ -1,12 +1,4 @@
-#!/usr/bin/env python
-
-"""Quick tool to help setup the needed paths and flags
-in your Setup file. This is not usually needed on linux,
-unless you have your dependencies compiled but not installed.
-It is best to make sure the dependencies are already compiled
-before running this script, otherwise the link directories
-will probably not find the correct directory.
-"""
+"""Config on Windows"""
 
 import os, sys, shutil
 from glob import glob
@@ -93,19 +85,13 @@ DEPS = (
     Dependency('FONT', 'SDL_ttf-[0-9].*', 'SDL_ttf'),
     Dependency('IMAGE', 'SDL_image-[0-9].*', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer-[0-9].*', 'SDL_mixer'),
-#optional copied libs
+#copy only dependencies
     Dependency('SMPEG', 'smpeg-[0-9].*', 'smpeg')
 )
 
 
 
 
-
-def confirm(message):
-    reply = raw_input('\n' + message + ' [y/N]:')
-    if reply and reply[0].lower() == 'y':
-        return 1
-    return 0
     
 
 def writesetupfile(DEPS, basepath):
@@ -135,11 +121,6 @@ def writesetupfile(DEPS, basepath):
 
 def main():
     global DEPS
-    print __doc__
-    
-    if os.path.isfile('Setup'):
-        if confirm('Backup existing "Setup" file'):
-            shutil.copyfile('Setup', 'Setup.bak')
 
     allpaths = []
     for d in DEPS:
@@ -158,13 +139,10 @@ def main():
     for d in DEPS:
         d.buildline(basepath)
 
-    print '\n--Creating new "Setup" file...'
     writesetupfile(DEPS, basepath)
-    print '--Finished'
     
-    if os.path.isdir('build'):
-        if confirm('Remove old build files (force recompile)'):
-            shutil.rmtree('build', 0)
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    print """This is the configuration subscript for Windows.
+Please run "config.py" for full configuration."""
 

@@ -30,7 +30,6 @@
 
 staticforward PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
-#define PyVidInfo_Check(x) ((x)->ob_type == &PyVidInfo_Type)
 
 
 /*quick internal test to see if gamma is supported*/

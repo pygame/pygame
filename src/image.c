@@ -74,7 +74,9 @@ static PyObject* load(PyObject* self, PyObject* arg)
 	if(PyString_Check(file))
 	{
 		name = PyString_AsString(file);
+		Py_BEGIN_ALLOW_THREADS
 		surf = IMG_Load(name);
+		Py_END_ALLOW_THREADS
 	}
 	else
 	{
@@ -92,7 +94,6 @@ static PyObject* load(PyObject* self, PyObject* arg)
 
 	return PySurface_New(surf);
 }
-
 
 
 

@@ -1,5 +1,5 @@
 Quickie build instructions for building and installing pygame
-Oct 23, 2000
+Nov 20, 2000
 -------------------------------------------------------------
 pygame is built and installed using the python distutils.
 
@@ -11,17 +11,26 @@ without difficulty. (There is an available devel download
 for windows which will suit your needs on that platform).
 This is all you'll need for the base pygame installation.
 There are extra modules you can use which require other
-dependencies like Numeric python and many of the
-SDL daughter libraries, like SDL_image and SDL_ttf.
+dependencies like Numeric Python and many of the SDL
+daughter libraries, like SDL_image and SDL_ttf.
 
-The configuration is controlled by the "Setup" file. Copy
-the shipped "Setup.in" to "Setup". Edit this file in a standard
-text editor. You need to define some simple variables that
-control what flags are needed for each dependencies. If you are
-using linux, there is a good chance the flags will work as-is.
-Under windows you can edit them by hand, but it might be easier
-to run the "confighelp.py" script which will help you look 
-around the neighboring directory trees.
+If installing under Windows without a compiler, or without
+needing any of the pygame dependencies. You can download
+the Windows Precompiled Binaries Release. Download and
+extract this zipfile into the same directory as pygame.
+Now you don't need to worry about any of the Setup files,
+just type "python setup.py install" and you will be set.
+http://pygame.seul.org/ftp/pygame-dependencies.zip
+
+
+You control the compilation of pygame with the "Setup"
+file. The default Setup file is named "Setup.in". The
+file uses basic cross-compiler flags to configure pygame.
+
+The pygame installation also comes with a "config.py"
+script. This will create a Setup file based on the different
+setting of your platform. This should have little difficulty
+building you a proper "Setup" file to compile with.
 
 Once you are reasonably pleased with your "Setup" file, it's
 time to build and install with distutils. This is all handled
@@ -29,15 +38,13 @@ with the "setup.py" script. Most users will be able to issue
 the command "python setup.py install" and distutils will build
 and install everything you need.
 
-When installing, the setup script will look for any of the
-dependency libraries in the library paths you have supplied.
-If you've needed to give the paths for the libraries, the
-setup assumes these dependencies are not in the runtime
-library paths directories. Because of this, it will copy
-these dependencies into the install directory. This will
-solve many DLL errors on windows. On unix systems, this
-can help too if you've built the libraries, but haven't
-installed them.
+On windows, distutils will copy the needed dependency DLL's
+it finds and place them in the final pygame installation folder.
+This should happen automatically. If you get missing DLL errors
+when importing the different pygame modules, it is likely python
+cannot find the needed dependency libraries. You will want to
+hand-copy the needed DLLs to somewhere on your windows path or
+into the installed pygame package directory.
 
 On unix, you will likely need to be root to install the
 library. The installation needs to create directories in

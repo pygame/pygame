@@ -1054,6 +1054,50 @@ static PyObject* surf_get_losses(PyObject* self, PyObject* args)
 
 
 
+    /*DOC*/ static char doc_surf_save[] =
+    /*DOC*/    "Surface.save(file) -> None\n"
+    /*DOC*/    "save surface as BMP data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will save your surface in the BMP format. The given file\n"
+    /*DOC*/    "argument can be either a filename or a python file-like object\n"
+    /*DOC*/    "to save the BMP image to.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_save(PyObject* self, PyObject* arg)
+{
+	SDL_Surface* surf = PySurface_AsSurface(self);
+	PyObject* file;
+	SDL_RWops *rw;
+	int result;
+	if(!PyArg_ParseTuple(arg, "O", &file))
+		return NULL;
+
+	VIDEO_INIT_CHECK();
+
+	if(PyString_Check(file))
+	{
+		char* name = PyString_AsString(file);
+		Py_BEGIN_ALLOW_THREADS
+		result = SDL_SaveBMP(surf, name);
+		Py_END_ALLOW_THREADS
+	}
+	else
+	{
+		if(!(rw = RWopsFromPython(file)))
+			return NULL;
+		Py_BEGIN_ALLOW_THREADS
+		result = SDL_SaveBMP_RW(surf, rw, 1);
+		Py_END_ALLOW_THREADS
+	}
+
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	RETURN_NONE;
+}
+
+
+
 
 static struct PyMethodDef surface_methods[] =
 {
