@@ -63,6 +63,14 @@ objects.
 get the current rate of frames per second</td></tr>
 
 
+<tr><td><a href=#get_rawtime>get_rawtime</a></td><td> -
+get number of nondelayed milliseconds between last two calls to tick()</td></tr>
+
+
+<tr><td><a href=#get_time>get_time</a></td><td> -
+get number of milliseconds between last two calls to tick()</td></tr>
+
+
 <tr><td><a href=#tick>tick</a></td><td> -
 control timer events</td></tr>
 
@@ -80,16 +88,33 @@ is the number of times the <a href=#tick>tick()</a> method has been called per
 second.
 </ul><br>&nbsp;<br>
 
+<a name=get_rawtime><font size=+2><b>get_rawtime
+</b></font><br><font size=+1><tt>
+Clock.get_rawtime() -> int
+</tt></font><ul>
+This is similar to <a href=Movie.html#get_time>get_time()</a>. It does not include the number of
+milliseconds that were delayed to keep the clock tick under a given
+framerate.
+</ul><br>&nbsp;<br>
+
+<a name=get_time><font size=+2><b>get_time
+</b></font><br><font size=+1><tt>
+Clock.get_time() -> int
+</tt></font><ul>
+This is the same value returned from the call to <a href=#tick>Clock.tick()</a>.
+it is the number of milliseconds that passed between the last
+two calls to <a href=#tick>tick()</a>.
+</ul><br>&nbsp;<br>
+
 <a name=tick><font size=+2><b>tick
 </b></font><br><font size=+1><tt>
 Clock.tick([ticks_per_sec_delay]) -> milliseconds
 </tt></font><ul>
 Updates the number of ticks for this clock. It should usually
 be called once per frame. If you pass the optional delay argument
-the function will wait until the amount of time needed to keep
-your program from running no faster than the given ticks per second.
-The function also returns the number of milliseconds passed since
-the previous call to <u>tick()</u>
+the function will delay to keep the game running slower than the
+given ticks per second. The function also returns the number of
+milliseconds passed since the previous call to <u>tick()</u>.
 </ul><br>&nbsp;<br>
 
 

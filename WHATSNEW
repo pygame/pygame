@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 15, 2002
+	added get_time() and get_rawtime() to Clock
+
 pygame-15
 May 30, 2002
 	final updates for 1.5
