@@ -28,32 +28,32 @@ class mingcomp(distutils.cygwinccompiler.oldMingw32CCompiler):
               in its place.
         """
         self.verbose = 1
-	if self.verbose:
+        if self.verbose:
             print "cmd :%s:" % cmd
         
-	cmpl = " ".join(cmd)
-	cmpl = cmpl.replace("\\", "/")
-	cmpl = cmpl.replace("c:", "/c")
-	cmpl = cmpl.replace("C:", "/c")
+        cmpl = " ".join(cmd)
+        cmpl = cmpl.replace("\\", "/")
+        cmpl = cmpl.replace("c:", "/c")
+        cmpl = cmpl.replace("C:", "/c")
         
         if self.verbose:
-	    print "cmpl is :%s:" % cmpl
+            print "cmpl is :%s:" % cmpl
 
         if not self.dry_run:
-	    import tempfile
-	    tmpfn = tempfile.mktemp(suffix='run_compiler')
-	    tmpf = open(tmpfn, "w+b")
-	    tmpf.write(cmpl)
-	    tmpf.close()
-	    r = os.system("sh %s" % tmpfn)
+            import tempfile
+            tmpfn = tempfile.mktemp(suffix='run_compiler')
+            tmpf = open(tmpfn, "w+b")
+            tmpf.write(cmpl)
+            tmpf.close()
+            r = os.system("sh %s" % tmpfn)
 
-	    os.remove(tmpfn)
-	    if r != 0:
+            os.remove(tmpfn)
+            if r != 0:
                 raise DistutilsExecError, \
                   "command '%s' failed with exit status :%d: command was :%s:.  " % (cmd[0], r, cmpl)
-	
+        
             if self.verbose:
-	        print "return value of the compile command is :%s:" % r
+                print "return value of the compile command is :%s:" % r
 
 
 
