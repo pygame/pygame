@@ -433,7 +433,7 @@ pygame.sprite.Sprite.remove(group)
 
 <a name=groupcollide><font size=+2><b>groupcollide
 </b></font><br><font size=+1><tt>
-pygame.sprite.groupcollide(sprite, group, dokill) -> dict
+pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
 </tt></font><ul>
        given two groups, this will find the intersections
        between all sprites in each group. it returns a
@@ -450,7 +450,8 @@ pygame.sprite.groupcollide(sprite, group, dokill) -> dict
 pygame.sprite.spritecollide(sprite, group, dokill) -> list
 </tt></font><ul>
        given a sprite and a group of sprites, this will
-       return a list of all the sprites that intersect.
+       return a list of all the sprites that intersect
+       the given sprite.
        all sprites must have a "rect" method, which is a
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
