@@ -501,7 +501,7 @@ void initconstants(void)
     /*DOC*/    "\n"
     /*DOC*/    "SWSURFACE - not really usable as a surface flag, equates to 0 and\n"
     /*DOC*/    "is always default<br>\n"
-    /*DOC*/    "ANYFORMAT - creates a display with in best possible bit depth\n"
+    /*DOC*/    "ANYFORMAT - creates a display with in best possible bit depth<br>\n"
     /*DOC*/    "HWACCEL - surface is hardware accelerated, readonly<br>\n"
     /*DOC*/    "SRCCOLORKEY- surface has a colorkey for blits, readonly<br>\n"
     /*DOC*/    "SRCALPHA - surface has alpha enabled, readonly<br>\n"
