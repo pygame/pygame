@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 1, 2002
+	sprite.RenderGroups wasn't clearing killed sprites after draw()
+
 September 3, 2002
 	passing None as the end time to CD.play() plays to cd end
 	added pygame.vernum, a tuple of python version values

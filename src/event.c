@@ -480,7 +480,7 @@ static PyObject* PyEvent_New2(int type, PyObject* dict)
 
 
     /*DOC*/ static char doc_Event[] =
-    /*DOC*/    "pygame.event.Event(type, dict, [keyword_args]) -> Event\n"
+    /*DOC*/    "pygame.event.Event(type, [dict], [keyword_args]) -> Event\n"
     /*DOC*/    "create new event object\n"
     /*DOC*/    "\n"
     /*DOC*/    "Creates a new event object. The type should be one of SDL's\n"

@@ -480,7 +480,8 @@ class RenderClear(Group):
         surface_blit = surface.blit
         for s in spritedict.keys():
             spritedict[s] = surface_blit(s.image, s.rect)
-
+        self.lostsprites = []
+	
     def clear(self, surface, bgd):
         """clear(surface, bgd)
            erase the previous position of all sprites
@@ -501,7 +502,7 @@ class RenderClear(Group):
                 surface_blit(bgd, r, r)
             for r in self.spritedict.values():
                 if r is not 0: surface_blit(bgd, r, r)
-        self.lostsprites = []
+
 
 
 class RenderUpdates(RenderClear):
