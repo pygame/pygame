@@ -2,7 +2,11 @@
 #
 # CVS tag names are placed before the date
 # BREAK = change breaks existing code
-# BUG   = fixed a bug that was (or could have been) crashing
+# BUG	= fixed a bug that was (or could have been) crashing
+
+July 26, 2001
+	 custom events work with event.peek() and event.get()
+	 added event.get_blocked() function to query blocked types
 
 July 23, 2001
 	music specifically halted when quitting (should not matter?)
@@ -307,7 +311,7 @@ Nov 14, 2000
 	surfarray.blit_array() supports all bit depths
 
 Nov 11, 2000
- 	pygame.display.set_mode() uses int, not short, for size [BUG]
+	pygame.display.set_mode() uses int, not short, for size [BUG]
 
 Nov 10, 2000
 	Committed to CVS
