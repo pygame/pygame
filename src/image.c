@@ -29,7 +29,7 @@
 static int is_extended = 0;
 static int SaveTGA(SDL_Surface *surface, char *file, int rle);
 static int SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle);
-static SDL_Surface* opengltosdl();
+static SDL_Surface* opengltosdl(void);
 
 
 #define DATAROW(data, row, width, height, flipped) \
@@ -276,6 +276,7 @@ PyObject* image_get_extended(PyObject* self, PyObject* arg)
     /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
     /*DOC*/    "for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"\n"
     /*DOC*/    "for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.\n"
+    /*DOC*/    "\"ARGB\" is a popular format for big endian platforms.\n"
     /*DOC*/    "\n"
     /*DOC*/    "These flags are a subset of the formats supported the PIL\n"
     /*DOC*/    "Python Image Library. Note that the \"P\" format only will\n"
@@ -483,6 +484,86 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		}
 		PySurface_Unlock(surfobj);
 	}
+	else if(!strcmp(format, "ARGB"))
+	{
+		hascolorkey = 0;
+
+		string = PyString_FromStringAndSize(NULL, surf->w*surf->h*4);
+		if(!string)
+			return NULL;
+		PyString_AsStringAndSize(string, &data, &len);
+
+		PySurface_Lock(surfobj);
+		pixels = (char*)surf->pixels;
+		switch(surf->format->BytesPerPixel)
+		{
+		case 1:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint8* ptr = (Uint8*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[1] = (char)surf->format->palette->colors[color].r;
+					data[2] = (char)surf->format->palette->colors[color].g;
+					data[3] = (char)surf->format->palette->colors[color].b;
+					data[0] = hascolorkey ? (char)(color!=colorkey)*255 : (char)255;
+					data += 4;
+				}
+			}break;
+		case 2:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint16* ptr = (Uint16*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
+					data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
+					data[0] = hascolorkey ? (char)(color!=colorkey)*255 :
+								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
+					data += 4;
+				}
+			}break;
+		case 3:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint8* ptr = (Uint8*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
+				for(w=0; w<surf->w; ++w)
+				{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+					color = ptr[0] + (ptr[1]<<8) + (ptr[2]<<16);
+#else
+					color = ptr[2] + (ptr[1]<<8) + (ptr[0]<<16);
+#endif
+					ptr += 3;
+					data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[2] = (char)(((color & Gmask) >> Gshift) << Gloss);
+					data[3] = (char)(((color & Bmask) >> Bshift) << Bloss);
+					data[0] = hascolorkey ? (char)(color!=colorkey)*255 :
+								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
+					data += 4;
+				}
+			}break;
+		case 4:
+			for(h=0; h<surf->h; ++h)
+			{
+				Uint32* ptr = (Uint32*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
+				for(w=0; w<surf->w; ++w)
+				{
+					color = *ptr++;
+					data[1] = (char)(((color & Rmask) >> Rshift) << Rloss);
+					data[2] = (char)(((color & Gmask) >> Gshift) << Rloss);
+					data[3] = (char)(((color & Bmask) >> Bshift) << Rloss);
+					data[0] = hascolorkey ? (char)(color!=colorkey)*255 :
+								(char)(Amask ? (((color & Amask) >> Ashift) << Rloss) : 255);
+					data += 4;
+				}
+			}break;
+		}
+		PySurface_Unlock(surfobj);
+	}
 	else
         {
                 if(temp) SDL_FreeSurface(temp);
@@ -510,6 +591,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
     /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
     /*DOC*/    "for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"\n"
     /*DOC*/    "for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.\n"
+    /*DOC*/    "\"ARGB\" is a popular format for big endian platforms.\n"
     /*DOC*/    "\n"
     /*DOC*/    "These flags are a subset of the formats supported the PIL\n"
     /*DOC*/    "Python Image Library. Note that the \"P\" format only create\n"
@@ -578,6 +660,30 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
                                         0xFF, 0xFF<<8, 0xFF<<16, (alphamult?0xFF<<24:0));
 #else
                                         0xFF<<24, 0xFF<<16, 0xFF<<8, (alphamult?0xFF:0));
+#endif
+		if(!surf)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		SDL_LockSurface(surf);
+		for(looph=0; looph<h; ++looph)
+		{
+			Uint32* pix = (Uint32*)DATAROW(surf->pixels, looph, surf->pitch, h, flipped);
+			for(loopw=0; loopw<w; ++loopw)
+			{
+                                *pix++ = *((Uint32*)data);
+                                data += 4;
+			}
+		}
+		SDL_UnlockSurface(surf);
+	}
+	else if(!strcmp(format, "ARGB"))
+	{
+                if(len != w*h*4)
+			return RAISE(PyExc_ValueError, "String length does not equal format and resolution size");
+		surf = SDL_CreateRGBSurface(SDL_SRCALPHA, w, h, 32,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                                        0xFF<<24, 0xFF, 0xFF<<8, 0xFF<<16);
+#else
+                                        0xFF, 0xFF<<24, 0xFF<<16, 0xFF<<8);
 #endif
 		if(!surf)
 			return RAISE(PyExc_SDLError, SDL_GetError());

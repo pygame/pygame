@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 2, 2003
+    Add ARGB support to fromstring and tostring
+
 September 29, 2003
     Replaced Objective C with PyObjC code for MacOS X
     Fixed 1 pixel horizontal/vertical line draw
