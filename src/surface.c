@@ -1679,7 +1679,7 @@ static struct PyMethodDef surface_methods[] =
 	{"get_size",		surf_get_size,		1, doc_surf_get_size },
 	{"get_width",		surf_get_width, 	1, doc_surf_get_width },
 	{"get_height",		surf_get_height,	1, doc_surf_get_height },
-	{"get_rect",		surf_get_rect,		METH_KEYWORDS, doc_surf_get_rect },
+	{"get_rect",		(PyCFunction)surf_get_rect, METH_KEYWORDS, doc_surf_get_rect },
 	{"get_pitch",		surf_get_pitch, 	1, doc_surf_get_pitch },
 	{"get_bitsize", 	surf_get_bitsize,	1, doc_surf_get_bitsize },
 	{"get_bytesize",	surf_get_bytesize,	1, doc_surf_get_bytesize },
