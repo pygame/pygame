@@ -60,6 +60,10 @@ function can only save OPENGL surfaces if pyopengl is available.
 <hr>
 
 <table>
+<tr><td><a href=#fromstring>fromstring</a></td><td> -
+create a surface from a raw string buffer</td></tr>
+
+
 <tr><td><a href=#get_extended>get_extended</a></td><td> -
 save surface as BMP data</td></tr>
 
@@ -72,9 +76,31 @@ load an image to a new Surface</td></tr>
 save surface as BMP data</td></tr>
 
 
+<tr><td><a href=#tostring>tostring</a></td><td> -
+create a raw string buffer of the surface data</td></tr>
+
+
 </table>
 
 <hr>
+
+<a name=fromstring><font size=+2><b>fromstring
+</b></font><br><font size=+1><tt>
+pygame.image.fromstring(size, format, string) -> Surface
+</tt></font><ul>
+This will create a new Surface from a copy of raw data in
+a string. This can be used to transfer images from other
+libraries like PIL's <u>fromstring()</u>. 
+<br>&nbsp;<br>
+The format argument is a string representing which type of
+string data you need. It can be one of the following, \"P\"
+for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"
+for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.
+<br>&nbsp;<br>
+These flags are a subset of the formats supported the PIL
+Python Image Library. Note that the \"P\" format only create
+an 8bit surface, but the colormap will be all black.
+</ul><br>&nbsp;<br>
 
 <a name=get_extended><font size=+2><b>get_extended
 </b></font><br><font size=+1><tt>
@@ -109,6 +135,24 @@ This will save your surface in the BMP format. The given file
 argument can be either a filename or a python file-like object
 to save the BMP image to. This will also work for an opengl
 display surface.
+</ul><br>&nbsp;<br>
+
+<a name=tostring><font size=+2><b>tostring
+</b></font><br><font size=+1><tt>
+pygame.image.tostring(Surface, format) -> string
+</tt></font><ul>
+This will copy the image data into a large string buffer.
+This can be used to transfer images to other libraries like
+PIL's <a href=#fromstring>fromstring()</a> and PyOpenGL's glTexImage2D(). 
+<br>&nbsp;<br>
+The format argument is a string representing which type of
+string data you need. It can be one of the following, \"P\"
+for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"
+for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.
+<br>&nbsp;<br>
+These flags are a subset of the formats supported the PIL
+Python Image Library. Note that the \"P\" format only will
+work for 8bit Surfaces.
 </ul><br>&nbsp;<br>
 
 

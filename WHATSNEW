@@ -7,6 +7,9 @@
 May 22, 2001
 	added midleft, midright, midtop, and midbottom to Rect
 	added Rect.unionall() function to union a list of Rects
+	fixed problem in 16bit surfarrays
+	new lightly tested image.tostring() and image.fromstring()
+
 
 May 20, 2001
 	applied dave wallace's patch to fix memory freeing

@@ -329,7 +329,7 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	PyObject *array, *surfobj;
 	SDL_Surface* surf;
 	SDL_PixelFormat* format;
-	int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift;
+	int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift, Rloss, Gloss, Bloss;
 	int stridex, stridey;
 	SDL_Color* palette;
 
@@ -342,9 +342,8 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	dim[1] = surf->h;
 	dim[2] = 3;
 	Rmask = format->Rmask; Gmask = format->Gmask; Bmask = format->Bmask;
-	Rshift = format->Rshift - format->Rloss;
-	Gshift = format->Gshift - format->Gloss;
-	Bshift = format->Bshift - format->Bloss;
+	Rshift = format->Rshift; Gshift = format->Gshift; Bshift = format->Bshift;
+	Rloss = format->Rloss; Gloss = format->Gloss; Bloss = format->Bloss;
 
 	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for surface array");
@@ -389,9 +388,9 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 			while(pix < end)
 			{
 				Uint32 color = *pix++;
-				data[0] = (color&Rmask)>>Rshift;
-				data[1] = (color&Gmask)>>Gshift;
-				data[2] = (color&Bmask)>>Bshift;
+				data[0] = ((color&Rmask)>>Rshift)<<Rloss;
+				data[1] = ((color&Gmask)>>Gshift)<<Gloss;
+				data[2] = ((color&Bmask)>>Bshift)<<Bloss;
 				data += stridex;
 			}
 		}break;
@@ -408,9 +407,9 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 #else
 				Uint32 color = (pix[2]) + (pix[1]<<8) + (pix[0]<<16); pix += 3;
 #endif
-				data[0] = (color&Rmask)>>Rshift;
-				data[1] = (color&Gmask)>>Gshift;
-				data[2] = (color&Bmask)>>Bshift;
+				data[0] = ((color&Rmask)>>Rshift)/*<<Rloss*/; /*assume no loss on 24bit*/
+				data[1] = ((color&Gmask)>>Gshift)/*<<Gloss*/;
+				data[2] = ((color&Bmask)>>Bshift)/*<<Bloss*/;
 				data += stridex;
 			}
 		}break;
@@ -423,9 +422,9 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 			while(pix < end)
 			{
 				Uint32 color = *pix++;
-				data[0] = (color&Rmask)>>Rshift;
-				data[1] = (color&Gmask)>>Gshift;
-				data[2] = (color&Bmask)>>Bshift;
+				data[0] = ((color&Rmask)>>Rshift)/*<<Rloss*/; /*assume no loss on 32bit*/
+				data[1] = ((color&Gmask)>>Gshift)/*<<Gloss*/;
+				data[2] = ((color&Bmask)>>Bshift)/*<<Bloss*/;
 				data += stridex;
 			}
 		}break;
@@ -530,7 +529,7 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
 			while(pix < end)
 			{
 				color = *pix++;
-				*data = (color & Amask) >> Ashift << Aloss;
+				*data = (color & Amask) >> Ashift /*<< Aloss*/; /*assume no loss in 32bit*/
 				data += stridex;
 			}
 		}break;
