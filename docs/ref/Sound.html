@@ -67,6 +67,10 @@ pygame.mixer module's initialization.
 fadeout all channels playing this sound</td></tr>
 
 
+<tr><td><a href=#get_length>get_length</a></td><td> -
+get the length of the Sound in seconds.</td></tr>
+
+
 <tr><td><a href=#get_num_channels>get_num_channels</a></td><td> -
 number of channels with sound</td></tr>
 
@@ -98,6 +102,14 @@ Sound.fadeout(millisec) -> None
 Fade out all the playing channels playing this sound over the.
 All channels playing this sound will be stopped after the given
 milliseconds.
+</ul><br>&nbsp;<br>
+
+<a name=get_length><font size=+2><b>get_length
+</b></font><br><font size=+1><tt>
+Sound.get_length() -> float
+</tt></font><ul>
+Returns the number of seconds this Sound file has
+of data.
 </ul><br>&nbsp;<br>
 
 <a name=get_num_channels><font size=+2><b>get_num_channels

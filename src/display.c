@@ -25,6 +25,7 @@
  */
 #define PYGAMEAPI_DISPLAY_INTERNAL
 #include "pygame.h"
+#include <SDL_syswm.h>
 
 static char* pkgdatamodule_name = "pygame.pkgdata";
 static char* resourcepathfunc_name = "getResourcePath";
@@ -348,6 +349,62 @@ static PyObject* get_driver(PyObject* self, PyObject* args)
 		return Py_None;
 	}
 	return PyString_FromString(buf);
+}
+
+
+
+    /*DOC*/ static char doc_get_wm_info[] =
+    /*DOC*/    "pygame.display.get_wm_info() -> dictionary\n"
+    /*DOC*/    "get settings from the system window manager\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Creates a dictionary filled with name and value pairs.\n"
+    /*DOC*/    "Most platforms will have a 'window' value, set to the\n"
+    /*DOC*/    "system's window id number or handle.\n"
+    /*DOC*/    "Different platforms will get different key values, which\n"
+    /*DOC*/    "are entirely dependent on SDL.\n"
+    /*DOC*/    "On rare platforms this is unimplmented in the SDL system, and\n"
+    /*DOC*/    "you will get an empty dictionary.\n"
+    /*DOC*/ ;
+
+static PyObject* get_wm_info(PyObject* self, PyObject* args)
+{
+	PyObject *dict;
+        SDL_SysWMinfo info;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	VIDEO_INIT_CHECK();
+
+        SDL_VERSION(&(info.version))
+        dict = PyDict_New();
+        if(!dict || !SDL_GetWMInfo(&info))
+            return dict;
+
+/*scary #ifdef's match SDL_syswm.h*/
+#if (defined(unix) || defined(__unix__) || defined(_AIX) || defined(__OpenBSD__)) && \
+    (!defined(DISABLE_X11) && !defined(__CYGWIN32__) && !defined(ENABLE_NANOX) && \
+     !defined(__QNXNTO__))
+        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.info.x11.window));
+        PyDict_SetItemString(dict, "display", PyCObject_FromVoidPtr(info.info.x11.display, NULL));
+        PyDict_SetItemString(dict, "lock_func", PyCObject_FromVoidPtr(info.info.x11.lock_func, NULL));
+        PyDict_SetItemString(dict, "unlock_func", PyCObject_FromVoidPtr(info.info.x11.unlock_func, NULL));
+        PyDict_SetItemString(dict, "fswindow", PyInt_FromLong(info.info.x11.fswindow));
+        PyDict_SetItemString(dict, "wmwindow", PyInt_FromLong(info.info.x11.wmwindow));
+#elif defined(ENABLE_NANOX)
+        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
+#elif defined(WIN32)
+        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
+        PyDict_SetItemString(dict, "hglrc", PyInt_FromLong(info.hglrc));
+#elif defined(__riscos__)
+        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
+        PyDict_SetItemString(dict, "wimpVersion", PyInt_FromLong(info.wimpVersion));
+        PyDict_SetItemString(dict, "taskHandle", PyInt_FromLong(info.taskHandle));
+#else
+        PyDict_SetItemString(dict, "data", PyInt_FromLong(info.data));
+#endif
+        
+        return dict;
 }
 
 
@@ -1214,6 +1271,7 @@ static PyMethodDef display_builtins[] =
 
 /*	{ "set_driver", set_driver, 1, doc_set_driver },*/
 	{ "get_driver", get_driver, 1, doc_get_driver },
+	{ "get_wm_info", get_wm_info, 1, doc_get_wm_info },
 	{ "Info", Info, 1, doc_Info },
 	{ "get_surface", get_surface, 1, doc_get_surface },
 
@@ -1236,6 +1294,7 @@ static PyMethodDef display_builtins[] =
 
 	{ "gl_set_attribute", gl_set_attribute, 1, doc_gl_set_attribute },
 	{ "gl_get_attribute", gl_get_attribute, 1, doc_gl_get_attribute },
+
 
 	{ NULL, NULL }
 };
