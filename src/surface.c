@@ -1725,6 +1725,10 @@ static void surface_cleanup(PySurfaceObject* self)
 		PyMem_Del(self->subsurface);
                 self->subsurface = NULL;
 	}
+        if(self->dependency) {
+            Py_DECREF(self->dependency);
+            self->dependency = NULL;
+        }
 }
 
 

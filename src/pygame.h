@@ -254,6 +254,7 @@ typedef struct {
 	SDL_Surface* surf;
 	struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a subsurface)*/
         PyObject* weakreflist;
+        PyObject *dependency;
 } PySurfaceObject;
 #define PySurface_AsSurface(x) (((PySurfaceObject*)x)->surf)
 #ifndef PYGAMEAPI_SURFACE_INTERNAL

@@ -25,7 +25,6 @@
  */
 #include "pygame.h"
 
-
 static int is_extended = 0;
 static int SaveTGA(SDL_Surface *surface, char *file, int rle);
 static int SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle);
@@ -584,6 +583,9 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
     /*DOC*/    "a string. This can be used to transfer images from other\n"
     /*DOC*/    "libraries like PIL's fromstring(). \n"
     /*DOC*/    "\n"
+    /*DOC*/    "In most cases you can use the frombuffer() which accepts strings\n"
+    /*DOC*/    "and is about 20 times faster.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "The flipped argument should be set to true if the image in\n"
     /*DOC*/    "the string is.\n"
     /*DOC*/    "\n"
@@ -618,13 +620,14 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 	{
 		if(len != w*h)
 			return RAISE(PyExc_ValueError, "String length does not equal format and resolution size");
-		surf = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
-		if(!surf)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		SDL_LockSurface(surf);
-		for(looph=0; looph<h; ++looph)
-			memcpy(((char*)surf->pixels)+looph*surf->pitch, DATAROW(data, looph, w, h, flipped), w);
-		SDL_UnlockSurface(surf);
+
+                surf = SDL_CreateRGBSurface(0, w, h, 8, 0, 0, 0, 0);
+                if(!surf)
+                        return RAISE(PyExc_SDLError, SDL_GetError());
+                SDL_LockSurface(surf);
+                for(looph=0; looph<h; ++looph)
+                        memcpy(((char*)surf->pixels)+looph*surf->pitch, DATAROW(data, looph, w, h, flipped), w);
+                SDL_UnlockSurface(surf);
 	}
 	else if(!strcmp(format, "RGB"))
 	{
@@ -705,6 +708,88 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 	if(!surf)
 		return NULL;
 	return PySurface_New(surf);
+}
+
+
+
+    /*DOC*/ static char doc_frombuffer[] =
+    /*DOC*/    "pygame.image.frombuffer(string, size, format) -> Surface\n"
+    /*DOC*/    "create a surface from a python memory buffer\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This works like the fromstring() method, but uses Python\n"
+    /*DOC*/    "buffer objects. It is about 20 times faster than fromstring().\n"
+    /*DOC*/    "Strings and memory maps are examples of buffers in Python.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "See the fromstring() function for information about the size\n"
+    /*DOC*/    "and format arguments.\n"
+    /*DOC*/ ;
+
+PyObject* image_frombuffer(PyObject* self, PyObject* arg)
+{
+	PyObject *buffer;
+	char *format, *data;
+	SDL_Surface *surf = NULL;
+	int w, h, len;
+        PyObject *surfobj;
+
+	if(!PyArg_ParseTuple(arg, "O(ii)s|i", &buffer, &w, &h, &format))
+		return NULL;
+
+	if(w < 1 || h < 1)
+		return RAISE(PyExc_ValueError, "Resolution must be positive values");
+
+        /* breaking constness here, we should really not change this string */
+        if(PyObject_AsCharBuffer(buffer, (const char**)&data, &len) == -1)
+        	return NULL;
+        
+	if(!strcmp(format, "P"))
+	{
+		if(len != w*h)
+			return RAISE(PyExc_ValueError, "Buffer length does not equal format and resolution size");
+
+                surf = SDL_CreateRGBSurfaceFrom(data, w, h, 8, 3, 0, 0, 0, 0);
+	}
+	else if(!strcmp(format, "RGB"))
+	{
+		if(len != w*h*3)
+			return RAISE(PyExc_ValueError, "Buffer length does not equal format and resolution size");
+		surf = SDL_CreateRGBSurfaceFrom(data, w, h, 24, w*3, 0xFF, 0xFF<<8, 0xFF<<16, 0);
+	}
+	else if(!strcmp(format, "RGBA") || !strcmp(format, "RGBX"))
+	{
+		int alphamult = !strcmp(format, "RGBA");
+                if(len != w*h*4)
+			return RAISE(PyExc_ValueError, "Buffer length does not equal format and resolution size");
+		surf = SDL_CreateRGBSurfaceFrom(data, w, h, 32, w*4,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                                        0xFF, 0xFF<<8, 0xFF<<16, (alphamult?0xFF<<24:0));
+#else
+                                        0xFF<<24, 0xFF<<16, 0xFF<<8, (alphamult?0xFF:0));
+#endif
+                if(alphamult)
+                    surf->flags |= SDL_SRCALPHA;
+	}
+	else if(!strcmp(format, "ARGB"))
+	{
+                if(len != w*h*4)
+			return RAISE(PyExc_ValueError, "Buffer length does not equal format and resolution size");
+		surf = SDL_CreateRGBSurfaceFrom(data, w, h, 32, w*4,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                                        0xFF<<24, 0xFF, 0xFF<<8, 0xFF<<16);
+#else
+                                        0xFF, 0xFF<<24, 0xFF<<16, 0xFF<<8);
+#endif
+                surf->flags |= SDL_SRCALPHA;
+	}
+	else
+		return RAISE(PyExc_ValueError, "Unrecognized type of format");
+
+	if(!surf)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+	surfobj = PySurface_New(surf);
+        Py_INCREF(buffer);
+        ((PySurfaceObject*)surfobj)->dependency = buffer;
+        return surfobj;
 }
 
 
@@ -962,11 +1047,6 @@ static int SaveTGA(SDL_Surface *surface, char *file, int rle)
 
 
 
-
-
-
-
-
 static PyMethodDef image_builtins[] =
 {
 	{ "load_basic", image_load_basic, 1, doc_load },
@@ -975,6 +1055,7 @@ static PyMethodDef image_builtins[] =
 
 	{ "tostring", image_tostring, 1, doc_tostring },
 	{ "fromstring", image_fromstring, 1, doc_fromstring },
+	{ "frombuffer", image_frombuffer, 1, doc_frombuffer },
 
 	{ NULL, NULL }
 };

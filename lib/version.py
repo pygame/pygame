@@ -27,5 +27,5 @@ The python version information should always compare greater than any previous
 releases. (hmm, until we get to versions > 10)
 """
 
-ver =   '1.6.1'
-vernum = 1,6,1
+ver =   '1.6.2'
+vernum = 1,6,2
