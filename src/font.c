@@ -1,4 +1,3 @@
-bg
 /*
     pygame - Python Game Library
     Copyright (C) 2000-2001  Pete Shinners
@@ -626,8 +625,8 @@ static PyObject* Font(PyObject* self, PyObject* args)
 		if(!font_defaultpath)
 			return RAISE(PyExc_RuntimeError, "default font not found");
 		filename = font_defaultpath;
-                /*we need to match previous default font sizes..*/
-                fontsize = (int)(fontsize * .75);
+		/*keep sizing consistent with previous default fonts*/
+		fontsize = (int)(fontsize * .75);
 	}
 	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{
@@ -638,6 +637,8 @@ static PyObject* Font(PyObject* self, PyObject* args)
 		return RAISE(PyExc_TypeError, "font name must be string or None");
 
 	Py_BEGIN_ALLOW_THREADS
+	if(fontsize <= 1)
+		fontsize = 1;
 	font = TTF_OpenFont(filename, fontsize);
 	Py_END_ALLOW_THREADS
 	
