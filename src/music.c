@@ -172,7 +172,7 @@ static PyObject* unpause(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-	Mix_RewindMusic();
+	Mix_ResumeMusic();
 	RETURN_NONE
 }
 

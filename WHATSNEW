@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Feb 6, 2001
+	fixed the music unpause() function
+
 Jan 31, 2001
 	functions taking RGBA colors can also accept mapped ints
 
