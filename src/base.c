@@ -561,6 +561,7 @@ void initbase(void)
 	/* create the exceptions */
 	PyExc_SDLError = PyErr_NewException("pygame.error", PyExc_RuntimeError, NULL);
 	PyDict_SetItemString(dict, "error", PyExc_SDLError);
+	Py_DECREF(PyExc_SDLError);
 
 	/* export the c api */
 	c_api[0] = PyExc_SDLError;
@@ -575,6 +576,7 @@ void initbase(void)
 	c_api[9] = RGBAFromObj;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+	Py_DECREF(apiobj);
 
 
 /* let SDL do some basic initialization */
