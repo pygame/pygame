@@ -18,16 +18,18 @@ cflags: extra compile flags
 import sys, os, shutil
 
 
-if sys.version_info[0] < 2:
-    raise SystemExit, """Pygame requires python 2.0 or higher"""
+if int(sys.version[0]) < 2:
+    raise SystemExit, "Pygame requires python 2.0 or higher"
 
 
 if sys.platform == 'win32':
     print 'Using WINDOWS configuration...\n'
-    import config_win as CFG
+    import config_win
+    CFG = config_win
 else:
     print 'Using UNIX configuration...\n'
-    import config_unix as CFG
+    import config_unix
+    CFG = config_unix
 
 
 
