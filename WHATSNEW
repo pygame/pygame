@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 8, 2003
+	add system font; SysFont,get_system_fonts,match_system_font
+
 June 7, 2003
         Font() no longer segfaults on bad filename [BUG]
         add color module for simple color manipulations

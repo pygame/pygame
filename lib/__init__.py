@@ -132,7 +132,13 @@ try: import pygame.transform
 except (ImportError,IOError), msg:transform=MissingModule("transform", msg, 1)
 
 #lastly, the "optional" pygame modules
-try: import pygame.font
+try:
+    import pygame.font
+    import pygame.sysfont
+    pygame.font.SysFont = pygame.sysfont.SysFont
+    pygame.font.get_system_fonts = pygame.sysfont.get_system_fonts
+    pygame.font.match_system_font = pygame.sysfont.match_system_font
+
 except (ImportError,IOError), msg:font=MissingModule("font", msg, 0)
 
 try: import pygame.mixer

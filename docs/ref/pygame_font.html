@@ -59,12 +59,21 @@ Most of the work done with fonts are done by using the actual
 Font objects. The module by itself only has routines to
 initialize the module and create Font objects with
 <a href=#Font>pygame.font.Font()</a>.
+<br>&nbsp;<br>
+You can load fonts from the standard system fonts by using the
+<a href=#SysFont>pygame.font.SysFont()</a> method. There are also other functions to
+help you work with system fonts.
+<br>&nbsp;<br>
 
 <hr>
 
 <table>
 <tr><td><a href=#Font>Font</a></td><td> -
 create a new font object</td></tr>
+
+
+<tr><td><a href=#SysFont>SysFont</a></td><td> -
+       create a pygame Font from system font resources</td></tr>
 
 
 <tr><td><a href=#get_default_font>get_default_font</a></td><td> -
@@ -75,8 +84,16 @@ get the name of the default font</td></tr>
 get status of font module initialization</td></tr>
 
 
+<tr><td><a href=#get_system_fonts>get_system_fonts</a></td><td> -
+       get a list of system font names</td></tr>
+
+
 <tr><td><a href=#init>init</a></td><td> -
 initialize the display module</td></tr>
+
+
+<tr><td><a href=#match_system_font>match_system_font</a></td><td> -
+       find the filename for the system font</td></tr>
 
 
 <tr><td><a href=#quit>quit</a></td><td> -
@@ -98,14 +115,34 @@ pixels. The file argument can be 'None', which will
 use a plain default font.
 <br>&nbsp;<br>
 You must have at least SDL_ttf-2.0.6 for file object
-support. You can load truetype fonts or FON fonts.
+support. You can load TTF and FON fonts.
+</ul><br>&nbsp;<br>
+
+<a name=SysFont><font size=+2><b>SysFont
+</b></font><br><font size=+1><tt>
+pygame.font.SysFont(name, size, bold=0, italic=0) -> Font
+</tt></font><ul>
+       This will search the system fonts for the given font
+       name. You can also enable bold or italic styles, and
+       the appropriate system font will be selected if available.
+<br>&nbsp;<br>
+       This will always return a valid Font object, and will
+       fallback on the builtin pygame font if the given font
+       is not found.
+<br>&nbsp;<br>
+       Name can also be a comma separated list of names, in
+       which case set of names will be searched in order. Pygame
+       uses a small set of common font aliases, if the specific
+       font you ask for is not available, a reasonable alternative
+       may be used.
+    
 </ul><br>&nbsp;<br>
 
 <a name=get_default_font><font size=+2><b>get_default_font
 </b></font><br><font size=+1><tt>
 pygame.font.get_default_font() -> string
 </tt></font><ul>
-returns the name for the default truetype font.
+returns the filename for the default truetype font.
 </ul><br>&nbsp;<br>
 
 <a name=get_init><font size=+2><b>get_init
@@ -115,6 +152,17 @@ pygame.font.get_init() -> bool
 Returns true if the font module is currently intialized.
 </ul><br>&nbsp;<br>
 
+<a name=get_system_fonts><font size=+2><b>get_system_fonts
+</b></font><br><font size=+1><tt>
+pygame.font.get_system_fonts() -> list
+</tt></font><ul>
+       Returns the list of all found system fonts. Note that
+       the names of the fonts will be all lowercase with spaces
+       removed. This is how pygame internally stores the font
+       names for matching.
+    
+</ul><br>&nbsp;<br>
+
 <a name=init><font size=+2><b>init
 </b></font><br><font size=+1><tt>
 pygame.font.init() -> None
@@ -122,6 +170,19 @@ pygame.font.init() -> None
 Manually initialize the font module. Will raise an exception if
 it cannot be initialized. It is safe to call this function if
 font is currently initialized.
+</ul><br>&nbsp;<br>
+
+<a name=match_system_font><font size=+2><b>match_system_font
+</b></font><br><font size=+1><tt>
+pygame.font.match_system_font(name, bold=0, italic=0) -> name
+</tt></font><ul>
+       This performs the same font search as the <a href=#SysFont>SysFont()</a>
+       function, only it returns the path to the TTF file
+       that would be loaded. The font name can be a comma
+       separated list of font names to try.
+<br>&nbsp;<br>
+       If no match is found, None is returned.
+    
 </ul><br>&nbsp;<br>
 
 <a name=quit><font size=+2><b>quit
