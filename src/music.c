@@ -41,8 +41,10 @@ static int music_channels = 0;
 
 static void mixmusic_callback(void *udata, Uint8 *stream, int len)
 {
-	music_pos += len;
-	music_pos_time = SDL_GetTicks();
+        if(!Mix_PausedMusic()) {
+            music_pos += len;
+            music_pos_time = SDL_GetTicks();
+        }
 }
 
 static void endmusic_callback(void)
@@ -327,7 +329,8 @@ static PyObject* music_get_pos(PyObject* self, PyObject* args)
 
 	ticks = (long)(1000 * music_pos /
 		(music_channels * music_frequency * ((music_format & 0xff) >> 3)));
-	ticks += SDL_GetTicks() - music_pos_time;
+        if(!Mix_PausedMusic())
+            ticks += SDL_GetTicks() - music_pos_time;
 
 	return PyInt_FromLong((long)ticks);
 }
