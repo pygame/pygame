@@ -48,7 +48,25 @@
 </td></tr></table></td></tr></table>
 <br>
 <h2 align=center>Movie</h2>
-Movie objects represent actual MPEG streams.
+The Movie object represents an opened MPEG file.
+You control playback similar to a Sound object.
+<br>&nbsp;<br>
+Movie objects have a target display Surface.
+The movie is rendered to this Surface in a background
+thread. If the Surface is the display surface, and
+the system supports it, the movie will render into a
+Hardware YUV overlay plane. If you don't set a display
+Surface, it will default to the display Surface.
+<br>&nbsp;<br>
+Movies are played back in background threads, so there
+is very little management needed on the user end. Just
+load the Movie, set the destination, and <a href=#play>Movie.play()</a>
+<br>&nbsp;<br>
+Movies will only playback audio if the pygame.mixer
+module is not initialized. It is easy to temporarily
+call <a href=pygame_mixer.html#quit>pygame.mixer.quit()</a> to disable audio, then create
+and play your movie. Finally calling <a href=pygame_mixer.html#init>pygame.mixer.init()</a>
+again when finished with the Movie.
 <br>&nbsp;<br>
 
 <hr>
@@ -176,10 +194,13 @@ a second time, playback will resume where it left off.
 
 <a name=play><font size=+2><b>play
 </b></font><br><font size=+1><tt>
-Movie.play() -> None
+Movie.play(loops=0) -> None
 </tt></font><ul>
 Starts playback of a movie. If audio or video is enabled
 for the Movie, those outputs will be created. 
+<br>&nbsp;<br>
+You can specify an optional argument which will be the
+number of times the movie loops while playing.
 </ul><br>&nbsp;<br>
 
 <a name=rewind><font size=+2><b>rewind
@@ -197,6 +218,10 @@ Movie.set_display(Surface, [pos]) -> None
 Set the output surface for the Movie's video. You may
 also specify a position for the topleft corner of the
 video. The position defaults to (0,0) if not given.
+<br>&nbsp;<br>
+The position argument can optionally be a rectangle,
+in which case the video will be stretched to fill the
+rectangular area.
 <br>&nbsp;<br>
 You may also pass None as the destination Surface, and
 no video will be rendered for the movie playback.

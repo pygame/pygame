@@ -48,9 +48,20 @@
 </td></tr></table></td></tr></table>
 <br>
 <h2 align=center>pygame.movie</h2>
-movie module allows you to create Movie objects.
-currently only video is supported, no audio.
+The movie module is an optional pygame module that
+allows for decoding and playback of MPEG movie files.
+The module only contains a single function, <a href=#Movie>Movie()</a>
+which creates a new Movie object.
 <br>&nbsp;<br>
+Movies are played back in background threads, so there
+is very little management needed on the user end. Just
+load the Movie, set the destination, and <a href=Movie.html#play>Movie.play()</a>
+<br>&nbsp;<br>
+Movies will only playback audio if the pygame.mixer
+module is not initialized. It is easy to temporarily
+call <a href=pygame_mixer.html#quit>pygame.mixer.quit()</a> to disable audio, then create
+and play your movie. Finally calling <a href=pygame_mixer.html#init>pygame.mixer.init()</a>
+again when finished with the Movie.
 
 <hr>
 
@@ -67,8 +78,9 @@ load a new MPEG stream</td></tr>
 </b></font><br><font size=+1><tt>
 pygame.movie.Movie(file) -> Movie
 </tt></font><ul>
-Loads a new movie stream  from a MPG file. File is a filename.
-or opened file object, no other python file-like objects.
+Loads a new movie stream from a MPEG file. The file
+argument is either a filename, or an opened file object.
+Movies cannot stream from any other python objects.
 </ul><br>&nbsp;<br>
 
 
