@@ -145,7 +145,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 						0, 0, surf->w, surf->h, formatflag, typeflag);
 			if(!data)
 				return NULL;
-			pixels = PyString_AsString(data);
+			pixels = (unsigned char*)PyString_AsString(data);
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 #define IMGMASKS 0x000000FF, 0x0000FF00, 0x00FF0000, 0
