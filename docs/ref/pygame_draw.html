@@ -85,11 +85,14 @@ This function will temporarily lock the surface.
 
 <a name=lines><font size=+2><b>lines
 </b></font><br><font size=+1><tt>
-pygame.draw.lines(Surface, color, closed, point_array) -> Rect
+pygame.draw.lines(Surface, color, closed, point_array, width=1) -> Rect
 </tt></font><ul>
 Draws a sequence on a surface. You must pass at least two points
 in the sequence of points. The closed argument is a simple boolean
 and if true, a line will be draw between the first and last points.
+Note that specifying a linewidth wider than 1 does not fill in the
+gaps between the lines. Therefore wide lines and sharp corners won't
+be joined seamlessly.
 <br>&nbsp;<br>
 This will respect the clipping rectangle. A bounding box of the
 effected area is returned as a rectangle.

@@ -26,6 +26,7 @@
 #include "pygame.h"
 
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts);
+static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int width, int* pts);
 static int clipline(int* pts, int left, int top, int right, int bottom);
 static void drawline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx, int endy);
 static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx);
@@ -50,13 +51,14 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	short startx, starty, endx, endy;
 	int top, left, bottom, right;
+	int width = 1;
 	int pts[4];
 	Uint8 rgba[4];
 	Uint32 color;
 	int anydraw;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!OOO", &PySurface_Type, &surfobj, &colorobj, &start, &end))
+	if(!PyArg_ParseTuple(arg, "O!OOO|i", &PySurface_Type, &surfobj, &colorobj, &start, &end, &width))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
 
@@ -74,13 +76,16 @@ static PyObject* line(PyObject* self, PyObject* arg)
 		return RAISE(PyExc_TypeError, "Invalid start position argument");
 	if(!TwoShortsFromObj(end, &endx, &endy))
 		return RAISE(PyExc_TypeError, "Invalid end position argument");
-	
+
+	if(width < 1)
+		return PyRect_New4(startx, starty, 0, 0);
+
 
 	if(!PySurface_Lock(surfobj)) return NULL;
 
 	pts[0] = startx; pts[1] = starty;
 	pts[2] = endx; pts[3] = endy;
-	anydraw = clip_and_draw_line(surf, &surf->clip_rect, color, pts);
+	anydraw = clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
 
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
@@ -113,12 +118,15 @@ static PyObject* line(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_lines[] =
-    /*DOC*/    "pygame.draw.lines(Surface, color, closed, point_array) -> Rect\n"
+    /*DOC*/    "pygame.draw.lines(Surface, color, closed, point_array, width=1) -> Rect\n"
     /*DOC*/    "draw multiple connected lines on a surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Draws a sequence on a surface. You must pass at least two points\n"
     /*DOC*/    "in the sequence of points. The closed argument is a simple boolean\n"
     /*DOC*/    "and if true, a line will be draw between the first and last points.\n"
+    /*DOC*/    "Note that specifying a linewidth wider than 1 does not fill in the\n"
+    /*DOC*/    "gaps between the lines. Therefore wide lines and sharp corners won't\n"
+    /*DOC*/    "be joined seamlessly.\n"
     /*DOC*/    "\n"
 	/*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
 	/*DOC*/    "effected area is returned as a rectangle.\n"
@@ -134,14 +142,14 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	short x, y;
 	int top, left, bottom, right;
-	int pts[4];
+	int pts[4], width=1;
 	Uint8 rgba[4];
 	Uint32 color;
 	int closed;
 	int result, loop, length, drawn;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!OOO", &PySurface_Type, &surfobj, &colorobj, &closedobj, &points))
+	if(!PyArg_ParseTuple(arg, "O!OOO|i", &PySurface_Type, &surfobj, &colorobj, &closedobj, &points, &width))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
 
@@ -171,6 +179,9 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	pts[0] = left = right = x;
 	pts[1] = top = bottom = y;
 
+	if(width < 1)
+		return PyRect_New4((short)left, (short)top, 0, 0);
+
 	if(!PySurface_Lock(surfobj)) return NULL;
 
 	drawn = 1;
@@ -184,7 +195,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 		pts[2] = x;
 		pts[3] = y;
 
-		if(clip_and_draw_line(surf, &surf->clip_rect, color, pts))
+		if(clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts))
 		{
 			left = min(min(pts[0], pts[2]), left);
 			top = min(min(pts[1], pts[3]), top);
@@ -204,7 +215,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 		{
 			pts[2] = x;
 			pts[3] = y;
-			clip_and_draw_line(surf, &surf->clip_rect, color, pts);
+			clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts);
 		}
 	}
 
@@ -231,6 +242,67 @@ static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, i
 	else
 		drawline(surf, color, pts[0], pts[1], pts[2], pts[3]);
 	return 1;
+}
+
+static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int width, int* pts)
+{
+	int loop;
+	int xinc=0, yinc=0;
+	int newpts[4];
+	int range[4];
+	int anydrawn = 0;
+
+
+	if(abs(pts[0]-pts[2]) > abs(pts[1]-pts[3]))
+		yinc = 1;
+	else
+		xinc = 1;
+
+	memcpy(newpts, pts, sizeof(int)*4);
+	if(clip_and_draw_line(surf, rect, color, newpts))
+	{
+		anydrawn = 1;
+		memcpy(range, newpts, sizeof(int)*4);
+	}
+	else
+	{
+		range[0] = range[1] = 10000;
+		range[2] = range[3] = -10000;
+	}
+
+	for(loop = 0; loop < width; loop += 2)
+	{
+		newpts[0] = pts[0] + xinc*(loop/2+1);
+		newpts[1] = pts[1] + yinc*(loop/2+1);
+		newpts[2] = pts[2] + xinc*(loop/2+1);
+		newpts[3] = pts[3] + yinc*(loop/2+1);
+		if(clip_and_draw_line(surf, rect, color, newpts))
+		{
+			anydrawn = 1;
+			range[0] = min(newpts[0], range[0]);
+			range[1] = min(newpts[1], range[1]);
+			range[2] = max(newpts[2], range[2]);
+			range[3] = max(newpts[3], range[3]);
+		}
+		if(loop+1<width)
+		{
+			newpts[0] = pts[0] - xinc*loop/2;
+			newpts[1] = pts[1] - yinc*loop/2;
+			newpts[2] = pts[2] - xinc*loop/2;
+			newpts[3] = pts[3] - yinc*loop/2;
+			if(clip_and_draw_line(surf, rect, color, newpts))
+			{
+				anydrawn = 1;
+				range[0] = min(newpts[0], range[0]);
+				range[1] = min(newpts[1], range[1]);
+				range[2] = max(newpts[2], range[2]);
+				range[3] = max(newpts[3], range[3]);
+			}
+		}
+	}
+	if(anydrawn)
+		memcpy(pts, range, sizeof(int)*4);
+	return anydrawn;
 }
 
 
