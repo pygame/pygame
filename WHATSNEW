@@ -4,6 +4,8 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Aug 25, 2001
+	added looping, scaling, and audio to for Movies
 
 Aug 15, 2001
 	added pygame.movie module with MPEG video playback

@@ -47,18 +47,23 @@ static PyObject* PyMovie_New(SMPEG*);
 /* movie object methods */
 
     /*DOC*/ static char doc_movie_play[] =
-    /*DOC*/    "Movie.play() -> None\n"
+    /*DOC*/    "Movie.play(loops=0) -> None\n"
     /*DOC*/    "start movie playback\n"
     /*DOC*/    "\n"
     /*DOC*/    "Starts playback of a movie. If audio or video is enabled\n"
     /*DOC*/    "for the Movie, those outputs will be created. \n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can specify an optional argument which will be the\n"
+    /*DOC*/    "number of times the movie loops while playing.\n"
     /*DOC*/ ;
 
 static PyObject* movie_play(PyObject* self, PyObject* args)
 {
 	SMPEG* movie = PyMovie_AsSMPEG(self);
-	if(!PyArg_ParseTuple(args, ""))
+	int loops=0;
+	if(!PyArg_ParseTuple(args, "|i", &loops))
 		return NULL;
+	SMPEG_loop(movie, loops);
 	SMPEG_play(movie);
 	RETURN_NONE
 }
@@ -171,6 +176,10 @@ static PyObject* movie_set_volume(PyObject* self, PyObject* args)
     /*DOC*/    "also specify a position for the topleft corner of the\n"
     /*DOC*/    "video. The position defaults to (0,0) if not given.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "The position argument can optionally be a rectangle,\n"
+    /*DOC*/    "in which case the video will be stretched to fill the\n"
+    /*DOC*/    "rectangular area.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "You may also pass None as the destination Surface, and\n"
     /*DOC*/    "no video will be rendered for the movie playback.\n"
     /*DOC*/ ;
@@ -178,9 +187,10 @@ static PyObject* movie_set_volume(PyObject* self, PyObject* args)
 static PyObject* movie_set_display(PyObject* self, PyObject* args)
 {
 	SMPEG* movie = PyMovie_AsSMPEG(self);
-	PyObject* surfobj;
-	int x=0, y=0;
-	if(!PyArg_ParseTuple(args, "O|(ii)", &surfobj, &x, &y))
+	PyObject* surfobj, *posobj=NULL;
+	GAME_Rect *rect, temp;
+	short x=0, y=0;
+	if(!PyArg_ParseTuple(args, "O|O", &surfobj, &posobj))
 		return NULL;
 
 	Py_XDECREF(((PyMovieObject*)self)->surftarget);
@@ -190,6 +200,28 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 	{
 	    SMPEG_Info info;
 	    SDL_Surface* surf;
+
+		if(posobj == NULL)
+		{
+			SMPEG_Info info;
+			SMPEG_getinfo(movie, &info);
+			SMPEG_scaleXY(movie, info.width, info.height);
+			x = y = 0;
+		}
+		else if(TwoShortsFromObj(posobj, &x, &y))
+		{
+			SMPEG_Info info;
+			SMPEG_getinfo(movie, &info);
+			SMPEG_scaleXY(movie, info.width, info.height);
+		}
+		else if(rect = GameRect_FromObject(posobj, &temp))
+		{
+			x = rect->x;
+			y = rect->y;
+			SMPEG_scaleXY(movie, rect->w, rect->h);
+		}
+		else
+			return RAISE(PyExc_TypeError, "Invalid position argument");
 
 	    SMPEG_getinfo(movie, &info);
 	    surf = PySurface_AsSurface(surfobj);
@@ -386,7 +418,25 @@ static PyObject* movie_getattr(PyObject* self, char* attrname)
 
 
     /*DOC*/ static char doc_Movie_MODULE[] =
-    /*DOC*/    "Movie objects represent actual MPEG streams.\n"
+    /*DOC*/    "The Movie object represents an opened MPEG file.\n"
+    /*DOC*/    "You control playback similar to a Sound object.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Movie objects have a target display Surface.\n"
+    /*DOC*/    "The movie is rendered to this Surface in a background\n"
+    /*DOC*/    "thread. If the Surface is the display surface, and\n"
+    /*DOC*/    "the system supports it, the movie will render into a\n"
+    /*DOC*/    "Hardware YUV overlay plane. If you don't set a display\n"
+    /*DOC*/    "Surface, it will default to the display Surface.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Movies are played back in background threads, so there\n"
+    /*DOC*/    "is very little management needed on the user end. Just\n"
+    /*DOC*/    "load the Movie, set the destination, and Movie.play()\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Movies will only playback audio if the pygame.mixer\n"
+    /*DOC*/    "module is not initialized. It is easy to temporarily\n"
+    /*DOC*/    "call pygame.mixer.quit() to disable audio, then create\n"
+    /*DOC*/    "and play your movie. Finally calling pygame.mixer.init()\n"
+    /*DOC*/    "again when finished with the Movie.\n"
     /*DOC*/    "\n"
     /*DOC*/ ;
 
@@ -423,8 +473,9 @@ static PyTypeObject PyMovie_Type =
     /*DOC*/    "pygame.movie.Movie(file) -> Movie\n"
     /*DOC*/    "load a new MPEG stream\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Loads a new movie stream  from a MPG file. File is a filename.\n"
-    /*DOC*/    "or opened file object, no other python file-like objects.\n"
+    /*DOC*/    "Loads a new movie stream from a MPEG file. The file\n"
+    /*DOC*/    "argument is either a filename, or an opened file object.\n"
+    /*DOC*/    "Movies cannot stream from any other python objects.\n"
     /*DOC*/ ;
 
 static PyObject* Movie(PyObject* self, PyObject* arg)
@@ -435,53 +486,54 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 	SMPEG_Info info;
 	SDL_Surface* screen;
 	char* error;
+	int audioavail = 0;
 	if(!PyArg_ParseTuple(arg, "O", &file))
 		return NULL;
+
+	if(!SDL_WasInit(SDL_INIT_AUDIO))
+		audioavail = 1;
 
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
 		if(!PyArg_ParseTuple(arg, "s", &name))
 			return NULL;
-		movie = SMPEG_new(name, &info, 0);
+		movie = SMPEG_new(name, &info, audioavail);
 	}
+	else if(PyFile_Check(file))
+	{
+		SDL_RWops *rw = SDL_RWFromFP(PyFile_AsFile(file), 0);
+		movie = SMPEG_new_rwops(rw, &info, audioavail);
+		filesource = file;
+		Py_INCREF(file);
+	}
+#if 0
 /*this don't work, the rwops is passed to a background
 thread, which obviously can't make calls to python code
 whenever it pleases. (perhaps python rw objects could
 be made safer, to wait for the global interp-lock before
 calling the functions. that could potentially work?)
-
-also, it should be possible to make it work with real
-file-like objects by just passing the file handle to
-SMPEG_new_file()
 */
-	else if(PyFile_Check(file))
-	{
-		SDL_RWops *rw = SDL_RWFromFP(PyFile_AsFile(file), 0);
-		movie = SMPEG_new_rwops(rw, &info, 0);
-		filesource = file;
-		Py_INCREF(file);
-	}
-#if 0
 	else
 	{
 		SDL_RWops *rw;
 		if(!(rw = RWopsFromPython(file)))
 			return NULL;
-		movie = SMPEG_new_rwops(rw, &info, 0);
+		movie = SMPEG_new_rwops(rw, &info, audioavail);
 	}
 #endif
+
 	if(!movie)
 		return RAISE(PyExc_SDLError, "Cannot create Movie object");
 
 	error = SMPEG_error(movie);
 	if(error)
 	{
-	    SMPEG_delete(movie);
+/* while this would seem correct, it causes a crash */
+/*	    SMPEG_delete(movie);*/
 	    return RAISE(PyExc_SDLError, error);
 	}
 
-	SMPEG_enableaudio(movie, 0);
-/*	  SMPEG_setvolume(movie, 100);*/
+	SMPEG_enableaudio(movie, audioavail);
 
 	screen = SDL_GetVideoSurface();
 	if(screen)
@@ -529,9 +581,20 @@ static PyObject* PyMovie_New(SMPEG* movie)
 
 
     /*DOC*/ static char doc_pygame_movie_MODULE[] =
-    /*DOC*/    "movie module allows you to create Movie objects.\n"
-    /*DOC*/    "currently only video is supported, no audio.\n"
+    /*DOC*/    "The movie module is an optional pygame module that\n"
+    /*DOC*/    "allows for decoding and playback of MPEG movie files.\n"
+    /*DOC*/    "The module only contains a single function, Movie()\n"
+    /*DOC*/    "which creates a new Movie object.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "Movies are played back in background threads, so there\n"
+    /*DOC*/    "is very little management needed on the user end. Just\n"
+    /*DOC*/    "load the Movie, set the destination, and Movie.play()\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Movies will only playback audio if the pygame.mixer\n"
+    /*DOC*/    "module is not initialized. It is easy to temporarily\n"
+    /*DOC*/    "call pygame.mixer.quit() to disable audio, then create\n"
+    /*DOC*/    "and play your movie. Finally calling pygame.mixer.init()\n"
+    /*DOC*/    "again when finished with the Movie.\n"
     /*DOC*/ ;
 
 PYGAME_EXPORT
@@ -551,5 +614,6 @@ void initmovie(void)
 	import_pygame_base();
 	import_pygame_surface();
 	import_pygame_rwobject();
+	import_pygame_rect();
 }
 
