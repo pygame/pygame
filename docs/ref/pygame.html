@@ -18,21 +18,22 @@
 || <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
 <a href=pygame_constants.html>constants</a> || 
+<a href=pygame_cursor.html>cursor</a> || 
 <a href=pygame_display.html>display</a> || 
-<a href=pygame_draw.html>draw</a> || 
-<a href=pygame_event.html>event</a> ||<br>
-|| <a href=pygame_font.html>font</a> || 
+<a href=pygame_draw.html>draw</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
 <a href=pygame_joystick.html>joystick</a> || 
 <a href=pygame_key.html>key</a> || 
-<a href=pygame_mixer.html>mixer</a> || 
-<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
-|| <a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_mixer.html>mixer</a> ||<br>
+|| <a href=pygame_mixer_music.html>mixer_music</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
 <a href=pygame_movie.html>movie</a> || 
 <a href=pygame_sndarray.html>sndarray</a> || 
 <a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> || 
-<a href=pygame_transform.html>transform</a> ||<br>
+<a href=pygame_time.html>time</a> ||<br>
+|| <a href=pygame_transform.html>transform</a> ||<br>
 &nbsp;<br>|| <a href=CD.html>CD</a> || 
 <a href=Channel.html>Channel</a> || 
 <a href=Clock.html>Clock</a> || 
@@ -82,6 +83,10 @@ create a new Surface</td></tr>
 
 <tr><td><a href=#get_error>get_error</a></td><td> -
 get current error message</td></tr>
+
+
+<tr><td><a href=#get_sdl_version>get_sdl_version</a></td><td> -
+get the version of the linked SDL runtime</td></tr>
 
 
 <tr><td><a href=#init>init</a></td><td> -
@@ -157,6 +162,13 @@ pygame.get_error() -> errorstring
 SDL maintains an internal current error message. This message is
 usually given to you when an SDL related exception occurs, but
 sometimes you may want to call this directly yourself.
+</ul><br>&nbsp;<br>
+
+<a name=get_sdl_version><font size=+2><b>get_sdl_version
+</b></font><br><font size=+1><tt>
+pygame.get_sdl_version() -> (major, minor, patchlevel)
+</tt></font><ul>
+{docs}
 </ul><br>&nbsp;<br>
 
 <a name=init><font size=+2><b>init
