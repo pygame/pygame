@@ -219,7 +219,7 @@ do {                                                                       \
                 case 4:                                                           \
                         pixel = *((Uint32 *)(buf));                           \
                 break;                                                           \
-                case 3:        {/* FIXME: broken code (no alpha) */                   \
+                default:        {/* case 3: FIXME: broken code (no alpha) */                   \
                         Uint8 *b = (Uint8 *)buf;                           \
                         if(SDL_BYTEORDER == SDL_LIL_ENDIAN) {                   \
                                 pixel = b[0] + (b[1] << 8) + (b[2] << 16); \
@@ -248,7 +248,7 @@ do {                                                                       \
                 case 4:                                                           \
                         pixel = *((Uint32 *)(buf));                           \
                 break;                                                           \
-                case 3:        {/* FIXME: broken code (no alpha) */                   \
+                default:        {/* case 3: FIXME: broken code (no alpha) */                   \
                         Uint8 *b = (Uint8 *)buf;                           \
                         if(SDL_BYTEORDER == SDL_LIL_ENDIAN) {                   \
                                 pixel = b[0] + (b[1] << 8) + (b[2] << 16); \

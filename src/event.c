@@ -696,7 +696,7 @@ static PyObject* event_clear(PyObject* self, PyObject* args)
 	SDL_Event event;
 	int mask = 0;
 	int loop, num;
-	PyObject* type,  *e;
+	PyObject* type;
 	short val;
 
 	if(PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)

@@ -53,8 +53,6 @@ struct ChannelData
 static struct ChannelData *channeldata = NULL;
 static int numchanneldata = 0;
 
-static int endsound_event = SDL_NOEVENT;
-
 Mix_Music** current_music;
 Mix_Music** queue_music;
 
@@ -844,7 +842,6 @@ static PyObject* chan_get_volume(PyObject* self, PyObject* args)
 static PyObject* chan_get_sound(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	int volume;
 	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, ""))
@@ -871,7 +868,6 @@ static PyObject* chan_get_sound(PyObject* self, PyObject* args)
 static PyObject* chan_get_queue(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	int volume;
 	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, ""))
@@ -908,7 +904,6 @@ static PyObject* chan_set_endevent(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
 	int event = SDL_NOEVENT;
-	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, "|i", &event))
 		return NULL;
@@ -930,7 +925,6 @@ static PyObject* chan_set_endevent(PyObject* self, PyObject* args)
 static PyObject* chan_get_endevent(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;

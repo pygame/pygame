@@ -115,7 +115,7 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     Mix_Chunk *chunk;
     Uint16 format;
     int numchannels, mixerbytes;
-    int loop1, loop2, step1, step2, length, length2;
+    int loop1, loop2, step1, step2, length, length2=0;
     Uint8 *src, *dst;
 
     if(!PyArg_ParseTuple(arg, "O!", &PyArray_Type, &arrayobj))

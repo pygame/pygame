@@ -989,9 +989,8 @@ int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Re
     SDL_Surface *src = PySurface_AsSurface(srcobj);
     SDL_Surface *dst = PySurface_AsSurface(dstobj);
     SDL_Surface *subsurface = NULL;
-    int dx, dy, result, suboffsetx, suboffsety;
+    int result, suboffsetx=0, suboffsety=0;
     SDL_Rect orig_clip, sub_clip;
-    short sx, sy;
     int didconvert = 0;
 
     /*passthrough blits to the real surface*/
@@ -1107,13 +1106,11 @@ int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Re
 static PyObject* surf_blit(PyObject* self, PyObject* args)
 {
 	SDL_Surface* src, *dest = PySurface_AsSurface(self);
-	SDL_Surface* subsurface = NULL;
 	GAME_Rect* src_rect, temp;
 	PyObject* srcobject, *argpos, *argrect = NULL;
-	int dx, dy, result, suboffsetx, suboffsety;
-	SDL_Rect dest_rect, orig_clip, sub_clip;
+	int dx, dy, result;
+	SDL_Rect dest_rect;
 	short sx, sy;
-	int didconvert = 0;
 
 	if(!PyArg_ParseTuple(args, "O!O|O", &PySurface_Type, &srcobject, &argpos, &argrect))
 		return NULL;

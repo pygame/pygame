@@ -194,6 +194,7 @@ static PyObject* font_get_height(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "Returns the descent for the font. The descent is the number of\n"
     /*DOC*/    "pixels from the font baseline to the bottom of the font.\n"
+    /*DOC*/    "With most fonts this is a negative number.\n"
     /*DOC*/ ;
 
 static PyObject* font_get_descent(PyObject* self, PyObject* args)
