@@ -254,6 +254,7 @@ typedef struct {
 	struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a subsurface)*/
 	int lockcount;
 	int didlock;
+        PyObject* weakreflist;
 } PySurfaceObject;
 #define PySurface_AsSurface(x) (((PySurfaceObject*)x)->surf)
 #ifndef PYGAMEAPI_SURFACE_INTERNAL

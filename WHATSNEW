@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 21, 2004
+    Surfaces now weakref'able
+    display surface protected from pygame.quit()
+    display and Surfaces protected from resolution <=0
+
 June 19, 2004
     Chad Lester's excellent work on sndarray
     ffmpeg movie backend renamed to movieext, experimental
