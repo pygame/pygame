@@ -431,7 +431,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	if(PyUnicode_Check(text))
 	{
 		PyObject* strob = PyEval_CallMethod(text, "encode", "(s)", "utf-8");
-		char *string = PyString_AsString(text);
+		char *string = PyString_AsString(strob);
 
 		if(aa)
 		{
@@ -501,7 +501,7 @@ static PyObject* font_size(PyObject* self, PyObject* args)
 	if(PyUnicode_Check(text))
 	{
 		PyObject* strob = PyEval_CallMethod(text, "encode", "(s)", "utf-8");
-		char *string = PyString_AsString(text);
+		char *string = PyString_AsString(strob);
 
 		TTF_SizeUTF8(font, string, &w, &h);
 
