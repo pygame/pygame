@@ -96,20 +96,6 @@ if sys.platform == 'win32':
                 data_files.append(p)
 
 
-#we can detect the presence of python dependencies, remove any unfound
-pythondeps = {'surfarray': ['Numeric']}
-for e in extensions[:]:
-    modules = pythondeps.get(e.name, [])
-    if modules:
-        try:
-            for module in modules:
-                x = __import__(module)
-                del x
-        except ImportError:
-            print 'NOTE: Not compiling:', e.name, ' (module not found='+module+')'
-            extensions.remove(e)
-
-
 #clean up the list of extensions
 for e in extensions[:]:
     if e.name[:8] == 'COPYLIB_':
@@ -117,12 +103,6 @@ for e in extensions[:]:
     else:
         e.name = 'pygame.' + e.name #prepend package name on modules
         
-        #this cleans up a silly distutils bug
-        for flag in e.extra_compile_args:
-            if flag[:2] == '-C':
-                index = e.extra_compile_args.index(flag)
-                e.extra_compile_args[index] = flag[2:]
-
 
 #data installer with improved intelligence over distutils
 #data files are copied into the project directory instead
