@@ -44,8 +44,7 @@
 <a href=Sound.html>Sound</a> || 
 <a href=Surface.html>Surface</a> ||<br>
 &nbsp;<br>|| <a href=pygame_cursors.html>cursors</a> || 
-<a href=pygame_sprite.html>sprite</a> || 
-<a href=pygame_version.html>version</a> ||<br>
+<a href=pygame_sprite.html>sprite</a> ||<br>
 
 
 </td></tr></table></td></tr></table>
@@ -370,9 +369,8 @@ If the argument is a string, the return value is the same object.
 </b></font><br><font size=+1><tt>
 pygame.sprite.Group.update(...)
 </tt></font><ul>
-           calls the update method for all sprites in
-           the group. any arguments are passed to the update
-           function.
+           calls the update method for all sprites in the group.
+           passes all arguments are to the Sprite update function.
 </ul><br>&nbsp;<br>
 
 <a name=GroupSingle><font size=+2><b>GroupSingle
@@ -430,7 +428,9 @@ pygame.sprite.RenderClear.clear(surface, bgd)
 </tt></font><ul>
            Clears the area of all drawn sprites. the bgd
            argument should be Surface which is the same
-           dimensions as the surface.
+           dimensions as the surface. The bgd can also be
+           a function which gets called with the passed
+           surface and the area to be cleared.
 </ul><br>&nbsp;<br>
 
 <a name=RenderClear.draw><font size=+2><b>RenderClear.draw
@@ -618,7 +618,7 @@ pygame.sprite.spritecollide(sprite, group, dokill) -> list
        given a sprite and a group of sprites, this will
        return a list of all the sprites that intersect
        the given sprite.
-       all sprites must have a "rect" method, which is a
+       all sprites must have a "rect" value, which is a
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
        automatically removed from all groups.
@@ -637,10 +637,8 @@ pygame.sprite.spritecollideany(sprite, group) -> sprite
        spritecollide function, this function will be a
        bit quicker.
        
-       all sprites must have a "rect" method, which is a
-       rectangle of the sprite area. if the dokill argument
-       is true, the sprites that do collide will be
-       automatically removed from all groups.
+       all sprites must have a "rect" value, which is a
+       rectangle of the sprite area.
 </ul><br>&nbsp;<br>
 
 

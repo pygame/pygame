@@ -44,8 +44,7 @@
 <a href=Sound.html>Sound</a> || 
 <a href=Surface.html>Surface</a> ||<br>
 &nbsp;<br>|| <a href=pygame_cursors.html>cursors</a> || 
-<a href=pygame_sprite.html>sprite</a> || 
-<a href=pygame_version.html>version</a> ||<br>
+<a href=pygame_sprite.html>sprite</a> ||<br>
 
 
 </td></tr></table></td></tr></table>
@@ -203,8 +202,8 @@ The starting position argument controls where in the music the
 song starts playing. The starting position is dependent on the
 format of music playing. MP3 and OGG use the position as time
 (in seconds). MOD music it is the pattern order number. Passing
-a startpos will raise an exception if it cannot set the starting
-position (or your version of SDL_mixer is too old)
+a startpos will raise a NotImplementedError if it cannot set the
+start position (or your version of SDL_mixer is too old)
 </ul><br>&nbsp;<br>
 
 <a name=rewind><font size=+2><b>rewind

@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 8, 2002
+	music.play() start time works
+
 May 7, 2002
 	added the sndarray module
 	added surfarray.make_surface()
