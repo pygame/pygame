@@ -394,8 +394,8 @@ static PyObject* font_set_underline(PyObject* self, PyObject* args)
     /*DOC*/    "can be standard python text or unicode. Antialiasing will smooth\n"
     /*DOC*/    "the edges of the font for a much cleaner look. The foreground\n"
     /*DOC*/    "and background color are both RGBA, the alpha component is ignored\n"
-	/*ODC*/    "if given. If the background color is omitted, the text will have a\n"
-    /*DOC*/    "a transparent background.\n"
+    /*DOC*/    "if given. If the background color is omitted, the text will have a\n"
+    /*DOC*/    "transparent background.\n"
     /*DOC*/ ;
 
 static PyObject* font_render(PyObject* self, PyObject* args)
