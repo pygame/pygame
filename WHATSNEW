@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 2, 2001
+	Group add/remove methods work
+
 December 31, 2001
         pygame parachute does tracebacks with python2.2
 

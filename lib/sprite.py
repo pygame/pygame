@@ -82,6 +82,7 @@ which can be set to any dummy value.
 ## specialized cases.
 
 
+
 class Sprite:
     """the base class for your visible game objects.
        The sprite class is meant to be used as a base class
@@ -138,9 +139,11 @@ class Sprite:
 
     def remove_internal(self, group):
         del self.__g[group]
+
     def update(self, *args, **kwargs):
         #note, this just ignores all args
         pass
+
     def kill(self):
         """kill()
            end life of sprite, remove from all groups
@@ -160,12 +163,16 @@ class Sprite:
            Returns a list of all the groups that contain this
            sprite."""
         return self.__g.keys()
+
     def alive(self):
         """alive() -> bool
            ask the life of a sprite
 
            Returns true if this sprite is a member of any groups."""
         return len(self.__g)
+
+    def __repr__(self):
+        return "<%s sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
 
 
 
@@ -193,6 +200,7 @@ class Group:
            Returns a copy of the group that is the same class
            type, and has the same contained sprites."""
         return self.__class__(self.spritedict.keys())
+
     def sprites(self):
         """sprites() -> iterator
            return an object to loop over each sprite
@@ -202,6 +210,7 @@ class Group:
            newer version of python could return different
            objects, like iterators.)"""
         return self.spritedict.keys()
+
     def add(self, sprite):
         """add(sprite)
            add sprite to group
@@ -209,15 +218,21 @@ class Group:
            Add a sprite or sequence of sprites to a group."""
         has = self.spritedict.has_key
         if hasattr(sprite, '_spritegroup'):
-            if not has(sprite):
-                self.add_internal(sprite)
-                sprite.add_internal(self)
-        else:
-            sprites = sprite
-            for sprite in sprites:
+            for sprite in sprite.sprites():
                 if not has(sprite):
                     self.spritedict[sprite] = 0
                     sprite.add_internal(self)
+        else:
+            try: len(sprite) #see if its a sequence
+            except (TypeError, AttributeError):
+                if not has(sprite):
+                        self.spritedict[sprite] = 0
+                        sprite.add_internal(self)
+            else:
+                for sprite in sprite:
+                    if not has(sprite):
+                        self.spritedict[sprite] = 0
+                        sprite.add_internal(self)
 
     def remove(self, sprite):
         """remove(sprite)
@@ -225,19 +240,26 @@ class Group:
 
            Remove a sprite or sequence of sprites from a group."""
         has = self.spritedict.has_key
-        if hasattr(sprites, '_spritegroup'):
-            if has(sprite):
-                self.remove_internal(sprite)
-                sprite.remove_internal(self)
-        else:
-            sprites = sprite
-            for sprite in sprites:
+        if hasattr(sprite, '_spritegroup'):
+            for sprite in sprite.sprites():
                 if has(sprite):
                     self.remove_internal(sprite)
                     sprite.remove_internal(self)
+        else:
+            try: len(sprite) #see if its a sequence
+            except (TypeError, AttributeError):
+                if has(sprite):
+                    self.remove_internal(sprite)
+                    sprite.remove_internal(self)
+            else:
+                for sprite in sprite:
+                    if has(sprite):
+                        self.remove_internal(sprite)
+                        sprite.remove_internal(self)
 
     def add_internal(self, sprite):
         self.spritedict[sprite] = 0
+
     def remove_internal(self, sprite):
         del self.spritedict[sprite]
 
@@ -265,6 +287,7 @@ class Group:
             self.remove_internal(s)
             s.remove_internal(self)
         self.spritedict.clear()
+
     def update(self, *args, **kwargs):
         """update(...)
            call update for all member sprites
@@ -292,6 +315,8 @@ class Group:
            Returns the number of sprites contained in the group."""
         return len(self.spritedict)
 
+    def __repr__(self):
+        return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
 
 ##note that this GroupSingle class is not derived from any other
 ##group class, it can make as a good example if you ever want to
@@ -304,6 +329,7 @@ class GroupSingle:
        been added to the group last, will be the only sprite in
        the group."""
     _spritegroup = 1 #dummy val to identify groups
+
     def __init__(self, sprite=()):
         self.sprite = 0
         self.add(sprite)
@@ -314,33 +340,42 @@ class GroupSingle:
         return GroupSingle()
 
     def sprites(self):
-        return [self.sprite]
+        if self.sprite is not 0:
+            return [self.sprite]
+        return []
 
     def add(self, sprite):
         if hasattr(sprite, '_spritegroup'):
-            if self.sprite:
-                self.sprite.remove_internal(self)
-            self.sprite = sprite
-            sprite.add_internal(self)
+            for sprite in sprite.sprites(): pass
         else:
-            sprites = sprite
-            if sprites:
-                if self.sprite:
-                    self.sprite.remove_internal(self)
-                self.sprite = sprites[-1]
-                self.sprite.add_internal(self)
+            try:
+                if not len(sprite): return #see if its a sequence
+                sprite = sprite[-1]
+            except (TypeError, AttributeError): pass
+        if sprite is not self.sprite:
+			self.add_internal(sprite)
+			sprite.add_internal(self)
+
     def remove(self, sprite):
         if hasattr(sprite, '_spritegroup'):
-            if self.sprite is sprite:
-                self.sprite = 0
-                sprite.remove_internal(self)
-        else:
-            sprites = sprite
-            for sprite in sprites:
+            for sprite in sprite.sprites():
                 if self.sprite is sprite:
                     self.sprite = 0
                     sprite.remove_internal(self)
                     break
+        else:
+            try:
+                if not len(sprite): return #see if its a sequence
+            except (TypeError, AttributeError):
+                if self.sprite is sprite:
+                    self.sprite = 0
+                    sprite.remove_internal(self)
+            else:
+                for sprite in sprite:
+                    if self.sprite is sprite:
+                        self.sprite = 0
+                        sprite.remove_internal(self)
+                        break
 
     def add_internal(self, sprite):
         if self.sprite is not 0:
@@ -357,6 +392,7 @@ class GroupSingle:
         if self.sprite is not 0:
             self.sprite.remove_internal(self)
             self.sprite = 0
+
     def update(self, *args, **kwargs):
         if self.sprite:
             apply(self.sprite.update(args, kwargs))
@@ -366,6 +402,9 @@ class GroupSingle:
 
     def __len__(self):
         return self.sprite is not 0
+
+    def __repr__(self):
+        return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
 
 
 ##these render groups are derived from the normal Group
@@ -423,6 +462,7 @@ class RenderClear(Group):
         surface_blit = surface.blit
         for s in spritedict.keys():
             spritedict[s] = surface_blit(s.image, s.rect)
+
     def clear(self, surface, bgd):
         """clear(surface, bgd)
            erase the previous position of all sprites
@@ -437,6 +477,7 @@ class RenderClear(Group):
         for r in self.spritedict.values():
             if r is not 0:
                 surface_blit(bgd, r, r)
+
 
 class RenderUpdates(RenderClear):
     """a sprite group that can draw and clear with update rectangles
@@ -466,6 +507,7 @@ class RenderUpdates(RenderClear):
                 dirty_append(newrect)
             spritedict[s] = newrect
         return dirty
+
 
 def spritecollide(sprite, group, dokill):
     """pygame.sprite.spritecollide(sprite, group, dokill) -> list
