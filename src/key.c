@@ -160,12 +160,15 @@ static PyObject* key_get_mods(PyObject* self, PyObject* args)
 
 static PyObject* key_set_mods(PyObject* self, PyObject* args)
 {
-	if(!PyArg_ParseTuple(args, ""))
+	int mods;
+
+	if(!PyArg_ParseTuple(args, "i", &mods))
 		return NULL;
 
 	VIDEO_INIT_CHECK();
 
-	return PyInt_FromLong(SDL_GetModState());
+	SDL_SetModState(mods);
+	RETURN_NONE
 }
 
 
