@@ -57,7 +57,7 @@ static PyObject* mouse_set_pos(PyObject* self, PyObject* args)
     /*DOC*/    "gets the cursor position\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the current position of the mouse cursor. This is the\n"
-    /*DOC*/    "absolute mouse position on the screen.\n"
+    /*DOC*/    "absolute mouse position inside your game window.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_get_pos(PyObject* self, PyObject* args)
@@ -107,7 +107,7 @@ static PyObject* mouse_get_rel(PyObject* self, PyObject* args)
     /*DOC*/    "state of the mouse buttons\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will return a small sequence containing the pressed state of\n"
-    /*DOC*/    "the mouse buttons.\n"
+    /*DOC*/    "each mouse button.\n"
     /*DOC*/ ;
 
 static PyObject* mouse_get_pressed(PyObject* self, PyObject* args)
