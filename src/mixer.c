@@ -625,8 +625,10 @@ static PyTypeObject PySound_Type =
 	0,					/* tp_dictoffset */
 	sound_init,			/* tp_init */
 	0,					/* tp_alloc */
-	PyType_GenericNew,	                /* tp_new */
+	0,	                /* tp_new */
 };
+
+	//PyType_GenericNew,	                /* tp_new */
 
 
 
@@ -1468,6 +1470,7 @@ void initmixer(void)
 	PyType_Init(PyChannel_Type);
 
     /* create the module */
+        PySound_Type.tp_new = &PyType_GenericNew;
 	module = Py_InitModule3("mixer", mixer_builtins, doc_pygame_mixer_MODULE);
 	dict = PyModule_GetDict(module);
 
