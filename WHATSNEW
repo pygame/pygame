@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was (or could have been) crashing
 
+Jul 20, 2001
+	default font "finding" is smarter
+
 Jul 17, 2001
 	added polygon() and ellipse() to pygame.draw
 	lines with width>2 are now correct (was one too small)

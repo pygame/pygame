@@ -38,6 +38,7 @@ static PyObject* PyFont_New(TTF_Font*);
 static int font_initialized = 0;
 static char* font_defaultname = "bluebold.ttf";
 static char* font_defaultpath = NULL;
+static PyObject* self_module = NULL;
 
 static void font_autoquit(void)
 {
@@ -69,37 +70,35 @@ static PyObject* font_autoinit(PyObject* self, PyObject* arg)
 
 		if(!font_defaultpath)
 		{
-			PyObject* module;
-			char* modulepath;
-			module = PyImport_ImportModule("pygame");
-			if(module)
+			char* path = PyModule_GetFilename(self_module);
+			if(!path)
 			{
-				modulepath = PyModule_GetFilename(module);
-				if(!strncmp(modulepath, "<package", 8))
+				PyErr_Clear();
+			}
+			else
+			{
+				char* end = strstr(path, "font.");
+				if(end)
 				{
-					modulepath = "__init__.";
-				}
-				if(modulepath)
-				{
-					font_defaultpath = PyMem_Malloc(strlen(modulepath) + 16);
-					strcpy(font_defaultpath, modulepath);
+					font_defaultpath = PyMem_Malloc(strlen(path) + 16);
 					if(font_defaultpath)
 					{
-						char* end = strstr(font_defaultpath, "__init__.");
-						if(end)
-							strcpy(end, font_defaultname);
-						else
-						{
-							PyMem_Free(font_defaultpath);
-							font_defaultpath = NULL;
-						}
+						strcpy(font_defaultpath, path);
+						end = strstr(font_defaultpath, "font.");
+						strcpy(end, font_defaultname);
 					}
 				}
-				Py_DECREF(module);
+			}
+
+			if(!font_defaultpath)
+			{
+				font_defaultpath = PyMem_Malloc(strlen(font_defaultname) + 1);
+				if(font_defaultpath)
+					strcpy(font_defaultpath, font_defaultname);
 			}
 		}
 	}
-	return PyInt_FromLong(1);
+	return PyInt_FromLong(font_defaultpath != NULL);
 }
 
 
@@ -707,6 +706,7 @@ void initfont(void)
     /* create the module */
 	module = Py_InitModule3("font", font_builtins, doc_pygame_font_MODULE);
 	dict = PyModule_GetDict(module);
+	self_module = module;
 
 	PyDict_SetItemString(dict, "FontType", (PyObject *)&PyFont_Type);
 
