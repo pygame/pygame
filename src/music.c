@@ -74,7 +74,7 @@ static void mixmusic_callback(void *udata, Uint8 *stream, int len)
     /*DOC*/    "defaults to 0.\n"
     /*DOC*/ ;
 
-static PyObject* play(PyObject* self, PyObject* args)
+static PyObject* music_play(PyObject* self, PyObject* args)
 {
 	int loops = 0;
 	int val;
@@ -107,7 +107,7 @@ static PyObject* play(PyObject* self, PyObject* args)
     /*DOC*/    "Returns true if music is currently playing\n"
     /*DOC*/ ;
 
-static PyObject* get_busy(PyObject* self, PyObject* args)
+static PyObject* music_get_busy(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -126,7 +126,7 @@ static PyObject* get_busy(PyObject* self, PyObject* args)
     /*DOC*/    "milliseconds.\n"
     /*DOC*/ ;
 
-static PyObject* fadeout(PyObject* self, PyObject* args)
+static PyObject* music_fadeout(PyObject* self, PyObject* args)
 {
 	int time;
 	if(!PyArg_ParseTuple(args, "i", &time))
@@ -146,7 +146,7 @@ static PyObject* fadeout(PyObject* self, PyObject* args)
     /*DOC*/    "Stops playback of the current music.\n"
     /*DOC*/ ;
 
-static PyObject* stop(PyObject* self, PyObject* args)
+static PyObject* music_stop(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -165,7 +165,7 @@ static PyObject* stop(PyObject* self, PyObject* args)
     /*DOC*/    "Temporarily stops the current music.\n"
     /*DOC*/ ;
 
-static PyObject* pause(PyObject* self, PyObject* args)
+static PyObject* music_pause(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -184,7 +184,7 @@ static PyObject* pause(PyObject* self, PyObject* args)
     /*DOC*/    "Restarts playback of the current music object when paused.\n"
     /*DOC*/ ;
 
-static PyObject* unpause(PyObject* self, PyObject* args)
+static PyObject* music_unpause(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -203,7 +203,7 @@ static PyObject* unpause(PyObject* self, PyObject* args)
     /*DOC*/    "Restarts playback of the current music.\n"
     /*DOC*/ ;
 
-static PyObject* mus_rewind(PyObject* self, PyObject* args)
+static PyObject* music_rewind(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -223,7 +223,7 @@ static PyObject* mus_rewind(PyObject* self, PyObject* args)
     /*DOC*/    "between 0.0 and 1.0.\n"
     /*DOC*/ ;
 
-static PyObject* set_volume(PyObject* self, PyObject* args)
+static PyObject* music_set_volume(PyObject* self, PyObject* args)
 {
 	float volume;
 
@@ -245,7 +245,7 @@ static PyObject* set_volume(PyObject* self, PyObject* args)
     /*DOC*/    "between 0.0 and 1.0.\n"
     /*DOC*/ ;
 
-static PyObject* get_volume(PyObject* self, PyObject* args)
+static PyObject* music_get_volume(PyObject* self, PyObject* args)
 {
 	int volume;
 
@@ -268,7 +268,7 @@ static PyObject* get_volume(PyObject* self, PyObject* args)
     /*DOC*/    "Value is in ms, just like get_ticks().\n"
     /*DOC*/ ;
 
-static PyObject* get_pos(PyObject* self, PyObject* args)
+static PyObject* music_get_pos(PyObject* self, PyObject* args)
 {
 	long ticks;
 
@@ -300,7 +300,7 @@ static PyObject* get_pos(PyObject* self, PyObject* args)
     /*DOC*/    "will be called every time the music finished playing.\n"
     /*DOC*/ ;
 
-static PyObject* set_endevent(PyObject* self, PyObject* args)
+static PyObject* music_set_endevent(PyObject* self, PyObject* args)
 {
 	int eventid = SDL_NOEVENT;
 
@@ -322,7 +322,7 @@ static PyObject* set_endevent(PyObject* self, PyObject* args)
     /*DOC*/    "will return the id of the current music finishe event.\n"
     /*DOC*/ ;
 
-static PyObject* get_endevent(PyObject* self, PyObject* args)
+static PyObject* music_get_endevent(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -341,7 +341,7 @@ static PyObject* get_endevent(PyObject* self, PyObject* args)
     /*DOC*/    "supports filenames, not file-like objects.\n"
     /*DOC*/ ;
 
-static PyObject* load(PyObject* self, PyObject* args)
+static PyObject* music_load(PyObject* self, PyObject* args)
 {
 #if 0
 /*argh, can't do it this way, SDL_mixer doesn't support music RWops*/
@@ -404,21 +404,21 @@ static PyObject* load(PyObject* self, PyObject* args)
 
 static PyMethodDef music_builtins[] =
 {
-	{ "set_endevent", set_endevent, 1, doc_set_endevent },
-	{ "get_endevent", get_endevent, 1, doc_get_endevent },
+	{ "set_endevent", music_set_endevent, 1, doc_set_endevent },
+	{ "get_endevent", music_get_endevent, 1, doc_get_endevent },
 
-	{ "play", play, 1, doc_play },
-	{ "get_busy", get_busy, 1, doc_get_busy },
-	{ "fadeout", fadeout, 1, doc_fadeout },
-	{ "stop", stop, 1, doc_stop },
-	{ "pause", pause, 1, doc_pause },
-	{ "unpause", unpause, 1, doc_unpause },
-	{ "rewind", mus_rewind, 1, doc_rewind },
-	{ "set_volume", set_volume, 1, doc_set_volume },
-	{ "get_volume", get_volume, 1, doc_get_volume },
-	{ "get_pos", get_pos, 1, doc_get_pos },
+	{ "play", music_play, 1, doc_play },
+	{ "get_busy", music_get_busy, 1, doc_get_busy },
+	{ "fadeout", music_fadeout, 1, doc_fadeout },
+	{ "stop", music_stop, 1, doc_stop },
+	{ "pause", music_pause, 1, doc_pause },
+	{ "unpause", music_unpause, 1, doc_unpause },
+	{ "rewind", music_rewind, 1, doc_rewind },
+	{ "set_volume", music_set_volume, 1, doc_set_volume },
+	{ "get_volume", music_get_volume, 1, doc_get_volume },
+	{ "get_pos", music_get_pos, 1, doc_get_pos },
 
-	{ "load", load, 1, doc_load },
+	{ "load", music_load, 1, doc_load },
 
 	{ NULL, NULL }
 };
