@@ -50,7 +50,7 @@ static SDL_RWops* RWopsFromPython(PyObject* obj)
 	RWHelper* helper;
 
 	if(!obj)
-		return RAISE(PyExc_TypeError, "Invalid filetype object");
+		return (SDL_RWops*)RAISE(PyExc_TypeError, "Invalid filetype object");
 
 	if(PyString_Check(obj))
 		rw = SDL_RWFromFile(PyString_AsString(obj), "rb");
