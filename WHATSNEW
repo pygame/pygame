@@ -4,6 +4,7 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+pygame-11
 Jun 23, 2001
 	removed smooth underline font render protection
 
