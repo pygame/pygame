@@ -501,10 +501,10 @@ class RenderUpdates(RenderClear):
         dirty_append = dirty.append
         for s, r in spritedict.items():
             newrect = surface_blit(s.image, s.rect)
-            if r is not 0:
-                dirty_append(newrect.union(r))
-            else:
+            if r is 0:
                 dirty_append(newrect)
+            else:
+                dirty_append(newrect.union(r))
             spritedict[s] = newrect
         return dirty
 
@@ -541,8 +541,9 @@ def groupcollide(groupa, groupb, dokilla, dokillb):
        the sprites from either group will be automatically
        removed from all groups."""
     crashed = {}
+    SC = spritecollide
     for s in groupa.sprites():
-        c = spritecollide(s, groupb, dokillb)
+        c = SC(s, groupb, dokillb)
         if c:
             crashed[s] = c
             if dokilla: s.kill()
