@@ -192,7 +192,7 @@ def findtutorials():
     tuts1 =  glob.glob('../tut/*.html')
     tuts1.sort()
     tuts2 = ['tut/' + os.path.split(x)[1] for x in tuts1]
-    tuts3 = [os.path.splitext(x)[0] for x in tuts2]
+    tuts3 = [os.path.split(os.path.splitext(x)[0])[-1] for x in tuts2]
     tuts4 = [open(x).readlines(2)[1] for x in tuts1]
     tuts = [fileline%(x[0],x[1],x[2][9:]) for x in zip(tuts2, tuts3, tuts4) if x[2].startswith('TUTORIAL:')]
     finaltut = tuthead + '\n'.join(tuts)
@@ -228,7 +228,7 @@ def htmlize(doc, obj, func):
                 start += 1
             match = lookupdoc(func, lookname, obj['category'])
             if not match:
-                print 'NOMATCH: "'+ obj['category'] +'" "' + lookname + '"'
+                #print 'NOMATCH: "'+ obj['category'] +'" "' + lookname + '"'
                 continue
             end = line.find(')', pos)+1
             if match['fullname'] == obj['fullname']:
