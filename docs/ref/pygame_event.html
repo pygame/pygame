@@ -124,6 +124,10 @@ name for event type</td></tr>
 get all of an event type from the queue</td></tr>
 
 
+<tr><td><a href=#get_blocked>get_blocked</a></td><td> -
+checks if an event is being blocked</td></tr>
+
+
 <tr><td><a href=#get_grab>get_grab</a></td><td> -
 query the state of input grabbing</td></tr>
 
@@ -196,6 +200,15 @@ types are passed, this will return all the events from the queue.
 You may also optionally pass a sequence of event types. For
 example, to fetch all the keyboard events from the queue, you
 would call, '<u>pygame.event.get([KEYDOWN,KEYUP])</u>'.
+</ul><br>&nbsp;<br>
+
+<a name=get_blocked><font size=+2><b>get_blocked
+</b></font><br><font size=+1><tt>
+pygame.event.get_blocked(type) -> boolean
+</tt></font><ul>
+This returns a true value if the given event type is being blocked
+from the queue. You can optionally pass a sequence of event types,
+and it will return TRUE if any of the types are blocked.
 </ul><br>&nbsp;<br>
 
 <a name=get_grab><font size=+2><b>get_grab

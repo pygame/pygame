@@ -20,6 +20,15 @@
     pete@shinners.org
 */
 
+/**
+COMPILE_INFO_BEGIN
+	module = surface
+	libs = sdl
+	source = 
+	required = 1
+COMPILE_INFO_END
+**/
+
 /*
  *  pygame Surface module
  */

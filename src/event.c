@@ -37,7 +37,6 @@
 typedef struct UserEventObject
 {
 	struct UserEventObject* next;
-	Uint8 realtype;
 	PyObject* object;
 }UserEventObject;
 
@@ -45,7 +44,7 @@ static UserEventObject* user_event_objects = NULL;
 
 
 /*must pass dictionary as this object*/
-static UserEventObject* user_event_addobject(PyObject* obj, Uint8 realtype)
+static UserEventObject* user_event_addobject(PyObject* obj)
 {
 	UserEventObject* userobj = PyMem_New(UserEventObject, 1);
 	if(!userobj) return NULL;
@@ -53,7 +52,6 @@ static UserEventObject* user_event_addobject(PyObject* obj, Uint8 realtype)
 	Py_INCREF(obj);
 	userobj->next = user_event_objects;
 	userobj->object = obj;
-	userobj->realtype = realtype;
 	user_event_objects = userobj;
 
 	return userobj;
@@ -62,7 +60,7 @@ static UserEventObject* user_event_addobject(PyObject* obj, Uint8 realtype)
 /*note, we doublecheck to make sure the pointer is in our list,
  *not just some random pointer. this should keep us safe(r).
  */
-static PyObject* user_event_getobject(UserEventObject* userobj, Uint8* type)
+static PyObject* user_event_getobject(UserEventObject* userobj)
 {
 	PyObject* obj = NULL;
 	if(!user_event_objects) /*fail in most common case*/
@@ -84,10 +82,7 @@ static PyObject* user_event_getobject(UserEventObject* userobj, Uint8* type)
 		}
 	}
 	if(obj)
-	{
-		*type = userobj->realtype;
 		PyMem_Del(userobj);
-	}
 	return obj;
 }
 
@@ -124,15 +119,15 @@ static char* name_from_eventtype(int type)
 	{
 	case SDL_ACTIVEEVENT:	return "ActiveEvent";
 	case SDL_KEYDOWN:		return "KeyDown";
-	case SDL_KEYUP:			return "KeyUp";
+	case SDL_KEYUP: 		return "KeyUp";
 	case SDL_MOUSEMOTION:	return "MouseMotion";
 	case SDL_MOUSEBUTTONDOWN:return "MouseButtonDown";
-	case SDL_MOUSEBUTTONUP:	return "MouseButtonUp";
-	case SDL_JOYAXISMOTION:	return "JoyAxisMotion";
-	case SDL_JOYBALLMOTION:	return "JoyBallMotion";
+	case SDL_MOUSEBUTTONUP: return "MouseButtonUp";
+	case SDL_JOYAXISMOTION: return "JoyAxisMotion";
+	case SDL_JOYBALLMOTION: return "JoyBallMotion";
 	case SDL_JOYHATMOTION:	return "JoyHatMotion";
 	case SDL_JOYBUTTONUP:	return "JoyButtonUp";
-	case SDL_JOYBUTTONDOWN:	return "JoyButtonDown";
+	case SDL_JOYBUTTONDOWN: return "JoyButtonDown";
 	case SDL_QUIT:			return "Quit";
 	case SDL_SYSWMEVENT:	return "SysWMEvent";
 	case SDL_VIDEORESIZE:	return "VideoResize";
@@ -157,16 +152,15 @@ static void insobj(PyObject *dict, char *name, PyObject *v)
 }
 
 
-static PyObject* dict_from_event(SDL_Event* event, Uint8* newtype)
+static PyObject* dict_from_event(SDL_Event* event)
 {
 	PyObject *dict=NULL, *tuple, *obj;
 	int hx, hy;
 
 	/*check if it is an event the user posted*/
-	if(event->type == 123 && event->user.code == USEROBJECT_CHECK1 &&
-				event->user.data1 == (void*)USEROBJECT_CHECK2)
+	if(event->user.code == USEROBJECT_CHECK1 && event->user.data1 == (void*)USEROBJECT_CHECK2)
 	{
-		dict = user_event_getobject((UserEventObject*)event->user.data2, newtype);
+		dict = user_event_getobject((UserEventObject*)event->user.data2);
 		if(dict)
 			return dict;
 	}
@@ -357,9 +351,9 @@ static PyTypeObject PyEvent_Type =
 	NULL,					/*as_number*/
 	NULL,					/*as_sequence*/
 	NULL,					/*as_mapping*/
-	(hashfunc)NULL,			/*hash*/
+	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
-	(reprfunc)NULL,			/*str*/
+	(reprfunc)NULL, 		/*str*/
 	0L,0L,0L,0L,
 	doc_pygame_event_EXTRA /* Documentation string */
 };
@@ -369,14 +363,12 @@ static PyTypeObject PyEvent_Type =
 static PyObject* PyEvent_New(SDL_Event* event)
 {
 	PyEventObject* e;
-	Uint8 realtype;
 	e = PyObject_NEW(PyEventObject, &PyEvent_Type);
 
 	if(e)
 	{
-		realtype = event->type;
-		e->dict = dict_from_event(event, &realtype);
-		e->type = realtype;
+		e->type = event->type;
+		e->dict = dict_from_event(event);
 	}
 	return (PyObject*)e;
 }
@@ -744,11 +736,11 @@ static PyObject* post(PyObject* self, PyObject* args)
 
 	VIDEO_INIT_CHECK();
 
-	userobj = user_event_addobject(e->dict, (Uint8)e->type);
+	userobj = user_event_addobject(e->dict);
 	if(!userobj)
 		return NULL;
 
-	event.type = 123;
+	event.type = e->type;
 	event.user.code = USEROBJECT_CHECK1;
 	event.user.data1 = (void*)USEROBJECT_CHECK2;
 	event.user.data2 = userobj;
@@ -840,6 +832,47 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 }
 
 
+    /*DOC*/ static char doc_get_blocked[] =
+    /*DOC*/    "pygame.event.get_blocked(type) -> boolean\n"
+    /*DOC*/    "checks if an event is being blocked\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This returns a true value if the given event type is being blocked\n"
+    /*DOC*/    "from the queue. You can optionally pass a sequence of event types,\n"
+    /*DOC*/    "and it will return TRUE if any of the types are blocked.\n"
+    /*DOC*/ ;
+
+static PyObject* get_blocked(PyObject* self, PyObject* args)
+{
+	int loop, num;
+	PyObject* type;
+	short val;
+	int isblocked = 0;
+
+	if(PyTuple_Size(args) != 1)
+		return RAISE(PyExc_ValueError, "set_blocked requires 1 argument");
+
+	VIDEO_INIT_CHECK();
+
+	type = PyTuple_GET_ITEM(args, 0);
+	if(PySequence_Check(type))
+	{
+		num = PySequence_Length(type);
+		for(loop=0; loop<num; ++loop)
+		{
+			if(!ShortFromObjIndex(type, loop, &val))
+				return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
+			isblocked |= SDL_EventState((Uint8)val, SDL_QUERY) == SDL_IGNORE;
+		}
+	}
+	else if(ShortFromObj(type, &val))
+		isblocked = SDL_EventState((Uint8)val, SDL_QUERY) == SDL_IGNORE;
+	else
+		return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
+
+	return PyInt_FromLong(isblocked);
+}
+
+
 
 static PyMethodDef event_builtins[] =
 {
@@ -858,6 +891,7 @@ static PyMethodDef event_builtins[] =
 
 	{ "set_allowed", set_allowed, 1, doc_set_allowed },
 	{ "set_blocked", set_blocked, 1, doc_set_blocked },
+	{ "get_blocked", get_blocked, 1, doc_get_blocked },
 
 	{ NULL, NULL }
 };
