@@ -292,9 +292,6 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 		RETURN_NONE;
 	offset += startframe;
 	length = min(length-startframe, endframe-startframe);
-printf("CDPLAY: %d to %d  (track=%d to %d)\n", offset, length,
-(int)cdrom->track[track].offset,
-(int)cdrom->track[track].length);
 	result = SDL_CDPlay(cdrom, offset, length);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());

@@ -506,8 +506,8 @@ static PyObject* rect(PyObject* self, PyObject* arg)
 	if(!(rect = GameRect_FromObject(rectobj, &temp)))
 		return RAISE(PyExc_TypeError, "Rect argument is invalid");
 
-	l = rect->x; r = rect->x + rect->w;
-	t = rect->y; b = rect->y + rect->h;
+	l = rect->x; r = rect->x + rect->w - 1;
+	t = rect->y; b = rect->y + rect->h - 1;
 
 	/*build the pointlist*/
 	points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);

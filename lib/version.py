@@ -27,7 +27,7 @@ The python version information should always compare greater than any previous
 releases. (hmm, until we get to versions > 10)
 """
 
-ver = '1.4'
+ver = '1.4.1'
 
 def __hiddendummyfunc():
     """pygame.version.ver 
