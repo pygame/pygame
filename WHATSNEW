@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 12, 2003
+	Brett Calcott's quick fix for 'trunc' on visualc
+
 May 10, 2003
 	fix Derek Simkowiak's find of problem alphas
 

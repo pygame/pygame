@@ -26,6 +26,18 @@
 #include "pygame.h"
 #include <math.h>
 
+#ifdef _MSC_VER
+#pragma warning (disable:4244)
+
+float trunc(float d)
+{
+    if (d >= 0)
+        return floor(d);
+    return ceil(d);
+}
+
+#endif
+
 #define FRAC(z) (z-trunc(z))
 #define INVFRAC(z) (1-(z-trunc(z)))
 
