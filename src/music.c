@@ -85,7 +85,7 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 {
 	int loops=0;
         float startpos=0.0;
-	int val, volume;
+	int val, volume=0;
 
 	if(!PyArg_ParseTuple(args, "|if", &loops, &startpos))
 		return NULL;
@@ -99,9 +99,9 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 	Mix_QuerySpec(&music_frequency, &music_format, &music_channels);
 	music_pos = 0;
 	music_pos_time = SDL_GetTicks();
-	volume = Mix_VolumeMusic(-1);
 
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
+	volume = Mix_VolumeMusic(-1);
 	val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
 	Mix_VolumeMusic(volume);
 #else
@@ -248,7 +248,7 @@ static PyObject* music_set_volume(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-	Mix_VolumeMusic((int)(volume*127));
+	Mix_VolumeMusic((int)(volume*128));
 	RETURN_NONE
 }
 
@@ -271,7 +271,7 @@ static PyObject* music_get_volume(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	volume = Mix_VolumeMusic(-1);
-	return PyFloat_FromDouble(volume / 127.0);
+	return PyFloat_FromDouble(volume / 128.0);
 }
 
 
