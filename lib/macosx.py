@@ -1,67 +1,58 @@
-import objc
 from Foundation import NSObject, NSLog, NSBundle, NSDictionary
-from AppKit import NSApplicationDelegate, NSTerminateLater, NSApplication, NSCriticalRequest, NSImage, NSApp, NSMenu, NSMenuItem
+from AppKit import NSAppleMenuController, NSApplicationDelegate, NSTerminateLater, NSApplication, NSImage, NSMenu, NSMenuItem
 import os, sys
 import pygame
 from pygame.pkgdata import getResourcePath
 
-# Make a good guess at the name of the application
-if len(sys.argv) > 1:
-    MyAppName = os.path.splitext(sys.argv[1])[0]
-else:
-    MyAppname = 'pygame'
-    
+__all__ = ['install']
+
 # Need to do this if not running with a nib
-def setupAppleMenu():
-    appleMenuController = objc.lookUpClass('NSAppleMenuController').alloc().init()
+def setupAppleMenu(app):
+    appleMenuController = NSAppleMenuController.alloc().init()
     appleMenu = NSMenu.alloc().initWithTitle_('')
     appleMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('', None, '')
     appleMenuItem.setSubmenu_(appleMenu)
-    NSApp().mainMenu().addItem_(appleMenuItem)
+    app.mainMenu().addItem_(appleMenuItem)
     appleMenuController.controlMenu_(appleMenu)
-    NSApp().mainMenu().removeItem_(appleMenuItem)
+    app.mainMenu().removeItem_(appleMenuItem)
     
 # Need to do this if not running with a nib
-def setupWindowMenu():
+def setupWindowMenu(app):
     windowMenu = NSMenu.alloc().initWithTitle_('Window')
     menuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Minimize', 'performMiniaturize:', 'm')
     windowMenu.addItem_(menuItem)
-    del menuItem
     windowMenuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_('Window', None, '')
     windowMenuItem.setSubmenu_(windowMenu)
-    NSApp().mainMenu().addItem_(windowMenuItem)
-    NSApp().setWindowsMenu_(windowMenu)
+    app.mainMenu().addItem_(windowMenuItem)
+    app.setWindowsMenu_(windowMenu)
 
 # Used to cleanly terminate
-class MyAppDelegate(NSObject, NSApplicationDelegate):
-    def init(self):
-        return self
-
-    def applicationDidFinishLaunching_(self, aNotification):
-        pass
-
+class PyGameAppDelegate(NSObject, NSApplicationDelegate):
     def applicationShouldTerminate_(self, app):
-        pygame.event.post(pygame.event.Event(pyame.QUIT))
+        pygame.event.post(pygame.event.Event(pygame.QUIT))
         return NSTerminateLater
 
-# Start it up!
-app = NSApplication.sharedApplication()
-try:
-    defaultIcon = getResourcePath('pygame_icon.tiff')
-except IOError:
-    pass
-else:
-    img = NSImage.alloc().initWithContentsOfFile_(defaultIcon)
-    if img:
-        app.setApplicationIconImage_(img)
+def setIcon(app):
+    try:
+        defaultIcon = getResourcePath('pygame_icon.tiff')
+    except IOError:
+        pass
+    else:
+        img = NSImage.alloc().initWithContentsOfFile_(defaultIcon)
+        if img:
+            app.setApplicationIconImage_(img)
 
-DELEGATE = MyAppDelegate.alloc().init()
-app.setDelegate_(DELEGATE)
-if not app.mainMenu():
-    mainMenu = NSMenu.alloc().init()
-    app.setMainMenu_(mainMenu)
-    setupAppleMenu()
-    setupWindowMenu()
-app.finishLaunching()
-app.updateWindows()
-app.activateIgnoringOtherApps_(objc.YES)
+def install():
+    global _applicationDelegate
+    app = NSApplication.sharedApplication()
+    setIcon(app)
+    _applicationDelegate = PyGameAppDelegate.alloc().init()
+    app.setDelegate_(_applicationDelegate)
+    if not app.mainMenu():
+        mainMenu = NSMenu.alloc().init()
+        app.setMainMenu_(mainMenu)
+        setupAppleMenu(app)
+        setupWindowMenu(app)
+    app.finishLaunching()
+    app.updateWindows()
+    app.activateIgnoringOtherApps_(True)

@@ -3,7 +3,7 @@ from AppKit import NSTerminateNow, NSApp, NSRunAlertPanel
 from PyObjCTools import NibClassBuilder, AppHelper
 
 def exception_handler():
-    import traceback
+    import traceback, sys, os
     typ, info, trace = sys.exc_info()
     if typ in (KeyboardInterrupt, SystemExit):
         return
@@ -20,10 +20,10 @@ def exception_handler():
 NibClassBuilder.extractClasses("MainMenu")
 class PygameAppDelegate(NibClassBuilder.AutoBaseClass):
     def applicationDidFinishLaunching_(self, aNotification):
-        import pkgdata_nsbundle
-        import os
-        os.chdir(NSBundle.mainBundle().resourcePath())
         try:
+            import pkgdata_nsbundle
+            import os
+            os.chdir(NSBundle.mainBundle().resourcePath())
             import aliens
             aliens.main()
         except:
