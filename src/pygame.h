@@ -117,7 +117,7 @@ static int PyModule_AddObject(PyObject *m, char *name, PyObject *o)
 
 /* BASE */
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 10
+#define PYGAMEAPI_BASE_NUMSLOTS 13
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 #define PyGame_RegisterQuit \
@@ -128,16 +128,22 @@ static int PyModule_AddObject(PyObject *m, char *name, PyObject *o)
 			(*(int(*)(PyObject*, int, short*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 3])
 #define TwoShortsFromObj \
 			(*(int(*)(PyObject*, short*, short*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 4])
+#define FloatFromObj \
+			(*(int(*)(PyObject*, float*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 5])
+#define FloatFromObjIndex \
+			(*(float(*)(PyObject*, int, float*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 6])
+#define TwoFloatsFromObj \
+			(*(int(*)(PyObject*, float*, float*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 7])
 #define UintFromObj \
-			(*(int(*)(PyObject*, Uint32*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 5])
+			(*(int(*)(PyObject*, Uint32*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 8])
 #define UintFromObjIndex \
-			(*(int(*)(PyObject*, int, Uint32*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 6])
+			(*(int(*)(PyObject*, int, Uint32*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 9])
 #define PyGame_Video_AutoQuit \
-			(*(void(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 7])
+			(*(void(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 10])
 #define PyGame_Video_AutoInit \
-			(*(int(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 8])
+			(*(int(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 11])
 #define RGBAFromObj \
-			(*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 9])
+			(*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
 #define import_pygame_base() { \
 	PyObject *module = PyImport_ImportModule("pygame.base"); \
 	if (module != NULL) { \

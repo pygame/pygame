@@ -24,17 +24,104 @@
  *  drawing module for pygame
  */
 #include "pygame.h"
+#include <math.h>
+
+#define FRAC(z) (z-trunc(z))
+#define INVFRAC(z) (1-(z-trunc(z)))
 
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts);
+static int clip_and_draw_aaline(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, float* pts, int blend);
 static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int width, int* pts);
 static int clipline(int* pts, int left, int top, int right, int bottom);
+static int clipaaline(float* pts, int left, int top, int right, int bottom);
 static void drawline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx, int endy);
+static void drawaaline(SDL_Surface* surf, Uint32 color, float startx, float starty, float endx, float endy,
+		int blend);
 static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx);
 static void drawvertline(SDL_Surface* surf, Uint32 color, int x1, int y1, int y2);
 static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
 static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
 static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
 
+
+    /*DOC*/ static char doc_aaline[] =
+    /*DOC*/    "pygame.draw.aaline(Surface, color, startpos, endpos, blend=1) -> Rect\n"
+    /*DOC*/    "draw a line on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws an anti-aliased line on a surface. This will respect the\n"
+    /*DOC*/    "clipping rectangle. A bounding box of the effected area is returned\n"
+    /*DOC*/    "returned as a rectangle.  The if blend is true, the shades will be\n"
+    /*DOC*/    "be blended with existing pixel shades instead of overwriting them.\n"
+    /*DOC*/    "This function accepts floating point values for the end points.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument must be a RGB sequence.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* aaline(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj, *start, *end;
+	SDL_Surface* surf;
+	float startx, starty, endx, endy;
+	int top, left, bottom, right;
+	int blend=1;
+	float pts[4];
+	Uint8 rgba[4];
+	Uint32 color;
+	int anydraw;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!OOO|i", &PySurface_Type, &surfobj, &colorobj, &start, &end, &blend))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+
+	if(surf->format->BytesPerPixel !=3 && surf->format->BytesPerPixel != 4)
+		return RAISE(PyExc_ValueError, "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
+
+	if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
+
+	if(!TwoFloatsFromObj(start, &startx, &starty))
+		return RAISE(PyExc_TypeError, "Invalid start position argument");
+	if(!TwoFloatsFromObj(end, &endx, &endy))
+		return RAISE(PyExc_TypeError, "Invalid end position argument");
+
+	if(!PySurface_Lock(surfobj)) return NULL;
+
+	pts[0] = startx; pts[1] = starty;
+	pts[2] = endx; pts[3] = endy;
+	anydraw = clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
+
+	if(!PySurface_Unlock(surfobj)) return NULL;
+
+	/*compute return rect*/
+	if(!anydraw)
+		return PyRect_New4((short)(startx), (short)(starty), 0, 0);
+	if(pts[0] < pts[2])
+	{
+		left = (int)(pts[0]);
+		right = (int)(pts[2]);
+	}
+	else
+	{
+		left = (int)(pts[2]);
+		right = (int)(pts[0]);
+	}
+	if(pts[1] < pts[3])
+	{
+		top = (int)(pts[1]);
+		bottom = (int)(pts[3]);
+	}
+	else
+	{
+		top = (int)(pts[3]);
+		bottom = (int)(pts[1]);
+	}
+	return PyRect_New4((short)left, (short)top, (short)(right-left+2), (short)(bottom-top+2));
+}
 
     /*DOC*/ static char doc_line[] =
     /*DOC*/    "pygame.draw.line(Surface, color, startpos, endpos, width=1) -> Rect\n"
@@ -120,6 +207,113 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	return PyRect_New4((short)left, (short)top, (short)(right-left+1), (short)(bottom-top+1));
 }
 
+
+    /*DOC*/ static char doc_aalines[] =
+    /*DOC*/    "pygame.draw.aalines(Surface, color, closed, point_array, blend=1) -> Rect\n"
+    /*DOC*/    "draw multiple connected anti-aliased lines on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws a sequence on a surface. You must pass at least two points\n"
+    /*DOC*/    "in the sequence of points. The closed argument is a simple boolean\n"
+    /*DOC*/    "and if true, a line will be draw between the first and last points.\n"
+    /*DOC*/    "The boolean blend argument set to true will blend the shades with\n"
+    /*DOC*/    "existing shades instead of overwriting them.\n"
+    /*DOC*/    "This function accepts floating point values for the end points.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
+    /*DOC*/    "effected area is returned as a rectangle.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument must be an RGB sequence.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* aalines(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj, *closedobj, *points, *item;
+	SDL_Surface* surf;
+	float x, y;
+	int top, left, bottom, right;
+	float pts[4];
+	Uint8 rgba[4];
+	Uint32 color;
+	int closed, blend;
+	int result, loop, length, drawn;
+	float startx, starty;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!OOO|i", &PySurface_Type, &surfobj, &colorobj, &closedobj,
+		&points, &blend))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+	
+	if(surf->format->BytesPerPixel !=3 && surf->format->BytesPerPixel != 4)
+		return RAISE(PyExc_ValueError, "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
+
+	if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
+
+	closed = PyObject_IsTrue(closedobj);
+
+	if(!PySequence_Check(points))
+		return RAISE(PyExc_TypeError, "points argument must be a sequence of number pairs");
+	length = PySequence_Length(points);
+	if(length < 2)
+		return RAISE(PyExc_ValueError, "points argument must contain more than 1 points");
+
+	item = PySequence_GetItem(points, 0);
+	result = TwoFloatsFromObj(item, &x, &y);
+	Py_DECREF(item);
+	if(!result) return RAISE(PyExc_TypeError, "points must be number pairs");
+
+	startx = pts[0] = x;
+	starty = pts[1] = y;
+	left = right = (int)x;
+	top = bottom = (int)y;
+
+	if(!PySurface_Lock(surfobj)) return NULL;
+
+	drawn = 1;
+	for(loop = 1; loop < length; ++loop)
+	{
+		item = PySequence_GetItem(points, loop);
+		result = TwoFloatsFromObj(item, &x, &y);
+		Py_DECREF(item);
+		if(!result) continue; /*note, we silently skip over bad points :[ */
+		++drawn;
+		pts[0] = startx;
+		pts[1] = starty;
+		startx = pts[2] = x;
+		starty = pts[3] = y;
+		if(clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend))
+		{
+			left = min((int)min(pts[0], pts[2]), left);
+			top = min((int)min(pts[1], pts[3]), top);
+			right = max((int)max(pts[0], pts[2]), right);
+			bottom = max((int)max(pts[1], pts[3]), bottom);
+		}
+	}
+	if(closed && drawn > 2)
+	{
+		item = PySequence_GetItem(points, 0);
+		result = TwoFloatsFromObj(item, &x, &y);
+		Py_DECREF(item);
+		if(result)
+		{
+			pts[0] = startx;
+			pts[1] = starty;
+			pts[2] = x;
+			pts[3] = y;
+			clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend);
+		}
+	}
+
+	if(!PySurface_Unlock(surfobj)) return NULL;
+
+	/*compute return rect*/
+	return PyRect_New4((short)left, (short)top, (short)(right-left+2), (short)(bottom-top+2));
+}
 
     /*DOC*/ static char doc_lines[] =
     /*DOC*/    "pygame.draw.lines(Surface, color, closed, point_array, width=1) -> Rect\n"
@@ -525,6 +719,14 @@ static PyObject* rect(PyObject* self, PyObject* arg)
 
 /*internal drawing tools*/
 
+static int clip_and_draw_aaline(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, float* pts, int blend)
+{
+	if(!clipaaline(pts, rect->x+1, rect->y+1, rect->x+rect->w-2, rect->y+rect->h-2))
+		return 0;
+	drawaaline(surf, color, pts[0], pts[1], pts[2], pts[3], blend);
+	return 1;
+}
+
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts)
 {
 	if(!clipline(pts, rect->x, rect->y, rect->x+rect->w-1, rect->y+rect->h-1))
@@ -617,6 +819,75 @@ static int encode(int x, int y, int left, int top, int right, int bottom)
 	if(y < top)   code |= TOP_EDGE;
 	if(y > bottom)code |= BOTTOM_EDGE;
 	return code;
+}
+
+static int encodeFloat(float x, float y, int left, int top, int right, int bottom)
+{
+	int code = 0;
+	if(x < left)  code |= LEFT_EDGE;
+	if(x > right) code |= RIGHT_EDGE;
+	if(y < top)   code |= TOP_EDGE;
+	if(y > bottom)code |= BOTTOM_EDGE;
+	return code;
+}
+
+static int clipaaline(float* pts, int left, int top, int right, int bottom)
+{
+	float x1 = pts[0];
+	float y1 = pts[1];
+	float x2 = pts[2];
+	float y2 = pts[3];
+	int code1, code2;
+	int draw = 0;
+	float swaptmp;
+	int intswaptmp;
+	float m; /*slope*/
+
+	while(1) {
+		code1 = encodeFloat(x1, y1, left, top, right, bottom);
+		code2 = encodeFloat(x2, y2, left, top, right, bottom);
+		if(ACCEPT(code1, code2)) {
+			draw = 1;
+			break;
+		}
+		else if(REJECT(code1, code2)) {
+			break;
+		}
+		else {
+			if(INSIDE(code1)) {
+				swaptmp = x2; x2 = x1; x1 = swaptmp;
+				swaptmp = y2; y2 = y1; y1 = swaptmp;
+				intswaptmp = code2; code2 = code1; code1 = intswaptmp;
+			}
+			if(x2 != x1)	  
+				m = (y2 - y1) / (x2 - x1);
+			else
+				m = 1.0f;
+			if(code1 & LEFT_EDGE) {
+				y1 += ((float)left - x1) * m;
+				x1 = (float)left; 
+			} 
+			else if(code1 & RIGHT_EDGE) {
+				y1 += ((float)right - x1) * m;
+				x1 = (float)right; 
+			} 
+			else if(code1 & BOTTOM_EDGE) {
+				if(x2 != x1)
+					x1 += ((float)bottom - y1) / m;
+				y1 = (float)bottom;
+			} 
+			else if(code1 & TOP_EDGE) {
+				if(x2 != x1)
+					x1 += ((float)top - y1) / m;
+				y1 = (float)top;
+			} 
+		}
+	}
+	if(draw) {
+		pts[0] = x1; pts[1] = y1;
+		pts[2] = x2; pts[3] = y2;
+	}
+	return draw;
 }
 
 static int clipline(int* pts, int left, int top, int right, int bottom)
@@ -714,6 +985,124 @@ static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
 }
 
 
+#define DRAWPIX32(pixel,colorptr,br,blend) \
+	if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8; \
+	if(blend) { \
+		short x; \
+		x = colorptr[0]*br+pixel[0]; \
+		pixel[0]= (x>254) ? 255: x; \
+		x = colorptr[1]*br+pixel[1]; \
+		pixel[1]= (x>254) ? 255: x; \
+		x = colorptr[2]*br+pixel[2]; \
+		pixel[2]= (x>254) ? 255: x; \
+	} else { \
+		pixel[0]=(Uint8)(colorptr[0]*br); \
+		pixel[1]=(Uint8)(colorptr[1]*br); \
+		pixel[2]=(Uint8)(colorptr[2]*br); \
+	}
+
+/* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
+static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, float x2, float y2, int blend) {
+	float grad, xd, yd;
+   	float xgap, ygap, xend, yend, xf, yf;
+	float brightness1, brightness2;
+	float swaptmp;
+	int x, y, ix1, ix2, iy1, iy2;
+	int pixx, pixy;
+	Uint8* pixel;
+	Uint8* pm = (Uint8*)surf->pixels;
+	Uint8* colorptr = (Uint8*)&color;
+
+	pixx = surf->format->BytesPerPixel;
+	pixy = surf->pitch;
+
+	xd = x2-x1;
+	yd = y2-y1;
+	if(fabs(xd)>fabs(yd)) {
+		if(x1>x2) {
+			swaptmp=x1; x1=x2; x2=swaptmp;
+			swaptmp=y1; y1=y2; y2=swaptmp;
+			xd = (x2-x1);
+			yd = (y2-y1);
+		}
+		grad = yd/xd;
+		xend = trunc(x1)+0.5; /* This makes more sense than trunc(x1+0.5) */
+		yend = y1+grad*(xend-x1);
+		xgap = INVFRAC(x1);
+		ix1 = (int)xend;
+		iy1 = (int)yend;
+		yf = yend+grad;
+		brightness1 = INVFRAC(yend) * xgap;
+		brightness2 =    FRAC(yend) * xgap;
+		pixel = pm + pixx * ix1 + pixy * iy1;
+		DRAWPIX32(pixel, colorptr, brightness1, blend)
+		pixel += pixy;
+		DRAWPIX32(pixel, colorptr, brightness2, blend)
+		xend = trunc(x2)+0.5;
+		yend = y2+grad*(xend-x2);
+		xgap =    FRAC(x2); /* this also differs from Hugo's description. */
+		ix2 = (int)xend;
+		iy2 = (int)yend;
+		brightness1 = INVFRAC(yend) * xgap;
+		brightness2 =    FRAC(yend) * xgap;
+		pixel = pm + pixx * ix2 + pixy * iy2;
+		DRAWPIX32(pixel, colorptr, brightness1, blend)
+		pixel += pixy; 
+		DRAWPIX32(pixel, colorptr, brightness2, blend)
+		for(x=ix1+1; x<ix2; ++x) {
+			brightness1=INVFRAC(yf);
+			brightness2=   FRAC(yf);
+			pixel = pm + pixx * x + pixy * (int)yf;
+			DRAWPIX32(pixel, colorptr, brightness1, blend)
+			pixel += pixy;
+			DRAWPIX32(pixel, colorptr, brightness2, blend)
+			yf += grad;
+		}
+	}
+	else {
+		if(y1>y2) {
+			swaptmp=y1; y1=y2; y2=swaptmp;
+			swaptmp=x1; x1=x2; x2=swaptmp;
+			yd = (y2-y1);
+			xd = (x2-x1);
+		}
+		grad = xd/yd;
+		yend = trunc(y1)+0.5;  /* This makes more sense than trunc(x1+0.5) */
+		xend = x1+grad*(yend-y1);
+		ygap = INVFRAC(y1);
+		iy1 = (int)yend;
+		ix1 = (int)xend;
+		xf = xend+grad;
+		brightness1 = INVFRAC(xend) * ygap;
+		brightness2 =    FRAC(xend) * ygap;
+		pixel = pm + pixx * ix1 + pixy * iy1;
+		DRAWPIX32(pixel, colorptr, brightness1, blend)
+		pixel += pixx;
+		DRAWPIX32(pixel, colorptr, brightness2, blend)
+		yend = trunc(y2)+0.5; 
+		xend = x2+grad*(yend-y2);
+		ygap = FRAC(y2);
+		iy2 = (int)yend;
+		ix2 = (int)xend;
+		brightness1 = INVFRAC(xend) * ygap;
+		brightness2 =    FRAC(xend) * ygap;
+		pixel = pm + pixx * ix2 + pixy * iy2;
+		DRAWPIX32(pixel, colorptr, brightness1, blend)
+		pixel += pixx; 
+		DRAWPIX32(pixel, colorptr, brightness2, blend)
+		for(y=iy1+1; y<iy2; ++y) {
+			brightness1=INVFRAC(xf);
+			brightness2=   FRAC(xf);
+			pixel = pm + pixx * (int)xf + pixy * y;
+			DRAWPIX32(pixel, colorptr, brightness1, blend)
+			pixel += pixx;
+			DRAWPIX32(pixel, colorptr, brightness2, blend)
+			xf += grad;
+		}
+	}
+}
+
+
 /*here's my sdl'ized version of bresenham*/
 static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, int y2)
 {
@@ -766,7 +1155,7 @@ static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, in
 		}break;
 	default: /*case 4*/
 		for(; x < deltax; x++, pixel += pixx) {
-	   *(Uint32*)pixel = (Uint32)color;
+	        *(Uint32*)pixel = (Uint32)color;
 			y += deltay; if(y >= deltax) {y -= deltax; pixel += pixy;}
 		}break;
 	}
@@ -902,7 +1291,6 @@ static void drawvertlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, in
 	else
 		drawvertline(surf, color, x1, y1, y2);
 }
-
 
 static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
 {
@@ -1163,7 +1551,9 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 
 static PyMethodDef draw_builtins[] =
 {
+	{ "aaline", aaline, 1, doc_aaline },
 	{ "line", line, 1, doc_line },
+	{ "aalines", aalines, 1, doc_aalines },
 	{ "lines", lines, 1, doc_lines },
 	{ "ellipse", ellipse, 1, doc_ellipse },
 	{ "circle", circle, 1, doc_circle },
