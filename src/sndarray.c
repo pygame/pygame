@@ -43,7 +43,7 @@ static PyObject* sndarray_samples(PyObject* self, PyObject* arg)
 	Mix_Chunk* chunk;
 	Uint16 format;
         int numchannels;
-        
+
 	if(!PyArg_ParseTuple(arg, "O!", &PySound_Type, &chunkobj))
 		return NULL;
 	chunk = PySound_AsChunk(chunkobj);
@@ -121,7 +121,7 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     if(!PyArg_ParseTuple(arg, "O!", &PyArray_Type, &arrayobj))
 	return NULL;
     array = (PyArrayObject*)arrayobj;
-    
+
     if(!Mix_QuerySpec(NULL, &format, &numchannels))
         return RAISE(PyExc_SDLError, "Mixer not initialized");
     if(array->descr->type_num > PyArray_LONG)
@@ -131,7 +131,7 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
         mixerbytes = 1;
     else
         mixerbytes = 2;
-    
+
     /*test array dimensions*/
     if(numchannels==1)
     {
@@ -148,7 +148,7 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     length = array->dimensions[0];
     if(array->nd == 2)
         length2 = array->dimensions[1];
-    
+
     /*create chunk, we are screwed if SDL_mixer ever does more than malloc/free*/
     chunk = (Mix_Chunk *)malloc(sizeof(Mix_Chunk));
     if ( chunk == NULL )
@@ -288,6 +288,8 @@ void initsndarray(void)
 	import_pygame_base();
 	import_pygame_mixer();
 	import_array();
+    /*needed for Numeric in python2.3*/
+        PyImport_ImportModule("Numeric");
 }
 
 
