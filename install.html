@@ -55,14 +55,17 @@ your linux distribution came with the needed dependencies (like Python
 and SDL). There are binary RPMs available from the website for each dependency.
 </p><p>
 For debian systems, pygame is actively maintained in the debian
-archives.  Visit the
-debian pygame page for more information.
-<a href=http://packages.debian.org/cgi-bin/search_packages.pl?keywords=pygame>http://packages.debian.org/cgi-bin/search_packages.pl?keywords=pygame</a>
+archives.  Visit the debian pygame page for more information.
+<a href=http://packages.qa.debian.org/p/pygame.html>http://packages.qa.debian.org/p/pygame.html</a>
 </p><p>
 FreeBSD also has an active pygame package. While techinicaly it
 isn't binary, it is automatically built and installed by the 
 ports manager. See the FreeBSD package page for more information.
 <a href=http://www.freebsd.org/cgi/ports.cgi?query=py-game&stype=name>http://www.freebsd.org/cgi/ports.cgi?query=py-game&stype=name</a>
+</p><p>
+Gentoo has a builtin package for pygame. This is compiled for
+your system as it installs, similar to BSD,
+<a href=http://www.gentoo.org/dyn/pkgs/dev-python/pygame.xml>http://www.gentoo.org/dyn/pkgs/dev-python/pygame.xml</a>
 </p></blockquote><br>
 
 <big><b><u>Macintosh Binaries</u></b></big><blockquote><p>
@@ -72,17 +75,20 @@ with the Python and SDL dependencies. Therefore the binary
 packages for pygame also come with fixed versions of python
 and the SDL libraries. 
 <p></p>
-For MacOS, binaries are available on the pygame downloads page. 
+For MacOS 9.x, binaries are available on the pygame downloads page. 
 <a href=http://www.pygame.org/download.shtml>http://www.pygame.org/download.shtml</a>.
-Unfortunately the binaries are stuck at pygame version-1.1.
+Unfortunately the binaries are stuck at pygame version-1.1. This also only works with
+an old copy of <tt>MacPython 2.1</tt>.
 <p></p>
-For OSX, there is also a large collection of binary files. Currently
-these are available at the OSX packager's website,
-<a href=http://redivi.com/~bob/>http://redivi.com/~bob/</a>.
-Visit the site for more information on current issues with the
-OSX port, as well as screenshots of OSX pygame in action.
+For OSX, we are creeping along towards binary compatability. Previously there
+was a hefty "kitchen sink" package which included a heavily patched version of
+python and dependencies, also many extra libraries like pyopengl. Nowadays those
+patches have made their way into the real dependencies, so the need for the
+"kitchen sink" should no longer be necessary. Once Python 2.3 is released we
+should be able to make a simple binary package for OSX.
 </p></blockquote><br>
 
+<hr><br>
 
 <big><b><u>Installing From Source</u></b></big><blockquote><p>
 Compiling and installing pygame is handled by Python's distutils.
@@ -91,20 +97,20 @@ the flags needed to build pygame. Use the "setup.py" script to
 start the installation.
 <p></p>
 The first time you run the setup script, it will call the 
-"config.py" script. This will build a "Setup" file which
+"<tt>config.py</tt>" script. This will build a "<tt>Setup</tt>" file which
 stores all the information needed to compile. The "config.py"
 will do a good job of detecting what dependencies are available
 and where they are located. If it isn't perfect, it is easy to
-build your own, or edit the created "Setup" text file. This
-"Setup" file is a simple Makefile-like text file. It defines
+build your own, or edit the created "<tt>Setup</tt>" text file. This
+"<tt>Setup</tt>" file is a simple Makefile-like text file. It defines
 variables needed to use each dependency, and then enables
 all the pygame modules with found dependencies. If you have
 trouble compiling, you should be able to easily fix any problems
-inside the "Setup" file.
+inside the "<tt>Setup</tt>" file.
 <p></p>
-Running the "setup.py" script will call distutils to build and
+Running the "<tt>setup.py</tt>" script will call distutils to build and
 install the pygame package. Distutils actually supports a wide
-variety of compile and install options. running "python setup.py help"
+variety of compile and install options. running "<tt>python setup.py help</tt>"
 will start to show you the different options available. You can
 change many things like install locations, compiler to use, and more.
 Calling the "setup.py" script with no arguments and it will just
@@ -125,26 +131,52 @@ dependencies.
 <p></p>
 When installing on windows, the "setup.py" script will also copy
 all the used .DLL files into the pygame directory.
+<p></p>
+If compiling with VisualC, these instructions are all you'll need
+to do. If you are using Borland's free compiler or cygwin, you will
+need an extra step. You need to convert the VisualC style .LIB files
+into the format used by your compiler. Both Borland and Cygwin include
+a command to do this. To convert the python library the command looks
+like this with Borland: <tt>COFF2OMF python22.lib python22_bcpp.lib</tt>.
+For Cygwin, this is the command you need: <tt>DLLTOOL --dllname python15.dll --def python15.def --output-lib
+libpython15.a</tt>. You will also need to do this conversion on all the
+LIB files that come with the prebuilt dependencies (in the <tt>prebuilt/lib</tt> directory).
+Note that with cygwin you should replace the <tt>--def</tt> flag and argument
+with <tt>--export-all-symbols</tt> since they do not come with .def files.
+</p><p>
+Mingw is well supported by SDL, but a little rougher for python extensions.
+Here is a link with more information to compiling with non-ms compilers.
+<a
+href=http://www.python.org/doc/current/inst/non-ms-compilers.html>http://www.python.org/doc/current/inst/non-ms-compilers.html</a>
 </p></blockquote><br>
 
 <big><b><u>Unix Compiling Info</u></b></big><blockquote><p>
 Compiling from linux shouldn't give you any problems. One thing
 you must keep in mind is that most linux RPM packages separate the
-actual library from the "dev" files needed to compile. To build you
-will need to make sure the packages like "SDL-dev" are
+actual library from the "<tt>dev</tt>" files needed to compile. To build you
+will need to make sure the packages like "<tt>SDL-dev</tt>" are
 installed.
 <p></p>
 You can check to see if SDL is ready to be built from by running
-the command "sdl-config" and seeing if it is found.
-</p></blockquote><br>
+the command <tt>sdl-config</tt> and seeing if it is found. If the 
+<tt>sdl-config</tt> script is not on the path (or you have more than
+one?) Set the environment variable <tt>SDL_CONFIG</tt> to its location.
+</p>
+<p>Sometimes you will have the SDL libraries installed in once
+location, and the other SDL libraries in another. This tricks the
+pygame config scripts, but you can help it out by setting the
+environment <tt>LOCALBASE</tt> to a path prefix where the other libraries
+are. The common case for this is SDL installed in /usr and other
+SDL libs installed in /usr/local. The command for this situation
+is "<tt>LOCALBASE=/usr/local python setup.py install</tt>".
+</blockquote><br>
 
 <big><b><u>OSX Compiling Info</u></b></big><blockquote><p>
-Building pygame on OSX is not really supported yet. Actually,
-the "config.py" script will actually do a good job on OSX.
-Unfortunately, there are some bugs with both SDL and Python
-for OSX, so it will be difficult to build a working version
-of pygame on your own. You will also need to build the SDL
-libraries as ".dylib" libraries, which is not the default
-build mode for these.
+OSX Support is coming along slowly. With the release of Python 2.3
+coming, things should actually be much smoother. Soon after that
+there should be a pygame 1.6 release, with out-of-the-box support
+for OSX. Currently it works fairly well, follow along the regular
+UNIX compile instructions, and report your results, we need more
+feedback.
 </p></blockquote><br>
 
