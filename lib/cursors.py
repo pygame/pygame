@@ -27,10 +27,9 @@ pygame.mouse.set_cursor(*pygame.cursors.arrow).
 Here is a list of available cursors; arrow, diamond, ball,
         broken_x, tri_left, tri_right
 
-Also includes a compile() function which will compile a
-set of strings representing bit data into sequence of cursor
-data numbers. The function read_xbm() will read a pair of XBM
-cursor files."""
+There is also a sample string cursor named 'thickarrow_strings'.
+The compile() function can convert these string cursors into cursor byte data.
+"""
 
 #default pygame black arrow
 arrow = ((16, 16), (0, 0),
@@ -106,7 +105,7 @@ thickarrow_strings = (               #sized 24x24
 
 
 def compile(strings, black, white):
-    """compile(strings, black, white) -> data
+    """pygame.cursors.compile(strings, black, white) -> data
 compile cursor strings into cursor data
 
 This takes a set of strings with equal length and computes
@@ -148,15 +147,12 @@ to pygame.mouse.set_cursor()
 
 
 def read_xbm(curs, mask):
-    """readxbm(cursorfile, maskfile) -> cursor_args
+    """pygame.cursors.read_xbm(cursorfile, maskfile) -> cursor_args
 reads a pair of XBM files into set_cursor arguments
 
 Arguments can either be strings or filelike objects
 with the readlines method. Not largely tested, but
 should work with typical XBM files.
-(for the paranoid) Note there is a security
-risk in here. Any malicious xbm files with evil python
-code in the data could do damage.
 """
     def bitswap(num):
         val = 0

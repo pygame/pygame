@@ -18,6 +18,22 @@
 ##    Pete Shinners
 ##    pete@shinners.org
 
-"""simple pygame version info, current version is stored in 'ver' as string"""
+"""Simply the current installed pygame version. The version information is
+stored in the regular pygame module as 'pygame.ver'. Keeping the version
+information also available in a separate module allows you to test the
+pygame version without importing the main pygame module.
+
+The python version information should always compare greater than any previous
+releases. (hmm, until we get to versions > 10)
+"""
 
 ver = '0.5'
+
+def __hiddendummyfunc():
+    """pygame.version.ver 
+The current pygame version info
+
+The ver variable is simply a string containing the version information
+for pygame. An example is "0.5" or "1.0"
+"""
+    
