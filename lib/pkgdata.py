@@ -92,6 +92,8 @@ __all__ = ['getResourcePath', 'getResource']
 import sys, os
 
 try:
+    # XXX - FIX ME
+    raise ImportError
     from protocols import adapt, protocolForURI, declareImplementation, declareAdapterForType
 except ImportError:
     class NOT_GIVEN:
