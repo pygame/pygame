@@ -41,6 +41,11 @@ vgrade.py - Demonstrates creating a vertical gradient with
     image. If you're not prepared to start working with the
     Numeric arrays, don't worry about the source for this one :]
 
+arraydemo.py - Another example filled with various surfarray
+    effects. It requires the surfarray and image modules to
+    be installed. This little demo can also make a good starting
+    point for any of your own tests with surfarray
+
 sound.py - Extremely basic testing of the mixer module. Load a
 	sound and play it. All from the command shell, no graphics.
 

@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Mar 17, 2001
+	pygame.Surface is smarter with SRCALPHA flag
+	fixed several small bugs in surfarray [BUG]
+	new surfarray example and tutorial
+
 Mar 16, 2001
 	Fixed memory leak in Rect constructor
 	Fixed improper exception in update.display

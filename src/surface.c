@@ -1359,7 +1359,7 @@ static PyObject* PySurface_New(SDL_Surface* s)
 /* surface module functions */
 
     /*DOC*/ static char doc_Surface[] =
-    /*DOC*/    "pygame.Surface(size, [flags, [depth|Surface, [masks]]]) -> Surface\n"
+    /*DOC*/    "pygame.Surface(size, [flags, [Surface|depth, [masks]]]) -> Surface\n"
     /*DOC*/    "create a new Surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Creates a new surface object. Size is a 2-int-sequence containing\n"
@@ -1368,16 +1368,13 @@ static PyObject* PySurface_New(SDL_Surface* s)
     /*DOC*/    "four item sequence containing the bitmask for r,g,b, and a. If\n"
     /*DOC*/    "omitted, masks will default to the usual values for the given\n"
     /*DOC*/    "bitdepth. Flags is a mix of the following flags: SWSURFACE,\n"
-    /*DOC*/    "HWSURFACE, ASYNCBLIT, SRCCOLORKEY, or SRCALPHA. (flags = 0 is the\n"
-    /*DOC*/    "same as SWSURFACE). depth and masks can be substituted for\n"
+    /*DOC*/    "HWSURFACE, ASYNCBLIT, or SRCALPHA. (flags = 0 is the\n"
+    /*DOC*/    "same as SWSURFACE). Depth and masks can be substituted for\n"
     /*DOC*/    "another surface object which will create the new surface with the\n"
     /*DOC*/    "same format as the given one. When using default masks, alpha\n"
-    /*DOC*/    "will always be ignored. Note, if you pass SRCOLORKEY and/or\n"
-    /*DOC*/    "SRCALPHA, the surface won't immediately have these features\n"
-    /*DOC*/    "enabled. SDL will use these flags to help optimize the surface\n"
-    /*DOC*/    "for use with the blitters. Also, for a plain software surface, 0\n"
-    /*DOC*/    "can be used for the flag. A plain hardware surface can just use 1\n"
-    /*DOC*/    "for the flag.\n"
+    /*DOC*/    "will always be ignored unless you pass SRCALPHA as a flag.\n"
+    /*DOC*/    "For a plain software surface, 0 can be used for the flag. \n"
+    /*DOC*/    "A plain hardware surface can just use 1 for the flag.\n"
     /*DOC*/ ;
 
 static PyObject* Surface(PyObject* self, PyObject* arg)
@@ -1393,7 +1390,7 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 		return NULL;
 
 	VIDEO_INIT_CHECK();
-		
+
 	if(depth && masks) /*all info supplied, most errorchecking needed*/
 	{
 		if(PySurface_Check(depth))
@@ -1410,22 +1407,37 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	{
 		if(!ShortFromObj(depth, &bpp))
 			return RAISE(PyExc_ValueError, "invalid bits per pixel depth argument");
-		Amask = 0;
-		switch(bpp)
+		if(flags & SDL_SRCALPHA)
 		{
-		case 8:
-			Rmask = 0xFF >> 6 << 5; Gmask = 0xFF >> 5 << 2; Bmask = 0xFF >> 6; break;
-		case 12:
-			Rmask = 0xFF >> 4 << 8; Gmask = 0xFF >> 4 << 4; Bmask = 0xFF >> 4; break;
-		case 15:
-			Rmask = 0xFF >> 3 << 10; Gmask = 0xFF >> 3 << 5; Bmask = 0xFF >> 3; break;
-		case 16:
-			Rmask = 0xFF >> 3 << 11; Gmask = 0xFF >> 2 << 5; Bmask = 0xFF >> 3; break;
-		case 24:
-		case 32:
-			Rmask = 0xFF << 16; Gmask = 0xFF << 8; Bmask = 0xFF; break;
-		default:
-			return RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth");
+			switch(bpp)
+			{
+			case 16:
+				Rmask = 0xFF >> 3 << 11; Gmask = 0xFF >> 2 << 5; Bmask = 0xFF >> 3; Amask = 0x01 << 15; break;
+			case 32:
+				Rmask = 0xFF << 16; Gmask = 0xFF << 8; Bmask = 0xFF; Amask = 0xFF << 24; break;
+			default:
+				return RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth with alpha");
+			}
+		}
+		else
+		{
+			Amask = 0;
+			switch(bpp)
+			{
+			case 8:
+				Rmask = 0xFF >> 6 << 5; Gmask = 0xFF >> 5 << 2; Bmask = 0xFF >> 6; break;
+			case 12:
+				Rmask = 0xFF >> 4 << 8; Gmask = 0xFF >> 4 << 4; Bmask = 0xFF >> 4; break;
+			case 15:
+				Rmask = 0xFF >> 3 << 10; Gmask = 0xFF >> 3 << 5; Bmask = 0xFF >> 3; break;
+			case 16:
+				Rmask = 0xFF >> 3 << 11; Gmask = 0xFF >> 2 << 5; Bmask = 0xFF >> 3; break;
+			case 24:
+			case 32:
+				Rmask = 0xFF << 16; Gmask = 0xFF << 8; Bmask = 0xFF; break;
+			default:
+				return RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth");
+			}
 		}
 	}
 	else /*no depth or surface*/
