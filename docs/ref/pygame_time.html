@@ -62,7 +62,7 @@ delay for a number of milliseconds</td></tr>
 
 
 <tr><td><a href=#get_ticks>get_ticks</a></td><td> -
-milliseconds since startup</td></tr>
+milliseconds since initialization</td></tr>
 
 
 <tr><td><a href=#set_timer>set_timer</a></td><td> -
@@ -85,7 +85,7 @@ Will pause for a given number of milliseconds.
 pygame.time.get_ticks() -> int
 </tt></font><ul>
 This is the time in milliseconds since the pygame.time was
-imported.
+imported. Always returns 0 before <a href=pygame.html#init>pygame.init()</a> is called.
 </ul><br>&nbsp;<br>
 
 <a name=set_timer><font size=+2><b>set_timer

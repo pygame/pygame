@@ -44,10 +44,10 @@ static Uint32 timer_callback(Uint32 interval, void* param)
 
     /*DOC*/ static char doc_get_ticks[] =
     /*DOC*/    "pygame.time.get_ticks() -> int\n"
-    /*DOC*/    "milliseconds since startup\n"
+    /*DOC*/    "milliseconds since initialization\n"
     /*DOC*/    "\n"
     /*DOC*/    "This is the time in milliseconds since the pygame.time was\n"
-    /*DOC*/    "imported.\n"
+    /*DOC*/    "imported. Always returns 0 before pygame.init() is called.\n"
     /*DOC*/ ;
 
 static PyObject* get_ticks(PyObject* self, PyObject* arg)
@@ -55,6 +55,8 @@ static PyObject* get_ticks(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
 
+	if(!SDL_WasInit(SDL_INIT_TIMER))
+		return PyInt_FromLong(0);
 	return PyInt_FromLong(SDL_GetTicks());
 }
 
