@@ -1,5 +1,5 @@
-Pygame Version 1.1
-June 23rd, 2001
+Pygame Version 1.2
+September 1st, 2001
 
 Python Game Development
 by Pete Shinners
@@ -52,9 +52,6 @@ TODO
 
 At some point it would be nice to add support for more external
 python libraries, here are some ideas...
-
- - MPEG video playback with smpeg
- - more drawing primitives in the draw module: circle, poly
  - more collision detection stuff: pixel2pixel, point2poly, etc
  - smarten the config.py and setup.py stuff
 
@@ -69,12 +66,12 @@ Thanks to everyone who made this possible, including:
 - Ed Boraas and Francis Irving for Debian packaging
 - Maxim Sobolev for FreeBSD port maintenance
 - Bob Ippolito for the MacOS porting
-- Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
+- Jan Ekhol, Ray Kelm, and Peter Nicolai for initial reviews
 - Our list of valiant bugfixers:
 	Niki Spahiev, Gordon Tyler,
 	Dave Wallace, and John Popplewell
 - And our dutiful bug hunters:
-	Angus, Guillaume Proux,
+	Angus, Guillaume Proux, Frank Raiser,
 	Austin Henry, and Kaweh Kazemi
 
 Cheers to TheCorruptor for his incredible work on the pygame logo.
