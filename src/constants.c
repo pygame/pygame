@@ -332,7 +332,7 @@ void initconstants(void)
     /*DOC*/    "VIDEORESIZE - the display window has been resized by the user<br>\n"
     /*DOC*/    "QUIT - the user has requested the game to quit<br>\n"
     /*DOC*/    "SYSWMEVENT - currently unsupported, system dependant<br>\n"
-    /*DOC*/    "USEREVENTS - all user messages are this or higher<br>\n"
+    /*DOC*/    "USEREVENT - all user messages are this or higher<br>\n"
     /*DOC*/    "NUMEVENTS - all user messages must be lower than this, equal to 32<br>\n"
     /*DOC*/ ;
 
