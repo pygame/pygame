@@ -1,7 +1,7 @@
 
                             Pygame Installation
 
-   Python can be built from source, but the easiest way to build is get a
+   Python can be built from source, but the easiest way is to get a
    binary package for your type of system and version of python. This
    document will give you information on either type of installation.
    Windows Binary Installer
