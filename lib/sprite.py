@@ -45,7 +45,8 @@ functions that can accept a list of containers or sprites.
 The methods to add and remove sprites from groups are
 smart enough to not delete sprites that aren't already part
 of a group, and not add sprites to a group if it already
-exists.
+exists. You may also pass a sequence of sprites or groups
+to these functions and each one will be used.
 
 The design of the sprites and groups is very flexible.
 There's no need to inherit from the provided classes, you
@@ -58,7 +59,6 @@ can be any python object that has "add_internal" and
 they want add and remove themselves from containers. The
 containers must also have a member named "_spritegroup",
 which can be set to any dummy value.
-
 The term 'sprite' is a holdover from older computer and
 game machines. These older boxes were unable to draw
 and erase normal graphics fast enough for them to work
@@ -95,7 +95,8 @@ just about anything in a 2D game that is animated.
 
 
 class Sprite:
-    """The sprite class is meant to be used as a base class
+    """the base class for your visible game objects.
+       The sprite class is meant to be used as a base class
        for the objects in your game. It just provides functions
        to maintain itself in different groups. A sprite is
        considered 'alive' as long as it is a member of one
@@ -105,17 +106,17 @@ class Sprite:
     def __init__(self, group=()):
         """__init__(group=())
            initialize a sprite object
-           
+
            You can initialize a sprite by passing it a
-           group or multiple groups to be contained in."""
+           group or sequence of groups to be contained in."""
         self.__g = {}
         self.add(group)
 
     def add(self, group):
         """add(group)
            add a sprite to container
-           
-           Add the sprite to a group or multiple groups."""
+
+           Add the sprite to a group or sequence of groups."""
         has = self.__g.has_key
         if hasattr(group, '_spritegroup'):
             if not has(group):
@@ -131,8 +132,8 @@ class Sprite:
     def remove(self, group):
         """remove(group)
            remove a sprite from container
-           
-           Remove the sprite from a group or multiple groups."""
+
+           Remove the sprite from a group or sequence of groups."""
         has = self.__g.has_key
         if hasattr(group, '_spritegroup'):
             if has(group):
@@ -145,25 +146,15 @@ class Sprite:
                     del self.__g[g]
 
     def add_internal(self, group):
-        """add_internal(group)
-           internal function for adding
-           
-           Only used by group classes when they want to add
-           this sprite to itself."""
         self.__g[group] = 0
 
     def remove_internal(self, group):
-        """remove_internal(group)
-           internal function for removing
-           
-           Only used by group classes when they want to remove
-           this sprite to itself."""
         del self.__g[group]
-    
+
     def kill(self):
         """kill()
            end life of sprite, remove from all groups
-           
+
            Removes the sprite from all the groups that contain
            it. The sprite is still fine after calling this kill()
            so you could use it to remove a sprite from all groups,
@@ -173,35 +164,34 @@ class Sprite:
         self.__g.clear()
 
     def groups(self):
-        """kill()
+        """groups()
            list used sprite containers
-           
+
            Returns a list of all the groups that contain this
            sprite."""
         return self.__g.keys()
-
     def alive(self):
         """alive()
            ask the life of a sprite
-           
+
            Returns true if this sprite is a member of any groups."""
         return len(self.__g)
 
 
 
-
 class Group:
-    """This is the base sprite group class. It does everything
+    """the Group class is a container for sprites
+       This is the base sprite group class. It does everything
        needed to behave as a normal group. You can easily inherit
        a new group class from this if you want to add more features."""
     _spritegroup = 1 #dummy val to identify sprite groups
 
     def __init__(self, sprite=()):
-        """__init__()
+        """__init__(sprite=())
            instance a Group
-           
+
            You can initialize a group by passing it a
-           sprite or multiple sprites to be contained."""
+           sprite or sequence of sprites to be contained."""
         self.spritedict = {}
         if sprites:
             self.add(sprites)
@@ -209,26 +199,24 @@ class Group:
     def copy(self):
         """copy()
            copy a group with all the same sprites
-           
+
            Returns a copy of the group that is the same class
            type, and has the same contained sprites."""
-        return self.__class__(self.spritedict.keys())        
-
+        return self.__class__(self.spritedict.keys())
     def loop(self):
         """loop()
            return an object to loop each sprite
-           
+
            Returns an object that can be looped over with
            a 'for' loop. (For now it is always a list, but
            newer version of python could return different
            objects, like iterators.)"""
         return self.spritedict.keys()
-
     def add(self, sprite):
         """add(sprite)
            add sprite to group
-           
-           Add a sprite or multiple sprites to a group."""
+
+           Add a sprite or sequence of sprites to a group."""
         has = self.spritedict.has_key
         if hasattr(sprite, '_spritegroup'):
             if not has(sprite):
@@ -242,10 +230,10 @@ class Group:
                     sprite.add_internal(self)
 
     def remove(self, sprite):
-        """remove()
+        """remove(sprite)
            remove sprite from group
-           
-           Remove a sprite or multiple sprites from a group."""
+
+           Remove a sprite or sequence of sprites from a group."""
         has = self.spritedict.has_key
         if hasattr(sprites, '_spritegroup'):
             if has(sprite):
@@ -259,25 +247,14 @@ class Group:
                     sprite.remove_internal(self)
 
     def add_internal(self, sprite):
-        """add_internal()
-           internal function to add sprite
-           
-           Only used by sprite classes when they want to add
-           themselves to the group."""
         self.spritedict[sprite] = 0
-
     def remove_internal(self, sprite):
-        """remove_internal()
-           internal function to remove sprite
-           
-           Only used by sprite classes when they want to remove
-           themselves from the group."""
         del self.spritedict[sprite]
 
     def has(self, sprite):
         """has(sprite)
            ask if group has sprite
-           
+
            Returns true if the given sprite or sprites are
            contained in the group"""
         has = self.spritedict.has_key
@@ -292,7 +269,7 @@ class Group:
     def empty(self):
         """empty()
            remove all sprites
-           
+
            Removes all the sprites from the group."""
         for s in self.spritedict.keys():
             self.remove_internal(s)
@@ -302,7 +279,7 @@ class Group:
     def __nonzero__(self):
         """__nonzero__()
            ask if group is empty
-           
+
            Returns true if the group has any sprites. This
            lets you check if the group has any sprites by
            using it in a logical if statement."""
@@ -311,7 +288,7 @@ class Group:
     def __len__(self):
         """__len__()
            number of sprites in group
-           
+
            Returns the number of sprites contained in the group."""
         return len(self.spritedict)
 
@@ -321,12 +298,12 @@ class Group:
 ##create your own new group type.
 
 class GroupSingle:
-    """This class works just like a regular group, but it only
+    """a group container that holds a single most recent item
+       This class works just like a regular group, but it only
        keeps a single sprite in the group. Whatever sprite has
        been added to the group last, will be the only sprite in
        the group."""
     _spritegroup = 1 #dummy val to identify groups
-
     def __init__(self, sprites=()):
         self.sprite = 0
         self.add(sprites)
@@ -352,8 +329,6 @@ class GroupSingle:
                     self.sprite.remove_internal(self)
                 self.sprite = sprites[-1]
                 self.sprite.add_internal(self)
-            
-
     def remove(self, sprite):
         if hasattr(sprite, '_spritegroup'):
             if self.sprite is sprite:
@@ -400,7 +375,8 @@ class GroupSingle:
 ##maintains its own data along with each sprite it holds.
 
 class RenderPlain(Group):
-    """The RenderPlain group is just like a normal group,
+    """a sprite group that can draw all its sprites
+       The RenderPlain group is just like a normal group,
        it just adds a "draw" method. Any sprites used with
        this group to draw must contain two member elements
        named "image" and "rect". These are a pygame Surface
@@ -409,7 +385,7 @@ class RenderPlain(Group):
     def draw(self, surface):
         """draw(surface)
            draw all sprites onto a surface
-           
+
            Draws all the sprites onto the given surface."""
         spritedict = self.spritedict
         surface_blit = surface.blit
@@ -419,7 +395,8 @@ class RenderPlain(Group):
 
 
 class RenderClear(Group):
-    """The RenderClear group is just like a normal group,
+    """a group container that can draw and clear its sprites
+       The RenderClear group is just like a normal group,
        but it can draw and clear the sprites. Any sprites
        used in this group must contain member elements
        named "image" and "rect". These are a pygame Surface
@@ -437,17 +414,16 @@ class RenderClear(Group):
     def draw(self, surface):
         """draw(surface)
            draw all sprites onto a surface
-           
+
            Draws all the sprites onto the given surface."""
         spritedict = self.spritedict
         surface_blit = surface.blit
         for s in spritedict.keys():
             spritedict[s] = surface_blit(s.image, s.rect)
-
     def clear(self, surface, bgd):
         """clear(surface, bgd)
            erase the previous position of all sprites
-           
+
            Clears the area of all drawn sprites. the bgd
            argument should be Surface which is the same
            dimensions as the surface."""
@@ -459,10 +435,9 @@ class RenderClear(Group):
             if r is not 0:
                 surface_blit(bgd, r, r)
 
-
-
 class RenderUpdates(RenderClear):
-    """The RenderUpdates is derived from the RenderClear group
+    """a sprite group that can draw and clear with update rectangles
+       The RenderUpdates is derived from the RenderClear group
        and keeps track of all the areas drawn and cleared. It
        also smartly handles overlapping areas between where a
        sprite was drawn and cleared when generating the update
@@ -471,7 +446,7 @@ class RenderUpdates(RenderClear):
     def draw(self, surface):
         """draw(surface)
            draw all sprites onto the surface
-           
+
            Draws all the sprites onto the given surface. It
            returns a list of rectangles, which should be passed
            to pygame.display.update()"""
@@ -489,13 +464,10 @@ class RenderUpdates(RenderClear):
             spritedict[s] = newrect
         return dirty
 
-
-
-
 def spritecollide(sprite, group, dokill):
-    """sprite.spritecollide(sprite, group, dokill)
+    """pygame.sprite.spritecollide(sprite, group, dokill)
        collision detection between sprite and group
-     
+
        given a sprite and a group of sprites, this will
        return a list of all the sprites that intersect.
        all sprites must have a "rect" method, which is a
@@ -513,7 +485,7 @@ def spritecollide(sprite, group, dokill):
 
 
 def groupcollide(groupa, groupb, dokilla, dokillb):
-    """sprite.spritecollide(sprite, group, dokill)
+    """pygame.sprite.spritecollide(sprite, group, dokill)
        collision detection between group and group
 
        given two groups, this will find the intersections
