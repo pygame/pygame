@@ -1,5 +1,8 @@
 This is a list of changes in pygame's history.
 
+     Nov 11, 2000
+	BUG: pygame.display.set_mode() uses int, not short, for
+		width and height fields.
 
      Nov 10, 2000
 	Committed to CVS and documentation expanded
