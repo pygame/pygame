@@ -1045,8 +1045,8 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 		iy = rx * 64;
 		
 		do {
-			h = (ix + 16/*32*/) >> 6;
-			i = (iy + 16/*32*/) >> 6;
+			h = (ix + 4/*32*/) >> 6;
+			i = (iy + 4/*32*/) >> 6;
 			j = (h * ry) / rx;
 			k = (i * ry) / rx;
 			if ((ok!=k) && (oj!=k)) {
@@ -1079,8 +1079,8 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 				oi=i;
 			}
 			if ((oh!=h) && (oi!=h) && (i!=h)) {
-				drawhorzlineclip(dst, color, x+k, y+h, x+k-1);
-				drawhorzlineclip(dst, color, x+k, y-h-1, x+k-1);
+				drawhorzlineclip(dst, color, x-k, y+h, x+k-1);
+				drawhorzlineclip(dst, color, x-k, y-h-1, x+k-1);
 				oh=h;
 			}
 			

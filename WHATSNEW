@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 22, 2001
+	small fix for filled ellipses/circles
+
 September 27, 2001
 	drawing filled circles returns bounding rect
 	ellipses and circles drawn inside given area
