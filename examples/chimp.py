@@ -110,8 +110,7 @@ class Chimp(pygame.sprite.Sprite):
         else:
             rotate = pygame.transform.rotate
             self.image = rotate(self.original, self.dizzy)
-        self.rect = self.image.get_rect()
-        self.rect.center = center
+        self.rect = self.image.get_rect(center=center)
 
     def punched(self):
         "this will cause the monkey to start spinning"
@@ -139,8 +138,7 @@ def main():
     if pygame.font:
         font = pygame.font.Font(None, 36)
         text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
-        textpos = text.get_rect()
-        textpos.centerx = background.get_rect().centerx
+        textpos = text.get_rect(centerx=background.get_width()/2)
         background.blit(text, textpos)
 
 #Display The Background

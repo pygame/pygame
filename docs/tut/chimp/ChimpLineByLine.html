@@ -11,7 +11,7 @@ TUTORIAL:Line by Line Descriptions of the Chimp Example
 <h2 align="center">by Pete Shinners<br>
      <font size="-1">pete@shinners.org</font></h2>
            
-<h3 align="center">Revision 2.1, January 9, 2001</h3>
+<h3 align="center">Revision 2.2, June 17, 2004</h3>
       <br>
      <br>
              
@@ -268,8 +268,8 @@ is  colliding with the given target sprite.<br>
         "move the monkey across the screen, and turn at the ends"
         newpos = self.rect.move((self.move, 0))
         if not self.area.contains(newpos):
-	if self.rect.left < self.area.left or \
-		self.rect.right > self.area.right:
+	if self.rect.left &lt; self.area.left or \
+		self.rect.right &gt; self.area.right:
             self.move = -self.move
             newpos = self.rect.move((self.move, 0))
             self.image = pygame.transform.flip(self.image, 1, 0)
@@ -285,8 +285,7 @@ is  colliding with the given target sprite.<br>
         else:
             rotate = pygame.transform.rotate
             self.image = rotate(self.original, self.dizzy)
-        self.rect = self.image.get_rect()
-        self.rect.center = center
+        self.rect = self.image.get_rect(center=center)
 
     def punched(self):
         "this will cause the monkey to start spinning"
@@ -422,8 +421,7 @@ to  it. We only do this if we see the pygame.font module has imported properly.
 <pre>if pygame.font:
     font = pygame.font.Font(None, 36)
     text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
-    textpos = text.get_rect()
-    textpos.centerx = background.get_rect().centerx
+    textpos = text.get_rect(centerx=background.get_width()/2)
     background.blit(text, textpos)</pre>
 </td>
          </tr>

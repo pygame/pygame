@@ -117,8 +117,7 @@
         <font color="#a52a2a"><b>else</b></font>:
             rotate = pygame.transform.rotate
             self.image = rotate(self.original, self.dizzy)
-        self.rect = self.image.get_rect()
-        self.rect.center = center
+        self.rect = self.image.get_rect(center=center)
 
     <font color="#a52a2a"><b>def</b></font> <font color="#008b8b">punched</font>(self):
         &quot;<font color="#ff00ff">this will cause the monkey to start spinning</font>&quot;
@@ -146,8 +145,7 @@
     <font color="#a52a2a"><b>if</b></font> pygame.font:
         font = pygame.font.Font(None, 36)
         text = font.render(&quot;<font color="#ff00ff">Pummel The Chimp, And Win $$$</font>&quot;, 1, (10, 10, 10))
-        textpos = text.get_rect()
-        textpos.centerx = background.get_rect().centerx
+        textpos = text.get_rect(centerx=background.get_width()/2)
         background.blit(text, textpos)
 
 <font color="#0000ff">#Display The Background</font>

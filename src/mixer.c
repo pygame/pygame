@@ -1311,7 +1311,6 @@ static int sound_init(PyObject* self, PyObject* arg, PyObject* kwarg)
 	PyObject* file;
 	char* name = NULL;
 	Mix_Chunk* chunk;
-printf("sound_init, start %p\n", self);
     
         ((PySoundObject*)self)->chunk = NULL;
 
@@ -1347,7 +1346,6 @@ printf("sound_init, start %p\n", self);
 			Py_END_ALLOW_THREADS
 		}
 	}
-printf("sound_init, chunk %p\n", chunk);
 
 	if(!chunk)
         {
