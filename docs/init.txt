@@ -14,7 +14,7 @@ like this is totally optional.
 
 Early in the game you will need to initialize your pygame modules. There are
 two methods to doing this. The simplest and recommended way is to use the
-command "pygame.init()" to intialize all the imported pyGame modules. If you
+command "pygame.init()" to intialize all the imported pygame modules. If you
 prefer a little control over the initialization process, you can initialize
 the modules by hand. Modules that need initialization will have an "init()"
 method in them (and usually a get_init() to check if a module is
@@ -22,11 +22,11 @@ initialized). The code will look like this
 "pygame.display.init(); pygame.cdrom.init()".
 Using this method you can initialize only the modules important to you.
 
-All modules will automatically quit themselves when pyGame is exiting.
+All modules will automatically quit themselves when pygame is exiting.
 You can force all modules to uninitialize with the call to "pygame.quit()".
 You can also initialize an individual module by calling the quit function
 from that module.
 
 Not all modules need to be intialized. These will not have an init()
-and quit() method. If initializing by hand, remember that most platforms
+and quit() method. If initializing by hand, remember that some platforms
 require the display module to be initialized before others.

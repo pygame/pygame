@@ -8,13 +8,27 @@ import fnmatch, glob, os
 DOCPATTERN = '*static char*doc_*=*'
 SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
-OUTPUTDIR = '../'
+OUTPUTDIR = '../ref/'
 
 PAGETEMPLATE = open('pagelate.html').readlines()
 DOCTEMPLATE = open('doclate.html').readlines()
 LISTTEMPLATE = open('listlate.html').readlines()
 
 MODULETOC = ""
+
+
+
+mainindex_desc = """
+The pygame documentation is broken into several parts. First there is
+the reference docs. These are automatically generated from the pygame
+sources. They have the most up to date information about each function
+and module.<br>
+<br>
+There is also the set of tutorials, which is currently slim, but in
+the process of expanding. The navigation links on the top of this page
+should be enough to get you comfortable around the site. The list of
+tutorials is offered below.<br>"""
+
 
 
 def filltemplate(template, info):
@@ -107,6 +121,24 @@ def parsedocs(docs):
     return [modules, extras, funcs]
 
 
+def findtutorials():
+    fileline = '<li><a href=%s>%s</a> - %s</li>'
+    texthead = '<font size=+1><b>Text File Documentation</b></font><br>'
+    tuthead = '<font size=+1><b>Tutorials</b></font><br>'
+    texts1 = glob.glob('../*.txt')
+    texts2 = [os.path.split(x)[1] for x in texts1]
+    texts3 = [os.path.splitext(x)[0] for x in texts2]
+    texts4 = [open(x).readline() for x in texts1]
+    texts = [fileline%x for x in zip(texts2, texts3, texts4)]
+    finaltext = texthead + '\n'.join(texts)
+    tuts1 =  glob.glob('../tut/*.html')   
+    tuts2 = ['tut/' + os.path.split(x)[1] for x in tuts1]
+    tuts3 = [os.path.splitext(x)[0] for x in tuts2]
+    tuts4 = [open(x).readlines(2)[1] for x in tuts1]
+    tuts = [fileline%x for x in zip(tuts2, tuts3, tuts4)]
+    finaltut = tuthead + '\n'.join(tuts)
+    return finaltext + '<br>&nbsp;<br>' + finaltut
+
 
 def lookupdoc(docs, name, category):
     for d in docs:
@@ -159,7 +191,7 @@ def categorize(allfuncs):
 
 
 
-def create_toc(allfuncs):
+def create_toc(allfuncs, prefix=''):
     mods = {}
     for f in allfuncs:
         cat = f['category']
@@ -169,15 +201,14 @@ def create_toc(allfuncs):
         file = m.replace('.', '_') + '.html'
         if m[:7] == 'pygame_':
             m = m[7:]
-        str = '<a href=%s>%s</a>' % (file, m)
+        str = '<a href=%s%s>%s</a>' % (prefix, file, m)
         l.append(str)
     l.sort()
     str = ''
     for x in range(0, len(l), 7):
         row = l[x:x+5]
         str += '|| ' + ' || \n'.join(row) + ' ||<br>\n'
-    global MODULETOC
-    MODULETOC = str
+    return str
     
 
 def namesort(a,b): return cmp(a['name'], b['name'])
@@ -202,7 +233,8 @@ def writefuncdoc(alldocs):
                      'docs': '\n'.join(htmldocs),
                      'index': '\n'.join(htmllist),
                      'toc': MODULETOC,
-                     'module': modinfo}
+                     'module': modinfo,
+                     'mainpage': '../index.html'}
         page = filltemplate(PAGETEMPLATE, finalinfo)
         file = open(OUTPUTDIR + cat + '.html', 'w')
         file.write(page)
@@ -231,7 +263,9 @@ def main():
     buildlinks(alldocs)
 
     #create table of contents
-    create_toc(alldocs[2])
+    global MODULETOC
+    pathed_toc = create_toc(alldocs[2], 'ref/')
+    MODULETOC = create_toc(alldocs[2])
 
     #categorize
     alldocs[2] = categorize(alldocs[2])
@@ -239,6 +273,18 @@ def main():
     #write html
     print 'writing...'
     writefuncdoc(alldocs)
+
+    #create index
+    finalinfo = {'title': 'Pygame Documentation',
+                 'docs': findtutorials(),
+                 'index': mainindex_desc,
+                 'toc': pathed_toc,
+                 'module': ' ',
+                 'mainpage': 'index.html'}
+    page = filltemplate(PAGETEMPLATE, finalinfo)
+    file = open('../index.html', 'w')
+    file.write(page)
+    file.close()
 
 
 if __name__ == '__main__':
