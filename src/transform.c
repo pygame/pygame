@@ -513,6 +513,8 @@ extern SDL_Surface *rotozoomSurface(SDL_Surface *src, double angle, double zoom,
     /*DOC*/    "size, and angle is the degrees to rotate counter clockwise.\n"
     /*DOC*/    "\n"
     /*DOC*/    "It calls the SDL_rotozoom library which is compiled in.\n"
+    /*DOC*/    "Note that the code in SDL_rotozoom is fairly messy and your\n"
+    /*DOC*/    "resulting image could be shifted and contain artifacts.\n"
     /*DOC*/ ;
 
 static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
