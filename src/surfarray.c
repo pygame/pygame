@@ -911,50 +911,50 @@ PyObject* clamp_array(PyObject* self, PyObject* arg)
 
 
 #define COPYMACRO_2D(DST, SRC) \
-	for(loopy = 0; loopy < sizey; ++loopy) { \
-		DST* imgrow = (DST*)(((char*)surf->pixels)+loopy*surf->pitch); \
-		Uint8* datarow = array->data + stridey * loopy; \
-		for(loopx = 0; loopx < sizex; ++loopx) \
-			*(imgrow + loopx) = (DST)*(SRC*)(datarow + stridex * loopx); \
-	}
+     for(loopy = 0; loopy < sizey; ++loopy) { \
+         DST* imgrow = (DST*)(((char*)surf->pixels)+loopy*surf->pitch); \
+         Uint8* datarow = (Uint8*)array->data + stridey * loopy; \
+         for(loopx = 0; loopx < sizex; ++loopx) \
+             *(imgrow + loopx) = (DST)*(SRC*)(datarow + stridex * loopx); \
+     }
 
 
 #define COPYMACRO_2D_24(SRC) \
-	for(loopy = 0; loopy < sizey-1; ++loopy) { \
-		Uint8* imgrow = ((Uint8*)surf->pixels)+loopy*surf->pitch; \
-		Uint8* datarow = array->data + stridey * loopy; \
-		for(loopx = 0; loopx < sizex; ++loopx) \
-			*(int*)(imgrow + loopx*3) = (int)*(SRC*)(datarow + stridex * loopx)<<8; \
-	}{ \
-	char* imgrow = ((char*)surf->pixels)+loopy*surf->pitch; \
-	char* datarow = array->data + stridey * loopy; \
-	for(loopx = 0; loopx < sizex-1; ++loopx) \
-		*(int*)(imgrow + loopx*3) = ((int)*(SRC*)(datarow + stridex * loopx))<<8; \
-	}
+     for(loopy = 0; loopy < sizey-1; ++loopy) { \
+         Uint8* imgrow = ((Uint8*)surf->pixels)+loopy*surf->pitch; \
+         Uint8* datarow = (Uint8*)array->data + stridey * loopy; \
+         for(loopx = 0; loopx < sizex; ++loopx) \
+             *(int*)(imgrow + loopx*3) = (int)*(SRC*)(datarow + stridex * loopx)<<8; \
+     }{ \
+     char* imgrow = ((char*)surf->pixels)+loopy*surf->pitch; \
+     char* datarow = array->data + stridey * loopy; \
+     for(loopx = 0; loopx < sizex-1; ++loopx) \
+         *(int*)(imgrow + loopx*3) = ((int)*(SRC*)(datarow + stridex * loopx))<<8; \
+     }
 
 
 #define COPYMACRO_3D(DST, SRC) \
-	for(loopy = 0; loopy < sizey; ++loopy) { \
-		DST* data = (DST*)(((char*)surf->pixels) + surf->pitch * loopy); \
-		char* pix = array->data + stridey * loopy; \
-		for(loopx = 0; loopx < sizex; ++loopx) { \
-			*data++ = (DST)(*(SRC*)(pix) >> Rloss << Rshift) | \
-					(*(SRC*)(pix+stridez) >> Gloss << Gshift) | \
-					(*(SRC*)(pix+stridez2) >> Bloss << Bshift); \
-			pix += stridex; \
-	}	}
+     for(loopy = 0; loopy < sizey; ++loopy) { \
+         DST* data = (DST*)(((char*)surf->pixels) + surf->pitch * loopy); \
+         char* pix = array->data + stridey * loopy; \
+         for(loopx = 0; loopx < sizex; ++loopx) { \
+             *data++ = (DST)(*(SRC*)(pix) >> Rloss << Rshift) | \
+                     (*(SRC*)(pix+stridez) >> Gloss << Gshift) | \
+                     (*(SRC*)(pix+stridez2) >> Bloss << Bshift); \
+             pix += stridex; \
+     }    }
 
 
 #define COPYMACRO_3D_24(SRC) \
-	for(loopy = 0; loopy < sizey; ++loopy) { \
-		Uint8* data = ((Uint8*)surf->pixels) + surf->pitch * loopy; \
-		Uint8* pix = array->data + stridey * loopy; \
-		for(loopx = 0; loopx < sizex; ++loopx) { \
-			*data++ = (Uint8)*(SRC*)(pix+stridez2); \
-			*data++ = (Uint8)*(SRC*)(pix+stridez); \
-			*data++ = (Uint8)*(SRC*)(pix); \
-			pix += stridex; \
-	}	}
+     for(loopy = 0; loopy < sizey; ++loopy) { \
+         Uint8* data = ((Uint8*)surf->pixels) + surf->pitch * loopy; \
+         Uint8* pix = (Uint8*)array->data + stridey * loopy; \
+         for(loopx = 0; loopx < sizex; ++loopx) { \
+             *data++ = (Uint8)*(SRC*)(pix+stridez2); \
+             *data++ = (Uint8)*(SRC*)(pix+stridez); \
+             *data++ = (Uint8)*(SRC*)(pix); \
+             pix += stridex; \
+     }    }
 
 
 
@@ -1112,7 +1112,7 @@ static PyMethodDef surfarray_builtins[] =
 	{ "map_array", map_array, 1, doc_map_array },
 /*	{ "unmap_array", unmap_array, 1, doc_unmap_array },*/
 	{ "blit_array", blit_array, 1, doc_blit_array },
-/*	{ "clamp_array", clamp_array, 1, doc_clamp_array }, too slow*/
+/*	{ "clamp_array", clamp_array, 1, doc_clamp_array }, not quick enough to be worthwhile :[ */
 
 	{ NULL, NULL }
 };
