@@ -45,7 +45,7 @@ QDGlobals qd;
 #endif
 
 #if defined(darwin)
-extern void StartTheDamnApplication(void);
+extern void StartTheApplication(void);
 extern void WeAreDoneFreeSomeMemory(void);
 #endif
 
@@ -239,8 +239,7 @@ static void atexit_quit(void)
 		}
 	}
 	Py_DECREF(privatefuncs);
-	SDL_QuitSubSystem(SDL_INIT_TIMER);
-	SDL_Quit(); /*catch anything left*/
+	SDL_Quit();
 #if defined(darwin)
         WeAreDoneFreeSomeMemory();
 #endif
@@ -695,7 +694,7 @@ void initbase(void)
 #endif
 #endif
 #if defined(darwin)
-        StartTheDamnApplication();
+        StartTheApplication();
 #endif
 }
 
