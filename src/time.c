@@ -157,7 +157,7 @@ static PyMethodDef time_builtins[] =
     /*DOC*/    "resolution on most systems is around 10ms.\n"
     /*DOC*/    "\n"
     /*DOC*/    "All times are represented in milliseconds, which is simply\n"
-    /*DOC*/    "Seconds*1000.(therefore 2500 milliseconds is 2.5 seconds)\n"
+    /*DOC*/    "Seconds*1000. (therefore 2500 milliseconds is 2.5 seconds)\n"
     /*DOC*/ ;
 
 PYGAME_EXPORT

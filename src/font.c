@@ -551,7 +551,7 @@ static PyObject* font_getattr(PyObject* self, char* attrname)
 
 
     /*DOC*/ static char doc_Font_MODULE[] =
-    /*DOC*/    "The font object is created only from pygame.font.font(). Once a\n"
+    /*DOC*/    "The font object is created only from pygame.font.Font(). Once a\n"
     /*DOC*/    "font is created it's size and TTF file cannot be changed. The\n"
     /*DOC*/    "Font objects are mainly used to render() text into a new Surface.\n"
     /*DOC*/    "The Font objects also have a few states that can be set with\n"

@@ -59,9 +59,7 @@
     /*DOC*/    "RED = PACKED_COLOR & masks[0] >> shifts[0] << losses[0]\n"
     /*DOC*/    "GREEN = PACKED_COLOR & masks[1] >> shifts[1] << losses[1]\n"
     /*DOC*/    "BLUE = PACKED_COLOR & masks[2] >> shifts[2] << losses[2]\n"
-    /*DOC*/    "There is also an alpha channel for some Surfaces. The alpha\n"
-    /*DOC*/    "channel works this same exact way, and the map_rgba() and\n"
-    /*DOC*/    "unmap_rgba() functions can be used to do the conversion for you.\n"
+    /*DOC*/    "There is also an alpha channel for some Surfaces.\n"
 #endif
 
 

@@ -774,7 +774,7 @@ static PyMethodDef cdrom_builtins[] =
     /*DOC*/    "This function needs a cdrom device number to work on. All\n"
     /*DOC*/    "cdrom drives on the system are enumerated for use as a CD\n"
     /*DOC*/    "object. To access most of the CD functions, you'll need to\n"
-    /*DOC*/    "Init() the CD. (note that the cdrom module will already\n"
+    /*DOC*/    "init() the CD. (note that the cdrom module will already\n"
     /*DOC*/    "be initialized). When multiple CD objects are created for the\n"
     /*DOC*/    "same CDROM device, the state and values for those CD objects\n"
     /*DOC*/    "will be shared.\n"

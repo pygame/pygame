@@ -627,7 +627,7 @@ static PyMethodDef joystick_builtins[] =
     /*DOC*/    "This function needs a joystick device number to work on. All\n"
     /*DOC*/    "joystick devices on the system are enumerated for use as a Joystick\n"
     /*DOC*/    "object. To access most of the Joystick functions, you'll need to\n"
-    /*DOC*/    "Init() the Joystick. (note that the joystick module will already\n"
+    /*DOC*/    "init() the Joystick. (note that the joystick module will already\n"
     /*DOC*/    "be initialized). When multiple Joysticks objects are created for the\n"
     /*DOC*/    "same joystick device, the state and values for those Joystick objects\n"
     /*DOC*/    "will be shared.\n"

@@ -94,9 +94,7 @@ PACKED_COLOR = RED&gt;&gt;losses[0]&lt;&lt;shifts[0] |
 RED = PACKED_COLOR & masks[0] &gt;&gt; shifts[0] &lt;&lt; losses[0]
 GREEN = PACKED_COLOR & masks[1] &gt;&gt; shifts[1] &lt;&lt; losses[1]
 BLUE = PACKED_COLOR & masks[2] &gt;&gt; shifts[2] &lt;&lt; losses[2]
-There is also an alpha channel for some Surfaces. The alpha
-channel works this same exact way, and the map_rgba() and
-unmap_rgba() functions can be used to do the conversion for you.
+There is also an alpha channel for some Surfaces.
 
 <hr>
 
@@ -142,7 +140,7 @@ query colorkey</td></tr>
 
 
 <tr><td><a href=#get_flags>get_flags</a></td><td> -
-query the surface width</td></tr>
+query the surface flags</td></tr>
 
 
 <tr><td><a href=#get_height>get_height</a></td><td> -
