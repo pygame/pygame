@@ -75,6 +75,10 @@ create a new rectangle</td></tr>
 create a new Surface</td></tr>
 
 
+<tr><td><a href=#Surface>Surface</a></td><td> -
+create a new Surface</td></tr>
+
+
 <tr><td><a href=#get_error>get_error</a></td><td> -
 get current error message</td></tr>
 
@@ -110,6 +114,25 @@ For example, there is <a href=Rect.html#move>move()</a> and <a href=Rect.html#mo
 witht the '_ip' suffix on the name are the 'in-place'
 version of those functions. They effect the actual
 source object, instead of returning a new Rect object.
+</ul><br>&nbsp;<br>
+
+<a name=Surface><font size=+2><b>Surface
+</b></font><br><font size=+1><tt>
+pygame.Surface(size, [flags, [Surface|depth, [masks]]]) -> Surface
+</tt></font><ul>
+Creates a new surface object. Size is a 2-int-sequence containing
+width and height. Depth is the number of bits used per pixel. If
+omitted, depth will use the current display depth. Masks is a
+four item sequence containing the bitmask for r,g,b, and a. If
+omitted, masks will default to the usual values for the given
+bitdepth. Flags is a mix of the following flags: SWSURFACE,
+HWSURFACE, ASYNCBLIT, or SRCALPHA. (flags = 0 is the
+same as SWSURFACE). Depth and masks can be substituted for
+another surface object which will create the new surface with the
+same format as the given one. When using default masks, alpha
+will always be ignored unless you pass SRCALPHA as a flag.
+For a plain software surface, 0 can be used for the flag. 
+A plain hardware surface can just use 1 for the flag.
 </ul><br>&nbsp;<br>
 
 <a name=Surface><font size=+2><b>Surface

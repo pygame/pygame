@@ -30,6 +30,8 @@
 staticforward PyTypeObject PySurface_Type;
 static PyObject* PySurface_New(SDL_Surface* info);
 #define PySurface_Check(x) ((x)->ob_type == &PySurface_Type)
+extern int pygame_AlphaBlit(SDL_Surface *src, SDL_Rect *srcrect,
+                        SDL_Surface *dst, SDL_Rect *dstrect);
 
 #if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
 static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
@@ -1026,9 +1028,6 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	if(dest->flags & SDL_OPENGL && !(dest->flags&(SDL_OPENGLBLIT&~SDL_OPENGL)))
 		return RAISE(PyExc_SDLError, "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
 
-	if(dest->format->BytesPerPixel == 1 && (src->flags&SDL_SRCALPHA && src->format->Amask))
-		return RAISE(PyExc_SDLError, "Alpha blits to 8bit surfaces currently unimplemented");
-
 	if((src_rect = GameRect_FromObject(argpos, &temp)))
 	{
 		dx = src_rect->x;
@@ -1067,10 +1066,11 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		PyObject *owner;
 
 		owner = ((PySurfaceObject*)self)->subsurface->owner;
-	    offset = ((PySurfaceObject*)self)->subsurface->pixeloffset;
-	    suboffsetx = (offset/subsurface->format->BytesPerPixel) % subsurface->pitch;
-	    suboffsety = offset / subsurface->pitch;
+	        subsurface = PySurface_AsSurface(owner);	    
 
+	        offset = ((PySurfaceObject*)self)->subsurface->pixeloffset;
+	        suboffsetx = (offset % subsurface->pitch) / subsurface->format->BytesPerPixel;
+	        suboffsety = offset / subsurface->pitch;
 		if(((PySurfaceObject*)owner)->subsurface) /*multiple subsurface, let's recurse*/
 		{
 			PyObject *arg, *ret;
@@ -1083,20 +1083,19 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 			return ret;
 		}
 
-	    subsurface = PySurface_AsSurface(owner);	    
-	    SDL_GetClipRect(subsurface, &orig_clip);
-	    SDL_GetClipRect(dest, &sub_clip);
-	    sub_clip.x += suboffsetx;
-	    sub_clip.y += suboffsety;
-	    SDL_SetClipRect(subsurface, &sub_clip);
-	    dest_rect.x += suboffsetx;
-	    dest_rect.y += suboffsety;
-	    dest = subsurface;
+	        SDL_GetClipRect(subsurface, &orig_clip);
+	        SDL_GetClipRect(dest, &sub_clip);
+	        sub_clip.x += suboffsetx;
+	        sub_clip.y += suboffsety;
+	        SDL_SetClipRect(subsurface, &sub_clip);
+	        dest_rect.x += suboffsetx;
+	        dest_rect.y += suboffsety;
+	        dest = subsurface;
 	}
 	else
 	{
-	    PySurface_Prep(self);
-	    subsurface = NULL;
+	        PySurface_Prep(self);
+	        subsurface = NULL;
 	}
 	PySurface_Prep(srcobject);
 	Py_BEGIN_ALLOW_THREADS
@@ -1107,15 +1106,23 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		didconvert = 1;
 		src = SDL_DisplayFormat(src);
 	}
-	result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
+
+        /*see if we should handle alpha ourselves*/
+        if(dest->format->Amask && dest->flags&SDL_SRCALPHA &&
+                    (dest->format->BytesPerPixel == 2 || dest->format->BytesPerPixel==4))
+            result = pygame_AlphaBlit(src, (SDL_Rect*)src_rect, dest, &dest_rect);
+        else
+            result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
+        
+        
 	if(didconvert)
 		SDL_FreeSurface(src);
 
 	Py_END_ALLOW_THREADS
 	if(subsurface)
 	{
-	    SDL_SetClipRect(subsurface, &orig_clip);
-		dest_rect.x -= suboffsetx;
+	        SDL_SetClipRect(subsurface, &orig_clip);
+	        dest_rect.x -= suboffsetx;
 		dest_rect.y -= suboffsety;
 	}
 	else
