@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 19, 2002
+	event.peek() returns next event [BREAK?]
+	Event objects have 'truth' operator
+
 February 13, 2002
         all draw primitives have a default width
 

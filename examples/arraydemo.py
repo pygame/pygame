@@ -21,7 +21,7 @@ def surfdemo_show(array_img, name):
     pygame.display.flip()
     pygame.display.set_caption(name)
     while 1:
-        e = pygame.event.poll()
+        e = pygame.event.wait()
         if e.type == MOUSEBUTTONDOWN: break
         elif e.type == KEYDOWN and e.key == K_s:
             pygame.image.save(screen, name+'.bmp')

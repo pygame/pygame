@@ -229,8 +229,8 @@ pygame.event.peek([type]) -> bool
 </tt></font><ul>
 Pass this a type of event that you are interested in, and it will
 return true if there are any of that type of event on the queue.
-If no types are passed, this will return true if any events are
-on the queue. You may also optionally pass a sequence of event
+If no types are passed, this will return the next event on the queue
+without removing it. You may also optionally pass a sequence of event
 types. For example, to find if any keyboard events are on the
 queue, you would call, '<u>pygame.event.peek([KEYDOWN,KEYUP])</u>'.
 </ul><br>&nbsp;<br>
