@@ -1014,7 +1014,7 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	SDL_Surface* subsurface = NULL;
 	GAME_Rect* src_rect, temp;
 	PyObject* srcobject, *argpos, *argrect = NULL;
-	int dx, dy, result;
+	int dx, dy, result, suboffsetx, suboffsety;
 	SDL_Rect dest_rect, orig_clip, sub_clip;
 	short sx, sy;
 	int didconvert = 0;
@@ -1063,19 +1063,34 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	/*passthrough blits to the real surface*/
 	if(((PySurfaceObject*)self)->subsurface)
 	{
-	    int offsetx, offsety, offset;
+		int offset;
+		PyObject *owner;
+
+		owner = ((PySurfaceObject*)self)->subsurface->owner;
 	    offset = ((PySurfaceObject*)self)->subsurface->pixeloffset;
-	    subsurface = PySurface_AsSurface(((PySurfaceObject*)self)->subsurface->owner);
-	    
-	    offsetx = (offset/subsurface->format->BytesPerPixel) % subsurface->pitch;
-	    offsety = offset / subsurface->pitch;
+	    suboffsetx = (offset/subsurface->format->BytesPerPixel) % subsurface->pitch;
+	    suboffsety = offset / subsurface->pitch;
+
+		if(((PySurfaceObject*)owner)->subsurface) /*multiple subsurface, let's recurse*/
+		{
+			PyObject *arg, *ret;
+			arg = Py_BuildValue("(O(ii)O)", owner,
+						dest_rect.x + suboffsetx, dest_rect.y + suboffsety, argrect);
+			ret = surf_blit(owner, arg);
+			Py_DECREF(arg);
+			((PyRectObject*)ret)->r.x -= suboffsetx;
+			((PyRectObject*)ret)->r.y -= suboffsety;
+			return ret;
+		}
+
+	    subsurface = PySurface_AsSurface(owner);	    
 	    SDL_GetClipRect(subsurface, &orig_clip);
 	    SDL_GetClipRect(dest, &sub_clip);
-	    sub_clip.x += offsetx;
-	    sub_clip.y += offsety;
+	    sub_clip.x += suboffsetx;
+	    sub_clip.y += suboffsety;
 	    SDL_SetClipRect(subsurface, &sub_clip);
-	    dest_rect.x += offsetx;
-	    dest_rect.y += offsety;
+	    dest_rect.x += suboffsetx;
+	    dest_rect.y += suboffsety;
 	    dest = subsurface;
 	}
 	else
@@ -1100,6 +1115,8 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	if(subsurface)
 	{
 	    SDL_SetClipRect(subsurface, &orig_clip);
+		dest_rect.x -= suboffsetx;
+		dest_rect.y -= suboffsety;
 	}
 	else
 	    PySurface_Unprep(self);
@@ -1303,8 +1320,6 @@ static PyObject* surf_get_losses(PyObject* self, PyObject* args)
     /*DOC*/    "The new subsurface will inherit the palette, colorkey, and surface alpha\n"
     /*DOC*/    "values from the base image.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You cannot subsurface an image that is already a subsurface.\n"
-    /*DOC*/    "\n"
     /*DOC*/    "You should not use the RLEACCEL flag for parent surfaces of subsurfaces,\n"
     /*DOC*/    "for the most part it will work, but it will cause a lot of extra work,\n"
     /*DOC*/    "every time you change the subsurface, you must decode and recode the\n"
@@ -1329,9 +1344,6 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
-	if(((PySurfaceObject*)self)->subsurface)
-		return RAISE(PyExc_ValueError, "cannot subsurface a subsurface");
-	
 	if(!(rect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_ValueError, "invalid rectstyle argument");
 	if(rect->x < 0 || rect-> y < 0 || rect->x + rect->w > surf->w || rect->y + rect->h > surf->h)
