@@ -16,7 +16,6 @@ try:
     import pygame.mixer
     pygame.mixer.pre_init(11025)
 except:
-    print 'Warning, sound not initialized'
     pygame.mixer = None
 
 #see if we can get some font lovin'
@@ -236,6 +235,13 @@ def main(winstyle = 0):
             joy = None
     else:
         joy = None
+
+    #check that audio actually initialized
+    if pygame.mixer and not pygame.mixer.get_init():
+        pygame.mixer = None
+    if not pygame.mixer:
+        print 'Warning, sound disabled'
+
 
     # Load the Resources
     Img.background = load_image('background.gif', 0)
