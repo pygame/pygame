@@ -68,10 +68,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = self.images[0]
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(midbottom=SCREENRECT.midbottom)
         self.reloading = 0
-        self.rect.centerx = SCREENRECT.centerx
-        self.rect.bottom = SCREENRECT.bottom - 1
         self.origtop = self.rect.top
         self.facing = -1
 
@@ -120,9 +118,8 @@ class Explosion(pygame.sprite.Sprite):
     def __init__(self, actor):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = self.images[0]
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(center=actor.rect.center)
         self.life = self.defaultlife
-        self.rect.center = actor.rect.center
 
     def update(self):
         self.life = self.life - 1
@@ -136,8 +133,7 @@ class Shot(pygame.sprite.Sprite):
     def __init__(self, pos):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = self.images[0]
-        self.rect = self.image.get_rect()
-        self.rect.midbottom = pos
+        self.rect = self.image.get_rect(midbottom=pos)
 
     def update(self):
         self.rect.move_ip(0, self.speed)
@@ -151,9 +147,8 @@ class Bomb(pygame.sprite.Sprite):
     def __init__(self, alien):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = self.images[0]
-        self.rect = self.image.get_rect()
-        self.rect.centerx = alien.rect.centerx
-        self.rect.bottom = alien.rect.bottom + 5
+        self.rect = self.image.get_rect(midbottom=
+                    alien.rect.move(0,5).midbottom)
 
     def update(self):
         self.rect.move_ip(0, self.speed)
