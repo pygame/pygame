@@ -308,9 +308,7 @@ static PyObject* load(PyObject* self, PyObject* args)
 		current_music = NULL;
 	}
 	Py_BEGIN_ALLOW_THREADS
-printf("Mix_loadMUS:call\n");
 	current_music = Mix_LoadMUS(filename);
-printf("Mix_loadMUS:ok %p\n", current_music);
 	Py_END_ALLOW_THREADS
 	
 	if(!current_music)
