@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 19, 2004
+    ffmpeg movie backend renamed to movieext, experimental
+    v1.6 movie module restored
+
 May 1, 2004
     updated sprite module, Joe Wresching
 

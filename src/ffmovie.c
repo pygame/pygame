@@ -756,6 +756,7 @@ FFMovie *ffmovie_open(const char *filename)
     movie->frame_count = 0;
     movie->time_offset = 0.0;
     movie->paused = 1;
+    movie->sourcename = strdup(filename);
 
     Global_num_active++;
     movie->decode_thread = SDL_CreateThread(decode_thread, movie);
@@ -770,12 +771,12 @@ FFMovie *ffmovie_open(const char *filename)
 void ffmovie_close(FFMovie *movie)
 {
 /*MAIN THREAD*/
-   movie->abort_request = 1;
-printf("ffmovie_close, wait thread %p\n", movie);
+    movie->abort_request = 1;
     SDL_WaitThread(movie->decode_thread, NULL);
-printf("ffmovie_close, freemem %p\n", movie);
+    if(movie->sourcename) {
+        free((void*)movie->sourcename);
+    }
     av_free(movie);
-printf("ffmovie_close, finished\n");
 }
 
 void ffmovie_play(FFMovie *movie) {
@@ -882,10 +883,51 @@ void ffmovie_setvolume(FFMovie *movie, int volume) {
 
 void ffmovie_abortall() {
     Global_abort_all = 1;
-printf("Movie abort all waiting for %d movies...\n", Global_num_active);
     while(Global_num_active > 0) {
         SDL_Delay(200);
     }
-printf("Movie abort all, finished\n");
     Global_abort_all = 0;
+}
+
+
+FFMovie *ffmovie_reopen(FFMovie *movie) {
+    const char* filename;
+    SDL_Overlay *dest_overlay;
+    SDL_Surface *dest_surface;
+    SDL_Rect dest_rect;
+    int waspaused = movie->paused;
+
+    filename = movie->sourcename;
+    movie->sourcename = NULL;
+    if(!filename) {
+        return NULL;
+    }
+
+    SDL_LockMutex(movie->dest_mutex);
+    dest_overlay = movie->dest_overlay;
+    dest_surface = movie->dest_surface;
+    dest_rect = movie->dest_rect;
+    movie->dest_overlay = NULL;
+    movie->dest_surface = NULL;
+    SDL_UnlockMutex(movie->dest_mutex);
+
+    ffmovie_close(movie);
+    
+    movie = ffmovie_open(filename);
+    free((void*)filename);
+    
+    if(movie) {
+        if(dest_overlay) {
+            SDL_LockMutex(movie->dest_mutex);
+            movie->dest_overlay = dest_overlay;
+            movie->dest_surface = dest_surface;
+            movie->dest_rect = dest_rect;
+            SDL_UnlockMutex(movie->dest_mutex);
+        }
+        if(!waspaused) {
+            ffmovie_play(movie);
+        }
+    }
+   
+    return movie;
 }

@@ -15,8 +15,6 @@ SMPEG = -lsmpeg
 NUMERIC = -I/usr/include/python2.0/Numeric
 #--EndConfig
 
-#Movie needs libavcodec and friends, must hand configure
-#movie src/movie.c  src/ffmovie.c $(SDL) -lavcodec -lavformat
 
 
 
@@ -30,7 +28,11 @@ mixer src/mixer.c $(SDL) $(MIXER)
 mixer_music src/music.c $(SDL) $(MIXER)
 surfarray src/surfarray.c $(SDL) $(NUMERIC)
 sndarray src/sndarray.c $(SDL) $(NUMERIC) $(MIXER)
+movie src/movie.c $(SDL) $(SMPEG)
 
+#experimental new movie movie. requires libavcodec and libavformat.
+#add any necessary compile flags to this line and uncomment.
+#movieext src/movie.c  src/ffmovie.c $(SDL) -lavcodec -lavformat
 
 
 #these modules are required for pygame to run. they only require

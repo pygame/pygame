@@ -4,7 +4,7 @@
 
 
 
-
+#define MAX_SOURCENAME 1024
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
 
 /* SDL audio buffer size, in samples. Should be small to have precise
@@ -93,12 +93,15 @@ typedef struct FFMovie {
     double time_offset; /*track paused time*/
     
     int audio_disable;
+    
+    const char *sourcename;
 } FFMovie;
 
 
 
 
 FFMovie *ffmovie_open(const char *filename);
+FFMovie *ffmovie_reopen(FFMovie *movie);
 void ffmovie_close(FFMovie *movie);
 void ffmovie_play(FFMovie *movie);
 void ffmovie_stop(FFMovie *movie);
