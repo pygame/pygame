@@ -107,8 +107,20 @@ There is also an alpha channel for some Surfaces.
 copy a one Surface to another.</td></tr>
 
 
+<tr><td><a href=#blit>blit</a></td><td> -
+copy a one Surface to another.</td></tr>
+
+
 <tr><td><a href=#convert>convert</a></td><td> -
 new copy of surface with different format</td></tr>
+
+
+<tr><td><a href=#convert>convert</a></td><td> -
+new copy of surface with different format</td></tr>
+
+
+<tr><td><a href=#convert_alpha>convert_alpha</a></td><td> -
+new copy of surface with different format and per pixel alpha</td></tr>
 
 
 <tr><td><a href=#convert_alpha>convert_alpha</a></td><td> -
@@ -119,6 +131,14 @@ new copy of surface with different format and per pixel alpha</td></tr>
 fill areas of a Surface</td></tr>
 
 
+<tr><td><a href=#fill>fill</a></td><td> -
+fill areas of a Surface</td></tr>
+
+
+<tr><td><a href=#get_alpha>get_alpha</a></td><td> -
+query alpha information</td></tr>
+
+
 <tr><td><a href=#get_alpha>get_alpha</a></td><td> -
 query alpha information</td></tr>
 
@@ -127,7 +147,19 @@ query alpha information</td></tr>
 get a pixel color</td></tr>
 
 
+<tr><td><a href=#get_at>get_at</a></td><td> -
+get a pixel color</td></tr>
+
+
 <tr><td><a href=#get_bitsize>get_bitsize</a></td><td> -
+query size of pixel</td></tr>
+
+
+<tr><td><a href=#get_bitsize>get_bitsize</a></td><td> -
+query size of pixel</td></tr>
+
+
+<tr><td><a href=#get_bytesize>get_bytesize</a></td><td> -
 query size of pixel</td></tr>
 
 
@@ -139,8 +171,20 @@ query size of pixel</td></tr>
 query the clipping area</td></tr>
 
 
+<tr><td><a href=#get_clip>get_clip</a></td><td> -
+query the clipping area</td></tr>
+
+
 <tr><td><a href=#get_colorkey>get_colorkey</a></td><td> -
 query colorkey</td></tr>
+
+
+<tr><td><a href=#get_colorkey>get_colorkey</a></td><td> -
+query colorkey</td></tr>
+
+
+<tr><td><a href=#get_flags>get_flags</a></td><td> -
+query the surface flags</td></tr>
 
 
 <tr><td><a href=#get_flags>get_flags</a></td><td> -
@@ -151,8 +195,20 @@ query the surface flags</td></tr>
 query the surface height</td></tr>
 
 
+<tr><td><a href=#get_height>get_height</a></td><td> -
+query the surface height</td></tr>
+
+
 <tr><td><a href=#get_locked>get_locked</a></td><td> -
 check if the surface needs locking</td></tr>
+
+
+<tr><td><a href=#get_locked>get_locked</a></td><td> -
+check if the surface needs locking</td></tr>
+
+
+<tr><td><a href=#get_losses>get_losses</a></td><td> -
+get mapping losses for each colorplane</td></tr>
 
 
 <tr><td><a href=#get_losses>get_losses</a></td><td> -
@@ -163,8 +219,20 @@ get mapping losses for each colorplane</td></tr>
 get mapping bitmasks for each colorplane</td></tr>
 
 
+<tr><td><a href=#get_masks>get_masks</a></td><td> -
+get mapping bitmasks for each colorplane</td></tr>
+
+
 <tr><td><a href=#get_palette>get_palette</a></td><td> -
 get the palette</td></tr>
+
+
+<tr><td><a href=#get_palette>get_palette</a></td><td> -
+get the palette</td></tr>
+
+
+<tr><td><a href=#get_palette_at>get_palette_at</a></td><td> -
+get a palette entry</td></tr>
 
 
 <tr><td><a href=#get_palette_at>get_palette_at</a></td><td> -
@@ -175,8 +243,20 @@ get a palette entry</td></tr>
 query the surface pitch</td></tr>
 
 
+<tr><td><a href=#get_pitch>get_pitch</a></td><td> -
+query the surface pitch</td></tr>
+
+
 <tr><td><a href=#get_rect>get_rect</a></td><td> -
 get a rectangle covering the entire surface</td></tr>
+
+
+<tr><td><a href=#get_rect>get_rect</a></td><td> -
+get a rectangle covering the entire surface</td></tr>
+
+
+<tr><td><a href=#get_shifts>get_shifts</a></td><td> -
+alphashift</td></tr>
 
 
 <tr><td><a href=#get_shifts>get_shifts</a></td><td> -
@@ -187,8 +267,20 @@ alphashift</td></tr>
 query the surface size</td></tr>
 
 
+<tr><td><a href=#get_size>get_size</a></td><td> -
+query the surface size</td></tr>
+
+
 <tr><td><a href=#get_width>get_width</a></td><td> -
 query the surface width</td></tr>
+
+
+<tr><td><a href=#get_width>get_width</a></td><td> -
+query the surface width</td></tr>
+
+
+<tr><td><a href=#lock>lock</a></td><td> -
+locks Surface for pixel access</td></tr>
 
 
 <tr><td><a href=#lock>lock</a></td><td> -
@@ -199,8 +291,20 @@ locks Surface for pixel access</td></tr>
 convert RGB into a mapped color</td></tr>
 
 
+<tr><td><a href=#map_rgb>map_rgb</a></td><td> -
+convert RGB into a mapped color</td></tr>
+
+
 <tr><td><a href=#mustlock>mustlock</a></td><td> -
 check if the surface needs locking</td></tr>
+
+
+<tr><td><a href=#mustlock>mustlock</a></td><td> -
+check if the surface needs locking</td></tr>
+
+
+<tr><td><a href=#set_alpha>set_alpha</a></td><td> -
+change alpha information</td></tr>
 
 
 <tr><td><a href=#set_alpha>set_alpha</a></td><td> -
@@ -211,8 +315,20 @@ change alpha information</td></tr>
 set pixel at given position</td></tr>
 
 
+<tr><td><a href=#set_at>set_at</a></td><td> -
+set pixel at given position</td></tr>
+
+
 <tr><td><a href=#set_clip>set_clip</a></td><td> -
 assign destination clipping rectangle</td></tr>
+
+
+<tr><td><a href=#set_clip>set_clip</a></td><td> -
+assign destination clipping rectangle</td></tr>
+
+
+<tr><td><a href=#set_colorkey>set_colorkey</a></td><td> -
+change colorkey information</td></tr>
 
 
 <tr><td><a href=#set_colorkey>set_colorkey</a></td><td> -
@@ -223,8 +339,20 @@ change colorkey information</td></tr>
 set the palette</td></tr>
 
 
+<tr><td><a href=#set_palette>set_palette</a></td><td> -
+set the palette</td></tr>
+
+
 <tr><td><a href=#set_palette_at>set_palette_at</a></td><td> -
 set a palette entry</td></tr>
+
+
+<tr><td><a href=#set_palette_at>set_palette_at</a></td><td> -
+set a palette entry</td></tr>
+
+
+<tr><td><a href=#subsurface>subsurface</a></td><td> -
+create a new surface that shares pixel data</td></tr>
 
 
 <tr><td><a href=#subsurface>subsurface</a></td><td> -
@@ -235,6 +363,14 @@ create a new surface that shares pixel data</td></tr>
 locks Surface for pixel access</td></tr>
 
 
+<tr><td><a href=#unlock>unlock</a></td><td> -
+locks Surface for pixel access</td></tr>
+
+
+<tr><td><a href=#unmap_rgb>unmap_rgb</a></td><td> -
+convert mapped color into RGB</td></tr>
+
+
 <tr><td><a href=#unmap_rgb>unmap_rgb</a></td><td> -
 convert mapped color into RGB</td></tr>
 
@@ -242,6 +378,34 @@ convert mapped color into RGB</td></tr>
 </table>
 
 <hr>
+
+<a name=blit><font size=+2><b>blit
+</b></font><br><font size=+1><tt>
+Surface.blit(source, destpos, [sourcerect]) -> Rect
+</tt></font><ul>
+The blitting will copy pixels from the source. It will
+respect any special modes like colorkeying and alpha. If hardware
+support is available, it will be used. The given source is the
+Surface to copy from. The destoffset is a 2-number-sequence that
+specifies where on the destination Surface the blit happens (see below).
+When sourcerect isn't supplied, the blit will copy the
+entire source surface. If you would like to copy only a portion
+of the source, use the sourcerect argument to control
+what area is copied.
+<br>&nbsp;<br>
+The blit is subject to be clipped by the active clipping
+rectangle. The return value contains the actual area blitted.
+<br>&nbsp;<br>
+As a shortcut, the destination position can be passed as a
+rectangle. If a rectangle is given, the blit will use the topleft
+corner of the rectangle as the blit destination position. The
+rectangle sizes will be ignored.
+
+<br>&nbsp;<br>
+Blitting surfaces with pixel alphas onto an 8bit destination will
+not use the surface alpha values.
+
+</ul><br>&nbsp;<br>
 
 <a name=blit><font size=+2><b>blit
 </b></font><br><font size=+1><tt>
@@ -289,6 +453,39 @@ you would like to convert to. When used this way you may also
 pass an optional flags argument (whew).
 </ul><br>&nbsp;<br>
 
+<a name=convert><font size=+2><b>convert
+</b></font><br><font size=+1><tt>
+Surface.convert([src_surface] OR depth, [flags] OR masks) -> Surface
+</tt></font><ul>
+Creates a new copy of the surface with the desired pixel format.
+Surfaces with the same pixel format will blit much faster than
+those with mixed formats. The pixel format of the new surface
+will match the format given as the argument. If no surface is
+given, the new surface will have the same pixel format as the
+current display.
+<br>&nbsp;<br>
+convert() will also accept bitsize or mask arguments like the
+Surface() constructor function. Either pass an integer bitsize
+or a sequence of color masks to specify the format of surface
+you would like to convert to. When used this way you may also
+pass an optional flags argument (whew).
+</ul><br>&nbsp;<br>
+
+<a name=convert_alpha><font size=+2><b>convert_alpha
+</b></font><br><font size=+1><tt>
+Surface.convert_alpha([src_surface]) -> Surface
+</tt></font><ul>
+Creates a new copy of the surface with the desired pixel format.
+The new surface will be in a format suited for quick blitting to
+the given format with per pixel alpha. If no surface is given,
+the new surface will be optimized for blittint to the current
+display.
+<br>&nbsp;<br>
+Unlike the <a href=#convert>convert()</a> method, the pixel format for the new image
+will not be exactly the same as the requested source, but it will
+be optimized for fast alpha blitting to the destination.
+</ul><br>&nbsp;<br>
+
 <a name=convert_alpha><font size=+2><b>convert_alpha
 </b></font><br><font size=+1><tt>
 Surface.convert_alpha([src_surface]) -> Surface
@@ -318,12 +515,44 @@ The fill is subject to be clipped by the active clipping
 rectangle. The return value contains the actual area filled.
 </ul><br>&nbsp;<br>
 
+<a name=fill><font size=+2><b>fill
+</b></font><br><font size=+1><tt>
+Surface.fill(color, [rectstyle])) -> Rect
+</tt></font><ul>
+Fills the specified area of the Surface with the mapped color
+value. If no destination rectangle is supplied, it will fill the
+entire Surface.
+<br>&nbsp;<br>
+The color argument can be a RGBA sequence or a mapped color integer.
+<br>&nbsp;<br>
+The fill is subject to be clipped by the active clipping
+rectangle. The return value contains the actual area filled.
+</ul><br>&nbsp;<br>
+
 <a name=get_alpha><font size=+2><b>get_alpha
 </b></font><br><font size=+1><tt>
 Surface.get_alpha() -> alpha
 </tt></font><ul>
 Returns the current alpha value for the Surface. If transparency
 is disabled for the Surface, it returns None.
+</ul><br>&nbsp;<br>
+
+<a name=get_alpha><font size=+2><b>get_alpha
+</b></font><br><font size=+1><tt>
+Surface.get_alpha() -> alpha
+</tt></font><ul>
+Returns the current alpha value for the Surface. If transparency
+is disabled for the Surface, it returns None.
+</ul><br>&nbsp;<br>
+
+<a name=get_at><font size=+2><b>get_at
+</b></font><br><font size=+1><tt>
+Surface.get_at(position) -> RGBA
+</tt></font><ul>
+Returns the RGB color values at a given pixel. If the
+Surface has no per-pixel alpha, the alpha will be 255 (opaque).
+<br>&nbsp;<br>
+This function will need to temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
 <a name=get_at><font size=+2><b>get_at
@@ -345,11 +574,36 @@ value may not exactly fill the number of bytes used per pixel.
 For example a 15 bit Surface still requires a full 2 bytes.
 </ul><br>&nbsp;<br>
 
+<a name=get_bitsize><font size=+2><b>get_bitsize
+</b></font><br><font size=+1><tt>
+Surface.get_bitsize() -> int
+</tt></font><ul>
+Returns the number of bits used to represent each pixel. This
+value may not exactly fill the number of bytes used per pixel.
+For example a 15 bit Surface still requires a full 2 bytes.
+</ul><br>&nbsp;<br>
+
 <a name=get_bytesize><font size=+2><b>get_bytesize
 </b></font><br><font size=+1><tt>
 Surface.get_bytesize() -> int
 </tt></font><ul>
 Returns the number of bytes used to store each pixel.
+</ul><br>&nbsp;<br>
+
+<a name=get_bytesize><font size=+2><b>get_bytesize
+</b></font><br><font size=+1><tt>
+Surface.get_bytesize() -> int
+</tt></font><ul>
+Returns the number of bytes used to store each pixel.
+</ul><br>&nbsp;<br>
+
+<a name=get_clip><font size=+2><b>get_clip
+</b></font><br><font size=+1><tt>
+Surface.get_clip() -> rect
+</tt></font><ul>
+Returns the current destination clipping area being used by the
+Surface. If the clipping area is not set, it will return a
+rectangle containing the full Surface area.
 </ul><br>&nbsp;<br>
 
 <a name=get_clip><font size=+2><b>get_clip
@@ -370,6 +624,22 @@ colorkeying. If colorkeying is not enabled for this surface, it
 returns None
 </ul><br>&nbsp;<br>
 
+<a name=get_colorkey><font size=+2><b>get_colorkey
+</b></font><br><font size=+1><tt>
+Surface.get_colorkey() -> RGBA
+</tt></font><ul>
+Returns the current mapped color value being used for
+colorkeying. If colorkeying is not enabled for this surface, it
+returns None
+</ul><br>&nbsp;<br>
+
+<a name=get_flags><font size=+2><b>get_flags
+</b></font><br><font size=+1><tt>
+Surface.get_flags() -> flags
+</tt></font><ul>
+Returns the current state flags for the surface.
+</ul><br>&nbsp;<br>
+
 <a name=get_flags><font size=+2><b>get_flags
 </b></font><br><font size=+1><tt>
 Surface.get_flags() -> flags
@@ -384,11 +654,35 @@ Surface.get_height() -> height
 Returns the height of the Surface.
 </ul><br>&nbsp;<br>
 
+<a name=get_height><font size=+2><b>get_height
+</b></font><br><font size=+1><tt>
+Surface.get_height() -> height
+</tt></font><ul>
+Returns the height of the Surface.
+</ul><br>&nbsp;<br>
+
 <a name=get_locked><font size=+2><b>get_locked
 </b></font><br><font size=+1><tt>
 Surface.get_locked() -> bool
 </tt></font><ul>
 Returns true if the surface is currently locked.
+</ul><br>&nbsp;<br>
+
+<a name=get_locked><font size=+2><b>get_locked
+</b></font><br><font size=+1><tt>
+Surface.get_locked() -> bool
+</tt></font><ul>
+Returns true if the surface is currently locked.
+</ul><br>&nbsp;<br>
+
+<a name=get_losses><font size=+2><b>get_losses
+</b></font><br><font size=+1><tt>
+Surface.get_losses() -> redloss, greenloss, blueloss, alphaloss
+</tt></font><ul>
+Returns the bitloss for each color plane. The loss is the number
+of bits removed for each colorplane from a full 8 bits of
+resolution. A value of 8 usually indicates that colorplane is not
+used (like the alpha)
 </ul><br>&nbsp;<br>
 
 <a name=get_losses><font size=+2><b>get_losses
@@ -410,12 +704,37 @@ isolate each colorplane value from a mapped color value. A value
 of zero means that colorplane is not used (like alpha)
 </ul><br>&nbsp;<br>
 
+<a name=get_masks><font size=+2><b>get_masks
+</b></font><br><font size=+1><tt>
+Surface.get_masks() -> redmask, greenmask, bluemask, alphamask
+</tt></font><ul>
+Returns the bitmasks for each color plane. The bitmask is used to
+isolate each colorplane value from a mapped color value. A value
+of zero means that colorplane is not used (like alpha)
+</ul><br>&nbsp;<br>
+
 <a name=get_palette><font size=+2><b>get_palette
 </b></font><br><font size=+1><tt>
 Surface.get_palette() -> [[r, g, b], ...]
 </tt></font><ul>
 This will return the an array of all the color indexes in the
 Surface's palette.
+</ul><br>&nbsp;<br>
+
+<a name=get_palette><font size=+2><b>get_palette
+</b></font><br><font size=+1><tt>
+Surface.get_palette() -> [[r, g, b], ...]
+</tt></font><ul>
+This will return the an array of all the color indexes in the
+Surface's palette.
+</ul><br>&nbsp;<br>
+
+<a name=get_palette_at><font size=+2><b>get_palette_at
+</b></font><br><font size=+1><tt>
+Surface.get_palette_at(index) -> r, g, b
+</tt></font><ul>
+This will retreive an individual color entry from the Surface's
+palette.
 </ul><br>&nbsp;<br>
 
 <a name=get_palette_at><font size=+2><b>get_palette_at
@@ -433,6 +752,24 @@ Surface.get_pitch() -> pitch
 The surface pitch is the number of bytes used in each
 scanline. This function should rarely needed, mainly for
 any special-case debugging.
+</ul><br>&nbsp;<br>
+
+<a name=get_pitch><font size=+2><b>get_pitch
+</b></font><br><font size=+1><tt>
+Surface.get_pitch() -> pitch
+</tt></font><ul>
+The surface pitch is the number of bytes used in each
+scanline. This function should rarely needed, mainly for
+any special-case debugging.
+</ul><br>&nbsp;<br>
+
+<a name=get_rect><font size=+2><b>get_rect
+</b></font><br><font size=+1><tt>
+Surface.get_rect() -> rect
+</tt></font><ul>
+Returns a new rectangle covering the entire surface.
+This rectangle will always start at 0, 0 with a width.
+and height the same size as the image.
 </ul><br>&nbsp;<br>
 
 <a name=get_rect><font size=+2><b>get_rect
@@ -454,6 +791,23 @@ determine how many bits left-shifted a colorplane value is in a
 mapped color value.
 </ul><br>&nbsp;<br>
 
+<a name=get_shifts><font size=+2><b>get_shifts
+</b></font><br><font size=+1><tt>
+Surface.get_shifts() -> redshift, greenshift, blueshift,
+</tt></font><ul>
+<br>&nbsp;<br>
+Returns the bitshifts used for each color plane. The shift is
+determine how many bits left-shifted a colorplane value is in a
+mapped color value.
+</ul><br>&nbsp;<br>
+
+<a name=get_size><font size=+2><b>get_size
+</b></font><br><font size=+1><tt>
+Surface.get_size() -> x, y
+</tt></font><ul>
+Returns the width and height of the Surface.
+</ul><br>&nbsp;<br>
+
 <a name=get_size><font size=+2><b>get_size
 </b></font><br><font size=+1><tt>
 Surface.get_size() -> x, y
@@ -466,6 +820,39 @@ Returns the width and height of the Surface.
 Surface.get_width() -> width
 </tt></font><ul>
 Returns the width of the Surface.
+</ul><br>&nbsp;<br>
+
+<a name=get_width><font size=+2><b>get_width
+</b></font><br><font size=+1><tt>
+Surface.get_width() -> width
+</tt></font><ul>
+Returns the width of the Surface.
+</ul><br>&nbsp;<br>
+
+<a name=lock><font size=+2><b>lock
+</b></font><br><font size=+1><tt>
+Surface.lock() -> None
+</tt></font><ul>
+On accelerated surfaces, it is usually required to lock the
+surface before you can access the pixel values. To be safe, it is
+always a good idea to lock the surface before entering a block of
+code that changes or accesses the pixel values. The surface must
+not be locked when performing other pygame functions on it like
+fill and blit.
+<br>&nbsp;<br>
+You can doublecheck to really make sure a lock is needed by
+calling the <a href=#mustlock>mustlock()</a> member. This should not be needed, since
+it is usually recommended to lock anyways and work with all
+surface types. If the surface does not need to be locked, the
+operation will return quickly with minute overhead.
+<br>&nbsp;<br>
+On some platforms a necessary lock can shut off some parts of the
+system. This is not a problem unless you leave surfaces locked
+for long periouds of time. Only keep the surface locked when you
+need the pixel access. At the same time, it is not a good too
+repeatedly lock and unlock the surface inside tight loops. It is
+fine to leave the surface locked while needed, just don't be
+lazy.
 </ul><br>&nbsp;<br>
 
 <a name=lock><font size=+2><b>lock
@@ -504,6 +891,16 @@ This function is not as needed as normal C code using SDL. The pygame
 functions do not used mapped colors, so there is no need to map them.
 </ul><br>&nbsp;<br>
 
+<a name=map_rgb><font size=+2><b>map_rgb
+</b></font><br><font size=+1><tt>
+Surface.map_rgb(RGBA) -> int
+</tt></font><ul>
+Uses the Surface format to convert RGBA into a mapped color value.
+<br>&nbsp;<br>
+This function is not as needed as normal C code using SDL. The pygame
+functions do not used mapped colors, so there is no need to map them.
+</ul><br>&nbsp;<br>
+
 <a name=mustlock><font size=+2><b>mustlock
 </b></font><br><font size=+1><tt>
 Surface.mustlock() -> bool
@@ -511,6 +908,34 @@ Surface.mustlock() -> bool
 Returns true if the surface really does need locking to gain
 pixel access. Usually the overhead of checking before locking
 outweight the overhead of just locking any surface before access.
+</ul><br>&nbsp;<br>
+
+<a name=mustlock><font size=+2><b>mustlock
+</b></font><br><font size=+1><tt>
+Surface.mustlock() -> bool
+</tt></font><ul>
+Returns true if the surface really does need locking to gain
+pixel access. Usually the overhead of checking before locking
+outweight the overhead of just locking any surface before access.
+</ul><br>&nbsp;<br>
+
+<a name=set_alpha><font size=+2><b>set_alpha
+</b></font><br><font size=+1><tt>
+Surface.set_alpha([alpha, [flags]]) -> None
+</tt></font><ul>
+Set the overall transparency for the surface. If no alpha is
+passed, alpha blending is disabled for the surface. An alpha of 0
+is fully transparent, an alpha of 255 is fully opaque. If no
+arguments or None is passed, this will disable the surface alpha.
+<br>&nbsp;<br>
+If your surface has a pixel alpha channel, it will override the
+overall surface transparency. You'll need to change the actual
+pixel transparency to make changes.
+<br>&nbsp;<br>
+If your image also has pixel alpha values, will be used repeatedly, you
+will probably want to pass the RLEACCEL flag to the call. This
+will take a short time to compile your surface, and increase the
+blitting speed.
 </ul><br>&nbsp;<br>
 
 <a name=set_alpha><font size=+2><b>set_alpha
@@ -546,6 +971,32 @@ require the surface to be locked.
 This function will need to temporarily lock the surface.
 </ul><br>&nbsp;<br>
 
+<a name=set_at><font size=+2><b>set_at
+</b></font><br><font size=+1><tt>
+Surface.set_at(position, RGBA) -> None
+</tt></font><ul>
+Assigns color to the image at the give position. Color can be a
+RGBA sequence or a mapped color integer.
+<br>&nbsp;<br>
+In some situations just using the <a href=#fill>fill()</a> function with a one-pixel
+sized rectangle will be quicker. Also the fill function does not
+require the surface to be locked.
+<br>&nbsp;<br>
+This function will need to temporarily lock the surface.
+</ul><br>&nbsp;<br>
+
+<a name=set_clip><font size=+2><b>set_clip
+</b></font><br><font size=+1><tt>
+Surface.set_clip([rectstyle]) -> None
+</tt></font><ul>
+Assigns the destination clipping rectangle for the Surface. When
+blit or fill operations are performed on the Surface, they are
+restricted to the inside of the clipping rectangle. If no
+rectangle is passed, the clipping region is set to the entire
+Surface area. The rectangle you pass will be clipped to the area of
+the Surface.
+</ul><br>&nbsp;<br>
+
 <a name=set_clip><font size=+2><b>set_clip
 </b></font><br><font size=+1><tt>
 Surface.set_clip([rectstyle]) -> None
@@ -574,6 +1025,22 @@ will take a short time to compile your surface, and increase the
 blitting speed.
 </ul><br>&nbsp;<br>
 
+<a name=set_colorkey><font size=+2><b>set_colorkey
+</b></font><br><font size=+1><tt>
+Surface.set_colorkey([color, [flags]]) -> None
+</tt></font><ul>
+Set the colorkey for the surface by passing a mapped color value
+as the color argument. If no arguments or None is passed,
+colorkeying will be disabled for this surface.
+<br>&nbsp;<br>
+The color argument can be either a RGBA sequence or a mapped integer.
+<br>&nbsp;<br>
+If your image is nonchanging and will be used repeatedly, you
+will probably want to pass the RLEACCEL flag to the call. This
+will take a short time to compile your surface, and increase the
+blitting speed.
+</ul><br>&nbsp;<br>
+
 <a name=set_palette><font size=+2><b>set_palette
 </b></font><br><font size=+1><tt>
 Surface.set_palette([[r, g, b], ...]) -> None
@@ -583,6 +1050,24 @@ information you provide.
 <br>&nbsp;<br>
 You can pass an incomplete list of RGB values, and
 this will only change the first colors in the palette.
+</ul><br>&nbsp;<br>
+
+<a name=set_palette><font size=+2><b>set_palette
+</b></font><br><font size=+1><tt>
+Surface.set_palette([[r, g, b], ...]) -> None
+</tt></font><ul>
+This will replace the entire palette with color
+information you provide.
+<br>&nbsp;<br>
+You can pass an incomplete list of RGB values, and
+this will only change the first colors in the palette.
+</ul><br>&nbsp;<br>
+
+<a name=set_palette_at><font size=+2><b>set_palette_at
+</b></font><br><font size=+1><tt>
+Surface.set_palette_at(index, [r, g, b]) -> None
+</tt></font><ul>
+This function sets the palette color at a specific entry.
 </ul><br>&nbsp;<br>
 
 <a name=set_palette_at><font size=+2><b>set_palette_at
@@ -615,6 +1100,27 @@ expect, but changes the the parent Surface will not always take effect
 in the subsurface.
 </ul><br>&nbsp;<br>
 
+<a name=subsurface><font size=+2><b>subsurface
+</b></font><br><font size=+1><tt>
+Surface.subsurface(rectstyle) -> Surface
+</tt></font><ul>
+Creates a new surface that shares pixel data of the given surface.
+Note that only the pixel data is shared. Things like clipping rectangles
+and colorkeys will be unique for the new surface.
+<br>&nbsp;<br>
+The new subsurface will inherit the palette, colorkey, and surface alpha
+values from the base image.
+<br>&nbsp;<br>
+You should not use the RLEACCEL flag for parent surfaces of subsurfaces,
+for the most part it will work, but it will cause a lot of extra work,
+every time you change the subsurface, you must decode and recode the
+RLEACCEL data for the parent surface.
+<br>&nbsp;<br>
+As for using RLEACCEL with the subsurfaces, that will work as you'd
+expect, but changes the the parent Surface will not always take effect
+in the subsurface.
+</ul><br>&nbsp;<br>
+
 <a name=unlock><font size=+2><b>unlock
 </b></font><br><font size=+1><tt>
 Surface.unlock() -> None
@@ -627,6 +1133,31 @@ calling the <a href=#mustlock>mustlock()</a> member. This should not be needed, 
 it is usually recommended to lock anyways and work with all
 surface types. If the surface does not need to be locked, the
 operation will return quickly with minute overhead.
+</ul><br>&nbsp;<br>
+
+<a name=unlock><font size=+2><b>unlock
+</b></font><br><font size=+1><tt>
+Surface.unlock() -> None
+</tt></font><ul>
+After a surface has been locked, you will need to unlock it when
+you are done.
+<br>&nbsp;<br>
+You can doublecheck to really make sure a lock is needed by
+calling the <a href=#mustlock>mustlock()</a> member. This should not be needed, since
+it is usually recommended to lock anyways and work with all
+surface types. If the surface does not need to be locked, the
+operation will return quickly with minute overhead.
+</ul><br>&nbsp;<br>
+
+<a name=unmap_rgb><font size=+2><b>unmap_rgb
+</b></font><br><font size=+1><tt>
+Surface.unmap_rgb(color) -> RGBA
+</tt></font><ul>
+This function returns the RGBA components for a mapped color
+value. If Surface has no per-pixel alpha, alpha will be 255 (opaque).
+<br>&nbsp;<br>
+This function is not as needed as normal C code using SDL. The pygame
+functions do not used mapped colors, so there is no need to unmap them.
 </ul><br>&nbsp;<br>
 
 <a name=unmap_rgb><font size=+2><b>unmap_rgb
