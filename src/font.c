@@ -505,7 +505,7 @@ static PyObject* font_size(PyObject* self, PyObject* args)
 
 		TTF_SizeUTF8(font, string, &w, &h);
 
-		Py_DECREF(text);
+		Py_DECREF(strob);
 	}
 	else if(PyString_Check(text))
 	{
