@@ -108,7 +108,6 @@ class smart_install_data(install_data):
 
         install_cmd = self.get_finalized_command('install')
         self.install_dir = getattr(install_cmd, 'install_lib')
-        print '  new:', self.install_dir
         return install_data.run(self)
 
 
