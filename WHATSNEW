@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Auguest 14, 2002
+	switched to FSF's FreeSansBold default font
+	new font.get_default_font()
+	cleanup harmless void** typing
+
 July 24, 2002
 	Ole Martin Bjoerndalen's CD.play fix
 
