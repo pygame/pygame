@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+November 18, 2003
+    Remove legacy python code. Ver 2.2 is minimum
+
 pygame-16
 October 23, 2003
     final updates for 1.6

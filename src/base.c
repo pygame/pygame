@@ -458,8 +458,6 @@ static int PyGame_Video_AutoInit(void)
 }
 
 
-#if PY_MAJOR_VERSION >= 2 && PY_MINOR_VERSION >= 2
-#define DO_CRASH_TRACEBACK
 
 #include<pystate.h>
 #include<compile.h>
@@ -504,19 +502,15 @@ static void print_traceback(PyObject *tb)
 	    tb = next;
     }
 }
-#endif
-
 
 
 /*error signal handlers (replacing SDL parachute)*/
 static void pygame_parachute(int sig)
 {
 	char* signaltype;
-#ifdef DO_CRASH_TRACEBACK
 	PyThreadState* thread;
 	PyInterpreterState *interp;
 	int thread_id;
-#endif
 
 	signal(sig, SIG_DFL);
 	switch (sig)
@@ -546,7 +540,6 @@ static void pygame_parachute(int sig)
 	}
 
 
-#ifdef DO_CRASH_TRACEBACK
 	printf("Pygame Parachute Traceback:\n");
 	interp = PyInterpreterState_Head();
 	thread=PyInterpreterState_ThreadHead(interp);
@@ -565,9 +558,6 @@ static void pygame_parachute(int sig)
 	    Py_INCREF(thread->curexc_traceback);
 	    print_traceback(thread->curexc_traceback);
 	}
-#else
-	printf("  (No Traceback Without Python2.2)\n");
-#endif
 
 	atexit_quit();
 	Py_FatalError(signaltype);

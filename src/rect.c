@@ -30,9 +30,7 @@
 staticforward PyTypeObject PyRect_Type;
 #define PyRect_Check(x) ((x)->ob_type == &PyRect_Type)
 
-#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
 static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-#endif
 
 
 
@@ -1422,13 +1420,8 @@ static PyTypeObject PyRect_Type = {
 
 	/* Space for future expansion */
 	0L,0L,0L,
-#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
-#else
-	0,					/* tp_flags */
-#endif
 	doc_Rect_MODULE,    /* Documentation string */
-#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
 	0,					/* tp_traverse */
 	0,					/* tp_clear */
 	0,					/* tp_richcompare */
@@ -1446,13 +1439,12 @@ static PyTypeObject PyRect_Type = {
 	0,					/* tp_init */
 	0,					/* tp_alloc */
 	rect_new,			/* tp_new */
-#endif
 };
 
 
 
 /*module globals*/
-
+#if 0
     /*DOC*/ static char doc_Rect[] =
     /*DOC*/    "pygame.Rect(rectstyle) -> Rect\n"
     /*DOC*/    "create a new rectangle\n"
@@ -1469,18 +1461,9 @@ static PyTypeObject PyRect_Type = {
     /*DOC*/    "version of those functions. They effect the actual\n"
     /*DOC*/    "source object, instead of returning a new Rect object.\n"
     /*DOC*/ ;
-
-static PyObject* RectInit(PyObject* self, PyObject* args)
-{
-	GAME_Rect *argrect, temp;
-	if(!(argrect = GameRect_FromObject(args, &temp)))
-		return RAISE(PyExc_TypeError, "Argument must be rect style object");
-
-	return PyRect_New4(argrect->x, argrect->y, argrect->w, argrect->h);
-}
+#endif
 
 
-#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
 static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
 	GAME_Rect *argrect, temp;
@@ -1489,14 +1472,10 @@ static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 	return PyRect_New4(argrect->x, argrect->y, argrect->w, argrect->h);
 }
-#endif
 
 
 static PyMethodDef rect__builtins__[] =
 {
-#if PYTHON_API_VERSION < 1011 /*PYTHON2.2*/
-	{ "Rect", RectInit, 1, doc_Rect },
-#endif
 	{NULL, NULL}
 };
 
@@ -1520,9 +1499,7 @@ void initrect(void)
 	dict = PyModule_GetDict(module);
 
 	PyDict_SetItemString(dict, "RectType", (PyObject *)&PyRect_Type);
-#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
 	PyDict_SetItemString(dict, "Rect", (PyObject *)&PyRect_Type);
-#endif
 
 	/* export the c api */
 	c_api[0] = &PyRect_Type;

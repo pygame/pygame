@@ -315,9 +315,8 @@ class Group(object):
            calls the update method for all sprites in the group.
            Passes all arguments on to the Sprite update function."""
         if args:
-            a=apply
             for s in self.spritedict.keys():
-                a(s.update, args)
+                s.update(*args)
         else:
             for s in self.spritedict.keys():
                 s.update()
@@ -419,7 +418,7 @@ class GroupSingle(object):
 
     def update(self, *args):
         if self.sprite:
-            apply(self.sprite.update, args)
+            self.sprite.update(*args)
 
     def __nonzero__(self):
         return self.sprite is not 0
