@@ -102,6 +102,8 @@ void initconstants(void)
 	PyModule_AddIntConstant(module, "GL_MULTISAMPLESAMPLES", -1);
 #endif
 
+	DEC_CONSTN(TIMER_RESOLUTION);
+    
 	DEC_CONSTN(AUDIO_U8);
 	DEC_CONSTN(AUDIO_S8);
 	DEC_CONSTN(AUDIO_U16LSB);
@@ -323,6 +325,13 @@ void initconstants(void)
     /*DOC*/    "colorkey funcs<br>\n"
     /*DOC*/    "NOFRAME - no window decorations<br>\n"
     /*DOC*/ ;
+
+	/*DOC*/ static char doc_time[] =
+    /*DOC*/    "pygame.constants.time (constants)\n"
+    /*DOC*/    "These constants define the various time constants\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "TIMER_RESOLUTION - minimum timer resolution in milliseconds<br>\n"
+    /*DOC*/    ;
 
     /*DOC*/ static char doc_events[] =
     /*DOC*/    "pygame.constants.events (constants)\n"
