@@ -22,6 +22,7 @@
 
 #include <Python.h>
 #include <SDL_mixer.h>
+#include <structmember.h>
 
 
 /* test mixer initializations */
@@ -35,6 +36,7 @@
 typedef struct {
   PyObject_HEAD
   Mix_Chunk* chunk;
+  PyObject *weakreflist;
 } PySoundObject;
 typedef struct {
   PyObject_HEAD

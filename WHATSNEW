@@ -4,6 +4,14 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 6, 2004
+    Sound object newstyle types
+    added Sound.get_length()
+
+July 5, 2004
+    Add Bo Jangeborg's cursor compile with added 'xor'
+    Add Bo Jangeborg's system cursors as compileable strings
+
 July 3, 2004
     Newstyle fonts crashing with bad filenames [BUG]
 
