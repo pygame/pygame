@@ -21,6 +21,7 @@ import distutils.sysconfig
 from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
 from distutils.ccompiler import new_compiler
+from distutils.command.install_data import install_data
 
 
 #headers to install
@@ -98,9 +99,63 @@ for e in extensions[:]:
 
 
 
+#data installer with improved intelligence over distutils
+#data files are copied into the project directory instead
+#of willy-nilly
+class smart_install_data(install_data):   
+    def run(self):
+        #need to change self.install_dir to the library dir
+
+        print 'SMART_INSTALL_DATA'
+        print '  old:', self.install_dir
+
+        install_cmd = self.get_finalized_command('install')
+        self.install_dir = getattr(install_cmd, 'install_lib')
+        print '  new:', self.install_dir
+        return install_data.run(self)
+
+        
+        #self.outfiles = []
+        #install_cmd = self.get_finalized_command('install')
+ 
+        #for d in self.data_files:
+        #    d = self.check_data(d)
+ 
+        #    install_dir = self.install_dir
+            # alternative base dir given => overwrite install_dir
+        #    if d.base_dir != None:
+        #        install_dir = getattr(install_cmd,d.base_dir)
+     
+            # copy to an other directory 
+        #    if d.copy_to != None:
+        #        if not os.path.isabs(d.copy_to):
+        #            # relatiev path to install_dir
+        #            dir = os.path.join(install_dir, d.copy_to)
+        #        elif install_cmd.root:
+        #            # absolute path and alternative root set 
+        #            dir = change_root(self.root,d.copy_to)
+        #        else:
+        #            # absolute path
+        #            dir = d.copy_to                  
+        #    else:
+        #        # simply copy to install_dir
+        #        dir = install_dir
+        #        # warn if necceassary  
+        #        self.warn("setup script did not provide a directory to copy files to "
+        #                  " -- installing right in '%s'" % install_dir)
+ 
+         #   dir=os.path.normpath(dir)
+            # create path
+         #   self.mkpath(dir) 
+ 
+
+
+
+
 #finally, 
 #call distutils with all needed info
 PACKAGE_DATA = {
+       "cmdclass":    {'install_data': smart_install_data},
        "packages":    ['pygame'],
        "package_dir": {'pygame': 'lib'},
        "headers":     headers,
