@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+April 14, 2002
+	bug when re-initializing pygame.display [BUG]
+
 April 8, 2002
         rectstyle now includes any object with a "rect" attrib
 	rects now have collidedict() and collidedictall()

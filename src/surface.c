@@ -1406,7 +1406,7 @@ static void surface_dealloc(PyObject* self)
 {
 	PySurfaceObject* surf = (PySurfaceObject*)self;
 	struct SubSurface_Data* data = ((PySurfaceObject*)self)->subsurface;
-
+        
 	if(SDL_WasInit(SDL_INIT_VIDEO))
 	{
 		while(surf->lockcount > 0)
