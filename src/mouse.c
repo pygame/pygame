@@ -337,6 +337,7 @@ static PyMethodDef mouse_builtins[] =
     /*DOC*/    "the edges of the screen.\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initmouse(void)
 {
 	PyObject *module, *dict;

@@ -1511,6 +1511,7 @@ static PyMethodDef surface_builtins[] =
     /*DOC*/    "surfaces, pygame.Surface().\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initsurface(void)
 {
 	PyObject *module, *dict, *apiobj, *lockmodule;

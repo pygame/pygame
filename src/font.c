@@ -676,6 +676,7 @@ static PyObject* PyFont_New(TTF_Font* font)
     /*DOC*/    "pygame.font.Font().\n"
     /*DOC*/ ;
 
+PYGAME_EXPORT
 void initfont(void)
 {
 	PyObject *module, *dict, *apiobj;

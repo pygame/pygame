@@ -1015,7 +1015,7 @@ static PyMethodDef rect__builtins__[] =
     /*DOC*/ static char rectangle_doc[] =
     /*DOC*/    "Module for the rectangle object\n";
 
-
+PYGAME_EXPORT
 void initrect(void)
 {
 	PyObject *module, *dict, *apiobj;
