@@ -284,6 +284,8 @@ static int clipline(int* pts, int left, int top, int right, int bottom)
 			}
 			if(x2 != x1)      
 				m = (y2 - y1) / (float)(x2 - x1);
+			else
+				m = 1.0f;
 			if(code1 & LEFT_EDGE) {
 				y1 += (int)((left - x1) * m);
 				x1 = left; 
