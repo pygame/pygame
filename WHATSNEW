@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+May 17, 2001
+	a few small compile time warning cleanups
+
 May 16, 2001
 	line drawing functions now use an optional width
 

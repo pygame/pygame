@@ -119,7 +119,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 		/*we need to get ahold of the pyopengl glReadPixels function*/
 		/*we use pyopengl's so we don't need to link with opengl at compiletime*/
 		PyObject *pyopengl, *readpixels = NULL;
-		int typeflag, formatflag;
+		int typeflag=0, formatflag=0;
 
 		pyopengl = PyImport_ImportModule("OpenGL.GL");
 		if(pyopengl)

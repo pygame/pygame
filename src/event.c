@@ -842,7 +842,7 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 
 static PyMethodDef event_builtins[] =
 {
-	{ "Event", Event, 3, doc_Event },
+	{ "Event", (PyCFunction)Event, 3, doc_Event },
 	{ "event_name", event_name, 1, doc_event_name },
 
 	{ "set_grab", set_grab, 1, doc_set_grab },
