@@ -1030,7 +1030,7 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 
 	if((src_rect = GameRect_FromObject(argpos, &temp)))
 	{
-		dx = src_rect->x;
+                dx = src_rect->x;
 		dy = src_rect->y;
 	}
 	else if(TwoShortsFromObj(argpos, &sx, &sy))
