@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Apr 05, 2001
+	cursors.load_xbm work on images without hotspots
+
 Apr 03, 2001
 	swapped endian-ness for pixels_alpha()
 

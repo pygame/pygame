@@ -171,9 +171,27 @@ should work with typical XBM files.
     if type(mask) is type(''): mask = open(mask)
     curs = curs.readlines()
     mask = mask.readlines()
-    info = tuple([int(curs[x].split()[-1]) for x in range(4)])
-    data = ' '.join(curs[5:]).replace('};', '').replace(',', '')
+    #load width,height
+    width = int(curs[0].split()[-1])
+    height = int(curs[1].split()[-1])
+    #load hotspot position
+    if curs[2].startswith('#define'):
+        hotx = int(curs[2].split()[-1])
+        hoty = int(curs[3].split()[-1])
+    else:
+        hotx = hoty = 0
+
+    info = width, height, hotx, hoty    
+
+    for line in range(len(curs)):
+        if curs[line].startswith('static char'):
+            break
+    data = ' '.join(curs[line+1:]).replace('};', '').replace(',', '')
     cursdata = tuple([bitswap(int(x, 16)) for x in data.split()])
-    data = ' '.join(mask[5:]).replace('};', '').replace(',', '')
+
+    for line in range(len(mask)):
+        if mask[line].startswith('static char'):
+            break
+    data = ' '.join(mask[line+1:]).replace('};', '').replace(',', '')
     maskdata = tuple([bitswap(int(x, 16)) for x in data.split()])
     return info[:2], info[2:], cursdata, maskdata
