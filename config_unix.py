@@ -6,7 +6,12 @@ from distutils.sysconfig import get_python_inc
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
-localbase = os.environ.get('LOCALBASE', '') #do we still need this?
+localbase = os.environ.get('LOCALBASE', '')
+
+#these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
+origincdirs = ['/include', '/include/SDL', '/include/SDL11',
+               'include/smpeg' ]
+origlibdirs = ['/lib']
 
 
 
@@ -114,7 +119,7 @@ class DependencyPython:
         if self.found and self.header:
             fullpath = os.path.join(get_python_inc(0), self.header)
             if not os.path.isfile(fullpath):
-                found = 0
+                self.found = 0
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
@@ -126,7 +131,7 @@ class DependencyPython:
 
 sdl_lib_name = 'SDL'
 if sys.platform.find('bsd') != -1:
-    sdl_lib_name = 'SDL-1.2'
+    sdl_lib_name = 'SDL-1.1'
 
 
 def main():
@@ -144,11 +149,13 @@ def main():
         print 'Unable to run "sdl-config". Please make sure a development version of SDL is installed.'
         raise SystemExit
 
-    incdirs = ['/usr/include', '/include']
-    libdirs = ['/usr/lib', '/lib']
-    if localbase: #unneeded?
-        incdirs = [localbase + '/include/SDL']
-        libdirs = [localbase + '/lib']
+    if localbase:
+        incdirs = [localbase+d for d in origincdirs]
+        libdirs = [localbase+d for d in origlibdirs]
+    incdirs = ["/usr"+d for d in origincdirs]
+    libdirs = ["/usr"+d for d in origlibdirs]
+    incdirs += ["/usr/local"+d for d in origincdirs]
+    libdirs += ["/usr/local"+d for d in origlibdirs]
     for arg in string.split(DEPS[0].cflags):
         if arg[:2] == '-I':
             incdirs.append(arg[2:])

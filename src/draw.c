@@ -26,6 +26,7 @@
 #include "pygame.h"
 #include <math.h>
 
+#if !defined(__FreeBSD_version) || __FreeBSD_version < 502119
 #ifdef _MSC_VER
 #pragma warning (disable:4244)
 
@@ -37,6 +38,8 @@ float trunc(float d)
 }
 
 #endif
+#endif
+
 
 #define FRAC(z) (z-trunc(z))
 #define INVFRAC(z) (1-(z-trunc(z)))
@@ -1071,19 +1074,21 @@ static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
 
 #define DRAWPIX32(pixel,colorptr,br,blend) \
 	if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8; \
-	if(blend) { \
-		int x; \
-		x = colorptr[0]*br+pixel[0]; \
-		pixel[0]= (x>254) ? 255: x; \
-		x = colorptr[1]*br+pixel[1]; \
-		pixel[1]= (x>254) ? 255: x; \
-		x = colorptr[2]*br+pixel[2]; \
-		pixel[2]= (x>254) ? 255: x; \
-	} else { \
-		pixel[0]=(Uint8)(colorptr[0]*br); \
-		pixel[1]=(Uint8)(colorptr[1]*br); \
-		pixel[2]=(Uint8)(colorptr[2]*br); \
-	}
+        if(blend) { \
+                int x; \
+                x = colorptr[0]*br+pixel[0]; \
+                pixel[0]= (x>254) ? 255: x; \
+                x = colorptr[1]*br+pixel[1]; \
+                pixel[1]= (x>254) ? 255: x; \
+                x = colorptr[2]*br+pixel[2]; \
+                pixel[2]= (x>254) ? 255: x; \
+                if(hasalpha) pixel[3] = pixel[0]+(br*255) - (pixel[3]*br); \
+        } else { \
+                pixel[0]=(Uint8)(colorptr[0]*br); \
+                pixel[1]=(Uint8)(colorptr[1]*br); \
+                pixel[2]=(Uint8)(colorptr[2]*br); \
+                if(hasalpha) pixel[3] = br*255; \
+	} 
 
 /* Adapted from http://freespace.virgin.net/hugo.elias/graphics/x_wuline.htm */
 static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, float x2, float y2, int blend) {
@@ -1096,8 +1101,9 @@ static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, floa
 	Uint8* pixel;
 	Uint8* pm = (Uint8*)surf->pixels;
 	Uint8* colorptr = (Uint8*)&color;
+        const int hasalpha = surf->format->Amask;
 
-	pixx = surf->format->BytesPerPixel;
+        pixx = surf->format->BytesPerPixel;
 	pixy = surf->pitch;
 
 	xd = x2-x1;
