@@ -49,7 +49,6 @@ class MissingModule:
         self.name = name
         self.info = str(info)
         self.urgent = urgent
-        self.ver = map(int, string.split(sys.version, '.')[:2])
         if urgent:
             self.warn()
 
@@ -67,12 +66,12 @@ class MissingModule:
         if self.urgent: type = 'import'
         else: type = 'use'
         message = '%s %s: %s' % (type, self.name, self.info)
-        if self.ver[0]>=2 and self.ver[1]>=1:
+        try:
             import warnings
             if self.urgent: level = 4
             else: level = 3
             warnings.warn(message, RuntimeWarning, level)
-        else:
+        except ImportError:
             print message
 
 
