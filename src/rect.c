@@ -1359,8 +1359,8 @@ static PyObject* rect_getsafepickle(PyRectObject *self, void *closure) {
 }
 
 static PyGetSetDef rect_getsets[] = {
-    {"x", (getter)rect_gettop, (setter)rect_settop, NULL, NULL},
-    {"y", (getter)rect_getleft, (setter)rect_setleft, NULL, NULL},
+    {"x", (getter)rect_getleft, (setter)rect_setleft, NULL, NULL},
+    {"y", (getter)rect_gettop, (setter)rect_settop, NULL, NULL},
     {"w", (getter)rect_getwidth, (setter)rect_setwidth, NULL, NULL},
     {"h", (getter)rect_getheight, (setter)rect_setheight, NULL, NULL},
     {"width", (getter)rect_getwidth, (setter)rect_setwidth, NULL, NULL},
