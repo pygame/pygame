@@ -43,6 +43,8 @@ static void alphablit_colorkey(SDL_BlitInfo *info);
 static void alphablit_solid(SDL_BlitInfo *info);
 static int SoftBlitAlpha(SDL_Surface *src, SDL_Rect *srcrect,
                         SDL_Surface *dst, SDL_Rect *dstrect);
+extern int SDL_RLESurface(SDL_Surface *surface);
+extern void SDL_UnRLESurface(SDL_Surface *surface, int recode);
 
 
 
@@ -167,12 +169,6 @@ static int SoftBlitAlpha(SDL_Surface *src, SDL_Rect *srcrect,
                         src_locked = 1;
         }
 
-        /* Unencode the destination if it's RLE encoded */
-        if ( dst->flags & SDL_RLEACCEL ) {
-                SDL_UnRLESurface(dst, 1);
-                dst->flags |= SDL_RLEACCEL;        /* save accel'd state */
-        }
-
         /* Set up source and destination buffer pointers, and BLIT! */
         if ( okay  && srcrect->w && srcrect->h ) {
                 SDL_BlitInfo info;
@@ -193,19 +189,12 @@ static int SoftBlitAlpha(SDL_Surface *src, SDL_Rect *srcrect,
                 info.src = src->format;
                 info.dst = dst->format;
 
-printf("branching to appropiate blitter\n" );
                 if(src->flags&SDL_SRCALPHA && src->format->Amask)
                     alphablit_alpha(&info);
                 else if(src->flags & SDL_SRCCOLORKEY)
                     alphablit_colorkey(&info);
                 else
                     alphablit_solid(&info);
-        }
-
-        /* Re-encode the destination if it's RLE encoded */
-        if ( dst->flags & SDL_RLEACCEL ) {
-                dst->flags &= ~SDL_RLEACCEL; /* stop lying */
-                SDL_RLESurface(dst);
         }
 
         /* We need to unlock the surfaces if they're locked */

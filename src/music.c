@@ -99,17 +99,17 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 	Mix_QuerySpec(&music_frequency, &music_format, &music_channels);
 	music_pos = 0;
 	music_pos_time = SDL_GetTicks();
+	volume = Mix_VolumeMusic(-1);
 
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
-        volume = Mix_VolumeMusic(-1);
-        val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
-        Mix_VolumeMusic(volume);
+	val = Mix_FadeInMusicPos(current_music, loops, 0, startpos);
+	Mix_VolumeMusic(volume);
 #else
-        if(startpos)
-            return RAISE(PyExc_NotImplementedError, "music start position requires SDL_mixer-1.2.4");
+	if(startpos)
+		return RAISE(PyExc_NotImplementedError, "music start position requires SDL_mixer-1.2.4");
 	val = Mix_PlayMusic(current_music, loops);
 #endif
-     	if(val == -1)
+	if(val == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
 	RETURN_NONE

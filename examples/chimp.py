@@ -102,7 +102,7 @@ class Chimp(pygame.sprite.Sprite):
     def _spin(self):
         "spin the monkey image"
         center = self.rect.center
-        self.dizzy += 12
+        self.dizzy = self.dizzy + 12
         if self.dizzy >= 360:
             self.dizzy = 0
             self.image = self.original
@@ -157,7 +157,7 @@ def main():
 #Main Loop
     while 1:
         clock.tick(60)
-	
+
     #Handle Input Events
         for event in pygame.event.get():
             if event.type is QUIT:

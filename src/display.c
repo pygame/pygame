@@ -987,7 +987,7 @@ static int convert_to_uint16(PyObject* python_array, Uint16* c_uint16_array)
 		    RAISE(PyExc_ValueError, "gamma ramp must contain integer elements");
                     return 0;
                 }
-		c_uint16_array[i] = PyInt_AsLong(item);
+		c_uint16_array[i] = (Uint16)PyInt_AsLong(item);
         }
 	return 1;
 }
