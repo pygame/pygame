@@ -6,6 +6,7 @@
 
 February 10, 2002
         pygame.init() not required for proper cleanup [BUG]
+        CD.play() fixed for tracks above 0
 
 February 8, 2002
 	Rect and Surface subclassable types

@@ -191,12 +191,11 @@ static PyObject* cd_init(PyObject* self, PyObject* args)
 		return NULL;
 
 	CDROM_INIT_CHECK();
-
 	if(!cdrom_drivedata[cd_id])
 	{
 		cdrom_drivedata[cd_id] = SDL_CDOpen(cd_id);
                 if(!cdrom_drivedata[cd_id])
-			return RAISE(PyExc_SDLError, SDL_GetError());
+			return RAISE(PyExc_SDLError, "Cannot initialize device");
 	}
 	RETURN_NONE
 }
@@ -259,7 +258,8 @@ static PyObject* cd_get_init(PyObject* self, PyObject* args)
     /*DOC*/    "You may also optionally pass a starting and ending\n"
     /*DOC*/    "time to play of the song. If you pass the start end\n"
     /*DOC*/    "end time in seconds, only that portion of the audio\n"
-    /*DOC*/    "track will be played\n"
+    /*DOC*/    "track will be played. If you only provide a start time\n"
+    /*DOC*/    "and no end time, this will play to the end of the track.\n"
     /*DOC*/ ;
 
 static PyObject* cd_play(PyObject* self, PyObject* args)
@@ -267,7 +267,7 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
 	int result, track, offset, length;
-	float start=0.0f, end=6000.0f;
+	float start=0.0f, end=6000000.0f;
 	int startframe, endframe;
 
 	if(!PyArg_ParseTuple(args, "i|ff", &track, &start, &end))
@@ -281,15 +281,14 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 		return RAISE(PyExc_IndexError, "Invalid track number");
 	if(cdrom->track[track].type != SDL_AUDIO_TRACK)
 		return RAISE(PyExc_SDLError, "CD track type is not audio");
-
 	offset = cdrom->track[track].offset;
-	length = cdrom->track[track].length;
+	length = cdrom->track[track].length * CD_FPS;
 	startframe = (int)(start * CD_FPS);
 	endframe = (int)(end * CD_FPS);
 	if(startframe < 0)
 		startframe = 0;
-	if(endframe < startframe || offset+startframe > length)
-		RETURN_NONE;
+	if(endframe < startframe || startframe > length)
+            RETURN_NONE;
 	offset += startframe;
 	length = min(length-startframe, endframe-startframe);
 	result = SDL_CDPlay(cdrom, offset, length);
