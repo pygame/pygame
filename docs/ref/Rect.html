@@ -109,8 +109,16 @@ check if rectangle fully inside another</td></tr>
 new rectangle with size changed</td></tr>
 
 
+<tr><td><a href=#inflate_ip>inflate_ip</a></td><td> -
+changes the Rect size</td></tr>
+
+
 <tr><td><a href=#move>move</a></td><td> -
 new rectangle with position changed</td></tr>
+
+
+<tr><td><a href=#move_ip>move_ip</a></td><td> -
+move the Rect by the given offset</td></tr>
 
 
 <tr><td><a href=#normalize>normalize</a></td><td> -
@@ -118,10 +126,18 @@ corrects negative sizes</td></tr>
 
 
 <tr><td><a href=#union>union</a></td><td> -
+makes new rectangle covering both inputs</td></tr>
+
+
+<tr><td><a href=#union_ip>union_ip</a></td><td> -
 rectangle covering both input</td></tr>
 
 
 <tr><td><a href=#unionall>unionall</a></td><td> -
+rectangle covering all inputs</td></tr>
+
+
+<tr><td><a href=#unionall_ip>unionall_ip</a></td><td> -
 rectangle covering all inputs</td></tr>
 
 
@@ -205,12 +221,28 @@ shrinks and expands around the rectangle's center.
 Negative values will shrink the rectangle.
 </ul><br>&nbsp;<br>
 
+<a name=inflate_ip><font size=+2><b>inflate_ip
+</b></font><br><font size=+1><tt>
+Rect.inflate_ip(x, y) -> None
+</tt></font><ul>
+Changes the Rect by the given amounts. The rectangle
+shrinks and expands around the rectangle's center.
+Negative values will shrink the rectangle.
+</ul><br>&nbsp;<br>
+
 <a name=move><font size=+2><b>move
 </b></font><br><font size=+1><tt>
 Rect.move(x, y) -> Rect
 </tt></font><ul>
 Returns a new rectangle which is the base
 rectangle moved by the given amount.
+</ul><br>&nbsp;<br>
+
+<a name=move_ip><font size=+2><b>move_ip
+</b></font><br><font size=+1><tt>
+Rect.move_ip(x, y) -> Rect
+</tt></font><ul>
+Moves the rectangle which by the given amount.
 </ul><br>&nbsp;<br>
 
 <a name=normalize><font size=+2><b>normalize
@@ -227,14 +259,32 @@ place.
 </b></font><br><font size=+1><tt>
 Rect.union(rectstyle) -> Rect
 </tt></font><ul>
-Returns a new rectangle that completely covers the
-given inputs. There may be area inside the new
-rectangle that is not covered by the inputs.
+Creates a new Rect to completely cover the
+given input. There may be area inside the new
+Rect that is not covered by either input.
+</ul><br>&nbsp;<br>
+
+<a name=union_ip><font size=+2><b>union_ip
+</b></font><br><font size=+1><tt>
+Rect.union_ip(rectstyle) -> None
+</tt></font><ul>
+Resizes the Rect to completely cover the
+given input. There may be area inside the new
+dimensions that is not covered by either input.
 </ul><br>&nbsp;<br>
 
 <a name=unionall><font size=+2><b>unionall
 </b></font><br><font size=+1><tt>
 Rect.unionall(sequence_of_rectstyles) -> Rect
+</tt></font><ul>
+Returns a new rectangle that completely covers all the
+given inputs. There may be area inside the new
+rectangle that is not covered by the inputs.
+</ul><br>&nbsp;<br>
+
+<a name=unionall_ip><font size=+2><b>unionall_ip
+</b></font><br><font size=+1><tt>
+Rect.unionall_ip(sequence_of_rectstyles) -> None
 </tt></font><ul>
 Returns a new rectangle that completely covers all the
 given inputs. There may be area inside the new

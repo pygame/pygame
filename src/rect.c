@@ -204,6 +204,27 @@ static PyObject* rect_move(PyObject* oself, PyObject* args)
 	return PyRect_New4((short)(self->r.x+x), (short)(self->r.y+y), self->r.w, self->r.h);
 }
 
+    /*DOC*/ static char doc_move_ip[] =
+    /*DOC*/    "Rect.move_ip(x, y) -> Rect\n"
+    /*DOC*/    "move the Rect by the given offset\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Moves the rectangle which by the given amount.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_move_ip(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	short x, y;
+
+	if(!TwoShortsFromObj(args, &x, &y))
+		return RAISE(PyExc_TypeError, "argument must contain two numbers");
+
+	self->r.x += x;
+	self->r.y += y;
+	RETURN_NONE
+}
+
+
 
     /*DOC*/ static char doc_inflate[] =
     /*DOC*/    "Rect.inflate(x, y) -> Rect\n"
@@ -227,14 +248,39 @@ static PyObject* rect_inflate(PyObject* oself, PyObject* args)
 }
 
 
+    /*DOC*/ static char doc_inflate_ip[] =
+    /*DOC*/    "Rect.inflate_ip(x, y) -> None\n"
+    /*DOC*/    "changes the Rect size\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Changes the Rect by the given amounts. The rectangle\n"
+    /*DOC*/    "shrinks and expands around the rectangle's center.\n"
+    /*DOC*/    "Negative values will shrink the rectangle.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_inflate_ip(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	short x, y;
+
+	if(!TwoShortsFromObj(args, &x, &y))
+		return RAISE(PyExc_TypeError, "argument must contain two numbers");
+
+	self->r.x -= x/2;
+	self->r.y -= y/2;
+	self->r.w += x;
+	self->r.h += y;
+	RETURN_NONE
+}
+
+
 
     /*DOC*/ static char doc_union[] =
     /*DOC*/    "Rect.union(rectstyle) -> Rect\n"
-    /*DOC*/    "rectangle covering both input\n"
+    /*DOC*/    "makes new rectangle covering both inputs\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle that completely covers the\n"
-    /*DOC*/    "given inputs. There may be area inside the new\n"
-    /*DOC*/    "rectangle that is not covered by the inputs.\n"
+    /*DOC*/    "Creates a new Rect to completely cover the\n"
+    /*DOC*/    "given input. There may be area inside the new\n"
+    /*DOC*/    "Rect that is not covered by either input.\n"
     /*DOC*/ ;
 
 static PyObject* rect_union(PyObject* oself, PyObject* args)
@@ -244,12 +290,43 @@ static PyObject* rect_union(PyObject* oself, PyObject* args)
 	short x, y, w, h;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
-
+	
 	x = min(self->r.x, argrect->x);
 	y = min(self->r.y, argrect->y);
 	w = max(self->r.x+self->r.w, argrect->x+argrect->w) - x;
 	h = max(self->r.y+self->r.h, argrect->y+argrect->h) - y;
 	return PyRect_New4(x, y, w, h);
+}
+
+
+
+
+    /*DOC*/ static char doc_union_ip[] =
+    /*DOC*/    "Rect.union_ip(rectstyle) -> None\n"
+    /*DOC*/    "rectangle covering both input\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Resizes the Rect to completely cover the\n"
+    /*DOC*/    "given input. There may be area inside the new\n"
+    /*DOC*/    "dimensions that is not covered by either input.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_union_ip(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	GAME_Rect *argrect, temp;
+	short x, y, w, h;
+	if(!(argrect = GameRect_FromObject(args, &temp)))
+		return RAISE(PyExc_TypeError, "Argument must be rect style object");
+	
+	x = min(self->r.x, argrect->x);
+	y = min(self->r.y, argrect->y);
+	w = max(self->r.x+self->r.w, argrect->x+argrect->w) - x;
+	h = max(self->r.y+self->r.h, argrect->y+argrect->h) - y;
+	self->r.x = x;
+	self->r.y = y;
+	self->r.w = w;
+	self->r.h = h;
+	RETURN_NONE
 }
 
 
@@ -301,6 +378,61 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 	}
 
 	return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
+}
+
+
+    /*DOC*/ static char doc_unionall_ip[] =
+    /*DOC*/    "Rect.unionall_ip(sequence_of_rectstyles) -> None\n"
+    /*DOC*/    "rectangle covering all inputs\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a new rectangle that completely covers all the\n"
+    /*DOC*/    "given inputs. There may be area inside the new\n"
+    /*DOC*/    "rectangle that is not covered by the inputs.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	GAME_Rect *argrect, temp;
+	int loop, size;
+	PyObject* list, *obj;
+	int t, l, b, r;
+
+	if(!PyArg_ParseTuple(args, "O", &list))
+		return NULL;
+	if(!PySequence_Check(list))
+		return RAISE(PyExc_TypeError, "Argument must be a sequence of rectstyle objects.");
+
+	l = self->r.x;
+	t = self->r.y;
+	r = self->r.x + self->r.w;
+	b = self->r.y + self->r.h;
+
+	size = PySequence_Length(list); /*warning, size could be -1 on error?*/
+	if(size < 1)
+		return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
+
+	for(loop = 0; loop < size; ++loop)
+	{
+		obj = PySequence_GetItem(list, loop);
+		if(!obj || !(argrect = GameRect_FromObject(obj, &temp)))
+		{
+			RAISE(PyExc_TypeError, "Argument must be a sequence of rectstyle objects.");
+			Py_XDECREF(obj);
+			break;
+		}
+		t = min(t, argrect->x);
+		l = min(l, argrect->y);
+		r = max(b, argrect->x+argrect->w);
+		b = max(b, argrect->y+argrect->h);
+		Py_DECREF(obj);
+	}
+
+	self->r.x = l;
+	self->r.y = t;
+	self->r.w = r-l;
+	self->r.h = b-t;
+	RETURN_NONE
 }
 
 
@@ -582,17 +714,24 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 static struct PyMethodDef rect_methods[] =
 {
 	{"normalize",		(PyCFunction)rect_normalize,	1, doc_normalize},
+	{"clip",			(PyCFunction)rect_clip,			1, doc_clip},
+	{"clamp",			(PyCFunction)rect_clamp,		1, doc_clamp},
+
 	{"move",			(PyCFunction)rect_move,			1, doc_move},
 	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},		
-	{"clip",			(PyCFunction)rect_clip,			1, doc_clip},
 	{"union",			(PyCFunction)rect_union,		1, doc_union},
 	{"unionall",		(PyCFunction)rect_unionall,		1, doc_unionall},
+
+	{"move_ip",			(PyCFunction)rect_move_ip,		1, doc_move_ip},
+	{"inflate_ip",		(PyCFunction)rect_inflate_ip,	1, doc_inflate_ip},		
+	{"union_ip",		(PyCFunction)rect_union_ip,		1, doc_union_ip},
+	{"unionall_ip",		(PyCFunction)rect_unionall_ip,	1, doc_unionall_ip},
+
 	{"collidepoint",	(PyCFunction)rect_collidepoint,	1, doc_collidepoint},
 	{"colliderect",		(PyCFunction)rect_colliderect,	1, doc_colliderect},
 	{"collidelist",		(PyCFunction)rect_collidelist,	1, doc_collidelist},
 	{"collidelistall",	(PyCFunction)rect_collidelistall,1,doc_collidelistall},
 	{"contains",		(PyCFunction)rect_contains,		1, doc_contains},
-	{"clamp",			(PyCFunction)rect_clamp,		1, doc_clamp},
 /* these are totally unwritten. volunteers? */
 /*	{"cleanup",			(PyCFunction)rect_cleanup,		1, doc_cleanup}, */
 /*	{"remove",			(PyCFunction)rect_remove,		1, doc_remove}, */
@@ -1091,6 +1230,12 @@ static PyTypeObject PyRect_Type = {
     /*DOC*/    "representing rectangle data. This is usually a\n"
     /*DOC*/    "sequence of x and y position for the topleft\n"
     /*DOC*/    "corner, and the width and height.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "For some of the Rect methods there are two version.\n"
+    /*DOC*/    "For example, there is move() and move_ip(). The methods\n"
+    /*DOC*/    "witht the '_ip' suffix on the name are the 'in-place'\n"
+    /*DOC*/    "version of those functions. They effect the actual\n"
+    /*DOC*/    "source object, instead of returning a new Rect object.\n"
     /*DOC*/ ;
 
 static PyObject* RectInit(PyObject* self, PyObject* args)
