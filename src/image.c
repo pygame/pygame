@@ -784,7 +784,7 @@ static int SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle)
 
     /* restore flags */
     if(surf_flags & SDL_SRCALPHA)
-	SDL_SetAlpha(surface, SDL_SRCALPHA, surf_alpha);
+	SDL_SetAlpha(surface, SDL_SRCALPHA, (Uint8)surf_alpha);
     if(surf_flags & SDL_SRCCOLORKEY)
 	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, surface->format->colorkey);
 
