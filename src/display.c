@@ -30,6 +30,7 @@
 
 staticforward PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
+static PyObject* DisplaySurfaceObject = NULL;
 
 #if 0
 /*quick internal test to see if gamma is supported*/
@@ -49,6 +50,17 @@ printf("...done\n");
 
 
 /* init routines */
+static void display_autoquit(void)
+{
+	Py_XDECREF(DisplaySurfaceObject);
+	DisplaySurfaceObject = NULL;
+}
+
+static PyObject* display_autoinit(PyObject* self, PyObject* arg)
+{
+	PyGame_RegisterQuit(display_autoquit);
+	return PyInt_FromLong(1);
+}
 
 
     /*DOC*/ static char doc_quit[] =
@@ -65,6 +77,7 @@ static PyObject* quit(PyObject* self, PyObject* arg)
 		return NULL;
 
 	PyGame_Video_AutoQuit();
+	display_autoquit();
 
 	RETURN_NONE
 }
@@ -86,6 +99,8 @@ static PyObject* init(PyObject* self, PyObject* arg)
 
 	if(!PyGame_Video_AutoInit())
 		return RAISE(PyExc_SDLError, SDL_GetError());
+	if(!display_autoinit(NULL, NULL))
+		return NULL;
 
 	RETURN_NONE
 }
@@ -116,6 +131,10 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
     /*DOC*/    "Returns true if the current display is active on the screen. This\n"
     /*DOC*/    "done with the call to pygame.display.set_mode(). It is\n"
     /*DOC*/    "potentially subject to the activity of a running window manager.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Calling set_mode() will change all existing display surface\n"
+    /*DOC*/    "to reference the new display mode. The old display surface will\n"
+    /*DOC*/    "be lost after this call.\n"
     /*DOC*/ ;
 
 static PyObject* get_active(PyObject* self, PyObject* arg)
@@ -336,17 +355,16 @@ static PyObject* Info(PyObject* self, PyObject* arg)
 
 static PyObject* get_surface(PyObject* self, PyObject* arg)
 {
-	SDL_Surface* surf;
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
 
 	VIDEO_INIT_CHECK();
 
-	surf = SDL_GetVideoSurface();
-	if(!surf)
+	if(!DisplaySurfaceObject)
 		RETURN_NONE
 
-	return PySurface_New(surf);
+	Py_INCREF(DisplaySurfaceObject);
+	return DisplaySurfaceObject;
 }
 
 
@@ -436,7 +454,18 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	/*probably won't do much, but can't hurt, and might help*/
 	SDL_PumpEvents();
 
-	return PySurface_New(surf);
+
+	if(DisplaySurfaceObject)
+	{
+		((PySurfaceObject*)DisplaySurfaceObject)->surf = surf;
+		Py_INCREF(DisplaySurfaceObject);
+	}
+	else
+	{
+		DisplaySurfaceObject = PySurface_New(surf);
+	}
+
+	return DisplaySurfaceObject;
 }
 
 
@@ -929,6 +958,7 @@ static PyObject* toggle_fullscreen(PyObject* self, PyObject* arg)
 
 static PyMethodDef display_builtins[] =
 {
+	{ "__PYGAMEinit__", display_autoinit, 1, doc_init },
 	{ "init", init, 1, doc_init },
 	{ "quit", quit, 1, doc_quit },
 	{ "get_init", get_init, 1, doc_get_init },
