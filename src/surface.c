@@ -1110,10 +1110,14 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
         /*see if we should handle alpha ourselves*/
         if(dest->format->Amask && dest->flags&SDL_SRCALPHA &&
                     (dest->format->BytesPerPixel == 2 || dest->format->BytesPerPixel==4))
+	{
             result = pygame_AlphaBlit(src, (SDL_Rect*)src_rect, dest, &dest_rect);
+	}
         else
+	{
             result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
-        
+        }
+
         
 	if(didconvert)
 		SDL_FreeSurface(src);

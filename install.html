@@ -49,14 +49,13 @@ from source. Still, there are binary packages available for
 different distributions.
 <p></p>
 There are several binary RPM packages for linux machines. These are
-actually a little bit of work to install, since you will also need
-several RPM packages for the dependencies. There is a good chance
+actually a little bit of work to install, since you will also need several
+RPM packages for the dependencies. There is a good chance
 your linux distribution came with the needed dependencies (like Python
-and SDL). There are binary RPMs available from the
-website for each dependency.
+and SDL). There are binary RPMs available from the website for each dependency.
 </p><p>
 For debian systems, pygame is actively maintained in the debian
-archives. It is available for the "woody" release. Visit the
+archives.  Visit the
 debian pygame page for more information.
 <a href=http://packages.debian.org/cgi-bin/search_packages.pl?keywords=pygame>http://packages.debian.org/cgi-bin/search_packages.pl?keywords=pygame</a>
 </p><p>
@@ -130,26 +129,13 @@ all the used .DLL files into the pygame directory.
 
 <big><b><u>Unix Compiling Info</u></b></big><blockquote><p>
 Compiling from linux shouldn't give you any problems. One thing
-you must keep in mind is that most linux packages separate the
-actual library from the "dev" files needed to compile. To build on
-linux you'll need to make sure the packages like "SDL-dev" are
+you must keep in mind is that most linux RPM packages separate the
+actual library from the "dev" files needed to compile. To build you
+will need to make sure the packages like "SDL-dev" are
 installed.
 <p></p>
 You can check to see if SDL is ready to be built from by running
 the command "sdl-config" and seeing if it is found.
-<p></p>
-Depending on where the SMPEG headers are installed, the pygame
-"config.py" script might not actually find it. If this happens
-you can easily fix the SMPEG line in the "Setup" script to
-use the correct flags. Then also uncomment the line for the
-"movie" module.
-<p></p>
-Several users have run into error compiling when trying to use the
-Numeric Python header files. This is a problem with the autoconfigure
-script. The script foolishly assumes if it can import the Numeric
-module, then the headers will be available for compile. You need
-to either install the correct "python-numeric-dev" package for your
-system, or comment out the line for "surfarray" in the "Setup" file.
 </p></blockquote><br>
 
 <big><b><u>OSX Compiling Info</u></b></big><blockquote><p>

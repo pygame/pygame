@@ -87,13 +87,7 @@ static int PyModule_AddObject(PyObject *m, char *name, PyObject *o)
 #define PySequence_Size(x) PySequence_Length(x)
 
 #define PyUnicode_Check(text) 0
-#define PyUnicode_AsUnicode(text) text
-#define Py_UNICODE void
-#define PyUnicode_FromUnicode(p,c) PyLong_FromLong(*(short*)(p))
-#define PyUnicode_FromObject(s) s
 #endif
-
-
 
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
