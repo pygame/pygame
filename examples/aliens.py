@@ -26,7 +26,7 @@ except ImportError:
     font = None
 
 if not pygame.image.get_extended():
-    raise SystemExit, "Requires the extended image loading from SDL_image"
+    raise SystemExit, "Requires the extnded image loading from SDL_image"
 
 
 #constants
@@ -66,7 +66,7 @@ class dummysound:
     def play(self): pass
 
     
-def load_image(file, transparent):
+def load_image(file, transparent=0):
     "loads an image, prepares it for play"
     file = os.path.join('data', file)
     try:
@@ -227,6 +227,17 @@ def main(winstyle = 0):
 
     # Initialize SDL components
     pygame.init()
+
+    # Attempt to create a window icon
+    try:
+        icon = pygame.image.load(os.path.join('data', 'alien1.gif'))
+        icon.set_colorkey(icon.get_at((0, 0)))
+        icon = pygame.transform.scale(icon, (32, 32))
+        pygame.display.set_icon(icon)
+    except pygame.error:
+        pass
+
+    # Set the display mode
     bestdepth = pygame.display.mode_ok(SCREENRECT.size, winstyle, 32)
     screen = pygame.display.set_mode(SCREENRECT.size, winstyle, bestdepth)
 
@@ -240,7 +251,7 @@ def main(winstyle = 0):
     else:
         joy = None
 
-    #check that audio actually initialized
+    # Check that audio actually initialized
     if pygame.mixer and not pygame.mixer.get_init():
         pygame.mixer = None
     if not pygame.mixer:

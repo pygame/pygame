@@ -146,6 +146,10 @@ changes the title of the window</td></tr>
 change the brightness of the display</td></tr>
 
 
+<tr><td><a href=#set_icon>set_icon</a></td><td> -
+changes the window manager icon for the window</td></tr>
+
+
 <tr><td><a href=#set_mode>set_mode</a></td><td> -
 set the display mode</td></tr>
 
@@ -322,6 +326,20 @@ normal value. If you are using a display mode with a hardware
 palette, this will simply update the palette you are using. Not
 all hardware supports gamma. The return value will be true on
 success.
+</ul><br>&nbsp;<br>
+
+<a name=set_icon><font size=+2><b>set_icon
+</b></font><br><font size=+1><tt>
+pygame.display.set_icon(Surface) -> None
+</tt></font><ul>
+Sets the runtime icon that your system uses to decorate
+the program window. It is also used when the application
+is iconfified. This must be called before the first call
+to <a href=#set_mode>pygame.display.set_mode()</a>.
+<br>&nbsp;<br>
+You likely want this to be a smaller image, a size that
+your system window manager will be able to deal with. It will
+also use the Surface colorkey if available.
 </ul><br>&nbsp;<br>
 
 <a name=set_mode><font size=+2><b>set_mode

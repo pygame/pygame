@@ -56,7 +56,6 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	Uint8* pix;
 	Uint8 r, g, b, a;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(arg, "(ii)", &x, &y))
 		return NULL;
 
@@ -125,7 +124,6 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 	PyObject* rgba_obj;
 	Uint8* byte_buf;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "(ii)O", &x, &y, &rgba_obj))
 		return NULL;
 
@@ -192,7 +190,6 @@ static PyObject* surf_map_rgb(PyObject* self,PyObject* args)
 	Uint8 rgba[4];
 	int color;
 
-	VIDEO_INIT_CHECK();
 	if(!RGBAFromObj(args, rgba))
 		return RAISE(PyExc_TypeError, "Invalid RGBA argument");
 
@@ -219,7 +216,6 @@ static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
 	Uint32 col;
 	Uint8 r, g, b, a;
 	
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "i", &col))
 		return NULL;
 
@@ -258,7 +254,6 @@ static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
 
 static PyObject* surf_lock(PyObject* self, PyObject* args)
 {
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -286,7 +281,6 @@ static PyObject* surf_lock(PyObject* self, PyObject* args)
 
 static PyObject* surf_unlock(PyObject* self, PyObject* args)
 {
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -325,7 +319,6 @@ static PyObject* surf_get_locked(PyObject* self, PyObject* args)
 {
 	PySurfaceObject* surf = (PySurfaceObject*)self;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 	
@@ -349,7 +342,6 @@ static PyObject* surf_get_palette(PyObject* self, PyObject* args)
 	PyObject* list;
 	int i;
 		
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -395,7 +387,6 @@ static PyObject* surf_get_palette_at(PyObject* self, PyObject* args)
 	SDL_Color* c;
 	int index;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "i", &index))
 		return NULL;
 
@@ -430,7 +421,6 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 	int i, len;
 	short r, g, b;
 	
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "O", &list))
 		return NULL;
 	if(!PySequence_Check(list))
@@ -489,7 +479,6 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 	int index;
 	Uint8 r, g, b;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "i(bbb)", &index, &r, &g, &b))
 		return NULL;
 
@@ -540,7 +529,6 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 	Uint8 rgba[4];
 	int result;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
 		return NULL;
 
@@ -585,7 +573,6 @@ static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	Uint8 r, g, b, a;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 	
@@ -625,7 +612,6 @@ static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 	Uint8 alpha = 0;
 	int result;
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "|bi", &alpha, &flags))
 		return NULL;
 
@@ -658,7 +644,6 @@ static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 
-	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 	
@@ -682,27 +667,88 @@ static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
     /*DOC*/    "will match the format given as the argument. If no surface is\n"
     /*DOC*/    "given, the new surface will have the same pixel format as the\n"
     /*DOC*/    "current display.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "convert() will also accept bitsize or mask arguments like the\n"
+    /*DOC*/    "Surface() constructor function. Either pass an integer bitsize\n"
+    /*DOC*/    "or a sequence of color masks to specify the format of surface\n"
+    /*DOC*/    "you would like to convert to. When used this way you may also\n"
+    /*DOC*/    "pass an optional flags argument (whew).\n"
     /*DOC*/ ;
 
 static PyObject* surf_convert(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	PyObject* final;
-	PySurfaceObject* srcsurf = NULL;
+	PyObject* argobject=NULL;
 	SDL_Surface* src;
 	SDL_Surface* newsurf;
-	Uint32 flags;
+	Uint32 flags=-1;
 
-	VIDEO_INIT_CHECK();
-	if(!PyArg_ParseTuple(args, "|O!", &PySurface_Type, &srcsurf))
+	if(!PyArg_ParseTuple(args, "|Oi", &argobject, &flags))
 		return NULL;
 
 	PySurface_Prep(self);
-	if(srcsurf)
+	if(argobject)
 	{
-		src = PySurface_AsSurface(srcsurf);
-        flags = src->flags | (surf->flags & (SDL_SRCCOLORKEY|SDL_SRCALPHA));
-        newsurf = SDL_ConvertSurface(surf, src->format, flags);
+		if(PySurface_Check(argobject))
+		{
+			src = PySurface_AsSurface(argobject);
+			flags = src->flags | (surf->flags & (SDL_SRCCOLORKEY|SDL_SRCALPHA));
+			newsurf = SDL_ConvertSurface(surf, src->format, flags);
+		}
+		else 
+		{
+			short bpp;
+			SDL_PixelFormat format;
+			memcpy(&format, surf->format, sizeof(format));
+			if(ShortFromObj(argobject, &bpp))
+			{
+				switch(bpp)
+				{
+				case 8:
+					format.Rmask = 0xFF >> 6 << 5; format.Gmask = 0xFF >> 5 << 2; format.Bmask = 0xFF >> 6; break;
+				case 12:
+					format.Rmask = 0xFF >> 4 << 8; format.Gmask = 0xFF >> 4 << 4; format.Bmask = 0xFF >> 4; break;
+				case 15:
+					format.Rmask = 0xFF >> 3 << 10; format.Gmask = 0xFF >> 3 << 5; format.Bmask = 0xFF >> 3; break;
+				case 16:
+					format.Rmask = 0xFF >> 3 << 11; format.Gmask = 0xFF >> 2 << 5; format.Bmask = 0xFF >> 3; break;
+				case 24:
+				case 32:
+					format.Rmask = 0xFF << 16; format.Gmask = 0xFF << 8; format.Bmask = 0xFF; break;
+				default:
+					PySurface_Unprep(self);
+					return RAISE(PyExc_ValueError, "nonstandard bit depth given");
+				}
+			}
+			else if(PySequence_Check(argobject) && PySequence_Size(argobject)==4)
+			{
+				Uint32 mask;
+				if(!UintFromObjIndex(argobject, 0, &format.Rmask) ||
+							!UintFromObjIndex(argobject, 1, &format.Gmask) ||
+							!UintFromObjIndex(argobject, 2, &format.Bmask) ||
+							!UintFromObjIndex(argobject, 3, &format.Amask))
+				{
+					PySurface_Unprep(self);
+					return RAISE(PyExc_ValueError, "nonstandard color masks given");
+				}
+				mask = format.Rmask|format.Gmask|format.Bmask|format.Amask;
+				for(bpp=0; bpp<32; ++bpp)
+					if(!(mask>>bpp)) break;
+			}
+			else
+			{
+				PySurface_Unprep(self);
+				return RAISE(PyExc_ValueError, "invalid argument specifying new format to convert to");
+			}
+			format.BitsPerPixel = (Uint8)bpp;
+			format.BytesPerPixel = (bpp+3)/4;
+			if(flags == -1)
+				flags = surf->flags;
+			if(format.Amask)
+				flags |= SDL_SRCALPHA;
+			newsurf = SDL_ConvertSurface(surf, &format, flags);
+		}
 	}
 	else
 		newsurf = SDL_DisplayFormat(surf);
@@ -738,8 +784,6 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 	PySurfaceObject* srcsurf = NULL;
 	SDL_Surface* newsurf, *src;
 	
-	VIDEO_INIT_CHECK();
-
 	if(!PyArg_ParseTuple(args, "|O!", &PySurface_Type, &srcsurf))
 		return NULL;
 
@@ -778,8 +822,6 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	GAME_Rect *rect=NULL, temp;
 	int result;
-
-	VIDEO_INIT_CHECK();
 
 	if(PyTuple_Size(args))
 	{
@@ -838,8 +880,6 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	PyObject* rgba_obj;
 	Uint8 rgba[4];
 	
-	VIDEO_INIT_CHECK();
-
 	if(!PyArg_ParseTuple(args, "O|O", &rgba_obj, &r))
 		return NULL;
 
@@ -920,8 +960,6 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	short sx, sy;
 	int didconvert = 0;
 
-	VIDEO_INIT_CHECK();
-
 	if(!PyArg_ParseTuple(args, "O!O|O", &PySurface_Type, &srcobject, &argpos, &argrect))
 		return NULL;
 	src = PySurface_AsSurface(srcobject);
@@ -1001,7 +1039,6 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 static PyObject* surf_get_flags(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	VIDEO_INIT_CHECK();
 	return PyInt_FromLong(surf->flags);
 }
 
@@ -1034,7 +1071,6 @@ static PyObject* surf_get_pitch(PyObject* self, PyObject* args)
 static PyObject* surf_get_size(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	VIDEO_INIT_CHECK();
 	return Py_BuildValue("(ii)", surf->w, surf->h);
 }
 
@@ -1065,7 +1101,6 @@ static PyObject* surf_get_width(PyObject* self, PyObject* args)
 static PyObject* surf_get_height(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	VIDEO_INIT_CHECK();
 	return PyInt_FromLong(surf->h);
 }
 
@@ -1100,7 +1135,6 @@ static PyObject* surf_get_rect(PyObject* self, PyObject* args)
 static PyObject* surf_get_bitsize(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	VIDEO_INIT_CHECK();
 	return PyInt_FromLong(surf->format->BitsPerPixel);
 }
 
@@ -1131,7 +1165,6 @@ static PyObject* surf_get_bytesize(PyObject* self, PyObject* args)
 static PyObject* surf_get_masks(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	VIDEO_INIT_CHECK();
 	return Py_BuildValue("(iiii)", surf->format->Rmask, surf->format->Gmask,
 				surf->format->Bmask, surf->format->Amask);
 }
@@ -1150,7 +1183,6 @@ static PyObject* surf_get_masks(PyObject* self, PyObject* args)
 static PyObject* surf_get_shifts(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	VIDEO_INIT_CHECK();
 	return Py_BuildValue("(iiii)", surf->format->Rshift, surf->format->Gshift,
 				surf->format->Bshift, surf->format->Ashift);
 }
@@ -1169,68 +1201,9 @@ static PyObject* surf_get_shifts(PyObject* self, PyObject* args)
 static PyObject* surf_get_losses(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	VIDEO_INIT_CHECK();
 	return Py_BuildValue("(iiii)", surf->format->Rloss, surf->format->Gloss,
 				surf->format->Bloss, surf->format->Aloss);
 }
-
-
-
-    /*DOC*/ static char doc_surf_save[] =
-    /*DOC*/    "Surface.save(file) -> None\n"
-    /*DOC*/    "save surface as BMP data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function is depracated, please don't use it. It will print\n"
-    /*DOC*/    "a warning when called, but eventually be removed from pygame.\n"
-    /*DOC*/    "You should now use the enhanced pygame.image.save() function.\n"
-    /*DOC*/ ;
-
-static PyObject* surf_save(PyObject* self, PyObject* arg)
-{
-	SDL_Surface* surf = PySurface_AsSurface(self);
-	PyObject* file;
-	SDL_RWops *rw;
-	int result;
-	static int warned = 0;
-
-	if(!warned)
-	{
-		warned = 1;
-		fprintf(stderr, "Surface.save() is now depracated. Please don't use.\n");
-	}
-
-	if(!PyArg_ParseTuple(arg, "O", &file))
-		return NULL;
-
-	VIDEO_INIT_CHECK();
-
-	if(surf->flags & SDL_OPENGL)
-		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
-
-	if(PyString_Check(file))
-	{
-		char* name = PyString_AsString(file);
-		Py_BEGIN_ALLOW_THREADS
-		PySurface_Prep(self);
-		result = SDL_SaveBMP(surf, name);
-		PySurface_Unprep(self);
-		Py_END_ALLOW_THREADS
-	}
-	else
-	{
-		if(!(rw = RWopsFromPython(file)))
-			return NULL;
-		PySurface_Prep(self);
-		result = SDL_SaveBMP_RW(surf, rw, 1);
-		PySurface_Unprep(self);
-	}
-
-	if(result == -1)
-		return RAISE(PyExc_SDLError, SDL_GetError());
-
-	RETURN_NONE;
-}
-
 
 
     /*DOC*/ static char doc_surf_subsurface[] =
@@ -1252,8 +1225,6 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	int pixeloffset;
 	char* startpixel;
 	struct SubSurface_Data* data;
-
-	VIDEO_INIT_CHECK();
 
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
@@ -1348,7 +1319,6 @@ static struct PyMethodDef surface_methods[] =
 	{"get_shifts",		surf_get_shifts,	1, doc_surf_get_shifts },
 	{"get_losses",		surf_get_losses,	1, doc_surf_get_losses },
 
-	{"save",			surf_save,			1, doc_surf_save }, 
 	{"subsurface",		surf_subsurface,	1, doc_surf_subsurface },
 
 	{NULL,		NULL}
@@ -1391,8 +1361,6 @@ PyObject* surface_str(PyObject* self)
 	char str[1024];
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	const char* type;
-
-	VIDEO_INIT_CHECK();
 
 	type = (surf->flags&SDL_HWSURFACE)?"HW":"SW";
 	sprintf(str, "<Surface(%dx%dx%d %s)>", surf->w, surf->h, surf->format->BitsPerPixel, type);
@@ -1497,12 +1465,10 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	short bpp;
 	Uint32 Rmask, Gmask, Bmask, Amask;
 	SDL_Surface* surface;
+	SDL_PixelFormat default_format;
 
 	if(!PyArg_ParseTuple(arg, "(ii)|iOO", &width, &height, &flags, &depth, &masks))
 		return NULL;
-
-	VIDEO_INIT_CHECK();
-
 	if(depth && masks) /*all info supplied, most errorchecking needed*/
 	{
 		if(PySurface_Check(depth))
@@ -1548,7 +1514,7 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 			case 32:
 				Rmask = 0xFF << 16; Gmask = 0xFF << 8; Bmask = 0xFF; break;
 			default:
-				return RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth");
+				return RAISE(PyExc_ValueError, "nonstandard bit depth given");
 			}
 		}
 	}
@@ -1559,15 +1525,20 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 			pix = ((PySurfaceObject*)depth)->surf->format;
 		else if(SDL_GetVideoSurface())
 			pix = SDL_GetVideoSurface()->format;
-		else
+		else if(SDL_WasInit(SDL_INIT_VIDEO))
 			pix = SDL_GetVideoInfo()->vfmt;
+		else
+		{
+			pix = &default_format;
+			pix->BitsPerPixel = 32; pix->Amask = 0;
+			pix->Rmask = 0xFF0000; pix->Gmask = 0xFF00; pix->Bmask = 0xFF;
+		}
 		bpp = pix->BitsPerPixel;
 		Rmask = pix->Rmask;
 		Gmask = pix->Gmask;
 		Bmask = pix->Bmask;
 		Amask = pix->Amask;
 	}
-
 	surface = SDL_CreateRGBSurface(flags, width, height, bpp, Rmask, Gmask, Bmask, Amask);
 	final = PySurface_New(surface);
 	if(!final)

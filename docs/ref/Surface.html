@@ -200,10 +200,6 @@ convert RGB into a mapped color</td></tr>
 check if the surface needs locking</td></tr>
 
 
-<tr><td><a href=#save>save</a></td><td> -
-save surface as BMP data</td></tr>
-
-
 <tr><td><a href=#set_alpha>set_alpha</a></td><td> -
 change alpha information</td></tr>
 
@@ -282,6 +278,12 @@ those with mixed formats. The pixel format of the new surface
 will match the format given as the argument. If no surface is
 given, the new surface will have the same pixel format as the
 current display.
+<br>&nbsp;<br>
+convert() will also accept bitsize or mask arguments like the
+Surface() constructor function. Either pass an integer bitsize
+or a sequence of color masks to specify the format of surface
+you would like to convert to. When used this way you may also
+pass an optional flags argument (whew).
 </ul><br>&nbsp;<br>
 
 <a name=convert_alpha><font size=+2><b>convert_alpha
@@ -506,15 +508,6 @@ Surface.mustlock() -> bool
 Returns true if the surface really does need locking to gain
 pixel access. Usually the overhead of checking before locking
 outweight the overhead of just locking any surface before access.
-</ul><br>&nbsp;<br>
-
-<a name=save><font size=+2><b>save
-</b></font><br><font size=+1><tt>
-Surface.save(file) -> None
-</tt></font><ul>
-This function is depracated, please don't use it. It will print
-a warning when called, but eventually be removed from pygame.
-You should now use the enhanced <a href=pygame_image.html#save>pygame.image.save()</a> function.
 </ul><br>&nbsp;<br>
 
 <a name=set_alpha><font size=+2><b>set_alpha

@@ -48,7 +48,7 @@
 <br>
 <h2 align=center>pygame.image</h2>
 This module contains functions to transfer images in and out
-of Surfaces. At the minimum the included <a href=#load>load()</a> function will
+of Surfaces. At the minimum the included <a href=pygame_mixer_music.html#load>load()</a> function will
 support BMP files. If SDL_image is properly installed when
 pygame is installed, it will support all the formats included
 with SDL_image. You can call the <a href=#get_extended>get_extended()</a> function to test
@@ -160,6 +160,10 @@ for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.
 These flags are a subset of the formats supported the PIL
 Python Image Library. Note that the \"P\" format only will
 work for 8bit Surfaces.
+<br>&nbsp;<br>
+If you ask for the \"RGBA\" format and the image only has
+colorkey data. An alpha channel will be created from the
+colorkey values.
 </ul><br>&nbsp;<br>
 
 

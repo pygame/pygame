@@ -94,9 +94,12 @@ static PyObject* quit(PyObject* self, PyObject* arg)
 
 static PyObject* init(PyObject* self, PyObject* arg)
 {
+/*we'll just ignore the args,
+  i guess the user could pass anything they want,
+  owell
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
-
+*/
 	if(!PyGame_Video_AutoInit())
 		return RAISE(PyExc_SDLError, SDL_GetError());
 	if(!display_autoinit(NULL, NULL))
@@ -358,8 +361,6 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
 
-	VIDEO_INIT_CHECK();
-
 	if(!DisplaySurfaceObject)
 		RETURN_NONE
 
@@ -411,7 +412,12 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "(ii)|ii", &w, &h, &flags, &depth))
 		return NULL;
 
-	VIDEO_INIT_CHECK();
+	if(!SDL_WasInit(SDL_INIT_VIDEO))
+	{
+		/*note SDL works special like this too*/
+		if(!init(NULL, NULL))
+			return NULL;
+	}
 
 	if(flags & SDL_OPENGL)
 	{
@@ -863,8 +869,6 @@ static PyObject* set_caption(PyObject* self, PyObject* arg)
 	if(!icontitle)
 		icontitle = title;
 
-	VIDEO_INIT_CHECK();
-
 	SDL_WM_SetCaption(title, icontitle);
 
 	RETURN_NONE
@@ -886,8 +890,6 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
 
-	VIDEO_INIT_CHECK();
-
 	SDL_WM_GetCaption(&title, &icontitle);
 	
 	if(title && *title)
@@ -896,6 +898,35 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
 	return Py_BuildValue("()");
 }
 
+
+    /*DOC*/ static char doc_set_icon[] =
+    /*DOC*/    "pygame.display.set_icon(Surface) -> None\n"
+    /*DOC*/    "changes the window manager icon for the window\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Sets the runtime icon that your system uses to decorate\n"
+    /*DOC*/    "the program window. It is also used when the application\n"
+    /*DOC*/    "is iconfified. This must be called before the first call\n"
+    /*DOC*/    "to pygame.display.set_mode().\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You likely want this to be a smaller image, a size that\n"
+    /*DOC*/    "your system window manager will be able to deal with. It will\n"
+    /*DOC*/    "also use the Surface colorkey if available.\n"
+    /*DOC*/ ;
+
+static PyObject* set_icon(PyObject* self, PyObject* arg)
+{
+	PyObject* surface;
+	SDL_Surface* surf;
+	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surface))
+		return NULL;
+
+	surf = PySurface_AsSurface(surface);
+	PySurface_Lock(surface);
+	SDL_WM_SetIcon(surf, NULL);
+	PySurface_Unlock(surface);
+
+	RETURN_NONE
+}
 
 
     /*DOC*/ static char doc_iconify[] =
@@ -978,6 +1009,7 @@ static PyMethodDef display_builtins[] =
 
 	{ "set_caption", set_caption, 1, doc_set_caption },
 	{ "get_caption", get_caption, 1, doc_get_caption },
+	{ "set_icon", set_icon, 1, doc_set_icon },
 
 	/*{ "set_icon", set_icon, 1, doc_set_icon }, need to wait for surface objects*/
 	{ "iconify", iconify, 1, doc_iconify },
