@@ -220,7 +220,6 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 
 
 
-
 /*internal drawing tools*/
 
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts)
@@ -459,82 +458,3 @@ void initdraw(void)
 }
 
 
-
-#if 0
-/*CODE I PLAN TO IMPLEMENT IN THE FUTURE*/
-/*along with this ellipse stuff, a triangle would be keen,
-from triangle a simple polygons will be easy too, but needed?*/
-
-/*anyone feel free to contribute :] */
-Ok... The circle algorithm:
-
-        x = 0
-        y = radius
-        switch = 3 - 2*radius
-
-    loop:
-
-        plot (x,y): plot (x,-y): plot (-x,y): plot (-x,-y)
-        plot (y,x): plot (y,-x): plot (-y,x): plot (-y,-x)
-
-        if switch < 0 then
-            switch = switch + 4 * x + 6
-        else
-            switch = switch + 4 * (x - y) + 10
-            y = y - 1
-
-        x = x + 1
-
-        if x <= y then goto loop
-
-        end
-
-
-
-void symmetry(x,y)
-int x,y;
-{
- PUT_PIXEL(+x,+y);  // This would obviously be inlined!
- PUT_PIXEL(-x,+y);  // and offset by a constant amount
- PUT_PIXEL(-x,-y);
- PUT_PIXEL(+x,-y);
-}
-
-void bresenham_ellipse(a,b) /*a = xradius, b= yradius*/
-int a,b;
-{
- int x,y,a2,b2, S, T;
-
- a2 = a*a;
- b2 = b*b;
- x = 0;
- y = b;
- S = a2*(1-2*b) + 2*b2;
- T = b2 - 2*a2*(2*b-1);
- symmetry(x,y);
- do
-   {
-    if (S<0)
-       {
-        S += 2*b2*(2*x+3);
-        T += 4*b2*(x+1);
-        x++;
-       }
-      else if (T<0)
-          {
-           S += 2*b2*(2*x+3) - 4*a2*(y-1);
-           T += 4*b2*(x+1) - 2*a2*(2*y-3);
-           x++;
-           y--;
-          }
-         else
-          {
-           S -= 4*a2*(y-1);
-           T -= 2*a2*(2*y-3);
-           y--;
-          }
-    symmetry(x,y);
-   }
- while (y>0);
-}
-#endif
