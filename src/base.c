@@ -101,7 +101,7 @@ void PyGame_RegisterQuit(void(*func)(void))
 
     /*DOC*/ static char doc_register_quit[] =
     /*DOC*/    "pygame.register_quit(callback) -> None\n"
-    /*DOC*/    "routine to call when pyGame quits\n"
+    /*DOC*/    "routine to call when pygame quits\n"
     /*DOC*/    "\n"
     /*DOC*/    "The given callback routine will be called when. pygame is\n"
     /*DOC*/    "quitting. Quit callbacks are served on a 'last in, first out'\n"

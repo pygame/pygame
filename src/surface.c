@@ -234,7 +234,7 @@ static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
     /*DOC*/    "surface before you can access the pixel values. To be safe, it is\n"
     /*DOC*/    "always a good idea to lock the surface before entering a block of\n"
     /*DOC*/    "code that changes or accesses the pixel values. The surface must\n"
-    /*DOC*/    "not be locked when performing other pyGame functions on it like\n"
+    /*DOC*/    "not be locked when performing other pygame functions on it like\n"
     /*DOC*/    "fill and blit.\n"
     /*DOC*/    "\n"
     /*DOC*/    "You can doublecheck to really make sure a lock is needed by\n"

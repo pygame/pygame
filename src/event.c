@@ -513,7 +513,7 @@ static PyObject* get_grab(PyObject* self, PyObject* arg)
     /*DOC*/    "update the internal messages\n"
     /*DOC*/    "\n"
     /*DOC*/    "Pumping the message queue is important if you are not getting\n"
-    /*DOC*/    "events off the message queue. The pump will allow pyGame to\n"
+    /*DOC*/    "events off the message queue. The pump will allow pygame to\n"
     /*DOC*/    "communicate with the window manager, which helps keep your\n"
     /*DOC*/    "application responsive, as well as updating the state for various\n"
     /*DOC*/    "input devices.\n"
