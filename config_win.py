@@ -66,6 +66,36 @@ class Dependency:
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
 
 
+class DependencyPython:
+    def __init__(self, name, module, header):
+        self.name = name
+        self.lib_dir = ''
+        self.inc_dir = ''
+        self.lib = ''
+        self.cflags = ''
+        self.found = 0
+        self.ver = '0'
+        self.module = module
+        self.header = header
+ 
+    def configure(self, incdirs, libdirs):
+        self.found = 1
+        if self.module:
+            try:
+                self.ver = __import__(self.module).__version__
+            except ImportError:
+                self.found = 0
+        if self.found and self.header:
+            fullpath = os.path.join(get_python_inc(0), self.header)
+            if not os.path.isfile(fullpath):
+                found = 0
+            else:
+                self.inc_dir = os.path.split(fullpath)[0]
+        if self.found:
+            print self.name + '        '[len(self.name):] + ': found', self.ver
+        else:
+            print self.name + '        '[len(self.name):] + ': not found'
+
 
 
 DEPS = [
@@ -74,6 +104,7 @@ DEPS = [
     Dependency('IMAGE', 'SDL_image-[0-9].*', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer-[0-9].*', 'SDL_mixer'),
     Dependency('SMPEG', 'smpeg-[0-9].*', 'smpeg')
+    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h')
 ]
 
 

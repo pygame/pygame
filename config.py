@@ -46,7 +46,11 @@ def confirm(message):
 
 def prepdep(dep, basepath):
     "add some vars to a dep"
-    dep.line = dep.name + ' = -l' + dep.lib
+    if dep.lib:
+        dep.line = dep.name + ' = -l' + dep.lib
+    else:
+        dep.line = dep.name + ' = -I.'
+    
     dep.varname = '$('+dep.name+')'
     
     if not dep.found:
