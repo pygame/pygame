@@ -55,7 +55,7 @@ several optional arguments. These arguments control the playback
 rates and datatypes for the sound playback. If you do need
 specific control over the playback rate, but don't want to bother
 with hand-initializing the modules, there is a function named
-<a href=#pre_init>pygame.mixer.pre_init()</a> which takes the same arguments as <a href=pygame_cdrom.html#init>init()</a>,
+<a href=#pre_init>pygame.mixer.pre_init()</a> which takes the same arguments as <a href=pygame.html#init>init()</a>,
 but only sets the new default values. You can call this before
 <a href=pygame.html#init>pygame.init()</a> and not have to worry about the pygame module
 initialization order.
@@ -222,7 +222,7 @@ initialized before the audio. (that is, if the display will be
 initialized at all). You can easily use the <a href=pygame.html#init>pygame.init()</a>
 function to cleanly initialize everything, but first use the
 <a href=#pre_init>pygame.mixer.pre_init()</a> function to change the default values for
-this <a href=pygame_cdrom.html#init>init()</a>.
+this <a href=pygame.html#init>init()</a>.
 </ul><br>&nbsp;<br>
 
 <a name=pause><font size=+2><b>pause
