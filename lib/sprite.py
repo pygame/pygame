@@ -82,8 +82,14 @@ which can be set to any dummy value.
 ## specialized cases.
 
 
+import sys
+if sys.hexversion < 0x020200a1:
+    class object:
+        "null class for pre-python2.2 compatability"
 
-class Sprite:
+
+
+class Sprite(object):
     """the base class for your visible game objects.
        The sprite class is meant to be used as a base class
        for the objects in your game. It just provides functions
@@ -176,7 +182,7 @@ class Sprite:
 
 
 
-class Group:
+class Group(object):
     """the Group class is a container for sprites
        This is the base sprite group class. It does everything
        needed to behave as a normal group. You can easily inherit
@@ -340,7 +346,7 @@ class Group:
 ##group class, it can make as a good example if you ever want to
 ##create your own new group type.
 
-class GroupSingle:
+class GroupSingle(object):
     """a group container that holds a single most recent item
        This class works just like a regular group, but it only
        keeps a single sprite in the group. Whatever sprite has
