@@ -1121,7 +1121,49 @@ static int rect_compare(PyRectObject *self, PyObject *other)
 	return 0;
 }
 
+/*width*/
+static PyObject* rect_getwidth(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.w);
+}
+static int rect_setwidth(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.w = val1;
+    return 0;
+}
 
+/*height*/
+static PyObject* rect_getheight(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.h);
+}
+static int rect_setheight(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.h = val1;
+    return 0;
+}
+
+/*top*/
+static PyObject* rect_gettop(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.y);
+}
+static int rect_settop(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.y = val1;
+    return 0;
+}
+
+/*left*/
+static PyObject* rect_getleft(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.x);
+}
+static int rect_setleft(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.x = val1;
+    return 0;
+}
 
 /*right*/
 static PyObject* rect_getright(PyRectObject *self, void *closure) {
@@ -1282,6 +1324,14 @@ static PyObject* rect_getsafepickle(PyRectObject *self, void *closure) {
 }
 
 static PyGetSetDef rect_getsets[] = {
+    {"x", (getter)rect_gettop, (setter)rect_settop, NULL, NULL},
+    {"y", (getter)rect_getleft, (setter)rect_setleft, NULL, NULL},
+    {"w", (getter)rect_getwidth, (setter)rect_setwidth, NULL, NULL},
+    {"h", (getter)rect_getheight, (setter)rect_setheight, NULL, NULL},
+    {"width", (getter)rect_getwidth, (setter)rect_setwidth, NULL, NULL},
+    {"height", (getter)rect_getheight, (setter)rect_setheight, NULL, NULL},
+    {"top", (getter)rect_gettop, (setter)rect_settop, NULL, NULL},
+    {"left", (getter)rect_getleft, (setter)rect_setleft, NULL, NULL},
     {"bottom", (getter)rect_getbottom, (setter)rect_setbottom, NULL, NULL},
     {"right", (getter)rect_getright, (setter)rect_setright, NULL, NULL},
     {"centerx", (getter)rect_getcenterx, (setter)rect_setcenterx, NULL, NULL},
@@ -1298,18 +1348,6 @@ static PyGetSetDef rect_getsets[] = {
     {"center", (getter)rect_getcenter, (setter)rect_setcenter, NULL, NULL},
 
     {"__safe_for_unpickling__", (getter)rect_getsafepickle, NULL, NULL, NULL},
-    {NULL}  /* Sentinel */
-};
-
-static PyMemberDef rect_members[] = {
-    {"x", T_INT, offsetof(PyRectObject, r.x), 0, NULL},
-    {"y", T_INT, offsetof(PyRectObject, r.y), 0, NULL},
-    {"w", T_INT, offsetof(PyRectObject, r.w), 0, NULL},
-    {"h", T_INT, offsetof(PyRectObject, r.h), 0, NULL},
-    {"top", T_INT, offsetof(PyRectObject, r.y), 0, NULL},
-    {"left", T_INT, offsetof(PyRectObject, r.x), 0, NULL},
-    {"width", T_INT, offsetof(PyRectObject, r.w), 0, NULL},
-    {"height", T_INT, offsetof(PyRectObject, r.h), 0, NULL},
     {NULL}  /* Sentinel */
 };
 
@@ -1399,7 +1437,7 @@ NULL,//	(setattrfunc)rect_setattr,	        /*setattr*/
 	0,					/* tp_iter */
 	0,					/* tp_iternext */
 	rect_methods,			        /* tp_methods */
-	rect_members,				/* tp_members */
+	0,				        /* tp_members */
 	rect_getsets,				/* tp_getset */
 	0,					/* tp_base */
 	0,					/* tp_dict */
