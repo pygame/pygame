@@ -100,6 +100,94 @@ static PyObject* image_load_basic(PyObject* self, PyObject* arg)
 
 
 
+
+static SDL_Surface* opengltosdl()
+{
+        /*we need to get ahold of the pyopengl glReadPixels function*/
+        /*we use pyopengl's so we don't need to link with opengl at compiletime*/
+        PyObject *pyopengl, *readpixels = NULL;
+        int typeflag=0, formatflag=0;
+        SDL_Surface *surf;
+        Uint32 rmask, gmask, bmask, amask;
+        int depth, doalpha=0;
+        pyopengl = PyImport_ImportModule("OpenGL.GL");
+        if(pyopengl)
+        {
+                PyObject* dict = PyModule_GetDict(pyopengl);
+                if(dict)
+                {
+                        PyObject *o;
+                        o = PyDict_GetItemString(dict, "GL_RGB");
+                        if(!o) {Py_DECREF(pyopengl); return NULL;}
+                        formatflag = PyInt_AsLong(o);
+                        o = PyDict_GetItemString(dict, "GL_UNSIGNED_BYTE");
+                        if(!o) {Py_DECREF(pyopengl); return NULL;}
+                        typeflag = PyInt_AsLong(o);
+                        readpixels = PyDict_GetItemString(dict, "glReadPixels");
+                        if(!readpixels) {Py_DECREF(pyopengl); return NULL;}
+                }
+                Py_DECREF(pyopengl);
+        }
+        else
+        {
+            RAISE(PyExc_ImportError, "Cannot import PyOpenGL");
+            return NULL;
+        }
+
+        unsigned char *pixels;
+        PyObject *data;
+        int i;
+
+        data = PyObject_CallFunction(readpixels, "iiiiii", 
+                                0, 0, surf->w, surf->h, formatflag, typeflag);
+        if(!data)
+        {
+                RAISE(PyExc_SDLError, "glReadPixels returned NULL");
+                return NULL;
+        }
+        pixels = (unsigned char*)PyString_AsString(data);
+        
+        if(SDL_BYTEORDER == SDL_LIL_ENDIAN)
+        {
+            if(doalpha)
+            {
+                rmask=0x000000FF; gmask=0x0000FF00; bmask=0x00FF00; amask=0xFF000000; depth=32;
+            }
+            else
+            {
+                rmask=0x000000FF; gmask=0x0000FF00; bmask=0x00FF00; amask=0x00000000; depth=24;
+            }
+        }
+        else
+        {
+            if(doalpha)
+            {
+                rmask=0xFF000000; gmask=0x00FF0000; bmask=0x00FF00; amask=0x00000000; depth=32;
+            }
+            else
+            {
+                rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF; amask=0x00000000; depth=24;
+            }
+        }
+        surf = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, depth,
+                    rmask, gmask, bmask, amask);
+        if(!surf)
+        {
+                Py_DECREF(data);
+                RAISE(PyExc_SDLError, SDL_GetError());
+                return NULL;
+        }
+
+        for(i=0; i<surf->h; ++i)
+                memcpy(((char *) surf->pixels) + surf->pitch * i, pixels + 3*surf->w * (surf->h-i-1), surf->w*3);
+        
+        Py_DECREF(data);
+        return surf;
+}
+
+
+
+
     /*DOC*/ static char doc_save[] =
     /*DOC*/    "pygame.image.save(Surface, file) -> None\n"
     /*DOC*/    "save surface data\n"
@@ -125,56 +213,9 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 
 	if(surf->flags & SDL_OPENGL)
 	{
-		/*we need to get ahold of the pyopengl glReadPixels function*/
-		/*we use pyopengl's so we don't need to link with opengl at compiletime*/
-		PyObject *pyopengl, *readpixels = NULL;
-		int typeflag=0, formatflag=0;
-
-		pyopengl = PyImport_ImportModule("OpenGL.GL");
-		if(pyopengl)
-		{
-			PyObject* dict = PyModule_GetDict(pyopengl);
-			if(dict)
-			{
-				formatflag = PyInt_AsLong(PyDict_GetItemString(dict, "GL_RGB"));
-				typeflag = PyInt_AsLong(PyDict_GetItemString(dict, "GL_UNSIGNED_BYTE"));
-				readpixels = PyDict_GetItemString(dict, "glReadPixels");
-			}
-			Py_DECREF(pyopengl);
-		}
-
-		if(readpixels)
-		{
-			unsigned char *pixels;
-			PyObject *data;
-
-			data = PyObject_CallFunction(readpixels, "iiiiii", 
-						0, 0, surf->w, surf->h, formatflag, typeflag);
-			if(!data)
-				return NULL;
-			pixels = (unsigned char*)PyString_AsString(data);
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define IMGMASKS 0x000000FF, 0x0000FF00, 0x00FF0000, 0
-#else
-#define IMGMASKS 0x00FF0000, 0x0000FF00, 0x000000FF, 0
-#endif
-			temp = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 24, IMGMASKS);
-			if(!temp)
-			{
-				Py_DECREF(data);
-				return NULL;
-			}
-#undef IMGMASKS
-
-			for(i=0; i<surf->h; ++i)
-				memcpy(((char *) temp->pixels) + temp->pitch * i, pixels + 3*surf->w * (surf->h-i-1), surf->w*3);
-			
-			Py_DECREF(data);
-		}
-		else
-			return RAISE(PyExc_SDLError, "Cannot locate pyopengl module for OPENGL Surface save");
-
-		surf = temp;
+                temp = surf = opengltosdl();
+                if(!surf)
+                    return NULL;
 	}
 	else
 		PySurface_Prep(surfobj);
@@ -261,7 +302,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj, *string=NULL;
 	char *format, *data, *pixels;
-	SDL_Surface *surf;
+	SDL_Surface *surf, *temp=NULL;
 	int w, h, color, len, flipped=0;
 	int Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss, Gloss, Bloss, Aloss;
 	int hascolorkey, colorkey;
@@ -269,7 +310,13 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "O!s|i", &PySurface_Type, &surfobj, &format, &flipped))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
-
+	if(surf->flags & SDL_OPENGL)
+	{
+                temp = surf = opengltosdl();
+                if(!surf)
+                    return NULL;
+	}
+        
 	Rmask = surf->format->Rmask; Gmask = surf->format->Gmask;
 	Bmask = surf->format->Bmask; Amask = surf->format->Amask;
 	Rshift = surf->format->Rshift; Gshift = surf->format->Gshift;
@@ -301,7 +348,8 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 			return NULL;
 		PyString_AsStringAndSize(string, &data, &len);
 
-		PySurface_Lock(surfobj);
+		if(!temp)
+                    PySurface_Lock(surfobj);
 		pixels = (char*)surf->pixels;
 		switch(surf->format->BytesPerPixel)
 		{
@@ -363,7 +411,8 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 				}
 			}break;
 		}
-		PySurface_Unlock(surfobj);
+		if(!temp)
+                    PySurface_Unlock(surfobj);
 	}
 	else if(!strcmp(format, "RGBX") || !strcmp(format, "RGBA"))
 	{
@@ -447,8 +496,12 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		PySurface_Unlock(surfobj);
 	}
 	else
+        {
+                if(temp) SDL_FreeSurface(temp);
 		return RAISE(PyExc_ValueError, "Unrecognized type of format");
+        }
 
+        if(temp) SDL_FreeSurface(temp);
 	return string;
 }
 
