@@ -165,13 +165,15 @@ wait for an event</td></tr>
 
 <a name=Event><font size=+2><b>Event
 </b></font><br><font size=+1><tt>
-pygame.event.Event(type, dict) -> Event
+pygame.event.Event(type, dict, [keyword_args]) -> Event
 </tt></font><ul>
-Creates a new event object. The type should be one
-of SDL's event numbers, or above USER_EVENT. The
-given dictionary contains a list of readonly
-attributes that will be members of the event
-object.
+Creates a new event object. The type should be one of SDL's
+event numbers, or above USER_EVENT. The given dictionary contains
+the keys that will be members of the new event.
+<br>&nbsp;<br>
+Also, instead of passing a dictionary to create the event
+members, you also/or pass a list of keyword arguments that
+will become data members in the new event.
 </ul><br>&nbsp;<br>
 
 <a name=event_name><font size=+2><b>event_name
@@ -228,7 +230,9 @@ queue, this will return an event with type NOEVENT.
 pygame.event.post(Event) -> None
 </tt></font><ul>
 This will place an event onto the queue. This is most useful for
-putting your own USEREVENT's onto the queue.
+putting your own events onto the queue. When the given event
+is a USEREVENT type, the event data will be passed through the
+event queue.
 </ul><br>&nbsp;<br>
 
 <a name=pump><font size=+2><b>pump

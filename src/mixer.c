@@ -71,6 +71,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 	freq = request_frequency;
 	size = request_size;
 	stereo = request_stereo;
+
 	if(!PyArg_ParseTuple(arg, "|iii", &freq, &size, &stereo))
 		return NULL;
 	if(stereo)

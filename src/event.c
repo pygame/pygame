@@ -27,6 +27,79 @@
 #include "pygame.h"
 
 
+/*this user event object is for safely passing
+ *objects through the event queue.
+ */
+
+#define USEROBJECT_CHECK1 0xDEADBEEF
+#define USEROBJECT_CHECK2 0xFEEDF00D
+
+typedef struct UserEventObject
+{
+	struct UserEventObject* next;
+	PyObject* object;
+}UserEventObject;
+
+static UserEventObject* user_event_objects = NULL;
+
+
+/*must pass dictionary as this object*/
+static UserEventObject* user_event_addobject(PyObject* obj)
+{
+	UserEventObject* userobj = PyMem_New(UserEventObject, 1);
+	if(!userobj) return NULL;
+
+	Py_INCREF(obj);
+	userobj->next = user_event_objects;
+	userobj->object = obj;
+	user_event_objects = userobj;
+	return userobj;
+}
+
+/*note, we doublecheck to make sure the pointer is in our list,
+ *not just some random pointer. this should keep us quite safe.
+ */
+static PyObject* user_event_getobject(UserEventObject* userobj)
+{
+	PyObject* obj = NULL;
+	if(user_event_objects == userobj)
+	{
+		obj = userobj->object;
+		user_event_objects = userobj->next;
+	}
+	else
+	{
+		UserEventObject* hunt = user_event_objects;
+		while(hunt && hunt->next != userobj)
+			hunt = hunt->next;
+		if(hunt)
+		{
+			hunt->next = userobj->next;
+			obj = userobj->object;
+		}
+	}
+	if(obj)
+		PyMem_Del(userobj);
+	return obj;
+}
+
+
+static void user_event_cleanup(void)
+{
+	if(user_event_objects)
+	{
+		UserEventObject *hunt, *kill;
+		hunt = user_event_objects;
+		while(hunt)
+		{
+			kill = hunt;
+			hunt = hunt->next;
+			Py_DECREF(kill->object);
+			PyMem_Del(kill);
+		}
+		user_event_objects = NULL;
+	}
+}
 
 
 
@@ -154,9 +227,25 @@ static PyObject* dict_from_event(SDL_Event* event)
 	}
 	if(event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
 	{
-		insobj(dict, "code", PyInt_FromLong(event->user.code));
-		insobj(dict, "data1", PyInt_FromLong((int)event->user.data1));
-		insobj(dict, "data2", PyInt_FromLong((int)event->user.data2));
+		PyObject* objdict = NULL;
+		if(event->user.code == USEROBJECT_CHECK1 && event->user.data1 == (void*)USEROBJECT_CHECK2)
+			objdict = user_event_getobject((UserEventObject*)event->user.data2);
+		if(!objdict)
+		{
+			insobj(dict, "code", PyInt_FromLong(event->user.code));
+/*			insobj(dict, "data1", PyInt_FromLong((int)event->user.data1));
+			insobj(dict, "data2", PyInt_FromLong((int)event->user.data2));
+*/		}
+		else
+		{
+			PyObject *key, *value;
+			int pos  = 0;
+			while(PyDict_Next(objdict, &pos, &key, &value))
+			{
+				PyDict_SetItem(dict, key, value);
+			}
+			Py_DECREF(objdict);
+		}
 	}
 
 	return dict;
@@ -312,23 +401,43 @@ static PyObject* PyEvent_New2(int type, PyObject* dict)
 
 
     /*DOC*/ static char doc_Event[] =
-    /*DOC*/    "pygame.event.Event(type, dict) -> Event\n"
+    /*DOC*/    "pygame.event.Event(type, dict, [keyword_args]) -> Event\n"
     /*DOC*/    "create new event object\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Creates a new event object. The type should be one\n"
-    /*DOC*/    "of SDL's event numbers, or above USER_EVENT. The\n"
-    /*DOC*/    "given dictionary contains a list of readonly\n"
-    /*DOC*/    "attributes that will be members of the event\n"
-    /*DOC*/    "object.\n"
+    /*DOC*/    "Creates a new event object. The type should be one of SDL's\n"
+    /*DOC*/    "event numbers, or above USER_EVENT. The given dictionary contains\n"
+    /*DOC*/    "the keys that will be members of the new event.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Also, instead of passing a dictionary to create the event\n"
+    /*DOC*/    "members, you also/or pass a list of keyword arguments that\n"
+    /*DOC*/    "will become data members in the new event.\n"
     /*DOC*/ ;
 
-static PyObject* Event(PyObject* self, PyObject* arg)
+static PyObject* Event(PyObject* self, PyObject* arg, PyObject* keywords)
 {
-	PyObject* dict;
+	PyObject* dict = NULL;
+	PyObject* event;
 	int type;
-	if(!PyArg_ParseTuple(arg, "iO!", &type, &PyDict_Type, &dict))
+	if(!PyArg_ParseTuple(arg, "i|O!", &type, &PyDict_Type, &dict))
 		return NULL;
-	return PyEvent_New2(type, dict);
+
+	if(!dict)
+		dict = PyDict_New();
+	else
+		Py_INCREF(dict);
+
+	if(keywords)
+	{
+		PyObject *key, *value;
+		int pos  = 0;
+		while(PyDict_Next(keywords, &pos, &key, &value))
+			PyDict_SetItem(dict, key, value);
+	}
+
+	event = PyEvent_New2(type, dict);
+
+	Py_DECREF(dict);
+	return event;
 }
 
 
@@ -615,7 +724,9 @@ static PyObject* peek(PyObject* self, PyObject* args)
     /*DOC*/    "place an event on the queue\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will place an event onto the queue. This is most useful for\n"
-    /*DOC*/    "putting your own USEREVENT's onto the queue.\n"
+    /*DOC*/    "putting your own events onto the queue. When the given event\n"
+    /*DOC*/    "is a USEREVENT type, the event data will be passed through the\n"
+    /*DOC*/    "event queue.\n"
     /*DOC*/ ;
 
 static PyObject* post(PyObject* self, PyObject* args)
@@ -629,6 +740,17 @@ static PyObject* post(PyObject* self, PyObject* args)
 	VIDEO_INIT_CHECK();
 
 	event.type = e->type;
+	event.user.code = ~USEROBJECT_CHECK1; /*help us to not be "unlucky"*/
+	if(e->type >= SDL_USEREVENT && e->type < SDL_NUMEVENTS)
+	{
+		UserEventObject* userobj = user_event_addobject(e->dict);
+		if(userobj)
+		{
+			event.user.code = USEROBJECT_CHECK1;
+			event.user.data1 = (void*)USEROBJECT_CHECK2;
+			event.user.data2 = userobj;
+		}
+	}
 
 	if(SDL_PushEvent(&event) == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
@@ -720,7 +842,7 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 
 static PyMethodDef event_builtins[] =
 {
-	{ "Event", Event, 1, doc_Event },
+	{ "Event", Event, 3, doc_Event },
 	{ "event_name", event_name, 1, doc_event_name },
 
 	{ "set_grab", set_grab, 1, doc_set_grab },
@@ -801,6 +923,7 @@ void initevent(void)
 
 	/*imported needed apis*/
 	import_pygame_base();
+	PyGame_RegisterQuit(user_event_cleanup);
 }
 
 
