@@ -441,7 +441,7 @@ static PyObject* pump(PyObject* self, PyObject* args)
     /*DOC*/    "when the user isn't doing anything with it.\n"
     /*DOC*/ ;
 
-static PyObject* wait(PyObject* self, PyObject* args)
+static PyObject* pygame_wait(PyObject* self, PyObject* args)
 {
 	SDL_Event event;
 	int status;
@@ -727,7 +727,7 @@ static PyMethodDef event_builtins[] =
 	{ "get_grab", get_grab, 1, doc_get_grab },
 
 	{ "pump", pump, 1, doc_pump },
-	{ "wait", wait, 1, doc_wait },
+	{ "wait", pygame_wait, 1, doc_wait },
 	{ "poll", poll, 1, doc_poll },
 	{ "get", get, 1, doc_get },
 	{ "peek", peek, 1, doc_peek },
