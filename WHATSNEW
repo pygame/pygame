@@ -1,6 +1,7 @@
 #This is a list of changes in pygame's history.
 
 Nov 29, 2000
+	joystick module rewrite finished [BREAK]
 	cdrom module rewrite finished [BREAK]
 	all constructors using capitalized function names [BREAK]
 		(Rect, pygame.Surface, pygame.font.Font, etc)
