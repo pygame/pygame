@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 3, 2002
+	passing None as the end time to CD.play() plays to cd end
+	added pygame.vernum, a tuple of python version values
+
 September 2, 2002
 	add Movie.render_frame, thanks James Mazer
 	cursors.load_xbm skips comments, thanks Herve
