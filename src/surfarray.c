@@ -1111,7 +1111,6 @@ PyObject* make_surface(PyObject* self, PyObject* arg)
 {
 	PyObject *arrayobj, *surfobj, *args;
 	SDL_Surface* surf;
-	SDL_PixelFormat *format;
 	PyArrayObject* array;
 	int sizex, sizey, bitsperpixel;
         Uint32 rmask, gmask, bmask;
