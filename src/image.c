@@ -62,7 +62,7 @@ static char* find_extension(char* fullname)
 
 static PyObject* load(PyObject* self, PyObject* arg)
 {
-	PyObject* file;
+	PyObject* file, *final;
 	char* name = NULL;
 	SDL_Surface* surf;
 	SDL_RWops *rw;
@@ -92,7 +92,10 @@ static PyObject* load(PyObject* self, PyObject* arg)
 	if(!surf)
 		return RAISE(PyExc_SDLError, IMG_GetError());
 
-	return PySurface_New(surf);
+	final = PySurface_New(surf);
+	if(!final)
+		SDL_FreeSurface(surf);
+	return final;
 }
 
 

@@ -927,7 +927,7 @@ static PyObject* unpause(PyObject* self, PyObject* args)
 
 static PyObject* Sound(PyObject* self, PyObject* arg)
 {
-	PyObject* file;
+	PyObject* file, *final;
 	char* name = NULL;
 	Mix_Chunk* chunk;
 	SDL_RWops *rw;
@@ -955,7 +955,10 @@ static PyObject* Sound(PyObject* self, PyObject* arg)
 	if(!chunk)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	return PySound_New(chunk);
+	final = PySound_New(chunk);
+	if(!final)
+		Mix_FreeChunk(chunk);
+	return final;
 }
 
 
@@ -998,14 +1001,7 @@ static PyObject* PySound_New(Mix_Chunk* chunk)
 
 	soundobj = PyObject_NEW(PySoundObject, &PySound_Type);
 	if(soundobj)
-	{
 		soundobj->chunk = chunk;
-	}
-	else
-	{
-		/*free the sound here, nobody else can*/
-		Mix_FreeChunk(chunk);
-	}
 
 	return (PyObject*)soundobj;
 }

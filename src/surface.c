@@ -667,6 +667,7 @@ static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
 static PyObject* surf_convert(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
+	PyObject* final;
 	PySurfaceObject* srcsurf = NULL;
 	SDL_Surface* src;
 	SDL_Surface* newsurf;
@@ -687,7 +688,10 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 		newsurf = SDL_DisplayFormat(surf);
 	PySurface_Unprep(self);
 
-	return PySurface_New(newsurf);
+	final = PySurface_New(newsurf);
+	if(!final)
+		SDL_FreeSurface(newsurf);
+	return final;
 }
 
 
@@ -710,6 +714,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
+	PyObject* final;
 	PySurfaceObject* srcsurf = NULL;
 	SDL_Surface* newsurf, *src;
 	
@@ -729,7 +734,10 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 		newsurf = SDL_DisplayFormatAlpha(surf);
 	PySurface_Unprep(self);
 
-	return PySurface_New(newsurf);
+	final = PySurface_New(newsurf);
+	if(!final)
+		SDL_FreeSurface(newsurf);
+	return final;
 }
 
 
@@ -1385,11 +1393,6 @@ static PyObject* PySurface_New(SDL_Surface* s)
 		surf->didlock = 0;
 		surf->lockcount = 0;
 	}
-	else
-	{
-		/*free the surface here, because no one else can*/
-		SDL_FreeSurface(s);
-	}
 	return (PyObject*)surf;
 }
 
@@ -1420,7 +1423,7 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 {
 	Uint32 flags = 0;
 	int width, height;
-	PyObject *depth=NULL, *masks=NULL;
+	PyObject *depth=NULL, *masks=NULL, *final;
 	short bpp;
 	Uint32 Rmask, Gmask, Bmask, Amask;
 	SDL_Surface* surface;
@@ -1496,7 +1499,10 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	}
 
 	surface = SDL_CreateRGBSurface(flags, width, height, bpp, Rmask, Gmask, Bmask, Amask);
-	return PySurface_New(surface);
+	final = PySurface_New(surface);
+	if(!final)
+		SDL_FreeSurface(surface);
+	return final;
 }
 
 
