@@ -60,8 +60,20 @@ sounds
 get an array copied from a sound</td></tr>
 
 
+<tr><td><a href=#array>array</a></td><td> -
+get an array copied from a sound</td></tr>
+
+
 <tr><td><a href=#make_sound>make_sound</a></td><td> -
 create a new Sound object from array data</td></tr>
+
+
+<tr><td><a href=#make_sound>make_sound</a></td><td> -
+create a new Sound object from array data</td></tr>
+
+
+<tr><td><a href=#samples>samples</a></td><td> -
+get a reference to the sound samples</td></tr>
 
 
 <tr><td><a href=#samples>samples</a></td><td> -
@@ -79,6 +91,13 @@ pygame.sndarray.array(Sound) -> Array
 Creates an array with a copy of the sound data.
 </ul><br>&nbsp;<br>
 
+<a name=array><font size=+2><b>array
+</b></font><br><font size=+1><tt>
+pygame.sndarray.array(Sound) -> Array
+</tt></font><ul>
+Creates an array with a copy of the sound data.
+</ul><br>&nbsp;<br>
+
 <a name=make_sound><font size=+2><b>make_sound
 </b></font><br><font size=+1><tt>
 pygame.sndarray.make_sound(array) -> Sound
@@ -88,6 +107,25 @@ the Sound will be a copy of the array samples.
 <br>&nbsp;<br>
 The array must be 1-dimensional for mono sound, and.
 2-dimensional for stereo.
+</ul><br>&nbsp;<br>
+
+<a name=make_sound><font size=+2><b>make_sound
+</b></font><br><font size=+1><tt>
+pygame.sndarray.make_sound(array) -> Sound
+</tt></font><ul>
+Create a new playable Sound object from array data
+the Sound will be a copy of the array samples.
+<br>&nbsp;<br>
+The array must be 1-dimensional for mono sound, and.
+2-dimensional for stereo.
+</ul><br>&nbsp;<br>
+
+<a name=samples><font size=+2><b>samples
+</b></font><br><font size=+1><tt>
+pygame.sndarray.samples(Sound) -> Array
+</tt></font><ul>
+This will return an array that directly references the samples
+in the array.
 </ul><br>&nbsp;<br>
 
 <a name=samples><font size=+2><b>samples
