@@ -25,12 +25,14 @@
  */
 #define PYGAMEAPI_RECT_INTERNAL
 #include "pygame.h"
+#include "structmember.h"
 
 
 staticforward PyTypeObject PyRect_Type;
 #define PyRect_Check(x) ((x)->ob_type == &PyRect_Type)
 
 static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static int rect_init(PyRectObject *self, PyObject *args, PyObject *kwds);
 
 
 
@@ -94,63 +96,31 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 	return NULL;
 }
 
-static int Rect_SetTop(GAME_Rect* r, int val)
-{
-	r->y = val;
-	return 0;
-}
-static int Rect_SetBottom(GAME_Rect* r, int val)
-{
-	r->y = val - r->h;
-	return 0;
-}
-static int Rect_SetLeft(GAME_Rect* r, int val)
-{
-	r->x = val;
-	return 0;
-}
-static int Rect_SetRight(GAME_Rect* r, int val)
-{
-	r->x = val - r->w;
-	return 0;
-}
-static int Rect_SetWidth(GAME_Rect* r, int val)
-{
-//	r->x -= val - r->w;
-	r->w = val;
-	return 0;
-}
-static int Rect_SetHeight(GAME_Rect* r, int val)
-{
-//	r->y -= val - r->h;
-	r->h = val;
-	return 0;
-}
-
 PyObject* PyRect_New(SDL_Rect* r)
 {
-	PyRectObject* rect = PyObject_NEW(PyRectObject, &PyRect_Type);
-	if(!rect)
-		return NULL;
-
-	rect->r.x = r->x;
-	rect->r.y = r->y;
-	rect->r.w = r->w;
-	rect->r.h = r->h;
-
+	PyRectObject* rect;
+	rect = (PyRectObject *)PyRect_Type.tp_new(&PyRect_Type, NULL, NULL);
+        if(rect)
+        {
+            rect->r.x = r->x;
+            rect->r.y = r->y;
+            rect->r.w = r->w;
+            rect->r.h = r->h;
+        }
 	return (PyObject*)rect;
 }
 
 PyObject* PyRect_New4(int x, int y, int w, int h)
 {
-	PyRectObject* rect = PyObject_NEW(PyRectObject, &PyRect_Type);
-	if(!rect)
-		return NULL;
-
-	rect->r.x = x;
-	rect->r.y = y;
-	rect->r.w = w;
-	rect->r.h = h;
+	PyRectObject* rect;
+	rect = (PyRectObject *)PyRect_Type.tp_new(&PyRect_Type, NULL, NULL);
+        if(rect)
+        {
+            rect->r.x = x;
+            rect->r.y = y;
+            rect->r.w = w;
+            rect->r.h = h;
+        }
 	return (PyObject*)rect;
 }
 
@@ -883,6 +853,14 @@ static PyObject* rect_reduce(PyObject* oself, PyObject* args)
                     (int)self->r.x, (int)self->r.y, (int)self->r.w, (int)self->r.h);
 }
 
+/* for copy module */
+static PyObject* rect_copy(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+        return PyRect_New4(self->r.x, self->r.y, self->r.w, self->r.h);
+}
+
+
 
 
 static struct PyMethodDef rect_methods[] =
@@ -914,6 +892,7 @@ static struct PyMethodDef rect_methods[] =
 /*	{"remove",			(PyCFunction)rect_remove,		1, doc_remove}, */
 
         {"__reduce__",          (PyCFunction)rect_reduce, 0, NULL},
+        {"__copy__",            (PyCFunction)rect_copy, 0, NULL},
 
 	{NULL,		NULL}
 };
@@ -1099,7 +1078,9 @@ static PyNumberMethods rect_as_number = {
 /* object type functions */
 static void rect_dealloc(PyRectObject *self)
 {
-	PyObject_DEL(self);
+        if(self->weakreflist)
+            PyObject_ClearWeakRefs((PyObject*)self);
+	self->ob_type->tp_free((PyObject*)self);
 }
 
 
@@ -1141,208 +1122,198 @@ static int rect_compare(PyRectObject *self, PyObject *other)
 }
 
 
-static PyObject *rect_getattr(PyRectObject *self, char *name)
-{
-	PyObject *ret = NULL;
-	GAME_Rect *r = &self->r;
 
-	if(!strcmp(name, "top") || !strcmp(name, "y"))
-		ret = PyInt_FromLong(r->y);
-	else if(!strcmp(name, "bottom"))
-		ret = PyInt_FromLong(r->y + r->h);
-	else if(!strcmp(name, "left") || !strcmp(name, "x"))
-		ret = PyInt_FromLong(r->x);
-	else if(!strcmp(name, "right"))
-		ret = PyInt_FromLong(r->x + r->w);
-	else if(!strcmp(name, "width") || !strcmp(name, "w"))
-		ret = PyInt_FromLong(r->w);
-	else if(!strcmp(name, "height") || !strcmp(name, "h"))
-		ret = PyInt_FromLong(r->h);
-	else if(!strcmp(name, "centerx"))
-		ret = PyInt_FromLong(r->x+r->w/2);
-	else if(!strcmp(name, "centery"))
-		ret = PyInt_FromLong(r->y+r->h/2);
-
-	else if(!strcmp(name, "topleft"))
-		ret = Py_BuildValue("(ii)", r->x, r->y);
-	else if(!strcmp(name, "bottomleft"))
-		ret = Py_BuildValue("(ii)", r->x, r->y + r->h);
-	else if(!strcmp(name, "topright"))
-		ret = Py_BuildValue("(ii)", r->x + r->w, r->y);
-	else if(!strcmp(name, "bottomright"))
-		ret = Py_BuildValue("(ii)", r->x + r->w, r->y + r->h);
-	else if(!strcmp(name, "size"))
-		ret = Py_BuildValue("(ii)", r->w, r->h);
-	else if(!strcmp(name, "center"))
-		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y + r->h / 2);
-
-	else if(!strcmp(name, "midleft"))
-		ret = Py_BuildValue("(ii)", r->x, r->y + r->h / 2);
-	else if(!strcmp(name, "midright"))
-		ret = Py_BuildValue("(ii)", r->x + r->w, r->y + r->h / 2);
-	else if(!strcmp(name, "midtop"))
-		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y);
-	else if(!strcmp(name, "midbottom"))
-		ret = Py_BuildValue("(ii)", r->x + r->w / 2, r->y + r->h);
-
-	else if(!strcmp(name, "__safe_for_unpickling__"))
-                ret = PyInt_FromLong(1);
-	else
-		ret = Py_FindMethod(rect_methods, (PyObject *)self, name);
-
-	return ret;
+/*right*/
+static PyObject* rect_getright(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.x + self->r.w);
+}
+static int rect_setright(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.x = val1-self->r.w;
+    return 0;
 }
 
-static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
-{
-	int ret = -1;
-	int val1, val2;
-	GAME_Rect *r = &self->r;
-
-	if(!strcmp(name, "top") || !strcmp(name, "y"))
-	{
-		if(IntFromObj(op, &val1))
-			ret = Rect_SetTop(r, val1);
-	}
-	else if(!strcmp(name, "bottom"))
-	{
-		if(IntFromObj(op, &val1))
-			ret = Rect_SetBottom(r, val1);
-	}
-	else if(!strcmp(name, "left") || !strcmp(name, "x"))
-	{
-		if(IntFromObj(op, &val1))
-			ret = Rect_SetLeft(r, val1);
-	}
-	else if(!strcmp(name, "right"))
-	{
-		if(IntFromObj(op, &val1))
-			ret = Rect_SetRight(r, val1);
-	}
-	else if(!strcmp(name, "width") || !strcmp(name, "w"))
-	{
-		if(IntFromObj(op, &val1))
-			ret = Rect_SetWidth(r, val1);
-	}
-	else if(!strcmp(name, "height") || !strcmp(name, "h"))
-	{
-		if(IntFromObj(op, &val1))
-			ret = Rect_SetHeight(r, val1);
-	}
-	else if(!strcmp(name, "topleft"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			Rect_SetLeft(r, val1);
-			ret = Rect_SetTop(r, val2);
-		}
-	}
-	else if(!strcmp(name, "bottomleft"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			Rect_SetLeft(r, val1);
-			ret = Rect_SetBottom(r, val2);
-		}
-	}
-	else if(!strcmp(name, "topright"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			Rect_SetRight(r, val1);
-			ret = Rect_SetTop(r, val2);
-		}
-	}
-	else if(!strcmp(name, "bottomright"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			Rect_SetRight(r, val1);
-			ret = Rect_SetBottom(r, val2);
-		}
-	}
-	else if(!strcmp(name, "size"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			Rect_SetWidth(r, val1);
-			ret = Rect_SetHeight(r, val2);
-		}
-	}
-	else if(!strcmp(name, "center"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			r->x += val1 - (r->x + r->w / 2);
-			r->y += val2 - (r->y + r->h / 2);
-			ret = 0;
-		}
-	}
-	else if(!strcmp(name, "centerx"))
-	{
-		if(IntFromObj(op, &val1))
-		{
-			r->x += val1 - (r->x + r->w / 2);
-			ret = 0;
-		}
-	}
-	else if(!strcmp(name, "centery"))
-	{
-		if(IntFromObj(op, &val1))
-		{
-			r->y += val1 - (r->y + r->h / 2);
-			ret = 0;
-		}
-	}
-
-	else if(!strcmp(name, "midleft"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			r->x = val1;
-			r->y += val2 - (r->y + r->h / 2);
-			ret = 0;
-		}
-	}
-	else if(!strcmp(name, "midright"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			r->x = val1 - r->w;
-			r->y += val2 - (r->y + r->h / 2);
-			ret = 0;
-		}
-	}
-	else if(!strcmp(name, "midtop"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			r->x += val1 - (r->x + r->w / 2);
-			r->y = val2;
-			ret = 0;
-		}
-	}
-	else if(!strcmp(name, "midbottom"))
-	{
-		if(TwoIntsFromObj(op, &val1, &val2))
-		{
-			r->x += val1 - (r->x + r->w / 2);
-			r->y = val2 - r->h;
-			ret = 0;
-		}
-	}
-
-	else
-	{
-		RAISE(PyExc_AttributeError, "Attribute cannot be modified");
-		return -1;
-	}
-
-	if(ret == -1)
-		RAISE(PyExc_TypeError, "Unable to assign to rect attribute");
-
-	return ret;
+/*bottom*/
+static PyObject* rect_getbottom(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.x + self->r.w);
 }
+static int rect_setbottom(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.y = val1-self->r.h;
+    return 0;
+}
+
+/*centerx*/
+static PyObject* rect_getcenterx(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.x + (self->r.w>>1));
+}
+static int rect_setcenterx(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.x = val1-(self->r.w>>1);
+    return 0;
+}
+
+/*centery*/
+static PyObject* rect_getcentery(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(self->r.y + (self->r.h>>1));
+}
+static int rect_setcentery(PyRectObject *self, PyObject* value, void *closure) {
+    int val1;
+    if(!IntFromObj(value, &val1)) return -1;
+    self->r.y = val1-(self->r.h>>1);
+    return 0;
+}
+
+/*topleft*/
+static PyObject* rect_gettopleft(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x, self->r.y);
+}
+static int rect_settopleft(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1; self->r.y = val2;
+    return 0;
+}
+
+/*topright*/
+static PyObject* rect_gettopright(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x+self->r.w, self->r.y);
+}
+static int rect_settopright(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1-self->r.w;; self->r.y = val2;
+    return 0;
+}
+
+/*bottomleft*/
+static PyObject* rect_getbottomleft(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x, self->r.y+self->r.h);
+}
+static int rect_setbottomleft(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1; self->r.y = val2-self->r.h;
+    return 0;
+}
+
+/*bottomright*/
+static PyObject* rect_getbottomright(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x+self->r.w, self->r.y+self->r.h);
+}
+static int rect_setbottomright(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1-self->r.w; self->r.y = val2-self->r.h;
+    return 0;
+}
+
+/*midtop*/
+static PyObject* rect_getmidtop(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x+(self->r.w>>1), self->r.y);
+}
+static int rect_setmidtop(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1-(self->r.w>>1); self->r.y = val2;
+    return 0;
+}
+
+/*midleft*/
+static PyObject* rect_getmidleft(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x, self->r.y+(self->r.h>>1));
+}
+static int rect_setmidleft(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1; self->r.y = val2-(self->r.h>>1);
+    return 0;
+}
+
+/*midbottom*/
+static PyObject* rect_getmidbottom(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x+(self->r.w>>1), self->r.y+self->r.h);
+}
+static int rect_setmidbottom(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1-(self->r.w>>1); self->r.y = val2-self->r.h;
+    return 0;
+}
+
+/*midright*/
+static PyObject* rect_getmidright(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x+self->r.w, self->r.y+(self->r.h>>1));
+}
+static int rect_setmidright(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1-self->r.w; self->r.y = val2-(self->r.w>>1);
+    return 0;
+}
+
+/*center*/
+static PyObject* rect_getcenter(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.x+(self->r.w>>1), self->r.y+(self->r.h>>1));
+}
+static int rect_setcenter(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.x = val1-(self->r.w>>1); self->r.y = val2-(self->r.w>>1);
+    return 0;
+}
+
+/*size*/
+static PyObject* rect_getsize(PyRectObject *self, void *closure) {
+    return Py_BuildValue("(ii)", self->r.w, self->r.h);
+}
+static int rect_setsize(PyRectObject *self, PyObject* value, void *closure) {
+    int val1, val2;
+    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    self->r.w = val1; self->r.h = val2;
+    return 0;
+}
+
+static PyObject* rect_getsafepickle(PyRectObject *self, void *closure) {
+    return PyInt_FromLong(1); /* TODO, should return True*/
+}
+
+static PyGetSetDef rect_getsets[] = {
+    {"bottom", (getter)rect_getbottom, (setter)rect_setbottom, NULL, NULL},
+    {"right", (getter)rect_getright, (setter)rect_setright, NULL, NULL},
+    {"right", (getter)rect_getright, (setter)rect_setright, NULL, NULL},
+    {"centerx", (getter)rect_getcenterx, (setter)rect_setcenterx, NULL, NULL},
+    {"centery", (getter)rect_getcentery, (setter)rect_setcentery, NULL, NULL},
+    {"topleft", (getter)rect_gettopleft, (setter)rect_settopleft, NULL, NULL},
+    {"topright", (getter)rect_gettopright, (setter)rect_settopright, NULL, NULL},
+    {"bottomleft", (getter)rect_getbottomleft, (setter)rect_setbottomleft, NULL, NULL},
+    {"bottomright", (getter)rect_getbottomright, (setter)rect_setbottomright, NULL, NULL},
+    {"midtop", (getter)rect_getmidtop, (setter)rect_setmidtop, NULL, NULL},
+    {"midleft", (getter)rect_getmidleft, (setter)rect_setmidleft, NULL, NULL},
+    {"midbottom", (getter)rect_getmidbottom, (setter)rect_setmidbottom, NULL, NULL},
+    {"midright", (getter)rect_getmidright, (setter)rect_setmidright, NULL, NULL},
+    {"size", (getter)rect_getsize, (setter)rect_setsize, NULL, NULL},
+    {"center", (getter)rect_getcenter, (setter)rect_setcenter, NULL, NULL},
+
+    {"__safe_for_unpickling__", (getter)rect_getsafepickle, NULL, NULL, NULL},
+    {NULL}  /* Sentinel */
+};
+
+static PyMemberDef rect_members[] = {
+    {"x", T_INT, offsetof(PyRectObject, r.x), 0, NULL},
+    {"y", T_INT, offsetof(PyRectObject, r.y), 0, NULL},
+    {"w", T_INT, offsetof(PyRectObject, r.w), 0, NULL},
+    {"h", T_INT, offsetof(PyRectObject, r.h), 0, NULL},
+    {"top", T_INT, offsetof(PyRectObject, r.y), 0, NULL},
+    {"left", T_INT, offsetof(PyRectObject, r.x), 0, NULL},
+    {"width", T_INT, offsetof(PyRectObject, r.w), 0, NULL},
+    {"height", T_INT, offsetof(PyRectObject, r.h), 0, NULL},
+    {NULL}  /* Sentinel */
+};
+
 
 
     /*DOC*/ static char doc_Rect_MODULE[] =
@@ -1400,45 +1371,45 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 
 static PyTypeObject PyRect_Type = {
 	PyObject_HEAD_INIT(0)
-	0,							/*size*/
-	"Rect", 					/*name*/
-	sizeof(PyRectObject),		/*basicsize*/
-	0,							/*itemsize*/
+	0,					/*size*/
+	"pygame.Rect", 				/*name*/
+	sizeof(PyRectObject),		        /*basicsize*/
+	0,					/*itemsize*/
 	/* methods */
-	(destructor)rect_dealloc,	/*dealloc*/
+	(destructor)rect_dealloc,	        /*dealloc*/
 	(printfunc)NULL,			/*print*/
-	(getattrfunc)rect_getattr,	/*getattr*/
-	(setattrfunc)rect_setattr,	/*setattr*/
-	(cmpfunc)rect_compare,		/*compare*/
-	(reprfunc)rect_repr,		/*repr*/
+NULL,//	(getattrfunc)rect_getattr,	        /*getattr*/
+NULL,//	(setattrfunc)rect_setattr,	        /*setattr*/
+	(cmpfunc)rect_compare,		        /*compare*/
+	(reprfunc)rect_repr,		        /*repr*/
 	&rect_as_number,			/*as_number*/
 	&rect_as_sequence,			/*as_sequence*/
-	NULL,						/*as_mapping*/
+	NULL,					/*as_mapping*/
 	(hashfunc)NULL, 			/*hash*/
 	(ternaryfunc)NULL,			/*call*/
 	(reprfunc)rect_str,			/*str*/
 
 	/* Space for future expansion */
 	0L,0L,0L,
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
-	doc_Rect_MODULE,    /* Documentation string */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+	doc_Rect_MODULE,                        /* Documentation string */
 	0,					/* tp_traverse */
 	0,					/* tp_clear */
 	0,					/* tp_richcompare */
-	0,					/* tp_weaklistoffset */
+	offsetof(PyRectObject, weakreflist),    /* tp_weaklistoffset */
 	0,					/* tp_iter */
 	0,					/* tp_iternext */
-	0,					/* tp_methods */
-	0,					/* tp_members */
-	0,					/* tp_getset */
+	rect_methods,			        /* tp_methods */
+	rect_members,				/* tp_members */
+	rect_getsets,				/* tp_getset */
 	0,					/* tp_base */
 	0,					/* tp_dict */
 	0,					/* tp_descr_get */
 	0,					/* tp_descr_set */
 	0,					/* tp_dictoffset */
-	0,					/* tp_init */
+	(initproc)rect_init,			/* tp_init */
 	0,					/* tp_alloc */
-	rect_new,			/* tp_new */
+	rect_new,			        /* tp_new */
 };
 
 
@@ -1463,15 +1434,35 @@ static PyTypeObject PyRect_Type = {
     /*DOC*/ ;
 #endif
 
-
 static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	GAME_Rect *argrect, temp;
-	if(!(argrect = GameRect_FromObject(args, &temp)))
-		return RAISE(PyExc_TypeError, "Argument must be rect style object");
-
-	return PyRect_New4(argrect->x, argrect->y, argrect->w, argrect->h);
+    PyRectObject *self;
+    self = (PyRectObject *)type->tp_alloc(type, 0);
+    if (self)
+    {
+        self->r.x = self->r.y = 0;
+        self->r.w = self->r.h = 0;
+        self->weakreflist = NULL;
+    }
+    return (PyObject*)self;
 }
+
+static int rect_init(PyRectObject *self, PyObject *args, PyObject *kwds)
+{
+    GAME_Rect *argrect, temp;
+    if(!(argrect = GameRect_FromObject(args, &temp)))
+    {
+            RAISE(PyExc_TypeError, "Argument must be rect style object");
+            return -1;
+    }
+
+    self->r.x = argrect->x;
+    self->r.y = argrect->y;
+    self->r.w = argrect->w;
+    self->r.h = argrect->h;
+    return 0;
+}
+
 
 
 static PyMethodDef rect__builtins__[] =
@@ -1493,6 +1484,8 @@ void initrect(void)
 
 	/* Create the module and add the functions */
 	PyType_Init(PyRect_Type);
+        if (PyType_Ready(&PyRect_Type) < 0)
+            return;
 
 
 	module = Py_InitModule3("rect", rect__builtins__, rectangle_doc);

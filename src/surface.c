@@ -1010,7 +1010,6 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	PyObject* rgba_obj;
 	Uint8 rgba[4];
         SDL_Rect sdlrect;
-
 	if(!PyArg_ParseTuple(args, "O|O", &rgba_obj, &r))
 		return NULL;
         if(!surf) return RAISE(PyExc_SDLError, "display Surface quit");
@@ -1705,9 +1704,11 @@ static void surface_cleanup(PySurfaceObject* self)
 static void surface_dealloc(PyObject* self)
 {
         if(((PySurfaceObject*)self)->weakreflist)
-            PyObject_ClearWeakRefs(((PySurfaceObject*)self)->weakreflist);
+        {
+            PyObject_ClearWeakRefs(self);
+        }
 	surface_cleanup((PySurfaceObject*)self);
-	self->ob_type->tp_free((PyObject*)self);
+	self->ob_type->tp_free(self);
 }
 
 
@@ -1779,7 +1780,7 @@ static PyTypeObject PySurface_Type =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,                              /*size*/
-	"Surface",                      /*name*/
+	"pygame.Surface",               /*name*/
 	sizeof(PySurfaceObject),        /*basic size*/
 	0,                              /*itemsize*/
 	surface_dealloc,                /*dealloc*/
@@ -1795,7 +1796,7 @@ static PyTypeObject PySurface_Type =
 	(ternaryfunc)NULL,		/*call*/
 	(reprfunc)NULL, 		/*str*/
 	0L,0L,0L,
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
 	doc_Surface, /* Documentation string */
 	0,					/* tp_traverse */
 	0,					/* tp_clear */
@@ -1813,27 +1814,23 @@ static PyTypeObject PySurface_Type =
 	0,					/* tp_dictoffset */
 	(initproc)surface_init,			/* tp_init */
 	0,					/* tp_alloc */
-	surface_new,		/* tp_new */
+	surface_new,		                /* tp_new */
 };
 
 
 static PyObject* PySurface_New(SDL_Surface* s)
 {
-	PySurfaceObject* surf;
+	PySurfaceObject* self;
 	if(!s) return RAISE(PyExc_SDLError, SDL_GetError());
 
-	surf = PyObject_New(PySurfaceObject, &PySurface_Type);
-	if(surf)
+	self = (PySurfaceObject *)PySurface_Type.tp_new(&PySurface_Type, NULL, NULL);
+        
+	if(self)
 	{
-		surf->surf = s;
-		surf->subsurface = NULL;
-		surf->didlock = 0;
-		surf->lockcount = 0;
-                surf->weakreflist = NULL;
+		self->surf = s;
 	}
-	return (PyObject*)surf;
+	return (PyObject*)self;
 }
-
 
 static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {

@@ -143,6 +143,7 @@ typedef struct {
 typedef struct {
   PyObject_HEAD
   GAME_Rect r;
+  PyObject *weakreflist;
 } PyRectObject;
 #define PyRect_AsRect(x) (((PyRectObject*)x)->r)
 #ifndef PYGAMEAPI_RECT_INTERNAL

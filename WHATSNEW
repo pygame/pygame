@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 22, 2004
+    Rect type updated, weakrefable
+    (warning, Rect attributes broken for now)
+
 June 21, 2004
     Surfaces now weakref'able
     display surface protected from pygame.quit()
