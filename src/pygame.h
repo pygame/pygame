@@ -55,6 +55,11 @@
 	 ** than it could be :]
 	 **/
 #include <Python.h>
+
+#ifdef MS_WIN32 /*Python gives us MS_WIN32, SDL needs just WIN32*/
+#define WIN32
+#endif
+
 #include <SDL.h>
 
 

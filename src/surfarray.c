@@ -54,7 +54,7 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 	char* startpixel;
 	int pixelstep;
 	const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
-
+	
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
 	surf = PySurface_AsSurface(array);
@@ -226,7 +226,11 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
 			while(pix < end)
 			{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
 				*(Uint32*)data = pix[0] + (pix[1]<<8) + (pix[2]<<16);
+#else
+				*(Uint32*)data = pix[2] + (pix[1]<<8) + (pix[0]<<16);
+#endif
 				pix += 3;
 				data += stridex;
 			}
@@ -282,7 +286,9 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	dim[1] = surf->h;
 	dim[2] = 3;
 	Rmask = format->Rmask; Gmask = format->Gmask; Bmask = format->Bmask;
-	Rshift = format->Rshift; Gshift = format->Gshift; Bshift = format->Bshift;
+	Rshift = format->Rshift - format->Rloss;
+	Gshift = format->Gshift - format->Gloss;
+	Bshift = format->Bshift - format->Bloss;
 
 	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for surface array");
@@ -321,7 +327,7 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
 			while(pix < end)
 			{
-				Uint16 color = *pix++;
+				Uint32 color = *pix++;
 				data[0] = (color&Rmask)>>Rshift;
 				data[1] = (color&Gmask)>>Gshift;
 				data[2] = (color&Bmask)>>Bshift;
