@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Aug 29, 2001
+	changed initializations, to allow easier embedding
+
 Aug 28, 2001
 	added circle and rect convenciences to pygame.draw
 	removed debug printing from draw.polygon
