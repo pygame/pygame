@@ -35,5 +35,4 @@ import pygame.key
 import pygame.mouse
 import pygame.time
 import pygame.joystick
-import pygame.image
 
