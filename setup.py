@@ -1,12 +1,19 @@
 #!/usr/bin/env python
-# To use:
-#       python setup.py install
 #
+# This is the distutils setup script for pygame.
+# Full instructions are in "docs/fullinstall.txt"
+#
+# To configure, compile, install, just run this script.
 
-morehelp = """
-You can copy the file, "Setup.in" to "Setup" and configure
-by hand. You can also run one of the configuration helper
-scripts to do this for you: configwin.py or configunix.py"""
+METADATA = {
+    "name":             "pygame",
+    "version":          "1.0pre",
+    "maintainer":       "Pete Shinners",
+    "maintainer_email": "pygame@seul.org",
+    "description":      "Python Game Development Package",
+    "url":              "http://pygame.seul.org",
+}
+
 
 
 import os.path, glob, sys
@@ -20,24 +27,42 @@ from distutils.ccompiler import new_compiler
 headers = glob.glob(os.path.join('src', '*.h'))
 
 
+#sanity check for any arguments
+if len(sys.argv) == 1:
+    reply = raw_input('\nNo Arguments Given, Perform Default Install? [Y/n]')
+    if not reply or reply[0].lower() != 'n':
+        sys.argv.append('install')
+
+
+#make sure there is a Setup file
+if not os.path.isfile('Setup'):
+    print '\n\nWARNING, No "Setup" File Exists, Running "config.py"'
+    import config
+    config.main()
+    print '\nContinuing With "setup.py"'
+
+
+
 #get compile info for all extensions
 try:
     extensions = read_setup_file('Setup')
-except IOError:
-    raise SystemExit, 'Need a "Setup" file for compiling.' + morehelp
+except:
+    raise SystemExit, """Error with the "Setup" file,
+perhaps make a clean copy from "Setup.in"."""
 
 
 #extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 data_files = []
 
+
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('lib', '*')):
     if not f.endswith('.py') and os.path.isfile(f):
         data_files.append(f)
 
-#try to find libaries and copy them too
-#(great for windows, bad for linux)
+
+#try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32':
     tempcompiler = new_compiler()
     for e in extensions:
@@ -50,10 +75,12 @@ if sys.platform == 'win32':
                 data_files.append(p)
 
 
-#don't need to actually compile the COPYLIB modules, remove them
+#clean up the list of extensions
 for e in extensions[:]:
     if e.name.startswith('COPYLIB_'):
-        extensions.remove(e)
+        extensions.remove(e) #don't compile the COPYLIBs, just clean them
+    else:
+        e.name = 'pygame.' + e.name #prepend package name on modules
 
 
 #we can detect the presence of python dependencies, remove any unfound
@@ -69,16 +96,18 @@ for e in extensions[:]:
             print 'NOTE: Not compiling:', e.name, ' (module not found='+module+')'
             extensions.remove(e)
 
-setup (name = "pygame",
-       version = '0.9',
-       maintainer = "Pete Shinners",
-       maintainer_email = "pygame@seul.org",
-       description = "Python Game Development module",
-       url = "http://pygame.seul.org",
-       packages = [''],
-       package_dir = {'': 'lib'},
-       extra_path = ('pygame/ignore', 'pygame'),
-       headers = headers,
-       ext_modules = extensions,
-       data_files = [[data_path, data_files]]
-     )  
+
+
+#finally, 
+#call distutils with all needed info
+PACKAGE_DATA = {
+       "packages":    ['pygame'],
+       "package_dir": {'pygame': 'lib'},
+       "headers":     headers,
+       "ext_modules": extensions,
+       "data_files":  [['pygame', data_files]],
+}
+PACKAGE_DATA.update(METADATA)
+apply(setup, [], PACKAGE_DATA)
+
+

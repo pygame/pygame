@@ -81,14 +81,13 @@ DEPS = [
     
 
 def main():
-    global DEPS
-
     if os.path.isdir('prebuilt'):
-        import config
-        if config.confirm('Use the win32 prebuilt directory'):
+        reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]')
+        if not reply or reply[0].lower() != 'n':
             shutil.copyfile('prebuilt\\Setup', 'Setup')
             return None
 
+    global DEPS
     for d in DEPS:
         d.configure()
 

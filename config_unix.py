@@ -4,7 +4,9 @@
 import os, sys, shutil
 from glob import glob
 
-configcommand = 'sdl-config --version --cflags --libs'
+configcommand = os.environ.get('SDL_CONFIG', 'sdl-config')
+configcommand = configcommand + ' --version --cflags --libs'
+localbase = os.environ.get('LOCALBASE', '')
 
 
 class Dependency:
@@ -22,14 +24,19 @@ class Dependency:
         inc = os.path.join(incdir, self.checkhead)
         lib = os.path.join(libdir, self.checklib)
         if os.path.isfile(inc) and glob(lib):
-	    print self.name + '        '[len(self.name):] + ': found'
+        print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
-	else:
-	    print self.name + '        '[len(self.name):] + ': not found'
+    else:
+        print self.name + '        '[len(self.name):] + ': not found'
 
+
+
+sdl_lib_name = 'SDL'
+if sys.platform.find('bsd') != -1:
+    sdl_lib_name = 'SDL-1.1'
 
 DEPS = [
-    Dependency('SDL', 'SDL.h', 'libSDL.so', 'SDL'),
+    Dependency('SDL', 'SDL.h', 'lib'+sdl_lib_name+'.so', sdl_lib_name),
     Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', 'SDL_ttf'),
     Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
@@ -57,14 +64,16 @@ def main():
 flags have been used, which will likely require a little editing."""
 
     print 'Hunting dependencies...'
-    incdir = libdir = ''
-    for arg in configinfo.split():
-        if arg.startswith('-I'):
-            incdir = arg[2:]
-        elif arg.startswith('-L'):
-            libdir = arg[2:]
-    #print 'INCDIR', incdir
-    #print 'LIBDIR', libdir
+    if localbase:
+        incdir = localbase + '/include/SDL11'
+        libdir = localbase + '/lib'
+    else:
+        incdir = libdir = ''
+        for arg in configinfo.split():
+            if arg.startswith('-I'):
+                incdir = arg[2:]
+            elif arg.startswith('-L'):
+                libdir = arg[2:]
     for d in DEPS:
         d.configure(incdir, libdir)
 
