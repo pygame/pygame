@@ -266,7 +266,7 @@ corner of the rectangle as the blit destination position. The
 rectangle sizes will be ignored.
 
 <br>&nbsp;<br>
-Note that blitting surfaces with alpha onto 8bit destinations will
+Blitting surfaces with pixel alphas onto an 8bit destination will
 not use the surface alpha values.
 
 </ul><br>&nbsp;<br>
@@ -602,6 +602,8 @@ and colorkeys will be unique for the new surface.
 <br>&nbsp;<br>
 The new subsurface will inherit the palette, colorkey, and surface alpha
 values from the base image.
+<br>&nbsp;<br>
+You cannot subsurface an image that is already a subsurface.
 <br>&nbsp;<br>
 You should not use the RLEACCEL flag for parent surfaces of subsurfaces,
 for the most part it will work, but it will cause a lot of extra work,

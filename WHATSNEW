@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 13, 2002
+	fixed CD.play()
+
 May 8, 2002
 	music.play() start time works
 	image.save() can save TGA images
