@@ -20,16 +20,6 @@
     pete@shinners.org
 */
 
-/**
-COMPILE_INFO_BEGIN
-	module = sdl,font
-	libs = sdl,font
-	source = 
-	required = 1
-	libinfo = font,SDL_ttf.h,SDL_ttf
-COMPILE_INFO_END
-**/
-
 /*
  *  font module for pygame
  */

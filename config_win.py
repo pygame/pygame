@@ -73,7 +73,6 @@ DEPS = [
     Dependency('FONT', 'SDL_ttf-[0-9].*', 'SDL_ttf'),
     Dependency('IMAGE', 'SDL_image-[0-9].*', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer-[0-9].*', 'SDL_mixer'),
-#copy only dependencies
     Dependency('SMPEG', 'smpeg-[0-9].*', 'smpeg')
 ]
 
