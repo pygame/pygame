@@ -197,7 +197,7 @@ static PyObject* rect_move(PyObject* oself, PyObject* args)
 }
 
     /*DOC*/ static char doc_move_ip[] =
-    /*DOC*/    "Rect.move_ip(x, y) -> Rect\n"
+    /*DOC*/    "Rect.move_ip(x, y) -> None\n"
     /*DOC*/    "move the Rect by the given offset\n"
     /*DOC*/    "\n"
     /*DOC*/    "Moves the rectangle which by the given amount.\n"
