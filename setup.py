@@ -70,7 +70,7 @@ for e in extensions[:]:
             extensions.remove(e)
 
 setup (name = "pygame",
-       version = '0.5',
+       version = '0.9',
        maintainer = "Pete Shinners",
        maintainer_email = "pygame@seul.org",
        description = "Python Game Development module",
