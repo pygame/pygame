@@ -168,11 +168,12 @@
 
     <font color="#0000ff">#Handle Input Events</font>
         <font color="#a52a2a"><b>for</b></font> event <font color="#a52a2a"><b>in</b></font> pygame.event.get():
-            <font color="#a52a2a"><b>if</b></font> event.type <font color="#a52a2a"><b>is</b></font> QUIT:
+            <font color="#a52a2a"><b>if</b></font> event.type <font color="#a52a2a"><b>==</b></font> QUIT:
                 <font color="#a52a2a"><b>return</b></font>
-            <font color="#a52a2a"><b>elif</b></font> event.type <font color="#a52a2a"><b>is</b></font> KEYDOWN <font color="#a52a2a"><b>and</b></font> event.key <font color="#a52a2a"><b>is</b></font> K_ESCAPE:
+            <font color="#a52a2a"><b>elif</b></font> event.type <font color="#a52a2a"><b>==</b></font> KEYDOWN
+	    <font color="#a52a2a"><b>and</b></font> event.key <font color="#a52a2a"><b>==</b></font> K_ESCAPE:
                 <font color="#a52a2a"><b>return</b></font>
-            <font color="#a52a2a"><b>elif</b></font> event.type <font color="#a52a2a"><b>is</b></font> MOUSEBUTTONDOWN:
+            <font color="#a52a2a"><b>elif</b></font> event.type <font color="#a52a2a"><b>==</b></font> MOUSEBUTTONDOWN:
                 <font color="#a52a2a"><b>if</b></font> fist.punch(chimp):
                     punch_sound.play() <font color="#0000ff">#punch</font>
                     chimp.punched()
