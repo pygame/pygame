@@ -4,6 +4,15 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+June 7, 2003
+        Font() no longer segfaults on bad filename [BUG]
+        add color module for simple color manipulations
+
+June 6, 2003
+	set_palette_at() index 0 fix
+        draw.arc() (thanks Lalo Martins)
+        Rects are pickleable
+
 May 12, 2003
 	Brett Calcott's quick fix for 'trunc' on visualc
 

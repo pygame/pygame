@@ -7,7 +7,7 @@ DOCPATTERN = '*static char*doc_*=*'
 
 SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
-PYTHONSRC = ['cursors', 'version', 'sprite']
+PYTHONSRC = ['color', 'cursors', 'version', 'sprite']
 
 OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()
@@ -136,7 +136,9 @@ def readpysource(name):
         elif type(obj) in (types.FunctionType,):# types.BuiltinFunctionType):
             if not hasattr(obj, '__doc__'): continue
             title = '    /*DOC*/ static char doc_' + name + '[] =\n'
-            documents.append([title] + getpydoclines(obj.__doc__))
+            doclines = getpydoclines(obj.__doc__)
+            if doclines:
+                documents.append([title] + doclines)
     return documents
 
 
@@ -164,6 +166,7 @@ def parsedocs(docs):
             dot = name.rfind('.')
             name = name.replace('?', '.')
             if dot == -1:
+                print 'NODOTFOUND, MISC:', name, dot
                 obj['category'] = 'misc'
                 obj['name'] = name
                 obj['fullname'] = name
@@ -195,18 +198,17 @@ def getdocinfo(file, prefix=''):
 
 def findtutorials():
     fileline = '<li><a href=%s>%s</a> - %s</li>'
-    texthead = '<font size=+1><b>Basic Documentation</b></font><br>'
-    tuthead = '<font size=+1><b>Tutorials / Introductions</b></font><br>'
+    texthead = '<font size=+1><b>Included With Pygame</b></font><br>'
+    tuthead = '<font size=+2><b>Tutorials</b></font><br>'
     texts1 =  ['../../readme.html', '../../install.html', '../LGPL', '../logos.html']
     texts = [fileline%x for x in [getdocinfo(x) for x in texts1]]
     finaltext = texthead + '\n'.join(texts)
     htmlfiles = glob.glob('../tut/*.html') + glob.glob('../tut/*/*.html')
-    print 'HTMLFILES:', htmlfiles
     tuts1 =  [x.replace('\\','/') for x in htmlfiles]
     tuts1.sort()
     tuts = [fileline%(x[0],x[1],x[2][9:]) for x in [getdocinfo(x) for x in tuts1] if x[2].startswith('TUTORIAL:')]
     finaltut = tuthead + '\n'.join(tuts)
-    return finaltext + '<br>&nbsp;<br>' + finaltut
+    return finaltut + '<br>&nbsp;<br>' + finaltext
 
 
 def lookupdoc(docs, name, category):
@@ -366,7 +368,10 @@ def makefullindex(alldocs):
         htmllist = []
         docs.sort(namesort)
         for d in docs:
-            d['mod'] = d['category'].replace('_', '.')
+            name = d['category'].replace('_', '.')
+            if name.startswith('pygame.'):
+                name = name[7:]
+            d['mod'] = name
             s = filltemplate(INDEXTEMPLATE, d)
             fullindex.append(s)
     fullindex.sort()

@@ -1,3 +1,4 @@
+
                             Pygame Installation
 
    Python can be built from source, but the easiest way is to get a

@@ -42,7 +42,8 @@
 || <a href=Rect.html>Rect</a> || 
 <a href=Sound.html>Sound</a> || 
 <a href=Surface.html>Surface</a> ||<br>
-&nbsp;<br>|| <a href=pygame_cursors.html>cursors</a> || 
+&nbsp;<br>|| <a href=pygame_color.html>color</a> || 
+<a href=pygame_cursors.html>cursors</a> || 
 <a href=pygame_sprite.html>sprite</a> ||<br>
 
 
@@ -69,7 +70,7 @@ in a given group.
 <br>&nbsp;<br>
 You can manage the relationship between groups and sprites
 from both the groups and the actual sprite classes. Both
-have add() and remove() functions that let you add sprites
+have <a href=pygame_color.html#add>add()</a> and remove() functions that let you add sprites
 to groups and groups to sprites. Both have initializing
 functions that can accept a list of containers or sprites.
 <br>&nbsp;<br>
@@ -447,11 +448,11 @@ pygame.sprite.spritecollideany(sprite, group) -> sprite
        return return any single sprite that collides with
        with the given sprite. If there are no collisions
        this returns None.
-       
+<br>&nbsp;<br>
        if you don't need all the features of the
        spritecollide function, this function will be a
        bit quicker.
-       
+<br>&nbsp;<br>
        all sprites must have a "rect" value, which is a
        rectangle of the sprite area.
 </ul><br>&nbsp;<br>

@@ -20,7 +20,7 @@ no border decorations.
 The code also demonstrates use of the timer events."""
 
 
-import pygame
+import os, pygame
 from pygame.locals import *
 
 try:
@@ -78,6 +78,7 @@ def DisplayGradient(surf):
 def main():
     pygame.init()
     size = 600, 400
+    os.environ['SDL_VIDEO_CENTERED'] = '1'
     screen = pygame.display.set_mode(size, NOFRAME, 0)
 
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
@@ -90,6 +91,6 @@ def main():
         elif event.type == USEREVENT:
             DisplayGradient(screen)
 
-    
+
 
 if __name__ == '__main__': main()
