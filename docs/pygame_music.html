@@ -1,0 +1,218 @@
+<html>
+<title>pygame.music</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
+	<a href=../>
+      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_display.html>display</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> ||<br>
+|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>pygame.music</h2>
+Contains music routines
+
+<hr>
+
+<table>
+<tr><td><a href=#fadeout>fadeout</a></td><td> -
+fadeout current music</td></tr>
+
+
+<tr><td><a href=#get_busy>get_busy</a></td><td> -
+query state of the music</td></tr>
+
+
+<tr><td><a href=#get_init>get_init</a></td><td> -
+query the music module</td></tr>
+
+
+<tr><td><a href=#get_volume>get_volume</a></td><td> -
+query music volume</td></tr>
+
+
+<tr><td><a href=#init>init</a></td><td> -
+initialize the music module</td></tr>
+
+
+<tr><td><a href=#load>load</a></td><td> -
+load current music</td></tr>
+
+
+<tr><td><a href=#pause>pause</a></td><td> -
+pause the playing music</td></tr>
+
+
+<tr><td><a href=#play>play</a></td><td> -
+play the current loaded music</td></tr>
+
+
+<tr><td><a href=#quit>quit</a></td><td> -
+uninitialize music module</td></tr>
+
+
+<tr><td><a href=#rewind>rewind</a></td><td> -
+restarts music</td></tr>
+
+
+<tr><td><a href=#set_volume>set_volume</a></td><td> -
+set music volume</td></tr>
+
+
+<tr><td><a href=#stop>stop</a></td><td> -
+stop the playing music</td></tr>
+
+
+<tr><td><a href=#unpause>unpause</a></td><td> -
+restarts the paused music</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=fadeout><font size=+2><b>fadeout
+</b></font><br><font size=+1><tt>
+pygame.music.fadeout(millisec) -> None
+</tt></font><ul>
+Fades out the current playing music and stops it
+over the given milliseconds.
+</ul><br>&nbsp;<br>
+
+<a name=get_busy><font size=+2><b>get_busy
+</b></font><br><font size=+1><tt>
+pygame.music.get_busy() -> bool
+</tt></font><ul>
+Returns true if music is currently playing
+</ul><br>&nbsp;<br>
+
+<a name=get_init><font size=+2><b>get_init
+</b></font><br><font size=+1><tt>
+pygame.music.get_init() -> bool
+</tt></font><ul>
+Returns true if the music module is initialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_volume><font size=+2><b>get_volume
+</b></font><br><font size=+1><tt>
+pygame.music.get_volume() -> val
+</tt></font><ul>
+Get the current volume for the music. Value is
+between 0.0 and 1.0.
+</ul><br>&nbsp;<br>
+
+<a name=init><font size=+2><b>init
+</b></font><br><font size=+1><tt>
+pygame.music.init([freq, [size, [stereo]]]) -> None
+</tt></font><ul>
+Initializes the music module. Since the music
+requires use of the mixer, the mixer module will
+also be initialized with this call. See the mixer
+init function for more details on the arguments.
+Don't be fooled though, just because the mixer
+module is initialized, does not mean the music is
+initialized.
+</ul><br>&nbsp;<br>
+
+<a name=load><font size=+2><b>load
+</b></font><br><font size=+1><tt>
+pygame.music.load(filename) -> None
+</tt></font><ul>
+Load a music object as the current music. The
+music only handles one music as the current. If
+music is currently playing, it will be stopped and
+replaced with the given one. Loading music only
+supports filenames, not file-like objects.
+</ul><br>&nbsp;<br>
+
+<a name=pause><font size=+2><b>pause
+</b></font><br><font size=+1><tt>
+pygame.music.pause() -> None
+</tt></font><ul>
+Temporarily stops the current music.
+</ul><br>&nbsp;<br>
+
+<a name=play><font size=+2><b>play
+</b></font><br><font size=+1><tt>
+pygame.music.play([loops]) -> None
+</tt></font><ul>
+Starts playing the current loaded music. This will
+restart the sound if it is playing. Loops controls
+how many extra time the sound will play, a
+negative loop will play indefinitely, it defaults
+to 0.
+</ul><br>&nbsp;<br>
+
+<a name=quit><font size=+2><b>quit
+</b></font><br><font size=+1><tt>
+pygame.music.quit() -> None
+</tt></font><ul>
+Stops playback of any music and uninitializes the
+module.
+</ul><br>&nbsp;<br>
+
+<a name=rewind><font size=+2><b>rewind
+</b></font><br><font size=+1><tt>
+pygame.music.rewind() -> None
+</tt></font><ul>
+Restarts playback of the current music.
+</ul><br>&nbsp;<br>
+
+<a name=set_volume><font size=+2><b>set_volume
+</b></font><br><font size=+1><tt>
+pygame.music.set_volume(val) -> None
+</tt></font><ul>
+Sets the current volume for the music. Value is
+between 0.0 and 1.0.
+</ul><br>&nbsp;<br>
+
+<a name=stop><font size=+2><b>stop
+</b></font><br><font size=+1><tt>
+pygame.music.stop() -> None
+</tt></font><ul>
+Stops playback of the current music.
+</ul><br>&nbsp;<br>
+
+<a name=unpause><font size=+2><b>unpause
+</b></font><br><font size=+1><tt>
+pygame.music.unpause() -> None
+</tt></font><ul>
+Restarts playback of the current music object when
+paused.
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

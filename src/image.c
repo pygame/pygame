@@ -1,0 +1,129 @@
+/*
+    PyGame - Python Game Library
+    Copyright (C) 2000  Pete Shinners
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    Pete Shinners
+    pete@shinners.org
+*/
+
+/*
+ *  image module for PyGAME
+ */
+#include "pygame.h"
+#include <SDL_image.h>
+
+
+static char* find_extension(char* fullname)
+{
+	char* dot;
+
+	if(!fullname)
+		return NULL;
+
+	dot = strrchr(fullname, '.');
+	if(!dot)
+		return fullname;
+
+	return dot+1;
+}
+
+
+
+    /*DOC*/ static char doc_load[] =
+    /*DOC*/    "pygame.image.load(file, [namehint]) -> Surface\n"
+    /*DOC*/    "load an image to a new Surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will load an image into a new surface. You\n"
+    /*DOC*/    "can pass it either a filename, or a python\n"
+    /*DOC*/    "file-like object to load the image from. If you\n"
+    /*DOC*/    "pass a file-like object that isn't actually a file\n"
+    /*DOC*/    "(like the StringIO class), then you might want to\n"
+    /*DOC*/    "also pass either the filename or extension as the\n"
+    /*DOC*/    "namehint string. The namehint can help the loader\n"
+    /*DOC*/    "determine the filetype.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You will only be able to load the types of images\n"
+    /*DOC*/    "supported by your build of SDL_image. This will\n"
+    /*DOC*/    "always include GIF, BMP, PPM, PCX, and TIF.\n"
+    /*DOC*/    "SDL_image can also load JPG and PNG, but they are\n"
+    /*DOC*/    "optional.\n"
+    /*DOC*/ ;
+
+static PyObject* load(PyObject* self, PyObject* arg)
+{
+	PyObject* file;
+	char* name = NULL;
+	SDL_Surface* surf;
+	SDL_RWops *rw;
+	if(!PyArg_ParseTuple(arg, "O|s", &file, &name))
+		return NULL;
+
+	VIDEO_INIT_CHECK();
+
+	if(PyString_Check(file))
+	{
+		name = PyString_AsString(file);
+		surf = IMG_Load(name);
+	}
+	else
+	{
+		if(!name && PyFile_Check(file))
+			name = PyString_AsString(PyFile_Name(file));
+
+		if(!(rw = RWopsFromPython(file)))
+			return NULL;
+		surf = IMG_LoadTyped_RW(rw, 1, find_extension(name));
+	}
+	if(!surf)
+		return RAISE(PyExc_SDLError, IMG_GetError());
+
+	return PySurface_New(surf);
+}
+
+
+
+
+static PyMethodDef image_builtins[] =
+{
+	{ "load", load, 1, doc_load },
+
+	{ NULL, NULL }
+};
+
+
+
+    /*DOC*/ static char doc_pygame_image_MODULE[] =
+    /*DOC*/    "Contains routines to load and (someday) save\n"
+    /*DOC*/    "surfaces. This module must be manually imported,\n"
+    /*DOC*/    "since it requires the use of the SDL_image\n"
+    /*DOC*/    "library.\n"
+    /*DOC*/ ;
+
+void initimage()
+{
+	PyObject *module, *dict;
+
+    /* create the module */
+	module = Py_InitModule3("image", image_builtins, doc_pygame_image_MODULE);
+	dict = PyModule_GetDict(module);
+
+	/*imported needed apis*/
+	import_pygame_base();
+	import_pygame_surface();
+	import_pygame_rwobject();
+}
+

@@ -1,0 +1,155 @@
+<html>
+<title>Joystick</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
+	<a href=../>
+      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_display.html>display</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> ||<br>
+|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>Joystick</h2>
+Thin object wrapper around the SDL joystick
+interface. Likely to be changed.
+
+<hr>
+
+<table>
+<tr><td><a href=#get_axes>get_axes</a></td><td> -
+query number of axis</td></tr>
+
+
+<tr><td><a href=#get_axis>get_axis</a></td><td> -
+query axis of a joystick</td></tr>
+
+
+<tr><td><a href=#get_balls>get_balls</a></td><td> -
+query number of balls</td></tr>
+
+
+<tr><td><a href=#get_button>get_button</a></td><td> -
+query state of button</td></tr>
+
+
+<tr><td><a href=#get_buttons>get_buttons</a></td><td> -
+query number of buttons</td></tr>
+
+
+<tr><td><a href=#get_hat>get_hat</a></td><td> -
+query position of hat</td></tr>
+
+
+<tr><td><a href=#get_hats>get_hats</a></td><td> -
+query number of hats</td></tr>
+
+
+<tr><td><a href=#get_id>get_id</a></td><td> -
+query id of joystick</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=get_axes><font size=+2><b>get_axes
+</b></font><br><font size=+1><tt>
+Joystick.get_axes() -> count
+</tt></font><ul>
+Returns the number of axis on this Joystick
+</ul><br>&nbsp;<br>
+
+<a name=get_axis><font size=+2><b>get_axis
+</b></font><br><font size=+1><tt>
+Joystick.get_axis(axis) -> position
+</tt></font><ul>
+Returns the current position of an axis control on
+the Joystick. Value is in the range -1.0 to 1.0.
+</ul><br>&nbsp;<br>
+
+<a name=get_balls><font size=+2><b>get_balls
+</b></font><br><font size=+1><tt>
+Joystick.get_balls() -> count
+</tt></font><ul>
+Returns number of trackballs on this Joystick
+</ul><br>&nbsp;<br>
+
+<a name=get_button><font size=+2><b>get_button
+</b></font><br><font size=+1><tt>
+Joystick.get_button(button) -> bool
+</tt></font><ul>
+Returns true if the given Joystick button is being
+pressed.
+</ul><br>&nbsp;<br>
+
+<a name=get_buttons><font size=+2><b>get_buttons
+</b></font><br><font size=+1><tt>
+Joystick.get_buttons() -> count
+</tt></font><ul>
+Returns number of pushable buttons on this
+Joystick
+</ul><br>&nbsp;<br>
+
+<a name=get_hat><font size=+2><b>get_hat
+</b></font><br><font size=+1><tt>
+Joystick.get_hat(pov_hat) -> state
+</tt></font><ul>
+Returns the current position of a directional hat
+on the Joystick. Value in a position on the
+following compass. (think 1 is up, and goes around
+clockwise)
+8 1 2
+7 0 3
+6 5 4
+</ul><br>&nbsp;<br>
+
+<a name=get_hats><font size=+2><b>get_hats
+</b></font><br><font size=+1><tt>
+Joystick.get_hats() -> count
+</tt></font><ul>
+Returns number of directional hats on this
+Joystick
+</ul><br>&nbsp;<br>
+
+<a name=get_id><font size=+2><b>get_id
+</b></font><br><font size=+1><tt>
+Joystick.get_id() -> id
+</tt></font><ul>
+Returns the joystick id number for the Joystick
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

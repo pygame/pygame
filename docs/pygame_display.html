@@ -1,0 +1,370 @@
+<html>
+<title>pygame.display</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
+	<a href=../>
+      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_display.html>display</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> ||<br>
+|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>pygame.display</h2>
+Contains routines to work with the display. Mainly
+used for setting the display mode and updating the
+display surface.
+
+<hr>
+
+<table>
+<tr><td><a href=#flip>flip</a></td><td> -
+update the display</td></tr>
+
+
+<tr><td><a href=#get_active>get_active</a></td><td> -
+get state of display mode</td></tr>
+
+
+<tr><td><a href=#get_caption>get_caption</a></td><td> -
+get the current title of the window</td></tr>
+
+
+<tr><td><a href=#get_driver>get_driver</a></td><td> -
+get the current sdl video driver</td></tr>
+
+
+<tr><td><a href=#get_info>get_info</a></td><td> -
+get display capabilities and settings</td></tr>
+
+
+<tr><td><a href=#get_init>get_init</a></td><td> -
+get status of display module initialization</td></tr>
+
+
+<tr><td><a href=#get_surface>get_surface</a></td><td> -
+get current display surface</td></tr>
+
+
+<tr><td><a href=#iconify>iconify</a></td><td> -
+minimize the display window</td></tr>
+
+
+<tr><td><a href=#init>init</a></td><td> -
+initialize the display module</td></tr>
+
+
+<tr><td><a href=#list_modes>list_modes</a></td><td> -
+query all resolutions for requested mode</td></tr>
+
+
+<tr><td><a href=#mode_ok>mode_ok</a></td><td> -
+query a specific display mode</td></tr>
+
+
+<tr><td><a href=#quit>quit</a></td><td> -
+uninitialize the display module</td></tr>
+
+
+<tr><td><a href=#set_caption>set_caption</a></td><td> -
+changes the title of the window</td></tr>
+
+
+<tr><td><a href=#set_driver>set_driver</a></td><td> -
+override the default sdl video driver</td></tr>
+
+
+<tr><td><a href=#set_gamma>set_gamma</a></td><td> -
+change the brightness of the display</td></tr>
+
+
+<tr><td><a href=#set_mode>set_mode</a></td><td> -
+set the display mode</td></tr>
+
+
+<tr><td><a href=#toggle_fullscreen>toggle_fullscreen</a></td><td> -
+switch the display fullscreen mode</td></tr>
+
+
+<tr><td><a href=#update>update</a></td><td> -
+update an area of the display</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=flip><font size=+2><b>flip
+</b></font><br><font size=+1><tt>
+pygame.display.flip() -> None
+</tt></font><ul>
+This will update the contents of the entire
+display. If your display mode is using the flags
+HWSURFACE and DOUBLEBUF, this will wait for a
+vertical retrace and swap the surfaces. If you are
+using a different type of display mode, it will
+simply update the entire contents of the surface.
+</ul><br>&nbsp;<br>
+
+<a name=get_active><font size=+2><b>get_active
+</b></font><br><font size=+1><tt>
+pygame.display.get_active() -> bool
+</tt></font><ul>
+Returns true if the current display is active on
+the screen. This done with the call to
+pygame.display.set_mode(). It is potentially
+subject to the activity of a running window
+manager.
+</ul><br>&nbsp;<br>
+
+<a name=get_caption><font size=+2><b>get_caption
+</b></font><br><font size=+1><tt>
+pygame.display.get_caption() -> title, icontitle
+</tt></font><ul>
+Returns the current title and icontitle for the
+display window.
+</ul><br>&nbsp;<br>
+
+<a name=get_driver><font size=+2><b>get_driver
+</b></font><br><font size=+1><tt>
+pygame.display.get_driver() -> name
+</tt></font><ul>
+Once the display is initialized, this will return
+the name of the currently running video driver.
+There is no way to get a list of all the supported
+video drivers.
+</ul><br>&nbsp;<br>
+
+<a name=get_info><font size=+2><b>get_info
+</b></font><br><font size=+1><tt>
+pygame.display.get_info() -> VidInfo
+</tt></font><ul>
+Gets a vidinfo object that contains information
+about the capabilities and current state of the
+video driver. This can be called before the
+display mode is set, to determine the current
+video mode of a display.
+</ul><br>&nbsp;<br>
+
+<a name=get_init><font size=+2><b>get_init
+</b></font><br><font size=+1><tt>
+pygame.display.get_init() -> bool
+</tt></font><ul>
+Returns true if SDL's video system is currently
+intialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_surface><font size=+2><b>get_surface
+</b></font><br><font size=+1><tt>
+pygame.display.get_surface() -> Surface
+</tt></font><ul>
+Returns a Surface object representing the current
+display. Will return None if called before the
+display mode is set.
+</ul><br>&nbsp;<br>
+
+<a name=iconify><font size=+2><b>iconify
+</b></font><br><font size=+1><tt>
+pygame.display.iconify() -> bool
+</tt></font><ul>
+Tells the window manager (if available) to
+minimize the application. The call will return
+true if successful. You will receive an APPACTIVE
+event on the event queue when the window has been
+minimized.
+</ul><br>&nbsp;<br>
+
+<a name=init><font size=+2><b>init
+</b></font><br><font size=+1><tt>
+pygame.display.init() -> None
+</tt></font><ul>
+Manually initialize SDL's video subsystem. Will
+raise an exception if it cannot be initialized. It
+is safe to call this function if the video has is
+currently initialized.
+</ul><br>&nbsp;<br>
+
+<a name=list_modes><font size=+2><b>list_modes
+</b></font><br><font size=+1><tt>
+pygame.display.list_modes([depth, [flags]]) -> [[x,y],...] | -1
+</tt></font><ul>
+This function returns a list of possible
+dimensions for a specified color depth. The return
+value will be an empty list of no display modes
+are available with the given arguments. A return
+value of -1 means that any requested resolution
+should work (this is likely the case for windowed
+modes). Mode sizes are sorted from biggest to
+smallest.
+
+If depth is not passed or 0, SDL will choose the
+current/best color depth for the display. You will
+usually want to pass FULLSCREEN when using the
+flags, if flags is omitted, FULLSCREEN is the
+default.
+</ul><br>&nbsp;<br>
+
+<a name=mode_ok><font size=+2><b>mode_ok
+</b></font><br><font size=+1><tt>
+pygame.display.mode_ok(size, [flags, [depth]]) -> int
+</tt></font><ul>
+This uses the same arguments as the call to
+pygame.display.set_mode(). It is used to determine
+if a requested display mode is available. It will
+return 0 if the requested mode is not possible.
+Otherwise it will return the best and closest
+matching bit depth for the mode requested.
+
+The size is a 2-number-sequence containing the
+width and height of the desired display mode.
+Flags represents a set of different options for
+the display mode. If omitted or given as 0, it
+will default to a simple software window. You can
+mix several flags together with the bitwise-or (|)
+operator. Possible flags are HWSURFACE (or the
+value 1), HWPALETTE, DOUBLEBUF, and/or FULLSCREEN.
+There are other flags available but these are the
+most usual. A full list of flags can be found in
+the SDL documentation.
+The optional depth arguement is the requested bits
+per pixel. It will usually be left omitted, in
+which case the display will use the best/fastest
+pixel depth available.
+</ul><br>&nbsp;<br>
+
+<a name=quit><font size=+2><b>quit
+</b></font><br><font size=+1><tt>
+pygame.display.quit() -> None
+</tt></font><ul>
+Manually uninitialize SDL's video subsystem. It is
+safe to call this if the video is currently not
+initialized.
+</ul><br>&nbsp;<br>
+
+<a name=set_caption><font size=+2><b>set_caption
+</b></font><br><font size=+1><tt>
+pygame.display.set_caption(title, [icontitle]) -> None
+</tt></font><ul>
+If the display has a window title, this routine
+will change the
+name on the window. Some environments support a
+shorter icon title
+to be used when the display is minimized. If
+icontitle is omittied
+it will be the same as caption title.
+</ul><br>&nbsp;<br>
+
+<a name=set_driver><font size=+2><b>set_driver
+</b></font><br><font size=+1><tt>
+pygame.display.set_driver(name) -> None
+</tt></font><ul>
+Changes the SDL environment to initialize with the
+given named videodriver. This can only be changed
+before the display is initialized. If this is not
+called, SDL will use it's default video driver, or
+the one in the environment variable
+SDL_VIDEODRIVER.
+</ul><br>&nbsp;<br>
+
+<a name=set_gamma><font size=+2><b>set_gamma
+</b></font><br><font size=+1><tt>
+pygame.display.set_gamma(r, [g, b]) -> bool
+</tt></font><ul>
+Sets the display gamma to the given amounts. If
+green and blue are ommitted, the red value will be
+used for all three colors. The color arguments are
+floating point values with 1.0 being the normal
+value.
+If you are using a display mode with a hardware
+palette, this will simply update the palette you
+are using. Not all hardware supports gamma. The
+return value will be true on success.
+</ul><br>&nbsp;<br>
+
+<a name=set_mode><font size=+2><b>set_mode
+</b></font><br><font size=+1><tt>
+pygame.display.set_mode(size, [flags, [depth]]) -> Surface
+</tt></font><ul>
+Sets the current display mode. If calling this
+after the mode has already been set, this will
+change the display mode to the desired type.
+Sometimes an exact match for the requested video
+mode is not available. In this case SDL will try
+to find the closest match and work with that
+instead.
+
+The size is a 2-number-sequence containing the
+width and height of the desired display mode.
+Flags represents a set of different options for
+the new display mode. If omitted or given as 0, it
+will default to a simple software window. You can
+mix several flags together with the bitwise-or (|)
+operator. Possible flags are HWSURFACE (or the
+value 1), HWPALETTE, DOUBLEBUF, and/or FULLSCREEN.
+There are other flags available but these are the
+most usual. A full list of flags can be found in
+the SDL documentation.
+The optional depth arguement is the requested bits
+per pixel. It will usually be left omitted, in
+which case the display will use the best/fastest
+pixel depth available.
+</ul><br>&nbsp;<br>
+
+<a name=toggle_fullscreen><font size=+2><b>toggle_fullscreen
+</b></font><br><font size=+1><tt>
+pygame.display.toggle_fullscreen() -> bool
+</tt></font><ul>
+Tells the window manager (if available) to switch
+between windowed and fullscreen mode. If available
+and successfull, will return true. Note, there is
+currently limited platform support for this call.
+</ul><br>&nbsp;<br>
+
+<a name=update><font size=+2><b>update
+</b></font><br><font size=+1><tt>
+pygame.display.update([rectstyle]) -> None
+</tt></font><ul>
+This call will update a section (or sections) of
+the display screen. You must update an area of
+your display when you change its contents. If
+passed with no arguments, this will update the
+entire display surface. If you have many lists
+that need updating, it is best to combine them
+into a sequence and pass them all at once. This call
+will accept a sequence of rectstyle arguments
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

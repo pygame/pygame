@@ -1,0 +1,139 @@
+<html>
+<title>pygame.key</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
+	<a href=../>
+      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_display.html>display</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> ||<br>
+|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>pygame.key</h2>
+Contains routines for dealing with the keyboard.
+
+<hr>
+
+<table>
+<tr><td><a href=#get_focused>get_focused</a></td><td> -
+state of keyboard focus</td></tr>
+
+
+<tr><td><a href=#get_mods>get_mods</a></td><td> -
+get current state of modifier keys</td></tr>
+
+
+<tr><td><a href=#get_pressed>get_pressed</a></td><td> -
+get the pressed state for all keys</td></tr>
+
+
+<tr><td><a href=#name>name</a></td><td> -
+get the name of a key</td></tr>
+
+
+<tr><td><a href=#set_mods>set_mods</a></td><td> -
+set the state of the modifier keys</td></tr>
+
+
+<tr><td><a href=#set_repeat>set_repeat</a></td><td> -
+change the keyboard repeat</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=get_focused><font size=+2><b>get_focused
+</b></font><br><font size=+1><tt>
+pygame.key.get_focused() -> bool
+</tt></font><ul>
+Returns true when the application has the keyboard
+input focus.
+</ul><br>&nbsp;<br>
+
+<a name=get_mods><font size=+2><b>get_mods
+</b></font><br><font size=+1><tt>
+pygame.key.get_mods() -> int
+</tt></font><ul>
+Returns a bitwise combination of the pressed state
+for all modifier keys (KMOD_LEFTSHIFT, etc).
+</ul><br>&nbsp;<br>
+
+<a name=get_pressed><font size=+2><b>get_pressed
+</b></font><br><font size=+1><tt>
+pygame.key.get_pressed() -> tuple of bools
+</tt></font><ul>
+This gives you a big tuple with the pressed state
+for all keys. You index the sequence using the
+keysym constant (K_SPACE, etc)
+</ul><br>&nbsp;<br>
+
+<a name=name><font size=+2><b>name
+</b></font><br><font size=+1><tt>
+pygame.key.name(int) -> string
+</tt></font><ul>
+This will provide you with the keyboard name for a
+keysym. For example 'pygame.key.name(K_SPACE)'
+will return 'space'.
+</ul><br>&nbsp;<br>
+
+<a name=set_mods><font size=+2><b>set_mods
+</b></font><br><font size=+1><tt>
+pygame.key.set_mods(int) -> None
+</tt></font><ul>
+Allows you to control the internal state of the
+modifier keys. Pass an interger built from using
+the bitwise-or (|) of all the modifier keys you
+want to be treated as pressed.
+</ul><br>&nbsp;<br>
+
+<a name=set_repeat><font size=+2><b>set_repeat
+</b></font><br><font size=+1><tt>
+pygame.key.set_repeat([delay, interval]) -> None
+</tt></font><ul>
+When the keyboard repeat is enabled, you will
+receive multiple KEYDOWN events when the user
+holds a key. You can control the repeat timing
+with the delay and interval values. If no
+arguments are passed, keyboard repeat will be
+disabled.
+
+The default values for delay and interval are 500
+and 30.
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

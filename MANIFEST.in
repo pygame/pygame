@@ -1,0 +1,7 @@
+include README.txt WhatsNew Todo
+include setup.py Copying Credits
+include Bugs *.in
+
+recursive-include lib *
+recursive-include src *
+recursive-include docs *

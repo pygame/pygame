@@ -1,0 +1,213 @@
+<html>
+<title>pygame</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
+	<a href=../>
+      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_display.html>display</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> ||<br>
+|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>pygame</h2>
+Contains the core routines that are used by the
+rest of the pyGame modules. It's routines are
+merged directly into the pygame namespace.
+
+<hr>
+
+<table>
+<tr><td><a href=#font>font</a></td><td> -
+create a new font object</td></tr>
+
+
+<tr><td><a href=#get_error>get_error</a></td><td> -
+get current error message</td></tr>
+
+
+<tr><td><a href=#get_grab>get_grab</a></td><td> -
+query the state of input grabbing</td></tr>
+
+
+<tr><td><a href=#init>init</a></td><td> -
+autoinitialize all imported pygame modules</td></tr>
+
+
+<tr><td><a href=#quit>quit</a></td><td> -
+uninitialize all pygame modules</td></tr>
+
+
+<tr><td><a href=#rect>rect</a></td><td> -
+create a new rectangle</td></tr>
+
+
+<tr><td><a href=#register_quit>register_quit</a></td><td> -
+routine to call when pyGame quits</td></tr>
+
+
+<tr><td><a href=#surface>surface</a></td><td> -
+create a new Surface</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=font><font size=+2><b>font
+</b></font><br><font size=+1><tt>
+pygame.font(file, size) -> Font
+</tt></font><ul>
+This will create a new font object. The given file
+must be an existing filename. The font loader does
+not work with python file-like objects. The size
+represents the height of the font in pixels.
+</ul><br>&nbsp;<br>
+
+<a name=get_error><font size=+2><b>get_error
+</b></font><br><font size=+1><tt>
+pygame.get_error() -> errorstring
+</tt></font><ul>
+SDL maintains an internal current error message.
+This message is usually given to you when an SDL
+related exception occurs, but sometimes you may
+want to call this directly yourself.
+</ul><br>&nbsp;<br>
+
+<a name=get_grab><font size=+2><b>get_grab
+</b></font><br><font size=+1><tt>
+pygame.get_grab() -> bool
+</tt></font><ul>
+Returns true if the input is currently grabbed to
+your application.
+</ul><br>&nbsp;<br>
+
+<a name=init><font size=+2><b>init
+</b></font><br><font size=+1><tt>
+pygame.init() -> passed, failed
+</tt></font><ul>
+Initialize all imported pyGame modules. Including
+pyGame modules that are not part of the base
+modules (like font and image).
+
+It does not raise exceptions, but instead silently
+counts which modules have failed to init. The
+return argument contains a count of the number of
+modules initialized, and the number of modules
+that failed to initialize.
+
+You can always initialize the modules you want by
+hand. The modules that need it have an <u>init()</u> and
+quit() routine built in, which you can call
+directly. They also have a <a href=pygame_cdrom.html#get_init>get_init()</a> routine
+which you can use to doublecheck the
+initialization. Note that the manual <u>init()</u>
+routines will raise an exception on error. Be
+aware that most platforms require the display
+module to be initialized before others. This
+init() will handle that for you, but if you
+initialize by hand, be aware of this constraint.
+
+As with the manual <u>init()</u> routines. It is safe to
+call this <u>init()</u> as often as you like. If you have
+imported pyGame modules since the.
+</ul><br>&nbsp;<br>
+
+<a name=quit><font size=+2><b>quit
+</b></font><br><font size=+1><tt>
+pygame.quit() -> none
+</tt></font><ul>
+Uninitialize all pyGame modules that have been
+initialized. Even if you initialized the module by
+hand, this <u>quit()</u> will uninitialize it for you.
+
+All the pyGame modules are uninitialized
+automatically when your program exits, so you will
+usually not need this routine. If you program
+plans to keep running after it is done with
+pyGame, then would be a good time to make this
+call.
+</ul><br>&nbsp;<br>
+
+<a name=rect><font size=+2><b>rect
+</b></font><br><font size=+1><tt>
+pygame.rect(rectstyle) -> Rect
+</tt></font><ul>
+Creates a new rectangle object. The given
+rectstyle represents one of the various ways of
+representing rectangle data. This is usually a
+sequence of x and y position for the topleft
+corner, and the width and height.
+</ul><br>&nbsp;<br>
+
+<a name=register_quit><font size=+2><b>register_quit
+</b></font><br><font size=+1><tt>
+pygame.register_quit(callback) -> None
+</tt></font><ul>
+The given callback routine will be called when.
+pygame is quitting. Quit callbacks are served on
+a 'last in, first out' basis. Also be aware that
+your callback may be called more than once..
+</ul><br>&nbsp;<br>
+
+<a name=surface><font size=+2><b>surface
+</b></font><br><font size=+1><tt>
+pygame.surface(size, [flags, [depth|Surface, [masks]]]) -> Surface
+</tt></font><ul>
+Creates a new surface object. Size is a
+2-int-sequence containing width and height. Depth
+is the number of bits used per pixel. If omitted,
+depth will use the current
+display depth. Masks is a four item sequence
+containing the bitmask for r,g,b, and a. If
+omitted, masks will default to the usual values
+for the given bitdepth. Flags is a mix of the
+following flags: SWSURFACE, HWSURFACE, ASYNCBLIT,
+SRCCOLORKEY, or SRCALPHA. (flags = 0 is the same
+as SWSURFACE). depth and masks can be substituted
+for another surface object which will create the
+new surface with the same format as the given one.
+When using default masks, alpha will always be
+ignored. Note, if you pass SRCOLORKEY and/or
+SRCALPHA, the surface won't immediately have these
+features enabled. SDL will use these flags to help
+optimize the surface for use with the blitters.
+Also, for a plain software surface, 0 can be used
+for the flag. A plain hardware surface can just
+use 1 for the flag.
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

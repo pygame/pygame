@@ -1,0 +1,32 @@
+Information about importing and initializing pygame
+Oct 18, 2000
+---------------------------------------------------------------
+The first thing you'll need to know is how to import and initialize the
+modules. By importing the pygame package with "import pygame" you'll have
+the base modules all prepared and ready to initialize. You need to import
+the optional modules by hand, this is usually done like this,
+"import pygame, pygame.image, pygame.font". One extra importing option is
+the special "locals" module. This includes a lot of constants and base
+object constructors that are handy to have imported to the global namespace.
+"from pygame.locals import *" will do this for you. All the objects in
+"locals" are also available from the pygame module, so importing the locals
+like this is totally optional.
+
+Early in the game you will need to initialize your pygame modules. There are
+two methods to doing this. The simplest and recommended way is to use the
+command "pygame.init()" to intialize all the imported pyGame modules. If you
+prefer a little control over the initialization process, you can initialize
+the modules by hand. Modules that need initialization will have an "init()"
+method in them (and usually a get_init() to check if a module is
+initialized). The code will look like this
+"pygame.display.init(); pygame.cdrom.init()".
+Using this method you can initialize only the modules important to you.
+
+All modules will automatically quit themselves when pyGame is exiting.
+You can force all modules to uninitialize with the call to "pygame.quit()".
+You can also initialize an individual module by calling the quit function
+from that module.
+
+Not all modules need to be intialized. These will not have an init()
+and quit() method. If initializing by hand, remember that most platforms
+require the display module to be initialized before others.
