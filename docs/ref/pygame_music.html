@@ -5,7 +5,7 @@
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
 <td rowspan=2><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
 <tr height=86 align=left><td valign=middle><font color=#ffffff size=+5>
-	<a href=../><font size=+5 color=#ffffff><i><b>
+	<a href=../index.html><font size=+5 color=#ffffff><i><b>
       pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
 	PyGame<br>Documentation</font>
@@ -20,17 +20,23 @@
 <a href=Channel.html>Channel</a> || 
 <a href=Font.html>Font</a> || 
 <a href=Joystick.html>Joystick</a> || 
-<a href=Rect.html>Rect</a> ||<br>
+<a href=Rect.html>Rect</a> || 
+<a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> ||<br>
 || <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
 <a href=pygame_constants.html>constants</a> || 
 <a href=pygame_display.html>display</a> || 
-<a href=pygame_event.html>event</a> ||<br>
+<a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> ||<br>
 || <a href=pygame_joystick.html>joystick</a> || 
 <a href=pygame_key.html>key</a> || 
 <a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_music.html>music</a> ||<br>
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
 
 
 </td></tr></table>
@@ -60,6 +66,10 @@ fadeout current music</td></tr>
 
 <tr><td><a href=#get_busy>get_busy</a></td><td> -
 query state of the music</td></tr>
+
+
+<tr><td><a href=#get_endevent>get_endevent</a></td><td> -
+query the current music finished event</td></tr>
 
 
 <tr><td><a href=#get_init>get_init</a></td><td> -
@@ -94,6 +104,10 @@ uninitialize music module</td></tr>
 restarts music</td></tr>
 
 
+<tr><td><a href=#set_endevent>set_endevent</a></td><td> -
+sets music finished event</td></tr>
+
+
 <tr><td><a href=#set_volume>set_volume</a></td><td> -
 set music volume</td></tr>
 
@@ -123,6 +137,16 @@ milliseconds.
 pygame.music.get_busy() -> bool
 </tt></font><ul>
 Returns true if music is currently playing
+</ul><br>&nbsp;<br>
+
+<a name=get_endevent><font size=+2><b>get_endevent
+</b></font><br><font size=+1><tt>
+pygame.music.get_endevent([eventid]) -> int
+</tt></font><ul>
+When the music has finished playing, you can optionally have
+pygame place a user defined message on the event queue. If there
+is no callback event set, NOEVENT will be returned. Otherwise it
+will return the id of the current music finishe event.
 </ul><br>&nbsp;<br>
 
 <a name=get_init><font size=+2><b>get_init
@@ -190,6 +214,17 @@ Stops playback of any music and uninitializes the module.
 pygame.music.rewind() -> None
 </tt></font><ul>
 Restarts playback of the current music.
+</ul><br>&nbsp;<br>
+
+<a name=set_endevent><font size=+2><b>set_endevent
+</b></font><br><font size=+1><tt>
+pygame.music.set_endevent([eventid]) -> None
+</tt></font><ul>
+When the music has finished playing, you can optionally have
+pygame place a user defined message on the event queue. If the
+eventid field is omittied or NOEVENT, no messages will be sent
+when the music finishes playing. Once the endevent is set, it
+will be called every time the music finished playing.
 </ul><br>&nbsp;<br>
 
 <a name=set_volume><font size=+2><b>set_volume

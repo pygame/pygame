@@ -205,8 +205,9 @@ def create_toc(allfuncs, prefix=''):
         l.append(str)
     l.sort()
     str = ''
-    for x in range(0, len(l), 7):
-        row = l[x:x+5]
+    items_per_line = 7
+    for x in range(0, len(l), items_per_line):
+        row = l[x:x+items_per_line]
         str += '|| ' + ' || \n'.join(row) + ' ||<br>\n'
     return str
     
@@ -266,10 +267,11 @@ def main():
     global MODULETOC
     pathed_toc = create_toc(alldocs[2], 'ref/')
     MODULETOC = create_toc(alldocs[2])
+    print MODULETOC
+
 
     #categorize
     alldocs[2] = categorize(alldocs[2])
-
     #write html
     print 'writing...'
     writefuncdoc(alldocs)
