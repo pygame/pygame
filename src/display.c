@@ -27,6 +27,9 @@
 #include "pygame.h"
 
 
+static char* icon_defaultname = "pygame_icon.bmp";
+static PyObject* self_module = NULL;
+
 
 staticforward PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
@@ -409,6 +412,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	int flags = SDL_SWSURFACE, depth = 0;
 	int w, h, hasbuf;
 	char* title, *icontitle;
+	static int icon_was_set = 0;
 
 	if(!PyArg_ParseTuple(arg, "(ii)|ii", &w, &h, &flags, &depth))
 		return NULL;
@@ -458,14 +462,49 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	if(!title || !*title)
 		SDL_WM_SetCaption("pygame window", "pygame");
 
+
 	/*probably won't do much, but can't hurt, and might help*/
 	SDL_PumpEvents();
-
 
 	if(DisplaySurfaceObject)
 		((PySurfaceObject*)DisplaySurfaceObject)->surf = surf;
 	else
 		DisplaySurfaceObject = PySurface_New(surf);
+
+
+	/*set the default icon. we may not want to do this on darwin?*/
+	if(!icon_was_set)
+	{
+		SDL_Surface* icon;
+		char* iconpath;
+		char* path = PyModule_GetFilename(self_module);
+		icon_was_set = 1;
+		if(!path)
+			PyErr_Clear();
+		else
+		{
+			char* end = strstr(path, "display.");
+			if(end)
+			{
+				iconpath = PyMem_Malloc(strlen(path) + 20);
+				if(iconpath)
+				{
+					strcpy(iconpath, path);
+					end = strstr(iconpath, "display.");
+					strcpy(end, icon_defaultname);
+
+					icon = SDL_LoadBMP(iconpath);
+					if(icon)
+					{
+						SDL_SetColorKey(icon, SDL_SRCCOLORKEY, 0);
+						SDL_WM_SetIcon(icon, NULL);
+						SDL_FreeSurface(icon);
+					}
+					PyMem_Free(iconpath);
+				}
+			}
+		}
+	}
 
 	Py_INCREF(DisplaySurfaceObject);
 	return DisplaySurfaceObject;
@@ -616,8 +655,9 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 static GAME_Rect* screencroprect(GAME_Rect* r, int w, int h, GAME_Rect* cur)
 {
 	if(r->x > w || r->y > h || (r->x + r->w) <= 0 || (r->y + r->h) <= 0)
-		return 0;
-	else
+{printf("update rejecting rect %d,%d,%d,%d\n", (int)r->x, (int)r->y, (int)r->w, (int)r->h);
+                return 0;
+}       else
 	{
 		int right = min(r->x + r->w, w);
 		int bottom = min(r->y + r->h, h);
@@ -652,9 +692,23 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	int wide, high;
 	PyObject* obj;
 
+	VIDEO_INIT_CHECK();
+
+	screen = SDL_GetVideoSurface();
+	if(!screen)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+	wide = screen->w;
+	high = screen->h;
+	if(screen->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot update an OPENGL display");
+
+        
 	/*determine type of argument we got*/
 	if(PyTuple_Size(arg) == 0)
-		gr = &temp;
+        {
+            SDL_UpdateRect(screen, 0, 0, 0, 0);
+            RETURN_NONE
+        }
 	else
 	{
 		obj = PyTuple_GET_ITEM(arg, 0);
@@ -674,73 +728,60 @@ static PyObject* update(PyObject* self, PyObject* arg)
 			}
 		}
 	}
-	VIDEO_INIT_CHECK();
 
-	screen = SDL_GetVideoSurface();
-	if(!screen)
-		return RAISE(PyExc_SDLError, SDL_GetError());
-	wide = screen->w;
-	high = screen->h;
-
-
-	if(screen->flags & SDL_OPENGL)
-		return RAISE(PyExc_SDLError, "Cannot update() an OPENGL display");
-
-	if(gr) /*single or no rect given*/
-	{
-		if(screencroprect(gr, wide, high, &temp))
-			SDL_UpdateRect(screen, temp.x, temp.y, temp.w, temp.h);
+        if(gr)
+        {
+                if(screencroprect(gr, wide, high, &temp))
+                        SDL_UpdateRect(screen, temp.x, temp.y, temp.w, temp.h);
+        }
+        else
+        {
+                PyObject* seq;
+                PyObject* r;
+                int loop, num, count;
+                SDL_Rect* rects;
+                if(PyTuple_Size(arg) != 1)
+                        return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
+                seq = PyTuple_GET_ITEM(arg, 0);
+                if(!seq || !PySequence_Check(seq))
+                        return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
+        
+                num = PySequence_Length(seq);
+                rects = PyMem_New(SDL_Rect, num);
+                if(!rects) return NULL;
+                count = 0;
+                for(loop = 0; loop < num; ++loop)
+                {
+                        GAME_Rect* cur_rect = (GAME_Rect*)(rects + count);
+        
+                        /*get rect from the sequence*/
+                        r = PySequence_GetItem(seq, loop);
+                        if(r == Py_None)
+                        {
+                                Py_DECREF(r);
+                                continue;
+                        }
+                        gr = GameRect_FromObject(r, cur_rect);
+                        Py_XDECREF(r);
+                        if(!gr)
+                        {
+                                PyMem_Free((char*)rects);
+                                return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
+                        }
+                        
+                        if(gr->w < 1 && gr->h < 1)
+                                continue;
+        
+                        /*bail out if rect not onscreen*/
+                        if(!screencroprect(gr, wide, high, cur_rect))
+                                continue;
+        
+                        ++count;
+                }
+        
+                SDL_UpdateRects(screen, count, rects);
+                PyMem_Free((char*)rects);
 	}
-	else /*sequence given*/
-	{
-		PyObject* seq;
-		PyObject* r;
-		int loop, num, count;
-		SDL_Rect* rects;
-
-		if(PyTuple_Size(arg) != 1)
-			return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
-		seq = PyTuple_GET_ITEM(arg, 0);
-		if(!seq || !PySequence_Check(seq))
-			return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
-
-		num = PySequence_Length(seq);
-		rects = PyMem_New(SDL_Rect, num);
-		if(!rects) return NULL;
-		count = 0;
-		for(loop = 0; loop < num; ++loop)
-		{
-			GAME_Rect* cur_rect = (GAME_Rect*)(rects + count);
-
-			/*get rect from the sequence*/
-			r = PySequence_GetItem(seq, loop);
-			if(r == Py_None)
-			{
-				Py_DECREF(r);
-				continue;
-			}
-			gr = GameRect_FromObject(r, cur_rect);
-			Py_XDECREF(r);
-			if(!gr)
-			{
-				PyMem_Free((char*)rects);
-				return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
-			}
-			
-			if(gr->w < 1 && gr->h < 1)
-				continue;
-
-			/*bail out if rect not onscreen*/
-			if(!screencroprect(gr, wide, high, cur_rect))
-				continue;
-
-			++count;
-		}
-
-		SDL_UpdateRects(screen, count, rects);
-		PyMem_Free((char*)rects);
-	}
-	
 	RETURN_NONE
 }
 
@@ -1081,6 +1122,7 @@ void initdisplay(void)
     /* create the module */
 	module = Py_InitModule3("display", display_builtins, doc_pygame_display_MODULE);
 	dict = PyModule_GetDict(module);
+	self_module = module;
 
 	/* export the c api */
 	c_api[0] = &PyVidInfo_Type;

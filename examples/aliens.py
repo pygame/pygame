@@ -13,11 +13,11 @@ if not pygame.image.get_extended():
 
 #game constants
 MAX_SHOTS      = 2      #most player bullets onscreen
-ALIEN_ODDS     = 29     #chances a new alien appears
-BOMB_ODDS      = 150    #chances a new bomb will drop
+ALIEN_ODDS     = 22     #chances a new alien appears
+BOMB_ODDS      = 60    #chances a new bomb will drop
 ALIEN_RELOAD   = 12     #frames between new aliens
 SCREENRECT     = Rect(0, 0, 640, 480)
-
+SCORE          = 0
 
     
 def load_image(file):
@@ -159,6 +159,23 @@ class Bomb(pygame.sprite.Sprite):
             self.kill()
 
 
+class Score(pygame.sprite.Sprite):
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self)
+        self.font = pygame.font.Font(None, 20)
+        self.font.set_italic(1)
+        self.color = 255, 255, 255
+        self.lastscore = -1
+        self.update()
+        self.rect = self.image.get_rect().move(10, 450)
+        
+    def update(self):
+        if SCORE != self.lastscore:
+            self.lastscore = SCORE
+            msg = "Score: %d" % SCORE
+            self.image = self.font.render(msg, 0, self.color)
+            
+
 
 def main(winstyle = 0):
     # Initialize pygame
@@ -217,15 +234,20 @@ def main(winstyle = 0):
     Shot.containers = shots, all
     Bomb.containers = bombs, all
     Explosion.containers = all
+    Score.containers = all
 
     #Create Some Starting Values
+    global score
     alienreload = ALIEN_RELOAD
     kills = 0
     clock = pygame.time.Clock()
 
     #initialize our starting sprites
+    global SCORE
     player = Player()
     Alien() #note, this 'lives' because it goes into a sprite group
+    if pygame.font:
+        all.add(Score())
 
 
     while player.alive():
@@ -268,13 +290,13 @@ def main(winstyle = 0):
             boom_sound.play()
             Explosion(alien)
             Explosion(player)
-            kills = kills + 1
+            SCORE = SCORE + 1
             player.kill()
 
         for alien in pygame.sprite.groupcollide(shots, aliens, 1, 1).keys():
             boom_sound.play()
             Explosion(alien)
-            kills = kills + 1
+            SCORE = SCORE + 1
                     
         for bomb in pygame.sprite.spritecollide(player, bombs, 1):         
             boom_sound.play()
