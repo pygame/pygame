@@ -6,6 +6,7 @@
 
 February 5, 2003
 	antialiased lines, from Jorge Gonzalez
+	allow Font.render() with empty string
 
 February 2, 2003
 	refcount bug in Font.size [BUG]

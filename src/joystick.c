@@ -276,12 +276,12 @@ static PyObject* joy_get_id(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_joy_get_name[] =
-    /*DOC*/    "Joystick.get_name(id) -> string\n"
+    /*DOC*/    "Joystick.get_name() -> string\n"
     /*DOC*/    "query name of joystick drive\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the name of the Joystick device, given by the\n"
     /*DOC*/    "system. This function can be called before the Joystick\n"
-    /*DOC*/    "is initialized.\n"
+    /*DOC*/    "object is initialized.\n"
     /*DOC*/ ;
 
 static PyObject* joy_get_name(PyObject* self, PyObject* args)
