@@ -37,7 +37,7 @@ def main():
     text = font.render("Pummel The Chimp, And Win $$$", 1, (10, 10, 10))
     textpos = text.get_rect()
     textpos.centerx = background.get_rect().centerx
-    background.blit(text, textpos.topleft)
+    background.blit(text, textpos)
 
 #Display The Background While Setup Finishes
     screen.blit(background, (0, 0))
@@ -82,7 +82,7 @@ def main():
 
     #Draw The Entire Scene
         screen.blit(background, (0, 0))
-        screen.blit(chimp, chimppos.topleft)
+        screen.blit(chimp, chimppos)
         screen.blit(fist, fistpos)
         pygame.display.flip()
 

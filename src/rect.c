@@ -38,6 +38,7 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 
 	if(PyRect_Check(obj))
 		return &((PyRectObject*)obj)->r;
+
 	if(PySequence_Check(obj))
 	{
 		if(PySequence_Length(obj) == 4)

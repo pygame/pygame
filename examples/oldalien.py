@@ -76,12 +76,12 @@ class Actor:
     
     def draw(self, screen):
         "draws the sprite into the screen"
-        r = screen.blit(self.image, self.rect.topleft)
+        r = screen.blit(self.image, self.rect)
         dirtyrects.append(r)
         
     def erase(self, screen, background):
         "gets the sprite off of the screen"
-        r = screen.blit(background, self.rect.topleft, self.rect)
+        r = screen.blit(background, self.rect, self.rect)
         dirtyrects.append(r)
 
 

@@ -149,7 +149,7 @@ font = pygame.font.Font(None, 36)
 text = font.render("Pummel The Chimp, And Win $$$", 1, (20, 20, 20))
 textpos = text.get_rect()
 textpos.centerx = background.get_rect().centerx
-background.blit(text, textpos.topleft)
+background.blit(text, textpos)
 </td></tr></table><br>
 
 As you see, there are a couple steps to getting this done. First we
@@ -325,7 +325,7 @@ present that to the user.<br>
 
 <br><table border=1 bgcolor=#ddcc88><tr><td><pre>
 screen.blit(background, (0, 0))
-screen.blit(chimp, chimppos.topleft)
+screen.blit(chimp, chimppos)
 screen.blit(fist, fistpos)
 pygame.display.flip()
 </td></tr></table><br>

@@ -113,12 +113,12 @@ class Actor:
     
     def draw(self, screen):
         "draws the sprite into the screen"
-        r = screen.blit(self.image, self.rect.topleft)
+        r = screen.blit(self.image, self.rect)
         dirtyrects.append(r.union(self.clearrect))
         
     def erase(self, screen, background):
         "gets the sprite off of the screen"
-        r = screen.blit(background, self.rect.topleft, self.rect)
+        r = screen.blit(background, self.rect, self.rect)
         self.clearrect = r
 
 
@@ -405,7 +405,7 @@ def main(winstyle = 0):
         text = f.render('Game Over', 1, (200, 200, 200))
         textrect = Rect((0, 0), text.get_size())
         textrect.center = SCREENRECT.center
-        screen.blit(text, textrect.topleft)
+        screen.blit(text, textrect)
         pygame.display.flip()
 
     #wait a beat
