@@ -97,7 +97,7 @@ static void PySurface_Unprep(PyObject* surfobj)
 static int PySurface_Lock(PyObject* surfobj)
 {
 	PySurfaceObject* surf = (PySurfaceObject*)surfobj;
-	if(!surf->lockcount && !surf->surf->pixels)
+	if(!surf->lockcount && (surf->subsurface || !surf->surf->pixels))
 	{
 		if(surf->subsurface)
 			PySurface_Prep(surfobj);

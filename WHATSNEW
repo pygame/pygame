@@ -6,6 +6,7 @@
 
 Mar 21, 2001
 	initial support for compiling on mac
+	fixed odd case with locking subsurfaces
 
 Mar 20, 2001
 	font and mixer now properly auto quit()
