@@ -1139,7 +1139,6 @@ void initmixer(void)
 		dict = PyModule_GetDict(music);
 		ptr = PyDict_GetItemString(dict, "_MUSIC_POINTER");
 		current_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
-		Py_DECREF(music);
 	}	
 	else /*music module not compiled? cleanly ignore*/
 	{

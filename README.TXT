@@ -68,10 +68,13 @@ Thanks to everyone who made this possible, including:
 - David Clark for RPMs and all around help
 - Ed Boraas and Francis Irving for Debian packaging
 - Maxim Sobolev for FreeBSD port maintenance
-- Niki Spahiev, Gordon Tyler, and Dave Wallace for great patches
-- Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
 - Bob Ippolito for the MacOS porting
-- And our dutiful bug hunters; Angus, Guillaume Proux,
+- Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
+- Our list of valiant bugfixers:
+	Niki Spahiev, Gordon Tyler,
+	Dave Wallace, and John Popplewell
+- And our dutiful bug hunters:
+	Angus, Guillaume Proux,
 	Austin Henry, and Kaweh Kazemi
 
 There's many more folks out there who've submitted helpful ideas,
