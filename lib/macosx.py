@@ -48,7 +48,7 @@ class PyGameAppDelegate(NSObject):
 
 def setIcon(app):
     try:
-        defaultIcon = getResource('pygame_icon.tiff')
+        defaultIcon = getResource('pygame_icon.tiff').read()
     except IOError:
         return
     data = NSData.dataWithBytes_length_(defaultIcon, len(defaultIcon))
