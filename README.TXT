@@ -71,10 +71,14 @@ Thanks to everyone who made this possible, including:
 - Niki Spahiev, Gordon Tyler, and Dave Wallace for great patches
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
 - Bob Ippolito for the MacOS porting
-- And our dutiful bug hunters; Angus, Guillaume Proux, and Austin Henry
+- And our dutiful bug hunters; Angus, Guillaume Proux,
+	Austin Henry, and Kaweh Kazemi
 
 There's many more folks out there who've submitted helpful ideas,
 kept this project going, and basically made my life easer, Thanks!
+
+Also a big thanks to Roger Dingledine and the crew at SEUL.ORG
+for our excellent site hosting.
 
 
 
