@@ -71,7 +71,7 @@ static PyObject* delay(PyObject* self, PyObject* arg)
 {
 	int ticks;
 	PyObject* arg0;
-	/*for some resone PyArg_ParseTuple pukes on -1's! BLARG!*/
+	/*for some reason PyArg_ParseTuple pukes on -1's! BLARG!*/
 
 	if(PyTuple_Size(arg) != 1)
 		return RAISE(PyExc_ValueError, "delay requires one integer argument");

@@ -78,14 +78,21 @@ DEPS = [
 ]
 
 
-    
+def setup_prebuilt():
+    setup = open('Setup', 'w')
+    for line in open('Setup.in').readlines():
+        if line.startswith('#--'): continue
+        if line.startswith('SDL = '):
+            line = 'SDL = -Iprebuilt/include -Lprebuilt/lib -lSDL\n'
+        setup.write(line)
+
+
 
 def main():
     if os.path.isdir('prebuilt'):
         reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]')
         if not reply or reply[0].lower() != 'n':
-            shutil.copyfile('prebuilt\\Setup', 'Setup')
-            return None
+            return setup_prebuilt()
 
     global DEPS
     for d in DEPS:
