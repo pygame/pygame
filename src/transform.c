@@ -310,7 +310,6 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	sangle = sin(radangle);
 	cangle = cos(radangle);
 
-printf("ANGLE: %.2f\n", angle);
 	x = surf->w;
 	y = surf->h;
 	cx = cangle*x;
@@ -319,9 +318,6 @@ printf("ANGLE: %.2f\n", angle);
 	sy = sangle*y;
         nxmax = (int)(max(max(max(fabs(cx+sy), fabs(cx-sy)), fabs(-cx+sy)), fabs(-cx-sy)));
 	nymax = (int)(max(max(max(fabs(sx+cy), fabs(sx-cy)), fabs(-sx+cy)), fabs(-sx-cy)));
-
-
-printf("  insize: %d x %d  outsize: %d x %d\n", (int)surf->w, (int)surf->h, nxmax, nymax);
 
 	newsurf = newsurf_fromsurf(surf, nxmax, nymax);
 	if(!newsurf) return NULL;
