@@ -5,6 +5,7 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 
 June 19, 2004
+    Chad Lester's excellent work on sndarray
     ffmpeg movie backend renamed to movieext, experimental
     v1.6 movie module restored
 
