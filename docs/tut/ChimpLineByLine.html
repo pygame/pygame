@@ -555,17 +555,17 @@ doesn't run faster than 60 frames per second.<br>
          <tr>
            <td>                                   
 <pre>for event in pygame.event.get():
-    if event.type is QUIT:
+    if event.type == QUIT:
         return
-    elif event.type is KEYDOWN and event.key is K_ESCAPE:
+    elif event.type == KEYDOWN and event.key == K_ESCAPE:
         return
-    elif event.type is MOUSEBUTTONDOWN:
+    elif event.type == MOUSEBUTTONDOWN:
         if fist.punch(chimp):
             punch_sound.play() #punch
             chimp.punched()
         else:
             whiff_sound.play() #miss
-    elif event.type is MOUSEBUTTONUP:
+    elif event.type == MOUSEBUTTONUP:
         fist.unpunch()</pre>
            </td>
          </tr>
