@@ -1350,8 +1350,6 @@ void initrect(void)
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_RECT_NUMSLOTS];
 	
-	PyGAME_C_API[0] = PyGAME_C_API[0]; /*this cleans a compiler warning*/
-
 	/* Create the module and add the functions */
 	PyType_Init(PyRect_Type);
 

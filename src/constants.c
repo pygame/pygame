@@ -19,7 +19,7 @@
     Pete Shinners
     pete@shinners.org
 */
-
+#define NO_PYGAME_C_API
 #include "pygame.h"
 
 
@@ -50,9 +50,6 @@ PYGAME_EXPORT
 void initconstants(void)
 {
 	PyObject* module;
-
-	PyGAME_C_API[0] = PyGAME_C_API[0]; /*this cleans up compiler warning*/
-
 
 	module = Py_InitModule3("constants", builtins, doc_pygame_constants_MODULE);
 

@@ -19,7 +19,7 @@
     Pete Shinners
     pete@shinners.org
 */
-
+#define NO_PYGAME_C_API
 #define PYGAMEAPI_BASE_INTERNAL
 #include "pygame.h"
 #include <signal.h>
@@ -160,7 +160,6 @@ static PyObject* register_quit(PyObject* self, PyObject* arg)
 
 static PyObject* init(PyObject* self,PyObject* args)
 {
-	static int initialized_once = 0;
 	PyObject *allmodules, *moduleslist, *dict, *func, *result, *mod;
 	int loop, num;
 	int success=0, fail=0;
@@ -171,26 +170,8 @@ static PyObject* init(PyObject* self,PyObject* args)
 		return NULL;
 
 
-/* let SDL do some basic initialization */
-	if(!initialized_once)
-	{
-		initialized_once = 1;
-#ifdef MS_WIN32
-		SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
-#endif
-#if defined(macintosh)
-#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
-		SDL_InitQuickDraw(&qd);
-#endif
-#endif
-#if defined(darwin)
-                StartTheDamnApplication();
-#endif
-		/*nice to initialize timer, so startup time will be correct before init call*/
-		SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
-		Py_AtExit(atexit_quit);
-		install_parachute();
-	}
+        /*nice to initialize timer, so startup time will reflec init() time*/
+        SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
 
 
 /* initialize all pygame modules */
@@ -501,6 +482,7 @@ static void pygame_parachute(int sig)
 #ifdef DO_CRASH_TRACEBACK
 	PyThreadState* thread;
 	PyInterpreterState *interp;
+        int thread_id;
 #endif	  
     
 	signal(sig, SIG_DFL);
@@ -530,17 +512,28 @@ static void pygame_parachute(int sig)
 			signaltype = "(pygame parachute) Unknown Signal"; break;
 	}
 
+        
 #ifdef DO_CRASH_TRACEBACK
-printf("DOING TRACEBACK, experimental...\n");
+        printf("Pygame Parachute Traceback:\n");
 	interp = PyInterpreterState_Head();
-	for(thread=PyInterpreterState_ThreadHead(interp); thread; thread = PyThreadState_Next(thread))
+        thread=PyInterpreterState_ThreadHead(interp);
+        if(PyThreadState_Next(thread)) /*multithreaded*/
+            thread_id = 0;
+        else
+            thread_id = -1; /*no threads, don't print thread info*/
+	for(; thread; thread = PyThreadState_Next(thread))
 	{
+            if(thread_id >= 0)
+            {
+                printf("Thread-%p\n", thread);
+                thread_id++;
+            }
 	    PyTraceBack_Here(thread->frame);
 	    Py_INCREF(thread->curexc_traceback);
 	    print_traceback(thread->curexc_traceback);
 	}
 #else
-printf("  (No Traceback Without Python2.2)\n");
+        printf("  (No Traceback Without Python2.2)\n");
 #endif
 	
 	atexit_quit();
@@ -568,12 +561,16 @@ static int fatal_signals[] =
 	0 /*end of list*/
 };
 
+static int parachute_installed = 0;
 static void install_parachute(void)
 {
 	int i;
 	void (*ohandler)(int);
 
-#if 1
+        if(parachute_installed)
+            return;
+        parachute_installed = 1;
+
 	/* Set a handler for any fatal signal not already handled */
 	for ( i=0; fatal_signals[i]; ++i )
 	{
@@ -593,7 +590,6 @@ static void install_parachute(void)
 			sigaction(SIGALRM, &oaction, NULL);
 	}
 #endif
-#endif
 	return;
 }
 
@@ -602,6 +598,10 @@ static void uninstall_parachute(void)
 {
 	int i;
 	void (*ohandler)(int);
+
+        if(!parachute_installed)
+            return;
+        parachute_installed = 0;
 
 	/* Remove a handler for any fatal signal handled */
 	for ( i=0; fatal_signals[i]; ++i ) {
@@ -683,9 +683,20 @@ void initbase(void)
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
 
-
-	/*touch PyGAME_C_API to keep compiler from warning*/
-	PyGAME_C_API[0] = PyGAME_C_API[0];
+        /*some intiialization*/
+        Py_AtExit(atexit_quit);
+        install_parachute();
+#ifdef MS_WIN32
+        SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
+#endif
+#if defined(macintosh)
+#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
+        SDL_InitQuickDraw(&qd);
+#endif
+#endif
+#if defined(darwin)
+        StartTheDamnApplication();
+#endif
 }
 
 

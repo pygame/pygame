@@ -375,9 +375,10 @@ typedef struct {
 
 
 
-
+#ifndef NO_PYGAME_C_API
 #define PYGAMEAPI_TOTALSLOTS 60
 static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = {NULL};
+#endif
 
 
 /*last platform compiler stuff*/
