@@ -828,8 +828,8 @@ static PyObject* rect_fit(PyObject* oself, PyObject* args)
 	maxratio = (xratio>yratio)?xratio:yratio;
 	
 	{
-		w = self->r.w / maxratio;
-		h = self->r.h / maxratio;
+		w = (int)(self->r.w / maxratio);
+		h = (int)(self->r.h / maxratio);
 	}
 
 	
