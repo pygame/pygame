@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+pygame-13
+December 17, 2001
+	small preps for the full 1.3 release
+
 December 15, 2001
 	small changes to sprite before release
 
