@@ -59,7 +59,6 @@ static void autoquit(void)
 
                 if(channelsounds)
                 {
-/*printf("FREE CHANNELSOUNDS, %p\n", channelsounds);*/
                     for(i=0; i<numchannelsounds; ++i)
                         Py_XDECREF(channelsounds[i]);
                     free(channelsounds);
@@ -94,11 +93,16 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 
 	if(!PyArg_ParseTuple(arg, "|iiii", &freq, &size, &stereo, &chunk))
 		return NULL;
-	if(stereo)
+	if(stereo>=2)
 		stereo = 2;
 	else
 		stereo = 1;
 
+        if(size == 8) size = AUDIO_U8;
+        else if(size == -8) size = AUDIO_S8;
+        else if(size == 16) size = AUDIO_U16SYS;
+        else if(size == -16) size = AUDIO_S16SYS;
+        
 	/*make chunk a power of 2*/
 	for(i=0; 1<<i < chunk; ++i); //yes, semicolon on for loop
 	chunk = max(1<<i, 256);
@@ -109,11 +113,10 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
                 
                 if(!channelsounds) /*should always be null*/
                 {
-                    channelsounds = (PyObject**)malloc(sizeof(PyObject*)*8);
-                    numchannelsounds = 8;
+                    numchannelsounds = MIX_CHANNELS;
+                    channelsounds = (PyObject**)malloc(sizeof(PyObject*)*numchannelsounds);
                     for(i=0; i < numchannelsounds; ++i)
                         channelsounds[i] = NULL;
-/*printf("ALLOC CHANNELSOUNDS, %p\n", channelsounds);*/
                 }
 
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)

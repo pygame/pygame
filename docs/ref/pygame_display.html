@@ -29,6 +29,7 @@
 <a href=pygame_mixer_music.html>mixer_music</a> ||<br>
 || <a href=pygame_mouse.html>mouse</a> || 
 <a href=pygame_movie.html>movie</a> || 
+<a href=pygame_sndarray.html>sndarray</a> || 
 <a href=pygame_surfarray.html>surfarray</a> || 
 <a href=pygame_time.html>time</a> || 
 <a href=pygame_transform.html>transform</a> ||<br>
@@ -117,6 +118,14 @@ get status of display module initialization</td></tr>
 
 <tr><td><a href=#get_surface>get_surface</a></td><td> -
 get current display surface</td></tr>
+
+
+<tr><td><a href=#gl_get_attribute>gl_get_attribute</a></td><td> -
+get special OPENGL attributes</td></tr>
+
+
+<tr><td><a href=#gl_set_attribute>gl_set_attribute</a></td><td> -
+set special OPENGL attributes</td></tr>
 
 
 <tr><td><a href=#iconify>iconify</a></td><td> -
@@ -237,6 +246,38 @@ pygame.display.get_surface() -> Surface
 </tt></font><ul>
 Returns a Surface object representing the current display. Will
 return None if called before the display mode is set.
+</ul><br>&nbsp;<br>
+
+<a name=gl_get_attribute><font size=+2><b>gl_get_attribute
+</b></font><br><font size=+1><tt>
+pygame.display.gl_get_attribute(flag) -> value
+</tt></font><ul>
+After calling <a href=#set_mode>pygame.display.set_mode()</a> with the OPENGL flag
+you will likely want to check the value of any special opengl
+attributes you requested. You will not always get what you
+requested.
+<br>&nbsp;<br>
+See <a href=#gl_set_attribute>pygame.display.gl_set_attribute()</a> for a list of flags.
+<br>&nbsp;<br>
+The OPENGL flags are; GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE,
+GL_ACCUM_RED_SIZE, GL_ACCUM_GREEN_SIZE, GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
+GL_RED_SIZE, GL_GREEN_SIZE, GL_BLUE_SIZE, GL_DEPTH_SIZE
+</ul><br>&nbsp;<br>
+
+<a name=gl_set_attribute><font size=+2><b>gl_set_attribute
+</b></font><br><font size=+1><tt>
+pygame.display.gl_set_attribute(flag, value) -> None
+</tt></font><ul>
+When calling <a href=#set_mode>pygame.display.set_mode()</a> with the OPENGL flag,
+pygame automatically handles setting the opengl attributes like
+color and doublebuffering. OPENGL offers several other attributes
+you may want control over. Pass one of these attributes as the
+flag, and its appropriate value.
+<br>&nbsp;<br>
+This must be called before <a href=#set_mode>pygame.display.set_mode()</a>
+<br>&nbsp;<br>
+The OPENGL flags are; GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE,
+GL_ACCUM_RED_SIZE, GL_ACCUM_GREEN_SIZE, GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE
 </ul><br>&nbsp;<br>
 
 <a name=iconify><font size=+2><b>iconify

@@ -377,7 +377,73 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
 	return DisplaySurfaceObject;
 }
 
+    /*DOC*/ static char doc_gl_set_attribute[] =
+    /*DOC*/    "pygame.display.gl_set_attribute(flag, value) -> None\n"
+    /*DOC*/    "set special OPENGL attributes\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "When calling pygame.display.set_mode() with the OPENGL flag,\n"
+    /*DOC*/    "pygame automatically handles setting the opengl attributes like\n"
+    /*DOC*/    "color and doublebuffering. OPENGL offers several other attributes\n"
+    /*DOC*/    "you may want control over. Pass one of these attributes as the\n"
+    /*DOC*/    "flag, and its appropriate value.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This must be called before pygame.display.set_mode()\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The OPENGL flags are; GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE,\n"
+    /*DOC*/    "GL_ACCUM_RED_SIZE, GL_ACCUM_GREEN_SIZE, GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE\n"
+    /*DOC*/ ;
 
+static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
+{
+        int flag, value, result;
+    
+	VIDEO_INIT_CHECK();
+
+    	if(!PyArg_ParseTuple(arg, "ii", &flag, &value))
+
+		return NULL;
+	result = SDL_GL_SetAttribute(flag, value);
+        if(result == -1)
+            return RAISE(PyExc_SDLError, SDL_GetError());
+        
+        RETURN_NONE
+}
+
+
+    /*DOC*/ static char doc_gl_get_attribute[] =
+    /*DOC*/    "pygame.display.gl_get_attribute(flag) -> value\n"
+    /*DOC*/    "get special OPENGL attributes\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "After calling pygame.display.set_mode() with the OPENGL flag\n"
+    /*DOC*/    "you will likely want to check the value of any special opengl\n"
+    /*DOC*/    "attributes you requested. You will not always get what you\n"
+    /*DOC*/    "requested.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "See pygame.display.gl_set_attribute() for a list of flags.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The OPENGL flags are; GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE,\n"
+    /*DOC*/    "GL_ACCUM_RED_SIZE, GL_ACCUM_GREEN_SIZE, GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,\n"
+    /*DOC*/    "GL_RED_SIZE, GL_GREEN_SIZE, GL_BLUE_SIZE, GL_DEPTH_SIZE\n"
+    /*DOC*/ ;
+
+static PyObject* gl_get_attribute(PyObject* self, PyObject* arg)
+{
+        int flag, value, result;
+    
+	VIDEO_INIT_CHECK();
+
+	if(!PyArg_ParseTuple(arg, "i", &flag))
+		return NULL;
+
+	result = SDL_GL_GetAttribute(flag, &value);
+        if(result == -1)
+            return RAISE(PyExc_SDLError, SDL_GetError());
+        
+        return PyInt_FromLong(value);
+}
+
+
+            
     /*DOC*/ static char doc_set_mode[] =
     /*DOC*/    "pygame.display.set_mode(size, [flags, [depth]]) -> Surface\n"
     /*DOC*/    "set the display mode\n"
@@ -436,9 +502,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 			SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
 		if(depth)
 			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, depth);
-		Py_BEGIN_ALLOW_THREADS
 		surf = SDL_SetVideoMode(w, h, depth, flags);
-		Py_END_ALLOW_THREADS
 		if(!surf)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 
@@ -1046,8 +1110,7 @@ static PyMethodDef display_builtins[] =
 	{ "mode_ok", mode_ok, 1, doc_mode_ok },
 	{ "list_modes", list_modes, 1, doc_list_modes },
 
-	{ "flip", flip, 1, doc_flip },
-	{ "update", update, 1, doc_update },
+        { "flip", flip, 1, doc_flip }, { "update", update, 1, doc_update },
 
 	{ "set_palette", set_palette, 1, doc_set_palette },
 	{ "set_gamma", set_gamma, 1, doc_set_gamma },
@@ -1057,9 +1120,11 @@ static PyMethodDef display_builtins[] =
 	{ "get_caption", get_caption, 1, doc_get_caption },
 	{ "set_icon", set_icon, 1, doc_set_icon },
 
-	/*{ "set_icon", set_icon, 1, doc_set_icon }, need to wait for surface objects*/
 	{ "iconify", iconify, 1, doc_iconify },
 	{ "toggle_fullscreen", toggle_fullscreen, 1, doc_toggle_fullscreen },
+
+	{ "gl_set_attribute", gl_set_attribute, 1, doc_gl_set_attribute },
+	{ "gl_get_attribute", gl_get_attribute, 1, doc_gl_get_attribute },
 
 	{ NULL, NULL }
 };
