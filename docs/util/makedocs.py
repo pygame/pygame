@@ -7,7 +7,7 @@ DOCPATTERN = '*static char*doc_*=*'
 
 SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
-PYTHONSRC = ['cursors', 'version', 'UserRect', 'sprite']
+PYTHONSRC =['cursors', 'version', 'UserRect', 'sprite']
 
 OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()
@@ -19,7 +19,6 @@ INDEXSTART = "\n<br><hr><br><font size=+1><b>Full Index</b></font><ul>\n<!--FULL
 INDEXEND = "<!--ENDINDEX-->\n</ul>\n"
 
 MODULETOC = ""
-
 
 
 mainindex_desc = """
@@ -105,15 +104,23 @@ def readpysource(name):
     for name, obj in module.__dict__.items():
         if type(obj) is types.ClassType:
             title = '    /*DOC*/ static char doc_%s[] =\n'%(name)
-#            if hasattr(obj, '__init__'):
-#                
+            initdocs = []
+            if hasattr(obj, '__init__'):
+                    init = getattr(obj, '__init__')
+                    if hasattr(init, '__doc__'):
+			    initdocs = getpydoclines(init.__doc__)
+			    if not initdocs: initdocs = []
             try:
                 docs = getpydoclines(obj.__doc__)
                 if docs:
-                    docs = [('%s.%s()'%(modname,name)), 'a class']+docs
+                    quick = '<b>(class)</b> - ' + docs[0]
+                    usage = 'pygame.%s.%s()'%(modname,name)
+                    if initdocs:
+                        usage = 'pygame.%s.%s'%(modname,name) + initdocs[0][initdocs[0].find('('):]
+                    docs = [usage,  quick,  '']+docs+['<br>&nbsp;<br>']+initdocs[2:]
                     documents.append([title] + docs)
-                    
-            except AttributeError: 
+
+            except AttributeError:
                 documents.append([title] + ['%s.%s'&(modname,name),'noclassdocs'])
             for methname, meth in obj.__dict__.items():
                 if methname is '__init__': continue
@@ -121,10 +128,10 @@ def readpysource(name):
                 try:
                     docs = getpydoclines(meth.__doc__)
                     if docs:
-                        docs[0] = ('%s.%s'%(modname,name))+docs[0]
+                        docs[0] = ('pygame.%s.%s?'%(modname,name))+docs[0]
                         documents.append([title] + docs)
                 except AttributeError: pass
-                
+
         elif hasattr(obj, '__doc__'):
             title = '    /*DOC*/ static char doc_' + name + '[] =\n'
             documents.append([title] + getpydoclines(obj.__doc__))
@@ -139,7 +146,7 @@ def parsedocs(docs):
     for d in docs:
         modpos = d[0].find('_MODULE')
         extpos = d[0].find('_EXTRA')
-        
+
         if modpos != -1:
             start = d[0].rfind(' ', 0, modpos)
             name = d[0][start+5:modpos]
@@ -150,10 +157,9 @@ def parsedocs(docs):
             extras[name] = '\n'.join(d[1:])
         else:
             obj = {'docs':['no documentation']}
-            #name = d[1][:d[1].rfind('(')]
-            print d
             name = d[1][:d[1].find('(')]
             dot = name.rfind('.')
+            name = name.replace('?', '.')
             if dot == -1:
                 obj['category'] = 'misc'
                 obj['name'] = name
@@ -163,7 +169,7 @@ def parsedocs(docs):
                 obj['name'] = name[dot+1:]
                 obj['fullname'] = name
             try:
-                obj['usage'] = d[1]
+                obj['usage'] = d[1].replace('?',  '.')
                 obj['quick'] = d[2]
                 obj['docs'] = d[4:]
             except IndexError: pass
@@ -271,21 +277,44 @@ def create_toc(allfuncs, prefix=''):
     for f in allfuncs:
         cat = f['category']
         mods[cat] = ''
-    l = []
+
+    l_mod = []
+    l_py = []
+    l_type = []
     for m in mods.keys():
+        if m[7:] in PYTHONSRC:
+            l = l_py
+        elif m[0].lower() == m[0]:
+	    l = l_mod
+	else:
+	    l = l_type
+
         file = m.replace('.', '_') + '.html'
-        if m[:7] == 'pygame_':
-            m = m[7:]
-        str = '<a href=%s%s>%s</a>' % (prefix, file, m)
-        l.append(str)
-    l.sort()
+	if m[:7] == 'pygame_':
+	    m = m[7:]
+	str = '<a href=%s%s>%s</a>' % (prefix, file, m)
+	l.append(str)
+
+    l_py.sort()
+    l_mod.sort()
+    l_type.sort()
+
     str = ''
     items_per_line = 6
-    for x in range(0, len(l), items_per_line):
-        row = l[x:x+items_per_line]
+    for x in range(0, len(l_mod), items_per_line):
+        row = l_mod[x:x+items_per_line]
         str += '|| ' + ' || \n'.join(row) + ' ||<br>\n'
+    str += '&nbsp;<br>'
+    for x in range(0, len(l_type), items_per_line):
+        row = l_type[x:x+items_per_line]
+        str += '|| ' + ' || \n'.join(row) + ' ||<br>\n'
+    str += '&nbsp;<br>'
+    for x in range(0, len(l_py), items_per_line):
+        row = l_py[x:x+items_per_line]
+        str += '|| ' + ' || \n'.join(row) + ' ||<br>\n'
+
     return str
-    
+
 
 def namesort(a,b): return cmp(a['name'], b['name'])
 
@@ -373,7 +402,6 @@ def main():
     writefuncdoc(alldocs)
 
     fulldocs = findtutorials() + makefullindex(alldocs)
-
     fulldocs = """
 <br><big><b>Miscellaneous</b></big>
 <li><a href=logos.html>Logos</a></li>
