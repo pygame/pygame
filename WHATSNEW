@@ -4,7 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
-may 16, 2002
+May 17, 2002
+	added display.set_gamma_ramp(). thx andrew
+
+May 16, 2002
 	custom blitters to handle destination pixel alphas
 	fix recursive subsurfaces and subsurface blit returns
 
