@@ -76,7 +76,7 @@ reads a pair of XBM files into set_cursor arguments</td></tr>
 
 <a name=compile><font size=+2><b>compile
 </b></font><br><font size=+1><tt>
-pygame.cursors.compile(strings, black, white) -> data
+pygame.cursors.compile(strings, black, white) -> data, mask
 </tt></font><ul>
 This takes a set of strings with equal length and computes
 the binary data for that cursor. The string widths must be
@@ -87,6 +87,10 @@ The black and white arguments are single letter strings that
 tells which characters will represent black pixels, and which
 characters represent white pixels. All other characters are
 considered clear.
+<br>&nbsp;<br>
+This returns a tuple containing the cursor data and cursor mask
+data. Both these arguments are used when setting a cursor with
+pygame.mouse.set_cursor().
 <br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
