@@ -70,7 +70,9 @@ static PyObject* image_load_ext(PyObject* self, PyObject* arg)
 		if(!(rw = RWopsFromPython(file)))
 			return NULL;
 		if(RWopsCheckPython(rw))
+                {
 			surf = IMG_LoadTyped_RW(rw, 1, find_extension(name));
+                }
 		else
 		{
 			Py_BEGIN_ALLOW_THREADS

@@ -219,6 +219,7 @@ typedef struct {
 	int last_tick;
         int fps_count, fps_tick;
         float fps;
+        int timepassed, rawpassed;
         PyObject* rendered;
 } PyClockObject;
 
@@ -228,31 +229,33 @@ typedef struct {
     /*DOC*/    "\n"
     /*DOC*/    "Updates the number of ticks for this clock. It should usually\n"
     /*DOC*/    "be called once per frame. If you pass the optional delay argument\n"
-    /*DOC*/    "the function will wait until the amount of time needed to keep\n"
-    /*DOC*/    "your program from running no faster than the given ticks per second.\n"
-    /*DOC*/    "The function also returns the number of milliseconds passed since\n"
-    /*DOC*/    "the previous call to tick()\n"
+    /*DOC*/    "the function will delay to keep the game running slower than the\n"
+    /*DOC*/    "given ticks per second. The function also returns the number of\n"
+    /*DOC*/    "milliseconds passed since the previous call to tick().\n"
     /*DOC*/ ;
 
 static PyObject* clock_tick(PyObject* self, PyObject* arg)
 {
 	PyClockObject* clock = (PyClockObject*)self;
         float framerate = 0.0f;
-        int nowtime, timepassed;
+        int nowtime;
 	if(!PyArg_ParseTuple(arg, "|f", &framerate))
             return NULL;
 
         if(framerate)
         {
-            int endtime = (int)((1.0f/framerate) * 1000.0f);
-            int delay = endtime - (SDL_GetTicks() - clock->last_tick);
+            int delay, endtime = (int)((1.0f/framerate) * 1000.0f);
+            clock->rawpassed = SDL_GetTicks() - clock->last_tick;
+            delay = endtime - clock->rawpassed;
             accurate_delay(delay);
         }
-
+        
         nowtime = SDL_GetTicks();
-        timepassed = nowtime - clock->last_tick;
+        clock->timepassed = nowtime - clock->last_tick;
         clock->fps_count += 1;
         clock->last_tick = nowtime;
+        if(!framerate)
+            clock->rawpassed = clock->timepassed;
 
         if(!clock->fps_tick)
         {
@@ -266,8 +269,7 @@ static PyObject* clock_tick(PyObject* self, PyObject* arg)
             clock->fps_tick = nowtime;
             Py_XDECREF(clock->rendered);
         }
-
-        return PyInt_FromLong(timepassed);
+        return PyInt_FromLong(clock->timepassed);
 }
 
 
@@ -286,6 +288,36 @@ static PyObject* clock_get_fps(PyObject* self, PyObject* arg)
         return PyFloat_FromDouble(clock->fps);
 }
 
+
+    /*DOC*/ static char doc_clock_get_time[] =
+    /*DOC*/    "Clock.get_time() -> int\n"
+    /*DOC*/    "get number of milliseconds between last two calls to tick()\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This is the same value returned from the call to Clock.tick().\n"
+    /*DOC*/    "it is the number of milliseconds that passed between the last\n"
+    /*DOC*/    "two calls to tick().\n"
+    /*DOC*/ ;
+
+static PyObject* clock_get_time(PyObject* self, PyObject* arg)
+{
+	PyClockObject* clock = (PyClockObject*)self;
+        return PyInt_FromLong(clock->timepassed);
+}
+
+    /*DOC*/ static char doc_clock_get_rawtime[] =
+    /*DOC*/    "Clock.get_rawtime() -> int\n"
+    /*DOC*/    "get number of nondelayed milliseconds between last two calls to tick()\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This is similar to get_time(). It does not include the number of\n"
+    /*DOC*/    "milliseconds that were delayed to keep the clock tick under a given\n"
+    /*DOC*/    "framerate.\n"
+    /*DOC*/ ;
+
+static PyObject* clock_get_rawtime(PyObject* self, PyObject* arg)
+{
+	PyClockObject* clock = (PyClockObject*)self;
+        return PyInt_FromLong(clock->rawpassed);
+}
 
 
 #if 0
@@ -371,6 +403,8 @@ static struct PyMethodDef clock_methods[] =
 {
 	{"tick",	clock_tick,	1, doc_clock_tick },
 	{"get_fps",	clock_get_fps,	1, doc_clock_get_fps },
+	{"get_time",	clock_get_time,	1, doc_clock_get_time },
+	{"get_rawtime",	clock_get_rawtime,1, doc_clock_get_rawtime },
 /*        {"render_fps",  clock_render_fps,1,doc_clock_render_fps},*/
 	{NULL,		NULL}
 };
