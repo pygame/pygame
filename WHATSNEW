@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 10, 2003
+	SysFont now accepts None like regular Font
+
 August 10, 2003
 	fix JOYHAT_RIGHT input (thanks Latimerius)
 	system font names have punctuation removed
