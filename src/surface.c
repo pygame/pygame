@@ -988,7 +988,7 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	if(dest->flags & SDL_OPENGL && !(dest->flags&(SDL_OPENGLBLIT&~SDL_OPENGL)))
 		return RAISE(PyExc_SDLError, "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
 
-	if(dest->format->BytesPerPixel == 1 && (src->flags&SDL_SRCALPHA || src->format->Amask))
+	if(dest->format->BytesPerPixel == 1 && (src->flags&SDL_SRCALPHA && src->format->Amask))
 		return RAISE(PyExc_SDLError, "Alpha blits to 8bit surfaces currently unimplemented");
 
 	if((src_rect = GameRect_FromObject(argpos, &temp)))
