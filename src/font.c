@@ -1,3 +1,4 @@
+bg
 /*
     pygame - Python Game Library
     Copyright (C) 2000-2001  Pete Shinners
@@ -35,7 +36,7 @@ static PyObject* PyFont_New(TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-static char* font_defaultname = "bluebold.ttf";
+static char* font_defaultname = "helmetb.ttf";
 static char* font_defaultpath = NULL;
 static PyObject* self_module = NULL;
 
@@ -625,6 +626,8 @@ static PyObject* Font(PyObject* self, PyObject* args)
 		if(!font_defaultpath)
 			return RAISE(PyExc_RuntimeError, "default font not found");
 		filename = font_defaultpath;
+                /*we need to match previous default font sizes..*/
+                fontsize = (int)(fontsize * .75);
 	}
 	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{

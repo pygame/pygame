@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 28, 2002
+	changed default font to helmet bold
+
 May 27, 2002
 	added smart class to handle missing modules
 
