@@ -100,12 +100,12 @@ get number of axes on a joystick</td></tr>
 get number of trackballs on a joystick</td></tr>
 
 
-<tr><td><a href=#get_numballs>get_numballs</a></td><td> -
-get number of hats on a joystick</td></tr>
-
-
 <tr><td><a href=#get_numbuttons>get_numbuttons</a></td><td> -
 get number of buttons on a joystick</td></tr>
+
+
+<tr><td><a href=#get_numhats>get_numhats</a></td><td> -
+get number of hats on a joystick</td></tr>
 
 
 <tr><td><a href=#init>init</a></td><td> -
@@ -197,18 +197,18 @@ Joystick.get_numballs() -> int
 Returns the number of available trackballs on the Joystick.
 </ul><br>&nbsp;<br>
 
-<a name=get_numballs><font size=+2><b>get_numballs
-</b></font><br><font size=+1><tt>
-Joystick.get_numballs() -> int
-</tt></font><ul>
-Returns the number of available directional hats on the Joystick.
-</ul><br>&nbsp;<br>
-
 <a name=get_numbuttons><font size=+2><b>get_numbuttons
 </b></font><br><font size=+1><tt>
 Joystick.get_numbuttons() -> int
 </tt></font><ul>
 Returns the number of available buttons on the Joystick.
+</ul><br>&nbsp;<br>
+
+<a name=get_numhats><font size=+2><b>get_numhats
+</b></font><br><font size=+1><tt>
+Joystick.get_numhats() -> int
+</tt></font><ul>
+Returns the number of available directional hats on the Joystick.
 </ul><br>&nbsp;<br>
 
 <a name=init><font size=+2><b>init
@@ -225,7 +225,7 @@ at anytime, and it is ok to initialize more than once.
 Joystick.quit() -> None
 </tt></font><ul>
 After you are completely finished with a joystick device, you
-can use this <a href=pygame_cdrom.html#quit>quit()</a> function to free access to the drive.
+can use this <a href=pygame.html#quit>quit()</a> function to free access to the drive.
 This will be cleaned up automatically when the joystick module is.
 uninitialized. It is safe to call this function on an uninitialized Joystick.
 </ul><br>&nbsp;<br>

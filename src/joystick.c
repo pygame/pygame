@@ -458,7 +458,7 @@ static PyObject* joy_get_ball(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_joy_get_numhats[] =
-    /*DOC*/    "Joystick.get_numballs() -> int\n"
+    /*DOC*/    "Joystick.get_numhats() -> int\n"
     /*DOC*/    "get number of hats on a joystick\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the number of available directional hats on the Joystick.\n"
