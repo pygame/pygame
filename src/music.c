@@ -33,7 +33,7 @@ static Mix_Music* current_music = NULL;
 static int endmusic_event = SDL_NOEVENT;
 
 
-static void endmusic_callback()
+static void endmusic_callback(void)
 {
 	if(endmusic_event && SDL_WasInit(SDL_INIT_VIDEO))
 	{
@@ -362,9 +362,11 @@ static PyMethodDef music_builtins[] =
     /*DOC*/    "loaded from special file-like objects through python.\n"
     /*DOC*/ ;
 
-void initmixer_music()
+void initmixer_music(void)
 {
 	PyObject *module, *dict;
+
+	PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*clean an unused warning*/
 
     /* create the module */
 	module = Py_InitModule3("mixer_music", music_builtins, doc_pygame_mixer_music_MODULE);

@@ -39,7 +39,7 @@ static int font_initialized = 0;
 static char* font_defaultname = "bluebold.ttf";
 static char* font_defaultpath = NULL;
 
-static void font_autoquit()
+static void font_autoquit(void)
 {
 	if(font_initialized)
 	{
@@ -567,6 +567,17 @@ static PyTypeObject PyFont_Type =
 	font_dealloc,	
 	0,
 	font_getattr
+	0,
+	0,
+	0,
+	0,
+	NULL,
+	0, 
+	(hashfunc)NULL,
+	(ternaryfunc)NULL,
+	(reprfunc)NULL,
+	0L,0L,0L,0L,
+	doc_Font_MODULE /* Documentation string */
 };
 
 
@@ -663,10 +674,12 @@ static PyObject* PyFont_New(TTF_Font* font)
     /*DOC*/    "pygame.font.Font().\n"
     /*DOC*/ ;
 
-void initfont()
+void initfont(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_FONT_NUMSLOTS];
+
+	PyFONT_C_API[0] = PyFONT_C_API[0]; /*clean an unused warning*/
 
 	PyType_Init(PyFont_Type);
 
