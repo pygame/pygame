@@ -314,7 +314,7 @@ static PyObject* surf_get_palette(PyObject* self, PyObject* args)
 		return NULL;
 
 	if(!pal)
-		return RAISE(PyExc_SDLError, "Surface is not palettized\n");
+		return RAISE(PyExc_SDLError, "Surface has no palette to get\n");
 
 	list = PyTuple_New(pal->ncolors);
 	if(!list)
@@ -359,7 +359,7 @@ static PyObject* surf_get_palette_at(PyObject* self, PyObject* args)
 		return NULL;
 
 	if(!pal)
-		return RAISE(PyExc_SDLError, "Surface is not palettized\n");
+		return RAISE(PyExc_SDLError, "Surface has no palette to set\n");
 	if(index >= pal->ncolors || index < 0)
 		return RAISE(PyExc_IndexError, "index out of bounds");
 
@@ -782,14 +782,14 @@ static void screencroprect(GAME_Rect* r, int w, int h)
 
 
     /*DOC*/ static char doc_surf_blit[] =
-    /*DOC*/    "Surface.blit(source, destoffset, [sourcerect]) -> Rect\n"
+    /*DOC*/    "Surface.blit(source, destpos, [sourcerect]) -> Rect\n"
     /*DOC*/    "copy a one Surface to another.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The blitting will transfer one surface to another. It will\n"
     /*DOC*/    "respect any special modes like colorkeying and alpha. If hardware\n"
     /*DOC*/    "support is available, it will be used. The given source is the\n"
     /*DOC*/    "Surface to copy from. The destoffset is a 2-number-sequence that\n"
-    /*DOC*/    "specifies where on the destination Surface the blit happens.\n"
+    /*DOC*/    "specifies where on the destination Surface the blit happens (see below).\n"
     /*DOC*/    "When sourcerect isn't supplied, the blit will copy the\n"
     /*DOC*/    "entire source surface. If you would like to copy only a portion\n"
     /*DOC*/    "of the source, use the sourcerect argument to control\n"
@@ -797,19 +797,38 @@ static void screencroprect(GAME_Rect* r, int w, int h)
     /*DOC*/    "\n"
     /*DOC*/    "The blit is subject to be clipped by the active clipping\n"
     /*DOC*/    "rectangle. The return value contains the actual area blitted.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "As a shortcut, the destination position can be passed as a\n"
+    /*DOC*/    "rectangle. If a rectangle is given, the blit will use the topleft\n"
+    /*DOC*/    "corner of the rectangle as the blit destination position. The\n"
+    /*DOC*/    "rectangle sizes will be ignored.\n"
     /*DOC*/ ;
 
 static PyObject* surf_blit(PyObject* self, PyObject* args)
 {
 	SDL_Surface* src, *dest = PySurface_AsSurface(self);
 	GAME_Rect* src_rect, temp;
-	PyObject* srcobject, *argrect = NULL;
+	PyObject* srcobject, *argpos, *argrect = NULL;
 	int dx, dy, result;
 	SDL_Rect dest_rect;
+	short sx, sy;
 
-	if(!PyArg_ParseTuple(args, "O!(ii)|O", &PySurface_Type, &srcobject, &dx, &dy, &argrect))
+	if(!PyArg_ParseTuple(args, "O!O|O", &PySurface_Type, &srcobject, &argpos, &argrect))
 		return NULL;
 	src = PySurface_AsSurface(srcobject);
+
+	if(src_rect = GameRect_FromObject(argpos, &temp))
+	{
+		dx = src_rect->x;
+		dy = src_rect->y;
+	}
+	else if(TwoShortsFromObj(argpos, &sx, &sy))
+	{
+		dx = (int)sx;
+		dy = (int)sy;
+	}
+	else
+		return RAISE(PyExc_TypeError, "invalid destination position for blit");
 
 	if(argrect)
 	{

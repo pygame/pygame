@@ -228,13 +228,13 @@ convert mapped color into RGB</td></tr>
 
 <a name=blit><font size=+2><b>blit
 </b></font><br><font size=+1><tt>
-Surface.blit(source, destoffset, [sourcerect]) -> Rect
+Surface.blit(source, destpos, [sourcerect]) -> Rect
 </tt></font><ul>
 The blitting will transfer one surface to another. It will
 respect any special modes like colorkeying and alpha. If hardware
 support is available, it will be used. The given source is the
 Surface to copy from. The destoffset is a 2-number-sequence that
-specifies where on the destination Surface the blit happens.
+specifies where on the destination Surface the blit happens (see below).
 When sourcerect isn't supplied, the blit will copy the
 entire source surface. If you would like to copy only a portion
 of the source, use the sourcerect argument to control
@@ -242,6 +242,11 @@ what area is copied.
 <br>&nbsp;<br>
 The blit is subject to be clipped by the active clipping
 rectangle. The return value contains the actual area blitted.
+<br>&nbsp;<br>
+As a shortcut, the destination position can be passed as a
+rectangle. If a rectangle is given, the blit will use the topleft
+corner of the rectangle as the blit destination position. The
+rectangle sizes will be ignored.
 </ul><br>&nbsp;<br>
 
 <a name=convert><font size=+2><b>convert
