@@ -40,7 +40,7 @@
     /*DOC*/    "repeat timing with the delay and interval values. If no arguments\n"
     /*DOC*/    "are passed, keyboard repeat will be disabled.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The default values for delay and interval are 500 and 30.\n"
+    /*DOC*/    "Good values for delay and interval are 500 and 30.\n"
     /*DOC*/    "\n"
     /*DOC*/    "Delay is the amount of milliseconds before the first repeated\n"
     /*DOC*/    "KEYDOWN event is received. The interval is the amount of\n"
@@ -49,14 +49,18 @@
 
 static PyObject* key_set_repeat(PyObject* self, PyObject* args)
 {
-	int delay =0, interval =0;
+	int delay = 0, interval = 0;
 
 	if(!PyArg_ParseTuple(args, "|ii", &delay, &interval))
 		return NULL;
 
 	VIDEO_INIT_CHECK();
 
-	SDL_EnableKeyRepeat(delay, interval);
+	if(delay && !interval)
+		interval = delay;
+
+	if(SDL_EnableKeyRepeat(delay, interval) == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
 
 	RETURN_NONE
 }

@@ -4,8 +4,16 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 26, 2001
+	key.set_repeat() raises exception error, smarter args
+
+September 22, 2001
+	added Rect.clamp_ip, for inplace clamping
+	display.update(None) will update full screen
+
 September 21, 2001
 	Surface.convert() respects the SRCALPHA flag when passing depth
+
 
 pygame-12
 September 1, 2001

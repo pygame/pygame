@@ -209,12 +209,12 @@ PyObject* vidinfo_str(PyObject* self)
 	SDL_VideoInfo* info = &((PyVidInfoObject*)self)->info;
 
 	sprintf(str, "<VideoInfo(hw = %d, wm = %d,video_mem = %d\n"
-				 "           blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
-				 "           blit_sw = %d, blit_sw_CC = %d, blit_sw_A = %d,\n"
-				 "           bitsize  = %d, bytesize = %d,\n"
-				 "           masks =  (%d, %d, %d, %d),\n"
-				 "           shifts = (%d, %d, %d, %d),\n"
-				 "           losses =  (%d, %d, %d, %d)>\n",
+				 "	     blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
+				 "	     blit_sw = %d, blit_sw_CC = %d, blit_sw_A = %d,\n"
+				 "	     bitsize  = %d, bytesize = %d,\n"
+				 "	     masks =  (%d, %d, %d, %d),\n"
+				 "	     shifts = (%d, %d, %d, %d),\n"
+				 "	     losses =  (%d, %d, %d, %d)>\n",
 				info->hw_available, info->wm_available, info->video_mem,
 				info->blit_hw, info->blit_hw_CC, info->blit_hw_A,
 				info->blit_sw, info->blit_sw_CC, info->blit_sw_A,
@@ -243,9 +243,9 @@ static PyTypeObject PyVidInfo_Type =
 	NULL,					/*as_number*/
 	NULL,					/*as_sequence*/
 	NULL,					/*as_mapping*/
-	(hashfunc)NULL,			/*hash*/
+	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
-	(reprfunc)NULL,			/*str*/
+	(reprfunc)NULL, 		/*str*/
 };
 
 
@@ -647,19 +647,28 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	SDL_Surface* screen;
 	GAME_Rect *gr, temp = {0};
 	int wide, high;
+	PyObject* obj;
 
 	/*determine type of argument we got*/
 	if(PyTuple_Size(arg) == 0)
 		gr = &temp;
 	else
 	{
-		gr = GameRect_FromObject(arg, &temp);
-		if(!gr)
-			PyErr_Clear();
-		else if(gr != &temp)
+		obj = PyTuple_GET_ITEM(arg, 0);
+		if(obj == Py_None)
 		{
-			memcpy(&temp, gr, sizeof(temp));
 			gr = &temp;
+		}
+		else
+		{
+			gr = GameRect_FromObject(arg, &temp);
+			if(!gr)
+				PyErr_Clear();
+			else if(gr != &temp)
+			{
+				memcpy(&temp, gr, sizeof(temp));
+				gr = &temp;
+			}
 		}
 	}
 	VIDEO_INIT_CHECK();
