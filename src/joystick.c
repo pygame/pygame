@@ -636,7 +636,7 @@ static PyMethodDef joystick_builtins[] =
     /*DOC*/    "any input handling. Once a joystick object has been initialized, it will\n"
     /*DOC*/    "start to send joystick events to the input queue.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Be sure to understand the difference between the joystick module\n"
+    /*DOC*/    "Be sure to understand there is a difference between the joystick module\n"
     /*DOC*/    "and the Joystick objects.\n"
     /*DOC*/ ;
 

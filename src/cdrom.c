@@ -777,7 +777,7 @@ static PyMethodDef cdrom_builtins[] =
     /*DOC*/    "You can call the CD.get_name() and CD.get_id() functions\n"
     /*DOC*/    "without initializing the CD object.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Be sure to understand the difference between the cdrom module\n"
+    /*DOC*/    "Be sure to understand there is a difference between the cdrom module\n"
     /*DOC*/    "and the CD objects.\n"
     /*DOC*/ ;
 
