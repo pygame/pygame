@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jun 19, 2001
+	fixed botched image.save() function
+
 Jun 15, 2001
 	new inplace Rect calls: move_ip, union_ip, etc
 
