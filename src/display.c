@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 */
 
 /*
- *  PyGAME display module
+ *  pygame display module
  */
 #define PYGAMEAPI_DISPLAY_INTERNAL
 #include "pygame.h"
@@ -391,7 +391,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 
 	SDL_WM_GetCaption(&title, &icontitle);
 	if(!title || !*title)
-		SDL_WM_SetCaption("PyGame Window", "PyGame");
+		SDL_WM_SetCaption("pygame window", "pygame");
 
 	return PySurface_New(surf);
 }

@@ -32,6 +32,11 @@ except IOError:
 #extra files to install
 data_files = []
 
+#add non .py files in lib directory
+for f in glob.glob(os.path.join('lib', '*')):
+    if not f.endswith('.py') and os.path.isfile(f):
+        data_files.append(f)
+
 #try to find libaries and copy them too
 #(great for windows, bad for linux)
 if sys.platform == 'win32':
@@ -45,7 +50,7 @@ if sys.platform == 'win32':
             if os.path.isfile(p) and p not in data_files:
                 data_files.append(p)
 
-#don't need to actually compile the COPYLIB modules
+#don't need to actually compile the COPYLIB modules, remove them
 for e in extensions[:]:
     if e.name.startswith('COPYLIB_'):
         extensions.remove(e)

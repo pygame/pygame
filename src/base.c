@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -316,6 +316,39 @@ static Uint32 UintFromObjIndex(PyObject* obj, int index, Uint32* val)
 	return result;
 }
 
+static int RGBAFromObj(PyObject* obj, Uint8* RGBA)
+{
+	int length;
+	Uint32 val;
+	if(PyTuple_Check(obj) && PyTuple_Size(obj)==1)
+		return RGBAFromObj(PyTuple_GET_ITEM(obj, 0), RGBA);
+
+	if(!PySequence_Check(obj))
+		return 0;
+
+	length = PySequence_Length(obj);
+	if(length < 3 || length > 4)
+		return 0;
+
+	if(!UintFromObjIndex(obj, 0, &val) || val > 255)
+		return 0;
+	RGBA[0] = (Uint8)val;
+	if(!UintFromObjIndex(obj, 1, &val) || val > 255)
+		return 0;
+	RGBA[1] = (Uint8)val;
+	if(!UintFromObjIndex(obj, 2, &val) || val > 255)
+		return 0;
+	RGBA[2] = (Uint8)val;
+	if(length == 4)
+	{
+		if(!UintFromObjIndex(obj, 3, &val) || val > 255)
+			return 0;
+		RGBA[3] = (Uint8)val;
+	}
+	else RGBA[3] = (Uint8)255;
+
+	return 1;
+}
 
 
 
@@ -359,7 +392,7 @@ static int PyGame_Video_AutoInit()
 		
 		if(status)
 			return 0;
-		SDL_EnableUNICODE(1); /*the controversy!*/
+		SDL_EnableUNICODE(1);
 		PyGame_RegisterQuit(PyGame_Video_AutoQuit);
 	}
 	return 1;
@@ -420,6 +453,7 @@ void initbase()
 	c_api[6] = UintFromObjIndex;
 	c_api[7] = PyGame_Video_AutoQuit;
 	c_api[8] = PyGame_Video_AutoInit;
+	c_api[9] = RGBAFromObj;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 

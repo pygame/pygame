@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -937,7 +937,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
     /*DOC*/    "around the center).\n"
     /*DOC*/    "\n"
     /*DOC*/    "The rectstyle arguments used frequently with the\n"
-    /*DOC*/    "Rect object (and elsewhere in PyGame) is one of\n"
+    /*DOC*/    "Rect object (and elsewhere in pygame) is one of\n"
     /*DOC*/    "the following things. First, an actual Rect\n"
     /*DOC*/    "object. Second, a sequence of [xpos, ypos, width,\n"
     /*DOC*/    "height]. Lastly, a pair of sequences, representing\n"

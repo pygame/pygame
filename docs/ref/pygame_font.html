@@ -8,7 +8,7 @@
 	<a href=../index.html><font size=+5 color=#ffffff><i><b>
       pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
-	PyGame<br>Documentation</font>
+	pygame<br>documentation</font>
 </td></tr></table></td><td width=100% align=center valign=middle>
 
 	||&nbsp;
@@ -63,6 +63,10 @@ get status of font module initialization</td></tr>
 initialize the display module</td></tr>
 
 
+<tr><td><a href=#new_font>new_font</a></td><td> -
+create a new font object</td></tr>
+
+
 <tr><td><a href=#quit>quit</a></td><td> -
 uninitialize the font module</td></tr>
 
@@ -85,6 +89,17 @@ pygame.font.init() -> None
 Manually initialize the font module. Will raise an exception if
 it cannot be initialized. It is safe to call this function if
 font is currently initialized.
+</ul><br>&nbsp;<br>
+
+<a name=new_font><font size=+2><b>new_font
+</b></font><br><font size=+1><tt>
+pygame.font.new_font(file, size) -> Font
+</tt></font><ul>
+This will create a new font object. The given file must be a
+filename to a TTF file. The font loader does not work with python
+file-like objects. The size represents the height of the font in
+pixels. The file argument can be 'None', which will use a plain
+default font.
 </ul><br>&nbsp;<br>
 
 <a name=quit><font size=+2><b>quit

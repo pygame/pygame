@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 */
 
 /*
- *  PyGAME mouse module
+ *  pygame mouse module
  */
 #include "pygame.h"
 
@@ -141,7 +141,7 @@ static PyObject* mouse_get_pressed(PyObject* self, PyObject* args)
     /*DOC*/    "visible state of the mouse cursor.\n"
     /*DOC*/    "\n"
     /*DOC*/    "Note that when the cursor is hidden and the application has\n"
-    /*DOC*/    "grabbed the input. pyGame will force the mouse to stay in the\n"
+    /*DOC*/    "grabbed the input. pygame will force the mouse to stay in the\n"
     /*DOC*/    "center of the screen. Since the mouse is hidden it won't matter\n"
     /*DOC*/    "that it's not moving, but it will keep the mouse from the edges\n"
     /*DOC*/    "of the screen so the relative mouse position will always be true.\n"

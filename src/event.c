@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 */
 
 /*
- *  PyGAME event module
+ *  pygame event module
  */
 #define PYGAMEAPI_EVENT_INTERNAL
 #include "pygame.h"

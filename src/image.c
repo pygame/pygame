@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 */
 
 /*
- *  image module for PyGAME
+ *  image module for pygame
  */
 #include "pygame.h"
 #include <SDL_image.h>

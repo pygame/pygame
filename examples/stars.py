@@ -68,9 +68,9 @@ def main():
 	#initialize and prepare screen
 	pygame.init()
 	screen = pygame.display.set_mode(WINSIZE)
-	pygame.display.set_caption('pyGame Stars Example')
-	white = screen.map_rgb(255, 240, 200)
-	black = screen.map_rgb(20, 20, 40)
+	pygame.display.set_caption('pygame Stars Example')
+	white = 255, 240, 200
+	black = 20, 20, 40
 	screen.fill(black)
 
 	#main game loop
@@ -79,7 +79,8 @@ def main():
 		draw_stars(screen, stars, black)
 		move_stars(stars)
 		draw_stars(screen, stars, white)
-		pygame.display.flip()
+		pygame.display.update()
+		calcfps()
 
 		for e in pygame.event.get():
 			if e.type == QUIT or (e.type == KEYUP and e.key == K_ESCAPE):
@@ -87,6 +88,26 @@ def main():
 				break
 			elif e.type == MOUSEBUTTONDOWN and e.button == 1:
 				WINCENTER[:] = list(e.pos)
+
+
+
+fps_frames = 0
+fps_time = 0
+def calcfps():
+    global fps_time, fps_frames
+    if not fps_time:
+        fps_time = pygame.time.get_ticks()
+        fps_frames = 0
+        return
+    fps_frames += 1
+    now = pygame.time.get_ticks()
+    time = now - fps_time
+    if time > 1000:
+        time = time / 1000.0
+        print 'TIME:', time/fps_frames, '  FPS:', fps_frames/time
+        fps_frames = 0
+        fps_time = now
+
 
 
 # if python says run, then we should run

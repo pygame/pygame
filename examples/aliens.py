@@ -381,8 +381,8 @@ def main(winstyle = 0):
 
     #attempt to show game over (if font installed)
     if font:
-        fontname = os.path.join('data', 'billbrdi.ttf')
-        f = font.font(fontname, 100)
+        f = font.new_font(None, 100) #None means default font
+        f.set_italic(1)
         text = f.render('Game Over', 1, (200, 200, 200))
         textrect = new_rect((0, 0), text.get_size())
         textrect.center = SCREENRECT.center
