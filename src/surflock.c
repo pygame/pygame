@@ -196,6 +196,8 @@ void initsurflock(void)
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
 
+	PyType_Init(PyLifetimeLock_Type);
+
 
 	/* Create the module and add the functions */
 	module = Py_InitModule3("surflock", surflock__builtins__, "Surface locking support");

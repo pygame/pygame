@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 30, 2001
+	added draw.lines()
+
 Jan 29, 2001
 	extremely revamped surface locking mechnisms
 	new Surface.subsurface for shared surfaces
