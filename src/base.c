@@ -51,6 +51,7 @@ static PyObject* quitfunctions = NULL;
 static PyObject* PyExc_SDLError;
 static void install_parachute(void);
 static void uninstall_parachute(void);
+static void atexit_quit(void);
 
 
 static int PyGame_Video_AutoInit(void);
@@ -155,6 +156,7 @@ static PyObject* register_quit(PyObject* self, PyObject* arg)
 
 static PyObject* init(PyObject* self,PyObject* args)
 {
+	static int initialized_once = 0;
 	PyObject *allmodules, *moduleslist, *dict, *func, *result, *mod;
 	int loop, num;
 	int success=0, fail=0;
@@ -164,9 +166,30 @@ static PyObject* init(PyObject* self,PyObject* args)
 	if(!CheckSDLVersions())
 		return NULL;
 
+
+/* let SDL do some basic initialization */
+	if(!initialized_once)
+	{
+		initialized_once = 1;
+#ifdef MS_WIN32
+		SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
+#endif
+#if defined(macintosh)
+#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
+		SDL_InitQuickDraw(&qd);
+#endif
+#endif
+		/*nice to initialize timer, so startup time will be correct before init call*/
+		SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
+		Py_AtExit(atexit_quit);
+		install_parachute();
+	}
+
+
+/* initialize all pygame modules */
 	allmodules = PyImport_GetModuleDict();
 	moduleslist = PyDict_Values(allmodules);
-	if(!allmodules || !moduleslist) 
+	if(!allmodules || !moduleslist)
 		return Py_BuildValue("(ii)", 0, 0);
 
 	if(PyGame_Video_AutoInit())
@@ -547,7 +570,6 @@ static PyMethodDef init__builtins__[] =
 PYGAME_EXPORT
 void initbase(void)
 {
-	static int initialized_once = 0;
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
@@ -575,26 +597,6 @@ void initbase(void)
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
 
-
-/* let SDL do some basic initialization */
-	if(!initialized_once)
-	{
-		initialized_once = 1;
-
-#ifdef MS_WIN32
-		SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
-#endif
-#if defined(macintosh)
-#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
-		SDL_InitQuickDraw(&qd);
-#endif
-#endif
-
-		/*nice to initialize timer, so startup time will be correct before init call*/
-		SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
-		Py_AtExit(atexit_quit);
-		install_parachute();
-	}
 
 	/*touch PyGAME_C_API to keep compiler from warning*/
 	PyGAME_C_API[0] = PyGAME_C_API[0];
