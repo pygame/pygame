@@ -1,5 +1,5 @@
-Pygame Version 1.2
-September 1st, 2001
+Pygame Version 1.3
+December 17, 2001
 
 Python Game Development
 by Pete Shinners
@@ -15,7 +15,7 @@ INTRO
 Pygame is a cross-platfrom library designed to make it easy to write
 multimedia software, such as games, in Python.
 
-Pygame depends on SDL >= 1.1.7 and Python >= 1.5.2. It also is optionally
+Pygame depends on SDL and Python. It also is optionally
 dependent on SDL_ttf, SDL_image, SDL_mixer, and Numeric.
 
 
@@ -56,7 +56,6 @@ TODO
 At some point it would be nice to add support for more external
 python libraries, here are some ideas...
  - smarten the config.py and setup.py stuff
- - wide line drawing should be drawn as a polygon?
  - make object constructors (Rect, Surface) the actual type
 
 
