@@ -136,20 +136,21 @@ pygame.mouse.set_cursor().
     filldata = []
     maskitem = fillitem = 0
     step = 8
-    for c in [x for s in strings for x in s]:
-        maskitem <<= 1
-        fillitem <<= 1
-        step -= 1
-        if c == black:
-            maskitem |= 1
-        elif c == white:
-            maskitem |= 1
-            fillitem |= 1
-        if not step:
-            maskdata.append(maskitem)
-            filldata.append(fillitem)
-            maskitem = fillitem = 0
-            step = 8
+    for s in strings:
+        for c in s:
+            maskitem = maskitem << 1
+            fillitem = fillitem << 1
+            step = step - 1
+            if c == black:
+                maskitem = maskitem | 1
+            elif c == white:
+                maskitem = maskitem | 1
+                fillitem = filltiem | 1
+            if not step:
+                maskdata.append(maskitem)
+                filldata.append(fillitem)
+                maskitem = fillitem = 0
+                step = 8
     return tuple(filldata), tuple(maskdata)
 
 
@@ -164,7 +165,8 @@ should work with typical XBM files.
 """
     def bitswap(num):
         val = 0
-        for b in [num&(1<<x) != 0 for x in range(8)]:
+        for x in range(8):
+            b = num&(1<<x) != 0
             val = val<<1 | b
         return val
     if type(curs) is type(''): curs = open(curs)
@@ -187,11 +189,17 @@ should work with typical XBM files.
         if curs[line].startswith('static char'):
             break
     data = ' '.join(curs[line+1:]).replace('};', '').replace(',', '')
-    cursdata = tuple([bitswap(int(x, 16)) for x in data.split()])
+    cursdata = []
+    for x in data.split():
+        cursdata.append(bitswap(int(x, 16)))
+    cursdata = tuple(cursdata)
 
     for line in range(len(mask)):
         if mask[line].startswith('static char'):
             break
     data = ' '.join(mask[line+1:]).replace('};', '').replace(',', '')
-    maskdata = tuple([bitswap(int(x, 16)) for x in data.split()])
+    maskdata = []
+    for x in data.split():
+        maskdata.append(bitswap(int(x, 16)))
+    maskdata = tuple(maskdata)
     return info[:2], info[2:], cursdata, maskdata

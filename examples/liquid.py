@@ -10,49 +10,44 @@ done in BlitzBasic. I was just translating the BlitzBasic code to
 pygame to compare the results. I didn't bother porting the text and
 sound stuff, that's an easy enough challenge for the reader :]"""
 
-import math, os
+import os
 import pygame, pygame.image
 from pygame.locals import *
+from math import sin
 
 
+#initialize and setup screen
+pygame.init()
+screen = pygame.display.set_mode((640, 480), HWSURFACE|DOUBLEBUF, 8)
 
-def main():
-    #initialize and setup screen
-    pygame.init()
-    screen = pygame.display.set_mode((640, 480), HWSURFACE|DOUBLEBUF, 8)
+#load image
+imagename = os.path.join('data', 'liquid.bmp')
+bitmap = pygame.image.load(imagename)
 
-    #load image
-    imagename = os.path.join('data', 'liquid.bmp')
-    bitmap = pygame.image.load(imagename)
+#get the image and screen in the same format
+if screen.get_bitsize() == 8:
+    screen.set_palette(bitmap.get_palette())
+else:
+    bitmap = bitmap.convert()
 
-    #get the image and screen in the same format
-    if screen.get_bitsize() == 8:
-        screen.set_palette(bitmap.get_palette())
+#prep some variables
+anim = 0.0
 
-    #prep some variables
-    anim = 0.0
-    sin = math.sin  #note, making sin local speeds up call (slightly)
-    xstep, ystep = range(0, 640, 20), range(0, 480, 20)
-    stopevents = QUIT, KEYDOWN, MOUSEBUTTONDOWN
-
-    #mainloop
-    while not pygame.event.peek(stopevents):
-        anim += 0.4
-        for x in xstep:
-            for y in ystep:
-                xpos = (x+(sin(anim+x*.01)*15))+20
-                ypos = (y+(sin(anim+y*.01)*15))+20
-                screen.blit(bitmap, (x, y), (xpos, ypos, 20, 20))
-        pygame.display.flip()
-
-if __name__ == '__main__':
-    main()
+#mainloop
+while not pygame.event.peek([QUIT, KEYDOWN, MOUSEBUTTONDOWN]):
+    anim = anim + 0.4
+    for x in range(0, 640, 20):
+        for y in range(0, 480, 20):
+            xpos = (x + (sin(anim + x * .01) * 15)) + 20
+            ypos = (y + (sin(anim + y * .01) * 15)) + 20
+            screen.blit(bitmap, (x, y), (xpos, ypos, 20, 20))
+    pygame.display.flip()
 
 
 
 """BTW, here is the code from the BlitzBasic example this was derived
-from. This code runs a little faster, yet reads a lot slower. again i've
-snipped the sound and text stuff out.
+from. This code runs a little faster, yet reads a lot slower. again
+i've snipped the sound and text stuff out.
 -----------------------------------------------------------------
 ; Brad@freedom2000.com
 

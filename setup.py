@@ -22,10 +22,10 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
-
-import sys
-if int(sys.version[0]) < 2:
-    raise SystemExit, "Pygame requires python 2.0 or higher"
+try:
+    import distutils
+except ImportError:
+    raise SystemExit, "Pygame requires distutils to build and install."
 
 
 #get us to the correct directory
@@ -78,7 +78,7 @@ data_files = []
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('lib', '*')):
-    if not f.endswith('.py') and os.path.isfile(f):
+    if not f[-3:] =='.py' and os.path.isfile(f):
         data_files.append(f)
 
 
@@ -113,7 +113,7 @@ for e in extensions[:]:
 
 #clean up the list of extensions
 for e in extensions[:]:
-    if e.name.startswith('COPYLIB_'):
+    if e.name[:8] == 'COPYLIB_':
         extensions.remove(e) #don't compile the COPYLIBs, just clean them
     else:
         e.name = 'pygame.' + e.name #prepend package name on modules

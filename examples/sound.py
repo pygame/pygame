@@ -7,8 +7,9 @@ don't even bother loading all of the pygame package. Just
 pick the mixer for sound and time for the delay function."""
 
 import os.path
-import pygame.mixer as mixer
-import pygame.time as time
+import pygame.mixer, pygame.time
+mixer = pygame.mixer
+time = pygame.time
 
 #choose a desired audio format
 mixer.init(11025)

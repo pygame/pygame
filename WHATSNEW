@@ -4,11 +4,14 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was (or could have been) crashing
 
+Jul 6, 2001
+	added python 1.5.2 compatability
+
 June 25, 2001
 	horizontal transform.flip() was reading pixels off by one [BUG]
 
 June 24, 2001
-	calling set_mode will change all existing display surfaces too
+	calling set_mode will change all references to the  display surface
 
 
 pygame-11

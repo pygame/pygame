@@ -709,7 +709,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
 			Py_XDECREF(r);
 			if(!gr)
 			{
-				PyMem_Free(rects);
+				PyMem_Free((char*)rects);
 				return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
 			}
 
@@ -729,7 +729,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
 		}
 
 		SDL_UpdateRects(screen, count, rects);
-		PyMem_Free(rects);
+		PyMem_Free((char*)rects);
 	}
 	
 	RETURN_NONE

@@ -66,7 +66,7 @@ CREDITS
 Thanks to everyone who made this possible, including:
 
 - David Clark for RPMs and all around help
-- Francis Irving for Debian packaging
+- Ed Boraas and Francis Irving for Debian packaging
 - Maxim Sobolev for FreeBSD port maintenance
 - Niki Spahiev, Gordon Tyler, and Dave Wallace for great patches
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
