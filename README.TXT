@@ -45,8 +45,6 @@ the "examples" subdirectory. All modules, functions, and objects in the
 pygame package contain helpful docstrings. Full HTML reference and 
 tutorials are also included in the docs directory.
 
-The programs in the "examples" subdirectory are in the public domain.
-
 
 
 
@@ -55,13 +53,13 @@ TODO
 At some point it would be nice to add support for more external
 python libraries, here are some ideas...
 
- * Support for OpenGL (initial testing not so good)
- * more drawing primitives in the draw module
- * Interface with PIL images
- * GUI library. There's a few out there
- * Image transforms like flip, rotate, scale
- * MPEG video playback with smpeg
- * Macintosh support (just needs to compile)
+- Support for OpenGL (initial testing not so good)
+- more drawing primitives in the draw module
+- Interface with PIL images
+- GUI library. There's a few out there
+- Image transforms like flip, rotate, scale
+- MPEG video playback with smpeg
+- Macintosh support (just needs to compile)
 
 
 
@@ -73,7 +71,7 @@ Thanks to everyone who made this possible, including:
 - David Clark for RPMs and all around help
 - Francis Irving for Debian packaging
 - Maxim Sobolev for FreeBSD port maintenance
-- Niki Spahiev for bugfixes
+- Niki Spahiev and Gordon Tyler for great patches
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
 - And our dutiful bug hunters; Angus Young and Guillaume Proux
 
@@ -104,4 +102,5 @@ if you make any changes or additions to pygame itself, those must be
 released with a compatible license.
 ( hopefully submitted back to the pygame project :] )
 
+The programs in the "examples" subdirectory are in the public domain.
 
