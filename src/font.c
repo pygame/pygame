@@ -396,6 +396,9 @@ static PyObject* font_set_underline(PyObject* self, PyObject* args)
     /*DOC*/    "and background color are both RGBA, the alpha component is ignored\n"
     /*DOC*/    "if given. If the background color is omitted, the text will have a\n"
     /*DOC*/    "transparent background.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Note that font rendering is not thread safe, therefore only one\n"
+    /*DOC*/    "thread can render text at any given time.\n"
     /*DOC*/ ;
 
 static PyObject* font_render(PyObject* self, PyObject* args)
