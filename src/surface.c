@@ -839,6 +839,9 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 	PySurfaceObject* srcsurf = NULL;
 	SDL_Surface* newsurf, *src;
 	
+	if(!SDL_WasInit(SDL_INIT_VIDEO))
+		return RAISE(PyExc_SDLError, "cannot convert without pygame.display initialized");
+
 	if(!PyArg_ParseTuple(args, "|O!", &PySurface_Type, &srcsurf))
 		return NULL;
 

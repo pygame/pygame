@@ -72,6 +72,18 @@ fade out the channel</td></tr>
 query state of the channel</td></tr>
 
 
+<tr><td><a href=#get_endevent>get_endevent</a></td><td> -
+get the endevent for a channel</td></tr>
+
+
+<tr><td><a href=#get_queue>get_queue</a></td><td> -
+get the currently queued sound object</td></tr>
+
+
+<tr><td><a href=#get_sound>get_sound</a></td><td> -
+get the currently playing sound object</td></tr>
+
+
 <tr><td><a href=#get_volume>get_volume</a></td><td> -
 query the volume for the</td></tr>
 
@@ -82,6 +94,14 @@ temporarily stop the channel</td></tr>
 
 <tr><td><a href=#play>play</a></td><td> -
 play a sound on this channel</td></tr>
+
+
+<tr><td><a href=#queue>queue</a></td><td> -
+queue a sound on this channel</td></tr>
+
+
+<tr><td><a href=#set_endevent>set_endevent</a></td><td> -
+set an endevent for a channel</td></tr>
 
 
 <tr><td><a href=#set_volume>set_volume</a></td><td> -
@@ -116,6 +136,31 @@ Returns true when there is a sound actively playing on this
 channel.
 </ul><br>&nbsp;<br>
 
+<a name=get_endevent><font size=+2><b>get_endevent
+</b></font><br><font size=+1><tt>
+Channel.get_endevent() -> event_type
+</tt></font><ul>
+Returns the end event type for this Channel. If the
+return value is NOEVENT, then no events will be sent
+when playback ends.
+</ul><br>&nbsp;<br>
+
+<a name=get_queue><font size=+2><b>get_queue
+</b></font><br><font size=+1><tt>
+Channel.get_queue() -> Sound
+</tt></font><ul>
+Return the currently queued Sound object on this channel.
+This will return None if there is nothing queued.
+</ul><br>&nbsp;<br>
+
+<a name=get_sound><font size=+2><b>get_sound
+</b></font><br><font size=+1><tt>
+Channel.get_sound() -> Sound
+</tt></font><ul>
+Return the currently playing Sound object on this channel.
+This will return None if there is nothing playing.
+</ul><br>&nbsp;<br>
+
 <a name=get_volume><font size=+2><b>get_volume
 </b></font><br><font size=+1><tt>
 Channel.get_volume() -> val
@@ -143,6 +188,37 @@ extra times the sound will play, a negative loop will play
 indefinitely, it defaults to 0. Maxtime is the number of
 totalmilliseconds that the sound will play. It defaults to
 forever (-1).
+</ul><br>&nbsp;<br>
+
+<a name=queue><font size=+2><b>queue
+</b></font><br><font size=+1><tt>
+Channel.queue(Sound) -> None
+</tt></font><ul>
+When you queue a sound on a channel, it will begin playing
+immediately when the current playing sound finishes. Each
+channel can only have a single Sound object queued. The
+queued sound will only play when the current Sound finishes
+naturally, not from another call to <a href=CD.html#stop>stop()</a> or <a href=CD.html#play>play()</a>.
+<br>&nbsp;<br>
+If there is no currently playing sound on this Channel
+it will begin playback immediately.
+<br>&nbsp;<br>
+This will only work with SDL_mixer greater than version 1.2.3
+</ul><br>&nbsp;<br>
+
+<a name=set_endevent><font size=+2><b>set_endevent
+</b></font><br><font size=+1><tt>
+Channel.set_endevent([event_type]) -> None
+</tt></font><ul>
+When you set an endevent for a channel, that event type
+will be put on the pygame event queue everytime a sound stops
+playing on that channel. This is slightly different than the
+music object end event, because this will trigger an event
+anytime the music stops. If you call <a href=CD.html#stop>stop()</a> or <a href=CD.html#play>play()</a> on the
+channel, it will fire an event. An event will also be fired when
+playback switches to a queued Sound.
+<br>&nbsp;<br>
+Pass no argument to stop this channel from firing events
 </ul><br>&nbsp;<br>
 
 <a name=set_volume><font size=+2><b>set_volume

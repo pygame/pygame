@@ -102,6 +102,10 @@ pause the playing music</td></tr>
 play the current loaded music</td></tr>
 
 
+<tr><td><a href=#queue>queue</a></td><td> -
+preload and queue a music file</td></tr>
+
+
 <tr><td><a href=#rewind>rewind</a></td><td> -
 restarts music</td></tr>
 
@@ -203,6 +207,16 @@ format of music playing. MP3 and OGG use the position as time
 (in seconds). MOD music it is the pattern order number. Passing
 a startpos will raise a NotImplementedError if it cannot set the
 start position (or your version of SDL_mixer is too old)
+</ul><br>&nbsp;<br>
+
+<a name=queue><font size=+2><b>queue
+</b></font><br><font size=+1><tt>
+pygame.mixer.music.queue(soundfile) -> None
+</tt></font><ul>
+This will load a music file and queue it. A queued music file
+will begin as soon as the current music naturally ends. If the
+current music is ever stopped or changed, the queued song will
+be lost.
 </ul><br>&nbsp;<br>
 
 <a name=rewind><font size=+2><b>rewind

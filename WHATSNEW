@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 22, 2002
+    	mixer can queue sounds and music
+
 October 19, 2002
     	can free software surfaces without video initialized
 	added "x", "y", "w", and "h" attribs to Rect (like SDL)

@@ -12,7 +12,7 @@ audio and video output, and keyboard, mouse and joystick input."""
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.5.3",
+    "version":          "1.5.4",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners",

@@ -30,6 +30,7 @@
 
 
 static Mix_Music* current_music = NULL;
+static Mix_Music* queue_music = NULL;
 static int endmusic_event = SDL_NOEVENT;
 static Uint64 music_pos = 0;
 static long music_pos_time = -1;
@@ -37,6 +38,12 @@ static int music_frequency = 0;
 static Uint16 music_format = 0;
 static int music_channels = 0;
 
+
+static void mixmusic_callback(void *udata, Uint8 *stream, int len)
+{
+	music_pos += len;
+	music_pos_time = SDL_GetTicks();
+}
 
 static void endmusic_callback(void)
 {
@@ -47,14 +54,21 @@ static void endmusic_callback(void)
 		e.type = endmusic_event;
 		SDL_PushEvent(&e);
 	}
-	Mix_SetPostMix(NULL, NULL);
-	music_pos_time = -1;
-}
-
-static void mixmusic_callback(void *udata, Uint8 *stream, int len)
-{
-	music_pos += len;
-	music_pos_time = SDL_GetTicks();
+	if(queue_music)
+	{
+	    	if(current_music)
+		    Mix_FreeMusic(current_music);
+	    	current_music = queue_music;
+		queue_music = NULL;
+	    	Mix_HookMusicFinished(endmusic_callback);
+		music_pos = 0;
+	    	Mix_PlayMusic(current_music, 0);
+	}
+	else
+	{
+	    music_pos_time = -1;
+	    Mix_SetPostMix(NULL, NULL);
+	}
 }
 
 
@@ -116,6 +130,7 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 }
 
 
+
     /*DOC*/ static char doc_get_busy[] =
     /*DOC*/    "pygame.mixer.music.get_busy() -> bool\n"
     /*DOC*/    "query state of the music\n"
@@ -151,6 +166,11 @@ static PyObject* music_fadeout(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_FadeOutMusic(time);
+	if(queue_music)
+	{
+		Mix_FreeMusic(queue_music);
+		queue_music = NULL;
+	}
 	RETURN_NONE
 }
 
@@ -170,6 +190,11 @@ static PyObject* music_stop(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_HaltMusic();
+	if(queue_music)
+	{
+		Mix_FreeMusic(queue_music);
+		queue_music = NULL;
+	}
 	RETURN_NONE
 }
 
@@ -324,7 +349,7 @@ static PyObject* music_set_endevent(PyObject* self, PyObject* args)
 {
 	int eventid = SDL_NOEVENT;
 
-	if(!PyArg_ParseTuple(args, "i", &eventid))
+	if(!PyArg_ParseTuple(args, "|i", &eventid))
 		return NULL;
 	endmusic_event = eventid;
 	RETURN_NONE;
@@ -416,8 +441,47 @@ static PyObject* music_load(PyObject* self, PyObject* args)
 #endif	
 	if(!current_music)
 		return RAISE(PyExc_SDLError, SDL_GetError());
+	if(queue_music)
+	{
+		Mix_FreeMusic(queue_music);
+		queue_music = NULL;
+	}
 
+	
 	RETURN_NONE;
+}
+
+
+
+
+    /*DOC*/ static char doc_queue[] =
+    /*DOC*/    "pygame.mixer.music.queue(soundfile) -> None\n"
+    /*DOC*/    "preload and queue a music file\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will load a music file and queue it. A queued music file\n"
+    /*DOC*/    "will begin as soon as the current music naturally ends. If the\n"
+    /*DOC*/    "current music is ever stopped or changed, the queued song will\n"
+    /*DOC*/    "be lost.\n"
+    /*DOC*/ ;
+
+static PyObject* music_queue(PyObject* self, PyObject* args)
+{
+	char* filename;
+	if(!PyArg_ParseTuple(args, "s", &filename))
+		return NULL;
+
+	MIXER_INIT_CHECK();
+
+	if(queue_music)
+	{
+		Mix_FreeMusic(queue_music);
+		queue_music = NULL;
+	}
+	Py_BEGIN_ALLOW_THREADS
+	queue_music = Mix_LoadMUS(filename);
+	Py_END_ALLOW_THREADS
+		
+    	RETURN_NONE
 }
 
 
@@ -439,6 +503,7 @@ static PyMethodDef music_builtins[] =
 	{ "get_pos", music_get_pos, 1, doc_get_pos },
 
 	{ "load", music_load, 1, doc_load },
+	{ "queue", music_queue, 1, doc_queue },
 
 	{ NULL, NULL }
 };
@@ -476,6 +541,7 @@ void initmixer_music(void)
         /* create the module */
 	module = Py_InitModule3("mixer_music", music_builtins, doc_pygame_mixer_music_MODULE);
 	PyModule_AddObject(module, "_MUSIC_POINTER", PyCObject_FromVoidPtr(&current_music, NULL));
+	PyModule_AddObject(module, "_QUEUE_POINTER", PyCObject_FromVoidPtr(&queue_music, NULL));
 
 	/*imported needed apis*/
 	import_pygame_base();
