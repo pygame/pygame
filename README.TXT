@@ -75,7 +75,7 @@ Thanks to everyone who made this possible, including:
 - Maxim Sobolev for FreeBSD port maintenance
 - Niki Spahiev for bugfixes
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
-- And our dutiful bug hunters; Angus Young
+- And our dutiful bug hunters; Angus Young and Guillaume Proux
 
 There's many more folks out there who've submitted helpful ideas,
 kept this project going, and basically made my life easer; thanks!
