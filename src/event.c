@@ -748,7 +748,7 @@ static PyMethodDef event_builtins[] =
     /*DOC*/    "the joystick module.\n"
     /*DOC*/ ;
 
-void initevent()
+void initevent(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_EVENT_NUMSLOTS];

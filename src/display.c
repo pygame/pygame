@@ -243,7 +243,7 @@ static PyObject* PyVidInfo_New(const SDL_VideoInfo* i)
 
 
 /* display functions */
-
+#if 0
     /*DOC*/ static char docXX_set_driver[] =
     /*DOC*/    "pygame.display.set_driver(name) -> None\n"
     /*DOC*/    "override the default sdl video driver\n"
@@ -269,7 +269,7 @@ static PyObject* set_driver(PyObject* self, PyObject* arg)
 
 	RETURN_NONE
 }
-
+#endif
 
     /*DOC*/ static char doc_get_driver[] =
     /*DOC*/    "pygame.display.get_driver() -> name\n"
@@ -878,7 +878,7 @@ static PyMethodDef display_builtins[] =
     /*DOC*/    "display routines that modify the display surface while it is locked.\n"
     /*DOC*/ ;
 
-void initdisplay()
+void initdisplay(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];

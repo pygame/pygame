@@ -215,10 +215,12 @@ static PyMethodDef rwobject__builtins__[] =
 
 
 
-void initrwobject()
+void initrwobject(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_RWOBJECT_NUMSLOTS];
+
+	PyGAME_C_API[0] = PyGAME_C_API[0]; /*this cleans a compiler warning*/
 
 	/* Create the module and add the functions */
 	module = Py_InitModule3("rwobject", rwobject__builtins__, "SDL_RWops support");

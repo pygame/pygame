@@ -163,7 +163,7 @@ static PyMethodDef time_builtins[] =
     /*DOC*/    "Seconds*1000.(therefore 2500 milliseconds is 2.5 seconds)\n"
     /*DOC*/ ;
 
-void inittime()
+void inittime(void)
 {
 	PyObject *module, *dict;
 

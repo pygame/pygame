@@ -47,9 +47,12 @@ static PyMethodDef builtins[] =
     /*DOC*/ ;
 
 
-void initconstants()
+void initconstants(void)
 {
 	PyObject* module;
+
+	PyGAME_C_API[0] = PyGAME_C_API[0]; /*this cleans up compiler warning*/
+
 
 	module = Py_InitModule3("constants", builtins, doc_pygame_constants_MODULE);
 

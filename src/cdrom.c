@@ -34,7 +34,7 @@ static PyObject* PyCD_New(int id);
 
 
 
-static void cdrom_autoquit()
+static void cdrom_autoquit(void)
 {
 	int loop;
 	for(loop = 0; loop < CDROM_MAXDRIVES; ++loop)
@@ -725,7 +725,12 @@ static PyTypeObject PyCD_Type =
 	0,
 	0,
 	NULL,
-	0
+	0, 
+	(hashfunc)NULL,
+	(ternaryfunc)NULL,
+	(reprfunc)NULL,
+	0L,0L,0L,0L,
+	doc_CD_MODULE /* Documentation string */
 };
 
 
@@ -782,7 +787,7 @@ static PyMethodDef cdrom_builtins[] =
     /*DOC*/ ;
 
 
-void initcdrom()
+void initcdrom(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_CDROM_NUMSLOTS];

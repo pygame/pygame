@@ -674,7 +674,7 @@ static int rect_coerce(PyObject** o1, PyObject** o2)
 		new1 = *o1;
 		Py_INCREF(new1);
 	}
-	else if(r = GameRect_FromObject(*o1, &temp))
+	else if((r = GameRect_FromObject(*o1, &temp)))
 		new1 = PyRect_New(r);
 	else
 		return 1;
@@ -684,7 +684,7 @@ static int rect_coerce(PyObject** o1, PyObject** o2)
 		new2 = *o2;
 		Py_INCREF(new2);
 	}
-	else if(r = GameRect_FromObject(*o2, &temp))
+	else if((r = GameRect_FromObject(*o2, &temp)))
 		new2 = PyRect_New(r);
 	else
 	{
@@ -1015,10 +1015,12 @@ static PyMethodDef rect__builtins__[] =
     /*DOC*/    "Module for the rectangle object\n";
 
 
-void initrect()
+void initrect(void)
 {
 	PyObject *module, *dict, *apiobj;
 	static void* c_api[PYGAMEAPI_RECT_NUMSLOTS];
+	
+	PyGAME_C_API[0] = PyGAME_C_API[0]; /*this cleans a compiler warning*/
 
 	/* Create the module and add the functions */
 	PyType_Init(PyRect_Type);
