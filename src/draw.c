@@ -1633,6 +1633,10 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 	int ind1, ind2;
 	int ints;
 	int *polyints = PyMem_New(int, n);
+	if (polyints == NULL) {
+		PyErr_NoMemory();
+		return;
+	}
 
 
 	/* Determine Y maxima */
@@ -1680,6 +1684,7 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 			drawhorzlineclip(dst, color, polyints[i], y, polyints[i+1]);
 		}
 	}
+	PyMem_Free(polyints);
 }
 
 
