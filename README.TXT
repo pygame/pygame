@@ -1,5 +1,5 @@
-Pygame Version 1.0.9
-June 11th, 2001
+Pygame Version 1.1
+June 23rd, 2001
 
 Python Game Development
 by Pete Shinners
@@ -21,14 +21,14 @@ dependent on SDL_ttf, SDL_image, SDL_mixer, and Numeric.
 
 
 
-INSTALLTION
+INSTALLATION
 
 Full installation instructions are found in docs/fullinstall.txt
 
 Compilation/Installation is handled by the python distutils. Just
-run "python setup.py install" to perform the installation. This will
-make a worthwhile attempt at configuring the compiler variables and
-getting everything installed.
+run "python setup.py" to perform the installation. This will make a
+worthwhile attempt at configuring the compiler variables and getting
+everything installed.
 
 Distutils has a lot of installation options. To get started with them
 run "python setup.py --help". Also, if you are getting errors compiling,
