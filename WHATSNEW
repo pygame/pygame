@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 11, 2003
+	more OSX SDLmain.m patches from Andrew Straw
+
 February 5, 2003
 	antialiased lines, from Jorge Gonzalez
 	allow Font.render() with empty string
