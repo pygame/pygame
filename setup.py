@@ -149,4 +149,3 @@ PACKAGEDATA = {
 PACKAGEDATA.update(METADATA)
 apply(setup, [], PACKAGEDATA)
 
-

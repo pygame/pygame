@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+May 26, 2001
+	code compiles with macos now
+
 May 23, 2001
 	fixed line drawing of width 1
 	draw.lines() was broken with sections outside clip

@@ -73,6 +73,7 @@ Thanks to everyone who made this possible, including:
 - Maxim Sobolev for FreeBSD port maintenance
 - Niki Spahiev, Gordon Tyler, and Dave Wallace for great patches
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
+- Bob Ippolito for the MacOS porting
 - And our dutiful bug hunters; Angus Young and Guillaume Proux
 
 There's many more folks out there who've submitted helpful ideas,

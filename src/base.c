@@ -586,8 +586,8 @@ void initbase(void)
 		SDL_RegisterApp("pygame window", 0, GetModuleHandle(NULL));
 #endif
 #if defined(macintosh)
-#if !TARGET_API_MAC_CARBON
-	SDL_InitQuickDraw(&qd);
+#if !defined(__MWERKS__) && !TARGET_API_MAC_CARBON
+		SDL_InitQuickDraw(&qd);
 #endif
 #endif
 
