@@ -564,3 +564,26 @@ def groupcollide(groupa, groupb, dokilla, dokillb):
             if dokilla: s.kill()
     return crashed
 
+
+def spritecollideany(sprite, group):
+    """pygame.sprite.spritecollideany(sprite, group) -> sprite
+       finds any sprites that collide
+
+       given a sprite and a group of sprites, this will
+       return return any single sprite that collides with
+       with the given sprite. If there are no collisions
+       this returns None.
+       
+       if you don't need all the features of the
+       spritecollide function, this function will be a
+       bit quicker.
+       
+       all sprites must have a "rect" method, which is a
+       rectangle of the sprite area. if the dokill argument
+       is true, the sprites that do collide will be
+       automatically removed from all groups."""
+    spritecollide = sprite.rect.colliderect
+    for s in group.sprites():
+        if spritecollide(s.rect):
+            return 1
+    return 0

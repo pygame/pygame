@@ -7,6 +7,7 @@
 January 26, 2002
 	special cases for 90 degree transform.rotate()
 	OSX cleanups for commandline (thanks Bob)
+	added sprite.spritecollideany()
 
 January 23, 2002
 	transform.rotate() does alpha if image has alphaplane
