@@ -4,6 +4,10 @@ Note that basic installation requires at least Python 2.0 and SDL-1.1.5 to
 be installed. The latest version of each is recommended. Support for extra
 SDL daughter libraries is optional, but also recommended.
 
+If you have downloaded the complete windows binary download, there is no
+need to run the configure script. That distribution comes with everything
+you need preconfigured.
+
 The basic way to get pygame compiled and installed is to run the included
 "config.py" script. This will do a reasonably automated config for your
 platform type. eventually this will create a customized copy of the "Setup.in"
@@ -15,7 +19,7 @@ binaries for all the pygame dependencies. This download will come with
 its own "Setup" file that you will want to use.
 
 On Unix systems, the Setup file will be configured for the SDL dependency,
-but other dependencies may need more work. There is a chance the Setup will
+as well as hunt for the optional ones. There is a chance the Setup will
 work as-is if all dependencies have been installed similarly. Otherwise
 configure the dependencies by hand and comment out the optional modules
 which you don't have dependencies for.

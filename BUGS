@@ -1,7 +1,5 @@
 surfarray module
-	will swap the red and blue planes for you in some blitting
-	conditions. also have noticed the occasional crash with a
-	few combinations of bit depths and array types. (volunteers?)
+	still some problems on big endian architectures (non-intel)
 
 
 Keep your eye out for more! :]
