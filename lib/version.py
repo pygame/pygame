@@ -29,11 +29,3 @@ releases. (hmm, until we get to versions > 10)
 
 ver = '1.4.1'
 
-def __hiddendummyfunc():
-    """pygame.version.ver 
-The current pygame version info
-
-The ver variable is simply a string containing the version information
-for pygame. An example is "0.5" or "1.0"
-"""
-    

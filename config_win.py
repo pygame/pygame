@@ -2,6 +2,7 @@
 
 import os, sys, shutil
 from glob import glob
+from distutils.sysconfig import get_python_inc
 
 huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
@@ -78,7 +79,7 @@ class DependencyPython:
         self.module = module
         self.header = header
  
-    def configure(self, incdirs, libdirs):
+    def configure(self):
         self.found = 1
         if self.module:
             try:
@@ -103,8 +104,8 @@ DEPS = [
     Dependency('FONT', 'SDL_ttf-[0-9].*', 'SDL_ttf'),
     Dependency('IMAGE', 'SDL_image-[0-9].*', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer-[0-9].*', 'SDL_mixer'),
-    Dependency('SMPEG', 'smpeg-[0-9].*', 'smpeg')
-    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h')
+    Dependency('SMPEG', 'smpeg-[0-9].*', 'smpeg'),
+    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
 ]
 
 
@@ -122,6 +123,7 @@ def main():
         reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]')
         if not reply or reply[0].lower() != 'n':
             return setup_prebuilt()
+            raise SystemExit
 
     global DEPS
     for d in DEPS:

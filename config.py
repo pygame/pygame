@@ -84,7 +84,7 @@ def writesetupfile(deps, basepath):
         line = origsetup.readline()
 
     if string.find(sys.platform, 'darwin') != -1:
-	newsetup.write('EXTRABASE = src/SDLmain.m\n')
+        newsetup.write('EXTRABASE = src/SDLmain.m\n')
     else:
         newsetup.write('EXTRABASE = \n')
     if basepath:
@@ -121,15 +121,12 @@ def main():
         for d in deps:
             prepdep(d, basepath)
         writesetupfile(deps, basepath)
-
-
-    if os.path.isfile('Setup'):
         print """\nIf you get compiler errors during install, doublecheck
 the compiler flags in the "Setup" file.\n"""
     else:
         print """\nThere was an error creating the Setup file, check for errors
 or make a copy of "Setup.in" and edit by hand."""
-        raise SystemExit
+
 
 
 if __name__ == '__main__': main()

@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 27, 2002
+	fixes for windows music.get_pos() and windows config
+
 March 23, 2002
 	big config.py update
 	music.get_pos()  (thx Michael Urman)

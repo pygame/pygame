@@ -54,6 +54,7 @@ from pygame.version import *
 from pygame.rect import Rect
 import pygame.rwobject
 import pygame.surflock
+__version__ = ver
 
 #next, the "standard" modules
 #we still allow them to be missing for stripped down pygame distributions

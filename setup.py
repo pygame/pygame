@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # This is the distutils setup script for pygame.
-# Full instructions are in "docs/fullinstall.txt"
+# Full instructions are in "install.txt" or "install.html"
 #
 # To configure, compile, install, just run this script.
 
@@ -63,10 +63,8 @@ if not os.path.isfile('Setup'):
 
 
 #get compile info for all extensions
-try:
-    extensions = read_setup_file('Setup')
-except:
-    raise SystemExit, """Error with the "Setup" file,
+try: extensions = read_setup_file('Setup')
+except: raise SystemExit, """Error with the "Setup" file,
 perhaps make a clean copy from "Setup.in"."""
 
 
@@ -84,9 +82,9 @@ for f in glob.glob(os.path.join('lib', '*')):
 #try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32':
     tempcompiler = new_compiler()
+    ext = tempcompiler.shared_lib_extension
     for e in extensions:
         paths = []
-        ext = tempcompiler.shared_lib_extension
         for d in e.library_dirs:
              for l in e.libraries:
                     name = tempcompiler.shared_lib_format%(l, ext)
@@ -109,8 +107,7 @@ for e in extensions[:]:
 #of willy-nilly
 class smart_install_data(install_data):   
     def run(self):
-        #need to change self.install_dir to the library dir
-
+        #need to change self.install_dir to the actual library dir
         install_cmd = self.get_finalized_command('install')
         self.install_dir = getattr(install_cmd, 'install_lib')
         return install_data.run(self)
