@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 23, 2001
+	display.update() no longer effects input Rects [BREAK]
+	Surface.fill() no longer effects input Rect [BREAK]
+	small memory leak in display.update() fixed
+
 Jan 18, 2001
 	cursor.read_xbm() renamed to cursor.load_xbm() [BREAK]
 

@@ -561,23 +561,34 @@ static PyObject* update(PyObject* self, PyObject* arg)
 {
 	SDL_Surface* screen;
 	GAME_Rect *gr, temp = {0};
+	int wide, high;
 
+	/*determine type of argument we got*/
 	if(PyTuple_Size(arg) == 0)
 		gr = &temp;
 	else
+	{
 		gr = GameRect_FromObject(arg, &temp);
+		if(gr && gr != &temp)
+		{
+			memcpy(&temp, gr, sizeof(temp));
+			gr = &temp;
+		}
+	}
 	VIDEO_INIT_CHECK();
 
-	if(gr)
+	screen = SDL_GetVideoSurface();
+	if(!screen)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+	wide = screen->w;
+	high = screen->h;
+
+	if(gr) /*single or no rect given*/
 	{
-		screen = SDL_GetVideoSurface();
-		if(!screen)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		
-		if(screencroprect(gr, screen->w, screen->h))
+		if(screencroprect(gr, wide, high))
 			SDL_UpdateRect(screen, gr->x, gr->y, gr->w, gr->h);
 	}
-	else
+	else /*sequence given*/
 	{
 		PyObject* seq;
 		PyObject* r;
@@ -586,42 +597,45 @@ static PyObject* update(PyObject* self, PyObject* arg)
 
 		if(PyTuple_Size(arg) != 1)
 			return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
-
 		seq = PyTuple_GET_ITEM(arg, 0);
 		if(!seq || !PySequence_Check(seq))
 			return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
 
-		VIDEO_INIT_CHECK();
-
-		screen = SDL_GetVideoSurface();
-		if(!screen)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		
 		num = PySequence_Length(seq);
 		rects = PyMem_New(SDL_Rect, num);
 		if(!rects) return NULL;
 		count = 0;
 		for(loop = 0; loop < num; ++loop)
 		{
+			GAME_Rect* cur_rect = (GAME_Rect*)(rects + count);
+
+			/*get rect from the sequence*/
 			r = PySequence_GetItem(seq, loop);
 			if(r == Py_None)
 			{
 				Py_DECREF(r);
 				continue;
 			}
-			gr = GameRect_FromObject(r, &temp);
+			gr = GameRect_FromObject(r, cur_rect);
+			Py_XDECREF(r);
 			if(!gr)
 			{
-				Py_XDECREF(r);
 				PyMem_Free(rects);
 				return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
 			}
-			if(!screencroprect(gr, screen->w, screen->h))
+
+			/*make sure we are using our own copy of the rect*/
+			if(gr != cur_rect)
+			{
+				memcpy(cur_rect, gr, sizeof(GAME_Rect));
+				gr = cur_rect;
+			}
+			/*bail out if rect not onscreen*/
+			if(!screencroprect(gr, wide, high))
 				continue;
-			rects[count].x = gr->x;
-			rects[count].y = gr->y;
-			rects[count].w = (unsigned short)gr->w;
-			rects[count].h = (unsigned short)gr->h;
+			if(gr->w < 1 && gr->h < 1)
+				continue;
+
 			++count;
 		}
 

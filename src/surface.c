@@ -614,7 +614,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 	SDL_Surface* src;
 	SDL_Surface* newsurf;
 	Uint32 flags;
-	
+
 	if(!PyArg_ParseTuple(args, "|O!", &PySurface_Type, &srcsurf))
 		return NULL;
 
@@ -758,6 +758,13 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	}
 	else if(!(rect = GameRect_FromObject(r, &temp)))
 		return RAISE(PyExc_ValueError, "invalid rectstyle object");
+
+	/*we need a fresh copy so our Rect values don't get munged*/
+	if(rect != &temp)
+	{
+		memcpy(&temp, rect, sizeof(temp));
+		rect = &temp;
+	}
 
 	result = SDL_FillRect(surf, (SDL_Rect*)rect, color);
 	if(result == -1)
