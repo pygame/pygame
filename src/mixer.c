@@ -27,6 +27,7 @@
 #include "pygame.h"
 #include "mixer.h"
 
+#define MIX_DEFAULT_CHUNKSIZE	1024
 
 
 
@@ -40,7 +41,8 @@ static PyObject* PyChannel_New(int);
 
 static int request_frequency = MIX_DEFAULT_FREQUENCY;
 static int request_size = MIX_DEFAULT_FORMAT;
-static int request_stereo = 1;
+static int request_stereo = MIX_DEFAULT_CHANNELS;
+static int request_chunksize = MIX_DEFAULT_CHUNKSIZE;
 
 Mix_Music** current_music;
 
@@ -69,17 +71,23 @@ static void autoquit(void)
 
 static PyObject* autoinit(PyObject* self, PyObject* arg)
 {
-	int freq, size, stereo;
+	int freq, size, stereo, chunk;
+	int i;
 	freq = request_frequency;
 	size = request_size;
 	stereo = request_stereo;
+	chunk = request_chunksize;
 
-	if(!PyArg_ParseTuple(arg, "|iii", &freq, &size, &stereo))
+	if(!PyArg_ParseTuple(arg, "|iiii", &freq, &size, &stereo, &chunk))
 		return NULL;
 	if(stereo)
 		stereo = 2;
 	else
 		stereo = 1;
+
+	/*make chunk a power of 2*/
+	for(i=0; 1<<i < chunk; ++i); //yes, semicolon on for loop
+	chunk = max(1<<i, 256);
 
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
 	{
@@ -88,7 +96,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
 			return PyInt_FromLong(0);
 
-		if(Mix_OpenAudio(freq, (Uint16)size, stereo, 1024) == -1)
+		if(Mix_OpenAudio(freq, (Uint16)size, stereo, chunk) == -1)
 		{
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 			return PyInt_FromLong(0);
@@ -118,13 +126,14 @@ static PyObject* quit(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_init[] =
-    /*DOC*/    "pygame.mixer.init([freq, [size, [stereo]]]) -> None\n"
+    /*DOC*/    "pygame.mixer.init([freq, [size, [stereo, [buffersize]]]]) -> None\n"
     /*DOC*/    "initialize mixer module\n"
     /*DOC*/    "\n"
     /*DOC*/    "Initializes the mixer module. Usually no arguments will be\n"
     /*DOC*/    "needed, the defaults are 22050 frequency data in stereo with\n"
     /*DOC*/    "signed 16bit data. The size argument can be 8 or 16 for unsigned\n"
-    /*DOC*/    "data, or -8 or -16 for signed data.\n"
+    /*DOC*/    "data, or -8 or -16 for signed data. The default buffersize is\n"
+    /*DOC*/    "1024 samples, sometimes a larger value is required.\n"
     /*DOC*/    "\n"
     /*DOC*/    "On many platforms it is important that the display module is\n"
     /*DOC*/    "initialized before the audio. (that is, if the display will be\n"
@@ -140,6 +149,8 @@ static PyObject* init(PyObject* self, PyObject* arg)
 	int value;
 
 	result = autoinit(self, arg);
+	if(!result)
+		return NULL;
 	value = PyObject_IsTrue(result);
 	Py_DECREF(result);
 	if(!value)
@@ -181,7 +192,7 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_pre_init[] =
-    /*DOC*/    "pygame.mixer.pre_init([freq, [size, [stereo]]]) -> None\n"
+    /*DOC*/    "pygame.mixer.pre_init([freq, [size, [stereo, [buffersize]]]]) -> None\n"
     /*DOC*/    "presets the init default values\n"
     /*DOC*/    "\n"
     /*DOC*/    "This routine is usefull when you want to customize the sound\n"
@@ -195,10 +206,11 @@ static PyObject* pre_init(PyObject* self, PyObject* arg)
 {
 	request_frequency = MIX_DEFAULT_FREQUENCY;
 	request_size = MIX_DEFAULT_FORMAT;
-	request_stereo = request_stereo;
+	request_stereo = MIX_DEFAULT_CHANNELS;
+	request_chunksize = MIX_DEFAULT_CHUNKSIZE;
 
-	if(!PyArg_ParseTuple(arg, "|iii", &request_frequency, &request_size,
-				&request_stereo))
+	if(!PyArg_ParseTuple(arg, "|iiii", &request_frequency, &request_size,
+				&request_stereo, &request_chunksize))
 		return NULL;
 
 	RETURN_NONE

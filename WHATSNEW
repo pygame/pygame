@@ -7,6 +7,8 @@
 September 27, 2001
 	drawing filled circles returns bounding rect
 	ellipses and circles drawn inside given area
+	mixer init can take chunksize
+	fix in clipped horizontal line drawing [BUG]
 
 September 26, 2001
 	key.set_repeat() raises exception error, smarter args
