@@ -6,6 +6,7 @@
 
 March 23, 2002
 	big config.py update
+	music.get_pos()  (thx Michael Urman)
 
 March 20, 2002
 	sprite.spritecollideany() now works as described
