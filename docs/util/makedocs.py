@@ -7,7 +7,7 @@ DOCPATTERN = '*static char*doc_*=*'
 
 SOURCES = ['../../src/*.c']
 IGNORE_SOURCES = ['rwobject.c']
-PYTHONSRC =['cursors', 'version', 'sprite']
+PYTHONSRC = ['cursors', 'version', 'sprite']
 
 OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()
@@ -123,7 +123,8 @@ def readpysource(name):
             except AttributeError:
                 documents.append([title] + ['%s.%s'&(modname,name),'noclassdocs'])
             for methname, meth in obj.__dict__.items():
-                if methname is '__init__': continue
+                if methname in ('__init__',): continue
+                if type(meth)  is not types.MethodType: continue
                 title = '    /*DOC*/ static char doc_%s_%s[] =\n'%(name,methname)
                 try:
                     docs = getpydoclines(meth.__doc__)
@@ -132,7 +133,8 @@ def readpysource(name):
                         documents.append([title] + docs)
                 except AttributeError: pass
 
-        elif hasattr(obj, '__doc__'):
+        elif type(obj) in (types.FunctionType,):# types.BuiltinFunctionType):
+            if not hasattr(obj, '__doc__'): continue
             title = '    /*DOC*/ static char doc_' + name + '[] =\n'
             documents.append([title] + getpydoclines(obj.__doc__))
     return documents
@@ -144,6 +146,7 @@ def parsedocs(docs):
     funcs = []
 
     for d in docs:
+        #print d
         modpos = d[0].find('_MODULE')
         extpos = d[0].find('_EXTRA')
 
@@ -173,6 +176,7 @@ def parsedocs(docs):
                 obj['quick'] = d[2]
                 obj['docs'] = d[4:]
             except IndexError: pass
+            #print '##APPEND FUNC:', obj['name']
             funcs.append(obj)
 
     return [modules, extras, funcs]

@@ -15,25 +15,24 @@
 	<a href=../index.html>Help Contents</a> &nbsp;||
 	<br>&nbsp;<br>
 
-|| <a href=misc.html>misc</a> || 
-<a href=pygame.html>pygame</a> || 
+|| <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
 <a href=pygame_constants.html>constants</a> || 
 <a href=pygame_display.html>display</a> || 
-<a href=pygame_draw.html>draw</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
-<a href=pygame_font.html>font</a> || 
+<a href=pygame_draw.html>draw</a> || 
+<a href=pygame_event.html>event</a> ||<br>
+|| <a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
 <a href=pygame_joystick.html>joystick</a> || 
 <a href=pygame_key.html>key</a> || 
-<a href=pygame_mixer.html>mixer</a> ||<br>
-|| <a href=pygame_mixer_music.html>mixer_music</a> || 
-<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
+|| <a href=pygame_mouse.html>mouse</a> || 
 <a href=pygame_movie.html>movie</a> || 
 <a href=pygame_sndarray.html>sndarray</a> || 
 <a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> ||<br>
-|| <a href=pygame_transform.html>transform</a> ||<br>
+<a href=pygame_time.html>time</a> || 
+<a href=pygame_transform.html>transform</a> ||<br>
 &nbsp;<br>|| <a href=CD.html>CD</a> || 
 <a href=Channel.html>Channel</a> || 
 <a href=Clock.html>Clock</a> || 
@@ -75,10 +74,6 @@ create a new rectangle</td></tr>
 create a new Surface</td></tr>
 
 
-<tr><td><a href=#Surface>Surface</a></td><td> -
-create a new Surface</td></tr>
-
-
 <tr><td><a href=#get_error>get_error</a></td><td> -
 get current error message</td></tr>
 
@@ -114,25 +109,6 @@ For example, there is <a href=Rect.html#move>move()</a> and <a href=Rect.html#mo
 witht the '_ip' suffix on the name are the 'in-place'
 version of those functions. They effect the actual
 source object, instead of returning a new Rect object.
-</ul><br>&nbsp;<br>
-
-<a name=Surface><font size=+2><b>Surface
-</b></font><br><font size=+1><tt>
-pygame.Surface(size, [flags, [Surface|depth, [masks]]]) -> Surface
-</tt></font><ul>
-Creates a new surface object. Size is a 2-int-sequence containing
-width and height. Depth is the number of bits used per pixel. If
-omitted, depth will use the current display depth. Masks is a
-four item sequence containing the bitmask for r,g,b, and a. If
-omitted, masks will default to the usual values for the given
-bitdepth. Flags is a mix of the following flags: SWSURFACE,
-HWSURFACE, ASYNCBLIT, or SRCALPHA. (flags = 0 is the
-same as SWSURFACE). Depth and masks can be substituted for
-another surface object which will create the new surface with the
-same format as the given one. When using default masks, alpha
-will always be ignored unless you pass SRCALPHA as a flag.
-For a plain software surface, 0 can be used for the flag. 
-A plain hardware surface can just use 1 for the flag.
 </ul><br>&nbsp;<br>
 
 <a name=Surface><font size=+2><b>Surface
