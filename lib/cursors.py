@@ -111,7 +111,12 @@ compile cursor strings into cursor data
 This takes a set of strings with equal length and computes
 the binary data for that cursor. The string widths must be
 divisible by 6. The data returned are suitable for passing
-to pygame.mouse.set_cursor()
+to pygame.mouse.set_cursor().
+
+The black and white arguments are single letter strings that
+tells which characters will represent black pixels, and which
+characters represent white pixels. All other characters are
+considered clear.
 """
     
     #first check for consistent lengths

@@ -80,7 +80,12 @@ pygame.cursors.compile(strings, black, white) -> data
 This takes a set of strings with equal length and computes
 the binary data for that cursor. The string widths must be
 divisible by 6. The data returned are suitable for passing
-to <a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>
+to <a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>.
+<br>&nbsp;<br>
+The black and white arguments are single letter strings that
+tells which characters will represent black pixels, and which
+characters represent white pixels. All other characters are
+considered clear.
 <br>&nbsp;<br>
 </ul><br>&nbsp;<br>
 
