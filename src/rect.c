@@ -1173,7 +1173,7 @@ static PyObject* rect_getheight(PyRectObject *self, void *closure) {
 }
 static int rect_setheight(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
-    if(!IntFromObj(value, &val1)) return -1;
+    if(!IntFromObj(value, &val1)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.h = val1;
     return 0;
 }
@@ -1184,7 +1184,7 @@ static PyObject* rect_gettop(PyRectObject *self, void *closure) {
 }
 static int rect_settop(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
-    if(!IntFromObj(value, &val1)) return -1;
+    if(!IntFromObj(value, &val1)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.y = val1;
     return 0;
 }
@@ -1195,7 +1195,7 @@ static PyObject* rect_getleft(PyRectObject *self, void *closure) {
 }
 static int rect_setleft(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
-    if(!IntFromObj(value, &val1)) return -1;
+    if(!IntFromObj(value, &val1)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;};
     self->r.x = val1;
     return 0;
 }
@@ -1206,7 +1206,7 @@ static PyObject* rect_getright(PyRectObject *self, void *closure) {
 }
 static int rect_setright(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
-    if(!IntFromObj(value, &val1)) return -1;
+    if(!IntFromObj(value, &val1)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1-self->r.w;
     return 0;
 }
@@ -1217,7 +1217,7 @@ static PyObject* rect_getbottom(PyRectObject *self, void *closure) {
 }
 static int rect_setbottom(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
-    if(!IntFromObj(value, &val1)) return -1;
+    if(!IntFromObj(value, &val1)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.y = val1-self->r.h;
     return 0;
 }
@@ -1228,7 +1228,7 @@ static PyObject* rect_getcenterx(PyRectObject *self, void *closure) {
 }
 static int rect_setcenterx(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
-    if(!IntFromObj(value, &val1)) return -1;
+    if(!IntFromObj(value, &val1)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1-(self->r.w>>1);
     return 0;
 }
@@ -1239,7 +1239,7 @@ static PyObject* rect_getcentery(PyRectObject *self, void *closure) {
 }
 static int rect_setcentery(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
-    if(!IntFromObj(value, &val1)) return -1;
+    if(!IntFromObj(value, &val1)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.y = val1-(self->r.h>>1);
     return 0;
 }
@@ -1250,7 +1250,7 @@ static PyObject* rect_gettopleft(PyRectObject *self, void *closure) {
 }
 static int rect_settopleft(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1; self->r.y = val2;
     return 0;
 }
@@ -1261,7 +1261,7 @@ static PyObject* rect_gettopright(PyRectObject *self, void *closure) {
 }
 static int rect_settopright(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1-self->r.w;; self->r.y = val2;
     return 0;
 }
@@ -1272,7 +1272,7 @@ static PyObject* rect_getbottomleft(PyRectObject *self, void *closure) {
 }
 static int rect_setbottomleft(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1; self->r.y = val2-self->r.h;
     return 0;
 }
@@ -1283,7 +1283,7 @@ static PyObject* rect_getbottomright(PyRectObject *self, void *closure) {
 }
 static int rect_setbottomright(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1-self->r.w; self->r.y = val2-self->r.h;
     return 0;
 }
@@ -1294,7 +1294,7 @@ static PyObject* rect_getmidtop(PyRectObject *self, void *closure) {
 }
 static int rect_setmidtop(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x += val1-(self->r.x+(self->r.w>>1)); self->r.y = val2;
     return 0;
 }
@@ -1305,7 +1305,7 @@ static PyObject* rect_getmidleft(PyRectObject *self, void *closure) {
 }
 static int rect_setmidleft(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1; self->r.y += val2-(self->r.y+(self->r.h>>1));
     return 0;
 }
@@ -1316,7 +1316,7 @@ static PyObject* rect_getmidbottom(PyRectObject *self, void *closure) {
 }
 static int rect_setmidbottom(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x += val1-(self->r.x+(self->r.w>>1)); self->r.y = val2-self->r.h;
     return 0;
 }
@@ -1327,7 +1327,7 @@ static PyObject* rect_getmidright(PyRectObject *self, void *closure) {
 }
 static int rect_setmidright(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x = val1-self->r.w; self->r.y += val2-(self->r.y+(self->r.h>>1));
     return 0;
 }
@@ -1338,7 +1338,7 @@ static PyObject* rect_getcenter(PyRectObject *self, void *closure) {
 }
 static int rect_setcenter(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.x += val1-(self->r.x+(self->r.w>>1)); self->r.y += val2-(self->r.y+(self->r.h>>1));
     return 0;
 }
@@ -1349,7 +1349,7 @@ static PyObject* rect_getsize(PyRectObject *self, void *closure) {
 }
 static int rect_setsize(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
-    if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
+    if(!TwoIntsFromObj(value, &val1, &val2)) {RAISE(PyExc_TypeError, "invalid rect assignment");return -1;}
     self->r.w = val1; self->r.h = val2;
     return 0;
 }
