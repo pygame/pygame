@@ -124,7 +124,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 			SDL_QuitSubSystem(SDL_INIT_AUDIO);
 			return PyInt_FromLong(0);
 		}
-#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=4
+#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
                 /*Mix_ChannelFinished(some_callback);*/
 #endif
 	}
