@@ -37,7 +37,9 @@ static void endmusic_callback(void)
 {
 	if(endmusic_event && SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		SDL_Event e = {endmusic_event};
+		SDL_Event e;
+		memset(&e, 0, sizeof(e));
+		e.type = endmusic_event;
 		SDL_PushEvent(&e);
 	}
 }

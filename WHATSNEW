@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Mar 18, 2001
+	removed non-ANSI C code
+
 Mar 17, 2001
 	pygame.Surface is smarter with SRCALPHA flag
 	fixed several small bugs in surfarray [BUG]
@@ -11,7 +14,7 @@ Mar 17, 2001
 
 Mar 16, 2001
 	Fixed memory leak in Rect constructor
-	Fixed improper exception in update.display
+	Fixed improper exception in display.update(with_4_args)
 
 Feb 15, 2001
 	calling Sound.play() will make sure the channel

@@ -30,7 +30,9 @@ static Uint32 timer_callback(Uint32 interval, void* param)
 {
 	if(SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		SDL_Event event = {(int)param};
+		SDL_Event event;
+		memset(&event, 0, sizeof(event));
+		event.type = (int)param;
 		SDL_PushEvent(&event);
 	}
 	return interval;
