@@ -79,7 +79,8 @@ packed into the bits of the pixel.
 After you have initialized your video mode, you can take the
 surface that was returned and write to it like any other Surface
 object. Be sure to call update() or flip() to keep what is on the
-screen synchronized with what is on the surface.
+screen synchronized with what is on the surface. Be sure not to call
+display routines that modify the display surface while it is locked.
 
 <hr>
 

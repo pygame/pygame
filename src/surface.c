@@ -157,7 +157,10 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
     /*DOC*/    "convert RGB into a mapped color\n"
     /*DOC*/    "\n"
     /*DOC*/    "Uses the Surface format to convert RGBA into a mapped color value.\n"
-    /*DOC*/ ;
+    /*DOC*/    "\n"
+    /*DOC*/    "This function is not as needed as normal C code using SDL. The pygame\n"
+    /*DOC*/    "functions do not used mapped colors, so there is no need to map them.\n"
+   /*DOC*/ ;
 
 static PyObject* surf_map_rgb(PyObject* self,PyObject* args)
 {
@@ -180,6 +183,9 @@ static PyObject* surf_map_rgb(PyObject* self,PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "This function returns the RGBA components for a mapped color\n"
     /*DOC*/    "value. If Surface has no per-pixel alpha, alpha will be 255 (opaque).\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function is not as needed as normal C code using SDL. The pygame\n"
+    /*DOC*/    "functions do not used mapped colors, so there is no need to unmap them.\n"
     /*DOC*/ ;
 
 static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
@@ -1156,14 +1162,6 @@ PyObject* surface_str(PyObject* self)
     /*DOC*/    "surfaces that do not require locking. Nonetheless, you can check\n"
     /*DOC*/    "to see if a Surface really needs to be locked with the mustlock()\n"
     /*DOC*/    "function.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The packed pixel values are a single interger with the red,\n"
-    /*DOC*/    "green, and blue components packed in to match the current\n"
-    /*DOC*/    "bitdepth for the Surface. You generally don't need to care how\n"
-    /*DOC*/    "this is done, the map_rgb() and unmap_rgb() will convert back and\n"
-    /*DOC*/    "forth between the packed pixel values for you. Information on how\n"
-    /*DOC*/    "the pixels are packed can be retreived from the get_masks(),\n"
-    /*DOC*/    "get_losses() and get_shifts() routines.\n"
     /*DOC*/ ;
 #if 0 /*extra help, only for docs*/
     /*DOC*/ static char doc_Surface_EXTRA[] =
@@ -1230,8 +1228,7 @@ static PyObject* PySurface_New(SDL_Surface* s)
 /* surface module functions */
 
     /*DOC*/ static char doc_Surface[] =
-    /*DOC*/    "pygame.Surface(size, [flags, [depth|Surface, [masks]]]) ->\n"
-    /*DOC*/    "Surface\n"
+    /*DOC*/    "pygame.Surface(size, [flags, [depth|Surface, [masks]]]) -> Surface\n"
     /*DOC*/    "create a new Surface\n"
     /*DOC*/    "\n"
     /*DOC*/    "Creates a new surface object. Size is a 2-int-sequence containing\n"

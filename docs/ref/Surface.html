@@ -68,15 +68,7 @@ RLEACCEL generally require calls to lock() and unlock()
 surrounding pixel access. It is safe to lock() and unlock()
 surfaces that do not require locking. Nonetheless, you can check
 to see if a Surface really needs to be locked with the mustlock()
-function.
-<br>&nbsp;<br>
-The packed pixel values are a single interger with the red,
-green, and blue components packed in to match the current
-bitdepth for the Surface. You generally don't need to care how
-this is done, the map_rgb() and unmap_rgb() will convert back and
-forth between the packed pixel values for you. Information on how
-the pixels are packed can be retreived from the get_masks(),
-get_losses() and get_shifts() routines.<p>&nbsp;</p>Here is the quick breakdown of how packed pixels work (don't worry if
+function.<p>&nbsp;</p>Here is the quick breakdown of how packed pixels work (don't worry if
 you don't quite understand this, it is only here for informational
 purposes, it is not needed). Each colorplane mask can be used to
 isolate the values for a colorplane from the packed pixel color.
@@ -463,6 +455,9 @@ lazy.
 Surface.map_rgb(RGBA) -> int
 </tt></font><ul>
 Uses the Surface format to convert RGBA into a mapped color value.
+<br>&nbsp;<br>
+This function is not as needed as normal C code using SDL. The pygame
+functions do not used mapped colors, so there is no need to map them.
 </ul><br>&nbsp;<br>
 
 <a name=mustlock><font size=+2><b>mustlock
@@ -569,6 +564,9 @@ Surface.unmap_rgb(color) -> RGBA
 </tt></font><ul>
 This function returns the RGBA components for a mapped color
 value. If Surface has no per-pixel alpha, alpha will be 255 (opaque).
+<br>&nbsp;<br>
+This function is not as needed as normal C code using SDL. The pygame
+functions do not used mapped colors, so there is no need to unmap them.
 </ul><br>&nbsp;<br>
 
 

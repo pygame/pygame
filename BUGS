@@ -1,11 +1,10 @@
-CDROM & Joystick:
-	Both work, but the interface needs to be rethought. Currently, 
-	they are similar to the pysdl interface (which is too similar 
-	to the C interface)
+surfarray module
+	will swap the red and blue planes for you in some blitting
+	conditions. also have noticed the occasional crash with a
+	few combinations of bit depths and array types. (volunteers?)
 
 
-There are likely others. This is an early-ish release, and much
-testing is still pending.
+Keep your eye out for more! :]
 
 
 Pete Shinners       -       pete@shinners.org

@@ -531,10 +531,10 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
-static void screencroprect(GAME_Rect* r, int w, int h)
+static int screencroprect(GAME_Rect* r, int w, int h)
 {
-	if(r->x >= w || r->y >= h)
-		r->x = r->y = r->w = r->h = 0;
+	if(r->x >= w || r->y >= h || r->x < 0 || r->y < 0)
+		return 0;
 	else
 	{
 		if(r->x < 0) r->x = 0;
@@ -542,6 +542,7 @@ static void screencroprect(GAME_Rect* r, int w, int h)
 		if(r->x + r->w >= w) r->w = (w-1)-r->x;
 		if(r->y + r->h >= h) r->h = (h-1)-r->y;
 	}
+	return 1;
 }
 
     /*DOC*/ static char doc_update[] =
@@ -574,14 +575,14 @@ static PyObject* update(PyObject* self, PyObject* arg)
 		if(!screen)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 		
-		screencroprect(gr, screen->w, screen->h);
-		SDL_UpdateRect(screen, gr->x, gr->y, gr->w, gr->h);
+		if(screencroprect(gr, screen->w, screen->h))
+			SDL_UpdateRect(screen, gr->x, gr->y, gr->w, gr->h);
 	}
 	else
 	{
 		PyObject* seq;
 		PyObject* r;
-		int loop, num;
+		int loop, num, count;
 		SDL_Rect* rects;
 
 		if(PyTuple_Size(arg) != 1)
@@ -600,9 +601,15 @@ static PyObject* update(PyObject* self, PyObject* arg)
 		num = PySequence_Length(seq);
 		rects = PyMem_New(SDL_Rect, num);
 		if(!rects) return NULL;
+		count = 0;
 		for(loop = 0; loop < num; ++loop)
 		{
 			r = PySequence_GetItem(seq, loop);
+			if(r == Py_None)
+			{
+				Py_DECREF(r);
+				continue;
+			}
 			gr = GameRect_FromObject(r, &temp);
 			if(!gr)
 			{
@@ -610,14 +617,16 @@ static PyObject* update(PyObject* self, PyObject* arg)
 				PyMem_Free(rects);
 				return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
 			}
-			screencroprect(gr, screen->w, screen->h);
-			rects[loop].x = gr->x;
-			rects[loop].y = gr->y;
-			rects[loop].w = (unsigned short)gr->w;
-			rects[loop].h = (unsigned short)gr->h;
+			if(!screencroprect(gr, screen->w, screen->h))
+				continue;
+			rects[count].x = gr->x;
+			rects[count].y = gr->y;
+			rects[count].w = (unsigned short)gr->w;
+			rects[count].h = (unsigned short)gr->h;
+			++count;
 		}
 
-		SDL_UpdateRects(screen, num, rects);
+		SDL_UpdateRects(screen, count, rects);
 		PyMem_Free(rects);
 	}
 	
@@ -837,7 +846,8 @@ static PyMethodDef display_builtins[] =
     /*DOC*/    "After you have initialized your video mode, you can take the\n"
     /*DOC*/    "surface that was returned and write to it like any other Surface\n"
     /*DOC*/    "object. Be sure to call update() or flip() to keep what is on the\n"
-    /*DOC*/    "screen synchronized with what is on the surface.\n"
+    /*DOC*/    "screen synchronized with what is on the surface. Be sure not to call\n"
+    /*DOC*/    "display routines that modify the display surface while it is locked.\n"
     /*DOC*/ ;
 
 void initdisplay()

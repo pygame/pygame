@@ -1048,7 +1048,7 @@ static PyObject* PyChannel_New(int channelnum)
     /*DOC*/    "functions are not that good, so it is best if you initialize\n"
     /*DOC*/    "pygame.mixer to the same format as your sound resources. Also\n"
     /*DOC*/    "setting the mixer frequency to even multiples of your sound\n"
-    /*DOC*/    "resources will result in a clean conversion.\n"
+    /*DOC*/    "resources will result in a cleaner conversion.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The mixer also contains a special channel for music. You can\n"
     /*DOC*/    "control the music channel through pygame.mixer.music./\n"

@@ -12,13 +12,12 @@ Until that point, consider the current interface to be a bit flexible.
 Things could change that will break code relying on older versions. Any
 changes will be easy to make. There will be warning of coming changes,
 but just know that it will likely happen.
-(with the 0.3 release, the interface cement is drying!)(not joy and cd)
+(with the 0.4 release, the interface cement is stiff)
 
 Here are some main things i'd like to have done (or at least well
 looked at) by the time 1.0 rolls around. Most of these are ideas
 for covering other libraries and routiens SDL does not offer.
 
- * Joystick and CDROM modules cleaned up
  * Support for OpenGL (need to experiment with pyopengl)
  * Support for Piddle (drawing lines, shapes, text)
  * Surfarray with alpha and colormap support

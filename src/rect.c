@@ -51,11 +51,13 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 		if(PySequence_Length(obj) == 2)
 		{
 			PyObject* sub = PySequence_GetItem(obj, 0);
-			if(!sub || !PySequence_Check(sub)) {Py_XDECREF(sub); return NULL;}
+			if(!sub || !PySequence_Check(sub) || PySequence_Length(sub)!=2)
+				{Py_XDECREF(sub); return NULL;}
 			if(!ShortFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->x = val;
 			if(!ShortFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->y = val;
 			sub = PySequence_GetItem(obj, 1);
-			if(!sub || !PySequence_Check(sub)) {Py_XDECREF(sub); return NULL;}
+			if(!sub || !PySequence_Check(sub) || PySequence_Length(sub)!=2)
+				{Py_XDECREF(sub); return NULL;}
 			if(!ShortFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->w = val;
 			if(!ShortFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->h = val;
 			return temp;
@@ -296,7 +298,7 @@ static PyObject* rect_colliderect(PyObject* oself, PyObject* args)
 
 
     /*DOC*/ static char doc_collidelist[] =
-    /*DOC*/    "Rect.colliderect(rectstyle list) -> int index\n"
+    /*DOC*/    "Rect.collidelist(rectstyle list) -> int index\n"
     /*DOC*/    "find overlapping rectangle\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the index of the first rectangle in the\n"
@@ -346,7 +348,7 @@ static PyObject* rect_collidelist(PyObject* oself, PyObject* args)
 
 
     /*DOC*/ static char doc_collidelistall[] =
-    /*DOC*/    "Rect.colliderectall(rectstyle list) -> int index\n"
+    /*DOC*/    "Rect.collidelistall(rectstyle list) -> int index\n"
     /*DOC*/    "find all overlapping rectangles\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns a list of the indexes that contain\n"

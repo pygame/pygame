@@ -80,20 +80,20 @@ move rectangle inside another</td></tr>
 rectangle cropped inside another</td></tr>
 
 
+<tr><td><a href=#collidelist>collidelist</a></td><td> -
+find overlapping rectangle</td></tr>
+
+
+<tr><td><a href=#collidelistall>collidelistall</a></td><td> -
+find all overlapping rectangles</td></tr>
+
+
 <tr><td><a href=#collidepoint>collidepoint</a></td><td> -
 point inside rectangle</td></tr>
 
 
 <tr><td><a href=#colliderect>colliderect</a></td><td> -
 check overlapping rectangles</td></tr>
-
-
-<tr><td><a href=#colliderect>colliderect</a></td><td> -
-find overlapping rectangle</td></tr>
-
-
-<tr><td><a href=#colliderectall>colliderectall</a></td><td> -
-find all overlapping rectangles</td></tr>
 
 
 <tr><td><a href=#contains>contains</a></td><td> -
@@ -140,6 +140,27 @@ rectangle. If the two rectangles do not overlap to
 begin with, you will get a rectangle with 0 size.
 </ul><br>&nbsp;<br>
 
+<a name=collidelist><font size=+2><b>collidelist
+</b></font><br><font size=+1><tt>
+Rect.collidelist(rectstyle list) -> int index
+</tt></font><ul>
+Returns the index of the first rectangle in the
+list to overlap the base rectangle. Once an
+overlap is found, this will stop checking the
+remaining list. If no overlap is found, it will
+return -1.
+</ul><br>&nbsp;<br>
+
+<a name=collidelistall><font size=+2><b>collidelistall
+</b></font><br><font size=+1><tt>
+Rect.collidelistall(rectstyle list) -> int index
+</tt></font><ul>
+Returns a list of the indexes that contain
+rectangles overlapping the base rectangle. If no
+overlap is found, it will return an empty
+sequence.
+</ul><br>&nbsp;<br>
+
 <a name=collidepoint><font size=+2><b>collidepoint
 </b></font><br><font size=+1><tt>
 Rect.collidepoint(x, y) -> bool
@@ -156,27 +177,6 @@ Rect.colliderect(rectstyle) -> bool
 Returns true if any area of the two rectangles
 overlaps. If rectangles only share an edge, they
 will be counted as overlapping.
-</ul><br>&nbsp;<br>
-
-<a name=colliderect><font size=+2><b>colliderect
-</b></font><br><font size=+1><tt>
-Rect.colliderect(rectstyle list) -> int index
-</tt></font><ul>
-Returns the index of the first rectangle in the
-list to overlap the base rectangle. Once an
-overlap is found, this will stop checking the
-remaining list. If no overlap is found, it will
-return -1.
-</ul><br>&nbsp;<br>
-
-<a name=colliderectall><font size=+2><b>colliderectall
-</b></font><br><font size=+1><tt>
-Rect.colliderectall(rectstyle list) -> int index
-</tt></font><ul>
-Returns a list of the indexes that contain
-rectangles overlapping the base rectangle. If no
-overlap is found, it will return an empty
-sequence.
 </ul><br>&nbsp;<br>
 
 <a name=contains><font size=+2><b>contains
