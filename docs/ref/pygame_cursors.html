@@ -80,7 +80,7 @@ pygame.cursors.compile(strings, black, white) -> data
 </tt></font><ul>
 This takes a set of strings with equal length and computes
 the binary data for that cursor. The string widths must be
-divisible by 6. The data returned are suitable for passing
+divisible by 8. The data returned are suitable for passing
 to <a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>.
 <br>&nbsp;<br>
 The black and white arguments are single letter strings that
@@ -94,7 +94,7 @@ considered clear.
 </b></font><br><font size=+1><tt>
 pygame.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
 </tt></font><ul>
-Arguments can either be strings or filelike objects
+Arguments can either be filenames or filelike objects
 with the readlines method. Not largely tested, but
 should work with typical XBM files.
 <br>&nbsp;<br>
