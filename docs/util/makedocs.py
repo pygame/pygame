@@ -102,14 +102,14 @@ def readpysource(name):
     documents.append([title] + getpydoclines(module.__doc__))
     modname = name
     for name, obj in module.__dict__.items():
-        if type(obj) is types.ClassType:
+        if type(obj) in (types.ClassType, types.TypeType):
             title = '    /*DOC*/ static char doc_%s[] =\n'%(name)
             initdocs = []
             if hasattr(obj, '__init__'):
                     init = getattr(obj, '__init__')
                     if hasattr(init, '__doc__'):
-			    initdocs = getpydoclines(init.__doc__)
-			    if not initdocs: initdocs = []
+                            initdocs = getpydoclines(init.__doc__)
+                            if not initdocs: initdocs = []
             try:
                 docs = getpydoclines(obj.__doc__)
                 if docs:
@@ -200,7 +200,9 @@ def findtutorials():
     texts1 =  ['../../readme.html', '../../install.html', '../LGPL', '../logos.html']
     texts = [fileline%x for x in [getdocinfo(x) for x in texts1]]
     finaltext = texthead + '\n'.join(texts)
-    tuts1 =  [x.replace('\\','/') for x in glob.glob('../tut/*.html')]
+    htmlfiles = glob.glob('../tut/*.html') + glob.glob('../tut/*/*.html')
+    print 'HTMLFILES:', htmlfiles
+    tuts1 =  [x.replace('\\','/') for x in htmlfiles]
     tuts1.sort()
     tuts = [fileline%(x[0],x[1],x[2][9:]) for x in [getdocinfo(x) for x in tuts1] if x[2].startswith('TUTORIAL:')]
     finaltut = tuthead + '\n'.join(tuts)
@@ -293,15 +295,15 @@ def create_toc(allfuncs, prefix=''):
         if m[7:] in PYTHONSRC:
             l = l_py
         elif m[0].lower() == m[0]:
-	    l = l_mod
-	else:
-	    l = l_type
+            l = l_mod
+        else:
+            l = l_type
 
         file = m.replace('.', '_') + '.html'
-	if m[:7] == 'pygame_':
-	    m = m[7:]
-	str = '<a href=%s%s>%s</a>' % (prefix, file, m)
-	l.append(str)
+        if m[:7] == 'pygame_':
+            m = m[7:]
+        str = '<a href=%s%s>%s</a>' % (prefix, file, m)
+        l.append(str)
 
     l_py.sort()
     l_mod.sort()
