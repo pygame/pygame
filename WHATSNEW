@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 10, 2003
+	add OPENGL support to image.tostring()
+
 March 9, 2003
 	Bug in Clock.tick() was delaying double
 	load Font objects from any python file-like object

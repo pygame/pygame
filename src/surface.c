@@ -719,6 +719,11 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "|Oi", &argobject, &flags))
 		return NULL;
 
+        if(surf->flags & SDL_OPENGL)
+        {
+            return RAISE(PyExc_SDLError, "Cannot convert opengl display");
+        }
+        
 	PySurface_Prep(self);
 	if(argobject)
 	{
