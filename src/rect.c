@@ -885,10 +885,10 @@ static struct PyMethodDef rect_methods[] =
 
 	{"collidepoint",	(PyCFunction)rect_collidepoint, 1, doc_collidepoint},
 	{"colliderect", 	(PyCFunction)rect_colliderect,	1, doc_colliderect},
-	{"collidelist", 	(PyCFunction)rect_collidedict,	1, doc_collidedict},
-	{"collidelistall",	(PyCFunction)rect_collidedictall,1,doc_collidedictall},
-	{"collidedict", 	(PyCFunction)rect_collidelist,	1, doc_collidelist},
-	{"collidedictall",	(PyCFunction)rect_collidelistall,1,doc_collidelistall},
+	{"collidelist", 	(PyCFunction)rect_collidelist,	1, doc_collidelist},
+	{"collidelistall",	(PyCFunction)rect_collidelistall,1,doc_collidelistall},
+	{"collidedict", 	(PyCFunction)rect_collidedict,	1, doc_collidedict},
+	{"collidedictall",	(PyCFunction)rect_collidedictall,1,doc_collidedictall},
 	{"contains",		(PyCFunction)rect_contains,		1, doc_contains},
 /* these are totally unwritten. volunteers? */
 /*	{"cleanup",			(PyCFunction)rect_cleanup,		1, doc_cleanup}, */
