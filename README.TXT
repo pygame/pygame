@@ -4,12 +4,16 @@ March 28th, 2001
 Python Game Development
 by Pete Shinners
 
+http://pygame.seul.org
+pete@shinners.org
+
+
+
 
 INTRO
 
 Pygame is a cross-platfrom library designed to make it easy to write
 multimedia software, such as games, in Python.
-Website and source code are at: http://pygame.seul.org
 
 Pygame depends on SDL >= 1.1.7 and Python ?= 2.0. It also is optionally
 dependent on SDL_ttf, SDL_image, SDL_mixer, and Numeric.
@@ -26,10 +30,10 @@ run "python setup.py install" to perform the installation. This will
 make a worthwhile attempt at configuring the compiler variables and
 getting everything installed.
 
-Distutils has a lot of compiler options. To get started with them
+Distutils has a lot of installation options. To get started with them
 run "python setup.py --help". Also, if you are getting errors compiling,
-you can change the compiler flags in the "Setup" file (which is similar
-to a Makefile)
+you can change the compiler flags in the "Setup" file (which resembles
+a Makefile)
 
 
 
@@ -61,6 +65,7 @@ python libraries, here are some ideas...
 
 
 
+
 CREDITS
 
 Thanks to everyone who made this possible, including:
@@ -72,6 +77,7 @@ Thanks to everyone who made this possible, including:
 
 There's many more folks out there who've submitted helpful ideas,
 kept this project going, and basically made my life easer; thanks!
+
 
 
 

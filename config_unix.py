@@ -24,10 +24,10 @@ class Dependency:
         inc = os.path.join(incdir, self.checkhead)
         lib = os.path.join(libdir, self.checklib)
         if os.path.isfile(inc) and glob(lib):
-        print self.name + '        '[len(self.name):] + ': found'
+            print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
-    else:
-        print self.name + '        '[len(self.name):] + ': not found'
+        else:
+            print self.name + '        '[len(self.name):] + ': not found'
 
 
 
