@@ -24,6 +24,20 @@
 #include "pygame.h"
 
 
+static int timer_event = SDL_NOEVENT;
+static Uint32 timer_callback(Uint32 interval)
+{
+	if(SDL_WasInit(SDL_INIT_VIDEO))
+	{
+		SDL_Event event = {timer_event};
+		SDL_PushEvent(&event);
+	}
+	return interval;
+}
+
+
+
+
 
     /*DOC*/ static char doc_get_ticks[] =
     /*DOC*/    "pygame.time.get_ticks() -> int\n"
@@ -56,7 +70,47 @@ static PyObject* delay(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "i", &ticks))
 		return NULL;
 
+	Py_BEGIN_ALLOW_THREADS
 	SDL_Delay(ticks);
+	Py_END_ALLOW_THREADS
+
+	RETURN_NONE
+}
+
+
+
+    /*DOC*/ static char doc_set_timer[] =
+    /*DOC*/    "pygame.time.set_timer([millseconds, eventid]) -> int\n"
+    /*DOC*/    "control timer events\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Every given number of milliseconds, a new event with\n"
+	/*DOC*/	   "the given event id will be placed on the event queue.\n"
+    /*DOC*/    "The timer will run indefinitely, until set_timer() is\n"
+    /*DOC*/    "called with no arguments. Calling with no arguments stops\n"
+    /*DOC*/    "the running timer.\n"
+    /*DOC*/ ;
+
+static PyObject* set_timer(PyObject* self, PyObject* arg)
+{
+	int ticks = 0, event = SDL_NOEVENT;
+	if(!PyArg_ParseTuple(arg, "ii", &ticks, &event))
+		return NULL;
+
+
+	/*just doublecheck that timer is initialized*/
+	if(!SDL_WasInit(SDL_INIT_TIMER))
+	{
+		if(SDL_Init(SDL_INIT_TIMER))
+			return RAISE(PyExc_SDLError, SDL_GetError());
+	}
+
+	if(!ticks || event == SDL_NOEVENT)
+		SDL_SetTimer(0, NULL);
+	else
+	{
+		timer_event = event;
+		SDL_SetTimer(ticks, timer_callback);
+	}
 
 	RETURN_NONE
 }
@@ -68,6 +122,7 @@ static PyMethodDef time_builtins[] =
 {
 	{ "get_ticks", get_ticks, 1, doc_get_ticks },
 	{ "delay", delay, 1, doc_delay },
+	{ "set_timer", set_timer, 1, doc_set_timer },
 
 	{ NULL, NULL }
 };

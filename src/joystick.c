@@ -421,8 +421,7 @@ static PyMethodDef joy__builtins__[] =
 
 static PyObject* joy_getattr(PyObject* self, char* attrname)
 {
-	if(_pysdl_sdl_is_initialized && _pysdl_joy_is_initialized)
-		return Py_FindMethod(joy__builtins__, self, attrname);
+	return Py_FindMethod(joy__builtins__, self, attrname);
 
 	PyErr_SetString(PyExc_NameError,	attrname);
 	return NULL;

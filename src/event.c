@@ -200,6 +200,23 @@ PyObject* event_str(PyObject* self)
 }
 
 
+    /*DOC*/ static char doc_pygame_event_EXTRA[] =
+    /*DOC*/    "An Event object contains an event type and a readonly set of\n"
+    /*DOC*/    "member data. The Event object contains no method functions, just\n"
+    /*DOC*/    "member data. Event objects are retrieved from the pygame event\n"
+    /*DOC*/    "queue. You can create your own new events with the\n"
+    /*DOC*/    "pygame.event.event() function.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "All Event objects contain an event type identifier in the\n"
+    /*DOC*/    "Event.type member. You may also get full access to the Event's\n"
+    /*DOC*/    "member data through the Event.dict method. All other member\n"
+    /*DOC*/    "lookups will be passed through to the Event's dictionary values.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "While debugging and experimenting, you can print the Event\n"
+    /*DOC*/    "objects for a quick display of its type and members.\n"
+    /*DOC*/ ;
+
+
 static PyTypeObject PyEvent_Type =
 {
 	PyObject_HEAD_INIT(NULL)
@@ -283,9 +300,9 @@ static PyObject* event(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.event.event_name(event type) -> string\n"
     /*DOC*/    "name for event type\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the standard SDL name for an event type.\n"
-    /*DOC*/    "Mainly helpful for debugging, when trying to\n"
-    /*DOC*/    "determine what the type of an event is.\n"
+    /*DOC*/    "Returns the standard SDL name for an event type. Mainly helpful\n"
+    /*DOC*/    "for debugging, when trying to determine what the type of an event\n"
+    /*DOC*/    "is.\n"
     /*DOC*/ ;
 
 static PyObject* event_name(PyObject* self, PyObject* arg)
@@ -304,14 +321,12 @@ static PyObject* event_name(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.event.set_grab(bool) -> None\n"
     /*DOC*/    "grab all input events\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Grabs all mouse and keyboard input for the\n"
-    /*DOC*/    "display. Grabbing the input is not neccessary to\n"
-    /*DOC*/    "receive keyboard and mouse events, but it ensures\n"
-    /*DOC*/    "all input will go to your application. It also\n"
-    /*DOC*/    "keeps the mouse locked inside your window. Set the\n"
-    /*DOC*/    "grabbing on or off with the boolean argument. It\n"
-    /*DOC*/    "is best to not always grab the input, since it\n"
-    /*DOC*/    "prevents the end user from doing anything else on\n"
+    /*DOC*/    "Grabs all mouse and keyboard input for the display. Grabbing the\n"
+    /*DOC*/    "input is not neccessary to receive keyboard and mouse events, but\n"
+    /*DOC*/    "it ensures all input will go to your application. It also keeps\n"
+    /*DOC*/    "the mouse locked inside your window. Set the grabbing on or off\n"
+    /*DOC*/    "with the boolean argument. It is best to not always grab the\n"
+    /*DOC*/    "input, since it prevents the end user from doing anything else on\n"
     /*DOC*/    "their system.\n"
     /*DOC*/ ;
 
@@ -335,8 +350,8 @@ static PyObject* set_grab(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.get_grab() -> bool\n"
     /*DOC*/    "query the state of input grabbing\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the input is currently grabbed to\n"
-    /*DOC*/    "your application.\n"
+    /*DOC*/    "Returns true if the input is currently grabbed to your\n"
+    /*DOC*/    "application.\n"
     /*DOC*/ ;
 
 static PyObject* get_grab(PyObject* self, PyObject* arg)
@@ -393,13 +408,18 @@ static PyObject* pump(PyObject* self, PyObject* args)
 static PyObject* wait(PyObject* self, PyObject* args)
 {
 	SDL_Event event;
+	int status;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
 	VIDEO_INIT_CHECK();
 
-	if(!SDL_WaitEvent(&event))
+	Py_BEGIN_ALLOW_THREADS
+	status = SDL_WaitEvent(&event);
+	Py_END_ALLOW_THREADS
+
+	if(!status)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
 	return PyEvent_New(&event);
@@ -685,7 +705,39 @@ static PyMethodDef event_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_event_MODULE[] =
-    /*DOC*/    "Contains event routines and object.\n"
+    /*DOC*/    "Pygame handles all it's event messaging through an event queue.\n"
+    /*DOC*/    "The routines in this module help you manage that event queue. The\n"
+    /*DOC*/    "input queue is heavily dependent on the pygame display module. If\n"
+    /*DOC*/    "the display has not been initialized and a video mode not set,\n"
+    /*DOC*/    "the event queue will not really work.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The queue is a stack of Event objects, there are a variety of\n"
+    /*DOC*/    "ways to access the data on the queue. From simply checking for\n"
+    /*DOC*/    "the existance of events, to grabbing them directly off the stack.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "All events have a type identifier. This event type is in between\n"
+    /*DOC*/    "the values of NOEVENT and NUMEVENTS. All user defined events can\n"
+    /*DOC*/    "have the value of USEREVENT or higher. It is recommended make\n"
+    /*DOC*/    "sure your event id's follow this system.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "To get the state of various input devices, you can forego the\n"
+    /*DOC*/    "event queue and access the input devices directly with their\n"
+    /*DOC*/    "appropriate modules; mouse, key, and joystick. If you use this\n"
+    /*DOC*/    "method, remember that pygame requires some form of communication\n"
+    /*DOC*/    "with the system window manager and other parts of the platform.\n"
+    /*DOC*/    "To keep pygame in synch with the system, you will need to call\n"
+    /*DOC*/    "pygame.event.pump() to keep everything current. You'll want to\n"
+    /*DOC*/    "call this function usually once per game loop.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The event queue offers some simple filtering. This can help\n"
+    /*DOC*/    "performance slightly by blocking certain event types from the\n"
+    /*DOC*/    "queue, use the pygame.event.set_allowed() and\n"
+    /*DOC*/    "pygame.event.set_blocked() to work with this filtering. All\n"
+    /*DOC*/    "events default to allowed.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Also know that you will not receive any events from a joystick\n"
+    /*DOC*/    "device, until you have opened that joystick from the joystick\n"
+    /*DOC*/    "module.\n"
     /*DOC*/ ;
 
 void initevent()
@@ -709,4 +761,6 @@ void initevent()
 	/*imported needed apis*/
 	import_pygame_base();
 }
+
+
 

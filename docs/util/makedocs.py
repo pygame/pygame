@@ -173,7 +173,7 @@ def create_toc(allfuncs):
         l.append(str)
     l.sort()
     str = ''
-    for x in range(0, len(l), 5):
+    for x in range(0, len(l), 7):
         row = l[x:x+5]
         str += '|| ' + ' || \n'.join(row) + ' ||<br>\n'
     global MODULETOC
@@ -196,7 +196,7 @@ def writefuncdoc(alldocs):
         modinfo = modules.get(cat, '')
         extrainfo = extras.get(cat, None)
         if extrainfo:
-            modinfo += '<br>&nbsp;<br>' + extrainfo
+            modinfo += '<p>&nbsp;</p>' + extrainfo
 
         finalinfo = {'title': cat.replace('_', '.'),
                      'docs': '\n'.join(htmldocs),

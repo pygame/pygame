@@ -83,7 +83,9 @@ static PyObject* load(PyObject* self, PyObject* arg)
 
 		if(!(rw = RWopsFromPython(file)))
 			return NULL;
+		Py_BEGIN_ALLOW_THREADS
 		surf = IMG_LoadTyped_RW(rw, 1, find_extension(name));
+		Py_END_ALLOW_THREADS
 	}
 	if(!surf)
 		return RAISE(PyExc_SDLError, IMG_GetError());

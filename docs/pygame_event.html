@@ -3,13 +3,13 @@
 <body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
 
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
-<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<td rowspan=2><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
 <tr height=86 align=left><td valign=middle><font color=#ffffff size=+5>
 	<a href=../><font size=+5 color=#ffffff><i><b>
       pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
 	PyGame<br>Documentation</font>
-</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+</td></tr></table></td><td width=100% align=center valign=middle>
 
 	||&nbsp;
 	<a href=../>Home</a> &nbsp;||&nbsp;
@@ -21,28 +21,66 @@
 <a href=Font.html>Font</a> || 
 <a href=Joystick.html>Joystick</a> || 
 <a href=Rect.html>Rect</a> ||<br>
-|| <a href=Sound.html>Sound</a> || 
-<a href=Surface.html>Surface</a> || 
-<a href=pygame.html>pygame</a> || 
+|| <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
-<a href=pygame_constants.html>constants</a> ||<br>
-|| <a href=pygame_display.html>display</a> || 
-<a href=pygame_event.html>event</a> || 
-<a href=pygame_font.html>font</a> || 
-<a href=pygame_image.html>image</a> || 
-<a href=pygame_joystick.html>joystick</a> ||<br>
-|| <a href=pygame_key.html>key</a> || 
+<a href=pygame_constants.html>constants</a> || 
+<a href=pygame_display.html>display</a> || 
+<a href=pygame_event.html>event</a> ||<br>
+|| <a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> || 
 <a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> ||<br>
-|| <a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_music.html>music</a> ||<br>
 
 
 </td></tr></table>
 <br>
 <h2 align=center>pygame.event</h2>
-Contains event routines and object.
+Pygame handles all it's event messaging through an event queue.
+The routines in this module help you manage that event queue. The
+input queue is heavily dependent on the pygame display module. If
+the display has not been initialized and a video mode not set,
+the event queue will not really work.
+<br>&nbsp;<br>
+The queue is a stack of Event objects, there are a variety of
+ways to access the data on the queue. From simply checking for
+the existance of events, to grabbing them directly off the stack.
+<br>&nbsp;<br>
+All events have a type identifier. This event type is in between
+the values of NOEVENT and NUMEVENTS. All user defined events can
+have the value of USEREVENT or higher. It is recommended make
+sure your event id's follow this system.
+<br>&nbsp;<br>
+To get the state of various input devices, you can forego the
+event queue and access the input devices directly with their
+appropriate modules; mouse, key, and joystick. If you use this
+method, remember that pygame requires some form of communication
+with the system window manager and other parts of the platform.
+To keep pygame in synch with the system, you will need to call
+pygame.event.pump() to keep everything current. You'll want to
+call this function usually once per game loop.
+<br>&nbsp;<br>
+The event queue offers some simple filtering. This can help
+performance slightly by blocking certain event types from the
+queue, use the pygame.event.set_allowed() and
+pygame.event.set_blocked() to work with this filtering. All
+events default to allowed.
+<br>&nbsp;<br>
+Also know that you will not receive any events from a joystick
+device, until you have opened that joystick from the joystick
+module.<p>&nbsp;</p>An Event object contains an event type and a readonly set of
+member data. The Event object contains no method functions, just
+member data. Event objects are retrieved from the pygame event
+queue. You can create your own new events with the
+pygame.event.event() function.
+<br>&nbsp;<br>
+All Event objects contain an event type identifier in the
+Event.type member. You may also get full access to the Event's
+member data through the Event.dict method. All other member
+lookups will be passed through to the Event's dictionary values.
+<br>&nbsp;<br>
+While debugging and experimenting, you can print the Event
+objects for a quick display of its type and members.
 
 <hr>
 
@@ -110,9 +148,9 @@ object.
 </b></font><br><font size=+1><tt>
 pygame.event.event_name(event type) -> string
 </tt></font><ul>
-Returns the standard SDL name for an event type.
-Mainly helpful for debugging, when trying to
-determine what the type of an event is.
+Returns the standard SDL name for an event type. Mainly helpful
+for debugging, when trying to determine what the type of an event
+is.
 </ul><br>&nbsp;<br>
 
 <a name=get><font size=+2><b>get
@@ -188,14 +226,12 @@ can optionally pass a sequence of event types.
 </b></font><br><font size=+1><tt>
 pygame.event.set_grab(bool) -> None
 </tt></font><ul>
-Grabs all mouse and keyboard input for the
-display. Grabbing the input is not neccessary to
-receive keyboard and mouse events, but it ensures
-all input will go to your application. It also
-keeps the mouse locked inside your window. Set the
-grabbing on or off with the boolean argument. It
-is best to not always grab the input, since it
-prevents the end user from doing anything else on
+Grabs all mouse and keyboard input for the display. Grabbing the
+input is not neccessary to receive keyboard and mouse events, but
+it ensures all input will go to your application. It also keeps
+the mouse locked inside your window. Set the grabbing on or off
+with the boolean argument. It is best to not always grab the
+input, since it prevents the end user from doing anything else on
 their system.
 </ul><br>&nbsp;<br>
 
