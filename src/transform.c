@@ -362,6 +362,10 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
     /*DOC*/    "\n"
     /*DOC*/    "Flips the image on the x-axis or the y-axis if the argument\n"
     /*DOC*/    "for that axis is true.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The flip operation is nondestructive, you may flip the image\n"
+    /*DOC*/    "as many times as you like, and always be able to recreate the\n"
+    /*DOC*/    "exact original image.\n"
     /*DOC*/ ;
 
 static PyObject* surf_flip(PyObject* self, PyObject* arg)
