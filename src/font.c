@@ -430,16 +430,20 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 
 	if(PyUnicode_Check(text))
 	{
-		Py_UNICODE* string = PyUnicode_AsUnicode(text);
+		PyObject* strob = PyEval_CallMethod(text, "encode", "(s)", "utf-8");
+		char *string = PyString_AsString(text);
+
 		if(aa)
 		{
 			if(!bg_rgba_obj)
-				surf = TTF_RenderUNICODE_Blended(font, string, foreg);
+				surf = TTF_RenderUTF8_Blended(font, string, foreg);
 			else
-				surf = TTF_RenderUNICODE_Shaded(font, string, foreg, backg);
+				surf = TTF_RenderUTF8_Shaded(font, string, foreg, backg);
 		}
 		else
-			surf = TTF_RenderUNICODE_Solid(font, string, foreg);
+			surf = TTF_RenderUTF8_Solid(font, string, foreg);
+
+		Py_DECREF(strob);
 	}
 	else if(PyString_Check(text))
 	{
@@ -496,8 +500,12 @@ static PyObject* font_size(PyObject* self, PyObject* args)
 
 	if(PyUnicode_Check(text))
 	{
-		Py_UNICODE* string = PyUnicode_AsUnicode(text);
-		TTF_SizeUNICODE(font, string, &w, &h);
+		PyObject* strob = PyEval_CallMethod(text, "encode", "(s)", "utf-8");
+		char *string = PyString_AsString(text);
+
+		TTF_SizeUTF8(font, string, &w, &h);
+
+		Py_DECREF(text);
 	}
 	else if(PyString_Check(text))
 	{

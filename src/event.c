@@ -152,6 +152,58 @@ static void insobj(PyObject *dict, char *name, PyObject *v)
 	}
 }
 
+#ifdef Py_USING_UNICODE
+
+static PyObject* our_unichr(long uni)
+{
+	static PyObject* bltin_unichr = NULL;
+
+	if (bltin_unichr == NULL) {
+		PyObject* bltins;
+		
+		bltins = PyImport_ImportModule("__builtin__");
+		bltin_unichr = PyObject_GetAttrString(bltins, "unichr");
+
+		Py_DECREF(bltins);
+	}
+
+	return PyEval_CallFunction(bltin_unichr, "(l)", uni);
+}
+
+static PyObject* our_empty_ustr(void)
+{
+	static PyObject* empty_ustr = NULL;
+
+	if (empty_ustr == NULL) {
+		PyObject* bltins;
+		PyObject* bltin_unicode;
+		
+		bltins = PyImport_ImportModule("__builtin__");
+		bltin_unicode = PyObject_GetAttrString(bltins, "unicode");
+		empty_ustr = PyEval_CallFunction(bltin_unicode, "(s)", "");
+
+		Py_DECREF(bltin_unicode);
+		Py_DECREF(bltins);
+	}
+
+	Py_INCREF(empty_ustr);
+
+	return empty_ustr;
+}
+
+#else
+
+static PyObject* our_unichr(long uni)
+{
+	return PyInt_FromLong(uni);
+}
+
+static PyObject* our_empty_ustr(void)
+{
+	return PyInt_FromLong(0);
+}
+
+#endif /* Py_USING_UNICODE */
 
 static PyObject* dict_from_event(SDL_Event* event)
 {
@@ -166,7 +218,6 @@ static PyObject* dict_from_event(SDL_Event* event)
 			return dict;
 	}
 
-
 	if(!(dict = PyDict_New()))
 		return NULL;
 	switch(event->type)
@@ -177,12 +228,9 @@ static PyObject* dict_from_event(SDL_Event* event)
 		break;
 	case SDL_KEYDOWN:
 		if(event->key.keysym.unicode)
-			insobj(dict, "unicode", PyUnicode_FromUnicode(
-							(Py_UNICODE*)&event->key.keysym.unicode,
-							event->key.keysym.unicode > 0));
+			insobj(dict, "unicode", our_unichr(event->key.keysym.unicode));
 		else
-			insobj(dict, "unicode",
-							PyUnicode_FromObject(PyString_FromString("")));
+			insobj(dict, "unicode", our_empty_ustr());
 	case SDL_KEYUP:
 		insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
 		insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
