@@ -30,7 +30,7 @@ class Dependency:
 
 DEPS = [
     Dependency('SDL', 'SDL.h', 'libSDL.so', 'SDL'),
-    Dependency('FONT', 'SDL_ttf.h.h', 'libSDL_ttf.so', 'SDL_ttf'),
+    Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', 'SDL_ttf'),
     Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
     Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
 #not a real dependency, but found in setup
