@@ -3,7 +3,7 @@ from AppKit import *
 import os, sys
 import objc
 import MacOS
-from pygame.pkgdata import getResourcePath
+from pygame.pkgdata import getResource
 
 __all__ = ['init']
 
@@ -51,13 +51,16 @@ class PyGameAppDelegate(NSObject):
 
 def setIcon(app):
     try:
-        defaultIcon = getResourcePath('pygame_icon.tiff')
+        defaultIcon = getResource('pygame_icon.tiff')
     except IOError:
-        pass
-    else:
-        img = NSImage.alloc().initWithContentsOfFile_(defaultIcon)
-        if img:
-            app.setApplicationIconImage_(img)
+        return
+    data = NSData.dataWithBytes_length_(defaultIcon, len(defaultIcon))
+    if data is None:
+        return
+    img = NSImage.alloc().initWithData_(data)
+    if img is None:
+        return
+    app.setApplicationIconImage_(img)
 
 def install():
     app = NSApplication.sharedApplication()
@@ -107,6 +110,7 @@ def WMEnable(name=None):
         print >>sys.stderr, 'ApplicationServices missing'
         return False
     d = {}
+    app = NSApplication.sharedApplication()
     objc.loadBundleFunctions(bndl, d, FUNCTIONS)
     for (fn, sig) in FUNCTIONS:
         if fn not in d:
