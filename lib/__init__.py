@@ -148,6 +148,13 @@ except (ImportError,IOError):pass
 try: import pygame.mixer_music; del pygame.mixer_music
 except (ImportError,IOError):pass
 
+def packager_imports():
+    """
+    Some additional things that py2app/py2exe will want to see
+    """
+    import pygame.macosx
+    import Numeric
+    import OpenGL.GL
 
 #make Rects pickleable
 import copy_reg
