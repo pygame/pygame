@@ -1107,15 +1107,12 @@ static PyObject* set_num_channels(PyObject* self, PyObject* args)
 		return NULL;
 
 	MIXER_INIT_CHECK();
-
         if(numchans > numchanneldata)
         {
             channeldata= (struct ChannelData*)realloc(channeldata,
-		    sizeof(struct ChannelData*) * numchans);
+		    sizeof(struct ChannelData) * numchans);
             for(i = numchanneldata; i < numchans; ++i)
 	    {
-		Py_XDECREF(channeldata[i].sound);
-		Py_XDECREF(channeldata[i].queue);
 		channeldata[i].sound = NULL;
 		channeldata[i].queue = NULL;
 	    }
