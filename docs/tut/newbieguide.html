@@ -1,5 +1,5 @@
 <!--
-TUTORIAL:A Newbie Guide To Pygame
+TUTORIAL:David Clark's Newbie Guide To Pygame
 --><html>
 <title>A Newbie Guide to pygame</title>
 
@@ -11,7 +11,7 @@ TUTORIAL:A Newbie Guide To Pygame
 
 <H2>Things I learned by trial and error so you don't have to.</H2>
 
-<H4>or</H4> 
+<H4>or</H4>
 
 <H2>How I learned to stop worrying and love the blit.</H2>
 </div>
@@ -193,7 +193,7 @@ if (key.get_pressed[K_t] and key.get_pressed[K_f]):
 <p>'Alpha' is different, and it comes in two flavors. 'Image alpha' applies to the whole image, and is probably what you want.  Properly known as 'translucency', alpha causes each pixel in the source image to be only <i>partially</i> opaque. For example, if you set a surface's alpha to 192 and then blitted it onto a background, 3/4 of each pixel's color would come from the source image, and 1/4 from the background.  Alpha is measured from 255 to 0, where 0 is completely transparent, and 255 is completely opaque.  Note that colorkey and alpha blitting can be combined - this produces an image that is fully transparent in some spots, and semi-transparent in others.</p>
 
 <p>'Per-pixel alpha' is the other flavor of alpha, and it's more complicated.  Basically, each pixel in the source image has its own alpha value, from 0 to 255.  Each pixel, therefore, can have a different opacity when blitted onto a background.  This type of alpha can't be mixed with colorkey blitting, and it overrides per-image alpha.  Per-pixel alpha is rarely used in games, and to use it you have to save your source image in a graphic editor with a special <i>alpha channel</i>.  It's complicated - don't use it yet.</p>
- 
+
 
 <h3>13. Do things the pythony way.</h3>
 

@@ -167,7 +167,7 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 			byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
 			*(byte_buf + (format->Rshift >> 3)) = rgba[0];
 			*(byte_buf + (format->Gshift >> 3)) = rgba[1];
-			*(byte_buf + (format->Bshift >> 3)) = rgba[2];	
+			*(byte_buf + (format->Bshift >> 3)) = rgba[2];
 			break;
 		default: /*case 4:*/
 			*((Uint32*)(pixels + y * surf->pitch) + x) = color;
@@ -221,7 +221,7 @@ static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	Uint32 col;
 	Uint8 r, g, b, a;
-	
+
 	if(!PyArg_ParseTuple(args, "i", &col))
 		return NULL;
 
@@ -327,7 +327,7 @@ static PyObject* surf_get_locked(PyObject* self, PyObject* args)
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
-	
+
 	return PyInt_FromLong(surf->lockcount);
 }
 
@@ -347,7 +347,7 @@ static PyObject* surf_get_palette(PyObject* self, PyObject* args)
 	SDL_Palette* pal = surf->format->palette;
 	PyObject* list;
 	int i;
-		
+
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -426,7 +426,7 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 	PyObject* list, *item;
 	int i, len;
 	short r, g, b;
-	
+
 	if(!PyArg_ParseTuple(args, "O", &list))
 		return NULL;
 	if(!PySequence_Check(list))
@@ -443,7 +443,7 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 	colors = (SDL_Color*)malloc(len * sizeof(SDL_Color));
 	if(!colors)
 		return NULL;
-	
+
 	for(i = 0; i < len; i++)
 	{
 		item = PySequence_GetItem(list, i);
@@ -494,7 +494,7 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 		return NULL;
 	}
 
-	if(index >= pal->ncolors || index <= 0)
+	if(index >= pal->ncolors || index < 0)
 	{
 		PyErr_SetString(PyExc_IndexError, "index out of bounds");
 		return NULL;
@@ -566,7 +566,7 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	
+
 	RETURN_NONE
 }
 
@@ -587,7 +587,7 @@ static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
-	
+
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
@@ -653,10 +653,10 @@ static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 	PySurface_Prep(self);
 	result = SDL_SetAlpha(surf, flags, alpha);
 	PySurface_Unprep(self);
-		
+
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	
+
 	RETURN_NONE
 }
 
@@ -675,7 +675,7 @@ static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
-	
+
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
@@ -723,7 +723,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
         {
             return RAISE(PyExc_SDLError, "Cannot convert opengl display");
         }
-        
+
 	PySurface_Prep(self);
 	if(argobject)
 	{
@@ -733,7 +733,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 			flags = src->flags | (surf->flags & (SDL_SRCCOLORKEY|SDL_SRCALPHA));
 			newsurf = SDL_ConvertSurface(surf, src->format, flags);
 		}
-		else 
+		else
 		{
 			short bpp;
 			SDL_PixelFormat format;
@@ -843,7 +843,7 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 	PyObject* final;
 	PySurfaceObject* srcsurf = NULL;
 	SDL_Surface* newsurf, *src;
-	
+
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 		return RAISE(PyExc_SDLError, "cannot convert without pygame.display initialized");
 
@@ -897,7 +897,7 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 			    return RAISE(PyExc_ValueError, "invalid rectstyle object");
 		}
 	}
-		
+
 	result = SDL_SetClipRect(surf, (SDL_Rect*)rect);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
@@ -947,7 +947,7 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	int result;
 	PyObject* rgba_obj;
 	Uint8 rgba[4];
-	
+
 	if(!PyArg_ParseTuple(args, "O|O", &rgba_obj, &r))
 		return NULL;
 
@@ -1155,11 +1155,11 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	dest_rect.y = (short)dy;
 	dest_rect.w = (unsigned short)src_rect->w;
 	dest_rect.h = (unsigned short)src_rect->h;
-	
+
 	result = PySurface_Blit(self, srcobject, &dest_rect, (SDL_Rect*)src_rect);
 	if(result != 0)
 	    return NULL;
-	
+
 	return PyRect_New((GAME_Rect*)&dest_rect);
 }
 
@@ -1437,7 +1437,7 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 
 static PyObject* surf_get_offset(PyObject* self, PyObject* args)
 {
-    	struct SubSurface_Data *subdata;	
+    	struct SubSurface_Data *subdata;
     	subdata = ((PySurfaceObject*)self)->subsurface;
 	if(!subdata)
     	    	return Py_BuildValue("(ii)", 0, 0);
@@ -1456,7 +1456,7 @@ static PyObject* surf_get_offset(PyObject* self, PyObject* args)
 
 static PyObject* surf_get_abs_offset(PyObject* self, PyObject* args)
 {
-    	struct SubSurface_Data *subdata;	
+    	struct SubSurface_Data *subdata;
 	PyObject *owner;
 	int offsetx, offsety;
 
@@ -1491,11 +1491,11 @@ static PyObject* surf_get_abs_offset(PyObject* self, PyObject* args)
 
 static PyObject* surf_get_parent(PyObject* self, PyObject* args)
 {
-    	struct SubSurface_Data *subdata;	
+    	struct SubSurface_Data *subdata;
     	subdata = ((PySurfaceObject*)self)->subsurface;
 	if(!subdata)
     	    	RETURN_NONE
-		    
+
     	Py_INCREF(subdata->owner);
 	return subdata->owner;
 }
@@ -1510,7 +1510,7 @@ static PyObject* surf_get_parent(PyObject* self, PyObject* args)
     /*DOC*/ ;
 static PyObject* surf_get_abs_parent(PyObject* self, PyObject* args)
 {
-    	struct SubSurface_Data *subdata;	
+    	struct SubSurface_Data *subdata;
 	PyObject *owner;
 
     	subdata = ((PySurfaceObject*)self)->subsurface;

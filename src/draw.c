@@ -51,6 +51,7 @@ static void drawaaline(SDL_Surface* surf, Uint32 color, float startx, float star
 		int blend);
 static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx);
 static void drawvertline(SDL_Surface* surf, Uint32 color, int x1, int y1, int y2);
+static void draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2, double angle_start, double angle_stop, Uint32 color);
 static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
 static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
 static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
@@ -436,6 +437,77 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	/*compute return rect*/
 	return PyRect_New4((short)left, (short)top, (short)(right-left+1), (short)(bottom-top+1));
 }
+
+
+    /*DOC*/ static char doc_arc[] =
+    /*DOC*/    "pygame.draw.arc(Surface, color, Rect, angle_start, angle_stop, width=0) -> Rect\n"
+    /*DOC*/    "draw an elliptic arc on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws an elliptical arc on the Surface. The given rectangle\n"
+    /*DOC*/    "is the area that the circle will fill. The two angle arguments\n"
+    /*DOC*/    "are the initial and final angle (radians, with the zero on the right).\n"
+    /*DOC*/    "The width argument is the thickness to draw the outer edge.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* arc(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj, *rectobj;
+	GAME_Rect *rect, temp;
+	SDL_Surface* surf;
+	Uint8 rgba[4];
+	Uint32 color;
+	int width=1, loop, t, l, b, r;
+	double angle_start, angle_stop;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!OOdd|i", &PySurface_Type, &surfobj, &colorobj, &rectobj, 
+			                      &angle_start, &angle_stop, &width))
+		return NULL;
+	rect = GameRect_FromObject(rectobj, &temp);
+	if(!rect)
+		return RAISE(PyExc_TypeError, "Invalid recstyle argument");
+
+	surf = PySurface_AsSurface(surfobj);
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for drawing");
+
+	if(PyInt_Check(colorobj))
+		color = (Uint32)PyInt_AsLong(colorobj);
+	else if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
+
+	if ( width < 0 )
+		return RAISE(PyExc_ValueError, "negative width");
+	if ( width > rect->w / 2 || width > rect->h / 2 )
+		return RAISE(PyExc_ValueError, "width greater than ellipse radius");
+	if ( angle_stop < angle_start )
+		angle_stop += 360;
+
+	if(!PySurface_Lock(surfobj)) return NULL;
+
+	width = min(width, min(rect->w, rect->h) / 2);
+	for(loop=0; loop<width; ++loop)
+	{
+		draw_arc(surf, rect->x+rect->w/2, rect->y+rect->h/2,
+			 rect->w/2-loop, rect->h/2-loop,
+			 angle_start, angle_stop, color);
+	}
+
+	if(!PySurface_Unlock(surfobj)) return NULL;
+
+	l = max(rect->x, surf->clip_rect.x);
+	t = max(rect->y, surf->clip_rect.y);
+	r = min(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
+	b = min(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
+	return PyRect_New4((short)l, (short)t, (short)max(r-l, 0), (short)max(b-t, 0));
+}
+
 
 
     /*DOC*/ static char doc_ellipse[] =
@@ -1304,6 +1376,43 @@ static void drawvertlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, in
 		drawvertline(surf, color, x1, y1, y2);
 }
 
+static void draw_arc(SDL_Surface *dst, int x, int y, int radius1, int radius2,
+                     double angle_start, double angle_stop, Uint32 color)
+{
+    double aStep;            // Angle Step (rad)
+    double a;                // Current Angle (rad)
+    int x_last, x_next, y_last, y_next;
+
+    // Angle step in rad
+    if (radius1<radius2) {
+        if (radius1<1.0e-4) {
+            aStep=1.0;
+        } else {
+            aStep=asin(2.0/radius1);
+        }
+    } else {
+        if (radius2<1.0e-4) {
+            aStep=1.0;
+        } else {
+            aStep=asin(2.0/radius2);
+        }
+    }
+
+    if(aStep<0.05) {
+        aStep = 0.05;
+    }
+
+    x_last = x+cos(angle_start)*radius1;
+    y_last = y-sin(angle_start)*radius2;
+    for(a=angle_start+aStep; a<=angle_stop; a+=aStep) {
+      x_next = x+cos(a)*radius1;
+      y_next = y-sin(a)*radius2;
+      drawline(dst, color, x_last, y_last, x_next, y_next);
+      x_last = x_next;
+      y_last = y_next;
+    }
+}
+
 static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
 {
 	int ix, iy;
@@ -1568,6 +1677,7 @@ static PyMethodDef draw_builtins[] =
 	{ "aalines", aalines, 1, doc_aalines },
 	{ "lines", lines, 1, doc_lines },
 	{ "ellipse", ellipse, 1, doc_ellipse },
+	{ "arc", arc, 1, doc_arc },
 	{ "circle", circle, 1, doc_circle },
 	{ "polygon", polygon, 1, doc_polygon },
 	{ "rect", rect, 1, doc_rect },

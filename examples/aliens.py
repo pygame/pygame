@@ -19,7 +19,7 @@ ALIEN_RELOAD   = 12     #frames between new aliens
 SCREENRECT     = Rect(0, 0, 640, 480)
 SCORE          = 0
 
-    
+
 def load_image(file):
     "loads an image, prepares it for play"
     file = os.path.join('data', file)
@@ -38,7 +38,7 @@ def load_images(*files):
 
 class dummysound:
     def play(self): pass
-    
+
 def load_sound(file):
     if not pygame.mixer: return dummysound()
     file = os.path.join('data', file)
@@ -91,7 +91,7 @@ class Player(pygame.sprite.Sprite):
 
 
 class Alien(pygame.sprite.Sprite):
-    speed = 13 
+    speed = 13
     animcycle = 12
     images = []
     def __init__(self):
@@ -102,7 +102,7 @@ class Alien(pygame.sprite.Sprite):
         self.frame = 0
         if self.facing < 0:
             self.rect.right = SCREENRECT.right
-            
+
     def update(self):
         self.rect.move_ip(self.facing, 0)
         if not SCREENRECT.contains(self.rect):
@@ -123,7 +123,7 @@ class Explosion(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.life = self.defaultlife
         self.rect.center = actor.rect.center
-        
+
     def update(self):
         self.life = self.life - 1
         self.image = self.images[self.life/self.animcycle%2]
@@ -167,17 +167,17 @@ class Score(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.font = pygame.font.Font(None, 20)
         self.font.set_italic(1)
-        self.color = 255, 255, 255
+        self.color = Color('white')
         self.lastscore = -1
         self.update()
         self.rect = self.image.get_rect().move(10, 450)
-        
+
     def update(self):
         if SCORE != self.lastscore:
             self.lastscore = SCORE
             msg = "Score: %d" % SCORE
             self.image = self.font.render(msg, 0, self.color)
-            
+
 
 
 def main(winstyle = 0):
@@ -264,7 +264,7 @@ def main(winstyle = 0):
 
         # clear/erase the last drawn sprites
         all.clear(screen, background)
-        
+
         #update all the sprites
         all.update()
 
@@ -300,8 +300,8 @@ def main(winstyle = 0):
             boom_sound.play()
             Explosion(alien)
             SCORE = SCORE + 1
-                    
-        for bomb in pygame.sprite.spritecollide(player, bombs, 1):         
+
+        for bomb in pygame.sprite.spritecollide(player, bombs, 1):
             boom_sound.play()
             Explosion(player)
             Explosion(bomb)
@@ -317,9 +317,9 @@ def main(winstyle = 0):
     if pygame.mixer:
         pygame.mixer.music.fadeout(1000)
     pygame.time.wait(1000)
-   
+
 
 
 #call the "main" function if running this script
 if __name__ == '__main__': main()
-    
+

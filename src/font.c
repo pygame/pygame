@@ -24,6 +24,7 @@
  *  font module for pygame
  */
 #define PYGAMEAPI_FONT_INTERNAL
+#include <stdio.h>
 #include <string.h>
 #include "pygame.h"
 #include "font.h"
@@ -430,7 +431,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		if(!RGBAFromObj(bg_rgba_obj, rgba))
 			return RAISE(PyExc_TypeError, "Invalid background RGBA argument");
 		backg.r = rgba[0]; backg.g = rgba[1]; backg.b = rgba[2];
-	}	
+	}
 
 
     	if(!PyObject_IsTrue(text))
@@ -482,7 +483,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		return RAISE(PyExc_SDLError, "SDL_ttf render failed");
 
 	if(!aa && bg_rgba_obj) /*turn off transparancy*/
-	{			
+	{
 		SDL_SetColorKey(surf, 0, 0);
 		surf->format->palette->colors[0].r = backg.r;
 		surf->format->palette->colors[0].g = backg.g;
@@ -578,7 +579,7 @@ static PyObject* font_getattr(PyObject* self, char* attrname)
 		return Py_FindMethod(fontobj_builtins, self, attrname);
 
 	PyErr_SetString(PyExc_NameError, attrname);
-	return NULL; 
+	return NULL;
 }
 
 
@@ -594,14 +595,14 @@ static PyObject* font_getattr(PyObject* self, char* attrname)
     /*DOC*/    "normal python strings, as well as with unicode strings.\n"
     /*DOC*/ ;
 
-static PyTypeObject PyFont_Type = 
+static PyTypeObject PyFont_Type =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
 	"Font",
 	sizeof(PyFontObject),
 	0,
-	font_dealloc,	
+	font_dealloc,
 	0,
 	font_getattr,
 	0,
@@ -609,7 +610,7 @@ static PyTypeObject PyFont_Type =
 	0,
 	0,
 	NULL,
-	0, 
+	0,
 	(hashfunc)NULL,
 	(ternaryfunc)NULL,
 	(reprfunc)NULL,
@@ -684,8 +685,18 @@ static PyObject* Font(PyObject* self, PyObject* args)
 	}
 	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{
+		FILE* test;
+
 		if(!PyArg_ParseTuple(args, "si", &filename, &fontsize))
 			return NULL;
+
+                /*check if it is a valid file, else SDL_ttf segfaults*/
+                test = fopen(filename, "rb");
+                if(!test)
+                {
+                        return RAISE(PyExc_IOError, "unable to read font filename");
+                }
+                fclose(test);
 
                 Py_BEGIN_ALLOW_THREADS
                 font = TTF_OpenFont(filename, fontsize);
@@ -704,7 +715,7 @@ static PyObject* Font(PyObject* self, PyObject* args)
                 return RAISE(PyExc_NotImplementedError, "nonstring fonts require SDL_ttf-2.0.6");
 #endif
         }
-	
+
 	if(!font)
 		return RAISE(PyExc_RuntimeError, SDL_GetError());
 
@@ -733,7 +744,7 @@ static PyMethodDef font_builtins[] =
 static PyObject* PyFont_New(TTF_Font* font)
 {
 	PyFontObject* fontobj;
-	
+
 	if(!font)
 		return RAISE(PyExc_RuntimeError, "unable to load font.");
 
