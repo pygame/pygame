@@ -1076,11 +1076,12 @@ static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
 	if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8; \
         if(blend) { \
                 int x; \
-                x = colorptr[0]*br+pixel[0]; \
+                float nbr = 1.0-br; \
+                x = colorptr[0]*br+pixel[0]*nbr; \
                 pixel[0]= (x>254) ? 255: x; \
-                x = colorptr[1]*br+pixel[1]; \
+                x = colorptr[1]*br+pixel[1]*nbr; \
                 pixel[1]= (x>254) ? 255: x; \
-                x = colorptr[2]*br+pixel[2]; \
+                x = colorptr[2]*br+pixel[2]*nbr; \
                 pixel[2]= (x>254) ? 255: x; \
                 if(hasalpha) pixel[3] = pixel[0]+(br*255) - (pixel[3]*br); \
         } else { \

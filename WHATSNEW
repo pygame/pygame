@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+August 8, 2004
+    cleanup aaline drawing, from Michael Urman
+
 July 17, 2004
     image.frombuffer() for lightning fast fromstring()'s
     SysFont extra styles being applied incorrect
