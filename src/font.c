@@ -35,7 +35,7 @@ static PyObject* PyFont_New(TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-static char* font_defaultname = "helmetb.ttf";
+static char* font_defaultname = "freesansbold.ttf";
 static char* font_defaultpath = NULL;
 static PyObject* self_module = NULL;
 
@@ -604,6 +604,24 @@ static PyTypeObject PyFont_Type =
 
 /*font module methods*/
 
+    /*DOC*/ static char doc_get_default_font[] =
+    /*DOC*/    "pygame.font.get_default_font() -> string\n"
+    /*DOC*/    "get the name of the default font\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "returns the name for the default truetype font.\n"
+    /*DOC*/ ;
+
+static PyObject* get_default_font(PyObject* self, PyObject* args)
+{
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+	return PyString_FromString(font_defaultname);
+}
+
+
+
+/*font module methods*/
+
     /*DOC*/ static char doc_Font[] =
     /*DOC*/    "pygame.font.Font(file, size) -> Font\n"
     /*DOC*/    "create a new font object\n"
@@ -634,9 +652,7 @@ static PyObject* Font(PyObject* self, PyObject* args)
 			return RAISE(PyExc_RuntimeError, "default font not found");
 		filename = font_defaultpath;
 		/*keep sizing consistent with previous default fonts*/
-		fontsize = (int)(fontsize * .7);
-                /*helmetb seems to err for this one size*/
-                if(fontsize==16) fontsize = 17;
+		fontsize = (int)(fontsize * .6875);
 	}
 	else if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{
@@ -669,9 +685,9 @@ static PyMethodDef font_builtins[] =
 	{ "init", font_init, 1, doc_init },
 	{ "quit", font_quit, 1, doc_quit },
 	{ "get_init", get_init, 1, doc_get_init },
+	{ "get_default_font", get_default_font, 1, doc_get_default_font },
 
 	{ "Font", Font, 1, doc_Font },
-
 	{ NULL, NULL }
 };
 

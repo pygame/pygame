@@ -58,7 +58,7 @@ typedef struct {
 		PyObject *dict = PyModule_GetDict(module); \
 		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \
 		if(PyCObject_Check(c_api)) {\
-			void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
+			void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
 			memcpy(PyMIXER_C_API, localptr, sizeof(void*)*PYGAMEAPI_MIXER_NUMSLOTS); \
 } Py_DECREF(module); } }
 #endif

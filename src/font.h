@@ -48,7 +48,7 @@ typedef struct {
 		PyObject *dict = PyModule_GetDict(module); \
 		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \
 		if(PyCObject_Check(c_api)) {\
-			void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
+			void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
 			memcpy(PyFONT_C_API, localptr, sizeof(void*)*PYGAMEAPI_FONT_NUMSLOTS); \
 } Py_DECREF(module); } }
 #endif
