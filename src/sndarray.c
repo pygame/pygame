@@ -29,7 +29,7 @@
 
 
     /*DOC*/ static char doc_samples[] =
-    /*DOC*/    "pygame.sndarray.samples(Surface) -> Array\n"
+    /*DOC*/    "pygame.sndarray.samples(Sound) -> Array\n"
     /*DOC*/    "get a reference to the sound samples\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will return an array that directly references the samples\n"
@@ -52,17 +52,26 @@ static PyObject* sndarray_samples(PyObject* self, PyObject* arg)
             return RAISE(PyExc_SDLError, "Mixer not initialized");
 
         formatbytes = (abs(format)&0xff)/8;
-        if(format == AUDIO_S8)
-            type = PyArray_CHAR;
-        else if(format == AUDIO_U8)
-            type = PyArray_UBYTE;
-        else if(formatbytes == 2)
-            type = PyArray_SHORT;
-        else
+       switch(format) 
+        {
+	case AUDIO_S8:
+	    type = PyArray_CHAR;
+	    break;
+        case AUDIO_U8:
+	    type = PyArray_UBYTE;
+	    break;
+        case AUDIO_S16SYS:
+	    type = PyArray_SHORT;
+	    break;
+        case AUDIO_U16SYS:
+	    type = PyArray_USHORT;
+	    break;
+        default:
             return RAISE(PyExc_TypeError, "Unpresentable audio format");
+	}
 
         numdims = (numchannels>1)?2:1;
-        dim[0] = chunk->alen / (formatbytes*numchannels);
+        dim[0] = chunk->alen / (numchannels*formatbytes);
         dim[1] = numchannels;
 
 	array = PyArray_FromDimsAndData(numdims, dim, type, chunk->abuf);
@@ -146,65 +155,36 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
             return RAISE(PyExc_ValueError, "Array depth must match number of mixer channels");
     }
     length = array->dimensions[0];
+    step1 = array->strides[0];
     if(array->nd == 2)
+    {
         length2 = array->dimensions[1];
+	step2 = array->strides[1];
+    }
+    else 
+    {
+        length2 = 1;
+	step2 = mixerbytes;  /*since length2 == 1, this won't be used for looping*/
+    }
 
     /*create chunk, we are screwed if SDL_mixer ever does more than malloc/free*/
     chunk = (Mix_Chunk *)malloc(sizeof(Mix_Chunk));
     if ( chunk == NULL )
         return RAISE(PyExc_MemoryError, "Cannot allocate chunk\n");
     /*let's hope Mix_Chunk never changes also*/
-    chunk->alen = mixerbytes * length * numchannels;
+    chunk->alen = length * numchannels * mixerbytes;
     chunk->abuf = (Uint8*)malloc(chunk->alen);
     chunk->allocated = 1;
     chunk->volume = 128;
 
-    if(array->nd == 1)
+    if (step1 == mixerbytes * numchannels && step2 == mixerbytes)
     {
-        step1 = array->strides[0];
-        src = (Uint8*)array->data;
-        dst = (Uint8*)chunk->abuf;
-        if(mixerbytes == 1)
-        {
-            switch(array->descr->elsize)
-            {
-            case 1:
-                for(loop1=0; loop1<length; loop1++, dst+=1, src+=step1)
-                    *(Uint8*)dst = (Uint8)*((Uint8*)src);
-                break;
-            case 2:
-                for(loop1=0; loop1<length; loop1++, dst+=1, src+=step1)
-                    *(Uint8*)dst = (Uint8)*((Uint16*)src);
-                break;
-            case 4:
-                for(loop1=0; loop1<length; loop1++, dst+=1, src+=step1)
-                    *(Uint8*)dst = (Uint8)*((Uint32*)src);
-                break;
-            }
-        }
-        else
-        {
-            switch(array->descr->elsize)
-            {
-            case 1:
-                for(loop1=0; loop1<length; loop1++, dst+=2, src+=step1)
-                    *(Uint16*)dst = (Uint16)((*((Uint8*)src))<<8);
-                break;
-            case 2:
-                for(loop1=0; loop1<length; loop1++, dst+=2, src+=step1)
-                    *(Uint16*)dst = (Uint16)*((Uint16*)src);
-                break;
-            case 4:
-                for(loop1=0; loop1<length; loop1++, dst+=2, src+=step1)
-                    *(Uint16*)dst = (Uint16)*((Uint32*)src);
-                break;
-            }
-        }
+      /*OPTIMIZATION: in these cases, we don't need to loop through the samples
+       *individually, because the bytes are already layed out correctly*/
+      memcpy(chunk->abuf, array->data, chunk->alen);
     }
     else
     {
-        step1 = array->strides[0];
-        step2 = array->strides[1];
         dst = (Uint8*)chunk->abuf;
         if(mixerbytes == 1)
         {
@@ -214,15 +194,15 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
                 switch(array->descr->elsize)
                 {
                 case 1:
-                    for(loop2=0; loop2<length2; loop1++, dst+=1, src+=step2)
+                    for(loop2=0; loop2<length2; loop2++, dst+=1, src+=step2)
                         *(Uint8*)dst = (Uint8)*((Uint8*)src);
                     break;
                 case 2:
-                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                    for(loop2=0; loop2<length2; loop2++, dst+=1, src+=step2)
                         *(Uint8*)dst = (Uint8)*((Uint16*)src);
                     break;
                 case 4:
-                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                    for(loop2=0; loop2<length2; loop2++, dst+=1, src+=step2)
                         *(Uint8*)dst = (Uint8)*((Uint32*)src);
                     break;
                 }
@@ -236,15 +216,15 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
                switch(array->descr->elsize)
                 {
                 case 1:
-                    for(loop2=0; loop2<length2; loop1++, dst+=1, src+=step2)
+                    for(loop2=0; loop2<length2; loop2++, dst+=2, src+=step2)
                         *(Uint16*)dst = (Uint16)(*((Uint8*)src)<<8);
                     break;
                 case 2:
-                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                    for(loop2=0; loop2<length2; loop2++, dst+=2, src+=step2)
                         *(Uint16*)dst = (Uint16)*((Uint16*)src);
                     break;
                 case 4:
-                    for(loop1=0; loop1<length; loop1++, dst+=1, src+=step2)
+                    for(loop2=0; loop2<length2; loop2++, dst+=2, src+=step2)
                         *(Uint16*)dst = (Uint16)*((Uint32*)src);
                     break;
                 }

@@ -1,7 +1,7 @@
 
                         Pygame Readme
-   Version 1.6
-   October 23, 2003 Python Game Development
+   Version 1.6.1
+   Devel Release Python Game Development
    by Pete Shinners http://www.pygame.org
    pete@shinners.org
 
@@ -67,7 +67,7 @@
      Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
    Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
    Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
-   James Mazer, Lalo Martins, Timothy Stranex
+   James Mazer, Lalo Martins, Timothy Stranex, Chad Lester
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, Rene
@@ -100,6 +100,7 @@
      * surfarrays should be able to do RGBA along with RGB
      * draw with transparancy
      * draw large sets of primitives with a single call
+     * drawing offsets, perhaps as subsurfaces
 
    License
 
