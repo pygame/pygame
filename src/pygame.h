@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -83,7 +83,7 @@
 
 /* BASE */
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
-#define PYGAMEAPI_BASE_NUMSLOTS 9
+#define PYGAMEAPI_BASE_NUMSLOTS 10
 #ifndef PYGAMEAPI_BASE_INTERNAL
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 0])
 #define PyGame_RegisterQuit \
@@ -102,6 +102,8 @@
 			(*(void(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 7])
 #define PyGame_Video_AutoInit \
 			(*(int(*)(void))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 8])
+#define RGBAFromObj \
+			(*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 9])
 #define import_pygame_base() { \
 	PyObject *module = PyImport_ImportModule("pygame.base"); \
 	if (module != NULL) { \

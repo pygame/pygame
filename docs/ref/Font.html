@@ -8,7 +8,7 @@
 	<a href=../index.html><font size=+5 color=#ffffff><i><b>
       pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
-	PyGame<br>Documentation</font>
+	pygame<br>documentation</font>
 </td></tr></table></td><td width=100% align=center valign=middle>
 
 	||&nbsp;
@@ -162,16 +162,14 @@ Get the current status of the font's underline attribute
 
 <a name=render><font size=+2><b>render
 </b></font><br><font size=+1><tt>
-Font.render(text, antialias, fgcolor, [bgcolor]) -> Surface
+Font.render(text, antialias, fore_RGBA, [back_RGBA]) -> Surface
 </tt></font><ul>
 Render the given text onto a new image surface. The given text
 can be standard python text or unicode. Antialiasing will smooth
 the edges of the font for a much cleaner look. The foreground
-color is a 3-number-sequence containing the desired RGB
-components for the text. The background color is also a
-3-number-sequence of RGB. This sets the background color for the
-text. If the background color is omitted, the text will have a
-transparent background.
+and background color are both RGBA, the alpha component is ignored
+if given. If the background color is omitted, the text will have a
+a transparent background.
 </ul><br>&nbsp;<br>
 
 <a name=set_bold><font size=+2><b>set_bold

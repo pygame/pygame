@@ -8,7 +8,7 @@
 	<a href=../index.html><font size=+5 color=#ffffff><i><b>
       pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
-	PyGame<br>Documentation</font>
+	pygame<br>documentation</font>
 </td></tr></table></td><td width=100% align=center valign=middle>
 
 	||&nbsp;
@@ -190,10 +190,6 @@ locks Surface for pixel access</td></tr>
 convert RGB into a mapped color</td></tr>
 
 
-<tr><td><a href=#map_rgba>map_rgba</a></td><td> -
-convert RGBA into a mapped color</td></tr>
-
-
 <tr><td><a href=#mustlock>mustlock</a></td><td> -
 check if the surface needs locking</td></tr>
 
@@ -232,10 +228,6 @@ locks Surface for pixel access</td></tr>
 
 <tr><td><a href=#unmap_rgb>unmap_rgb</a></td><td> -
 convert mapped color into RGB</td></tr>
-
-
-<tr><td><a href=#unmap_rgba>unmap_rgba</a></td><td> -
-convert mapped color into RGBA</td></tr>
 
 
 </table>
@@ -309,10 +301,10 @@ is disabled for the Surface, it returns None.
 
 <a name=get_at><font size=+2><b>get_at
 </b></font><br><font size=+1><tt>
-Surface.get_at([x, y]) -> int
+Surface.get_at([x, y]) -> RGBA
 </tt></font><ul>
-Returns the mapped pixel color at the coordinates
-given point.
+Returns the RGB color values at a given pixel. If the
+Surface has no per-pixel alpha, the alpha will be 255 (opaque).
 </ul><br>&nbsp;<br>
 
 <a name=get_bitsize><font size=+2><b>get_bitsize
@@ -342,7 +334,7 @@ rectangle containing the full Surface area.
 
 <a name=get_colorkey><font size=+2><b>get_colorkey
 </b></font><br><font size=+1><tt>
-Surface.get_colorkey() -> color
+Surface.get_colorkey() -> RGBA
 </tt></font><ul>
 Returns the current mapped color value being used for
 colorkeying. If colorkeying is not enabled for this surface, it
@@ -468,20 +460,9 @@ lazy.
 
 <a name=map_rgb><font size=+2><b>map_rgb
 </b></font><br><font size=+1><tt>
-Surface.map_rgb([r, g, b]) -> int
+Surface.map_rgb(RGBA) -> int
 </tt></font><ul>
-Uses the Surface format to convert RGB into a mapped color value.
-Note that this will work if the RGB is passed as three arguments
-instead of a sequence.
-</ul><br>&nbsp;<br>
-
-<a name=map_rgba><font size=+2><b>map_rgba
-</b></font><br><font size=+1><tt>
-Surface.map_rgba([r, g, b, a]) -> int
-</tt></font><ul>
-Uses the Surface format to convert RGBA into a mapped color
-value. It is safe to call this on a surface with no pixel alpha.
-The alpha will simply be ignored.
+Uses the Surface format to convert RGBA into a mapped color value.
 </ul><br>&nbsp;<br>
 
 <a name=mustlock><font size=+2><b>mustlock
@@ -522,9 +503,9 @@ blitting speed.
 
 <a name=set_at><font size=+2><b>set_at
 </b></font><br><font size=+1><tt>
-Surface.set_at([x, y], pixel) -> None
+Surface.set_at([x, y], RGBA) -> None
 </tt></font><ul>
-Assigns a mapped pixel color to the image at the give position.
+Assigns RGBA color to the image at the give position.
 </ul><br>&nbsp;<br>
 
 <a name=set_clip><font size=+2><b>set_clip
@@ -541,7 +522,7 @@ the Surface.
 
 <a name=set_colorkey><font size=+2><b>set_colorkey
 </b></font><br><font size=+1><tt>
-Surface.set_colorkey([color, [flags]]) -> None
+Surface.set_colorkey([RGBA, [flags]]) -> None
 </tt></font><ul>
 Set the colorkey for the surface by passing a mapped color value
 as the color argument. If no arguments are passed, colorkeying
@@ -584,18 +565,10 @@ operation will return quickly with minute overhead.
 
 <a name=unmap_rgb><font size=+2><b>unmap_rgb
 </b></font><br><font size=+1><tt>
-Surface.unmap_rgb(color) -> r, g, b
+Surface.unmap_rgb(color) -> RGBA
 </tt></font><ul>
-This function returns the RGB components for a mapped color
-value.
-</ul><br>&nbsp;<br>
-
-<a name=unmap_rgba><font size=+2><b>unmap_rgba
-</b></font><br><font size=+1><tt>
-Surface.unmap_rgba(color) -> r, g, b, a
-</tt></font><ul>
-This function returns the RGB components for a mapped color
-value. For surfaces with no alpha, the alpha will always be 255.
+This function returns the RGBA components for a mapped color
+value. If Surface has no per-pixel alpha, alpha will be 255 (opaque).
 </ul><br>&nbsp;<br>
 
 

@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 */
 
 /*
- *  mixer module for PyGAME
+ *  mixer module for pygame
  */
 #define PYGAMEAPI_MIXER_INTERNAL
 #include "pygame.h"

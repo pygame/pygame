@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -21,9 +21,10 @@
 */
 
 /*
- *  font module for PyGAME
+ *  font module for pygame
  */
 #define PYGAMEAPI_FONT_INTERNAL
+#include <string.h>
 #include "pygame.h"
 #include "font.h"
 
@@ -35,7 +36,8 @@ static PyObject* PyFont_New(TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-
+static char* font_defaultname = "bluebold.ttf";
+static char* font_defaultpath = NULL;
 
 static void font_autoquit()
 {
@@ -43,6 +45,11 @@ static void font_autoquit()
 	{
 		font_initialized = 0;
 		TTF_Quit();
+	}
+	if(font_defaultpath)
+	{
+		PyMem_Free(font_defaultpath);
+		font_defaultpath = NULL;
 	}
 }
 
@@ -57,6 +64,34 @@ static PyObject* font_autoinit(PyObject* self, PyObject* arg)
 		if(TTF_Init())
 			return PyInt_FromLong(0);
 		font_initialized = 1;
+
+		if(!font_defaultpath)
+		{
+			PyObject* module;
+			char* modulepath;
+			module = PyImport_ImportModule("pygame");
+			if(module)
+			{
+				modulepath = PyModule_GetFilename(module);
+				if(modulepath)
+				{
+					font_defaultpath = PyMem_Malloc(strlen(modulepath) + 16);
+					strcpy(font_defaultpath, modulepath);
+					if(font_defaultpath)
+					{
+						char* end = strstr(font_defaultpath, "__init__.");
+						if(end)
+							strcpy(end, font_defaultname);
+						else
+						{
+							PyMem_Free(font_defaultpath);
+							font_defaultpath = NULL;
+						}
+					}
+				}
+				Py_DECREF(module);
+			}
+		}
 	}
 	return PyInt_FromLong(1);
 }
@@ -350,39 +385,46 @@ static PyObject* font_set_underline(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_font_render[] =
-    /*DOC*/    "Font.render(text, antialias, fgcolor, [bgcolor]) -> Surface\n"
+    /*DOC*/    "Font.render(text, antialias, fore_RGBA, [back_RGBA]) -> Surface\n"
     /*DOC*/    "render text to a new image\n"
     /*DOC*/    "\n"
     /*DOC*/    "Render the given text onto a new image surface. The given text\n"
     /*DOC*/    "can be standard python text or unicode. Antialiasing will smooth\n"
     /*DOC*/    "the edges of the font for a much cleaner look. The foreground\n"
-    /*DOC*/    "color is a 3-number-sequence containing the desired RGB\n"
-    /*DOC*/    "components for the text. The background color is also a\n"
-    /*DOC*/    "3-number-sequence of RGB. This sets the background color for the\n"
-    /*DOC*/    "text. If the background color is omitted, the text will have a\n"
-    /*DOC*/    "transparent background.\n"
+    /*DOC*/    "and background color are both RGBA, the alpha component is ignored\n"
+	/*ODC*/    "if given. If the background color is omitted, the text will have a\n"
+    /*DOC*/    "a transparent background.\n"
     /*DOC*/ ;
 
 static PyObject* font_render(PyObject* self, PyObject* args)
 {
 	TTF_Font* font = PyFont_AsFont(self);
-	int aa, fr, fg, fb, br, bg, bb = -1;
+	int aa;
 	PyObject* text;
+	PyObject* fg_rgba_obj, *bg_rgba_obj = NULL;
+	Uint8 rgba[4];
 	SDL_Surface* surf;
 	SDL_Color foreg, backg;
 
-	if(!PyArg_ParseTuple(args, "Oi(iii)|(iii)", &text, &aa, &fr, &fg, &fb, &br, &bg, &bb))
+	if(!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj, &bg_rgba_obj))
 		return NULL;
 
-	foreg.r = (Uint8)fr; foreg.g = (Uint8)fg; foreg.b = (Uint8)fb;
-	backg.r = (Uint8)br; backg.g = (Uint8)bg; backg.b = (Uint8)bb; 
+	if(!RGBAFromObj(fg_rgba_obj, rgba))
+		return RAISE(PyExc_TypeError, "Invalid foreground RGBA argument");
+	foreg.r = rgba[0]; foreg.g = rgba[1]; foreg.b = rgba[2];
+	if(bg_rgba_obj)
+	{
+		if(!RGBAFromObj(bg_rgba_obj, rgba))
+			return RAISE(PyExc_TypeError, "Invalid background RGBA argument");
+		backg.r = rgba[0]; backg.g = rgba[1]; backg.b = rgba[2];
+	}	
 
 	if(PyUnicode_Check(text))
 	{
 		Py_UNICODE* string = PyUnicode_AsUnicode(text);
 		if(aa)
 		{
-			if(bb == -1)
+			if(!bg_rgba_obj)
 				surf = TTF_RenderUNICODE_Blended(font, string, foreg);
 			else
 				surf = TTF_RenderUNICODE_Shaded(font, string, foreg, backg);
@@ -395,7 +437,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		char* string = PyString_AsString(text);
 		if(aa)
 		{
-			if(bb == -1)
+			if(!bg_rgba_obj)
 				surf = TTF_RenderText_Blended(font, string, foreg);
 			else
 				surf = TTF_RenderText_Shaded(font, string, foreg, backg);
@@ -409,7 +451,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	if(!surf)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	if(!aa && bb != -1) /*turn off transparancy*/
+	if(!aa && bg_rgba_obj) /*turn off transparancy*/
 	{			
 		SDL_SetColorKey(surf, 0, 0);
 		surf->format->palette->colors[0].r = backg.r;
@@ -532,26 +574,39 @@ static PyTypeObject PyFont_Type =
 /*font module methods*/
 
     /*DOC*/ static char doc_font_font[] =
-    /*DOC*/    "pygame.font(file, size) -> Font\n"
+    /*DOC*/    "pygame.font.new_font(file, size) -> Font\n"
     /*DOC*/    "create a new font object\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will create a new font object. The given file must be an\n"
-    /*DOC*/    "existing filename. The font loader does not work with python\n"
+    /*DOC*/    "This will create a new font object. The given file must be a\n"
+    /*DOC*/    "filename to a TTF file. The font loader does not work with python\n"
     /*DOC*/    "file-like objects. The size represents the height of the font in\n"
-    /*DOC*/    "pixels.\n"
+    /*DOC*/    "pixels. The file argument can be 'None', which will use a plain\n"
+    /*DOC*/    "default font.\n"
     /*DOC*/ ;
 
 static PyObject* font_font(PyObject* self, PyObject* args)
 {
+	PyObject* fileobj;
 	char* filename;
 	int fontsize;
 	TTF_Font* font;
 	PyObject* fontobj;
-	if(!PyArg_ParseTuple(args, "si", &filename, &fontsize))
+	if(!PyArg_ParseTuple(args, "Oi", &fileobj, &fontsize))
 		return NULL;
 
 	if(!font_initialized)
 		return RAISE(PyExc_SDLError, "font not initialized");
+
+	if(fileobj == Py_None)
+	{
+		if(!font_defaultpath)
+			return RAISE(PyExc_RuntimeError, "default font not found");
+		filename = font_defaultpath;
+	}
+	else if(PyString_Check(fileobj))
+		filename = PyString_AS_STRING(fileobj);
+	else
+		return RAISE(PyExc_TypeError, "font name must be string or None");
 
 	Py_BEGIN_ALLOW_THREADS
 	font = TTF_OpenFont(filename, fontsize);
@@ -572,7 +627,7 @@ static PyMethodDef font_builtins[] =
 	{ "quit", font_quit, 1, doc_quit },
 	{ "get_init", get_init, 1, doc_get_init },
 
-	{ "font", font_font, 1, doc_font_font },
+	{ "new_font", font_font, 1, doc_font_font },
 
 	{ NULL, NULL }
 };

@@ -1,5 +1,5 @@
 /*
-    PyGame - Python Game Library
+    pygame - Python Game Library
     Copyright (C) 2000  Pete Shinners
 
     This library is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 */
 
 /*
- *  PyGAME Surface module
+ *  pygame Surface module
  */
 #define PYGAMEAPI_SURFACE_INTERNAL
 #include "pygame.h"
@@ -37,11 +37,11 @@ static PyObject* PySurface_New(SDL_Surface* info);
 
 
     /*DOC*/ static char doc_surf_get_at[] =
-    /*DOC*/    "Surface.get_at([x, y]) -> int\n"
+    /*DOC*/    "Surface.get_at([x, y]) -> RGBA\n"
     /*DOC*/    "get a pixel color\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the mapped pixel color at the coordinates\n"
-    /*DOC*/    "given point.\n"
+    /*DOC*/    "Returns the RGB color values at a given pixel. If the\n"
+    /*DOC*/    "Surface has no per-pixel alpha, the alpha will be 255 (opaque).\n"
     /*DOC*/ ;
 
 static PyObject* surf_get_at(PyObject* self, PyObject* arg)
@@ -50,12 +50,15 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	SDL_PixelFormat* format = surf->format;
 	Uint8* pixels = (Uint8*)surf->pixels;
 	int x, y;
+	Uint32 color;
+	Uint8* byte_buf;
+	Uint8 r, g, b, a;
 
 	if(!PyArg_ParseTuple(arg, "(ii)", &x, &y))
 		return NULL;
 
 	if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
-		return RAISE(PyExc_IndexError, "buffer index out of range");
+		return RAISE(PyExc_IndexError, "pixel index out of range");
 
 	if(!pixels)
 		return RAISE(PyExc_SDLError, "Surface must be locked for pixel access");
@@ -63,47 +66,36 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	switch(format->BytesPerPixel)
 	{
 		case 1:
-		{
-			Uint8 col = *((Uint8*)pixels + y * surf->pitch + x);
-			return PyInt_FromLong(col);
-		}
-		break;
+			color = (Uint32)*((Uint8*)pixels + y * surf->pitch + x);
+			break;
 		case 2:
-		{
-			Uint16 col = *((Uint16*)(pixels + y * surf->pitch) + x);
-			return PyInt_FromLong(col); 
-		}
-		break;
+			color = (Uint32)*((Uint16*)(pixels + y * surf->pitch) + x);
+			break;
 		case 3:
-		{
-			Uint32 col;
-			Uint8* byte_buf;
-			
 			byte_buf = ((Uint8*)(pixels + y * surf->pitch) + x * 3);
-			col =
+			color = (Uint32)(
 				*(byte_buf + (format->Rshift >> 3)) << format->Rshift |
 				*(byte_buf + (format->Gshift >> 3)) << format->Gshift |
-				*(byte_buf + (format->Bshift >> 3)) << format->Bshift;
-			return PyInt_FromLong(col);   
-		}
-		break;
+				*(byte_buf + (format->Bshift >> 3)) << format->Bshift);
+			break;
 		case 4:
-		{
-			Uint32 col = *((Uint32*)(pixels + y * surf->pitch) + x);
-			return PyInt_FromLong(col); 
-		}
-		break;
+			color = *((Uint32*)(pixels + y * surf->pitch) + x);
+			break;
+		default:
+			return RAISE(PyExc_RuntimeError, "Unable to determine color depth.");
 	}
-	return RAISE(PyExc_RuntimeError, "Unable to determine color depth.");
+
+	SDL_GetRGBA(color, format, &r, &g, &b, &a);
+	return Py_BuildValue("(bbbb)", r, g, b, a);
 }
 
 
 
     /*DOC*/ static char doc_surf_set_at[] =
-    /*DOC*/    "Surface.set_at([x, y], pixel) -> None\n"
+    /*DOC*/    "Surface.set_at([x, y], RGBA) -> None\n"
     /*DOC*/    "set pixel at given position\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Assigns a mapped pixel color to the image at the give position.\n"
+    /*DOC*/    "Assigns RGBA color to the image at the give position.\n"
     /*DOC*/ ;
 
 static PyObject* surf_set_at(PyObject* self, PyObject* args)
@@ -113,51 +105,44 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 	Uint8* pixels = (Uint8*)surf->pixels;
 	int x, y;
 	Uint32 color;
-	
-	if(!PyArg_ParseTuple(args, "(ii)i", &x, &y, &color))
+	Uint8 rgba[4];
+	PyObject* rgba_obj;
+	Uint8* byte_buf;
+
+	if(!PyArg_ParseTuple(args, "(ii)O", &x, &y, &rgba_obj))
 		return NULL;
 
 	if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
 	{
 		printf("%d,%d  -  %d,%d\n",x,y, surf->w, surf->h);
-		PyErr_SetString(PyExc_IndexError, "buffer index out of range");
+		PyErr_SetString(PyExc_IndexError, "pixel index out of range");
 		return NULL;
 	}
 
 	if(!pixels)
 		return RAISE(PyExc_SDLError, "Surface must be locked for pixel access");
 
+	if(!RGBAFromObj(rgba_obj, rgba))
+		return RAISE(PyExc_TypeError, "Invalid RGBA object");
+	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+
 	switch(format->BytesPerPixel)
 	{
 		case 1:
-		{
 			*((Uint8*)pixels + y * surf->pitch + x) = (Uint8)color;
-		}
-		break;
+			break;
 		case 2:
-		{
 			*((Uint16*)(pixels + y * surf->pitch) + x) = (Uint16)color;
-		}
-		break;
+			break;
 		case 3:
-		{
-			Uint8* byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
-			Uint8 r, g, b;
-
-			r = (color & format->Rmask) >> format->Rshift;
-			g = (color & format->Gmask) >> format->Gshift;
-			b = (color & format->Bmask) >> format->Bshift;
-
-			*(byte_buf + (format->Rshift >> 3)) = r;
-			*(byte_buf + (format->Gshift >> 3)) = g;
-			*(byte_buf + (format->Bshift >> 3)) = b;	
-		}
-		break;
+			byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
+			*(byte_buf + (format->Rshift >> 3)) = rgba[0];
+			*(byte_buf + (format->Gshift >> 3)) = rgba[1];
+			*(byte_buf + (format->Bshift >> 3)) = rgba[2];	
+			break;
 		case 4:
-		{
 			*((Uint32*)(pixels + y * surf->pitch) + x) = color;
-		}
-		break;
+			break;
 		default:
 			return RAISE(PyExc_SDLError, "Unable to determine color depth.");
 	}
@@ -168,102 +153,47 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_map_rgb[] =
-    /*DOC*/    "Surface.map_rgb([r, g, b]) -> int\n"
+    /*DOC*/    "Surface.map_rgb(RGBA) -> int\n"
     /*DOC*/    "convert RGB into a mapped color\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Uses the Surface format to convert RGB into a mapped color value.\n"
-    /*DOC*/    "Note that this will work if the RGB is passed as three arguments\n"
-    /*DOC*/    "instead of a sequence.\n"
+    /*DOC*/    "Uses the Surface format to convert RGBA into a mapped color value.\n"
     /*DOC*/ ;
 
 static PyObject* surf_map_rgb(PyObject* self,PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
-	Uint8 r, g, b;
+	Uint8 rgba[4];
+	int color;
 
-	if(PyTuple_Size(args)==1)
-	{
-		if(!PyArg_ParseTuple(args, "(bbb)", &r, &g, &b))
-			return NULL;
-	}
-	else if(!PyArg_ParseTuple(args, "bbb", &r, &g, &b))
-		return NULL;
+	if(!RGBAFromObj(args, rgba))
+		return RAISE(PyExc_TypeError, "Invalid RGBA argument");
 
-	return PyInt_FromLong(SDL_MapRGB(surf->format, r, g, b));
+	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	return PyInt_FromLong(color);
 }
 
 
 
     /*DOC*/ static char doc_surf_unmap_rgb[] =
-    /*DOC*/    "Surface.unmap_rgb(color) -> r, g, b\n"
+    /*DOC*/    "Surface.unmap_rgb(color) -> RGBA\n"
     /*DOC*/    "convert mapped color into RGB\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This function returns the RGB components for a mapped color\n"
-    /*DOC*/    "value.\n"
+    /*DOC*/    "This function returns the RGBA components for a mapped color\n"
+    /*DOC*/    "value. If Surface has no per-pixel alpha, alpha will be 255 (opaque).\n"
     /*DOC*/ ;
 
 static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	Uint32 col;
-	Uint8 r, g, b;
-	
-	if(!PyArg_ParseTuple(args, "i", &col))
-		return NULL;
-
-	SDL_GetRGB(col,surf->format, &r, &g, &b);	
-
-	return Py_BuildValue("(bbb)", r, g, b);
-}
-
-
-    /*DOC*/ static char doc_surf_map_rgba[] =
-    /*DOC*/    "Surface.map_rgba([r, g, b, a]) -> int\n"
-    /*DOC*/    "convert RGBA into a mapped color\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Uses the Surface format to convert RGBA into a mapped color\n"
-    /*DOC*/    "value. It is safe to call this on a surface with no pixel alpha.\n"
-    /*DOC*/    "The alpha will simply be ignored.\n"
-    /*DOC*/ ;
-
-static PyObject* surf_map_rgba(PyObject* self,PyObject* args)
-{
-	SDL_Surface* surf = PySurface_AsSurface(self);
-	Uint8 r, g, b, a;
-
-	if(PyTuple_Size(args)==1)
-	{
-		if(!PyArg_ParseTuple(args, "(bbbb)", &r, &g, &b, &a))
-			return NULL;
-	}
-	else if(!PyArg_ParseTuple(args, "bbbb", &r, &g, &b, &a))
-		return NULL;
-
-	return PyInt_FromLong(SDL_MapRGBA(surf->format, r, g, b, a));
-}
-
-
-
-    /*DOC*/ static char doc_surf_unmap_rgba[] =
-    /*DOC*/    "Surface.unmap_rgba(color) -> r, g, b, a\n"
-    /*DOC*/    "convert mapped color into RGBA\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function returns the RGB components for a mapped color\n"
-    /*DOC*/    "value. For surfaces with no alpha, the alpha will always be 255.\n"
-    /*DOC*/ ;
-
-static PyObject* surf_unmap_rgba(PyObject* self,PyObject* args)
-{
-	SDL_Surface* surf = PySurface_AsSurface(self);
-	Uint32 col;
 	Uint8 r, g, b, a;
 	
 	if(!PyArg_ParseTuple(args, "i", &col))
 		return NULL;
 
-	SDL_GetRGBA(col,surf->format, &r, &g, &b, &a);	
+	SDL_GetRGBA(col,surf->format, &r, &g, &b, &a);
 
-	return Py_BuildValue("(bbb)", r, g, b, a);
+	return Py_BuildValue("(bbbb)", r, g, b, a);
 }
 
 
@@ -530,7 +460,7 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_set_colorkey[] =
-    /*DOC*/    "Surface.set_colorkey([color, [flags]]) -> None\n"
+    /*DOC*/    "Surface.set_colorkey([RGBA, [flags]]) -> None\n"
     /*DOC*/    "change colorkey information\n"
     /*DOC*/    "\n"
     /*DOC*/    "Set the colorkey for the surface by passing a mapped color value\n"
@@ -547,10 +477,19 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	Uint32 flags = 0, key = 0;
+	PyObject* rgba_obj = NULL;
+	Uint8 rgba[4];
 
-	if(!PyArg_ParseTuple(args, "|ii", &key, &flags))
+	if(!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
 		return NULL;
-	
+
+	if(rgba_obj)
+	{
+		if(!RGBAFromObj(rgba_obj, rgba))
+			return RAISE(PyExc_TypeError, "Invalid RGBA argument");
+		key = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	}
+
 	if(PyTuple_Size(args) > 0)
 		flags |= SDL_SRCCOLORKEY;
 
@@ -561,7 +500,7 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_get_colorkey[] =
-    /*DOC*/    "Surface.get_colorkey() -> color\n"
+    /*DOC*/    "Surface.get_colorkey() -> RGBA\n"
     /*DOC*/    "query colorkey\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the current mapped color value being used for\n"
@@ -572,14 +511,16 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
+	Uint8 r, g, b, a;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 	
-	if(surf->flags&SDL_SRCCOLORKEY)
-		return PyInt_FromLong(surf->format->colorkey);
+	if(!(surf->flags&SDL_SRCCOLORKEY))
+		RETURN_NONE
 
-	RETURN_NONE
+	SDL_GetRGBA(surf->format->colorkey, surf->format, &r, &g, &b, &a);
+	return Py_BuildValue("(bbbb)", r, g, b, a);
 }
 
 
@@ -659,6 +600,7 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 	PySurfaceObject* srcsurf = NULL;
 	SDL_Surface* src;
 	SDL_Surface* newsurf;
+	Uint32 flags;
 	
 	if(!PyArg_ParseTuple(args, "|O!", &PySurface_Type, &srcsurf))
 		return NULL;
@@ -666,7 +608,8 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 	if(srcsurf)
 	{
 		src = PySurface_AsSurface(srcsurf);
-		newsurf = SDL_ConvertSurface(surf, src->format, src->flags);
+        flags = src->flags | (surf->flags & (SDL_SRCCOLORKEY|SDL_SRCALPHA));
+        newsurf = SDL_ConvertSurface(surf, src->format, flags);
 	}
 	else
 		newsurf = SDL_DisplayFormat(surf);
@@ -783,9 +726,15 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	PyObject* r = NULL;
 	Uint32 color;
 	int result;
+	PyObject* rgba_obj;
+	Uint8 rgba[4];
 	
-	if(!PyArg_ParseTuple(args, "i|O", &color, &r))
+	if(!PyArg_ParseTuple(args, "O|O", &rgba_obj, &r))
 		return NULL;
+
+	if(!RGBAFromObj(rgba_obj, rgba))
+		return RAISE(PyExc_TypeError, "Invalid RGBA argument");
+	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 
 	if(!r)
 	{
@@ -1106,8 +1055,6 @@ static struct PyMethodDef surface_methods[] =
 
 	{"map_rgb",			surf_map_rgb,		1, doc_surf_map_rgb },
 	{"unmap_rgb",		surf_unmap_rgb,		1, doc_surf_unmap_rgb },
-	{"map_rgba",		surf_map_rgba,		1, doc_surf_map_rgba },
-	{"unmap_rgba",		surf_unmap_rgba,	1, doc_surf_unmap_rgba },
 
 	{"get_palette",		surf_get_palette,	1, doc_surf_get_palette },
 	{"get_palette_at",	surf_get_palette_at,1, doc_surf_get_palette_at },
