@@ -21,7 +21,7 @@
 */
 
 #include"pygame.h"
-#include<arrayobject.h>
+#include<Numeric/arrayobject.h>
 #include<SDL_byteorder.h>
 
 

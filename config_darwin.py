@@ -2,6 +2,7 @@
 
 import os, sys, shutil, string
 from glob import glob
+from distutils.sysconfig import get_python_inc
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config')
 configcommand = configcommand + ' --version --cflags --libs'

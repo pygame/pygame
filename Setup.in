@@ -13,7 +13,9 @@ IMAGE = -lSDL_image
 MIXER = -lSDL_mixer
 SMPEG = -lsmpeg
 NUMERIC = -I/usr/include/python2.0/Numeric
+EXTRABASE = 
 #--EndConfig
+
 
 
 #the following modules are optional. you will want to compile
@@ -26,13 +28,6 @@ mixer src/mixer.c $(SDL) $(MIXER)
 mixer_music src/music.c $(SDL) $(MIXER)
 movie src/movie.c $(SDL) $(SMPEG)
 surfarray src/surfarray.c $(SDL) $(NUMERIC)
-
-
-
-#the following modules are also optional, but only require
-#python dependencies. the setup script can determine if these
-#are available at runtime, no need to change these
-
 
 
 

@@ -31,8 +31,8 @@
 
 static Mix_Music* current_music = NULL;
 static int endmusic_event = SDL_NOEVENT;
-static long long int music_pos = 0;
-static long int music_pos_time = -1;
+static Uint64 music_pos = 0;
+static long music_pos_time = -1;
 static int music_frequency = 0;
 static Uint16 music_format = 0;
 static int music_channels = 0;
@@ -270,7 +270,7 @@ static PyObject* get_volume(PyObject* self, PyObject* args)
 
 static PyObject* get_pos(PyObject* self, PyObject* args)
 {
-	long int ticks;
+	long ticks;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -280,8 +280,8 @@ static PyObject* get_pos(PyObject* self, PyObject* args)
 	if (music_pos_time < 0)
 		return PyLong_FromLong(-1);
 
-	ticks = 1000 * music_pos /
-		(music_channels * music_frequency * ((music_format & 0xff) >> 3));
+	ticks = (long)(1000 * music_pos /
+		(music_channels * music_frequency * ((music_format & 0xff) >> 3)));
 	ticks += SDL_GetTicks() - music_pos_time;
 
 	return PyInt_FromLong((long)ticks);
