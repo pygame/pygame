@@ -69,8 +69,6 @@ for e in extensions[:]:
             print 'NOTE: Not compiling:', e.name, ' (module not found='+module+')'
             extensions.remove(e)
 
-
-
 setup (name = "pygame",
        version = '0.5',
        maintainer = "Pete Shinners",

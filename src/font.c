@@ -566,7 +566,7 @@ static PyTypeObject PyFont_Type =
 	0,
 	font_dealloc,	
 	0,
-	font_getattr
+	font_getattr,
 	0,
 	0,
 	0,

@@ -56,4 +56,4 @@ joystick src/joystick.c $(SDL)
 #auto-copy needed DLLs into the pygame installation folder.
 #you can simply ignore these lines under non-windows, no need to
 #comment out.
-COPYLIB_smpeg $(SMPEG)
+COPYLIB_smpeg $(SDL) $(SMPEG)
