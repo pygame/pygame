@@ -1192,11 +1192,9 @@ static PyObject* surf_save(PyObject* self, PyObject* arg)
 	{
 		if(!(rw = RWopsFromPython(file)))
 			return NULL;
-		Py_BEGIN_ALLOW_THREADS
 		PySurface_Prep(self);
 		result = SDL_SaveBMP_RW(surf, rw, 1);
 		PySurface_Unprep(self);
-		Py_END_ALLOW_THREADS
 	}
 
 	if(result == -1)
