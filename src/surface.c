@@ -1170,9 +1170,11 @@ PyObject* surface_str(PyObject* self)
     /*DOC*/    "forth between the packed pixel values for you. Information on how\n"
     /*DOC*/    "the pixels are packed can be retreived from the get_masks(),\n"
     /*DOC*/    "get_losses() and get_shifts() routines.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Here is the quick breakdown of how these work (don't worry if you\n"
-    /*DOC*/    "don't quite understand this, it is only here for informational\n"
+    /*DOC*/ ;
+#if 0 /*extra help, only for docs*/
+    /*DOC*/ static char doc_Surface_EXTRA[] =
+    /*DOC*/    "Here is the quick breakdown of how packed pixels work (don't worry if\n"
+    /*DOC*/    "you don't quite understand this, it is only here for informational\n"
     /*DOC*/    "purposes, it is not needed). Each colorplane mask can be used to\n"
     /*DOC*/    "isolate the values for a colorplane from the packed pixel color.\n"
     /*DOC*/    "Therefore PACKED_COLOR & RED_MASK == REDPLANE. Note that the\n"
@@ -1182,14 +1184,14 @@ PyObject* surface_str(PyObject* self)
     /*DOC*/    "colorplane and the actual color for that plane. Here are the\n"
     /*DOC*/    "final formulas used be map and unmap (not exactly, heh).\n"
     /*DOC*/    "PACKED_COLOR = RED>>losses[0]<<shifts[0] |\n"
-    /*DOC*/    "GREEN>>losses[1]<<shifts[1] | BLUE>>losses[2]<<shifts[2]\n"
+    /*DOC*/    "      GREEN>>losses[1]<<shifts[1] | BLUE>>losses[2]<<shifts[2]\n"
     /*DOC*/    "RED = PACKED_COLOR & masks[0] >> shifts[0] << losses[0]\n"
     /*DOC*/    "GREEN = PACKED_COLOR & masks[1] >> shifts[1] << losses[1]\n"
     /*DOC*/    "BLUE = PACKED_COLOR & masks[2] >> shifts[2] << losses[2]\n"
     /*DOC*/    "There is also an alpha channel for some Surfaces. The alpha\n"
     /*DOC*/    "channel works this same exact way, and the map_rgba() and\n"
     /*DOC*/    "unmap_rgba() functions can be used to do the conversion for you.\n"
-    /*DOC*/ ;
+#endif
 
 
 static PyTypeObject PySurface_Type =
@@ -1211,6 +1213,8 @@ static PyTypeObject PySurface_Type =
 	(hashfunc)NULL,			/*hash*/
 	(ternaryfunc)NULL,		/*call*/
 	(reprfunc)NULL,			/*str*/
+	0L,0L,0L,0L,
+	doc_Surface_MODULE /* Documentation string */
 };
 
 
@@ -1231,8 +1235,8 @@ static PyObject* PySurface_New(SDL_Surface* s)
 
 /* surface module functions */
 
-    /*DOC*/ static char doc_surface[] =
-    /*DOC*/    "pygame.surface(size, [flags, [depth|Surface, [masks]]]) ->\n"
+    /*DOC*/ static char doc_new_surface[] =
+    /*DOC*/    "pygame.new_surface(size, [flags, [depth|Surface, [masks]]]) ->\n"
     /*DOC*/    "Surface\n"
     /*DOC*/    "create a new Surface\n"
     /*DOC*/    "\n"
@@ -1254,7 +1258,7 @@ static PyObject* PySurface_New(SDL_Surface* s)
     /*DOC*/    "for the flag.\n"
     /*DOC*/ ;
 
-static PyObject* surface(PyObject* self, PyObject* arg)
+static PyObject* new_surface(PyObject* self, PyObject* arg)
 {
 	Uint32 flags = 0;
 	int width, height;
@@ -1327,7 +1331,7 @@ static PyObject* surface(PyObject* self, PyObject* arg)
 
 static PyMethodDef surface_builtins[] =
 {
-	{ "surface", surface, 1, doc_surface },
+	{ "new_surface", new_surface, 1, doc_new_surface },
 	{ NULL, NULL }
 };
 

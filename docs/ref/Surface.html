@@ -76,10 +76,8 @@ bitdepth for the Surface. You generally don't need to care how
 this is done, the map_rgb() and unmap_rgb() will convert back and
 forth between the packed pixel values for you. Information on how
 the pixels are packed can be retreived from the get_masks(),
-get_losses() and get_shifts() routines.
-<br>&nbsp;<br>
-Here is the quick breakdown of how these work (don't worry if you
-don't quite understand this, it is only here for informational
+get_losses() and get_shifts() routines.<p>&nbsp;</p>Here is the quick breakdown of how packed pixels work (don't worry if
+you don't quite understand this, it is only here for informational
 purposes, it is not needed). Each colorplane mask can be used to
 isolate the values for a colorplane from the packed pixel color.
 Therefore PACKED_COLOR & RED_MASK == REDPLANE. Note that the
@@ -89,7 +87,7 @@ masks can be used to convert back and forth between each
 colorplane and the actual color for that plane. Here are the
 final formulas used be map and unmap (not exactly, heh).
 PACKED_COLOR = RED>>losses[0]<<shifts[0] |
-GREEN>>losses[1]<<shifts[1] | BLUE>>losses[2]<<shifts[2]
+      GREEN>>losses[1]<<shifts[1] | BLUE>>losses[2]<<shifts[2]
 RED = PACKED_COLOR & masks[0] >> shifts[0] << losses[0]
 GREEN = PACKED_COLOR & masks[1] >> shifts[1] << losses[1]
 BLUE = PACKED_COLOR & masks[2] >> shifts[2] << losses[2]

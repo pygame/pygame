@@ -24,12 +24,13 @@
 #include "pygame.h"
 
 
-static int timer_event = SDL_NOEVENT;
-static Uint32 timer_callback(Uint32 interval)
+static SDL_TimerID event_timers[SDL_NUMEVENTS] = {NULL};
+
+static Uint32 timer_callback(Uint32 interval, void* param)
 {
 	if(SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		SDL_Event event = {timer_event};
+		SDL_Event event = {(int)param};
 		SDL_PushEvent(&event);
 	}
 	return interval;
@@ -62,6 +63,10 @@ static PyObject* get_ticks(PyObject* self, PyObject* arg)
     /*DOC*/    "delay for a number of milliseconds\n"
     /*DOC*/    "\n"
     /*DOC*/    "Will pause for a given number of milliseconds.\n"
+    /*DOC*/    "The maximum resolution of this delay is 10 milliseconds. The\n"
+    /*DOC*/    "time you request to delay will be truncated down to the nearest\n"
+    /*DOC*/    "10 milliseconds. This will help delay() return a little before\n"
+    /*DOC*/    "the requested time has passed, instead of a little afterwards.\n"
     /*DOC*/ ;
 
 static PyObject* delay(PyObject* self, PyObject* arg)
@@ -71,7 +76,7 @@ static PyObject* delay(PyObject* self, PyObject* arg)
 		return NULL;
 
 	Py_BEGIN_ALLOW_THREADS
-	SDL_Delay(ticks);
+	SDL_Delay((ticks/10)*10);
 	Py_END_ALLOW_THREADS
 
 	RETURN_NONE
@@ -80,22 +85,36 @@ static PyObject* delay(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_set_timer[] =
-    /*DOC*/    "pygame.time.set_timer([millseconds, eventid]) -> int\n"
+    /*DOC*/    "pygame.time.set_timer(eventid, milliseconds) -> int\n"
     /*DOC*/    "control timer events\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Every given number of milliseconds, a new event with\n"
-	/*DOC*/	   "the given event id will be placed on the event queue.\n"
-    /*DOC*/    "The timer will run indefinitely, until set_timer() is\n"
-    /*DOC*/    "called with no arguments. Calling with no arguments stops\n"
-    /*DOC*/    "the running timer.\n"
+    /*DOC*/    "Every event id can have a timer attached to it. Calling\n"
+    /*DOC*/    "this will set the timer in milliseconds for that event.\n"
+    /*DOC*/    "setting milliseconds to 0 or less will disable that timer.\n"
+    /*DOC*/    "When a timer for an event is set, that event will be\n"
+    /*DOC*/    "placed on the event queue every given number of\n"
+    /*DOC*/    "milliseconds.\n"
     /*DOC*/ ;
 
 static PyObject* set_timer(PyObject* self, PyObject* arg)
 {
+	SDL_TimerID newtimer;
 	int ticks = 0, event = SDL_NOEVENT;
-	if(!PyArg_ParseTuple(arg, "ii", &ticks, &event))
+	if(!PyArg_ParseTuple(arg, "ii", &event, &ticks))
 		return NULL;
 
+	if(event <= SDL_NOEVENT || event >= SDL_NUMEVENTS)
+		return RAISE(PyExc_ValueError, "Event id must be between NOEVENT(0) and NUMEVENTS(32)");
+
+	/*stop original timer*/
+	if(event_timers[event])
+	{
+		SDL_RemoveTimer(event_timers[event]);
+		event_timers[event] = NULL;
+	}
+
+	if(ticks <= 0)
+		RETURN_NONE
 
 	/*just doublecheck that timer is initialized*/
 	if(!SDL_WasInit(SDL_INIT_TIMER))
@@ -104,13 +123,10 @@ static PyObject* set_timer(PyObject* self, PyObject* arg)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 	}
 
-	if(!ticks || event == SDL_NOEVENT)
-		SDL_SetTimer(0, NULL);
-	else
-	{
-		timer_event = event;
-		SDL_SetTimer(ticks, timer_callback);
-	}
+	newtimer = SDL_AddTimer((ticks/10)*10, timer_callback, (void*)event);
+	if(!newtimer)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+	event_timers[event] = newtimer;
 
 	RETURN_NONE
 }

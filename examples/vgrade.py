@@ -74,7 +74,7 @@ def main():
     screen = pygame.display.set_mode(size)
 
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
-    pygame.time.set_timer(500, USEREVENT)
+    pygame.time.set_timer(USEREVENT, 500)
 
     while 1:
         event = pygame.event.poll()
