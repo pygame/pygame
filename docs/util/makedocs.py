@@ -126,7 +126,8 @@ def parsedocs(docs):
             extras[name] = '\n'.join(d[1:])
         else:
             obj = {'docs':['no documentation']}
-            name = d[1][:d[1].rfind('(')]
+            #name = d[1][:d[1].rfind('(')]
+            name = d[1][:d[1].find('(')]
             dot = name.rfind('.')
             if dot == -1:
                 obj['category'] = 'misc'
