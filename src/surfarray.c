@@ -53,6 +53,7 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	char* startpixel;
 	int pixelstep;
+	const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -62,46 +63,26 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for 3D reference array");
 
 	/*must discover information about how data is packed*/
-	/*argh, endian not working, for now intelstyle will be the only way*/
-	if(1 || SDL_BYTEORDER == SDL_BIG_ENDIAN) /*intel-style*/
+	if(surf->format->Rmask == 0xff<<16 && 
+				surf->format->Gmask == 0xff<<8 &&
+				surf->format->Bmask == 0xff)
 	{
-		if(surf->format->Rmask == 0xff<<16 && 
-					surf->format->Gmask == 0xff<<8 &&
-					surf->format->Bmask == 0xff)
-		{
-			pixelstep = -1;
-			startpixel = ((char*)surf->pixels)+2;
-		}
-		else if(surf->format->Bmask == 0xff<<16 && 
-					surf->format->Gmask == 0xff<<8 &&
-					surf->format->Rmask == 0xff)
-		{
-			pixelstep = 1;
-			startpixel = ((char*)surf->pixels);
-		}
-		else
-			return RAISE(PyExc_ValueError, "unsupport colormasks for 3D reference array");
+		pixelstep = (lilendian ? -1 : 1);
+		startpixel = ((char*)surf->pixels) + (lilendian ? 2 : 0);
 	}
-	else /*mips-style*/
+	else if(surf->format->Bmask == 0xff<<16 && 
+				surf->format->Gmask == 0xff<<8 &&
+				surf->format->Rmask == 0xff)
 	{
-		if(surf->format->Rmask == 0xff<<16 && 
-					surf->format->Gmask == 0xff<<8 &&
-					surf->format->Bmask == 0xff)
-		{
-			pixelstep = 1;
-			startpixel = ((char*)surf->pixels);
-		}
-		else if(surf->format->Bmask == 0xff<<16 && 
-					surf->format->Gmask == 0xff<<8 &&
-					surf->format->Rmask == 0xff)
-		{
-			pixelstep = -1;
-			startpixel = ((char*)surf->pixels)+2;
-		}
-		else
-			return RAISE(PyExc_ValueError, "unsupport colormasks 3D reference array");
+		pixelstep = (lilendian ? 1 : -1);
+		startpixel = ((char*)surf->pixels) + (lilendian ? 0 : 2);
 	}
-
+	else
+		return RAISE(PyExc_ValueError, "unsupport colormasks for 3D reference array");
+	if(!lilendian && surf->format->BytesPerPixel == 4)
+	    ++startpixel;
+    
+	/*create the referenced array*/
 	dim[0] = surf->w;
 	dim[1] = surf->h;
 	dim[2] = 3; /*could be 4 if alpha in the house*/
@@ -251,7 +232,6 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 			}
 		}break;
 	default: /*case 4*/
-		printf("stridex=%d stridey=%d\n", stridex, stridey);
 		for(loopy = 0; loopy < surf->h; ++loopy)
 		{
 			Uint32* pix = (Uint32*)(((char*)surf->pixels)+loopy*surf->pitch);
@@ -290,7 +270,7 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	SDL_PixelFormat* format;
 	int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift;
-	int stridex, stridey, stridez;
+	int stridex, stridey;
 	SDL_Color* palette;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
@@ -312,7 +292,6 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 
 	stridex = ((PyArrayObject*)array)->strides[0];
 	stridey = ((PyArrayObject*)array)->strides[1];
-	stridez = ((PyArrayObject*)array)->strides[2];
 	
 	switch(surf->format->BytesPerPixel)
 	{
@@ -342,7 +321,7 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
 			while(pix < end)
 			{
-				Uint32 color = *pix++;
+				Uint16 color = *pix++;
 				data[0] = (color&Rmask)>>Rshift;
 				data[1] = (color&Gmask)>>Gshift;
 				data[2] = (color&Bmask)>>Bshift;
@@ -357,7 +336,11 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
 			while(pix < end)
 			{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
 				Uint32 color = (pix[0]) + (pix[1]<<8) + (pix[2]<<16); pix += 3;
+#else
+				Uint32 color = (pix[2]) + (pix[1]<<8) + (pix[0]<<16); pix += 3;
+#endif
 				data[0] = (color&Rmask)>>Rshift;
 				data[1] = (color&Gmask)>>Gshift;
 				data[2] = (color&Bmask)>>Bshift;
