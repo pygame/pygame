@@ -50,6 +50,10 @@ static int SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle);
     /*DOC*/    "will only work with BMP images. You can test if SDL_image is\n"
     /*DOC*/    "available with the get_extended() function. These extended\n"
     /*DOC*/    "file formats usually include GIF, PNG, JPG, PCX, TGA, and more.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "If the image format supports colorkeys and pixel alphas, the\n"
+    /*DOC*/    "load() function will properly load and configure these types\n"
+    /*DOC*/    "of transparency.\n"
     /*DOC*/ ;
 
 static PyObject* image_load_basic(PyObject* self, PyObject* arg)
