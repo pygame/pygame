@@ -138,6 +138,14 @@
      can easily fix the SMPEG line in the "Setup" script to use the
      correct flags. Then also uncomment the line for the "movie" module.
 
+     Several users have run into error compiling when trying to use the
+     Numeric Python header files. This is a problem with the
+     autoconfigure script. The script foolishly assumes if it can import
+     the Numeric module, then the headers will be available for compile.
+     You need to either install the correct "python-numeric-dev" package
+     for your system, or comment out the line for "surfarray" in the
+     "Setup" file.
+
    OSX Compiling Info
 
      Building pygame on OSX is not really supported yet. Actually, the

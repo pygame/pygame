@@ -178,23 +178,27 @@ def parsedocs(docs):
     return [modules, extras, funcs]
 
 
+def getdocinfo(file, prefix=''):
+    path = os.path.join(prefix, file[3:])
+    prettyname = (os.path.splitext(os.path.split(file)[-1])[0])
+    prettyname = prettyname[0].capitalize() + prettyname[1:]
+    if file.find('html') >= 0:
+        info = open(file).readlines(2)[1]
+    else:
+        info = open(file).readline().strip().capitalize()
+    return path, prettyname, info
+
+
 def findtutorials():
     fileline = '<li><a href=%s>%s</a> - %s</li>'
-    texthead = '<font size=+1><b>Text File Documentation</b></font><br>'
-    tuthead = '<font size=+1><b>Tutorials</b></font><br>'
-    texts1 = glob.glob('../*.txt') + ['../LGPL', '../../readme.html', '../../install.html']
-    texts1.sort()
-    texts2 = [x[3:] for x in texts1]
-    texts3 = [os.path.splitext(os.path.split(x)[-1])[0] for x in texts2]
-    texts4 = [open(x).readline().strip().capitalize() for x in texts1]
-    texts = [fileline%x for x in zip(texts2, texts3, texts4)]
+    texthead = '<font size=+1><b>Basic Documentation</b></font><br>'
+    tuthead = '<font size=+1><b>Tutorials / Introductions</b></font><br>'
+    texts1 =  ['../../readme.html', '../../install.html', '../LGPL', '../logos.html']
+    texts = [fileline%x for x in [getdocinfo(x) for x in texts1]]
     finaltext = texthead + '\n'.join(texts)
-    tuts1 =  glob.glob('../tut/*.html')
+    tuts1 =  glob.glob('../tut/*.html') 
     tuts1.sort()
-    tuts2 = ['tut/' + os.path.split(x)[1] for x in tuts1]
-    tuts3 = [os.path.split(os.path.splitext(x)[0])[-1] for x in tuts2]
-    tuts4 = [open(x).readlines(2)[1] for x in tuts1]
-    tuts = [fileline%(x[0],x[1],x[2][9:]) for x in zip(tuts2, tuts3, tuts4) if x[2].startswith('TUTORIAL:')]
+    tuts = [fileline%(x[0],x[1],x[2][9:]) for x in [getdocinfo(x) for x in tuts1] if x[2].startswith('TUTORIAL:')]
     finaltut = tuthead + '\n'.join(tuts)
     return finaltext + '<br>&nbsp;<br>' + finaltut
 
@@ -402,10 +406,7 @@ def main():
     writefuncdoc(alldocs)
 
     fulldocs = findtutorials() + makefullindex(alldocs)
-    fulldocs = """
-<br><big><b>Miscellaneous</b></big>
-<li><a href=logos.html>Logos</a></li>
-<br>&nbsp;<br>""" + fulldocs
+    fulldocs = fulldocs
 
 
 
