@@ -230,4 +230,5 @@ void initrwobject(void)
 	c_api[0] = RWopsFromPython;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+	Py_DECREF(apiobj);
 }

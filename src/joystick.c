@@ -664,6 +664,7 @@ void initjoystick(void)
 	c_api[1] = PyJoystick_New;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+	Py_DECREF(apiobj);
 
 	/*imported needed apis*/
 	import_pygame_base();

@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Apr 19, 2001
+	applied Niki Spahiev's memory leak in event.c
+	removed minor memleak from each module's init
+
 Apr 18, 2001
 	added opengl support (with example)
 	fixed display.get_init()

@@ -64,6 +64,18 @@ static char* name_from_eventtype(int type)
 }
 
 
+/* Helper for adding objects to dictionaries. Check for errors with
+   PyErr_Occurred() */
+static void insobj(PyObject *dict, char *name, PyObject *v)
+{
+	if(v)
+	{
+		PyDict_SetItemString(dict, name, v);
+		Py_DECREF(v);
+	}
+}
+
+
 static PyObject* dict_from_event(SDL_Event* event)
 {
 	PyObject* dict, *tuple, *obj;
@@ -75,81 +87,76 @@ static PyObject* dict_from_event(SDL_Event* event)
 	switch(event->type)
 	{
 	case SDL_ACTIVEEVENT:
-		PyDict_SetItemString(dict, "gain", PyInt_FromLong(event->active.gain));
-		PyDict_SetItemString(dict, "state", PyInt_FromLong(event->active.state));
+		insobj(dict, "gain", PyInt_FromLong(event->active.gain));
+		insobj(dict, "state", PyInt_FromLong(event->active.state));
 		break;
 	case SDL_KEYDOWN:
 		if(event->key.keysym.unicode)
-			PyDict_SetItemString(dict, "unicode", PyUnicode_FromUnicode(
+			insobj(dict, "unicode", PyUnicode_FromUnicode(
 							(Py_UNICODE*)&event->key.keysym.unicode,
 							event->key.keysym.unicode > 0));
 		else
-			PyDict_SetItemString(dict, "unicode",
+			insobj(dict, "unicode",
 							PyUnicode_FromObject(PyString_FromString("")));
 	case SDL_KEYUP:
-		PyDict_SetItemString(dict, "key", PyInt_FromLong(event->key.keysym.sym));
-		PyDict_SetItemString(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
+		insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
+		insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
 		break;
 	case SDL_MOUSEMOTION:
 		obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
-		PyDict_SetItemString(dict, "pos", obj);
-		Py_DECREF(obj);
+		insobj(dict, "pos", obj);
 		obj = Py_BuildValue("(ii)", event->motion.xrel, event->motion.yrel);
-		PyDict_SetItemString(dict, "rel", obj);
-		Py_DECREF(obj);
+		insobj(dict, "rel", obj);
 		if((tuple = PyTuple_New(3)))
 		{
 			PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong((event->motion.state&SDL_BUTTON(1)) != 0));
 			PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong((event->motion.state&SDL_BUTTON(2)) != 0));
 			PyTuple_SET_ITEM(tuple, 2, PyInt_FromLong((event->motion.state&SDL_BUTTON(3)) != 0));
-			PyDict_SetItemString(dict, "buttons", tuple);
+			insobj(dict, "buttons", tuple);
 		}
 		break;
 	case SDL_MOUSEBUTTONDOWN:
 	case SDL_MOUSEBUTTONUP:
 		obj = Py_BuildValue("(ii)", event->button.x, event->button.y);
-		PyDict_SetItemString(dict, "pos", obj);
-		Py_DECREF(obj);
-		PyDict_SetItemString(dict, "button", PyInt_FromLong(event->button.button));
+		insobj(dict, "pos", obj);
+		insobj(dict, "button", PyInt_FromLong(event->button.button));
 		break;
 	case SDL_JOYAXISMOTION:
-		PyDict_SetItemString(dict, "joy", PyInt_FromLong(event->jaxis.which));
-		PyDict_SetItemString(dict, "axis", PyInt_FromLong(event->jaxis.axis));
-		PyDict_SetItemString(dict, "value", PyFloat_FromDouble(event->jaxis.value/32767.0));
+		insobj(dict, "joy", PyInt_FromLong(event->jaxis.which));
+		insobj(dict, "axis", PyInt_FromLong(event->jaxis.axis));
+		insobj(dict, "value", PyFloat_FromDouble(event->jaxis.value/32767.0));
 		break;
 	case SDL_JOYBALLMOTION:
-		PyDict_SetItemString(dict, "joy", PyInt_FromLong(event->jball.which));
-		PyDict_SetItemString(dict, "ball", PyInt_FromLong(event->jball.ball));
+		insobj(dict, "joy", PyInt_FromLong(event->jball.which));
+		insobj(dict, "ball", PyInt_FromLong(event->jball.ball));
 		obj = Py_BuildValue("(ii)", event->jball.xrel, event->jball.yrel);
-		PyDict_SetItemString(dict, "rel", obj);
-		Py_DECREF(obj);
+		insobj(dict, "rel", obj);
 		break;
 	case SDL_JOYHATMOTION:
-		PyDict_SetItemString(dict, "joy", PyInt_FromLong(event->jhat.which));
-		PyDict_SetItemString(dict, "hat", PyInt_FromLong(event->jhat.hat));
+		insobj(dict, "joy", PyInt_FromLong(event->jhat.which));
+		insobj(dict, "hat", PyInt_FromLong(event->jhat.hat));
 		hx = hy = 0;
 		if(event->jhat.value&SDL_HAT_UP) hy = 1;
 		else if(event->jhat.value&SDL_HAT_DOWN) hy = -1;
 		if(event->jhat.value&SDL_HAT_LEFT) hx = 1;
 		else if(event->jhat.value&SDL_HAT_LEFT) hx = -1;
-		PyDict_SetItemString(dict, "value", Py_BuildValue("(ii)", hx, hy));
+		insobj(dict, "value", Py_BuildValue("(ii)", hx, hy));
 		break;
 	case SDL_JOYBUTTONUP:
 	case SDL_JOYBUTTONDOWN:
-		PyDict_SetItemString(dict, "joy", PyInt_FromLong(event->jbutton.which));
-		PyDict_SetItemString(dict, "button", PyInt_FromLong(event->jbutton.button));
+		insobj(dict, "joy", PyInt_FromLong(event->jbutton.which));
+		insobj(dict, "button", PyInt_FromLong(event->jbutton.button));
 		break;
 	case SDL_VIDEORESIZE:
 		obj = Py_BuildValue("(ii)", event->resize.w, event->resize.h);
-		PyDict_SetItemString(dict, "size", obj);
-		Py_DECREF(obj);
+		insobj(dict, "size", obj);
 		break;
 	}
 	if(event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
 	{
-		PyDict_SetItemString(dict, "code", PyInt_FromLong(event->user.code));
-		PyDict_SetItemString(dict, "data1", PyInt_FromLong((int)event->user.data1));
-		PyDict_SetItemString(dict, "data2", PyInt_FromLong((int)event->user.data2));
+		insobj(dict, "code", PyInt_FromLong(event->user.code));
+		insobj(dict, "data1", PyInt_FromLong((int)event->user.data1));
+		insobj(dict, "data2", PyInt_FromLong((int)event->user.data2));
 	}
 
 	return dict;
@@ -542,6 +549,7 @@ static PyObject* get(PyObject* self, PyObject* args)
 		}
 
 		PyList_Append(list, e);
+		Py_DECREF(e);
 	}
 
 	return list;
@@ -789,6 +797,7 @@ void initevent(void)
 	c_api[1] = PyEvent_New;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+	Py_DECREF(apiobj);
 
 	/*imported needed apis*/
 	import_pygame_base();
