@@ -1136,17 +1136,17 @@ static PyObject *rect_getattr(PyRectObject *self, char *name)
 	PyObject *ret = NULL;
 	GAME_Rect *r = &self->r;
 	
-	if(!strcmp(name, "top"))
+	if(!strcmp(name, "top") || !strcmp(name, "y"))
 		ret = PyInt_FromLong(r->y);
 	else if(!strcmp(name, "bottom"))
 		ret = PyInt_FromLong(r->y + r->h);
-	else if(!strcmp(name, "left"))
+	else if(!strcmp(name, "left") || !strcmp(name, "x"))
 		ret = PyInt_FromLong(r->x);
 	else if(!strcmp(name, "right"))
 		ret = PyInt_FromLong(r->x + r->w);
-	else if(!strcmp(name, "width"))
+	else if(!strcmp(name, "width") || !strcmp(name, "w"))
 		ret = PyInt_FromLong(r->w);
-	else if(!strcmp(name, "height"))
+	else if(!strcmp(name, "height") || !strcmp(name, "h"))
 		ret = PyInt_FromLong(r->h);
 	else if(!strcmp(name, "centerx"))
 		ret = PyInt_FromLong(r->x+r->w/2);
@@ -1187,7 +1187,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	short val1, val2;
 	GAME_Rect *r = &self->r;
 	
-	if(!strcmp(name, "top"))
+	if(!strcmp(name, "top") || !strcmp(name, "y"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetTop(r, val1);
@@ -1197,7 +1197,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetBottom(r, val1);
 	}	
-	else if(!strcmp(name, "left"))
+	else if(!strcmp(name, "left") || !strcmp(name, "x"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetLeft(r, val1);
@@ -1207,12 +1207,12 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetRight(r, val1);
 	}	
-	else if(!strcmp(name, "width"))
+	else if(!strcmp(name, "width") || !strcmp(name, "w"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetWidth(r, val1);
 	}	
-	else if(!strcmp(name, "height"))
+	else if(!strcmp(name, "height") || !strcmp(name, "h"))
 	{
 		if(ShortFromObj(op, &val1))
 			ret = Rect_SetHeight(r, val1);

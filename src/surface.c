@@ -1573,9 +1573,13 @@ static void surface_dealloc(PyObject* self)
 {
 	PySurfaceObject* surf = (PySurfaceObject*)self;
 	struct SubSurface_Data* data = ((PySurfaceObject*)self)->subsurface;
-	
-	if(SDL_WasInit(SDL_INIT_VIDEO))
+	int flags=0;
+
+	if(PySurface_AsSurface(surf))
+	    flags = PySurface_AsSurface(surf)->flags;
+	if(!(flags&SDL_HWSURFACE) || SDL_WasInit(SDL_INIT_VIDEO))
 	{
+	    	/*unsafe to free hardware surfaces without video init*/
 		while(surf->lockcount > 0)
 			PySurface_Unlock(self);
 		SDL_FreeSurface(surf->surf);
@@ -1586,7 +1590,7 @@ static void surface_dealloc(PyObject* self)
 		PyMem_Del(data);
 	}
 
-	PyObject_DEL(self);	
+	PyObject_DEL(self);
 }
 
 

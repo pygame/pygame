@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 19, 2002
+    	can free software surfaces without video initialized
+	added "x", "y", "w", and "h" attribs to Rect (like SDL)
+	RenderUpdates.draw() doesn't union nonoverlapping
+
 October 16, 2002
 	fix crash with subsubsurface blits [BUG]
 	added Surface.get_offset() and get_abs_offset()
