@@ -10,7 +10,7 @@ point for beginners would be the oldaliens.py example."""
 
 
 import whrandom, os.path, sys
-import pygame, pygame.image
+import pygame, pygame.image, pygame.transform
 from pygame.locals import *
 try:
     import pygame.mixer
@@ -46,8 +46,8 @@ BOUNCEWIDTH    = PLAYER_SPEED * 4
 DIFFICULTY     = 8
 BOMB_ODDS      = 130
 DANGER         = 10
-SORRYSCORE     = 18
-GOODSCORE      = 50
+SORRYSCORE     = 15
+GOODSCORE      = 33
 
 #some globals for friendly access
 dirtyrects = [] # list of update_rects
@@ -252,10 +252,10 @@ def main(winstyle = 0):
     Img.alien = load_image('alien1.gif', 1), \
                 load_image('alien2.gif', 1), \
                 load_image('alien3.gif', 1)
-    Img.player = load_image('player1.gif', 1), \
-                 load_image('player2.gif', 1)
-    Img.explosion = load_image('explosion1.gif', 1), \
-                    load_image('explosion2.gif', 1)
+    img = load_image('player1.gif', 1)
+    Img.player = img, pygame.transform.flip(img, 1, 0)
+    img = load_image('explosion1.gif', 1)
+    Img.explosion = img, pygame.transform.flip(img, 1, 1)
     Img.explosion[0].set_alpha(128, RLEACCEL)
     Img.explosion[1].set_alpha(128, RLEACCEL)
     Img.danger.set_alpha(128, RLEACCEL)
@@ -424,7 +424,7 @@ def main(winstyle = 0):
     print 'Total Kills =', kills
     if kills <= SORRYSCORE: print 'Sorry!'
     elif kills >= GOODSCORE: print 'Excellent!'
-    elif kills >= GOODSCORE-12: print 'Almost Excellent!'
+    elif kills >= GOODSCORE-6: print 'Almost Excellent!'
 
 
 
