@@ -18,22 +18,21 @@
 || <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
 <a href=pygame_constants.html>constants</a> || 
-<a href=pygame_cursor.html>cursor</a> || 
 <a href=pygame_display.html>display</a> || 
-<a href=pygame_draw.html>draw</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
-<a href=pygame_font.html>font</a> || 
+<a href=pygame_draw.html>draw</a> || 
+<a href=pygame_event.html>event</a> ||<br>
+|| <a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
 <a href=pygame_joystick.html>joystick</a> || 
 <a href=pygame_key.html>key</a> || 
-<a href=pygame_mixer.html>mixer</a> ||<br>
-|| <a href=pygame_mixer_music.html>mixer_music</a> || 
-<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
+|| <a href=pygame_mouse.html>mouse</a> || 
 <a href=pygame_movie.html>movie</a> || 
 <a href=pygame_sndarray.html>sndarray</a> || 
 <a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> ||<br>
-|| <a href=pygame_transform.html>transform</a> ||<br>
+<a href=pygame_time.html>time</a> || 
+<a href=pygame_transform.html>transform</a> ||<br>
 &nbsp;<br>|| <a href=CD.html>CD</a> || 
 <a href=Channel.html>Channel</a> || 
 <a href=Clock.html>Clock</a> || 
@@ -201,7 +200,7 @@ When you queue a sound on a channel, it will begin playing
 immediately when the current playing sound finishes. Each
 channel can only have a single Sound object queued. The
 queued sound will only play when the current Sound finishes
-naturally, not from another call to <a href=Sound.html#stop>stop()</a> or <a href=Sound.html#play>play()</a>.
+naturally, not from another call to <a href=CD.html#stop>stop()</a> or <a href=CD.html#play>play()</a>.
 <br>&nbsp;<br>
 If there is no currently playing sound on this Channel
 it will begin playback immediately.
@@ -217,7 +216,7 @@ When you set an endevent for a channel, that event type
 will be put on the pygame event queue everytime a sound stops
 playing on that channel. This is slightly different than the
 music object end event, because this will trigger an event
-anytime the music stops. If you call <a href=Sound.html#stop>stop()</a> or <a href=Sound.html#play>play()</a> on the
+anytime the music stops. If you call <a href=CD.html#stop>stop()</a> or <a href=CD.html#play>play()</a> on the
 channel, it will fire an event. An event will also be fired when
 playback switches to a queued Sound.
 <br>&nbsp;<br>
