@@ -368,13 +368,13 @@ static PyMethodDef music_builtins[] =
 PYGAME_EXPORT
 void initmixer_music(void)
 {
-	PyObject *module, *dict;
+	PyObject *module;
 
 	PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*clean an unused warning*/
 
     /* create the module */
 	module = Py_InitModule3("mixer_music", music_builtins, doc_pygame_mixer_music_MODULE);
-	dict = PyModule_GetDict(module);
+	PyModule_AddObject(module, "_MUSIC_POINTER", PyCObject_FromVoidPtr(&current_music, NULL));
 
 	/*imported needed apis*/
 	import_pygame_base();

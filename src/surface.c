@@ -60,6 +60,9 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "(ii)", &x, &y))
 		return NULL;
 
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
 	if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
 		return RAISE(PyExc_IndexError, "pixel index out of range");
 
@@ -125,6 +128,9 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "(ii)O", &x, &y, &rgba_obj))
 		return NULL;
+
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
 	if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
 	{
@@ -536,6 +542,9 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "|Oi", &rgba_obj, &flags))
 		return NULL;
 
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
 	if(rgba_obj)
 	{
 		if(PyInt_Check(rgba_obj))
@@ -578,6 +587,9 @@ static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 	
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
 	if(!(surf->flags&SDL_SRCCOLORKEY))
 		RETURN_NONE
 
@@ -615,6 +627,9 @@ static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "|bi", &alpha, &flags))
 		return NULL;
 
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
 	if(PyTuple_Size(args) > 0)
 		flags |= SDL_SRCALPHA;
 
@@ -645,6 +660,9 @@ static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 	
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
 	if(surf->flags&SDL_SRCALPHA)
 		return PyInt_FromLong(surf->format->alpha);
 
@@ -823,6 +841,9 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "O|O", &rgba_obj, &r))
 		return NULL;
 
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
 	if(PyInt_Check(rgba_obj))
 		color = (Uint32)PyInt_AsLong(rgba_obj);
 	else if(RGBAFromObj(rgba_obj, rgba))
@@ -898,6 +919,9 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		return NULL;
 	src = PySurface_AsSurface(srcobject);
 
+	if(dest->flags & SDL_OPENGL && !(dest->flags&(SDL_OPENGLBLIT&~SDL_OPENGL)))
+		return RAISE(PyExc_SDLError, "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
+
 	if((src_rect = GameRect_FromObject(argpos, &temp)))
 	{
 		dx = src_rect->x;
@@ -931,13 +955,16 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 
 	PySurface_Prep(self);
 	PySurface_Prep(srcobject);
+	Py_BEGIN_ALLOW_THREADS
 	result = SDL_BlitSurface(src, (SDL_Rect*)src_rect, dest, &dest_rect);
+	Py_END_ALLOW_THREADS
 	PySurface_Unprep(self);
 	PySurface_Unprep(srcobject);
 
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-
+	if(result == -2)
+		return RAISE(PyExc_SDLError, "Surface was lost");
 
 
 	return PyRect_New((GAME_Rect*)&dest_rect);
@@ -1149,6 +1176,9 @@ static PyObject* surf_save(PyObject* self, PyObject* arg)
 
 	VIDEO_INIT_CHECK();
 
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+
 	if(PyString_Check(file))
 	{
 		char* name = PyString_AsString(file);
@@ -1198,6 +1228,9 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	struct SubSurface_Data* data;
 
 	VIDEO_INIT_CHECK();
+
+	if(surf->flags & SDL_OPENGL)
+		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
 	if(!(rect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_ValueError, "invalid rectstyle argument");

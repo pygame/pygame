@@ -181,6 +181,8 @@ display mode is using the flags HWSURFACE and DOUBLEBUF, this
 will wait for a vertical retrace and swap the surfaces. If you
 are using a different type of display mode, it will simply update
 the entire contents of the surface.
+<br>&nbsp;<br>
+When using an OPENGL display mode this will perform a gl buffer swap.
 </ul><br>&nbsp;<br>
 
 <a name=get_active><font size=+2><b>get_active
@@ -334,6 +336,16 @@ most usual. A full list of flags can be found in the SDL
 documentation. The optional depth arguement is the requested bits
 per pixel. It will usually be left omitted, in which case the
 display will use the best/fastest pixel depth available.
+<br>&nbsp;<br>
+You can also create an OpenGL surface (for use with PyOpenGL)
+by passing the OPENGL flag. You will likely want to use the
+DOUBLEBUF flag when using OPENGL. In which case, the <a href=#flip>flip()</a>
+function will perform the GL buffer swaps. When you are using
+an OPENGL video mode, you will not be able to perform most of the
+pygame drawing functions (fill, set_at, etc) on the display surface.
+You can also use the special display flag OPENGLBLIT which will
+create a full OpenGL display, but also allow for limited pygame
+blitting.
 </ul><br>&nbsp;<br>
 
 <a name=toggle_fullscreen><font size=+2><b>toggle_fullscreen
@@ -357,6 +369,9 @@ entire display surface. If you have many rects that need
 updating, it is best to combine them into a sequence and pass
 them all at once. This call will accept a sequence of rectstyle
 arguments. Any None's in the list will be ignored.
+<br>&nbsp;<br>
+This call cannot be used on OPENGL displays, and will generate
+an exception.
 </ul><br>&nbsp;<br>
 
 
