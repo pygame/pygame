@@ -57,6 +57,13 @@ static PyObject *font_resource(char *filename) {
 	result = PyObject_CallFunction(resourcefunc, "s", filename);
 	if (!result) goto font_resource_end;
 
+    if (PyFile_Check(result)) {
+        PyObject *tmp = PyFile_Name(result);
+        Py_INCREF(tmp);
+        Py_DECREF(result);
+        result = tmp;
+    }
+
 font_resource_end:
 	Py_XDECREF(pkgdatamodule);
 	Py_XDECREF(resourcefunc);
@@ -598,17 +605,6 @@ static int font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 		fontsize = (int)(fontsize * .6875);
 		if(fontsize <= 1)
 			fontsize = 1;
-	}
-
-	if(fileobj && PyFile_Check(fileobj)) {
-		PyObject *tmp = fileobj;
-		fileobj = PyFile_Name(fileobj);
-		if (!fileobj) {
-			PyErr_Clear();
-			fileobj = tmp;
-		} else {
-			Py_DECREF(tmp);
-		}
 	}
 
 	if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))

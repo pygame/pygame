@@ -66,6 +66,13 @@ static PyObject *display_resource(char *filename) {
 	fresult = PyObject_CallFunction(resourcefunc, "s", filename);
 	if (!fresult) goto display_resource_end;
 
+	if (PyFile_Check(fresult)) {
+		PyObject *tmp = PyFile_Name(fresult);
+		Py_INCREF(tmp);
+		Py_DECREF(fresult);
+		fresult = tmp;
+	}
+
 	result = PyObject_CallFunction(load_basicfunc, "O", fresult);
 	if (!result) goto display_resource_end;
 
