@@ -59,9 +59,9 @@ static void display_autoquit(void)
 {
         if(DisplaySurfaceObject)
         {
-                /*Ack, this still leaves pretty deadly Surface objs around*/
 		((PySurfaceObject*)DisplaySurfaceObject)->surf = NULL;
                 Py_DECREF(DisplaySurfaceObject);
+                DisplaySurfaceObject = NULL;
         }
 }
 
@@ -458,11 +458,9 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 		if(!surf)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 	}
-
 	SDL_WM_GetCaption(&title, &icontitle);
 	if(!title || !*title)
 		SDL_WM_SetCaption("pygame window", "pygame");
-
 
 	/*probably won't do much, but can't hurt, and might help*/
 	SDL_PumpEvents();
@@ -507,7 +505,6 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 		}
 	}
 #endif
-
 	Py_INCREF(DisplaySurfaceObject);
 	return DisplaySurfaceObject;
 }
