@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+July 22, 2003
+	add GL_MULTISAMPLEBUFFERS and GL_MULTISAMPLESAMPLES
+
 June 11, 2003
 	Surface.set_at() respects clip area
 	cleaned fill circle draw
