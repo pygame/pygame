@@ -48,6 +48,8 @@ static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     /*DOC*/    "\n"
     /*DOC*/    "Returns the RGB color values at a given pixel. If the\n"
     /*DOC*/    "Surface has no per-pixel alpha, the alpha will be 255 (opaque).\n"
+    /*DOC*/    "A pixel outside the surface area will raise an IndexError.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "\n"
     /*DOC*/    "This function will need to temporarily lock the surface.\n"
     /*DOC*/ ;
@@ -110,7 +112,8 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
     /*DOC*/    "set pixel at given position\n"
     /*DOC*/    "\n"
     /*DOC*/    "Assigns color to the image at the give position. Color can be a\n"
-    /*DOC*/    "RGBA sequence or a mapped color integer.\n"
+    /*DOC*/    "RGBA sequence or a mapped color integer. Setting the pixel outside\n"
+    /*DOC*/    "the clip area or surface area will have no effect.\n"
     /*DOC*/    "\n"
     /*DOC*/    "In some situations just using the fill() function with a one-pixel\n"
     /*DOC*/    "sized rectangle will be quicker. Also the fill function does not\n"
@@ -136,14 +139,15 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 	if(surf->flags & SDL_OPENGL)
 		return RAISE(PyExc_SDLError, "Cannot call on OPENGL Surfaces");
 
-	if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
-	{
-		PyErr_SetString(PyExc_IndexError, "pixel coordinate out of range");
-		return NULL;
-	}
-
 	if(format->BytesPerPixel < 1 || format->BytesPerPixel > 4)
 		return RAISE(PyExc_RuntimeError, "invalid color depth for surface");
+
+	if(x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
+                    y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h)
+	{
+		/*out of clip area*/
+                RETURN_NONE
+	}
 
 	if(PyInt_Check(rgba_obj))
 		color = (Uint32)PyInt_AsLong(rgba_obj);
