@@ -523,89 +523,6 @@ static PyObject* rect(PyObject* self, PyObject* arg)
 
 
 
-
-    /*DOC*/ static char doc_tilerow[] =
-    /*DOC*/    "pygame.draw.tilerow(Surface, Surface_sequence, pos) -> None\n"
-    /*DOC*/    "draws a row of tile images to a Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws a sequence of tiles as a row on the destination surface.\n"
-    /*DOC*/    "Each image will be drawn, offset by the width of the previous\n"
-    /*DOC*/    "image. Usually all tile images will be the same size, but this\n"
-    /*DOC*/    "would allow for some slight changes.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If None is one of the sequence elements, then that tile area will\n"
-    /*DOC*/    "be skipped. The width of the skipped tile will be determined by its\n"
-    /*DOC*/    "neighbor.\n"
-    /*DOC*/ ;
-
-static PyObject* draw_tilerow(PyObject* self, PyObject* arg)
-{
-	SDL_Surface *src, *dst;
-	PyObject *dstobj, *sequence, *srcobj;
-	SDL_Rect dstrect;
-	int x, y, loop, length, skipped, rightedge, width;
-
-	if(!PyArg_ParseTuple(arg, "O!O(ii)", &PySurface_Type, &dstobj, &sequence, &x, &y))
-		return NULL;
-	if(!PySequence_Check(sequence))
-		return RAISE(PyExc_TypeError, "tilerow sequence argument must be a sequence");
-	dst = PySurface_AsSurface(dstobj);
-
-	rightedge = dst->clip_rect.x + dst->clip_rect.w;
-	dstrect.x = x;
-	dstrect.y = y;
-	skipped = 0;
-	length = PySequence_Length(sequence);
-	for(loop=0; loop<length; loop++)
-	{
-		srcobj = PySequence_GetItem(sequence, loop);
-		if(!srcobj) return NULL;
-		if(srcobj == Py_None)
-		{
-			skipped++;
-			Py_DECREF(srcobj);
-			continue;
-		}
-		if(!PySurface_Check(srcobj))
-		{
-			Py_DECREF(srcobj);
-			return RAISE(PyExc_TypeError, "sequence must contain Surface objects");
-		}
-		src = PySurface_AsSurface(srcobj);
-		dstrect.w = width = src->w;
-		dstrect.h = src->h;
-		if(skipped)
-		{
-			dstrect.w += src->w * skipped;
-			skipped = 0;
-			if(dstrect.w >= rightedge)
-			{
-				Py_DECREF(srcobj);
-				RETURN_NONE;
-			}
-		}
-		
-		x = dstrect.x;
-		if(PySurface_Blit(dstobj, srcobj, &dstrect, NULL) != 0)
-		{
-			Py_DECREF(srcobj);
-			return NULL;
-		}
-
-		Py_DECREF(srcobj);
-		dstrect.x = x + width;
-		if(dstrect.x >= rightedge)
-			RETURN_NONE
-	}
-
-	RETURN_NONE;
-}
-
-
-
-
-
-
 /*internal drawing tools*/
 
 static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts)
@@ -1252,8 +1169,6 @@ static PyMethodDef draw_builtins[] =
 	{ "circle", circle, 1, doc_circle },
 	{ "polygon", polygon, 1, doc_polygon },
 	{ "rect", rect, 1, doc_rect },
-
-	{ "tilerow", draw_tilerow, 1, doc_tilerow },
 
 	{ NULL, NULL }
 };
