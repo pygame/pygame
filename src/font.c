@@ -30,7 +30,6 @@
 
 
 
-
 staticforward PyTypeObject PyFont_Type;
 static PyObject* PyFont_New(TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
@@ -416,7 +415,6 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	Uint8 rgba[4];
 	SDL_Surface* surf;
 	SDL_Color foreg, backg;
-
 	if(!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj, &bg_rgba_obj))
 		return NULL;
 
@@ -541,7 +539,7 @@ static PyMethodDef fontobj_builtins[] =
 static void font_dealloc(PyObject* self)
 {
 	TTF_Font* font = PyFont_AsFont(self);
-	
+
 	if(font_initialized)
 		TTF_CloseFont(font);
 
