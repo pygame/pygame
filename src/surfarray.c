@@ -488,7 +488,7 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
 	dim[0] = surf->w;
 	dim[1] = surf->h;
 
-	if(surf->format->BytesPerPixel <= 1 || surf->format->BytesPerPixel > 4)
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for alpha array");
 
 	array = PyArray_FromDims(2, dim, PyArray_UBYTE);
@@ -498,7 +498,7 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
 	Ashift = surf->format->Ashift;
 	Aloss = surf->format->Aloss;
 
-	if(!Amask) /*no pixel alpha*/
+	if(!Amask || surf->format->BytesPerPixel==1) /*no pixel alpha*/
 	{
 		memset(((PyArrayObject*)array)->data, 255, surf->w * surf->h);
 		return array;
@@ -608,7 +608,6 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 	if(!array) return NULL;
 
 	colorkey = surf->format->colorkey;
-
 	if(!(surf->flags & SDL_SRCCOLORKEY)) /*no pixel alpha*/
 	{
 		memset(((PyArrayObject*)array)->data, 255, surf->w * surf->h);
@@ -624,19 +623,18 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 			return RAISE(PyExc_SDLError, SDL_GetError());
 		didlock = 1;
 	}
-
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
 		for(loopy = 0; loopy < surf->h; ++loopy)
 		{
 			Uint8* pix = (Uint8*)(((char*)surf->pixels)+loopy*surf->pitch);
-			Uint8* end = (Uint8*)(((char*)pix)+surf->w*2);
+			Uint8* end = (Uint8*)(((char*)pix)+surf->w);
 			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
 			while(pix < end)
 			{
 				color = *pix++;
-				*data = (color == colorkey) * 255;
+				*data = (color != colorkey) * 255;
 				data += stridex;
 			}
 		}break;
@@ -649,7 +647,7 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 			while(pix < end)
 			{
 				color = *pix++;
-				*data = (color == colorkey) * 255;
+				*data = (color != colorkey) * 255;
 				data += stridex;
 			}
 		}break;
@@ -666,7 +664,7 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 #else
 				color = pix[2] + (pix[1]<<8) + (pix[0]<<16);
 #endif
-				*data = (color == colorkey) * 255;
+				*data = (color != colorkey) * 255;
 				pix += 3;
 				data += stridex;
 			}
@@ -680,7 +678,7 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 			while(pix < end)
 			{
 				color = *pix++;
-				*data = (color == colorkey) * 255;
+				*data = (color != colorkey) * 255;
 				data += stridex;
 			}
 		}break;

@@ -16,31 +16,8 @@
 	<a href=../index.html>Help Contents</a> &nbsp;||
 	<br>&nbsp;<br>
 
-|| <a href=CD.html>CD</a> || 
-<a href=Channel.html>Channel</a> || 
-<a href=Font.html>Font</a> || 
-<a href=Joystick.html>Joystick</a> || 
-<a href=Rect.html>Rect</a> || 
-<a href=Sound.html>Sound</a> || 
-<a href=Surface.html>Surface</a> ||<br>
-|| <a href=pygame.html>pygame</a> || 
-<a href=pygame_UserRect.html>UserRect</a> || 
-<a href=pygame_cdrom.html>cdrom</a> || 
-<a href=pygame_constants.html>constants</a> || 
-<a href=pygame_cursors.html>cursors</a> || 
-<a href=pygame_display.html>display</a> || 
-<a href=pygame_draw.html>draw</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
-<a href=pygame_font.html>font</a> || 
-<a href=pygame_image.html>image</a> || 
-<a href=pygame_joystick.html>joystick</a> || 
-<a href=pygame_key.html>key</a> || 
-<a href=pygame_mixer.html>mixer</a> || 
-<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
-|| <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> || 
-<a href=pygame_version.html>version</a> ||<br>
+|| <a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> ||<br>
 
 
 </td></tr></table>
@@ -61,17 +38,17 @@ otherwise will use highly optimized software blitting methods.
 <br>&nbsp;<br>
 There is support for pixel access for the Surfaces. Pixel access
 on hardware surfaces is slow and not recommended. Pixels can be
-accessed using the get_at() and set_at() functions. These methods
+accessed using the <a href=#get_at>get_at()</a> and <a href=#set_at>set_at()</a> functions. These methods
 are fine for simple access, but will be considerably slow when
 doing of pixel work with them. If you plan on doing a lot of
 pixel level work, it is recommended to use the pygame.surfarray
 module, which can treat the surfaces like large multidimensional
 arrays (and it's quite quick). Some surfaces need to be locked
 before they can be used. Surfaces with flags like HWSURFACE and
-RLEACCEL generally require calls to lock() and unlock()
-surrounding pixel access. It is safe to lock() and unlock()
+RLEACCEL generally require calls to <a href=#lock>lock()</a> and <a href=#unlock>unlock()</a>
+surrounding pixel access. It is safe to <a href=#lock>lock()</a> and <a href=#unlock>unlock()</a>
 surfaces that do not require locking. Nonetheless, you can check
-to see if a Surface really needs to be locked with the mustlock()
+to see if a Surface really needs to be locked with the <a href=#mustlock>mustlock()</a>
 function.<p>&nbsp;</p>Here is the quick breakdown of how packed pixels work (don't worry if
 you don't quite understand this, it is only here for informational
 purposes, it is not needed). Each colorplane mask can be used to
@@ -82,11 +59,11 @@ color value bitwise left shifted a certain amount. The losses and
 masks can be used to convert back and forth between each
 colorplane and the actual color for that plane. Here are the
 final formulas used be map and unmap (not exactly, heh).
-PACKED_COLOR = RED>>losses[0]<<shifts[0] |
-      GREEN>>losses[1]<<shifts[1] | BLUE>>losses[2]<<shifts[2]
-RED = PACKED_COLOR & masks[0] >> shifts[0] << losses[0]
-GREEN = PACKED_COLOR & masks[1] >> shifts[1] << losses[1]
-BLUE = PACKED_COLOR & masks[2] >> shifts[2] << losses[2]
+PACKED_COLOR = RED&gt;&gt;losses[0]&lt;&lt;shifts[0] |
+      GREEN&gt;&gt;losses[1]&lt;&lt;shifts[1] | BLUE&gt;&gt;losses[2]&lt;&lt;shifts[2]
+RED = PACKED_COLOR & masks[0] &gt;&gt; shifts[0] &lt;&lt; losses[0]
+GREEN = PACKED_COLOR & masks[1] &gt;&gt; shifts[1] &lt;&lt; losses[1]
+BLUE = PACKED_COLOR & masks[2] &gt;&gt; shifts[2] &lt;&lt; losses[2]
 There is also an alpha channel for some Surfaces. The alpha
 channel works this same exact way, and the map_rgba() and
 unmap_rgba() functions can be used to do the conversion for you.

@@ -17,37 +17,14 @@
 	<br>&nbsp;<br>
 
 || <a href=CD.html>CD</a> || 
-<a href=Channel.html>Channel</a> || 
-<a href=Font.html>Font</a> || 
-<a href=Joystick.html>Joystick</a> || 
-<a href=Rect.html>Rect</a> || 
-<a href=Sound.html>Sound</a> || 
-<a href=Surface.html>Surface</a> ||<br>
-|| <a href=pygame.html>pygame</a> || 
-<a href=pygame_UserRect.html>UserRect</a> || 
-<a href=pygame_cdrom.html>cdrom</a> || 
-<a href=pygame_constants.html>constants</a> || 
-<a href=pygame_cursors.html>cursors</a> || 
-<a href=pygame_display.html>display</a> || 
-<a href=pygame_draw.html>draw</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
-<a href=pygame_font.html>font</a> || 
-<a href=pygame_image.html>image</a> || 
-<a href=pygame_joystick.html>joystick</a> || 
-<a href=pygame_key.html>key</a> || 
-<a href=pygame_mixer.html>mixer</a> || 
-<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
-|| <a href=pygame_mouse.html>mouse</a> || 
-<a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> || 
-<a href=pygame_version.html>version</a> ||<br>
+<a href=pygame_cdrom.html>cdrom</a> ||<br>
 
 
 </td></tr></table>
 <br>
 <h2 align=center>CD</h2>
 The CD object represents a CDROM drive and allows you to
-access the CD inside that drive. All functions (except get_name() and get_id())
+access the CD inside that drive. All functions (except <a href=#get_name>get_name()</a> and <a href=#get_id>get_id()</a>)
 require the CD object to be initialized. This is done with the
 CD.init() function.
 <br>&nbsp;<br>
@@ -258,7 +235,7 @@ Play an audio track on a cdrom disk.
 CD.quit() -> None
 </tt></font><ul>
 After you are completely finished with a cdrom device, you
-can use this <a href=pygame.html#quit>quit()</a> function to free access to the drive.
+can use this <a href=pygame_cdrom.html#quit>quit()</a> function to free access to the drive.
 This will be cleaned up automatically when the cdrom module is.
 uninitialized. It is safe to call this function on an uninitialized CD.
 </ul><br>&nbsp;<br>
