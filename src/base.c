@@ -31,6 +31,7 @@
 
 #ifdef MS_WIN32 /*python gives us MS_WIN32*/
 #define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
 #include<windows.h>
 extern int SDL_RegisterApp(char*, Uint32, void*);
 #endif
@@ -217,6 +218,8 @@ static void atexit_quit(void)
 
 	Py_DECREF(quitfunctions);
 	quitfunctions = NULL;
+
+	SDL_Quit(); /*catch anything left*/
 }
 
 

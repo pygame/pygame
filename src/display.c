@@ -554,7 +554,7 @@ static int screencroprect(GAME_Rect* r, int w, int h)
     /*DOC*/    "entire display surface. If you have many rects that need\n"
     /*DOC*/    "updating, it is best to combine them into a sequence and pass\n"
     /*DOC*/    "them all at once. This call will accept a sequence of rectstyle\n"
-    /*DOC*/    "arguments. (any None's in the list will be ignored.\n"
+    /*DOC*/    "arguments. Any None's in the list will be ignored.\n"
     /*DOC*/ ;
 
 static PyObject* update(PyObject* self, PyObject* arg)

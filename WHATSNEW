@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jan 25, 2001
+	make extra sure all of SDL is shutdown properly
+
 Jan 24, 2001
 	funcs that need locked surfaces will temporarily lock them
 	   (Surface.set_at, Surface.get_at, surfarray.arrayXd)
