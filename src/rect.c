@@ -703,11 +703,54 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 }
 
 
+    /*DOC*/ static char doc_clamp_ip[] =
+    /*DOC*/    "Rect.clamp_ip(rectstyle) -> None\n"
+    /*DOC*/    "moves the ectangle inside another\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Moves the Rect to be\n"
+    /*DOC*/    "completely inside the base rectangle. If the given\n"
+    /*DOC*/    "rectangle is too large for the base rectangle in\n"
+    /*DOC*/    "an axis, it will be centered on that axis.\n"
+    /*DOC*/ ;
+
+static PyObject* rect_clamp_ip(PyObject* oself, PyObject* args)
+{
+	PyRectObject* self = (PyRectObject*)oself;
+	GAME_Rect *argrect, temp;
+	short x, y;
+	if(!(argrect = GameRect_FromObject(args, &temp)))
+		return RAISE(PyExc_TypeError, "Argument must be rect style object");
+
+	if(self->r.w >= argrect->w)
+		x = (argrect->x+argrect->w) / 2 - self->r.w / 2;
+	else if(self->r.x < argrect->x)
+		x = argrect->x;
+	else if(self->r.x + self->r.w > argrect->x + argrect->w)
+		x = argrect->x + argrect->w - self->r.w;
+	else
+		x = self->r.x;
+
+	if(self->r.h >= argrect->h)
+		y = (argrect->y+argrect->h) / 2 - self->r.h / 2;
+	else if(self->r.y < argrect->y)
+		y = argrect->y;
+	else if(self->r.y + self->r.h > argrect->y + argrect->h)
+		y = argrect->y + argrect->h - self->r.h;
+	else
+		y = self->r.y;
+
+	self->r.x = x;
+	self->r.y = y;
+	RETURN_NONE
+}
+
+
 static struct PyMethodDef rect_methods[] =
 {
 	{"normalize",		(PyCFunction)rect_normalize,	1, doc_normalize},
 	{"clip",			(PyCFunction)rect_clip, 		1, doc_clip},
 	{"clamp",			(PyCFunction)rect_clamp,		1, doc_clamp},
+	{"clamp_ip",			 (PyCFunction)rect_clamp_ip,		  1,	    doc_clamp_ip},
 
 	{"move",			(PyCFunction)rect_move, 		1, doc_move},
 	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},		
