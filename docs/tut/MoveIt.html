@@ -63,13 +63,21 @@ closely this  represents exactly what we'll later be doing with real graphics.<b
     So let's begin by creating our screen list and fill it with a beautiful 
  landscape of 1s and 2s.<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> screen = [1, 1, 2, 2, 2, 1]<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 2, 2, 2, 1]</b><br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> screen = [1, 1, 2, 2, 2, 1]
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 2, 2, 2, 1]</b>
+</pre></blockquote>
     Now we've created our background. It's not going to be very exciting
 unless   we also draw a player on the screen. We'll create a mighty hero
 that looks   like the number 8. Let's stick him near the middle of the map
 and see what   it looks like.<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> screen[3] = 8<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 2, 8,2, 1]</b><br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> screen[3] = 8
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 2, 8,2, 1]</b>
+</pre></blockquote>
     This might have been as far as you've gotten if you jumped right in doing
   some graphics programming with pygame. You've got some nice looking stuff
   on the screen, but it cannot move anywhere. Perhaps now that our screen
@@ -81,12 +89,22 @@ is  just a list of numbers, it's easier to see how to move him?<br>
  sort of position for him. In the last section when we drew him, we just picked
  an arbitrary position. Let's do it a little more officially this time.<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> playerpos = 3<br>	<b>&gt;&gt;&gt;</b> screen[playerpos] = 8<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 2, 8, 2, 1]</b><br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> playerpos = 3
+<b>&gt;&gt;&gt;</b> screen[playerpos] = 8
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 2, 8, 2, 1]</b>
+</pre></blockquote>
     Now it is pretty easy to move him to a new position. We simple change 
 the  value of playerpos, and draw him on the screen again.<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1<br>	<b>&gt;&gt;&gt;</b> screen[playerpos] = 8<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 8, 8, 2, 1]</b><br><br></pre>
-      Whoops. Now we can see two heros. One in the old position, and one
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1
+<b>&gt;&gt;&gt;</b> screen[playerpos] = 8
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 8, 8, 2, 1]</b>
+</pre></blockquote>
+     Whoops. Now we can see two heros. One in the old position, and one
 in  his new position. This is exactly the reason we need to "erase" the hero 
 in his old position before we draw him in the new position. To erase him, 
 we need to change that value in the list back to what it was before the hero 
@@ -102,8 +120,19 @@ we  need to make some changes to our little game.<br>
 with  1s and 2s. Then we will copy each item from the background to the screen.
   After that we can finally draw our hero back onto the screen.<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> background = [1, 1, 2, 2, 2, 1]<br>	<b>&gt;&gt;&gt;</b> screen = [0]*6                     <i>#a new blank screen</i><br>	<b>&gt;&gt;&gt;</b> for i in range(6):<br>	<b>...</b>    screen[i] = background[i]<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 2, 2, 2, 1]</b><br>	<b>&gt;&gt;&gt;</b> playerpos = 3<br>	<b>&gt;&gt;&gt;</b> screen[playerpos] = 8<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 2, 8, 2, 1]<br></b></pre>
-    It may seem like a lot of extra work. We're no farther off than we were 
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> background = [1, 1, 2, 2, 2, 1]
+<b>&gt;&gt;&gt;</b> screen = [0]*6                     <i>#a new blank screen</i>
+<b>&gt;&gt;&gt;</b> for i in range(6):
+<b>...</b>    screen[i] = background[i]
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 2, 2, 2, 1]</b>
+<b>&gt;&gt;&gt;</b> playerpos = 3
+<b>&gt;&gt;&gt;</b> screen[playerpos] = 8
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 2, 8, 2, 1]</b>
+</pre></blockquote>
+   It may seem like a lot of extra work. We're no farther off than we were 
  before the last time we tried to make him move. But this time we have the 
  extra information we need to move him properly.<br>
     <br>
@@ -114,11 +143,25 @@ with  1s and 2s. Then we will copy each item from the background to the screen.
 from the background onto the screen. Then we will draw the character in his
 new position on the screen<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 2, 8, 2, 1]</b><br>	<b>&gt;&gt;&gt;</b> screen[playerpos] = background[playerpos]<br>	<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1<br>	<b>&gt;&gt;&gt;</b> screen[playerpos] = 8<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1, 1, 8, 2, 2, 1]<br></b></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 2, 8, 2, 1]</b>
+<b>&gt;&gt;&gt;</b> screen[playerpos] = background[playerpos]
+<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1
+<b>&gt;&gt;&gt;</b> screen[playerpos] = 8
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 1, 8, 2, 2, 1]</b>
+</pre></blockquote>
     There it is. The hero has moved one space to the left. We can use this
  same  code to move him to the left again.<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> screen[playerpos] = background[playerpos]<br>	<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1<br>	<b>&gt;&gt;&gt;</b> screen[playerpos] = 8<br>	<b>&gt;&gt;&gt;</b> print screen<br>	<b>[1,&nbsp;8,&nbsp;2, 2, 2, 1]<br></b></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> screen[playerpos] = background[playerpos]
+<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1
+<b>&gt;&gt;&gt;</b> screen[playerpos] = 8
+<b>&gt;&gt;&gt;</b> print screen
+<b>[1, 8, 2, 2, 2, 1]</b>
+</pre></blockquote>
     Excellent! This isn't exactly what you'd call smooth animation. But with
   a couple small changes, we'll make this work directly with graphics on
 the   screen.<br>
@@ -133,7 +176,14 @@ big change, instead of using positions as a single index (0 through 5), we
 now need a two dimensional coordinate. We'll pretend each of the graphics
 in our game is 10 pixels wide.<br>
        
-<pre>	<b>&gt;&gt;&gt;</b> background = [terrain1, terrain1, terrain2, terrain2, terrain2, terrain1]<br>	<b>&gt;&gt;&gt;</b> screen = create_graphics_screen()<br>	<b>&gt;&gt;&gt;</b> for i in range(6):<br>	<b>...</b>     screen.blit(background[i], (i*10, 0))<br>	<b>&gt;&gt;&gt;</b> playerpos = 30<br>	<b>&gt;&gt;&gt;</b> screen.blit(playerimage,&nbsp;(playerpos*10, ))<br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> background = [terrain1, terrain1, terrain2, terrain2, terrain2, terrain1]
+<b>&gt;&gt;&gt;</b> screen = create_graphics_screen()
+<b>&gt;&gt;&gt;</b> for i in range(6):
+<b>...</b>    screen.blit(background[i], (i*10, 0))
+<b>&gt;&gt;&gt;</b> playerpos = 30
+<b>&gt;&gt;&gt;</b> screen.blit(playerimage, (playerpos*10, 0))
+</pre></blockquote>
    Hmm, that code should seem very familiar, and hopefully more importantly; 
  the code above should make a little sense. Hopefully my illustration of setting
  simple values in a list shows the similarity of setting pixels on the screen
@@ -142,7 +192,11 @@ into coordinates on the screen. For now we just use a crude "(playerpos*10,
 0)", but we can certainly do better than that. Now let's move the player
 image over a space. This code should have no surprises.<br>
    
-<pre>	<b>&gt;&gt;&gt;</b> screen.blit(background[playerpos],&nbsp;(playerpos*10, 0))<br>	<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1<br>	<b>&gt;&gt;&gt;</b> screen.blit(playerimage, (playerpos*10, 0))<br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> screen.blit(background[playerpos], (playerpos*10, 0))
+<b>&gt;&gt;&gt;</b> playerpos = playerpos - 1
+<b>&gt;&gt;&gt;</b> screen.blit(playerimage, (playerpos*10, 0))
+</pre></blockquote>
   There you have it. With this code we've shown how to display a simple background
  with a hero's image on it. Then we've properly moved that hero one space
 to the left. So where do we go from here? Well for one the code is still
@@ -196,7 +250,21 @@ pixels at a time. Here is the code to make an object move smoothly across
 the screen. Based on what we already now know, this should look pretty simple.<br>
  <br>
  
-<pre>	<b>&gt;&gt;&gt;</b> screen = create_screen()<br>	<b>&gt;&gt;&gt;</b> player = load_player_image()<br>	<b>&gt;&gt;&gt;</b> background = load_background_image()<br>	<b>&gt;&gt;&gt;</b> screen.blit(background, (0, 0))	<i>#draw the background</i><br>	<b>&gt;&gt;&gt;</b> position = player.get_rect()<br>	<b>&gt;&gt;&gt;</b> screen.blit(player, position)	<i>#draw the player</i><br>	<b>&gt;&gt;&gt;</b> pygame.display.update()		<i>#and show it all</i><br>	<b>&gt;&gt;&gt;</b> for x in range(100):		<i>#animate 100 frames</i><br>	<b>...</b>	screen.blit(background, position, position) <i>#erase</i><br>	<b>...</b>	position = position.move(2, 0)	<i>#move player</i><br>	<b>...</b>	screen.blit(player, position)	<i>#draw new player</i><br>	<b>...</b>	pygame.display.update() 	<i>#and show it all</i><br>	<b>...</b>	pygame.time.delay(100)		<i>#stop the program for 1/10 second</i><br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> screen = create_screen()
+<b>&gt;&gt;&gt;</b> player = load_player_image()
+<b>&gt;&gt;&gt;</b> background = load_background_image()
+<b>&gt;&gt;&gt;</b> screen.blit(background, (0, 0))       <i>#draw the background</i>
+<b>&gt;&gt;&gt;</b> position = player.get_rect()
+<b>&gt;&gt;&gt;</b> screen.blit(player, position)         <i>#draw the player</i>
+<b>&gt;&gt;&gt;</b> pygame.display.update()               <i>#and show it all</i>
+<b>&gt;&gt;&gt;</b> for x in range(100):                  <i>#animate 100 frames</i>
+<b>...</b>    screen.blit(background, position, position) <i>#erase</i>
+<b>...</b>    position = position.move(2, 0)     <i>#move player</i>
+<b>...</b>    screen.blit(player, position)      <i>#draw new player</i>
+<b>...</b>    pygame.display.update()            <i>#and show it all</i>
+<b>...</b>    pygame.time.delay(100)             <i>#stop the program for 1/10 second</i>
+</pre></blockquote>
  There you have it. This is all the code that is needed to smoothly animate 
 an object across the screen. We can even use a pretty background character. 
 Another benefit of doing the background this way, the image for the player 
@@ -223,8 +291,11 @@ proud.<br>
 and reference. The pygame.image module has a load() function which will do 
 what we want. The lines to load the images should become this.<br>
  
-<pre>	<b>&gt;&gt;&gt;</b> player = pygame.image.load('player.bmp').convert()<br>	<b>&gt;&gt;&gt;</b> background = pygame.image.load('liquid.bmp').convert()<br></pre>
- We can see that's pretty simple, the load function just takes a filename 
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> player = pygame.image.load('player.bmp').convert()
+<b>&gt;&gt;&gt;</b> background = pygame.image.load('liquid.bmp').convert()
+</pre></blockquote>
+We can see that's pretty simple, the load function just takes a filename 
 and returns a new Surface with the loaded image. After loading we make a call
 to the Surface method, convert(). Convert returns us a new Surface of the
 image, but now converted to the same pixel format as our display. Since the
@@ -244,8 +315,10 @@ a 640x480 surface is below. By passing no other arguments, pygame will just
 pick the best colordepth and pixel format for us.<br>
  <br>
  
-<pre>	<b>&gt;&gt;&gt;</b> screen = pygame.display.set_mode((640, 480))<br></pre>
- <br>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> screen = pygame.display.set_mode((640, 480))
+</pre></blockquote>
+<br>
 <h2>Handling Some Input</h2>
 We desparately need to change the main loop to look for any user input, like
 when the user closes the window. Without checking for events from the user,
@@ -254,7 +327,13 @@ What we do is the same for all types of graphical programs. There is a main
 loop where we process user events, doing different things for the different
 types of events. Here's what the code should look like. Instead of looping
 for 100 frames, we'll keep looping until the user asks us to stop.<br>
-<pre>	<b>&gt;&gt;&gt;</b> while 1:<br>	<b>...</b>	for event in pygame.event.get():<br>	<b>...</b>		if event.type&nbsp;in (QUIT, KEYDOWN):<br>	<b>...</b>			sys.exit()<br>	<b>...</b>	move_and_draw_all_game_objects()<br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> while 1:
+<b>...</b>    for event in pygame.event.get():
+<b>...</b>        if event.type in (QUIT, KEYDOWN):
+<b>...</b>            sys.exit()
+<b>...</b>        move_and_draw_all_game_objects()
+</pre></blockquote>
 What this code simply does is, first loop forever, then check if there are
 any events from the user. We exit the program if the user presses the keyboard
 or the close button on the window. After we've checked all the events we
@@ -269,7 +348,17 @@ our game object. This object will have a function to move itself, and then
 we can create as many as we like. The functions to draw and move the object
 need to work in a way where they only move one frame (or one step) at a time.
 Here's the python code to create our class.<br>
-<pre>	<b>&gt;&gt;&gt;</b> class GameObject:<br>	<b>...</b>	def __init__(self, image, height, speed):<br>	<b>...</b>		self.speed = speed<br>	<b>...</b>		self.image = image<br>	<b>...</b>		self.pos = image.get_rect().move(0, height)<br>	<b>...</b>	def move(self):<br>	<b>...</b>&nbsp;		self.pos =&nbsp;self.pos.move(0, self.speed)<br>	<b>...</b>		if self.pos.right &gt; 600:<br>	<b>...</b>			self.pos.left = 0<br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> class GameObject:
+<b>...</b>    def __init__(self, image, height, speed):
+<b>...</b>        self.speed = speed
+<b>...</b>        self.image = image
+<b>...</b>        self.pos = image.get_rect().move(0, height)
+<b>...</b>    def move(self):
+<b>...</b>        self.pos = self.pos.move(0, self.speed)
+<b>...</b>        if self.pos.right &gt; 600:
+<b>...</b>            self.pos.left = 0
+</pre></blockquote>
 So we have two functions in our class. The init function constructs our object.
 It positions the object and sets its speed. The move method moves the object
 one step. If it's gone too far, it moves the object back to the left.<br>
@@ -277,7 +366,27 @@ one step. If it's gone too far, it moves the object back to the left.<br>
 <h2>Putting It All Together</h2>
 Now with our new object class, we can put together the entire game. Here
 is what the main function for our program will look like.<br>
-<pre>	<b>&gt;&gt;&gt;</b> screen = pygame.display.set_mode((640, 480))<br>	<b>&gt;&gt;&gt;</b> player = pygame.image.load('player.bmp').convert()<br>	<b>&gt;&gt;&gt;</b> background = pygame.image.load('background.bmp').convert()<br>	<b>&gt;&gt;&gt;</b> screen.blit(background, (0, 0))<br>	<b>&gt;&gt;&gt;</b> objects = []<br>	<b>&gt;&gt;&gt;</b> for x in range(10): 		<i>#create 10 objects</i><br>	<b>...</b> 	o = GameObject(player, x*40, x)<br>	<b>...</b>	objects.append(o)<br>	<b>&gt;&gt;&gt;</b> while 1:<br>	<b>...</b>	for event in pygame.event.get():<br>	<b>...</b>		if event.type&nbsp;in (QUIT, KEYDOWN):<br>	<b>...</b>			sys.exit()<br>	<b>...</b>	for o in objects:<br>	<b>...</b>		screen.blit(background, o.pos, o.pos)<br><b>	...</b>	for o in objects:<br>	<b>...</b>		o.move()<br>	<b>...</b>		screen.draw(o.image, o.pos)<br>	<b>...</b>	pygame.display.update()<br>	<b>...</b>	pygame.time.delay(100)<br></pre>
+<blockquote><pre>
+<b>&gt;&gt;&gt;</b> screen = pygame.display.set_mode((640, 480))
+<b>&gt;&gt;&gt;</b> player = pygame.image.load('player.bmp').convert()
+<b>&gt;&gt;&gt;</b> background = pygame.image.load('background.bmp').convert()
+<b>&gt;&gt;&gt;</b> screen.blit(background, (0, 0))
+<b>&gt;&gt;&gt;</b> objects = []
+<b>&gt;&gt;&gt;</b> for x in range(10): 		<i>#create 10 objects</i>
+<b>...</b>    o = GameObject(player, x*40, x)
+<b>...</b>    objects.append(o)
+<b>&gt;&gt;&gt;</b> while 1:
+<b>...</b>    for event in pygame.event.get():
+<b>...</b>        if event.type in (QUIT, KEYDOWN):
+<b>...</b>            sys.exit()
+<b>...</b>    for o in objects:
+<b>...</b>        screen.blit(background, o.pos, o.pos)
+<b>...</b>        for o in objects:
+<b>...</b>            o.move()
+<b>...</b>            screen.draw(o.image, o.pos)
+<b>...</b>    pygame.display.update()
+<b>...</b>    pygame.time.delay(100)
+</pre></blockquote>
 And there it is. This is the code we need to animate 10 objects on the screen.
 The only point that might need explaining is the two loops we use to clear
 all the objects and draw all the objects. In order to do things properly,
@@ -300,10 +409,6 @@ issues. So when you're ready to keep learning, keep on reading. :-)</p>
 with any questions on this stuff. There's always folks on hand who can help
 you out with this sort of business.</p>
 <p>Lastly, have fun, that's what games are for!<br>
-<br>
 </p>
-<blockquote><tt><br>
-                   </tt></blockquote>
-                                               
-  </body>
-  </html>
+</body>
+</html>
