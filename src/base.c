@@ -540,7 +540,7 @@ static PyMethodDef init__builtins__[] =
     /*DOC*/    "There is a small module named 'locals' that also gets merged into\n"
     /*DOC*/    "this namespace. This contains all the constants needed by pygame.\n"
     /*DOC*/    "Object constructors also get placed into this namespace, you can\n"
-    /*DOC*/    "call functions like rect() and surface() to create objects of\n"
+    /*DOC*/    "call functions like Rect() and Surface() to create objects of\n"
     /*DOC*/    "that type. As a convenience, you can import the members of\n"
     /*DOC*/    "pygame.locals directly into your module's namespace with 'from\n"
     /*DOC*/    "pygame.locals import *'. Most of the pygame examples do this if\n"

@@ -206,6 +206,9 @@ PyObject* event_str(PyObject* self)
 }
 
 
+/*this fools the docs to putting more in our docs, but not the code*/
+#define SECRET_COLON ;
+
     /*DOC*/ static char doc_pygame_event_EXTRA[] =
     /*DOC*/    "An Event object contains an event type and a readonly set of\n"
     /*DOC*/    "member data. The Event object contains no method functions, just\n"
@@ -219,8 +222,27 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "lookups will be passed through to the Event's dictionary values.\n"
     /*DOC*/    "\n"
     /*DOC*/    "While debugging and experimenting, you can print the Event\n"
-    /*DOC*/    "objects for a quick display of its type and members.\n"
+    /*DOC*/    "objects for a quick display of its type and members.\n"               SECRET_COLON
+    /*DOC*/    "Events that come from the system will have a guaranteed set of\n"
+    /*DOC*/    "member items based on the type. Here is a list of the Event members\n"
+    /*DOC*/    "that are defined with each type.<br><table align=center>"
+    /*DOC*/    "<tr><td><b>ACTIVEEVENT</b></td><td>gain, state</td></tr>\n"
+    /*DOC*/    "<tr><td><b>KEYDOWN</b></td><td>unicode, key, mod</td></tr>\n"
+    /*DOC*/    "<tr><td><b>KEYUP</b></td><td>key, mod</td></tr>\n"
+    /*DOC*/    "<tr><td><b>MOUSEMOTION</b></td><td>pos, rel, buttons</td></tr>\n"
+    /*DOC*/    "<tr><td><b>MOUSEBUTTONUP</b></td><td>pos, button</td></tr>\n"
+    /*DOC*/    "<tr><td><b>MOUSEBUTTONDOWN</b></td><td>pos, button</td></tr>\n"
+    /*DOC*/    "<tr><td><b>JOYAXISMOTION</b></td><td>joy, axis, value</td></tr>\n"
+    /*DOC*/    "<tr><td><b>JOYBALLMOTION</b></td><td>joy, ball, rel</td></tr>\n"
+    /*DOC*/    "<tr><td><b>JOYHATMOTION</b></td><td>joy, hat, value</td></tr>\n"
+    /*DOC*/    "<tr><td><b>JOYBUTTONUP</b></td><td>joy, button</td></tr>\n"
+    /*DOC*/    "<tr><td><b>JOYBUTTONDOWN</b></td><td>joy, button</td></tr>\n"
+    /*DOC*/    "<tr><td><b>VIDEORESIZE</b></td><td>size</td></tr>\n"
+    /*DOC*/    "<tr><td><b>USEREVENT</b></td><td>code, data1, data2</td></tr></table>\n"
     /*DOC*/ ;
+
+
+
 
 
 static PyTypeObject PyEvent_Type =

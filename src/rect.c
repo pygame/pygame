@@ -926,9 +926,9 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
     /*DOC*/ static char doc_Rect_MODULE[] =
     /*DOC*/    "The rectangle object is a useful object\n"
     /*DOC*/    "representing a rectangle area. Rectangles are\n"
-	/*DOC*/    "created from the pygame.rect() function. This routine\n"
+	/*DOC*/    "created from the pygame.Rect() function. This routine\n"
 	/*DOC*/    "is also in the locals module, so importing the locals\n"
-	/*DOC*/    "into your namespace allows you to just use rect().\n"
+	/*DOC*/    "into your namespace allows you to just use Rect().\n"
     /*DOC*/    "\n"
     /*DOC*/    "Rect contains helpful methods, as well as a list of\n"
     /*DOC*/    "modifiable members:\n"

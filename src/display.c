@@ -887,7 +887,7 @@ static PyMethodDef display_builtins[] =
     /*DOC*/    "best video mode available and set to that. You can also query for\n"
     /*DOC*/    "more information on video modes with pygame.display.mode_ok(),\n"
     /*DOC*/    "pygame.display.list_modes(), and\n"
-    /*DOC*/    "pygame.display.get_vidinfo().get_info().\n"
+    /*DOC*/    "pygame.display.Info().\n"
     /*DOC*/    "\n"
     /*DOC*/    "When using a display depth other than what you graphic resources\n"
     /*DOC*/    "may be saved at, it is best to call the Surface.convert() routine\n"

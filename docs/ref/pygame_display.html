@@ -48,15 +48,15 @@
 <h2 align=center>pygame.display</h2>
 Contains routines to work with the display. Mainly used for
 setting the display mode and updating the display surface.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 Pygame offers a fairly simple interface to the display buffer.
 The buffer is represented as an offscreen surface to which you
 can write directly. If you want the screen to show what you have
 written, the <a href=#update>pygame.display.update()</a> function will guarantee the
 the desired portion of the screen is updated. You can call
-pygame.display.flip() to update the entire screen, and also flip
+<a href=#flip>pygame.display.flip()</a> to update the entire screen, and also flip
 a hardware surface created with DOUBLEBUF.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 There are a number of ways to start the video display. The
 easiest way is to pick a common screen resolution and depth and
 just initialize the video, checking for exceptions. You will
@@ -66,20 +66,20 @@ the fastest method). When calling <a href=#set_mode>pygame.display.set_mode()</a
 the bit depth omitted or set to zero, pygame will determine the
 best video mode available and set to that. You can also query for
 more information on video modes with <a href=#mode_ok>pygame.display.mode_ok()</a>,
-pygame.display.list_modes(), and
-pygame.display.get_vidinfo().get_info().
-&lt;br&gt;&nbsp;&lt;br&gt;
+<a href=#list_modes>pygame.display.list_modes()</a>, and
+<a href=#Info>pygame.display.Info()</a>.
+<br>&nbsp;<br>
 When using a display depth other than what you graphic resources
 may be saved at, it is best to call the <a href=Surface.html#convert>Surface.convert()</a> routine
 to convert them to the same format as the display, this will
 result in the fastest blitting.
-&lt;br&gt;&nbsp;&lt;br&gt;
-Pygame currently supports any but depth &gt;= 8 bits per pixl. 8bpp
+<br>&nbsp;<br>
+Pygame currently supports any but depth >= 8 bits per pixl. 8bpp
 formats are considered to be 8-bit palettized modes, while 12,
 15, 16, 24, and 32 bits per pixel are considered 'packed pixel'
 modes, meaning each pixel contains the RGB color componsents
 packed into the bits of the pixel.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 After you have initialized your video mode, you can take the
 surface that was returned and write to it like any other Surface
 object. Be sure to call <a href=#update>update()</a> or <a href=#flip>flip()</a> to keep what is on the
@@ -252,7 +252,7 @@ no display modes are available with the given arguments. A return
 value of -1 means that any requested resolution should work (this
 is likely the case for windowed modes). Mode sizes are sorted
 from biggest to smallest.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 If depth is not passed or 0, SDL will choose the current/best
 color depth for the display. You will usually want to pass
 FULLSCREEN when using the flags, if flags is omitted, FULLSCREEN
@@ -264,11 +264,11 @@ is the default.
 pygame.display.mode_ok(size, [flags, [depth]]) -> int
 </tt></font><ul>
 This uses the same arguments as the call to
-pygame.display.set_mode(). It is used to determine if a requested
+<a href=#set_mode>pygame.display.set_mode()</a>. It is used to determine if a requested
 display mode is available. It will return 0 if the requested mode
 is not possible. Otherwise it will return the best and closest
 matching bit depth for the mode requested.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The size is a 2-number-sequence containing the width and height
 of the desired display mode. Flags represents a set of different
 options for the display mode. If omitted or given as 0, it will
@@ -322,7 +322,7 @@ already been set, this will change the display mode to the
 desired type. Sometimes an exact match for the requested video
 mode is not available. In this case SDL will try to find the
 closest match and work with that instead.
-&lt;br&gt;&nbsp;&lt;br&gt;
+<br>&nbsp;<br>
 The size is a 2-number-sequence containing the width and height
 of the desired display mode. Flags represents a set of different
 options for the new display mode. If omitted or given as 0, it
