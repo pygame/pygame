@@ -38,6 +38,7 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty
     /*DOC*/    "rectangle. A bounding box of the effected area is returned\n"
     /*DOC*/    "as a rectangle.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 static PyObject* line(PyObject* self, PyObject* arg)

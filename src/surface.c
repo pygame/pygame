@@ -43,11 +43,7 @@ static PyObject* PySurface_New(SDL_Surface* info);
     /*DOC*/    "Returns the RGB color values at a given pixel. If the\n"
     /*DOC*/    "Surface has no per-pixel alpha, the alpha will be 255 (opaque).\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
-    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
-    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
-    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
-    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 static PyObject* surf_get_at(PyObject* self, PyObject* arg)
@@ -111,11 +107,7 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
     /*DOC*/    "sized rectangle will be quicker. Also the fill function does not\n"
     /*DOC*/    "require the surface to be locked.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
-    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
-    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
-    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
-    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
 static PyObject* surf_set_at(PyObject* self, PyObject* args)
@@ -1320,13 +1312,7 @@ PyObject* surface_str(PyObject* self)
     /*DOC*/    "doing of pixel work with them. If you plan on doing a lot of\n"
     /*DOC*/    "pixel level work, it is recommended to use the pygame.surfarray\n"
     /*DOC*/    "module, which can treat the surfaces like large multidimensional\n"
-    /*DOC*/    "arrays (and it's quite quick). Some surfaces need to be locked\n"
-    /*DOC*/    "before they can be used. Surfaces with flags like HWSURFACE and\n"
-    /*DOC*/    "RLEACCEL generally require calls to lock() and unlock()\n"
-    /*DOC*/    "surrounding pixel access. It is safe to lock() and unlock()\n"
-    /*DOC*/    "surfaces that do not require locking. Nonetheless, you can check\n"
-    /*DOC*/    "to see if a Surface really needs to be locked with the mustlock()\n"
-    /*DOC*/    "function.\n"
+    /*DOC*/    "arrays (and it's quite quick).\n"
     /*DOC*/ ;
 
 
