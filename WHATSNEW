@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Mar 19, 2001
+	Surfaces won't crash after display module is quit [BUG]
+
 Mar 18, 2001
 	friendlier type casting in surfarray (for some compilers)
 	removed non-ANSI C code
