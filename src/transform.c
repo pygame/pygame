@@ -24,7 +24,7 @@
  *  surface transformations for pygame
  */
 #include "pygame.h"
-
+#include <math.h>
 
 
 static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)

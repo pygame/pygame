@@ -16,7 +16,11 @@ def main():
     pygame.init()
     resolution = 400, 200
     screen = pygame.display.set_mode(resolution)
-    pygame.mouse.set_cursor(*pygame.cursors.diamond)
+
+    #the python 1.5.2 way to set the cursor
+    apply(pygame.mouse.set_cursor, pygame.cursors.diamond)
+    #the python 2.0 way to set the cursor
+    #pygame.mouse.set_cursor(*pygame.cursors.diamond)
 
     fg = 250, 240, 230
     bg = 5, 5, 5

@@ -19,8 +19,11 @@ except:
     pygame.mixer = None
 
 #see if we can get some font lovin'
-try: import pygame.font as font
-except ImportError: font = None
+try:
+    import pygame.font
+    font = pygame.font
+except ImportError:
+    font = None
 
 if not pygame.image.get_extended():
     raise SystemExit, "Requires the extended image loading from SDL_image"
@@ -155,12 +158,12 @@ class Alien(Actor):
             
     def update(self):
         global SCREENRECT
-        self.rect[0] += self.facing
+        self.rect[0] = self.rect[0] + self.facing
         if not SCREENRECT.contains(self.rect):
-            self.facing *= -1;
+            self.facing = -self.facing;
             self.rect.top = self.rect.bottom + 1
             self.rect = self.rect.clamp(SCREENRECT)
-        self.frame += 1
+        self.frame = self.frame + 1
         self.image = Img.alien[self.frame/ANIMCYCLE%3]
 
 
@@ -172,10 +175,10 @@ class Explosion(Actor):
         self.life = EXPLODE_TIME
         self.rect.center = actor.rect.center
         if longer:
-            self.life *= 2
+            self.life = self.life * 2
         
     def update(self):
-        self.life -= 1
+        self.life = self.life - 1
         self.image = Img.explosion[self.life/PLODECYCLE%2]
 
 
@@ -187,9 +190,9 @@ class Shot(Actor):
         self.rect.centerx = player.rect.centerx
         self.rect.top = player.rect.top - 10
         if player.image is Img.player[0]:
-            self.rect.left += BULLET_OFFSET
+            self.rect.left = self.rect.left + BULLET_OFFSET
         elif player.image is Img.player[1]:
-            self.rect.left -= BULLET_OFFSET
+            self.rect.left = self.rect.left - BULLET_OFFSET
 
     def update(self):
         self.rect = self.rect.move(0, -SHOT_SPEED)
@@ -214,7 +217,7 @@ class Danger(Actor):
         self.startleft = self.rect.left
         
     def update(self):
-        self.tick += 1
+        self.tick = self.tick + 1
         self.rect.left = self.startleft + (self.tick/25%2)*60
 
 
@@ -301,11 +304,11 @@ def main(winstyle = 0):
         
 
         if difficulty:
-            difficulty -= 1
+            difficulty = difficulty - 1
         else:
             difficulty = DIFFICULTY
             if bomb_odds > DANGER:
-                bomb_odds -= 1
+                bomb_odds = bomb_odds - 1
                 if bomb_odds == DANGER:
                     misc.append(Danger())
 
@@ -335,8 +338,8 @@ def main(winstyle = 0):
             direction = keystate[K_RIGHT] - keystate[K_LEFT]
             firing = keystate[K_SPACE]
             if joy:
-                direction += joy.get_axis(0)
-                firing += joy.get_button(0)
+                direction = direction + joy.get_axis(0)
+                firing = firing + joy.get_button(0)
             player.move(direction)
             if not player.reloading and firing and len(shots) < MAX_SHOTS:
                 shots.append(Shot(player))
@@ -344,7 +347,7 @@ def main(winstyle = 0):
 
         # Create new alien
         if alienreload:
-            alienreload -= 1
+            alienreload = alienreload - 1
         elif player.alive and not int(whrandom.random() * ALIEN_ODDS):
             aliens.append(Alien())
             alienreload = ALIEN_RELOAD
@@ -354,7 +357,9 @@ def main(winstyle = 0):
             bombs.append(Bomb(aliens[-1]))
 
         # Detect collisions
-        alienrects = [a.rect for a in aliens]
+        alienrects = []
+        for a in aliens: alienrects.append(a.rect)
+
         hit = player.rect.collidelist(alienrects)
         if hit != -1:
             alien = aliens[hit]
@@ -362,7 +367,7 @@ def main(winstyle = 0):
             explosions.append(Explosion(player, 1))
             dirtyrects.append(alien.clearrect)
             aliens.remove(alien)
-            kills += 1
+            kills = kills + 1
             player.alive = 0
         for shot in shots:
             hit = shot.rect.collidelist(alienrects)
@@ -373,9 +378,11 @@ def main(winstyle = 0):
                 dirtyrects.append(alien.clearrect)
                 shots.remove(shot)
                 aliens.remove(alien)
-                kills += 1
+                kills = kills + 1
                 break
-        bombrects = [b.rect for b in bombs]
+        bombrects = []
+        for b in bombs: bombrects.append(b.rect)
+
         hit = player.rect.collidelist(bombrects)
         if hit != -1:
             bomb = bombs[hit]

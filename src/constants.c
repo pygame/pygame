@@ -300,7 +300,7 @@ void initconstants(void)
     /*DOC*/    "The following constants are used by the display module and Surfaces\n"
     /*DOC*/    "\n"
     /*DOC*/    "HWSURFACE - surface in hardware video memory. (equal to 1)<br>\n"
-    /*DOC*/    "RESIZEABLE - display window is resizeable<br>\n"
+    /*DOC*/    "RESIZABLE - display window is resizeable<br>\n"
     /*DOC*/    "ASYNCBLIT - surface blits happen asynchronously (threaded)<br>\n"
     /*DOC*/    "OPENGL - display surface will be controlled by opengl<br>\n"
     /*DOC*/    "OPENGLBLIT - opengl controlled display surface will allow sdl\n"

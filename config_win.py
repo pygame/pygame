@@ -81,11 +81,10 @@ DEPS = [
 def setup_prebuilt():
     setup = open('Setup', 'w')
     for line in open('Setup.in').readlines():
-        if line.startswith('#--'): continue
-        if line.startswith('SDL = '):
+        if line[:3] == '#--': continue
+        if line[:6] == 'SDL = ':
             line = 'SDL = -Iprebuilt/include -Lprebuilt/lib -lSDL\n'
         setup.write(line)
-    setup.write('COPYLIB_png $(SDL) -lzlib -llibpng1\n')
 
 
 def main():

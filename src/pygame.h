@@ -63,6 +63,39 @@
 #include <SDL.h>
 
 
+/* older python compatability */
+
+#if PYTHON_API_VERSION < 1009
+#define PyObject_DEL(op)		free(op)
+#define PyMem_New(type, n)  	((type*)PyMem_Malloc((n) * sizeof(type)))
+#define PyMem_Del(p)			PyMem_Free((char*)p)
+static int PyModule_AddObject(PyObject *m, char *name, PyObject *o)
+{
+	PyObject *dict;
+    if (!PyModule_Check(m) || o == NULL)
+		return -1;
+	dict = PyModule_GetDict(m);
+	if (dict == NULL)
+		return -1;
+    if (PyDict_SetItemString(dict, name, o))
+		return -1;
+	Py_DECREF(o);
+	return 0;
+}
+#define PyModule_AddIntConstant(m, name, value) \
+	PyModule_AddObject(m, name, PyInt_FromLong(value))
+#define PyString_AsStringAndSize(o,ppc,pn) (*ppc = PyString_AsString(o), *pn = PyString_Size(o))
+#define PySequence_Size(x) PySequence_Length(x)
+
+#define PyUnicode_Check(text) 0
+#define PyUnicode_AsUnicode(text) text
+#define Py_UNICODE void
+#define PyUnicode_FromUnicode(p,c) PyLong_FromLong(*(short*)(p))
+#define PyUnicode_FromObject(s) s
+#endif
+
+
+
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
 #define RETURN_NONE return (Py_INCREF(Py_None), Py_None);

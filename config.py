@@ -15,11 +15,8 @@ found: true if the dep is available
 cflags: extra compile flags
 """
 
-import sys, os, shutil
+import sys, os, shutil, string
 
-
-if int(sys.version[0]) < 2:
-    raise SystemExit, "Pygame requires python 2.0 or higher"
 
 
 if sys.platform == 'win32':
@@ -37,7 +34,7 @@ else:
 def confirm(message):
     "ask a yes/no question, return result"
     reply = raw_input('\n' + message + ' [y/N]:')
-    if reply and reply[0].lower() == 'y':
+    if reply and string.lower(reply[0]) == 'y':
         return 1
     return 0
 

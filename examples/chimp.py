@@ -66,7 +66,7 @@ def main():
             break
     
     #Move The Monkey
-        chimppos.left += chimpmove
+        chimppos.left = chimppos.left + chimpmove
         if not screen.get_rect().contains(chimppos):
             chimpmove = -chimpmove
     

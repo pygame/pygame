@@ -70,9 +70,9 @@ flags have been used, which will likely require a little editing."""
     else:
         incdir = libdir = ''
         for arg in configinfo.split():
-            if arg.startswith('-I'):
+            if arg[:2] == '-I':
                 incdir = arg[2:]
-            elif arg.startswith('-L'):
+            elif arg[:2] == '-L':
                 libdir = arg[2:]
     for d in DEPS:
         d.configure(incdir, libdir)

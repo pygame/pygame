@@ -111,9 +111,9 @@ class Alien(Actor):
             
     def update(self):
         global SCREENRECT
-        self.rect[0] += self.facing
+        self.rect[0] = self.rect[0] + self.facing
         if not SCREENRECT.contains(self.rect):
-            self.facing *= -1;
+            self.facing = -self.facing;
             self.rect.top = self.rect.bottom + 3
             self.rect = self.rect.clamp(SCREENRECT)
 
@@ -126,7 +126,7 @@ class Explosion(Actor):
         self.rect.center = actor.rect.center
         
     def update(self):
-        self.life -= 1
+        self.life = self.life - 1
 
 
 class Shot(Actor):
@@ -137,7 +137,7 @@ class Shot(Actor):
         self.rect.top = player.rect.top - 10
 
     def update(self):
-        self.rect.top -= SHOT_SPEED
+        self.rect.top = self.rect.top - SHOT_SPEED
         
 
 
@@ -209,7 +209,10 @@ def main():
             aliens.append(Alien())
 
         # Detect collisions
-        alienrects = [a.rect for a in aliens]
+        alienrects = []
+        for a in aliens:
+            alienrects.append(a.rect)
+
         hit = player.rect.collidelist(alienrects)
         if hit != -1:
             alien = aliens[hit]
