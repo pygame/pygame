@@ -1,5 +1,9 @@
 #This is a list of changes in pygame's history.
 
+pygame-05
+Jan 6, 2001
+	Final cleanups for the new release
+
 Jan 4, 2001
 	Surface.blit() allows for rects as dest position
 	surfarray cleanups and improvements
