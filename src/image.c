@@ -178,7 +178,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
 		char* name;
-		if(!PyArg_ParseTuple(arg, "s|O", &name, &file))
+		if(!PyArg_ParseTuple(arg, "O|s", &name, &file))
 			return NULL;
 		Py_BEGIN_ALLOW_THREADS
 		result = SDL_SaveBMP(surf, name);
