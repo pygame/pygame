@@ -788,7 +788,7 @@ static PyObject* event_post(PyObject* self, PyObject* args)
 	event.user.data2 = userobj;
 
 	if(SDL_PushEvent(&event) == -1)
-		return RAISE(PyExc_SDLError, SDL_GetError());
+		return RAISE(PyExc_SDLError, "Event queue full");
 
 	RETURN_NONE
 }
