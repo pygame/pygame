@@ -1,5 +1,5 @@
 <html><head><!--
-TUTORIAL:Line by Line Descriptions of the Chimp Example
+Install Information
 --><title>Pygame Installation</title></head><body>
 <h2 align=center>Pygame Installation</h2>
 
@@ -143,6 +143,13 @@ Depending on where the SMPEG headers are installed, the pygame
 you can easily fix the SMPEG line in the "Setup" script to
 use the correct flags. Then also uncomment the line for the
 "movie" module.
+<p></p>
+Several users have run into error compiling when trying to use the
+Numeric Python header files. This is a problem with the autoconfigure
+script. The script foolishly assumes if it can import the Numeric
+module, then the headers will be available for compile. You need
+to either install the correct "python-numeric-dev" package for your
+system, or comment out the line for "surfarray" in the "Setup" file.
 </p></blockquote><br>
 
 <big><b><u>OSX Compiling Info</u></b></big><blockquote><p>
