@@ -40,22 +40,6 @@ def confirm(message):
     return 0
 
 
-#hmm, findbasepath is failing on irix, we'll avoid it for now
-def findbasepath(deps):
-    "find a common prefix in all paths"
-    allpaths = []
-    for d in deps:
-        if d.found:
-            allpaths.append(d.inc_dir)
-            allpaths.append(d.lib_dir)
-    basepath = os.path.commonprefix(allpaths)
-    lastslash = basepath.rfind('/')
-    if(lastslash < 3 or len(basepath) < 3):
-        basepath = ""
-    else:
-        basepath = basepath[:lastslash]
-    return basepath    
-
 
 def prepdep(dep, basepath):
     "add some vars to a dep"
@@ -122,7 +106,7 @@ def main():
 
     deps = CFG.main()
     if deps:
-        basepath = None  #findbasepath(deps)
+        basepath = None
         for d in deps:
             prepdep(d, basepath)
         writesetupfile(deps, basepath)
