@@ -454,30 +454,30 @@ static void print_traceback(PyObject *tb)
     PyObject *next;
     while(tb && tb != Py_None)
     {
-            PyFrameObject *frame;
-            PyObject *getobj;
-            int line, lasti;
-            const char *filename, *name;
-            
-            frame = (PyFrameObject*)PyObject_GetAttrString(tb, "tb_frame");
-            Py_DECREF(frame); //won't really kill it
-            getobj = PyObject_GetAttrString(tb, "tb_lineno");
-            line = PyInt_AsLong(getobj);
-            Py_DECREF(getobj);
-            
-            filename = PyString_AsString(frame->f_code->co_filename);
-            name = PyString_AsString(frame->f_code->co_name);
-            if (Py_OptimizeFlag)
-            {
-                    getobj = PyObject_GetAttrString(tb, "tb_lasti");
-                    lasti = PyInt_AsLong(getobj);
-                    Py_DECREF(getobj);
-                    line = PyCode_Addr2Line(frame->f_code, lasti);
-            }
-            fprintf(stderr, FMT, filename, line, name);
-            next = PyObject_GetAttrString(tb, "tb_next");
-            Py_DECREF(tb);
-            tb = next;
+	    PyFrameObject *frame;
+	    PyObject *getobj;
+	    int line, lasti;
+	    const char *filename, *name;
+	    
+	    frame = (PyFrameObject*)PyObject_GetAttrString(tb, "tb_frame");
+	    Py_DECREF(frame); //won't really kill it
+	    getobj = PyObject_GetAttrString(tb, "tb_lineno");
+	    line = PyInt_AsLong(getobj);
+	    Py_DECREF(getobj);
+	    
+	    filename = PyString_AsString(frame->f_code->co_filename);
+	    name = PyString_AsString(frame->f_code->co_name);
+	    if (Py_OptimizeFlag)
+	    {
+		    getobj = PyObject_GetAttrString(tb, "tb_lasti");
+		    lasti = PyInt_AsLong(getobj);
+		    Py_DECREF(getobj);
+		    line = PyCode_Addr2Line(frame->f_code, lasti);
+	    }
+	    fprintf(stderr, FMT, filename, line, name);
+	    next = PyObject_GetAttrString(tb, "tb_next");
+	    Py_DECREF(tb);
+	    tb = next;
     }
 }
 #endif
@@ -489,9 +489,9 @@ static void pygame_parachute(int sig)
 {
 	char* signaltype;
 #ifdef DO_CRASH_TRACEBACK
-        PyThreadState* thread;
-        PyInterpreterState *interp;
-#endif    
+	PyThreadState* thread;
+	PyInterpreterState *interp;
+#endif	  
     
 	signal(sig, SIG_DFL);
 	switch (sig)
@@ -522,17 +522,17 @@ static void pygame_parachute(int sig)
 
 #ifdef DO_CRASH_TRACEBACK
 printf("DOING TRACEBACK, experimental...\n");
-        interp = PyInterpreterState_Head();
-        for(thread=PyInterpreterState_ThreadHead(interp); thread; thread = PyThreadState_Next(thread))
-        {
-            PyTraceBack_Here(thread->frame);
-            Py_INCREF(thread->curexc_traceback);
-            print_traceback(thread->curexc_traceback);
-        }
+	interp = PyInterpreterState_Head();
+	for(thread=PyInterpreterState_ThreadHead(interp); thread; thread = PyThreadState_Next(thread))
+	{
+	    PyTraceBack_Here(thread->frame);
+	    Py_INCREF(thread->curexc_traceback);
+	    print_traceback(thread->curexc_traceback);
+	}
 #else
 printf("  (No Traceback Without Python2.2)\n");
 #endif
-        
+	
 	atexit_quit();
 	Py_FatalError(signaltype);
 }
@@ -604,26 +604,25 @@ static void uninstall_parachute(void)
 
 
 
-
-
 /* bind functions to python */
 
 static PyObject* do_segfault(PyObject* self, PyObject* args)
 {
     //force crash
-    *((int*)1) = 45;    
+    *((int*)1) = 45;
+    memcpy((char*)2, (char*)3, 10);
     RETURN_NONE
 }
 
 
 static PyMethodDef init__builtins__[] =
 {
-	{ "init", init, 1, doc_init }, 
+	{ "init", init, 1, doc_init },
 	{ "quit", quit, 1, doc_quit },
 	{ "register_quit", register_quit, 1, doc_register_quit },
 	{ "get_error", get_error, 1, doc_get_error },
 
-{ "segfault", do_segfault, "crash" },
+{ "segfault", do_segfault, 1, "crash" },
 	{ NULL, NULL }
 };
 
