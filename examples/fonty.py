@@ -1,4 +1,11 @@
 
+"""Here we load a .TTF font file, and display it in
+a basic pygame window. It demonstrates several of the
+Font object attributes. Nothing exciting in here, but
+it makes a great example for basic window, event, and
+font management."""
+
+
 import pygame, pygame.font, os.path
 from pygame.locals import *
 
@@ -44,11 +51,10 @@ def main():
 
     #show the surface and await user quit
     pygame.display.flip()
-    done = 0
-    while not done:
+    while 1:
         #use event.wait to keep from polling 100% cpu
         if pygame.event.wait().type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
-            done = 1
+            break
 
 
 

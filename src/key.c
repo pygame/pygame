@@ -35,15 +35,12 @@
     /*DOC*/    "pygame.key.set_repeat([delay, interval]) -> None\n"
     /*DOC*/    "change the keyboard repeat\n"
     /*DOC*/    "\n"
-    /*DOC*/    "When the keyboard repeat is enabled, you will\n"
-    /*DOC*/    "receive multiple KEYDOWN events when the user\n"
-    /*DOC*/    "holds a key. You can control the repeat timing\n"
-    /*DOC*/    "with the delay and interval values. If no\n"
-    /*DOC*/    "arguments are passed, keyboard repeat will be\n"
-    /*DOC*/    "disabled.\n"
+    /*DOC*/    "When the keyboard repeat is enabled, you will receive multiple\n"
+    /*DOC*/    "KEYDOWN events when the user holds a key. You can control the\n"
+    /*DOC*/    "repeat timing with the delay and interval values. If no arguments\n"
+    /*DOC*/    "are passed, keyboard repeat will be disabled.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "The default values for delay and interval are 500\n"
-    /*DOC*/    "and 30.\n"
+    /*DOC*/    "The default values for delay and interval are 500 and 30.\n"
     /*DOC*/ ;
 
 static PyObject* key_set_repeat(PyObject* self, PyObject* args)
@@ -66,9 +63,8 @@ static PyObject* key_set_repeat(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.key.get_pressed() -> tuple of bools\n"
     /*DOC*/    "get the pressed state for all keys\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This gives you a big tuple with the pressed state\n"
-    /*DOC*/    "for all keys. You index the sequence using the\n"
-    /*DOC*/    "keysym constant (K_SPACE, etc)\n"
+    /*DOC*/    "This gives you a big tuple with the pressed state for all keys.\n"
+    /*DOC*/    "You index the sequence using the keysym constant (K_SPACE, etc)\n"
     /*DOC*/ ;
 
 static PyObject* key_get_pressed(PyObject* self, PyObject* args)
@@ -115,9 +111,8 @@ static PyObject* key_get_pressed(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.key.name(int) -> string\n"
     /*DOC*/    "get the name of a key\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will provide you with the keyboard name for a\n"
-    /*DOC*/    "keysym. For example 'pygame.key.name(K_SPACE)'\n"
-    /*DOC*/    "will return 'space'.\n"
+    /*DOC*/    "This will provide you with the keyboard name for a keysym. For\n"
+    /*DOC*/    "example 'pygame.key.name(K_SPACE)' will return 'space'.\n"
     /*DOC*/ ;
 
 static PyObject* key_name(PyObject* self, PyObject* args)
@@ -138,8 +133,8 @@ static PyObject* key_name(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.key.get_mods() -> int\n"
     /*DOC*/    "get current state of modifier keys\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns a bitwise combination of the pressed state\n"
-    /*DOC*/    "for all modifier keys (KMOD_LEFTSHIFT, etc).\n"
+    /*DOC*/    "Returns a bitwise combination of the pressed state for all\n"
+    /*DOC*/    "modifier keys (KMOD_LEFTSHIFT, etc).\n"
     /*DOC*/ ;
 
 static PyObject* key_get_mods(PyObject* self, PyObject* args)
@@ -158,10 +153,9 @@ static PyObject* key_get_mods(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.key.set_mods(int) -> None\n"
     /*DOC*/    "set the state of the modifier keys\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Allows you to control the internal state of the\n"
-    /*DOC*/    "modifier keys. Pass an interger built from using\n"
-    /*DOC*/    "the bitwise-or (|) of all the modifier keys you\n"
-    /*DOC*/    "want to be treated as pressed.\n"
+    /*DOC*/    "Allows you to control the internal state of the modifier keys.\n"
+    /*DOC*/    "Pass an interger built from using the bitwise-or (|) of all the\n"
+    /*DOC*/    "modifier keys you want to be treated as pressed.\n"
     /*DOC*/ ;
 
 static PyObject* key_set_mods(PyObject* self, PyObject* args)
@@ -180,8 +174,7 @@ static PyObject* key_set_mods(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.key.get_focused() -> bool\n"
     /*DOC*/    "state of keyboard focus\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true when the application has the keyboard\n"
-    /*DOC*/    "input focus.\n"
+    /*DOC*/    "Returns true when the application has the keyboard input focus.\n"
     /*DOC*/ ;
 
 static PyObject* key_get_focused(PyObject* self, PyObject* args)
@@ -214,7 +207,11 @@ static PyMethodDef key_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_key_MODULE[] =
-    /*DOC*/    "Contains routines for dealing with the keyboard.\n"
+    /*DOC*/    "Contains routines for dealing with the keyboard. All keyboard\n"
+    /*DOC*/    "events can be retreived through the pygame.event module. With the\n"
+    /*DOC*/    "key module, you can get the current state of the keyboard, as\n"
+    /*DOC*/    "well as set the rate of keyboard repeating and lookup names of\n"
+    /*DOC*/    "keysyms.\n"
     /*DOC*/ ;
 
 void initkey()

@@ -1,5 +1,17 @@
 #! /usr/bin/env python
 
+"""This is a much simpler version of the aliens.py
+example. It makes a good place for beginners to get
+used to the way pygame works. Gameplay is pretty similar,
+but there are a lot less object types to worry about,
+and it makes no attempt at using the optional pygame
+modules.
+It does provide a good method for using the updaterects
+to only update the changed parts of the screen, instead of
+the entire screen surface. This has large speed benefits
+and should be used whenever the fullscreen isn't being changed."""
+
+
 #import
 import whrandom, os.path, sys
 import pygame, pygame.image

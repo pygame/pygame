@@ -4,9 +4,9 @@
 
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
 <td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
-<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
-	<a href=../>
-      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<tr height=86 align=left><td valign=middle><font color=#ffffff size=+5>
+	<a href=../><font size=+5 color=#ffffff><i><b>
+      pygame</b></i></font></a>&nbsp;&nbsp;</td>
 <td valign=middle><tt><font color=#dddddd><br>
 	PyGame<br>Documentation</font>
 </td></tr></table></td><td width=100% height=100% align=center valign=middle>
@@ -25,23 +25,34 @@
 <a href=Surface.html>Surface</a> || 
 <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
-<a href=pygame_display.html>display</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_constants.html>constants</a> ||<br>
+|| <a href=pygame_display.html>display</a> || 
+<a href=pygame_event.html>event</a> || 
 <a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
-<a href=pygame_joystick.html>joystick</a> || 
-<a href=pygame_key.html>key</a> ||<br>
-|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_joystick.html>joystick</a> ||<br>
+|| <a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
 <a href=pygame_mouse.html>mouse</a> || 
 <a href=pygame_music.html>music</a> || 
-<a href=pygame_surfarray.html>surfarray</a> || 
-<a href=pygame_time.html>time</a> ||<br>
+<a href=pygame_surfarray.html>surfarray</a> ||<br>
+|| <a href=pygame_time.html>time</a> ||<br>
 
 
 </td></tr></table>
 <br>
 <h2 align=center>Channel</h2>
-Channel objects controls playback of sound.
+Channel objects represent a single channel of sound. Each channel
+can only playback one Sound object at a time. If your application
+only requires simply sound playback, you will usually not need to
+bother with the Channel objects, they exist for finer playback
+control.
+<br>&nbsp;<br>
+Sound objects can be retrieved from the pygame.mixer module with
+functions like pygame.mixer.get_channel() and
+pygame.mixer.find_channel(). Also, each time you call
+Sound.play() a Channel object will be returned, representing the
+channel that sound is playing on.
 
 <hr>
 
@@ -94,16 +105,16 @@ given millisonds.
 </b></font><br><font size=+1><tt>
 Channel.get_busy() -> bool
 </tt></font><ul>
-Returns true when there is a sound actively
-playing on this channel.
+Returns true when there is a sound actively playing on this
+channel.
 </ul><br>&nbsp;<br>
 
 <a name=get_volume><font size=+2><b>get_volume
 </b></font><br><font size=+1><tt>
 Channel.get_volume() -> val
 </tt></font><ul>
-Returns the current volume for this sound object.
-The value is between 0.0 and 1.0.
+Returns the current volume for this sound object. The value is
+between 0.0 and 1.0.
 </ul><br>&nbsp;<br>
 
 <a name=pause><font size=+2><b>pause
@@ -118,24 +129,22 @@ but it can be resumed with a call to <a href=#unpause>unpause()</a>
 </b></font><br><font size=+1><tt>
 Channel.play(Sound, [loops, [maxtime]]) -> None
 </tt></font><ul>
-Starts playing a given sound on this channel. If
-the channels is currently playing a different
-sound, it will be replaced/restarted with the
-given sound. Loops controls how many extra times
-the sound will play, a negative loop will play
-indefinitely, it defaults to 0. Maxtime is the
-number of totalmilliseconds that the sound will
-play. It defaults to forever (-1).
+Starts playing a given sound on this channel. If the channels is
+currently playing a different sound, it will be
+replaced/restarted with the given sound. Loops controls how many
+extra times the sound will play, a negative loop will play
+indefinitely, it defaults to 0. Maxtime is the number of
+totalmilliseconds that the sound will play. It defaults to
+forever (-1).
 </ul><br>&nbsp;<br>
 
 <a name=set_volume><font size=+2><b>set_volume
 </b></font><br><font size=+1><tt>
 Channel.set_volume(val) -> None
 </tt></font><ul>
-Sets the volume for the channel. The channel's
-volume level is mixed with the volume for the
-active sound object. The value is between 0.0 and
-1.0.
+Sets the volume for the channel. The channel's volume level is
+mixed with the volume for the active sound object. The value is
+between 0.0 and 1.0.
 </ul><br>&nbsp;<br>
 
 <a name=stop><font size=+2><b>stop

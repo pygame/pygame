@@ -47,19 +47,16 @@ static char* find_extension(char* fullname)
     /*DOC*/    "pygame.image.load(file, [namehint]) -> Surface\n"
     /*DOC*/    "load an image to a new Surface\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will load an image into a new surface. You\n"
-    /*DOC*/    "can pass it either a filename, or a python\n"
-    /*DOC*/    "file-like object to load the image from. If you\n"
-    /*DOC*/    "pass a file-like object that isn't actually a file\n"
-    /*DOC*/    "(like the StringIO class), then you might want to\n"
-    /*DOC*/    "also pass either the filename or extension as the\n"
-    /*DOC*/    "namehint string. The namehint can help the loader\n"
-    /*DOC*/    "determine the filetype.\n"
+    /*DOC*/    "This will load an image into a new surface. You can pass it\n"
+    /*DOC*/    "either a filename, or a python file-like object to load the image\n"
+    /*DOC*/    "from. If you pass a file-like object that isn't actually a file\n"
+    /*DOC*/    "(like the StringIO class), then you might want to also pass\n"
+    /*DOC*/    "either the filename or extension as the namehint string. The\n"
+    /*DOC*/    "namehint can help the loader determine the filetype.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You will only be able to load the types of images\n"
-    /*DOC*/    "supported by your build of SDL_image. This will\n"
-    /*DOC*/    "always include GIF, BMP, PPM, PCX, and TIF.\n"
-    /*DOC*/    "SDL_image can also load JPG and PNG, but they are\n"
+    /*DOC*/    "You will only be able to load the types of images supported by\n"
+    /*DOC*/    "your build of SDL_image. This will always include GIF, BMP, PPM,\n"
+    /*DOC*/    "PCX, and TIF. SDL_image can also load JPG and PNG, but they are\n"
     /*DOC*/    "optional.\n"
     /*DOC*/ ;
 
@@ -107,10 +104,9 @@ static PyMethodDef image_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_image_MODULE[] =
-    /*DOC*/    "Contains routines to load and (someday) save\n"
-    /*DOC*/    "surfaces. This module must be manually imported,\n"
-    /*DOC*/    "since it requires the use of the SDL_image\n"
-    /*DOC*/    "library.\n"
+    /*DOC*/    "Contains routines to load and (someday) save surfaces. This\n"
+    /*DOC*/    "module must be manually imported, since it requires the use of\n"
+    /*DOC*/    "the SDL_image library.\n"
     /*DOC*/ ;
 
 void initimage()

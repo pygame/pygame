@@ -358,12 +358,11 @@ static PyObject* get_grab(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.event.pump() -> None\n"
     /*DOC*/    "update the internal messages\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Pumping the message queue is important if you are\n"
-    /*DOC*/    "not getting events off the message queue. The pump\n"
-    /*DOC*/    "will allow pyGame to communicate with the window\n"
-    /*DOC*/    "manager, which helps keep your application\n"
-    /*DOC*/    "responsive, as well as updating the state for\n"
-    /*DOC*/    "various input devices.\n"
+    /*DOC*/    "Pumping the message queue is important if you are not getting\n"
+    /*DOC*/    "events off the message queue. The pump will allow pyGame to\n"
+    /*DOC*/    "communicate with the window manager, which helps keep your\n"
+    /*DOC*/    "application responsive, as well as updating the state for various\n"
+    /*DOC*/    "input devices.\n"
     /*DOC*/ ;
 
 static PyObject* pump(PyObject* self, PyObject* args)
@@ -384,12 +383,11 @@ static PyObject* pump(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.wait() -> Event\n"
     /*DOC*/    "wait for an event\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the current event on the queue. If there\n"
-    /*DOC*/    "are no messages waiting on the queue, this will\n"
-    /*DOC*/    "not return until one is available. Sometimes it is\n"
-    /*DOC*/    "important to use this wait to get events from the\n"
-    /*DOC*/    "queue, it will allow your application to idle when\n"
-    /*DOC*/    "the user isn't doing anything with it.\n"
+    /*DOC*/    "Returns the current event on the queue. If there are no messages\n"
+    /*DOC*/    "waiting on the queue, this will not return until one is\n"
+    /*DOC*/    "available. Sometimes it is important to use this wait to get\n"
+    /*DOC*/    "events from the queue, it will allow your application to idle\n"
+    /*DOC*/    "when the user isn't doing anything with it.\n"
     /*DOC*/ ;
 
 static PyObject* wait(PyObject* self, PyObject* args)
@@ -413,9 +411,8 @@ static PyObject* wait(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.poll() -> Event\n"
     /*DOC*/    "get an available event\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns next event on queue. If there is no event\n"
-    /*DOC*/    "waiting on the queue, this will return an event with\n"
-    /*DOC*/    " type NOEVENT.\n"
+    /*DOC*/    "Returns next event on queue. If there is no event waiting on the\n"
+    /*DOC*/    "queue, this will return an event with type NOEVENT.\n"
     /*DOC*/ ;
 
 static PyObject* poll(PyObject* self, PyObject* args)
@@ -438,14 +435,12 @@ static PyObject* poll(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.get([type]) -> list of Events\n"
     /*DOC*/    "get all of an event type from the queue\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Pass this a type of event that you are interested\n"
-    /*DOC*/    "in, and it will return a list of all matching\n"
-    /*DOC*/    "event types from the queue. If no types are\n"
-    /*DOC*/    "passed, this will return all the events from the\n"
-    /*DOC*/    "queue. You may also optionally pass a sequence of\n"
-    /*DOC*/    "event types. For example, to fetch all the\n"
-    /*DOC*/    "keyboard events from the queue, you would call,\n"
-    /*DOC*/    "'pygame.event.get([KEYDOWN,KEYUP])'.\n"
+    /*DOC*/    "Pass this a type of event that you are interested in, and it will\n"
+    /*DOC*/    "return a list of all matching event types from the queue. If no\n"
+    /*DOC*/    "types are passed, this will return all the events from the queue.\n"
+    /*DOC*/    "You may also optionally pass a sequence of event types. For\n"
+    /*DOC*/    "example, to fetch all the keyboard events from the queue, you\n"
+    /*DOC*/    "would call, 'pygame.event.get([KEYDOWN,KEYUP])'.\n"
     /*DOC*/ ;
 
 static PyObject* get(PyObject* self, PyObject* args)
@@ -508,14 +503,12 @@ static PyObject* get(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.peek([type]) -> bool\n"
     /*DOC*/    "query if any of event types are waiting\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Pass this a type of event that you are interested\n"
-    /*DOC*/    "in, and it will return true if there are any of\n"
-    /*DOC*/    "that type of event on the queue. If no types are\n"
-    /*DOC*/    "passed, this will return true if any events are on\n"
-    /*DOC*/    "the queue. You may also optionally pass a sequence\n"
-    /*DOC*/    "of event types. For example, to find if any\n"
-    /*DOC*/    "keyboard events are on the queue, you would call,\n"
-    /*DOC*/    "'pygame.event.peek([KEYDOWN,KEYUP])'.\n"
+    /*DOC*/    "Pass this a type of event that you are interested in, and it will\n"
+    /*DOC*/    "return true if there are any of that type of event on the queue.\n"
+    /*DOC*/    "If no types are passed, this will return true if any events are\n"
+    /*DOC*/    "on the queue. You may also optionally pass a sequence of event\n"
+    /*DOC*/    "types. For example, to find if any keyboard events are on the\n"
+    /*DOC*/    "queue, you would call, 'pygame.event.peek([KEYDOWN,KEYUP])'.\n"
     /*DOC*/ ;
 
 static PyObject* peek(PyObject* self, PyObject* args)
@@ -564,9 +557,8 @@ static PyObject* peek(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.post(Event) -> None\n"
     /*DOC*/    "place an event on the queue\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will place an event onto the queue. This is\n"
-    /*DOC*/    "most useful for putting your own USEREVENT's onto\n"
-    /*DOC*/    "the queue.\n"
+    /*DOC*/    "This will place an event onto the queue. This is most useful for\n"
+    /*DOC*/    "putting your own USEREVENT's onto the queue.\n"
     /*DOC*/ ;
 
 static PyObject* post(PyObject* self, PyObject* args)
@@ -592,10 +584,9 @@ static PyObject* post(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.set_allowed(type) -> None\n"
     /*DOC*/    "allows certain events onto the queue\n"
     /*DOC*/    "\n"
-    /*DOC*/    "By default, all events will appear from the queue.\n"
-    /*DOC*/    "After you have blocked some event types, you can\n"
-    /*DOC*/    "use this to re-enable them. You can optionally\n"
-    /*DOC*/    "pass a sequence of event types.\n"
+    /*DOC*/    "By default, all events will appear from the queue. After you have\n"
+    /*DOC*/    "blocked some event types, you can use this to re-enable them. You\n"
+    /*DOC*/    "can optionally pass a sequence of event types.\n"
     /*DOC*/ ;
 
 static PyObject* set_allowed(PyObject* self, PyObject* args)
@@ -633,10 +624,9 @@ static PyObject* set_allowed(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.set_blocked(type) -> None\n"
     /*DOC*/    "blocks certain events from the queue\n"
     /*DOC*/    "\n"
-    /*DOC*/    "By default, all events will appear from the queue.\n"
-    /*DOC*/    "This will allow you to prevent event types from\n"
-    /*DOC*/    "appearing on the queue. You can optionally pass a\n"
-    /*DOC*/    "sequence of event types.\n"
+    /*DOC*/    "By default, all events will appear from the queue. This will\n"
+    /*DOC*/    "allow you to prevent event types from appearing on the queue. You\n"
+    /*DOC*/    "can optionally pass a sequence of event types.\n"
     /*DOC*/ ;
 
 static PyObject* set_blocked(PyObject* self, PyObject* args)

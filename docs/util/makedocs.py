@@ -1,4 +1,4 @@
-
+ 
 """take all the PyGame source and create html documentation"""
 #needs to eventually handle python source too.
 
@@ -46,9 +46,7 @@ def filltemplate(template, info):
 
 def readsource(filename):
     documents = []
-
-    file = open(filename)    
-
+    file = open(filename)
     #read source
     while 1:
         line = file.readline()
@@ -60,7 +58,9 @@ def readsource(filename):
                 if not line or line.find('"') == -1: break
                 line = line[line.find('"')+1:line.rfind('"')]
                 line = line.rstrip()
-                if line[-2:] == '\\n':
+                if line == '\\n':
+                    line = '<br>&nbsp;<br>'
+                elif line.endswith('\\n'):
                     line = line[:-2]
                 lines.append(line)
             documents.append(lines)
@@ -148,7 +148,6 @@ def buildlinks(alldocs):
 
 
 
-
 def categorize(allfuncs):
     cats = {}
     for f in allfuncs:
@@ -198,7 +197,7 @@ def writefuncdoc(alldocs):
         extrainfo = extras.get(cat, None)
         if extrainfo:
             modinfo += '<br>&nbsp;<br>' + extrainfo
-    
+
         finalinfo = {'title': cat.replace('_', '.'),
                      'docs': '\n'.join(htmldocs),
                      'index': '\n'.join(htmllist),

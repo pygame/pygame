@@ -1,0 +1,168 @@
+<html>
+<title>pygame.constants</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=middle><font color=#ffffff size=+5>
+	<a href=../><font size=+5 color=#ffffff><i><b>
+      pygame</b></i></font></a>&nbsp;&nbsp;</td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_constants.html>constants</a> ||<br>
+|| <a href=pygame_display.html>display</a> || 
+<a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> ||<br>
+|| <a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> ||<br>
+|| <a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>pygame.constants</h2>
+These constants are defined by SDL, and needed in pygame. Note
+that many of the flags for SDL are not needed in pygame, and are
+not included here. These constants are generally accessed from
+the pygame.locals module. This module is automatically placed in
+the pygame namespace, but you will usually want to place them
+directly into your module's namespace with the following command,
+'from pygame.locals import *'.
+
+<hr>
+
+<table>
+<tr><td><a href=#display >display </a></td><td> -
+The following constants are used by the display module and Surfaces</td></tr>
+
+
+<tr><td><a href=#events >events </a></td><td> -
+These constants define the various event types</td></tr>
+
+
+<tr><td><a href=#keyboard >keyboard </a></td><td> -
+These constants represent the keys on the keyboard.</td></tr>
+
+
+<tr><td><a href=#modifiers >modifiers </a></td><td> -
+These constants represent the modifier keys on the keyboard.</td></tr>
+
+
+<tr><td><a href=#zdepracated >zdepracated </a></td><td> -
+The following constants are made available, but generally not needed</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=display ><font size=+2><b>display 
+</b></font><br><font size=+1><tt>
+pygame.constants.display (constants)
+</tt></font><ul>
+HWSURFACE - surface in hardware video memory. (equal to 1)<br>
+RESIZEABLE - display window is resizeable<br>
+ASYNCBLIT - surface blits happen asynchronously (threaded)<br>
+OPENGL - display surface will be controlled by opengl<br>
+OPENGLBLIT - opengl controlled display surface will allow sdl
+blits<br>
+HWPALETTE - display surface has animatable hardware palette
+entries<br>
+DOUBLEBUF - hardware display surface is page flippable<br>
+FULLSCREEN - display surface is fullscreen (nonwindowed)<br>
+RLEACCEL - compile for quick alpha blits, only set in alpha or
+colorkey funcs<br>
+</ul><br>&nbsp;<br>
+
+<a name=events ><font size=+2><b>events 
+</b></font><br><font size=+1><tt>
+pygame.constants.events (constants)
+</tt></font><ul>
+NOEVENT - no event, represents an empty event list, equal to 0<br>
+ACTIVEEVENT - window has gain/lost mouse/keyboard/visiblity focus<br>
+KEYDOWN - keyboard button has been pressed (or down and repeating)<br>
+KEYUP - keyboard button has been released<br>
+MOUSEMOTION - mouse has moved<br>
+MOUSEBUTTONDOWN- mouse button has been pressed<br>
+MOUSEBUTTONUP - mouse button has been released<br>
+JOYAXISMOTION - an opened joystick axis has changed<br>
+JOYBALLMOTION - an opened joystick ball has moved<br>
+JOYHATMOTION - an opened joystick hat has moved<br>
+JOYBUTTONDOWN - an opened joystick button has been pressed<br>
+JOYBUTTONUP - an opened joystick button has been released<br>
+VIDEORESIZE - the display window has been resized by the user<br>
+QUIT - the user has requested the game to quit<br>
+SYSWMEVENT - currently unsupported, system dependant<br>
+USEREVENTS - all user messages are this or higher<br>
+NUMEVENTS - all user messages must be lower than this, equal to 32<br>
+</ul><br>&nbsp;<br>
+
+<a name=keyboard ><font size=+2><b>keyboard 
+</b></font><br><font size=+1><tt>
+pygame.constants.keyboard (constants)
+</tt></font><ul>
+There are many keyboard constants, they are used to represent
+keys on the keyboard. The following is a list of all keyboard
+constants
+<br>&nbsp;<br>
+K_UNKNOWN, K_FIRST, K_BACKSPACE, K_TAB, K_CLEAR, K_RETURN,
+K_PAUSE,<br>
+.... list unfinished, sorry :-P
+</ul><br>&nbsp;<br>
+
+<a name=modifiers ><font size=+2><b>modifiers 
+</b></font><br><font size=+1><tt>
+pygame.constants.modifiers (constants)
+</tt></font><ul>
+Their states are treated slightly differently than normal
+keyboard button states, and you can temporarily set their states.
+<br>&nbsp;<br>
+KMOD_NONE, KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT, KMOD_CAPS,<br>
+KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,<br>
+KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, kMOD_MODE<br>
+</ul><br>&nbsp;<br>
+
+<a name=zdepracated ><font size=+2><b>zdepracated 
+</b></font><br><font size=+1><tt>
+pygame.constants.zdepracated (constants)
+</tt></font><ul>
+The flags labeled as readonly should never be used,
+except when comparing checking flags against Surface.get_flags().
+<br>&nbsp;<br>
+SWSURFACE - not really usable as a surface flag, equates to 0 and
+is always default<br>
+ANYFORMAT - used to create surfaces, pygame defaults to this flag
+if you don't specifya bit depth<br>
+HWACCEL - surface is hardware accelerated, readonly<br>
+SRCCOLORKEY- surface has a colorkey for blits, readonly<br>
+SRCALPHA - surface has alpha enabled, readonly<br>
+RLEACCELOK - surface is rle accelerated, but hasn't been compiled
+yet, readonly<br>
+PREALLOC - not even sure?<br>
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

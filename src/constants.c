@@ -36,14 +36,22 @@ static PyMethodDef builtins[] =
 };
 
 
-static char doc[] = "constant values used by pygame";
+    /*DOC*/ static char doc_pygame_constants_MODULE[] =
+    /*DOC*/    "These constants are defined by SDL, and needed in pygame. Note\n"
+    /*DOC*/    "that many of the flags for SDL are not needed in pygame, and are\n"
+    /*DOC*/    "not included here. These constants are generally accessed from\n"
+    /*DOC*/    "the pygame.locals module. This module is automatically placed in\n"
+    /*DOC*/    "the pygame namespace, but you will usually want to place them\n"
+    /*DOC*/    "directly into your module's namespace with the following command,\n"
+    /*DOC*/    "'from pygame.locals import *'.\n"
+    /*DOC*/ ;
 
 
 void initconstants()
 {
 	PyObject* module;
 
-	module = Py_InitModule3("constants", builtins, doc);
+	module = Py_InitModule3("constants", builtins, doc_pygame_constants_MODULE);
 
 	DEC_CONST(SWSURFACE);
 	DEC_CONST(HWSURFACE);
@@ -273,4 +281,90 @@ void initconstants()
 	DEC_CONSTN(KMOD_META);
 }
 
+#if 0 /*documentation only*/
+    /*DOC*/ static char doc_display[] =
+    /*DOC*/    "pygame.constants.display (constants)\n"
+    /*DOC*/    "The following constants are used by the display module and Surfaces\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "HWSURFACE - surface in hardware video memory. (equal to 1)<br>\n"
+    /*DOC*/    "RESIZEABLE - display window is resizeable<br>\n"
+    /*DOC*/    "ASYNCBLIT - surface blits happen asynchronously (threaded)<br>\n"
+    /*DOC*/    "OPENGL - display surface will be controlled by opengl<br>\n"
+    /*DOC*/    "OPENGLBLIT - opengl controlled display surface will allow sdl\n"
+    /*DOC*/    "blits<br>\n"
+    /*DOC*/    "HWPALETTE - display surface has animatable hardware palette\n"
+    /*DOC*/    "entries<br>\n"
+    /*DOC*/    "DOUBLEBUF - hardware display surface is page flippable<br>\n"
+    /*DOC*/    "FULLSCREEN - display surface is fullscreen (nonwindowed)<br>\n"
+    /*DOC*/    "RLEACCEL - compile for quick alpha blits, only set in alpha or\n"
+    /*DOC*/    "colorkey funcs<br>\n"
+    /*DOC*/ ;
 
+    /*DOC*/ static char doc_events[] =
+    /*DOC*/    "pygame.constants.events (constants)\n"
+    /*DOC*/    "These constants define the various event types\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "NOEVENT - no event, represents an empty event list, equal to 0<br>\n"
+    /*DOC*/    "ACTIVEEVENT - window has gain/lost mouse/keyboard/visiblity focus<br>\n"
+    /*DOC*/    "KEYDOWN - keyboard button has been pressed (or down and repeating)<br>\n"
+    /*DOC*/    "KEYUP - keyboard button has been released<br>\n"
+    /*DOC*/    "MOUSEMOTION - mouse has moved<br>\n"
+    /*DOC*/    "MOUSEBUTTONDOWN- mouse button has been pressed<br>\n"
+    /*DOC*/    "MOUSEBUTTONUP - mouse button has been released<br>\n"
+    /*DOC*/    "JOYAXISMOTION - an opened joystick axis has changed<br>\n"
+    /*DOC*/    "JOYBALLMOTION - an opened joystick ball has moved<br>\n"
+    /*DOC*/    "JOYHATMOTION - an opened joystick hat has moved<br>\n"
+    /*DOC*/    "JOYBUTTONDOWN - an opened joystick button has been pressed<br>\n"
+    /*DOC*/    "JOYBUTTONUP - an opened joystick button has been released<br>\n"
+    /*DOC*/    "VIDEORESIZE - the display window has been resized by the user<br>\n"
+    /*DOC*/    "QUIT - the user has requested the game to quit<br>\n"
+    /*DOC*/    "SYSWMEVENT - currently unsupported, system dependant<br>\n"
+    /*DOC*/    "USEREVENTS - all user messages are this or higher<br>\n"
+    /*DOC*/    "NUMEVENTS - all user messages must be lower than this, equal to 32<br>\n"
+    /*DOC*/ ;
+
+    /*DOC*/ static char doc_keyboard[] =
+    /*DOC*/    "pygame.constants.keyboard (constants)\n"
+    /*DOC*/    "These constants represent the keys on the keyboard.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "There are many keyboard constants, they are used to represent\n"
+    /*DOC*/    "keys on the keyboard. The following is a list of all keyboard\n"
+    /*DOC*/    "constants\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "K_UNKNOWN, K_FIRST, K_BACKSPACE, K_TAB, K_CLEAR, K_RETURN,\n"
+    /*DOC*/    "K_PAUSE,<br>\n"
+    /*DOC*/    ".... list unfinished, sorry :-P\n"
+    /*DOC*/ ;
+
+    /*DOC*/ static char doc_modifiers[] =
+    /*DOC*/    "pygame.constants.modifiers (constants)\n"
+    /*DOC*/    "These constants represent the modifier keys on the keyboard.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Their states are treated slightly differently than normal\n"
+    /*DOC*/    "keyboard button states, and you can temporarily set their states.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "KMOD_NONE, KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT, KMOD_CAPS,<br>\n"
+    /*DOC*/    "KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,<br>\n"
+    /*DOC*/    "KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, kMOD_MODE<br>\n"
+    /*DOC*/ ;
+
+    /*DOC*/ static char doc_zdeprecated[] =
+    /*DOC*/    "pygame.constants.zdepracated (constants)\n"
+    /*DOC*/    "The following constants are made available, but generally not needed\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The flags labeled as readonly should never be used,\n"
+    /*DOC*/    "except when comparing checking flags against Surface.get_flags().\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "SWSURFACE - not really usable as a surface flag, equates to 0 and\n"
+    /*DOC*/    "is always default<br>\n"
+    /*DOC*/    "ANYFORMAT - used to create surfaces, pygame defaults to this flag\n"
+    /*DOC*/    "if you don't specifya bit depth<br>\n"
+    /*DOC*/    "HWACCEL - surface is hardware accelerated, readonly<br>\n"
+    /*DOC*/    "SRCCOLORKEY- surface has a colorkey for blits, readonly<br>\n"
+    /*DOC*/    "SRCALPHA - surface has alpha enabled, readonly<br>\n"
+    /*DOC*/    "RLEACCELOK - surface is rle accelerated, but hasn't been compiled\n"
+    /*DOC*/    "yet, readonly<br>\n"
+    /*DOC*/    "PREALLOC - not even sure?<br>\n"
+    /*DOC*/ ;
+
+#endif

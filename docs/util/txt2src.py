@@ -39,7 +39,7 @@ def txt2src(infile, outfile):
                 line = infile.readline()
                 line = line.strip()
                 if line == '#END': break
-                outlines = wordwrap(line, 50)
+                outlines = wordwrap(line, 65)
                 for l in outlines:
                     outfile.write(docprefix + '   "%s\\n"\n'%l)
             outfile.write(docprefix + ';\n\n')
