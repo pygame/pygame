@@ -71,6 +71,8 @@ static PyObject* play(PyObject* self, PyObject* args)
 	if(!current_music)
 		return RAISE(PyExc_SDLError, "music not loaded");
 
+	Mix_HookMusicFinished(endmusic_callback);
+
 	val = Mix_PlayMusic(current_music, loops);
 	if(val == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());

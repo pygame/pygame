@@ -65,5 +65,4 @@ typedef struct {
 
 
 
-
 static void* PyMIXER_C_API[PYGAMEAPI_MIXER_NUMSLOTS] = {NULL};
