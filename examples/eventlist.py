@@ -22,7 +22,7 @@ def showtext(win, pos, text, color, bgcolor):
 
 
 def drawstatus(win):
-    bgcolor = 30, 30, 30
+    bgcolor = 50, 50, 50
     win.fill(bgcolor, (0, 0, 640, 120))
     win.blit(Font.render('Status Area', 1, (155, 155, 155), bgcolor), (2, 2))
 
