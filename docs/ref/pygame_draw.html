@@ -69,6 +69,10 @@ draw a line on a surface</td></tr>
 draw multiple connected anti-aliased lines on a surface</td></tr>
 
 
+<tr><td><a href=#arc>arc</a></td><td> -
+draw an elliptic arc on a surface</td></tr>
+
+
 <tr><td><a href=#circle>circle</a></td><td> -
 draw a circle on a surface</td></tr>
 
@@ -127,6 +131,20 @@ This will respect the clipping rectangle. A bounding box of the
 effected area is returned as a rectangle.
 <br>&nbsp;<br>
 The color argument must be an RGB sequence.
+<br>&nbsp;<br>
+This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
+
+<a name=arc><font size=+2><b>arc
+</b></font><br><font size=+1><tt>
+pygame.draw.arc(Surface, color, Rect, angle_start, angle_stop, width=0) -> Rect
+</tt></font><ul>
+Draws an elliptical arc on the Surface. The given rectangle
+is the area that the circle will fill. The two angle arguments
+are the initial and final angle (radians, with the zero on the right).
+The width argument is the thickness to draw the outer edge.
+<br>&nbsp;<br>
+The color argument can be either a RGB sequence or mapped color integer.
 <br>&nbsp;<br>
 This function will temporarily lock the surface.
 </ul><br>&nbsp;<br>
