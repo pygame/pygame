@@ -622,18 +622,14 @@ static int font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 
 		/*check if it is a valid file, else SDL_ttf segfaults*/
 		test = fopen(filename, "rb");
-printf("filetest %p\n", test);
 		if(!test)
                 {
-printf("FAILED!\n");
 			PyErr_SetString(PyExc_IOError, "unable to read font filename");
                         return -1;
                 }
-printf("SUCCESS!\n");
 		fclose(test);
 
                 Py_BEGIN_ALLOW_THREADS
-printf("opening font %s %d\n", filename, fontsize);
                 font = TTF_OpenFont(filename, fontsize);
                 Py_END_ALLOW_THREADS
 	}
@@ -684,7 +680,7 @@ static PyTypeObject PyFont_Type =
 	0,
 	(destructor)font_dealloc,
 	0,
-	0/*font_getattr*/, /*getattr*/
+	0, /*getattr*/
 	0,
 	0,
 	0,
@@ -772,9 +768,7 @@ static PyObject* PyFont_New(TTF_Font* font)
 
 	if(!font)
 		return RAISE(PyExc_RuntimeError, "unable to load font.");
-printf("PyFont_New font=%p\n",font);
 	fontobj = (PyFontObject *)PyFont_Type.tp_new(&PyFont_Type, NULL, NULL);
-printf("PyFont_New fontobj=%p\n",fontobj);
 
 	if(fontobj)
 		fontobj->font = font;
@@ -804,30 +798,29 @@ printf("PyFont_New fontobj=%p\n",fontobj);
 PYGAME_EXPORT
 void initfont(void)
 {
-	PyObject *module, *dict, *apiobj;
+	PyObject *module, *apiobj;
 	static void* c_api[PYGAMEAPI_FONT_NUMSLOTS];
 
 	PyFONT_C_API[0] = PyFONT_C_API[0]; /*clean an unused warning*/
 
-	PyType_Init(PyFont_Type);
         if (PyType_Ready(&PyFont_Type) < 0)
             return;
 
     /* create the module */
 	module = Py_InitModule3("font", font_builtins, doc_pygame_font_MODULE);
-	dict = PyModule_GetDict(module);
 	self_module = module;
 
-	PyDict_SetItemString(dict, "FontType", (PyObject *)&PyFont_Type);
-	PyDict_SetItemString(dict, "Font", (PyObject *)&PyFont_Type);
+        Py_INCREF((PyObject*)&PyFont_Type);
+	PyModule_AddObject(module, "FontType", (PyObject *)&PyFont_Type);
+        Py_INCREF((PyObject*)&PyFont_Type);
+	PyModule_AddObject(module, "Font", (PyObject *)&PyFont_Type);
 
 	/* export the c api */
 	c_api[0] = &PyFont_Type;
 	c_api[1] = PyFont_New;
 	c_api[2] = &font_initialized;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
-	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-	Py_DECREF(apiobj);
+	PyModule_AddObject(module, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 
 	/*imported needed apis*/
 	import_pygame_base();

@@ -44,6 +44,10 @@ static int request_size = MIX_DEFAULT_FORMAT;
 static int request_stereo = MIX_DEFAULT_CHANNELS;
 static int request_chunksize = MIX_DEFAULT_CHUNKSIZE;
 
+
+static int sound_init(PyObject* self, PyObject* arg, PyObject* kwarg);
+
+
 struct ChannelData
 {
     PyObject* sound;
@@ -509,9 +513,38 @@ static PyObject* snd_get_volume(PyObject* self, PyObject* args)
 }
 
 
+    /*DOC*/ static char doc_snd_get_length[] =
+    /*DOC*/    "Sound.get_length() -> float\n"
+    /*DOC*/    "get the length of the Sound in seconds.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the number of seconds this Sound file has\n"
+    /*DOC*/    "of data.\n"
+    /*DOC*/ ;
+
+static PyObject* snd_get_length(PyObject* self, PyObject* args)
+{
+	Mix_Chunk* chunk = PySound_AsChunk(self);
+	int freq, channels, mixerbytes, numsamples;
+	Uint16 format;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	MIXER_INIT_CHECK();
+
+	Mix_QuerySpec(&freq, &format, &channels);
+        if(format==AUDIO_S8 || format==AUDIO_U8)
+            mixerbytes = 1;
+        else
+            mixerbytes = 2;
+        numsamples = chunk->alen / mixerbytes / channels;
+
+	return PyFloat_FromDouble((float)numsamples / (float)freq);
+}
 
 
-static PyMethodDef sound_builtins[] =
+
+static PyMethodDef sound_methods[] =
 {
 	{ "play", snd_play, 1, doc_snd_play },
 	{ "get_num_channels", snd_get_num_channels, 1, doc_snd_get_num_channels },
@@ -523,24 +556,24 @@ static PyMethodDef sound_builtins[] =
 	{ "set_volume", snd_set_volume, 1, doc_snd_set_volume },
 	{ "get_volume", snd_get_volume, 1, doc_snd_get_volume },
 
+        { "get_length", snd_get_length, 1, doc_snd_get_length },
+        
 	{ NULL, NULL }
 };
 
 
 /*sound object internals*/
 
-static void sound_dealloc(PyObject* self)
+static void sound_dealloc(PySoundObject* self)
 {
-    	Mix_Chunk* chunk = PySound_AsChunk(self);
-	Mix_FreeChunk(chunk);
-	PyObject_DEL(self);
+    	Mix_Chunk* chunk = PySound_AsChunk((PyObject*)self);
+        if(chunk)
+            Mix_FreeChunk(chunk);
+        if(self->weakreflist)
+            PyObject_ClearWeakRefs((PyObject*)self);
+	self->ob_type->tp_free((PyObject*)self);
 }
 
-
-static PyObject* sound_getattr(PyObject* self, char* attrname)
-{
-	return Py_FindMethod(sound_builtins, self, attrname);
-}
 
 
     /*DOC*/ static char doc_Sound_MODULE[] =
@@ -558,12 +591,12 @@ static PyTypeObject PySound_Type =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"Sound",
+	"pygame.mixer.Sound",
 	sizeof(PySoundObject),
 	0,
-	sound_dealloc,
+	(destructor)sound_dealloc,
 	0,
-	sound_getattr,
+	NULL,
 	NULL,					/*setattr*/
 	NULL,					/*compare*/
 	NULL,					/*repr*/
@@ -573,8 +606,26 @@ static PyTypeObject PySound_Type =
 	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
 	(reprfunc)NULL, 		/*str*/
-	0L,0L,0L,0L,
-	doc_Sound_MODULE /* Documentation string */
+	0L,0L,0L,
+    	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+	doc_Sound_MODULE, /* Documentation string */
+	0,					/* tp_traverse */
+	0,					/* tp_clear */
+	0,					/* tp_richcompare */
+	offsetof(PySoundObject, weakreflist),    /* tp_weaklistoffset */
+	0,					/* tp_iter */
+	0,					/* tp_iternext */
+	sound_methods,			        /* tp_methods */
+	0,				        /* tp_members */
+	0,				        /* tp_getset */
+	0,					/* tp_base */
+	0,					/* tp_dict */
+	0,					/* tp_descr_get */
+	0,					/* tp_descr_set */
+	0,					/* tp_dictoffset */
+	sound_init,			/* tp_init */
+	0,					/* tp_alloc */
+	PyType_GenericNew,	                /* tp_new */
 };
 
 
@@ -1248,7 +1299,7 @@ static PyObject* mixer_unpause(PyObject* self, PyObject* args)
 }
 
 
-
+#if 0
     /*DOC*/ static char doc_Sound[] =
     /*DOC*/    "pygame.mixer.Sound(file) -> Sound\n"
     /*DOC*/    "load a new soundfile\n"
@@ -1257,29 +1308,39 @@ static PyObject* mixer_unpause(PyObject* self, PyObject* args)
     /*DOC*/    "or a file-like object. The sound will be converted to match the\n"
     /*DOC*/    "current mode of the mixer.\n"
     /*DOC*/ ;
-
-static PyObject* Sound(PyObject* self, PyObject* arg)
+#endif
+static int sound_init(PyObject* self, PyObject* arg, PyObject* kwarg)
 {
-	PyObject* file, *final;
+	PyObject* file;
 	char* name = NULL;
 	Mix_Chunk* chunk;
-	SDL_RWops *rw;
-	if(!PyArg_ParseTuple(arg, "O", &file))
-		return NULL;
+printf("sound_init, start %p\n", self);
+    
+        ((PySoundObject*)self)->chunk = NULL;
 
-	MIXER_INIT_CHECK();
+        if(!PyArg_ParseTuple(arg, "O", &file))
+		return -1;
+
+        
+	if(!SDL_WasInit(SDL_INIT_AUDIO)) 
+        {
+		RAISE(PyExc_SDLError, "mixer system not initialized");
+                return -1;
+        }
+        
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
 		if(!PyArg_ParseTuple(arg, "s", &name))
-			return NULL;
+			return -1;
 		Py_BEGIN_ALLOW_THREADS
 		chunk = Mix_LoadWAV(name);
 		Py_END_ALLOW_THREADS
 	}
 	else
 	{
+                SDL_RWops *rw;
 		if(!(rw = RWopsFromPython(file)))
-			return NULL;
+			return -1;
 		if(RWopsCheckPython(rw))
 			chunk = Mix_LoadWAV_RW(rw, 1);
 		else
@@ -1289,15 +1350,16 @@ static PyObject* Sound(PyObject* self, PyObject* arg)
 			Py_END_ALLOW_THREADS
 		}
 	}
+printf("sound_init, chunk %p\n", chunk);
 
 	if(!chunk)
-		return RAISE(PyExc_SDLError, SDL_GetError());
-
-	final = PySound_New(chunk);
-	if(!final)
-		Mix_FreeChunk(chunk);
-
-	return final;
+        {
+		RAISE(PyExc_SDLError, SDL_GetError());
+                return -1;
+        }
+        
+        ((PySoundObject*)self)->chunk = chunk;
+	return 0;
 }
 
 
@@ -1324,8 +1386,6 @@ static PyMethodDef mixer_builtins[] =
 	{ "unpause", mixer_unpause, 1, doc_unpause },
 /*	{ "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
 
-	{ "Sound", Sound, 1, doc_Sound },
-
 	{ NULL, NULL }
 };
 
@@ -1338,7 +1398,7 @@ static PyObject* PySound_New(Mix_Chunk* chunk)
 	if(!chunk)
 		return RAISE(PyExc_RuntimeError, "unable to create sound.");
 
-	soundobj = PyObject_NEW(PySoundObject, &PySound_Type);
+	soundobj = (PySoundObject *)PySound_Type.tp_new(&PySound_Type, NULL, NULL);
 	if(soundobj)
 		soundobj->chunk = chunk;
 
@@ -1403,18 +1463,20 @@ static PyObject* PyChannel_New(int channelnum)
 PYGAME_EXPORT
 void initmixer(void)
 {
-	PyObject *module, *dict, *apiobj, *music;
+	PyObject *module, *dict, *apiobj, *music=NULL;
 	static void* c_api[PYGAMEAPI_MIXER_NUMSLOTS];
 
 	PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*this cleans an unused warning*/
 
-	PyType_Init(PySound_Type);
+        if (PyType_Ready(&PySound_Type) < 0)
+            return;
 	PyType_Init(PyChannel_Type);
 
     /* create the module */
 	module = Py_InitModule3("mixer", mixer_builtins, doc_pygame_mixer_MODULE);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "Sound", (PyObject *)&PySound_Type);
 	PyDict_SetItemString(dict, "SoundType", (PyObject *)&PySound_Type);
 	PyDict_SetItemString(dict, "ChannelType", (PyObject *)&PyChannel_Type);
 
@@ -1428,7 +1490,6 @@ void initmixer(void)
 	c_api[6] = autoquit;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-	Py_DECREF(apiobj);
 
 	/*imported needed apis*/
 	import_pygame_base();
@@ -1448,7 +1509,6 @@ void initmixer(void)
 	else /*music module not compiled? cleanly ignore*/
 	{
             current_music = NULL;
-            PyErr_Clear();
+           PyErr_Clear();
 	}
 }
-

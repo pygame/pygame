@@ -103,9 +103,91 @@ thickarrow_strings = (               #sized 24x24
   "                        ",
 )
 
+sizer_x_strings = (               #sized 24x16
+ "     X      X           ",
+ "    XX      XX          ",
+ "   X.X      X.X         ",
+ "  X..X      X..X        ",
+ " X...XXXXXXXX...X       ",
+ "X................X      ",
+ " X...XXXXXXXX...X       ",
+ "  X..X      X..X        ",
+ "   X.X      X.X         ",
+ "    XX      XX          ",
+ "     X      X           ",
+ "                        ",
+ "                        ",
+ "                        ",
+ "                        ",
+ "                        ",
+)
+sizer_y_strings = (               #sized 16x24
+ "     X          ",
+ "    X.X         ",
+ "   X...X        ",
+ "  X.....X       ",
+ " X.......X      ",
+ "XXXXX.XXXXX     ",
+ "    X.X         ",
+ "    X.X         ",
+ "    X.X         ",
+ "    X.X         ",
+ "    X.X         ",
+ "    X.X         ",
+ "    X.X         ",
+ "XXXXX.XXXXX     ",
+ " X.......X      ",
+ "  X.....X       ",
+ "   X...X        ",
+ "    X.X         ",
+ "     X          ",
+ "                ",
+ "                ",
+ "                ",
+ "                ",
+ "                ",
+)
+sizer_xy_strings = (               #sized 24x16
+ "XXXXXXXX                ",
+ "X.....X                 ",
+ "X....X                  ",
+ "X...X                   ",
+ "X..X.X                  ",
+ "X.X X.X                 ",
+ "XX   X.X    X           ",
+ "X     X.X  XX           ",
+ "       X.XX.X           ",
+ "        X...X           ",
+ "        X...X           ",
+ "       X....X           ",
+ "      X.....X           ",
+ "     XXXXXXXX           ",
+ "                        ",
+ "                        ",
+)
+textmarker_strings = (               #sized 8x16
+ "ooo ooo ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "   o    ",
+ "ooo ooo ",
+ "        ",
+ "        ",
+ "        ",
+ "        ",
+)
 
-def compile(strings, black, white):
-    """pygame.cursors.compile(strings, black, white) -> data, mask
+
+
+def compile(strings, black='X', white='.',xor='o'):
+   """pygame.cursor.compile(strings, black, white,xor) -> data, mask
 compile cursor strings into cursor data
 
 This takes a set of strings with equal length and computes
@@ -122,36 +204,39 @@ data. Both these arguments are used when setting a cursor with
 pygame.mouse.set_cursor().
 """
 
-    #first check for consistent lengths
-    size = len(strings[0]), len(strings)
-    if size[0] % 8 or size[1] % 8:
-        raise ValueError, "cursor string sizes must be divisible by 8 "+`size`
-    for s in strings[1:]:
-        if len(s) != size[0]:
-            raise ValueError, "Cursor strings are inconsistent lengths"
+   #first check for consistent lengths
+   size = len(strings[0]), len(strings)
+   if size[0] % 8 or size[1] % 8:
+       raise ValueError, "cursor string sizes must be divisible by 8 "+`size`
+   for s in strings[1:]:
+       if len(s) != size[0]:
+           raise ValueError, "Cursor strings are inconsistent lengths"
 
-    #create the data arrays.
-    #this could stand a little optimizing
-    maskdata = []
-    filldata = []
-    maskitem = fillitem = 0
-    step = 8
-    for s in strings:
-        for c in s:
-            maskitem = maskitem << 1
-            fillitem = fillitem << 1
-            step = step - 1
-            if c == black:
-                maskitem = maskitem | 1
-            elif c == white:
-                maskitem = maskitem | 1
-                fillitem = fillitem | 1
-            if not step:
-                maskdata.append(maskitem)
-                filldata.append(fillitem)
-                maskitem = fillitem = 0
-                step = 8
-    return tuple(filldata), tuple(maskdata)
+   #create the data arrays.
+   #this could stand a little optimizing
+   maskdata = []
+   filldata = []
+   maskitem = fillitem = 0
+   step = 8
+   for s in strings:
+       for c in s:
+           maskitem = maskitem << 1
+           fillitem = fillitem << 1
+           step = step - 1
+           if c == black:
+               maskitem = maskitem | 1
+           elif c == white:
+               maskitem = maskitem | 1
+               fillitem = fillitem | 1
+           elif c == xor:
+               fillitem = fillitem | 1
+           if not step:
+               maskdata.append(maskitem)
+               filldata.append(fillitem)
+               maskitem = fillitem = 0
+               step = 8
+   return tuple(filldata), tuple(maskdata)
+
 
 
 
