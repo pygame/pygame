@@ -239,7 +239,6 @@ def SysFont(name, size, bold=False, italic=False):
             if not styles:
                 styles = Sysalias.get(name)
             if styles:
-                print "STYLES", styles
                 while not fontname:
                     plainname = styles.get((False, False))
                     fontname = styles.get((bold, italic))
