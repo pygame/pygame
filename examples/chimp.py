@@ -131,6 +131,7 @@ def main():
 
 #Create The Backgound
     background = pygame.Surface(screen.get_size())
+    background = background.convert()
     background.fill((250, 250, 250))
     
 #Put Text On The Background, Centered
@@ -155,6 +156,8 @@ def main():
     
 #Main Loop
     while 1:
+        clock.tick(60)
+	
     #Handle Input Events
         for event in pygame.event.get():
             if event.type is QUIT:
@@ -176,7 +179,6 @@ def main():
         screen.blit(background, (0, 0))
         allsprites.draw(screen)
         pygame.display.flip()
-        clock.tick(60)
 
 #Game Over
 

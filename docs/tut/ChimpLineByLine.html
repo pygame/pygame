@@ -389,6 +389,7 @@ to really set  the state unless we want to hide it.<br>
          <tr>
            <td>                                   
       <pre>background = pygame.Surface(screen.get_size())
+background = background.convert()
 background.fill((250, 250, 250))</pre>
            </td>
          </tr>
@@ -492,7 +493,8 @@ area and handles both singlebuffered and doublebufferes surfaces.<br>
 punch_sound = load_sound('punch.wav')
 chimp = Chimp()
 fist = Fist()
-allsprites = pygame.sprite.RenderPlain((fist, chimp))</pre>
+allsprites = pygame.sprite.RenderPlain((fist, chimp))
+clock = pygame.time.Clock()</pre>
            </td>
          </tr>
                    
@@ -510,6 +512,9 @@ group  can draw all the sprites it contains to the screen. It is called RenderPl
 passing   a list with all the sprites that should belong in the group. We
 could later   on add or remove sprites from this group, but in this game
 we won't need  to.<br>
+      <br>
+    The clock object we create will be used to help control our game's framerate.
+we will use it in the main loop of our game to make sure it doesn't run too fast.
     <br>
        <br>
               
@@ -521,7 +526,8 @@ we won't need  to.<br>
        <tbody>
          <tr>
            <td>                                   
-      <pre>while 1:<br></pre>
+      <pre>while 1:
+    clock.tick(60)</pre>
            </td>
          </tr>
                    
@@ -532,6 +538,9 @@ we won't need  to.<br>
  check  on the state of the computer and user input, move and update the
 state  of  all the objects, and then draw them to the screen. You'll see
 that this  example  is no different.<br>
+      <br>
+  We also make a call to our clock object, which will make sure our game
+doesn't run faster than 60 frames per second.<br>
       <br>
        <br>
            
