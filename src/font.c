@@ -404,6 +404,9 @@ static PyObject* font_set_underline(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "Also, rendering smooth text with underlines will crash with SDL_ttf\n"
     /*DOC*/    "less that version 2.0, be careful.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "If you pass an empty string, render() will return a blank surface\n"
+    /*DOC*/    "1 pixel wide and the same height as the font.\n"
     /*DOC*/ ;
 
 static PyObject* font_render(PyObject* self, PyObject* args)
@@ -428,7 +431,20 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		backg.r = rgba[0]; backg.g = rgba[1]; backg.b = rgba[2];
 	}	
 
-	if(PyUnicode_Check(text))
+
+    	if(!PyObject_IsTrue(text))
+	{
+	    int height = TTF_FontHeight(font);
+	    surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32, 0xff<<16, 0xff<<8, 0xff, 0);
+	    if(bg_rgba_obj)
+	    {
+	    	Uint32 c = SDL_MapRGB(surf->format, backg.r, backg.g, backg.b);
+	    	SDL_FillRect(surf, NULL, c);
+	    }
+	    else
+	    	SDL_SetColorKey(surf, SDL_SRCCOLORKEY, 0);
+	}
+	else if(PyUnicode_Check(text))
 	{
 		PyObject* strob = PyEval_CallMethod(text, "encode", "(s)", "utf-8");
 		char *string = PyString_AsString(strob);
