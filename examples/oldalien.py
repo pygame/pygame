@@ -13,8 +13,8 @@ and should be used whenever the fullscreen isn't being changed."""
 
 
 #import
-import whrandom, os.path, sys
-import pygame, pygame.image
+import random, os.path, sys
+import pygame
 from pygame.locals import *
 
 if not pygame.image.get_extended():
@@ -22,11 +22,11 @@ if not pygame.image.get_extended():
 
 
 #constants
-FRAMES_PER_SEC = 50
-PLAYER_SPEED   = 5
+FRAMES_PER_SEC = 40
+PLAYER_SPEED   = 12
 MAX_SHOTS      = 2
-SHOT_SPEED     = 6
-ALIEN_SPEED    = 6
+SHOT_SPEED     = 10
+ALIEN_SPEED    = 12
 ALIEN_ODDS     = 45
 EXPLODE_TIME   = 6
 SCREENRECT     = Rect(0, 0, 640, 480)
@@ -52,16 +52,6 @@ def load_image(file, transparent):
         corner = surface.get_at((0, 0))
         surface.set_colorkey(corner, RLEACCEL)
     return surface.convert()
-
-
-
-def wait_frame():
-    "wait for the correct fps time to expire"
-    global next_tick
-    this_tick = pygame.time.get_ticks()
-    if this_tick < next_tick:
-        pygame.time.delay(next_tick - this_tick)
-    next_tick = this_tick + (1000/FRAMES_PER_SEC)
 
 
 
@@ -105,7 +95,7 @@ class Alien(Actor):
     "Destroy him or suffer"
     def __init__(self):
         Actor.__init__(self, Img.alien)
-        self.facing = whrandom.choice((-1,1)) * ALIEN_SPEED
+        self.facing = random.choice((-1,1)) * ALIEN_SPEED
         if self.facing < 0:
             self.rect.right = SCREENRECT.right
             
@@ -149,6 +139,7 @@ def main():
     # Initialize SDL components
     pygame.init()
     screen = pygame.display.set_mode(SCREENRECT.size, 0)
+    clock = pygame.time.Clock()
 
     # Load the Resources
     Img.background = load_image('background.gif', 0)
@@ -174,7 +165,7 @@ def main():
 
     # Main loop
     while player.alive or explosions:
-        wait_frame()
+        clock.tick(FRAMES_PER_SEC)
 
         # Gather Events
         pygame.event.pump()
@@ -205,7 +196,7 @@ def main():
         player.reloading = keystate[K_SPACE]
 
         # Create new alien
-        if not int(whrandom.random() * ALIEN_ODDS):
+        if not int(random.random() * ALIEN_ODDS):
             aliens.append(Alien())
 
         # Detect collisions
@@ -236,7 +227,7 @@ def main():
         pygame.display.update(dirtyrects)
         dirtyrects = []
 
-    pygame.time.delay(100)
+    pygame.time.wait(50)
     
 
 #if python says run, let's run!

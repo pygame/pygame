@@ -21,17 +21,33 @@
 # main pygame source
 # lets get things coordinated
 
-from pygame.version import ver
+def import_all_pygame():
+    def makemodules(**mods): return mods
+    modules = makemodules(
+        base=2, cdrom=0, constants=2, cursors=0, display=0,
+        draw=0, event=0, font=0, image=0, joystick=0,
+        key=0, mixer=0, mouse=0, movie=0, rect=1, sprite=0,
+        surface=0, time=0, transform=0, surfarray=0
+    )
+    for mod, required in modules.items():
+        try:
+            module = __import__('pygame.'+mod, None, None, ['pygame.'+mod])
+            globals()[mod] = module
+            if required == 2:
+                for item in dir(module):
+                    if item[0] != '_':
+                        globals()[item] = getattr(module, item)
+        except ImportError:
+            if required:
+                CannotImportPygame = ImportError
+                MissingModule =  "Cannot Import 'pygame.%s'"%mod
+                raise CannotImportPygame, MissingModule
+            globals()[mod] = None
 
-from pygame.base import *
-from pygame.surface import *
-from pygame.rect import *
-from pygame.locals import *
-import pygame.cdrom
-import pygame.display
-import pygame.event
-import pygame.key
-import pygame.mouse
-import pygame.time
-import pygame.joystick
+import_all_pygame()
+del import_all_pygame
+
+Surface = getattr(surface, 'Surface', lambda:Missing_Pygame_Function)
+Rect = getattr(rect, 'Rect', lambda:Missing_Pygame_Function)
+
 

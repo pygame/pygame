@@ -528,7 +528,7 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	Uint32 flags = 0, color = 0;
-	PyObject* rgba_obj = NULL;
+	PyObject* rgba_obj = NULL, *intobj = NULL;
 	Uint8 rgba[4];
 	int result, hascolor=0;
 
@@ -540,8 +540,11 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 
 	if(rgba_obj && rgba_obj!=Py_None)
 	{
-		if(PyInt_Check(rgba_obj))
-			color = (Uint32)PyInt_AsLong(rgba_obj);
+		if(PyNumber_Check(rgba_obj) && (intobj=PyNumber_Int(rgba_obj)))
+                {
+			color = (Uint32)PyInt_AsLong(intobj);
+                        Py_DECREF(intobj);
+                }
 		else if(RGBAFromObj(rgba_obj, rgba))
 			color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 		else
@@ -613,7 +616,7 @@ static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	Uint32 flags = 0;
-	PyObject* alpha_obj = NULL;
+	PyObject* alpha_obj = NULL, *intobj=NULL;
 	Uint8 alpha;
 	int result, alphaval=0, hasalpha=0;
 
@@ -625,11 +628,14 @@ static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 
 	if(alpha_obj && alpha_obj!=Py_None)
 	{
-		if(PyInt_Check(alpha_obj))
-			alphaval = (int)PyInt_AsLong(alpha_obj);
-		else
-			return RAISE(PyExc_TypeError, "invalid alpha argument");
-		hasalpha = 1;
+		if(PyNumber_Check(alpha_obj) && (intobj=PyNumber_Int(alpha_obj)))
+                {
+                        alphaval = (int)PyInt_AsLong(intobj);
+                        Py_DECREF(intobj);
+                }
+                else
+                        return RAISE(PyExc_TypeError, "invalid alpha argument");
+                hasalpha = 1;
 	}
 	if(hasalpha)
 		flags |= SDL_SRCALPHA;

@@ -10,8 +10,7 @@ done in BlitzBasic. I was just translating the BlitzBasic code to
 pygame to compare the results. I didn't bother porting the text and
 sound stuff, that's an easy enough challenge for the reader :]"""
 
-import os
-import pygame, pygame.image
+import pygame, os
 from pygame.locals import *
 from math import sin
 
