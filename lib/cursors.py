@@ -173,6 +173,15 @@ should work with typical XBM files.
     if type(mask) is type(''): mask = open(mask)
     curs = curs.readlines()
     mask = mask.readlines()
+    #avoid comments
+    for line in range(len(curs)):
+        if curs[line].startswith("#define"):
+            curs = curs[line:]
+            break
+    for line in range(len(mask)):
+    	if mask[line].startswith("#define"):
+            mask = mask[line:]
+            break
     #load width,height
     width = int(curs[0].split()[-1])
     height = int(curs[1].split()[-1])
