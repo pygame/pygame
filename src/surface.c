@@ -714,14 +714,15 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_surf_set_clip[] =
-    /*DOC*/    "Surface.set_clip([rectstyle])) -> Rect\n"
+    /*DOC*/    "Surface.set_clip([rectstyle])) -> None\n"
     /*DOC*/    "assign destination clipping rectangle\n"
     /*DOC*/    "\n"
     /*DOC*/    "Assigns the destination clipping rectangle for the Surface. When\n"
     /*DOC*/    "blit or fill operations are performed on the Surface, they are\n"
     /*DOC*/    "restricted to the inside of the clipping rectangle. If no\n"
     /*DOC*/    "rectangle is passed, the clipping region is set to the entire\n"
-    /*DOC*/    "Surface area.\n"
+    /*DOC*/    "Surface area. The rectangle you pass will be clipped to the area of\n"
+    /*DOC*/    "the Surface.\n"
     /*DOC*/ ;
 
 static PyObject* surf_set_clip(PyObject* self, PyObject* args)
@@ -736,10 +737,12 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 		if(!rect)
 			return RAISE(PyExc_ValueError, "invalid rectstyle object");
 	}
+		
 	result = SDL_SetClipRect(surf, (SDL_Rect*)rect);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	return PyRect_New(rect);
+
+	RETURN_NONE
 }
 
 
