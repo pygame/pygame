@@ -179,7 +179,7 @@ static PyObject* time_wait(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_set_timer[] =
-    /*DOC*/    "pygame.time.set_timer(eventid, milliseconds) -> int\n"
+    /*DOC*/    "pygame.time.set_timer(eventid, milliseconds) -> None\n"
     /*DOC*/    "control timer events\n"
     /*DOC*/    "\n"
     /*DOC*/    "Every event id can have a timer attached to it. Calling\n"
