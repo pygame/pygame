@@ -127,6 +127,9 @@ except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
 try: import pygame.movie
 except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
 
+try: import pygame.movieext
+except (ImportError,IOError), msg:movie=MissingModule("movieext", msg, 0)
+
 try: import pygame.surfarray
 except (ImportError,IOError), msg:surfarray=MissingModule("surfarray", msg, 0)
 
