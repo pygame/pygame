@@ -113,12 +113,12 @@ def main():
 
 
     if os.path.isfile('Setup'):
-        print """\nDoublecheck that the new "Setup" file looks correct, then
-run "python setup.py install" to build and install pygame."""
+        print """\nIf you get compiler errors during install, doublecheck
+the compiler flags in the "Setup" file.\n"""
     else:
         print """\nThere was an error creating the Setup file, check for errors
 or make a copy of "Setup.in" and edit by hand."""
-
+        raise SystemExit
 
 
 if __name__ == '__main__': main()
