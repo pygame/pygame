@@ -30,6 +30,10 @@
 staticforward PyTypeObject PyRect_Type;
 #define PyRect_Check(x) ((x)->ob_type == &PyRect_Type)
 
+#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
+static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+#endif
+
 
 
 GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
@@ -656,10 +660,15 @@ static PyObject* rect_contains(PyObject* oself, PyObject* args)
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
 	contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
+
 	            (self->r.x + self->r.w >= argrect->x + argrect->w) &&
+
 	            (self->r.y + self->r.h >= argrect->y + argrect->h) &&
+
 	            (self->r.x + self->r.w > argrect->x) &&
+
 	            (self->r.y + self->r.h > argrect->y);
+
 
 	return PyInt_FromLong(contained);
 }
@@ -1250,8 +1259,32 @@ static PyTypeObject PyRect_Type = {
 	(reprfunc)rect_str,			/*str*/
 
 	/* Space for future expansion */
-	0L,0L,0L,0L,
-	doc_Rect_MODULE /* Documentation string */
+	0L,0L,0L,
+#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
+#else
+	0,					/* tp_flags */
+#endif
+	doc_Rect_MODULE,    /* Documentation string */
+#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
+	0,					/* tp_traverse */
+	0,					/* tp_clear */
+	0,					/* tp_richcompare */
+	0,					/* tp_weaklistoffset */
+	0,					/* tp_iter */
+	0,					/* tp_iternext */
+	0,					/* tp_methods */
+	0,					/* tp_members */
+	0,					/* tp_getset */
+	0,					/* tp_base */
+	0,					/* tp_dict */
+	0,					/* tp_descr_get */
+	0,					/* tp_descr_set */
+	0,					/* tp_dictoffset */
+	0,					/* tp_init */
+	0,					/* tp_alloc */
+	rect_new,			/* tp_new */
+#endif
 };
 
 
@@ -1285,10 +1318,23 @@ static PyObject* RectInit(PyObject* self, PyObject* args)
 }
 
 
+#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
+static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+	GAME_Rect *argrect, temp;
+	if(!(argrect = GameRect_FromObject(args, &temp)))
+		return RAISE(PyExc_TypeError, "Argument must be rect style object");
+
+	return PyRect_New4(argrect->x, argrect->y, argrect->w, argrect->h);
+}
+#endif
+
 
 static PyMethodDef rect__builtins__[] =
 {
+#if PYTHON_API_VERSION < 1011 /*PYTHON2.2*/
 	{ "Rect", RectInit, 1, doc_Rect }, 
+#endif
 	{NULL, NULL}
 };
 
@@ -1314,6 +1360,9 @@ void initrect(void)
 	dict = PyModule_GetDict(module);
 
 	PyDict_SetItemString(dict, "RectType", (PyObject *)&PyRect_Type);
+#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
+	PyDict_SetItemString(dict, "Rect", (PyObject *)&PyRect_Type);
+#endif
 
 	/* export the c api */
 	c_api[0] = &PyRect_Type;

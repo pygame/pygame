@@ -31,6 +31,10 @@ staticforward PyTypeObject PySurface_Type;
 static PyObject* PySurface_New(SDL_Surface* info);
 #define PySurface_Check(x) ((x)->ob_type == &PySurface_Type)
 
+#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
+static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+#endif
+
 
 
 /* surface object methods */
@@ -1489,8 +1493,32 @@ static PyTypeObject PySurface_Type =
 	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
 	(reprfunc)NULL, 		/*str*/
-	0L,0L,0L,0L,
-	doc_Surface_MODULE /* Documentation string */
+	0L,0L,0L,
+#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
+#else
+	0,					/* tp_flags */
+#endif
+	doc_Surface_MODULE, /* Documentation string */
+#if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
+	0,					/* tp_traverse */
+	0,					/* tp_clear */
+	0,					/* tp_richcompare */
+	0,					/* tp_weaklistoffset */
+	0,					/* tp_iter */
+	0,					/* tp_iternext */
+	0,					/* tp_methods */
+	0,					/* tp_members */
+	0,					/* tp_getset */
+	0,					/* tp_base */
+	0,					/* tp_dict */
+	0,					/* tp_descr_get */
+	0,					/* tp_descr_set */
+	0,					/* tp_dictoffset */
+	0,					/* tp_init */
+	0,					/* tp_alloc */
+	surface_new,		/* tp_new */
+#endif
 };
 
 
@@ -1623,12 +1651,21 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 	return final;
 }
 
+#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
+static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+	return Surface(NULL, args);
+}
+#endif
+
 
 
 
 static PyMethodDef surface_builtins[] =
 {
+#if PYTHON_API_VERSION < 1011 /*PYTHON2.2*/
 	{ "Surface", Surface, 1, doc_Surface },
+#endif
 	{ NULL, NULL }
 };
 
@@ -1654,6 +1691,9 @@ void initsurface(void)
 	dict = PyModule_GetDict(module);
 
 	PyDict_SetItemString(dict, "SurfaceType", (PyObject *)&PySurface_Type);
+#if PYTHON_API_VERSION >= 1011 /*this is the python-2.2 constructor*/
+	PyDict_SetItemString(dict, "Surface", (PyObject *)&PySurface_Type);
+#endif
 
 	/* export the c api */
 	c_api[0] = &PySurface_Type;
