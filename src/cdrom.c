@@ -266,7 +266,7 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 {
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
-	int result, track, startframe, endframe;
+	int result, track, startframe, numframes;
 	float start=0.0f, end=0.0f;
 
 	if(!PyArg_ParseTuple(args, "i|ff", &track, &start, &end))
@@ -283,17 +283,17 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 
 	/*validate times*/
 	startframe = (int)(start * CD_FPS);
-	endframe = 0;
+	numframes = 0;
 	if(startframe < 0)
 		startframe = 0;
 	if(end)
-		endframe = (int)((end-start) * CD_FPS);
+		numframes = (int)((end-start) * CD_FPS);
 	else
-		endframe = cdrom->track[track].length - startframe;
-	if(endframe < startframe || startframe > (int)(cdrom->track[track].length * CD_FPS))
+		numframes = cdrom->track[track].length - startframe;
+	if(numframes < 0 || startframe > (int)(cdrom->track[track].length * CD_FPS))
 		RETURN_NONE;
 
-	result = SDL_CDPlayTracks(cdrom, track, startframe, 0, endframe);
+	result = SDL_CDPlayTracks(cdrom, track, startframe, 0, numframes);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
