@@ -403,6 +403,30 @@ static PyObject* movie_get_busy(PyObject* self, PyObject* args)
 }
 
 
+
+    /*DOC*/ static char doc_movie_render_frame[] =
+    /*DOC*/    "Movie.render_frame(framenum) -> int\n"
+    /*DOC*/    "Render a specfic numbered frame.\n"    
+    /*DOC*/    "\n"                                
+    /*DOC*/    "Returns the current frame number.\n"                  
+    /*DOC*/ ;                    
+             
+static PyObject* movie_render_frame(PyObject* self, PyObject* args)
+{            
+        SMPEG* movie = PyMovie_AsSMPEG(self);
+        SMPEG_Info info;                     
+        int framenum;   
+                     
+        if(!PyArg_ParseTuple(args, "i", &framenum))
+                return NULL;                       
+        Py_BEGIN_ALLOW_THREADS
+        SMPEG_renderFrame(movie, framenum);
+        SMPEG_getinfo(movie, &info);       
+        Py_END_ALLOW_THREADS        
+        return PyInt_FromLong(info.current_frame);
+}
+
+
 static PyMethodDef movie_builtins[] =
 {
 	{ "play", movie_play, 1, doc_movie_play },
@@ -421,6 +445,7 @@ static PyMethodDef movie_builtins[] =
 	{ "get_time", movie_get_time, 1, doc_movie_get_time },
 	{ "get_length", movie_get_length, 1, doc_movie_get_length },
 	{ "get_busy", movie_get_busy, 1, doc_movie_get_busy },
+        { "render_frame", movie_render_frame, 1, doc_movie_render_frame},
 
 	{ NULL, NULL }
 };
@@ -467,6 +492,22 @@ static PyObject* movie_getattr(PyObject* self, char* attrname)
     /*DOC*/    "and play your movie. Finally calling pygame.mixer.init()\n"
     /*DOC*/    "again when finished with the Movie.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "NOTE: When disabling the mixer so a movie may play audio,\n"
+    /*DOC*/    "you must disable the audio before calling pygame.movie.Movie\n"
+    /*DOC*/    "or the movie will not realise that it may access the audio.\n"
+    /*DOC*/    "Before reinitialising the mixer, You must remove all\n"
+    /*DOC*/    "references to the movie before calling pygame.mixer.init()\n"
+    /*DOC*/    "or the init will fail, leading to errors when you attempt to\n"
+    /*DOC*/    "use the mixer.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "eg.\n"
+    /*DOC*/    "pygame.mixer.quit()\n"
+    /*DOC*/    "movie=pygame.movie.Movie(\"my.mpg\")\n"
+    /*DOC*/    "movie.play()\n"
+    /*DOC*/    "# process events until movie finished here\n"
+    /*DOC*/    "movie.stop()\n"
+    /*DOC*/    "movie=None # if you don't do this bit the init will fail\n"
+    /*DOC*/    "pygame.mixer.init()\n"
     /*DOC*/ ;
 
 static PyTypeObject PyMovie_Type =

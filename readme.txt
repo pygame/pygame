@@ -96,6 +96,8 @@
      * quake-like console with python interpreter
      * game lobby. client, simple server, and protocol
      * surfarrays should be able to do RGBA along with RGB
+     * draw with transparancy
+     * draw large sets of primitives with a single call
 
    License
 

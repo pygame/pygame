@@ -125,6 +125,10 @@ pause/resume movie playback</td></tr>
 start movie playback</td></tr>
 
 
+<tr><td><a href=#render_frame>render_frame</a></td><td> -
+Render a specfic numbered frame.</td></tr>
+
+
 <tr><td><a href=#rewind>rewind</a></td><td> -
 set playback position to the beginning of the movie</td></tr>
 
@@ -218,6 +222,13 @@ for the Movie, those outputs will be created.
 <br>&nbsp;<br>
 You can specify an optional argument which will be the
 number of times the movie loops while playing.
+</ul><br>&nbsp;<br>
+
+<a name=render_frame><font size=+2><b>render_frame
+</b></font><br><font size=+1><tt>
+Movie.render_frame(framenum) -> int
+</tt></font><ul>
+Returns the current frame number.
 </ul><br>&nbsp;<br>
 
 <a name=rewind><font size=+2><b>rewind
