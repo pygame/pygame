@@ -37,6 +37,7 @@
 typedef struct UserEventObject
 {
 	struct UserEventObject* next;
+	Uint8 realtype;
 	PyObject* object;
 }UserEventObject;
 
@@ -44,7 +45,7 @@ static UserEventObject* user_event_objects = NULL;
 
 
 /*must pass dictionary as this object*/
-static UserEventObject* user_event_addobject(PyObject* obj)
+static UserEventObject* user_event_addobject(PyObject* obj, Uint8 realtype)
 {
 	UserEventObject* userobj = PyMem_New(UserEventObject, 1);
 	if(!userobj) return NULL;
@@ -52,16 +53,20 @@ static UserEventObject* user_event_addobject(PyObject* obj)
 	Py_INCREF(obj);
 	userobj->next = user_event_objects;
 	userobj->object = obj;
+	userobj->realtype = realtype;
 	user_event_objects = userobj;
+
 	return userobj;
 }
 
 /*note, we doublecheck to make sure the pointer is in our list,
- *not just some random pointer. this should keep us quite safe.
+ *not just some random pointer. this should keep us safe(r).
  */
-static PyObject* user_event_getobject(UserEventObject* userobj)
+static PyObject* user_event_getobject(UserEventObject* userobj, Uint8* type)
 {
 	PyObject* obj = NULL;
+	if(!user_event_objects) /*fail in most common case*/
+		return NULL;
 	if(user_event_objects == userobj)
 	{
 		obj = userobj->object;
@@ -79,7 +84,10 @@ static PyObject* user_event_getobject(UserEventObject* userobj)
 		}
 	}
 	if(obj)
+	{
+		*type = userobj->realtype;
 		PyMem_Del(userobj);
+	}
 	return obj;
 }
 
@@ -149,14 +157,23 @@ static void insobj(PyObject *dict, char *name, PyObject *v)
 }
 
 
-static PyObject* dict_from_event(SDL_Event* event)
+static PyObject* dict_from_event(SDL_Event* event, Uint8* newtype)
 {
-	PyObject* dict, *tuple, *obj;
+	PyObject *dict=NULL, *tuple, *obj;
 	int hx, hy;
+
+	/*check if it is an event the user posted*/
+	if(event->type == 123 && event->user.code == USEROBJECT_CHECK1 &&
+				event->user.data1 == (void*)USEROBJECT_CHECK2)
+	{
+		dict = user_event_getobject((UserEventObject*)event->user.data2, newtype);
+		if(dict)
+			return dict;
+	}
+
 
 	if(!(dict = PyDict_New()))
 		return NULL;
-
 	switch(event->type)
 	{
 	case SDL_ACTIVEEVENT:
@@ -227,26 +244,10 @@ static PyObject* dict_from_event(SDL_Event* event)
 	}
 	if(event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
 	{
-		PyObject* objdict = NULL;
-		if(event->user.code == USEROBJECT_CHECK1 && event->user.data1 == (void*)USEROBJECT_CHECK2)
-			objdict = user_event_getobject((UserEventObject*)event->user.data2);
-		if(!objdict)
-		{
-			insobj(dict, "code", PyInt_FromLong(event->user.code));
-/*			insobj(dict, "data1", PyInt_FromLong((int)event->user.data1));
-			insobj(dict, "data2", PyInt_FromLong((int)event->user.data2));
-*/		}
-		else
-		{
-			PyObject *key, *value;
-			int pos  = 0;
-			while(PyDict_Next(objdict, &pos, &key, &value))
-			{
-				PyDict_SetItem(dict, key, value);
-			}
-			Py_DECREF(objdict);
-		}
-	}
+		insobj(dict, "code", PyInt_FromLong(event->user.code));
+/*		insobj(dict, "data1", PyInt_FromLong((int)event->user.data1));
+		insobj(dict, "data2", PyInt_FromLong((int)event->user.data2));
+*/	}
 
 	return dict;
 }
@@ -303,7 +304,7 @@ PyObject* event_str(PyObject* self)
 
 
 /*this fools the docs to putting more in our docs, but not the code*/
-#define SECRET_COLON ; char *docdata=
+#define __SECRET_COLON__ ; char *docdata=
 
     /*DOC*/ static char doc_pygame_event_EXTRA[] =
     /*DOC*/    "An Event object contains an event type and a readonly set of\n"
@@ -318,7 +319,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "lookups will be passed through to the Event's dictionary values.\n"
     /*DOC*/    "\n"
     /*DOC*/    "While debugging and experimenting, you can print the Event\n"
-    /*DOC*/    "objects for a quick display of its type and members.\n"               SECRET_COLON 
+    /*DOC*/    "objects for a quick display of its type and members.\n"    __SECRET_COLON__ 
     /*DOC*/    "Events that come from the system will have a guaranteed set of\n"
     /*DOC*/    "member items based on the type. Here is a list of the Event members\n"
     /*DOC*/    "that are defined with each type.<br><table align=center>"
@@ -334,7 +335,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "<tr><td><b>JOYBUTTONUP</b></td><td>joy, button</td></tr>\n"
     /*DOC*/    "<tr><td><b>JOYBUTTONDOWN</b></td><td>joy, button</td></tr>\n"
     /*DOC*/    "<tr><td><b>VIDEORESIZE</b></td><td>size</td></tr>\n"
-    /*DOC*/    "<tr><td><b>USEREVENT</b></td><td>code, data1, data2</td></tr></table>\n"
+    /*DOC*/    "<tr><td><b>USEREVENT</b></td><td>code</td></tr></table>\n"
     /*DOC*/ ;
 
 
@@ -368,13 +369,14 @@ static PyTypeObject PyEvent_Type =
 static PyObject* PyEvent_New(SDL_Event* event)
 {
 	PyEventObject* e;
-
+	Uint8 realtype;
 	e = PyObject_NEW(PyEventObject, &PyEvent_Type);
 
 	if(e)
 	{
-		e->type = event->type;
-		e->dict = dict_from_event(event);
+		realtype = event->type;
+		e->dict = dict_from_event(event, &realtype);
+		e->type = realtype;
 	}
 	return (PyObject*)e;
 }
@@ -723,34 +725,33 @@ static PyObject* peek(PyObject* self, PyObject* args)
     /*DOC*/    "pygame.event.post(Event) -> None\n"
     /*DOC*/    "place an event on the queue\n"
     /*DOC*/    "\n"
-    /*DOC*/    "This will place an event onto the queue. This is most useful for\n"
-    /*DOC*/    "putting your own events onto the queue. When the given event\n"
-    /*DOC*/    "is a USEREVENT type, the event data will be passed through the\n"
-    /*DOC*/    "event queue.\n"
+    /*DOC*/    "This will post your own event objects onto the event queue.\n"
+    /*DOC*/    "You can past any event type you want, but some care must be\n"
+    /*DOC*/    "taken. For example, if you post a MOUSEBUTTONDOWN event to the\n"
+    /*DOC*/    "queue, it is likely any code receiving the event will excpect\n"
+    /*DOC*/    "the standard MOUSEBUTTONDOWN attributes to be available, like\n"
+    /*DOC*/    "'pos' and 'button'.\n"
     /*DOC*/ ;
 
 static PyObject* post(PyObject* self, PyObject* args)
 {
 	PyEventObject* e;
 	SDL_Event event;
+	UserEventObject* userobj;
 
 	if(!PyArg_ParseTuple(args, "O!", &PyEvent_Type, &e))
 		return NULL;
 
 	VIDEO_INIT_CHECK();
 
-	event.type = e->type;
-	event.user.code = ~USEROBJECT_CHECK1; /*help us to not be "unlucky"*/
-	if(e->type >= SDL_USEREVENT && e->type < SDL_NUMEVENTS)
-	{
-		UserEventObject* userobj = user_event_addobject(e->dict);
-		if(userobj)
-		{
-			event.user.code = USEROBJECT_CHECK1;
-			event.user.data1 = (void*)USEROBJECT_CHECK2;
-			event.user.data2 = userobj;
-		}
-	}
+	userobj = user_event_addobject(e->dict, e->type);
+	if(!userobj)
+		return NULL;
+
+	event.type = 123;
+	event.user.code = USEROBJECT_CHECK1;
+	event.user.data1 = (void*)USEROBJECT_CHECK2;
+	event.user.data2 = userobj;
 
 	if(SDL_PushEvent(&event) == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
