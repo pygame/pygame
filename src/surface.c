@@ -1062,27 +1062,24 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	/*passthrough blits to the real surface*/
 	if(((PySurfaceObject*)self)->subsurface)
 	{
-		int offset;
 		PyObject *owner;
-
-		owner = ((PySurfaceObject*)self)->subsurface->owner;
-	        subsurface = PySurface_AsSurface(owner);	    
-
-	        offset = ((PySurfaceObject*)self)->subsurface->pixeloffset;
-	        suboffsetx = (offset % subsurface->pitch) / subsurface->format->BytesPerPixel;
-	        suboffsety = offset / subsurface->pitch;
-		if(((PySurfaceObject*)owner)->subsurface) /*multiple subsurface, let's recurse*/
+		struct SubSurface_Data *subdata;
+		
+		subdata = ((PySurfaceObject*)self)->subsurface;
+		owner = subdata->owner;
+            	subsurface = PySurface_AsSurface(owner);
+		suboffsetx = subdata->offsetx;
+		suboffsety = subdata->offsety;
+		
+		while(((PySurfaceObject*)owner)->subsurface)
 		{
-			PyObject *arg, *ret;
-			arg = Py_BuildValue("(O(ii)O)", owner,
-						dest_rect.x + suboffsetx, dest_rect.y + suboffsety, argrect);
-			ret = surf_blit(owner, arg);
-			Py_DECREF(arg);
-			((PyRectObject*)ret)->r.x -= suboffsetx;
-			((PyRectObject*)ret)->r.y -= suboffsety;
-			return ret;
+		    subdata = ((PySurfaceObject*)owner)->subsurface;
+    		    owner = subdata->owner;
+	            subsurface = PySurface_AsSurface(owner);
+	    	    suboffsetx += subdata->offsetx;
+    	    	    suboffsety += subdata->offsety;
 		}
-
+		
 	        SDL_GetClipRect(subsurface, &orig_clip);
 	        SDL_GetClipRect(dest, &sub_clip);
 	        sub_clip.x += suboffsetx;
@@ -1172,6 +1169,7 @@ static PyObject* surf_get_pitch(PyObject* self, PyObject* args)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	return PyInt_FromLong(surf->pitch);
 }
+
 
 
 
@@ -1392,16 +1390,125 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 		PyMem_Del(data);
 		return NULL;
 	}
-
 	Py_INCREF(self);
 	data->owner = self;
 	data->pixeloffset = pixeloffset;
+	data->offsetx = rect->x;
+	data->offsety = rect->y;
 	((PySurfaceObject*)subobj)->subsurface = data;
-
-
 
 	return subobj;
 }
+
+
+
+    /*DOC*/ static char doc_surf_get_offset[] =
+    /*DOC*/    "Surface.get_offset() -> x, y\n"
+    /*DOC*/    "get offset of subsurface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the X and Y position a subsurface is positioned\n"
+    /*DOC*/    "inside its parent. Will return 0,0 for surfaces that are\n"
+    /*DOC*/    "not a subsurface.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_get_offset(PyObject* self, PyObject* args)
+{
+    	struct SubSurface_Data *subdata;	
+    	subdata = ((PySurfaceObject*)self)->subsurface;
+	if(!subdata)
+    	    	return Py_BuildValue("(ii)", 0, 0);
+    	return Py_BuildValue("(ii)", subdata->offsetx, subdata->offsety);
+}
+
+
+    /*DOC*/ static char doc_surf_get_abs_offset[] =
+    /*DOC*/    "Surface.get_abs_offset() -> x, y\n"
+    /*DOC*/    "get absolute offset of subsurface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the absolute X and Y position a subsurface is positioned\n"
+    /*DOC*/    "inside its top level parent. Will return 0,0 for surfaces that are\n"
+    /*DOC*/    "not a subsurface.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_get_abs_offset(PyObject* self, PyObject* args)
+{
+    	struct SubSurface_Data *subdata;	
+	PyObject *owner;
+	int offsetx, offsety;
+
+    	subdata = ((PySurfaceObject*)self)->subsurface;
+	if(!subdata)
+    	    	return Py_BuildValue("(ii)", 0, 0);
+
+	subdata = ((PySurfaceObject*)self)->subsurface;
+	owner = subdata->owner;
+	offsetx = subdata->offsetx;
+	offsety = subdata->offsety;
+
+	while(((PySurfaceObject*)owner)->subsurface)
+	{
+	    subdata = ((PySurfaceObject*)owner)->subsurface;
+    	    owner = subdata->owner;
+	    offsetx += subdata->offsetx;
+    	    offsety += subdata->offsety;
+	}
+
+
+	return Py_BuildValue("(ii)", offsetx, offsety);
+}
+
+    /*DOC*/ static char doc_surf_get_parent[] =
+    /*DOC*/    "Surface.get_parent() -> Surface\n"
+    /*DOC*/    "get a subsurface parent\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the Surface that is a parent of this subsurface.\n"
+    /*DOC*/    "Will return None if this is not a subsurface.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_get_parent(PyObject* self, PyObject* args)
+{
+    	struct SubSurface_Data *subdata;	
+    	subdata = ((PySurfaceObject*)self)->subsurface;
+	if(!subdata)
+    	    	RETURN_NONE
+		    
+    	Py_INCREF(subdata->owner);
+	return subdata->owner;
+}
+
+    /*DOC*/ static char doc_surf_get_abs_parent[] =
+    /*DOC*/    "Surface.get_abs_parent() -> Surface\n"
+    /*DOC*/    "get the toplevel surface for a subsurface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the top level Surface for this subsurface. If this is not\n"
+    /*DOC*/    "a subsurface it will return a reference to itself. You will always\n"
+    /*DOC*/    "get a valid surface from this method.\n"
+    /*DOC*/ ;
+static PyObject* surf_get_abs_parent(PyObject* self, PyObject* args)
+{
+    	struct SubSurface_Data *subdata;	
+	PyObject *owner;
+
+    	subdata = ((PySurfaceObject*)self)->subsurface;
+	if(!subdata)
+	{
+	    Py_INCREF(self);
+	    return self;
+	}
+
+	subdata = ((PySurfaceObject*)self)->subsurface;
+	owner = subdata->owner;
+
+	while(((PySurfaceObject*)owner)->subsurface)
+	{
+	    subdata = ((PySurfaceObject*)owner)->subsurface;
+    	    owner = subdata->owner;
+	}
+
+	Py_INCREF(owner);
+	return owner;
+}
+
 
 
 
@@ -1450,6 +1557,10 @@ static struct PyMethodDef surface_methods[] =
 	{"get_losses",		surf_get_losses,	1, doc_surf_get_losses },
 
 	{"subsurface",		surf_subsurface,	1, doc_surf_subsurface },
+	{"get_offset",		surf_get_offset,	1, doc_surf_get_offset },
+	{"get_abs_offset",	surf_get_abs_offset,	1, doc_surf_get_abs_offset },
+	{"get_parent",		surf_get_parent,	1, doc_surf_get_parent },
+	{"get_abs_parent",	surf_get_abs_parent,	1, doc_surf_get_abs_parent },
 
 	{NULL,		NULL}
 };
@@ -1602,7 +1713,6 @@ static PyTypeObject PySurface_Type =
 static PyObject* PySurface_New(SDL_Surface* s)
 {
 	PySurfaceObject* surf;
-
 	if(!s) return RAISE(PyExc_SDLError, SDL_GetError());
 
 	surf = PyObject_NEW(PySurfaceObject, &PySurface_Type);
@@ -1743,7 +1853,6 @@ void initsurface(void)
 
 	PyType_Init(PySurface_Type);
 
-
     /* create the module */
 	module = Py_InitModule3("surface", surface_builtins, doc_pygame_surface_MODULE);
 	dict = PyModule_GetDict(module);
@@ -1759,7 +1868,6 @@ void initsurface(void)
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
-
 	/*imported needed apis*/
 	import_pygame_base();
 	import_pygame_rect();

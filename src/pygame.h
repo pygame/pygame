@@ -309,6 +309,7 @@ struct SubSurface_Data
 {
 	PyObject* owner;
 	int pixeloffset;
+	int offsetx, offsety;
 };
 #ifndef PYGAMEAPI_SURFLOCK_INTERNAL
 #define PySurface_Prep(x) if(((PySurfaceObject*)x)->subsurface)(*(*(void(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 0]))(x)

@@ -118,6 +118,14 @@ new copy of surface with different format and per pixel alpha</td></tr>
 fill areas of a Surface</td></tr>
 
 
+<tr><td><a href=#get_abs_offset>get_abs_offset</a></td><td> -
+get absolute offset of subsurface</td></tr>
+
+
+<tr><td><a href=#get_abs_parent>get_abs_parent</a></td><td> -
+get the toplevel surface for a subsurface</td></tr>
+
+
 <tr><td><a href=#get_alpha>get_alpha</a></td><td> -
 query alpha information</td></tr>
 
@@ -162,12 +170,20 @@ get mapping losses for each colorplane</td></tr>
 get mapping bitmasks for each colorplane</td></tr>
 
 
+<tr><td><a href=#get_offset>get_offset</a></td><td> -
+get offset of subsurface</td></tr>
+
+
 <tr><td><a href=#get_palette>get_palette</a></td><td> -
 get the palette</td></tr>
 
 
 <tr><td><a href=#get_palette_at>get_palette_at</a></td><td> -
 get a palette entry</td></tr>
+
+
+<tr><td><a href=#get_parent>get_parent</a></td><td> -
+get a subsurface parent</td></tr>
 
 
 <tr><td><a href=#get_pitch>get_pitch</a></td><td> -
@@ -317,6 +333,24 @@ The fill is subject to be clipped by the active clipping
 rectangle. The return value contains the actual area filled.
 </ul><br>&nbsp;<br>
 
+<a name=get_abs_offset><font size=+2><b>get_abs_offset
+</b></font><br><font size=+1><tt>
+Surface.get_abs_offset() -> x, y
+</tt></font><ul>
+Returns the absolute X and Y position a subsurface is positioned
+inside its top level parent. Will return 0,0 for surfaces that are
+not a subsurface.
+</ul><br>&nbsp;<br>
+
+<a name=get_abs_parent><font size=+2><b>get_abs_parent
+</b></font><br><font size=+1><tt>
+Surface.get_abs_parent() -> Surface
+</tt></font><ul>
+Returns the top level Surface for this subsurface. If this is not
+a subsurface it will return a reference to itself. You will always
+get a valid surface from this method.
+</ul><br>&nbsp;<br>
+
 <a name=get_alpha><font size=+2><b>get_alpha
 </b></font><br><font size=+1><tt>
 Surface.get_alpha() -> alpha
@@ -409,6 +443,15 @@ isolate each colorplane value from a mapped color value. A value
 of zero means that colorplane is not used (like alpha)
 </ul><br>&nbsp;<br>
 
+<a name=get_offset><font size=+2><b>get_offset
+</b></font><br><font size=+1><tt>
+Surface.get_offset() -> x, y
+</tt></font><ul>
+Returns the X and Y position a subsurface is positioned
+inside its parent. Will return 0,0 for surfaces that are
+not a subsurface.
+</ul><br>&nbsp;<br>
+
 <a name=get_palette><font size=+2><b>get_palette
 </b></font><br><font size=+1><tt>
 Surface.get_palette() -> [[r, g, b], ...]
@@ -423,6 +466,14 @@ Surface.get_palette_at(index) -> r, g, b
 </tt></font><ul>
 This will retreive an individual color entry from the Surface's
 palette.
+</ul><br>&nbsp;<br>
+
+<a name=get_parent><font size=+2><b>get_parent
+</b></font><br><font size=+1><tt>
+Surface.get_parent() -> Surface
+</tt></font><ul>
+Returns the Surface that is a parent of this subsurface.
+Will return None if this is not a subsurface.
 </ul><br>&nbsp;<br>
 
 <a name=get_pitch><font size=+2><b>get_pitch

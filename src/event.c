@@ -687,9 +687,8 @@ static PyObject* poll(PyObject* self, PyObject* args)
     /*DOC*/    "remove all matching event types from the queue. If no\n"
     /*DOC*/    "types are passed, this will remove all the events from the queue.\n"
     /*DOC*/    "You may also optionally pass a sequence of event types. For\n"
-    /*DOC*/    "example, to remove all the mouse events from the queue, you\n"
-    /*DOC*/    "would call,\n"
-    /*DOC*/    "'pygame.event.clear([MOUSEBUTTONUP,MOUSEBUTTONDOWN,MOUSEMOTION])'.\n"
+    /*DOC*/    "example, to remove all the mouse motion events from the queue, you\n"
+    /*DOC*/    "would call, 'pygame.event.clear(MOUSEMOTION)'.\n"
     /*DOC*/ ;
 
 static PyObject* event_clear(PyObject* self, PyObject* args)
