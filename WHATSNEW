@@ -1,0 +1,10 @@
+
+This is a list of changes in PyGame's version history.
+
+
+0.2:
+	Documentation takes a step forward
+	Sound, mixer and music, now working   (and added to aliens)
+	Addition of get_width, get_height, and get_rect to Surfaces
+0.1:
+	PyGame First Release

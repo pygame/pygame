@@ -1,0 +1,225 @@
+<html>
+<title>Rect</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
+	<a href=../>
+      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_display.html>display</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> ||<br>
+|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>Rect</h2>
+The rectangle object is a useful object
+representing a rectangle area. It contains many
+helpful methods, as well as a list of modifiable
+members:
+top, bottom, left, right, topleft, topright,
+bottomleft, bottomright, size, width, height,
+center, centerx, centery. When changing these
+members, the rectangle will be moved to given
+assignment. (except when changing the size, width,
+or height member, which will resize the rectangle
+around the center).
+
+The rectstyle arguments used frequently with the
+Rect object (and elsewhere in PyGame) is one of
+the following things. First, an actual Rect
+object. Second, a sequence of [xpos, ypos, width,
+height]. Lastly, a pair of sequences, representing
+the position and size [[xpos, ypos], [width,
+height]]. Also, if a method takes a rectstyle
+argument as its only argument, you can simply pass
+four arguments representing xpos, ypos, width,
+height.
+
+<hr>
+
+<table>
+<tr><td><a href=#clamp>clamp</a></td><td> -
+move rectangle inside another</td></tr>
+
+
+<tr><td><a href=#clip>clip</a></td><td> -
+rectangle cropped inside another</td></tr>
+
+
+<tr><td><a href=#collidepoint>collidepoint</a></td><td> -
+point inside rectangle</td></tr>
+
+
+<tr><td><a href=#colliderect>colliderect</a></td><td> -
+check overlapping rectangles</td></tr>
+
+
+<tr><td><a href=#colliderect>colliderect</a></td><td> -
+find overlapping rectangle</td></tr>
+
+
+<tr><td><a href=#colliderectall>colliderectall</a></td><td> -
+find all overlapping rectangles</td></tr>
+
+
+<tr><td><a href=#contains>contains</a></td><td> -
+check if rectangle fully inside another</td></tr>
+
+
+<tr><td><a href=#inflate>inflate</a></td><td> -
+new rectangle with size changed</td></tr>
+
+
+<tr><td><a href=#move>move</a></td><td> -
+new rectangle with position changed</td></tr>
+
+
+<tr><td><a href=#normalize>normalize</a></td><td> -
+corrects negative sizes</td></tr>
+
+
+<tr><td><a href=#union>union</a></td><td> -
+rectangle covering both input</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=clamp><font size=+2><b>clamp
+</b></font><br><font size=+1><tt>
+Rect.clamp(rectstyle) -> Rect
+</tt></font><ul>
+Returns a new rectangle that is moved to be
+completely inside the base rectangle. If the given
+rectangle is too large for the base rectangle in
+an axis, it will be centered on that axis.
+</ul><br>&nbsp;<br>
+
+<a name=clip><font size=+2><b>clip
+</b></font><br><font size=+1><tt>
+Rect.clip(rectstyle) -> Rect
+</tt></font><ul>
+Returns a new rectangle that is the given
+rectangle cropped to the inside of the base
+rectangle. If the two rectangles do not overlap to
+begin with, you will get a rectangle with 0 size.
+</ul><br>&nbsp;<br>
+
+<a name=collidepoint><font size=+2><b>collidepoint
+</b></font><br><font size=+1><tt>
+Rect.collidepoint(x, y) -> bool
+</tt></font><ul>
+Returns true if the given point position is inside
+the rectangle. If a point is on the border, it is
+counted as inside.
+</ul><br>&nbsp;<br>
+
+<a name=colliderect><font size=+2><b>colliderect
+</b></font><br><font size=+1><tt>
+Rect.colliderect(rectstyle) -> bool
+</tt></font><ul>
+Returns true if any area of the two rectangles
+overlaps. If rectangles only share an edge, they
+will be counted as overlapping.
+</ul><br>&nbsp;<br>
+
+<a name=colliderect><font size=+2><b>colliderect
+</b></font><br><font size=+1><tt>
+Rect.colliderect(rectstyle list) -> int index
+</tt></font><ul>
+Returns the index of the first rectangle in the
+list to overlap the base rectangle. Once an
+overlap is found, this will stop checking the
+remaining list. If no overlap is found, it will
+return -1.
+</ul><br>&nbsp;<br>
+
+<a name=colliderectall><font size=+2><b>colliderectall
+</b></font><br><font size=+1><tt>
+Rect.colliderectall(rectstyle list) -> int index
+</tt></font><ul>
+Returns a list of the indexes that contain
+rectangles overlapping the base rectangle. If no
+overlap is found, it will return an empty
+sequence.
+</ul><br>&nbsp;<br>
+
+<a name=contains><font size=+2><b>contains
+</b></font><br><font size=+1><tt>
+Rect.contains(rectstyle) -> bool
+</tt></font><ul>
+Returns true when the given rectangle is entirely
+inside the base rectangle.
+</ul><br>&nbsp;<br>
+
+<a name=inflate><font size=+2><b>inflate
+</b></font><br><font size=+1><tt>
+Rect.inflate(x, y) -> Rect
+</tt></font><ul>
+Returns a new rectangle which has the sizes
+changed by the given amounts. The rectangle
+shrinks and expands around the rectangle's center.
+Negative values will shrink the rectangle.
+</ul><br>&nbsp;<br>
+
+<a name=move><font size=+2><b>move
+</b></font><br><font size=+1><tt>
+Rect.move(x, y) -> Rect
+</tt></font><ul>
+Returns a new rectangle which is the base
+rectangle moved by the given amount.
+</ul><br>&nbsp;<br>
+
+<a name=normalize><font size=+2><b>normalize
+</b></font><br><font size=+1><tt>
+Rect.normalize() -> None
+</tt></font><ul>
+If the rectangle has a a negative size in width or
+height, this will flip that axis so the sizes are
+positive, and the rectangle remains in the same
+place.
+</ul><br>&nbsp;<br>
+
+<a name=union><font size=+2><b>union
+</b></font><br><font size=+1><tt>
+Rect.union(rectstyle) -> Rect
+</tt></font><ul>
+Returns a new rectangle that completely covers the
+given inputs. There may be area inside the new
+rectangle that is not covered by the inputs.
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

@@ -1,0 +1,17 @@
+
+TODO list for the 1.0 release:
+
+ * Joystick and CDROM modules need to be cleaned up
+ * Support for OpenGL
+ * Support for Piddle
+ * More testing and general usage cleanup
+ * Surfarray with alpha and colormap support
+
+The plan is to ramp up to a 1.0 release within a couple months. At
+that point the only real plan will be keeping in stride with SDL
+and other dependency version releases.
+
+Until that point, consider the current interface to be a bit flexible.
+Things could change that will break code relying on older versions. Any
+changes will be easy to make. There will be warning of coming changes,
+but just know that it will likely happen.

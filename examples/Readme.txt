@@ -1,0 +1,63 @@
+These examples should help get you started with pyGame. Here is a
+brief rundown of what you get.
+
+
+aliens.py - This started off as a port of the SDL demonstration,
+    Aliens. Now it has evolved into something sort of resembling
+    fun. This demonstrates a lot of different uses of sprites and
+    optimized blitting.
+
+oldalien.py - This more closely resembles a port of the SDL Aliens
+    demo. The code is a lot simpler, so it makes a better starting
+    point for people looking at code for the first times. These
+    blitting routines are not as optimized as they should/could be,
+    but the code is easier to follow, and it plays quick enough.
+
+winaliens.pyw - Just an example launcher for windows platforms.
+	with the .PYW extension, windows will not open a DOS box
+	for the running python script, giving everything a more
+	professional look. (the script will run fine on linux too)
+	this script launches aliens.py in fullscreen mode
+
+stars.py - A simple starfield example. You can change the center of
+    perspective by leftclicking the mouse on the screen.
+
+zipshow.py - Given a .ZIP file, this will cycle through the
+    images found in the file. Press the keyboard or mouse to 
+    cycle to the next image. If no zipfile is passed on the command
+    line, it will pick one from the current directory. A great
+    demenstration if you want to keep all your resources inside a
+    single zip archive. Note, this will only load the types of
+    images that you have enabled in SDL_Image, there's a chance
+    you won't see the included JPEG's
+
+fonty.py - Super quick, super simple application demonstrating
+    the different ways to render fonts with the font module
+
+vgrade.py - Demonstrates creating a vertical gradient with
+    Numeric python. The app will create a new gradient every half
+    second and report the time needed to create and display the
+    image. If you're not prepared to start working with the
+    Numeric arrays, don't worry about the source for this one :]
+
+sound.py - Extremely basic testing of the mixer module. Load a
+	sound and play it. 
+
+
+data/ - directory with the resources for the examples
+sdllogos.zip - zipfile with unofficial sdl logos
+
+
+
+We're always on the lookout for more examples and/or example
+requests. Code like this is probably the best way to start
+getting involved with python gaming.
+
+
+Pete Shinners
+shredwheat@mediaone.net
+
+
+pySDL    : http://pysdl.sourceforge.net
+SDL      : http://www.libsdl.org
+aliens.c : http://www.libsdl.org/projects/aliens

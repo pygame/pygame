@@ -1,0 +1,15 @@
+CDROM & Joystick:
+	Both work, but the interface needs to be rethought. Currently, 
+	they are similar to the pysdl interface (which is too similar 
+	to the C interface)
+
+Surfarray:
+	Doesn't support all surface types between all array types. Best 
+	support is for 32bit surfaces.
+
+
+There are likely plenty of others. This is an early release, and much
+testing is pending.
+
+
+Pete Shinners       -       pete@shinners.org

@@ -1,0 +1,261 @@
+<html>
+<title>pygame.mixer</title>
+<body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
+
+<table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
+<td rowspan=2 width=60%><table border=0 cellpadding=5 cellspacing=0 bgcolor=#333377>
+<tr height=86 align=left><td valign=top><font color=#ffffff size=+5>
+	<a href=../>
+      <img src=mainlogo.gif width=300 height=100 alt="PyGame Logo" border=0></a></td>
+<td valign=middle><tt><font color=#dddddd><br>
+	PyGame<br>Documentation</font>
+</td></tr></table></td><td width=100% height=100% align=center valign=middle>
+
+	||&nbsp;
+	<a href=../>Home</a> &nbsp;||&nbsp;
+	<a href=index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Rect.html>Rect</a> ||<br>
+|| <a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> || 
+<a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_display.html>display</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> ||<br>
+|| <a href=pygame_mixer.html>mixer</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_music.html>music</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+
+
+</td></tr></table>
+<br>
+<h2 align=center>pygame.mixer</h2>
+Contains sound mixer routines and objects.
+
+<hr>
+
+<table>
+<tr><td><a href=#fadeout>fadeout</a></td><td> -
+fadeout all channels</td></tr>
+
+
+<tr><td><a href=#find_channel>find_channel</a></td><td> -
+{quick}</td></tr>
+
+
+<tr><td><a href=#get_busy>get_busy</a></td><td> -
+query busy channels</td></tr>
+
+
+<tr><td><a href=#get_channel>get_channel</a></td><td> -
+get channel object</td></tr>
+
+
+<tr><td><a href=#get_init>get_init</a></td><td> -
+query initialization for the mixer</td></tr>
+
+
+<tr><td><a href=#get_num_channels>get_num_channels</a></td><td> -
+query the number of channels</td></tr>
+
+
+<tr><td><a href=#init>init</a></td><td> -
+initialize mixer module</td></tr>
+
+
+<tr><td><a href=#load>load</a></td><td> -
+load a new soundfile</td></tr>
+
+
+<tr><td><a href=#pause>pause</a></td><td> -
+pause all channels</td></tr>
+
+
+<tr><td><a href=#pre_init>pre_init</a></td><td> -
+presets the init default values</td></tr>
+
+
+<tr><td><a href=#quit>quit</a></td><td> -
+unitializes the mixer</td></tr>
+
+
+<tr><td><a href=#set_num_channels>set_num_channels</a></td><td> -
+sets the number of available channels</td></tr>
+
+
+<tr><td><a href=#set_reserved>set_reserved</a></td><td> -
+reserves first given channels</td></tr>
+
+
+<tr><td><a href=#stop>stop</a></td><td> -
+stop all channels</td></tr>
+
+
+<tr><td><a href=#unpause>unpause</a></td><td> -
+restart any pause channels</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=fadeout><font size=+2><b>fadeout
+</b></font><br><font size=+1><tt>
+pygame.mixer.fadeout(millisec) -> None
+</tt></font><ul>
+Fade out all the playing channels over the given
+number of milliseconds.
+</ul><br>&nbsp;<br>
+
+<a name=find_channel><font size=+2><b>find_channel
+</b></font><br><font size=+1><tt>
+pygame.mixer.find_channel([force]) -> Channel
+</tt></font><ul>
+passed as a nonzero number, this will return the
+channel of the longest running sound. If not
+forced, and there are no available channels,
+returns None.
+</ul><br>&nbsp;<br>
+
+<a name=get_busy><font size=+2><b>get_busy
+</b></font><br><font size=+1><tt>
+pygame.mixer.get_busy() -> int
+</tt></font><ul>
+Returns the number of current active channels.
+This is not the total channels, but the number of
+channels that are currently playing sound.
+</ul><br>&nbsp;<br>
+
+<a name=get_channel><font size=+2><b>get_channel
+</b></font><br><font size=+1><tt>
+pygame.mixer.get_channel(int) -> Channel
+</tt></font><ul>
+Get a channel object for the given channel. This
+number must be less that the current number of
+channels.
+</ul><br>&nbsp;<br>
+
+<a name=get_init><font size=+2><b>get_init
+</b></font><br><font size=+1><tt>
+pygame.mixer.get_init() -> bool
+</tt></font><ul>
+Returns true if the mixer module is initialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_num_channels><font size=+2><b>get_num_channels
+</b></font><br><font size=+1><tt>
+pygame.mixer.get_num_channels() -> int
+</tt></font><ul>
+Gets the current number of channels available for
+the mixer. This value can be changed with
+set_num_channels(). This value defaults to 8 when
+the mixer is first initialized.
+</ul><br>&nbsp;<br>
+
+<a name=init><font size=+2><b>init
+</b></font><br><font size=+1><tt>
+pygame.mixer.init([freq, [size, [stereo]]]) -> None
+</tt></font><ul>
+Initializes the mixer module. Usually no arguments
+will be needed, the defaults are 22050 frequency
+data in stereo with signed 16bit data. The size
+argument can be 8 or 16 for unsigned data, or -8
+or -16 for signed data.
+
+On many platforms it is important that the display
+module is initialized before the audio. (that is,
+if the display will be initialized at all). You
+can easily use the <a href=pygame.html#init>pygame.init()</a> function to
+cleanly initialize everything, but first use the
+pygame.mixer.pre_init() function to change the
+default values for this <a href=pygame.html#init>init()</a>.
+</ul><br>&nbsp;<br>
+
+<a name=load><font size=+2><b>load
+</b></font><br><font size=+1><tt>
+pygame.mixer.load(file) -> Sound
+</tt></font><ul>
+Loads a new sound object from a WAV file. File can
+be a filename or a file-like object. The sound
+will be converted to match the current mode of the
+mixer.
+</ul><br>&nbsp;<br>
+
+<a name=pause><font size=+2><b>pause
+</b></font><br><font size=+1><tt>
+pygame.mixer.pause() -> None
+</tt></font><ul>
+Temporarily stops playback on all the mixer
+channels.
+</ul><br>&nbsp;<br>
+
+<a name=pre_init><font size=+2><b>pre_init
+</b></font><br><font size=+1><tt>
+pygame.mixer.pre_init([freq, [size, [stereo]]]) -> None
+</tt></font><ul>
+This routine is usefull when you want to customize
+the sound mixer playback modes. The values you
+pass will change the default values used by
+pygame.mixer.init(). This way you can still use
+the pygame automatic initialization to ensure
+everything happens in the right order, but set the
+desired mixer mode.
+</ul><br>&nbsp;<br>
+
+<a name=quit><font size=+2><b>quit
+</b></font><br><font size=+1><tt>
+pygame.mixer.quit() -> None
+</tt></font><ul>
+This will stop all playing sounds and uninitialize
+the mixer module
+</ul><br>&nbsp;<br>
+
+<a name=set_num_channels><font size=+2><b>set_num_channels
+</b></font><br><font size=+1><tt>
+pygame.mixer.set_num_channels(int) -> None
+</tt></font><ul>
+Sets the current number of channels available for
+the mixer. This value defaults to 8 when the mixer
+is first initialized. If the value is decreased,
+sounds playing in channels above the new value
+will stop.
+</ul><br>&nbsp;<br>
+
+<a name=set_reserved><font size=+2><b>set_reserved
+</b></font><br><font size=+1><tt>
+pygame.mixer.set_reserved(int) -> None
+</tt></font><ul>
+Reserves the first channels. Reserved channels
+won't be used when a sound is played without using
+a specific channel object.
+</ul><br>&nbsp;<br>
+
+<a name=stop><font size=+2><b>stop
+</b></font><br><font size=+1><tt>
+pygame.mixer.stop() -> None
+</tt></font><ul>
+Stop the playback on all mixer channels.
+</ul><br>&nbsp;<br>
+
+<a name=unpause><font size=+2><b>unpause
+</b></font><br><font size=+1><tt>
+pygame.mixer.unpause() -> None
+</tt></font><ul>
+Restarts playback of any paused channels.
+</ul><br>&nbsp;<br>
+
+
+<hr>
+
+</body></html>

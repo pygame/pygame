@@ -1,0 +1,41 @@
+#flags needed to link each dependency
+
+#--StartConfig
+SDL = -I/usr/include/SDL -D_REENTRANT -lSDL
+FONT = -lSDL_ttf
+IMAGE = -lSDL_image
+MIXER = -lSDL_mixer
+SMPEG = -lsmpeg
+#--EndConfig
+
+
+#base extensions (need sdl only, all of them needed)
+
+base src/base.c $(SDL)
+cdrom src/cdrom.c $(SDL)
+constants src/constants.c $(SDL)
+display src/display.c $(SDL)
+event src/event.c $(SDL)
+key src/key.c $(SDL)
+mouse src/mouse.c $(SDL)
+rect src/rect.c $(SDL)
+rwobject src/rwobject.c $(SDL)
+surface src/surface.c $(SDL)
+time src/time.c $(SDL)
+
+#the following modules are optional. you will want to compile
+#everything you can, but you can ignore ones you don't have
+#dependencies for, just comment them out
+
+#surfarray src/surfarray.c $(SDL)  #requires Numeric
+font src/font.c $(SDL) $(FONT)
+image src/image.c $(SDL) $(IMAGE)
+mixer src/mixer.c $(SDL) $(MIXER)
+music src/music.c $(SDL) $(MIXER)
+
+
+#the following are placeholders. setup.py can use
+#them to help auto-copy needed DLLs into the pygame
+#installation folder. if you aren't going to use this,
+#you can likely just leave these lines alone
+COPYLIB_smpeg $(SMPEG)
