@@ -13,6 +13,10 @@ OUTPUTDIR = '../ref/'
 PAGETEMPLATE = open('pagelate.html').readlines()
 DOCTEMPLATE = open('doclate.html').readlines()
 LISTTEMPLATE = open('listlate.html').readlines()
+INDEXTEMPLATE = ['<a href={category}.html#{name}>{mod}.{name}</a> - {quick}<br>']
+
+INDEXSTART = "\n<br><hr><br><font size=+1><b>Full Index</b></font><ul>\n<!--FULLINDEX-->\n"
+INDEXEND = "<!--ENDINDEX-->\n</ul>\n"
 
 MODULETOC = ""
 
@@ -174,7 +178,7 @@ def lookupdoc(docs, name, category):
 def htmlize(doc, obj, func):
     for i in range(len(doc)):
         line = doc[i]
-        line = line.replace('<<', '&lt;&lt;').replace('>>', '&gt;&gt;')
+        line = line.replace('<', '&lt;').replace('>', '&gt;')
         pos = 0
         while 1:
             pos = line.find('(', pos+1)
@@ -278,6 +282,24 @@ def writefuncdoc(alldocs):
         file.close()
 
 
+
+def makefullindex(alldocs):
+    modules, extras, funcs = alldocs
+    fullindex = []
+    indexstring = '<a href={category}.html#{name}>{mod}.{name}</a> - {quick}<br>'
+    for cat, docs in funcs.items():
+        htmldocs = []
+        htmllist = []
+        docs.sort(namesort)
+        for d in docs:
+            d['mod'] = d['category'].replace('_', '.')
+            s = filltemplate(INDEXTEMPLATE, d)
+            fullindex.append(s)
+    fullindex.sort()
+    return INDEXSTART + ''.join(fullindex) + INDEXEND
+
+
+
 def main():
     #find all sources
     files = []
@@ -316,13 +338,16 @@ def main():
     print 'writing...'
     writefuncdoc(alldocs)
 
+    fulldocs = findtutorials() + makefullindex(alldocs)
+
     #create index
     finalinfo = {'title': 'Pygame Documentation',
-                 'docs': findtutorials(),
+                 'docs': fulldocs,
                  'index': mainindex_desc,
                  'toc': pathed_toc,
                  'module': ' ',
-                 'mainpage': 'index.html'}
+                 'mainpage': 'index.html',
+                }
     page = filltemplate(PAGETEMPLATE, finalinfo)
     file = open('../index.html', 'w')
     file.write(page)

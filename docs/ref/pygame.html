@@ -50,7 +50,7 @@ Contains the core routines that are used by the rest of the
 pygame modules. It's routines are merged directly into the pygame
 namespace. This mainly includes the auto-initialization <a href=#init>init()</a> and
 quit() routines.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 There is a small module named 'locals' that also gets merged into
 this namespace. This contains all the constants needed by pygame.
 Object constructors also get placed into this namespace, you can
@@ -148,12 +148,12 @@ pygame.init() -> passed, failed
 </tt></font><ul>
 Initialize all imported pygame modules. Including pygame modules
 that are not part of the base modules (like font and image).
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 It does not raise exceptions, but instead silently counts which
 modules have failed to init. The return argument contains a count
 of the number of modules initialized, and the number of modules
 that failed to initialize.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 You can always initialize the modules you want by hand. The
 modules that need it have an <u>init()</u> and <a href=#quit>quit()</a> routine built in,
 which you can call directly. They also have a <a href=pygame_cdrom.html#get_init>get_init()</a> routine
@@ -162,7 +162,7 @@ the manual <u>init()</u> routines will raise an exception on error. Be
 aware that most platforms require the display module to be
 initialized before others. This <u>init()</u> will handle that for you,
 but if you initialize by hand, be aware of this constraint.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 As with the manual <u>init()</u> routines. It is safe to call this
 init() as often as you like. If you have imported pygame modules
 since the.
@@ -175,7 +175,7 @@ pygame.quit() -> none
 Uninitialize all pygame modules that have been initialized. Even
 if you initialized the module by hand, this <u>quit()</u> will
 uninitialize it for you.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 All the pygame modules are uninitialized automatically when your
 program exits, so you will usually not need this routine. If you
 program plans to keep running after it is done with pygame, then
@@ -194,5 +194,4 @@ once.
 
 
 <hr>
-
 </body></html>

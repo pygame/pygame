@@ -51,16 +51,16 @@ The routines in this module help you manage that event queue. The
 input queue is heavily dependent on the pygame display module. If
 the display has not been initialized and a video mode not set,
 the event queue will not really work.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 The queue is a stack of Event objects, there are a variety of
 ways to access the data on the queue. From simply checking for
 the existance of events, to grabbing them directly off the stack.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 All events have a type identifier. This event type is in between
 the values of NOEVENT and NUMEVENTS. All user defined events can
 have the value of USEREVENT or higher. It is recommended make
 sure your event id's follow this system.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 To get the state of various input devices, you can forego the
 event queue and access the input devices directly with their
 appropriate modules; mouse, key, and joystick. If you use this
@@ -69,13 +69,13 @@ with the system window manager and other parts of the platform.
 To keep pygame in synch with the system, you will need to call
 pygame.event.pump() to keep everything current. You'll want to
 call this function usually once per game loop.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 The event queue offers some simple filtering. This can help
 performance slightly by blocking certain event types from the
 queue, use the <a href=#set_allowed>pygame.event.set_allowed()</a> and
 pygame.event.set_blocked() to work with this filtering. All
 events default to allowed.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 Also know that you will not receive any events from a joystick
 device, until you have initialized that individual joystick from
 the joystick module.<p>&nbsp;</p>An Event object contains an event type and a readonly set of
@@ -83,12 +83,12 @@ member data. The Event object contains no method functions, just
 member data. Event objects are retrieved from the pygame event
 queue. You can create your own new events with the
 pygame.event.Event() function.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 All Event objects contain an event type identifier in the
 Event.type member. You may also get full access to the Event's
 member data through the Event.dict method. All other member
 lookups will be passed through to the Event's dictionary values.
-<br>&nbsp;<br>
+&lt;br&gt;&nbsp;&lt;br&gt;
 While debugging and experimenting, you can print the Event
 objects for a quick display of its type and members.
 
@@ -258,5 +258,4 @@ when the user isn't doing anything with it.
 
 
 <hr>
-
 </body></html>
