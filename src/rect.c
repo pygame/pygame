@@ -1024,6 +1024,8 @@ void initrect()
 	module = Py_InitModule3("rect", rect__builtins__, rectangle_doc);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "RectType", (PyObject *)&PyRect_Type);
+
 	/* export the c api */
 	c_api[0] = &PyRect_Type;
 	c_api[1] = PyRect_New;

@@ -674,6 +674,8 @@ void initfont()
 	module = Py_InitModule3("font", font_builtins, doc_pygame_font_MODULE);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "FontType", (PyObject *)&PyFont_Type);
+
 	/* export the c api */
 	c_api[0] = &PyFont_Type;
 	c_api[1] = PyFont_New;

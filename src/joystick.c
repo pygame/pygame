@@ -652,6 +652,8 @@ void initjoystick()
 	module = Py_InitModule3("joystick", joystick_builtins, doc_pygame_joystick_MODULE);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "JoystickType", (PyObject *)&PyJoystick_Type);
+
 	/* export the c api */
 	c_api[0] = &PyJoystick_Type;
 	c_api[1] = PyJoystick_New;

@@ -23,6 +23,7 @@
 
 from pygame.base import *
 from pygame.surface import *
+from pygame.rect import *
 from pygame.locals import *
 import pygame.cdrom
 import pygame.display

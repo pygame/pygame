@@ -1066,6 +1066,9 @@ void initmixer()
 	module = Py_InitModule3("mixer", mixer_builtins, doc_pygame_mixer_MODULE);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "SoundType", (PyObject *)&PySound_Type);
+	PyDict_SetItemString(dict, "ChannelType", (PyObject *)&PyChannel_Type);
+
 	/* export the c api */
 	c_api[0] = &PySound_Type;
 	c_api[1] = PySound_New;

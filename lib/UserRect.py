@@ -28,12 +28,17 @@ class UserRect:
         try: self.__dict__['rect'] = Rect(*args)
         except TypeError:
             raise TypeError, 'Argument must be rectstyle object'
+        for a in dir(self.rect):
+            self.__dict__[a] = getattr(self.rect, a)
 
     def __getattr__(self, name):
         return getattr(self.rect, name)
     def __setattr__(self, name, val):
-        if name != 'rect':
-            setattr(self.__dict__['rect'], name, val)
+        if name is 'rect':
+            self.__dict__['rect'][:] = val
+        else:
+            try: setattr(self.__dict__['rect'], name, val)
+            except (AttributeError, KeyError): self.__dict__[name] = val
     def __len__(self): return 4
     def __getitem__(self, i): return self.rect[i]
     def __setitem__(self, i, val): self.rect[i] = val
@@ -46,3 +51,4 @@ class UserRect:
     def __str__(self):
         return '<UserRect(%d, %d, %d, %d)>' % tuple(self.rect)
 
+    

@@ -2,6 +2,7 @@
 
 Nov 30, 2000
 	UserRect module added
+	all objects now have a matching type; SurfaceType, etc
 
 Nov 29, 2000
 	joystick module rewrite finished [BREAK]
