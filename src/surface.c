@@ -52,7 +52,7 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	Uint8* pixels = (Uint8*)surf->pixels;
 	int x, y;
 	Uint32 color;
-	Uint8* byte_buf;
+	Uint8* pix;
 	Uint8 r, g, b, a;
 
 	if(!PyArg_ParseTuple(arg, "(ii)", &x, &y))
@@ -73,11 +73,12 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 			color = (Uint32)*((Uint16*)(pixels + y * surf->pitch) + x);
 			break;
 		case 3:
-			byte_buf = ((Uint8*)(pixels + y * surf->pitch) + x * 3);
-			color = (Uint32)(
-				*(byte_buf + (format->Rshift >> 3)) << format->Rshift |
-				*(byte_buf + (format->Gshift >> 3)) << format->Gshift |
-				*(byte_buf + (format->Bshift >> 3)) << format->Bshift);
+			pix = ((Uint8*)(pixels + y * surf->pitch) + x * 3);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+			color = (pix[0]) + (pix[1]<<8) + (pix[2]<<16);
+#else
+			color = (pix[2]) + (pix[1]<<8) + (pix[0]<<16);
+#endif
 			break;
 		case 4:
 			color = *((Uint32*)(pixels + y * surf->pitch) + x);
