@@ -25,9 +25,10 @@
  */
 #include "pygame.h"
 
+static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts);
 static int clipline(int* pts, int left, int top, int right, int bottom);
 static void drawline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx, int endy);
-static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx, int endy);
+static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx);
 
 
     /*DOC*/ static char doc_line[] =
@@ -50,6 +51,7 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	int pts[4];
 	Uint8 rgba[4];
 	Uint32 color;
+	int anydraw;
 
 	/*get all the arguments*/
 	if(!PyArg_ParseTuple(arg, "O!OOO", &PySurface_Type, &surfobj, &colorobj, &start, &end))
@@ -68,48 +70,159 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	if(!TwoShortsFromObj(end, &endx, &endy))
 		return RAISE(PyExc_TypeError, "Invalid end position argument");
 	
-	/*clip line to the surface*/
-	pts[0] = startx; pts[1] = starty;
-	pts[2] = endx; pts[3] = endy;
-	if(!clipline(pts, surf->clip_rect.x, surf->clip_rect.y,
-				surf->clip_rect.x + surf->clip_rect.w - 1,
-				surf->clip_rect.y + surf->clip_rect.h - 1))
-		return PyRect_New4(startx, starty, 0, 0);
 
 	if(!PySurface_Lock(surfobj)) return NULL;
 
-	if(pts[1] == pts[3])
-		drawhorzline(surf, color, pts[0], pts[1], pts[2], pts[3]);
-	else
-		drawline(surf, color, pts[0], pts[1], pts[2], pts[3]);
+	pts[0] = startx; pts[1] = starty;
+	pts[2] = endx; pts[3] = endy;
+	anydraw = clip_and_draw_line(surf, &surf->clip_rect, color, pts);
 
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
+
 	/*compute return rect*/
-	if(startx < endx)
+	if(!anydraw)
+		return PyRect_New4(startx, starty, 0, 0);
+	if(pts[0] < pts[2])
 	{
-		left = startx;
-		right = endx;
+		left = pts[0];
+		right = pts[2];
 	}
 	else
 	{
-		left = endx;
-		right = startx;
+		left = pts[2];
+		right = pts[0];
 	}
-	if(starty < endy)
+	if(pts[1] < pts[3])
 	{
-		top = starty;
-		bottom = endy;
+		top = pts[1];
+		bottom = pts[3];
 	}
 	else
 	{
-		top = endy;
-		bottom = starty;
+		top = pts[3];
+		bottom = pts[1];
 	}
 	return PyRect_New4((short)left, (short)top, (short)(right-left), (short)(bottom-top));
 }
 
 
+    /*DOC*/ static char doc_lines[] =
+    /*DOC*/    "pygame.draw.lines(Surface, color, closed, point_array) -> Rect\n"
+    /*DOC*/    "draw multiple connected lines on a surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Draws a sequence on a surface. You must pass at least two points\n"
+    /*DOC*/    "in the sequence of points. The closed argument is a simple boolean\n"
+    /*DOC*/    "and if true, a line will be draw between the first and last points.\n"
+    /*DOC*/    "\n"
+	/*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
+	/*DOC*/    "effected area is returned as a rectangle.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This function will temporarily lock the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* lines(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj, *colorobj, *closedobj, *points, *item;
+	SDL_Surface* surf;
+	short x, y;
+	int top, left, bottom, right;
+	int pts[4];
+	Uint8 rgba[4];
+	Uint32 color;
+	int closed;
+	int result, loop, length, drawn;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!OOO", &PySurface_Type, &surfobj, &colorobj, &closedobj, &points))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
+
+	if(!RGBAFromObj(colorobj, rgba))
+		return RAISE(PyExc_TypeError, "Invalid color RGB argument");
+	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+
+	closed = PyObject_IsTrue(closedobj);
+
+	if(!PySequence_Check(points))
+		return RAISE(PyExc_TypeError, "points argument must be a sequence of number pairs");
+	length = PySequence_Length(points);
+	if(length < 2)
+		return RAISE(PyExc_ValueError, "points argument must contain more than 1 points");
+
+	item = PySequence_GetItem(points, 0);
+	result = TwoShortsFromObj(item, &x, &y);
+	Py_DECREF(item);
+	if(!result) return RAISE(PyExc_TypeError, "points must be number pairs");
+
+	pts[0] = left = right = x;
+	pts[1] = top = bottom = y;
+
+	if(!PySurface_Lock(surfobj)) return NULL;
+
+	drawn = 1;
+	for(loop = 1; loop < length; ++loop)
+	{
+		item = PySequence_GetItem(points, loop);
+		result = TwoShortsFromObj(item, &x, &y);
+		Py_DECREF(item);
+		if(!result) continue; /*note, we silently skip over bad points :[ */
+		++drawn;
+		pts[2] = x;
+		pts[3] = y;
+
+		if(clip_and_draw_line(surf, &surf->clip_rect, color, pts))
+		{
+			left = min(min(pts[0], pts[2]), left);
+			top = min(min(pts[1], pts[3]), top);
+			right = max(max(pts[0], pts[2]), right);
+			bottom = max(max(pts[1], pts[3]), bottom);
+		}
+
+		pts[0] = pts[2];
+		pts[1] = pts[3];
+	}
+	if(closed && drawn > 2)
+	{
+		item = PySequence_GetItem(points, 0);
+		result = TwoShortsFromObj(item, &x, &y);
+		Py_DECREF(item);
+		if(result)
+		{
+			pts[2] = x;
+			pts[3] = y;
+			clip_and_draw_line(surf, &surf->clip_rect, color, pts);
+		}
+	}
+
+
+	if(!PySurface_Unlock(surfobj)) return NULL;
+
+	/*compute return rect*/
+	return PyRect_New4((short)left, (short)top, (short)(right-left), (short)(bottom-top));
+}
+
+
+
+
+
+
+
+/*internal drawing tools*/
+
+static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, int* pts)
+{
+	if(!clipline(pts, rect->x, rect->y, rect->x+rect->w-1, rect->y+rect->h-1))
+		return 0;
+	if(pts[1] == pts[3])
+		drawhorzline(surf, color, pts[0], pts[1], pts[2]);
+	else
+		drawline(surf, color, pts[0], pts[1], pts[2], pts[3]);
+	return 1;
+}
 
 
 /*this line clipping based heavily off of code from
@@ -191,7 +304,7 @@ static int clipline(int* pts, int left, int top, int right, int bottom)
 
 
 
-/*here's a sdl'ized version of bresenham*/
+/*here's my sdl'ized version of bresenham*/
 static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, int y2)
 {
 	int deltax, deltay, signx, signy;
@@ -251,7 +364,7 @@ static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, in
 
 
 
-static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, int y2)
+static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2)
 {
 	Uint8 *pixel, *end;
 	Uint8 *colorptr;
@@ -300,6 +413,7 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 static PyMethodDef draw_builtins[] =
 {
 	{ "line", line, 1, doc_line },
+	{ "lines", lines, 1, doc_lines },
 
 	{ NULL, NULL }
 };
@@ -331,3 +445,83 @@ void initdraw(void)
 	import_pygame_surface();
 }
 
+
+
+#if 0
+/*CODE I PLAN TO IMPLEMENT IN THE FUTURE*/
+/*along with this ellipse stuff, a triangle would be keen,
+from triangle a simple polygons will be easy too, but needed?*/
+
+/*anyone feel free to contribute :] */
+Ok... The circle algorithm:
+
+        x = 0
+        y = radius
+        switch = 3 - 2*radius
+
+    loop:
+
+        plot (x,y): plot (x,-y): plot (-x,y): plot (-x,-y)
+        plot (y,x): plot (y,-x): plot (-y,x): plot (-y,-x)
+
+        if switch < 0 then
+            switch = switch + 4 * x + 6
+        else
+            switch = switch + 4 * (x - y) + 10
+            y = y - 1
+
+        x = x + 1
+
+        if x <= y then goto loop
+
+        end
+
+
+
+void symmetry(x,y)
+int x,y;
+{
+ PUT_PIXEL(+x,+y);  // This would obviously be inlined!
+ PUT_PIXEL(-x,+y);  // and offset by a constant amount
+ PUT_PIXEL(-x,-y);
+ PUT_PIXEL(+x,-y);
+}
+
+void bresenham_ellipse(a,b) /*a = xradius, b= yradius*/
+int a,b;
+{
+ int x,y,a2,b2, S, T;
+
+ a2 = a*a;
+ b2 = b*b;
+ x = 0;
+ y = b;
+ S = a2*(1-2*b) + 2*b2;
+ T = b2 - 2*a2*(2*b-1);
+ symmetry(x,y);
+ do
+   {
+    if (S<0)
+       {
+        S += 2*b2*(2*x+3);
+        T += 4*b2*(x+1);
+        x++;
+       }
+      else if (T<0)
+          {
+           S += 2*b2*(2*x+3) - 4*a2*(y-1);
+           T += 4*b2*(x+1) - 2*a2*(2*y-3);
+           x++;
+           y--;
+          }
+         else
+          {
+           S -= 4*a2*(y-1);
+           T -= 2*a2*(2*y-3);
+           y--;
+          }
+    symmetry(x,y);
+   }
+ while (y>0);
+}
+#endif
