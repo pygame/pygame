@@ -539,10 +539,6 @@ static void pygame_parachute(int sig)
 		case SIGQUIT:
 			signaltype = "(pygame parachute) Keyboard Abort"; break;
 #endif
-#ifdef SIGPIPE
-		case SIGPIPE:
-			signaltype = "(pygame parachute) Broken Pipe"; break;
-#endif
 		default:
 			signaltype = "(pygame parachute) Unknown Signal"; break;
 	}
@@ -583,11 +579,6 @@ static int fatal_signals[] =
 #endif
 #ifdef SIGQUIT
 	SIGQUIT,
-#endif
-#if 0 /*lets disable sigpipe for now, games are likely not piping*/
-#ifdef SIGPIPE
-	SIGPIPE,
-#endif
 #endif
 	0 /*end of list*/
 };

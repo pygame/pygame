@@ -1,6 +1,6 @@
 ##    pygame - Python Game Library
 ##    Copyright (C) 2000-2003  Pete Shinners
-##
+##              (C) 2004 Joe Wreschnig
 ##    This library is free software; you can redistribute it and/or
 ##    modify it under the terms of the GNU Library General Public
 ##    License as published by the Free Software Foundation; either
@@ -81,14 +81,6 @@ which can be set to any dummy value.
 ## specific ones that aren't quite so general but fit into common
 ## specialized cases.
 
-
-import sys
-if sys.hexversion < 0x020200a1:
-    class object:
-        "null class for pre-python2.2 compatability"
-
-
-
 class Sprite(object):
     """the base class for your visible game objects.
        The sprite class is meant to be used as a base class
@@ -98,47 +90,37 @@ class Sprite(object):
        or more groups. The kill() method simply removes this
        sprite from all groups."""
 
-    def __init__(self, group=()):
-        """__init__(group=())
-           initialize a sprite object
+    def __init__(self, *groups):
+        """initialize a sprite object
 
            You can initialize a sprite by passing it a
            group or sequence of groups to be contained in."""
-        self.__g = {}
-        self.add(group)
+        self.__g = {} # The groups the sprite is in
+        if groups: self.add(groups)
 
-    def add(self, group):
-        """add(group)
-           add a sprite to container
+    def add(self, *groups):
+        """add a sprite to container
 
            Add the sprite to a group or sequence of groups."""
         has = self.__g.has_key
-        if hasattr(group, '_spritegroup'):
-            if not has(group):
-                group.add_internal(self)
-                self.add_internal(group)
-        else:
-            groups = group
-            for group in groups:
+        for group in groups:
+            if hasattr(group, '_spritegroup'):
                 if not has(group):
                     group.add_internal(self)
                     self.add_internal(group)
+            else: self.add(*group)
 
-    def remove(self, group):
-        """remove(group)
-           remove a sprite from container
+    def remove(self, *groups):
+        """remove a sprite from container
 
            Remove the sprite from a group or sequence of groups."""
         has = self.__g.has_key
-        if hasattr(group, '_spritegroup'):
-            if has(group):
-                group.remove_internal(self)
-                self.remove_internal(g)
-        else:
-            for g in group:
-                if has(g):
-                    g.remove_internal(self)
-                    self.remove_internal(g)
+        for group in groups:
+            if hasattr(group, '_spritegroup'):
+                if has(group):
+                    group.remove_internal(self)
+                    self.remove_internal(group)
+            else: self.remove(*group)
 
     def add_internal(self, group):
         self.__g[group] = 0
@@ -151,8 +133,7 @@ class Sprite(object):
         pass
 
     def kill(self):
-        """kill()
-           end life of sprite, remove from all groups
+        """end life of sprite, remove from all groups
 
            Removes the sprite from all the groups that contain
            it. The sprite is still fine after calling this kill()
@@ -163,340 +144,154 @@ class Sprite(object):
         self.__g.clear()
 
     def groups(self):
-        """groups() -> list
-           list used sprite containers
+        """list used sprite containers
 
            Returns a list of all the groups that contain this
            sprite."""
         return self.__g.keys()
 
     def alive(self):
-        """alive() -> bool
-           ask the life of a sprite
+        """ask the life of a sprite
 
            Returns true if this sprite is a member of any groups."""
-        return len(self.__g)
+        return (len(self.__g) != 0)
 
     def __repr__(self):
         return "<%s sprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
 
+class AbstractGroup(object):
+    # dummy val to identify sprite groups, and avoid infinite recursion.
+    _spritegroup = True
 
-
-class Group(object):
-    """the Group class is a container for sprites
-       This is the base sprite group class. It does everything
-       needed to behave as a normal group. You can easily inherit
-       a new group class from this if you want to add more features."""
-    _spritegroup = 1 #dummy val to identify sprite groups
-
-    def __init__(self, sprite=()):
-        """__init__(sprite=())
-           instance a Group
-
-           You can initialize a group by passing it a
-           sprite or sequence of sprites to be contained."""
+    def __init__(self):
         self.spritedict = {}
-        if sprite:
-            self.add(sprite)
-
-    def copy(self):
-        """copy() -> Group
-           copy a group with all the same sprites
-
-           Returns a copy of the group that is the same class
-           type, and has the same contained sprites."""
-        return self.__class__(self.spritedict.keys())
+        self.lostsprites = []
 
     def sprites(self):
-        """sprites() -> iterator
-           return an object to loop over each sprite
-
-           Returns an object that can be looped over with
-           a 'for' loop. (For now it is always a list, but
-           newer version of python could return different
-           objects, like iterators.)
-
-           Group is now a python iterator itself, easier to
-           loop over sprites like that."""
         return self.spritedict.keys()
-
-    def __iter__(self):
-        return iter(self.spritedict.iterkeys())
-
-    def add(self, sprite):
-        """add(sprite)
-           add sprite to group
-
-           Add a sprite or sequence of sprites to a group."""
-        has = self.spritedict.has_key
-        if hasattr(sprite, '_spritegroup'):
-            for sprite in sprite.sprites():
-                if not has(sprite):
-                    self.spritedict[sprite] = 0
-                    sprite.add_internal(self)
-        else:
-            try: len(sprite) #see if its a sequence
-            except (TypeError, AttributeError):
-                if not has(sprite):
-                        self.spritedict[sprite] = 0
-                        sprite.add_internal(self)
-            else:
-                for sprite in sprite:
-                    if not has(sprite):
-                        self.spritedict[sprite] = 0
-                        sprite.add_internal(self)
-
-    def remove(self, sprite):
-        """remove(sprite)
-           remove sprite from group
-
-           Remove a sprite or sequence of sprites from a group."""
-        has = self.spritedict.has_key
-        if hasattr(sprite, '_spritegroup'):
-            for sprite in sprite.sprites():
-                if has(sprite):
-                    self.remove_internal(sprite)
-                    sprite.remove_internal(self)
-        else:
-            try: len(sprite) #see if its a sequence
-            except (TypeError, AttributeError):
-                if has(sprite):
-                    self.remove_internal(sprite)
-                    sprite.remove_internal(self)
-            else:
-                for sprite in sprite:
-                    if has(sprite):
-                        self.remove_internal(sprite)
-                        sprite.remove_internal(self)
 
     def add_internal(self, sprite):
         self.spritedict[sprite] = 0
 
     def remove_internal(self, sprite):
-        del self.spritedict[sprite]
+        r = self.spritedict[sprite]
+        if r != 0:
+            self.lostsprites.append(r)
+        del(self.spritedict[sprite])
 
-    def has(self, sprite):
-        """has(sprite) -> bool
-           ask if group has sprite
+    def has_internal(self, sprite):
+        return self.spritedict.has_key(sprite)
+
+    def copy(self):
+        """copy a group with all the same sprites
+
+           Returns a copy of the group that is the same class
+           type, and has the same contained sprites."""
+        return self.__class__(self.sprites())
+
+    def __iter__(self):
+        return iter(self.sprites())
+
+    def __contains__(self, sprite):
+        return self.has(sprite)
+
+    def add(self, *sprites):
+        """add sprite to group
+
+           Add a sprite or sequence of sprites to a group."""
+        for sprite in sprites:
+            # It's possible that some sprite is also an iterator.
+            # If this is the case, we should add the sprite itself,
+            # and not the objects it iterates over.
+            if isinstance(sprite, Sprite):
+                if not self.has_internal(sprite):
+                    self.add_internal(sprite)
+                    sprite.add_internal(self)
+            try:
+                # See if sprite is an iterator, like a list or sprite
+                # group.
+                for spr in sprite:
+                    self.add(spr)
+            except (TypeError, AttributeError):
+                # Not iterable, this is probably a sprite that happens
+                # to not subclass Sprite. Alternately, it could be an
+                # old-style sprite group.
+                if hasattr(sprite, '_spritegroup'):
+                    for spr in sprite.sprites():
+                        if not self.has_internal(spr):
+                            self.add_internal(spr)
+                            spr.add_internal(self)
+                elif not self.has_internal(sprite):
+                    self.add_internal(sprite)
+                    sprite.add_internal(self)
+
+    def remove(self, *sprites):
+        """remove sprite from group
+
+           Remove a sprite or sequence of sprites from a group."""
+        # This function behaves essentially the same as Group.add.
+        # Check for Spritehood, check for iterability, check for
+        # old-style sprite group, and fall back to assuming
+        # spritehood.
+        for sprite in sprites:
+            if isinstance(sprite, Sprite):
+                if not self.has_internal(sprite):
+                    self.remove_internal(sprite)
+                    sprite.remove_internal(self)
+            try:
+                for spr in sprite: self.add(spr)
+            except (TypeError, AttributeError):
+                if hasattr(sprite, '_spritegroup'):
+                    for spr in sprite.sprites():
+                        if not self.has_internal(spr):
+                            self.add_internal(spr)
+                            spr.remove_internal(self)
+                elif not self.has_internal(sprite):
+                    self.add_internal(sprite)
+                    sprite.add_internal(self)
+
+    def has(self, *sprites):
+        """ask if group has a sprite or sprites
 
            Returns true if the given sprite or sprites are
            contained in the group"""
+        # Again, this follows the basic pattern of Group.add and
+        # Group.remove.
         has = self.spritedict.has_key
-        if hasattr(sprite, '_spritegroup'):
-            for sprite in sprite.sprites():
-                if not has(sprite):
-                    return 0
-        else:
-            try: len(sprite) #see if its a sequence
-            except (TypeError, AttributeError):
-                return has(sprite)
-            else:
-                for sprite in sprite:
-                    if not has(sprite):
-                        return 0
-        return 1
-
-        if hasattr(sprite, '_spritegroup'):
-            return sprite in has(sprite)
-        sprites = sprite
         for sprite in sprites:
-            if not has(sprite):
-                return 0
-        return 1
-
-    def empty(self):
-        """empty()
-           remove all sprites
-
-           Removes all the sprites from the group."""
-        for s in self.spritedict.keys():
-            self.remove_internal(s)
-            s.remove_internal(self)
-        self.spritedict.clear()
+            if isinstance(sprite, Sprite):
+                return self.has_internal(sprite)
+            try:
+                for spr in sprite:
+                    if not self.has(sprite):
+                        return False
+                    return True
+            except (TypeError, AttributeError):
+                if hasattr(sprite, '_spritegroup'):
+                    for spr in sprite.sprites():
+                        if not self.has_internal(spr):
+                            return False
+                        return True
+                elif not has(sprite):
+                    return False
+        return True
 
     def update(self, *args):
-        """update(...)
-           call update for all member sprites
+        """call update for all member sprites
 
            calls the update method for all sprites in the group.
            Passes all arguments on to the Sprite update function."""
-        if args:
-            for s in self.spritedict.keys():
-                s.update(*args)
-        else:
-            for s in self.spritedict.keys():
-                s.update()
-
-
-    def __nonzero__(self):
-        """__nonzero__() -> bool
-           ask if group is empty
-
-           Returns true if the group has any sprites. This
-           lets you check if the group has any sprites by
-           using it in a logical if statement."""
-        return len(self.spritedict)
-
-    def __len__(self):
-        """__len__() -> int
-           number of sprites in group
-
-           Returns the number of sprites contained in the group."""
-        return len(self.spritedict)
-
-    def __repr__(self):
-        return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
-
-##note that this GroupSingle class is not derived from any other
-##group class, it can make as a good example if you ever want to
-##create your own new group type.
-
-class GroupSingle(object):
-    """a group container that holds a single most recent item
-       This class works just like a regular group, but it only
-       keeps a single sprite in the group. Whatever sprite has
-       been added to the group last, will be the only sprite in
-       the group."""
-    _spritegroup = 1 #dummy val to identify groups
-
-    def __init__(self, sprite=()):
-        self.sprite = 0
-        self.add(sprite)
-
-    def copy(self):
-        if self.sprite is not 0:
-            return GroupSingle(self.sprite)
-        return GroupSingle()
-
-    def sprites(self):
-        if self.sprite is not 0:
-            return [self.sprite]
-        return []
-
-    def __iter__(self):
-        if self.sprite:
-            return iter((self.sprite,))
-        else:
-            return iter(())
-
-    def add(self, sprite):
-        if hasattr(sprite, '_spritegroup'):
-            for sprite in sprite.sprites(): pass
-        else:
-            try:
-                if not len(sprite): return #see if its a sequence
-                sprite = sprite[-1]
-            except (TypeError, AttributeError): pass
-        if sprite is not self.sprite:
-            self.add_internal(sprite)
-            sprite.add_internal(self)
-
-    def remove(self, sprite):
-        if hasattr(sprite, '_spritegroup'):
-            for sprite in sprite.sprites():
-                if self.sprite is sprite:
-                    self.sprite = 0
-                    sprite.remove_internal(self)
-                    break
-        else:
-            try:
-                if not len(sprite): return #see if its a sequence
-            except (TypeError, AttributeError):
-                if self.sprite is sprite:
-                    self.sprite = 0
-                    sprite.remove_internal(self)
-            else:
-                for sprite in sprite:
-                    if self.sprite is sprite:
-                        self.sprite = 0
-                        sprite.remove_internal(self)
-                        break
-
-    def add_internal(self, sprite):
-        if self.sprite is not 0:
-            self.sprite.remove_internal(self)
-        self.sprite = sprite
-
-    def remove_internal(self, sprite):
-        self.sprite = 0
-
-    def has(self, sprite):
-        return self.sprite is sprite
-
-    def empty(self):
-        if self.sprite is not 0:
-            self.sprite.remove_internal(self)
-            self.sprite = 0
-
-    def update(self, *args):
-        if self.sprite:
-            self.sprite.update(*args)
-
-    def __nonzero__(self):
-        return self.sprite is not 0
-
-    def __len__(self):
-        return self.sprite is not 0
-
-    def __repr__(self):
-        return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
-
-
-##these render groups are derived from the normal Group
-##class, they just add methods. the Updates and Clear versions
-##of drawing are more complex groups. They keep track of sprites
-##that have been drawn but are removed, and also keep track of
-##drawing info from each sprite, by storing it in the dictionary
-##values used to store the sprite. very sneaky, but a great
-##example for you if you ever need your own group class that
-##maintains its own data along with each sprite it holds.
-
-class RenderPlain(Group):
-    """a sprite group that can draw all its sprites
-       The RenderPlain group is just like a normal group,
-       it just adds a "draw" method. Any sprites used with
-       this group to draw must contain two member elements
-       named "image" and "rect". These are a pygame Surface
-       and Rect object that are passed to blit."""
+        for s in self.sprites(): s.update(*args)
 
     def draw(self, surface):
         """draw(surface)
-           draw all sprites onto a surface
+           draw all sprites onto the surface
 
            Draws all the sprites onto the given surface."""
-        spritedict = self.spritedict
+        sprites = self.sprites()
         surface_blit = surface.blit
-        for s in spritedict.keys():
-            surface_blit(s.image, s.rect)
-
-
-
-class RenderClear(Group):
-    """a group container that can draw and clear its sprites
-       The RenderClear group is just like a normal group,
-       but it can draw and clear the sprites. Any sprites
-       used in this group must contain member elements
-       named "image" and "rect". These are a pygame Surface
-       and Rect, which are passed to a blit call."""
-    def __init__(self, sprite=()):
-        Group.__init__(self, sprite)
-        self.lostsprites = []
-
-    def remove_internal(self, sprite):
-        r = self.spritedict[sprite]
-        if r is not 0:
-            self.lostsprites.append(r)
-        del self.spritedict[sprite]
-
-    def draw(self, surface):
-        """draw(surface)
-           draw all sprites onto a surface
-
-           Draws all the sprites onto the given surface."""
-        spritedict = self.spritedict
-        surface_blit = surface.blit
-        for s in spritedict.keys():
-            spritedict[s] = surface_blit(s.image, s.rect)
+        for spr in sprites:
+            self.spritedict[spr] = surface_blit(spr.image, spr.rect)
         self.lostsprites = []
 
     def clear(self, surface, bgd):
@@ -520,41 +315,131 @@ class RenderClear(Group):
             for r in self.spritedict.values():
                 if r is not 0: surface_blit(bgd, r, r)
 
+    def empty(self):
+        """remove all sprites
 
+           Removes all the sprites from the group."""
+        # NOTE! This means self.sprites() can't return any internal
+        # sprite list itself, it must be a copy. Besides it being normally
+        # unsafe, doing so will cause this function to fail.
+        for s in self.sprites():
+            self.remove_internal(s)
+            s.remove_internal(self)
 
-class RenderUpdates(RenderClear):
-    """a sprite group that can draw and clear with update rectangles
-       The RenderUpdates is derived from the RenderClear group
-       and keeps track of all the areas drawn and cleared. It
-       also smartly handles overlapping areas between where a
-       sprite was drawn and cleared when generating the update
-       rectangles."""
+    def __nonzero__(self):
+        """ask if group is empty
 
-    def draw(self, surface):
-        """draw(surface)
-           draw all sprites onto the surface
+           Returns true if the group has any sprites. This
+           lets you check if the group has any sprites by
+           using it in a logical if statement."""
+        return (len(self.sprites()) == 0)
 
-           Draws all the sprites onto the given surface. It
-           returns a list of rectangles, which should be passed
-           to pygame.display.update()"""
-        spritedict = self.spritedict
-        surface_blit = surface.blit
-        dirty = self.lostsprites
-        self.lostsprites = []
-        dirty_append = dirty.append
-        for s, r in spritedict.items():
-            newrect = surface_blit(s.image, s.rect)
-            if r is 0:
-                dirty_append(newrect)
-            else:
-                if newrect.colliderect(r):
-                    dirty_append(newrect.union(r))
-                else:
-                    dirty_append(newrect)
-                    dirty_append(r)
-            spritedict[s] = newrect
-        return dirty
+    def __len__(self):
+        """__len__() -> int
+           number of sprites in group
 
+           Returns the number of sprites contained in the group."""
+        return len(self.sprites())
+
+    def __repr__(self):
+        return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
+
+class Group(AbstractGroup):
+    """the Group class is a container for sprites
+       This is the base sprite group class. It does everything
+       needed to behave as a normal group. You can easily inherit
+       a new group class from this if you want to add more features."""
+
+    def __init__(self, *sprites):
+        """instantiate a Group
+
+           You can initialize a group by passing it a sprite, many sprites,
+           or sequencs of sprites (or any combination of sprites and sequences
+           of sprites)."""
+        AbstractGroup.__init__(self)
+        self.add(*sprites)
+
+RenderPlain = Group
+RenderClear = Group
+
+class RenderUpdates(Group):
+   def draw(self, surface):
+       spritedict = self.spritedict
+       surface_blit = surface.blit
+       dirty = self.lostsprites
+       self.lostsprites = []
+       dirty_append = dirty.append
+       for s in self.sprites():
+           r = spritedict[s]
+           newrect = surface_blit(s.image, s.rect)
+           if r is 0:
+               dirty_append(newrect)
+           else:
+               if newrect.colliderect(r):
+                   dirty_append(newrect.union(r))
+               else:
+                   dirty_append(newrect)
+                   dirty_append(r)
+           spritedict[s] = newrect
+       return dirty
+
+class OrderedUpdates(RenderUpdates):
+    def __init__(self, *sprites):
+        self._spritelist = []
+        RenderUpdates.__init__(self, *sprites)
+
+    def sprites(self): return list(self._spritelist)
+
+    def add_internal(self, sprite):
+        RenderUpdates.add_internal(self, sprite)
+        self._spritelist.append(sprite)
+
+    def remove_internal(self, sprite):
+        RenderUpdates.remove_internal(self, sprite)
+        self._spritelist.remove(sprite)
+
+class GroupSingle(AbstractGroup):
+    """a group container that holds a single most recent item
+       This class works just like a regular group, but it only
+       keeps a single sprite in the group. Whatever sprite has
+       been added to the group last, will be the only sprite in
+       the group."""
+
+    def __init__(self, sprite = None):
+        self.__sprite = None
+        if sprite is not None: self.add(sprite)
+
+    def copy(self):
+        return GroupSingle(self._sprite)
+
+    def sprites(self):
+        if self.__sprite is not None: return [self.__sprite]
+        else: return []
+
+    def add_internal(self, sprite):
+        if self.__sprite is not None:
+            self.__sprite.remove_internal(self)
+        self.__sprite = sprite
+
+    def _get_sprite(self):
+        return self.__sprite
+
+    def _set_sprite(self, sprite):
+        sprite.add_internal(self)
+        self.add_internal(sprite)
+        return sprite
+
+    sprite = property(_get_sprite, _set_sprite, None,
+                      "The sprite contained in this group")
+
+    def remove_internal(self, sprite):
+        self.__sprite = None
+
+    def has_internal(self, sprite):
+        return (self.__sprite is sprite)
+
+    # Optimizations...
+    def __contains__(self, sprite): return (self.__sprite is sprite)
 
 def spritecollide(sprite, group, dokill):
     """pygame.sprite.spritecollide(sprite, group, dokill) -> list
@@ -579,7 +464,6 @@ def spritecollide(sprite, group, dokill):
             if spritecollide(s.rect):
                 crashed.append(s)
     return crashed
-
 
 def groupcollide(groupa, groupb, dokilla, dokillb):
     """pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
@@ -607,7 +491,6 @@ def groupcollide(groupa, groupb, dokilla, dokillb):
             if c:
                 crashed[s] = c
     return crashed
-
 
 def spritecollideany(sprite, group):
     """pygame.sprite.spritecollideany(sprite, group) -> sprite
