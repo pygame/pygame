@@ -992,7 +992,7 @@ static PyTypeObject PyRect_Type = {
     /*DOC*/    "corner, and the width and height.\n"
     /*DOC*/ ;
 
-static PyObject* Rect(PyObject* self, PyObject* args)
+static PyObject* RectInit(PyObject* self, PyObject* args)
 {
 	GAME_Rect *argrect, temp;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
@@ -1005,7 +1005,7 @@ static PyObject* Rect(PyObject* self, PyObject* args)
 
 static PyMethodDef rect__builtins__[] =
 {
-	{ "Rect", Rect, 1, doc_Rect }, 
+	{ "Rect", RectInit, 1, doc_Rect }, 
 	{NULL, NULL}
 };
 
