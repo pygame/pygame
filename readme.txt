@@ -1,4 +1,3 @@
-
                         Pygame Readme
    Version 1.4
    January 27, 2002 Python Game Development
@@ -65,7 +64,7 @@
      TheCorruptor for his incredible logos and graphics
 
      Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
-   Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell
+   Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck
@@ -87,10 +86,16 @@
      own rotozoom function. The surfarray module requires the python
      Numeric package for its multidimensional numeric arrays.
 
-   Todo
+   Todo / Ideas (feel free to submit)
      * smarten the config.py and setup.py stuff
-     * unify the types/classes for python 2.2 and above
+     * unify the types/classes for python 2.2
      * transform.skew() function
+     * transform.scroll() function
+     * image filtering (colors,blurs,etc)
+     * quake-like console with python interpreter
+     * soundarray module
+     * game lobby. client, simple server, and protocol
+     * surfarrays should be able to do RGBA along with RGB
 
    License
 

@@ -31,6 +31,11 @@
 
 static Mix_Music* current_music = NULL;
 static int endmusic_event = SDL_NOEVENT;
+static long long int music_pos = 0;
+static long int music_pos_time = -1;
+static int music_frequency = 0;
+static Uint16 music_format = 0;
+static int music_channels = 0;
 
 
 static void endmusic_callback(void)
@@ -42,6 +47,14 @@ static void endmusic_callback(void)
 		e.type = endmusic_event;
 		SDL_PushEvent(&e);
 	}
+	Mix_SetPostMix(NULL, NULL);
+	music_pos_time = -1;
+}
+
+static void mixmusic_callback(void *udata, Uint8 *stream, int len)
+{
+	music_pos += len;
+	music_pos_time = SDL_GetTicks();
 }
 
 
@@ -74,6 +87,10 @@ static PyObject* play(PyObject* self, PyObject* args)
 		return RAISE(PyExc_SDLError, "music not loaded");
 
 	Mix_HookMusicFinished(endmusic_callback);
+	Mix_SetPostMix(mixmusic_callback, NULL);
+	Mix_QuerySpec(&music_frequency, &music_format, &music_channels);
+	music_pos = 0;
+	music_pos_time = SDL_GetTicks();
 
 	val = Mix_PlayMusic(current_music, loops);
 	if(val == -1)
@@ -243,6 +260,35 @@ static PyObject* get_volume(PyObject* self, PyObject* args)
 
 
 
+    /*DOC*/ static char doc_get_pos[] =
+    /*DOC*/    "pygame.mixer.music.get_pos() -> val\n"
+    /*DOC*/    "query music position\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Get the current (interpolated) time position of the music.\n"
+    /*DOC*/    "Value is in ms, just like get_ticks().\n"
+    /*DOC*/ ;
+
+static PyObject* get_pos(PyObject* self, PyObject* args)
+{
+	long int ticks;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	MIXER_INIT_CHECK();
+
+	if (music_pos_time < 0)
+		return PyLong_FromLong(-1);
+
+	ticks = 1000 * music_pos /
+		(music_channels * music_frequency * ((music_format & 0xff) >> 3));
+	ticks += SDL_GetTicks() - music_pos_time;
+
+	return PyInt_FromLong((long)ticks);
+}
+
+
+
     /*DOC*/ static char doc_set_endevent[] =
     /*DOC*/    "pygame.mixer.music.set_endevent([eventid]) -> None\n"
     /*DOC*/    "sets music finished event\n"
@@ -370,6 +416,7 @@ static PyMethodDef music_builtins[] =
 	{ "rewind", mus_rewind, 1, doc_rewind },
 	{ "set_volume", set_volume, 1, doc_set_volume },
 	{ "get_volume", get_volume, 1, doc_get_volume },
+	{ "get_pos", get_pos, 1, doc_get_pos },
 
 	{ "load", load, 1, doc_load },
 
