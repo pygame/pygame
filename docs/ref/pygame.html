@@ -6,7 +6,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_small.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -50,8 +50,8 @@
 <h2 align=center>pygame</h2>
 Contains the core routines that are used by the rest of the
 pygame modules. It's routines are merged directly into the pygame
-namespace. This mainly includes the auto-initialization <a href=#init>init()</a> and
-<a href=#quit>quit()</a> routines.
+namespace. This mainly includes the auto-initialization <a href=pygame_cdrom.html#init>init()</a> and
+<a href=pygame_cdrom.html#quit>quit()</a> routines.
 <br>&nbsp;<br>
 There is a small module named 'locals' that also gets merged into
 this namespace. This contains all the constants needed by pygame.
@@ -151,15 +151,15 @@ of the number of modules initialized, and the number of modules
 that failed to initialize.
 <br>&nbsp;<br>
 You can always initialize the modules you want by hand. The
-modules that need it have an <u>init()</u> and <a href=#quit>quit()</a> routine built in,
+modules that need it have an <a href=pygame_cdrom.html#init>init()</a> and <a href=pygame_cdrom.html#quit>quit()</a> routine built in,
 which you can call directly. They also have a <a href=pygame_cdrom.html#get_init>get_init()</a> routine
 which you can use to doublecheck the initialization. Note that
-the manual <u>init()</u> routines will raise an exception on error. Be
+the manual <a href=pygame_cdrom.html#init>init()</a> routines will raise an exception on error. Be
 aware that most platforms require the display module to be
-initialized before others. This <u>init()</u> will handle that for you,
+initialized before others. This <a href=pygame_cdrom.html#init>init()</a> will handle that for you,
 but if you initialize by hand, be aware of this constraint.
 <br>&nbsp;<br>
-As with the manual <u>init()</u> routines. It is safe to call this
+As with the manual <a href=pygame_cdrom.html#init>init()</a> routines. It is safe to call this
 init() as often as you like. If you have imported pygame modules
 since the.
 </ul><br>&nbsp;<br>
@@ -169,7 +169,7 @@ since the.
 pygame.quit() -> none
 </tt></font><ul>
 Uninitialize all pygame modules that have been initialized. Even
-if you initialized the module by hand, this <u>quit()</u> will
+if you initialized the module by hand, this <a href=pygame_cdrom.html#quit>quit()</a> will
 uninitialize it for you.
 <br>&nbsp;<br>
 All the pygame modules are uninitialized automatically when your

@@ -286,7 +286,7 @@ def writefuncdoc(alldocs):
                      'toc': MODULETOC,
                      'module': modinfo,
                      'mainpage': '../index.html',
-                     'logo': '../pygame_small.gif'}
+                     'logo': '../pygame_tiny.gif'}
         page = filltemplate(PAGETEMPLATE, finalinfo)
         file = open(OUTPUTDIR + cat + '.html', 'w')
         file.write(page)
@@ -363,7 +363,7 @@ def main():
                  'toc': pathed_toc,
                  'module': ' ',
                  'mainpage': 'index.html',
-                 'logo': 'pygame_small.gif',
+                 'logo': 'pygame_tiny.gif',
                 }
     page = filltemplate(PAGETEMPLATE, finalinfo)
     file = open('../index.html', 'w')

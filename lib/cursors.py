@@ -145,7 +145,7 @@ pygame.mouse.set_cursor().
                 maskitem = maskitem | 1
             elif c == white:
                 maskitem = maskitem | 1
-                fillitem = filltiem | 1
+                fillitem = fillitem | 1
             if not step:
                 maskdata.append(maskitem)
                 filldata.append(fillitem)
