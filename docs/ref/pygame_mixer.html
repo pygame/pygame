@@ -262,10 +262,12 @@ value will stop.
 
 <a name=set_reserved><font size=+2><b>set_reserved
 </b></font><br><font size=+1><tt>
-pygame.mixer.set_reserved(int) -> None
+pygame.mixer.set_reserved(numchans) -> None
 </tt></font><ul>
-Reserves the first channels. Reserved channels won't be used when
+Reserves numchan channels. Reserved channels won't be used when
 a sound is played without using a specific channel object.
+In otherwords, just calling <a href=Sound.html#play>Sound.play()</a> will not use the reserved
+channels. They must implicitly be used with <a href=Channel.html#play>Channel.play()</a>.
 </ul><br>&nbsp;<br>
 
 <a name=stop><font size=+2><b>stop

@@ -746,11 +746,13 @@ static PyObject* set_num_channels(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_set_reserved[] =
-    /*DOC*/    "pygame.mixer.set_reserved(int) -> None\n"
+    /*DOC*/    "pygame.mixer.set_reserved(numchans) -> None\n"
     /*DOC*/    "reserves first given channels\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Reserves the first channels. Reserved channels won't be used when\n"
+    /*DOC*/    "Reserves numchan channels. Reserved channels won't be used when\n"
     /*DOC*/    "a sound is played without using a specific channel object.\n"
+    /*DOC*/    "In otherwords, just calling Sound.play() will not use the reserved\n"
+    /*DOC*/    "channels. They must implicitly be used with Channel.play().\n"
     /*DOC*/ ;
 
 static PyObject* set_reserved(PyObject* self, PyObject* args)
