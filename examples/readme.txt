@@ -2,6 +2,9 @@ These examples should help get you started with pyGame. Here is a
 brief rundown of what you get. The source code for these examples
 is in the public domain. Feel free to use for your own projects.
 
+uberball.py - This was added for pygame-1.5. It is a more complete
+    game, similar to breakout. Derived from the pygame chimp example
+    it shows how to do menu screens and a more complete game.
 
 aliens.py - This started off as a port of the SDL demonstration,
     Aliens. Now it has evolved into something sort of resembling
@@ -17,15 +20,6 @@ oldalien.py - This more closely resembles a port of the SDL Aliens
 
 stars.py - A simple starfield example. You can change the center of
     perspective by leftclicking the mouse on the screen.
-
-zipshow.py - Given a .ZIP file, this will cycle through the
-    images found in the file. Press the keyboard or mouse to 
-    cycle to the next image. If no zipfile is passed on the command
-    line, it will pick one from the current directory. A great
-    demenstration if you want to keep all your resources inside a
-    single zip archive. Note, this will only load the types of
-    images that you have enabled in SDL_Image, there's a chance
-    you won't see the included JPEG's
 
 fonty.py - Super quick, super simple application demonstrating
     the different ways to render fonts with the font module
@@ -53,7 +47,6 @@ glcube.py - Using PyOpenGL and Pygame, this creates a spinning 3D
 
 
 data/ - directory with the resources for the examples
-sdllogos.zip - zipfile with unofficial sdl logos
 
 
 
