@@ -1,5 +1,4 @@
 """Config on Unix"""
-#would be nice if it auto-discovered which other modules where available
 
 import os, sys, shutil, string
 from glob import glob
@@ -20,18 +19,21 @@ class Dependency:
         self.checkhead = checkhead
         self.cflags = ''
     
-    def configure(self, incdir, libdir):
-
-        inc = os.path.join(incdir, self.checkhead)
-        lib = os.path.join(libdir, self.checklib)
-
-        if not os.path.isfile(inc):
-            newdir = os.path.join(os.path.split(incdir)[0], string.lower(self.name))
-            inc = os.path.join(newdir, self.checkhead)
-            if os.path.isfile(inc):
-                self.inc_dir = newdir
-
-        if os.path.isfile(inc) and glob(lib):
+    def configure(self, incdirs, libdirs):
+        incname = self.checkhead
+        libnames = self.checklib, string.lower(self.name)
+        
+        for dir in incdirs:
+            path = os.path.join(dir, incname)
+            if os.path.isfile(path):
+                self.inc_dir = dir
+        for dir in libdirs:
+            for name in libnames:
+                path = os.path.join(dir, name)
+                if os.path.isfile(path):
+                    self.lib_dir = dir
+                
+        if self.lib_dir and self.inc_dir:
             print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
         else:
@@ -72,20 +74,21 @@ flags have been used, which will likely require a little editing."""
 
     print 'Hunting dependencies...'
     if localbase:
-        incdir = localbase + '/include/SDL11'
-        libdir = localbase + '/lib'
+        incdirs = [localbase + '/include/SDL']
+        libdirs = [localbase + '/lib']
     else:
-        incdir = libdir = ''
+        incdirs = []
+        libdirs = []
         for arg in configinfo.split():
             if arg[:2] == '-I':
-                incdir = arg[2:]
+                incdirs.append(arg[2:])
             elif arg[:2] == '-L':
-                libdir = arg[2:]
+                libdirs.append(arg[2:])
     for d in DEPS:
-        d.configure(incdir, libdir)
+        d.configure(incdirs, libdirs)
 
-    DEPS[0].inc_dir = None
-    DEPS[0].lib_dir = None
+    DEPS[0].inc_dirs = []
+    DEPS[0].lib_dirs = []
     DEPS[0].cflags = configinfo
 
     return DEPS

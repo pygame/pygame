@@ -987,9 +987,9 @@ static int rect_compare(PyRectObject *self, PyObject *other)
 		return self->r.x < orect->x ? -1 : 1;
 	if(self->r.y != orect->y)
 		return self->r.y < orect->y ? -1 : 1;
-	if(self->r.x != orect->x)
+	if(self->r.w != orect->w)
 		return self->r.w < orect->w ? -1 : 1;
-	if(self->r.x != orect->x)
+	if(self->r.h != orect->h)
 		return self->r.h < orect->h ? -1 : 1;
 
 	return 0;
