@@ -541,24 +541,19 @@ def spritecollide(sprite, group, dokill):
        rectangle of the sprite area. if the dokill argument
        is true, the sprites that do collide will be
        automatically removed from all groups."""
-#    spritecollide = sprite.rect.colliderect
+    spritecollide = sprite.rect.colliderect
     crashed = []
 #    d = getattr(group, 'spritedict', None)
 #    if d:
-    if 1:
 #        for s,junk in sprite.rect.collidedictall(d):
 #            if dokill: s.kill()
 #            crashed.append(s)
 #    else:
-#    for s in group.sprites():
-#        if spritecollide(s.rect):
-#            if dokill: s.kill()
-#            crashed.append(s)
-        allsprites = group.sprites()
-        for i in sprite.rect.collidelistall(allsprites):
-            s = allsprites[i]
-            if dokill: s.kill()
-            crashed.append(s)
+    if 1:
+        for s in group.sprites():
+            if spritecollide(s.rect):
+                if dokill: s.kill()
+                crashed.append(s)
 
     return crashed
 

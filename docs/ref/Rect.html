@@ -90,6 +90,14 @@ moves the rectangle inside another</td></tr>
 rectangle cropped inside another</td></tr>
 
 
+<tr><td><a href=#collidedict>collidedict</a></td><td> -
+find overlapping rectangle in a dictionary</td></tr>
+
+
+<tr><td><a href=#collidedictall>collidedictall</a></td><td> -
+find all overlapping rectangles</td></tr>
+
+
 <tr><td><a href=#collidelist>collidelist</a></td><td> -
 find overlapping rectangle</td></tr>
 
@@ -180,6 +188,27 @@ rectangle. If the two rectangles do not overlap to
 begin with, you will get a rectangle with 0 size.
 </ul><br>&nbsp;<br>
 
+<a name=collidedict><font size=+2><b>collidedict
+</b></font><br><font size=+1><tt>
+Rect.collidedict(dict if rectstyle keys) -> key/value pair
+</tt></font><ul>
+Returns the key/value pair of the first rectangle key
+in the dict that overlaps the base rectangle. Once an
+overlap is found, this will stop checking the
+remaining list. If no overlap is found, it will
+return None.
+</ul><br>&nbsp;<br>
+
+<a name=collidedictall><font size=+2><b>collidedictall
+</b></font><br><font size=+1><tt>
+Rect.collidedictall(rectstyle list) -> key/val list
+</tt></font><ul>
+Returns a list of the indexes that contain
+rectangles overlapping the base rectangle. If no
+overlap is found, it will return an empty
+sequence.
+</ul><br>&nbsp;<br>
+
 <a name=collidelist><font size=+2><b>collidelist
 </b></font><br><font size=+1><tt>
 Rect.collidelist(rectstyle list) -> int index
@@ -193,7 +222,7 @@ return -1.
 
 <a name=collidelistall><font size=+2><b>collidelistall
 </b></font><br><font size=+1><tt>
-Rect.collidelistall(rectstyle list) -> int index
+Rect.collidelistall(rectstyle list) -> index list
 </tt></font><ul>
 Returns a list of the indexes that contain
 rectangles overlapping the base rectangle. If no

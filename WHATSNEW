@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+April 8, 2002
+        rectstyle now includes any object with a "rect" attrib
+	rects now have collidedict() and collidedictall()
+
 March 27, 2002
 	fixes for windows music.get_pos() and windows config
 
