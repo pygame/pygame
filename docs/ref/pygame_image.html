@@ -47,14 +47,14 @@
 <br>
 <h2 align=center>pygame.image</h2>
 This module contains functions to transfer images in and out
-of Surfaces. At the minimum the included <a href=#load>load()</a> function will
+of Surfaces. At the minimum the included <a href=pygame_mixer_music.html#load>load()</a> function will
 support BMP files. If SDL_image is properly installed when
 pygame is installed, it will support all the formats included
 with SDL_image. You can call the <a href=#get_extended>get_extended()</a> function to test
 if the SDL_image support is available.
 <br>&nbsp;<br>
 Some functions that communicate with other libraries will require
-that those libraries are properly installed. For example, the <a href=#save>save()</a>
+that those libraries are properly installed. For example, the <a href=Surface.html#save>save()</a>
 function can only save OPENGL surfaces if pyopengl is available.
 
 <hr>
@@ -65,7 +65,7 @@ create a surface from a raw string buffer</td></tr>
 
 
 <tr><td><a href=#get_extended>get_extended</a></td><td> -
-save surface as BMP data</td></tr>
+returns true if SDL_image formats are available</td></tr>
 
 
 <tr><td><a href=#load>load</a></td><td> -
@@ -86,11 +86,14 @@ create a raw string buffer of the surface data</td></tr>
 
 <a name=fromstring><font size=+2><b>fromstring
 </b></font><br><font size=+1><tt>
-pygame.image.fromstring(size, format, string) -> Surface
+pygame.image.fromstring(string, size, format, flipped=0) -> Surface
 </tt></font><ul>
 This will create a new Surface from a copy of raw data in
 a string. This can be used to transfer images from other
 libraries like PIL's <u>fromstring()</u>. 
+<br>&nbsp;<br>
+The flipped argument should be set to true if the image in
+the string is.
 <br>&nbsp;<br>
 The format argument is a string representing which type of
 string data you need. It can be one of the following, \"P\"
@@ -139,11 +142,14 @@ display surface.
 
 <a name=tostring><font size=+2><b>tostring
 </b></font><br><font size=+1><tt>
-pygame.image.tostring(Surface, format) -> string
+pygame.image.tostring(Surface, format, flipped=0) -> string
 </tt></font><ul>
 This will copy the image data into a large string buffer.
 This can be used to transfer images to other libraries like
 PIL's <a href=#fromstring>fromstring()</a> and PyOpenGL's glTexImage2D(). 
+<br>&nbsp;<br>
+The flipped argument will cause the output string to have
+it's contents flipped vertically.
 <br>&nbsp;<br>
 The format argument is a string representing which type of
 string data you need. It can be one of the following, \"P\"

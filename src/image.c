@@ -29,6 +29,8 @@
 static int is_extended = 0;
 
 
+#define DATAROW(data, row, width, height, flipped) \
+			((flipped) ? (((char*)data)+(height-row-1)*width) : (((char*)data)+row*width))
 
 
     /*DOC*/ static char doc_load[] =
@@ -203,7 +205,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 
     /*DOC*/ static char doc_get_extended[] =
     /*DOC*/    "pygame.image.get_extended() -> int\n"
-    /*DOC*/    "save surface as BMP data\n"
+    /*DOC*/    "returns true if SDL_image formats are available\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will return a true value if the extended image formats\n"
     /*DOC*/    "from SDL_image are available for loading.\n"
@@ -218,12 +220,15 @@ PyObject* image_get_extended(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_tostring[] =
-    /*DOC*/    "pygame.image.tostring(Surface, format) -> string\n"
+    /*DOC*/    "pygame.image.tostring(Surface, format, flipped=0) -> string\n"
     /*DOC*/    "create a raw string buffer of the surface data\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will copy the image data into a large string buffer.\n"
     /*DOC*/    "This can be used to transfer images to other libraries like\n"
     /*DOC*/    "PIL's fromstring() and PyOpenGL's glTexImage2D(). \n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The flipped argument will cause the output string to have\n"
+    /*DOC*/    "it's contents flipped vertically.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The format argument is a string representing which type of\n"
     /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
@@ -240,10 +245,10 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 	PyObject *surfobj, *string=NULL;
 	char *format, *data, *pixels;
 	SDL_Surface *surf;
-	int w, h, color, len;
+	int w, h, color, len, flipped=0;
 	int Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss, Gloss, Bloss, Aloss;
 
-	if(!PyArg_ParseTuple(arg, "O!s", &PySurface_Type, &surfobj, &format))
+	if(!PyArg_ParseTuple(arg, "O!s|i", &PySurface_Type, &surfobj, &format, &flipped))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
 
@@ -266,7 +271,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		PySurface_Lock(surfobj);
 		pixels = (char*)surf->pixels;
 		for(h=0; h<surf->h; ++h)
-			memcpy(data+(h*surf->w), pixels+(h*surf->pitch), surf->w);
+			memcpy(DATAROW(data, h, surf->w, surf->h, flipped), pixels+(h*surf->pitch), surf->w);
 		PySurface_Unlock(surfobj);
 	}
 	else if(!strcmp(format, "RGB"))
@@ -283,7 +288,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 1:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint8* ptr = (Uint8*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 					color = *ptr++;
@@ -296,7 +301,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 2:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint16* ptr = (Uint16*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint16* ptr = (Uint16*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 					color = *ptr++;
@@ -309,7 +314,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 3:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint8* ptr = (Uint8*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -327,7 +332,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 4:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint32* ptr = (Uint32*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint32* ptr = (Uint32*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 					color = *ptr++;
@@ -354,7 +359,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 1:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint8* ptr = (Uint8*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 					color = *ptr++;
@@ -368,7 +373,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 2:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint16* ptr = (Uint16*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint16* ptr = (Uint16*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 					color = *ptr++;
@@ -382,7 +387,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 3:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint8* ptr = (Uint8*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint8* ptr = (Uint8*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -401,7 +406,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 		case 4:
 			for(h=0; h<surf->h; ++h)
 			{
-				Uint32* ptr = (Uint32*)((Uint8*)surf->pixels + (h*surf->pitch));
+				Uint32* ptr = (Uint32*)DATAROW(surf->pixels, h, surf->pitch, surf->h, flipped);
 				for(w=0; w<surf->w; ++w)
 				{
 					color = *ptr++;
@@ -424,12 +429,15 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_fromstring[] =
-    /*DOC*/    "pygame.image.fromstring(size, format, string) -> Surface\n"
+    /*DOC*/    "pygame.image.fromstring(string, size, format, flipped=0) -> Surface\n"
     /*DOC*/    "create a surface from a raw string buffer\n"
     /*DOC*/    "\n"
     /*DOC*/    "This will create a new Surface from a copy of raw data in\n"
     /*DOC*/    "a string. This can be used to transfer images from other\n"
     /*DOC*/    "libraries like PIL's fromstring(). \n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The flipped argument should be set to true if the image in\n"
+    /*DOC*/    "the string is.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The format argument is a string representing which type of\n"
     /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
@@ -446,10 +454,10 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 	PyObject *string;
 	char *format, *data, *pixels;
 	SDL_Surface *surf = NULL;
-	int w, h, len;
+	int w, h, len, flipped=0;
 	int loopw, looph;
 
-	if(!PyArg_ParseTuple(arg, "(ii)sO!", &w, &h, &format, &PyString_Type, &string))
+	if(!PyArg_ParseTuple(arg, "O!(ii)s|i", &PyString_Type, &string, &w, &h, &format, &flipped))
 		return NULL;
 
 	if(w < 1 || h < 1)
@@ -467,7 +475,7 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 		SDL_LockSurface(surf);
 		pixels = (char*)surf->pixels;
 		for(looph=0; looph<h; ++looph)
-			memcpy(pixels+looph*surf->pitch, data+looph*w, w);
+			memcpy(pixels+looph*surf->pitch, DATAROW(data, looph, w, h, flipped), w);
 		SDL_UnlockSurface(surf);
 	}
 	else if(!strcmp(format, "RGB"))
@@ -481,7 +489,7 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 		pixels = (char*)surf->pixels;
 		for(looph=0; looph<h; ++looph)
 		{
-			Uint8* pix = (Uint8*)(pixels+looph*surf->pitch);
+			Uint8* pix = (Uint8*)DATAROW(surf->pixels, looph, surf->pitch, h, flipped);
 			for(loopw=0; loopw<w; ++loopw)
 			{
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -508,7 +516,7 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 		pixels = (char*)surf->pixels;
 		for(looph=0; looph<h; ++looph)
 		{
-			Uint32* pix = (Uint32*)(pixels+looph*surf->pitch);
+			Uint32* pix = (Uint32*)DATAROW(surf->pixels, looph, surf->pitch, h, flipped);
 			for(loopw=0; loopw<w; ++loopw)
 			{
 				*pix++ = data[0]<<16 | data[1]<<8 | data[2] | (data[3]*alphamult) << 24;
