@@ -39,7 +39,7 @@ extern int SDL_RegisterApp(char*, Uint32, void*);
 #endif
 
 #if defined(macintosh)
-#if !defined(__MWERKS__) && !TARGET_API_MAC_CARBON
+#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
 QDGlobals qd;
 #endif
 #endif
@@ -47,12 +47,10 @@ QDGlobals qd;
 
 
 
-
-
-extern int pygame_video_priority_init(void);
-
 static PyObject* quitfunctions = NULL;
 static PyObject* PyExc_SDLError;
+static void installparachute(void);
+static void uninstallparachute(void);
 
 
 static int PyGame_Video_AutoInit(void);
@@ -70,8 +68,7 @@ static int CheckSDLVersions(void) /*compare compiled to linked*/
 	/*only check the major and minor version numbers.
 	  we will relax any differences in 'patch' version.*/
 	 
-	if(compiled.major != linked->major ||
-				compiled.minor != linked->minor)
+	if(compiled.major != linked->major || compiled.minor != linked->minor)
 	{
 		char err[1024];
 		sprintf(err, "SDL compiled with version %d.%d.%d, linked to %d.%d.%d",
@@ -99,7 +96,6 @@ void PyGame_RegisterQuit(void(*func)(void))
 	{
 		obj = PyCObject_FromVoidPtr(func, NULL);
 		PyList_Append(quitfunctions, obj);
-		/*Py_DECREF(obj);*/
 	}
 }
 
@@ -125,11 +121,9 @@ static PyObject* register_quit(PyObject* self, PyObject* arg)
 		quitfunctions = PyList_New(0);
 		if(!quitfunctions) return NULL;
 	}
-	if(quitfunc)
-		PyList_Append(quitfunctions, quitfunc);
+	PyList_Append(quitfunctions, quitfunc);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+	RETURN_NONE
 }
 
 
@@ -213,13 +207,13 @@ static void atexit_quit(void)
 	PyObject* privatefuncs;
 	int num;
 
-	SDL_QuitSubSystem(SDL_INIT_TIMER);
-
 	if(!quitfunctions)
 		return;
 
 	privatefuncs = quitfunctions;
 	quitfunctions = NULL;
+
+	uninstallparachute();
 
 	num = PyList_Size(privatefuncs);
 	while(num--) /*quit in reverse order*/
@@ -233,8 +227,8 @@ static void atexit_quit(void)
 			(*(void(*)(void))ptr)();
 		}
 	}
-
 	Py_DECREF(privatefuncs);
+	SDL_QuitSubSystem(SDL_INIT_TIMER);
 	SDL_Quit(); /*catch anything left*/
 }
 
@@ -407,12 +401,7 @@ static int PyGame_Video_AutoInit(void)
 {
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		int status;
-
-		Py_BEGIN_ALLOW_THREADS
-		status = SDL_InitSubSystem(SDL_INIT_VIDEO);
-		Py_END_ALLOW_THREADS
-		
+		int status = SDL_InitSubSystem(SDL_INIT_VIDEO);		
 		if(status)
 			return 0;
 		SDL_EnableUNICODE(1);
@@ -442,52 +431,48 @@ static void pygame_parachute(int sig)
 #ifdef SIGFPE
 		case SIGFPE:
 			signaltype = "(pygame parachute) Floating Point Exception"; break;
-#endif /* SIGFPE */
+#endif
 #ifdef SIGQUIT
 		case SIGQUIT:
 			signaltype = "(pygame parachute) Keyboard Abort"; break;
-#endif /* SIGQUIT */
+#endif
 #ifdef SIGPIPE
 		case SIGPIPE:
 			signaltype = "(pygame parachute) Broken Pipe"; break;
-#endif /* SIGPIPE */
+#endif
 		default:
 			signaltype = "(pygame parachute) Unknown Signal"; break;
 	}
-
-#if 0
-/*try to print traceback, ARGH*/
-	tstate = PyThreadState_GET();
-	if(tstate && PyTraceBack_Here(tstate->frame) != -1)
-		PyObject_Print(tstate->exc_traceback, stderr, Py_PRINT_RAW);
-#endif
 
 	atexit_quit();
 	Py_FatalError(signaltype);
 }
 
 
+static int fatal_signals[] =
+{
+	SIGSEGV,
+#ifdef SIGBUS
+	SIGBUS,
+#endif
+#ifdef SIGFPE
+	SIGFPE,
+#endif
+#ifdef SIGQUIT
+	SIGQUIT,
+#endif
+#if 0 /*lets disable sigpipe for now, games are likely not piping*/
+#ifdef SIGPIPE
+	SIGPIPE,
+#endif
+#endif
+	0 /*end of list*/
+};
+
 static void install_parachute(void)
 {
 	int i;
 	void (*ohandler)(int);
-	int fatal_signals[] =
-	{
-		SIGSEGV,
-#ifdef SIGBUS
-		SIGBUS,
-#endif
-#ifdef SIGFPE
-		SIGFPE,
-#endif
-#ifdef SIGQUIT
-		SIGQUIT,
-#endif
-#ifdef SIGPIPE
-		SIGPIPE,
-#endif
-		0 /*end of list*/
-	};
 
 	/* Set a handler for any fatal signal not already handled */
 	for ( i=0; fatal_signals[i]; ++i )
@@ -497,22 +482,32 @@ static void install_parachute(void)
 			signal(fatal_signals[i], ohandler);
 	}
 #ifdef SIGALRM
-	/* Set SIGALRM to be ignored -- necessary on Solaris */
-	{
+	{/* Set SIGALRM to be ignored -- necessary on Solaris */
 		struct sigaction action, oaction;
-
 		/* Set SIG_IGN action */
 		memset(&action, 0, (sizeof action));
 		action.sa_handler = SIG_IGN;
 		sigaction(SIGALRM, &action, &oaction);
-
 		/* Reset original action if it was already being handled */
-		if ( oaction.sa_handler != SIG_DFL ) {
+		if ( oaction.sa_handler != SIG_DFL )
 			sigaction(SIGALRM, &oaction, NULL);
-		}
 	}
 #endif
 	return;
+}
+
+
+static void uninstallparachute(void)
+{
+	int i;
+	void (*ohandler)(int);
+
+	/* Remove a handler for any fatal signal handled */
+	for ( i=0; fatal_signals[i]; ++i ) {
+		ohandler = signal(fatal_signals[i], SIG_DFL);
+		if ( ohandler != pygame_parachute )
+			signal(fatal_signals[i], ohandler);
+	}
 }
 
 
@@ -584,18 +579,19 @@ void initbase(void)
 /* let SDL do some basic initialization */
 	if(!initialized_once)
 	{
+		initialized_once = 1;
+
 #ifdef MS_WIN32
-		SDL_RegisterApp("pygame window", 0, GetModuleHandle(NULL));
+		SDL_RegisterApp("pygame", 0, GetModuleHandle(NULL));
 #endif
 #if defined(macintosh)
-#if !defined(__MWERKS__) && !TARGET_API_MAC_CARBON
+#if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
 		SDL_InitQuickDraw(&qd);
 #endif
 #endif
 
 		/*nice to initialize timer, so startup time will be correct before init call*/
 		SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
-		initialized_once = 1;
 		Py_AtExit(atexit_quit);
 		install_parachute();
 	}

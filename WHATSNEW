@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was (or could have been) crashing
 
+Jul 15, 2001
+	fixed bad internal display reference counting [BUG]
+
 Jul 14, 2001
 	still makes clean-ish exit if segfault in exit handling
 
