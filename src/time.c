@@ -68,21 +68,16 @@ static PyObject* get_ticks(PyObject* self, PyObject* arg)
 static PyObject* delay(PyObject* self, PyObject* arg)
 {
 	int ticks;
-	if(!PyArg_ParseTuple(arg, "i", &ticks))
-	{
-		printf("HMM, BAD ARGUMENTS IN time.delay().\nLet's try to troubleshoot this little bug...\n");
-		printf("Python Says you passed %d arguments.\n", PyTuple_Size(arg));
-		if(PyTuple_Size(arg)>= 1)
-		{
-			PyObject* arg1 = PyTuple_GET_ITEM(arg, 1);
-			printf("Argument 1 is type %s:", arg1->ob_type->tp_name);
-			PyObject_Print(arg1, stdout, Py_PRINT_RAW);
-		}
-		printf("Please report results to pygame@seul.org, thanks!\n");
-		printf("Here comes your exception, sorry.\n");
-		return NULL;
-	}
+	PyObject* arg0;
+	/*for some resone PyArg_ParseTuple pukes on -1's! BLARG!*/
 
+	if(PyTuple_Size(arg) != 1)
+		return RAISE(PyExc_ValueError, "delay requires one integer argument");
+	arg0 = PyTuple_GET_ITEM(arg, 0);
+	if(!PyInt_Check(arg0))
+		return RAISE(PyExc_TypeError, "delay requires one integer argument");
+
+	ticks = PyInt_AsLong(arg0);
 	if(ticks < 0)
 		ticks = 0;
 
