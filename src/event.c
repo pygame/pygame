@@ -744,7 +744,7 @@ static PyObject* post(PyObject* self, PyObject* args)
 
 	VIDEO_INIT_CHECK();
 
-	userobj = user_event_addobject(e->dict, e->type);
+	userobj = user_event_addobject(e->dict, (Uint8)e->type);
 	if(!userobj)
 		return NULL;
 
