@@ -207,7 +207,7 @@ PyObject* event_str(PyObject* self)
 
 
 /*this fools the docs to putting more in our docs, but not the code*/
-#define SECRET_COLON ;
+#define SECRET_COLON ; char *docdata=
 
     /*DOC*/ static char doc_pygame_event_EXTRA[] =
     /*DOC*/    "An Event object contains an event type and a readonly set of\n"
@@ -222,7 +222,7 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "lookups will be passed through to the Event's dictionary values.\n"
     /*DOC*/    "\n"
     /*DOC*/    "While debugging and experimenting, you can print the Event\n"
-    /*DOC*/    "objects for a quick display of its type and members.\n"               SECRET_COLON
+    /*DOC*/    "objects for a quick display of its type and members.\n"               SECRET_COLON 
     /*DOC*/    "Events that come from the system will have a guaranteed set of\n"
     /*DOC*/    "member items based on the type. Here is a list of the Event members\n"
     /*DOC*/    "that are defined with each type.<br><table align=center>"
@@ -240,7 +240,6 @@ PyObject* event_str(PyObject* self)
     /*DOC*/    "<tr><td><b>VIDEORESIZE</b></td><td>size</td></tr>\n"
     /*DOC*/    "<tr><td><b>USEREVENT</b></td><td>code, data1, data2</td></tr></table>\n"
     /*DOC*/ ;
-
 
 
 
