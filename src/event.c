@@ -67,6 +67,7 @@ static char* name_from_eventtype(int type)
 static PyObject* dict_from_event(SDL_Event* event)
 {
 	PyObject* dict, *tuple, *obj;
+	int hx, hy;
 
 	if(!(dict = PyDict_New()))
 		return NULL;
@@ -126,7 +127,12 @@ static PyObject* dict_from_event(SDL_Event* event)
 	case SDL_JOYHATMOTION:
 		PyDict_SetItemString(dict, "joy", PyInt_FromLong(event->jhat.which));
 		PyDict_SetItemString(dict, "hat", PyInt_FromLong(event->jhat.hat));
-		PyDict_SetItemString(dict, "value", PyInt_FromLong(event->jhat.value));
+		hx = hy = 0;
+		if(event->jhat.value&SDL_HAT_UP) hy = 1;
+		else if(event->jhat.value&SDL_HAT_DOWN) hy = -1;
+		if(event->jhat.value&SDL_HAT_LEFT) hx = 1;
+		else if(event->jhat.value&SDL_HAT_LEFT) hx = -1;
+		PyDict_SetItemString(dict, "value", Py_BuildValue("(ii)", hx, hy));
 		break;
 	case SDL_JOYBUTTONUP:
 	case SDL_JOYBUTTONDOWN:

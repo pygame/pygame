@@ -21,7 +21,7 @@
 */
 
 	/** This header file includes all the definitions for the
-	 ** base pyGame extensions. This header only requires
+	 ** base pygame extensions. This header only requires
 	 ** SDL and Python includes. The reason for functions
 	 ** prototyped with #define's is to allow for maximum
 	 ** python portability. It also uses python as the
@@ -42,7 +42,7 @@
 	 ** own import_xxx() routine. You need to perform this import
 	 ** after you have initialized your own module, and before
 	 ** you call any routines from that module. Since every module
-	 ** in pyGame does this, there are plenty of examples.
+	 ** in pygame does this, there are plenty of examples.
 	 **
 	 ** The base module does include some useful conversion routines
 	 ** that you are free to use in your own extension.
@@ -51,7 +51,7 @@
 	 ** FIRSTSLOT and NUMSLOT constants up to date for each
 	 ** section. Also be sure not to overlap any of the slots.
 	 ** When you do make a mistake with this, it will result
-	 ** in a dereferenced NULL pointer that is easier to diagnose
+	 ** is a dereferenced NULL pointer that is easier to diagnose
 	 ** than it could be :]
 	 **/
 #include <Python.h>
@@ -77,6 +77,9 @@
 #define CDROM_INIT_CHECK() \
 	if(!SDL_WasInit(SDL_INIT_CDROM)) \
 		return RAISE(PyExc_SDLError, "cdrom system not initialized")
+#define JOYSTICK_INIT_CHECK() \
+	if(!SDL_WasInit(SDL_INIT_JOYSTICK)) \
+		return RAISE(PyExc_SDLError, "joystick system not initialized")
 
 
 
@@ -152,6 +155,7 @@ typedef struct {
 
 
 
+
 /* CDROM */
 #define PYGAMEAPI_CDROM_FIRSTSLOT 30
 #define PYGAMEAPI_CDROM_NUMSLOTS 2
@@ -173,6 +177,31 @@ typedef struct {
 			int i; void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
 			for(i = 0; i < PYGAMEAPI_CDROM_NUMSLOTS; ++i) \
 				PyGAME_C_API[i + PYGAMEAPI_CDROM_FIRSTSLOT] = localptr[i]; \
+} } }
+#endif
+
+
+/* JOYSTICK */
+#define PYGAMEAPI_JOYSTICK_FIRSTSLOT 32
+#define PYGAMEAPI_JOYSTICK_NUMSLOTS 2
+typedef struct {
+	PyObject_HEAD
+	int id;
+} PyJoystickObject;
+#define PyJoystick_AsID(x) (((PyJoystickObject*)x)->id)
+#ifndef PYGAMEAPI_JOYSTICK_INTERNAL
+#define PyJoystick_Check(x) ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 0])
+#define PyJoystick_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 0])
+#define PyJoystick_New (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 1])
+#define import_pygame_joystick() { \
+	PyObject *module = PyImport_ImportModule("pygame.joystick"); \
+	if (module != NULL) { \
+		PyObject *dict = PyModule_GetDict(module); \
+		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \
+		if(PyCObject_Check(c_api)) {\
+			int i; void** localptr = (void*)PyCObject_AsVoidPtr(c_api); \
+			for(i = 0; i < PYGAMEAPI_JOYSTICK_NUMSLOTS; ++i) \
+				PyGAME_C_API[i + PYGAMEAPI_JOYSTICK_FIRSTSLOT] = localptr[i]; \
 } } }
 #endif
 

@@ -23,9 +23,9 @@
 #define PYGAMEAPI_CDROM_INTERNAL
 #include "pygame.h"
 
+
 #define CDROM_MAXDRIVES 32
 static SDL_CD* cdrom_drivedata[CDROM_MAXDRIVES] = {NULL};
-
 
 
 staticforward PyTypeObject PyCD_Type;
@@ -37,7 +37,6 @@ static PyObject* PyCD_New(int id);
 static void cdrom_autoquit()
 {
 	int loop;
-
 	for(loop = 0; loop < CDROM_MAXDRIVES; ++loop)
 	{
 		if(cdrom_drivedata[loop])
@@ -514,8 +513,8 @@ static PyObject* cd_get_current(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_cd_get_tracks[] =
-    /*DOC*/    "CD.get_tracks() -> numtracks\n"
+    /*DOC*/ static char doc_cd_get_numtracks[] =
+    /*DOC*/    "CD.get_numtracks() -> numtracks\n"
     /*DOC*/    "get number of tracks on cd\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the number of available tracks on the CD. Note that not\n"
@@ -523,7 +522,7 @@ static PyObject* cd_get_current(PyObject* self, PyObject* args)
     /*DOC*/    "the track type before playing.\n"
     /*DOC*/ ;
 
-static PyObject* cd_get_tracks(PyObject* self, PyObject* args)
+static PyObject* cd_get_numtracks(PyObject* self, PyObject* args)
 {
 	int cd_id = PyCD_AsID(self);
 	SDL_CD* cdrom = cdrom_drivedata[cd_id];
@@ -535,7 +534,28 @@ static PyObject* cd_get_tracks(PyObject* self, PyObject* args)
 	if(!cdrom)
 		return RAISE(PyExc_SDLError, "CD drive not initialized");
 
+	SDL_CDStatus(cdrom);
 	return PyInt_FromLong(cdrom->numtracks);
+}
+
+
+    /*DOC*/ static char doc_cd_get_id[] =
+    /*DOC*/    "CD.get_id() -> idnum\n"
+    /*DOC*/    "get device id number for drive\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the device id number for this cdrom drive. This is the\n"
+    /*DOC*/    "same number used in the call to pygame.cdrom.CD() to create this\n"
+    /*DOC*/    "cd device. The CD object does not need to be initialized for this\n"
+    /*DOC*/    "function to work.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_id(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+	return PyInt_FromLong(cd_id);
 }
 
 
@@ -662,7 +682,8 @@ static PyMethodDef cd_builtins[] =
 	{ "get_busy", cd_get_busy, 1, doc_cd_get_busy },
 	{ "get_paused", cd_get_paused, 1, doc_cd_get_paused },
 	{ "get_current", cd_get_current, 1, doc_cd_get_current },
-	{ "get_tracks", cd_get_tracks, 1, doc_cd_get_tracks },
+	{ "get_numtracks", cd_get_numtracks, 1, doc_cd_get_numtracks },
+	{ "get_id", cd_get_id, 1, doc_cd_get_id },
 	{ "get_name", cd_get_name, 1, doc_cd_get_name },
 
 	{ "get_track_audio", cd_get_track_audio, 1, doc_cd_get_track_audio },
@@ -683,6 +704,9 @@ static PyObject* cd_getattr(PyObject* self, char* attrname)
     /*DOC*/    "access the CD inside that drive. All functions (except get_name())\n"
     /*DOC*/    "require the CD object to be initialized. This is done with the\n"
     /*DOC*/    "CD.init() function.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Be sure to understand there is a difference between the cdrom module\n"
+    /*DOC*/    "and the CD objects.\n"
     /*DOC*/ ;
 
 
@@ -745,14 +769,16 @@ static PyMethodDef cdrom_builtins[] =
     /*DOC*/    "This function needs a cdrom device number to work on. All\n"
     /*DOC*/    "cdrom drives on the system are enumerated for use as a CD\n"
     /*DOC*/    "object. To access most of the CD functions, you'll need to\n"
-    /*DOC*/    "Init() the CD object. (note that the cdrom module will already\n"
+    /*DOC*/    "Init() the CD. (note that the cdrom module will already\n"
     /*DOC*/    "be initialized). When multiple CD objects are created for the\n"
     /*DOC*/    "same CDROM device, the state and values for those CD objects\n"
     /*DOC*/    "will be shared.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "You can call the CD.get_name() function withouth initializing\n"
-    /*DOC*/    "the CD object. This function returns the system name given to\n"
-    /*DOC*/    "that CDROM drive.\n"
+    /*DOC*/    "You can call the CD.get_name() and CD.get_id() functions\n"
+    /*DOC*/    "without initializing the CD object.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Be sure to understand the difference between the cdrom module\n"
+    /*DOC*/    "and the CD objects.\n"
     /*DOC*/ ;
 
 

@@ -30,3 +30,4 @@ import pygame.event
 import pygame.key
 import pygame.mouse
 import pygame.time
+import pygame.joystick

@@ -42,66 +42,76 @@
 </td></tr></table>
 <br>
 <h2 align=center>pygame.joystick</h2>
-Thin wrapper around the SDL joystick interface.
-Likely to be changed.
+The joystick module provides a few functions to initialize
+the joystick subsystem and to manage the Joystick objects. These
+objects are created with the pygame.joystick.Joystick() function.
+This function needs a joystick device number to work on. All
+joystick devices on the system are enumerated for use as a Joystick
+object. To access most of the Joystick functions, you'll need to
+Init() the Joystick. (note that the joystick module will already
+be initialized). When multiple Joysticks objects are created for the
+same joystick device, the state and values for those Joystick objects
+will be shared.
+<br>&nbsp;<br>
+You can call the Joystick.get_name() and Joystick.get_id() functions
+without initializing the Joystick object.
+<br>&nbsp;<br>
+Joystick control values are only updated during the calls to the event
+queue. Call pygame.event.pump() if you are not using the event queue for
+any input handling. Once a joystick object has been initialized, it will
+start to send joystick events to the input queue.
+<br>&nbsp;<br>
+Be sure to understand the difference between the joystick module
+and the Joystick objects.
 
 <hr>
 
 <table>
+<tr><td><a href=#Joystick>Joystick</a></td><td> -
+create new joystick object</td></tr>
+
+
 <tr><td><a href=#get_count>get_count</a></td><td> -
-number of joysticks in system</td></tr>
+query number of joysticks on system</td></tr>
 
 
 <tr><td><a href=#get_init>get_init</a></td><td> -
 query initialization of joystick module</td></tr>
 
 
-<tr><td><a href=#get_name>get_name</a></td><td> -
-system name for joystick</td></tr>
-
-
 <tr><td><a href=#init>init</a></td><td> -
-initialize cdrom module</td></tr>
-
-
-<tr><td><a href=#is_opened>is_opened</a></td><td> -
-query opened joystick</td></tr>
-
-
-<tr><td><a href=#open>open</a></td><td> -
-return new joystick object</td></tr>
+initialize joystick module</td></tr>
 
 
 <tr><td><a href=#quit>quit</a></td><td> -
-uninitialize cdrom module</td></tr>
+uninitialize joystick module</td></tr>
 
 
 </table>
 
 <hr>
 
+<a name=Joystick><font size=+2><b>Joystick
+</b></font><br><font size=+1><tt>
+pygame.joystick.Joystick(id) -> Joystick
+</tt></font><ul>
+Creates a new joystick object for the given device id. The given id
+must be less than the value from <a href=#get_count>pygame.joystick.get_count()</a>.
+</ul><br>&nbsp;<br>
+
 <a name=get_count><font size=+2><b>get_count
 </b></font><br><font size=+1><tt>
 pygame.joystick.get_count() -> int
 </tt></font><ul>
-Returns the number of joysticks available on the
-system. Will be 0 if there are no joysticks.
+Returns the number of joysticks devices available on
+the system.
 </ul><br>&nbsp;<br>
 
 <a name=get_init><font size=+2><b>get_init
 </b></font><br><font size=+1><tt>
 pygame.joystick.get_init() -> bool
 </tt></font><ul>
-Returns true when the joystick module is
-initialized.
-</ul><br>&nbsp;<br>
-
-<a name=get_name><font size=+2><b>get_name
-</b></font><br><font size=+1><tt>
-pygame.joystick.get_name(id) -> string
-</tt></font><ul>
-Returns a readable name for the joystick device,
-given by the system.
+Returns true when the joystick module is initialized.
 </ul><br>&nbsp;<br>
 
 <a name=init><font size=+2><b>init
@@ -109,24 +119,6 @@ given by the system.
 pygame.joystick.init() -> None
 </tt></font><ul>
 Initialize the joystick module manually
-</ul><br>&nbsp;<br>
-
-<a name=is_opened><font size=+2><b>is_opened
-</b></font><br><font size=+1><tt>
-pygame.joystick.is_opened(id) -> bool
-</tt></font><ul>
-Returns true if the given joystick id has been
-previously opened.
-</ul><br>&nbsp;<br>
-
-<a name=open><font size=+2><b>open
-</b></font><br><font size=+1><tt>
-pygame.joystick.open(id) -> Joystick
-</tt></font><ul>
-Creates a new joystick object for the given
-joystick id. Once a joystick has been opened, it
-will start receiving joystick events on the event
-queue.
 </ul><br>&nbsp;<br>
 
 <a name=quit><font size=+2><b>quit

@@ -48,14 +48,16 @@ objects are created with the pygame.cdrom.CD() function.
 This function needs a cdrom device number to work on. All
 cdrom drives on the system are enumerated for use as a CD
 object. To access most of the CD functions, you'll need to
-Init() the CD object. (note that the cdrom module will already
+Init() the CD. (note that the cdrom module will already
 be initialized). When multiple CD objects are created for the
 same CDROM device, the state and values for those CD objects
 will be shared.
 <br>&nbsp;<br>
-You can call the CD.get_name() function withouth initializing
-the CD object. This function returns the system name given to
-that CDROM drive.
+You can call the CD.get_name() and CD.get_id() functions
+without initializing the CD object.
+<br>&nbsp;<br>
+Be sure to understand the difference between the cdrom module
+and the CD objects.
 
 <hr>
 
