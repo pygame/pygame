@@ -1449,6 +1449,7 @@ PyObject* surface_str(PyObject* self)
 	return PyString_FromString(str);
 }
 
+#if PYTHON_API_VERSION < 1011 /*PYTHON2.2*/
     /*DOC*/ static char doc_Surface_MODULE[] =
     /*DOC*/    "Surface objects represent a simple memory buffer of pixels.\n"
     /*DOC*/    "Surface objects can reside in system memory, or in special\n"
@@ -1471,6 +1472,25 @@ PyObject* surface_str(PyObject* self)
     /*DOC*/    "pixel level work, it is recommended to use the pygame.surfarray\n"
     /*DOC*/    "module, which can treat the surfaces like large multidimensional\n"
     /*DOC*/    "arrays (and it's quite quick).\n"
+    /*DOC*/ ;
+#endif
+    /*DOC*/ static char doc_Surface[] =
+    /*DOC*/    "pygame.Surface(size, [flags, [Surface|depth, [masks]]]) -> Surface\n"
+    /*DOC*/    "create a new Surface\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Creates a new surface object. Size is a 2-int-sequence containing\n"
+    /*DOC*/    "width and height. Depth is the number of bits used per pixel. If\n"
+    /*DOC*/    "omitted, depth will use the current display depth. Masks is a\n"
+    /*DOC*/    "four item sequence containing the bitmask for r,g,b, and a. If\n"
+    /*DOC*/    "omitted, masks will default to the usual values for the given\n"
+    /*DOC*/    "bitdepth. Flags is a mix of the following flags: SWSURFACE,\n"
+    /*DOC*/    "HWSURFACE, ASYNCBLIT, or SRCALPHA. (flags = 0 is the\n"
+    /*DOC*/    "same as SWSURFACE). Depth and masks can be substituted for\n"
+    /*DOC*/    "another surface object which will create the new surface with the\n"
+    /*DOC*/    "same format as the given one. When using default masks, alpha\n"
+    /*DOC*/    "will always be ignored unless you pass SRCALPHA as a flag.\n"
+    /*DOC*/    "For a plain software surface, 0 can be used for the flag. \n"
+    /*DOC*/    "A plain hardware surface can just use 1 for the flag.\n"
     /*DOC*/ ;
 
 
@@ -1496,10 +1516,11 @@ static PyTypeObject PySurface_Type =
 	0L,0L,0L,
 #if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_CHECKTYPES | Py_TPFLAGS_BASETYPE, /* tp_flags */
+	doc_Surface, /* Documentation string */
 #else
 	0,					/* tp_flags */
-#endif
 	doc_Surface_MODULE, /* Documentation string */
+#endif
 #if PYTHON_API_VERSION >= 1011 /*PYTHON2.2*/
 	0,					/* tp_traverse */
 	0,					/* tp_clear */
@@ -1542,25 +1563,6 @@ static PyObject* PySurface_New(SDL_Surface* s)
 
 
 /* surface module functions */
-
-    /*DOC*/ static char doc_Surface[] =
-    /*DOC*/    "pygame.Surface(size, [flags, [Surface|depth, [masks]]]) -> Surface\n"
-    /*DOC*/    "create a new Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates a new surface object. Size is a 2-int-sequence containing\n"
-    /*DOC*/    "width and height. Depth is the number of bits used per pixel. If\n"
-    /*DOC*/    "omitted, depth will use the current display depth. Masks is a\n"
-    /*DOC*/    "four item sequence containing the bitmask for r,g,b, and a. If\n"
-    /*DOC*/    "omitted, masks will default to the usual values for the given\n"
-    /*DOC*/    "bitdepth. Flags is a mix of the following flags: SWSURFACE,\n"
-    /*DOC*/    "HWSURFACE, ASYNCBLIT, or SRCALPHA. (flags = 0 is the\n"
-    /*DOC*/    "same as SWSURFACE). Depth and masks can be substituted for\n"
-    /*DOC*/    "another surface object which will create the new surface with the\n"
-    /*DOC*/    "same format as the given one. When using default masks, alpha\n"
-    /*DOC*/    "will always be ignored unless you pass SRCALPHA as a flag.\n"
-    /*DOC*/    "For a plain software surface, 0 can be used for the flag. \n"
-    /*DOC*/    "A plain hardware surface can just use 1 for the flag.\n"
-    /*DOC*/ ;
 
 static PyObject* Surface(PyObject* self, PyObject* arg)
 {

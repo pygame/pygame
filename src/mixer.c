@@ -860,7 +860,7 @@ static PyObject* Channel(PyObject* self, PyObject* args)
     /*DOC*/    "channels, returns None.\n"
     /*DOC*/ ;
 
-static PyObject* find_channel(PyObject* self, PyObject* args)
+static PyObject* mixer_find_channel(PyObject* self, PyObject* args)
 {
 	int chan, force = 0;
 	if(!PyArg_ParseTuple(args, "|i", &force))
@@ -887,7 +887,7 @@ static PyObject* find_channel(PyObject* self, PyObject* args)
     /*DOC*/    "milliseconds.\n"
     /*DOC*/ ;
 
-static PyObject* fadeout(PyObject* self, PyObject* args)
+static PyObject* mixer_fadeout(PyObject* self, PyObject* args)
 {
 	int time;
 	if(!PyArg_ParseTuple(args, "i", &time))
@@ -907,7 +907,7 @@ static PyObject* fadeout(PyObject* self, PyObject* args)
     /*DOC*/    "Stop the playback on all mixer channels.\n"
     /*DOC*/ ;
 
-static PyObject* stop(PyObject* self, PyObject* args)
+static PyObject* mixer_stop(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -926,7 +926,7 @@ static PyObject* stop(PyObject* self, PyObject* args)
     /*DOC*/    "Temporarily stops playback on all the mixer channels.\n"
     /*DOC*/ ;
 
-static PyObject* pause(PyObject* self, PyObject* args)
+static PyObject* mixer_pause(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -945,7 +945,7 @@ static PyObject* pause(PyObject* self, PyObject* args)
     /*DOC*/    "Restarts playback of any paused channels.\n"
     /*DOC*/ ;
 
-static PyObject* unpause(PyObject* self, PyObject* args)
+static PyObject* mixer_unpause(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -1026,11 +1026,11 @@ static PyMethodDef mixer_builtins[] =
 
 	{ "get_busy", get_busy, 1, doc_get_busy },
 	{ "Channel", Channel, 1, doc_Channel },
-	{ "find_channel", find_channel, 1, doc_find_channel },
-	{ "fadeout", fadeout, 1, doc_fadeout },
-	{ "stop", stop, 1, doc_stop },
-	{ "pause", pause, 1, doc_pause },
-	{ "unpause", unpause, 1, doc_unpause },
+	{ "find_channel", mixer_find_channel, 1, doc_find_channel },
+	{ "fadeout", mixer_fadeout, 1, doc_fadeout },
+	{ "stop", mixer_stop, 1, doc_stop },
+	{ "pause", mixer_pause, 1, doc_pause },
+	{ "unpause", mixer_unpause, 1, doc_unpause },
 /*	{ "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
 
 	{ "Sound", Sound, 1, doc_Sound },
