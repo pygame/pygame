@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 2, 2003
+	refcount bug in Font.size [BUG]
+
 December 5, 2002
 	tilerow stuff removed
 
