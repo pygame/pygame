@@ -478,6 +478,59 @@ PyObject* map_array(PyObject* self, PyObject* arg)
 
 
 
+
+/*macros used to blit arrays*/
+
+
+#define COPYMACRO_2D(DST, SRC) \
+	for(loopy = 0; loopy < sizey; ++loopy) { \
+		DST* imgrow = (DST*)(((char*)surf->pixels)+loopy*surf->pitch); \
+		char* datarow = array->data + stridey * loopy; \
+		for(loopx = 0; loopx < sizex; ++loopx) \
+			*(imgrow + loopx) = (DST)*(SRC*)(datarow + stridex * loopx); \
+	}
+
+
+#define COPYMACRO_2D_24(SRC) \
+	for(loopy = 0; loopy < sizey-1; ++loopy) { \
+		char* imgrow = ((char*)surf->pixels)+loopy*surf->pitch; \
+		char* datarow = array->data + stridey * loopy; \
+		for(loopx = 0; loopx < sizex; ++loopx) \
+			*(int*)(imgrow + loopx*3) = (int)*(SRC*)(datarow + stridex * loopx)<<8; \
+	}{ \
+	char* imgrow = ((char*)surf->pixels)+loopy*surf->pitch; \
+	char* datarow = array->data + stridey * loopy; \
+	for(loopx = 0; loopx < sizex-1; ++loopx) \
+		*(int*)(imgrow + loopx*3) = ((int)*(SRC*)(datarow + stridex * loopx))<<8; \
+	}
+
+
+#define COPYMACRO_3D(DST, SRC) \
+	for(loopy = 0; loopy < sizey; ++loopy) { \
+		DST* data = (DST*)(((char*)surf->pixels) + surf->pitch * loopy); \
+		char* pix = array->data + stridey * loopy; \
+		for(loopx = 0; loopx < sizex; ++loopx) { \
+			*data++ = (DST)(*(SRC*)(pix) >> Rloss << Rshift) | \
+					(*(SRC*)(pix+stridez) >> Gloss << Gshift) | \
+					(*(SRC*)(pix+stridez2) >> Bloss << Bshift); \
+			pix += stridex; \
+	}	}
+
+
+#define COPYMACRO_3D_24(SRC) \
+	for(loopy = 0; loopy < sizey; ++loopy) { \
+		char* data = ((char*)surf->pixels) + surf->pitch * loopy; \
+		char* pix = array->data + stridey * loopy; \
+		for(loopx = 0; loopx < sizex; ++loopx) { \
+			*data++ = (char)*(SRC*)(pix); \
+			*data++ = (char)*(SRC*)(pix+stridez); \
+			*data++ = (char)*(SRC*)(pix+stridez2); \
+			pix += stridex; \
+	}	}
+
+
+
+
     /*DOC*/ static char doc_blit_array[] =
     /*DOC*/    "pygame.surfarray.blit_array(surf, array) -> None\n"
     /*DOC*/    "quickly transfer an array to a Surface\n"
@@ -533,79 +586,76 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
-	case 2:
-	case 3:
-		return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
-	case 4:
-		{
-			if(array->nd == 2)
-			{
-				if(array->descr->elsize == sizeof(char))
-				{
-					for(loopy = 0; loopy < sizey; ++loopy)
-					{
-						int* imgrow = (int*)(((char*)surf->pixels)+loopy*surf->pitch);
-						char* datarow = array->data + stridey * loopy;
-						for(loopx = 0; loopx < sizex; ++loopx)
-						{
-							int* pix = imgrow + loopx;
-							char* data = datarow + stridex * loopx;
-							*(imgrow + loopx) = (int)*(unsigned char*)(datarow + stridex * loopx);
-						}
-					}
-				}
-				else if(array->descr->elsize == sizeof(int))
-				{
-					for(loopy = 0; loopy < sizey; ++loopy)
-					{
-						int* imgrow = (int*)(((char*)surf->pixels)+loopy*surf->pitch);
-						char* datarow = array->data + stridey * loopy;
-						for(loopx = 0; loopx < sizex; ++loopx)
-						{
-							int* pix = imgrow + loopx;
-							char* data = datarow + stridex * loopx;
-							*(imgrow + loopx) = (int)*(int*)(datarow + stridex * loopx);
-						}
-					}
-				}
-			}
-			else
-			{
-				switch(array->descr->elsize)
-				{
-				case sizeof(char):
-					for(loopy = 0; loopy < sizey; ++loopy)
-					{
-						int* data = (int*)(((char*)surf->pixels) + surf->pitch * loopy);
-						char* pix = array->data + stridey * loopy;
-						for(loopx = 0; loopx < sizex; ++loopx)
-						{
-							*data++ = (*((unsigned char*)(pix)) >> Rloss << Rshift) |
-									((*((unsigned char*)(pix+stridez))) >> Gloss << Gshift) |
-									((*((unsigned char*)(pix+stridez2))) >> Bloss << Bshift);
-							pix += stridex;
-						}
-					}break;
-				case sizeof(int):
-					for(loopy = 0; loopy < sizey; ++loopy)
-					{
-						int* data = (int*)(((char*)surf->pixels) + surf->pitch * loopy);
-						char* pix = array->data + stridey * loopy;
-						for(loopx = 0; loopx < sizex; ++loopx)
-						{
-							*data++ = (*((unsigned int*)(pix)) >> Rloss << Rshift) |
-									((*((unsigned int*)(pix+stridez))) >> Gloss << Gshift) |
-									((*((unsigned int*)(pix+stridez2))) >> Bloss << Bshift);
-							pix += stridex;
-						}
-					}break;
+		if(array->nd == 2) {
+			switch(array->descr->elsize) {
+				case sizeof(char):  COPYMACRO_2D(unsigned char, unsigned char)  break;
+				case sizeof(short): COPYMACRO_2D(unsigned char, short)  break;
+				case sizeof(int):   COPYMACRO_2D(unsigned char, int)  break;
 				default: 
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
-				}
 			}
-		}break;
+		}
+		break;
+	case 2:
+		if(array->nd == 2) {
+			switch(array->descr->elsize) {
+				case sizeof(char):  COPYMACRO_2D(short, unsigned char)  break;
+				case sizeof(short): COPYMACRO_2D(short, short)  break;
+				case sizeof(int):   COPYMACRO_2D(short, int)  break;
+				default: 
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+			}
+		} else {
+			switch(array->descr->elsize) {
+				case sizeof(char): COPYMACRO_3D(short, unsigned char)  break;
+				case sizeof(short):COPYMACRO_3D(short, short)  break;
+				case sizeof(int):  COPYMACRO_3D(short, int)  break;
+				default: 
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+			}
+		}
+		break;
+	case 3:
+		if(array->nd == 2) {
+			switch(array->descr->elsize) {
+				case sizeof(char):  COPYMACRO_2D_24(unsigned char)  break;
+				case sizeof(short): COPYMACRO_2D_24(short)  break;
+				case sizeof(int):   COPYMACRO_2D_24(int)  break;
+				default: 
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+			}
+		} else {
+			switch(array->descr->elsize) {
+				case sizeof(char): COPYMACRO_3D_24(unsigned char)  break;
+				case sizeof(short):COPYMACRO_3D_24(short)  break;
+				case sizeof(int):  COPYMACRO_3D_24(int)  break;
+				default: 
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+			}
+		}
+		break;
+	case 4:
+		if(array->nd == 2) {
+			switch(array->descr->elsize) {
+				case sizeof(char):  COPYMACRO_2D(int, unsigned char)  break;
+				case sizeof(short): COPYMACRO_2D(int, short)  break;
+				case sizeof(int):   COPYMACRO_2D(int, int)  break;
+			default: 
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+			}
+		} else {
+			switch(array->descr->elsize) {
+				case sizeof(char): COPYMACRO_3D(int, unsigned char)  break;
+				case sizeof(short):COPYMACRO_3D(int, short)  break;
+				case sizeof(int):  COPYMACRO_3D(int, int)  break;
+				default: 
+					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
+			}
+		}
+		break;
+	default:
+		return RAISE(PyExc_RuntimeError, "unsupported bit depth for image");
 	}
-
 	RETURN_NONE;
 }
 

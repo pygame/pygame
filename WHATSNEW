@@ -4,6 +4,7 @@ This is a list of changes in pygame's history.
 	Release the Python Global Interpreter Lock on delays and IO
 	Added timer events to pygame.time (vgrade example demonstrates)
 	Documentation reorganized, 1st tutorial added
+	surfarray.blit_array() supports all bit depths
 
      Nov 11, 2000
 	BUG: pygame.display.set_mode() uses int, not short, for size

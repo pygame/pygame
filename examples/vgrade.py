@@ -50,8 +50,10 @@ def VertGrad3D(surf, topcolor, bottomcolor):
     column = topcolor + (diff * column).astype(Int)
     # make the column a 3d image column by adding X
     column = column.astype(UnsignedInt8)[NewAxis,:,:]
+    #3d array into 2d array
+    column = pygame.surfarray.map_array(surf, column)
     # stretch the column into a full image
-    return resize(column, (width, height, 3))
+    return resize(column, (width, height))
 
 
 
@@ -68,16 +70,17 @@ def DisplayGradient(surf):
 
 def main():
     pygame.init()
-    size = (640, 480)
-    screen = pygame.display.set_mode(size, 0, 32)
-    finished = 0
+    size = 640, 480
+    screen = pygame.display.set_mode(size, 0, 24)
+
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
-    pygame.time.set_timer(500, USEREVENT+5)
+    pygame.time.set_timer(500, USEREVENT)
+
     while 1:
         event = pygame.event.poll()
         if event.type in (QUIT, KEYDOWN, MOUSEBUTTONDOWN):
             break
-        elif event.type == USEREVENT+5:
+        elif event.type == USEREVENT:
             DisplayGradient(screen)
 
     
