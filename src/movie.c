@@ -131,7 +131,7 @@ static PyObject* movie_skip(PyObject* self, PyObject* args)
 {
 	SMPEG* movie = PyMovie_AsSMPEG(self);
 	float seconds;
-	if(!PyArg_ParseTuple(args, "f"), &seconds)
+	if(!PyArg_ParseTuple(args, "f", &seconds))
 		return NULL;
 	SMPEG_skip(movie, seconds);
 	RETURN_NONE
