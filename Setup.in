@@ -52,6 +52,7 @@ time src/time.c $(SDL)
 joystick src/joystick.c $(SDL)
 draw src/draw.c $(SDL)
 image src/image.c $(SDL)
+transform src/transform.c $(SDL)
 
 
 

@@ -6,6 +6,7 @@
 
 May 29, 2001
 	set display physical palette with display.set_palette()
+	added transform module (with rotate and scale)
 
 May 26, 2001
 	code compiles with macos now
