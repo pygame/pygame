@@ -94,6 +94,9 @@ import sys, os
 try:
     from protocols import adapt, protocolForURI, declareImplementation, declareAdapterForType
 except ImportError:
+    class NOT_GIVEN:
+        pass
+
     def adapt(obj, protocol, factory=NOT_GIVEN, default=NOT_GIVEN):
         if default is not NOT_GIVEN:
             return default
