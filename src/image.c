@@ -241,6 +241,10 @@ PyObject* image_get_extended(PyObject* self, PyObject* arg)
     /*DOC*/    "These flags are a subset of the formats supported the PIL\n"
     /*DOC*/    "Python Image Library. Note that the \"P\" format only will\n"
     /*DOC*/    "work for 8bit Surfaces.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "If you ask for the \"RGBA\" format and the image only has\n"
+    /*DOC*/    "colorkey data. An alpha channel will be created from the\n"
+    /*DOC*/    "colorkey values.\n"
     /*DOC*/ ;
 
 PyObject* image_tostring(PyObject* self, PyObject* arg)
@@ -250,6 +254,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 	SDL_Surface *surf;
 	int w, h, color, len, flipped=0;
 	int Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss, Gloss, Bloss, Aloss;
+	int hascolorkey, colorkey;
 
 	if(!PyArg_ParseTuple(arg, "O!s|i", &PySurface_Type, &surfobj, &format, &flipped))
 		return NULL;
@@ -261,6 +266,8 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 	Bshift = surf->format->Bshift; Ashift = surf->format->Ashift;
 	Rloss = surf->format->Rloss; Gloss = surf->format->Gloss;
 	Bloss = surf->format->Bloss; Aloss = surf->format->Aloss;
+	hascolorkey = (surf->flags & SDL_SRCCOLORKEY) && !Amask;
+	colorkey = surf->format->colorkey;
 
 	if(!strcmp(format, "P"))
 	{
@@ -350,6 +357,9 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 	}
 	else if(!strcmp(format, "RGBX") || !strcmp(format, "RGBA"))
 	{
+		if(strcmp(format, "RGBA"))
+			hascolorkey = 0;
+
 		string = PyString_FromStringAndSize(NULL, surf->w*surf->h*4);
 		if(!string)
 			return NULL;
@@ -369,7 +379,7 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)surf->format->palette->colors[color].r;
 					data[1] = (char)surf->format->palette->colors[color].g;
 					data[2] = (char)surf->format->palette->colors[color].b;
-					data[3] = (char)255;
+					data[3] = hascolorkey ? (char)(color==colorkey) : (char)255;
 					data += 4;
 				}
 			}break;
@@ -383,7 +393,8 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
 					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-					data[3] = (char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
+					data[3] = hascolorkey ? (char)(color==colorkey) : 
+								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
 					data += 4;
 				}
 			}break;
@@ -402,7 +413,8 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
 					data[1] = (char)(((color & Gmask) >> Gshift) << Gloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Bloss);
-					data[3] = (char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
+					data[3] = hascolorkey ? (char)(color==colorkey) :
+								(char)(Amask ? (((color & Amask) >> Ashift) << Aloss) : 255);
 					data += 4;
 				}
 			}break;
@@ -416,7 +428,8 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 					data[0] = (char)(((color & Rmask) >> Rshift) << Rloss);
 					data[1] = (char)(((color & Gmask) >> Gshift) << Rloss);
 					data[2] = (char)(((color & Bmask) >> Bshift) << Rloss);
-					data[3] = (char)(Amask ? (((color & Amask) >> Ashift) << Rloss) : 255);
+					data[3] = hascolorkey ? (char)(color==colorkey) :
+								(char)(Amask ? (((color & Amask) >> Ashift) << Rloss) : 255);
 					data += 4;
 				}
 			}break;
