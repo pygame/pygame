@@ -53,11 +53,9 @@ TODO
 At some point it would be nice to add support for more external
 python libraries, here are some ideas...
 
- - more drawing primitives in the draw module
- - GUI library. There's a few out there
- - Image transforms like flip, rotate, scale
  - MPEG video playback with smpeg
-
+ - more drawing primitives in the draw module: circle, poly
+ - more collision detection stuff: pixel2pixel, point2poly, etc
 
 
 
