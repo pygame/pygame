@@ -49,7 +49,109 @@ static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 }
 
 
+static SDL_Surface* rotate90(SDL_Surface *src, int angle)
+{
+    int numturns = (angle / 90) % 4;
+    int dstwidth, dstheight;
+    SDL_Surface* dst;
+    char *srcpix, *dstpix, *srcrow, *dstrow;
+    int srcstepx, srcstepy, dststepx, dststepy;
+    int loopx, loopy;
 
+    if(numturns<0)
+        numturns = 4+numturns;
+printf("ROT90: angle=%d  numturns=%d\n", angle, numturns);    
+    if(!(numturns % 2))
+    {
+        dstwidth = src->w;
+        dstheight = src->h;
+    }
+    else
+    {
+        dstwidth = src->h;
+        dstheight = src->w;
+    }
+printf("ROT90: src=%d,%d   dst=%d,%d\n", src->w,src->h,dstwidth,dstheight);
+    
+    dst = newsurf_fromsurf(src, dstwidth, dstheight);
+    if(!dst)
+        return NULL;
+    srcrow = (char*)src->pixels;
+    dstrow = (char*)dst->pixels;
+    srcstepx = dststepx = src->format->BytesPerPixel;
+    srcstepy = src->pitch;
+    dststepy = dst->pitch;
+    
+    switch(numturns)
+    {
+    /*case 0: we don't need to change anything*/
+    case 1:
+        srcrow += ((src->w-1)*srcstepx);
+        srcstepy = -srcstepx;
+        srcstepx = src->pitch;
+        break;
+    case 2:
+        srcrow += ((src->h-1)*srcstepy) + ((src->w-1)*srcstepx);
+        srcstepx = -srcstepx;
+        srcstepy = -srcstepy;
+        break;
+    case 3:
+        srcrow += ((src->h-1)*srcstepy);
+        srcstepx = -srcstepy;
+        srcstepy = src->format->BytesPerPixel;
+        break;
+    }
+
+    switch(src->format->BytesPerPixel)
+    {
+    case 1:
+        for(loopy=0; loopy<dstheight; ++loopy)
+        {
+            dstpix = dstrow; srcpix = srcrow;
+            for(loopx=0; loopx<dstwidth; ++loopx)
+            {
+                *dstpix = *srcpix;
+                srcpix += srcstepx; dstpix += dststepx;
+            }
+            dstrow += dststepy; srcrow += srcstepy;
+        }break;
+    case 2:
+        for(loopy=0; loopy<dstheight; ++loopy)
+        {
+            dstpix = dstrow; srcpix = srcrow;
+            for(loopx=0; loopx<dstwidth; ++loopx)
+            {
+                *(Uint16*)dstpix = *(Uint16*)srcpix;
+                srcpix += srcstepx; dstpix += dststepx;
+            }
+            dstrow += dststepy; srcrow += srcstepy;
+        }break;
+    case 3:
+        for(loopy=0; loopy<dstheight; ++loopy)
+        {
+            dstpix = dstrow; srcpix = srcrow;
+            for(loopx=0; loopx<dstwidth; ++loopx)
+            {
+                dstpix[0] = srcpix[0]; dstpix[1] = srcpix[1]; dstpix[2] = srcpix[2];
+                srcpix += srcstepx; dstpix += dststepx;
+            }
+            dstrow += dststepy; srcrow += srcstepy;
+        }break;
+    case 4:
+        for(loopy=0; loopy<dstheight; ++loopy)
+        {
+            dstpix = dstrow; srcpix = srcrow;
+            for(loopx=0; loopx<dstwidth; ++loopx)
+            {
+                *(Uint32*)dstpix = *(Uint32*)srcpix;
+                srcpix += srcstepx; dstpix += dststepx;
+            }
+            dstrow += dststepy; srcrow += srcstepy;
+        }break;
+    }
+printf("ROT90:\n");
+    return dst;
+}
 
 
 static void rotate(SDL_Surface *src, SDL_Surface *dst, Uint32 bgcolor, double sangle, double cangle)
@@ -304,6 +406,14 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport Surface bit depth for transform");
 
+        if(!(((int)angle)%90))
+        {
+            newsurf = rotate90(surf, (int)angle);
+            if(!newsurf) return NULL;
+            return PySurface_New(newsurf);
+        }
+        
+        
 	radangle = angle*.01745329251994329;
 	sangle = sin(radangle);
 	cangle = cos(radangle);

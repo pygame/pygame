@@ -195,7 +195,7 @@ static PyObject* cd_init(PyObject* self, PyObject* args)
 	if(!cdrom_drivedata[cd_id])
 	{
 		cdrom_drivedata[cd_id] = SDL_CDOpen(cd_id);
-		if(!cdrom_drivedata[cd_id])
+                if(!cdrom_drivedata[cd_id])
 			return RAISE(PyExc_SDLError, SDL_GetError());
 	}
 	RETURN_NONE

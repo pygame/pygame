@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 26, 2002
+	special cases for 90 degree transform.rotate()
+	OSX cleanups for commandline (thanks Bob)
+
 January 23, 2002
 	transform.rotate() does alpha if image has alphaplane
 	transform.rotate() no longer "off by one" in the x axis

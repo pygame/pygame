@@ -472,7 +472,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 		DisplaySurfaceObject = PySurface_New(surf);
 
 
-	/*set the default icon. we may not want to do this on darwin?*/
+#if !defined(darwin)
 	if(!icon_was_set)
 	{
 		SDL_Surface* icon;
@@ -505,6 +505,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 			}
 		}
 	}
+#endif
 
 	Py_INCREF(DisplaySurfaceObject);
 	return DisplaySurfaceObject;
