@@ -42,112 +42,186 @@
 </td></tr></table>
 <br>
 <h2 align=center>Joystick</h2>
-Thin object wrapper around the SDL joystick
-interface. Likely to be changed.
+The Joystick object represents a joystick device and allows you to
+access the controls on that joystick. All functions (except get_name()
+and get_id()) require the Joystick object to be initialized. This is done
+with the Joystick.init() function.
+<br>&nbsp;<br>
+Joystick control values are only updated during the calls to the event
+queue. Call pygame.event.pump() if you are not using the event queue for
+any input handling. Once a joystick object has been initialized, it will
+start to send joystick events to the input queue.
+<br>&nbsp;<br>
+Be sure to understand there is a difference between the joystick module
+and the Joystick objects.
 
 <hr>
 
 <table>
-<tr><td><a href=#get_axes>get_axes</a></td><td> -
-query number of axis</td></tr>
-
-
 <tr><td><a href=#get_axis>get_axis</a></td><td> -
-query axis of a joystick</td></tr>
+get the position of a joystick axis</td></tr>
 
 
-<tr><td><a href=#get_balls>get_balls</a></td><td> -
-query number of balls</td></tr>
+<tr><td><a href=#get_ball>get_ball</a></td><td> -
+get the movement of a joystick trackball</td></tr>
 
 
 <tr><td><a href=#get_button>get_button</a></td><td> -
-query state of button</td></tr>
-
-
-<tr><td><a href=#get_buttons>get_buttons</a></td><td> -
-query number of buttons</td></tr>
+get the position of a joystick button</td></tr>
 
 
 <tr><td><a href=#get_hat>get_hat</a></td><td> -
-query position of hat</td></tr>
-
-
-<tr><td><a href=#get_hats>get_hats</a></td><td> -
-query number of hats</td></tr>
+get the position of a joystick hat</td></tr>
 
 
 <tr><td><a href=#get_id>get_id</a></td><td> -
-query id of joystick</td></tr>
+get device id number for joystick</td></tr>
+
+
+<tr><td><a href=#get_init>get_init</a></td><td> -
+check if joystick is initialized</td></tr>
+
+
+<tr><td><a href=#get_name>get_name</a></td><td> -
+query name of joystick drive</td></tr>
+
+
+<tr><td><a href=#get_numaxes>get_numaxes</a></td><td> -
+get number of axes on a joystick</td></tr>
+
+
+<tr><td><a href=#get_numballs>get_numballs</a></td><td> -
+get number of trackballs on a joystick</td></tr>
+
+
+<tr><td><a href=#get_numballs>get_numballs</a></td><td> -
+get number of hats on a joystick</td></tr>
+
+
+<tr><td><a href=#get_numbuttons>get_numbuttons</a></td><td> -
+get number of buttons on a joystick</td></tr>
+
+
+<tr><td><a href=#init>init</a></td><td> -
+initialize a joystick device for use</td></tr>
+
+
+<tr><td><a href=#quit>quit</a></td><td> -
+uninitialize a joystick device for use</td></tr>
 
 
 </table>
 
 <hr>
 
-<a name=get_axes><font size=+2><b>get_axes
-</b></font><br><font size=+1><tt>
-Joystick.get_axes() -> count
-</tt></font><ul>
-Returns the number of axis on this Joystick
-</ul><br>&nbsp;<br>
-
 <a name=get_axis><font size=+2><b>get_axis
 </b></font><br><font size=+1><tt>
-Joystick.get_axis(axis) -> position
+Joystick.get_axis(axis) -> float
 </tt></font><ul>
-Returns the current position of an axis control on
-the Joystick. Value is in the range -1.0 to 1.0.
+Returns the current position of a joystick axis. The value
+will range from -1 to 1 with a value of 0 being centered. You
+may want to take into account some tolerance to handle jitter,
+and joystick drift may keep the joystick from centering at 0 or
+using the full range of position values.
 </ul><br>&nbsp;<br>
 
-<a name=get_balls><font size=+2><b>get_balls
+<a name=get_ball><font size=+2><b>get_ball
 </b></font><br><font size=+1><tt>
-Joystick.get_balls() -> count
+Joystick.get_ball(button) -> x, y
 </tt></font><ul>
-Returns number of trackballs on this Joystick
+Returns the relative movement of a joystick button. The
+value is a x, y pair holding the relative movement since the
+last call to <u>get_ball()</u>
 </ul><br>&nbsp;<br>
 
 <a name=get_button><font size=+2><b>get_button
 </b></font><br><font size=+1><tt>
 Joystick.get_button(button) -> bool
 </tt></font><ul>
-Returns true if the given Joystick button is being
-pressed.
-</ul><br>&nbsp;<br>
-
-<a name=get_buttons><font size=+2><b>get_buttons
-</b></font><br><font size=+1><tt>
-Joystick.get_buttons() -> count
-</tt></font><ul>
-Returns number of pushable buttons on this
-Joystick
+Returns the current state of a joystick button.
 </ul><br>&nbsp;<br>
 
 <a name=get_hat><font size=+2><b>get_hat
 </b></font><br><font size=+1><tt>
-Joystick.get_hat(pov_hat) -> state
+Joystick.get_hat(button) -> x, y
 </tt></font><ul>
-Returns the current position of a directional hat
-on the Joystick. Value in a position on the
-following compass. (think 1 is up, and goes around
-clockwise)
-8 1 2
-7 0 3
-6 5 4
-</ul><br>&nbsp;<br>
-
-<a name=get_hats><font size=+2><b>get_hats
-</b></font><br><font size=+1><tt>
-Joystick.get_hats() -> count
-</tt></font><ul>
-Returns number of directional hats on this
-Joystick
+Returns the current position of a position hat. The position
+is given as two values representing the X and Y position for the
+hat. (0, 0) means centered. A value of -1 means left/down a value
+of one means right/up
 </ul><br>&nbsp;<br>
 
 <a name=get_id><font size=+2><b>get_id
 </b></font><br><font size=+1><tt>
-Joystick.get_id() -> id
+Joystick.get_id() -> idnum
 </tt></font><ul>
-Returns the joystick id number for the Joystick
+Returns the device id number for this Joystick. This is the
+same number used in the call to <a href=pygame_joystick.html#Joystick>pygame.joystick.Joystick()</a> to create
+the object. The Joystick does not need to be initialized for this
+function to work.
+</ul><br>&nbsp;<br>
+
+<a name=get_init><font size=+2><b>get_init
+</b></font><br><font size=+1><tt>
+Joystick.get_init() -> bool
+</tt></font><ul>
+Returns a true value if the Joystick is initialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_name><font size=+2><b>get_name
+</b></font><br><font size=+1><tt>
+Joystick.get_name(id) -> string
+</tt></font><ul>
+Returns the name of the Joystick device, given by the
+system. This function can be called before the Joystick
+is initialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_numaxes><font size=+2><b>get_numaxes
+</b></font><br><font size=+1><tt>
+Joystick.get_numaxes() -> int
+</tt></font><ul>
+Returns the number of available axes on the Joystick.
+</ul><br>&nbsp;<br>
+
+<a name=get_numballs><font size=+2><b>get_numballs
+</b></font><br><font size=+1><tt>
+Joystick.get_numballs() -> int
+</tt></font><ul>
+Returns the number of available trackballs on the Joystick.
+</ul><br>&nbsp;<br>
+
+<a name=get_numballs><font size=+2><b>get_numballs
+</b></font><br><font size=+1><tt>
+Joystick.get_numballs() -> int
+</tt></font><ul>
+Returns the number of available directional hats on the Joystick.
+</ul><br>&nbsp;<br>
+
+<a name=get_numbuttons><font size=+2><b>get_numbuttons
+</b></font><br><font size=+1><tt>
+Joystick.get_numbuttons() -> int
+</tt></font><ul>
+Returns the number of available buttons on the Joystick.
+</ul><br>&nbsp;<br>
+
+<a name=init><font size=+2><b>init
+</b></font><br><font size=+1><tt>
+Joystick.init() -> None
+</tt></font><ul>
+In order to call most members in the Joystick object, the
+Joystick must be initialized. You can initialzie the Joystick object
+at anytime, and it is ok to initialize more than once.
+</ul><br>&nbsp;<br>
+
+<a name=quit><font size=+2><b>quit
+</b></font><br><font size=+1><tt>
+Joystick.quit() -> None
+</tt></font><ul>
+After you are completely finished with a joystick device, you
+can use this <a href=pygame.html#quit>quit()</a> function to free access to the drive.
+This will be cleaned up automatically when the joystick module is.
+uninitialized. It is safe to call this function on an uninitialized Joystick.
 </ul><br>&nbsp;<br>
 
 

@@ -24,19 +24,31 @@
 #include "pygame.h"
 
 
+#define JOYSTICK_MAXSTICKS 32
+static SDL_Joystick* joystick_stickdata[JOYSTICK_MAXSTICKS] = {NULL};
 
 
 staticforward PyTypeObject Joystick_Type;
-static PyObject* PyJoystick_New(SDL_Joystick*);
-#define PyJoystick_Check(x) ((x)->ob_type == &PyCD_Type)
+static PyObject* PyJoystick_New(int);
+#define PyJoystick_Check(x) ((x)->ob_type == &PyJoystick_Type)
 
 
 
 static void joy_autoquit()
 {
+	int loop;
+	for(loop = 0; loop < JOYSTICK_MAXSTICKS; ++loop)
+	{
+		if(joystick_stickdata[loop])
+		{
+			SDL_JoystickClose(joystick_stickdata[loop]);
+			joystick_stickdata[loop] = NULL;
+		}
+	}
+
 	if(SDL_WasInit(SDL_INIT_JOYSTICK))
 	{
-		SDL_JoystickEventState(SDL_DISABLE);
+		SDL_JoystickEventState(SDL_ENABLE);
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 	}
 }
@@ -51,20 +63,20 @@ static PyObject* joy_autoinit(PyObject* self, PyObject* arg)
 		if(SDL_InitSubSystem(SDL_INIT_JOYSTICK))
 			return PyInt_FromLong(0);
 		SDL_JoystickEventState(SDL_ENABLE);
-		PyGame_RegisterQuit(cdrom_autoquit);
+		PyGame_RegisterQuit(joy_autoquit);
 	}
 	return PyInt_FromLong(1);
 }
 
 
-    /*DOC*/ static char doc_joy_quit[] =
+    /*DOC*/ static char doc_quit[] =
     /*DOC*/    "pygame.joystick.quit() -> None\n"
-    /*DOC*/    "uninitialize cdrom module\n"
+    /*DOC*/    "uninitialize joystick module\n"
     /*DOC*/    "\n"
     /*DOC*/    "Uninitialize the joystick module manually\n"
     /*DOC*/ ;
 
-static PyObject* joy_quit(PyObject* self, PyObject* arg)
+static PyObject* quit(PyObject* self, PyObject* arg)
 {
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
@@ -74,14 +86,14 @@ static PyObject* joy_quit(PyObject* self, PyObject* arg)
 	RETURN_NONE
 }
 
-    /*DOC*/ static char doc_joy_init[] =
+    /*DOC*/ static char doc_init[] =
     /*DOC*/    "pygame.joystick.init() -> None\n"
-    /*DOC*/    "initialize cdrom module\n"
+    /*DOC*/    "initialize joystick module\n"
     /*DOC*/    "\n"
     /*DOC*/    "Initialize the joystick module manually\n"
     /*DOC*/ ;
 
-static PyObject* joy_init(PyObject* self, PyObject* arg)
+static PyObject* init(PyObject* self, PyObject* arg)
 {
 	PyObject* result;
 	int istrue;
@@ -104,8 +116,7 @@ static PyObject* joy_init(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.joystick.get_init() -> bool\n"
     /*DOC*/    "query initialization of joystick module\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true when the joystick module is\n"
-    /*DOC*/    "initialized.\n"
+    /*DOC*/    "Returns true when the joystick module is initialized.\n"
     /*DOC*/ ;
 
 static PyObject* get_init(PyObject* self, PyObject* arg)
@@ -123,317 +134,436 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 
 static void joy_dealloc(PyObject* self)
 {
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-
-	if(SDL_WasInit(SDL_INIT_JOYSTICK)
-		SDL_JoystickClose(joy_ref->joy);
-
 	PyMem_DEL(self);
 }
 
 
-    /*DOC*/ static char doc_joy_get_id[] =
-    /*DOC*/    "Joystick.get_id() -> id\n"
-    /*DOC*/    "query id of joystick\n"
+    /*DOC*/ static char doc_Joystick[] =
+    /*DOC*/    "pygame.joystick.Joystick(id) -> Joystick\n"
+    /*DOC*/    "create new joystick object\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the joystick id number for the Joystick\n"
+    /*DOC*/    "Creates a new joystick object for the given device id. The given id\n"
+    /*DOC*/    "must be less than the value from pygame.joystick.get_count().\n"
     /*DOC*/ ;
 
-static PyObject* joy_get_id(PyObject* self, PyObject* args)
+static PyObject* Joystick(PyObject* self, PyObject* args)
 {
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	return PyInt_FromLong(SDL_JoystickIndex(joy_ref->joy));
-}
-
-
-
-    /*DOC*/ static char doc_joy_get_axes[] =
-    /*DOC*/    "Joystick.get_axes() -> count\n"
-    /*DOC*/    "query number of axis\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the number of axis on this Joystick\n"
-    /*DOC*/ ;
-
-static PyObject* joy_get_axes(PyObject* self, PyObject* args)
-{
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	return PyInt_FromLong(SDL_JoystickNumAxes(joy_ref->joy));
-}
-
-
-
-    /*DOC*/ static char doc_joy_get_balls[] =
-    /*DOC*/    "Joystick.get_balls() -> count\n"
-    /*DOC*/    "query number of balls\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns number of trackballs on this Joystick\n"
-    /*DOC*/ ;
-
-static PyObject* joy_get_balls(PyObject* self, PyObject* args)
-{
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	return PyInt_FromLong(SDL_JoystickNumBalls(joy_ref->joy));
-}
-
-
-
-    /*DOC*/ static char doc_joy_get_hats[] =
-    /*DOC*/    "Joystick.get_hats() -> count\n"
-    /*DOC*/    "query number of hats\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns number of directional hats on this\n"
-    /*DOC*/    "Joystick\n"
-    /*DOC*/ ;
-
-static PyObject* joy_get_hats(PyObject* self, PyObject* args)
-{
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	return PyInt_FromLong(SDL_JoystickNumHats(joy_ref->joy));
-}
-
-
-
-    /*DOC*/ static char doc_joy_get_buttons[] =
-    /*DOC*/    "Joystick.get_buttons() -> count\n"
-    /*DOC*/    "query number of buttons\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns number of pushable buttons on this\n"
-    /*DOC*/    "Joystick\n"
-    /*DOC*/ ;
-
-static PyObject* joy_get_buttons(PyObject* self, PyObject* args)
-{
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	return PyInt_FromLong(SDL_JoystickNumButtons(joy_ref->joy));
-}
-
-
-
-    /*DOC*/ static char doc_joy_get_axis[] =
-    /*DOC*/    "Joystick.get_axis(axis) -> position\n"
-    /*DOC*/    "query axis of a joystick\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the current position of an axis control on\n"
-    /*DOC*/    "the Joystick. Value is in the range -1.0 to 1.0.\n"
-    /*DOC*/ ;
-
-static PyObject* joy_get_axis(PyObject* self, PyObject* args)
-{
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-	int axis;
-
-	if(!PyArg_ParseTuple(args, "i", &axis))
-		return NULL;
-
-	return PyFloat_FromDouble(SDL_JoystickGetAxis(joy_ref->joy, axis)/32767.0);
-}
-
-
-
-    /*DOC*/ static char doc_joy_get_hat[] =
-    /*DOC*/    "Joystick.get_hat(pov_hat) -> state\n"
-    /*DOC*/    "query position of hat\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the current position of a directional hat\n"
-    /*DOC*/    "on the Joystick. Value in a position on the\n"
-    /*DOC*/    "following compass. (think 1 is up, and goes around\n"
-    /*DOC*/    "clockwise)\n"
-    /*DOC*/    "8 1 2\n"
-    /*DOC*/    "7 0 3\n"
-    /*DOC*/    "6 5 4\n"
-    /*DOC*/ ;
-
-static PyObject* joy_get_hat(PyObject* self, PyObject* args)
-{
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-	int hat;
-
-	if(!PyArg_ParseTuple(args, "i", &hat))
-		return NULL;
-
-	return PyInt_FromLong(SDL_JoystickGetHat(joy_ref->joy, hat));
-}
-
-
-
-    /*DOC*/ static char doc_joy_get_button[] =
-    /*DOC*/    "Joystick.get_button(button) -> bool\n"
-    /*DOC*/    "query state of button\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the given Joystick button is being\n"
-    /*DOC*/    "pressed.\n"
-    /*DOC*/ ;
-
-static PyObject* joy_get_button(PyObject* self, PyObject* args)
-{
-	PyJoystickObject* joy_ref = (PyJoystickObject*)self;
-	int button;
-
-	if(!PyArg_ParseTuple(args, "i", &button))
-		return NULL;
-
-	return PyInt_FromLong(SDL_JoystickGetButton(joy_ref->joy, button));
-}
-
-
-
-/*joystick module funcs*/
-
-static PyObject* PyJoystick_New(SDL_Joystick* joy)
-{
-	PyJoystickObject* joyobj;
-
-	if(!joy)
-		return RAISE(PyExc_SDLError, SDL_GetError());
-
-	joyobj = PyObject_NEW(PyJoystickObject, &Joystick_Type);
-	if(!joyobj)
-		return NULL;
-
-	joyobj->joy = joy;
-
-	return (PyObject*)joyobj;
-}
-
-
-
-    /*DOC*/ static char doc_joy_open[] =
-    /*DOC*/    "pygame.joystick.open(id) -> Joystick\n"
-    /*DOC*/    "return new joystick object\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates a new joystick object for the given\n"
-    /*DOC*/    "joystick id. Once a joystick has been opened, it\n"
-    /*DOC*/    "will start receiving joystick events on the event\n"
-    /*DOC*/    "queue.\n"
-    /*DOC*/ ;
-
-static PyObject* joy_open(PyObject* self, PyObject* args)
-{
-	int id;
-
+	int id;	
 	if(!PyArg_ParseTuple(args, "i", &id))
 		return NULL;
 
-	JOY_INIT_CHECK
+	JOYSTICK_INIT_CHECK();
 
-	return PyJoystick_New(SDL_JoystickOpen(id));
+	return PyJoystick_New(id);
 }
 
 
 
-    /*DOC*/ static char doc_joy_get_count[] =
+    /*DOC*/ static char doc_get_count[] =
     /*DOC*/    "pygame.joystick.get_count() -> int\n"
-    /*DOC*/    "number of joysticks in system\n"
+    /*DOC*/    "query number of joysticks on system\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the number of joysticks available on the\n"
-    /*DOC*/    "system. Will be 0 if there are no joysticks.\n"
+    /*DOC*/    "Returns the number of joysticks devices available on\n"
+    /*DOC*/    "the system.\n"
     /*DOC*/ ;
 
-static PyObject* joy_get_count(PyObject* self, PyObject* args)
+static PyObject* get_count(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	JOY_INIT_CHECK
+	JOYSTICK_INIT_CHECK();
 
 	return PyInt_FromLong(SDL_NumJoysticks());
 }
 
 
 
-    /*DOC*/ static char doc_joy_get_name[] =
-    /*DOC*/    "pygame.joystick.get_name(id) -> string\n"
-    /*DOC*/    "system name for joystick\n"
+
+    /*DOC*/ static char doc_joy_init[] =
+    /*DOC*/    "Joystick.init() -> None\n"
+    /*DOC*/    "initialize a joystick device for use\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns a readable name for the joystick device,\n"
-    /*DOC*/    "given by the system.\n"
+    /*DOC*/    "In order to call most members in the Joystick object, the\n"
+    /*DOC*/    "Joystick must be initialized. You can initialzie the Joystick object\n"
+    /*DOC*/    "at anytime, and it is ok to initialize more than once.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_init(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+
+	if(!joystick_stickdata[joy_id])
+	{
+		joystick_stickdata[joy_id] = SDL_JoystickOpen(joy_id);
+		if(!joystick_stickdata[joy_id])
+			return RAISE(PyExc_SDLError, SDL_GetError());
+	}
+	RETURN_NONE
+}
+
+
+    /*DOC*/ static char doc_joy_quit[] =
+    /*DOC*/    "Joystick.quit() -> None\n"
+    /*DOC*/    "uninitialize a joystick device for use\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "After you are completely finished with a joystick device, you\n"
+    /*DOC*/    "can use this quit() function to free access to the drive.\n"
+    /*DOC*/    "This will be cleaned up automatically when the joystick module is.\n"
+    /*DOC*/    "uninitialized. It is safe to call this function on an uninitialized Joystick.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_quit(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+
+	if(joystick_stickdata[joy_id])
+	{
+		SDL_JoystickClose(joystick_stickdata[joy_id]);
+		joystick_stickdata[joy_id] = NULL;
+	}
+	RETURN_NONE
+}
+
+
+
+    /*DOC*/ static char doc_joy_get_init[] =
+    /*DOC*/    "Joystick.get_init() -> bool\n"
+    /*DOC*/    "check if joystick is initialized\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a true value if the Joystick is initialized.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_init(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	return PyInt_FromLong(joystick_stickdata[joy_id] != NULL);
+}
+
+
+
+    /*DOC*/ static char doc_joy_get_id[] =
+    /*DOC*/    "Joystick.get_id() -> idnum\n"
+    /*DOC*/    "get device id number for joystick\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the device id number for this Joystick. This is the\n"
+    /*DOC*/    "same number used in the call to pygame.joystick.Joystick() to create\n"
+    /*DOC*/    "the object. The Joystick does not need to be initialized for this\n"
+    /*DOC*/    "function to work.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_id(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+	return PyInt_FromLong(joy_id);
+}
+
+
+    /*DOC*/ static char doc_joy_get_name[] =
+    /*DOC*/    "Joystick.get_name(id) -> string\n"
+    /*DOC*/    "query name of joystick drive\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the name of the Joystick device, given by the\n"
+    /*DOC*/    "system. This function can be called before the Joystick\n"
+    /*DOC*/    "is initialized.\n"
     /*DOC*/ ;
 
 static PyObject* joy_get_name(PyObject* self, PyObject* args)
 {
-	int id;
-
-	if(!PyArg_ParseTuple(args, "i", &id))
+	int joy_id = PyJoystick_AsID(self);
+	
+	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	JOY_INIT_CHECK
+	JOYSTICK_INIT_CHECK();
 
-	return PyString_FromString(SDL_JoystickName(id));
+	return PyString_FromString(SDL_JoystickName(joy_id));
 }
 
 
 
-    /*DOC*/ static char doc_joy_is_opened[] =
-    /*DOC*/    "pygame.joystick.is_opened(id) -> bool\n"
-    /*DOC*/    "query opened joystick\n"
+    /*DOC*/ static char doc_joy_get_numaxes[] =
+    /*DOC*/    "Joystick.get_numaxes() -> int\n"
+    /*DOC*/    "get number of axes on a joystick\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the given joystick id has been\n"
-    /*DOC*/    "previously opened.\n"
+    /*DOC*/    "Returns the number of available axes on the Joystick.\n"
     /*DOC*/ ;
 
-static PyObject* joy_is_opened(PyObject* self, PyObject* args)
+static PyObject* joy_get_numaxes(PyObject* self, PyObject* args)
 {
-	int id;
-	
-	if(!PyArg_ParseTuple(args, "i", &id))
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+
+	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	JOY_INIT_CHECK
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
 
-	return PyInt_FromLong(SDL_JoystickOpened(id));
+	return PyInt_FromLong(SDL_JoystickNumAxes(joy));
 }
 
 
 
+    /*DOC*/ static char doc_joy_get_axis[] =
+    /*DOC*/    "Joystick.get_axis(axis) -> float\n"
+    /*DOC*/    "get the position of a joystick axis\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the current position of a joystick axis. The value\n"
+    /*DOC*/    "will range from -1 to 1 with a value of 0 being centered. You\n"
+    /*DOC*/    "may want to take into account some tolerance to handle jitter,\n"
+    /*DOC*/    "and joystick drift may keep the joystick from centering at 0 or\n"
+    /*DOC*/    "using the full range of position values.\n"
+    /*DOC*/ ;
 
-static PyMethodDef joy__builtins__[] =
+static PyObject* joy_get_axis(PyObject* self, PyObject* args)
 {
-	{ "get_id", joy_get_id, 1, joy_get_id },
-	{ "get_axes", joy_get_axes, 1, joy_get_axes },
-	{ "get_balls", joy_get_balls, 1, joy_get_balls },
-	{ "get_hats", joy_get_hats, 1, joy_get_hats },
-	{ "get_buttons", joy_get_buttons, 1, joy_get_buttons },
-	{ "get_axis", joy_get_axis, 1, joy_get_axis },
-	{ "get_hat", joy_get_hat, 1, joy_get_hat },
-	{ "get_button", joy_get_button, 1, joy_get_button },
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+	int axis, value;
+	
+	if(!PyArg_ParseTuple(args, "i", &axis))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
+	if(axis < 0 || axis >= SDL_JoystickNumAxes(joy))
+		return RAISE(PyExc_SDLError, "Invalid joystick axis");
+
+	value = SDL_JoystickGetAxis(joy, axis);
+	return PyFloat_FromDouble(value / 32768.0);
+}
+
+
+    /*DOC*/ static char doc_joy_get_numbuttons[] =
+    /*DOC*/    "Joystick.get_numbuttons() -> int\n"
+    /*DOC*/    "get number of buttons on a joystick\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the number of available buttons on the Joystick.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_numbuttons(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
+
+	return PyInt_FromLong(SDL_JoystickNumButtons(joy));
+}
+
+
+
+    /*DOC*/ static char doc_joy_get_button[] =
+    /*DOC*/    "Joystick.get_button(button) -> bool\n"
+    /*DOC*/    "get the position of a joystick button\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the current state of a joystick button.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_button(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+	int index, value;
+	
+	if(!PyArg_ParseTuple(args, "i", &index))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
+	if(index < 0 || index >= SDL_JoystickNumButtons(joy))
+		return RAISE(PyExc_SDLError, "Invalid joystick button");
+
+	value = SDL_JoystickGetButton(joy, index);
+	return PyInt_FromLong(value);
+}
+
+
+    /*DOC*/ static char doc_joy_get_numballs[] =
+    /*DOC*/    "Joystick.get_numballs() -> int\n"
+    /*DOC*/    "get number of trackballs on a joystick\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the number of available trackballs on the Joystick.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_numballs(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
+
+	return PyInt_FromLong(SDL_JoystickNumBalls(joy));
+}
+
+
+
+    /*DOC*/ static char doc_joy_get_ball[] =
+    /*DOC*/    "Joystick.get_ball(button) -> x, y\n"
+    /*DOC*/    "get the movement of a joystick trackball\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the relative movement of a joystick button. The\n"
+    /*DOC*/    "value is a x, y pair holding the relative movement since the\n"
+    /*DOC*/    "last call to get_ball()\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_ball(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+	int index, dx, dy;
+	
+	if(!PyArg_ParseTuple(args, "i", &index))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
+	if(index < 0 || index >= SDL_JoystickNumBalls(joy))
+		return RAISE(PyExc_SDLError, "Invalid joystick trackball");
+
+	SDL_JoystickGetBall(joy, index, &dx, &dy);
+	return Py_BuildValue("(ii)", dx, dy);
+}
+
+
+    /*DOC*/ static char doc_joy_get_numhats[] =
+    /*DOC*/    "Joystick.get_numballs() -> int\n"
+    /*DOC*/    "get number of hats on a joystick\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the number of available directional hats on the Joystick.\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_numhats(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
+
+	return PyInt_FromLong(SDL_JoystickNumHats(joy));
+}
+
+
+
+    /*DOC*/ static char doc_joy_get_hat[] =
+    /*DOC*/    "Joystick.get_hat(button) -> x, y\n"
+    /*DOC*/    "get the position of a joystick hat\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the current position of a position hat. The position\n"
+    /*DOC*/    "is given as two values representing the X and Y position for the\n"
+    /*DOC*/    "hat. (0, 0) means centered. A value of -1 means left/down a value\n"
+    /*DOC*/    "of one means right/up\n"
+    /*DOC*/ ;
+
+static PyObject* joy_get_hat(PyObject* self, PyObject* args)
+{
+	int joy_id = PyJoystick_AsID(self);
+	SDL_Joystick* joy = joystick_stickdata[joy_id];
+	int index, px, py;
+	Uint8 value;
+
+	if(!PyArg_ParseTuple(args, "i", &index))
+		return NULL;
+
+	JOYSTICK_INIT_CHECK();
+	if(!joy)
+		return RAISE(PyExc_SDLError, "Joystick not initialized");
+	if(index < 0 || index >= SDL_JoystickNumHats(joy))
+		return RAISE(PyExc_SDLError, "Invalid joystick hat");
+
+	px = py = 0;
+	value = SDL_JoystickGetHat(joy, index);
+	if(value&SDL_HAT_UP) py = 1;
+	else if(value&SDL_HAT_DOWN) py = -1;
+	if(value&SDL_HAT_RIGHT) px = 1;
+	else if(value&SDL_HAT_LEFT) px = -1;
+	
+	return Py_BuildValue("(ii)", px, py);
+}
+
+
+
+static PyMethodDef joy_builtins[] =
+{
+	{ "init", joy_init, 1, doc_joy_init },
+	{ "quit", joy_quit, 1, doc_joy_quit },
+	{ "get_init", joy_get_init, 1, doc_joy_get_init },
+
+	{ "get_id", joy_get_id, 1, doc_joy_get_id },
+	{ "get_name", joy_get_name, 1, doc_joy_get_name },
+
+	{ "get_numaxes", joy_get_numaxes, 1, doc_joy_get_numaxes },
+	{ "get_axis", joy_get_axis, 1, doc_joy_get_axis },
+	{ "get_numbuttons", joy_get_numbuttons, 1, doc_joy_get_numbuttons },
+	{ "get_button", joy_get_button, 1, doc_joy_get_button },
+	{ "get_numballs", joy_get_numballs, 1, doc_joy_get_numballs },
+	{ "get_ball", joy_get_ball, 1, doc_joy_get_ball },
+	{ "get_numhats", joy_get_numhats, 1, doc_joy_get_numhats },
+	{ "get_hat", joy_get_hat, 1, doc_joy_get_hat },
+
 	{ NULL, NULL }
 };
 
 static PyObject* joy_getattr(PyObject* self, char* attrname)
 {
-	return Py_FindMethod(joy__builtins__, self, attrname);
-
-	PyErr_SetString(PyExc_NameError,	attrname);
-	return NULL;
+	return Py_FindMethod(joy_builtins, self, attrname);
 }
 
 
     /*DOC*/ static char doc_Joystick_MODULE[] =
-    /*DOC*/    "Thin object wrapper around the SDL joystick\n"
-    /*DOC*/    "interface. Likely to be changed.\n"
+    /*DOC*/    "The Joystick object represents a joystick device and allows you to\n"
+    /*DOC*/    "access the controls on that joystick. All functions (except get_name()\n"
+    /*DOC*/    "and get_id()) require the Joystick object to be initialized. This is done\n"
+    /*DOC*/    "with the Joystick.init() function.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Joystick control values are only updated during the calls to the event\n"
+    /*DOC*/    "queue. Call pygame.event.pump() if you are not using the event queue for\n"
+    /*DOC*/    "any input handling. Once a joystick object has been initialized, it will\n"
+    /*DOC*/    "start to send joystick events to the input queue.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Be sure to understand there is a difference between the joystick module\n"
+    /*DOC*/    "and the Joystick objects.\n"
     /*DOC*/ ;
 
-static PyTypeObject Joystick_Type =
+
+static PyTypeObject PyJoystick_Type =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
@@ -442,36 +572,80 @@ static PyTypeObject Joystick_Type =
 	0,
 	joy_dealloc,
 	0,
-	joy_getattr
+	joy_getattr,
+	0,
+	0,
+	0,
+	0,
+	NULL,
+	0
 };
+
+
+
+static PyObject* PyJoystick_New(int id)
+{
+	PyJoystickObject* joy;
+
+	if(id < 0 || id >= JOYSTICK_MAXSTICKS || id >= SDL_NumJoysticks())
+		return RAISE(PyExc_SDLError, "Invalid joystick device number");
+	
+	joy = PyObject_NEW(PyJoystickObject, &PyJoystick_Type);
+	if(!joy) return NULL;
+
+	joy->id = id;
+
+	return (PyObject*)joy;
+}
+
+
+
 
 
 static PyMethodDef joystick_builtins[] =
 {
-	{ "__PYGAMEinit__", joy_autoinit, 1, joy_init_doc },
-	{ "init", joy_init, 1, joy_init_doc },
-	{ "quit", joy_quit, 1, joy_quit_doc },
-	{ "get_count", joy_get_count, 1, joy_get_count },
-	{ "get_name", joy_get_name, 1, joy_get_name },
-	{ "open", joy_open, 1, joy_open },
-	{ "is_opened", joy_is_opened, 1, joy_is_opened },
-	{ "update", joy_update, 1, joy_update },
-	{ "event_state", joy_event_state, 1, joy_event_state },
+	{ "__PYGAMEinit__", joy_autoinit, 1, doc_joy_init },
+	{ "init", init, 1, doc_init },
+	{ "quit", quit, 1, doc_quit },
+	{ "get_init", get_init, 1, doc_get_init },
+	{ "get_count", get_count, 1, doc_get_count },
+	{ "Joystick", Joystick, 1, doc_Joystick },
 	{ NULL, NULL }
 };
 
 
+
+
     /*DOC*/ static char doc_pygame_joystick_MODULE[] =
-    /*DOC*/    "Thin wrapper around the SDL joystick interface.\n"
-    /*DOC*/    "Likely to be changed.\n"
+    /*DOC*/    "The joystick module provides a few functions to initialize\n"
+    /*DOC*/    "the joystick subsystem and to manage the Joystick objects. These\n"
+    /*DOC*/    "objects are created with the pygame.joystick.Joystick() function.\n"
+    /*DOC*/    "This function needs a joystick device number to work on. All\n"
+    /*DOC*/    "joystick devices on the system are enumerated for use as a Joystick\n"
+    /*DOC*/    "object. To access most of the Joystick functions, you'll need to\n"
+    /*DOC*/    "Init() the Joystick. (note that the joystick module will already\n"
+    /*DOC*/    "be initialized). When multiple Joysticks objects are created for the\n"
+    /*DOC*/    "same joystick device, the state and values for those Joystick objects\n"
+    /*DOC*/    "will be shared.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can call the Joystick.get_name() and Joystick.get_id() functions\n"
+    /*DOC*/    "without initializing the Joystick object.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Joystick control values are only updated during the calls to the event\n"
+    /*DOC*/    "queue. Call pygame.event.pump() if you are not using the event queue for\n"
+    /*DOC*/    "any input handling. Once a joystick object has been initialized, it will\n"
+    /*DOC*/    "start to send joystick events to the input queue.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Be sure to understand the difference between the joystick module\n"
+    /*DOC*/    "and the Joystick objects.\n"
     /*DOC*/ ;
 
-void initcdrom()
+void initjoystick()
 {
 	PyObject *module, *dict, *apiobj;
-	static void* c_api[PYGAMEAPI_CDROM_NUMSLOTS];
+	static void* c_api[PYGAMEAPI_JOYSTICK_NUMSLOTS];
 
-	PyType_Init(PyCD_Type);
+	PyType_Init(PyJoystick_Type);
 
 
     /* create the module */

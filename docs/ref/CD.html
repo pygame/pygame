@@ -46,6 +46,9 @@ The CD object represents a CDROM drive and allows you to
 access the CD inside that drive. All functions (except get_name())
 require the CD object to be initialized. This is done with the
 CD.init() function.
+<br>&nbsp;<br>
+Be sure to understand there is a difference between the cdrom module
+and the CD objects.
 
 <hr>
 
@@ -66,12 +69,20 @@ get current position of the cdrom</td></tr>
 checks for a cd in the drive</td></tr>
 
 
+<tr><td><a href=#get_id>get_id</a></td><td> -
+get device id number for drive</td></tr>
+
+
 <tr><td><a href=#get_init>get_init</a></td><td> -
 check if cd is initialized</td></tr>
 
 
 <tr><td><a href=#get_name>get_name</a></td><td> -
 query name of cdrom drive</td></tr>
+
+
+<tr><td><a href=#get_numtracks>get_numtracks</a></td><td> -
+get number of tracks on cd</td></tr>
 
 
 <tr><td><a href=#get_paused>get_paused</a></td><td> -
@@ -88,10 +99,6 @@ check the length of an audio track</td></tr>
 
 <tr><td><a href=#get_track_start>get_track_start</a></td><td> -
 check the start of an audio track</td></tr>
-
-
-<tr><td><a href=#get_tracks>get_tracks</a></td><td> -
-get number of tracks on cd</td></tr>
 
 
 <tr><td><a href=#init>init</a></td><td> -
@@ -153,6 +160,16 @@ CD.get_empty() -> bool
 Returns a true value if the cd drive is empty.
 </ul><br>&nbsp;<br>
 
+<a name=get_id><font size=+2><b>get_id
+</b></font><br><font size=+1><tt>
+CD.get_id() -> idnum
+</tt></font><ul>
+Returns the device id number for this cdrom drive. This is the
+same number used in the call to <a href=pygame_cdrom.html#CD>pygame.cdrom.CD()</a> to create this
+cd device. The CD object does not need to be initialized for this
+function to work.
+</ul><br>&nbsp;<br>
+
 <a name=get_init><font size=+2><b>get_init
 </b></font><br><font size=+1><tt>
 CD.get_init() -> bool
@@ -167,6 +184,15 @@ CD.get_name(id) -> string
 Returns the name of the CDROM device, given by the
 system. This function can be called before the drive
 is initialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_numtracks><font size=+2><b>get_numtracks
+</b></font><br><font size=+1><tt>
+CD.get_numtracks() -> numtracks
+</tt></font><ul>
+Returns the number of available tracks on the CD. Note that not
+all of these tracks contain audio data. Use CD.get_audio() to check
+the track type before playing.
 </ul><br>&nbsp;<br>
 
 <a name=get_paused><font size=+2><b>get_paused
@@ -197,15 +223,6 @@ CD.get_track_start(track) -> seconds
 </tt></font><ul>
 Returns the number of seconds an audio track starts
 on the cd.
-</ul><br>&nbsp;<br>
-
-<a name=get_tracks><font size=+2><b>get_tracks
-</b></font><br><font size=+1><tt>
-CD.get_tracks() -> numtracks
-</tt></font><ul>
-Returns the number of available tracks on the CD. Note that not
-all of these tracks contain audio data. Use CD.get_audio() to check
-the track type before playing.
 </ul><br>&nbsp;<br>
 
 <a name=init><font size=+2><b>init
