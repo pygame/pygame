@@ -108,7 +108,7 @@ static PyObject* line(PyObject* self, PyObject* arg)
 		top = pts[3];
 		bottom = pts[1];
 	}
-	return PyRect_New4((short)left, (short)top, (short)(right-left), (short)(bottom-top));
+	return PyRect_New4((short)left, (short)top, (short)(right-left+1), (short)(bottom-top+1));
 }
 
 
@@ -212,7 +212,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
 	/*compute return rect*/
-	return PyRect_New4((short)left, (short)top, (short)(right-left), (short)(bottom-top));
+	return PyRect_New4((short)left, (short)top, (short)(right-left+1), (short)(bottom-top+1));
 }
 
 
@@ -368,7 +368,7 @@ static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, in
 		}break;
 	default: /*case 4*/
 		for(; x < deltax; x++, pixel += pixx) {
-			*(Uint32*)pixel = (Uint32)color;
+	   *(Uint32*)pixel = (Uint32)color;
 			y += deltay; if(y >= deltax) {y -= deltax; pixel += pixy;}
 		}break;
 	}
@@ -402,19 +402,19 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 			*pixel = (Uint8)color;
 		}break;
 	case 2:
-		for(; pixel <= end; ++pixel) {
+		for(; pixel <= end; pixel+=2) {
 			*(Uint16*)pixel = (Uint16)color;
 		}break;
 	case 3:
 		if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8;
 		colorptr = (Uint8*)&color;
-		for(; pixel <= end; ++pixel) {
+		for(; pixel <= end; pixel+=3) {
 			pixel[0] = colorptr[0];
 			pixel[1] = colorptr[1];
 			pixel[2] = colorptr[2];
 		}break;
 	default: /*case 4*/
-		for(; pixel <= end; ++pixel) {
+		for(; pixel <= end; pixel+=4) {
 			*(Uint32*)pixel = (Uint32)color;
 		}break;
 	}
