@@ -6,7 +6,7 @@
 
 Jan 15, 2001
 	fix Surface.get_at() for 24bit surfaces
-	big endian cleanups for surfarray
+	endian cleanups for surfarray
 
 Jan 8, 2001
 	more warning cleanups
