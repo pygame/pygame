@@ -1,6 +1,6 @@
 More complete installation instructions are available in the docs directory.
 
-Note that basic installation requires at least Python 2.0 and SDL-1.1.5 to
+Note that basic installation requires at least Python 2.0 and SDL-1.1.7 to
 be installed. The latest version of each is recommended. Support for extra
 SDL daughter libraries is optional, but also recommended.
 

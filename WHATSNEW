@@ -5,6 +5,9 @@
 # BUG   = fixed a bug that was crashing
 
 Feb 12, 2001
+	added NOFRAME to pygame.constants
+
+Feb 11, 2001
 	workaround python parsing error for pygame.time.delay(-1)
 
 Feb 9, 2001
