@@ -29,15 +29,16 @@
 <a href=pygame_constants.html>constants</a> || 
 <a href=pygame_cursors.html>cursors</a> || 
 <a href=pygame_display.html>display</a> || 
-<a href=pygame_event.html>event</a> ||<br>
-|| <a href=pygame_font.html>font</a> || 
+<a href=pygame_draw.html>draw</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
 <a href=pygame_joystick.html>joystick</a> || 
 <a href=pygame_key.html>key</a> || 
 <a href=pygame_mixer.html>mixer</a> || 
-<a href=pygame_mixer_music.html>mixer_music</a> || 
-<a href=pygame_mouse.html>mouse</a> ||<br>
-|| <a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_mixer_music.html>mixer_music</a> ||<br>
+|| <a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
 <a href=pygame_time.html>time</a> || 
 <a href=pygame_version.html>version</a> ||<br>
 
@@ -59,6 +60,14 @@ get a 2d array copied from a surface</td></tr>
 get a 3d array copied from a surface</td></tr>
 
 
+<tr><td><a href=#array_alpha>array_alpha</a></td><td> -
+get an array with a surface pixel alpha values</td></tr>
+
+
+<tr><td><a href=#array_colorkey>array_colorkey</a></td><td> -
+get an array with a surface colorkey values</td></tr>
+
+
 <tr><td><a href=#blit_array>blit_array</a></td><td> -
 quickly transfer an array to a Surface</td></tr>
 
@@ -73,6 +82,10 @@ get a 2d reference array to a surface</td></tr>
 
 <tr><td><a href=#pixels3d>pixels3d</a></td><td> -
 get a 3d reference array to a surface</td></tr>
+
+
+<tr><td><a href=#pixels_alpha>pixels_alpha</a></td><td> -
+get a reference array to a surface alpha data</td></tr>
 
 
 </table>
@@ -101,6 +114,38 @@ pygame.surfarray.array3d(Surface) -> Array
 This returns a new contigous 3d array. Think of it
 as a 2d image array with an RGB array for each
 pixel value.
+<br>&nbsp;<br>
+Some surfaces will require the surface to be locked for pixel access.
+If locking is needed and the surface is not locked, it will be temporarily
+locked in this function. If you will be calling this function many times
+in one loop, it is will be much better to lock and unlock the surface
+outside of that loop.
+</ul><br>&nbsp;<br>
+
+<a name=array_alpha><font size=+2><b>array_alpha
+</b></font><br><font size=+1><tt>
+pygame.surfarray.array_alpha(Surface) -> Array
+</tt></font><ul>
+This returns a new contigous 2d array with the
+alpha values of an image as unsigned bytes. If the
+surface has no alpha, an array of all opaque values
+is returned.
+<br>&nbsp;<br>
+Some surfaces will require the surface to be locked for pixel access.
+If locking is needed and the surface is not locked, it will be temporarily
+locked in this function. If you will be calling this function many times
+in one loop, it is will be much better to lock and unlock the surface
+outside of that loop.
+</ul><br>&nbsp;<br>
+
+<a name=array_colorkey><font size=+2><b>array_colorkey
+</b></font><br><font size=+1><tt>
+pygame.surfarray.array_colorkey(Surface) -> Array
+</tt></font><ul>
+This returns a new contigous 2d array with the
+colorkey values of an image as unsigned bytes. If the
+surface has no colorkey, an array of all opaque values
+is returned. Otherwise the array is either 0's or 255's.
 <br>&nbsp;<br>
 Some surfaces will require the surface to be locked for pixel access.
 If locking is needed and the surface is not locked, it will be temporarily
@@ -174,6 +219,23 @@ pixel value.
 This will only work for 24 and 32 bit surfaces,
 where the RGB components can be accessed without
 requiring any masking.
+<br>&nbsp;<br>
+You'll need the surface to be locked if that is
+required. Also be aware that between unlocking and
+relocking a surface, the pixel data can be moved,
+so don't hang onto this array after you have
+unlocked the surface.
+</ul><br>&nbsp;<br>
+
+<a name=pixels_alpha><font size=+2><b>pixels_alpha
+</b></font><br><font size=+1><tt>
+pygame.surfarray.pixels_alpha(Surface) -> Array
+</tt></font><ul>
+This returns a new noncontigous array that directly
+effects a Surface's alpha contents.
+<br>&nbsp;<br>
+This will only work for 32bit surfaces with a pixel
+alpha channel enabled.
 <br>&nbsp;<br>
 You'll need the surface to be locked if that is
 required. Also be aware that between unlocking and
