@@ -814,6 +814,18 @@ PyObject* testgl2(PyObject* self, PyObject* arg)
 	RETURN_NONE
 }
 
+static PyObject* gl_swap_buffers(PyObject* self, PyObject* arg)
+{
+    if(!PyArg_ParseTuple(arg, ""))
+        return NULL;
+
+    VIDEO_INIT_CHECK();
+
+    SDL_GL_SwapBuffers();
+
+    RETURN_NONE
+}
+
 
 static PyMethodDef display_builtins[] =
 {
@@ -846,6 +858,7 @@ static PyMethodDef display_builtins[] =
 
 	{ "testgl1", testgl1, 1, NULL },
 	{ "testgl2", testgl2, 1, NULL },
+{ "gl_swap_buffers", gl_swap_buffers, 1, NULL },
 
 	{ NULL, NULL }
 };

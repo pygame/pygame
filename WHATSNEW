@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Apr 08, 2001
+	properly free SDL objects on malloc errors
+
 pygame-10
 Apr 05, 2001
 	Everything set for the 1.0 release
