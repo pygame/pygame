@@ -93,8 +93,8 @@ class Chimp(pygame.sprite.Sprite):
     def _walk(self):
         "move the monkey across the screen, and turn at the ends"
         newpos = self.rect.move((self.move, 0))
-	if self.rect.left < self.area.left or \
-	   self.rect.right > self.area.right:
+        if self.rect.left < self.area.left or \
+            self.rect.right > self.area.right:
             self.move = -self.move
             newpos = self.rect.move((self.move, 0))
             self.image = pygame.transform.flip(self.image, 1, 0)
@@ -161,17 +161,17 @@ def main():
 
     #Handle Input Events
         for event in pygame.event.get():
-            if event.type is QUIT:
+            if event.type == QUIT:
                 return
-            elif event.type is KEYDOWN and event.key is K_ESCAPE:
+            elif event.type == KEYDOWN and event.key == K_ESCAPE:
                 return
-            elif event.type is MOUSEBUTTONDOWN:
+            elif event.type == MOUSEBUTTONDOWN:
                 if fist.punch(chimp):
                     punch_sound.play() #punch
                     chimp.punched()
                 else:
                     whiff_sound.play() #miss
-            elif event.type is MOUSEBUTTONUP:
+            elif event.type == MOUSEBUTTONUP:
                 fist.unpunch()
 
         allsprites.update()
