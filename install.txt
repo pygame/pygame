@@ -10,14 +10,24 @@ platform type. eventually this will create a customized copy of the "Setup.in"
 file, named "Setup". It is also easy to make your own copy of "Setup.in"
 and edit by hand.
 
+On Windows systems, it is usually easiest to download the precompiled
+binaries for all the pygame dependencies. This download will come with
+its own "Setup" file that you will want to use.
+
+On Unix systems, the Setup file will be configured for the SDL dependency,
+but other dependencies may need more work. There is a chance the Setup will
+work as-is if all dependencies have been installed similarly. Otherwise
+configure the dependencies by hand and comment out the optional modules
+which you don't have dependencies for.
+
 Once your "Setup" file is created, you need to run distutils. This is done
 by the command, "python setup.py install". This will (hopefully) compile and
 install all available pygame modules.
 
 From here either head to the more complete installation instructions in the
 docs directory. Or, if no errors, head to the examples directory to
-see everything working.
-
+see everything working. The only demo that requires no optional libraries
+is the "stars.py" example.
 
 Pete Shinners
 shredwheat@mediaone.net

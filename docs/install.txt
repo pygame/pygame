@@ -1,4 +1,4 @@
-Quickie build instructions for building and installing pygame
+Build instructions for building and installing pygame
 Nov 20, 2000
 -------------------------------------------------------------
 pygame is built and installed using the python distutils.
@@ -48,15 +48,14 @@ into the installed pygame package directory.
 
 On unix, you will likely need to be root to install the
 library. The installation needs to create directories in
-the python include and site directories.
+the python include and site directories. Distutils offers
+flags to control where pygame will be installed.
 
 Assuming no errors stopped the install, you are good to go.
 Head to the examples directory and start trying things out.
 
 If you do have problems, first check the error. It is likely
-a problem with your Setup file. This is still early in the game
-and this process is largely untested. Get in touch with me and
-we can work to get this smooth for everyone.
+a problem with your Setup file. 
 
 
 Pete Shinners
