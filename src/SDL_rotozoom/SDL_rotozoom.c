@@ -6,7 +6,7 @@
 #include "SDL_rotozoom.h"
 
 #ifndef max
-#define max(A,B) (((A)>(B)?(A):(B))
+#define max(a,b) ((a)>=(b)?(a):(b))
 #endif
 
 /* 
