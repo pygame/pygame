@@ -23,6 +23,10 @@ if sys.platform == 'win32':
     print 'Using WINDOWS configuration...\n'
     import config_win
     CFG = config_win
+elif sys.platform == 'darwin':
+    print 'Using Darwin configuration...\n'
+    import config_darwin
+    CFG = config_darwin
 else:
     print 'Using UNIX configuration...\n'
     import config_unix
@@ -75,6 +79,10 @@ def writesetupfile(deps, basepath):
     while line.find('#--EndConfig') == -1:
         line = origsetup.readline()
 
+    if string.find(sys.platform, 'darwin') != -1:
+	newsetup.write('EXTRABASE = src/SDLmain.m\n')
+    else:
+        newsetup.write('EXTRABASE = \n')
     if basepath:
         newsetup.write('BASE = ' + basepath + '\n')
     for d in deps:
@@ -121,6 +129,3 @@ or make a copy of "Setup.in" and edit by hand."""
 
 
 if __name__ == '__main__': main()
-
-
-

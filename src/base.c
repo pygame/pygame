@@ -44,6 +44,10 @@ QDGlobals qd;
 #endif
 #endif
 
+#if defined(darwin)
+extern void StartTheDamnApplication(void);
+extern void WeAreDoneFreeSomeMemory(void);
+#endif
 
 
 
@@ -179,6 +183,9 @@ static PyObject* init(PyObject* self,PyObject* args)
 		SDL_InitQuickDraw(&qd);
 #endif
 #endif
+#if defined(darwin)
+                StartTheDamnApplication();
+#endif
 		/*nice to initialize timer, so startup time will be correct before init call*/
 		SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
 		Py_AtExit(atexit_quit);
@@ -253,6 +260,9 @@ static void atexit_quit(void)
 	Py_DECREF(privatefuncs);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 	SDL_Quit(); /*catch anything left*/
+#if defined(darwin)
+        WeAreDoneFreeSomeMemory();
+#endif
 }
 
 

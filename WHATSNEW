@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 6, 2001
+	Merge with bob's inital MacOSX changes
+
 January 5, 2001
         new and upgraded importing [BREAK?]
         fixed numberhandling in set_alpha and set_colorkey

@@ -12,6 +12,7 @@ FONT = -lSDL_ttf
 IMAGE = -lSDL_image
 MIXER = -lSDL_mixer
 SMPEG = -lsmpeg
+EXTRABASE =
 #--EndConfig
 
 
@@ -38,7 +39,7 @@ surfarray src/surfarray.c $(SDL)    #requires Numeric
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
 
-base src/base.c $(SDL)
+base src/base.c $(EXTRABASE) $(SDL)
 cdrom src/cdrom.c $(SDL)
 constants src/constants.c $(SDL)
 display src/display.c $(SDL)
@@ -54,7 +55,7 @@ joystick src/joystick.c $(SDL)
 draw src/draw.c $(SDL)
 image src/image.c $(SDL)
 transform src/transform.c src/SDL_rotozoom/SDL_rotozoom.c $(SDL)
-
+#macosx src/macosx.c src/setproctitle.c -Isrc
 
 
 #the following are placeholders. setup.py can use them to help
