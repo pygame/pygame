@@ -25,6 +25,9 @@
 #include<SDL_byteorder.h>
 
 
+#define TEMP_UNLOCK 	if(didlock) SDL_UnlockSurface(surf)
+
+
 
     /*DOC*/ static char doc_pixels3d[] =
     /*DOC*/    "pygame.surfarray.pixels3d(Surface) -> Array\n"
@@ -135,10 +138,7 @@ static PyObject* pixels2d(PyObject* self, PyObject* arg)
 
 
 	if(surf->format->BytesPerPixel == 3 || surf->format->BytesPerPixel < 1 || surf->format->BytesPerPixel > 4)
-	{
-		PyErr_SetString(PyExc_ValueError, "unsupport bit depth for 2D reference array");
-		return NULL;
-	}
+		return RAISE(PyExc_ValueError, "unsupport bit depth for 2D reference array");
 
 	dim[0] = surf->w;
 	dim[1] = surf->h;
@@ -153,6 +153,58 @@ static PyObject* pixels2d(PyObject* self, PyObject* arg)
 	return array;
 }
 
+
+    /*DOC*/ static char doc_pixels_alpha[] =
+    /*DOC*/    "pygame.surfarray.pixels_alpha(Surface) -> Array\n"
+    /*DOC*/    "get a reference array to a surface alpha data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This returns a new noncontigous array that directly\n"
+    /*DOC*/    "effects a Surface's alpha contents.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will only work for 32bit surfaces with a pixel\n"
+    /*DOC*/    "alpha channel enabled.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You'll need the surface to be locked if that is\n"
+    /*DOC*/    "required. Also be aware that between unlocking and\n"
+    /*DOC*/    "relocking a surface, the pixel data can be moved,\n"
+    /*DOC*/    "so don't hang onto this array after you have\n"
+    /*DOC*/    "unlocked the surface.\n"
+    /*DOC*/ ;
+
+static PyObject* pixels_alpha(PyObject* self, PyObject* arg)
+{
+	int dim[3];
+	PyObject* array;
+	SDL_Surface* surf;
+	char* startpixel;
+	const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
+
+	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
+		return NULL;
+	surf = PySurface_AsSurface(array);
+
+	if(surf->format->BytesPerPixel != 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for alpha array");
+
+	/*must discover information about how data is packed*/
+	if(surf->format->Amask == 0xff<<24)
+		startpixel = ((char*)surf->pixels) + (lilendian ? 0 : 3);
+	else if(surf->format->Amask == 0xff)
+		startpixel = ((char*)surf->pixels) + (lilendian ? 3 : 0);
+	else
+		return RAISE(PyExc_ValueError, "unsupport colormasks for alpha reference array");
+
+	dim[0] = surf->w;
+	dim[1] = surf->h;
+	array = PyArray_FromDimsAndData(2, dim, PyArray_UBYTE, startpixel);
+	if(array)
+	{
+		((PyArrayObject*)array)->strides[1] = surf->pitch;
+		((PyArrayObject*)array)->strides[0] = surf->format->BytesPerPixel;
+		((PyArrayObject*)array)->flags = OWN_DIMENSIONS|OWN_STRIDES;
+	}
+	return array;
+}
 
 
     /*DOC*/ static char doc_array2d[] =
@@ -177,6 +229,7 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 	PyObject* array;
 	SDL_Surface* surf;
 	int stridex, stridey;
+	int didlock = 0;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -193,6 +246,13 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 
 	stridex = ((PyArrayObject*)array)->strides[0];
 	stridey = ((PyArrayObject*)array)->strides[1];
+
+	if(!surf->pixels)
+	{
+		if(SDL_LockSurface(surf) == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		didlock = 1;
+	}
 
 	switch(surf->format->BytesPerPixel)
 	{
@@ -250,6 +310,8 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 			}
 		}break;
 	}
+
+	TEMP_UNLOCK;
 	return array;
 }
 
@@ -280,6 +342,7 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift;
 	int stridex, stridey;
 	SDL_Color* palette;
+	int didlock = 0;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -302,12 +365,22 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 
 	stridex = ((PyArrayObject*)array)->strides[0];
 	stridey = ((PyArrayObject*)array)->strides[1];
+
+	if(!surf->pixels)
+	{
+		if(SDL_LockSurface(surf) == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		didlock = 1;
+	}
 	
 	switch(surf->format->BytesPerPixel)
 	{
 	case 1:
 		if(!format->palette)
+		{
+			TEMP_UNLOCK;
 			return RAISE(PyExc_RuntimeError, "8bit surface has no palette");
+		}
 		palette = format->palette->colors;
 		for(loopy = 0; loopy < surf->h; ++loopy)
 		{
@@ -374,6 +447,246 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 		}break;
 	}
 
+	TEMP_UNLOCK;
+	return array;
+}
+
+
+
+
+    /*DOC*/ static char doc_array_alpha[] =
+    /*DOC*/    "pygame.surfarray.array_alpha(Surface) -> Array\n"
+    /*DOC*/    "get an array with a surface pixel alpha values\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This returns a new contigous 2d array with the\n"
+    /*DOC*/    "alpha values of an image as unsigned bytes. If the\n"
+    /*DOC*/    "surface has no alpha, an array of all opaque values\n"
+    /*DOC*/    "is returned.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
+    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
+    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
+    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
+    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/ ;
+
+PyObject* array_alpha(PyObject* self, PyObject* arg)
+{
+	int dim[2], loopy;
+	Uint8* data;
+	Uint32 color;
+	PyObject* array;
+	SDL_Surface* surf;
+	int stridex, stridey;
+	int didlock = 0;
+	int Ashift, Amask, Aloss;
+
+	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
+		return NULL;
+	surf = PySurface_AsSurface(array);
+
+	dim[0] = surf->w;
+	dim[1] = surf->h;
+
+	if(surf->format->BytesPerPixel <= 1 || surf->format->BytesPerPixel > 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for alpha array");
+
+	array = PyArray_FromDims(2, dim, PyArray_UBYTE);
+	if(!array) return NULL;
+
+	Amask = surf->format->Amask;
+	Ashift = surf->format->Ashift;
+	Aloss = surf->format->Aloss;
+
+	if(!Amask) /*no pixel alpha*/
+	{
+		memset(((PyArrayObject*)array)->data, 255, surf->w * surf->h);
+		return array;
+	}
+
+	stridex = ((PyArrayObject*)array)->strides[0];
+	stridey = ((PyArrayObject*)array)->strides[1];
+
+	if(!surf->pixels)
+	{
+		if(SDL_LockSurface(surf) == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		didlock = 1;
+	}
+
+	switch(surf->format->BytesPerPixel)
+	{
+	case 2:
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			Uint16* pix = (Uint16*)(((char*)surf->pixels)+loopy*surf->pitch);
+			Uint16* end = (Uint16*)(((char*)pix)+surf->w*2);
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+				color = *pix++;
+				*data = (color & Amask) >> Ashift << Aloss;
+				data += stridex;
+			}
+		}break;
+	case 3:
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			Uint8* pix = (Uint8*)(((char*)surf->pixels)+loopy*surf->pitch);
+			Uint8* end = pix+surf->w*3;
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+				color = pix[0] + (pix[1]<<8) + (pix[2]<<16);
+#else
+				color = pix[2] + (pix[1]<<8) + (pix[0]<<16);
+#endif
+				*data = (color & Amask) >> Ashift << Aloss;
+				pix += 3;
+				data += stridex;
+			}
+		}break;
+	default: /*case 4*/
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			Uint32* pix = (Uint32*)(((char*)surf->pixels)+loopy*surf->pitch);
+			Uint32* end = (Uint32*)(((char*)pix)+surf->w*4);
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+				color = *pix++;
+				*data = (color & Amask) >> Ashift << Aloss;
+				data += stridex;
+			}
+		}break;
+	}
+
+	TEMP_UNLOCK;
+	return array;
+}
+
+
+
+    /*DOC*/ static char doc_array_colorkey[] =
+    /*DOC*/    "pygame.surfarray.array_colorkey(Surface) -> Array\n"
+    /*DOC*/    "get an array with a surface colorkey values\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This returns a new contigous 2d array with the\n"
+    /*DOC*/    "colorkey values of an image as unsigned bytes. If the\n"
+    /*DOC*/    "surface has no colorkey, an array of all opaque values\n"
+    /*DOC*/    "is returned. Otherwise the array is either 0's or 255's.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some surfaces will require the surface to be locked for pixel access.\n"
+    /*DOC*/    "If locking is needed and the surface is not locked, it will be temporarily\n"
+    /*DOC*/    "locked in this function. If you will be calling this function many times\n"
+    /*DOC*/    "in one loop, it is will be much better to lock and unlock the surface\n"
+    /*DOC*/    "outside of that loop.\n"
+    /*DOC*/ ;
+
+PyObject* array_colorkey(PyObject* self, PyObject* arg)
+{
+	int dim[2], loopy;
+	Uint8* data;
+	Uint32 color, colorkey;
+	PyObject* array;
+	SDL_Surface* surf;
+	int stridex, stridey;
+	int didlock = 0;
+
+	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
+		return NULL;
+	surf = PySurface_AsSurface(array);
+
+	dim[0] = surf->w;
+	dim[1] = surf->h;
+
+	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
+		return RAISE(PyExc_ValueError, "unsupport bit depth for colorkey array");
+
+	array = PyArray_FromDims(2, dim, PyArray_UBYTE);
+	if(!array) return NULL;
+
+	colorkey = surf->format->colorkey;
+
+	if(!(surf->flags & SDL_SRCCOLORKEY)) /*no pixel alpha*/
+	{
+		memset(((PyArrayObject*)array)->data, 255, surf->w * surf->h);
+		return array;
+	}
+
+	stridex = ((PyArrayObject*)array)->strides[0];
+	stridey = ((PyArrayObject*)array)->strides[1];
+
+	if(!surf->pixels)
+	{
+		if(SDL_LockSurface(surf) == -1)
+			return RAISE(PyExc_SDLError, SDL_GetError());
+		didlock = 1;
+	}
+
+	switch(surf->format->BytesPerPixel)
+	{
+	case 1:
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			Uint8* pix = (Uint8*)(((char*)surf->pixels)+loopy*surf->pitch);
+			Uint8* end = (Uint8*)(((char*)pix)+surf->w*2);
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+				color = *pix++;
+				*data = (color == colorkey) * 255;
+				data += stridex;
+			}
+		}break;
+	case 2:
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			Uint16* pix = (Uint16*)(((char*)surf->pixels)+loopy*surf->pitch);
+			Uint16* end = (Uint16*)(((char*)pix)+surf->w*2);
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+				color = *pix++;
+				*data = (color == colorkey) * 255;
+				data += stridex;
+			}
+		}break;
+	case 3:
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			Uint8* pix = (Uint8*)(((char*)surf->pixels)+loopy*surf->pitch);
+			Uint8* end = pix+surf->w*3;
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+				color = pix[0] + (pix[1]<<8) + (pix[2]<<16);
+#else
+				color = pix[2] + (pix[1]<<8) + (pix[0]<<16);
+#endif
+				*data = (color == colorkey) * 255;
+				pix += 3;
+				data += stridex;
+			}
+		}break;
+	default: /*case 4*/
+		for(loopy = 0; loopy < surf->h; ++loopy)
+		{
+			Uint32* pix = (Uint32*)(((char*)surf->pixels)+loopy*surf->pitch);
+			Uint32* end = (Uint32*)(((char*)pix)+surf->w*4);
+			data = ((Uint8*)((PyArrayObject*)array)->data) + stridey*loopy;
+			while(pix < end)
+			{
+				color = *pix++;
+				*data = (color == colorkey) * 255;
+				data += stridex;
+			}
+		}break;
+	}
+
+	TEMP_UNLOCK;
 	return array;
 }
 
@@ -565,7 +878,6 @@ PyObject* map_array(PyObject* self, PyObject* arg)
 	}	}
 
 
-#define TEMP_UNLOCK 	if(didlock) SDL_UnlockSurface(surf)
 
     /*DOC*/ static char doc_blit_array[] =
     /*DOC*/    "pygame.surfarray.blit_array(surf, array) -> None\n"
@@ -716,8 +1028,11 @@ static PyMethodDef surfarray_builtins[] =
 {
 	{ "pixels2d", pixels2d, 1, doc_pixels2d },
 	{ "pixels3d", pixels3d, 1, doc_pixels3d },
+	{ "pixels_alpha", pixels_alpha, 1, doc_pixels_alpha },
 	{ "array2d", array2d, 1, doc_array2d },
 	{ "array3d", array3d, 1, doc_array3d },
+	{ "array_alpha", array_alpha, 1, doc_array_alpha },
+	{ "array_colorkey", array_colorkey, 1, doc_array_colorkey },
 	{ "map_array", map_array, 1, doc_map_array },
 /*	{ "unmap_array", unmap_array, 1, doc_unmap_array },*/
 	{ "blit_array", blit_array, 1, doc_blit_array },

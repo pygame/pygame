@@ -5,6 +5,9 @@
 # BUG   = fixed a bug that was crashing
 
 Jan 25, 2001
+	added the draw module, with clipped line function
+	added alpha routines in surfarray module
+	more locking checks for surfarray
 	make extra sure all of SDL is shutdown properly
 
 Jan 24, 2001

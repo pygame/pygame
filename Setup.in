@@ -49,6 +49,7 @@ rwobject src/rwobject.c $(SDL)
 surface src/surface.c $(SDL)
 time src/time.c $(SDL)
 joystick src/joystick.c $(SDL)
+draw src/draw.c $(SDL)
 
 
 
