@@ -901,13 +901,15 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 		    if(!rect)
 			    return RAISE(PyExc_ValueError, "invalid rectstyle object");
 		}
+                sdlrect.x = rect->x;
+                sdlrect.y = rect->y;
+                sdlrect.h = rect->h;
+                sdlrect.w = rect->w;
+                result = SDL_SetClipRect(surf, &sdlrect);
 	}
+        else
+                result = SDL_SetClipRect(surf, NULL);
 
-        sdlrect.x = rect->x;
-        sdlrect.y = rect->y;
-        sdlrect.h = rect->h;
-        sdlrect.w = rect->w;
-	result = SDL_SetClipRect(surf, &sdlrect);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
