@@ -196,7 +196,7 @@ def findtutorials():
     texts1 =  ['../../readme.html', '../../install.html', '../LGPL', '../logos.html']
     texts = [fileline%x for x in [getdocinfo(x) for x in texts1]]
     finaltext = texthead + '\n'.join(texts)
-    tuts1 =  glob.glob('../tut/*.html') 
+    tuts1 =  [x.replace('\\','/') for x in glob.glob('../tut/*.html')]
     tuts1.sort()
     tuts = [fileline%(x[0],x[1],x[2][9:]) for x in [getdocinfo(x) for x in tuts1] if x[2].startswith('TUTORIAL:')]
     finaltut = tuthead + '\n'.join(tuts)
