@@ -376,7 +376,7 @@ static PyObject* set_grab(PyObject* self, PyObject* arg)
 
 
     /*DOC*/ static char doc_get_grab[] =
-    /*DOC*/    "pygame.get_grab() -> bool\n"
+    /*DOC*/    "pygame.event.get_grab() -> bool\n"
     /*DOC*/    "query the state of input grabbing\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns true if the input is currently grabbed to your\n"

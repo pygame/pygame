@@ -424,33 +424,33 @@ static int PyGame_Video_AutoInit(void)
 /*error signal handlers (replacing SDL parachute)*/
 static void pygame_parachute(int sig)
 {
-	char* signaltype = "Unknown Signal";
+	char* signaltype;
 
 	signal(sig, SIG_DFL);
 	switch (sig)
 	{
 		case SIGSEGV:
-			signaltype = "Segmentation Fault"; break;
+			signaltype = "(pygame parachute) Segmentation Fault"; break;
 #ifdef SIGBUS
 #if SIGBUS != SIGSEGV
 		case SIGBUS:
-			signaltype = "Bus Error"; break;
+			signaltype = "(pygame parachute) Bus Error"; break;
 #endif
 #endif
 #ifdef SIGFPE
 		case SIGFPE:
-			signaltype = "Floating Point Exception"; break;
+			signaltype = "(pygame parachute) Floating Point Exception"; break;
 #endif /* SIGFPE */
 #ifdef SIGQUIT
 		case SIGQUIT:
-			signaltype = "Keyboard Quit"; break;
+			signaltype = "(pygame parachute) Keyboard Abort"; break;
 #endif /* SIGQUIT */
 #ifdef SIGPIPE
 		case SIGPIPE:
-			signaltype = "Broken Pipe"; break;
+			signaltype = "(pygame parachute) Broken Pipe"; break;
 #endif /* SIGPIPE */
 		default:
-			signaltype = "# %d", sig; break;
+			signaltype = "(pygame parachute) Unknown Signal"; break;
 	}
 
 #if 0
