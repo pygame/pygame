@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Feb 13, 2001
+	fixed return rect from line drawing routines
+	small fix when drawing horizontal lines
+
 pygame-09
 Feb 12, 2001
 	added NOFRAME to pygame.constants
