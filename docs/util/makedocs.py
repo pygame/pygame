@@ -284,7 +284,8 @@ def writefuncdoc(alldocs):
                      'index': '\n'.join(htmllist),
                      'toc': MODULETOC,
                      'module': modinfo,
-                     'mainpage': '../index.html'}
+                     'mainpage': '../index.html',
+                     'logo': '../pygame_small.gif'}
         page = filltemplate(PAGETEMPLATE, finalinfo)
         file = open(OUTPUTDIR + cat + '.html', 'w')
         file.write(page)
@@ -339,7 +340,6 @@ def main():
     pathed_toc = create_toc(alldocs[2], 'ref/')
     MODULETOC = create_toc(alldocs[2])
 
-
     #categorize
     alldocs[2] = categorize(alldocs[2])
     #write html
@@ -348,6 +348,13 @@ def main():
 
     fulldocs = findtutorials() + makefullindex(alldocs)
 
+    fulldocs = """
+<br><big><b>Miscellaneous</b></big>
+<li><a href=logos.html>Logos</a></li>
+<br>&nbsp;<br>""" + fulldocs
+
+
+
     #create index
     finalinfo = {'title': 'Pygame Documentation',
                  'docs': fulldocs,
@@ -355,6 +362,7 @@ def main():
                  'toc': pathed_toc,
                  'module': ' ',
                  'mainpage': 'index.html',
+                 'logo': 'pygame_small.gif',
                 }
     page = filltemplate(PAGETEMPLATE, finalinfo)
     file = open('../index.html', 'w')
