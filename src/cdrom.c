@@ -794,6 +794,8 @@ void initcdrom()
 	module = Py_InitModule3("cdrom", cdrom_builtins, doc_pygame_cdrom_MODULE);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "CDType", (PyObject *)&PyCD_Type);
+
 	/* export the c api */
 	c_api[0] = &PyCD_Type;
 	c_api[1] = PyCD_New;

@@ -1349,6 +1349,8 @@ void initsurface()
 	module = Py_InitModule3("surface", surface_builtins, doc_pygame_surface_MODULE);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "SurfaceType", (PyObject *)&PySurface_Type);
+
 	/* export the c api */
 	c_api[0] = &PySurface_Type;
 	c_api[1] = PySurface_New;

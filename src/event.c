@@ -760,6 +760,8 @@ void initevent()
 	module = Py_InitModule3("event", event_builtins, doc_pygame_event_MODULE);
 	dict = PyModule_GetDict(module);
 
+	PyDict_SetItemString(dict, "EventType", (PyObject *)&PyEvent_Type);
+
 	/* export the c api */
 	c_api[0] = &PyEvent_Type;
 	c_api[1] = PyEvent_New;
