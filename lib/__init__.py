@@ -20,27 +20,28 @@
 
 # main pygame source
 # lets get things coordinated
-import os,sys
-if sys.platform=='darwin':
-  # this may change someday, but we want to chdir to where our file is if we're in / for no
-  # good reason..
-  if (os.getcwd() == '/') and len(sys.argv):
-    os.chdir(os.path.split(sys.argv[0])[0])
-  else:
-    argv0=''
-    if len(sys.argv): argv0=sys.argv[0]
-    print "WARNING!  Running pygame apps from any method other than through python.app (aka through the finder or launchservices) is UNSUPPORTED!"
-    print "          If you insist on using the terminal, type \"open %s\", and hold down the option key if you need to" % (argv0)
-    print "          specify additional command line arguments.  A dialog box will pop up and make you happy, I promise."
-    print ""
-    print "          I sure hope you ran as \"%s %s\" exactly, otherwise you will really have problems."%(sys.executable,' '.join(sys.argv))
-    print "          WindowServer doesn't like what you're doing as is, and it gets really funky if you run things from the path for whatever reason."
-    print ""
-  # not ready for prime time yet, it just rewrites the commandline so windowserver can pick it up
-  #import pygame.macosx
-
 
 def import_all_pygame():
+    import sys
+    if sys.platform=='darwin':
+        import os
+        # this may change someday, but we want to chdir to where our file is if we're in / for no
+        # good reason..
+        if (os.getcwd() == '/') and len(sys.argv):
+            os.chdir(os.path.split(sys.argv[0])[0])
+        else:
+            argv0=''
+            if len(sys.argv): argv0=sys.argv[0]
+            print "WARNING!  Running pygame apps from any method other than through python.app (aka through the finder or launchservices) is UNSUPPORTED!"
+            print "          If you insist on using the terminal, type \"open %s\", and hold down the option key if you need to" % (argv0)
+            print "          specify additional command line arguments.  A dialog box will pop up and make you happy, I promise."
+            print ""
+            print "          I sure hope you ran as \"%s %s\" exactly, otherwise you will really have problems."%(sys.executable,' '.join(sys.argv))
+            print "          WindowServer doesn't like what you're doing as is, and it gets really funky if you run things from the path for whatever reason."
+            print ""
+            # not ready for prime time yet, it just rewrites the commandline so windowserver can pick it up
+            #import pygame.macosx
+
     def makemodules(**mods): return mods
     modules = makemodules(
         base=2, cdrom=0, constants=2, cursors=0, display=0,
