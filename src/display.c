@@ -27,10 +27,7 @@
 #include "pygame.h"
 #include <SDL_syswm.h>
 
-static char* pkgdatamodule_name = "pygame.pkgdata";
-static char* resourcepathfunc_name = "getResourcePath";
 
-static char* icon_defaultname = "pygame_icon.bmp";
 static PyObject* self_module = NULL;
 
 
@@ -39,26 +36,47 @@ static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
 static PyObject* DisplaySurfaceObject = NULL;
 static int icon_was_set = 0;
 
-static PyObject *display_resourcepath(char *filename) {
+#if (!defined(darwin))
+static char* icon_defaultname = "pygame_icon.bmp";
+static char* pkgdatamodule_name = "pygame.pkgdata";
+static char* imagemodule_name = "pygame.image";
+static char* resourcefunc_name = "getResource";
+static char* load_basicfunc_name = "load_basic";
+static PyObject *display_resource(char *filename) {
+	PyObject* imagemodule = NULL;
+	PyObject* load_basicfunc = NULL;
 	PyObject* pkgdatamodule = NULL;
-	PyObject* resourcepathfunc = NULL;
+	PyObject* resourcefunc = NULL;
+	PyObject* fresult = NULL;
 	PyObject* result = NULL;
 
 	pkgdatamodule = PyImport_ImportModule(pkgdatamodule_name);
-	if (!pkgdatamodule)
-		return NULL;
+	if (!pkgdatamodule) goto display_resource_end;
+
+	resourcefunc = PyObject_GetAttrString(pkgdatamodule, resourcefunc_name);
+	if (!resourcefunc) goto display_resource_end;
+
+	imagemodule = PyImport_ImportModule(imagemodule_name);
+	if (!imagemodule) goto display_resource_end;
+
+	load_basicfunc = PyObject_GetAttrString(imagemodule, load_basicfunc_name);
+	if (!load_basicfunc) goto display_resource_end;
 	
-	resourcepathfunc = PyObject_GetAttrString(pkgdatamodule, resourcepathfunc_name);
-	Py_DECREF(pkgdatamodule);
-	if (!resourcepathfunc) {
-		return NULL;
-	}
+	fresult = PyObject_CallFunction(resourcefunc, "s", filename);
+	if (!fresult) goto display_resource_end;
 
-	result = PyObject_CallFunction(resourcepathfunc, "s", filename);
-	Py_DECREF(resourcepathfunc);
+	result = PyObject_CallFunction(load_basicfunc, "O", fresult);
+	if (!result) goto display_resource_end;
 
+display_resource_end:
+	Py_XDECREF(pkgdatamodule);
+	Py_XDECREF(resourcefunc);
+	Py_XDECREF(imagemodule);
+	Py_XDECREF(load_basicfunc);
+	Py_XDECREF(fresult);
 	return result;
 }
+#endif
 
 #if 0
 /*quick internal test to see if gamma is supported*/
@@ -80,12 +98,12 @@ printf("...done\n");
 /* init routines */
 static void display_autoquit(void)
 {
-        if(DisplaySurfaceObject)
-        {
-		((PySurfaceObject*)DisplaySurfaceObject)->surf = NULL;
-                Py_DECREF(DisplaySurfaceObject);
-                DisplaySurfaceObject = NULL;
-        }
+	if(DisplaySurfaceObject)
+	{
+		PySurface_AsSurface(DisplaySurfaceObject) = NULL;
+		Py_DECREF(DisplaySurfaceObject);
+		DisplaySurfaceObject = NULL;
+	}
 }
 
 static PyObject* display_autoinit(PyObject* self, PyObject* arg)
@@ -126,12 +144,14 @@ static PyObject* quit(PyObject* self, PyObject* arg)
 
 static PyObject* init(PyObject* self, PyObject* arg)
 {
-/*we'll just ignore the args,
-  i guess the user could pass anything they want,
-  owell
+/*  
+	We'll just ignore the args
+	XXX:  Why?!
+*/
+#if 0
 	if(!PyArg_ParseTuple(arg, ""))
 		return NULL;
-*/
+#endif
 	if(!PyGame_Video_AutoInit())
 		return RAISE(PyExc_SDLError, SDL_GetError());
 	if(!display_autoinit(NULL, NULL))
@@ -369,42 +389,42 @@ static PyObject* get_driver(PyObject* self, PyObject* args)
 static PyObject* get_wm_info(PyObject* self, PyObject* args)
 {
 	PyObject *dict;
-        SDL_SysWMinfo info;
+	SDL_SysWMinfo info;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
 	VIDEO_INIT_CHECK();
 
-        SDL_VERSION(&(info.version))
-        dict = PyDict_New();
-        if(!dict || !SDL_GetWMInfo(&info))
-            return dict;
+	SDL_VERSION(&(info.version))
+	dict = PyDict_New();
+	if(!dict || !SDL_GetWMInfo(&info))
+		return dict;
 
 /*scary #ifdef's match SDL_syswm.h*/
 #if (defined(unix) || defined(__unix__) || defined(_AIX) || defined(__OpenBSD__)) && \
-    (!defined(DISABLE_X11) && !defined(__CYGWIN32__) && !defined(ENABLE_NANOX) && \
-     !defined(__QNXNTO__))
-        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.info.x11.window));
-        PyDict_SetItemString(dict, "display", PyCObject_FromVoidPtr(info.info.x11.display, NULL));
-        PyDict_SetItemString(dict, "lock_func", PyCObject_FromVoidPtr(info.info.x11.lock_func, NULL));
-        PyDict_SetItemString(dict, "unlock_func", PyCObject_FromVoidPtr(info.info.x11.unlock_func, NULL));
-        PyDict_SetItemString(dict, "fswindow", PyInt_FromLong(info.info.x11.fswindow));
-        PyDict_SetItemString(dict, "wmwindow", PyInt_FromLong(info.info.x11.wmwindow));
+	(!defined(DISABLE_X11) && !defined(__CYGWIN32__) && !defined(ENABLE_NANOX) && \
+	 !defined(__QNXNTO__))
+		PyDict_SetItemString(dict, "window", PyInt_FromLong(info.info.x11.window));
+		PyDict_SetItemString(dict, "display", PyCObject_FromVoidPtr(info.info.x11.display, NULL));
+		PyDict_SetItemString(dict, "lock_func", PyCObject_FromVoidPtr(info.info.x11.lock_func, NULL));
+		PyDict_SetItemString(dict, "unlock_func", PyCObject_FromVoidPtr(info.info.x11.unlock_func, NULL));
+		PyDict_SetItemString(dict, "fswindow", PyInt_FromLong(info.info.x11.fswindow));
+		PyDict_SetItemString(dict, "wmwindow", PyInt_FromLong(info.info.x11.wmwindow));
 #elif defined(ENABLE_NANOX)
-        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
+		PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
 #elif defined(WIN32)
-        PyDict_SetItemString(dict, "window", PyInt_FromLong((long)info.window));
-        PyDict_SetItemString(dict, "hglrc", PyInt_FromLong((long)info.hglrc));
+		PyDict_SetItemString(dict, "window", PyInt_FromLong((long)info.window));
+		PyDict_SetItemString(dict, "hglrc", PyInt_FromLong((long)info.hglrc));
 #elif defined(__riscos__)
-        PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
-        PyDict_SetItemString(dict, "wimpVersion", PyInt_FromLong(info.wimpVersion));
-        PyDict_SetItemString(dict, "taskHandle", PyInt_FromLong(info.taskHandle));
+		PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
+		PyDict_SetItemString(dict, "wimpVersion", PyInt_FromLong(info.wimpVersion));
+		PyDict_SetItemString(dict, "taskHandle", PyInt_FromLong(info.taskHandle));
 #else
-        PyDict_SetItemString(dict, "data", PyInt_FromLong(info.data));
+		PyDict_SetItemString(dict, "data", PyInt_FromLong(info.data));
 #endif
-        
-        return dict;
+		
+		return dict;
 }
 
 
@@ -479,15 +499,15 @@ static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
 
 	VIDEO_INIT_CHECK();
 
-    	if(!PyArg_ParseTuple(arg, "ii", &flag, &value))
+	if(!PyArg_ParseTuple(arg, "ii", &flag, &value))
 		return NULL;
-        if(flag == -1) /*an undefined/unsupported val, ignore*/
-            RETURN_NONE
+	if(flag == -1) /*an undefined/unsupported val, ignore*/
+		RETURN_NONE
 
 	result = SDL_GL_SetAttribute(flag, value);
-        if(result == -1)
-            return RAISE(PyExc_SDLError, SDL_GetError());
-        RETURN_NONE
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+	RETURN_NONE
 }
 
 
@@ -509,7 +529,7 @@ static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
 
 static PyObject* gl_get_attribute(PyObject* self, PyObject* arg)
 {
-        int flag, value, result;
+	int flag, value, result;
 
 	VIDEO_INIT_CHECK();
 
@@ -517,10 +537,10 @@ static PyObject* gl_get_attribute(PyObject* self, PyObject* arg)
 		return NULL;
 
 	result = SDL_GL_GetAttribute(flag, &value);
-        if(result == -1)
-            return RAISE(PyExc_SDLError, SDL_GetError());
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
 
-        return PyInt_FromLong(value);
+	return PyInt_FromLong(value);
 }
 
 
@@ -561,7 +581,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 {
 	SDL_Surface* surf;
 	int depth = 0;
-        int flags = SDL_SWSURFACE;
+	int flags = SDL_SWSURFACE;
 	int w, h, hasbuf;
 	char *title, *icontitle;
 
@@ -617,7 +637,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	SDL_PumpEvents();
 
 	if(DisplaySurfaceObject)
-		((PySurfaceObject*)DisplaySurfaceObject)->surf = surf;
+		PySurface_AsSurface(DisplaySurfaceObject) = surf;
 	else
 		DisplaySurfaceObject = PySurface_New(surf);
 
@@ -627,26 +647,13 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	{
 		char* iconpath = NULL;
 		SDL_Surface* icon = NULL;
-		PyObject* iconstr = display_resourcepath(icon_defaultname);
-
-		if (iconstr) {
-			icon_was_set = 1;
-			iconpath = PyString_AsString(iconstr);
-		}
-
-		if (!iconpath)
+		PyObject* iconsurf = display_resource(icon_defaultname);
+		if (!iconsurf)
 			PyErr_Clear();
 		else {
-			char* iconpath = PyString_AsString(iconstr);
-			if (iconpath) 
-				icon = SDL_LoadBMP(iconpath);
-			if(icon)
-			{
-				SDL_SetColorKey(icon, SDL_SRCCOLORKEY, 0);
-				SDL_WM_SetIcon(icon, NULL);
-				SDL_FreeSurface(icon);
-			}
-			Py_DECREF(iconstr);
+			SDL_SetColorKey(PySurface_AsSurface(iconsurf), SDL_SRCCOLORKEY, 0);
+			do_set_icon(iconsurf);
+			Py_DECREF(iconsurf);
 		}
 	}
 #endif
@@ -683,7 +690,7 @@ static PyObject* mode_ok(PyObject* self, PyObject* args)
 {
 	int depth=0;
 	int w, h;
-        int flags = SDL_SWSURFACE;
+	int flags = SDL_SWSURFACE;
 
 	VIDEO_INIT_CHECK();
 
@@ -800,8 +807,8 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 static SDL_Rect* screencroprect(GAME_Rect* r, int w, int h, SDL_Rect* cur)
 {
 	if(r->x > w || r->y > h || (r->x + r->w) <= 0 || (r->y + r->h) <= 0)
-                return 0;
-        else
+		return 0;
+	else
 	{
 		int right = min(r->x + r->w, w);
 		int bottom = min(r->y + r->h, h);
@@ -848,10 +855,10 @@ static PyObject* update(PyObject* self, PyObject* arg)
 
 	/*determine type of argument we got*/
 	if(PyTuple_Size(arg) == 0)
-        {
-            SDL_UpdateRect(screen, 0, 0, 0, 0);
-            RETURN_NONE
-        }
+	{
+		SDL_UpdateRect(screen, 0, 0, 0, 0);
+		RETURN_NONE
+	}
 	else
 	{
 		obj = PyTuple_GET_ITEM(arg, 0);
@@ -872,60 +879,60 @@ static PyObject* update(PyObject* self, PyObject* arg)
 		}
 	}
 
-        if(gr)
-        {
-                SDL_Rect sdlr;
-                if(screencroprect(gr, wide, high, &sdlr))
-                        SDL_UpdateRect(screen, sdlr.x, sdlr.y, sdlr.w, sdlr.h);
-        }
-        else
-        {
-                PyObject* seq;
-                PyObject* r;
-                int loop, num, count;
-                SDL_Rect* rects;
-                if(PyTuple_Size(arg) != 1)
-                        return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
-                seq = PyTuple_GET_ITEM(arg, 0);
-                if(!seq || !PySequence_Check(seq))
-                        return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
+	if(gr)
+	{
+		SDL_Rect sdlr;
+		if(screencroprect(gr, wide, high, &sdlr))
+			SDL_UpdateRect(screen, sdlr.x, sdlr.y, sdlr.w, sdlr.h);
+	}
+	else
+	{
+		PyObject* seq;
+		PyObject* r;
+		int loop, num, count;
+		SDL_Rect* rects;
+		if(PyTuple_Size(arg) != 1)
+				return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
+		seq = PyTuple_GET_ITEM(arg, 0);
+		if(!seq || !PySequence_Check(seq))
+				return RAISE(PyExc_ValueError, "update requires a rectstyle or sequence of recstyles");
 
-                num = PySequence_Length(seq);
-                rects = PyMem_New(SDL_Rect, num);
-                if(!rects) return NULL;
-                count = 0;
-                for(loop = 0; loop < num; ++loop)
-                {
-                        SDL_Rect* cur_rect = (rects + count);
+		num = PySequence_Length(seq);
+		rects = PyMem_New(SDL_Rect, num);
+		if(!rects) return NULL;
+		count = 0;
+		for(loop = 0; loop < num; ++loop)
+		{
+			SDL_Rect* cur_rect = (rects + count);
 
-                        /*get rect from the sequence*/
-                        r = PySequence_GetItem(seq, loop);
-                        if(r == Py_None)
-                        {
-                                Py_DECREF(r);
-                                continue;
-                        }
-                        gr = GameRect_FromObject(r, &temp);
-                        Py_XDECREF(r);
-                        if(!gr)
-                        {
-                                PyMem_Free((char*)rects);
-                                return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
-                        }
+			/*get rect from the sequence*/
+			r = PySequence_GetItem(seq, loop);
+			if(r == Py_None)
+			{
+				Py_DECREF(r);
+				continue;
+			}
+			gr = GameRect_FromObject(r, &temp);
+			Py_XDECREF(r);
+			if(!gr)
+			{
+				PyMem_Free((char*)rects);
+				return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
+			}
 
-                        if(gr->w < 1 && gr->h < 1)
-                                continue;
+			if(gr->w < 1 && gr->h < 1)
+				continue;
 
-                        /*bail out if rect not onscreen*/
-                        if(!screencroprect(gr, wide, high, cur_rect))
-                                continue;
+			/*bail out if rect not onscreen*/
+			if(!screencroprect(gr, wide, high, cur_rect))
+				continue;
 
-                        ++count;
-                }
+			++count;
+		}
 
-                if(count)
-                    SDL_UpdateRects(screen, count, rects);
-                PyMem_Free((char*)rects);
+		if(count)
+			SDL_UpdateRects(screen, count, rects);
+		PyMem_Free((char*)rects);
 	}
 	RETURN_NONE
 }
@@ -1042,35 +1049,35 @@ static PyObject* set_gamma(PyObject* self, PyObject* arg)
 
 static int convert_to_uint16(PyObject* python_array, Uint16* c_uint16_array)
 {
-        int i;
-        PyObject* item;
+	int i;
+	PyObject* item;
 
 	if (!c_uint16_array) {
-	        RAISE(PyExc_RuntimeError, "Memory not allocated for c_uint16_array.");
+		RAISE(PyExc_RuntimeError, "Memory not allocated for c_uint16_array.");
 		return 0;
 	}
 
 	if (!PySequence_Check(python_array))
-        {
-	        RAISE(PyExc_TypeError, "Array must be sequence type");
-	        return 0;
-        }
+	{
+		RAISE(PyExc_TypeError, "Array must be sequence type");
+		return 0;
+	}
 
 	if (PySequence_Size(python_array) != 256)
-        {
+	{
 		RAISE(PyExc_ValueError, "gamma ramp must be 256 elements long");
-                return 0;
-        }
+		return 0;
+	}
 	for (i=0; i<256; i++)
-        {
-                item = PySequence_GetItem(python_array, i);
-                if(!PyInt_Check(item))
-                {
-		    RAISE(PyExc_ValueError, "gamma ramp must contain integer elements");
-                    return 0;
-                }
+	{
+		item = PySequence_GetItem(python_array, i);
+		if(!PyInt_Check(item))
+		{
+			RAISE(PyExc_ValueError, "gamma ramp must contain integer elements");
+			return 0;
+		}
 		c_uint16_array[i] = (Uint16)PyInt_AsLong(item);
-        }
+	}
 	return 1;
 }
 
@@ -1096,28 +1103,28 @@ static PyObject* set_gamma_ramp(PyObject* self, PyObject* arg)
 	        return NULL;
 	g = (Uint16 *)malloc(256 * sizeof(Uint16));
 	if (!g)
-        {
-                free(r);
-	        return NULL;
-        }
+	{
+		free(r);
+		return NULL;
+	}
 	b = (Uint16 *)malloc(256 * sizeof(Uint16));
 	if (!b)
-        {
-                free(r);
-                free(g);
-	        return NULL;
-        }
+	{
+		free(r);
+		free(g);
+		return NULL;
+	}
 
 	if(!PyArg_ParseTuple(arg, "O&O&O&",
 			     convert_to_uint16, r,
 			     convert_to_uint16, g,
 			     convert_to_uint16, b))
-        {
-                free(r); free(g); free(b);
-	        return NULL;
-        }
+	{
+		free(r); free(g); free(b);
+		return NULL;
+	}
 
-        VIDEO_INIT_CHECK();
+	VIDEO_INIT_CHECK();
 
 	result = SDL_SetGammaRamp(r, g, b);
 
@@ -1194,19 +1201,20 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
     /*DOC*/    "icon after the window has been shown the first time.\n"
     /*DOC*/ ;
 
+static void do_set_icon(PyObject *surface)
+{
+	SDL_Surface* surf = PySurface_AsSurface(surface);
+	surf = PySurface_AsSurface(surface);
+	SDL_WM_SetIcon(surf, NULL);
+	icon_was_set = 1;
+}
+
 static PyObject* set_icon(PyObject* self, PyObject* arg)
 {
 	PyObject* surface;
-	SDL_Surface* surf;
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surface))
 		return NULL;
-
-	surf = PySurface_AsSurface(surface);
-	PySurface_Lock(surface);
-	SDL_WM_SetIcon(surf, NULL);
-	PySurface_Unlock(surface);
-
-	icon_was_set = 1;
+	do_set_icon(surface);
 	RETURN_NONE
 }
 
@@ -1283,7 +1291,8 @@ static PyMethodDef display_builtins[] =
 	{ "mode_ok", mode_ok, 1, doc_mode_ok },
 	{ "list_modes", list_modes, 1, doc_list_modes },
 
-        { "flip", flip, 1, doc_flip }, { "update", update, 1, doc_update },
+	{ "flip", flip, 1, doc_flip },
+	{ "update", update, 1, doc_update },
 
 	{ "set_palette", set_palette, 1, doc_set_palette },
 	{ "set_gamma", set_gamma, 1, doc_set_gamma },
@@ -1356,7 +1365,7 @@ void initdisplay(void)
 	PyType_Init(PyVidInfo_Type);
 
 
-    /* create the module */
+	/* create the module */
 	module = Py_InitModule3("display", display_builtins, doc_pygame_display_MODULE);
 	dict = PyModule_GetDict(module);
 	self_module = module;
