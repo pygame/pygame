@@ -11,16 +11,15 @@
 #import <unistd.h>
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
+#import "CPS.h"
 
-extern int NXArgc;
-extern char **NXArgv;
 @interface SDLMain : NSObject
 @end
 
 /* Create a window menu */
 void setupWindowMenu(void)
 {
-    NSMenu		*windowMenu;
+    NSMenu	*windowMenu;
     NSMenuItem	*windowMenuItem;
     NSMenuItem	*menuItem;
 
@@ -69,9 +68,16 @@ SDLMain *sdlMain;
 
 void StartTheDamnApplication (void)
 {
+    CPSProcessSerNum PSN;
+    //OSErr err;
     NSImage *pygameIcon;
     global_pool = [[NSAutoreleasePool alloc] init];
     [NSApplication sharedApplication];
+    if (!CPSGetCurrentProcess(&PSN))
+        if (!CPSSetProcessName(&PSN,"pygame"))
+            if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103))
+                if (!CPSSetFrontProcess(&PSN))
+                    [NSApplication sharedApplication];
     [NSApp setMainMenu:[[NSMenu alloc] init]];
     setupWindowMenu();
     sdlMain = [[SDLMain alloc] init];

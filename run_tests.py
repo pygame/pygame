@@ -1,7 +1,5 @@
-import sys
-import os
-import re
-import unittest
+#!/usr/bin/env python
+import sys, os, re, unittest
 
 main_dir = os.path.split(os.path.abspath(sys.argv[0]))[0]
 test_subdir = 'test'
