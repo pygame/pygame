@@ -458,7 +458,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		return RAISE(PyExc_TypeError, "text must be a string or unicode");
 
 	if(!surf)
-		return RAISE(PyExc_SDLError, SDL_GetError());
+		return RAISE(PyExc_SDLError, "SDL_ttf render failed");
 
 	if(!aa && bg_rgba_obj) /*turn off transparancy*/
 	{			
