@@ -446,8 +446,8 @@ static PyObject* rect_collidepoint(PyObject* oself, PyObject* args)
 	if(!TwoShortsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "argument must contain two numbers");
 
-	inside = x>=self->r.x && x<=self->r.x+self->r.w && 
-				y>=self->r.y && y<=self->r.y+self->r.h;
+	inside = x>=self->r.x && x<self->r.x+self->r.w && 
+				y>=self->r.y && y<self->r.y+self->r.h;
 
 	return PyInt_FromLong(inside);
 }
@@ -656,8 +656,10 @@ static PyObject* rect_contains(PyObject* oself, PyObject* args)
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
 	contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
-					(self->r.x + self->r.w >= argrect->x + argrect->w) &&
-					(self->r.y + self->r.h >= argrect->y + argrect->h);
+	            (self->r.x + self->r.w >= argrect->x + argrect->w) &&
+	            (self->r.y + self->r.h >= argrect->y + argrect->h) &&
+	            (self->r.x + self->r.w > argrect->x) &&
+	            (self->r.y + self->r.h > argrect->y);
 
 	return PyInt_FromLong(contained);
 }
@@ -668,8 +670,8 @@ static PyObject* rect_contains(PyObject* oself, PyObject* args)
     /*DOC*/    "move rectangle inside another\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns a new rectangle that is moved to be\n"
-    /*DOC*/    "completely inside the base rectangle. If the given\n"
-    /*DOC*/    "rectangle is too large for the base rectangle in\n"
+    /*DOC*/    "completely inside the argument rectangle. If the base\n"
+    /*DOC*/    "rectangle is too large for the argument rectangle in\n"
     /*DOC*/    "an axis, it will be centered on that axis.\n"
     /*DOC*/ ;
 
@@ -682,7 +684,7 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
 	if(self->r.w >= argrect->w)
-		x = (argrect->x+argrect->w) / 2 - self->r.w / 2;
+		x = argrect->x + argrect->w / 2 - self->r.w / 2;
 	else if(self->r.x < argrect->x)
 		x = argrect->x;
 	else if(self->r.x + self->r.w > argrect->x + argrect->w)
@@ -691,7 +693,7 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 		x = self->r.x;
 
 	if(self->r.h >= argrect->h)
-		y = (argrect->y+argrect->h) / 2 - self->r.h / 2;
+		y = argrect->y + argrect->h / 2 - self->r.h / 2;
 	else if(self->r.y < argrect->y)
 		y = argrect->y;
 	else if(self->r.y + self->r.h > argrect->y + argrect->h)
@@ -708,8 +710,8 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
     /*DOC*/    "moves the rectangle inside another\n"
     /*DOC*/    "\n"
     /*DOC*/    "Moves the Rect to be\n"
-    /*DOC*/    "completely inside the base rectangle. If the given\n"
-    /*DOC*/    "rectangle is too large for the base rectangle in\n"
+    /*DOC*/    "completely inside the argument rectangle. If the given\n"
+    /*DOC*/    "rectangle is too large for the argument rectangle in\n"
     /*DOC*/    "an axis, it will be centered on that axis.\n"
     /*DOC*/ ;
 
@@ -722,7 +724,7 @@ static PyObject* rect_clamp_ip(PyObject* oself, PyObject* args)
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
 	if(self->r.w >= argrect->w)
-		x = (argrect->x+argrect->w) / 2 - self->r.w / 2;
+		x = argrect->x + argrect->w / 2 - self->r.w / 2;
 	else if(self->r.x < argrect->x)
 		x = argrect->x;
 	else if(self->r.x + self->r.w > argrect->x + argrect->w)
@@ -731,7 +733,7 @@ static PyObject* rect_clamp_ip(PyObject* oself, PyObject* args)
 		x = self->r.x;
 
 	if(self->r.h >= argrect->h)
-		y = (argrect->y+argrect->h) / 2 - self->r.h / 2;
+		y = argrect->y + argrect->h / 2 - self->r.h / 2;
 	else if(self->r.y < argrect->y)
 		y = argrect->y;
 	else if(self->r.y + self->r.h > argrect->y + argrect->h)
