@@ -107,9 +107,9 @@ def subtract(color1, color2):
        to the minimum color value of 0.
     """
     r1, g1, b1, a1 = _splitcolor(color1)
-    r2, g2, b2, a2 = _splitcolor(color2)
+    r2, g2, b2, a2 = _splitcolor(color2, 0)
     m, i = max, int
-    return m(i(r1+r2), 0), m(i(g1+g2), 0), m(i(b1+b2), 0), m(i(a1+a2), 0)
+    return m(i(r1-r2), 0), m(i(g1-g2), 0), m(i(b1-b2), 0), m(i(a1-a2), 0)
 
 
 def multiply(color1, color2):
