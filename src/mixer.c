@@ -79,7 +79,7 @@ static void endsound_callback(int channel)
 	    channeldata[channel].queue = NULL;
 	    channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
 	    if(channelnum != -1)
-	    	Mix_GroupChannel(channelnum, (int)sound);
+		Mix_GroupChannel(channelnum, (int)sound);
 	}
 	else
 	{
@@ -92,22 +92,22 @@ static void endsound_callback(int channel)
 
 static void autoquit(void)
 {
-        int i;
+	int i;
 	if(SDL_WasInit(SDL_INIT_AUDIO))
 	{
 		Mix_HaltMusic();
 
-                if(channeldata)
-                {
-                    for(i=0; i<numchanneldata; ++i)
+		if(channeldata)
+		{
+		    for(i=0; i<numchanneldata; ++i)
 		    {
-                        Py_XDECREF(channeldata[i].sound);
+			Py_XDECREF(channeldata[i].sound);
 			Py_XDECREF(channeldata[i].queue);
 		    }
-                    free(channeldata);
-                    channeldata = NULL;
-                    numchanneldata = 0;
-                }
+		    free(channeldata);
+		    channeldata = NULL;
+		    numchanneldata = 0;
+		}
 
 		if(current_music)
 		{
@@ -150,11 +150,11 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 	else
 		stereo = 1;
 
-        if(size == 8) size = AUDIO_U8;
-        else if(size == -8) size = AUDIO_S8;
-        else if(size == 16) size = AUDIO_U16SYS;
-        else if(size == -16) size = AUDIO_S16SYS;
-        
+	if(size == 8) size = AUDIO_U8;
+	else if(size == -8) size = AUDIO_S8;
+	else if(size == 16) size = AUDIO_U16SYS;
+	else if(size == -16) size = AUDIO_S16SYS;
+	
 	/*make chunk a power of 2*/
 	for(i=0; 1<<i < chunk; ++i); //yes, semicolon on for loop
 	chunk = max(1<<i, 256);
@@ -162,19 +162,19 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
 	{
 		PyGame_RegisterQuit(autoquit);
-                
-                if(!channeldata) /*should always be null*/
-                {
-                    numchanneldata = MIX_CHANNELS;
-                    channeldata = (struct ChannelData*)malloc(
+		
+		if(!channeldata) /*should always be null*/
+		{
+		    numchanneldata = MIX_CHANNELS;
+		    channeldata = (struct ChannelData*)malloc(
 			    sizeof(struct ChannelData)*numchanneldata);
-                    for(i=0; i < numchanneldata; ++i)
+		    for(i=0; i < numchanneldata; ++i)
 		    {
-                        channeldata[i].sound = NULL;
+			channeldata[i].sound = NULL;
 			channeldata[i].queue = NULL;
 			channeldata[i].endevent = 0;
 		    }
-                }
+		}
 
 		if(SDL_InitSubSystem(SDL_INIT_AUDIO) == -1)
 			return PyInt_FromLong(0);
@@ -185,10 +185,10 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 			return PyInt_FromLong(0);
 		}
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
-                Mix_ChannelFinished(endsound_callback);
+		Mix_ChannelFinished(endsound_callback);
 #endif
-                
-              	Mix_VolumeMusic(127);
+		
+		Mix_VolumeMusic(127);
 	}
 	return PyInt_FromLong(1);
 }
@@ -337,12 +337,12 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 	if(channelnum == -1)
 		RETURN_NONE
 
-        Py_XDECREF(channeldata[channelnum].sound);
+	Py_XDECREF(channeldata[channelnum].sound);
 	Py_XDECREF(channeldata[channelnum].queue);
 	channeldata[channelnum].queue = NULL;
-        channeldata[channelnum].sound = self;
-        Py_INCREF(self);
-                    
+	channeldata[channelnum].sound = self;
+	Py_INCREF(self);
+		    
 	//make sure volume on this arbitrary channel is set to full
 	Mix_Volume(channelnum, 128);
 
@@ -527,7 +527,7 @@ static PyMethodDef sound_builtins[] =
 
 static void sound_dealloc(PyObject* self)
 {
-    	Mix_Chunk* chunk = PySound_AsChunk(self);
+	Mix_Chunk* chunk = PySound_AsChunk(self);
 	Mix_FreeChunk(chunk);
 	PyObject_DEL(self);
 }
@@ -606,13 +606,13 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
 	if(channelnum != -1)
 		Mix_GroupChannel(channelnum, (int)chunk);
 
-        Py_XDECREF(channeldata[channelnum].sound);
+	Py_XDECREF(channeldata[channelnum].sound);
 	Py_XDECREF(channeldata[channelnum].queue);
-        channeldata[channelnum].sound = sound;
+	channeldata[channelnum].sound = sound;
 	channeldata[channelnum].queue = NULL;
-        Py_INCREF(sound);
+	Py_INCREF(sound);
 
-        	
+		
 	RETURN_NONE
 }
 
@@ -650,8 +650,8 @@ static PyObject* chan_queue(PyObject* self, PyObject* args)
 	    if(channelnum != -1)
 		    Mix_GroupChannel(channelnum, (int)chunk);
 
-            channeldata[channelnum].sound = sound;
-            Py_INCREF(sound);
+	    channeldata[channelnum].sound = sound;
+	    Py_INCREF(sound);
 	}
 	else
 	{
@@ -659,7 +659,7 @@ static PyObject* chan_queue(PyObject* self, PyObject* args)
 	    channeldata[channelnum].queue = sound;
 	    Py_INCREF(sound);
 	}
-        	
+		
 	RETURN_NONE
 }
 
@@ -794,14 +794,14 @@ static PyObject* chan_set_volume(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=1
-        if(stereovolume != -1.11f)
-            Mix_SetPanning(channelnum, (Uint8)(volume*255), (Uint8)(stereovolume*255));
-        else
-            Mix_SetPanning(channelnum, (Uint8)255, (Uint8)255);
-        volume = 1.0f;
+	if(stereovolume != -1.11f)
+	    Mix_SetPanning(channelnum, (Uint8)(volume*255), (Uint8)(stereovolume*255));
+	else
+	    Mix_SetPanning(channelnum, (Uint8)255, (Uint8)255);
+	volume = 1.0f;
 #else
-        if(stereovolume != -1.11f)
-            volume = (volume + stereovolume) * 0.5f;
+	if(stereovolume != -1.11f)
+	    volume = (volume + stereovolume) * 0.5f;
 #endif
 	Mix_Volume(channelnum, (int)(volume*128));
 	RETURN_NONE
@@ -844,7 +844,6 @@ static PyObject* chan_get_volume(PyObject* self, PyObject* args)
 static PyObject* chan_get_sound(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	int volume;
 	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, ""))
@@ -871,7 +870,6 @@ static PyObject* chan_get_sound(PyObject* self, PyObject* args)
 static PyObject* chan_get_queue(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	int volume;
 	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, ""))
@@ -908,13 +906,12 @@ static PyObject* chan_set_endevent(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
 	int event = SDL_NOEVENT;
-	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, "|i", &event))
 		return NULL;
 
 	channeldata[channelnum].endevent = event;
-    	RETURN_NONE
+	RETURN_NONE
 }
 
 
@@ -930,7 +927,6 @@ static PyObject* chan_set_endevent(PyObject* self, PyObject* args)
 static PyObject* chan_get_endevent(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	PyObject* sound;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -1057,20 +1053,20 @@ static PyObject* set_num_channels(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-        if(numchans > numchanneldata)
-        {
-            channeldata= (struct ChannelData*)realloc(channeldata,
+	if(numchans > numchanneldata)
+	{
+	    channeldata= (struct ChannelData*)realloc(channeldata,
 		    sizeof(struct ChannelData*) * numchans);
-            for(i = numchanneldata; i < numchans; ++i)
+	    for(i = numchanneldata; i < numchans; ++i)
 	    {
 		Py_XDECREF(channeldata[i].sound);
 		Py_XDECREF(channeldata[i].queue);
 		channeldata[i].sound = NULL;
 		channeldata[i].queue = NULL;
 	    }
-            numchanneldata = numchans;
-        }
-        
+	    numchanneldata = numchans;
+	}
+	
 	Mix_AllocateChannels(numchans);
 	RETURN_NONE
 }
@@ -1435,7 +1431,7 @@ void initmixer(void)
 	import_pygame_rwobject();
 
 	music = PyImport_ImportModule("pygame.mixer_music");
-        if(music) 
+	if(music) 
 	{
 		PyObject* ptr, *dict;
 		PyModule_AddObject(module, "music", music);
@@ -1447,8 +1443,8 @@ void initmixer(void)
 	}	
 	else /*music module not compiled? cleanly ignore*/
 	{
-            current_music = NULL;
-            PyErr_Clear();
+	    current_music = NULL;
+	    PyErr_Clear();
 	}
 }
 
