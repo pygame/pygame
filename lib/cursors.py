@@ -179,7 +179,7 @@ should work with typical XBM files.
             curs = curs[line:]
             break
     for line in range(len(mask)):
-    	if mask[line].startswith("#define"):
+        if mask[line].startswith("#define"):
             mask = mask[line:]
             break
     #load width,height

@@ -490,7 +490,7 @@ class RenderClear(Group):
            dimensions as the surface. The bgd can also be
            a function which gets called with the passed
            surface and the area to be cleared."""
-	if callable(bgd):
+        if callable(bgd):
             for r in self.lostsprites:
                 bgd(surface, r)
             for r in self.spritedict.values():
