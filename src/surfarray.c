@@ -192,9 +192,9 @@ static PyObject* pixels_alpha(PyObject* self, PyObject* arg)
 
 	/*must discover information about how data is packed*/
 	if(surf->format->Amask == 0xff<<24)
-		startpixel = ((char*)surf->pixels) + (lilendian ? 0 : 3);
-	else if(surf->format->Amask == 0xff)
 		startpixel = ((char*)surf->pixels) + (lilendian ? 3 : 0);
+	else if(surf->format->Amask == 0xff)
+		startpixel = ((char*)surf->pixels) + (lilendian ? 0 : 3);
 	else
 		return RAISE(PyExc_ValueError, "unsupport colormasks for alpha reference array");
 
