@@ -39,6 +39,8 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty
     /*DOC*/    "rectangle. A bounding box of the effected area is returned\n"
     /*DOC*/    "as a rectangle.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
@@ -61,9 +63,12 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-	if(!RGBAFromObj(colorobj, rgba))
-		return RAISE(PyExc_TypeError, "Invalid color RGB argument");
-	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	if(PyInt_Check(colorobj))
+		color = (Uint32)PyInt_AsLong(colorobj);
+	else if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
 
 	if(!TwoShortsFromObj(start, &startx, &starty))
 		return RAISE(PyExc_TypeError, "Invalid start position argument");
@@ -118,6 +123,8 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	/*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
 	/*DOC*/    "effected area is returned as a rectangle.\n"
     /*DOC*/    "\n"
+    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
+    /*DOC*/    "\n"
     /*DOC*/    "This function will temporarily lock the surface.\n"
     /*DOC*/ ;
 
@@ -141,9 +148,12 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return RAISE(PyExc_ValueError, "unsupport bit depth for line draw");
 
-	if(!RGBAFromObj(colorobj, rgba))
-		return RAISE(PyExc_TypeError, "Invalid color RGB argument");
-	color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	if(PyInt_Check(colorobj))
+		color = (Uint32)PyInt_AsLong(colorobj);
+	else if(RGBAFromObj(colorobj, rgba))
+		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
+	else
+		return RAISE(PyExc_TypeError, "invalid color argument");
 
 	closed = PyObject_IsTrue(closedobj);
 
