@@ -26,7 +26,7 @@ SHOT_SPEED     = 6
 ALIEN_SPEED    = 6
 ALIEN_ODDS     = 45
 EXPLODE_TIME   = 6
-SCREENRECT     = new_rect(0, 0, 640, 480)
+SCREENRECT     = Rect(0, 0, 640, 480)
 
 
 #some globals for friendly access
@@ -157,7 +157,7 @@ def main():
     Img.explosion = load_image('explosion1.gif', 1)
 
     # Create the background
-    background = new_surface(SCREENRECT.size)
+    background = pygame.Surface(SCREENRECT.size)
     for x in range(0, SCREENRECT.width, Img.background.get_width()):
         background.blit(Img.background, (x, 0))
     screen.blit(background, (0,0))

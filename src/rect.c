@@ -977,8 +977,8 @@ static PyTypeObject PyRect_Type = {
 
 /*module globals*/
 
-    /*DOC*/ static char doc_new_rect[] =
-    /*DOC*/    "pygame.new_rect(rectstyle) -> Rect\n"
+    /*DOC*/ static char doc_Rect[] =
+    /*DOC*/    "pygame.Rect(rectstyle) -> Rect\n"
     /*DOC*/    "create a new rectangle\n"
     /*DOC*/    "\n"
     /*DOC*/    "Creates a new rectangle object. The given\n"
@@ -988,7 +988,7 @@ static PyTypeObject PyRect_Type = {
     /*DOC*/    "corner, and the width and height.\n"
     /*DOC*/ ;
 
-static PyObject* new_rect(PyObject* self, PyObject* args)
+static PyObject* Rect(PyObject* self, PyObject* args)
 {
 	GAME_Rect *argrect, temp;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
@@ -1001,7 +1001,7 @@ static PyObject* new_rect(PyObject* self, PyObject* args)
 
 static PyMethodDef rect__builtins__[] =
 {
-	{ "new_rect", new_rect, 1, doc_new_rect }, 
+	{ "Rect", Rect, 1, doc_Rect }, 
 	{NULL, NULL}
 };
 

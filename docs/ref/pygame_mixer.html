@@ -60,7 +60,7 @@ Simple sound playback can simply use the Sound.play() method to
 play the sound. Each Sound object can be played multiple times
 simultaneously. If you desire more specific control over the
 Sound objects, you can access the Channel objects with functions
-like pygame.mixer.get_channel().
+like pygame.mixer.Channel().
 <br>&nbsp;<br>
 The mixer defaults to supporting 8 simultaneous soundfiles.
 You can change the number of available sound channels at any
@@ -79,6 +79,14 @@ control the music channel through pygame.mixer.music./
 <hr>
 
 <table>
+<tr><td><a href=#Channel>Channel</a></td><td> -
+get channel object</td></tr>
+
+
+<tr><td><a href=#Sound>Sound</a></td><td> -
+load a new soundfile</td></tr>
+
+
 <tr><td><a href=#fadeout>fadeout</a></td><td> -
 fadeout all channels</td></tr>
 
@@ -91,10 +99,6 @@ find an available sound channel</td></tr>
 query busy channels</td></tr>
 
 
-<tr><td><a href=#get_channel>get_channel</a></td><td> -
-get channel object</td></tr>
-
-
 <tr><td><a href=#get_init>get_init</a></td><td> -
 query initialization for the mixer</td></tr>
 
@@ -105,10 +109,6 @@ query the number of channels</td></tr>
 
 <tr><td><a href=#init>init</a></td><td> -
 initialize mixer module</td></tr>
-
-
-<tr><td><a href=#load>load</a></td><td> -
-load a new soundfile</td></tr>
 
 
 <tr><td><a href=#pause>pause</a></td><td> -
@@ -143,6 +143,23 @@ restart any pause channels</td></tr>
 
 <hr>
 
+<a name=Channel><font size=+2><b>Channel
+</b></font><br><font size=+1><tt>
+pygame.mixer.Channel(int) -> Channel
+</tt></font><ul>
+Get a channel object for the given channel. This number must be
+less that the current number of channels.
+</ul><br>&nbsp;<br>
+
+<a name=Sound><font size=+2><b>Sound
+</b></font><br><font size=+1><tt>
+pygame.mixer.Sound(file) -> Sound
+</tt></font><ul>
+Loads a new sound object from a WAV file. File can be a filename
+or a file-like object. The sound will be converted to match the
+current mode of the mixer.
+</ul><br>&nbsp;<br>
+
 <a name=fadeout><font size=+2><b>fadeout
 </b></font><br><font size=+1><tt>
 pygame.mixer.fadeout(millisec) -> None
@@ -168,14 +185,6 @@ pygame.mixer.get_busy() -> int
 Returns the number of current active channels. This is not the
 total channels, but the number of channels that are currently
 playing sound.
-</ul><br>&nbsp;<br>
-
-<a name=get_channel><font size=+2><b>get_channel
-</b></font><br><font size=+1><tt>
-pygame.mixer.get_channel(int) -> Channel
-</tt></font><ul>
-Get a channel object for the given channel. This number must be
-less that the current number of channels.
 </ul><br>&nbsp;<br>
 
 <a name=get_init><font size=+2><b>get_init
@@ -209,15 +218,6 @@ initialized at all). You can easily use the <a href=pygame.html#init>pygame.init
 function to cleanly initialize everything, but first use the
 pygame.mixer.pre_init() function to change the default values for
 this <a href=pygame.html#init>init()</a>.
-</ul><br>&nbsp;<br>
-
-<a name=load><font size=+2><b>load
-</b></font><br><font size=+1><tt>
-pygame.mixer.load(file) -> Sound
-</tt></font><ul>
-Loads a new sound object from a WAV file. File can be a filename
-or a file-like object. The sound will be converted to match the
-current mode of the mixer.
 </ul><br>&nbsp;<br>
 
 <a name=pause><font size=+2><b>pause

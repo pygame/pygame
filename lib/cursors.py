@@ -16,7 +16,7 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 ##    Pete Shinners
-##    pete@shinnerso.org
+##    pete@shinners.org
 
 """Set of cursor resources available for use. These cursors come
 in a sequence of values that are needed as the arguments for

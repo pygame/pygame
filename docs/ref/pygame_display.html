@@ -84,6 +84,10 @@ screen synchronized with what is on the surface.
 <hr>
 
 <table>
+<tr><td><a href=#Info>Info</a></td><td> -
+get display capabilities and settings</td></tr>
+
+
 <tr><td><a href=#flip>flip</a></td><td> -
 update the display</td></tr>
 
@@ -98,10 +102,6 @@ get the current title of the window</td></tr>
 
 <tr><td><a href=#get_driver>get_driver</a></td><td> -
 get the current sdl video driver</td></tr>
-
-
-<tr><td><a href=#get_info>get_info</a></td><td> -
-get display capabilities and settings</td></tr>
 
 
 <tr><td><a href=#get_init>get_init</a></td><td> -
@@ -156,6 +156,17 @@ update an area of the display</td></tr>
 
 <hr>
 
+<a name=Info><font size=+2><b>Info
+</b></font><br><font size=+1><tt>
+pygame.display.Info() -> VidInfo
+</tt></font><ul>
+Gets a vidinfo object that contains information about the
+capabilities and current state of the video driver. This can be
+called before the display mode is set, to determine the current
+video mode of a display.
+You can print the VidInfo object to see all its members and values.
+</ul><br>&nbsp;<br>
+
 <a name=flip><font size=+2><b>flip
 </b></font><br><font size=+1><tt>
 pygame.display.flip() -> None
@@ -190,17 +201,6 @@ pygame.display.get_driver() -> name
 Once the display is initialized, this will return the name of the
 currently running video driver. There is no way to get a list of
 all the supported video drivers.
-</ul><br>&nbsp;<br>
-
-<a name=get_info><font size=+2><b>get_info
-</b></font><br><font size=+1><tt>
-pygame.display.get_info() -> VidInfo
-</tt></font><ul>
-Gets a vidinfo object that contains information about the
-capabilities and current state of the video driver. This can be
-called before the display mode is set, to determine the current
-video mode of a display.
-You can print the VidInfo object to see all its members and values.
 </ul><br>&nbsp;<br>
 
 <a name=get_init><font size=+2><b>get_init

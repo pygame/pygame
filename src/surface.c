@@ -1229,8 +1229,8 @@ static PyObject* PySurface_New(SDL_Surface* s)
 
 /* surface module functions */
 
-    /*DOC*/ static char doc_new_surface[] =
-    /*DOC*/    "pygame.new_surface(size, [flags, [depth|Surface, [masks]]]) ->\n"
+    /*DOC*/ static char doc_Surface[] =
+    /*DOC*/    "pygame.Surface(size, [flags, [depth|Surface, [masks]]]) ->\n"
     /*DOC*/    "Surface\n"
     /*DOC*/    "create a new Surface\n"
     /*DOC*/    "\n"
@@ -1252,7 +1252,7 @@ static PyObject* PySurface_New(SDL_Surface* s)
     /*DOC*/    "for the flag.\n"
     /*DOC*/ ;
 
-static PyObject* new_surface(PyObject* self, PyObject* arg)
+static PyObject* Surface(PyObject* self, PyObject* arg)
 {
 	Uint32 flags = 0;
 	int width, height;
@@ -1325,7 +1325,7 @@ static PyObject* new_surface(PyObject* self, PyObject* arg)
 
 static PyMethodDef surface_builtins[] =
 {
-	{ "new_surface", new_surface, 1, doc_new_surface },
+	{ "Surface", Surface, 1, doc_Surface },
 	{ NULL, NULL }
 };
 

@@ -18,7 +18,7 @@ if not mixer.get_init():
 
 #load the sound    
 file = os.path.join('data', 'secosmic_lo.wav')
-sound = mixer.load(file)
+sound = mixer.Sound(file)
 
 
 #start playing

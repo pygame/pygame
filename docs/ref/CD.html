@@ -42,8 +42,10 @@
 </td></tr></table>
 <br>
 <h2 align=center>CD</h2>
-thin wrapper around the SDL CDROM api, likely to
-change
+The CD object represents a CDROM drive and allows you to
+access the CD inside that drive. All functions (except get_name())
+require the CD object to be initialized. This is done with the
+CD.init() function.
 
 <hr>
 
@@ -52,20 +54,48 @@ change
 ejects cdrom drive</td></tr>
 
 
-<tr><td><a href=#get_cur_frame>get_cur_frame</a></td><td> -
-query current frame</td></tr>
+<tr><td><a href=#get_busy>get_busy</a></td><td> -
+checks if the cd is currently playing</td></tr>
 
 
-<tr><td><a href=#get_cur_track>get_cur_track</a></td><td> -
-query current track</td></tr>
+<tr><td><a href=#get_current>get_current</a></td><td> -
+get current position of the cdrom</td></tr>
 
 
 <tr><td><a href=#get_empty>get_empty</a></td><td> -
-query status of drive</td></tr>
+checks for a cd in the drive</td></tr>
 
 
-<tr><td><a href=#get_status>get_status</a></td><td> -
-query drive status</td></tr>
+<tr><td><a href=#get_init>get_init</a></td><td> -
+check if cd is initialized</td></tr>
+
+
+<tr><td><a href=#get_name>get_name</a></td><td> -
+query name of cdrom drive</td></tr>
+
+
+<tr><td><a href=#get_paused>get_paused</a></td><td> -
+checks if the cd is currently paused</td></tr>
+
+
+<tr><td><a href=#get_track_audio>get_track_audio</a></td><td> -
+check if a track has audio data</td></tr>
+
+
+<tr><td><a href=#get_track_length>get_track_length</a></td><td> -
+check the length of an audio track</td></tr>
+
+
+<tr><td><a href=#get_track_start>get_track_start</a></td><td> -
+check the start of an audio track</td></tr>
+
+
+<tr><td><a href=#get_tracks>get_tracks</a></td><td> -
+get number of tracks on cd</td></tr>
+
+
+<tr><td><a href=#init>init</a></td><td> -
+initialize a cdrom device for use</td></tr>
 
 
 <tr><td><a href=#pause>pause</a></td><td> -
@@ -76,8 +106,8 @@ pause playing cdrom</td></tr>
 play music from cdrom</td></tr>
 
 
-<tr><td><a href=#play_tracks>play_tracks</a></td><td> -
-play music from cdrom</td></tr>
+<tr><td><a href=#quit>quit</a></td><td> -
+uninitialize a cdrom device for use</td></tr>
 
 
 <tr><td><a href=#resume>resume</a></td><td> -
@@ -94,77 +124,138 @@ stops playing cdrom</td></tr>
 
 <a name=eject><font size=+2><b>eject
 </b></font><br><font size=+1><tt>
-CD.eject() -> int
+CD.eject() -> None
 </tt></font><ul>
-Ejects the media from the CDROM drive.
+Ejects the media from the CDROM drive. If the drive is empty, this
+will open the CDROM drive.
 </ul><br>&nbsp;<br>
 
-<a name=get_cur_frame><font size=+2><b>get_cur_frame
+<a name=get_busy><font size=+2><b>get_busy
 </b></font><br><font size=+1><tt>
-CD.get_cur_frame() -> int
+CD.get_busy() -> bool
 </tt></font><ul>
-Get the current frame of a playing CD.
+Returns a true value if the cd drive is currently playing. If
+the drive is paused, this will return false.
 </ul><br>&nbsp;<br>
 
-<a name=get_cur_track><font size=+2><b>get_cur_track
+<a name=get_current><font size=+2><b>get_current
 </b></font><br><font size=+1><tt>
-CD.get_cur_track() -> int
+CD.get_current() -> track, seconds
 </tt></font><ul>
-Get the current track of a playing CD.
+Returns the current track on the cdrom and the number of
+seconds into that track.
 </ul><br>&nbsp;<br>
 
 <a name=get_empty><font size=+2><b>get_empty
 </b></font><br><font size=+1><tt>
 CD.get_empty() -> bool
 </tt></font><ul>
-Returns true when there is no disk in the CD
-drive.
+Returns a true value if the cd drive is empty.
 </ul><br>&nbsp;<br>
 
-<a name=get_status><font size=+2><b>get_status
+<a name=get_init><font size=+2><b>get_init
 </b></font><br><font size=+1><tt>
-CD.get_status() -> int
+CD.get_init() -> bool
 </tt></font><ul>
-Get the status of the CDROM drive.
+Returns a true value if the CD is initialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_name><font size=+2><b>get_name
+</b></font><br><font size=+1><tt>
+CD.get_name(id) -> string
+</tt></font><ul>
+Returns the name of the CDROM device, given by the
+system. This function can be called before the drive
+is initialized.
+</ul><br>&nbsp;<br>
+
+<a name=get_paused><font size=+2><b>get_paused
+</b></font><br><font size=+1><tt>
+CD.get_paused() -> bool
+</tt></font><ul>
+Returns a true value if the cd drive is currently paused.
+</ul><br>&nbsp;<br>
+
+<a name=get_track_audio><font size=+2><b>get_track_audio
+</b></font><br><font size=+1><tt>
+CD.get_track_audio(track) -> bool
+</tt></font><ul>
+Returns true if the cdrom track contains audio data.
+</ul><br>&nbsp;<br>
+
+<a name=get_track_length><font size=+2><b>get_track_length
+</b></font><br><font size=+1><tt>
+CD.get_track_length(track) -> seconds
+</tt></font><ul>
+Returns the number of seconds in an audio track. If the
+track does not contain audio data, returns 0.0.
+</ul><br>&nbsp;<br>
+
+<a name=get_track_start><font size=+2><b>get_track_start
+</b></font><br><font size=+1><tt>
+CD.get_track_start(track) -> seconds
+</tt></font><ul>
+Returns the number of seconds an audio track starts
+on the cd.
+</ul><br>&nbsp;<br>
+
+<a name=get_tracks><font size=+2><b>get_tracks
+</b></font><br><font size=+1><tt>
+CD.get_tracks() -> numtracks
+</tt></font><ul>
+Returns the number of available tracks on the CD. Note that not
+all of these tracks contain audio data. Use CD.get_audio() to check
+the track type before playing.
+</ul><br>&nbsp;<br>
+
+<a name=init><font size=+2><b>init
+</b></font><br><font size=+1><tt>
+CD.init() -> None
+</tt></font><ul>
+In order to call most members in the CD object, the
+CD must be initialized. You can initialzie the CD object
+at anytime, and it is ok to initialize more than once.
 </ul><br>&nbsp;<br>
 
 <a name=pause><font size=+2><b>pause
 </b></font><br><font size=+1><tt>
-CD.pause() -> int
+CD.pause() -> None
 </tt></font><ul>
-Pauses the playing CD.
+Pauses the playing CD. If the CD is not playing, this will
+do nothing.
 </ul><br>&nbsp;<br>
 
 <a name=play><font size=+2><b>play
 </b></font><br><font size=+1><tt>
-CD.play(start_frame, nframes) -> int
+CD.play(track) -> None
 </tt></font><ul>
-Start playing from start_frame, for nframes. If
-nframes is 0, it will play until the end of the
-cdrom
+Play an audio track on a cdrom disk.
 </ul><br>&nbsp;<br>
 
-<a name=play_tracks><font size=+2><b>play_tracks
+<a name=quit><font size=+2><b>quit
 </b></font><br><font size=+1><tt>
-CD.play_tracks(start_track, start_frame, ntracks, nframes) -> int
+CD.quit() -> None
 </tt></font><ul>
-Start playing from start_track, for ntracks and
-nframes. If ntracks and nframes are 0, it will
-play until the end of the cdrom
+After you are completely finished with a cdrom device, you
+can use this <a href=pygame.html#quit>quit()</a> function to free access to the drive.
+This will be cleaned up automatically when the cdrom module is.
+uninitialized. It is safe to call this function on an uninitialized CD.
 </ul><br>&nbsp;<br>
 
 <a name=resume><font size=+2><b>resume
 </b></font><br><font size=+1><tt>
 CD.resume() -> int
 </tt></font><ul>
-Resumes playback of a paused CD.
+Resumes playback of a paused CD. If the CD has not been
+pause, this will do nothing.
 </ul><br>&nbsp;<br>
 
 <a name=stop><font size=+2><b>stop
 </b></font><br><font size=+1><tt>
 CD.stop() -> int
 </tt></font><ul>
-Stops the playing CD.
+Stops the playing CD. If the CD is not playing, this will
+do nothing.
 </ul><br>&nbsp;<br>
 
 

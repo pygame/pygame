@@ -23,17 +23,30 @@
 #define PYGAMEAPI_CDROM_INTERNAL
 #include "pygame.h"
 
+#define CDROM_MAXDRIVES 32
+static SDL_CD* cdrom_drivedata[CDROM_MAXDRIVES] = {NULL};
 
 
 
 staticforward PyTypeObject PyCD_Type;
-static PyObject* PyCD_New(SDL_CD* cdrom);
+static PyObject* PyCD_New(int id);
 #define PyCD_Check(x) ((x)->ob_type == &PyCD_Type)
 
 
 
 static void cdrom_autoquit()
 {
+	int loop;
+
+	for(loop = 0; loop < CDROM_MAXDRIVES; ++loop)
+	{
+		if(cdrom_drivedata[loop])
+		{
+			SDL_CDClose(cdrom_drivedata[loop]);
+			cdrom_drivedata[loop] = NULL;
+		}
+	}
+
 	if(SDL_WasInit(SDL_INIT_CDROM))
 		SDL_QuitSubSystem(SDL_INIT_CDROM);
 }
@@ -115,45 +128,41 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 
 static void cd_dealloc(PyObject* self)
 {
-	PyCDObject* cd_ref = (PyCDObject*)self;
-
-	if(SDL_WasInit(SDL_INIT_CDROM))
-		SDL_CDClose(cd_ref->cd);
 	PyMem_DEL(self);	
 }
 
 
 
-    /*DOC*/ static char doc_cdrom_open[] =
-    /*DOC*/    "pygame.cdrom.open(id) -> CD\n"
-    /*DOC*/    "open cd device\n"
+    /*DOC*/ static char doc_CD[] =
+    /*DOC*/    "pygame.cdrom.CD(id) -> CD\n"
+    /*DOC*/    "create new CD object\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Creates a new CD object for the given CDROM id.\n"
+    /*DOC*/    "Creates a new CD object for the given CDROM id. The given id\n"
+    /*DOC*/    "must be less than the value from pygame.cdrom.get_count().\n"
     /*DOC*/ ;
 
-static PyObject* cdrom_open(PyObject* self, PyObject* args)
+static PyObject* CD(PyObject* self, PyObject* args)
 {
-	int id;
-	
+	int id;	
 	if(!PyArg_ParseTuple(args, "i", &id))
 		return NULL;
 
 	CDROM_INIT_CHECK();
 
-	return PyCD_New(SDL_CDOpen(id));
+	return PyCD_New(id);
 }
 
 
 
-    /*DOC*/ static char doc_cdrom_count[] =
-    /*DOC*/    "pygame.cdrom.count() -> int\n"
+    /*DOC*/ static char doc_get_count[] =
+    /*DOC*/    "pygame.cdrom.get_count() -> int\n"
     /*DOC*/    "query number of cdroms on system\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns the number of CDROM drives available on\n"
-    /*DOC*/    "the system\n"
+    /*DOC*/    "the system.\n"
     /*DOC*/ ;
 
-static PyObject* cdrom_count(PyObject* self, PyObject* args)
+static PyObject* get_count(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
@@ -165,96 +174,147 @@ static PyObject* cdrom_count(PyObject* self, PyObject* args)
 
 
 
-    /*DOC*/ static char doc_cdrom_name[] =
-    /*DOC*/    "pygame.cdrom.name(id) -> string\n"
-    /*DOC*/    "query name of cdrom drive\n"
+
+    /*DOC*/ static char doc_cd_init[] =
+    /*DOC*/    "CD.init() -> None\n"
+    /*DOC*/    "initialize a cdrom device for use\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns the name of the CDROM device, given by the\n"
-    /*DOC*/    "system.\n"
+    /*DOC*/    "In order to call most members in the CD object, the\n"
+    /*DOC*/    "CD must be initialized. You can initialzie the CD object\n"
+    /*DOC*/    "at anytime, and it is ok to initialize more than once.\n"
     /*DOC*/ ;
 
-static PyObject* cdrom_name(PyObject* self, PyObject* args)
+static PyObject* cd_init(PyObject* self, PyObject* args)
 {
-	int drive;
-	
-	if(!PyArg_ParseTuple(args, "i", &drive))
+	int cd_id = PyCD_AsID(self);
+
+	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
 	CDROM_INIT_CHECK();
 
-	return PyString_FromString(SDL_CDName(drive));
+	if(!cdrom_drivedata[cd_id])
+	{
+		cdrom_drivedata[cd_id] = SDL_CDOpen(cd_id);
+		if(!cdrom_drivedata[cd_id])
+			return RAISE(PyExc_SDLError, SDL_GetError());
+	}
+	RETURN_NONE
 }
 
 
-
-    /*DOC*/ static char doc_cd_play_tracks[] =
-    /*DOC*/    "CD.play_tracks(start_track, start_frame, ntracks, nframes) -> int\n"
-    /*DOC*/    "play music from cdrom\n"
+    /*DOC*/ static char doc_cd_quit[] =
+    /*DOC*/    "CD.quit() -> None\n"
+    /*DOC*/    "uninitialize a cdrom device for use\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Start playing from start_track, for ntracks and\n"
-    /*DOC*/    "nframes. If ntracks and nframes are 0, it will\n"
-    /*DOC*/    "play until the end of the cdrom\n"
+    /*DOC*/    "After you are completely finished with a cdrom device, you\n"
+    /*DOC*/    "can use this quit() function to free access to the drive.\n"
+    /*DOC*/    "This will be cleaned up automatically when the cdrom module is.\n"
+    /*DOC*/    "uninitialized. It is safe to call this function on an uninitialized CD.\n"
     /*DOC*/ ;
 
-static PyObject* cd_play_tracks(PyObject* self, PyObject* args)
+static PyObject* cd_quit(PyObject* self, PyObject* args)
 {
-	int start_track, start_frame, ntracks, nframes;
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
 
-	if(!PyArg_ParseTuple(args, "iiii", &start_track, &start_frame, &ntracks,
-		&nframes	))
+	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
-		
-	SDL_CDStatus(cd_ref->cd);
-		
-	return PyInt_FromLong(
-		SDL_CDPlayTracks(cd_ref->cd, start_track, start_frame, ntracks, nframes));
+
+	CDROM_INIT_CHECK();
+
+	if(cdrom_drivedata[cd_id])
+	{
+		SDL_CDClose(cdrom_drivedata[cd_id]);
+		cdrom_drivedata[cd_id] = NULL;
+	}
+	RETURN_NONE
 }
+
+
+
+    /*DOC*/ static char doc_cd_get_init[] =
+    /*DOC*/    "CD.get_init() -> bool\n"
+    /*DOC*/    "check if cd is initialized\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a true value if the CD is initialized.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_init(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	return PyInt_FromLong(cdrom_drivedata[cd_id] != NULL);
+}
+
 
 
 
     /*DOC*/ static char doc_cd_play[] =
-    /*DOC*/    "CD.play(start_frame, nframes) -> int\n"
+    /*DOC*/    "CD.play(track) -> None\n"
     /*DOC*/    "play music from cdrom\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Start playing from start_frame, for nframes. If\n"
-    /*DOC*/    "nframes is 0, it will play until the end of the\n"
-    /*DOC*/    "cdrom\n"
+    /*DOC*/    "Play an audio track on a cdrom disk.\n"
     /*DOC*/ ;
 
 static PyObject* cd_play(PyObject* self, PyObject* args)
 {
-	int start_frame, nframes;
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int result, track, offset, length;
 	
-	if(!PyArg_ParseTuple(args, "ii", &start_frame, &nframes))
+	if(!PyArg_ParseTuple(args, "i", &track))
 		return NULL;
 
-	SDL_CDStatus(cd_ref->cd);
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+	SDL_CDStatus(cdrom);
+	if(track < 0 || track >= cdrom->numtracks)
+		return RAISE(PyExc_IndexError, "Invalid track number");
+	if(cdrom->track[track].type != SDL_AUDIO_TRACK)
+		return RAISE(PyExc_SDLError, "CD track type is not audio");
 
-	return PyInt_FromLong(SDL_CDPlay(cd_ref->cd, start_frame, nframes));
+	offset = cdrom->track[track].offset;
+	length = cdrom->track[track].length;
+
+	result = SDL_CDPlay(cdrom, offset, length);
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	RETURN_NONE
 }
 
 
 
     /*DOC*/ static char doc_cd_pause[] =
-    /*DOC*/    "CD.pause() -> int\n"
+    /*DOC*/    "CD.pause() -> None\n"
     /*DOC*/    "pause playing cdrom\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Pauses the playing CD.\n"
+    /*DOC*/    "Pauses the playing CD. If the CD is not playing, this will\n"
+    /*DOC*/    "do nothing.\n"
     /*DOC*/ ;
 
 static PyObject* cd_pause(PyObject* self, PyObject* args)
 {
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int result;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	if(SDL_CDStatus(cd_ref->cd) != CD_PLAYING)
-		return PyInt_FromLong(-1);
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
 
-	return PyInt_FromLong(SDL_CDPause(cd_ref->cd));
+	result = SDL_CDPause(cdrom);
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	RETURN_NONE
 }
 
 
@@ -263,20 +323,28 @@ static PyObject* cd_pause(PyObject* self, PyObject* args)
     /*DOC*/    "CD.resume() -> int\n"
     /*DOC*/    "resume paused cdrom\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Resumes playback of a paused CD.\n"
+    /*DOC*/    "Resumes playback of a paused CD. If the CD has not been\n"
+    /*DOC*/    "pause, this will do nothing.\n"
     /*DOC*/ ;
 
 static PyObject* cd_resume(PyObject* self, PyObject* args)
 {
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int result;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	if(SDL_CDStatus(cd_ref->cd) != CD_PAUSED)
-		return PyInt_FromLong(-1);
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
 
-	return PyInt_FromLong(SDL_CDResume(cd_ref->cd));
+	result = SDL_CDResume(cdrom);
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	RETURN_NONE
 }
 
 
@@ -285,268 +353,336 @@ static PyObject* cd_resume(PyObject* self, PyObject* args)
     /*DOC*/    "CD.stop() -> int\n"
     /*DOC*/    "stops playing cdrom\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Stops the playing CD.\n"
+    /*DOC*/    "Stops the playing CD. If the CD is not playing, this will\n"
+    /*DOC*/    "do nothing.\n"
     /*DOC*/ ;
 
 static PyObject* cd_stop(PyObject* self, PyObject* args)
 {
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int result;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	if(SDL_CDStatus(cd_ref->cd) < CD_PLAYING)
-		return PyInt_FromLong(-1);
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
 
-	return PyInt_FromLong(SDL_CDStop(cd_ref->cd));
+	result = SDL_CDStop(cdrom);
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	RETURN_NONE
 }
 
 
 
     /*DOC*/ static char doc_cd_eject[] =
-    /*DOC*/    "CD.eject() -> int\n"
+    /*DOC*/    "CD.eject() -> None\n"
     /*DOC*/    "ejects cdrom drive\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Ejects the media from the CDROM drive.\n"
+    /*DOC*/    "Ejects the media from the CDROM drive. If the drive is empty, this\n"
+    /*DOC*/    "will open the CDROM drive.\n"
     /*DOC*/ ;
 
 static PyObject* cd_eject(PyObject* self, PyObject* args)
 {
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int result;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	if(SDL_CDStatus(cd_ref->cd) <= 0 )
-		return PyInt_FromLong(-1);
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
 
-	return PyInt_FromLong(SDL_CDEject(cd_ref->cd));
+	result = SDL_CDEject(cdrom);
+	if(result == -1)
+		return RAISE(PyExc_SDLError, SDL_GetError());
+
+	RETURN_NONE
 }
-
-
-
-    /*DOC*/ static char doc_cd_status[] =
-    /*DOC*/    "CD.get_status() -> int\n"
-    /*DOC*/    "query drive status\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Get the status of the CDROM drive.\n"
-    /*DOC*/ ;
-
-static PyObject* cd_status(PyObject* self, PyObject* args)
-{
-	PyCDObject* cd_ref = (PyCDObject*)self;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	return PyInt_FromLong(SDL_CDStatus(cd_ref->cd));
-}
-
-
-
-    /*DOC*/ static char doc_cd_cur_track[] =
-    /*DOC*/    "CD.get_cur_track() -> int\n"
-    /*DOC*/    "query current track\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Get the current track of a playing CD.\n"
-    /*DOC*/ ;
-
-static PyObject* cd_cur_track(PyObject* self, PyObject* args)
-{
-	PyCDObject* cd_ref = (PyCDObject*)self;
-	SDL_CD* s_cd_ref = cd_ref->cd;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	if(SDL_CDStatus(s_cd_ref) <= 1)
-		return PyInt_FromLong(-1);
-
-	return PyInt_FromLong(s_cd_ref->cur_track);
-}
-
-
-
-    /*DOC*/ static char doc_cd_cur_frame[] =
-    /*DOC*/    "CD.get_cur_frame() -> int\n"
-    /*DOC*/    "query current frame\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Get the current frame of a playing CD.\n"
-    /*DOC*/ ;
-
-static PyObject* cd_cur_frame(PyObject* self, PyObject* args)
-{
-	PyCDObject* cd_ref = (PyCDObject*)self;
-	SDL_CD* s_cd_ref = cd_ref->cd;
-
-	if(!PyArg_ParseTuple(args, ""))
-		return NULL;
-
-	if(SDL_CDStatus(s_cd_ref) <= 1)
-		return PyInt_FromLong(-1);
-
-	return PyInt_FromLong(s_cd_ref->cur_frame);
-}
-
 
 
     /*DOC*/ static char doc_cd_get_empty[] =
     /*DOC*/    "CD.get_empty() -> bool\n"
-    /*DOC*/    "query status of drive\n"
+    /*DOC*/    "checks for a cd in the drive\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Returns true when there is no disk in the CD\n"
-    /*DOC*/    "drive.\n"
+    /*DOC*/    "Returns a true value if the cd drive is empty.\n"
     /*DOC*/ ;
 
 static PyObject* cd_get_empty(PyObject* self, PyObject* args)
 {
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int status;
 
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	return PyInt_FromLong(CD_INDRIVE(SDL_CDStatus(cd_ref->cd)));
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+
+	status = SDL_CDStatus(cdrom);
+	return PyInt_FromLong(status == CD_TRAYEMPTY);
 }
 
 
+    /*DOC*/ static char doc_cd_get_busy[] =
+    /*DOC*/    "CD.get_busy() -> bool\n"
+    /*DOC*/    "checks if the cd is currently playing\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a true value if the cd drive is currently playing. If\n"
+    /*DOC*/    "the drive is paused, this will return false.\n"
+    /*DOC*/ ;
 
-
-
-static int cd_seq_len(PyObject* self)
+static PyObject* cd_get_busy(PyObject* self, PyObject* args)
 {
-	PyCDObject* cd_ref = (PyCDObject*)self;
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int status;
 
-	if(!SDL_WasInit(SDL_INIT_CDROM))
-	{
-		RAISE(PyExc_RuntimeError, "SDL has shut down.");
-		return -1;
-	}
-	
-	if(!CD_INDRIVE(SDL_CDStatus(cd_ref->cd)))
-	{
-		RAISE(PyExc_RuntimeError, "No CD present");
-		return -1;
-	}
-
-	return cd_ref->cd->numtracks;
-}
-
-
-
-static PyObject* cd_seq_get(PyObject* self, int index)
-{
-	PyCDObject* cd_ref = (PyCDObject*)self;
-	SDL_CD* s_cd_ref = cd_ref->cd;
-	SDL_CDtrack* s_track_ref;
-
-	if(!SDL_WasInit(SDL_INIT_CDROM))
-		return RAISE(PyExc_RuntimeError, "SDL has shut down.");
-
-	if(!CD_INDRIVE(SDL_CDStatus(s_cd_ref)) || index >= s_cd_ref->numtracks
-		|| index < 0)
-	{
-		return PyInt_FromLong(-1);
-	}
-
-	s_track_ref = &s_cd_ref->track[index];
-																			 
-	return Py_BuildValue("(iii)", s_track_ref->type, s_track_ref->length,
-		s_track_ref->offset);	
-}
-
-
-
-static PyObject* cd_seq_get_slice(PyObject* self, int start, int end)
-{
-	PyCDObject* cd_ref = (PyCDObject*)self;
-	SDL_CD* s_cd_ref = cd_ref->cd;
-	PyObject* track_tuple;
-	int count;
-	int i;
-
-	if(!SDL_WasInit(SDL_INIT_CDROM))
-		return RAISE(PyExc_RuntimeError, "SDL has shut down.");
-	
-	i = min(start,end);
-	end = max(start,end);
-	start = i;
-
-	if(start < 0)
-		return RAISE(PyExc_IndexError, "Index out of range.");
-	
-	if(CD_INDRIVE(SDL_CDStatus(s_cd_ref)) <= 0)
-		return RAISE(PyExc_RuntimeError, "CD unavailable");
-
-	/* If end is greater than the real number of tracks, trunctate it.
-	 * This is done because of how Python handles slicing
-	*/
-	end = min(end, s_cd_ref->numtracks);
-	count = end - start;
-
-	track_tuple = PyTuple_New(count);
-	if(!track_tuple)
+	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	for(i = 0;i < count;i++)
-	{
-		PyObject* elem_tuple;
-		SDL_CDtrack* s_track_ref = &s_cd_ref->track[i + start];
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
 
-		elem_tuple = Py_BuildValue("(iii)",
-			s_track_ref->type, s_track_ref->length, s_track_ref->offset);
-		if(!elem_tuple)
-		{
-			Py_DECREF(track_tuple);
-			return NULL;
-		}
+	status = SDL_CDStatus(cdrom);
+	return PyInt_FromLong(status == CD_PLAYING);
+}
 
-		PyTuple_SET_ITEM(track_tuple, i, elem_tuple);
-	}
-	return track_tuple; 	
+
+    /*DOC*/ static char doc_cd_get_paused[] =
+    /*DOC*/    "CD.get_paused() -> bool\n"
+    /*DOC*/    "checks if the cd is currently paused\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns a true value if the cd drive is currently paused.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_paused(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int status;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+
+	status = SDL_CDStatus(cdrom);
+	return PyInt_FromLong(status == CD_PAUSED);
+}
+
+
+    /*DOC*/ static char doc_cd_get_current[] =
+    /*DOC*/    "CD.get_current() -> track, seconds\n"
+    /*DOC*/    "get current position of the cdrom\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the current track on the cdrom and the number of\n"
+    /*DOC*/    "seconds into that track.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_current(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int track;
+	float seconds;
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+
+	SDL_CDStatus(cdrom);
+	track = cdrom->cur_track;
+	seconds = cdrom->cur_frame / (float)CD_FPS;
+
+	return Py_BuildValue("(if)", track, seconds);
+}
+
+
+    /*DOC*/ static char doc_cd_get_tracks[] =
+    /*DOC*/    "CD.get_tracks() -> numtracks\n"
+    /*DOC*/    "get number of tracks on cd\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the number of available tracks on the CD. Note that not\n"
+    /*DOC*/    "all of these tracks contain audio data. Use CD.get_audio() to check\n"
+    /*DOC*/    "the track type before playing.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_tracks(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+
+	return PyInt_FromLong(cdrom->numtracks);
+}
+
+
+    /*DOC*/ static char doc_cd_get_name[] =
+    /*DOC*/    "CD.get_name(id) -> string\n"
+    /*DOC*/    "query name of cdrom drive\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the name of the CDROM device, given by the\n"
+    /*DOC*/    "system. This function can be called before the drive\n"
+    /*DOC*/    "is initialized.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_name(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	
+	if(!PyArg_ParseTuple(args, ""))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+
+	return PyString_FromString(SDL_CDName(cd_id));
+}
+
+
+    /*DOC*/ static char doc_cd_get_track_audio[] =
+    /*DOC*/    "CD.get_track_audio(track) -> bool\n"
+    /*DOC*/    "check if a track has audio data\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns true if the cdrom track contains audio data.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_track_audio(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int track;
+	
+	if(!PyArg_ParseTuple(args, "i", &track))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+	SDL_CDStatus(cdrom);
+	if(track < 0 || track >= cdrom->numtracks)
+		return RAISE(PyExc_IndexError, "Invalid track number");
+
+	return PyInt_FromLong(cdrom->track[track].type == SDL_AUDIO_TRACK);
+}
+
+
+    /*DOC*/ static char doc_cd_get_track_length[] =
+    /*DOC*/    "CD.get_track_length(track) -> seconds\n"
+    /*DOC*/    "check the length of an audio track\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the number of seconds in an audio track. If the\n"
+    /*DOC*/    "track does not contain audio data, returns 0.0.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_track_length(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int track;
+	
+	if(!PyArg_ParseTuple(args, "i", &track))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+	SDL_CDStatus(cdrom);
+	if(track < 0 || track >= cdrom->numtracks)
+		return RAISE(PyExc_IndexError, "Invalid track number");
+	if(cdrom->track[track].type != SDL_AUDIO_TRACK)
+		return PyFloat_FromDouble(0.0);
+
+	return PyFloat_FromDouble(cdrom->track[track].length / (double)CD_FPS);
+}
+
+    /*DOC*/ static char doc_cd_get_track_start[] =
+    /*DOC*/    "CD.get_track_start(track) -> seconds\n"
+    /*DOC*/    "check the start of an audio track\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the number of seconds an audio track starts\n"
+    /*DOC*/    "on the cd.\n"
+    /*DOC*/ ;
+
+static PyObject* cd_get_track_start(PyObject* self, PyObject* args)
+{
+	int cd_id = PyCD_AsID(self);
+	SDL_CD* cdrom = cdrom_drivedata[cd_id];
+	int track;
+	
+	if(!PyArg_ParseTuple(args, "i", &track))
+		return NULL;
+
+	CDROM_INIT_CHECK();
+	if(!cdrom)
+		return RAISE(PyExc_SDLError, "CD drive not initialized");
+	SDL_CDStatus(cdrom);
+	if(track < 0 || track >= cdrom->numtracks)
+		return RAISE(PyExc_IndexError, "Invalid track number");
+
+	return PyFloat_FromDouble(cdrom->track[track].offset / (double)CD_FPS);
 }
 
 
 
 static PyMethodDef cd_builtins[] =
 {
-	{ "play_tracks", cd_play_tracks, 1, doc_cd_play_tracks },
+	{ "init", cd_init, 1, doc_cd_init },
+	{ "quit", cd_quit, 1, doc_cd_quit },
+	{ "get_init", cd_get_init, 1, doc_cd_get_init },
+
 	{ "play", cd_play, 1, doc_cd_play },
 	{ "pause", cd_pause, 1, doc_cd_pause },
 	{ "resume", cd_resume, 1, doc_cd_resume },
 	{ "stop", cd_stop, 1, doc_cd_stop },
 	{ "eject", cd_eject, 1, doc_cd_eject },
-	{ "get_status", cd_status, 1, doc_cd_status },
-	{ "get_track", cd_cur_track, 1, doc_cd_cur_track },
-	{ "get_frame", cd_cur_frame, 1, doc_cd_cur_frame },
+
 	{ "get_empty", cd_get_empty, 1, doc_cd_get_empty },
+	{ "get_busy", cd_get_busy, 1, doc_cd_get_busy },
+	{ "get_paused", cd_get_paused, 1, doc_cd_get_paused },
+	{ "get_current", cd_get_current, 1, doc_cd_get_current },
+	{ "get_tracks", cd_get_tracks, 1, doc_cd_get_tracks },
+	{ "get_name", cd_get_name, 1, doc_cd_get_name },
+
+	{ "get_track_audio", cd_get_track_audio, 1, doc_cd_get_track_audio },
+	{ "get_track_length", cd_get_track_length, 1, doc_cd_get_track_length },
+	{ "get_track_start", cd_get_track_start, 1, doc_cd_get_track_start },
+
 	{ NULL, NULL }
 };
 
 static PyObject* cd_getattr(PyObject* self, char* attrname)
 {
-	if(SDL_WasInit(SDL_INIT_CDROM))
-		return Py_FindMethod(cd_builtins, self, attrname);
-
-	return RAISE(PyExc_NameError, attrname);
+	return Py_FindMethod(cd_builtins, self, attrname);
 }
 
 
-
-static PySequenceMethods cd_as_sequence = 
-{
-	cd_seq_len,
-	0,
-	0,
-	cd_seq_get,
-	cd_seq_get_slice,
-	0,
-	0
-};
-
-
     /*DOC*/ static char doc_CD_MODULE[] =
-    /*DOC*/    "thin wrapper around the SDL CDROM api, likely to\n"
-    /*DOC*/    "change\n"
+    /*DOC*/    "The CD object represents a CDROM drive and allows you to\n"
+    /*DOC*/    "access the CD inside that drive. All functions (except get_name())\n"
+    /*DOC*/    "require the CD object to be initialized. This is done with the\n"
+    /*DOC*/    "CD.init() function.\n"
     /*DOC*/ ;
 
 
@@ -564,23 +700,23 @@ static PyTypeObject PyCD_Type =
 	0,
 	0,
 	0,
-	&cd_as_sequence,
+	NULL,
 	0
 };
 
 
 
-static PyObject* PyCD_New(SDL_CD* cdrom)
+static PyObject* PyCD_New(int id)
 {
 	PyCDObject* cd;
 
-	if(!cdrom)
-		return RAISE(PyExc_SDLError, SDL_GetError());
+	if(id < 0 || id >= CDROM_MAXDRIVES || id >= SDL_CDNumDrives())
+		return RAISE(PyExc_SDLError, "Invalid cdrom device number");
 	
 	cd = PyObject_NEW(PyCDObject, &PyCD_Type);
 	if(!cd) return NULL;
 
-	cd->cd = cdrom;
+	cd->id = id;
 
 	return (PyObject*)cd;
 }
@@ -595,17 +731,28 @@ static PyMethodDef cdrom_builtins[] =
 	{ "init", cdrom_init, 1, doc_cdrom_init },
 	{ "quit", cdrom_quit, 1, doc_cdrom_quit },
 	{ "get_init", get_init, 1, doc_get_init },
-	{ "get_count", cdrom_count, 1, doc_cdrom_count },
-	{ "get_name", cdrom_name, 1, doc_cdrom_name },
-	{ "open", cdrom_open, 1, doc_cdrom_open },
+	{ "get_count", get_count, 1, doc_get_count },
+	{ "CD", CD, 1, doc_CD },
 	{ NULL, NULL }
 };
 
 
 
     /*DOC*/ static char doc_pygame_cdrom_MODULE[] =
-    /*DOC*/    "thin wrapper around the SDL CDROM api, likely to\n"
-    /*DOC*/    "change\n"
+    /*DOC*/    "The cdrom module provides a few functions to initialize\n"
+    /*DOC*/    "the CDROM subsystem and to manage the CD objects. The CD\n"
+    /*DOC*/    "objects are created with the pygame.cdrom.CD() function.\n"
+    /*DOC*/    "This function needs a cdrom device number to work on. All\n"
+    /*DOC*/    "cdrom drives on the system are enumerated for use as a CD\n"
+    /*DOC*/    "object. To access most of the CD functions, you'll need to\n"
+    /*DOC*/    "Init() the CD object. (note that the cdrom module will already\n"
+    /*DOC*/    "be initialized). When multiple CD objects are created for the\n"
+    /*DOC*/    "same CDROM device, the state and values for those CD objects\n"
+    /*DOC*/    "will be shared.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can call the CD.get_name() function withouth initializing\n"
+    /*DOC*/    "the CD object. This function returns the system name given to\n"
+    /*DOC*/    "that CDROM drive.\n"
     /*DOC*/ ;
 
 

@@ -1,11 +1,15 @@
 #This is a list of changes in pygame's history.
 
+Nov 29, 2000
+	cdrom module rewrite finished [BREAK]
+	all constructors using capitalized function names [BREAK]
+		(Rect, pygame.Surface, pygame.font.Font, etc)
+
 Nov 28, 2000
 	Surface.convert() better handles surface flags
 	All color arguments (and returns) are RGBA format [BREAK]
 	Removed Surface.map_rgba and unmap_rgba [BREAK]
 	Added a default font, used by passing None as font file
-	pygame.font.font changed to pygame.font.new_font() [BREAK]
 
 pygame-03
 Nov 20, 2000

@@ -107,7 +107,7 @@ static PyMethodDef image_builtins[] =
 
 
     /*DOC*/ static char doc_pygame_image_MODULE[] =
-    /*DOC*/    "Contains routines to load and (someday) save surfaces. This\n"
+    /*DOC*/    "Contains routines to load Surfaces from image files. This\n"
     /*DOC*/    "module must be manually imported, since it requires the use of\n"
     /*DOC*/    "the SDL_image library.\n"
     /*DOC*/ ;
