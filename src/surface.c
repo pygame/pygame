@@ -416,6 +416,9 @@ static PyObject* surf_get_palette_at(PyObject* self, PyObject* args)
     /*DOC*/    "\n"
     /*DOC*/    "This will replace the entire palette with color\n"
     /*DOC*/    "information you provide.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "You can pass an incomplete list of RGB values, and\n"
+    /*DOC*/    "this will only change the first colors in the palette.\n"
     /*DOC*/ ;
 
 static PyObject* surf_set_palette(PyObject* self, PyObject* args)

@@ -149,6 +149,10 @@ change the brightness of the display</td></tr>
 set the display mode</td></tr>
 
 
+<tr><td><a href=#set_palette>set_palette</a></td><td> -
+set the palette</td></tr>
+
+
 <tr><td><a href=#toggle_fullscreen>toggle_fullscreen</a></td><td> -
 switch the display fullscreen mode</td></tr>
 
@@ -346,6 +350,23 @@ pygame drawing functions (fill, set_at, etc) on the display surface.
 You can also use the special display flag OPENGLBLIT which will
 create a full OpenGL display, but also allow for limited pygame
 blitting.
+</ul><br>&nbsp;<br>
+
+<a name=set_palette><font size=+2><b>set_palette
+</b></font><br><font size=+1><tt>
+pygame.display.set_palette([[r, g, b], ...]) -> None
+</tt></font><ul>
+Displays with a HWPALETTE have two palettes. The display Surface
+palette and the visible 'onscreen' palette.
+<br>&nbsp;<br>
+This will change the video display's visible colormap. It does
+not effect the display Surface's base palette, only how it is
+displayed. Setting the palette for the display Surface will
+override this visible palette. Also passing no args will reset
+the display palette back to the Surface's palette.
+<br>&nbsp;<br>
+You can pass an incomplete list of RGB values, and
+this will only change the first colors in the palette.
 </ul><br>&nbsp;<br>
 
 <a name=toggle_fullscreen><font size=+2><b>toggle_fullscreen
