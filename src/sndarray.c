@@ -114,7 +114,7 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     PyArrayObject *array;
     Mix_Chunk *chunk;
     Uint16 format;
-    int numchannels, samplesize, mixerbytes;
+    int numchannels, mixerbytes;
     int loop1, loop2, step1, step2, length, length2;
     Uint8 *src, *dst;
 
