@@ -1107,6 +1107,9 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
     /*DOC*/    "You likely want this to be a smaller image, a size that\n"
     /*DOC*/    "your system window manager will be able to deal with. It will\n"
     /*DOC*/    "also use the Surface colorkey if available.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Some window managers on X11 don't allow you to change the \n"
+    /*DOC*/    "icon after the window has been shown the first time.\n"
     /*DOC*/ ;
 
 static PyObject* set_icon(PyObject* self, PyObject* arg)
