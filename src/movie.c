@@ -27,6 +27,7 @@
 #include "ffmovie.h"
 
 
+
 typedef struct {
   PyObject_HEAD
   FFMovie* movie;
@@ -42,6 +43,10 @@ static PyObject* PyMovie_New(FFMovie*);
 
 
 
+static void autoquit(void)
+{
+    ffmovie_abortall();
+}
 
 
 /* movie object methods */
@@ -80,7 +85,6 @@ static PyObject* movie_play(PyObject* self, PyObject* args)
     /*DOC*/    "Stops playback of a movie. If sound and video are being\n"
     /*DOC*/    "rendered, both will be stopped at their current position.\n"
     /*DOC*/ ;
-/*FIX, movies cannot stop, only kill or pause*/
 
 static PyObject* movie_stop(PyObject* self, PyObject* args)
 {
@@ -119,16 +123,41 @@ static PyObject* movie_pause(PyObject* self, PyObject* args)
     /*DOC*/    "set playback position to the beginning of the movie\n"
     /*DOC*/    "\n"
     /*DOC*/    "Sets the movie playback position to the start of\n"
-    /*DOC*/    "the movie.\n"
+    /*DOC*/    "the movie. This can raise a ValueError if the movie\n"
+    /*DOC*/    "cannot be rewound.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The movie will automatically start playing if the movie\n"
+    /*DOC*/    "is currently playing.\n"
     /*DOC*/ ;
 /*need something for this, if anything reinit a new movie and start*/
 
 static PyObject* movie_rewind(PyObject* self, PyObject* args)
 {
-/*	FFMovie* movie = PyMovie_AsFFMovie(self);*/
+        PyObject* source;
+        char* sourcename = NULL;
+	FFMovie* movie = PyMovie_AsFFMovie(self);
+        SDL_Surface* dest = NULL;
+        int waspaused = movie->paused;
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
+        
+        source = ((PyMovieObject*)self)->filesource;
+        if(source && PyString_Check(source))
+            sourcename = PyString_AsString(source);
+        if(((PyMovieObject*)self)->surftarget)
+            dest = PySurface_AsSurface(((PyMovieObject*)self)->surftarget);
+        
+        if(!sourcename) {
+            return RAISE(PyExc_ValueError, "Unable to rewind movie source");
+        }
+        
         Py_BEGIN_ALLOW_THREADS
+        ffmovie_close(movie);
+        movie = ffmovie_open(sourcename);
+        ffmovie_setdisplay(movie, dest, NULL); /*need to set rect!*/
+        if(!waspaused) {
+            ffmovie_play(movie);
+        }
         Py_END_ALLOW_THREADS
 	RETURN_NONE
 }
@@ -186,7 +215,10 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 
 	if(PySurface_Check(surfobj))
 	{
-                SDL_Surface* surf = PySurface_AsSurface(surfobj);
+       SDL_Surface* surf = PySurface_AsSurface(surfobj);
+
+	   ((PyMovieObject*)self)->surftarget = surfobj;
+       Py_INCREF(surfobj);
 
 		if(posobj == NULL)
 		{
@@ -348,6 +380,28 @@ static PyObject* movie_get_busy(PyObject* self, PyObject* args)
 	return PyInt_FromLong(movie->context != NULL);
 }
 
+    /*DOC*/ static char doc_movie_skip[] =
+    /*DOC*/    "Movie.skip(seconds) -> None\n"
+    /*DOC*/    "skip ahead a given amount of time\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Skips ahead in the movie a given number of seconds.\n"
+    /*DOC*/ ;
+
+static PyObject* movie_skip(PyObject* self, PyObject* args)
+{
+	FFMovie* movie = PyMovie_AsFFMovie(self);
+        float seconds;
+
+	if(!PyArg_ParseTuple(args, "f", &seconds))
+		return NULL;
+
+printf("Skipping: %.3f\n", seconds);
+        movie->time_offset -= seconds;
+        
+	return PyInt_FromLong(movie->context != NULL);
+}
+
+
 static PyObject* movie_noop(PyObject* self, PyObject* args)
 {
 	return PyInt_FromLong(0);
@@ -373,7 +427,7 @@ static PyMethodDef movie_builtins[] =
 	{ "get_length", movie_get_length, 1, doc_movie_get_length },
 	{ "get_busy", movie_get_busy, 1, doc_movie_get_busy },
 
-	{ "skip", movie_noop, 1, "obsolete, does nothing" },
+	{ "skip", movie_skip, 1, doc_movie_skip },
         { "render_frame", movie_noop, 1, "obsolete, does nothing"},
 
 	{ NULL, NULL }
@@ -385,7 +439,8 @@ static PyMethodDef movie_builtins[] =
 static void movie_dealloc(PyObject* self)
 {
 	FFMovie* movie = PyMovie_AsFFMovie(self);
-        Py_BEGIN_ALLOW_THREADS
+ 
+       Py_BEGIN_ALLOW_THREADS
 	ffmovie_close(movie);
         Py_END_ALLOW_THREADS
 	Py_XDECREF(((PyMovieObject*)self)->surftarget);
@@ -484,11 +539,12 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 	SDL_Surface* screen;
 	if(!PyArg_ParseTuple(arg, "O", &file))
 		return NULL;
-printf("MOVIE ENTER\n");fflush(stdout);
+
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
 		if(!PyArg_ParseTuple(arg, "s", &name))
 			return NULL;
+
 printf("  ^opening movie %s\n", name);fflush(stdout);
 		movie = ffmovie_open(name);
 printf("  ^done %p\n", movie);fflush(stdout);
@@ -499,17 +555,14 @@ printf("  ^done %p\n", movie);fflush(stdout);
 
       	screen = SDL_GetVideoSurface();
 
-        Py_BEGIN_ALLOW_THREADS
-
-//	if(screen)
-//		SMPEG_setdisplay(movie, screen, NULL, NULL);
-
-        Py_END_ALLOW_THREADS
 
 	final = PyMovie_New(movie);
-	if(!final)
+	if(!final) {
 		ffmovie_close(movie);
-	((PyMovieObject*)final)->filesource = filesource;
+        } else {
+            filesource = PyString_FromString(name);
+            ((PyMovieObject*)final)->filesource = filesource;
+        }
 
 	return final;
 }
@@ -575,11 +628,13 @@ void initmovie(void)
 	dict = PyModule_GetDict(module);
 
 	PyDict_SetItemString(dict, "MovieType", (PyObject *)&PyMovie_Type);
-printf("  #movie module initialized\n");
-	/*imported needed apis*/
+
+        /*imported needed apis*/
 	import_pygame_base();
 	import_pygame_surface();
 	import_pygame_rwobject();
 	import_pygame_rect();
+
+    PyGame_RegisterQuit(autoquit);
 }
 

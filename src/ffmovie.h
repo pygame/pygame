@@ -105,5 +105,6 @@ void ffmovie_stop(FFMovie *movie);
 void ffmovie_pause(FFMovie *movie);
 void ffmovie_setvolume(FFMovie *movie, int volume);
 void ffmovie_setdisplay(FFMovie *movie, SDL_Surface *dest, SDL_Rect *rect);
+void ffmovie_abortall(void);
 
 

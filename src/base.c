@@ -52,6 +52,7 @@ static void atexit_quit(void);
 
 
 static int PyGame_Video_AutoInit(void);
+static void PyGame_Video_AutoQuit(void);
 
 
 
@@ -232,6 +233,8 @@ static void atexit_quit(void)
 		}
 	}
 	Py_DECREF(privatefuncs);
+
+        PyGame_Video_AutoQuit();
 	SDL_Quit();
 }
 
@@ -460,7 +463,8 @@ static int PyGame_Video_AutoInit(void)
 		if(status)
 			return 0;
 		SDL_EnableUNICODE(1);
-		PyGame_RegisterQuit(PyGame_Video_AutoQuit);
+                /*we special case the video quit to last now*/
+		/*PyGame_RegisterQuit(PyGame_Video_AutoQuit);*/
 	}
 	return 1;
 }
