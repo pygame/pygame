@@ -705,7 +705,7 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 
     /*DOC*/ static char doc_clamp_ip[] =
     /*DOC*/    "Rect.clamp_ip(rectstyle) -> None\n"
-    /*DOC*/    "moves the ectangle inside another\n"
+    /*DOC*/    "moves the rectangle inside another\n"
     /*DOC*/    "\n"
     /*DOC*/    "Moves the Rect to be\n"
     /*DOC*/    "completely inside the base rectangle. If the given\n"
