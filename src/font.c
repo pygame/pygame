@@ -402,7 +402,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 {
 	TTF_Font* font = PyFont_AsFont(self);
 	int aa;
-	PyObject* text;
+	PyObject* text, *final;
 	PyObject* fg_rgba_obj, *bg_rgba_obj = NULL;
 	Uint8 rgba[4];
 	SDL_Surface* surf;
@@ -461,7 +461,10 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		surf->format->palette->colors[0].b = backg.b;
 	}
 
-	return PySurface_New(surf);
+	final = PySurface_New(surf);
+	if(!final)
+		SDL_FreeSurface(surf);
+	return final;
 }
 
 
@@ -627,7 +630,10 @@ static PyObject* Font(PyObject* self, PyObject* args)
 	
 	if(!font)
 		return RAISE(PyExc_RuntimeError, SDL_GetError());
+
 	fontobj = PyFont_New(font);
+	if(!fontobj)
+		TTF_CloseFont(font);
 	return fontobj;
 }
 
@@ -656,14 +662,7 @@ static PyObject* PyFont_New(TTF_Font* font)
 
 	fontobj = PyObject_NEW(PyFontObject, &PyFont_Type);
 	if(fontobj)
-	{
 		fontobj->font = font;
-	}
-	else
-	{
-		/*free the original font, nobody else can*/
-		TTF_CloseFont(font); 
-	}
 
 	return (PyObject*)fontobj;
 }
