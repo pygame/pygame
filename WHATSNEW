@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 21, 2001
+	Surface.convert() respects the SRCALPHA flag when passing depth
+
 pygame-12
 September 1, 2001
 	fixed typo in pygame.cursor

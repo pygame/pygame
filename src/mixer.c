@@ -174,7 +174,7 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 		RETURN_NONE
 
 	//create a signed or unsigned number of bits per sample
-	realform = format&~0xff ? -(format&0xff) : format&0xff;	
+	realform = format&~0xff ? -(format&0xff) : format&0xff; 
 	return Py_BuildValue("(iii)", freq, realform, channels>1);
 }
 
@@ -459,9 +459,9 @@ static PyTypeObject PySound_Type =
 	NULL,					/*as_number*/
 	NULL,					/*as_sequence*/
 	NULL,					/*as_mapping*/
-	(hashfunc)NULL,			/*hash*/
+	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
-	(reprfunc)NULL,			/*str*/
+	(reprfunc)NULL, 		/*str*/
 	0L,0L,0L,0L,
 	doc_Sound_MODULE /* Documentation string */
 };
@@ -531,7 +531,7 @@ static PyObject* chan_get_busy(PyObject* self, PyObject* args)
     /*DOC*/    "fade out the channel\n"
     /*DOC*/    "\n"
     /*DOC*/    "Fade out the playing sound and stops it over the\n"
-    /*DOC*/    "given millisonds.\n"
+    /*DOC*/    "given milliseconds.\n"
     /*DOC*/ ;
 
 static PyObject* chan_fadeout(PyObject* self, PyObject* args)
@@ -719,9 +719,9 @@ static PyTypeObject PyChannel_Type =
 	NULL,					/*as_number*/
 	NULL,					/*as_sequence*/
 	NULL,					/*as_mapping*/
-	(hashfunc)NULL,			/*hash*/
+	(hashfunc)NULL, 		/*hash*/
 	(ternaryfunc)NULL,		/*call*/
-	(reprfunc)NULL,			/*str*/
+	(reprfunc)NULL, 		/*str*/
 	0L,0L,0L,0L,
 	doc_Channel_MODULE /* Documentation string */
 };

@@ -703,23 +703,41 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 			memcpy(&format, surf->format, sizeof(format));
 			if(ShortFromObj(argobject, &bpp))
 			{
-				switch(bpp)
+				int Rmask, Gmask, Bmask, Amask;
+				if(flags!=-1 && flags&SDL_SRCALPHA)
 				{
-				case 8:
-					format.Rmask = 0xFF >> 6 << 5; format.Gmask = 0xFF >> 5 << 2; format.Bmask = 0xFF >> 6; break;
-				case 12:
-					format.Rmask = 0xFF >> 4 << 8; format.Gmask = 0xFF >> 4 << 4; format.Bmask = 0xFF >> 4; break;
-				case 15:
-					format.Rmask = 0xFF >> 3 << 10; format.Gmask = 0xFF >> 3 << 5; format.Bmask = 0xFF >> 3; break;
-				case 16:
-					format.Rmask = 0xFF >> 3 << 11; format.Gmask = 0xFF >> 2 << 5; format.Bmask = 0xFF >> 3; break;
-				case 24:
-				case 32:
-					format.Rmask = 0xFF << 16; format.Gmask = 0xFF << 8; format.Bmask = 0xFF; break;
-				default:
-					PySurface_Unprep(self);
-					return RAISE(PyExc_ValueError, "nonstandard bit depth given");
+					switch(bpp)
+					{
+					case 16:
+						Rmask = 0xF<<8; Gmask = 0xF<<4; Bmask = 0xF; Amask = 0xF<<12; break;
+					case 32:
+						Rmask = 0xFF<<16; Gmask = 0xFF<<8; Bmask = 0xFF; Amask = 0xFF<<24; break;
+					default:
+						return RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth with alpha");
+					}
 				}
+				else
+				{
+					Amask = 0;
+					switch(bpp)
+					{
+					case 8:
+						Rmask = 0xFF>>6<<5; Gmask = 0xFF>>5<<2; Bmask = 0xFF>>6; break;
+					case 12:
+						Rmask = 0xFF>>4<<8; Gmask = 0xFF>>4<<4; Bmask = 0xFF>>4; break;
+					case 15:
+						Rmask = 0xFF>>3<<10; Gmask = 0xFF>>3<<5; Bmask = 0xFF>>3; break;
+					case 16:
+						Rmask = 0xFF>>3<<11; Gmask = 0xFF>>2<<5; Bmask = 0xFF>>3; break;
+					case 24:
+					case 32:
+						Rmask = 0xFF << 16; Gmask = 0xFF << 8; Bmask = 0xFF; break;
+					default:
+						return RAISE(PyExc_ValueError, "nonstandard bit depth given");
+					}
+				}
+				format.Rmask = Rmask; format.Gmask = Gmask;
+				format.Bmask = Bmask; format.Amask = Amask;
 			}
 			else if(PySequence_Check(argobject) && PySequence_Size(argobject)==4)
 			{
@@ -1506,9 +1524,9 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 			switch(bpp)
 			{
 			case 16:
-				Rmask = 0xFF >> 3 << 11; Gmask = 0xFF >> 2 << 5; Bmask = 0xFF >> 3; Amask = 0x01 << 15; break;
+				Rmask = 0xF<<8; Gmask = 0xF<<4; Bmask = 0xF; Amask = 0xF<<12; break;
 			case 32:
-				Rmask = 0xFF << 16; Gmask = 0xFF << 8; Bmask = 0xFF; Amask = 0xFF << 24; break;
+				Rmask = 0xFF<<16; Gmask = 0xFF<<8; Bmask = 0xFF; Amask = 0xFF<<24; break;
 			default:
 				return RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth with alpha");
 			}
@@ -1519,16 +1537,16 @@ static PyObject* Surface(PyObject* self, PyObject* arg)
 			switch(bpp)
 			{
 			case 8:
-				Rmask = 0xFF >> 6 << 5; Gmask = 0xFF >> 5 << 2; Bmask = 0xFF >> 6; break;
+				Rmask = 0xFF>>6<<5; Gmask = 0xFF>>5<<2; Bmask = 0xFF>>6; break;
 			case 12:
-				Rmask = 0xFF >> 4 << 8; Gmask = 0xFF >> 4 << 4; Bmask = 0xFF >> 4; break;
+				Rmask = 0xFF>>4<<8; Gmask = 0xFF>>4<<4; Bmask = 0xFF>>4; break;
 			case 15:
-				Rmask = 0xFF >> 3 << 10; Gmask = 0xFF >> 3 << 5; Bmask = 0xFF >> 3; break;
+				Rmask = 0xFF>>3<<10; Gmask = 0xFF>>3<<5; Bmask = 0xFF>>3; break;
 			case 16:
-				Rmask = 0xFF >> 3 << 11; Gmask = 0xFF >> 2 << 5; Bmask = 0xFF >> 3; break;
+				Rmask = 0xFF>>3<<11; Gmask = 0xFF>>2<<5; Bmask = 0xFF>>3; break;
 			case 24:
 			case 32:
-				Rmask = 0xFF << 16; Gmask = 0xFF << 8; Bmask = 0xFF; break;
+				Rmask = 0xFF<<16; Gmask = 0xFF<<8; Bmask = 0xFF; break;
 			default:
 				return RAISE(PyExc_ValueError, "nonstandard bit depth given");
 			}
