@@ -422,28 +422,28 @@ static PyObject* surf_flip(PyObject* self, PyObject* arg)
 			case 1:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
-					Uint8* src = ((Uint8*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w;
+					Uint8* src = ((Uint8*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w - 1;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 						*dst++ = *src--;
 				}break;
 			case 2:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint16* dst = (Uint16*)(dstpix+loopy*dstpitch);
-					Uint16* src = ((Uint16*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w;
+					Uint16* src = ((Uint16*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w - 1;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 						*dst++ = *src--;
 				}break;
 			case 4:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint32* dst = (Uint32*)(dstpix+loopy*dstpitch);
-					Uint32* src = ((Uint32*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w;
+					Uint32* src = ((Uint32*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w - 1;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 						*dst++ = *src--;
 				}break;
 			case 3:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
-					Uint8* src = ((Uint8*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w*3;
+					Uint8* src = ((Uint8*)(srcpix+(surf->h-1-loopy)*srcpitch)) + surf->w*3 - 3;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 					{
 						dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2];
@@ -460,28 +460,28 @@ static PyObject* surf_flip(PyObject* self, PyObject* arg)
 			case 1:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
-					Uint8* src = ((Uint8*)(srcpix+loopy*srcpitch)) + surf->w;
+					Uint8* src = ((Uint8*)(srcpix+loopy*srcpitch)) + surf->w - 1;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 						*dst++ = *src--;
 				}break;
 			case 2:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint16* dst = (Uint16*)(dstpix+loopy*dstpitch);
-					Uint16* src = ((Uint16*)(srcpix+loopy*srcpitch)) + surf->w;
+					Uint16* src = ((Uint16*)(srcpix+loopy*srcpitch)) + surf->w - 1;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 						*dst++ = *src--;
 				}break;
 			case 4:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint32* dst = (Uint32*)(dstpix+loopy*dstpitch);
-					Uint32* src = ((Uint32*)(srcpix+loopy*srcpitch)) + surf->w;
+					Uint32* src = ((Uint32*)(srcpix+loopy*srcpitch)) + surf->w - 1;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 						*dst++ = *src--;
 				}break;
 			case 3:
 				for(loopy = 0; loopy < surf->h; ++loopy) {
 					Uint8* dst = (Uint8*)(dstpix+loopy*dstpitch);
-					Uint8* src = ((Uint8*)(srcpix+loopy*srcpitch)) + surf->w*3;
+					Uint8* src = ((Uint8*)(srcpix+loopy*srcpitch)) + surf->w*3 - 3;
 					for(loopx = 0; loopx < surf->w; ++loopx)
 					{
 						dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2];

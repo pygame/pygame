@@ -2,10 +2,14 @@
 #
 # CVS tag names are placed before the date
 # BREAK = change breaks existing code
-# BUG   = fixed a bug that was crashing
+# BUG   = fixed a bug that was (or could have been) crashing
+
+June 25, 2001
+	horizontal transform.flip() was reading pixels off by one [BUG]
 
 June 24, 2001
 	calling set_mode will change all existing display surfaces too
+
 
 pygame-11
 Jun 23, 2001
@@ -90,6 +94,7 @@ Apr 08, 2001
 	properly free SDL objects on malloc errors
 	fixed rectangle cropping in pygame.display.update()
 
+
 pygame-10
 Apr 05, 2001
 	Everything set for the 1.0 release
@@ -138,6 +143,7 @@ Feb 14, 2001
 Feb 13, 2001
 	fixed return rect from line drawing routines
 	small fix when drawing horizontal lines
+
 
 pygame-09
 Feb 12, 2001
@@ -199,6 +205,7 @@ Jan 8, 2001
 Jan 6, 2001
 	added pygame.version module
 
+
 pygame-05
 Jan 6, 2001
 	Final cleanups for the new release
@@ -212,6 +219,7 @@ Dec 22, 2000
 
 Dec 14, 2000
 	display.set_mode pretending shorts are ints [BUG]
+
 
 pygame-04
 Dec 14, 2000
@@ -239,6 +247,7 @@ Nov 28, 2000
 	All color arguments (and returns) are RGBA format [BREAK]
 	Removed Surface.map_rgba and unmap_rgba [BREAK]
 	Added a default font, used by passing None as font file
+
 
 pygame-03
 Nov 20, 2000
