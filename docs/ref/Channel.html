@@ -146,11 +146,16 @@ forever (-1).
 
 <a name=set_volume><font size=+2><b>set_volume
 </b></font><br><font size=+1><tt>
-Channel.set_volume(val) -> None
+Channel.set_volume(val, [stereoval]) -> None
 </tt></font><ul>
 Sets the volume for the channel. The channel's volume level is
 mixed with the volume for the active sound object. The value is
 between 0.0 and 1.0.
+<br>&nbsp;<br>
+If mixer is using stereo, you can set the panning for audio
+by supplying a volume for the left and right channels. If
+SDL_mixer cannot set the panning, it will average the two
+volumes. Panning requires SDL_mixer-1.2.1.
 </ul><br>&nbsp;<br>
 
 <a name=stop><font size=+2><b>stop
