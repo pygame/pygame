@@ -70,7 +70,7 @@ Thanks to everyone who made this possible, including:
 - Bob Ippolito for the MacOS and OSX porting (much work!)
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for early design reviews
 - Our list of valiant bug fixers:
-	Niki Spahiev, Gordon Tyler,
+	Niki Spahiev, Gordon Tyler, Nathaniel Pryce
 	Dave Wallace, John Popplewell
 - And our dutiful bug hunters:
 	Angus, Guillaume Proux, Frank Raiser,

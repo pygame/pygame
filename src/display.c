@@ -615,7 +615,7 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 /*BAD things happen when out-of-bound rects go to updaterect*/
 static GAME_Rect* screencroprect(GAME_Rect* r, int w, int h, GAME_Rect* cur)
 {
-	if(r->x > w || r->y > h || (r->x + r->w) < 0 || (r->y + r->h) < 0)
+	if(r->x > w || r->y > h || (r->x + r->w) <= 0 || (r->y + r->h) <= 0)
 		return 0;
 	else
 	{
@@ -679,8 +679,8 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	screen = SDL_GetVideoSurface();
 	if(!screen)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	wide = screen->w - 1;
-	high = screen->h - 1;
+	wide = screen->w;
+	high = screen->h;
 
 
 	if(screen->flags & SDL_OPENGL)

@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 14, 2001
+	display.update() boundaries fixed
+
 January 11, 2001
 	Surface.set_clip() can take None to clear the clipping
 
