@@ -28,6 +28,12 @@ if int(sys.version[0]) < 2:
     raise SystemExit, "Pygame requires python 2.0 or higher"
 
 
+#get us to the correct directory
+import os, sys
+path = os.path.split(os.path.abspath(sys.argv[0]))[0]
+os.chdir(path)
+
+
 
 import os.path, glob
 import distutils.sysconfig 
