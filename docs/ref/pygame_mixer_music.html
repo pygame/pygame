@@ -185,12 +185,17 @@ Temporarily stops the current music.
 
 <a name=play><font size=+2><b>play
 </b></font><br><font size=+1><tt>
-pygame.mixer.music.play([loops]) -> None
+pygame.mixer.music.play(loops=0, starttime=0) -> None
 </tt></font><ul>
 Starts playing the current loaded music. This will restart the
 sound if it is playing. Loops controls how many extra time the
 sound will play, a negative loop will play indefinitely, it
 defaults to 0.
+<br>&nbsp;<br>
+The starting time argument is given in milliseconds, and controls
+the offset to start playing the music. Setting the starting time
+is only available on SDL_mixer-1.2.4, otherwise it will raise a
+NotImplementedError
 </ul><br>&nbsp;<br>
 
 <a name=rewind><font size=+2><b>rewind
