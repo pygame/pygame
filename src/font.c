@@ -599,6 +599,18 @@ static int font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 		if(fontsize <= 1)
 			fontsize = 1;
 	}
+
+	if(fileobj && PyFile_Check(fileobj)) {
+		PyObject *tmp = fileobj;
+		fileobj = PyFile_Name(fileobj);
+		if (!fileobj) {
+			PyErr_Clear();
+			fileobj = tmp;
+		} else {
+			Py_DECREF(tmp);
+		}
+	}
+
 	if(PyString_Check(fileobj) || PyUnicode_Check(fileobj))
 	{
 		FILE* test;
