@@ -1136,7 +1136,7 @@ static int rect_setright(PyRectObject *self, PyObject* value, void *closure) {
 
 /*bottom*/
 static PyObject* rect_getbottom(PyRectObject *self, void *closure) {
-    return PyInt_FromLong(self->r.x + self->r.w);
+    return PyInt_FromLong(self->r.y + self->r.h);
 }
 static int rect_setbottom(PyRectObject *self, PyObject* value, void *closure) {
     int val1;
@@ -1218,7 +1218,7 @@ static PyObject* rect_getmidtop(PyRectObject *self, void *closure) {
 static int rect_setmidtop(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
     if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
-    self->r.x = val1-(self->r.w>>1); self->r.y = val2;
+    self->r.x += val1-(self->r.x+(self->r.w>>1)); self->r.y = val2;
     return 0;
 }
 
@@ -1229,7 +1229,7 @@ static PyObject* rect_getmidleft(PyRectObject *self, void *closure) {
 static int rect_setmidleft(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
     if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
-    self->r.x = val1; self->r.y = val2-(self->r.h>>1);
+    self->r.x = val1; self->r.y += val2-(self->r.y+(self->r.h>>1));
     return 0;
 }
 
@@ -1240,7 +1240,7 @@ static PyObject* rect_getmidbottom(PyRectObject *self, void *closure) {
 static int rect_setmidbottom(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
     if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
-    self->r.x = val1-(self->r.w>>1); self->r.y = val2-self->r.h;
+    self->r.x += val1-(self->r.x+(self->r.w>>1)); self->r.y = val2-self->r.h;
     return 0;
 }
 
@@ -1251,7 +1251,7 @@ static PyObject* rect_getmidright(PyRectObject *self, void *closure) {
 static int rect_setmidright(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
     if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
-    self->r.x = val1-self->r.w; self->r.y = val2-(self->r.w>>1);
+    self->r.x = val1-self->r.w; self->r.y += val2-(self->r.y+(self->r.h>>1));
     return 0;
 }
 
@@ -1262,7 +1262,7 @@ static PyObject* rect_getcenter(PyRectObject *self, void *closure) {
 static int rect_setcenter(PyRectObject *self, PyObject* value, void *closure) {
     int val1, val2;
     if(!TwoIntsFromObj(value, &val1, &val2)) return -1;
-    self->r.x = val1-(self->r.w>>1); self->r.y = val2-(self->r.w>>1);
+    self->r.x += val1-(self->r.x+(self->r.w>>1)); self->r.y += val2-(self->r.y+(self->r.h>>1));
     return 0;
 }
 
@@ -1283,7 +1283,6 @@ static PyObject* rect_getsafepickle(PyRectObject *self, void *closure) {
 
 static PyGetSetDef rect_getsets[] = {
     {"bottom", (getter)rect_getbottom, (setter)rect_setbottom, NULL, NULL},
-    {"right", (getter)rect_getright, (setter)rect_setright, NULL, NULL},
     {"right", (getter)rect_getright, (setter)rect_setright, NULL, NULL},
     {"centerx", (getter)rect_getcenterx, (setter)rect_setcenterx, NULL, NULL},
     {"centery", (getter)rect_getcentery, (setter)rect_setcentery, NULL, NULL},
