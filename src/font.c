@@ -404,8 +404,8 @@ static PyObject* font_set_underline(PyObject* self, PyObject* args)
     /*DOC*/    "Note that font rendering is not thread safe, therefore only one\n"
     /*DOC*/    "thread can render text at any given time.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Also, rendering smooth text with underlines will crash SDL_ttf.\n"
-    /*DOC*/    "Pygame will currently disable the underline when doing smoothed text.\n"
+    /*DOC*/    "Also, rendering smooth text with underlines will crash with SDL_ttf\n"
+    /*DOC*/    "less that version 2.0, be careful.\n"
     /*DOC*/ ;
 
 static PyObject* font_render(PyObject* self, PyObject* args)
@@ -417,7 +417,6 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	Uint8 rgba[4];
 	SDL_Surface* surf;
 	SDL_Color foreg, backg;
-	int style, hasunderline;
 
 	if(!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj, &bg_rgba_obj))
 		return NULL;
@@ -432,19 +431,15 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		backg.r = rgba[0]; backg.g = rgba[1]; backg.b = rgba[2];
 	}	
 
-	style = TTF_GetFontStyle(font);
-	hasunderline = style&TTF_STYLE_UNDERLINE;
 	if(PyUnicode_Check(text))
 	{
 		Py_UNICODE* string = PyUnicode_AsUnicode(text);
 		if(aa)
 		{
-			if(hasunderline) TTF_SetFontStyle(font, style&~TTF_STYLE_UNDERLINE);
 			if(!bg_rgba_obj)
 				surf = TTF_RenderUNICODE_Blended(font, string, foreg);
 			else
 				surf = TTF_RenderUNICODE_Shaded(font, string, foreg, backg);
-			if(hasunderline) TTF_SetFontStyle(font, style);
 		}
 		else
 			surf = TTF_RenderUNICODE_Solid(font, string, foreg);
@@ -454,12 +449,10 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 		char* string = PyString_AsString(text);
 		if(aa)
 		{
-			if(hasunderline) TTF_SetFontStyle(font, style&~TTF_STYLE_UNDERLINE);
 			if(!bg_rgba_obj)
 				surf = TTF_RenderText_Blended(font, string, foreg);
 			else
 				surf = TTF_RenderText_Shaded(font, string, foreg, backg);
-			if(hasunderline) TTF_SetFontStyle(font, style);
 		}
 		else
 			surf = TTF_RenderText_Solid(font, string, foreg);

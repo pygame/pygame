@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Jun 23, 2001
+	removed smooth underline font render protection
+
 Jun 19, 2001
 	fixed botched image.save() function
 

@@ -93,14 +93,12 @@ static PyObject* image_load_ext(PyObject* self, PyObject* arg)
 
 
 
-
 static PyMethodDef image_builtins[] =
 {
 	{ "load_extended", image_load_ext, 1, NULL },
 
 	{ NULL, NULL }
 };
-
 
 
 

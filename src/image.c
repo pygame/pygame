@@ -597,7 +597,6 @@ void initimage(void)
 		is_extended = 0;
 	}
 
-
 	/*imported needed apis*/
 	import_pygame_base();
 	import_pygame_surface();
