@@ -1,5 +1,8 @@
 #This is a list of changes in pygame's history.
 
+Dec 22, 2000
+	timer threads properly shutdown
+
 Dec 14, 2000
 	display.set_mode pretending shorts are ints [BUG]
 

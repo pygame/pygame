@@ -195,6 +195,8 @@ static void atexit_quit()
 	PyObject* quit;
 	int num;
 
+	SDL_QuitSubSystem(SDL_INIT_TIMER);
+
 	if(!quitfunctions)
 		return;
 
