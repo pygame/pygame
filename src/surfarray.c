@@ -220,7 +220,6 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 	PyObject* array;
 	SDL_Surface* surf;
 	int stridex, stridey;
-	int didlock = 0;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -324,7 +323,6 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 	int Rmask, Gmask, Bmask, Rshift, Gshift, Bshift;
 	int stridex, stridey;
 	SDL_Color* palette;
-	int didlock = 0;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -451,7 +449,6 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
 	PyObject* array;
 	SDL_Surface* surf;
 	int stridex, stridey;
-	int didlock = 0;
 	int Ashift, Amask, Aloss;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
@@ -556,7 +553,6 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 	PyObject* array;
 	SDL_Surface* surf;
 	int stridex, stridey;
-	int didlock = 0;
 
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &array))
 		return NULL;
@@ -863,7 +859,6 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 	int loopx, loopy;
 	int stridex, stridey, stridez=0, stridez2=0, sizex, sizey;
 	int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
-	int didlock = 0;
 
 	if(!PyArg_ParseTuple(arg, "O!O!", &PySurface_Type, &surfobj, &PyArray_Type, &arrayobj))
 		return NULL;

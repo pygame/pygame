@@ -51,7 +51,6 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	SDL_PixelFormat* format = surf->format;
 	Uint8* pixels = (Uint8*)surf->pixels;
-	int didlock = 0;
 	int x, y;
 	Uint32 color;
 	Uint8* pix;
@@ -121,7 +120,6 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 	Uint8 rgba[4];
 	PyObject* rgba_obj;
 	Uint8* byte_buf;
-	int didlock = 0;
 
 	if(!PyArg_ParseTuple(args, "(ii)O", &x, &y, &rgba_obj))
 		return NULL;
@@ -250,8 +248,6 @@ static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
 
 static PyObject* surf_lock(PyObject* self, PyObject* args)
 {
-	SDL_Surface* surf = PySurface_AsSurface(self);
-
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -279,8 +275,6 @@ static PyObject* surf_lock(PyObject* self, PyObject* args)
 
 static PyObject* surf_unlock(PyObject* self, PyObject* args)
 {
-	SDL_Surface* surf = PySurface_AsSurface(self);
-
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
@@ -588,7 +582,7 @@ static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
     /*DOC*/    "overall surface transparency. You'll need to change the actual\n"
     /*DOC*/    "pixel transparency to make changes.\n"
     /*DOC*/    "\n"
-    /*DOC*/    "If your image is nonchanging and will be used repeatedly, you\n"
+    /*DOC*/    "If your image also has pixel alpha values, will be used repeatedly, you\n"
     /*DOC*/    "will probably want to pass the RLEACCEL flag to the call. This\n"
     /*DOC*/    "will take a short time to compile your surface, and increase the\n"
     /*DOC*/    "blitting speed.\n"
@@ -1157,7 +1151,6 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	GAME_Rect *rect, temp;
 	SDL_Surface* sub;
 	PyObject* subobj;
-	int didlock = 0;
 	int pixeloffset;
 	char* startpixel;
 	struct SubSurface_Data* data;
@@ -1169,12 +1162,7 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 		return RAISE(PyExc_ValueError, "subsurface rectangle outside surface area");
 
 
-	if(!surf->pixels)
-	{
-		if(SDL_LockSurface(surf) == -1)
-			return RAISE(PyExc_SDLError, SDL_GetError());
-		didlock = 1;
-	}
+	PySurface_Lock(self);
 
 	pixeloffset = rect->x * format->BytesPerPixel + rect->y * surf->pitch;
 	startpixel = ((char*)surf->pixels) + pixeloffset;
@@ -1182,8 +1170,7 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 	sub = SDL_CreateRGBSurfaceFrom(startpixel, rect->w, rect->h, format->BitsPerPixel, \
 				surf->pitch, format->Rmask, format->Gmask, format->Bmask, format->Amask);
 
-	if(didlock)
-		SDL_UnlockSurface(surf);
+	PySurface_Unlock(self);
 		
 	if(!sub)
 		return RAISE(PyExc_SDLError, SDL_GetError());
