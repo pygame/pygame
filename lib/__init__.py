@@ -36,8 +36,3 @@ import pygame.mouse
 import pygame.time
 import pygame.joystick
 
-#these following imports don't really effect
-#pygame at all, but they help python windows
-#executable builders find all the modules :]
-import pygame.surflock as __surflock
-import pygame.rwobject as __rwobject
