@@ -997,10 +997,16 @@ static PyObject* PySound_New(Mix_Chunk* chunk)
 		return RAISE(PyExc_RuntimeError, "unable to create sound.");
 
 	soundobj = PyObject_NEW(PySoundObject, &PySound_Type);
-	if(!soundobj)
-		return NULL;
+	if(soundobj)
+	{
+		soundobj->chunk = chunk;
+	}
+	else
+	{
+		/*free the sound here, nobody else can*/
+		Mix_FreeChunk(chunk);
+	}
 
-	soundobj->chunk = chunk;
 	return (PyObject*)soundobj;
 }
 

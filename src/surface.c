@@ -1385,6 +1385,11 @@ static PyObject* PySurface_New(SDL_Surface* s)
 		surf->didlock = 0;
 		surf->lockcount = 0;
 	}
+	else
+	{
+		/*free the surface here, because no one else can*/
+		SDL_FreeSurface(s);
+	}
 	return (PyObject*)surf;
 }
 

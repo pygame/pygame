@@ -655,10 +655,16 @@ static PyObject* PyFont_New(TTF_Font* font)
 		return RAISE(PyExc_RuntimeError, "unable to load font.");
 
 	fontobj = PyObject_NEW(PyFontObject, &PyFont_Type);
-	if(!fontobj)
-		return NULL;
+	if(fontobj)
+	{
+		fontobj->font = font;
+	}
+	else
+	{
+		/*free the original font, nobody else can*/
+		TTF_CloseFont(font); 
+	}
 
-	fontobj->font = font;
 	return (PyObject*)fontobj;
 }
 
