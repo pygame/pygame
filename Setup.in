@@ -28,6 +28,7 @@ mixer src/mixer.c $(SDL) $(MIXER)
 mixer_music src/music.c $(SDL) $(MIXER)
 movie src/movie.c $(SDL) $(SMPEG)
 surfarray src/surfarray.c $(SDL) $(NUMERIC)
+sndarray src/sndarray.c $(SDL) $(NUMERIC)
 
 
 

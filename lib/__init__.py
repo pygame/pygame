@@ -110,6 +110,9 @@ except (ImportError,IOError):movie=None
 try: import pygame.surfarray
 except (ImportError,IOError):surfarray=None
 
+try: import pygame.sndarray
+except (ImportError,IOError):sndarray=None
+
 #there's also a couple "internal" modules not needed
 #by users, but putting them here helps "dependency finder"
 #programs get everything they need (like py2exe)

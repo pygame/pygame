@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+April 25, 2002
+	added gl_set_attribute(), gl_get_attribute()
+
 April 16, 2002
         mixer keeps a reference to playing Sound objects
         channel.set_volume() can take 2 volumes for panning
