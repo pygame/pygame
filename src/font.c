@@ -295,7 +295,7 @@ static PyObject* font_set_bold(PyObject* self, PyObject* args)
 
 
     /*DOC*/ static char doc_font_get_italic[] =
-    /*DOC*/    "Font.get_bold() -> bool\n"
+    /*DOC*/    "Font.get_italic() -> bool\n"
     /*DOC*/    "status of the italic attribute\n"
     /*DOC*/    "\n"
     /*DOC*/    "Get the current status of the font's italic attribute\n"
