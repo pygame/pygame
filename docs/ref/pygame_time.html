@@ -34,11 +34,12 @@
 <a href=pygame_transform.html>transform</a> ||<br>
 &nbsp;<br>|| <a href=CD.html>CD</a> || 
 <a href=Channel.html>Channel</a> || 
+<a href=Clock.html>Clock</a> || 
 <a href=Font.html>Font</a> || 
 <a href=Joystick.html>Joystick</a> || 
-<a href=Movie.html>Movie</a> || 
-<a href=Rect.html>Rect</a> ||<br>
-|| <a href=Sound.html>Sound</a> || 
+<a href=Movie.html>Movie</a> ||<br>
+|| <a href=Rect.html>Rect</a> || 
+<a href=Sound.html>Sound</a> || 
 <a href=Surface.html>Surface</a> ||<br>
 &nbsp;<br>|| <a href=pygame_UserRect.html>UserRect</a> || 
 <a href=pygame_cursors.html>cursors</a> || 
@@ -54,12 +55,18 @@ resolution on most systems is around 10ms.
 <br>&nbsp;<br>
 All times are represented in milliseconds, which is simply
 Seconds*1000. (therefore 2500 milliseconds is 2.5 seconds)
+<br>&nbsp;<br>
+You can also create Clock instances to keep track of framerate.
 
 <hr>
 
 <table>
+<tr><td><a href=#Clock>Clock</a></td><td> -
+create a new clock</td></tr>
+
+
 <tr><td><a href=#delay>delay</a></td><td> -
-delay for a number of milliseconds</td></tr>
+accurately delay for a number of milliseconds</td></tr>
 
 
 <tr><td><a href=#get_ticks>get_ticks</a></td><td> -
@@ -70,15 +77,33 @@ milliseconds since initialization</td></tr>
 control timer events</td></tr>
 
 
+<tr><td><a href=#wait>wait</a></td><td> -
+yielding delay for a number of milliseconds</td></tr>
+
+
 </table>
 
 <hr>
 
+<a name=Clock><font size=+2><b>Clock
+</b></font><br><font size=+1><tt>
+pygame.time.Clock() -> Clock
+</tt></font><ul>
+Clocks are used to track and control the framerate
+of a game. You create the objects with the time.Clock()
+function. The clock can be used to limit the framerate
+of a game, as well as track the time used per frame.
+</ul><br>&nbsp;<br>
+
 <a name=delay><font size=+2><b>delay
 </b></font><br><font size=+1><tt>
-pygame.time.delay(millseconds) -> none
+pygame.time.delay(millseconds) -> time
 </tt></font><ul>
 Will pause for a given number of milliseconds.
+This function will use the CPU in order to make
+the delay more accurate than <a href=pygame_event.html#wait>wait()</a>.
+<br>&nbsp;<br>
+This returns the actual number of milliseconds used.
 </ul><br>&nbsp;<br>
 
 <a name=get_ticks><font size=+2><b>get_ticks
@@ -99,6 +124,18 @@ setting milliseconds to 0 or less will disable that timer.
 When a timer for an event is set, that event will be
 placed on the event queue every given number of
 milliseconds.
+</ul><br>&nbsp;<br>
+
+<a name=wait><font size=+2><b>wait
+</b></font><br><font size=+1><tt>
+pygame.time.wait(millseconds) -> time
+</tt></font><ul>
+Will pause for a given number of milliseconds.
+This function sleeps the process to better share
+the CPU with other processes. It is less accurate
+than the <a href=#delay>delay()</a> function.
+<br>&nbsp;<br>
+This returns the actual number of milliseconds used.
 </ul><br>&nbsp;<br>
 
 

@@ -21,7 +21,6 @@
 # main pygame source
 # lets get things coordinated
 
-
 from pygame.version import ver
 
 from pygame.base import *

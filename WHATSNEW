@@ -4,6 +4,14 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 1, 2001
+	made time.delay() more accurate
+	created time.wait() to work like old delay()
+	added time.Clock objects for framerate tracking
+
+November 26, 2001
+        Surface.convert() doesn't segfault before pygame.init()
+
 November 20, 2001
 	added pygame.sprite.Group.update()
 	Surface.blit() protection for alpha->8bit relaxed
@@ -12,7 +20,7 @@ November 19, 2001
         fixed image.fromstring() for "RGBA" mode
 
 November 18, 2001
-	can stream python file-like objects to threads
+	can stream python file-like objects to SDL threads
 
 November 15, 2001
 	cleanups for transform.rotate

@@ -1,5 +1,5 @@
 <html>
-<title>pygame.movie</title>
+<title>Clock</title>
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
@@ -49,39 +49,48 @@
 
 </td></tr></table></td></tr></table>
 <br>
-<h2 align=center>pygame.movie</h2>
-The movie module is an optional pygame module that
-allows for decoding and playback of MPEG movie files.
-The module only contains a single function, <a href=#Movie>Movie()</a>
-which creates a new Movie object.
-<br>&nbsp;<br>
-Movies are played back in background threads, so there
-is very little management needed on the user end. Just
-load the Movie, set the destination, and <a href=Movie.html#play>Movie.play()</a>
-<br>&nbsp;<br>
-Movies will only playback audio if the pygame.mixer
-module is not initialized. It is easy to temporarily
-call <a href=pygame_mixer.html#quit>pygame.mixer.quit()</a> to disable audio, then create
-and play your movie. Finally calling <a href=pygame_mixer.html#init>pygame.mixer.init()</a>
-again when finished with the Movie.
+<h2 align=center>Clock</h2>
+Clocks are used to track and control the framerate
+of a game. You create the objects with the time.Clock()
+function. The clock can be used to limit the framerate
+of a game, as well as track the time used per frame.
+Use the <a href=pygame_time.html#Clock>pygame.time.Clock()</a> function to create new Clock
+objects.
 
 <hr>
 
 <table>
-<tr><td><a href=#Movie>Movie</a></td><td> -
-load a new MPEG stream</td></tr>
+<tr><td><a href=#get_fps>get_fps</a></td><td> -
+get the current rate of frames per second</td></tr>
+
+
+<tr><td><a href=#tick>tick</a></td><td> -
+control timer events</td></tr>
 
 
 </table>
 
 <hr>
 
-<a name=Movie><font size=+2><b>Movie
+<a name=get_fps><font size=+2><b>get_fps
 </b></font><br><font size=+1><tt>
-pygame.movie.Movie(file) -> Movie
+Clock.get_fps() -> float
 </tt></font><ul>
-Loads a new movie stream from a MPEG file. The file
-argument is either a filename, or any python file-like object
+This computes the running average of frames per second. This
+is the number of times the <a href=#tick>tick()</a> method has been called per
+second.
+</ul><br>&nbsp;<br>
+
+<a name=tick><font size=+2><b>tick
+</b></font><br><font size=+1><tt>
+Clock.tick([ticks_per_sec_delay]) -> milliseconds
+</tt></font><ul>
+Updates the number of ticks for this clock. It should usually
+be called once per frame. If you pass the optional delay argument
+the function will wait until the amount of time needed to keep
+your program from running no faster than the given ticks per second.
+The function also returns the number of milliseconds passed since
+the previous call to <u>tick()</u>
 </ul><br>&nbsp;<br>
 
 

@@ -772,7 +772,12 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 		}
 	}
 	else
-		newsurf = SDL_DisplayFormat(surf);
+        {
+                if(SDL_WasInit(SDL_INIT_VIDEO))
+                        newsurf = SDL_DisplayFormat(surf);
+                else
+                        newsurf = SDL_ConvertSurface(surf, src->format, surf->flags);
+        }
 	PySurface_Unprep(self);
 
 	final = PySurface_New(newsurf);
