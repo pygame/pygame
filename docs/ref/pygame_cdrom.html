@@ -1,5 +1,5 @@
 <html>
-<title>pygame.font</title>
+<title>pygame.cdrom</title>
 <body bgcolor=#dddddd text=#333377 link=#7777bb vlink=#7777bb>
 
 <table border=0 width=100% cellpadding=0 cellspacing=0 bgcolor=#f5f5f5><tr valign=top>
@@ -12,8 +12,8 @@
 </td></tr></table></td><td width=100% align=center valign=middle>
 
 	||&nbsp;
-	<a href=../>Home</a> &nbsp;||&nbsp;
-	<a href=index.html>Help Contents</a> &nbsp;||
+	<a href=http://pygame.seul.org>Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
 	<br>&nbsp;<br>
 
 || <a href=CD.html>CD</a> || 
@@ -35,58 +35,83 @@
 
 </td></tr></table>
 <br>
-<h2 align=center>pygame.font</h2>
-The font module allows for rendering TrueType fonts into a new
-Surface object. This module is optional and requires SDL_ttf as a
-dependency. You may want to check for pygame.font to import and
-initialize before attempting to use the module.
-<br>&nbsp;<br>
-Most of the work done with fonts are done by using the actual
-Font objects. The module by itself only has routines to
-initialize the module and create Font objects with
-pygame.font.font().
+<h2 align=center>pygame.cdrom</h2>
+thin wrapper around the SDL CDROM api, likely to
+change
 
 <hr>
 
 <table>
+<tr><td><a href=#count>count</a></td><td> -
+query number of cdroms on system</td></tr>
+
+
 <tr><td><a href=#get_init>get_init</a></td><td> -
-get status of font module initialization</td></tr>
+query init of cdrom module</td></tr>
 
 
 <tr><td><a href=#init>init</a></td><td> -
-initialize the display module</td></tr>
+initialize the cdrom subsystem</td></tr>
+
+
+<tr><td><a href=#name>name</a></td><td> -
+query name of cdrom drive</td></tr>
+
+
+<tr><td><a href=#open>open</a></td><td> -
+open cd device</td></tr>
 
 
 <tr><td><a href=#quit>quit</a></td><td> -
-uninitialize the font module</td></tr>
+uninitialize the cdrom subsystem</td></tr>
 
 
 </table>
 
 <hr>
 
+<a name=count><font size=+2><b>count
+</b></font><br><font size=+1><tt>
+pygame.cdrom.count() -> int
+</tt></font><ul>
+Returns the number of CDROM drives available on
+the system
+</ul><br>&nbsp;<br>
+
 <a name=get_init><font size=+2><b>get_init
 </b></font><br><font size=+1><tt>
-pygame.font.get_init() -> bool
+pygame.cdrom.get_init() -> bool
 </tt></font><ul>
-Returns true if the font module is currently intialized.
+Returns true of the cdrom module is initialized
 </ul><br>&nbsp;<br>
 
 <a name=init><font size=+2><b>init
 </b></font><br><font size=+1><tt>
-pygame.font.init() -> None
+pygame.cdrom.init() -> None
 </tt></font><ul>
-Manually initialize the font module. Will raise an exception if
-it cannot be initialized. It is safe to call this function if
-font is currently initialized.
+Initialize the CDROM module manually
+</ul><br>&nbsp;<br>
+
+<a name=name><font size=+2><b>name
+</b></font><br><font size=+1><tt>
+pygame.cdrom.name(id) -> string
+</tt></font><ul>
+Returns the name of the CDROM device, given by the
+system.
+</ul><br>&nbsp;<br>
+
+<a name=open><font size=+2><b>open
+</b></font><br><font size=+1><tt>
+pygame.cdrom.open(id) -> CD
+</tt></font><ul>
+Creates a new CD object for the given CDROM id.
 </ul><br>&nbsp;<br>
 
 <a name=quit><font size=+2><b>quit
 </b></font><br><font size=+1><tt>
-pygame.font.quit() -> none
+pygame.cdrom.quit() -> None
 </tt></font><ul>
-Manually uninitialize SDL's video subsystem. It is safe to call
-this if font is currently not initialized.
+Uninitialize the CDROM module manually
 </ul><br>&nbsp;<br>
 
 

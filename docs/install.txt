@@ -1,15 +1,15 @@
-Quickie build instructions for building and installing pyGame
+Quickie build instructions for building and installing pygame
 Oct 23, 2000
 -------------------------------------------------------------
 pygame is built and installed using the python distutils.
 
 The majority of your work will likely be preparing the
-dependencies for pyGame. You will obviously need Python 2.0
+dependencies for pygame. You will obviously need Python 2.0
 installed and ready for development work. The only other
 requirement is SDL. You should be able to get this compiled
 without difficulty. (There is an available devel download
 for windows which will suit your needs on that platform).
-This is all you'll need for the base pyGame installation.
+This is all you'll need for the base pygame installation.
 There are extra modules you can use which require other
 dependencies like Numeric python and many of the
 SDL daughter libraries, like SDL_image and SDL_ttf.

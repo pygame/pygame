@@ -3,7 +3,7 @@ This is a list of changes in pygame's history.
      Nov 14, 2000
 	Release the Python Global Interpreter Lock on delays and IO
 	Added timer events to pygame.time (vgrade example demonstrates)
-	Event module documentation expanded
+	Documentation reorganized, 1st tutorial added
 
      Nov 11, 2000
 	BUG: pygame.display.set_mode() uses int, not short, for size
