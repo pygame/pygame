@@ -1,6 +1,6 @@
-This is a list of changes in pygame's history.
+#This is a list of changes in pygame's history.
 
-Nov 15, 2000
+Nov 16, 2000
 	Surface.set_clip() fixed when passing no args [BUG]
 
 Nov 15, 2000
@@ -10,7 +10,7 @@ Nov 15, 2000
 	all new_XX() functions were added to pygame.locals
 	Moved pygame.music to a member of pygame.mixer [BREAK]
 	Surface.blit takes a source rectangle instead of pos, size [BREAK]
- 	pygame.display.set_clip() correctly accepts rectstyle arg [BUG]
+	pygame.display.set_clip() correctly accepts rectstyle arg [BUG]
 	Added Surface.get_flags() and Surface.get_pitch()
 	Added set_cursor and get_cursor to pygame.mouse
 	New module, pygame.cursors, contains sample cursors

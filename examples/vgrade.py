@@ -9,6 +9,11 @@ not be self explanatory, nonetheless it may still seem a bit
 strange. Learning to use numeric for images like this takes a
 bit of learning, but the payoff is extremely fast image
 manipulation in python.
+
+Just so you know how this breaks down. For each sampling of
+time, 30% goes to each creating the gradient and blitting the
+array. The final 40% goes to flipping/updating the display surface
+
 The code also demonstrates use of the timer events."""
 
 
@@ -72,6 +77,8 @@ def main():
     pygame.init()
     size = 640, 480
     screen = pygame.display.set_mode(size)
+    f = screen.get_flags()
+    print f
 
     pygame.event.set_blocked(MOUSEMOTION) #keep our queue cleaner
     pygame.time.set_timer(USEREVENT, 500)

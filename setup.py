@@ -3,29 +3,26 @@
 #       python setup.py install
 #
 import os.path, glob, sys
+import distutils.sysconfig 
 from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
 from distutils.ccompiler import new_compiler
-#from distutils.sysconfig import get_python_inc
+
+if sys.version_info[0] < 2:
+    raise SystemExit, """pygame requires python 2.0 or higher"""
+
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
-
 
 #get compile info for all extensions
 try:
     extensions = read_setup_file('Setup')
 except IOError:
-    raise SystemExit, \
-"""Need a valid "Setup" file for compiling.
-Make of copy of "Setup.in" end edit,
-or run "confighelp.py" to create a new one."""
-
+    raise SystemExit, """Need a "Setup" file for compiling."""
 
 #extra files to install
 data_files = []
-
-
 
 #try to find libaries and copy them too
 #(great for windows, bad for linux)
@@ -40,28 +37,36 @@ if sys.platform == 'win32':
             if os.path.isfile(p) and p not in data_files:
                 data_files.append(p)
 
-
 #don't need to actually compile the COPYLIB modules
 for e in extensions[:]:
-    if e.name[:8] == 'COPYLIB_':
+    if e.name.startswith('COPYLIB_'):
         extensions.remove(e)
 
+#we can detect the presence of python dependencies, remove any unfound
+pythondeps = {'surfarray': ['Numeric']}
+for e in extensions[:]:
+    modules = pythondeps.get(e.name, [])
+    if modules:
+        try:
+            for module in modules:
+                x = __import__(module)
+                del x
+        except ImportError:
+            print 'NOTE: Not compiling:', e.name, ' (module not found='+module+')'
+            extensions.remove(e)
 
 
 
 setup (name = "pygame",
-       version = '0.2',
+       version = '0.3',
        maintainer = "Pete Shinners",
        maintainer_email = "shredwheat@mediaone.net",
        description = "Python Game Development module",
        url = "http://pygame.seul.org",
-
        packages = [''],
        package_dir = {'': 'lib'},
        extra_path = ('pygame/ignore', 'pygame'),
-
        headers = headers,
        ext_modules = extensions,
        data_files = [['pygame', data_files]]
-       )
-
+     )  
