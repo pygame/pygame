@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+November 19, 2001
+        fixed image.fromstring() for "RGBA" mode
+
 November 18, 2001
 	can stream python file-like objects to threads
 
@@ -33,7 +36,7 @@ September 27, 2001
 	fix in clipped horizontal line drawing [BUG]
 
 September 26, 2001
-	key.set_repeat() raises exception error, smarter args
+	key.set_repeat() raises exception on error, smarter args
 
 September 22, 2001
 	added Rect.clamp_ip, for inplace clamping
