@@ -627,7 +627,7 @@ extern SDL_Surface *rotozoomSurface(SDL_Surface *src, double angle, double zoom,
 static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj;
-	SDL_Surface *surf, *newsurf;
+	SDL_Surface *surf, *newsurf, *surf32;
 	float scale, angle;
 
 	/*get all the arguments*/
@@ -635,10 +635,27 @@ static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
 
-	PySurface_Lock(surfobj);
-	newsurf = rotozoomSurface(surf, angle, scale, 1);
-	PySurface_Unlock(surfobj);
+	if(surf->format->BitsPerPixel == 32)
+	{
+		surf32 = surf;
+		PySurface_Lock(surfobj);
+	}
+	else
+	{
+	    surf32 = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 32,
+					0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+		SDL_BlitSurface(surf, NULL, surf32, NULL);
+	}
 
+	if(scale == 1.0 && !(((int)angle)%90))
+		newsurf = rotate90(surf32, (int)angle);
+	else
+		newsurf = rotozoomSurface(surf32, angle, scale, 1);
+
+	if(surf32 == surf)
+		PySurface_Unlock(surfobj);
+	else
+		SDL_FreeSurface(surf32);
 	return PySurface_New(newsurf);
 }
 

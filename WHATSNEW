@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 28, 2002
+	update SDL_rotozoom to 2.0.3
+	fix rotozoom 90degree cases
+
 January 26, 2002
 	special cases for 90 degree transform.rotate()
 	OSX cleanups for commandline (thanks Bob)
