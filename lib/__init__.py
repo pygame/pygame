@@ -25,8 +25,8 @@ Windows, MacOS, OSX, BeOS, FreeBSD, IRIX, and Linux.
 """
 
 import sys, os, string
-if sys.platform=='darwin':
-    # this may change someday, but we want to chdir to where our file is if we're in / for no
+if sys.platform=='darwin' and sys.version < '2.3':
+    # python2.2 has some funky behavior so we want to chdir to where our file is if we're in / for no
     # good reason..
     if (os.getcwd() == '/') and len(sys.argv):
         os.chdir(os.path.split(sys.argv[0])[0])
