@@ -59,7 +59,8 @@ can be any python object that has "add_internal" and
 they want add and remove themselves from containers. The
 containers must also have a member named "_spritegroup",
 which can be set to any dummy value.
-The term 'sprite' is a holdover from older computer and
+
+The term "sprite" is a holdover from older computer and
 game machines. These older boxes were unable to draw
 and erase normal graphics fast enough for them to work
 as games. These machines had special hardware to handle
@@ -193,8 +194,8 @@ class Group:
            You can initialize a group by passing it a
            sprite or sequence of sprites to be contained."""
         self.spritedict = {}
-        if sprites:
-            self.add(sprites)
+        if sprite:
+            self.add(sprite)
 
     def copy(self):
         """copy()
@@ -304,9 +305,9 @@ class GroupSingle:
        been added to the group last, will be the only sprite in
        the group."""
     _spritegroup = 1 #dummy val to identify groups
-    def __init__(self, sprites=()):
+    def __init__(self, sprite=()):
         self.sprite = 0
-        self.add(sprites)
+        self.add(sprite)
 
     def copy(self):
         if self.sprite is not 0:
@@ -401,8 +402,8 @@ class RenderClear(Group):
        used in this group must contain member elements
        named "image" and "rect". These are a pygame Surface
        and Rect, which are passed to a blit call."""
-    def __init__(self, sprites=()):
-        Group.__init__(self, sprites)
+    def __init__(self, sprite=()):
+        Group.__init__(self, sprite)
         self.lostsprites = []
 
     def remove_internal(self, sprite):
