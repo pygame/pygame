@@ -612,18 +612,20 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
-static int screencroprect(GAME_Rect* r, int w, int h)
+static GAME_Rect* screencroprect(GAME_Rect* r, int w, int h, GAME_Rect* cur)
 {
-	if(r->x >= w || r->y >= h || (r->x + r->w) < 0 || (r->y + r->h) < 0)
+	if(r->x > w || r->y > h || (r->x + r->w) < 0 || (r->y + r->h) < 0)
 		return 0;
 	else
 	{
-		if(r->x < 0) r->x = 0;
-		if(r->y < 0) r->y = 0;
-		if(r->x + r->w >= w) r->w = (w-1)-r->x;
-		if(r->y + r->h >= h) r->h = (h-1)-r->y;
+		int right = min(r->x + r->w, w);
+		int bottom = min(r->y + r->h, h);
+		cur->x = max(r->x, 0);
+		cur->y = max(r->y, 0);
+		cur->w = right - cur->x;
+		cur->h = bottom - cur->y;
 	}
-	return 1;
+	return cur;
 }
 
     /*DOC*/ static char doc_update[] =
@@ -676,8 +678,8 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	screen = SDL_GetVideoSurface();
 	if(!screen)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	wide = screen->w;
-	high = screen->h;
+	wide = screen->w - 1;
+	high = screen->h - 1;
 
 
 	if(screen->flags & SDL_OPENGL)
@@ -685,8 +687,8 @@ static PyObject* update(PyObject* self, PyObject* arg)
 
 	if(gr) /*single or no rect given*/
 	{
-		if(screencroprect(gr, wide, high))
-			SDL_UpdateRect(screen, gr->x, gr->y, gr->w, gr->h);
+		if(screencroprect(gr, wide, high, &temp))
+			SDL_UpdateRect(screen, temp.x, temp.y, temp.w, temp.h);
 	}
 	else /*sequence given*/
 	{
@@ -723,17 +725,12 @@ static PyObject* update(PyObject* self, PyObject* arg)
 				PyMem_Free((char*)rects);
 				return RAISE(PyExc_ValueError, "update_rects requires a single list of rects");
 			}
-
-			/*make sure we are using our own copy of the rect*/
-			if(gr != cur_rect)
-			{
-				memcpy(cur_rect, gr, sizeof(GAME_Rect));
-				gr = cur_rect;
-			}
-			/*bail out if rect not onscreen*/
-			if(!screencroprect(gr, wide, high))
-				continue;
+			
 			if(gr->w < 1 && gr->h < 1)
+				continue;
+
+			/*bail out if rect not onscreen*/
+			if(!screencroprect(gr, wide, high, cur_rect))
 				continue;
 
 			++count;

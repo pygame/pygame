@@ -30,10 +30,9 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 static int clipline(int* pts, int left, int top, int right, int bottom);
 static void drawline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx, int endy);
 static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx);
-static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
-static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
-static int draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
-
+static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
+static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
+static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
 
 
     /*DOC*/ static char doc_line[] =
@@ -253,7 +252,7 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	Uint8 rgba[4];
 	Uint32 color;
-	int width, result, loop;
+	int width, loop, t, l, b, r;
 
 	/*get all the arguments*/
 	if(!PyArg_ParseTuple(arg, "O!OOi", &PySurface_Type, &surfobj, &colorobj, &rectobj, &width))
@@ -277,25 +276,25 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 	if(!PySurface_Lock(surfobj)) return NULL;
 
 	if(!width)
-		result = draw_fillellipse(surf, (Sint16)(rect->x+rect->w/2), (Sint16)(rect->y+rect->h/2),
+		draw_fillellipse(surf, (Sint16)(rect->x+rect->w/2), (Sint16)(rect->y+rect->h/2),
 					(Sint16)(rect->w/2), (Sint16)(rect->h/2), color);
 	else
 	{
 		width = min(width, min(rect->w, rect->h) / 2);
-		result = 0;
-		
 		for(loop=0; loop<width; ++loop)
 		{
-			result += draw_ellipse(surf, rect->x+rect->w/2, rect->y+rect->h/2,
+			draw_ellipse(surf, rect->x+rect->w/2, rect->y+rect->h/2,
 						rect->w/2-loop, rect->h/2-loop, color);
 		}
 	}
 
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
-	if(!result)
-		RETURN_NONE
-	return PyRect_New4(rect->x, rect->y, rect->w, rect->h);
+	l = max(rect->x, surf->clip_rect.x);
+	t = max(rect->y, surf->clip_rect.y);
+	r = min(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
+	b = min(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
+	return PyRect_New4((short)l, (short)t, (short)max(r-l, 0), (short)max(b-t, 0));
 }
 
 
@@ -320,8 +319,8 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	Uint8 rgba[4];
 	Uint32 color;
-	int posx, posy, radius;
-	int width, result, loop;
+	int posx, posy, radius, t, l, b, r;
+	int width, loop;
 
 	/*get all the arguments*/
 	if(!PyArg_ParseTuple(arg, "O!O(ii)ii", &PySurface_Type, &surfobj, &colorobj, &posx, &posy, &radius, &width))
@@ -342,23 +341,18 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 	if(!PySurface_Lock(surfobj)) return NULL;
 
 	if(!width)
-		result = draw_fillellipse(surf, (Sint16)posx, (Sint16)posy,
-					(Sint16)radius, (Sint16)radius, color);
+		draw_fillellipse(surf, (Sint16)posx, (Sint16)posy, (Sint16)radius, (Sint16)radius, color);
 	else
-	{
-		result = 0;
 		for(loop=0; loop<width; ++loop)
-		{
-			result += draw_ellipse(surf, posx, posy, radius-loop, radius-loop, color);
-		}
-	}
+			draw_ellipse(surf, posx, posy, radius-loop, radius-loop, color);
 
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
-	if(!result)
-		RETURN_NONE
-	return PyRect_New4((short)(posx-radius), (short)(posy-radius),
-				(short)(radius*2), (short)(radius*2));
+	l = max(posx - radius, surf->clip_rect.x);
+	t = max(posy - radius, surf->clip_rect.y);
+	r = min(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
+	b = min(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
+	return PyRect_New4((short)l, (short)t, (short)max(r-l, 0), (short)max(b-t, 0));
 }
 
 
@@ -455,14 +449,11 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 		return NULL;
 	}
 
-	result = draw_fillpoly(surf, xlist, ylist, numpoints, color);
+	draw_fillpoly(surf, xlist, ylist, numpoints, color);
 
 	PyMem_Del(xlist); PyMem_Del(ylist);
 	if(!PySurface_Unlock(surfobj))
 		return NULL;
-
-	if(!result)
-		RETURN_NONE
 
 	left = max(left, surf->clip_rect.x);
 	top = max(top, surf->clip_rect.y);
@@ -825,9 +816,8 @@ static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
 }
 
 
-static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
+static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
 {
-	int result;
 	int ix, iy;
 	int h, i, j, k;
 	int oh, oi, oj, ok;
@@ -858,8 +848,6 @@ static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 c
 	oh = oi = oj = ok = 0xFFFF;
 	
 	/* Draw */
-	result=0;
-
 	if (rx > ry) {
 		ix = 0;
 		iy = rx * 64;
@@ -870,33 +858,33 @@ static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 c
 			k = (i * ry) / rx;
 			
 			if (((ok!=k) && (oj!=k)) || ((oj!=j) && (ok!=j)) || (k!=j)) {
-				xph=x+h;
+				xph=x+h-1;
 				xmh=x-h;
 				if (k>0) {
-					ypk=y+k;
+					ypk=y+k-1;
 					ymk=y-k;
 					set_at(dst, xmh, ypk, color);
 					set_at(dst, xph, ypk, color);
 					set_at(dst, xmh, ymk, color);
 					set_at(dst, xph, ymk, color);
-				} else {
+				/*} else {
 					set_at(dst, xmh, y, color);
 					set_at(dst, xph, y, color);
-				}
+				*/}
 				ok=k;
-				xpi=x+i;
+				xpi=x+i-1;
 				xmi=x-i;
 				if (j>0) {
-					ypj=y+j;
+					ypj=y+j-1;
 					ymj=y-j;
 					set_at(dst, xmi, ypj, color);
 					set_at(dst, xpi, ypj, color);
 					set_at(dst, xmi, ymj, color);
 					set_at(dst, xpi, ymj, color);
-				} else {
+				/*} else {
 					set_at(dst, xmi, y, color);
 					set_at(dst, xpi, y, color);
-				}
+				*/}
 				oj=j;
 			}
 			ix = ix + iy / rx;
@@ -914,40 +902,38 @@ static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 c
 			
 			if (((oi!=i) && (oh!=i)) || ((oh!=h) && (oi!=h) && (i!=h))) {
 				xmj=x-j;
-				xpj=x+j;
+				xpj=x+j-1;
 				if (i>0) {
-					ypi=y+i;
+					ypi=y+i-1;
 					ymi=y-i;
 					set_at(dst, xmj, ypi,color);
 					set_at(dst, xpj, ypi,color);
 					set_at(dst, xmj, ymi,color);
 					set_at(dst, xpj, ymi,color);
-				} else {
+				/*} else {
 					set_at(dst, xmj, y,color);
 					set_at(dst, xpj, y,color);
-				}
+				*/}
 				oi=i;
 				xmk=x-k;
-				xpk=x+k;
+				xpk=x+k-1;
 				if (h>0) {
-					yph=y+h;
+					yph=y+h-1;
 					ymh=y-h;
 					set_at(dst, xmk, yph, color);
 					set_at(dst, xpk, yph, color);
 					set_at(dst, xmk, ymh, color);
 					set_at(dst, xpk, ymh, color);
-				} else {
+				/*} else {
 					set_at(dst, xmk, y, color);
 					set_at(dst, xpk, y, color);			 
-				}
+				*/}
 				oh=h;
 			}
 			ix = ix + iy / ry;
 			iy = iy - ix / ry;
 		} while(i > h);
 	}
-	
-	return 1;
 }
 
 
@@ -956,9 +942,8 @@ static int draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 c
 
 
 
-static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
+static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color)
 {
-	int result;
 	int ix, iy;
 	int h, i, j, k;
 	int oh, oi, oj, ok;
@@ -967,7 +952,7 @@ static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint
 	int xmj, xpj;
 	int xmk, xpk;
 	
-	
+	printf("  draw_fillellipse: pos=%d,%d r=%d,%d\n", x, y, rx, ry);
 #if 0
 	/* Special case for rx=0 - draw a vline */
 	if (rx==0) {
@@ -992,7 +977,6 @@ static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint
 	oh = oi = oj = ok = 0xFFFF;
 	
 	/* Draw */
-	result=0;  
 	if (rx > ry) {
 		ix = 0;
 		iy = rx * 64;
@@ -1002,30 +986,28 @@ static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint
 			i = (iy + 32) >> 6;
 			j = (h * ry) / rx;
 			k = (i * ry) / rx;
-			
 			if ((ok!=k) && (oj!=k)) {
 				xph=x+h;
 				xmh=x-h;
-				if (k>0) {
-					drawhorzlineclip(dst, color, xmh, y+k, xph);
-					drawhorzlineclip(dst, color, xmh, y-k, xph);
-				} else {
-					drawhorzlineclip(dst, color, xmh,  y, xph);
-				}
+				/*if (k>0) {*/
+					drawhorzlineclip(dst, color, xmh, y+k, xph-1);
+					drawhorzlineclip(dst, color, xmh, y-k-1, xph-1);
+				/*} else {
+					drawhorzlineclip(dst, ~color, xmh,  y, xph);
+				}*/
 				ok=k;
 			}
 			if ((oj!=j) && (ok!=j) && (k!=j))  {
 				xmi=x-i;
 				xpi=x+i;
-				if (j>0) {
-					drawhorzlineclip(dst, color, xmi, y+j, xpi);
-					drawhorzlineclip(dst, color, xmi, y-j, xpi);
-				} else {
-					drawhorzlineclip(dst, color, xmi, y, xpi);
-				}
+				/*if (j>0) {*/
+					drawhorzlineclip(dst, color, xmi, y+j, xpi-1);
+					drawhorzlineclip(dst, color, xmi, y-j-1, xpi-1);
+				/*} else {
+					drawhorzlineclip(dst, ~color, xmi, y, xpi);
+				}*/
 				oj=j;
 			}
-			
 			ix = ix + iy / rx;
 			iy = iy - ix / rx;
 			
@@ -1043,23 +1025,23 @@ static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint
 			if ((oi!=i) && (oh!=i)) {
 				xmj=x-j;
 				xpj=x+j; 
-				if (i>0) {
-					drawhorzlineclip(dst, color, xmj, y+i, xpj);
-					drawhorzlineclip(dst, color, xmj, y-i, xpj);
-				} else {
+				/*if (i>0) {*/
+					drawhorzlineclip(dst, color, xmj, y+i, xpj-1);
+					drawhorzlineclip(dst, color, xmj, y-i-1, xpj-1);
+				/*} else {
 					drawhorzlineclip(dst, color, xmj, y, xpj);
-				}
+				}*/
 				oi=i;
 			}
 			if ((oh!=h) && (oi!=h) && (i!=h)) {
 				xmk=x-k;
 				xpk=x+k;
-				if (h>0) {
-					drawhorzlineclip(dst, color, xmk, y+h, xpk);
-					drawhorzlineclip(dst, color, xmk, y-h, xpk);
-				} else {
-					drawhorzlineclip(dst, color, xmk, y, xpk);
-				}
+				/*if (h>0) {*/
+					drawhorzlineclip(dst, color, xmk, y+h, xpk-1);
+					drawhorzlineclip(dst, color, xmk, y-h-1, xpk-1);
+				/*} else {
+					drawhorzlineclip(dst, color, xmk, y, xpk-1);
+				}*/
 				oh=h;
 			}
 			
@@ -1068,8 +1050,6 @@ static int draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint
 			
 		} while(i > h);
 	}
-	
-	return(result);
 }
 
 
@@ -1078,9 +1058,8 @@ static int compare_int(const void *a, const void *b)
 	return (*(const int *)a) - (*(const int *)b);
 }
 
-static int draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
+static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color)
 {
-	int result;
 	int i;
 	int y;
 	int miny, maxy;
@@ -1101,7 +1080,6 @@ static int draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color
 	}
 	
 	/* Draw, scanning y */
-	result=0;
 	for(y=miny; (y <= maxy); y++) {
 		ints = 0;
 		for (i=0; (i < n); i++) {
@@ -1137,8 +1115,6 @@ static int draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color
 			drawhorzlineclip(dst, color, polyints[i], y, polyints[i+1]);
 		}
 	}
-	
-	return 1;
 }
 
 

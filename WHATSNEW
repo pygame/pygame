@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 27, 2001
+	drawing filled circles returns bounding rect
+	ellipses and circles drawn inside given area
+
 September 26, 2001
 	key.set_repeat() raises exception error, smarter args
 
