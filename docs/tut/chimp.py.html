@@ -1,0 +1,99 @@
+<HTML><HEAD><TITLE>..\..\examples\chimp.py</TITLE></HEAD>
+		  <BODY BGCOLOR=#FFFFFF>
+		  <!--header-->
+		  <!--script--><PRE><FONT COLOR=#1111CC>#/usr/bin/env python</FONT>
+
+<FONT COLOR=#115511>"""This simple example is used for the line-by-line tutorial
+that comes with pygame. It is based on a 'popular' web banner.
+Note there are comments here, but for the full explanation, 
+follow along in the tutorial. This code contains little error
+checking to make it a little clearer. The full tutorial explains
+where and how better error checking will help."""</FONT>
+
+
+<FONT COLOR=#1111CC>#Import Modoules</FONT>
+<FONT COLOR=#3333CC><B>import</B></FONT> os
+<FONT COLOR=#3333CC><B>import</B></FONT> pygame, pygame.font, pygame.image, pygame.mixer
+<FONT COLOR=#3333CC><B>from</B></FONT> pygame.locals <FONT COLOR=#3333CC><B>import</B></FONT> *
+
+
+<FONT COLOR=#1111CC>#Resource Filenames</FONT>
+chimpfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'chimp.gif'</FONT>)
+fistfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'fist.gif'</FONT>)
+hitfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'punch.wav'</FONT>)
+missfile = os.path.join(<FONT COLOR=#115511>'data'</FONT>, <FONT COLOR=#115511>'whiff.wav'</FONT>)
+
+
+<FONT COLOR=#3333CC><B>def</B></FONT><A NAME="main"><FONT COLOR=#CC0000><B> main</B></FONT></A>():
+<FONT COLOR=#1111CC>#Initialize Everything</FONT>
+    pygame.init()
+    screen = pygame.display.set_mode((468, 60), HWSURFACE|DOUBLEBUF)
+    pygame.display.set_caption(<FONT COLOR=#115511>'Monkey Fever'</FONT>)
+    pygame.mouse.set_visible(0)
+     
+<FONT COLOR=#1111CC>#Create The Backgound</FONT>
+    background = pygame.Surface(screen.get_size())
+    background.fill((250, 250, 250))
+    
+<FONT COLOR=#1111CC>#Put Text On The Background, Centered</FONT>
+    font = pygame.font.Font(None, 36)
+    text = font.render(<FONT COLOR=#115511>"Pummel The Chimp, And Win $$$"</FONT>, 1, (10, 10, 10))
+    textpos = text.get_rect()
+    textpos.centerx = background.get_rect().centerx
+    background.blit(text, textpos)
+
+<FONT COLOR=#1111CC>#Display The Background While Setup Finishes</FONT>
+    screen.blit(background, (0, 0))
+    pygame.display.flip()
+    
+<FONT COLOR=#1111CC>#Load Resources</FONT>
+    chimp = pygame.image.load(chimpfile).convert()
+    fist = pygame.image.load(fistfile).convert()
+    whiffsound = pygame.mixer.Sound(missfile)
+    hitsound = pygame.mixer.Sound(hitfile)
+    
+<FONT COLOR=#1111CC>#Prepare To Animate</FONT>
+    chimppos = chimp.get_rect()
+    chimppos.bottom = screen.get_height()
+    chimpmove = 2
+    reload = 0
+
+<FONT COLOR=#1111CC>#Main Loop</FONT>
+    <FONT COLOR=#3333CC><B>while</B></FONT> 1:
+    
+    <FONT COLOR=#1111CC>#Handle Input, Check For Quit</FONT>
+        event = pygame.event.poll()
+        <FONT COLOR=#3333CC><B>if</B></FONT> event.type == QUIT <FONT COLOR=#3333CC><B>or</B></FONT> (event.type == KEYDOWN <FONT COLOR=#3333CC><B>and</B></FONT> event.key == K_ESCAPE):
+            <FONT COLOR=#3333CC><B>break</B></FONT>
+    
+    <FONT COLOR=#1111CC>#Move The Monkey</FONT>
+        chimppos.left += chimpmove
+        <FONT COLOR=#3333CC><B>if</B></FONT> <FONT COLOR=#3333CC><B>not</B></FONT> screen.get_rect().contains(chimppos):
+            chimpmove = -chimpmove
+    
+    <FONT COLOR=#1111CC>#Move And Punch The Fist</FONT>
+        fistpos = pygame.mouse.get_pos()    
+        pressed = pygame.mouse.get_pressed()[0]
+        <FONT COLOR=#3333CC><B>if</B></FONT> <FONT COLOR=#3333CC><B>not</B></FONT> reload <FONT COLOR=#3333CC><B>and</B></FONT> pressed:
+            <FONT COLOR=#3333CC><B>if</B></FONT> chimppos.collidepoint(fistpos):
+                hitsound.play()
+            <FONT COLOR=#3333CC><B>else</B></FONT>:
+                whiffsound.play()
+        reload = pressed
+        <FONT COLOR=#3333CC><B>if</B></FONT> <FONT COLOR=#3333CC><B>not</B></FONT> reload:
+            fistpos = fistpos[0] - 20, fistpos[1] - 10
+
+    <FONT COLOR=#1111CC>#Draw The Entire Scene</FONT>
+        screen.blit(background, (0, 0))
+        screen.blit(chimp, chimppos)
+        screen.blit(fist, fistpos)
+        pygame.display.flip()
+
+<FONT COLOR=#1111CC>#Game Over</FONT>
+
+
+<FONT COLOR=#1111CC>#this is python code to kickstart the program if not imported</FONT>
+<FONT COLOR=#3333CC><B>if</B></FONT> __name__ == <FONT COLOR=#115511>'__main__'</FONT>: main()
+</PRE>
+		  <!--footer-->
+		  </BODY>
