@@ -5,13 +5,21 @@
 #
 # To configure, compile, install, just run this script.
 
+DESCRIPTION = """Pygame is a Python wrapper module for the
+SDL multimedia library. It contains python functions and classes
+that will allow you to use SDL's support for playing cdroms,
+audio and video output, and keyboard, mouse and joystick input.
+Pygame also includes support for the Numerical Python extension."""
+
 METADATA = {
     "name":             "pygame",
     "version":          "1.0pre",
-    "maintainer":       "Pete Shinners",
-    "maintainer_email": "pygame@seul.org",
-    "description":      "Python Game Development Package",
+    "license":          "LGPL",
     "url":              "http://pygame.seul.org",
+    "author":           "Pete Shinners",
+    "author_email":     "pygame@seul.org",
+    "description":      "Python Game Development Package",
+    "long_description": DESCRIPTION,
 }
 
 
@@ -117,7 +125,7 @@ class smart_install_data(install_data):
 
 #finally, 
 #call distutils with all needed info
-PACKAGE_DATA = {
+PACKAGEDATA = {
        "cmdclass":    {'install_data': smart_install_data},
        "packages":    ['pygame'],
        "package_dir": {'pygame': 'lib'},
@@ -125,7 +133,7 @@ PACKAGE_DATA = {
        "ext_modules": extensions,
        "data_files":  [['pygame', data_files]],
 }
-PACKAGE_DATA.update(METADATA)
-apply(setup, [], PACKAGE_DATA)
+PACKAGEDATA.update(METADATA)
+apply(setup, [], PACKAGEDATA)
 
 
