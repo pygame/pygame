@@ -224,6 +224,16 @@ def main(winstyle = 0):
     pygame.init()
     screen = pygame.display.set_mode(SCREENRECT.size, winstyle)
 
+    if pygame.joystick.get_init() and pygame.joystick.get_count():
+        joy = pygame.joystick.Joystick(0)
+        joy.init()
+        if not joy.get_numaxes() or not joy.get_numbuttons():
+            print 'warning: joystick disabled. requires at least one axis and one button'
+            joy.quit()
+            joy = None
+    else:
+        joy = None
+
     # Load the Resources
     Img.background = load_image('background.gif', 0)
     Img.shot = load_image('shot.gif', 1)
@@ -309,15 +319,17 @@ def main(winstyle = 0):
                 dirtyrects.append(b.clearrect)
                 bombs.remove(b)
 
-        # Move the player
+        # Handle Input, Control Tank
         if player.alive:
             direction = keystate[K_RIGHT] - keystate[K_LEFT]
+            firing = keystate[K_SPACE]
+            if joy:
+                direction += joy.get_axis(0)
+                firing += joy.get_button(0)
             player.move(direction)
-
-        # Create new shots
-            if not player.reloading and keystate[K_SPACE] and len(shots) < MAX_SHOTS:
+            if not player.reloading and firing and len(shots) < MAX_SHOTS:
                 shots.append(Shot(player))
-            player.reloading = keystate[K_SPACE]
+            player.reloading = firing
 
         # Create new alien
         if alienreload:
