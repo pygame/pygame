@@ -1,15 +1,15 @@
- 
 """take all the PyGame source and create html documentation"""
-#needs to eventually handle python source too.
 
 import fnmatch, glob, os
 
 
 DOCPATTERN = '*static char*doc_*=*'
-SOURCES = ['../../src/*.c']
+
+SOURCES = ['../../src/surface*.c']
 IGNORE_SOURCES = ['rwobject.c']
+PYTHONSRC = []#['cursors', 'version', 'UserRect']
+
 OUTPUTDIR = '../ref/'
-PYTHONSRC = ['cursors', 'version', 'UserRect']
 PAGETEMPLATE = open('pagelate.html').readlines()
 DOCTEMPLATE = open('doclate.html').readlines()
 LISTTEMPLATE = open('listlate.html').readlines()
@@ -171,36 +171,49 @@ def lookupdoc(docs, name, category):
             return d
 
 
+def htmlize(doc, obj, func):
+    for i in range(len(doc)):
+        line = doc[i]
+        line = line.replace('<<', '&lt;&lt;').replace('>>', '&gt;&gt;')
+        pos = 0
+        while 1:
+            pos = line.find('(', pos+1)
+            if pos == -1: break
+            if line[pos-1].isspace(): continue
+            start = line.rfind(' ', 0, pos)
+            if start == -1: continue
+            lookname = line[start+1:pos]
+            match = lookupdoc(func, lookname, obj['category'])
+            if not match: continue
+            end = line.find(')', pos)+1
+            if match['fullname'] == obj['fullname']:
+                link = '<u>%s</u>' % line[start+1:end]
+            else:
+                if match['category'] == obj['category']:
+                    dest = '#%s' % (match['name'])
+                else:
+                    dest = '%s.html#%s' % (match['category'], match['name'])
+                link = '<a href=%s>%s</a>' % (dest, line[start+1:end])
+            line = line[:start+1] + link + line[end:]
+            pos += len(link) - (pos-start)
+        doc[i] = line
+
 
 def buildlinks(alldocs):
     mod, ext, func = alldocs
     for obj in func:
         doc = obj['docs']
-        for i in range(len(doc)):
-            line = doc[i]
-            pos = 0
-            while 1:
-                pos = line.find('(', pos+1)
-                if pos == -1: break
-                if line[pos-1].isspace(): continue
-                start = line.rfind(' ', 0, pos)
-                if start == -1: continue
-                lookname = line[start+1:pos]
-                match = lookupdoc(func, lookname, obj['category'])
-                if not match: continue
-                end = line.find(')', pos)+1
-                if match['fullname'] == obj['fullname']:
-                    link = '<u>%s</u>' % line[start+1:end]
-                else:
-                    if match['category'] == obj['category']:
-                        dest = '#%s' % (match['name'])
-                    else:
-                        dest = '%s.html#%s' % (match['category'], match['name'])
-                    link = '<a href=%s>%s</a>' % (dest, line[start+1:end])
-                line = line[:start+1] + link + line[end:]
-                pos += len(link) - (pos-start)
-            doc[i] = line
-
+        htmlize(doc, obj, func)
+    for k,i in mod.items():
+        doc = [i]
+        obj = {'category': k, 'fullname':''}
+        htmlize(doc, obj, func)
+        mod[k] = doc[0]
+    for k,i in ext.items():
+        doc = [i]
+        obj = {'category': k, 'fullname':''}
+        htmlize(doc, obj, func)
+        ext[k] = doc[0]
 
 
 def categorize(allfuncs):
