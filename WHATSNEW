@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 27, 2003
+	Fix reading from file file-like objects (thx Timothy Stranex)
+
 September 21, 2003
 	Fix sysfont registry bug on winNT arch
 

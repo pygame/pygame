@@ -152,7 +152,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
         else if(size == -8) size = AUDIO_S8;
         else if(size == 16) size = AUDIO_U16SYS;
         else if(size == -16) size = AUDIO_S16SYS;
-        
+
 	/*make chunk a power of 2*/
 	for(i=0; 1<<i < chunk; ++i); //yes, semicolon on for loop
 	chunk = max(1<<i, 256);
@@ -160,7 +160,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
 	{
 		PyGame_RegisterQuit(autoquit);
-                
+
                 if(!channeldata) /*should always be null*/
                 {
                     numchanneldata = MIX_CHANNELS;
@@ -185,7 +185,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
                 Mix_ChannelFinished(endsound_callback);
 #endif
-                
+
               	Mix_VolumeMusic(127);
 	}
 	return PyInt_FromLong(1);
@@ -271,7 +271,7 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 		RETURN_NONE
 
 	//create a signed or unsigned number of bits per sample
-	realform = format&~0xff ? -(format&0xff) : format&0xff; 
+	realform = format&~0xff ? -(format&0xff) : format&0xff;
 	return Py_BuildValue("(iii)", freq, realform, channels>1);
 }
 
@@ -327,10 +327,10 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 	Mix_Chunk* chunk = PySound_AsChunk(self);
 	int channelnum = -1;
 	int loops = 0, playtime = -1;
-	
+
 	if(!PyArg_ParseTuple(args, "|ii", &loops, &playtime))
 		return NULL;
-	
+
 	channelnum = Mix_PlayChannelTimed(-1, chunk, loops, playtime);
 	if(channelnum == -1)
 		RETURN_NONE
@@ -340,7 +340,7 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 	channeldata[channelnum].queue = NULL;
         channeldata[channelnum].sound = self;
         Py_INCREF(self);
-                    
+
 	//make sure volume on this arbitrary channel is set to full
 	Mix_Volume(channelnum, 128);
 
@@ -548,14 +548,14 @@ static PyObject* sound_getattr(PyObject* self, char* attrname)
     /*DOC*/    "pygame.mixer module's initialization.\n"
     /*DOC*/ ;
 
-static PyTypeObject PySound_Type = 
+static PyTypeObject PySound_Type =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
 	"Sound",
 	sizeof(PySoundObject),
 	0,
-	sound_dealloc,	
+	sound_dealloc,
 	0,
 	sound_getattr,
 	NULL,					/*setattr*/
@@ -595,11 +595,11 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
 	PyObject* sound;
 	Mix_Chunk* chunk;
 	int loops = 0, playtime = -1;
-	
+
 	if(!PyArg_ParseTuple(args, "O!|ii", &PySound_Type, &sound, &loops, &playtime))
 		return NULL;
 	chunk = PySound_AsChunk(sound);
-	
+
 	channelnum = Mix_PlayChannelTimed(channelnum, chunk, loops, playtime);
 	if(channelnum != -1)
 		Mix_GroupChannel(channelnum, (int)chunk);
@@ -610,7 +610,7 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
 	channeldata[channelnum].queue = NULL;
         Py_INCREF(sound);
 
-        	
+
 	RETURN_NONE
 }
 
@@ -637,7 +637,7 @@ static PyObject* chan_queue(PyObject* self, PyObject* args)
 	int channelnum = PyChannel_AsInt(self);
 	PyObject* sound;
 	Mix_Chunk* chunk;
-	
+
 	if(!PyArg_ParseTuple(args, "O!", &PySound_Type, &sound))
 		return NULL;
 	chunk = PySound_AsChunk(sound);
@@ -657,7 +657,7 @@ static PyObject* chan_queue(PyObject* self, PyObject* args)
 	    channeldata[channelnum].queue = sound;
 	    Py_INCREF(sound);
 	}
-        	
+
 	RETURN_NONE
 }
 
@@ -850,7 +850,7 @@ static PyObject* chan_get_sound(PyObject* self, PyObject* args)
 	sound = channeldata[channelnum].sound;
 	if(!sound)
 	    RETURN_NONE
-		    
+
 	Py_INCREF(sound);
 	return sound;
 }
@@ -876,7 +876,7 @@ static PyObject* chan_get_queue(PyObject* self, PyObject* args)
 	sound = channeldata[channelnum].queue;
 	if(!sound)
 	    RETURN_NONE
-		    
+
 	Py_INCREF(sound);
 	return sound;
 }
@@ -949,7 +949,7 @@ static PyMethodDef channel_builtins[] =
 
 	{ "get_sound", chan_get_sound, 1, doc_chan_get_sound },
 	{ "get_queue", chan_get_queue, 1, doc_chan_get_queue },
-		
+
 	{ "set_endevent", chan_set_endevent, 1, doc_chan_set_endevent },
 	{ "get_endevent", chan_get_endevent, 1, doc_chan_get_endevent },
 
@@ -986,14 +986,14 @@ static PyObject* channel_getattr(PyObject* self, char* attrname)
     /*DOC*/ ;
 
 
-static PyTypeObject PyChannel_Type = 
+static PyTypeObject PyChannel_Type =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
 	"Channel",
 	sizeof(PyChannelObject),
 	0,
-	channel_dealloc,	
+	channel_dealloc,
 	0,
 	channel_getattr,
 	NULL,					/*setattr*/
@@ -1064,7 +1064,7 @@ static PyObject* set_num_channels(PyObject* self, PyObject* args)
 	    }
             numchanneldata = numchans;
         }
-        
+
 	Mix_AllocateChannels(numchans);
 	RETURN_NONE
 }
@@ -1328,7 +1328,7 @@ static PyMethodDef mixer_builtins[] =
 static PyObject* PySound_New(Mix_Chunk* chunk)
 {
 	PySoundObject* soundobj;
-	
+
 	if(!chunk)
 		return RAISE(PyExc_RuntimeError, "unable to create sound.");
 
@@ -1344,7 +1344,7 @@ static PyObject* PySound_New(Mix_Chunk* chunk)
 static PyObject* PyChannel_New(int channelnum)
 {
 	PyChannelObject* chanobj;
-	
+
 	if(channelnum < 0 || channelnum >= Mix_GroupCount(-1))
 		return RAISE(PyExc_IndexError, "invalid channel index");
 
@@ -1429,7 +1429,7 @@ void initmixer(void)
 	import_pygame_rwobject();
 
 	music = PyImport_ImportModule("pygame.mixer_music");
-        if(music) 
+        if(music)
 	{
 		PyObject* ptr, *dict;
 		PyModule_AddObject(module, "music", music);
@@ -1438,7 +1438,7 @@ void initmixer(void)
 		current_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
 		ptr = PyDict_GetItemString(dict, "_QUEUE_POINTER");
 		queue_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
-	}	
+	}
 	else /*music module not compiled? cleanly ignore*/
 	{
             current_music = NULL;
