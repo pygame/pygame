@@ -74,6 +74,7 @@ static SDL_Surface* rotate90(SDL_Surface *src, int angle)
     dst = newsurf_fromsurf(src, dstwidth, dstheight);
     if(!dst)
         return NULL;
+	SDL_LockSurface(dst);
     srcrow = (char*)src->pixels;
     dstrow = (char*)dst->pixels;
     srcstepx = dststepx = src->format->BytesPerPixel;
@@ -145,8 +146,9 @@ static SDL_Surface* rotate90(SDL_Surface *src, int angle)
                 srcpix += srcstepx; dstpix += dststepx;
             }
             dstrow += dststepy; srcrow += srcstepy;
-        }break;
+        }
     }
+	SDL_UnlockSurface(dst);
     return dst;
 }
 
@@ -405,7 +407,9 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 
         if(!(((int)angle)%90))
         {
+			PySurface_Lock(surfobj);
             newsurf = rotate90(surf, (int)angle);
+			PySurface_Unlock(surfobj);
             if(!newsurf) return NULL;
             return PySurface_New(newsurf);
         }

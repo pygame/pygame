@@ -34,6 +34,8 @@ static PyObject* self_module = NULL;
 staticforward PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New(const SDL_VideoInfo* info);
 static PyObject* DisplaySurfaceObject = NULL;
+static int icon_was_set = 0;
+
 
 #if 0
 /*quick internal test to see if gamma is supported*/
@@ -411,8 +413,7 @@ static PyObject* set_mode(PyObject* self, PyObject* arg)
 	SDL_Surface* surf;
 	int flags = SDL_SWSURFACE, depth = 0;
 	int w, h, hasbuf;
-	char* title, *icontitle;
-	static int icon_was_set = 0;
+	char *title, *icontitle;
 
 	if(!PyArg_ParseTuple(arg, "(ii)|ii", &w, &h, &flags, &depth))
 		return NULL;
@@ -953,8 +954,7 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
     /*DOC*/    "\n"
     /*DOC*/    "Sets the runtime icon that your system uses to decorate\n"
     /*DOC*/    "the program window. It is also used when the application\n"
-    /*DOC*/    "is iconfified. This must be called before the first call\n"
-    /*DOC*/    "to pygame.display.set_mode().\n"
+    /*DOC*/    "is iconified and in the window frame.\n"
     /*DOC*/    "\n"
     /*DOC*/    "You likely want this to be a smaller image, a size that\n"
     /*DOC*/    "your system window manager will be able to deal with. It will\n"
@@ -973,6 +973,7 @@ static PyObject* set_icon(PyObject* self, PyObject* arg)
 	SDL_WM_SetIcon(surf, NULL);
 	PySurface_Unlock(surface);
 
+	icon_was_set = 1;
 	RETURN_NONE
 }
 
