@@ -5,6 +5,11 @@
 # BUG   = fixed a bug that was crashing
 
 May 10, 2001
+	USEREVENT events now pass through the queue
+	Event() may be called with keyword args and/or a dict
+	Font.render() won't render underlines while smoothing [BUG]
+
+May 9, 2001
 	8bit subsurfaces inherit their parents colormap
 	blit keeps SDL from crashing with alpha onto 8bit
 

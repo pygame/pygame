@@ -177,6 +177,9 @@ transparent background.
 <br>&nbsp;<br>
 Note that font rendering is not thread safe, therefore only one
 thread can render text at any given time.
+<br>&nbsp;<br>
+Also, rendering smooth text with underlines will crash SDL_ttf.
+Pygame will currently disable the underline when doing smoothed text.
 </ul><br>&nbsp;<br>
 
 <a name=set_bold><font size=+2><b>set_bold
