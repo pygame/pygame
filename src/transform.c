@@ -27,6 +27,10 @@
 #include <math.h>
 
 
+void scale2x(SDL_Surface *src, SDL_Surface *dst);
+
+
+
 static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 {
 	SDL_Surface* newsurf;
@@ -368,6 +372,50 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
 
 
 
+    /*DOC*/ static char doc_scale2x[] =
+    /*DOC*/    "pygame.transform.scale2x(Surface) -> Surface\n"
+    /*DOC*/    "doubles the size of the image with advanced scaling\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This will return a new image that is double the size of\n"
+    /*DOC*/    "the original. It uses the AdvanceMAME Scale2X algorithm\n"
+    /*DOC*/    "which does a 'jaggie-less' scale of bitmap graphics.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "This really only has an effect on simple images with solid\n"
+    /*DOC*/    "colors. On photographic and antialiased images it will look\n"
+    /*DOC*/    "like a regular unfiltered scale.\n"
+    /*DOC*/ ;
+
+static PyObject* surf_scale2x(PyObject* self, PyObject* arg)
+{
+	PyObject *surfobj;
+	SDL_Surface* surf, *newsurf;
+	int width, height;
+
+	/*get all the arguments*/
+	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surfobj))
+		return NULL;
+	surf = PySurface_AsSurface(surfobj);
+
+	width = surf->w * 2;
+	height = surf->h * 2;
+	
+	newsurf = newsurf_fromsurf(surf, width, height);
+	if(!newsurf) return NULL;
+
+	SDL_LockSurface(newsurf);
+	PySurface_Lock(surfobj);
+
+	scale2x(surf, newsurf);
+
+	PySurface_Unlock(surfobj);
+	SDL_UnlockSurface(newsurf);
+
+	return PySurface_New(newsurf);
+}
+
+
+
+
     /*DOC*/ static char doc_rotate[] =
     /*DOC*/    "pygame.transform.rotate(Surface, angle) -> Surface\n"
     /*DOC*/    "rotate a Surface\n"
@@ -672,7 +720,8 @@ static PyMethodDef transform_builtins[] =
 	{ "rotate", surf_rotate, 1, doc_rotate },
 	{ "flip", surf_flip, 1, doc_flip },
 	{ "rotozoom", surf_rotozoom, 1, doc_rotozoom},
-
+	{ "scale2x", surf_scale2x, 1, doc_scale2x},
+		
 	{ NULL, NULL }
 };
 

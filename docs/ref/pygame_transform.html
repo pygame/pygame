@@ -81,6 +81,10 @@ smoothly scale and/or rotate an image</td></tr>
 scale a Surface to an arbitrary size</td></tr>
 
 
+<tr><td><a href=#scale2x>scale2x</a></td><td> -
+doubles the size of the image with advanced scaling</td></tr>
+
+
 </table>
 
 <hr>
@@ -141,6 +145,19 @@ The size is simply any 2 number sequence representing
 the width and height.
 <br>&nbsp;<br>
 This transformation is not filtered.
+</ul><br>&nbsp;<br>
+
+<a name=scale2x><font size=+2><b>scale2x
+</b></font><br><font size=+1><tt>
+pygame.transform.scale2x(Surface) -> Surface
+</tt></font><ul>
+This will return a new image that is double the size of
+the original. It uses the AdvanceMAME Scale2X algorithm
+which does a 'jaggie-less' scale of bitmap graphics.
+<br>&nbsp;<br>
+This really only has an effect on simple images with solid
+colors. On photographic and antialiased images it will look
+like a regular unfiltered scale.
 </ul><br>&nbsp;<br>
 
 
