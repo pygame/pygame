@@ -352,7 +352,6 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 	t = self->r.y;
 	r = self->r.x + self->r.w;
 	b = self->r.y + self->r.h;
-
 	size = PySequence_Length(list); /*warning, size could be -1 on error?*/
 	if(size < 1)
 		return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
@@ -366,13 +365,12 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 			Py_XDECREF(obj);
 			break;
 		}
-		t = min(t, argrect->x);
-		l = min(l, argrect->y);
-		r = max(b, argrect->x+argrect->w);
+		l = min(l, argrect->x);
+		t = min(t, argrect->y);
+		r = max(r, argrect->x+argrect->w);
 		b = max(b, argrect->y+argrect->h);
 		Py_DECREF(obj);
 	}
-
 	return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
 }
 
@@ -417,9 +415,9 @@ static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
 			Py_XDECREF(obj);
 			break;
 		}
-		t = min(t, argrect->x);
-		l = min(l, argrect->y);
-		r = max(b, argrect->x+argrect->w);
+		l = min(l, argrect->x);
+		t = min(t, argrect->y);
+		r = max(r, argrect->x+argrect->w);
 		b = max(b, argrect->y+argrect->h);
 		Py_DECREF(obj);
 	}
