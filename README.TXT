@@ -72,6 +72,7 @@ Thanks to everyone who made this possible, including:
 
 - David Clark for RPMs and all around help
 - Francis Irving for Debian packaging
+- Maxim Sobolev for FreeBSD port maintenance
 - Niki Spahiev for bugfixes
 - Jan Ekhol, Ray Kelm, and Peter Nicolai for initial design reviews
 - And our dutiful bug hunters; Angus Young
@@ -84,9 +85,9 @@ kept this project going, and basically made my life easer; thanks!
 
 LINKS
 
-Pygame Website   : http://pygame.seul.org
-Python Website   : http://www.python.org
-SDL Website      : http://www.libsdl.org
+Pygame Website : http://pygame.seul.org
+Python Website : http://www.python.org
+SDL Website    : http://www.libsdl.org
 
 
 
@@ -101,6 +102,6 @@ http://www.gnu.org/copyleft/lesser.html
 This basically means you can use pygame in any project you want, but
 if you make any changes or additions to pygame itself, those must be
 released with a compatible license.
-
+( hopefully submitted back to the pygame project :] )
 
 

@@ -792,7 +792,7 @@ PyObject* map_array(PyObject* self, PyObject* arg)
 
 
 #if 0
-/* not really fast enough to warrant this */
+/* not really fast enough to warrant this, using minimum(maximum()) is same */
     /*DOC*/ static char XXX_clamp_array[] =
     /*DOC*/    "pygame.surfarray.clamp_array(array3d, min=0, max=255) -> None\n"
     /*DOC*/    "will clamp all integer values in an array between 0 and 255\n"
