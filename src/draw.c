@@ -30,6 +30,7 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 static int clipline(int* pts, int left, int top, int right, int bottom);
 static void drawline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx, int endy);
 static void drawhorzline(SDL_Surface* surf, Uint32 color, int startx, int starty, int endx);
+static void drawvertline(SDL_Surface* surf, Uint32 color, int x1, int y1, int y2);
 static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
 static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 color);
 static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
@@ -235,7 +236,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.draw.ellipse(Surface, color, Rect, width) -> Rect\n"
     /*DOC*/    "draw an ellipse on a surface\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Draws a circular shape on the Surface. The given rectangle\n"
+    /*DOC*/    "Draws an elliptical shape on the Surface. The given rectangle\n"
     /*DOC*/    "is the area that the circle will fill. The width argument is\n"
     /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
     /*DOC*/    "the ellipse will be filled.\n"
@@ -272,6 +273,10 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
 
+	if ( width < 0 )
+		return RAISE(PyExc_ValueError, "negative width");
+	if ( width > rect->w / 2 || width > rect->h / 2 )
+		return RAISE(PyExc_ValueError, "width greater than ellipse radius");
 
 	if(!PySurface_Lock(surfobj)) return NULL;
 
@@ -306,7 +311,7 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
     /*DOC*/    "Draws a circular shape on the Surface. The given position\n"
     /*DOC*/    "is the center of the circle, and radius is the size. The width\n"
     /*DOC*/    "argument is the thickness to draw the outer edge. If width is\n"
-    /*DOC*/    "zero then the ellipse will be filled.\n"
+    /*DOC*/    "zero then the circle will be filled.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
     /*DOC*/    "\n"
@@ -337,6 +342,13 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
 
+	if ( radius < 0 )
+		return RAISE(PyExc_ValueError, "negative radius");
+	if ( width < 0 )
+		return RAISE(PyExc_ValueError, "negative width");
+	if ( width > radius )
+		return RAISE(PyExc_ValueError, "width greater than radius");
+
 
 	if(!PySurface_Lock(surfobj)) return NULL;
 
@@ -365,7 +377,7 @@ static PyObject* circle(PyObject* self, PyObject* arg)
     /*DOC*/    "Draws a polygonal shape on the Surface. The given pointlist\n"
     /*DOC*/    "is the vertices of the polygon. The width argument is\n"
     /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
-    /*DOC*/    "the ellipse will be filled.\n"
+    /*DOC*/    "the polygon will be filled.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
     /*DOC*/    "\n"
@@ -397,7 +409,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 		return ret;
 	}
 
-	
+
 	surf = PySurface_AsSurface(surfobj);
 
 	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
@@ -467,10 +479,10 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
     /*DOC*/    "pygame.draw.rect(Surface, color, Rect, width) -> Rect\n"
     /*DOC*/    "draws a polygon on a surface\n"
     /*DOC*/    "\n"
-    /*DOC*/    "Draws a polygonal shape on the Surface. The given Rect\n"
+    /*DOC*/    "Draws a rectangular shape on the Surface. The given Rect\n"
     /*DOC*/    "is the area of the rectangle. The width argument is\n"
     /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
-    /*DOC*/    "the ellipse will be filled.\n"
+    /*DOC*/    "the rectangle will be filled.\n"
     /*DOC*/    "\n"
     /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
     /*DOC*/    "\n"
@@ -521,6 +533,8 @@ static int clip_and_draw_line(SDL_Surface* surf, SDL_Rect* rect, Uint32 color, i
 		return 0;
 	if(pts[1] == pts[3])
 		drawhorzline(surf, color, pts[0], pts[1], pts[2]);
+	else if(pts[0] == pts[2])
+		drawvertline(surf, color, pts[0], pts[1], pts[3]);
 	else
 		drawline(surf, color, pts[0], pts[1], pts[2], pts[3]);
 	return 1;
@@ -667,6 +681,40 @@ static int clipline(int* pts, int left, int top, int right, int bottom)
 
 
 
+static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
+{
+	SDL_PixelFormat* format = surf->format;
+	Uint8* pixels = (Uint8*)surf->pixels;
+	Uint8* byte_buf, rgb[4];
+
+	if(x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
+				y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h)
+	return 0;
+
+	switch(format->BytesPerPixel)
+	{
+		case 1:
+			*((Uint8*)pixels + y * surf->pitch + x) = (Uint8)color;
+			break;
+		case 2:
+			*((Uint16*)(pixels + y * surf->pitch) + x) = (Uint16)color;
+			break;
+		case 4:
+			*((Uint32*)(pixels + y * surf->pitch) + x) = color;
+/*			  *((Uint32*)(pixels + y * surf->pitch) + x) =
+				 ~(*((Uint32*)(pixels + y * surf->pitch) + x)) * 31;
+*/			  break;
+		default:/*case 3:*/
+			SDL_GetRGB(color, format, rgb, rgb+1, rgb+2);
+			byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
+			*(byte_buf + (format->Rshift >> 3)) = rgb[0];
+			*(byte_buf + (format->Gshift >> 3)) = rgb[1];
+			*(byte_buf + (format->Bshift >> 3)) = rgb[2];
+			break;
+	}
+	return 1;
+}
+
 
 /*here's my sdl'ized version of bresenham*/
 static void drawline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2, int y2)
@@ -767,52 +815,93 @@ static void drawhorzline(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2
 	default: /*case 4*/
 		for(; pixel <= end; pixel+=4) {
 			*(Uint32*)pixel = color;
-		}break;
+/*			  *(Uint32*)pixel = ~(*(Uint32*)pixel)*31;
+*/		  }break;
 	}
 }
 
 static void drawhorzlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, int x2)
 {
+	if(y1 < surf->clip_rect.y || y1 >= surf->clip_rect.y + surf->clip_rect.h)
+		return;
+
+	if ( x2 < x1 )
+	{
+	 int temp = x1;
+	 x1 = x2; x2 = temp;
+	}
+
 	if(y1 < surf->clip_rect.y || y1 > surf->clip_rect.y + surf->clip_rect.h)
 		return;
 	x1 = max(x1, surf->clip_rect.x);
-	x2 = min(x2, surf->clip_rect.x + surf->clip_rect.w);
-	if(x2 - x1 < 1)
-		return;
-	drawhorzline(surf, color, x1, y1, x2);
+	x2 = min(x2, surf->clip_rect.x + surf->clip_rect.w-1);
+	if(x1 == x2)
+		set_at( surf, x1, y1, color);
+	else
+		drawhorzline(surf, color, x1, y1, x2);
+}
+
+static void drawvertline(SDL_Surface* surf, Uint32 color, int x1, int y1, int y2)
+{
+       Uint8   *pixel, *end;
+       Uint8   *colorptr;
+       Uint32  pitch = surf->pitch;
+
+       if(y1 == y2) return;
+
+       pixel = ((Uint8*)surf->pixels) + x1 * surf->format->BytesPerPixel;
+       if(y1 < y2)
+       {
+	   end	  = pixel + surf->pitch * y2;
+	   pixel += surf->pitch * y1;
+       }
+       else
+       {
+	   end	  = pixel + surf->pitch * y1;
+	   pixel += surf->pitch * y2;
+       }
+
+       switch(surf->format->BytesPerPixel)
+       {
+       case 1:
+	       for(; pixel <= end; pixel+=pitch) {
+		       *pixel = (Uint8)color;
+	       }break;
+       case 2:
+	       for(; pixel <= end; pixel+=pitch) {
+		       *(Uint16*)pixel = (Uint16)color;
+	       }break;
+       case 3:
+	       if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8;
+	       colorptr = (Uint8*)&color;
+	       for(; pixel <= end; pixel+=pitch) {
+		       pixel[0] = colorptr[0];
+		       pixel[1] = colorptr[1];
+		       pixel[2] = colorptr[2];
+	       }break;
+       default: /*case 4*/
+	       for(; pixel <= end; pixel+=pitch) {
+		       *(Uint32*)pixel = color;
+	       }break;
+       }
 }
 
 
-static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
+static void drawvertlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, int y2)
 {
-	SDL_PixelFormat* format = surf->format;
-	Uint8* pixels = (Uint8*)surf->pixels;
-	Uint8* byte_buf, rgb[4];
-
-	if(x < surf->clip_rect.x || x >= surf->clip_rect.x + surf->clip_rect.w ||
-				y < surf->clip_rect.y || y >= surf->clip_rect.y + surf->clip_rect.h)
-	return 0;
-
-	switch(format->BytesPerPixel)
+	if(x1 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
+	return;
+	if ( y2 < y1 )
 	{
-		case 1:
-			*((Uint8*)pixels + y * surf->pitch + x) = (Uint8)color;
-			break;
-		case 2:
-			*((Uint16*)(pixels + y * surf->pitch) + x) = (Uint16)color;
-			break;
-		case 4:
-			*((Uint32*)(pixels + y * surf->pitch) + x) = color;
-			break;
-		default:/*case 3:*/
-			SDL_GetRGB(color, format, rgb, rgb+1, rgb+2);
-			byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
-			*(byte_buf + (format->Rshift >> 3)) = rgb[0];
-			*(byte_buf + (format->Gshift >> 3)) = rgb[1];
-			*(byte_buf + (format->Bshift >> 3)) = rgb[2];	
-			break;
+		int temp = y1;
+		y1 = y2; y2 = temp;
 	}
-	return 1;
+	y1 = max(y1, surf->clip_rect.y);
+	y2 = min(y2, surf->clip_rect.y + surf->clip_rect.h-1);
+	if(y2 - y1 < 1)
+		set_at( surf, x1, y1, color);
+	else
+		drawvertline(surf, color, x1, y1, y2);
 }
 
 
@@ -826,51 +915,44 @@ static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 
 	int xmj, xpj, ymi, ypi;
 	int xmk, xpk, ymh, yph;
 	
-#if 0
-	/* Special case for rx=0 - draw a vline */
-	if (rx==0)
-		return(vlineColor (dst, x, (Sint16)(y-ry), (Sint16)(y+ry), color));  
-	/* Special case for ry=0 - draw a hline */
-	if (ry==0)
-		return(hlineColor (dst, (Sint16)(x-rx), (Sint16)(x+rx), y, color));  
-	
-	/* Test bounding box */
-	x1=x-rx;
-	y1=y-ry;
-	x2=x+rx;
-	y2=y+ry;
-	if (!(clipLine(dst,&x1,&y1,&x2,&y2))) {
-		return(0);
+	if (rx==0 && ry==0) {  /* Special case - draw a single pixel */
+		set_at( dst, x, y, color);
+		return;
 	}
-#endif
-	
+	if (rx==0) { /* Special case for rx=0 - draw a vline */
+		drawvertlineclip( dst, color, x, (Sint16)(y-ry), (Sint16)(y+ry) );
+		return;
+	}
+	if (ry==0) { /* Special case for ry=0 - draw a hline */
+		drawhorzlineclip( dst, color, (Sint16)(x-rx), y, (Sint16)(x+rx) );
+		return;
+	}
+
+
 	/* Init vars */
 	oh = oi = oj = ok = 0xFFFF;
-	
-	/* Draw */
 	if (rx > ry) {
 		ix = 0;
 		iy = rx * 64;
 		do {
-			h = (ix + 32) >> 6;
-			i = (iy + 32) >> 6;
+			h = (ix + 16) >> 6;
+			i = (iy + 16) >> 6;
 			j = (h * ry) / rx;
 			k = (i * ry) / rx;
-			
+
 			if (((ok!=k) && (oj!=k)) || ((oj!=j) && (ok!=j)) || (k!=j)) {
 				xph=x+h-1;
 				xmh=x-h;
 				if (k>0) {
 					ypk=y+k-1;
 					ymk=y-k;
-					set_at(dst, xmh, ypk, color);
+					if(h > 0) {
+						set_at(dst, xmh, ypk, color);
+						set_at(dst, xmh, ymk, color);
+					}
 					set_at(dst, xph, ypk, color);
-					set_at(dst, xmh, ymk, color);
 					set_at(dst, xph, ymk, color);
-				/*} else {
-					set_at(dst, xmh, y, color);
-					set_at(dst, xph, y, color);
-				*/}
+				}
 				ok=k;
 				xpi=x+i-1;
 				xmi=x-i;
@@ -881,15 +963,12 @@ static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 
 					set_at(dst, xpi, ypj, color);
 					set_at(dst, xmi, ymj, color);
 					set_at(dst, xpi, ymj, color);
-				/*} else {
-					set_at(dst, xmi, y, color);
-					set_at(dst, xpi, y, color);
-				*/}
+				}
 				oj=j;
 			}
 			ix = ix + iy / rx;
 			iy = iy - ix / rx;
-			
+
 		} while (i > h);
 	} else {
 		ix = 0;
@@ -899,21 +978,20 @@ static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 
 			i = (iy + 32) >> 6;
 			j = (h * rx) / ry;
 			k = (i * rx) / ry;
-			
+
 			if (((oi!=i) && (oh!=i)) || ((oh!=h) && (oi!=h) && (i!=h))) {
 				xmj=x-j;
 				xpj=x+j-1;
 				if (i>0) {
 					ypi=y+i-1;
 					ymi=y-i;
-					set_at(dst, xmj, ypi,color);
-					set_at(dst, xpj, ypi,color);
-					set_at(dst, xmj, ymi,color);
-					set_at(dst, xpj, ymi,color);
-				/*} else {
-					set_at(dst, xmj, y,color);
-					set_at(dst, xpj, y,color);
-				*/}
+					if(j > 0) {
+						set_at(dst, xmj, ypi, color);
+						set_at(dst, xmj, ymi, color);
+					}
+					set_at(dst, xpj, ypi, color);
+					set_at(dst, xpj, ymi, color);
+				}
 				oi=i;
 				xmk=x-k;
 				xpk=x+k-1;
@@ -924,10 +1002,7 @@ static void draw_ellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uint32 
 					set_at(dst, xpk, yph, color);
 					set_at(dst, xmk, ymh, color);
 					set_at(dst, xpk, ymh, color);
-				/*} else {
-					set_at(dst, xmk, y, color);
-					set_at(dst, xpk, y, color);			 
-				*/}
+				}
 				oh=h;
 			}
 			ix = ix + iy / ry;
@@ -947,65 +1022,41 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 	int ix, iy;
 	int h, i, j, k;
 	int oh, oi, oj, ok;
-	int xmh, xph;
-	int xmi, xpi;
-	int xmj, xpj;
-	int xmk, xpk;
-	
-	printf("  draw_fillellipse: pos=%d,%d r=%d,%d\n", x, y, rx, ry);
-#if 0
-	/* Special case for rx=0 - draw a vline */
-	if (rx==0) {
-		return(vlineColor (dst, x, (Sint16)(y-ry), (Sint16)(y+ry), color));  
+
+	if (rx==0 && ry==0) {  /* Special case - draw a single pixel */
+		set_at( dst, x, y, color);
+		return;
 	}
-	/* Special case for ry=0 - draw a hline */
-	if (ry==0) {
-		return(hlineColor (dst, (Sint16)(x-rx), (Sint16)(x+rx), y, color));  
+	if (rx==0) { /* Special case for rx=0 - draw a vline */
+		drawvertlineclip( dst, color, x, (Sint16)(y-ry), (Sint16)(y+ry) );
+		return;
 	}
-	
-	/* Test bounding box */
-	x1=x-rx;
-	y1=y-ry;
-	x2=x+rx;
-	y2=y+ry;
-	if (!(clipLine(dst,&x1,&y1,&x2,&y2))) {
-		return(0);
+	if (ry==0) { /* Special case for ry=0 - draw a hline */
+		drawhorzlineclip( dst, color, (Sint16)(x-rx), y, (Sint16)(x+rx) );
+		return;
 	}
-#endif
-	
+
 	/* Init vars */
 	oh = oi = oj = ok = 0xFFFF;
 	
 	/* Draw */
-	if (rx > ry) {
+	if (rx >= ry) {
 		ix = 0;
 		iy = rx * 64;
 		
 		do {
-			h = (ix + 32) >> 6;
-			i = (iy + 32) >> 6;
+			h = (ix + 16/*32*/) >> 6;
+			i = (iy + 16/*32*/) >> 6;
 			j = (h * ry) / rx;
 			k = (i * ry) / rx;
 			if ((ok!=k) && (oj!=k)) {
-				xph=x+h;
-				xmh=x-h;
-				/*if (k>0) {*/
-					drawhorzlineclip(dst, color, xmh, y+k, xph-1);
-					drawhorzlineclip(dst, color, xmh, y-k-1, xph-1);
-				/*} else {
-					drawhorzlineclip(dst, ~color, xmh,  y, xph);
-				}*/
+				drawhorzlineclip(dst, color, x-h, y+k, x+h-1);
+				drawhorzlineclip(dst, color, x-h, y-k-1, x+h-1);
 				ok=k;
 			}
 			if ((oj!=j) && (ok!=j) && (k!=j))  {
-				xmi=x-i;
-				xpi=x+i;
-				/*if (j>0) {*/
-					drawhorzlineclip(dst, color, xmi, y+j, xpi-1);
-					drawhorzlineclip(dst, color, xmi, y-j-1, xpi-1);
-				/*} else {
-					drawhorzlineclip(dst, ~color, xmi, y, xpi);
-				}*/
+				drawhorzlineclip(dst, color, x-i, y+j, x+i-1);
+				drawhorzlineclip(dst, color, x-i, y-j-1, x+i-1);
 				oj=j;
 			}
 			ix = ix + iy / rx;
@@ -1023,25 +1074,13 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 			k = (i * rx) / ry;
 			
 			if ((oi!=i) && (oh!=i)) {
-				xmj=x-j;
-				xpj=x+j; 
-				/*if (i>0) {*/
-					drawhorzlineclip(dst, color, xmj, y+i, xpj-1);
-					drawhorzlineclip(dst, color, xmj, y-i-1, xpj-1);
-				/*} else {
-					drawhorzlineclip(dst, color, xmj, y, xpj);
-				}*/
+				drawhorzlineclip(dst, color, x-j, y+i, x+j-1);
+				drawhorzlineclip(dst, color, x-j, y-i-1, x+j-1);
 				oi=i;
 			}
 			if ((oh!=h) && (oi!=h) && (i!=h)) {
-				xmk=x-k;
-				xpk=x+k;
-				/*if (h>0) {*/
-					drawhorzlineclip(dst, color, xmk, y+h, xpk-1);
-					drawhorzlineclip(dst, color, xmk, y-h-1, xpk-1);
-				/*} else {
-					drawhorzlineclip(dst, color, xmk, y, xpk-1);
-				}*/
+				drawhorzlineclip(dst, color, x+k, y+h, x+k-1);
+				drawhorzlineclip(dst, color, x+k, y-h-1, x+k-1);
 				oh=h;
 			}
 			

@@ -214,12 +214,13 @@ to 8 when the mixer is first initialized.
 
 <a name=init><font size=+2><b>init
 </b></font><br><font size=+1><tt>
-pygame.mixer.init([freq, [size, [stereo]]]) -> None
+pygame.mixer.init([freq, [size, [stereo, [buffersize]]]]) -> None
 </tt></font><ul>
 Initializes the mixer module. Usually no arguments will be
 needed, the defaults are 22050 frequency data in stereo with
 signed 16bit data. The size argument can be 8 or 16 for unsigned
-data, or -8 or -16 for signed data.
+data, or -8 or -16 for signed data. The default buffersize is
+1024 samples, sometimes a larger value is required.
 <br>&nbsp;<br>
 On many platforms it is important that the display module is
 initialized before the audio. (that is, if the display will be
@@ -238,7 +239,7 @@ Temporarily stops playback on all the mixer channels.
 
 <a name=pre_init><font size=+2><b>pre_init
 </b></font><br><font size=+1><tt>
-pygame.mixer.pre_init([freq, [size, [stereo]]]) -> None
+pygame.mixer.pre_init([freq, [size, [stereo, [buffersize]]]]) -> None
 </tt></font><ul>
 This routine is usefull when you want to customize the sound
 mixer playback modes. The values you pass will change the default
