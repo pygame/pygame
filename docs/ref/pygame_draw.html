@@ -60,6 +60,10 @@ code with a lock/unlock pair.
 <hr>
 
 <table>
+<tr><td><a href=#circle>circle</a></td><td> -
+draw a circle on a surface</td></tr>
+
+
 <tr><td><a href=#ellipse>ellipse</a></td><td> -
 draw an ellipse on a surface</td></tr>
 
@@ -76,9 +80,27 @@ draw multiple connected lines on a surface</td></tr>
 draws a polygon on a surface</td></tr>
 
 
+<tr><td><a href=#rect>rect</a></td><td> -
+draws a polygon on a surface</td></tr>
+
+
 </table>
 
 <hr>
+
+<a name=circle><font size=+2><b>circle
+</b></font><br><font size=+1><tt>
+pygame.draw.circle(Surface, color, pos, radius, width) -> Rect
+</tt></font><ul>
+Draws a circular shape on the Surface. The given position
+is the center of the circle, and radius is the size. The width
+argument is the thickness to draw the outer edge. If width is
+zero then the ellipse will be filled.
+<br>&nbsp;<br>
+The color argument can be either a RGB sequence or mapped color integer.
+<br>&nbsp;<br>
+This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
 
 <a name=ellipse><font size=+2><b>ellipse
 </b></font><br><font size=+1><tt>
@@ -138,6 +160,24 @@ the ellipse will be filled.
 The color argument can be either a RGB sequence or mapped color integer.
 <br>&nbsp;<br>
 This function will temporarily lock the surface.
+</ul><br>&nbsp;<br>
+
+<a name=rect><font size=+2><b>rect
+</b></font><br><font size=+1><tt>
+pygame.draw.rect(Surface, color, Rect, width) -> Rect
+</tt></font><ul>
+Draws a polygonal shape on the Surface. The given Rect
+is the area of the rectangle. The width argument is
+the thickness to draw the outer edge. If width is zero then
+the ellipse will be filled.
+<br>&nbsp;<br>
+The color argument can be either a RGB sequence or mapped color integer.
+<br>&nbsp;<br>
+This function will temporarily lock the surface.
+<br>&nbsp;<br>
+Keep in mind the <a href=Surface.html#fill>Surface.fill()</a> method works just as well
+for drawing filled rectangles. In fact the <a href=Surface.html#fill>Surface.fill()</a>
+can be hardware accelerated when the moons are in alignement.
 </ul><br>&nbsp;<br>
 
 
