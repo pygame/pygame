@@ -51,7 +51,20 @@
 <br>
 <h2 align=center>pygame.surfarray</h2>
 Contains routines for mixing numeric arrays with
-surfaces
+surfaces. You can create arrays that directly reference
+the pixel data of an image. Sometimes this can be limited
+to the pixel format of the Surface, so you can also create
+independent copies from any format.
+<br>&nbsp;<br>
+The image arrays are indexes 'X' axis first. This is different
+than traditional C memory access, where images are often indexed
+with the 'Y' axis first. All this means is to access pixel values
+in the array, you index them as 'X, Y' pairs. myarray[10,20] will
+provide you the pixel at 10, 20 in the image. If you prefer to
+work with the traditional framebuffer indices, use the arrays
+'transpose()' method to create the alternate view of the pixel
+data.
+<br>&nbsp;<br>
 
 <hr>
 

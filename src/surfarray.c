@@ -1190,7 +1190,20 @@ static PyMethodDef surfarray_builtins[] =
 
     /*DOC*/ static char doc_pygame_surfarray_MODULE[] =
     /*DOC*/    "Contains routines for mixing numeric arrays with\n"
-    /*DOC*/    "surfaces\n"
+    /*DOC*/    "surfaces. You can create arrays that directly reference\n"
+    /*DOC*/    "the pixel data of an image. Sometimes this can be limited\n"
+    /*DOC*/    "to the pixel format of the Surface, so you can also create\n"
+    /*DOC*/    "independent copies from any format.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "The image arrays are indexes 'X' axis first. This is different\n"
+    /*DOC*/    "than traditional C memory access, where images are often indexed\n"
+    /*DOC*/    "with the 'Y' axis first. All this means is to access pixel values\n"
+    /*DOC*/    "in the array, you index them as 'X, Y' pairs. myarray[10,20] will\n"
+    /*DOC*/    "provide you the pixel at 10, 20 in the image. If you prefer to\n"
+    /*DOC*/    "work with the traditional framebuffer indices, use the arrays\n"
+    /*DOC*/    "'transpose()' method to create the alternate view of the pixel\n"
+    /*DOC*/    "data.\n"
+    /*DOC*/    "\n"
     /*DOC*/ ;
 
 PYGAME_EXPORT
