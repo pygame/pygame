@@ -8,6 +8,7 @@ July 16, 2004
     mixer.set_num_channels() no longer crashes [BUG]
     mixer.music.get_pos() properly tracks when paused
     pygame.display.get_wm_info() added, gets a dictionary
+    Overlay object, from Dmitry Borisov
 
 July 6, 2004
     Sound object newstyle types

@@ -1,5 +1,5 @@
 <html>
-<title>pygame.movie</title>
+<title>Overlay</title>
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
@@ -51,51 +51,50 @@
 
 </td></tr></table></td></tr></table>
 <br>
-<h2 align=center>pygame.movie</h2>
-The movie module is an optional pygame module that
-allows for decoding and playback of MPEG movie files.
-The module only contains a single function, <a href=#Movie>Movie()</a>
-which creates a new Movie object.
+<h2 align=center>Overlay</h2>
+<a href=pygame.html#Overlay>pygame.Overlay(pixeltype, [width, height])</a> -> Overlay
+Create a new video overlay object
 <br>&nbsp;<br>
-Movies are played back in background threads, so there
-is very little management needed on the user end. Just
-load the Movie, set the destination, and <a href=Movie.html#play>Movie.play()</a>
+This creates a new Overlay object. Overlays represent a basic
+interface for putting YUV image data into the graphics card's
+video overlay planes. This is a low level object intended for
+use by people who know what they are doing, and have pregenerated
+YUV image data.
+The pixeltype argument must be one of the pygame constants;
+YV12_OVERLAY, IYUV_OVERLAY, YUV2_OVERLAY, UYVY_OVERLAY, or YVYU_OVERLAY.
 <br>&nbsp;<br>
-Movies will only playback audio if the pygame.mixer
-module is not initialized. It is easy to temporarily
-call <a href=pygame_mixer.html#quit>pygame.mixer.quit()</a> to disable audio, then create
-and play your movie. Finally calling <a href=pygame_mixer.html#init>pygame.mixer.init()</a>
-again when finished with the Movie.
+<br>&nbsp;<br>
 
 <hr>
 
 <table>
-<tr><td><a href=#Movie>Movie</a></td><td> -
-load a new MPEG stream</td></tr>
+<tr><td><a href=#display>display</a></td><td> -
+display the yuv data</td></tr>
 
 
-<tr><td><a href=#Movie>Movie</a></td><td> -
-load a new MPEG stream</td></tr>
+<tr><td><a href=#set_location>set_location</a></td><td> -
+set overlay location</td></tr>
 
 
 </table>
 
 <hr>
 
-<a name=Movie><font size=+2><b>Movie
+<a name=display><font size=+2><b>display
 </b></font><br><font size=+1><tt>
-pygame.movie.Movie(file) -> Movie
+Overlay.display(y, u, v) -> None
 </tt></font><ul>
-Loads a new movie stream from a MPEG file. The file
-argument is either a filename, or any python file-like object
+Display the yuv data in SDL's overlay planes. The y, u, and v
+arguments represents strings of byte data.
 </ul><br>&nbsp;<br>
 
-<a name=Movie><font size=+2><b>Movie
+<a name=set_location><font size=+2><b>set_location
 </b></font><br><font size=+1><tt>
-pygame.movie.Movie(file) -> Movie
+Overlay.set_location(rectstyle) -> None
 </tt></font><ul>
-Loads a new movie stream from a MPEG file. The file
-argument is either a filename, or any python file-like object
+Sets location for the overlay on a screen.
+This does not move or redraw any currently displayed data,
+it only sets the position for newly <a href=#display>display()</a> calls.
 </ul><br>&nbsp;<br>
 
 

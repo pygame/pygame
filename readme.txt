@@ -68,7 +68,7 @@
    Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
    Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
    James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
-   Spillers, Bo Jangeborg
+   Spillers, Bo Jangeborg, Dmitry Borisov
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, Rene

@@ -40,7 +40,8 @@
 <a href=Font.html>Font</a> || 
 <a href=Joystick.html>Joystick</a> || 
 <a href=Movie.html>Movie</a> ||<br>
-|| <a href=Rect.html>Rect</a> || 
+|| <a href=Overlay.html>Overlay</a> || 
+<a href=Rect.html>Rect</a> || 
 <a href=Sound.html>Sound</a> || 
 <a href=Surface.html>Surface</a> ||<br>
 &nbsp;<br>|| <a href=pygame_color.html>color</a> || 
@@ -68,6 +69,10 @@ you'd like to take a look.
 <hr>
 
 <table>
+<tr><td><a href=#Overlay>Overlay</a></td><td> -
+Create a new video overlay object</td></tr>
+
+
 <tr><td><a href=#Rect>Rect</a></td><td> -
 create a new rectangle</td></tr>
 
@@ -95,6 +100,20 @@ routine to call when pygame quits</td></tr>
 </table>
 
 <hr>
+
+<a name=Overlay><font size=+2><b>Overlay
+</b></font><br><font size=+1><tt>
+pygame.Overlay(pixeltype, [width, height]) -> Overlay
+</tt></font><ul>
+This creates a new Overlay object. Overlays represent a basic
+interface for putting YUV image data into the graphics card's
+video overlay planes. This is a low level object intended for
+use by people who know what they are doing, and have pregenerated
+YUV image data.
+The pixeltype argument must be one of the pygame constants;
+YV12_OVERLAY, IYUV_OVERLAY, YUV2_OVERLAY, UYVY_OVERLAY, or YVYU_OVERLAY.
+<br>&nbsp;<br>
+</ul><br>&nbsp;<br>
 
 <a name=Rect><font size=+2><b>Rect
 </b></font><br><font size=+1><tt>
