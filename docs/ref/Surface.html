@@ -516,13 +516,14 @@ Assigns a mapped pixel color to the image at the give position.
 
 <a name=set_clip><font size=+2><b>set_clip
 </b></font><br><font size=+1><tt>
-Surface.set_clip([rectstyle])) -> Rect
+Surface.set_clip([rectstyle])) -> None
 </tt></font><ul>
 Assigns the destination clipping rectangle for the Surface. When
 blit or fill operations are performed on the Surface, they are
 restricted to the inside of the clipping rectangle. If no
 rectangle is passed, the clipping region is set to the entire
-Surface area.
+Surface area. The rectangle you pass will be clipped to the area of
+the Surface.
 </ul><br>&nbsp;<br>
 
 <a name=set_colorkey><font size=+2><b>set_colorkey
