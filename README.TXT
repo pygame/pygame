@@ -1,4 +1,4 @@
-Pygame Version 1.0.1
+Pygame Version 1.0.2
 April 4th, 2001
 
 Python Game Development

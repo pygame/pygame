@@ -920,7 +920,6 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	int didconvert;
 
 	VIDEO_INIT_CHECK();
-
 	if(!PyArg_ParseTuple(args, "O!O|O", &PySurface_Type, &srcobject, &argpos, &argrect))
 		return NULL;
 	src = PySurface_AsSurface(srcobject);
@@ -979,7 +978,6 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 	if(result == -2)
 		return RAISE(PyExc_SDLError, "Surface was lost");
-
 
 	return PyRect_New((GAME_Rect*)&dest_rect);
 }
