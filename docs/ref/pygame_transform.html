@@ -53,7 +53,14 @@ All transformation functions take a source Surface and
 return a new copy of that surface in the same format as
 the original.
 <br>&nbsp;<br>
-These routines are not filtered or smoothed.
+These transform routines are not filtered or smoothed.
+<br>&nbsp;<br>
+Some of the
+filters are 'destructive', which means if you transform
+the image one way, you can't transform the image back to
+the exact same way as it was before. If you plan on doing
+many transforms, it is good practice to keep the original
+untransformed image, and only translate that image.
 
 <hr>
 
@@ -87,15 +94,21 @@ for that axis is true.
 pygame.transform.rotate(Surface, angle) -> Surface
 </tt></font><ul>
 Rotates the image clockwise with the given angle (in degrees).
-The result size will likely be a different resolution than the
-original.
+The image can be any floating point value, and negative
+rotation amounts will do counter-clockwise rotations.
+<br>&nbsp;<br>
+Unless rotating by 90 degree increments, the resulting image
+size will be larger than the original. There will be newly
+uncovered areas in the image. These will filled with either
+the current colorkey for the Surface, or the topleft pixel value.
+(with the alpha channel zeroed out if available)
 </ul><br>&nbsp;<br>
 
 <a name=scale><font size=+2><b>scale
 </b></font><br><font size=+1><tt>
 pygame.transform.scale(Surface, size) -> Surface
 </tt></font><ul>
-Scale the image to the new resolution.
+This will resize a surface to the given resolution.
 </ul><br>&nbsp;<br>
 
 
