@@ -199,7 +199,7 @@ except ImportError:
 There are two main types of functions in surfarray. One set of functions for
 creating an array that is a copy of a surface pixel data. The other functions
 create a referenced copy of the array pixel data, so that changes to the array
-directly effect the original surface. There are other functions that allow you
+directly affect the original surface. There are other functions that allow you
 to access any per-pixel alpha values as arrays along with a few other helpful
 functions. We will look at these other functions later on.
 <br>&nbsp;<br>
@@ -402,13 +402,13 @@ changes over the PCI/AGP bus is not fast.
 
 
 <br>&nbsp;<br>
-<h2>Transparancy</h2>
+<h2>Transparency</h2>
 The surfarray module has several methods for accessing a Surface's alpha/colorkey
-values. None of the alpha functions are effected by overal transparancy of a
+values. None of the alpha functions are effected by overal transparency of a
 Surface, just the pixel alpha values. Here's the list of those functions.
 <dl>
 <dt><b>surfarray.pixels_alpha(surface)</b></dt><dd>Creates a 2D array <i>(integer
-pixel values)</i> that reference the original surface alpha data. This will only
+pixel values)</i> that references the original surface alpha data. This will only
 work on 32bit images with an 8bit alpha component.</dd>
 
 <dt><b>surfarray.array_alpha(surface)</b><dd></dd>Creates a 2D array <i>(integer pixel

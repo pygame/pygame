@@ -1,6 +1,6 @@
                          Pygame Readme
-   Version 1.5.3
-   September 4, 2002 Python Game Development
+   Version 1.5.5
+   December 22, 2002 Python Game Development
    by Pete Shinners http://www.pygame.org
    pete@shinners.org
 

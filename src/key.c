@@ -140,7 +140,7 @@ static PyObject* key_name(PyObject* self, PyObject* args)
     /*DOC*/    "get current state of modifier keys\n"
     /*DOC*/    "\n"
     /*DOC*/    "Returns a bitwise combination of the pressed state for all\n"
-    /*DOC*/    "modifier keys (KMOD_LEFTSHIFT, etc).\n"
+    /*DOC*/    "modifier keys (KMOD_LSHIFT, etc).\n"
     /*DOC*/ ;
 
 static PyObject* key_get_mods(PyObject* self, PyObject* args)
