@@ -260,7 +260,7 @@ static void event_dealloc(PyObject* self)
 {
 	PyEventObject* e = (PyEventObject*)self;
 	Py_XDECREF(e->dict);
-	PyMem_DEL(self);	
+	PyObject_DEL(self);	
 }
 
 

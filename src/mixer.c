@@ -406,7 +406,7 @@ static void sound_dealloc(PyObject* self)
 {
 	Mix_Chunk* chunk = PySound_AsChunk(self);
 	Mix_FreeChunk(chunk);
-	PyMem_DEL(self);
+	PyObject_DEL(self);
 }
 
 
@@ -662,7 +662,7 @@ static PyMethodDef channel_builtins[] =
 
 static void channel_dealloc(PyObject* self)
 {
-	PyMem_DEL(self);
+	PyObject_DEL(self);
 }
 
 

@@ -127,7 +127,7 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 
 static void cd_dealloc(PyObject* self)
 {
-	PyMem_DEL(self);	
+	PyObject_DEL(self);	
 }
 
 

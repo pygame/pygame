@@ -148,7 +148,7 @@ static void lifelock_dealloc(PyObject* self)
 	PySurface_Unlock(lifelock->surface);
 	Py_DECREF(lifelock->surface);
 
-	PyMem_DEL(self);	
+	PyObject_DEL(self);	
 }
 
 static PyTypeObject PyLifetimeLock_Type =
