@@ -54,8 +54,6 @@ static PyObject* image_load_ext(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "O|s", &file, &name))
 		return NULL;
 
-	VIDEO_INIT_CHECK();
-
 	if(PyString_Check(file) || PyUnicode_Check(file))
 	{
 		if(!PyArg_ParseTuple(arg, "s|O", &name, &file))

@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was (or could have been) crashing
 
+Jul 16, 2001
+	can work with software surfaces before pygame.init()
+	Surface.convert() now can take arguments like pygame.Surface()
+	pygame.display.set_icon() sets the windowmanager icon
+
 Jul 15, 2001
 	fixed bad internal display reference counting [BUG]
 

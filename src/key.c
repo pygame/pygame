@@ -126,8 +126,6 @@ static PyObject* key_name(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "i", &key))
 		return NULL;
 
-	VIDEO_INIT_CHECK();
-
 	return PyString_FromString(SDL_GetKeyName(key));	
 }
 
