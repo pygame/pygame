@@ -65,7 +65,7 @@ static int CheckSDLVersions(void) /*compare compiled to linked*/
 
 	/*only check the major and minor version numbers.
 	  we will relax any differences in 'patch' version.*/
-	 
+
 	if(compiled.major != linked->major || compiled.minor != linked->minor)
 	{
 		char err[1024];
@@ -266,7 +266,7 @@ static PyObject* quit(PyObject* self, PyObject* args)
 
 
 /* internal C API utility functions */
-static int ShortFromObj(PyObject* obj, short* val)
+static int IntFromObj(PyObject* obj, int* val)
 {
 	PyObject* intobj;
 
@@ -274,35 +274,35 @@ static int ShortFromObj(PyObject* obj, short* val)
 	{
 		if(!(intobj = PyNumber_Int(obj)))
 			return 0;
-		*val = (short)PyInt_AsLong(intobj);
+		*val = PyInt_AsLong(intobj);
 		Py_DECREF(intobj);
 		return 1;
 	}
 	return 0;
 }
 
-static int ShortFromObjIndex(PyObject* obj, int index, short* val)
+static int IntFromObjIndex(PyObject* obj, int index, int* val)
 {
 	int result = 0;
 	PyObject* item;
 	item = PySequence_GetItem(obj, index);
 	if(item)
 	{
-		result = ShortFromObj(item, val);
+		result = IntFromObj(item, val);
 		Py_DECREF(item);
 	}
 	return result;
 }
 
-static int TwoShortsFromObj(PyObject* obj, short* val1, short* val2)
+static int TwoIntsFromObj(PyObject* obj, int* val1, int* val2)
 {
 	if(PyTuple_Check(obj) && PyTuple_Size(obj)==1)
-		return TwoShortsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
+		return TwoIntsFromObj(PyTuple_GET_ITEM(obj, 0), val1, val2);
 
 	if(!PySequence_Check(obj) || PySequence_Length(obj) != 2)
 		return 0;
 
-	if(!ShortFromObjIndex(obj, 0, val1) || !ShortFromObjIndex(obj, 1, val2))
+	if(!IntFromObjIndex(obj, 0, val1) || !IntFromObjIndex(obj, 1, val2))
 		return 0;
 
 	return 1;
@@ -448,7 +448,7 @@ static int PyGame_Video_AutoInit(void)
 {
 	if(!SDL_WasInit(SDL_INIT_VIDEO))
 	{
-		int status = SDL_InitSubSystem(SDL_INIT_VIDEO); 	
+		int status = SDL_InitSubSystem(SDL_INIT_VIDEO);
 		if(status)
 			return 0;
 		SDL_EnableUNICODE(1);
@@ -482,13 +482,13 @@ static void print_traceback(PyObject *tb)
 	    PyObject *getobj;
 	    int line, lasti;
 	    const char *filename, *name;
-	    
+
 	    frame = (PyFrameObject*)PyObject_GetAttrString(tb, "tb_frame");
 	    Py_DECREF(frame); //won't really kill it
 	    getobj = PyObject_GetAttrString(tb, "tb_lineno");
 	    line = PyInt_AsLong(getobj);
 	    Py_DECREF(getobj);
-	    
+
 	    filename = PyString_AsString(frame->f_code->co_filename);
 	    name = PyString_AsString(frame->f_code->co_name);
 	    if (Py_OptimizeFlag)
@@ -516,8 +516,8 @@ static void pygame_parachute(int sig)
 	PyThreadState* thread;
 	PyInterpreterState *interp;
 	int thread_id;
-#endif	  
-    
+#endif
+
 	signal(sig, SIG_DFL);
 	switch (sig)
 	{
@@ -545,7 +545,7 @@ static void pygame_parachute(int sig)
 			signaltype = "(pygame parachute) Unknown Signal"; break;
 	}
 
-	
+
 #ifdef DO_CRASH_TRACEBACK
 	printf("Pygame Parachute Traceback:\n");
 	interp = PyInterpreterState_Head();
@@ -568,7 +568,7 @@ static void pygame_parachute(int sig)
 #else
 	printf("  (No Traceback Without Python2.2)\n");
 #endif
-	
+
 	atexit_quit();
 	Py_FatalError(signaltype);
 }
@@ -704,9 +704,9 @@ void initbase(void)
 	/* export the c api */
 	c_api[0] = PyExc_SDLError;
 	c_api[1] = PyGame_RegisterQuit;
-	c_api[2] = ShortFromObj;
-	c_api[3] = ShortFromObjIndex;
-	c_api[4] = TwoShortsFromObj;
+	c_api[2] = IntFromObj;
+	c_api[3] = IntFromObjIndex;
+	c_api[4] = TwoIntsFromObj;
 	c_api[5] = FloatFromObj;
 	c_api[6] = FloatFromObjIndex;
 	c_api[7] = TwoFloatsFromObj;

@@ -718,7 +718,7 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 
 
 /*BAD things happen when out-of-bound rects go to updaterect*/
-static GAME_Rect* screencroprect(GAME_Rect* r, int w, int h, GAME_Rect* cur)
+static SDL_Rect* screencroprect(GAME_Rect* r, int w, int h, SDL_Rect* cur)
 {
 	if(r->x > w || r->y > h || (r->x + r->w) <= 0 || (r->y + r->h) <= 0)
                 return 0;
@@ -726,10 +726,10 @@ static GAME_Rect* screencroprect(GAME_Rect* r, int w, int h, GAME_Rect* cur)
 	{
 		int right = min(r->x + r->w, w);
 		int bottom = min(r->y + r->h, h);
-		cur->x = max(r->x, 0);
-		cur->y = max(r->y, 0);
-		cur->w = right - cur->x;
-		cur->h = bottom - cur->y;
+		cur->x = (short)max(r->x, 0);
+		cur->y = (short)max(r->y, 0);
+		cur->w = (unsigned short)right - cur->x;
+		cur->h = (unsigned short)bottom - cur->y;
 	}
 	return cur;
 }
@@ -795,8 +795,9 @@ static PyObject* update(PyObject* self, PyObject* arg)
 
         if(gr)
         {
-                if(screencroprect(gr, wide, high, &temp))
-                        SDL_UpdateRect(screen, temp.x, temp.y, temp.w, temp.h);
+                SDL_Rect sdlr;
+                if(screencroprect(gr, wide, high, &sdlr))
+                        SDL_UpdateRect(screen, sdlr.x, sdlr.y, sdlr.w, sdlr.h);
         }
         else
         {
@@ -816,7 +817,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
                 count = 0;
                 for(loop = 0; loop < num; ++loop)
                 {
-                        GAME_Rect* cur_rect = (GAME_Rect*)(rects + count);
+                        SDL_Rect* cur_rect = (rects + count);
 
                         /*get rect from the sequence*/
                         r = PySequence_GetItem(seq, loop);
@@ -825,7 +826,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
                                 Py_DECREF(r);
                                 continue;
                         }
-                        gr = GameRect_FromObject(r, cur_rect);
+                        gr = GameRect_FromObject(r, &temp);
                         Py_XDECREF(r);
                         if(!gr)
                         {
@@ -874,7 +875,7 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 	SDL_Color* colors;
 	PyObject* list, *item = NULL;
 	int i, len;
-	short r, g, b;
+	int r, g, b;
 
 	VIDEO_INIT_CHECK();
 	if(!PyArg_ParseTuple(args, "|O", &list))
@@ -914,7 +915,7 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 			free((char*)colors);
 			return RAISE(PyExc_TypeError, "takes a sequence of sequence of RGB");
 		}
-		if(!ShortFromObjIndex(item, 0, &r) || !ShortFromObjIndex(item, 1, &g) || !ShortFromObjIndex(item, 2, &b))
+		if(!IntFromObjIndex(item, 0, &r) || !IntFromObjIndex(item, 1, &g) || !IntFromObjIndex(item, 2, &b))
 			return RAISE(PyExc_TypeError, "RGB sequence must contain numeric values");
 
 		colors[i].r = (unsigned char)r;

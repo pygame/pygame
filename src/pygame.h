@@ -122,12 +122,12 @@ static int PyModule_AddObject(PyObject *m, char *name, PyObject *o)
 #define PyExc_SDLError ((PyObject*)PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT])
 #define PyGame_RegisterQuit \
 			(*(void(*)(void(*)(void)))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 1])
-#define ShortFromObj \
-			(*(int(*)(PyObject*, short*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 2])
-#define ShortFromObjIndex \
-			(*(int(*)(PyObject*, int, short*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 3])
-#define TwoShortsFromObj \
-			(*(int(*)(PyObject*, short*, short*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 4])
+#define IntFromObj \
+			(*(int(*)(PyObject*, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 2])
+#define IntFromObjIndex \
+			(*(int(*)(PyObject*, int, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 3])
+#define TwoIntsFromObj \
+			(*(int(*)(PyObject*, int*, int*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 4])
 #define FloatFromObj \
 			(*(int(*)(PyObject*, float*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 5])
 #define FloatFromObjIndex \
@@ -162,8 +162,8 @@ static int PyModule_AddObject(PyObject *m, char *name, PyObject *o)
 #define PYGAMEAPI_RECT_FIRSTSLOT 20
 #define PYGAMEAPI_RECT_NUMSLOTS 4
 typedef struct {
-	short x, y;
-	short w, h;
+	int x, y;
+	int w, h;
 }GAME_Rect;
 typedef struct {
   PyObject_HEAD
@@ -173,9 +173,9 @@ typedef struct {
 #ifndef PYGAMEAPI_RECT_INTERNAL
 #define PyRect_Check(x) ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
 #define PyRect_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 0])
-#define PyRect_New (*(PyObject*(*)(GAME_Rect*))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 1])
+#define PyRect_New (*(PyObject*(*)(SDL_Rect*))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 1])
 #define PyRect_New4 \
-			(*(PyObject*(*)(short,short,short,short))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 2])
+			(*(PyObject*(*)(int,int,int,int))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 2])
 #define GameRect_FromObject \
 			(*(GAME_Rect*(*)(PyObject*, GAME_Rect*))PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 3])
 #define import_pygame_rect() { \

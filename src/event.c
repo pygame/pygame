@@ -697,7 +697,7 @@ static PyObject* event_clear(PyObject* self, PyObject* args)
 	int mask = 0;
 	int loop, num;
 	PyObject* type;
-	short val;
+	int val;
 
 	if(PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
 		return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
@@ -714,12 +714,12 @@ static PyObject* event_clear(PyObject* self, PyObject* args)
 			num = PySequence_Size(type);
 			for(loop=0; loop<num; ++loop)
 			{
-				if(!ShortFromObjIndex(type, loop, &val))
+				if(!IntFromObjIndex(type, loop, &val))
 					return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
 				mask |= SDL_EVENTMASK(val);
 			}
 		}
-		else if(ShortFromObj(type, &val))
+		else if(IntFromObj(type, &val))
 			mask = SDL_EVENTMASK(val);
 		else
 			return RAISE(PyExc_TypeError, "get type must be numeric or a sequence");
@@ -752,7 +752,7 @@ static PyObject* event_get(PyObject* self, PyObject* args)
 	int mask = 0;
 	int loop, num;
 	PyObject* type, *list, *e;
-	short val;
+	int val;
 
 	if(PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
 		return RAISE(PyExc_ValueError, "get requires 0 or 1 argument");
@@ -769,12 +769,12 @@ static PyObject* event_get(PyObject* self, PyObject* args)
 			num = PySequence_Size(type);
 			for(loop=0; loop<num; ++loop)
 			{
-				if(!ShortFromObjIndex(type, loop, &val))
+				if(!IntFromObjIndex(type, loop, &val))
 					return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
 				mask |= SDL_EVENTMASK(val);
 			}
 		}
-		else if(ShortFromObj(type, &val))
+		else if(IntFromObj(type, &val))
 			mask = SDL_EVENTMASK(val);
 		else
 			return RAISE(PyExc_TypeError, "get type must be numeric or a sequence");
@@ -822,7 +822,7 @@ static PyObject* event_peek(PyObject* self, PyObject* args)
 	int mask = 0;
 	int loop, num, noargs=0;
 	PyObject* type;
-	short val;
+	int val;
 
 	if(PyTuple_Size(args) != 0 && PyTuple_Size(args) != 1)
 		return RAISE(PyExc_ValueError, "peek requires 0 or 1 argument");
@@ -842,12 +842,12 @@ static PyObject* event_peek(PyObject* self, PyObject* args)
 			num = PySequence_Size(type);
 			for(loop=0; loop<num; ++loop)
 			{
-				if(!ShortFromObjIndex(type, loop, &val))
+				if(!IntFromObjIndex(type, loop, &val))
 					return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
 				mask |= SDL_EVENTMASK(val);
 			}
 		}
-		else if(ShortFromObj(type, &val))
+		else if(IntFromObj(type, &val))
 			mask = SDL_EVENTMASK(val);
 		else
 			return RAISE(PyExc_TypeError, "peek type must be numeric or a sequence");
@@ -917,7 +917,7 @@ static PyObject* set_allowed(PyObject* self, PyObject* args)
 {
 	int loop, num;
 	PyObject* type;
-	short val;
+	int val;
 
 	if(PyTuple_Size(args) != 1)
 		return RAISE(PyExc_ValueError, "set_allowed requires 1 argument");
@@ -930,14 +930,14 @@ static PyObject* set_allowed(PyObject* self, PyObject* args)
 		num = PySequence_Length(type);
 		for(loop=0; loop<num; ++loop)
 		{
-			if(!ShortFromObjIndex(type, loop, &val))
+			if(!IntFromObjIndex(type, loop, &val))
 				return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
 			SDL_EventState((Uint8)val, SDL_ENABLE);
 		}
 	}
 	else if(type == Py_None)
 		SDL_EventState((Uint8)0xFF, SDL_IGNORE);
-	else if(ShortFromObj(type, &val))
+	else if(IntFromObj(type, &val))
 		SDL_EventState((Uint8)val, SDL_ENABLE);
 	else
 		return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
@@ -961,7 +961,7 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 {
 	int loop, num;
 	PyObject* type;
-	short val;
+	int val;
 
 	if(PyTuple_Size(args) != 1)
 		return RAISE(PyExc_ValueError, "set_blocked requires 1 argument");
@@ -974,14 +974,14 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 		num = PySequence_Length(type);
 		for(loop=0; loop<num; ++loop)
 		{
-			if(!ShortFromObjIndex(type, loop, &val))
+			if(!IntFromObjIndex(type, loop, &val))
 				return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
 			SDL_EventState((Uint8)val, SDL_IGNORE);
 		}
 	}
 	else if(type == Py_None)
 		SDL_EventState((Uint8)0, SDL_IGNORE);
-	else if(ShortFromObj(type, &val))
+	else if(IntFromObj(type, &val))
 		SDL_EventState((Uint8)val, SDL_IGNORE);
 	else
 		return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
@@ -1003,7 +1003,7 @@ static PyObject* get_blocked(PyObject* self, PyObject* args)
 {
 	int loop, num;
 	PyObject* type;
-	short val;
+	int val;
 	int isblocked = 0;
 
 	if(PyTuple_Size(args) != 1)
@@ -1017,12 +1017,12 @@ static PyObject* get_blocked(PyObject* self, PyObject* args)
 		num = PySequence_Length(type);
 		for(loop=0; loop<num; ++loop)
 		{
-			if(!ShortFromObjIndex(type, loop, &val))
+			if(!IntFromObjIndex(type, loop, &val))
 				return RAISE(PyExc_TypeError, "type sequence must contain valid event types");
 			isblocked |= SDL_EventState((Uint8)val, SDL_QUERY) == SDL_IGNORE;
 		}
 	}
-	else if(ShortFromObj(type, &val))
+	else if(IntFromObj(type, &val))
 		isblocked = SDL_EventState((Uint8)val, SDL_QUERY) == SDL_IGNORE;
 	else
 		return RAISE(PyExc_TypeError, "type must be numeric or a sequence");

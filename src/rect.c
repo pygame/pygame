@@ -38,7 +38,7 @@ static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
 GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 {
-	short val;
+	int val;
 	int length;
 
 	if(PyRect_Check(obj))
@@ -47,10 +47,10 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 	{
 		if(length == 4)
 		{
-			if(!ShortFromObjIndex(obj, 0, &val)) return NULL; temp->x = val;
-			if(!ShortFromObjIndex(obj, 1, &val)) return NULL; temp->y = val;
-			if(!ShortFromObjIndex(obj, 2, &val)) return NULL; temp->w = val;
-			if(!ShortFromObjIndex(obj, 3, &val)) return NULL; temp->h = val;
+			if(!IntFromObjIndex(obj, 0, &val)) return NULL; temp->x = val;
+			if(!IntFromObjIndex(obj, 1, &val)) return NULL; temp->y = val;
+			if(!IntFromObjIndex(obj, 2, &val)) return NULL; temp->w = val;
+			if(!IntFromObjIndex(obj, 3, &val)) return NULL; temp->h = val;
 			return temp;
 		}
 		if(length == 2)
@@ -58,14 +58,14 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 			PyObject* sub = PySequence_GetItem(obj, 0);
 			if(!sub || !PySequence_Check(sub) || PySequence_Length(sub)!=2)
 				{Py_XDECREF(sub); return NULL;}
-			if(!ShortFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->x = val;
-			if(!ShortFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->y = val;
+			if(!IntFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->x = val;
+			if(!IntFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->y = val;
 			Py_DECREF(sub);
 			sub = PySequence_GetItem(obj, 1);
 			if(!sub || !PySequence_Check(sub) || PySequence_Length(sub)!=2)
 				{Py_XDECREF(sub); return NULL;}
-			if(!ShortFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->w = val;
-			if(!ShortFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->h = val;
+			if(!IntFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->w = val;
+			if(!IntFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->h = val;
 			Py_DECREF(sub);
 			return temp;
 		}
@@ -96,40 +96,40 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 	return NULL;
 }
 
-static int Rect_SetTop(GAME_Rect* r, short val)
+static int Rect_SetTop(GAME_Rect* r, int val)
 {
 	r->y = val;
 	return 0;
 }
-static int Rect_SetBottom(GAME_Rect* r, short val)
+static int Rect_SetBottom(GAME_Rect* r, int val)
 {
 	r->y = val - r->h;
 	return 0;
 }
-static int Rect_SetLeft(GAME_Rect* r, short val)
+static int Rect_SetLeft(GAME_Rect* r, int val)
 {
 	r->x = val;
 	return 0;
 }
-static int Rect_SetRight(GAME_Rect* r, short val)
+static int Rect_SetRight(GAME_Rect* r, int val)
 {
 	r->x = val - r->w;
 	return 0;
 }
-static int Rect_SetWidth(GAME_Rect* r, short val)
+static int Rect_SetWidth(GAME_Rect* r, int val)
 {
 //	r->x -= val - r->w;
 	r->w = val;
 	return 0;
 }
-static int Rect_SetHeight(GAME_Rect* r, short val)
+static int Rect_SetHeight(GAME_Rect* r, int val)
 {
 //	r->y -= val - r->h;
 	r->h = val;
 	return 0;
 }
 
-PyObject* PyRect_New(GAME_Rect* r)
+PyObject* PyRect_New(SDL_Rect* r)
 {
 	PyRectObject* rect = PyObject_NEW(PyRectObject, &PyRect_Type);
 	if(!rect)
@@ -143,7 +143,7 @@ PyObject* PyRect_New(GAME_Rect* r)
 	return (PyObject*)rect;
 }
 
-PyObject* PyRect_New4(short x, short y, short w, short h)
+PyObject* PyRect_New4(int x, int y, int w, int h)
 {
 	PyRectObject* rect = PyObject_NEW(PyRectObject, &PyRect_Type);
 	if(!rect)
@@ -153,7 +153,6 @@ PyObject* PyRect_New4(short x, short y, short w, short h)
 	rect->r.y = y;
 	rect->r.w = w;
 	rect->r.h = h;
-
 	return (PyObject*)rect;
 }
 
@@ -183,12 +182,12 @@ static PyObject* rect_normalize(PyObject* oself, PyObject* args)
 	if(!PyArg_ParseTuple(args, ""))
 		return NULL;
 
-	if((short)self->r.w < 0)
+	if(self->r.w < 0)
 	{
 		self->r.x += self->r.w;
 		self->r.w = -self->r.w;
 	}
-	if((short)self->r.h < 0)
+	if(self->r.h < 0)
 	{
 		self->r.y += self->r.h;
 		self->r.h = -self->r.h;
@@ -209,12 +208,12 @@ static PyObject* rect_normalize(PyObject* oself, PyObject* args)
 static PyObject* rect_move(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
-	short x, y;
+	int x, y;
 
-	if(!TwoShortsFromObj(args, &x, &y))
+	if(!TwoIntsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "argument must contain two numbers");
 
-	return PyRect_New4((short)(self->r.x+x), (short)(self->r.y+y), self->r.w, self->r.h);
+	return PyRect_New4(self->r.x+x, self->r.y+y, self->r.w, self->r.h);
 }
 
     /*DOC*/ static char doc_move_ip[] =
@@ -227,9 +226,9 @@ static PyObject* rect_move(PyObject* oself, PyObject* args)
 static PyObject* rect_move_ip(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
-	short x, y;
+	int x, y;
 
-	if(!TwoShortsFromObj(args, &x, &y))
+	if(!TwoIntsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "argument must contain two numbers");
 
 	self->r.x += x;
@@ -252,12 +251,12 @@ static PyObject* rect_move_ip(PyObject* oself, PyObject* args)
 static PyObject* rect_inflate(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
-	short x, y;
+	int x, y;
 
-	if(!TwoShortsFromObj(args, &x, &y))
+	if(!TwoIntsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "argument must contain two numbers");
 
-	return PyRect_New4((short)(self->r.x-x/2), (short)(self->r.y-y/2), (short)(self->r.w+x), (short)(self->r.h+y));
+	return PyRect_New4(self->r.x-x/2, self->r.y-y/2, self->r.w+x, self->r.h+y);
 }
 
 
@@ -273,9 +272,9 @@ static PyObject* rect_inflate(PyObject* oself, PyObject* args)
 static PyObject* rect_inflate_ip(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
-	short x, y;
+	int x, y;
 
-	if(!TwoShortsFromObj(args, &x, &y))
+	if(!TwoIntsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "argument must contain two numbers");
 
 	self->r.x -= x/2;
@@ -300,7 +299,7 @@ static PyObject* rect_union(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
 	GAME_Rect *argrect, temp;
-	short x, y, w, h;
+	int x, y, w, h;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
@@ -327,7 +326,7 @@ static PyObject* rect_union_ip(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
 	GAME_Rect *argrect, temp;
-	short x, y, w, h;
+	int x, y, w, h;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
@@ -371,7 +370,7 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 	b = self->r.y + self->r.h;
 	size = PySequence_Length(list); /*warning, size could be -1 on error?*/
 	if(size < 1)
-		return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
+		return PyRect_New4(l, t, r-l, b-t);
 
 	for(loop = 0; loop < size; ++loop)
 	{
@@ -388,7 +387,7 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 		b = max(b, argrect->y+argrect->h);
 		Py_DECREF(obj);
 	}
-	return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
+	return PyRect_New4(l, t, r-l, b-t);
 }
 
 
@@ -421,7 +420,7 @@ static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
 
 	size = PySequence_Length(list); /*warning, size could be -1 on error?*/
 	if(size < 1)
-		return PyRect_New4((short)l, (short)t, (short)(r-l), (short)(b-t));
+		return PyRect_New4(l, t, r-l, b-t);
 
 	for(loop = 0; loop < size; ++loop)
 	{
@@ -459,10 +458,10 @@ static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
 static PyObject* rect_collidepoint(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
-	short x, y;
+	int x, y;
 	int inside;
 
-	if(!TwoShortsFromObj(args, &x, &y))
+	if(!TwoIntsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "argument must contain two numbers");
 
 	inside = x>=self->r.x && x<self->r.x+self->r.w &&
@@ -722,7 +721,7 @@ static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
 static PyObject* rect_clip(PyObject* self, PyObject* args)
 {
 	GAME_Rect *A, *B, temp;
-	short x, y, w, h;
+	int x, y, w, h;
 
 	A = &((PyRectObject*)self)->r;
 	if(!(B = GameRect_FromObject(args, &temp)))
@@ -810,7 +809,7 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
 	GAME_Rect *argrect, temp;
-	short x, y;
+	int x, y;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
@@ -850,7 +849,7 @@ static PyObject* rect_clamp_ip(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
 	GAME_Rect *argrect, temp;
-	short x, y;
+	int x, y;
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
@@ -933,7 +932,7 @@ static int rect_length(PyRectObject *self)
 
 static PyObject* rect_item(PyRectObject *self, int i)
 {
-	short* data = (short*)&self->r;
+	int* data = (int*)&self->r;
 	if(i<0 || i>3)
 		return RAISE(PyExc_IndexError, "Invalid rect Index");
 
@@ -942,19 +941,19 @@ static PyObject* rect_item(PyRectObject *self, int i)
 
 static int rect_ass_item(PyRectObject *self, int i, PyObject *v)
 {
-	short val;
-	short* data = (short*)&self->r;
+	int val;
+	int* data = (int*)&self->r;
 	if(i<0 || i>3)
 	{
 		RAISE(PyExc_IndexError, "Invalid rect Index");
 		return -1;
 	}
-	if(!ShortFromObj(v, &val))
+	if(!IntFromObj(v, &val))
 	{
 		RAISE(PyExc_TypeError, "Must assign numeric values");
 		return -1;
 	}
-	data[i] = (short)val;
+	data[i] = val;
 	return 0;
 }
 
@@ -962,7 +961,7 @@ static int rect_ass_item(PyRectObject *self, int i, PyObject *v)
 static PyObject* rect_slice(PyRectObject *self, int ilow, int ihigh)
 {
 	PyObject *list;
-	short* data = (short*)&self->r;
+	int* data = (int*)&self->r;
 	int numitems, loop, l = 4;
 
 	if (ihigh < 0) ihigh += l;
@@ -985,9 +984,9 @@ static PyObject* rect_slice(PyRectObject *self, int ilow, int ihigh)
 
 static int rect_ass_slice(PyRectObject *self, int ilow, int ihigh, PyObject *v)
 {
-	short* data = (short*)&self->r;
+	int* data = (int*)&self->r;
 	int numitems, loop, l = 4;
-	short val;
+	int val;
 
 	if(!PySequence_Check(v))
 	{
@@ -1012,7 +1011,7 @@ static int rect_ass_slice(PyRectObject *self, int ilow, int ihigh, PyObject *v)
 
 	for(loop = 0; loop < numitems; ++loop)
 	{
-		if(!ShortFromObjIndex(v, loop, &val)) return -1;
+		if(!IntFromObjIndex(v, loop, &val)) return -1;
 		data[loop+ilow] = val;
 	}
 
@@ -1050,7 +1049,7 @@ static int rect_coerce(PyObject** o1, PyObject** o2)
 		Py_INCREF(new1);
 	}
 	else if((r = GameRect_FromObject(*o1, &temp)))
-		new1 = PyRect_New(r);
+		new1 = PyRect_New4(r->x, r->y, r->w, r->h);
 	else
 		return 1;
 
@@ -1060,7 +1059,7 @@ static int rect_coerce(PyObject** o1, PyObject** o2)
 		Py_INCREF(new2);
 	}
 	else if((r = GameRect_FromObject(*o2, &temp)))
-		new2 = PyRect_New(r);
+		new2 = PyRect_New4(r->x, r->y, r->w, r->h);
 	else
 	{
 		Py_DECREF(new1);
@@ -1199,42 +1198,42 @@ static PyObject *rect_getattr(PyRectObject *self, char *name)
 static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 {
 	int ret = -1;
-	short val1, val2;
+	int val1, val2;
 	GAME_Rect *r = &self->r;
 
 	if(!strcmp(name, "top") || !strcmp(name, "y"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 			ret = Rect_SetTop(r, val1);
 	}
 	else if(!strcmp(name, "bottom"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 			ret = Rect_SetBottom(r, val1);
 	}
 	else if(!strcmp(name, "left") || !strcmp(name, "x"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 			ret = Rect_SetLeft(r, val1);
 	}
 	else if(!strcmp(name, "right"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 			ret = Rect_SetRight(r, val1);
 	}
 	else if(!strcmp(name, "width") || !strcmp(name, "w"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 			ret = Rect_SetWidth(r, val1);
 	}
 	else if(!strcmp(name, "height") || !strcmp(name, "h"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 			ret = Rect_SetHeight(r, val1);
 	}
 	else if(!strcmp(name, "topleft"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			Rect_SetLeft(r, val1);
 			ret = Rect_SetTop(r, val2);
@@ -1242,7 +1241,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "bottomleft"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			Rect_SetLeft(r, val1);
 			ret = Rect_SetBottom(r, val2);
@@ -1250,7 +1249,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "topright"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			Rect_SetRight(r, val1);
 			ret = Rect_SetTop(r, val2);
@@ -1258,7 +1257,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "bottomright"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			Rect_SetRight(r, val1);
 			ret = Rect_SetBottom(r, val2);
@@ -1266,7 +1265,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "size"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			Rect_SetWidth(r, val1);
 			ret = Rect_SetHeight(r, val2);
@@ -1274,7 +1273,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "center"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			r->x += val1 - (r->x + r->w / 2);
 			r->y += val2 - (r->y + r->h / 2);
@@ -1283,7 +1282,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "centerx"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 		{
 			r->x += val1 - (r->x + r->w / 2);
 			ret = 0;
@@ -1291,7 +1290,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "centery"))
 	{
-		if(ShortFromObj(op, &val1))
+		if(IntFromObj(op, &val1))
 		{
 			r->y += val1 - (r->y + r->h / 2);
 			ret = 0;
@@ -1300,7 +1299,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 
 	else if(!strcmp(name, "midleft"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			r->x = val1;
 			r->y += val2 - (r->y + r->h / 2);
@@ -1309,7 +1308,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "midright"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			r->x = val1 - r->w;
 			r->y += val2 - (r->y + r->h / 2);
@@ -1318,7 +1317,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "midtop"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			r->x += val1 - (r->x + r->w / 2);
 			r->y = val2;
@@ -1327,7 +1326,7 @@ static int rect_setattr(PyRectObject *self, char *name, PyObject *op)
 	}
 	else if(!strcmp(name, "midbottom"))
 	{
-		if(TwoShortsFromObj(op, &val1, &val2))
+		if(TwoIntsFromObj(op, &val1, &val2))
 		{
 			r->x += val1 - (r->x + r->w / 2);
 			r->y = val2 - r->h;

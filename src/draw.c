@@ -112,7 +112,7 @@ static PyObject* aaline(PyObject* self, PyObject* arg)
 
 	/*compute return rect*/
 	if(!anydraw)
-		return PyRect_New4((short)(startx), (short)(starty), 0, 0);
+		return PyRect_New4(startx, starty, 0, 0);
 	if(pts[0] < pts[2])
 	{
 		left = (int)(pts[0]);
@@ -133,7 +133,7 @@ static PyObject* aaline(PyObject* self, PyObject* arg)
 		top = (int)(pts[3]);
 		bottom = (int)(pts[1]);
 	}
-	return PyRect_New4((short)left, (short)top, (short)(right-left+2), (short)(bottom-top+2));
+	return PyRect_New4(left, top, right-left+2, bottom-top+2);
 }
 
     /*DOC*/ static char doc_line[] =
@@ -153,7 +153,7 @@ static PyObject* line(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj, *colorobj, *start, *end;
 	SDL_Surface* surf;
-	short startx, starty, endx, endy;
+	int startx, starty, endx, endy;
 	int top, left, bottom, right;
 	int width = 1;
 	int pts[4];
@@ -176,9 +176,9 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
 
-	if(!TwoShortsFromObj(start, &startx, &starty))
+	if(!TwoIntsFromObj(start, &startx, &starty))
 		return RAISE(PyExc_TypeError, "Invalid start position argument");
-	if(!TwoShortsFromObj(end, &endx, &endy))
+	if(!TwoIntsFromObj(end, &endx, &endy))
 		return RAISE(PyExc_TypeError, "Invalid end position argument");
 
 	if(width < 1)
@@ -217,7 +217,7 @@ static PyObject* line(PyObject* self, PyObject* arg)
 		top = pts[3];
 		bottom = pts[1];
 	}
-	return PyRect_New4((short)left, (short)top, (short)(right-left+1), (short)(bottom-top+1));
+	return PyRect_New4(left, top, right-left+1, bottom-top+1);
 }
 
 
@@ -325,7 +325,7 @@ static PyObject* aalines(PyObject* self, PyObject* arg)
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
 	/*compute return rect*/
-	return PyRect_New4((short)left, (short)top, (short)(right-left+2), (short)(bottom-top+2));
+	return PyRect_New4(left, top, right-left+2, bottom-top+2);
 }
 
     /*DOC*/ static char doc_lines[] =
@@ -351,7 +351,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj, *colorobj, *closedobj, *points, *item;
 	SDL_Surface* surf;
-	short x, y;
+	int x, y;
 	int top, left, bottom, right;
 	int pts[4], width=1;
 	Uint8 rgba[4];
@@ -384,7 +384,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 		return RAISE(PyExc_ValueError, "points argument must contain more than 1 points");
 
 	item = PySequence_GetItem(points, 0);
-	result = TwoShortsFromObj(item, &x, &y);
+	result = TwoIntsFromObj(item, &x, &y);
 	Py_DECREF(item);
 	if(!result) return RAISE(PyExc_TypeError, "points must be number pairs");
 
@@ -392,7 +392,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	starty = pts[1] = top = bottom = y;
 
 	if(width < 1)
-		return PyRect_New4((short)left, (short)top, 0, 0);
+		return PyRect_New4(left, top, 0, 0);
 
 	if(!PySurface_Lock(surfobj)) return NULL;
 
@@ -400,7 +400,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	for(loop = 1; loop < length; ++loop)
 	{
 		item = PySequence_GetItem(points, loop);
-		result = TwoShortsFromObj(item, &x, &y);
+		result = TwoIntsFromObj(item, &x, &y);
 		Py_DECREF(item);
 		if(!result) continue; /*note, we silently skip over bad points :[ */
 		++drawn;
@@ -419,7 +419,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	if(closed && drawn > 2)
 	{
 		item = PySequence_GetItem(points, 0);
-		result = TwoShortsFromObj(item, &x, &y);
+		result = TwoIntsFromObj(item, &x, &y);
 		Py_DECREF(item);
 		if(result)
 		{
@@ -435,7 +435,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
 	/*compute return rect*/
-	return PyRect_New4((short)left, (short)top, (short)(right-left+1), (short)(bottom-top+1));
+	return PyRect_New4(left, top, right-left+1, bottom-top+1);
 }
 
 
@@ -505,7 +505,7 @@ static PyObject* arc(PyObject* self, PyObject* arg)
 	t = max(rect->y, surf->clip_rect.y);
 	r = min(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
 	b = min(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
-	return PyRect_New4((short)l, (short)t, (short)max(r-l, 0), (short)max(b-t, 0));
+	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
 }
 
 
@@ -577,7 +577,7 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 	t = max(rect->y, surf->clip_rect.y);
 	r = min(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
 	b = min(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
-	return PyRect_New4((short)l, (short)t, (short)max(r-l, 0), (short)max(b-t, 0));
+	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
 }
 
 
@@ -642,7 +642,7 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 	t = max(posy - radius, surf->clip_rect.y);
 	r = min(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
 	b = min(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
-	return PyRect_New4((short)l, (short)t, (short)max(r-l, 0), (short)max(b-t, 0));
+	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
 }
 
 
@@ -670,7 +670,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	Uint32 color;
 	int width=0, length, loop, numpoints;
 	int *xlist, *ylist;
-	short x, y, top, left, bottom, right, result;
+	int x, y, top, left, bottom, right, result;
 
 	/*get all the arguments*/
 	if(!PyArg_ParseTuple(arg, "O!OO|i", &PySurface_Type, &surfobj, &colorobj, &points, &width))
@@ -708,7 +708,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 
 
 	item = PySequence_GetItem(points, 0);
-	result = TwoShortsFromObj(item, &x, &y);
+	result = TwoIntsFromObj(item, &x, &y);
 	Py_DECREF(item);
 	if(!result) return RAISE(PyExc_TypeError, "points must be number pairs");
 	left = right = x;
@@ -721,7 +721,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	for(loop = 0; loop < length; ++loop)
 	{
 		item = PySequence_GetItem(points, loop);
-		result = TwoShortsFromObj(item, &x, &y);
+		result = TwoIntsFromObj(item, &x, &y);
 		Py_DECREF(item);
 		if(!result) continue; /*note, we silently skip over bad points :[ */
 		xlist[numpoints] = x;
@@ -749,7 +749,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	top = max(top, surf->clip_rect.y);
 	right = min(right, surf->clip_rect.x + surf->clip_rect.w);
 	bottom = min(bottom, surf->clip_rect.y + surf->clip_rect.h);
-	return PyRect_New4(left, top, (short)(right-left+1), (short)(bottom-top+1));
+	return PyRect_New4(left, top, right-left+1, bottom-top+1);
 }
 
 
@@ -1072,7 +1072,7 @@ static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
 #define DRAWPIX32(pixel,colorptr,br,blend) \
 	if(SDL_BYTEORDER == SDL_BIG_ENDIAN) color <<= 8; \
 	if(blend) { \
-		short x; \
+		int x; \
 		x = colorptr[0]*br+pixel[0]; \
 		pixel[0]= (x>254) ? 255: x; \
 		x = colorptr[1]*br+pixel[1]; \

@@ -40,9 +40,9 @@
 
 static PyObject* mouse_set_pos(PyObject* self, PyObject* args)
 {
-	short x, y;
+	int x, y;
 
-	if(!TwoShortsFromObj(args, &x, &y))
+	if(!TwoIntsFromObj(args, &x, &y))
 		return RAISE(PyExc_TypeError, "invalid position argument for set_pos");
 
 	VIDEO_INIT_CHECK();
@@ -203,7 +203,7 @@ static PyObject* mouse_set_cursor(PyObject* self, PyObject* args)
 	PyObject *xormask, *andmask;
 	Uint8 *xordata=NULL, *anddata=NULL;
 	int xorsize, andsize, loop;
-	short val;
+	int val;
 	SDL_Cursor *lastcursor, *cursor = NULL;
 
 	if(!PyArg_ParseTuple(args, "(ii)(ii)OO", &w, &h, &spotx, &spoty, &xormask, &andmask))
@@ -228,10 +228,10 @@ static PyObject* mouse_set_cursor(PyObject* self, PyObject* args)
 
 	for(loop = 0; loop < xorsize; ++loop)
 	{
-		if(!ShortFromObjIndex(xormask, loop, &val))
+		if(!IntFromObjIndex(xormask, loop, &val))
 			goto interror;
 		xordata[loop] = (Uint8)val;
-		if(!ShortFromObjIndex(andmask, loop, &val))
+		if(!IntFromObjIndex(andmask, loop, &val))
 			goto interror;
 		anddata[loop] = (Uint8)val;
 	}
@@ -246,7 +246,7 @@ static PyObject* mouse_set_cursor(PyObject* self, PyObject* args)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
 	lastcursor = SDL_GetCursor();
-	SDL_SetCursor(cursor);	
+	SDL_SetCursor(cursor);
 	SDL_FreeCursor(lastcursor);
 
 	RETURN_NONE;

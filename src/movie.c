@@ -175,7 +175,7 @@ static PyObject* movie_set_volume(PyObject* self, PyObject* args)
 	if(volume>100) volume = 100;
 	SMPEG_setvolume(movie, volume);
         Py_END_ALLOW_THREADS
-        
+
 	RETURN_NONE
 }
 
@@ -201,7 +201,7 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 	SMPEG* movie = PyMovie_AsSMPEG(self);
 	PyObject* surfobj, *posobj=NULL;
 	GAME_Rect *rect, temp;
-	short x=0, y=0;
+	int x=0, y=0;
 	if(!PyArg_ParseTuple(args, "O|O", &surfobj, &posobj))
 		return NULL;
 
@@ -220,7 +220,7 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 			SMPEG_scaleXY(movie, info.width, info.height);
 			x = y = 0;
 		}
-		else if(TwoShortsFromObj(posobj, &x, &y))
+		else if(TwoIntsFromObj(posobj, &x, &y))
 		{
 			SMPEG_Info info;
 			SMPEG_getinfo(movie, &info);
@@ -406,23 +406,23 @@ static PyObject* movie_get_busy(PyObject* self, PyObject* args)
 
     /*DOC*/ static char doc_movie_render_frame[] =
     /*DOC*/    "Movie.render_frame(framenum) -> int\n"
-    /*DOC*/    "Render a specfic numbered frame.\n"    
-    /*DOC*/    "\n"                                
-    /*DOC*/    "Returns the current frame number.\n"                  
-    /*DOC*/ ;                    
-             
+    /*DOC*/    "Render a specfic numbered frame.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "Returns the current frame number.\n"
+    /*DOC*/ ;
+
 static PyObject* movie_render_frame(PyObject* self, PyObject* args)
-{            
+{
         SMPEG* movie = PyMovie_AsSMPEG(self);
-        SMPEG_Info info;                     
-        int framenum;   
-                     
+        SMPEG_Info info;
+        int framenum;
+
         if(!PyArg_ParseTuple(args, "i", &framenum))
-                return NULL;                       
+                return NULL;
         Py_BEGIN_ALLOW_THREADS
         SMPEG_renderFrame(movie, framenum);
-        SMPEG_getinfo(movie, &info);       
-        Py_END_ALLOW_THREADS        
+        SMPEG_getinfo(movie, &info);
+        Py_END_ALLOW_THREADS
         return PyInt_FromLong(info.current_frame);
 }
 
@@ -602,7 +602,7 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 	screen = SDL_GetVideoSurface();
 	if(screen)
 		SMPEG_setdisplay(movie, screen, NULL, NULL);
-        
+
 	SMPEG_scaleXY(movie, info.width, info.height);
         Py_END_ALLOW_THREADS
 
@@ -629,7 +629,7 @@ static PyMethodDef mixer_builtins[] =
 static PyObject* PyMovie_New(SMPEG* movie)
 {
 	PyMovieObject* movieobj;
-	
+
 	if(!movie)
 		return RAISE(PyExc_RuntimeError, "unable to create movie.");
 
