@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG   = fixed a bug that was crashing
 
+Mar 16, 2001
+	Fixed memory leak in Rect constructor
+	Fixed improper exception in update.display
+
 Feb 15, 2001
 	calling Sound.play() will make sure the channel
 		that gets selected has volume set to full

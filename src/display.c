@@ -569,7 +569,9 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	else
 	{
 		gr = GameRect_FromObject(arg, &temp);
-		if(gr && gr != &temp)
+		if(!gr)
+			PyErr_Clear();
+		else if(gr != &temp)
 		{
 			memcpy(&temp, gr, sizeof(temp));
 			gr = &temp;

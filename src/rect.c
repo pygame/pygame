@@ -56,11 +56,13 @@ GAME_Rect* GameRect_FromObject(PyObject* obj, GAME_Rect* temp)
 				{Py_XDECREF(sub); return NULL;}
 			if(!ShortFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->x = val;
 			if(!ShortFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->y = val;
+			Py_DECREF(sub);
 			sub = PySequence_GetItem(obj, 1);
 			if(!sub || !PySequence_Check(sub) || PySequence_Length(sub)!=2)
 				{Py_XDECREF(sub); return NULL;}
 			if(!ShortFromObjIndex(sub, 0, &val)) {Py_DECREF(sub); return NULL;} temp->w = val;
 			if(!ShortFromObjIndex(sub, 1, &val)) {Py_DECREF(sub); return NULL;} temp->h = val;
+			Py_DECREF(sub);
 			return temp;
 		}
 		if(PyTuple_Check(obj) && PyTuple_Size(obj) == 1) /*looks like an arg?*/
