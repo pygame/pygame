@@ -13,7 +13,7 @@ Pygame also includes support for the Numerical Python extension."""
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.0.1",
+    "version":          "1.0.9",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners",

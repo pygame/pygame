@@ -1,5 +1,5 @@
-Pygame Version 1.0.2
-April 4th, 2001
+Pygame Version 1.0.9
+June 11th, 2001
 
 Python Game Development
 by Pete Shinners
@@ -15,7 +15,7 @@ INTRO
 Pygame is a cross-platfrom library designed to make it easy to write
 multimedia software, such as games, in Python.
 
-Pygame depends on SDL >= 1.1.7 and Python ?= 2.0. It also is optionally
+Pygame depends on SDL >= 1.1.7 and Python >= 2.0. It also is optionally
 dependent on SDL_ttf, SDL_image, SDL_mixer, and Numeric.
 
 
@@ -56,6 +56,8 @@ python libraries, here are some ideas...
  - MPEG video playback with smpeg
  - more drawing primitives in the draw module: circle, poly
  - more collision detection stuff: pixel2pixel, point2poly, etc
+ - smarten the config.py and setup.py stuff
+
 
 
 
@@ -73,6 +75,20 @@ Thanks to everyone who made this possible, including:
 
 There's many more folks out there who've submitted helpful ideas,
 kept this project going, and basically made my life easer, Thanks!
+
+
+
+
+LIBRARIES
+
+Pygame is obviously strongly dependent on SDL and Python. It also
+links to and embeds several other smaller libraries. The font module
+relies on SDL_tff, which is dependent on freetype. The mixer (and
+mixer.music) modules depend on SDL_mixer. The image module depends
+on SDL_image, which also can use libjpeg and libpng. The transform
+module has an embedded version of SDL_rotozoom for its own rotozoom
+function. The surfarray module requires the python Numeric package
+for its multidimensional numeric arrays.
 
 
 
@@ -95,8 +111,8 @@ http://www.gnu.org/copyleft/lesser.html
 
 This basically means you can use pygame in any project you want, but
 if you make any changes or additions to pygame itself, those must be
-released with a compatible license.
-( hopefully submitted back to the pygame project :] )
+released with a compatible license. (preferably submitted back to the
+pygame project)
 
 The programs in the "examples" subdirectory are in the public domain.
 

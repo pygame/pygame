@@ -101,6 +101,12 @@ rectstyle represents one of the various ways of
 representing rectangle data. This is usually a
 sequence of x and y position for the topleft
 corner, and the width and height.
+<br>&nbsp;<br>
+For some of the Rect methods there are two version.
+For example, there is <a href=Rect.html#move>move()</a> and <a href=Rect.html#move_ip>move_ip()</a>. The methods
+witht the '_ip' suffix on the name are the 'in-place'
+version of those functions. They effect the actual
+source object, instead of returning a new Rect object.
 </ul><br>&nbsp;<br>
 
 <a name=Surface><font size=+2><b>Surface
