@@ -17,12 +17,21 @@ cflags: extra compile flags
 
 import sys, os, shutil, string
 
+def is_msys_mingw():
+    if os.environ.has_key("MSYSTEM"):
+        if os.environ["MSYSTEM"] == "MINGW32":
+            return 1
+    return 0
 
 
-if sys.platform == 'win32':
+if sys.platform == 'win32' and not is_msys_mingw():
     print 'Using WINDOWS configuration...\n'
     import config_win
     CFG = config_win
+elif sys.platform == 'win32' and is_msys_mingw():
+    print 'Using WINDOWS mingw/msys configuration...\n'
+    import config_msys
+    CFG = config_msys
 elif sys.platform == 'darwin':
     print 'Using Darwin configuration...\n'
     import config_darwin
