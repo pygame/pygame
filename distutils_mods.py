@@ -35,6 +35,7 @@ class mingcomp(distutils.cygwinccompiler.oldMingw32CCompiler):
         cmpl = cmpl.replace("\\", "/")
         cmpl = cmpl.replace("c:", "/c")
         cmpl = cmpl.replace("C:", "/c")
+        cmpl = cmpl.replace("gcc", "gcc -g ")
         
         if self.verbose:
             print "cmpl is :%s:" % cmpl

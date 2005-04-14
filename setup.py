@@ -48,6 +48,15 @@ from distutils.extension import read_setup_file
 from distutils.ccompiler import new_compiler
 from distutils.command.install_data import install_data
 
+import config
+# a separate method for finding dlls with mingw.
+if config.is_msys_mingw():
+
+	# fix up the paths for msys compiling.
+	import distutils_mods
+	distutils.cygwinccompiler.Mingw32 = distutils_mods.mingcomp
+
+
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
@@ -88,17 +97,57 @@ for f in glob.glob(os.path.join('lib', '*')):
 
 #try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32':
-    tempcompiler = new_compiler()
-    ext = tempcompiler.shared_lib_extension
-    for e in extensions:
-        paths = []
-        for d in e.library_dirs:
-             for l in e.libraries:
-                    name = tempcompiler.shared_lib_format%(l, ext)
-                    paths.append(os.path.join(d, name))
-        for p in paths:
-            if os.path.isfile(p) and p not in data_files:
-                data_files.append(p)
+    
+    # check to see if we are using mingw.
+    import config
+    # a separate method for finding dlls with mingw.
+    if config.is_msys_mingw():
+
+        print data_files
+        # FIXME: hardcoding the dll paths for the moment.
+        the_dlls = ["C:\\msys\\1.0\\local\\bin\\SDL.dll",
+                    "C:\\msys\\1.0\\local\\bin\\SDL_image.dll",
+                    "C:\\msys\\1.0\\local\\bin\\SDL_ttf.dll",
+                    "C:\\msys\\1.0\\local\\bin\\SDL_mixer.dll",
+                   ]
+                   # no smpeg.
+                    #"C:\\msys\\1.0\\local\\bin\\smpeg.dll"]
+
+        data_files.extend(the_dlls)
+
+
+        
+        ext = "dll"
+        for e in extensions:
+            paths = []
+            print e.library_dirs
+            for d in e.library_dirs:
+                 for l in e.libraries:
+                        #name = tempcompiler.shared_lib_format%(l, ext)
+                        name = "%s.%s" %(l, ext)
+                        paths.append(os.path.join(d, name))
+            #print paths
+            for p in paths:
+                if os.path.isfile(p) and p not in data_files:
+                    data_files.append(p)
+
+
+    else:
+
+        tempcompiler = new_compiler()
+        ext = tempcompiler.shared_lib_extension
+        for e in extensions:
+            paths = []
+            print e.library_dirs
+            for d in e.library_dirs:
+                 for l in e.libraries:
+                        name = tempcompiler.shared_lib_format%(l, ext)
+                        paths.append(os.path.join(d, name))
+            for p in paths:
+                if os.path.isfile(p) and p not in data_files:
+                    data_files.append(p)
+
+
 
 
 #clean up the list of extensions
