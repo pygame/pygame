@@ -165,7 +165,12 @@ static PyObject* init(PyObject* self,PyObject* args)
 
 
 	/*nice to initialize timer, so startup time will reflec init() time*/
-	SDL_Init(SDL_INIT_TIMER|SDL_INIT_NOPARACHUTE);
+	SDL_Init(
+#if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
+		SDL_INIT_EVENTTHREAD |
+#endif
+		SDL_INIT_TIMER |
+		SDL_INIT_NOPARACHUTE);
 
 
 /* initialize all pygame modules */

@@ -134,7 +134,7 @@
 
 
 /* RECT */
-#define PYGAMEAPI_RECT_FIRSTSLOT 20
+#define PYGAMEAPI_RECT_FIRSTSLOT (PYGAMEAPI_BASE_FIRSTSLOT + PYGAMEAPI_BASE_NUMSLOTS)
 #define PYGAMEAPI_RECT_NUMSLOTS 4
 typedef struct {
 	int x, y;
@@ -170,7 +170,7 @@ typedef struct {
 
 
 /* CDROM */
-#define PYGAMEAPI_CDROM_FIRSTSLOT 30
+#define PYGAMEAPI_CDROM_FIRSTSLOT (PYGAMEAPI_RECT_FIRSTSLOT + PYGAMEAPI_RECT_NUMSLOTS)
 #define PYGAMEAPI_CDROM_NUMSLOTS 2
 typedef struct {
 	PyObject_HEAD
@@ -195,7 +195,7 @@ typedef struct {
 
 
 /* JOYSTICK */
-#define PYGAMEAPI_JOYSTICK_FIRSTSLOT 32
+#define PYGAMEAPI_JOYSTICK_FIRSTSLOT (PYGAMEAPI_CDROM_FIRSTSLOT + PYGAMEAPI_CDROM_NUMSLOTS)
 #define PYGAMEAPI_JOYSTICK_NUMSLOTS 2
 typedef struct {
 	PyObject_HEAD
@@ -221,7 +221,7 @@ typedef struct {
 
 
 /* DISPLAY */
-#define PYGAMEAPI_DISPLAY_FIRSTSLOT 35
+#define PYGAMEAPI_DISPLAY_FIRSTSLOT (PYGAMEAPI_JOYSTICK_FIRSTSLOT + PYGAMEAPI_JOYSTICK_NUMSLOTS)
 #define PYGAMEAPI_DISPLAY_NUMSLOTS 2
 typedef struct {
 	PyObject_HEAD
@@ -247,7 +247,7 @@ typedef struct {
 
 
 /* SURFACE */
-#define PYGAMEAPI_SURFACE_FIRSTSLOT 40
+#define PYGAMEAPI_SURFACE_FIRSTSLOT (PYGAMEAPI_DISPLAY_FIRSTSLOT + PYGAMEAPI_DISPLAY_NUMSLOTS)
 #define PYGAMEAPI_SURFACE_NUMSLOTS 3
 typedef struct {
 	PyObject_HEAD
@@ -286,7 +286,7 @@ typedef struct {
 
 
 /* SURFLOCK */    /*auto import/init by surface*/
-#define PYGAMEAPI_SURFLOCK_FIRSTSLOT 44
+#define PYGAMEAPI_SURFLOCK_FIRSTSLOT (PYGAMEAPI_SURFACE_FIRSTSLOT + PYGAMEAPI_SURFACE_NUMSLOTS)
 #define PYGAMEAPI_SURFLOCK_NUMSLOTS 5
 struct SubSurface_Data
 {
@@ -305,8 +305,8 @@ struct SubSurface_Data
 
 
 /* EVENT */
-#define PYGAMEAPI_EVENT_FIRSTSLOT 49
-#define PYGAMEAPI_EVENT_NUMSLOTS 2
+#define PYGAMEAPI_EVENT_FIRSTSLOT (PYGAMEAPI_SURFLOCK_FIRSTSLOT + PYGAMEAPI_SURFLOCK_NUMSLOTS)
+#define PYGAMEAPI_EVENT_NUMSLOTS 4
 typedef struct {
 	PyObject_HEAD
 	int type;
@@ -315,7 +315,9 @@ typedef struct {
 #ifndef PYGAMEAPI_EVENT_INTERNAL
 #define PyEvent_Check(x) ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 0])
 #define PyEvent_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 0])
-#define PyEvent_New (*(PyObject*(*)(int, PyObject*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 1])
+#define PyEvent_New (*(PyObject*(*)(SDL_Event*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 1])
+#define PyEvent_New2 (*(PyObject*(*)(int, PyObject*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 2])
+#define PyEvent_FillUserEvent (*(int (*)(PyEventObject*, SDL_Event*))PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
 #define import_pygame_event() { \
 	PyObject *module = PyImport_ImportModule("pygame.event"); \
 	if (module != NULL) { \
@@ -331,7 +333,7 @@ typedef struct {
 
 /* RWOBJECT */
 /*the rwobject are only needed for C side work, not accessable from python*/
-#define PYGAMEAPI_RWOBJECT_FIRSTSLOT 53
+#define PYGAMEAPI_RWOBJECT_FIRSTSLOT (PYGAMEAPI_EVENT_FIRSTSLOT + PYGAMEAPI_EVENT_NUMSLOTS)
 #define PYGAMEAPI_RWOBJECT_NUMSLOTS 4
 #ifndef PYGAMEAPI_RWOBJECT_INTERNAL
 #define RWopsFromPython (*(SDL_RWops*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 0])
@@ -354,7 +356,7 @@ typedef struct {
 
 
 #ifndef NO_PYGAME_C_API
-#define PYGAMEAPI_TOTALSLOTS 60
+#define PYGAMEAPI_TOTALSLOTS (PYGAMEAPI_RWOBJECT_FIRSTSLOT + PYGAMEAPI_RWOBJECT_NUMSLOTS)
 static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = {NULL};
 #endif
 

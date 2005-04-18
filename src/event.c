@@ -104,7 +104,17 @@ static void user_event_cleanup(void)
 	}
 }
 
+static int PyEvent_FillUserEvent(PyEventObject *e, SDL_Event *event) {
+	UserEventObject *userobj = user_event_addobject(e->dict);
+	if(!userobj)
+		return -1;
 
+	event->type = e->type;
+	event->user.code = USEROBJECT_CHECK1;
+	event->user.data1 = (void*)USEROBJECT_CHECK2;
+	event->user.data2 = userobj;
+    return 0;
+}
 
 staticforward PyTypeObject PyEvent_Type;
 static PyObject* PyEvent_New(SDL_Event*);
@@ -882,21 +892,14 @@ static PyObject* event_post(PyObject* self, PyObject* args)
 {
 	PyEventObject* e;
 	SDL_Event event;
-	UserEventObject* userobj;
 
 	if(!PyArg_ParseTuple(args, "O!", &PyEvent_Type, &e))
 		return NULL;
 
 	VIDEO_INIT_CHECK();
 
-	userobj = user_event_addobject(e->dict);
-	if(!userobj)
+    if (PyEvent_FillUserEvent(e, &event))
 		return NULL;
-
-	event.type = e->type;
-	event.user.code = USEROBJECT_CHECK1;
-	event.user.data1 = (void*)USEROBJECT_CHECK2;
-	event.user.data2 = userobj;
 
 	if(SDL_PushEvent(&event) == -1)
 		return RAISE(PyExc_SDLError, "Event queue full");
@@ -1114,6 +1117,8 @@ void initevent(void)
 	/* export the c api */
 	c_api[0] = &PyEvent_Type;
 	c_api[1] = PyEvent_New;
+	c_api[2] = PyEvent_New2;
+	c_api[3] = PyEvent_FillUserEvent;
 	apiobj = PyCObject_FromVoidPtr(c_api, NULL);
 	PyDict_SetItemString(dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
 	Py_DECREF(apiobj);
