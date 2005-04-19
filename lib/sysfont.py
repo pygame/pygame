@@ -70,9 +70,6 @@ def initsysfonts_win32():
             try: name, font, t = _winreg.EnumValue(key,i)
             except EnvironmentError: break
 
-            # NOTE: it seems that it is ok to not encode the font name in here.
-            #   No need to convert to str I think.
-            
             # try and handle windows unicode strings for some file names.
             try:
                 font = str(font)
