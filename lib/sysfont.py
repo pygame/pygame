@@ -69,7 +69,14 @@ def initsysfonts_win32():
         for i in range(_winreg.QueryInfoKey(key)[1]):
             try: name, font, t = _winreg.EnumValue(key,i)
             except EnvironmentError: break
-            font = str(font)
+
+            # try and handle windows unicode strings for some file names.
+            try:
+                print type(font)
+                font = str(font)
+            except UnicodeEncodeError:
+                font = font.encode('MBCS')
+
             if font[-4:].lower() != ".ttf":
                 continue
             if os.sep not in font:
