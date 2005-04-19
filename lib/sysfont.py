@@ -71,11 +71,19 @@ def initsysfonts_win32():
             except EnvironmentError: break
 
             # try and handle windows unicode strings for some file names.
+            
+            # here are two documents with some information about it:
+            # http://www.python.org/peps/pep-0277.html
+            # https://www.microsoft.com/technet/archive/interopmigration/linux/mvc/lintowin.mspx#ECAA
             try:
                 font = str(font)
             except UnicodeEncodeError:
                 # MBCS is the windows encoding for unicode file names.
-                font = font.encode('MBCS')
+                try:
+                    font = font.encode('MBCS')
+                except:
+                    # no goodness with str or MBCS encoding... skip this font.
+                    continue
    
             if font[-4:].lower() != ".ttf":
                 continue
