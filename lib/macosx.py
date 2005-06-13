@@ -139,5 +139,5 @@ def init():
         install()
     # running inside a bundle, change dir
     if (os.getcwd() == '/') and len(sys.argv) > 1:
-        os.chdir(os.path.basedir(sys.argv[0]))
+        os.chdir(os.path.dirname(sys.argv[0]))
     return True
