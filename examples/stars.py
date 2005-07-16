@@ -34,6 +34,7 @@ def initialize_stars():
 		pos[1] = pos[1] + (vel[1] * steps)
 		vel[0] = vel[0] * (steps * .09)
 		vel[1] = vel[1] * (steps * .09)
+		pos = ( int(round(pos[0])), int(round(pos[1])) )
 		stars.append(star)
 	move_stars(stars)
 	return stars
@@ -42,14 +43,15 @@ def initialize_stars():
 def draw_stars(surface, stars, color):
 	"used to draw (and clear) the stars"
 	for vel, pos in stars:
+		#pos = ( int(round(pos[0])), int(round(pos[1])) )
 		surface.set_at(pos, color)
 
 
 def move_stars(stars):
 	"animate the star values"
 	for vel, pos in stars:
-		pos[0] = pos[0] + vel[0]
-		pos[1] = pos[1] + vel[1]
+		pos[0] = int(round(pos[0] + vel[0]))
+		pos[1] = int(round(pos[1] + vel[1]))
 		if not 0 <= pos[0] <= WINSIZE[0] or not 0 <= pos[1] <= WINSIZE[1]:
 			vel[:], pos[:] = init_star()
 		else:
