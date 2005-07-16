@@ -40,6 +40,12 @@ def main():
 
     player = load_image('player1.gif')
     background = load_image('liquid.bmp')
+
+    # scale the background image so that it fills the window and
+    #   successfully overwrites the old sprite position.
+    background = pygame.transform.scale2x(background)
+    background = pygame.transform.scale2x(background)
+
     screen.blit(background, (0, 0))
 
     objects = []
