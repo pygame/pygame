@@ -21,6 +21,8 @@ __version__ = "2.0"
 
 import os.path
 import pygame.mixer, pygame.time, pygame.sndarray, pygame
+import pygame.surfarray, pygame.transform
+
 mixer = pygame.mixer
 sndarray = pygame.sndarray
 import time
@@ -95,20 +97,115 @@ def make_echo(sound, samples_per_second,  mydebug = True):
     return sound2
 
 
+def slow_down_sound(sound, rate):
+    """  returns a sound which is a slowed down version of the original.
+           rate - at which the sound should be slowed down.  eg. 0.5 would be half speed.
+    """
+
+    raise NotImplementedError
+    grow_rate = 1 / rate
+
+    # make it 1/rate times longer.
+
+    a1 = sndarray.array(sound)
+
+    surf = pygame.surfarray.make_surface(a1)
+    print a1.shape[0] * grow_rate
+    scaled_surf = pygame.transform.scale(surf, (int(a1.shape[0] * grow_rate), a1.shape[1]))
+    print scaled_surf
+    print surf
+
+    a2 = a1 * rate
+    print a1.shape
+    print a2.shape
+    print a2
+    sound2 = sndarray.make_sound(a2.astype(Int16))
+    return sound2
+
+
+
+
+def sound_from_pos(sound, start_pos, samples_per_second = None, inplace = 1):
+    """  returns a sound which begins at the start_pos.
+         start_pos - in seconds from the begining.
+         samples_per_second - 
+    """
+    if inplace:
+        a1 = pygame.sndarray.samples(sound)
+    else:
+        a1 = pygame.sndarray.array(sound)
+
+    if samples_per_second is None:
+        samples_per_second = pygame.mixer.get_init()[0]
+
+    start_pos_in_samples = int(start_pos * samples_per_second)
+    a2 = a1[start_pos_in_samples:]
+    sound2 = pygame.sndarray.make_sound(a2)
+
+    return sound2
+    
+
+
 
 if __name__ == "__main__":
 
+    import sys
 
     print "mixer.get_init", mixer.get_init()
     inited = mixer.get_init()
 
     samples_per_second = pygame.mixer.get_init()[0]
 
+    
+
+    print ("-" * 30) + "\n"
+    print "loading sound"
+    sound = mixer.Sound(os.path.join('data', 'car_door.wav'))
 
 
 
+    print "-" * 30
+    print "start positions"
+    print "-" * 30
 
-    sound = mixer.Sound('data/car_door.wav')
+    start_pos = 0.1
+    sound2 = sound_from_pos(sound, start_pos, samples_per_second)
+
+    print "sound.get_length", sound.get_length()
+    print "sound2.get_length", sound2.get_length()
+    sound2.play()
+    while mixer.get_busy():
+        pygame.time.wait(200)
+
+    print "waiting 2 seconds"
+    pygame.time.wait(2000)
+    print "playing original sound"
+
+    sound.play()
+    while mixer.get_busy():
+        pygame.time.wait(200)
+
+    print "waiting 2 seconds"
+    pygame.time.wait(2000)
+
+
+
+    if 0:
+        #TODO: this is broken.
+        print ("-" * 30) + "\n"
+        print "Slow down the original sound."
+        rate = 0.2
+        slowed_sound = slow_down_sound(sound, rate)
+
+        slowed_sound.play()
+        while mixer.get_busy():
+            pygame.time.wait(200)
+
+
+    print "-" * 30
+    print "echoing"
+    print "-" * 30
+
     t1 = time.time()
     sound2 = make_echo(sound, samples_per_second)
     print "time to make echo", time.time() - t1
@@ -125,7 +222,7 @@ if __name__ == "__main__":
         pygame.time.wait(200)
 
 
-    sound = mixer.Sound('data/secosmic_lo.wav')
+    sound = mixer.Sound(os.path.join('data', 'secosmic_lo.wav'))
 
     t1 = time.time()
     sound3 = make_echo(sound, samples_per_second)
@@ -141,5 +238,10 @@ if __name__ == "__main__":
     sound3.play()
     while mixer.get_busy():
         pygame.time.wait(200)
+
+
+
+
+
 
 
