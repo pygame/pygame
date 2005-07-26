@@ -69,9 +69,10 @@
 
      For Mac OS X 10.3 and above, binary packages are available from
      pythonmac.org packages: http://pythonmac.org/packages/
-     This package includes almost of the dependencies required for pygame
-     (SDL, SDL_image, etc.), but you need PyObjC 1.2 or later, and may
-     also want to get Numeric and PyOpenGL.
+
+     This package includes almost of the dependencies required for
+     pygame (SDL, SDL_image, etc.), but you need PyObjC 1.2 or later,
+     and may also want to get Numeric and PyOpenGL.
 
      To build self-contained pygame applications, you should use py2app.
      There is an example in:
@@ -161,9 +162,9 @@
 
    Mac OS X Compiling Info
 
-     Make sure to have Numeric, PyObjC 1.2 or later, PIL, and the SDL
+     Make sure to have Numeric, PyObjC 1.3 or later, PIL, and the SDL
      frameworks installed. Compilation should work just same as the unix
-     compiling instructions. Python 2.3 and Mac OS X 10.2 or later 
-     are required.  To build an installer for Mac OS X that includes
-     pygame, the examples, and the SDL frameworks use the following
-     command:  python setup.py bdist_mpkg
+     compiling instructions. Python 2.3 and Mac OS X 10.2 or later are
+     required. To build an installer for Mac OS X that includes pygame,
+     the examples, and the SDL frameworks use the following command:
+     python setup.py bdist_mpkg

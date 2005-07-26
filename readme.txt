@@ -1,7 +1,6 @@
 
-                        Pygame Readme
-   Version 1.7
-   Python Game Development
+   Pygame Readme
+   Version 1.7 Python Game Development
    by Pete Shinners http://www.pygame.org
    pete@shinners.org
 
@@ -68,11 +67,11 @@
    Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
    Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
    James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
-   Spillers, Bo Jangeborg, Dmitry Borisov
+   Spiller, Bo Jangeborg, Dmitry Borisov
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, Rene
-   Dudfield, Michael Benfield
+   Dudfield, Michael Benfield, David Lau
 
    There's many more folks out there who've submitted helpful ideas, kept
    this project going, and basically made my life easer, Thanks!
