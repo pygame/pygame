@@ -256,7 +256,7 @@ class AbstractGroup(object):
                     sprite.remove_internal(self)
             else:
                 try:
-                    for spr in sprite: self.add(spr)
+                    for spr in sprite: self.remove(spr)
                 except (TypeError, AttributeError):
                     if hasattr(sprite, '_spritegroup'):
                         for spr in sprite.sprites():
