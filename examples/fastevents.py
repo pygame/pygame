@@ -5,18 +5,22 @@ So maybe fastevent isn't fast at all.
 
 tested on windowsXP sp2 athlon.
 """
-
 from pygame import *
-
-
 
 # the config to try different settings out with the event queues.
 
-
-with_display = 1
-slow_tick = 0
+# use the fastevent module or not.
 use_fast_events = 1
+
+# use pygame.display.flip().
+#    otherwise we test raw event processing throughput.
+with_display = 1
+
+# limit the game loop to 40 fps.
+slow_tick = 0
+
 NUM_EVENTS_TO_POST = 200000
+
 
 
 if use_fast_events:
@@ -59,7 +63,8 @@ import time as pytime
 def main():
     init()
     
-    fastevent.init()
+    if use_fast_events:
+        fastevent.init()
 
     c = time.Clock()
 
