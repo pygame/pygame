@@ -10,7 +10,7 @@ localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL11',
-               'include/smpeg' ]
+               '/include/smpeg' ]
 origlibdirs = ['/lib']
 
 
@@ -152,8 +152,11 @@ def main():
     if localbase:
         incdirs = [localbase+d for d in origincdirs]
         libdirs = [localbase+d for d in origlibdirs]
-    incdirs = ["/usr"+d for d in origincdirs]
-    libdirs = ["/usr"+d for d in origlibdirs]
+    else:
+        incdirs = []
+        libdirs = []
+    incdirs += ["/usr"+d for d in origincdirs]
+    libdirs += ["/usr"+d for d in origlibdirs]
     incdirs += ["/usr/local"+d for d in origincdirs]
     libdirs += ["/usr/local"+d for d in origlibdirs]
     for arg in string.split(DEPS[0].cflags):
