@@ -4,6 +4,16 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+August 10, 2005
+    Fix for overlay.c to compile in windows.  
+    Fixed some warnings for font, and rotozoom with gcc4.
+    Added an example for fastevents.
+    Fix for config_unix.py with wrong paths for /usr/local
+
+July 28, 2005
+    Fix for sprite module[BUG].  fastevent module for faster sdl event processing.
+    Updated examples.
+
 March 7, 2005
     sysfont patch, which checks two places for fonts on weird windows machines from Atul Varma.
     pygame.get_sdl_version(), improved Mac OS X support from Bob Ippolito.
