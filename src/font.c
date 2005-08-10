@@ -20,6 +20,7 @@
     pete@shinners.org
 */
 
+
 /*
  *  font module for pygame
  */
@@ -428,8 +429,16 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	{
 		if(!RGBAFromObj(bg_rgba_obj, rgba))
 			return RAISE(PyExc_TypeError, "Invalid background RGBA argument");
-		backg.r = rgba[0]; backg.g = rgba[1]; backg.b = rgba[2];
-	}
+		backg.r = rgba[0];
+                backg.g = rgba[1];
+                backg.b = rgba[2];
+                backg.unused = 0;
+	} else {
+		backg.r = 0;
+                backg.g = 0;
+                backg.b = 0;
+                backg.unused = 0;
+        }
 
 
 	if(!PyObject_IsTrue(text))
