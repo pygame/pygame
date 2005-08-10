@@ -322,7 +322,16 @@ void transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, 
 			c01 = *sp;
 			c10 = *sp;
 			c11 = *sp;
-		    }
+		    } else {
+                        // NOTE: a catchall to appease gcc4 warnings...
+                        // Probably should not get here.  we'll see.
+                        //  old behaviour would be to use the previous pixel, from the previous loop.
+			sp = (tColorRGBA *) (src->pixels);
+			c00 = *sp;
+			c01 = *sp;
+			c10 = *sp;
+			c11 = *sp;
+                    }
 		    /*
 		     * Interpolate colors 
 		     */
