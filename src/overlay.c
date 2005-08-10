@@ -1,5 +1,5 @@
 /*
- *			A part of the pydfb module. Provides interface for basic overlay
+ *   A part of the pydfb module. Provides interface for basic overlay
  *			manipulation functions.
  *      In this implementation overlay can use only one layer out of maximum
  *      possible. After getting overlay, no overlay can be created.
@@ -205,8 +205,8 @@ PyTypeObject PyOverlay_Type =
     "pygame.overlay",        /*tp_name*/
     sizeof(PyGameOverlay),      /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    (destructor)overlay_dealloc,												/*tp_dealloc*/
-		0,                         /*tp_print*/
+    0,												/*tp_dealloc*/
+	0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
@@ -217,7 +217,7 @@ PyTypeObject PyOverlay_Type =
     0,                         /*tp_hash */
     0,                         /*tp_call*/
     0,                         /*tp_str*/
-    PyObject_GenericGetAttr,   /*tp_getattro*/
+    0,   /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
@@ -237,7 +237,7 @@ PyTypeObject PyOverlay_Type =
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
     0,    /* tp_init */
-    PyType_GenericAlloc,       /* tp_alloc */
+    0,       /* tp_alloc */
     Overlay_New,			   /* tp_new */
 };
 
@@ -254,6 +254,9 @@ void initoverlay(void)
 	module = Py_InitModule("overlay", overlay_methods );
 
 	PyOverlay_Type.ob_type = &PyType_Type;
+	PyOverlay_Type.tp_dealloc = (destructor)overlay_dealloc;
+	PyOverlay_Type.tp_alloc =PyType_GenericAlloc;
+	PyOverlay_Type.tp_getattro = PyObject_GenericGetAttr;
 	Py_INCREF((PyObject *)&PyOverlay_Type);
 	PyType_Init(PyOverlay_Type);
 
