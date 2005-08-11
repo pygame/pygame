@@ -896,8 +896,6 @@ static PyObject* chan_get_volume(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	volume = Mix_Volume(channelnum, -1);
-        printf("volume :%d:\n", volume);
-
 
 	return PyFloat_FromDouble(volume / 128.0);
 }
