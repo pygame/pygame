@@ -839,28 +839,40 @@ static PyObject* chan_unpause(PyObject* self, PyObject* args)
     /*DOC*/    "by supplying a volume for the left and right channels. If\n"
     /*DOC*/    "SDL_mixer cannot set the panning, it will average the two\n"
     /*DOC*/    "volumes. Panning requires SDL_mixer-1.2.1.\n"
+    /*DOC*/    "\n"
+    /*DOC*/    "NOTE: if the second argument is used then get_volume()\n"
+    /*DOC*/    " will not work how you think. It will always return 1.0.\n"
     /*DOC*/ ;
 
 static PyObject* chan_set_volume(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
 	float volume, stereovolume=-1.11f;
+        int result;
 
 	if(!PyArg_ParseTuple(args, "f|f", &volume, &stereovolume))
 		return NULL;
 
 	MIXER_INIT_CHECK();
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=1
-        if(stereovolume != -1.11f)
-            Mix_SetPanning(channelnum, (Uint8)(volume*255), (Uint8)(stereovolume*255));
-        else
-            Mix_SetPanning(channelnum, (Uint8)255, (Uint8)255);
-        volume = 1.0f;
+        if((stereovolume <= -1.10f) && (stereovolume >= -1.12f)) {
+            // The normal volume will be used.  No panning.  so panning is set to full.
+            //   this is incase it was set previously to something else.
+            // NOTE: there is no way to GetPanning variables.
+            result = Mix_SetPanning(channelnum, (Uint8)255, (Uint8)255);
+            
+        } else {
+            // NOTE: here the volume will be set to 1.0 and the panning will be used.
+            result = Mix_SetPanning(channelnum, (Uint8)(volume*255), (Uint8)(stereovolume*255));
+            volume = 1.0f;
+        }
 #else
-        if(stereovolume != -1.11f)
+        if(! ((stereovolume <= -1.10f) && (stereovolume >= -1.12f)))
             volume = (volume + stereovolume) * 0.5f;
 #endif
-	Mix_Volume(channelnum, (int)(volume*128));
+
+	result = Mix_Volume(channelnum, (int)(volume*128));
+
 	RETURN_NONE
 }
 
@@ -884,6 +896,9 @@ static PyObject* chan_get_volume(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	volume = Mix_Volume(channelnum, -1);
+        printf("volume :%d:\n", volume);
+
+
 	return PyFloat_FromDouble(volume / 128.0);
 }
 
