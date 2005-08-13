@@ -1,7 +1,8 @@
-include Setup.in *.py WHATSNEW README.TXT
+include Setup.in *.py WHATSNEW readme.txt
 recursive-include docs *
 recursive-include lib *
 recursive-include src *
 recursive-include examples *
+recursive-include test *
 prune */CVS
 prune */*/CVS
