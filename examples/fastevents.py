@@ -1,9 +1,13 @@
 """  This is a stress test for the fastevents module.
 
+*Fast events does not appear faster!*
+
 So far it looks like normal pygame.event is faster by up to two times.
 So maybe fastevent isn't fast at all.
 
-tested on windowsXP sp2 athlon.
+Tested on windowsXP sp2 athlon, and freebsd.
+
+However... on my debian duron 850 machine fastevents is faster.
 """
 from pygame import *
 
@@ -34,7 +38,11 @@ else:
 from threading import Thread
 
 class post_them(Thread):
-    
+    def __init__(self):
+        Thread.__init__(self)
+        self.done = []
+        self.stop = []
+
     def run(self):
         self.done = []
         self.stop = []
