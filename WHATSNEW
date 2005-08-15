@@ -4,6 +4,13 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+August 15, 2005
+    Fix to make Chinese fonts work better on windows.  
+      From retsyo  AT  eyou  Dot  com.
+    Fix for Channel.set_volume() to not use panning if seting overall volume.
+    Made setup put in missing files into the source distribution.
+    Fix for fastevents example on linux.
+
 August 10, 2005
     Fix for overlay.c to compile in windows.  
     Fixed some warnings for font, and rotozoom with gcc4.
