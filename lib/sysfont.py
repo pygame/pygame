@@ -85,7 +85,7 @@ def initsysfonts_win32():
                     # no goodness with str or MBCS encoding... skip this font.
                     continue
    
-            if font[-4:].lower() != ".ttf":
+            if font[-4:].lower() not in [".ttf", ".ttc"]:
                 continue
             if os.sep not in font:
                 font = os.path.join(fontdir, font)
@@ -105,6 +105,8 @@ def initsysfonts_win32():
                 name.remove('italic')
                 italic = 1
             name = ''.join(name)
+
+            name=_simplename(name)
 
             _addfont(name, bold, italic, font, fonts)
     return fonts
@@ -134,7 +136,7 @@ def read_unix_fontscache(dir, file, fonts):
         except ValueError:
             continue
         font = font.replace('"', '')
-        if font[-4:].lower() != '.ttf':
+        if font[-4:].lower() not in [".ttf", ".ttc"]:
             continue
         font = os.path.join(dir, font)
         vals = vals.split(':')
@@ -150,7 +152,8 @@ def read_unix_fontsdir(dir, file, fonts):
     numfonts = int(file.readline())
     for line in file.readlines():
         font, descr = (line.split(' ', 1) + ['', ''])[:2]
-        if font[-4:].lower() != ".ttf":
+        if font[-4:].lower() not in [".ttf", ".ttc"]:
+
             continue
         font = os.path.join(dir, font)
         descr = descr.split('-', 13)
