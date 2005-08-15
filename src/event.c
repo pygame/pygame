@@ -26,6 +26,12 @@
 #define PYGAMEAPI_EVENT_INTERNAL
 #include "pygame.h"
 
+// FIXME: The system message code is only tested on windows, so only
+//          include it there for now.
+#ifdef WIN32
+#include <SDL_syswm.h>
+#endif
+
 
 /*this user event object is for safely passing
  *objects through the event queue.
@@ -295,7 +301,14 @@ static PyObject* dict_from_event(SDL_Event* event)
 		insobj(dict, "size", obj);
 		insobj(dict, "w", PyInt_FromLong(event->resize.w));
 		insobj(dict, "h", PyInt_FromLong(event->resize.h));
-
+		break;
+	case SDL_SYSWMEVENT:
+	        #ifdef WIN32
+		insobj(dict, "hwnd", PyInt_FromLong((long)(event-> syswm.msg->hwnd)));
+		insobj(dict, "msg", PyInt_FromLong(event-> syswm.msg->msg));
+		insobj(dict, "wparam", PyInt_FromLong(event-> syswm.msg->wParam));
+		insobj(dict, "lparam", PyInt_FromLong(event-> syswm.msg->lParam));
+		#endif
 		break;
 /* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
 	}
