@@ -128,32 +128,19 @@ def initsysfonts_darwin():
 
 
 #read the fonts from a unix 'fonts.cache-1' file
-def read_unix_fontscache(dir, file, fonts):
-    file = open(os.path.join(dir, file))
-    for line in file.readlines():
-        try:
-            font, num, vals = line.split(' ', 2)
-        except ValueError:
-            continue
-        font = font.replace('"', '')
-        if font[-4:].lower() not in [".ttf", ".ttc"]:
-            continue
-        font = os.path.join(dir, font)
-        vals = vals.split(':')
-        name = _simplename(vals[0][1:])
-        bold = vals[1].find('Bold') >= 0
-        italic = vals[1].find('Italic') >= 0
-        _addfont(name, bold, italic, font, fonts)
-
-
-#read the fonts from a unix 'fonts.dot' file
 def read_unix_fontsdir(dir, file, fonts):
     file = open(os.path.join(dir, file))
-    numfonts = int(file.readline())
+    line = file.readline()
+    if not line:
+        # empty file do nothing.
+        return
+ 
+    numfonts = int(line)
+ 
     for line in file.readlines():
         font, descr = (line.split(' ', 1) + ['', ''])[:2]
         if font[-4:].lower() not in [".ttf", ".ttc"]:
-
+ 
             continue
         font = os.path.join(dir, font)
         descr = descr.split('-', 13)
@@ -161,6 +148,7 @@ def read_unix_fontsdir(dir, file, fonts):
         bold = (descr[3] == 'bold')
         italic = (descr[4] == 'i')
         _addfont(name, bold, italic, font, fonts)
+
 
 
 #walk the path directory trees
