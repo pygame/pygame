@@ -464,26 +464,32 @@ static PyObject* music_load(PyObject* self, PyObject* args)
     /*DOC*/    "This will load a music file and queue it. A queued music file\n"
     /*DOC*/    "will begin as soon as the current music naturally ends. If the\n"
     /*DOC*/    "current music is ever stopped or changed, the queued song will\n"
-    /*DOC*/    "be lost.\n"
+    /*DOC*/    "be lost. If loading the queued song fails, the currently queued\n"
+    /*DOC*/    "song will not be replaced.\n"
     /*DOC*/ ;
 
 static PyObject* music_queue(PyObject* self, PyObject* args)
 {
 	char* filename;
+	Mix_Music* new_music;
 	if(!PyArg_ParseTuple(args, "s", &filename))
 		return NULL;
 
 	MIXER_INIT_CHECK();
+
+	Py_BEGIN_ALLOW_THREADS
+	new_music = Mix_LoadMUS(filename);
+	Py_END_ALLOW_THREADS
+
+	if(!new_music)
+		return RAISE(PyExc_SDLError, SDL_GetError());
 
 	if(queue_music)
 	{
 		Mix_FreeMusic(queue_music);
 		queue_music = NULL;
 	}
-	Py_BEGIN_ALLOW_THREADS
-	queue_music = Mix_LoadMUS(filename);
-	Py_END_ALLOW_THREADS
-
+	queue_music = new_music;
     	RETURN_NONE
 }
 

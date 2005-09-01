@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+September 1, 2005
+    music.queue() now raises exception if load fails.
+
 August 15, 2005
     Fix to make Chinese fonts work better on windows.  
       From retsyo  AT  eyou  Dot  com.
