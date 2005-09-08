@@ -18,10 +18,10 @@
 || <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
 <a href=pygame_constants.html>constants</a> || 
-<a href=pygame_cursor.html>cursor</a> || 
 <a href=pygame_display.html>display</a> || 
-<a href=pygame_draw.html>draw</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_draw.html>draw</a> || 
+<a href=pygame_event.html>event</a> ||<br>
+|| <a href=pygame_fastevent.html>fastevent</a> || 
 <a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
 <a href=pygame_joystick.html>joystick</a> || 
@@ -219,7 +219,8 @@ pygame.mixer.music.queue(soundfile) -> None
 This will load a music file and queue it. A queued music file
 will begin as soon as the current music naturally ends. If the
 current music is ever stopped or changed, the queued song will
-be lost.
+be lost. If loading the queued song fails, the currently queued
+song will not be replaced.
 </ul><br>&nbsp;<br>
 
 <a name=rewind><font size=+2><b>rewind
