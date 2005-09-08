@@ -18,10 +18,10 @@
 || <a href=pygame.html>pygame</a> || 
 <a href=pygame_cdrom.html>cdrom</a> || 
 <a href=pygame_constants.html>constants</a> || 
-<a href=pygame_cursor.html>cursor</a> || 
 <a href=pygame_display.html>display</a> || 
-<a href=pygame_draw.html>draw</a> ||<br>
-|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_draw.html>draw</a> || 
+<a href=pygame_event.html>event</a> ||<br>
+|| <a href=pygame_fastevent.html>fastevent</a> || 
 <a href=pygame_font.html>font</a> || 
 <a href=pygame_image.html>image</a> || 
 <a href=pygame_joystick.html>joystick</a> || 
@@ -62,12 +62,16 @@ Here is a list of available cursors; arrow, diamond, ball,
         broken_x, tri_left, tri_right
 <br>&nbsp;<br>
 There is also a sample string cursor named 'thickarrow_strings'.
-The <a href=pygame_cursor.html#compile>compile()</a> function can convert these string cursors into cursor byte data.
+The <a href=#compile>compile()</a> function can convert these string cursors into cursor byte data.
 <br>&nbsp;<br>
 
 <hr>
 
 <table>
+<tr><td><a href=#compile>compile</a></td><td> -
+compile cursor strings into cursor data</td></tr>
+
+
 <tr><td><a href=#load_xbm>load_xbm</a></td><td> -
 reads a pair of XBM files into set_cursor arguments</td></tr>
 
@@ -75,6 +79,25 @@ reads a pair of XBM files into set_cursor arguments</td></tr>
 </table>
 
 <hr>
+
+<a name=compile><font size=+2><b>compile
+</b></font><br><font size=+1><tt>
+pygame.cursors.compile(strings, black, white) -> data, mask
+</tt></font><ul>
+This takes a set of strings with equal length and computes
+the binary data for that cursor. The string widths must be
+divisible by 8.
+<br>&nbsp;<br>
+The black and white arguments are single letter strings that
+tells which characters will represent black pixels, and which
+characters represent white pixels. All other characters are
+considered clear.
+<br>&nbsp;<br>
+This returns a tuple containing the cursor data and cursor mask
+data. Both these arguments are used when setting a cursor with
+<a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>.
+<br>&nbsp;<br>
+</ul><br>&nbsp;<br>
 
 <a name=load_xbm><font size=+2><b>load_xbm
 </b></font><br><font size=+1><tt>

@@ -187,7 +187,7 @@ textmarker_strings = (               #sized 8x16
 
 
 def compile(strings, black='X', white='.',xor='o'):
-   """pygame.cursor.compile(strings, black, white,xor) -> data, mask
+   """pygame.cursors.compile(strings, black, white,xor) -> data, mask
 compile cursor strings into cursor data
 
 This takes a set of strings with equal length and computes
