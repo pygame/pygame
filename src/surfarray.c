@@ -648,7 +648,7 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 		}break;
 	}
 
-	if(!PySurface_Lock(surfobj)) return NULL;
+	if(!PySurface_Unlock(surfobj)) return NULL;
 	return array;
 }
 
