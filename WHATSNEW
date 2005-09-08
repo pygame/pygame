@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+
+September 8, 2005
+    surface.array_colorkey now unlocks the surface after use[BUG].
+
 September 1, 2005
     music.queue() now raises exception if load fails.
 
