@@ -296,7 +296,7 @@ array of integers. We will use this image in the rest of the samples.
 
 <tr><td><img align=left src=flipped.jpg alt=flipped width=200 height=128>
 <table bgcolor=#ddcc88><tr><td><pre>
-flipped = imgarray[:,-1:0:-1]
+flipped = imgarray[:,::-1]
 surfdemo_show(flipped, 'flipped')
 </td></tr></table>
 Here we flip the image vertically. All we need to do is take the original
