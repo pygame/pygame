@@ -52,7 +52,7 @@ surfdemo_show(imgarray, 'imgarray')
 
 
 #flipped
-flipped = imgarray[:,-1:0:-1]
+flipped = imgarray[:,::-1]
 surfdemo_show(flipped, 'flipped')
 
 
