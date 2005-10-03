@@ -25,6 +25,7 @@
  */
 #define PYGAMEAPI_RECT_INTERNAL
 #include "pygame.h"
+#include "pygamedocs.h"
 #include "structmember.h"
 
 
@@ -133,17 +134,6 @@ static int DoRectsIntersect(GAME_Rect *A, GAME_Rect *B)
 }
 
 
-
-    /*DOC*/ static char doc_normalize[] =
-    /*DOC*/    "Rect.normalize() -> None\n"
-    /*DOC*/    "corrects negative sizes\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If the rectangle has a a negative size in width or\n"
-    /*DOC*/    "height, this will flip that axis so the sizes are\n"
-    /*DOC*/    "positive, and the rectangle remains in the same\n"
-    /*DOC*/    "place.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_normalize(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -165,14 +155,6 @@ static PyObject* rect_normalize(PyObject* oself, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_move[] =
-    /*DOC*/    "Rect.move(x, y) -> Rect\n"
-    /*DOC*/    "new rectangle with position changed\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle which is the base\n"
-    /*DOC*/    "rectangle moved by the given amount.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_move(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -184,12 +166,6 @@ static PyObject* rect_move(PyObject* oself, PyObject* args)
 	return PyRect_New4(self->r.x+x, self->r.y+y, self->r.w, self->r.h);
 }
 
-    /*DOC*/ static char doc_move_ip[] =
-    /*DOC*/    "Rect.move_ip(x, y) -> None\n"
-    /*DOC*/    "move the Rect by the given offset\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Moves the rectangle which by the given amount.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_move_ip(PyObject* oself, PyObject* args)
 {
@@ -205,17 +181,6 @@ static PyObject* rect_move_ip(PyObject* oself, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_inflate[] =
-    /*DOC*/    "Rect.inflate(x, y) -> Rect\n"
-    /*DOC*/    "new rectangle with size changed\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle which has the sizes\n"
-    /*DOC*/    "changed by the given amounts. The rectangle\n"
-    /*DOC*/    "shrinks and expands around the rectangle's center.\n"
-    /*DOC*/    "Negative values will shrink the rectangle.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_inflate(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -227,15 +192,6 @@ static PyObject* rect_inflate(PyObject* oself, PyObject* args)
 	return PyRect_New4(self->r.x-x/2, self->r.y-y/2, self->r.w+x, self->r.h+y);
 }
 
-
-    /*DOC*/ static char doc_inflate_ip[] =
-    /*DOC*/    "Rect.inflate_ip(x, y) -> None\n"
-    /*DOC*/    "changes the Rect size\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Changes the Rect by the given amounts. The rectangle\n"
-    /*DOC*/    "shrinks and expands around the rectangle's center.\n"
-    /*DOC*/    "Negative values will shrink the rectangle.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_inflate_ip(PyObject* oself, PyObject* args)
 {
@@ -253,16 +209,6 @@ static PyObject* rect_inflate_ip(PyObject* oself, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_union[] =
-    /*DOC*/    "Rect.union(rectstyle) -> Rect\n"
-    /*DOC*/    "makes new rectangle covering both inputs\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new Rect to completely cover the\n"
-    /*DOC*/    "given input. There may be area inside the new\n"
-    /*DOC*/    "Rect that is not covered by either input.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_union(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -278,17 +224,6 @@ static PyObject* rect_union(PyObject* oself, PyObject* args)
 	return PyRect_New4(x, y, w, h);
 }
 
-
-
-
-    /*DOC*/ static char doc_union_ip[] =
-    /*DOC*/    "Rect.union_ip(rectstyle) -> None\n"
-    /*DOC*/    "rectangle covering both input\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Resizes the Rect to completely cover the\n"
-    /*DOC*/    "given input. There may be area inside the new\n"
-    /*DOC*/    "dimensions that is not covered by either input.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_union_ip(PyObject* oself, PyObject* args)
 {
@@ -309,15 +244,6 @@ static PyObject* rect_union_ip(PyObject* oself, PyObject* args)
 	RETURN_NONE
 }
 
-
-    /*DOC*/ static char doc_unionall[] =
-    /*DOC*/    "Rect.unionall(sequence_of_rectstyles) -> Rect\n"
-    /*DOC*/    "rectangle covering all inputs\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle that completely covers all the\n"
-    /*DOC*/    "given inputs. There may be area inside the new\n"
-    /*DOC*/    "rectangle that is not covered by the inputs.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 {
@@ -358,15 +284,6 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 	return PyRect_New4(l, t, r-l, b-t);
 }
 
-
-    /*DOC*/ static char doc_unionall_ip[] =
-    /*DOC*/    "Rect.unionall_ip(sequence_of_rectstyles) -> None\n"
-    /*DOC*/    "rectangle covering all inputs\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Resizes the rectangle to completely cover all the\n"
-    /*DOC*/    "given inputs. There may be area inside the new\n"
-    /*DOC*/    "rectangle that is not covered by the inputs.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
 {
@@ -414,15 +331,6 @@ static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_collidepoint[] =
-    /*DOC*/    "Rect.collidepoint(x, y) -> bool\n"
-    /*DOC*/    "point inside rectangle\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the given point position is inside\n"
-    /*DOC*/    "the rectangle. If a point is on the border, it is\n"
-    /*DOC*/    "counted as inside.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_collidepoint(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -439,15 +347,6 @@ static PyObject* rect_collidepoint(PyObject* oself, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_colliderect[] =
-    /*DOC*/    "Rect.colliderect(rectstyle) -> bool\n"
-    /*DOC*/    "check overlapping rectangles\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns true if any area of the two rectangles\n"
-    /*DOC*/    "overlaps.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_colliderect(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -458,18 +357,6 @@ static PyObject* rect_colliderect(PyObject* oself, PyObject* args)
 	return PyInt_FromLong(DoRectsIntersect(&self->r, argrect));
 }
 
-
-
-    /*DOC*/ static char doc_collidelist[] =
-    /*DOC*/    "Rect.collidelist(rectstyle list) -> int index\n"
-    /*DOC*/    "find overlapping rectangle\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the index of the first rectangle in the\n"
-    /*DOC*/    "list to overlap the base rectangle. Once an\n"
-    /*DOC*/    "overlap is found, this will stop checking the\n"
-    /*DOC*/    "remaining list. If no overlap is found, it will\n"
-    /*DOC*/    "return -1.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_collidelist(PyObject* oself, PyObject* args)
 {
@@ -509,17 +396,6 @@ static PyObject* rect_collidelist(PyObject* oself, PyObject* args)
 	return ret;
 }
 
-
-
-    /*DOC*/ static char doc_collidelistall[] =
-    /*DOC*/    "Rect.collidelistall(rectstyle list) -> index list\n"
-    /*DOC*/    "find all overlapping rectangles\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a list of the indexes that contain\n"
-    /*DOC*/    "rectangles overlapping the base rectangle. If no\n"
-    /*DOC*/    "overlap is found, it will return an empty\n"
-    /*DOC*/    "sequence.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_collidelistall(PyObject* oself, PyObject* args)
 {
@@ -569,22 +445,6 @@ static PyObject* rect_collidelistall(PyObject* oself, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_collidedict[] =
-    /*DOC*/    "Rect.collidedict(dict if rectstyle keys) -> key/value pair\n"
-    /*DOC*/    "find overlapping rectangle in a dictionary\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the key/value pair of the first rectangle key\n"
-    /*DOC*/    "in the dict that overlaps the base rectangle. Once an\n"
-    /*DOC*/    "overlap is found, this will stop checking the\n"
-    /*DOC*/    "remaining list. If no overlap is found, it will\n"
-    /*DOC*/    "return None.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Remember python dictionary keys must be immutable,\n"
-    /*DOC*/    "Rects are not immutable, so they cannot directly be,\n"
-    /*DOC*/    "dictionary keys. You can convert the Rect to a tuple\n"
-    /*DOC*/    "with the tuple() builtin command.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -620,21 +480,6 @@ static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
 	return ret;
 }
 
-
-    /*DOC*/ static char doc_collidedictall[] =
-    /*DOC*/    "Rect.collidedictall(rectstyle list) -> key/val list\n"
-    /*DOC*/    "find all overlapping rectangles\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a list of the indexes that contain\n"
-    /*DOC*/    "rectangles overlapping the base rectangle. If no\n"
-    /*DOC*/    "overlap is found, it will return an empty\n"
-    /*DOC*/    "sequence.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Remember python dictionary keys must be immutable,\n"
-    /*DOC*/    "Rects are not immutable, so they cannot directly be,\n"
-    /*DOC*/    "dictionary keys. You can convert the Rect to a tuple\n"
-    /*DOC*/    "with the tuple() builtin command.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
 {
@@ -674,17 +519,6 @@ static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
 	return ret;
 }
 
-
-
-    /*DOC*/ static char doc_clip[] =
-    /*DOC*/    "Rect.clip(rectstyle) -> Rect\n"
-    /*DOC*/    "rectangle cropped inside another\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle that is the given\n"
-    /*DOC*/    "rectangle cropped to the inside of the base\n"
-    /*DOC*/    "rectangle. If the two rectangles do not overlap to\n"
-    /*DOC*/    "begin with, you will get a rectangle with 0 size.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_clip(PyObject* self, PyObject* args)
 {
@@ -732,14 +566,6 @@ nointersect:
 }
 
 
-    /*DOC*/ static char doc_contains[] =
-    /*DOC*/    "Rect.contains(rectstyle) -> bool\n"
-    /*DOC*/    "check if rectangle fully inside another\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns true when the given rectangle is entirely\n"
-    /*DOC*/    "inside the base rectangle.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_contains(PyObject* oself, PyObject* args)
 {
 	int contained;
@@ -749,29 +575,14 @@ static PyObject* rect_contains(PyObject* oself, PyObject* args)
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
 	contained = (self->r.x <= argrect->x) && (self->r.y <= argrect->y) &&
-
 	            (self->r.x + self->r.w >= argrect->x + argrect->w) &&
-
 	            (self->r.y + self->r.h >= argrect->y + argrect->h) &&
-
 	            (self->r.x + self->r.w > argrect->x) &&
-
 	            (self->r.y + self->r.h > argrect->y);
-
 
 	return PyInt_FromLong(contained);
 }
 
-
-    /*DOC*/ static char doc_clamp[] =
-    /*DOC*/    "Rect.clamp(rectstyle) -> Rect\n"
-    /*DOC*/    "move rectangle inside another\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle that is moved to be\n"
-    /*DOC*/    "completely inside the argument rectangle. If the base\n"
-    /*DOC*/    "rectangle is too large for the argument rectangle in\n"
-    /*DOC*/    "an axis, it will be centered on that axis.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 {
@@ -803,17 +614,6 @@ static PyObject* rect_clamp(PyObject* oself, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_fit[] =
-    /*DOC*/    "Rect.fit(rectstyle) -> Rect\n"
-    /*DOC*/    "Fill as much of the argument as possible, maintains aspect ratio\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle that fills as much of the rectangle\n"
-    /*DOC*/    "argumement as possible. The new rectangle maintains the same\n"
-    /*DOC*/    "aspect ratio as the original rectangle. This can be used to\n"
-    /*DOC*/    "find scaling sizes that fill an area but won't distort the image.\n"
-    /*DOC*/ ;
-
 static PyObject* rect_fit(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
@@ -839,16 +639,6 @@ static PyObject* rect_fit(PyObject* oself, PyObject* args)
 	return PyRect_New4(x, y, w, h);
 }
 
-
-    /*DOC*/ static char doc_clamp_ip[] =
-    /*DOC*/    "Rect.clamp_ip(rectstyle) -> None\n"
-    /*DOC*/    "moves the rectangle inside another\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Moves the Rect to be\n"
-    /*DOC*/    "completely inside the argument rectangle. If the given\n"
-    /*DOC*/    "rectangle is too large for the argument rectangle in\n"
-    /*DOC*/    "an axis, it will be centered on that axis.\n"
-    /*DOC*/ ;
 
 static PyObject* rect_clamp_ip(PyObject* oself, PyObject* args)
 {
@@ -902,29 +692,29 @@ static PyObject* rect_copy(PyObject* oself, PyObject* args)
 
 static struct PyMethodDef rect_methods[] =
 {
-	{"normalize",		(PyCFunction)rect_normalize,	1, doc_normalize},
-	{"clip",			(PyCFunction)rect_clip, 		1, doc_clip},
-	{"clamp",			(PyCFunction)rect_clamp,		1, doc_clamp},
-	{"clamp_ip",			 (PyCFunction)rect_clamp_ip,		  1,	    doc_clamp_ip},
-	{"fit",			(PyCFunction)rect_fit,		1, doc_fit},
+	{"normalize",		(PyCFunction)rect_normalize,	1, DOC_RECTNORMALIZE},
+	{"clip",			(PyCFunction)rect_clip, 		1, DOC_RECTCLIP},
+	{"clamp",			(PyCFunction)rect_clamp,		1, DOC_RECTCLAMP},
+	{"clamp_ip",		(PyCFunction)rect_clamp_ip,1, DOC_RECTCLAMPIP },
+	{"fit",			    (PyCFunction)rect_fit,		1, DOC_RECTFIT},
 
-	{"move",			(PyCFunction)rect_move, 		1, doc_move},
-	{"inflate",			(PyCFunction)rect_inflate,		1, doc_inflate},
-	{"union",			(PyCFunction)rect_union,		1, doc_union},
-	{"unionall",		(PyCFunction)rect_unionall,		1, doc_unionall},
+	{"move",			(PyCFunction)rect_move, 		1, DOC_RECTMOVE},
+	{"inflate",			(PyCFunction)rect_inflate,		1, DOC_RECTINFLATE},
+	{"union",			(PyCFunction)rect_union,		1, DOC_RECTUNION},
+	{"unionall",		(PyCFunction)rect_unionall,		1, DOC_RECTUNIONALL},
 
-	{"move_ip",			(PyCFunction)rect_move_ip,		1, doc_move_ip},
-	{"inflate_ip",		(PyCFunction)rect_inflate_ip,	1, doc_inflate_ip},
-	{"union_ip",		(PyCFunction)rect_union_ip,		1, doc_union_ip},
-	{"unionall_ip", 	(PyCFunction)rect_unionall_ip,	1, doc_unionall_ip},
+	{"move_ip",			(PyCFunction)rect_move_ip,		1, DOC_RECTMOVEIP},
+	{"inflate_ip",		(PyCFunction)rect_inflate_ip,	1, DOC_RECTINFLATEIP},
+	{"union_ip",		(PyCFunction)rect_union_ip,		1, DOC_RECTUNIONIP},
+	{"unionall_ip", 	(PyCFunction)rect_unionall_ip,	1, DOC_RECTUNIONALLIP},
 
-	{"collidepoint",	(PyCFunction)rect_collidepoint, 1, doc_collidepoint},
-	{"colliderect", 	(PyCFunction)rect_colliderect,	1, doc_colliderect},
-	{"collidelist", 	(PyCFunction)rect_collidelist,	1, doc_collidelist},
-	{"collidelistall",	(PyCFunction)rect_collidelistall,1,doc_collidelistall},
-	{"collidedict", 	(PyCFunction)rect_collidedict,	1, doc_collidedict},
-	{"collidedictall",	(PyCFunction)rect_collidedictall,1,doc_collidedictall},
-	{"contains",		(PyCFunction)rect_contains,		1, doc_contains},
+	{"collidepoint",	(PyCFunction)rect_collidepoint, 1, DOC_RECTCOLLIDEPOINT},
+	{"colliderect", 	(PyCFunction)rect_colliderect,	1, DOC_RECTCOLLIDERECT},
+	{"collidelist", 	(PyCFunction)rect_collidelist,	1, DOC_RECTCOLLIDELIST},
+	{"collidelistall",	(PyCFunction)rect_collidelistall,1,DOC_RECTCOLLIDELISTALL},
+	{"collidedict", 	(PyCFunction)rect_collidedict,	1, DOC_RECTCOLLIDEDICT},
+	{"collidedictall",	(PyCFunction)rect_collidedictall,1,DOC_RECTCOLLIDEDICTALL},
+	{"contains",		(PyCFunction)rect_contains,		1, DOC_RECTCONTAINS},
 
         {"__reduce__",          (PyCFunction)rect_reduce, 0, NULL},
         {"__copy__",            (PyCFunction)rect_copy, 0, NULL},
@@ -1388,59 +1178,6 @@ static PyGetSetDef rect_getsets[] = {
 
 
 
-    /*DOC*/ static char doc_Rect_MODULE[] =
-    /*DOC*/    "The rectangle object is a useful object\n"
-    /*DOC*/    "representing a rectangle area. Rectangles are\n"
-    /*DOC*/    "created from the pygame.Rect() function. This routine\n"
-    /*DOC*/    "is also in the locals module, so importing the locals\n"
-    /*DOC*/    "into your namespace allows you to just use Rect().\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Rect contains helpful methods, as well as a list of\n"
-    /*DOC*/    "modifiable members:\n"
-#if 1
-  /*NODOC*/    "top, bottom, left, right, topleft, topright,\n"
-  /*NODOC*/    "bottomleft, bottomright, size, width, height,\n"
-  /*NODOC*/    "center, centerx, centery, midleft, midright, midtop,\n"
-  /*NODOC*/    "midbottom.\n"
-#else
-    /*DOC*/    "<table border="0" cellspacing=0 cellpadding=0 width=66%><tr valign=top><td align=left><ul><li>top<li>bottom<li>left<li>right</ul></td>\n"
-    /*DOC*/    "<td align=left><ul><li>topleft<li>topright<li>bottomleft<li>bottomright</ul></td>\n"
-    /*DOC*/    "<td align=left><ul><li>midleft<li>midright<li>midtop<li>midbottom</ul></td>\n"
-    /*DOC*/    "<td align=left><ul><li>center<li>centerx<li>centery</ul></td>\n"
-    /*DOC*/    "<td align=left><ul><li>size<li>width<li>height</ul></td>\n"
-    /*DOC*/    "</tr></table><br>\n"
-#endif
-    /*DOC*/    "When changing these members, the rectangle\n"
-    /*DOC*/    "will be moved to the given assignment. (except when\n"
-    /*DOC*/    "changing the size, width, or height member, which will\n"
-    /*DOC*/    "resize the rectangle from the topleft corner)\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The rectstyle arguments used frequently with the\n"
-    /*DOC*/    "Rect object (and elsewhere in pygame) is one of\n"
-    /*DOC*/    "the following things.\n"
-#if 1
-  /*NODOC*/    "First, an actual Rect\n"
-  /*NODOC*/    "object. Second, a sequence of [xpos, ypos, width,\n"
-  /*NODOC*/    "height]. Lastly, a pair of sequences, representing\n"
-  /*NODOC*/    "the position and size [[xpos, ypos], [width,\n"
-  /*NODOC*/    "height]]. Also, if a method takes a rectstyle\n"
-  /*NODOC*/    "argument as its only argument, you can simply pass\n"
-  /*NODOC*/    "four arguments representing xpos, ypos, width,\n"
-  /*NODOC*/    "height. A rectstyle argument can also be _any_ python\n"
-  /*NODOC*/    "object with an attribute named 'rect'.\n"
-#else
-    /*DOC*/    "<table border=0 cellspacing=0 cellpadding=0 width=80%>\n"
-    /*DOC*/    "<tr align=left valign=top><td align=left valign=middle width=20%><blockquote> </blockquote></td><td align=left valign=top><ul>\n"
-    /*DOC*/    "<li>an actual Rect object. \n"
-    /*DOC*/    "<li>a sequence of [xpos, ypos, width, height]. \n"
-    /*DOC*/    "<li>a pair of sequences, representing the position and size [[xpos, ypos], [width,height]]. \n"
-    /*DOC*/    "<li>if a method takes a rectstyle argument <b>as its <i>only</i> argument</b>, you can simply pass four arguments representing xpos, ypos, width, height. \n"
-    /*DOC*/    "</ul>and perhaps most importantly:\n"
-    /*DOC*/    "<ul><li>A rectstyle argument can also be <b><strong>_any_ python object</b> with an attribute named <b>'rect'.</b></strong>\n"
-    /*DOC*/    "</ul></td></tr></table>\n"
-#endif
-    /*DOC*/ ;
-
 static PyTypeObject PyRect_Type = {
 	PyObject_HEAD_INIT(0)
 	0,					/*size*/
@@ -1464,7 +1201,7 @@ static PyTypeObject PyRect_Type = {
 	/* Space for future expansion */
 	0L,0L,0L,
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-	doc_Rect_MODULE,                        /* Documentation string */
+	DOC_PYGAMERECT,                        /* Documentation string */
 	0,					/* tp_traverse */
 	0,					/* tp_clear */
 	0,					/* tp_richcompare */
@@ -1484,27 +1221,6 @@ static PyTypeObject PyRect_Type = {
 	rect_new,			        /* tp_new */
 };
 
-
-
-/*module globals*/
-#if 0
-    /*DOC*/ static char doc_Rect[] =
-    /*DOC*/    "pygame.Rect(rectstyle) -> Rect\n"
-    /*DOC*/    "create a new rectangle\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates a new rectangle object. The given\n"
-    /*DOC*/    "rectstyle represents one of the various ways of\n"
-    /*DOC*/    "representing rectangle data. This is usually a\n"
-    /*DOC*/    "sequence of x and y position for the topleft\n"
-    /*DOC*/    "corner, and the width and height.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "For some of the Rect methods there are two version.\n"
-    /*DOC*/    "For example, there is move() and move_ip(). The methods\n"
-    /*DOC*/    "witht the '_ip' suffix on the name are the 'in-place'\n"
-    /*DOC*/    "version of those functions. They effect the actual\n"
-    /*DOC*/    "source object, instead of returning a new Rect object.\n"
-    /*DOC*/ ;
-#endif
 
 static PyObject* rect_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {

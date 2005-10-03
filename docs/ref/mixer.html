@@ -1,0 +1,431 @@
+
+<html>
+<title>mixer - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href=cdrom.html>Cdrom</a>&nbsp;||&nbsp;
+<a href=cursors.html>Cursors</a>&nbsp;||&nbsp;
+<a href=display.html>Display</a>&nbsp;||&nbsp;
+<a href=draw.html>Draw</a>&nbsp;||&nbsp;
+<a href=event.html>Event</a>&nbsp;||&nbsp;
+<a href=font.html>Font</a>&nbsp;||&nbsp;
+<a href=image.html>Image</a>&nbsp;||&nbsp;
+<a href=joystick.html>Joystick</a>&nbsp;||&nbsp;
+<a href=key.html>Key</a>&nbsp;||&nbsp;
+<a href=mixer.html>Mixer</a>&nbsp;||&nbsp;
+<a href=mouse.html>Mouse</a>&nbsp;||&nbsp;
+<a href=movie.html>Movie</a>&nbsp;||&nbsp;
+<a href=music.html>Music</a>&nbsp;||&nbsp;
+<a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
+<a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
+<a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
+<a href=surface.html>Surface</a>&nbsp;||&nbsp;
+<a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
+<a href=time.html>Time</a>&nbsp;||&nbsp;
+<a href=transform.html>Transform</a>
+</p>
+
+
+</td></tr></table></td></tr></table>
+<br>
+
+
+<a name="pygame.mixer">
+<big><b>pygame.mixer</big></b><br><ul>
+  <i>pygame module for loading and playing sounds</i><br>
+<ul><small><table>
+  <tr><td><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a></td><td>initialize the mixer module</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a></td><td>preset the mixer init arguments</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a></td><td>uninitialize the mixer</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></td><td>test if the mixer is initialized</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.stop">pygame.mixer.stop</a></td><td>stop playback of all sound channels</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.pause">pygame.mixer.pause</a></td><td>temporarily stop playback of all sound channels</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a></td><td>resume pause playback of sound channels</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.fadeout">pygame.mixer.fadeout</a></td><td>fade out the volume on all sounds before stopping</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.set_num_channels">pygame.mixer.set_num_channels</a></td><td>set the total number of playback channels</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.get_num_channels">pygame.mixer.get_num_channels</a></td><td>get the total number of playback channels</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.set_reserved">pygame.mixer.set_reserved</a></td><td>reserve channels from being automatically used</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.find_channel">pygame.mixer.find_channel</a></td><td>find an unused channel</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.get_busy">pygame.mixer.get_busy</a></td><td>test if any sound is being mixed</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a></td><td>Create a new Sound object from a file</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.Channel">pygame.mixer.Channel</a></td><td>Create a Channel object for controlling playback</td></tr>
+</table></small></ul>
+<p>This module contains classes for loading Sound objects and controlling playback. The mixer module is optional and depends on SDL_mixer. Your program should test that <tt>pygame.mixer</tt> is available and intialized before using it. </p>
+<p>The mixer module has a limited number of channels for playback of sounds. Usually programs tell pygame to start playing audio and it selects an available channel automatically. The default is 8 simultaneous channels, but complex programs can get more precise control over the number of channels and their use. </p>
+<p>All sound playback is mixed in background threads. When you begin to play a Sound object, it will return immediately while the sound continues to play. <tt>A</tt> single Sound object can also be actively played back multiple times. </p>
+<p>The mixer also has a special streaming channel. This is for music playback and is accessed through the <tt>pygame.mixer.music</tt> module. </p>
+<p>The mixer module must be initialized like other pygame modules, but it has some extra conditions. The <tt><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a></tt> function takes several optional arguments to control the playback rate and sample size. Pygame will default to reasonable values, but pygame cannot perform Sound resampling, so the mixer should be initialized to match the values of your audio resources. </p>
+ &nbsp;<br> 
+
+
+<a name="pygame.mixer.init">
+<big><b>pygame.mixer.init</big></b><br><ul>
+  <i>initialize the mixer module</i><br>
+  <tt>pygame.mixer.init(frequency=22050, size=-16, stereo=True, buffer=1024): return None</tt><br>
+<p>Initialize the mixer module for Sound loading and playback. The default arguments can be overridden to provide specific audio mixing. The size argument represents how many bits are used for each audio sample. If the value is negative then signed sample values will be used. Positive values mean unsigned audio samples will be used. If the stereo argument is false the mixer will use mono sound. </p>
+<p>The buffer argument controls the number of internal samples used in the sound mixer. The default valuable should work for most cases. It can be lowered to reduce latency, but sound dropout may occur. It can be raised to larger values to ensure playback never skips, but it will impose latency on sound playback. The buffer size must be a power of two value. </p>
+<p>Some platforms require the <tt>pygame.mixer</tt> module to be required after the display modules have initialized. The top level <tt><a href="pygame.html#pygame.init">pygame.init</a></tt> takes care of this automatically, but cannot pass any arguments to the mixer init. To solve this, mixer has a function <tt><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a></tt> to set the proper defaults before the toplevel init is used. </p>
+<p>It is safe to call this more than once, but after the mixer is initialized you cannot change the playback arguments without first quitting the <tt>pygame.mixer</tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.pre_init">
+<big><b>pygame.mixer.pre_init</big></b><br><ul>
+  <i>preset the mixer init arguments</i><br>
+  <tt>pygame.mixer.pre_init(frequency=0, size=0, stereo=0, buffersize=0): return None</tt><br>
+<p>Any nonzero arguments change the default values used when the real <tt><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a></tt> is called. The best way to set custom mixer playback values is to call <tt><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a></tt> before calling the top level <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.quit">
+<big><b>pygame.mixer.quit</big></b><br><ul>
+  <i>uninitialize the mixer</i><br>
+  <tt>pygame.mixer.quit(): return None</tt><br>
+<p>This will uninitialize <tt>pygame.mixer</tt>. All playback will stop and any loaded Sound objects may not be compatable with the mixer if it is reinitialized later. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.get_init">
+<big><b>pygame.mixer.get_init</big></b><br><ul>
+  <i>test if the mixer is initialized</i><br>
+  <tt>pygame.mixer.get_init(): return (frequency, format, stereo)</tt><br>
+<p>If the mixer is initialized, this returns the playback arguments it is using. If the mixer has not been initialized this returns None </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.stop">
+<big><b>pygame.mixer.stop</big></b><br><ul>
+  <i>stop playback of all sound channels</i><br>
+  <tt>pygame.mixer.stop(): return None</tt><br>
+<p>This will stop all playback of all active mixer channels. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.pause">
+<big><b>pygame.mixer.pause</big></b><br><ul>
+  <i>temporarily stop playback of all sound channels</i><br>
+  <tt>pygame.mixer.pause(): return None</tt><br>
+<p>This will temporarily stop all playback on the active mixer channels. The playback can later be resumed with <tt><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a></tt> </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.unpause">
+<big><b>pygame.mixer.unpause</big></b><br><ul>
+  <i>resume pause playback of sound channels</i><br>
+  <tt>pygame.mixer.unpause(): return None</tt><br>
+<p>This will resume all active sound channels after they have been paused. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.fadeout">
+<big><b>pygame.mixer.fadeout</big></b><br><ul>
+  <i>fade out the volume on all sounds before stopping</i><br>
+  <tt>pygame.mixer.fadeout(time): return None</tt><br>
+<p>This will fade out the volume on all active channels over the time argument in milliseconds. After the sound is muted the playback will stop. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.set_num_channels">
+<big><b>pygame.mixer.set_num_channels</big></b><br><ul>
+  <i>set the total number of playback channels</i><br>
+  <tt>pygame.mixer.set_num_channels(count): return None</tt><br>
+<p>Sets the number of available channels for the mixer. The default value is 8. The value can be increased or decreased. If the value is decreased, sounds playing on the truncated channels are stopped. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.get_num_channels">
+<big><b>pygame.mixer.get_num_channels</big></b><br><ul>
+  <i>get the total number of playback channels</i><br>
+<p>Returns the number of currently active playback channels. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.set_reserved">
+<big><b>pygame.mixer.set_reserved</big></b><br><ul>
+  <i>reserve channels from being automatically used</i><br>
+  <tt>pygame.mixer.set_reserved(count): return None</tt><br>
+<p>The mixer can reserve any number of channels that will not be automatically selected for playback by Sounds. If sounds are currently playing on the reserved channels they will not be stopped. </p>
+<p>This allows the application to reserve a specific number of channels for important sounds that must not be dropped or have a guaranteed channel to play on. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.find_channel">
+<big><b>pygame.mixer.find_channel</big></b><br><ul>
+  <i>find an unused channel</i><br>
+  <tt>pygame.mixer.find_channel(force=False): return Channel</tt><br>
+<p>This will find and return an inactive Channel object. If there are no inactive Channels this function will return None. If there are no inactive channels and the force argument is True, this will find the Channel with the longest running Sound and return it. </p>
+<p>If the mixer has reserved channels from <tt><a href="mixer.html#pygame.mixer.set_reserved">pygame.mixer.set_reserved</a></tt> then those channels will not be returned here. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.get_busy">
+<big><b>pygame.mixer.get_busy</big></b><br><ul>
+  <i>test if any sound is being mixed</i><br>
+  <tt>pygame.mixer.get_busy(): return bool</tt><br>
+<p>Returns True if the mixer is busy mixing any channels. If the mixer is idle then this return False. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mixer.Sound">
+<big><b>pygame.mixer.Sound</big></b><br><ul>
+  <i>Create a new Sound object from a file</i><br>
+  <tt>pygame.mixer.Sound(filename): return Sound</tt><br>
+  <tt>pygame.mixer.Sound(object): return Sound</tt><br>
+<ul><small><table>
+  <tr><td><a href="mixer.html#Sound.play">Sound.play</a></td><td>begin sound playback</td></tr>
+  <tr><td><a href="mixer.html#Sound.stop">Sound.stop</a></td><td>stop sound playback</td></tr>
+  <tr><td><a href="mixer.html#Sound.fadeout">Sound.fadeout</a></td><td>stop sound playback after fading out</td></tr>
+  <tr><td><a href="mixer.html#Sound.set_volume">Sound.set_volume</a></td><td>set the playback volume for this Sound</td></tr>
+  <tr><td><a href="mixer.html#Sound.get_volume">Sound.get_volume</a></td><td>get the playback volume</td></tr>
+  <tr><td><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a></td><td>count how many times this Sound is playing</td></tr>
+  <tr><td><a href="mixer.html#Sound.get_length">Sound.get_length</a></td><td>get the length of the Sound</td></tr>
+</table></small></ul>
+<p>Load a new sound buffer from a filename or from a python file object. Limited resampling will be performed to help the sample match the initialize arguments for the mixer. </p>
+<p>The Sound object represents actual sound sample data. Methods that change the state of the Sound object will the all instances of the Sound playback. </p>
+<p>The Sound can be loaded from an <tt>OGG</tt> audio file or from an uncompressed <tt>WAV</tt>. </p>
+ &nbsp;<br> 
+
+
+<a name="Sound.play">
+<big><b>Sound.play</big></b><br><ul>
+  <i>begin sound playback</i><br>
+  <tt>Sound.play(loops=0, maxtime=0): return Channel</tt><br>
+<p>Begin playback of the Sound on an available Channel. This will forcibly select a Channel, so playback may cut off a currently playing sound if necessary. </p>
+<p>The loops argument can control how many times the sample will be played. If loops is set to -1 the Sound will loop indefinitely. The maxtime argument can be used to stop playback after a given number of milliseconds. </p>
+<p>This returns the Channel object for the channel that was selected. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Sound.stop">
+<big><b>Sound.stop</big></b><br><ul>
+  <i>stop sound playback</i><br>
+  <tt>Sound.stop(): return None</tt><br>
+<p>This will stop the playback of this Sound on any active Channels. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Sound.fadeout">
+<big><b>Sound.fadeout</big></b><br><ul>
+  <i>stop sound playback after fading out</i><br>
+  <tt>Sound.fadeout(time): return None</tt><br>
+<p>This will stop playback of the sound after fading it out over the time argument in milliseconds. The Sound will fade and stop on all actively playing channels. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Sound.set_volume">
+<big><b>Sound.set_volume</big></b><br><ul>
+  <i>set the playback volume for this Sound</i><br>
+  <tt>Sound.set_volume(value): return None</tt><br>
+<p>This will set the playback volume for this Sound. This will immediately effect the Sound if it is playing. It will also effect any future playback of this Sound. The value argument is a value from <tt>0.0</tt> to <tt>1.0</tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Sound.get_volume">
+<big><b>Sound.get_volume</big></b><br><ul>
+  <i>get the playback volume</i><br>
+  <tt>Sound.get_volume(value): return value</tt><br>
+<p>Return a value from <tt>0.0</tt> to <tt>1.0</tt> representing the volume for this Sound. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Sound.get_num_channels">
+<big><b>Sound.get_num_channels</big></b><br><ul>
+  <i>count how many times this Sound is playing</i><br>
+  <tt>Sound.get_num_channels(): return count</tt><br>
+<p>Return the number of active channels this sound is playing on. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Sound.get_length">
+<big><b>Sound.get_length</big></b><br><ul>
+  <i>get the length of the Sound</i><br>
+  <tt>Sound.get_length(): return seconds</tt><br>
+<p>Return the length of this Sound in seconds. </p>
+ &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+
+<a name="pygame.mixer.Channel">
+<big><b>pygame.mixer.Channel</big></b><br><ul>
+  <i>Create a Channel object for controlling playback</i><br>
+  <tt>pygame.mixer.Channel(id): return Channel</tt><br>
+<ul><small><table>
+  <tr><td><a href="mixer.html#Channel.play">Channel.play</a></td><td>play a Sound on a specific Channel</td></tr>
+  <tr><td><a href="mixer.html#Channel.stop">Channel.stop</a></td><td>stop playback on a Channel</td></tr>
+  <tr><td><a href="mixer.html#Channel.pause">Channel.pause</a></td><td>temporarily stop playback of a channel</td></tr>
+  <tr><td><a href="mixer.html#Channel.unpause">Channel.unpause</a></td><td>resume pause playback of a channel</td></tr>
+  <tr><td><a href="mixer.html#Channel.fadeout">Channel.fadeout</a></td><td>stop playback after fading channel out</td></tr>
+  <tr><td><a href="mixer.html#Channel.set_volume">Channel.set_volume</a></td><td>set the volume of a playing channel</td></tr>
+  <tr><td><a href="mixer.html#Channel.get_volume">Channel.get_volume</a></td><td>get the volume of the playing channel</td></tr>
+  <tr><td><a href="mixer.html#Channel.get_busy">Channel.get_busy</a></td><td>check if the channel is active</td></tr>
+  <tr><td><a href="mixer.html#Channel.get_sound">Channel.get_sound</a></td><td>get the currently playing Sound</td></tr>
+  <tr><td><a href="mixer.html#Channel.queue">Channel.queue</a></td><td>queue a Sound object to follow the current</td></tr>
+  <tr><td><a href="mixer.html#Channel.get_queue">Channel.get_queue</a></td><td>return any Sound that is queued</td></tr>
+  <tr><td><a href="mixer.html#Channel.set_endevent">Channel.set_endevent</a></td><td>have the channel send an event when playback stops</td></tr>
+  <tr><td><a href="mixer.html#Channel.get_endevent">Channel.get_endevent</a></td><td>get the event a channel sends when playback stops</td></tr>
+</table></small></ul>
+<p>Return a Channel object for one of the current channels. The id must be a value from 0 to the value of <tt><a href="mixer.html#pygame.mixer.get_num_channels">pygame.mixer.get_num_channels</a></tt>. </p>
+<p>The Channel object can be used to get fine control over the playback of Sounds. <tt>A</tt> channel can only playback a single Sound at time. Using channels is entirely optional since pygame can manage them by default. </p>
+ &nbsp;<br> 
+
+
+<a name="Channel.play">
+<big><b>Channel.play</big></b><br><ul>
+  <i>play a Sound on a specific Channel</i><br>
+  <tt>Channel.play(Sound, loops=0, time=0): return None</tt><br>
+<p>This will begin playback of a Sound on a specific Channel. If the Channel is currently playing anyother Sound it will be stopped. The loops argument controls how many times the sample will be repeated. If loops is -1 then the playback will repeat indefinitely. The time argument can be used to stop playback of the Sound after a given number of milliseconds. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.stop">
+<big><b>Channel.stop</big></b><br><ul>
+  <i>stop playback on a Channel</i><br>
+  <tt>Channel.stop(): return None</tt><br>
+<p>Stop sound playback on a channel. After playback is stopped the channel becomes available for new Sounds to play on it. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.pause">
+<big><b>Channel.pause</big></b><br><ul>
+  <i>temporarily stop playback of a channel</i><br>
+  <tt>Channel.pause(): return None</tt><br>
+<p>Temporarily stop the playback of sound on a channel. It can be resumed at a later time with <tt><a href="mixer.html#Channel.unpause">Channel.unpause</a></tt> </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.unpause">
+<big><b>Channel.unpause</big></b><br><ul>
+  <i>resume pause playback of a channel</i><br>
+  <tt>Channel.unpause(): return None</tt><br>
+<p>Resume the playback on a paused channel. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.fadeout">
+<big><b>Channel.fadeout</big></b><br><ul>
+  <i>stop playback after fading channel out</i><br>
+  <tt>Channel.fadeout(time): return None</tt><br>
+<p>Stop playback of a channel after fading out the sound over the given time argument in seconds. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.set_volume">
+<big><b>Channel.set_volume</big></b><br><ul>
+  <i>set the volume of a playing channel</i><br>
+  <tt>Channel.set_volume(value, stereo=None): return None</tt><br>
+<p>Set the volume of a playing sound. When a channel starts to play its volume value is reset. This only effects the current sound. The value argument is between <tt>0.0</tt> and <tt>1.0</tt>. </p>
+<p>If the stereo argument is passed and the mixer is using stereo sound then the channel will set the volume different for the left and right speakers. When this is set, value becomes the volume for the left speaker and sterea becomes the volume value for the right speaker. </p>
+<p>This is mixed the the volume of the current Sound object as well. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.get_volume">
+<big><b>Channel.get_volume</big></b><br><ul>
+  <i>get the volume of the playing channel</i><br>
+  <tt>Channel.get_volume(): return value</tt><br>
+<p>Return the volume of the channel for the current playing sound. This does not take into account stereo separation used by <tt>Channel.set_volume</tt>. The Sound object also has its own volume which is mixed with the channel. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.get_busy">
+<big><b>Channel.get_busy</big></b><br><ul>
+  <i>check if the channel is active</i><br>
+  <tt>Channel.get_busy(): return bool</tt><br>
+<p>Returns true if the channel is activily mixing sound. If the channel is idle this returns False. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.get_sound">
+<big><b>Channel.get_sound</big></b><br><ul>
+  <i>get the currently playing Sound</i><br>
+  <tt>Channel.get_sound(): return Sound</tt><br>
+<p>Return the actual Sound object currently playing on this channel. If the channel is idle None is returned. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.queue">
+<big><b>Channel.queue</big></b><br><ul>
+  <i>queue a Sound object to follow the current</i><br>
+  <tt>Channel.queue(Sound): return None</tt><br>
+<p>When a Sound is queued on a Channel, it will begin playing immediately after the current Sound is finished. Each channel can only have a single Sound queued at a time. The queued Sound will only play if the current playback finished automatically. It is cleared on any other call to <tt><a href="mixer.html#Channel.stop">Channel.stop</a></tt> or <tt><a href="mixer.html#Channel.play">Channel.play</a></tt>. </p>
+<p>If there is no sound actively playing on the Channel then the Sound will begin playing immediately. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.get_queue">
+<big><b>Channel.get_queue</big></b><br><ul>
+  <i>return any Sound that is queued</i><br>
+  <tt>Channel.get_queue(): return Sound</tt><br>
+<p>If a Sound is already queued on this channel it will be returned. Once the queued sound begind playback it will no longer be on the queue. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.set_endevent">
+<big><b>Channel.set_endevent</big></b><br><ul>
+  <i>have the channel send an event when playback stops</i><br>
+  <tt>Channel.set_endevent(): return None</tt><br>
+  <tt>Channel.set_endevent(type): return None</tt><br>
+<p>When an endevent is set for a channel, it will send an event to the pygame queue every time a sound finished playing. If stop() or play() is called on the Channel it will still post the event. </p>
+<p>The type argument will be the event id sent to the queue. If no type argument is given then the Channel will stop sending endevents. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Channel.get_endevent">
+<big><b>Channel.get_endevent</big></b><br><ul>
+  <i>get the event a channel sends when playback stops</i><br>
+  <tt>Channel.get_endevent(): return type</tt><br>
+<p>Returns the event type to be sent every time the Channel finishes playback of a Sound. If there is no endevent the function returns <tt>pygame.NOEVENT</tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+<br></ul>
+<br></ul>
+
+</body></html>

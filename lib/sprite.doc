@@ -1,0 +1,351 @@
+pygame.sprite
+pygame module with basic game object classes
+
+This module contains several simple classes to be used within games. There
+is the main Sprite class and several Group classes that contain Sprites.
+The use of these classes is entirely optional when using Pygame. The classes
+are fairly lightweight and only provide a starting place for the code found
+common in most types of games.
+
+The Sprite class is intended to be used as a base class for the different
+types of objects in the game. There is also a base Group class that simply
+stores sprites. A game could create new types of Group classes that operate
+on specially customized Sprite instances they contain.
+
+The basic Sprite class can draw the Sprites it contains to a Surface. The
+Group.draw() method requires that each Sprite has a Surface.image attribute
+and a Surface.rect. The Group.clear() method requires these same attributes,
+and can be used to erase all the Sprites with background. There are more the
+more advanced Groups, pygame.sprite.RenderUpdates() and
+pygame.sprite.OrderedUpdates().
+
+Lastly, this module contains several collision functions. These help find
+sprites inside multiple groups that have intersecting bounding rectangles.
+To find the collisions, the Sprites are required to have a Surface.rect
+attribute assigned.
+
+The groups are designed for high efficiency in removing and adding Sprites
+to them. They also allow cheap testing to see if a Sprite already exists in
+a Group. Sprites can exist in any number of groups. A game could use some
+groups to control object rendering, and a completely separate set of groups
+to control interaction or player movement. Instead of adding type attributes
+or booleans to a derived Sprite class, consider keeping the Sprites inside
+organized Groups. This will allow for easier lookup later in the game.
+
+Sprites and Groups manage their relationships with the add() and remove()
+methods. These methods can accept a single or multiple targets for membership.
+The default initializers for these classes also takes a single or list of
+targets for initial membership. It is safe to repeatedly add and remove
+Sprites from Groups.
+
+While it is possible to design sprite and group classes that don't derive from
+the Sprite and AbstractGroup classes below, it is strongly recommended that
+you extend those when you add a Sprite or Group class.
+<SECTION>
+
+
+
+Sprite
+simple base class for visible game objects
+pygame.sprite.Sprite(*groups): return Sprite
+
+The base class for visible game objects. Derived classes will want to override
+the Sprite.update() and assign a Sprite.image and Sprite.rect attributes.
+The initializer can accept any number of Group instances to be added to.
+
+When subclassing the Sprite, be sure to call the base initializer before
+adding the Sprite to and Groups.
+<SECTION>
+
+
+update
+method to control sprite behavior
+Sprite.update(*args):
+
+This method does nothing in the base class. It is a convenient method for
+derived classes to override. It is called by the Group.update() with any
+number of arguments used.
+
+There is no need to use this method if not using the convenience method in
+the Group class.
+<END>
+
+
+
+add
+add the sprite to groups
+Sprite.add(*groups): return None
+
+Any number of Group instances can be passed as arguments. The Sprite will
+be added to the Groups it is not already a member of.
+<END>
+
+
+
+remove
+remove the sprite from groups
+Sprite.remove(*groups): return None
+
+Any number of Group instances can be passed as arguments. The Sprite will
+be removed from the Groups it is currently a member of.
+<END>
+
+
+
+kill
+remove the Sprite from all Groups
+Sprite.kill(): return None
+
+The Sprite is removed from all the Groups that contain it. This won't
+change anything about the state of the Sprite. It is possible to add the
+Sprite to any Groups after this method has been called.
+<END>
+
+
+
+alive
+does the sprite belong to any groups
+Sprite.alive(): return bool
+
+Returns True when the Sprite belongs to one or more Groups.
+<END>
+
+
+
+groups
+list of Groups that contain this Sprite
+Sprite.groups(): return group_list
+
+Return a list of all the Groups that contain this Sprite.
+<END>
+<END>
+
+
+Group
+container class for many Sprites
+pygame.sprite.Group(*sprites): return Group
+
+A simple container for Sprite objects. This class can be inherited to
+create containers with more specific behaviors. The constructor takes any 
+number of Sprite arguments to add to the Group. The group has the following
+operators:
+
+    in      test if a Sprite is contained
+    len     the number of Sprites contained
+    bool    test if any Sprites are contained
+    iter    iterate all the Sprites
+
+The Sprites in the Group are not ordered, so drawing and iterating the Sprites
+is in no particular order.
+<SECTION>
+
+
+
+sprites
+list of the Sprites this Group contains
+Group.sprites(): return sprite_list
+
+Return a list of all the Sprites this group contains. You can also get an
+iterator from the group, but you cannot iterator over a Group while modifying
+it.
+<END>
+
+
+
+copy
+duplicate the Group
+Group.copy(): return Group
+
+Creates a new Group with all the same Sprites as the original. The
+new class will have the same class as the original. This only works if
+the derived class takes the same arguments as the Group class.
+<END>
+
+
+
+
+add
+add Sprites to this Group
+Group.add(*sprites): return None
+
+Add any number of Sprites to this Group. This will only add Sprites that are
+not already members of the Group.
+
+Each sprite argument can also be a iterator containing Sprites. 
+<END>
+
+
+
+remove
+remove Sprites from the Group
+Group.remove(*sprites): return None
+
+Remove any number of Sprites from the Group. This will only remove Sprites
+that are already members of the Group.
+
+Each sprite argument can also be a iterator containing Sprites. 
+<END>
+
+
+
+has
+test if a Group contains Sprites
+Group.has(*sprites): return None
+
+Return True if the Group contains the given sprites. This is similar to using
+the "in" operator on the Group, which tests if a single Sprite belongs to a
+Group.
+
+Each sprite argument can also be a iterator containing Sprites. 
+<END>
+
+
+
+update
+call the update method on contained Sprites
+Group.update(*args): return None
+
+Calls the update method on all Sprites in the Group. The base Sprite class
+has an update method that takes any arguments and does nothing. The arguments
+passed to Group.update() will be passed to each Sprite.
+
+There is no way to get the return value from the Sprite.update() methods.
+<END>
+
+
+
+draw
+blit the Sprite images
+Group.draw(Surface): return None
+
+Draws the contained Sprites to the Surface argument. This uses the Sprite.image
+attribute for the source surface, and Sprite.rect for the position.
+
+The Group does not keep sprites in any order, so the draw order is arbitrary.
+<END>
+
+
+
+clear
+draw a background over the Sprites
+Group.clear(Surface_dest, background): return None
+
+Erases the Sprites used in the last Group.draw() call. The destination
+Surface is cleared by filling the drawn Sprite positions with the background.
+
+The background is usually a Surface image the same dimensions as the
+destination Surface. The background can also be a callback function that takes
+two arguments; the destination Surface and an area to clear. The background
+callback function will be called several times each clear.
+
+Here is an example callback that will clear the Sprites with solid red:
+
+    def clear_callback(surf, rect):
+        color = 255, 0, 0
+        surf.fill(color, rect)
+<END>
+
+
+
+empty
+remove all Sprites
+Group.empty(): return None
+
+Removes all Sprites from this Group.
+<END>
+<END>
+
+
+
+RenderUpdates
+Group class that tracks dirty updates
+pygame.sprite.RenderUpdates(*sprites): return RenderUpdates
+
+This class is derived from pygame.sprite.Group(). It has an extended draw()
+method that tracks the changed areas of the screen.
+<SECTION>
+
+
+
+draw
+blit the Sprite images and track changed areas
+RenderUpdates.draw>(surface): return Rect_list
+
+Draws all the Sprites to the surface, the same as Group.draw(). This method
+also returns a list of Rectangular areas on the screen that have been
+changed. The returned changes includes areas of the screen that have been
+effected by previous Group.clear() calls.
+
+The returned Rect list should be passed to pygame.display.update(). This
+will help performance on software driven display modes. This type of updating
+is usually only helpful on destinations with non-animating backgrounds.
+<END>
+<END>
+
+
+
+OrderedUpdates
+RenderUpdates class that draws Sprites in order of addition
+pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates
+
+This class derives from pygame.sprite.RenderUpdates(). It maintains the order
+of Sprites added to the Group for rendering. This makes adding and removing
+Sprites from the Group a little slower than regular Groups.
+<END>
+
+
+GroupSingle
+Group container that holds a single Sprite
+pygame.sprite.GroupSingle(sprite=None): return GroupSingle
+
+The GroupSingle container only holds a single Sprite. When a new Sprite is
+added, the old one is removed.
+
+There is a special proprty, GroupSingle.sprite that accesses the Sprite that
+this Group contains. It can be None when the Group is empty. The property can
+also be assigned to add a Sprite into the GroupSingle container.
+<END>
+
+
+
+spritecollide
+find Sprites in a Group that intersect another Sprite
+pygame.sprite.spritecollide(sprite, group, dokill): return Sprite_list
+
+Return a list containing all Sprites in a Group that intersect with another
+Sprite. Intersection is determined by comparing the Sprite.rect attribute
+of each Sprite.
+
+The dokill argument is a boolean. If set to True, all Sprites that collide
+will be removed from the Group.
+<END>
+
+
+groupcollide
+find all Sprites that collide between two Groups
+pygame.sprite.groupcollide(group1, group2, dokill1, dokill2): return Sprite_dict
+
+This will find intersections between all the Sprites in two groups.
+Intersection is determined by comparing the Sprite.rect attribute of
+each Sprite.
+
+Every Sprite inside group1 is added to the return dictionary. The value
+for each item is the list of Sprites in group2 that intersect.
+
+If either dokill argument is True, the intersecting Sprites will be removed
+from their respective Group.
+<END>
+
+
+
+spritecollideany
+simple test if a Sprite intersects anything in a Group
+pygame.sprite.spritecollideany(sprite, group): return bool
+
+Test if the given Sprite intersects with any Sprites in a Group. Intersection
+is determined by comparing of the Sprite.rect attribute of each Sprite.
+
+This collision test can be faster than pygame.sprite.spritecollide() since
+it has less work to do.
+<END>
+<END>

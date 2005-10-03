@@ -22,6 +22,7 @@
 #define NO_PYGAME_C_API
 #define PYGAMEAPI_BASE_INTERNAL
 #include "pygame.h"
+#include "pygamedocs.h"
 #include <signal.h>
 
 
@@ -80,9 +81,6 @@ static int CheckSDLVersions(void) /*compare compiled to linked*/
 }
 
 
-
-
-
 void PyGame_RegisterQuit(void(*func)(void))
 {
 	PyObject* obj;
@@ -97,16 +95,6 @@ void PyGame_RegisterQuit(void(*func)(void))
 		PyList_Append(quitfunctions, obj);
 	}
 }
-
-    /*DOC*/ static char doc_register_quit[] =
-    /*DOC*/    "pygame.register_quit(callback) -> None\n"
-    /*DOC*/    "routine to call when pygame quits\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The given callback routine will be called when. pygame is\n"
-    /*DOC*/    "quitting. Quit callbacks are served on a 'last in, first out'\n"
-    /*DOC*/    "basis. Also be aware that your callback may be called more than\n"
-    /*DOC*/    "once.\n"
-    /*DOC*/ ;
 
 static PyObject* register_quit(PyObject* self, PyObject* arg)
 {
@@ -125,32 +113,6 @@ static PyObject* register_quit(PyObject* self, PyObject* arg)
 	RETURN_NONE
 }
 
-
-    /*DOC*/ static char doc_init[] =
-    /*DOC*/    "pygame.init() -> passed, failed\n"
-    /*DOC*/    "autoinitialize all imported pygame modules\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Initialize all imported pygame modules. Including pygame modules\n"
-    /*DOC*/    "that are not part of the base modules (like font and image).\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "It does not raise exceptions, but instead silently counts which\n"
-    /*DOC*/    "modules have failed to init. The return argument contains a count\n"
-    /*DOC*/    "of the number of modules initialized, and the number of modules\n"
-    /*DOC*/    "that failed to initialize.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "You can always initialize the modules you want by hand. The\n"
-    /*DOC*/    "modules that need it have an init() and quit() routine built in,\n"
-    /*DOC*/    "which you can call directly. They also have a get_init() routine\n"
-    /*DOC*/    "which you can use to doublecheck the initialization. Note that\n"
-    /*DOC*/    "the manual init() routines will raise an exception on error. Be\n"
-    /*DOC*/    "aware that most platforms require the display module to be\n"
-    /*DOC*/    "initialized before others. This init() will handle that for you,\n"
-    /*DOC*/    "but if you initialize by hand, be aware of this constraint.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "As with the manual init() routines. It is safe to call this\n"
-    /*DOC*/    "init() as often as you like. If you have imported pygame modules\n"
-    /*DOC*/    "since the.\n"
-    /*DOC*/ ;
 
 static PyObject* init(PyObject* self,PyObject* args)
 {
@@ -244,11 +206,6 @@ static void atexit_quit(void)
 }
 
 
-    /*DOC*/ static char doc_get_sdl_version[] =
-    /*DOC*/    "pygame.get_sdl_version() -> (major, minor, patchlevel)\n"
-    /*DOC*/    "get the version of the linked SDL runtime\n"
-    /*DOC*/ ;
-
 static PyObject* get_sdl_version(PyObject* self, PyObject* args)
 {
 	const SDL_version *v;
@@ -260,20 +217,6 @@ static PyObject* get_sdl_version(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_quit[] =
-    /*DOC*/    "pygame.quit() -> none\n"
-    /*DOC*/    "uninitialize all pygame modules\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Uninitialize all pygame modules that have been initialized. Even\n"
-    /*DOC*/    "if you initialized the module by hand, this quit() will\n"
-    /*DOC*/    "uninitialize it for you.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "All the pygame modules are uninitialized automatically when your\n"
-    /*DOC*/    "program exits, so you will usually not need this routine. If you\n"
-    /*DOC*/    "program plans to keep running after it is done with pygame, then\n"
-    /*DOC*/    "would be a good time to make this call.\n"
-    /*DOC*/ ;
-
 static PyObject* quit(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
@@ -284,7 +227,6 @@ static PyObject* quit(PyObject* self, PyObject* args)
 	Py_INCREF(Py_None);
 	return Py_None;
 }
-
 
 
 
@@ -447,15 +389,6 @@ static int RGBAFromObj(PyObject* obj, Uint8* RGBA)
 }
 
 
-
-    /*DOC*/ static char doc_get_error[] =
-    /*DOC*/    "pygame.get_error() -> errorstring\n"
-    /*DOC*/    "get current error message\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "SDL maintains an internal current error message. This message is\n"
-    /*DOC*/    "usually given to you when an SDL related exception occurs, but\n"
-    /*DOC*/    "sometimes you may want to call this directly yourself.\n"
-    /*DOC*/ ;
 
 static PyObject* get_error(PyObject* self, PyObject* arg)
 {
@@ -696,32 +629,17 @@ static PyObject* do_segfault(PyObject* self, PyObject* args)
 
 static PyMethodDef init__builtins__[] =
 {
-	{ "init", init, 1, doc_init },
-	{ "quit", quit, 1, doc_quit },
-	{ "register_quit", register_quit, 1, doc_register_quit },
-	{ "get_error", get_error, 1, doc_get_error },
-	{ "get_sdl_version", get_sdl_version, 1, doc_get_sdl_version },
+	{ "init", init, 1, DOC_PYGAMEINIT },
+	{ "quit", quit, 1, DOC_PYGAMEQUIT },
+	{ "register_quit", register_quit, 1, DOC_PYGAMEREGISTERQUIT },
+	{ "get_error", get_error, 1, DOC_PYGAMEGETERROR },
+	{ "get_sdl_version", get_sdl_version, 1, DOC_PYGAMEGETSDLVERSION },
 
 	{ "segfault", do_segfault, 1, "crash" },
 	{ NULL, NULL }
 };
 
 
-    /*DOC*/ static char doc_pygame_MODULE[] =
-    /*DOC*/    "Contains the core routines that are used by the rest of the\n"
-    /*DOC*/    "pygame modules. It's routines are merged directly into the pygame\n"
-    /*DOC*/    "namespace. This mainly includes the auto-initialization init() and\n"
-    /*DOC*/    "quit() routines.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "There is a small module named 'locals' that also gets merged into\n"
-    /*DOC*/    "this namespace. This contains all the constants needed by pygame.\n"
-    /*DOC*/    "Object constructors also get placed into this namespace, you can\n"
-    /*DOC*/    "call functions like Rect() and Surface() to create objects of\n"
-    /*DOC*/    "that type. As a convenience, you can import the members of\n"
-    /*DOC*/    "pygame.locals directly into your module's namespace with 'from\n"
-    /*DOC*/    "pygame.locals import *'. Most of the pygame examples do this if\n"
-    /*DOC*/    "you'd like to take a look.\n"
-    /*DOC*/ ;
 
 PYGAME_EXPORT
 void initbase(void)
@@ -730,7 +648,7 @@ void initbase(void)
 	static void* c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
     /* create the module */
-	module = Py_InitModule3("base", init__builtins__, doc_pygame_MODULE);
+	module = Py_InitModule3("base", init__builtins__, DOC_PYGAME);
 	dict = PyModule_GetDict(module);
 
 	/* create the exceptions */
@@ -769,12 +687,3 @@ void initbase(void)
 #endif
 }
 
-
-
-#if 0 /*only for documentation*/
-    /*DOC*/ static char doc_misc_MODULE[] =
-    /*DOC*/    "Contains functions that weren't categorized correctly. Usually a\n"
-    /*DOC*/    "problem with the documentation or documentation generation code\n"
-    /*DOC*/    ":]\n"
-    /*DOC*/ ;
-#endif

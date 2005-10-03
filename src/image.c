@@ -24,6 +24,7 @@
  *  image module for pygame
  */
 #include "pygame.h"
+#include "pygamedocs.h"
 
 static int is_extended = 0;
 static int SaveTGA(SDL_Surface *surface, char *file, int rle);
@@ -34,27 +35,6 @@ static SDL_Surface* opengltosdl(void);
 #define DATAROW(data, row, width, height, flipped) \
 			((flipped) ? (((char*)data)+(height-row-1)*width) : (((char*)data)+row*width))
 
-
-    /*DOC*/ static char doc_load[] =
-    /*DOC*/    "pygame.image.load(file, [namehint]) -> Surface\n"
-    /*DOC*/    "load an image to a new Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will load an image into a new surface. You can pass it\n"
-    /*DOC*/    "either a filename, or a python file-like object to load the image\n"
-    /*DOC*/    "from. If you pass a file-like object that isn't actually a file\n"
-    /*DOC*/    "(like the StringIO class), then you might want to also pass\n"
-    /*DOC*/    "either the filename or extension as the namehint string. The\n"
-    /*DOC*/    "namehint can help the loader determine the filetype.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If pygame was installed without SDL_image support, the load\n"
-    /*DOC*/    "will only work with BMP images. You can test if SDL_image is\n"
-    /*DOC*/    "available with the get_extended() function. These extended\n"
-    /*DOC*/    "file formats usually include GIF, PNG, JPG, PCX, TGA, and more.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If the image format supports colorkeys and pixel alphas, the\n"
-    /*DOC*/    "load() function will properly load and configure these types\n"
-    /*DOC*/    "of transparency.\n"
-    /*DOC*/ ;
 
 static PyObject* image_load_basic(PyObject* self, PyObject* arg)
 {
@@ -97,8 +77,6 @@ static PyObject* image_load_basic(PyObject* self, PyObject* arg)
 		SDL_FreeSurface(surf);
 	return final;
 }
-
-
 
 
 static SDL_Surface* opengltosdl()
@@ -173,20 +151,6 @@ static SDL_Surface* opengltosdl()
 }
 
 
-
-
-    /*DOC*/ static char doc_save[] =
-    /*DOC*/    "pygame.image.save(Surface, file) -> None\n"
-    /*DOC*/    "save surface data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will save your surface as a BMP or TGA image. The given\n"
-    /*DOC*/    "file argument can be either a filename or a python file-like\n"
-    /*DOC*/    "object. This will also work under OPENGL display modes.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The image will default to save with the TGA format. If the\n"
-    /*DOC*/    "filename has the BMP extension, it will use the BMP format.\n"
-    /*DOC*/ ;
-
 PyObject* image_save(PyObject* self, PyObject* arg)
 {
 	PyObject* surfobj, *file;
@@ -243,15 +207,6 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 }
 
 
-
-    /*DOC*/ static char doc_get_extended[] =
-    /*DOC*/    "pygame.image.get_extended() -> int\n"
-    /*DOC*/    "returns true if SDL_image formats are available\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will return a true value if the extended image formats\n"
-    /*DOC*/    "from SDL_image are available for loading.\n"
-    /*DOC*/ ;
-
 PyObject* image_get_extended(PyObject* self, PyObject* arg)
 {
 	if(!PyArg_ParseTuple(arg, ""))
@@ -259,32 +214,6 @@ PyObject* image_get_extended(PyObject* self, PyObject* arg)
 	return PyInt_FromLong(is_extended);
 }
 
-
-    /*DOC*/ static char doc_tostring[] =
-    /*DOC*/    "pygame.image.tostring(Surface, format, flipped=0) -> string\n"
-    /*DOC*/    "create a raw string buffer of the surface data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will copy the image data into a large string buffer.\n"
-    /*DOC*/    "This can be used to transfer images to other libraries like\n"
-    /*DOC*/    "PIL's fromstring() and PyOpenGL's glTexImage2D(). \n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The flipped argument will cause the output string to have\n"
-    /*DOC*/    "it's contents flipped vertically.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The format argument is a string representing which type of\n"
-    /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
-    /*DOC*/    "for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"\n"
-    /*DOC*/    "for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.\n"
-    /*DOC*/    "\"ARGB\" is a popular format for big endian platforms.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "These flags are a subset of the formats supported the PIL\n"
-    /*DOC*/    "Python Image Library. Note that the \"P\" format only will\n"
-    /*DOC*/    "work for 8bit Surfaces.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If you ask for the \"RGBA\" format and the image only has\n"
-    /*DOC*/    "colorkey data. An alpha channel will be created from the\n"
-    /*DOC*/    "colorkey values.\n"
-    /*DOC*/ ;
 
 PyObject* image_tostring(PyObject* self, PyObject* arg)
 {
@@ -574,32 +503,6 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 }
 
 
-
-    /*DOC*/ static char doc_fromstring[] =
-    /*DOC*/    "pygame.image.fromstring(string, size, format, flipped=0) -> Surface\n"
-    /*DOC*/    "create a surface from a raw string buffer\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will create a new Surface from a copy of raw data in\n"
-    /*DOC*/    "a string. This can be used to transfer images from other\n"
-    /*DOC*/    "libraries like PIL's fromstring(). \n"
-    /*DOC*/    "\n"
-    /*DOC*/    "In most cases you can use the frombuffer() which accepts strings\n"
-    /*DOC*/    "and is about 20 times faster.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The flipped argument should be set to true if the image in\n"
-    /*DOC*/    "the string is.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The format argument is a string representing which type of\n"
-    /*DOC*/    "string data you need. It can be one of the following, \"P\"\n"
-    /*DOC*/    "for 8bit palette indices. \"RGB\" for 24bit RGB data, \"RGBA\"\n"
-    /*DOC*/    "for 32bit RGB and alpha, or \"RGBX\" for 32bit padded RGB colors.\n"
-    /*DOC*/    "\"ARGB\" is a popular format for big endian platforms.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "These flags are a subset of the formats supported the PIL\n"
-    /*DOC*/    "Python Image Library. Note that the \"P\" format only create\n"
-    /*DOC*/    "an 8bit surface, but the colormap will be all black.\n"
-    /*DOC*/ ;
-
 PyObject* image_fromstring(PyObject* self, PyObject* arg)
 {
 	PyObject *string;
@@ -710,19 +613,6 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 	return PySurface_New(surf);
 }
 
-
-
-    /*DOC*/ static char doc_frombuffer[] =
-    /*DOC*/    "pygame.image.frombuffer(string, size, format) -> Surface\n"
-    /*DOC*/    "create a surface from a python memory buffer\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This works like the fromstring() method, but uses Python\n"
-    /*DOC*/    "buffer objects. It is about 20 times faster than fromstring().\n"
-    /*DOC*/    "Strings and memory maps are examples of buffers in Python.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "See the fromstring() function for information about the size\n"
-    /*DOC*/    "and format arguments.\n"
-    /*DOC*/ ;
 
 PyObject* image_frombuffer(PyObject* self, PyObject* arg)
 {
@@ -1045,35 +935,19 @@ static int SaveTGA(SDL_Surface *surface, char *file, int rle)
 
 
 
-
-
 static PyMethodDef image_builtins[] =
 {
-	{ "load_basic", image_load_basic, 1, doc_load },
-	{ "save", image_save, 1, doc_save },
-	{ "get_extended", image_get_extended, 1, doc_get_extended },
+	{ "load_basic", image_load_basic, 1, DOC_PYGAMEIMAGELOAD },
+	{ "save", image_save, 1, DOC_PYGAMEIMAGESAVE },
+	{ "get_extended", image_get_extended, 1, DOC_PYGAMEIMAGEGETEXTENDED },
 
-	{ "tostring", image_tostring, 1, doc_tostring },
-	{ "fromstring", image_fromstring, 1, doc_fromstring },
-	{ "frombuffer", image_frombuffer, 1, doc_frombuffer },
+	{ "tostring", image_tostring, 1, DOC_PYGAMEIMAGETOSTRING },
+	{ "fromstring", image_fromstring, 1, DOC_PYGAMEIMAGEFROMSTRING },
+	{ "frombuffer", image_frombuffer, 1, DOC_PYGAMEIMAGEFROMBUFFER },
 
 	{ NULL, NULL }
 };
 
-
-
-    /*DOC*/ static char doc_pygame_image_MODULE[] =
-    /*DOC*/    "This module contains functions to transfer images in and out\n"
-    /*DOC*/    "of Surfaces. At the minimum the included load() function will\n"
-    /*DOC*/    "support BMP files. If SDL_image is properly installed when\n"
-    /*DOC*/    "pygame is installed, it will support all the formats included\n"
-    /*DOC*/    "with SDL_image. You can call the get_extended() function to test\n"
-    /*DOC*/    "if the SDL_image support is available.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Some functions that communicate with other libraries will require\n"
-    /*DOC*/    "that those libraries are properly installed. For example, the save()\n"
-    /*DOC*/    "function can only save OPENGL surfaces if pyopengl is available.\n"
-    /*DOC*/ ;
 
 PYGAME_EXPORT
 void initimage(void)
@@ -1082,7 +956,7 @@ void initimage(void)
 	PyObject *extmodule;
 
     /* create the module */
-	module = Py_InitModule3("image", image_builtins, doc_pygame_image_MODULE);
+	module = Py_InitModule3("image", image_builtins, DOC_PYGAMEIMAGE);
 	dict = PyModule_GetDict(module);
 
 

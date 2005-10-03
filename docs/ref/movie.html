@@ -1,0 +1,226 @@
+
+<html>
+<title>movie - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href=cdrom.html>Cdrom</a>&nbsp;||&nbsp;
+<a href=cursors.html>Cursors</a>&nbsp;||&nbsp;
+<a href=display.html>Display</a>&nbsp;||&nbsp;
+<a href=draw.html>Draw</a>&nbsp;||&nbsp;
+<a href=event.html>Event</a>&nbsp;||&nbsp;
+<a href=font.html>Font</a>&nbsp;||&nbsp;
+<a href=image.html>Image</a>&nbsp;||&nbsp;
+<a href=joystick.html>Joystick</a>&nbsp;||&nbsp;
+<a href=key.html>Key</a>&nbsp;||&nbsp;
+<a href=mixer.html>Mixer</a>&nbsp;||&nbsp;
+<a href=mouse.html>Mouse</a>&nbsp;||&nbsp;
+<a href=movie.html>Movie</a>&nbsp;||&nbsp;
+<a href=music.html>Music</a>&nbsp;||&nbsp;
+<a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
+<a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
+<a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
+<a href=surface.html>Surface</a>&nbsp;||&nbsp;
+<a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
+<a href=time.html>Time</a>&nbsp;||&nbsp;
+<a href=transform.html>Transform</a>
+</p>
+
+
+</td></tr></table></td></tr></table>
+<br>
+
+
+<a name="pygame.movie">
+<big><b>pygame.movie</big></b><br><ul>
+  <i>pygame module for playback of mpeg video</i><br>
+<ul><small><table>
+  <tr><td><a href="movie.html#pygame.movie.Movie">pygame.movie.Movie</a></td><td>load an mpeg movie file</td></tr>
+</table></small></ul>
+<p>Pygame can playback video and audio from basic encoded <tt>MPEG1</tt> video files. Movie playback happens in background threads, which makes playback easy to manage. </p>
+<p>The audio for Movies must have full control over the sound system. This means the <tt>pygame.mixer</tt> module must be uninitialized for the movie to playback sound. The common solution is to call <tt><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a></tt> before the movie begins. The mixer can be reinitialized after the movie is finished. </p>
+<p>The video overlay planes are drawn on top of everything in the display window. To draw the movie as normal graphics into the display window, create an offscreen Surface and set that as the movie target. Then once per frame blit that surface to the screen. </p>
+ &nbsp;<br> 
+
+
+<a name="pygame.movie.Movie">
+<big><b>pygame.movie.Movie</big></b><br><ul>
+  <i>load an mpeg movie file</i><br>
+  <tt>pygame.movie.Movie(filename): return Movie</tt><br>
+  <tt>pygame.move.Movie(object): return Movie</tt><br>
+<ul><small><table>
+  <tr><td><a href="movie.html#Movie.play">Movie.play</a></td><td>start playback of a movie</td></tr>
+  <tr><td><a href="movie.html#Movie.stop">Movie.stop</a></td><td>stop movie playback</td></tr>
+  <tr><td><a href="movie.html#Movie.pause">Movie.pause</a></td><td>temporarily stop and resume playback</td></tr>
+  <tr><td><a href="movie.html#Movie.skip">Movie.skip</a></td><td>advance the movie playback position</td></tr>
+  <tr><td><a href="movie.html#Movie.rewind">Movie.rewind</a></td><td>restart the movie playback</td></tr>
+  <tr><td><a href="movie.html#Movie.render_frame">Movie.render_frame</a></td><td>set the current video frame</td></tr>
+  <tr><td><a href="movie.html#Movie.get_frame">Movie.get_frame</a></td><td>get the current video frame</td></tr>
+  <tr><td><a href="movie.html#Movie.get_time">Movie.get_time</a></td><td>get the current vide playback time</td></tr>
+  <tr><td><a href="movie.html#Movie.get_busy">Movie.get_busy</a></td><td>check if the movie is currently playing</td></tr>
+  <tr><td><a href="movie.html#Movie.get_length">Movie.get_length</a></td><td>the total length of the movie in seconds</td></tr>
+  <tr><td><a href="movie.html#Movie.get_size">Movie.get_size</a></td><td>get the resolution of the video</td></tr>
+  <tr><td><a href="movie.html#Movie.has_video">Movie.has_video</a></td><td>check if the movie file contains video</td></tr>
+  <tr><td><a href="movie.html#Movie.has_audio">Movie.has_audio</a></td><td>check if the movie file contains audio</td></tr>
+  <tr><td><a href="movie.html#Movie.set_volume">Movie.set_volume</a></td><td>set the audio playback volume</td></tr>
+  <tr><td><a href="movie.html#Movie.set_display">Movie.set_display</a></td><td>set the video target Surface</td></tr>
+</table></small></ul>
+<p>Load a new <tt>MPEG</tt> movie stream from a file or a python file object. The Movie object operates similar to the Sound objects from <tt>pygame.mixer</tt>. </p>
+<p>Movie objects have a target display Surface. The movie is rendered into this Surface in a background thread. If the target Surface is the display Surface, the movie will try to use the hardware accelerated video overlay. The default target is the display Surface. </p>
+ &nbsp;<br> 
+
+
+<a name="Movie.play">
+<big><b>Movie.play</big></b><br><ul>
+  <i>start playback of a movie</i><br>
+  <tt>Movie.play(loops=0): return None</tt><br>
+<p>Starts playback of the movie. Sound and video will begin playing if they are not disabled. The optional loops argument controls how many times the movie will be repeated. <tt>A</tt> loop value of -1 means the movie will repeat forever. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.stop">
+<big><b>Movie.stop</big></b><br><ul>
+  <i>stop movie playback</i><br>
+  <tt>Movie.stop(): return None</tt><br>
+<p>Stops the playback of a movie. The video and audio playback will be stopped at their current position. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.pause">
+<big><b>Movie.pause</big></b><br><ul>
+  <i>temporarily stop and resume playback</i><br>
+  <tt>Movie.pause(): return None</tt><br>
+<p>This will temporarily stop or restart movie playback. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.skip">
+<big><b>Movie.skip</big></b><br><ul>
+  <i>advance the movie playback position</i><br>
+  <tt>Movie.skip(seconds): return None</tt><br>
+<p>Advance the movie playback time in seconds. This can be called before the movie is played to set the starting playback time. This can only skip the movie forward, not backwards. The seconds argument is a floating point number. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.rewind">
+<big><b>Movie.rewind</big></b><br><ul>
+  <i>restart the movie playback</i><br>
+  <tt>Movie.rewind(): return None</tt><br>
+<p>Sets the movie playback position to the start of the movie. The movie will automatically begin playing even if it stopped. </p>
+<p>The can raise a ValueError if the movie cannot be rewound. If the rewind fails the movie object is considered invalid. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.render_frame">
+<big><b>Movie.render_frame</big></b><br><ul>
+  <i>set the current video frame</i><br>
+  <tt>Movie.render_frame(frame): return frame</tt><br>
+<p>This takes an integer frame number to render. It attempts to render the given frame from the movie to the target Surface. It returns the real frame number that got rendered. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.get_frame">
+<big><b>Movie.get_frame</big></b><br><ul>
+  <i>get the current video frame</i><br>
+  <tt>Movie.get_frame(): return frame</tt><br>
+<p>Returns the integer frame number of the current video frame. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.get_time">
+<big><b>Movie.get_time</big></b><br><ul>
+  <i>get the current vide playback time</i><br>
+  <tt>Movie.get_time(): return seconds</tt><br>
+<p>Return the current playback time as a floating point value in seconds. This method currently seems broken and always returns <tt>0.0</tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.get_busy">
+<big><b>Movie.get_busy</big></b><br><ul>
+  <i>check if the movie is currently playing</i><br>
+  <tt>Movie.get_busy(): return bool</tt><br>
+<p>Returns true if the movie is currently being played. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.get_length">
+<big><b>Movie.get_length</big></b><br><ul>
+  <i>the total length of the movie in seconds</i><br>
+  <tt>Movie.get_length(): return seconds</tt><br>
+<p>Returns the length of the movie in seconds as a floating point value. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.get_size">
+<big><b>Movie.get_size</big></b><br><ul>
+  <i>get the resolution of the video</i><br>
+  <tt>Movie.get_size(): return (width, height)</tt><br>
+<p>Gets the resolution of the movie video. The movie will be stretched to any size fo the Surface, but this will report the natural video size. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.has_video">
+<big><b>Movie.has_video</big></b><br><ul>
+  <i>check if the movie file contains video</i><br>
+  <tt>Movie.get_video(): return bool</tt><br>
+<p>True when the opened movie file contains a video stream. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.has_audio">
+<big><b>Movie.has_audio</big></b><br><ul>
+  <i>check if the movie file contains audio</i><br>
+  <tt>Movie.get_audio(): return</tt><br>
+<p>True when the opened movie file contains an audio stream. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.set_volume">
+<big><b>Movie.set_volume</big></b><br><ul>
+  <i>set the audio playback volume</i><br>
+  <tt>Movie.set_volume(value): return None</tt><br>
+<p>Set the playback volume for this movie. The value argument is a value between <tt>0.0</tt> and <tt>1.0</tt>. If the volume is set to 0 the movie audio will not be decoded. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Movie.set_display">
+<big><b>Movie.set_display</big></b><br><ul>
+  <i>set the video target Surface</i><br>
+  <tt>Movie.set_display(Surface, pos=None): return None</tt><br>
+<p>Set the output target Surface for the movie video. You may also pass a rectangle argument for the position, which will move and stretch the video into the given area. </p>
+<p>If None is passed as the target Surface, the video decoding will be disabled. </p>
+ &nbsp;<br> 
+<br></ul>
+<br></ul>
+<br></ul>
+
+</body></html>

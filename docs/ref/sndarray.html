@@ -1,0 +1,90 @@
+
+<html>
+<title>sndarray - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href=cdrom.html>Cdrom</a>&nbsp;||&nbsp;
+<a href=cursors.html>Cursors</a>&nbsp;||&nbsp;
+<a href=display.html>Display</a>&nbsp;||&nbsp;
+<a href=draw.html>Draw</a>&nbsp;||&nbsp;
+<a href=event.html>Event</a>&nbsp;||&nbsp;
+<a href=font.html>Font</a>&nbsp;||&nbsp;
+<a href=image.html>Image</a>&nbsp;||&nbsp;
+<a href=joystick.html>Joystick</a>&nbsp;||&nbsp;
+<a href=key.html>Key</a>&nbsp;||&nbsp;
+<a href=mixer.html>Mixer</a>&nbsp;||&nbsp;
+<a href=mouse.html>Mouse</a>&nbsp;||&nbsp;
+<a href=movie.html>Movie</a>&nbsp;||&nbsp;
+<a href=music.html>Music</a>&nbsp;||&nbsp;
+<a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
+<a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
+<a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
+<a href=surface.html>Surface</a>&nbsp;||&nbsp;
+<a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
+<a href=time.html>Time</a>&nbsp;||&nbsp;
+<a href=transform.html>Transform</a>
+</p>
+
+
+</td></tr></table></td></tr></table>
+<br>
+
+
+<a name="pygame.sndarray">
+<big><b>pygame.sndarray</big></b><br><ul>
+  <i>pygame module for accessing sound sample data</i><br>
+<ul><small><table>
+  <tr><td><a href="sndarray.html#pygame.sndarray.array">pygame.sndarray.array</a></td><td>copy Sound samples into an array</td></tr>
+  <tr><td><a href="sndarray.html#pygame.sndarray.samples">pygame.sndarray.samples</a></td><td>reference Sound samples into an array</td></tr>
+  <tr><td><a href="sndarray.html#pygame.sndarray.make_sound">pygame.sndarray.make_sound</a></td><td>convert an array into a Sound object</td></tr>
+</table></small></ul>
+<p>Functions to convert between Numeric arrays and Sound objects. This module will only be available when pygame can use the external Numeric package. </p>
+<p>Sound data is made of thousands of sample per second. Each sample is an 8bit or 16bit integer, depending on the data format. <tt>A</tt> stereo sound file has two values per sample, while mono sound only has one. </p>
+<p>Numeric does not use unsigned 16bit integers, they will be converted to signed 16bit arrays. </p>
+ &nbsp;<br> 
+
+
+<a name="pygame.sndarray.array">
+<big><b>pygame.sndarray.array</big></b><br><ul>
+  <i>copy Sound samples into an array</i><br>
+  <tt>pygame.sndarray.array(Sound): return array</tt><br>
+<p>Creates a new Numeric array for the sound data and copies the samples. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sndarray.samples">
+<big><b>pygame.sndarray.samples</big></b><br><ul>
+  <i>reference Sound samples into an array</i><br>
+  <tt>pygame.sndarray.samples(Sound): return array</tt><br>
+<p>Creates a new Numeric array that direcetly references the samples in a Sound object. Modifying the array will change the Sound. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sndarray.make_sound">
+<big><b>pygame.sndarray.make_sound</big></b><br><ul>
+  <i>convert an array into a Sound object</i><br>
+  <tt>pygame.sndarray.make_sound(array): return Sound</tt><br>
+<p>Create a new playable Sound object from a Numeric array. The mixer module must be initialized and the array format must be similar to the mixer audio format. </p>
+ &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+</body></html>

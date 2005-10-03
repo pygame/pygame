@@ -1,0 +1,117 @@
+pygame.time
+pygame module for monitoring time
+
+Times in pygame are represented in milliseconds. 1000 milliseconds are in one
+second. Most platforms have a limited time resolution of around 10 milliseconds.
+<SECTION>
+
+
+
+get_ticks
+get the time in milliseconds
+pygame.time.get_ticks(): return milliseconds
+
+Return the number of millisconds since pygame.init() was called. Before
+pygame is initialized this will always be 0.
+<END>
+
+
+
+wait
+pause the program for an amount of time
+pygame.time.wait(milliseconds): return time
+
+Will pause for a given number of milliseconds. This function sleeps the
+process to share the processor with other programs. A program that waits
+for even a few milliseconds will consume very little processor time.
+It is slightly less accurate than the pygame.time.delay() function.
+ 
+This returns the actual number of milliseconds used.
+<END>
+
+
+
+delay
+pause the program for an amount of time
+pygame.time.delay(milliseconds): return time
+
+Will pause for a given number of milliseconds. This function will use the
+processor in order to make the delay more accurate than pygame.time.wait().
+ 
+This returns the actual number of milliseconds used.
+<END>
+
+
+
+set_timer
+repeatedly create an event on the event queue
+pygame.time.set_timer(eventid, milliseconds): return None
+
+Set an event type to appear on the event queue every given number of
+milliseconds. The first event will not appear until the amount of time has
+passed.
+
+Every event type can have a separate timer attached to it. It is best to
+use the value between pygame.USEREVENT and pygame.NUMEVENTS.
+
+To disable the timer for an event, set the milliseconds argument to 0.
+<END>
+
+
+
+Clock
+create an object to help track time
+pygame.time.Clock(): return Clock
+
+Creates a new Clock object that can be used to track an amount of time.
+The clock also provides several functions to help control a game's framerate.
+<SECTION>
+
+
+
+tick
+update the clock
+Clock.tick(delay=0): return milliseconds
+
+This method should be called once per frame. It will compute how many
+milliseconds have passed since the previous call.
+
+If you pass an optional delay value, this function will delay until
+the given amount of milliseconds have passed since the previous call. This
+can be used to help limit the runtime speed of a game. By calling
+Clock.tick(1000/40) once per frame, the program will never run at more
+than 40 frames per second.
+<END>
+
+
+
+get_time
+time used in the previous tick
+Clock.get_time(): return milliseconds
+
+This is the same value returned when the last call to Clock.tick() was made.
+It is the number of milliseconds passed between the previous to calls to
+Pygame.tick().
+<END>
+
+
+
+get_rawtime
+actual time used in the previous tick
+Clock.get_rawtime(): return milliseconds
+
+Similar to Clock.get_time(), but this does not include any time used while
+Clock.tick() delayed to maintain a maximum framerate.
+<END>
+
+
+
+get_fps
+compute the clock framerate
+Clock.get_fps(): return float
+
+Compute the frames per second of the Clock. This averages several of the
+previous calls to Clock.tick().
+<END>
+<END>
+<END>

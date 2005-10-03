@@ -20,21 +20,13 @@
     pete@shinners.org
 */
 
-#include"pygame.h"
+#include "pygame.h"
+#include "pygamedocs.h"
 #include"mixer.h"
 #include<Numeric/arrayobject.h>
 #include<SDL_byteorder.h>
 
 
-
-
-    /*DOC*/ static char doc_samples[] =
-    /*DOC*/    "pygame.sndarray.samples(Sound) -> Array\n"
-    /*DOC*/    "get a reference to the sound samples\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will return an array that directly references the samples\n"
-    /*DOC*/    "in the array.\n"
-    /*DOC*/ ;
 
 static PyObject* sndarray_samples(PyObject* self, PyObject* arg)
 {
@@ -74,7 +66,7 @@ static PyObject* sndarray_samples(PyObject* self, PyObject* arg)
         dim[0] = chunk->alen / (numchannels*formatbytes);
         dim[1] = numchannels;
 
-	array = PyArray_FromDimsAndData(numdims, dim, type, chunk->abuf);
+	array = PyArray_FromDimsAndData(numdims, dim, type, (char*)chunk->abuf);
 	if(array)
 	{
             Py_INCREF(chunkobj);
@@ -84,12 +76,6 @@ static PyObject* sndarray_samples(PyObject* self, PyObject* arg)
 	return array;
 }
 
-    /*DOC*/ static char doc_array[] =
-    /*DOC*/    "pygame.sndarray.array(Sound) -> Array\n"
-    /*DOC*/    "get an array copied from a sound\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates an array with a copy of the sound data.\n"
-    /*DOC*/ ;
 
 PyObject* sndarray_array(PyObject* self, PyObject* arg)
 {
@@ -105,17 +91,6 @@ PyObject* sndarray_array(PyObject* self, PyObject* arg)
         return arraycopy;
 }
 
-
-    /*DOC*/ static char doc_make_sound[] =
-    /*DOC*/    "pygame.sndarray.make_sound(array) -> Sound\n"
-    /*DOC*/    "create a new Sound object from array data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Create a new playable Sound object from array data\n"
-    /*DOC*/    "the Sound will be a copy of the array samples.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The array must be 1-dimensional for mono sound, and.\n"
-    /*DOC*/    "2-dimensional for stereo.\n"
-    /*DOC*/ ;
 
 PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
 {
@@ -239,9 +214,9 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
 
 static PyMethodDef sndarray_builtins[] =
 {
-	{ "samples", sndarray_samples, 1, doc_samples },
-	{ "array", sndarray_array, 1, doc_array },
-	{ "make_sound", sndarray_make_sound, 1, doc_make_sound },
+	{ "samples", sndarray_samples, 1, DOC_PYGAMESNDARRAYSAMPLES },
+	{ "array", sndarray_array, 1, DOC_PYGAMESNDARRAYARRAY },
+	{ "make_sound", sndarray_make_sound, 1, DOC_PYGAMESNDARRAYMAKESOUND },
 
 	{ NULL, NULL }
 };
@@ -249,19 +224,13 @@ static PyMethodDef sndarray_builtins[] =
 
 
 
-
-    /*DOC*/ static char doc_pygame_sndarray_MODULE[] =
-    /*DOC*/    "Contains routines for mixing numeric arrays with\n"
-    /*DOC*/    "sounds\n"
-    /*DOC*/ ;
-
 PYGAME_EXPORT
 void initsndarray(void)
 {
 	PyObject *module, *dict;
 
     /* create the module */
-	module = Py_InitModule3("sndarray", sndarray_builtins, doc_pygame_sndarray_MODULE);
+	module = Py_InitModule3("sndarray", sndarray_builtins, DOC_PYGAMESNDARRAY);
 	dict = PyModule_GetDict(module);
 
 	/*imported needed apis*/

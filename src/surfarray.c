@@ -21,29 +21,10 @@
 */
 
 #include"pygame.h"
+#include "pygamedocs.h"
 #include<Numeric/arrayobject.h>
 #include<SDL_byteorder.h>
 
-
-
-
-    /*DOC*/ static char doc_pixels3d[] =
-    /*DOC*/    "pygame.surfarray.pixels3d(Surface) -> Array\n"
-    /*DOC*/    "get a 3d reference array to a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns a new noncontigous 3d array that\n"
-    /*DOC*/    "directly effects a Surface's contents. Think of it\n"
-    /*DOC*/    "as a 2d image array with an RGB array for each\n"
-    /*DOC*/    "pixel value.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will only work for 24 and 32 bit surfaces,\n"
-    /*DOC*/    "where the RGB components can be accessed as 8-bit\n"
-    /*DOC*/    "components.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will lock the given surface, and it\n"
-    /*DOC*/    "will remained locked for as long as the pixel array\n"
-    /*DOC*/    "exists\n"
-    /*DOC*/ ;
 
 static PyObject* pixels3d(PyObject* self, PyObject* arg)
 {
@@ -102,25 +83,6 @@ static PyObject* pixels3d(PyObject* self, PyObject* arg)
 }
 
 
-
-    /*DOC*/ static char doc_pixels2d[] =
-    /*DOC*/    "pygame.surfarray.pixels2d(Surface) -> Array\n"
-    /*DOC*/    "get a 2d reference array to a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns a new noncontigous 2d array that\n"
-    /*DOC*/    "directly effects a Surface's contents. Think of it\n"
-    /*DOC*/    "as a 2d image array with a mapped pixel value at\n"
-    /*DOC*/    "each index.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will not work on 24bit surfaces, since there\n"
-    /*DOC*/    "is no native 24bit data type to access the pixel\n"
-    /*DOC*/    "values.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will lock the given surface, and it\n"
-    /*DOC*/    "will remained locked for as long as the pixel array\n"
-    /*DOC*/    "exists\n"
-    /*DOC*/ ;
-
 static PyObject* pixels2d(PyObject* self, PyObject* arg)
 {
 	int types[] = {PyArray_UBYTE, PyArray_SHORT, 0, PyArray_INT};
@@ -155,21 +117,6 @@ static PyObject* pixels2d(PyObject* self, PyObject* arg)
 	return array;
 }
 
-
-    /*DOC*/ static char doc_pixels_alpha[] =
-    /*DOC*/    "pygame.surfarray.pixels_alpha(Surface) -> Array\n"
-    /*DOC*/    "get a reference array to a surface alpha data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns a new noncontigous array that directly\n"
-    /*DOC*/    "effects a Surface's alpha contents.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will only work for 32bit surfaces with a pixel\n"
-    /*DOC*/    "alpha channel enabled.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will lock the given surface, and it\n"
-    /*DOC*/    "will remained locked for as long as the pixel array\n"
-    /*DOC*/    "exists\n"
-    /*DOC*/ ;
 
 static PyObject* pixels_alpha(PyObject* self, PyObject* arg)
 {
@@ -211,17 +158,6 @@ static PyObject* pixels_alpha(PyObject* self, PyObject* arg)
 	return array;
 }
 
-
-    /*DOC*/ static char doc_array2d[] =
-    /*DOC*/    "pygame.surfarray.array2d(Surface) -> Array\n"
-    /*DOC*/    "get a 2d array copied from a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns a new contigous 2d array. Think of it\n"
-    /*DOC*/    "as a 2d image array with a mapped pixel value at\n"
-    /*DOC*/    "each index.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 PyObject* array2d(PyObject* self, PyObject* arg)
 {
@@ -309,18 +245,6 @@ PyObject* array2d(PyObject* self, PyObject* arg)
 	return array;
 }
 
-
-
-    /*DOC*/ static char doc_array3d[] =
-    /*DOC*/    "pygame.surfarray.array3d(Surface) -> Array\n"
-    /*DOC*/    "get a 3d array copied from a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns a new contigous 3d array. Think of it\n"
-    /*DOC*/    "as a 2d image array with an RGB array for each\n"
-    /*DOC*/    "pixel value.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 PyObject* array3d(PyObject* self, PyObject* arg)
 {
@@ -435,20 +359,6 @@ PyObject* array3d(PyObject* self, PyObject* arg)
 }
 
 
-
-
-    /*DOC*/ static char doc_array_alpha[] =
-    /*DOC*/    "pygame.surfarray.array_alpha(Surface) -> Array\n"
-    /*DOC*/    "get an array with a surface pixel alpha values\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns a new contigous 2d array with the\n"
-    /*DOC*/    "alpha values of an image as unsigned bytes. If the\n"
-    /*DOC*/    "surface has no alpha, an array of all opaque values\n"
-    /*DOC*/    "is returned.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
-
 PyObject* array_alpha(PyObject* self, PyObject* arg)
 {
 	int dim[2], loopy;
@@ -539,19 +449,6 @@ PyObject* array_alpha(PyObject* self, PyObject* arg)
 	return array;
 }
 
-
-
-    /*DOC*/ static char doc_array_colorkey[] =
-    /*DOC*/    "pygame.surfarray.array_colorkey(Surface) -> Array\n"
-    /*DOC*/    "get an array with a surface colorkey values\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns a new contigous 2d array with the\n"
-    /*DOC*/    "colorkey values of an image as unsigned bytes. If the\n"
-    /*DOC*/    "surface has no colorkey, an array of all opaque values\n"
-    /*DOC*/    "is returned. Otherwise the array is either 0's or 255's.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 PyObject* array_colorkey(PyObject* self, PyObject* arg)
 {
@@ -652,20 +549,6 @@ PyObject* array_colorkey(PyObject* self, PyObject* arg)
 	return array;
 }
 
-
-
-
-    /*DOC*/ static char doc_map_array[] =
-    /*DOC*/    "pygame.surfarray.map_array(surf, array3d) -> array2d\n"
-    /*DOC*/    "map an array with RGB values into mapped colors\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Create a new array with the RGB pixel values of a\n"
-    /*DOC*/    "3d array into mapped color values in a 2D array.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Just so you know, this can also map a 2D array\n"
-    /*DOC*/    "with RGB values into a 1D array of mapped color\n"
-    /*DOC*/    "values\n"
-    /*DOC*/ ;
 
 PyObject* map_array(PyObject* self, PyObject* arg)
 {
@@ -956,24 +839,6 @@ PyObject* clamp_array(PyObject* self, PyObject* arg)
      }    }
 
 
-
-    /*DOC*/ static char doc_blit_array[] =
-    /*DOC*/    "pygame.surfarray.blit_array(surf, array) -> None\n"
-    /*DOC*/    "quickly transfer an array to a Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Transfer an array of any type (3d or 2d) onto a\n"
-    /*DOC*/    "Surface. The array must be the same dimensions as\n"
-    /*DOC*/    "the destination Surface. While you can assign the\n"
-    /*DOC*/    "values of an array to the pixel referenced arrays,\n"
-    /*DOC*/    "using this blit method will usually be quicker\n"
-    /*DOC*/    "because of it's smarter handling of noncontiguous\n"
-    /*DOC*/    "arrays. Plus it allows you to blit from any image\n"
-    /*DOC*/    "array type to any surface format in one step, no\n"
-    /*DOC*/    "internal conversions.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
-
 PyObject* blit_array(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj, *arrayobj;
@@ -1099,14 +964,6 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 }
 
 
-    /*DOC*/ static char doc_make_surface[] =
-    /*DOC*/    "pygame.surfarray.make_surface(array) -> Surface\n"
-    /*DOC*/    "create a new Surface from array data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Create a new software surface that closely resembles\n"
-    /*DOC*/    "the data and format of the image array data.\n"
-    /*DOC*/ ;
-
 PyObject* make_surface(PyObject* self, PyObject* arg)
 {
 	PyObject *arrayobj, *surfobj, *args;
@@ -1168,43 +1025,23 @@ PyObject* make_surface(PyObject* self, PyObject* arg)
 
 static PyMethodDef surfarray_builtins[] =
 {
-	{ "pixels2d", pixels2d, 1, doc_pixels2d },
-	{ "pixels3d", pixels3d, 1, doc_pixels3d },
-	{ "pixels_alpha", pixels_alpha, 1, doc_pixels_alpha },
-	{ "array2d", array2d, 1, doc_array2d },
-	{ "array3d", array3d, 1, doc_array3d },
-	{ "array_alpha", array_alpha, 1, doc_array_alpha },
-	{ "array_colorkey", array_colorkey, 1, doc_array_colorkey },
-	{ "map_array", map_array, 1, doc_map_array },
+	{ "pixels2d", pixels2d, 1, DOC_PYGAMESURFARRAYPIXELS2D },
+	{ "pixels3d", pixels3d, 1, DOC_PYGAMESURFARRAYPIXELS3D },
+	{ "pixels_alpha", pixels_alpha, 1, DOC_PYGAMESURFARRAYPIXELSALPHA },
+	{ "array2d", array2d, 1, DOC_PYGAMESURFARRAYARRAY2D },
+	{ "array3d", array3d, 1, DOC_PYGAMESURFARRAYARRAY3D },
+	{ "array_alpha", array_alpha, 1, DOC_PYGAMESURFARRAYARRAYALPHA },
+	{ "array_colorkey", array_colorkey, 1, DOC_PYGAMESURFARRAYARRAYCOLORKEY },
+	{ "map_array", map_array, 1, DOC_PYGAMESURFARRAYMAPARRAY },
 /*	{ "unmap_array", unmap_array, 1, doc_unmap_array },*/
-	{ "blit_array", blit_array, 1, doc_blit_array },
+	{ "blit_array", blit_array, 1, DOC_PYGAMESURFARRAYBLITARRAY },
 /*	{ "clamp_array", clamp_array, 1, doc_clamp_array }, not quick enough to be worthwhile :[ */
-        { "make_surface", make_surface, 1, doc_make_surface },
+        { "make_surface", make_surface, 1, DOC_PYGAMESURFARRAYMAKESURFACE },
 
 	{ NULL, NULL }
 };
 
 
-
-
-
-    /*DOC*/ static char doc_pygame_surfarray_MODULE[] =
-    /*DOC*/    "Contains routines for mixing numeric arrays with\n"
-    /*DOC*/    "surfaces. You can create arrays that directly reference\n"
-    /*DOC*/    "the pixel data of an image. Sometimes this can be limited\n"
-    /*DOC*/    "to the pixel format of the Surface, so you can also create\n"
-    /*DOC*/    "independent copies from any format.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The image arrays are indexes 'X' axis first. This is different\n"
-    /*DOC*/    "than traditional C memory access, where images are often indexed\n"
-    /*DOC*/    "with the 'Y' axis first. All this means is to access pixel values\n"
-    /*DOC*/    "in the array, you index them as 'X, Y' pairs. myarray[10,20] will\n"
-    /*DOC*/    "provide you the pixel at 10, 20 in the image. If you prefer to\n"
-    /*DOC*/    "work with the traditional framebuffer indices, use the arrays\n"
-    /*DOC*/    "'transpose()' method to create the alternate view of the pixel\n"
-    /*DOC*/    "data.\n"
-    /*DOC*/    "\n"
-    /*DOC*/ ;
 
 PYGAME_EXPORT
 void initsurfarray(void)
@@ -1212,7 +1049,7 @@ void initsurfarray(void)
 	PyObject *module, *dict;
 
     /* create the module */
-	module = Py_InitModule3("surfarray", surfarray_builtins, doc_pygame_surfarray_MODULE);
+	module = Py_InitModule3("surfarray", surfarray_builtins, DOC_PYGAMESURFARRAY);
 	dict = PyModule_GetDict(module);
 
 	/*imported needed apis*/
