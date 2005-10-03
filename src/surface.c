@@ -25,6 +25,7 @@
  */
 #define PYGAMEAPI_SURFACE_INTERNAL
 #include "pygame.h"
+#include "pygamedocs.h"
 #include "structmember.h"
 
 
@@ -40,18 +41,6 @@ static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds);
 
 /* surface object methods */
 
-
-    /*DOC*/ static char doc_surf_get_at[] =
-    /*DOC*/    "Surface.get_at(position) -> RGBA\n"
-    /*DOC*/    "get a pixel color\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the RGB color values at a given pixel. If the\n"
-    /*DOC*/    "Surface has no per-pixel alpha, the alpha will be 255 (opaque).\n"
-    /*DOC*/    "A pixel outside the surface area will raise an IndexError.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will need to temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 {
@@ -105,22 +94,6 @@ static PyObject* surf_get_at(PyObject* self, PyObject* arg)
 	return Py_BuildValue("(bbbb)", r, g, b, a);
 }
 
-
-
-    /*DOC*/ static char doc_surf_set_at[] =
-    /*DOC*/    "Surface.set_at(position, RGBA) -> None\n"
-    /*DOC*/    "set pixel at given position\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Assigns color to the image at the give position. Color can be a\n"
-    /*DOC*/    "RGBA sequence or a mapped color integer. Setting the pixel outside\n"
-    /*DOC*/    "the clip area or surface area will have no effect.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "In some situations just using the fill() function with a one-pixel\n"
-    /*DOC*/    "sized rectangle will be quicker. Also the fill function does not\n"
-    /*DOC*/    "require the surface to be locked.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will need to temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_set_at(PyObject* self, PyObject* args)
 {
@@ -184,17 +157,6 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_map_rgb[] =
-    /*DOC*/    "Surface.map_rgb(RGBA) -> int\n"
-    /*DOC*/    "convert RGB into a mapped color\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Uses the Surface format to convert RGBA into a mapped color value.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function is not as needed as normal C code using SDL. The pygame\n"
-    /*DOC*/    "functions do not used mapped colors, so there is no need to map them.\n"
-   /*DOC*/ ;
-
 static PyObject* surf_map_rgb(PyObject* self,PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -209,18 +171,6 @@ static PyObject* surf_map_rgb(PyObject* self,PyObject* args)
 	return PyInt_FromLong(color);
 }
 
-
-
-    /*DOC*/ static char doc_surf_unmap_rgb[] =
-    /*DOC*/    "Surface.unmap_rgb(color) -> RGBA\n"
-    /*DOC*/    "convert mapped color into RGB\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function returns the RGBA components for a mapped color\n"
-    /*DOC*/    "value. If Surface has no per-pixel alpha, alpha will be 255 (opaque).\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function is not as needed as normal C code using SDL. The pygame\n"
-    /*DOC*/    "functions do not used mapped colors, so there is no need to unmap them.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
 {
@@ -238,33 +188,6 @@ static PyObject* surf_unmap_rgb(PyObject* self,PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_lock[] =
-    /*DOC*/    "Surface.lock() -> None\n"
-    /*DOC*/    "locks Surface for pixel access\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "On accelerated surfaces, it is usually required to lock the\n"
-    /*DOC*/    "surface before you can access the pixel values. To be safe, it is\n"
-    /*DOC*/    "always a good idea to lock the surface before entering a block of\n"
-    /*DOC*/    "code that changes or accesses the pixel values. The surface must\n"
-    /*DOC*/    "not be locked when performing other pygame functions on it like\n"
-    /*DOC*/    "fill and blit.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "You can doublecheck to really make sure a lock is needed by\n"
-    /*DOC*/    "calling the mustlock() member. This should not be needed, since\n"
-    /*DOC*/    "it is usually recommended to lock anyways and work with all\n"
-    /*DOC*/    "surface types. If the surface does not need to be locked, the\n"
-    /*DOC*/    "operation will return quickly with minute overhead.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "On some platforms a necessary lock can shut off some parts of the\n"
-    /*DOC*/    "system. This is not a problem unless you leave surfaces locked\n"
-    /*DOC*/    "for long periouds of time. Only keep the surface locked when you\n"
-    /*DOC*/    "need the pixel access. At the same time, it is not a good too\n"
-    /*DOC*/    "repeatedly lock and unlock the surface inside tight loops. It is\n"
-    /*DOC*/    "fine to leave the surface locked while needed, just don't be\n"
-    /*DOC*/    "lazy.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_lock(PyObject* self, PyObject* args)
 {
 	if(!PyArg_ParseTuple(args, ""))
@@ -276,21 +199,6 @@ static PyObject* surf_lock(PyObject* self, PyObject* args)
 	RETURN_NONE
 }
 
-
-
-    /*DOC*/ static char doc_surf_unlock[] =
-    /*DOC*/    "Surface.unlock() -> None\n"
-    /*DOC*/    "locks Surface for pixel access\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "After a surface has been locked, you will need to unlock it when\n"
-    /*DOC*/    "you are done.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "You can doublecheck to really make sure a lock is needed by\n"
-    /*DOC*/    "calling the mustlock() member. This should not be needed, since\n"
-    /*DOC*/    "it is usually recommended to lock anyways and work with all\n"
-    /*DOC*/    "surface types. If the surface does not need to be locked, the\n"
-    /*DOC*/    "operation will return quickly with minute overhead.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_unlock(PyObject* self, PyObject* args)
 {
@@ -304,29 +212,12 @@ static PyObject* surf_unlock(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_mustlock[] =
-    /*DOC*/    "Surface.mustlock() -> bool\n"
-    /*DOC*/    "check if the surface needs locking\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the surface really does need locking to gain\n"
-    /*DOC*/    "pixel access. Usually the overhead of checking before locking\n"
-    /*DOC*/    "outweight the overhead of just locking any surface before access.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_mustlock(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	return PyInt_FromLong(SDL_MUSTLOCK(surf) || ((PySurfaceObject*)self)->subsurface);
 }
 
-
-    /*DOC*/ static char doc_surf_get_locked[] =
-    /*DOC*/    "Surface.get_locked() -> bool\n"
-    /*DOC*/    "check if the surface needs locking\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns true if the surface is currently locked.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_locked(PyObject* self, PyObject* args)
 {
@@ -338,15 +229,6 @@ static PyObject* surf_get_locked(PyObject* self, PyObject* args)
 	return PyInt_FromLong(surf->surf->pixels != NULL);
 }
 
-
-
-    /*DOC*/ static char doc_surf_get_palette[] =
-    /*DOC*/    "Surface.get_palette() -> [[r, g, b], ...]\n"
-    /*DOC*/    "get the palette\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will return the an array of all the color indexes in the\n"
-    /*DOC*/    "Surface's palette.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_palette(PyObject* self, PyObject* args)
 {
@@ -385,15 +267,6 @@ static PyObject* surf_get_palette(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_get_palette_at[] =
-    /*DOC*/    "Surface.get_palette_at(index) -> r, g, b\n"
-    /*DOC*/    "get a palette entry\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will retreive an individual color entry from the Surface's\n"
-    /*DOC*/    "palette.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_palette_at(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -414,18 +287,6 @@ static PyObject* surf_get_palette_at(PyObject* self, PyObject* args)
 	return Py_BuildValue("(bbb)", c->r, c->g, c->b);
 }
 
-
-
-    /*DOC*/ static char doc_surf_set_palette[] =
-    /*DOC*/    "Surface.set_palette([[r, g, b], ...]) -> None\n"
-    /*DOC*/    "set the palette\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will replace the entire palette with color\n"
-    /*DOC*/    "information you provide.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "You can pass an incomplete list of RGB values, and\n"
-    /*DOC*/    "this will only change the first colors in the palette.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 {
@@ -479,14 +340,6 @@ static PyObject* surf_set_palette(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_set_palette_at[] =
-    /*DOC*/    "Surface.set_palette_at(index, [r, g, b]) -> None\n"
-    /*DOC*/    "set a palette entry\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function sets the palette color at a specific entry.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -523,23 +376,6 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
 	RETURN_NONE
 }
 
-
-
-    /*DOC*/ static char doc_surf_set_colorkey[] =
-    /*DOC*/    "Surface.set_colorkey([color, [flags]]) -> None\n"
-    /*DOC*/    "change colorkey information\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Set the colorkey for the surface by passing a mapped color value\n"
-    /*DOC*/    "as the color argument. If no arguments or None is passed,\n"
-    /*DOC*/    "colorkeying will be disabled for this surface.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGBA sequence or a mapped integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If your image is nonchanging and will be used repeatedly, you\n"
-    /*DOC*/    "will probably want to pass the RLEACCEL flag to the call. This\n"
-    /*DOC*/    "will take a short time to compile your surface, and increase the\n"
-    /*DOC*/    "blitting speed.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 {
@@ -583,15 +419,6 @@ static PyObject* surf_set_colorkey(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_surf_get_colorkey[] =
-    /*DOC*/    "Surface.get_colorkey() -> RGBA\n"
-    /*DOC*/    "query colorkey\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the current mapped color value being used for\n"
-    /*DOC*/    "colorkeying. If colorkeying is not enabled for this surface, it\n"
-    /*DOC*/    "returns None\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -611,25 +438,6 @@ static PyObject* surf_get_colorkey(PyObject* self, PyObject* args)
 	return Py_BuildValue("(bbbb)", r, g, b, a);
 }
 
-
-    /*DOC*/ static char doc_surf_set_alpha[] =
-    /*DOC*/    "Surface.set_alpha([alpha, [flags]]) -> None\n"
-    /*DOC*/    "change alpha information\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Set the overall transparency for the surface. If no alpha is\n"
-    /*DOC*/    "passed, alpha blending is disabled for the surface. An alpha of 0\n"
-    /*DOC*/    "is fully transparent, an alpha of 255 is fully opaque. If no\n"
-    /*DOC*/    "arguments or None is passed, this will disable the surface alpha.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If your surface has a pixel alpha channel, it will override the\n"
-    /*DOC*/    "overall surface transparency. You'll need to change the actual\n"
-    /*DOC*/    "pixel transparency to make changes.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If your image also has pixel alpha values, or will be used repeatedly, you\n"
-    /*DOC*/    "will probably want to pass the RLEACCEL flag to the call. This\n"
-    /*DOC*/    "will take a short time to compile your surface, and increase the\n"
-    /*DOC*/    "blitting speed.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 {
@@ -675,14 +483,6 @@ static PyObject* surf_set_alpha(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_surf_get_alpha[] =
-    /*DOC*/    "Surface.get_alpha() -> alpha\n"
-    /*DOC*/    "query alpha information\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the current alpha value for the Surface. If transparency\n"
-    /*DOC*/    "is disabled for the Surface, it returns None.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -699,18 +499,6 @@ static PyObject* surf_get_alpha(PyObject* self, PyObject* args)
 	RETURN_NONE
 }
 
-
-
-    /*DOC*/ static char doc_surf_copy[] =
-    /*DOC*/    "Surface.copy() -> Surface\n"
-    /*DOC*/    "creates a new copy of a Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates an exact duplicate of the Surface. The new Surface will\n"
-    /*DOC*/    "get the same palette and surface flags as the original.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "If the Surface is a subsurface this will return a copy of\n"
-    /*DOC*/    "the pixel data. The new copy will not reference pixel data.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_copy(PyObject* self, PyObject* args)
 {
@@ -737,25 +525,6 @@ static PyObject* surf_copy(PyObject* self, PyObject* args)
 	return final;
 }
 
-
-
-    /*DOC*/ static char doc_surf_convert[] =
-    /*DOC*/    "Surface.convert([src_surface] OR depth, [flags] OR masks) -> Surface\n"
-    /*DOC*/    "new copy of surface with different format\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates a new copy of the surface with the desired pixel format.\n"
-    /*DOC*/    "Surfaces with the same pixel format will blit much faster than\n"
-    /*DOC*/    "those with mixed formats. The pixel format of the new surface\n"
-    /*DOC*/    "will match the format given as the argument. If no surface is\n"
-    /*DOC*/    "given, the new surface will have the same pixel format as the\n"
-    /*DOC*/    "current display.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "convert() will also accept bitsize or mask arguments like the\n"
-    /*DOC*/    "Surface() constructor function. Either pass an integer bitsize\n"
-    /*DOC*/    "or a sequence of color masks to specify the format of surface\n"
-    /*DOC*/    "you would like to convert to. When used this way you may also\n"
-    /*DOC*/    "pass an optional flags argument (whew).\n"
-    /*DOC*/ ;
 
 static PyObject* surf_convert(PyObject* self, PyObject* args)
 {
@@ -874,22 +643,6 @@ static PyObject* surf_convert(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_convert_alpha[] =
-    /*DOC*/    "Surface.convert_alpha([src_surface]) -> Surface\n"
-    /*DOC*/    "new copy of surface with different format and per pixel alpha\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates a new copy of the surface with the desired pixel format.\n"
-    /*DOC*/    "The new surface will be in a format suited for quick blitting to\n"
-    /*DOC*/    "the given format with per pixel alpha. If no surface is given,\n"
-    /*DOC*/    "the new surface will be optimized for blittint to the current\n"
-    /*DOC*/    "display.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Unlike the convert() method, the pixel format for the new image\n"
-    /*DOC*/    "will not be exactly the same as the requested source, but it will\n"
-    /*DOC*/    "be optimized for fast alpha blitting to the destination.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -920,18 +673,6 @@ static PyObject* surf_convert_alpha(PyObject* self, PyObject* args)
 	return final;
 }
 
-
-    /*DOC*/ static char doc_surf_set_clip[] =
-    /*DOC*/    "Surface.set_clip([rectstyle]) -> None\n"
-    /*DOC*/    "assign destination clipping rectangle\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Assigns the destination clipping rectangle for the Surface. When\n"
-    /*DOC*/    "blit or fill operations are performed on the Surface, they are\n"
-    /*DOC*/    "restricted to the inside of the clipping rectangle. If no\n"
-    /*DOC*/    "rectangle is passed, the clipping region is set to the entire\n"
-    /*DOC*/    "Surface area. The rectangle you pass will be clipped to the area of\n"
-    /*DOC*/    "the Surface.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 {
@@ -967,16 +708,6 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_get_clip[] =
-    /*DOC*/    "Surface.get_clip() -> rect\n"
-    /*DOC*/    "query the clipping area\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the current destination clipping area being used by the\n"
-    /*DOC*/    "Surface. If the clipping area is not set, it will return a\n"
-    /*DOC*/    "rectangle containing the full Surface area.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_clip(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -984,21 +715,6 @@ static PyObject* surf_get_clip(PyObject* self, PyObject* args)
 	return PyRect_New(&surf->clip_rect);
 }
 
-
-
-    /*DOC*/ static char doc_surf_fill[] =
-    /*DOC*/    "Surface.fill(color, [rectstyle])) -> Rect\n"
-    /*DOC*/    "fill areas of a Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Fills the specified area of the Surface with the mapped color\n"
-    /*DOC*/    "value. If no destination rectangle is supplied, it will fill the\n"
-    /*DOC*/    "entire Surface.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be a RGBA sequence or a mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The fill is subject to be clipped by the active clipping\n"
-    /*DOC*/    "rectangle. The return value contains the actual area filled.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_fill(PyObject* self, PyObject* args)
 {
@@ -1155,36 +871,6 @@ int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Re
 }
 
 
-
-
-    /*DOC*/ static char doc_surf_blit[] =
-    /*DOC*/    "Surface.blit(source, destpos, [sourcerect]) -> Rect\n"
-    /*DOC*/    "copy a one Surface to another.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The blitting will copy pixels from the source. It will\n"
-    /*DOC*/    "respect any special modes like colorkeying and alpha. If hardware\n"
-    /*DOC*/    "support is available, it will be used. The given source is the\n"
-    /*DOC*/    "Surface to copy from. The destoffset is a 2-number-sequence that\n"
-    /*DOC*/    "specifies where on the destination Surface the blit happens (see below).\n"
-    /*DOC*/    "When sourcerect isn't supplied, the blit will copy the\n"
-    /*DOC*/    "entire source surface. If you would like to copy only a portion\n"
-    /*DOC*/    "of the source, use the sourcerect argument to control\n"
-    /*DOC*/    "what area is copied.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The blit is subject to be clipped by the active clipping\n"
-    /*DOC*/    "rectangle. The return value contains the actual area blitted.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "As a shortcut, the destination position can be passed as a\n"
-    /*DOC*/    "rectangle. If a rectangle is given, the blit will use the topleft\n"
-    /*DOC*/    "corner of the rectangle as the blit destination position. The\n"
-    /*DOC*/    "rectangle sizes will be ignored.\n"
-#if 0  /* "" */
-    /*DOC*/    "\n"
-    /*DOC*/    "Blitting surfaces with pixel alphas onto an 8bit destination will\n"
-    /*DOC*/    "not use the surface alpha values.\n"
-#endif /* "" */
-    /*DOC*/ ;
-
 static PyObject* surf_blit(PyObject* self, PyObject* args)
 {
 	SDL_Surface* src, *dest = PySurface_AsSurface(self);
@@ -1245,13 +931,6 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_surf_get_flags[] =
-    /*DOC*/    "Surface.get_flags() -> flags\n"
-    /*DOC*/    "query the surface flags\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the current state flags for the surface.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_flags(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -1259,16 +938,6 @@ static PyObject* surf_get_flags(PyObject* self, PyObject* args)
 	return PyInt_FromLong(surf->flags);
 }
 
-
-
-    /*DOC*/ static char doc_surf_get_pitch[] =
-    /*DOC*/    "Surface.get_pitch() -> pitch\n"
-    /*DOC*/    "query the surface pitch\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The surface pitch is the number of bytes used in each\n"
-    /*DOC*/    "scanline. This function should rarely needed, mainly for\n"
-    /*DOC*/    "any special-case debugging.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_pitch(PyObject* self, PyObject* args)
 {
@@ -1278,15 +947,6 @@ static PyObject* surf_get_pitch(PyObject* self, PyObject* args)
 }
 
 
-
-
-    /*DOC*/ static char doc_surf_get_size[] =
-    /*DOC*/    "Surface.get_size() -> x, y\n"
-    /*DOC*/    "query the surface size\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the width and height of the Surface.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_size(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -1294,14 +954,6 @@ static PyObject* surf_get_size(PyObject* self, PyObject* args)
 	return Py_BuildValue("(ii)", surf->w, surf->h);
 }
 
-
-
-    /*DOC*/ static char doc_surf_get_width[] =
-    /*DOC*/    "Surface.get_width() -> width\n"
-    /*DOC*/    "query the surface width\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the width of the Surface.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_width(PyObject* self, PyObject* args)
 {
@@ -1311,14 +963,6 @@ static PyObject* surf_get_width(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_get_height[] =
-    /*DOC*/    "Surface.get_height() -> height\n"
-    /*DOC*/    "query the surface height\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the height of the Surface.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_height(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -1326,22 +970,6 @@ static PyObject* surf_get_height(PyObject* self, PyObject* args)
 	return PyInt_FromLong(surf->h);
 }
 
-
-
-    /*DOC*/ static char doc_surf_get_rect[] =
-    /*DOC*/    "Surface.get_rect(**kwargs) -> rect\n"
-    /*DOC*/    "get a rectangle covering the entire surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns a new rectangle covering the entire surface.\n"
-    /*DOC*/    "This rectangle will always start at 0, 0 with a width.\n"
-    /*DOC*/    "and height the same size as the image.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "You can pass keyword argument values to this function.\n"
-    /*DOC*/    "These named values will be applied to the attributes of\n"
-    /*DOC*/    "the Rect before it is returned. An example would be\n"
-    /*DOC*/    "'mysurf.get_rect(center=(100,100))' to create a rectangle\n"
-    /*DOC*/    "for the Surface centered at a given position.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_rect(PyObject* self, PyObject* args, PyObject* kw)
 {
@@ -1367,16 +995,6 @@ static PyObject* surf_get_rect(PyObject* self, PyObject* args, PyObject* kw)
 }
 
 
-
-    /*DOC*/ static char doc_surf_get_bitsize[] =
-    /*DOC*/    "Surface.get_bitsize() -> int\n"
-    /*DOC*/    "query size of pixel\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the number of bits used to represent each pixel. This\n"
-    /*DOC*/    "value may not exactly fill the number of bytes used per pixel.\n"
-    /*DOC*/    "For example a 15 bit Surface still requires a full 2 bytes.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_bitsize(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -1384,28 +1002,12 @@ static PyObject* surf_get_bitsize(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_surf_get_bytesize[] =
-    /*DOC*/    "Surface.get_bytesize() -> int\n"
-    /*DOC*/    "query size of pixel\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the number of bytes used to store each pixel.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_bytesize(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
 	return PyInt_FromLong(surf->format->BytesPerPixel);
 }
 
-
-    /*DOC*/ static char doc_surf_get_masks[] =
-    /*DOC*/    "Surface.get_masks() -> redmask, greenmask, bluemask, alphamask\n"
-    /*DOC*/    "get mapping bitmasks for each colorplane\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the bitmasks for each color plane. The bitmask is used to\n"
-    /*DOC*/    "isolate each colorplane value from a mapped color value. A value\n"
-    /*DOC*/    "of zero means that colorplane is not used (like alpha)\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_masks(PyObject* self, PyObject* args)
 {
@@ -1416,16 +1018,6 @@ static PyObject* surf_get_masks(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_surf_get_shifts[] =
-    /*DOC*/    "Surface.get_shifts() -> redshift, greenshift, blueshift,\n"
-    /*DOC*/    "alphashift\n"
-    /*DOC*/    "get mapping shifts for each colorplane\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the bitshifts used for each color plane. The shift is\n"
-    /*DOC*/    "determine how many bits left-shifted a colorplane value is in a\n"
-    /*DOC*/    "mapped color value.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_shifts(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -1435,16 +1027,6 @@ static PyObject* surf_get_shifts(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_surf_get_losses[] =
-    /*DOC*/    "Surface.get_losses() -> redloss, greenloss, blueloss, alphaloss\n"
-    /*DOC*/    "get mapping losses for each colorplane\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the bitloss for each color plane. The loss is the number\n"
-    /*DOC*/    "of bits removed for each colorplane from a full 8 bits of\n"
-    /*DOC*/    "resolution. A value of 8 usually indicates that colorplane is not\n"
-    /*DOC*/    "used (like the alpha)\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_losses(PyObject* self, PyObject* args)
 {
 	SDL_Surface* surf = PySurface_AsSurface(self);
@@ -1453,27 +1035,6 @@ static PyObject* surf_get_losses(PyObject* self, PyObject* args)
 				surf->format->Bloss, surf->format->Aloss);
 }
 
-
-    /*DOC*/ static char doc_surf_subsurface[] =
-    /*DOC*/    "Surface.subsurface(rectstyle) -> Surface\n"
-    /*DOC*/    "create a new surface that shares pixel data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates a new surface that shares pixel data of the given surface.\n"
-    /*DOC*/    "Note that only the pixel data is shared. Things like clipping rectangles\n"
-    /*DOC*/    "and colorkeys will be unique for the new surface.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The new subsurface will inherit the palette, colorkey, and surface alpha\n"
-    /*DOC*/    "values from the base image.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "You should not use the RLEACCEL flag for parent surfaces of subsurfaces,\n"
-    /*DOC*/    "for the most part it will work, but it will cause a lot of extra work,\n"
-    /*DOC*/    "every time you change the subsurface, you must decode and recode the\n"
-    /*DOC*/    "RLEACCEL data for the parent surface.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "As for using RLEACCEL with the subsurfaces, that will work as you'd\n"
-    /*DOC*/    "expect, but changes the the parent Surface will not always take effect\n"
-    /*DOC*/    "in the subsurface.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 {
@@ -1538,16 +1099,6 @@ static PyObject* surf_subsurface(PyObject* self, PyObject* args)
 }
 
 
-
-    /*DOC*/ static char doc_surf_get_offset[] =
-    /*DOC*/    "Surface.get_offset() -> x, y\n"
-    /*DOC*/    "get offset of subsurface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the X and Y position a subsurface is positioned\n"
-    /*DOC*/    "inside its parent. Will return 0,0 for surfaces that are\n"
-    /*DOC*/    "not a subsurface.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_get_offset(PyObject* self, PyObject* args)
 {
     	struct SubSurface_Data *subdata;
@@ -1557,15 +1108,6 @@ static PyObject* surf_get_offset(PyObject* self, PyObject* args)
     	return Py_BuildValue("(ii)", subdata->offsetx, subdata->offsety);
 }
 
-
-    /*DOC*/ static char doc_surf_get_abs_offset[] =
-    /*DOC*/    "Surface.get_abs_offset() -> x, y\n"
-    /*DOC*/    "get absolute offset of subsurface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the absolute X and Y position a subsurface is positioned\n"
-    /*DOC*/    "inside its top level parent. Will return 0,0 for surfaces that are\n"
-    /*DOC*/    "not a subsurface.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_abs_offset(PyObject* self, PyObject* args)
 {
@@ -1594,13 +1136,6 @@ static PyObject* surf_get_abs_offset(PyObject* self, PyObject* args)
 	return Py_BuildValue("(ii)", offsetx, offsety);
 }
 
-    /*DOC*/ static char doc_surf_get_parent[] =
-    /*DOC*/    "Surface.get_parent() -> Surface\n"
-    /*DOC*/    "get a subsurface parent\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the Surface that is a parent of this subsurface.\n"
-    /*DOC*/    "Will return None if this is not a subsurface.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_get_parent(PyObject* self, PyObject* args)
 {
@@ -1613,14 +1148,7 @@ static PyObject* surf_get_parent(PyObject* self, PyObject* args)
 	return subdata->owner;
 }
 
-    /*DOC*/ static char doc_surf_get_abs_parent[] =
-    /*DOC*/    "Surface.get_abs_parent() -> Surface\n"
-    /*DOC*/    "get the toplevel surface for a subsurface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Returns the top level Surface for this subsurface. If this is not\n"
-    /*DOC*/    "a subsurface it will return a reference to itself. You will always\n"
-    /*DOC*/    "get a valid surface from this method.\n"
-    /*DOC*/ ;
+
 static PyObject* surf_get_abs_parent(PyObject* self, PyObject* args)
 {
     	struct SubSurface_Data *subdata;
@@ -1651,55 +1179,55 @@ static PyObject* surf_get_abs_parent(PyObject* self, PyObject* args)
 
 static struct PyMethodDef surface_methods[] =
 {
-	{"get_at",			surf_get_at,		1, doc_surf_get_at },
-	{"set_at",			surf_set_at,		1, doc_surf_set_at },
+	{"get_at",			surf_get_at,		1, DOC_SURFACEGETAT },
+	{"set_at",			surf_set_at,		1, DOC_SURFACESETAT },
 
-	{"map_rgb",			surf_map_rgb,		1, doc_surf_map_rgb },
-	{"unmap_rgb",		surf_unmap_rgb, 	1, doc_surf_unmap_rgb },
+	{"map_rgb",			surf_map_rgb,		1, DOC_SURFACEMAPRGB },
+	{"unmap_rgb",		surf_unmap_rgb, 	1, DOC_SURFACEUNMAPRGB },
 
-	{"get_palette", 	surf_get_palette,	1, doc_surf_get_palette },
-	{"get_palette_at",	surf_get_palette_at,1, doc_surf_get_palette_at },
-	{"set_palette", 	surf_set_palette,	1, doc_surf_set_palette },
-	{"set_palette_at",	surf_set_palette_at,1, doc_surf_set_palette_at },
+	{"get_palette", 	surf_get_palette,	1, DOC_SURFACEGETPALETTE },
+	{"get_palette_at",	surf_get_palette_at,1, DOC_SURFACEGETPALETTEAT },
+	{"set_palette", 	surf_set_palette,	1, DOC_SURFACESETPALETTE },
+	{"set_palette_at",	surf_set_palette_at,1, DOC_SURFACESETPALETTEAT },
 
-	{"lock",			surf_lock,			1, doc_surf_lock },
-	{"unlock",			surf_unlock,		1, doc_surf_unlock },
-	{"mustlock",		surf_mustlock,		1, doc_surf_mustlock },
-	{"get_locked",		surf_get_locked,	1, doc_surf_get_locked },
+	{"lock",			surf_lock,			1, DOC_SURFACELOCK },
+	{"unlock",			surf_unlock,		1, DOC_SURFACEUNLOCK },
+	{"mustlock",		surf_mustlock,		1, DOC_SURFACEMUSTLOCK },
+	{"get_locked",		surf_get_locked,	1, DOC_SURFACEGETLOCKED },
 
-	{"set_colorkey",	surf_set_colorkey,	1, doc_surf_set_colorkey },
-	{"get_colorkey",	surf_get_colorkey,	1, doc_surf_get_colorkey },
-	{"set_alpha",		surf_set_alpha, 	1, doc_surf_set_alpha },
-	{"get_alpha",		surf_get_alpha, 	1, doc_surf_get_alpha },
+	{"set_colorkey",	surf_set_colorkey,	1, DOC_SURFACESETCOLORKEY },
+	{"get_colorkey",	surf_get_colorkey,	1, DOC_SURFACEGETCOLORKEY },
+	{"set_alpha",		surf_set_alpha, 	1, DOC_SURFACESETALPHA },
+	{"get_alpha",		surf_get_alpha, 	1, DOC_SURFACEGETALPHA },
 
-	{"copy",		surf_copy,		1, doc_surf_copy },
-	{"__copy__",		surf_copy,		1, NULL },
-	{"convert",			surf_convert,		1, doc_surf_convert },
-	{"convert_alpha",	surf_convert_alpha,	1, doc_surf_convert_alpha },
+	{"copy",		surf_copy,		1, DOC_SURFACECOPY },
+	{"__copy__",		surf_copy,		1, DOC_SURFACECOPY },
+	{"convert",			surf_convert,		1, DOC_SURFACECONVERT },
+	{"convert_alpha",	surf_convert_alpha,	1, DOC_SURFACECONVERTALPHA },
 
-	{"set_clip",		surf_set_clip,		1, doc_surf_set_clip },
-	{"get_clip",		surf_get_clip,		1, doc_surf_get_clip },
+	{"set_clip",		surf_set_clip,		1, DOC_SURFACESETCLIP },
+	{"get_clip",		surf_get_clip,		1, DOC_SURFACEGETCLIP },
 
-	{"fill",			surf_fill,			1, doc_surf_fill },
-	{"blit",			surf_blit,			1, doc_surf_blit },
+	{"fill",			surf_fill,			1, DOC_SURFACEFILL },
+	{"blit",			surf_blit,			1, DOC_SURFACEBLIT },
 
-	{"get_flags",		surf_get_flags, 	1, doc_surf_get_flags },
-	{"get_size",		surf_get_size,		1, doc_surf_get_size },
-	{"get_width",		surf_get_width, 	1, doc_surf_get_width },
-	{"get_height",		surf_get_height,	1, doc_surf_get_height },
-	{"get_rect",		(PyCFunction)surf_get_rect, METH_KEYWORDS, doc_surf_get_rect },
-	{"get_pitch",		surf_get_pitch, 	1, doc_surf_get_pitch },
-	{"get_bitsize", 	surf_get_bitsize,	1, doc_surf_get_bitsize },
-	{"get_bytesize",	surf_get_bytesize,	1, doc_surf_get_bytesize },
-	{"get_masks",		surf_get_masks, 	1, doc_surf_get_masks },
-	{"get_shifts",		surf_get_shifts,	1, doc_surf_get_shifts },
-	{"get_losses",		surf_get_losses,	1, doc_surf_get_losses },
+	{"get_flags",		surf_get_flags, 	1, DOC_SURFACEGETFLAGS },
+	{"get_size",		surf_get_size,		1, DOC_SURFACEGETSIZE },
+	{"get_width",		surf_get_width, 	1, DOC_SURFACEGETWIDTH },
+	{"get_height",		surf_get_height,	1, DOC_SURFACEGETHEIGHT },
+	{"get_rect",		(PyCFunction)surf_get_rect, METH_KEYWORDS, DOC_SURFACEGETRECT },
+	{"get_pitch",		surf_get_pitch, 	1, DOC_SURFACEGETPITCH },
+	{"get_bitsize", 	surf_get_bitsize,	1, DOC_SURFACEGETBITSIZE },
+	{"get_bytesize",	surf_get_bytesize,	1, DOC_SURFACEGETBYTESIZE },
+	{"get_masks",		surf_get_masks, 	1, DOC_SURFACEGETMASKS },
+	{"get_shifts",		surf_get_shifts,	1, DOC_SURFACEGETSHIFTS },
+	{"get_losses",		surf_get_losses,	1, DOC_SURFACEGETLOSSES },
 
-	{"subsurface",		surf_subsurface,	1, doc_surf_subsurface },
-	{"get_offset",		surf_get_offset,	1, doc_surf_get_offset },
-	{"get_abs_offset",	surf_get_abs_offset,	1, doc_surf_get_abs_offset },
-	{"get_parent",		surf_get_parent,	1, doc_surf_get_parent },
-	{"get_abs_parent",	surf_get_abs_parent,	1, doc_surf_get_abs_parent },
+	{"subsurface",		surf_subsurface,	1, DOC_SURFACESUBSURFACE },
+	{"get_offset",		surf_get_offset,	1, DOC_SURFACEGETOFFSET },
+	{"get_abs_offset",	surf_get_abs_offset,	1, DOC_SURFACEGETABSOFFSET },
+	{"get_parent",		surf_get_parent,	1, DOC_SURFACEGETPARENT },
+	{"get_abs_parent",	surf_get_abs_parent,	1, DOC_SURFACEGETABSPARENT },
 
 	{NULL,		NULL}
 };
@@ -1762,54 +1290,7 @@ PyObject* surface_str(PyObject* self)
 	return PyString_FromString(str);
 }
 
-
-
-#if 0
-    /*DOC*/ static char doc_Surface_MODULE[] =
-    /*DOC*/    "Surface objects represent a simple memory buffer of pixels.\n"
-    /*DOC*/    "Surface objects can reside in system memory, or in special\n"
-    /*DOC*/    "hardware memory, which can be hardware accelerated. Surfaces that\n"
-    /*DOC*/    "are 8 bits per pixel use a colormap to represent their color\n"
-    /*DOC*/    "values. All Surfaces with higher bits per pixel use a packed\n"
-    /*DOC*/    "pixels to store their color values.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creating a new Surface().\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Surfaces can have many extra attributes like alpha planes,\n"
-    /*DOC*/    "colorkeys, source rectangle clipping. These functions mainly\n"
-    /*DOC*/    "effect how the Surface is blitted to other Surfaces. The blit\n"
-    /*DOC*/    "routines will attempt to use hardware acceleration when possible,\n"
-    /*DOC*/    "otherwise will use highly optimized software blitting methods.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "There is support for pixel access for the Surfaces. Pixel access\n"
-    /*DOC*/    "on hardware surfaces is slow and not recommended. Pixels can be\n"
-    /*DOC*/    "accessed using the get_at() and set_at() functions. These methods\n"
-    /*DOC*/    "are fine for simple access, but will be considerably slow when\n"
-    /*DOC*/    "doing of pixel work with them. If you plan on doing a lot of\n"
-    /*DOC*/    "pixel level work, it is recommended to use the pygame.surfarray\n"
-    /*DOC*/    "module, which can treat the surfaces like large multidimensional\n"
-    /*DOC*/    "arrays (and it's quite quick).\n"
-    /*DOC*/ ;
-#endif
-    /*DOC*/ static char doc_Surface[] =
-    /*DOC*/    "pygame.Surface(size, [flags, [Surface|depth, [masks]]]) -> Surface\n"
-    /*DOC*/    "create a new Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Creates a new surface object. Size is a 2-int-sequence containing\n"
-    /*DOC*/    "width and height. Depth is the number of bits used per pixel. If\n"
-    /*DOC*/    "omitted, depth will use the current display depth. Masks is a\n"
-    /*DOC*/    "four item sequence containing the bitmask for r,g,b, and a. If\n"
-    /*DOC*/    "omitted, masks will default to the usual values for the given\n"
-    /*DOC*/    "bitdepth. Flags is a mix of the following flags: SWSURFACE,\n"
-    /*DOC*/    "HWSURFACE, ASYNCBLIT, or SRCALPHA. (flags = 0 is the\n"
-    /*DOC*/    "same as SWSURFACE). Depth and masks can be substituted for\n"
-    /*DOC*/    "another surface object which will create the new surface with the\n"
-    /*DOC*/    "same format as the given one. When using default masks, alpha\n"
-    /*DOC*/    "will always be ignored unless you pass SRCALPHA as a flag.\n"
-    /*DOC*/    "For a plain software surface, 0 can be used for the flag. \n"
-    /*DOC*/    "A plain hardware surface can just use 1 for the flag.\n"
-    /*DOC*/ ;
-   
+  
 static PyTypeObject PySurface_Type =
 {
 	PyObject_HEAD_INIT(NULL)
@@ -1832,7 +1313,7 @@ static PyTypeObject PySurface_Type =
 	0,
         0L,0L,
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-	doc_Surface, /* Documentation string */
+	DOC_PYGAMESURFACE, /* Documentation string */
 	0,					/* tp_traverse */
 	0,					/* tp_clear */
 	0,					/* tp_richcompare */
@@ -1994,13 +1475,6 @@ static PyMethodDef surface_builtins[] =
 };
 
 
-
-    /*DOC*/ static char doc_pygame_surface_MODULE[] =
-    /*DOC*/    "The surface module doesn't have much in the line of functions. It\n"
-    /*DOC*/    "does have the Surface object, and one routine to create new\n"
-    /*DOC*/    "surfaces, pygame.Surface().\n"
-    /*DOC*/ ;
-
 PYGAME_EXPORT
 void initsurface(void)
 {
@@ -2011,7 +1485,7 @@ void initsurface(void)
             return;
         
     /* create the module */
-	module = Py_InitModule3("surface", surface_builtins, doc_pygame_surface_MODULE);
+	module = Py_InitModule3("surface", surface_builtins, DOC_PYGAMESURFACE);
 	dict = PyModule_GetDict(module);
 
 	PyDict_SetItemString(dict, "SurfaceType", (PyObject *)&PySurface_Type);

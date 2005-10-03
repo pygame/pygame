@@ -1,0 +1,265 @@
+pygame.font
+pygame module for loading and rendering fonts
+
+The font module allows for rendering TrueType fonts into a new Surface
+object. This module is optional and requires SDL_ttf as a dependency. You
+should test that pygame.font is available and initialized before attempting
+to use the module.
+ 
+Most of the work done with fonts are done by using the actual Font objects.
+The module by itself only has routines to initialize the module and create
+Font objects with pygame.font.Font().
+ 
+You can load fonts from the system by using the pygame.font.SysFont()
+function. There are a few other functions to help lookup the system fonts.
+
+Pygame comes with a builtin default font. This can always be accessed by
+passing None as the font name.
+<SECTION>
+
+
+
+init
+initialize the font module
+pygame.font.init(): return None
+
+Initialize the font module. The module must be initialized before any
+other functions will work. This automatically happens when you call
+pygame.init().
+
+It is safe to call this function more than once.
+<END>
+
+
+
+quit
+uninitialize the font module
+pygame.cdrom.font(): return None
+
+Uninitialize the cdrom module. After you call this any existing CD objects
+will no longer work.
+
+It is safe to call this function more than once.
+<END>
+
+
+
+get_init
+true if the font module is initialized
+pygame.font.get_init(): return bool
+
+Test if the font module is initialized or not.
+<END>
+
+
+
+get_default_font
+get the filename of the default font
+pygame.font.get_default_font(): return string
+
+Return the filename of the system font. This is not the full path to the file.
+This file can usually be found in the same directory as the font module, but
+it can also be bundled in separate archives.
+<END>
+
+
+
+get_fonts
+get a list of all the fonts sound on the system. The names of the fonts will
+be set to lowercase with all spaces and punctuation removed. This works on
+most systems, but some will return an empty list if they cannot find fonts.
+<END>
+
+
+
+match_font
+find a specific font on the system
+pygame.font.match_font(name, bold=False, italic=False): return path
+
+Returns the full path to a font file on the system. If bold or italic are
+set to true, this will attempt to find the correct family of font.
+
+The font name can actually be a comma separated list of font names to try.
+If none of the given names are found, None is returned.
+<END>
+
+
+
+
+SysFont
+create a Font object from the system fonts
+pygame.font.SysFont(name, size, bold=False, italic=False): return Font
+
+Return a new Font object that is loaded from the system fonts. The font will
+match the requested bold and italic flags. If a suitable system font is not
+found this will fallback on loading the default pygame font. The font name
+can be a comma separated list of font names to look for.
+<END>
+
+
+
+Font
+create a new Font object from a file
+pygame.font.Font(filename, size): return Font
+pygame.font.Font(object, size): return Font
+
+Load a new font from a given filename or a python file object. The size 
+is the height of the font in pixels. If the filename is None the Pygame
+default font will be loaded. If a font cannot be loaded from the arguments
+given an exception will be raised. Once the font is created the size cannot
+be changed. 
+
+Font objects are mainly used to render text into new Surface objects. The
+render can emulate bold or italic features, but it is better to load from
+a font with actual italic or bold glyphs. The rendered text can be regular
+strings or unicode.
+<SECTION>
+
+
+
+render
+render text to a new Surface
+Font.render(text, antialias, color, background=None): return Surface
+
+This creates a new surface with the correct dimensions to hold the text.
+The text can only be a single line, newline characters are not rendered.
+The antialias argument is a boolean, if true the characters will have
+smooth edges. The color argument is the color for the text. The optional
+background argument is a color to use for the text background. If no
+background is passed the area outside the text will be transparent.
+
+If any empty string is passed for the text, a blank surface will be returned
+that is one pixel wide and the height of the font.
+
+Depending on the type of background and antialiasing used, this returns
+different types of Surfaces. For performance reasons, it is good to know what
+type of image will be used. If antialiasing is not used, the return image will
+always be an 8bit image with a two color palette. If the background is
+transparent a colorkey will be set. Antialiased image are rendered to 24bit
+RGB images. If the background is transparent a pixel alpha will be included.
+
+Images with pixel alpha are generally the slowest to draw in Pygame. These
+images are returned when antialiasing is used and no background color is used.
+If the other images a font will be drawn to have a consistent color you can
+optimize the blitting by rendering the font with antialiasing and using a
+background color. After the text is rendered, set a colorkey on the Surface
+for the background color.
+
+Font rendering is not thread safe, only a single thread can render text
+any time.
+<END>
+
+
+
+size
+determine the size needed to render text
+Font.size(text): return (width, height)
+
+Returns the dimensions needed to render the text. This can be used to
+help determine the positioning needed for text before it is rendered. This
+can be used for wordwrapping and other layout effects.
+
+Be aware that most fonts use kerning which adjusts the widths for specific
+letter pairs. the width for "ae" will not always match the width for "a" + "e".
+<END>
+
+
+
+set_underline
+control if text is rendered with an underline
+Font.set_underline(bool): return None
+
+When enabled, all rendered fonts will include an underline. The underline is
+always one pixel thick, regardless of font size. This can be mixed with
+the bold and italic modes.
+<END>
+
+
+
+get_underline
+check if text will be rendered with an underline
+Font.get_underline(): return bool
+
+Return True when the font underline is enabled.
+<END>
+
+
+
+set_bold
+enable fake rendering of bold text
+Font.set_bold(bool): return None
+
+Enables the bold rendering of text. This is a fake stretching of the font
+that doesn't look good on many font types. If possible load the font from
+a real bold font file. While bold, the font will have a different width
+than when normal. This can be mixed with the italic and underline modes.
+<END>
+
+
+
+get_bold
+check if text will be rendered bold
+Font.get_bold(): return bool
+
+Return True when the font bold rendering mode is enabled.
+<END>
+
+
+
+set_italic
+enable fake rendering of italic text of text. This is a fake skewing of the
+font that doesn't look good on many font types. if possible load the font from
+a real italic font file. While italic the font will have a different width
+than when normal. This can be mixed with the bold and underline modes.
+<END>
+
+
+
+get_italic
+check if the text will be rendered italic
+Font.get_italic(): return bool
+
+Return True when the font italic rendering mode is enabled.
+<END>
+
+
+
+get_linesize
+get the line space of the font text
+Font.get_linesize(): return int
+
+Return the height in pixels for a line of text with the font. When rendering
+multiple lines of text this is the recommended amount of space between lines.
+<END>
+
+
+
+get_height
+get the height of the font
+Font.get_height(): return int
+
+Return the height in pixels of the actual rendered text. This is the average
+size for each glyph in the font.
+<END>
+
+
+
+get_ascent
+get the ascent of the font
+Font.get_ascent(): return int
+
+Return the height in pixels for the font ascent. The ascent is the number
+of pixels from the font baseline to the top of the font.
+<END>
+
+
+
+get_descent
+get the descent of the font
+Font.get_descent(): return int
+
+Return the height in pixels for the font descent. The descent is the number
+of pixels from the font baseline to the bottom of the font.
+<END>
+<END>
+<END>

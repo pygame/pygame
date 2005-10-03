@@ -1,0 +1,276 @@
+
+<html>
+<title>font - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href=cdrom.html>Cdrom</a>&nbsp;||&nbsp;
+<a href=cursors.html>Cursors</a>&nbsp;||&nbsp;
+<a href=display.html>Display</a>&nbsp;||&nbsp;
+<a href=draw.html>Draw</a>&nbsp;||&nbsp;
+<a href=event.html>Event</a>&nbsp;||&nbsp;
+<a href=font.html>Font</a>&nbsp;||&nbsp;
+<a href=image.html>Image</a>&nbsp;||&nbsp;
+<a href=joystick.html>Joystick</a>&nbsp;||&nbsp;
+<a href=key.html>Key</a>&nbsp;||&nbsp;
+<a href=mixer.html>Mixer</a>&nbsp;||&nbsp;
+<a href=mouse.html>Mouse</a>&nbsp;||&nbsp;
+<a href=movie.html>Movie</a>&nbsp;||&nbsp;
+<a href=music.html>Music</a>&nbsp;||&nbsp;
+<a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
+<a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
+<a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
+<a href=surface.html>Surface</a>&nbsp;||&nbsp;
+<a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
+<a href=time.html>Time</a>&nbsp;||&nbsp;
+<a href=transform.html>Transform</a>
+</p>
+
+
+</td></tr></table></td></tr></table>
+<br>
+
+
+<a name="pygame.font">
+<big><b>pygame.font</big></b><br><ul>
+  <i>pygame module for loading and rendering fonts</i><br>
+<ul><small><table>
+  <tr><td><a href="font.html#pygame.font.init">pygame.font.init</a></td><td>initialize the font module</td></tr>
+  <tr><td><a href="font.html#pygame.font.quit">pygame.font.quit</a></td><td>uninitialize the font module</td></tr>
+  <tr><td><a href="font.html#pygame.font.get_init">pygame.font.get_init</a></td><td>true if the font module is initialized</td></tr>
+  <tr><td><a href="font.html#pygame.font.get_default_font">pygame.font.get_default_font</a></td><td>get the filename of the default font</td></tr>
+  <tr><td><a href="font.html#pygame.font.get_fonts">pygame.font.get_fonts</a></td><td>get a list of all the fonts sound on the system. The names of the fonts will</td></tr>
+  <tr><td><a href="font.html#pygame.font.match_font">pygame.font.match_font</a></td><td>find a specific font on the system</td></tr>
+  <tr><td><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a></td><td>create a Font object from the system fonts</td></tr>
+  <tr><td><a href="font.html#pygame.font.Font">pygame.font.Font</a></td><td>create a new Font object from a file</td></tr>
+</table></small></ul>
+<p>The font module allows for rendering TrueType fonts into a new Surface object. This module is optional and requires SDL_ttf as a dependency. You should test that <tt>pygame.font</tt> is available and initialized before attempting to use the module. </p>
+<p>Most of the work done with fonts are done by using the actual Font objects. The module by itself only has routines to initialize the module and create Font objects with <tt><a href="font.html#pygame.font.Font">pygame.font.Font</a></tt>. </p>
+<p>You can load fonts from the system by using the <tt><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a></tt> function. There are a few other functions to help lookup the system fonts. </p>
+<p>Pygame comes with a builtin default font. This can always be accessed by passing None as the font name. </p>
+ &nbsp;<br> 
+
+
+<a name="pygame.font.init">
+<big><b>pygame.font.init</big></b><br><ul>
+  <i>initialize the font module</i><br>
+  <tt>pygame.font.init(): return None</tt><br>
+<p>Initialize the font module. The module must be initialized before any other functions will work. This automatically happens when you call <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>. </p>
+<p>It is safe to call this function more than once. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.font.quit">
+<big><b>pygame.font.quit</big></b><br><ul>
+  <i>uninitialize the font module</i><br>
+  <tt>pygame.cdrom.font(): return None</tt><br>
+<p>Uninitialize the cdrom module. After you call this any existing <tt>CD</tt> objects will no longer work. </p>
+<p>It is safe to call this function more than once. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.font.get_init">
+<big><b>pygame.font.get_init</big></b><br><ul>
+  <i>true if the font module is initialized</i><br>
+  <tt>pygame.font.get_init(): return bool</tt><br>
+<p>Test if the font module is initialized or not. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.font.get_default_font">
+<big><b>pygame.font.get_default_font</big></b><br><ul>
+  <i>get the filename of the default font</i><br>
+  <tt>pygame.font.get_default_font(): return string</tt><br>
+<p>Return the filename of the system font. This is not the full path to the file. This file can usually be found in the same directory as the font module, but it can also be bundled in separate archives. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.font.get_fonts">
+<big><b>pygame.font.get_fonts</big></b><br><ul>
+  <i>get a list of all the fonts sound on the system. The names of the fonts will</i><br>
+  <tt>be set to lowercase with all spaces and punctuation removed. This works on</tt><br>
+  <tt>most systems, but some will return an empty list if they cannot find fonts.</tt><br>
+ &nbsp;<br> 
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.font.match_font">
+<big><b>pygame.font.match_font</big></b><br><ul>
+  <i>find a specific font on the system</i><br>
+  <tt>pygame.font.match_font(name, bold=False, italic=False): return path</tt><br>
+<p>Returns the full path to a font file on the system. If bold or italic are set to true, this will attempt to find the correct family of font. </p>
+<p>The font name can actually be a comma separated list of font names to try. If none of the given names are found, None is returned. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.font.SysFont">
+<big><b>pygame.font.SysFont</big></b><br><ul>
+  <i>create a Font object from the system fonts</i><br>
+  <tt>pygame.font.SysFont(name, size, bold=False, italic=False): return Font</tt><br>
+<p>Return a new Font object that is loaded from the system fonts. The font will match the requested bold and italic flags. If a suitable system font is not found this will fallback on loading the default pygame font. The font name can be a comma separated list of font names to look for. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.font.Font">
+<big><b>pygame.font.Font</big></b><br><ul>
+  <i>create a new Font object from a file</i><br>
+  <tt>pygame.font.Font(filename, size): return Font</tt><br>
+  <tt>pygame.font.Font(object, size): return Font</tt><br>
+<ul><small><table>
+  <tr><td><a href="font.html#Font.render">Font.render</a></td><td>render text to a new Surface</td></tr>
+  <tr><td><a href="font.html#Font.size">Font.size</a></td><td>determine the size needed to render text</td></tr>
+  <tr><td><a href="font.html#Font.set_underline">Font.set_underline</a></td><td>control if text is rendered with an underline</td></tr>
+  <tr><td><a href="font.html#Font.get_underline">Font.get_underline</a></td><td>check if text will be rendered with an underline</td></tr>
+  <tr><td><a href="font.html#Font.set_bold">Font.set_bold</a></td><td>enable fake rendering of bold text</td></tr>
+  <tr><td><a href="font.html#Font.get_bold">Font.get_bold</a></td><td>check if text will be rendered bold</td></tr>
+  <tr><td><a href="font.html#Font.set_italic">Font.set_italic</a></td><td>enable fake rendering of italic text of text. This is a fake skewing of the</td></tr>
+  <tr><td><a href="font.html#Font.get_italic">Font.get_italic</a></td><td>check if the text will be rendered italic</td></tr>
+  <tr><td><a href="font.html#Font.get_linesize">Font.get_linesize</a></td><td>get the line space of the font text</td></tr>
+  <tr><td><a href="font.html#Font.get_height">Font.get_height</a></td><td>get the height of the font</td></tr>
+  <tr><td><a href="font.html#Font.get_ascent">Font.get_ascent</a></td><td>get the ascent of the font</td></tr>
+  <tr><td><a href="font.html#Font.get_descent">Font.get_descent</a></td><td>get the descent of the font</td></tr>
+</table></small></ul>
+<p>Load a new font from a given filename or a python file object. The size is the height of the font in pixels. If the filename is None the Pygame default font will be loaded. If a font cannot be loaded from the arguments given an exception will be raised. Once the font is created the size cannot be changed. </p>
+<p>Font objects are mainly used to render text into new Surface objects. The render can emulate bold or italic features, but it is better to load from a font with actual italic or bold glyphs. The rendered text can be regular strings or unicode. </p>
+ &nbsp;<br> 
+
+
+<a name="Font.render">
+<big><b>Font.render</big></b><br><ul>
+  <i>render text to a new Surface</i><br>
+  <tt>Font.render(text, antialias, color, background=None): return Surface</tt><br>
+<p>This creates a new surface with the correct dimensions to hold the text. The text can only be a single line, newline characters are not rendered. The antialias argument is a boolean, if true the characters will have smooth edges. The color argument is the color for the text. The optional background argument is a color to use for the text background. If no background is passed the area outside the text will be transparent. </p>
+<p>If any empty string is passed for the text, a blank surface will be returned that is one pixel wide and the height of the font. </p>
+<p>Depending on the type of background and antialiasing used, this returns different types of Surfaces. For performance reasons, it is good to know what type of image will be used. If antialiasing is not used, the return image will always be an 8bit image with a two color palette. If the background is transparent a colorkey will be set. Antialiased image are rendered to 24bit <tt>RGB</tt> images. If the background is transparent a pixel alpha will be included. </p>
+<p>Images with pixel alpha are generally the slowest to draw in Pygame. These images are returned when antialiasing is used and no background color is used. If the other images a font will be drawn to have a consistent color you can optimize the blitting by rendering the font with antialiasing and using a background color. After the text is rendered, set a colorkey on the Surface for the background color. </p>
+<p>Font rendering is not thread safe, only a single thread can render text any time. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.size">
+<big><b>Font.size</big></b><br><ul>
+  <i>determine the size needed to render text</i><br>
+  <tt>Font.size(text): return (width, height)</tt><br>
+<p>Returns the dimensions needed to render the text. This can be used to help determine the positioning needed for text before it is rendered. This can be used for wordwrapping and other layout effects. </p>
+<p>Be aware that most fonts use kerning which adjusts the widths for specific letter pairs. the width for "ae" will not always match the width for "a" + "e". </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.set_underline">
+<big><b>Font.set_underline</big></b><br><ul>
+  <i>control if text is rendered with an underline</i><br>
+  <tt>Font.set_underline(bool): return None</tt><br>
+<p>When enabled, all rendered fonts will include an underline. The underline is always one pixel thick, regardless of font size. This can be mixed with the bold and italic modes. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.get_underline">
+<big><b>Font.get_underline</big></b><br><ul>
+  <i>check if text will be rendered with an underline</i><br>
+  <tt>Font.get_underline(): return bool</tt><br>
+<p>Return True when the font underline is enabled. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.set_bold">
+<big><b>Font.set_bold</big></b><br><ul>
+  <i>enable fake rendering of bold text</i><br>
+  <tt>Font.set_bold(bool): return None</tt><br>
+<p>Enables the bold rendering of text. This is a fake stretching of the font that doesn't look good on many font types. If possible load the font from a real bold font file. While bold, the font will have a different width than when normal. This can be mixed with the italic and underline modes. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.get_bold">
+<big><b>Font.get_bold</big></b><br><ul>
+  <i>check if text will be rendered bold</i><br>
+  <tt>Font.get_bold(): return bool</tt><br>
+<p>Return True when the font bold rendering mode is enabled. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.set_italic">
+<big><b>Font.set_italic</big></b><br><ul>
+  <i>enable fake rendering of italic text of text. This is a fake skewing of the</i><br>
+  <tt>font that doesn't look good on many font types. if possible load the font from</tt><br>
+  <tt>a real italic font file. While italic the font will have a different width</tt><br>
+  <tt>than when normal. This can be mixed with the bold and underline modes.</tt><br>
+ &nbsp;<br> 
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.get_italic">
+<big><b>Font.get_italic</big></b><br><ul>
+  <i>check if the text will be rendered italic</i><br>
+  <tt>Font.get_italic(): return bool</tt><br>
+<p>Return True when the font italic rendering mode is enabled. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.get_linesize">
+<big><b>Font.get_linesize</big></b><br><ul>
+  <i>get the line space of the font text</i><br>
+  <tt>Font.get_linesize(): return int</tt><br>
+<p>Return the height in pixels for a line of text with the font. When rendering multiple lines of text this is the recommended amount of space between lines. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.get_height">
+<big><b>Font.get_height</big></b><br><ul>
+  <i>get the height of the font</i><br>
+  <tt>Font.get_height(): return int</tt><br>
+<p>Return the height in pixels of the actual rendered text. This is the average size for each glyph in the font. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.get_ascent">
+<big><b>Font.get_ascent</big></b><br><ul>
+  <i>get the ascent of the font</i><br>
+  <tt>Font.get_ascent(): return int</tt><br>
+<p>Return the height in pixels for the font ascent. The ascent is the number of pixels from the font baseline to the top of the font. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.get_descent">
+<big><b>Font.get_descent</big></b><br><ul>
+  <i>get the descent of the font</i><br>
+  <tt>Font.get_descent(): return int</tt><br>
+<p>Return the height in pixels for the font descent. The descent is the number of pixels from the font baseline to the bottom of the font. </p>
+ &nbsp;<br> 
+<br></ul>
+<br></ul>
+<br></ul>
+
+</body></html>

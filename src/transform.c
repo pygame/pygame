@@ -24,6 +24,7 @@
  *  surface transformations for pygame
  */
 #include "pygame.h"
+#include "pygamedocs.h"
 #include <math.h>
 
 
@@ -330,20 +331,6 @@ static void stretch(SDL_Surface *src, SDL_Surface *dst)
 }
 
 
-
-
-
-    /*DOC*/ static char doc_scale[] =
-    /*DOC*/    "pygame.transform.scale(Surface, size) -> Surface\n"
-    /*DOC*/    "scale a Surface to an arbitrary size\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will resize a surface to the given resolution.\n"
-    /*DOC*/    "The size is simply any 2 number sequence representing\n"
-    /*DOC*/    "the width and height.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This transformation is not filtered.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_scale(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj;
@@ -375,21 +362,6 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
 }
 
 
-
-
-    /*DOC*/ static char doc_scale2x[] =
-    /*DOC*/    "pygame.transform.scale2x(Surface) -> Surface\n"
-    /*DOC*/    "doubles the size of the image with advanced scaling\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will return a new image that is double the size of\n"
-    /*DOC*/    "the original. It uses the AdvanceMAME Scale2X algorithm\n"
-    /*DOC*/    "which does a 'jaggie-less' scale of bitmap graphics.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This really only has an effect on simple images with solid\n"
-    /*DOC*/    "colors. On photographic and antialiased images it will look\n"
-    /*DOC*/    "like a regular unfiltered scale.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_scale2x(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj;
@@ -418,25 +390,6 @@ static PyObject* surf_scale2x(PyObject* self, PyObject* arg)
 	return PySurface_New(newsurf);
 }
 
-
-
-
-    /*DOC*/ static char doc_rotate[] =
-    /*DOC*/    "pygame.transform.rotate(Surface, angle) -> Surface\n"
-    /*DOC*/    "rotate a Surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Rotates the image counterclockwise with the given angle\n"
-    /*DOC*/    "(in degrees). The angle can be any floating point value\n"
-    /*DOC*/    "(negative rotation amounts will do clockwise rotations)\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Unless rotating by 90 degree increments, the resulting image\n"
-    /*DOC*/    "size will be larger than the original. There will be newly\n"
-    /*DOC*/    "uncovered areas in the image. These will filled with either\n"
-    /*DOC*/    "the current colorkey for the Surface, or the topleft pixel value.\n"
-    /*DOC*/    "(with the alpha channel zeroed out if available)\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This transformation is not filtered.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 {
@@ -517,20 +470,6 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	return PySurface_New(newsurf);
 }
 
-
-
-
-    /*DOC*/ static char doc_flip[] =
-    /*DOC*/    "pygame.transform.flip(Surface, xaxis, yaxis) -> Surface\n"
-    /*DOC*/    "flips a surface on either axis\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Flips the image on the x-axis or the y-axis if the argument\n"
-    /*DOC*/    "for that axis is true.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The flip operation is nondestructive, you may flip the image\n"
-    /*DOC*/    "as many times as you like, and always be able to recreate the\n"
-    /*DOC*/    "exact original image.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_flip(PyObject* self, PyObject* arg)
 {
@@ -663,23 +602,6 @@ static PyObject* surf_flip(PyObject* self, PyObject* arg)
 
 extern SDL_Surface *rotozoomSurface(SDL_Surface *src, double angle, double zoom, int smooth);
 
-    /*DOC*/ static char doc_rotozoom[] =
-    /*DOC*/    "pygame.transform.rotozoom(Surface, angle, zoom) -> Surface\n"
-    /*DOC*/    "smoothly scale and/or rotate an image\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The angle argument is the number of degrees to rotate\n"
-    /*DOC*/    "counter-clockwise. The angle can be any floating point value.\n"
-    /*DOC*/    "(negative rotation amounts will do clockwise rotations)\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will smoothly rotate and scale an image in one pass.\n"
-    /*DOC*/    "The resulting image will always be a 32bit version of the\n"
-    /*DOC*/    "original surface. The scale is a multiplier for the image\n"
-    /*DOC*/    "size, and angle is the degrees to rotate counter clockwise.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "It calls the SDL_rotozoom library which is compiled in.\n"
-    /*DOC*/    "Note that the code in SDL_rotozoom is fairly messy and your\n"
-    /*DOC*/    "resulting image could be shifted and contain artifacts.\n"
-    /*DOC*/ ;
 
 static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 {
@@ -795,16 +717,6 @@ static SDL_Surface* chop(SDL_Surface *src, int x, int y, int width, int height)
 }
 
 
-    /*DOC*/ static char doc_chop[] =
-    /*DOC*/    "pygame.transform.chop(Surface, rectstyle) -> Surface\n"
-    /*DOC*/    "remove a region of an surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Removes an interior set of columns and rows from a Surface.\n"
-    /*DOC*/    "All vertical and horizontal pixels surrounding the given\n"
-    /*DOC*/    "rectangle area are removed. The resulting image is shrunken\n"
-    /*DOC*/    "by the size of pixels removed.\n"
-    /*DOC*/ ;
-
 static PyObject* surf_chop(PyObject* self, PyObject* arg)
 {
   PyObject *surfobj, *rectobj;
@@ -825,38 +737,23 @@ static PyObject* surf_chop(PyObject* self, PyObject* arg)
 
 static PyMethodDef transform_builtins[] =
 {
-	{ "scale", surf_scale, 1, doc_scale },
-	{ "rotate", surf_rotate, 1, doc_rotate },
-	{ "flip", surf_flip, 1, doc_flip },
-	{ "rotozoom", surf_rotozoom, 1, doc_rotozoom},
-	{ "chop", surf_chop, 1, doc_chop},
-	{ "scale2x", surf_scale2x, 1, doc_scale2x},
+	{ "scale", surf_scale, 1, DOC_PYGAMETRANSFORMSCALE },
+	{ "rotate", surf_rotate, 1, DOC_PYGAMETRANSFORMROTATE },
+	{ "flip", surf_flip, 1, DOC_PYGAMETRANSFORMFLIP },
+	{ "rotozoom", surf_rotozoom, 1, DOC_PYGAMETRANSFORMROTOZOOM},
+	{ "chop", surf_chop, 1, DOC_PYGAMETRANSFORMCHOP },
+	{ "scale2x", surf_scale2x, 1, DOC_PYGAMETRANSFORMSCALE2X },
 		
 	{ NULL, NULL }
 };
 
 
 
-    /*DOC*/ static char doc_pygame_transform_MODULE[] =
-    /*DOC*/    "Contains routines to transform a Surface image.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "All transformation functions take a source Surface and\n"
-    /*DOC*/    "return a new copy of that surface in the same format as\n"
-    /*DOC*/    "the original.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Some of the\n"
-    /*DOC*/    "filters are 'destructive', which means if you transform\n"
-    /*DOC*/    "the image one way, you can't transform the image back to\n"
-    /*DOC*/    "the exact same way as it was before. If you plan on doing\n"
-    /*DOC*/    "many transforms, it is good practice to keep the original\n"
-    /*DOC*/    "untransformed image, and only translate that image.\n"
-    /*DOC*/ ;
-
 PYGAME_EXPORT
 void inittransform(void)
 {
 	PyObject *module;
-	module = Py_InitModule3("transform", transform_builtins, doc_pygame_transform_MODULE);
+	module = Py_InitModule3("transform", transform_builtins, DOC_PYGAMETRANSFORM);
 
 	/*imported needed apis*/
 	import_pygame_base();

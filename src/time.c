@@ -21,6 +21,7 @@
 */
 
 #include "pygame.h"
+#include "pygamedocs.h"
 #if 0
 #include "font.h" /*needed for render function, does lazy init*/
 #endif
@@ -75,14 +76,6 @@ static int accurate_delay(int ticks)
 }
 
 
-    /*DOC*/ static char doc_get_ticks[] =
-    /*DOC*/    "pygame.time.get_ticks() -> int\n"
-    /*DOC*/    "milliseconds since initialization\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This is the time in milliseconds since the pygame.time was\n"
-    /*DOC*/    "imported. Always returns 0 before pygame.init() is called.\n"
-    /*DOC*/ ;
-
 static PyObject* time_get_ticks(PyObject* self, PyObject* arg)
 {
 	if(!PyArg_ParseTuple(arg, ""))
@@ -93,18 +86,6 @@ static PyObject* time_get_ticks(PyObject* self, PyObject* arg)
 	return PyInt_FromLong(SDL_GetTicks());
 }
 
-
-
-    /*DOC*/ static char doc_delay[] =
-    /*DOC*/    "pygame.time.delay(millseconds) -> time\n"
-    /*DOC*/    "accurately delay for a number of milliseconds\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Will pause for a given number of milliseconds.\n"
-    /*DOC*/    "This function will use the CPU in order to make\n"
-    /*DOC*/    "the delay more accurate than wait().\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns the actual number of milliseconds used.\n"
-    /*DOC*/ ;
 
 static PyObject* time_delay(PyObject* self, PyObject* arg)
 {
@@ -128,18 +109,6 @@ static PyObject* time_delay(PyObject* self, PyObject* arg)
         return PyInt_FromLong(ticks);
 }
 
-
-    /*DOC*/ static char doc_wait[] =
-    /*DOC*/    "pygame.time.wait(millseconds) -> time\n"
-    /*DOC*/    "yielding delay for a number of milliseconds\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Will pause for a given number of milliseconds.\n"
-    /*DOC*/    "This function sleeps the process to better share\n"
-    /*DOC*/    "the CPU with other processes. It is less accurate\n"
-    /*DOC*/    "than the delay() function.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This returns the actual number of milliseconds used.\n"
-    /*DOC*/ ;
 
 static PyObject* time_wait(PyObject* self, PyObject* arg)
 {
@@ -176,19 +145,6 @@ static PyObject* time_wait(PyObject* self, PyObject* arg)
         return PyInt_FromLong(SDL_GetTicks() - start);
 }
 
-
-
-    /*DOC*/ static char doc_set_timer[] =
-    /*DOC*/    "pygame.time.set_timer(eventid, milliseconds) -> None\n"
-    /*DOC*/    "control timer events\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Every event id can have a timer attached to it. Calling\n"
-    /*DOC*/    "this will set the timer in milliseconds for that event.\n"
-    /*DOC*/    "setting milliseconds to 0 or less will disable that timer.\n"
-    /*DOC*/    "When a timer for an event is set, that event will be\n"
-    /*DOC*/    "placed on the event queue every given number of\n"
-    /*DOC*/    "milliseconds.\n"
-    /*DOC*/ ;
 
 static PyObject* time_set_timer(PyObject* self, PyObject* arg)
 {
@@ -237,16 +193,6 @@ typedef struct {
         PyObject* rendered;
 } PyClockObject;
 
-    /*DOC*/ static char doc_clock_tick[] =
-    /*DOC*/    "Clock.tick([ticks_per_sec_delay]) -> milliseconds\n"
-    /*DOC*/    "control timer events\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Updates the number of ticks for this clock. It should usually\n"
-    /*DOC*/    "be called once per frame. If you pass the optional delay argument\n"
-    /*DOC*/    "the function will delay to keep the game running slower than the\n"
-    /*DOC*/    "given ticks per second. The function also returns the number of\n"
-    /*DOC*/    "milliseconds passed since the previous call to tick().\n"
-    /*DOC*/ ;
 
 static PyObject* clock_tick(PyObject* self, PyObject* arg)
 {
@@ -289,15 +235,6 @@ static PyObject* clock_tick(PyObject* self, PyObject* arg)
 }
 
 
-    /*DOC*/ static char doc_clock_get_fps[] =
-    /*DOC*/    "Clock.get_fps() -> float\n"
-    /*DOC*/    "get the current rate of frames per second\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This computes the running average of frames per second. This\n"
-    /*DOC*/    "is the number of times the tick() method has been called per\n"
-    /*DOC*/    "second.\n"
-    /*DOC*/ ;
-
 static PyObject* clock_get_fps(PyObject* self, PyObject* arg)
 {
 	PyClockObject* clock = (PyClockObject*)self;
@@ -305,29 +242,12 @@ static PyObject* clock_get_fps(PyObject* self, PyObject* arg)
 }
 
 
-    /*DOC*/ static char doc_clock_get_time[] =
-    /*DOC*/    "Clock.get_time() -> int\n"
-    /*DOC*/    "get number of milliseconds between last two calls to tick()\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This is the same value returned from the call to Clock.tick().\n"
-    /*DOC*/    "it is the number of milliseconds that passed between the last\n"
-    /*DOC*/    "two calls to tick().\n"
-    /*DOC*/ ;
-
 static PyObject* clock_get_time(PyObject* self, PyObject* arg)
 {
 	PyClockObject* clock = (PyClockObject*)self;
         return PyInt_FromLong(clock->timepassed);
 }
 
-    /*DOC*/ static char doc_clock_get_rawtime[] =
-    /*DOC*/    "Clock.get_rawtime() -> int\n"
-    /*DOC*/    "get number of nondelayed milliseconds between last two calls to tick()\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This is similar to get_time(). It does not include the number of\n"
-    /*DOC*/    "milliseconds that were delayed to keep the clock tick under a given\n"
-    /*DOC*/    "framerate.\n"
-    /*DOC*/ ;
 
 static PyObject* clock_get_rawtime(PyObject* self, PyObject* arg)
 {
@@ -342,15 +262,6 @@ static PyObject* clock_get_rawtime(PyObject* self, PyObject* arg)
 it requires the use of the font and surface modules. it will try
 to lazily import them when they are first needed. unfortunately
 this adds up to a lot of messy code. we'll wait on this one*/
-
-    /*DOC*/ static char docXXX_clock_render_fps[] =
-    /*DOC*/    "time.Clock.render_fps() -> Surface\n"
-    /*DOC*/    "render the current rate of frames per second\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will render the current framerate into a pygame Surface.\n"
-    /*DOC*/    "It requires the pygame.font module to be installed, or it will\n"
-    /*DOC*/    "return a blank surface.\n"
-    /*DOC*/ ;
 
 
 static PyObject* clock_render_fps(PyObject* self, PyObject* arg)
@@ -417,10 +328,10 @@ static PyObject* clock_render_fps(PyObject* self, PyObject* arg)
 
 static struct PyMethodDef clock_methods[] =
 {
-	{"tick",	clock_tick,	1, doc_clock_tick },
-	{"get_fps",	clock_get_fps,	1, doc_clock_get_fps },
-	{"get_time",	clock_get_time,	1, doc_clock_get_time },
-	{"get_rawtime",	clock_get_rawtime,1, doc_clock_get_rawtime },
+	{"tick",	clock_tick,	1, DOC_CLOCKTICK },
+	{"get_fps",	clock_get_fps,	1, DOC_CLOCKGETFPS },
+	{"get_time",	clock_get_time,	1, DOC_CLOCKGETTIME },
+	{"get_rawtime",	clock_get_rawtime,1, DOC_CLOCKGETRAWTIME },
 /*        {"render_fps",  clock_render_fps,1,doc_clock_render_fps},*/
 	{NULL,		NULL}
 };
@@ -447,14 +358,6 @@ PyObject* clock_str(PyObject* self)
 	return PyString_FromString(str);
 }
 
-    /*DOC*/ static char doc_Clock_MODULE[] =
-    /*DOC*/    "Clocks are used to track and control the framerate\n"
-    /*DOC*/    "of a game. You create the objects with the time.Clock()\n"
-    /*DOC*/    "function. The clock can be used to limit the framerate\n"
-    /*DOC*/    "of a game, as well as track the time used per frame.\n"
-    /*DOC*/    "Use the pygame.time.Clock() function to create new Clock\n"
-    /*DOC*/    "objects.\n"
-    /*DOC*/;
 
 static PyTypeObject PyClock_Type =
 {
@@ -477,19 +380,10 @@ static PyTypeObject PyClock_Type =
 	clock_str, 		        /*str*/
 	/* Space for future expansion */
 	0L,0L,0L,0L,
-	doc_Clock_MODULE /* Documentation string */
+	DOC_PYGAMETIMECLOCK /* Documentation string */
 };
 
 
-    /*DOC*/ static char doc_Clockinit[] =
-    /*DOC*/    "pygame.time.Clock() -> Clock\n"
-    /*DOC*/    "create a new clock\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Clocks are used to track and control the framerate\n"
-    /*DOC*/    "of a game. You create the objects with the time.Clock()\n"
-    /*DOC*/    "function. The clock can be used to limit the framerate\n"
-    /*DOC*/    "of a game, as well as track the time used per frame.\n"
-    /*DOC*/;
 
 PyObject* ClockInit(PyObject* self, PyObject* arg)
 {
@@ -521,26 +415,17 @@ PyObject* ClockInit(PyObject* self, PyObject* arg)
 
 static PyMethodDef time_builtins[] =
 {
-	{ "get_ticks", time_get_ticks, 1, doc_get_ticks },
-	{ "delay", time_delay, 1, doc_delay },
-	{ "wait", time_wait, 1, doc_wait },
-	{ "set_timer", time_set_timer, 1, doc_set_timer },
+	{ "get_ticks", time_get_ticks, 1, DOC_PYGAMETIMEGETTICKS },
+	{ "delay", time_delay, 1, DOC_PYGAMETIMEDELAY },
+	{ "wait", time_wait, 1, DOC_PYGAMETIMEWAIT },
+	{ "set_timer", time_set_timer, 1, DOC_PYGAMETIMESETTIMER },
 
-        { "Clock", ClockInit, 1, doc_Clockinit },
+        { "Clock", ClockInit, 1, DOC_PYGAMETIMECLOCK },
         
 	{ NULL, NULL }
 };
 
 
-    /*DOC*/ static char doc_pygame_time_MODULE[] =
-    /*DOC*/    "Contains routines to help keep track of time. The timer\n"
-    /*DOC*/    "resolution on most systems is around 10ms.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "All times are represented in milliseconds, which is simply\n"
-    /*DOC*/    "Seconds*1000. (therefore 2500 milliseconds is 2.5 seconds)\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "You can also create Clock instances to keep track of framerate.\n"
-    /*DOC*/ ;
 
 PYGAME_EXPORT
 void inittime(void)
@@ -550,7 +435,7 @@ void inittime(void)
 	PyType_Init(PyClock_Type);
     
     /* create the module */
-	module = Py_InitModule3("time", time_builtins, doc_pygame_time_MODULE);
+	module = Py_InitModule3("time", time_builtins, DOC_PYGAMETIME);
 
 	/*need to import base module, just so SDL is happy*/
 	import_pygame_base();

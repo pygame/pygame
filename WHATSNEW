@@ -4,6 +4,8 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 2, 2005
+    switch to the new reference documentation system
 
 September 8, 2005
     surface.array_colorkey now unlocks the surface after use[BUG].

@@ -1,0 +1,126 @@
+pygame
+the top level pygame package
+
+The pygame package represents the top-level package for others to use. Pygame
+itself is broken into many submodules, but this does not effect programs that
+use Pygame.
+
+As a convenience, most of the toplevel variables in pygame have been placed
+inside a module named 'pygame.locals'. This is meant to be used with
+'from pygame.locals import *', in addition to 'import pygame'.
+
+When you 'import pygame' all available pygame submodules are automatically
+imported. Be aware that some of the pygame modules are considered "optional",
+and may not be available. Pygame will replace a placeholder object in there
+place, which can later test their availability. 
+<SECTION>
+
+
+
+init
+initialize all imported pygame modules
+pygame.init(): return (numpass, numfail)
+
+Initialize all imported Pygame modules. No exceptions will be raised in a
+module fails, but the total number if successful and failed inits will be
+returned as a tuple. You can always initialize individual modules by hand,
+but pygame.init is a convenient way to get everything started. The init()
+functions for individual modules will raise exceptions when they fail. It is
+safe to call this init() more than once, repeated calls will have no effect.
+It is also safe to recall init() after you have previously pygame.quit all
+the modules.
+<END>
+
+
+
+quit
+uninitialize all pygame modules
+pygame.quit(): return None
+
+Uninitialize all pygame modules that have previously been initialized. When
+the Python interpreter shuts down, this method is called regardless, so your
+program should not need it, except when it wants to terminate it's pygame
+resources and continue. It is safe to call this function more than once,
+repeated calls have no effect. 
+<END>
+
+
+
+error
+standard pygame exception
+raise pygame.error, message
+
+This exception is raised whenever a pygame or SDL operation fails. You can
+catch any anticipated problems and deal with the error. The exception is
+always raised with a descriptive message about the problem.
+
+Derived from the RuntimeError exception, which can also be used to catch these
+raised errors.
+<END>
+
+
+
+get_error
+get the current error message
+pygame.get_error(): return errorstr
+
+SDL maintains an internal error message. This message will usually given to
+you when pygame.error is raised. You will rarely need to call this function.
+<END>
+
+
+get_sdl_version
+get the version number of SDL
+pygame.get_sdl_version(): return major, minor, patch
+
+Returns the three version numbers of the SDL library. This version is
+built at compile time. It can be used to detect which features may not
+be available through Pygame.
+<END>
+
+
+
+register_quit
+register a function to be called when pygame quits
+register_quit(callable): return None
+
+When pygame.quit is called, all registered quit functions are called. Pygame
+modules do this automatically when they are initializing. This function is
+not be needed for regular pygame users. 
+<END>
+
+
+version
+small module containing version information
+module pygame.version
+
+This module is automatically imported into the pygame package and offers a
+few variables to check with version of pygame has been imported.
+<SECTION>
+
+
+
+ver
+version number as a string
+pygame.version.ver = "1.2"
+
+This is the version represented as a string. It can contain a micro release
+number as well in the form of "1.5.2".
+<END>
+
+
+
+vernum
+tupled integers of the version
+pygame.version.vernum = (1, 5, 3)
+
+This variable for the version can easily be compared with other version
+numbers of the same format. An example of checking Pygame version numbers
+would look like this:
+
+    if pygame.version.vernum < (1, 5):
+        print "Warning, older version of Pygame (%s)" %      pygame.version.ver disable_advanced_features = True
+        
+<END>
+<END>
+<END>

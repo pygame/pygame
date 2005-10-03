@@ -1,0 +1,508 @@
+
+<html>
+<title>surface - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href=cdrom.html>Cdrom</a>&nbsp;||&nbsp;
+<a href=cursors.html>Cursors</a>&nbsp;||&nbsp;
+<a href=display.html>Display</a>&nbsp;||&nbsp;
+<a href=draw.html>Draw</a>&nbsp;||&nbsp;
+<a href=event.html>Event</a>&nbsp;||&nbsp;
+<a href=font.html>Font</a>&nbsp;||&nbsp;
+<a href=image.html>Image</a>&nbsp;||&nbsp;
+<a href=joystick.html>Joystick</a>&nbsp;||&nbsp;
+<a href=key.html>Key</a>&nbsp;||&nbsp;
+<a href=mixer.html>Mixer</a>&nbsp;||&nbsp;
+<a href=mouse.html>Mouse</a>&nbsp;||&nbsp;
+<a href=movie.html>Movie</a>&nbsp;||&nbsp;
+<a href=music.html>Music</a>&nbsp;||&nbsp;
+<a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
+<a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
+<a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
+<a href=surface.html>Surface</a>&nbsp;||&nbsp;
+<a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
+<a href=time.html>Time</a>&nbsp;||&nbsp;
+<a href=transform.html>Transform</a>
+</p>
+
+
+</td></tr></table></td></tr></table>
+<br>
+
+
+<a name="pygame.Surface">
+<big><b>pygame.Surface</big></b><br><ul>
+  <i>pygame object for representing images</i><br>
+  <tt>pygame.Surface((width, height), flags=0, depth=0, masks=None): return Surface</tt><br>
+  <tt>pygame.Surface((width, height), flags=0, Surface): return Surface</tt><br>
+<ul><small><table>
+  <tr><td><a href="surface.html#Surface.blit">Surface.blit</a></td><td>draw one image onto another</td></tr>
+  <tr><td><a href="surface.html#Surface.convert">Surface.convert</a></td><td>change the pixel format of an image</td></tr>
+  <tr><td><a href="surface.html#Surface.convert_alpha">Surface.convert_alpha</a></td><td>change the pixel format of an image including per pixel alphas</td></tr>
+  <tr><td><a href="surface.html#Surface.copy">Surface.copy</a></td><td>create a new copy of a Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.fill">Surface.fill</a></td><td>fill Surface with a solid color</td></tr>
+  <tr><td><a href="surface.html#Surface.set_colorkey">Surface.set_colorkey</a></td><td>Set the transparent colorkey</td></tr>
+  <tr><td><a href="surface.html#Surface.get_colorkey">Surface.get_colorkey</a></td><td>Get the current transparent colorkey</td></tr>
+  <tr><td><a href="surface.html#Surface.set_alpha">Surface.set_alpha</a></td><td>set the alpha value for the full Surface image</td></tr>
+  <tr><td><a href="surface.html#Surface.get_alpha">Surface.get_alpha</a></td><td>get the current Surface transparency value</td></tr>
+  <tr><td><a href="surface.html#Surface.lock">Surface.lock</a></td><td>lock the Surface memory for pixel access</td></tr>
+  <tr><td><a href="surface.html#Surface.unlock">Surface.unlock</a></td><td>unlock the Surface memory from pixel access</td></tr>
+  <tr><td><a href="surface.html#Surface.mustlock">Surface.mustlock</a></td><td>test if the Surface requires locking</td></tr>
+  <tr><td><a href="surface.html#Surface.get_locked">Surface.get_locked</a></td><td>test if the Surface is current locked</td></tr>
+  <tr><td><a href="surface.html#Surface.get_at">Surface.get_at</a></td><td>get the color value at a single pixel</td></tr>
+  <tr><td><a href="surface.html#Surface.set_at">Surface.set_at</a></td><td>set the color value for a single pixel</td></tr>
+  <tr><td><a href="surface.html#Surface.get_palette">Surface.get_palette</a></td><td>get the color index palette for an 8bit Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_palette_at">Surface.get_palette_at</a></td><td>get the color for a single entry in a palette</td></tr>
+  <tr><td><a href="surface.html#Surface.set_palette">Surface.set_palette</a></td><td>set the color palette for an 8bit Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.set_palette_at">Surface.set_palette_at</a></td><td>set the color for a single index in an 8bit Surface palette</td></tr>
+  <tr><td><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a></td><td>convert a color into a mapped color value</td></tr>
+  <tr><td><a href="surface.html#Surface.unmap_rgb">Surface.unmap_rgb</a></td><td>convert a mapped integer color value into a Color</td></tr>
+  <tr><td><a href="surface.html#Surface.set_clip">Surface.set_clip</a></td><td>set the current clipping area of the Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_clip">Surface.get_clip</a></td><td>get the current clipping are of the Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.subsurface">Surface.subsurface</a></td><td>create a new surface that references its parent</td></tr>
+  <tr><td><a href="surface.html#Surface.get_parent">Surface.get_parent</a></td><td>find the parent of a subsurface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_abs_parent">Surface.get_abs_parent</a></td><td>find the top level parent of a subsurface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_offset">Surface.get_offset</a></td><td>find the position of a child subsurface inside a parent</td></tr>
+  <tr><td><a href="surface.html#Surface.get_abs_offset">Surface.get_abs_offset</a></td><td>find the absolute position of a child subsurface inside its top level parent</td></tr>
+  <tr><td><a href="surface.html#Surface.get_size">Surface.get_size</a></td><td>get the dimensions of the Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_width">Surface.get_width</a></td><td>get the width of the Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_height">Surface.get_height</a></td><td>get the height of the Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_rect">Surface.get_rect</a></td><td>get the rectangular area of the Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_bitsize">Surface.get_bitsize</a></td><td>get the bit depth of the Surface pixel format</td></tr>
+  <tr><td><a href="surface.html#Surface.get_bytesize">Surface.get_bytesize</a></td><td>get the bytes used per Surface pixel</td></tr>
+  <tr><td><a href="surface.html#Surface.get_flags">Surface.get_flags</a></td><td>get the additional flags used for the Surface</td></tr>
+  <tr><td><a href="surface.html#Surface.get_pitch">Surface.get_pitch</a></td><td>get the number of bytes used per Surface row</td></tr>
+  <tr><td><a href="surface.html#Surface.get_masks">Surface.get_masks</a></td><td>the bitmasks needed to convert between a color and a mapped integer</td></tr>
+  <tr><td><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a></td><td>the bit shifts needed to convert between a color and a mapped integer</td></tr>
+  <tr><td><a href="surface.html#Surface.get_losses">Surface.get_losses</a></td><td>the significant bits used to convert between a color and a mapped integer</td></tr>
+</table></small></ul>
+<p><tt>A</tt> pygame Surface is used to represent any image. The Surface has a fixed resolution and pixel format. Surfaces with 8bit pixels use a color palette to map to 24bit color. </p>
+<p>Call <tt><a href="surface.html#pygame.Surface">pygame.Surface</a></tt> to create a new image object. The Surface will be cleared to all black. The only required arguments are the sizes. With no additional arguments, the Surface will be created in a format that best matches the display Surface. </p>
+<p>The pixel format can be controlled by passing the bit depth or an existing Surface. The flags argument is a bitmask of additional features for the surface. You can pass any combination of these flags: </p>
+<pre>  HWSURFACE, creates the image in video memory
+  SRCALPHA, the pixel format will include a per-pixel alpha
+</pre><p>Both flags are only a request, and may not be possible for all displays and formats. </p>
+<p>Advance users can combine a set of bitmasks with a depth value. The masks are a set of 4 integers representing which bits in a pixel will represent each color. Normal Surfaces should not require the masks argument. </p>
+<p>Surfaces can have many extra attributes like alpha planes, colorkeys, source rectangle clipping. These functions mainly effect how the Surface is blitted to other Surfaces. The blit routines will attempt to use hardware acceleratio </p>
+<pre> when possible, otherwise will use highly optimized software blitting methods.
+</pre><p>There are three types of transparency supported in Pygame: colorkeys, surface alphas, and pixel alphas. Surface alphas can be mixed with colorkeys, but an image with per pixel alphas cannot use the other modes. Colorkey transparency makes a single color value transparent. Any pixels matching the colorkey will not be drawn. The surface alpha value is a single value that changes the transparency for the entire image. <tt>A</tt> surface alpha of 255 is opaque, and a value of 0 is completely transparent. </p>
+<p>Per pixel alphas are different because they store a transparency value for every pixel. This allows for the most precise transparency effects, but it also the slowest. Per pixel alphas cannot be mixed with surface alpha and colorkeys. </p>
+<p>There is support for pixel access for the Surfaces. Pixel access on hardware surfaces is slow and not recommended. Pixels can be accessed using the get_at() and set_at() functions. These methods are fine for simple access, but will be considerably slow when doing of pixel work with them. If you plan on doing a lot of pixel level work, it is recommended to use the <tt>pygame.surfarray</tt> module, which can treat the surfaces like large multidimensional arrays (and it's quite quick). </p>
+<p>Any functions that directly access a surface's pixel data will need that surface to be lock()'ed. These functions can lock() and unlock() the surfaces themselves without assistance. But, if a function will be called many times, there will be a lot of overhead for multiple locking and unlocking of the surface. It is best to lock the surface manually before making the function call many times, and then unlocking when you are finished. All functions that need a locked surface will say so in their docs. Remember to leave the Surface locked only while necessary. </p>
+<p>Surface pixels are stored internally as a single number that has all the colors encoded into it. Use the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a></tt> and <tt><a href="surface.html#Surface.unmap_rgb">Surface.unmap_rgb</a></tt> to convert between individual red, green, and blue values into a packed integer for that Surface. </p>
+<p>Surfaces can also reference sections of other Surfaces. These are created with the <tt><a href="surface.html#Surface.subsurface">Surface.subsurface</a></tt> method. Any change to either Surface will effect the other. </p>
+<p>Each Surface contains a clipping area. By default the clip area covers the entire Surface. If it is changed, all drawing operations will only effect the smaller area. </p>
+ &nbsp;<br> 
+
+
+<a name="Surface.blit">
+<big><b>Surface.blit</big></b><br><ul>
+  <i>draw one image onto another</i><br>
+  <tt>Surface.blit(source, dest, area=None): return Rect</tt><br>
+<p>Draws a source Surface onto this Surface. The draw can be positioned with the dest argument. Dest can either be pair of coordinates representing the upper left corner of the source. <tt>A</tt> Rect can also be passed as the destination and the topleft corner of the rectangle will be used as the position for the blit. The size of the destination rectangle does not effect the blit. </p>
+<p>An optional area rectangle can be passed as well. This represents a smaller portion of the source Surface to draw. </p>
+<p>The return rectangle is the area of the effected pixels, excluding any pixels outside the destination Surface, or outside the clipping area. </p>
+<p>Pixel alphas will be ignored when blitting to an 8 bit Surface. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.convert">
+<big><b>Surface.convert</big></b><br><ul>
+  <i>change the pixel format of an image</i><br>
+  <tt>Surface.convert(Surface): return Surface</tt><br>
+  <tt>Surface.convert(depth, flags=0): return Surface</tt><br>
+  <tt>Surface.convert(depth, masks): return Surface</tt><br>
+  <tt>Surface.convert(): return Surface</tt><br>
+<p>Creates a new copy of the Surface with the pixel format changed. The new pixel format can be determined from another existing Surface. Otherwise depth, flags, and masks arguments can be used, similar to the <tt><a href="surface.html#pygame.Surface">pygame.Surface</a></tt> call. </p>
+<p>If no arguments are passed the new Surface will have the same pixel format as the display Surface. This is always the fastest format for blitting. It is a good idea to convert all Surfaces before they are blitted many times. </p>
+<p>The converted Surface will have no pixel alphas. They will be stripped if the original had them. See <tt><a href="surface.html#Surface.convert_alpha">Surface.convert_alpha</a></tt> for preserving or creating per-pixel alphas. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.convert_alpha">
+<big><b>Surface.convert_alpha</big></b><br><ul>
+  <i>change the pixel format of an image including per pixel alphas</i><br>
+  <tt>Surface.convert_alpha(Surface): return Surface</tt><br>
+  <tt>Surface.convert_alpha(): return Surface</tt><br>
+<p>Creates a new copy of the surface with the desired pixel format. The new surface will be in a format suited for quick blitting to the given format with per pixel alpha. If no surface is given, the new surface will be optimized for blittint to the current display. </p>
+<p>Unlike the <tt><a href="surface.html#Surface.convert">Surface.convert</a></tt> method, the pixel format for the new image will not be exactly the same as the requested source, but it will be optimized for fast alpha blitting to the destination. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.copy">
+<big><b>Surface.copy</big></b><br><ul>
+  <i>create a new copy of a Surface</i><br>
+  <tt>Surface.copy(): return Surface</tt><br>
+<p>Makes a duplicate copy of a Surface. The new Surface will have the same pixel formats, color palettes, and transparency settings as the original. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.fill">
+<big><b>Surface.fill</big></b><br><ul>
+  <i>fill Surface with a solid color</i><br>
+  <tt>Surface.fill(color, rect=None): return Rect</tt><br>
+<p>Fill the Surface with a solid color. If no rect argument is given the entire Surface will be filled. The rect argument will limit the fill to a specific area. The fill will also be contained by the Surface clip area. </p>
+<p>The color argument can be either an <tt>RGB</tt> sequence or a mapped color index. </p>
+<p>This will return the effected Surface area. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.set_colorkey">
+<big><b>Surface.set_colorkey</big></b><br><ul>
+  <i>Set the transparent colorkey</i><br>
+  <tt>Surface.set_colorkey(Color, flags=0): return None</tt><br>
+  <tt>Surface.set_colorkey(None): return None</tt><br>
+<p>Set the current color key for the Surface. When blitting this Surface onto a destination, and pixels that have the same color as the colorkey will be transparent. The color can be an <tt>RGB</tt> color or a mapped color integer. If None is passed, the colorkey will be unset. </p>
+<p>The colorkey will be ignored if the Surface is formatted to use per pixel alpha values. The colorkey can be mixed with the full Surface alpha value. </p>
+<p>The optional flags argument can be set to <tt>pygame.RLEACCEL</tt> to provide better performance on non accelerated displays. An <tt>RLEACCEL</tt> Surface will be slower to modify, but quicker to blit as a source. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_colorkey">
+<big><b>Surface.get_colorkey</big></b><br><ul>
+  <i>Get the current transparent colorkey</i><br>
+  <tt>Surface.get_colorkey(): return RGB or None</tt><br>
+<p>Return the current colorkey value for the Surface. If the colorkey is not set then None is returned. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.set_alpha">
+<big><b>Surface.set_alpha</big></b><br><ul>
+  <i>set the alpha value for the full Surface image</i><br>
+  <tt>Surface.set_alpha(value, flags=0): return None</tt><br>
+  <tt>Surface.set_alpha(None): return None</tt><br>
+<p>Set the current alpha value fo r the Surface. When blitting this Surface onto a destination, the pixels will be drawn slightly transparent. The alpha value is an integer from 0 to 255, 0 is fully transparent and 255 is fully opaque. If None is passed for the alpha value, then the Surface alpha will be disabled. </p>
+<p>This value is different than the per pixel Surface alpha. If the Surface format contains per pixel alphas, then this alpha value will be ignored. If the Surface contains per pixel alphas, setting the alpha value to None will disable the per pixel transparency. </p>
+<p>The optional flags argument can be set to <tt>pygame.RLEACCEL</tt> to provide better performance on non accelerated displays. An <tt>RLEACCEL</tt> Surface will be slower to modify, but quicker to blit as a source. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_alpha">
+<big><b>Surface.get_alpha</big></b><br><ul>
+  <i>get the current Surface transparency value</i><br>
+  <tt>Surface.get_alpha(): return int_value or None</tt><br>
+<p>Return the current alpha value for the Surface. If the alpha value is not set then None is returned. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.lock">
+<big><b>Surface.lock</big></b><br><ul>
+  <i>lock the Surface memory for pixel access</i><br>
+  <tt>Surface.lock(): return None</tt><br>
+<p>Lock the pixel data of a Surface for access. On accelerated Surfaces, the pixel data may be stored in volatile video memory or nonlinear compressed forms. When a Surface is locked the pixel memory becomes available to access by regular software. Code that reads or writes pixel values will need the Surface to be locked. </p>
+<p>Surfaces should not remain locked for more than necessary. <tt>A</tt> locked Surface can often not be displayed or managed by Pygame. </p>
+<p>Not all Surfaces require locking. The <tt><a href="surface.html#Surface.mustlock">Surface.mustlock</a></tt> method can determine if it is actually required. There is no performance penalty for locking and unlocking a Surface that does not need it. </p>
+<p>All pygame functions will automatically lock and unlock the Surface data as needed. If a section of code is going to make calls that will repeatedly lock and unlock the Surface many times, it can be helpful to wrap the block inside a lock and unlock pair. </p>
+<p>It is safe to nest locking and unlocking calls. The surface will only be unlocked after the final lock is released. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.unlock">
+<big><b>Surface.unlock</big></b><br><ul>
+  <i>unlock the Surface memory from pixel access</i><br>
+  <tt>Surface.unlock(): return None</tt><br>
+<p>Unlock the Surface pixel data after it has been locked. The unlocked Surface can once again be drawn and managed by Pygame. See the <tt><a href="surface.html#Surface.lock">Surface.lock</a></tt> documentation for more details. </p>
+<p>All pygame functions will automatically lock and unlock the Surface data as needed. If a section of code is going to make calls that will repeatedly lock and unlock the Surface many times, it can be helpful to wrap the block inside a lock and unlock pair. </p>
+<p>It is safe to nest locking and unlocking calls. The surface will only be unlocked after the final lock is released. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.mustlock">
+<big><b>Surface.mustlock</big></b><br><ul>
+  <i>test if the Surface requires locking</i><br>
+  <tt>Surface.mustlock(): return bool</tt><br>
+<p>Returns True if the Surface is required to be locked to access pixel data. Usually pure software Surfaces do not require locking. This method is rarely needed, since it is safe and quickest to just lock all Surfaces as needed. </p>
+<p>All pygame functions will automatically lock and unlock the Surface data as needed. If a section of code is going to make calls that will repeatedly lock and unlock the Surface many times, it can be helpful to wrap the block inside a lock and unlock pair. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_locked">
+<big><b>Surface.get_locked</big></b><br><ul>
+  <i>test if the Surface is current locked</i><br>
+  <tt>Surface.get_locked(): return bool</tt><br>
+<p>Returns True when the Surface is locked. It doesn't matter how many times the Surface is locked. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_at">
+<big><b>Surface.get_at</big></b><br><ul>
+  <i>get the color value at a single pixel</i><br>
+  <tt>Surface.get_at((x, y)): return Color</tt><br>
+<p>Return the <tt>RGBA</tt> color value at the given pixel. If the Surface has no per pixel alpha, then the alpha value will always be 255 (opaque). If the pixel position is outside the area of the Surface an IndexError exception will be raised. </p>
+<p>Getting and setting pixels one at a time is generally too slow to be used in a game or realtime situation. </p>
+<p>This function will temporarily lock and unlock the Surface as needed. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.set_at">
+<big><b>Surface.set_at</big></b><br><ul>
+  <i>set the color value for a single pixel</i><br>
+  <tt>Surface.set_at((x, y), Color): return None</tt><br>
+<p>Set the <tt>RGBA</tt> or mapped integer color value for a single pixel. If the Surface does not have per pixel alphas, the alpha value is ignored. Settting pixels outside the Surface area or outside the Surface clipping will have no effect. </p>
+<p>Getting and setting pixels one at a time is generally too slow to be used in a game or realtime situation. </p>
+<p>This function will temporarily lock and unlock the Surface as needed. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_palette">
+<big><b>Surface.get_palette</big></b><br><ul>
+  <i>get the color index palette for an 8bit Surface</i><br>
+  <tt>Surface.get_palette(): return [RGB, RGB, RGB, ...]</tt><br>
+<p>Return a list of up to 256 color elements that represent the indexed colors used in an 8bit Surface. The returned list is a copy of the palette, and changes will have no effect on the Surface. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_palette_at">
+<big><b>Surface.get_palette_at</big></b><br><ul>
+  <i>get the color for a single entry in a palette</i><br>
+  <tt>Surface.get_palette_at(index): return RGB</tt><br>
+<p>Returns the red, green, and blue color values for a single index in a Surface palette. The index should be a value from 0 to 255. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.set_palette">
+<big><b>Surface.set_palette</big></b><br><ul>
+  <i>set the color palette for an 8bit Surface</i><br>
+  <tt>Surface.set_palette([RGB, RGB, RGB, ...]): return None</tt><br>
+<p>Set the full palette for an 8bit Surface. This will replace the colors in the existing palette. <tt>A</tt> partial palette can be passed and only the first colors in the original palette will be changed. </p>
+<p>This function has no effect on a Surface with more than 8bits per pixel. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.set_palette_at">
+<big><b>Surface.set_palette_at</big></b><br><ul>
+  <i>set the color for a single index in an 8bit Surface palette</i><br>
+  <tt>Surface.set_at(index, RGB): return None</tt><br>
+<p>Set the palette value for a single entry in a Surface palette. The index should be a value from 0 to 255. </p>
+<p>This function has no effect on a Surface with more than 8bits per pixel. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.map_rgb">
+<big><b>Surface.map_rgb</big></b><br><ul>
+  <i>convert a color into a mapped color value</i><br>
+  <tt>Surface.map_rgb(Color): return mapped_int</tt><br>
+<p>Convert an <tt>RGBA</tt> color into the mapped integer value for this Surface. The returned integer will contain no more bits than the bit depth of the Surface. Mapped color values are not often used inside Pygame, but can be passed to most functions that require a Surface and a color. </p>
+<p>See the Surface object documentation for more information about colors and pixel formats. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.unmap_rgb">
+<big><b>Surface.unmap_rgb</big></b><br><ul>
+  <i>convert a mapped integer color value into a Color</i><br>
+  <tt>Surface.map_rgb(mapped_int): return Color</tt><br>
+<p>Convert an mapped integer color into the <tt>RGB</tt> color components for this Surface. Mapped color values are not often used inside Pygame, but can be passed to most functions that require a Surface and a color. </p>
+<p>See the Surface object documentation for more information about colors and pixel formats. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.set_clip">
+<big><b>Surface.set_clip</big></b><br><ul>
+  <i>set the current clipping area of the Surface</i><br>
+  <tt>Surface.set_clip(rect): return None</tt><br>
+  <tt>Surface.set_clip(None): return None</tt><br>
+<p>Each Surface has an active clipping area. This is a rectangle that represents the only pixels on the Surface that can be modified. If None is passed for the rectangle the full Surface will be available for changes. </p>
+<p>The clipping area is always restricted to the area of the Surface itself. If the clip rectangle is too large it will be shrunk to fit inside the Surface. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_clip">
+<big><b>Surface.get_clip</big></b><br><ul>
+  <i>get the current clipping are of the Surface</i><br>
+  <tt>Surface.get_clip(): return Rect</tt><br>
+<p>Return a rectangle of the current clipping area. The Surface will always return a valid rectangle that will never be outside the bounds of the image. If the Surface has had None set for the clipping area, the Surface will return a rectangle with the full area of the Surface. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.subsurface">
+<big><b>Surface.subsurface</big></b><br><ul>
+  <i>create a new surface that references its parent</i><br>
+  <tt>Surface.subsurface(Rect): return Surface</tt><br>
+<p>Returns a new Surface that shares its pixels with its new parent. The new Surface is considered a child of the original. Modifications to either Surface pixels will effect each other. Surface information like clipping area and color keys are unique to each Surface. </p>
+<p>The new Surface will inherit the palette, color key, and alpha settings from its parent. </p>
+<p>It is possible to have any number of subsurfaces and subsubsurfaces on the parent. It is also possible to subsurface the display Surface if the display mode is not hardware accelerated. </p>
+<p>See the <tt><a href="surface.html#Surface.get_offset">Surface.get_offset</a></tt>, <tt><a href="surface.html#Surface.get_parent">Surface.get_parent</a></tt> to learn more about the state of a subsurface. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_parent">
+<big><b>Surface.get_parent</big></b><br><ul>
+  <i>find the parent of a subsurface</i><br>
+  <tt>Surface.get_parent(): return Surface</tt><br>
+<p>Returns the parent Surface of a subsurface. If this is not a subsurface then None will be returned. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_abs_parent">
+<big><b>Surface.get_abs_parent</big></b><br><ul>
+  <i>find the top level parent of a subsurface</i><br>
+  <tt>Surface.get_abs_parent(): return Surface</tt><br>
+<p>Returns the parent Surface of a subsurface. If this is not a subsurface then None will be returned. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_offset">
+<big><b>Surface.get_offset</big></b><br><ul>
+  <i>find the position of a child subsurface inside a parent</i><br>
+  <tt>Surface.get_offset(): return (x, y)</tt><br>
+<p>Get the offset position of a child subsurface inside of a parent. If the Surface is not a subsurface this will return (0, 0). </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_abs_offset">
+<big><b>Surface.get_abs_offset</big></b><br><ul>
+  <i>find the absolute position of a child subsurface inside its top level parent</i><br>
+  <tt>Surface.get_abs_offset(): return (x, y)</tt><br>
+<p>Get the offset position of a child subsurface inside of its top level parent Surface. If the Surface is not a subsurface this will return (0, 0). </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_size">
+<big><b>Surface.get_size</big></b><br><ul>
+  <i>get the dimensions of the Surface</i><br>
+  <tt>Surface.get_size(): return (width, height)</tt><br>
+<p>Return the width and height of the Surface in pixels. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_width">
+<big><b>Surface.get_width</big></b><br><ul>
+  <i>get the width of the Surface</i><br>
+  <tt>Surface.get_width(): return width</tt><br>
+<p>Return the width of the Surface in pixels. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_height">
+<big><b>Surface.get_height</big></b><br><ul>
+  <i>get the height of the Surface</i><br>
+  <tt>Surface.get_height(): return height</tt><br>
+<p>Return the height of the Surface in pixels. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_rect">
+<big><b>Surface.get_rect</big></b><br><ul>
+  <i>get the rectangular area of the Surface</i><br>
+  <tt>Surface.get_rect(**kwargs): return Rect</tt><br>
+<p>Returns a new rectangle covering the entire surface. This rectangle will always start at 0, 0 with a width. and height the same size as the image. </p>
+<p>You can pass keyword argument values to this function. These named values will be applied to the attributes of the Rect before it is returned. An example would be <tt>'mysurf.get_rect(center=(100,100))'</tt> to create a rectangle for the Surface centered at a given position. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_bitsize">
+<big><b>Surface.get_bitsize</big></b><br><ul>
+  <i>get the bit depth of the Surface pixel format</i><br>
+  <tt>Surface.get_bitsize(): return int</tt><br>
+<p>Returns the number of bits used to represent each pixel. This value may not exactly fill the number of bytes used per pixel. For example a 15 bit Surface still requires a full 2 bytes. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_bytesize">
+<big><b>Surface.get_bytesize</big></b><br><ul>
+  <i>get the bytes used per Surface pixel</i><br>
+  <tt>Surface.get_bytesize(): return int</tt><br>
+<p>Return the number of bytes used per pixel. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_flags">
+<big><b>Surface.get_flags</big></b><br><ul>
+  <i>get the additional flags used for the Surface</i><br>
+  <tt>Surface.get_flags(): return int</tt><br>
+<p>Returns a set of current Surface features. Each feature is a bit in the flags bitmask. Typical flags are <tt>HWSURFACE</tt>, <tt>RLEACCEL</tt>, <tt>ALPHA</tt>, and <tt>COLORKEY</tt>. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_pitch">
+<big><b>Surface.get_pitch</big></b><br><ul>
+  <i>get the number of bytes used per Surface row</i><br>
+  <tt>Surface.get_pitch(): return int</tt><br>
+<p>Return the number of bytes separating each row in the Surface. Surfaces in video memory are not always linearly packed. Subsurfaces will also have a larger pitch than their real width. </p>
+<p>This value is not needed for normal Pygame usage. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_masks">
+<big><b>Surface.get_masks</big></b><br><ul>
+  <i>the bitmasks needed to convert between a color and a mapped integer</i><br>
+  <tt>Surface.get_masks(): return (R, G, B, A)</tt><br>
+<p>Returns the bitmasks used to isolate each color in a mapped integer. </p>
+<p>This value is not needed for normal Pygame usage. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_shifts">
+<big><b>Surface.get_shifts</big></b><br><ul>
+  <i>the bit shifts needed to convert between a color and a mapped integer</i><br>
+  <tt>Surface.get_shifts(): return (R, G, B, A)</tt><br>
+<p>Returns the pixel shifts need to convert between each color and a mapped integer. </p>
+<p>This value is not needed for normal Pygame usage. </p>
+ &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_losses">
+<big><b>Surface.get_losses</big></b><br><ul>
+  <i>the significant bits used to convert between a color and a mapped integer</i><br>
+  <tt>Surface.get_losses(): return (R, G, B, A)</tt><br>
+<p>Return the least significan number of bits stripped from each color in a mapped integer. </p>
+<p>This value is not needed for normal Pygame usage. </p>
+ &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+</body></html>

@@ -24,6 +24,7 @@
  *  drawing module for pygame
  */
 #include "pygame.h"
+#include "pygamedocs.h"
 #include <math.h>
 
 /* Many C libraries seem to lack the trunc call (added in C99) */
@@ -47,20 +48,6 @@ static void draw_fillellipse(SDL_Surface *dst, int x, int y, int rx, int ry, Uin
 static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 color);
 
 
-    /*DOC*/ static char doc_aaline[] =
-    /*DOC*/    "pygame.draw.aaline(Surface, color, startpos, endpos, blend=1) -> Rect\n"
-    /*DOC*/    "draw a line on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws an anti-aliased line on a surface. This will respect the\n"
-    /*DOC*/    "clipping rectangle. A bounding box of the effected area is returned\n"
-    /*DOC*/    "returned as a rectangle.  The if blend is true, the shades will be\n"
-    /*DOC*/    "be blended with existing pixel shades instead of overwriting them.\n"
-    /*DOC*/    "This function accepts floating point values for the end points.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument must be a RGB sequence.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* aaline(PyObject* self, PyObject* arg)
 {
@@ -126,18 +113,6 @@ static PyObject* aaline(PyObject* self, PyObject* arg)
 	return PyRect_New4(left, top, right-left+2, bottom-top+2);
 }
 
-    /*DOC*/ static char doc_line[] =
-    /*DOC*/    "pygame.draw.line(Surface, color, startpos, endpos, width=1) -> Rect\n"
-    /*DOC*/    "draw a line on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws a line on a surface. This will respect the clipping\n"
-    /*DOC*/    "rectangle. A bounding box of the effected area is returned\n"
-    /*DOC*/    "as a rectangle.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* line(PyObject* self, PyObject* arg)
 {
@@ -210,25 +185,6 @@ static PyObject* line(PyObject* self, PyObject* arg)
 	return PyRect_New4(left, top, right-left+1, bottom-top+1);
 }
 
-
-    /*DOC*/ static char doc_aalines[] =
-    /*DOC*/    "pygame.draw.aalines(Surface, color, closed, point_array, blend=1) -> Rect\n"
-    /*DOC*/    "draw multiple connected anti-aliased lines on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws a sequence on a surface. You must pass at least two points\n"
-    /*DOC*/    "in the sequence of points. The closed argument is a simple boolean\n"
-    /*DOC*/    "and if true, a line will be draw between the first and last points.\n"
-    /*DOC*/    "The boolean blend argument set to true will blend the shades with\n"
-    /*DOC*/    "existing shades instead of overwriting them.\n"
-    /*DOC*/    "This function accepts floating point values for the end points.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
-    /*DOC*/    "effected area is returned as a rectangle.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument must be an RGB sequence.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* aalines(PyObject* self, PyObject* arg)
 {
@@ -318,24 +274,6 @@ static PyObject* aalines(PyObject* self, PyObject* arg)
 	return PyRect_New4(left, top, right-left+2, bottom-top+2);
 }
 
-    /*DOC*/ static char doc_lines[] =
-    /*DOC*/    "pygame.draw.lines(Surface, color, closed, point_array, width=1) -> Rect\n"
-    /*DOC*/    "draw multiple connected lines on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws a sequence on a surface. You must pass at least two points\n"
-    /*DOC*/    "in the sequence of points. The closed argument is a simple boolean\n"
-    /*DOC*/    "and if true, a line will be draw between the first and last points.\n"
-    /*DOC*/    "Note that specifying a linewidth wider than 1 does not fill in the\n"
-    /*DOC*/    "gaps between the lines. Therefore wide lines and sharp corners won't\n"
-    /*DOC*/    "be joined seamlessly.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will respect the clipping rectangle. A bounding box of the\n"
-    /*DOC*/    "effected area is returned as a rectangle.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* lines(PyObject* self, PyObject* arg)
 {
@@ -429,20 +367,6 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 }
 
 
-    /*DOC*/ static char doc_arc[] =
-    /*DOC*/    "pygame.draw.arc(Surface, color, Rect, angle_start, angle_stop, width=0) -> Rect\n"
-    /*DOC*/    "draw an elliptic arc on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws an elliptical arc on the Surface. The given rectangle\n"
-    /*DOC*/    "is the area that the circle will fill. The two angle arguments\n"
-    /*DOC*/    "are the initial and final angle (radians, with the zero on the right).\n"
-    /*DOC*/    "The width argument is the thickness to draw the outer edge.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
-
 static PyObject* arc(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj, *colorobj, *rectobj;
@@ -498,21 +422,6 @@ static PyObject* arc(PyObject* self, PyObject* arg)
 	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
 }
 
-
-
-    /*DOC*/ static char doc_ellipse[] =
-    /*DOC*/    "pygame.draw.ellipse(Surface, color, Rect, width=0) -> Rect\n"
-    /*DOC*/    "draw an ellipse on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws an elliptical shape on the Surface. The given rectangle\n"
-    /*DOC*/    "is the area that the circle will fill. The width argument is\n"
-    /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
-    /*DOC*/    "the ellipse will be filled.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* ellipse(PyObject* self, PyObject* arg)
 {
@@ -571,21 +480,6 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 }
 
 
-
-    /*DOC*/ static char doc_circle[] =
-    /*DOC*/    "pygame.draw.circle(Surface, color, pos, radius, width=0) -> Rect\n"
-    /*DOC*/    "draw a circle on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws a circular shape on the Surface. The given position\n"
-    /*DOC*/    "is the center of the circle, and radius is the size. The width\n"
-    /*DOC*/    "argument is the thickness to draw the outer edge. If width is\n"
-    /*DOC*/    "zero then the circle will be filled.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
-
 static PyObject* circle(PyObject* self, PyObject* arg)
 {
 	PyObject *surfobj, *colorobj;
@@ -635,22 +529,6 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
 }
 
-
-
-
-    /*DOC*/ static char doc_polygon[] =
-    /*DOC*/    "pygame.draw.polygon(Surface, color, pointslist, width=0) -> Rect\n"
-    /*DOC*/    "draws a polygon on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws a polygonal shape on the Surface. The given pointlist\n"
-    /*DOC*/    "is the vertices of the polygon. The width argument is\n"
-    /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
-    /*DOC*/    "the polygon will be filled.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/ ;
 
 static PyObject* polygon(PyObject* self, PyObject* arg)
 {
@@ -742,24 +620,6 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	return PyRect_New4(left, top, right-left+1, bottom-top+1);
 }
 
-
-    /*DOC*/ static char doc_rect[] =
-    /*DOC*/    "pygame.draw.rect(Surface, color, Rect, width=0) -> Rect\n"
-    /*DOC*/    "draws a rectangle on a surface\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Draws a rectangular shape on the Surface. The given Rect\n"
-    /*DOC*/    "is the area of the rectangle. The width argument is\n"
-    /*DOC*/    "the thickness to draw the outer edge. If width is zero then\n"
-    /*DOC*/    "the rectangle will be filled.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "The color argument can be either a RGB sequence or mapped color integer.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This function will temporarily lock the surface.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Keep in mind the Surface.fill() method works just as well\n"
-    /*DOC*/    "for drawing filled rectangles. In fact the Surface.fill()\n"
-    /*DOC*/    "can be hardware accelerated when the moons are in alignement.\n"
-    /*DOC*/ ;
 
 static PyObject* rect(PyObject* self, PyObject* arg)
 {
@@ -1676,37 +1536,21 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 
 
 
-
-
-
-
 static PyMethodDef draw_builtins[] =
 {
-	{ "aaline", aaline, 1, doc_aaline },
-	{ "line", line, 1, doc_line },
-	{ "aalines", aalines, 1, doc_aalines },
-	{ "lines", lines, 1, doc_lines },
-	{ "ellipse", ellipse, 1, doc_ellipse },
-	{ "arc", arc, 1, doc_arc },
-	{ "circle", circle, 1, doc_circle },
-	{ "polygon", polygon, 1, doc_polygon },
-	{ "rect", rect, 1, doc_rect },
+	{ "aaline", aaline, 1, DOC_PYGAMEDRAWAALINE },
+	{ "line", line, 1, DOC_PYGAMEDRAWLINE },
+	{ "aalines", aalines, 1, DOC_PYGAMEDRAWAALINES },
+	{ "lines", lines, 1, DOC_PYGAMEDRAWLINES },
+	{ "ellipse", ellipse, 1, DOC_PYGAMEDRAWELLIPSE },
+	{ "arc", arc, 1, DOC_PYGAMEDRAWARC },
+	{ "circle", circle, 1, DOC_PYGAMEDRAWCIRCLE },
+	{ "polygon", polygon, 1, DOC_PYGAMEDRAWPOLYGON },
+	{ "rect", rect, 1, DOC_PYGAMEDRAWRECT },
 
 	{ NULL, NULL }
 };
 
-
-
-    /*DOC*/ static char doc_pygame_draw_MODULE[] =
-    /*DOC*/    "Contains routines to draw onto a surface.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Note that all\n"
-    /*DOC*/    "drawing routines use direct pixel access, so the surfaces\n"
-    /*DOC*/    "must be locked for use. The draw functions will temporarily\n"
-    /*DOC*/    "lock the surface if needed, but if performing many drawing\n"
-    /*DOC*/    "routines together, it would be best to surround the drawing\n"
-    /*DOC*/    "code with a lock/unlock pair.\n"
-    /*DOC*/ ;
 
 PYGAME_EXPORT
 void initdraw(void)
@@ -1714,7 +1558,7 @@ void initdraw(void)
 	PyObject *module, *dict;
 
     /* create the module */
-	module = Py_InitModule3("draw", draw_builtins, doc_pygame_draw_MODULE);
+	module = Py_InitModule3("draw", draw_builtins, DOC_PYGAMEDRAW);
 	dict = PyModule_GetDict(module);
 
 	/*imported needed apis*/

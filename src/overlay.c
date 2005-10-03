@@ -26,6 +26,7 @@
 
 #include <Python.h>
 #include "pygame.h"
+#include "pygamedocs.h"
 
 typedef struct
 {
@@ -45,16 +46,6 @@ overlay_dealloc(PyGameOverlay *self)
 }
 
 
-
-    /*DOC*/ static char doc_Overlay_SetLocation[] =
-    /*DOC*/    "Overlay.set_location(rectstyle) -> None\n"
-    /*DOC*/    "set overlay location\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Sets location for the overlay on a screen.\n"
-    /*DOC*/    "This does not move or redraw any currently displayed data,\n"
-    /*DOC*/    "it only sets the position for newly display() calls.\n"
-    /*DOC*/ ;
-
 static PyObject* Overlay_SetLocation(PyGameOverlay *self, PyObject *args)
 {
         GAME_Rect *rect, temp;
@@ -72,15 +63,6 @@ static PyObject* Overlay_SetLocation(PyGameOverlay *self, PyObject *args)
 }
 
 
-
-    /*DOC*/ static char doc_Overlay_Display[] =
-    /*DOC*/    "Overlay.display(y, u, v) -> None\n"
-    /*DOC*/    "display the yuv data\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Display the yuv data in SDL's overlay planes. The y, u, and v\n"
-    /*DOC*/    "arguments represents strings of byte data.\n"
-    /*DOC*/ ;
-
 static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
 {
 	// Parse data params for frame
@@ -94,9 +76,9 @@ static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
 		SDL_LockYUVOverlay( self->cOverlay );
 
 		// No clipping at this time( only support for YUV420 )
-		dst_y = (char*)self->cOverlay->pixels[ 0 ];
-		dst_v = (char*)self->cOverlay->pixels[ 1 ];
-		dst_u = (char*)self->cOverlay->pixels[ 2 ];
+		dst_y = (unsigned char*)self->cOverlay->pixels[ 0 ];
+		dst_v = (unsigned char*)self->cOverlay->pixels[ 1 ];
+		dst_u = (unsigned char*)self->cOverlay->pixels[ 2 ];
 		for (y=0; y< self->cOverlay->h; y++)
 		{
 			memcpy( dst_y, src_y, self->cOverlay->w );
@@ -161,42 +143,11 @@ PyObject* Overlay_New(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 
 static PyMethodDef Overlay_methods[] = {
-  {"set_location", (PyCFunction)Overlay_SetLocation, METH_VARARGS, doc_Overlay_SetLocation},
-  {"display", (PyCFunction)Overlay_Display, METH_VARARGS, doc_Overlay_Display},
+  {"set_location", (PyCFunction)Overlay_SetLocation, METH_VARARGS, DOC_OVERLAYSETLOCATION},
+  {"display", (PyCFunction)Overlay_Display, METH_VARARGS, DOC_OVERLAYDISPLAY},
 	{NULL}  /* Sentinel */
 };
 
-
-    /*DOC*/ static char doc_Overlay[] =
-    /*DOC*/    "pygame.Overlay(pixeltype, [width, height]) -> Overlay\n"
-    /*DOC*/    "Create a new video overlay object\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This creates a new Overlay object. Overlays represent a basic\n"
-    /*DOC*/    "interface for putting YUV image data into the graphics card's\n"
-    /*DOC*/    "video overlay planes. This is a low level object intended for\n"
-    /*DOC*/    "use by people who know what they are doing, and have pregenerated\n"
-    /*DOC*/    "YUV image data.\n"
-    /*DOC*/    "The pixeltype argument must be one of the pygame constants;\n"
-    /*DOC*/    "YV12_OVERLAY, IYUV_OVERLAY, YUV2_OVERLAY, UYVY_OVERLAY, or YVYU_OVERLAY.\n"
-    /*DOC*/    "\n"
-    /*DOC*/ ;
-
-#if 0
-    /*DOC*/ static char doc_Overlay_MODULE[] =
-    /*DOC*/    "pygame.Overlay(pixeltype, [width, height]) -> Overlay\n"
-    /*DOC*/    "Create a new video overlay object\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This creates a new Overlay object. Overlays represent a basic\n"
-    /*DOC*/    "interface for putting YUV image data into the graphics card's\n"
-    /*DOC*/    "video overlay planes. This is a low level object intended for\n"
-    /*DOC*/    "use by people who know what they are doing, and have pregenerated\n"
-    /*DOC*/    "YUV image data.\n"
-    /*DOC*/    "The pixeltype argument must be one of the pygame constants;\n"
-    /*DOC*/    "YV12_OVERLAY, IYUV_OVERLAY, YUV2_OVERLAY, UYVY_OVERLAY, or YVYU_OVERLAY.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "\n"
-    /*DOC*/ ;
-#endif
 
 PyTypeObject PyOverlay_Type =
 {
@@ -221,7 +172,7 @@ PyTypeObject PyOverlay_Type =
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    doc_Overlay,           /* tp_doc */
+    DOC_PYGAMEOVERLAY,           /* tp_doc */
     0,		               /* tp_traverse */
     0,		               /* tp_clear */
     0,		               /* tp_richcompare */
