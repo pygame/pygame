@@ -2,17 +2,17 @@ pygame
 the top level pygame package
 
 The pygame package represents the top-level package for others to use. Pygame
-itself is broken into many submodules, but this does not effect programs that
+itself is broken into many submodules, but this does not affect programs that
 use Pygame.
 
-As a convenience, most of the toplevel variables in pygame have been placed
+As a convenience, most of the top-level variables in pygame have been placed
 inside a module named 'pygame.locals'. This is meant to be used with
 'from pygame.locals import *', in addition to 'import pygame'.
 
 When you 'import pygame' all available pygame submodules are automatically
 imported. Be aware that some of the pygame modules are considered "optional",
-and may not be available. Pygame will replace a placeholder object in there
-place, which can later test their availability. 
+and may not be available. In that case, Pygame will provide a placeholder object
+instead of the module, which can be used to test for availability.
 <SECTION>
 
 
@@ -21,14 +21,14 @@ init
 initialize all imported pygame modules
 pygame.init(): return (numpass, numfail)
 
-Initialize all imported Pygame modules. No exceptions will be raised in a
+Initialize all imported Pygame modules. No exceptions will be raised if a
 module fails, but the total number if successful and failed inits will be
-returned as a tuple. You can always initialize individual modules by hand,
+returned as a tuple. You can always initialize individual modules manually,
 but pygame.init is a convenient way to get everything started. The init()
-functions for individual modules will raise exceptions when they fail. It is
-safe to call this init() more than once, repeated calls will have no effect.
-It is also safe to recall init() after you have previously pygame.quit all
-the modules.
+functions for individual modules will raise exceptions when they fail.
+
+It is safe to call this init() more than once: repeated calls will have no effect.
+This is true even if you have pygame.quit() all the modules.
 <END>
 
 
@@ -39,8 +39,8 @@ pygame.quit(): return None
 
 Uninitialize all pygame modules that have previously been initialized. When
 the Python interpreter shuts down, this method is called regardless, so your
-program should not need it, except when it wants to terminate it's pygame
-resources and continue. It is safe to call this function more than once,
+program should not need it, except when it wants to terminate its pygame
+resources and continue. It is safe to call this function more than once:
 repeated calls have no effect. 
 <END>
 
@@ -64,7 +64,7 @@ get_error
 get the current error message
 pygame.get_error(): return errorstr
 
-SDL maintains an internal error message. This message will usually given to
+SDL maintains an internal error message. This message will usually be given to
 you when pygame.error is raised. You will rarely need to call this function.
 <END>
 
@@ -105,7 +105,7 @@ version number as a string
 pygame.version.ver = "1.2"
 
 This is the version represented as a string. It can contain a micro release
-number as well in the form of "1.5.2".
+number as well, e.g., "1.5.2"
 <END>
 
 
@@ -119,7 +119,8 @@ numbers of the same format. An example of checking Pygame version numbers
 would look like this:
 
     if pygame.version.vernum < (1, 5):
-        print "Warning, older version of Pygame (%s)" %      pygame.version.ver disable_advanced_features = True
+        print "Warning, older version of Pygame (%s)" %  pygame.version.ver
+        disable_advanced_features = True
         
 <END>
 <END>

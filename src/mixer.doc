@@ -41,10 +41,10 @@ mean unsigned audio samples will be used. If the stereo argument is false
 the mixer will use mono sound.
 
 The buffer argument controls the number of internal samples used in the
-sound mixer. The default valuable should work for most cases. It can be
+sound mixer. The default value should work for most cases. It can be
 lowered to reduce latency, but sound dropout may occur. It can be raised
 to larger values to ensure playback never skips, but it will impose latency
-on sound playback. The buffer size must be a power of two value. 
+on sound playback. The buffer size must be a power of two. 
 
 Some platforms require the pygame.mixer module
 to be required after the display modules have initialized. The top level
@@ -55,7 +55,7 @@ init is used.
 
 It is safe to call this more than once, but after the mixer is
 initialized you cannot change the playback arguments without first
-quitting the pygame.mixer.
+calling pygame.mixer.quit().
 <END>
 
 
@@ -213,7 +213,7 @@ Sound.play(loops=0, maxtime=0): return Channel
 Begin playback of the Sound on an available Channel. This will forcibly select
 a Channel, so playback may cut off a currently playing sound if necessary.
 
-The loops argument can control how many times the sample will be played. If
+The loops argument controls how many times the sample will be played. If
 loops is set to -1 the Sound will loop indefinitely. The maxtime argument
 can be used to stop playback after a given number of milliseconds.
 
@@ -247,8 +247,8 @@ set the playback volume for this Sound
 Sound.set_volume(value): return None
 
 This will set the playback volume for this Sound. This will immediately
-effect the Sound if it is playing. It will also effect any future playback
-of this Sound. The value argument is a value from 0.0 to 1.0.
+affect the Sound if it is playing. It will also affect any future playback
+of this Sound. The argument is a value from 0.0 to 1.0.
 <END>
 
 
@@ -299,7 +299,7 @@ play a Sound on a specific Channel
 Channel.play(Sound, loops=0, time=0): return None
 
 This will begin playback of a Sound on a specific Channel. If the Channel
-is currently playing anyother Sound it will be stopped. The loops argument
+is currently playing any other Sound it will be stopped. The loops argument
 controls how many times the sample will be repeated. If loops is -1 then
 the playback will repeat indefinitely. The time argument can be used to
 stop playback of the Sound after a given number of milliseconds.
@@ -348,16 +348,18 @@ time argument in seconds.
 
 set_volume
 set the volume of a playing channel
-Channel.set_volume(value, stereo=None): return None
+Channel.set_volume(value): return None
+Channel.set_volume(left, right): return None
 
 Set the volume of a playing sound. When a channel starts to play its
-volume value is reset. This only effects the current sound. The value
+volume value is reset. This only affects the current sound. The value
 argument is between 0.0 and 1.0.
 
-If the stereo argument is passed and the mixer is using stereo sound
-then the channel will set the volume different for the left and right
-speakers. When this is set, value becomes the volume for the left speaker
-and sterea becomes the volume value for the right speaker.
+If one argument is passed, it will be the volume of both speakers.
+If two arguments are passed and the mixer is in stereo mode, the
+first argument will be the volume of the left speaker and the second
+will be the volume of the right speaker. (If the second argument is
+None, the first argument will be the volume of both speakers.)
 
 This is mixed the the volume of the current Sound object as well.
 <END>

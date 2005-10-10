@@ -1,8 +1,8 @@
 pygame.time
 pygame module for monitoring time
 
-Times in pygame are represented in milliseconds. 1000 milliseconds are in one
-second. Most platforms have a limited time resolution of around 10 milliseconds.
+Times in pygame are represented in milliseconds (1/1000 seconds).
+Most platforms have a limited time resolution of around 10 milliseconds.
 <SECTION>
 
 
@@ -36,7 +36,7 @@ pause the program for an amount of time
 pygame.time.delay(milliseconds): return time
 
 Will pause for a given number of milliseconds. This function will use the
-processor in order to make the delay more accurate than pygame.time.wait().
+processor (rather than sleeping) in order to make the delay more accurate than pygame.time.wait().
  
 This returns the actual number of milliseconds used.
 <END>
@@ -89,8 +89,8 @@ get_time
 time used in the previous tick
 Clock.get_time(): return milliseconds
 
-This is the same value returned when the last call to Clock.tick() was made.
-It is the number of milliseconds passed between the previous to calls to
+Returns the parameter passed to the last call to Clock.tick().
+It is the number of milliseconds passed between the previous two calls to
 Pygame.tick().
 <END>
 
@@ -101,7 +101,7 @@ actual time used in the previous tick
 Clock.get_rawtime(): return milliseconds
 
 Similar to Clock.get_time(), but this does not include any time used while
-Clock.tick() delayed to maintain a maximum framerate.
+Clock.tick() was delaying to limit the framerate.
 <END>
 
 
@@ -110,8 +110,8 @@ get_fps
 compute the clock framerate
 Clock.get_fps(): return float
 
-Compute the frames per second of the Clock. This averages several of the
-previous calls to Clock.tick().
+Compute your game's framerate (in frames per second). It is computed by
+averaging the last few calls to Clock.tick().
 <END>
 <END>
 <END>

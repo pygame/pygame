@@ -7,8 +7,11 @@ the results.
 
 Some of the transforms are considered destructive. These means every time
 they are performed they lose pixel data. Common examples of this are resizing
-and rotating. It is best to retransform the original surface than to 
-keep transforming an image multiple times.
+and rotating. For this reason, it is better to retransform the original surface than to 
+keep transforming an image multiple times. (For example, suppose you are animating
+a bouncing spring which expands and contracts. If you applied the size changes
+incrementally to the previous images, you would lose detail. Instead, always
+begin with the original image and scale to the desired size.)
 <SECTION>
 
 
@@ -38,7 +41,7 @@ rotate an image
 pygame.transform.rotate(Surface, angle): return Surface
 
 Unfiltered counterclockwise rotation. The angle argument represents degrees
-and can be any floating point value. Negavive angle amounts will rotate
+and can be any floating point value. Negative angle amounts will rotate
 clockwise.
 
 Unless rotating by 90 degree increments, the image will be padded larger
@@ -53,8 +56,8 @@ rotozoom
 filtered scale and rotation
 pygame.transorm.rotozoom(Surface, angle, scale): return Surface
 
-This is a combines scale and rotation transform. The resulting Surface will
-be filtered 32bit Surface. The scale argument is a floating point value
+This is a combined scale and rotation transform. The resulting Surface will
+be a filtered 32-bit Surface. The scale argument is a floating point value
 that will be multiplied by the current resolution. The angle argument is
 a floating point value that represents the counterclockwise degrees to
 rotate. A negative rotation angle will rotate clockwise.
@@ -81,8 +84,9 @@ chop
 remove interior area of an image
 pygame.transform.chop(Surface, rect): return Surface
 
-Removes an interior set of columns and rows from a Surface. All vertical and
+Extracts a portion of an image. All vertical and
 horizontal pixels surrounding the given rectangle area are removed. The
 resulting image is shrunken by the size of pixels removed.
+(The original image is not altered by this operation.)
 <END>
 <END>

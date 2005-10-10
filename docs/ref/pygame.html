@@ -58,9 +58,9 @@
   <tr><td><a href="pygame.html#pygame.register_quit">pygame.register_quit</a></td><td>register a function to be called when pygame quits</td></tr>
   <tr><td><a href="pygame.html#pygame.version">pygame.version</a></td><td>small module containing version information</td></tr>
 </table></small></ul>
-<p>The pygame package represents the top-level package for others to use. Pygame itself is broken into many submodules, but this does not effect programs that use Pygame. </p>
-<p>As a convenience, most of the toplevel variables in pygame have been placed inside a module named <tt>'pygame.locals'</tt>. This is meant to be used with 'from <tt>pygame.locals</tt> import *', in addition to 'import pygame'. </p>
-<p>When you 'import pygame' all available pygame submodules are automatically imported. Be aware that some of the pygame modules are considered "optional", and may not be available. Pygame will replace a placeholder object in there place, which can later test their availability. </p>
+<p>The pygame package represents the top-level package for others to use. Pygame itself is broken into many submodules, but this does not affect programs that use Pygame. </p>
+<p>As a convenience, most of the top-level variables in pygame have been placed inside a module named <tt>'pygame.locals'</tt>. This is meant to be used with 'from <tt>pygame.locals</tt> import *', in addition to 'import pygame'. </p>
+<p>When you 'import pygame' all available pygame submodules are automatically imported. Be aware that some of the pygame modules are considered "optional", and may not be available. In that case, Pygame will provide a placeholder object instead of the module, which can be used to test for availability. </p>
  &nbsp;<br> 
 
 
@@ -68,7 +68,8 @@
 <big><b>pygame.init</big></b><br><ul>
   <i>initialize all imported pygame modules</i><br>
   <tt>pygame.init(): return (numpass, numfail)</tt><br>
-<p>Initialize all imported Pygame modules. No exceptions will be raised in a module fails, but the total number if successful and failed inits will be returned as a tuple. You can always initialize individual modules by hand, but <tt>pygame.init</tt> is a convenient way to get everything started. The init() functions for individual modules will raise exceptions when they fail. It is safe to call this init() more than once, repeated calls will have no effect. It is also safe to recall init() after you have previously <tt>pygame.quit</tt> all the modules. </p>
+<p>Initialize all imported Pygame modules. No exceptions will be raised if a module fails, but the total number if successful and failed inits will be returned as a tuple. You can always initialize individual modules manually, but <tt>pygame.init</tt> is a convenient way to get everything started. The init() functions for individual modules will raise exceptions when they fail. </p>
+<p>It is safe to call this init() more than once: repeated calls will have no effect. This is true even if you have <tt><a href="pygame.html#pygame.quit">pygame.quit</a></tt> all the modules. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -77,7 +78,7 @@
 <big><b>pygame.quit</big></b><br><ul>
   <i>uninitialize all pygame modules</i><br>
   <tt>pygame.quit(): return None</tt><br>
-<p>Uninitialize all pygame modules that have previously been initialized. When the Python interpreter shuts down, this method is called regardless, so your program should not need it, except when it wants to terminate it's pygame resources and continue. It is safe to call this function more than once, repeated calls have no effect. </p>
+<p>Uninitialize all pygame modules that have previously been initialized. When the Python interpreter shuts down, this method is called regardless, so your program should not need it, except when it wants to terminate its pygame resources and continue. It is safe to call this function more than once: repeated calls have no effect. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -96,7 +97,7 @@
 <big><b>pygame.get_error</big></b><br><ul>
   <i>get the current error message</i><br>
   <tt>pygame.get_error(): return errorstr</tt><br>
-<p><tt>SDL</tt> maintains an internal error message. This message will usually given to you when <tt>pygame.error</tt> is raised. You will rarely need to call this function. </p>
+<p><tt>SDL</tt> maintains an internal error message. This message will usually be given to you when <tt>pygame.error</tt> is raised. You will rarely need to call this function. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -135,7 +136,7 @@
 <big><b>pygame.version.ver</big></b><br><ul>
   <i>version number as a string</i><br>
   <tt>pygame.version.ver = "1.2"</tt><br>
-<p>This is the version represented as a string. It can contain a micro release number as well in the form of <tt>"1.5.2"</tt>. </p>
+<p>This is the version represented as a string. It can contain a micro release number as well, <tt>e.g.</tt>, <tt>"1.5.2"</tt> </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -146,7 +147,8 @@
   <tt>pygame.version.vernum = (1, 5, 3)</tt><br>
 <p>This variable for the version can easily be compared with other version numbers of the same format. An example of checking Pygame version numbers would look like this: </p>
 <pre>    if pygame.version.vernum < (1, 5):
-        print "Warning, older version of Pygame (%s)" %      pygame.version.ver disable_advanced_features = True
+        print "Warning, older version of Pygame (%s)" %  pygame.version.ver
+        disable_advanced_features = True
 </pre>
  &nbsp;<br> 
 <br></ul>
