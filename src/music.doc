@@ -47,7 +47,7 @@ rewind
 restart music
 pygame.mixer.music.rewind(): return None
 
-This will reset playback of the current music at the beginning.
+Resets playback of the current music to the beginning.
 <END>
 
 
@@ -63,8 +63,9 @@ Stops the music playback if it is currently playing.
 
 pause
 temporarily stop music playback
+pygame.mixer.music.pause(): return None
 
-This will temporarily stop playback of the music stream. It can be resumed
+Temporarily stop playback of the music stream. It can be resumed
 with the pygame.mixer.music.unpause() function.
 <END>
 
@@ -72,6 +73,7 @@ with the pygame.mixer.music.unpause() function.
 
 unpause
 resume paused music
+pygame.mixer.music.unpause(): return None
 
 This will resume the playback of a music stream after it has been paused.
 <END>
@@ -83,7 +85,7 @@ stop music playback after fading out
 pygame.mixer.music.fadeout(time): return None
 
 This will stop the music playback after it has been faded out over the
-time argument in seconds.
+specified time (measured in seconds).
 <END>
 
 
@@ -123,7 +125,7 @@ get the music play time
 pygame.mixer.music.get_pos(): return time
 
 This gets the number of milliseconds that the music has been playing for.
-The returned time only represents how long the music has been playing. It
+The returned time only represents how long the music has been playing; it
 does not take into account any starting position offsets.
 <END>
 
@@ -145,12 +147,13 @@ have the music send an event when playback stops
 pygame.mixer.music.set_endevent(): return None
 pygame.mixer.music.set_endevent(type): return None
 
-When the music has finished playing, you can optionally have pygame
-place a user defined message on the event queue. If the type argument
-is nto given, no messages will stop sending endevents.
+This causes Pygame to signal (by means of the event queue) when
+the music is done playing. The argument determines the type of
+event that will be queued.
 
-Once the endevent is set, it will be called every time the music
-finished playing.
+The event will be queued every time the music finish, not just
+the first time. To stop the event from being queued, call this
+method with no argument.
 <END>
 
 

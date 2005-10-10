@@ -95,7 +95,7 @@
 <big><b>pygame.mixer.music.rewind</big></b><br><ul>
   <i>restart music</i><br>
   <tt>pygame.mixer.music.rewind(): return None</tt><br>
-<p>This will reset playback of the current music at the beginning. </p>
+<p>Resets playback of the current music to the beginning. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -112,7 +112,8 @@
 <a name="pygame.mixer.music.pause">
 <big><b>pygame.mixer.music.pause</big></b><br><ul>
   <i>temporarily stop music playback</i><br>
-<p>This will temporarily stop playback of the music stream. It can be resumed with the <tt><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a></tt> function. </p>
+  <tt>pygame.mixer.music.pause(): return None</tt><br>
+<p>Temporarily stop playback of the music stream. It can be resumed with the <tt><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a></tt> function. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -120,6 +121,7 @@
 <a name="pygame.mixer.music.unpause">
 <big><b>pygame.mixer.music.unpause</big></b><br><ul>
   <i>resume paused music</i><br>
+  <tt>pygame.mixer.music.unpause(): return None</tt><br>
 <p>This will resume the playback of a music stream after it has been paused. </p>
  &nbsp;<br> 
 <br></ul>
@@ -129,7 +131,7 @@
 <big><b>pygame.mixer.music.fadeout</big></b><br><ul>
   <i>stop music playback after fading out</i><br>
   <tt>pygame.mixer.music.fadeout(time): return None</tt><br>
-<p>This will stop the music playback after it has been faded out over the time argument in seconds. </p>
+<p>This will stop the music playback after it has been faded out over the specified time (measured in seconds). </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -165,7 +167,7 @@
 <big><b>pygame.mixer.music.get_pos</big></b><br><ul>
   <i>get the music play time</i><br>
   <tt>pygame.mixer.music.get_pos(): return time</tt><br>
-<p>This gets the number of milliseconds that the music has been playing for. The returned time only represents how long the music has been playing. It does not take into account any starting position offsets. </p>
+<p>This gets the number of milliseconds that the music has been playing for. The returned time only represents how long the music has been playing; it does not take into account any starting position offsets. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -184,8 +186,8 @@
   <i>have the music send an event when playback stops</i><br>
   <tt>pygame.mixer.music.set_endevent(): return None</tt><br>
   <tt>pygame.mixer.music.set_endevent(type): return None</tt><br>
-<p>When the music has finished playing, you can optionally have pygame place a user defined message on the event queue. If the type argument is nto given, no messages will stop sending endevents. </p>
-<p>Once the endevent is set, it will be called every time the music finished playing. </p>
+<p>This causes Pygame to signal (by means of the event queue) when the music is done playing. The argument determines the type of event that will be queued. </p>
+<p>The event will be queued every time the music finish, not just the first time. To stop the event from being queued, call this method with no argument. </p>
  &nbsp;<br> 
 <br></ul>
 

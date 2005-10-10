@@ -56,7 +56,7 @@
   <tr><td><a href="time.html#pygame.time.set_timer">pygame.time.set_timer</a></td><td>repeatedly create an event on the event queue</td></tr>
   <tr><td><a href="time.html#pygame.time.Clock">pygame.time.Clock</a></td><td>create an object to help track time</td></tr>
 </table></small></ul>
-<p>Times in pygame are represented in milliseconds. 1000 milliseconds are in one second. Most platforms have a limited time resolution of around 10 milliseconds. </p>
+<p>Times in pygame are represented in milliseconds (1/1000 seconds). Most platforms have a limited time resolution of around 10 milliseconds. </p>
  &nbsp;<br> 
 
 
@@ -83,7 +83,7 @@
 <big><b>pygame.time.delay</big></b><br><ul>
   <i>pause the program for an amount of time</i><br>
   <tt>pygame.time.delay(milliseconds): return time</tt><br>
-<p>Will pause for a given number of milliseconds. This function will use the processor in order to make the delay more accurate than <tt><a href="time.html#pygame.time.wait">pygame.time.wait</a></tt>. </p>
+<p>Will pause for a given number of milliseconds. This function will use the processor (rather than sleeping) in order to make the delay more accurate than <tt><a href="time.html#pygame.time.wait">pygame.time.wait</a></tt>. </p>
 <p>This returns the actual number of milliseconds used. </p>
  &nbsp;<br> 
 <br></ul>
@@ -128,7 +128,7 @@
 <big><b>Clock.get_time</big></b><br><ul>
   <i>time used in the previous tick</i><br>
   <tt>Clock.get_time(): return milliseconds</tt><br>
-<p>This is the same value returned when the last call to <tt><a href="time.html#Clock.tick">Clock.tick</a></tt> was made. It is the number of milliseconds passed between the previous to calls to <tt>Pygame.tick()</tt>. </p>
+<p>Returns the parameter passed to the last call to <tt><a href="time.html#Clock.tick">Clock.tick</a></tt>. It is the number of milliseconds passed between the previous two calls to <tt>Pygame.tick()</tt>. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -137,7 +137,7 @@
 <big><b>Clock.get_rawtime</big></b><br><ul>
   <i>actual time used in the previous tick</i><br>
   <tt>Clock.get_rawtime(): return milliseconds</tt><br>
-<p>Similar to <tt><a href="time.html#Clock.get_time">Clock.get_time</a></tt>, but this does not include any time used while <tt><a href="time.html#Clock.tick">Clock.tick</a></tt> delayed to maintain a maximum framerate. </p>
+<p>Similar to <tt><a href="time.html#Clock.get_time">Clock.get_time</a></tt>, but this does not include any time used while <tt><a href="time.html#Clock.tick">Clock.tick</a></tt> was delaying to limit the framerate. </p>
  &nbsp;<br> 
 <br></ul>
 
@@ -146,7 +146,7 @@
 <big><b>Clock.get_fps</big></b><br><ul>
   <i>compute the clock framerate</i><br>
   <tt>Clock.get_fps(): return float</tt><br>
-<p>Compute the frames per second of the Clock. This averages several of the previous calls to <tt><a href="time.html#Clock.tick">Clock.tick</a></tt>. </p>
+<p>Compute your game's framerate (in frames per second). It is computed by averaging the last few calls to <tt><a href="time.html#Clock.tick">Clock.tick</a></tt>. </p>
  &nbsp;<br> 
 <br></ul>
 <br></ul>

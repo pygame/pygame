@@ -9,7 +9,7 @@ can be created from a combination of left, top, width, and height values.
 Rects can also be created from python objects that are already a Rect or
 have an attribute named "rect".
 
-Any Pygame function that requires a Rect argument can also accept any of
+Any Pygame function that requires a Rect argument also accepts any of
 these values to construct a Rect. This makes it easier to create Rects
 on the fly as arguments to functions.
 
@@ -17,17 +17,26 @@ The Rect functions that change the position or size of a Rect return
 a new copy of the Rect with the effected changes. The original Rect
 is not modified. Some methods have an alternate "in-place" version that
 returns None but effects the original Rect. These "in-place" methods
-are noted with the "ip" suffix.
+are denoted with the "ip" suffix.
 
 The Rect object has several virtual attributes which can be used to move
-and align the Rect. Changing any of these attributes moves the entire
-Rect object. Some of the attributes represent a pair of coordinates.
+and align the Rect:
 
     top, left, bottom, right
     topleft, bottomleft, topright, bottomright
     midtop, midleft, midbottom, midright
     center, centerx, centery
     size, width, height
+
+All of these attributes can be assigned to:
+
+    rect1.right = 10
+    rect2.center = (20,30)
+
+Assigning to size, width or height changes the dimensions of the
+rectangle; all other assignments move the rectangle without
+resizing it. Notice that some attributes are integers and
+others are pairs of integers.
 
 If a Rect has a nonzero width or height, it will return True for a
 nonzero test. Some methods return a Rect with 0 size to represent an
@@ -37,12 +46,13 @@ The coordinates for Rect objects are all integers. The size values
 can be programmed to have negative values, but these are considered
 illegal Rects for most operations.
 
-There are several collision tests between other Rectangles. Most
+There are several collision tests between other rectangles. Most
 python containers can be searched for collisions against a single Rect.
 
-The area covered by a Rectangle does not include the right and bottom most
-edge of pixels. Rectangles that share a common top and bottom coordinate will
-meet exactly, but not overlap.
+The area covered by a Rect does not include the right- and bottom-most
+edge of pixels. If one Rect's bottom border is another Rect's top border
+(i.e., rect1.bottom=rect2.top), the two meet exactly on the screen
+but do not overlap, and rect1.colliderect(rect2) returns false.
 <SECTION>
 
 
@@ -89,7 +99,7 @@ Rect.clamp(Rect): return Rect
 
 Returns a new rectangle that is moved to be completely inside the argument
 Rect. If the rectangle is too large to fit inside, it is centered inside
-the argument Rect.
+the argument Rect, but its size is not changed.
 <END>
 
 
@@ -128,8 +138,8 @@ joins two rectangles into one
 Rect.union(Rect): return Rect
 
 Returns a new rectangle that completely covers the area of the two
-provided rectangles. There may be area inside the new Rect that was
-not originally covered by the originals.
+provided rectangles. There may be area inside the new Rect that is
+not covered by the originals.
 <END>
 
 
@@ -187,13 +197,13 @@ contains
 test if one rectangle is inside another
 Rect.contains(Rect): return bool
 
-Returns true when the rectangle is completely inside the argument Rect.
+Returns true when the argument is completely inside the Rect.
 <END>
 
 
 
 collidepoint
-test if a point is indie a rectangle
+test if a point is inside a rectangle
 Rect.collidepoint(x, y): return bool
 
 Returns true if the given point is inside the rectangle. A point along
@@ -206,7 +216,8 @@ colliderect
 test if two rectangles overlap
 Rect.colliderect(Rect): return bool
 
-Returns true if any portion of either rectangle overlap.
+Returns true if any portion of either rectangle overlap (except
+the top+bottom or left+right edges).
 <END>
 
 
@@ -215,7 +226,7 @@ collidelist
 test if one rectangle in a list intersects
 Rect.collidelist(list): return index
 
-Test the rectangle if it collides with any in a sequence of rectangles.
+Test whether the rectangle collides with any in a sequence of rectangles.
 The index of the first collision found is returned. If no collisions are
 found an index of -1 is returned.
 <END>
@@ -227,7 +238,7 @@ test if all rectangles in a list intersect
 Rect.collidelistall(list): return indices
 
 Returns a list of all the indices that contain rectangles that collide
-with the Rect. If no intersecting rectangles are found, and empty list
+with the Rect. If no intersecting rectangles are found, an empty list
 is returned.
 <END>
 

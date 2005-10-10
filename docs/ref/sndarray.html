@@ -55,8 +55,8 @@
   <tr><td><a href="sndarray.html#pygame.sndarray.make_sound">pygame.sndarray.make_sound</a></td><td>convert an array into a Sound object</td></tr>
 </table></small></ul>
 <p>Functions to convert between Numeric arrays and Sound objects. This module will only be available when pygame can use the external Numeric package. </p>
-<p>Sound data is made of thousands of sample per second. Each sample is an 8bit or 16bit integer, depending on the data format. <tt>A</tt> stereo sound file has two values per sample, while mono sound only has one. </p>
-<p>Numeric does not use unsigned 16bit integers, they will be converted to signed 16bit arrays. </p>
+<p>Sound data is made of thousands of samples per second. Each sample is an 8-bit or 16-bit integer, depending on the data format. <tt>A</tt> stereo sound file has two values per sample, while a mono sound file only has one. </p>
+<p>Numeric does not use unsigned 16-bit integers; they will be converted to signed 16-bit arrays. </p>
  &nbsp;<br> 
 
 
@@ -73,7 +73,7 @@
 <big><b>pygame.sndarray.samples</big></b><br><ul>
   <i>reference Sound samples into an array</i><br>
   <tt>pygame.sndarray.samples(Sound): return array</tt><br>
-<p>Creates a new Numeric array that direcetly references the samples in a Sound object. Modifying the array will change the Sound. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
+<p>Creates a new Numeric array that directly references the samples in a Sound object. Modifying the array will change the Sound. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
  &nbsp;<br> 
 <br></ul>
 
