@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+October 24, 2005
+    Add support for 64bit data types in surfarray.blit_array()
+
 October 2, 2005
     switch to the new reference documentation system
 
