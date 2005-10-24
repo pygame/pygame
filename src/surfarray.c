@@ -885,6 +885,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint8):  COPYMACRO_2D(Uint8, Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D(Uint8, Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D(Uint8, Uint32)  break;
+				case sizeof(Uint64): COPYMACRO_2D(Uint8, Uint64)  break;
 				default:
 					if(!PySurface_Unlock(surfobj)) return NULL;
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
@@ -897,6 +898,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint8):  COPYMACRO_2D(Uint16, Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D(Uint16, Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D(Uint16, Uint32)  break;
+				case sizeof(Uint64): COPYMACRO_2D(Uint16, Uint64)  break;
 				default:
 					if(!PySurface_Unlock(surfobj)) return NULL;
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
@@ -906,6 +908,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint8): COPYMACRO_3D(Uint16, Uint8)  break;
 				case sizeof(Uint16):COPYMACRO_3D(Uint16, Uint16)  break;
 				case sizeof(Uint32):COPYMACRO_3D(Uint16, Uint32)  break;
+				case sizeof(Uint64): COPYMACRO_3D(Uint16, Uint64)  break;
 				default:
 					if(!PySurface_Unlock(surfobj)) return NULL;
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
@@ -918,6 +921,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint8):  COPYMACRO_2D_24(Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D_24(Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D_24(Uint32)  break;
+				case sizeof(Uint64): COPYMACRO_2D_24(Uint64)  break;
 				default:
 					if(!PySurface_Unlock(surfobj)) return NULL;
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
@@ -927,6 +931,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint8): COPYMACRO_3D_24(Uint8)  break;
 				case sizeof(Uint16):COPYMACRO_3D_24(Uint16)  break;
 				case sizeof(Uint32):COPYMACRO_3D_24(Uint32)  break;
+				case sizeof(Uint64):COPYMACRO_3D_24(Uint64)  break;
 				default:
 					if(!PySurface_Unlock(surfobj)) return NULL;
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
@@ -939,6 +944,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint8):  COPYMACRO_2D(Uint32, Uint8)  break;
 				case sizeof(Uint16): COPYMACRO_2D(Uint32, Uint16)  break;
 				case sizeof(Uint32): COPYMACRO_2D(Uint32, Uint32)  break;
+				case sizeof(Uint64): COPYMACRO_2D(Uint32, Uint64)  break;
 			default:
 					if(!PySurface_Unlock(surfobj)) return NULL;
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
@@ -948,6 +954,7 @@ PyObject* blit_array(PyObject* self, PyObject* arg)
 				case sizeof(Uint8): COPYMACRO_3D(Uint32, Uint8)  break;
 				case sizeof(Uint16):COPYMACRO_3D(Uint32, Uint16)  break;
 				case sizeof(Uint32):COPYMACRO_3D(Uint32, Uint32)  break;
+				case sizeof(Uint64): COPYMACRO_3D(Uint32, Uint64)  break;
 				default:
 					if(!PySurface_Unlock(surfobj)) return NULL;
 					return RAISE(PyExc_ValueError, "unsupported datatype for array\n");
