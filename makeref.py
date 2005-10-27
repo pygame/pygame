@@ -6,12 +6,26 @@ import os, glob
 def sortkey(x):
     return os.path.basename(x).lower()
 
+def sort_list_by_keyfunc(alist, akey):
+    """ sort(key=sortkey) is only in python2.4.
+         this is not inplace like list.sort()
+    """
+    # make a list of tupples with the key as the first.
+    keys_and_list = zip(map(akey, alist), alist)
+    keys_and_list.sort()
+    alist = map(lambda x:x[1], keys_and_list)
+    return alist
+
 
 def Run():
     # get files and shuffle ordering
     files = glob.glob('src/*.doc') + glob.glob('lib/*.doc')
     files.remove("src/pygame.doc")
-    files.sort(key=sortkey)
+
+    #XXX: sort(key=) is only available in >= python2.4
+    #files.sort(key=sortkey)
+    files = sort_list_by_keyfunc(files, sortkey)
+
     files.insert(0, "src/pygame.doc")
     docs = []
     pages = []
@@ -21,7 +35,9 @@ def Run():
         d = name, Doc('', open(f, "U"))
         docs.append(d)
     
-    pages.sort(key=str.lower)
+    #pages.sort(key=str.lower)
+    pages = sort_list_by_keyfunc(pages, str.lower)
+
     pages.insert(0, "index")
     
     index = {}
