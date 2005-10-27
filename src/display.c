@@ -919,7 +919,8 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
 static void do_set_icon(PyObject *surface)
 {
 	SDL_Surface* surf = PySurface_AsSurface(surface);
-	surf = PySurface_AsSurface(surface);
+        // NOTE: XXX: is this extra surf = line in here for some reason?
+	//surf = PySurface_AsSurface(surface);
 	SDL_WM_SetIcon(surf, NULL);
 	icon_was_set = 1;
 }
@@ -930,6 +931,8 @@ static PyObject* set_icon(PyObject* self, PyObject* arg)
 	PyObject* surface;
 	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surface))
 		return NULL;
+        if(!PyGame_Video_AutoInit())
+               return RAISE(PyExc_SDLError, SDL_GetError());
 	do_set_icon(surface);
 	RETURN_NONE
 }
