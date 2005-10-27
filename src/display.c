@@ -919,8 +919,6 @@ static PyObject* get_caption(PyObject* self, PyObject* arg)
 static void do_set_icon(PyObject *surface)
 {
 	SDL_Surface* surf = PySurface_AsSurface(surface);
-        // NOTE: XXX: is this extra surf = line in here for some reason?
-	//surf = PySurface_AsSurface(surface);
 	SDL_WM_SetIcon(surf, NULL);
 	icon_was_set = 1;
 }
