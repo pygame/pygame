@@ -126,6 +126,22 @@ def initsysfonts_darwin():
     return fonts
 
 
+def read_unix_fontscache(dir, file, fonts):
+    file = open(os.path.join(dir, file))
+    for line in file.readlines():
+        try:
+            font, num, vals = line.split(' ', 2)
+        except ValueError:
+            continue
+        font = font.replace('"', '')
+        if font[-4:].lower() not in [".ttf", ".ttc"]:
+            continue
+        font = os.path.join(dir, font)
+        vals = vals.split(':')
+        name = _simplename(vals[0][1:])
+        bold = vals[1].find('Bold') >= 0
+        italic = vals[1].find('Italic') >= 0
+        _addfont(name, bold, italic, font, fonts)
 
 #read the fonts from a unix 'fonts.cache-1' file
 def read_unix_fontsdir(dir, file, fonts):

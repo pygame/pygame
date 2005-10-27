@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+
+October 28, 2005
+    fix for do_set_icon when display not initialised. Thanks John Popplewell!
+    Added missing read_unix_fonts_cache function. Thanks again John Popplewell.
+
 October 24, 2005
     Add support for 64bit data types in surfarray.blit_array()
 
