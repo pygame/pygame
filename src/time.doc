@@ -71,16 +71,19 @@ The clock also provides several functions to help control a game's framerate.
 
 tick
 update the clock
-Clock.tick(delay=0): return milliseconds
+Clock.tick([framerate]) -> milliseconds
+control timer events
 
 This method should be called once per frame. It will compute how many
 milliseconds have passed since the previous call.
 
-If you pass an optional delay value, this function will delay until
-the given amount of milliseconds have passed since the previous call. This
-can be used to help limit the runtime speed of a game. By calling
-Clock.tick(1000/40) once per frame, the program will never run at more
-than 40 frames per second.
+If you pass the optional framerate argument the function will delay to keep 
+the game running slower than the given ticks per second.  This can be used 
+to help limit the runtime speed of a game. By calling Clock.tick(40) once 
+per frame, the program will never run at more than 40 frames per second.
+
+Note that this function uses pygame.time.delay, which uses lots of cpu
+in a busy loop to make sure that timing is more acurate.
 <END>
 
 
