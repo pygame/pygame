@@ -103,7 +103,8 @@ def HtmlOut(doc, index, f):
             f.write("</pre>\n")
     else:
         f.write(" &nbsp;<br> \n")
-   
+
+    f.write("<!--COMMENTS:"+doc.fullname+"-->")
     f.write(" &nbsp;<br> \n")
     
     if doc.kids:
