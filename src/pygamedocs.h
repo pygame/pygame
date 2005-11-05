@@ -656,7 +656,7 @@
 
 #define DOC_PYGAMETIMECLOCK "pygame.time.Clock(): return Clock\ncreate an object to help track time"
 
-#define DOC_CLOCKTICK "Clock.tick(delay=0): return milliseconds\nupdate the clock"
+#define DOC_CLOCKTICK "Clock.tick([framerate]) -> milliseconds\ncontrol timer events\nupdate the clock"
 
 #define DOC_CLOCKGETTIME "Clock.get_time(): return milliseconds\ntime used in the previous tick"
 

@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -66,7 +66,7 @@
 <p>The groups are designed for high efficiency in removing and adding Sprites to them. They also allow cheap testing to see if a Sprite already exists in a Group. <tt>A</tt> given Sprite can exist in any number of groups. <tt>A</tt> game could use some groups to control object rendering, and a completely separate set of groups to control interaction or player movement. Instead of adding type attributes or booleans to a derived Sprite class, consider keeping the Sprites inside organized Groups. This will allow for easier lookup later in the game. </p>
 <p>Sprites and Groups manage their relationships with the add() and remove() methods. These methods can accept a single or multiple targets for membership. The default initializers for these classes also takes a single or list of targets for initial membership. It is safe to repeatedly add and remove the same Sprite from a Group. </p>
 <p>While it is possible to design sprite and group classes that don't derive from the Sprite and AbstractGroup classes below, it is strongly recommended that you extend those when you add a Sprite or Group class. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite--> &nbsp;<br> 
 
 
 <a name="pygame.sprite.Sprite">
@@ -83,7 +83,7 @@
 </table></small></ul>
 <p>The base class for visible game objects. Derived classes will want to override the <tt><a href="sprite.html#Sprite.update">Sprite.update</a></tt> and assign a <tt>Sprite.image</tt> and <tt>Sprite.rect</tt> attributes. The initializer can accept any number of Group instances to be added to. </p>
 <p>When subclassing the Sprite, be sure to call the base initializer before adding the Sprite to Groups. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.Sprite--> &nbsp;<br> 
 
 
 <a name="Sprite.update">
@@ -92,7 +92,7 @@
   <tt>Sprite.update(*args):</tt><br>
 <p>The default implementation of this method does nothing; it's just a convenient "hook" that you can override. This method is called by <tt><a href="sprite.html#Group.update">Group.update</a></tt> with whatever arguments you give it. </p>
 <p>There is no need to use this method if not using the convenience method by the same name in the Group class. </p>
- &nbsp;<br> 
+<!--COMMENTS:Sprite.update--> &nbsp;<br> 
 <br></ul>
 
 
@@ -101,7 +101,7 @@
   <i>add the sprite to groups</i><br>
   <tt>Sprite.add(*groups): return None</tt><br>
 <p>Any number of Group instances can be passed as arguments. The Sprite will be added to the Groups it is not already a member of. </p>
- &nbsp;<br> 
+<!--COMMENTS:Sprite.add--> &nbsp;<br> 
 <br></ul>
 
 
@@ -110,7 +110,7 @@
   <i>remove the sprite from groups</i><br>
   <tt>Sprite.remove(*groups): return None</tt><br>
 <p>Any number of Group instances can be passed as arguments. The Sprite will be removed from the Groups it is currently a member of. </p>
- &nbsp;<br> 
+<!--COMMENTS:Sprite.remove--> &nbsp;<br> 
 <br></ul>
 
 
@@ -119,7 +119,7 @@
   <i>remove the Sprite from all Groups</i><br>
   <tt>Sprite.kill(): return None</tt><br>
 <p>The Sprite is removed from all the Groups that contain it. This won't change anything about the state of the Sprite. It is possible to continue to use the Sprite after this method has been called, including adding it to Groups. </p>
- &nbsp;<br> 
+<!--COMMENTS:Sprite.kill--> &nbsp;<br> 
 <br></ul>
 
 
@@ -128,7 +128,7 @@
   <i>does the sprite belong to any groups</i><br>
   <tt>Sprite.alive(): return bool</tt><br>
 <p>Returns True when the Sprite belongs to one or more Groups. </p>
- &nbsp;<br> 
+<!--COMMENTS:Sprite.alive--> &nbsp;<br> 
 <br></ul>
 
 
@@ -137,7 +137,7 @@
   <i>list of Groups that contain this Sprite</i><br>
   <tt>Sprite.groups(): return group_list</tt><br>
 <p>Return a list of all the Groups that contain this Sprite. </p>
- &nbsp;<br> 
+<!--COMMENTS:Sprite.groups--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
@@ -163,7 +163,7 @@
     bool    test if any Sprites are contained
     iter    iterate through all the Sprites
 </pre><p>The Sprites in the Group are not ordered, so drawing and iterating the Sprites is in no particular order. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.Group--> &nbsp;<br> 
 
 
 <a name="Group.sprites">
@@ -171,7 +171,7 @@
   <i>list of the Sprites this Group contains</i><br>
   <tt>Group.sprites(): return sprite_list</tt><br>
 <p>Return a list of all the Sprites this group contains. You can also get an iterator from the group, but you cannot iterator over a Group while modifying it. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.sprites--> &nbsp;<br> 
 <br></ul>
 
 
@@ -180,7 +180,7 @@
   <i>duplicate the Group</i><br>
   <tt>Group.copy(): return Group</tt><br>
 <p>Creates a new Group with all the same Sprites as the original. If you have subclassed Group, the new object will have the same (sub-)class as the original. This only works if the derived class's constructor takes the same arguments as the Group class's. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.copy--> &nbsp;<br> 
 <br></ul>
 
 
@@ -190,7 +190,7 @@
   <tt>Group.add(*sprites): return None</tt><br>
 <p>Add any number of Sprites to this Group. This will only add Sprites that are not already members of the Group. </p>
 <p>Each sprite argument can also be a iterator containing Sprites. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.add--> &nbsp;<br> 
 <br></ul>
 
 
@@ -200,7 +200,7 @@
   <tt>Group.remove(*sprites): return None</tt><br>
 <p>Remove any number of Sprites from the Group. This will only remove Sprites that are already members of the Group. </p>
 <p>Each sprite argument can also be a iterator containing Sprites. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.remove--> &nbsp;<br> 
 <br></ul>
 
 
@@ -210,7 +210,7 @@
   <tt>Group.has(*sprites): return None</tt><br>
 <p>Return True if the Group contains all of the given sprites. This is similar to using the "in" operator on the Group ("if sprite in group: <tt>...")</tt>, which tests if a single Sprite belongs to a Group. </p>
 <p>Each sprite argument can also be a iterator containing Sprites. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.has--> &nbsp;<br> 
 <br></ul>
 
 
@@ -220,7 +220,7 @@
   <tt>Group.update(*args): return None</tt><br>
 <p>Calls the update() method on all Sprites in the Group. The base Sprite class has an update method that takes any number of arguments and does nothing. The arguments passed to <tt><a href="sprite.html#Group.update">Group.update</a></tt> will be passed to each Sprite. </p>
 <p>There is no way to get the return value from the <tt><a href="sprite.html#Sprite.update">Sprite.update</a></tt> methods. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.update--> &nbsp;<br> 
 <br></ul>
 
 
@@ -230,7 +230,7 @@
   <tt>Group.draw(Surface): return None</tt><br>
 <p>Draws the contained Sprites to the Surface argument. This uses the <tt>Sprite.image</tt> attribute for the source surface, and <tt>Sprite.rect</tt> for the position. </p>
 <p>The Group does not keep sprites in any order, so the draw order is arbitrary. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.draw--> &nbsp;<br> 
 <br></ul>
 
 
@@ -245,7 +245,7 @@
         color = 255, 0, 0
         surf.fill(color, rect)
 </pre>
- &nbsp;<br> 
+<!--COMMENTS:Group.clear--> &nbsp;<br> 
 <br></ul>
 
 
@@ -254,7 +254,7 @@
   <i>remove all Sprites</i><br>
   <tt>Group.empty(): return None</tt><br>
 <p>Removes all Sprites from this Group. </p>
- &nbsp;<br> 
+<!--COMMENTS:Group.empty--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
@@ -267,7 +267,7 @@
   <tr><td><a href="sprite.html#RenderUpdates.draw">RenderUpdates.draw</a></td><td>blit the Sprite images and track changed areas</td></tr>
 </table></small></ul>
 <p>This class is derived from <tt><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a></tt>. It has an extended draw() method that tracks the changed areas of the screen. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.RenderUpdates--> &nbsp;<br> 
 
 
 <a name="RenderUpdates.draw">
@@ -276,7 +276,7 @@
   <tt>RenderUpdates.draw(surface): return Rect_list</tt><br>
 <p>Draws all the Sprites to the surface, the same as <tt><a href="sprite.html#Group.draw">Group.draw</a></tt>. This method also returns a list of Rectangular areas on the screen that have been changed. The returned changes include areas of the screen that have been affected by previous <tt><a href="sprite.html#Group.clear">Group.clear</a></tt> calls. </p>
 <p>The returned Rect list should be passed to <tt><a href="display.html#pygame.display.update">pygame.display.update</a></tt>. This will help performance on software driven display modes. This type of updating is usually only helpful on destinations with non-animating backgrounds. </p>
- &nbsp;<br> 
+<!--COMMENTS:RenderUpdates.draw--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
@@ -286,7 +286,7 @@
   <i>RenderUpdates class that draws Sprites in order of addition</i><br>
   <tt>pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates</tt><br>
 <p>This class derives from <tt><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a></tt>. It maintains the order in which the Sprites were added to the Group for rendering. This makes adding and removing Sprites from the Group a little slower than regular Groups. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.OrderedUpdates--> &nbsp;<br> 
 <br></ul>
 
 
@@ -296,7 +296,7 @@
   <tt>pygame.sprite.GroupSingle(sprite=None): return GroupSingle</tt><br>
 <p>The GroupSingle container only holds a single Sprite. When a new Sprite is added, the old one is removed. </p>
 <p>There is a special property, <tt>GroupSingle.sprite</tt>, that accesses the Sprite that this Group contains. It can be None when the Group is empty. The property can also be assigned to add a Sprite into the GroupSingle container. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.GroupSingle--> &nbsp;<br> 
 <br></ul>
 
 
@@ -306,7 +306,7 @@
   <tt>pygame.sprite.spritecollide(sprite, group, dokill): return Sprite_list</tt><br>
 <p>Return a list containing all Sprites in a Group that intersect with another Sprite. Intersection is determined by comparing the <tt>Sprite.rect</tt> attribute of each Sprite. </p>
 <p>The dokill argument is a boolean. If set to True, all Sprites that collide will be removed from the Group. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.spritecollide--> &nbsp;<br> 
 <br></ul>
 
 
@@ -317,7 +317,7 @@
 <p>This will find intersections between all the Sprites in two groups. Intersection is determined by comparing the <tt>Sprite.rect</tt> attribute of each Sprite. </p>
 <p>Every Sprite inside group1 is added to the return dictionary. The value for each item is the list of Sprites in group2 that intersect. </p>
 <p>If either dokill argument is True, the intersecting Sprites will be removed from their respective Group. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.groupcollide--> &nbsp;<br> 
 <br></ul>
 
 
@@ -327,7 +327,7 @@
   <tt>pygame.sprite.spritecollideany(sprite, group): return bool</tt><br>
 <p>Test if the given Sprite intersects with any Sprites in a Group. Intersection is determined by comparing of the <tt>Sprite.rect</tt> attribute of each Sprite. </p>
 <p>This collision test can be faster than <tt><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a></tt> since it has less work to do. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sprite.spritecollideany--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

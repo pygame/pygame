@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -199,7 +199,7 @@
       KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,
       KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, KMOD_MODE
 </pre>
- &nbsp;<br> 
+<!--COMMENTS:pygame.key--> &nbsp;<br> 
 
 
 <a name="pygame.key.get_focused">
@@ -207,7 +207,7 @@
   <i>true if the display is receiving keyboard input from the system</i><br>
   <tt>pygame.key.get_focused(): return bool</tt><br>
 <p>This is true when the display window has keyboard focus from the system. If the display needs to ensure it does not lose keyboard focus, it can use <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a></tt> to grab all input. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.key.get_focused--> &nbsp;<br> 
 <br></ul>
 
 
@@ -217,7 +217,7 @@
   <tt>pygame.key.get_pressed(): return bools</tt><br>
 <p>Returns a sequence of boolean values representing the state of every key on the keyboard. Use the key constant values to index the array. <tt>A</tt> True value means the that button is pressed. </p>
 <p>Getting the list of pushed buttons with this function is not the proper way to handle text entry from the user. You have no way to know the order of keys pressed, and rapidly pushed keys can be completely unnoticed between two calls to <tt><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a></tt>. There is also no way to translate these pushed keys into a fully translated character value. See the <tt>pygame.KEYDOWN</tt> events on the event queue for this functionality. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.key.get_pressed--> &nbsp;<br> 
 <br></ul>
 
 
@@ -226,7 +226,7 @@
   <i>determine which modifier keys are being held</i><br>
   <tt>pygame.key.get_mods(): return int</tt><br>
 <p>Returns a single integer representing a bitmask of all the modifier keys being held. Using bitwise operators you can test if specific shift keys are pressed, the state of the capslock button, and more. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.key.get_mods--> &nbsp;<br> 
 <br></ul>
 
 
@@ -235,7 +235,7 @@
   <i>temporarily set which modifier keys are pressed</i><br>
   <tt>pygame.key.set_mods(int): return None</tt><br>
 <p>Create a bitmask of the modifier constants you want to impose on your program. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.key.set_mods--> &nbsp;<br> 
 <br></ul>
 
 
@@ -246,7 +246,7 @@
   <tt>pygame.key.set_repeat(delay, interval): return None</tt><br>
 <p>When the keyboard repeat is enabled, keys that are held down will generate multiple <tt>pygame.KEYDOWN</tt> events. The delay is the number if milliseconds before the first repeated <tt>pygame.KEYDOWN</tt> will be sent. After that another <tt>pygame.KEYDOWN</tt> will be sent every interval milliseconds. If no arguments are passed the key repeat is disabled. </p>
 <p>When pygame is initialized the key repeat is disabled. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.key.set_repeat--> &nbsp;<br> 
 <br></ul>
 
 
@@ -255,7 +255,7 @@
   <i>get the name of a key identifier</i><br>
   <tt>pygame.key.name(key): return string</tt><br>
 <p>Get the descriptive name of the button from a keyboard button id constant. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.key.name--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

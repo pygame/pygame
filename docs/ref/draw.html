@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -65,7 +65,7 @@
 <p>All the drawing functions respect the clip area for the Surface, and will be constrained to that area. The functions return a rectangle representing the bounding area of changed pixels. </p>
 <p>Most of the arguments accept a color argument that is an <tt>RGB</tt> triplet. These can also accept an <tt>RGBA</tt> quadruplet. The alpha value will be written directly into the Surface if it contains pixel alphas, but the draw function will not draw transparently. The color argument can also be an integer pixel value that is already mapped to the Surface's pixel format. </p>
 <p>These functions must temporarily lock the Surface they are operating on. Many sequential drawing calls can be sped up by locking and unlocking the Surface object around the draw calls. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw--> &nbsp;<br> 
 
 
 <a name="pygame.draw.rect">
@@ -74,7 +74,7 @@
   <tt>pygame.draw.rect(Surface, color, Rect, width=0): return Rect</tt><br>
 <p>Draws a rectangular shape on the Surface. The given Rect is the area of the rectangle. The width argument is the thickness to draw the outer edge. If width is zero then the rectangle will be filled. </p>
 <p>Keep in mind the <tt><a href="surface.html#Surface.fill">Surface.fill</a></tt> method works just as well for drawing filled rectangles. In fact the <tt><a href="surface.html#Surface.fill">Surface.fill</a></tt> can be hardware accelerated on some platforms with both software and hardware display modes. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.rect--> &nbsp;<br> 
 <br></ul>
 
 
@@ -83,7 +83,7 @@
   <i>draw a shape with any number of sides</i><br>
   <tt>pygame.draw.polygon(Surface, color, pointlist, width=0): return Rect</tt><br>
 <p>Draws a polygonal shape on the Surface. The pointlist argument is the vertices of the polygon. The width argument is the thickness to draw the outer edge. If width is zero then the polygon will be filled. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.polygon--> &nbsp;<br> 
 <br></ul>
 
 
@@ -92,7 +92,7 @@
   <i>draw a circle around a point</i><br>
   <tt>pygame.draw.circle(Surface, color, pos, radius, width=0): return Rect</tt><br>
 <p>Draws a circular shape on the Surface. The pos argument is the center of the circle, and radius is the size. The width argument is the thickness to draw the outer edge. If width is zero then the circle will be filled. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.circle--> &nbsp;<br> 
 <br></ul>
 
 
@@ -101,7 +101,7 @@
   <i>draw a round shape inside a rectangle</i><br>
   <tt>pygame.draw.ellipse(Surface, color, Rect, width=0): return Rect</tt><br>
 <p>Draws an elliptical shape on the Surface. The given rectangle is the area that the circle will fill. The width argument is the thickness to draw the outer edge. If width is zero then the ellipse will be filled. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.ellipse--> &nbsp;<br> 
 <br></ul>
 
 
@@ -110,7 +110,7 @@
   <i>draw a partial section of an ellipse</i><br>
   <tt>pygame.draw.arc(Surface, color, Rect, start_angle, stop_angle, width=1): return Rect</tt><br>
 <p>Draws an elliptical arc on the Surface. The rect argument is the area that the ellipse will fill. The two angle arguments are the initial and final angle in radians, with the zero on the right. The width argument is the thickness to draw the outer edge. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.arc--> &nbsp;<br> 
 <br></ul>
 
 
@@ -119,7 +119,7 @@
   <i>draw a straight line segment</i><br>
   <tt>pygame.draw.line(Surface, color, start_pos, end_pos, width=1): return Rect</tt><br>
 <p>Draw a straight line segment on a Surface. There are no endcaps, the ends are squared off for thick lines. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.line--> &nbsp;<br> 
 <br></ul>
 
 
@@ -129,7 +129,7 @@
   <tt>pygame.draw.lines(Surface, color, closed, pointlist, width=1): return Rect</tt><br>
 <p>Draw a sequence of lines on a Surface. The pointlist argument is a series of points that are connected by a line. If the closed argument is true an additional line segment is drawn between the first and last points. </p>
 <p>This does not draw any endcaps or miter joints. Lines with sharp corners and wide line widths can have improper looking corners. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.lines--> &nbsp;<br> 
 <br></ul>
 
 
@@ -138,7 +138,7 @@
   <i>draw fine antialiased lines</i><br>
   <tt>pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect</tt><br>
 <p>Draws an anti-aliased line on a surface. This will respect the clipping rectangle. <tt>A</tt> bounding box of the effected area is returned returned as a rectangle. The if blend is true, the shades will be be blended with existing pixel shades instead of overwriting them. This function accepts floating point values for the end points. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.aaline--> &nbsp;<br> 
 <br></ul>
 
 
@@ -146,7 +146,7 @@
 <big><b>pygame.draw.aalines</big></b><br><ul>
   <i>pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</i><br>
 <p>Draws a sequence on a surface. You must pass at least two points in the sequence of points. The closed argument is a simple boolean and if true, a line will be draw between the first and last points. The boolean blend argument set to true will blend the shades with existing shades instead of overwriting them. This function accepts floating point values for the end points. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.draw.aalines--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

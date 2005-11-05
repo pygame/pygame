@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -91,7 +91,7 @@
     VIDEOEXPOSE      none
     USEREVENT        code
 </pre>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event--> &nbsp;<br> 
 
 
 <a name="pygame.event.pump">
@@ -101,7 +101,7 @@
 <p>For each frame of your game, you will need to make some sort of call to the event queue. This ensures your program can internally interact with the rest of the operating system. If you are not using other event functions in your game, you should call <tt><a href="event.html#pygame.event.pump">pygame.event.pump</a></tt> to allow pygame to handle internal actions. </p>
 <p>This function is not necessary if your program is consistently processing events on the queue through the other <tt>pygame.event</tt> functions. </p>
 <p>There are important things that must be dealt with internally in the event queue. The main window may need to be repainted or respond to the system. If you fail to make a call to the event queue for too long, the system may decide your program has locked up. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.pump--> &nbsp;<br> 
 <br></ul>
 
 
@@ -113,7 +113,7 @@
   <tt>pygame.event.get(typelist): return Eventlist</tt><br>
 <p>This will get all the messages and remove them from the queue. If a type or sequence of types is given only those messages will be removed from the queue. </p>
 <p>If you are only taking specific events from the queue, be aware that the queue could eventually fill up with the events you are not interested. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.get--> &nbsp;<br> 
 <br></ul>
 
 
@@ -122,7 +122,7 @@
   <i>get a single event from the queue</i><br>
   <tt>pygame.event.poll(): return Event</tt><br>
 <p>Returns a single event from the queue. If the event queue is empty an event of type <tt>pygame.NOEVENT</tt> will be returned immediately. The returned event is removed from the queue. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.poll--> &nbsp;<br> 
 <br></ul>
 
 
@@ -131,7 +131,7 @@
   <i>wait for a single event from the queue</i><br>
   <tt>pygame.event.wait(): return Event</tt><br>
 <p>Returns a single event from the queue. If the queue is empty this function will wait until one is created. While the program is waiting it will sleep in an idle state. This is important for programs that want to share the system with other applications. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.wait--> &nbsp;<br> 
 <br></ul>
 
 
@@ -141,7 +141,7 @@
   <tt>pygame.event.peek(type): return bool</tt><br>
   <tt>pygame.event.peek(typelist): return bool</tt><br>
 <p>Returns true if there are any events of the given type waiting on the queue. If a sequence of event types is passed, this will return True if any of those events are on the queue. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.peek--> &nbsp;<br> 
 <br></ul>
 
 
@@ -152,7 +152,7 @@
   <tt>pygame.event.clear(type): return None</tt><br>
   <tt>pygame.event.clear(typelist): return None</tt><br>
 <p>Remove all events or events of a specific type from the queue. This has the same effect as <tt><a href="event.html#pygame.event.get">pygame.event.get</a></tt> except nothing is returned. This can be slightly more effecient when clearing a full event queue. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.clear--> &nbsp;<br> 
 <br></ul>
 
 
@@ -161,7 +161,7 @@
   <i>get the string name from and event id</i><br>
   <tt>pygame.event.event_name(type): return string</tt><br>
 <p>Pygame uses integer ids to represent the event types. If you want to report these types to the user they should be converted to strings. This will return a the simple name for an event type. The string is in the WordCap style. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.event_name--> &nbsp;<br> 
 <br></ul>
 
 
@@ -173,7 +173,7 @@
   <tt>pygame.event.set_blocked(None): return None</tt><br>
 <p>The given event types are not allowed to appear on the event queue. By default all events can be placed on the queue. It is safe to disable an event type multiple times. </p>
 <p>If None is passed as the argument, this has the opposite effect and none of the event types are allowed to be placed on the queue. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.set_blocked--> &nbsp;<br> 
 <br></ul>
 
 
@@ -185,7 +185,7 @@
   <tt>pygame.event.set_allowed(None): return None</tt><br>
 <p>The given event types are allowed to appear on the event queue. By default all events can be placed on the queue. It is safe to enable an event type multiple times. </p>
 <p>If None is passed as the argument, this has the opposite effect and all of the event types are allowed to be placed on the queue. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.set_allowed--> &nbsp;<br> 
 <br></ul>
 
 
@@ -194,7 +194,7 @@
   <i>test if a type of event is blocked from the queue</i><br>
   <tt>pygame.event.get_blocked(type): return bool</tt><br>
 <p>Returns true if the given event type is blocked from the queue. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.get_blocked--> &nbsp;<br> 
 <br></ul>
 
 
@@ -204,7 +204,7 @@
   <tt>pygame.event.set_grab(bool): return None</tt><br>
 <p>When your program runs in a windowed environment, it will share the mouse and keyboard devices with other applications that have focus. If your program sets the event grab to True, it will lock all input into your program. </p>
 <p>It is best to not always grab the input, since it prevents the user from doing other things on their system. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.set_grab--> &nbsp;<br> 
 <br></ul>
 
 
@@ -213,7 +213,7 @@
   <i>test if the program is sharing input devices</i><br>
   <tt>pygame.event.get_grab(): return bool</tt><br>
 <p>Returns true when the input events are grabbed for this application. Use <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a></tt> to control this state. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.get_grab--> &nbsp;<br> 
 <br></ul>
 
 
@@ -223,7 +223,7 @@
   <tt>pygame.event.post(Event): return None</tt><br>
 <p>This places a new event at the end of the event queue. These Events will later be retrieved from the other queue functions. </p>
 <p>This is usually used for placing <tt>pygame.USEREVENT</tt> events on the queue. Although any type of event can be placed, if using the sytem event types your program should be sure to create the standard attributes with appropriate values. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.post--> &nbsp;<br> 
 <br></ul>
 
 
@@ -234,7 +234,7 @@
   <tt>pygame.event.Event(type, **attributes): return Event</tt><br>
 <p>Creates a new event with the given type. The event is created with the given attributes and values. The attributes can come from a dictionary argument, or as string keys from a dictionary. </p>
 <p>The given attributes will be readonly attributes on the new event object itself. These are the only attributes on the Event object, there are no methods attached to Event objects. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.event.Event--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
