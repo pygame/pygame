@@ -160,7 +160,7 @@ def WritePageLinks(outFile, pages):
         link = "<a href=%s.html>%s</a>" % (page, page.title())
         links.append(link)
     outFile.write("&nbsp;||&nbsp;\n".join(links))
-    outFile.write("\n</p>\n\n")
+    #outFile.write("\n</p>\n\n")
 
 
 def MakeIndex(name, doc, index):
@@ -309,13 +309,10 @@ HTMLHeader = """
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%%><tr><td bgcolor=#00000>
-<table width=100%%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -325,7 +322,7 @@ HTMLHeader = """
 """
 
 HTMLMid = """
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 """
 
