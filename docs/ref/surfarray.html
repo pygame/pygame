@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -65,7 +65,7 @@
 <p>Every pixel is stored as a single integer value to represent the red, green, and blue colors. The 8bit images use a value that looks into a colormap. Pixels with higher depth use a bit packing process to place three or four values into a single number. </p>
 <p>The Numeric arrays are indexed by the <tt>X</tt> axis first, followed by the <tt>Y</tt> axis. Arrays that treat the pixels as a single integer are referred to as <tt>2D</tt> arrays. This module can also separate the red, green, and blue color values into separate indices. These types of arrays are referred to as <tt>3D</tt> arrays, and the last index is 0 for red, 1 for green, and 2 for blue. </p>
 <p>Numeric does not use unsigned 16bit integers, images with 16bit data will be treated as signed integers. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray--> &nbsp;<br> 
 
 
 <a name="pygame.surfarray.array2d">
@@ -74,7 +74,7 @@
   <tt>pygame.surfarray.array2d(Surface): return array</tt><br>
 <p>Copy the pixels from a Surface into a <tt>2D</tt> array. The bit depth of the surface will control the size of the integer values, and will work for any type of pixel format. </p>
 <p>This function will temporarily lock the Surface as pixels are copied (see the <tt><a href="surface.html#Surface.lock">Surface.lock</a></tt> method). </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.array2d--> &nbsp;<br> 
 <br></ul>
 
 
@@ -85,7 +85,7 @@
 <p>Create a new <tt>2D</tt> array that directly references the pixel values in a Surface. Any changes to the array will affect the pixels in the Surface. This is a fast operation since no data is copied. </p>
 <p>Pixels from a 24-bit Surface cannot be referenced, but all other Surface bit depths can. </p>
 <p>The Surface this references will remain locked for the lifetime of the array (see the <tt><a href="surface.html#Surface.lock">Surface.lock</a></tt> method). </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.pixels2d--> &nbsp;<br> 
 <br></ul>
 
 
@@ -95,7 +95,7 @@
   <tt>pygame.surfarray.array3d(Surface): return array</tt><br>
 <p>Copy the pixels from a Surface into a <tt>3D</tt> array. The bit depth of the surface will control the size of the integer values, and will work for any type of pixel format. </p>
 <p>This function will temporarily lock the Surface as pixels are copied (see the <tt><a href="surface.html#Surface.lock">Surface.lock</a></tt> method). </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.array3d--> &nbsp;<br> 
 <br></ul>
 
 
@@ -106,7 +106,7 @@
 <p>Create a new <tt>3D</tt> array that directly references the pixel values in a Surface. Any changes to the array will affect the pixels in the Surface. This is a fast operation since no data is copied. </p>
 <p>This will only work on Surfaces that have 24-bit or 32-bit formats. Lower pixel formats cannot be referenced. </p>
 <p>The Surface this references will remain locked for the lifetime of the array (see the <tt><a href="surface.html#Surface.lock">Surface.lock</a></tt> method). </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.pixels3d--> &nbsp;<br> 
 <br></ul>
 
 
@@ -116,7 +116,7 @@
   <tt>pygame.surfarray.array_alpha(Surface): return array</tt><br>
 <p>Copy the pixel alpha values (degree of transparency) from a Surface into a <tt>2D</tt> array. This will work for any type of Surface format. Surfaces without a pixel alpha will return an array with all opaque values. </p>
 <p>This function will temporarily lock the Surface as pixels are copied (see the <tt><a href="surface.html#Surface.lock">Surface.lock</a></tt> method). </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.array_alpha--> &nbsp;<br> 
 <br></ul>
 
 
@@ -127,7 +127,7 @@
 <p>Create a new <tt>2D</tt> array that directly references the alpha values (degree of transparency) in a Surface. Any changes to the array will affect the pixels in the Surface. This is a fast operation since no data is copied. </p>
 <p>This can only work on 32-bit Surfaces with a per-pixel alpha value. </p>
 <p>The Surface this references will remain locked for the lifetime of the array. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.pixels_alpha--> &nbsp;<br> 
 <br></ul>
 
 
@@ -138,7 +138,7 @@
 <p>Create a new array with the colorkey transparency value from each pixel. If the pixel matches the colorkey it will be opaque, otherwise the value will be fully tranparent. </p>
 <p>This will work on any type of Surface format. If the image has no colorkey a solid opaque array will be returned. </p>
 <p>This function will temporarily lock the Surface as pixels are copied. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.array_colorkey--> &nbsp;<br> 
 <br></ul>
 
 
@@ -147,7 +147,7 @@
   <i>copy an array to a new surface</i><br>
   <tt>pygame.surfarray.make_surface(array): return Surface</tt><br>
 <p>Create a new Surface that best resembles the data and format on the array. The array can be <tt>2D</tt> or <tt>3D</tt> with any sized integer values. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.make_surface--> &nbsp;<br> 
 <br></ul>
 
 
@@ -157,7 +157,7 @@
   <tt>pygame.surfarray.blit_array(Surface, array): return None</tt><br>
 <p>Directly copy values from an array into a Surface. This is faster than converting the array into a Surface and blitting. The array must be the same dimensions as the Surface and will completely replace all pixel values. </p>
 <p>This function will temporarily lock the Surface as the new values are copied. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.blit_array--> &nbsp;<br> 
 <br></ul>
 
 
@@ -166,7 +166,7 @@
   <i>map a 3d array into a 2d array</i><br>
   <tt>pygame.surfarray.map_array(Surface, array3d): return array2d</tt><br>
 <p>Convert a <tt>3D</tt> array into a <tt>2D</tt> array. This will use the given Surface format to control the conversion. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.surfarray.map_array--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

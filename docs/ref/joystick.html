@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -57,7 +57,7 @@
   <tr><td><a href="joystick.html#pygame.joystick.Joystick">pygame.joystick.Joystick</a></td><td>create a new Joystick object</td></tr>
 </table></small></ul>
 <p>The joystick module manages the joystick devices on a computer. This module needs to be initialized before it can do anything. Each Joystick object you create represents a joystick device and must also be initialized individually before it can do most things. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.joystick--> &nbsp;<br> 
 
 
 <a name="pygame.joystick.init">
@@ -66,7 +66,7 @@
   <tt>pygame.joystick.init(): return None</tt><br>
 <p>Initialize the joystick module. This will scan the system for all joystick devices. The module must be initialized before any other functions will work. This automatically happens when you call <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>. </p>
 <p>It is safe to call this function more than once. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.joystick.init--> &nbsp;<br> 
 <br></ul>
 
 
@@ -76,7 +76,7 @@
   <tt>pygame.joystick.quit(): return None</tt><br>
 <p>Uninitialize the joystick module. After you call this any existing joystick objects will no longer work. </p>
 <p>It is safe to call this function more than once. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.joystick.quit--> &nbsp;<br> 
 <br></ul>
 
 
@@ -85,7 +85,7 @@
   <i>true if the joystick module is initialized</i><br>
   <tt>pygame.joystick.get_init(): return bool</tt><br>
 <p>Test if the joystick module is initialized or not. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.joystick.get_init--> &nbsp;<br> 
 <br></ul>
 
 
@@ -94,7 +94,7 @@
   <i>number of joysticks on the system</i><br>
   <tt>pygame.joystick.get_count(): return count</tt><br>
 <p>Return the number of joystick devices on the system. When you create Joystick objects you need to pass an integer id that must be lower than this count. The count will be 0 if there are no joysticks on the system. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.joystick.get_count--> &nbsp;<br> 
 <br></ul>
 
 
@@ -121,7 +121,7 @@
 <p>To access most of the Joystick methods, you'll need to init() the Joystick. This is separate from making sure the joystick module is initialized. When multiple Joysticks objects are created for the same joystick device, the state and values for those Joystick objects will be shared. </p>
 <p>The Joystick object allows you to get information about the types of controls on a joystick device. Once the device is initialized the Pygame event queue will start receiving events about its input. </p>
 <p>You can call the <tt><a href="joystick.html#Joystick.get_name">Joystick.get_name</a></tt> and <tt><a href="joystick.html#Joystick.get_id">Joystick.get_id</a></tt> functions without initializing the Joystick object. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.joystick.Joystick--> &nbsp;<br> 
 
 
 <a name="Joystick.init">
@@ -130,7 +130,7 @@
   <tt>Joystick.init(): return None</tt><br>
 <p>The Joystick must be initialized to get most of the information about the controls. While the Joystick is initialized the Pygame event queue will receive events from the Joystick input. </p>
 <p>It is safe to call this more than once. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.init--> &nbsp;<br> 
 <br></ul>
 
 
@@ -140,7 +140,7 @@
   <tt>Joystick.quit(): return None</tt><br>
 <p>This will unitialize a Joystick. After this the Pygame event queue will no longer receive events from the device. </p>
 <p>It is safe to call this more than once. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.quit--> &nbsp;<br> 
 <br></ul>
 
 
@@ -149,7 +149,7 @@
   <i>check if the Joystick is initialized</i><br>
   <tt>Joystick.get_init(): return bool</tt><br>
 <p>Returns True when the Joystick object is initialized. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_init--> &nbsp;<br> 
 <br></ul>
 
 
@@ -158,7 +158,7 @@
   <i>get the Joystick id</i><br>
   <tt>Joystick.get_id(): return int</tt><br>
 <p>Returns the integer id that represents this device. This is the same value that was used to initialize the Joystick object. This method can safely be called while the Joystick is not initialized. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_id--> &nbsp;<br> 
 <br></ul>
 
 
@@ -167,7 +167,7 @@
   <i>get the Joystick system name</i><br>
   <tt>Joystick.get_name(): return string</tt><br>
 <p>Returns the system name for this joystick device. It is unknown what name the system will give to the Joystick, but it should be a unique name that identifies the device. This method can safely be called while the Joystick is not initialized. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_name--> &nbsp;<br> 
 <br></ul>
 
 
@@ -177,7 +177,7 @@
   <tt>Joystick.get_numaxes(): return int</tt><br>
 <p>Returns the number of input axes are on a Joystick. There will usually be two for the position. Controls like rudders and throttles are treated as additional axes. </p>
 <p>The <tt>pygame.JOYAXISMOTION</tt> events will be in the range from <tt>-1.0</tt> to <tt>1.0</tt>. <tt>A</tt> value of <tt>0.0</tt> means the axis is centered. Gamepad devices will usually be -1, 0, or 1 with no values in between. Older analog joystick axis will not always use the full -1 to 1 range, and the centered value will be some area around 0. Analog joysticks usually have a bit of noise in their axis, which will generate a lot of rapid small motion events. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_numaxes--> &nbsp;<br> 
 <br></ul>
 
 
@@ -186,7 +186,7 @@
   <i>get the current position of an axis</i><br>
   <tt>Joystick.get_axis(axis): return float</tt><br>
 <p>Returns the current position of a joystick axis. The value will range from -1 to 1 with a value of 0 being centered. You may want to take into account some tolerance to handle jitter, and joystick drift may keep the joystick from centering at 0 or using the full range of position values. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_axis--> &nbsp;<br> 
 <br></ul>
 
 
@@ -196,7 +196,7 @@
   <tt>Joystick.get_numballs(): return int</tt><br>
 <p>Returns the number of trackball devices on a Joystick. These devices work similar to a mouse but they have not absolute position, only relative amounts of movement. </p>
 <p>the <tt>pygame.JOYBALLMOTION</tt> event will be sent the the trackball is rolled. It will report the amount of movement on the trackball. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_numballs--> &nbsp;<br> 
 <br></ul>
 
 
@@ -205,7 +205,7 @@
   <i>get the relative position of a trackball</i><br>
   <tt>Joystick.get_ball(ball): return x, y</tt><br>
 <p>Returns the relative movement of a joystick button. The value is a x, y pair holding the relative movement since the last call to get_ball. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_ball--> &nbsp;<br> 
 <br></ul>
 
 
@@ -215,7 +215,7 @@
   <tt>Joystick.get_numbuttons(): return int</tt><br>
 <p>Returns the number of pushable buttons on the joystick. These buttons have a boolean on or off state. There is no way to know the current state of a button, you can only watch for its events on the queue. </p>
 <p>Buttons generate a <tt>pygame.JOYBUTTONDOWN</tt> and <tt>pygame.JOYBUTTONUP</tt> event when they are pressed and released. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_numbuttons--> &nbsp;<br> 
 <br></ul>
 
 
@@ -224,7 +224,7 @@
   <i>get the current button state</i><br>
   <tt>Joystick.get_button(button): return bool</tt><br>
 <p>Returns the current state of a joystick button. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_button--> &nbsp;<br> 
 <br></ul>
 
 
@@ -234,7 +234,7 @@
   <tt>Joystick.get_numhats(): return int</tt><br>
 <p>Returns the number of joystick hats on a Joystick. Hat devices are like miniature digital joysticks on a joystick. The hats are digital with have two axis of input. </p>
 <p>The <tt>pygame.JOYHATMOTION</tt> events are generated when the hat changes position. The position attribute for the event contains a pair of values that are either -1, 0, or 1. <tt>A</tt> position of (0, 0) means the hat is centered. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_numhats--> &nbsp;<br> 
 <br></ul>
 
 
@@ -243,7 +243,7 @@
   <i>get the position of a joystick hat</i><br>
   <tt>Joystick.get_hat(hat): return x, y</tt><br>
 <p>Returns the current position of a position hat. The position is given as two values representing the <tt>X</tt> and <tt>Y</tt> position for the hat. (0, 0) means centered. <tt>A</tt> value of -1 means left/down, a value of 1 means right/up. </p>
- &nbsp;<br> 
+<!--COMMENTS:Joystick.get_hat--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 <br></ul>

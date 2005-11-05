@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -57,7 +57,7 @@
 <p>Functions to convert between Numeric arrays and Sound objects. This module will only be available when pygame can use the external Numeric package. </p>
 <p>Sound data is made of thousands of samples per second. Each sample is an 8-bit or 16-bit integer, depending on the data format. <tt>A</tt> stereo sound file has two values per sample, while a mono sound file only has one. </p>
 <p>Numeric does not use unsigned 16-bit integers; they will be converted to signed 16-bit arrays. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sndarray--> &nbsp;<br> 
 
 
 <a name="pygame.sndarray.array">
@@ -65,7 +65,7 @@
   <i>copy Sound samples into an array</i><br>
   <tt>pygame.sndarray.array(Sound): return array</tt><br>
 <p>Creates a new Numeric array for the sound data and copies the samples. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sndarray.array--> &nbsp;<br> 
 <br></ul>
 
 
@@ -74,7 +74,7 @@
   <i>reference Sound samples into an array</i><br>
   <tt>pygame.sndarray.samples(Sound): return array</tt><br>
 <p>Creates a new Numeric array that directly references the samples in a Sound object. Modifying the array will change the Sound. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sndarray.samples--> &nbsp;<br> 
 <br></ul>
 
 
@@ -83,7 +83,7 @@
   <i>convert an array into a Sound object</i><br>
   <tt>pygame.sndarray.make_sound(array): return Sound</tt><br>
 <p>Create a new playable Sound object from a Numeric array. The mixer module must be initialized and the array format must be similar to the mixer audio format. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.sndarray.make_sound--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -60,7 +60,7 @@
 <pre>  YV12_OVERLAY, IYUV_OVERLAY, YUV2_OVERLAY, UYVY_OVERLAY, YVYU_OVERLAY
 </pre><p>The width and height arguments control the size for the overlay image data. The overlay image can be displayed at any size, not just the resolution of the overlay. </p>
 <p>The overlay objects are always visible, and always show above the regular display contents. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.Overlay--> &nbsp;<br> 
 
 
 <a name="Overlay.display">
@@ -69,7 +69,7 @@
   <tt>Overlay.display(y, u, v): return None</tt><br>
 <p>Display the yuv data in SDL's overlay planes. The y, u, and v arguments are strings of binary data. The data must be in the correct format used to create the Overlay. </p>
 <p>The strings are not validated, and improperly sized strings could crash the program. </p>
- &nbsp;<br> 
+<!--COMMENTS:Overlay.display--> &nbsp;<br> 
 <br></ul>
 
 
@@ -78,7 +78,7 @@
   <i>control where the overlay is displayed</i><br>
   <tt>Overlay.set_location(rect): return None</tt><br>
 <p>Set the location for the overlay. The overlay will always be shown relative to the main display Surface. This does not actually redraw the overlay, it will be updated on the next call to <tt><a href="overlay.html#Overlay.display">Overlay.display</a></tt>. </p>
- &nbsp;<br> 
+<!--COMMENTS:Overlay.set_location--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

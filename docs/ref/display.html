@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -79,7 +79,7 @@
 <p>Pygame can only have a single display active at any time. Creating a new one with <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt> will close the previous display. If precise control is needed over the pixel format or display resolutions, use the functions <tt><a href="display.html#pygame.display.mode_ok">pygame.display.mode_ok</a></tt>, <tt><a href="display.html#pygame.display.list_modes">pygame.display.list_modes</a></tt>, and <tt><a href="display.html#pygame.display.Info">pygame.display.Info</a></tt> to query information about the display. </p>
 <p>Once the display Surface is created, the functions from this module effect the single existing display. The Surface becomes invalid if the module is uninitialized. If a new display mode is set, the existing Surface will automatically switch to operate on the new display. </p>
 <p>Then the display mode is set, several events are placed on the pygame event queue. <tt>pygame.QUIT</tt> is sent when the user has requested the program to shutdown. The window will receive <tt>pygame.ACTIVEEVENT</tt> events as the display gains and loses input focus. If the display is set with the <tt>pygame.RESIZABLE</tt> flag, <tt>pygame.VIDEORESIZE</tt> events will be sent when the user adjusts the window dimensions. Hardware displays that draw direct to the screen will get <tt>pygame.VIDEOEXPOSE</tt> events when portions of the window must be redrawn. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display--> &nbsp;<br> 
 
 
 <a name="pygame.display.init">
@@ -92,7 +92,7 @@
    Unix    : x11, dga, fbcon, directfb, ggi, vgl, svgalib, aalib
 </pre><p>On some platforms it is possible to embed the pygame display into an already existing window. To do this, the environment variable <tt>SDL_WINDOWID</tt> must be set to a string containing the window id or handle. The environment variable is checked when the pygame display is initialized. Be aware that there can be many strange side effects when running in an embedded display. </p>
 <p>It is harmless to call this more than once, repeated calls have no effect. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.init--> &nbsp;<br> 
 <br></ul>
 
 
@@ -102,7 +102,7 @@
   <tt>pygame.display.quit(): return None</tt><br>
 <p>This will shut down the entire display module. This means any active displays will be closed. This will also be handled automatically when the program exits. </p>
 <p>It is harmless to call this more than once, repeated calls have no effect. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.quit--> &nbsp;<br> 
 <br></ul>
 
 
@@ -111,7 +111,7 @@
   <i>true if the display module is initialized</i><br>
   <tt>pygame.display.get_init(): return bool</tt><br>
 <p>Returns True if the <tt>pygame.display</tt> module is currently initialized. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.get_init--> &nbsp;<br> 
 <br></ul>
 
 
@@ -132,7 +132,7 @@
    pygame.RESIZABLE     display window should be sizeable
    pygame.NOFRAME       display window will have no border or controls
 </pre>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.set_mode--> &nbsp;<br> 
 <br></ul>
 
 
@@ -141,7 +141,7 @@
   <i>get a reference to the currently set display surface</i><br>
   <tt>pygame.display.get_surface(): return Surface</tt><br>
 <p>Return a reference to the currently set display Surface. If no display mode has been set this will return None. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.get_surface--> &nbsp;<br> 
 <br></ul>
 
 
@@ -151,7 +151,7 @@
   <tt>pygame.display.flip(): return None</tt><br>
 <p>This will update the contents of the entire display. If your display mode is using the flags <tt>pygame.HWSURFACE</tt> and <tt>pygame.DOUBLEBUF</tt>, this will wait for a vertical retrace and swap the surfaces. If you are using a different type of display mode, it will simply update the entire contents of the surface. </p>
 <p>When using an <tt>pygame.OPENGL</tt> display mode this will perform a gl buffer swap. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.flip--> &nbsp;<br> 
 <br></ul>
 
 
@@ -163,7 +163,7 @@
 <p>This function is like an optimized version of <tt><a href="display.html#pygame.display.flip">pygame.display.flip</a></tt> for software displays. It allows only a portion of the screen to updated, instead of the entire area. If no argument is passed it updates the entire Surface area like <tt><a href="display.html#pygame.display.flip">pygame.display.flip</a></tt>. </p>
 <p>You can pass the function a single rectangle, or a sequence of rectangles. It is more efficient to pass many rectangles at once than to call update multiple times with single or a partial list of rectangles. If passing a sequence of rectangles it is safe to include None values in the list, which will be skipped. </p>
 <p>This call cannot be used on <tt>pygame.OPENGL</tt> displays and will generate an exception. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.update--> &nbsp;<br> 
 <br></ul>
 
 
@@ -172,7 +172,7 @@
   <i>get the name of the pygame display backend</i><br>
   <tt>pygame.display.get_driver(): return name</tt><br>
 <p>Pygame chooses one of many available display backends when it is initialized. This returns the internal name used for the display backend. This can be used to provide limited information about what display capabilities might be accelerated. See the <tt>SDL_VIDEODRIVER</tt> flags in <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt> to see some of the common options. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.get_driver--> &nbsp;<br> 
 <br></ul>
 
 
@@ -196,7 +196,7 @@
   blit_sw_CC: True if software Surface colorkey blitting is accelerated
   blit_sw_A:  True if software Surface pixel alpha blitting is acclerated
 </pre>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.Info--> &nbsp;<br> 
 <br></ul>
 
 
@@ -205,7 +205,7 @@
   <i>Get information about the current windowing system</i><br>
   <tt>pygame.display.get_wm_info(): return dict</tt><br>
 <p>Creates a dictionary filled with string keys. The strings and values are arbitrarily created by the system. Some systems may have no information and an empty dictionary will be returned. Most platforms will return a "window" key with the value set to the system id for the current display. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.get_wm_info--> &nbsp;<br> 
 <br></ul>
 
 
@@ -215,7 +215,7 @@
   <tt>pygame.display.list_modes(depth=0, flags=pygame.FULLSCREEN): return list</tt><br>
 <p>This function returns a list of possible dimensions for a specified color depth. The return value will be an empty list if no display modes are available with the given arguments. <tt>A</tt> return value of -1 means that any requested resolution should work (this is likely the case for windowed modes). Mode sizes are sorted from biggest to smallest. </p>
 <p>If depth is 0, <tt>SDL</tt> will choose the current/best color depth for the display. The flags defaults to <tt>pygame.FULLSCREEN</tt>, but you may need to add additional flags for specific fullscreen modes. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.list_modes--> &nbsp;<br> 
 <br></ul>
 
 
@@ -226,7 +226,7 @@
 <p>This function uses the same arguments as <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt>. It is used to depermine if a requested display mode is available. It will return 0 if the display mode cannot be set. Otherwise it will return a pixel depth that best matches the display asked for. </p>
 <p>Usually the depth argument is not passed, but some platforms can support multiple display depths. If passed it will hint to which depth is a better match. </p>
 <p>The most useful flags to pass will be <tt>pygame.HWSURFACE</tt>, <tt>pygame.DOUBLEBUF</tt>, and maybe <tt>pygame.FULLSCREEN</tt>. The function will return 0 if these display flags cannot be set. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.mode_ok--> &nbsp;<br> 
 <br></ul>
 
 
@@ -235,7 +235,7 @@
   <i>get the value for an opengl flag for the current display</i><br>
   <tt>pygame.display.gl_get_attribute(flag): return value</tt><br>
 <p>After calling <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt> with the <tt>pygame.OPENGL</tt> flag, it is a good idea to check the value of any requested OpenGL attributes. See <tt>pygame.display.get_set_attribute()</tt> for a list of valid flags. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.gl_get_attribute--> &nbsp;<br> 
 <br></ul>
 
 
@@ -249,7 +249,7 @@
   GL_ACCUM_GREEN_SIZE,  GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
   GL_MULTISAMPLEBUFFERS, GL_MULTISAMPLESAMPLES, GL_STEREO
 </pre>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.gl_set_attribute--> &nbsp;<br> 
 <br></ul>
 
 
@@ -258,7 +258,7 @@
   <i>true when the display is active on the display</i><br>
   <tt>pygame.display.get_caption(): return bool</tt><br>
 <p>After <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt> is called the display Surface will be visible on the screen. Most windowed displays can be hidden by the user. If the display Surface is hidden or iconified this will return False. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.get_active--> &nbsp;<br> 
 <br></ul>
 
 
@@ -268,7 +268,7 @@
   <tt>pygame.display.iconify(): return bool</tt><br>
 <p>Request the window for the display surface be iconified or hidden. Not all systems and displays support an iconified display. The function will return True if successfull. </p>
 <p>When the display is iconified <tt><a href="display.html#pygame.display.get_active">pygame.display.get_active</a></tt> will return False. The event queue should receive a <tt>pygame.APPACTIVE</tt> event when the window has been iconified. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.iconify--> &nbsp;<br> 
 <br></ul>
 
 
@@ -277,7 +277,7 @@
   <i>switch between fullscreen and windowed displays</i><br>
   <tt>pygame.display.iconify(): return bool</tt><br>
 <p>Switches the display window between windowed and fullscreen modes. This function only works under the unix x11 video driver. For most situations it is better to call <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt> with new display flags. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.toggle_fullscreen--> &nbsp;<br> 
 <br></ul>
 
 
@@ -287,7 +287,7 @@
   <tt>pygame.display.set_gamma(red, green=None, blue=None): return bool</tt><br>
 <p>Set the red, green, and blue gamma values on the display hardware. If the green and blue arguments are not passed, they will both be the same as red. Not all systems and hardware support gamma ramps, if the function succeeds it will return True. </p>
 <p><tt>A</tt> gamma value of <tt>1.0</tt> creates a linear color table. Lower values will darken the display and higher values will brighten. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.set_gamma--> &nbsp;<br> 
 <br></ul>
 
 
@@ -297,7 +297,7 @@
   <tt>change the hardware gamma ramps with a custom lookup</tt><br>
   <tt>pygame.display.set_gamma_ramp(red, green, blue): return bool</tt><br>
 <p>Set the red, green, and blue gamma ramps with an explicit lookup table. Each argument should be sequence of 256 integers. The integers should range between 0 and 0xffff. Not all systems and hardware support gamma ramps, if the function succeeds it will return True. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.set_gamma_ramp--> &nbsp;<br> 
 <br></ul>
 
 
@@ -308,7 +308,7 @@
 <p>Sets the runtime icon the system will use to represent the display window. All windows default to a simple pygame logo for the window icon. </p>
 <p>You can pass any surface, but most systems want a smaller image around 32x32. The image can have colorkey transparency which will be passed to the system. </p>
 <p>Some systems do not allow the window icon to change after it has been shown. This function can be called before <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></tt> to create the icon before the display mode is set. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.set_icon--> &nbsp;<br> 
 <br></ul>
 
 
@@ -317,7 +317,7 @@
   <i>set the current window caption</i><br>
   <tt>pygame.display.set_caption(title, icontitle=None): return None</tt><br>
 <p>If the display has a window title, this function will change the name on the window. Some systems support an alternate shorter title to be used for minimized displays. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.set_caption--> &nbsp;<br> 
 <br></ul>
 
 
@@ -326,7 +326,7 @@
   <i>get the current window caption</i><br>
   <tt>pygame.display.get_caption(): return (title, icontitle)</tt><br>
 <p>Returns the title and icontitle for the display Surface. These will often be the same value. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.get_caption--> &nbsp;<br> 
 <br></ul>
 
 
@@ -335,7 +335,7 @@
   <i>set the display color palette for indexed displays</i><br>
   <tt>pygame.display.set_palette(palette=None): return None</tt><br>
 <p>This will change the video display color palette for 8bit displays. This does not change the palette for the actual display Surface, only the palette that is used to display the Surface. If no palette argument is passed, the system default palette will be restored. The palette is a sequence of <tt>RGB</tt> triplets. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.display.set_palette--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

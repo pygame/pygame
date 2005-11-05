@@ -7,7 +7,7 @@
 <table cellspacing=3 width=100%><tr><td bgcolor=#00000>
 <table width=100%><tr><td bgcolor=c2fc20 align=center>
     <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
     <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
 </td><td bgcolor=6aee28 align=center valign=top width=100%>
 
@@ -52,10 +52,12 @@
 <ul><small><table>
   <tr><td><a href="movie.html#pygame.movie.Movie">pygame.movie.Movie</a></td><td>load an mpeg movie file</td></tr>
 </table></small></ul>
-<p>Pygame can playback video and audio from basic encoded <tt>MPEG1</tt> video files. Movie playback happens in background threads, which makes playback easy to manage. </p>
+<p><tt>NOTE:</tt> <tt>pygame.movie</tt> currently does not work on windows with the latest pygame release. As no one has managed to get smpeg working there. The alternative is to use </p>
+<pre> <a href="http://www.pymedia.org/">pymedia</a>
+</pre><p>Pygame can playback video and audio from basic encoded <tt>MPEG1</tt> video files. Movie playback happens in background threads, which makes playback easy to manage. </p>
 <p>The audio for Movies must have full control over the sound system. This means the <tt>pygame.mixer</tt> module must be uninitialized for the movie to playback sound. The common solution is to call <tt><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a></tt> before the movie begins. The mixer can be reinitialized after the movie is finished. </p>
 <p>The video overlay planes are drawn on top of everything in the display window. To draw the movie as normal graphics into the display window, create an offscreen Surface and set that as the movie target. Then once per frame blit that surface to the screen. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.movie--> &nbsp;<br> 
 
 
 <a name="pygame.movie.Movie">
@@ -82,7 +84,7 @@
 </table></small></ul>
 <p>Load a new <tt>MPEG</tt> movie stream from a file or a python file object. The Movie object operates similar to the Sound objects from <tt>pygame.mixer</tt>. </p>
 <p>Movie objects have a target display Surface. The movie is rendered into this Surface in a background thread. If the target Surface is the display Surface, the movie will try to use the hardware accelerated video overlay. The default target is the display Surface. </p>
- &nbsp;<br> 
+<!--COMMENTS:pygame.movie.Movie--> &nbsp;<br> 
 
 
 <a name="Movie.play">
@@ -90,7 +92,7 @@
   <i>start playback of a movie</i><br>
   <tt>Movie.play(loops=0): return None</tt><br>
 <p>Starts playback of the movie. Sound and video will begin playing if they are not disabled. The optional loops argument controls how many times the movie will be repeated. <tt>A</tt> loop value of -1 means the movie will repeat forever. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.play--> &nbsp;<br> 
 <br></ul>
 
 
@@ -99,7 +101,7 @@
   <i>stop movie playback</i><br>
   <tt>Movie.stop(): return None</tt><br>
 <p>Stops the playback of a movie. The video and audio playback will be stopped at their current position. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.stop--> &nbsp;<br> 
 <br></ul>
 
 
@@ -108,7 +110,7 @@
   <i>temporarily stop and resume playback</i><br>
   <tt>Movie.pause(): return None</tt><br>
 <p>This will temporarily stop or restart movie playback. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.pause--> &nbsp;<br> 
 <br></ul>
 
 
@@ -117,7 +119,7 @@
   <i>advance the movie playback position</i><br>
   <tt>Movie.skip(seconds): return None</tt><br>
 <p>Advance the movie playback time in seconds. This can be called before the movie is played to set the starting playback time. This can only skip the movie forward, not backwards. The seconds argument is a floating point number. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.skip--> &nbsp;<br> 
 <br></ul>
 
 
@@ -127,7 +129,7 @@
   <tt>Movie.rewind(): return None</tt><br>
 <p>Sets the movie playback position to the start of the movie. The movie will automatically begin playing even if it stopped. </p>
 <p>The can raise a ValueError if the movie cannot be rewound. If the rewind fails the movie object is considered invalid. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.rewind--> &nbsp;<br> 
 <br></ul>
 
 
@@ -136,7 +138,7 @@
   <i>set the current video frame</i><br>
   <tt>Movie.render_frame(frame): return frame</tt><br>
 <p>This takes an integer frame number to render. It attempts to render the given frame from the movie to the target Surface. It returns the real frame number that got rendered. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.render_frame--> &nbsp;<br> 
 <br></ul>
 
 
@@ -145,7 +147,7 @@
   <i>get the current video frame</i><br>
   <tt>Movie.get_frame(): return frame</tt><br>
 <p>Returns the integer frame number of the current video frame. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.get_frame--> &nbsp;<br> 
 <br></ul>
 
 
@@ -154,7 +156,7 @@
   <i>get the current vide playback time</i><br>
   <tt>Movie.get_time(): return seconds</tt><br>
 <p>Return the current playback time as a floating point value in seconds. This method currently seems broken and always returns <tt>0.0</tt>. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.get_time--> &nbsp;<br> 
 <br></ul>
 
 
@@ -163,7 +165,7 @@
   <i>check if the movie is currently playing</i><br>
   <tt>Movie.get_busy(): return bool</tt><br>
 <p>Returns true if the movie is currently being played. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.get_busy--> &nbsp;<br> 
 <br></ul>
 
 
@@ -172,7 +174,7 @@
   <i>the total length of the movie in seconds</i><br>
   <tt>Movie.get_length(): return seconds</tt><br>
 <p>Returns the length of the movie in seconds as a floating point value. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.get_length--> &nbsp;<br> 
 <br></ul>
 
 
@@ -181,7 +183,7 @@
   <i>get the resolution of the video</i><br>
   <tt>Movie.get_size(): return (width, height)</tt><br>
 <p>Gets the resolution of the movie video. The movie will be stretched to any size fo the Surface, but this will report the natural video size. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.get_size--> &nbsp;<br> 
 <br></ul>
 
 
@@ -190,7 +192,7 @@
   <i>check if the movie file contains video</i><br>
   <tt>Movie.get_video(): return bool</tt><br>
 <p>True when the opened movie file contains a video stream. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.has_video--> &nbsp;<br> 
 <br></ul>
 
 
@@ -199,7 +201,7 @@
   <i>check if the movie file contains audio</i><br>
   <tt>Movie.get_audio(): return</tt><br>
 <p>True when the opened movie file contains an audio stream. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.has_audio--> &nbsp;<br> 
 <br></ul>
 
 
@@ -208,7 +210,7 @@
   <i>set the audio playback volume</i><br>
   <tt>Movie.set_volume(value): return None</tt><br>
 <p>Set the playback volume for this movie. The value argument is a value between <tt>0.0</tt> and <tt>1.0</tt>. If the volume is set to 0 the movie audio will not be decoded. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.set_volume--> &nbsp;<br> 
 <br></ul>
 
 
@@ -218,7 +220,7 @@
   <tt>Movie.set_display(Surface, pos=None): return None</tt><br>
 <p>Set the output target Surface for the movie video. You may also pass a rectangle argument for the position, which will move and stretch the video into the given area. </p>
 <p>If None is passed as the target Surface, the video decoding will be disabled. </p>
- &nbsp;<br> 
+<!--COMMENTS:Movie.set_display--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 <br></ul>
