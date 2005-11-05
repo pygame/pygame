@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,417 +36,414 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 <ul>
 
-<li><a href="pygame.html#pygame">pygame</a></li>
+<li><a href="pygame.html#pygame">pygame</a> - <font size=-1>the top level pygame package</font></li>
 <ul>
-<li><a href="pygame.html#pygame.error">pygame.error</a></li>
-<li><a href="pygame.html#pygame.get_error">pygame.get_error</a></li>
-<li><a href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a></li>
-<li><a href="pygame.html#pygame.init">pygame.init</a></li>
-<li><a href="cdrom.html#pygame.cdrom">pygame.cdrom</a></li>
+<li><a href="pygame.html#pygame.error">pygame.error</a> - <font size=-1>standard pygame exception</font></li>
+<li><a href="pygame.html#pygame.get_error">pygame.get_error</a> - <font size=-1>get the current error message</font></li>
+<li><a href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a> - <font size=-1>get the version number of SDL</font></li>
+<li><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></li>
+<li><a href="cdrom.html#pygame.cdrom">pygame.cdrom</a> - <font size=-1>pygame module for audio cdrom control</font></li>
 <ul>
-<li><a href="cdrom.html#pygame.cdrom.CD">pygame.cdrom.CD</a></li>
+<li><a href="cdrom.html#pygame.cdrom.CD">pygame.cdrom.CD</a> - <font size=-1>class to manage a cdrom drive</font></li>
 <ul>
-<li><a href="cdrom.html#CD.eject">CD.eject</a></li>
-<li><a href="cdrom.html#CD.get_all">CD.get_all</a></li>
-<li><a href="cdrom.html#CD.get_busy">CD.get_busy</a></li>
-<li><a href="cdrom.html#CD.get_current">CD.get_current</a></li>
-<li><a href="cdrom.html#CD.get_empty">CD.get_empty</a></li>
-<li><a href="cdrom.html#CD.get_id">CD.get_id</a></li>
-<li><a href="cdrom.html#CD.get_init">CD.get_init</a></li>
-<li><a href="cdrom.html#CD.get_name">CD.get_name</a></li>
-<li><a href="cdrom.html#CD.get_numtracks">CD.get_numtracks</a></li>
-<li><a href="cdrom.html#CD.get_paused">CD.get_paused</a></li>
-<li><a href="cdrom.html#CD.get_track_audio">CD.get_track_audio</a></li>
-<li><a href="cdrom.html#CD.get_track_length">CD.get_track_length</a></li>
-<li><a href="cdrom.html#CD.get_track_start">CD.get_track_start</a></li>
-<li><a href="cdrom.html#CD.init">CD.init</a></li>
-<li><a href="cdrom.html#CD.pause">CD.pause</a></li>
-<li><a href="cdrom.html#CD.play">CD.play</a></li>
-<li><a href="cdrom.html#CD.quit">CD.quit</a></li>
-<li><a href="cdrom.html#CD.resume">CD.resume</a></li>
-<li><a href="cdrom.html#CD.stop">CD.stop</a></li>
+<li><a href="cdrom.html#CD.eject">CD.eject</a> - <font size=-1>eject or open the cdrom drive</font></li>
+<li><a href="cdrom.html#CD.get_all">CD.get_all</a> - <font size=-1>get all track information</font></li>
+<li><a href="cdrom.html#CD.get_busy">CD.get_busy</a> - <font size=-1>true if the drive is playing audio</font></li>
+<li><a href="cdrom.html#CD.get_current">CD.get_current</a> - <font size=-1>the current audio playback position</font></li>
+<li><a href="cdrom.html#CD.get_empty">CD.get_empty</a> - <font size=-1>true if a cdrom is in the drive</font></li>
+<li><a href="cdrom.html#CD.get_id">CD.get_id</a> - <font size=-1>the index of the cdrom drive</font></li>
+<li><a href="cdrom.html#CD.get_init">CD.get_init</a> - <font size=-1>true if this cd device initialized</font></li>
+<li><a href="cdrom.html#CD.get_name">CD.get_name</a> - <font size=-1>the system name of the cdrom drive</font></li>
+<li><a href="cdrom.html#CD.get_numtracks">CD.get_numtracks</a> - <font size=-1>the number of tracks on the cdrom</font></li>
+<li><a href="cdrom.html#CD.get_paused">CD.get_paused</a> - <font size=-1>true if the drive is paused</font></li>
+<li><a href="cdrom.html#CD.get_track_audio">CD.get_track_audio</a> - <font size=-1>true if the cdrom track has audio data</font></li>
+<li><a href="cdrom.html#CD.get_track_length">CD.get_track_length</a> - <font size=-1>length of a cdrom track</font></li>
+<li><a href="cdrom.html#CD.get_track_start">CD.get_track_start</a> - <font size=-1>start time of a cdrom track</font></li>
+<li><a href="cdrom.html#CD.init">CD.init</a> - <font size=-1>initialize a cdrom drive for use</font></li>
+<li><a href="cdrom.html#CD.pause">CD.pause</a> - <font size=-1>temporarily stop audio playback</font></li>
+<li><a href="cdrom.html#CD.play">CD.play</a> - <font size=-1>start playing audio</font></li>
+<li><a href="cdrom.html#CD.quit">CD.quit</a> - <font size=-1>uninitialize a cdrom drive for use</font></li>
+<li><a href="cdrom.html#CD.resume">CD.resume</a> - <font size=-1>unpause audio playback</font></li>
+<li><a href="cdrom.html#CD.stop">CD.stop</a> - <font size=-1>stop audio playback</font></li>
 </ul>
-<li><a href="cdrom.html#pygame.cdrom.get_count">pygame.cdrom.get_count</a></li>
-<li><a href="cdrom.html#pygame.cdrom.get_init">pygame.cdrom.get_init</a></li>
-<li><a href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a></li>
-<li><a href="cdrom.html#pygame.cdrom.quit">pygame.cdrom.quit</a></li>
+<li><a href="cdrom.html#pygame.cdrom.get_count">pygame.cdrom.get_count</a> - <font size=-1>number of cd drives on the system</font></li>
+<li><a href="cdrom.html#pygame.cdrom.get_init">pygame.cdrom.get_init</a> - <font size=-1>true if the cdrom module is initialized</font></li>
+<li><a href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a> - <font size=-1>initialize the cdrom module</font></li>
+<li><a href="cdrom.html#pygame.cdrom.quit">pygame.cdrom.quit</a> - <font size=-1>uninitialize the cdrom module</font></li>
 </ul>
-<li><a href="cursors.html#pygame.cursors">pygame.cursors</a></li>
+<li><a href="cursors.html#pygame.cursors">pygame.cursors</a> - <font size=-1>pygame module for cursor resources</font></li>
 <ul>
-<li><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a></li>
-<li><a href="cursors.html#pygame.cursors.load_xbm">pygame.cursors.load_xbm</a></li>
+<li><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a> - <font size=-1>create binary cursor data from simple strings</font></li>
+<li><a href="cursors.html#pygame.cursors.load_xbm">pygame.cursors.load_xbm</a> - <font size=-1>load cursor data from an xbm file</font></li>
 </ul>
-<li><a href="display.html#pygame.display">pygame.display</a></li>
+<li><a href="display.html#pygame.display">pygame.display</a> - <font size=-1>pygame module to control the display window and screen</font></li>
 <ul>
-<li><a href="display.html#pygame.display.flip">pygame.display.flip</a></li>
-<li><a href="display.html#pygame.display.get_active">pygame.display.get_active</a></li>
-<li><a href="display.html#pygame.display.get_caption">pygame.display.get_caption</a></li>
-<li><a href="display.html#pygame.display.get_driver">pygame.display.get_driver</a></li>
-<li><a href="display.html#pygame.display.get_init">pygame.display.get_init</a></li>
-<li><a href="display.html#pygame.display.get_surface">pygame.display.get_surface</a></li>
-<li><a href="display.html#pygame.display.get_wm_info">pygame.display.get_wm_info</a></li>
-<li><a href="display.html#pygame.display.gl_get_attribute">pygame.display.gl_get_attribute</a></li>
-<li><a href="display.html#pygame.display.gl_set_attribute">pygame.display.gl_set_attribute</a></li>
-<li><a href="display.html#pygame.display.iconify">pygame.display.iconify</a></li>
-<li><a href="display.html#pygame.display.Info">pygame.display.Info</a></li>
-<li><a href="display.html#pygame.display.init">pygame.display.init</a></li>
-<li><a href="display.html#pygame.display.list_modes">pygame.display.list_modes</a></li>
-<li><a href="display.html#pygame.display.mode_ok">pygame.display.mode_ok</a></li>
-<li><a href="display.html#pygame.display.quit">pygame.display.quit</a></li>
-<li><a href="display.html#pygame.display.set_caption">pygame.display.set_caption</a></li>
-<li><a href="display.html#pygame.display.set_gamma">pygame.display.set_gamma</a></li>
-<li><a href="display.html#pygame.display.set_gamma_ramp">pygame.display.set_gamma_ramp</a></li>
-<li><a href="display.html#pygame.display.set_icon">pygame.display.set_icon</a></li>
-<li><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a></li>
-<li><a href="display.html#pygame.display.set_palette">pygame.display.set_palette</a></li>
-<li><a href="display.html#pygame.display.toggle_fullscreen">pygame.display.toggle_fullscreen</a></li>
-<li><a href="display.html#pygame.display.update">pygame.display.update</a></li>
+<li><a href="display.html#pygame.display.flip">pygame.display.flip</a> - <font size=-1>update the full display Surface to the screen</font></li>
+<li><a href="display.html#pygame.display.get_active">pygame.display.get_active</a> - <font size=-1>true when the display is active on the display</font></li>
+<li><a href="display.html#pygame.display.get_caption">pygame.display.get_caption</a> - <font size=-1>get the current window caption</font></li>
+<li><a href="display.html#pygame.display.get_driver">pygame.display.get_driver</a> - <font size=-1>get the name of the pygame display backend</font></li>
+<li><a href="display.html#pygame.display.get_init">pygame.display.get_init</a> - <font size=-1>true if the display module is initialized</font></li>
+<li><a href="display.html#pygame.display.get_surface">pygame.display.get_surface</a> - <font size=-1>get a reference to the currently set display surface</font></li>
+<li><a href="display.html#pygame.display.get_wm_info">pygame.display.get_wm_info</a> - <font size=-1>Get information about the current windowing system</font></li>
+<li><a href="display.html#pygame.display.gl_get_attribute">pygame.display.gl_get_attribute</a> - <font size=-1>get the value for an opengl flag for the current display</font></li>
+<li><a href="display.html#pygame.display.gl_set_attribute">pygame.display.gl_set_attribute</a> - <font size=-1>request an opengl display attribute for the display mode</font></li>
+<li><a href="display.html#pygame.display.iconify">pygame.display.iconify</a> - <font size=-1>iconify the display surface</font></li>
+<li><a href="display.html#pygame.display.Info">pygame.display.Info</a> - <font size=-1>Create a video display information object</font></li>
+<li><a href="display.html#pygame.display.init">pygame.display.init</a> - <font size=-1>initialize the display module</font></li>
+<li><a href="display.html#pygame.display.list_modes">pygame.display.list_modes</a> - <font size=-1>get list of available fullscreen modes</font></li>
+<li><a href="display.html#pygame.display.mode_ok">pygame.display.mode_ok</a> - <font size=-1>pick the best color depth for a display mode</font></li>
+<li><a href="display.html#pygame.display.quit">pygame.display.quit</a> - <font size=-1>uninitialize the display module</font></li>
+<li><a href="display.html#pygame.display.set_caption">pygame.display.set_caption</a> - <font size=-1>set the current window caption</font></li>
+<li><a href="display.html#pygame.display.set_gamma">pygame.display.set_gamma</a> - <font size=-1>change the hardware gamma ramps</font></li>
+<li><a href="display.html#pygame.display.set_gamma_ramp">pygame.display.set_gamma_ramp</a> - <font size=-1>set_gamma_ramp(red, green, blue): return bool</font></li>
+<li><a href="display.html#pygame.display.set_icon">pygame.display.set_icon</a> - <font size=-1>change the system image for the display window</font></li>
+<li><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></li>
+<li><a href="display.html#pygame.display.set_palette">pygame.display.set_palette</a> - <font size=-1>set the display color palette for indexed displays</font></li>
+<li><a href="display.html#pygame.display.toggle_fullscreen">pygame.display.toggle_fullscreen</a> - <font size=-1>switch between fullscreen and windowed displays</font></li>
+<li><a href="display.html#pygame.display.update">pygame.display.update</a> - <font size=-1>update portions of the screen for software displays</font></li>
 </ul>
-<li><a href="draw.html#pygame.draw">pygame.draw</a></li>
+<li><a href="draw.html#pygame.draw">pygame.draw</a> - <font size=-1>pygame module for drawing shapes</font></li>
 <ul>
-<li><a href="draw.html#pygame.draw.aaline">pygame.draw.aaline</a></li>
-<li><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a></li>
-<li><a href="draw.html#pygame.draw.arc">pygame.draw.arc</a></li>
-<li><a href="draw.html#pygame.draw.circle">pygame.draw.circle</a></li>
-<li><a href="draw.html#pygame.draw.ellipse">pygame.draw.ellipse</a></li>
-<li><a href="draw.html#pygame.draw.line">pygame.draw.line</a></li>
-<li><a href="draw.html#pygame.draw.lines">pygame.draw.lines</a></li>
-<li><a href="draw.html#pygame.draw.polygon">pygame.draw.polygon</a></li>
-<li><a href="draw.html#pygame.draw.rect">pygame.draw.rect</a></li>
+<li><a href="draw.html#pygame.draw.aaline">pygame.draw.aaline</a> - <font size=-1>draw fine antialiased lines</font></li>
+<li><a href="draw.html#pygame.draw.aalines">pygame.draw.aalines</a> - <font size=-1>pygame.draw.aalines(Surface, color, closed, pointlist, blend=1): return Rect</font></li>
+<li><a href="draw.html#pygame.draw.arc">pygame.draw.arc</a> - <font size=-1>draw a partial section of an ellipse</font></li>
+<li><a href="draw.html#pygame.draw.circle">pygame.draw.circle</a> - <font size=-1>draw a circle around a point</font></li>
+<li><a href="draw.html#pygame.draw.ellipse">pygame.draw.ellipse</a> - <font size=-1>draw a round shape inside a rectangle</font></li>
+<li><a href="draw.html#pygame.draw.line">pygame.draw.line</a> - <font size=-1>draw a straight line segment</font></li>
+<li><a href="draw.html#pygame.draw.lines">pygame.draw.lines</a> - <font size=-1>draw multiple contiguous line segments</font></li>
+<li><a href="draw.html#pygame.draw.polygon">pygame.draw.polygon</a> - <font size=-1>draw a shape with any number of sides</font></li>
+<li><a href="draw.html#pygame.draw.rect">pygame.draw.rect</a> - <font size=-1>draw a rectangle shape</font></li>
 </ul>
-<li><a href="event.html#pygame.event">pygame.event</a></li>
+<li><a href="event.html#pygame.event">pygame.event</a> - <font size=-1>pygame module for interacting with events and queues</font></li>
 <ul>
-<li><a href="event.html#pygame.event.clear">pygame.event.clear</a></li>
-<li><a href="event.html#pygame.event.Event">pygame.event.Event</a></li>
-<li><a href="event.html#pygame.event.event_name">pygame.event.event_name</a></li>
-<li><a href="event.html#pygame.event.get">pygame.event.get</a></li>
-<li><a href="event.html#pygame.event.get_blocked">pygame.event.get_blocked</a></li>
-<li><a href="event.html#pygame.event.get_grab">pygame.event.get_grab</a></li>
-<li><a href="event.html#pygame.event.peek">pygame.event.peek</a></li>
-<li><a href="event.html#pygame.event.poll">pygame.event.poll</a></li>
-<li><a href="event.html#pygame.event.post">pygame.event.post</a></li>
-<li><a href="event.html#pygame.event.pump">pygame.event.pump</a></li>
-<li><a href="event.html#pygame.event.set_allowed">pygame.event.set_allowed</a></li>
-<li><a href="event.html#pygame.event.set_blocked">pygame.event.set_blocked</a></li>
-<li><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a></li>
-<li><a href="event.html#pygame.event.wait">pygame.event.wait</a></li>
+<li><a href="event.html#pygame.event.clear">pygame.event.clear</a> - <font size=-1>remove all events from the queue</font></li>
+<li><a href="event.html#pygame.event.Event">pygame.event.Event</a> - <font size=-1>create a new event object</font></li>
+<li><a href="event.html#pygame.event.event_name">pygame.event.event_name</a> - <font size=-1>get the string name from and event id</font></li>
+<li><a href="event.html#pygame.event.get">pygame.event.get</a> - <font size=-1>get events from the queue</font></li>
+<li><a href="event.html#pygame.event.get_blocked">pygame.event.get_blocked</a> - <font size=-1>test if a type of event is blocked from the queue</font></li>
+<li><a href="event.html#pygame.event.get_grab">pygame.event.get_grab</a> - <font size=-1>test if the program is sharing input devices</font></li>
+<li><a href="event.html#pygame.event.peek">pygame.event.peek</a> - <font size=-1>test if event types are waiting on the queue</font></li>
+<li><a href="event.html#pygame.event.poll">pygame.event.poll</a> - <font size=-1>get a single event from the queue</font></li>
+<li><a href="event.html#pygame.event.post">pygame.event.post</a> - <font size=-1>place a new event on the queue</font></li>
+<li><a href="event.html#pygame.event.pump">pygame.event.pump</a> - <font size=-1>internally process pygame event handlers</font></li>
+<li><a href="event.html#pygame.event.set_allowed">pygame.event.set_allowed</a> - <font size=-1>control which events are allowed on the queue</font></li>
+<li><a href="event.html#pygame.event.set_blocked">pygame.event.set_blocked</a> - <font size=-1>control which events are allowed on the queue</font></li>
+<li><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a> - <font size=-1>control the sharing of input devices with other applications</font></li>
+<li><a href="event.html#pygame.event.wait">pygame.event.wait</a> - <font size=-1>wait for a single event from the queue</font></li>
 </ul>
-<li><a href="font.html#pygame.font">pygame.font</a></li>
+<li><a href="font.html#pygame.font">pygame.font</a> - <font size=-1>pygame module for loading and rendering fonts</font></li>
 <ul>
-<li><a href="font.html#pygame.font.Font">pygame.font.Font</a></li>
+<li><a href="font.html#pygame.font.Font">pygame.font.Font</a> - <font size=-1>create a new Font object from a file</font></li>
 <ul>
-<li><a href="font.html#Font.get_ascent">Font.get_ascent</a></li>
-<li><a href="font.html#Font.get_bold">Font.get_bold</a></li>
-<li><a href="font.html#Font.get_descent">Font.get_descent</a></li>
-<li><a href="font.html#Font.get_height">Font.get_height</a></li>
-<li><a href="font.html#Font.get_italic">Font.get_italic</a></li>
-<li><a href="font.html#Font.get_linesize">Font.get_linesize</a></li>
-<li><a href="font.html#Font.get_underline">Font.get_underline</a></li>
-<li><a href="font.html#Font.render">Font.render</a></li>
-<li><a href="font.html#Font.set_bold">Font.set_bold</a></li>
-<li><a href="font.html#Font.set_italic">Font.set_italic</a></li>
-<li><a href="font.html#Font.set_underline">Font.set_underline</a></li>
-<li><a href="font.html#Font.size">Font.size</a></li>
+<li><a href="font.html#Font.get_ascent">Font.get_ascent</a> - <font size=-1>get the ascent of the font</font></li>
+<li><a href="font.html#Font.get_bold">Font.get_bold</a> - <font size=-1>check if text will be rendered bold</font></li>
+<li><a href="font.html#Font.get_descent">Font.get_descent</a> - <font size=-1>get the descent of the font</font></li>
+<li><a href="font.html#Font.get_height">Font.get_height</a> - <font size=-1>get the height of the font</font></li>
+<li><a href="font.html#Font.get_italic">Font.get_italic</a> - <font size=-1>check if the text will be rendered italic</font></li>
+<li><a href="font.html#Font.get_linesize">Font.get_linesize</a> - <font size=-1>get the line space of the font text</font></li>
+<li><a href="font.html#Font.get_underline">Font.get_underline</a> - <font size=-1>check if text will be rendered with an underline</font></li>
+<li><a href="font.html#Font.render">Font.render</a> - <font size=-1>render text to a new Surface</font></li>
+<li><a href="font.html#Font.set_bold">Font.set_bold</a> - <font size=-1>enable fake rendering of bold text</font></li>
+<li><a href="font.html#Font.set_italic">Font.set_italic</a> - <font size=-1>enable fake rendering of italic text of text. This is a fake skewing of the</font></li>
+<li><a href="font.html#Font.set_underline">Font.set_underline</a> - <font size=-1>control if text is rendered with an underline</font></li>
+<li><a href="font.html#Font.size">Font.size</a> - <font size=-1>determine the size needed to render text</font></li>
 </ul>
-<li><a href="font.html#pygame.font.get_default_font">pygame.font.get_default_font</a></li>
-<li><a href="font.html#pygame.font.get_fonts">pygame.font.get_fonts</a></li>
-<li><a href="font.html#pygame.font.get_init">pygame.font.get_init</a></li>
-<li><a href="font.html#pygame.font.init">pygame.font.init</a></li>
-<li><a href="font.html#pygame.font.match_font">pygame.font.match_font</a></li>
-<li><a href="font.html#pygame.font.quit">pygame.font.quit</a></li>
-<li><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a></li>
+<li><a href="font.html#pygame.font.get_default_font">pygame.font.get_default_font</a> - <font size=-1>get the filename of the default font</font></li>
+<li><a href="font.html#pygame.font.get_fonts">pygame.font.get_fonts</a> - <font size=-1>get a list of all the fonts sound on the system. The names of the fonts will</font></li>
+<li><a href="font.html#pygame.font.get_init">pygame.font.get_init</a> - <font size=-1>true if the font module is initialized</font></li>
+<li><a href="font.html#pygame.font.init">pygame.font.init</a> - <font size=-1>initialize the font module</font></li>
+<li><a href="font.html#pygame.font.match_font">pygame.font.match_font</a> - <font size=-1>find a specific font on the system</font></li>
+<li><a href="font.html#pygame.font.quit">pygame.font.quit</a> - <font size=-1>uninitialize the font module</font></li>
+<li><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a> - <font size=-1>create a Font object from the system fonts</font></li>
 </ul>
-<li><a href="image.html#pygame.image">pygame.image</a></li>
+<li><a href="image.html#pygame.image">pygame.image</a> - <font size=-1>pygame module for image transfer</font></li>
 <ul>
-<li><a href="image.html#pygame.image.frombuffer">pygame.image.frombuffer</a></li>
-<li><a href="image.html#pygame.image.fromstring">pygame.image.fromstring</a></li>
-<li><a href="image.html#pygame.image.get_extended">pygame.image.get_extended</a></li>
-<li><a href="image.html#pygame.image.load">pygame.image.load</a></li>
-<li><a href="image.html#pygame.image.save">pygame.image.save</a></li>
-<li><a href="image.html#pygame.image.tostring">pygame.image.tostring</a></li>
+<li><a href="image.html#pygame.image.frombuffer">pygame.image.frombuffer</a> - <font size=-1>create a new Surface that shares data inside a string buffer</font></li>
+<li><a href="image.html#pygame.image.fromstring">pygame.image.fromstring</a> - <font size=-1>create new Surface from a string buffer</font></li>
+<li><a href="image.html#pygame.image.get_extended">pygame.image.get_extended</a> - <font size=-1>test if extended image formats can be loaded</font></li>
+<li><a href="image.html#pygame.image.load">pygame.image.load</a> - <font size=-1>load new image from a file</font></li>
+<li><a href="image.html#pygame.image.save">pygame.image.save</a> - <font size=-1>save an image to disk</font></li>
+<li><a href="image.html#pygame.image.tostring">pygame.image.tostring</a> - <font size=-1>transfer image to string buffer</font></li>
 </ul>
-<li><a href="joystick.html#pygame.joystick">pygame.joystick</a></li>
+<li><a href="joystick.html#pygame.joystick">pygame.joystick</a> - <font size=-1>pygame module for interacting with joystick devices</font></li>
 <ul>
-<li><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a></li>
-<li><a href="joystick.html#pygame.joystick.get_init">pygame.joystick.get_init</a></li>
-<li><a href="joystick.html#pygame.joystick.init">pygame.joystick.init</a></li>
-<li><a href="joystick.html#pygame.joystick.Joystick">pygame.joystick.Joystick</a></li>
+<li><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a> - <font size=-1>number of joysticks on the system</font></li>
+<li><a href="joystick.html#pygame.joystick.get_init">pygame.joystick.get_init</a> - <font size=-1>true if the joystick module is initialized</font></li>
+<li><a href="joystick.html#pygame.joystick.init">pygame.joystick.init</a> - <font size=-1>initialize the joystick module</font></li>
+<li><a href="joystick.html#pygame.joystick.Joystick">pygame.joystick.Joystick</a> - <font size=-1>create a new Joystick object</font></li>
 <ul>
-<li><a href="joystick.html#Joystick.get_axis">Joystick.get_axis</a></li>
-<li><a href="joystick.html#Joystick.get_ball">Joystick.get_ball</a></li>
-<li><a href="joystick.html#Joystick.get_button">Joystick.get_button</a></li>
-<li><a href="joystick.html#Joystick.get_hat">Joystick.get_hat</a></li>
-<li><a href="joystick.html#Joystick.get_id">Joystick.get_id</a></li>
-<li><a href="joystick.html#Joystick.get_init">Joystick.get_init</a></li>
-<li><a href="joystick.html#Joystick.get_name">Joystick.get_name</a></li>
-<li><a href="joystick.html#Joystick.get_numaxes">Joystick.get_numaxes</a></li>
-<li><a href="joystick.html#Joystick.get_numballs">Joystick.get_numballs</a></li>
-<li><a href="joystick.html#Joystick.get_numbuttons">Joystick.get_numbuttons</a></li>
-<li><a href="joystick.html#Joystick.get_numhats">Joystick.get_numhats</a></li>
-<li><a href="joystick.html#Joystick.init">Joystick.init</a></li>
-<li><a href="joystick.html#Joystick.quit">Joystick.quit</a></li>
+<li><a href="joystick.html#Joystick.get_axis">Joystick.get_axis</a> - <font size=-1>get the current position of an axis</font></li>
+<li><a href="joystick.html#Joystick.get_ball">Joystick.get_ball</a> - <font size=-1>get the relative position of a trackball</font></li>
+<li><a href="joystick.html#Joystick.get_button">Joystick.get_button</a> - <font size=-1>get the current button state</font></li>
+<li><a href="joystick.html#Joystick.get_hat">Joystick.get_hat</a> - <font size=-1>get the position of a joystick hat</font></li>
+<li><a href="joystick.html#Joystick.get_id">Joystick.get_id</a> - <font size=-1>get the Joystick id</font></li>
+<li><a href="joystick.html#Joystick.get_init">Joystick.get_init</a> - <font size=-1>check if the Joystick is initialized</font></li>
+<li><a href="joystick.html#Joystick.get_name">Joystick.get_name</a> - <font size=-1>get the Joystick system name</font></li>
+<li><a href="joystick.html#Joystick.get_numaxes">Joystick.get_numaxes</a> - <font size=-1>get the number of axes on a Joystick</font></li>
+<li><a href="joystick.html#Joystick.get_numballs">Joystick.get_numballs</a> - <font size=-1>get the number of trackballs on a Joystick</font></li>
+<li><a href="joystick.html#Joystick.get_numbuttons">Joystick.get_numbuttons</a> - <font size=-1>get the number of buttons on a Joystick</font></li>
+<li><a href="joystick.html#Joystick.get_numhats">Joystick.get_numhats</a> - <font size=-1>get the number of hat controls on a Joystick</font></li>
+<li><a href="joystick.html#Joystick.init">Joystick.init</a> - <font size=-1>initialize the Joystick</font></li>
+<li><a href="joystick.html#Joystick.quit">Joystick.quit</a> - <font size=-1>uninitialize the Joystick</font></li>
 </ul>
-<li><a href="joystick.html#pygame.joystick.quit">pygame.joystick.quit</a></li>
+<li><a href="joystick.html#pygame.joystick.quit">pygame.joystick.quit</a> - <font size=-1>uninitialize the joystick module</font></li>
 </ul>
-<li><a href="key.html#pygame.key">pygame.key</a></li>
+<li><a href="key.html#pygame.key">pygame.key</a> - <font size=-1>pygame module to work with the keyboard</font></li>
 <ul>
-<li><a href="key.html#pygame.key.get_focused">pygame.key.get_focused</a></li>
-<li><a href="key.html#pygame.key.get_mods">pygame.key.get_mods</a></li>
-<li><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a></li>
-<li><a href="key.html#pygame.key.name">pygame.key.name</a></li>
-<li><a href="key.html#pygame.key.set_mods">pygame.key.set_mods</a></li>
-<li><a href="key.html#pygame.key.set_repeat">pygame.key.set_repeat</a></li>
+<li><a href="key.html#pygame.key.get_focused">pygame.key.get_focused</a> - <font size=-1>true if the display is receiving keyboard input from the system</font></li>
+<li><a href="key.html#pygame.key.get_mods">pygame.key.get_mods</a> - <font size=-1>determine which modifier keys are being held</font></li>
+<li><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a> - <font size=-1>get the state of all keyboard buttons</font></li>
+<li><a href="key.html#pygame.key.name">pygame.key.name</a> - <font size=-1>get the name of a key identifier</font></li>
+<li><a href="key.html#pygame.key.set_mods">pygame.key.set_mods</a> - <font size=-1>temporarily set which modifier keys are pressed</font></li>
+<li><a href="key.html#pygame.key.set_repeat">pygame.key.set_repeat</a> - <font size=-1>control how held keys are repeated</font></li>
 </ul>
-<li><a href="mixer.html#pygame.mixer">pygame.mixer</a></li>
+<li><a href="mixer.html#pygame.mixer">pygame.mixer</a> - <font size=-1>pygame module for loading and playing sounds</font></li>
 <ul>
-<li><a href="mixer.html#pygame.mixer.Channel">pygame.mixer.Channel</a></li>
+<li><a href="mixer.html#pygame.mixer.Channel">pygame.mixer.Channel</a> - <font size=-1>Create a Channel object for controlling playback</font></li>
 <ul>
-<li><a href="mixer.html#Channel.fadeout">Channel.fadeout</a></li>
-<li><a href="mixer.html#Channel.get_busy">Channel.get_busy</a></li>
-<li><a href="mixer.html#Channel.get_endevent">Channel.get_endevent</a></li>
-<li><a href="mixer.html#Channel.get_queue">Channel.get_queue</a></li>
-<li><a href="mixer.html#Channel.get_sound">Channel.get_sound</a></li>
-<li><a href="mixer.html#Channel.get_volume">Channel.get_volume</a></li>
-<li><a href="mixer.html#Channel.pause">Channel.pause</a></li>
-<li><a href="mixer.html#Channel.play">Channel.play</a></li>
-<li><a href="mixer.html#Channel.queue">Channel.queue</a></li>
-<li><a href="mixer.html#Channel.set_endevent">Channel.set_endevent</a></li>
-<li><a href="mixer.html#Channel.set_volume">Channel.set_volume</a></li>
-<li><a href="mixer.html#Channel.stop">Channel.stop</a></li>
-<li><a href="mixer.html#Channel.unpause">Channel.unpause</a></li>
+<li><a href="mixer.html#Channel.fadeout">Channel.fadeout</a> - <font size=-1>stop playback after fading channel out</font></li>
+<li><a href="mixer.html#Channel.get_busy">Channel.get_busy</a> - <font size=-1>check if the channel is active</font></li>
+<li><a href="mixer.html#Channel.get_endevent">Channel.get_endevent</a> - <font size=-1>get the event a channel sends when playback stops</font></li>
+<li><a href="mixer.html#Channel.get_queue">Channel.get_queue</a> - <font size=-1>return any Sound that is queued</font></li>
+<li><a href="mixer.html#Channel.get_sound">Channel.get_sound</a> - <font size=-1>get the currently playing Sound</font></li>
+<li><a href="mixer.html#Channel.get_volume">Channel.get_volume</a> - <font size=-1>get the volume of the playing channel</font></li>
+<li><a href="mixer.html#Channel.pause">Channel.pause</a> - <font size=-1>temporarily stop playback of a channel</font></li>
+<li><a href="mixer.html#Channel.play">Channel.play</a> - <font size=-1>play a Sound on a specific Channel</font></li>
+<li><a href="mixer.html#Channel.queue">Channel.queue</a> - <font size=-1>queue a Sound object to follow the current</font></li>
+<li><a href="mixer.html#Channel.set_endevent">Channel.set_endevent</a> - <font size=-1>have the channel send an event when playback stops</font></li>
+<li><a href="mixer.html#Channel.set_volume">Channel.set_volume</a> - <font size=-1>set the volume of a playing channel</font></li>
+<li><a href="mixer.html#Channel.stop">Channel.stop</a> - <font size=-1>stop playback on a Channel</font></li>
+<li><a href="mixer.html#Channel.unpause">Channel.unpause</a> - <font size=-1>resume pause playback of a channel</font></li>
 </ul>
-<li><a href="mixer.html#pygame.mixer.fadeout">pygame.mixer.fadeout</a></li>
-<li><a href="mixer.html#pygame.mixer.find_channel">pygame.mixer.find_channel</a></li>
-<li><a href="mixer.html#pygame.mixer.get_busy">pygame.mixer.get_busy</a></li>
-<li><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></li>
-<li><a href="mixer.html#pygame.mixer.get_num_channels">pygame.mixer.get_num_channels</a></li>
-<li><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a></li>
-<li><a href="mixer.html#pygame.mixer.pause">pygame.mixer.pause</a></li>
-<li><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a></li>
-<li><a href="music.html#pygame.mixer.music">pygame.mixer.music</a></li>
+<li><a href="mixer.html#pygame.mixer.fadeout">pygame.mixer.fadeout</a> - <font size=-1>fade out the volume on all sounds before stopping</font></li>
+<li><a href="mixer.html#pygame.mixer.find_channel">pygame.mixer.find_channel</a> - <font size=-1>find an unused channel</font></li>
+<li><a href="mixer.html#pygame.mixer.get_busy">pygame.mixer.get_busy</a> - <font size=-1>test if any sound is being mixed</font></li>
+<li><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a> - <font size=-1>test if the mixer is initialized</font></li>
+<li><a href="mixer.html#pygame.mixer.get_num_channels">pygame.mixer.get_num_channels</a> - <font size=-1>get the total number of playback channels</font></li>
+<li><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a> - <font size=-1>initialize the mixer module</font></li>
+<li><a href="mixer.html#pygame.mixer.pause">pygame.mixer.pause</a> - <font size=-1>temporarily stop playback of all sound channels</font></li>
+<li><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a> - <font size=-1>preset the mixer init arguments</font></li>
+<li><a href="music.html#pygame.mixer.music">pygame.mixer.music</a> - <font size=-1>pygame module for controlling streamed audio</font></li>
 <ul>
-<li><a href="music.html#pygame.mixer.music.fadeout">pygame.mixer.music.fadeout</a></li>
-<li><a href="music.html#pygame.mixer.music.get_busy">pygame.mixer.music.get_busy</a></li>
-<li><a href="music.html#pygame.mixer.music.get_endevent">pygame.mixer.music.get_endevent</a></li>
-<li><a href="music.html#pygame.mixer.music.get_pos">pygame.mixer.music.get_pos</a></li>
-<li><a href="music.html#pygame.mixer.music.get_volume">pygame.mixer.music.get_volume</a></li>
-<li><a href="music.html#pygame.mixer.music.load">pygame.mixer.music.load</a></li>
-<li><a href="music.html#pygame.mixer.music.pause">pygame.mixer.music.pause</a></li>
-<li><a href="music.html#pygame.mixer.music.play">pygame.mixer.music.play</a></li>
-<li><a href="music.html#pygame.mixer.music.queue">pygame.mixer.music.queue</a></li>
-<li><a href="music.html#pygame.mixer.music.rewind">pygame.mixer.music.rewind</a></li>
-<li><a href="music.html#pygame.mixer.music.set_endevent">pygame.mixer.music.set_endevent</a></li>
-<li><a href="music.html#pygame.mixer.music.set_volume">pygame.mixer.music.set_volume</a></li>
-<li><a href="music.html#pygame.mixer.music.stop">pygame.mixer.music.stop</a></li>
-<li><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a></li>
+<li><a href="music.html#pygame.mixer.music.fadeout">pygame.mixer.music.fadeout</a> - <font size=-1>stop music playback after fading out</font></li>
+<li><a href="music.html#pygame.mixer.music.get_busy">pygame.mixer.music.get_busy</a> - <font size=-1>check if the music stream is playing</font></li>
+<li><a href="music.html#pygame.mixer.music.get_endevent">pygame.mixer.music.get_endevent</a> - <font size=-1>get the event a channel sends when playback stops</font></li>
+<li><a href="music.html#pygame.mixer.music.get_pos">pygame.mixer.music.get_pos</a> - <font size=-1>get the music play time</font></li>
+<li><a href="music.html#pygame.mixer.music.get_volume">pygame.mixer.music.get_volume</a> - <font size=-1>get the music volume</font></li>
+<li><a href="music.html#pygame.mixer.music.load">pygame.mixer.music.load</a> - <font size=-1>Load a music file for playback</font></li>
+<li><a href="music.html#pygame.mixer.music.pause">pygame.mixer.music.pause</a> - <font size=-1>temporarily stop music playback</font></li>
+<li><a href="music.html#pygame.mixer.music.play">pygame.mixer.music.play</a> - <font size=-1>Start the playback of the music stream</font></li>
+<li><a href="music.html#pygame.mixer.music.queue">pygame.mixer.music.queue</a> - <font size=-1>queue a music file to follow the current</font></li>
+<li><a href="music.html#pygame.mixer.music.rewind">pygame.mixer.music.rewind</a> - <font size=-1>restart music</font></li>
+<li><a href="music.html#pygame.mixer.music.set_endevent">pygame.mixer.music.set_endevent</a> - <font size=-1>have the music send an event when playback stops</font></li>
+<li><a href="music.html#pygame.mixer.music.set_volume">pygame.mixer.music.set_volume</a> - <font size=-1>set the music volume</font></li>
+<li><a href="music.html#pygame.mixer.music.stop">pygame.mixer.music.stop</a> - <font size=-1>stop the music playback</font></li>
+<li><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a> - <font size=-1>resume paused music</font></li>
 </ul>
-<li><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a></li>
-<li><a href="mixer.html#pygame.mixer.set_num_channels">pygame.mixer.set_num_channels</a></li>
-<li><a href="mixer.html#pygame.mixer.set_reserved">pygame.mixer.set_reserved</a></li>
-<li><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a></li>
+<li><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a> - <font size=-1>uninitialize the mixer</font></li>
+<li><a href="mixer.html#pygame.mixer.set_num_channels">pygame.mixer.set_num_channels</a> - <font size=-1>set the total number of playback channels</font></li>
+<li><a href="mixer.html#pygame.mixer.set_reserved">pygame.mixer.set_reserved</a> - <font size=-1>reserve channels from being automatically used</font></li>
+<li><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a> - <font size=-1>Create a new Sound object from a file</font></li>
 <ul>
-<li><a href="mixer.html#Sound.fadeout">Sound.fadeout</a></li>
-<li><a href="mixer.html#Sound.get_length">Sound.get_length</a></li>
-<li><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a></li>
-<li><a href="mixer.html#Sound.get_volume">Sound.get_volume</a></li>
-<li><a href="mixer.html#Sound.play">Sound.play</a></li>
-<li><a href="mixer.html#Sound.set_volume">Sound.set_volume</a></li>
-<li><a href="mixer.html#Sound.stop">Sound.stop</a></li>
+<li><a href="mixer.html#Sound.fadeout">Sound.fadeout</a> - <font size=-1>stop sound playback after fading out</font></li>
+<li><a href="mixer.html#Sound.get_length">Sound.get_length</a> - <font size=-1>get the length of the Sound</font></li>
+<li><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a> - <font size=-1>count how many times this Sound is playing</font></li>
+<li><a href="mixer.html#Sound.get_volume">Sound.get_volume</a> - <font size=-1>get the playback volume</font></li>
+<li><a href="mixer.html#Sound.play">Sound.play</a> - <font size=-1>begin sound playback</font></li>
+<li><a href="mixer.html#Sound.set_volume">Sound.set_volume</a> - <font size=-1>set the playback volume for this Sound</font></li>
+<li><a href="mixer.html#Sound.stop">Sound.stop</a> - <font size=-1>stop sound playback</font></li>
 </ul>
-<li><a href="mixer.html#pygame.mixer.stop">pygame.mixer.stop</a></li>
-<li><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a></li>
+<li><a href="mixer.html#pygame.mixer.stop">pygame.mixer.stop</a> - <font size=-1>stop playback of all sound channels</font></li>
+<li><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a> - <font size=-1>resume pause playback of sound channels</font></li>
 </ul>
-<li><a href="mouse.html#pygame.mouse">pygame.mouse</a></li>
+<li><a href="mouse.html#pygame.mouse">pygame.mouse</a> - <font size=-1>pygame module to work with the mouse</font></li>
 <ul>
-<li><a href="mouse.html#pygame.mouse.get_cursor">pygame.mouse.get_cursor</a></li>
-<li><a href="mouse.html#pygame.mouse.get_focused">pygame.mouse.get_focused</a></li>
-<li><a href="mouse.html#pygame.mouse.get_pos">pygame.mouse.get_pos</a></li>
-<li><a href="mouse.html#pygame.mouse.get_pressed">pygame.mouse.get_pressed</a></li>
-<li><a href="mouse.html#pygame.mouse.get_rel">pygame.mouse.get_rel</a></li>
-<li><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a></li>
-<li><a href="mouse.html#pygame.mouse.set_pos">pygame.mouse.set_pos</a></li>
-<li><a href="mouse.html#pygame.mouse.set_visible">pygame.mouse.set_visible</a></li>
+<li><a href="mouse.html#pygame.mouse.get_cursor">pygame.mouse.get_cursor</a> - <font size=-1>get the image for the system mouse cursor</font></li>
+<li><a href="mouse.html#pygame.mouse.get_focused">pygame.mouse.get_focused</a> - <font size=-1>check if the display is receiving mouse input</font></li>
+<li><a href="mouse.html#pygame.mouse.get_pos">pygame.mouse.get_pos</a> - <font size=-1>get the mouse cursor position</font></li>
+<li><a href="mouse.html#pygame.mouse.get_pressed">pygame.mouse.get_pressed</a> - <font size=-1>get the state of the mouse buttons</font></li>
+<li><a href="mouse.html#pygame.mouse.get_rel">pygame.mouse.get_rel</a> - <font size=-1>get the amount of mouse movement</font></li>
+<li><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a> - <font size=-1>set the image for the system mouse cursor</font></li>
+<li><a href="mouse.html#pygame.mouse.set_pos">pygame.mouse.set_pos</a> - <font size=-1>set the mouse cursor position</font></li>
+<li><a href="mouse.html#pygame.mouse.set_visible">pygame.mouse.set_visible</a> - <font size=-1>hide or show the mouse cursor</font></li>
 </ul>
-<li><a href="movie.html#pygame.movie">pygame.movie</a></li>
+<li><a href="movie.html#pygame.movie">pygame.movie</a> - <font size=-1>pygame module for playback of mpeg video</font></li>
 <ul>
-<li><a href="movie.html#pygame.movie.Movie">pygame.movie.Movie</a></li>
+<li><a href="movie.html#pygame.movie.Movie">pygame.movie.Movie</a> - <font size=-1>load an mpeg movie file</font></li>
 <ul>
-<li><a href="movie.html#Movie.get_busy">Movie.get_busy</a></li>
-<li><a href="movie.html#Movie.get_frame">Movie.get_frame</a></li>
-<li><a href="movie.html#Movie.get_length">Movie.get_length</a></li>
-<li><a href="movie.html#Movie.get_size">Movie.get_size</a></li>
-<li><a href="movie.html#Movie.get_time">Movie.get_time</a></li>
-<li><a href="movie.html#Movie.has_audio">Movie.has_audio</a></li>
-<li><a href="movie.html#Movie.has_video">Movie.has_video</a></li>
-<li><a href="movie.html#Movie.pause">Movie.pause</a></li>
-<li><a href="movie.html#Movie.play">Movie.play</a></li>
-<li><a href="movie.html#Movie.render_frame">Movie.render_frame</a></li>
-<li><a href="movie.html#Movie.rewind">Movie.rewind</a></li>
-<li><a href="movie.html#Movie.set_display">Movie.set_display</a></li>
-<li><a href="movie.html#Movie.set_volume">Movie.set_volume</a></li>
-<li><a href="movie.html#Movie.skip">Movie.skip</a></li>
-<li><a href="movie.html#Movie.stop">Movie.stop</a></li>
+<li><a href="movie.html#Movie.get_busy">Movie.get_busy</a> - <font size=-1>check if the movie is currently playing</font></li>
+<li><a href="movie.html#Movie.get_frame">Movie.get_frame</a> - <font size=-1>get the current video frame</font></li>
+<li><a href="movie.html#Movie.get_length">Movie.get_length</a> - <font size=-1>the total length of the movie in seconds</font></li>
+<li><a href="movie.html#Movie.get_size">Movie.get_size</a> - <font size=-1>get the resolution of the video</font></li>
+<li><a href="movie.html#Movie.get_time">Movie.get_time</a> - <font size=-1>get the current vide playback time</font></li>
+<li><a href="movie.html#Movie.has_audio">Movie.has_audio</a> - <font size=-1>check if the movie file contains audio</font></li>
+<li><a href="movie.html#Movie.has_video">Movie.has_video</a> - <font size=-1>check if the movie file contains video</font></li>
+<li><a href="movie.html#Movie.pause">Movie.pause</a> - <font size=-1>temporarily stop and resume playback</font></li>
+<li><a href="movie.html#Movie.play">Movie.play</a> - <font size=-1>start playback of a movie</font></li>
+<li><a href="movie.html#Movie.render_frame">Movie.render_frame</a> - <font size=-1>set the current video frame</font></li>
+<li><a href="movie.html#Movie.rewind">Movie.rewind</a> - <font size=-1>restart the movie playback</font></li>
+<li><a href="movie.html#Movie.set_display">Movie.set_display</a> - <font size=-1>set the video target Surface</font></li>
+<li><a href="movie.html#Movie.set_volume">Movie.set_volume</a> - <font size=-1>set the audio playback volume</font></li>
+<li><a href="movie.html#Movie.skip">Movie.skip</a> - <font size=-1>advance the movie playback position</font></li>
+<li><a href="movie.html#Movie.stop">Movie.stop</a> - <font size=-1>stop movie playback</font></li>
 </ul>
 </ul>
-<li><a href="overlay.html#pygame.Overlay">pygame.Overlay</a></li>
+<li><a href="overlay.html#pygame.Overlay">pygame.Overlay</a> - <font size=-1>pygame object for video overlay graphics</font></li>
 <ul>
-<li><a href="overlay.html#Overlay.display">Overlay.display</a></li>
-<li><a href="overlay.html#Overlay.set_location">Overlay.set_location</a></li>
+<li><a href="overlay.html#Overlay.display">Overlay.display</a> - <font size=-1>set the overlay pixel data</font></li>
+<li><a href="overlay.html#Overlay.set_location">Overlay.set_location</a> - <font size=-1>control where the overlay is displayed</font></li>
 </ul>
-<li><a href="rect.html#pygame.Rect">pygame.Rect</a></li>
+<li><a href="rect.html#pygame.Rect">pygame.Rect</a> - <font size=-1>pygame object for storing rectangular coordinates</font></li>
 <ul>
-<li><a href="rect.html#Rect.clamp">Rect.clamp</a></li>
-<li><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a></li>
-<li><a href="rect.html#Rect.clip">Rect.clip</a></li>
-<li><a href="rect.html#Rect.clip_ip">Rect.clip_ip</a></li>
-<li><a href="rect.html#Rect.collidedict">Rect.collidedict</a></li>
-<li><a href="rect.html#Rect.collidedictall">Rect.collidedictall</a></li>
-<li><a href="rect.html#Rect.collidelist">Rect.collidelist</a></li>
-<li><a href="rect.html#Rect.collidelistall">Rect.collidelistall</a></li>
-<li><a href="rect.html#Rect.collidepoint">Rect.collidepoint</a></li>
-<li><a href="rect.html#Rect.colliderect">Rect.colliderect</a></li>
-<li><a href="rect.html#Rect.contains">Rect.contains</a></li>
-<li><a href="rect.html#Rect.fit">Rect.fit</a></li>
-<li><a href="rect.html#Rect.inflate">Rect.inflate</a></li>
-<li><a href="rect.html#Rect.inflate_ip">Rect.inflate_ip</a></li>
-<li><a href="rect.html#Rect.move">Rect.move</a></li>
-<li><a href="rect.html#Rect.move_ip">Rect.move_ip</a></li>
-<li><a href="rect.html#Rect.normalize">Rect.normalize</a></li>
-<li><a href="rect.html#Rect.union">Rect.union</a></li>
-<li><a href="rect.html#Rect.union_ip">Rect.union_ip</a></li>
-<li><a href="rect.html#Rect.unionall">Rect.unionall</a></li>
-<li><a href="rect.html#Rect.unionall_ip">Rect.unionall_ip</a></li>
+<li><a href="rect.html#Rect.clamp">Rect.clamp</a> - <font size=-1>moves the rectangle inside another</font></li>
+<li><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a> - <font size=-1>moves the rectangle inside another, in place</font></li>
+<li><a href="rect.html#Rect.clip">Rect.clip</a> - <font size=-1>crops a rectangle inside another</font></li>
+<li><a href="rect.html#Rect.clip_ip">Rect.clip_ip</a> - <font size=-1>crops a rectangle inside another, in place</font></li>
+<li><a href="rect.html#Rect.collidedict">Rect.collidedict</a> - <font size=-1>test if one rectangle in a dictionary intersects</font></li>
+<li><a href="rect.html#Rect.collidedictall">Rect.collidedictall</a> - <font size=-1>test if all rectangles in a dictionary intersect</font></li>
+<li><a href="rect.html#Rect.collidelist">Rect.collidelist</a> - <font size=-1>test if one rectangle in a list intersects</font></li>
+<li><a href="rect.html#Rect.collidelistall">Rect.collidelistall</a> - <font size=-1>test if all rectangles in a list intersect</font></li>
+<li><a href="rect.html#Rect.collidepoint">Rect.collidepoint</a> - <font size=-1>test if a point is inside a rectangle</font></li>
+<li><a href="rect.html#Rect.colliderect">Rect.colliderect</a> - <font size=-1>test if two rectangles overlap</font></li>
+<li><a href="rect.html#Rect.contains">Rect.contains</a> - <font size=-1>test if one rectangle is inside another</font></li>
+<li><a href="rect.html#Rect.fit">Rect.fit</a> - <font size=-1>resize and move a rectangle with aspect ratio</font></li>
+<li><a href="rect.html#Rect.inflate">Rect.inflate</a> - <font size=-1>grow or shrink the rectangle size</font></li>
+<li><a href="rect.html#Rect.inflate_ip">Rect.inflate_ip</a> - <font size=-1>grow or shrink the rectangle size, in place</font></li>
+<li><a href="rect.html#Rect.move">Rect.move</a> - <font size=-1>moves the rectangle</font></li>
+<li><a href="rect.html#Rect.move_ip">Rect.move_ip</a> - <font size=-1>moves the rectangle, in place</font></li>
+<li><a href="rect.html#Rect.normalize">Rect.normalize</a> - <font size=-1>correct negative sizes</font></li>
+<li><a href="rect.html#Rect.union">Rect.union</a> - <font size=-1>joins two rectangles into one</font></li>
+<li><a href="rect.html#Rect.union_ip">Rect.union_ip</a> - <font size=-1>joins two rectangles into one, in place</font></li>
+<li><a href="rect.html#Rect.unionall">Rect.unionall</a> - <font size=-1>the union of many rectangles</font></li>
+<li><a href="rect.html#Rect.unionall_ip">Rect.unionall_ip</a> - <font size=-1>the union of many rectangles, in place</font></li>
 </ul>
-<li><a href="sndarray.html#pygame.sndarray">pygame.sndarray</a></li>
+<li><a href="sndarray.html#pygame.sndarray">pygame.sndarray</a> - <font size=-1>pygame module for accessing sound sample data</font></li>
 <ul>
-<li><a href="sndarray.html#pygame.sndarray.array">pygame.sndarray.array</a></li>
-<li><a href="sndarray.html#pygame.sndarray.make_sound">pygame.sndarray.make_sound</a></li>
-<li><a href="sndarray.html#pygame.sndarray.samples">pygame.sndarray.samples</a></li>
+<li><a href="sndarray.html#pygame.sndarray.array">pygame.sndarray.array</a> - <font size=-1>copy Sound samples into an array</font></li>
+<li><a href="sndarray.html#pygame.sndarray.make_sound">pygame.sndarray.make_sound</a> - <font size=-1>convert an array into a Sound object</font></li>
+<li><a href="sndarray.html#pygame.sndarray.samples">pygame.sndarray.samples</a> - <font size=-1>reference Sound samples into an array</font></li>
 </ul>
-<li><a href="sprite.html#pygame.sprite">pygame.sprite</a></li>
+<li><a href="sprite.html#pygame.sprite">pygame.sprite</a> - <font size=-1>pygame module with basic game object classes</font></li>
 <ul>
-<li><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a></li>
+<li><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a> - <font size=-1>container class for many Sprites</font></li>
 <ul>
-<li><a href="sprite.html#Group.add">Group.add</a></li>
-<li><a href="sprite.html#Group.clear">Group.clear</a></li>
-<li><a href="sprite.html#Group.copy">Group.copy</a></li>
-<li><a href="sprite.html#Group.draw">Group.draw</a></li>
-<li><a href="sprite.html#Group.empty">Group.empty</a></li>
-<li><a href="sprite.html#Group.has">Group.has</a></li>
-<li><a href="sprite.html#Group.remove">Group.remove</a></li>
-<li><a href="sprite.html#Group.sprites">Group.sprites</a></li>
-<li><a href="sprite.html#Group.update">Group.update</a></li>
+<li><a href="sprite.html#Group.add">Group.add</a> - <font size=-1>add Sprites to this Group</font></li>
+<li><a href="sprite.html#Group.clear">Group.clear</a> - <font size=-1>draw a background over the Sprites</font></li>
+<li><a href="sprite.html#Group.copy">Group.copy</a> - <font size=-1>duplicate the Group</font></li>
+<li><a href="sprite.html#Group.draw">Group.draw</a> - <font size=-1>blit the Sprite images</font></li>
+<li><a href="sprite.html#Group.empty">Group.empty</a> - <font size=-1>remove all Sprites</font></li>
+<li><a href="sprite.html#Group.has">Group.has</a> - <font size=-1>test if a Group contains Sprites</font></li>
+<li><a href="sprite.html#Group.remove">Group.remove</a> - <font size=-1>remove Sprites from the Group</font></li>
+<li><a href="sprite.html#Group.sprites">Group.sprites</a> - <font size=-1>list of the Sprites this Group contains</font></li>
+<li><a href="sprite.html#Group.update">Group.update</a> - <font size=-1>call the update method on contained Sprites</font></li>
 </ul>
-<li><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a></li>
-<li><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a></li>
-<li><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a></li>
-<li><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a></li>
+<li><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a> - <font size=-1>find all Sprites that collide between two Groups</font></li>
+<li><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a> - <font size=-1>Group container that holds a single Sprite</font></li>
+<li><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a> - <font size=-1>RenderUpdates class that draws Sprites in order of addition</font></li>
+<li><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></li>
 <ul>
-<li><a href="sprite.html#RenderUpdates.draw">RenderUpdates.draw</a></li>
+<li><a href="sprite.html#RenderUpdates.draw">RenderUpdates.draw</a> - <font size=-1>blit the Sprite images and track changed areas</font></li>
 </ul>
-<li><a href="sprite.html#pygame.sprite.Sprite">pygame.sprite.Sprite</a></li>
+<li><a href="sprite.html#pygame.sprite.Sprite">pygame.sprite.Sprite</a> - <font size=-1>simple base class for visible game objects</font></li>
 <ul>
-<li><a href="sprite.html#Sprite.add">Sprite.add</a></li>
-<li><a href="sprite.html#Sprite.alive">Sprite.alive</a></li>
-<li><a href="sprite.html#Sprite.groups">Sprite.groups</a></li>
-<li><a href="sprite.html#Sprite.kill">Sprite.kill</a></li>
-<li><a href="sprite.html#Sprite.remove">Sprite.remove</a></li>
-<li><a href="sprite.html#Sprite.update">Sprite.update</a></li>
+<li><a href="sprite.html#Sprite.add">Sprite.add</a> - <font size=-1>add the sprite to groups</font></li>
+<li><a href="sprite.html#Sprite.alive">Sprite.alive</a> - <font size=-1>does the sprite belong to any groups</font></li>
+<li><a href="sprite.html#Sprite.groups">Sprite.groups</a> - <font size=-1>list of Groups that contain this Sprite</font></li>
+<li><a href="sprite.html#Sprite.kill">Sprite.kill</a> - <font size=-1>remove the Sprite from all Groups</font></li>
+<li><a href="sprite.html#Sprite.remove">Sprite.remove</a> - <font size=-1>remove the sprite from groups</font></li>
+<li><a href="sprite.html#Sprite.update">Sprite.update</a> - <font size=-1>method to control sprite behavior</font></li>
 </ul>
-<li><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a></li>
-<li><a href="sprite.html#pygame.sprite.spritecollideany">pygame.sprite.spritecollideany</a></li>
+<li><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></li>
+<li><a href="sprite.html#pygame.sprite.spritecollideany">pygame.sprite.spritecollideany</a> - <font size=-1>simple test if a Sprite intersects anything in a Group</font></li>
 </ul>
-<li><a href="surface.html#pygame.Surface">pygame.Surface</a></li>
+<li><a href="surface.html#pygame.Surface">pygame.Surface</a> - <font size=-1>pygame object for representing images</font></li>
 <ul>
-<li><a href="surface.html#Surface.blit">Surface.blit</a></li>
-<li><a href="surface.html#Surface.convert">Surface.convert</a></li>
-<li><a href="surface.html#Surface.convert_alpha">Surface.convert_alpha</a></li>
-<li><a href="surface.html#Surface.copy">Surface.copy</a></li>
-<li><a href="surface.html#Surface.fill">Surface.fill</a></li>
-<li><a href="surface.html#Surface.get_abs_offset">Surface.get_abs_offset</a></li>
-<li><a href="surface.html#Surface.get_abs_parent">Surface.get_abs_parent</a></li>
-<li><a href="surface.html#Surface.get_alpha">Surface.get_alpha</a></li>
-<li><a href="surface.html#Surface.get_at">Surface.get_at</a></li>
-<li><a href="surface.html#Surface.get_bitsize">Surface.get_bitsize</a></li>
-<li><a href="surface.html#Surface.get_bytesize">Surface.get_bytesize</a></li>
-<li><a href="surface.html#Surface.get_clip">Surface.get_clip</a></li>
-<li><a href="surface.html#Surface.get_colorkey">Surface.get_colorkey</a></li>
-<li><a href="surface.html#Surface.get_flags">Surface.get_flags</a></li>
-<li><a href="surface.html#Surface.get_height">Surface.get_height</a></li>
-<li><a href="surface.html#Surface.get_locked">Surface.get_locked</a></li>
-<li><a href="surface.html#Surface.get_losses">Surface.get_losses</a></li>
-<li><a href="surface.html#Surface.get_masks">Surface.get_masks</a></li>
-<li><a href="surface.html#Surface.get_offset">Surface.get_offset</a></li>
-<li><a href="surface.html#Surface.get_palette">Surface.get_palette</a></li>
-<li><a href="surface.html#Surface.get_palette_at">Surface.get_palette_at</a></li>
-<li><a href="surface.html#Surface.get_parent">Surface.get_parent</a></li>
-<li><a href="surface.html#Surface.get_pitch">Surface.get_pitch</a></li>
-<li><a href="surface.html#Surface.get_rect">Surface.get_rect</a></li>
-<li><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a></li>
-<li><a href="surface.html#Surface.get_size">Surface.get_size</a></li>
-<li><a href="surface.html#Surface.get_width">Surface.get_width</a></li>
-<li><a href="surface.html#Surface.lock">Surface.lock</a></li>
-<li><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a></li>
-<li><a href="surface.html#Surface.mustlock">Surface.mustlock</a></li>
-<li><a href="surface.html#Surface.set_alpha">Surface.set_alpha</a></li>
-<li><a href="surface.html#Surface.set_at">Surface.set_at</a></li>
-<li><a href="surface.html#Surface.set_clip">Surface.set_clip</a></li>
-<li><a href="surface.html#Surface.set_colorkey">Surface.set_colorkey</a></li>
-<li><a href="surface.html#Surface.set_palette">Surface.set_palette</a></li>
-<li><a href="surface.html#Surface.set_palette_at">Surface.set_palette_at</a></li>
-<li><a href="surface.html#Surface.subsurface">Surface.subsurface</a></li>
-<li><a href="surface.html#Surface.unlock">Surface.unlock</a></li>
-<li><a href="surface.html#Surface.unmap_rgb">Surface.unmap_rgb</a></li>
+<li><a href="surface.html#Surface.blit">Surface.blit</a> - <font size=-1>draw one image onto another</font></li>
+<li><a href="surface.html#Surface.convert">Surface.convert</a> - <font size=-1>change the pixel format of an image</font></li>
+<li><a href="surface.html#Surface.convert_alpha">Surface.convert_alpha</a> - <font size=-1>change the pixel format of an image including per pixel alphas</font></li>
+<li><a href="surface.html#Surface.copy">Surface.copy</a> - <font size=-1>create a new copy of a Surface</font></li>
+<li><a href="surface.html#Surface.fill">Surface.fill</a> - <font size=-1>fill Surface with a solid color</font></li>
+<li><a href="surface.html#Surface.get_abs_offset">Surface.get_abs_offset</a> - <font size=-1>find the absolute position of a child subsurface inside its top level parent</font></li>
+<li><a href="surface.html#Surface.get_abs_parent">Surface.get_abs_parent</a> - <font size=-1>find the top level parent of a subsurface</font></li>
+<li><a href="surface.html#Surface.get_alpha">Surface.get_alpha</a> - <font size=-1>get the current Surface transparency value</font></li>
+<li><a href="surface.html#Surface.get_at">Surface.get_at</a> - <font size=-1>get the color value at a single pixel</font></li>
+<li><a href="surface.html#Surface.get_bitsize">Surface.get_bitsize</a> - <font size=-1>get the bit depth of the Surface pixel format</font></li>
+<li><a href="surface.html#Surface.get_bytesize">Surface.get_bytesize</a> - <font size=-1>get the bytes used per Surface pixel</font></li>
+<li><a href="surface.html#Surface.get_clip">Surface.get_clip</a> - <font size=-1>get the current clipping are of the Surface</font></li>
+<li><a href="surface.html#Surface.get_colorkey">Surface.get_colorkey</a> - <font size=-1>Get the current transparent colorkey</font></li>
+<li><a href="surface.html#Surface.get_flags">Surface.get_flags</a> - <font size=-1>get the additional flags used for the Surface</font></li>
+<li><a href="surface.html#Surface.get_height">Surface.get_height</a> - <font size=-1>get the height of the Surface</font></li>
+<li><a href="surface.html#Surface.get_locked">Surface.get_locked</a> - <font size=-1>test if the Surface is current locked</font></li>
+<li><a href="surface.html#Surface.get_losses">Surface.get_losses</a> - <font size=-1>the significant bits used to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.get_masks">Surface.get_masks</a> - <font size=-1>the bitmasks needed to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.get_offset">Surface.get_offset</a> - <font size=-1>find the position of a child subsurface inside a parent</font></li>
+<li><a href="surface.html#Surface.get_palette">Surface.get_palette</a> - <font size=-1>get the color index palette for an 8bit Surface</font></li>
+<li><a href="surface.html#Surface.get_palette_at">Surface.get_palette_at</a> - <font size=-1>get the color for a single entry in a palette</font></li>
+<li><a href="surface.html#Surface.get_parent">Surface.get_parent</a> - <font size=-1>find the parent of a subsurface</font></li>
+<li><a href="surface.html#Surface.get_pitch">Surface.get_pitch</a> - <font size=-1>get the number of bytes used per Surface row</font></li>
+<li><a href="surface.html#Surface.get_rect">Surface.get_rect</a> - <font size=-1>get the rectangular area of the Surface</font></li>
+<li><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a> - <font size=-1>the bit shifts needed to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.get_size">Surface.get_size</a> - <font size=-1>get the dimensions of the Surface</font></li>
+<li><a href="surface.html#Surface.get_width">Surface.get_width</a> - <font size=-1>get the width of the Surface</font></li>
+<li><a href="surface.html#Surface.lock">Surface.lock</a> - <font size=-1>lock the Surface memory for pixel access</font></li>
+<li><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></li>
+<li><a href="surface.html#Surface.mustlock">Surface.mustlock</a> - <font size=-1>test if the Surface requires locking</font></li>
+<li><a href="surface.html#Surface.set_alpha">Surface.set_alpha</a> - <font size=-1>set the alpha value for the full Surface image</font></li>
+<li><a href="surface.html#Surface.set_at">Surface.set_at</a> - <font size=-1>set the color value for a single pixel</font></li>
+<li><a href="surface.html#Surface.set_clip">Surface.set_clip</a> - <font size=-1>set the current clipping area of the Surface</font></li>
+<li><a href="surface.html#Surface.set_colorkey">Surface.set_colorkey</a> - <font size=-1>Set the transparent colorkey</font></li>
+<li><a href="surface.html#Surface.set_palette">Surface.set_palette</a> - <font size=-1>set the color palette for an 8bit Surface</font></li>
+<li><a href="surface.html#Surface.set_palette_at">Surface.set_palette_at</a> - <font size=-1>set the color for a single index in an 8bit Surface palette</font></li>
+<li><a href="surface.html#Surface.subsurface">Surface.subsurface</a> - <font size=-1>create a new surface that references its parent</font></li>
+<li><a href="surface.html#Surface.unlock">Surface.unlock</a> - <font size=-1>unlock the Surface memory from pixel access</font></li>
+<li><a href="surface.html#Surface.unmap_rgb">Surface.unmap_rgb</a> - <font size=-1>convert a mapped integer color value into a Color</font></li>
 </ul>
-<li><a href="surfarray.html#pygame.surfarray">pygame.surfarray</a></li>
+<li><a href="surfarray.html#pygame.surfarray">pygame.surfarray</a> - <font size=-1>pygame module for accessing surface pixel data</font></li>
 <ul>
-<li><a href="surfarray.html#pygame.surfarray.array2d">pygame.surfarray.array2d</a></li>
-<li><a href="surfarray.html#pygame.surfarray.array3d">pygame.surfarray.array3d</a></li>
-<li><a href="surfarray.html#pygame.surfarray.array_alpha">pygame.surfarray.array_alpha</a></li>
-<li><a href="surfarray.html#pygame.surfarray.array_colorkey">pygame.surfarray.array_colorkey</a></li>
-<li><a href="surfarray.html#pygame.surfarray.blit_array">pygame.surfarray.blit_array</a></li>
-<li><a href="surfarray.html#pygame.surfarray.make_surface">pygame.surfarray.make_surface</a></li>
-<li><a href="surfarray.html#pygame.surfarray.map_array">pygame.surfarray.map_array</a></li>
-<li><a href="surfarray.html#pygame.surfarray.pixels2d">pygame.surfarray.pixels2d</a></li>
-<li><a href="surfarray.html#pygame.surfarray.pixels3d">pygame.surfarray.pixels3d</a></li>
-<li><a href="surfarray.html#pygame.surfarray.pixels_alpha">pygame.surfarray.pixels_alpha</a></li>
+<li><a href="surfarray.html#pygame.surfarray.array2d">pygame.surfarray.array2d</a> - <font size=-1>copy pixels into a 2d array</font></li>
+<li><a href="surfarray.html#pygame.surfarray.array3d">pygame.surfarray.array3d</a> - <font size=-1>copy pixels into a 3d array</font></li>
+<li><a href="surfarray.html#pygame.surfarray.array_alpha">pygame.surfarray.array_alpha</a> - <font size=-1>copy pixel alphas into a 2d array</font></li>
+<li><a href="surfarray.html#pygame.surfarray.array_colorkey">pygame.surfarray.array_colorkey</a> - <font size=-1>copy the colorkey values into a 2d array</font></li>
+<li><a href="surfarray.html#pygame.surfarray.blit_array">pygame.surfarray.blit_array</a> - <font size=-1>blit directly from a array values</font></li>
+<li><a href="surfarray.html#pygame.surfarray.make_surface">pygame.surfarray.make_surface</a> - <font size=-1>copy an array to a new surface</font></li>
+<li><a href="surfarray.html#pygame.surfarray.map_array">pygame.surfarray.map_array</a> - <font size=-1>map a 3d array into a 2d array</font></li>
+<li><a href="surfarray.html#pygame.surfarray.pixels2d">pygame.surfarray.pixels2d</a> - <font size=-1>reference pixels into a 2d array</font></li>
+<li><a href="surfarray.html#pygame.surfarray.pixels3d">pygame.surfarray.pixels3d</a> - <font size=-1>reference pixels into a 3d array</font></li>
+<li><a href="surfarray.html#pygame.surfarray.pixels_alpha">pygame.surfarray.pixels_alpha</a> - <font size=-1>reference pixel alphas into a 2d array</font></li>
 </ul>
-<li><a href="time.html#pygame.time">pygame.time</a></li>
+<li><a href="time.html#pygame.time">pygame.time</a> - <font size=-1>pygame module for monitoring time</font></li>
 <ul>
-<li><a href="time.html#pygame.time.Clock">pygame.time.Clock</a></li>
+<li><a href="time.html#pygame.time.Clock">pygame.time.Clock</a> - <font size=-1>create an object to help track time</font></li>
 <ul>
-<li><a href="time.html#Clock.get_fps">Clock.get_fps</a></li>
-<li><a href="time.html#Clock.get_rawtime">Clock.get_rawtime</a></li>
-<li><a href="time.html#Clock.get_time">Clock.get_time</a></li>
-<li><a href="time.html#Clock.tick">Clock.tick</a></li>
+<li><a href="time.html#Clock.get_fps">Clock.get_fps</a> - <font size=-1>compute the clock framerate</font></li>
+<li><a href="time.html#Clock.get_rawtime">Clock.get_rawtime</a> - <font size=-1>actual time used in the previous tick</font></li>
+<li><a href="time.html#Clock.get_time">Clock.get_time</a> - <font size=-1>time used in the previous tick</font></li>
+<li><a href="time.html#Clock.tick">Clock.tick</a> - <font size=-1>update the clock</font></li>
 </ul>
-<li><a href="time.html#pygame.time.delay">pygame.time.delay</a></li>
-<li><a href="time.html#pygame.time.get_ticks">pygame.time.get_ticks</a></li>
-<li><a href="time.html#pygame.time.set_timer">pygame.time.set_timer</a></li>
-<li><a href="time.html#pygame.time.wait">pygame.time.wait</a></li>
+<li><a href="time.html#pygame.time.delay">pygame.time.delay</a> - <font size=-1>pause the program for an amount of time</font></li>
+<li><a href="time.html#pygame.time.get_ticks">pygame.time.get_ticks</a> - <font size=-1>get the time in milliseconds</font></li>
+<li><a href="time.html#pygame.time.set_timer">pygame.time.set_timer</a> - <font size=-1>repeatedly create an event on the event queue</font></li>
+<li><a href="time.html#pygame.time.wait">pygame.time.wait</a> - <font size=-1>pause the program for an amount of time</font></li>
 </ul>
-<li><a href="transform.html#pygame.transform">pygame.transform</a></li>
+<li><a href="transform.html#pygame.transform">pygame.transform</a> - <font size=-1>pygame module to transform surfaces</font></li>
 <ul>
-<li><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a></li>
-<li><a href="transform.html#pygame.transform.flip">pygame.transform.flip</a></li>
-<li><a href="transform.html#pygame.transform.rotate">pygame.transform.rotate</a></li>
-<li><a href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a></li>
-<li><a href="transform.html#pygame.transform.scale">pygame.transform.scale</a></li>
-<li><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a></li>
+<li><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>remove interior area of an image</font></li>
+<li><a href="transform.html#pygame.transform.flip">pygame.transform.flip</a> - <font size=-1>flip vertically and horizontally</font></li>
+<li><a href="transform.html#pygame.transform.rotate">pygame.transform.rotate</a> - <font size=-1>rotate an image</font></li>
+<li><a href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a> - <font size=-1>filtered scale and rotation</font></li>
+<li><a href="transform.html#pygame.transform.scale">pygame.transform.scale</a> - <font size=-1>resize to new resolution</font></li>
+<li><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a> - <font size=-1>specialized image doubler</font></li>
 </ul>
-<li><a href="pygame.html#pygame.quit">pygame.quit</a></li>
-<li><a href="pygame.html#pygame.register_quit">pygame.register_quit</a></li>
-<li><a href="pygame.html#pygame.version">pygame.version</a></li>
+<li><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></li>
+<li><a href="pygame.html#pygame.register_quit">pygame.register_quit</a> - <font size=-1>register a function to be called when pygame quits</font></li>
+<li><a href="pygame.html#pygame.version">pygame.version</a> - <font size=-1>small module containing version information</font></li>
 <ul>
-<li><a href="pygame.html#pygame.version.ver">pygame.version.ver</a></li>
-<li><a href="pygame.html#pygame.version.vernum">pygame.version.vernum</a></li>
+<li><a href="pygame.html#pygame.version.ver">pygame.version.ver</a> - <font size=-1>version number as a string</font></li>
+<li><a href="pygame.html#pygame.version.vernum">pygame.version.vernum</a> - <font size=-1>tupled integers of the version</font></li>
 </ul>
 </ul>
 

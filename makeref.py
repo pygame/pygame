@@ -165,7 +165,7 @@ def WritePageLinks(outFile, pages):
 
 def MakeIndex(name, doc, index):
     if doc.fullname:
-        link = '<a href="%s.html#%s">%s</a>' % (name, doc.fullname, doc.fullname)
+        link = '<a href="%s.html#%s">%s</a> - <font size=-1>%s</font>' % (name, doc.fullname, doc.fullname, doc.descr)
         index[doc.fullname + "()"] = link
     if doc.kids:
         for kid in doc.kids:
