@@ -282,7 +282,7 @@ class AbstractGroup(object):
 
             try:
                 for spr in sprite:
-                    if not self.has(sprite):
+                    if not self.has(spr):
                         return False
                 return True
             except (TypeError, AttributeError):
