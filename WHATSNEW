@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+November 7, 2005
+    Fix for sprite.AbstractGroup.has inf recursion bug. thanks Randy Kaelber.
+    Began work on a sprite unittest.
 
 October 28, 2005
     fix for do_set_icon when display not initialised. Thanks John Popplewell!
