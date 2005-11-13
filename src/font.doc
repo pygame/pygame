@@ -34,12 +34,10 @@ It is safe to call this function more than once.
 
 quit
 uninitialize the font module
-pygame.cdrom.font(): return None
+pygame.font.quit(): return None
 
-Uninitialize the cdrom module. After you call this any existing CD objects
-will no longer work.
-
-It is safe to call this function more than once.
+Manually uninitialize SDL_ttf's font system. It is safe to call
+this if font is currently not initialized.
 <END>
 
 
