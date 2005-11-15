@@ -9,9 +9,10 @@ dependency of Pygame, but it only optionally supports any extended file formats.
 By default it can only load uncompressed BMP images. When built with full image
 support, the pygame.image.load() function can support the following formats.
 
-* BMP
-* GIF (non animated)
 * JPG
+* PNG
+* GIF (non animated)
+* BMP
 * PCX
 * TGA (uncompressed)
 * TIF
@@ -20,7 +21,7 @@ support, the pygame.image.load() function can support the following formats.
 * XPM
 
 Saving images only supports a limited set of uncompressed formats. You can save
-to the following formats. 
+to the following formats.
 
 * BMP
 * TGA
