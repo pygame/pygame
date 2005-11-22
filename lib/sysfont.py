@@ -150,9 +150,12 @@ def read_unix_fontsdir(dir, file, fonts):
     if not line:
         # empty file do nothing.
         return
- 
-    numfonts = int(line)
- 
+
+    try: 
+        numfonts = int(file.readline())
+    except ValueError: 
+        return # probably not a font file
+
     for line in file.readlines():
         font, descr = (line.split(' ', 1) + ['', ''])[:2]
         if font[-4:].lower() not in [".ttf", ".ttc"]:
