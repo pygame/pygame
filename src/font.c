@@ -25,11 +25,11 @@
  *  font module for pygame
  */
 #define PYGAMEAPI_FONT_INTERNAL
+#include "font.h"
 #include <stdio.h>
 #include <string.h>
 #include "pygame.h"
 #include "pygamedocs.h"
-#include "font.h"
 #include "structmember.h"
 
 
@@ -325,7 +325,7 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	}
 	else if(PyUnicode_Check(text))
 	{
-		PyObject* strob = PyEval_CallMethod(text, "encode", "(s)", "utf-8");
+		PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
 		char *string = PyString_AsString(strob);
 
 		if(aa)
@@ -385,7 +385,7 @@ static PyObject* font_size(PyObject* self, PyObject* args)
 
 	if(PyUnicode_Check(text))
 	{
-		PyObject* strob = PyEval_CallMethod(text, "encode", "(s)", "utf-8");
+		PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
 		char *string = PyString_AsString(strob);
 
 		TTF_SizeUTF8(font, string, &w, &h);
@@ -468,7 +468,9 @@ static int font_init(PyFontObject *self, PyObject *args, PyObject *kwds)
 		fileobj = font_resource(font_defaultname);
 		if(!fileobj)
 		{
-			RAISE(PyExc_RuntimeError, "default font not found");
+			char error[1024];
+			snprintf(error, 1024, "default font not found '%s'", font_defaultname);
+			RAISE(PyExc_RuntimeError, error);
 			return -1;
 		}
 		fontsize = (int)(fontsize * .6875);
