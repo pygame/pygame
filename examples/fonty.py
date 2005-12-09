@@ -44,17 +44,21 @@ def main():
     screen.blit(ren, (10, 40 + size[1]))
     font.set_underline(0)
 
+
+    a_sys_font = pygame.font.SysFont("Arial", 60)
+
+
     #AA, no transparancy, bold
-    font.set_bold(1)
-    ren = font.render(text, 1, fg, bg)
+    a_sys_font.set_bold(1)
+    ren = a_sys_font.render(text, 1, fg, bg)
     screen.blit(ren, (30 + size[0], 10))
-    font.set_bold(0)
+    a_sys_font.set_bold(0)
 
     #AA, transparancy, italic
-    font.set_italic(1)
-    ren = font.render(text, 1, fg)
+    a_sys_font.set_italic(1)
+    ren = a_sys_font.render(text, 1, fg)
     screen.blit(ren, (30 + size[0], 40 + size[1]))
-    font.set_italic(0)
+    a_sys_font.set_italic(0)
 
     #show the surface and await user quit
     pygame.display.flip()
