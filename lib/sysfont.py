@@ -126,68 +126,37 @@ def initsysfonts_darwin():
     return fonts
 
 
-def read_unix_fontscache(dir, file, fonts):
-    file = open(os.path.join(dir, file))
-    for line in file.readlines():
-        try:
-            font, num, vals = line.split(' ', 2)
-        except ValueError:
-            continue
-        font = font.replace('"', '')
-        if font[-4:].lower() not in [".ttf", ".ttc"]:
-            continue
-        font = os.path.join(dir, font)
-        vals = vals.split(':')
-        name = _simplename(vals[0][1:])
-        bold = vals[1].find('Bold') >= 0
-        italic = vals[1].find('Italic') >= 0
-        _addfont(name, bold, italic, font, fonts)
-
-#read the fonts from a unix 'fonts.cache-1' file
-def read_unix_fontsdir(dir, file, fonts):
-    file = open(os.path.join(dir, file))
-    line = file.readline()
-    if not line:
-        # empty file do nothing.
-        return
-
-    try: 
-        numfonts = int(file.readline())
-    except ValueError: 
-        return # probably not a font file
-
-    for line in file.readlines():
-        font, descr = (line.split(' ', 1) + ['', ''])[:2]
-        if font[-4:].lower() not in [".ttf", ".ttc"]:
- 
-            continue
-        font = os.path.join(dir, font)
-        descr = descr.split('-', 13)
-        name = _simplename(descr[2])
-        bold = (descr[3] == 'bold')
-        italic = (descr[4] == 'i')
-        _addfont(name, bold, italic, font, fonts)
-
-
-
-#walk the path directory trees
-def _fontwalk(fonts, path, files):
-    if 'fonts.scale' in files:
-        read_unix_fontsdir(path, 'fonts.scale', fonts)
-    elif 'fonts.dir' in files:
-        read_unix_fontsdir(path, 'fonts.dir', fonts)
-    elif 'fonts.cache-1' in files:
-        read_unix_fontscache(path, 'fonts.cache-1', fonts)
 
 
 #read the fonts on unix
 def initsysfonts_unix():
-    paths = ['/usr/X11R6/lib/X11/fonts', '/usr/share/fonts']
     fonts = {}
-    for p in paths:
-        if os.path.isdir(p):
-            os.path.walk(p, _fontwalk, fonts)
+
+    # we use the fc-list from fontconfig to get a list of fonts.
+
+    try:
+        # note, we use popen3 for if fc-list isn't there to stop stderr printing.
+        flin, flout, flerr = os.popen3('fc-list : file family style')
+    except:
+        return fonts
+
+    try:
+        for line in flout:
+            try:
+                filename, family, style = line.split(':', 2)
+                if filename[-4:].lower() in ['.ttf', '.ttc']:
+                    bold = style.find('Bold') >= 0
+                    italic = style.find('Italic') >= 0
+                    oblique = style.find('Oblique') >= 0
+                    _addfont(_simplename(family), bold, italic or oblique, filename, fonts)
+            except:
+                # try the next one.
+                pass
+    except:
+        pass
+
     return fonts
+
 
 
 #create alias entries
