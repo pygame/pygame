@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -50,18 +44,18 @@
 <big><b>pygame.mouse</big></b><br><ul>
   <i>pygame module to work with the mouse</i><br>
 <ul><small><table>
-  <tr><td><a href="mouse.html#pygame.mouse.get_pressed">pygame.mouse.get_pressed</a></td><td>get the state of the mouse buttons</td></tr>
-  <tr><td><a href="mouse.html#pygame.mouse.get_pos">pygame.mouse.get_pos</a></td><td>get the mouse cursor position</td></tr>
-  <tr><td><a href="mouse.html#pygame.mouse.get_rel">pygame.mouse.get_rel</a></td><td>get the amount of mouse movement</td></tr>
-  <tr><td><a href="mouse.html#pygame.mouse.set_pos">pygame.mouse.set_pos</a></td><td>set the mouse cursor position</td></tr>
-  <tr><td><a href="mouse.html#pygame.mouse.set_visible">pygame.mouse.set_visible</a></td><td>hide or show the mouse cursor</td></tr>
-  <tr><td><a href="mouse.html#pygame.mouse.get_focused">pygame.mouse.get_focused</a></td><td>check if the display is receiving mouse input</td></tr>
-  <tr><td><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a></td><td>set the image for the system mouse cursor</td></tr>
-  <tr><td><a href="mouse.html#pygame.mouse.get_cursor">pygame.mouse.get_cursor</a></td><td>get the image for the system mouse cursor</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.get_pressed">pygame.mouse.get_pressed</a> - <font size=-1>get the state of the mouse buttons</font></td><td>get the state of the mouse buttons</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.get_pos">pygame.mouse.get_pos</a> - <font size=-1>get the mouse cursor position</font></td><td>get the mouse cursor position</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.get_rel">pygame.mouse.get_rel</a> - <font size=-1>get the amount of mouse movement</font></td><td>get the amount of mouse movement</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.set_pos">pygame.mouse.set_pos</a> - <font size=-1>set the mouse cursor position</font></td><td>set the mouse cursor position</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.set_visible">pygame.mouse.set_visible</a> - <font size=-1>hide or show the mouse cursor</font></td><td>hide or show the mouse cursor</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.get_focused">pygame.mouse.get_focused</a> - <font size=-1>check if the display is receiving mouse input</font></td><td>check if the display is receiving mouse input</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a> - <font size=-1>set the image for the system mouse cursor</font></td><td>set the image for the system mouse cursor</td></tr>
+  <tr><td><a href="mouse.html#pygame.mouse.get_cursor">pygame.mouse.get_cursor</a> - <font size=-1>get the image for the system mouse cursor</font></td><td>get the image for the system mouse cursor</td></tr>
 </table></small></ul>
 <p>The mouse functions can be used to get the current state of the mouse device. These functions can also alter the system cursor for the mouse. </p>
 <p>When the display mode is set, the event queue will start receiving mouse events. The mouse buttons generate <tt>pygame.MOUSEBUTTONDOWN</tt> and <tt>pygame.MOUSEBUTTONUP</tt> events when they are pressed and released. These events contain a button attribute representing which button was pressed. The mouse wheel will generate <tt>pygame.MOUSEBUTTONDOWN</tt> events when rolled. The button will be set to 4 when the wheel is rolled up, and to button 5 when the wheel is rolled down. Anytime the mouse is moved it generates a <tt>pygame.MOUSEMOTION</tt> event. The mouse movement is broken into small and accurate motion events. As the mouse is moving many motion events will be placed on the queue. Mouse motion events that are not properly cleaned from the event queue are the primary reason the event queue fills up. </p>
-<p>If the mouse cursor is hidden, and input is grabbed to the current display the mouse will enter a virtual input mode, where the relative movements of the mouse will never be stopped by the borders of the screen. See the functions <tt><a href="mouse.html#pygame.mouse.set_visible">pygame.mouse.set_visible</a></tt> and <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a></tt> to get this configured. </p>
+<p>If the mouse cursor is hidden, and input is grabbed to the current display the mouse will enter a virtual input mode, where the relative movements of the mouse will never be stopped by the borders of the screen. See the functions <tt><a href="mouse.html#pygame.mouse.set_visible">pygame.mouse.set_visible</a> - <font size=-1>hide or show the mouse cursor</font></tt> and <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a> - <font size=-1>control the sharing of input devices with other applications</font></tt> to get this configured. </p>
 <!--COMMENTS:pygame.mouse--> &nbsp;<br> 
 
 
@@ -134,7 +128,7 @@
 <big><b>pygame.mouse.get_cursor</big></b><br><ul>
   <i>get the image for the system mouse cursor</i><br>
   <tt>pygame.mouse.get_cursor(): return (size, hotspot, xormasks, andmasks)</tt><br>
-<p>Get the information about the mouse system cursor. The return value is the same data as the arguments passed into <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a></tt>. </p>
+<p>Get the information about the mouse system cursor. The return value is the same data as the arguments passed into <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a> - <font size=-1>set the image for the system mouse cursor</font></tt>. </p>
 <!--COMMENTS:pygame.mouse.get_cursor--> &nbsp;<br> 
 <br></ul>
 <br></ul>

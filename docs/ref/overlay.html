@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -51,8 +45,9 @@
   <i>pygame object for video overlay graphics</i><br>
   <tt>pygame.Overlay(format, (width, height)): return Overlay</tt><br>
 <ul><small><table>
-  <tr><td><a href="overlay.html#Overlay.display">Overlay.display</a></td><td>set the overlay pixel data</td></tr>
-  <tr><td><a href="overlay.html#Overlay.set_location">Overlay.set_location</a></td><td>control where the overlay is displayed</td></tr>
+  <tr><td><a href="overlay.html#Overlay.display">Overlay.display</a> - <font size=-1>set the overlay pixel data</font></td><td>set the overlay pixel data</td></tr>
+  <tr><td><a href="overlay.html#Overlay.set_location">Overlay.set_location</a> - <font size=-1>control where the overlay is displayed</font></td><td>control where the overlay is displayed</td></tr>
+  <tr><td><a href="overlay.html#Overlay.get_hardware">Overlay.get_hardware</a> - <font size=-1>test if the Overlay is hardware accelerated</font></td><td>test if the Overlay is hardware accelerated</td></tr>
 </table></small></ul>
 <p>The Overlay objects provide support for accessing hardware video overlays. Video overlays do not use standard <tt>RGB</tt> pixel formats, and can use multiple resolutions of data to create a single image. </p>
 <p>The Overlay objects represent lower level access to the display hardware. To use the object you must understand the technical details of video overlays. </p>
@@ -66,8 +61,10 @@
 <a name="Overlay.display">
 <big><b>Overlay.display</big></b><br><ul>
   <i>set the overlay pixel data</i><br>
-  <tt>Overlay.display(y, u, v): return None</tt><br>
+  <tt>Overlay.display((y, u, v)): return None</tt><br>
+  <tt>Overlay.display(): return None</tt><br>
 <p>Display the yuv data in SDL's overlay planes. The y, u, and v arguments are strings of binary data. The data must be in the correct format used to create the Overlay. </p>
+<p>If no argument is passed in, the Overlay will simply be redrawn with the current data. This can be useful when the Overlay is not really hardware accelerated. </p>
 <p>The strings are not validated, and improperly sized strings could crash the program. </p>
 <!--COMMENTS:Overlay.display--> &nbsp;<br> 
 <br></ul>
@@ -77,8 +74,17 @@
 <big><b>Overlay.set_location</big></b><br><ul>
   <i>control where the overlay is displayed</i><br>
   <tt>Overlay.set_location(rect): return None</tt><br>
-<p>Set the location for the overlay. The overlay will always be shown relative to the main display Surface. This does not actually redraw the overlay, it will be updated on the next call to <tt><a href="overlay.html#Overlay.display">Overlay.display</a></tt>. </p>
+<p>Set the location for the overlay. The overlay will always be shown relative to the main display Surface. This does not actually redraw the overlay, it will be updated on the next call to <tt><a href="overlay.html#Overlay.display">Overlay.display</a> - <font size=-1>set the overlay pixel data</font></tt>. </p>
 <!--COMMENTS:Overlay.set_location--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Overlay.get_hardware">
+<big><b>Overlay.get_hardware</big></b><br><ul>
+  <i>test if the Overlay is hardware accelerated</i><br>
+  <tt>Overlay.get_hardware(rect): return int</tt><br>
+<p>Returns a True value when the Overlay is hardware accelerated. If the platform does not support acceleration, software rendering is used. </p>
+<!--COMMENTS:Overlay.get_hardware--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -53,27 +47,27 @@
   <tt>pygame.Rect((left, top), (width, height)): return Rect</tt><br>
   <tt>pygame.Rect(object): return Rect</tt><br>
 <ul><small><table>
-  <tr><td><a href="rect.html#Rect.move">Rect.move</a></td><td>moves the rectangle</td></tr>
-  <tr><td><a href="rect.html#Rect.move_ip">Rect.move_ip</a></td><td>moves the rectangle, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.inflate">Rect.inflate</a></td><td>grow or shrink the rectangle size</td></tr>
-  <tr><td><a href="rect.html#Rect.inflate_ip">Rect.inflate_ip</a></td><td>grow or shrink the rectangle size, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.clamp">Rect.clamp</a></td><td>moves the rectangle inside another</td></tr>
-  <tr><td><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a></td><td>moves the rectangle inside another, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.clip">Rect.clip</a></td><td>crops a rectangle inside another</td></tr>
-  <tr><td><a href="rect.html#Rect.clip_ip">Rect.clip_ip</a></td><td>crops a rectangle inside another, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.union">Rect.union</a></td><td>joins two rectangles into one</td></tr>
-  <tr><td><a href="rect.html#Rect.union_ip">Rect.union_ip</a></td><td>joins two rectangles into one, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.unionall">Rect.unionall</a></td><td>the union of many rectangles</td></tr>
-  <tr><td><a href="rect.html#Rect.unionall_ip">Rect.unionall_ip</a></td><td>the union of many rectangles, in place</td></tr>
-  <tr><td><a href="rect.html#Rect.fit">Rect.fit</a></td><td>resize and move a rectangle with aspect ratio</td></tr>
-  <tr><td><a href="rect.html#Rect.normalize">Rect.normalize</a></td><td>correct negative sizes</td></tr>
-  <tr><td><a href="rect.html#Rect.contains">Rect.contains</a></td><td>test if one rectangle is inside another</td></tr>
-  <tr><td><a href="rect.html#Rect.collidepoint">Rect.collidepoint</a></td><td>test if a point is inside a rectangle</td></tr>
-  <tr><td><a href="rect.html#Rect.colliderect">Rect.colliderect</a></td><td>test if two rectangles overlap</td></tr>
-  <tr><td><a href="rect.html#Rect.collidelist">Rect.collidelist</a></td><td>test if one rectangle in a list intersects</td></tr>
-  <tr><td><a href="rect.html#Rect.collidelistall">Rect.collidelistall</a></td><td>test if all rectangles in a list intersect</td></tr>
-  <tr><td><a href="rect.html#Rect.collidedict">Rect.collidedict</a></td><td>test if one rectangle in a dictionary intersects</td></tr>
-  <tr><td><a href="rect.html#Rect.collidedictall">Rect.collidedictall</a></td><td>test if all rectangles in a dictionary intersect</td></tr>
+  <tr><td><a href="rect.html#Rect.move">Rect.move</a> - <font size=-1>moves the rectangle</font></td><td>moves the rectangle</td></tr>
+  <tr><td><a href="rect.html#Rect.move_ip">Rect.move_ip</a> - <font size=-1>moves the rectangle, in place</font></td><td>moves the rectangle, in place</td></tr>
+  <tr><td><a href="rect.html#Rect.inflate">Rect.inflate</a> - <font size=-1>grow or shrink the rectangle size</font></td><td>grow or shrink the rectangle size</td></tr>
+  <tr><td><a href="rect.html#Rect.inflate_ip">Rect.inflate_ip</a> - <font size=-1>grow or shrink the rectangle size, in place</font></td><td>grow or shrink the rectangle size, in place</td></tr>
+  <tr><td><a href="rect.html#Rect.clamp">Rect.clamp</a> - <font size=-1>moves the rectangle inside another</font></td><td>moves the rectangle inside another</td></tr>
+  <tr><td><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a> - <font size=-1>moves the rectangle inside another, in place</font></td><td>moves the rectangle inside another, in place</td></tr>
+  <tr><td><a href="rect.html#Rect.clip">Rect.clip</a> - <font size=-1>crops a rectangle inside another</font></td><td>crops a rectangle inside another</td></tr>
+  <tr><td><a href="rect.html#Rect.clip_ip">Rect.clip_ip</a> - <font size=-1>crops a rectangle inside another, in place</font></td><td>crops a rectangle inside another, in place</td></tr>
+  <tr><td><a href="rect.html#Rect.union">Rect.union</a> - <font size=-1>joins two rectangles into one</font></td><td>joins two rectangles into one</td></tr>
+  <tr><td><a href="rect.html#Rect.union_ip">Rect.union_ip</a> - <font size=-1>joins two rectangles into one, in place</font></td><td>joins two rectangles into one, in place</td></tr>
+  <tr><td><a href="rect.html#Rect.unionall">Rect.unionall</a> - <font size=-1>the union of many rectangles</font></td><td>the union of many rectangles</td></tr>
+  <tr><td><a href="rect.html#Rect.unionall_ip">Rect.unionall_ip</a> - <font size=-1>the union of many rectangles, in place</font></td><td>the union of many rectangles, in place</td></tr>
+  <tr><td><a href="rect.html#Rect.fit">Rect.fit</a> - <font size=-1>resize and move a rectangle with aspect ratio</font></td><td>resize and move a rectangle with aspect ratio</td></tr>
+  <tr><td><a href="rect.html#Rect.normalize">Rect.normalize</a> - <font size=-1>correct negative sizes</font></td><td>correct negative sizes</td></tr>
+  <tr><td><a href="rect.html#Rect.contains">Rect.contains</a> - <font size=-1>test if one rectangle is inside another</font></td><td>test if one rectangle is inside another</td></tr>
+  <tr><td><a href="rect.html#Rect.collidepoint">Rect.collidepoint</a> - <font size=-1>test if a point is inside a rectangle</font></td><td>test if a point is inside a rectangle</td></tr>
+  <tr><td><a href="rect.html#Rect.colliderect">Rect.colliderect</a> - <font size=-1>test if two rectangles overlap</font></td><td>test if two rectangles overlap</td></tr>
+  <tr><td><a href="rect.html#Rect.collidelist">Rect.collidelist</a> - <font size=-1>test if one rectangle in a list intersects</font></td><td>test if one rectangle in a list intersects</td></tr>
+  <tr><td><a href="rect.html#Rect.collidelistall">Rect.collidelistall</a> - <font size=-1>test if all rectangles in a list intersect</font></td><td>test if all rectangles in a list intersect</td></tr>
+  <tr><td><a href="rect.html#Rect.collidedict">Rect.collidedict</a> - <font size=-1>test if one rectangle in a dictionary intersects</font></td><td>test if one rectangle in a dictionary intersects</td></tr>
+  <tr><td><a href="rect.html#Rect.collidedictall">Rect.collidedictall</a> - <font size=-1>test if all rectangles in a dictionary intersect</font></td><td>test if all rectangles in a dictionary intersect</td></tr>
 </table></small></ul>
 <p>Pygame uses Rect objects to store and manipulate rectangular areas. <tt>A</tt> Rect can be created from a combination of left, top, width, and height values. Rects can also be created from python objects that are already a Rect or have an attribute named "rect". </p>
 <p>Any Pygame function that requires a Rect argument also accepts any of these values to construct a Rect. This makes it easier to create Rects on the fly as arguments to functions. </p>
@@ -108,7 +102,7 @@
 <big><b>Rect.move_ip</big></b><br><ul>
   <i>moves the rectangle, in place</i><br>
   <tt>Rect.move_ip(x, y): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.move">Rect.move</a></tt> method, but operates in place. </p>
+<p>Same as the <tt><a href="rect.html#Rect.move">Rect.move</a> - <font size=-1>moves the rectangle</font></tt> method, but operates in place. </p>
 <!--COMMENTS:Rect.move_ip--> &nbsp;<br> 
 <br></ul>
 
@@ -126,7 +120,7 @@
 <big><b>Rect.inflate_ip</big></b><br><ul>
   <i>grow or shrink the rectangle size, in place</i><br>
   <tt>Rect.inflate_ip(x, y): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.inflate">Rect.inflate</a></tt> method, but operates in place. </p>
+<p>Same as the <tt><a href="rect.html#Rect.inflate">Rect.inflate</a> - <font size=-1>grow or shrink the rectangle size</font></tt> method, but operates in place. </p>
 <!--COMMENTS:Rect.inflate_ip--> &nbsp;<br> 
 <br></ul>
 
@@ -144,7 +138,7 @@
 <big><b>Rect.clamp_ip</big></b><br><ul>
   <i>moves the rectangle inside another, in place</i><br>
   <tt>Rect.clamp_ip(Rect): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.clamp">Rect.clamp</a></tt> method, but operates in place. </p>
+<p>Same as the <tt><a href="rect.html#Rect.clamp">Rect.clamp</a> - <font size=-1>moves the rectangle inside another</font></tt> method, but operates in place. </p>
 <!--COMMENTS:Rect.clamp_ip--> &nbsp;<br> 
 <br></ul>
 
@@ -162,7 +156,7 @@
 <big><b>Rect.clip_ip</big></b><br><ul>
   <i>crops a rectangle inside another, in place</i><br>
   <tt>Rect.clip_ip(Rect): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.clip">Rect.clip</a></tt> method, but operates in place. </p>
+<p>Same as the <tt><a href="rect.html#Rect.clip">Rect.clip</a> - <font size=-1>crops a rectangle inside another</font></tt> method, but operates in place. </p>
 <!--COMMENTS:Rect.clip_ip--> &nbsp;<br> 
 <br></ul>
 
@@ -180,7 +174,7 @@
 <big><b>Rect.union_ip</big></b><br><ul>
   <i>joins two rectangles into one, in place</i><br>
   <tt>Rect.union_ip(Rect): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.union">Rect.union</a></tt> method, but operates in place. </p>
+<p>Same as the <tt><a href="rect.html#Rect.union">Rect.union</a> - <font size=-1>joins two rectangles into one</font></tt> method, but operates in place. </p>
 <!--COMMENTS:Rect.union_ip--> &nbsp;<br> 
 <br></ul>
 
@@ -198,7 +192,7 @@
 <big><b>Rect.unionall_ip</big></b><br><ul>
   <i>the union of many rectangles, in place</i><br>
   <tt>Rect.unionall_ip(Rect_sequence): return None</tt><br>
-<p>The same as the <tt><a href="rect.html#Rect.unionall">Rect.unionall</a></tt> method, but operates in place. </p>
+<p>The same as the <tt><a href="rect.html#Rect.unionall">Rect.unionall</a> - <font size=-1>the union of many rectangles</font></tt> method, but operates in place. </p>
 <!--COMMENTS:Rect.unionall_ip--> &nbsp;<br> 
 <br></ul>
 

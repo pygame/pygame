@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+December 19, 2005
+    Updates for Overlay. Detect hardware accel and allow "redisplay".
+
 November 7, 2005
     Fix for sprite.AbstractGroup.has inf recursion bug. thanks Randy Kaelber.
     Began work on a sprite unittest.

@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -50,18 +44,18 @@
 <big><b>pygame.sprite</big></b><br><ul>
   <i>pygame module with basic game object classes</i><br>
 <ul><small><table>
-  <tr><td><a href="sprite.html#pygame.sprite.Sprite">pygame.sprite.Sprite</a></td><td>simple base class for visible game objects</td></tr>
-  <tr><td><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a></td><td>container class for many Sprites</td></tr>
-  <tr><td><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a></td><td>Group class that tracks dirty updates</td></tr>
-  <tr><td><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a></td><td>RenderUpdates class that draws Sprites in order of addition</td></tr>
-  <tr><td><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a></td><td>Group container that holds a single Sprite</td></tr>
-  <tr><td><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a></td><td>find Sprites in a Group that intersect another Sprite</td></tr>
-  <tr><td><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a></td><td>find all Sprites that collide between two Groups</td></tr>
-  <tr><td><a href="sprite.html#pygame.sprite.spritecollideany">pygame.sprite.spritecollideany</a></td><td>simple test if a Sprite intersects anything in a Group</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.Sprite">pygame.sprite.Sprite</a> - <font size=-1>simple base class for visible game objects</font></td><td>simple base class for visible game objects</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a> - <font size=-1>container class for many Sprites</font></td><td>container class for many Sprites</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></td><td>Group class that tracks dirty updates</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a> - <font size=-1>RenderUpdates class that draws Sprites in order of addition</font></td><td>RenderUpdates class that draws Sprites in order of addition</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a> - <font size=-1>Group container that holds a single Sprite</font></td><td>Group container that holds a single Sprite</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></td><td>find Sprites in a Group that intersect another Sprite</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a> - <font size=-1>find all Sprites that collide between two Groups</font></td><td>find all Sprites that collide between two Groups</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.spritecollideany">pygame.sprite.spritecollideany</a> - <font size=-1>simple test if a Sprite intersects anything in a Group</font></td><td>simple test if a Sprite intersects anything in a Group</td></tr>
 </table></small></ul>
 <p>This module contains several simple classes to be used within games. There is the main Sprite class and several Group classes that contain Sprites. The use of these classes is entirely optional when using Pygame. The classes are fairly lightweight and only provide a starting place for the code that is common to most games. </p>
 <p>The Sprite class is intended to be used as a base class for the different types of objects in the game. There is also a base Group class that simply stores sprites. <tt>A</tt> game could create new types of Group classes that operate on specially customized Sprite instances they contain. </p>
-<p>The basic Sprite class can draw the Sprites it contains to a Surface. The <tt><a href="sprite.html#Group.draw">Group.draw</a></tt> method requires that each Sprite have a <tt>Surface.image</tt> attribute and a <tt>Surface.rect</tt>. The <tt><a href="sprite.html#Group.clear">Group.clear</a></tt> method requires these same attributes, and can be used to erase all the Sprites with background. There are also more advanced Groups: <tt><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a></tt> and <tt><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a></tt>. </p>
+<p>The basic Sprite class can draw the Sprites it contains to a Surface. The <tt><a href="sprite.html#Group.draw">Group.draw</a> - <font size=-1>blit the Sprite images</font></tt> method requires that each Sprite have a <tt>Surface.image</tt> attribute and a <tt>Surface.rect</tt>. The <tt><a href="sprite.html#Group.clear">Group.clear</a> - <font size=-1>draw a background over the Sprites</font></tt> method requires these same attributes, and can be used to erase all the Sprites with background. There are also more advanced Groups: <tt><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></tt> and <tt><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a> - <font size=-1>RenderUpdates class that draws Sprites in order of addition</font></tt>. </p>
 <p>Lastly, this module contains several collision functions. These help find sprites inside multiple groups that have intersecting bounding rectangles. To find the collisions, the Sprites are required to have a <tt>Surface.rect</tt> attribute assigned. </p>
 <p>The groups are designed for high efficiency in removing and adding Sprites to them. They also allow cheap testing to see if a Sprite already exists in a Group. <tt>A</tt> given Sprite can exist in any number of groups. <tt>A</tt> game could use some groups to control object rendering, and a completely separate set of groups to control interaction or player movement. Instead of adding type attributes or booleans to a derived Sprite class, consider keeping the Sprites inside organized Groups. This will allow for easier lookup later in the game. </p>
 <p>Sprites and Groups manage their relationships with the add() and remove() methods. These methods can accept a single or multiple targets for membership. The default initializers for these classes also takes a single or list of targets for initial membership. It is safe to repeatedly add and remove the same Sprite from a Group. </p>
@@ -74,14 +68,14 @@
   <i>simple base class for visible game objects</i><br>
   <tt>pygame.sprite.Sprite(*groups): return Sprite</tt><br>
 <ul><small><table>
-  <tr><td><a href="sprite.html#Sprite.update">Sprite.update</a></td><td>method to control sprite behavior</td></tr>
-  <tr><td><a href="sprite.html#Sprite.add">Sprite.add</a></td><td>add the sprite to groups</td></tr>
-  <tr><td><a href="sprite.html#Sprite.remove">Sprite.remove</a></td><td>remove the sprite from groups</td></tr>
-  <tr><td><a href="sprite.html#Sprite.kill">Sprite.kill</a></td><td>remove the Sprite from all Groups</td></tr>
-  <tr><td><a href="sprite.html#Sprite.alive">Sprite.alive</a></td><td>does the sprite belong to any groups</td></tr>
-  <tr><td><a href="sprite.html#Sprite.groups">Sprite.groups</a></td><td>list of Groups that contain this Sprite</td></tr>
+  <tr><td><a href="sprite.html#Sprite.update">Sprite.update</a> - <font size=-1>method to control sprite behavior</font></td><td>method to control sprite behavior</td></tr>
+  <tr><td><a href="sprite.html#Sprite.add">Sprite.add</a> - <font size=-1>add the sprite to groups</font></td><td>add the sprite to groups</td></tr>
+  <tr><td><a href="sprite.html#Sprite.remove">Sprite.remove</a> - <font size=-1>remove the sprite from groups</font></td><td>remove the sprite from groups</td></tr>
+  <tr><td><a href="sprite.html#Sprite.kill">Sprite.kill</a> - <font size=-1>remove the Sprite from all Groups</font></td><td>remove the Sprite from all Groups</td></tr>
+  <tr><td><a href="sprite.html#Sprite.alive">Sprite.alive</a> - <font size=-1>does the sprite belong to any groups</font></td><td>does the sprite belong to any groups</td></tr>
+  <tr><td><a href="sprite.html#Sprite.groups">Sprite.groups</a> - <font size=-1>list of Groups that contain this Sprite</font></td><td>list of Groups that contain this Sprite</td></tr>
 </table></small></ul>
-<p>The base class for visible game objects. Derived classes will want to override the <tt><a href="sprite.html#Sprite.update">Sprite.update</a></tt> and assign a <tt>Sprite.image</tt> and <tt>Sprite.rect</tt> attributes. The initializer can accept any number of Group instances to be added to. </p>
+<p>The base class for visible game objects. Derived classes will want to override the <tt><a href="sprite.html#Sprite.update">Sprite.update</a> - <font size=-1>method to control sprite behavior</font></tt> and assign a <tt>Sprite.image</tt> and <tt>Sprite.rect</tt> attributes. The initializer can accept any number of Group instances to be added to. </p>
 <p>When subclassing the Sprite, be sure to call the base initializer before adding the Sprite to Groups. </p>
 <!--COMMENTS:pygame.sprite.Sprite--> &nbsp;<br> 
 
@@ -90,7 +84,7 @@
 <big><b>Sprite.update</big></b><br><ul>
   <i>method to control sprite behavior</i><br>
   <tt>Sprite.update(*args):</tt><br>
-<p>The default implementation of this method does nothing; it's just a convenient "hook" that you can override. This method is called by <tt><a href="sprite.html#Group.update">Group.update</a></tt> with whatever arguments you give it. </p>
+<p>The default implementation of this method does nothing; it's just a convenient "hook" that you can override. This method is called by <tt><a href="sprite.html#Group.update">Group.update</a> - <font size=-1>call the update method on contained Sprites</font></tt> with whatever arguments you give it. </p>
 <p>There is no need to use this method if not using the convenience method by the same name in the Group class. </p>
 <!--COMMENTS:Sprite.update--> &nbsp;<br> 
 <br></ul>
@@ -147,15 +141,15 @@
   <i>container class for many Sprites</i><br>
   <tt>pygame.sprite.Group(*sprites): return Group</tt><br>
 <ul><small><table>
-  <tr><td><a href="sprite.html#Group.sprites">Group.sprites</a></td><td>list of the Sprites this Group contains</td></tr>
-  <tr><td><a href="sprite.html#Group.copy">Group.copy</a></td><td>duplicate the Group</td></tr>
-  <tr><td><a href="sprite.html#Group.add">Group.add</a></td><td>add Sprites to this Group</td></tr>
-  <tr><td><a href="sprite.html#Group.remove">Group.remove</a></td><td>remove Sprites from the Group</td></tr>
-  <tr><td><a href="sprite.html#Group.has">Group.has</a></td><td>test if a Group contains Sprites</td></tr>
-  <tr><td><a href="sprite.html#Group.update">Group.update</a></td><td>call the update method on contained Sprites</td></tr>
-  <tr><td><a href="sprite.html#Group.draw">Group.draw</a></td><td>blit the Sprite images</td></tr>
-  <tr><td><a href="sprite.html#Group.clear">Group.clear</a></td><td>draw a background over the Sprites</td></tr>
-  <tr><td><a href="sprite.html#Group.empty">Group.empty</a></td><td>remove all Sprites</td></tr>
+  <tr><td><a href="sprite.html#Group.sprites">Group.sprites</a> - <font size=-1>list of the Sprites this Group contains</font></td><td>list of the Sprites this Group contains</td></tr>
+  <tr><td><a href="sprite.html#Group.copy">Group.copy</a> - <font size=-1>duplicate the Group</font></td><td>duplicate the Group</td></tr>
+  <tr><td><a href="sprite.html#Group.add">Group.add</a> - <font size=-1>add Sprites to this Group</font></td><td>add Sprites to this Group</td></tr>
+  <tr><td><a href="sprite.html#Group.remove">Group.remove</a> - <font size=-1>remove Sprites from the Group</font></td><td>remove Sprites from the Group</td></tr>
+  <tr><td><a href="sprite.html#Group.has">Group.has</a> - <font size=-1>test if a Group contains Sprites</font></td><td>test if a Group contains Sprites</td></tr>
+  <tr><td><a href="sprite.html#Group.update">Group.update</a> - <font size=-1>call the update method on contained Sprites</font></td><td>call the update method on contained Sprites</td></tr>
+  <tr><td><a href="sprite.html#Group.draw">Group.draw</a> - <font size=-1>blit the Sprite images</font></td><td>blit the Sprite images</td></tr>
+  <tr><td><a href="sprite.html#Group.clear">Group.clear</a> - <font size=-1>draw a background over the Sprites</font></td><td>draw a background over the Sprites</td></tr>
+  <tr><td><a href="sprite.html#Group.empty">Group.empty</a> - <font size=-1>remove all Sprites</font></td><td>remove all Sprites</td></tr>
 </table></small></ul>
 <p><tt>A</tt> simple container for Sprite objects. This class can be inherited to create containers with more specific behaviors. The constructor takes any number of Sprite arguments to add to the Group. The group supports the following standard Python operations: </p>
 <pre>    in      test if a Sprite is contained
@@ -218,8 +212,8 @@
 <big><b>Group.update</big></b><br><ul>
   <i>call the update method on contained Sprites</i><br>
   <tt>Group.update(*args): return None</tt><br>
-<p>Calls the update() method on all Sprites in the Group. The base Sprite class has an update method that takes any number of arguments and does nothing. The arguments passed to <tt><a href="sprite.html#Group.update">Group.update</a></tt> will be passed to each Sprite. </p>
-<p>There is no way to get the return value from the <tt><a href="sprite.html#Sprite.update">Sprite.update</a></tt> methods. </p>
+<p>Calls the update() method on all Sprites in the Group. The base Sprite class has an update method that takes any number of arguments and does nothing. The arguments passed to <tt><a href="sprite.html#Group.update">Group.update</a> - <font size=-1>call the update method on contained Sprites</font></tt> will be passed to each Sprite. </p>
+<p>There is no way to get the return value from the <tt><a href="sprite.html#Sprite.update">Sprite.update</a> - <font size=-1>method to control sprite behavior</font></tt> methods. </p>
 <!--COMMENTS:Group.update--> &nbsp;<br> 
 <br></ul>
 
@@ -238,7 +232,7 @@
 <big><b>Group.clear</big></b><br><ul>
   <i>draw a background over the Sprites</i><br>
   <tt>Group.clear(Surface_dest, background): return None</tt><br>
-<p>Erases the Sprites used in the last <tt><a href="sprite.html#Group.draw">Group.draw</a></tt> call. The destination Surface is cleared by filling the drawn Sprite positions with the background. </p>
+<p>Erases the Sprites used in the last <tt><a href="sprite.html#Group.draw">Group.draw</a> - <font size=-1>blit the Sprite images</font></tt> call. The destination Surface is cleared by filling the drawn Sprite positions with the background. </p>
 <p>The background is usually a Surface image the same dimensions as the destination Surface. However, it can also be a callback function that takes two arguments; the destination Surface and an area to clear. The background callback function will be called several times each clear. </p>
 <p>Here is an example callback that will clear the Sprites with solid red: </p>
 <pre>    def clear_callback(surf, rect):
@@ -264,9 +258,9 @@
   <i>Group class that tracks dirty updates</i><br>
   <tt>pygame.sprite.RenderUpdates(*sprites): return RenderUpdates</tt><br>
 <ul><small><table>
-  <tr><td><a href="sprite.html#RenderUpdates.draw">RenderUpdates.draw</a></td><td>blit the Sprite images and track changed areas</td></tr>
+  <tr><td><a href="sprite.html#RenderUpdates.draw">RenderUpdates.draw</a> - <font size=-1>blit the Sprite images and track changed areas</font></td><td>blit the Sprite images and track changed areas</td></tr>
 </table></small></ul>
-<p>This class is derived from <tt><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a></tt>. It has an extended draw() method that tracks the changed areas of the screen. </p>
+<p>This class is derived from <tt><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a> - <font size=-1>container class for many Sprites</font></tt>. It has an extended draw() method that tracks the changed areas of the screen. </p>
 <!--COMMENTS:pygame.sprite.RenderUpdates--> &nbsp;<br> 
 
 
@@ -274,8 +268,8 @@
 <big><b>RenderUpdates.draw</big></b><br><ul>
   <i>blit the Sprite images and track changed areas</i><br>
   <tt>RenderUpdates.draw(surface): return Rect_list</tt><br>
-<p>Draws all the Sprites to the surface, the same as <tt><a href="sprite.html#Group.draw">Group.draw</a></tt>. This method also returns a list of Rectangular areas on the screen that have been changed. The returned changes include areas of the screen that have been affected by previous <tt><a href="sprite.html#Group.clear">Group.clear</a></tt> calls. </p>
-<p>The returned Rect list should be passed to <tt><a href="display.html#pygame.display.update">pygame.display.update</a></tt>. This will help performance on software driven display modes. This type of updating is usually only helpful on destinations with non-animating backgrounds. </p>
+<p>Draws all the Sprites to the surface, the same as <tt><a href="sprite.html#Group.draw">Group.draw</a> - <font size=-1>blit the Sprite images</font></tt>. This method also returns a list of Rectangular areas on the screen that have been changed. The returned changes include areas of the screen that have been affected by previous <tt><a href="sprite.html#Group.clear">Group.clear</a> - <font size=-1>draw a background over the Sprites</font></tt> calls. </p>
+<p>The returned Rect list should be passed to <tt><a href="display.html#pygame.display.update">pygame.display.update</a> - <font size=-1>update portions of the screen for software displays</font></tt>. This will help performance on software driven display modes. This type of updating is usually only helpful on destinations with non-animating backgrounds. </p>
 <!--COMMENTS:RenderUpdates.draw--> &nbsp;<br> 
 <br></ul>
 <br></ul>
@@ -285,7 +279,7 @@
 <big><b>pygame.sprite.OrderedUpdates</big></b><br><ul>
   <i>RenderUpdates class that draws Sprites in order of addition</i><br>
   <tt>pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates</tt><br>
-<p>This class derives from <tt><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a></tt>. It maintains the order in which the Sprites were added to the Group for rendering. This makes adding and removing Sprites from the Group a little slower than regular Groups. </p>
+<p>This class derives from <tt><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></tt>. It maintains the order in which the Sprites were added to the Group for rendering. This makes adding and removing Sprites from the Group a little slower than regular Groups. </p>
 <!--COMMENTS:pygame.sprite.OrderedUpdates--> &nbsp;<br> 
 <br></ul>
 
@@ -326,7 +320,7 @@
   <i>simple test if a Sprite intersects anything in a Group</i><br>
   <tt>pygame.sprite.spritecollideany(sprite, group): return bool</tt><br>
 <p>Test if the given Sprite intersects with any Sprites in a Group. Intersection is determined by comparing of the <tt>Sprite.rect</tt> attribute of each Sprite. </p>
-<p>This collision test can be faster than <tt><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a></tt> since it has less work to do. </p>
+<p>This collision test can be faster than <tt><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></tt> since it has less work to do. </p>
 <!--COMMENTS:pygame.sprite.spritecollideany--> &nbsp;<br> 
 <br></ul>
 <br></ul>

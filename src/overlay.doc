@@ -27,11 +27,16 @@ display contents.
 
 display
 set the overlay pixel data
-Overlay.display(y, u, v): return None
+Overlay.display((y, u, v)): return None
+Overlay.display(): return None
 
 Display the yuv data in SDL's overlay planes. The y, u, and v
 arguments are strings of binary data. The data must be in the correct
 format used to create the Overlay.
+
+If no argument is passed in, the Overlay will simply be redrawn with the
+current data. This can be useful when the Overlay is not really hardware
+accelerated.
 
 The strings are not validated, and improperly sized strings could crash the
 program.
@@ -46,5 +51,15 @@ Overlay.set_location(rect): return None
 Set the location for the overlay. The overlay will always be shown relative
 to the main display Surface. This does not actually redraw the overlay, it
 will be updated on the next call to Overlay.display().
+<END>
+
+
+
+get_hardware
+test if the Overlay is hardware accelerated
+Overlay.get_hardware(rect): return int
+
+Returns a True value when the Overlay is hardware accelerated. If the platform
+does not support acceleration, software rendering is used.
 <END>
 <END>

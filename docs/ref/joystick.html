@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -50,11 +44,11 @@
 <big><b>pygame.joystick</big></b><br><ul>
   <i>pygame module for interacting with joystick devices</i><br>
 <ul><small><table>
-  <tr><td><a href="joystick.html#pygame.joystick.init">pygame.joystick.init</a></td><td>initialize the joystick module</td></tr>
-  <tr><td><a href="joystick.html#pygame.joystick.quit">pygame.joystick.quit</a></td><td>uninitialize the joystick module</td></tr>
-  <tr><td><a href="joystick.html#pygame.joystick.get_init">pygame.joystick.get_init</a></td><td>true if the joystick module is initialized</td></tr>
-  <tr><td><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a></td><td>number of joysticks on the system</td></tr>
-  <tr><td><a href="joystick.html#pygame.joystick.Joystick">pygame.joystick.Joystick</a></td><td>create a new Joystick object</td></tr>
+  <tr><td><a href="joystick.html#pygame.joystick.init">pygame.joystick.init</a> - <font size=-1>initialize the joystick module</font></td><td>initialize the joystick module</td></tr>
+  <tr><td><a href="joystick.html#pygame.joystick.quit">pygame.joystick.quit</a> - <font size=-1>uninitialize the joystick module</font></td><td>uninitialize the joystick module</td></tr>
+  <tr><td><a href="joystick.html#pygame.joystick.get_init">pygame.joystick.get_init</a> - <font size=-1>true if the joystick module is initialized</font></td><td>true if the joystick module is initialized</td></tr>
+  <tr><td><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a> - <font size=-1>number of joysticks on the system</font></td><td>number of joysticks on the system</td></tr>
+  <tr><td><a href="joystick.html#pygame.joystick.Joystick">pygame.joystick.Joystick</a> - <font size=-1>create a new Joystick object</font></td><td>create a new Joystick object</td></tr>
 </table></small></ul>
 <p>The joystick module manages the joystick devices on a computer. This module needs to be initialized before it can do anything. Each Joystick object you create represents a joystick device and must also be initialized individually before it can do most things. </p>
 <!--COMMENTS:pygame.joystick--> &nbsp;<br> 
@@ -64,7 +58,7 @@
 <big><b>pygame.joystick.init</big></b><br><ul>
   <i>initialize the joystick module</i><br>
   <tt>pygame.joystick.init(): return None</tt><br>
-<p>Initialize the joystick module. This will scan the system for all joystick devices. The module must be initialized before any other functions will work. This automatically happens when you call <tt><a href="pygame.html#pygame.init">pygame.init</a></tt>. </p>
+<p>Initialize the joystick module. This will scan the system for all joystick devices. The module must be initialized before any other functions will work. This automatically happens when you call <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt>. </p>
 <p>It is safe to call this function more than once. </p>
 <!--COMMENTS:pygame.joystick.init--> &nbsp;<br> 
 <br></ul>
@@ -103,24 +97,24 @@
   <i>create a new Joystick object</i><br>
   <tt>pygame.joystick.Joystick(id): return Joystick</tt><br>
 <ul><small><table>
-  <tr><td><a href="joystick.html#Joystick.init">Joystick.init</a></td><td>initialize the Joystick</td></tr>
-  <tr><td><a href="joystick.html#Joystick.quit">Joystick.quit</a></td><td>uninitialize the Joystick</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_init">Joystick.get_init</a></td><td>check if the Joystick is initialized</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_id">Joystick.get_id</a></td><td>get the Joystick id</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_name">Joystick.get_name</a></td><td>get the Joystick system name</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_numaxes">Joystick.get_numaxes</a></td><td>get the number of axes on a Joystick</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_axis">Joystick.get_axis</a></td><td>get the current position of an axis</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_numballs">Joystick.get_numballs</a></td><td>get the number of trackballs on a Joystick</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_ball">Joystick.get_ball</a></td><td>get the relative position of a trackball</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_numbuttons">Joystick.get_numbuttons</a></td><td>get the number of buttons on a Joystick</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_button">Joystick.get_button</a></td><td>get the current button state</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_numhats">Joystick.get_numhats</a></td><td>get the number of hat controls on a Joystick</td></tr>
-  <tr><td><a href="joystick.html#Joystick.get_hat">Joystick.get_hat</a></td><td>get the position of a joystick hat</td></tr>
+  <tr><td><a href="joystick.html#Joystick.init">Joystick.init</a> - <font size=-1>initialize the Joystick</font></td><td>initialize the Joystick</td></tr>
+  <tr><td><a href="joystick.html#Joystick.quit">Joystick.quit</a> - <font size=-1>uninitialize the Joystick</font></td><td>uninitialize the Joystick</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_init">Joystick.get_init</a> - <font size=-1>check if the Joystick is initialized</font></td><td>check if the Joystick is initialized</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_id">Joystick.get_id</a> - <font size=-1>get the Joystick id</font></td><td>get the Joystick id</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_name">Joystick.get_name</a> - <font size=-1>get the Joystick system name</font></td><td>get the Joystick system name</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_numaxes">Joystick.get_numaxes</a> - <font size=-1>get the number of axes on a Joystick</font></td><td>get the number of axes on a Joystick</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_axis">Joystick.get_axis</a> - <font size=-1>get the current position of an axis</font></td><td>get the current position of an axis</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_numballs">Joystick.get_numballs</a> - <font size=-1>get the number of trackballs on a Joystick</font></td><td>get the number of trackballs on a Joystick</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_ball">Joystick.get_ball</a> - <font size=-1>get the relative position of a trackball</font></td><td>get the relative position of a trackball</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_numbuttons">Joystick.get_numbuttons</a> - <font size=-1>get the number of buttons on a Joystick</font></td><td>get the number of buttons on a Joystick</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_button">Joystick.get_button</a> - <font size=-1>get the current button state</font></td><td>get the current button state</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_numhats">Joystick.get_numhats</a> - <font size=-1>get the number of hat controls on a Joystick</font></td><td>get the number of hat controls on a Joystick</td></tr>
+  <tr><td><a href="joystick.html#Joystick.get_hat">Joystick.get_hat</a> - <font size=-1>get the position of a joystick hat</font></td><td>get the position of a joystick hat</td></tr>
 </table></small></ul>
-<p>Create a new joystick to access the given joystick. The id argument must be a value from 0 to less than <tt><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a></tt>. </p>
+<p>Create a new joystick to access the given joystick. The id argument must be a value from 0 to less than <tt><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a> - <font size=-1>number of joysticks on the system</font></tt>. </p>
 <p>To access most of the Joystick methods, you'll need to init() the Joystick. This is separate from making sure the joystick module is initialized. When multiple Joysticks objects are created for the same joystick device, the state and values for those Joystick objects will be shared. </p>
 <p>The Joystick object allows you to get information about the types of controls on a joystick device. Once the device is initialized the Pygame event queue will start receiving events about its input. </p>
-<p>You can call the <tt><a href="joystick.html#Joystick.get_name">Joystick.get_name</a></tt> and <tt><a href="joystick.html#Joystick.get_id">Joystick.get_id</a></tt> functions without initializing the Joystick object. </p>
+<p>You can call the <tt><a href="joystick.html#Joystick.get_name">Joystick.get_name</a> - <font size=-1>get the Joystick system name</font></tt> and <tt><a href="joystick.html#Joystick.get_id">Joystick.get_id</a> - <font size=-1>get the Joystick id</font></tt> functions without initializing the Joystick object. </p>
 <!--COMMENTS:pygame.joystick.Joystick--> &nbsp;<br> 
 
 
