@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -50,14 +44,14 @@
 <big><b>pygame.cursors</big></b><br><ul>
   <i>pygame module for cursor resources</i><br>
 <ul><small><table>
-  <tr><td><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a></td><td>create binary cursor data from simple strings</td></tr>
-  <tr><td><a href="cursors.html#pygame.cursors.load_xbm">pygame.cursors.load_xbm</a></td><td>load cursor data from an xbm file</td></tr>
+  <tr><td><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a> - <font size=-1>create binary cursor data from simple strings</font></td><td>create binary cursor data from simple strings</td></tr>
+  <tr><td><a href="cursors.html#pygame.cursors.load_xbm">pygame.cursors.load_xbm</a> - <font size=-1>load cursor data from an xbm file</font></td><td>load cursor data from an xbm file</td></tr>
 </table></small></ul>
 <p>Pygame offers control over the system hardware cursor. Pygame only supports black and white cursors for the system. You control the cursor with functions inside <tt>pygame.mouse</tt>. </p>
 <p>This cursors module contains functions for loading and unencoding various cursor formats. These allow you to easily store your cursors in external files or directly as encoded python strings. </p>
-<p>The module includes several standard cursors. The <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a></tt> function takes several arguments. All those arguments have been stored in a single tuple you can call like this: </p>
+<p>The module includes several standard cursors. The <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a> - <font size=-1>set the image for the system mouse cursor</font></tt> function takes several arguments. All those arguments have been stored in a single tuple you can call like this: </p>
 <pre>   >>> pygame.mouse.set_cursor(*pygame.cursors.arrow)
-</pre><p>This module also contains a few cursors as formatted strings. You'll need to pass these to <tt><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a></tt> function before you can use them. The example call would look like this: </p>
+</pre><p>This module also contains a few cursors as formatted strings. You'll need to pass these to <tt><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a> - <font size=-1>create binary cursor data from simple strings</font></tt> function before you can use them. The example call would look like this: </p>
 <pre>   >>> cursor = pygame.mouse.compile(pygame.cursors.textmarker_strings)
    >>> pygame.mouse.set_cursor(*cursor)
 </pre><p>The following variables are cursor bitmaps that can be used as cursor: </p>
@@ -68,7 +62,7 @@
  <li><tt>        pygame.cursors.tri_left </tt></li>
  <li><tt>        pygame.cursors.tri_right </tt></li>
 </ul>
-<p>The following strings can be converted into cursor bitmaps with <tt><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a></tt> : </p>
+<p>The following strings can be converted into cursor bitmaps with <tt><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a> - <font size=-1>create binary cursor data from simple strings</font></tt> : </p>
 <ul>
  <li><tt>        pygame.cursors.thickarrow_strings </tt></li>
  <li><tt>        pygame.cursors.sizer_x_strings </tt></li>
@@ -82,7 +76,7 @@
 <big><b>pygame.cursors.compile</big></b><br><ul>
   <i>create binary cursor data from simple strings</i><br>
   <tt>pygame.cursor.compile(strings, black='X', white='.', xor='o'): return data, mask</tt><br>
-<p><tt>A</tt> sequence of strings can be used to create binary cursor data for the system cursor. The return values are the same format needed by <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a></tt>. </p>
+<p><tt>A</tt> sequence of strings can be used to create binary cursor data for the system cursor. The return values are the same format needed by <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a> - <font size=-1>set the image for the system mouse cursor</font></tt>. </p>
 <p>If you are creating your own cursor strings, you can use any value represent the black and white pixels. Some system allow you to set a special toggle color for the system color, this is also called the xor color. If the system does not support xor cursors, that color will simply be black. </p>
 <p>The width of the strings must all be equal and be divisible by 8. An example set of cursor strings looks like this </p>
 <pre>    thickarrow_strings = (               #sized 24x24
@@ -122,7 +116,7 @@
 <p>This loads cursors for a simple subset of <tt>XBM</tt> files. <tt>XBM</tt> files are traditionally used to store cursors on unix systems, they are an ascii format used to represent simple images. </p>
 <p>Sometimes the black and white color values will be split into two separate <tt>XBM</tt> files. You can pass a second maskfile argument to load the two images into a single cursor. </p>
 <p>The cursorfile and maskfile arguments can either be filenames or filelike object with the readlines method. </p>
-<p>The return value cursor_args can be passed directly to the <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a></tt> function. </p>
+<p>The return value cursor_args can be passed directly to the <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a> - <font size=-1>set the image for the system mouse cursor</font></tt> function. </p>
 <!--COMMENTS:pygame.cursors.load_xbm--> &nbsp;<br> 
 <br></ul>
 <br></ul>

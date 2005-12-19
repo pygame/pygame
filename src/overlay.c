@@ -65,14 +65,20 @@ static PyObject* Overlay_SetLocation(PyGameOverlay *self, PyObject *args)
 
 static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
 {
-	// Parse data params for frame
+    SDL_Rect cRect;
+    	// Parse data params for frame
 	int ls_y, ls_u, ls_v, y;
-	unsigned char *dst_y, *dst_u, *dst_v, *src_y, *src_u, *src_v;
-	if(!PyArg_ParseTuple(args, "(s#s#s#)", &src_y, &ls_y, &src_u, &ls_u, &src_v, &ls_v))
-		return NULL;
-
+	unsigned char *src_y=0, *src_u=0, *src_v=0;
+	
+	if(PyTuple_Size(args))
 	{
-		SDL_Rect cRect= { self->cRect.x, self->cRect.y, self->cRect.w, self->cRect.h };
+        	if(!PyArg_ParseTuple(args, "(s#s#s#)", &src_y, &ls_y, &src_u, &ls_u, &src_v, &ls_v))
+        		return NULL;
+    }
+
+    if(src_y)
+	{
+		unsigned char *dst_y=0, *dst_u=0, *dst_v=0;
 		SDL_LockYUVOverlay( self->cOverlay );
 
 		// No clipping at this time( only support for YUV420 )
@@ -86,7 +92,7 @@ static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
 			src_y += ls_y / self->cOverlay->h;
 			dst_y += self->cOverlay->pitches[ 0 ];
 
-			if (y & 1) {
+			if (!(y & 1)) {
 				src_u += ( ls_u* 2 )/self->cOverlay->h;
 				src_v += ( ls_v* 2 )/self->cOverlay->h;
 				dst_u += self->cOverlay->pitches[ 1 ];
@@ -100,9 +106,22 @@ static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
 		}
 
 		SDL_UnlockYUVOverlay( self->cOverlay );
-                SDL_DisplayYUVOverlay( self->cOverlay, &cRect);
 	}
+
+    cRect.x = self->cRect.x;
+    cRect.y = self->cRect.y;
+    cRect.w = self->cRect.w;
+    cRect.h = self->cRect.h;
+    SDL_DisplayYUVOverlay(self->cOverlay, &cRect);
+
 	RETURN_NONE
+}
+
+
+
+static PyObject* Overlay_GetHardware(PyGameOverlay *self, PyObject *args)
+{
+    return PyInt_FromLong(self->cOverlay->hw_overlay);
 }
 
 
@@ -145,6 +164,7 @@ PyObject* Overlay_New(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyMethodDef Overlay_methods[] = {
   {"set_location", (PyCFunction)Overlay_SetLocation, METH_VARARGS, DOC_OVERLAYSETLOCATION},
   {"display", (PyCFunction)Overlay_Display, METH_VARARGS, DOC_OVERLAYDISPLAY},
+  {"get_hardware", (PyCFunction)Overlay_GetHardware, METH_NOARGS, DOC_OVERLAYGETHARDWARE},
 	{NULL}  /* Sentinel */
 };
 

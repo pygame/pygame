@@ -176,7 +176,7 @@
 
 #define DOC_PYGAMEFONTINIT "pygame.font.init(): return None\ninitialize the font module"
 
-#define DOC_PYGAMEFONTQUIT "pygame.cdrom.font(): return None\nuninitialize the font module"
+#define DOC_PYGAMEFONTQUIT "pygame.font.quit(): return None\nuninitialize the font module"
 
 #define DOC_PYGAMEFONTGETINIT "pygame.font.get_init(): return bool\ntrue if the font module is initialized"
 
@@ -436,9 +436,11 @@
 
 #define DOC_PYGAMEOVERLAY "pygame.Overlay(format, (width, height)): return Overlay\npygame object for video overlay graphics"
 
-#define DOC_OVERLAYDISPLAY "Overlay.display(y, u, v): return None\nset the overlay pixel data"
+#define DOC_OVERLAYDISPLAY "Overlay.display((y, u, v)): return None\nOverlay.display(): return None\nset the overlay pixel data"
 
 #define DOC_OVERLAYSETLOCATION "Overlay.set_location(rect): return None\ncontrol where the overlay is displayed"
+
+#define DOC_OVERLAYGETHARDWARE "Overlay.get_hardware(rect): return int\ntest if the Overlay is hardware accelerated"
 
 #define DOC_PYGAMERECT "pygame.Rect(left, top, width, height): return Rect\npygame.Rect((left, top), (width, height)): return Rect\npygame.Rect(object): return Rect\npygame object for storing rectangular coordinates"
 

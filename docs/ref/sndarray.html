@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -50,9 +44,9 @@
 <big><b>pygame.sndarray</big></b><br><ul>
   <i>pygame module for accessing sound sample data</i><br>
 <ul><small><table>
-  <tr><td><a href="sndarray.html#pygame.sndarray.array">pygame.sndarray.array</a></td><td>copy Sound samples into an array</td></tr>
-  <tr><td><a href="sndarray.html#pygame.sndarray.samples">pygame.sndarray.samples</a></td><td>reference Sound samples into an array</td></tr>
-  <tr><td><a href="sndarray.html#pygame.sndarray.make_sound">pygame.sndarray.make_sound</a></td><td>convert an array into a Sound object</td></tr>
+  <tr><td><a href="sndarray.html#pygame.sndarray.array">pygame.sndarray.array</a> - <font size=-1>copy Sound samples into an array</font></td><td>copy Sound samples into an array</td></tr>
+  <tr><td><a href="sndarray.html#pygame.sndarray.samples">pygame.sndarray.samples</a> - <font size=-1>reference Sound samples into an array</font></td><td>reference Sound samples into an array</td></tr>
+  <tr><td><a href="sndarray.html#pygame.sndarray.make_sound">pygame.sndarray.make_sound</a> - <font size=-1>convert an array into a Sound object</font></td><td>convert an array into a Sound object</td></tr>
 </table></small></ul>
 <p>Functions to convert between Numeric arrays and Sound objects. This module will only be available when pygame can use the external Numeric package. </p>
 <p>Sound data is made of thousands of samples per second. Each sample is an 8-bit or 16-bit integer, depending on the data format. <tt>A</tt> stereo sound file has two values per sample, while a mono sound file only has one. </p>
@@ -64,7 +58,7 @@
 <big><b>pygame.sndarray.array</big></b><br><ul>
   <i>copy Sound samples into an array</i><br>
   <tt>pygame.sndarray.array(Sound): return array</tt><br>
-<p>Creates a new Numeric array for the sound data and copies the samples. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
+<p>Creates a new Numeric array for the sound data and copies the samples. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a> - <font size=-1>test if the mixer is initialized</font></tt>. </p>
 <!--COMMENTS:pygame.sndarray.array--> &nbsp;<br> 
 <br></ul>
 
@@ -73,7 +67,7 @@
 <big><b>pygame.sndarray.samples</big></b><br><ul>
   <i>reference Sound samples into an array</i><br>
   <tt>pygame.sndarray.samples(Sound): return array</tt><br>
-<p>Creates a new Numeric array that directly references the samples in a Sound object. Modifying the array will change the Sound. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a></tt>. </p>
+<p>Creates a new Numeric array that directly references the samples in a Sound object. Modifying the array will change the Sound. The array will always be in the format returned from <tt><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a> - <font size=-1>test if the mixer is initialized</font></tt>. </p>
 <!--COMMENTS:pygame.sndarray.samples--> &nbsp;<br> 
 <br></ul>
 

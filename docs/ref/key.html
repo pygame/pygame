@@ -4,13 +4,10 @@
 <body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
 
 
-<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
-<table width=100%><tr><td bgcolor=c2fc20 align=center>
-    <a href=http://www.pygame.org>
-    <img src=../pygame_tiny.gif style='margin: 4px' border=0 width=200 height=60></a><br>
-    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
-</td><td bgcolor=6aee28 align=center valign=top width=100%>
-
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
 	||&nbsp;
 	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
 	<a href=../index.html>Help Contents</a> &nbsp;||
@@ -39,10 +36,7 @@
 <a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
 <a href=time.html>Time</a>&nbsp;||&nbsp;
 <a href=transform.html>Transform</a>
-</p>
-
-
-</td></tr></table></td></tr></table>
+</td></tr></table>
 <br>
 
 
@@ -50,12 +44,12 @@
 <big><b>pygame.key</big></b><br><ul>
   <i>pygame module to work with the keyboard</i><br>
 <ul><small><table>
-  <tr><td><a href="key.html#pygame.key.get_focused">pygame.key.get_focused</a></td><td>true if the display is receiving keyboard input from the system</td></tr>
-  <tr><td><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a></td><td>get the state of all keyboard buttons</td></tr>
-  <tr><td><a href="key.html#pygame.key.get_mods">pygame.key.get_mods</a></td><td>determine which modifier keys are being held</td></tr>
-  <tr><td><a href="key.html#pygame.key.set_mods">pygame.key.set_mods</a></td><td>temporarily set which modifier keys are pressed</td></tr>
-  <tr><td><a href="key.html#pygame.key.set_repeat">pygame.key.set_repeat</a></td><td>control how held keys are repeated</td></tr>
-  <tr><td><a href="key.html#pygame.key.name">pygame.key.name</a></td><td>get the name of a key identifier</td></tr>
+  <tr><td><a href="key.html#pygame.key.get_focused">pygame.key.get_focused</a> - <font size=-1>true if the display is receiving keyboard input from the system</font></td><td>true if the display is receiving keyboard input from the system</td></tr>
+  <tr><td><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a> - <font size=-1>get the state of all keyboard buttons</font></td><td>get the state of all keyboard buttons</td></tr>
+  <tr><td><a href="key.html#pygame.key.get_mods">pygame.key.get_mods</a> - <font size=-1>determine which modifier keys are being held</font></td><td>determine which modifier keys are being held</td></tr>
+  <tr><td><a href="key.html#pygame.key.set_mods">pygame.key.set_mods</a> - <font size=-1>temporarily set which modifier keys are pressed</font></td><td>temporarily set which modifier keys are pressed</td></tr>
+  <tr><td><a href="key.html#pygame.key.set_repeat">pygame.key.set_repeat</a> - <font size=-1>control how held keys are repeated</font></td><td>control how held keys are repeated</td></tr>
+  <tr><td><a href="key.html#pygame.key.name">pygame.key.name</a> - <font size=-1>get the name of a key identifier</font></td><td>get the name of a key identifier</td></tr>
 </table></small></ul>
 <p>This module contains functions for dealing with the keyboard. </p>
 <p>The event queue gets <tt>pygame.KEYDOWN</tt> and <tt>pygame.KEYUP</tt> events when the keyboard buttons are pressed and released. Both events have a key attribute that is a integer id representing every key on the keyboard. The <tt>pygame.KEYDOWN</tt> event has an additional attribute named unicode. This represents a single character string that is the fully translated character entered. This takes into account the shift and composition keys. </p>
@@ -206,7 +200,7 @@
 <big><b>pygame.key.get_focused</big></b><br><ul>
   <i>true if the display is receiving keyboard input from the system</i><br>
   <tt>pygame.key.get_focused(): return bool</tt><br>
-<p>This is true when the display window has keyboard focus from the system. If the display needs to ensure it does not lose keyboard focus, it can use <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a></tt> to grab all input. </p>
+<p>This is true when the display window has keyboard focus from the system. If the display needs to ensure it does not lose keyboard focus, it can use <tt><a href="event.html#pygame.event.set_grab">pygame.event.set_grab</a> - <font size=-1>control the sharing of input devices with other applications</font></tt> to grab all input. </p>
 <!--COMMENTS:pygame.key.get_focused--> &nbsp;<br> 
 <br></ul>
 
@@ -216,7 +210,7 @@
   <i>get the state of all keyboard buttons</i><br>
   <tt>pygame.key.get_pressed(): return bools</tt><br>
 <p>Returns a sequence of boolean values representing the state of every key on the keyboard. Use the key constant values to index the array. <tt>A</tt> True value means the that button is pressed. </p>
-<p>Getting the list of pushed buttons with this function is not the proper way to handle text entry from the user. You have no way to know the order of keys pressed, and rapidly pushed keys can be completely unnoticed between two calls to <tt><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a></tt>. There is also no way to translate these pushed keys into a fully translated character value. See the <tt>pygame.KEYDOWN</tt> events on the event queue for this functionality. </p>
+<p>Getting the list of pushed buttons with this function is not the proper way to handle text entry from the user. You have no way to know the order of keys pressed, and rapidly pushed keys can be completely unnoticed between two calls to <tt><a href="key.html#pygame.key.get_pressed">pygame.key.get_pressed</a> - <font size=-1>get the state of all keyboard buttons</font></tt>. There is also no way to translate these pushed keys into a fully translated character value. See the <tt>pygame.KEYDOWN</tt> events on the event queue for this functionality. </p>
 <!--COMMENTS:pygame.key.get_pressed--> &nbsp;<br> 
 <br></ul>
 
