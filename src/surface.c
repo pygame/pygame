@@ -143,9 +143,15 @@ static PyObject* surf_set_at(PyObject* self, PyObject* args)
 			break;
 		case 3:
 			byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
-			*(byte_buf + (format->Rshift >> 3)) = rgba[0];
-			*(byte_buf + (format->Gshift >> 3)) = rgba[1];
-			*(byte_buf + (format->Bshift >> 3)) = rgba[2];
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                        *(byte_buf + (format->Rshift >> 3)) = rgba[0];
+                        *(byte_buf + (format->Gshift >> 3)) = rgba[1];
+                        *(byte_buf + (format->Bshift >> 3)) = rgba[2];
+#else
+                        *(byte_buf + 2 - (format->Rshift >> 3)) = rgba[0];
+                        *(byte_buf + 2 - (format->Gshift >> 3)) = rgba[1];
+                        *(byte_buf + 2 - (format->Bshift >> 3)) = rgba[2];
+#endif
 			break;
 		default: /*case 4:*/
 			*((Uint32*)(pixels + y * surf->pitch) + x) = color;
