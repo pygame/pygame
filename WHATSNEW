@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+January 12, 2006
+    Endian patch for set_at() from Ivo Danihelka.
+
 December 19, 2005
     Updates for Overlay. Detect hardware accel and allow "redisplay".
 
