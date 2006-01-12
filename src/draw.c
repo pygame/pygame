@@ -910,9 +910,15 @@ static int set_at(SDL_Surface* surf, int x, int y, Uint32 color)
 		default:/*case 3:*/
 			SDL_GetRGB(color, format, rgb, rgb+1, rgb+2);
 			byte_buf = (Uint8*)(pixels + y * surf->pitch) + x * 3;
-			*(byte_buf + (format->Rshift >> 3)) = rgb[0];
-			*(byte_buf + (format->Gshift >> 3)) = rgb[1];
-			*(byte_buf + (format->Bshift >> 3)) = rgb[2];
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                        *(byte_buf + (format->Rshift >> 3)) = rgb[0];
+                        *(byte_buf + (format->Gshift >> 3)) = rgb[1];
+                        *(byte_buf + (format->Bshift >> 3)) = rgb[2];
+#else
+                        *(byte_buf + 2 - (format->Rshift >> 3)) = rgb[0];
+                        *(byte_buf + 2 - (format->Gshift >> 3)) = rgb[1];
+                        *(byte_buf + 2 - (format->Bshift >> 3)) = rgb[2];
+#endif
 			break;
 	}
 	return 1;
