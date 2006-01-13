@@ -325,7 +325,8 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	}
 	else if(PyUnicode_Check(text))
 	{
-		PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
+		//PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
+		PyObject* strob = PyUnicode_AsEncodedString(text, "utf-8", "replace");
 		char *string = PyString_AsString(strob);
 
 		if(aa)
@@ -385,7 +386,8 @@ static PyObject* font_size(PyObject* self, PyObject* args)
 
 	if(PyUnicode_Check(text))
 	{
-		PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
+		//PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
+		PyObject* strob = PyUnicode_AsEncodedString(text, "utf-8", "replace");
 		char *string = PyString_AsString(strob);
 
 		TTF_SizeUTF8(font, string, &w, &h);
