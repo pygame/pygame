@@ -60,6 +60,17 @@ def main():
     screen.blit(ren, (30 + size[0], 40 + size[1]))
     a_sys_font.set_italic(0)
 
+
+    some_japanese_unicode = u"\u304b\u3070\u306b"
+    
+    #AA, transparancy, italic
+    ren = a_sys_font.render(some_japanese_unicode, 1, fg)
+    screen.blit(ren, (30 + size[0], 40 + size[1]))
+    
+
+
+
+
     #show the surface and await user quit
     pygame.display.flip()
     while 1:
