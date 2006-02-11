@@ -194,11 +194,13 @@ typedef struct {
 } PyClockObject;
 
 
-static PyObject* clock_tick(PyObject* self, PyObject* arg)
+// to be called by the other tick functions.
+static PyObject* clock_tick_base(PyObject* self, PyObject* arg, int use_accurate_delay)
 {
 	PyClockObject* clock = (PyClockObject*)self;
         float framerate = 0.0f;
         int nowtime;
+
 	if(!PyArg_ParseTuple(arg, "|f", &framerate))
             return NULL;
 
@@ -207,7 +209,31 @@ static PyObject* clock_tick(PyObject* self, PyObject* arg)
             int delay, endtime = (int)((1.0f/framerate) * 1000.0f);
             clock->rawpassed = SDL_GetTicks() - clock->last_tick;
             delay = endtime - clock->rawpassed;
-            delay = accurate_delay(delay);
+
+            /*just doublecheck that timer is initialized*/
+            if(!SDL_WasInit(SDL_INIT_TIMER))
+            {
+                if(SDL_InitSubSystem(SDL_INIT_TIMER))
+                {
+                    RAISE(PyExc_SDLError, SDL_GetError());
+                    return NULL;
+                }
+            }
+
+
+            if(use_accurate_delay) {
+                delay = accurate_delay(delay);
+            } else {
+                // this uses sdls delay, which can be inaccurate.
+                if(delay < 0)
+                    delay = 0;
+
+                Py_BEGIN_ALLOW_THREADS
+                SDL_Delay((Uint32)delay);
+                Py_END_ALLOW_THREADS
+            }
+
+
             if(delay == -1)
                 return NULL;
         }
@@ -233,6 +259,18 @@ static PyObject* clock_tick(PyObject* self, PyObject* arg)
         }
         return PyInt_FromLong(clock->timepassed);
 }
+
+static PyObject* clock_tick(PyObject* self, PyObject* arg) 
+{
+    return clock_tick_base(self, arg, 0);
+}
+
+static PyObject* clock_tick_busy_loop(PyObject* self, PyObject* arg) 
+{
+    return clock_tick_base(self, arg, 1);
+}
+
+
 
 
 static PyObject* clock_get_fps(PyObject* self, PyObject* arg)
@@ -332,6 +370,7 @@ static struct PyMethodDef clock_methods[] =
 	{"get_fps",	clock_get_fps,	1, DOC_CLOCKGETFPS },
 	{"get_time",	clock_get_time,	1, DOC_CLOCKGETTIME },
 	{"get_rawtime",	clock_get_rawtime,1, DOC_CLOCKGETRAWTIME },
+	{"tick_busy_loop",	clock_tick_busy_loop,	1, DOC_CLOCKTICK },
 /*        {"render_fps",  clock_render_fps,1,doc_clock_render_fps},*/
 	{NULL,		NULL}
 };
