@@ -7,7 +7,7 @@ import pygame, sys, os
 from pygame.locals import *
 from random import randint
 from time import time
-
+import pygame.joystick
 
 if "-psyco" in sys.argv:
     try:
@@ -35,13 +35,17 @@ if "-fullscreen" in sys.argv:
 if "-sw" in sys.argv:
     flags ^= SWSURFACE
 
+use_rle = True
+
 if "-hw" in sys.argv:
     flags ^= HWSURFACE
+    use_rle = False
 
 
 
 
 screen_dims = (640, 480)
+screen_dims = (320,240)
 
 
 class Thingy(pygame.sprite.Sprite):
@@ -77,10 +81,24 @@ def main():
     screen = pygame.display.set_mode(screen_dims, flags)
 
 
+    # this is mainly for GP2X, so it can quit.
+    pygame.joystick.init()
+    num_joysticks = pygame.joystick.get_count()
+    if num_joysticks > 0:
+        stick = pygame.joystick.Joystick(0)
+        stick.init() # now we will receive events for the joystick
+
+
     screen.fill([0,0,0])
     pygame.display.flip()
     sprite_surface = pygame.image.load(os.path.join("data", "asprite.bmp"))
-    sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY|RLEACCEL)
+
+    if use_rle:
+        sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY|RLEACCEL)
+    else:
+        sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY)
+
+
     sprite_surface = sprite_surface.convert()
     Thingy.images = [sprite_surface]
 
@@ -127,7 +145,7 @@ def main():
 
 
         for event in pygame.event.get():
-            if event.type in [KEYDOWN, QUIT]:
+            if event.type in [KEYDOWN, QUIT, JOYBUTTONDOWN]:
                 done = True
 
 
