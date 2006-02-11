@@ -175,8 +175,9 @@ cmdclass['install_data'] = smart_install_data
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame'],
-       "package_dir": {'pygame': 'lib'},
+       "packages":    ['pygame', 'pygame.gp2x'],
+       "package_dir": {'pygame': 'lib',
+                       'pygame.gp2x': 'lib/gp2x'},
        "headers":     headers,
        "ext_modules": extensions,
        "data_files":  [['pygame', data_files]],
