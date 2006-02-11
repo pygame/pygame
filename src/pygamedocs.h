@@ -660,6 +660,8 @@
 
 #define DOC_CLOCKTICK "Clock.tick([framerate]) -> milliseconds\ncontrol timer events\nupdate the clock"
 
+#define DOC_CLOCKTICKBUSYLOOP "Clock.tick_busy_loop([framerate]) -> milliseconds\ncontrol timer events\nupdate the clock"
+
 #define DOC_CLOCKGETTIME "Clock.get_time(): return milliseconds\ntime used in the previous tick"
 
 #define DOC_CLOCKGETRAWTIME "Clock.get_rawtime(): return milliseconds\nactual time used in the previous tick"
