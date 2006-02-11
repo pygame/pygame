@@ -4,6 +4,16 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+February 11, 2006
+    Changed the behaviour of Clock.tick to use SDL_Delay instead of a busy 
+      loop.  Added a tick_busy_loop which uses the old behaviour.  This 
+      is more consistent with what people think Clock.tick() will do.
+      That is, not use 100% cpu to get more accurate timing.
+    testsprite.py example, which is based off the testsprite.c in SDL
+      shows the performance of sprites, and is a good test.
+    Added gp2x package which contains some constants for the gp2x buttons.
+      This will be where gp2x specific functionality will live.
+
 January 12, 2006
     Endian patch for set_at() from Ivo Danihelka.
 
