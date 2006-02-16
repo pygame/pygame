@@ -42,10 +42,18 @@ if "-hw" in sys.argv:
     use_rle = False
 
 
+screen_dims = [640, 480]
+
+if "-height" in sys.argv:
+    i = sys.argv.index("-height")
+    screen_dims[1] = int(sys.argv[i+1])
+
+if "-width" in sys.argv:
+    i = sys.argv.index("-width")
+    screen_dims[0] = int(sys.argv[i+1])
 
 
-screen_dims = (640, 480)
-screen_dims = (320,240)
+print screen_dims
 
 
 class Thingy(pygame.sprite.Sprite):
