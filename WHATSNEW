@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 1, 2006
+    A cursors.py example from Kamilche.  Thanks!
+
 February 11, 2006
     Changed the behaviour of Clock.tick to use SDL_Delay instead of a busy 
       loop.  Added a tick_busy_loop which uses the old behaviour.  This 
