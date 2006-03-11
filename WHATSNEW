@@ -5,7 +5,8 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 
 March 11, 2006
-    Fix for config_unix for x86_64 and SDL lib path. Thanks Matthew L Daniel
+    Fix for config_unix for x86_64 and SDL lib path. Thanks Matthew L Daniel.
+    [BUG]Fix for parent init in sprite.GroupSingle. Thanks Alexander Sashnov.
 
 March 1, 2006
     A cursors.py example from Kamilche.  Thanks!
