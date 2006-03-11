@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+March 11, 2006
+    Fix for config_unix for x86_64 and SDL lib path. Thanks Matthew L Daniel
+
 March 1, 2006
     A cursors.py example from Kamilche.  Thanks!
 
