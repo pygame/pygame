@@ -430,6 +430,7 @@ class GroupSingle(AbstractGroup):
        sprite and then add the new one."""
 
     def __init__(self, sprite = None):
+        AbstractGroup.__init__(self)
         self.__sprite = None
         if sprite is not None: self.add(sprite)
 
