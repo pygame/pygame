@@ -59,7 +59,7 @@ to larger values to ensure playback never skips, but it will impose latency
 on sound playback. The buffer size must be a power of two. 
 
 Some platforms require the pygame.mixer module
-to be required after the display modules have initialized. The top level
+to be initialized after the display modules have initialized. The top level
 pygame.init() takes care of this automatically, but cannot pass any
 arguments to the mixer init. To solve this, mixer has a function
 pygame.mixer.pre_init() to set the proper defaults before the toplevel
