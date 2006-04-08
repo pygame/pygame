@@ -30,6 +30,7 @@
 <a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
 <a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
 <a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=scrap.html>Scrap</a>&nbsp;||&nbsp;
 <a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
 <a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
 <a href=surface.html>Surface</a>&nbsp;||&nbsp;
@@ -100,6 +101,7 @@
   <tt>pygame.time.Clock(): return Clock</tt><br>
 <ul><small><table>
   <tr><td><a href="time.html#Clock.tick">Clock.tick</a> - <font size=-1>update the clock</font></td><td>update the clock</td></tr>
+  <tr><td><a href="time.html#Clock.tick_busy_loop">Clock.tick_busy_loop</a> - <font size=-1>update the clock</font></td><td>update the clock</td></tr>
   <tr><td><a href="time.html#Clock.get_time">Clock.get_time</a> - <font size=-1>time used in the previous tick</font></td><td>time used in the previous tick</td></tr>
   <tr><td><a href="time.html#Clock.get_rawtime">Clock.get_rawtime</a> - <font size=-1>actual time used in the previous tick</font></td><td>actual time used in the previous tick</td></tr>
   <tr><td><a href="time.html#Clock.get_fps">Clock.get_fps</a> - <font size=-1>compute the clock framerate</font></td><td>compute the clock framerate</td></tr>
@@ -115,8 +117,20 @@
   <tt>control timer events</tt><br>
 <p>This method should be called once per frame. It will compute how many milliseconds have passed since the previous call. </p>
 <p>If you pass the optional framerate argument the function will delay to keep the game running slower than the given ticks per second. This can be used to help limit the runtime speed of a game. By calling <tt>Clock.tick(40)</tt> once per frame, the program will never run at more than 40 frames per second. </p>
-<p>Note that this function uses <tt>pygame.time.delay</tt>, which uses lots of cpu in a busy loop to make sure that timing is more acurate. </p>
+<p>Note that this function uses SDL_Delay function which is not accurate on every platform, but does not use much cpu. Use tick_busy_loop if you want an accurate timer, and don't mind chewing cpu. </p>
 <!--COMMENTS:Clock.tick--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Clock.tick_busy_loop">
+<big><b>Clock.tick_busy_loop</big></b><br><ul>
+  <i>update the clock</i><br>
+  <tt>Clock.tick_busy_loop([framerate]) -> milliseconds</tt><br>
+  <tt>control timer events</tt><br>
+<p>This method should be called once per frame. It will compute how many milliseconds have passed since the previous call. </p>
+<p>If you pass the optional framerate argument the function will delay to keep the game running slower than the given ticks per second. This can be used to help limit the runtime speed of a game. By calling <tt>Clock.tick(40)</tt> once per frame, the program will never run at more than 40 frames per second. </p>
+<p>Note that this function uses <tt>pygame.time.delay</tt>, which uses lots of cpu in a busy loop to make sure that timing is more acurate. </p>
+<!--COMMENTS:Clock.tick_busy_loop--> &nbsp;<br> 
 <br></ul>
 
 
