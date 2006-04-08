@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+April 12, 2006
+    Added scrap module for accessing the clipboard. As well as an example.
+    Added access to the XEvent structure on unix/X11 installs.
+
 March 11, 2006
     Fix for config_unix for x86_64 and SDL lib path. Thanks Matthew L Daniel.
     [BUG]Fix for parent init in sprite.GroupSingle. Thanks Alexander Sashnov.
