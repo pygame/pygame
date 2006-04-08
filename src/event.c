@@ -29,10 +29,7 @@
 
 // FIXME: The system message code is only tested on windows, so only
 //          include it there for now.
-#ifdef WIN32
 #include <SDL_syswm.h>
-#endif
-
 
 /*this user event object is for safely passing
  *objects through the event queue.
@@ -310,6 +307,20 @@ static PyObject* dict_from_event(SDL_Event* event)
 		insobj(dict, "wparam", PyInt_FromLong(event-> syswm.msg->wParam));
 		insobj(dict, "lparam", PyInt_FromLong(event-> syswm.msg->lParam));
 		#endif
+                /*
+                 * Make the event
+                 */
+#if (defined(unix) || defined(__unix__) || defined(_AIX) || defined(__OpenBSD__)) && \
+    (!defined(DISABLE_X11) && !defined(__CYGWIN32__) && !defined(ENABLE_NANOX) && \
+     !defined(__QNXNTO__))
+
+                //printf("asdf :%d:", event->syswm.msg->event.xevent.type);
+                insobj(dict, 
+                       "event",
+                       PyString_FromStringAndSize((char*)&(event->syswm.msg->event.xevent),
+                       sizeof(XEvent)));
+                #endif
+
 		break;
 /* SDL_VIDEOEXPOSE and SDL_QUIT have no attributes */
 	}
