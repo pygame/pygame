@@ -1,3 +1,24 @@
+/*
+    pygame - Python Game Library
+    Copyright (C) 2006 Rene Dudfield
+
+    Originally written and put in the public domain by Sam Lantinga.
+
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 
 /* Handle clipboard text and data in arbitrary formats */
 
@@ -20,7 +41,7 @@
 #define PRIVATE	static
 
 /* Determine what type of clipboard we are using */
-#if defined(__unix__) && !defined(__QNXNTO__)
+#if defined(__unix__) && !defined(__QNXNTO__) && !defined(DISABLE_X11)
     #define X11_SCRAP
 #elif defined(__WIN32__)
     #define WIN_SCRAP
@@ -108,7 +129,7 @@ convert_format(int type)
 
 /* Convert internal data to scrap format */
 PRIVATE int
-convert_data(int type, char *dst, char *src, int srclen)
+convert_data(int type, unsigned char *dst, char *src, int srclen)
 {
   int dstlen;
 
@@ -337,14 +358,14 @@ put_scrap(int type, int srclen, char *src)
 {
   scrap_type format;
   int dstlen;
-  char *dst;
+  unsigned char *dst;
 
   format = convert_format(type);
   dstlen = convert_data(type, NULL, src, srclen);
 
 #if defined(X11_SCRAP)
 /* * */
-  dst = (char *)malloc(dstlen);
+  dst = (unsigned char *)malloc(dstlen);
   if ( dst != NULL )
     {
       Lock_Display();
@@ -721,55 +742,44 @@ put_scrap(int type, int srclen, char *src)
 
 /*
  * this will put a python string into the clipboard.
- * TODO: this function isn't done yet.
  */
 static PyObject* scrap_put_scrap(PyObject* self, PyObject* args) {
+    int scraplen;
+    char *scrap = NULL;
+    int scrap_type;
 
-	int scraplen;
-        char *scrap = NULL;
-        PyObject * return_string;
+    //if(!PyArg_ParseTuple(args, "is#", &scrap_type, &scrap, &scraplen))
+    if(!PyArg_ParseTuple(args, "it#", &scrap_type, &scrap, &scraplen))
+        return NULL;
 
-	int scrap_type;
+    //printf("scrap type given: %d\n", scrap_type);
+    //printf("scrap text type: %d\n", PYGAME_SCRAP_TEXT);
+    //
 
-	if(!PyArg_ParseTuple(args, "is", &scrap_type, scrap))
-		return NULL;
+    //printf("scrap text:%s:\n", scrap);
+    //printf("scrap length:%d:\n", scraplen);
 
+    put_scrap(scrap_type, scraplen, scrap);
 
-        //printf("scrap type given: %d\n", scrap_type);
-        //printf("scrap text type: %d\n", PYGAME_SCRAP_TEXT);
-
-        // TODO: get the string length of the passed in string.
-
-	put_scrap(scrap_type, &scraplen, &scrap);
-
-        //printf("string length:%d\n", scraplen);
-
-        if ( scraplen == 0 ) {
-            //printf("Text scrap is empty\n");
-            RETURN_NONE
-        } else {
-            //printf("Scrap is: %s\n", scrap);
-            return_string = PyString_FromString(scrap);
-        }
-
-        // TODO: FIXME: should the pystring should free it...?
-        free(scrap);
-
-        return return_string;
+    RETURN_NONE
 }
 
 
-
+static PyObject* scrap_lost_scrap(PyObject* self, PyObject* args) {
+    if ( lost_scrap() ) {
+        return PyInt_FromLong(1);
+    } else {
+        return PyInt_FromLong(0);
+    }
+}
 
 
 static PyMethodDef scrap_builtins[] =
 {
 	{ "init", scrap_init, 1, DOC_PYGAMESCRAPINIT },
 	{ "get", scrap_get_scrap, 1, DOC_PYGAMESCRAPGET },
-    /*
-	{ "put", scrap_put_scrap, 1, DOC_PYGAMEKEYNAME },
-	{ "lost", scrap_lost_scrap, 1, DOC_PYGAMEKEYGETPRESSED },
-    */
+	{ "put", scrap_put_scrap, 1, DOC_PYGAMESCRAPPUT },
+	{ "lost", scrap_lost_scrap, 1, DOC_PYGAMESCRAPLOST},
 
 	{ NULL, NULL }
 };

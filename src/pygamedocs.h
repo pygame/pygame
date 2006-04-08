@@ -486,6 +486,18 @@
 
 #define DOC_RECTCOLLIDEDICTALL "Rect.collidedictall(dict): return [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
 
+#define DOC_PYGAMESCRAP ""
+
+#define DOC_PYGAMESCRAPINIT "raises an error on error."
+
+#define DOC_PYGAMESCRAPGET "pygame.scrap.get(pygame.locals.SCRAP_TEXT): return text.\npygame.scrap.get(pygame.locals.SCRAP_BMP): return image data.\nGets stuff from the clipboard."
+
+#define DOC_PYGAMESCRAPPUT "pygame.scrap.put(pygame.locals.SCRAP_TEXT, "hello clipboard"): return None.\npygame.scrap.put(pygame.locals.SCRAP_BMP, "hello clipboard"): return None.\nPuts stuff into the clipboard."
+
+#define DOC_PYGAMESCRAPLOST "pygame.scrap.lost() returns True or False.\nHas the clipboard contents been lost."
+
+#define DOC_ ""
+
 #define DOC_PYGAMESNDARRAY "pygame module for accessing sound sample data"
 
 #define DOC_PYGAMESNDARRAYARRAY "pygame.sndarray.array(Sound): return array\ncopy Sound samples into an array"
