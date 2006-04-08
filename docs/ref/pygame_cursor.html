@@ -1,0 +1,89 @@
+<html>
+<title>pygame.cursor</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellspacing=3 width=100%><tr><td bgcolor=#00000>
+<table width=100%><tr><td bgcolor=c2fc20 align=center>
+    <a href=http://www.pygame.org>
+    <img src=../pygame_tiny.gif border=0 width=200 height=60></a><br>
+    <b>pygame&nbsp;&nbsp;&nbsp;documentation</b>
+</td><td bgcolor=6aee28 align=center valign=top width=100%>
+
+	||&nbsp;
+	<a href=http://www.pygame.org>Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<br>&nbsp;<br>
+
+|| <a href=pygame.html>pygame</a> || 
+<a href=pygame_cdrom.html>cdrom</a> || 
+<a href=pygame_constants.html>constants</a> || 
+<a href=pygame_cursor.html>cursor</a> || 
+<a href=pygame_display.html>display</a> || 
+<a href=pygame_draw.html>draw</a> ||<br>
+|| <a href=pygame_event.html>event</a> || 
+<a href=pygame_font.html>font</a> || 
+<a href=pygame_image.html>image</a> || 
+<a href=pygame_joystick.html>joystick</a> || 
+<a href=pygame_key.html>key</a> || 
+<a href=pygame_mixer.html>mixer</a> ||<br>
+|| <a href=pygame_mixer_music.html>mixer_music</a> || 
+<a href=pygame_mouse.html>mouse</a> || 
+<a href=pygame_movie.html>movie</a> || 
+<a href=pygame_sndarray.html>sndarray</a> || 
+<a href=pygame_surfarray.html>surfarray</a> || 
+<a href=pygame_time.html>time</a> ||<br>
+|| <a href=pygame_transform.html>transform</a> ||<br>
+&nbsp;<br>|| <a href=CD.html>CD</a> || 
+<a href=Channel.html>Channel</a> || 
+<a href=Clock.html>Clock</a> || 
+<a href=Font.html>Font</a> || 
+<a href=Joystick.html>Joystick</a> || 
+<a href=Movie.html>Movie</a> ||<br>
+|| <a href=Overlay.html>Overlay</a> || 
+<a href=Rect.html>Rect</a> || 
+<a href=Sound.html>Sound</a> || 
+<a href=Surface.html>Surface</a> ||<br>
+&nbsp;<br>|| <a href=pygame_color.html>color</a> || 
+<a href=pygame_cursors.html>cursors</a> || 
+<a href=pygame_sprite.html>sprite</a> ||<br>
+
+
+</td></tr></table></td></tr></table>
+<br>
+<h2 align=center>pygame.cursor</h2>
+{module}
+
+<hr>
+
+<table>
+<tr><td><a href=#compile>compile</a></td><td> -
+compile cursor strings into cursor data</td></tr>
+
+
+</table>
+
+<hr>
+
+<a name=compile><font size=+2><b>compile
+</b></font><br><font size=+1><tt>
+pygame.cursor.compile(strings, black, white,xor) -> data, mask
+</tt></font><ul>
+This takes a set of strings with equal length and computes
+the binary data for that cursor. The string widths must be
+divisible by 8.
+<br>&nbsp;<br>
+The black and white arguments are single letter strings that
+tells which characters will represent black pixels, and which
+characters represent white pixels. All other characters are
+considered clear.
+<br>&nbsp;<br>
+This returns a tuple containing the cursor data and cursor mask
+data. Both these arguments are used when setting a cursor with
+<a href=pygame_mouse.html#set_cursor>pygame.mouse.set_cursor()</a>.
+<br>&nbsp;<br>
+</ul><br>&nbsp;<br>
+
+
+<hr>
+</body></html>
