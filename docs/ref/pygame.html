@@ -30,6 +30,7 @@
 <a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
 <a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
 <a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=scrap.html>Scrap</a>&nbsp;||&nbsp;
 <a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
 <a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
 <a href=surface.html>Surface</a>&nbsp;||&nbsp;
@@ -63,6 +64,7 @@
   <i>initialize all imported pygame modules</i><br>
   <tt>pygame.init(): return (numpass, numfail)</tt><br>
 <p>Initialize all imported Pygame modules. No exceptions will be raised if a module fails, but the total number if successful and failed inits will be returned as a tuple. You can always initialize individual modules manually, but <tt>pygame.init</tt> is a convenient way to get everything started. The init() functions for individual modules will raise exceptions when they fail. </p>
+<p>You may want to initalise the different modules seperately to speed up your program or to not use things your game does not. </p>
 <p>It is safe to call this init() more than once: repeated calls will have no effect. This is true even if you have <tt><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></tt> all the modules. </p>
 <!--COMMENTS:pygame.init--> &nbsp;<br> 
 <br></ul>
