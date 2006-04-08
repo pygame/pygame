@@ -18,7 +18,7 @@ while going:
         if e.type == KEYDOWN and e.key == K_g:
 
             # this number means to look for text data.
-            r = pygame.scrap.get(1413830740)
+            r = pygame.scrap.get(SCRAP_TEXT)
             print type(r)
             print ":%s:" % r
 
@@ -26,6 +26,17 @@ while going:
                 print repr(r)
                 print len(r)
                 print "replaced :%s:" % r.replace("\r", "\n")
+
+        if e.type == KEYDOWN and e.key == K_p:
+
+            # this number means to look for text data.
+            pygame.scrap.put(SCRAP_TEXT, "Hello.  This is a message from scrap.")
+
+            r = pygame.scrap.get(SCRAP_TEXT)
+            print type(r)
+            print ":%s:" % r
+
+
 
         if e.type == KEYDOWN and e.key == K_b:
             r = pygame.scrap.get(1)
