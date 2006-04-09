@@ -114,6 +114,26 @@ except (ImportError,IOError), msg:mouse=MissingModule("mouse", msg, 1)
 try: import pygame.sprite
 except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
 
+try: import pygame.scrap
+except (ImportError,IOError), msg:sprite=MissingModule("scrap", msg, 1)
+
+if sys.platform == 'darwin':
+    try:
+        import pygame.mac_scrap
+        pygame.mac_scrap.put.__doc__ = pygame.scrap.put.__doc__
+        pygame.mac_scrap.get.__doc__ = pygame.scrap.get.__doc__
+        pygame.mac_scrap.lost.__doc__ = pygame.scrap.lost.__doc__
+        pygame.mac_scrap.init.__doc__ = pygame.scrap.init.__doc__
+
+        pygame.scrap.put = pygame.mac_scrap.put
+        pygame.scrap.get = pygame.mac_scrap.get
+        pygame.scrap.lost = pygame.mac_scrap.lost
+        pygame.scrap.init = pygame.mac_scrap.init
+    except:
+        pass
+    
+
+
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
 
