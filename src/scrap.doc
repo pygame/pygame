@@ -22,9 +22,10 @@ Return the data from the clipboard.
 
 put
 Puts stuff into the clipboard.
-pygame.scrap.put(pygame.locals.SCRAP_TEXT, "hello clipboard"): return None.
-pygame.scrap.put(pygame.locals.SCRAP_BMP, "hello clipboard"): return None.
+pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.
+pygame.scrap.put(pygame.locals.SCRAP_BMP, 'hello clipboard'): return None.
 
+Puts the stuff into the clipboard.
 <END>
 
 lost

@@ -492,7 +492,7 @@
 
 #define DOC_PYGAMESCRAPGET "pygame.scrap.get(pygame.locals.SCRAP_TEXT): return text.\npygame.scrap.get(pygame.locals.SCRAP_BMP): return image data.\nGets stuff from the clipboard."
 
-#define DOC_PYGAMESCRAPPUT "pygame.scrap.put(pygame.locals.SCRAP_TEXT, "hello clipboard"): return None.\npygame.scrap.put(pygame.locals.SCRAP_BMP, "hello clipboard"): return None.\nPuts stuff into the clipboard."
+#define DOC_PYGAMESCRAPPUT "pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.\npygame.scrap.put(pygame.locals.SCRAP_BMP, 'hello clipboard'): return None.\nPuts stuff into the clipboard."
 
 #define DOC_PYGAMESCRAPLOST "pygame.scrap.lost() returns True or False.\nHas the clipboard contents been lost."
 

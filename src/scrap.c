@@ -47,6 +47,8 @@
     #define WIN_SCRAP
 #elif defined(__QNXNTO__)
     #define QNX_SCRAP
+#elif defined(__APPLE__)
+    #define MAC_SCRAP
 #else
     #error Unknown window manager for clipboard handling
 #endif /* scrap type */
@@ -776,11 +778,18 @@ static PyObject* scrap_lost_scrap(PyObject* self, PyObject* args) {
 
 static PyMethodDef scrap_builtins[] =
 {
+/*
+ * Only initialise these functions for ones we know about.
+ *
+ * Note, the macosx stuff is done in pygame/__init__.py 
+ *   by importing pygame.mac_scrap
+ */
+#if defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(QNX_SCRAP) || defined(MAC_SCRAP)
 	{ "init", scrap_init, 1, DOC_PYGAMESCRAPINIT },
 	{ "get", scrap_get_scrap, 1, DOC_PYGAMESCRAPGET },
 	{ "put", scrap_put_scrap, 1, DOC_PYGAMESCRAPPUT },
 	{ "lost", scrap_lost_scrap, 1, DOC_PYGAMESCRAPLOST},
-
+#endif
 	{ NULL, NULL }
 };
 
@@ -789,12 +798,8 @@ PYGAME_EXPORT
 void initscrap(void)
 {
     /* create the module */
-	Py_InitModule3("scrap", scrap_builtins, NULL);
+    Py_InitModule3("scrap", scrap_builtins, NULL);
 
-	/*imported needed apis*/
-	import_pygame_base();
+    /*imported needed apis*/
+    import_pygame_base();
 }
-
-
-
-
