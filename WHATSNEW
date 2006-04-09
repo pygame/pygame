@@ -4,7 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
-April 12, 2006
+April 9, 2006
+    Added mac_scrap module for macintosh clipboard support.
+
+April 8, 2006
     Added scrap module for accessing the clipboard. As well as an example.
     Added access to the XEvent structure on unix/X11 installs.
 
