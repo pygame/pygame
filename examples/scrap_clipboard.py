@@ -4,12 +4,19 @@ pygame.init()
 
 pygame.display.set_mode((200, 200))
 
-import pygame.scrap
-pygame.scrap.init()
+try:
+    import pygame.scrap
+    pygame.scrap.init()
+except:
+    # NOTE: this is for testing the mac_scrap functions.
+    import mac_scrap
+    pygame.scrap = mac_scrap
+
 
 c = pygame.time.Clock()
 
 going = True
+
 
 while going:
     for e in pygame.event.get():
@@ -32,9 +39,9 @@ while going:
             # this number means to look for text data.
             pygame.scrap.put(SCRAP_TEXT, "Hello.  This is a message from scrap.")
 
-            r = pygame.scrap.get(SCRAP_TEXT)
-            print type(r)
-            print ":%s:" % r
+            #r = pygame.scrap.get(SCRAP_TEXT)
+            #print type(r)
+            #print ":%s:" % r
 
 
 
