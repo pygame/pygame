@@ -9,6 +9,7 @@ except:
 import pygame.locals
 
 
+
 def init():
     # FIXME: NOTE: I don't know what type of init we need here.
     return 1
@@ -31,7 +32,7 @@ def put(scrap_type, thing):
         raise "Unsupported scrap_type"
 
 def lost():
-    #FIXME: TODO: how do we do this?
+    #FIXME: TODO: how do we do this on mac?
     return 0
     pass
 

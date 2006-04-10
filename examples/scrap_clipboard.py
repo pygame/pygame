@@ -4,13 +4,8 @@ pygame.init()
 
 pygame.display.set_mode((200, 200))
 
-try:
-    import pygame.scrap
-    pygame.scrap.init()
-except:
-    # NOTE: this is for testing the mac_scrap functions.
-    import mac_scrap
-    pygame.scrap = mac_scrap
+import pygame.scrap
+pygame.scrap.init()
 
 
 c = pygame.time.Clock()
