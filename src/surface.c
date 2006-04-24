@@ -34,6 +34,8 @@ static PyObject* PySurface_New(SDL_Surface* info);
 #define PySurface_Check(x) ((x)->ob_type == &PySurface_Type)
 extern int pygame_AlphaBlit(SDL_Surface *src, SDL_Rect *srcrect,
                         SDL_Surface *dst, SDL_Rect *dstrect);
+extern int pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect,
+                        SDL_Surface *dst, SDL_Rect *dstrect, int the_args);
 
 static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds);
@@ -785,9 +787,10 @@ static PyObject* surf_fill(PyObject* self, PyObject* args)
 	return PyRect_New(&sdlrect);
 }
 
-
 /*this internal blit function is accessable through the C api*/
-int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Rect *srcrect)
+
+
+int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Rect *srcrect, int the_args)
 {
     SDL_Surface *src = PySurface_AsSurface(srcobj);
     SDL_Surface *dst = PySurface_AsSurface(dstobj);
@@ -848,8 +851,9 @@ int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Re
                 (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel==4))
     {
         result = pygame_AlphaBlit(src, srcrect, dst, dstrect);
-    }
-    else
+    } else if(the_args != 0) {
+        result = pygame_Blit(src, srcrect, dst, dstrect, the_args);
+    } else
     {
         result = SDL_BlitSurface(src, srcrect, dst, dstrect);
     }
@@ -877,6 +881,7 @@ int PySurface_Blit(PyObject *dstobj, PyObject *srcobj, SDL_Rect *dstrect, SDL_Re
 }
 
 
+
 static PyObject* surf_blit(PyObject* self, PyObject* args)
 {
 	SDL_Surface* src, *dest = PySurface_AsSurface(self);
@@ -885,9 +890,14 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	int dx, dy, result;
 	SDL_Rect dest_rect, sdlsrc_rect;
 	int sx, sy;
+        int the_args;
+        the_args = 0;
 
-	if(!PyArg_ParseTuple(args, "O!O|O", &PySurface_Type, &srcobject, &argpos, &argrect))
+	if(!PyArg_ParseTuple(args, "O!O|Oi", &PySurface_Type, &srcobject, 
+                                            &argpos, &argrect, &the_args))
 		return NULL;
+
+
 	src = PySurface_AsSurface(srcobject);
         if(!dest || !src) return RAISE(PyExc_SDLError, "display Surface quit");
 
@@ -929,7 +939,9 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
         sdlsrc_rect.w = (unsigned short)src_rect->w;
         sdlsrc_rect.h = (unsigned short)src_rect->h;
 
-	result = PySurface_Blit(self, srcobject, &dest_rect, &sdlsrc_rect);
+        if(!the_args) the_args = 0;
+
+	result = PySurface_Blit(self, srcobject, &dest_rect, &sdlsrc_rect, the_args);
 	if(result != 0)
 	    return NULL;
 

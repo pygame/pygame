@@ -79,7 +79,7 @@ the smaller area.
 
 blit
 draw one image onto another
-Surface.blit(source, dest, area=None): return Rect
+Surface.blit(source, dest, area=None, special_flags = 0): return Rect
 
 Draws a source Surface onto this Surface. The draw can be positioned with
 the dest argument. Dest can either be pair of coordinates representing the
@@ -90,11 +90,17 @@ blit. The size of the destination rectangle does not effect the blit.
 An optional area rectangle can be passed as well. This represents a smaller
 portion of the source Surface to draw.
 
+An optional special flags is for passing in BLEND_ADD.  With other special
+blitting flags perhaps added in the future.
+
 The return rectangle is the area of the effected pixels, excluding any pixels
 outside the destination Surface, or outside the clipping area.
 
 Pixel alphas will be ignored when blitting to an 8 bit Surface.
 <END>
+
+
+
 
 
 convert

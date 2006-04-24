@@ -261,7 +261,7 @@ typedef struct {
 #define PySurface_Check(x) ((x)->ob_type == (PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
 #define PySurface_Type (*(PyTypeObject*)PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 0])
 #define PySurface_New (*(PyObject*(*)(SDL_Surface*))PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 1])
-#define PySurface_Blit (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*))PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
+#define PySurface_Blit (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*,int))PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
 #define import_pygame_surface() { \
 	PyObject *module = PyImport_ImportModule("pygame.surface"); \
 	if (module != NULL) { \
