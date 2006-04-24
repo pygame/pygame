@@ -21,6 +21,15 @@
 */
 
 #include <SDL.h>
+#include <SDL.h>
+
+
+#define PYGAME_BLEND_ADD  0x1
+#define PYGAME_BLEND_SUB  0x2
+#define PYGAME_BLEND_MULT 0x3
+#define PYGAME_BLEND_MIN  0x4
+#define PYGAME_BLEND_MAX  0x5
+
 
 
 /* The structure passed to the low level blit functions */
@@ -41,109 +50,32 @@ typedef struct {
 static void alphablit_alpha(SDL_BlitInfo *info);
 static void alphablit_colorkey(SDL_BlitInfo *info);
 static void alphablit_solid(SDL_BlitInfo *info);
-static int SoftBlitAlpha(SDL_Surface *src, SDL_Rect *srcrect,
-                        SDL_Surface *dst, SDL_Rect *dstrect);
+static void blit_blend_ADD(SDL_BlitInfo *info);
+static void blit_blend_SUB(SDL_BlitInfo *info);
+static void blit_blend_MULT(SDL_BlitInfo *info);
+static void blit_blend_MAX(SDL_BlitInfo *info);
+static void blit_blend_MIN(SDL_BlitInfo *info);
+
+
+
+static int SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
+                          SDL_Surface *dst, SDL_Rect *dstrect, int the_args);
 extern int SDL_RLESurface(SDL_Surface *surface);
 extern void SDL_UnRLESurface(SDL_Surface *surface, int recode);
 
 
 
-/*we assume the "dst" has pixel alpha*/
 
-int pygame_AlphaBlit (SDL_Surface *src, SDL_Rect *srcrect,
-                   SDL_Surface *dst, SDL_Rect *dstrect)
-{
-        SDL_Rect fulldst;
-        int srcx, srcy, w, h;
 
-        /* Make sure the surfaces aren't locked */
-        if ( ! src || ! dst ) {
-                SDL_SetError("SDL_UpperBlit: passed a NULL surface");
-                return(-1);
-        }
-        if ( src->locked || dst->locked ) {
-                SDL_SetError("Surfaces must not be locked during blit");
-                return(-1);
-        }
 
-        /* If the destination rectangle is NULL, use the entire dest surface */
-        if ( dstrect == NULL ) {
-                fulldst.x = fulldst.y = 0;
-                dstrect = &fulldst;
-        }
 
-        /* clip the source rectangle to the source surface */
-        if(srcrect) {
-                int maxw, maxh;
 
-                srcx = srcrect->x;
-                w = srcrect->w;
-                if(srcx < 0) {
-                        w += srcx;
-                        dstrect->x -= srcx;
-                        srcx = 0;
-                }
-                maxw = src->w - srcx;
-                if(maxw < w)
-                        w = maxw;
 
-                srcy = srcrect->y;
-                h = srcrect->h;
-                if(srcy < 0) {
-                        h += srcy;
-                        dstrect->y -= srcy;
-                        srcy = 0;
-                }
-                maxh = src->h - srcy;
-                if(maxh < h)
-                        h = maxh;
 
-        } else {
-                srcx = srcy = 0;
-                w = src->w;
-                h = src->h;
-        }
 
-        /* clip the destination rectangle against the clip rectangle */
-        {
-                SDL_Rect *clip = &dst->clip_rect;
-                int dx, dy;
 
-                dx = clip->x - dstrect->x;
-                if(dx > 0) {
-                        w -= dx;
-                        dstrect->x += dx;
-                        srcx += dx;
-                }
-                dx = dstrect->x + w - clip->x - clip->w;
-                if(dx > 0)
-                        w -= dx;
-
-                dy = clip->y - dstrect->y;
-                if(dy > 0) {
-                        h -= dy;
-                        dstrect->y += dy;
-                        srcy += dy;
-                }
-                dy = dstrect->y + h - clip->y - clip->h;
-                if(dy > 0)
-                        h -= dy;
-        }
-
-        if(w > 0 && h > 0) {
-                SDL_Rect sr;
-                sr.x = srcx;
-                sr.y = srcy;
-                sr.w = dstrect->w = w;
-                sr.h = dstrect->h = h;
-                return SoftBlitAlpha(src, &sr, dst, dstrect);
-        }
-        dstrect->w = dstrect->h = 0;
-        return 0;
-}
-
-static int SoftBlitAlpha(SDL_Surface *src, SDL_Rect *srcrect,
-                        SDL_Surface *dst, SDL_Rect *dstrect)
+static int SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
+                        SDL_Surface *dst, SDL_Rect *dstrect, int the_args)
 {
         int okay;
         int src_locked;
@@ -189,12 +121,36 @@ static int SoftBlitAlpha(SDL_Surface *src, SDL_Rect *srcrect,
                 info.src = src->format;
                 info.dst = dst->format;
 
-                if(src->flags&SDL_SRCALPHA && src->format->Amask)
-                    alphablit_alpha(&info);
-                else if(src->flags & SDL_SRCCOLORKEY)
-                    alphablit_colorkey(&info);
-                else
-                    alphablit_solid(&info);
+                switch(the_args) {
+                    case 0:
+                    {
+                        if(src->flags&SDL_SRCALPHA && src->format->Amask)
+                            alphablit_alpha(&info);
+                        else if(src->flags & SDL_SRCCOLORKEY)
+                            alphablit_colorkey(&info);
+                        else
+                            alphablit_solid(&info);
+                        break;
+                    }
+                    case PYGAME_BLEND_ADD:
+                        blit_blend_ADD(&info); break;
+                    case PYGAME_BLEND_SUB:
+                        blit_blend_SUB(&info); 
+                        break;
+                    case PYGAME_BLEND_MULT:
+                        blit_blend_MULT(&info); break;
+                    case PYGAME_BLEND_MIN:
+                        blit_blend_MIN(&info); break;
+                    case PYGAME_BLEND_MAX:
+                        blit_blend_MAX(&info); break;
+                    default:
+                    {
+                        SDL_SetError("SDL_UpperBlit: passed a NULL surface");
+                        okay = 0;
+                        break;
+                    }
+                }
+
         }
 
         /* We need to unlock the surfaces if they're locked */
@@ -265,6 +221,15 @@ do {                                                                       \
         }\
 } while(0)
 
+
+#define DISEMBLE_RGBA4(buf, bpp, fmt, pixel, R, G, B, A)                    \
+                        pixel = *((Uint32 *)(buf));                           \
+            R = ((pixel&fmt->Rmask)>>fmt->Rshift)<<fmt->Rloss;                 \
+            G = ((pixel&fmt->Gmask)>>fmt->Gshift)<<fmt->Gloss;                 \
+            B = ((pixel&fmt->Bmask)>>fmt->Bshift)<<fmt->Bloss;                 \
+            A = ((pixel&fmt->Amask)>>fmt->Ashift)<<fmt->Aloss;                 \
+
+
 #define PIXEL_FROM_RGBA(pixel, fmt, r, g, b, a)                         \
 {                                                                       \
         pixel = ((r>>fmt->Rloss)<<fmt->Rshift)|                                \
@@ -290,6 +255,14 @@ do {                                                                       \
         }                                                                \
 }
 
+
+#define ASSEMBLE_RGBA4(buf, bpp, fmt, r, g, b, a)                        \
+                        Uint32 pixel;                                        \
+                        PIXEL_FROM_RGBA(pixel, fmt, r, g, b, a);        \
+                        *((Uint32 *)(buf)) = pixel;                        \
+
+
+
 #if 0
 #define ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB, dA)  \
 do {                                            \
@@ -314,34 +287,132 @@ do {   if(dA){\
 } while(0)
 #endif
 
-#if 0
-/* a sad tale of many other blending techniques that didn't fly */
-    if(0&&dA){\
-        dR = (((255-sA)*(dR<<8)/dA)) + (sR>>8) ) >> 8;                \
-        dG = (((255-sA)*(dG<<8)/dA)) + (sG>>8) ) >> 8;                \
-        dB = (((255-sA)*(dB<<8)/dA)) + (sB>>8) ) >> 8;                \
-        dA = sA+dA - ((sA*dA)>>8);               \
-    }else{\
-        dR = 255;                \
-        dG = 0;                \
-        dB = 255;                \
-        dA = 255;               \
-    }\
 
 
-        int temp; \
-        temp = (((sR-dR)*(sA))>>8)+dR; dR = (((sR-temp)*(255-dA))>>8)+temp; \
-        temp = (((sG-dG)*(sA))>>8)+dG; dG = (((sG-temp)*(255-dA))>>8)+temp; \
-        temp = (((sB-dB)*(sA))>>8)+dB; dB = (((sB-temp)*(255-dA))>>8)+temp; \
 
-        temp = (((sR-dR)*(sA))>>8)+dR; dR = (((temp-sR)*dA)>>8)+sR; \
-        temp = (((sG-dG)*(sA))>>8)+dG; dG = (((temp-sG)*dA)>>8)+sG; \
-        temp = (((sB-dB)*(sA))>>8)+dB; dB = (((temp-sB)*dA)>>8)+sB; \
+#define BLEND_TOP_VARS \
+        int n,ii; \
+        int width = info->d_width; \
+        int height = info->d_height; \
+        Uint8 *src = info->s_pixels; \
+        int srcskip = info->s_skip; \
+        Uint8 *dst = info->d_pixels; \
+        int dstskip = info->d_skip; \
+        SDL_PixelFormat *srcfmt = info->src; \
+        SDL_PixelFormat *dstfmt = info->dst; \
+        int srcbpp = srcfmt->BytesPerPixel; \
+        int dstbpp = dstfmt->BytesPerPixel; \
+        Uint8 dR, dG, dB, dA, sR, sG, sB, sA; \
+        Uint32 pixel; \
+        Uint32 tmp; \
+        Sint32 tmp2; \
+        ii = tmp = tmp2 = 0 ; \
 
-        dR = (((dR - sR) * (255-sA) * dA) >> 16) + (sR*sA)>>8);
-        dG = (((dG - sG) * (255-sA) * dA) >> 16) + (sG*sA)>>8);
-        dB = (((dB - sB) * (255-sA) * dA) >> 16) + (sB*sA)>>8);
-#endif
+
+
+#define BLEND_TOP \
+        while ( height-- ) \
+        { \
+            for(n=width; n>0; --n) \
+            { \
+
+
+#define BLEND_TOP_GENERIC \
+        BLEND_TOP; \
+        DISEMBLE_RGBA(src, srcbpp, srcfmt, pixel, sR, sG, sB, sA); \
+        DISEMBLE_RGBA(dst, dstbpp, dstfmt, pixel, dR, dG, dB, dA); \
+
+
+#define BLEND_BOTTOM \
+            } \
+            src += srcskip; \
+            dst += dstskip; \
+        } \
+
+#define BLEND_BOTTOM_GENERIC \
+                ASSEMBLE_RGBA(dst, dstbpp, dstfmt, dR, dG, dB, dA); \
+                src += srcbpp; \
+                dst += dstbpp; \
+                BLEND_BOTTOM; \
+
+
+#define BLEND_TOP_4 \
+    BLEND_TOP_VARS; \
+    if(srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4) { \
+        BLEND_TOP;  \
+            for(ii=0;ii < 3; ii++){ \
+
+#define BLEND_START_GENERIC \
+                src++;dst++; \
+            } \
+            src++;dst++; \
+        BLEND_BOTTOM;  \
+    } else { \
+        BLEND_TOP_GENERIC;  \
+// NOTE: we don't touch alpha.
+
+
+#define BLEND_END_GENERIC \
+        BLEND_BOTTOM_GENERIC; \
+    } \
+
+
+
+#define BLEND_ADD4(S,D)  \
+    tmp = (D) + (S);  (D) = (tmp <= 255 ? tmp: 255); \
+
+#define BLEND_SUB4(S,D)  \
+    tmp2 = (D)-(S); (D) = (tmp2 >= 0 ? tmp2 : 0);
+
+#define BLEND_MULT4(S,D)  \
+    tmp = ((D)) + ((S));  (D) = (tmp <= 255 ? tmp: 255); \
+
+#define BLEND_MIN4(S,D)  \
+    if ((S) < (D)) { (D) = (S); } \
+
+#define BLEND_MAX4(S,D)  \
+    if ((S) > (D)) { (D) = (S); } \
+
+
+
+#define BLEND_ADD(sR, sG, sB, sA, dR, dG, dB, dA)  \
+    dR = (dR+sR <= 255 ? dR+sR: 255); \
+    dG = (dG+sG <= 255 ? dG+sG : 255); \
+    dB = (dB+sB <= 255 ? dB+sB : 255); \
+
+
+#define BLEND_SUB(sR, sG, sB, sA, dR, dG, dB, dA)  \
+    tmp2 = dR - sR; dR = (tmp2 >= 0 ? tmp2 : 0); \
+    tmp2 = dG - sG; dG = (tmp2 >= 0 ? tmp2 : 0); \
+    tmp2 = dB - sB; dB = (tmp2 >= 0 ? tmp2 : 0); \
+
+
+#define BLEND_MULT(sR, sG, sB, sA, dR, dG, dB, dA)  \
+    dR = (dR * sR) >> 8; \
+    dG = (dG * sG) >> 8; \
+    dB = (dB * sB) >> 8; \
+
+#define BLEND_MIN(sR, sG, sB, sA, dR, dG, dB, dA)  \
+    if(sR < dR) { dR = sR; } \
+    if(sG < dG) { dG = sG; } \
+    if(sB < dB) { dB = sB; } \
+
+#define BLEND_MAX(sR, sG, sB, sA, dR, dG, dB, dA)  \
+    if(sR > dR) { dR = sR; } \
+    if(sG > dG) { dG = sG; } \
+    if(sB > dB) { dB = sB; } \
+
+
+
+
+static void blit_blend_ADD(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_ADD4(*src,*dst); BLEND_START_GENERIC; BLEND_ADD(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
+static void blit_blend_SUB(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_SUB4(*src,*dst); BLEND_START_GENERIC; BLEND_SUB(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
+static void blit_blend_MULT(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MULT4(*src,*dst); BLEND_START_GENERIC; BLEND_MULT(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
+static void blit_blend_MAX(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MAX4(*src,*dst); BLEND_START_GENERIC; BLEND_MAX(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
+static void blit_blend_MIN(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MIN4(*src,*dst); BLEND_START_GENERIC; BLEND_MIN(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
+
+
+
 
 
 
@@ -444,6 +515,108 @@ static void alphablit_solid(SDL_BlitInfo *info)
             src += srcskip;
             dst += dstskip;
         }
+}
+
+
+
+/*we assume the "dst" has pixel alpha*/
+int pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect,
+                   SDL_Surface *dst, SDL_Rect *dstrect, int the_args)
+{
+        SDL_Rect fulldst;
+        int srcx, srcy, w, h;
+
+        /* Make sure the surfaces aren't locked */
+        if ( ! src || ! dst ) {
+                SDL_SetError("SDL_UpperBlit: passed a NULL surface");
+                return(-1);
+        }
+        if ( src->locked || dst->locked ) {
+                SDL_SetError("Surfaces must not be locked during blit");
+                return(-1);
+        }
+
+        /* If the destination rectangle is NULL, use the entire dest surface */
+        if ( dstrect == NULL ) {
+                fulldst.x = fulldst.y = 0;
+                dstrect = &fulldst;
+        }
+
+        /* clip the source rectangle to the source surface */
+        if(srcrect) {
+                int maxw, maxh;
+
+                srcx = srcrect->x;
+                w = srcrect->w;
+                if(srcx < 0) {
+                        w += srcx;
+                        dstrect->x -= srcx;
+                        srcx = 0;
+                }
+                maxw = src->w - srcx;
+                if(maxw < w)
+                        w = maxw;
+
+                srcy = srcrect->y;
+                h = srcrect->h;
+                if(srcy < 0) {
+                        h += srcy;
+                        dstrect->y -= srcy;
+                        srcy = 0;
+                }
+                maxh = src->h - srcy;
+                if(maxh < h)
+                        h = maxh;
+
+        } else {
+                srcx = srcy = 0;
+                w = src->w;
+                h = src->h;
+        }
+
+        /* clip the destination rectangle against the clip rectangle */
+        {
+                SDL_Rect *clip = &dst->clip_rect;
+                int dx, dy;
+
+                dx = clip->x - dstrect->x;
+                if(dx > 0) {
+                        w -= dx;
+                        dstrect->x += dx;
+                        srcx += dx;
+                }
+                dx = dstrect->x + w - clip->x - clip->w;
+                if(dx > 0)
+                        w -= dx;
+
+                dy = clip->y - dstrect->y;
+                if(dy > 0) {
+                        h -= dy;
+                        dstrect->y += dy;
+                        srcy += dy;
+                }
+                dy = dstrect->y + h - clip->y - clip->h;
+                if(dy > 0)
+                        h -= dy;
+        }
+
+        if(w > 0 && h > 0) {
+                SDL_Rect sr;
+                sr.x = srcx;
+                sr.y = srcy;
+                sr.w = dstrect->w = w;
+                sr.h = dstrect->h = h;
+                return SoftBlitPyGame(src, &sr, dst, dstrect, the_args);
+        }
+        dstrect->w = dstrect->h = 0;
+        return 0;
+}
+
+
+int pygame_AlphaBlit (SDL_Surface *src, SDL_Rect *srcrect,
+                   SDL_Surface *dst, SDL_Rect *dstrect)
+{
+    return pygame_Blit(src, srcrect, dst, dstrect, 0);
 }
 
 

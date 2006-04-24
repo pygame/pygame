@@ -28,6 +28,7 @@
 #define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) SDL_##x);
 #define DEC_CONSTK(x) PyModule_AddIntConstant(module, #x, (int) SDL##x);
 #define DEC_CONSTN(x) PyModule_AddIntConstant(module, #x, (int) x);
+#define DEC_CONSTS(x,y) PyModule_AddIntConstant(module, #x, (int) y);
 
 
 static PyMethodDef builtins[] =
@@ -117,9 +118,22 @@ void initconstants(void)
         SCRAP_TEXT= T('T','E','X','T');
         SCRAP_BMP= T('B','M','P', ' ');
 
+
 	DEC_CONSTN(SCRAP_TEXT);
 	DEC_CONSTN(SCRAP_BMP);
 
+#define PYGAME_BLEND_ADD 0x1
+#define PYGAME_BLEND_ADD  0x1
+#define PYGAME_BLEND_SUB  0x2
+#define PYGAME_BLEND_MULT 0x3
+#define PYGAME_BLEND_MIN  0x4
+#define PYGAME_BLEND_MAX  0x5
+
+        DEC_CONSTS(BLEND_ADD,  PYGAME_BLEND_ADD);
+        DEC_CONSTS(BLEND_SUB,  PYGAME_BLEND_SUB);
+        DEC_CONSTS(BLEND_MULT, PYGAME_BLEND_MULT);
+        DEC_CONSTS(BLEND_MIN,  PYGAME_BLEND_MIN);
+        DEC_CONSTS(BLEND_MAX,  PYGAME_BLEND_MAX);
 
 
 	DEC_CONST(NOEVENT);
