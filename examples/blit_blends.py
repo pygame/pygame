@@ -28,6 +28,21 @@ def main():
     im3 = im2
     im3.set_alpha(127)
 
+    images = {}
+    images[K_1] = im2
+    images[K_2] = pygame.image.load(os.path.join("data", "chimp.bmp"))
+    images[K_3] = pygame.image.load(os.path.join("data", "alien3.gif"))
+    images[K_4] = pygame.image.load(os.path.join("data", "liquid.bmp"))
+    img_to_blit = im2
+
+
+    blits = {}
+    blits[K_a] = BLEND_ADD
+    blits[K_s] = BLEND_SUB
+    blits[K_m] = BLEND_MULT
+    blits[K_EQUALS] = BLEND_MAX
+    blits[K_MINUS] = BLEND_MIN
+
 
     screen.blit(im1, (0, 0))
     pygame.display.flip()
@@ -40,8 +55,24 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
-            elif event.type == KEYDOWN and event.key == K_ESCAPE:
+            if event.type == KEYDOWN:
+                usage()
+
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
                 return
+
+            elif event.type == KEYDOWN and event.key in images.keys():
+                img_to_blit = images[event.key]
+
+            elif event.type == KEYDOWN and event.key in blits.keys():
+                t1 = time.time()
+                # blits is a dict keyed with key -> blit flag.  eg BLEND_ADD.
+                im1.blit(img_to_blit, (0,0), None, blits[event.key])
+                t2 = time.time()
+                print "one pixel is:%s:" % [im1.get_at((0,0))]
+                print "time to do:%s:" % (t2-t1)
+
+
             elif event.type == KEYDOWN and event.key == K_SPACE:
                 # this additive blend without clamp two surfaces.
                 #im1.set_alpha(127)
@@ -89,20 +120,7 @@ def main():
                 print "one pixel is:%s:" % [im1.get_at((0,0))]
 
 
-            elif event.type == KEYDOWN and event.key in [K_a]:
-                t1 = time.time()
-                im1.blit(im2, (0,0), im1.get_rect(), BLEND_ADD)
-                t2 = time.time()
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
-                print "time to do:%s:" % (t2-t1)
 
-
-            elif event.type == KEYDOWN and event.key in [K_s]:
-                t1 = time.time()
-                im1.blit(im2, (0,0), im1.get_rect(), BLEND_SUB)
-                t2 = time.time()
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
-                print "time to do:%s:" % (t2-t1)
 
 
             elif event.type == KEYDOWN and event.key == K_f:
@@ -121,6 +139,10 @@ def main():
         screen.blit(im1, (0, 0))
         pygame.display.flip()
 
+def usage():
+    print "press keys 1-5 to change image to blit."
+    print "A - ADD, S- SUB, M- MULT, - MIN, + MAX"
 
-
-if __name__ == '__main__': main()
+if __name__ == '__main__': 
+    usage()
+    main()

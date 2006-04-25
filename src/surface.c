@@ -917,7 +917,10 @@ static PyObject* surf_blit(PyObject* self, PyObject* args)
 	else
 		return RAISE(PyExc_TypeError, "invalid destination position for blit");
 
-	if(argrect)
+        
+
+
+	if(argrect && argrect != Py_None)
 	{
 		if(!(src_rect = GameRect_FromObject(argrect, &temp)))
 			return RAISE(PyExc_TypeError, "Invalid rectstyle argument");
