@@ -50,11 +50,7 @@ typedef struct {
 static void alphablit_alpha(SDL_BlitInfo *info);
 static void alphablit_colorkey(SDL_BlitInfo *info);
 static void alphablit_solid(SDL_BlitInfo *info);
-static void blit_blend_ADD(SDL_BlitInfo *info);
-static void blit_blend_SUB(SDL_BlitInfo *info);
-static void blit_blend_MULT(SDL_BlitInfo *info);
-static void blit_blend_MAX(SDL_BlitInfo *info);
-static void blit_blend_MIN(SDL_BlitInfo *info);
+static void blit_blend_THEM(SDL_BlitInfo *info, int the_args);
 
 
 
@@ -133,19 +129,16 @@ static int SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
                         break;
                     }
                     case PYGAME_BLEND_ADD:
-                        blit_blend_ADD(&info); break;
                     case PYGAME_BLEND_SUB:
-                        blit_blend_SUB(&info); 
-                        break;
                     case PYGAME_BLEND_MULT:
-                        blit_blend_MULT(&info); break;
                     case PYGAME_BLEND_MIN:
-                        blit_blend_MIN(&info); break;
-                    case PYGAME_BLEND_MAX:
-                        blit_blend_MAX(&info); break;
+                    case PYGAME_BLEND_MAX: {
+                        blit_blend_THEM(&info, the_args); 
+                        break;
+                    }
                     default:
                     {
-                        SDL_SetError("SDL_UpperBlit: passed a NULL surface");
+                        SDL_SetError("Invalid argument passed to blit.");
                         okay = 0;
                         break;
                     }
@@ -337,7 +330,6 @@ do {   if(dA){\
 
 
 #define BLEND_TOP_4 \
-    BLEND_TOP_VARS; \
     if(srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4) { \
         BLEND_TOP;  \
             for(ii=0;ii < 3; ii++){ \
@@ -362,10 +354,10 @@ do {   if(dA){\
     tmp = (D) + (S);  (D) = (tmp <= 255 ? tmp: 255); \
 
 #define BLEND_SUB4(S,D)  \
-    tmp2 = (D)-(S); (D) = (tmp2 >= 0 ? tmp2 : 0);
+    tmp2 = (D)-(S); (D) = (tmp2 >= 0 ? tmp2 : 0); \
 
 #define BLEND_MULT4(S,D)  \
-    tmp = ((D)) + ((S));  (D) = (tmp <= 255 ? tmp: 255); \
+    tmp = ((D) * (S)) >> 8;  (D) = (tmp <= 255 ? tmp: 255); \
 
 #define BLEND_MIN4(S,D)  \
     if ((S) < (D)) { (D) = (S); } \
@@ -403,13 +395,54 @@ do {   if(dA){\
     if(sB > dB) { dB = sB; } \
 
 
+static void blit_blend_THEM(SDL_BlitInfo *info, int the_args) {
+    BLEND_TOP_VARS;
 
+    switch(the_args) {
+        case PYGAME_BLEND_ADD: {
+            BLEND_TOP_4;
+            BLEND_ADD4(*src,*dst); 
+            BLEND_START_GENERIC; 
+            BLEND_ADD(sR, sG, sB, sA, dR, dG, dB, dA); 
+            BLEND_END_GENERIC;
+            break;
+        }
+        case PYGAME_BLEND_SUB: {
+            BLEND_TOP_4;
+            BLEND_SUB4(*src,*dst); 
+            BLEND_START_GENERIC; 
+            BLEND_SUB(sR, sG, sB, sA, dR, dG, dB, dA); 
+            BLEND_END_GENERIC;
+            break;
+        }
+        case PYGAME_BLEND_MULT: {
+            BLEND_TOP_4;
+            BLEND_MULT4(*src,*dst); 
+            BLEND_START_GENERIC; 
+            BLEND_MULT(sR, sG, sB, sA, dR, dG, dB, dA); 
+            BLEND_END_GENERIC;
+            break;
+        }
+        case PYGAME_BLEND_MIN: {
+            BLEND_TOP_4;
+            BLEND_MIN4(*src,*dst); 
+            BLEND_START_GENERIC; 
+            BLEND_MIN(sR, sG, sB, sA, dR, dG, dB, dA); 
+            BLEND_END_GENERIC;
+            break;
+        }
+        case PYGAME_BLEND_MAX: {
+            BLEND_TOP_4;
+            BLEND_MAX4(*src,*dst); 
+            BLEND_START_GENERIC; 
+            BLEND_MAX(sR, sG, sB, sA, dR, dG, dB, dA); 
+            BLEND_END_GENERIC;
+            break;
+        }
 
-static void blit_blend_ADD(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_ADD4(*src,*dst); BLEND_START_GENERIC; BLEND_ADD(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
-static void blit_blend_SUB(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_SUB4(*src,*dst); BLEND_START_GENERIC; BLEND_SUB(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
-static void blit_blend_MULT(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MULT4(*src,*dst); BLEND_START_GENERIC; BLEND_MULT(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
-static void blit_blend_MAX(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MAX4(*src,*dst); BLEND_START_GENERIC; BLEND_MAX(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
-static void blit_blend_MIN(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MIN4(*src,*dst); BLEND_START_GENERIC; BLEND_MIN(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
+    }
+}
+
 
 
 
