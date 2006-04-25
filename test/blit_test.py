@@ -41,10 +41,10 @@ class BlitTest( unittest.TestCase ):
         """
 
         #test that it doesn't overflow, and that it is saturated.
-        s = pygame.Surface((1,1), SRCALPHA, 32)
+        s = pygame.Surface((1,1))
         s.fill((255, 255,255, 0))
 
-        d = pygame.Surface((1,1), SRCALPHA, 32)
+        d = pygame.Surface((1,1))
         d.fill((0, 0,255, 255))
 
         s.blit(d, (0,0), d.get_rect(), BLEND_ADD)
@@ -56,7 +56,17 @@ class BlitTest( unittest.TestCase ):
         s.blit(d, (0,0), d.get_rect(), BLEND_ADD)
         self.assertEqual(s.get_at((0,0))[2], 255 )
 
+        # test subbing works.
+        s.fill((20, 255,255, 0))
+        d.fill((10, 0,255, 255))
+        s.blit(d, (0,0), d.get_rect(), BLEND_SUB)
+        self.assertEqual(s.get_at((0,0))[0], 10 )
 
+        # no overflow in sub blend.
+        s.fill((20, 255,255, 0))
+        d.fill((30, 0,255, 255))
+        s.blit(d, (0,0), d.get_rect(), BLEND_SUB)
+        self.assertEqual(s.get_at((0,0))[0], 0 )
 
 
 
