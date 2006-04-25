@@ -274,9 +274,9 @@ do {                                            \
 #else
 #define ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB, dA)  \
 do {   if(dA){\
-        dR = ( ((255-sA)*dR ) + ((sR*sA)) ) >> 8;                \
-        dG = ( ((255-sA)*dG ) + ((sG*sA)) ) >> 8;                \
-        dB = ( ((255-sA)*dB ) + ((sB*sA)) ) >> 8;                \
+        dR = ((dR<<8) + (sR-dR)*sA + sR) >> 8;	   \
+        dG = ((dG<<8) + (sG-dG)*sA + sG) >> 8;     \
+        dB = ((dB<<8) + (sB-dB)*sA + sB) >> 8;	   \
         dA = sA+dA - ((sA*dA)/255);                \
     }else{\
         dR = sR;                \
@@ -410,8 +410,6 @@ static void blit_blend_SUB(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_SUB4(*src,*d
 static void blit_blend_MULT(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MULT4(*src,*dst); BLEND_START_GENERIC; BLEND_MULT(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
 static void blit_blend_MAX(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MAX4(*src,*dst); BLEND_START_GENERIC; BLEND_MAX(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
 static void blit_blend_MIN(SDL_BlitInfo *info) { BLEND_TOP_4; BLEND_MIN4(*src,*dst); BLEND_START_GENERIC; BLEND_MIN(sR, sG, sB, sA, dR, dG, dB, dA); BLEND_END_GENERIC; }
-
-
 
 
 
