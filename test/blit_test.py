@@ -47,25 +47,25 @@ class BlitTest( unittest.TestCase ):
         d = pygame.Surface((1,1))
         d.fill((0, 0,255, 255))
 
-        s.blit(d, (0,0), d.get_rect(), BLEND_ADD)
+        s.blit(d, (0,0), None, BLEND_ADD)
         self.assertEqual(s.get_at((0,0))[2], 255 )
 
         # test adding works.
         s.fill((20, 255,255, 0))
         d.fill((10, 0,255, 255))
-        s.blit(d, (0,0), d.get_rect(), BLEND_ADD)
+        s.blit(d, (0,0), None, BLEND_ADD)
         self.assertEqual(s.get_at((0,0))[2], 255 )
 
         # test subbing works.
         s.fill((20, 255,255, 0))
         d.fill((10, 0,255, 255))
-        s.blit(d, (0,0), d.get_rect(), BLEND_SUB)
+        s.blit(d, (0,0), None, BLEND_SUB)
         self.assertEqual(s.get_at((0,0))[0], 10 )
 
         # no overflow in sub blend.
         s.fill((20, 255,255, 0))
         d.fill((30, 0,255, 255))
-        s.blit(d, (0,0), d.get_rect(), BLEND_SUB)
+        s.blit(d, (0,0), None, BLEND_SUB)
         self.assertEqual(s.get_at((0,0))[0], 0 )
 
 

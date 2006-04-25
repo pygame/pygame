@@ -90,8 +90,9 @@ blit. The size of the destination rectangle does not effect the blit.
 An optional area rectangle can be passed as well. This represents a smaller
 portion of the source Surface to draw.
 
-An optional special flags is for passing in BLEND_ADD.  With other special
-blitting flags perhaps added in the future.
+An optional special flags is for passing in 
+BLEND_ADD, BLEND_SUB, BLEND_MULT, BLEND_MIN, BLEND_MAX
+With other special blitting flags perhaps added in the future.
 
 The return rectangle is the area of the effected pixels, excluding any pixels
 outside the destination Surface, or outside the clipping area.
