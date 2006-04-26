@@ -6,8 +6,12 @@
 import os, pygame
 from pygame.locals import *
 
-import pygame.surfarray
-import Numeric
+try:
+    import pygame.surfarray
+    import Numeric
+except:
+    print "no surfarray for you!  install Numeric"
+
 import time
         
 
