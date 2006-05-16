@@ -2,9 +2,6 @@
 Here are some steps for making a new release of pygame.  So everyone knows what needs to be done to make a release work smoothly.
 
 
-This is a draft document so far... any ideas welcome.
-
-
 == release steps ==
 
 *  declare next release as coming soon to developers, and mailing list.
@@ -14,7 +11,7 @@ This is a draft document so far... any ideas welcome.
 *  WHATSNEW document is updated, with any changes.
 *  declare tar ball set, by making a branch in cvs with the pygame version as rc1.  eg 1.7.1rc1
 *  second round of testing goes on the new release branch.  If any changes need to be made, all platforms need to be tested again and signed off.  The pygame rc version is incremented and a new rc tar ball is released.  eg 1.7.1rc2.
-*  if no changes needed to be made to the rc release, then the version is changed.  eg from 1.7.1rc1 to 1.7.1
+*  if no changes needed to be made to the rc release, then the version is changed.  eg from 1.7.1rc1 to 1.7.1release
 *  release person uploads final sources tarball to website.
 *  documentation is remade, and uploaded to website, not before sources.
 *  release binaries, not before sources.
