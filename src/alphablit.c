@@ -1,6 +1,7 @@
 /*
     pygame - Python Game Library
     Copyright (C) 2000-2001  Pete Shinners
+    Copyright (C) 2006  Rene Dudfield
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -154,6 +155,12 @@ static int SoftBlitPyGame(SDL_Surface *src, SDL_Rect *srcrect,
         /* Blit is done! */
         return(okay ? 0 : -1);
 }
+
+
+
+/*
+ * Macros below are for the blit blending functions.
+ */
 
 
 #define GET_PIXEL(buf, bpp, fmt, pixel)                    \
@@ -349,6 +356,9 @@ do {   if(dA){\
     } \
 
 
+/*
+ * Blending functions for the 32bit routines.
+ */
 
 #define BLEND_ADD4(S,D)  \
     tmp = (D) + (S);  (D) = (tmp <= 255 ? tmp: 255); \
@@ -366,6 +376,9 @@ do {   if(dA){\
     if ((S) > (D)) { (D) = (S); } \
 
 
+/*
+ * These are the dissasembled blending functions.
+ */
 
 #define BLEND_ADD(sR, sG, sB, sA, dR, dG, dB, dA)  \
     dR = (dR+sR <= 255 ? dR+sR: 255); \
@@ -395,10 +408,19 @@ do {   if(dA){\
     if(sB > dB) { dB = sB; } \
 
 
+/*
+ * blit_blend takes the blending args, and then uses that to select the 
+ *  correct code for blending with.
+ */
 static void blit_blend_THEM(SDL_BlitInfo *info, int the_args) {
     BLEND_TOP_VARS;
 
     switch(the_args) {
+        /*
+         * We use macros to keep the code shorter.
+         * First we see if it is a 32bit RGBA surface.  If so we have some 
+         *  special case code for that.  Otherwise we use the generic code.
+         */
         case PYGAME_BLEND_ADD: {
             BLEND_TOP_4;
             BLEND_ADD4(*src,*dst); 
