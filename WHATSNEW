@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 18, 2006
+    Patch from Peter Nicolai to add the channel to the sound queued event.
+
 April 25, 2006
     Added some new blend modes to blit. Add,sub,mult,max,min.
     [BUG] Fixed SRCALPHA blending.  Thanks Lenard Lindstrom!
