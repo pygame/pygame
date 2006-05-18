@@ -71,6 +71,10 @@ static void endsound_callback(int channel)
 	    SDL_Event e;
 	    memset(&e, 0, sizeof(e));
 	    e.type = channeldata[channel].endevent;
+            if(e.type >= SDL_USEREVENT && e.type < SDL_NUMEVENTS) {
+                e.user.code = channel;
+            }
+
 	    SDL_PushEvent(&e);
 	}
 	if(channeldata[channel].queue)
