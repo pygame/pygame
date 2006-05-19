@@ -37,8 +37,7 @@ own new events with the pygame.event.Event() function.
 
 Your program must take steps to keep the event queue from overflowing. If the
 program is not clearing or getting all events off the queue at regular
-intervals, it can overflow. When the queue is overflowed no new events can
-be added to it.
+intervals, it can overflow.  When the queue overflows an exception is thrown.
  
 All Event objects contain an event type identifier in the Event.type member.
 You may also get full access to the Event's member data through the Event.dict
