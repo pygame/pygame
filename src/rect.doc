@@ -14,7 +14,7 @@ these values to construct a Rect. This makes it easier to create Rects
 on the fly as arguments to functions.
 
 The Rect functions that change the position or size of a Rect return
-a new copy of the Rect with the effected changes. The original Rect
+a new copy of the Rect with the affected changes. The original Rect
 is not modified. Some methods have an alternate "in-place" version that
 returns None but effects the original Rect. These "in-place" methods
 are denoted with the "ip" suffix.

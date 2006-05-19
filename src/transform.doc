@@ -54,7 +54,7 @@ colorkey or the topleft pixel value.
 
 rotozoom
 filtered scale and rotation
-pygame.transorm.rotozoom(Surface, angle, scale): return Surface
+pygame.transform.rotozoom(Surface, angle, scale): return Surface
 
 This is a combined scale and rotation transform. The resulting Surface will
 be a filtered 32-bit Surface. The scale argument is a floating point value
