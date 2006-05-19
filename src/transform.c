@@ -35,6 +35,7 @@ void scale2x(SDL_Surface *src, SDL_Surface *dst);
 static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 {
 	SDL_Surface* newsurf;
+        int result;
 
 	if(surf->format->BytesPerPixel <= 0 || surf->format->BytesPerPixel > 4)
 		return (SDL_Surface*)(RAISE(PyExc_ValueError, "unsupport Surface bit depth for transform"));
@@ -49,6 +50,15 @@ static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 		SDL_SetColors(newsurf, surf->format->palette->colors, 0, surf->format->palette->ncolors);
 	if(surf->flags & SDL_SRCCOLORKEY)
 		SDL_SetColorKey(newsurf, (surf->flags&SDL_RLEACCEL)|SDL_SRCCOLORKEY, surf->format->colorkey);
+
+	if(surf->flags&SDL_SRCALPHA) {
+            result = SDL_SetAlpha(newsurf, surf->flags, surf->format->alpha);
+
+            if(result == -1)
+                return (SDL_Surface*)(RAISE(PyExc_SDLError, SDL_GetError()));
+        }
+
+
 
 	return newsurf;
 }
