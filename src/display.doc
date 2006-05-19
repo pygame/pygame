@@ -219,6 +219,8 @@ Creates a dictionary filled with string keys. The strings and values are
 arbitrarily created by the system. Some systems may have no information and
 an empty dictionary will be returned. Most platforms will return a "window"
 key with the value set to the system id for the current display.
+
+New with pygame 1.7.1
 <END>
 
 

@@ -115,7 +115,7 @@ draw fine antialiased lines
 pygame.draw.aaline(Surface, color, startpos, endpos, blend=1): return Rect
 
 Draws an anti-aliased line on a surface. This will respect the clipping
-rectangle. A bounding box of the effected area is returned returned as a
+rectangle. A bounding box of the affected area is returned returned as a
 rectangle. The if blend is true, the shades will be be blended with existing
 pixel shades instead of overwriting them. This function accepts floating
 point values for the end points. 
