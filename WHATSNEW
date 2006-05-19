@@ -66,6 +66,7 @@ September 8, 2005
 September 1, 2005
     music.queue() now raises exception if load fails.
 
+release_1_7_1release
 August 15, 2005
     Fix to make Chinese fonts work better on windows.  
       From retsyo  AT  eyou  Dot  com.
