@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 20, 2006
+    Documentation updates merged in from some doc comments on website.
+    [BUG] pygame.transform.* functions now retain SRCALPHA info after scaling.
+    Some new unittests for pygame.display.update, pygame.transform.scale.
+
 May 18, 2006
     Patch from Peter Nicolai to add the channel to the sound queued event.
 
