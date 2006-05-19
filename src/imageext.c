@@ -92,10 +92,63 @@ static PyObject* image_load_ext(PyObject* self, PyObject* arg)
 
 
 
+static PyObject* image_save_ext(PyObject* self, PyObject* arg)
+{
+#if 0
+    /*
+     * TODO:FIXME:HACK: this function needs fixing.
+     */
+	PyObject* file, *final;
+	char* name = NULL;
+	SDL_Surface* surf;
+	SDL_RWops *rw;
+	if(!PyArg_ParseTuple(arg, "O|s", &file, &name))
+		return NULL;
+	if(PyString_Check(file) || PyUnicode_Check(file))
+	{
+		if(!PyArg_ParseTuple(arg, "s|O", &name, &file))
+			return NULL;
+		Py_BEGIN_ALLOW_THREADS
+		surf = IMG_Load(name);
+		Py_END_ALLOW_THREADS
+	}
+	else
+	{
+		if(!name && PyFile_Check(file))
+			name = PyString_AsString(PyFile_Name(file));
+
+		if(!(rw = RWopsFromPython(file)))
+			return NULL;
+		if(RWopsCheckPython(rw))
+                {
+			surf = IMG_LoadTyped_RW(rw, 1, find_extension(name));
+                }
+		else
+		{
+			Py_BEGIN_ALLOW_THREADS
+			surf = IMG_LoadTyped_RW(rw, 1, find_extension(name));
+			Py_END_ALLOW_THREADS
+		}
+	}
+
+	if(!surf)
+		return RAISE(PyExc_SDLError, IMG_GetError());
+
+	final = PySurface_New(surf);
+	if(!final)
+		SDL_FreeSurface(surf);
+	return final;
+#endif
+}
+
+
+
+
 
 static PyMethodDef image_builtins[] =
 {
 	{ "load_extended", image_load_ext, 1, DOC_PYGAMEIMAGE },
+	{ "save_extended", image_save_ext, 1, DOC_PYGAMEIMAGE },
 
 	{ NULL, NULL }
 };
