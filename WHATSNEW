@@ -4,6 +4,11 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+
+May 27, 2006
+    Added saving surfaces as a .png file.  Works if imageext is there.
+    Saves as 24 bit RGB or as 32bit RGBA pngs depending on the surface.
+
 May 20, 2006
     Documentation updates merged in from some doc comments on website.
     [BUG] pygame.transform.* functions now retain SRCALPHA info after scaling.
