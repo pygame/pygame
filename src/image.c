@@ -32,6 +32,7 @@ static int SaveTGA_RW(SDL_Surface *surface, SDL_RWops *out, int rle);
 static SDL_Surface* opengltosdl(void);
 
 
+
 #define DATAROW(data, row, width, height, flipped) \
 			((flipped) ? (((char*)data)+(height-row-1)*width) : (((char*)data)+row*width))
 
@@ -154,9 +155,11 @@ static SDL_Surface* opengltosdl()
 PyObject* image_save(PyObject* self, PyObject* arg)
 {
 	PyObject* surfobj, *file;
+        PyObject *imgext = NULL;
 	SDL_Surface *surf;
 	SDL_Surface *temp = NULL;
-	int result;
+	int result = 0;
+
 
 	if(!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &file))
 		return NULL;
@@ -178,12 +181,39 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 		if(!PyArg_ParseTuple(arg, "O|s", &file, &name))
 			return NULL;
                 namelen = strlen(name);
-		Py_BEGIN_ALLOW_THREADS
-                if(name[namelen-1]=='p' || name[namelen-1]=='P')
+                if(name[namelen-1]=='p' || name[namelen-1]=='P') {
+                    Py_BEGIN_ALLOW_THREADS
 		    result = SDL_SaveBMP(surf, name);
-                else
+                    Py_END_ALLOW_THREADS
+                } else if((namelen > 3) && 
+                          (((name[namelen-1]=='g' || name[namelen-1]=='G') &&
+                            (name[namelen-2]=='n' || name[namelen-2]=='N')) ||
+                           ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
+                            (name[namelen-2]=='e' || name[namelen-2]=='E'))
+                           )) {
+
+                    /* try to get extended formats */
+                    imgext = PyImport_ImportModule("pygame.imageext");
+
+                    if(imgext)
+                    {
+                        PyObject *extdict = PyModule_GetDict(imgext);
+                        PyObject* extsave = PyDict_GetItemString(extdict, "save_extended");
+                        PyObject* data = PyObject_CallObject(extsave, arg);
+                        if(!data) {
+                            result = -1;
+                        }
+                        Py_DECREF(imgext);
+
+                    } else {
+                        result = -2;
+                    }
+
+                } else {
+                    Py_BEGIN_ALLOW_THREADS
                     result = SaveTGA(surf, name, 1);
-		Py_END_ALLOW_THREADS
+                    Py_END_ALLOW_THREADS
+                }
 	}
 	else
 	{
@@ -199,7 +229,9 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 		SDL_FreeSurface(temp);
 	else
 		PySurface_Unprep(surfobj);
-
+        
+	if(result == -2)
+            return imgext;
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
@@ -966,9 +998,12 @@ void initimage(void)
 	{
 		PyObject *extdict = PyModule_GetDict(extmodule);
 		PyObject* extload = PyDict_GetItemString(extdict, "load_extended");
+		PyObject* extsave = PyDict_GetItemString(extdict, "save_extended");
 		PyDict_SetItemString(dict, "load_extended", extload);
+		PyDict_SetItemString(dict, "save_extended", extsave);
 		PyDict_SetItemString(dict, "load", extload);
 		Py_INCREF(extload);
+		Py_INCREF(extsave);
 		Py_INCREF(extload);
 		is_extended = 1;
 	}
@@ -977,7 +1012,9 @@ void initimage(void)
 		PyObject* basicload = PyDict_GetItemString(dict, "load_basic");
 		PyErr_Clear();
 		PyDict_SetItemString(dict, "load_extended", Py_None);
+		PyDict_SetItemString(dict, "save_extended", Py_None);
 		PyDict_SetItemString(dict, "load", basicload);
+		Py_INCREF(Py_None);
 		Py_INCREF(Py_None);
 		Py_INCREF(basicload);
 		is_extended = 0;
