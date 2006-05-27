@@ -26,7 +26,17 @@ def surfdemo_show(array_img, name):
         e = pygame.event.wait()
         if e.type == MOUSEBUTTONDOWN: break
         elif e.type == KEYDOWN and e.key == K_s:
-            pygame.image.save(screen, name+'.bmp')
+            #pygame.image.save(screen, name+'.bmp')
+            #s = pygame.Surface(screen.get_size(), 0, 32)
+            #s = s.convert_alpha()
+            #s.fill((0,0,0,255))
+            #s.blit(screen, (0,0))
+            #s.fill((222,0,0,50), (0,0,40,40))
+            #pygame.image.save_extended(s, name+'.png')
+            #pygame.image.save(s, name+'.png')
+            #pygame.image.save(screen, name+'_screen.png')
+            #pygame.image.save(s, name+'.tga')
+            pygame.image.save(screen, name+'.png')
         elif e.type == QUIT: raise SystemExit
 
 
