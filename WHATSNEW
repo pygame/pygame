@@ -4,6 +4,8 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 28, 2006
+    Added saving surfaces as a .jpg or .jpeg file.  Works if imageext is there.
 
 May 27, 2006
     Added saving surfaces as a .png file.  Works if imageext is there.
