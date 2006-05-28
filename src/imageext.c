@@ -1,6 +1,7 @@
 /*
     pygame - Python Game Library
     Copyright (C) 2000-2001  Pete Shinners
+    Copyright (C) 2006 Rene Dudfield
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -26,11 +27,12 @@
  *  by the normal pygame.image module if it is available.
  */
 #include <png.h>
+#include <jpeglib.h>
 #include "pygame.h"
 #include "pygamedocs.h"
 #include <SDL_image.h>
 
-
+SDL_Surface* opengltosdl(void);
 
 
 static char* find_extension(char* fullname)
@@ -98,16 +100,14 @@ static PyObject* image_load_ext(PyObject* self, PyObject* arg)
 
 
 
-#ifdef PNG_H
 
+#ifdef PNG_H
 
 int write_png(char *file_name, png_bytep *rows, int w, int h, int colortype, int bitdepth) {
 
     png_structp png_ptr;
     png_infop info_ptr;
     FILE *fp = NULL;
-    /*FILE *fp = fopen(file_name, "wb");
-     */
     char *doing = "open for writing";
 
     if (!(fp = fopen(file_name, "wb"))) goto fail;
@@ -142,15 +142,14 @@ int write_png(char *file_name, png_bytep *rows, int w, int h, int colortype, int
     return 0;
 
     fail:
-    printf("Write_png: could not %s\n", doing);
+    SDL_SetError("SavePNG: could not %s", doing);
+
     return -1;
 }
 
 
 
 
-
- /* make a screenshot */
 int SavePNG(SDL_Surface *surface, char *file) {
 
     static unsigned char** ss_rows;
@@ -158,8 +157,7 @@ int SavePNG(SDL_Surface *surface, char *file) {
     static int ss_w, ss_h;
     SDL_Surface *ss_surface;
     SDL_Rect ss_rect;
-    Uint32 rmask, gmask, bmask, amask;
-    int r, i, s;
+    int r, i;
     int alpha = 0;
     int pixel_bits = 32;
 
@@ -247,9 +245,136 @@ int SavePNG(SDL_Surface *surface, char *file) {
 #endif /* end if PNG_H */
 
 
-//NOTE TODO FIXME: this opengltosdl is also in image.c  need to share it between both.
 
-static SDL_Surface* opengltosdl()
+
+
+
+
+
+
+#ifdef JPEGLIB_H
+
+int write_jpeg(char *file_name, unsigned char** image_buffer, 
+                   int image_width, int image_height, int quality) {
+
+  struct jpeg_compress_struct cinfo;
+
+  struct jpeg_error_mgr jerr;
+  FILE * outfile;
+  JSAMPROW row_pointer[1];
+  int row_stride;
+
+  cinfo.err = jpeg_std_error(&jerr);
+  jpeg_create_compress(&cinfo);
+
+  if ((outfile = fopen(file_name, "wb")) == NULL) {
+    SDL_SetError("SaveJPEG: could not open %s", file_name);
+    return -1;
+  }
+  jpeg_stdio_dest(&cinfo, outfile);
+
+  cinfo.image_width = image_width;
+  cinfo.image_height = image_height;
+  cinfo.input_components = 3;
+  cinfo.in_color_space = JCS_RGB;
+  
+  jpeg_set_defaults(&cinfo);
+
+  jpeg_set_quality(&cinfo, quality, TRUE );
+
+
+  jpeg_start_compress(&cinfo, TRUE);
+  row_stride = image_width * 3;
+
+  while (cinfo.next_scanline < cinfo.image_height) {
+    row_pointer[0] = image_buffer[cinfo.next_scanline];
+    (void) jpeg_write_scanlines(&cinfo, row_pointer, 1);
+  }
+
+  jpeg_finish_compress(&cinfo);
+  fclose(outfile);
+  jpeg_destroy_compress(&cinfo);
+  return 0;
+}
+
+
+int SaveJPEG(SDL_Surface *surface, char *file) {
+    static unsigned char** ss_rows;
+    static int ss_size;
+    static int ss_w, ss_h;
+    SDL_Surface *ss_surface;
+    SDL_Rect ss_rect;
+    int r, i;
+    int alpha = 0;
+    int pixel_bits = 32;
+
+    ss_rows = 0;
+    ss_size = 0;
+    ss_surface = NULL;
+
+
+    ss_w = surface->w;
+    ss_h = surface->h;
+
+
+    alpha = 0;
+    pixel_bits = 24;
+
+    ss_surface = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, ss_w, ss_h, pixel_bits,
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                                           0xff0000, 0xff00, 0xff, 0x000000ff
+#else
+                                           0xff, 0xff00, 0xff0000, 0xff000000
+#endif
+                );
+
+    if(ss_surface == NULL) {
+        return -1;
+    }
+
+    ss_rect.x = 0;
+    ss_rect.y = 0;
+    ss_rect.w = ss_w;
+    ss_rect.h = ss_h;
+    SDL_BlitSurface(surface, &ss_rect, ss_surface, NULL);
+
+    if(ss_size == 0) {
+        ss_size = ss_h;
+        ss_rows = (unsigned char**)malloc(sizeof(unsigned char*) * ss_size);
+        if(ss_rows == NULL) {
+            return -1;
+        }
+    }
+
+    for(i = 0; i < ss_h; i++) {
+        ss_rows[i] = ((unsigned char*)ss_surface->pixels) + i * ss_surface->pitch;
+    }
+
+    r = write_jpeg(file, ss_rows, surface->w, surface->h, 85);
+
+
+    free(ss_rows);
+    SDL_FreeSurface(ss_surface);
+    ss_surface = NULL;
+
+    return r;
+}
+
+#endif /* end if JPEGLIB_H */
+
+
+
+
+
+
+
+
+/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c  
+ need to share it between both.
+*/
+
+
+SDL_Surface* opengltosdl(void)
 {
         /*we need to get ahold of the pyopengl glReadPixels function*/
         /*we use pyopengl's so we don't need to link with opengl at compiletime*/
@@ -330,7 +455,6 @@ static PyObject* image_save_ext(PyObject* self, PyObject* arg)
 	SDL_Surface *temp = NULL;
 	int result;
 
-#ifdef PNG_H
 	if(!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &file))
 		return NULL;
 	surf = PySurface_AsSurface(surfobj);
@@ -354,9 +478,29 @@ static PyObject* image_save_ext(PyObject* self, PyObject* arg)
 			return NULL;
                 namelen = strlen(name);
 		Py_BEGIN_ALLOW_THREADS
-                if(name[namelen-1]=='g' || name[namelen-1]=='G') {
-		    result = SavePNG(surf, name);
+                if((namelen > 3) && (
+                          ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
+                          (name[namelen-2]=='e' || name[namelen-2]=='E')) ||
+                          ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
+                           (name[namelen-2]=='p' || name[namelen-2]=='P'))
+                          )
+
+                          ) {
+#ifdef JPEGLIB_H
+		    result = SaveJPEG(surf, name);
+#elif
+                    return RAISE(PyExc_SDLError, "No support for jpg compiled in.");
+#endif
+
                 }
+                else if(name[namelen-1]=='g' || name[namelen-1]=='G') {
+#ifdef PNG_H
+		    result = SavePNG(surf, name);
+#elif
+                    return RAISE(PyExc_SDLError, "No support for png compiled in.");
+#endif
+                }
+
                 else {
                     result = -1;
                 }
@@ -383,9 +527,6 @@ static PyObject* image_save_ext(PyObject* self, PyObject* arg)
 
 	RETURN_NONE
 
-#elif
-        return RAISE(PyExc_SDLError, "No support for png compiled in.");
-#endif
 
 }
 
