@@ -26,8 +26,9 @@ to the following formats.
 * BMP
 * TGA
 * PNG
+* JPEG
 
-PNG saving new in pygame 1.8.
+PNG, JPEG saving new in pygame 1.8.
 <SECTION>
 
 
@@ -60,11 +61,11 @@ save
 save an image to disk
 pygame.image.save(Surface, filename): return None
 
-This will save your Surface as either a BMP, TGA or PNG image. If the filename
-extension is unrecognized it will default to TGA. Both TGA, and BMP file formats create
-uncompressed files.  
+This will save your Surface as either a BMP, TGA, PNG, or JPEG image. If the 
+filename extension is unrecognized it will default to TGA. Both TGA, and BMP 
+file formats create uncompressed files.  
 
-PNG saving new in pygame 1.8.
+PNG, JPEG saving new in pygame 1.8.
 <END>
 
 

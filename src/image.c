@@ -1,6 +1,7 @@
 /*
     pygame - Python Game Library
     Copyright (C) 2000-2001  Pete Shinners
+    Copyright (C) 2006 Rene Dudfield
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
@@ -189,8 +190,12 @@ PyObject* image_save(PyObject* self, PyObject* arg)
                           (((name[namelen-1]=='g' || name[namelen-1]=='G') &&
                             (name[namelen-2]=='n' || name[namelen-2]=='N')) ||
                            ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
-                            (name[namelen-2]=='e' || name[namelen-2]=='E'))
+                            (name[namelen-2]=='e' || name[namelen-2]=='E')) ||
+                           ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
+                            (name[namelen-2]=='p' || name[namelen-2]=='P'))
                            )) {
+                    /* If it is .png .jpg .jpeg use the extended module.
+                     */
 
                     /* try to get extended formats */
                     imgext = PyImport_ImportModule("pygame.imageext");
