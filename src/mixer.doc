@@ -124,7 +124,7 @@ The playback can later be resumed with pygame.mixer.unpause()
 
 
 unpause
-resume pause playback of sound channels
+resume paused playback of sound channels
 pygame.mixer.unpause(): return None
 
 This will resume all active sound channels after they have been paused.
@@ -222,12 +222,19 @@ play
 begin sound playback
 Sound.play(loops=0, maxtime=0): return Channel
 
-Begin playback of the Sound on an available Channel. This will forcibly select
+Begin playback of the Sound (i.e., on the computer's speakers) on an
+available Channel. This will forcibly select
 a Channel, so playback may cut off a currently playing sound if necessary.
 
-The loops argument controls how many times the sample will be played. If
-loops is set to -1 the Sound will loop indefinitely. The maxtime argument
-can be used to stop playback after a given number of milliseconds.
+The loops argument controls how many times the sample will be repeated after
+being played the first time. A value
+of 5 means that the sound will be played once, then repeated five times, and so
+is played a total of six times. The default value (zero) means the Sound
+is not repeated, and so is only played once. If loops is set to -1 the Sound 
+will loop indefinitely (though you can still call stop() to stop it).
+
+The maxtime argument can be used to stop playback after a given number of
+milliseconds.
 
 This returns the Channel object for the channel that was selected.
 <END>
@@ -258,7 +265,7 @@ set_volume
 set the playback volume for this Sound
 Sound.set_volume(value): return None
 
-This will set the playback volume for this Sound. This will immediately
+This will set the playback volume (loudness) for this Sound. This will immediately
 affect the Sound if it is playing. It will also affect any future playback
 of this Sound. The argument is a value from 0.0 to 1.0.
 <END>
@@ -267,7 +274,7 @@ of this Sound. The argument is a value from 0.0 to 1.0.
 
 get_volume
 get the playback volume
-Sound.get_volume(value): return value
+Sound.get_volume(): return value
 
 Return a value from 0.0 to 1.0 representing the volume for this Sound.
 <END>
@@ -311,9 +318,14 @@ play a Sound on a specific Channel
 Channel.play(Sound, loops=0, time=0): return None
 
 This will begin playback of a Sound on a specific Channel. If the Channel
-is currently playing any other Sound it will be stopped. The loops argument
-controls how many times the sample will be repeated. If loops is -1 then
-the playback will repeat indefinitely. The time argument can be used to
+is currently playing any other Sound it will be stopped.
+
+The loops argument has the same meaning as in Sound.play(): it is the
+number of times to repeat the sound after the first time. If it is
+3, the sound will be played 4 times (the first time, then three more).
+If loops is -1 then the playback will repeat indefinitely.
+
+As in Sound.play(), the time argument can be used to
 stop playback of the Sound after a given number of milliseconds.
 <END>
 
@@ -363,7 +375,7 @@ set the volume of a playing channel
 Channel.set_volume(value): return None
 Channel.set_volume(left, right): return None
 
-Set the volume of a playing sound. When a channel starts to play its
+Set the volume (loudness) of a playing sound. When a channel starts to play its
 volume value is reset. This only affects the current sound. The value
 argument is between 0.0 and 1.0.
 
@@ -373,7 +385,14 @@ first argument will be the volume of the left speaker and the second
 will be the volume of the right speaker. (If the second argument is
 None, the first argument will be the volume of both speakers.)
 
-This is mixed the the volume of the current Sound object as well.
+If the channel is playing a Sound on which set_volume() has also
+been called, both calls are taken into account. For example:
+
+    sound = pygame.mixer.Sound("s.wav")
+    channel = s.play()      # Sound plays at full volume by default
+    sound.set_volume(0.9)   # Now plays at 90% of full volume.
+    sound.set_volume(0.6)   # Now plays at 60% (previous value replaced).
+    channel.set_volume(0.5) # Now plays at 30% (0.6 * 0.5).
 <END>
 
 
@@ -430,7 +449,7 @@ return any Sound that is queued
 Channel.get_queue(): return Sound
 
 If a Sound is already queued on this channel it will be returned. Once
-the queued sound begind playback it will no longer be on the queue.
+the queued sound begins playback it will no longer be on the queue.
 <END>
 
 
@@ -441,11 +460,20 @@ Channel.set_endevent(): return None
 Channel.set_endevent(type): return None
 
 When an endevent is set for a channel, it will send an event to the pygame
-queue every time a sound finished playing. If stop() or play() is called
-on the Channel it will still post the event.
+queue every time a sound finishes playing on that channel (not just the
+first time). Use pygame.event.get() to retrieve the endevent once it's sent.
 
-The type argument will be the event id sent to the queue. If no type argument
-is given then the Channel will stop sending endevents.
+Note that if you called Sound.play(n) or Channel.play(sound,n), the end event is
+sent only once: after the sound has been played "n+1" times (see the
+documentation of Sound.play).
+
+If Channel.stop() or Channel.play() is called while the sound was still
+playing, the event will be posted immediately.
+
+The type argument will be the event id sent to the queue. This can be
+any valid event type, but a good choice would be a value between
+pygame.locals.USEREVENT and pygame.locals.NUMEVENTS.
+If no type argument is given then the Channel will stop sending endevents.
 <END>
 
 

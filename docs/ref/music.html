@@ -80,7 +80,7 @@
   <i>Start the playback of the music stream</i><br>
   <tt>pygame.mixer.music.play(loops=0, start=0.0): return None</tt><br>
 <p>This will play the loaded music stream. If the music is already playing it will be restarted. </p>
-<p>The loops argument controls the number of repeats a music will play. If the loops is -1 then the music will repeat indefinitely. </p>
+<p>The loops argument controls the number of repeats a music will play. play(5) will cause the music to played once, then repeated five times, for a total of six. If the loops is -1 then the music will repeat indefinitely. </p>
 <p>The starting position argument controls where in the music the song starts playing. The starting position is dependent on the format of music playing. <tt>MP3</tt> and <tt>OGG</tt> use the position as time (in seconds). <tt>MOD</tt> music it is the pattern order number. Passing a startpos will raise a NotImplementedError if it cannot set the start position </p>
 <!--COMMENTS:pygame.mixer.music.play--> &nbsp;<br> 
 <br></ul>
@@ -172,6 +172,11 @@
   <i>queue a music file to follow the current</i><br>
   <tt>pygame.mixer.music.queue(filename): return None</tt><br>
 <p>This will load a music file and queue it. <tt>A</tt> queued music file will begin as soon as the current music naturally ends. If the current music is ever stopped or changed, the queued song will be lost. </p>
+<p>The following example will play music by Bach six times, then play music by Mozart once: </p>
+<pre>    pygame.mixer.music.load('bach.ogg')
+    pygame.mixer.music.play(5)        # Plays six times, not five!
+    pygame.mixer.music.queue('mozart.ogg')
+</pre>
 <!--COMMENTS:pygame.mixer.music.queue--> &nbsp;<br> 
 <br></ul>
 

@@ -113,7 +113,7 @@
 <a name="Clock.tick">
 <big><b>Clock.tick</big></b><br><ul>
   <i>update the clock</i><br>
-  <tt>Clock.tick([framerate]) -> milliseconds</tt><br>
+  <tt>Clock.tick(framerate=0): return milliseconds</tt><br>
   <tt>control timer events</tt><br>
 <p>This method should be called once per frame. It will compute how many milliseconds have passed since the previous call. </p>
 <p>If you pass the optional framerate argument the function will delay to keep the game running slower than the given ticks per second. This can be used to help limit the runtime speed of a game. By calling <tt>Clock.tick(40)</tt> once per frame, the program will never run at more than 40 frames per second. </p>
@@ -125,7 +125,7 @@
 <a name="Clock.tick_busy_loop">
 <big><b>Clock.tick_busy_loop</big></b><br><ul>
   <i>update the clock</i><br>
-  <tt>Clock.tick_busy_loop([framerate]) -> milliseconds</tt><br>
+  <tt>Clock.tick_busy_loop(framerate=0): return milliseconds</tt><br>
   <tt>control timer events</tt><br>
 <p>This method should be called once per frame. It will compute how many milliseconds have passed since the previous call. </p>
 <p>If you pass the optional framerate argument the function will delay to keep the game running slower than the given ticks per second. This can be used to help limit the runtime speed of a game. By calling <tt>Clock.tick(40)</tt> once per frame, the program will never run at more than 40 frames per second. </p>

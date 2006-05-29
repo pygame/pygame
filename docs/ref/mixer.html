@@ -51,7 +51,7 @@
   <tr><td><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a> - <font size=-1>test if the mixer is initialized</font></td><td>test if the mixer is initialized</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.stop">pygame.mixer.stop</a> - <font size=-1>stop playback of all sound channels</font></td><td>stop playback of all sound channels</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.pause">pygame.mixer.pause</a> - <font size=-1>temporarily stop playback of all sound channels</font></td><td>temporarily stop playback of all sound channels</td></tr>
-  <tr><td><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a> - <font size=-1>resume pause playback of sound channels</font></td><td>resume pause playback of sound channels</td></tr>
+  <tr><td><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a> - <font size=-1>resume paused playback of sound channels</font></td><td>resume paused playback of sound channels</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.fadeout">pygame.mixer.fadeout</a> - <font size=-1>fade out the volume on all sounds before stopping</font></td><td>fade out the volume on all sounds before stopping</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.set_num_channels">pygame.mixer.set_num_channels</a> - <font size=-1>set the total number of playback channels</font></td><td>set the total number of playback channels</td></tr>
   <tr><td><a href="mixer.html#pygame.mixer.get_num_channels">pygame.mixer.get_num_channels</a> - <font size=-1>get the total number of playback channels</font></td><td>get the total number of playback channels</td></tr>
@@ -122,14 +122,14 @@
 <big><b>pygame.mixer.pause</big></b><br><ul>
   <i>temporarily stop playback of all sound channels</i><br>
   <tt>pygame.mixer.pause(): return None</tt><br>
-<p>This will temporarily stop all playback on the active mixer channels. The playback can later be resumed with <tt><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a> - <font size=-1>resume pause playback of sound channels</font></tt> </p>
+<p>This will temporarily stop all playback on the active mixer channels. The playback can later be resumed with <tt><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a> - <font size=-1>resume paused playback of sound channels</font></tt> </p>
 <!--COMMENTS:pygame.mixer.pause--> &nbsp;<br> 
 <br></ul>
 
 
 <a name="pygame.mixer.unpause">
 <big><b>pygame.mixer.unpause</big></b><br><ul>
-  <i>resume pause playback of sound channels</i><br>
+  <i>resume paused playback of sound channels</i><br>
   <tt>pygame.mixer.unpause(): return None</tt><br>
 <p>This will resume all active sound channels after they have been paused. </p>
 <!--COMMENTS:pygame.mixer.unpause--> &nbsp;<br> 
@@ -215,8 +215,9 @@
 <big><b>Sound.play</big></b><br><ul>
   <i>begin sound playback</i><br>
   <tt>Sound.play(loops=0, maxtime=0): return Channel</tt><br>
-<p>Begin playback of the Sound on an available Channel. This will forcibly select a Channel, so playback may cut off a currently playing sound if necessary. </p>
-<p>The loops argument controls how many times the sample will be played. If loops is set to -1 the Sound will loop indefinitely. The maxtime argument can be used to stop playback after a given number of milliseconds. </p>
+<p>Begin playback of the Sound <tt>(i.e.</tt>, on the computer's speakers) on an available Channel. This will forcibly select a Channel, so playback may cut off a currently playing sound if necessary. </p>
+<p>The loops argument controls how many times the sample will be repeated after being played the first time. <tt>A</tt> value of 5 means that the sound will be played once, then repeated five times, and so is played a total of six times. The default value (zero) means the Sound is not repeated, and so is only played once. If loops is set to -1 the Sound will loop indefinitely (though you can still call stop() to stop it). </p>
+<p>The maxtime argument can be used to stop playback after a given number of milliseconds. </p>
 <p>This returns the Channel object for the channel that was selected. </p>
 <!--COMMENTS:Sound.play--> &nbsp;<br> 
 <br></ul>
@@ -244,7 +245,7 @@
 <big><b>Sound.set_volume</big></b><br><ul>
   <i>set the playback volume for this Sound</i><br>
   <tt>Sound.set_volume(value): return None</tt><br>
-<p>This will set the playback volume for this Sound. This will immediately affect the Sound if it is playing. It will also affect any future playback of this Sound. The argument is a value from <tt>0.0</tt> to <tt>1.0</tt>. </p>
+<p>This will set the playback volume (loudness) for this Sound. This will immediately affect the Sound if it is playing. It will also affect any future playback of this Sound. The argument is a value from <tt>0.0</tt> to <tt>1.0</tt>. </p>
 <!--COMMENTS:Sound.set_volume--> &nbsp;<br> 
 <br></ul>
 
@@ -252,7 +253,7 @@
 <a name="Sound.get_volume">
 <big><b>Sound.get_volume</big></b><br><ul>
   <i>get the playback volume</i><br>
-  <tt>Sound.get_volume(value): return value</tt><br>
+  <tt>Sound.get_volume(): return value</tt><br>
 <p>Return a value from <tt>0.0</tt> to <tt>1.0</tt> representing the volume for this Sound. </p>
 <!--COMMENTS:Sound.get_volume--> &nbsp;<br> 
 <br></ul>
@@ -305,7 +306,9 @@
 <big><b>Channel.play</big></b><br><ul>
   <i>play a Sound on a specific Channel</i><br>
   <tt>Channel.play(Sound, loops=0, time=0): return None</tt><br>
-<p>This will begin playback of a Sound on a specific Channel. If the Channel is currently playing any other Sound it will be stopped. The loops argument controls how many times the sample will be repeated. If loops is -1 then the playback will repeat indefinitely. The time argument can be used to stop playback of the Sound after a given number of milliseconds. </p>
+<p>This will begin playback of a Sound on a specific Channel. If the Channel is currently playing any other Sound it will be stopped. </p>
+<p>The loops argument has the same meaning as in <tt>Sound.play():</tt> it is the number of times to repeat the sound after the first time. If it is 3, the sound will be played 4 times (the first time, then three more). If loops is -1 then the playback will repeat indefinitely. </p>
+<p>As in <tt><a href="mixer.html#Sound.play">Sound.play</a> - <font size=-1>begin sound playback</font></tt>, the time argument can be used to stop playback of the Sound after a given number of milliseconds. </p>
 <!--COMMENTS:Channel.play--> &nbsp;<br> 
 <br></ul>
 
@@ -351,9 +354,15 @@
   <i>set the volume of a playing channel</i><br>
   <tt>Channel.set_volume(value): return None</tt><br>
   <tt>Channel.set_volume(left, right): return None</tt><br>
-<p>Set the volume of a playing sound. When a channel starts to play its volume value is reset. This only affects the current sound. The value argument is between <tt>0.0</tt> and <tt>1.0</tt>. </p>
+<p>Set the volume (loudness) of a playing sound. When a channel starts to play its volume value is reset. This only affects the current sound. The value argument is between <tt>0.0</tt> and <tt>1.0</tt>. </p>
 <p>If one argument is passed, it will be the volume of both speakers. If two arguments are passed and the mixer is in stereo mode, the first argument will be the volume of the left speaker and the second will be the volume of the right speaker. (If the second argument is None, the first argument will be the volume of both <tt>speakers.)</tt> </p>
-<p>This is mixed the the volume of the current Sound object as well. </p>
+<p>If the channel is playing a Sound on which set_volume() has also been called, both calls are taken into account. For example: </p>
+<pre>    sound = pygame.mixer.Sound("s.wav")
+    channel = s.play()      # Sound plays at full volume by default
+    sound.set_volume(0.9)   # Now plays at 90% of full volume.
+    sound.set_volume(0.6)   # Now plays at 60% (previous value replaced).
+    channel.set_volume(0.5) # Now plays at 30% (0.6 * 0.5).
+</pre>
 <!--COMMENTS:Channel.set_volume--> &nbsp;<br> 
 <br></ul>
 
@@ -399,7 +408,7 @@
 <big><b>Channel.get_queue</big></b><br><ul>
   <i>return any Sound that is queued</i><br>
   <tt>Channel.get_queue(): return Sound</tt><br>
-<p>If a Sound is already queued on this channel it will be returned. Once the queued sound begind playback it will no longer be on the queue. </p>
+<p>If a Sound is already queued on this channel it will be returned. Once the queued sound begins playback it will no longer be on the queue. </p>
 <!--COMMENTS:Channel.get_queue--> &nbsp;<br> 
 <br></ul>
 
@@ -409,8 +418,10 @@
   <i>have the channel send an event when playback stops</i><br>
   <tt>Channel.set_endevent(): return None</tt><br>
   <tt>Channel.set_endevent(type): return None</tt><br>
-<p>When an endevent is set for a channel, it will send an event to the pygame queue every time a sound finished playing. If stop() or play() is called on the Channel it will still post the event. </p>
-<p>The type argument will be the event id sent to the queue. If no type argument is given then the Channel will stop sending endevents. </p>
+<p>When an endevent is set for a channel, it will send an event to the pygame queue every time a sound finishes playing on that channel (not just the first time). Use <tt><a href="event.html#pygame.event.get">pygame.event.get</a> - <font size=-1>get events from the queue</font></tt> to retrieve the endevent once it's sent. </p>
+<p>Note that if you called <tt>Sound.play(n)</tt> or <tt>Channel.play(sound,n)</tt>, the end event is sent only once: after the sound has been played "n+1" times (see the documentation of <tt>Sound.play)</tt>. </p>
+<p>If <tt><a href="mixer.html#Channel.stop">Channel.stop</a> - <font size=-1>stop playback on a Channel</font></tt> or <tt><a href="mixer.html#Channel.play">Channel.play</a> - <font size=-1>play a Sound on a specific Channel</font></tt> is called while the sound was still playing, the event will be posted immediately. </p>
+<p>The type argument will be the event id sent to the queue. This can be any valid event type, but a good choice would be a value between <tt>pygame.locals.USEREVENT</tt> and <tt>pygame.locals.NUMEVENTS</tt>. If no type argument is given then the Channel will stop sending endevents. </p>
 <!--COMMENTS:Channel.set_endevent--> &nbsp;<br> 
 <br></ul>
 
