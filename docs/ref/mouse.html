@@ -109,7 +109,9 @@
 <big><b>pygame.mouse.get_focused</big></b><br><ul>
   <i>check if the display is receiving mouse input</i><br>
   <tt>pygame.mouse.get_focused(): return bool</tt><br>
-<p>Returns true when the mouse is receiving mouse input events. This will only happen while working in windowed display systems. </p>
+<p>Returns true when pygame is receiving mouse input events (or, in windowing terminology, is "active" or has the "focus"). </p>
+<p>This method is most useful when working in a window. By contrast, in full-screen mode, this method always returns true. </p>
+<p>Note: under <tt>MS</tt> Windows, the window that has the mouse focus also has the keyboard focus. But under X-Windows, one window can receive mouse events and another receive keyboard events. <tt><a href="mouse.html#pygame.mouse.get_focused">pygame.mouse.get_focused</a> - <font size=-1>check if the display is receiving mouse input</font></tt> indicates whether the pygame window receives mouse events. </p>
 <!--COMMENTS:pygame.mouse.get_focused--> &nbsp;<br> 
 <br></ul>
 

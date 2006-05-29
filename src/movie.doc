@@ -10,7 +10,7 @@ Movie playback happens in background threads, which makes playback easy to
 manage.
 
 The audio for Movies must have full control over the sound system. This means
-the pygame.mixer module must be uninitialized for the movie to playback sound.
+the pygame.mixer module must be uninitialized if the movie's sound is to be played.
 The common solution is to call pygame.mixer.quit() before the movie begins. The
 mixer can be reinitialized after the movie is finished.
 
@@ -71,7 +71,7 @@ Movie.skip(seconds): return None
 
 Advance the movie playback time in seconds. This can be called before the
 movie is played to set the starting playback time. This can only skip the
-movie forward, not backwards. The seconds argument is a floating point number.
+movie forward, not backwards. The argument is a floating point number.
 <END>
 
 
@@ -91,7 +91,7 @@ the movie object is considered invalid.
 
 render_frame
 set the current video frame
-Movie.render_frame(frame): return frame
+Movie.render_frame(frame_number): return frame_number
 
 This takes an integer frame number to render. It attempts to render the
 given frame from the movie to the target Surface. It returns the real
@@ -102,7 +102,7 @@ frame number that got rendered.
 
 get_frame
 get the current video frame
-Movie.get_frame(): return frame
+Movie.get_frame(): return frame_number
 
 Returns the integer frame number of the current video frame.
 <END>
@@ -141,8 +141,8 @@ get_size
 get the resolution of the video
 Movie.get_size(): return (width, height)
 
-Gets the resolution of the movie video. The movie will be stretched to any
-size fo the Surface, but this will report the natural video size.
+Gets the resolution of the movie video. The movie will be stretched to
+the size of any Surface, but this will report the natural video size.
 <END>
 
 
@@ -158,7 +158,7 @@ True when the opened movie file contains a video stream.
 
 has_audio
 check if the movie file contains audio
-Movie.get_audio(): return
+Movie.get_audio(): return bool
 
 True when the opened movie file contains an audio stream.
 <END>
@@ -169,7 +169,7 @@ set_volume
 set the audio playback volume
 Movie.set_volume(value): return None
 
-Set the playback volume for this movie. The value argument is a value between
+Set the playback volume for this movie. The argument is a value between
 0.0 and 1.0. If the volume is set to 0 the movie audio will not be decoded.
 <END>
 
@@ -177,7 +177,7 @@ Set the playback volume for this movie. The value argument is a value between
 
 set_display
 set the video target Surface
-Movie.set_display(Surface, pos=None): return None
+Movie.set_display(Surface, rect=None): return None
 
 Set the output target Surface for the movie video. You may also pass a rectangle
 argument for the position, which will move and stretch the video into the

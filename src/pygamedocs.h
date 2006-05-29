@@ -294,7 +294,7 @@
 
 #define DOC_PYGAMEMIXERPAUSE "pygame.mixer.pause(): return None\ntemporarily stop playback of all sound channels"
 
-#define DOC_PYGAMEMIXERUNPAUSE "pygame.mixer.unpause(): return None\nresume pause playback of sound channels"
+#define DOC_PYGAMEMIXERUNPAUSE "pygame.mixer.unpause(): return None\nresume paused playback of sound channels"
 
 #define DOC_PYGAMEMIXERFADEOUT "pygame.mixer.fadeout(time): return None\nfade out the volume on all sounds before stopping"
 
@@ -318,7 +318,7 @@
 
 #define DOC_SOUNDSETVOLUME "Sound.set_volume(value): return None\nset the playback volume for this Sound"
 
-#define DOC_SOUNDGETVOLUME "Sound.get_volume(value): return value\nget the playback volume"
+#define DOC_SOUNDGETVOLUME "Sound.get_volume(): return value\nget the playback volume"
 
 #define DOC_SOUNDGETNUMCHANNELS "Sound.get_num_channels(): return count\ncount how many times this Sound is playing"
 
@@ -384,9 +384,9 @@
 
 #define DOC_MOVIEREWIND "Movie.rewind(): return None\nrestart the movie playback"
 
-#define DOC_MOVIERENDERFRAME "Movie.render_frame(frame): return frame\nset the current video frame"
+#define DOC_MOVIERENDERFRAME "Movie.render_frame(frame_number): return frame_number\nset the current video frame"
 
-#define DOC_MOVIEGETFRAME "Movie.get_frame(): return frame\nget the current video frame"
+#define DOC_MOVIEGETFRAME "Movie.get_frame(): return frame_number\nget the current video frame"
 
 #define DOC_MOVIEGETTIME "Movie.get_time(): return seconds\nget the current vide playback time"
 
@@ -398,11 +398,11 @@
 
 #define DOC_MOVIEHASVIDEO "Movie.get_video(): return bool\ncheck if the movie file contains video"
 
-#define DOC_MOVIEHASAUDIO "Movie.get_audio(): return\ncheck if the movie file contains audio"
+#define DOC_MOVIEHASAUDIO "Movie.get_audio(): return bool\ncheck if the movie file contains audio"
 
 #define DOC_MOVIESETVOLUME "Movie.set_volume(value): return None\nset the audio playback volume"
 
-#define DOC_MOVIESETDISPLAY "Movie.set_display(Surface, pos=None): return None\nset the video target Surface"
+#define DOC_MOVIESETDISPLAY "Movie.set_display(Surface, rect=None): return None\nset the video target Surface"
 
 #define DOC_PYGAMEMIXERMUSIC "pygame module for controlling streamed audio"
 
@@ -558,7 +558,7 @@
 
 #define DOC_PYGAMESURFACE "pygame.Surface((width, height), flags=0, depth=0, masks=None): return Surface\npygame.Surface((width, height), flags=0, Surface): return Surface\npygame object for representing images"
 
-#define DOC_SURFACEBLIT "Surface.blit(source, dest, area=None): return Rect\ndraw one image onto another"
+#define DOC_SURFACEBLIT "Surface.blit(source, dest, area=None, special_flags = 0): return Rect\ndraw one image onto another"
 
 #define DOC_SURFACECONVERT "Surface.convert(Surface): return Surface\nSurface.convert(depth, flags=0): return Surface\nSurface.convert(depth, masks): return Surface\nSurface.convert(): return Surface\nchange the pixel format of an image"
 
@@ -670,9 +670,9 @@
 
 #define DOC_PYGAMETIMECLOCK "pygame.time.Clock(): return Clock\ncreate an object to help track time"
 
-#define DOC_CLOCKTICK "Clock.tick([framerate]) -> milliseconds\ncontrol timer events\nupdate the clock"
+#define DOC_CLOCKTICK "Clock.tick(framerate=0): return milliseconds\ncontrol timer events\nupdate the clock"
 
-#define DOC_CLOCKTICKBUSYLOOP "Clock.tick_busy_loop([framerate]) -> milliseconds\ncontrol timer events\nupdate the clock"
+#define DOC_CLOCKTICKBUSYLOOP "Clock.tick_busy_loop(framerate=0): return milliseconds\ncontrol timer events\nupdate the clock"
 
 #define DOC_CLOCKGETTIME "Clock.get_time(): return milliseconds\ntime used in the previous tick"
 
@@ -688,7 +688,7 @@
 
 #define DOC_PYGAMETRANSFORMROTATE "pygame.transform.rotate(Surface, angle): return Surface\nrotate an image"
 
-#define DOC_PYGAMETRANSFORMROTOZOOM "pygame.transorm.rotozoom(Surface, angle, scale): return Surface\nfiltered scale and rotation"
+#define DOC_PYGAMETRANSFORMROTOZOOM "pygame.transform.rotozoom(Surface, angle, scale): return Surface\nfiltered scale and rotation"
 
 #define DOC_PYGAMETRANSFORMSCALE2X "pygame.transform.scale2x(Surface): Surface\nspecialized image doubler"
 

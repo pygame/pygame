@@ -66,11 +66,14 @@
  <li> PBM (and PGM, PPM) </li>
  <li><tt> XPM </tt></li>
 </ul>
-<p>Saving images only supports a limited set of uncompressed formats. You can save to the following formats. </p>
+<p>Saving images only supports a limited set of formats. You can save to the following formats. </p>
 <ul>
  <li><tt> BMP </tt></li>
  <li><tt> TGA </tt></li>
+ <li><tt> PNG </tt></li>
+ <li><tt> JPEG </tt></li>
 </ul>
+<p><tt>PNG</tt>, <tt>JPEG</tt> saving new in pygame <tt>1.8</tt>. </p>
 <!--COMMENTS:pygame.image--> &nbsp;<br> 
 
 
@@ -91,7 +94,8 @@
 <big><b>pygame.image.save</big></b><br><ul>
   <i>save an image to disk</i><br>
   <tt>pygame.image.save(Surface, filename): return None</tt><br>
-<p>This will save your Surface as either a <tt>BMP</tt> or <tt>TGA</tt> image. If the filename extension is unrecognized it will default to <tt>BMP</tt>. Both file formats create uncompressed files. </p>
+<p>This will save your Surface as either a <tt>BMP</tt>, <tt>TGA</tt>, <tt>PNG</tt>, or <tt>JPEG</tt> image. If the filename extension is unrecognized it will default to <tt>TGA</tt>. Both <tt>TGA</tt>, and <tt>BMP</tt> file formats create uncompressed files. </p>
+<p><tt>PNG</tt>, <tt>JPEG</tt> saving new in pygame <tt>1.8</tt>. </p>
 <!--COMMENTS:pygame.image.save--> &nbsp;<br> 
 <br></ul>
 

@@ -71,7 +71,7 @@ The clock also provides several functions to help control a game's framerate.
 
 tick
 update the clock
-Clock.tick([framerate]) -> milliseconds
+Clock.tick(framerate=0): return milliseconds
 control timer events
 
 This method should be called once per frame. It will compute how many
@@ -89,7 +89,7 @@ if you want an accurate timer, and don't mind chewing cpu.
 
 tick_busy_loop
 update the clock
-Clock.tick_busy_loop([framerate]) -> milliseconds
+Clock.tick_busy_loop(framerate=0): return milliseconds
 control timer events
 
 This method should be called once per frame. It will compute how many

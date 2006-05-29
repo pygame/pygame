@@ -50,7 +50,7 @@
 <p><tt>NOTE:</tt> <tt>pygame.movie</tt> currently does not work on windows with the latest pygame release. As no one has managed to get smpeg working there. The alternative is to use </p>
 <pre> <a href="http://www.pymedia.org/">pymedia</a>
 </pre><p>Pygame can playback video and audio from basic encoded <tt>MPEG1</tt> video files. Movie playback happens in background threads, which makes playback easy to manage. </p>
-<p>The audio for Movies must have full control over the sound system. This means the <tt>pygame.mixer</tt> module must be uninitialized for the movie to playback sound. The common solution is to call <tt><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a> - <font size=-1>uninitialize the mixer</font></tt> before the movie begins. The mixer can be reinitialized after the movie is finished. </p>
+<p>The audio for Movies must have full control over the sound system. This means the <tt>pygame.mixer</tt> module must be uninitialized if the movie's sound is to be played. The common solution is to call <tt><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a> - <font size=-1>uninitialize the mixer</font></tt> before the movie begins. The mixer can be reinitialized after the movie is finished. </p>
 <p>The video overlay planes are drawn on top of everything in the display window. To draw the movie as normal graphics into the display window, create an offscreen Surface and set that as the movie target. Then once per frame blit that surface to the screen. </p>
 <!--COMMENTS:pygame.movie--> &nbsp;<br> 
 
@@ -113,7 +113,7 @@
 <big><b>Movie.skip</big></b><br><ul>
   <i>advance the movie playback position</i><br>
   <tt>Movie.skip(seconds): return None</tt><br>
-<p>Advance the movie playback time in seconds. This can be called before the movie is played to set the starting playback time. This can only skip the movie forward, not backwards. The seconds argument is a floating point number. </p>
+<p>Advance the movie playback time in seconds. This can be called before the movie is played to set the starting playback time. This can only skip the movie forward, not backwards. The argument is a floating point number. </p>
 <!--COMMENTS:Movie.skip--> &nbsp;<br> 
 <br></ul>
 
@@ -131,7 +131,7 @@
 <a name="Movie.render_frame">
 <big><b>Movie.render_frame</big></b><br><ul>
   <i>set the current video frame</i><br>
-  <tt>Movie.render_frame(frame): return frame</tt><br>
+  <tt>Movie.render_frame(frame_number): return frame_number</tt><br>
 <p>This takes an integer frame number to render. It attempts to render the given frame from the movie to the target Surface. It returns the real frame number that got rendered. </p>
 <!--COMMENTS:Movie.render_frame--> &nbsp;<br> 
 <br></ul>
@@ -140,7 +140,7 @@
 <a name="Movie.get_frame">
 <big><b>Movie.get_frame</big></b><br><ul>
   <i>get the current video frame</i><br>
-  <tt>Movie.get_frame(): return frame</tt><br>
+  <tt>Movie.get_frame(): return frame_number</tt><br>
 <p>Returns the integer frame number of the current video frame. </p>
 <!--COMMENTS:Movie.get_frame--> &nbsp;<br> 
 <br></ul>
@@ -177,7 +177,7 @@
 <big><b>Movie.get_size</big></b><br><ul>
   <i>get the resolution of the video</i><br>
   <tt>Movie.get_size(): return (width, height)</tt><br>
-<p>Gets the resolution of the movie video. The movie will be stretched to any size fo the Surface, but this will report the natural video size. </p>
+<p>Gets the resolution of the movie video. The movie will be stretched to the size of any Surface, but this will report the natural video size. </p>
 <!--COMMENTS:Movie.get_size--> &nbsp;<br> 
 <br></ul>
 
@@ -194,7 +194,7 @@
 <a name="Movie.has_audio">
 <big><b>Movie.has_audio</big></b><br><ul>
   <i>check if the movie file contains audio</i><br>
-  <tt>Movie.get_audio(): return</tt><br>
+  <tt>Movie.get_audio(): return bool</tt><br>
 <p>True when the opened movie file contains an audio stream. </p>
 <!--COMMENTS:Movie.has_audio--> &nbsp;<br> 
 <br></ul>
@@ -204,7 +204,7 @@
 <big><b>Movie.set_volume</big></b><br><ul>
   <i>set the audio playback volume</i><br>
   <tt>Movie.set_volume(value): return None</tt><br>
-<p>Set the playback volume for this movie. The value argument is a value between <tt>0.0</tt> and <tt>1.0</tt>. If the volume is set to 0 the movie audio will not be decoded. </p>
+<p>Set the playback volume for this movie. The argument is a value between <tt>0.0</tt> and <tt>1.0</tt>. If the volume is set to 0 the movie audio will not be decoded. </p>
 <!--COMMENTS:Movie.set_volume--> &nbsp;<br> 
 <br></ul>
 
@@ -212,7 +212,7 @@
 <a name="Movie.set_display">
 <big><b>Movie.set_display</big></b><br><ul>
   <i>set the video target Surface</i><br>
-  <tt>Movie.set_display(Surface, pos=None): return None</tt><br>
+  <tt>Movie.set_display(Surface, rect=None): return None</tt><br>
 <p>Set the output target Surface for the movie video. You may also pass a rectangle argument for the position, which will move and stretch the video into the given area. </p>
 <p>If None is passed as the target Surface, the video decoding will be disabled. </p>
 <!--COMMENTS:Movie.set_display--> &nbsp;<br> 

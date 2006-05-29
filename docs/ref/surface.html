@@ -109,10 +109,11 @@
 <a name="Surface.blit">
 <big><b>Surface.blit</big></b><br><ul>
   <i>draw one image onto another</i><br>
-  <tt>Surface.blit(source, dest, area=None): return Rect</tt><br>
+  <tt>Surface.blit(source, dest, area=None, special_flags = 0): return Rect</tt><br>
 <p>Draws a source Surface onto this Surface. The draw can be positioned with the dest argument. Dest can either be pair of coordinates representing the upper left corner of the source. <tt>A</tt> Rect can also be passed as the destination and the topleft corner of the rectangle will be used as the position for the blit. The size of the destination rectangle does not effect the blit. </p>
 <p>An optional area rectangle can be passed as well. This represents a smaller portion of the source Surface to draw. </p>
-<p>The return rectangle is the area of the effected pixels, excluding any pixels outside the destination Surface, or outside the clipping area. </p>
+<p>An optional special flags is for passing in <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> With other special blitting flags perhaps added in the future. </p>
+<p>The return rectangle is the area of the affected pixels, excluding any pixels outside the destination Surface, or outside the clipping area. </p>
 <p>Pixel alphas will be ignored when blitting to an 8 bit Surface. </p>
 <!--COMMENTS:Surface.blit--> &nbsp;<br> 
 <br></ul>
@@ -158,7 +159,7 @@
   <tt>Surface.fill(color, rect=None): return Rect</tt><br>
 <p>Fill the Surface with a solid color. If no rect argument is given the entire Surface will be filled. The rect argument will limit the fill to a specific area. The fill will also be contained by the Surface clip area. </p>
 <p>The color argument can be either an <tt>RGB</tt> sequence or a mapped color index. </p>
-<p>This will return the effected Surface area. </p>
+<p>This will return the affected Surface area. </p>
 <!--COMMENTS:Surface.fill--> &nbsp;<br> 
 <br></ul>
 
