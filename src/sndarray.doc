@@ -4,9 +4,13 @@ pygame module for accessing sound sample data
 Functions to convert between Numeric arrays and Sound objects. This
 module will only be available when pygame can use the external Numeric package.
 
-Sound data is made of thousands of samples per second. Each sample is an 8-bit
-or 16-bit integer, depending on the data format. A stereo sound file has two
-values per sample, while a mono sound file only has one.
+Sound data is made of thousands of samples per second, and each sample is the
+amplitude of the wave at a particular moment in time. For example, in
+22-kHz format, element number 5 of the array is the amplitude of the wave
+after 5/22000 seconds.
+
+Each sample is an 8-bit or 16-bit integer, depending on the data format.
+A stereo sound file has two values per sample, while a mono sound file only has one.
 
 Numeric does not use unsigned 16-bit integers; they will be converted to
 signed 16-bit arrays.

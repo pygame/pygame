@@ -182,7 +182,7 @@
 
 #define DOC_PYGAMEFONTGETDEFAULTFONT "pygame.font.get_default_font(): return string\nget the filename of the default font"
 
-#define DOC_PYGAMEFONTGETFONTS "be set to lowercase with all spaces and punctuation removed. This works on\nmost systems, but some will return an empty list if they cannot find fonts.\nget a list of all the fonts sound on the system. The names of the fonts will"
+#define DOC_PYGAMEFONTGETFONTS "pygame.font.get_fonts(): return list of strings\nget all available fonts"
 
 #define DOC_PYGAMEFONTMATCHFONT "pygame.font.match_font(name, bold=False, italic=False): return path\nfind a specific font on the system"
 
@@ -190,9 +190,9 @@
 
 #define DOC_PYGAMEFONTFONT "pygame.font.Font(filename, size): return Font\npygame.font.Font(object, size): return Font\ncreate a new Font object from a file"
 
-#define DOC_FONTRENDER "Font.render(text, antialias, color, background=None): return Surface\nrender text to a new Surface"
+#define DOC_FONTRENDER "Font.render(text, antialias, color, background=None): return Surface\ndraw text on a new Surface"
 
-#define DOC_FONTSIZE "Font.size(text): return (width, height)\ndetermine the size needed to render text"
+#define DOC_FONTSIZE "Font.size(text): return (width, height)\ndetermine the amount of space needed to render text"
 
 #define DOC_FONTSETUNDERLINE "Font.set_underline(bool): return None\ncontrol if text is rendered with an underline"
 
@@ -202,7 +202,7 @@
 
 #define DOC_FONTGETBOLD "Font.get_bold(): return bool\ncheck if text will be rendered bold"
 
-#define DOC_FONTSETITALIC "font that doesn't look good on many font types. if possible load the font from\na real italic font file. While italic the font will have a different width\nthan when normal. This can be mixed with the bold and underline modes.\nenable fake rendering of italic text of text. This is a fake skewing of the"
+#define DOC_FONTSETITALIC "Font.set_bold(bool): return None\nenable fake rendering of italic text"
 
 #define DOC_FONTGETITALIC "Font.get_italic(): return bool\ncheck if the text will be rendered italic"
 
@@ -246,17 +246,17 @@
 
 #define DOC_JOYSTICKGETINIT "Joystick.get_init(): return bool\ncheck if the Joystick is initialized"
 
-#define DOC_JOYSTICKGETID "Joystick.get_id(): return int\nget the Joystick id"
+#define DOC_JOYSTICKGETID "Joystick.get_id(): return int\nget the Joystick ID"
 
 #define DOC_JOYSTICKGETNAME "Joystick.get_name(): return string\nget the Joystick system name"
 
 #define DOC_JOYSTICKGETNUMAXES "Joystick.get_numaxes(): return int\nget the number of axes on a Joystick"
 
-#define DOC_JOYSTICKGETAXIS "Joystick.get_axis(axis): return float\nget the current position of an axis"
+#define DOC_JOYSTICKGETAXIS "Joystick.get_axis(axis_number): return float\nget the current position of an axis"
 
 #define DOC_JOYSTICKGETNUMBALLS "Joystick.get_numballs(): return int\nget the number of trackballs on a Joystick"
 
-#define DOC_JOYSTICKGETBALL "Joystick.get_ball(ball): return x, y\nget the relative position of a trackball"
+#define DOC_JOYSTICKGETBALL "Joystick.get_ball(ball_number): return x, y\nget the relative position of a trackball"
 
 #define DOC_JOYSTICKGETNUMBUTTONS "Joystick.get_numbuttons(): return int\nget the number of buttons on a Joystick"
 
@@ -264,7 +264,7 @@
 
 #define DOC_JOYSTICKGETNUMHATS "Joystick.get_numhats(): return int\nget the number of hat controls on a Joystick"
 
-#define DOC_JOYSTICKGETHAT "Joystick.get_hat(hat): return x, y\nget the position of a joystick hat"
+#define DOC_JOYSTICKGETHAT "Joystick.get_hat(hat_number): return x, y\nget the position of a joystick hat"
 
 #define DOC_PYGAMEKEY "pygame module to work with the keyboard"
 
