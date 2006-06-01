@@ -49,7 +49,7 @@
   <tr><td><a href="font.html#pygame.font.quit">pygame.font.quit</a> - <font size=-1>uninitialize the font module</font></td><td>uninitialize the font module</td></tr>
   <tr><td><a href="font.html#pygame.font.get_init">pygame.font.get_init</a> - <font size=-1>true if the font module is initialized</font></td><td>true if the font module is initialized</td></tr>
   <tr><td><a href="font.html#pygame.font.get_default_font">pygame.font.get_default_font</a> - <font size=-1>get the filename of the default font</font></td><td>get the filename of the default font</td></tr>
-  <tr><td><a href="font.html#pygame.font.get_fonts">pygame.font.get_fonts</a> - <font size=-1>get a list of all the fonts sound on the system. The names of the fonts will</font></td><td>get a list of all the fonts sound on the system. The names of the fonts will</td></tr>
+  <tr><td><a href="font.html#pygame.font.get_fonts">pygame.font.get_fonts</a> - <font size=-1>get all available fonts</font></td><td>get all available fonts</td></tr>
   <tr><td><a href="font.html#pygame.font.match_font">pygame.font.match_font</a> - <font size=-1>find a specific font on the system</font></td><td>find a specific font on the system</td></tr>
   <tr><td><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a> - <font size=-1>create a Font object from the system fonts</font></td><td>create a Font object from the system fonts</td></tr>
   <tr><td><a href="font.html#pygame.font.Font">pygame.font.Font</a> - <font size=-1>create a new Font object from a file</font></td><td>create a new Font object from a file</td></tr>
@@ -65,7 +65,7 @@
 <big><b>pygame.font.init</big></b><br><ul>
   <i>initialize the font module</i><br>
   <tt>pygame.font.init(): return None</tt><br>
-<p>Initialize the font module. The module must be initialized before any other functions will work. This automatically happens when you call <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt>. </p>
+<p>This method is called automatically by <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt>. It initializes the font module. The module must be initialized before any other functions will work. </p>
 <p>It is safe to call this function more than once. </p>
 <!--COMMENTS:pygame.font.init--> &nbsp;<br> 
 <br></ul>
@@ -75,7 +75,8 @@
 <big><b>pygame.font.quit</big></b><br><ul>
   <i>uninitialize the font module</i><br>
   <tt>pygame.font.quit(): return None</tt><br>
-<p>Manually uninitialize SDL_ttf's font system. It is safe to call this if font is currently not initialized. </p>
+<p>Manually uninitialize SDL_ttf's font system. This is called automatically by <tt><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></tt>. </p>
+<p>It is safe to call this function even if font is currently not initialized. </p>
 <!--COMMENTS:pygame.font.quit--> &nbsp;<br> 
 <br></ul>
 
@@ -100,10 +101,9 @@
 
 <a name="pygame.font.get_fonts">
 <big><b>pygame.font.get_fonts</big></b><br><ul>
-  <i>get a list of all the fonts sound on the system. The names of the fonts will</i><br>
-  <tt>be set to lowercase with all spaces and punctuation removed. This works on</tt><br>
-  <tt>most systems, but some will return an empty list if they cannot find fonts.</tt><br>
- &nbsp;<br> 
+  <i>get all available fonts</i><br>
+  <tt>pygame.font.get_fonts(): return list of strings</tt><br>
+<p>Returns a list of all the fonts available on the system. The names of the fonts will be set to lowercase with all spaces and punctuation removed. This works on most systems, but some will return an empty list if they cannot find fonts. </p>
 <!--COMMENTS:pygame.font.get_fonts--> &nbsp;<br> 
 <br></ul>
 
@@ -114,6 +114,11 @@
   <tt>pygame.font.match_font(name, bold=False, italic=False): return path</tt><br>
 <p>Returns the full path to a font file on the system. If bold or italic are set to true, this will attempt to find the correct family of font. </p>
 <p>The font name can actually be a comma separated list of font names to try. If none of the given names are found, None is returned. </p>
+<p>Example: </p>
+<pre>    print pygame.font.match_font('bitstreamverasans')
+    # output is: /usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf
+    # (but only if you have Vera on your system)
+</pre>
 <!--COMMENTS:pygame.font.match_font--> &nbsp;<br> 
 <br></ul>
 
@@ -133,13 +138,13 @@
   <tt>pygame.font.Font(filename, size): return Font</tt><br>
   <tt>pygame.font.Font(object, size): return Font</tt><br>
 <ul><small><table>
-  <tr><td><a href="font.html#Font.render">Font.render</a> - <font size=-1>render text to a new Surface</font></td><td>render text to a new Surface</td></tr>
-  <tr><td><a href="font.html#Font.size">Font.size</a> - <font size=-1>determine the size needed to render text</font></td><td>determine the size needed to render text</td></tr>
+  <tr><td><a href="font.html#Font.render">Font.render</a> - <font size=-1>draw text on a new Surface</font></td><td>draw text on a new Surface</td></tr>
+  <tr><td><a href="font.html#Font.size">Font.size</a> - <font size=-1>determine the amount of space needed to render text</font></td><td>determine the amount of space needed to render text</td></tr>
   <tr><td><a href="font.html#Font.set_underline">Font.set_underline</a> - <font size=-1>control if text is rendered with an underline</font></td><td>control if text is rendered with an underline</td></tr>
   <tr><td><a href="font.html#Font.get_underline">Font.get_underline</a> - <font size=-1>check if text will be rendered with an underline</font></td><td>check if text will be rendered with an underline</td></tr>
   <tr><td><a href="font.html#Font.set_bold">Font.set_bold</a> - <font size=-1>enable fake rendering of bold text</font></td><td>enable fake rendering of bold text</td></tr>
   <tr><td><a href="font.html#Font.get_bold">Font.get_bold</a> - <font size=-1>check if text will be rendered bold</font></td><td>check if text will be rendered bold</td></tr>
-  <tr><td><a href="font.html#Font.set_italic">Font.set_italic</a> - <font size=-1>enable fake rendering of italic text of text. This is a fake skewing of the</font></td><td>enable fake rendering of italic text of text. This is a fake skewing of the</td></tr>
+  <tr><td><a href="font.html#Font.set_italic">Font.set_italic</a> - <font size=-1>enable fake rendering of italic text</font></td><td>enable fake rendering of italic text</td></tr>
   <tr><td><a href="font.html#Font.get_italic">Font.get_italic</a> - <font size=-1>check if the text will be rendered italic</font></td><td>check if the text will be rendered italic</td></tr>
   <tr><td><a href="font.html#Font.get_linesize">Font.get_linesize</a> - <font size=-1>get the line space of the font text</font></td><td>get the line space of the font text</td></tr>
   <tr><td><a href="font.html#Font.get_height">Font.get_height</a> - <font size=-1>get the height of the font</font></td><td>get the height of the font</td></tr>
@@ -153,23 +158,24 @@
 
 <a name="Font.render">
 <big><b>Font.render</big></b><br><ul>
-  <i>render text to a new Surface</i><br>
+  <i>draw text on a new Surface</i><br>
   <tt>Font.render(text, antialias, color, background=None): return Surface</tt><br>
-<p>This creates a new surface with the correct dimensions to hold the text. The text can only be a single line, newline characters are not rendered. The antialias argument is a boolean, if true the characters will have smooth edges. The color argument is the color for the text. The optional background argument is a color to use for the text background. If no background is passed the area outside the text will be transparent. </p>
-<p>If any empty string is passed for the text, a blank surface will be returned that is one pixel wide and the height of the font. </p>
-<p>Depending on the type of background and antialiasing used, this returns different types of Surfaces. For performance reasons, it is good to know what type of image will be used. If antialiasing is not used, the return image will always be an 8bit image with a two color palette. If the background is transparent a colorkey will be set. Antialiased image are rendered to 24bit <tt>RGB</tt> images. If the background is transparent a pixel alpha will be included. </p>
-<p>Images with pixel alpha are generally the slowest to draw in Pygame. These images are returned when antialiasing is used and no background color is used. If the other images a font will be drawn to have a consistent color you can optimize the blitting by rendering the font with antialiasing and using a background color. After the text is rendered, set a colorkey on the Surface for the background color. </p>
-<p>Font rendering is not thread safe, only a single thread can render text any time. </p>
+<p>This creates a new Surface with the specified text rendered on it. Pygame provides no way to directly draw text on an existing Surface: instead you must use <tt><a href="font.html#Font.render">Font.render</a> - <font size=-1>draw text on a new Surface</font></tt> to create an image (Surface) of the text, then blit this image onto another Surface. </p>
+<p>The text can only be a single line: newline characters are not rendered. The antialias argument is a boolean: if true the characters will have smooth edges. The color argument is the color of the text <tt>[e.g.:</tt> (0,0,255) for blue]. The optional background argument is a color to use for the text background. If no background is passed the area outside the text will be transparent. </p>
+<p>The Surface returned will be of the dimensions required to hold the text. (the same as those returned by <tt>Font.size())</tt>. If an empty string is passed for the text, a blank surface will be returned that is one pixel wide and the height of the font. </p>
+<p>Depending on the type of background and antialiasing used, this returns different types of Surfaces. For performance reasons, it is good to know what type of image will be used. If antialiasing is not used, the return image will always be an 8bit image with a two color palette. If the background is transparent a colorkey will be set. Antialiased images are rendered to 24-bit <tt>RGB</tt> images. If the background is transparent a pixel alpha will be included. </p>
+<p>Optimization: if you know that the final destination for the text (on the screen) will always have a solid background, and the text is antialiased, you can improve performance by specifying the background color. This will cause the resulting image to maintain transparency information by colorkey rather than (much less efficient) alpha values. </p>
+<p>Font rendering is not thread safe: only a single thread can render text any time. </p>
 <!--COMMENTS:Font.render--> &nbsp;<br> 
 <br></ul>
 
 
 <a name="Font.size">
 <big><b>Font.size</big></b><br><ul>
-  <i>determine the size needed to render text</i><br>
+  <i>determine the amount of space needed to render text</i><br>
   <tt>Font.size(text): return (width, height)</tt><br>
-<p>Returns the dimensions needed to render the text. This can be used to help determine the positioning needed for text before it is rendered. This can be used for wordwrapping and other layout effects. </p>
-<p>Be aware that most fonts use kerning which adjusts the widths for specific letter pairs. the width for "ae" will not always match the width for "a" + "e". </p>
+<p>Returns the dimensions needed to render the text. This can be used to help determine the positioning needed for text before it is rendered. It can also be used for wordwrapping and other layout effects. </p>
+<p>Be aware that most fonts use kerning which adjusts the widths for specific letter pairs. For example, the width for "ae" will not always match the width for "a" + "e". </p>
 <!--COMMENTS:Font.size--> &nbsp;<br> 
 <br></ul>
 
@@ -212,11 +218,9 @@
 
 <a name="Font.set_italic">
 <big><b>Font.set_italic</big></b><br><ul>
-  <i>enable fake rendering of italic text of text. This is a fake skewing of the</i><br>
-  <tt>font that doesn't look good on many font types. if possible load the font from</tt><br>
-  <tt>a real italic font file. While italic the font will have a different width</tt><br>
-  <tt>than when normal. This can be mixed with the bold and underline modes.</tt><br>
- &nbsp;<br> 
+  <i>enable fake rendering of italic text</i><br>
+  <tt>Font.set_bold(bool): return None</tt><br>
+<p>Enables fake rendering of italic text. This is a fake skewing of the font that doesn't look good on many font types. If possible load the font from a real italic font file. While italic the font will have a different width than when normal. This can be mixed with the bold and underline modes. </p>
 <!--COMMENTS:Font.set_italic--> &nbsp;<br> 
 <br></ul>
 

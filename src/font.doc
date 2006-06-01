@@ -23,9 +23,9 @@ init
 initialize the font module
 pygame.font.init(): return None
 
-Initialize the font module. The module must be initialized before any
-other functions will work. This automatically happens when you call
-pygame.init().
+This method is called automatically by pygame.init().
+It initializes the font module. The module must be initialized before any
+other functions will work.
 
 It is safe to call this function more than once.
 <END>
@@ -36,8 +36,11 @@ quit
 uninitialize the font module
 pygame.font.quit(): return None
 
-Manually uninitialize SDL_ttf's font system. It is safe to call
-this if font is currently not initialized.
+Manually uninitialize SDL_ttf's font system. This is called
+automatically by pygame.quit().
+
+It is safe to call this function even if font is currently
+not initialized.
 <END>
 
 
@@ -63,7 +66,10 @@ it can also be bundled in separate archives.
 
 
 get_fonts
-get a list of all the fonts sound on the system. The names of the fonts will
+get all available fonts
+pygame.font.get_fonts(): return list of strings
+
+Returns a list of all the fonts available on the system. The names of the fonts will
 be set to lowercase with all spaces and punctuation removed. This works on
 most systems, but some will return an empty list if they cannot find fonts.
 <END>
@@ -79,6 +85,12 @@ set to true, this will attempt to find the correct family of font.
 
 The font name can actually be a comma separated list of font names to try.
 If none of the given names are found, None is returned.
+
+Example:
+
+    print pygame.font.match_font('bitstreamverasans')
+    # output is: /usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf
+    # (but only if you have Vera on your system)
 <END>
 
 
@@ -116,49 +128,55 @@ strings or unicode.
 
 
 render
-render text to a new Surface
+draw text on a new Surface
 Font.render(text, antialias, color, background=None): return Surface
 
-This creates a new surface with the correct dimensions to hold the text.
-The text can only be a single line, newline characters are not rendered.
-The antialias argument is a boolean, if true the characters will have
-smooth edges. The color argument is the color for the text. The optional
+This creates a new Surface with the specified text rendered on it.
+Pygame provides no way to directly draw text on an existing Surface:
+instead you must use Font.render() to create an image (Surface) of
+the text, then blit this image onto another Surface.
+
+The text can only be a single line: newline characters are not rendered.
+The antialias argument is a boolean: if true the characters will have
+smooth edges. The color argument is the color of the text
+[e.g.: (0,0,255) for blue]. The optional
 background argument is a color to use for the text background. If no
 background is passed the area outside the text will be transparent.
 
-If any empty string is passed for the text, a blank surface will be returned
+The Surface returned will be of the dimensions required to hold the text.
+(the same as those returned by Font.size()).
+If an empty string is passed for the text, a blank surface will be returned
 that is one pixel wide and the height of the font.
 
 Depending on the type of background and antialiasing used, this returns
 different types of Surfaces. For performance reasons, it is good to know what
 type of image will be used. If antialiasing is not used, the return image will
 always be an 8bit image with a two color palette. If the background is
-transparent a colorkey will be set. Antialiased image are rendered to 24bit
+transparent a colorkey will be set. Antialiased images are rendered to 24-bit
 RGB images. If the background is transparent a pixel alpha will be included.
 
-Images with pixel alpha are generally the slowest to draw in Pygame. These
-images are returned when antialiasing is used and no background color is used.
-If the other images a font will be drawn to have a consistent color you can
-optimize the blitting by rendering the font with antialiasing and using a
-background color. After the text is rendered, set a colorkey on the Surface
-for the background color.
+Optimization: if you know that the final destination for the text (on the screen)
+will always have a solid background, and the text is antialiased, you can
+improve performance by specifying the background color. This will cause
+the resulting image to maintain transparency information by colorkey
+rather than (much less efficient) alpha values.
 
-Font rendering is not thread safe, only a single thread can render text
+Font rendering is not thread safe: only a single thread can render text
 any time.
 <END>
 
 
 
 size
-determine the size needed to render text
+determine the amount of space needed to render text
 Font.size(text): return (width, height)
 
 Returns the dimensions needed to render the text. This can be used to
-help determine the positioning needed for text before it is rendered. This
-can be used for wordwrapping and other layout effects.
+help determine the positioning needed for text before it is rendered.
+It can also be used for wordwrapping and other layout effects.
 
 Be aware that most fonts use kerning which adjusts the widths for specific
-letter pairs. the width for "ae" will not always match the width for "a" + "e".
+letter pairs. For example, the width for "ae" will not always match the width for "a" + "e".
 <END>
 
 
@@ -205,8 +223,11 @@ Return True when the font bold rendering mode is enabled.
 
 
 set_italic
-enable fake rendering of italic text of text. This is a fake skewing of the
-font that doesn't look good on many font types. if possible load the font from
+enable fake rendering of italic text
+Font.set_bold(bool): return None
+
+Enables fake rendering of italic text. This is a fake skewing of the
+font that doesn't look good on many font types. If possible load the font from
 a real italic font file. While italic the font will have a different width
 than when normal. This can be mixed with the bold and underline modes.
 <END>

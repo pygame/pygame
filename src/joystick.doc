@@ -1,10 +1,10 @@
 pygame.joystick
 pygame module for interacting with joystick devices
 
-The joystick module manages the joystick devices on a computer. This module
-needs to be initialized before it can do anything. Each Joystick object
-you create represents a joystick device and must also be initialized
-individually before it can do most things.
+The joystick module manages the joystick devices on a computer
+(there can be more than one). Joystick devices include
+trackballs and video-game-style gamepads, and the module allows
+the use of multiple buttons and "hats".
 <SECTION>
 
 
@@ -12,9 +12,10 @@ init
 initialize the joystick module
 pygame.joystick.init(): return None
 
-Initialize the joystick module. This will scan the system for all joystick
+This function is called automatically by pygame.init().
+
+It initializes the joystick module. This will scan the system for all joystick
 devices. The module must be initialized before any other functions will work.
-This automatically happens when you call pygame.init().
 
 It is safe to call this function more than once.
 <END>
@@ -37,7 +38,7 @@ get_init
 true if the joystick module is initialized
 pygame.joystick.get_init(): return bool
 
-Test if the joystick module is initialized or not.
+Test if the pygame.joystick.init() function has been called.
 <END>
 
 
@@ -46,9 +47,11 @@ get_count
 number of joysticks on the system
 pygame.joystick.get_count(): return count
 
-Return the number of joystick devices on the system. When you create Joystick
-objects you need to pass an integer id that must be lower than this count. The
+Return the number of joystick devices on the system. The
 count will be 0 if there are no joysticks on the system.
+
+When you create Joystick objects using Joystick(id), you pass an integer that
+must be lower than this count.
 <END>
 
 
@@ -57,13 +60,14 @@ Joystick
 create a new Joystick object
 pygame.joystick.Joystick(id): return Joystick
 
-Create a new joystick to access the given joystick. The id argument must
-be a value from 0 to less than pygame.joystick.get_count().
+Create a new joystick to access a physical device. The id argument must
+be a value from 0 to pygame.joystick.get_count()-1.
 
 To access most of the Joystick methods, you'll need to init() 
 the Joystick. This is separate from making sure the joystick module is
 initialized. When multiple Joysticks objects are created for the
-same joystick device, the state and values for those Joystick objects
+same physical joystick device (i.e., they have the same ID number),
+the state and values for those Joystick objects
 will be shared.
 
 The Joystick object allows you to get information about the types of
@@ -105,17 +109,18 @@ get_init
 check if the Joystick is initialized
 Joystick.get_init(): return bool
 
-Returns True when the Joystick object is initialized.
+Returns True if the init() method has already been called
+on this Joystick object.
 <END>
 
 
 
 get_id
-get the Joystick id
+get the Joystick ID
 Joystick.get_id(): return int
 
-Returns the integer id that represents this device. This is the same value
-that was used to initialize the Joystick object. This method can safely
+Returns the integer ID that represents this device. This is the same value
+that was passed to the Joystick() constructor. This method can safely
 be called while the Joystick is not initialized.
 <END>
 
@@ -142,7 +147,7 @@ additional axes.
 
 The pygame.JOYAXISMOTION events will be in the range from -1.0 to 1.0. A value
 of 0.0 means the axis is centered. Gamepad devices will usually be -1, 0, or 1
-with no values in between. Older analog joystick axis will not always use the
+with no values in between. Older analog joystick axes will not always use the
 full -1 to 1 range, and the centered value will be some area around 0. 
 Analog joysticks usually have a bit of noise in their axis, which will generate
 a lot of rapid small motion events.
@@ -152,12 +157,14 @@ a lot of rapid small motion events.
 
 get_axis
 get the current position of an axis
-Joystick.get_axis(axis): return float
+Joystick.get_axis(axis_number): return float
 
 Returns the current position of a joystick axis. The value will range from
 -1 to 1 with a value of 0 being centered. You may want to take into account
 some tolerance to handle jitter, and joystick drift may keep the joystick
 from centering at 0 or using the full range of position values.
+
+The axis number must be an integer from zero to get_numaxes()-1.
 <END>
 
 
@@ -167,10 +174,10 @@ get the number of trackballs on a Joystick
 Joystick.get_numballs(): return int
 
 Returns the number of trackball devices on a Joystick. These devices work
-similar to a mouse but they have not absolute position, only relative
+similar to a mouse but they have no absolute position; they only have relative
 amounts of movement.
 
-the pygame.JOYBALLMOTION event will be sent the the trackball is rolled.
+The pygame.JOYBALLMOTION event will be sent when the trackball is rolled.
 It will report the amount of movement on the trackball.
 <END>
 
@@ -178,10 +185,12 @@ It will report the amount of movement on the trackball.
 
 get_ball
 get the relative position of a trackball
-Joystick.get_ball(ball): return x, y
+Joystick.get_ball(ball_number): return x, y
 
 Returns the relative movement of a joystick button. The value is a x, y pair
 holding the relative movement since the last call to get_ball.
+
+The ball number must be an integer from zero to get_numballs()-1.
 <END>
 
 
@@ -191,8 +200,7 @@ get the number of buttons on a Joystick
 Joystick.get_numbuttons(): return int
 
 Returns the number of pushable buttons on the joystick. These buttons have
-a boolean on or off state. There is no way to know the current state of
-a button, you can only watch for its events on the queue.
+a boolean (on or off) state.
 
 Buttons generate a pygame.JOYBUTTONDOWN and pygame.JOYBUTTONUP event when
 they are pressed and released.
@@ -214,10 +222,9 @@ get the number of hat controls on a Joystick
 Joystick.get_numhats(): return int
 
 Returns the number of joystick hats on a Joystick. Hat devices are like
-miniature digital joysticks on a joystick. The hats are digital with
-have two axis of input.
+miniature digital joysticks on a joystick. Each hat has two axes of input.
 
-The pygame.JOYHATMOTION events are generated when the hat changes position.
+The pygame.JOYHATMOTION event is generated when the hat changes position.
 The position attribute for the event contains a pair of values that are
 either -1, 0, or 1. A position of (0, 0) means the hat is centered.
 <END>
@@ -225,11 +232,17 @@ either -1, 0, or 1. A position of (0, 0) means the hat is centered.
 
 get_hat
 get the position of a joystick hat
-Joystick.get_hat(hat): return x, y
+Joystick.get_hat(hat_number): return x, y
 
 Returns the current position of a position hat. The position is given as two
 values representing the X and Y position for the hat. (0, 0) means centered.
-A value of -1 means left/down, a value of 1 means right/up.
+A value of -1 means left/down and a value of 1 means right/up: so (-1, 0)
+means left; (1, 0) means right; (0, 1) means up; (1, 1) means upper-right; etc.
+
+This value is digital, i.e., each coordinate can be -1, 0 or 1 but never
+in-between.
+
+The hat number must be between 0 and get_numhats()-1.
 <END>
 <END>
 <END>

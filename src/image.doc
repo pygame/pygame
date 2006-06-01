@@ -1,8 +1,12 @@
 pygame.image
 pygame module for image transfer
 
-The image module contains functions for loading and saving Surface images, as
-well as transferring surfaces to formats usable by other packages.
+The image module contains functions for loading and saving pictures, as
+well as transferring Surfaces to formats usable by other packages.
+
+Note that there is no Image class; an image is loaded as a
+Surface object. The Surface class allows manipulation (drawing lines,
+setting pixels, capturing regions, etc.).
 
 The image module is a required
 dependency of Pygame, but it only optionally supports any extended file formats.
@@ -38,21 +42,22 @@ load new image from a file
 pygame.image.load(filename): return Surface
 pygame.image.load(fileobj, namehint=""): return Surface
 
-Load an image from a file source. You can pass either a filename or a python
+Load an image from a file source. You can pass either a filename or a Python
 file-like object.
 
-Pygame will determine the type of image the file points to and create a new
-Surface object from
-the data. Some file formats are not easy to guess. If you pass a raw file-like
-object, you may also want to pass the original filename as the namehint argument.
+Pygame will automatically determine the image type (e.g., GIF or bitmap)
+and create a new Surface object from the data. In some cases it will need to
+know the file extension (e.g., GIF images should end in ".gif").
+If you pass a raw file-like object, you may also want to pass the original
+filename as the namehint argument.
 
 The returned Surface will contain the same color format, colorkey and alpha
 transparency as the file it came from. You will often want to call
-Surface.convert() with no arguments, to create a copy that will draw as fast
-as possible.
+Surface.convert() with no arguments, to create a copy that will draw more
+quickly on the screen.
 
 Pygame may not always be built to support all image formats. At minimum it will
-support uncompressed BMP. If pygame.image.get_extended() returns 'True', you
+support uncompressed BMP. If pygame.image.get_extended() returns True, you
 should be able to load most images.
 <END>
 
