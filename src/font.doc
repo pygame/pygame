@@ -69,9 +69,10 @@ get_fonts
 get all available fonts
 pygame.font.get_fonts(): return list of strings
 
-Returns a list of all the fonts available on the system. The names of the fonts will
-be set to lowercase with all spaces and punctuation removed. This works on
-most systems, but some will return an empty list if they cannot find fonts.
+Returns a list of all the fonts available on the system. The names of the 
+fonts will be set to lowercase with all spaces and punctuation removed. 
+This works on most systems, but some will return an empty list if they cannot 
+find fonts.
 <END>
 
 
@@ -160,6 +161,9 @@ will always have a solid background, and the text is antialiased, you can
 improve performance by specifying the background color. This will cause
 the resulting image to maintain transparency information by colorkey
 rather than (much less efficient) alpha values.
+
+If you render '\n' a unknown char will be rendered.  Usually a rectangle.
+Instead you need to handle new lines yourself.
 
 Font rendering is not thread safe: only a single thread can render text
 any time.

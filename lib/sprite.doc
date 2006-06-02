@@ -41,6 +41,8 @@ the same Sprite from a Group.
 While it is possible to design sprite and group classes that don't derive from
 the Sprite and AbstractGroup classes below, it is strongly recommended that
 you extend those when you add a Sprite or Group class.
+
+Sprites are not thread safe.  So lock them yourself if using threads.
 <SECTION>
 
 
