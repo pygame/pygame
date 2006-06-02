@@ -37,7 +37,9 @@ def main():
     images[K_2] = pygame.image.load(os.path.join("data", "chimp.bmp"))
     images[K_3] = pygame.image.load(os.path.join("data", "alien3.gif"))
     images[K_4] = pygame.image.load(os.path.join("data", "liquid.bmp"))
-    img_to_blit = im2
+    img_to_blit = im2.convert()
+    iaa = img_to_blit.convert_alpha()
+
 
 
     blits = {}
@@ -67,11 +69,20 @@ def main():
 
             elif event.type == KEYDOWN and event.key in images.keys():
                 img_to_blit = images[event.key]
+                iaa = img_to_blit.convert_alpha()
 
             elif event.type == KEYDOWN and event.key in blits.keys():
                 t1 = time.time()
                 # blits is a dict keyed with key -> blit flag.  eg BLEND_ADD.
                 im1.blit(img_to_blit, (0,0), None, blits[event.key])
+                t2 = time.time()
+                print "one pixel is:%s:" % [im1.get_at((0,0))]
+                print "time to do:%s:" % (t2-t1)
+
+            elif event.type == KEYDOWN and event.key in [K_o]:
+                t1 = time.time()
+                # blits is a dict keyed with key -> blit flag.  eg BLEND_ADD.
+                im1.blit(iaa, (0,0))
                 t2 = time.time()
                 print "one pixel is:%s:" % [im1.get_at((0,0))]
                 print "time to do:%s:" % (t2-t1)
