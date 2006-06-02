@@ -56,9 +56,15 @@ transparency as the file it came from. You will often want to call
 Surface.convert() with no arguments, to create a copy that will draw more
 quickly on the screen.
 
+For alpha transparency, like in .png images use the convert_alpha() method 
+after loading so that the image has per pixel transparency.
+
 Pygame may not always be built to support all image formats. At minimum it will
-support uncompressed BMP. If pygame.image.get_extended() returns True, you
-should be able to load most images.
+support uncompressed BMP. If pygame.image.get_extended() returns 'True', you
+should be able to load most images( including png, jpg and gif ).
+
+You should use os.path.join() for compatibility.  
+  eg. asurf = pygame.image.load(os.path.join('data', 'bla.png'))
 <END>
 
 
