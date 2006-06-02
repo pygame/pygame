@@ -321,7 +321,7 @@ window has been iconified.
 
 toggle_fullscreen
 switch between fullscreen and windowed displays
-pygame.display.iconify(): return bool
+pygame.display.toggle_fullscreen(): return bool
 
 Switches the display window between windowed and fullscreen modes. This
 function only works under the unix x11 video driver. For most situations
