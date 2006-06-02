@@ -98,6 +98,8 @@ The return rectangle is the area of the affected pixels, excluding any pixels
 outside the destination Surface, or outside the clipping area.
 
 Pixel alphas will be ignored when blitting to an 8 bit Surface.
+
+special_flags new in pygame 1.8.
 <END>
 
 
