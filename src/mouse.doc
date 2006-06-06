@@ -32,6 +32,13 @@ pygame.moouse.get_pressed(): return (button1, button2, button3)
 Returns a sequence of booleans representing the state of all the mouse
 buttons. A true value means the mouse is currently being pressed at the
 time of the call.
+
+Note, to get all of the mouse events it is better to use either 
+ pygame.event.wait() or pygame.event.get() and check all of those events
+to see if they are MOUSEBUTTONDOWN, MOUSEBUTTONUP, or MOUSEMOTION.
+
+Note, that on X11 some XServers use middle button emulation.  When you click
+both buttons 1 and 3 at the same time a 2 button event can be emitted.
 <END>
 
 
