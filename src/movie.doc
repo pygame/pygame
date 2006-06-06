@@ -23,7 +23,7 @@ that surface to the screen.
 Movie
 load an mpeg movie file
 pygame.movie.Movie(filename): return Movie
-pygame.move.Movie(object): return Movie
+pygame.movie.Movie(object): return Movie
 
 Load a new MPEG movie stream from a file or a python file object. The Movie
 object operates similar to the Sound objects from pygame.mixer.
