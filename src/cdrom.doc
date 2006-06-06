@@ -78,7 +78,7 @@ initialize a cdrom drive for use
 CD.init(): return None
 
 Initialize the cdrom drive for use. The drive must be initialized for most CD
-methods to work.
+methods to work.  Even if the rest of pygame has been initialized.
 
 There may be a brief pause while the drive is initialized. Avoid CD.init()
 if the program should not stop for a second or two.
