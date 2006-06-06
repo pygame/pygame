@@ -86,7 +86,9 @@ stop music playback after fading out
 pygame.mixer.music.fadeout(time): return None
 
 This will stop the music playback after it has been faded out over the
-specified time (measured in seconds).
+specified time (measured in milliseconds).
+
+Note, that this function blocks until the music has faded out.
 <END>
 
 
