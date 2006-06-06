@@ -48,6 +48,8 @@ pygame.draw.polygon(Surface, color, pointlist, width=0): return Rect
 Draws a polygonal shape on the Surface. The pointlist argument is the
 vertices of the polygon. The width argument is the thickness to draw the
 outer edge. If width is zero then the polygon will be filled.
+
+For aapolygon, use aalines with the 'closed' parameter.
 <END>
 
 
