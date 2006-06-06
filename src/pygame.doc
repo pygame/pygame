@@ -45,6 +45,9 @@ the Python interpreter shuts down, this method is called regardless, so your
 program should not need it, except when it wants to terminate its pygame
 resources and continue. It is safe to call this function more than once:
 repeated calls have no effect. 
+
+Note, that pygame.quit will not exit your program.  Consider letting your 
+program end in the same way a normal python program will end.
 <END>
 
 
