@@ -19,7 +19,7 @@ This module also contains a few cursors as formatted strings. You'll need to
 pass these to pygame.cursors.compile() function before you can use them. The
 example call would look like this:
 
-   >>> cursor = pygame.mouse.compile(pygame.cursors.textmarker_strings)
+   >>> cursor = pygame.cursors.compile(pygame.cursors.textmarker_strings)
    >>> pygame.mouse.set_cursor(*cursor)
 
 The following variables are cursor bitmaps that can be used as cursor:
