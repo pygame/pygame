@@ -5,6 +5,10 @@ Functions to convert pixel data between pygame Surfaces and Numeric arrays.
 This module will only be available when pygame can use the external Numeric
 package.
 
+Note, that surfarray is an optional module.  It requires that Numeric is 
+installed to be used.  If not installed, an exception will be raised when
+it is used.  eg. NotImplementedError: surfarray module not available
+
 Every pixel is stored as a single integer value to represent the red, green,
 and blue colors. The 8bit images use a value that looks into a colormap. Pixels
 with higher depth use a bit packing process to place three or four values into
