@@ -73,32 +73,6 @@ effect the other.
 Each Surface contains a clipping area. By default the clip area covers the
 entire Surface. If it is changed, all drawing operations will only effect
 the smaller area.
-
-
-Here is a more complete list of flags.  A full list can be found in SDL_video.h
-  SWSURFACE	0x00000000	# Surface is in system memory
-  HWSURFACE	0x00000001	# Surface is in video memory
-  ASYNCBLIT	0x00000004	# Use asynchronous blits if possible
-
-Available for pygame.display.set_mode()
-  ANYFORMAT	0x10000000	# Allow any video depth/pixel-format
-  HWPALETTE	0x20000000	# Surface has exclusive palette
-  DOUBLEBUF	0x40000000	# Set up double-buffered video mode
-  FULLSCREEN	0x80000000	# Surface is a full screen display
-  OPENGL        0x00000002      # Create an OpenGL rendering context
-  OPENGLBLIT	0x0000000A	# Create an OpenGL rendering context 
-                                #   and use it for blitting.  Obsolete.
-  RESIZABLE	0x00000010	# This video mode may be resized
-  NOFRAME       0x00000020	# No window caption or edge frame
-
-Used internally (read-only)
-  HWACCEL       0x00000100	# Blit uses hardware acceleration
-  SRCCOLORKEY	0x00001000	# Blit uses a source color key
-  RLEACCELOK	0x00002000	# Private flag
-  RLEACCEL	0x00004000	# Surface is RLE encoded
-  SRCALPHA	0x00010000	# Blit uses source alpha blending
-  PREALLOC	0x01000000	# Surface uses preallocated memory
-
 <SECTION>
 
 
@@ -594,6 +568,29 @@ Returns a set of current Surface features. Each feature is a bit in the
 flags bitmask. Typical flags are HWSURFACE, RLEACCEL, SRCALPHA, and SRCCOLORKEY.
 
 
+Here is a more complete list of flags.  A full list can be found in SDL_video.h
+  SWSURFACE	0x00000000	# Surface is in system memory
+  HWSURFACE	0x00000001	# Surface is in video memory
+  ASYNCBLIT	0x00000004	# Use asynchronous blits if possible
+
+Available for pygame.display.set_mode()
+  ANYFORMAT	0x10000000	# Allow any video depth/pixel-format
+  HWPALETTE	0x20000000	# Surface has exclusive palette
+  DOUBLEBUF	0x40000000	# Set up double-buffered video mode
+  FULLSCREEN	0x80000000	# Surface is a full screen display
+  OPENGL        0x00000002      # Create an OpenGL rendering context
+  OPENGLBLIT	0x0000000A	# Create an OpenGL rendering context 
+                                #   and use it for blitting.  Obsolete.
+  RESIZABLE	0x00000010	# This video mode may be resized
+  NOFRAME       0x00000020	# No window caption or edge frame
+
+Used internally (read-only)
+  HWACCEL       0x00000100	# Blit uses hardware acceleration
+  SRCCOLORKEY	0x00001000	# Blit uses a source color key
+  RLEACCELOK	0x00002000	# Private flag
+  RLEACCEL	0x00004000	# Surface is RLE encoded
+  SRCALPHA	0x00010000	# Blit uses source alpha blending
+  PREALLOC	0x01000000	# Surface uses preallocated memory
 <END>
 
 
