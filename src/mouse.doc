@@ -39,6 +39,9 @@ to see if they are MOUSEBUTTONDOWN, MOUSEBUTTONUP, or MOUSEMOTION.
 
 Note, that on X11 some XServers use middle button emulation.  When you click
 both buttons 1 and 3 at the same time a 2 button event can be emitted.
+
+Note, remember to call pygame.event.get() before this function.  Otherwise 
+it will not work.
 <END>
 
 
