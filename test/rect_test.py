@@ -457,6 +457,8 @@ class RectTest( unittest.TestCase ):
         r1.unionall_ip( [r2,r3] )
         self.assertEqual( Rect(-2, -2, 5, 5), r1 )
 
+
+
     def testCollideRect( self ):
         r1 = Rect(1,2,3,4)
         self.failUnless( r1.colliderect( Rect(0,0,2,3) ),
@@ -479,6 +481,44 @@ class RectTest( unittest.TestCase ):
                      "r1 collides with Rect(r1.right,r1.bottom,0,0)" )
         self.failIf( r1.colliderect( Rect(r1.right,r1.bottom,1,1) ),
                      "r1 collides with Rect(r1.right,r1.bottom,1,1)" )
+
+
+    def testEquals( self ):
+        """ check to see how the rect uses __eq__ 
+        """
+        r1 = Rect(1,2,3,4)
+        r2 = Rect(10,20,30,40)
+        r3 = (10,20,30,40)
+        r4 = Rect(10,20,30,40)
+
+        class foo (Rect):
+            def __eq__(self,other):
+                return id(self) == id(other);
+
+        class foo2 (Rect):
+            pass
+
+        r5 = foo(10,20,30,40)
+        r6 = foo2(10,20,30,40)
+
+        self.assertNotEqual(r5, r2)
+
+        # because we define equality differently for this subclass.
+        self.assertEqual(r6, r2)
+
+
+        rect_list = [r1,r2,r3,r4,r6]
+
+        # see if we can remove 4 of these.
+        rect_list.remove(r2)
+        rect_list.remove(r2)
+        rect_list.remove(r2)
+        rect_list.remove(r2)
+        self.assertRaises(ValueError, rect_list.remove, r2)
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
