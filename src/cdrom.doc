@@ -118,6 +118,8 @@ track. If you pass a start time and 'None' for the end time, the audio will play
 to the end of the entire disc.
 
 See the CD.get_numtracks() and CD.get_track_audio() to find tracks to playback.
+
+Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 <END>
 
 
@@ -139,7 +141,7 @@ Temporarily stop audio playback on the CD. The playback can be resumed at the
 same point with the CD.resume() method. If the CD is not playing this method
 does nothing.
 
-Cdrom track numbers start at zero.
+Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 <END>
 
 
@@ -209,6 +211,8 @@ CD.get_current(): return track, seconds
 
 Returns both the current track and time of that track. This method works when
 the drive is either playing or paused.
+
+Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 <END>
 
 
@@ -239,6 +243,8 @@ CD.get_track_audio(track): return bool
 
 Determine if a track on a cdrom contains audio data. You can also call
 CD.num_tracks() and CD.get_all() to determine more information about the cdrom.
+
+Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 <END>
 
 
@@ -259,6 +265,8 @@ start time of a cdrom track
 CD.get_track_start(track): return seconds
 
 Return the absolute time in seconds where at start of the cdrom track.
+
+Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 <END>
 
 
@@ -269,6 +277,8 @@ length of a cdrom track
 CD.get_track_length(track): return seconds
 
 Return a floating point value in seconds of the length of the cdrom track.
+
+Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 <END>
 <END>
 <END>
