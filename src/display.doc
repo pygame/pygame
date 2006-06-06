@@ -83,7 +83,7 @@ Returns True if the pygame.display module is currently initialized.
 
 
 set_mode
-initialize a window or creen for display
+initialize a window or screen for display
 pygame.display.set_mode(resolution, flags=0, depth=0): return Surface
 
 This function will create a display Surface. The arguments passed in are
