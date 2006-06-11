@@ -35,7 +35,7 @@ static Uint32 timer_callback(Uint32 interval, void* param)
 	{
 		SDL_Event event;
 		memset(&event, 0, sizeof(event));
-		event.type = (int)param;
+		event.type = (intptr_t)param;
 		SDL_PushEvent(&event);
 	}
 	return interval;
@@ -149,7 +149,8 @@ static PyObject* time_wait(PyObject* self, PyObject* arg)
 static PyObject* time_set_timer(PyObject* self, PyObject* arg)
 {
 	SDL_TimerID newtimer;
-	int ticks = 0, event = SDL_NOEVENT;
+	int ticks = 0;
+	intptr_t event = SDL_NOEVENT;
 	if(!PyArg_ParseTuple(arg, "ii", &event, &ticks))
 		return NULL;
 

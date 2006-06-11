@@ -38,7 +38,7 @@ extern int pygame_Blit(SDL_Surface *src, SDL_Rect *srcrect,
                         SDL_Surface *dst, SDL_Rect *dstrect, int the_args);
 
 static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds);
+static intptr_t surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds);
 
 
 /* surface object methods */
@@ -1382,7 +1382,7 @@ static PyObject* surface_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds)
+static intptr_t surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds)
 {
 	Uint32 flags = 0;
 	int width, height;
@@ -1406,19 +1406,19 @@ static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds)
 	if(depth && masks) /*all info supplied, most errorchecking needed*/
 	{
 		if(PySurface_Check(depth))
-			return (int)RAISE(PyExc_ValueError, "cannot pass surface for depth and color masks");
+			return (intptr_t)RAISE(PyExc_ValueError, "cannot pass surface for depth and color masks");
 		if(!IntFromObj(depth, &bpp))
-			return (int)RAISE(PyExc_ValueError, "invalid bits per pixel depth argument");
+			return (intptr_t)RAISE(PyExc_ValueError, "invalid bits per pixel depth argument");
 		if(!PySequence_Check(masks) || PySequence_Length(masks)!=4)
-			return (int)RAISE(PyExc_ValueError, "masks argument must be sequence of four numbers");
+			return (intptr_t)RAISE(PyExc_ValueError, "masks argument must be sequence of four numbers");
 		if(!UintFromObjIndex(masks, 0, &Rmask) || !UintFromObjIndex(masks, 1, &Gmask) ||
 					!UintFromObjIndex(masks, 2, &Bmask) || !UintFromObjIndex(masks, 3, &Amask))
-			return (int)RAISE(PyExc_ValueError, "invalid mask values in masks sequence");
+			return (intptr_t)RAISE(PyExc_ValueError, "invalid mask values in masks sequence");
 	}
 	else if(depth && PyNumber_Check(depth))/*use default masks*/
 	{
 		if(!IntFromObj(depth, &bpp))
-			return (int)RAISE(PyExc_ValueError, "invalid bits per pixel depth argument");
+			return (intptr_t)RAISE(PyExc_ValueError, "invalid bits per pixel depth argument");
 		if(flags & SDL_SRCALPHA)
 		{
 			switch(bpp)
@@ -1428,7 +1428,7 @@ static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds)
 			case 32:
 				Rmask = 0xFF<<16; Gmask = 0xFF<<8; Bmask = 0xFF; Amask = 0xFF<<24; break;
 			default:
-				return (int)RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth with alpha");
+				return (intptr_t)RAISE(PyExc_ValueError, "no standard masks exist for given bitdepth with alpha");
 			}
 		}
 		else
@@ -1448,7 +1448,7 @@ static int surface_init(PySurfaceObject *self, PyObject *args, PyObject *kwds)
 			case 32:
 				Rmask = 0xFF<<16; Gmask = 0xFF<<8; Bmask = 0xFF; break;
 			default:
-				return (int)RAISE(PyExc_ValueError, "nonstandard bit depth given");
+				return (intptr_t)RAISE(PyExc_ValueError, "nonstandard bit depth given");
 			}
 		}
 	}

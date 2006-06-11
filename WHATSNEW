@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Jun 10, 2006
+    64bit compile fixes for Fedora from Christopher Stone
+
 Jun 8, 2006
     Documentation changes.
     Move to subversion instead of cvs.

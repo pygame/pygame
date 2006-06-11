@@ -78,13 +78,13 @@ static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
 
     if(src_y)
 	{
-		unsigned char *dst_y=0, *dst_u=0, *dst_v=0;
+		void *dst_y=0, *dst_u=0, *dst_v=0;
 		SDL_LockYUVOverlay( self->cOverlay );
 
 		// No clipping at this time( only support for YUV420 )
-		dst_y = (unsigned char*)self->cOverlay->pixels[ 0 ];
-		dst_v = (unsigned char*)self->cOverlay->pixels[ 1 ];
-		dst_u = (unsigned char*)self->cOverlay->pixels[ 2 ];
+		dst_y = (void*)self->cOverlay->pixels[ 0 ];
+		dst_v = (void*)self->cOverlay->pixels[ 1 ];
+		dst_u = (void*)self->cOverlay->pixels[ 2 ];
 		for (y=0; y< self->cOverlay->h; y++)
 		{
 			memcpy( dst_y, src_y, self->cOverlay->w );
