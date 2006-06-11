@@ -86,7 +86,7 @@ static void endsound_callback(int channel)
 	    channeldata[channel].queue = NULL;
 	    channelnum = Mix_PlayChannelTimed(channel, sound, 0, -1);
 	    if(channelnum != -1)
-	    	Mix_GroupChannel(channelnum, (int)sound);
+	    	Mix_GroupChannel(channelnum, (intptr_t)sound);
 	}
 	else
 	{
@@ -290,7 +290,7 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 	//make sure volume on this arbitrary channel is set to full
 	Mix_Volume(channelnum, 128);
 
-	Mix_GroupChannel(channelnum, (int)chunk);
+	Mix_GroupChannel(channelnum, (intptr_t)chunk);
 	return PyChannel_New(channelnum);
 }
 
@@ -303,7 +303,7 @@ static PyObject* snd_get_num_channels(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-	return PyInt_FromLong(Mix_GroupCount((int)chunk));
+	return PyInt_FromLong(Mix_GroupCount((intptr_t)chunk));
 }
 
 
@@ -354,7 +354,7 @@ static PyObject* snd_fadeout(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-	Mix_FadeOutGroup((int)chunk, time);
+	Mix_FadeOutGroup((intptr_t)chunk, time);
 	RETURN_NONE
 }
 
@@ -367,7 +367,7 @@ static PyObject* snd_stop(PyObject* self, PyObject* args)
 
 	MIXER_INIT_CHECK();
 
-	Mix_HaltGroup((int)chunk);
+	Mix_HaltGroup((intptr_t)chunk);
 	RETURN_NONE
 }
 
@@ -517,7 +517,7 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
 
 	channelnum = Mix_PlayChannelTimed(channelnum, chunk, loops, playtime);
 	if(channelnum != -1)
-		Mix_GroupChannel(channelnum, (int)chunk);
+		Mix_GroupChannel(channelnum, (intptr_t)chunk);
 
         Py_XDECREF(channeldata[channelnum].sound);
 	Py_XDECREF(channeldata[channelnum].queue);
@@ -544,7 +544,7 @@ static PyObject* chan_queue(PyObject* self, PyObject* args)
 	{
 	    channelnum = Mix_PlayChannelTimed(channelnum, chunk, 0, -1);
 	    if(channelnum != -1)
-		    Mix_GroupChannel(channelnum, (int)chunk);
+		    Mix_GroupChannel(channelnum, (intptr_t)chunk);
 
             channeldata[channelnum].sound = sound;
             Py_INCREF(sound);
