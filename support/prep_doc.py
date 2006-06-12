@@ -50,12 +50,15 @@ def write_function(func, file):
     print >> file
 
 def write_class(cls, file):
-    if ctypes.Structure in cls.__bases__:
+    if ctypes.Structure in cls.__bases__ or \
+       ctypes.Union in cls.__bases__:
         print >> file, 'class %s:' % cls.__name__
         print >> file, '    %s' % repr(cls.__doc__ or '')
         for field in cls._fields_:
             if field[0] != '_':
                 print >> file, '    %s = None' % field[0]
+    else:
+        print >> file, '%s' % inspect.getsource(cls)
 
 def write_variable(child_name, child, file):
     print >> file, '%s = %s' % (child_name, repr(child))
@@ -89,11 +92,11 @@ def write_module(module):
             write_class(child, f)
         elif inspect.ismodule(child):
             pass
-        elif module in (SDL, SDL.constants, SDL.keysym):
+        elif module in (SDL, SDL.constants):
             write_variable(child_name, child, f)
 
 def module_file(module_name):
-    if module_name[:3] != 'SDL' or module_name in ('SDL.dll', 'SDL.array'):
+    if module_name[:3] != 'SDL' or module_name in ('SDL.dll', ):
         return None
 
     if module_name in modules:

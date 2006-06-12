@@ -4,7 +4,7 @@
     http://www.pygame.org/ctypes
 
 :revision: 0.03
-:date: 11 June 2006
+:date: 12 June 2006
 
 :copyright: Copyright (c) 2006 Alex Holkner.
 
@@ -17,7 +17,7 @@ SDL-ctypes
 Introduction
 ---------------------
 
-Blah.
+TODO.
 
 ---------------------
 Usage
@@ -30,10 +30,33 @@ possible, while making it simple to use in Python.
 The following sections detail the general differences you can expect to
 see.
 
+Importing
+=========
+
+The preferred way to use SDL-ctypes is with::
+
+    from SDL import *
+
+This follows the convention of PyOpenGL, and allows you to call SDL
+functions in the same way as the C library.  The actual package is
+composed of several modules such as ``SDL.cdrom``, ``SDL.video``, and
+so on.  All functions and structures from each module are imported
+directly into the SDL namespace for convenience.
+
+The API documentation lists functions in both their originating module
+and the SDL module for readability.
+
 Error checking
 ==============
 
-Blah.
+Many SDL functions return an error code (the actual code depends on the
+function: some return 0 on error, others return -1 on error).  SDL-ctypes
+hides this detail from the application and will check return codes itself.
+
+When an error code is returned from the SDL library, an ``SDL_Exception``
+is raised.  The message it contains is the return value of ``SDL_GetError``.
+In general this means you can leave out error checking code in your
+application, or use try/except clauses where necessary.
 
 Return by reference
 ===================
@@ -76,21 +99,187 @@ types of these functions:
         int SDL_PeepEvents(SDL_Event *events, int numevents, int action, int
         mask);
 
-   In SDL-ctypes the array of events is returned as a list:
+   In SDL-ctypes the array of events is returned as a list::
 
         SDL_PeepEvents(numevents, action, mask) -> list of SDL_Event
 
 Large arrays
 ============
 
-Here are a few samples of reStructuredText that you may find handy.
+There are times when you need to access and manipulate large arrays
+of data in SDL.  For example, ``SDL_SetGammaRamp`` in C takes
+three arrays of integers.  The ``SDL_Surface.pixels`` attribute in C
+is a void pointer to a large array of pixel data.
 
+In SDL-ctypes the ``SDL_array`` abstraction is used to represent
+large arrays of data, allowing you to choose which format you would
+like the data in.
 
-RWops
-=====
+For example, to access the surface pixels as an instance of ``SDL_array``::
 
-Blah.
+    surface = SDL_SetVideoMode(640, 480, 32, 0)
+    pixels = surface.pixels
+
+``SDL_array`` implements the usual slicing and indexing operators so you
+can access the data element-wise::
+
+    # Set the third pixel to red
+    pixels[3] = SDL_MapRGBColor(surface.format, 255, 0, 0)
+
+    # Set all pixels to white
+    white = SDL_MapRGBColor(surface.format, 255, 255, 255)
+    for i in range(len(pixels)):
+        pixels[i] = white
+
+    # Equivalent to
+    pixels[:] = [white] * len(pixels)
+
+You can also access the data as a NumPy array, if it is installed::
+    
+    pixels = surface.pixels.as_numpy()
+
+The resultant array is mapped directly to the SDL buffer, so updates
+are immediate::
+
+    # Set all pixels to white
+    pixels[:] = [white] * len(pixels)
+
+    # Add one to all pixel values:
+    numpy.add(pixels, 1)
+
+Using NumPy is substantially faster than plain Python code.
+
+If you are using another library that uses ctypes, you can pass it
+the raw buffer as a pointer::
+
+    # Get the ctypes buffer pointer
+    p = surface.pixels.as_ctypes()
+
+So far all demonstrated operations have been on the pixel type; for
+example if using a 32-bit buffer, each element in the array is an
+integer representing the complete buffer.  You can also access the
+raw bytes of the buffer::
+
+    bytes = surface.pixels.as_bytes()
+
+If you know what you're doing, you can manipulate the buffer in the
+same way::
+    
+    # Zero out the third byte of the buffer.
+    bytes[3] = 0 
+
+You can access the byte buffer as a NumPy array or ctypes pointer in
+the same way::
+
+    bytes = surface.pixels.as_bytes().as_numpy()
+    bytes = surface.pixels.as_bytes().as_ctypes()
+
+You have already seen that ``SDL_Surface.pixels`` is an ``SDL_array``.
+Some functions also return ``SDL_array``, which can be manipulated
+in the same way::
+
+    red, green, blue = SDL_GetGammaRamp()
+    red = red.as_numpy()
+    red[:] = numpy.zeros(len(red))
+
+Any sequence, ctypes pointer or NumPy array can be passed as an argument
+to a function expecting ``SDL_array``::
+
+    # red is now a NumPy array; green is still SDL_array; blue is a list
+    SDL_SetGammaRamp(red, green, [0] * 256)
+
+Functions accepting SDL_array also accept any sequence, ctypes pointer
+or NumPy array of a byte buffer::
+
+    SDL_SetGammaRamp(red, green.as_bytes(), [0] * 256 * 2)
+
+SDL_RWops
+=========
+
+``SDL_RWops`` is a structure in SDL that describes a read/write interface
+to an arbitrary object.  For example, the ``SDL_Load_BMP_RW`` function
+can create an ``SDL_Surface`` from any source.
+
+Several functions from SDL have been included in SDL-ctypes for creating
+``SDL_RWops`` from files::
+
+    rw = SDL_RWFromFile('sample.bmp', 'rb')
+
+You can also create an SDL_RWops from any Python file-like object that
+provides read, write, seek and close methods::
+
+    f = open('sample.bmp')
+    rw = SDL_RWFromObject(f)
+
+For example, you could use this functionality to load a bitmap directly
+from a ZIP archive or remote URL.
+
+Version compatibility
+=====================
+
+SDL-ctypes can be used with any SDL shared library from version 2.1.1 
+onwards.  Differences between these versions are handled transparently
+where possible (e.g., the difference in layout between structures).
+
+If you call a function or access a structure member that doesn't exist
+in the version that was linked at runtime, ``SDL_NotImplementedError``
+will be raised.
+
+You can check the version of the runtime library with ``SDL_Linked_Version``.
 
 -----------------
 Tools and process
 -----------------
+
+Releasing a snapshot
+====================
+
+1. Increment revision numbers in ``setup.py`` and ``doc/manual.txt``, and
+   ensure ``CHANGELOG`` is up to date.
+2. Generate user documentation (requires ``mkhowto`` from the Python source
+   and `Python LaTeX Writer
+   <http://www.rexx.com/~dkuhlman/rstpythonlatex_intro.html>`_::
+
+      python setup.py manual
+
+3. Generate API documentation (requires `Epydoc
+   <http://epydoc.sourceforge.net>`_ 3.0 alpha or later)::
+
+      python setup.py apidoc
+
+4. Generate snapshot::
+
+      python setup.py sdist
+
+How API documentation is generated
+==================================
+
+EpyDoc generates HTML pages by both parsing source files and by
+importing the modules and introspecting them.  When EpyDoc is run
+on the SDL package it misses most functions, as they are created
+procedurally with ``SDL.dll.function``.  The parser misses them as
+they look like variable assignments, and the introspector misses them
+as the underlying function is declared in another module.
+
+The script ``support/prep_doc.py`` creates a package in ``build_doc``
+by introspecting the SDL module and writing the function definitions
+and their docstrings in the standard form.  EpyDoc is then run over
+the ``build_doc`` directory to generate useful API documentation.
+
+Run it with::
+
+    python support/prep_doc.py build_doc/
+
+(it is also run automatically by setup.py within the ``apidoc`` commmand.)
+
+Detecting changes in SDL revisions
+==================================
+
+``support/diff_changes.py`` can be used to checkout consecutive releases
+of libsdl and diff each version against its predecessor.  The results
+are written to ``support/diff_1.2.x.txt``, where x is the newer version.
+
+When a new version of SDL is released, add the revision number to
+the script and re-run it.  Examine the generated report for added or
+changed function prototypes and structures, and make the appropriate
+changes to SDL-ctypes.

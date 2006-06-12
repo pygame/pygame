@@ -87,7 +87,7 @@ def SDL_GetKeyRepeat():
     _SDL_GetKeyRepeat(byref(delay), byref(interval))
     return delay.value, interval.value
 
-_SDL_GetKeyState = SDL.dll.private_function('SDL_GetKeyRepeat',
+_SDL_GetKeyState = SDL.dll.private_function('SDL_GetKeyState',
     arg_types=[POINTER(c_int)],
     return_type=POINTER(c_ubyte))
 
