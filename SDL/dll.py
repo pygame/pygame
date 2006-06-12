@@ -44,7 +44,7 @@ def version_compatible(v):
 
 def assert_version_compatible(name, since):
     '''Raises an exception if `since` is later than the loaded library.'''
-    if not version_compatible(version):
+    if not version_compatible(since):
         import SDL.error
         raise SDL.error.SDL_NotImplementedError, \
             '%s requires SDL version %s; currently using version %s' % \

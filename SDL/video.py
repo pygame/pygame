@@ -106,7 +106,9 @@ class SDL_PixelFormat(Structure):
 
     def __getattr__(self, name):
         if name == 'palette':
-            return self._palette.contents
+            if self._palette:
+                return self._palette.contents
+            return None
         raise AttributeError
 
     def __setattr__(self, attr, value):
@@ -180,8 +182,8 @@ class SDL_VideoInfo(Structure):
     _fields_ = [('bitfield', c_uint),
                 ('video_mem', c_uint),
                 ('_vfmt', POINTER(SDL_PixelFormat)),
-                ('current_w', c_int),
-                ('current_h', c_int)]
+                ('_current_w', c_int),
+                ('_current_h', c_int)]
 
     def __getattr__(self, name):
         '''Retrieve bitfields as bool.  All bets are off about whether
@@ -206,11 +208,14 @@ class SDL_VideoInfo(Structure):
         elif name == 'blit_fill':
             return self.bitfield & 0x8000 != 0
         elif name == 'vfmt':    # Dereference vfmt pointer.
-            return self._vfmt.contents
+            if self._vfmt:
+                return self._vfmt.contents
+            return None
         
         # current_w and current_h added in SDL 1.2.10
         if name in ('current_w', 'current_h'):
             SDL.dll.assert_version_compatible(name, (1,2,10))
+            return getattr(self, '_%s' % name)
         raise AttributeError, name
 
 
