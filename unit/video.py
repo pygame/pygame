@@ -19,7 +19,7 @@ class SDL_Video_TestCase(unittest.TestCase):
 class SDL_Video_MapTest(SDL_Video_TestCase):
     def testMapRGB(self):
         info = SDL_GetVideoInfo()
-        pf = info.vfmt.contents
+        pf = info.vfmt
         for t in [(0, 0, 0),
                   (255, 0, 0),
                   (0xde, 0xea, 0xbe)]:
@@ -29,7 +29,7 @@ class SDL_Video_MapTest(SDL_Video_TestCase):
     def testMapRGBA(self):
         # TODO init a surface w/ alpha so can test this properly
         info = SDL_GetVideoInfo()
-        pf = info.vfmt.contents
+        pf = info.vfmt
         for t in [(0, 0, 0, 255),
                   (255, 0, 0, 255),
                   (255, 255, 255, 255),

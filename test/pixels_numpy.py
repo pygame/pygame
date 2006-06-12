@@ -52,9 +52,9 @@ if __name__ == '__main__':
             g = add(g, c * w.color[1])
             b = add(b, c * w.color[2])
 
-        r = clip(r*0xff, 0, 0xff).astype(Int32) << 16
-        g = clip(g*0xff, 0, 0xff).astype(Int32) << 8 
-        b = clip(b*0xff, 0, 0xff).astype(Int32)
+        r = clip(r*0xff, 0, 0xff).astype(UInt32) << 16
+        g = clip(g*0xff, 0, 0xff).astype(UInt32) << 8 
+        b = clip(b*0xff, 0, 0xff).astype(UInt32)
 
         pixels[:] = bitwise_or(r, bitwise_or(g, b)).flat
 

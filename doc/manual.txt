@@ -236,18 +236,22 @@ Releasing a snapshot
 
 1. Increment revision numbers in ``setup.py`` and ``doc/manual.txt``, and
    ensure ``CHANGELOG`` is up to date.
-2. Generate user documentation (requires ``mkhowto`` from the Python source
+2. Update ``doc/index.txt`` and generate ``index.html`` with::
+
+      python setup.py doc
+
+3. Generate user documentation (requires ``mkhowto`` from the Python source
    and `Python LaTeX Writer
    <http://www.rexx.com/~dkuhlman/rstpythonlatex_intro.html>`_::
 
       python setup.py manual
 
-3. Generate API documentation (requires `Epydoc
+4. Generate API documentation (requires `Epydoc
    <http://epydoc.sourceforge.net>`_ 3.0 alpha or later)::
 
       python setup.py apidoc
 
-4. Generate snapshot::
+5. Generate snapshot::
 
       python setup.py sdist
 
