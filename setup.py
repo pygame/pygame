@@ -22,6 +22,8 @@ latex_writer = \
     '/usr/lib/python2.4/site-packages/docutils/tools/python_latex.py'
 mkhowto = \
     '/usr/share/doc/Python-2.5a2/tools/mkhowto'
+rst2html = \
+    'rst2html.py'
 
 class ApiDocCommand(Command):
     description = 'generate HTML API documentation'
@@ -64,15 +66,34 @@ class ManualDocCommand(Command):
         subprocess.call('%s manual.txt > manual.tex' % latex_writer, shell=True)
         subprocess.call('%s --split=4 manual.tex' % mkhowto, shell=True)
         os.chdir(olddir)
+
+class DocCommand(Command):
+    description = 'generate HTML index page'
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        olddir = os.getcwd()
+        os.chdir(doc_dir)
+        subprocess.call('%s index.txt > index.html' % rst2html, shell=True)
+        os.chdir(olddir)
+
 setup(
     name='SDL-ctypes',
-    version='0.02',
+    version='0.03',
     description='ctypes wrapper for SDL',
     author='Alex Holkner',
     author_email='aholkner@cs.rmit.edu.au',
     url='http://www.pygame.org/ctypes',
     license='LGPL',
-    cmdclass={'apidoc':ApiDocCommand, 'manual':ManualDocCommand},
+    cmdclass={'apidoc':ApiDocCommand, 
+              'manual':ManualDocCommand,
+              'doc':DocCommand},
     packages=['SDL'],
 )
 

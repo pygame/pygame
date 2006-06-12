@@ -1,0 +1,51 @@
+SDL-ctypes
+==========
+
+SDL-ctypes is a Python wrapper around SDL_ using ctypes_.  SDL-ctypes is
+currently maintained by `Alex Holkner`_ and supported by `Google Summer of
+Code 2006`_.
+
+What's it for?
+--------------
+
+In its current state most of the core SDL modules have been wrapped,
+and is completely usable for applications that wish to access the
+SDL library directly.
+
+The eventual aim of this project is to rewrite Pygame_ using this SDL
+wrapper.  This would have several benefits over the current Python
+extension:
+
+* It would allow Python programmers to extend Pygame and use extra
+  features of SDL with far less effort than is currently required.
+* The wrapper can be used on any platform that supports ctypes
+  and SDL, and requires no compilation or native code.
+* Several Python or Python-like implementations such as PyPy and
+  Pyrex are emerging which can make use of this library simply
+  by implementing ctypes.
+
+Download
+--------
+
+The latest source release is:
+
+* `SDL-ctypes-0.3 <SDL-ctypes-0.3.tar.gz>`_
+
+You can also access the SVN repository directly::
+
+    svn co svn://pygame.org/svn/pygame/branches/ctypes-soc
+
+Documentation
+-------------
+
+Documentation included in the source distribution under the ``doc``
+directory.  It is also browseable online:
+
+* `Manual <manual/index.html>`_
+* `API reference <api/index.html>`_
+
+.. _SDL: http://www.libsdl.org
+.. _ctypes: http://starship.python.net/crew/theller/ctypes
+.. _Alex Holkner: mailto:aholkner@cs.rmit.edu.au
+.. _Google Summer of Code 2006: http://code.google.com/soc
+.. _Pygame: http://www.pygame.org
