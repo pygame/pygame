@@ -1,0 +1,7 @@
+include test/sample.bmp
+include test/*.py
+include unit/*.py
+include support/*.py
+include support/*.txt
+include doc/**
+include CHANGELOG
