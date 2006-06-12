@@ -36,7 +36,10 @@ class ApiDocCommand(Command):
     def run(self):
         subprocess.call('python support/prep_doc.py build_doc/',
                         shell=True)
-        os.makedirs(apidoc_dir)
+        try:
+            os.makedirs(apidoc_dir)
+        except:
+            pass
         olddir = os.getcwd()
         os.chdir('build_doc')
         subprocess.call('epydoc --no-private --html --no-sourcecode ' + \
@@ -59,7 +62,7 @@ class ManualDocCommand(Command):
         olddir = os.getcwd()
         os.chdir(doc_dir)
         subprocess.call('%s manual.txt > manual.tex' % latex_writer, shell=True)
-        subprocess.call('%s --split=3 manual.tex' % mkhowto, shell=True)
+        subprocess.call('%s --split=4 manual.tex' % mkhowto, shell=True)
         os.chdir(olddir)
 setup(
     name='SDL-ctypes',

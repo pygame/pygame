@@ -31,7 +31,6 @@ from SDL.constants import *
 from SDL.error import *
 from SDL.events import *
 from SDL.keyboard import *
-from SDL.keysym import *
 from SDL.mouse import *
 from SDL.quit import *
 from SDL.rwops import *
