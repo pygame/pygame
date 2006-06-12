@@ -3,5 +3,6 @@ include test/*.py
 include unit/*.py
 include support/*.py
 include support/*.txt
-include doc/**
+recursive-include doc *
 include CHANGELOG
+exclude doc/*.tex

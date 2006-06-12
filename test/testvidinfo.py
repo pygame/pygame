@@ -85,8 +85,9 @@ def RunModeTests(screen):
     SDL_FillRect(screen, None, SDL_MapRGB(screen.format, 0, 0, 0))
     SDL_Flip(screen)
 
-    # while (SDL_PollEvent):
-    #   etc
+    while SDL_PollEvent():
+        if SDL_PollEventAndReturn().type == SDL_KEYDOWN:
+            return False
 
     bmp = SDL_LoadBMP(SAMPLE_BMP)
     print 'Running freshly loaded blit test: %dx%d at %d bpp, flags: ' % \
@@ -107,15 +108,15 @@ def RunModeTests(screen):
     SDL_FillRect(screen, None, SDL_MapRGB(screen.format, 0, 0, 0))
     SDL_Flip(screen)
 
-    # while (SDL_PollEvent):
-    #   etc
+    while SDL_PollEvent():
+        if SDL_PollEventAndReturn().type == SDL_KEYDOWN:
+            return False
 
     # run the colorkeyed blit test
     bmpcc = SDL_LoadBMP(SAMPLE_BMP)
     print 'Running freshly loaded cc blit test: %dx%d at %d bpp, flags: ' % \
         (bmpcc.w, bmpcc.h, bmpcc.format.BitsPerPixel)
-    # XXX should be reading bmpcc.pixels, but this is void_p at the moment.
-    SDL_SetColorKey(bmpcc, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0)
+    SDL_SetColorKey(bmpcc, SDL_SRCCOLORKEY | SDL_RLEACCEL, bmpcc.pixels[0])
     PrintFlags(bmpcc.flags)
     print
     then = SDL_GetTicks()
@@ -133,8 +134,9 @@ def RunModeTests(screen):
     SDL_FillRect(screen, None, SDL_MapRGB(screen.format, 0, 0, 0))
     SDL_Flip(screen)
 
-    # while (SDL_PollEvent):
-    #   etc
+    while SDL_PollEvent():
+        if SDL_PollEventAndReturn().type == SDL_KEYDOWN:
+            return False
 
     # run the generic blit test 
     tmp = bmp
@@ -159,8 +161,9 @@ def RunModeTests(screen):
     SDL_FillRect(screen, None, SDL_MapRGB(screen.format, 0, 0, 0))
     SDL_Flip(screen)
 
-    # while (SDL_PollEvent):
-    #   etc
+    while SDL_PollEvent():
+        if SDL_PollEventAndReturn().type == SDL_KEYDOWN:
+            return False
 
     # run the colorkeyed blit test 
     tmp = bmpcc
@@ -185,16 +188,16 @@ def RunModeTests(screen):
     SDL_FillRect(screen, None, SDL_MapRGB(screen.format, 0, 0, 0))
     SDL_Flip(screen)
 
-    # while (SDL_PollEvent):
-    #   etc
+    while SDL_PollEvent():
+        if SDL_PollEventAndReturn().type == SDL_KEYDOWN:
+            return False
 
     # run the cc+alpha blit test only if screen bpp > 8
     if bmp.format.BitsPerPixel > 8:
         SDL_FreeSurface(bmpcc)
         bmpcc = SDL_LoadBMP(SAMPLE_BMP)
         SDL_SetAlpha(bmpcc, SDL_SRCALPHA, 85) # 85 - 33% alpha
-        # XXX cc color should be from pixel 
-        SDL_SetColorKey(bmpcc, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0)
+        SDL_SetColorKey(bmpcc, SDL_SRCCOLORKEY | SDL_RLEACCEL, bmpcc.pixels[0])
         tmp = bmpcc
         bmpcc = SDL_DisplayFormat(bmpcc)
         SDL_FreeSurface(tmp)
@@ -218,8 +221,11 @@ def RunModeTests(screen):
     SDL_FreeSurface(bmpcc)
     SDL_FreeSurface(bmp)
 
-    # while (SDL_PollEvent):
-    #   etc
+    while SDL_PollEvent():
+        if SDL_PollEventAndReturn().type == SDL_KEYDOWN:
+            return False
+
+    return True
 
 def RunVideoTests():
     mode_list = [
@@ -233,7 +239,7 @@ def RunVideoTests():
         SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF]
 
     SDL_WM_SetCaption('SDL Video Benchmark', 'vidtest')
-    #SDL_ShowCursor(0)
+    SDL_ShowCursor(0)
     for mode in mode_list:
         for flags in flags_list:
             print '==================================='
@@ -246,15 +252,19 @@ def RunVideoTests():
                 PrintFlags(screen.flags)
                 print
                 continue
-            RunModeTests(screen)
+            if not RunModeTests(screen):
+                return
 
 if __name__ == '__main__':
     SDL_Init(SDL_INIT_VIDEO)
     print 'Video driver: %s' % SDL_VideoDriverName()
 
     info = SDL_GetVideoInfo()
-    print 'Current display: %dx%d, %d bits-per-pixel' % \
-        (info.current_w, info.current_h, info.vfmt.BitsPerPixel)
+    try:
+        print 'Current display: %dx%d, %d bits-per-pixel' % \
+            (info.current_w, info.current_h, info.vfmt.BitsPerPixel)
+    except:
+        print 'Current w and h not available (incompatible version)'
 
     if not info.vfmt.palette:
         print '    Red Mask = 0x%.8x' % info.vfmt.Rmask
