@@ -1,0 +1,96 @@
+
+:author: Alex Holkner
+:address: aholkner@cs.rmit.edu.au \\\\
+    http://www.pygame.org/ctypes
+
+:revision: 0.03
+:date: 11 June 2006
+
+:copyright: Copyright (c) 2006 Alex Holkner.
+
+==========
+SDL-ctypes
+==========
+
+
+---------------------
+Introduction
+---------------------
+
+Blah.
+
+---------------------
+Usage
+---------------------
+
+If you are familiar with SDL in C, you should find SDL-ctypes 
+to be fairly intuitive.  The interface has been kept as consistent as
+possible, while making it simple to use in Python.
+
+The following sections detail the general differences you can expect to
+see.
+
+Error checking
+==============
+
+Blah.
+
+Return by reference
+===================
+
+Some SDL functions return values by storing the result in a pointer
+passed in as a function argument.  Since this convention is unwieldly
+in Python, these functions have been rewritten.  There are three
+types of these functions:
+
+ * Those whose return value is an error code.  In this case SDL-ctypes
+   handles the error code itself (raising an exception if necessary),
+   and returns the primary result directly.  An example of this is
+   ``SDL_PollEvent``, which has a C prototype of::
+
+        int SDL_PollEvent(SDL_Event *event);
+
+   This function actually has two behaviours: if ``event`` is NULL the
+   function returns ``SDL_TRUE`` but does not dequeue the event.
+   This is implemented in SDL-ctypes as::
+
+        SDL_PollEvent() -> bool
+
+   If you wish to dequeue and view the event as well, you can use the
+   variant ``SDL_PollEventAndReturn``::
+
+        SDL_PollEventAndReturn() -> SDL_Event
+
+ * Those that return multiple values.  An example is ``SDL_GetKeyState``,
+   which has a C prototype of::
+
+        void SDL_GetKeyRepeat(int *delay, int *interval);
+
+   In SDL-ctypes, the two results are returned as a tuple::
+
+        SDL_GetKeyRepeat() -> (delay, interval)
+
+ * Those that fill in an array of values.  An example is ``SDL_PeepEvents``,
+   which has a C prototype of::
+
+        int SDL_PeepEvents(SDL_Event *events, int numevents, int action, int
+        mask);
+
+   In SDL-ctypes the array of events is returned as a list:
+
+        SDL_PeepEvents(numevents, action, mask) -> list of SDL_Event
+
+Large arrays
+============
+
+Here are a few samples of reStructuredText that you may find handy.
+
+
+RWops
+=====
+
+Blah.
+
+-----------------
+Tools and process
+-----------------

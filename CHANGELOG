@@ -1,0 +1,25 @@
+SDL-ctypes 0.03
+---------------
+ - Set func_name instead of __name__ in `SDL.dll.function`; this should
+   fix an error about __name__ being unwriteable in OS X (untested).
+ - Provide access to unpythonified functions via _SDL_PeepEvents etc,
+   rather  than SDL.dll._dll.SDL_PeepEvents.  This is cleaner, and sets
+   things up for a unified compatibility mechanism.
+ - `since` argument added to `SDL.dll.function` to specify minimum version
+   of loaded library.
+ - support/prep_doc.py now ignores private functions marked with "_"
+ - version support for 1.2.1 to 1.2.10
+        since 1.2.7:
+            SDL_RWFromConstMem added
+        since 1.2.10:
+            SDL_WM_SetCaption unicode arguments
+            SDL_VideoInfo window size attributes
+            SDL_GetKeyRepeat added
+ - SDL.array module added
+ - SDL.video functions modified to accept and return SDL.array.SDL_array,
+   numpy arrays or any other sequence.
+ - Implemented SDL_CreateRGSurfaceFrom
+ - added test programs test/testpalette.py and test/testgamma.py
+ - __copy__ and __deepcopy__ methods added to SDL_Colour and SDL_Rect
+ - Constants and enums in keysym.py moved into constants.py
+ - SDL_keysym.unicode is now a unicode string type, not integer
