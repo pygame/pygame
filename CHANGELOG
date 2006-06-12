@@ -20,6 +20,7 @@ SDL-ctypes 0.03
    numpy arrays or any other sequence.
  - Implemented SDL_CreateRGSurfaceFrom
  - added test programs test/testpalette.py and test/testgamma.py
+ - filled holes in test/testvidinfo.py
  - __copy__ and __deepcopy__ methods added to SDL_Colour and SDL_Rect
  - Constants and enums in keysym.py moved into constants.py
  - SDL_keysym.unicode is now a unicode string type, not integer
