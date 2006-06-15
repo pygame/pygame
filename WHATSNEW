@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Jun 15, 2006
+    [BUG] Font fix for empty string causing segfault.  Added unittest.
+
 Jun 10, 2006
     64bit compile fixes for Fedora from Christopher Stone
 
