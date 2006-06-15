@@ -1,3 +1,8 @@
+SDL-ctypes 0.04
+---------------
+ - Support for 1 bit depth surfaces.
+ - Ported tests: checkkeys, graywin, testalpha, testbitmap
+
 SDL-ctypes 0.03
 ---------------
  - Set func_name instead of __name__ in `SDL.dll.function`; this should
