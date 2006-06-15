@@ -289,6 +289,10 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	Uint8 rgba[4];
 	SDL_Surface* surf;
 	SDL_Color foreg, backg;
+        int just_return;
+        just_return = 0;
+
+
 	if(!PyArg_ParseTuple(args, "OiO|O", &text, &aa, &fg_rgba_obj, &bg_rgba_obj))
 		return NULL;
 
@@ -314,53 +318,62 @@ static PyObject* font_render(PyObject* self, PyObject* args)
 	if(!PyObject_IsTrue(text))
 	{
 		int height = TTF_FontHeight(font);
+
 		surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32, 0xff<<16, 0xff<<8, 0xff, 0);
+                if(!surf) {
+                    return RAISE(PyExc_SDLError, "SDL_CreateRGBSurface failed");
+                }
+
 		if(bg_rgba_obj)
 		{
+
 			Uint32 c = SDL_MapRGB(surf->format, backg.r, backg.g, backg.b);
 			SDL_FillRect(surf, NULL, c);
 		}
 		else
 			SDL_SetColorKey(surf, SDL_SRCCOLORKEY, 0);
+
+                just_return = 1;
 	}
 	else if(PyUnicode_Check(text))
 	{
 		//PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
 		PyObject* strob = PyUnicode_AsEncodedString(text, "utf-8", "replace");
-		char *string = PyString_AsString(strob);
+		char *astring = PyString_AsString(strob);
 
 		if(aa)
 		{
 			if(!bg_rgba_obj)
-				surf = TTF_RenderUTF8_Blended(font, string, foreg);
+				surf = TTF_RenderUTF8_Blended(font, astring, foreg);
 			else
-				surf = TTF_RenderUTF8_Shaded(font, string, foreg, backg);
+				surf = TTF_RenderUTF8_Shaded(font, astring, foreg, backg);
 		}
 		else
-			surf = TTF_RenderUTF8_Solid(font, string, foreg);
+			surf = TTF_RenderUTF8_Solid(font, astring, foreg);
 
 		Py_DECREF(strob);
 	}
 	else if(PyString_Check(text))
 	{
-		char* string = PyString_AsString(text);
+		char* astring = PyString_AsString(text);
+
 		if(aa)
 		{
 			if(!bg_rgba_obj)
-				surf = TTF_RenderText_Blended(font, string, foreg);
+				surf = TTF_RenderText_Blended(font, astring, foreg);
 			else
-				surf = TTF_RenderText_Shaded(font, string, foreg, backg);
+				surf = TTF_RenderText_Shaded(font, astring, foreg, backg);
 		}
 		else
-			surf = TTF_RenderText_Solid(font, string, foreg);
+			surf = TTF_RenderText_Solid(font, astring, foreg);
 	}
 	else
 		return RAISE(PyExc_TypeError, "text must be a string or unicode");
 
 	if(!surf)
-		return RAISE(PyExc_SDLError, "SDL_ttf render failed");
+		return RAISE(PyExc_SDLError, TTF_GetError());
 
-	if(!aa && bg_rgba_obj) /*turn off transparancy*/
+	if(!aa && bg_rgba_obj && !just_return) /*turn off transparancy*/
 	{
 		SDL_SetColorKey(surf, 0, 0);
 		surf->format->palette->colors[0].r = backg.r;
