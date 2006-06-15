@@ -140,16 +140,20 @@ class SDL_Surface(Structure):
             # Return SDL_array type for pixels
             if not self._pixels:
                 raise SDL.error.SDL_Exception, 'Surface needs locking'
-            bypp = self.format.BytesPerPixel
-            if bypp == 1:
+            bpp = self.format.BitsPerPixel
+            count = self.w * self.h
+            if bpp == 1:
                 sz = c_ubyte
-            elif bypp == 2:
+                count = (self.w * self.h + 7) / 8
+            elif bpp == 8:
+                sz = c_ubyte
+            elif bpp == 16:
                 sz = c_ushort
-            elif bypp == 4:
+            elif bpp == 32:
                 sz = c_uint
             else:
                 raise SDL.error.SDL_Exception, 'Unsupported bytes-per-pixel'
-            return SDL.array.SDL_array(self._pixels, self.w * self.h, sz)
+            return SDL.array.SDL_array(self._pixels, count, sz)
         raise AttributeError, name
 
     def __setattr__(self, attr, value):
