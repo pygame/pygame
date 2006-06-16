@@ -343,19 +343,44 @@ static void stretch(SDL_Surface *src, SDL_Surface *dst)
 
 static PyObject* surf_scale(PyObject* self, PyObject* arg)
 {
-	PyObject *surfobj;
+	PyObject *surfobj, *surfobj2;
 	SDL_Surface* surf, *newsurf;
 	int width, height;
+        surfobj2 = NULL;
+
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!(ii)", &PySurface_Type, &surfobj, &width, &height))
+	if(!PyArg_ParseTuple(arg, "O!(ii)|O!", &PySurface_Type, &surfobj, 
+                                               &width, &height, 
+                                               &PySurface_Type, &surfobj2)) {
 		return NULL;
-	surf = PySurface_AsSurface(surfobj);
+        }
+
 	if(width < 0 || height < 0)
 		return RAISE(PyExc_ValueError, "Cannot scale to negative size");
+
+	surf = PySurface_AsSurface(surfobj);
 	
-	newsurf = newsurf_fromsurf(surf, width, height);
-	if(!newsurf) return NULL;
+        if(!surfobj2) {
+
+            newsurf = newsurf_fromsurf(surf, width, height);
+            if(!newsurf) return NULL;
+        } else {
+            newsurf = PySurface_AsSurface(surfobj2);
+        }
+
+
+        /* check to see if the size is twice as big. */
+        if(newsurf->w != (width) || newsurf->h != (height)) {
+            return RAISE(PyExc_ValueError, 
+                         "Destination surface not the given width or height.");
+        }
+
+        /* check to see if the format of the surface is the same. */
+        if(surf->format->BytesPerPixel != newsurf->format->BytesPerPixel) {
+            return RAISE(PyExc_ValueError, 
+                         "Source and destination surfaces need the same format.");
+        }
 
 	if(width && height)
 	{
@@ -368,37 +393,78 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
 		SDL_UnlockSurface(newsurf);
 	}
 
-	return PySurface_New(newsurf);
+	if(surfobj2) {
+            Py_INCREF(surfobj2);
+            return surfobj2;
+        } else {
+            return PySurface_New(newsurf);
+        }
 }
+
 
 
 static PyObject* surf_scale2x(PyObject* self, PyObject* arg)
 {
-	PyObject *surfobj;
-	SDL_Surface* surf, *newsurf;
+	PyObject *surfobj, *surfobj2;
+	SDL_Surface *surf;
+        SDL_Surface *newsurf;
 	int width, height;
+        surfobj2 = NULL;
+        
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surfobj))
-		return NULL;
+        if(!PyArg_ParseTuple(arg, "O!|O!", &PySurface_Type, &surfobj, 
+                                           &PySurface_Type, &surfobj2)) {
+            return NULL;
+        }
+
 	surf = PySurface_AsSurface(surfobj);
 
-	width = surf->w * 2;
-	height = surf->h * 2;
-	
-	newsurf = newsurf_fromsurf(surf, width, height);
-	if(!newsurf) return NULL;
+        /* if the second surface is not there, then make a new one. */
 
-	SDL_LockSurface(newsurf);
-	PySurface_Lock(surfobj);
+        if(!surfobj2) {
+            width = surf->w * 2;
+            height = surf->h * 2;
+
+            newsurf = newsurf_fromsurf(surf, width, height);
+
+            if(!newsurf) return NULL;
+        } else {
+            newsurf = PySurface_AsSurface(surfobj2);
+        }
+
+	
+
+        /* check to see if the size is twice as big. */
+        if(newsurf->w != (surf->w * 2) || newsurf->h != (surf->h * 2)) {
+            return RAISE(PyExc_ValueError, 
+                         "Destination surface not 2x bigger.");
+        }
+
+        /* check to see if the format of the surface is the same. */
+        if(surf->format->BytesPerPixel != newsurf->format->BytesPerPixel) {
+            return RAISE(PyExc_ValueError, 
+                         "Source and destination surfaces need the same format.");
+        }
+
+        SDL_LockSurface(newsurf);
+        SDL_LockSurface(surf);
 
 	scale2x(surf, newsurf);
 
-	PySurface_Unlock(surfobj);
-	SDL_UnlockSurface(newsurf);
+        SDL_UnlockSurface(surf);
+        SDL_UnlockSurface(newsurf);
 
-	return PySurface_New(newsurf);
+	if(surfobj2) {
+            Py_INCREF(surfobj2);
+            return surfobj2;
+        } else {
+            return PySurface_New(newsurf);
+        }
 }
+
+
+
 
 
 static PyObject* surf_rotate(PyObject* self, PyObject* arg)

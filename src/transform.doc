@@ -28,10 +28,15 @@ a Surface is nondestructive and returns a new Surface with the same dimensions.
 
 scale
 resize to new resolution
-pygame.transform.scale(Surface, (width, height)): return Surface
+pygame.transform.scale(Surface, (width, height), DestSurface = None): return Surface
 
 Resizes the Surface to a new resolution. This is a fast scale operation
 that does not sample the results. 
+
+An optional destination surface can be used, rather than have it create 
+a new one.  This is quicker if you want to repeatedly scale something.  
+However the destination must be the same size as the (width, height) passed 
+in.  Also the destination surface must be the same format.
 <END>
 
 
@@ -67,7 +72,7 @@ rotate. A negative rotation angle will rotate clockwise.
 
 scale2x
 specialized image doubler
-pygame.transform.scale2x(Surface): Surface
+pygame.transform.scale2x(Surface, DestSurface = None): Surface
 
 This will return a new image that is double the size of the original. It uses
 the AdvanceMAME Scale2X algorithm which does a 'jaggie-less' scale of bitmap
@@ -76,6 +81,11 @@ graphics.
 This really only has an effect on simple images with solid colors. On
 photographic and antialiased images it will look like a regular unfiltered
 scale.
+
+An optional destination surface can be used, rather than have it create 
+a new one.  This is quicker if you want to repeatedly scale something.  
+However the destination must be twice the size of the source surface passed 
+in.  Also the destination surface must be the same format.
 <END>
 
 
