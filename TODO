@@ -4,6 +4,7 @@ search TODO FIXME XXX
 struct/field docstrings
 drop opengl.h from constants.py
 SetCaption unicode
+byte swapping in array, esp for audio
 
 SDL_audio.h
 SDL_joystick.h
