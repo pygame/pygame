@@ -31,6 +31,7 @@ from SDL.cdrom import *
 from SDL.constants import *
 from SDL.error import *
 from SDL.events import *
+from SDL.joystick import *
 from SDL.keyboard import *
 from SDL.mouse import *
 from SDL.quit import *
