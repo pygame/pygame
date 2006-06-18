@@ -36,6 +36,7 @@ class SDL_array:
                 ctypes type if each element, e.g., c_ubyte, c_int, etc.
 
         '''
+        count = int(count)
         if not ptr:
             ptr = (ctype * count)()
         self.ptr = ptr
