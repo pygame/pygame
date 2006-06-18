@@ -321,7 +321,7 @@ _SDL_MixAudio = SDL.dll.private_function('SDL_MixAudio',
     arg_types=[POINTER(c_ubyte), POINTER(c_ubyte), c_uint, c_int],
     return_type=None)
 
-def SDL_MixAudio(dst, src, volume):
+def SDL_MixAudio(dst, src, length, volume):
     '''Mix two audio buffers.
 
     This takes two audio buffers of the playing audio format and mixes
@@ -336,14 +336,17 @@ def SDL_MixAudio(dst, src, volume):
     :Parameters:
      - `dst`: `SDL_array`
      - `src`: `SDL_array`
+     - `length`: int
      - `volume`: int
 
     '''
     dst = SDL.array.to_ctypes(dst, len(dst), c_ubyte)
     src = SDL.array.to_ctypes(src, len(src), c_ubyte)
-    if len(dst) != len(src):
-        raise TypeError, 'Length of buffers must be equal'
-    _SDL_MixAudio(dst, src, len(dst), volume)
+    if len(dst) < length:
+        raise TypeError, 'Destination buffer too small'
+    elif len(src) < length:
+        raise TypeError, 'Source buffer too small'
+    _SDL_MixAudio(dst, src, length, volume)
 
 SDL_LockAudio = SDL.dll.function('SDL_LockAudio',
     '''Guarantee the callback function is not running.
