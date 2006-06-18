@@ -143,7 +143,50 @@ def setup_test():
     screenSurface = 0
     dumpfile = None
 
-    # TODO cmdline args
+    i = 1
+    for arg in sys.argv[1:]:
+        if arg[:2] != '--':
+            continue
+        elif arg == '--dstbpp':
+            dstbpp = int(sys.argv[i + 1])
+        elif arg == '--dstrmask':
+            dstrmask = int(sys.argv[i + 1], 16)
+        elif arg == '--dstgmask':
+            dstgmask = int(sys.argv[i + 1], 16)
+        elif arg == '--dstbmask':
+            dstbmask = int(sys.argv[i + 1], 16)
+        elif arg == '--dstamask':
+            dstamask = int(sys.argv[i + 1], 16)
+        elif arg == '--dstwidth':
+            dstw = int(sys.argv[i + 1])
+        elif arg == '--dstheight':
+            dsth = int(sys.argv[i + 1])
+        elif arg == '--dsthwsurface':
+            dstflags |= SDL_HWSURFACE
+        elif arg == '--srcbpp':
+            srcbpp = int(sys.argv[i + 1])
+        elif arg == '--srcrmask':
+            srcrmask = int(sys.argv[i + 1], 16)
+        elif arg == '--srcgmask':
+            srcgmask = int(sys.argv[i + 1], 16)
+        elif arg == '--srcbmask':
+            srcbmask = int(sys.argv[i + 1], 16)
+        elif arg == '--srcamask':
+            srcamask = int(sys.argv[i + 1], 16)
+        elif arg == '--srcwidth':
+            srcw = int(sys.argv[i + 1])
+        elif arg == '--srcheight':
+            srch = int(sys.argv[i + 1])
+        elif arg == '--srchwsurface':
+            srcflags |= SDL_HWSURFACE
+        elif arg == '--seconds':
+            global testSeconds
+            testSeconds = int(sys.argv[i + 1])
+        elif arg == '--screen':
+            screenSurface = 1
+        elif arg == '--dumpfile':
+            dumpfile = sys.argv[i + 1]
+        i += 1
 
     SDL_Init(SDL_INIT_VIDEO)
     bmp = SDL_LoadBMP(SAMPLE_BMP)
@@ -167,7 +210,31 @@ def setup_test():
     dstalphaflags = (dest.flags & SDL_SRCALPHA) | (dest.flags & SDL_RLEACCEL)
     origsrcalphaflags = srcalphaflags
     origdstalphaflags = dstalphaflags
-    # TODO more cmdline args
+
+    i = 1
+    for arg in sys.argv[1:]:
+        if arg[:2] != '--':
+            continue
+        elif arg == '--srcalpha':
+            srcalpha = int(sys.argv[i + 1])
+        elif arg == '--dstalpha':
+            dstalpha = int(sys.argv[i + 1])
+        elif arg == '--srcsrcalpha':
+            srcalphaflags |= SDL_SRCALPHA
+        elif arg == '--srcnosrcalpha':
+            srcalphaflags &= ~SDL_SRCALPHA
+        elif arg == '--srcrelaccel':
+            srcalphaflags |= SDL_RLEACCEL
+        elif arg == '--srcnorleaccel':
+            srcalphaflags &= ~SDL_RLEACCEL
+        elif arg == '--dstsrcalpha':
+            dstalphaflags |= SDL_SRCALPHA
+        elif arg == '--dstnosrcalpha':
+            dstalphaflags &= ~SDL_SRCALPHA
+        elif arg == '--dstrelaccel':
+            dstalphaflags |= SDL_RLEACCEL
+        elif arg == '--dstnorleaccel':
+            dstalphaflags &= ~SDL_RLEACCEL
 
     if dstalphaflags != origdstalphaflags or dstalpha != dest.format.alpha:
         SDL_SetAlpha(dest, dstalphaflags, dstalpha)
@@ -195,7 +262,7 @@ def test_blit_speed():
     testms = testSeconds * 1000
     wmax = dest.w - src.w
     hmax = dest.h - src.h
-    isScreen = SDL_GetVideoSurface() == dest
+    isScreen = SDL_GetVideoSurface() is not None
 
     print 'Testing blit speed for %d seconds...' % testSeconds
 
