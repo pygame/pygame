@@ -236,6 +236,26 @@ class SDL_Overlay(Structure):
                 ('hwdata', c_void_p),
                 ('flags', c_uint)]
 
+# enum SDL_GLattr
+(SDL_GL_RED_SIZE,
+    SDL_GL_GREEN_SIZE,
+    SDL_GL_BLUE_SIZE,
+    SDL_GL_ALPHA_SIZE,
+    SDL_GL_BUFFER_SIZE,
+    SDL_GL_DOUBLEBUFFER,
+    SDL_GL_DEPTH_SIZE,
+    SDL_GL_STENCIL_SIZE,
+    SDL_GL_ACCUM_RED_SIZE,
+    SDL_GL_ACCUM_GREEN_SIZE,
+    SDL_GL_ACCUM_BLUE_SIZE,
+    SDL_GL_ACCUM_ALPHA_SIZE,
+    SDL_GL_STEREO,
+    SDL_GL_MULTISAMPLEBUFFERS,
+    SDL_GL_MULTISAMPLESAMPLES,
+    SDL_GL_ACCELERATED_VISUAL,
+    SDL_GL_SWAP_CONTROL) = range(17)
+# end enum SDL_Glattr
+
 # SDL_VideoInit and SDL_VideoQuit not implemented (internal only, according
 # to SDL_video.h).
 
@@ -1326,7 +1346,17 @@ SDL_GL_SetAttribute = SDL.dll.function('SDL_GL_SetAttribute',
     arg_types=[c_uint, c_int],
     return_type=c_int)
 
-# SDL_GL_GetAttribute not implemented yet
+_SDL_GL_GetAttribute = SDL.dll.private_function('SDL_GL_GetAttribute',
+    arg_types=[c_int, POINTER(c_int)],
+    return_type=c_int)
+
+def SDL_GL_GetAttribute(attr):
+    '''Get an attribute of the OpenGL subsystem from the windowing
+    interface, such as glX.
+    '''
+    val = c_int()
+    _SDL_GL_GetAttribute(attr, byref(val))
+    return val.value
 
 SDL_GL_SwapBuffers = SDL.dll.function('SDL_GL_SwapBuffers',
     '''Swap the OpenGL buffers, if double-buffering is supported.
