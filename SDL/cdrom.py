@@ -15,6 +15,14 @@ from ctypes import *
 import SDL.constants
 import SDL.dll
 
+# enum CDstatus
+(CD_TRAYEMPTY,
+    CD_STOPPED,
+    CD_PLAYING,
+    CD_PAUSED) = range(4)
+CD_ERROR = -1
+# end enum CDstatus
+
 class SDL_CDtrack(Structure):
     _fields_ = [('id', c_ubyte),
                 ('type', c_ubyte),

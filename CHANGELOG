@@ -2,6 +2,8 @@ SDL-ctypes 0.04
 ---------------
  - Support for 1 bit depth surfaces.
  - Ported tests: checkkeys, graywin, testalpha, testbitmap
+ - Removed unit/ directory; all tests will reside in test/.
+ - Added SDL_GL_GetAttribute
 
 SDL-ctypes 0.03
 ---------------
