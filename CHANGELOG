@@ -4,6 +4,7 @@ SDL-ctypes 0.04
  - Ported tests: checkkeys, graywin, testalpha, testbitmap
  - Removed unit/ directory; all tests will reside in test/.
  - Added SDL_GL_GetAttribute
+ - Added to_string method in SDL_array
 
 SDL-ctypes 0.03
 ---------------

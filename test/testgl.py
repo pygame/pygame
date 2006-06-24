@@ -6,6 +6,7 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
+import os
 import sys
 
 from SDL import *
@@ -16,13 +17,18 @@ USE_DEPRECATED_OPENGLBLIT = False
 global_image = None
 global_texture = 0
 cursor_texture = 0
+texture = 0
+texcoords = None
+tex_w = 0
+tex_h = 0
 
 SHADED_CUBE = True
+LOGO_FILE = os.path.join(os.path.dirname(sys.argv[0]), 'sample.bmp')
 
 def HotKey_ToggleFullScreen():
     screen = SDL_GetVideoSurface()
     SDL_WM_ToggleFullScreen(screen)
-    if screen.floags & SDL_FULLSCREEN:
+    if screen.flags & SDL_FULLSCREEN:
         s = 'fullscreen'
     else:
         s = 'windowed'
@@ -47,10 +53,144 @@ def HotKey_Iconify():
 
 def HandleEvent(event):
     if event.type == SDL_ACTIVEEVENT:
-        pass
+        s1 = 'lost'
+        if event.gain:
+            s1 = 'gained'
+        s2 = ''
+        if event.state & SDL_APPACTIVE:
+            s2 = 'active'
+        if event.state & SDL_APPMOUSEFOCUS:
+            s2 = 'mouse'
+        if event.state & SDL_APPINPUTFOCUS:
+            s2 = 'input'
+        print 'app %s %s focus' % (s1, s2)
+    elif event.type == SDL_KEYDOWN:
+        if event.keysym.sym == SDLK_ESCAPE:
+            return 1
+        if event.keysym.sym == SDLK_g and event.keysym.mod & KMOD_CTRL:
+            HotKey_ToggleGrab()
+        if event.keysym.sym == SDLK_z and event.keysym.mod & KMOD_CTRL:
+            HotKey_Iconify()
+        if event.keysym.sym == SDLK_RETURN and event.keysym.mod & KMOD_ALT:
+            HotKey_ToggleFullScreen()
+        print 'key "%s" pressed' % SDL_GetKeyName(event.keysym.sym)
     elif event.type == SDL_QUIT:
         return 1
     return 0
+
+def SDL_GL_Enter2DMode():   
+    screen = SDL_GetVideoSurface()
+
+    # Note, there may be other things you need to change,
+    # depending on how you have your OpenGL state set up.
+    glPushAttrib(GL_ENABLE_BIT)
+    glDisable(GL_DEPTH_TEST)
+    glDisable(GL_CULL_FACE)
+    glEnable(GL_TEXTURE_2D)
+
+    # This allows alpha blending of 2D textures with the scene
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    glViewport(0, 0, screen.w, screen.h)
+
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+
+    glOrtho(0.0, screen.w, screen.h, 0.0, 0.0, 1.0)
+
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+
+def SDL_GL_Leave2DMode():
+    glMatrixMode(GL_MODELVIEW)
+    glPopMatrix()
+
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+
+    glPopAttrib()
+
+def power_of_two(input):
+    value = 1
+
+    while value < input:
+        value <<= 1
+    return value
+
+def SDL_GL_LoadTexture(surface):
+    w = power_of_two(surface.w)
+    h = power_of_two(surface.h)
+    texcoords = [0, 0, surface.w / float(w), surface.h / float(h)]
+
+    # TODO big endian
+    image = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
+            0x000000FF, 
+            0x0000FF00, 
+            0x00FF0000, 
+            0xFF000000)
+    
+    # Save the alpha blending attributes
+    saved_flags = surface.flags & (SDL_SRCALPHA | SDL_RLEACCELOK)
+    saved_alpha = surface.format.alpha
+    if saved_flags & SDL_SRCALPHA == SDL_SRCALPHA:
+        SDL_SetAlpha(surface, 0, 0)
+
+    # Copy the surface into the GL texture image
+    area = SDL_Rect(0, 0, surface.w, surface.h)
+    SDL_BlitSurface(surface, area, image, area)
+
+    # Restore the alpha blending attributes
+    if saved_flags & SDL_SRCALPHA == SDL_SRCALPHA:
+        SDL_SetAlpha(surface, saved_flags, saved_alpha)
+
+    # Create an OpenGL texture for the image
+    texture = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+    glTexImage2D(GL_TEXTURE_2D,
+             0,
+             GL_RGBA,
+             w, h,
+             0,
+             GL_RGBA,
+             GL_UNSIGNED_BYTE,
+             image.pixels.to_string())
+    SDL_FreeSurface(image)
+
+    return texture, texcoords
+
+def DrawLogoCursor():
+    print 'logo'
+    global texture, texcoords, tex_w, tex_h
+    if not texture:
+        image = SDL_LoadBMP(LOGO_FILE)
+        tex_w, tex_h = image.w, image.h
+        texture, texcoords = SDL_GL_LoadTexture(image)
+        SDL_FreeSurface(image)
+
+    state, x, y = SDL_GetMouseState()
+    x -= tex_w/2
+    y -= tex_h/2
+
+    SDL_GL_Enter2DMode()
+    glBindTexture(GL_TEXTURE_2D, texture)
+    glBegin(GL_TRIANGLE_STRIP)
+    glTexCoord2f(texcoords[0], texcoords[1])
+    glVertex2i(x,   y  )
+    glTexCoord2f(texcoords[2], texcoords[1])
+    glVertex2i(x+tex_w, y  )
+    glTexCoord2f(texcoords[0], texcoords[3]) 
+    glVertex2i(x,   y+tex_h)
+    glTexCoord2f(texcoords[2], texcoords[3]) 
+    glVertex2i(x+tex_w, y+tex_h)
+    glEnd()
+    SDL_GL_Leave2DMode()
 
 def RunGLTest(logo, logocursor, slowly, bpp, gamma, noframe, fsaa, sync, accel):
     w = 640
@@ -275,7 +415,7 @@ def RunGLTest(logo, logocursor, slowly, bpp, gamma, noframe, fsaa, sync, accel):
                 pass # TODO
 
         if logocursor:
-            pass # TODO
+            DrawLogoCursor()
 
         SDL_GL_SwapBuffers()
 
@@ -314,6 +454,7 @@ if __name__ == '__main__':
     i = 1
     while i < len(sys.argv):
         arg = sys.argv[i]
+        print arg
         if arg == '-twice':
             numtests += 1
         elif arg == '-logo':
