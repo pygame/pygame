@@ -5,6 +5,8 @@ struct/field docstrings
 drop opengl.h from constants.py
 SetCaption unicode
 byte swapping in array, esp for audio
+endian check, e.g. for overlay and gl tests
+glitch in upper-left corner of testoverlay2
 
 SDL_syswm.h - platform dependent
 

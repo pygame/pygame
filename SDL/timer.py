@@ -81,7 +81,10 @@ def SDL_SetTimer(interval, callback):
 
     # Note SDL_SetTimer actually returns 1 on success, not 0 as documented
     # in SDL_timer.h.
-    result = _SDL_SetTimer(interval, _SDL_TimerCallback(callback))
+    if callback:
+        result = _SDL_SetTimer(interval, _SDL_TimerCallback(callback))
+    else:
+        result = _SDL_SetTimer(interval, _SDL_TimerCallback())
     if result == -1:
         raise SDL.error.SDL_Exception, SDL.error.SDL_GetError()
 
