@@ -5,6 +5,8 @@ SDL-ctypes 0.04
  - Removed unit/ directory; all tests will reside in test/.
  - Added SDL_GL_GetAttribute
  - Added to_string method in SDL_array
+ - Removed read-only check from SDL_PixelFormat
+ - Added pixel and bitfield access to SDL_Overlay
 
 SDL-ctypes 0.03
 ---------------
