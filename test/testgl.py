@@ -166,7 +166,6 @@ def SDL_GL_LoadTexture(surface):
     return texture, texcoords
 
 def DrawLogoCursor():
-    print 'logo'
     global texture, texcoords, tex_w, tex_h
     if not texture:
         image = SDL_LoadBMP(LOGO_FILE)
@@ -177,6 +176,46 @@ def DrawLogoCursor():
     state, x, y = SDL_GetMouseState()
     x -= tex_w/2
     y -= tex_h/2
+
+    SDL_GL_Enter2DMode()
+    glBindTexture(GL_TEXTURE_2D, texture)
+    glBegin(GL_TRIANGLE_STRIP)
+    glTexCoord2f(texcoords[0], texcoords[1])
+    glVertex2i(x,   y  )
+    glTexCoord2f(texcoords[2], texcoords[1])
+    glVertex2i(x+tex_w, y  )
+    glTexCoord2f(texcoords[0], texcoords[3]) 
+    glVertex2i(x,   y+tex_h)
+    glTexCoord2f(texcoords[2], texcoords[3]) 
+    glVertex2i(x+tex_w, y+tex_h)
+    glEnd()
+    SDL_GL_Leave2DMode()
+
+x, y, delta_x, delta_y = 0, 0, 1, 1
+def DrawLogoTexture():
+    global texture, texcoords, tex_w, tex_h
+    global delta_x, delta_y, x, y
+    if not texture:
+        image = SDL_LoadBMP(LOGO_FILE)
+        tex_w, tex_h = image.w, image.h
+        texture, texcoords = SDL_GL_LoadTexture(image)
+        SDL_FreeSurface(image)
+
+    screen = SDL_GetVideoSurface()
+    x += delta_x
+    if x < 0:
+        x = 0
+        delta_x = -delta_x
+    elif x + tex_w > screen.w:
+        x = screen.w - tex_w
+        delta_x = -delta_x
+    y += delta_y
+    if y < 0:
+        y = 0
+        delta_y = -delta_y
+    elif y + tex_h > screen.h:
+        y = screen.h - tex_h
+        delta_y = -delta_y
 
     SDL_GL_Enter2DMode()
     glBindTexture(GL_TEXTURE_2D, texture)
@@ -412,7 +451,7 @@ def RunGLTest(logo, logocursor, slowly, bpp, gamma, noframe, fsaa, sync, accel):
             if USE_DEPRECATED_OPENGLBLIT:
                 pass
             else:
-                pass # TODO
+                DrawLogoTexture()
 
         if logocursor:
             DrawLogoCursor()
