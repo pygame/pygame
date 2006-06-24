@@ -135,5 +135,9 @@ def to_ctypes(values, count, ctype):
         else:
             return cast(values, POINTER(ctype * count)).contents
 
+    # Convert string bytes to integers
+    if type(values) == str:
+        values = [ord(c) for c in values]
+
     # Otherwise assume sequence
     return (ctype * count)(*values)

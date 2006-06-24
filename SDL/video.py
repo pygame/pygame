@@ -111,9 +111,6 @@ class SDL_PixelFormat(Structure):
             return None
         raise AttributeError
 
-    def __setattr__(self, attr, value):
-        raise AttributeError, '%s is read only' % attr
-
 class SDL_Surface(Structure):
     '''Read-only structure.
     '''
@@ -231,10 +228,27 @@ class SDL_Overlay(Structure):
                 ('h', c_int),
                 ('planes', c_int),
                 ('pitches', POINTER(c_short)),
-                ('pixels', POINTER(POINTER(c_byte))),
+                ('_pixels', POINTER(POINTER(c_byte))),
                 ('hwfuncs', c_void_p),
                 ('hwdata', c_void_p),
                 ('flags', c_uint)]
+
+    def __getattr__(self, name):
+        '''Retrieve bitfields as bool.  All bets are off about whether
+        this will actually work (ordering of bitfields is compiler
+        dependent.'''
+        if name == 'hw_overlay':
+            return self.flags & 0x1 != 0
+        
+        elif name == 'pixels':
+            if not self._pixels:
+                raise SDL.error.SDL_Exception, 'Overlay needs locking'
+            p = []
+            for i in range(self.planes):
+                sz = self.pitches[i] * self.h
+                p.append(SDL.array.SDL_array(self._pixels[i], sz, c_byte))
+            return p
+
 
 # enum SDL_GLattr
 (SDL_GL_RED_SIZE,
