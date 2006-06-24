@@ -83,6 +83,13 @@ class SDL_array:
             raise TypeError, '%s has no numpy compatible type' % self.ctype
         return numpy.frombuffer(self.as_ctypes(), _numpy_typemap[self.ctype])
 
+    def to_string(self):
+        '''Return a string with the contents of this array.
+
+        :rtype: string
+        '''
+        return ''.join([chr(c) for c in self.as_bytes().as_ctypes()])
+
     def __repr__(self):
         return 'SDL_array(ctype=%s, count=%r)' % (self.ctype, self.count)
 

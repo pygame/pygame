@@ -1430,6 +1430,12 @@ SDL_WM_ToggleFullScreen = SDL.dll.function('SDL_WM_ToggleFullScreen',
     return_type=c_int,
     error_return=0)
 
+# enum SDL_GrabMode
+(SDL_GRAB_QUERY,
+    SDL_GRAB_OFF,
+    SDL_GRAB_ON) = range(-1,2)
+# end enum SDL_GrabMode
+
 SDL_WM_GrabInput = SDL.dll.function('SDL_WM_GrabInput',
     '''Set the grab mode for the mouse and keyboard.
 
