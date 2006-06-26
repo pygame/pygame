@@ -7,6 +7,10 @@ SDL-ctypes 0.04
  - Added to_string method in SDL_array
  - Removed read-only check from SDL_PixelFormat
  - Added pixel and bitfield access to SDL_Overlay
+ - SDL_Timer allows timer to be disabled by setting the callback to None
+ - Implemented SDL_WM_SetIcon
+ - Fixed SDL_SetEventFilter callback
+ - Fixed SDL_Surface.pixels size to respect pitch rather than width
 
 SDL-ctypes 0.03
 ---------------

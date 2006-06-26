@@ -363,7 +363,9 @@ def SDL_SetEventFilter(filter):
             instance must not be modified.
 
     '''
-    _SDL_SetEventFilter(_SDL_EventFilter(filter))
+    def f(e):
+        return filter(e.contents.specialize())
+    _SDL_SetEventFilter(_SDL_EventFilter(f))
 
 _SDL_GetEventFilter = SDL.dll.private_function('SDL_GetEventFilter',
     arg_types=[],

@@ -138,7 +138,7 @@ class SDL_Surface(Structure):
             if not self._pixels:
                 raise SDL.error.SDL_Exception, 'Surface needs locking'
             bpp = self.format.BitsPerPixel
-            count = self.w * self.h
+            count = self.pitch * self.h
             if bpp == 1:
                 sz = c_ubyte
                 count = (self.w * self.h + 7) / 8
@@ -1410,7 +1410,25 @@ def SDL_WM_GetCaption():
     _SDL_WM_GetCaption(byref(title), byref(icon))
     return title.value, icon.value
 
-# SDL_WM_SetIcon not implemented yet (what type to accept for mask param?)
+_SDL_WM_SetIcon = SDL.dll.private_function('SDL_WM_SetIcon',
+    arg_types=[POINTER(SDL_Surface), POINTER(c_ubyte)],
+    return_type=None)
+
+def SDL_WM_SetIcon(icon, mask):
+    '''Set the icon for the display window.
+
+    This function must be called before the first call to `SDL_SetVideoMode`.
+    It takes an icon surface, and a mask in MSB format.  If `mask` is None,
+    the entire icon surface will be used as the icon.
+
+    :Parameters:
+     - `icon`: `SDL_Surface`
+     - `mask`: `SDL_array` or sequence 
+
+    '''
+    if mask:
+        mask = SDL.array.to_ctypes(mask, (icon.w * icon.h + 7) / 8, c_ubyte)
+    _SDL_WM_SetIcon(icon, mask)
 
 SDL_WM_IconifyWindow = SDL.dll.function('SDL_WM_IconifyWindow',
     '''Iconify the window.
