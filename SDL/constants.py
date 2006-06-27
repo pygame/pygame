@@ -8,6 +8,12 @@ __version__ = '$Id: $'
 
 # TODO enums
 
+# From SDL_ttf.h (inserted manually)
+TTF_STYLE_NORMAL    = 0x00
+TTF_STYLE_BOLD      = 0x01
+TTF_STYLE_ITALIC    = 0x02
+TTF_STYLE_UNDERLINE = 0x04
+
 # enum SDLKey {
 
 #  The keyboard syms have been cleverly chosen to map to ASCII 
