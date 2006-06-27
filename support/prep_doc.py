@@ -114,4 +114,6 @@ if __name__ == '__main__':
         pass
     modules['SDL'] = open(os.path.join(base_dir, 'SDL/__init__.py'), 'w')
     import SDL
+    import SDL.ttf
     write_module(SDL)
+    write_module(SDL.ttf)
