@@ -13,7 +13,7 @@ from ctypes import *
 import SDL.constants
 import SDL.dll
 
-SDL_Joystick_p = POINTER('SDL_Joystick')
+SDL_Joystick_p = c_void_p
 
 SDL_NumJoysticks = SDL.dll.function('SDL_NumJoysticks',
     '''Count the number of joysticks attached to the system.
