@@ -115,5 +115,7 @@ if __name__ == '__main__':
     modules['SDL'] = open(os.path.join(base_dir, 'SDL/__init__.py'), 'w')
     import SDL
     import SDL.ttf
+    import SDL.mixer
     write_module(SDL)
     write_module(SDL.ttf)
+    write_module(SDL.mixer)

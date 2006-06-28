@@ -13,7 +13,7 @@ SDL-ctypes 0.04
  - Fixed SDL_Surface.pixels size to respect pitch rather than width
  - SDL.dll refactored into a class, so it can be used for any SDL-like
    library (i.e., SDL_image, SDL_ttf, etc)
- - Added SDL_ttf support
+ - Added SDL_ttf and SDL_mixer support
 
 SDL-ctypes 0.03
 ---------------
