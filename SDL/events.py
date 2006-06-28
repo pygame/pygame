@@ -286,7 +286,6 @@ def SDL_PollEventAndReturn():
     :see: `SDL_PollEvent`
     :rtype: `SDL_Event` or subclass
     '''
-    # Need to make this global to workaround refcounting error with cast
     e = SDL_Event()
     result = _SDL_PollEvent(byref(e))
     if result == 1:
