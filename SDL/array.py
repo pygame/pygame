@@ -55,6 +55,26 @@ class SDL_array:
         '''
         return SDL_array(self.ptr, (self.count * sizeof(self.ctype)), c_ubyte)
 
+    def as_int16(self):
+        '''Access the array as 16-bit integers, regardless of the underlying
+        data type.
+
+        :rtype: SDL_array
+        '''
+        return SDL_array(self.ptr, 
+                         self.count * sizeof(self.ctype) / 2, 
+                         c_ushort)
+
+    def as_int32(self):
+        '''Access the array as 32-bit integers, regardless of the underlying
+        data type.
+
+        :rtype: SDL_array
+        '''
+        return SDL_array(self.ptr, 
+                         self.count * sizeof(self.ctype) / 4, 
+                         c_uint)
+
     def as_ctypes(self):
         '''Access the array as a ctypes array.
 
