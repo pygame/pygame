@@ -7,13 +7,6 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 # TODO enums
-
-# From SDL_ttf.h (inserted manually)
-TTF_STYLE_NORMAL    = 0x00
-TTF_STYLE_BOLD      = 0x01
-TTF_STYLE_ITALIC    = 0x02
-TTF_STYLE_UNDERLINE = 0x04
-
 # enum SDLKey {
 
 #  The keyboard syms have been cleverly chosen to map to ASCII 
@@ -436,3 +429,21 @@ MIX_MAX_VOLUME = 0x00000080
 SDL_TIMESLICE = 0x0000000a
 TIMER_RESOLUTION = 0x0000000a
 #END GENERATED CONSTANTS
+
+
+# From SDL_ttf.h (inserted manually)
+TTF_STYLE_NORMAL    = 0x00
+TTF_STYLE_BOLD      = 0x01
+TTF_STYLE_ITALIC    = 0x02
+TTF_STYLE_UNDERLINE = 0x04
+
+# From SDL_mixer.h (inserted manually)
+MIX_CHANNELS            = 8
+MIX_DEFAULT_FREQUENCY   = 22050
+MIX_DEFAULT_FORMAT      = AUDIO_S16LSB  # TODO endianness
+MID_DEFAULT_CHANNELS    = 2
+MIX_MAX_VOLUME          = 128
+MIX_CHANNEL_POST        = -2
+MIX_EFFECTSMAXSPEED     = 'MIX_EFFECTSMAXSPEED'
+
+

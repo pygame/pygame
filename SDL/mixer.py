@@ -14,6 +14,9 @@ it can load MP3 music using the SMPEG library.
 The process of mixing MIDI files to wave output is very CPU intensive, so
 if playing regular WAVE files sounds great, but playing MIDI files sounds
 choppy, try using 8-bit audio, mono audio, or lower frequencies.
+
+:note: The music stream does not resample to the required audio rate.  You
+    must call `Mix_OpenAudio` with the sampling rate of your music track.
 '''
 
 __docformat__ = 'restructuredtext'
@@ -39,9 +42,14 @@ Mix_Linked_Version = _dll.function('Mix_Linked_Version',
 
 class Mix_Chunk(Structure):
     _fields_ = [('allocated', c_int),
-                ('abuf', POINTER(c_ubyte)),
+                ('_abuf', POINTER(c_ubyte)),
                 ('alen', c_uint),
                 ('volume', c_ubyte)]
+
+    def __getattr__(self, attr):
+        if attr == 'abuf':
+            return SDL.array.SDL_array(self._abuf, self.alen, c_ubyte)
+        raise AttributeException, attr
 
 # begin enum Mix_Fading
 (MIX_NO_FADING,
@@ -150,7 +158,8 @@ Mix_LoadMUS = _dll.function('Mix_LoadMUS',
     ''',
     args=['file'],
     arg_types=[c_char_p],
-    return_type=_Mix_Music)
+    return_type=_Mix_Music,
+    require_return=True)
 
 Mix_LoadMUS_RW = _dll.function('Mix_LoadMUS_RW',
     '''Load a MID, OGG, MP3 or MOD file from a RWops source.
@@ -165,7 +174,8 @@ Mix_LoadMUS_RW = _dll.function('Mix_LoadMUS_RW',
     ''',
     args=['file'],
     arg_types=[c_char_p],
-    return_type=_Mix_Music)
+    return_type=_Mix_Music,
+    require_return=True)
 
 _Mix_QuickLoad_WAV = _dll.private_function('Mix_QuickLoad_WAV',
     arg_types=[POINTER(c_ubyte)],
@@ -251,7 +261,7 @@ def _make_filter(func, udata):
         return None
 
 _Mix_SetPostMix = _dll.private_function('Mix_SetPostMix',
-    arg_types=[POINTER(_Mix_FilterFunc), c_void_p],
+    arg_types=[_Mix_FilterFunc, c_void_p],
     return_type=None)
 
 def Mix_SetPostMix(mix_func, udata):
@@ -274,7 +284,7 @@ def Mix_SetPostMix(mix_func, udata):
     _Mix_SetPostMix(_make_filter(mix_func, udata), None)
 
 _Mix_HookMusic = _dll.private_function('Mix_HookMusic',
-    arg_types=[POINTER(_Mix_FilterFunc), c_void_p],
+    arg_types=[_Mix_FilterFunc, c_void_p],
     return_type=None)
 
 def Mix_HookMusic(mix_func, udata):
@@ -298,7 +308,7 @@ def Mix_HookMusic(mix_func, udata):
 _Mix_HookMusicFinishedFunc = CFUNCTYPE(None)
 
 _Mix_HookMusicFinished = _dll.private_function('Mix_HookMusicFinished',
-    arg_types=[POINTER(_Mix_HookMusicFinishedFunc)],
+    arg_types=[_Mix_HookMusicFinishedFunc],
     return_type=None)
 
 def Mix_HookMusicFinished(music_finished):
@@ -321,7 +331,7 @@ def Mix_HookMusicFinished(music_finished):
 _Mix_ChannelFinishedFunc = CFUNCTYPE(None, c_int)
 
 _Mix_ChannelFinished = _dll.private_function('Mix_ChannelFinished',
-    arg_types=[POINTER(_Mix_ChannelFinishedFunc)],
+    arg_types=[_Mix_ChannelFinishedFunc],
     return_type=None)
 
 def Mix_ChannelFinished(channel_finished):
@@ -345,8 +355,6 @@ def Mix_ChannelFinished(channel_finished):
     else:
         _Mix_ChannelFinished(None)
 
-MIX_CHANNEL_POST = -2
-
 _Mix_EffectFunc = CFUNCTYPE(None, c_int, POINTER(c_ubyte), c_int, c_void_p)
 def _make_Mix_EffectFunc(func, udata):
     if func:
@@ -366,7 +374,7 @@ def _make_Mix_EffectDoneFunc(func, udata):
 
 _Mix_RegisterEffect = _dll.private_function('Mix_RegisterEffect',
     arg_types=\
-     [c_int, POINTER(_Mix_EffectFunc), POINTER(_Mix_EffectDoneFunc), c_void_p],
+     [c_int, _Mix_EffectFunc, _Mix_EffectDoneFunc, c_void_p],
     return_type=c_int,
     error_return=0)
 
@@ -465,8 +473,6 @@ Mix_UnregisterAllEffects = _dll.function('Mix_UnregisterAllEffects',
     arg_types=[c_int],
     return_type=c_int,
     error_return=0)
-
-MIX_EFFECTSMAXSPEED = 'MIX_EFFECTSMAXSPEED'
 
 Mix_SetPanning = _dll.function('Mix_SetPanning',
     '''Set the panning of a channel.
