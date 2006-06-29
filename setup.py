@@ -85,7 +85,7 @@ class DocCommand(Command):
 
 setup(
     name='SDL-ctypes',
-    version='0.03',
+    version='0.04',
     description='ctypes wrapper for SDL',
     author='Alex Holkner',
     author_email='aholkner@cs.rmit.edu.au',

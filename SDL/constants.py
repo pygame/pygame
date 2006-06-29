@@ -6,7 +6,6 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
-# TODO enums
 # enum SDLKey {
 
 #  The keyboard syms have been cleverly chosen to map to ASCII 

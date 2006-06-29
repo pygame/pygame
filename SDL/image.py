@@ -28,6 +28,8 @@ _dll = SDL.dll.SDL_DLL('SDL_image', 'IMG_Linked_Version')
 
 IMG_Linked_Version = _dll.function('IMG_Linked_Version',
     '''Get the version of the dynamically linked SDL_image library.
+
+    :since: SDL_image 1.2.5
     ''',
     args=[],
     arg_types=[],
@@ -254,6 +256,7 @@ IMG_isXV = _dll.function('IMG_isXV',
             Source RWops to inspect.
     
     :rtype: int
+    :since: SDL_image 1.2.5
     ''',
     args=['src'],
     arg_types=[POINTER(SDL.rwops.SDL_RWops)],
@@ -433,6 +436,7 @@ IMG_LoadXV_RW = _dll.function('IMG_LoadXV_RW',
             Source RWops to load from.
 
     :rtype: `SDL_Surface`
+    :since: SDL_image 1.2.5
     ''',
     args=['src'],
     arg_types=[POINTER(SDL.rwops.SDL_RWops)],
