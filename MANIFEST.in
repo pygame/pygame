@@ -1,5 +1,8 @@
 include test/sample.bmp
 include test/sail.bmp
+include test/icon.bmp
+include test/moose.dat
+include test/sample.wav
 include test/*.py
 include unit/*.py
 include support/*.py
