@@ -40,9 +40,12 @@ class SDL_DLL:
         self._dll = getattr(cdll, library_name)
         
         # Get the version of the DLL we're using
-        version_function = getattr(self._dll, version_function_name)
-        version_function.restype = POINTER(_SDL_version)
-        self._version = _version_parts(version_function().contents)
+        try:
+            version_function = getattr(self._dll, version_function_name)
+            version_function.restype = POINTER(_SDL_version)
+            self._version = _version_parts(version_function().contents)
+        except AttributeError:
+            self._version = (0,0,0)
 
     def version_compatible(self, v):
         '''Returns True iff `v` is equal to or later than the loaded library
@@ -59,7 +62,7 @@ class SDL_DLL:
             import SDL.error
             raise SDL.error.SDL_NotImplementedError, \
                 '%s requires SDL version %s; currently using version %s' % \
-                (name, _version_string(since), _version_string(_version))
+                (name, _version_string(since), _version_string(self._version))
 
 
 
@@ -123,7 +126,7 @@ class SDL_DLL:
                 raise SDL.error.SDL_NotImplementedError, \
                       '%s requires %s %s; currently using version %s' % \
                       (name, self.library_name, _version_string(since), 
-                       _version_string(_version))
+                       _version_string(self._version))
             if args:
                 _f._args = args
             _f.__doc__ = doc
