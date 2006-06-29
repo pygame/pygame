@@ -3,8 +3,8 @@
 :address: aholkner@cs.rmit.edu.au \\\\
     http://www.pygame.org/ctypes
 
-:revision: 0.03
-:date: 12 June 2006
+:revision: 0.04
+:date: 29 June 2006
 
 :copyright: Copyright (c) 2006 Alex Holkner.
 
@@ -12,12 +12,38 @@
 SDL-ctypes
 ==========
 
-
 ---------------------
 Introduction
 ---------------------
 
-TODO.
+SDL-ctypes is a wrapper module for the `Simple DirectMedia Layer`_ (SDL) and
+its companion libraries SDL_image, SDL_mixer and SDL_ttf.  
+
+Example programs ported from the SDL library are in the ``test`` directory.
+You can use SDL-ctypes to access all SDL functions and data types.
+Pixel and audio buffers can be manipulated using either slices or NumPy_.
+SDL can also provide a context for PyOpenGL_ to work with.
+
+.. _Simple DirectMedia Layer: http://www.libsdl.org
+.. _NumPy: http://numeric.scipy.org
+.. _PyOpenGL: http://pyopengl.sourceforge.net
+
+Versions
+========
+
+SDL-ctypes supports:
+
+    SDL
+        Versions 1.2.1 through 1.2.11
+    SDL_image
+        Unversioned release on 13 April 2002 through 1.2.5
+    SDL_mixer
+        Versions 1.2.6 through 1.2.7
+    SDL_ttf
+        Versions 2.0.7 through 2.0.8
+
+Note that earlier versions are not available through the SDL subversion
+repository.
 
 ---------------------
 Usage
@@ -43,7 +69,14 @@ composed of several modules such as ``SDL.cdrom``, ``SDL.video``, and
 so on.  All functions and structures from each module are imported
 directly into the SDL namespace for convenience.
 
-The API documentation lists functions in both their originating module
+The extension libraries to SDL must be imported separately if you want
+to use them::
+
+    from SDL.image import *
+    from SDL.mixer import *
+    from SDL.ttf import *
+
+The API documentation lists core functions in both their originating module
 and the SDL module for readability.
 
 Error checking

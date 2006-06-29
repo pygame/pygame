@@ -20,8 +20,8 @@ import os
 import subprocess
 import sys
 
-# 1.2.1 to 1.2.10
-versions = ['1.2.%d' % (i+1) for i in range(10)]
+# 1.2.1 to 1.2.11
+versions = ['1.2.%d' % (i+1) for i in range(11)]
 
 # Checkout under support/
 working_base = os.path.dirname(sys.argv[0])
