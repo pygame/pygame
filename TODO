@@ -1,5 +1,3 @@
-enums
-SDL_array type for all modules (not just SDL.video)
 search TODO FIXME XXX
 struct/field docstrings
 drop opengl.h from constants.py
