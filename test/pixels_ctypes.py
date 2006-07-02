@@ -19,7 +19,7 @@ if __name__ == '__main__':
     '''
     Draw a 3 colour gradient by setting the pixel values directly.
     '''
-    pixels = [0] * (screen.w * screen.h)
+    pixels = [0] * len(screen.pixels)
     deltaX = 255 / float(screen.w)
     deltaY = 255 / float(screen.h)
     b = 0
@@ -32,6 +32,7 @@ if __name__ == '__main__':
             pixels[i] = SDL_MapRGB(format, int(r), int(g), int(b))
             i += 1
         b += deltaY
+        i += screen.pitch / format.BytesPerPixel - screen.w
 
     SDL_LockSurface(screen)
     screen.pixels[:] = pixels
