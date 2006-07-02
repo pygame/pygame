@@ -7,6 +7,9 @@ SDL-ctypes 0.05
         - requires PyObjC
  - Added SDL.endian submodule
  - Pitch calculated correctly for returning SDL_Surface.pixels
+ - SDL_WM_SetCaption and SDL_WM_GetCaption accept and return Unicode strings.
+ - Removed SDL_opengl.h from SDL.constants
+ - Added SDL_CreateCursor.
 
 SDL-ctypes 0.04
 ---------------

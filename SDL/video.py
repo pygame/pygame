@@ -1025,8 +1025,9 @@ SDL_SetClipRect = SDL.dll.function('SDL_SetClipRect',
      - `surface`: `SDL_Surface`
      - `rect`: `SDL_Rect` or None
 
-    :return: True if blitting will not be entirely clipped, otherwise
-             False. (TODO: convert int to bool)
+    :rtype: int
+    :return: non-zero if blitting will not be entirely clipped, otherwise
+             zero.
     ''',
     args=['surface', 'rect'],
     arg_types=[POINTER(SDL_Surface), POINTER(SDL_Rect)],
@@ -1384,18 +1385,21 @@ SDL_GL_SwapBuffers = SDL.dll.function('SDL_GL_SwapBuffers',
 # SDL_GL_UpdateRects, SDL_GL_Lock and SDL_GL_Unlock not implemented (marked
 # private in SDL_video.h)
 
-SDL_WM_SetCaption = SDL.dll.function('SDL_WM_SetCaption',
+_SDL_WM_SetCaption = SDL.dll.private_function('SDL_WM_SetCaption',
+    arg_types=[c_char_p, c_char_p],
+    return_type=None)
+
+def SDL_WM_SetCaption(title, icon):
     '''Set the title and icon text of the display window.
 
-    Strings are UTF-8 encoded (TODO: accept unicode strings) since 1.2.10.
+    Unicode strings are also accepted since 1.2.10.
 
     :Parameters:
      - `title`: string
      - `icon`: string
-    ''',
-    args=['title', 'icon'],
-    arg_types=[c_char_p, c_char_p],
-    return_type=None)
+    '''
+    _SDL_WM_SetCaption(title.encode('utf-8'), icon.encode('utf-8'))
+
 
 _SDL_WM_GetCaption = SDL.dll.private_function('SDL_WM_GetCaption',
     arg_types=[POINTER(c_char_p), POINTER(c_char_p)],
@@ -1405,12 +1409,11 @@ def SDL_WM_GetCaption():
     '''Get the title and icon text of the display window.
 
     :rtype: (string, string)
-    :return: a tuple (title, icon) where each element is a UTF-8 encoded
-             string (TODO: return unicode strings).
+    :return: a tuple (title, icon) where each element is a Unicode string
     '''
     title, icon = c_char_p(), c_char_p()
     _SDL_WM_GetCaption(byref(title), byref(icon))
-    return title.value, icon.value
+    return title.value.decode('utf-8'), icon.value.decode('utf-8')
 
 _SDL_WM_SetIcon = SDL.dll.private_function('SDL_WM_SetIcon',
     arg_types=[POINTER(SDL_Surface), POINTER(c_ubyte)],

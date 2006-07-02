@@ -366,20 +366,17 @@ def SDL_SetEventFilter(filter):
         return filter(e.contents.specialize())
     _SDL_SetEventFilter(_SDL_EventFilter(f))
 
-_SDL_GetEventFilter = SDL.dll.private_function('SDL_GetEventFilter',
-    arg_types=[],
-    return_type=_SDL_EventFilter)
-
-# XXX this doesn't need to be wrapped specially
-def SDL_GetEventFilter():
+SDL_GetEventFilter = SDL.dll.function('SDL_GetEventFilter',
     '''Return the current event filter.
 
     This can be used to "chain" filters.  If there is no event filter set,
     this function returns None.
 
     :rtype: function
-    '''
-    return _SDL_GetEventFilter()
+    ''',
+    args=[],
+    arg_types=[],
+    return_type=_SDL_EventFilter)
 
 SDL_EventState = SDL.dll.function('SDL_EventState',
     '''Ignore or enable the processing of certain events.
@@ -397,7 +394,7 @@ SDL_EventState = SDL.dll.function('SDL_EventState',
     :Parameters:
         `type` : int
             Type of event, e.g. `SDL_KEYDOWN`, `SDL_MOUSEMOTION`, etc.
-            (TODO: documented list of these?)
+            (see `SDL_Event`)
         `state` : int
             One of `SDL_IGNORE`, `SDL_ENABLE` or `SDL_QUERY`
 
