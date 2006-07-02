@@ -333,7 +333,7 @@ Linux
 
 Tested on:
 
-* AMD64 Gentoo; SDL 1.2.11; Python 2.4
+* AMD64 Gentoo; SDL 1.2.11; Python 2.4.2
 
 Mac OS X
 ========
@@ -345,4 +345,14 @@ Tested on:
 * iBook G3 900MHz OS X 1.3.9; SDL 1.2.11 (installed as framework); 
   Python 2.4.1 (installed from source).
    - CDROM functions do not work (freezes, requires reboot)
+   - SDL_WM_ToggleFullscreen throws an exception with no message.
+
+Windows
+=======
+
+Tested on:
+
+* AMD64 Windows XP (32-bit); SDL 1.2.11 (binaries); Python 2.4.1; Cygwin
+   - testgamma raises exception with no message before blanking completely
+     red, leaves entire display with affected gamma.
    - SDL_WM_ToggleFullscreen throws an exception with no message.
