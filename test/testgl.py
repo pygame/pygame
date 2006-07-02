@@ -127,12 +127,18 @@ def SDL_GL_LoadTexture(surface):
     h = power_of_two(surface.h)
     texcoords = [0, 0, surface.w / float(w), surface.h / float(h)]
 
-    # TODO big endian
-    image = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
-            0x000000FF, 
-            0x0000FF00, 
-            0x00FF0000, 
-            0xFF000000)
+    if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+        image = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
+                0x000000FF, 
+                0x0000FF00, 
+                0x00FF0000, 
+                0xFF000000)
+    else:
+        image = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32,
+                0xFF000000, 
+                0x00FF0000, 
+                0x0000FF00, 
+                0x000000FF)
     
     # Save the alpha blending attributes
     saved_flags = surface.flags & (SDL_SRCALPHA | SDL_RLEACCELOK)
@@ -493,7 +499,6 @@ if __name__ == '__main__':
     i = 1
     while i < len(sys.argv):
         arg = sys.argv[i]
-        print arg
         if arg == '-twice':
             numtests += 1
         elif arg == '-logo':
