@@ -5,6 +5,7 @@ SDL-ctypes 0.05
     - Use RTLD_GLOBAL to workaround ctypes on Panther bug
     - Connect to window manager before SDL_Init(SDL_INIT_VIDEO) 
         - requires PyObjC
+ - Added SDL.endian submodule
 
 SDL-ctypes 0.04
 ---------------
