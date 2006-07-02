@@ -30,6 +30,7 @@ from SDL.active import *
 from SDL.audio import *
 from SDL.cdrom import *
 from SDL.constants import *
+from SDL.endian import *
 from SDL.error import *
 from SDL.events import *
 from SDL.joystick import *
