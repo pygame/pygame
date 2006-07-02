@@ -20,6 +20,7 @@ __version__ = '$Id: $'
 from ctypes import *
 
 import SDL.dll
+import SDL.error
 import SDL.rwops
 import SDL.version
 import SDL.video
@@ -248,20 +249,26 @@ IMG_isXPM = _dll.function('IMG_isXPM',
     return_type=c_int)
 
 
-IMG_isXV = _dll.function('IMG_isXV',
-    '''Detect if a seekable source is a XV image.
+if hasattr(_dll._dll, 'IMG_isXV'):
+    IMG_isXV = _dll.function('IMG_isXV',
+        '''Detect if a seekable source is a XV image.
 
-    :Parameters:
-        `src` : `SDL_RWops`
-            Source RWops to inspect.
-    
-    :rtype: int
-    :since: SDL_image 1.2.5
-    ''',
-    args=['src'],
-    arg_types=[POINTER(SDL.rwops.SDL_RWops)],
-    return_type=c_int,
-    since=(1,2,5))
+        :Parameters:
+            `src` : `SDL_RWops`
+                Source RWops to inspect.
+        
+        :rtype: int
+        :since: SDL_image 1.2.5
+        ''',
+        args=['src'],
+        arg_types=[POINTER(SDL.rwops.SDL_RWops)],
+        return_type=c_int,
+        since=(1,2,5))
+else:
+    # Broken build of SDL_image 1.2.5 on OS X does define xv.c symbols
+    def IMG_isXV(src):
+        raise SDL.error.SDL_NotImplementedError, 'Linked version of ' + \
+            'SDL_image does not define IMG_isXV'
 
 IMG_LoadBMP_RW = _dll.function('IMG_LoadBMP_RW',
     '''Load a BMP image from an SDL data source.
@@ -428,21 +435,27 @@ IMG_LoadXPM_RW = _dll.function('IMG_LoadXPM_RW',
     dereference_return=True,
     require_return=True)
 
-IMG_LoadXV_RW = _dll.function('IMG_LoadXV_RW',
-    '''Load a XV image from an SDL data source.
+if hasattr(_dll._dll, 'IMG_LoadXV_RW'):
+    IMG_LoadXV_RW = _dll.function('IMG_LoadXV_RW',
+        '''Load a XV image from an SDL data source.
 
-    :Parameters:
-        `src` : `SDL_RWops`
-            Source RWops to load from.
+        :Parameters:
+            `src` : `SDL_RWops`
+                Source RWops to load from.
 
-    :rtype: `SDL_Surface`
-    :since: SDL_image 1.2.5
-    ''',
-    args=['src'],
-    arg_types=[POINTER(SDL.rwops.SDL_RWops)],
-    return_type=POINTER(SDL.video.SDL_Surface),
-    dereference_return=True,
-    require_return=True,
-    since=(1,2,5))
+        :rtype: `SDL_Surface`
+        :since: SDL_image 1.2.5
+        ''',
+        args=['src'],
+        arg_types=[POINTER(SDL.rwops.SDL_RWops)],
+        return_type=POINTER(SDL.video.SDL_Surface),
+        dereference_return=True,
+        require_return=True,
+        since=(1,2,5))
+else:
+    # Broken build of SDL_image 1.2.5 on OS X does define xv.c symbols
+    def IMG_LoadXV_RW(src):
+        raise SDL.error.SDL_NotImplementedError, 'Linked version of ' + \
+            'SDL_image does not define IMG_LoadXV_RW'
 
 # IMG_ReadXPMFromArray cannot be implemented.
