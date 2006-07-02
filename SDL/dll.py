@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 from ctypes import *
+import sys
 
 # Private version checking declared before SDL.version can be
 # imported.
@@ -37,7 +38,13 @@ def _version_string(v):
 class SDL_DLL:
     def __init__(self, library_name, version_function_name):
         self.library_name = library_name
-        self._dll = getattr(cdll, library_name)
+        if sys.platform == 'darwin':
+            import ctypes.macholib.dyld
+            library_name = ctypes.macholib.dyld.framework_find(library_name)
+            # Workarouand for ctypes in OS X 10.3 bug:
+            self._dll = CDLL(library_name, RTLD_GLOBAL)
+        else:
+            self._dll = getattr(cdll, library_name)
         
         # Get the version of the DLL we're using
         try:

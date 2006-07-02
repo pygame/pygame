@@ -1,3 +1,11 @@
+SDL-ctypes 0.05
+---------------
+ - Darwin support:
+    - locate the SDL framework before passing to ctypes
+    - Use RTLD_GLOBAL to workaround ctypes on Panther bug
+    - Connect to window manager before SDL_Init(SDL_INIT_VIDEO) 
+        - requires PyObjC
+
 SDL-ctypes 0.04
 ---------------
  - Support for 1 bit depth surfaces.

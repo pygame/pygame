@@ -23,6 +23,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 import ctypes
+import sys
 
 import SDL.dll
 from SDL.active import *
@@ -42,7 +43,11 @@ from SDL.video import *
 
 # SDL.h
 
-SDL_Init = SDL.dll.function('SDL_Init',
+_SDL_Init = SDL.dll.private_function('SDL_Init',
+    arg_types=[ctypes.c_uint],
+    return_type=ctypes.c_int)
+
+def SDL_Init(flags):
     '''Initialise the SDL library.
 
     This function loads the SDL dynamically linked library and initializes 
@@ -67,10 +72,11 @@ SDL_Init = SDL.dll.function('SDL_Init',
     :rtype: int
     :return: undocumented (FIXME)
     :see: `SDL_Quit`
-    ''',
-    args=['flags'],
-    arg_types=[ctypes.c_uint],
-    return_type=ctypes.c_int)
+    '''
+    if sys.platform == 'darwin' and flags & SDL_INIT_VIDEO:
+        import SDL.darwin
+        SDL.darwin.init()
+    return _SDL_Init(flags)
 
 SDL_InitSubSystem = SDL.dll.function('SDL_InitSubSystem',
     '''Initialize specific SDL subsystems.
