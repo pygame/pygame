@@ -138,10 +138,11 @@ class SDL_Surface(Structure):
             if not self._pixels:
                 raise SDL.error.SDL_Exception, 'Surface needs locking'
             bpp = self.format.BitsPerPixel
-            count = self.pitch * self.h
+            byte_pitch = self.pitch / self.format.BytesPerPixel
+            count = byte_pitch * self.h
             if bpp == 1:
                 sz = c_ubyte
-                count = (self.w * self.h + 7) / 8
+                count = (byte_pitch * self.h + 7) / 8
             elif bpp == 8:
                 sz = c_ubyte
             elif bpp == 16:
