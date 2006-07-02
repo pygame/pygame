@@ -30,9 +30,13 @@ def LoadXBM(screen, w, h, bits):
     
     # Reverse bits in each bit
     # (from http://graphics.stanford.edu/~seander/bithacks.html)
+    bytes = [((b * 0x0202020202 & 0x010884422010) % 1023) & 0xff \
+              for b in picture_bits]
+
     buffer = bitmap.pixels
-    buffer[:] = [((b * 0x0202020202 & 0x010884422010) % 1023) & 0xff \
-                 for b in picture_bits]
+    pitch = bitmap.pitch * 8 / bitmap.format.BitsPerPixel
+    for y in range(h):
+        buffer[y*pitch:y*pitch+w] = bytes[y*w:(y+1)*w]
     
     return bitmap
 
