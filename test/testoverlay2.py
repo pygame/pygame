@@ -264,9 +264,14 @@ if __name__ == '__main__':
         format = SDL_PixelFormat()
         format.BitsPerPixel = 32
         format.BytesPerPixel = 4
-        format.Rshift = 0 # TODO big endian
-        format.Gshift = 8
-        format.Bshift = 16
+        if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+            format.Rshift = 0
+            format.Gshift = 8
+            format.Bshift = 16
+        else:
+            format.Rshift = 24
+            format.Gshift = 16
+            format.Bshift = 8
         format.Rmask = 0xff << format.Rshift
         format.Gmask = 0xff << format.Gshift
         format.Bmask = 0xff << format.Bshift
