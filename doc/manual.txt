@@ -45,6 +45,9 @@ SDL-ctypes supports:
 Note that earlier versions are not available through the SDL subversion
 repository.
 
+SDL-ctypes requires Python 2.4 or later.  On Mac OS X SDL-ctypes also requires
+PyObjC to be installed.
+
 ---------------------
 Usage
 ---------------------
@@ -320,3 +323,26 @@ When a new version of SDL is released, add the revision number to
 the script and re-run it.  Examine the generated report for added or
 changed function prototypes and structures, and make the appropriate
 changes to SDL-ctypes.
+
+--------------
+Platform Notes
+--------------
+
+Linux
+=====
+
+Tested on:
+
+* AMD64 Gentoo; SDL 1.2.11; Python 2.4
+
+Mac OS X
+========
+
+You must have PyObjC installed to use the video or surface functions.
+
+Tested on:
+
+* iBook G3 900MHz OS X 1.3.9; SDL 1.2.11 (installed as framework); 
+  Python 2.4.1 (installed from source).
+   - CDROM functions do not work (freezes, requires reboot)
+   - SDL_WM_ToggleFullscreen throws an exception with no message.
