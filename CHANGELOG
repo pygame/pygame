@@ -6,6 +6,7 @@ SDL-ctypes 0.05
     - Connect to window manager before SDL_Init(SDL_INIT_VIDEO) 
         - requires PyObjC
  - Added SDL.endian submodule
+ - Pitch calculated correctly for returning SDL_Surface.pixels
 
 SDL-ctypes 0.04
 ---------------
