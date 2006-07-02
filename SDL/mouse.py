@@ -76,7 +76,45 @@ SDL_WarpMouse = SDL.dll.function('SDL_WarpMouse',
     arg_types=[c_ushort, c_ushort],
     return_type=None)
 
-# TODO: SDL_CreateCursor
+_SDL_CreateCursor = SDL.dll.private_function('SDL_CreateCursor',
+    arg_types=[POINTER(c_ubyte), POINTER(c_ubyte), c_int, c_int, c_int, c_int],
+    return_type=POINTER(SDL_Cursor),
+    dereference_return=True,
+    require_return=True)
+
+def SDL_CreateCursor(data, mask, w, h, hot_x, hot_y):
+    '''Create a cursor using the specified data and mask.
+
+    The cursor width must be a multiple of 8 bits.  Mask and cursor
+    data may be given as either SDL_array byte buffers or as a sequence
+    of bytes; in either case the data is in MSB order.
+
+    The cursor is created in black and white according to the following:
+
+    ==== ==== =========================================
+    data mask resulting pixel on screen
+    ==== ==== =========================================
+    0    1    White
+    1    1    Black
+    0    0    Transparent
+    1    0    Inverted color if possible, black if not.
+    ==== ==== =========================================
+
+    Cursors created with this function must be freed with `SDL_FreeCursor`.
+
+    :Parameters:
+     - `data`: `SDL_array`
+     - `mask`: `SDL_array`
+     - `w`: int
+     - `h`: int
+     - `hot_x`: int
+     - `hot_y`: int
+
+    :rtype: `SDL_Cursor`
+    '''
+    data = SDL.array.to_ctypes(data, len(data), c_ubyte)
+    mask = SDL.array.to_ctypes(mask, len(mask), c_ubyte)
+    return _SDL_CreateCursor(data, mask, w, h, hot_x, hot_y)
 
 SDL_SetCursor = SDL.dll.function('SDL_SetCursor',
     '''Set the currently active cursor to the specified one.

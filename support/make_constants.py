@@ -29,8 +29,7 @@ def get_file_defines(include_file):
             else:
                 num = int(num)
             name = match.groups()[0]
-            if name[:3] != 'GL_':
-                defines.append('%s = 0x%08x\n' % (name, num))
+            defines.append('%s = 0x%08x\n' % (name, num))
         except ValueError:
             pass
     return defines 
@@ -54,7 +53,7 @@ def make_constants(source_file, include_dir):
     for file in os.listdir(include_dir):
         if file[-2:] == '.h':
             if file[:10] == 'SDL_config' or \
-               file in ('SDL_platform.h',):
+               file in ('SDL_platform.h','SDL_opengl.h'):
                 continue
             defines = get_file_defines(os.path.join(include_dir, file))
             if defines:

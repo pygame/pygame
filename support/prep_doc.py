@@ -73,7 +73,7 @@ def write_module(module):
     print >> f, '__docformat__ = "restructuredtext"'
     for child_name in dir(module):
         # Ignore privates
-        if child_name[:2] == '__':
+        if child_name[0] == '_':
             continue
         
         child = getattr(module, child_name)

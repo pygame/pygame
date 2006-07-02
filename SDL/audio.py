@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 from ctypes import *
+import sys
 
 import SDL.array
 import SDL.constants
@@ -27,7 +28,12 @@ class SDL_AudioSpec(Structure):
                 ('_callback', _SDL_AudioSpec_fn),
                 ('_userdata', c_void_p)]
 
-# TODO Fix AUDIO_U16SYS and AUDIO_S16SYS in constants.py
+if sys.byteorder == 'little':
+    AUDIO_U16SYS = SDL.constants.AUDIO_U16LSB
+    AUDIO_S16SYS = SDL.constants.AUDIO_S16LSB
+else:
+    AUDIO_U16SYS = SDL.constants.AUDIO_U16MSB
+    AUDIO_S16SYS = SDL.constants.AUDIO_S16MSB
 
 _SDL_AudioCVT_p = POINTER('SDL_AudioCVT')
 
@@ -330,8 +336,9 @@ def SDL_MixAudio(dst, src, length, volume):
     for full audio volume.  Note this does not change hardware volume.
     This is provided for convenience -- you can mix your own audio data.
 
-    :note: TODO It is not clear whether this function can handle 16 bit
-        audio data.
+    :note: SDL-ctypes doesn't know the current play format, so you must
+        always pass in byte buffers (SDL_array or sequence) to this function,
+        rather than of the native data type.
 
     :Parameters:
      - `dst`: `SDL_array`

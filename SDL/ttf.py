@@ -226,7 +226,7 @@ TTF_FontFaceIsFixedWidth = _dll.function('TTF_FontFaceIsFixedWidth',
      - `font`: ``TTF_Font``
 
     :rtype: int
-    :return: TODO Undocumented.
+    :return: non-zero if monospaced, otherwise zero.
     ''',
     args=['font'],
     arg_types=[_TTF_Font],
@@ -474,7 +474,7 @@ TTF_WasInit = _dll.function('TTF_WasInit',
     '''Check if the TTF engine is initialized.
 
     :rtype: int
-    :return: XXX Undocumented.
+    :return: non-zero if initialized, otherwise zero.
     ''',
     args=[],
     arg_types=[],
