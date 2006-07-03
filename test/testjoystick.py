@@ -53,7 +53,7 @@ def WatchJoystick(joystick):
             elif event.type == SDL_JOYBUTTONUP:
                 print 'Joystick %d button %d up' % \
                     (event.which, event.button)
-            elif (event.type == SDL_KEDOWN and \
+            elif (event.type == SDL_KEYDOWN and \
                   event.keysym.sym == SDLK_ESCAPE) or event.type == SDL_QUIT:
                 done = 1
             event = SDL_PollEventAndReturn()
