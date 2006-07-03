@@ -11,6 +11,17 @@ from ctypes import *
 import SDL.dll
 
 class SDL_version(Structure):
+    '''Version structure.
+
+    :Ivariables:
+        `major` : int
+            Major version number
+        `minor` : int
+            Minor version number
+        `patch` : int
+            Patch revision number
+
+    '''
     _fields_ = [('major', c_ubyte),
                 ('minor', c_ubyte),
                 ('patch', c_ubyte)]

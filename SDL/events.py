@@ -76,17 +76,63 @@ SDL_VIDEOEXPOSEMASK     = SDL_EVENTMASK(SDL_VIDEOEXPOSE)
     SDL_GETEVENT) = range(3)
 
 class SDL_ActiveEvent(Structure):
+    '''Application visibility event structure.
+
+    :see: `SDL_GetAppState`
+
+    :Ivariables:
+        `type` : int
+            SDL_ACTIVEEVENT
+        `gain` : int
+            1 if states were gained, zero otherwise
+        `state` : int
+            A mask of the focus states.  A bitwise OR combination of:
+            SDL_APPMOUSEFOCUS, SDL_APPINPUTFOCUS and SDL_APPACTIVE.
+
+    '''
     _fields_ = [('type', c_ubyte),
                 ('gain', c_ubyte),
                 ('state', c_ubyte)]
 
 class SDL_KeyboardEvent(Structure):
+    '''Keyboard event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_KEYDOWN or SDL_KEYUP
+        `which` : int
+            The keyboard device index
+        `state` : int
+            SDL_PRESSED or SDL_RELEASED
+        `keysym` : `SDL_keysym`
+            Decoded key information.
+
+    '''
     _fields_ = [('type', c_ubyte),
                 ('which', c_ubyte),
                 ('state', c_ubyte),
                 ('keysym', SDL.keyboard.SDL_keysym)]
 
 class SDL_MouseMotionEvent(Structure):
+    '''Mouse motion event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_MOUSEMOTION
+        `which` : int
+            The mouse device index
+        `state` : int
+            The current button state
+        `x` : int
+            The X coordinate of the mouse pointer
+        `y` : int
+            The Y coordinate of the mouse pointer
+        `xrel` : int
+            The relative motion in the X direction
+        `yrel` : int
+            The relative motion in the Y direction
+
+    '''
     _fields_ = [('type', c_ubyte),
                 ('which', c_ubyte),
                 ('state', c_ubyte),
@@ -96,6 +142,23 @@ class SDL_MouseMotionEvent(Structure):
                 ('yrel', c_short)]
 
 class SDL_MouseButtonEvent(Structure):
+    '''Mouse button event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_MOUSEBUTTONDOWN or SDL_MOUSEBUTTONUP
+        `which` : int
+            The mouse device index
+        `button` : int
+            The mouse button index
+        `state` : int
+            SDL_PRESSED or SDL_RELEASED
+        `x` : int
+            The X coordinate of the mouse pointer
+        `y` : int
+            The Y coordinate of the mouse pointer
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('which', c_ubyte),
                 ('button', c_ubyte),
@@ -104,12 +167,40 @@ class SDL_MouseButtonEvent(Structure):
                 ('y', c_ushort)]
 
 class SDL_JoyAxisEvent(Structure):
+    '''Joystick axis motion event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_JOYAXISMOTION
+        `which` : int
+            The joystick device index
+        `axis` : int
+            The joystick axis index
+        `value` : int
+            The axis value, in range [-32768, 32767]
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('which', c_ubyte),
                 ('axis', c_ubyte),
                 ('value', c_short)]
 
 class SDL_JoyBallEvent(Structure):
+    '''Joystick trackball motion event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_JOYBALLMOTION
+        `which` : int
+            The joystick device index
+        `ball` : int
+            The joystick trackball index
+        `xrel` : int
+            The relative motion in the X direction
+        `yrel` : int
+            The relative motion in the Y direction
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('which', c_ubyte),
                 ('ball', c_ubyte),
@@ -117,39 +208,121 @@ class SDL_JoyBallEvent(Structure):
                 ('yrel', c_short)]
 
 class SDL_JoyHatEvent(Structure):
+    '''Joystick hat position change event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_JOYHATMOTION
+        `which` : int
+            The joystick device index
+        `hat` : int
+            The joystick hat index
+        `value` : int
+            The hat position value.  One of: SDL_HAT_LEFTUP, SDL_HAT_UP,
+            SDL_HAT_RIGHTUP, SDL_HAT_LEFT, SDL_HAT_CENTERED, SDL_HAT_RIGHT,
+            SDL_HAT_LEFTDOWN, SDL_HAT_DOWN, SDL_HAT_RIGHTDOWN.  Note that
+            zero means the POV is centered.
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('which', c_ubyte),
                 ('hat', c_ubyte),
                 ('value', c_ubyte)]
 
 class SDL_JoyButtonEvent(Structure):
+    '''Joystick button event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_JOYBUTTONDOWN or SDL_JOYBUTTONUP
+        `which` : int
+            The joystick device index
+        `button` : int
+            The joystick button index
+        `state` : int
+            SDL_PRESSED or SDL_RELEASED
+
+    '''
     _fields_ = [('type', c_ubyte),
                 ('which', c_ubyte),
                 ('button', c_ubyte),
                 ('state', c_ubyte)]
 
 class SDL_ResizeEvent(Structure):
+    '''The window resized event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_VIDEORESIZE
+        `w` : int
+            New width
+        `h` : int
+            New height
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('w', c_int),
                 ('h', c_int)]
 
 class SDL_ExposeEvent(Structure):
+    '''The screen redraw event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_VIDEOEXPOSE
+    
+    '''
     _fields_ = [('type', c_ubyte)]
 
 class SDL_QuitEvent(Structure):
+    '''The quit requested event structure
+
+    :Ivariables:
+        `type` : int
+            SDL_QUIT
+    
+    '''
     _fields_ = [('type', c_ubyte)]
 
 class SDL_UserEvent(Structure):
+    '''A user-defined event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_USEREVENT through SDL_NUMEVENTS - 1
+        `code` : int
+            User defined event code
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('code', c_int),
                 ('data1', c_void_p),
                 ('data2', c_void_p)]
 
 class SDL_SysWMEvent(Structure):
+    '''System window management event structure.
+
+    :Ivariables:
+        `type` : int
+            SDL_SYSWMEVENT
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('msg', c_void_p)]  # TODO with SDL_syswm.h
 
 class SDL_Event(Union):
+    '''Union event structure.
+
+    Events returned from functions are always returned as the
+    specialised subclass; for example you will receive a
+    `SDL_MouseMotionEvent` rather than `SDL_Event`.  This structure
+    therefore has limited application use, but is used internally.
+
+    :Ivariables:
+        `type` : int
+            Type of event
+    
+    '''
     _fields_ = [('type', c_ubyte),
                 ('active', SDL_ActiveEvent),
                 ('key', SDL_KeyboardEvent),
@@ -191,6 +364,11 @@ class SDL_Event(Union):
         return 'SDLEvent(type=%d)' % self.type
 
     def specialize(self):
+        '''Get an instance of the specialized subclass for this event,
+        based on `self.type`.
+
+        :rtype: `SDL_Event` subclass
+        '''
         if self.type in self.types:
             return getattr(self, self.types[self.type][1])
         elif self.type >= SDL_USEREVENT:    # SDL_MAXEVENTS not defined

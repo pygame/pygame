@@ -24,6 +24,19 @@ CD_ERROR = -1
 # end enum CDstatus
 
 class SDL_CDtrack(Structure):
+    '''Structure describing a single CD track.
+
+    :Ivariables:
+        `id` : int
+            Track number
+        `type` : int
+            One of SDL_AUDIO_TRACK or SDL_DATA_TRACK
+        `length` : int
+            Length, in frames, of this track
+        `offset` : int
+            Offset, in frames, from start of disk
+
+    '''
     _fields_ = [('id', c_ubyte),
                 ('type', c_ubyte),
                 ('_unused', c_ushort),
@@ -31,6 +44,26 @@ class SDL_CDtrack(Structure):
                 ('offset', c_uint)]
 
 class SDL_CD(Structure):
+    '''Structure describing a CD.
+
+    This structure is only current as of the last call to `SDL_CDStatus`.
+
+    :Ivariables:
+        `id` : int
+            Private drive identifier
+        `status` : int
+            Current drive status.  One of CD_TRAYEMPTY, CD_STOPPED,
+            CD_PLAYING, CD_PAUSED, CD_ERROR.
+        `numtracks` : int
+            Number of tracks on disk
+        `cur_track` : int
+            Current track position
+        `cur_frame` : int
+            Current frame offset within current track
+        `track` : sequence of `SDL_CDtrack`
+            Tracks on the disk.
+
+    '''
     _fields_ = [('id', c_uint),
                 ('status', c_int),
                 ('numtracks', c_int),

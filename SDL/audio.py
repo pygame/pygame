@@ -18,12 +18,32 @@ _SDL_AudioSpec_fn = \
     CFUNCTYPE(POINTER(c_ubyte), POINTER(c_ubyte), POINTER(c_ubyte), c_int)
 
 class SDL_AudioSpec(Structure):
+    '''Audio format structure.
+
+    The calculated values in this structure are calculated by `SDL_OpenAudio`.
+
+    :Ivariables:
+        `freq` : int
+            DSP frequency, in samples per second
+        `format` : int
+            Audio data format. One of AUDIO_U8, AUDIO_S8, AUDIO_U16LSB,
+            AUDIO_S16LSB, AUDIO_U16MSB or AUDIO_S16MSB
+        `channels` : int
+            Number of channels; 1 for mono or 2 for stereo.
+        `silence` : int
+            Audio buffer silence value (calculated)
+        `samples` : int
+            Audio buffer size in samples (power of 2)
+        `size` : int
+            Audio buffer size in bytes (calculated)
+
+    '''
     _fields_ = [('freq', c_int),
                 ('format', c_ushort),
                 ('channels', c_ubyte),
                 ('silence', c_ubyte),
                 ('samples', c_ushort),
-                ('padding', c_ushort),
+                ('_padding', c_ushort),
                 ('size', c_uint),
                 ('_callback', _SDL_AudioSpec_fn),
                 ('_userdata', c_void_p)]
@@ -41,6 +61,29 @@ _SDL_AudioCVT_filter_fn = \
     CFUNCTYPE(POINTER(c_ubyte), _SDL_AudioCVT_p, c_ushort)
 
 class SDL_AudioCVT(Structure):
+    '''Set of audio conversion filters and buffers.
+
+    :Ivariables:
+        `needed` : int
+            1 if conversion is possible
+        `src_format` : int
+            Source audio format.  See `SDL_AudioSpec.format`
+        `dst_format` : int
+            Destination audio format.  See `SDL_AudioSpec.format`
+        `rate_incr` : float
+            Rate conversion increment
+        `len` : int
+            Length of original audio buffer
+        `len_cvt` : int
+            Length of converted audio buffer
+        `len_mult` : int
+            Buffer must be len * len_mult big
+        `len_ratio` : float
+            Given len, final size is len * len_ratio
+        `filter_index` : int
+            Current audio conversion function
+        
+    '''
     _fields_ = [('needed', c_int),
                 ('src_format', c_ushort),
                 ('dst_format', c_ushort),

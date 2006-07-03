@@ -21,6 +21,18 @@ class SDL_keysym(Structure):
         * The `unicode` translated character is only available when character
           translation is enabled by `SDL_EnableUNICODE`.  If non-empty, this is
           unicode string of unit length.
+
+    :Ivariables:
+        `scancode` : int
+            Hardware specific scancode
+        `sym` : int
+            SDL virtual keysym (SDLK_*)
+        `mod` : int
+            Bitwise OR of current key modifiers
+        `unicode` : string
+            Unicode character represented by keypress, or the empty string
+            if translation is not possible.
+
     '''
     _fields_ = [('scancode', c_ubyte),
                 ('sym', c_int),

@@ -41,6 +41,19 @@ Mix_Linked_Version = _dll.function('Mix_Linked_Version',
     require_return=True)
 
 class Mix_Chunk(Structure):
+    '''Internal format for an audio chunk.
+
+    :Ivariables:
+        `allocated` : int
+            Undocumented.
+        `abuf` : `SDL_array`
+            Buffer of audio data
+        `alen` : int
+            Length of audio buffer
+        `volume` : int
+            Per-sample volume, in range [0, 128]
+
+    '''
     _fields_ = [('allocated', c_int),
                 ('_abuf', POINTER(c_ubyte)),
                 ('alen', c_uint),
