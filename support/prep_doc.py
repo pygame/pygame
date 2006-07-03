@@ -31,8 +31,8 @@ base_dir = os.path.abspath(sys.argv[1])
 modules = {}
 done_modules = []
 
-def write_function(func, file):
-    if hasattr(func, '__doc__'):
+def write_function(func, file, indent=''):
+    if hasattr(func, '__doc__') and func.__doc__:
         docstring = func.__doc__
     else:
         docstring = ''
@@ -45,8 +45,8 @@ def write_function(func, file):
         args = args[:nondefault] + \
             ['%s=%s' % (args[i+nondefault], defaults[i]) \
                 for i in range(len(defaults))]
-    print >> file, 'def %s(%s):' % (func.__name__, ','.join(args))
-    print >> file, "    '''%s'''" % docstring
+    print >> file, '%sdef %s(%s):' % (indent, func.__name__, ','.join(args))
+    print >> file, "%s    '''%s'''" % (indent, docstring)
     print >> file
 
 def write_class(cls, file):
@@ -54,9 +54,17 @@ def write_class(cls, file):
        ctypes.Union in cls.__bases__:
         print >> file, 'class %s:' % cls.__name__
         print >> file, '    %s' % repr(cls.__doc__ or '')
-        for field in cls._fields_:
-            if field[0] != '_':
-                print >> file, '    %s = None' % field[0]
+        for func in dir(cls):
+            if func[0] == '_' and \
+               (func[:2] != '__' or func in ('__getattr__', '__setattr__')):
+                continue
+            func = getattr(cls, func)
+            if inspect.ismethod(func):
+                write_function(func, file, '    ')
+
+        #for field in cls._fields_:
+        #    if field[0] != '_':
+        #        print >> file, '    %s = None' % field[0]
     else:
         print >> file, '%s' % inspect.getsource(cls)
 

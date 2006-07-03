@@ -28,6 +28,23 @@ class _hidden_mem_t(Structure):
                 ('stop', c_void_p)]
 
 class SDL_RWops(Structure):
+    '''Read/write operations structure.
+
+    :Ivariables:
+        `seek` : function
+            seek(context: `SDL_RWops`, offset: int, whence: int) -> int
+        `read` : function
+            read(context: `SDL_RWops`, ptr: c_void_p, size: int, maxnum: int) 
+            -> int
+        `write` : function
+            write(context: `SDL_RWops`, ptr: c_void_p, size: int, num: int) ->
+            int
+        `close` : function
+            close(context: `SDL_RWops`) -> int
+        `type` : int
+            Undocumented
+
+    '''
     _fields_ = [('seek', _seek_fn),
                 ('read', _read_fn),
                 ('write', _write_fn),

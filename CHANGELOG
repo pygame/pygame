@@ -10,6 +10,7 @@ SDL-ctypes 0.05
  - SDL_WM_SetCaption and SDL_WM_GetCaption accept and return Unicode strings.
  - Removed SDL_opengl.h from SDL.constants
  - Added SDL_CreateCursor.
+ - Documented struct classes
 
 SDL-ctypes 0.04
 ---------------

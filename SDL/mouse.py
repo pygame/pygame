@@ -12,6 +12,17 @@ import SDL.dll
 import SDL.video
 
 class SDL_Cursor(Structure):
+    '''Cursor structure.
+
+    :Ivariables:
+        `area` : `SDL_Rect`
+            Area of the mouse cursor
+        `hot_x` : int
+            X coordinate of the tip of the cursor
+        `hot_y` : int
+            Y coordinate of the tip of the cursor
+    
+    '''
     _fields_ = [('area', SDL.video.SDL_Rect),
                 ('hot_x', c_short),
                 ('hot_y', c_short),

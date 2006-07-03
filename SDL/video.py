@@ -25,6 +25,23 @@ import SDL.constants
 import SDL.rwops
 
 class SDL_Rect(Structure):
+    '''Rectangle structure.
+
+    Rectangles must be normalised, i.e., with their width and height
+    greater than zero.
+
+    :Ivariables:
+        `x` : int
+            Top-left x coordinate.
+        `y` : int
+            Top-left y coordinate.
+        `w` : int
+            Width
+        `h` : int
+            Height
+
+    '''
+
     _fields_ = [('x', c_short),
                 ('y', c_short),
                 ('w', c_ushort),
@@ -50,6 +67,15 @@ class SDL_Color(Structure):
     '''Structure defining a single color.
 
     ``SDL_Colour`` is a synonym for ``SDL_Color``.
+
+    :Ivariables:
+        `r` : int
+            Red component, in range [0,255]
+        `g` : int
+            Green component, in range [0,255]
+        `b` : int
+            Blue component, in range [0,255]
+
     '''
     _fields_ = [('r', c_ubyte),
                 ('g', c_ubyte),
@@ -74,6 +100,15 @@ class SDL_Color(Structure):
 SDL_Colour = SDL_Color
 
 class SDL_Palette(Structure):
+    '''Color palette array.
+
+    :Ivariables:
+        `ncolors` : int
+            Number of colors in the palette
+        `colors` : `SDL_array`
+            Array of indexed colors of type `SDL_Color`.
+
+    '''
     _fields_ = [('ncolors', c_int),
                 ('_colors', POINTER(SDL_Color))]
 
@@ -84,7 +119,43 @@ class SDL_Palette(Structure):
         
 
 class SDL_PixelFormat(Structure):
-    '''Read-only structure.
+    '''Read-only surface format structure.
+
+    :Ivariables:
+        `BitsPerPixel` : int
+            Number of bits per pixel
+        `BytesPerPixel` : int
+            Number of bytes per pixel.  This is not necessarily 8 *
+            BitsPerPixel.
+        `Rloss` : int
+            Number of bits lost from an 8-bit red component
+        `Gloss` : int
+            Number of bits lost from an 8-bit green component
+        `Bloss` : int
+            Number of bits lost from an 8-bit blue component
+        `Aloss` : int
+            Number of bits lost from an 8-bit alpha component
+        `Rshift` : int
+            Number of bits to shift right red component when packing
+        `Gshift` : int
+            Number of bits to shift right green component when packing
+        `Bshift` : int
+            Number of bits to shift right blue component when packing
+        `Ashift` : int
+            Number of bits to shift right alpha component when packing
+        `Rmask` : int
+            32-bit mask of red component
+        `Gmask` : int
+            32-bit mask of green component
+        `Bmask` : int
+            32-bit mask of blue component
+        `Amask` : int
+            32-bit mask of alpha component
+        `colorkey` : int
+            Packed transparent color key, if set.
+        `alpha` : int
+            Surface alpha, in range [0, 255]
+
     '''
     _fields_ = [('_palette', POINTER(SDL_Palette)),
                 ('BitsPerPixel', c_ubyte),
@@ -112,7 +183,26 @@ class SDL_PixelFormat(Structure):
         raise AttributeError
 
 class SDL_Surface(Structure):
-    '''Read-only structure.
+    '''Read-only surface structure.
+
+    :Ivariables:
+        `format` : `SDL_PixelFormat`
+            Pixel format used by this surface
+        `w` : int
+            Width
+        `h` : int
+            Height
+        `pitch` : int
+            Number of pixel-sized elements between consecutive rows of pixel
+            data.  Note that this may be larger than the width.
+        `pixels` : SDL_array
+            Buffer of integers of the type given in the pixel format. 
+            Each element of the array corresponds to exactly one pixel
+            when ``format.BitsPerPixel`` is at least 8; otherwise each
+            element is exactly one byte.  Modifying this array has an
+            immediate effect on the pixel data of the surface.  See
+            `SDL_LockSurface`.
+
     '''
     _fields_ = [('flags', c_uint),
                 ('_format', POINTER(SDL_PixelFormat)),
@@ -120,14 +210,14 @@ class SDL_Surface(Structure):
                 ('h', c_int),
                 ('pitch', c_short),
                 ('_pixels', POINTER(c_ubyte)),
-                ('offset', c_int),
-                ('hwdata', c_void_p),
-                ('clip_rect', SDL_Rect),
-                ('unused1', c_int),
-                ('locked', c_int),
-                ('map', c_void_p),  # SDL_BliptMap
-                ('format_version', c_int),
-                ('refcount', c_int)]
+                ('_offset', c_int),
+                ('_hwdata', c_void_p),
+                ('_clip_rect', SDL_Rect),
+                ('_unused1', c_int),
+                ('_locked', c_int),
+                ('_map', c_void_p),  
+                ('_format_version', c_int),
+                ('_refcount', c_int)]
 
     def __getattr__(self, name):
         if name == 'format':
@@ -138,7 +228,7 @@ class SDL_Surface(Structure):
             if not self._pixels:
                 raise SDL.error.SDL_Exception, 'Surface needs locking'
             bpp = self.format.BitsPerPixel
-            # Can't rely on BytesPerPixel when calcaulating pitch
+            # Can't rely on BytesPerPixel when calculating pitch
             byte_pitch = self.pitch  * 8 / bpp
             count = byte_pitch * self.h
             if bpp == 1:
@@ -180,7 +270,34 @@ SDL_blit = CFUNCTYPE(c_int, POINTER(SDL_Surface), POINTER(SDL_Rect),
 class SDL_VideoInfo(Structure):
     '''Useful for determining the video hardware capabilities.
 
-    Fields current_w and current_h since 1.2.10.
+    :Ivariables:
+        `hw_available` : bool
+            True if hardware surfaces can be created
+        `wm_available` : bool
+            True if a window manager is available
+        `blit_hw` : bool
+            True if hardware to hardware blits are accelerated
+        `blit_hw_CC` : bool
+            True if hardware to hardware color-keyed blits are accelerated
+        `blit_hw_A` : bool
+            True if hardware to hardware alpha-blended blits are accelerated
+        `blit_sw` : bool
+            True if software to hardware blits are accelerated
+        `blit_sw_CC` : bool
+            True if software to hardware color-keyed blits are accelerated
+        `blit_sw_A` : bool
+            True if software to hardware alpha-blended blits are accelerated
+        `blit_fill` : bool
+            True if color fills are accelerated
+        `video_mem` : int
+            Total amount of video memory, in kilobytes (unreliable)
+        `vfmt` : `SDL_PixelFormat`
+            Pixel format of the video surface
+        `current_w` : int
+            Current video width.  Available in SDL 1.2.10 and later.
+        `current_h` : int
+            Current video height.  Available in SDL 1.2.10 and later.
+
     '''
     _fields_ = [('bitfield', c_uint),
                 ('video_mem', c_uint),
@@ -224,6 +341,23 @@ class SDL_VideoInfo(Structure):
 
 class SDL_Overlay(Structure):
     '''The YUV hardware video overlay.
+
+    :Ivariables:
+        `format` : int
+            Overlay pixel layout.  One of SDL_YV12_OVERLAY, SDL_IYUV_OVERLAY,
+            SDL_YUY2_OVERLAY, SDL_UYVY_OVERLAY, SDL_YVYU_OVERLAY.
+        `w` : int
+            Width of the overlay.
+        `h` : int
+            Height of the overlay.
+        `planes` : int
+            Number of planes of pixel data.
+        `pitches` : list of int
+            List of pitches for each plane.
+        `pixels` : list of `SDL_array`
+            List of pixel buffers, one for each plane.  All pixel buffers
+            provided as byte buffers.
+
     '''
     _fields_ = [('format', c_uint),
                 ('w', c_int),
