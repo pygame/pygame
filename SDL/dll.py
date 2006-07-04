@@ -23,11 +23,11 @@ class _SDL_version(Structure):
 def _version_parts(v):
     '''Return a tuple (major, minor, patch) for `v`, which can be
     an _SDL_version, string or tuple.'''
-    if type(v) == _SDL_version:
+    if hasattr(v, 'major') and hasattr(v, 'minor') and hasattr(v, 'patch'):
         return v.major, v.minor, v.patch
     elif type(v) == tuple:
         return v
-    elif type(v) == string:
+    elif type(v) == str:
         return tuple([int(i) for i in v.split('.')])
     else:
         raise TypeError
@@ -47,12 +47,15 @@ class SDL_DLL:
             self._dll = getattr(cdll, library_name)
         
         # Get the version of the DLL we're using
-        try:
-            version_function = getattr(self._dll, version_function_name)
-            version_function.restype = POINTER(_SDL_version)
-            self._version = _version_parts(version_function().contents)
-        except AttributeError:
-            self._version = (0,0,0)
+        if version_function_name:
+            try:
+                version_function = getattr(self._dll, version_function_name)
+                version_function.restype = POINTER(_SDL_version)
+                self._version = _version_parts(version_function().contents)
+            except AttributeError:
+                self._version = (0, 0, 0)
+        else:
+            self._version = (0, 0, 0)
 
     def version_compatible(self, v):
         '''Returns True iff `v` is equal to or later than the loaded library
