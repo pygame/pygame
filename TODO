@@ -1,5 +1,4 @@
 search TODO FIXME XXX
-struct/field docstrings
 glitch in upper-left corner of testoverlay2 on linux; on ppc os x large
   corruption in top half
 joystick not receiving events?
