@@ -1,3 +1,4 @@
+include examples
 include test/sample.bmp
 include test/sail.bmp
 include test/icon.bmp

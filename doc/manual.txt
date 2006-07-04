@@ -3,8 +3,8 @@
 :address: aholkner@cs.rmit.edu.au \\\\
     http://www.pygame.org/ctypes
 
-:revision: 0.04
-:date: 29 June 2006
+:revision: 0.05
+:date:  4 July 2006
 
 :copyright: Copyright (c) 2006 Alex Holkner.
 
@@ -41,6 +41,8 @@ SDL-ctypes supports:
         Versions 1.2.6 through 1.2.7
     SDL_ttf
         Versions 2.0.7 through 2.0.8
+    SDL_sound   
+        Versions 1.0.0 through 1.0.1
 
 Note that earlier versions are not available through the SDL subversion
 repository.

@@ -11,6 +11,7 @@ SDL-ctypes 0.05
  - Removed SDL_opengl.h from SDL.constants
  - Added SDL_CreateCursor.
  - Documented struct classes
+ - Added SDL_sound (untested)
 
 SDL-ctypes 0.04
 ---------------
