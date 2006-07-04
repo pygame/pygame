@@ -29,7 +29,7 @@ Download
 
 The latest source release is:
 
-* `SDL-ctypes-0.04 <SDL-ctypes-0.04.tar.gz>`_
+* `SDL-ctypes-0.05 <SDL-ctypes-0.05.tar.gz>`_
 
 You can also access the SVN repository directly::
 
