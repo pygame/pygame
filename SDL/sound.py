@@ -232,3 +232,351 @@ def Sound_AvailableDecoders():
         i += 1
     return decoders
  
+Sound_GetError = _dll.function('Sound_GetError',
+    '''Get the last SDL_sound error message.
+
+    This will be None if there's been no error since the last call to this
+    function.  Each thread has a unique error state associated with it, but
+    each time a new error message is set, it will overwrite the previous
+    one associated with that thread.  It is safe to call this function at
+    any time, even before `Sound_Init`.
+
+    :rtype: str
+    ''',
+    args=[],
+    arg_types=[],
+    return_type=c_char_p)
+
+Sound_ClearError = _dll.function('Sound_ClearError',
+    '''Clear the current error message.
+
+    The next call to `Sound_GetError` after `Sound_ClearError` will return
+    None.
+    ''',
+    args=[],
+    arg_types=[],
+    return_type=None)
+
+Sound_NewSample = _dll.function('Sound_NewSample',
+    '''Start decoding a new sound sample.
+
+    The data is read via an SDL_RWops structure, so it may be coming from
+    memory, disk, network stream, etc. The `ext` parameter is merely a hint
+    to determining the correct decoder; if you specify, for example, "mp3"
+    for an extension, and one of the decoders lists that as a handled
+    extension, then that decoder is given first shot at trying to claim the
+    data for decoding. If none of the extensions match (or the extension is
+    None), then every decoder examines the data to determine if it can
+    handle it, until one accepts it. In such a case your SDL_RWops will
+    need to be capable of rewinding to the start of the stream.
+
+    If no decoders can handle the data, an exception is raised.
+
+    Optionally, a desired audio format can be specified. If the incoming data
+    is in a different format, SDL_sound will convert it to the desired format
+    on the fly. Note that this can be an expensive operation, so it may be
+    wise to convert data before you need to play it back, if possible, or
+    make sure your data is initially in the format that you need it in.
+    If you don't want to convert the data, you can specify None for a desired
+    format. The incoming format of the data, preconversion, can be found
+    in the `Sound_Sample` structure.
+
+    Note that the raw sound data "decoder" needs you to specify both the
+    extension "RAW" and a "desired" format, or it will refuse to handle
+    the data. This is to prevent it from catching all formats unsupported
+    by the other decoders.
+
+    Finally, specify an initial buffer size; this is the number of bytes that
+    will be allocated to store each read from the sound buffer. The more you
+    can safely allocate, the more decoding can be done in one block, but the
+    more resources you have to use up, and the longer each decoding call will
+    take. Note that different data formats require more or less space to
+    store. This buffer can be resized via `Sound_SetBufferSize`.
+
+    The buffer size specified must be a multiple of the size of a single
+    sample point. So, if you want 16-bit, stereo samples, then your sample
+    point size is (2 channels   16 bits), or 32 bits per sample, which is four
+    bytes. In such a case, you could specify 128 or 132 bytes for a buffer,
+    but not 129, 130, or 131 (although in reality, you'll want to specify a
+    MUCH larger buffer).
+
+    When you are done with this `Sound_Sample` instance, you can dispose of
+    it via `Sound_FreeSample`.
+
+    You do not have to keep a reference to `rw` around. If this function
+    suceeds, it stores `rw` internally (and disposes of it during the call
+    to `Sound_FreeSample`). If this function fails, it will dispose of the
+    SDL_RWops for you.
+
+    :Parameters:
+        `rw` : `SDL_RWops`
+            SDL_RWops with sound data
+        `ext` : str
+            File extension normally associated with a data format.  Can
+            usually be None.
+        `desired` : `Sound_AudioInfo`
+            Format to convert sound data into.  Can usually be None if you
+            don't need conversion.
+        `bufferSize` : int
+            Size, in bytes, to allocate for the decoding buffer
+    
+    :rtype: `Sound_Sample`
+    ''',
+    args=['rw', 'ext', 'desired', 'bufferSize'],
+    arg_types=[POINTER(SDL.rwops.SDL_RWops), c_char_p,
+               POINTER(Sound_AudioInfo), c_uint],
+    return_type=POINTER(Sound_Sample),
+    dereference_return=True,
+    require_return=True)
+
+_Sound_NewSampleFromMem = _dll.private_function('Sound_NewSampleFromMem',
+    arg_types=[POINTER(c_ubyte), c_uint, c_char_p,
+               POINTER(Sound_AudioInfo), c_uint],
+    return_type=POINTER(Sound_Sample),
+    dereference_return=True,
+    require_return=True,
+    since=(1,0,1))
+
+def Sound_NewSampleFromMem(data, ext, desired, bufferSize):
+    '''Start decoding a new sound sample from a buffer.
+
+    This is identical to `Sound_NewSample`, but it creates an `SDL_RWops`
+    for you from the buffer.
+
+    :Parameters:
+        `data` : `SDL_array` or sequence
+            Buffer holding encoded byte sound data
+        `ext` : str
+            File extension normally associated with a data format.  Can
+            usually be None.
+        `desired` : `Sound_AudioInfo`
+            Format to convert sound data into.  Can usually be None if you
+            don't need conversion.
+        `bufferSize` : int
+            Size, in bytes, to allocate for the decoding buffer
+    
+    :rtype: `Sound_Sample`
+
+    :since: SDL_sound 1.0.1
+    '''
+    data = SDL.array.to_ctypes(data, len(data), c_ubyte)
+    return _Sound_NewSampleFromMem(data, len(data), ext, desired, bufferSize)
+
+Sound_NewSampleFromFile = _dll.function('Sound_NewSampleFromFile',
+    '''Start decoding a new sound sample from a file on disk.
+
+    This is identical to `Sound_NewSample`, but it creates an `SDL_RWops
+    for you from the file located at `filename`.
+    ''',
+    args=['filename', 'desired', 'bufferSize'],
+    arg_types=[c_char_p, POINTER(Sound_AudioInfo), c_uint],
+    return_type=POINTER(Sound_Sample),
+    dereference_return=True,
+    require_return=True)
+
+Sound_FreeSample = _dll.function('Sound_FreeSample',
+    '''Dispose of a `Sound_Sample`.
+
+    This will also close/dispose of the `SDL_RWops` that was used at
+    creation time.  The `Sound_Sample` structure is invalid after this
+    call.
+
+    :Parameters:
+        `sample` : `Sound_Sample`
+            The sound sample to delete.
+
+    ''',
+    args=['sample'],
+    arg_types=[POINTER(Sound_Sample)],
+    return_type=None)
+
+Sound_GetDuration = _dll.function('Sound_GetDuration',
+    '''Retrieve the total play time of a sample, in milliseconds.
+
+    Report total time length of sample, in milliseconds.  This is a fast
+    call.  Duration is calculated during `Sound_NewSample`, so this is just
+    an accessor into otherwise opaque data.
+
+    Note that not all formats can determine a total time, some can't
+    be exact without fully decoding the data, and thus will estimate the
+    duration. Many decoders will require the ability to seek in the data
+    stream to calculate this, so even if we can tell you how long an .ogg
+    file will be, the same data set may fail if it's, say, streamed over an
+    HTTP connection. 
+
+    :Parameters:
+        `sample` : `Sound_Sample`
+            Sample from which to retrieve duration information.
+
+    :rtype: int
+    :return: Sample length in milliseconds, or -1 if duration can't be
+        determined.
+
+    :since: 1.0.1
+    ''',
+    args=['sample'],
+    arg_types=[POINTER(Sound_Sample)],
+    return_type=c_int,
+    since=(1,0,1))
+
+Sound_SetBufferSize = _dll.function('Sound_SetBufferSize',
+    '''Change the current buffer size for a sample.
+
+    If the buffer size could be changed, then the ``sample.buffer`` and
+    ``sample.buffer_size`` fields will reflect that. If they could not be
+    changed, then your original sample state is preserved. If the buffer is
+    shrinking, the data at the end of buffer is truncated. If the buffer is
+    growing, the contents of the new space at the end is undefined until you
+    decode more into it or initialize it yourself.
+
+    The buffer size specified must be a multiple of the size of a single
+    sample point. So, if you want 16-bit, stereo samples, then your sample
+    point size is (2 channels   16 bits), or 32 bits per sample, which is four
+    bytes. In such a case, you could specify 128 or 132 bytes for a buffer,
+    but not 129, 130, or 131 (although in reality, you'll want to specify a
+    MUCH larger buffer).
+
+    :Parameters:
+        `sample` : `Sound_Sample`
+            Sample to modify
+        `new_size` : int
+            The desired size, in bytes of the new buffer
+
+    ''',
+    args=['sample', 'new_size'],
+    arg_types=[POINTER(Sound_Sample), c_uint],
+    return_type=c_int,
+    error_return=0)
+
+Sound_Decode = _dll.function('Sound_Decode',
+    '''Decode more of the sound data in a `Sound_Sample`.
+
+    It will decode at most sample->buffer_size bytes into ``sample.buffer``
+    in the desired format, and return the number of decoded bytes.
+
+    If ``sample.buffer_size`` bytes could not be decoded, then refer to
+    ``sample.flags`` to determine if this was an end-of-stream or error
+    condition.
+
+    :Parameters:
+        `sample` : `Sound_Sample`
+            Do more decoding to this sample
+    
+    :rtype: int
+    :return: number of bytes decoded into ``sample.buffer``
+    ''',
+    args=['sample'],
+    arg_types=[POINTER(Sound_Sample)],
+    return_type=c_uint)
+
+Sound_DecodeAll = _dll.function('Sound_DecodeAll',
+    '''Decode the remainder of the sound data in a `Sound_Sample`.
+
+    This will dynamically allocate memory for the entire remaining sample.
+    ``sample.buffer_size`` and ``sample.buffer`` will be updated to reflect
+    the new buffer.  Refer to ``sample.flags`` to determine if the
+    decoding finished due to an End-of-stream or error condition.
+
+    Be aware that sound data can take a large amount of memory, and that
+    this function may block for quite awhile while processing. Also note
+    that a streaming source (for example, from a SDL_RWops that is getting
+    fed from an Internet radio feed that doesn't end) may fill all available
+    memory before giving up...be sure to use this on finite sound sources
+    only.
+
+    When decoding the sample in its entirety, the work is done one buffer
+    at a time. That is, sound is decoded in ``sample.buffer_size`` blocks, and
+    appended to a continually-growing buffer until the decoding completes.
+    That means that this function will need enough RAM to hold
+    approximately ``sample.buffer_size`` bytes plus the complete decoded
+    sample at most. The larger your buffer size, the less overhead this
+    function needs, but beware the possibility of paging to disk. Best to
+    make this user-configurable if the sample isn't specific and small.
+
+    :Parameters:
+        `sample` : `Sound_Sample`
+            Do all decoding for this sample.
+    
+    :rtype: int
+    :return: number of bytes decoded into ``sample.buffer`
+    ''',
+    args=['sample'],
+    arg_types=[POINTER(Sound_Sample)],
+    return_type=c_uint)
+
+Sound_Rewind = _dll.function('Sound_Rewind',
+    '''Rewind a sample to the start.
+
+    Restart a sample at the start of its waveform data, as if newly
+    created with `Sound_NewSample`. If successful, the next call to
+    `Sound_Decode` will give audio data from the earliest point in the
+    stream.
+
+    Beware that this function will fail if the SDL_RWops that feeds the
+    decoder can not be rewound via it's seek method, but this can
+    theoretically be avoided by wrapping it in some sort of buffering
+    SDL_RWops.
+
+    This function will raise an exception if the RWops is not seekable, or
+    SDL_sound is not initialized.
+
+    If this function fails, the state of the sample is undefined, but it
+    is still safe to call `Sound_FreeSample` to dispose of it.
+
+    :Parameters:
+        `sample` : `Sound_Sample`
+            The sample to rewind
+
+    ''',
+    args=['sample'],
+    arg_types=[POINTER(Sound_Sample)],
+    return_type=c_int,
+    error_return=0)
+
+Sound_Seek = _dll.function('Sound_Seek',
+    '''Seek to a different point in a sample.
+
+    Reposition a sample's stream. If successful, the next call to
+    `Sound_Decode` or `Sound_DecodeAll` will give audio data from the
+    offset you specified.
+
+    The offset is specified in milliseconds from the start of the
+    sample.
+
+    Beware that this function can fail for several reasons. If the
+    SDL_RWops that feeds the decoder can not seek, this call will almost
+    certainly fail, but this can theoretically be avoided by wrapping it
+    in some sort of buffering SDL_RWops. Some decoders can never seek,
+    others can only seek with certain files. The decoders will set a flag
+    in the sample at creation time to help you determine this.
+
+    You should check ``sample.flags & SOUND_SAMPLEFLAG_CANSEEK``
+    before attempting. `Sound_Seek` reports failure immediately if this
+    flag isn't set. This function can still fail for other reasons if the
+    flag is set.
+
+    This function can be emulated in the application with `Sound_Rewind`
+    and predecoding a specific amount of the sample, but this can be
+    extremely inefficient. `Sound_Seek()` accelerates the seek on a
+    with decoder-specific code.
+
+    If this function fails, the sample should continue to function as if
+    this call was never made. If there was an unrecoverable error,
+    ``sample.flags & SOUND_SAMPLEFLAG_ERROR`` will be set, which your
+    regular decoding loop can pick up.
+
+    On success, ERROR, EOF, and EAGAIN are cleared from sample->flags.
+
+    :Parameters:
+        `sample` : `Sound_Sample`
+            The sample to seek
+        `ms` : int
+            The new position, in milliseconds, from the start of sample
+
+    ''',
+    args=['sample', 'ms'],
+    arg_types=[POINTER(Sound_Sample), c_uint],
+    return_type=c_int,
+    error_return=0)
+
+    
