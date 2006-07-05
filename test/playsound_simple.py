@@ -26,13 +26,11 @@ def audio_callback(data, stream):
     stream = stream.as_bytes()
     length = len(stream)
 
-    #print sample.flags, data.decoded_bytes, data.decoded_offset
-
     while bw < length:
         if data.decoded_bytes == 0:     # need more data
             # if there wasn't previously an error or EOF, read more
-            if sample.flags & SOUND_SAMPLEFLAG_ERROR == 0 and \
-               sample.flags & SOUND_SAMPLEFLAG_EOF == 0:
+            if (sample.flags & SOUND_SAMPLEFLAG_ERROR) == 0 and \
+               (sample.flags & SOUND_SAMPLEFLAG_EOF) == 0:
                 data.decoded_bytes = Sound_Decode(sample)
                 data.decoded_offset = 0
 
@@ -40,6 +38,7 @@ def audio_callback(data, stream):
                 # ... there isn't any more data to read
                 stream[bw:] = [0] * (length - bw)  # write silence
                 global_done_flag = 1
+                return
         
         # we have data decoded and read to write to the device
         cpysize = length - bw  # amount device still wants
@@ -70,7 +69,7 @@ def playOneSoundFile(fname):
     data.devformat.freq = data.sample.actual.rate
     data.devformat.format = data.sample.actual.format
     data.devformat.channels = data.sample.actual.channels
-    data.devformat.samples = 512 
+    data.devformat.samples = 256 
     data.devformat.callback = audio_callback
     data.devformat.userdata = data
 
@@ -83,12 +82,9 @@ def playOneSoundFile(fname):
     while not global_done_flag:
         SDL_Delay(10)  # just wait for the audio callback to finish
 
-    print 'done'
-
     # at this point, we've played the entire audio file.
     SDL_PauseAudio(1)   # so stop the device
 
-    print 'paused'
     # Sleep two buffers' worth of audio before closing, in order to allow
     # playback to finish.  This isn't always enough; perhaps SDL needs a way
     # to explicitly wait for device drain?  Most apps don't have this issue,
@@ -97,17 +93,13 @@ def playOneSoundFile(fname):
     # the callback to write silence for a call or two before flipping
     # global_done_flag.
 
-    print 'delay %d '%(2 * 1000 * data.devformat.samples / data.devformat.freq)
     SDL_Delay(2 * 1000 * data.devformat.samples / data.devformat.freq)
 
-    print 'done delay'
     # if there was an error, tell the user
     if data.sample.flags & SOUND_SAMPLEFLAG_ERROR:
         print >> sys.stderr, 'Error decoding file: %s' % Sound_GetError()
 
-    print 'freeing sample'
     Sound_FreeSample(data.sample)
-    print 'closing audio'
     SDL_CloseAudio()
 
 if __name__ == '__main__':
@@ -116,6 +108,5 @@ if __name__ == '__main__':
     for arg in sys.argv[1:]:
         playOneSoundFile(arg)
 
-    print 'quitting'
     Sound_Quit()
     SDL_Quit()
