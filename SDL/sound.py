@@ -153,6 +153,8 @@ class Sound_Sample(Structure):
             Desired audio format for conversion
         `actual` : `Sound_AudioInfo`
             Actual audio format of the sample
+        `buffer` : `SDL_array`
+            Buffer of decoded data, as bytes
         `buffer_size` : int
             Current size of the buffer, in bytes
         `flags` : int
@@ -165,13 +167,15 @@ class Sound_Sample(Structure):
                 ('_decoder', POINTER(Sound_DecoderInfo)),
                 ('desired', Sound_AudioInfo),
                 ('actual', Sound_AudioInfo),
-                ('buffer', c_void_p),
+                ('_buffer', POINTER(c_ubyte)),
                 ('buffer_size', c_uint),
                 ('flags', c_int)]
     
     def __getattr__(self, name):
         if name == 'decoder':
             return self._decoder.contents
+        elif name == 'buffer':
+            return SDL.array.SDL_array(self._buffer, self.buffer_size, c_ubyte)
         raise AttributeError, name
 
 Sound_Init = _dll.function('Sound_Init',
