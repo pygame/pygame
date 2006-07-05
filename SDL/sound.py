@@ -339,7 +339,7 @@ _Sound_NewSampleFromMem = _dll.private_function('Sound_NewSampleFromMem',
     return_type=POINTER(Sound_Sample),
     dereference_return=True,
     require_return=True,
-    since=(1,0,1))
+    since=(9,9,9))  # Appears in header only
 
 def Sound_NewSampleFromMem(data, ext, desired, bufferSize):
     '''Start decoding a new sound sample from a buffer.
@@ -361,7 +361,7 @@ def Sound_NewSampleFromMem(data, ext, desired, bufferSize):
     
     :rtype: `Sound_Sample`
 
-    :since: SDL_sound 1.0.1
+    :since: Not yet released in SDL_sound
     '''
     data = SDL.array.to_ctypes(data, len(data), c_ubyte)
     return _Sound_NewSampleFromMem(data, len(data), ext, desired, bufferSize)
@@ -416,12 +416,12 @@ Sound_GetDuration = _dll.function('Sound_GetDuration',
     :return: Sample length in milliseconds, or -1 if duration can't be
         determined.
 
-    :since: 1.0.1
+    :since: Not yet released in SDL_sound
     ''',
     args=['sample'],
     arg_types=[POINTER(Sound_Sample)],
     return_type=c_int,
-    since=(1,0,1))
+    since=(9,9,9))
 
 Sound_SetBufferSize = _dll.function('Sound_SetBufferSize',
     '''Change the current buffer size for a sample.
