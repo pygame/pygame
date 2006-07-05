@@ -140,7 +140,10 @@ class SDL_DLL:
             if args:
                 _f._args = args
             _f.__doc__ = doc
-            _f.func_name = name
+            try:
+                _f.func_name = name
+            except TypeError: # read-only in Python 2.3
+                pass
             return _f
 
         # Ok, get function from ctypes
@@ -200,7 +203,10 @@ class SDL_DLL:
         if args:
             _f._args = args
         _f.__doc__ = doc
-        _f.func_name = name
+        try:
+            _f.func_name = name
+        except TypeError: # read-only in Python 2.3
+            pass
         return _f
 
 # Shortcuts to the SDL core library
