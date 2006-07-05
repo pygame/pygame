@@ -36,12 +36,24 @@ if __name__ == '__main__':
     SDL_Init(SDL_INIT_VIDEO)
 
     SDL_WM_SetCaption('SDL-ctypes numpy demo', 'SDL-ctypes numpy demo')
-    screen = SDL_SetVideoMode(160, 160, 32, SDL_SWSURFACE)
+    screen = SDL_SetVideoMode(200, 200, 32, SDL_HWSURFACE)
     format = screen.format
 
+    pixel_pitch = screen.pitch * 8 / format.BitsPerPixel
+    simple_pitch = (screen.w == pixel_pitch)
     waves = [Wave(screen.w, screen.h) for i in range(4)]
 
-    while True:
+    done = False
+    frames = 0
+    then = SDL_GetTicks()
+    while not done:
+        frames += 1
+        event = SDL_PollEventAndReturn()
+        while event:
+            if event.type in (SDL_QUIT, SDL_KEYDOWN):
+                done = True
+            event = SDL_PollEventAndReturn()
+
         SDL_LockSurface(screen)
         pixels = screen.pixels.as_numpy()
 
@@ -56,8 +68,17 @@ if __name__ == '__main__':
         g = clip(g*0xff, 0, 0xff).astype(UInt32) << 8 
         b = clip(b*0xff, 0, 0xff).astype(UInt32)
 
-        pixels[:] = bitwise_or(r, bitwise_or(g, b)).flat
+        composite = bitwise_or(r, bitwise_or(g, b)) 
+        if simple_pitch:
+            pixels[:] = composite.flat
+        else:
+            for y in range(screen.h):
+                pixels[pixel_pitch*y:pixel_pitch*y+screen.w] = composite[y]
 
         SDL_UnlockSurface(screen)
         SDL_Flip(screen)
 
+    time = (SDL_GetTicks() - then) / 1000.0
+    print '%d frames in %0.2f secs' % (frames, time)
+    print '  %0.2f milliseconds / frame (%d FPS)'  % \
+        (time / frames * 1000, frames / time)
