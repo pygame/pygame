@@ -36,7 +36,7 @@ if __name__ == '__main__':
     SDL_Init(SDL_INIT_VIDEO)
 
     SDL_WM_SetCaption('SDL-ctypes numpy demo', 'SDL-ctypes numpy demo')
-    screen = SDL_SetVideoMode(200, 200, 32, SDL_HWSURFACE)
+    screen = SDL_SetVideoMode(160, 160, 32, SDL_SWSURFACE)
     format = screen.format
 
     waves = [Wave(screen.w, screen.h) for i in range(4)]

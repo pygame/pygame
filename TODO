@@ -3,6 +3,7 @@ glitch in upper-left corner of testoverlay2 on linux; on ppc os x large
   corruption in top half
 joystick not receiving events?
 wrap SDL_sound
+pixels_numpy: add event loop, fix pitch mismatch
 
 SDL_syswm.h - platform dependent
 
