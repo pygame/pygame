@@ -2,7 +2,7 @@ pygame.scrap
 
 The scrap module is for getting and putting stuff from the clipboard.
 
-New in pygame 1.8.  Only works for windows, X11, QNX, macOSX so far.
+New in pygame 1.8.  Only works for windows, X11, QNX, Mac OS X so far.
 <SECTION>
 
 
