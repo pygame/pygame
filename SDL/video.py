@@ -965,6 +965,7 @@ def SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch,
      - `width`: int
      - `height`: int
      - `depth`: int
+     - `pitch`: int
      - `Rmask`: int
      - `Gmask`: int
      - `Bmask`: int
