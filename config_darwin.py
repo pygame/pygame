@@ -5,14 +5,14 @@ from glob import glob
 from distutils.sysconfig import get_python_inc
 
 class Dependency:
-    libext = '.dylib'
+    libext = '.a'
     def __init__(self, name, checkhead, checklib, lib):
         self.name = name
         self.inc_dir = None
         self.lib_dir = None
         self.lib = lib
         self.found = 0
-        self.checklib = checklib+self.libext
+        self.checklib = checklib + self.libext
         self.checkhead = checkhead
         self.cflags = ''
 
@@ -38,18 +38,21 @@ class Dependency:
 
 class FrameworkDependency(Dependency):
     def configure(self, incdirs, libdirs):
-      for n in '/Library/Frameworks/','$HOME/Library/Frameworks/','/System/Library/Frameworks/':
-        n = os.path.expandvars(n)
-        if os.path.isfile(n+self.lib+'.framework/Versions/Current/'+self.lib):
-          print 'Framework '+self.lib+' found'
-          self.found = 1
-          self.inc_dir = n+self.lib+'.framework/Versions/Current/Headers'
-          self.cflags = '-Xlinker "-framework" -Xlinker "'+self.lib+'"'
-          self.cflags += ' -Xlinker "-F'+n+'"'
-          self.origlib = self.lib
-          self.lib = ''
-          return
-      print 'Framework '+self.lib+' not found'
+        BASE_DIRS = '/', os.path.expanduser('~/'), '/System/'
+        for n in BASE_DIRS:
+            n += 'Library/Frameworks/'
+            fmwk = n + self.lib + '.framework/Versions/Current/'
+            if os.path.isfile(fmwk + self.lib):
+                print 'Framework ' + self.lib + ' found'
+                self.found = 1
+                self.inc_dir = fmwk + 'Headers'
+                self.cflags = (
+                    '-Xlinker "-framework" -Xlinker "' + self.lib + '"' +
+                    ' -Xlinker "-F' + n + '"')
+                self.origlib = self.lib
+                self.lib = ''
+                return
+        print 'Framework ' + self.lib + ' not found'
 
 
 class DependencyPython:
@@ -88,20 +91,21 @@ DEPS = [
     FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image'),
     FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer'),
     FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
-    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h')
+    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
+    Dependency('PNG', 'png.h', 'libpng', 'png'),
+    Dependency('JPEG', 'jpeglib.h', 'libjpeg', 'jpeg'),
 ]
 
 
-from distutils.util import split_quoted
 def main():
     global DEPS
 
     print 'Hunting dependencies...'
-    incdirs = []
-    libdirs = []
+    incdirs = ['/usr/local/include']
+    libdirs = ['/usr/local/lib']
     newconfig = []
     for d in DEPS:
-      d.configure(incdirs, libdirs)
+        d.configure(incdirs, libdirs)
     DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
     try:
         import objc

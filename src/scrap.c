@@ -53,6 +53,9 @@
     #error Unknown window manager for clipboard handling
 #endif /* scrap type */
 
+/* MAC_SCRAP delegates all functionality, we just need a small stub */
+#if !defined(MAC_SCRAP)
+
 /* System dependent data types */
 #if defined(X11_SCRAP)
 /* * */
@@ -85,7 +88,8 @@ static HWND SDL_Window;
 /* * */
 static unsigned short InputGroup;
 
-#endif /* scrap type */
+#endif
+
 
 #define FORMAT_PREFIX	"SDL_scrap_0x"
 
@@ -775,6 +779,51 @@ static PyObject* scrap_lost_scrap(PyObject* self, PyObject* args) {
     }
 }
 
+#endif /* !defined(MAC_SCRAP) */
+
+#if defined(MAC_SCRAP)
+
+static PyObject *
+mac_scrap_call(char *name, PyObject *args) {
+	static PyObject *mac_scrap_module = NULL;
+	PyObject *method;
+	PyObject *result;
+	if (mac_scrap_module == NULL) {
+		mac_scrap_module = PyImport_ImportModule("pygame.mac_scrap");
+		if (mac_scrap_module == NULL) {
+			return NULL;
+		}
+	}
+	method = PyObject_GetAttrString(mac_scrap_module, name);
+	if (method == NULL) {
+		return NULL;
+	}
+	result = PyObject_CallObject(method, args);
+	Py_DECREF(method);
+	return result;
+}
+
+static PyObject *
+scrap_init(PyObject *self, PyObject *args) {
+	return mac_scrap_call("init", args);
+}
+
+static PyObject *
+scrap_get_scrap(PyObject *self, PyObject *args) {
+	return mac_scrap_call("get", args);
+}
+
+static PyObject *
+scrap_put_scrap(PyObject *self, PyObject *args) {
+	return mac_scrap_call("put", args);
+}
+
+static PyObject *
+scrap_lost_scrap(PyObject *self, PyObject *args) {
+	return mac_scrap_call("lost", args);
+}
+
+#endif /* defined(MAC_SCRAP) */
 
 static PyMethodDef scrap_builtins[] =
 {
@@ -792,7 +841,6 @@ static PyMethodDef scrap_builtins[] =
 #endif
 	{ NULL, NULL }
 };
-
 
 PYGAME_EXPORT
 void initscrap(void)
