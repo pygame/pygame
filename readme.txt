@@ -1,6 +1,6 @@
 
    Pygame Readme
-   Version 1.7.1 Python Game Development
+   Version 1.8.0pre Python Game Development
    by Pete Shinners http://www.pygame.org
    pete@shinners.org
 
