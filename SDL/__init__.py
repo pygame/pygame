@@ -17,6 +17,8 @@ into your namespace::
 
 This gives you access to all SDL names exactly as they appear in the C
 header files.
+
+:group Non-core modules: ttf, mixer, image, sound
 '''
 
 __docformat__ = 'restructuredtext'

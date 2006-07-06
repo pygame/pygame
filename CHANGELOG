@@ -1,3 +1,10 @@
+SDL-ctypes 0.06
+---------------
+ - Python 2.3 support
+ - Fixes to SDL_sound
+ - Added playsound_simple test
+ - Fixed pitch bug in pixels_numpy.py and added event loop
+
 SDL-ctypes 0.05
 ---------------
  - Darwin support:

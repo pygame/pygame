@@ -71,7 +71,7 @@ _Sound_GetLinkedVersion = _dll.private_function('Sound_GetLinkedVersion',
 def Sound_GetLinkedVersion():
     '''Get the version of the dynamically linked SDL_sound library
 
-    :rtype: `SDL_Version`
+    :rtype: `Sound_Version`
     '''
     version = Sound_Version()
     _Sound_GetLinkedVersion(byref(version))
@@ -502,7 +502,7 @@ Sound_DecodeAll = _dll.function('Sound_DecodeAll',
             Do all decoding for this sample.
     
     :rtype: int
-    :return: number of bytes decoded into ``sample.buffer`
+    :return: number of bytes decoded into ``sample.buffer``
     ''',
     args=['sample'],
     arg_types=[POINTER(Sound_Sample)],
