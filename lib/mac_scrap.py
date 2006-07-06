@@ -1,39 +1,38 @@
-#NOTE: the docs for this will be inserted from the scrap.doc file.  
-#        see pygame/__init__.py
-try:
-    from AppKit import *
-    from Foundation import *
-except:
-    pass
+#
+# These methods are called internally by pygame.scrap
+#
+from AppKit import *
+from Foundation import *
 
 import pygame.locals
 
-
+ScrapPboardType = u'org.pygame.scrap'
 
 def init():
-    # FIXME: NOTE: I don't know what type of init we need here.
     return 1
 
 def get(scrap_type):
     if scrap_type == pygame.locals.SCRAP_TEXT:
-	board = NSPasteboard.generalPasteboard()
-	content = board.stringForType_(NSStringPboardType)
-	return content
+        board = NSPasteboard.generalPasteboard()
+        content = board.stringForType_(NSStringPboardType)
+        return content
     else:
-        raise "Unsupported scrap_type"
+        raise ValueError("Unsupported scrap_type: %r" % (scrap_type,))
 
 
 def put(scrap_type, thing):
     if scrap_type == pygame.locals.SCRAP_TEXT:
         board = NSPasteboard.generalPasteboard()
-        board.declareTypes_owner_([NSStringPboardType], None)
-        board.setString_forType_(unicode(thing), NSStringPboardType)
+        board.declareTypes_owner_([NSStringPboardType, ScrapPboardType], None)
+        if isinstance(thing, unicode):
+            text_thing = thing
+        else:
+            text_thing = unicode(text_thing, 'utf-8')
+        board.setString_forType_(text_thing, NSStringPboardType)
+        board.setString_forType_(u'', ScrapPboardType)
     else:
-        raise "Unsupported scrap_type"
+        raise ValueError("Unsupported scrap_type: %r" % (scrap_type,))
 
 def lost():
-    #FIXME: TODO: how do we do this on mac?
-    return 0
-    pass
-
-
+    board = NSPasteboard.generalPasteboard()
+    return not board.availableTypeFromArray_([ScrapPboardType])
