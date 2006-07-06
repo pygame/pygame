@@ -4,6 +4,8 @@ SDL-ctypes 0.06
  - Fixes to SDL_sound
  - Added playsound_simple test
  - Fixed pitch bug in pixels_numpy.py and added event loop
+ - Added interop_pil and interop_pil2 tests; demonstrating interoperability
+   with PIL.
 
 SDL-ctypes 0.05
 ---------------
