@@ -125,7 +125,9 @@ if __name__ == '__main__':
     import SDL.ttf
     import SDL.mixer
     import SDL.image
+    import SDL.sound
     write_module(SDL)
     write_module(SDL.ttf)
     write_module(SDL.mixer)
     write_module(SDL.image)
+    write_module(SDL.sound)
