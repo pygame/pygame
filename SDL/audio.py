@@ -48,13 +48,6 @@ class SDL_AudioSpec(Structure):
                 ('_callback', _SDL_AudioSpec_fn),
                 ('_userdata', c_void_p)]
 
-if sys.byteorder == 'little':
-    AUDIO_U16SYS = SDL.constants.AUDIO_U16LSB
-    AUDIO_S16SYS = SDL.constants.AUDIO_S16LSB
-else:
-    AUDIO_U16SYS = SDL.constants.AUDIO_U16MSB
-    AUDIO_S16SYS = SDL.constants.AUDIO_S16MSB
-
 _SDL_AudioCVT_p = POINTER('SDL_AudioCVT')
 
 _SDL_AudioCVT_filter_fn = \
@@ -218,11 +211,6 @@ def SDL_OpenAudio(desired, obtained):
         obtained.userdata = desired.userdata
         obtained.callback = desired.callback
         ctype[0] = _ctype_audio_format(obtained.format)
-
-# enum SDL_audiostatus
-(SDL_AUDIO_STOPPED,
-    SDL_AUDIO_PLAYING,
-    SDL_AUDIO_PAUSED) = range(3)
 
 SDL_GetAudioStatus = SDL.dll.function('SDL_GetAudioStatus',
     '''Get the current audio state.

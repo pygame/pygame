@@ -8,72 +8,9 @@ __version__ = '$Id: $'
 
 from ctypes import *
 
+import SDL.constants
 import SDL.dll
 import SDL.keyboard
-
-# enum SDL_EventType
-(SDL_NOEVENT,
-    SDL_ACTIVEEVENT,
-    SDL_KEYDOWN,
-    SDL_KEYUP,
-    SDL_MOUSEMOTION,
-    SDL_MOUSEBUTTONDOWN,
-    SDL_MOUSEBUTTONUP,
-    SDL_JOYAXISMOTION,
-    SDL_JOYBALLMOTION,
-    SDL_JOYHATMOTION,
-    SDL_JOYBUTTONDOWN,
-    SDL_JOYBUTTONUP,
-    SDL_QUIT,
-    SDL_SYSWMEVENT,
-    SDL_EVENT_RESERVEDA,
-    SDL_EVENT_RESERVEDB,
-    SDL_VIDEORESIZE,
-    SDL_VIDEOEXPOSE,
-    SDL_EVENT_RESERVED2,
-    SDL_EVENT_RESERVED3,
-    SDL_EVENT_RESERVED4,
-    SDL_EVENT_RESERVED5,
-    SDL_EVENT_RESERVED6,
-    SDL_EVENT_RESERVED7) = range(24)
-SDL_USEREVENT = 24
-SDL_NUMEVENTS = 32
-
-def SDL_EVENTMASK(x):
-    '''Used for predefining event masks.'''
-    return 1 << x
-
-# enum SDL_EventMask
-SDL_ACTIVEEVENTMASK     = SDL_EVENTMASK(SDL_ACTIVEEVENT)
-SDL_KEYDOWNMASK         = SDL_EVENTMASK(SDL_KEYDOWN)
-SDL_KEYUPMASK           = SDL_EVENTMASK(SDL_KEYUP)
-SDL_KEYEVENTMASK        = SDL_KEYUPMASK | \
-                          SDL_KEYDOWNMASK
-SDL_MOUSEMOTIONMASK     = SDL_EVENTMASK(SDL_MOUSEMOTION)
-SDL_MOUSEBUTTONDOWNMASK = SDL_EVENTMASK(SDL_MOUSEBUTTONDOWN)
-SDL_MOUSEBUTTONUPMASK   = SDL_EVENTMASK(SDL_MOUSEBUTTONUP)
-SDL_MOUSEEVENTMASK      = SDL_MOUSEMOTIONMASK | \
-                          SDL_MOUSEBUTTONDOWNMASK | \
-                          SDL_MOUSEBUTTONUPMASK
-SDL_JOYAXISMOTIONMASK   = SDL_EVENTMASK(SDL_JOYAXISMOTION)
-SDL_JOYBALLMOTIONMASK   = SDL_EVENTMASK(SDL_JOYBALLMOTION)
-SDL_JOYHATMOTIONMASK    = SDL_EVENTMASK(SDL_JOYHATMOTION)
-SDL_JOYBUTTONDOWNMASK   = SDL_EVENTMASK(SDL_JOYBUTTONDOWN)
-SDL_JOYBUTTONUPMASK     = SDL_EVENTMASK(SDL_JOYBUTTONUP)
-SDL_JOYEVENTMASK        = SDL_JOYAXISMOTIONMASK | \
-                          SDL_JOYBALLMOTIONMASK | \
-                          SDL_JOYHATMOTIONMASK | \
-                          SDL_JOYBUTTONDOWNMASK | \
-                          SDL_JOYBUTTONUPMASK
-SDL_QUITMASK            = SDL_EVENTMASK(SDL_QUIT)
-SDL_SYSWMEVENTMASK      = SDL_EVENTMASK(SDL_SYSWMEVENT)
-SDL_VIDEORESIZEMASK     = SDL_EVENTMASK(SDL_VIDEORESIZE)
-SDL_VIDEOEXPOSEMASK     = SDL_EVENTMASK(SDL_VIDEOEXPOSE)
-
-# enum SDL_eventaction
-(SDL_ADDEVENT,
-    SDL_PEEKEVENT,
-    SDL_GETEVENT) = range(3)
 
 class SDL_ActiveEvent(Structure):
     '''Application visibility event structure.
@@ -339,27 +276,28 @@ class SDL_Event(Union):
                 ('syswm', SDL_SysWMEvent)]
 
     types = {
-        SDL_ACTIVEEVENT: (SDL_ActiveEvent, 'active'),
-        SDL_KEYDOWN: (SDL_KeyboardEvent, 'key'),
-        SDL_KEYUP: (SDL_KeyboardEvent, 'key'),
-        SDL_MOUSEMOTION: (SDL_MouseMotionEvent, 'motion'),
-        SDL_MOUSEBUTTONDOWN: (SDL_MouseButtonEvent, 'button'),
-        SDL_MOUSEBUTTONUP: (SDL_MouseButtonEvent, 'button'),
-        SDL_JOYAXISMOTION: (SDL_JoyAxisEvent, 'jaxis'),
-        SDL_JOYBALLMOTION: (SDL_JoyBallEvent, 'jball'),
-        SDL_JOYHATMOTION: (SDL_JoyHatEvent, 'jhat'),
-        SDL_JOYBUTTONDOWN: (SDL_JoyButtonEvent, 'jbutton'),
-        SDL_JOYBUTTONUP: (SDL_JoyButtonEvent, 'jbutton'),
-        SDL_VIDEORESIZE: (SDL_ResizeEvent, 'resize'),
-        SDL_VIDEOEXPOSE: (SDL_ExposeEvent, 'expose'),
-        SDL_QUIT: (SDL_QuitEvent, 'quit'),
-        SDL_SYSWMEVENT: (SDL_SysWMEvent, 'syswm')
+        SDL.constants.SDL_ACTIVEEVENT: (SDL_ActiveEvent, 'active'),
+        SDL.constants.SDL_KEYDOWN: (SDL_KeyboardEvent, 'key'),
+        SDL.constants.SDL_KEYUP: (SDL_KeyboardEvent, 'key'),
+        SDL.constants.SDL_MOUSEMOTION: (SDL_MouseMotionEvent, 'motion'),
+        SDL.constants.SDL_MOUSEBUTTONDOWN: (SDL_MouseButtonEvent, 'button'),
+        SDL.constants.SDL_MOUSEBUTTONUP: (SDL_MouseButtonEvent, 'button'),
+        SDL.constants.SDL_JOYAXISMOTION: (SDL_JoyAxisEvent, 'jaxis'),
+        SDL.constants.SDL_JOYBALLMOTION: (SDL_JoyBallEvent, 'jball'),
+        SDL.constants.SDL_JOYHATMOTION: (SDL_JoyHatEvent, 'jhat'),
+        SDL.constants.SDL_JOYBUTTONDOWN: (SDL_JoyButtonEvent, 'jbutton'),
+        SDL.constants.SDL_JOYBUTTONUP: (SDL_JoyButtonEvent, 'jbutton'),
+        SDL.constants.SDL_VIDEORESIZE: (SDL_ResizeEvent, 'resize'),
+        SDL.constants.SDL_VIDEOEXPOSE: (SDL_ExposeEvent, 'expose'),
+        SDL.constants.SDL_QUIT: (SDL_QuitEvent, 'quit'),
+        SDL.constants.SDL_SYSWMEVENT: (SDL_SysWMEvent, 'syswm')
     }
 
     def __repr__(self):
         if self.type in self.types:
             return self.types[self.type][0].__repr__(self)
-        elif self.type >= SDL_USEREVENT:    # SDL_MAXEVENTS not defined
+        elif self.type >= SDL.constants.SDL_USEREVENT: 
+            # SDL_MAXEVENTS not defined
             return SDL_UserEvent.__repr__(self)
         return 'SDLEvent(type=%d)' % self.type
 
@@ -371,7 +309,8 @@ class SDL_Event(Union):
         '''
         if self.type in self.types:
             return getattr(self, self.types[self.type][1])
-        elif self.type >= SDL_USEREVENT:    # SDL_MAXEVENTS not defined
+        elif self.type >= SDL.constants.SDL_USEREVENT:    
+            # SDL_MAXEVENTS not defined
             return self.user
         return self
 
@@ -417,7 +356,7 @@ def SDL_PeepEvents(numevents, action, mask):
     :return: list of SDL_Event (or subclass)
     :see: `SDL_PushEvent`, `SDL_HaveEvents`
     '''
-    if action == SDL_ADDEVENT:
+    if action == SDL.constants.SDL_ADDEVENT:
         raise NotImplementedError, 'Use SDL_PushEvent to add events'
     ar = (SDL_Event * numevents)()
     num = _SDL_PeepEvents(ar, numevents, action, mask)
@@ -439,7 +378,7 @@ def SDL_HaveEvents(mask):
     :return: True if at least one event matches the mask in the event
         queue.
     '''
-    num = _SDL_PeepEvents(None, 1, SDL_PEEKEVENT, mask)
+    num = _SDL_PeepEvents(None, 1, SDL.constants.SDL_PEEKEVENT, mask)
     return num > 0
 
 _SDL_PollEvent = SDL.dll.private_function('SDL_PollEvent',

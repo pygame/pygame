@@ -80,14 +80,6 @@ def Sound_GetLinkedVersion():
 # Fill in non-standard linked version now, so "since" declarations can work
 _dll._version = SDL.dll._version_parts(Sound_GetLinkedVersion())
 
-# enum Sound_SampleFlags
-SOUND_SAMPLEFLAG_NONE       = 0
-SOUND_SAMPLEFLAG_CANSEEK    = 1
-SOUND_SAMPLEFLAG_EOF        = 1 << 29
-SOUND_SAMPLEFLAG_ERROR      = 1 << 30
-SOUND_SAMPLEFLAG_EGAIN      = 1 << 31
-# end enum Sound_SampleFlags
-
 class Sound_AudioInfo(Structure):
     '''Information about an existing sample's format.
 

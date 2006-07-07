@@ -64,22 +64,6 @@ class Mix_Chunk(Structure):
             return SDL.array.SDL_array(self._abuf, self.alen, c_ubyte)
         raise AttributeException, attr
 
-# begin enum Mix_Fading
-(MIX_NO_FADING,
-    MIX_FADING_OUT,
-    MIX_FADING_IN) = range(3)
-# end enum Mix_Fading
-
-# begin enum Mix_MusicType
-(MUS_NONE,
-    MUS_CMD,
-    MUS_WAV,
-    MUS_MOD,
-    MUS_MID,
-    MUS_OGG,
-    MUS_MP3) = range(7)
-# end enum Mix_MusicType
-
 # opaque type
 _Mix_Music = c_void_p
 
