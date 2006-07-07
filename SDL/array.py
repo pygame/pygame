@@ -142,7 +142,12 @@ def to_ctypes(values, count, ctype):
      - `count`: int
      - `ctype`: type
 
+    :rtype: object, ctypes.Array
+    :return: (ref, array), where ref is an object that must be retained
+        by the caller for as long as the array is used.
     '''
+
+    ref = values
 
     # Convert SDL_array instances to ctypes array
     if isinstance(values, SDL_array):
@@ -151,13 +156,15 @@ def to_ctypes(values, count, ctype):
     # Cast ctypes array to correct type if necessary
     if isinstance(values, Array):
         if values._type_ is ctype:
-            return values
+            return ref, values
         else:
-            return cast(values, POINTER(ctype * count)).contents
+            return ref, cast(values, POINTER(ctype * count)).contents
 
-    # Convert string bytes to integers
+    # Convert string bytes to array
     if type(values) == str:
-        values = [ord(c) for c in values]
+        ref = create_string_buffer(values)
+        return ref, cast(ref, POINTER(ctype * count)).contents
 
     # Otherwise assume sequence
-    return (ctype * count)(*values)
+    ar = (ctype * count)(*values)
+    return ar, ar

@@ -245,10 +245,6 @@ class SDL_Surface(Structure):
             return SDL.array.SDL_array(self._pixels, count, sz)
         raise AttributeError, name
 
-    def __setattr__(self, attr, value):
-        raise AttributeError, '%s is read only' % attr
-
-
 def SDL_MUSTLOCK(surface):
     '''Evaluates to true if the surface needs to be locked before access.
 
@@ -587,7 +583,7 @@ def SDL_UpdateRects(screen, rects):
       - `screen`: `SDL_Surface`
       - `rects`: list of `SDL_Rect`
     '''
-    ar = SDL.array.to_ctypes(rects, len(rects), SDL_Rect)
+    ref, ar = SDL.array.to_ctypes(rects, len(rects), SDL_Rect)
     _SDL_UpdateRects(screen, len(rects), ar)
 
 SDL_UpdateRect = SDL.dll.function('SDL_UpdateRect',
@@ -680,11 +676,11 @@ def SDL_SetGammaRamp(red, green, blue):
     '''
     rar = gar = bar = None
     if red:
-        rar = SDL.array.to_ctypes(red, 256, c_ushort)
+        rref, rar = SDL.array.to_ctypes(red, 256, c_ushort)
     if green:
-        gar = SDL.array.to_ctypes(green, 256, c_ushort)
+        gref, gar = SDL.array.to_ctypes(green, 256, c_ushort)
     if blue:
-        bar = SDL.array.to_ctypes(blue, 256, c_ushort)
+        bref, bar = SDL.array.to_ctypes(blue, 256, c_ushort)
     result = _SDL_SetGammaRamp(rar, gar, bar)
     if result != 0:
         raise SDL.error.SDL_Exception, SDL.error.SDL_GetError()
@@ -736,7 +732,7 @@ def SDL_SetColors(surface, colors, firstcolor):
     :rtype: int
     :return: 1 if all colors were set as passed, otherwise 0.
     '''
-    ar = SDL.array.to_ctypes(colors, len(colors), SDL_Color)
+    ref, ar = SDL.array.to_ctypes(colors, len(colors), SDL_Color)
     return _SDL_SetColors(surface, ar, firstcolor, len(colors))
 
 _SDL_SetPalette = SDL.dll.private_function('SDL_SetPalette',
@@ -767,7 +763,7 @@ def SDL_SetPalette(surface, flags, colors, firstcolor):
       - `colors`: sequence or SDL_array of `SDL_Color`
       - `firstcolor`: int; the first color index to set.
     '''
-    ar = SDL.array.to_ctypes(colors, len(colors), SDL_Color)
+    ref, ar = SDL.array.to_ctypes(colors, len(colors), SDL_Color)
     result = _SDL_SetPalette(surface, flags, ar, firstcolor, len(colors))
     if result != 1:
         raise SDL.error.SDL_Exception, SDL.error.SDL_GetError()
@@ -953,22 +949,25 @@ def SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch,
 
     :rtype: `SDL_Surface`
     '''
+    len_pixels = len(pixels)
     if len(pixels) == pitch * 8 / depth * height:
         # pixel array?
         if depth == 8:
-            ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
+            ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
         elif depth == 16:
-            ar = SDL.array.to_ctypes(pixels, len(pixels), c_ushort)
+            ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ushort)
         elif depth == 32:
-            ar = SDL.array.to_ctypes(pixels, len(pixels), c_uint)
+            ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_uint)
     elif len(pixels) == pitch * height:
         # byte array
-        ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
+        ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
     else:
         raise TypeError, 'Length of pixels does not match given dimensions.'
 
-    return _SDL_CreateRGBSurfaceFrom(cast(ar, POINTER(c_ubyte)),
+    surface = _SDL_CreateRGBSurfaceFrom(cast(ar, POINTER(c_ubyte)),
         width, height, depth, pitch, Rmask, Gmask, Bmask, Amask)
+    surface._buffer_ref = ref
+    return surface
 
 SDL_FreeSurface = SDL.dll.function('SDL_FreeSurface',
     '''Free an RGB Surface.
@@ -1547,7 +1546,8 @@ def SDL_WM_SetIcon(icon, mask):
 
     '''
     if mask:
-        mask = SDL.array.to_ctypes(mask, (icon.w * icon.h + 7) / 8, c_ubyte)
+        ref, mask = \
+            SDL.array.to_ctypes(mask, (icon.w * icon.h + 7) / 8, c_ubyte)
     _SDL_WM_SetIcon(icon, mask)
 
 SDL_WM_IconifyWindow = SDL.dll.function('SDL_WM_IconifyWindow',

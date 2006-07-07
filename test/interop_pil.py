@@ -48,14 +48,16 @@ if __name__ == '__main__':
 
         # Caution: keep the ctypes array ("data") as a local var during
         # blitting, otherwise the pixel data will be free'd early
-        s = image.tostring()
-        data = SDL.array.to_ctypes(s, len(s), c_ubyte)
+        #s = image.tostring()
+        #sb = create_string_buffer(s)
+        #data = cast(sb, POINTER(c_ubyte*len(s))).contents
+        #data = SDL.array.to_ctypes(s, len(s), c_ubyte)
 
         # This alternative also works
         #s = [c[0] | (c[1] << 8) | (c[2] << 16) for c in image.getdata()]
         #data = SDL.array.to_ctypes(s, len(s), c_uint)
 
-        surface = SDL_CreateRGBSurfaceFrom(data,
+        surface = SDL_CreateRGBSurfaceFrom(image.tostring(),
             image_width, image_height, 32, image_width * 4,
             0x000000ff,
             0x0000ff00,

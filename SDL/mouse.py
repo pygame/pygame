@@ -123,8 +123,8 @@ def SDL_CreateCursor(data, mask, w, h, hot_x, hot_y):
 
     :rtype: `SDL_Cursor`
     '''
-    data = SDL.array.to_ctypes(data, len(data), c_ubyte)
-    mask = SDL.array.to_ctypes(mask, len(mask), c_ubyte)
+    dataref, data = SDL.array.to_ctypes(data, len(data), c_ubyte)
+    maskref, mask = SDL.array.to_ctypes(mask, len(mask), c_ubyte)
     return _SDL_CreateCursor(data, mask, w, h, hot_x, hot_y)
 
 SDL_SetCursor = SDL.dll.function('SDL_SetCursor',

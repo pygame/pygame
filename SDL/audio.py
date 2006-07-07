@@ -378,8 +378,8 @@ def SDL_MixAudio(dst, src, length, volume):
      - `volume`: int
 
     '''
-    dst = SDL.array.to_ctypes(dst, len(dst), c_ubyte)
-    src = SDL.array.to_ctypes(src, len(src), c_ubyte)
+    dstref, dst = SDL.array.to_ctypes(dst, len(dst), c_ubyte)
+    srcref, src = SDL.array.to_ctypes(src, len(src), c_ubyte)
     if len(dst) < length:
         raise TypeError, 'Destination buffer too small'
     elif len(src) < length:

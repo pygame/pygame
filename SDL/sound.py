@@ -355,7 +355,7 @@ def Sound_NewSampleFromMem(data, ext, desired, bufferSize):
 
     :since: Not yet released in SDL_sound
     '''
-    data = SDL.array.to_ctypes(data, len(data), c_ubyte)
+    ref, data = SDL.array.to_ctypes(data, len(data), c_ubyte)
     return _Sound_NewSampleFromMem(data, len(data), ext, desired, bufferSize)
 
 Sound_NewSampleFromFile = _dll.function('Sound_NewSampleFromFile',
