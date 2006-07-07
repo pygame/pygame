@@ -953,7 +953,7 @@ def SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch,
 
     :rtype: `SDL_Surface`
     '''
-    if len(pixels) == width * height:
+    if len(pixels) == pitch * 8 / depth * height:
         # pixel array?
         if depth == 8:
             ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
@@ -961,7 +961,7 @@ def SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch,
             ar = SDL.array.to_ctypes(pixels, len(pixels), c_ushort)
         elif depth == 32:
             ar = SDL.array.to_ctypes(pixels, len(pixels), c_uint)
-    elif len(pixels) == width * height * depth / 8:
+    elif len(pixels) == pitch * height:
         # byte array
         ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
     else:
