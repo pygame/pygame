@@ -188,7 +188,7 @@ def Mix_QuickLoad_WAV(mem):
 
     :rtype: `Mix_Chunk`
     '''
-    mem = SDL.array.to_ctypes(mem, len(mem), c_ubyte)
+    ref, mem = SDL.array.to_ctypes(mem, len(mem), c_ubyte)
     return _Mix_QuickLoad_WAV(mem)
 
 _Mix_QuickLoad_RAW = _dll.private_function('Mix_QuickLoad_RAW',
@@ -206,7 +206,7 @@ def Mix_QuickLoad_RAW(mem):
     :rtype: `Mix_Chunk`
     '''
     l = len(mem)
-    mem = SDL.array.to_ctypes(mem, len(mem), c_ubyte)
+    ref, mem = SDL.array.to_ctypes(mem, len(mem), c_ubyte)
     return _Mix_QuickLoad_RAW(mem, l)
 
 Mix_FreeChunk = _dll.function('Mix_FreeChunk',
