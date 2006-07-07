@@ -386,26 +386,6 @@ class SDL_Overlay(Structure):
             return p
 
 
-# enum SDL_GLattr
-(SDL_GL_RED_SIZE,
-    SDL_GL_GREEN_SIZE,
-    SDL_GL_BLUE_SIZE,
-    SDL_GL_ALPHA_SIZE,
-    SDL_GL_BUFFER_SIZE,
-    SDL_GL_DOUBLEBUFFER,
-    SDL_GL_DEPTH_SIZE,
-    SDL_GL_STENCIL_SIZE,
-    SDL_GL_ACCUM_RED_SIZE,
-    SDL_GL_ACCUM_GREEN_SIZE,
-    SDL_GL_ACCUM_BLUE_SIZE,
-    SDL_GL_ACCUM_ALPHA_SIZE,
-    SDL_GL_STEREO,
-    SDL_GL_MULTISAMPLEBUFFERS,
-    SDL_GL_MULTISAMPLESAMPLES,
-    SDL_GL_ACCELERATED_VISUAL,
-    SDL_GL_SWAP_CONTROL) = range(17)
-# end enum SDL_Glattr
-
 # SDL_VideoInit and SDL_VideoQuit not implemented (internal only, according
 # to SDL_video.h).
 
@@ -1601,12 +1581,6 @@ SDL_WM_ToggleFullScreen = SDL.dll.function('SDL_WM_ToggleFullScreen',
     arg_types=[POINTER(SDL_Surface)],
     return_type=c_int,
     error_return=0)
-
-# enum SDL_GrabMode
-(SDL_GRAB_QUERY,
-    SDL_GRAB_OFF,
-    SDL_GRAB_ON) = range(-1,2)
-# end enum SDL_GrabMode
 
 SDL_WM_GrabInput = SDL.dll.function('SDL_WM_GrabInput',
     '''Set the grab mode for the mouse and keyboard.

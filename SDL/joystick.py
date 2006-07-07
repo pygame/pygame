@@ -182,11 +182,6 @@ SDL_JoystickGetAxis = SDL.dll.function('SDL_JoystickGetAxis',
     arg_types=[SDL_Joystick_p, c_int],
     return_type=c_short)
 
-SDL_HAT_RIGHTUP = SDL.constants.SDL_HAT_RIGHT | SDL.constants.SDL_HAT_UP
-SDL_HAT_RIGHTDOWN = SDL.constants.SDL_HAT_RIGHT | SDL.constants.SDL_HAT_DOWN
-SDL_HAT_LEFTUP = SDL.constants.SDL_HAT_LEFT | SDL.constants.SDL_HAT_UP
-SDL_HAT_LEFTDOWN = SDL.constants.SDL_HAT_LEFT | SDL.constants.SDL_HAT_DOWN
-
 SDL_JoystickGetHat = SDL.dll.function('SDL_JoystickGetHat',
     '''Get the current state of POV hat on a joystick.
 
