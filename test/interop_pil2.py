@@ -2,8 +2,8 @@
 
 '''Another interoperability test with PIL.
 
-This time the buffer of a single surface is updated using a slice assignment,
-rather than creating a new buffer each frame.
+This time the buffer of a single surface is updated using ctypes.memmove
+instead of recreating the surface each frame.
 '''
 
 __docformat__ = 'restructuredtext'
@@ -13,6 +13,7 @@ import math
 import os
 import sys
 
+from ctypes import *
 from SDL import *
 import SDL.array
 import Image
@@ -54,12 +55,18 @@ if __name__ == '__main__':
         angle = (angle + 1) % 360
         image = original_image.rotate(angle)
 
-
         SDL_LockSurface(surface)
-        surface.pixels[:] = \
-            [c[0] | (c[1] << 8) | (c[2] << 16) for c in image.getdata()]
 
-        # This alternative also works
+        # Copy image data into surface pixel buffer using ctypes.memmove
+        s = image.tostring()
+        ref, ar = SDL.array.to_ctypes(s, len(s), c_ubyte)
+        memmove(surface.pixels.as_bytes().as_ctypes(), ar, len(ar))
+
+        # This alternative also works (slower)
+        #surface.pixels[:] = \
+        #    [c[0] | (c[1] << 8) | (c[2] << 16) for c in image.getdata()]
+
+        # This alternative also works (slower)
         #surface.pixels.as_bytes()[:] = \
         #    [ord(c) for c in image.tostring()]
         SDL_UnlockSurface(surface)
