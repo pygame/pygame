@@ -30,11 +30,11 @@ class Rect(object):
             else:
                 raise TypeError, 'Argument must be rect style object'
         if len(args) == 4:
-            object.__setattr__(self, '_r', SDL.video.SDL_Rect(*args))
+            object.__setattr__(self, '_r', SDL.SDL_Rect(*args))
         elif len(args) == 2:
             object.__setattr__(self, '_r', 
-                               SDL.video.SDL_Rect(args[0][0], args[0][1], 
-                                                  args[1][0], args[1][1]))
+                               SDL.SDL_Rect(args[0][0], args[0][1], 
+                                            args[1][0], args[1][1]))
         else:
             raise TypeError, 'Argument must be rect style object'
 
