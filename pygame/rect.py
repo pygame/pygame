@@ -11,6 +11,12 @@ import copy
 import SDL.video
 
 class Rect(object):
+    '''
+    :note: Unlike previous versions of Pygame, pygame-ctypes does not
+        permit Rects with negative width or height, and initialising
+        one or setting the width, height or size attributes to be
+        negative will raise an exception.
+    '''
     __slots__ = ['_r']
 
     def __init__(self, *args):
@@ -30,8 +36,12 @@ class Rect(object):
             else:
                 raise TypeError, 'Argument must be rect style object'
         if len(args) == 4:
+            if args[2] < 0 or args[3] < 0:
+                raise NotImplementedError, 'Negative sized rect not permitted'
             object.__setattr__(self, '_r', SDL.SDL_Rect(*args))
         elif len(args) == 2:
+            if args[1][0] < 0 or args[1][1] < 0:
+                raise NotImplementedError, 'Negative sized rect not permitted'
             object.__setattr__(self, '_r', 
                                SDL.SDL_Rect(args[0][0], args[0][1], 
                                             args[1][0], args[1][1]))
@@ -45,9 +55,8 @@ class Rect(object):
         return '<rect(%d, %d, %d, %d)>' % \
             (self._r.x, self._r.y, self._r.w, self._r.h)
 
-    def __cmp__(self, other):
-        if not isinstance(other, Rect):
-            raise TypeError, 'must compare rect with rect style object'
+    def __cmp__(self, *other):
+        other = _rect_from_object(other)
 
         if self._r.x != other._r.x:
             return cmp(self._r.x, other._r.x)
@@ -142,10 +151,16 @@ class Rect(object):
         elif name == 'centery':
             self._r.y = value - self._r.h / 2
         elif name == 'size':
+            if value[0] < 0 or value[1] < 0:
+                raise NotImplementedError, 'Negative sized rect not permitted'
             self._r.w, self._r.h = value
         elif name == 'width':
+            if value < 0:
+                raise NotImplementedError, 'Negative sized rect not permitted'
             self._r.w = value
         elif name == 'height':
+            if value < 0:
+                raise NotImplementedError, 'Negative sized rect not permitted'
             self._r.h = value
         else:
             raise AttributeError, name
@@ -161,9 +176,9 @@ class Rect(object):
         r[key] = value
         self._r.x, self._r.y, self._r.w, self._r.h = r
 
-    def __coerce__(self, other):
+    def __coerce__(self, *other):
         try:
-            return self, Rect(other)
+            return self, Rect(*other)
         except TypeError:
             return None
 
@@ -171,7 +186,8 @@ class Rect(object):
         return Rect(self._r.x + x, self._r.y + y, self._r.w, self._r.h)
 
     def move_ip(self, x, y):
-        self._r.x, self._r.y = x, y
+        self._r.x += x
+        self._r.y += y
 
     def inflate(self, x, y):
         return Rect(self._r.x - x / 2, self._r.y - y / 2, 
@@ -183,15 +199,15 @@ class Rect(object):
         self._r.w += x
         self._r.h += y
 
-    def clamp(self, other):
+    def clamp(self, *other):
         r = Rect(self)
-        r.clamp_ip(other)
+        r.clamp_ip(*other)
         return r
 
-    def clamp_ip(self, other):
+    def clamp_ip(self, *other):
         other = _rect_from_object(other)._r
         if self._r.w >= other.w:
-            x = other.x + (other.w - self._r.w) / 2
+            x = other.x + other.w / 2 - self._r.w / 2
         elif self._r.x < other.x:
             x = other.x
         elif self._r.x + self._r.w > other.x + other.w:
@@ -200,7 +216,7 @@ class Rect(object):
             x = self._r.x
 
         if self._r.h >= other.h:
-            y = other.y + (other.h - self._r.h) / 2
+            y = other.y + other.h / 2 - self._r.h / 2
         elif self._r.y < other.y:
             y = other.y
         elif self._r.y + self._r.h > other.y + other.h:
@@ -210,12 +226,12 @@ class Rect(object):
 
         self._r.x, self._r.y = x, y
 
-    def clip(self, other):
+    def clip(self, *other):
         r = Rect(self)
-        r.clip_ip(other)
+        r.clip_ip(*other)
         return r
 
-    def clip_ip(self, other):
+    def clip_ip(self, *other):
         other = _rect_from_object(other)._r
         x = max(self._r.x, other.x)
         w = min(self._r.x + self._r.w, other.x + other.w) - x
@@ -227,12 +243,12 @@ class Rect(object):
         else:
             self._r.x, self._r.y, self._r.w, self._r.h = x, y, w, h
 
-    def union(self, other):
+    def union(self, *other):
         r = Rect(self)
-        r.union_ip(other)
+        r.union_ip(*other)
         return r
 
-    def union_ip(self, other):
+    def union_ip(self, *other):
         other = _rect_from_object(other)._r
         x = min(self._r.x, other.x)
         y = min(self._r.y, other.y)
@@ -258,12 +274,12 @@ class Rect(object):
             b = max(b, other.y + other.h)
         self._r.x, self._r.y, self._r.w, self._r.h = l, t, r - l, b - t
 
-    def fit(self, other):
+    def fit(self, *other):
         r = Rect(self)
-        r.fit_ip(other)
+        r.fit_ip(*other)
         return r
     
-    def fit_ip(self, other):
+    def fit_ip(self, *other):
         other = _rect_from_object(other)._r
 
         xratio = self._r.w / float(other.w)
@@ -275,6 +291,7 @@ class Rect(object):
         self._r.y = other.y + (other.h - self._r.h) / 2
 
     def normalize(self):
+        # No-op, since negative width / height not permitted in pygame-ctypes.
         if self._r.w < 0:
             self._r.x += self._r.w
             self._r.w = -self._r.w
@@ -282,12 +299,14 @@ class Rect(object):
             self._r.y += self._r.h
             self._r.h = -self._r.h
 
-    def contains(self, other):
+    def contains(self, *other):
         other = _rect_from_object(other)._r
         return self._r.x <= other.x and \
                self._r.y <= other.y and \
                self._r.x + self._r.w >= other.x + other.w and \
-               self._r.y + self._r.h >= other.y + other.h
+               self._r.y + self._r.h >= other.y + other.h and \
+               self._r.x + self._r.w > other.x and \
+               self._r.y + self._r.h > other.y
 
     def collidepoint(self, x, y):
         return x >= self._r.x and \
@@ -295,7 +314,7 @@ class Rect(object):
                x < self._r.x + self._r.w and \
                y < self._r.y + self._r.h
     
-    def colliderect(self, other):
+    def colliderect(self, *other):
         return _rect_collide(self._r, _rect_from_object(other)._r)
         
     def collidelist(self, others):
@@ -327,7 +346,10 @@ class Rect(object):
 def _rect_from_object(obj):
     if isinstance(obj, Rect):
         return obj
-    return Rect(obj)
+    if type(obj) in (tuple, list):
+        return Rect(*obj)
+    else:
+        return Rect(obj)
 
 def _rect_collide(a, b):
     return a.x + a.w > b.x and b.x + b.w > a.x and \

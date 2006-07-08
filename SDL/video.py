@@ -182,6 +182,27 @@ class SDL_PixelFormat(Structure):
             return None
         raise AttributeError
 
+    def __copy__(self):
+        f = SDL_PixelFormat()
+        f._palette = self._palette
+        f.BitsPerPixel = self.BitsPerPixel
+        f.BytesPerPixel = self.BytesPerPixel
+        f.Rloss = self.Rloss
+        f.Gloss = self.Gloss
+        f.Bloss = self.Bloss
+        f.Aloss = self.Aloss
+        f.Rshift = self.Rshift
+        f.Gshift = self.Gshift
+        f.Bshift = self.Bshift
+        f.Ashift = self.Ashift
+        f.Rmask = self.Rmask
+        f.Gmask = self.Gmask
+        f.Bmask = self.Bmask
+        f.Amask = self.Amask
+        f.colorkey = self.colorkey
+        f.alpha = self.alpha
+        return f
+
 class SDL_Surface(Structure):
     '''Read-only surface structure.
 
@@ -1527,7 +1548,17 @@ def SDL_WM_GetCaption():
     '''
     title, icon = c_char_p(), c_char_p()
     _SDL_WM_GetCaption(byref(title), byref(icon))
-    return title.value.decode('utf-8'), icon.value.decode('utf-8')
+
+    if title.value:
+        title = title.value.decode('utf-8')
+    else:
+        title = None
+
+    if icon.value:
+        icon = icon.value.decode('utf-8')
+    else:
+        icon = None
+    return title, icon
 
 _SDL_WM_SetIcon = SDL.dll.private_function('SDL_WM_SetIcon',
     arg_types=[POINTER(SDL_Surface), POINTER(c_ubyte)],
