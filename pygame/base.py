@@ -130,5 +130,18 @@ def get_error():
     '''
     return SDL.SDL_GetError()
 
+def _rgba_from_obj(obj):
+    if not type(obj) in (tuple, list):
+        return None
+
+    if len(obj) == 1:
+        return _rgba_from_obj(obj[0])
+    elif len(obj) == 3:
+        return (obj[0], obj[1], obj[2], 255)
+    elif len(obj) == 4:
+        return obj
+    else:
+        return None
+
 atexit.register(_atexit_quit)
 

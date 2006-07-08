@@ -10,6 +10,7 @@ import sys
 
 from SDL import *
 import pygame.base
+import pygame.surface
 
 _display_surface = None
 _icon_was_set = 0
@@ -211,7 +212,7 @@ def set_mode(size, flags=0, depth=0):
         init()
 
     if flags & SDL_OPENGL:
-        if flags & SDL_DOUBLEBUF
+        if flags & SDL_DOUBLEBUF:
             flags &= ~SDL_DOUBLEBUF
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1)
         else:
@@ -232,11 +233,11 @@ def set_mode(size, flags=0, depth=0):
         SDL_PumpEvents()
 
         if _display_surface:
-            _display_surface.surf = surf
+            _display_surface._surf = surf
         else:
-            _display_surface = Surface(surf)
+            _display_surface = pygame.surface.Surface(surf=surf)
 
-    if sys.platform != 'darwin' and False # XXX
+    if sys.platform != 'darwin' and False: # XXX
         if not _icon_was_set:
             iconsurf = _display_resource(_icon_defaultname)
             SDL_SetColorKey(iconsurf.surf, SDL_SRCCOLORKEY, 0)
