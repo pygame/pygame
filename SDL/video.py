@@ -275,7 +275,7 @@ def SDL_MUSTLOCK(surface):
     :return: True if the surface needs to be locked before access,
              otherwise False.
     '''
-    return surface.offset or \
+    return surface._offset or \
         ((surface.flags & \
           (SDL.constants.SDL_HWSURFACE | \
            SDL.constants.SDL_ASYNCBLIT | \
