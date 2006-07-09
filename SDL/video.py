@@ -970,20 +970,24 @@ def SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch,
 
     :rtype: `SDL_Surface`
     '''
-    len_pixels = len(pixels)
-    if len(pixels) == pitch * 8 / depth * height:
-        # pixel array?
-        if depth == 8:
-            ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
-        elif depth == 16:
-            ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ushort)
-        elif depth == 32:
-            ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_uint)
-    elif len(pixels) == pitch * height:
-        # byte array
-        ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
+    if hasattr(pixels, 'contents'):
+        # accept ctypes pointer without modification
+        ref, ar = None, pixels
     else:
-        raise TypeError, 'Length of pixels does not match given dimensions.'
+        len_pixels = len(pixels)
+        if len(pixels) == pitch * 8 / depth * height:
+            # pixel array?
+            if depth == 8:
+                ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
+            elif depth == 16:
+                ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ushort)
+            elif depth == 32:
+                ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_uint)
+        elif len(pixels) == pitch * height:
+            # byte array
+            ref, ar = SDL.array.to_ctypes(pixels, len(pixels), c_ubyte)
+        else:
+            raise TypeError, 'Length of pixels does not match given dimensions.'
 
     surface = _SDL_CreateRGBSurfaceFrom(cast(ar, POINTER(c_ubyte)),
         width, height, depth, pitch, Rmask, Gmask, Bmask, Amask)

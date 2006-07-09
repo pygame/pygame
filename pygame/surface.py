@@ -18,7 +18,8 @@ class _SubSurface_Data(object):
 class Surface(object):
     __slots__ = ['_surf', '_subsurface']
 
-    def __init__(self, size=(0,0), flags=0, depth=0, masks=None, surf=None):
+    def __init__(self, size=(0,0), flags=0, depth=0, masks=None, 
+                 surf=None, subsurf=None):
         '''Create a new surface.
 
         Creates a new surface object.   `depth` and `masks` can be substituted
@@ -46,13 +47,15 @@ class Surface(object):
             `surf` : `SDL_Surface`
                 If specified, all other parameters are ignored.  The pygame
                 surface will wrap the given `SDL_Surface` (used internally).
+            `subsurf` : `_SubSurface_Data`
+                Used internally.
 
         '''
         if surf:
             if not isinstance(surf, SDL_Surface):
                 raise TypeError, 'surf'
             self._surf = surf
-            self._subsurface = None
+            self._subsurface = subsurf
         else:
             width, height = size
             if width < 0 or height < 0:
@@ -124,7 +127,7 @@ class Surface(object):
         if data:
             data.owner.lock()
             self._surf._pixels = \
-                _ptr_add(self._surf._pixels, data.pixeloffset, c_ubyte)
+                _ptr_add(data.owner._surf._pixels, data.pixeloffset, c_ubyte)
 
     def _unprep(self):
         data = self._subsurface
@@ -628,8 +631,9 @@ class Surface(object):
             raise pygame.base.error, 'Cannot call on OPENGL surfaces'
 
         x, y = pos
-        if x < surf.clip_rect.x or x >= surf.clip_rect.x + surf.clip_rect.w or \
-           y < surf.clip_rect.y or y >= surf.clip_rect.y + surf.clip_rect.h:
+        clip_rect = SDL_GetClipRect(surf)
+        if x < clip_rect.x or x >= clip_rect.x + clip_rect.w or \
+           y < clip_rect.y or y >= clip_rect.y + clip_rect.h:
             return
 
         format = surf.format
@@ -644,6 +648,403 @@ class Surface(object):
         self.lock()
         self._surf.pixels[y * pitch + x] = color
         self.unlock()
+
+    def get_palette(self):
+        '''Get the color index palette for an 8 bit Surface.
+
+        Return a list of up to 256 color elements that represent the indexed
+        colors used in an 8bit Surface. The returned list is a copy of the
+        palette, and changes will have no effect on the Surface.
+
+        :rtype: list of (int, int, int)
+        '''
+        pal = self._surf.format.palette
+        if not pal:
+            raise pygame.base.error, 'Surface has no palette to get'
+
+        return [(c.r, c.g, c.b) for c in pal.colors]
+
+    def get_palette_at(self, index):
+        '''Get the color for a single entry in a palette
+
+        Returns the red, green, and blue color values for a single index in a
+        Surface palette. The index should be a value from 0 to 255.
+
+        :rtype: (int, int, int)
+        '''
+        pal = self._surf.format.palette
+        if not pal:
+            raise pygame.base.error, 'Surface has no palette to get'
+        if index < 0 or index >= pal.ncolors:
+            raise pygame.base.error, 'index out of bounds'
+
+        c = pal.colors[index]
+        return (c.r, c.g, c.b)
+
+    def set_palette(self, palette):
+        '''Set the color palette for an 8 bit Surface.
+
+        Set the full palette for an 8bit Surface. This will replace the colors
+        in the existing palette. A partial palette can be passed and only the
+        first colors in the original palette will be changed.
+
+        This function has no effect on a Surface with more than 8 bits per
+        pixel.
+
+        :Parameters:
+            `palette` : list of (int, int, int)
+                RGB palette values
+                
+        ''' 
+        if not SDL_WasInit(SDL_INIT_VIDEO):
+            raise pygame.base.error, \
+                  'cannot set palette without pygame.display initialized'
+
+        pal = self._surf.format.palette
+        l = min(pal.ncolors, len(palette))
+        colors = [SDL_Color(c[0], c[1], c[2]) for c in palette[:l]]
+        SDL_SetColors(self._surf, colors, 0)
+
+    def set_palette_at(self, index, color):
+        '''Set the color for a single index in an 8 bit Surface palette.
+
+        Set the palette value for a single entry in a Surface palette. The
+        index should be a value from 0 to 255.
+
+        This function has no effect on a Surface with more than 8 bits per
+        pixel.
+
+        :Parameters:
+            `index` : int
+                Palette index to set, in range [0, 255]
+            `color` : (int, int, int)
+                RGB value to set.
+        
+        '''
+        if not SDL_WasInit(SDL_INIT_VIDEO):
+            raise pygame.base.error, \
+                  'cannot set palette without pygame.display initialized'
+
+        pal = self._surf.format.palette
+        if not pal:
+            raise pygame.base.error, 'Surface is not paletteized'
+        if index < 0 or index >= pal.ncolors:
+            raise IndexError, 'index out of bounds'
+        
+        colors = [SDL_Color(color[0], color[1], color[2])]
+        SDL_SetColors(self._surf, colors, index)
+
+
+    def map_rgb(self, color):
+        '''Convert a color into a mapped color value.
+
+        Convert an RGBA color into the mapped integer value for this Surface.
+        The returned integer will contain no more bits than the bit depth of
+        the Surface.  Mapped color values are not often used inside Pygame,
+        but can be passed to most functions that require a Surface and a
+        color.
+
+        See the Surface object documentation for more information about colors
+        and pixel formats.
+
+        :Parameters:
+            `color` : (int, int, int, int)
+                RGBA color to map
+
+        :rtype: int
+        '''
+        surf = self._surf
+        rgba = pygame.base._rgba_from_obj(color)
+        if not rgba:
+            raise pygame.base.error, 'Invalid RGBA argument'
+        return SDL_MapRGBA(surf.format, rgba[0], rgba[1], rgba[2], rgba[3])
+        
+    def unmap_rgb(self, mapped):
+        '''Convert a mapped integer color value into a Color.
+
+        Convert an mapped integer color into the RGB color components for this
+        Surface.  Mapped color values are not often used inside Pygame, but
+        can be passed to most functions that require a Surface and a color.
+
+        See the Surface object documentation for more information about colors
+        and pixel formats.
+
+        :Parameters:
+            `mapped` : int
+                Mapped color to convert
+
+        :rtype: (int, int, int, int)
+        :return: RGBA color value
+        '''
+        surf = self._surf
+        return SDL_GetRGBA(mapped, surf.format)
+        
+    def set_clip(self, rect=None):
+        '''Set the current clipping area of the Surface.
+
+        Each Surface has an active clipping area. This is a rectangle that
+        represents the only pixels on the Surface that can be modified. If
+        None is passed for the rectangle the full Surface will be available
+        for changes.
+
+        The clipping area is always restricted to the area of the Surface
+        itself. If the clip rectangle is too large it will be shrunk to fit
+        inside the Surface.
+        
+        :Parameters:
+            `rect` : Rect
+                Clipping area to set.
+
+        '''
+        if rect:
+            rect = pygame.rect._rect_from_object(sourcerect)._r
+        SDL_SetClipRect(self._surf, rect)
+
+
+    def get_clip(self):
+        '''Get the current clipping are of the Surface.
+
+        Return a rectangle of the current clipping area. The Surface will
+        always return a valid rectangle that will never be outside the bounds
+        of the image.  If the Surface has had None set for the clipping area,
+        the Surface will return a rectangle with the full area of the Surface.
+        
+        :rtype: Rect
+        '''
+        return pygame.rect.Rect(SDL_GetClipRect(self._surf))
+
+
+    def subsurface(self, rect):
+        '''Create a new surface that references its parent.
+
+        Returns a new Surface that shares its pixels with its new parent. The
+        new Surface is considered a child of the original. Modifications to
+        either Surface pixels will effect each other. Surface information like
+        clipping area and color keys are unique to each Surface.
+
+        The new Surface will inherit the palette, color key, and alpha
+        settings from its parent.
+
+        It is possible to have any number of subsurfaces and subsubsurfaces on
+        the parent. It is also possible to subsurface the display Surface if
+        the display mode is not hardware accelerated.
+
+        See the `get_offset`, `get_parent` to learn more about the state of a
+        subsurface.
+
+        :Parameters:
+            `rect` : Rect
+                Area of the parent surface to use.
+
+        :rtype: `Surface`
+        '''
+        surf = self._surf
+        format = surf.format
+        if surf.flags & SDL_OPENGL:
+            raise pygame.base.error, 'Cannot call on OPENGL Surfaces'
+
+        rect = pygame.rect._rect_from_object(rect)._r
+        if rect.x < 0 or rect.y < 0 or \
+           rect.x + rect.w > surf.w or rect.y + rect.y > surf.h:
+            raise ValueError, 'subsurface rectangle outside surface area'
+
+        self.lock()
+        pixeloffset = rect.x * format.BytesPerPixel + rect.y * surf.pitch
+        startpixel = _ptr_add(surf._pixels, pixeloffset, c_ubyte)
+        sub = SDL_CreateRGBSurfaceFrom(startpixel, rect.w, rect.h, 
+            format.BitsPerPixel, surf.pitch, 
+            format.Rmask, format.Gmask, format.Bmask, format.Amask)
+        self.unlock()
+
+        if format.BytesPerPixel == 1 and format._palette.contents:
+            SDL_SetPalette(sub, SDL_LOGPAL, format.palette.colors, 0)
+        if surf.flags & SDL_SRCALPHA:
+            SDL_SetAlpha(sub, surf.flags & SDL_SRCALPHA, format.alpha)
+        if surf.flags & SDL_SRCCOLORKEY:
+            SDL_SetColorKey(sub, 
+                surf.flags & (SDL_SRCCOLORKEY | SDL_RLEACCEL), format.colorkey)
+
+        data = _SubSurface_Data()
+        data.owner = self
+        data.pixeloffset = pixeloffset
+        data.offsetx = rect.x
+        data.offsety = rect.y
+        subobj = Surface(surf=sub, subsurf=data)
+
+        return subobj
+
+
+    def get_parent(self):
+        '''Find the parent of a subsurface.
+
+        Returns the parent Surface of a subsurface. If this is not a
+        subsurface then None will be returned.
+
+        :rtype: `Surface` or None
+        '''
+
+    def get_abs_parent(self):
+        '''Find the top level parent of a subsurface.
+
+        Returns the parent Surface of a subsurface. If this is not a
+        subsurface then None will be returned.
+
+        :rtype: `Surface` or None
+        '''
+
+    def get_offset(self):
+        '''Find the position of a child subsurface inside a parent.
+
+        Get the offset position of a child subsurface inside of a parent. If
+        the Surface is not a subsurface this will return (0, 0).
+
+        :rtype: (int, int)
+        '''
+
+    def get_abs_offset(self):
+        '''Find the absolute position of a child subsurface inside its top
+        level parent.
+
+        Get the offset position of a child subsurface inside of its top level
+        parent Surface. If the Surface is not a subsurface this will return
+        (0, 0).
+
+        :rtype: (int, int)
+        '''
+
+    def get_size(self):
+        '''Get the dimensions of the Surface.
+
+        Return the width and height of the Surface in pixels.
+
+        :rtype: (int, int)
+        :return: width, height
+        '''
+
+    def get_width(self):
+        '''Get the width of the Surface.
+
+        Return the width of the Surface in pixels.
+        
+        :rtype: int
+        '''
+
+    def get_height(self):
+        '''Get the height of the Surface.
+
+        Return the height of the Surface in pixels.
+
+        :rtype: int
+        '''
+
+    def get_rect(self):
+        '''Get the rectangular area of the Surface.
+
+        Returns a new rectangle covering the entire surface. This rectangle
+        will always start at 0, 0 with a width. and height the same size as
+        the image.
+         
+        You can pass keyword argument values to this function. These named
+        values will be applied to the attributes of the Rect before it is
+        returned. An example would be 'mysurf.get_rect(center=(100,100))' to
+        create a rectangle for the Surface centered at a given position.
+        
+        :rtype: Rect
+        '''
+
+    def get_bitsize(self):
+        '''Get the bit depth of the Surface pixel format.
+
+        Returns the number of bits used to represent each pixel. This value
+        may not exactly fill the number of bytes used per pixel. For example a
+        15 bit Surface still requires a full 2 bytes.
+        
+        :rtype: int
+        '''
+
+    def get_bytesize(self):
+        '''Get the bytes used per Surface pixel.
+
+        Return the number of bytes used per pixel.
+        
+        :rtype: int
+        '''
+
+    def get_flags(self):
+        '''Get the additional flags used for the Surface.
+
+        Returns a set of current Surface features. Each feature is a bit in
+        the flags bitmask.  Possible flags are:
+
+        SWSURFACE
+            Surface is in system memory
+        HWSURFACE
+            Surface is in video memory
+        ASYNCBLIT
+            Use asynchronous blits if possible
+        HWACCEL  
+            Blit uses hardware acceleration
+        SRCCOLORKEY
+            Blit uses a source color key
+        RLEACCELOK
+            Private flag
+        RLEACCEL
+            Surface is RLE encoded
+        SRCALPHA
+            Blit uses source alpha blending
+        PREALLOC
+            Surface uses preallocated memory
+        
+        :rtype: int
+        '''
+
+    def get_pitch(self):
+        '''Get the number of bytes used per Surface row.
+
+        Return the number of bytes separating each row in the Surface.
+        Surfaces in video memory are not always linearly packed. Subsurfaces
+        will also have a larger pitch than their real width.
+
+        This value is not needed for normal Pygame usage.
+
+        :rtype: int
+        '''
+
+    def get_masks(self):
+        '''Get the bitmasks needed to convert between a color and a mapped
+        integer.
+
+        Returns the bitmasks used to isolate each color in a mapped integer.
+
+        This value is not needed for normal Pygame usage.
+
+        :rtype: (int, int, int, int)
+        '''
+        
+    def get_shifts(self):
+        '''Get the bit shifts needed to convert between a color and a mapped
+        integer. 
+
+        Returns the pixel shifts need to convert between each color and a mapped
+        integer.
+
+        This value is not needed for normal Pygame usage.
+
+        :rtype: (int, int, int, int)
+        '''
+
+    def get_losses(self):
+        '''Get the significant bits used to convert between a color and a
+        mapped integer.
+
+        Return the least significan number of bits stripped from each color
+        in a mapped integer.
+
+        This value is not needed for normal Pygame usage.
+
+        :rtype: (int, int, int, int)
+        '''
+
 
 def _surface_blit(destobj, srcobj, destrect, srcrect, special_flags):
     dst = destobj._surf
