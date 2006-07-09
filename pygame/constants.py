@@ -70,6 +70,18 @@ AUDIO_S16               = SDL.constants.AUDIO_S16
 AUDIO_U16SYS            = SDL.constants.AUDIO_U16SYS
 AUDIO_S16SYS            = SDL.constants.AUDIO_S16SYS
 
+def _t(a, b, c, d):
+    return (ord(a) << 24) | (ord(b) << 16) | (ord(c) << 8) | ord(d)
+
+SCRAP_TEXT              = _t('T', 'E', 'X', 'T')
+SCRAP_BMP               = _t('B', 'M', 'P', ' ')
+
+BLEND_ADD               = 0x01
+BLEND_SUB               = 0x02
+BLEND_MULT              = 0x03
+BLEND_MIN               = 0x04
+BLEND_MAX               = 0x05
+
 NOEVENT                 = SDL.constants.SDL_NOEVENT
 ACTIVEEVENT             = SDL.constants.SDL_ACTIVEEVENT
 KEYDOWN                 = SDL.constants.SDL_KEYDOWN

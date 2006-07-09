@@ -1095,7 +1095,31 @@ def _surface_blit(destobj, srcobj, destrect, srcrect, special_flags):
         raise NotImplementedError, 'TODO'
     
     if destobj._subsurface:
-        raise NotImplementedError, 'TODO'
+        subdata = destobj._subsurface
+        owner = subdata.owner
+        subsurface = owner._surf
+        suboffsetx = subdata.offsetx
+        suboffsety = subdata.offsety
+
+        while owner._subsurface:
+            subdata = owner._subsurface
+            owner = subdata.owner
+            subsurface = owner._surf
+            suboffsetx += subdata.offsetx
+            suboffsety += subdata.offsety
+
+        orig_clip = SDL_GetClipRect(subsurface)
+        sub_clip = SDL_GetClipRect(dst)
+        sub_clip.x += suboffsetx
+        sub_clip.y += suboffset.y
+        SDL_SetClipRect(subsurface, sub_clip)
+        dstrect.x += suboffsetx
+        dstrect.y += suboffsety
+        dst = subsurface
+    else:
+        destobj._prep()
+
+    srcobj._prep()
 
     # Can't blit alpha to 8 bit, creashes SDL
     if dst.format.BytesPerPixel == 1 and \
@@ -1113,6 +1137,14 @@ def _surface_blit(destobj, srcobj, destrect, srcrect, special_flags):
 
     if didconvert:
         SDL_FreeSurface(src)
+
+    if subsurface:
+        SDL_SetClipRect(subsurface, orig_clip)
+        dstrect.x -= suboffsetx
+        dstrect.y -= suboffsety
+    else:
+        destobj._unprep()
+    srcobj._unprep()
 
     if result == -2:
         raise pygame.base.error, 'Surface was lost'
