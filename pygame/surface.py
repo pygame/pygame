@@ -882,6 +882,10 @@ class Surface(object):
 
         :rtype: `Surface` or None
         '''
+        subdata = self._subsurface
+        if not subdata:
+            return None
+        return subdata.owner
 
     def get_abs_parent(self):
         '''Find the top level parent of a subsurface.
@@ -891,6 +895,10 @@ class Surface(object):
 
         :rtype: `Surface` or None
         '''
+        obj = self
+        while obj._subsurface:
+            obj = obj._subsurface.owner
+        return obj
 
     def get_offset(self):
         '''Find the position of a child subsurface inside a parent.
@@ -900,6 +908,9 @@ class Surface(object):
 
         :rtype: (int, int)
         '''
+        if not self._subsurface:
+            return (0, 0)
+        return self._subsurface.offsetx, self._subsurface.offsety
 
     def get_abs_offset(self):
         '''Find the absolute position of a child subsurface inside its top
@@ -911,6 +922,15 @@ class Surface(object):
 
         :rtype: (int, int)
         '''
+        obj = self
+        offsetx = 0
+        offsety = 0
+        while obj._subsurface:
+            offsetx += obj._subsurface.offsetx
+            offsety += obj._subsurface.offsety
+            obj = obj._subsurface.owner
+        return offsetx, offsety
+
 
     def get_size(self):
         '''Get the dimensions of the Surface.
@@ -920,6 +940,7 @@ class Surface(object):
         :rtype: (int, int)
         :return: width, height
         '''
+        return self._surf.w, self._surf.h
 
     def get_width(self):
         '''Get the width of the Surface.
@@ -928,6 +949,7 @@ class Surface(object):
         
         :rtype: int
         '''
+        return self._surf.w
 
     def get_height(self):
         '''Get the height of the Surface.
@@ -936,8 +958,9 @@ class Surface(object):
 
         :rtype: int
         '''
+        return self._surf.h
 
-    def get_rect(self):
+    def get_rect(self, **kwargs):
         '''Get the rectangular area of the Surface.
 
         Returns a new rectangle covering the entire surface. This rectangle
@@ -951,6 +974,10 @@ class Surface(object):
         
         :rtype: Rect
         '''
+        rect = pygame.rect.Rect(0, 0, self._surf.w, self._surf.h)
+        for key, value in kwargs:
+            rect.setattr(rect, key, value)
+        return rect
 
     def get_bitsize(self):
         '''Get the bit depth of the Surface pixel format.
@@ -961,6 +988,7 @@ class Surface(object):
         
         :rtype: int
         '''
+        return self._surf.format.BitsPerPixel
 
     def get_bytesize(self):
         '''Get the bytes used per Surface pixel.
@@ -969,6 +997,7 @@ class Surface(object):
         
         :rtype: int
         '''
+        return self._surf.format.BytesPerPixel
 
     def get_flags(self):
         '''Get the additional flags used for the Surface.
@@ -997,6 +1026,7 @@ class Surface(object):
         
         :rtype: int
         '''
+        return self._surf.flags
 
     def get_pitch(self):
         '''Get the number of bytes used per Surface row.
@@ -1009,6 +1039,7 @@ class Surface(object):
 
         :rtype: int
         '''
+        return self._surf.pitch
 
     def get_masks(self):
         '''Get the bitmasks needed to convert between a color and a mapped
@@ -1020,6 +1051,8 @@ class Surface(object):
 
         :rtype: (int, int, int, int)
         '''
+        format = self._surf.format
+        return format.Rmask, format.Gmask, format.Bmask, format.Amask
         
     def get_shifts(self):
         '''Get the bit shifts needed to convert between a color and a mapped
@@ -1032,6 +1065,8 @@ class Surface(object):
 
         :rtype: (int, int, int, int)
         '''
+        format = self._surf.format
+        return format.Rshift, format.Gshift, format.Bshift, format.Ashift
 
     def get_losses(self):
         '''Get the significant bits used to convert between a color and a
@@ -1044,6 +1079,8 @@ class Surface(object):
 
         :rtype: (int, int, int, int)
         '''
+        format = self._surf.format
+        return format.Rloss, format.Gloss, format.Bloss, format.Aloss
 
 
 def _surface_blit(destobj, srcobj, destrect, srcrect, special_flags):
