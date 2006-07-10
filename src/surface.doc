@@ -110,7 +110,7 @@ convert
 change the pixel format of an image
 Surface.convert(Surface): return Surface
 Surface.convert(depth, flags=0): return Surface
-Surface.convert(depth, masks): return Surface
+Surface.convert(masks, flags=0): return Surface
 Surface.convert(): return Surface
 
 Creates a new copy of the Surface with the pixel format changed. The new pixel
