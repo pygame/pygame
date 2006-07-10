@@ -412,7 +412,18 @@ def list_modes(depth=0, flags=pygame.constants.FULLSCREEN):
     :rtype: list of (int, int), or -1
     :return: list of (width, height) pairs, or -1 if any mode is suitable.
     '''
-    # TODO
+    format = SDL_PixelFormat()
+    format.BitsPerPixel = depth
+
+    if not format.BitsPerPixel:
+        format.BitsPerPixel = SDL_GetVideoInfo().vfmt.BitsPerPixel
+
+    rects = SDL_ListModes(format, flags)
+
+    if rects == -1:
+        return -1
+
+    return [(r.w, r.h) for r in rects]
 
 def mode_ok(size, flags=0, depth=0):
     '''Pick the best color depth for a display mode
@@ -434,7 +445,9 @@ def mode_ok(size, flags=0, depth=0):
     :return: depth, in bits per pixel, or 0 if the requested mode cannot be
         set.
     '''
-    # TODO
+    if not depth:
+        depth = SDL_GetVideoInfo().vfmt.BitsPerPixel
+    return SDL_VideoModeOK(size[0], size[1], depth, flags)
 
 def gl_set_attribute(flag, value):
     '''Set special OpenGL attributes.
@@ -503,7 +516,11 @@ def iconify():
     :rtype: bool
     :return: True on success
     '''
-    # TODO
+    try:
+        SDL_WM_IconifyWindow()
+        return True
+    except SDL_Exception:
+        return False
 
 def toggle_fullscreen():
     '''Switch between fullscreen and windowed displays.
@@ -514,6 +531,12 @@ def toggle_fullscreen():
 
     :rtype: bool
     '''
+    screen = SDL_GetVideoSurface()
+    try:
+        SDL_WM_ToggleFullScreen(screen)
+        return True
+    except SDL_Exception:
+        return False
 
 def set_gamma(red, green=None, blue=None):
     '''Change the hardware gamma ramps.
@@ -536,6 +559,15 @@ def set_gamma(red, green=None, blue=None):
 
     :rtype: bool
     '''
+    if not green or not blue:
+        green = red
+        blue = red
+
+    try:
+        SDL_SetGamma(red, green, blue)
+        return True
+    except SDL_Exception:
+        return False
 
 def set_gamma_ramp(red, green, blue):
     '''Change the hardware gamma ramps with a custom lookup.
@@ -558,6 +590,11 @@ def set_gamma_ramp(red, green, blue):
 
     :rtype: bool
     '''
+    try:
+        SDL_SetGammaRamp(red, green, blue)
+        return True
+    except SDL_Exception:
+        return False
 
 def set_icon(surface):
     '''Change the system image for the display window.
@@ -578,6 +615,11 @@ def set_icon(surface):
             Surface containing image to set.
 
     '''
+    global _icon_was_set
+
+    pygame.base._video_autoinit()
+    SDL_WM_SetIcon(surface._surf, None)
+    _icon_was_set = 1
 
 def set_caption(title, icontitle=None):
     '''Set the current window caption.
@@ -587,12 +629,16 @@ def set_caption(title, icontitle=None):
     minimized displays.
 
     :Parameters:
-        `title` : str
+        `title` : unicode
             Window caption
-        `icontitle` : str
+        `icontitle` : unicode
             Icon caption, if supported
 
     '''
+    if not icontitle:
+        icontitle = title
+
+    SDL_WM_SetCaption(title, icontitle)
 
 def get_caption():
     '''Get the current window caption.
@@ -600,10 +646,11 @@ def get_caption():
     Returns the title and icontitle for the display Surface. These will often
     be the same value.
 
-    :rtype: (str, str)
+    :rtype: (unicode, unicode)
     :return: title, icontitle
-
     '''
+    # XXX deviation from pygame, don't return () if title == None
+    return SDL_WM_GetCaption()
 
 def set_palette(palette=None):
     '''Set the display color palette for indexed displays.
@@ -619,3 +666,15 @@ def set_palette(palette=None):
             Sequence having at most 256 RGB triplets.
 
     '''
+    surf = SDL_GetVideoSurface()
+    if not surf:
+        raise pygame.base.error, 'No display mode is set'
+    if surf.format.BytesPerPixel != 1 or not surf.format._palette:
+        raise pygame.base.error, 'Display mode is not colormapped'
+
+    if not palette:
+        SDL_SetPalette(surf, SDL_PHYSPAL, surf.format.palette.colors, 0)
+
+    lenth = min(surf.format.palette.ncolors, len(palette))
+    colors = [SDL_Color(r, g, b) for r, g, b in palette[:length]]
+    SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0)
