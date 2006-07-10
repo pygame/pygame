@@ -474,7 +474,7 @@ find the top level parent of a subsurface
 Surface.get_abs_parent(): return Surface
 
 Returns the parent Surface of a subsurface. If this is not a subsurface
-then None will be returned.
+then this surface will be returned.
 <END>
 
 
