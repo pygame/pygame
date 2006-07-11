@@ -231,6 +231,9 @@ class SDL_UserEvent(Structure):
             User defined event code
     
     '''
+    # pygame-ctypes needs data1 and data2 to be c_void_p; POINTER(c_ubyte)
+    # or similar will break it (see pygame/event.py) unless another workaround
+    # can be found.
     _fields_ = [('type', c_ubyte),
                 ('code', c_int),
                 ('data1', c_void_p),
