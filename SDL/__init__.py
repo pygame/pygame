@@ -81,7 +81,11 @@ def SDL_Init(flags):
         SDL.darwin.init()
     return _SDL_Init(flags)
 
-SDL_InitSubSystem = SDL.dll.function('SDL_InitSubSystem',
+_SDL_InitSubSystem = SDL.dll.private_function('SDL_InitSubSystem',
+    arg_types=[ctypes.c_uint],
+    return_type=ctypes.c_int)
+
+def SDL_InitSubSystem(flags):
     '''Initialize specific SDL subsystems.
 
     :Parameters:
@@ -90,10 +94,11 @@ SDL_InitSubSystem = SDL.dll.function('SDL_InitSubSystem',
     :rtype: int
     :return: undocumented (FIXME)
     :see: `SDL_Init`, `SDL_QuitSubSystem`
-    ''',
-    args=['flags'],
-    arg_types=[ctypes.c_uint],
-    return_type=ctypes.c_int)
+    '''
+    if sys.platform == 'darwin' and flags & SDL_INIT_VIDEO:
+        import SDL.darwin
+        SDL.darwin.init()
+    return _SDL_InitSubSystem(flags)
 
 SDL_QuitSubSystem = SDL.dll.function('SDL_QuitSubSystem',
     '''Clean up specific SDL subsystems.

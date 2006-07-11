@@ -85,6 +85,9 @@ USEREVENT
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
+from copy import copy
+from ctypes import *
+
 from SDL import *
 import pygame.base
 import pygame.constants
@@ -142,6 +145,8 @@ def get(typelist=None):
         else:
             mask = int(typelist)
 
+    SDL_PumpEvents()
+
     events = []
     new_events = SDL_PeepEvents(1, SDL_GETEVENT, mask)
     while new_events:
@@ -163,7 +168,7 @@ def poll():
 
     event = SDL_PollEventAndReturn()
     if event:
-        return Event(0, sdl_event=event)
+        return Event(0, sdl_event=event, keep_userdata=True)
     else:
         return Event(pygame.constants.NOEVENT)
 
@@ -204,6 +209,7 @@ def peek(typelist=None):
         else:
             mask = int(typelist)
     
+    SDL_PumpEvents()
     events = SDL_PeepEvents(1, SDL_PEEKEVENT, mask)
 
     if not typelist:
@@ -235,6 +241,8 @@ def clear(typelist=None):
         else:
             mask = int(typelist)
 
+    SDL_PumpEvents()
+    
     events = []
     new_events = SDL_PeepEvents(1, SDL_GETEVENT, mask)
     while new_events:
@@ -382,8 +390,10 @@ def get_grab():
 
     return SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON
 
-def _USEROBJECT_CHECK1 = 0xdeadbeef
-def _USEROBJECT_CHECK2 = 0xfeedf00d
+_USEROBJECT_CHECK1 = 0xdeadbeef
+_USEROBJECT_CHECK2 = 0xfeedf00d
+_user_event_objects = {}
+_user_event_nextid = 0
     
 def post(event):
     '''Place a new event on the queue.
@@ -401,15 +411,22 @@ def post(event):
             Event to add to the queue.
 
     '''
+    global _user_event_nextid
+
     _video_init_check()
 
-    sdl_event = SDL_Event(event._type)
+    sdl_event = SDL_Event(pygame.constants.USEREVENT)
     sdl_event.code = _USEROBJECT_CHECK1
+    sdl_event.data1 = c_void_p(_USEROBJECT_CHECK2)
+    sdl_event.data2 = c_void_p(_user_event_nextid)
+    _user_event_objects[_user_event_nextid] = event
+    _user_event_nextid += 1
 
     SDL_PushEvent(sdl_event)
 
 class Event:
-    def __init__(self, event_type, dict=None, sdl_event=None, **attributes):
+    def __init__(self, event_type, event_dict=None, sdl_event=None, 
+                 keep_userdata=False, **attributes):
         '''Create a new event object.
 
         Creates a new event with the given type. The event is created with the
@@ -423,20 +440,102 @@ class Event:
         :Parameters:
             `event_type` : int
                 Event type to create
-            `dict` : dict
+            `event_dict` : dict
                 Dictionary of attributes to assign.
             `sdl_event` : `SDL_Event`
                 Construct a Pygame event from the given SDL_Event; used
                 internally.
+            `keep_userdata` : bool
+                Used internally.
             `attributes` : additional keyword arguments
                 Additional attributes to assign to the event.
 
         '''
+        if sdl_event:
+            if sdl_event.type == pygame.constants.USEREVENT and \
+               sdl_event.code == _USEROBJECT_CHECK1 and \
+               sdl_event.data1.value == _USEROBJECT_CHECK2 and \
+               sdl_event.data2.value in _user_event_objects:
+                # An event that was posted; grab dict from local store.
+                id = sdl_event.data2.value
+                for key, value in _user_event_objects[id].items():
+                    setattr(self, key, value)
+                # Free memory unless just peeking
+                if not keep_userdata:
+                    del _user_event_objects[id]
+            else:    
+                # Standard SDL event
+                self.type = sdl_event.type
+                if self.type == SDL_QUIT:
+                    pass
+                elif self.type == SDL_ACTIVEEVENT:
+                    self.gain = sdl_event.gain
+                    self.state = sdl_event.state
+                elif self.type == SDL_KEYDOWN:
+                    self.unicode = sdl_event.keysym.unicode
+                    self.key = sdl_event.keysym.sym
+                    self.mod = sdl_event.keysym.mod
+                elif self.type == SDL_KEYUP:
+                    self.key = sdl_event.keysym.sym
+                    self.mod = sdl_event.keysym.mod
+                elif self.type == SDL_MOUSEMOTION:
+                    self.pos = (sdl_event.x, sdl_event.y)
+                    self.rel = (sdl_event.xrel, sdl_event.yrel)
+                    self.buttons = (sdl_event.state & SDL_BUTTON(1) != 0,
+                                    sdl_event.state & SDL_BUTTON(2) != 0,
+                                    sdl_event.state & SDL_BUTTON(3) != 0)
+                elif self.type in (SDL_MOUSEBUTTONDOWN, SDL_MOUSEBUTTONUP):
+                    self.pos = (sdl_event.x, sdl_event.y)
+                    self.button = sdl_event.button
+                elif self.type == SDL_JOYAXISMOTION:
+                    self.joy = sdl_event.which
+                    self.axis = sdl_event.axis
+                    self.value = sdl_event.value / 32767.0
+                elif self.type == SDL_JOYBALLMOTION:
+                    self.joy = sdl_event.which
+                    self.ball = sdl_event.ball
+                    self.rel = (sdl_event.xrel, sdl_event.yrel)
+                elif self.type == SDL_JOYHATMOTION:
+                    self.joy = sdl_event.which
+                    self.hat = sdl_event.hat
+                    hx = hy = 0
+                    if sdl_event.value & SDL_HAT_UP:
+                        hy = 1
+                    if sdl_event.value & SDL_HAT_DOWN:
+                        hy = -1
+                    if sdl_event.value & SDL_HAT_RIGHT:
+                        hx = 1
+                    if sdl_event.value & SDL_HAT_LEFT:
+                        hx = -1
+                    self.value = (hx, hy)
+                elif self.type in (SDL_JOYBUTTONUP, SDL_JOYBUTTONDOWN):
+                    self.joy = sdl_event.which
+                    self.button = sdl_event.button
+                elif self.type == SDL_VIDEORESIZE:
+                    self.size = (sdl_event.w, sdl_event.h)
+                    self.w = sdl_event.w
+                    self.h = sdl_event.h
+                elif self.type == SDL_VIDEOEXPOSE:
+                    pass
+                elif self.type == SDL_SYSWMEVENT:
+                    pass ### XXX: not implemented
+                elif self.type >= SDL_USEREVENT and self.type < SDL_NUMEVENTS:
+                    self.code = sdl_event.code
+        else:
+            # Create an event (not from event queue)
+            self.type = event_type
+            for key, value in event_dict.items():
+                setattr(self, key, value)
+            for key, value in attributes:
+                setattr(self, key, value)
 
     def __repr__(self):
-        pass
+        d = copy(self.__dict__)
+        del d['type']
+        return '<Event(%d-%s %r)>' % \
+            (self.type, event_name(self.type), d)
 
     def __nonzero__(self):
-        pass
+        return self.type != SDL_NOEVENT
 
 EventType = Event
