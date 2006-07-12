@@ -1,5 +1,15 @@
-import bdist_mpkg
-from distutils.command.bdist_mpkg import bdist_mpkg as _bdist_mpkg
+try:
+    import setuptools
+    import pkg_resources
+    try:
+        pkg_resources.require('bdist_mpkg')
+    except pkg_resources.DistributionNotFound:
+        raise ImportError
+except ImportError:
+    import bdist_mpkg
+    from distutils.command.bdist_mpkg import bdist_mpkg as _bdist_mpkg
+else:
+    _bdist_mpkg = setuptools.Distribution().get_command_class('bdist_mpkg')
 
 FRAMEWORKS = ['SDL', 'SDL_ttf', 'SDL_image', 'SDL_mixer', 'smpeg']
 
