@@ -22,6 +22,14 @@ import sys
 import os
 from cStringIO import StringIO
 
+try:
+    from pkg_resources import resource_stream, resource_exists
+except ImportError:
+    def resource_exists(package_or_requirement, resource_name):
+        return False
+    def resource_stream(package_of_requirement, resource_name):
+        raise NotImplementedError
+
 def getResource(identifier, pkgname=__name__):
     """
     Acquire a readable object for a given package name and identifier.
@@ -38,6 +46,8 @@ def getResource(identifier, pkgname=__name__):
     rather than use it as a file-like object.  For example, you may
     be handing data off to a C API.
     """
+    if resource_exists(pkgname, identifier):
+        return resource_stream(pkgname, identifier)
 
     mod = sys.modules[pkgname]
     fn = getattr(mod, '__file__', None)
