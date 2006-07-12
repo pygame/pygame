@@ -524,8 +524,9 @@ class Event:
         else:
             # Create an event (not from event queue)
             self.type = event_type
-            for key, value in event_dict.items():
-                setattr(self, key, value)
+            if event_dict:
+                for key, value in event_dict.items():
+                    setattr(self, key, value)
             for key, value in attributes:
                 setattr(self, key, value)
 
