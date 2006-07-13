@@ -343,27 +343,43 @@ def fromstring(string, size, format, flipped=False):
         depth = 8
         pitch = width
     elif format == 'RGB':
-        Rmask = 0x000000ff
-        Gmask = 0x0000ff00
-        Bmask = 0x00ff0000
+        if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+            Rmask = 0x000000ff
+            Gmask = 0x0000ff00
+            Bmask = 0x00ff0000
+        else:
+            Rmask = 0x00ff0000
+            Gmask = 0x0000ff00
+            Bmask = 0x000000ff
         Amask = 0x00000000
         depth = 24
         pitch = width * 3
     elif format in ('RGBA', 'RGBX'):
-        Rmask = 0x000000ff
-        Gmask = 0x0000ff00
-        Bmask = 0x00ff0000
-        if format == 'RGBA':
+        if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+            Rmask = 0x000000ff
+            Gmask = 0x0000ff00
+            Bmask = 0x00ff0000
             Amask = 0xff000000
         else:
+            Rmask = 0xff000000
+            Gmask = 0x00ff0000
+            Bmask = 0x0000ff00
+            Amask = 0x000000ff
+        if format == 'RGBX':
             Amask = 0x00000000
         depth = 32
         pitch = width * 4
     elif format == 'ARGB':
-        Rmask = 0x0000ff00
-        Gmask = 0x00ff0000
-        Bmask = 0xff000000
-        Amask = 0x000000ff
+        if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+            Rmask = 0x0000ff00
+            Gmask = 0x00ff0000
+            Bmask = 0xff000000
+            Amask = 0x000000ff
+        else:
+            Rmask = 0x00ff0000
+            Gmask = 0x0000ff00
+            Bmask = 0x000000ff
+            Amask = 0xff000000
         depth = 32
         pitch = width * 4
     if len(string) != pitch * height:
