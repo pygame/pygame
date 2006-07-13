@@ -8,6 +8,7 @@ __version__ = '$Id: $'
 
 from ctypes import *
 
+import SDL.array
 import SDL.dll
 import SDL.video
 
@@ -26,10 +27,18 @@ class SDL_Cursor(Structure):
     _fields_ = [('area', SDL.video.SDL_Rect),
                 ('hot_x', c_short),
                 ('hot_y', c_short),
-                ('data', POINTER(c_ubyte)),
-                ('mask', POINTER(c_ubyte)),
+                ('_data', POINTER(c_ubyte)),
+                ('_mask', POINTER(c_ubyte)),
                 ('save', POINTER(c_ubyte) * 2),
                 ('wm_cursor', c_void_p)]
+
+    def __getattr__(self, name):
+        w, h = self.area.w, self.area.h
+        if name == 'data':
+            return SDL.array.SDL_array(self._data, w * h / 8, c_ubyte)
+        elif name == 'mask':
+            return SDL.array.SDL_array(self._mask, w * h / 8, c_ubyte)
+        raise AttributeError, name
 
 _SDL_GetMouseState = SDL.dll.private_function('SDL_GetMouseState',
     arg_types=[POINTER(c_int), POINTER(c_int)],
