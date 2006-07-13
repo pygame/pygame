@@ -82,7 +82,7 @@ class SDL_Color(Structure):
                 ('b', c_ubyte),
                 ('unused', c_ubyte)]
 
-    def __init__(self, r=0, g=0, b=0):
+    def __init__(self, r=0, g=0, b=0, unused=0):
         self.r = r
         self.g = g
         self.b = b
