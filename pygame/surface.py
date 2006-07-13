@@ -187,8 +187,8 @@ class Surface(object):
             destpos = pygame.rect._rect_from_object(destpos)[:2]
         except:
             pass
-        destrect.x = destpos[0]
-        destrect.y = destpos[1]
+        destrect.x = int(destpos[0])
+        destrect.y = int(destpos[1])
         _surface_blit(self, source, destrect, sourcerect, special_flags)
         return pygame.rect.Rect(destrect)
 
@@ -288,7 +288,7 @@ class Surface(object):
             newsurf = SDL_ConvertSurface(surf, format, flags)
 
         self._unprep()
-        return Surface(newsurf)
+        return Surface(surf=newsurf)
 
     def convert_alpha(self, surface=None):
         '''Create a copy of a surface with the desired pixel format,

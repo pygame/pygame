@@ -41,13 +41,16 @@ class Rect(object):
         if len(args) == 4:
             if args[2] < 0 or args[3] < 0:
                 raise NotImplementedError, 'Negative sized rect not permitted'
-            object.__setattr__(self, '_r', SDL.SDL_Rect(*args))
+            object.__setattr__(self, '_r', SDL.SDL_Rect(int(args[0]),
+                                                        int(args[1]),
+                                                        int(args[2]),
+                                                        int(args[3])))
         elif len(args) == 2:
             if args[1][0] < 0 or args[1][1] < 0:
                 raise NotImplementedError, 'Negative sized rect not permitted'
             object.__setattr__(self, '_r', 
-                               SDL.SDL_Rect(args[0][0], args[0][1], 
-                                            args[1][0], args[1][1]))
+                               SDL.SDL_Rect(int(args[0][0]), int(args[0][1]), 
+                                            int(args[1][0]), int(args[1][1])))
         else:
             raise TypeError, 'Argument must be rect style object'
 

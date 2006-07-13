@@ -171,9 +171,9 @@ def save(surface, file):
         if fileext == '.bmp':
             SDL_SaveBMP(surf, file)
         elif fileext in ('.jpg', '.jpeg'):
-            raise pygame.base.error, 'No support for jpg compiled in.'
+            raise pygame.base.error, 'No support for jpg compiled in.' # TODO
         elif fileext == '.png':
-            raise pygame.base.error, 'No support for png compiled in.'
+            raise pygame.base.error, 'No support for png compiled in.' # TODO
         else:
             raise NotImplementedError, 'TODO: TGA support'
     
