@@ -25,6 +25,7 @@ from SDL import *
 from SDL.ttf import *
 
 import pygame.base
+import pygame.pkgdata
 
 _font_initialized = 0
 _font_defaultname = 'freesansbold.ttf'
@@ -88,7 +89,7 @@ def get_default_font():
     return _font_defaultname
 
 class Font(object):
-    __slots__ = ['_font']
+    __slots__ = ['_font', '_rw']
 
     def __init__(self, file, size):
         '''Create a new Font object from a file.
@@ -114,15 +115,18 @@ class Font(object):
         if not _font_initialized:
             raise pygame.base.error, 'font not initialized'
 
-        size = max(1, size)
-
         if not file:
-            raise NotImplemented, 'TODO: default font'
+            file = pygame.pkgdata.getResource(_font_defaultname)
+            size *= 0.6875  # XXX Peter's phone number??
+
+        size = int(max(1, size))
 
         if hasattr(file, 'read'):
             rw = SDL_RWFromObject(file)
-            # XXX: Differ from pygame: don't freesrc here
-            font = TTF_OpenFontRW(rw, 0, size)
+            # Keep the RWops around, the callbacks will be used long for
+            # the duration of this Font instance.
+            self._rw = rw
+            font = TTF_OpenFontRW(rw, 1, size)
         else:
             font = TTF_OpenFont(file, size)
         self._font = font
@@ -280,7 +284,7 @@ class Font(object):
         '''
         return TTF_GetFontStyle(self._font) & TTF_STYLE_BOLD != 0
 
-    def set_italic(self):
+    def set_italic(self, italic):
         '''Enable fake rendering of italic text.
 
         Enables fake rendering of italic text. This is a fake skewing of the

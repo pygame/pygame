@@ -975,8 +975,8 @@ class Surface(object):
         :rtype: Rect
         '''
         rect = pygame.rect.Rect(0, 0, self._surf.w, self._surf.h)
-        for key, value in kwargs:
-            rect.setattr(rect, key, value)
+        for key, value in kwargs.items():
+            setattr(rect, key, value)
         return rect
 
     def get_bitsize(self):

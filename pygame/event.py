@@ -91,10 +91,7 @@ from ctypes import *
 from SDL import *
 import pygame.base
 import pygame.constants
-
-def _video_init_check():
-    if not SDL_WasInit(SDL_INIT_VIDEO):
-        raise pygame.base.error, 'video system not initialized'
+import pygame.display
 
 def pump():
     '''Internally process pygame event handlers.
@@ -113,7 +110,7 @@ def pump():
     If you fail to make a call to the event queue for too long, the system may
     decide your program has locked up.
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
     SDL_PumpEvents()
 
 def get(typelist=None):
@@ -135,7 +132,7 @@ def get(typelist=None):
 
     :rtype: list of `Event`
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
     
     if not typelist:
         mask = SDL_ALLEVENTS
@@ -164,7 +161,7 @@ def poll():
 
     :rtype: Event
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     event = SDL_PollEventAndReturn()
     if event:
@@ -182,7 +179,7 @@ def wait():
 
     :rtype: Event
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     return Event(0, sdl_event=SDL_WaitEventAndReturn())
 
@@ -199,7 +196,7 @@ def peek(typelist=None):
 
     :rtype: bool
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     if not typelist:
         mask = SDL_ALLEVENTS
@@ -231,7 +228,7 @@ def clear(typelist=None):
             Event type or list of event types to remove.
     
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
     
     if not typelist:
         mask = SDL_ALLEVENTS
@@ -299,7 +296,7 @@ def set_blocked(typelist):
             Event type or list of event types to disallow.
 
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     if typelist == None:
         SDL_EventState(SDL_ALLEVENTS, SDL_IGNORE)
@@ -324,7 +321,7 @@ def set_allowed(typelist):
             Event type or list of event types to disallow.
 
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     if typelist == None:
         SDL_EventState(SDL_ALLEVENTS, SDL_ENABLE)
@@ -344,7 +341,7 @@ def get_blocked(event_type):
 
     :rtype: int
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     if typelist == None:
         return SDL_EventState(SDL_ALLEVENTS, SDL_QUERY) == SDL_ENABLE
@@ -371,7 +368,7 @@ def set_grab(grab):
      - `grab`: bool
 
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     if grab:
         SDL_WM_GrabInput(SDL_GRAB_ON)
@@ -386,7 +383,7 @@ def get_grab():
 
     :rtype: bool
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     return SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON
 
@@ -413,7 +410,7 @@ def post(event):
     '''
     global _user_event_nextid
 
-    _video_init_check()
+    pygame.display._video_init_check()
 
     sdl_event = SDL_Event(pygame.constants.USEREVENT)
     sdl_event.code = _USEROBJECT_CHECK1

@@ -62,6 +62,12 @@ def init():
     fail = 0
 
     SDL.SDL_Init(SDL.SDL_INIT_EVENTTHREAD | SDL.SDL_INIT_TIMER)
+
+    if _video_autoinit():
+        success += 1
+    else:
+        fail += 1
+
     for mod in sys.modules.values():
         if hasattr(mod, '__PYGAMEinit__') and callable(mod.__PYGAMEinit__):
             try:

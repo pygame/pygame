@@ -217,6 +217,7 @@ def flip():
     When using an pygame.OPENGL display mode this will perform a gl buffer
     swap.
     '''
+    _video_init_check()
     screen = SDL_GetVideoSurface()
     if not screen:
         raise pygame.base.error, 'Display mode not set'
@@ -261,6 +262,7 @@ def update(*rectangle):
     # Undocumented: also allows argument tuple to represent one rect;
     # e.g. update(0, 0, 10, 10) or update((0, 0), (10, 10))
 
+    _video_init_check()
     screen = SDL_GetVideoSurface()
     if not screen:
         raise pygame.base.error, 'Display mode not set'
@@ -294,6 +296,7 @@ def get_driver():
 
     :rtype: str
     '''
+    _video_init_check()
     return SDL_VideoDriverName()
 
 def Info():
@@ -308,6 +311,7 @@ def Info():
     :see: `VideoInfo`
     :rtype: `VideoInfo`
     '''
+    _video_init_check()
     return VideoInfo()
 
 class VideoInfo:
@@ -394,6 +398,7 @@ def get_wm_info():
     :note: Currently unimplemented, returns an empty dict.
     :rtype: dict
     '''
+    _video_init_check()
     return {}
 
 def list_modes(depth=0, flags=pygame.constants.FULLSCREEN):
@@ -412,6 +417,7 @@ def list_modes(depth=0, flags=pygame.constants.FULLSCREEN):
     :rtype: list of (int, int), or -1
     :return: list of (width, height) pairs, or -1 if any mode is suitable.
     '''
+    _video_init_check()
     format = SDL_PixelFormat()
     format.BitsPerPixel = depth
 
@@ -445,6 +451,7 @@ def mode_ok(size, flags=0, depth=0):
     :return: depth, in bits per pixel, or 0 if the requested mode cannot be
         set.
     '''
+    _video_init_check()
     if not depth:
         depth = SDL_GetVideoInfo().vfmt.BitsPerPixel
     return SDL_VideoModeOK(size[0], size[1], depth, flags)
@@ -470,6 +477,7 @@ def gl_set_attribute(flag, value):
      - `value`: int
 
     '''
+    _video_init_check()
     SDL_GL_SetAttribute(flag, value)
 
 def gl_get_attribute(flag):
@@ -487,6 +495,7 @@ def gl_get_attribute(flag):
 
     :rtype: int
     '''
+    _video_init_check()
     return SDL_GL_GetAttribute(flag)
 
 def get_active():
@@ -516,6 +525,7 @@ def iconify():
     :rtype: bool
     :return: True on success
     '''
+    _video_init_check()
     try:
         SDL_WM_IconifyWindow()
         return True
@@ -531,6 +541,7 @@ def toggle_fullscreen():
 
     :rtype: bool
     '''
+    _video_init_check()
     screen = SDL_GetVideoSurface()
     try:
         SDL_WM_ToggleFullScreen(screen)
@@ -559,6 +570,7 @@ def set_gamma(red, green=None, blue=None):
 
     :rtype: bool
     '''
+    _video_init_check()
     if not green or not blue:
         green = red
         blue = red
@@ -590,6 +602,7 @@ def set_gamma_ramp(red, green, blue):
 
     :rtype: bool
     '''
+    _video_init_check()
     try:
         SDL_SetGammaRamp(red, green, blue)
         return True
@@ -666,6 +679,7 @@ def set_palette(palette=None):
             Sequence having at most 256 RGB triplets.
 
     '''
+    _video_init_check()
     surf = SDL_GetVideoSurface()
     if not surf:
         raise pygame.base.error, 'No display mode is set'
@@ -678,3 +692,8 @@ def set_palette(palette=None):
     lenth = min(surf.format.palette.ncolors, len(palette))
     colors = [SDL_Color(r, g, b) for r, g, b in palette[:length]]
     SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0)
+
+def _video_init_check():
+    if not SDL_WasInit(SDL_INIT_VIDEO):
+        raise pygame.base.error, 'video system not initialized'
+
