@@ -73,8 +73,8 @@ def load_extended(file, namehint=''):
             namehint = file.name
         namehint = os.path.splitext(namehint)[1]
         rw = SDL_RWFromObject(file)
-        # XXX Should this really be freesrc when we didn't open it?
-        surf = IMG_LoadTyped_RW(rw, 1, namehint)
+        # XXX Differ from pygame: don't freesrc when we didn't allocate it
+        surf = IMG_LoadTyped_RW(rw, 0, namehint)
     return pygame.surface.Surface(surf=surf)
 
 def load_basic(file, namehint=''):
@@ -94,8 +94,8 @@ def load_basic(file, namehint=''):
         surf = SDL_LoadBMP(file)
     else:
         rw = SDL_RWFromObject(file)
-        # XXX Should this really be freesrc when we didn't open it?
-        surf = SDL_LoadBMP_RW(rw, 1)
+        # XXX Differ from pygame: don't freesrc when we didn't allocate it
+        surf = SDL_LoadBMP_RW(rw, 0)
     return pygame.surface.Surface(surf=surf)
 
 def load(file, namehint=''):
@@ -156,19 +156,20 @@ def save(surface, file):
 
     '''
     if surface._surf.flags & SDL_OPENGL:
-        raise NotImplementedError, 'TODO: OpenGL surfaces'
+        surf = _get_opengl_surface(surface._surf)
     else:
         surface._prep()
+        surf = surface._surf
 
     if hasattr(file, 'write'):
         # TODO TGA not BMP save
         rw = SDL_RWFromObject(file)
-        # XXX Should this really be freesrc when we didn't open it?
-        SDL_SaveBMP_RW(surface._surf, rw, 1)  
+        # XXX Differ from pygame: don't freesrc when we didn't allocate it
+        SDL_SaveBMP_RW(surf, rw, 0)  
     else:
         fileext = os.path.splitext(file)[1].lower()
         if fileext == '.bmp':
-            SDL_SaveBMP(surface._surf, file)
+            SDL_SaveBMP(surf, file)
         elif fileext in ('.jpg', '.jpeg'):
             raise pygame.base.error, 'No support for jpg compiled in.'
         elif fileext == '.png':
@@ -177,7 +178,7 @@ def save(surface, file):
             raise NotImplementedError, 'TODO: TGA support'
     
     if surface._surf.flags & SDL_OPENGL:
-        pass # TODO
+        SDL_FreeSurface(surf)
     else:
         surface._unprep()
 
@@ -224,7 +225,7 @@ def tostring(surface, format, flipped=False):
     '''
     surf = surface._surf
     if surf.flags & SDL_OPENGL:
-        raise NotImplementedError, 'TODO: OpenGL support.'
+        surf = _get_opengl_surface(surf)
 
     rows = []
     pitch = surf.pitch
@@ -304,8 +305,8 @@ def tostring(surface, format, flipped=False):
                                       chr(c[0]) \
                                       for c in pixels[y*pitch:y*pitch + w] ]))
 
-    if surf.flags & SDL_OPENGL:
-        pass # TODO
+    if surface._surf.flags & SDL_OPENGL:
+        SDL_FreeSurface(surf)
 
     return ''.join(rows)
 
@@ -318,9 +319,6 @@ def fromstring(string, size, format, flipped=False):
 
     The size and format image must compute the exact same size as the passed
     string buffer. Otherwise an exception will be raised. 
-
-    See the pygame.image.frombuffer() method for a potentially faster way to
-    transfer images into Pygame.
 
     :Parameters:
         `string` : str
@@ -400,8 +398,7 @@ def frombuffer(string, size, format):
     This method takes the same arguments as pygame.image.fromstring(), but is
     unable to vertically flip the source data.
 
-    This will run much faster than pygame.image.fromstring, since no pixel data
-    must be allocated and copied.
+    :note: In pygame-ctypes, this function is identical to `fromstring`.
 
     :Parameters:
         `string` : str
@@ -414,3 +411,24 @@ def frombuffer(string, size, format):
     :rtype: `Surface`
     '''
     return fromstring(string, size, format)
+
+def _get_opengl_surface(surf):
+    import OpenGL.GL
+    data = OpenGL.GL.glReadPixels(0, 0, surf.w, surf.h, 
+                                  OpenGL.GL.GL_RGB, OpenGL.GL.GL_UNSIGNED_BYTE)
+    if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+        Rmask = 0x000000ff
+        Gmask = 0x0000ff00
+        Bmask = 0x00ff0000
+    else:
+        Rmask = 0x00ff0000
+        Gmask = 0x0000ff00
+        Bmask = 0x000000ff
+    # Flip vertically
+    pitch = surf.w * 3
+    data = ''.join([data[y*pitch:y*pitch+pitch] \
+                    for y in range(surf.h - 1, -1, -1)])
+    newsurf = SDL_CreateRGBSurfaceFrom(data, surf.w, surf.h, 24, pitch,
+                                       Rmask, Gmask, Bmask, 0)
+    return newsurf
+

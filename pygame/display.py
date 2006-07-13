@@ -180,12 +180,12 @@ def set_mode(resolution, flags=0, depth=0):
         if not title:
             SDL_WM_SetCaption('pygame window', 'pygame')
 
-        SDL_PumpEvents()
+    SDL_PumpEvents()
 
-        if _display_surface:
-            _display_surface._surf = surf
-        else:
-            _display_surface = pygame.surface.Surface(surf=surf)
+    if _display_surface:
+        _display_surface._surf = surf
+    else:
+        _display_surface = pygame.surface.Surface(surf=surf)
 
     if sys.platform != 'darwin' and False: # XXX
         if not _icon_was_set:
