@@ -1083,7 +1083,7 @@ class Surface(object):
         return format.Rloss, format.Gloss, format.Bloss, format.Aloss
 
 
-def _surface_blit(destobj, srcobj, destrect, srcrect, special_flags):
+def _surface_blit(destobj, srcobj, dstrect, srcrect, special_flags):
     dst = destobj._surf
     src = srcobj._surf
     subsurface = None

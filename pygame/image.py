@@ -231,7 +231,7 @@ def tostring(surface, format, flipped=False):
     w = surf.w
 
     if flipped:
-        h_range = range(surf.h - 1, 0, -1)
+        h_range = range(surf.h - 1, -1, -1)
     else:
         h_range = range(surf.h)
 
@@ -244,7 +244,7 @@ def tostring(surface, format, flipped=False):
         pixels = surf.pixels.to_string()
         surface.unlock()
 
-        if pitch == w:
+        if pitch == w and not flipped:
             rows = [pixels] # easy exit
         else:
             for y in h_range:
@@ -288,6 +288,7 @@ def tostring(surface, format, flipped=False):
                             ((c & Amask) >> Ashift) << Aloss ) \
                           for c in surf.pixels]
         surface.unlock()
+        pitch /= surf.format.BytesPerPixel
         if format == 'RGB':
             for y in h_range:
                 rows.append(''.join([ chr(c[0]) + chr(c[1]) + chr(c[2]) \
@@ -327,12 +328,55 @@ def fromstring(string, size, format, flipped=False):
         `size` : (int, int)
             Width, height of the image.
         `format` : str
-            One of 'P', 'RGB', 'RGBX', 'RGBA' or 'ARGBA'
+            One of 'P', 'RGB', 'RGBA' or 'ARGB'
         `flipped` : bool
             If True, data is ordered from bottom row to top.
 
     :rtype: `Surface`
     '''
+    width, height = size
+    if format == 'P':
+        Rmask = 0
+        Gmask = 0
+        Bmask = 0
+        Amask = 0
+        depth = 8
+        pitch = width
+    elif format == 'RGB':
+        Rmask = 0x000000ff
+        Gmask = 0x0000ff00
+        Bmask = 0x00ff0000
+        Amask = 0x00000000
+        depth = 24
+        pitch = width * 3
+    elif format in ('RGBA', 'RGBX'):
+        Rmask = 0x000000ff
+        Gmask = 0x0000ff00
+        Bmask = 0x00ff0000
+        if format == 'RGBA':
+            Amask = 0xff000000
+        else:
+            Amask = 0x00000000
+        depth = 32
+        pitch = width * 4
+    elif format == 'ARGB':
+        Rmask = 0x0000ff00
+        Gmask = 0x00ff0000
+        Bmask = 0xff000000
+        Amask = 0x000000ff
+        depth = 32
+        pitch = width * 4
+    if len(string) != pitch * height:
+        raise ValueError, \
+              'String length does not equal format and resolution size'
+    if flipped:
+        string = ''.join([string[y*pitch:y*pitch+pitch] \
+                          for y in range(height - 1, -1, -1)])
+    surf = SDL_CreateRGBSurfaceFrom(string, width, height, depth, pitch,
+                                    Rmask, Gmask, Bmask, Amask)
+
+    return pygame.surface.Surface(surf=surf)
+
 def frombuffer(string, size, format):
     '''Create a new Surface that shares data inside a string buffer.
 
@@ -349,14 +393,8 @@ def frombuffer(string, size, format):
         `size` : (int, int)
             Width, height of the image.
         `format` : str
-            One of 'P', 'RGB', 'RGBX', 'RGBA' or 'ARGBA'
+            One of 'P', 'RGB', 'RGBA', 'RGBX' or 'ARGB'
     
     :rtype: `Surface`
     '''
-
-
-try:
-    import pygame.imageext
-    _is_extended = True
-except ImportError:
-    _is_extended = False
+    return fromstring(string, size, format)

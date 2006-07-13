@@ -25,6 +25,9 @@ class Rect(object):
             if isinstance(arg, Rect):
                 object.__setattr__(self, '_r', copy.copy(arg._r))
                 return
+            elif isinstance(arg, SDL.SDL_Rect):
+                object.__setattr__(self, '_r', copy.copy(arg))
+                return
             elif hasattr(arg, 'rect'):
                 arg = arg.rect
                 if callable(arg):
