@@ -29,10 +29,7 @@ __version__ = '$Id$'
 
 from SDL import *
 import pygame.base
-
-def _video_init_check():
-    if not SDL_WasInit(SDL_INIT_VIDEO):
-        raise pygame.base.error, 'video system not initialized'
+import pygame.display
 
 def get_pressed():
     '''Get the state of the mouse buttons.
@@ -54,7 +51,7 @@ def get_pressed():
     :rtype: int, int, int
     :return: left, middle, right
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     state, x, y = SDL_GetMouseState()
     return state & SDL_BUTTON(1), state & SDL_BUTTON(2), state & SDL_BUTTON(3)
@@ -69,7 +66,7 @@ def get_pos():
     :rtype: int, int
     :return: X, Y
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     state, x, y = SDL_GetMouseState()
     return x, y
@@ -85,7 +82,7 @@ def get_rel():
     :rtype: int, int
     :return: X, Y
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     return SDL_GetRelativeMouseState()
 
@@ -101,7 +98,7 @@ def set_pos(pos):
             Tuple of X, Y coordinates.
 
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     x, y = pos
     SDL_WarpMouse(x, y)
@@ -117,7 +114,7 @@ def set_visible(visible):
             If True, the mouse cursor will be visible.
 
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     # XXX Differ from pygame: no return value here
     SDL_ShowCursor(visible)
@@ -140,7 +137,7 @@ def get_focused():
     
     :rtype: bool
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     return SDL_GetAppState() & SDL_APPMOUSEFOCUS != 0
 
@@ -171,7 +168,7 @@ def set_cursor(size, hotspot, xormask, andmask):
             Bitmask of mask: transparent if 0, solid if 1
 
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     w, h = size
     spotx, spoty = hotspot
@@ -200,7 +197,7 @@ def get_cursor():
     :rtype: tuple, tuple, list, list
     :return: size, hotspot, xormasks, andmasks
     '''
-    _video_init_check()
+    pygame.display._video_init_check()
 
     cursor = SDL_GetCursor()
 

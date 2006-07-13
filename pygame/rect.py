@@ -188,10 +188,12 @@ class Rect(object):
         except TypeError:
             return None
 
-    def move(self, x, y):
+    def move(self, *pos):
+        x, y = _two_ints_from_args(pos)
         return Rect(self._r.x + x, self._r.y + y, self._r.w, self._r.h)
 
-    def move_ip(self, x, y):
+    def move_ip(self, *pos):
+        x, y = _two_ints_from_args(pos)
         self._r.x += x
         self._r.y += y
 
@@ -360,3 +362,9 @@ def _rect_from_object(obj):
 def _rect_collide(a, b):
     return a.x + a.w > b.x and b.x + b.w > a.x and \
            a.y + a.h > b.y and b.y + b.h > b.y
+
+def _two_ints_from_args(arg):
+    if len(arg) == 1:
+        return _two_ints_from_args(arg[0])
+    else:
+        return arg[:2]
