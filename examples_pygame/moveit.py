@@ -53,9 +53,16 @@ def main():
         o = GameObject(player, x*40, x)
         objects.append(o)
 
+    frames = 0
+    then = pygame.time.get_ticks()
     while 1:
+        frames += 1
         for event in pygame.event.get():
             if event.type in (QUIT, KEYDOWN):
+                time = pygame.time.get_ticks() - then
+                print '%d frames in %.2f seconds' % (frames, time / 1000.0)
+                print '  %f milliseconds per frame (%d FPS)' % \
+                    (float(time) / frames, frames * 1000 / time)
                 return
 
         for o in objects:
