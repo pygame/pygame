@@ -25,6 +25,12 @@ from SDL import *
 import pygame.base
 import pygame.surface
 
+try:
+    import Image
+    _have_PIL = True
+except ImportError:
+    _have_PIL = False
+
 def _newsurf_fromsurf(surf, width, height):
     format = surf.format
     newsurf = SDL_CreateRGBSurface(surf.flags, width, height,
@@ -73,7 +79,7 @@ def flip(surface, x=False, y=False):
         for i in range(len(rows)):
             rows[i] = rows[i][:newsurf.pitch]
     elif newsurf.pitch > surf.pitch:
-        pad = '\000' * newsurf.pitch - surf.pitch
+        pad = '\000' * (newsurf.pitch - surf.pitch)
         for i in range(len(rows)):
             rows[i] = rows[i] + pad
 
@@ -114,6 +120,70 @@ def scale(surface, size, dest=None):
 
     :rtype: `Surface`
     '''
+    if not _have_PIL:
+        raise NotImplementedError, 'Python imaging library (PIL) required.'
+    
+    # XXX: Differ from Pygame: subsurfaces permitted.
+    width, height = size
+    if width < 0 or height < 0:
+        raise ValueError, 'Cannot scale to negative size'
+
+    surf = surface._surf
+    if not dest:
+        newsurf = _newsurf_fromsurf(surf, width, height)
+    else:
+        dest._prep()
+        newsurf = dest._surf
+
+    if newsurf.w != width or newsurf.h != height:
+        raise ValueError, 'Destination surface not the given width or height.'
+
+    if newsurf.format.BytesPerPixel != surf.format.BytesPerPixel:
+        raise ValueError, \
+              'Source and destination surfaces need the same format.'
+
+    if surf.format.BitsPerPixel == 8:
+        mode = 'P'
+    elif surf.format.BitsPerPixel == 24:
+        mode = 'RGB'
+    elif surf.format.BitsPerPixel == 32:
+        mode = 'RGBA'
+    else:
+        raise ValueError, 'Unsupported pixel format' # TODO convert
+
+    if width and height:
+        surface.lock()
+        data = surf.pixels.to_string()
+        surface.unlock()
+
+        source_pitch = surf.w * surf.format.BytesPerPixel
+        if surf.pitch > source_pitch:
+            rows = re.findall('.' * surf.pitch, data, re.DOTALL)
+            for i in range(len(rows)):
+                rows[i] = rows[i][:source_pitch]
+            data = ''.join(rows)
+
+        image = Image.fromstring(mode, (surf.w, surf.h), data)
+        image = image.resize((width, height), Image.NEAREST)
+        data = image.tostring()
+
+        dest_pitch = width * newsurf.format.BytesPerPixel
+        if newsurf.pitch > dest_pitch:
+            rows = re.findall('.' * dest_pitch, data, re.DOTALL)
+            pad = '\000' * (newsurf.pitch - dest_pitch)
+            for i in range(len(rows)):
+                rows[i] = rows[i] + pad
+            data = ''.join(rows)
+
+        SDL_LockSurface(newsurf)
+        memmove(newsurf.pixels.ptr, data, len(data))
+        SDL_UnlockSurface(newsurf)
+
+    if dest:
+        dest._unprep()
+        return dest
+    else:
+        return pygame.surface.Surface(surf=newsurf)
 
 def rotate(surface, angle):
     '''Rotate an image.
