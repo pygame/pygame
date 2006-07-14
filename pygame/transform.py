@@ -25,6 +25,7 @@ import re
 from SDL import *
 
 import pygame.base
+import pygame.rect
 import pygame.surface
 
 try:
@@ -208,6 +209,9 @@ def rotate(surface, angle):
     to hold the new size. If the image has pixel alphas, the padded area will
     be transparent. Otherwise pygame will pick a color that matches the Surface
     colorkey or the topleft pixel value.
+
+    :note: This function will perform slowly under certain conditions; see
+        `rotozoom`.
     
     :Parameters:
         `surface` : `Surface`
@@ -217,8 +221,38 @@ def rotate(surface, angle):
 
     :rtype: `Surface`
     '''
+    return rotozoom(surface, angle, 1.0)
+
+def rotozoom(surface, angle, scale):
+    '''Filtered scale and rotation.
+
+    This is a combined scale and rotation transform. The resulting Surface will
+    be a filtered 32-bit Surface. The scale argument is a floating point value
+    that will be multiplied by the current resolution. The angle argument is
+    a floating point value that represents the counterclockwise degrees to
+    rotate. A negative rotation angle will rotate clockwise.
+
+    Python Imaging Library (PIL) is required.  This function (and `rotate`)
+    will perform poorly unless one of the following conditions on the surface
+    is met:
+
+    * The surface has an alpha channel.
+    * The surface is not palettized and the background color is black.
+    * The surface is palettized and the background color is at index 0.
+    
+    :Parameters:
+        `surface` : `Surface`
+            Surface to transform.
+        `angle` : float
+            Degrees to rotate anticlockwise.
+        `scale` : float
+            Scale to apply to surface size.
+    '''
     if not _have_PIL:
         raise NotImplementedError, 'Python imaging library (PIL) required.'
+
+    if surface._surf.format.BytesPerPixel == 3:
+        raise NotImplementedError, 'TODO: 24-bit RGB'
 
     # XXX: Differ from Pygame: subsurfaces permitted.
     surf = surface._surf
@@ -227,13 +261,15 @@ def rotate(surface, angle):
     radians = angle * (math.pi / 180.0)
     sa = math.sin(radians)
     ca = math.cos(radians)
-    cx = ca * surf.w
-    cy = ca * surf.h
-    sx = sa * surf.w
-    sy = sa * surf.h
+    cx = ca * surf.w * scale
+    cy = ca * surf.h * scale
+    sx = sa * surf.w * scale
+    sy = sa * surf.h * scale
     width = int(max(abs(cx + sy), abs(cx - sy), abs(-cx + sy), abs(-cx - sy)))
     height = int(max(abs(sx + cy), abs(sx - cy), abs(-sx + cy), abs(-sx - cy)))
     newsurf = _newsurf_fromsurf(surf, width, height)
+    sa /= scale
+    ca /= scale
 
     surface._prep()
     if surf.flags & SDL_SRCCOLORKEY:
@@ -298,41 +334,14 @@ def rotate(surface, angle):
     _from_PIL(image, newsurf)
 
     if need_data_sub:
+        # Swap [0, 0, 0, 0] back with the background color.
         SDL_LockSurface(newsurf)
         data = newsurf.pixels.to_string()
-        '''
-        def repl(match):
-            if match.group(0) == '\000\000\000\000':
-                return background_bytes
-            elif match.group(0) == background_bytes:
-                return '\000\000\000\000'
-            else:
-                return match.group(0)
-        '''
-        pattern = re.compile('....', re.DOTALL)
         data = pattern.sub(repl, data)
         memmove(newsurf.pixels.ptr, data, len(data))
         SDL_UnlockSurface(newsurf)
 
     return pygame.surface.Surface(surf=newsurf)
-
-def rotozoom(surface, angle, scale):
-    '''Filtered scale and rotation.
-
-    This is a combined scale and rotation transform. The resulting Surface will
-    be a filtered 32-bit Surface. The scale argument is a floating point value
-    that will be multiplied by the current resolution. The angle argument is
-    a floating point value that represents the counterclockwise degrees to
-    rotate. A negative rotation angle will rotate clockwise.
-    
-    :Parameters:
-        `surface` : `Surface`
-            Surface to transform.
-        `angle` : float
-            Degrees to rotate anticlockwise.
-        `scale` : float
-            Scale to apply to surface size.
-    '''
 
 def scale2x(surface, dest=None):
     '''Specialized image doubler.
@@ -426,7 +435,61 @@ def scale2x(surface, dest=None):
     else:
         return pygame.surface.Surface(surf=newsurf)
 
+# What the hell is this used for?
 def chop(surface, rect):
+    '''Remove interior area of an image.
+
+    Extracts a portion of an image. All vertical and
+    horizontal pixels surrounding the given rectangle area are removed (a
+    cross shape). The resulting image is shrunken by the size of pixels
+    removed.  (The original image is not altered by this operation.)
+
+    :Parameters:
+        `surface` : `Surface`
+            Surface to chop.
+        `rect` : `Rect`
+            Area to remove.
+
+    :rtype: `Surface`
+    '''
+    rect = pygame.rect._rect_from_object(rect)._r
+    surf = surface._surf
+
+    rect.x = max(0, rect.x)
+    rect.y = max(0, rect.y)
+    rect.w = min(surf.w, rect.w + rect.x) - rect.x
+    rect.h = min(surf.h, rect.h + rect.y) - rect.y
+
+    newsurf = _newsurf_fromsurf(surf, surf.w - rect.w, surf.h - rect.h)
+
+    surface.lock()
+    data = surf.pixels.to_string()
+    surface.unlock()
+
+    # Chop Y
+    pitch = surf.pitch
+    data = data[:rect.y*pitch] + data[rect.y*pitch+rect.h*pitch:]
+
+    # Chop X and pitch correction
+    rows = re.findall('.' * surf.pitch, data, re.DOTALL)
+    x1 = rect.x * newsurf.format.BytesPerPixel
+    x2 = (rect.x + rect.w) * newsurf.format.BytesPerPixel
+    pad = ''
+    padlength = newsurf.pitch - newsurf.w * newsurf.format.BytesPerPixel
+    if padlength > 0:
+        pad = '\0' * padlength
+    for i in range(len(rows)):
+        rows[i] = rows[i][:x1] + rows[i][x2:] + pad
+    data = ''.join(rows) 
+
+    SDL_LockSurface(newsurf)
+    memmove(newsurf.pixels.ptr, data, len(data))
+    SDL_UnlockSurface(newsurf)
+
+    return pygame.surface.Surface(surf=newsurf)
+
+# Implemented this by mistake... misread the chop() documentation :-)
+def crop(surface, rect):
     '''Extract a rectangular area of an image.
 
     Extracts a portion of an image. All vertical and
@@ -438,7 +501,42 @@ def chop(surface, rect):
         `surface` : `Surface`
             Surface to crop.
         `rect` : `Rect`
-            Area to extract.
+            Area to keep.
 
     :rtype: `Surface`
     '''
+    rect = pygame.rect._rect_from_object(rect)._r
+    surf = surface._surf
+
+    rect.x = max(0, rect.x)
+    rect.y = max(0, rect.y)
+    rect.w = min(surf.w, rect.w + rect.x) - rect.x
+    rect.h = min(surf.h, rect.h + rect.y) - rect.y
+
+    newsurf = _newsurf_fromsurf(surf, rect.w, rect.h)
+
+    surface.lock()
+    data = surf.pixels.to_string()
+    surface.unlock()
+
+    # Crop Y
+    pitch = surf.pitch
+    data = data[rect.y*pitch:rect.y*pitch+rect.h*pitch]
+
+    # Crop X and pitch correction
+    rows = re.findall('.' * surf.pitch, data, re.DOTALL)
+    x1 = rect.x * newsurf.format.BytesPerPixel
+    x2 = (rect.x + rect.w) * newsurf.format.BytesPerPixel
+    pad = ''
+    padlength = newsurf.pitch - newsurf.w * newsurf.format.BytesPerPixel
+    if padlength > 0:
+        pad = '\0' * padlength
+    for i in range(len(rows)):
+        rows[i] = rows[i][x1:x2] + pad
+    data = ''.join(rows) 
+
+    SDL_LockSurface(newsurf)
+    memmove(newsurf.pixels.ptr, data, len(data))
+    SDL_UnlockSurface(newsurf)
+
+    return pygame.surface.Surface(surf=newsurf)
