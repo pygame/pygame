@@ -108,7 +108,10 @@ class SDL_array:
 
         :rtype: string
         '''
-        return ''.join([chr(c) for c in self.as_bytes().as_ctypes()])
+        count = sizeof(self.ctype) * self.count
+        s = create_string_buffer(count)
+        memmove(s, self.ptr, count)
+        return s.raw
 
     def __repr__(self):
         return 'SDL_array(ctype=%s, count=%r)' % (self.ctype, self.count)

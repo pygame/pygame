@@ -40,6 +40,8 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
 import os.path
+import re
+
 from SDL import *
 
 import pygame.surface
@@ -227,9 +229,11 @@ def tostring(surface, format, flipped=False):
     if surf.flags & SDL_OPENGL:
         surf = _get_opengl_surface(surf)
 
+    result = None
     rows = []
     pitch = surf.pitch
     w = surf.w
+    h = surf.h
 
     if flipped:
         h_range = range(surf.h - 1, -1, -1)
@@ -237,6 +241,7 @@ def tostring(surface, format, flipped=False):
         h_range = range(surf.h)
 
     if format == 'P':
+        # The only case for creating palette data.
         if surf.format.BytesPerPixel != 1:
             raise ValueError, \
                   'Can only create "P" format data with 8bit Surfaces'
@@ -245,12 +250,75 @@ def tostring(surface, format, flipped=False):
         pixels = surf.pixels.to_string()
         surface.unlock()
 
-        if pitch == w and not flipped:
-            rows = [pixels] # easy exit
+        if pitch == w:
+            result = pixels # easy exit
         else:
+            flipped = False
             for y in h_range:
                 rows.append(pixels[y*pitch:y*pitch + w])
-    else:
+    elif surf.format.BytesPerPixel == len(format) and format != 'RGBX':
+        # No conversion required?
+        # This is an optimisation; could also use the default case.
+        if format == 'RGBA':
+            Rmask = SDL_SwapLE32(0x000000ff)
+            Gmask = SDL_SwapLE32(0x0000ff00)
+            Bmask = SDL_SwapLE32(0x00ff0000)
+            Amask = SDL_SwapLE32(0xff000000)
+        elif format == 'ARGB':
+            Amask = SDL_SwapLE32(0x000000ff)
+            Rmask = SDL_SwapLE32(0x0000ff00)
+            Gmask = SDL_SwapLE32(0x00ff0000)
+            Bmask = SDL_SwapLE32(0xff000000)
+        elif format == 'RGB':
+            if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+                Rmask = 0x000000ff
+                Gmask = 0x0000ff00
+                Bmask = 0x00ff0000
+            else:
+                Rmask = 0x00ff0000
+                Gmask = 0x0000ff00
+                Bmask = 0x000000ff 
+            Amask = surf.format.Amask   # ignore
+        if surf.format.Rmask == Rmask and \
+           surf.format.Gmask == Gmask and \
+           surf.format.Bmask == Bmask and \
+           surf.format.Amask == Amask and \
+           pitch == w * surf.format.BytesPerPixel:
+            # Pixel data is already in required format, simply memcpy will
+            # work fast.
+            surface.lock()
+            result = surf.pixels.to_string()
+            surface.unlock()
+    elif surf.format.BytesPerPixel == 4 and format == 'RGB':
+        # Optimised conversion from RGBA or ARGB to RGB.
+        # This is an optimisation; could also use the default case.
+        if surf.format.Rmask == SDL_SwapLE32(0x000000ff):
+            # Internal format is RGBA
+            Gmask = SDL_SwapLE32(0x0000ff00)
+            Bmask = SDL_SwapLE32(0x00ff0000)
+            pattern = '(...).'
+        elif surf.format.Rmask == SDL_SwapLE32(0x0000ff00):
+            # Internal format is ARGB
+            Gmask = SDL_SwapLE32(0x00ff0000)
+            Bmask = SDL_SwapLE32(0xff000000)
+            pattern = '.(...)'
+        else:
+            # Internal format is something else, give up.
+            pattern = None
+        
+        if pattern and \
+           surf.format.Gmask == Gmask and \
+           surf.format.Bmask == Bmask and \
+           pitch == w * surf.format.BytesPerPixel:
+            surface.lock()
+            result = surf.pixels.to_string()
+            surface.unlock()
+            
+            # Squeeze out the alpha byte
+            result = ''.join(re.findall(pattern, result, re.DOTALL))
+
+    if not result and not rows:
+        # Default case, works for any conversion, but is slow.
         surface.lock()
         if surf.format.BytesPerPixel == 1:
             palette = surf.format.palette.colors
@@ -290,6 +358,7 @@ def tostring(surface, format, flipped=False):
                           for c in surf.pixels]
         surface.unlock()
         pitch /= surf.format.BytesPerPixel
+        flipped = False
         if format == 'RGB':
             for y in h_range:
                 rows.append(''.join([ chr(c[0]) + chr(c[1]) + chr(c[2]) \
@@ -308,6 +377,14 @@ def tostring(surface, format, flipped=False):
     if surface._surf.flags & SDL_OPENGL:
         SDL_FreeSurface(surf)
 
+    if result:
+        if flipped:
+            rows = re.findall('.' * w * len(format), result, re.DOTALL)
+        else:
+            return result
+
+    if flipped:
+        rows.reverse()
     return ''.join(rows)
 
 def fromstring(string, size, format, flipped=False):
