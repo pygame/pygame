@@ -18,6 +18,8 @@ begin with the original image and scale to the desired size.)
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
+from copy import copy
+import math
 import re
 
 from SDL import *
@@ -99,6 +101,45 @@ def flip(surface, x=False, y=False):
 
     return pygame.surface.Surface(surf=newsurf)
 
+def _to_PIL(surf, data=None):
+    if surf.format.BitsPerPixel == 8:
+        mode = 'P'
+    elif surf.format.BitsPerPixel == 24:
+        mode = 'RGB'
+    elif surf.format.BitsPerPixel == 32:
+        mode = 'RGBA'
+    else:
+        raise ValueError, 'Unsupported pixel format' # TODO convert
+
+    if not data:
+        SDL_LockSurface(surf)
+        data = surf.pixels.to_string()
+        SDL_UnlockSurface(surf)
+
+    source_pitch = surf.w * surf.format.BytesPerPixel
+    if surf.pitch > source_pitch:
+        rows = re.findall('.' * surf.pitch, data, re.DOTALL)
+        for i in range(len(rows)):
+            rows[i] = rows[i][:source_pitch]
+        data = ''.join(rows)
+
+    return Image.fromstring(mode, (surf.w, surf.h), data)
+
+def _from_PIL(image, surf):
+    data = image.tostring()
+
+    dest_pitch = image.size[0] * surf.format.BytesPerPixel
+    if surf.pitch > dest_pitch:
+        rows = re.findall('.' * dest_pitch, data, re.DOTALL)
+        pad = '\000' * (surf.pitch - dest_pitch)
+        for i in range(len(rows)):
+            rows[i] = rows[i] + pad
+        data = ''.join(rows)
+
+    SDL_LockSurface(surf)
+    memmove(surf.pixels.ptr, data, len(data))
+    SDL_UnlockSurface(surf) 
+
 def scale(surface, size, dest=None):
     '''Resize to new resolution.
 
@@ -142,42 +183,13 @@ def scale(surface, size, dest=None):
         raise ValueError, \
               'Source and destination surfaces need the same format.'
 
-    if surf.format.BitsPerPixel == 8:
-        mode = 'P'
-    elif surf.format.BitsPerPixel == 24:
-        mode = 'RGB'
-    elif surf.format.BitsPerPixel == 32:
-        mode = 'RGBA'
-    else:
-        raise ValueError, 'Unsupported pixel format' # TODO convert
-
     if width and height:
-        surface.lock()
-        data = surf.pixels.to_string()
-        surface.unlock()
+        surface._prep()
+        image = _to_PIL(surf)
+        surface._unprep()
 
-        source_pitch = surf.w * surf.format.BytesPerPixel
-        if surf.pitch > source_pitch:
-            rows = re.findall('.' * surf.pitch, data, re.DOTALL)
-            for i in range(len(rows)):
-                rows[i] = rows[i][:source_pitch]
-            data = ''.join(rows)
-
-        image = Image.fromstring(mode, (surf.w, surf.h), data)
         image = image.resize((width, height), Image.NEAREST)
-        data = image.tostring()
-
-        dest_pitch = width * newsurf.format.BytesPerPixel
-        if newsurf.pitch > dest_pitch:
-            rows = re.findall('.' * dest_pitch, data, re.DOTALL)
-            pad = '\000' * (newsurf.pitch - dest_pitch)
-            for i in range(len(rows)):
-                rows[i] = rows[i] + pad
-            data = ''.join(rows)
-
-        SDL_LockSurface(newsurf)
-        memmove(newsurf.pixels.ptr, data, len(data))
-        SDL_UnlockSurface(newsurf)
+        _from_PIL(image, newsurf)
 
     if dest:
         dest._unprep()
@@ -205,6 +217,104 @@ def rotate(surface, angle):
 
     :rtype: `Surface`
     '''
+    if not _have_PIL:
+        raise NotImplementedError, 'Python imaging library (PIL) required.'
+
+    # XXX: Differ from Pygame: subsurfaces permitted.
+    surf = surface._surf
+
+    # Calculate bounding box for rotated image
+    radians = angle * (math.pi / 180.0)
+    sa = math.sin(radians)
+    ca = math.cos(radians)
+    cx = ca * surf.w
+    cy = ca * surf.h
+    sx = sa * surf.w
+    sy = sa * surf.h
+    width = int(max(abs(cx + sy), abs(cx - sy), abs(-cx + sy), abs(-cx - sy)))
+    height = int(max(abs(sx + cy), abs(sx - cy), abs(-sx + cy), abs(-sx - cy)))
+    newsurf = _newsurf_fromsurf(surf, width, height)
+
+    surface._prep()
+    if surf.flags & SDL_SRCCOLORKEY:
+        background = surf.format.colorkey
+    else:
+        background = surf.pixels[0]
+
+    data = None
+    need_data_sub = False
+    if surf.format.BytesPerPixel == 1 and background != 0:
+        # Shuffle the palette in the destination so that the colorkey is in
+        # position 0, which is what PIL always uses for the background. 
+        colors = surf.format.palette.colors
+        SDL_SetColors(newsurf, [colors[0]], background)
+        SDL_SetColors(newsurf, [colors[background]], 0)
+        SDL_LockSurface(surf)
+        data = surf.pixels.to_string()
+        SDL_UnlockSurface(surf)
+        background_byte = chr(background)
+        def repl(match):
+            if match.group(0) == '\000':
+                return background_byte
+            else:
+                return '\000'
+        data = re.sub('[\\000\\%o]' % background, repl, data)
+
+        if surf.flags & SDL_SRCCOLORKEY:
+            SDL_SetColorKey(newsurf, 
+                            surf.flags & (SDL_SRCCOLORKEY | SDL_RLEACCEL), 0)
+    elif surf.format.BytesPerPixel == 4 and \
+             not surf.format.Amask and \
+             background != 0:
+        # Swap [0, 0, 0, 0] with the background color.  Swap them back after
+        # the rotation is done.
+        SDL_LockSurface(surf)
+        data = surf.pixels.to_string()
+        SDL_UnlockSurface(surf)
+        if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+            background_bytes = '%c%c%c%c' % (chr(background & 0xff),
+                                             chr(background >> 8 & 0xff),
+                                             chr(background >> 16 & 0xff),
+                                             chr(background >> 24 & 0xff))
+        def repl(match):
+            if match.group(0) == '\000\000\000\000':
+                return background_bytes
+            elif match.group(0) == background_bytes:
+                return '\000\000\000\000'
+            else:
+                return match.group(0)
+        pattern = re.compile('....', re.DOTALL)
+        data = pattern.sub(repl, data)
+        need_data_sub = True
+
+    image = _to_PIL(surf, data)
+    surface._unprep()
+
+    image = image.transform((width, height), Image.AFFINE,
+                            (ca, -sa, -width*ca/2 + height*sa/2 + surf.w/2, 
+                             sa,  ca, -width*sa/2 - height*ca/2 + surf.h/2),
+                            Image.NEAREST)
+
+    _from_PIL(image, newsurf)
+
+    if need_data_sub:
+        SDL_LockSurface(newsurf)
+        data = newsurf.pixels.to_string()
+        '''
+        def repl(match):
+            if match.group(0) == '\000\000\000\000':
+                return background_bytes
+            elif match.group(0) == background_bytes:
+                return '\000\000\000\000'
+            else:
+                return match.group(0)
+        '''
+        pattern = re.compile('....', re.DOTALL)
+        data = pattern.sub(repl, data)
+        memmove(newsurf.pixels.ptr, data, len(data))
+        SDL_UnlockSurface(newsurf)
+
+    return pygame.surface.Surface(surf=newsurf)
 
 def rotozoom(surface, angle, scale):
     '''Filtered scale and rotation.

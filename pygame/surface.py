@@ -417,7 +417,7 @@ class Surface(object):
             color = SDL_MapRGBA(surf.format, rgba[0], rgba[1], rgba[2], rgba[3])
         if color and type(color) not in (int, long):
             raise 'invalid color argument'
-        if color:
+        if color is not None:
             flags |= SDL_SRCCOLORKEY
 
         SDL_SetColorKey(surf, flags, color)
@@ -1133,6 +1133,7 @@ def _surface_blit(destobj, srcobj, dstrect, srcrect, special_flags):
        (dst.format.BytesPerPixel == 2 or dst.format.BytesPerPixel == 4):
         raise NotImplementedError, 'TODO'
     else:
+        #print src.flags & SDL_SRCCOLORKEY
         result = SDL_BlitSurface(src, srcrect, dst, dstrect)
 
     if didconvert:
