@@ -193,7 +193,18 @@ class Font(object):
         if background:
             background = SDL_Color(*pygame.base._rgba_from_obj(background))
 
-        if antialias:
+        if not text:
+            # Pygame returns a 1 pixel wide surface if given empty string.
+            height = TTF_FontHeight(font)
+            surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32,
+                                        0x00ff0000, 0x0000ff00, 0x000000ff, 0)
+            if background:
+                c = SDL_MapRGB(surf.format, background.r, background.g,
+                               background.b)
+                SDL_FillRect(surf, None, c)
+            else:
+                SDL_SetColorKey(surf, SDL_SRCCOLORKEY, 0)
+        elif antialias:
             if not background:
                 surf = TTF_RenderText_Blended(font, text, foreground)
             else:
@@ -201,7 +212,7 @@ class Font(object):
         else:
             surf = TTF_RenderText_Solid(font, text, foreground)
 
-        if not antialias and background:
+        if text and not antialias and background:
             # Add color key
             SDL_SetColorKey(surf, 0, 0)
             surf.format.palette.colors[0].r = background.r

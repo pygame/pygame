@@ -253,7 +253,7 @@ def tostring(surface, format, flipped=False):
         if pitch == w:
             result = pixels # easy exit
         else:
-            flipped = False
+            flipped = False # Flipping taken care of by h_range
             for y in h_range:
                 rows.append(pixels[y*pitch:y*pitch + w])
     elif surf.format.BytesPerPixel == len(format) and format != 'RGBX':
@@ -358,7 +358,7 @@ def tostring(surface, format, flipped=False):
                           for c in surf.pixels]
         surface.unlock()
         pitch /= surf.format.BytesPerPixel
-        flipped = False
+        flipped = False  # Flipping taken care of by h_range
         if format == 'RGB':
             for y in h_range:
                 rows.append(''.join([ chr(c[0]) + chr(c[1]) + chr(c[2]) \
@@ -377,8 +377,10 @@ def tostring(surface, format, flipped=False):
     if surface._surf.flags & SDL_OPENGL:
         SDL_FreeSurface(surf)
 
+    # Is pixel data already one big string?
     if result:
         if flipped:
+            # Split it into rows so it can be flipped vertically.
             rows = re.findall('.' * w * len(format), result, re.DOTALL)
         else:
             return result
