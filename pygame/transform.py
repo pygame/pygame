@@ -490,12 +490,9 @@ def chop(surface, rect):
 
 # Implemented this by mistake... misread the chop() documentation :-)
 def crop(surface, rect):
-    '''Extract a rectangular area of an image.
+    '''Crop an image to the given size.
 
-    Extracts a portion of an image. All vertical and
-    horizontal pixels surrounding the given rectangle area are removed. The
-    resulting image is shrunken by the size of pixels removed.
-    (The original image is not altered by this operation.)
+    The original image is unchanged.
 
     :Parameters:
         `surface` : `Surface`
