@@ -321,7 +321,7 @@ class Surface(object):
         newsurf = SDL_DisplayFormatAlpha(self._surf)
         self._unprep()
 
-        return Surface(newsurf)
+        return Surface(surf=newsurf)
         
 
     def copy(self):
@@ -339,7 +339,7 @@ class Surface(object):
         newsurf = SDL_ConvertSurface(surf, surf.format, surf.flags) 
         self._unprep()
 
-        return Surface(newsurf)
+        return Surface(surf=newsurf)
 
     def fill(self, color, rect=None):
         '''Fill surface with a solid color.
@@ -476,7 +476,7 @@ class Surface(object):
         else:
             value = 255
 
-        SDL_SetAlpha(surf, flags, alpha)
+        SDL_SetAlpha(surf, flags, value)
 
     def get_alpha(self):
         '''Get the current surface alpha value.
