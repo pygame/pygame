@@ -330,6 +330,8 @@ def tostring(surface, format, flipped=False):
             else:
                 pixels = [(palette[c].r, palette[c].g, palette[c].b, 255) \
                           for c in surf.pixels]
+        elif surf.format.BytesPerPixel == 3:
+            raise NotImplementedException, 'TODO'
         else:
             Rmask = surf.format.Rmask
             Gmask = surf.format.Gmask
