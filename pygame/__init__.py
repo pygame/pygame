@@ -71,13 +71,13 @@ class MissingModule:
 #first, the "required" modules
 from pygame.base import *
 from pygame.constants import *
-#from pygame.version import *
+from pygame.version import *
 from pygame.rect import Rect
 #import pygame.rwobject
 #import pygame.surflock
 import pygame.color
 Color = pygame.color.Color
-#__version__ = ver
+__version__ = ver
 
 #next, the "standard" modules
 #we still allow them to be missing for stripped down pygame distributions
