@@ -118,9 +118,9 @@ class Rect(object):
             raise AttributeError, name
 
     def __setattr__(self, name, value):
-        if name == 'top':
+        if name == 'top' or name == 'y':
             self._r.y = value
-        elif name == 'left':
+        elif name == 'left' or name == 'x':
             self._r.x = value
         elif name == 'bottom':
             self._r.y = value - self._r.h
@@ -361,7 +361,7 @@ def _rect_from_object(obj):
 
 def _rect_collide(a, b):
     return a.x + a.w > b.x and b.x + b.w > a.x and \
-           a.y + a.h > b.y and b.y + b.h > b.y
+           a.y + a.h > b.y and b.y + b.h > a.y
 
 def _two_ints_from_args(arg):
     if len(arg) == 1:
