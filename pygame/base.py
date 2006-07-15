@@ -94,6 +94,7 @@ def _video_autoinit():
     if not SDL.SDL_WasInit(SDL.SDL_INIT_VIDEO):
         SDL.SDL_InitSubSystem(SDL.SDL_INIT_VIDEO)
         SDL.SDL_EnableUNICODE(1)
+    return 1
 
 def _atexit_quit():
     while _quitfunctions:
