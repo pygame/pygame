@@ -73,8 +73,6 @@ from pygame.base import *
 from pygame.constants import *
 from pygame.version import *
 from pygame.rect import Rect
-#import pygame.rwobject
-#import pygame.surflock
 import pygame.color
 Color = pygame.color.Color
 __version__ = ver
@@ -114,7 +112,7 @@ except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
 try: from pygame.surface import Surface
 except (ImportError,IOError):Surface = lambda:Missing_Function
 
-try: from pygame.overlay import *
+try: from pygame.overlay import Overlay
 except (ImportError,IOError):Overlay = lambda:Missing_Function
 
 try: import pygame.time

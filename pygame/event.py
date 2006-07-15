@@ -90,7 +90,7 @@ from ctypes import *
 
 from SDL import *
 import pygame.base
-import pygame.constants
+import pygame.locals
 import pygame.display
 
 def pump():
@@ -167,7 +167,7 @@ def poll():
     if event:
         return Event(0, sdl_event=event, keep_userdata=True)
     else:
-        return Event(pygame.constants.NOEVENT)
+        return Event(pygame.locals.NOEVENT)
 
 def wait():
     '''Wait for a single event from the queue.
@@ -213,7 +213,7 @@ def peek(typelist=None):
         if events:
             return Event(0, sdl_event=events[0])
         else:
-            return Event(pygame.constants.NOEVENT) # XXX deviation from pygame
+            return Event(pygame.locals.NOEVENT) # XXX deviation from pygame
     return len(events) > 0
 
 def clear(typelist=None):
@@ -412,7 +412,7 @@ def post(event):
 
     pygame.display._video_init_check()
 
-    sdl_event = SDL_Event(pygame.constants.USEREVENT)
+    sdl_event = SDL_Event(pygame.locals.USEREVENT)
     sdl_event.code = _USEROBJECT_CHECK1
     sdl_event.data1 = c_void_p(_USEROBJECT_CHECK2)
     sdl_event.data2 = c_void_p(_user_event_nextid)
@@ -449,7 +449,7 @@ class Event:
 
         '''
         if sdl_event:
-            if sdl_event.type == pygame.constants.USEREVENT and \
+            if sdl_event.type == pygame.locals.USEREVENT and \
                sdl_event.code == _USEROBJECT_CHECK1 and \
                sdl_event.data1.value == _USEROBJECT_CHECK2 and \
                sdl_event.data2.value in _user_event_objects:

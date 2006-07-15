@@ -25,8 +25,8 @@ def vPlayer( fName ):
     u= []
     v= []
     for i in xrange( 0, h/2 ):
-        u.append( f.read( w/2 ))
         v.append( f.read( w/2 ))
+        u.append( f.read( w/2 ))
     
     u= ''.join(u)
     v= ''.join(v)
