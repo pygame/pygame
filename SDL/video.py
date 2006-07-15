@@ -219,7 +219,7 @@ class SDL_Surface(Structure):
         `pixels` : SDL_array
             Buffer of integers of the type given in the pixel format. 
             Each element of the array corresponds to exactly one pixel
-            when ``format.BitsPerPixel`` is at least 8; otherwise each
+            when ``format.BitsPerPixel`` is 8, 16 or 32; otherwise each
             element is exactly one byte.  Modifying this array has an
             immediate effect on the pixel data of the surface.  See
             `SDL_LockSurface`.
@@ -233,7 +233,7 @@ class SDL_Surface(Structure):
                 ('_pixels', POINTER(c_ubyte)),
                 ('_offset', c_int),
                 ('_hwdata', c_void_p),
-                ('_clip_rect', SDL_Rect),
+                ('clip_rect', SDL_Rect),
                 ('_unused1', c_int),
                 ('_locked', c_int),
                 ('_map', c_void_p),  
@@ -249,16 +249,19 @@ class SDL_Surface(Structure):
             if not self._pixels:
                 raise SDL.error.SDL_Exception, 'Surface needs locking'
             bpp = self.format.BitsPerPixel
-            # Can't rely on BytesPerPixel when calculating pitch
-            byte_pitch = self.pitch  * 8 / bpp
-            count = byte_pitch * self.h
+            count = self.pitch / self.format.BytesPerPixel * self.h
             if bpp == 1:
                 sz = c_ubyte
+                # Can't rely on BytesPerPixel when calculating 1 bit pitch
+                byte_pitch = self.pitch  * 8 / bpp
                 count = (byte_pitch * self.h + 7) / 8
             elif bpp == 8:
                 sz = c_ubyte
             elif bpp == 16:
                 sz = c_ushort
+            elif bpp == 24:
+                sz = c_ubyte
+                count = self.pitch * self.h
             elif bpp == 32:
                 sz = c_uint
             else:
