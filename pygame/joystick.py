@@ -115,6 +115,7 @@ class Joystick(object):
             raise pygame.base.error, 'Invalid joystick device number'
 
         self._id = id
+        self._device = None
 
     def init(self):
         '''Initialize the Joystick.
