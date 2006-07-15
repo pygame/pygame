@@ -204,7 +204,7 @@ def peek(typelist=None):
         if hasattr(typelist, '__len__'):
             mask = reduce(lambda a,b: a | SDL_EVENTMASK(b), typelist)
         else:
-            mask = int(typelist)
+            mask = SDL_EVENTMASK(int(typelist))
     
     SDL_PumpEvents()
     events = SDL_PeepEvents(1, SDL_PEEKEVENT, mask)
