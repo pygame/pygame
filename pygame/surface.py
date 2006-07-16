@@ -13,12 +13,6 @@ import pygame.base
 import pygame.locals
 import pygame.rect
 
-try:
-    import numpy
-    _have_numpy = True
-except ImportError:
-    _have_numpy = False
-
 class _SubSurface_Data(object):
     __slots__ = ['owner', 'pixeloffset', 'offsetx', 'offsety']
 
@@ -1255,12 +1249,20 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
     SDL_LockSurface(src)
     SDL_LockSurface(dst)
 
-    if _have_numpy:
-        # 2D plane manipulation
-        srcdata = src.pixels.as_numpy()
-        dstdata = dst.pixels.as_numpy()
+    if src.pixels.have_array():
+        # 2D plane manipulation with numpy, Numeric or numarray
+        if src.pixels.have_numpy():
+            src2d = src.pixels.as_numpy((src.h, srcpitch))
+            dst2d = dst.pixels.as_numpy((dst.h, dstpitch))
+            import numpy
+            array = numpy
+            copy_array = False
+        else:
+            src2d = src.pixels.to_array((src.h, srcpitch))
+            dst2d = dst.pixels.to_array((dst.h, dstpitch))
+            array = src.pixels.array_module()
+            copy_array = True
 
-        src2d = srcdata.reshape(src.h, srcpitch)
         if src24:
             src2d_rect = src2d[srcy:srcy+h,srcx:srcx+w*3]
             sR = src2d_rect[:,::3]
@@ -1274,7 +1276,6 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
             sB = ((src2d_rect & srcBmask) >> srcBshift) << srcBloss
             sA = ((src2d_rect & srcAmask) >> srcAshift) << srcAloss
 
-        dst2d = dstdata.reshape(dst.h, dstpitch)
         if dst24:
             # XXX TODO This is completely untested.  The planes probably
             # need to be cast to a larger data type.
@@ -1295,47 +1296,47 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
             if src.flags & SDL_SRCALPHA and src.format.Amask:
                 pass    # keep sA
             elif src.flags & SDL_SRCCOLORKEY:
-                sA = numpy.equal(src2d_rect, src.format.colorkey) * \
+                sA = array.equal(src2d_rect, src.format.colorkey) * \
                      src.format.alpha
             else:
                 sA = src.format.alpha
 
-            comparison = numpy.equal(dA, 0)
-            dR = numpy.choose( comparison,
+            comparison = array.equal(dA, 0)
+            dR = array.choose( comparison,
                          ( ((dR << 8) + (sR - dR) * sA + sR) >> 8, 
                            sR ) )
-            dG = numpy.choose( comparison,
+            dG = array.choose( comparison,
                          ( ((dG << 8) + (sG - dG) * sA + sG) >> 8, 
                            sG ) )
-            dB = numpy.choose( comparison,
+            dB = array.choose( comparison,
                          ( ((dB << 8) + (sB - dB) * sA + sB) >> 8, 
                            sB ) )
-            dA = numpy.choose( comparison,
+            dA = array.choose( comparison,
                          ( sA + dA - sA * dA / 255,
                            sA ) )
         elif special_flags == pygame.locals.BLEND_ADD:
-            dR = numpy.minimum(dR + sR, 255)
-            dG = numpy.minimum(dG + sG, 255)
-            dB = numpy.minimum(dB + sB, 255)
+            dR = array.minimum(dR + sR, 255)
+            dG = array.minimum(dG + sG, 255)
+            dB = array.minimum(dB + sB, 255)
         elif special_flags == pygame.locals.BLEND_SUB:
-            dR = numpy.choose(numpy.greater(dR, sR), 
+            dR = array.choose(array.greater(dR, sR), 
                               (0, dR - sR))
-            dG = numpy.choose(numpy.greater(dG, sG), 
+            dG = array.choose(array.greater(dG, sG), 
                               (0, dG - sG))
-            dB = numpy.choose(numpy.greater(dB, sB), 
+            dB = array.choose(array.greater(dB, sB), 
                               (0, dB - sB))
         elif special_flags == pygame.locals.BLEND_MULT:
             dR = (dR * sR) >> 8
             dG = (dG * sG) >> 8
             dB = (dB * sB) >> 8
         elif special_flags == pygame.locals.BLEND_MIN:
-            dR = numpy.minimum(dR, sR)
-            dG = numpy.minimum(dG, sG)
-            dB = numpy.minimum(dB, sB)
+            dR = array.minimum(dR, sR)
+            dG = array.minimum(dG, sG)
+            dB = array.minimum(dB, sB)
         elif special_flags == pygame.locals.BLEND_MAX:
-            dR = numpy.maximum(dR, sR)
-            dG = numpy.maximum(dG, sG)
-            dB = numpy.maximum(dB, sB)
+            dR = array.maximum(dR, sR)
+            dG = array.maximum(dG, sG)
+            dB = array.maximum(dB, sB)
         else:
             raise ValueError, 'Unknown blend flag %d' % special_flags
 
@@ -1349,6 +1350,9 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
                               ((dG >> dstGloss) << dstGshift) | \
                               ((dB >> dstBloss) << dstBshift) | \
                               ((dA >> dstAloss) << dstAshift)
+
+        if copy_array:
+            dst.pixels.from_array(dst2d)
 
     else:
         # Slow, simple Python loop (no array module available)
