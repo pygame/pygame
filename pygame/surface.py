@@ -13,6 +13,12 @@ import pygame.base
 import pygame.locals
 import pygame.rect
 
+try:
+    import numpy
+    _have_numpy = True
+except ImportError:
+    _have_numpy = False
+
 class _SubSurface_Data(object):
     __slots__ = ['owner', 'pixeloffset', 'offsetx', 'offsety']
 
@@ -1201,75 +1207,6 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
     dstrect.w = w
     dstrect.h = h
 
-    # Choose blend function
-    if special_flags == 0:
-        if src.flags & SDL_SRCALPHA and src.format.Amask:
-            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-                if da:
-                    return ( ((dr << 8) + (sr - dr) * sa + sr) >> 8,
-                             ((dg << 8) + (sg - dg) * sa + sg) >> 8,
-                             ((db << 8) + (sb - db) * sa + sb) >> 8,
-                             sa + da - sa * da / 255 )
-                else:
-                    return sr, sg, sb, sa
-
-        elif src.flags & SDL_SRCCOLORKEY:
-            alpha = src.format.alpha
-            colorkey = src.format.colorkey
-            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-                sa = (srcpixel == colorkey) * alpha
-                if da:
-                    return ( ((dr << 8) + (sr - dr) * sa + sr) >> 8,
-                             ((dg << 8) + (sg - dg) * sa + sg) >> 8,
-                             ((db << 8) + (sb - db) * sa + sb) >> 8,
-                             sa + da - sa * da / 255 )
-                else:
-                    return sr, sg, sb, sa
-        else:
-            # Use surface alpha
-            alpha = src.format.alpha
-            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-                sa = alpha
-                if da:
-                    return ( ((dr << 8) + (sr - dr) * sa + sr) >> 8,
-                             ((dg << 8) + (sg - dg) * sa + sg) >> 8,
-                             ((db << 8) + (sb - db) * sa + sb) >> 8,
-                             sa + da - sa * da / 255 )
-                else:
-                    return sr, sg, sb, sa
-    elif special_flags == pygame.locals.BLEND_ADD:
-        def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-            return ( min(dr + sr, 255),
-                     min(dg + sg, 255),
-                     min(db + sb, 255),
-                     da )
-    elif special_flags == pygame.locals.BLEND_SUB:
-        def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-            return ( max(dr - sr, 0),
-                     max(dg - sg, 0),
-                     max(db - sb, 0),
-                     da )
-    elif special_flags == pygame.locals.BLEND_MULT:
-        def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-            return ( (dr * sr) >> 8,
-                     (dg * sg) >> 8,
-                     (db * sb) >> 8,
-                     da )
-    elif special_flags == pygame.locals.BLEND_MIN:
-        def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-            return ( min(dr, sr),
-                     min(dg, sg),
-                     min(db, sb),
-                     da )
-    elif special_flags == pygame.locals.BLEND_MAX:
-        def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
-            return ( max(dr, sr),
-                     max(dg, sg),
-                     max(db, sb),
-                     da )    
-    else:
-        raise ValueError, 'Unknown blend flag %d' % special_flags
-
     # Mmm, fun times...
     srcRmask = src.format.Rmask
     srcGmask = src.format.Gmask
@@ -1296,12 +1233,6 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
     dstBloss = dst.format.Bloss
     dstAloss = dst.format.Aloss
 
-    # Both surfaces are already prepped by caller, just need to lock
-    SDL_LockSurface(src)
-    SDL_LockSurface(dst)
-    
-    srcdata = src.pixels.as_ctypes()
-    dstdata = dst.pixels.as_ctypes()
     srcpitch = src.pitch / src.format.BytesPerPixel
     dstpitch = dst.pitch / dst.format.BytesPerPixel
     srcpitchdelta = srcpitch - w
@@ -1320,51 +1251,224 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
         dsti = dsty * dstpitch + dstx * 3
         dstpitchdelta = dstpitch - w * 3
 
-    y = 0
-    while y < h:
-        x = 0
-        while x < w:
-            if src24:
-                srccol = SDL_SwapLE32(srcdata[srci] | \
-                                      srcdata[srci+1] << 8 | \
-                                      srcdata[srci+2] << 16 | \
-                                      0xff << 24)
-                srci += 2
+    # Both surfaces are already prepped by caller, just need to lock
+    SDL_LockSurface(src)
+    SDL_LockSurface(dst)
+
+    if _have_numpy:
+        # 2D plane manipulation
+        srcdata = src.pixels.as_numpy()
+        dstdata = dst.pixels.as_numpy()
+
+        src2d = srcdata.reshape(src.h, srcpitch)
+        if src24:
+            src2d_rect = src2d[srcy:srcy+h,srcx:srcx+w*3]
+            sR = src2d_rect[:,::3]
+            sG = src2d_rect[:,1::3]
+            sB = src2d_rect[:,2::3]
+            sA = 255
+        else:
+            src2d_rect = src2d[srcy:srcy+h,srcx:srcx+w]
+            sR = ((src2d_rect & srcRmask) >> srcRshift) << srcRloss
+            sG = ((src2d_rect & srcGmask) >> srcGshift) << srcGloss
+            sB = ((src2d_rect & srcBmask) >> srcBshift) << srcBloss
+            sA = ((src2d_rect & srcAmask) >> srcAshift) << srcAloss
+
+        dst2d = dstdata.reshape(dst.h, dstpitch)
+        if dst24:
+            # XXX TODO This is completely untested.  The planes probably
+            # need to be cast to a larger data type.
+            dst2d_rect = dst2d[dstrect.y:dstrect.y+h,dstrect.x:dstrect.x+w*3]
+            dR = dst2d_rect[:,::3]
+            dG = dst2d_rect[:,1::3]
+            dB = dst2d_rect[:,2::3]
+            dA = 255
+        else:
+            dst2d_rect = dst2d[dstrect.y:dstrect.y+h,dstrect.x:dstrect.x+w]
+            dR = ((dst2d_rect & dstRmask) >> dstRshift) << dstRloss
+            dG = ((dst2d_rect & dstGmask) >> dstGshift) << dstGloss
+            dB = ((dst2d_rect & dstBmask) >> dstBshift) << dstBloss
+            dA = ((dst2d_rect & dstAmask) >> dstAshift) << dstAloss
+
+        # Perform blend
+        if special_flags == 0:
+            if src.flags & SDL_SRCALPHA and src.format.Amask:
+                pass    # keep sA
+            elif src.flags & SDL_SRCCOLORKEY:
+                sA = numpy.equal(src2d_rect, src.format.colorkey) * \
+                     src.format.alpha
             else:
-                srccol = srcdata[srci]
-            if dst24:
-                dstcol = SDL_SwapLE32(dstdata[dsti] | \
-                                      dstdata[dsti+1] << 8 | \
-                                      dstdata[dsti+2] << 16)
+                sA = src.format.alpha
+
+            comparison = numpy.equal(dA, 0)
+            dR = numpy.choose( comparison,
+                         ( ((dR << 8) + (sR - dR) * sA + sR) >> 8, 
+                           sR ) )
+            dG = numpy.choose( comparison,
+                         ( ((dG << 8) + (sG - dG) * sA + sG) >> 8, 
+                           sG ) )
+            dB = numpy.choose( comparison,
+                         ( ((dB << 8) + (sB - dB) * sA + sB) >> 8, 
+                           sB ) )
+            dA = numpy.choose( comparison,
+                         ( sA + dA - sA * dA / 255,
+                           sA ) )
+        elif special_flags == pygame.locals.BLEND_ADD:
+            dR = numpy.minimum(dR + sR, 255)
+            dG = numpy.minimum(dG + sG, 255)
+            dB = numpy.minimum(dB + sB, 255)
+        elif special_flags == pygame.locals.BLEND_SUB:
+            dR = numpy.choose(numpy.greater(dR, sR), 
+                              (0, dR - sR))
+            dG = numpy.choose(numpy.greater(dG, sG), 
+                              (0, dG - sG))
+            dB = numpy.choose(numpy.greater(dB, sB), 
+                              (0, dB - sB))
+        elif special_flags == pygame.locals.BLEND_MULT:
+            dR = (dR * sR) >> 8
+            dG = (dG * sG) >> 8
+            dB = (dB * sB) >> 8
+        elif special_flags == pygame.locals.BLEND_MIN:
+            dR = numpy.minimum(dR, sR)
+            dG = numpy.minimum(dG, sG)
+            dB = numpy.minimum(dB, sB)
+        elif special_flags == pygame.locals.BLEND_MAX:
+            dR = numpy.maximum(dR, sR)
+            dG = numpy.maximum(dG, sG)
+            dB = numpy.maximum(dB, sB)
+        else:
+            raise ValueError, 'Unknown blend flag %d' % special_flags
+
+        # Finished, set result.
+        if dst24:
+            dst2d_rect[:,::3] = dR
+            dst2d_rect[:,1::3] = dG
+            dst2d_rect[:,2::3] = dB
+        else:
+            dst2d_rect[:,:] = ((dR >> dstRloss) << dstRshift) | \
+                              ((dG >> dstGloss) << dstGshift) | \
+                              ((dB >> dstBloss) << dstBshift) | \
+                              ((dA >> dstAloss) << dstAshift)
+
+    else:
+        # Slow, simple Python loop (no array module available)
+        srcdata = src.pixels.as_ctypes()
+        dstdata = dst.pixels.as_ctypes()
+
+        # Choose blend function
+        if special_flags == 0:
+            if src.flags & SDL_SRCALPHA and src.format.Amask:
+                def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                    if da:
+                        return ( ((dr << 8) + (sr - dr) * sa + sr) >> 8,
+                                 ((dg << 8) + (sg - dg) * sa + sg) >> 8,
+                                 ((db << 8) + (sb - db) * sa + sb) >> 8,
+                                 sa + da - sa * da / 255 )
+                    else:
+                        return sr, sg, sb, sa
+
+            elif src.flags & SDL_SRCCOLORKEY:
+                alpha = src.format.alpha
+                colorkey = src.format.colorkey
+                def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                    sa = (srcpixel == colorkey) * alpha
+                    if da:
+                        return ( ((dr << 8) + (sr - dr) * sa + sr) >> 8,
+                                 ((dg << 8) + (sg - dg) * sa + sg) >> 8,
+                                 ((db << 8) + (sb - db) * sa + sb) >> 8,
+                                 sa + da - sa * da / 255 )
+                    else:
+                        return sr, sg, sb, sa
             else:
-                dstcol = dstdata[dsti]
-            dR, dG, dB, dA = \
-                blend( ((srccol & srcRmask) >> srcRshift) << srcRloss,
-                       ((srccol & srcGmask) >> srcGshift) << srcGloss,
-                       ((srccol & srcBmask) >> srcBshift) << srcBloss,
-                       ((srccol & srcAmask) >> srcAshift) << srcAloss,
-                       ((dstcol & dstRmask) >> dstRshift) << dstRloss,
-                       ((dstcol & dstGmask) >> dstGshift) << dstGloss,
-                       ((dstcol & dstBmask) >> dstBshift) << dstBloss,
-                       ((dstcol & dstAmask) >> dstAshift) << dstAloss,
-                       srccol )
-            if dst24:
-                # XXX assuming RGB
-                dstdata[dsti] = dR
-                dstdata[dsti + 1] = dG
-                dstdata[dsti + 2] = dB
-                dsti += 2
-            else:
-                dstdata[dsti] = ((dR >> dstRloss) << dstRshift) | \
-                                ((dG >> dstGloss) << dstGshift) | \
-                                ((dB >> dstBloss) << dstBshift) | \
-                                ((dA >> dstAloss) << dstAshift)
-            srci += 1
-            dsti += 1
-            x += 1
-        y += 1
-        srci += srcpitchdelta
-        dsti += dstpitchdelta
+                # Use surface alpha
+                alpha = src.format.alpha
+                def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                    sa = alpha
+                    if da:
+                        return ( ((dr << 8) + (sr - dr) * sa + sr) >> 8,
+                                 ((dg << 8) + (sg - dg) * sa + sg) >> 8,
+                                 ((db << 8) + (sb - db) * sa + sb) >> 8,
+                                 sa + da - sa * da / 255 )
+                    else:
+                        return sr, sg, sb, sa
+        elif special_flags == pygame.locals.BLEND_ADD:
+            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                return ( min(dr + sr, 255),
+                         min(dg + sg, 255),
+                         min(db + sb, 255),
+                         da )
+        elif special_flags == pygame.locals.BLEND_SUB:
+            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                return ( max(dr - sr, 0),
+                         max(dg - sg, 0),
+                         max(db - sb, 0),
+                         da )
+        elif special_flags == pygame.locals.BLEND_MULT:
+            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                return ( (dr * sr) >> 8,
+                         (dg * sg) >> 8,
+                         (db * sb) >> 8,
+                         da )
+        elif special_flags == pygame.locals.BLEND_MIN:
+            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                return ( min(dr, sr),
+                         min(dg, sg),
+                         min(db, sb),
+                         da )
+        elif special_flags == pygame.locals.BLEND_MAX:
+            def blend(sr, sg, sb, sa, dr, dg, db, da, srcpixel):
+                return ( max(dr, sr),
+                         max(dg, sg),
+                         max(db, sb),
+                         da )    
+        else:
+            raise ValueError, 'Unknown blend flag %d' % special_flags
+
+        y = 0
+        while y < h:
+            x = 0
+            while x < w:
+                if src24:
+                    srccol = SDL_SwapLE32(srcdata[srci] | \
+                                          srcdata[srci+1] << 8 | \
+                                          srcdata[srci+2] << 16 | \
+                                          0xff << 24)
+                    srci += 2
+                else:
+                    srccol = srcdata[srci]
+                if dst24:
+                    dstcol = SDL_SwapLE32(dstdata[dsti] | \
+                                          dstdata[dsti+1] << 8 | \
+                                          dstdata[dsti+2] << 16)
+                else:
+                    dstcol = dstdata[dsti]
+                dR, dG, dB, dA = \
+                    blend( ((srccol & srcRmask) >> srcRshift) << srcRloss,
+                           ((srccol & srcGmask) >> srcGshift) << srcGloss,
+                           ((srccol & srcBmask) >> srcBshift) << srcBloss,
+                           ((srccol & srcAmask) >> srcAshift) << srcAloss,
+                           ((dstcol & dstRmask) >> dstRshift) << dstRloss,
+                           ((dstcol & dstGmask) >> dstGshift) << dstGloss,
+                           ((dstcol & dstBmask) >> dstBshift) << dstBloss,
+                           ((dstcol & dstAmask) >> dstAshift) << dstAloss,
+                           srccol )
+                if dst24:
+                    # XXX assuming RGB
+                    dstdata[dsti] = dR
+                    dstdata[dsti + 1] = dG
+                    dstdata[dsti + 2] = dB
+                    dsti += 2
+                else:
+                    dstdata[dsti] = ((dR >> dstRloss) << dstRshift) | \
+                                    ((dG >> dstGloss) << dstGshift) | \
+                                    ((dB >> dstBloss) << dstBshift) | \
+                                    ((dA >> dstAloss) << dstAshift)
+                srci += 1
+                dsti += 1
+                x += 1
+            y += 1
+            srci += srcpitchdelta
+            dsti += dstpitchdelta
     
     SDL_UnlockSurface(dst)
     SDL_UnlockSurface(src)
