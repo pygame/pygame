@@ -10,6 +10,8 @@ SDL multimedia library. It contains python functions and classes
 that will allow you to use SDL's support for playing cdroms,
 audio and video output, and keyboard, mouse and joystick input."""
 
+EXTRAS = {}
+
 METADATA = {
     "name":             "pygame",
     "version":          "1.8.0pre",
@@ -21,18 +23,9 @@ METADATA = {
     "long_description": DESCRIPTION,
 }
 
-cmdclass = {}
-
 import sys
 if not hasattr(sys, 'version_info') or sys.version_info < (2,2):
     raise SystemExit, "Pygame requires Python version 2.2 or above."
-
-try:
-    import bdist_mpkg_support
-except ImportError:
-    pass
-else:
-    cmdclass.update(bdist_mpkg_support.cmdclass)
 
 #get us to the correct directory
 import os, sys
@@ -47,6 +40,18 @@ from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
 from distutils.ccompiler import new_compiler
 from distutils.command.install_data import install_data
+
+try:
+    import bdist_mpkg_support
+    from setuptools import setup, Extension
+except ImportError:
+    pass
+else:
+    EXTRAS.update({
+        'options': bdist_mpkg_support.options,
+        'setup_requires': ['bdist_mpkg>=0.4.2'],
+    })
+
 
 import config
 # a separate method for finding dlls with mingw.
@@ -168,13 +173,10 @@ class smart_install_data(install_data):
         self.install_dir = getattr(install_cmd, 'install_lib')
         return install_data.run(self)
 
-cmdclass['install_data'] = smart_install_data
-
-
 #finally,
 #call distutils with all needed info
 PACKAGEDATA = {
-       "cmdclass":    cmdclass,
+       "cmdclass":    {'install_data': smart_install_data},
        "packages":    ['pygame', 'pygame.gp2x'],
        "package_dir": {'pygame': 'lib',
                        'pygame.gp2x': 'lib/gp2x'},
@@ -183,4 +185,5 @@ PACKAGEDATA = {
        "data_files":  [['pygame', data_files]],
 }
 PACKAGEDATA.update(METADATA)
+PACKAGEDATA.update(EXTRAS)
 setup(**PACKAGEDATA)
