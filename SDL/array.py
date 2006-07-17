@@ -190,12 +190,10 @@ class SDL_array:
         # Each module has its own shaping interface
         if _have_numpy and _default_array is numpy:
             return _default_array.fromstring(s, t).reshape(shape)
-        elif _have_Numeric and _default_array is Numeric:
-            # XXX This doesn't work for more than one dimension, Numeric 
-            # is broken broken broken.
-            return _default_array.fromstring(s, t).resize(shape)
         elif _have_numarray and _default_array is numarray:
             return  _default_array.fromstring(s, t, shape)
+        elif _have_Numeric and _default_array is Numeric:
+            return _default_array.fromstring(s, t).resize(shape)
 
     def from_array(self, array):
         '''Copy data from the given numpy, Numeric or numarray array into
