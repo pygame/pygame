@@ -1,30 +1,30 @@
+# only enable bdist_mpkg if it's installed already
+import pkg_resources
 try:
-    import setuptools
-    import pkg_resources
-    try:
-        pkg_resources.require('bdist_mpkg')
-    except pkg_resources.DistributionNotFound:
-        raise ImportError
-except ImportError:
-    import bdist_mpkg
-    from distutils.command.bdist_mpkg import bdist_mpkg as _bdist_mpkg
-else:
-    _bdist_mpkg = setuptools.Distribution().get_command_class('bdist_mpkg')
+    pkg_resources.require('bdist_mpkg>=0.4.2')
+except pkg_resources.DistributionNotFound:
+    raise ImportError
 
 FRAMEWORKS = ['SDL', 'SDL_ttf', 'SDL_image', 'SDL_mixer', 'smpeg']
 
-class bdist_mpkg(_bdist_mpkg):
-    def initialize_options(self):
-        _bdist_mpkg.initialize_options(self)
-        self.scheme_descriptions['examples'] = u'(Optional) pygame example code'
-        self.scheme_map['examples'] = '/Developer/Python/pygame/Examples'
-        self.scheme_copy['examples'] = 'examples'
-        self.scheme_descriptions['docs'] = u'(Optional) pygame documentation'
-        self.scheme_map['docs'] = '/Developer/Python/pygame/Documentation'
-        self.scheme_copy['docs'] = 'docs'
-        for framework in FRAMEWORKS:
-            self.scheme_descriptions[framework] = u'(Required) %s.framework' % (framework,)
-            self.scheme_map[framework] = '/Library/Frameworks/%s.framework' % (framework,)
-            self.scheme_copy[framework] = '/Library/Frameworks/%s.framework' % (framework,)
+CUSTOM_SCHEMES = dict(
+    examples=dict(
+        description=u'(Optional) pygame example code',
+        prefix='/Developer/Python/pygame/Examples',
+        source='examples',
+    ),
+    docs=dict(
+        description=u'(Optional) pygame documentation',
+        prefix='/Developer/Python/pygame/Documentation',
+        source='docs',
+    ),
+)
 
-cmdclass = {'bdist_mpkg': bdist_mpkg}
+for framework in FRAMEWORKS:
+    CUSTOM_SCHEMES[framework] = dict(
+        description=u'(Required) %s.framework' % (framework,),
+        prefix='/Library/Frameworks/%s.framework' % (framework,),
+        source='/Library/Frameworks/%s.framework' % (framework,),
+    )
+
+options = dict(bdist_mpkg=dict(custom_schemes=CUSTOM_SCHEMES))
