@@ -20,6 +20,7 @@ def surfdemo_show(array_img, name):
     "displays a surface, waits for user to continue"
     screen = pygame.display.set_mode(array_img.shape[:2], 0, 32)
     surfarray.blit_array(screen, array_img)
+    print len(array_img.tostring())
     pygame.display.flip()
     pygame.display.set_caption(name)
     while 1:
@@ -36,12 +37,13 @@ def surfdemo_show(array_img, name):
             #pygame.image.save(s, name+'.png')
             #pygame.image.save(screen, name+'_screen.png')
             #pygame.image.save(s, name+'.tga')
-            pygame.image.save(screen, name+'.png')
+            pygame.image.save(screen, name+'.bmp')
         elif e.type == QUIT: raise SystemExit
 
 
 
 
+'''
 #allblack
 allblack = N.zeros((128, 128))
 surfdemo_show(allblack, 'allblack')
@@ -52,12 +54,15 @@ striped = N.zeros((128, 128, 3))
 striped[:] = (255, 0, 0)
 striped[:,::3] = (0, 255, 255)
 surfdemo_show(striped, 'striped')
-
+'''
+import numpy
+pygame.surfarray.set_array_module(numpy)
 
 #imgarray
 imagename = os.path.join('data', 'arraydemo.bmp')
 imgsurface = pygame.image.load(imagename)
 imgarray = surfarray.array2d(imgsurface)
+#imgarray[:,::3] = 0
 surfdemo_show(imgarray, 'imgarray')
 
 
@@ -65,12 +70,11 @@ surfdemo_show(imgarray, 'imgarray')
 flipped = imgarray[:,::-1]
 surfdemo_show(flipped, 'flipped')
 
-
 #scaledown
 scaledown = imgarray[::2,::2]
 surfdemo_show(scaledown, 'scaledown')
 
-
+'''
 #scaleup
 size = N.array(imgarray.shape)*2
 scaleup = N.zeros(size)
@@ -105,6 +109,6 @@ diff = (dest - src) * 0.50
 xfade = src + diff.astype(N.Int)
 surfdemo_show(xfade, 'xfade')
 
-
+'''
 
 #alldone
