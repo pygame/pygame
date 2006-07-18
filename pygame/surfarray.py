@@ -101,9 +101,9 @@ def _check_array():
 def array2d(surface):
     '''Copy pixels into a 2d array.
 
-    Copy the pixels from a Surface into a 2D array. The bit depth of the surface
-    will control the size of the integer values, and will work for any type of
-    pixel format.
+    Copy the pixels from a Surface into a 2D array. The bit depth of the
+    surface will control the size of the integer values, and will work for any
+    type of pixel format.
 
     This function will temporarily lock the Surface as pixels are copied
     (see the Surface.lock() method).
@@ -150,30 +150,16 @@ def array2d(surface):
     elif bpp == 4:
         t = _array.UInt32
 
-    #shape = surf.w, surf.h
-    #fake_strides = bpp, bpp * surf.w
-    #assert len(data) == bpp * surf.w * surf.h
-
     shape = surf.h, surf.w
 
-    print _array.__name__
     if _array.__name__ == 'numpy':
         ar = _array.fromstring(data, t).reshape(shape)
-        ar = ar.transpose()
-        #ar.strides = fake_strides
     elif _array.__name__ == 'numarray':
         ar = _array.fromstring(data, t, shape)
-        ar = _array.transpose(ar)
-        #ar._strides = fake_strides
     elif _array.__name__ == 'Numeric':
         ar = _array.fromstring(data, t).resize(shape)
-        ar = _array.transpose(ar)
-        # Dodginess follows...
-        #ar_obj = _PyArrayObject.from_address(id(ar))
-        #strides = cast(ar_obj.strides, POINTER(c_int * 2)).contents
-        #strides[:] = fake_strides
 
-    return ar
+    return _array.transpose(ar)
 
 def pixels2d(surface):
     '''Reference pixels into a 2d array.
@@ -210,7 +196,24 @@ def array3d(surface):
             Surface to copy.
 
     :rtype: Numeric array
-    '''    
+    '''
+    array = array2d(surface)
+
+    surf = surface._surf
+    format = surf.format
+    bpp = format.BytesPerPixel
+
+    if format.BytesPerPixel == 1:
+        raise NotImplementedException, 'TODO: palette lookup'
+    else:
+        array = _array.array(\
+            [((array & format.Rmask) >> format.Rshift) << format.Rloss,
+             ((array & format.Gmask) >> format.Gshift) << format.Gloss,
+             ((array & format.Bmask) >> format.Bshift) << format.Bloss] )
+        array = _array.transpose(array, (1, 2, 0))
+        print array.shape
+
+    return array
 
 def pixels3d(surface):
     '''Reference pixels into a 3d array.
@@ -300,6 +303,23 @@ def make_surface(array):
     :rtype: `Surface`
     '''
 
+def _get_array_module(array):
+    # Given an array, determine what array module it is from.  Note that
+    # we don't require it to be the same module as _array, which is
+    # only for returned arrays.
+
+    # "strides" attribute is different in each module, so is hacky way
+    # to check.
+    if hasattr(array, 'strides'):
+        import numpy
+        return numpy
+    elif hasattr(array, '_strides'):
+        import numarray
+        return numarray
+    else:
+        import Numeric
+        return Numeric
+
 def blit_array(surface, array):
     '''Blit directly from the values in an array.
 
@@ -307,6 +327,8 @@ def blit_array(surface, array):
     converting the array into a Surface and blitting. The array must be the
     same dimensions as the Surface and will completely replace all pixel
     values.
+
+    2D arrays must have the same pixel format as the surface.
 
     This function will temporarily lock the Surface as the new values are
     copied.
@@ -324,49 +346,29 @@ def blit_array(surface, array):
     surf = surface._surf
     bpp = surf.format.BytesPerPixel
 
-    # Get shape
-    if hasattr(array, 'shape'):
-        # numpy, numarray
-        shape = array.shape
-        is_Numeric = False
+    # Local array module, may be different to global array module.
+    module = _get_array_module(array)
+
+    # Transpose to traditional row ordering (row, column, [component])
+    shape = module.shape(array)
+    if len(shape) == 3 and shape[2] == 3:
+        array = module.transpose(array, (1, 0, 2))
+        f = surf.format
+        array = (array[:,:,::3] >> f.Rloss << f.Rshift) | \
+                (array[:,:,1::3] >> f.Gloss << f.Gshift) | \
+                (array[:,:,2::3] >> f.Bloss << f.Bshift)
+    elif len(shape) == 2:
+        array = module.transpose(array)
     else:
-        import Numeric
-        shape = Numeric.shape(array)
-        is_Numeric = True
-
-    if not (len(shape) == 2 or (len(shape) == 3 and shape[2] == 3)):
         raise ValueError, 'must be a valid 2d or 3d array\n'
-
-    if len(shape) == 3:
-        raise NotImplementedError, 'TODO, 3D'
+    shape = module.shape(array)
 
     if bpp <= 0 or bpp > 4:
         raise ValueError, 'unsupport bit depth for surface'
 
-    if surf.w != shape[0] or surf.h != shape[1]:
+    if surf.w != shape[1] or surf.h != shape[0]:
         raise ValueError, 'array must match surface dimensions'
 
-    # Get strides
-    if hasattr(array, 'strides'):
-        # numpy
-        #strides = array.strides
-        array = array.transpose()
-    elif hasattr(array, '_strides'):
-        # numarray
-        #strides = array._strides
-        import numarray
-        array = numarray.transpose(array)
-    else:
-        import Numeric
-        array = Numeric.transpose(array)
-        # Numeric
-        #array_obj = _PyArrayObject.from_address(id(array))
-        #strides = tuple(cast(array_obj.strides, 
-        #                     POINTER(c_int * len(shape))).contents)
-
-    data = array.tostring()
-
-    # Get element size
     if callable(array.itemsize):
         # numarray, Numeric
         itemsize = array.itemsize()
@@ -374,11 +376,12 @@ def blit_array(surface, array):
         # numpy
         itemsize = array.itemsize
 
-    # XXX Following probably doesn't work for RGB->RGBA or RGBA->RGB
+    data = array.tostring()
+
     print itemsize, bpp
     if itemsize > bpp:
         print 'a'
-        # Trim bytes from each pixel, keep least significant byte(s)
+        # Trim bytes from each element, keep least significant byte(s)
         if SDL_BYTEORDER == SDL_LIL_ENDIAN:
             pattern = '(%s)%s' % ('.' * bpp, '.' * (itemsize - bpp))
         else:
@@ -386,7 +389,7 @@ def blit_array(surface, array):
         data = ''.join(re.compile(pattern, flags=re.DOTALL).findall(data))
     elif itemsize < bpp:
         print 'b'
-        # Add pad bytes to each pixel, at most significant end
+        # Add pad bytes to each element, at most significant end
         pad = '\0' * (bpp - itemsize)
         pixels = re.compile('.' * itemsize, flags=re.DOTALL).findall(data)
         data = pad.join(pixels)
@@ -396,7 +399,7 @@ def blit_array(surface, array):
             data = pad + data
 
     # Add zeros pad for pitch correction
-    pitchdiff = surf.pitch - surf.w * bpp
+    pitchdiff = surf.pitch - surf.w * bpp 
     if pitchdiff > 0:
         print 'c'
         pad = '\0' * pitchdiff
