@@ -150,23 +150,28 @@ def array2d(surface):
     elif bpp == 4:
         t = _array.UInt32
 
-    shape = surf.w, surf.h
-    fake_strides = bpp, bpp * surf.w
-    assert len(data) == bpp * surf.w * surf.h
+    #shape = surf.w, surf.h
+    #fake_strides = bpp, bpp * surf.w
+    #assert len(data) == bpp * surf.w * surf.h
+
+    shape = surf.h, surf.w
 
     print _array.__name__
     if _array.__name__ == 'numpy':
         ar = _array.fromstring(data, t).reshape(shape)
-        ar.strides = fake_strides
+        ar = ar.transpose()
+        #ar.strides = fake_strides
     elif _array.__name__ == 'numarray':
         ar = _array.fromstring(data, t, shape)
-        ar._strides = fake_strides
+        ar = _array.transpose(ar)
+        #ar._strides = fake_strides
     elif _array.__name__ == 'Numeric':
         ar = _array.fromstring(data, t).resize(shape)
+        ar = _array.transpose(ar)
         # Dodginess follows...
-        ar_obj = _PyArrayObject.from_address(id(ar))
-        strides = cast(ar_obj.strides, POINTER(c_int * 2)).contents
-        strides[:] = fake_strides
+        #ar_obj = _PyArrayObject.from_address(id(ar))
+        #strides = cast(ar_obj.strides, POINTER(c_int * 2)).contents
+        #strides[:] = fake_strides
 
     return ar
 
@@ -344,17 +349,20 @@ def blit_array(surface, array):
     # Get strides
     if hasattr(array, 'strides'):
         # numpy
-        strides = array.strides
+        #strides = array.strides
+        array = array.transpose()
     elif hasattr(array, '_strides'):
         # numarray
-        strides = array._strides
+        #strides = array._strides
+        import numarray
+        array = numarray.transpose(array)
     else:
+        import Numeric
+        array = Numeric.transpose(array)
         # Numeric
-        array_obj = _PyArrayObject.from_address(id(array))
-        strides = tuple(cast(array_obj.strides, 
-                             POINTER(c_int * len(shape))).contents)
-
-    print 'strides ', strides
+        #array_obj = _PyArrayObject.from_address(id(array))
+        #strides = tuple(cast(array_obj.strides, 
+        #                     POINTER(c_int * len(shape))).contents)
 
     data = array.tostring()
 
