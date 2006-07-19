@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
 from copy import copy
+import weakref
 
 from SDL import *
 import pygame.base
@@ -17,7 +18,7 @@ class _SubSurface_Data(object):
     __slots__ = ['owner', 'pixeloffset', 'offsetx', 'offsety']
 
 class Surface(object):
-    __slots__ = ['_surf', '_subsurface']
+    __slots__ = ['_surf', '_subsurface', '_weakrefs']
 
     def __init__(self, size=(0,0), flags=0, depth=0, masks=None, 
                  surf=None, subsurf=None):
@@ -52,6 +53,7 @@ class Surface(object):
                 Used internally.
 
         '''
+        self._weakrefs = []
         if surf:
             if not isinstance(surf, SDL_Surface):
                 raise TypeError, 'surf'
@@ -569,6 +571,19 @@ class Surface(object):
         :rtype: bool
         '''
         return self._surf._pixels.contents != None
+
+    def lifelock(self, obj):
+        '''Lock the surface for as long as obj is alive.
+
+        This uses a weak reference to obj to detect when it is garbage
+        collected, at which point the surface is unlocked again.
+        '''
+        self.lock()
+        self._weakrefs.append(weakref.ref(obj, self._lifelock_callback))
+
+    def _lifelock_callback(self, ref):
+        self._weakrefs.remove(ref)
+        self.unlock()
 
     def get_at(self, pos):
         '''Get the color value at a single pixel.
