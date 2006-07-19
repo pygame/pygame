@@ -184,9 +184,12 @@ def pixels2d(surface):
 def array3d(surface):
     '''Copy pixels into a 3d array.
 
-    Copy the pixels from a Surface into a 3D array. The bit depth of the
-    surface will control the size of the integer values, and will work for any
-    type of pixel format.
+    Copy the pixels from a Surface into a 3D array.  Arrays are indexed
+    by [x,y,colour], where colour is 0 for the red component, 1 for the
+    green component and 2 for the blue component.
+
+    The pixel format of the surface will control the maximum size of the
+    integer values.
 
     This function will temporarily lock the Surface as pixels are copied (see
     the Surface.lock() method).
@@ -206,12 +209,15 @@ def array3d(surface):
     if format.BytesPerPixel == 1:
         raise NotImplementedException, 'TODO: palette lookup'
     else:
-        array = _array.array(\
-            [((array & format.Rmask) >> format.Rshift) << format.Rloss,
-             ((array & format.Gmask) >> format.Gshift) << format.Gloss,
-             ((array & format.Bmask) >> format.Bshift) << format.Bloss] )
+        planes = [((array & format.Rmask) >> format.Rshift) << format.Rloss,
+                  ((array & format.Gmask) >> format.Gshift) << format.Gloss,
+                  ((array & format.Bmask) >> format.Bshift) << format.Bloss] 
+        if _array.__name__ == 'Numeric':
+            # Workaround bug: if type unspecified, Numeric gives type 'O'
+            array = _array.array(planes , _array.UInt8)
+        else:
+            array = _array.array(planes)
         array = _array.transpose(array, (1, 2, 0))
-        print array.shape
 
     return array
 
