@@ -289,6 +289,24 @@ def tostring(surface, format, flipped=False):
             surface.lock()
             result = surf.pixels.to_string()
             surface.unlock()
+    elif surf.format.BytesPerPixel == 3 and format in ('RGBA', 'ARGB'):
+        # Optimised conversion from RGB to RGBA or ARGB.
+        if surf.format.Rmask == SDL_SwapLE32(0x000000ff) and \
+           surf.format.Gmask == SDL_SwapLE32(0x0000ff00) and \
+           surf.format.Bmask == SDL_SwapLE32(0x00ff0000) and \
+           pitch == w * surf.format.BytesPerPixel:
+            surface.lock()
+            result = surf.pixels.to_string()
+            surface.unlock()
+
+            # Insert in empty alpha byte
+            alpha = chr(0xff)
+            result = alpha.join(re.findall('...', result, re.DOTALL))
+            if format == 'ARGB':
+                result = alpha + result
+            else:
+                result += alpha
+
     elif surf.format.BytesPerPixel == 4 and format == 'RGB':
         # Optimised conversion from RGBA or ARGB to RGB.
         # This is an optimisation; could also use the default case.
@@ -331,7 +349,7 @@ def tostring(surface, format, flipped=False):
                 pixels = [(palette[c].r, palette[c].g, palette[c].b, 255) \
                           for c in surf.pixels]
         elif surf.format.BytesPerPixel == 3:
-            raise NotImplementedException, 'TODO'
+            raise NotImplementedError, 'TODO'
         else:
             Rmask = surf.format.Rmask
             Gmask = surf.format.Gmask

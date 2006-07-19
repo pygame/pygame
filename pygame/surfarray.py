@@ -175,7 +175,26 @@ def pixels2d(surface):
             Surface to reference.
 
     :rtype: Numeric array
-    '''       
+    '''
+    surf = surface._surf
+    bpp = surf.format.BytesPerPixel
+
+    if bpp == 3 or bpp < 1 or bpp > 4:
+        raise ValueError, 'unsupprt bit depth for 2D reference array'
+
+    if surf.pitch % bpp != 0:
+        #TODO hack stride
+        raise NotImplementedError, "Can't correct for this surface pitch"
+
+    shape = surf.h, surf.pitch / bpp
+
+    surface.lock()
+    array = _array_from_buffer(surf.pixels.as_ctypes(), bpp, shape)
+    surface.lifelock(array)
+    surface.unlock()
+
+    array = array[:,:surf.w]
+    return _array.transpose(array)
 
 def array3d(surface):
     '''Copy pixels into a 3d array.
@@ -248,6 +267,38 @@ def pixels3d(surface):
 
     :rtype: Numeric array
     '''  
+    surf = surface._surf
+    bpp = surf.format.BytesPerPixel
+
+    if bpp <= 2 or bpp > 4:
+        raise ValueError, 'unsupport bit depth for alpha array'
+
+    if SDL_SwapLE32(surf.format.Rmask) == 0xff << 16 and \
+       SDL_SwapLE32(surf.format.Gmask) == 0xff << 8 and \
+       SDL_SwapLE32(surf.format.Bmask) == 0xff:
+        start = 2
+        step = -1
+        end = None
+    elif SDL_SwapLE32(surf.format.Rmask) == 0xff and \
+         SDL_SwapLE32(surf.format.Gmask) == 0xff << 8 and \
+         SDL_SwapLE32(surf.format.Bmask) == 0xff << 16:
+        start = 0
+        step = 1
+        end = 3
+    else:
+        raise ValueError, 'unsupport colormasks for 3D reference array'
+
+    shape = surf.h, surf.pitch 
+
+    surface.lock()
+    array = _array_from_buffer(surf.pixels.as_bytes().as_ctypes(), 1, shape)
+    surface.lifelock(array)
+    surface.unlock()
+
+    array = array[:,:surf.w*bpp]
+    array = array.reshape(surf.h, surf.w, bpp)
+    array = array[:,:,start:end:step]
+    return _array.transpose(array, (1, 0, 2))
 
 def array_alpha(surface):
     '''Copy pixel alphas into a 2d array.
@@ -268,11 +319,9 @@ def array_alpha(surface):
     array = array2d(surface)
 
     format = surface._surf.format
-    print format.Amask, format.BytesPerPixel
     if (not format.Amask) or format.BytesPerPixel == 1:
         array[:,:] = 0xff
     else:
-        print 'here'
         array = array >> format.Ashift << format.Aloss
 
     return array.astype(_array.UInt8)
@@ -294,7 +343,27 @@ def pixels_alpha(surface):
             Surface to reference.
 
     :rtype: Numeric array
-    '''  
+    ''' 
+    surf = surface._surf
+
+    if surf.format.BytesPerPixel != 4:
+        raise ValueError, 'unsupport bit depth for alpha array'
+
+    if SDL_SwapLE32(surf.format.Amask) == 0xff << 24:
+        startpixel = 3
+    else:
+        startpixel = 0
+
+    shape = surf.h, surf.pitch
+
+    surface.lock()
+    array = _array_from_buffer(surf.pixels.as_bytes().as_ctypes(), 1, shape)
+    surface.lifelock(array)
+    surface.unlock()
+
+    array = array[:,:surf.w*4]
+    array = array[:,startpixel::4]
+    return _array.transpose(array)
 
 def array_colorkey(surface):
     '''Copy the colorkey values into a 2d array.
@@ -512,3 +581,10 @@ def _get_array_local_module(array):
     else:
         import Numeric
         return Numeric
+
+def _array_from_buffer(buffer, bpp, shape):
+    typecode = (_array.UInt8, _array.UInt16, None, _array.UInt32)[bpp-1]
+    if _array.__name__ == 'numpy':
+        return _array.frombuffer(buffer, typecode).reshape(shape)
+    else:
+        raise NotImplementedError, 'numpy required'
