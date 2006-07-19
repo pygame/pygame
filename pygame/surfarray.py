@@ -194,6 +194,9 @@ def array3d(surface):
     This function will temporarily lock the Surface as pixels are copied (see
     the Surface.lock() method).
 
+    :note: This function requires Numeric or numpy if a palettized surface
+        is used; numarray will fail.
+
     :Parameters:
          `surface` : `Surface`
             Surface to copy.
@@ -207,7 +210,16 @@ def array3d(surface):
     bpp = format.BytesPerPixel
 
     if format.BytesPerPixel == 1:
-        raise NotImplementedException, 'TODO: palette lookup'
+        # XXX Fails in numarray:
+        pal_r = _array.array([c.r for c in surf.format.palette.colors])
+        pal_g = _array.array([c.g for c in surf.format.palette.colors])
+        pal_b = _array.array([c.b for c in surf.format.palette.colors])
+        # (ValueError: _operator_compute: too many inputs + outputs
+        planes = [_array.choose(array, pal_r),
+                  _array.choose(array, pal_g),
+                  _array.choose(array, pal_b)]
+        array = _array.array(planes)
+        array = _array.transpose(array, (1, 2, 0))
     else:
         planes = [((array & format.Rmask) >> format.Rshift) << format.Rloss,
                   ((array & format.Gmask) >> format.Gshift) << format.Gloss,
@@ -384,9 +396,7 @@ def blit_array(surface, array):
 
     data = array.tostring()
 
-    print itemsize, bpp
     if itemsize > bpp:
-        print 'a'
         # Trim bytes from each element, keep least significant byte(s)
         if SDL_BYTEORDER == SDL_LIL_ENDIAN:
             pattern = '(%s)%s' % ('.' * bpp, '.' * (itemsize - bpp))
@@ -394,7 +404,6 @@ def blit_array(surface, array):
             pattern = '%s(%s)' % ('.' * (itemsize - bpp), '.' * bpp)
         data = ''.join(re.compile(pattern, flags=re.DOTALL).findall(data))
     elif itemsize < bpp:
-        print 'b'
         # Add pad bytes to each element, at most significant end
         pad = '\0' * (bpp - itemsize)
         pixels = re.compile('.' * itemsize, flags=re.DOTALL).findall(data)
@@ -407,7 +416,6 @@ def blit_array(surface, array):
     # Add zeros pad for pitch correction
     pitchdiff = surf.pitch - surf.w * bpp 
     if pitchdiff > 0:
-        print 'c'
         pad = '\0' * pitchdiff
         rows = re.compile('.' * surf.w * bpp, flags=re.DOTALL).findall(data)
         data = pad.join(rows) + pad
