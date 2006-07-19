@@ -33,6 +33,8 @@ import re
 
 from SDL import *
 
+import pygame.surface
+
 # Numeric doesn't provide a Python interface to its array strides, which
 # we need to modify, so we go under the bonnet and fiddle with it directly.
 # This probably won't work in a lot of scenarios (i.e., outside of my 
@@ -91,12 +93,6 @@ def get_array_module():
     :rtype: module
     '''
     return _array
-
-def _check_array():
-    if not _array:
-        raise ImportError, \
-              'No array module set; use set_array_module if you want to ' + \
-              'use numpy or numarray instead of Numeric.'
 
 def array2d(surface):
     '''Copy pixels into a 2d array.
@@ -176,7 +172,7 @@ def pixels2d(surface):
 
     :Parameters:
          `surface` : `Surface`
-            Surface to copy.
+            Surface to reference.
 
     :rtype: Numeric array
     '''       
@@ -248,7 +244,7 @@ def pixels3d(surface):
 
     :Parameters:
          `surface` : `Surface`
-            Surface to copy.
+            Surface to reference.
 
     :rtype: Numeric array
     '''  
@@ -256,7 +252,7 @@ def pixels3d(surface):
 def array_alpha(surface):
     '''Copy pixel alphas into a 2d array.
 
-    Copy the pixel alpha values (degree of transparency) from a Surface into a
+    Copy the pixel alpha values (degree of opacity) from a Surface into a
     2D array. This will work for any type of Surface format. Surfaces without
     a pixel alpha will return an array with all opaque values.
 
@@ -267,8 +263,19 @@ def array_alpha(surface):
          `surface` : `Surface`
             Surface to copy.
 
-    :rtype: Numeric array
-    '''  
+    :rtype: Numeric, numpy or numarray array
+    '''
+    array = array2d(surface)
+
+    format = surface._surf.format
+    print format.Amask, format.BytesPerPixel
+    if (not format.Amask) or format.BytesPerPixel == 1:
+        array[:,:] = 0xff
+    else:
+        print 'here'
+        array = array >> format.Ashift << format.Aloss
+
+    return array.astype(_array.UInt8)
 
 def pixels_alpha(surface):
     '''Reference pixel alphas into a 2d array.
@@ -284,7 +291,7 @@ def pixels_alpha(surface):
 
     :Parameters:
          `surface` : `Surface`
-            Surface to copy.
+            Surface to reference.
 
     :rtype: Numeric array
     '''  
@@ -301,18 +308,34 @@ def array_colorkey(surface):
 
     This function will temporarily lock the Surface as pixels are copied.
 
+    :note: Not compatible with numarray; you must use numpy or Numeric.
+
     :Parameters:
          `surface` : `Surface`
             Surface to copy.
 
-    :rtype: Numeric array
+    :rtype: Numeric or numpy array
     '''  
+    array = array2d(surface)
+
+    if surface._surf.flags & SDL_SRCCOLORKEY:
+        # XXX No work with numarray
+        colorkey = surface._surf.format.colorkey
+        array = _array.choose(_array.equal(array, colorkey), (0, 0xff))
+    else:
+        array[:,:] = 0xff
+
+    return array.astype(_array.UInt8)
 
 def make_surface(array):
     '''Copy an array to a new surface.
 
     Create a new Surface that best resembles the data and format on the array.
-    The array can be 2D or 3D with any sized integer values.
+    
+    2D arrays are assumed to be 8-bit palette images, however no palette
+    will be set.
+
+    3D arrays are assumed to have the usual RGB components as the minor axis.
 
     :Parameters:
         `array` : Numeric array
@@ -320,23 +343,27 @@ def make_surface(array):
 
     :rtype: `Surface`
     '''
+    _check_array()
+    
+    module = _get_array_local_module(array)
+    shape = module.shape(array)
 
-def _get_array_module(array):
-    # Given an array, determine what array module it is from.  Note that
-    # we don't require it to be the same module as _array, which is
-    # only for returned arrays.
-
-    # "strides" attribute is different in each module, so is hacky way
-    # to check.
-    if hasattr(array, 'strides'):
-        import numpy
-        return numpy
-    elif hasattr(array, '_strides'):
-        import numarray
-        return numarray
+    if len(shape) == 2:
+        depth = 8
+        Rmask = Gmask = Bmask = 0
+    elif len(shape) == 3 and shape[2] == 3:
+        depth = 32
+        Rmask = 0xff << 16
+        Gmask = 0xff << 8
+        Bmask = 0xff
     else:
-        import Numeric
-        return Numeric
+        raise ValueError, 'must be valid 2d or 3d array\n'
+    
+    surf = SDL_CreateRGBSurface(0, shape[0], shape[1], depth, 
+                                Rmask, Gmask, Bmask, 0)
+    surface = pygame.surface.Surface(surf=surf)
+    blit_array(surface, array)
+    return surface
 
 def blit_array(surface, array):
     '''Blit directly from the values in an array.
@@ -365,7 +392,7 @@ def blit_array(surface, array):
     bpp = surf.format.BytesPerPixel
 
     # Local array module, may be different to global array module.
-    module = _get_array_module(array)
+    module = _get_array_local_module(array)
 
     # Transpose to traditional row ordering (row, column, [component])
     shape = module.shape(array)
@@ -429,13 +456,59 @@ def map_array(surface, array):
     '''Map a 3d array into a 2d array.
 
     Convert a 3D array into a 2D array. This will use the given Surface format
-    to control the conversion.
+    to control the conversion.  Palette surface formats are not supported.
+
+    :note: Arrays need not be 3D, so long as the minor axis has three elements
+        giving the component colours, any array shape can be used (for
+        example, a single colour can be mapped, or an array of colours).
 
     :Parameters:
         `surface` : `Surface`
             Surface with format information.
-        `array` : Numeric array
+        `array` : Numeric, numpy or numarray array
             Array to convert.
 
-    :rtype: Numeric array
+    :rtype: Numeric, numpy or numarray array
+    :return: array module will be the same as array passed in.
     '''
+    surf = surface._surf
+
+    module = _get_array_local_module(array)
+    shape = module.shape(array)
+
+    if shape[-1] != 3:
+        # XXX Misleading: lists and single values also accepted
+        raise ValueError, 'array must be a 3d array of 3-value color data'
+
+    if surf.format.BytesPerPixel <= 0 or surf.format.BytesPerPixel > 4:
+        raise ValueError, 'unsupport bit depth for surface array'
+
+    f = surf.format
+    array = (array[...,::3] >> f.Rloss << f.Rshift) | \
+            (array[...,1::3] >> f.Gloss << f.Gshift) | \
+            (array[...,2::3] >> f.Bloss << f.Bshift)
+
+    return array
+
+def _check_array():
+    if not _array:
+        raise ImportError, \
+              'No array module set; use set_array_module if you want to ' + \
+              'use numpy or numarray instead of Numeric.'
+
+def _get_array_local_module(array):
+    # Given an array, determine what array module it is from.  Note that
+    # we don't require it to be the same module as _array, which is
+    # only for returned arrays.
+
+    # "strides" attribute is different in each module, so is hacky way
+    # to check.
+    if hasattr(array, 'strides'):
+        import numpy
+        return numpy
+    elif hasattr(array, '_strides'):
+        import numarray
+        return numarray
+    else:
+        import Numeric
+        return Numeric

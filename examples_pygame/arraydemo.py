@@ -6,8 +6,8 @@ try:
     
     # These should all work identically
     #import numpy as N
-    import numarray as N
-    #import Numeric as N
+    #import numarray as N
+    import Numeric as N
 
     from pygame.locals import *
     surfarray = pygame.surfarray
