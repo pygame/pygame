@@ -141,7 +141,9 @@ def main():
         Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
         Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
         DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', 'smpeg'),
-        DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h')
+        DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
+        Dependency('PNG', 'png.h', 'libpng', 'png'),
+        Dependency('JPEG', 'jpeglib.h', 'libjpeg', 'jpeg'),
     ]
 
     if not DEPS[0].found:
