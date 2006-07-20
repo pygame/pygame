@@ -23,6 +23,14 @@ last index is 0 for red, 1 for green, and 2 for blue.
 
 Numeric does not use unsigned 16bit integers, images with 16bit data will
 be treated as signed integers.
+
+By default Numeric arrays will be returned, however you can use numpy or
+numarray instead; see the `set_array_module` function.  Any type of array
+(numpy, numarray or Numeric) can be used as the input to any function
+regardless of the array module set.  
+
+:note: numarray support is a bit flakey; there are some operations it does not
+    support well.
 '''
 
 __docformat__ = 'restructuredtext'
@@ -30,19 +38,16 @@ __version__ = '$Id$'
 
 from ctypes import *
 import re
+import sys
 
 from SDL import *
 
 import pygame.surface
 
-# Numeric doesn't provide a Python interface to its array strides, which
-# we need to modify, so we go under the bonnet and fiddle with it directly.
-# This probably won't work in a lot of scenarios (i.e., outside of my 
-# house).
-class _PyArrayObject(Structure):
+class _Numeric_PyArrayObject(Structure):
     _fields_ = [('ob_refcnt', c_int),
                 ('ob_type', c_void_p),
-                ('data', c_char_p),
+                ('data', POINTER(c_char)),
                 ('nd', c_int),
                 ('dimensions', POINTER(c_int)),
                 ('strides', POINTER(c_int)),
@@ -50,6 +55,36 @@ class _PyArrayObject(Structure):
                 ('descr', c_void_p),
                 ('flags', c_uint),
                 ('weakreflist', c_void_p)]
+
+# Numeric flags constants
+_CONTIGUOUS = 1
+_OWN_DIMENSIONS = 2
+_OWN_STRIDES = 4
+_OWN_DATA = 8
+_SAVESPACE = 16
+
+# numarray constants
+_MAXDIM = 40
+
+class _numarray_PyArrayObject(Structure):
+    _fields_ = [('ob_refcnt', c_int),
+                ('ob_type', c_void_p),
+                ('data', POINTER(c_char)),
+                ('nd', c_int),
+                ('dimensions', POINTER(c_int)),
+                ('strides', POINTER(c_int)),
+                ('base', c_void_p),
+                ('descr', c_void_p),
+                ('flags', c_uint),
+                ('_dimensions', c_int * _MAXDIM),
+                ('_strides', c_int * _MAXDIM),
+                ('_data', c_void_p),
+                ('_shadows', c_void_p),
+                ('nstrides', c_int),
+                ('byteoffset', c_long),
+                ('bytestride', c_long),
+                ('itemsize', c_long),
+                ('byteorder', c_char)]
 
 # Provide support for numpy and numarray in addition to Numeric.  To
 # be compatible with Pygame, by default the module will be unavailable
@@ -296,7 +331,8 @@ def pixels3d(surface):
     surface.unlock()
 
     array = array[:,:surf.w*bpp]
-    array = array.reshape(surf.h, surf.w, bpp)
+    print surf.h * surf.w * bpp, _array.shape(array)
+    array = _array.reshape(array, (surf.h, surf.w, bpp))
     array = array[:,:,start:end:step]
     return _array.transpose(array, (1, 0, 2))
 
@@ -586,5 +622,36 @@ def _array_from_buffer(buffer, bpp, shape):
     typecode = (_array.UInt8, _array.UInt16, None, _array.UInt32)[bpp-1]
     if _array.__name__ == 'numpy':
         return _array.frombuffer(buffer, typecode).reshape(shape)
+
+    elif _array.__name__ == 'Numeric':
+        # Free old data and point to new data, updating dimension size and
+        # clearing OWN_DATA flag so it doesn't get free'd.
+        array = _array.array([0], typecode)
+        array_obj = _Numeric_PyArrayObject.from_address(id(array))
+        assert array_obj.flags & _OWN_DATA != 0
+        try:
+            if sys.platform == 'windows':
+                libc = cdll.msvcrt
+            else:
+                libc = cdll.load_version('c', 6)
+            libc.free(array_obj.data)
+        except OSError:
+            pass # Couldn't find libc; accept a small memory leak
+        array_obj.data = cast(buffer, POINTER(c_char))
+        array_obj.dimensions.contents.value = reduce(lambda a,b:a*b, shape)
+        array_obj.flags &= ~_OWN_DATA
+        return _array.reshape(array, shape)
+
+    elif _array.__name__ == 'numarray':
+        # numarray PyArrayObject is source-compatible with Numeric,
+        # but deallocation is managed via a Python buffer object.
+        # XXX this fails under uncertain circumstances: reading the array
+        # never works, writing works for some arrays and not others.
+        array = _array.array([0], typecode)
+        array_obj = _numarray_PyArrayObject.from_address(id(array))
+        array_obj.dimensions.contents.value = reduce(lambda a,b:a*b, shape)
+        array._data = buffer
+        return _array.reshape(array, shape)
+
     else:
-        raise NotImplementedError, 'numpy required'
+        assert False
