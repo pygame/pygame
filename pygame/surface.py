@@ -1216,6 +1216,13 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
     dstrect.w = w
     dstrect.h = h
 
+    # New to Pygame-ctypes
+    assert dst.format.BytesPerPixel > 1
+    if src.format.BytesPerPixel == 1:
+        # XXX easy way out; could be faster using array module
+        src = SDL_ConvertSurface(src, dst.format, 0)
+        free_src = True
+
     # Mmm, fun times...
     srcRmask = src.format.Rmask
     srcGmask = src.format.Gmask
@@ -1491,6 +1498,9 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
     
     SDL_UnlockSurface(dst)
     SDL_UnlockSurface(src)
+
+    if free_src:
+        SDL_FreeSurface(src)
 
     return 0
 
