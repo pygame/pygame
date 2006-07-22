@@ -8,3 +8,5 @@ SDL_syswm.h - platform dependent
 
 testfile
 
+pygame:
+dealloc surface

@@ -31,7 +31,7 @@ class SDL_version(Structure):
             (self.major, self.minor, self.patch)
 
     def is_since(self, required):
-        if hasattr(required, major):
+        if hasattr(required, 'major'):
             return self.major >= required.major and \
                    self.minor >= required.minor and \
                    self.patch >= required.patch
