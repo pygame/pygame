@@ -30,6 +30,16 @@ class SDL_version(Structure):
         return '%d.%d.%d' % \
             (self.major, self.minor, self.patch)
 
+    def is_since(self, required):
+        if hasattr(required, major):
+            return self.major >= required.major and \
+                   self.minor >= required.minor and \
+                   self.patch >= required.patch
+        else:
+            return self.major >= required[0] and \
+                   self.minor >= required[1] and \
+                   self.patch >= required[2]
+
 def SDL_VERSIONNUM(major, minor, patch):
     '''Turn the version numbers into a numeric value.
 
