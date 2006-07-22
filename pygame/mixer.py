@@ -55,7 +55,7 @@ except ImportError:
 _request_frequency = MIX_DEFAULT_FREQUENCY
 _request_size = MIX_DEFAULT_FORMAT
 _request_stereo = MIX_DEFAULT_CHANNELS
-_request_buffer = MIX_DEFAULT_CHUNKSIZE
+_request_buffer = 1024
 
 _channels = {}
 
@@ -113,8 +113,26 @@ def _autoquit():
         SDL_QuitSubSystem(SDL_INIT_AUDIO)
 
 def _endsound_callback(channel):
-    # TODO
-    pass
+    channel = _channels.get(channel, None)
+    if not channel:
+        return
+
+    if channel._endevent and SDL_WasInit(SDL_INIT_VIDEO):
+        e = SDL_Event()
+        e.type = channel._endevent
+        e = e.specialize()
+        if isinstance(e, SDL_UserEvent):
+            e.code = channel._endevent
+        SDL_PushEvent(e)
+    if channel._queue:
+        channel._sound = channel._queue
+        channel._queue = None
+        channelnum = \
+            Mix_PlayChannelTimed(channel._id, channel._sound._chunk, 0, -1)
+        if channelnum != -1:
+            Mix_GroupChannel(channelnum, id(channel._sound))
+    else:
+        channel._sound = None
 
 def init(frequency=None, size=None, stereo=None, buffer=None):
     '''Initialize the mixer module.
@@ -156,7 +174,7 @@ def init(frequency=None, size=None, stereo=None, buffer=None):
             defaults to 1024.
 
     '''
-    autoinit(frequency, size, stereo, buffer)
+    __PYGAMEinit__(frequency, size, stereo, buffer)
 
 def pre_init(frequency=0, size=0, stereo=0, buffer=0):
     '''Preset the mixer init arguments.
@@ -213,7 +231,7 @@ def get_init():
     '''
     if not SDL_WasInit(SDL_INIT_AUDIO):
         return
-    frequency, format, channels = Mix_QuerySpec()
+    opened, frequency, format, channels = Mix_QuerySpec()
     if format & ~0xff:
         format = -(format & 0xff)
     return frequency, format, channels > 1
@@ -275,6 +293,10 @@ def set_num_channels(channels):
     '''
     _mixer_init_check()
     Mix_AllocateChannels(channels)
+
+    for i in _channels.keys()[:]:
+        if i >= channels:
+            del channels[i]
 
 def get_num_channels():
     '''Get the total number of playback channels.
@@ -351,7 +373,7 @@ class Sound(object):
     of the Sound playback.
     '''
 
-    __slots__ = ['_sound']
+    __slots__ = ['_chunk']
 
     def __init__(self, file):
         '''Create a new Sound object from a file.
@@ -368,8 +390,20 @@ class Sound(object):
                 The filename or file to load.
 
         '''
+        _mixer_init_check()
 
-    def play(self, loops=0, maxtime=0):
+        if hasattr(file, 'read'):
+            rw = SDL_RWopsFromObject(file)
+            # differ from Pygame, no freesrc here.
+            self._chunk = Mix_LoadWAV_RW(rw, 0)
+        else:
+            self._chunk = Mix_LoadWAV(file)
+
+    def __del__(self):
+        if self._chunk:
+            Mix_FreeChunk(self._chunk)
+
+    def play(self, loops=0, maxtime=-1):
         '''Begin sound playback.
 
         Begin playback of the Sound (i.e., on the computer's speakers) on an
@@ -395,12 +429,25 @@ class Sound(object):
         :rtype: `Channel`
         :return: The Channel object for the channel that was selected.
         '''
+        channelnum = Mix_PlayChannelTimed(-1, self._chunk, loops, maxtime)
+        if channelnum == -1:
+            return
+
+        Mix_Volume(channelnum, 128)
+        Mix_GroupChannel(channelnum, id(self))
+
+        channel = Channel(channelnum)
+        channel._queue = None
+        channel._sound = None
+        return channel
         
     def stop(self):
         '''Stop sound playback.
 
         This will stop the playback of this Sound on any active Channels.
         '''        
+        _mixer_init_check()
+        Mix_HaltGroup(id(self))
 
     def fadeout(self, time):
         '''Stop sound playback after fading out.
@@ -414,6 +461,8 @@ class Sound(object):
                 Time to fade out, in milliseconds.
 
         '''
+        _mixer_init_check()
+        Mix_FadeOutGroup(id(self), time)
 
     def set_volume(self, volume):
         '''Set the playback volume for this Sound.
@@ -428,6 +477,9 @@ class Sound(object):
                 Volume of playback, in range [0.0, 1.0]
 
         '''
+        _mixer_init_check()
+
+        Mix_VolumeChunk(self._chunk, int(volume * 128))
 
     def get_volume(self):
         '''Get the playback volume.
@@ -436,6 +488,9 @@ class Sound(object):
 
         :rtype: float
         ''' 
+        _mixer_init_check()
+
+        return Mix_VolumeChunk(self._chunk, -1) / 128.0
 
     def get_num_channels(self):
         '''Count how many times this Sound is playing.
@@ -444,6 +499,9 @@ class Sound(object):
         
         :rtype: int
         '''
+        _mixer_init_check()
+
+        return Mix_GroupCount(id(self))
 
     def get_length():
         '''Get the length of the Sound.
@@ -452,12 +510,37 @@ class Sound(object):
         
         :rtype: float 
         '''
+        _mixer_init_check()
 
-class Channel:
+        opened, freq, format, channels = Mix_QuerySpec()
+        if format == AUDIO_S8 or format == AUDIO_U8:
+            mixerbytes = 1
+        else:
+            mixerbytes = 2
+        numsamples = self._chunk.alen / mixerbytes / channels
+
+        return numsamples / float(freq)
+
+class Channel(object):
     '''The Channel object can be used to get fine control over the playback of
     Sounds. A channel can only playback a single Sound at time. Using channels
     is entirely optional since pygame can manage them by default.
     '''
+
+    __slots__ = ['_id', '_sound', '_queue', '_endevent']
+
+    def __new__(cls, id):
+        _mixer_init_check()
+
+        if id < 0 or id >= Mix_GroupCount(-1):
+            raise IndexError, 'invalid channel index'
+
+        if id in _channels:
+            return _channels[id]
+
+        inst = super(Channel, cls).__new__(cls, id)
+
+        return inst
 
     def __init__(self, id):
         '''Create a Channel object for controlling playback.
@@ -469,8 +552,14 @@ class Channel:
             `id` : int
                 ID of existing channel to create object for.
         '''
+        self._id = id
+        if id not in _channels:
+            self._sound = None
+            self._queue = None 
+            self._endevent = SDL_NOEVENT
+            _channels[id] = self
 
-    def play(self, sound, loops=0, time=0):
+    def play(self, sound, loops=0, time=-1):
         '''Play a Sound on a specific Channel.
 
         This will begin playback of a Sound on a specific Channel. If the
@@ -493,6 +582,11 @@ class Channel:
                 Maximum number of milliseconds to play for.
 
         '''
+        channelnum = Mix_PlayChannelTimed(self._id, sound._chunk, loops, time)
+        if channelnum != -1:
+            Mix_GroupChannel(channelnum, id(sound))
+        self._sound = sound
+        self._queue = None
 
     def stop(self):
         '''Stop playback on a Channel.
@@ -500,6 +594,8 @@ class Channel:
         Stop sound playback on a channel. After playback is stopped the
         channel becomes available for new Sounds to play on it.
         '''
+        _mixer_init_check()
+        Mix_HaltChannel(self._id)
 
     def pause(self):
         '''Temporarily stop playback of a channel.
@@ -507,12 +603,16 @@ class Channel:
         Temporarily stop the playback of sound on a channel. It can be resumed
         at a later time with Channel.unpause()
         '''
+        _mixer_init_check()
+        Mix_Pause(self._id)
 
     def unpause(self):
         '''Resume pause playback of a channel.
 
         Resume the playback on a paused channel.
         '''
+        _mixer_init_check()
+        Mix_Resume(self._id)
 
     def fadeout(self, time):
         '''Stop playback after fading channel out.
@@ -524,6 +624,8 @@ class Channel:
             `time` : int
                 Time to fade out, in milliseconds.
         '''
+        _mixer_init_check()
+        Mix_FadeOutChannel(self._id, time)
                 
     def set_volume(self, left, right=None):
         '''Set the volume of a playing channel.
@@ -554,6 +656,19 @@ class Channel:
                 Volume of right channel, in range [0.0, 1.0]
 
         '''
+        _mixer_init_check()
+        if Mix_Linked_Version().is_since((1,2,1)):
+            if right is None:
+                Mix_SetPanning(self._id, 255, 255)
+            else:
+                Mix_SetPanning(self._id, int(left * 255), int(right * 255))
+                left = 1.0
+        else:
+            if right is not None:
+                left = (left + right) / 2
+        
+        Mix_Volume(self._id, int(left * 128))
+
 
     def get_volume(self):
         '''Get the volume of the playing channel.
@@ -565,6 +680,9 @@ class Channel:
 
         :rtype: float
         '''
+        _mixer_init_check()
+
+        return Mix_Volume(self._id, -1) / 128.0
 
     def get_busy(self):
         '''Determine if the channel is active.
@@ -574,6 +692,8 @@ class Channel:
 
         :rtype: bool
         '''
+        _mixer_init_check()
+        return Mix_Playing(self._id)
 
     def get_sound(self):
         '''Get the currently playing Sound.
@@ -583,6 +703,7 @@ class Channel:
 
         :rtype: `Sound`
         '''
+        return self._sound
 
     def queue(self, sound):
         '''Queue a Sound object to follow the current.
@@ -601,6 +722,13 @@ class Channel:
                 Sound data to queue.
 
         '''
+        if not self._sound:
+            channelnum = Mix_PlayChannelTimed(self._id, sound._chunk, 0, -1)
+            if channelnum != -1:
+                Mix_GroupChannel(channelnum, id(sound))
+            self._sound = sound
+        else:
+            self._queue = sound
 
     def get_queue(self):
         '''Return any Sound that is queued.
@@ -610,6 +738,7 @@ class Channel:
     
         :rtype: `Sound`
         '''
+        return self._queue
 
     def set_endevent(id=None):
         '''Have the channel send an event when playback stops.
@@ -636,6 +765,10 @@ class Channel:
                 Event ID to send.
 
         '''
+        if id is None:
+            id = SDL_NOEVENT
+
+        self._endevent = id
 
     def get_endevent():
         '''Get the event a channel sends when playback stops.
@@ -646,3 +779,4 @@ class Channel:
 
         :rtype: int
         '''
+        return self._endevent

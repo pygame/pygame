@@ -634,6 +634,23 @@ Mix_ReserveChannels = _dll.function('Mix_ReserveChannels',
     arg_types=[c_int],
     return_type=c_int)
 
+Mix_GroupChannel = _dll.function('Mix_GroupChannel',
+    '''Assing a channel to a group.
+
+    A tag can be assigned to several mixer channels, to form groups
+    of channels.  If `tag` is -1, the tag is removed (actually -1 is the
+    tag used to represent the group of all the channels).
+
+    :Parameters:
+     - `channel`: int
+     - `tag`: int
+
+    ''',
+    args=['channel', 'tag'],
+    arg_types=[c_int, c_int],
+    return_type=c_int,
+    error_return=0)
+
 Mix_GroupChannels = _dll.function('Mix_GroupChannels',
     '''Assign several consecutive channels to a group.
 
