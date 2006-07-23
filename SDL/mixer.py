@@ -319,7 +319,7 @@ def Mix_HookMusicFinished(music_finished):
 
     '''
     if music_finished:
-        _Mix_HookMusicFinished(_MixHookMusicFinishedFunc(music_finished))
+        _Mix_HookMusicFinished(_Mix_HookMusicFinishedFunc(music_finished))
     else:
         _Mix_HookMusicFinished(None)
 

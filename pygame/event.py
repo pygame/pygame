@@ -524,7 +524,7 @@ class Event:
             if event_dict:
                 for key, value in event_dict.items():
                     setattr(self, key, value)
-            for key, value in attributes:
+            for key, value in attributes.items():
                 setattr(self, key, value)
 
     def __repr__(self):

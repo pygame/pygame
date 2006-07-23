@@ -103,12 +103,7 @@ def _autoquit():
         Mix_HaltMusic()
         _channels = {}
         if _have_music:
-            if music._current_music:
-                Mix_FreeMusic(music._current_music)
-                music._current_music = None
-            if music._queue_music:
-                Mix_FreeMusic(music._queue_music)
-                music._queue_music = None
+            music._free_loaded()
         Mix_CloseAudio()
         SDL_QuitSubSystem(SDL_INIT_AUDIO)
 
