@@ -1218,6 +1218,7 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
 
     # New to Pygame-ctypes
     assert dst.format.BytesPerPixel > 1
+    free_src = False
     if src.format.BytesPerPixel == 1:
         # XXX easy way out; could be faster using array module
         src = SDL_ConvertSurface(src, dst.format, 0)
