@@ -21,12 +21,15 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
 from SDL import *
+from SDL.mixer import *
 
 import pygame.array
 import pygame.base
 import pygame.mixer
 
 def _as_array(sound):
+    chunk = sound._chunk
+
     ready, frequency, format, channels = Mix_QuerySpec()
     if not ready:
         raise pygame.base.error, 'Mixer not initialized'
@@ -37,9 +40,9 @@ def _as_array(sound):
     else:
         shape = (chunk.alen / formatbytes / 2, 2)
 
-    signed = format in (AUDIO_S8, AUDIO_S16LE, AUDIO_S16BE)
+    signed = format in (AUDIO_S8, AUDIO_S16LSB, AUDIO_S16MSB)
 
-    return pygame.array._array_from_buffer(chunk.abuf, formatbytes,
+    return pygame.array._array_from_buffer(chunk.abuf.as_ctypes(), formatbytes,
                                            shape, signed)
 
 def array(sound):
@@ -54,7 +57,22 @@ def array(sound):
 
     :rtype: Numeric, numpy or numarray array
     '''
-    return _as_array(sound).copy()
+    chunk = sound._chunk
+
+    ready, frequency, format, channels = Mix_QuerySpec()
+    if not ready:
+        raise pygame.base.error, 'Mixer not initialized'
+
+    formatbytes = (format & 0xff) >> 3
+    if channels == 1:
+        shape = (chunk.alen / formatbytes,)
+    else:
+        shape = (chunk.alen / formatbytes / 2, 2)
+
+    signed = format in (AUDIO_S8, AUDIO_S16LSB, AUDIO_S16MSB)
+
+    return pygame.array._array_from_string(chunk.abuf.to_string(), formatbytes,
+                                           shape, signed)
 
 def samples(sound):
     '''Reference Sound samples into an array.
@@ -97,14 +115,24 @@ def make_sound(array):
     if len(shape) != channels or (len(shape) == 2 and shape[1] != channels):
         raise ValueError, \
              'Array must be have same number of dimensions as mixer channels.'
-
+    
     data = array.tostring()
-    chunk = Mix_Chunk()
+
+    # Malloc a buffer and copy in the sound data (mixer will take care
+    # of freeing it).
+    libc = pygame.array._get_libc()
+    libc.malloc.restype = POINTER(c_ubyte)
+    ptr = libc.malloc(len(data))
+    memmove(ptr, data, len(data))
+
+    # Don't just instantiate Mix_Chunk here, otherwise Python GC will free
+    # it.  We want mixer to free it with Mix_FreeChunk, so do a manual malloc.
+    buf = libc.malloc(sizeof(Mix_Chunk))
+    chunk = Mix_Chunk.from_address(addressof(buf.contents))
     chunk.allocated = 1
     chunk.volume = 128
     chunk.alen = len(data)
-    chunk._abuf = create_string_buffer(data)
+    chunk._abuf = ptr
 
     return pygame.mixer.Sound(None, _chunk=chunk)
-            
 

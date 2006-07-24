@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
 from ctypes import *
+import sys
 
 class _Numeric_PyArrayObject(Structure):
     _fields_ = [('ob_refcnt', c_int),
@@ -116,6 +117,19 @@ def _get_array_local_module(array):
         import Numeric
         return Numeric
 
+def _array_from_string(string, bpp, shape, signed=False):
+    if signed:
+        typecode = (_array.Int8, _array.Int16, None, _array.Int32)[bpp-1]
+    else:
+        typecode = (_array.UInt8, _array.UInt16, None, _array.UInt32)[bpp-1]
+
+    if _array.__name__ == 'numpy':
+        return _array.fromstring(string, typecode).reshape(shape)
+    elif _array.__name__ == 'numarray':
+        return _array.fromstring(string, typecode, shape)
+    elif _array.__name__ == 'Numeric':
+        return _array.reshape(_array.fromstring(string, typecode), shape)
+
 def _array_from_buffer(buffer, bpp, shape, signed=False):
     if signed:
         typecode = (_array.Int8, _array.Int16, None, _array.Int32)[bpp-1]
@@ -132,10 +146,7 @@ def _array_from_buffer(buffer, bpp, shape, signed=False):
         array_obj = _Numeric_PyArrayObject.from_address(id(array))
         assert array_obj.flags & _OWN_DATA != 0
         try:
-            if sys.platform == 'windows':
-                libc = cdll.msvcrt
-            else:
-                libc = cdll.load_version('c', 6)
+            libc = _get_libc()
             libc.free(array_obj.data)
         except OSError:
             pass # Couldn't find libc; accept a small memory leak
@@ -157,3 +168,9 @@ def _array_from_buffer(buffer, bpp, shape, signed=False):
 
     else:
         assert False
+
+def _get_libc():
+    if sys.platform == 'windows':
+        return cdll.msvcrt
+    else:
+        return cdll.load_version('c', 6)
