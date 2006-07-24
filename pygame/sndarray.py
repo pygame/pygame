@@ -57,22 +57,7 @@ def array(sound):
 
     :rtype: Numeric, numpy or numarray array
     '''
-    chunk = sound._chunk
-
-    ready, frequency, format, channels = Mix_QuerySpec()
-    if not ready:
-        raise pygame.base.error, 'Mixer not initialized'
-
-    formatbytes = (format & 0xff) >> 3
-    if channels == 1:
-        shape = (chunk.alen / formatbytes,)
-    else:
-        shape = (chunk.alen / formatbytes / 2, 2)
-
-    signed = format in (AUDIO_S8, AUDIO_S16LSB, AUDIO_S16MSB)
-
-    return pygame.array._array_from_string(chunk.abuf.to_string(), formatbytes,
-                                           shape, signed)
+    return _as_array(sound).copy()
 
 def samples(sound):
     '''Reference Sound samples into an array.
