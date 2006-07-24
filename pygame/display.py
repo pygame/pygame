@@ -41,10 +41,12 @@ import sys
 
 from SDL import *
 import pygame.base
+import pygame.pkgdata
 import pygame.surface
 
 _display_surface = None
 _icon_was_set = 0
+_icon_defaultname = 'pygame_icon.bmp'
 
 def __PYGAMEinit__():
     pygame.base.register_quit(_display_autoquit)
@@ -187,11 +189,12 @@ def set_mode(resolution, flags=0, depth=0):
     else:
         _display_surface = pygame.surface.Surface(surf=surf)
 
-    if sys.platform != 'darwin' and False: # XXX
+    if sys.platform != 'darwin':
         if not _icon_was_set:
-            iconsurf = _display_resource(_icon_defaultname)
-            SDL_SetColorKey(iconsurf.surf, SDL_SRCCOLORKEY, 0)
-            _do_set_icon(iconsurf)
+            file = pygame.pkgdata.getResource(_icon_defaultname)
+            iconsurf = pygame.image.load(file)
+            SDL_SetColorKey(iconsurf._surf, SDL_SRCCOLORKEY, 0)
+            set_icon(iconsurf)
 
     return _display_surface
 
