@@ -81,11 +81,7 @@ def array2d(surface):
                              flags=re.DOTALL)
         data = ''.join(pattern.findall(data))
 
-    if bpp == 1:
-        t = _array.UInt8
-    elif bpp == 2:
-        t = _array.UInt16
-    elif bpp == 3:
+    if bpp == 3:
         # Pad each triplet of bytes with another zero
         pattern = re.compile('...', flags=re.DOTALL)
         data = '\0'.join(pattern.findall(data))
@@ -93,19 +89,10 @@ def array2d(surface):
             data += '\0'
         else:
             data = '\0' + data
-        t = _array.UInt32
         bpp = 4
-    elif bpp == 4:
-        t = _array.UInt32
 
     shape = surf.h, surf.w
-
-    if _array.__name__ == 'numpy':
-        ar = _array.fromstring(data, t).reshape(shape)
-    elif _array.__name__ == 'numarray':
-        ar = _array.fromstring(data, t, shape)
-    elif _array.__name__ == 'Numeric':
-        ar = _array.fromstring(data, t).resize(shape)
+    ar = pygame.array._array_from_string(data, bpp, shape)
 
     return _array.transpose(ar)
 

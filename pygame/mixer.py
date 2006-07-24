@@ -504,7 +504,7 @@ class Sound(object):
 
         return Mix_GroupCount(id(self))
 
-    def get_length():
+    def get_length(self):
         '''Get the length of the Sound.
 
         Return the length of this Sound in seconds.
