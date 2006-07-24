@@ -370,7 +370,7 @@ class Sound(object):
 
     __slots__ = ['_chunk']
 
-    def __init__(self, file):
+    def __init__(self, file, _chunk=None):
         '''Create a new Sound object from a file.
 
         Load a new sound buffer from a filename or from a python file object.
@@ -383,8 +383,14 @@ class Sound(object):
         :Parameters:
             `file` : str or file-like object
                 The filename or file to load.
+            `_chunk` : None
+                Internal use only.
 
         '''
+        if _chunk:
+            self._chunk = _chunk
+            return
+
         _mixer_init_check()
 
         if hasattr(file, 'read'):
