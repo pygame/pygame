@@ -42,92 +42,8 @@ import sys
 
 from SDL import *
 
+import pygame.array
 import pygame.surface
-
-class _Numeric_PyArrayObject(Structure):
-    _fields_ = [('ob_refcnt', c_int),
-                ('ob_type', c_void_p),
-                ('data', POINTER(c_char)),
-                ('nd', c_int),
-                ('dimensions', POINTER(c_int)),
-                ('strides', POINTER(c_int)),
-                ('base', c_void_p),
-                ('descr', c_void_p),
-                ('flags', c_uint),
-                ('weakreflist', c_void_p)]
-
-# Numeric flags constants
-_CONTIGUOUS = 1
-_OWN_DIMENSIONS = 2
-_OWN_STRIDES = 4
-_OWN_DATA = 8
-_SAVESPACE = 16
-
-# numarray constants
-_MAXDIM = 40
-
-class _numarray_PyArrayObject(Structure):
-    _fields_ = [('ob_refcnt', c_int),
-                ('ob_type', c_void_p),
-                ('data', POINTER(c_char)),
-                ('nd', c_int),
-                ('dimensions', POINTER(c_int)),
-                ('strides', POINTER(c_int)),
-                ('base', c_void_p),
-                ('descr', c_void_p),
-                ('flags', c_uint),
-                ('_dimensions', c_int * _MAXDIM),
-                ('_strides', c_int * _MAXDIM),
-                ('_data', c_void_p),
-                ('_shadows', c_void_p),
-                ('nstrides', c_int),
-                ('byteoffset', c_long),
-                ('bytestride', c_long),
-                ('itemsize', c_long),
-                ('byteorder', c_char)]
-
-# Provide support for numpy and numarray in addition to Numeric.  To
-# be compatible with Pygame, by default the module will be unavailable
-# if Numeric is not available.  You can activate it to use any available
-# array module by calling set_array_module().
-try:
-    import Numeric
-    _array = Numeric
-except ImportError:
-    _array = None
-
-def set_array_module(module=None):
-    '''Set the array module to use; numpy, numarray or Numeric.
-
-    If no arguments are given, every array module is tried and the
-    first one that can be imported will be used.  The order of
-    preference is numpy, numarray, Numeric.  You can determine which
-    module was set with `get_array_module`.
-
-    :Parameters:
-        `module` : module or None
-            Module to use.
-
-    '''
-    global _array
-    if not module:
-        for name in ('numpy', 'numarray', 'Numeric'):
-            try:
-                set_array_module(__import__(name, locals(), globals(), []))
-            except ImportError:
-                pass
-    else:
-        _array = module
-
-def get_array_module():
-    '''Get the currently set array module.
-
-    If None is returned, no array module is set and the surfarray
-    functions will not be useable.
-
-    :rtype: module
-    '''
-    return _array
 
 def array2d(surface):
     '''Copy pixels into a 2d array.
@@ -145,7 +61,8 @@ def array2d(surface):
 
     :rtype: Numeric array
     '''
-    _check_array()
+    pygame.array._check_array()
+    _array = pygame.array._array
 
     surf = surface._surf
     bpp = surf.format.BytesPerPixel
@@ -224,12 +141,12 @@ def pixels2d(surface):
     shape = surf.h, surf.pitch / bpp
 
     surface.lock()
-    array = _array_from_buffer(surf.pixels.as_ctypes(), bpp, shape)
+    array = pygame.array._array_from_buffer(surf.pixels.as_ctypes(), bpp, shape)
     surface.lifelock(array)
     surface.unlock()
 
     array = array[:,:surf.w]
-    return _array.transpose(array)
+    return pygame.array._array.transpose(array)
 
 def array3d(surface):
     '''Copy pixels into a 3d array.
@@ -254,6 +171,7 @@ def array3d(surface):
     :rtype: Numeric array
     '''
     array = array2d(surface)
+    _array = pygame.array._array
 
     surf = surface._surf
     format = surf.format
@@ -326,15 +244,15 @@ def pixels3d(surface):
     shape = surf.h, surf.pitch 
 
     surface.lock()
-    array = _array_from_buffer(surf.pixels.as_bytes().as_ctypes(), 1, shape)
+    array = pygame.array._array_from_buffer(surf.pixels.as_bytes().as_ctypes(), 
+                                            1, shape)
     surface.lifelock(array)
     surface.unlock()
 
     array = array[:,:surf.w*bpp]
-    print surf.h * surf.w * bpp, _array.shape(array)
-    array = _array.reshape(array, (surf.h, surf.w, bpp))
+    array = pygame.array._array.reshape(array, (surf.h, surf.w, bpp))
     array = array[:,:,start:end:step]
-    return _array.transpose(array, (1, 0, 2))
+    return pygame.array._array.transpose(array, (1, 0, 2))
 
 def array_alpha(surface):
     '''Copy pixel alphas into a 2d array.
@@ -360,7 +278,7 @@ def array_alpha(surface):
     else:
         array = array >> format.Ashift << format.Aloss
 
-    return array.astype(_array.UInt8)
+    return array.astype(pygame.array._array.UInt8)
 
 def pixels_alpha(surface):
     '''Reference pixel alphas into a 2d array.
@@ -393,13 +311,14 @@ def pixels_alpha(surface):
     shape = surf.h, surf.pitch
 
     surface.lock()
-    array = _array_from_buffer(surf.pixels.as_bytes().as_ctypes(), 1, shape)
+    array = pygame.array._array_from_buffer(surf.pixels.as_bytes().as_ctypes(), 
+                                            1, shape)
     surface.lifelock(array)
     surface.unlock()
 
     array = array[:,:surf.w*4]
     array = array[:,startpixel::4]
-    return _array.transpose(array)
+    return pygame.array._array.transpose(array)
 
 def array_colorkey(surface):
     '''Copy the colorkey values into a 2d array.
@@ -422,6 +341,7 @@ def array_colorkey(surface):
     :rtype: Numeric or numpy array
     '''  
     array = array2d(surface)
+    _array = pygame.array._array
 
     if surface._surf.flags & SDL_SRCCOLORKEY:
         # XXX No work with numarray
@@ -448,9 +368,9 @@ def make_surface(array):
 
     :rtype: `Surface`
     '''
-    _check_array()
+    pygame.array._check_array()
     
-    module = _get_array_local_module(array)
+    module = pygame.array._get_array_local_module(array)
     shape = module.shape(array)
 
     if len(shape) == 2:
@@ -491,13 +411,13 @@ def blit_array(surface, array):
 
     :rtype: `Surface`
     '''
-    _check_array()
+    pygame.array._check_array()
 
     surf = surface._surf
     bpp = surf.format.BytesPerPixel
 
     # Local array module, may be different to global array module.
-    module = _get_array_local_module(array)
+    module = pygame.array._get_array_local_module(array)
 
     # Transpose to traditional row ordering (row, column, [component])
     shape = module.shape(array)
@@ -578,7 +498,7 @@ def map_array(surface, array):
     '''
     surf = surface._surf
 
-    module = _get_array_local_module(array)
+    module = pygame.array._get_array_local_module(array)
     shape = module.shape(array)
 
     if shape[-1] != 3:
@@ -595,63 +515,4 @@ def map_array(surface, array):
 
     return array
 
-def _check_array():
-    if not _array:
-        raise ImportError, \
-              'No array module set; use set_array_module if you want to ' + \
-              'use numpy or numarray instead of Numeric.'
 
-def _get_array_local_module(array):
-    # Given an array, determine what array module it is from.  Note that
-    # we don't require it to be the same module as _array, which is
-    # only for returned arrays.
-
-    # "strides" attribute is different in each module, so is hacky way
-    # to check.
-    if hasattr(array, 'strides'):
-        import numpy
-        return numpy
-    elif hasattr(array, '_strides'):
-        import numarray
-        return numarray
-    else:
-        import Numeric
-        return Numeric
-
-def _array_from_buffer(buffer, bpp, shape):
-    typecode = (_array.UInt8, _array.UInt16, None, _array.UInt32)[bpp-1]
-    if _array.__name__ == 'numpy':
-        return _array.frombuffer(buffer, typecode).reshape(shape)
-
-    elif _array.__name__ == 'Numeric':
-        # Free old data and point to new data, updating dimension size and
-        # clearing OWN_DATA flag so it doesn't get free'd.
-        array = _array.array([0], typecode)
-        array_obj = _Numeric_PyArrayObject.from_address(id(array))
-        assert array_obj.flags & _OWN_DATA != 0
-        try:
-            if sys.platform == 'windows':
-                libc = cdll.msvcrt
-            else:
-                libc = cdll.load_version('c', 6)
-            libc.free(array_obj.data)
-        except OSError:
-            pass # Couldn't find libc; accept a small memory leak
-        array_obj.data = cast(buffer, POINTER(c_char))
-        array_obj.dimensions.contents.value = reduce(lambda a,b:a*b, shape)
-        array_obj.flags &= ~_OWN_DATA
-        return _array.reshape(array, shape)
-
-    elif _array.__name__ == 'numarray':
-        # numarray PyArrayObject is source-compatible with Numeric,
-        # but deallocation is managed via a Python buffer object.
-        # XXX this fails under uncertain circumstances: reading the array
-        # never works, writing works for some arrays and not others.
-        array = _array.array([0], typecode)
-        array_obj = _numarray_PyArrayObject.from_address(id(array))
-        array_obj.dimensions.contents.value = reduce(lambda a,b:a*b, shape)
-        array._data = buffer
-        return _array.reshape(array, shape)
-
-    else:
-        assert False

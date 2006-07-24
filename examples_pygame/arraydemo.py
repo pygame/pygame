@@ -37,7 +37,7 @@ def surfdemo_show(array_img, name):
             raise SystemExit
 
 # Only required if N is not Numeric.
-pygame.surfarray.set_array_module(N)
+pygame.set_array_module(N)
 
 imagename = os.path.join('data', 'arraydemo.bmp')
 imgsurface = pygame.image.load(imagename)

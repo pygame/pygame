@@ -69,6 +69,7 @@ class MissingModule:
 #our modules is with the import command (not the __import__ function)
 
 #first, the "required" modules
+from pygame.array import *
 from pygame.base import *
 from pygame.constants import *
 from pygame.version import *
