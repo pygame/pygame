@@ -28,6 +28,27 @@ the Surface object around the draw calls.
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
+from copy import copy
+
+from SDL import *
+
+import pygame.base
+import pygame.rect
+
+def _get_color(color, surface):
+    rgba = pygame.base._rgba_from_obj(color)
+    if rgba:
+        color = SDL_MapRGBA(surface._surf.format, 
+                            rgba[0], rgba[1], rgba[2], rgba[3])
+    if type(color) not in (int, long):
+        raise 'invalid color argument'
+    return color
+
+def _get_rect(rect):
+    rect = copy(rect)
+    rect.normalize()
+    return rect._r
+
 def rect(surface, color, rect, width=0):
     '''Draw a rectangle shape.
 
@@ -52,6 +73,25 @@ def rect(surface, color, rect, width=0):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''    
+    color = _get_color(color, surface)
+    rect = _get_rect(rect)
+    if width == 0:
+        SDL_FillRect(surface._surf, rect, color)
+    else:
+        hw = width / 2
+        r = SDL_Rect(rect.x, rect.y - hw, rect.w, width)
+        SDL_FillRect(surface._surf, r, color)
+        r.y += rect.h
+        SDL_FillRect(surface._surf, r, color)
+        r.x -= hw
+        r.w = width
+        r.y = rect.y
+        r.h = rect.h
+        SDL_FillRect(surface._surf, r, color)
+        r.x += rect.w
+        SDL_FillRect(surface._surf, r, color)
+        # XXX returned clip rectangle wrong
+    return pygame.rect.Rect(rect)
 
 def polygon(surface, color, pointlist, width=0):
     '''Draw a shape with any number of sides.

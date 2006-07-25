@@ -175,7 +175,11 @@ class Clock:
             self._fps_count = 0
             self._fps_tick = nowtime
         elif self._fps_count >= 10:
-            self._fps = self._fps_count / ((nowtime - self._fps_tick) / 1000.0)
+            t = (nowtime - self._fps_tick) / 1000.0
+            if t == 0.0:
+                self._fps = 0.0
+            else:
+                self._fps = self._fps_count / t
             self._fps_count = 0
             self._fps_tick = nowtime
         return self._time_passed

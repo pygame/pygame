@@ -336,6 +336,11 @@ class Rect(object):
         if self._r.h < 0:
             self._r.y += self._r.h
             self._r.h = -self._r.h
+        if isinstance(self._r, _RectProxy):
+            object.__setattr__(self, '_r', SDL.SDL_Rect(self._r.x,
+                                                        self._r.y,
+                                                        self._r.w,
+                                                        self._r.h))
 
     def contains(self, *other):
         other = _rect_from_object(other)._r
