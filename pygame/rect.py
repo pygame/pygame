@@ -10,13 +10,29 @@ import copy
 
 import SDL.video
 
+class _RectProxy(object):
+    '''Proxy for SDL_Rect that can handle negative size.'''
+
+    __slots__ = ['x', 'y', 'w', 'h']
+
+    def __init__(self, r):
+        if isinstance(r, SDL.SDL_Rect) or isinstance(r, Rect):
+            self.x = r.x
+            self.y = r.y
+            self.w = r.w
+            self.h = r.h
+        else:
+            self.x = r[0]
+            self.y = r[1]
+            self.w = r[2]
+            self.h = r[3]
+
+    def _get_as_parameter_(self):
+        return SDL.SDL_Rect(self.x, self.y, self.w, self.h)
+
+    _as_parameter_ = property(_get_as_parameter_)
+
 class Rect(object):
-    '''
-    :note: Unlike previous versions of Pygame, pygame-ctypes does not
-        permit Rects with negative width or height, and initialising
-        one or setting the width, height or size attributes to be
-        negative will raise an exception.
-    '''
     __slots__ = ['_r']
 
     def __init__(self, *args):
@@ -40,17 +56,28 @@ class Rect(object):
                 raise TypeError, 'Argument must be rect style object'
         if len(args) == 4:
             if args[2] < 0 or args[3] < 0:
-                raise NotImplementedError, 'Negative sized rect not permitted'
-            object.__setattr__(self, '_r', SDL.SDL_Rect(int(args[0]),
-                                                        int(args[1]),
-                                                        int(args[2]),
-                                                        int(args[3])))
+                object.__setattr__(self, '_r', _RectProxy((int(args[0]),
+                                                          int(args[1]),
+                                                          int(args[2]),
+                                                          int(args[3]))))
+            else:
+                object.__setattr__(self, '_r', SDL.SDL_Rect(int(args[0]),
+                                                            int(args[1]),
+                                                            int(args[2]),
+                                                            int(args[3])))
         elif len(args) == 2:
             if args[1][0] < 0 or args[1][1] < 0:
-                raise NotImplementedError, 'Negative sized rect not permitted'
-            object.__setattr__(self, '_r', 
-                               SDL.SDL_Rect(int(args[0][0]), int(args[0][1]), 
-                                            int(args[1][0]), int(args[1][1])))
+                object.__setattr__(self, '_r', 
+                                   _RectProxy((int(args[0][0]), 
+                                              int(args[0][1]), 
+                                              int(args[1][0]), 
+                                              int(args[1][1]))))
+            else:
+                object.__setattr__(self, '_r', 
+                                   SDL.SDL_Rect(int(args[0][0]), 
+                                                int(args[0][1]), 
+                                                int(args[1][0]), 
+                                                int(args[1][1])))
         else:
             raise TypeError, 'Argument must be rect style object'
 
@@ -158,18 +185,22 @@ class Rect(object):
             self._r.y = value - self._r.h / 2
         elif name == 'size':
             if value[0] < 0 or value[1] < 0:
-                raise NotImplementedError, 'Negative sized rect not permitted'
+                self._ensure_proxy()
             self._r.w, self._r.h = value
         elif name == 'width':
             if value < 0:
-                raise NotImplementedError, 'Negative sized rect not permitted'
+                self._ensure_proxy()
             self._r.w = value
         elif name == 'height':
             if value < 0:
-                raise NotImplementedError, 'Negative sized rect not permitted'
+                self._ensure_proxy()
             self._r.h = value
         else:
             raise AttributeError, name
+
+    def _ensure_proxy(self):
+        if not isinstance(self._r, _RectProxy):
+            object.__setattr__(self, '_r', _RectProxy(self._r))
 
     def __len__(self):
         return 4
@@ -299,7 +330,6 @@ class Rect(object):
         self._r.y = other.y + (other.h - self._r.h) / 2
 
     def normalize(self):
-        # No-op, since negative width / height not permitted in pygame-ctypes.
         if self._r.w < 0:
             self._r.x += self._r.w
             self._r.w = -self._r.w
