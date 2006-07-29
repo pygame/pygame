@@ -168,6 +168,46 @@ def polygon(surface, color, pointlist, width=0):
     if width > 0:
         return lines(surface, color, True, pointlist, width)
 
+    color = _get_color(color, surface)
+
+    if len(pointlist) < 3:
+        raise ValueError, 'pointlist argument must contain at least 3 points'
+
+    edges = []
+    x1, y1 = pointlist[0]
+    miny = maxy = y1
+    for x2, y2 in pointlist[1:] + [pointlist[0]]:
+        if y2 > y1:
+            edges.append( [x1, y1, y2, (x2 - x1) / float(y2 - y1)] )
+            miny = min(miny, y1)
+            maxy = max(maxy, y2)
+        elif y2 < y1:
+            edges.append( [x2, y2, y1, (x1 - x2) / float(y1 - y2)] )
+            miny = min(miny, y2)
+            maxy = max(maxy, y1)
+        x1, y1 = x2, y2
+
+    surf = surface._surf
+    clip = surf.clip_rect
+    miny = max(miny, clip.y)
+    maxy = min(maxy + 1, clip.y + clip.h)
+    
+    r = SDL_Rect()
+    r.h = 1
+    for y in range(miny, maxy + 1):
+        scan_edges = [e for e in edges if y >= e[1] and y < e[2]]
+        scan_edges.sort(lambda a,b: cmp(a[0], b[0]))
+        assert len(scan_edges) % 2 == 0
+        r.y = y
+        for i in range(0, len(scan_edges), 2):
+            r.x = int(scan_edges[i][0])
+            r.w = int(scan_edges[i+1][0]) - r.x
+            SDL_FillRect(surf, r, color)
+            scan_edges[i][0] += scan_edges[i][3]
+            scan_edges[i+1][0] += scan_edges[i+1][3]
+
+    # TODO return clipped rect
+
 def circle(surface, color, pos, radius, width=0):
     '''Draw a circle around a point.
 
