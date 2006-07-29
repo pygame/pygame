@@ -49,6 +49,55 @@ def _get_rect(rect):
     rect.normalize()
     return rect._r
 
+_LEFT = 0x1
+_RIGHT = 0x2
+_TOP = 0x4
+_BOTTOM = 0x8
+
+def _endpoint_code(x, y, l, r, t, b):
+    code = 0
+    if x < l:
+        code |= _LEFT
+    if y < t:
+        code |= _TOP
+    if x > r:
+        code |= _RIGHT
+    if y > b:
+        code |= _BOTTOM
+    return code
+
+def _clip_line(x1, y1, x2, y2, left, right, top, bottom):
+    while True:
+        code1 = _endpoint_code(x1, y1, left, right, top, bottom)
+        code2 = _endpoint_code(x2, y2, left, right, top, bottom)
+        if code1 == 0 and code2 == 0:
+            return x1, y1, x2, y2
+        elif code1 & code2 != 0:
+            return None, None, None, None
+        else:
+            if code1 == 0:
+                x1, x2 = x2, x1
+                y1, y2 = y2, y1
+                code1 = code2
+            if x1 != x2:
+                m = (y2 - y1) / float(x2 - x1)
+            else:
+                m = 1.0         # impossible; trivial rejection
+            if code1 & _LEFT:
+                y1 += int((left - x1) * m)
+                x1 = left
+            if code1 & _RIGHT:
+                y1 += int((right - x1) * m)
+                x1 = right
+            if code1 & _BOTTOM:
+                if x1 != x2:
+                    x1 += int((bottom - y1) / m)
+                y1 = bottom
+            if code1 & _TOP:
+                if x1 != x2:
+                    x1 += int((top - y1) / m)
+                y1 = top
+
 def rect(surface, color, rect, width=0):
     '''Draw a rectangle shape.
 
@@ -78,6 +127,7 @@ def rect(surface, color, rect, width=0):
     if width == 0:
         SDL_FillRect(surface._surf, rect, color)
     else:
+        # TODO clip edges wholly outside clip
         hw = width / 2
         r = SDL_Rect(rect.x, rect.y - hw, rect.w, width)
         SDL_FillRect(surface._surf, r, color)
@@ -86,7 +136,7 @@ def rect(surface, color, rect, width=0):
         r.x -= hw
         r.w = width
         r.y = rect.y
-        r.h = rect.h
+        r.h = rect.h + 1
         SDL_FillRect(surface._surf, r, color)
         r.x += rect.w
         SDL_FillRect(surface._surf, r, color)
@@ -115,6 +165,8 @@ def polygon(surface, color, pointlist, width=0):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''    
+    if width > 0:
+        return lines(surface, color, True, pointlist, width)
 
 def circle(surface, color, pos, radius, width=0):
     '''Draw a circle around a point.
@@ -207,6 +259,78 @@ def line(surface, color, start_pos, end_pos, width=1):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''
+    if width < 1:
+        return
+
+    color = _get_color(color, surface)
+
+    if start_pos[0] == end_pos[0]:
+        # Vertical
+        y1 = min(start_pos[1], end_pos[1])
+        y2 = max(start_pos[1], end_pos[1])
+        r = SDL_Rect(start_pos[0] - width / 2, y1, width, y2 - y1)
+        SDL_FillRect(surface._surf, r, color)
+    elif start_pos[1] == end_pos[1]:
+        # Horizontal
+        x1 = min(start_pos[0], end_pos[0])
+        x2 = max(start_pos[0], end_pos[0])
+        r = SDL_Rect(x1, start_pos[1] - width / 2, x2 - x1, width)
+        SDL_FillRect(surface._surf, r, color)
+    elif width > 1:
+        # Optimise me (scanlines instead of multiple lines)
+        if abs(end_pos[0] - start_pos[0]) > abs(end_pos[1] - start_pos[1]):
+            xinc, yinc = 0, 1
+        else:
+            xinc, yinc = 1, 0
+        x1 = start_pos[0] - width * xinc / 2
+        y1 = start_pos[1] - width * yinc / 2
+        x2 = end_pos[0] - width * xinc / 2
+        y2 = end_pos[1] - width * yinc / 2
+        for i in range(width):
+            line(surface, color, (x1, y1), (x2, y2), 1)
+            x1 += xinc
+            y1 += yinc
+            x2 += xinc
+            y2 += yinc
+    else:
+        if surface._surf.format.BytesPerPixel == 3:
+            raise NotImplementedError, 'TODO'
+
+        clip = surface._surf.clip_rect
+        x1, y1, x2, y2 = _clip_line(start_pos[0], start_pos[1], 
+                                    end_pos[0], end_pos[1], 
+                                    clip.x, clip.x + clip.w - 1,
+                                    clip.y, clip.y + clip.h - 1)
+        if x1 is None:
+            return
+
+        pixels = surface._surf.pixels.as_ctypes()
+        pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
+        dx = x2 - x1
+        dy = y2 - y1
+        signx = 1 - (dx < 0) * 2
+        signy = 1 - (dy < 0) * 2
+        dx = signx * dx + 1
+        dy = signy * dy + 1
+        pixel = y1 * pitch + x1
+        incx = signx
+        incy = signy * pitch
+        if dx < dy:
+            dx, dy = dy, dx
+            incx, incy = incy, incx
+        x = 0
+        y = 0
+
+        while x < dx:
+            pixels[pixel] = color
+            y += dy
+            if y > dx:
+                y -= dx
+                pixel += incy
+            x += 1
+            pixel += incx
+
+    return None # XXX return clipped rect
     
 def lines(surface, color, closed, pointlist, width=1):
     '''Draw multiple contiguous line segments.
@@ -233,6 +357,22 @@ def lines(surface, color, closed, pointlist, width=1):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''
+    if width < 1:
+        return
+
+    color = _get_color(color, surface)
+
+    if len(pointlist) < 2:
+        raise ValueError, 'points argument must contain more than one point'
+
+    last = pointlist[0]
+    for point in pointlist[1:]:
+        line(surface, color, last, point, width)
+        last = point
+    if closed:
+        line(surface, color, last, pointlist[0], width)
+
+    # XXX return clipped rect
 
 def aaline(surface, color, startpos, endpos, blend=1):
     '''Draw a line with antialiasing.

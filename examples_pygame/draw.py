@@ -134,6 +134,12 @@ if __name__ == '__main__':
                     shapes.append(Ellipse(0))
                 elif event.unicode == 'a':
                     shapes.append(AntialiasLine())
+                elif event.unicode == 'c':
+                    screen.fill((0, 0, 0))
+                    screen.set_clip(screen.get_clip().inflate(-50, -50))
+                elif event.unicode == 'C':
+                    screen.set_clip(screen.get_clip().inflate(50, 50))
+
         time = clock.tick()
         if not paused:
             print >> sys.stderr, 'FPS %03.2f, % 3d shapes\r' % \
