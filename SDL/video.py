@@ -214,8 +214,8 @@ class SDL_Surface(Structure):
         `h` : int
             Height
         `pitch` : int
-            Number of pixel-sized elements between consecutive rows of pixel
-            data.  Note that this may be larger than the width.
+            Number of bytes between consecutive rows of pixel data.  Note
+            that this may be larger than the width.
         `pixels` : SDL_array
             Buffer of integers of the type given in the pixel format. 
             Each element of the array corresponds to exactly one pixel

@@ -813,7 +813,7 @@ class Surface(object):
 
         '''
         if rect:
-            rect = pygame.rect._rect_from_object(sourcerect)._r
+            rect = pygame.rect._rect_from_object(rect)._r
         SDL_SetClipRect(self._surf, rect)
 
 
