@@ -176,6 +176,7 @@ def polygon(surface, color, pointlist, width=0):
     edges = []
     x1, y1 = pointlist[0]
     miny = maxy = y1
+    minx = maxx = x1
     for x2, y2 in pointlist[1:] + [pointlist[0]]:
         if y2 > y1:
             edges.append( [x1, y1, y2, (x2 - x1) / float(y2 - y1)] )
@@ -185,16 +186,18 @@ def polygon(surface, color, pointlist, width=0):
             edges.append( [x2, y2, y1, (x1 - x2) / float(y1 - y2)] )
             miny = min(miny, y2)
             maxy = max(maxy, y1)
+        minx = min(minx, x1, x2)
+        maxx = max(maxx, x1, x2)
         x1, y1 = x2, y2
 
     surf = surface._surf
     clip = surf.clip_rect
-    miny = max(miny, clip.y)
-    maxy = min(maxy + 1, clip.y + clip.h)
+    miny = int(max(miny, clip.y))
+    maxy = int(min(maxy + 1, clip.y + clip.h))
     
     r = SDL_Rect()
     r.h = 1
-    for y in range(miny, maxy + 1):
+    for y in range(miny, maxy):
         scan_edges = [e for e in edges if y >= e[1] and y < e[2]]
         scan_edges.sort(lambda a,b: cmp(a[0], b[0]))
         assert len(scan_edges) % 2 == 0
@@ -206,7 +209,7 @@ def polygon(surface, color, pointlist, width=0):
             scan_edges[i][0] += scan_edges[i][3]
             scan_edges[i+1][0] += scan_edges[i+1][3]
 
-    # TODO return clipped rect
+    return pygame.rect.Rect(minx, miny, maxx - minx + 1, maxy - miny + 1)
 
 def circle(surface, color, pos, radius, width=0):
     '''Draw a circle around a point.
@@ -304,17 +307,18 @@ def line(surface, color, start_pos, end_pos, width=1):
 
     color = _get_color(color, surface)
 
+    width = int(width)
     if start_pos[0] == end_pos[0]:
         # Vertical
-        y1 = min(start_pos[1], end_pos[1])
-        y2 = max(start_pos[1], end_pos[1])
-        r = SDL_Rect(start_pos[0] - width / 2, y1, width, y2 - y1)
+        y1 = int(min(start_pos[1], end_pos[1]))
+        y2 = int(max(start_pos[1], end_pos[1]))
+        r = SDL_Rect(int(start_pos[0]) - width / 2, y1, width, y2 - y1)
         SDL_FillRect(surface._surf, r, color)
     elif start_pos[1] == end_pos[1]:
         # Horizontal
-        x1 = min(start_pos[0], end_pos[0])
-        x2 = max(start_pos[0], end_pos[0])
-        r = SDL_Rect(x1, start_pos[1] - width / 2, x2 - x1, width)
+        x1 = int(min(start_pos[0], end_pos[0]))
+        x2 = int(max(start_pos[0], end_pos[0]))
+        r = SDL_Rect(x1, int(start_pos[1]) - width / 2, x2 - x1, width)
         SDL_FillRect(surface._surf, r, color)
     elif width > 1:
         # Optimise me (scanlines instead of multiple lines)
@@ -337,8 +341,8 @@ def line(surface, color, start_pos, end_pos, width=1):
             raise NotImplementedError, 'TODO'
 
         clip = surface._surf.clip_rect
-        x1, y1, x2, y2 = _clip_line(start_pos[0], start_pos[1], 
-                                    end_pos[0], end_pos[1], 
+        x1, y1, x2, y2 = _clip_line(int(start_pos[0]), int(start_pos[1]), 
+                                    int(end_pos[0]), int(end_pos[1]), 
                                     clip.x, clip.x + clip.w - 1,
                                     clip.y, clip.y + clip.h - 1)
         if x1 is None:

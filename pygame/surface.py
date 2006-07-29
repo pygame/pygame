@@ -182,8 +182,10 @@ class Surface(object):
            not self._surf.flags & SDL_OPENGLBLIT:
             raise pygame.base.error, \
                  'Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)'
-        if sourcerect:
-            sourcerect = pygame.rect._rect_from_object(sourcerect)._r
+        if sourcerect is not None:
+            sourcerect = copy(pygame.rect._rect_from_object(sourcerect))
+            sourcerect.normalize()
+            sourcerect = sourcerect._r
 
         destrect = SDL_Rect(0, 0, source._surf.w, source._surf.h)
         try:
