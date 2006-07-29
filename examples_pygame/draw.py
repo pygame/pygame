@@ -15,6 +15,8 @@ from pygame.locals import *
 width, height = 640, 480
 max_vel = 1.0
 
+random.seed(42)
+
 class Point(object):
     __slots__ = ['pos', 'vel']
 
