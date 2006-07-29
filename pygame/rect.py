@@ -148,53 +148,53 @@ class Rect(object):
         if name == 'top' or name == 'y':
             self._r.y = value
         elif name == 'left' or name == 'x':
-            self._r.x = value
+            self._r.x = int(value)
         elif name == 'bottom':
-            self._r.y = value - self._r.h
+            self._r.y = int(value) - self._r.h
         elif name == 'right':
-            self._r.x = value - self._r.w
+            self._r.x = int(value) - self._r.w
         elif name == 'topleft':
-            self._r.x, self._r.y = value
+            self._r.x, self._r.y = int(value)
         elif name == 'bottomleft':
-            self._r.x = value[0]
-            self._r.y = value[1] - self._r.h
+            self._r.x = int(value[0])
+            self._r.y = int(value[1]) - self._r.h
         elif name == 'topright':
-            self._r.x = value[0] - self._r.w
-            self._r.y = value[1]
+            self._r.x = int(value[0]) - self._r.w
+            self._r.y = int(value[1])
         elif name == 'bottomright':
-            self._r.x = value[0] - self._r.w
-            self._r.y = value[1] - self._r.h
+            self._r.x = int(value[0]) - self._r.w
+            self._r.y = int(value[1]) - self._r.h
         elif name == 'midtop':
-            self._r.x = value[0] - self._r.w / 2
-            self._r.y = value[1]
+            self._r.x = int(value[0]) - self._r.w / 2
+            self._r.y = int(value[1])
         elif name == 'midleft':
-            self._r.x = value[0]
-            self._r.y = value[1] - self._r.h / 2
+            self._r.x = int(value[0])
+            self._r.y = int(value[1]) - self._r.h / 2
         elif name == 'midbottom':
-            self._r.x = value[0] - self._r.w / 2
-            self._r.y = value[1] - self._r.h
+            self._r.x = int(value[0]) - self._r.w / 2
+            self._r.y = int(value[1]) - self._r.h
         elif name == 'midright':
-            self._r.x = value[0] - self._r.w
-            self._r.y = value[1] - self._r.h / 2
+            self._r.x = int(value[0]) - self._r.w
+            self._r.y = int(value[1]) - self._r.h / 2
         elif name == 'center':
-            self._r.x = value[0] - self._r.w / 2
-            self._r.y = value[1] - self._r.h / 2
+            self._r.x = int(value[0]) - self._r.w / 2
+            self._r.y = int(value[1]) - self._r.h / 2
         elif name == 'centerx':
-            self._r.x = value - self._r.w / 2
+            self._r.x = int(value) - self._r.w / 2
         elif name == 'centery':
-            self._r.y = value - self._r.h / 2
+            self._r.y = int(value) - self._r.h / 2
         elif name == 'size':
-            if value[0] < 0 or value[1] < 0:
+            if int(value[0]) < 0 or int(value[1]) < 0:
                 self._ensure_proxy()
-            self._r.w, self._r.h = value
+            self._r.w, self._r.h = int(value)
         elif name == 'width':
-            if value < 0:
+            if int(value) < 0:
                 self._ensure_proxy()
-            self._r.w = value
+            self._r.w = int(value)
         elif name == 'height':
-            if value < 0:
+            if int(value) < 0:
                 self._ensure_proxy()
-            self._r.h = value
+            self._r.h = int(value)
         else:
             raise AttributeError, name
 
