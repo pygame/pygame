@@ -241,6 +241,10 @@ def circle(surface, color, pos, radius, width=0):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''     
+    # TODO optimise with circle symmetry
+    return ellipse(surface, color, 
+                   (pos[0] - radius, pos[1] - radius, radius * 2, radius * 2), 
+                   width)
 
 def ellipse(surface, color, rect, width=0):
     '''Draw a round shape inside a rectangle.
@@ -262,15 +266,21 @@ def ellipse(surface, color, rect, width=0):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''
-    if width != 1:
-        raise NotImplementedError, 'TODO'
     if surface._surf.format.BytesPerPixel == 3:
         raise NotImplementedError, 'TODO'
 
     color = _get_color(color, surface)
     rect = _get_rect(rect)
+
+    if width == 0:
+        return _fill_ellipse(surface, color, rect)
+
     pixels = surface._surf.pixels.as_ctypes()
     pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
+    cx = rect.x + rect.w / 2
+    cy = rect.y + rect.h / 2
+    xrad = rect.w / 2
+    yrad = rect.h / 2
 
     clip_rect = pygame.rect.Rect(surface._surf.clip_rect)
     top = clip_rect.top * pitch
@@ -278,13 +288,24 @@ def ellipse(surface, color, rect, width=0):
     left = clip_rect.left
     right = clip_rect.right
 
+    # TODO This looks crap, leaves holes when width > 1
+    xrad -= width / 2
+    yrad -= width / 2
+    for i in range(width):
+        _draw_ellipse(pixels, pitch, color,
+                      left, right, top, bottom, cx, cy, xrad, yrad)
+        xrad += 1
+        yrad += 1
+
+    clip_rect.clip_ip((rect.x - width / 2, rect.y - width / 2, 
+                       rect.w + width + 1, rect.h + width + 1))
+    return clip_rect
+
+def _draw_ellipse(pixels, pitch, color, 
+                  left, right, top, bottom, cx, cy, xrad, yrad):
     # Implementation differs from Pygame.  Using Kennedy "A fast Bresenham
     # type algorithm for drawing ellipses", 
     # http://homepage.smc.edu/kennedy_john/BELIPSE.PDF
-    cx = rect.x + rect.w / 2
-    cy = rect.y + rect.h / 2
-    xrad = rect.w / 2
-    yrad = rect.h / 2
     a = 2 * xrad * xrad
     b = 2 * yrad * yrad
     xchange = yrad * yrad * (1 - 2 * xrad)
@@ -334,12 +355,12 @@ def ellipse(surface, color, rect, width=0):
     err = 0
     stopx = 0
     stopy = a * yrad
-    p1 = p3 = rect.y * pitch + cx
-    p2 = p4 = (rect.y + rect.h) * pitch + cx
-    left1 = rect.y * pitch + left
-    right1 = rect.y * pitch + right
-    left2 = (rect.y + rect.h) * pitch + left
-    right2 = (rect.y + rect.h) * pitch + right
+    p1 = p3 = (cy - yrad) * pitch + cx
+    p2 = p4 = (cy + yrad) * pitch + cx
+    left1 = (cy - yrad) * pitch + left
+    right1 = (cy - yrad) * pitch + right
+    left2 = (cy + yrad) * pitch + left
+    right2 = (cy + yrad) * pitch + right
     while stopx <= stopy:
         if p3 >= top and p1 < bottom:
             if p1 >= left1 and p1 < right1:
@@ -371,8 +392,79 @@ def ellipse(surface, color, rect, width=0):
             err += ychange
             ychange += a
 
+    xchange = yrad * yrad
+    ychange = xrad * xrad * (1 - 2 * yrad)
+    err = 0
+    stopx = 0
+    stopy = a * yrad
+
+
+def _fill_ellipse(surface, color, rect):
+    surf = surface._surf
+    clip_rect = pygame.rect.Rect(surface._surf.clip_rect)
+
+    cx = rect.x + rect.w / 2
+    cy = rect.y + rect.h / 2
+    xrad = rect.w / 2
+    yrad = rect.h / 2
+    a = 2 * xrad * xrad
+    b = 2 * yrad * yrad
+    xchange = yrad * yrad * (1 - 2 * xrad)
+    ychange = xrad * xrad
+    err = 0
+    stopx = b * xrad
+    stopy = 0
+    x = xrad
+    y = 0
+    r = SDL_Rect()
+    while stopx >= stopy:
+        r.x = cx - x
+        r.w = x * 2 + 1
+        r.y = cy + y 
+        r.h = 1
+        SDL_FillRect(surf, r, color)
+        r.y = cy - y 
+        r.h = 1
+        SDL_FillRect(surf, r, color)
+        y += 1        
+        stopy += a
+        err += ychange
+        ychange += a
+        if 2 * err + xchange > 0:
+            x -= 1
+            stopx -= b
+            err += xchange
+            xchange += b
+
+    xchange = yrad * yrad
+    ychange = xrad * xrad * (1 - 2 * yrad)
+    err = 0
+    stopx = 0
+    stopy = a * yrad
+    x = 0
+    y = yrad
+    while stopx <= stopy:
+        r.x = cx - x
+        r.w = x * 2 + 1
+        r.y = cy + y
+        r.h = 1
+        SDL_FillRect(surf, r, color)
+        r.y = cy - y
+        r.h = 1
+        SDL_FillRect(surf, r, color)
+        x += 1
+        stopx += b
+        err += xchange
+        xchange += b
+        if 2 * err + ychange > 0:
+            y -= 1
+            stopy -= a
+            err += ychange
+            ychange += a
+
     clip_rect.clip_ip((rect.x, rect.y, rect.w + 1, rect.h + 1))
     return clip_rect
+    
 
 def arc(surface, color, rect, start_angle, stop_angle, width=1):
     '''Draw a partial section of an ellipse.
@@ -446,7 +538,7 @@ def line(surface, color, start_pos, end_pos, width=1):
         SDL_FillRect(surface._surf, r, color)
         return pygame.rect.Rect(r)
     elif width > 1:
-        # Optimise me (scanlines instead of multiple lines)
+        # TODO This looks bad when width > 1
         if abs(end_pos[0] - start_pos[0]) > abs(end_pos[1] - start_pos[1]):
             xinc, yinc = 0, 1
         else:

@@ -152,6 +152,8 @@ if __name__ == '__main__':
         if not paused:
             print >> sys.stderr, 'FPS %03.2f, % 3d shapes\r' % \
                 (clock.get_fps(), len(shapes)),
+            
+            screen.fill((0, 0, 0))
 
             update_rect = Rect(width, height, -width, -height)
             for shape in shapes:
