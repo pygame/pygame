@@ -61,6 +61,7 @@
 <p>The groups are designed for high efficiency in removing and adding Sprites to them. They also allow cheap testing to see if a Sprite already exists in a Group. <tt>A</tt> given Sprite can exist in any number of groups. <tt>A</tt> game could use some groups to control object rendering, and a completely separate set of groups to control interaction or player movement. Instead of adding type attributes or booleans to a derived Sprite class, consider keeping the Sprites inside organized Groups. This will allow for easier lookup later in the game. </p>
 <p>Sprites and Groups manage their relationships with the add() and remove() methods. These methods can accept a single or multiple targets for membership. The default initializers for these classes also takes a single or list of targets for initial membership. It is safe to repeatedly add and remove the same Sprite from a Group. </p>
 <p>While it is possible to design sprite and group classes that don't derive from the Sprite and AbstractGroup classes below, it is strongly recommended that you extend those when you add a Sprite or Group class. </p>
+<p>Sprites are not thread safe. So lock them yourself if using threads. </p>
 <!--COMMENTS:pygame.sprite--> &nbsp;<br> 
 
 

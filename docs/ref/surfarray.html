@@ -57,6 +57,7 @@
   <tr><td><a href="surfarray.html#pygame.surfarray.map_array">pygame.surfarray.map_array</a> - <font size=-1>map a 3d array into a 2d array</font></td><td>map a 3d array into a 2d array</td></tr>
 </table></small></ul>
 <p>Functions to convert pixel data between pygame Surfaces and Numeric arrays. This module will only be available when pygame can use the external Numeric package. </p>
+<p>Note, that surfarray is an optional module. It requires that Numeric is installed to be used. If not installed, an exception will be raised when it is used. eg. NotImplementedError: surfarray module not available </p>
 <p>Every pixel is stored as a single integer value to represent the red, green, and blue colors. The 8bit images use a value that looks into a colormap. Pixels with higher depth use a bit packing process to place three or four values into a single number. </p>
 <p>The Numeric arrays are indexed by the <tt>X</tt> axis first, followed by the <tt>Y</tt> axis. Arrays that treat the pixels as a single integer are referred to as <tt>2D</tt> arrays. This module can also separate the red, green, and blue color values into separate indices. These types of arrays are referred to as <tt>3D</tt> arrays, and the last index is 0 for red, 1 for green, and 2 for blue. </p>
 <p>Numeric does not use unsigned 16bit integers, images with 16bit data will be treated as signed integers. </p>

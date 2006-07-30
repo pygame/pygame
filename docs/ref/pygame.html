@@ -75,6 +75,7 @@
   <i>uninitialize all pygame modules</i><br>
   <tt>pygame.quit(): return None</tt><br>
 <p>Uninitialize all pygame modules that have previously been initialized. When the Python interpreter shuts down, this method is called regardless, so your program should not need it, except when it wants to terminate its pygame resources and continue. It is safe to call this function more than once: repeated calls have no effect. </p>
+<p>Note, that <tt>pygame.quit</tt> will not exit your program. Consider letting your program end in the same way a normal python program will end. </p>
 <!--COMMENTS:pygame.quit--> &nbsp;<br> 
 <br></ul>
 
@@ -103,6 +104,7 @@
   <i>get the version number of SDL</i><br>
   <tt>pygame.get_sdl_version(): return major, minor, patch</tt><br>
 <p>Returns the three version numbers of the <tt>SDL</tt> library. This version is built at compile time. It can be used to detect which features may not be available through Pygame. </p>
+<p>get_sdl_version is new in pygame <tt>1.7.0</tt> </p>
 <!--COMMENTS:pygame.get_sdl_version--> &nbsp;<br> 
 <br></ul>
 

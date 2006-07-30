@@ -48,7 +48,7 @@
   <tr><td><a href="display.html#pygame.display.init">pygame.display.init</a> - <font size=-1>initialize the display module</font></td><td>initialize the display module</td></tr>
   <tr><td><a href="display.html#pygame.display.quit">pygame.display.quit</a> - <font size=-1>uninitialize the display module</font></td><td>uninitialize the display module</td></tr>
   <tr><td><a href="display.html#pygame.display.get_init">pygame.display.get_init</a> - <font size=-1>true if the display module is initialized</font></td><td>true if the display module is initialized</td></tr>
-  <tr><td><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></td><td>initialize a window or creen for display</td></tr>
+  <tr><td><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></td><td>initialize a window or screen for display</td></tr>
   <tr><td><a href="display.html#pygame.display.get_surface">pygame.display.get_surface</a> - <font size=-1>get a reference to the currently set display surface</font></td><td>get a reference to the currently set display surface</td></tr>
   <tr><td><a href="display.html#pygame.display.flip">pygame.display.flip</a> - <font size=-1>update the full display Surface to the screen</font></td><td>update the full display Surface to the screen</td></tr>
   <tr><td><a href="display.html#pygame.display.update">pygame.display.update</a> - <font size=-1>update portions of the screen for software displays</font></td><td>update portions of the screen for software displays</td></tr>
@@ -70,8 +70,9 @@
   <tr><td><a href="display.html#pygame.display.set_palette">pygame.display.set_palette</a> - <font size=-1>set the display color palette for indexed displays</font></td><td>set the display color palette for indexed displays</td></tr>
 </table></small></ul>
 <p>This module offers control over the pygame display. Pygame has a single display Surface that is either contained in a window or runs full screen. Once you create the display you treat it as a regular Surface. Changes are not immediately visible onscreen, you must choose one of the two flipping functions to update the actual display. </p>
-<p>The pygame display can actually be initialized in one of several modes. By default the display is a basic software driven framebuffer. You can request special modules like hardware acceleration and OpenGL support. These are controlled by flags passed to <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt>. </p>
-<p>Pygame can only have a single display active at any time. Creating a new one with <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> will close the previous display. If precise control is needed over the pixel format or display resolutions, use the functions <tt><a href="display.html#pygame.display.mode_ok">pygame.display.mode_ok</a> - <font size=-1>pick the best color depth for a display mode</font></tt>, <tt><a href="display.html#pygame.display.list_modes">pygame.display.list_modes</a> - <font size=-1>get list of available fullscreen modes</font></tt>, and <tt><a href="display.html#pygame.display.Info">pygame.display.Info</a> - <font size=-1>Create a video display information object</font></tt> to query information about the display. </p>
+<p>The origin of the display, where x = 0, and y = 0 is the top left of the screen. Both axis increase positively towards the botom right of the screen. </p>
+<p>The pygame display can actually be initialized in one of several modes. By default the display is a basic software driven framebuffer. You can request special modules like hardware acceleration and OpenGL support. These are controlled by flags passed to <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt>. </p>
+<p>Pygame can only have a single display active at any time. Creating a new one with <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> will close the previous display. If precise control is needed over the pixel format or display resolutions, use the functions <tt><a href="display.html#pygame.display.mode_ok">pygame.display.mode_ok</a> - <font size=-1>pick the best color depth for a display mode</font></tt>, <tt><a href="display.html#pygame.display.list_modes">pygame.display.list_modes</a> - <font size=-1>get list of available fullscreen modes</font></tt>, and <tt><a href="display.html#pygame.display.Info">pygame.display.Info</a> - <font size=-1>Create a video display information object</font></tt> to query information about the display. </p>
 <p>Once the display Surface is created, the functions from this module effect the single existing display. The Surface becomes invalid if the module is uninitialized. If a new display mode is set, the existing Surface will automatically switch to operate on the new display. </p>
 <p>Then the display mode is set, several events are placed on the pygame event queue. <tt>pygame.QUIT</tt> is sent when the user has requested the program to shutdown. The window will receive <tt>pygame.ACTIVEEVENT</tt> events as the display gains and loses input focus. If the display is set with the <tt>pygame.RESIZABLE</tt> flag, <tt>pygame.VIDEORESIZE</tt> events will be sent when the user adjusts the window dimensions. Hardware displays that draw direct to the screen will get <tt>pygame.VIDEOEXPOSE</tt> events when portions of the window must be redrawn. </p>
 <!--COMMENTS:pygame.display--> &nbsp;<br> 
@@ -112,7 +113,7 @@
 
 <a name="pygame.display.set_mode">
 <big><b>pygame.display.set_mode</big></b><br><ul>
-  <i>initialize a window or creen for display</i><br>
+  <i>initialize a window or screen for display</i><br>
   <tt>pygame.display.set_mode(resolution, flags=0, depth=0): return Surface</tt><br>
 <p>This function will create a display Surface. The arguments passed in are requests for a display type. The actual created display will be the best possible match supported by the system. </p>
 <p>The resolution argument is a pair of numbers representing the width and height. The flags argument is a collection of additional options. The depth argument represents the number of bits to use for color. </p>
@@ -166,7 +167,7 @@
 <big><b>pygame.display.get_driver</big></b><br><ul>
   <i>get the name of the pygame display backend</i><br>
   <tt>pygame.display.get_driver(): return name</tt><br>
-<p>Pygame chooses one of many available display backends when it is initialized. This returns the internal name used for the display backend. This can be used to provide limited information about what display capabilities might be accelerated. See the <tt>SDL_VIDEODRIVER</tt> flags in <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> to see some of the common options. </p>
+<p>Pygame chooses one of many available display backends when it is initialized. This returns the internal name used for the display backend. This can be used to provide limited information about what display capabilities might be accelerated. See the <tt>SDL_VIDEODRIVER</tt> flags in <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> to see some of the common options. </p>
 <!--COMMENTS:pygame.display.get_driver--> &nbsp;<br> 
 <br></ul>
 
@@ -175,7 +176,7 @@
 <big><b>pygame.display.Info</big></b><br><ul>
   <i>Create a video display information object</i><br>
   <tt>pygame.display.Info(): return VideoInfo</tt><br>
-<p>Creates a simple object containing several attributes to describe the current graphics environment. If this is called before <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> some platforms can provide information about the default display mode. This can also be called after setting the display mode to verify specific display options were satisfied. The VidInfo object has several attributes: </p>
+<p>Creates a simple object containing several attributes to describe the current graphics environment. If this is called before <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> some platforms can provide information about the default display mode. This can also be called after setting the display mode to verify specific display options were satisfied. The VidInfo object has several attributes: </p>
 <pre>  hw:         True if the display is hardware accelerated
   wm:         True if windowed display modes can be used
   video_mem:  The megabytes of video memory on the display. This is 0 if unknown
@@ -219,7 +220,7 @@
 <big><b>pygame.display.mode_ok</big></b><br><ul>
   <i>pick the best color depth for a display mode</i><br>
   <tt>pygame.display.mode_ok(size, flags=0, depth=0): return depth</tt><br>
-<p>This function uses the same arguments as <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt>. It is used to depermine if a requested display mode is available. It will return 0 if the display mode cannot be set. Otherwise it will return a pixel depth that best matches the display asked for. </p>
+<p>This function uses the same arguments as <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt>. It is used to depermine if a requested display mode is available. It will return 0 if the display mode cannot be set. Otherwise it will return a pixel depth that best matches the display asked for. </p>
 <p>Usually the depth argument is not passed, but some platforms can support multiple display depths. If passed it will hint to which depth is a better match. </p>
 <p>The most useful flags to pass will be <tt>pygame.HWSURFACE</tt>, <tt>pygame.DOUBLEBUF</tt>, and maybe <tt>pygame.FULLSCREEN</tt>. The function will return 0 if these display flags cannot be set. </p>
 <!--COMMENTS:pygame.display.mode_ok--> &nbsp;<br> 
@@ -230,7 +231,7 @@
 <big><b>pygame.display.gl_get_attribute</big></b><br><ul>
   <i>get the value for an opengl flag for the current display</i><br>
   <tt>pygame.display.gl_get_attribute(flag): return value</tt><br>
-<p>After calling <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> with the <tt>pygame.OPENGL</tt> flag, it is a good idea to check the value of any requested OpenGL attributes. See <tt>pygame.display.get_set_attribute()</tt> for a list of valid flags. </p>
+<p>After calling <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> with the <tt>pygame.OPENGL</tt> flag, it is a good idea to check the value of any requested OpenGL attributes. See <tt>pygame.display.get_set_attribute()</tt> for a list of valid flags. </p>
 <!--COMMENTS:pygame.display.gl_get_attribute--> &nbsp;<br> 
 <br></ul>
 
@@ -239,7 +240,7 @@
 <big><b>pygame.display.gl_set_attribute</big></b><br><ul>
   <i>request an opengl display attribute for the display mode</i><br>
   <tt>pygame.display.gl_set_attribute(flag, value): return None</tt><br>
-<p>When calling <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> with the <tt>pygame.OPENGL</tt> flag, Pygame automatically handles setting the OpenGL attributes like color and doublebuffering. OpenGL offers several other attributes you may want control over. Pass one of these attributes as the flag, and its appropriate value. This must be called before <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> </p>
+<p>When calling <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> with the <tt>pygame.OPENGL</tt> flag, Pygame automatically handles setting the OpenGL attributes like color and doublebuffering. OpenGL offers several other attributes you may want control over. Pass one of these attributes as the flag, and its appropriate value. This must be called before <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> </p>
 <p>The <tt>OPENGL</tt> flags are; </p>
 <pre>  GL_ALPHA_SIZE, GL_DEPTH_SIZE, GL_STENCIL_SIZE, GL_ACCUM_RED_SIZE,
   GL_ACCUM_GREEN_SIZE,  GL_ACCUM_BLUE_SIZE, GL_ACCUM_ALPHA_SIZE,
@@ -252,8 +253,8 @@
 <a name="pygame.display.get_active">
 <big><b>pygame.display.get_active</big></b><br><ul>
   <i>true when the display is active on the display</i><br>
-  <tt>pygame.display.get_caption(): return bool</tt><br>
-<p>After <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> is called the display Surface will be visible on the screen. Most windowed displays can be hidden by the user. If the display Surface is hidden or iconified this will return False. </p>
+  <tt>pygame.display.get_active(): return bool</tt><br>
+<p>After <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> is called the display Surface will be visible on the screen. Most windowed displays can be hidden by the user. If the display Surface is hidden or iconified this will return False. </p>
 <!--COMMENTS:pygame.display.get_active--> &nbsp;<br> 
 <br></ul>
 
@@ -263,7 +264,7 @@
   <i>iconify the display surface</i><br>
   <tt>pygame.display.iconify(): return bool</tt><br>
 <p>Request the window for the display surface be iconified or hidden. Not all systems and displays support an iconified display. The function will return True if successfull. </p>
-<p>When the display is iconified <tt><a href="display.html#pygame.display.get_active">pygame.display.get_active</a> - <font size=-1>true when the display is active on the display</font></tt> will return False. The event queue should receive a <tt>pygame.APPACTIVE</tt> event when the window has been iconified. </p>
+<p>When the display is iconified <tt><a href="display.html#pygame.display.get_active">pygame.display.get_active</a> - <font size=-1>true when the display is active on the display</font></tt> will return False. The event queue should receive a <tt>ACTIVEEVENT</tt> event when the window has been iconified. </p>
 <!--COMMENTS:pygame.display.iconify--> &nbsp;<br> 
 <br></ul>
 
@@ -271,8 +272,8 @@
 <a name="pygame.display.toggle_fullscreen">
 <big><b>pygame.display.toggle_fullscreen</big></b><br><ul>
   <i>switch between fullscreen and windowed displays</i><br>
-  <tt>pygame.display.iconify(): return bool</tt><br>
-<p>Switches the display window between windowed and fullscreen modes. This function only works under the unix x11 video driver. For most situations it is better to call <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> with new display flags. </p>
+  <tt>pygame.display.toggle_fullscreen(): return bool</tt><br>
+<p>Switches the display window between windowed and fullscreen modes. This function only works under the unix x11 video driver. For most situations it is better to call <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> with new display flags. </p>
 <!--COMMENTS:pygame.display.toggle_fullscreen--> &nbsp;<br> 
 <br></ul>
 
@@ -303,7 +304,7 @@
   <tt>pygame.display.set_icon(Surface): return None</tt><br>
 <p>Sets the runtime icon the system will use to represent the display window. All windows default to a simple pygame logo for the window icon. </p>
 <p>You can pass any surface, but most systems want a smaller image around 32x32. The image can have colorkey transparency which will be passed to the system. </p>
-<p>Some systems do not allow the window icon to change after it has been shown. This function can be called before <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or creen for display</font></tt> to create the icon before the display mode is set. </p>
+<p>Some systems do not allow the window icon to change after it has been shown. This function can be called before <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> to create the icon before the display mode is set. </p>
 <!--COMMENTS:pygame.display.set_icon--> &nbsp;<br> 
 <br></ul>
 

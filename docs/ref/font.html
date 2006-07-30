@@ -165,6 +165,7 @@
 <p>The Surface returned will be of the dimensions required to hold the text. (the same as those returned by <tt>Font.size())</tt>. If an empty string is passed for the text, a blank surface will be returned that is one pixel wide and the height of the font. </p>
 <p>Depending on the type of background and antialiasing used, this returns different types of Surfaces. For performance reasons, it is good to know what type of image will be used. If antialiasing is not used, the return image will always be an 8bit image with a two color palette. If the background is transparent a colorkey will be set. Antialiased images are rendered to 24-bit <tt>RGB</tt> images. If the background is transparent a pixel alpha will be included. </p>
 <p>Optimization: if you know that the final destination for the text (on the screen) will always have a solid background, and the text is antialiased, you can improve performance by specifying the background color. This will cause the resulting image to maintain transparency information by colorkey rather than (much less efficient) alpha values. </p>
+<p>If you render '\n' a unknown char will be rendered. Usually a rectangle. Instead you need to handle new lines yourself. </p>
 <p>Font rendering is not thread safe: only a single thread can render text any time. </p>
 <!--COMMENTS:Font.render--> &nbsp;<br> 
 <br></ul>

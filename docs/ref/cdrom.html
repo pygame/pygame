@@ -128,7 +128,7 @@
 <big><b>CD.init</big></b><br><ul>
   <i>initialize a cdrom drive for use</i><br>
   <tt>CD.init(): return None</tt><br>
-<p>Initialize the cdrom drive for use. The drive must be initialized for most <tt>CD</tt> methods to work. </p>
+<p>Initialize the cdrom drive for use. The drive must be initialized for most <tt>CD</tt> methods to work. Even if the rest of pygame has been initialized. </p>
 <p>There may be a brief pause while the drive is initialized. Avoid <tt><a href="cdrom.html#CD.init">CD.init</a> - <font size=-1>initialize a cdrom drive for use</font></tt> if the program should not stop for a second or two. </p>
 <!--COMMENTS:CD.init--> &nbsp;<br> 
 <br></ul>
@@ -159,6 +159,7 @@
 <p>Playback audio from an audio cdrom in the drive. Besides the track number argument, you can also pass a starting and ending time for playback. The start and end time are in seconds, and can limit the section of an audio track played. </p>
 <p>If you pass a start time but no end, the audio will play to the end of the track. If you pass a start time and 'None' for the end time, the audio will play to the end of the entire disc. </p>
 <p>See the <tt><a href="cdrom.html#CD.get_numtracks">CD.get_numtracks</a> - <font size=-1>the number of tracks on the cdrom</font></tt> and <tt><a href="cdrom.html#CD.get_track_audio">CD.get_track_audio</a> - <font size=-1>true if the cdrom track has audio data</font></tt> to find tracks to playback. </p>
+<p>Note, track 0 is track 1 on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.play--> &nbsp;<br> 
 <br></ul>
 
@@ -177,7 +178,7 @@
   <i>temporarily stop audio playback</i><br>
   <tt>CD.pause(): return None</tt><br>
 <p>Temporarily stop audio playback on the <tt>CD</tt>. The playback can be resumed at the same point with the <tt><a href="cdrom.html#CD.resume">CD.resume</a> - <font size=-1>unpause audio playback</font></tt> method. If the <tt>CD</tt> is not playing this method does nothing. </p>
-<p>Cdrom track numbers start at zero. </p>
+<p>Note, track 0 is track 1 on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.pause--> &nbsp;<br> 
 <br></ul>
 
@@ -241,6 +242,7 @@
   <i>the current audio playback position</i><br>
   <tt>CD.get_current(): return track, seconds</tt><br>
 <p>Returns both the current track and time of that track. This method works when the drive is either playing or paused. </p>
+<p>Note, track 0 is track 1 on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.get_current--> &nbsp;<br> 
 <br></ul>
 
@@ -268,6 +270,7 @@
   <i>true if the cdrom track has audio data</i><br>
   <tt>CD.get_track_audio(track): return bool</tt><br>
 <p>Determine if a track on a cdrom contains audio data. You can also call <tt>CD.num_tracks()</tt> and <tt><a href="cdrom.html#CD.get_all">CD.get_all</a> - <font size=-1>get all track information</font></tt> to determine more information about the cdrom. </p>
+<p>Note, track 0 is track 1 on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.get_track_audio--> &nbsp;<br> 
 <br></ul>
 
@@ -286,6 +289,7 @@
   <i>start time of a cdrom track</i><br>
   <tt>CD.get_track_start(track): return seconds</tt><br>
 <p>Return the absolute time in seconds where at start of the cdrom track. </p>
+<p>Note, track 0 is track 1 on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.get_track_start--> &nbsp;<br> 
 <br></ul>
 
@@ -295,6 +299,7 @@
   <i>length of a cdrom track</i><br>
   <tt>CD.get_track_length(track): return seconds</tt><br>
 <p>Return a floating point value in seconds of the length of the cdrom track. </p>
+<p>Note, track 0 is track 1 on the <tt>CD</tt>. Track numbers start at zero. </p>
 <!--COMMENTS:CD.get_track_length--> &nbsp;<br> 
 <br></ul>
 <br></ul>
