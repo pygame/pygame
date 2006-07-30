@@ -313,7 +313,7 @@ systems and displays support an iconified display. The function will return
 True if successfull.
 
 When the display is iconified pygame.display.get_active() will return
-False. The event queue should receive a pygame.APPACTIVE event when the
+False. The event queue should receive a ACTIVEEVENT event when the
 window has been iconified.
 <END>
 
