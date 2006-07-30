@@ -7,6 +7,9 @@ create the display you treat it as a regular Surface. Changes are not
 immediately visible onscreen, you must choose one of the two flipping functions
 to update the actual display.
 
+The origin of the display, where x = 0, and y = 0 is the top left of the 
+screen.  Both axis increase positively towards the botom right of the screen.
+
 The pygame display can actually be initialized in one of several modes. By
 default the display is a basic software driven framebuffer. You can request
 special modules like hardware acceleration and OpenGL support. These are
