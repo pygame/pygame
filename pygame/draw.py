@@ -126,22 +126,22 @@ def rect(surface, color, rect, width=0):
     rect = _get_rect(rect)
     if width == 0:
         SDL_FillRect(surface._surf, rect, color)
+        return pygame.rect.Rect(rect)
     else:
-        # TODO clip edges wholly outside clip
         hw = width / 2
+        clip_rect = pygame.rect.Rect(rect.x - hw, rect.y - hw, 
+                         rect.w + width, rect.h + width)
+        clip_rect.clip_ip(surface._surf.clip_rect)
+
         r = SDL_Rect(rect.x, rect.y - hw, rect.w, width)
         SDL_FillRect(surface._surf, r, color)
-        r.y += rect.h
+        r = SDL_Rect(rect.x, rect.y - hw + rect.h, rect.w, width)
         SDL_FillRect(surface._surf, r, color)
-        r.x -= hw
-        r.w = width
-        r.y = rect.y
-        r.h = rect.h + 1
+        r = SDL_Rect(rect.x - hw, rect.y, width, rect.h)
         SDL_FillRect(surface._surf, r, color)
-        r.x += rect.w
+        r = SDL_Rect(rect.x - hw + rect.w, rect.y, width, rect.h)
         SDL_FillRect(surface._surf, r, color)
-        # XXX returned clip rectangle wrong
-    return pygame.rect.Rect(rect)
+        return clip_rect
 
 def polygon(surface, color, pointlist, width=0):
     '''Draw a shape with any number of sides.
@@ -173,6 +173,7 @@ def polygon(surface, color, pointlist, width=0):
     if len(pointlist) < 3:
         raise ValueError, 'pointlist argument must contain at least 3 points'
 
+    # TODO store bressenham info for edges instead of float gradient.
     edges = []
     x1, y1 = pointlist[0]
     miny = maxy = y1
@@ -187,24 +188,31 @@ def polygon(surface, color, pointlist, width=0):
             miny = min(miny, y2)
             maxy = max(maxy, y1)
         minx = min(minx, x1, x2)
-        maxx = max(maxx, x1, x2)
+        maxx = max(maxx, x1, x2) 
         x1, y1 = x2, y2
 
     surf = surface._surf
     clip = surf.clip_rect
-    miny = int(max(miny, clip.y))
+    clip_y = int(clip.y)
+    if int(miny) < clip_y:
+        for e in edges:
+            if clip_y > e[1]:
+                e[0] += e[3] * int(clip_y - e[1])
+        miny = clip_y
+    miny = int(miny)
     maxy = int(min(maxy + 1, clip.y + clip.h))
+    maxx = int(min(maxx + 1, clip.x + clip.w))
     
     r = SDL_Rect()
-    r.h = 1
     for y in range(miny, maxy):
         scan_edges = [e for e in edges if y >= e[1] and y < e[2]]
         scan_edges.sort(lambda a,b: cmp(a[0], b[0]))
         assert len(scan_edges) % 2 == 0
         r.y = y
+        r.h = 1
         for i in range(0, len(scan_edges), 2):
             r.x = int(scan_edges[i][0])
-            r.w = int(scan_edges[i+1][0]) - r.x
+            r.w = int(scan_edges[i+1][0]) - r.x + 1
             SDL_FillRect(surf, r, color)
             scan_edges[i][0] += scan_edges[i][3]
             scan_edges[i+1][0] += scan_edges[i+1][3]
@@ -303,23 +311,29 @@ def line(surface, color, start_pos, end_pos, width=1):
     :return: Affected bounding box.
     '''
     if width < 1:
-        return
+        return pygame.rect.Rect(surface._surf.w,
+                                surface._surf.h,
+                                -surface._surf.w,
+                                -surface._surf.h)
 
     color = _get_color(color, surface)
 
     width = int(width)
     if start_pos[0] == end_pos[0]:
         # Vertical
+        x = int(start_pos[0])
         y1 = int(min(start_pos[1], end_pos[1]))
         y2 = int(max(start_pos[1], end_pos[1]))
-        r = SDL_Rect(int(start_pos[0]) - width / 2, y1, width, y2 - y1)
+        r = SDL_Rect(x - width / 2, y1, width, y2 - y1)
         SDL_FillRect(surface._surf, r, color)
+        return pygame.rect.Rect(r)
     elif start_pos[1] == end_pos[1]:
         # Horizontal
         x1 = int(min(start_pos[0], end_pos[0]))
         x2 = int(max(start_pos[0], end_pos[0]))
         r = SDL_Rect(x1, int(start_pos[1]) - width / 2, x2 - x1, width)
         SDL_FillRect(surface._surf, r, color)
+        return pygame.rect.Rect(r)
     elif width > 1:
         # Optimise me (scanlines instead of multiple lines)
         if abs(end_pos[0] - start_pos[0]) > abs(end_pos[1] - start_pos[1]):
@@ -330,12 +344,20 @@ def line(surface, color, start_pos, end_pos, width=1):
         y1 = start_pos[1] - width * yinc / 2
         x2 = end_pos[0] - width * xinc / 2
         y2 = end_pos[1] - width * yinc / 2
+        # This clip rect slightly larger than necessary, but easier than
+        # unioning for each line
+        clip_rect = pygame.rect.Rect(min(x1, x2), 
+                                     min(y1, y2),
+                                     abs(x2 - x1) + width,
+                                     abs(y2 - y1) + width)
+        clip_rect.clip_ip(surface._surf.clip_rect)
         for i in range(width):
             line(surface, color, (x1, y1), (x2, y2), 1)
             x1 += xinc
             y1 += yinc
             x2 += xinc
             y2 += yinc
+        return clip_rect
     else:
         if surface._surf.format.BytesPerPixel == 3:
             raise NotImplementedError, 'TODO'
@@ -346,7 +368,10 @@ def line(surface, color, start_pos, end_pos, width=1):
                                     clip.x, clip.x + clip.w - 1,
                                     clip.y, clip.y + clip.h - 1)
         if x1 is None:
-            return
+            return pygame.rect.Rect(surface._surf.w,
+                                    surface._surf.h,
+                                    -surface._surf.w,
+                                    -surface._surf.h)
 
         pixels = surface._surf.pixels.as_ctypes()
         pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
@@ -368,13 +393,16 @@ def line(surface, color, start_pos, end_pos, width=1):
         while x < dx:
             pixels[pixel] = color
             y += dy
-            if y > dx:
+            if y >= dx:
                 y -= dx
                 pixel += incy
             x += 1
             pixel += incx
+        return pygame.rect.Rect(min(x1, x2), 
+                                min(y1, y2),
+                                abs(x2 - x1) + 1, 
+                                abs(y2 - y1) + 1)
 
-    return None # XXX return clipped rect
     
 def lines(surface, color, closed, pointlist, width=1):
     '''Draw multiple contiguous line segments.
@@ -409,14 +437,20 @@ def lines(surface, color, closed, pointlist, width=1):
     if len(pointlist) < 2:
         raise ValueError, 'points argument must contain more than one point'
 
+    clip_rect = pygame.rect.Rect(surface._surf.w,
+                                 surface._surf.h,
+                                 -surface._surf.w,
+                                 -surface._surf.h)
     last = pointlist[0]
     for point in pointlist[1:]:
-        line(surface, color, last, point, width)
+        r = line(surface, color, last, point, width)
+        clip_rect.union_ip(r)
         last = point
     if closed:
-        line(surface, color, last, pointlist[0], width)
+        r = line(surface, color, last, pointlist[0], width)
+        clip_rect.union_ip(r)
 
-    # XXX return clipped rect
+    return clip_rect
 
 def aaline(surface, color, startpos, endpos, blend=1):
     '''Draw a line with antialiasing.
@@ -442,6 +476,8 @@ def aaline(surface, color, startpos, endpos, blend=1):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''
+    # TODO 
+    return line(surface, color, startpos, endpos)
 
 def aalines(surface, color, closed, pointlist, blend=1):
     '''Draw multiple contiguous line segments with antialiasing.
@@ -468,3 +504,5 @@ def aalines(surface, color, closed, pointlist, blend=1):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''
+    # TODO
+    return lines(surface, color, closed, pointlist)
