@@ -107,7 +107,7 @@ if __name__ == '__main__':
     depth = 0
     screen = pygame.display.set_mode((width, height), flags, depth)
 
-    shapes = [Polygon(0)]
+    shapes = []
 
     clock = pygame.time.Clock()
     show_clips = False
@@ -135,7 +135,7 @@ if __name__ == '__main__':
                 elif event.unicode == 'P':
                     shapes.append(Polygon(0))
                 elif event.unicode == 'e':
-                    shapes.append(Ellipse(4))
+                    shapes.append(Ellipse(1))
                 elif event.unicode == 'E':
                     shapes.append(Ellipse(0))
                 elif event.unicode == 'a':
@@ -152,8 +152,6 @@ if __name__ == '__main__':
         if not paused:
             print >> sys.stderr, 'FPS %03.2f, % 3d shapes\r' % \
                 (clock.get_fps(), len(shapes)),
-
-            screen.fill((0, 0, 0))
 
             update_rect = Rect(width, height, -width, -height)
             for shape in shapes:
