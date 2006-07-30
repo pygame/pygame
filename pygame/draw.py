@@ -45,7 +45,7 @@ def _get_color(color, surface):
     return color
 
 def _get_rect(rect):
-    rect = copy(rect)
+    rect = copy(pygame.rect._rect_from_object(rect))
     rect.normalize()
     return rect._r
 
@@ -261,7 +261,118 @@ def ellipse(surface, color, rect, width=0):
 
     :rtype: `Rect`
     :return: Affected bounding box.
-    '''     
+    '''
+    if width != 1:
+        raise NotImplementedError, 'TODO'
+    if surface._surf.format.BytesPerPixel == 3:
+        raise NotImplementedError, 'TODO'
+
+    color = _get_color(color, surface)
+    rect = _get_rect(rect)
+    pixels = surface._surf.pixels.as_ctypes()
+    pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
+
+    clip_rect = pygame.rect.Rect(surface._surf.clip_rect)
+    top = clip_rect.top * pitch
+    bottom = clip_rect.bottom * pitch
+    left = clip_rect.left
+    right = clip_rect.right
+
+    # Implementation differs from Pygame.  Using Kennedy "A fast Bresenham
+    # type algorithm for drawing ellipses", 
+    # http://homepage.smc.edu/kennedy_john/BELIPSE.PDF
+    cx = rect.x + rect.w / 2
+    cy = rect.y + rect.h / 2
+    xrad = rect.w / 2
+    yrad = rect.h / 2
+    a = 2 * xrad * xrad
+    b = 2 * yrad * yrad
+    xchange = yrad * yrad * (1 - 2 * xrad)
+    ychange = xrad * xrad
+    err = 0
+    stopx = b * xrad
+    stopy = 0
+    p1 = p3 = cy * pitch + cx + xrad
+    p2 = p4 = cy * pitch + cx - xrad
+    left1 = left2 = cy * pitch + left
+    right1 = right2 = cy * pitch + right
+
+    while stopx >= stopy:
+        if p1 >= top and p2 < bottom:
+            if p1 >= left1 and p1 < right1:
+                pixels[p1] = color
+            if p2 >= left1 and p2 < right1:
+                pixels[p2] = color
+        if p3 >= top and p4 < bottom:
+            if p3 >= left2 and p3 < right2:
+                pixels[p3] = color
+            if p4 >= left2 and p4 < right2:
+                pixels[p4] = color
+        p1 += pitch
+        p2 += pitch
+        p3 -= pitch
+        p4 -= pitch
+        left1 += pitch
+        left2 -= pitch
+        right1 += pitch
+        right2 -= pitch
+
+        stopy += a
+        err += ychange
+        ychange += a
+        if 2 * err + xchange > 0:
+            p1 -= 1
+            p2 += 1
+            p3 -= 1
+            p4 += 1
+            stopx -= b
+            err += xchange
+            xchange += b
+
+    xchange = yrad * yrad
+    ychange = xrad * xrad * (1 - 2 * yrad)
+    err = 0
+    stopx = 0
+    stopy = a * yrad
+    p1 = p3 = rect.y * pitch + cx
+    p2 = p4 = (rect.y + rect.h) * pitch + cx
+    left1 = rect.y * pitch + left
+    right1 = rect.y * pitch + right
+    left2 = (rect.y + rect.h) * pitch + left
+    right2 = (rect.y + rect.h) * pitch + right
+    while stopx <= stopy:
+        if p3 >= top and p1 < bottom:
+            if p1 >= left1 and p1 < right1:
+                pixels[p1] = color
+            if p3 >= left1 and p3 < right1:
+                pixels[p3] = color
+        if p4 >= top and p2 < bottom:
+            if p2 >= left2 and p2 < right2:
+                pixels[p2] = color
+            if p4 >= left2 and p4 < right2:
+                pixels[p4] = color
+        p1 += 1
+        p2 += 1
+        p3 -= 1
+        p4 -= 1
+        stopx += b
+        err += xchange
+        xchange += b
+        if 2 * err + ychange > 0:
+            p1 += pitch
+            p2 -= pitch
+            p3 += pitch
+            p4 -= pitch
+            left1 += pitch
+            left2 -= pitch
+            right1 += pitch
+            right2 -= pitch
+            stopy -= a
+            err += ychange
+            ychange += a
+
+    clip_rect.clip_ip((rect.x, rect.y, rect.w + 1, rect.h + 1))
+    return clip_rect
 
 def arc(surface, color, rect, start_angle, stop_angle, width=1):
     '''Draw a partial section of an ellipse.
