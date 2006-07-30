@@ -365,7 +365,7 @@ stop playback after fading channel out
 Channel.fadeout(time): return None
 
 Stop playback of a channel after fading out the sound over the given
-time argument in seconds.
+time argument in milliseconds.
 <END>
 
 
