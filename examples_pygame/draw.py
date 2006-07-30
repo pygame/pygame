@@ -28,6 +28,7 @@ class Point(object):
 class Shape(object):
     def __init__(self, npoints):
         self.points = []
+        self.area = None
         for i in range(npoints):
             self.points.append(Point())
         self.color = (random.randint(0, 255),
@@ -55,7 +56,7 @@ class Rectangle(Shape):
         r = Rect(self.get_points())
         r.width -= r.left
         r.height -= r.top
-        pygame.draw.rect(surface, self.color, r, self.width)
+        return pygame.draw.rect(surface, self.color, r, self.width)
 
 class Line(Shape):
     def __init__(self, width):
@@ -63,18 +64,18 @@ class Line(Shape):
         self.width = width
 
     def draw(self, surface):
-        pygame.draw.line(surface, self.color, 
-                         self.get_points()[0],
-                         self.get_points()[1], self.width)
+        return pygame.draw.line(surface, self.color, 
+                                self.get_points()[0],
+                                self.get_points()[1], self.width)
 
 class AntialiasLine(Shape):
     def __init__(self):
         super(AntialiasLine, self).__init__(2)
 
     def draw(self, surface):
-        pygame.draw.aaline(surface, self.color, 
-                           self.get_points()[0],
-                           self.get_points()[1])
+        return pygame.draw.aaline(surface, self.color, 
+                                  self.get_points()[0],
+                                  self.get_points()[1])
 
 class Polygon(Shape):
     def __init__(self, width):
@@ -82,7 +83,8 @@ class Polygon(Shape):
         self.width = width
 
     def draw(self, surface):
-        pygame.draw.polygon(surface, self.color, self.get_points(), self.width)
+        return pygame.draw.polygon(surface, self.color, 
+                                   self.get_points(), self.width)
 
 class Ellipse(Shape):
     def __init__(self, width):
@@ -95,7 +97,8 @@ class Ellipse(Shape):
         r.height -= r.top
         r.normalize()
         if self.width * 2 < r.width and self.width * 2 < r.height:
-            pygame.draw.ellipse(surface, self.color, r, self.width)
+            return pygame.draw.ellipse(surface, self.color, r, self.width)
+        return None
 
 if __name__ == '__main__':
     pygame.init()
@@ -104,9 +107,10 @@ if __name__ == '__main__':
     depth = 0
     screen = pygame.display.set_mode((width, height), flags, depth)
 
-    shapes = [Rectangle(2)]
+    shapes = [Polygon(0)]
 
     clock = pygame.time.Clock()
+    show_clips = False
     quit = False
     paused = False
     while not quit:
@@ -141,6 +145,8 @@ if __name__ == '__main__':
                     screen.set_clip(screen.get_clip().inflate(-50, -50))
                 elif event.unicode == 'C':
                     screen.set_clip(screen.get_clip().inflate(50, 50))
+                elif event.unicode == 'i':
+                    show_clips = not show_clips
 
         time = clock.tick()
         if not paused:
@@ -148,7 +154,20 @@ if __name__ == '__main__':
                 (clock.get_fps(), len(shapes)),
 
             screen.fill((0, 0, 0))
+
+            update_rect = Rect(width, height, -width, -height)
             for shape in shapes:
                 shape.update(time)
-                shape.draw(screen)
-            pygame.display.flip()
+                if shape.area:
+                    update_rect.union_ip(shape.area)
+                shape.area = shape.draw(screen)
+                if shape.area:
+                    update_rect.union_ip(shape.area)
+                if show_clips and shape.area:
+                    pygame.draw.rect(screen, (255, 0, 0), shape.area, 1)
+
+            if show_clips:
+                pygame.display.flip()
+            else:
+                update_rect.normalize()
+                pygame.display.update([update_rect])
