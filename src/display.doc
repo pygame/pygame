@@ -295,7 +295,7 @@ The OPENGL flags are;
 
 get_active
 true when the display is active on the display
-pygame.display.get_caption(): return bool
+pygame.display.get_active(): return bool
 
 After pygame.display.set_mode() is called the display Surface will be visible
 on the screen. Most windowed displays can be hidden by the user. If the
