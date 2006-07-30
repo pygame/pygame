@@ -53,7 +53,7 @@
 <p>The module includes several standard cursors. The <tt><a href="mouse.html#pygame.mouse.set_cursor">pygame.mouse.set_cursor</a> - <font size=-1>set the image for the system mouse cursor</font></tt> function takes several arguments. All those arguments have been stored in a single tuple you can call like this: </p>
 <pre>   >>> pygame.mouse.set_cursor(*pygame.cursors.arrow)
 </pre><p>This module also contains a few cursors as formatted strings. You'll need to pass these to <tt><a href="cursors.html#pygame.cursors.compile">pygame.cursors.compile</a> - <font size=-1>create binary cursor data from simple strings</font></tt> function before you can use them. The example call would look like this: </p>
-<pre>   >>> cursor = pygame.mouse.compile(pygame.cursors.textmarker_strings)
+<pre>   >>> cursor = pygame.cursors.compile(pygame.cursors.textmarker_strings)
    >>> pygame.mouse.set_cursor(*cursor)
 </pre><p>The following variables are cursor bitmaps that can be used as cursor: </p>
 <ul>

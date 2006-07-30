@@ -115,6 +115,7 @@
 <p>An optional special flags is for passing in <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> With other special blitting flags perhaps added in the future. </p>
 <p>The return rectangle is the area of the affected pixels, excluding any pixels outside the destination Surface, or outside the clipping area. </p>
 <p>Pixel alphas will be ignored when blitting to an 8 bit Surface. </p>
+<p>special_flags new in pygame <tt>1.8</tt>. </p>
 <!--COMMENTS:Surface.blit--> &nbsp;<br> 
 <br></ul>
 
@@ -124,7 +125,7 @@
   <i>change the pixel format of an image</i><br>
   <tt>Surface.convert(Surface): return Surface</tt><br>
   <tt>Surface.convert(depth, flags=0): return Surface</tt><br>
-  <tt>Surface.convert(depth, masks): return Surface</tt><br>
+  <tt>Surface.convert(masks, flags=0): return Surface</tt><br>
   <tt>Surface.convert(): return Surface</tt><br>
 <p>Creates a new copy of the Surface with the pixel format changed. The new pixel format can be determined from another existing Surface. Otherwise depth, flags, and masks arguments can be used, similar to the <tt><a href="surface.html#pygame.Surface">pygame.Surface</a> - <font size=-1>pygame object for representing images</font></tt> call. </p>
 <p>If no arguments are passed the new Surface will have the same pixel format as the display Surface. This is always the fastest format for blitting. It is a good idea to convert all Surfaces before they are blitted many times. </p>
@@ -374,7 +375,7 @@
 <big><b>Surface.get_abs_parent</big></b><br><ul>
   <i>find the top level parent of a subsurface</i><br>
   <tt>Surface.get_abs_parent(): return Surface</tt><br>
-<p>Returns the parent Surface of a subsurface. If this is not a subsurface then None will be returned. </p>
+<p>Returns the parent Surface of a subsurface. If this is not a subsurface then this surface will be returned. </p>
 <!--COMMENTS:Surface.get_abs_parent--> &nbsp;<br> 
 <br></ul>
 
@@ -456,7 +457,29 @@
 <big><b>Surface.get_flags</big></b><br><ul>
   <i>get the additional flags used for the Surface</i><br>
   <tt>Surface.get_flags(): return int</tt><br>
-<p>Returns a set of current Surface features. Each feature is a bit in the flags bitmask. Typical flags are <tt>HWSURFACE</tt>, <tt>RLEACCEL</tt>, <tt>ALPHA</tt>, and <tt>COLORKEY</tt>. </p>
+<p>Returns a set of current Surface features. Each feature is a bit in the flags bitmask. Typical flags are <tt>HWSURFACE</tt>, <tt>RLEACCEL</tt>, <tt>SRCALPHA</tt>, and <tt>SRCCOLORKEY</tt>. </p>
+<p>Here is a more complete list of flags. <tt>A</tt> full list can be found in <tt>SDL_video.h</tt> </p>
+<pre>  SWSURFACE	0x00000000	# Surface is in system memory
+  HWSURFACE	0x00000001	# Surface is in video memory
+  ASYNCBLIT	0x00000004	# Use asynchronous blits if possible
+</pre><p>Available for <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> </p>
+<pre>  ANYFORMAT	0x10000000	# Allow any video depth/pixel-format
+  HWPALETTE	0x20000000	# Surface has exclusive palette
+  DOUBLEBUF	0x40000000	# Set up double-buffered video mode
+  FULLSCREEN	0x80000000	# Surface is a full screen display
+  OPENGL        0x00000002      # Create an OpenGL rendering context
+  OPENGLBLIT	0x0000000A	# Create an OpenGL rendering context
+                                #   and use it for blitting.  Obsolete.
+  RESIZABLE	0x00000010	# This video mode may be resized
+  NOFRAME       0x00000020	# No window caption or edge frame
+</pre><p>Used internally (read-only) </p>
+<pre>  HWACCEL       0x00000100	# Blit uses hardware acceleration
+  SRCCOLORKEY	0x00001000	# Blit uses a source color key
+  RLEACCELOK	0x00002000	# Private flag
+  RLEACCEL	0x00004000	# Surface is RLE encoded
+  SRCALPHA	0x00010000	# Blit uses source alpha blending
+  PREALLOC	0x01000000	# Surface uses preallocated memory
+</pre>
 <!--COMMENTS:Surface.get_flags--> &nbsp;<br> 
 <br></ul>
 
