@@ -1,6 +1,8 @@
 pygame.scrap
 
 The scrap module is for getting and putting stuff from the clipboard.
+So you can copy and paste things between pygame, and other application
+types.
 
 New in pygame 1.8.  Only works for windows, X11, QNX, Mac OS X so far.
 <SECTION>
@@ -8,8 +10,7 @@ New in pygame 1.8.  Only works for windows, X11, QNX, Mac OS X so far.
 
 
 init
-raises an error on error.
-
+raises an error if it can not initialise.
 <END>
 
 get
@@ -23,7 +24,7 @@ Return the data from the clipboard.
 put
 Puts stuff into the clipboard.
 pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.
-pygame.scrap.put(pygame.locals.SCRAP_BMP, 'hello clipboard'): return None.
+pygame.scrap.put(pygame.locals.SCRAP_BMP, Surface): return None.
 
 Puts the stuff into the clipboard.
 <END>
@@ -35,7 +36,4 @@ pygame.scrap.lost() returns True or False.
 Returns True if the contents of the clipboard has been lost.  If it has not 
 been lost it returns False.
 <END>
-
-
-
 <END>
