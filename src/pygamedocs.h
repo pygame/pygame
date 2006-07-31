@@ -82,7 +82,7 @@
 
 #define DOC_PYGAMEDISPLAYGETINIT "pygame.display.get_init(): return bool\ntrue if the display module is initialized"
 
-#define DOC_PYGAMEDISPLAYSETMODE "pygame.display.set_mode(resolution, flags=0, depth=0): return Surface\ninitialize a window or creen for display"
+#define DOC_PYGAMEDISPLAYSETMODE "pygame.display.set_mode(resolution, flags=0, depth=0): return Surface\ninitialize a window or screen for display"
 
 #define DOC_PYGAMEDISPLAYGETSURFACE "pygame.display.get_surface(): return Surface\nget a reference to the currently set display surface"
 
@@ -104,11 +104,11 @@
 
 #define DOC_PYGAMEDISPLAYGLSETATTRIBUTE "pygame.display.gl_set_attribute(flag, value): return None\nrequest an opengl display attribute for the display mode"
 
-#define DOC_PYGAMEDISPLAYGETACTIVE "pygame.display.get_caption(): return bool\ntrue when the display is active on the display"
+#define DOC_PYGAMEDISPLAYGETACTIVE "pygame.display.get_active(): return bool\ntrue when the display is active on the display"
 
 #define DOC_PYGAMEDISPLAYICONIFY "pygame.display.iconify(): return bool\niconify the display surface"
 
-#define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "pygame.display.iconify(): return bool\nswitch between fullscreen and windowed displays"
+#define DOC_PYGAMEDISPLAYTOGGLEFULLSCREEN "pygame.display.toggle_fullscreen(): return bool\nswitch between fullscreen and windowed displays"
 
 #define DOC_PYGAMEDISPLAYSETGAMMA "pygame.display.set_gamma(red, green=None, blue=None): return bool\nchange the hardware gamma ramps"
 
@@ -372,7 +372,7 @@
 
 #define DOC_PYGAMEMOVIE "pygame module for playback of mpeg video"
 
-#define DOC_PYGAMEMOVIEMOVIE "pygame.movie.Movie(filename): return Movie\npygame.move.Movie(object): return Movie\nload an mpeg movie file"
+#define DOC_PYGAMEMOVIEMOVIE "pygame.movie.Movie(filename): return Movie\npygame.movie.Movie(object): return Movie\nload an mpeg movie file"
 
 #define DOC_MOVIEPLAY "Movie.play(loops=0): return None\nstart playback of a movie"
 
@@ -488,15 +488,13 @@
 
 #define DOC_PYGAMESCRAP ""
 
-#define DOC_PYGAMESCRAPINIT "raises an error on error."
+#define DOC_PYGAMESCRAPINIT "raises an error if it can not initialise."
 
 #define DOC_PYGAMESCRAPGET "pygame.scrap.get(pygame.locals.SCRAP_TEXT): return text.\npygame.scrap.get(pygame.locals.SCRAP_BMP): return image data.\nGets stuff from the clipboard."
 
-#define DOC_PYGAMESCRAPPUT "pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.\npygame.scrap.put(pygame.locals.SCRAP_BMP, 'hello clipboard'): return None.\nPuts stuff into the clipboard."
+#define DOC_PYGAMESCRAPPUT "pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.\npygame.scrap.put(pygame.locals.SCRAP_BMP, Surface): return None.\nPuts stuff into the clipboard."
 
 #define DOC_PYGAMESCRAPLOST "pygame.scrap.lost() returns True or False.\nHas the clipboard contents been lost."
-
-#define DOC_ ""
 
 #define DOC_PYGAMESNDARRAY "pygame module for accessing sound sample data"
 
@@ -560,7 +558,7 @@
 
 #define DOC_SURFACEBLIT "Surface.blit(source, dest, area=None, special_flags = 0): return Rect\ndraw one image onto another"
 
-#define DOC_SURFACECONVERT "Surface.convert(Surface): return Surface\nSurface.convert(depth, flags=0): return Surface\nSurface.convert(depth, masks): return Surface\nSurface.convert(): return Surface\nchange the pixel format of an image"
+#define DOC_SURFACECONVERT "Surface.convert(Surface): return Surface\nSurface.convert(depth, flags=0): return Surface\nSurface.convert(masks, flags=0): return Surface\nSurface.convert(): return Surface\nchange the pixel format of an image"
 
 #define DOC_SURFACECONVERTALPHA "Surface.convert_alpha(Surface): return Surface\nSurface.convert_alpha(): return Surface\nchange the pixel format of an image including per pixel alphas"
 
@@ -684,13 +682,13 @@
 
 #define DOC_PYGAMETRANSFORMFLIP "pygame.transform.flip(Surface, xbool, ybool): return Surface\nflip vertically and horizontally"
 
-#define DOC_PYGAMETRANSFORMSCALE "pygame.transform.scale(Surface, (width, height)): return Surface\nresize to new resolution"
+#define DOC_PYGAMETRANSFORMSCALE "pygame.transform.scale(Surface, (width, height), DestSurface = None): return Surface\nresize to new resolution"
 
 #define DOC_PYGAMETRANSFORMROTATE "pygame.transform.rotate(Surface, angle): return Surface\nrotate an image"
 
 #define DOC_PYGAMETRANSFORMROTOZOOM "pygame.transform.rotozoom(Surface, angle, scale): return Surface\nfiltered scale and rotation"
 
-#define DOC_PYGAMETRANSFORMSCALE2X "pygame.transform.scale2x(Surface): Surface\nspecialized image doubler"
+#define DOC_PYGAMETRANSFORMSCALE2X "pygame.transform.scale2x(Surface, DestSurface = None): Surface\nspecialized image doubler"
 
 #define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\nremove interior area of an image"
 

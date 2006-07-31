@@ -21,7 +21,7 @@
 */
 #define NO_PYGAME_C_API
 #include "pygame.h"
-
+#include "scrap.h"
 
 
 /* macros used to create each constant */
@@ -42,8 +42,6 @@ PYGAME_EXPORT
 void initconstants(void)
 {
 	PyObject* module;
-        int SCRAP_TEXT;
-        int SCRAP_BMP;
 
 	module = Py_InitModule3("constants", builtins,
 	           "Constants defined by SDL and needed in Pygame.\n");
@@ -110,14 +108,8 @@ void initconstants(void)
 	DEC_CONSTN(AUDIO_U16SYS);
 	DEC_CONSTN(AUDIO_S16SYS);
 
-/* 
- * NOTE: this is from scrap.h
- */
-#define T(A, B, C, D)	(int)((A<<24)|(B<<16)|(C<<8)|(D<<0))
-
-        SCRAP_TEXT= T('T','E','X','T');
-        SCRAP_BMP= T('B','M','P', ' ');
-
+#define SCRAP_TEXT PYGAME_SCRAP_TEXT
+#define SCRAP_BMP PYGAME_SCRAP_BMP
 
 	DEC_CONSTN(SCRAP_TEXT);
 	DEC_CONSTN(SCRAP_BMP);

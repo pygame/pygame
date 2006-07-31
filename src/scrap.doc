@@ -14,11 +14,13 @@ raises an error if it can not initialise.
 <END>
 
 get
-Gets stuff from the clipboard.  
+Gets stuff from the clipboard.
 pygame.scrap.get(pygame.locals.SCRAP_TEXT): return text.
 pygame.scrap.get(pygame.locals.SCRAP_BMP): return image data.
 
-Return the data from the clipboard.
+Return the data from the clipboard. SCRAP_BMP is only supported by
+pygame window instances.
+
 <END>
 
 put
@@ -26,7 +28,12 @@ Puts stuff into the clipboard.
 pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.
 pygame.scrap.put(pygame.locals.SCRAP_BMP, Surface): return None.
 
-Puts the stuff into the clipboard.
+Puts the stuff into the clipboard. The content must be a string, but has
+no limitations in its size. Thus it is possible to put e.g. serialized
+pygame objects into the clipboard and deserialize them when they are
+retrieved again.
+
+Raises an error, if the content could not be placed into the clipboard.
 <END>
 
 lost
