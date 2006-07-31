@@ -88,8 +88,6 @@
 		return RAISE(PyExc_SDLError, "joystick system not initialized")
 
 
-
-
 /* BASE */
 #define PYGAMEAPI_BASE_FIRSTSLOT 0
 #define PYGAMEAPI_BASE_NUMSLOTS 13

@@ -1,6 +1,6 @@
 /*
     pygame - Python Game Library
-    Copyright (C) 2006 Rene Dudfield
+    Copyright (C) 2006 Rene Dudfield, Marcus von Appen
 
     Originally written and put in the public domain by Sam Lantinga.
 
@@ -19,7 +19,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
 /* Handle clipboard text and data in arbitrary formats */
 
 #include <stdio.h>
@@ -29,20 +28,33 @@
 #include "SDL_syswm.h"
 
 #include "scrap.h"
-
-
 #include "pygame.h"
 #include "pygamedocs.h"
 
 
+/* Python < 2.3/2.4 backwards compatibility - should be placed in a
+ * private header by time. */
+#ifndef Py_RETURN_TRUE
+#define Py_RETURN_TRUE return Py_INCREF (Py_True), Py_True
+#endif
 
-/* Miscellaneous defines */
-#define PUBLIC
-#define PRIVATE	static
+#ifndef Py_RETURN_FALSE
+#define Py_RETURN_FALSE return Py_INCREF (Py_False), Py_False
+#endif
+
+#ifndef Py_RETURN_NONE
+#define Py_RETURN_NONE return Py_INCREF (Py_None), Py_None
+#endif
+
+/**
+ * Format prefix to use.
+ */
+#define FORMAT_PREFIX "SDL_scrap_0x"
 
 /* Determine what type of clipboard we are using */
 #if defined(__unix__) && !defined(__QNXNTO__) && !defined(DISABLE_X11)
     #define X11_SCRAP
+    #include <time.h> /* Needed for clipboard timeouts. */
 #elif defined(__WIN32__)
     #define WIN_SCRAP
 #elif defined(__QNXNTO__)
@@ -53,786 +65,763 @@
     #error Unknown window manager for clipboard handling
 #endif /* scrap type */
 
-/* MAC_SCRAP delegates all functionality, we just need a small stub */
-#if !defined(MAC_SCRAP)
+/* MAC_SCRAP delegates all functionality, we just need a small stub. */
+#if defined(MAC_SCRAP)
 
-/* System dependent data types */
+static PyObject*
+mac_scrap_call (char *name, PyObject *args)
+{
+    static PyObject *mac_scrap_module = NULL;
+    PyObject *method;
+    PyObject *result;
+
+    if (!mac_scrap_module)
+        mac_scrap_module = PyImport_ImportModule ("pygame.mac_scrap");
+    if (!mac_scrap_module)
+        return NULL;
+    
+    method = PyObject_GetAttrString (mac_scrap_module, name);
+    if (!method)
+        return NULL;
+    result = PyObject_CallObject (method, args);
+    Py_DECREF (method);
+    return result;
+}
+
+static PyObject*
+scrap_init (PyObject *self, PyObject *args)
+{
+    return mac_scrap_call ("init", args);
+}
+
+static PyObject*
+scrap_get_scrap (PyObject *self, PyObject *args)
+{
+    return mac_scrap_call ("get", args);
+}
+
+static PyObject*
+scrap_put_scrap (PyObject *self, PyObject *args)
+{
+    return mac_scrap_call ("put", args);
+}
+
+static PyObject*
+scrap_lost_scrap (PyObject *self, PyObject *args)
+{
+    return mac_scrap_call ("lost", args);
+}
+
+#else /* defined(MAC_SCRAP) */
+
+/**
+ * Indicates, whether pygame.scrap was initialized or not.
+ */
+static int _scrapinitialized = 0;
+
+/**
+ * The internal clipboard buffer.
+ */
+static char *_clipbuffer = NULL;
+static int _clipsize = 0;
+static int _cliptype = 0;
+
+/**
+ * Clip buffer cleaning macro.
+ */
+#define CLEAN_CLIP_BUFFER() \
+    { if (_clipbuffer) \
+            free (_clipbuffer); \
+        _clipbuffer = NULL; \
+        _clipsize = 0; \
+        _cliptype = 0; \
+    }
+
+/* System dependent data types and variables. */
 #if defined(X11_SCRAP)
-/* * */
 typedef Atom scrap_type;
-
-#elif defined(WIN_SCRAP)
-/* * */
-typedef UINT scrap_type;
-
-#elif defined(QNX_SCRAP)
-/* * */
-typedef uint32_t scrap_type;
-#define Ph_CL_TEXT T('T', 'E', 'X', 'T')
-
-#endif /* scrap type */
-
-/* System dependent variables */
-#if defined(X11_SCRAP)
-/* * */
 static Display *SDL_Display;
 static Window SDL_Window;
 static void (*Lock_Display)(void);
 static void (*Unlock_Display)(void);
 
 #elif defined(WIN_SCRAP)
-/* * */
+typedef UINT scrap_type;
 static HWND SDL_Window;
 
 #elif defined(QNX_SCRAP)
-/* * */
+typedef uint32_t scrap_type;
 static unsigned short InputGroup;
 
-#endif
+#endif /* types */
 
-
-#define FORMAT_PREFIX	"SDL_scrap_0x"
-
-PRIVATE scrap_type
-convert_format(int type)
+/**
+ * \brief Converts the passed type into a system specific scrap_type to
+ *        use for the clipboard.
+ *
+ * \param type The type to convert.
+ * \return A system specific scrap_type.
+ */
+static scrap_type
+_convert_format (int type)
 {
   switch (type)
     {
-
-    case T('T', 'E', 'X', 'T'):
+    case PYGAME_SCRAP_TEXT:
 #if defined(X11_SCRAP)
-/* * */
-      return XA_STRING;
-
+        return XA_STRING;
 #elif defined(WIN_SCRAP)
-/* * */
-      return CF_TEXT;
-
+        return CF_TEXT;
 #elif defined(QNX_SCRAP)
-/* * */
-      return Ph_CL_TEXT;
+        return Ph_CL_TEXT;
+#endif
 
-#endif /* scrap type */
-
-    default:
-      {
-        char format[sizeof(FORMAT_PREFIX)+8+1];
-
-        sprintf(format, "%s%08lx", FORMAT_PREFIX, (unsigned long)type);
+    default: /* PYGAME_SCRAP_BMP et al. */
+    {
+        char format[sizeof (FORMAT_PREFIX) + 8 + 1];
+        sprintf (format, "%s%08lx", FORMAT_PREFIX, (unsigned long) type);
 
 #if defined(X11_SCRAP)
-/* * */
-        return XInternAtom(SDL_Display, format, False);
-
+        return XInternAtom (SDL_Display, format, False);
 #elif defined(WIN_SCRAP)
-/* * */
-        return RegisterClipboardFormat(format);
-
-#endif /* scrap type */
-      }
+        return RegisterClipboardFormat (format);
+#endif
+    }
     }
 }
 
-/* Convert internal data to scrap format */
-PRIVATE int
-convert_data(int type, unsigned char *dst, char *src, int srclen)
-{
-  int dstlen;
+/**
+ * X11 specific methods we need here.
+ */
+#if defined(X11_SCRAP)
 
-  dstlen = 0;
-  switch (type)
+/**
+ * \brief System message filter function -- handles X11 clipboard messages.
+ *
+ * \param event The SDL_Event to check.
+ * \return Always 1.
+ */
+static int
+_clipboard_filter (const SDL_Event *event)
+{
+    /* Post all non-window manager specific events */
+    if (event->type != SDL_SYSWMEVENT)
+        return 1;
+
+    /* Handle window-manager specific clipboard events */
+    switch (event->syswm.msg->event.xevent.type)
     {
-    case T('T', 'E', 'X', 'T'):
-      if ( dst )
+    case SelectionClear:
+        /* Looks like another window takes control over the clipboard.
+         * Release the internally saved buffer. */
+        CLEAN_CLIP_BUFFER ();
+        break;
+
+    case SelectionNotify:
+        /* This one will be handled directly in the pygame_get_scrap ()
+         * function. */
+        break;
+
+    case SelectionRequest:
+    {
+        Atom request;
+        int found = 0;
+        /*  unused?
+        int seln_format;
+        unsigned long nbytes;
+        unsigned long overflow;
+        unsigned char *seln_data;
+        */
+        XSelectionRequestEvent *req =
+            &event->syswm.msg->event.xevent.xselectionrequest;
+        XEvent ev;
+
+        if (!_clipbuffer)
+            return 1;
+        
+        request = XInternAtom (SDL_Display, "UTF8_STRING", False);
+        if (req->target != request)
         {
-          while ( --srclen >= 0 )
+            request = XInternAtom (SDL_Display, "TEXT", False);
+            if (req->target != request)
             {
-#if defined(__unix__)
-              if ( *src == '\r' )
+                request = XInternAtom (SDL_Display, "COMPOUND_TEXT", False);
+                if (req->target != request)
                 {
-                  *dst++ = '\n';
-                  ++dstlen;
+                    if (req->target == XA_STRING)
+                    {
+                        request = XA_STRING;
+                        found = 1;
+                    }
                 }
-              else
-#elif defined(__WIN32__)
-              if ( *src == '\r' )
-                {
-                  *dst++ = '\r';
-                  ++dstlen;
-                  *dst++ = '\n';
-                  ++dstlen;
-                }
-              else
-#endif
-                {
-                  *dst++ = *src;
-                  ++dstlen;
-                }
-              ++src;
+                else
+                    found = 1; /* Want COMPOUND_TEXT. */
             }
-            *dst = '\0';
-            ++dstlen;
-        }
-      else
-        {
-          while ( --srclen >= 0 )
-            {
-#if defined(__unix__)
-              if ( *src == '\r' )
-                {
-                  ++dstlen;
-                }
-              else
-#elif defined(__WIN32__)
-              if ( *src == '\r' )
-                {
-                  ++dstlen;
-                  ++dstlen;
-                }
-              else
-#endif
-                {
-                  ++dstlen;
-                }
-              ++src;
-            }
-            ++dstlen;
-        }
-      break;
-
-    default:
-      if ( dst )
-        {
-          *(int *)dst = srclen;
-          dst += sizeof(int);
-          memcpy(dst, src, srclen);
-        }
-      dstlen = sizeof(int)+srclen;
-      break;
-    }
-    return(dstlen);
-}
-
-/* Convert scrap data to internal format */
-PRIVATE int
-convert_scrap(int type, char *dst, char *src, int srclen)
-{
-  int dstlen;
-
-  dstlen = 0;
-  switch (type)
-    {
-    case T('T', 'E', 'X', 'T'):
-      {
-        if ( srclen == 0 )
-          srclen = strlen(src);
-        if ( dst )
-          {
-            while ( --srclen >= 0 )
-              {
-#if defined(__WIN32__)
-                if ( *src == '\r' )
-                  /* drop extraneous '\r' */;
-                else
-#endif
-                if ( *src == '\n' )
-                  {
-                    *dst++ = '\r';
-                    ++dstlen;
-                  }
-                else
-                  {
-                    *dst++ = *src;
-                    ++dstlen;
-                  }
-                ++src;
-              }
-              *dst = '\0';
-              ++dstlen;
-          }
-        else
-          {
-            while ( --srclen >= 0 )
-              {
-#if defined(__WIN32__)
-                if ( *src == '\r' )
-                  /* drop extraneous '\r' */;
-                else
-#endif
-                ++dstlen;
-                ++src;
-              }
-              ++dstlen;
-          }
-        }
-      break;
-
-    default:
-      dstlen = *(int *)src;
-      if ( dst )
-        {
-          if ( srclen == 0 )
-            memcpy(dst, src+sizeof(int), dstlen);
-          else
-            memcpy(dst, src+sizeof(int), srclen-sizeof(int));
-        }
-      break;
-    }
-  return dstlen;
-}
-
-#if defined(X11_SCRAP)
-/* The system message filter function -- handle clipboard messages */
-PRIVATE int clipboard_filter(const SDL_Event *event);
-#endif
-
-PUBLIC int
-init_scrap(void)
-{
-  SDL_SysWMinfo info;
-  int retval;
-
-  /* Grab the window manager specific information */
-  retval = -1;
-  SDL_SetError("SDL is not running on known window manager");
-
-  SDL_VERSION(&info.version);
-  if ( SDL_GetWMInfo(&info) )
-    {
-      /* Save the information for later use */
-#if defined(X11_SCRAP)
-/* * */
-      if ( info.subsystem == SDL_SYSWM_X11 )
-        {
-          SDL_Display = info.info.x11.display;
-          SDL_Window = info.info.x11.window;
-          Lock_Display = info.info.x11.lock_func;
-          Unlock_Display = info.info.x11.unlock_func;
-
-          /* Enable the special window hook events */
-          SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-          SDL_SetEventFilter(clipboard_filter);
-
-          retval = 0;
-        }
-      else
-        {
-          SDL_SetError("SDL is not running on X11");
-        }
-
-#elif defined(WIN_SCRAP)
-/* * */
-      SDL_Window = info.window;
-      retval = 0;
-
-#elif defined(QNX_SCRAP)
-/* * */
-      InputGroup=PhInputGroup(NULL);
-      retval = 0;
-
-#endif /* scrap type */
-    }
-  return(retval);
-}
-
-PUBLIC int
-lost_scrap(void)
-{
-  int retval;
-
-#if defined(X11_SCRAP)
-/* * */
-  Lock_Display();
-  retval = ( XGetSelectionOwner(SDL_Display, XA_PRIMARY) != SDL_Window );
-  Unlock_Display();
-
-#elif defined(WIN_SCRAP)
-/* * */
-  retval = ( GetClipboardOwner() != SDL_Window );
-
-#elif defined(QNX_SCRAP)
-/* * */
-  retval = ( PhInputGroup(NULL) != InputGroup );
-
-#endif /* scrap type */
-
-  return(retval);
-}
-
-PUBLIC void
-put_scrap(int type, int srclen, char *src)
-{
-  scrap_type format;
-  int dstlen;
-  unsigned char *dst;
-
-  format = convert_format(type);
-  dstlen = convert_data(type, NULL, src, srclen);
-
-#if defined(X11_SCRAP)
-/* * */
-  dst = (unsigned char *)malloc(dstlen);
-  if ( dst != NULL )
-    {
-      Lock_Display();
-      convert_data(type, dst, src, srclen);
-      XChangeProperty(SDL_Display, DefaultRootWindow(SDL_Display),
-        XA_CUT_BUFFER0, format, 8, PropModeReplace, dst, dstlen);
-      free(dst);
-      if ( lost_scrap() )
-        XSetSelectionOwner(SDL_Display, XA_PRIMARY, SDL_Window, CurrentTime);
-      Unlock_Display();
-    }
-
-#elif defined(WIN_SCRAP)
-/* * */
-  if ( OpenClipboard(SDL_Window) )
-    {
-      HANDLE hMem;
-
-      hMem = GlobalAlloc((GMEM_MOVEABLE|GMEM_DDESHARE), dstlen);
-      if ( hMem != NULL )
-        {
-          dst = (char *)GlobalLock(hMem);
-          convert_data(type, dst, src, srclen);
-          GlobalUnlock(hMem);
-          EmptyClipboard();
-          SetClipboardData(format, hMem);
-        }
-      CloseClipboard();
-    }
-
-#elif defined(QNX_SCRAP)
-/* * */
-  #if (_NTO_VERSION < 620) /* before 6.2.0 releases */
-  {
-     PhClipHeader clheader={Ph_CLIPBOARD_TYPE_TEXT, 0, NULL};
-     int* cldata;
-     int status;
-
-     dst = (char *)malloc(dstlen+4);
-     if (dst != NULL)
-     {
-        cldata=(int*)dst;
-        *cldata=type;
-        convert_data(type, dst+4, src, srclen);
-        clheader.data=dst;
-        if (dstlen>65535)
-        {
-           clheader.length=65535; /* maximum photon clipboard size :( */
-        }
-        else
-        {
-           clheader.length=dstlen+4;
-        }
-        status=PhClipboardCopy(InputGroup, 1, &clheader);
-        if (status==-1)
-        {
-           fprintf(stderr, "Photon: copy to clipboard was failed !\n");
-        }
-        free(dst);
-     }
-  }
-  #else /* 6.2.0 and 6.2.1 and future releases */
-  {
-     PhClipboardHdr clheader={Ph_CLIPBOARD_TYPE_TEXT, 0, NULL};
-     int* cldata;
-     int status;
-
-     dst = (char *)malloc(dstlen+4);
-     if (dst != NULL)
-     {
-        cldata=(int*)dst;
-        *cldata=type;
-        convert_data(type, dst+4, src, srclen);
-        clheader.data=dst;
-        clheader.length=dstlen+4;
-        status=PhClipboardWrite(InputGroup, 1, &clheader);
-        if (status==-1)
-        {
-           fprintf(stderr, "Photon: copy to clipboard was failed !\n");
-        }
-        free(dst);
-     }
-  }
-  #endif
-#endif /* scrap type */
-}
-
-PUBLIC void
-get_scrap(int type, int *dstlen, char **dst)
-{
-  scrap_type format;
-
-  *dstlen = 0;
-  format = convert_format(type);
-
-#if defined(X11_SCRAP)
-/* * */
-  {
-    Window owner;
-    Atom selection;
-    Atom seln_type;
-    int seln_format;
-    unsigned long nbytes;
-    unsigned long overflow;
-    char *src;
-
-    Lock_Display();
-    owner = XGetSelectionOwner(SDL_Display, XA_PRIMARY);
-    Unlock_Display();
-    if ( (owner == None) || (owner == SDL_Window) )
-      {
-        owner = DefaultRootWindow(SDL_Display);
-        selection = XA_CUT_BUFFER0;
-      }
-    else
-      {
-        int selection_response = 0;
-        SDL_Event event;
-
-        owner = SDL_Window;
-        Lock_Display();
-        selection = XInternAtom(SDL_Display, "SDL_SELECTION", False);
-        XConvertSelection(SDL_Display, XA_PRIMARY, format,
-                                        selection, owner, CurrentTime);
-        Unlock_Display();
-        while ( ! selection_response )
-          {
-            SDL_WaitEvent(&event);
-            if ( event.type == SDL_SYSWMEVENT )
-              {
-                XEvent xevent = event.syswm.msg->event.xevent;
-
-                if ( (xevent.type == SelectionNotify) &&
-                     (xevent.xselection.requestor == owner) )
-                    selection_response = 1;
-              }
-          }
-      }
-    Lock_Display();
-    if ( XGetWindowProperty(SDL_Display, owner, selection, 0, INT_MAX/4,
-                            False, format, &seln_type, &seln_format,
-                       &nbytes, &overflow, (unsigned char **)&src) == Success )
-      {
-        if ( seln_type == format )
-          {
-            *dstlen = convert_scrap(type, NULL, src, nbytes);
-            *dst = (char *)realloc(*dst, *dstlen);
-            if ( *dst == NULL )
-              *dstlen = 0;
             else
-              convert_scrap(type, *dst, src, nbytes);
-          }
-        XFree(src);
-      }
+                found = 1; /* Want TEXT. */
+        }
+        else
+            found = 1; /* Want UTF8_STRING. */
+
+
+        /* No text requested. Try SCRAP_BMP for another pygame window,
+         * that might request the data. */
+        if (!found)
+        {
+            request = _convert_format (PYGAME_SCRAP_BMP);
+            found = req->target == request;
+        }
+        
+        if (found)
+            XChangeProperty (req->display, req->requestor, req->property,
+                             request, 8, PropModeReplace, (unsigned char *)_clipbuffer,
+                             strlen (_clipbuffer));
+
+        /* Prepare answer. */
+        ev.xselection.type = SelectionNotify;
+        ev.xselection.property = req->property;
+        ev.xselection.display = req->display;
+        ev.xselection.requestor = req->requestor;
+        ev.xselection.selection = req->selection;
+        ev.xselection.target = req->target;
+        ev.xselection.time = req->time;
+
+        XSendEvent (req->display, req->requestor, False, 0, &ev);
+        break;
     }
-    Unlock_Display();
-
-#elif defined(WIN_SCRAP)
-/* * */
-  if ( IsClipboardFormatAvailable(format) && OpenClipboard(SDL_Window) )
-    {
-      HANDLE hMem;
-      char *src;
-
-      hMem = GetClipboardData(format);
-      if ( hMem != NULL )
-        {
-          src = (char *)GlobalLock(hMem);
-          *dstlen = convert_scrap(type, NULL, src, 0);
-          *dst = (char *)realloc(*dst, *dstlen);
-          if ( *dst == NULL )
-            *dstlen = 0;
-          else
-            convert_scrap(type, *dst, src, 0);
-          GlobalUnlock(hMem);
-        }
-      CloseClipboard();
     }
-#elif defined(QNX_SCRAP)
-/* * */
-  #if (_NTO_VERSION < 620) /* before 6.2.0 releases */
-  {
-     void* clhandle;
-     PhClipHeader* clheader;
-     int* cldata;
 
-     clhandle=PhClipboardPasteStart(InputGroup);
-     if (clhandle!=NULL)
-     {
-        clheader=PhClipboardPasteType(clhandle, Ph_CLIPBOARD_TYPE_TEXT);
-        if (clheader!=NULL)
-        {
-           cldata=clheader->data;
-           if ((clheader->length>4) && (*cldata==type))
-           {
-              *dstlen = convert_scrap(type, NULL, (char*)clheader->data+4, clheader->length-4);
-              *dst = (char *)realloc(*dst, *dstlen);
-              if (*dst == NULL)
-              {
-                 *dstlen = 0;
-              }
-              else
-              {
-                 convert_scrap(type, *dst, (char*)clheader->data+4, clheader->length-4);
-              }
-           }
-        }
-        PhClipboardPasteFinish(clhandle);
-     }
-  }
-  #else /* 6.2.0 and 6.2.1 and future releases */
-  {
-     void* clhandle;
-     PhClipboardHdr* clheader;
-     int* cldata;
-
-     clheader=PhClipboardRead(InputGroup, Ph_CLIPBOARD_TYPE_TEXT);
-     if (clheader!=NULL)
-     {
-        cldata=clheader->data;
-        if ((clheader->length>4) && (*cldata==type))
-        {
-           *dstlen = convert_scrap(type, NULL, (char*)clheader->data+4, clheader->length-4);
-           *dst = (char *)realloc(*dst, *dstlen);
-           if (*dst == NULL)
-           {
-              *dstlen = 0;
-           }
-           else
-           {
-              convert_scrap(type, *dst, (char*)clheader->data+4, clheader->length-4);
-           }
-        }
-     }
-  }
-  #endif
-#endif /* scrap type */
+    /* Post the event for X11 clipboard reading above */
+    return 1;
 }
 
-#if defined(X11_SCRAP)
-PRIVATE int clipboard_filter(const SDL_Event *event)
+/**
+ * \brief Tries to determine the X window with a valid selection.
+ *        Default is to check
+ *         - passed parameter
+ *         - XA_PRIMARY
+ *         - XA_SECONDARY
+ *         - XA_CUT_BUFFER0
+ *        
+ *         in this order.
+ * 
+ * \param selection The Atom type, that should be tried before any of the
+ *                  fixed XA_* buffers.
+ * \return The Window handle, that owns the selection or None if none was
+ *         found. 
+ */
+static Window
+_get_scrap_owner (Atom *selection)
 {
-  /* Post all non-window manager specific events */
-  if ( event->type != SDL_SYSWMEVENT ) {
-    return(1);
-  }
+    int i = 0;
+    static Atom buffers[] = { XA_PRIMARY, XA_SECONDARY, XA_CUT_BUFFER0,
+                              XA_CUT_BUFFER1, XA_CUT_BUFFER2, XA_CUT_BUFFER3,
+                              XA_CUT_BUFFER4, XA_CUT_BUFFER5, XA_CUT_BUFFER6,
+                              XA_CUT_BUFFER7 };
 
-  /* Handle window-manager specific clipboard events */
-  switch (event->syswm.msg->event.xevent.type) {
-    /* Copy the selection from XA_CUT_BUFFER0 to the requested property */
-    case SelectionRequest: {
-      XSelectionRequestEvent *req;
-      XEvent sevent;
-      int seln_format;
-      unsigned long nbytes;
-      unsigned long overflow;
-      unsigned char *seln_data;
+    Window owner = XGetSelectionOwner (SDL_Display, *selection);
+    if (owner != None)
+        return owner;
 
-      req = &event->syswm.msg->event.xevent.xselectionrequest;
-      sevent.xselection.type = SelectionNotify;
-      sevent.xselection.display = req->display;
-      sevent.xselection.selection = req->selection;
-      sevent.xselection.target = None;
-      sevent.xselection.property = None;
-      sevent.xselection.requestor = req->requestor;
-      sevent.xselection.time = req->time;
-      if ( XGetWindowProperty(SDL_Display, DefaultRootWindow(SDL_Display),
-                              XA_CUT_BUFFER0, 0, INT_MAX/4, False, req->target,
-                              &sevent.xselection.target, &seln_format,
-                              &nbytes, &overflow, &seln_data) == Success )
+    while (i < 10)
+    {
+        owner = XGetSelectionOwner (SDL_Display, buffers[i]);
+        if (owner != None)
         {
-          if ( sevent.xselection.target == req->target )
-            {
-              if ( sevent.xselection.target == XA_STRING )
-                {
-                  if ( seln_data[nbytes-1] == '\0' )
-                    --nbytes;
-                }
-              XChangeProperty(SDL_Display, req->requestor, req->property,
-                sevent.xselection.target, seln_format, PropModeReplace,
-                                                      seln_data, nbytes);
-              sevent.xselection.property = req->property;
-            }
-          XFree(seln_data);
+            *selection = buffers[i];
+            return owner;
         }
-      XSendEvent(SDL_Display,req->requestor,False,0,&sevent);
-      XSync(SDL_Display, False);
+        i++;
     }
-    break;
-  }
-
-  /* Post the event for X11 clipboard reading above */
-  return(1);
+    return None;
 }
+
 #endif /* X11_SCRAP */
 
+int
+pygame_scrap_initialized (void)
+{
+    return _scrapinitialized;
+}
 
+int
+pygame_init_scrap (void)
+{
+    SDL_SysWMinfo info;
+    int retval = 0;
 
+    /* Grab the window manager specific information */
+    SDL_SetError ("SDL is not running on known window manager");
 
+    SDL_VERSION (&info.version);
+    if (SDL_GetWMInfo (&info))
+    {
+        /* Save the information for later use */
+#if defined(X11_SCRAP)
+        if (info.subsystem == SDL_SYSWM_X11)
+        {
+            SDL_Display = info.info.x11.display;
+            SDL_Window = info.info.x11.window;
+            Lock_Display = info.info.x11.lock_func;
+            Unlock_Display = info.info.x11.unlock_func;
+          
+            /* Enable the special window hook events */
+            SDL_EventState (SDL_SYSWMEVENT, SDL_ENABLE);
+            SDL_SetEventFilter (_clipboard_filter);
 
+            retval = 1;
+        }
+        else
+            SDL_SetError ("SDL is not running on X11");
 
+#elif defined(WIN_SCRAP)
+        SDL_Window = info.window;
+        retval = 1
+
+#elif defined(QNX_SCRAP)
+        InputGroup = PhInputGroup (NULL);
+        retval = 1
+
+#endif /* scrap type */
+    }
+    if (retval)
+        _scrapinitialized = 1;
+
+    return retval;
+}
+
+int
+pygame_lost_scrap (void)
+{
+    int retval;
+
+    if (!pygame_scrap_initialized ())
+    {
+        PyErr_SetString (PyExc_SDLError, "scrap system not initialized.");
+        return 0;
+    }
+
+#if defined(X11_SCRAP)
+    Lock_Display ();
+    retval = (XGetSelectionOwner (SDL_Display, XA_PRIMARY) != SDL_Window);
+    Unlock_Display ();
+
+#elif defined(WIN_SCRAP)
+    retval = (GetClipboardOwner () != SDL_Window);
+
+#elif defined(QNX_SCRAP)
+    retval = (PhInputGroup (NULL) != InputGroup);
+
+#endif /* scrap type */
+
+  return retval;
+}
+
+int
+pygame_put_scrap (int type, int srclen, char *src)
+{
+    scrap_type format;
+    int nulledlen = srclen + 1;
+
+    if (!pygame_scrap_initialized ())
+    {
+        PyErr_SetString (PyExc_SDLError, "scrap system not initialized.");
+        return 0;
+    }
+
+    format = _convert_format (type);
+
+    /* Clear old buffer and copy the new content. */
+    if (_clipbuffer)
+        free (_clipbuffer);
+
+    _clipbuffer = malloc (nulledlen);
+    if (!_clipbuffer)
+        return 0; /* Allocation failed. */
+    memset (_clipbuffer, 0, nulledlen);
+    memcpy (_clipbuffer, src, srclen);
+    _clipsize = srclen;
+    _cliptype = format;
+
+#if defined(X11_SCRAP)
+    Lock_Display ();
+
+    /* Update the clipboard property with the buffer. */
+    XChangeProperty (SDL_Display, SDL_Window, XA_PRIMARY, format, 8,
+                     PropModeReplace, (unsigned char *)_clipbuffer, srclen);
+
+  /* Set the selection owner to the own window. */
+    XSetSelectionOwner (SDL_Display, XA_PRIMARY, SDL_Window, CurrentTime);
+    if (XGetSelectionOwner (SDL_Display, XA_PRIMARY) != SDL_Window)
+    {
+        /* Ouch, we could not toggle the selection owner. Raise an error,
+         * as it's not guaranteed, that the clipboard contains valid
+         * data. */
+        CLEAN_CLIP_BUFFER ();
+        Unlock_Display ();
+        return 0;
+    }
+
+    Unlock_Display ();
+
+#elif defined(WIN_SCRAP)
+    HANDLE hMem;
+    
+    if (!OpenClipboard (SDL_Window))
+        return 0; /* Could not open the clipboard. */
+    
+    hMem = GlobalAlloc ((GMEM_MOVEABLE | GMEM_DDESHARE), nulledlen);
+    if (hMem)
+    {
+        char *dst = GlobalLock (hMem);
+
+        memset (dst, 0, nulledlen);
+        memcpy (dst, src, srclen);
+
+        GlobalUnlock (hMem);
+        EmptyClipboard ();
+        SetClipboardData (format, hMem);
+        CloseClipboard ();
+    }
+    else
+    {
+        /* Could not access the clipboard, raise an error. */
+        CLEAN_CLIP_BUFFER ();
+        CloseClipboard ();
+        return 0;
+    }
+
+#elif defined(QNX_SCRAP)
+  #if (_NTO_VERSION < 620) /* Before 6.2.0 releases. */
+    {
+        PhClipHeader clheader = { Ph_CLIPBOARD_TYPE_TEXT, 0, NULL };
+        int* cldata;
+        int status;
+        
+        cldata = (int *) _clipbuffer;
+        *cldata = type;
+        clheader.data = _clipbuffer;
+        if (dstlen > 65535)
+            clheader.length = 65535; /* Maximum photon clipboard size. :( */
+        else
+            clheader.length = nulledlen;
+        
+        status = PhClipboardCopy (InputGroup, 1, &clheader);
+        if (status == -1)
+        {
+            /* Could not access the clipboard, raise an error. */
+            CLEAN_CLIP_BUFFER ();
+            return 0;
+        }
+    }
+
+  #else /* 6.2.0 and 6.2.1 and future releases. */
+    {
+        PhClipboardHdr clheader = { Ph_CLIPBOARD_TYPE_TEXT, 0, NULL };
+        int* cldata;
+        int status;
+        
+        cldata = (int *) _clipbuffer;
+        *cldata = type;
+        clheader.data = _clipbuffer;
+        clheader.length = nulledlen;
+
+        status = PhClipboardWrite (InputGroup, 1, &clheader);
+        if (status == -1)
+        {
+            /* Could not access the clipboard, raise an error. */
+            CLEAN_CLIP_BUFFER ();
+            return 0;
+        }
+    }
+  #endif
+#endif /* scrap type */
+
+    return 1;
+}
+
+char*
+pygame_get_scrap (int type)
+{
+    scrap_type format = _convert_format (type);
+    char *retval = NULL;
+
+    if (!pygame_scrap_initialized ())
+    {
+        PyErr_SetString (PyExc_SDLError, "scrap system not initialized.");
+        return 0;
+    }
+
+    /* If we are the owner, simply return the clip buffer, if it matches
+     * the request type. */
+    if (!pygame_lost_scrap ())
+    {
+        if (format != _cliptype)
+            return NULL;
+
+        if (_clipbuffer)
+        {
+            retval = malloc (_clipsize + 1);
+            if (!retval)
+                return NULL;
+            memset (retval, 0, _clipsize + 1);
+            memcpy (retval, _clipbuffer, _clipsize + 1);
+            return retval;
+        }
+        return NULL;
+    }
+
+#if defined(X11_SCRAP)
+    {
+        Window owner;
+        Atom source = XA_PRIMARY;
+        Atom selection;
+        time_t start;
+        Atom sel_type;
+        int sel_format;
+        unsigned long nbytes;
+        unsigned long overflow;
+        unsigned char *src;
+        XEvent ev;
+
+        Lock_Display ();
+    
+        /* Find a selection owner. */
+        owner = _get_scrap_owner (&source);
+        if (owner == None)
+            return NULL;
+
+        selection = XInternAtom (SDL_Display, "SDL_SELECTION", False);
+        /* Copy and convert the selection into our SDL_SELECTION atom of the
+         * window. 
+         * Flush afterwards, so we have an immediate effect and do not receive
+         * the old buffer anymore. */
+        XConvertSelection (SDL_Display, source, format, selection, SDL_Window,
+                           CurrentTime);
+        XSync (SDL_Display, False);
+
+        /* Let's wait for the SelectionNotify event from the callee and
+         * react upon it as soon as it is received. */
+        for (start = time (0);;)
+        {
+            if (XCheckTypedWindowEvent (SDL_Display, SDL_Window,
+                                        SelectionNotify, &ev))
+                break;
+            if (time (0) - start >= 5)
+            {
+                /* Timeout, damn. */
+                Unlock_Display ();
+                return NULL;
+            }
+        }
+        
+        /* Get any property type and check the sel_type afterwards to decide
+         * what to do. */
+        if (XGetWindowProperty (SDL_Display, ev.xselection.requestor,
+                                selection, 0, INT_MAX / 4, True,
+                                AnyPropertyType, &sel_type, &sel_format,
+                                &nbytes, &overflow, &src) != Success)
+        {
+            XFree (src);
+            return NULL;
+        }
+
+        /* In case we requested an XA_STRING (SCRAP_TEXT), any property
+         * type of XA_STRING, XA_COMPOUND_TEXT, XA_UTF8_STRING and
+         * XA_TEXT is valid. */ 
+        if (format == PYGAME_SCRAP_TEXT &&
+            (sel_type != XInternAtom (SDL_Display, "UTF8_STRING", False)
+             && sel_type != XInternAtom (SDL_Display, "UTF8_STRING", False)
+             && sel_type != XInternAtom (SDL_Display, "TEXT", False)
+             && sel_type != XInternAtom (SDL_Display, "COMPOUND_TEXT", False)
+             && sel_type != XA_STRING))
+        {
+            /* No matching text type found. Return nothing then. */
+            XFree (src);
+            return NULL;
+        }
+        else if (format == PYGAME_SCRAP_BMP && sel_type != PYGAME_SCRAP_BMP)
+        {
+            /* No matching bitmap type found. Return nothing then. */
+            XFree (src);
+            return NULL;
+        }
+        
+        /* Anything is fine, so copy the buffer and return it. */
+        retval = malloc (nbytes + 1);
+        memset (retval, 0, nbytes + 1);
+        memcpy (retval, src, nbytes);
+        XFree (src);
+
+        Unlock_Display ();
+    }
+
+#elif defined(WIN_SCRAP)
+    if (IsClipboardFormatAvailable (format) && OpenClipboard (SDL_Window))
+    {
+        HANDLE hMem;
+        char *src;
+        
+        hMem = GetClipboardData (format);
+        if (hMem)
+        {
+            int len = 0;
+            
+            /* TODO: Is there any mechanism to detect the amount of bytes
+             * in the HANDLE? strlen() won't work as supposed, if the
+             * sequence contains NUL bytes. Can this even happen in the 
+             * Win32 clipboard or is NUL the usual delimiter? */
+            src = GlobalLock (hMem);
+            len = strlen (src) + 1;
+            
+            retval = malloc (len);
+            if (retval)
+            {
+                memset (retval, 0, len);
+                memcpy (retval, src, len);
+            }
+            GlobalUnlock (hMem);
+        }
+        CloseClipboard ();
+    }
+    
+#elif defined(QNX_SCRAP)
+  #if (_NTO_VERSION < 620) /* before 6.2.0 releases */
+    {
+        void *clhandle;
+        PhClipHeader *clheader;
+        int *cldata;
+        
+        clhandle = PhClipboardPasteStart (InputGroup);
+        
+        if (clhandle)
+        {
+            clheader = PhClipboardPasteType (clhandle, Ph_CLIPBOARD_TYPE_TEXT);
+            if (clheader)
+            {
+                cldata = clheader->data;
+                if (*cldata == type)
+                    retval = malloc (clheader->length + 1);
+                
+                if (retval)
+                {
+                    memset (retval, 0, clheader->length + 1);
+                    memcpy (retval, cldata, clheader->length + 1);
+                }
+            }
+            PhClipboardPasteFinish (clhandle);
+        }
+    }
+  #else /* 6.2.0 and 6.2.1 and future releases */
+    {
+        void* clhandle;
+        PhClipboardHdr* clheader;
+        int* cldata;
+        
+        clheader = PhClipboardRead (InputGroup, Ph_CLIPBOARD_TYPE_TEXT);
+        if (clheader)
+        {
+            cldata = clheader->data;
+            if (*cldata == type)
+                retval = malloc (clheader->length + 1);
+            
+            if (retval)
+            {
+                memset (retval, 0, clheader->length + 1);
+                memcpy (retval, cldata, clheader->length + 1);
+            }
+            /* According to the QNX 6.x docs, the clheader pointer is a
+             * newly created one that must be freed manually. */
+            free (clheader->data);
+            free (clheader);
+        }
+    }
+  #endif
+#endif /* scrap type */
+
+    return retval;
+}
 
 /*
  * The python specific stuff.
  */
 
-
-
-/*
-extern int init_scrap(void);
-extern int lost_scrap(void);
-extern void put_scrap(int type, int srclen, char *src);
-extern void get_scrap(int type, int *dstlen, char **dst);
-*/
-
-
-static PyObject* scrap_init(PyObject* self, PyObject* args)
+static PyObject*
+scrap_init (PyObject *self, PyObject *args)
 {
-
-	VIDEO_INIT_CHECK();
-	if ( init_scrap() < 0 ) {
-		//fprintf(stderr, "Couldn't init clipboard: %s\n",SDL_GetError());
-	//	return NULL;
-		return RAISE(PyExc_SDLError, SDL_GetError());
-	}
-
-
-	RETURN_NONE
+    VIDEO_INIT_CHECK ();
+    if (!pygame_init_scrap ())
+        return RAISE (PyExc_SDLError, SDL_GetError ());
+    Py_RETURN_NONE;
 }
-
-
-#define PYGAME_SCRAP_TEXT T('T','E','X','T')
-
 
 /*
  * this will return a python string of the clipboard.
  */
-static PyObject* scrap_get_scrap(PyObject* self, PyObject* args) {
+static PyObject*
+scrap_get_scrap (PyObject* self, PyObject* args)
+{
+    char *scrap = NULL;
+    PyObject *return_string;
+    int scrap_type;
 
-	int scraplen;
-        char *scrap = NULL;
-        PyObject * return_string;
+    PYGAME_SCRAP_INIT_CHECK ();
 
-	int scrap_type;
+    if(!PyArg_ParseTuple (args, "i", &scrap_type))
+        return NULL;
 
-	if(!PyArg_ParseTuple(args, "i", &scrap_type))
-		return NULL;
+    /* pygame_get_scrap() only returns NULL or !NULL, but won't set any
+     * errors. */
+    scrap = pygame_get_scrap (scrap_type);
+    if (!scrap)
+        Py_RETURN_NONE;
 
-        //printf("scrap type given: %d\n", scrap_type);
-        //printf("scrap text type: %d\n", PYGAME_SCRAP_TEXT);
-
-	get_scrap(scrap_type, &scraplen, &scrap);
-
-        //printf("string length:%d\n", scraplen);
-
-        if ( scraplen == 0 ) {
-            //printf("Text scrap is empty\n");
-            RETURN_NONE
-        } else {
-            //printf("Scrap is: %s\n", scrap);
-            return_string = PyString_FromString(scrap);
-        }
-
-        // TODO: FIXME: should the pystring should free it...?
-        free(scrap);
-
-        return return_string;
+    return_string = PyString_FromString (scrap);
+    free (scrap);
+    return return_string;
 }
-
-
-/*
-put_scrap(int type, int srclen, char *src)
-*/
 
 /*
  * this will put a python string into the clipboard.
  */
-static PyObject* scrap_put_scrap(PyObject* self, PyObject* args) {
+static PyObject*
+scrap_put_scrap (PyObject* self, PyObject* args)
+{
     int scraplen;
     char *scrap = NULL;
     int scrap_type;
 
-    //if(!PyArg_ParseTuple(args, "is#", &scrap_type, &scrap, &scraplen))
-    if(!PyArg_ParseTuple(args, "it#", &scrap_type, &scrap, &scraplen))
+    PYGAME_SCRAP_INIT_CHECK ();
+
+    if(!PyArg_ParseTuple (args, "it#", &scrap_type, &scrap, &scraplen))
         return NULL;
 
-    //printf("scrap type given: %d\n", scrap_type);
-    //printf("scrap text type: %d\n", PYGAME_SCRAP_TEXT);
-    //
-
-    //printf("scrap text:%s:\n", scrap);
-    //printf("scrap length:%d:\n", scraplen);
-
-    put_scrap(scrap_type, scraplen, scrap);
-
-    RETURN_NONE
+    if (!pygame_put_scrap (scrap_type, scraplen, scrap))
+        return RAISE (PyExc_SDLError,
+                      "content could not be placed in clipboard.");
+    Py_RETURN_NONE;
 }
 
+static PyObject*
+scrap_lost_scrap (PyObject* self, PyObject* args)
+{
+    PYGAME_SCRAP_INIT_CHECK ();
 
-static PyObject* scrap_lost_scrap(PyObject* self, PyObject* args) {
-    if ( lost_scrap() ) {
-        return PyInt_FromLong(1);
-    } else {
-        return PyInt_FromLong(0);
-    }
+    if (pygame_lost_scrap ())
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
 }
 
 #endif /* !defined(MAC_SCRAP) */
 
-#if defined(MAC_SCRAP)
-
-static PyObject *
-mac_scrap_call(char *name, PyObject *args) {
-	static PyObject *mac_scrap_module = NULL;
-	PyObject *method;
-	PyObject *result;
-	if (mac_scrap_module == NULL) {
-		mac_scrap_module = PyImport_ImportModule("pygame.mac_scrap");
-		if (mac_scrap_module == NULL) {
-			return NULL;
-		}
-	}
-	method = PyObject_GetAttrString(mac_scrap_module, name);
-	if (method == NULL) {
-		return NULL;
-	}
-	result = PyObject_CallObject(method, args);
-	Py_DECREF(method);
-	return result;
-}
-
-static PyObject *
-scrap_init(PyObject *self, PyObject *args) {
-	return mac_scrap_call("init", args);
-}
-
-static PyObject *
-scrap_get_scrap(PyObject *self, PyObject *args) {
-	return mac_scrap_call("get", args);
-}
-
-static PyObject *
-scrap_put_scrap(PyObject *self, PyObject *args) {
-	return mac_scrap_call("put", args);
-}
-
-static PyObject *
-scrap_lost_scrap(PyObject *self, PyObject *args) {
-	return mac_scrap_call("lost", args);
-}
-
-#endif /* defined(MAC_SCRAP) */
-
 static PyMethodDef scrap_builtins[] =
 {
-/*
- * Only initialise these functions for ones we know about.
- *
- * Note, the macosx stuff is done in pygame/__init__.py 
- *   by importing pygame.mac_scrap
- */
+    /*
+     * Only initialise these functions for ones we know about.
+     *
+     * Note, the macosx stuff is done in pygame/__init__.py 
+     *   by importing pygame.mac_scrap
+     */
 #if defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(QNX_SCRAP) || defined(MAC_SCRAP)
 	{ "init", scrap_init, 1, DOC_PYGAMESCRAPINIT },
 	{ "get", scrap_get_scrap, 1, DOC_PYGAMESCRAPGET },
@@ -843,11 +832,11 @@ static PyMethodDef scrap_builtins[] =
 };
 
 PYGAME_EXPORT
-void initscrap(void)
+void initscrap (void)
 {
     /* create the module */
-    Py_InitModule3("scrap", scrap_builtins, NULL);
+    Py_InitModule3 ("scrap", scrap_builtins, NULL);
 
     /*imported needed apis*/
-    import_pygame_base();
+    import_pygame_base ();
 }
