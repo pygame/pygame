@@ -144,7 +144,7 @@ def _rgba_from_obj(obj):
     if len(obj) == 1:
         return _rgba_from_obj(obj[0])
     elif len(obj) == 3:
-        return (obj[0], obj[1], obj[2], 255)
+        return (int(obj[0]), int(obj[1]), int(obj[2]), 255)
     elif len(obj) == 4:
         return obj
     else:

@@ -86,7 +86,7 @@ def get_rel():
 
     return SDL_GetRelativeMouseState()
 
-def set_pos(pos):
+def set_pos(x, y):
     '''Set the mouse cursor position.
 
     Set the current mouse position to arguments given. If the mouse cursor is
@@ -94,13 +94,14 @@ def set_pos(pos):
     a new pygame.MOUSEMOTION event.
     
     :Parameters:
-        `pos` : int, int
-            Tuple of X, Y coordinates.
+        `x` : int
+            X coordinate of mouse cursor
+        `y` : int
+            Y coordinate of mouse cursor
 
     '''
     pygame.display._video_init_check()
 
-    x, y = pos
     SDL_WarpMouse(x, y)
 
 def set_visible(visible):
