@@ -29,6 +29,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
 from copy import copy
+import math
 
 from SDL import *
 
@@ -490,7 +491,139 @@ def arc(surface, color, rect, start_angle, stop_angle, width=1):
 
     :rtype: `Rect`
     :return: Affected bounding box.
-    '''     
+    '''
+    # Implementation based on XFig rasteriser; u_draw.c, draw_arc() and
+    # curve() functions.
+    # http://www.xfig.org
+
+    if width != 1:
+        raise NotImplementedError, 'TODO'
+
+    color = _get_color(color, surface)
+    rect = _get_rect(rect)
+
+    cx = rect.x + rect.w / 2
+    cy = rect.y + rect.h / 2
+    rx = rect.w / 2
+    ry = rect.h / 2
+    p1 = (cx + math.cos(start_angle) * rx, cy - math.sin(start_angle) * ry)
+    p2 = (cx + math.cos(stop_angle) * rx, cy - math.sin(stop_angle) * ry)
+    direction = 0
+    
+    return _curve(surface, color, p1, p2, direction, rx, ry, cx, cy)
+
+def _curve(surface, color, p1, p2, direction, rx, ry, cx, cy):
+    '''Draw an partial or complete curve.  Based on XFig's curve() function.
+
+    :Parameters:
+        `surface` : `Surface`
+            Surface to draw to
+        `color` : int
+            Mapped stroke color
+        `p1` : (int, int)
+            X, Y coordinates of first point of arc
+        `p2` : (int, int)
+            X, Y coordinates of final point of arc
+        `direction` : int
+            0 for anti-clockwise, 1 for clockwise
+        `rx` : int
+            Ellipse radius in X axis
+        `ry` : int
+            Ellipse radius in Y axis
+        `cx` : int
+            Center of ellipse, X coordinate
+        `cy` : int
+            Center of ellipse, Y coordinate
+    
+    :rtype: pygame.rect.Rect
+    :return: Affected bounding box
+    '''
+    surf = surface._surf
+    if surf.format.BytesPerPixel == 3:
+        raise NotImplementedError, 'TODO, 24-bit'
+
+    pitch = surf.pitch / surf.format.BytesPerPixel
+    pixels = surf.pixels.as_ctypes()
+
+    if rx <= 4 or ry <= 4:
+        # Seems to hang otherwise
+        # XXX still some artifacts with slightly larger rx/ry, but no crash at
+        # least.
+        return pygame.rect.Rect(surf.w, surf.h, -surf.w, -surf.h)
+
+    clip_rect = pygame.rect.Rect(surf.clip_rect)
+
+    rx *= rx
+    ry *= ry
+
+    x, y = p1
+    dfx = 2.0 * ry * (p1[0] - cx)
+    dfy = 2.0 * rx * (p1[1] - cy)
+    dfxx = 2.0 * ry
+    dfyy = 2.0 * rx
+
+    falpha = 0
+    if direction:
+        inc = 1
+        dec = -1
+    else:
+        inc = -1
+        dec = 1
+
+    if p1[0] == p2[0] and p1[1] == p2[1]:
+        test_succeed = margin = 2
+    else:
+        test_succeed = margin = 3
+
+    if clip_rect.collidepoint(int(x), int(y)):
+        pixels[int(y) * pitch + int(x)] = color
+
+    minx, miny = p1
+    maxx, maxy = p1
+
+    while test_succeed:
+        if dfy < 0:
+            deltax = inc
+        else:
+            deltax = dec
+        if dfx < 0:
+            deltay = dec
+        else:
+            deltay = inc
+        fx = falpha + dfx * deltax + ry
+        fy = falpha + dfy * deltay + rx
+        fxy = fx + fy - falpha
+        absfx = abs(fx)
+        absfy = abs(fy)
+        absfxy = abs(fxy)
+
+        if absfxy <= absfx and absfxy <= absfy:
+            falpha = fxy
+        elif absfy <= absfx:
+            deltax = 0
+            falpha = fy
+        else:
+            deltay = 0
+            falpha = fx
+        
+        x += deltax
+        y += deltay
+        dfx += dfxx * deltax
+        dfy += dfyy * deltay
+
+        if clip_rect.collidepoint(int(x), int(y)):
+            pixels[int(y) * pitch + int(x)] = color
+            minx = min(minx, x)
+            miny = min(miny, y)
+            maxx = max(maxx, x)
+            maxy = max(maxy, y)
+        
+        if abs(x - p2[0] < margin) and abs(y - p2[1]) < margin and \
+           (x != p2[0] or y != p2[1]):
+            test_succeed -= 1
+    
+    return pygame.rect.Rect(minx, miny, maxx - minx + 1, maxy - miny + 1)
+
 
 def line(surface, color, start_pos, end_pos, width=1):
     '''Draw a straight line segment.

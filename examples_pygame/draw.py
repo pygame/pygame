@@ -6,6 +6,7 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
+import math
 import random
 import sys
 
@@ -100,6 +101,32 @@ class Ellipse(Shape):
             return pygame.draw.ellipse(surface, self.color, r, self.width)
         return None
 
+class Arc(Shape):
+    def __init__(self, width):
+        super(Arc, self).__init__(2)
+        self.start_angle = random.random() * (math.pi * 2)
+        self.stop_angle = random.random() * (math.pi * 2)
+        self.d_start_angle = (random.random() - 0.5) * 0.01
+        self.d_stop_angle = (random.random() - 0.5) * 0.01
+        self.width = width
+
+    def update(self, time):
+        super(Arc, self).update(time)
+        self.start_angle += time * self.d_start_angle
+        self.start_angle = self.start_angle % (math.pi * 2)
+        self.stop_angle += time * self.d_stop_angle
+        self.stop_angle = self.stop_angle % (math.pi * 2)
+
+    def draw(self, surface):
+        r = Rect(self.get_points())
+        r.width -= r.left
+        r.height -= r.top
+        r.normalize()
+        if self.width * 2 < r.width and self.width * 2 < r.height:
+            return pygame.draw.arc(surface, self.color, r, 
+                                   0, math.pi/2, self.width)
+        return None
+
 if __name__ == '__main__':
     pygame.init()
 
@@ -140,6 +167,10 @@ if __name__ == '__main__':
                     shapes.append(Ellipse(0))
                 elif event.unicode == 'a':
                     shapes.append(AntialiasLine())
+                elif event.unicode == 'q':
+                    shapes.append(Arc(1))
+                elif event.unicode == 'Q':
+                    shapes.append(Arc(4))
                 elif event.unicode == 'c':
                     screen.fill((0, 0, 0))
                     screen.set_clip(screen.get_clip().inflate(-50, -50))
