@@ -45,6 +45,16 @@ def _get_color(color, surface):
         raise 'invalid color argument'
     return color
 
+def _get_rgb(color):
+    if SDL_BYTEORDER == SDL_LIL_ENDIAN:
+        return (color & 0xff, 
+                color >> 8 & 0xff, 
+                color >> 16 & 0xff)
+    else:
+        return (color >> 24 & 0xff, 
+                color >> 16 & 0xff, 
+                color >> 8 & 0xff)
+
 def _get_rect(rect):
     rect = copy(pygame.rect._rect_from_object(rect))
     rect.normalize()
@@ -267,9 +277,6 @@ def ellipse(surface, color, rect, width=0):
     :rtype: `Rect`
     :return: Affected bounding box.
     '''
-    if surface._surf.format.BytesPerPixel == 3:
-        raise NotImplementedError, 'TODO'
-
     color = _get_color(color, surface)
     rect = _get_rect(rect)
 
@@ -277,7 +284,15 @@ def ellipse(surface, color, rect, width=0):
         return _fill_ellipse(surface, color, rect)
 
     pixels = surface._surf.pixels.as_ctypes()
-    pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
+    
+    if surface._surf.format.BytesPerPixel == 3:
+        pitch = surface._surf.pitch 
+        color = _get_rgb(color)
+        ellipse_func = _draw_ellipse_24
+    else:
+        pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
+        ellipse_func = _draw_ellipse
+
     cx = rect.x + rect.w / 2
     cy = rect.y + rect.h / 2
     xrad = rect.w / 2
@@ -293,8 +308,8 @@ def ellipse(surface, color, rect, width=0):
     xrad -= width / 2
     yrad -= width / 2
     for i in range(width):
-        _draw_ellipse(pixels, pitch, color,
-                      left, right, top, bottom, cx, cy, xrad, yrad)
+        ellipse_func(pixels, pitch, color,
+                     left, right, top, bottom, cx, cy, xrad, yrad)
         xrad += 1
         yrad += 1
 
@@ -393,12 +408,96 @@ def _draw_ellipse(pixels, pitch, color,
             err += ychange
             ychange += a
 
+def _draw_ellipse_24(pixels, pitch, rgb, 
+                     left, right, top, bottom, cx, cy, xrad, yrad):
+    # Implementation differs from Pygame.  Using Kennedy "A fast Bresenham
+    # type algorithm for drawing ellipses", 
+    # http://homepage.smc.edu/kennedy_john/BELIPSE.PDF
+    a = 2 * xrad * xrad
+    b = 2 * yrad * yrad
+    xchange = yrad * yrad * (1 - 2 * xrad)
+    ychange = xrad * xrad
+    err = 0
+    stopx = b * xrad
+    stopy = 0
+    p1 = p3 = cy * pitch + (cx + xrad) * 3
+    p2 = p4 = cy * pitch + (cx - xrad) * 3
+    left1 = left2 = cy * pitch + left * 3
+    right1 = right2 = cy * pitch + right * 3
+
+    while stopx >= stopy:
+        if p1 >= top and p2 < bottom:
+            if p1 >= left1 and p1 < right1:
+                pixels[p1:p1+3] = rgb
+            if p2 >= left1 and p2 < right1:
+                pixels[p2:p2+3] = rgb
+        if p3 >= top and p4 < bottom:
+            if p3 >= left2 and p3 < right2:
+                pixels[p3:p3+3] = rgb
+            if p4 >= left2 and p4 < right2:
+                pixels[p4:p4+3] = rgb
+        p1 += pitch
+        p2 += pitch
+        p3 -= pitch
+        p4 -= pitch
+        left1 += pitch
+        left2 -= pitch
+        right1 += pitch
+        right2 -= pitch
+
+        stopy += a
+        err += ychange
+        ychange += a
+        if 2 * err + xchange > 0:
+            p1 -= 3
+            p2 += 3
+            p3 -= 3
+            p4 += 3
+            stopx -= b
+            err += xchange
+            xchange += b
+
     xchange = yrad * yrad
     ychange = xrad * xrad * (1 - 2 * yrad)
     err = 0
     stopx = 0
     stopy = a * yrad
-
+    p1 = p3 = (cy - yrad) * pitch + cx * 3
+    p2 = p4 = (cy + yrad) * pitch + cx * 3
+    left1 = (cy - yrad) * pitch + left * 3
+    right1 = (cy - yrad) * pitch + right * 3
+    left2 = (cy + yrad) * pitch + left * 3
+    right2 = (cy + yrad) * pitch + right * 3
+    while stopx <= stopy:
+        if p3 >= top and p1 < bottom:
+            if p1 >= left1 and p1 < right1:
+                pixels[p1:p1+3] = rgb
+            if p3 >= left1 and p3 < right1:
+                pixels[p3:p3+3] = rgb
+        if p4 >= top and p2 < bottom:
+            if p2 >= left2 and p2 < right2:
+                pixels[p2:p2+3] = rgb
+            if p4 >= left2 and p4 < right2:
+                pixels[p4:p4+3] = rgb
+        p1 += 3
+        p2 += 3
+        p3 -= 3
+        p4 -= 3
+        stopx += b
+        err += xchange
+        xchange += b
+        if 2 * err + ychange > 0:
+            p1 += pitch
+            p2 -= pitch
+            p3 += pitch
+            p4 -= pitch
+            left1 += pitch
+            left2 -= pitch
+            right1 += pitch
+            right2 -= pitch
+            stopy -= a
+            err += ychange
+            ychange += a
 
 def _fill_ellipse(surface, color, rect):
     surf = surface._surf
@@ -550,17 +649,21 @@ def _curve(surface, color, p1, p2, direction, rx, ry, cx, cy):
     :return: Affected bounding box
     '''
     surf = surface._surf
-    if surf.format.BytesPerPixel == 3:
-        raise NotImplementedError, 'TODO, 24-bit'
-
-    pitch = surf.pitch / surf.format.BytesPerPixel
-    pixels = surf.pixels.as_ctypes()
 
     if rx <= 4 or ry <= 4:
         # Seems to hang otherwise
         # XXX still some artifacts with slightly larger rx/ry, but no crash at
         # least.
         return pygame.rect.Rect(surf.w, surf.h, -surf.w, -surf.h)
+
+    bpp = surf.format.BytesPerPixel
+
+    if bpp == 3:
+        pitch = surf.pitch
+        color = _get_rgb(color)
+    else:
+        pitch = surf.pitch / surf.format.BytesPerPixel
+    pixels = surf.pixels.as_ctypes()
 
     clip_rect = pygame.rect.Rect(surf.clip_rect)
 
@@ -587,7 +690,11 @@ def _curve(surface, color, p1, p2, direction, rx, ry, cx, cy):
         test_succeed = margin = 3
 
     if clip_rect.collidepoint(int(x), int(y)):
-        pixels[int(y) * pitch + int(x)] = color
+        if bpp == 3:
+            p = int(y) * pitch + int(x) * 3
+            pixels[p:p+3] = color
+        else:
+            pixels[int(y) * pitch + int(x)] = color
 
     minx, miny = p1
     maxx, maxy = p1
@@ -623,7 +730,11 @@ def _curve(surface, color, p1, p2, direction, rx, ry, cx, cy):
         dfy += dfyy * deltay
 
         if clip_rect.collidepoint(int(x), int(y)):
-            pixels[int(y) * pitch + int(x)] = color
+            if bpp == 3:  # TODO, this is loop invariant, pull out
+                p = int(y) * pitch + int(x) * 3
+                pixels[p:p+3] = color
+            else:
+                pixels[int(y) * pitch + int(x)] = color
             minx = min(minx, x)
             miny = min(miny, y)
             maxx = max(maxx, x)
@@ -706,9 +817,6 @@ def line(surface, color, start_pos, end_pos, width=1):
             y2 += yinc
         return clip_rect
     else:
-        if surface._surf.format.BytesPerPixel == 3:
-            raise NotImplementedError, 'TODO'
-
         clip = surface._surf.clip_rect
         x1, y1, x2, y2 = _clip_line(int(start_pos[0]), int(start_pos[1]), 
                                     int(end_pos[0]), int(end_pos[1]), 
@@ -721,15 +829,21 @@ def line(surface, color, start_pos, end_pos, width=1):
                                     -surface._surf.h)
 
         pixels = surface._surf.pixels.as_ctypes()
-        pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
+        bpp = surface._surf.format.BytesPerPixel
+        if bpp == 3:
+            pitch = surface._surf.pitch
+        else:
+            pitch = surface._surf.pitch / surface._surf.format.BytesPerPixel
+            bpp = 1 # for purposes of addressing
+
         dx = x2 - x1
         dy = y2 - y1
         signx = 1 - (dx < 0) * 2
         signy = 1 - (dy < 0) * 2
         dx = signx * dx + 1
         dy = signy * dy + 1
-        pixel = y1 * pitch + x1
-        incx = signx
+        pixel = y1 * pitch + x1 * bpp
+        incx = signx * bpp
         incy = signy * pitch
         if dx < dy:
             dx, dy = dy, dx
@@ -737,14 +851,28 @@ def line(surface, color, start_pos, end_pos, width=1):
         x = 0
         y = 0
 
-        while x < dx:
-            pixels[pixel] = color
-            y += dy
-            if y >= dx:
-                y -= dx
-                pixel += incy
-            x += 1
-            pixel += incx
+        if bpp == 3:
+            fmt = surface._surf.format
+            rgb = _get_rgb(color)
+
+            while x < dx:
+                pixels[pixel:pixel + 3] = rgb
+                y += dy
+                if y >= dx:
+                    y -= dx
+                    pixel += incy
+                x += 1
+                pixel += incx
+        else:
+            while x < dx:
+                pixels[pixel] = color
+                y += dy
+                if y >= dx:
+                    y -= dx
+                    pixel += incy
+                x += 1
+                pixel += incx
+
         return pygame.rect.Rect(min(x1, x2), 
                                 min(y1, y2),
                                 abs(x2 - x1) + 1, 
@@ -822,6 +950,9 @@ def aaline(surface, color, startpos, endpos, blend=1):
 
     :rtype: `Rect`
     :return: Affected bounding box.
+
+    :note: This method currently does not implement antialiasing, and will
+        draw a standard line instead.
     '''
     # TODO 
     return line(surface, color, startpos, endpos)
@@ -850,6 +981,9 @@ def aalines(surface, color, closed, pointlist, blend=1):
 
     :rtype: `Rect`
     :return: Affected bounding box.
+
+    :note: This method currently does not implement antialiasing, and will
+        draw standard lines instead.
     '''
     # TODO
     return lines(surface, color, closed, pointlist)
