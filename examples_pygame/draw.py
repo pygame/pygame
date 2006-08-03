@@ -124,14 +124,14 @@ class Arc(Shape):
         r.normalize()
         if self.width * 2 < r.width and self.width * 2 < r.height:
             return pygame.draw.arc(surface, self.color, r, 
-                                   0, math.pi/2, self.width)
+                                   self.start_angle, self.stop_angle, self.width)
         return None
 
 if __name__ == '__main__':
     pygame.init()
 
     flags = 0
-    depth = 0
+    depth = 24 
     screen = pygame.display.set_mode((width, height), flags, depth)
 
     shapes = []
