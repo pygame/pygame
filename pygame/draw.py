@@ -496,9 +496,6 @@ def arc(surface, color, rect, start_angle, stop_angle, width=1):
     # curve() functions.
     # http://www.xfig.org
 
-    if width != 1:
-        raise NotImplementedError, 'TODO'
-
     color = _get_color(color, surface)
     rect = _get_rect(rect)
 
@@ -509,6 +506,20 @@ def arc(surface, color, rect, start_angle, stop_angle, width=1):
     p1 = (cx + math.cos(start_angle) * rx, cy - math.sin(start_angle) * ry)
     p2 = (cx + math.cos(stop_angle) * rx, cy - math.sin(stop_angle) * ry)
     direction = 0
+
+    if width > 1:
+        # Ugly, fix me
+        clip_rect = _curve(surface, color, p1, p2, direction, rx, ry, cx, cy)
+        for i in range(width):
+            rx += 1
+            ry += 1
+            p1 = (cx + math.cos(start_angle) * rx, 
+                  cy - math.sin(start_angle) * ry)
+            p2 = (cx + math.cos(stop_angle) * rx, 
+                  cy - math.sin(stop_angle) * ry)
+            clip_rect.union_ip(_curve(surface, color, p1, p2, direction,
+                                      rx, ry, cx, cy))
+        return clip_rect
     
     return _curve(surface, color, p1, p2, direction, rx, ry, cx, cy)
 
