@@ -18,17 +18,19 @@
 ##    Pete Shinners
 ##    pete@shinners.org
 
-"""Set of cursor resources available for use. These cursors come
-in a sequence of values that are needed as the arguments for
-pygame.mouse.set_cursor(). to dereference the sequence in place
-and create the cursor in one step, call like this;
-pygame.mouse.set_cursor(*pygame.cursors.arrow).
+"""Set of cursor resources available for use. 
 
-Here is a list of available cursors; arrow, diamond, ball,
-        broken_x, tri_left, tri_right
+These cursors come in a sequence of values that are needed as the arguments
+for pygame.mouse.set_cursor(). to dereference the sequence in place and create
+the cursor in one step, call like this::
 
-There is also a sample string cursor named 'thickarrow_strings'.
-The compile() function can convert these string cursors into cursor byte data.
+    pygame.mouse.set_cursor(*pygame.cursors.arrow).
+
+Here is a list of available cursors: arrow, diamond, ball, broken_x, tri_left,
+tri_right
+
+There is also a sample string cursor named `thickarrow_strings`.
+The `compile` function can convert these string cursors into cursor byte data.
 """
 
 #default pygame black arrow

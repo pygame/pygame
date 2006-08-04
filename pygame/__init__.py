@@ -134,11 +134,11 @@ except (ImportError,IOError), msg:font=MissingModule("font", msg, 0)
 try: import pygame.mixer
 except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
 
-try: import pygame.movie
-except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
+#try: import pygame.movie
+#except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
 
-try: import pygame.movieext
-except (ImportError,IOError), msg:movieext=MissingModule("movieext", msg, 0)
+#try: import pygame.movieext
+#except (ImportError,IOError), msg:movieext=MissingModule("movieext", msg, 0)
 
 try: import pygame.surfarray
 except (ImportError,IOError), msg:surfarray=MissingModule("surfarray", msg, 0)
@@ -146,8 +146,8 @@ except (ImportError,IOError), msg:surfarray=MissingModule("surfarray", msg, 0)
 try: import pygame.sndarray
 except (ImportError,IOError), msg:sndarray=MissingModule("sndarray", msg, 0)
 
-try: import pygame.fastevent
-except (ImportError,IOError), msg:fastevent=MissingModule("fastevent", msg, 0)
+#try: import pygame.fastevent
+#except (ImportError,IOError), msg:fastevent=MissingModule("fastevent", msg, 0)
 
 #there's also a couple "internal" modules not needed
 #by users, but putting them here helps "dependency finder"

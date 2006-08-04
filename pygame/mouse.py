@@ -39,7 +39,7 @@ def get_pressed():
     time of the call.
 
     Note, to get all of the mouse events it is better to use either 
-     pygame.event.wait() or pygame.event.get() and check all of those events
+    pygame.event.wait() or pygame.event.get() and check all of those events
     to see if they are MOUSEBUTTONDOWN, MOUSEBUTTONUP, or MOUSEMOTION.
 
     Note, that on X11 some XServers use middle button emulation.  When you click

@@ -410,7 +410,7 @@ class CD(object):
         Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 
         :Parameters:
-            `track`: int
+            `track` : int
                 Track index.
 
         :rtype: float
