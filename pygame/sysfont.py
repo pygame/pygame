@@ -22,6 +22,8 @@
 
 import os, sys
 
+__docformat__ = 'restructuredtext'
+__version__ = '$Id$'
 
 #create simple version of the font name
 def _simplename(name):
@@ -210,11 +212,11 @@ def initsysfonts():
 def SysFont(name, size, bold=False, italic=False):
     '''Create a Font object from the system fonts.
 
-    Return a new Font object that is loaded from the system fonts. The font will
-    match the requested bold and italic flags. If a suitable system font is not
-    found this will fallback on loading the default pygame font. The font name
-    can be a comma separated list of font names to look for.
-    
+    Return a new Font object that is loaded from the system fonts. The font
+    will match the requested bold and italic flags. If a suitable system font
+    is not found this will fallback on loading the default pygame font. The
+    font name can be a comma separated list of font names to look for.
+
     :Parameters:
         `name` : str
             Font family or comma-separated list of families.
@@ -290,7 +292,7 @@ def match_font(name, bold=0, italic=0):
 
         >>> print pygame.font.match_font('bitstreamverasans')
         '/usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf'
-    
+
     :Parameters:
         `name` : str
             Font family or comma-separated list of families.

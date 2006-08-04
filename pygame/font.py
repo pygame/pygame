@@ -139,7 +139,7 @@ class Font(object):
         '''Draw text on a new Surface.
 
         This creates a new Surface with the specified text rendered on it.
-        Pygame provides no way to directly draw text on an existing Surface:
+        Pygame provides no way to directly draw text on an existing Surface;
         instead you must use Font.render() to create an image (Surface) of the
         text, then blit this image onto another Surface.
 
@@ -170,7 +170,7 @@ class Font(object):
         information by colorkey rather than (much less efficient) alpha
         values.
 
-        If you render '\n' a unknown char will be rendered.  Usually a
+        If you render '\\n' a unknown char will be rendered.  Usually a
         rectangle.  Instead you need to handle new lines yourself.
 
         Font rendering is not thread safe: only a single thread can render

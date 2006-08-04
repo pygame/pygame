@@ -222,9 +222,8 @@ class Surface(object):
                 Otherwise, this argument is the depth, specified in bits per
                 pixel.
             `flags` : int  or None
-                  Otherwise, this argument is the flags
-                for the new surface; a combination of SWSURFACE, HWSURFACE
-                or ASYNCBLIT.
+                Otherwise, this argument is the flags for the new surface; a
+                combination of SWSURFACE, HWSURFACE or ASYNCBLIT.
 
         :rtype: `Surface`
         '''

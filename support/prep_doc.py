@@ -131,3 +131,9 @@ if __name__ == '__main__':
     write_module(SDL.mixer)
     write_module(SDL.image)
     write_module(SDL.sound)
+
+    # Keep epydoc from crashing trying to import this outside mac
+    #open(os.path.join(base_dir, 'SDL/darwin.py'), 'w').write(\
+    #    "'''Darwin (OS X) support.\n\nInternal use only.'''\n\n" \
+    #    "def init():\n pass\n")
+
