@@ -1,35 +1,46 @@
-SDL-ctypes
-==========
+Pygame-ctypes
+=============
 
-SDL-ctypes is a Python wrapper around SDL_ using ctypes_.  SDL-ctypes is
-currently maintained by `Alex Holkner`_ and supported by `Google Summer of
-Code 2006`_.
+Pygame-ctypes is a reimplementation of Pygame_ using ctypes_.  Internally,
+it uses SDL-ctypes, a wrapper around SDL_ using ctypes.  Both Pygame-ctypes
+and SDL-ctypes are maintained by `Alex Holkner`_ and supported by
+`Google Summer of Code 2006`_.
 
 What's it for?
 --------------
 
-In its current state most of the core SDL modules have been wrapped,
-and is completely usable for applications that wish to access the
-SDL library directly.
+Pygame is a Python package which provides a simplified interface to
+the graphics, audio and input functionalities of SDL.  Until now
+Pygame was written as a C Python extension.  This reimplementation
+is written purely in Python, giving benefits such as:
 
-The eventual aim of this project is to rewrite Pygame_ using this SDL
-wrapper.  This would have several benefits over the current Python
-extension:
+* Direct access to all SDL functions and structures, including those
+  not provided by Pygame.
+* Development and extension of Pygame is greatly simplified.
+* Other implementations of Python, such as PyPy, Jython and IronPython
+  may in future be able to make use of Pygame-ctypes (support for ctypes
+  in each of these implementation is currently under development
+  or experimental).
 
-* It would allow Python programmers to extend Pygame and use extra
-  features of SDL with far less effort than is currently required.
-* The wrapper can be used on any platform that supports ctypes
-  and SDL, and requires no compilation or native code.
-* Several Python or Python-like implementations such as PyPy and
-  Pyrex are emerging which can make use of this library simply
-  by implementing ctypes.
+As far as possible Pygame-ctypes has been made API compatible with
+Pygame.  However, several new features have already been introduced
+that are not available in standard Pygame:
+
+* Support for NumPy and numarray in addition to Pygame's Numeric routines.
+* Closer integration with the `Python Imaging Library`_ (PIL) allowing
+  more image formats to be loaded and saved.
 
 Download
 --------
 
 The latest source release is:
 
-* `SDL-ctypes-0.05 <SDL-ctypes-0.05.tar.gz>`_
+* `pygame-ctypes-0.06 <pygame-ctypes-0.06.tar.gz>`_, includes the
+  latest snapshot of SDL-ctypes.
+
+In the future SDL-ctypes may also be released separately from Pygame.
+In the meantime you can extract it from the same source download; there
+are no dependencies of SDL-ctypes on Pygame-ctypes.
 
 You can also access the SVN repository directly::
 
@@ -38,14 +49,16 @@ You can also access the SVN repository directly::
 Documentation
 -------------
 
-Documentation included in the source distribution under the ``doc``
+Documentation is included in the source distribution under the ``doc``
 directory.  It is also browseable online:
 
-* `Manual <manual/index.html>`_
-* `API reference <api/index.html>`_
+* `Pygame-ctypes API reference <pygame-api/index.html>`_
+* `SDL-ctypes Manual <sdl-manual/index.html>`_
+* `SDL-ctypes API reference <sdl-api/index.html>`_
 
 .. _SDL: http://www.libsdl.org
 .. _ctypes: http://starship.python.net/crew/theller/ctypes
 .. _Alex Holkner: mailto:aholkner@cs.rmit.edu.au
 .. _Google Summer of Code 2006: http://code.google.com/soc
 .. _Pygame: http://www.pygame.org
+.. _Python Imaging Library: http://www.pythonware.com/library/pil
