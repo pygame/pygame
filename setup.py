@@ -114,13 +114,15 @@ extra_cmds = {
     'build_doc_sdl_api': make_doc_command(
          name='sdl-api',
          description='SDL-ctypes API documentation',
-         chdir='.build-sdl-doc',
-         pre='python support/prep_doc.py doc/.build-sdl-doc',
+         chdir='.build-doc',
+         pre='python support/prep_doc_sdl.py doc/.build-doc',
          epydoc_dir='sdl-api',
          epydoc_packages='SDL'),
     'build_doc_pygame_api': make_doc_command(
          name='pygame-api',
          description='Pygame-ctypes API',
+         chdir='.build-doc',
+         pre='python support/prep_doc_pygame.py doc/.build-doc',
          epydoc_dir='pygame-api',
          epydoc_packages='pygame'),
     'build_doc_sdl_manual': make_doc_command(

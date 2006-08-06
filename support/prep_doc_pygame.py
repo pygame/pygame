@@ -1,25 +1,18 @@
 #!/usr/bin/env python
 
 '''
-Mangle the SDL module into something a documentation generator can
-handle.  Basically this means rewriting all anonymous functions as
-named functions.  Imports are also removed so everything appears in
-both SDL/__init__.py and the module where it's defined (e.g.,
-SDL/video.py).  
-
-The end result is hopefully something that looks a lot closer to
-what the programmer sees, not what Python sees.  This is quite hacky
-and SDL specific at the moment.
+Mangle Pygame source to remove names we don't want appearing in the
+documentation.
 
 Usage:
-  # Generate source code for SDL module in build_doc:
-  python support/prep_doc.py build_doc/
+  # Generate source code for pygame module in build_doc:
+  python support/prep_doc_pygame.py build_doc/
 
 This script is called automatically from setup.py.
 '''
 
 __docformat__ = 'restructuredtext'
-__version__ = '$Id: $'
+__version__ = '$Id$'
 
 import ctypes
 import inspect
@@ -43,7 +36,7 @@ def write_function(func, file, indent=''):
         defaults = defaults or []
         nondefault = len(args) - len(defaults)
         args = args[:nondefault] + \
-            ['%s=%s' % (args[i+nondefault], defaults[i]) \
+            ['%s=%r' % (args[i+nondefault], defaults[i]) \
                 for i in range(len(defaults))]
     print >> file, '%sdef %s(%s):' % (indent, func.__name__, ','.join(args))
     print >> file, "%s    '''%s'''" % (indent, docstring)
@@ -77,6 +70,10 @@ def write_module(module):
     if not f:
         return
 
+    if module is pygame.sprite:
+        f.write(inspect.getsource(module))
+        return
+
     print >> f, "'''%s'''\n" % module.__doc__
     print >> f, '__docformat__ = "restructuredtext"'
     for child_name in dir(module):
@@ -86,12 +83,12 @@ def write_module(module):
         
         child = getattr(module, child_name)
         child_module = inspect.getmodule(child) or module
-        if child_module is not module and child_module is not SDL.dll: 
+        if child_module is not module:
             if child_module not in done_modules:
                 write_module(child_module)
-            if module is not SDL:
+            if module not in (pygame, pygame.locals):
                 continue
-        if child_module.__name__[:3] != 'SDL':
+        if child_module.__name__[:6] != 'pygame':
             continue
 
         if inspect.isfunction(child) and child_name[0] != '_':
@@ -100,11 +97,13 @@ def write_module(module):
             write_class(child, f)
         elif inspect.ismodule(child):
             pass
-        elif module in (SDL, SDL.constants):
+        elif module in (pygame.locals, pygame.constants):
             write_variable(child_name, child, f)
 
 def module_file(module_name):
-    if module_name[:3] != 'SDL' or module_name in ('SDL.dll', ):
+    if module_name[:6] != 'pygame' or \
+       module_name in ['pygame.colordict', 'pygame.array', 'pygame.base',
+                       'pygame.sysfont', 'pygame.version']:
         return None
 
     if module_name in modules:
@@ -117,23 +116,10 @@ def module_file(module_name):
 
 if __name__ == '__main__':
     try:
-        os.makedirs(os.path.join(base_dir, 'SDL'))
+        os.makedirs(os.path.join(base_dir, 'pygame'))
     except:
         pass
-    modules['SDL'] = open(os.path.join(base_dir, 'SDL/__init__.py'), 'w')
-    import SDL
-    import SDL.ttf
-    import SDL.mixer
-    import SDL.image
-    import SDL.sound
-    write_module(SDL)
-    write_module(SDL.ttf)
-    write_module(SDL.mixer)
-    write_module(SDL.image)
-    write_module(SDL.sound)
-
-    # Keep epydoc from crashing trying to import this outside mac
-    #open(os.path.join(base_dir, 'SDL/darwin.py'), 'w').write(\
-    #    "'''Darwin (OS X) support.\n\nInternal use only.'''\n\n" \
-    #    "def init():\n pass\n")
+    modules['pygame'] = open(os.path.join(base_dir, 'pygame/__init__.py'), 'w')
+    import pygame
+    write_module(pygame)
 
