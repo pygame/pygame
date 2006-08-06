@@ -3,8 +3,8 @@
 :address: aholkner@cs.rmit.edu.au \\\\
     http://www.pygame.org/ctypes
 
-:revision: 0.05
-:date:  4 July 2006
+:revision: 0.06
+:date:  August 2006
 
 :copyright: Copyright (c) 2006 Alex Holkner.
 
@@ -47,7 +47,7 @@ SDL-ctypes supports:
 Note that earlier versions are not available through the SDL subversion
 repository.
 
-SDL-ctypes requires Python 2.4 or later.  On Mac OS X SDL-ctypes also requires
+SDL-ctypes requires Python 2.3 or later.  On Mac OS X SDL-ctypes also requires
 PyObjC to be installed.
 
 ---------------------
@@ -272,24 +272,18 @@ Tools and process
 Releasing a snapshot
 ====================
 
-1. Increment revision numbers in ``setup.py`` and ``doc/manual.txt``, and
-   ensure ``CHANGELOG`` is up to date.
-2. Update ``doc/index.txt`` and generate ``index.html`` with::
+1. Increment revision numbers in ``setup.py``, ``doc/sdl-manual.txt``, 
+   ``doc/index.txt`` and ensure ``CHANGELOG`` is up to date.
+2. Build all documentation with::
 
-      python setup.py doc
+      python setup.py build_doc
 
-3. Generate user documentation (requires ``mkhowto`` from the Python source
-   and `Python LaTeX Writer
-   <http://www.rexx.com/~dkuhlman/rstpythonlatex_intro.html>`_::
+   This step requires  ``mkhowto`` from the Python source and `Python LaTeX
+   Writer <http://www.rexx.com/~dkuhlman/rstpythonlatex_intro.html>`_ to
+   generate this manual, and `Epydoc <http://epydoc.sourceforge.net>`_ 3.0
+   alpha or later for API documentation.
 
-      python setup.py manual
-
-4. Generate API documentation (requires `Epydoc
-   <http://epydoc.sourceforge.net>`_ 3.0 alpha or later)::
-
-      python setup.py apidoc
-
-5. Generate snapshot::
+3. Generate snapshot::
 
       python setup.py sdist
 
@@ -303,16 +297,17 @@ procedurally with ``SDL.dll.function``.  The parser misses them as
 they look like variable assignments, and the introspector misses them
 as the underlying function is declared in another module.
 
-The script ``support/prep_doc.py`` creates a package in ``build_doc``
+The script ``support/prep_doc_sdl.py`` creates a package in ``doc/.build-doc``
 by introspecting the SDL module and writing the function definitions
 and their docstrings in the standard form.  EpyDoc is then run over
-the ``build_doc`` directory to generate useful API documentation.
+the ``doc/.build-doc`` directory to generate useful API documentation.
 
 Run it with::
 
-    python support/prep_doc.py build_doc/
+    python support/prep_doc_sdl.py doc/.build-doc
 
-(it is also run automatically by setup.py within the ``apidoc`` commmand.)
+(it is also run automatically by setup.py within the ``build_doc_sdl_api``
+commmand.)
 
 Detecting changes in SDL revisions
 ==================================
