@@ -1,13 +1,14 @@
 recursive-include examples *
+recursive-include examples_pygame *
+include test_pygame/*.py
 include test/sample.bmp
 include test/sail.bmp
 include test/icon.bmp
 include test/moose.dat
 include test/sample.wav
 include test/*.py
-include unit/*.py
 include support/*.py
 include support/*.txt
-recursive-include doc *
+recursive-include doc *.gif *.png *.jpg *.html *.xhtml *.css
+exclude setup.cfg
 include CHANGELOG
-exclude doc/*.tex
