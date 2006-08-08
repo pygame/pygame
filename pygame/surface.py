@@ -121,8 +121,7 @@ class Surface(object):
 
     def _cleanup(self):
         if hasattr(self, '_surf') and self._surf:
-            if not (self._surf.flags & SDL_HWSURFACE) or \
-               SDL_WasInit(SDL_INIT_VIDEO):
+            if SDL_WasInit(SDL_INIT_VIDEO):
                 # Unsafe to free hardware surface without video init
                 SDL_FreeSurface(self._surf)
             self._surf = None
@@ -650,7 +649,7 @@ class Surface(object):
         if surf.flags & SDL_OPENGL:
             raise pygame.base.error, 'Cannot call on OPENGL surfaces'
 
-        x, y = pos
+        x, y = int(pos[0]), int(pos[1])
         clip_rect = SDL_GetClipRect(surf)
         if x < clip_rect.x or x >= clip_rect.x + clip_rect.w or \
            y < clip_rect.y or y >= clip_rect.y + clip_rect.h:
