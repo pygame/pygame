@@ -255,7 +255,7 @@ def _make_filter(func, udata):
             func(udata, stream)
         return _Mix_FilterFunc(f)
     else:
-        return None
+        return _Mix_FilterFunc()
 
 _Mix_SetPostMix = _dll.private_function('Mix_SetPostMix',
     arg_types=[_Mix_FilterFunc, c_void_p],
@@ -321,7 +321,7 @@ def Mix_HookMusicFinished(music_finished):
     if music_finished:
         _Mix_HookMusicFinished(_Mix_HookMusicFinishedFunc(music_finished))
     else:
-        _Mix_HookMusicFinished(None)
+        _Mix_HookMusicFinished(_Mix_HookMusicFinishedFunc())
 
 # Mix_GetMusicHookData not implemented (unnecessary)
 
@@ -350,7 +350,7 @@ def Mix_ChannelFinished(channel_finished):
     if channel_finished:
         _Mix_ChannelFinished(_Mix_ChannelFinishedFunc(channel_finished))
     else:
-        _Mix_ChannelFinished(None)
+        _Mix_ChannelFinished(_Mix_ChannelFinishedFunc())
 
 _Mix_EffectFunc = CFUNCTYPE(None, c_int, POINTER(c_ubyte), c_int, c_void_p)
 def _make_Mix_EffectFunc(func, udata):
@@ -360,7 +360,7 @@ def _make_Mix_EffectFunc(func, udata):
             func(chan, stream, udata)
         return _Mix_EffectFunc(f)
     else:
-        return None
+        return _Mix_EffectFunc()
 
 _Mix_EffectDoneFunc = CFUNCTYPE(None, c_int, c_void_p)
 def _make_Mix_EffectDoneFunc(func, udata):
@@ -368,6 +368,8 @@ def _make_Mix_EffectDoneFunc(func, udata):
         def f(chan, ignored):
             func(chan, udata)
         return _MixEffectDoneFunc(f)
+    else:
+        return _MixEffectDoneFunc()
 
 _Mix_RegisterEffect = _dll.private_function('Mix_RegisterEffect',
     arg_types=\
