@@ -116,6 +116,9 @@ class Surface(object):
             self._surf = SDL_CreateRGBSurface(flags, width, height, depth,
                 masks[0], masks[1], masks[2], masks[3])
 
+    def __del__(self):
+        self._cleanup()
+
     def _cleanup(self):
         if hasattr(self, '_surf') and self._surf:
             if not (self._surf.flags & SDL_HWSURFACE) or \
