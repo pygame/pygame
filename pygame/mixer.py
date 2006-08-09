@@ -43,6 +43,7 @@ __version__ = '$Id$'
 
 from SDL import *
 from SDL.mixer import *
+from SDL.rwops import *
 
 import pygame.base
 
@@ -85,7 +86,8 @@ def __PYGAMEinit__(frequency=None, size=None, stereo=None, buffer=None):
     while i < buffer:
         i <<= 1
     buffer = i
-
+    
+    global _endsound_callback
     if not SDL_WasInit(SDL_INIT_AUDIO):
         pygame.base.register_quit(_autoquit)
 
@@ -394,7 +396,7 @@ class Sound(object):
         _mixer_init_check()
 
         if hasattr(file, 'read'):
-            rw = SDL_RWopsFromObject(file)
+            rw = SDL_RWFromObject(file)
             # differ from Pygame, no freesrc here.
             self._chunk = Mix_LoadWAV_RW(rw, 0)
         else:
@@ -439,7 +441,7 @@ class Sound(object):
 
         channel = Channel(channelnum)
         channel._queue = None
-        channel._sound = None
+        channel._sound = self
         return channel
         
     def stop(self):

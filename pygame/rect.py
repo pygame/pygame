@@ -146,7 +146,7 @@ class Rect(object):
 
     def __setattr__(self, name, value):
         if name == 'top' or name == 'y':
-            self._r.y = value
+            self._r.y = int(value)
         elif name == 'left' or name == 'x':
             self._r.x = int(value)
         elif name == 'bottom':
