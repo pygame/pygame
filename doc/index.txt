@@ -35,7 +35,7 @@ Download
 
 The latest source release is:
 
-* `pygame-ctypes-0.06 <pygame-ctypes-0.06.tar.gz>`_, includes the
+* `pygame-ctypes-0.07 <pygame-ctypes-0.07.tar.gz>`_, includes the
   latest snapshot of SDL-ctypes.
 
 In the future SDL-ctypes may also be released separately from Pygame.
