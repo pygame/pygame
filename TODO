@@ -10,3 +10,4 @@ testfile
 
 pygame:
 mac default icon
+search libs e.g. SDL_ttf-2.0 before SDL_ttf

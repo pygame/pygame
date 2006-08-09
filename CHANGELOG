@@ -3,6 +3,13 @@ Pygame-ctypes 0.07
  - SDL_INIT_NOPARACHUTE init flag passed
  - Many functions now silently downcast floats to ints (yuk)
  - Added pygame_icon.bmp, missing from previous distribution
+ - Added freesansbold.ttf, missing from previous distribution
+ - pygame.display.update() no longer confuses a length-2 list of
+   rects with a rect of two tuples.
+ - Added 'x' and 'y' properties to Rect
+ - Fix typemask list argument in event functions
+ - 'dict' attribute added to Event 
+ - Fix user-posted event handling
 
 SDL-ctypes 0.07
 ---------------

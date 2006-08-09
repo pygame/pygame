@@ -65,7 +65,7 @@ class Rect(object):
                                                             int(args[1]),
                                                             int(args[2]),
                                                             int(args[3])))
-        elif len(args) == 2:
+        elif len(args) == 2 and len(args[0]) == 2 and len(args[1]) == 2:
             if args[1][0] < 0 or args[1][1] < 0:
                 object.__setattr__(self, '_r', 
                                    _RectProxy((int(args[0][0]), 
@@ -105,9 +105,9 @@ class Rect(object):
         return self._r.w != 0 and self._r.h != 0
 
     def __getattr__(self, name):
-        if name == 'top':
+        if name in ('top', 'y'):
             return self._r.y
-        elif name == 'left':
+        elif name in ('left', 'x'):
             return self._r.x
         elif name == 'bottom':
             return self._r.y + self._r.h

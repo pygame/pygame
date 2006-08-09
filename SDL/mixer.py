@@ -363,7 +363,7 @@ def Mix_ChannelFinished(channel_finished):
         _channelfinished_ref = _Mix_ChannelFinishedFunc(channel_finished)
     else:
         _channelfinished_ref = _Mix_ChannelFinishedFunc()
-    _Mix_ChannelFinished(cfunc)
+    _Mix_ChannelFinished(_channelfinished_ref)
 
 _Mix_EffectFunc = CFUNCTYPE(None, c_int, POINTER(c_ubyte), c_int, c_void_p)
 def _make_Mix_EffectFunc(func, udata):
