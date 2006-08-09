@@ -798,7 +798,7 @@ class Surface(object):
         surf = self._surf
         return SDL_GetRGBA(mapped, surf.format)
         
-    def set_clip(self, rect=None):
+    def set_clip(self, *rect):
         '''Set the current clipping area of the Surface.
 
         Each Surface has an active clipping area. This is a rectangle that

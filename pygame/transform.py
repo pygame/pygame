@@ -166,7 +166,7 @@ def scale(surface, size, dest=None):
         raise NotImplementedError, 'Python imaging library (PIL) required.'
     
     # XXX: Differ from Pygame: subsurfaces permitted.
-    width, height = size
+    width, height = int(size[0]), int(size[1])
     if width < 0 or height < 0:
         raise ValueError, 'Cannot scale to negative size'
 

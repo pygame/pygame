@@ -134,11 +134,11 @@ def get(typelist=None):
     '''
     pygame.display._video_init_check()
     
-    if not typelist:
+    if typelist is None:
         mask = SDL_ALLEVENTS
     else:
         if hasattr(typelist, '__len__'):
-            mask = reduce(lambda a,b: a | SDL_EVENTMASK(b), typelist)
+            mask = reduce(lambda a,b: a | SDL_EVENTMASK(b), typelist, 0)
         else:
             mask = int(typelist)
 
@@ -198,20 +198,20 @@ def peek(typelist=None):
     '''
     pygame.display._video_init_check()
 
-    if not typelist:
+    if typelist is None:
         mask = SDL_ALLEVENTS
     else:
         if hasattr(typelist, '__len__'):
-            mask = reduce(lambda a,b: a | SDL_EVENTMASK(b), typelist)
+            mask = reduce(lambda a,b: a | SDL_EVENTMASK(b), typelist, 0)
         else:
             mask = SDL_EVENTMASK(int(typelist))
     
     SDL_PumpEvents()
     events = SDL_PeepEvents(1, SDL_PEEKEVENT, mask)
 
-    if not typelist:
+    if typelist is None:
         if events:
-            return Event(0, sdl_event=events[0])
+            return Event(0, sdl_event=events[0], keep_userdata=True)
         else:
             return Event(pygame.locals.NOEVENT) # XXX deviation from pygame
     return len(events) > 0
@@ -230,11 +230,11 @@ def clear(typelist=None):
     '''
     pygame.display._video_init_check()
     
-    if not typelist:
+    if typelist is None:
         mask = SDL_ALLEVENTS
     else:
         if hasattr(typelist, '__len__'):
-            mask = reduce(lambda a,b: a | SDL_EVENTMASK(b), typelist)
+            mask = reduce(lambda a,b: a | SDL_EVENTMASK(b), typelist, 0)
         else:
             mask = int(typelist)
 
@@ -291,6 +291,8 @@ def set_blocked(typelist):
     If None is passed as the argument, this has the opposite effect and none of
     the event types are allowed to be placed on the queue.
 
+    :note: events posted with `post` will not be blocked.
+
     :Parameters:
         `typelist` : int or sequence of int or None
             Event type or list of event types to disallow.
@@ -298,7 +300,7 @@ def set_blocked(typelist):
     '''
     pygame.display._video_init_check()
 
-    if typelist == None:
+    if typelist is None:
         SDL_EventState(SDL_ALLEVENTS, SDL_IGNORE)
     elif hasattr(typelist, '__len__'):
         for val in typelist:
@@ -323,7 +325,7 @@ def set_allowed(typelist):
     '''
     pygame.display._video_init_check()
 
-    if typelist == None:
+    if typelist is None:
         SDL_EventState(SDL_ALLEVENTS, SDL_ENABLE)
     elif hasattr(typelist, '__len__'):
         for val in typelist:
@@ -331,7 +333,7 @@ def set_allowed(typelist):
     else:
         SDL_EventState(typelist, SDL_ENABLE)
 
-def get_blocked(event_type):
+def get_blocked(typelist):
     '''Test if a type of event is blocked from the queue.
 
     Returns true if the given event type is blocked from the queue.
@@ -387,10 +389,10 @@ def get_grab():
 
     return SDL_WM_GrabInput(SDL_GRAB_QUERY) == SDL_GRAB_ON
 
-_USEROBJECT_CHECK1 = 0xdeadbeef
+_USEROBJECT_CHECK1 = c_int(0xdeadbeef).value  # signed
 _USEROBJECT_CHECK2 = 0xfeedf00d
 _user_event_objects = {}
-_user_event_nextid = 0
+_user_event_nextid = 1
     
 def post(event):
     '''Place a new event on the queue.
@@ -412,10 +414,10 @@ def post(event):
 
     pygame.display._video_init_check()
 
-    sdl_event = SDL_Event(pygame.locals.USEREVENT)
-    sdl_event.code = _USEROBJECT_CHECK1
-    sdl_event.data1 = c_void_p(_USEROBJECT_CHECK2)
-    sdl_event.data2 = c_void_p(_user_event_nextid)
+    sdl_event = SDL_Event(event.type)
+    sdl_event.user.code = _USEROBJECT_CHECK1
+    sdl_event.user.data1 = c_void_p(_USEROBJECT_CHECK2)
+    sdl_event.user.data2 = c_void_p(_user_event_nextid)
     _user_event_objects[_user_event_nextid] = event
     _user_event_nextid += 1
 
@@ -449,10 +451,10 @@ class Event:
 
         '''
         if sdl_event:
-            if sdl_event.type == pygame.locals.USEREVENT and \
-               sdl_event.code == _USEROBJECT_CHECK1 and \
-               sdl_event.data1.value == _USEROBJECT_CHECK2 and \
-               sdl_event.data2.value in _user_event_objects:
+            uevent = cast(pointer(sdl_event), POINTER(SDL_UserEvent)).contents
+            if uevent.code == _USEROBJECT_CHECK1 and \
+               uevent.data1.value == _USEROBJECT_CHECK2 and \
+               uevent.data2.value in _user_event_objects:
                 # An event that was posted; grab dict from local store.
                 id = sdl_event.data2.value
                 for key, value in _user_event_objects[id].items():
@@ -526,6 +528,9 @@ class Event:
                     setattr(self, key, value)
             for key, value in attributes.items():
                 setattr(self, key, value)
+
+        # Bizarre undocumented but used by some people.
+        self.dict = self.__dict__
 
     def __repr__(self):
         d = copy(self.__dict__)
