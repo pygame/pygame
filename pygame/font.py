@@ -91,7 +91,7 @@ def get_default_font():
 class Font(object):
     __slots__ = ['_font', '_rw']
 
-    def __init__(self, file, size):
+    def __init__(self, file, size, **kwargs):
         '''Create a new Font object from a file.
 
         Load a new font from a given filename or a python file object. The
@@ -111,13 +111,17 @@ class Font(object):
             `size` : int
                 Size of font, in points.
 
+        :note: additional keyword arguments are permitted but ignored,
+            this is for compatibility with Pygame.
         '''
         if not _font_initialized:
             raise pygame.base.error, 'font not initialized'
 
-        if not file:
+        # XXX not quite the same as Pygame, which checks for font 
+        # in working dir before treating it as the default resource.
+        if not file or file == _font_defaultname:
             file = pygame.pkgdata.getResource(_font_defaultname)
-            size *= 0.6875  # XXX Peter's phone number??
+            size *= 0.6875  # XXX compatibility with previous default font sizes
 
         size = int(max(1, size))
 

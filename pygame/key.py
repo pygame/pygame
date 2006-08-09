@@ -70,7 +70,7 @@ def get_mods():
     '''
     pygame.display._video_init_check()
 
-    return SDL_GetModeState()
+    return SDL_GetModState()
 
 def set_mods(mods):
     '''Temporarily set which modifier keys are pressed.

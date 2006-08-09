@@ -348,3 +348,20 @@ K_y                     = SDL.constants.SDLK_y
 K_z                     = SDL.constants.SDLK_z
 #END GENERATED CONSTANTS
 
+KMOD_NONE               = SDL.constants.KMOD_NONE
+KMOD_LSHIFT             = SDL.constants.KMOD_LSHIFT
+KMOD_RSHIFT             = SDL.constants.KMOD_RSHIFT
+KMOD_LCTRL              = SDL.constants.KMOD_LCTRL
+KMOD_RCTRL              = SDL.constants.KMOD_RCTRL
+KMOD_LALT               = SDL.constants.KMOD_LALT
+KMOD_RALT               = SDL.constants.KMOD_RALT
+KMOD_LMETA              = SDL.constants.KMOD_LMETA
+KMOD_RMETA              = SDL.constants.KMOD_RMETA
+KMOD_NUM                = SDL.constants.KMOD_NUM
+KMOD_CAPS               = SDL.constants.KMOD_CAPS
+KMOD_MODE               = SDL.constants.KMOD_MODE
+
+KMOD_CTRL               = SDL.constants.KMOD_CTRL
+KMOD_SHIFT              = SDL.constants.KMOD_SHIFT
+KMOD_ALT                = SDL.constants.KMOD_ALT
+KMOD_META               = SDL.constants.KMOD_META

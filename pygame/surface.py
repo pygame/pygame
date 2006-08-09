@@ -833,7 +833,7 @@ class Surface(object):
         return pygame.rect.Rect(SDL_GetClipRect(self._surf))
 
 
-    def subsurface(self, rect):
+    def subsurface(self, *rect):
         '''Create a new surface that references its parent.
 
         Returns a new Surface that shares its pixels with its new parent. The
@@ -864,7 +864,7 @@ class Surface(object):
 
         rect = pygame.rect._rect_from_object(rect)._r
         if rect.x < 0 or rect.y < 0 or \
-           rect.x + rect.w > surf.w or rect.y + rect.y > surf.h:
+           rect.x + rect.w > surf.w or rect.y + rect.h > surf.h:
             raise ValueError, 'subsurface rectangle outside surface area'
 
         self.lock()
@@ -1127,7 +1127,7 @@ def _surface_blit(destobj, srcobj, dstrect, srcrect, special_flags):
         orig_clip = SDL_GetClipRect(subsurface)
         sub_clip = SDL_GetClipRect(dst)
         sub_clip.x += suboffsetx
-        sub_clip.y += suboffset.y
+        sub_clip.y += suboffsety
         SDL_SetClipRect(subsurface, sub_clip)
         dstrect.x += suboffsetx
         dstrect.y += suboffsety

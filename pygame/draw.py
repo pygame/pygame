@@ -28,7 +28,7 @@ the Surface object around the draw calls.
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
-from copy import copy
+import copy
 import math
 
 from SDL import *
@@ -56,7 +56,7 @@ def _get_rgb(color):
                 color >> 8 & 0xff)
 
 def _get_rect(rect):
-    rect = copy(pygame.rect._rect_from_object(rect))
+    rect = copy.copy(pygame.rect._rect_from_object(rect))
     rect.normalize()
     return rect._r
 
