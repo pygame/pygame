@@ -61,7 +61,9 @@ def init():
     success = 0
     fail = 0
 
-    SDL.SDL_Init(SDL.SDL_INIT_EVENTTHREAD | SDL.SDL_INIT_TIMER)
+    SDL.SDL_Init(SDL.SDL_INIT_EVENTTHREAD | \
+                 SDL.SDL_INIT_TIMER | \
+                 SDL.SDL_INIT_NOPARACHUTE) 
 
     if _video_autoinit():
         success += 1
