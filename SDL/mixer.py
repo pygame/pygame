@@ -261,6 +261,8 @@ _Mix_SetPostMix = _dll.private_function('Mix_SetPostMix',
     arg_types=[_Mix_FilterFunc, c_void_p],
     return_type=None)
 
+_mix_postmix_ref = None
+
 def Mix_SetPostMix(mix_func, udata):
     '''Set a function that is called after all mixing is performed.
 
@@ -278,11 +280,15 @@ def Mix_SetPostMix(mix_func, udata):
             call.
 
     '''
-    _Mix_SetPostMix(_make_filter(mix_func, udata), None)
+    global _mix_postmix_ref
+    _mix_postmix_ref = _make_filter(mix_func, udata)
+    _Mix_SetPostMix(_mix_postmix_ref, None)
 
 _Mix_HookMusic = _dll.private_function('Mix_HookMusic',
     arg_types=[_Mix_FilterFunc, c_void_p],
     return_type=None)
+
+_hookmusic_ref = None
 
 def Mix_HookMusic(mix_func, udata):
     '''Add your own music player or additional mixer function.
@@ -300,7 +306,9 @@ def Mix_HookMusic(mix_func, udata):
             call.
 
     '''
-    _Mix_HookMusic(_make_filter(mix_func, udata), None)
+    global _hookmusic_ref
+    _hookmusic_ref = _make_filter(mix_func, udata)
+    _Mix_HookMusic(_hookmusic_ref, None)
 
 _Mix_HookMusicFinishedFunc = CFUNCTYPE(None)
 
@@ -331,6 +339,9 @@ _Mix_ChannelFinished = _dll.private_function('Mix_ChannelFinished',
     arg_types=[_Mix_ChannelFinishedFunc],
     return_type=None)
 
+# Keep the ctypes func around
+_channelfinished_ref = None
+
 def Mix_ChannelFinished(channel_finished):
     '''Add your own callback when a channel has finished playing.
 
@@ -347,10 +358,12 @@ def Mix_ChannelFinished(channel_finished):
             and returns None.  Pass None here to disable the callback.
 
     '''
+    global _channelfinished_ref
     if channel_finished:
-        _Mix_ChannelFinished(_Mix_ChannelFinishedFunc(channel_finished))
+        _channelfinished_ref = _Mix_ChannelFinishedFunc(channel_finished)
     else:
-        _Mix_ChannelFinished(_Mix_ChannelFinishedFunc())
+        _channelfinished_ref = _Mix_ChannelFinishedFunc()
+    _Mix_ChannelFinished(cfunc)
 
 _Mix_EffectFunc = CFUNCTYPE(None, c_int, POINTER(c_ubyte), c_int, c_void_p)
 def _make_Mix_EffectFunc(func, udata):
@@ -376,6 +389,8 @@ _Mix_RegisterEffect = _dll.private_function('Mix_RegisterEffect',
      [c_int, _Mix_EffectFunc, _Mix_EffectDoneFunc, c_void_p],
     return_type=c_int,
     error_return=0)
+
+_effect_func_refs = []
 
 def Mix_RegisterEffect(chan, f, d, arg):
     '''Register a special effect function.
@@ -443,10 +458,12 @@ def Mix_RegisterEffect(chan, f, d, arg):
             User data passed to both callbacks.
 
     '''
-    if f:
-        f = _make_MixEffectFunc(f, arg)
-    if d:
-        d = _make_MixEffectDoneFunc(d, arg)
+    f = _make_MixEffectFunc(f, arg)
+    d = _make_MixEffectDoneFunc(d, arg)
+    _effect_func_refs.append(f)
+    _effect_func_refs.append(d) 
+    # TODO: override EffectDone callback to remove refs and prevent
+    # memory leak.  Be careful with MIX_CHANNEL_POST
     _Mix_RegisterEffect(chan, f, d, arg)
             
 # Mix_UnregisterEffect cannot be implemented

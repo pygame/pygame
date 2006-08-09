@@ -1,3 +1,17 @@
+Pygame-ctypes 0.07
+------------------
+ - SDL_INIT_NOPARACHUTE init flag passed
+ - Many functions now silently downcast floats to ints (yuk)
+ - Added pygame_icon.bmp, missing from previous distribution
+
+SDL-ctypes 0.07
+---------------
+ - SDL_Surface free'd when pygame.Surface deleted
+ - Null callbacks permitted
+ - Extra refs for all callbacks kept to prevent unexpected segfaults when
+   anonymous functions are collected.
+ - None allowed as shape argument to array methods, rather than segfaulting
+
 Pygame-ctypes 0.06
 ------------------
  - Initial release (version numbering coincides with SDL-ctypes release).

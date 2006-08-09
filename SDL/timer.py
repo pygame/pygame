@@ -38,6 +38,8 @@ _SDL_SetTimer = SDL.dll.private_function('SDL_SetTimer',
     arg_types=[c_uint, _SDL_TimerCallback],
     return_type=c_int)
 
+_timercallback_ref = None   # Keep global to avoid possible GC
+
 def SDL_SetTimer(interval, callback):
     '''Set a callback to run after the specified number of milliseconds has
     elapsed.
@@ -81,11 +83,15 @@ def SDL_SetTimer(interval, callback):
 
     # Note SDL_SetTimer actually returns 1 on success, not 0 as documented
     # in SDL_timer.h.
+    global _timercallback_ref
     if callback:
-        result = _SDL_SetTimer(interval, _SDL_TimerCallback(callback))
+        _timercallback_ref = _SDL_TimerCallback(callback)
     else:
-        result = _SDL_SetTimer(interval, _SDL_TimerCallback())
-    if result == -1:
+        _timercallback_ref = _SDL_TimerCallback()
+    
+    # XXX if this fails the global ref is incorrect and old one will
+    # possibly be collected early.
+    if _SDL_SetTimer(interval, _timercallback_ref) == -1:
         raise SDL.error.SDL_Exception, SDL.error.SDL_GetError()
 
 
@@ -97,6 +103,8 @@ _SDL_NewTimerCallback = CFUNCTYPE(c_uint, c_int, c_void_p)
 _SDL_AddTimer = SDL.dll.private_function('SDL_AddTimer',
     arg_types=[c_uint, _SDL_NewTimerCallback, c_void_p],
     return_type=c_void_p)
+
+_timer_refs = {}        # Keep global to manage GC
 
 def SDL_AddTimer(interval, callback, param):
     '''Add a new timer to the pool of timers already running.
@@ -122,26 +130,31 @@ def SDL_AddTimer(interval, callback, param):
     :rtype: int
     :return: the timer ID
     '''
-
     def _callback(interval, _ignored_param):
         return callback(interval, param)
     
-    result = _SDL_AddTimer(interval, _SDL_NewTimerCallback(_callback), None)
+    func = _SDL_NewTimerCallback(_callback)
+    result = _SDL_AddTimer(interval, func, None)
     if not result:
         raise SDL.error.SDL_Exception, SDL.error.SDL_GetError()
+    _timer_refs[result] = func
     return result
 
-SDL_RemoveTimer = SDL.dll.function('SDL_RemoveTimer',
+_SDL_RemoveTimer = SDL.dll.private_function('SDL_RemoveTimer',
+    args=['t'],
+    arg_types=[c_void_p],
+    return_type=c_int,
+    error_return=0)
+
+def SDL_RemoveTimer(t):
     '''Remove one of the multiple timers knowing its ID.
 
     :Parameters:
         `t` : int
             The timer ID, as returned by `SDL_AddTimer`.
 
-    ''',
-    args=['t'],
-    arg_types=[c_void_p],
-    return_type=c_int,
-    error_return=0)
-
+    '''
+    global _timer_refs
+    _SDL_RemoveTimer(t)
+    del _timer_refs[t]
 
