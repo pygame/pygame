@@ -1,3 +1,4 @@
+include pygame/pygame_icon.bmp
 recursive-include examples *
 recursive-include examples_pygame *
 include test_pygame/*.py
