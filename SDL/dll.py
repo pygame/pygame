@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 from ctypes import *
+from ctypes.util import find_library
 import sys
 
 # Private version checking declared before SDL.version can be
@@ -38,6 +39,8 @@ def _version_string(v):
 class SDL_DLL:
     def __init__(self, library_name, version_function_name):
         self.library_name = library_name
+        self._dll = getattr(cdll, find_library(library_name))
+        '''
         if sys.platform == 'darwin':
             import ctypes.macholib.dyld
             library_name = ctypes.macholib.dyld.framework_find(library_name)
@@ -45,6 +48,7 @@ class SDL_DLL:
             self._dll = CDLL(library_name, RTLD_GLOBAL)
         else:
             self._dll = getattr(cdll, library_name)
+        '''
         
         # Get the version of the DLL we're using
         if version_function_name:
