@@ -141,6 +141,8 @@ class SDL_array:
             raise ImportError, 'numpy could not be imported'
         if self.ctype not in _numpy_typemap:
             raise TypeError, '%s has no numpy compatible type' % self.ctype
+        if shape is None:
+            shape = (self.count,)
         ar = numpy.frombuffer(self.as_ctypes(), _numpy_typemap[self.ctype])
         ar = ar.reshape(shape)
         return ar
@@ -186,6 +188,9 @@ class SDL_array:
 
         s = self.to_string()
         t = _default_typemap[self.ctype]
+
+        if shape is None:
+            shape = (self.count,)
         
         # Each module has its own shaping interface
         if _have_numpy and _default_array is numpy:
