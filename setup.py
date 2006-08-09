@@ -144,7 +144,7 @@ for name in extra_cmds.keys():
 
 setup(
     name='pygame-ctypes',
-    version='0.06',
+    version='0.07',
     description='Python game and multimedia package',
     author='Alex Holkner',
     author_email='aholkner@cs.rmit.edu.au',
