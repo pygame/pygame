@@ -1,4 +1,5 @@
 include pygame/pygame_icon.bmp
+include pygame/freesansbold.ttf
 recursive-include examples *
 recursive-include examples_pygame *
 include test_pygame/*.py
