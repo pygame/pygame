@@ -458,6 +458,8 @@ _SDL_SetEventFilter = SDL.dll.private_function('SDL_SetEventFilter',
     arg_types=[_SDL_EventFilter],
     return_type=None)
 
+_eventfilter_ref = None     # keep global to avoid GC of anon func
+
 def SDL_SetEventFilter(filter):
     '''Set up a filter to process all events before they change internal
     state and are posted to the internal event queue.
@@ -482,12 +484,14 @@ def SDL_SetEventFilter(filter):
             instance must not be modified.
 
     '''
+    global _eventfilter_ref
     if filter:
         def f(e):
             return filter(e.contents.specialize())
-        _SDL_SetEventFilter(_SDL_EventFilter(f))
+        _eventfilter_ref = _SDL_EventFilter(f)
     else:
-        _SDL_SetEventFilter(_SDL_EventFilter())
+        _eventfilter_ref = _SDL_EventFilter()
+    _SDL_SetEventFilter(_eventfilter_ref)
 
 SDL_GetEventFilter = SDL.dll.function('SDL_GetEventFilter',
     '''Return the current event filter.
