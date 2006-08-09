@@ -351,7 +351,11 @@ class Rect(object):
                self._r.x + self._r.w > other.x and \
                self._r.y + self._r.h > other.y
 
-    def collidepoint(self, x, y):
+    def collidepoint(self, *args):
+        if len(args) == 1:
+            x, y = args[0]
+        else:
+            x, y = args
         return x >= self._r.x and \
                y >= self._r.y and \
                x < self._r.x + self._r.w and \

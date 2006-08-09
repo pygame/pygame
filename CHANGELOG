@@ -10,6 +10,11 @@ Pygame-ctypes 0.07
  - Fix typemask list argument in event functions
  - 'dict' attribute added to Event 
  - Fix user-posted event handling
+ - Fix pygame.Surface.subsurface
+ - Fix pygame.key.get_mods
+ - Add KMOD_* constants
+ - Allow (but ignore) keyword arguments to Font initializer
+ - Cleanup module namespace in pygame.draw
 
 SDL-ctypes 0.07
 ---------------
