@@ -296,7 +296,7 @@ class SDL_Event(Union):
         SDL.constants.SDL_SYSWMEVENT: (SDL_SysWMEvent, 'syswm')
     }
 
-    def __init__(self, typecode):
+    def __init__(self, typecode=0):
         self.type = typecode
 
     def __repr__(self):

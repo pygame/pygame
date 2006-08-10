@@ -251,9 +251,6 @@ def rotozoom(surface, angle, scale):
     if not _have_PIL:
         raise NotImplementedError, 'Python imaging library (PIL) required.'
 
-    if surface._surf.format.BytesPerPixel == 3:
-        raise NotImplementedError, 'TODO: 24-bit RGB'
-
     # XXX: Differ from Pygame: subsurfaces permitted.
     surf = surface._surf
 

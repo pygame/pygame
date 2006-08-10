@@ -1,3 +1,8 @@
+Pygame-ctypes 0.08
+------------------
+ - Filled ellipse does not hang when rx or ry == 0
+ - Allow rotozoom on 24 bit surfaces
+
 Pygame-ctypes 0.07
 ------------------
  - SDL_INIT_NOPARACHUTE init flag passed

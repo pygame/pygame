@@ -507,6 +507,8 @@ def _fill_ellipse(surface, color, rect):
     cy = rect.y + rect.h / 2
     xrad = rect.w / 2
     yrad = rect.h / 2
+    if xrad == 0 or yrad == 0:
+        return
     a = 2 * xrad * xrad
     b = 2 * yrad * yrad
     xchange = yrad * yrad * (1 - 2 * xrad)
