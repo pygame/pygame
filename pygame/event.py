@@ -456,8 +456,8 @@ class Event:
                uevent.data1 == _USEROBJECT_CHECK2 and \
                uevent.data2 in _user_event_objects:
                 # An event that was posted; grab dict from local store.
-                id = sdl_event.data2.value
-                for key, value in _user_event_objects[id].items():
+                id = sdl_event.data2
+                for key, value in _user_event_objects[id].__dict__.items():
                     setattr(self, key, value)
                 # Free memory unless just peeking
                 if not keep_userdata:

@@ -4,7 +4,7 @@ Pygame-ctypes 0.09
  - pygame.mixer endevent callback fixed
  - pygame.draw.circle correct box for given radius
  - 24-bit surface to RGBX string supported if no color key is set
- - user event fix for ctypes 1.0.0
+ - user post event fix for ctypes 1.0.0
 
 Pygame-ctypes 0.08
 ------------------
