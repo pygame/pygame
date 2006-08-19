@@ -21,6 +21,8 @@ passing None as the font name.
 __docformat__ = 'restructuredtext'
 __version__ = '$Id$'
 
+import sys
+
 from SDL import *
 from SDL.ttf import *
 
@@ -208,7 +210,7 @@ class Font(object):
                 SDL_FillRect(surf, None, c)
             else:
                 SDL_SetColorKey(surf, SDL_SRCCOLORKEY, 0)
-        elif antialias:
+        elif antialias or sys.platform == 'darwin':
             if not background:
                 surf = TTF_RenderText_Blended(font, text, foreground)
             else:

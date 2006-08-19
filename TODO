@@ -5,6 +5,7 @@ joystick not receiving events?
 Py 2.3 testing
 
 SDL_syswm.h - platform dependent
+TTF_RenderText_Solid raises exception with no message on OS X
 
 testfile
 
