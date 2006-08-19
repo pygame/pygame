@@ -120,7 +120,7 @@ def _endsound_callback(channel):
         e = e.specialize()
         if isinstance(e, SDL_UserEvent):
             e.code = channel._endevent
-        SDL_PushEvent(e)
+        SDL_PushEvent(cast(pointer(e), POINTER(SDL_Event)))
     if channel._queue:
         channel._sound = channel._queue
         channel._queue = None
