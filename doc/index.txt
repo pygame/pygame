@@ -30,6 +30,36 @@ that are not available in standard Pygame:
 * Closer integration with the `Python Imaging Library`_ (PIL) allowing
   more image formats to be loaded and saved.
 
+Requirements
+------------
+
+* Python 2.3 or later.
+* Requires `ctypes 1.0.0 <http://starship.python.net/crew/theller/ctypes/>`_.
+  This is included in Python 2.5, or can be installed as an extension
+  for older versions.
+* `SDL 1.2.1 <http://www.libsdl.org>`_ or later.
+
+The following libraries are optional but are required for some of Pygame's
+functionality:
+
+* `Python Imaging Library (PIL) <http://www.pythonware.com/library/pil>`_
+  is required for some ``pygame.transform`` functions, for saving and
+  loading images other than BMP, and speeds up other image functions.
+* `SDL_image <http://www.libsdl.org/projects/SDL_image>`_ can be used
+  in place of PIL for loading some image types.
+* `SDL_ttf <http://www.libsdl.org/projects/SDL_ttf>`_ is required for all
+  ``pygame.font`` functions.
+* `SDL_mixer <http://www.libsdl.org/projects/SDL_ttf>`_ is required for
+  all ``pygame.mixer`` functions.
+
+Any of the following array modules can be used for the ``pygame.surfarray``
+and ``pygame.sndarray`` functions, and for speeding up some image
+operations:
+
+* `NumPy <http://numpy.scipy.org/>`_ (recommended)
+* `Numeric <http://numpy.scipy.org/>`_ 
+* `numarray <http://www.stsci.edu/resources/software_hardware/numarray>`_
+
 Download
 --------
 
