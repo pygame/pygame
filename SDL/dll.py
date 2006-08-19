@@ -53,15 +53,6 @@ class SDL_DLL:
             raise ImportError, 'Dynamic library "%s" was not found' % \
                 _platform_library_name(library_name)
         self._dll = getattr(cdll, library)
-        '''
-        if sys.platform == 'darwin':
-            import ctypes.macholib.dyld
-            library_name = ctypes.macholib.dyld.framework_find(library_name)
-            # Workarouand for ctypes in OS X 10.3 bug:
-            self._dll = CDLL(library_name, RTLD_GLOBAL)
-        else:
-            self._dll = getattr(cdll, library_name)
-        '''
         
         # Get the version of the DLL we're using
         if version_function_name:
