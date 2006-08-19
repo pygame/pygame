@@ -1,3 +1,7 @@
+Pygame-ctypes 0.09
+------------------
+ - pygame.mixer.Channel.get/set_endevent fixed
+
 Pygame-ctypes 0.08
 ------------------
  - Filled ellipse does not hang when rx or ry == 0
