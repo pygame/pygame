@@ -453,8 +453,8 @@ class Event:
         if sdl_event:
             uevent = cast(pointer(sdl_event), POINTER(SDL_UserEvent)).contents
             if uevent.code == _USEROBJECT_CHECK1 and \
-               uevent.data1.value == _USEROBJECT_CHECK2 and \
-               uevent.data2.value in _user_event_objects:
+               uevent.data1 == _USEROBJECT_CHECK2 and \
+               uevent.data2 in _user_event_objects:
                 # An event that was posted; grab dict from local store.
                 id = sdl_event.data2.value
                 for key, value in _user_event_objects[id].items():
