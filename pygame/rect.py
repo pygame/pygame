@@ -154,7 +154,7 @@ class Rect(object):
         elif name == 'right':
             self._r.x = int(value) - self._r.w
         elif name == 'topleft':
-            self._r.x, self._r.y = int(value)
+            self._r.x, self._r.y = int(value[0]), int(value[1])
         elif name == 'bottomleft':
             self._r.x = int(value[0])
             self._r.y = int(value[1]) - self._r.h

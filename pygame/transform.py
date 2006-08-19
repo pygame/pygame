@@ -309,6 +309,12 @@ def rotozoom(surface, angle, scale):
                                              chr(background >> 8 & 0xff),
                                              chr(background >> 16 & 0xff),
                                              chr(background >> 24 & 0xff))
+        else:
+            background_bytes = '%c%c%c%c' % (chr(background >> 24 & 0xff),
+                                             chr(background >> 16 & 0xff),
+                                             chr(background >> 8 & 0xff),
+                                             chr(background & 0xff))
+
         def repl(match):
             if match.group(0) == '\000\000\000\000':
                 return background_bytes
