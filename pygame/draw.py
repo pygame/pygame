@@ -254,8 +254,9 @@ def circle(surface, color, pos, radius, width=0):
     '''     
     # TODO optimise with circle symmetry
     return ellipse(surface, color, 
-                   (pos[0] - radius, pos[1] - radius, radius * 2, radius * 2), 
-                   width)
+                   (pos[0] - radius, pos[1] - radius, 
+                    radius * 2 - 1, radius * 2 - 1), 
+                    width)
 
 def ellipse(surface, color, rect, width=0):
     '''Draw a round shape inside a rectangle.
