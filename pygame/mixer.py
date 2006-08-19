@@ -743,7 +743,7 @@ class Channel(object):
         '''
         return self._queue
 
-    def set_endevent(id=None):
+    def set_endevent(self, id=None):
         '''Have the channel send an event when playback stops.
 
         When an endevent is set for a channel, it will send an event to the
@@ -773,7 +773,7 @@ class Channel(object):
 
         self._endevent = id
 
-    def get_endevent():
+    def get_endevent(self):
         '''Get the event a channel sends when playback stops.
 
         Returns the event type to be sent every time the Channel finishes
