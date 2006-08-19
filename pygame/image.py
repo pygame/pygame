@@ -289,7 +289,9 @@ def tostring(surface, format, flipped=False):
             surface.lock()
             result = surf.pixels.to_string()
             surface.unlock()
-    elif surf.format.BytesPerPixel == 3 and format in ('RGBA', 'ARGB'):
+    elif surf.format.BytesPerPixel == 3 and \
+         (format in ('RGBA', 'ARGB') or \
+          format == 'RGBX' and not surf.flags & SDL_SRCCOLORKEY):
         # Optimised conversion from RGB to RGBA or ARGB.
         if surf.format.Rmask == SDL_SwapLE32(0x000000ff) and \
            surf.format.Gmask == SDL_SwapLE32(0x0000ff00) and \

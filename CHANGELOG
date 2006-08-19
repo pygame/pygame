@@ -3,6 +3,7 @@ Pygame-ctypes 0.09
  - pygame.mixer.Channel.get/set_endevent fixed
  - pygame.mixer endevent callback fixed
  - pygame.draw.circle correct box for given radius
+ - 24-bit surface to RGBX string supported if no color key is set
 
 Pygame-ctypes 0.08
 ------------------
