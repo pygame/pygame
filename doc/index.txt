@@ -65,7 +65,7 @@ Download
 
 The latest source release is:
 
-* `pygame-ctypes-0.07 <pygame-ctypes-0.07.tar.gz>`_, includes the
+* `pygame-ctypes-0.08.tar.gz <pygame-ctypes-0.08.tar.gz>`_, includes the
   latest snapshot of SDL-ctypes.
 
 In the future SDL-ctypes may also be released separately from Pygame.
@@ -75,6 +75,39 @@ are no dependencies of SDL-ctypes on Pygame-ctypes.
 You can also access the SVN repository directly::
 
     svn co svn://pygame.org/svn/pygame/branches/ctypes-soc
+
+Installation
+------------
+
+You should generally **not** install Pygame-ctypes, as it will replace the
+standard Pygame package.  Because Pygame-ctypes doesn't need to compile
+anything, it can run straight from its own directory.  
+
+For example, on Linux, Mac OS X or Cygwin, let's say you've downloaded and
+extracted the source release to ``/home/joe/pygame-ctypes-0.08``.  Now you can
+run your existing Pygame games by including this path near the start of your
+``PYTHONPATH``::
+
+    # Using bash:
+    PYTHONPATH=/home/joe/pygame-ctypes-0.08:$PYTHONPATH; export PYTHONPATH
+
+    # Using csh:
+    setenv PYTHONPATH /home/joe/pygame-ctypes-0.08:$PYTHONPATH
+
+    python mygame.py
+
+On Windows, assuming you downloaded and extracted the source release to
+``c:\pygame-ctypes-0.08``::
+
+    # At the command prompt:
+    set PYTHONPATH=c:\pygame-ctypes-0.08
+
+    python mygame.py
+
+Remember to set the ``PYTHONPATH`` environment variable each time you
+open a terminal or command prompt, or add it to your startup file.
+
+**Mac OS X users**: you should use ``pythonw``, not ``python``.
 
 Documentation
 -------------
