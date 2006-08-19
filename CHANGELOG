@@ -6,6 +6,10 @@ Pygame-ctypes 0.08
  - transform.rotate on big endian fixed
  - Workaround for TTF_RenderText_Solid not working on OS X
 
+SDL-ctypes 0.08
+---------------
+ - Meaningful exception raised when library not loaded
+
 Pygame-ctypes 0.07
 ------------------
  - SDL_INIT_NOPARACHUTE init flag passed

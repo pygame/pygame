@@ -36,10 +36,23 @@ def _version_parts(v):
 def _version_string(v):
     return '%d.%d.%d' % _version_parts(v)
 
+def _platform_library_name(library):
+    if sys.platform[:5] == 'linux':
+        return 'lib%s.so' % library
+    elif sys.platform == 'darwin':
+        return '%s.framework' % library
+    elif sys.platform == 'windows':
+        return '%s.dll' % library
+    return library
+
 class SDL_DLL:
     def __init__(self, library_name, version_function_name):
         self.library_name = library_name
-        self._dll = getattr(cdll, find_library(library_name))
+        library = find_library(library_name)
+        if not library:
+            raise ImportError, 'Dynamic library "%s" was not found' % \
+                _platform_library_name(library_name)
+        self._dll = getattr(cdll, library)
         '''
         if sys.platform == 'darwin':
             import ctypes.macholib.dyld
