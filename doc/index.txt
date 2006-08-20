@@ -42,9 +42,9 @@ Requirements
 The following libraries are optional but are required for some of Pygame's
 functionality:
 
-* `Python Imaging Library (PIL) <http://www.pythonware.com/library/pil>`_
-  is required for some ``pygame.transform`` functions, for saving and
-  loading images other than BMP, and speeds up other image functions.
+* `Python Imaging Library`_ (PIL) is required for some ``pygame.transform``
+  functions, for saving and loading images other than BMP, and speeds up other
+  image functions.
 * `SDL_image <http://www.libsdl.org/projects/SDL_image>`_ can be used
   in place of PIL for loading some image types.
 * `SDL_ttf <http://www.libsdl.org/projects/SDL_ttf>`_ is required for all
@@ -153,5 +153,5 @@ open a terminal or command prompt, or add it to your startup file.
 .. _Alex Holkner: mailto:aholkner@cs.rmit.edu.au
 .. _Google Summer of Code 2006: http://code.google.com/soc
 .. _Pygame: http://www.pygame.org
-.. _Python Imaging Library: http://www.pythonware.com/library/pil
+.. _Python Imaging Library: http://www.pythonware.com/products/pil/index.htm
 .. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
