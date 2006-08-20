@@ -186,7 +186,7 @@ class Rect(object):
         elif name == 'size':
             if int(value[0]) < 0 or int(value[1]) < 0:
                 self._ensure_proxy()
-            self._r.w, self._r.h = int(value)
+            self._r.w, self._r.h = int(value[0]), int(value[1])
         elif name == 'width':
             if int(value) < 0:
                 self._ensure_proxy()
