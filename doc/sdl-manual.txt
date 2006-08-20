@@ -3,7 +3,7 @@
 :address: aholkner@cs.rmit.edu.au \\\\
     http://www.pygame.org/ctypes
 
-:revision: 0.08
+:revision: 0.09
 :date:  August 2006
 
 :copyright: Copyright (c) 2006 Alex Holkner.

@@ -63,44 +63,82 @@ operations:
 Download
 --------
 
-The latest source release is:
+Documentation
+^^^^^^^^^^^^^
 
-* `pygame-ctypes-0.08.tar.gz <pygame-ctypes-0.08.tar.gz>`_, includes the
+Documentation is included in the source distribution under the ``doc``
+directory.  It is also browseable online:
+
+* `Pygame-ctypes manual <pygame-manual/index.html>`_
+* `Pygame-ctypes API reference <pygame-api/index.html>`_
+* `SDL-ctypes manual <sdl-manual/index.html>`_
+* `SDL-ctypes API reference <sdl-api/index.html>`_
+
+Runtime eggs
+^^^^^^^^^^^^
+
+Download and install `setuptools`_, then add the following to your source
+to use the eggs::
+    
+    from pkg_resources import require
+    require('Pygame-ctypes>=0.09')
+
+There's no need to install these eggs, just make sure they are either in
+the working directory or a directory that's in ``sys.path``.
+
++------------+----------------------------------------------------------------+
+|Python 2.3  || `Pygame_ctypes-0.09-py2.3.egg <Pygame_ctypes-0.09-py2.3.egg>`_|
+|            || `SDL_ctypes-0.09-py2.3.egg <SDL_ctypes-0.09-py2.3.egg>`_      |
++------------+----------------------------------------------------------------+
+|Python 2.4  || `Pygame_ctypes-0.09-py2.4.egg <Pygame_ctypes-0.09-py2.4.egg>`_|
+|            || `SDL_ctypes-0.09-py2.4.egg <SDL_ctypes-0.09-py2.4.egg>`_      |
++------------+----------------------------------------------------------------+
+|Python 2.5  || `Pygame_ctypes-0.09-py2.5.egg <Pygame_ctypes-0.09-py2.5.egg>`_|
+|            || `SDL_ctypes-0.09-py2.5.egg <SDL_ctypes-0.09-py2.5.egg>`_      |
++------------+----------------------------------------------------------------+
+
+Source release
+^^^^^^^^^^^^^^
+
+The latest source release for both Pygame-ctypes and SDL-ctypes is:
+
+* `pygame-ctypes-0.09.tar.gz <pygame-ctypes-0.09.tar.gz>`_, includes the
   latest snapshot of SDL-ctypes.
 
-In the future SDL-ctypes may also be released separately from Pygame.
-In the meantime you can extract it from the same source download; there
-are no dependencies of SDL-ctypes on Pygame-ctypes.
+SVN Repository
+^^^^^^^^^^^^^^
 
 You can also access the SVN repository directly::
 
     svn co svn://pygame.org/svn/pygame/branches/ctypes-soc
+
 
 Installation
 ------------
 
 You should generally **not** install Pygame-ctypes, as it will replace the
 standard Pygame package.  Because Pygame-ctypes doesn't need to compile
-anything, it can run straight from its own directory.  
+anything, it can run straight from its own directory (or from an egg, see
+above).  
 
 For example, on Linux, Mac OS X or Cygwin, let's say you've downloaded and
-extracted the source release to ``/home/joe/pygame-ctypes-0.08``.  Now you can
+extracted the source release to ``/home/joe/pygame-ctypes-0.09``.  Now you can
 run your existing Pygame games by including this path near the start of your
 ``PYTHONPATH``::
 
     # Using bash:
-    PYTHONPATH=/home/joe/pygame-ctypes-0.08:$PYTHONPATH; export PYTHONPATH
+    PYTHONPATH=/home/joe/pygame-ctypes-0.09:$PYTHONPATH; export PYTHONPATH
 
     # Using csh:
-    setenv PYTHONPATH /home/joe/pygame-ctypes-0.08:$PYTHONPATH
+    setenv PYTHONPATH /home/joe/pygame-ctypes-0.09:$PYTHONPATH
 
     python mygame.py
 
 On Windows, assuming you downloaded and extracted the source release to
-``c:\pygame-ctypes-0.08``::
+``c:\pygame-ctypes-0.09``::
 
     # At the command prompt:
-    set PYTHONPATH=c:\pygame-ctypes-0.08
+    set PYTHONPATH=c:\pygame-ctypes-0.09
 
     python mygame.py
 
@@ -109,15 +147,6 @@ open a terminal or command prompt, or add it to your startup file.
 
 **Mac OS X users**: you should use ``pythonw``, not ``python``.
 
-Documentation
--------------
-
-Documentation is included in the source distribution under the ``doc``
-directory.  It is also browseable online:
-
-* `Pygame-ctypes API reference <pygame-api/index.html>`_
-* `SDL-ctypes Manual <sdl-manual/index.html>`_
-* `SDL-ctypes API reference <sdl-api/index.html>`_
 
 .. _SDL: http://www.libsdl.org
 .. _ctypes: http://starship.python.net/crew/theller/ctypes
@@ -125,3 +154,4 @@ directory.  It is also browseable online:
 .. _Google Summer of Code 2006: http://code.google.com/soc
 .. _Pygame: http://www.pygame.org
 .. _Python Imaging Library: http://www.pythonware.com/library/pil
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
