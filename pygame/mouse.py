@@ -210,4 +210,4 @@ def get_cursor():
     xordata = list(cursor.data)
     anddata = list(cursor.mask)
 
-    return w, h, spotx, spoty, xordata, anddata
+    return (w, h), (spotx, spoty), xordata, anddata
