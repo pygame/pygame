@@ -130,6 +130,11 @@ extra_cmds = {
          description='SDL-ctypes manual',
          chdir='',
          rest_howto='sdl-manual.txt'),
+    'build_doc_pygame_manual' : make_doc_command(
+         name='pygame-manual',
+         description='Pygame-ctypes manual',
+         chdir='',
+         rest_howto='pygame-manual.txt'),
     'build_doc_index': make_doc_command(
          name='index',
          description='documentation index',
@@ -144,7 +149,7 @@ for name in extra_cmds.keys():
 
 setup(
     name='pygame-ctypes',
-    version='0.08',
+    version='0.09',
     description='Python game and multimedia package',
     author='Alex Holkner',
     author_email='aholkner@cs.rmit.edu.au',

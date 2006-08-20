@@ -1,0 +1,79 @@
+
+:author: Alex Holkner
+:address: aholkner@cs.rmit.edu.au \\\\
+    http://www.pygame.org/ctypes
+
+:revision: 0.09
+:date:  August 2006
+
+:copyright: Copyright (c) 2006 Alex Holkner.
+
+=============
+Pygame-ctypes
+=============
+
+---------------------
+Introduction
+---------------------
+
+------------
+Requirements
+------------
+
+* Python 2.3 or later.
+* Requires `ctypes 1.0.0 <http://starship.python.net/crew/theller/ctypes/>`_.
+  This is included in Python 2.5, or can be installed as an extension
+  for older versions.
+* `SDL 1.2.1 <http://www.libsdl.org>`_ or later.
+
+The following libraries are optional but are required for some of Pygame's
+functionality:
+
+* `Python Imaging Library (PIL) <http://www.pythonware.com/library/pil>`_
+  is required for some ``pygame.transform`` functions, for saving and
+  loading images other than BMP, and speeds up other image functions.
+* `SDL_image <http://www.libsdl.org/projects/SDL_image>`_ can be used
+  in place of PIL for loading some image types.
+* `SDL_ttf <http://www.libsdl.org/projects/SDL_ttf>`_ is required for all
+  ``pygame.font`` functions.
+* `SDL_mixer <http://www.libsdl.org/projects/SDL_ttf>`_ is required for
+  all ``pygame.mixer`` functions.
+
+Any of the following array modules can be used for the ``pygame.surfarray``
+and ``pygame.sndarray`` functions, and for speeding up some image
+operations:
+
+* `NumPy <http://numpy.scipy.org/>`_ (recommended)
+* `Numeric <http://numpy.scipy.org/>`_ 
+* `numarray <http://www.stsci.edu/resources/software_hardware/numarray>`_
+
+------------------------------------
+Distributing your Pygame-ctypes game
+------------------------------------
+
+Using eggs
+----------
+
+With this option your distribution will include all
+necessary dependencies on Pygame-ctypes, with the exception of the platform
+libraries (ctypes, SDL, SDL_ttf, SDL_mixer, SDL_image, PIL).
+
+1. Download `setuptools`_ and copy ``pkg_resources.py`` into your
+   game's folder.  Alternatively, you can require that your end-users
+   have ``setuptools`` installed.
+2. Optionally include ``Pygame_ctypes-0.09-py2.4.egg`` and 
+   ``SDL_ctypes-0.09-py2.4.egg`` in your game's folder.  Including these adds
+   to the size of your distribution.  If you don't include them they will be
+   located on PyPI and downloaded automatically the first time your game is
+   run.  
+3. In your game's source code, before you ``import pygame``, add the
+   following::
+
+        from pkg_resources import require
+        require('Pygame-ctypes>=0.09')
+
+That's it!  Now bundle the two eggs and ``pkg_resources.py`` with the
+rest of your game; it can be run without any installation or fiddling
+with ``PYTHONPATH``.
+
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools

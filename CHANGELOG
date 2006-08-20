@@ -6,6 +6,11 @@ Pygame-ctypes 0.09
  - 24-bit surface to RGBX string supported if no color key is set
  - user post event fix for ctypes 1.0.0
  - Return value of pygame.mouse.get_cursor fixed
+ - Support for setuptools in pkgdata.py (allow resources from .egg or .zip)
+
+SDL-ctypes 0.09
+---------------
+ - No changes, just a version push to keep sync with Pygame-ctypes.
 
 Pygame-ctypes 0.08
 ------------------

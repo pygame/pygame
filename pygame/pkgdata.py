@@ -21,6 +21,13 @@ import sys
 import os
 from cStringIO import StringIO
 
+try:
+    # Try to use setuptools if available.
+    from pkg_resources import resource_stream
+    _have_resource_stream = True
+except ImportError:
+    _have_resource_stream = False
+
 def getResource(identifier, pkgname=__name__):
     """Acquire a readable object for a given package name and identifier.
 
@@ -38,6 +45,10 @@ def getResource(identifier, pkgname=__name__):
     rather than use it as a file-like object.  For example, you may
     be handing data off to a C API.
     """
+
+    # Prefer setuptools
+    if _have_resource_stream:
+        return resource_stream(pkgname, identifier)
 
     mod = sys.modules[pkgname]
     fn = getattr(mod, '__file__', None)
