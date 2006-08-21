@@ -1294,9 +1294,9 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
 
         if src24:
             src2d_rect = src2d[srcy:srcy+h,srcx:srcx+w*3]
-            sR = src2d_rect[:,::3]
-            sG = src2d_rect[:,1::3]
-            sB = src2d_rect[:,2::3]
+            sR = src2d_rect[:,srcRshift >> 3::3]
+            sG = src2d_rect[:,srcGshift >> 3::3]
+            sB = src2d_rect[:,srcBshift >> 3::3]
             sA = 255
         else:
             src2d_rect = src2d[srcy:srcy+h,srcx:srcx+w]
@@ -1309,9 +1309,9 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
             # XXX TODO This is completely untested.  The planes probably
             # need to be cast to a larger data type.
             dst2d_rect = dst2d[dstrect.y:dstrect.y+h,dstrect.x:dstrect.x+w*3]
-            dR = dst2d_rect[:,::3]
-            dG = dst2d_rect[:,1::3]
-            dB = dst2d_rect[:,2::3]
+            dR = dst2d_rect[:,dstRshift >> 3::3]
+            dG = dst2d_rect[:,dstGshift >> 3::3]
+            dB = dst2d_rect[:,dstBshift >> 3::3]
             dA = 255
         else:
             dst2d_rect = dst2d[dstrect.y:dstrect.y+h,dstrect.x:dstrect.x+w]
@@ -1371,9 +1371,9 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
 
         # Finished, set result.
         if dst24:
-            dst2d_rect[:,::3] = dR
-            dst2d_rect[:,1::3] = dG
-            dst2d_rect[:,2::3] = dB
+            dst2d_rect[:,dstRshift >> 3::3] = dR
+            dst2d_rect[:,dstGshift >> 3::3] = dG
+            dst2d_rect[:,dstBshift >> 3::3] = dB
         else:
             dst2d_rect[:,:] = ((dR >> dstRloss) << dstRshift) | \
                               ((dG >> dstGloss) << dstGshift) | \

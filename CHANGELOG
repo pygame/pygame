@@ -1,6 +1,8 @@
 Pygame-ctypes 0.10
 ------------------
  - Fixed unset colorkey with Surface.set_colorkey
+ - Performance of simple (non error-checking) SDL/pygame functions improved
+ - Software blitting BGR surfaces corrected.
 
 Pygame-ctypes 0.09
 ------------------
