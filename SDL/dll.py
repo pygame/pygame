@@ -204,10 +204,8 @@ class SDL_DLL:
                     raise SDL.error.SDL_Exception, SDL.error.SDL_GetError()
                 return result
         else:
-            # Construct a function which returns the C function's return
-            # value.
-            def _f(*args, **kwargs):
-                return func(*args, **kwargs)
+            # No return checking required, let's be efficient.
+            _f = func
         if args:
             _f._args = args
         _f.__doc__ = doc
