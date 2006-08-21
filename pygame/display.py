@@ -191,10 +191,14 @@ def set_mode(resolution, flags=0, depth=0):
 
     if sys.platform != 'darwin':
         if not _icon_was_set:
-            file = pygame.pkgdata.getResource(_icon_defaultname)
-            iconsurf = pygame.image.load(file)
-            SDL_SetColorKey(iconsurf._surf, SDL_SRCCOLORKEY, 0)
-            set_icon(iconsurf)
+            try:	
+                file = pygame.pkgdata.getResource(_icon_defaultname)
+                iconsurf = pygame.image.load(file)
+                SDL_SetColorKey(iconsurf._surf, SDL_SRCCOLORKEY, 0)
+                set_icon(iconsurf)
+            except IOError:
+                # Not worth dying over.
+                pass
 
     return _display_surface
 
