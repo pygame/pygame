@@ -88,8 +88,10 @@ class Rect(object):
         return '<rect(%d, %d, %d, %d)>' % \
             (self._r.x, self._r.y, self._r.w, self._r.h)
 
-    def __cmp__(self, *other):
-        other = _rect_from_object(other)
+    def __cmp__(self, other):
+        if other is None:
+            return 1
+        other = _rect_from_object((other,))
 
         if self._r.x != other._r.x:
             return cmp(self._r.x, other._r.x)
@@ -137,9 +139,9 @@ class Rect(object):
             return self._r.y + self._r.h / 2
         elif name == 'size':
             return self._r.w, self._r.h
-        elif name == 'width':
+        elif name in  ('width', 'w'):
             return self._r.w
-        elif name == 'height':
+        elif name in ('height', 'h'):
             return self._r.h
         else:
             raise AttributeError, name
@@ -187,11 +189,11 @@ class Rect(object):
             if int(value[0]) < 0 or int(value[1]) < 0:
                 self._ensure_proxy()
             self._r.w, self._r.h = int(value[0]), int(value[1])
-        elif name == 'width':
+        elif name in ('width', 'w'):
             if int(value) < 0:
                 self._ensure_proxy()
             self._r.w = int(value)
-        elif name == 'height':
+        elif name in ('height', 'h'):
             if int(value) < 0:
                 self._ensure_proxy()
             self._r.h = int(value)

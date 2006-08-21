@@ -264,9 +264,19 @@ def rotozoom(surface, angle, scale):
     sy = sa * surf.h * scale
     width = int(max(abs(cx + sy), abs(cx - sy), abs(-cx + sy), abs(-cx - sy)))
     height = int(max(abs(sx + cy), abs(sx - cy), abs(-sx + cy), abs(-sx - cy)))
-    newsurf = _newsurf_fromsurf(surf, width, height)
     sa /= scale
     ca /= scale
+
+    if surf.format.BytesPerPixel == 1 or surf.format.BytesPerPixel == 4:
+        newsurf = _newsurf_fromsurf(surf, width, height)
+    else:
+        newsurf = SDL_CreateRGBSurface(0, width, height, 32,
+                                       SDL_SwapLE32(0x000000ff),
+                                       SDL_SwapLE32(0x0000ff00),
+                                       SDL_SwapLE32(0x00ff0000),
+                                       SDL_SwapLE32(0xff000000))
+        if surf.flags & SDL_SRCALPHA:
+            SDL_SetAlpha(newsurf, surf.flags, surf.format.alpha)
 
     surface._prep()
     if surf.flags & SDL_SRCCOLORKEY:
@@ -327,8 +337,10 @@ def rotozoom(surface, angle, scale):
         need_data_sub = True
 
     image = _to_PIL(surf, data)
-    surface._unprep()
 
+    if surf.format.BytesPerPixel != 4 and surf.format.BytesPerPixel != 1:
+        image = image.convert('RGBA')
+    surface._unprep()
     image = image.transform((width, height), Image.AFFINE,
                             (ca, -sa, -width*ca/2 + height*sa/2 + surf.w/2, 
                              sa,  ca, -width*sa/2 - height*ca/2 + surf.h/2),

@@ -696,7 +696,7 @@ def set_palette(palette=None):
     if not palette:
         SDL_SetPalette(surf, SDL_PHYSPAL, surf.format.palette.colors, 0)
 
-    lenth = min(surf.format.palette.ncolors, len(palette))
+    length = min(surf.format.palette.ncolors, len(palette))
     colors = [SDL_Color(r, g, b) for r, g, b in palette[:length]]
     SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0)
 

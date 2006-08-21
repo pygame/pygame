@@ -203,7 +203,10 @@ class Font(object):
             # Pygame returns a 1 pixel wide surface if given empty string.
             height = TTF_FontHeight(font)
             surf = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, height, 32,
-                                        0x00ff0000, 0x0000ff00, 0x000000ff, 0)
+                                        SDL_SwapLE32(0x000000ff), 
+                                        SDL_SwapLE32(0x0000ff00), 
+                                        SDL_SwapLE32(0x00ff0000), 
+                                        SDL_SwapLE32(0xff000000))
             if background:
                 c = SDL_MapRGB(surf.format, background.r, background.g,
                                background.b)

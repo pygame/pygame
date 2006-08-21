@@ -14,10 +14,9 @@ except:
 
 import time
         
-
 def main():
     pygame.init()
-    screen = pygame.display.set_mode((640, 480))
+    screen = pygame.display.set_mode((640, 480), 0, 16)
 
     im1= pygame.Surface(screen.get_size())
     #im1= im1.convert()

@@ -79,7 +79,10 @@ def load(filename):
     pygame.mixer._mixer_init_check()
 
     _free_loaded()
-    _current_music = Mix_LoadMUS(filename)
+    try:
+        _current_music = Mix_LoadMUS(filename)
+    except SDL.SDL_Exception, e:
+        raise pygame.base.error(str(e))
 
 def play(loops=0, start=0.0):
     '''Start the playback of the music stream.
@@ -158,7 +161,7 @@ def unpause():
     This will resume the playback of a music stream after it has been paused.
     '''    
     pygame.mixer._mixer_init_check()
-    Mix_UnpauseMusic()
+    Mix_ResumeMusic()
 
 def fadeout(time):
     '''Stop music playback after fading out.

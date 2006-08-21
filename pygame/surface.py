@@ -199,7 +199,7 @@ class Surface(object):
         _surface_blit(self, source, destrect, sourcerect, special_flags)
         return pygame.rect.Rect(destrect)
 
-    def convert(self, arg1=None, flags=None):
+    def convert(self, arg1=None, flags=0):
         '''Create a copy of a surface with different format
 
         Creates a new copy of the Surface with the pixel format changed. The
@@ -479,7 +479,7 @@ class Surface(object):
         if surf.flags & SDL_OPENGL:
             raise pygame.base.error, 'Cannot call on OPENGL surfaces'
 
-        if value:
+        if value is not None:
             flags |= SDL_SRCALPHA
             value = max(min(255, value), 0)
         else:
@@ -494,7 +494,9 @@ class Surface(object):
         :return: The current alpha value for the surface, or None if it
             is not set.
         '''
+        self._prep()
         surf = self._surf
+        self._unprep()
 
         if surf.flags & SDL_OPENGL:
             raise pygame.base.error, 'Cannot call on OPENGL surfaces'
@@ -1271,7 +1273,7 @@ def _software_blit(src, srcrect, dst, dstrect, special_flags):
         srcpitchdelta = srcpitch - w * 3
     if dst24:
         dstpitch = dst.pitch
-        dsti = dsty * dstpitch + dstx * 3
+        dsti = dstrect.y * dstpitch + dstrect.x * 3
         dstpitchdelta = dstpitch - w * 3
 
     # Both surfaces are already prepped by caller, just need to lock

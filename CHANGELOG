@@ -4,6 +4,17 @@ Pygame-ctypes 0.10
  - Performance of simple (non error-checking) SDL/pygame functions improved
  - Software blitting BGR surfaces corrected.
  - Ignore error if default icon not found.
+ - Fixed blend blit to 24-bit surface
+ - Undocumented Rect.w and .h attributes added.
+ - Undocumented allow False for pygame.mixer.init arguments
+ - pygame.error thrown from pygame.music.load instead of SDL_Exception
+ - Allow comparison of Rect with None
+ - pygame.transform.rotozoom of 24-bit and 16-bit surface returns 32-bit
+   surface.
+ - pygame.Surface.set_alpha with 0 value fixed
+ - pygame.display.set_palette fixed
+ - pygame.font.Font.render blended zero-length string has alpha channel
+ - pygame.music.unpause() fixed.
 
 Pygame-ctypes 0.09
 ------------------

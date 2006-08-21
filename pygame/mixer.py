@@ -61,13 +61,13 @@ _request_buffer = 1024
 _channels = {}
 
 def __PYGAMEinit__(frequency=None, size=None, stereo=None, buffer=None):
-    if frequency is None:
+    if not frequency:
         frequency = _request_frequency
-    if size is None:
+    if not size:
         size = _request_size
-    if stereo is None:
+    if not stereo:
         stereo = _request_stereo
-    if buffer is None:
+    if not buffer:
         buffer = _request_buffer
 
     stereo = min(2, stereo)
