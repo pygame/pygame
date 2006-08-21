@@ -418,14 +418,17 @@ class Surface(object):
         if surf.flags & SDL_OPENGL:
             raise pygame.base.error, 'Cannot call on OPENGL surfaces'
 
+        if color is None:
+            SDL_SetColorKey(surf, 0, 0)
+            return
+
         rgba = pygame.base._rgba_from_obj(color)
         if rgba:
             color = SDL_MapRGBA(surf.format, rgba[0], rgba[1], rgba[2], rgba[3])
         if color and type(color) not in (int, long):
             raise 'invalid color argument'
-        if color is not None:
-            flags |= SDL_SRCCOLORKEY
 
+        flags |= SDL_SRCCOLORKEY
         SDL_SetColorKey(surf, flags, color)
         
     def get_colorkey(self):
