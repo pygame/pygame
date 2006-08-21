@@ -333,7 +333,7 @@ def array_colorkey(surface):
     if surface._surf.flags & SDL_SRCCOLORKEY:
         # XXX No work with numarray
         colorkey = surface._surf.format.colorkey
-        array = _array.choose(_array.equal(array, colorkey), (0, 0xff))
+        array = _array.choose(_array.equal(array, colorkey), (0xff, 0))
     else:
         array[:,:] = 0xff
 

@@ -14,3 +14,5 @@ mac default icon
 search libs e.g. SDL_ttf-2.0 before SDL_ttf
 24-bit don't assume RGB, could be BGR.
 default icon and font in py2exe
+lots of problems in Phil's Zanthor
+segfault in mixer, example in Phil's rustic

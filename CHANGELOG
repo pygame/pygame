@@ -15,6 +15,8 @@ Pygame-ctypes 0.10
  - pygame.display.set_palette fixed
  - pygame.font.Font.render blended zero-length string has alpha channel
  - pygame.music.unpause() fixed.
+ - pygame.mouse.set_pos accepts a tuple argument
+ - pygame.surfarray.array_colorkey mask was inverted; fixed
 
 Pygame-ctypes 0.09
 ------------------
