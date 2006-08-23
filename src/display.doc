@@ -209,7 +209,10 @@ were satisfied. The VidInfo object has several attributes:
   blit_sw:    True if software Surface blitting is accelerated
   blit_sw_CC: True if software Surface colorkey blitting is accelerated
   blit_sw_A:  True if software Surface pixel alpha blitting is acclerated
-
+  current_h, current_h:  Width and height of the current video mode, or of the 
+    desktop mode if called before the display is init.
+    (current_h, current_w are available since SDL 1.2.10, and pygame 1.8.0)
+    They are -1 on error, or if an old SDL is being used.
 <END>
 
 

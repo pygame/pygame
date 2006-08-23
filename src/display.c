@@ -185,6 +185,20 @@ static PyObject *vidinfo_getattr(PyObject *self, char *name)
 {
 	SDL_VideoInfo* info = &((PyVidInfoObject*)self)->info;
 
+        int current_w = -1;
+        int current_h = -1;
+
+        SDL_version versioninfo;
+	SDL_VERSION(&versioninfo);
+
+        if(versioninfo.major >= 1 && versioninfo.minor >= 2 && versioninfo.patch >= 10 ) {
+            current_w = info->current_w;
+            current_h = info->current_h;
+        }
+
+
+
+
 	if(!strcmp(name, "hw"))
 		return PyInt_FromLong(info->hw_available);
 	else if(!strcmp(name, "wm"))
@@ -220,6 +234,11 @@ static PyObject *vidinfo_getattr(PyObject *self, char *name)
 	else if(!strcmp(name, "losses"))
 		return Py_BuildValue("(iiii)", info->vfmt->Rloss, info->vfmt->Gloss,
 					info->vfmt->Bloss, info->vfmt->Aloss);
+	else if(!strcmp(name, "current_h"))
+		return PyInt_FromLong(current_h);
+	else if(!strcmp(name, "current_w"))
+		return PyInt_FromLong(current_w);
+
 
 	return RAISE(PyExc_AttributeError, "does not exist in vidinfo");
 }
@@ -228,7 +247,17 @@ static PyObject *vidinfo_getattr(PyObject *self, char *name)
 PyObject* vidinfo_str(PyObject* self)
 {
 	char str[1024];
+        int current_w = -1;
+        int current_h = -1;
 	SDL_VideoInfo* info = &((PyVidInfoObject*)self)->info;
+
+        SDL_version versioninfo;
+	SDL_VERSION(&versioninfo);
+
+        if(versioninfo.major >= 1 && versioninfo.minor >= 2 && versioninfo.patch >= 10 ) {
+            current_w = info->current_w;
+            current_h = info->current_h;
+        }
 
 	sprintf(str, "<VideoInfo(hw = %d, wm = %d,video_mem = %d\n"
 				 "	     blit_hw = %d, blit_hw_CC = %d, blit_hw_A = %d,\n"
@@ -236,14 +265,19 @@ PyObject* vidinfo_str(PyObject* self)
 				 "	     bitsize  = %d, bytesize = %d,\n"
 				 "	     masks =  (%d, %d, %d, %d),\n"
 				 "	     shifts = (%d, %d, %d, %d),\n"
-				 "	     losses =  (%d, %d, %d, %d)>\n",
-				info->hw_available, info->wm_available, info->video_mem,
+				 "	     losses =  (%d, %d, %d, %d),\n"
+				 "	     current_w = %d, current_h = %d\n"
+				 ">\n"
+				,info->hw_available, info->wm_available, info->video_mem,
 				info->blit_hw, info->blit_hw_CC, info->blit_hw_A,
 				info->blit_sw, info->blit_sw_CC, info->blit_sw_A,
 				info->vfmt->BitsPerPixel, info->vfmt->BytesPerPixel,
 				info->vfmt->Rmask, info->vfmt->Gmask, info->vfmt->Bmask, info->vfmt->Amask,
 				info->vfmt->Rshift, info->vfmt->Gshift, info->vfmt->Bshift, info->vfmt->Ashift,
-				info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss, info->vfmt->Aloss);
+				info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss, info->vfmt->Aloss,
+                                current_w, current_h);
+
+
 
 	return PyString_FromString(str);
 }

@@ -51,6 +51,30 @@ class DisplayTest( unittest.TestCase ):
         #pygame.quit()
 
 
+    def test_vid_info( self ):
+        """ 
+        """
+
+
+        pygame.init()
+        inf = pygame.display.Info()
+        print "before a display mode has been set"
+        print inf
+        self.assertNotEqual(inf.current_h, -1)
+        self.assertNotEqual(inf.current_w, -1)
+        #probably have an older SDL than 1.2.10 if -1.
+
+
+        screen = pygame.display.set_mode((100,100))
+        inf = pygame.display.Info()
+        print inf
+        self.assertNotEqual(inf.current_h, -1)
+        self.assertEqual(inf.current_h, 100)
+        self.assertEqual(inf.current_w, 100)
+
+        #pygame.quit()
+
+
 
 
 
