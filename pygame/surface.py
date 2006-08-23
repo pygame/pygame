@@ -821,7 +821,11 @@ class Surface(object):
 
         '''
         if rect:
-            rect = pygame.rect._rect_from_object(rect)._r
+            rect = pygame.rect._rect_from_object(rect)
+            rect.normalize()
+            rect = rect._r
+        else:
+            rect = None
         SDL_SetClipRect(self._surf, rect)
 
 

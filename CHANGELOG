@@ -17,6 +17,7 @@ Pygame-ctypes 0.10
  - pygame.music.unpause() fixed.
  - pygame.mouse.set_pos accepts a tuple argument
  - pygame.surfarray.array_colorkey mask was inverted; fixed
+ - pygame.Surface.set_clip with negative-sized rects.
 
 Pygame-ctypes 0.09
 ------------------

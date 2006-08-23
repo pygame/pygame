@@ -27,11 +27,6 @@ class _RectProxy(object):
             self.w = r[2]
             self.h = r[3]
 
-    def _get_as_parameter_(self):
-        return SDL.SDL_Rect(self.x, self.y, self.w, self.h)
-
-    _as_parameter_ = property(_get_as_parameter_)
-
 class Rect(object):
     __slots__ = ['_r']
 
