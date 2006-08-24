@@ -622,10 +622,16 @@ class Surface(object):
             raise pygame.base.error, 'pixel index out of range'
 
         format = surf.format
-        pitch = surf.pitch / format.BytesPerPixel
-
+        pitch = surf.pitch
         self.lock()
-        color = surf.pixels[y * pitch + x]
+        if format.BytesPerPixel != 3:
+            pitch = surf.pitch / format.BytesPerPixel
+            color = surf.pixels[y * pitch + x]
+        else:
+            color = surf.pixels[y * surf.pitch + x * 3] | \
+                    surf.pixels[y * surf.pitch + x * 3 + 1] << 8 | \
+                    surf.pixels[y * surf.pitch + x * 3 + 2] << 16
+            color = SDL_SwapLE32(color) #XXX untested on big endian
         self.unlock()
 
         return SDL_GetRGBA(color, format)
@@ -667,10 +673,15 @@ class Surface(object):
         if type(color) not in (int, long):
             raise 'invalid color argument'
 
-        pitch = surf.pitch / format.BytesPerPixel
-
         self.lock()
-        self._surf.pixels[y * pitch + x] = color
+        if format.BytesPerPixel != 3:
+            pitch = surf.pitch / format.BytesPerPixel
+            self._surf.pixels[y * pitch + x] = color
+        else:
+            # XXX untested
+            color = SDL_SwapLE32(color)
+            self._surf.pixels[y * pitch + x * 3:y * pitch + x * 3 + 3] = \
+                color & 0xff, (color >> 8) & 0xff, (color >> 16) & 0xff
         self.unlock()
 
     def get_palette(self):

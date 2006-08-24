@@ -16,3 +16,4 @@ search libs e.g. SDL_ttf-2.0 before SDL_ttf
 default icon and font in py2exe
 lots of problems in Phil's Zanthor
 segfault in mixer, example in Phil's rustic
+kill audio thread on exit (example in 20k LYIS)

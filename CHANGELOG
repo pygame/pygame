@@ -18,6 +18,7 @@ Pygame-ctypes 0.10
  - pygame.mouse.set_pos accepts a tuple argument
  - pygame.surfarray.array_colorkey mask was inverted; fixed
  - pygame.Surface.set_clip with negative-sized rects.
+ - pygame.Surface.set_at and .get_at for 24-bit surfaces.  Largely untested.
 
 Pygame-ctypes 0.09
 ------------------
