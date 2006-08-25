@@ -19,6 +19,7 @@ Pygame-ctypes 0.10
  - pygame.surfarray.array_colorkey mask was inverted; fixed
  - pygame.Surface.set_clip with negative-sized rects.
  - pygame.Surface.set_at and .get_at for 24-bit surfaces.  Largely untested.
+ - pygame.transform.rotozoom 24-bit surfaces.
 
 SDL-ctypes 0.10
 ---------------

@@ -25,6 +25,7 @@ import re
 from SDL import *
 
 import pygame.base
+import pygame.image
 import pygame.rect
 import pygame.surface
 
@@ -103,8 +104,26 @@ def flip(surface, x=False, y=False):
     return pygame.surface.Surface(surf=newsurf)
 
 def _to_PIL(surf, data=None):
+    tmpsurf = None
     if surf.format.BitsPerPixel == 8:
         mode = 'P'
+    if surf.format.BitsPerPixel == 16:
+        fmt = SDL_PixelFormat()
+        fmt.BitsPerPixel = 32
+        fmt.BytesPerPixel = 4
+        fmt.Aloss = fmt.Rmask = fmt.Gmask = fmt.Bmask = 0
+        fmt.Rmask = SDL_SwapLE32(0x000000ff)
+        fmt.Gmask = SDL_SwapLE32(0x0000ff00)
+        fmt.Bmask = SDL_SwapLE32(0x00ff0000)
+        fmt.Amask = SDL_SwapLE32(0xff000000)
+        fmt.Rshift = 0
+        fmt.Gshift = 8
+        fmt.Bshift = 16
+        fmt.Ashift = 24
+        fmt.alpha = surf.format.alpha
+        fmt.colorkey = 0
+        tmpsurf = surf = SDL_ConvertSurface(surf, fmt, surf.flags)
+        mode = 'RGBA'
     elif surf.format.BitsPerPixel == 24:
         mode = 'RGB'
     elif surf.format.BitsPerPixel == 32:
@@ -124,7 +143,10 @@ def _to_PIL(surf, data=None):
             rows[i] = rows[i][:source_pitch]
         data = ''.join(rows)
 
-    return Image.fromstring(mode, (surf.w, surf.h), data)
+    img = Image.fromstring(mode, (surf.w, surf.h), data)
+    if tmpsurf:
+        SDL_FreeSurface(tmpsurf)
+    return img
 
 def _from_PIL(image, surf):
     data = image.tostring()
@@ -336,7 +358,8 @@ def rotozoom(surface, angle, scale):
         data = pattern.sub(repl, data)
         need_data_sub = True
 
-    image = _to_PIL(surf, data)
+    else:
+        image = _to_PIL(surf, data)
 
     if surf.format.BytesPerPixel != 4 and surf.format.BytesPerPixel != 1:
         image = image.convert('RGBA')
