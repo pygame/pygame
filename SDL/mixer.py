@@ -316,6 +316,9 @@ _Mix_HookMusicFinished = _dll.private_function('Mix_HookMusicFinished',
     arg_types=[_Mix_HookMusicFinishedFunc],
     return_type=None)
 
+# Keep the ctypes ref around
+_hookmusicfinished_ref = None
+
 def Mix_HookMusicFinished(music_finished):
     '''Add your own callback when the music has finished playing.
 
@@ -326,8 +329,10 @@ def Mix_HookMusicFinished(music_finished):
             The callback takes no arguments and returns no value.
 
     '''
+    global _hookmusicfinished_ref
     if music_finished:
-        _Mix_HookMusicFinished(_Mix_HookMusicFinishedFunc(music_finished))
+        _hookmusicfinished_ref = _Mix_HookMusicFinishedFunc(music_finished)
+        _Mix_HookMusicFinished(_hookmusicfinished_ref)
     else:
         _Mix_HookMusicFinished(_Mix_HookMusicFinishedFunc())
 

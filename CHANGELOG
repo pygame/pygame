@@ -20,6 +20,10 @@ Pygame-ctypes 0.10
  - pygame.Surface.set_clip with negative-sized rects.
  - pygame.Surface.set_at and .get_at for 24-bit surfaces.  Largely untested.
 
+SDL-ctypes 0.10
+---------------
+ - Mix_ChannelFinished fixed GC error.
+
 Pygame-ctypes 0.09
 ------------------
  - pygame.mixer.Channel.get/set_endevent fixed
