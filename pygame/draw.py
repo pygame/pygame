@@ -189,7 +189,7 @@ def polygon(surface, color, pointlist, width=0):
     x1, y1 = pointlist[0]
     miny = maxy = y1
     minx = maxx = x1
-    for x2, y2 in pointlist[1:] + [pointlist[0]]:
+    for x2, y2 in list(pointlist[1:]) + [pointlist[0]]:
         if y2 > y1:
             edges.append( [x1, y1, y2, (x2 - x1) / float(y2 - y1)] )
             miny = min(miny, y1)
