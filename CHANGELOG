@@ -21,6 +21,8 @@ Pygame-ctypes 0.10
  - pygame.Surface.set_at and .get_at for 24-bit surfaces.  Largely untested.
  - pygame.transform.rotozoom 24-bit surfaces.
  - pygame.draw.polygon accepts tuple as well as list
+ - pygame.Surface.fill fix for zero-width or zero-height rectangle
+ - pygame.transform.scale for 16-bit surfaces.
 
 SDL-ctypes 0.10
 ---------------

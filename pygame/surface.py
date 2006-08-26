@@ -378,7 +378,7 @@ class Surface(object):
         if type(color) not in (int, long):
             raise 'invalid color argument'
 
-        if rect:
+        if rect is not None:
             rect = copy(pygame.rect._rect_from_object(rect))
         else:
             rect = pygame.rect.Rect(0, 0, surf.w, surf.h)

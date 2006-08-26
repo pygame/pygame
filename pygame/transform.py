@@ -149,6 +149,21 @@ def _to_PIL(surf, data=None):
     return img
 
 def _from_PIL(image, surf):
+    if surf.format.BitsPerPixel == 16:
+        # Yikes.  We had to convert from 16-bit to 32-bit RGBA to go into PIL,
+        # now go back again to 16-bit.
+        assert image.mode == 'RGBA'
+        tmpsurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 
+                                       surf.w, surf.h, 32,
+                                       SDL_SwapLE32(0x000000ff),
+                                       SDL_SwapLE32(0x0000ff00),
+                                       SDL_SwapLE32(0x00ff0000),
+                                       SDL_SwapLE32(0xff000000))
+        _from_PIL(image, tmpsurf)
+        SDL_BlitSurface(tmpsurf, None, surf, None)
+        SDL_FreeSurface(tmpsurf)
+        return
+        
     data = image.tostring()
 
     dest_pitch = image.size[0] * surf.format.BytesPerPixel
