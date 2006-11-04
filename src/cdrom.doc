@@ -218,11 +218,11 @@ Note, track 0 is track 1 on the CD.  Track numbers start at zero.
 
 
 get_empty
-true if a cdrom is in the drive
+False if a cdrom is in the drive
 CD.get_empty(): return True
 
-Return true if there is a cdrom currently in the drive. If the drive is open
-this will also be False.
+Return False if there is a cdrom currently in the drive. If the drive is open
+this will return True.
 <END>
 
 
