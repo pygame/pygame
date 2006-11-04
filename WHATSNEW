@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Nov 4, 2006
+    Documentation fixes.
+
 Jun 16, 2006
     Allowed passing in the destination surface to the transform.scale and
      transform.scale2x.  This is faster if reusing the surface.
