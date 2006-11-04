@@ -43,14 +43,16 @@ pygame.mixer.init calls.  pygame.mixer.pre_init(44100,-16,2, 1024 * 3)
 
 init
 initialize the mixer module
-pygame.mixer.init(frequency=22050, size=-16, stereo=True, buffer=1024): return None
+pygame.mixer.init(frequency=22050, size=-16, stereo=2, buffer=1024): return None
 
 Initialize the mixer module for Sound loading and playback. The default
 arguments can be overridden to provide specific audio mixing. The size
 argument represents how many bits are used for each audio sample. If the
 value is negative then signed sample values will be used. Positive values
-mean unsigned audio samples will be used. If the stereo argument is false
-the mixer will use mono sound.
+mean unsigned audio samples will be used. 
+
+The stereo argument is used to specify the number of channels used.  1 for 
+mono and 2 for stereo.
 
 The buffer argument controls the number of internal samples used in the
 sound mixer. The default value should work for most cases. It can be
