@@ -206,6 +206,7 @@ Returns true when the argument is completely inside the Rect.
 collidepoint
 test if a point is inside a rectangle
 Rect.collidepoint(x, y): return bool
+Rect.collidepoint((x,y)): return bool
 
 Returns true if the given point is inside the rectangle. A point along
 the right or bottom edge is not considered to be inside the rectangle.
