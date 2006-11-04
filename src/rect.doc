@@ -27,6 +27,7 @@ and align the Rect:
     midtop, midleft, midbottom, midright
     center, centerx, centery
     size, width, height
+    w,h
 
 All of these attributes can be assigned to:
 
