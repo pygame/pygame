@@ -59,6 +59,7 @@ draw src/draw.c $(SDL)
 image src/image.c $(SDL)
 overlay src/overlay.c $(SDL)
 transform src/transform.c src/rotozoom.c src/scale2x.c $(SDL)
+scrap src/scrap.c $(SDL)
 
 
 #the following are placeholders. setup.py can use them to help
