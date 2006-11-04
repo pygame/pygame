@@ -175,7 +175,7 @@ The given event types are not allowed to appear on the event queue. By default
 all events can be placed on the queue. It is safe to disable an event type
 multiple times.
 
-If None is passed as the argument, this has the opposite effect and none of
+If None is passed as the argument, this has the opposite effect and ALL of
 the event types are allowed to be placed on the queue.
 <END>
 
