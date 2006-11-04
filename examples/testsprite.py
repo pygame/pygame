@@ -52,6 +52,10 @@ if "-width" in sys.argv:
     i = sys.argv.index("-width")
     screen_dims[0] = int(sys.argv[i+1])
 
+if "-alpha" in sys.argv:
+    use_alpha = True
+else:
+    use_alpha = False
 
 print screen_dims
 
@@ -106,8 +110,11 @@ def main():
     else:
         sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY)
 
+    if use_alpha:
+        sprite_surface = sprite_surface.convert_alpha()
+    else:
+        sprite_surface = sprite_surface.convert()
 
-    sprite_surface = sprite_surface.convert()
     Thingy.images = [sprite_surface]
 
     if len(sys.argv) > 1:
