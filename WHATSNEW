@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Nov 5, 2006
+    Fix for SysFont infinite loop bug.  Thanks Regis Desgroppes!
+    Compilation fix on MacOSX.  Thanks Emmanuel Hainry!
+
 Nov 4, 2006
     Documentation fixes.
 
