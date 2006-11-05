@@ -243,7 +243,9 @@ def SysFont(name, size, bold=False, italic=False):
                 while not fontname:
                     plainname = styles.get((False, False))
                     fontname = styles.get((bold, italic))
-                    if plainname != fontname:
+                    if not fontname:
+                        fontname = plainname
+                    elif plainname != fontname:
                         gotbold = bold
                         gotitalic = italic
                     elif not fontname:
