@@ -402,6 +402,8 @@ static PyObject* get_wm_info(PyObject* self, PyObject* args)
 		PyDict_SetItemString(dict, "window", PyInt_FromLong(info.window));
 		PyDict_SetItemString(dict, "wimpVersion", PyInt_FromLong(info.wimpVersion));
 		PyDict_SetItemString(dict, "taskHandle", PyInt_FromLong(info.taskHandle));
+#elif (defined(__APPLE__) && defined(__MACH__))
+                // do nothing.
 #else
 		PyDict_SetItemString(dict, "data", PyInt_FromLong(info.data));
 #endif
