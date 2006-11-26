@@ -248,8 +248,6 @@ def SysFont(name, size, bold=False, italic=False):
                     elif plainname != fontname:
                         gotbold = bold
                         gotitalic = italic
-                    elif not fontname:
-                        fontname = plainname
             if fontname: break
 
     font = pygame.font.Font(fontname, size)
