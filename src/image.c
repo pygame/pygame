@@ -1010,6 +1010,7 @@ void initimage(void)
 		Py_INCREF(extload);
 		Py_INCREF(extsave);
 		Py_INCREF(extload);
+                Py_DECREF(extmodule);
 		is_extended = 1;
 	}
 	else

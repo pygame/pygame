@@ -376,11 +376,11 @@ pygame_init_scrap (void)
 
 #elif defined(WIN_SCRAP)
         SDL_Window = info.window;
-        retval = 1
+        retval = 1;
 
 #elif defined(QNX_SCRAP)
         InputGroup = PhInputGroup (NULL);
-        retval = 1
+        retval = 1;
 
 #endif /* scrap type */
     }
@@ -422,6 +422,11 @@ pygame_put_scrap (int type, int srclen, char *src)
 {
     scrap_type format;
     int nulledlen = srclen + 1;
+#if defined(WIN_SCRAP)
+    HANDLE hMem;
+#endif
+
+
 
     if (!pygame_scrap_initialized ())
     {
@@ -465,7 +470,6 @@ pygame_put_scrap (int type, int srclen, char *src)
     Unlock_Display ();
 
 #elif defined(WIN_SCRAP)
-    HANDLE hMem;
     
     if (!OpenClipboard (SDL_Window))
         return 0; /* Could not open the clipboard. */

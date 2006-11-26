@@ -35,6 +35,7 @@
 SDL_Surface* opengltosdl(void);
 
 
+
 static char* find_extension(char* fullname)
 {
 	char* dot;
@@ -488,7 +489,7 @@ static PyObject* image_save_ext(PyObject* self, PyObject* arg)
                           ) {
 #ifdef JPEGLIB_H
 		    result = SaveJPEG(surf, name);
-#elif
+#else
                     return RAISE(PyExc_SDLError, "No support for jpg compiled in.");
 #endif
 
@@ -496,7 +497,7 @@ static PyObject* image_save_ext(PyObject* self, PyObject* arg)
                 else if(name[namelen-1]=='g' || name[namelen-1]=='G') {
 #ifdef PNG_H
 		    result = SavePNG(surf, name);
-#elif
+#else
                     return RAISE(PyExc_SDLError, "No support for png compiled in.");
 #endif
                 }
