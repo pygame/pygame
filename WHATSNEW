@@ -5,8 +5,8 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 
 Nov 27, 2006
-    Fixes for scrap, image, and overlay.  Fixes for compiling on windows.
-    Thanks John Popplewell!
+    Fixes scrap, image, overlay, compiling on windows. Thanks John Popplewell!
+    Allowed threads within the transform module. Releasing GIL around C stuff.
 
 Nov 5, 2006
     Fix for SysFont infinite loop bug.  Thanks Regis Desgroppes!

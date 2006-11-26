@@ -387,8 +387,10 @@ static PyObject* surf_scale(PyObject* self, PyObject* arg)
 		SDL_LockSurface(newsurf);
 		PySurface_Lock(surfobj);
 	
+                Py_BEGIN_ALLOW_THREADS
 		stretch(surf, newsurf);
-	
+                Py_END_ALLOW_THREADS
+
 		PySurface_Unlock(surfobj);
 		SDL_UnlockSurface(newsurf);
 	}
@@ -450,7 +452,9 @@ static PyObject* surf_scale2x(PyObject* self, PyObject* arg)
         SDL_LockSurface(newsurf);
         SDL_LockSurface(surf);
 
+        Py_BEGIN_ALLOW_THREADS
 	scale2x(surf, newsurf);
+        Py_END_ALLOW_THREADS
 
         SDL_UnlockSurface(surf);
         SDL_UnlockSurface(newsurf);
@@ -489,9 +493,13 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 
         if(!(((int)angle)%90))
         {
-			PySurface_Lock(surfobj);
+            PySurface_Lock(surfobj);
+
+            Py_BEGIN_ALLOW_THREADS
             newsurf = rotate90(surf, (int)angle);
-			PySurface_Unlock(surfobj);
+            Py_END_ALLOW_THREADS
+
+            PySurface_Unlock(surfobj);
             if(!newsurf) return NULL;
             return PySurface_New(newsurf);
         }
@@ -538,7 +546,9 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	SDL_LockSurface(newsurf);
 	PySurface_Lock(surfobj);
 
+        Py_BEGIN_ALLOW_THREADS
 	rotate(surf, newsurf, bgcolor, sangle, cangle);
+        Py_END_ALLOW_THREADS
 
 	PySurface_Unlock(surfobj);
 	SDL_UnlockSurface(newsurf);
@@ -573,6 +583,9 @@ static PyObject* surf_flip(PyObject* self, PyObject* arg)
 
 	srcpix = (Uint8*)surf->pixels;
 	dstpix = (Uint8*)newsurf->pixels;
+
+
+        Py_BEGIN_ALLOW_THREADS
 
 	if(!xaxis)
 	{
@@ -666,6 +679,9 @@ static PyObject* surf_flip(PyObject* self, PyObject* arg)
 			}
 		}
 	}
+        Py_END_ALLOW_THREADS
+
+
 
 	PySurface_Unlock(surfobj);
 	SDL_UnlockSurface(newsurf);
@@ -702,12 +718,16 @@ static PyObject* surf_rotozoom(PyObject* self, PyObject* arg)
 	}
 	else
 	{
+            Py_BEGIN_ALLOW_THREADS
 	    surf32 = SDL_CreateRGBSurface(SDL_SWSURFACE, surf->w, surf->h, 32,
 					0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 		SDL_BlitSurface(surf, NULL, surf32, NULL);
+            Py_END_ALLOW_THREADS
 	}
 
+        Py_BEGIN_ALLOW_THREADS
 	newsurf = rotozoomSurface(surf32, angle, scale, 1);
+        Py_END_ALLOW_THREADS
 
 	if(surf32 == surf)
 		PySurface_Unlock(surfobj);
@@ -805,7 +825,9 @@ static PyObject* surf_chop(PyObject* self, PyObject* arg)
     return RAISE(PyExc_TypeError, "Rect argument is invalid");
 
   surf=PySurface_AsSurface(surfobj);
+  Py_BEGIN_ALLOW_THREADS
   newsurf=chop(surf, rect->x, rect->y, rect->w, rect->h);
+  Py_END_ALLOW_THREADS
 
   return PySurface_New(newsurf);
 }
