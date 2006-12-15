@@ -5,6 +5,8 @@ So you can copy and paste things between pygame, and other application
 types.
 
 New in pygame 1.8.  Only works for windows, X11, QNX, Mac OS X so far.
+EXPERIMENTAL: note, this module is experimental, and will be changing in 
+ the next release of pygame.
 <SECTION>
 
 
