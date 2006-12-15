@@ -165,6 +165,11 @@ def main():
     libdirs += ["/usr"+d for d in origlibdirs]
     incdirs += ["/usr/local"+d for d in origincdirs]
     libdirs += ["/usr/local"+d for d in origlibdirs]
+
+    # some stuff for X11 on freebsd.
+    incdirs += ["/usr/X11R6"+d for d in origincdirs]
+    libdirs += ["/usr/X11R6"+d for d in origlibdirs]
+
     for arg in string.split(DEPS[0].cflags):
         if arg[:2] == '-I':
             incdirs.append(arg[2:])
