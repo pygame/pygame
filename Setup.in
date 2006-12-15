@@ -15,6 +15,7 @@ SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
 NUMERIC = -I/usr/include/python2.0/Numeric
+X11 = -lX11
 #--EndConfig
 
 
@@ -31,7 +32,7 @@ mixer_music src/music.c $(SDL) $(MIXER)
 surfarray src/surfarray.c $(SDL) $(NUMERIC)
 sndarray src/sndarray.c $(SDL) $(NUMERIC) $(MIXER)
 movie src/movie.c $(SDL) $(SMPEG)
-scrap src/scrap.c $(SDL)
+scrap src/scrap.c $(SDL) $(X11)
 
 #experimental new movie movie. requires libavcodec and libavformat.
 #add any necessary compile flags to this line and uncomment.
