@@ -79,6 +79,7 @@
     midtop, midleft, midbottom, midright
     center, centerx, centery
     size, width, height
+    w,h
 </pre><p>All of these attributes can be assigned to: </p>
 <pre>    rect1.right = 10
     rect2.center = (20,30)
@@ -229,6 +230,7 @@
 <big><b>Rect.collidepoint</big></b><br><ul>
   <i>test if a point is inside a rectangle</i><br>
   <tt>Rect.collidepoint(x, y): return bool</tt><br>
+  <tt>Rect.collidepoint((x,y)): return bool</tt><br>
 <p>Returns true if the given point is inside the rectangle. <tt>A</tt> point along the right or bottom edge is not considered to be inside the rectangle. </p>
 <!--COMMENTS:Rect.collidepoint--> &nbsp;<br> 
 <br></ul>

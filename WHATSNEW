@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Dec 15, 2006
+    Some config changes to make scrap compile correctly on freebsd and debian.
+
 Nov 27, 2006
     Fixes scrap, image, overlay, compiling on windows. Thanks John Popplewell!
     Allowed threads within the transform module. Releasing GIL around C stuff.

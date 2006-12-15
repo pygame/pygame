@@ -56,7 +56,7 @@
 
 #define DOC_CDGETCURRENT "CD.get_current(): return track, seconds\nthe current audio playback position"
 
-#define DOC_CDGETEMPTY "CD.get_empty(): return True\ntrue if a cdrom is in the drive"
+#define DOC_CDGETEMPTY "CD.get_empty(): return True\nFalse if a cdrom is in the drive"
 
 #define DOC_CDGETNUMTRACKS "CD.get_numtracks(): return count\nthe number of tracks on the cdrom"
 
@@ -282,7 +282,7 @@
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 
-#define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, stereo=True, buffer=1024): return None\ninitialize the mixer module"
+#define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, stereo=2, buffer=1024): return None\ninitialize the mixer module"
 
 #define DOC_PYGAMEMIXERPREINIT "pygame.mixer.pre_init(frequency=0, size=0, stereo=0, buffersize=0): return None\npreset the mixer init arguments"
 
@@ -474,7 +474,7 @@
 
 #define DOC_RECTCONTAINS "Rect.contains(Rect): return bool\ntest if one rectangle is inside another"
 
-#define DOC_RECTCOLLIDEPOINT "Rect.collidepoint(x, y): return bool\ntest if a point is inside a rectangle"
+#define DOC_RECTCOLLIDEPOINT "Rect.collidepoint(x, y): return bool\nRect.collidepoint((x,y)): return bool\ntest if a point is inside a rectangle"
 
 #define DOC_RECTCOLLIDERECT "Rect.colliderect(Rect): return bool\ntest if two rectangles overlap"
 
