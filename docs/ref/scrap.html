@@ -50,7 +50,9 @@
   <tr><td><a href="scrap.html#pygame.scrap.lost">pygame.scrap.lost</a> - <font size=-1>Has the clipboard contents been lost.</font></td><td>Has the clipboard contents been lost.</td></tr>
 </table></small></ul>
 <p>The scrap module is for getting and putting stuff from the clipboard. So you can copy and paste things between pygame, and other application types. </p>
-<p>New in pygame <tt>1.8</tt>. Only works for windows, <tt>X11</tt>, <tt>QNX</tt>, Mac <tt>OS</tt> <tt>X</tt> so far. </p>
+<p>New in pygame <tt>1.8</tt>. Only works for windows, <tt>X11</tt>, <tt>QNX</tt>, Mac <tt>OS</tt> <tt>X</tt> so far. <tt>EXPERIMENTAL:</tt> note, this module is experimental, and will be changing in </p>
+<pre> the next release of pygame.
+</pre>
 <!--COMMENTS:pygame.scrap--> &nbsp;<br> 
 
 
@@ -67,7 +69,7 @@
   <i>Gets stuff from the clipboard.</i><br>
   <tt>pygame.scrap.get(pygame.locals.SCRAP_TEXT): return text.</tt><br>
   <tt>pygame.scrap.get(pygame.locals.SCRAP_BMP): return image data.</tt><br>
-<p>Return the data from the clipboard. </p>
+<p>Return the data from the clipboard. <tt>SCRAP_BMP</tt> is only supported by pygame window instances. </p>
 <!--COMMENTS:pygame.scrap.get--> &nbsp;<br> 
 <br></ul>
 
@@ -77,7 +79,8 @@
   <i>Puts stuff into the clipboard.</i><br>
   <tt>pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.</tt><br>
   <tt>pygame.scrap.put(pygame.locals.SCRAP_BMP, Surface): return None.</tt><br>
-<p>Puts the stuff into the clipboard. </p>
+<p>Puts the stuff into the clipboard. The content must be a string, but has no limitations in its size. Thus it is possible to put <tt>e.g</tt>. serialized pygame objects into the clipboard and deserialize them when they are retrieved again. </p>
+<p>Raises an error, if the content could not be placed into the clipboard. </p>
 <!--COMMENTS:pygame.scrap.put--> &nbsp;<br> 
 <br></ul>
 

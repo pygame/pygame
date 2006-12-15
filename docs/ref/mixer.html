@@ -73,8 +73,9 @@
 <a name="pygame.mixer.init">
 <big><b>pygame.mixer.init</big></b><br><ul>
   <i>initialize the mixer module</i><br>
-  <tt>pygame.mixer.init(frequency=22050, size=-16, stereo=True, buffer=1024): return None</tt><br>
-<p>Initialize the mixer module for Sound loading and playback. The default arguments can be overridden to provide specific audio mixing. The size argument represents how many bits are used for each audio sample. If the value is negative then signed sample values will be used. Positive values mean unsigned audio samples will be used. If the stereo argument is false the mixer will use mono sound. </p>
+  <tt>pygame.mixer.init(frequency=22050, size=-16, stereo=2, buffer=1024): return None</tt><br>
+<p>Initialize the mixer module for Sound loading and playback. The default arguments can be overridden to provide specific audio mixing. The size argument represents how many bits are used for each audio sample. If the value is negative then signed sample values will be used. Positive values mean unsigned audio samples will be used. </p>
+<p>The stereo argument is used to specify the number of channels used. 1 for mono and 2 for stereo. </p>
 <p>The buffer argument controls the number of internal samples used in the sound mixer. The default value should work for most cases. It can be lowered to reduce latency, but sound dropout may occur. It can be raised to larger values to ensure playback never skips, but it will impose latency on sound playback. The buffer size must be a power of two. </p>
 <p>Some platforms require the <tt>pygame.mixer</tt> module to be initialized after the display modules have initialized. The top level <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt> takes care of this automatically, but cannot pass any arguments to the mixer init. To solve this, mixer has a function <tt><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a> - <font size=-1>preset the mixer init arguments</font></tt> to set the proper defaults before the toplevel init is used. </p>
 <p>It is safe to call this more than once, but after the mixer is initialized you cannot change the playback arguments without first calling <tt><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a> - <font size=-1>uninitialize the mixer</font></tt>. </p>

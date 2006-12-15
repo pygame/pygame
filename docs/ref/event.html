@@ -125,7 +125,7 @@
 <big><b>pygame.event.wait</big></b><br><ul>
   <i>wait for a single event from the queue</i><br>
   <tt>pygame.event.wait(): return Event</tt><br>
-<p>Returns a single event from the queue. If the queue is empty this function will wait until one is created. While the program is waiting it will sleep in an idle state. This is important for programs that want to share the system with other applications. </p>
+<p>Returns a single event from the queue. If the queue is empty this function will wait until one is created. The event is removed from the queue once it has been returned. While the program is waiting it will sleep in an idle state. This is important for programs that want to share the system with other applications. </p>
 <!--COMMENTS:pygame.event.wait--> &nbsp;<br> 
 <br></ul>
 
@@ -167,7 +167,7 @@
   <tt>pygame.event.set_blocked(typelist): return None</tt><br>
   <tt>pygame.event.set_blocked(None): return None</tt><br>
 <p>The given event types are not allowed to appear on the event queue. By default all events can be placed on the queue. It is safe to disable an event type multiple times. </p>
-<p>If None is passed as the argument, this has the opposite effect and none of the event types are allowed to be placed on the queue. </p>
+<p>If None is passed as the argument, this has the opposite effect and <tt>ALL</tt> of the event types are allowed to be placed on the queue. </p>
 <!--COMMENTS:pygame.event.set_blocked--> &nbsp;<br> 
 <br></ul>
 
@@ -179,7 +179,7 @@
   <tt>pygame.event.set_allowed(typelist): return None</tt><br>
   <tt>pygame.event.set_allowed(None): return None</tt><br>
 <p>The given event types are allowed to appear on the event queue. By default all events can be placed on the queue. It is safe to enable an event type multiple times. </p>
-<p>If None is passed as the argument, this has the opposite effect and all of the event types are allowed to be placed on the queue. </p>
+<p>If None is passed as the argument, <tt>NONE</tt> of the event types are allowed to be placed on the queue. </p>
 <!--COMMENTS:pygame.event.set_allowed--> &nbsp;<br> 
 <br></ul>
 
