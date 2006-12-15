@@ -80,17 +80,21 @@ class Dependency:
         incname = self.checkhead
         libnames = self.checklib, string.lower(self.name)
         
-        for dir in incdirs:
-            path = os.path.join(dir, incname)
-            if os.path.isfile(path):
-                self.inc_dir = dir
+        if incname:
+            for dir in incdirs:
+                path = os.path.join(dir, incname)
+                if os.path.isfile(path):
+                    self.inc_dir = dir
+
         for dir in libdirs:
             for name in libnames:
                 path = os.path.join(dir, name)
                 if filter(os.path.isfile, glob(path+'*')):
                     self.lib_dir = dir
-                
-        if self.lib_dir and self.inc_dir:
+        
+
+        
+        if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
             print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
         else:
@@ -144,6 +148,7 @@ def main():
         DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
         Dependency('PNG', 'png.h', 'libpng', 'png'),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg', 'jpeg'),
+        Dependency('X11', '', 'libX11', 'X11'),
     ]
 
     if not DEPS[0].found:
