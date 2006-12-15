@@ -114,8 +114,6 @@ except (ImportError,IOError), msg:mouse=MissingModule("mouse", msg, 1)
 try: import pygame.sprite
 except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
 
-try: import pygame.scrap
-except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 1)
 
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
@@ -144,8 +142,12 @@ except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
 try: import pygame.movie
 except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
 
-try: import pygame.movieext
-except (ImportError,IOError), msg:movieext=MissingModule("movieext", msg, 0)
+
+#try: import pygame.scrap
+#except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 1)
+
+#try: import pygame.movieext
+#except (ImportError,IOError), msg:movieext=MissingModule("movieext", msg, 0)
 
 try: import pygame.surfarray
 except (ImportError,IOError), msg:surfarray=MissingModule("surfarray", msg, 0)
