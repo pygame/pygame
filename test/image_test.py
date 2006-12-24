@@ -26,13 +26,18 @@ class ImageTest( unittest.TestCase ):
         f = os.path.join("examples", "data", "alien1.png")
         surf = pygame.image.load(f)
 
+        f = open(os.path.join("examples", "data", "alien1.png"), "rb")
+        surf = pygame.image.load(f)
+
 
     def testLoadJPG( self ):
         """ see if we can load a jpg.
         """
-        f = os.path.join("examples", "data", "alien1.png")
+        f = os.path.join("examples", "data", "alien1.jpg")
         surf = pygame.image.load(f)
 
+        f = open(os.path.join("examples", "data", "alien1.jpg"), "rb")
+        surf = pygame.image.load(f)
 
 
 
