@@ -14,7 +14,7 @@ EXTRAS = {}
 
 METADATA = {
     "name":             "pygame",
-    "version":          "1.8.0rc2",
+    "version":          "1.8.0rc3",
     "license":          "LGPL",
     "url":              "http://www.pygame.org",
     "author":           "Pete Shinners",
@@ -114,7 +114,21 @@ if sys.platform == 'win32':
                     "C:\\msys\\1.0\\local\\bin\\SDL_image.dll",
                     "C:\\msys\\1.0\\local\\bin\\SDL_ttf.dll",
                     "C:\\msys\\1.0\\local\\bin\\SDL_mixer.dll",
+                    "C:\\msys\\1.0\\local\\bin\\jpeg.dll",
+                    "C:\\msys\\1.0\\local\\bin\\libpng13.dll",
+                    "C:\\msys\\1.0\\local\\bin\\libtiff.dll",
                    ]
+
+        the_dlls = ["C:\\MingW\\bin\\SDL.dll",
+                    "C:\\MingW\\bin\\SDL_image.dll",
+                    "C:\\MingW\\bin\\SDL_ttf.dll",
+                    "C:\\MingW\\bin\\SDL_mixer.dll",
+                    "C:\\MingW\\bin\\jpeg.dll",
+                    "C:\\MingW\\bin\\libpng13.dll",
+                    "C:\\MingW\\bin\\libtiff.dll",
+                   ]
+
+
                    # no smpeg.
                     #"C:\\msys\\1.0\\local\\bin\\smpeg.dll"]
 
