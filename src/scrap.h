@@ -1,6 +1,6 @@
 /*
     pygame - Python Game Library
-    Copyright (C) 2006 Rene Dudfield, Marcus von Appen
+    Copyright (C) 2006, 2007 Rene Dudfield, Marcus von Appen
 
     Originally put in the public domain by Sam Lantinga.
 
@@ -24,13 +24,7 @@
 /* Handle clipboard text and data in arbitrary formats */
 
 /**
- * Type conversion macro for the scrap formats.
- */
-#define PYGAME_SCRAP_TYPE(A, B, C, D) \
-    ((int) ((A<<24) | (B<<16) | (C<<8) | (D<<0)))
-
-/**
- * Currently supported pygame scrap types.
+ * Predefined supported pygame scrap types.
  * 
  * PYGAME_SCRAP_TEXT should be used for text.
  * PYGAME_SCRAP_BMP should be used for arbitrary data in a string format.
@@ -39,8 +33,23 @@
  * interchangeable data that should be used by other applications, use
  * PYGAME_SCRAP_TEXT.
  */
-#define PYGAME_SCRAP_TEXT PYGAME_SCRAP_TYPE('T', 'E', 'X', 'T')
-#define PYGAME_SCRAP_BMP PYGAME_SCRAP_TYPE('B', 'M', 'P', ' ')
+#define PYGAME_SCRAP_TEXT "text/plain"
+#define PYGAME_SCRAP_BMP "image/bmp"
+#define PYGAME_SCRAP_PPM "image/ppm"
+#define PYGAME_SCRAP_PBM "image/pbm"
+
+/**
+ * The supported scrap clipboard types.
+ * 
+ * This is only relevant in a X11 environment, which supports mouse
+ * selections as well. For Win32 and MacOS environments the default
+ * clipboard is used, no matter what value is passed.
+ */
+typedef enum
+{
+    SCRAP_CLIPBOARD,
+    SCRAP_SELECTION /* only supported in X11 environments. */
+} ScrapClipType;
 
 /**
  * Macro for initialization checks.
@@ -65,7 +74,7 @@ pygame_scrap_initialized (void);
  * \return 1 on successful initialization, 0 otherwise.
  */
 extern int
-pygame_init_scrap (void);
+pygame_scrap_init (void);
 
 /**
  * \brief Checks, whether the pygame window lost the clipboard focus or not.
@@ -73,28 +82,33 @@ pygame_init_scrap (void);
  * \return 1 if the window lost the focus, 0 otherwise.
  */
 extern int
-pygame_lost_scrap (void);
+pygame_scrap_lost (void);
 
 /**
  * \brief Places content of a specific type into the clipboard.
  *
- * \note The clipboard implementations are usually global for all
- *       applications or a specific content type (QNX). Thus,
- *       any previous content, be it from another window or of a different
- *       format will be replaced by the passed content. This also applies
- *       to other windows, that access the clipboard in any way, so that
- *       it is not guaranteed that the placed content will last until
- *       termination of the pygame application.
+ * \note For X11 the following notes are important: The following types
+ *       are reserved for internal usage and thus will throw an error on
+ *       setting them: "TIMESTAMP", "TARGETS", "SDL_SELECTION".
+ *       Setting PYGAME_SCRAP_TEXT ("text/plain") will also automatically
+ *       set the X11 types "STRING" (XA_STRING), "TEXT" and "UTF8_STRING".
  *
- * \param type The type of the content. Should be a valid value of
- *             PYGAME_SCRAP_TEXT, PYGAME_SCRAP_BMP.
+ *       For Win32 the following notes are important: Setting
+ *       PYGAME_SCRAP_TEXT ("text/plain") will also automatically set
+ *       the Win32 type "TEXT" (CF_TEXT).
+ *
+ *       For QNX the following notes are important: Setting
+ *       PYGAME_SCRAP_TEXT ("text/plain") will also automatically set
+ *       the QNX type "TEXT" (Ph_CL_TEXT).
+ *
+ * \param type The type of the content.
  * \param srclen The length of the content.
  * \param src The NULL terminated content.
  * \return 1, if the content could be successfully pasted into the clipboard,
  *         0 otherwise.
  */
 extern int
-pygame_put_scrap (int type, int srclen, char *src);
+pygame_scrap_put (char *type, int srclen, char *src);
 
 /**
  * \brief Gets the current content from the clipboard.
@@ -103,9 +117,29 @@ pygame_put_scrap (int type, int srclen, char *src);
  *       placed in the clipboard using pygame_put_scrap(). See the 
  *       pygame_put_scrap() notes for more details.
  *
- * \param The type of the content to receive.
+ * \param type The type of the content to receive.
+ * \param count The size of the returned content.
  * \return The content or NULL in case of an error or if no content of the
  *         specified type was available.
  */
 extern char*
-pygame_get_scrap (int type);
+pygame_scrap_get (char *type, unsigned long *count);
+
+/**
+ * \brief Gets the currently available content types from the clipboard.
+ *
+ * \return The different available content types or NULL in case of an
+ *         error or if no content type is available.
+ */
+extern char**
+pygame_scrap_get_types (void);
+
+/**
+ * \brief Checks whether content for the specified scrap type is currently
+ * available in the clipboard.
+ *
+ * \param type The type to check for.
+ * \return 1, if there is content and 0 otherwise.
+ */
+extern int
+pygame_scrap_contains (char *type);

@@ -113,7 +113,7 @@ static PyObject* music_play(PyObject* self, PyObject* args)
 	if(val == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -142,7 +142,7 @@ static PyObject* music_fadeout(PyObject* self, PyObject* args)
 		Mix_FreeMusic(queue_music);
 		queue_music = NULL;
 	}
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -159,7 +159,7 @@ static PyObject* music_stop(PyObject* self, PyObject* args)
 		Mix_FreeMusic(queue_music);
 		queue_music = NULL;
 	}
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -171,7 +171,7 @@ static PyObject* music_pause(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_PauseMusic();
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -183,7 +183,7 @@ static PyObject* music_unpause(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_ResumeMusic();
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -195,7 +195,7 @@ static PyObject* music_rewind(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_RewindMusic();
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -209,7 +209,7 @@ static PyObject* music_set_volume(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_VolumeMusic((int)(volume*128));
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -255,7 +255,7 @@ static PyObject* music_set_endevent(PyObject* self, PyObject* args)
 	if(!PyArg_ParseTuple(args, "|i", &eventid))
 		return NULL;
 	endmusic_event = eventid;
-	RETURN_NONE;
+	Py_RETURN_NONE;;
 }
 
 
@@ -329,7 +329,7 @@ static PyObject* music_load(PyObject* self, PyObject* args)
 	}
 
 
-	RETURN_NONE;
+	Py_RETURN_NONE;;
 }
 
 
@@ -355,7 +355,7 @@ static PyObject* music_queue(PyObject* self, PyObject* args)
 		queue_music = NULL;
 	}
 	queue_music = new_music;
-    	RETURN_NONE
+    	Py_RETURN_NONE;
 }
 
 

@@ -515,8 +515,8 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	cy = cangle*y;
 	sx = sangle*x;
 	sy = sangle*y;
-        nxmax = (int)(max(max(max(fabs(cx+sy), fabs(cx-sy)), fabs(-cx+sy)), fabs(-cx-sy)));
-	nymax = (int)(max(max(max(fabs(sx+cy), fabs(sx-cy)), fabs(-sx+cy)), fabs(-sx-cy)));
+        nxmax = (int)(MAX(MAX(MAX(fabs(cx+sy), fabs(cx-sy)), fabs(-cx+sy)), fabs(-cx-sy)));
+	nymax = (int)(MAX(MAX(MAX(fabs(sx+cy), fabs(sx-cy)), fabs(-sx+cy)), fabs(-sx-cy)));
 
 	newsurf = newsurf_fromsurf(surf, nxmax, nymax);
 	if(!newsurf) return NULL;

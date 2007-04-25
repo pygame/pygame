@@ -525,10 +525,7 @@ static PyObject* image_save_ext(PyObject* self, PyObject* arg)
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-
-	RETURN_NONE
-
-
+	Py_RETURN_NONE;
 }
 
 

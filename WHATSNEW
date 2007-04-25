@@ -4,6 +4,10 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+Apr 26, 2007
+    Some code cleanups from Marcus von Appen.  min->MIN, indentation, other.
+    A rewritten scrap module.  Hasn't been tested on osx/windows.
+
 Dec 15, 2006
     Some config changes to make scrap compile correctly on freebsd and debian.
 

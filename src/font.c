@@ -109,7 +109,7 @@ static PyObject* fontmodule_quit(PyObject* self, PyObject* arg)
 
 	font_autoquit();
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -127,7 +127,7 @@ static PyObject* fontmodule_init(PyObject* self, PyObject* arg)
 	if(!istrue)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -216,7 +216,7 @@ static PyObject* font_set_bold(PyObject* self, PyObject* args)
 		style &= ~TTF_STYLE_BOLD;
 	TTF_SetFontStyle(font, style);
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -246,7 +246,7 @@ static PyObject* font_set_italic(PyObject* self, PyObject* args)
 		style &= ~TTF_STYLE_ITALIC;
 	TTF_SetFontStyle(font, style);
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -276,7 +276,7 @@ static PyObject* font_set_underline(PyObject* self, PyObject* args)
 		style &= ~TTF_STYLE_UNDERLINE;
 	TTF_SetFontStyle(font, style);
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

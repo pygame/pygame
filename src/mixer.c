@@ -164,7 +164,7 @@ static PyObject* autoinit(PyObject* self, PyObject* arg)
 
 	/*make chunk a power of 2*/
 	for(i=0; 1<<i < chunk; ++i); //yes, semicolon on for loop
-	chunk = max(1<<i, 256);
+	chunk = MAX(1<<i, 256);
 
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
 	{
@@ -208,7 +208,7 @@ static PyObject* quit(PyObject* self, PyObject* arg)
 
 	autoquit();
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -225,7 +225,7 @@ static PyObject* init(PyObject* self, PyObject* arg)
 	if(!value)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -238,10 +238,10 @@ static PyObject* get_init(PyObject* self, PyObject* arg)
 		return NULL;
 
 	if(!SDL_WasInit(SDL_INIT_AUDIO))
-		RETURN_NONE
+            Py_RETURN_NONE;
 
 	if(!Mix_QuerySpec(&freq, &format, &channels))
-		RETURN_NONE
+            Py_RETURN_NONE;
 
 	//create a signed or unsigned number of bits per sample
 	realform = format&~0xff ? -(format&0xff) : format&0xff;
@@ -260,7 +260,7 @@ static PyObject* pre_init(PyObject* self, PyObject* arg)
 				&request_stereo, &request_chunksize))
 		return NULL;
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -279,7 +279,7 @@ static PyObject* snd_play(PyObject* self, PyObject* args)
 
 	channelnum = Mix_PlayChannelTimed(-1, chunk, loops, playtime);
 	if(channelnum == -1)
-		RETURN_NONE
+            Py_RETURN_NONE;
 
         Py_XDECREF(channeldata[channelnum].sound);
 	Py_XDECREF(channeldata[channelnum].queue);
@@ -355,7 +355,7 @@ static PyObject* snd_fadeout(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_FadeOutGroup((intptr_t)chunk, time);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -368,7 +368,7 @@ static PyObject* snd_stop(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_HaltGroup((intptr_t)chunk);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -383,7 +383,7 @@ static PyObject* snd_set_volume(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_VolumeChunk(chunk, (int)(volume*128));
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -525,8 +525,7 @@ static PyObject* chan_play(PyObject* self, PyObject* args)
 	channeldata[channelnum].queue = NULL;
         Py_INCREF(sound);
 
-
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -556,7 +555,7 @@ static PyObject* chan_queue(PyObject* self, PyObject* args)
 	    Py_INCREF(sound);
 	}
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -582,7 +581,7 @@ static PyObject* chan_fadeout(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_FadeOutChannel(channelnum, time);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -595,7 +594,7 @@ static PyObject* chan_stop(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_HaltChannel(channelnum);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -608,7 +607,7 @@ static PyObject* chan_pause(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_Pause(channelnum);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -621,7 +620,7 @@ static PyObject* chan_unpause(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_Resume(channelnum);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -654,7 +653,7 @@ static PyObject* chan_set_volume(PyObject* self, PyObject* args)
 
 	result = Mix_Volume(channelnum, (int)(volume*128));
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -684,7 +683,7 @@ static PyObject* chan_get_sound(PyObject* self, PyObject* args)
 
 	sound = channeldata[channelnum].sound;
 	if(!sound)
-	    RETURN_NONE
+	    Py_RETURN_NONE;
 
 	Py_INCREF(sound);
 	return sound;
@@ -701,7 +700,7 @@ static PyObject* chan_get_queue(PyObject* self, PyObject* args)
 
 	sound = channeldata[channelnum].queue;
 	if(!sound)
-	    RETURN_NONE
+	    Py_RETURN_NONE;
 
 	Py_INCREF(sound);
 	return sound;
@@ -717,7 +716,7 @@ static PyObject* chan_set_endevent(PyObject* self, PyObject* args)
 		return NULL;
 
 	channeldata[channelnum].endevent = event;
-    	RETURN_NONE
+        Py_RETURN_NONE;
 }
 
 
@@ -828,7 +827,7 @@ static PyObject* set_num_channels(PyObject* self, PyObject* args)
         }
 
 	Mix_AllocateChannels(numchans);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -841,7 +840,7 @@ static PyObject* set_reserved(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_ReserveChannels(numchans);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -881,7 +880,7 @@ static PyObject* mixer_find_channel(PyObject* self, PyObject* args)
 	if(chan == -1)
 	{
 		if(!force)
-			RETURN_NONE
+                    Py_RETURN_NONE;
 		chan = Mix_GroupOldest(-1);
 	}
 	return PyChannel_New(chan);
@@ -897,7 +896,7 @@ static PyObject* mixer_fadeout(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_FadeOutChannel(-1, time);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -909,7 +908,7 @@ static PyObject* mixer_stop(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_HaltChannel(-1);
-	RETURN_NONE
+        Py_RETURN_NONE;
 }
 
 
@@ -921,7 +920,7 @@ static PyObject* mixer_pause(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_Pause(-1);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -933,7 +932,7 @@ static PyObject* mixer_unpause(PyObject* self, PyObject* args)
 	MIXER_INIT_CHECK();
 
 	Mix_Resume(-1);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

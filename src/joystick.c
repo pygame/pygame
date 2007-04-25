@@ -76,7 +76,7 @@ static PyObject* quit(PyObject* self, PyObject* arg)
 
 	joy_autoquit();
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -94,7 +94,7 @@ static PyObject* init(PyObject* self, PyObject* arg)
 	if(!istrue)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -155,7 +155,7 @@ static PyObject* joy_init(PyObject* self, PyObject* args)
 		if(!joystick_stickdata[joy_id])
 			return RAISE(PyExc_SDLError, SDL_GetError());
 	}
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -173,7 +173,7 @@ static PyObject* joy_quit(PyObject* self, PyObject* args)
 		SDL_JoystickClose(joystick_stickdata[joy_id]);
 		joystick_stickdata[joy_id] = NULL;
 	}
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
