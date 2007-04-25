@@ -151,7 +151,7 @@ static PyObject* rect_normalize(PyObject* oself, PyObject* args)
 		self->r.h = -self->r.h;
 	}
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -177,7 +177,7 @@ static PyObject* rect_move_ip(PyObject* oself, PyObject* args)
 
 	self->r.x += x;
 	self->r.y += y;
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -205,7 +205,7 @@ static PyObject* rect_inflate_ip(PyObject* oself, PyObject* args)
 	self->r.y -= y/2;
 	self->r.w += x;
 	self->r.h += y;
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -217,10 +217,10 @@ static PyObject* rect_union(PyObject* oself, PyObject* args)
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
-	x = min(self->r.x, argrect->x);
-	y = min(self->r.y, argrect->y);
-	w = max(self->r.x+self->r.w, argrect->x+argrect->w) - x;
-	h = max(self->r.y+self->r.h, argrect->y+argrect->h) - y;
+	x = MIN(self->r.x, argrect->x);
+	y = MIN(self->r.y, argrect->y);
+	w = MAX(self->r.x+self->r.w, argrect->x+argrect->w) - x;
+	h = MAX(self->r.y+self->r.h, argrect->y+argrect->h) - y;
 	return PyRect_New4(x, y, w, h);
 }
 
@@ -233,15 +233,15 @@ static PyObject* rect_union_ip(PyObject* oself, PyObject* args)
 	if(!(argrect = GameRect_FromObject(args, &temp)))
 		return RAISE(PyExc_TypeError, "Argument must be rect style object");
 
-	x = min(self->r.x, argrect->x);
-	y = min(self->r.y, argrect->y);
-	w = max(self->r.x+self->r.w, argrect->x+argrect->w) - x;
-	h = max(self->r.y+self->r.h, argrect->y+argrect->h) - y;
+	x = MIN(self->r.x, argrect->x);
+	y = MIN(self->r.y, argrect->y);
+	w = MAX(self->r.x+self->r.w, argrect->x+argrect->w) - x;
+	h = MAX(self->r.y+self->r.h, argrect->y+argrect->h) - y;
 	self->r.x = x;
 	self->r.y = y;
 	self->r.w = w;
 	self->r.h = h;
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -275,10 +275,10 @@ static PyObject* rect_unionall(PyObject* oself, PyObject* args)
 			Py_XDECREF(obj);
 			break;
 		}
-		l = min(l, argrect->x);
-		t = min(t, argrect->y);
-		r = max(r, argrect->x+argrect->w);
-		b = max(b, argrect->y+argrect->h);
+		l = MIN(l, argrect->x);
+		t = MIN(t, argrect->y);
+		r = MAX(r, argrect->x+argrect->w);
+		b = MAX(b, argrect->y+argrect->h);
 		Py_DECREF(obj);
 	}
 	return PyRect_New4(l, t, r-l, b-t);
@@ -316,10 +316,10 @@ static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
 			Py_XDECREF(obj);
 			break;
 		}
-		l = min(l, argrect->x);
-		t = min(t, argrect->y);
-		r = max(r, argrect->x+argrect->w);
-		b = max(b, argrect->y+argrect->h);
+		l = MIN(l, argrect->x);
+		t = MIN(t, argrect->y);
+		r = MAX(r, argrect->x+argrect->w);
+		b = MAX(b, argrect->y+argrect->h);
 		Py_DECREF(obj);
 	}
 
@@ -327,7 +327,7 @@ static PyObject* rect_unionall_ip(PyObject* oself, PyObject* args)
 	self->r.y = t;
 	self->r.w = r-l;
 	self->r.h = b-t;
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -668,7 +668,7 @@ static PyObject* rect_clamp_ip(PyObject* oself, PyObject* args)
 
 	self->r.x = x;
 	self->r.y = y;
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

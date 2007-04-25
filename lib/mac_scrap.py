@@ -21,8 +21,8 @@ def get(scrap_type):
         content = board.stringForType_(NSStringPboardType)
         return content
     elif scrap_type == SCRAP_BMP:
-        # We could try loading directly but I don't trust pygame's TIFF loading.
-        # This is slow and stupid but it does happen to work.
+        # We could try loading directly but I don't trust pygame's TIFF
+        # loading.  This is slow and stupid but it does happen to work.
         if not NSImage.canInitWithPasteboard_(board):
             return None
         img = NSImage.alloc().initWithPasteboard_(board)

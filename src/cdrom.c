@@ -73,7 +73,7 @@ static PyObject* cdrom_quit(PyObject* self, PyObject* arg)
 
 	cdrom_autoquit();
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -91,7 +91,7 @@ static PyObject* cdrom_init(PyObject* self, PyObject* arg)
 	if(!istrue)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -147,7 +147,7 @@ static PyObject* cd_init(PyObject* self, PyObject* args)
                 if(!cdrom_drivedata[cd_id])
 			return RAISE(PyExc_SDLError, "Cannot initialize device");
 	}
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -165,7 +165,7 @@ static PyObject* cd_quit(PyObject* self, PyObject* args)
 		SDL_CDClose(cdrom_drivedata[cd_id]);
 		cdrom_drivedata[cd_id] = NULL;
 	}
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -208,7 +208,7 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 	if(playforever)
 	    end = start;
 	else if(start == end && start != 0.0f)
-	    RETURN_NONE;
+	    Py_RETURN_NONE;;
 	
 	startframe = (int)(start * CD_FPS);
 	numframes = 0;
@@ -219,13 +219,13 @@ static PyObject* cd_play(PyObject* self, PyObject* args)
 	else
 		numframes = cdrom->track[track].length - startframe;
 	if(numframes < 0 || startframe > (int)(cdrom->track[track].length * CD_FPS))
-		RETURN_NONE;
+		Py_RETURN_NONE;;
 
 	result = SDL_CDPlayTracks(cdrom, track, startframe, 0, numframes);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -246,7 +246,7 @@ static PyObject* cd_pause(PyObject* self, PyObject* args)
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -267,7 +267,7 @@ static PyObject* cd_resume(PyObject* self, PyObject* args)
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -288,7 +288,7 @@ static PyObject* cd_stop(PyObject* self, PyObject* args)
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -309,7 +309,7 @@ static PyObject* cd_eject(PyObject* self, PyObject* args)
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

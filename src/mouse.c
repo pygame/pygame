@@ -40,7 +40,7 @@ static PyObject* mouse_set_pos(PyObject* self, PyObject* args)
 
 	SDL_WarpMouse((Uint16)x, (Uint16)y);
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -169,7 +169,7 @@ static PyObject* mouse_set_cursor(PyObject* self, PyObject* args)
 	SDL_SetCursor(cursor);
 	SDL_FreeCursor(lastcursor);
 
-	RETURN_NONE;
+	Py_RETURN_NONE;
 
 interror:
 	if(xordata) free(xordata);

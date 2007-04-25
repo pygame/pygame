@@ -110,7 +110,7 @@ static PyObject* register_quit(PyObject* self, PyObject* arg)
 	}
 	PyList_Append(quitfunctions, quitfunc);
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -623,7 +623,7 @@ static PyObject* do_segfault(PyObject* self, PyObject* args)
     //force crash
     *((int*)1) = 45;
     memcpy((char*)2, (char*)3, 10);
-    RETURN_NONE
+    Py_RETURN_NONE;
 }
 
 

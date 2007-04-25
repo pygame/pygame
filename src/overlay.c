@@ -59,7 +59,7 @@ static PyObject* Overlay_SetLocation(PyGameOverlay *self, PyObject *args)
         self->cRect.w = rect->w;
         self->cRect.h = rect->h;
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -116,7 +116,7 @@ static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
     cRect.h = self->cRect.h;
     SDL_DisplayYUVOverlay(self->cOverlay, &cRect);
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

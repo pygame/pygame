@@ -531,7 +531,7 @@ static PyObject* set_grab(PyObject* self, PyObject* arg)
 	else
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-	RETURN_NONE;
+	Py_RETURN_NONE;;
 }
 
 
@@ -558,7 +558,7 @@ static PyObject* pygame_pump(PyObject* self, PyObject* args)
 
 	SDL_PumpEvents();
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -637,7 +637,7 @@ static PyObject* event_clear(PyObject* self, PyObject* args)
 	while(SDL_PeepEvents(&event, 1, SDL_GETEVENT, mask) == 1)
 	{}
 
-	RETURN_NONE;
+	Py_RETURN_NONE;;
 }
 
 
@@ -761,7 +761,7 @@ static PyObject* event_post(PyObject* self, PyObject* args)
 	if(SDL_PushEvent(&event) == -1)
 		return RAISE(PyExc_SDLError, "Event queue full");
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -794,7 +794,7 @@ static PyObject* set_allowed(PyObject* self, PyObject* args)
 	else
 		return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -827,7 +827,7 @@ static PyObject* set_blocked(PyObject* self, PyObject* args)
 	else
 		return RAISE(PyExc_TypeError, "type must be numeric or a sequence");
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

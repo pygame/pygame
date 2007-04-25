@@ -7,7 +7,7 @@
 
 
 #--StartConfig
-SDL = -I/usr/include/SDL -D_REENTRANT -lSDL
+SDL = -I/usr/include/SDL -D_REENTRANT -lSDL -CW -CWall
 FONT = -lSDL_ttf
 IMAGE = -lSDL_image
 MIXER = -lSDL_mixer
@@ -18,21 +18,20 @@ NUMERIC = -I/usr/include/python2.0/Numeric
 X11 = -lX11
 #--EndConfig
 
-
-
+DEBUG = -C-W -C-Wall
 
 #the following modules are optional. you will want to compile
 #everything you can, but you can ignore ones you don't have
 #dependencies for, just comment them out
 
-imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG)
-font src/font.c $(SDL) $(FONT)
-mixer src/mixer.c $(SDL) $(MIXER)
-mixer_music src/music.c $(SDL) $(MIXER)
-surfarray src/surfarray.c $(SDL) $(NUMERIC)
-sndarray src/sndarray.c $(SDL) $(NUMERIC) $(MIXER)
-movie src/movie.c $(SDL) $(SMPEG)
-scrap src/scrap.c $(SDL) $(X11)
+imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
+font src/font.c $(SDL) $(FONT) $(DEBUG)
+mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
+mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
+surfarray src/surfarray.c $(SDL) $(NUMERIC) $(DEBUG)
+sndarray src/sndarray.c $(SDL) $(NUMERIC) $(MIXER) $(DEBUG)
+movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
+scrap src/scrap.c $(SDL) $(X11) $(DEBUG)
 
 #experimental new movie movie. requires libavcodec and libavformat.
 #add any necessary compile flags to this line and uncomment.
@@ -42,24 +41,24 @@ scrap src/scrap.c $(SDL) $(X11)
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
 
-base src/base.c $(SDL)
-cdrom src/cdrom.c $(SDL)
-constants src/constants.c $(SDL)
-display src/display.c $(SDL)
-event src/event.c $(SDL)
-fastevent src/fastevent.c src/fastevents.c $(SDL)
-key src/key.c $(SDL)
-mouse src/mouse.c $(SDL)
-rect src/rect.c $(SDL)
-rwobject src/rwobject.c $(SDL)
-surface src/surface.c src/alphablit.c $(SDL)
-surflock src/surflock.c $(SDL)
-time src/time.c $(SDL)
-joystick src/joystick.c $(SDL)
-draw src/draw.c $(SDL)
-image src/image.c $(SDL)
-overlay src/overlay.c $(SDL)
-transform src/transform.c src/rotozoom.c src/scale2x.c $(SDL)
+base src/base.c $(SDL) $(DEBUG)
+cdrom src/cdrom.c $(SDL) $(DEBUG)
+constants src/constants.c $(SDL) $(DEBUG)
+display src/display.c $(SDL) $(DEBUG)
+event src/event.c $(SDL) $(DEBUG)
+fastevent src/fastevent.c src/fastevents.c $(SDL) $(DEBUG)
+key src/key.c $(SDL) $(DEBUG)
+mouse src/mouse.c $(SDL) $(DEBUG)
+rect src/rect.c $(SDL) $(DEBUG)
+rwobject src/rwobject.c $(SDL) $(DEBUG)
+surface src/surface.c src/alphablit.c $(SDL) $(DEBUG)
+surflock src/surflock.c $(SDL) $(DEBUG)
+time src/time.c $(SDL) $(DEBUG)
+joystick src/joystick.c $(SDL) $(DEBUG)
+draw src/draw.c $(SDL) $(DEBUG)
+image src/image.c $(SDL) $(DEBUG)
+overlay src/overlay.c $(SDL) $(DEBUG)
+transform src/transform.c src/rotozoom.c src/scale2x.c $(SDL) $(DEBUG)
 scrap src/scrap.c $(SDL)
 
 
@@ -67,4 +66,4 @@ scrap src/scrap.c $(SDL)
 #auto-copy needed DLLs into the pygame installation folder.
 #you can simply ignore these lines under non-windows, no need to
 #comment out.
-COPYLIB_smpeg $(SDL) $(SMPEG)
+COPYLIB_smpeg $(SDL) $(SMPEG) $(DEBUG)

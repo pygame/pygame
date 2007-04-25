@@ -247,10 +247,10 @@ static PyObject* aalines(PyObject* self, PyObject* arg)
 		starty = pts[3] = y;
 		if(clip_and_draw_aaline(surf, &surf->clip_rect, color, pts, blend))
 		{
-			left = min((int)min(pts[0], pts[2]), left);
-			top = min((int)min(pts[1], pts[3]), top);
-			right = max((int)max(pts[0], pts[2]), right);
-			bottom = max((int)max(pts[1], pts[3]), bottom);
+			left = MIN((int)MIN(pts[0], pts[2]), left);
+			top = MIN((int)MIN(pts[1], pts[3]), top);
+			right = MAX((int)MAX(pts[0], pts[2]), right);
+			bottom = MAX((int)MAX(pts[1], pts[3]), bottom);
 		}
 	}
 	if(closed && drawn > 2)
@@ -338,10 +338,10 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 		starty = pts[3] = y;
 		if(clip_and_draw_line_width(surf, &surf->clip_rect, color, width, pts))
 		{
-			left = min(min(pts[0], pts[2]), left);
-			top = min(min(pts[1], pts[3]), top);
-			right = max(max(pts[0], pts[2]), right);
-			bottom = max(max(pts[1], pts[3]), bottom);
+			left = MIN(MIN(pts[0], pts[2]), left);
+			top = MIN(MIN(pts[1], pts[3]), top);
+			right = MAX(MAX(pts[0], pts[2]), right);
+			bottom = MAX(MAX(pts[1], pts[3]), bottom);
 		}
 	}
 	if(closed && drawn > 2)
@@ -405,7 +405,7 @@ static PyObject* arc(PyObject* self, PyObject* arg)
 
 	if(!PySurface_Lock(surfobj)) return NULL;
 
-	width = min(width, min(rect->w, rect->h) / 2);
+	width = MIN(width, MIN(rect->w, rect->h) / 2);
 	for(loop=0; loop<width; ++loop)
 	{
 		draw_arc(surf, rect->x+rect->w/2, rect->y+rect->h/2,
@@ -415,11 +415,11 @@ static PyObject* arc(PyObject* self, PyObject* arg)
 
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
-	l = max(rect->x, surf->clip_rect.x);
-	t = max(rect->y, surf->clip_rect.y);
-	r = min(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
-	b = min(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
-	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
+	l = MAX(rect->x, surf->clip_rect.x);
+	t = MAX(rect->y, surf->clip_rect.y);
+	r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
+	b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
+	return PyRect_New4(l, t, MAX(r-l, 0), MAX(b-t, 0));
 }
 
 
@@ -462,7 +462,7 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 					(Sint16)(rect->w/2), (Sint16)(rect->h/2), color);
 	else
 	{
-		width = min(width, min(rect->w, rect->h) / 2);
+		width = MIN(width, MIN(rect->w, rect->h) / 2);
 		for(loop=0; loop<width; ++loop)
 		{
 			draw_ellipse(surf, rect->x+rect->w/2, rect->y+rect->h/2,
@@ -472,11 +472,11 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
-	l = max(rect->x, surf->clip_rect.x);
-	t = max(rect->y, surf->clip_rect.y);
-	r = min(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
-	b = min(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
-	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
+	l = MAX(rect->x, surf->clip_rect.x);
+	t = MAX(rect->y, surf->clip_rect.y);
+	r = MIN(rect->x + rect->w, surf->clip_rect.x + surf->clip_rect.w);
+	b = MIN(rect->y + rect->h, surf->clip_rect.y + surf->clip_rect.h);
+	return PyRect_New4(l, t, MAX(r-l, 0), MAX(b-t, 0));
 }
 
 
@@ -522,11 +522,11 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 
 	if(!PySurface_Unlock(surfobj)) return NULL;
 
-	l = max(posx - radius, surf->clip_rect.x);
-	t = max(posy - radius, surf->clip_rect.y);
-	r = min(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
-	b = min(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
-	return PyRect_New4(l, t, max(r-l, 0), max(b-t, 0));
+	l = MAX(posx - radius, surf->clip_rect.x);
+	t = MAX(posy - radius, surf->clip_rect.y);
+	r = MIN(posx + radius, surf->clip_rect.x + surf->clip_rect.w);
+	b = MIN(posy + radius, surf->clip_rect.y + surf->clip_rect.h);
+	return PyRect_New4(l, t, MAX(r-l, 0), MAX(b-t, 0));
 }
 
 
@@ -595,10 +595,10 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 		xlist[numpoints] = x;
 		ylist[numpoints] = y;
 		++numpoints;
-		left = min(x, left);
-		top = min(y, top);
-		right = max(x, right);
-		bottom = max(y, bottom);
+		left = MIN(x, left);
+		top = MIN(y, top);
+		right = MAX(x, right);
+		bottom = MAX(y, bottom);
 	}
 
 	if(!PySurface_Lock(surfobj))
@@ -613,10 +613,10 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 	if(!PySurface_Unlock(surfobj))
 		return NULL;
 
-	left = max(left, surf->clip_rect.x);
-	top = max(top, surf->clip_rect.y);
-	right = min(right, surf->clip_rect.x + surf->clip_rect.w);
-	bottom = min(bottom, surf->clip_rect.y + surf->clip_rect.h);
+	left = MAX(left, surf->clip_rect.x);
+	top = MAX(top, surf->clip_rect.y);
+	right = MIN(right, surf->clip_rect.x + surf->clip_rect.w);
+	bottom = MIN(bottom, surf->clip_rect.y + surf->clip_rect.h);
 	return PyRect_New4(left, top, right-left+1, bottom-top+1);
 }
 
@@ -708,10 +708,10 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 		if(clip_and_draw_line(surf, rect, color, newpts))
 		{
 			anydrawn = 1;
-			range[0] = min(newpts[0], range[0]);
-			range[1] = min(newpts[1], range[1]);
-			range[2] = max(newpts[2], range[2]);
-			range[3] = max(newpts[3], range[3]);
+			range[0] = MIN(newpts[0], range[0]);
+			range[1] = MIN(newpts[1], range[1]);
+			range[2] = MAX(newpts[2], range[2]);
+			range[3] = MAX(newpts[3], range[3]);
 		}
 		if(loop+1<width)
 		{
@@ -722,10 +722,10 @@ static int clip_and_draw_line_width(SDL_Surface* surf, SDL_Rect* rect, Uint32 co
 			if(clip_and_draw_line(surf, rect, color, newpts))
 			{
 				anydrawn = 1;
-				range[0] = min(newpts[0], range[0]);
-				range[1] = min(newpts[1], range[1]);
-				range[2] = max(newpts[2], range[2]);
-				range[3] = max(newpts[3], range[3]);
+				range[0] = MIN(newpts[0], range[0]);
+				range[1] = MIN(newpts[1], range[1]);
+				range[2] = MAX(newpts[2], range[2]);
+				range[3] = MAX(newpts[3], range[3]);
 			}
 		}
 	}
@@ -1165,8 +1165,8 @@ static void drawhorzlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, in
                 x1 = x2; x2 = temp;
 	}
 
-	x1 = max(x1, surf->clip_rect.x);
-	x2 = min(x2, surf->clip_rect.x + surf->clip_rect.w-1);
+	x1 = MAX(x1, surf->clip_rect.x);
+	x2 = MIN(x2, surf->clip_rect.x + surf->clip_rect.w-1);
 
         if(x2 < surf->clip_rect.x || x1 >= surf->clip_rect.x + surf->clip_rect.w)
                 return;
@@ -1236,8 +1236,8 @@ static void drawvertlineclip(SDL_Surface* surf, Uint32 color, int x1, int y1, in
 		int temp = y1;
 		y1 = y2; y2 = temp;
 	}
-	y1 = max(y1, surf->clip_rect.y);
-	y2 = min(y2, surf->clip_rect.y + surf->clip_rect.h-1);
+	y1 = MAX(y1, surf->clip_rect.y);
+	y2 = MIN(y2, surf->clip_rect.y + surf->clip_rect.h-1);
 	if(y2 - y1 < 1)
 		set_at( surf, x1, y1, color);
 	else
@@ -1497,8 +1497,8 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 	maxy = vy[0];
 	for (i=1; (i < n); i++)
 	{
-		miny = min(miny, vy[i]);
-		maxy = max(maxy, vy[i]);
+		miny = MIN(miny, vy[i]);
+		maxy = MAX(maxy, vy[i]);
 	}
 
 	/* Draw, scanning y */

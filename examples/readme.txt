@@ -45,6 +45,7 @@ liquid.py - This example was created in a quick comparison with the
 glcube.py - Using PyOpenGL and Pygame, this creates a spinning 3D
 	multicolored cube.
 
+scrap_clipboard.py - A simple demonstration exampl for the clipboard support.
 
 data/ - directory with the resources for the examples
 

@@ -9,7 +9,7 @@ configcommand = configcommand + ' --version --cflags --libs'
 localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
-origincdirs = ['/include', '/include/SDL', '/include/SDL11',
+origincdirs = ['/include', '/include/SDL', '/include/SDL',
                '/include/smpeg' ]
 origlibdirs = ['/lib','/lib64']
 
@@ -51,6 +51,9 @@ class DependencyProg:
                     self.cflags += f + ' '
                 elif f[:3] == '-Wl':
                     self.cflags += '-Xlinker ' + f + ' '
+            if self.name == 'SDL':
+		inc = '-I' + '/usr/X11R6/include'
+		self.cflags = inc + ' ' + self.cflags
         except:
             print 'WARNING: "%s" failed!' % command    
             self.found = 0

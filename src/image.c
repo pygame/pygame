@@ -240,7 +240,7 @@ PyObject* image_save(PyObject* self, PyObject* arg)
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

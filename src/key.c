@@ -46,7 +46,7 @@ static PyObject* key_set_repeat(PyObject* self, PyObject* args)
 	if(SDL_EnableKeyRepeat(delay, interval) == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -121,7 +121,7 @@ static PyObject* key_set_mods(PyObject* self, PyObject* args)
 	VIDEO_INIT_CHECK();
 
 	SDL_SetModState(mods);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

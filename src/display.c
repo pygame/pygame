@@ -130,7 +130,7 @@ static PyObject* quit(PyObject* self, PyObject* arg)
 	PyGame_Video_AutoQuit();
 	display_autoquit();
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -149,7 +149,7 @@ static PyObject* init(PyObject* self, PyObject* arg)
 	if(!display_autoinit(NULL, NULL))
 		return NULL;
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -345,7 +345,7 @@ static PyObject* set_driver(PyObject* self, PyObject* arg)
 	/*override the default video driver*/
 	/*environment variable: SDL_VIDEODRIVER*/
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 #endif
 
@@ -432,7 +432,7 @@ static PyObject* get_surface(PyObject* self, PyObject* arg)
 		return NULL;
 
 	if(!DisplaySurfaceObject)
-		RETURN_NONE
+		Py_RETURN_NONE;
 
 	Py_INCREF(DisplaySurfaceObject);
 	return DisplaySurfaceObject;
@@ -448,12 +448,12 @@ static PyObject* gl_set_attribute(PyObject* self, PyObject* arg)
 	if(!PyArg_ParseTuple(arg, "ii", &flag, &value))
 		return NULL;
 	if(flag == -1) /*an undefined/unsupported val, ignore*/
-		RETURN_NONE
+		Py_RETURN_NONE;
 
 	result = SDL_GL_SetAttribute(flag, value);
 	if(result == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -638,7 +638,7 @@ static PyObject* flip(PyObject* self, PyObject* arg)
 	if(status == -1)
 		return RAISE(PyExc_SDLError, SDL_GetError());
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -649,10 +649,10 @@ static SDL_Rect* screencroprect(GAME_Rect* r, int w, int h, SDL_Rect* cur)
 		return 0;
 	else
 	{
-		int right = min(r->x + r->w, w);
-		int bottom = min(r->y + r->h, h);
-		cur->x = (short)max(r->x, 0);
-		cur->y = (short)max(r->y, 0);
+		int right = MIN(r->x + r->w, w);
+		int bottom = MIN(r->y + r->h, h);
+		cur->x = (short)MAX(r->x, 0);
+		cur->y = (short)MAX(r->y, 0);
 		cur->w = (unsigned short)right - cur->x;
 		cur->h = (unsigned short)bottom - cur->y;
 	}
@@ -681,7 +681,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
 	if(PyTuple_Size(arg) == 0)
 	{
 		SDL_UpdateRect(screen, 0, 0, 0, 0);
-		RETURN_NONE
+		Py_RETURN_NONE;
 	}
 	else
 	{
@@ -758,7 +758,7 @@ static PyObject* update(PyObject* self, PyObject* arg)
 			SDL_UpdateRects(screen, count, rects);
 		PyMem_Free((char*)rects);
 	}
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -786,14 +786,14 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 		colors = pal->colors;
 		len = pal->ncolors;
 		SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0, len);
-		RETURN_NONE
+		Py_RETURN_NONE;
 	}
 
 
 	if(!PySequence_Check(list))
 		return RAISE(PyExc_ValueError, "Argument must be a sequence type");
 
-	len = min(pal->ncolors, PySequence_Length(list));
+	len = MIN(pal->ncolors, PySequence_Length(list));
 
 	colors = (SDL_Color*)malloc(len * sizeof(SDL_Color));
 	if(!colors)
@@ -822,7 +822,7 @@ static PyObject* set_palette(PyObject* self, PyObject* args)
 	SDL_SetPalette(surf, SDL_PHYSPAL, colors, 0, len);
 
 	free((char*)colors);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -933,7 +933,7 @@ static PyObject* set_caption(PyObject* self, PyObject* arg)
 
 	SDL_WM_SetCaption(title, icontitle);
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -968,7 +968,7 @@ static PyObject* set_icon(PyObject* self, PyObject* arg)
         if(!PyGame_Video_AutoInit())
                return RAISE(PyExc_SDLError, SDL_GetError());
 	do_set_icon(surface);
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

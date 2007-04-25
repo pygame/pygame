@@ -68,7 +68,7 @@ static PyObject* fastevent_init(PyObject* self, PyObject* args)
 		FE_WasInit = 1;
 	}
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 #endif /* WITH_THREAD */
 }
 
@@ -98,7 +98,7 @@ static PyObject* fastevent_pump(PyObject* self, PyObject* args)
 
 	FE_PumpEvents();
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 
@@ -247,7 +247,7 @@ static PyObject* fastevent_post(PyObject* self, PyObject* args)
 	if (status != 1)
 		return RAISE(PyExc_SDLError, "Unexpected error in FE_PushEvent");
 
-	RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 

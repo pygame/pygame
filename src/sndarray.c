@@ -26,71 +26,67 @@
 #include<Numeric/arrayobject.h>
 #include<SDL_byteorder.h>
 
-
-
 static PyObject* sndarray_samples(PyObject* self, PyObject* arg)
 {
-	int dim[2], numdims, type, formatbytes;
-	PyObject *array, *chunkobj;
-	Mix_Chunk* chunk;
-	Uint16 format;
-        int numchannels;
+    int dim[2], numdims, type, formatbytes;
+    PyObject *array, *chunkobj;
+    Mix_Chunk* chunk;
+    Uint16 format;
+    int numchannels;
 
-	if(!PyArg_ParseTuple(arg, "O!", &PySound_Type, &chunkobj))
-		return NULL;
-	chunk = PySound_AsChunk(chunkobj);
+    if(!PyArg_ParseTuple(arg, "O!", &PySound_Type, &chunkobj))
+        return NULL;
+    chunk = PySound_AsChunk(chunkobj);
 
-        if(!Mix_QuerySpec(NULL, &format, &numchannels))
-            return RAISE(PyExc_SDLError, "Mixer not initialized");
+    if(!Mix_QuerySpec(NULL, &format, &numchannels))
+        return RAISE(PyExc_SDLError, "Mixer not initialized");
 
-        formatbytes = (abs(format)&0xff)/8;
-       switch(format) 
-        {
-	case AUDIO_S8:
-	    type = PyArray_CHAR;
-	    break;
-        case AUDIO_U8:
-	    type = PyArray_UBYTE;
-	    break;
-        case AUDIO_S16SYS:
-	    type = PyArray_SHORT;
-	    break;
-        case AUDIO_U16SYS:
-	    type = PyArray_USHORT;
-	    break;
-        default:
-            return RAISE(PyExc_TypeError, "Unpresentable audio format");
-	}
+    formatbytes = (abs(format)&0xff)/8;
+    switch(format) 
+    {
+    case AUDIO_S8:
+        type = PyArray_CHAR;
+        break;
+    case AUDIO_U8:
+        type = PyArray_UBYTE;
+        break;
+    case AUDIO_S16SYS:
+        type = PyArray_SHORT;
+        break;
+    case AUDIO_U16SYS:
+        type = PyArray_USHORT;
+        break;
+    default:
+        return RAISE(PyExc_TypeError, "Unpresentable audio format");
+    }
 
-        numdims = (numchannels>1)?2:1;
-        dim[0] = chunk->alen / (numchannels*formatbytes);
-        dim[1] = numchannels;
-
-	array = PyArray_FromDimsAndData(numdims, dim, type, (char*)chunk->abuf);
-	if(array)
-	{
-            Py_INCREF(chunkobj);
-            ((PyArrayObject*)array)->base = chunkobj;
-            ((PyArrayObject*)array)->flags |= SAVESPACE;
-	}
-	return array;
+    numdims = (numchannels>1)?2:1;
+    dim[0] = chunk->alen / (numchannels*formatbytes);
+    dim[1] = numchannels;
+    
+    array = PyArray_FromDimsAndData(numdims, dim, type, (char*)chunk->abuf);
+    if(array)
+    {
+        Py_INCREF(chunkobj);
+        ((PyArrayObject*)array)->base = chunkobj;
+        ((PyArrayObject*)array)->flags |= SAVESPACE;
+    }
+    return array;
 }
-
 
 PyObject* sndarray_array(PyObject* self, PyObject* arg)
 {
-	PyObject *array, *arraycopy=NULL;
-
-/*we'll let numeric do the copying for us*/
-        array = sndarray_samples(self, arg);
-        if(array)
-        {
-            arraycopy = PyArray_Copy((PyArrayObject*)array);
-            Py_DECREF(array);
-        }
-        return arraycopy;
+    PyObject *array, *arraycopy=NULL;
+    
+    /*we'll let numeric do the copying for us*/
+    array = sndarray_samples(self, arg);
+    if(array)
+    {
+        arraycopy = PyArray_Copy((PyArrayObject*)array);
+        Py_DECREF(array);
+    }
+    return arraycopy;
 }
-
 
 PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
 {
@@ -105,29 +101,32 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     if(!PyArg_ParseTuple(arg, "O!", &PyArray_Type, &arrayobj))
 	return NULL;
     array = (PyArrayObject*)arrayobj;
-
+    
     if(!Mix_QuerySpec(NULL, &format, &numchannels))
         return RAISE(PyExc_SDLError, "Mixer not initialized");
     if(array->descr->type_num > PyArray_LONG)
-            return RAISE(PyExc_ValueError, "Invalid array datatype for sound");
-
+        return RAISE(PyExc_ValueError, "Invalid array datatype for sound");
+    
     if(format==AUDIO_S8 || format==AUDIO_U8)
         mixerbytes = 1;
     else
         mixerbytes = 2;
-
+    
     /*test array dimensions*/
     if(numchannels==1)
     {
         if(array->nd != 1)
-            return RAISE(PyExc_ValueError, "Array must be 1-dimensional for mono mixer");
+            return RAISE(PyExc_ValueError,
+                         "Array must be 1-dimensional for mono mixer");
     }
     else
     {
         if(array->nd != 2)
-            return RAISE(PyExc_ValueError, "Array must be 2-dimensional for stereo mixer");
+            return RAISE(PyExc_ValueError,
+                         "Array must be 2-dimensional for stereo mixer");
         if(array->dimensions[1] != numchannels)
-            return RAISE(PyExc_ValueError, "Array depth must match number of mixer channels");
+            return RAISE(PyExc_ValueError,
+                         "Array depth must match number of mixer channels");
     }
     length = array->dimensions[0];
     step1 = array->strides[0];
@@ -139,10 +138,12 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
     else 
     {
         length2 = 1;
-	step2 = mixerbytes;  /*since length2 == 1, this won't be used for looping*/
+        /*since length2 == 1, this won't be used for looping*/
+	step2 = mixerbytes; 
     }
 
-    /*create chunk, we are screwed if SDL_mixer ever does more than malloc/free*/
+    /*create chunk, we are screwed if SDL_mixer ever does more than
+     * malloc/free*/
     chunk = (Mix_Chunk *)malloc(sizeof(Mix_Chunk));
     if ( chunk == NULL )
         return RAISE(PyExc_MemoryError, "Cannot allocate chunk\n");
@@ -154,9 +155,10 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
 
     if (step1 == mixerbytes * numchannels && step2 == mixerbytes)
     {
-      /*OPTIMIZATION: in these cases, we don't need to loop through the samples
-       *individually, because the bytes are already layed out correctly*/
-      memcpy(chunk->abuf, array->data, chunk->alen);
+        /*OPTIMIZATION: in these cases, we don't need to loop through
+         *the samples individually, because the bytes are already layed
+         *out correctly*/
+        memcpy(chunk->abuf, array->data, chunk->alen);
     }
     else
     {
@@ -206,40 +208,31 @@ PyObject* sndarray_make_sound(PyObject* self, PyObject* arg)
             }
         }
     }
-
+    
     return PySound_New(chunk);
 }
 
-
-
 static PyMethodDef sndarray_builtins[] =
 {
-	{ "samples", sndarray_samples, 1, DOC_PYGAMESNDARRAYSAMPLES },
-	{ "array", sndarray_array, 1, DOC_PYGAMESNDARRAYARRAY },
-	{ "make_sound", sndarray_make_sound, 1, DOC_PYGAMESNDARRAYMAKESOUND },
-
-	{ NULL, NULL }
+    { "samples", sndarray_samples, 1, DOC_PYGAMESNDARRAYSAMPLES },
+    { "array", sndarray_array, 1, DOC_PYGAMESNDARRAYARRAY },
+    { "make_sound", sndarray_make_sound, 1, DOC_PYGAMESNDARRAYMAKESOUND },
+    { NULL, NULL, 0, NULL}
 };
-
-
-
 
 PYGAME_EXPORT
 void initsndarray(void)
 {
-	PyObject *module, *dict;
-
+    PyObject *module, *dict;
+    
     /* create the module */
-	module = Py_InitModule3("sndarray", sndarray_builtins, DOC_PYGAMESNDARRAY);
-	dict = PyModule_GetDict(module);
-
-	/*imported needed apis*/
-	import_pygame_base();
-	import_pygame_mixer();
-	import_array();
+    module = Py_InitModule3("sndarray", sndarray_builtins, DOC_PYGAMESNDARRAY);
+    dict = PyModule_GetDict(module);
+        
+    /*imported needed apis*/
+    import_pygame_base();
+    import_pygame_mixer();
+    import_array();
     /*needed for Numeric in python2.3*/
-        PyImport_ImportModule("Numeric");
+    PyImport_ImportModule("Numeric");
 }
-
-
-
