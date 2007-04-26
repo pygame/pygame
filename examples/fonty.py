@@ -61,6 +61,12 @@ def main():
     a_sys_font.set_italic(0)
 
 
+    # Get some metrics.
+    print "Font metrics for 'Fonty': ", a_sys_font.metrics (text)
+    print u"Font metrics for '\u3060': ".encode("utf-8"), \
+          a_sys_font.metrics (u"\u3060")
+
+
     ##some_japanese_unicode = u"\u304b\u3070\u306b"
     
     #AA, transparancy, italic
