@@ -418,7 +418,80 @@ static PyObject* font_size(PyObject* self, PyObject* args)
 	return Py_BuildValue("(ii)", w, h);
 }
 
+static PyObject* font_metrics (PyObject* self, PyObject* args)
+{
+    TTF_Font *font = PyFont_AsFont (self);
+    PyObject *list;
+    PyObject *textobj;
+    int length;
+    int i;
+    int minx;
+    int maxx;
+    int miny;
+    int maxy;
+    int advance;
+    void *buf;
+    int isunicode = 0;
 
+    if (!PyArg_ParseTuple(args, "O", &textobj))
+        return NULL;
+
+    if (PyUnicode_Check (textobj))
+    {
+        buf = PyUnicode_AsUnicode (textobj);
+        isunicode = 1;
+    }
+    else if (PyString_Check (textobj))
+        buf = PyString_AsString (textobj);
+    else
+        return RAISE (PyExc_TypeError, "text must be a string or unicode");
+
+    if (!buf)
+        return NULL;
+
+    if (isunicode)
+        length = PyUnicode_GetSize (textobj);
+    else
+        length = PyString_Size (textobj);
+
+    if (length == 0)
+        Py_RETURN_NONE;
+
+    list = PyList_New (0);
+    if (isunicode)
+    {
+        for (i = 0; i < length; i++)
+        {
+            /* TODO:
+             * TTF_GlyphMetrics() seems to returns a value for any character,
+             * using the default invalid character, if the char is not found.
+             */
+            if (TTF_GlyphMetrics (font, (Uint16) ((Py_UNICODE*) buf)[i], &minx,
+                                  &maxx, &miny, &maxy, &advance) == -1)
+                PyList_Append (list, Py_None); /* No matching metrics. */
+            else
+                PyList_Append (list, Py_BuildValue ("(iiiii)", minx, maxx, miny,
+                                                    maxy, advance));
+        }
+    }
+    else
+    {
+        for (i = 0; i < length; i++)
+        {
+            /* TODO:
+             * TTF_GlyphMetrics() seems to returns a value for any character,
+             * using the default invalid character, if the char is not found.
+             */
+            if (TTF_GlyphMetrics (font, (Uint16) ((char*) buf)[i], &minx,
+                                  &maxx, &miny, &maxy, &advance) == -1)
+                PyList_Append (list, Py_None); /* No matching metrics. */
+            else
+                PyList_Append (list, Py_BuildValue ("(iiiii)", minx, maxx, miny,
+                                                    maxy, advance));
+        }
+    }
+    return list;
+}
 
 static PyMethodDef font_methods[] =
 {
@@ -434,10 +507,11 @@ static PyMethodDef font_methods[] =
 	{ "get_underline", font_get_underline, 1, DOC_FONTGETUNDERLINE },
 	{ "set_underline", font_set_underline, 1, DOC_FONTSETUNDERLINE },
 
+        { "metrics", font_metrics, 1, DOC_FONTMETRICS },
 	{ "render", font_render, 1, DOC_FONTRENDER },
 	{ "size", font_size, 1, DOC_FONTSIZE },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 
@@ -616,7 +690,7 @@ static PyMethodDef font_builtins[] =
 	{ "quit", fontmodule_quit, 1, DOC_PYGAMEFONTQUIT },
 	{ "get_init", get_init, 1, DOC_PYGAMEFONTGETINIT },
 	{ "get_default_font", get_default_font, 1, DOC_PYGAMEFONTGETDEFAULTFONT },
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 
