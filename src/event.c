@@ -884,7 +884,7 @@ static PyMethodDef event_builtins[] =
 	{ "set_blocked", set_blocked, 1, DOC_PYGAMEEVENTSETBLOCKED },
 	{ "get_blocked", get_blocked, 1, DOC_PYGAMEEVENTGETBLOCKED },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

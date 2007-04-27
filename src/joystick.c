@@ -381,7 +381,7 @@ static PyMethodDef joy_builtins[] =
 	{ "get_numhats", joy_get_numhats, 1, DOC_JOYSTICKGETNUMHATS },
 	{ "get_hat", joy_get_hat, 1, DOC_JOYSTICKGETHAT },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 static PyObject* joy_getattr(PyObject* self, char* attrname)
@@ -442,7 +442,7 @@ static PyMethodDef joystick_builtins[] =
 	{ "get_init", get_init, 1, DOC_PYGAMEJOYSTICKGETINIT },
 	{ "get_count", get_count, 1, DOC_PYGAMEJOYSTICKGETCOUNT },
 	{ "Joystick", Joystick, 1, DOC_PYGAMEJOYSTICKJOYSTICK },
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

@@ -208,23 +208,23 @@ static PyObject* fastevent_get(PyObject* self, PyObject* args)
 }
 
 
-    /*DOC*/ static char doc_post[] =
-    /*DOC*/    "pygame.fastevent.post(Event) -> None\n"
-    /*DOC*/    "place an event on the queue\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "This will post your own event objects onto the event queue.\n"
-    /*DOC*/    "You can past any event type you want, but some care must be\n"
-    /*DOC*/    "taken. For example, if you post a MOUSEBUTTONDOWN event to the\n"
-    /*DOC*/    "queue, it is likely any code receiving the event will expect\n"
-    /*DOC*/    "the standard MOUSEBUTTONDOWN attributes to be available, like\n"
-    /*DOC*/    "'pos' and 'button'.\n"
-    /*DOC*/    "\n"
-    /*DOC*/    "Because pygame.fastevent.post() may have to wait for the queue\n"
-	/*DOC*/    "to empty, you can get into a dead lock if you try to append an\n"
-	/*DOC*/    "event on to a full queue from the thread that processes events.\n"
-	/*DOC*/    "For that reason I do not recommend using this function in the\n"
-	/*DOC*/    "main thread of an SDL program.\n"
-    /*DOC*/ ;
+/*DOC*/ static char doc_post[] =
+/*DOC*/    "pygame.fastevent.post(Event) -> None\n"
+/*DOC*/    "place an event on the queue\n"
+/*DOC*/    "\n"
+/*DOC*/    "This will post your own event objects onto the event queue.\n"
+/*DOC*/    "You can past any event type you want, but some care must be\n"
+/*DOC*/    "taken. For example, if you post a MOUSEBUTTONDOWN event to the\n"
+/*DOC*/    "queue, it is likely any code receiving the event will expect\n"
+/*DOC*/    "the standard MOUSEBUTTONDOWN attributes to be available, like\n"
+/*DOC*/    "'pos' and 'button'.\n"
+/*DOC*/    "\n"
+/*DOC*/    "Because pygame.fastevent.post() may have to wait for the queue\n"
+/*DOC*/    "to empty, you can get into a dead lock if you try to append an\n"
+/*DOC*/    "event on to a full queue from the thread that processes events.\n"
+/*DOC*/    "For that reason I do not recommend using this function in the\n"
+/*DOC*/    "main thread of an SDL program.\n"
+/*DOC*/ ;
 
 static PyObject* fastevent_post(PyObject* self, PyObject* args)
 {
@@ -260,18 +260,18 @@ static PyMethodDef fastevent_builtins[] =
 	{ "poll", fastevent_poll, 1, doc_poll },
 	{ "post", fastevent_post, 1, doc_post },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 
 
-    /*DOC*/ static char doc_fastevent_MODULE[] =
-    /*DOC*/    "pygame.fastevent is a wrapper for Bob Pendleton's fastevent\n"
-	/*DOC*/    "library.  It provides fast events for use in multithreaded\n"
-	/*DOC*/    "environments.  When using pygame.fastevent, you can not use\n"
-	/*DOC*/    "any of the pump, wait, poll, post, get, peek, etc. functions\n"
-	/*DOC*/    "from pygame.event, but you should use the Event objects.\n"
-    /*DOC*/ ;
+/*DOC*/ static char doc_fastevent_MODULE[] =
+/*DOC*/    "pygame.fastevent is a wrapper for Bob Pendleton's fastevent\n"
+/*DOC*/    "library.  It provides fast events for use in multithreaded\n"
+/*DOC*/    "environments.  When using pygame.fastevent, you can not use\n"
+/*DOC*/    "any of the pump, wait, poll, post, get, peek, etc. functions\n"
+/*DOC*/    "from pygame.event, but you should use the Event objects.\n"
+/*DOC*/;
 
 PYGAME_EXPORT
 void initfastevent(void)

@@ -692,38 +692,32 @@ static PyObject* rect_copy(PyObject* oself, PyObject* args)
 
 static struct PyMethodDef rect_methods[] =
 {
-	{"normalize",		(PyCFunction)rect_normalize,	1, DOC_RECTNORMALIZE},
-	{"clip",			(PyCFunction)rect_clip, 		1, DOC_RECTCLIP},
-	{"clamp",			(PyCFunction)rect_clamp,		1, DOC_RECTCLAMP},
-	{"clamp_ip",		(PyCFunction)rect_clamp_ip,1, DOC_RECTCLAMPIP },
-	{"fit",			    (PyCFunction)rect_fit,		1, DOC_RECTFIT},
-
-	{"move",			(PyCFunction)rect_move, 		1, DOC_RECTMOVE},
-	{"inflate",			(PyCFunction)rect_inflate,		1, DOC_RECTINFLATE},
-	{"union",			(PyCFunction)rect_union,		1, DOC_RECTUNION},
-	{"unionall",		(PyCFunction)rect_unionall,		1, DOC_RECTUNIONALL},
-
-	{"move_ip",			(PyCFunction)rect_move_ip,		1, DOC_RECTMOVEIP},
-	{"inflate_ip",		(PyCFunction)rect_inflate_ip,	1, DOC_RECTINFLATEIP},
-	{"union_ip",		(PyCFunction)rect_union_ip,		1, DOC_RECTUNIONIP},
-	{"unionall_ip", 	(PyCFunction)rect_unionall_ip,	1, DOC_RECTUNIONALLIP},
-
-	{"collidepoint",	(PyCFunction)rect_collidepoint, 1, DOC_RECTCOLLIDEPOINT},
-	{"colliderect", 	(PyCFunction)rect_colliderect,	1, DOC_RECTCOLLIDERECT},
-	{"collidelist", 	(PyCFunction)rect_collidelist,	1, DOC_RECTCOLLIDELIST},
-	{"collidelistall",	(PyCFunction)rect_collidelistall,1,DOC_RECTCOLLIDELISTALL},
-	{"collidedict", 	(PyCFunction)rect_collidedict,	1, DOC_RECTCOLLIDEDICT},
-	{"collidedictall",	(PyCFunction)rect_collidedictall,1,DOC_RECTCOLLIDEDICTALL},
-	{"contains",		(PyCFunction)rect_contains,		1, DOC_RECTCONTAINS},
-
-        {"__reduce__",          (PyCFunction)rect_reduce, 0, NULL},
-        {"__copy__",            (PyCFunction)rect_copy, 0, NULL},
-
-	{NULL,		NULL}
+    {"normalize", (PyCFunction)rect_normalize, 1, DOC_RECTNORMALIZE},
+    {"clip", (PyCFunction)rect_clip, 1, DOC_RECTCLIP},
+    {"clamp", (PyCFunction)rect_clamp, 1, DOC_RECTCLAMP},
+    {"clamp_ip", (PyCFunction)rect_clamp_ip, 1, DOC_RECTCLAMPIP },
+    {"fit", (PyCFunction)rect_fit, 1, DOC_RECTFIT},
+    {"move", (PyCFunction)rect_move, 1, DOC_RECTMOVE},
+    {"inflate", (PyCFunction)rect_inflate, 1, DOC_RECTINFLATE},
+    {"union", (PyCFunction)rect_union, 1, DOC_RECTUNION},
+    {"unionall", (PyCFunction)rect_unionall, 1, DOC_RECTUNIONALL},
+    {"move_ip", (PyCFunction)rect_move_ip, 1, DOC_RECTMOVEIP},
+    {"inflate_ip", (PyCFunction)rect_inflate_ip, 1, DOC_RECTINFLATEIP},
+    {"union_ip", (PyCFunction)rect_union_ip, 1, DOC_RECTUNIONIP},
+    {"unionall_ip", (PyCFunction)rect_unionall_ip, 1, DOC_RECTUNIONALLIP},
+    {"collidepoint", (PyCFunction)rect_collidepoint, 1, DOC_RECTCOLLIDEPOINT},
+    {"colliderect", (PyCFunction)rect_colliderect, 1, DOC_RECTCOLLIDERECT},
+    {"collidelist", (PyCFunction)rect_collidelist, 1, DOC_RECTCOLLIDELIST},
+    {"collidelistall", (PyCFunction)rect_collidelistall, 1,
+     DOC_RECTCOLLIDELISTALL},
+    {"collidedict", (PyCFunction)rect_collidedict, 1, DOC_RECTCOLLIDEDICT},
+    {"collidedictall", (PyCFunction)rect_collidedictall, 1,
+     DOC_RECTCOLLIDEDICTALL},
+    {"contains", (PyCFunction)rect_contains, 1, DOC_RECTCONTAINS},
+    {"__reduce__", (PyCFunction)rect_reduce, 0, NULL},
+    {"__copy__", (PyCFunction)rect_copy, 0, NULL},
+    { NULL, NULL, 0, NULL }
 };
-
-
-
 
 /* sequence functions */
 
@@ -1173,7 +1167,7 @@ static PyGetSetDef rect_getsets[] = {
     {"center", (getter)rect_getcenter, (setter)rect_setcenter, NULL, NULL},
 
     {"__safe_for_unpickling__", (getter)rect_getsafepickle, NULL, NULL, NULL},
-    {NULL}  /* Sentinel */
+    {NULL, 0, NULL, NULL, NULL}  /* Sentinel */
 };
 
 
@@ -1255,7 +1249,7 @@ static int rect_init(PyRectObject *self, PyObject *args, PyObject *kwds)
 
 static PyMethodDef rect__builtins__[] =
 {
-	{NULL, NULL}
+    {NULL, NULL, 0, NULL}
 };
 
 

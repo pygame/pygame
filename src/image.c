@@ -982,7 +982,7 @@ static PyMethodDef image_builtins[] =
 	{ "fromstring", image_fromstring, 1, DOC_PYGAMEIMAGEFROMSTRING },
 	{ "frombuffer", image_frombuffer, 1, DOC_PYGAMEIMAGEFROMBUFFER },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

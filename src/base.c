@@ -636,7 +636,7 @@ static PyMethodDef init__builtins__[] =
 	{ "get_sdl_version", get_sdl_version, 1, DOC_PYGAMEGETSDLVERSION },
 
 	{ "segfault", do_segfault, 1, "crash" },
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

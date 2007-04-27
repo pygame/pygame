@@ -379,7 +379,7 @@ static PyMethodDef music_builtins[] =
 	{ "load", music_load, 1, DOC_PYGAMEMIXERMUSICLOAD },
 	{ "queue", music_queue, 1, DOC_PYGAMEMIXERMUSICQUEUE },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

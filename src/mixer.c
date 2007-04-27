@@ -751,7 +751,7 @@ static PyMethodDef channel_builtins[] =
 	{ "set_endevent", chan_set_endevent, 1, DOC_CHANNELSETENDEVENT },
 	{ "get_endevent", chan_get_endevent, 1, DOC_CHANNELGETENDEVENT },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 
@@ -1021,7 +1021,7 @@ static PyMethodDef mixer_builtins[] =
 	{ "unpause", mixer_unpause, 1, DOC_PYGAMEMIXERUNPAUSE },
 /*	{ "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 
