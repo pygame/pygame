@@ -167,7 +167,7 @@ static PyMethodDef Overlay_methods[] = {
   {"set_location", (PyCFunction)Overlay_SetLocation, METH_VARARGS, DOC_OVERLAYSETLOCATION},
   {"display", (PyCFunction)Overlay_Display, METH_VARARGS, DOC_OVERLAYDISPLAY},
   {"get_hardware", (PyCFunction)Overlay_GetHardware, METH_NOARGS, DOC_OVERLAYGETHARDWARE},
-	{NULL}  /* Sentinel */
+  {NULL, NULL, 0, NULL}  /* Sentinel */
 };
 
 
@@ -216,7 +216,7 @@ PyTypeObject PyOverlay_Type =
 
 static PyMethodDef overlay_methods[] =
 {
-	{ NULL, NULL }
+    { NULL, NULL, 0, NULL }
 };
 
 

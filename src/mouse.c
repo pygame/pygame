@@ -231,7 +231,7 @@ static PyMethodDef mouse_builtins[] =
 	{ "set_cursor", mouse_set_cursor, 1, DOC_PYGAMEMOUSESETCURSOR },
 	{ "get_cursor", mouse_get_cursor, 1, DOC_PYGAMEMOUSEGETCURSOR },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

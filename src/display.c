@@ -1041,7 +1041,7 @@ static PyMethodDef display_builtins[] =
 	{ "gl_get_attribute", gl_get_attribute, 1, DOC_PYGAMEDISPLAYGLGETATTRIBUTE },
 
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

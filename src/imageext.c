@@ -536,8 +536,7 @@ static PyMethodDef image_builtins[] =
 {
 	{ "load_extended", image_load_ext, 1, DOC_PYGAMEIMAGE },
 	{ "save_extended", image_save_ext, 1, DOC_PYGAMEIMAGE },
-
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

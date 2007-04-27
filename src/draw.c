@@ -1554,7 +1554,7 @@ static PyMethodDef draw_builtins[] =
 	{ "polygon", polygon, 1, DOC_PYGAMEDRAWPOLYGON },
 	{ "rect", rect, 1, DOC_PYGAMEDRAWRECT },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

@@ -36,6 +36,11 @@ class DependencyProg:
         try:
             config = os.popen(command + ' --version --cflags --libs').readlines()
             flags = string.split(string.join(config[1:], ' '))
+
+            # remove this GNU_SOURCE if there... since python has it already,
+            #   it causes a warning.
+            if '-D_GNU_SOURCE=1' in flags:
+                flags.remove('-D_GNU_SOURCE=1')
             self.ver = string.strip(config[0])
             if minver and self.ver < minver:
                 err= 'WARNING: requires %s version %s (%s found)' % (self.name, self.ver, minver)

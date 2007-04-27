@@ -147,7 +147,7 @@ static PyMethodDef key_builtins[] =
 	{ "set_mods", key_set_mods, 1, DOC_PYGAMEKEYSETMODS },
 	{ "get_focused", key_get_focused, 1, DOC_PYGAMEKEYGETFOCUSED },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

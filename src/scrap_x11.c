@@ -155,7 +155,7 @@ static int
 _clipboard_filter (const SDL_Event *event)
 {
     PyObject *dict = NULL;
-    Time timestamp;
+    Time timestamp = CurrentTime;
 
     /* Post all non-window manager specific events */
     if (event->type != SDL_SYSWMEVENT)
@@ -696,7 +696,7 @@ pygame_scrap_put (char *type, int srclen, char *src)
 {
     Atom clip;
     Atom cliptype;
-    Time timestamp;
+    Time timestamp = CurrentTime;
     time_t start;
     XEvent ev;
 

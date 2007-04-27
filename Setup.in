@@ -14,11 +14,12 @@ MIXER = -lSDL_mixer
 SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
-NUMERIC = -I/usr/include/python2.0/Numeric
+NUMERIC = -I/usr/include/python2.4/Numeric
 X11 = -lX11
 #--EndConfig
 
-DEBUG = -C-W -C-Wall
+#DEBUG = -C-W -C-Wall
+DEBUG = 
 
 #the following modules are optional. you will want to compile
 #everything you can, but you can ignore ones you don't have

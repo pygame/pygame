@@ -307,25 +307,25 @@ static PyObject* movie_render_frame(PyObject* self, PyObject* args)
 
 static PyMethodDef movie_builtins[] =
 {
-	{ "play", movie_play, 1, DOC_MOVIEPLAY },
-	{ "stop", movie_stop, 1, DOC_MOVIESTOP },
-	{ "pause", movie_pause, 1, DOC_MOVIEPAUSE },
-	{ "rewind", movie_rewind, 1, DOC_MOVIEREWIND },
-	{ "skip", movie_skip, 1, DOC_MOVIESKIP },
-
-	{ "set_volume", movie_set_volume, 1, DOC_MOVIESETVOLUME },
-	{ "set_display", movie_set_display, 1, DOC_MOVIESETDISPLAY },
-
-	{ "has_video", movie_has_video, 1, DOC_MOVIEHASVIDEO },
-	{ "has_audio", movie_has_audio, 1, DOC_MOVIEHASAUDIO },
-	{ "get_size", movie_get_size, 1, DOC_MOVIEGETSIZE },
-	{ "get_frame", movie_get_frame, 1, DOC_MOVIEGETFRAME },
-	{ "get_time", movie_get_time, 1, DOC_MOVIEGETTIME },
-	{ "get_length", movie_get_length, 1, DOC_MOVIEGETLENGTH },
-	{ "get_busy", movie_get_busy, 1, DOC_MOVIEGETBUSY },
+    { "play", movie_play, 1, DOC_MOVIEPLAY },
+    { "stop", movie_stop, 1, DOC_MOVIESTOP },
+    { "pause", movie_pause, 1, DOC_MOVIEPAUSE },
+    { "rewind", movie_rewind, 1, DOC_MOVIEREWIND },
+    { "skip", movie_skip, 1, DOC_MOVIESKIP },
+    
+    { "set_volume", movie_set_volume, 1, DOC_MOVIESETVOLUME },
+    { "set_display", movie_set_display, 1, DOC_MOVIESETDISPLAY },
+    
+    { "has_video", movie_has_video, 1, DOC_MOVIEHASVIDEO },
+    { "has_audio", movie_has_audio, 1, DOC_MOVIEHASAUDIO },
+    { "get_size", movie_get_size, 1, DOC_MOVIEGETSIZE },
+    { "get_frame", movie_get_frame, 1, DOC_MOVIEGETFRAME },
+    { "get_time", movie_get_time, 1, DOC_MOVIEGETTIME },
+    { "get_length", movie_get_length, 1, DOC_MOVIEGETLENGTH },
+    { "get_busy", movie_get_busy, 1, DOC_MOVIEGETBUSY },
     { "render_frame", movie_render_frame, 1, DOC_MOVIERENDERFRAME },
 
-	{ NULL, NULL }
+    { NULL, NULL, 0, NULL }
 };
 
 
@@ -449,8 +449,7 @@ static PyObject* Movie(PyObject* self, PyObject* arg)
 static PyMethodDef mixer_builtins[] =
 {
 	{ "Movie", Movie, 1, DOC_PYGAMEMOVIEMOVIE },
-
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

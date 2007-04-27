@@ -842,7 +842,7 @@ static PyMethodDef transform_builtins[] =
 	{ "chop", surf_chop, 1, DOC_PYGAMETRANSFORMCHOP },
 	{ "scale2x", surf_scale2x, 1, DOC_PYGAMETRANSFORMSCALE2X },
 		
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 

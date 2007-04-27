@@ -558,7 +558,7 @@ static PyMethodDef cd_builtins[] =
 	{ "get_track_length", cd_get_track_length, 1, DOC_CDGETTRACKLENGTH },
 	{ "get_track_start", cd_get_track_start, 1, DOC_CDGETTRACKSTART },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 static PyObject* cd_getattr(PyObject* self, char* attrname)
@@ -620,7 +620,7 @@ static PyMethodDef cdrom_builtins[] =
 	{ "get_init", get_init, 1, DOC_PYGAMECDROMGETINIT },
 	{ "get_count", get_count, 1, DOC_PYGAMECDROMGETCOUNT },
 	{ "CD", CD, 1, DOC_PYGAMECDROMCD },
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 
