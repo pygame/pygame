@@ -5,7 +5,9 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 
 May 2, 2007
-    fromstring, and tostring work correctly for alpha.  Thanks Brian Fisher!
+    [BUG] fromstring,tostring work for alpha. Thanks Brian Fisher!
+    [BUG] Surf.set_clip(None) works correctly. Thanks Diego Essaya!
+    Scrap changes from Marcus so windows/osx compile.
 
 Apr 26, 2007
     Some code cleanups from Marcus von Appen.  min->MIN, indentation, other.

@@ -730,11 +730,12 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
     
     if(!surf)
         return RAISE(PyExc_SDLError, "display Surface quit");
-    if(PyTuple_Size(args))
-    {
+    if(PyTuple_Size(args)) {
+
         item = PyTuple_GET_ITEM(args, 0);
-        if(!(item == Py_None && PyTuple_Size(args) == 1))
-        {
+        if(item == Py_None && PyTuple_Size(args) == 1) {
+            result = SDL_SetClipRect(surf, NULL);
+        } else {
             rect = GameRect_FromObject(args, &temp);
             if(!rect)
                 return RAISE(PyExc_ValueError, "invalid rectstyle object");
@@ -742,14 +743,16 @@ static PyObject* surf_set_clip(PyObject* self, PyObject* args)
             sdlrect.y = rect->y;
             sdlrect.h = rect->h;
             sdlrect.w = rect->w;
+            result = SDL_SetClipRect(surf, &sdlrect);
         }
-        result = SDL_SetClipRect(surf, &sdlrect);
-    }
-    else
+
+    } else {
         result = SDL_SetClipRect(surf, NULL);
+    }
     
-    if(result == -1)
+    if(result == -1) {
         return RAISE(PyExc_SDLError, SDL_GetError());
+    }
     
     Py_RETURN_NONE;
 }
