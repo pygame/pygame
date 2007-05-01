@@ -248,6 +248,7 @@ static PyObject* dict_from_event(SDL_Event* event)
 	case SDL_KEYUP:
 		insobj(dict, "key", PyInt_FromLong(event->key.keysym.sym));
 		insobj(dict, "mod", PyInt_FromLong(event->key.keysym.mod));
+                insobj(dict, "scancode", PyInt_FromLong(event->key.keysym.scancode));
 		break;
 	case SDL_MOUSEMOTION:
 		obj = Py_BuildValue("(ii)", event->motion.x, event->motion.y);
