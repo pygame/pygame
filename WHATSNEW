@@ -9,6 +9,7 @@ May 2, 2007
     [BUG] Surf.set_clip(None) works correctly. Thanks Diego Essaya.
     Scrap changes from Marcus so windows/osx compile.
     Added scancode attribute to keyboard events. Thanks Quentin Smith.
+    [BUG] movie_set_display hangs on movie file-like object.  Thanks Martin.
 
 Apr 26, 2007
     Some code cleanups from Marcus von Appen.  min->MIN, indentation, other.
