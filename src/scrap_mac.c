@@ -74,3 +74,9 @@ _scrap_contains (PyObject *self, PyObject *args)
 {
     return mac_scrap_call ("contains", args);
 }
+
+static PyObject*
+_scrap_set_mode (PyObject *self, PyObject *args)
+{
+    return mac_scrap_call ("set_mode", args);
+}
