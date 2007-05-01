@@ -32,7 +32,6 @@ static Atom _atom_TEXT;
 static Atom _atom_COMPOUND;
 static Atom _atom_MIME_PLAIN;
 static Atom _atom_MIME_UTF8;
-static Atom _atom_MIME_LOCALE;
 static Atom _atom_TARGETS;
 static Atom _atom_TIMESTAMP;
 static Atom _atom_SDL;
@@ -93,8 +92,6 @@ _init_atom_types (void)
     _atom_MIME_PLAIN = XInternAtom (SDL_Display, "text/plain", False);
     _atom_MIME_UTF8  = XInternAtom (SDL_Display, "text/plain;charset=utf-8",
                                     False);
-    _atom_MIME_LOCALE = XInternAtom (SDL_Display, "text/plain;charset=%s",
-                                     False);
     _atom_TARGETS = XInternAtom (SDL_Display, "TARGETS", False);
     _atom_TIMESTAMP = XInternAtom (SDL_Display, "TIMESTAMP", False);
     _atom_SDL = XInternAtom (SDL_Display, "SDL_SELECTION", False);
