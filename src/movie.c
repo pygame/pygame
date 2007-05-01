@@ -148,32 +148,40 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 
 		if(posobj == NULL)
 		{
+                        Py_BEGIN_ALLOW_THREADS
 			SMPEG_Info info;
 			SMPEG_getinfo(movie, &info);
 			SMPEG_scaleXY(movie, info.width, info.height);
+                        Py_END_ALLOW_THREADS
 			x = y = 0;
 		}
 		else if(TwoIntsFromObj(posobj, &x, &y))
 		{
+                        Py_BEGIN_ALLOW_THREADS
 			SMPEG_Info info;
 			SMPEG_getinfo(movie, &info);
 			SMPEG_scaleXY(movie, info.width, info.height);
+                        Py_END_ALLOW_THREADS
 		}
 		else if((rect = GameRect_FromObject(posobj, &temp)))
 		{
 			x = rect->x;
 			y = rect->y;
+                        Py_BEGIN_ALLOW_THREADS
 			SMPEG_scaleXY(movie, rect->w, rect->h);
+                        Py_END_ALLOW_THREADS
 		}
 		else
 			return RAISE(PyExc_TypeError, "Invalid position argument");
 
 	    surf = PySurface_AsSurface(surfobj);
 
+            Py_BEGIN_ALLOW_THREADS
             SMPEG_getinfo(movie, &info);
 	    SMPEG_enablevideo(movie, 1);
 	    SMPEG_setdisplay(movie, surf, NULL, NULL);
 	    SMPEG_move(movie, x, y);
+            Py_END_ALLOW_THREADS
 	}
 	else
 	{

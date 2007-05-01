@@ -1,6 +1,6 @@
 
 import unittest
-import pygame, pygame.transform
+import pygame
 
 
 class SurfaceTest( unittest.TestCase ):
