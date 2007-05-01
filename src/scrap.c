@@ -92,8 +92,6 @@ pygame_scrap_initialized (void)
     return _scrapinitialized;
 }
 
-#if !defined(MAC_SCRAP)
-
 /*DOC*/ static char doc_scrap_init[] = 
 /*DOC*/    "scrap.init () -> None\n"
 /*DOC*/    "Initializes the scrap module.\n"
@@ -101,6 +99,7 @@ pygame_scrap_initialized (void)
 /*DOC*/    "Tries to initialize the scrap module and raises an exception, if\n"
 /*DOC*/    "it fails\n";
 
+#if !defined(MAC_SCRAP)
 /*
  * Initializes the pygame scrap module.
  */
@@ -116,6 +115,7 @@ _scrap_init (PyObject *self, PyObject *args)
 
     Py_RETURN_NONE;
 }
+#endif
 
 /*DOC*/ static char doc_scrap_get_types[] = 
 /*DOC*/    "scrap.get_types () -> list\n"
@@ -126,6 +126,7 @@ _scrap_init (PyObject *self, PyObject *args)
 /*DOC*/    "method to get the clipboard content of the specific type.\n"
 /*DOC*/    "If there is no data in the clipboard, an empty list is returned.";
 
+#if !defined(MAC_SCRAP)
 /*
  * Gets the currently available types from the active clipboard.
  */
@@ -155,11 +156,13 @@ _scrap_get_types (PyObject *self, PyObject *args)
         return list;
     while (types[i] != NULL)
     {
+        printf ("Adding: %s\n", types[i]);
         PyList_Append (list, PyString_FromString (types[i]));
         i++;
     }
     return list;
 }
+#endif
 
 /*DOC*/ static char doc_scrap_contains[] =
 /*DOC*/    "scrap.contains (type) -> bool\n"
@@ -168,6 +171,7 @@ _scrap_get_types (PyObject *self, PyObject *args)
 /*DOC*/    "Returns True, if data fpr the passed type is available in the\n"
 /*DOC*/    "clipboard, False otherwise.";
 
+#if !defined(MAC_SCRAP)
 /*
  * Checks whether the active clipboard contains a certain type.
  */
@@ -182,6 +186,7 @@ _scrap_contains (PyObject *self, PyObject *args)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
+#endif
 
 /*DOC*/ static char doc_scrap_get_scrap[] =
 /*DOC*/    "scrap.get (type) -> string\n"
@@ -191,6 +196,7 @@ _scrap_contains (PyObject *self, PyObject *args)
 /*DOC*/    "The data is returned as string and might need further processing.\n"
 /*DOC*/    "If no data for the passed type is available, None is returned.";
 
+#if !defined(MAC_SCRAP)
 /*
  * Gets the content for a certain type from the active clipboard.
  */
@@ -234,6 +240,7 @@ _scrap_get_scrap (PyObject* self, PyObject* args)
     retval = PyString_FromStringAndSize (scrap, count);
     return retval;
 }
+#endif
 
 /*DOC*/ static char doc_scrap_put_scrap[] =
 /*DOC*/    "scrap.put(type, data) -> None\n"
@@ -244,6 +251,7 @@ _scrap_get_scrap (PyObject* self, PyObject* args)
 /*DOC*/    "The method raises an exception, if the content could not be placed\n"
 /*DOC*/    "into the clipboard.\n";
 
+#if !defined(MAC_SCRAP)
 /*
  * This will put a python string into the clipboard.
  */
@@ -280,6 +288,7 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
 
     Py_RETURN_NONE;
 }
+#endif
 
 /*DOC*/ static char doc_scrap_lost_scrap[] =
 /*DOC*/    "scrap.lost() -> bool\n"
@@ -288,6 +297,7 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
 /*DOC*/    "Returns true, if the clipboard is currently owned by the pygame\n"
 /*DOC*/    "application, false otherwise.\n";
 
+#if !defined(MAC_SCRAP)
 /*
  * Checks whether the pygame window has lost the clipboard.
  */
@@ -300,6 +310,7 @@ _scrap_lost_scrap (PyObject* self, PyObject* args)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
+#endif
 
 /*DOC*/ static char doc_scrap_set_mode[] =
 /*DOC*/    "scrap.set_mode(mode) -> None\n"
@@ -311,6 +322,7 @@ _scrap_lost_scrap (PyObject* self, PyObject* args)
 /*DOC*/    " available. The method does not have any influence on other\n"
 /*DOC*/    " environments.";
 
+#if !defined(MAC_SCRAP)
 /*
  * Sets the clipboard mode. This only works for the X11 environment, which
  * diverses between mouse selections and the clipboard.

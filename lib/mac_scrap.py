@@ -18,8 +18,7 @@ def init():
 def get(scrap_type):
     board = NSPasteboard.generalPasteboard()
     if scrap_type == SCRAP_TEXT:
-        content = board.stringForType_(NSStringPboardType)
-        return content
+        return board.stringForType_(NSStringPboardType)
     elif scrap_type == SCRAP_BMP:
         # We could try loading directly but I don't trust pygame's TIFF
         # loading.  This is slow and stupid but it does happen to work.
@@ -33,9 +32,8 @@ def get(scrap_type):
         data = rep.representationUsingType_properties_(NSBMPFileType, None)
         bmp = StringIO(data)
         return pygame.image.load(bmp, "scrap.bmp")
-    else:
-        raise ValueError("Unsupported scrap_type: %r" % (scrap_type,))
-
+    elif scrap_type in board.types:
+        return board.stringForType_(scrap_type)
 
 def put(scrap_type, thing):
     board = NSPasteboard.generalPasteboard()
@@ -61,8 +59,22 @@ def put(scrap_type, thing):
         board.setData_forType_(tiff, NSTIFFPboardType)
         board.setString_forType_(u'', ScrapPboardType)
     else:
-        raise ValueError("Unsupported scrap_type: %r" % (scrap_type,))
+        pass
 
-def lost():
-    board = NSPasteboard.generalPasteboard()
-    return not board.availableTypeFromArray_([ScrapPboardType])
+def set_mode (mode):
+    # No diversion between clipboard and selection modes on MacOS X.
+    pass
+
+def contains (scrap_type):
+    return scrap_type in NSPasteboard.generalPasteboard ().types ()
+
+def get_types ():
+    typelist = []
+    types = NSPasteboard.generalPasteboard ().types ()
+    for t in types:
+        typelist.append (t)
+    return typelist
+
+def lost ():
+    board = NSPasteboard.generalPasteboard ()
+    return not board.availableTypeFromArray_ ([ScrapPboardType])

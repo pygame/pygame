@@ -4,6 +4,9 @@
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
 
+May 2, 2007
+    fromstring, and tostring work correctly for alpha.  Thanks Brian Fisher!
+
 Apr 26, 2007
     Some code cleanups from Marcus von Appen.  min->MIN, indentation, other.
     A rewritten scrap module.  Hasn't been tested on osx/windows.
