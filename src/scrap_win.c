@@ -18,17 +18,16 @@
     License along with this library; if not, write to the Free
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
 #include <Windows.h>
 
 static HWND SDL_Window;
 #define MAX_CHUNK_SIZE INT_MAX
 
-static UINT _format_TEXT;
+static UINT _format_MIME_PLAIN;
 
 /**
- * \brief Converts the passed type into a system specific type to use
- *        for the clipboard.
+ * \brief Converts the passed type into a system specific clipboard type
+ *        to use for the clipboard.
  *
  * \param type The type to convert.
  * \return A system specific type.
@@ -37,6 +36,74 @@ static UINT
 _convert_format (char *type)
 {
     return RegisterClipboardFormat (type);
+}
+
+/**
+ * \brief Gets a system specific clipboard format type for a certain type.
+ *
+ * \param type The name of the format to get the mapped format type for.
+ * \return The format type or -1 if no such type was found.
+ */
+static UINT
+_convert_internal_type (char *type)
+{
+    if (strcmp (type, PYGAME_SCRAP_TEXT) == 0)
+        return CF_TEXT;
+    if (strcmp (type, "text/plain;charset=utf-8") == 0)
+        return CF_UNICODETEXT;
+    if (strcmp (type, "image/tiff") == 0)
+        return CF_TIFF;
+    if (strcmp (type, PYGAME_SCRAP_BMP) == 0)
+        return CF_BITMAP;
+    if (strcmp (type, "audio/wav") == 0)
+        return CF_WAVE;
+    return -1;
+}
+
+/**
+ * \brief Looks up the name for the specific clipboard format type.
+ *
+ * \param format The format to get the name for.
+ * \param buf The buffer to copy the name into.
+ * \param size The size of the buffer.
+ * \return The length of the format name.
+ */
+static int
+_lookup_clipboard_format (UINT format, char *buf, int size)
+{
+    int len;
+    char *cpy;
+
+    memset (buf, 0, size);
+    switch (format)
+    {
+    case CF_TEXT:
+        len = strlen (PYGAME_SCRAP_TEXT);
+        cpy = PYGAME_SCRAP_TEXT;
+        break;
+    case CF_UNICODETEXT:
+        len = 24;
+        cpy = "text/plain;charset=utf-8";
+        break;
+    case CF_TIFF:
+        len = 10;
+        cpy = "image/tiff";
+        break;
+    case CF_BITMAP:
+        len = strlen (PYGAME_SCRAP_BMP);
+        cpy = PYGAME_SCRAP_BMP;
+        break;
+    case CF_WAVE:
+        len = 9;
+        cpy = "audio/wav";
+        break;
+    default:
+        len = GetClipboardFormatName (format, buf, size);
+        return len;
+    }
+    if (len != 0 )
+        memcpy (buf, cpy, len);
+    return len;
 }
 
 int
@@ -107,7 +174,6 @@ pygame_scrap_put (char *type, int srclen, char *src)
         {
             /* Setting SCRAP_TEXT, also set CF_TEXT. */
             SetClipboardData (CF_TEXT, hMem);
-            PyDict_SetItemString (_clipdata, "TEXT", PyString_FromString (src));
         }
         CloseClipboard ();
     }
@@ -122,7 +188,7 @@ pygame_scrap_put (char *type, int srclen, char *src)
 }
 
 char*
-pygame_scrap_get (char *type)
+pygame_scrap_get (char *type, unsigned long *count)
 {
     UINT format = _convert_format (type);
     char *retval = NULL;
@@ -136,7 +202,18 @@ pygame_scrap_get (char *type)
     if (!pygame_scrap_lost ())
         return PyString_AsString (PyDict_GetItemString (_clipdata, type));
 
-    if (IsClipboardFormatAvailable (format) && OpenClipboard (SDL_Window))
+    if (!OpenClipboard (SDL_Window))
+        return NULL;
+
+    if (!IsClipboardFormatAvailable (format))
+    {
+        /* The format was not found - was it a mapped type? */
+        format = _convert_internal_type (type);
+        if (format == -1)
+            return NULL;
+    }
+
+    if (IsClipboardFormatAvailable (format))
     {
         HANDLE hMem;
         char *src;
@@ -144,7 +221,7 @@ pygame_scrap_get (char *type)
         hMem = GetClipboardData (format);
         if (hMem)
         {
-            int len = 0;
+            *count = 0;
             
             /* TODO: Is there any mechanism to detect the amount of bytes
              * in the HANDLE? strlen() won't work as supposed, if the
@@ -152,13 +229,13 @@ pygame_scrap_get (char *type)
              * Win32 clipboard or is NUL the usual delimiter?
              */
             src = GlobalLock (hMem);
-            len = strlen (src) + 1;
+            *count = strlen (src) + 1;
             
-            retval = malloc (len);
+            retval = malloc (*count);
             if (retval)
             {
-                memset (retval, 0, len);
-                memcpy (retval, src, len);
+                memset (retval, 0, *count);
+                memcpy (retval, src, *count);
             }
             GlobalUnlock (hMem);
         }
@@ -172,16 +249,21 @@ char**
 pygame_scrap_get_types (void)
 {
     UINT format = 0;
-    char **types;
+    char **types = NULL;
+    char **tmptypes;
     int i = 0;
+    int count = -1;
     int len;
-    char tmp[100] = { NULL };
-    int size =  CountClipboardFormats ();
+    char tmp[100] = { '\0' };
+    int size = 0;
 
+    if (!OpenClipboard (SDL_Window))
+        return NULL;
+    size = CountClipboardFormats ();
     if (size == 0)
         return NULL; /* No clipboard data. */
 
-    types = malloc (sizeof (char *) * (size + 1));
+    //types = malloc (sizeof (char *) * (size + 1));
     for (i = 0; i < size; i++)
     {
         format = EnumClipboardFormats (format);
@@ -196,25 +278,56 @@ pygame_scrap_get_types (void)
         }
 
         /* No predefined name, get the (truncated) name. */
-        memset (tmp, 0, sizeof (tmp));
-        len = GetClipboardFormatName (format, tmp, sizeof (tmp));
-        types[i] = malloc (sizeof (char) * (len + 1));
-        if (!types[i])
+        len = _lookup_clipboard_format (format, tmp, 100);
+        if (len == 0)
+            continue;
+        count++;
+
+        tmptypes = realloc (types, sizeof (char *) * (count + 1));
+        if (!tmptypes)
         {
-            while (i > 0)
-                free (types[i]);
+            while (count > 0)
+            {
+                free (types[count]);
+                count--;
+            }
             free (types);
             return NULL;
         }
-        memset (types[i], 0, len + 1);
-        memcpy (types[i], tmp, len);
+        types = tmptypes;
+        types[count] = malloc (sizeof (char) * (len + 1));
+        if (!types[count])
+        {
+            while (count > 0)
+            {
+                free (types[count]);
+                count--;
+            }
+            free (types);
+            return NULL;
+        }
+
+        memset (types[count], 0, len + 1);
+        memcpy (types[count], tmp, len);
     }
-    types[size] = NULL;
-    return NULL;
+    tmptypes = realloc (types, sizeof (char *) * (count + 1));
+    if (!tmptypes)
+    {
+        while (count > 0)
+        {
+            free (types[count]);
+            count--;
+        }
+        free (types);
+        return NULL;
+    }
+    types = tmptypes;
+    types[count] = NULL;
+    return types;
 }
 
 int
 pygame_scrap_contains (char *type)
 {
-    return IsClipboardFormatAvailable (format);
+    return IsClipboardFormatAvailable (_convert_format(type));
 }
