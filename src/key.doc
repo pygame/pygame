@@ -7,9 +7,13 @@ This module contains functions for dealing with the keyboard.
 The event queue gets pygame.KEYDOWN and pygame.KEYUP events when the
 keyboard buttons are pressed and released. Both events have a key attribute
 that is a integer id representing every key on the keyboard. 
-The pygame.KEYDOWN event has an additional attribute named unicode. This
-represents a single character string that is the fully translated character
-entered. This takes into account the shift and composition keys.
+
+The pygame.KEYDOWN event has an additional attributes unicode, and scancode. 
+unicode represents a single character string that is the fully translated 
+character entered. This takes into account the shift and composition keys.
+scancode represents the platform specific key code.  This could be different
+from keyboard to keyboard, but is useful for key selection of weird keys like
+the multimedia keys.
 
 There are many keyboard constants, they are used to represent keys on
 the keyboard. The following is a list of all keyboard constants
