@@ -303,7 +303,7 @@ _set_targets (PyObject *data, Display *display, Window window, Atom property)
         targets[i + 2] = _convert_format (format);
     }
     XChangeProperty (display, window, property, XA_ATOM, 32, PropModeReplace,
-                     (unsigned char*) targets, amount);
+                     (unsigned char*) targets, amount + 2);
 }
 
 /**
@@ -837,6 +837,7 @@ pygame_scrap_get_types (void)
             }
             i++;
         }
+        types[i] = NULL;
         return types;
     }
     
