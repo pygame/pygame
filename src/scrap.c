@@ -156,7 +156,6 @@ _scrap_get_types (PyObject *self, PyObject *args)
         return list;
     while (types[i] != NULL)
     {
-        printf ("Adding: %s\n", types[i]);
         PyList_Append (list, PyString_FromString (types[i]));
         i++;
     }
