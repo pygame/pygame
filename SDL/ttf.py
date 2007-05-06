@@ -358,7 +358,7 @@ def TTF_RenderGlyph_Solid(font, ch, fg):
 
     :rtype: `SDL_Surface`
     '''
-    return _TTF_RenderGlyph_Solid(font, ord(text), fg)
+    return _TTF_RenderGlyph_Solid(font, ord(ch), fg)
 
 _TTF_RenderUTF8_Shaded = _dll.private_function('TTF_RenderUTF8_Shaded',
     arg_types=[_TTF_Font, c_char_p, SDL.video.SDL_Color, SDL.video.SDL_Color],
@@ -450,7 +450,7 @@ def TTF_RenderGlyph_Blended(font, ch, fg):
 
     :rtype: `SDL_Surface`
     '''
-    return _TTF_RenderGlyph_Blended(font, ord(text), fg)
+    return _TTF_RenderGlyph_Blended(font, ord(ch), fg)
 
 TTF_CloseFont = _dll.function('TTF_CloseFont',
     '''Close an opened font file.

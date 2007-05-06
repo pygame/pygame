@@ -16,11 +16,20 @@ def _import_arrays(array_names, locals):
     for array_name in array_names:
         try:
             array = __import__(array_name, globals(), locals, [])
-            typemap = {
-                c_ubyte: array.UInt8,
-                c_ushort: array.UInt16,
-                c_uint: array.UInt32
-            }
+            try:
+                typemap = {
+                    c_ubyte: array.UInt8,
+                    c_ushort: array.UInt16,
+                    c_uint: array.UInt32
+                }
+            except AttributeError:
+                # numpy 1.0.2 loses backward compatibility, only exports uint8
+                # etc.
+                typemap = {
+                    c_ubyte: array.uint8,
+                    c_ushort: array.uint16,
+                    c_uint: array.uint32
+                }
             locals[array_name] = array
             locals['_%s_typemap' % array_name] = typemap
             locals['_have_%s' % array_name] = True

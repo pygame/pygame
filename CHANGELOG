@@ -1,3 +1,7 @@
+SDL-ctypes 0.11 (unreleased)
+----------------------------
+ - Support for changed type names in numpy >= 1.0.2
+
 Pygame-ctypes 0.10
 ------------------
  - Fixed unset colorkey with Surface.set_colorkey
@@ -27,6 +31,7 @@ Pygame-ctypes 0.10
 SDL-ctypes 0.10
 ---------------
  - Mix_ChannelFinished fixed GC error.
+ - TTF_RenderGlyph* typo fixed.
 
 Pygame-ctypes 0.09
 ------------------
