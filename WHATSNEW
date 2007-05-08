@@ -6,7 +6,10 @@
 #
 #
 May 9, 2007
-    Windows bitmap copy/paste is working for scrap.
+    Windows image copy/paste is working for scrap.
+    Adding bitmask code from Ulf Ekström - for pixelperfect collision.
+      Still need to get unittest, documentation and some more methods added.
+      There's a unittest with some problems checked in.
 
 May 2, 2007
     [BUG] fromstring,tostring work for alpha. Thanks Brian Fisher.
