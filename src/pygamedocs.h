@@ -214,15 +214,6 @@
 
 #define DOC_FONTGETDESCENT "Font.get_descent(): return int\nget the descent of the font"
 
-#define DOC_FONTMETRICS \
-  "Font.metrics(text): return list\n" \
-  "Gets the metrics for each character in the pased string.\n" \
-  "\n" \
-  "The list contains tuples for each character, which contain the minimum\n" \
-  "X offset, the maximum X offset, the minimum Y offset, the maximum\n" \
-  "Y offset and the advance offset (bearing plus width) of the character.\n" \
-  "[(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), ...]"
-
 #define DOC_PYGAMEIMAGE "pygame module for image transfer"
 
 #define DOC_PYGAMEIMAGELOAD "pygame.image.load(filename): return Surface\npygame.image.load(fileobj, namehint=""): return Surface\nload new image from a file"
@@ -288,6 +279,20 @@
 #define DOC_PYGAMEKEYSETREPEAT "pygame.key.set_repeat(): return None\npygame.key.set_repeat(delay, interval): return None\ncontrol how held keys are repeated"
 
 #define DOC_PYGAMEKEYNAME "pygame.key.name(key): return string\nget the name of a key identifier"
+
+#define DOC_PYGAMEMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
+
+#define DOC_MASKGETSIZE "Mask.get_size() -> width,height"
+
+#define DOC_MASKGETAT "Mask.get_at((x,y)) -> int"
+
+#define DOC_MASKSETAT "Mask.set_at((x,y),value)"
+
+#define DOC_MASKOVERLAP "Mask.overlap(othermask, offset) -> x,y"
+
+#define DOC_MASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels"
+
+#define DOC_ ""
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 

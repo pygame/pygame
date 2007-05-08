@@ -1,14 +1,30 @@
 /*
-  This wrapper code was originally written by Danny van Bruggen(?) for
-  the SCAM library, it was then converted by Ulf Ekstrom to wrap the
-  bitmask library, a spinoff from SCAM.
+    Copyright (C) 2002-2007 Ulf Ekstrom except for the bitcount function.
+    This wrapper code was originally written by Danny van Bruggen(?) for
+    the SCAM library, it was then converted by Ulf Ekstrom to wrap the
+    bitmask library, a spinoff from SCAM.
 
-  This file is released under the LGPL licence, see COPYING for 
-  details.
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Library General Public
+    License as published by the Free Software Foundation; either
+    version 2 of the License, or (at your option) any later version.
+
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Library General Public License for more details.
+
+    You should have received a copy of the GNU Library General Public
+    License along with this library; if not, write to the Free
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 */
 
-#include <Python.h>
+#include "SDL.h"
+#include "pygame.h"
+#include "pygamedocs.h"
 #include "bitmask.h"
+
 
 typedef struct {
   PyObject_HEAD
@@ -20,15 +36,9 @@ staticforward PyTypeObject PyMask_Type;
 #define PyMask_AsBitmap(x) (((PyMaskObject*)x)->mask)
 
 
-#define PyType_Init(x)                                          \
-{                                                               \
-    x.ob_type = &PyType_Type;                                   \
-}
-
 
 /* mask object methods */
 
-static char doc_mask_get_size[] = "Mask.get_size() -> width,height";
 static PyObject* mask_get_size(PyObject* self, PyObject* args)
 {
 	bitmask_t *mask = PyMask_AsBitmap(self);
@@ -39,7 +49,6 @@ static PyObject* mask_get_size(PyObject* self, PyObject* args)
 	return Py_BuildValue("(ii)", mask->w, mask->h);
 }
 
-static char doc_mask_get_at[] = "Mask.get_at((x,y)) -> int";
 static PyObject* mask_get_at(PyObject* self, PyObject* args)
 {
 	bitmask_t *mask = PyMask_AsBitmap(self);
@@ -55,7 +64,6 @@ static PyObject* mask_get_at(PyObject* self, PyObject* args)
         return PyInt_FromLong(val);
 }
 
-static char doc_mask_set_at[] = "Mask.set_at((x,y),value)";
 static PyObject* mask_set_at(PyObject* self, PyObject* args)
 {
 	bitmask_t *mask = PyMask_AsBitmap(self);
@@ -78,7 +86,6 @@ static PyObject* mask_set_at(PyObject* self, PyObject* args)
         return Py_None;
 }
 
-static char doc_mask_overlap[] = "Mask.overlap(othermask, offset) -> x,y";
 static PyObject* mask_overlap(PyObject* self, PyObject* args)
 {
 	bitmask_t *mask = PyMask_AsBitmap(self);
@@ -102,7 +109,6 @@ static PyObject* mask_overlap(PyObject* self, PyObject* args)
 }
 
 
-static char doc_mask_overlap_area[] = "Mask.overlap_area(othermask, offset) -> numpixels";
 static PyObject* mask_overlap_area(PyObject* self, PyObject* args)
 {
 	bitmask_t *mask = PyMask_AsBitmap(self);
@@ -120,11 +126,11 @@ static PyObject* mask_overlap_area(PyObject* self, PyObject* args)
 
 static PyMethodDef maskobj_builtins[] =
 {
-	{ "get_size", mask_get_size, METH_VARARGS, doc_mask_get_size },
-	{ "get_at", mask_get_at, METH_VARARGS, doc_mask_get_at },
-	{ "set_at", mask_set_at, METH_VARARGS, doc_mask_set_at },
-	{ "overlap", mask_overlap, METH_VARARGS, doc_mask_overlap },
-	{ "overlap_area", mask_overlap_area, METH_VARARGS, doc_mask_overlap_area },
+	{ "get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE },
+	{ "get_at", mask_get_at, METH_VARARGS, DOC_MASKGETAT },
+	{ "set_at", mask_set_at, METH_VARARGS, DOC_MASKSETAT },
+	{ "overlap", mask_overlap, METH_VARARGS, DOC_MASKOVERLAP },
+	{ "overlap_area", mask_overlap_area, METH_VARARGS, DOC_MASKOVERLAPAREA },
 
 	{ NULL, NULL }
 };
@@ -147,7 +153,6 @@ static PyObject* mask_getattr(PyObject* self, char* attrname)
 }
 
 
-static char doc_mask_object[] = "2d bitmask";
 static PyTypeObject PyMask_Type = 
 {
 	PyObject_HEAD_INIT(NULL)
@@ -168,14 +173,13 @@ static PyTypeObject PyMask_Type =
 	(ternaryfunc)NULL,
 	(reprfunc)NULL,
 	0L,0L,0L,0L,
-	doc_mask_object /* Documentation string */
+	DOC_PYGAMEMASK /* Documentation string */
 };
 
 
 
 /*mask module methods*/
 
-static char doc_Mask[] = "mask.Mask((width, height)) -> Mask";
 static PyObject* Mask(PyObject* self, PyObject* args)
 {
 	bitmask_t *mask;
@@ -199,15 +203,12 @@ static PyObject* Mask(PyObject* self, PyObject* args)
 
 static PyMethodDef mask_builtins[] =
 {
-	{ "Mask", Mask, 1, doc_Mask },
+	{ "Mask", Mask, 1, DOC_PYGAMEMASK },
 
 	{ NULL, NULL }
 };
 
 
-
-
-static char doc_mask_module[] = "wrapper for the bitmask pixel collision library";
 
 void initmask(void)
 {
@@ -215,7 +216,7 @@ void initmask(void)
   PyType_Init(PyMask_Type);
   
   /* create the module */
-  module = Py_InitModule3("mask", mask_builtins, doc_mask_module);
+  module = Py_InitModule3("mask", mask_builtins, DOC_PYGAMEMASK);
   dict = PyModule_GetDict(module);
   PyDict_SetItemString(dict, "MaskType", (PyObject *)&PyMask_Type);
 }

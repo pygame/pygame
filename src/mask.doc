@@ -1,0 +1,45 @@
+pygame.Mask
+pygame object for representing 2d bitmasks
+pygame.Mask((width, height): return Mask
+
+
+TODO: Documentation goes here!
+
+<SECTION>
+
+get_size
+Mask.get_size() -> width,height
+
+<END>
+
+
+get_at
+Mask.get_at((x,y)) -> int
+
+Returns in the mask if it is on or off.
+
+<END>
+
+
+set_at
+Mask.set_at((x,y),value)
+
+Sets the position in the mask given by x and y.
+
+<END>
+
+
+
+overlap
+Mask.overlap(othermask, offset) -> x,y
+
+<END>
+
+
+overlap_area
+Mask.overlap_area(othermask, offset) -> numpixels
+
+<END>
+
+
+<END>
