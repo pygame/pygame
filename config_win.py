@@ -6,32 +6,33 @@ from distutils.sysconfig import get_python_inc
 
 huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
-
 class Dependency:
     inc_hunt = ['include']
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
-    def __init__(self, name, wildcard, lib, required = 0):
+    def __init__(self, name, wildcards, libs, required = 0):
         self.name = name
-        self.wildcard = wildcard
+        self.wildcards = wildcards
         self.required = required
         self.paths = []
         self.path = None
         self.inc_dir = None
         self.lib_dir = None
-        self.lib = lib
+        self.libs = libs
         self.found = 0
         self.cflags = ''
                  
     def hunt(self):
         parent = os.path.abspath('..')
         for p in huntpaths:
-            found = glob(os.path.join(p, self.wildcard))
-            found.sort() or found.reverse()  #reverse sort
-            for f in found:
-                if f[:5] == '..'+os.sep+'..' and os.path.abspath(f)[:len(parent)] == parent:
-                    continue
-                if os.path.isdir(f):
-                    self.paths.append(f)
+            for w in self.wildcards:
+                found = glob(os.path.join(p, w))
+                found.sort() or found.reverse()  #reverse sort
+                for f in found:
+                    if f[:5] == '..'+os.sep+'..' and \
+                        os.path.abspath(f)[:len(parent)] == parent:
+                        continue
+                    if os.path.isdir(f):
+                        self.paths.append(f)
 
     def choosepath(self):
         if not self.paths:
@@ -66,13 +67,12 @@ class Dependency:
             self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt)
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
 
-
 class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
         self.lib_dir = ''
         self.inc_dir = ''
-        self.lib = ''
+        self.libs = []
         self.cflags = ''
         self.found = 0
         self.ver = '0'
@@ -97,17 +97,15 @@ class DependencyPython:
         else:
             print self.name + '        '[len(self.name):] + ': not found'
 
-
-
 DEPS = [
-    Dependency('SDL', 'SDL-[0-9].*', 'SDL', 1),
-    Dependency('FONT', 'SDL_ttf-[0-9].*', 'SDL_ttf'),
-    Dependency('IMAGE', 'SDL_image-[0-9].*', 'SDL_image'),
-    Dependency('MIXER', 'SDL_mixer-[0-9].*', 'SDL_mixer'),
-    Dependency('SMPEG', 'smpeg-[0-9].*', 'smpeg'),
+    Dependency('SDL', ['SDL-[0-9].*'], ['SDL'], 1),
+    Dependency('FONT', ['SDL_ttf-[0-9].*'], ['SDL_ttf']),
+    Dependency('IMAGE', ['SDL_image-[0-9].*'], ['SDL_image']),
+    Dependency('MIXER', ['SDL_mixer-[0-9].*'], ['SDL_mixer']),
+    Dependency('SMPEG', ['smpeg-[0-9].*'], ['smpeg']),
+    Dependency('SCRAP', ['user32.*', 'gdi32.*'], ['user32', 'gdi32']),
     DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
 ]
-
 
 def setup_prebuilt():
     setup = open('Setup', 'w')
@@ -115,6 +113,8 @@ def setup_prebuilt():
         if line[:3] == '#--': continue
         if line[:6] == 'SDL = ':
             line = 'SDL = -Iprebuilt/include -Lprebuilt/lib -lSDL\n'
+        if line[:8] == 'SCRAP = ':
+            line = 'SCRAP = -luser32 -lgdi32\n'
         setup.write(line)
 
 
@@ -130,9 +130,6 @@ def main():
         d.configure()
 
     return DEPS    
-
-
-
 
 if __name__ == '__main__':
     print """This is the configuration subscript for Windows.
