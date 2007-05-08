@@ -6,11 +6,11 @@ from distutils.sysconfig import get_python_inc
 
 class Dependency:
     libext = '.a'
-    def __init__(self, name, checkhead, checklib, lib):
+    def __init__(self, name, checkhead, checklib, libs):
         self.name = name
         self.inc_dir = None
         self.lib_dir = None
-        self.lib = lib
+        self.libs = libs
         self.found = 0
         self.checklib = checklib + self.libext
         self.checkhead = checkhead
@@ -41,18 +41,18 @@ class FrameworkDependency(Dependency):
         BASE_DIRS = '/', os.path.expanduser('~/'), '/System/'
         for n in BASE_DIRS:
             n += 'Library/Frameworks/'
-            fmwk = n + self.lib + '.framework/Versions/Current/'
-            if os.path.isfile(fmwk + self.lib):
-                print 'Framework ' + self.lib + ' found'
+            fmwk = n + self.libs + '.framework/Versions/Current/'
+            if os.path.isfile(fmwk + self.libs):
+                print 'Framework ' + self.libs + ' found'
                 self.found = 1
                 self.inc_dir = fmwk + 'Headers'
                 self.cflags = (
-                    '-Xlinker "-framework" -Xlinker "' + self.lib + '"' +
+                    '-Xlinker "-framework" -Xlinker "' + self.libs + '"' +
                     ' -Xlinker "-F' + n + '"')
-                self.origlib = self.lib
-                self.lib = ''
+                self.origlib = self.libs
+                self.libs = ''
                 return
-        print 'Framework ' + self.lib + ' not found'
+        print 'Framework ' + self.libs + ' not found'
 
 
 class DependencyPython:
@@ -60,7 +60,7 @@ class DependencyPython:
         self.name = name
         self.lib_dir = ''
         self.inc_dir = ''
-        self.lib = ''
+        self.libs = []
         self.cflags = ''
         self.found = 0
         self.ver = '0'
@@ -92,8 +92,9 @@ DEPS = [
     FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer'),
     FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
     DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
-    Dependency('PNG', 'png.h', 'libpng', 'png'),
-    Dependency('JPEG', 'jpeglib.h', 'libjpeg', 'jpeg'),
+    Dependency('PNG', 'png.h', 'libpng', ['png']),
+    Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
+    Dependency('SCRAP', '','',[])
 ]
 
 

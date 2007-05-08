@@ -23,7 +23,6 @@ def is_msys_mingw():
             return 1
     return 0
 
-
 if sys.platform == 'win32' and not is_msys_mingw():
     print 'Using WINDOWS configuration...\n'
     import config_win
@@ -41,9 +40,6 @@ else:
     import config_unix
     CFG = config_unix
 
-
-
-
 def confirm(message):
     "ask a yes/no question, return result"
     reply = raw_input('\n' + message + ' [y/N]:')
@@ -51,12 +47,12 @@ def confirm(message):
         return 1
     return 0
 
-
-
 def prepdep(dep, basepath):
     "add some vars to a dep"
-    if dep.lib:
-        dep.line = dep.name + ' = -l' + dep.lib
+    if dep.libs:
+        dep.line = dep.name + ' ='
+        for lib in dep.libs:
+            dep.line += ' -l' + lib
     else:
         dep.line = dep.name + ' = -I.'
     
@@ -76,10 +72,10 @@ def prepdep(dep, basepath):
     else:
         if dep.inc_dir: inc = ' -I' + dep.inc_dir
         if dep.lib_dir: lid = ' -L' + dep.lib_dir
-    if dep.lib: lib = ' -l'+dep.lib
-    dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + lib
-
-
+    libs = ''
+    for lib in dep.libs: 
+        libs += ' -l' + lib
+    dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + libs
 
 def writesetupfile(deps, basepath):
     "create a modified copy of Setup.in"
@@ -109,9 +105,6 @@ def writesetupfile(deps, basepath):
         if useit:
             newsetup.write(line)
 
-
-
-
 def main():
     if os.path.isfile('Setup'):
         if "-auto" in sys.argv or confirm('Backup existing "Setup" file'):
@@ -131,7 +124,5 @@ the compiler flags in the "Setup" file.\n"""
     else:
         print """\nThere was an error creating the Setup file, check for errors
 or make a copy of "Setup.in" and edit by hand."""
-
-
 
 if __name__ == '__main__': main()

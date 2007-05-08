@@ -7,7 +7,7 @@
 
 
 #--StartConfig
-SDL = -I/usr/include/SDL -D_REENTRANT -lSDL -CW -CWall
+SDL = -I/usr/include/SDL -D_REENTRANT -lSDL
 FONT = -lSDL_ttf
 IMAGE = -lSDL_image
 MIXER = -lSDL_mixer
@@ -15,7 +15,7 @@ SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
 NUMERIC = -I/usr/include/python2.4/Numeric
-X11 = -lX11
+SCRAP = -lX11
 #--EndConfig
 
 #DEBUG = -C-W -C-Wall
@@ -32,7 +32,7 @@ mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
 surfarray src/surfarray.c $(SDL) $(NUMERIC) $(DEBUG)
 sndarray src/sndarray.c $(SDL) $(NUMERIC) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
-scrap src/scrap.c $(SDL) $(X11) $(DEBUG)
+scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 
 #experimental new movie movie. requires libavcodec and libavformat.
 #add any necessary compile flags to this line and uncomment.

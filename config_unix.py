@@ -11,9 +11,7 @@ localbase = os.environ.get('LOCALBASE', '')
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL',
                '/include/smpeg' ]
-origlibdirs = ['/lib','/lib64']
-
-
+origlibdirs = ['/lib','/lib64','/X11R6/lib']
 
 def confirm(message):
     "ask a yes/no question, return result"
@@ -22,16 +20,13 @@ def confirm(message):
         return 0
     return 1
 
-
-
-
 class DependencyProg:
-    def __init__(self, name, envname, exename, minver, defaultlib):
+    def __init__(self, name, envname, exename, minver, defaultlibs):
         self.name = name
         command = os.environ.get(envname, exename)
         self.lib_dir = ''
         self.inc_dir = ''
-        self.lib = ''
+        self.libs = []
         self.cflags = ''
         try:
             config = os.popen(command + ' --version --cflags --libs').readlines()
@@ -48,10 +43,6 @@ class DependencyProg:
             self.found = 1
             self.cflags = ''
             for f in flags:
-                #if f[:2] == '-L':
-                #    self.lib_dir += f[2:] + ' '
-                #elif f[:2] == 'I':
-                #    self.inc_dir += f[2:] + ' '
                 if f[:2] in ('-l', '-D', '-I', '-L'):
                     self.cflags += f + ' '
                 elif f[:3] == '-Wl':
@@ -63,7 +54,7 @@ class DependencyProg:
             print 'WARNING: "%s" failed!' % command    
             self.found = 0
             self.ver = '0'
-            self.lib = defaultlib
+            self.libs = defaultlibs
 
     def configure(self, incdirs, libdir):
         if self.found:
@@ -72,13 +63,12 @@ class DependencyProg:
         else:
             print self.name + '        '[len(self.name):] + ': not found'
 
-                    
 class Dependency:
-    def __init__(self, name, checkhead, checklib, lib):
+    def __init__(self, name, checkhead, checklib, libs):
         self.name = name
         self.inc_dir = None
         self.lib_dir = None
-        self.lib = lib
+        self.libs = libs
         self.found = 0
         self.checklib = checklib
         self.checkhead = checkhead
@@ -99,9 +89,7 @@ class Dependency:
                 path = os.path.join(dir, name)
                 if filter(os.path.isfile, glob(path+'*')):
                     self.lib_dir = dir
-        
 
-        
         if (incname and self.lib_dir and self.inc_dir) or (not incname and self.lib_dir):
             print self.name + '        '[len(self.name):] + ': found'
             self.found = 1
@@ -113,7 +101,7 @@ class DependencyPython:
         self.name = name
         self.lib_dir = ''
         self.inc_dir = ''
-        self.lib = ''
+        self.libs = []
         self.cflags = ''
         self.found = 0
         self.ver = '0'
@@ -138,25 +126,20 @@ class DependencyPython:
         else:
             print self.name + '        '[len(self.name):] + ': not found'
 
-
-
 sdl_lib_name = 'SDL'
-if sys.platform.find('bsd') != -1:
-    sdl_lib_name = 'SDL-1.1'
-
 
 def main():
     print '\nHunting dependencies...'
     DEPS = [
-        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', 'sdl'),
-        Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', 'SDL_ttf'),
-        Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', 'SDL_image'),
-        Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', 'SDL_mixer'),
-        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', 'smpeg'),
+        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['sdl']),
+        Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.so', ['SDL_ttf']),
+        Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.so', ['SDL_image']),
+        Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.so', ['SDL_mixer']),
+        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', ['smpeg']),
         DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
-        Dependency('PNG', 'png.h', 'libpng', 'png'),
-        Dependency('JPEG', 'jpeglib.h', 'libjpeg', 'jpeg'),
-        Dependency('X11', '', 'libX11', 'X11'),
+        Dependency('PNG', 'png.h', 'libpng', ['png']),
+        Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
+        Dependency('SCRAP', '', 'libX11', ['X11']),
     ]
 
     if not DEPS[0].found:
@@ -174,10 +157,6 @@ def main():
     incdirs += ["/usr/local"+d for d in origincdirs]
     libdirs += ["/usr/local"+d for d in origlibdirs]
 
-    # some stuff for X11 on freebsd.
-    incdirs += ["/usr/X11R6"+d for d in origincdirs]
-    libdirs += ["/usr/X11R6"+d for d in origlibdirs]
-
     for arg in string.split(DEPS[0].cflags):
         if arg[:2] == '-I':
             incdirs.append(arg[2:])
@@ -185,7 +164,6 @@ def main():
             libdirs.append(arg[2:])
     for d in DEPS:
         d.configure(incdirs, libdirs)
-
 
     for d in DEPS[1:]:
         if not d.found:
@@ -198,7 +176,6 @@ will not run. Would you like to continue the configuration?"""):
 
     return DEPS
 
-    
 if __name__ == '__main__':
     print """This is the configuration subscript for Unix.
 Please run "config.py" for full configuration."""

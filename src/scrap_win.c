@@ -54,7 +54,7 @@ _convert_internal_type (char *type)
     if (strcmp (type, "image/tiff") == 0)
         return CF_TIFF;
     if (strcmp (type, PYGAME_SCRAP_BMP) == 0)
-        return CF_BITMAP;
+        return CF_DIB;
     if (strcmp (type, "audio/wav") == 0)
         return CF_WAVE;
     return -1;
@@ -89,7 +89,7 @@ _lookup_clipboard_format (UINT format, char *buf, int size)
         len = 10;
         cpy = "image/tiff";
         break;
-    case CF_BITMAP:
+    case CF_DIB:
         len = strlen (PYGAME_SCRAP_BMP);
         cpy = PYGAME_SCRAP_BMP;
         break;
@@ -101,9 +101,49 @@ _lookup_clipboard_format (UINT format, char *buf, int size)
         len = GetClipboardFormatName (format, buf, size);
         return len;
     }
-    if (len != 0 )
+    if (len != 0)
         memcpy (buf, cpy, len);
     return len;
+}
+
+/**
+ * \brief Creates a BMP character buffer with all headers from a DIB
+ *        HANDLE. The caller has to free the returned buffer.
+ * \param data The DIB handle data.
+ * \param count The size of the DIB handle.
+ * \return The character buffer containing the BMP information.
+ */
+static char*
+_create_dib_buffer (char* data, unsigned long *count)
+{
+    BITMAPFILEHEADER hdr;
+    LPBITMAPINFOHEADER bihdr;
+    char *buf;
+
+    if (!data)
+        return NULL;
+    bihdr = (LPBITMAPINFOHEADER) data;
+
+    /* Create the BMP header. */
+    hdr.bfType = 'M' << 8 | 'B'; /* Specs say, it is always BM */
+	hdr.bfReserved1 = 0;
+	hdr.bfReserved2 = 0;
+	hdr.bfSize = (DWORD) (sizeof (BITMAPFILEHEADER) + bihdr->biSize
+                             + bihdr->biClrUsed * sizeof (RGBQUAD)
+                             + bihdr->biSizeImage);
+    hdr.bfOffBits = (DWORD) (sizeof (BITMAPFILEHEADER) + bihdr->biSize
+                             + bihdr->biClrUsed * sizeof (RGBQUAD));
+
+    /* Copy both to the buffer. */
+    buf = malloc (sizeof (hdr) + (*count));
+    if (!buf)
+        return NULL;
+    memcpy (buf, &hdr, sizeof (hdr));
+    memcpy (buf + sizeof (BITMAPFILEHEADER), data, *count);
+
+    /* Increase count for the correct size. */
+    *count += sizeof (hdr);
+    return buf;
 }
 
 int
@@ -125,7 +165,7 @@ pygame_scrap_init (void)
     if (retval)
         _scrapinitialized = 1;
     
-    _format_MIME_PLAIN = RegisterClipboardFormat ("text/plain");
+    _format_MIME_PLAIN = RegisterClipboardFormat (PYGAME_SCRAP_TEXT);
     return retval;
 }
 
@@ -153,10 +193,15 @@ pygame_scrap_put (char *type, int srclen, char *src)
         return 0;
     }
 
-    format = _convert_format (type);
+    format = _convert_internal_type (type);
+    if (format == -1)
+        format = _convert_format (type);
 
     if (!OpenClipboard (SDL_Window))
         return 0; /* Could not open the clipboard. */
+    
+    if (format == CF_DIB || format == CF_DIBV5)
+        nulledlen -= sizeof (BITMAPFILEHEADER); /* We won't copy the header */
     
     hMem = GlobalAlloc ((GMEM_MOVEABLE | GMEM_DDESHARE), nulledlen);
     if (hMem)
@@ -164,7 +209,10 @@ pygame_scrap_put (char *type, int srclen, char *src)
         char *dst = GlobalLock (hMem);
 
         memset (dst, 0, nulledlen);
-        memcpy (dst, src, srclen);
+        if (format == CF_DIB || format == CF_DIBV5)
+            memcpy (dst, src + sizeof (BITMAPFILEHEADER), nulledlen - 1);
+        else
+            memcpy (dst, src, srclen);
 
         GlobalUnlock (hMem);
         EmptyClipboard ();
@@ -175,7 +223,6 @@ pygame_scrap_put (char *type, int srclen, char *src)
             /* Setting SCRAP_TEXT, also set CF_TEXT. */
             SetClipboardData (CF_TEXT, hMem);
         }
-        CloseClipboard ();
     }
     else
     {
@@ -183,9 +230,12 @@ pygame_scrap_put (char *type, int srclen, char *src)
         CloseClipboard ();
         return 0;
     }
-
+    
+    CloseClipboard ();
     return 1;
 }
+
+
 
 char*
 pygame_scrap_get (char *type, unsigned long *count)
@@ -210,7 +260,10 @@ pygame_scrap_get (char *type, unsigned long *count)
         /* The format was not found - was it a mapped type? */
         format = _convert_internal_type (type);
         if (format == -1)
+        {
+            CloseClipboard ();
             return NULL;
+        }
     }
 
     if (IsClipboardFormatAvailable (format))
@@ -222,26 +275,43 @@ pygame_scrap_get (char *type, unsigned long *count)
         if (hMem)
         {
             *count = 0;
-            
-            /* TODO: Is there any mechanism to detect the amount of bytes
-             * in the HANDLE? strlen() won't work as supposed, if the
-             * sequence contains NUL bytes. Can this even happen in the 
-             * Win32 clipboard or is NUL the usual delimiter?
-             */
-            src = GlobalLock (hMem);
-            *count = strlen (src) + 1;
-            
-            retval = malloc (*count);
-            if (retval)
+
+            /* CF_BITMAP is not a global, so do not lock it. */
+            if (format != CF_BITMAP)
             {
-                memset (retval, 0, *count);
-                memcpy (retval, src, *count);
+                src = GlobalLock (hMem);
+                if (!src)
+                {
+                    CloseClipboard ();
+                    return NULL;
+                }
+                *count = GlobalSize (hMem);
+            }
+            
+            if (format == CF_DIB || format == CF_DIBV5)
+            {
+                /* Count will be increased accordingly in
+                 * _create_dib_buffer.
+                 */
+                src = _create_dib_buffer (src, count);
+                GlobalUnlock (hMem);
+                CloseClipboard ();
+                return src;
+            }
+            else  if (*count != 0)
+            {
+                retval = malloc (*count);
+                if (retval)
+                {
+                    memset (retval, 0, *count);
+                    memcpy (retval, src, *count);
+                }
             }
             GlobalUnlock (hMem);
         }
-        CloseClipboard ();
     }
-    
+
+    CloseClipboard ();
     return retval;
 }
 
@@ -259,11 +329,14 @@ pygame_scrap_get_types (void)
 
     if (!OpenClipboard (SDL_Window))
         return NULL;
+
     size = CountClipboardFormats ();
     if (size == 0)
+    {
+        CloseClipboard ();
         return NULL; /* No clipboard data. */
+    }
 
-    //types = malloc (sizeof (char *) * (size + 1));
     for (i = 0; i < size; i++)
     {
         format = EnumClipboardFormats (format);
@@ -273,8 +346,8 @@ pygame_scrap_get_types (void)
             while (i > 0)
                 free (types[i]);
             free (types);
+            CloseClipboard ();
             return NULL;
-            break;
         }
 
         /* No predefined name, get the (truncated) name. */
@@ -292,6 +365,7 @@ pygame_scrap_get_types (void)
                 count--;
             }
             free (types);
+            CloseClipboard ();
             return NULL;
         }
         types = tmptypes;
@@ -304,12 +378,14 @@ pygame_scrap_get_types (void)
                 count--;
             }
             free (types);
+            CloseClipboard ();
             return NULL;
         }
 
         memset (types[count], 0, len + 1);
         memcpy (types[count], tmp, len);
     }
+
     tmptypes = realloc (types, sizeof (char *) * (count + 1));
     if (!tmptypes)
     {
@@ -319,10 +395,12 @@ pygame_scrap_get_types (void)
             count--;
         }
         free (types);
+        CloseClipboard ();
         return NULL;
     }
     types = tmptypes;
     types[count] = NULL;
+    CloseClipboard ();
     return types;
 }
 
