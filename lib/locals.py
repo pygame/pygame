@@ -27,4 +27,6 @@ from pygame.constants import *
 from pygame.rect import Rect
 import pygame.color as color
 Color = color.Color
+import pygame.mask
+Mask = pygame.mask.Mask
 

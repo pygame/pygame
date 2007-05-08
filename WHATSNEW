@@ -3,6 +3,10 @@
 # CVS tag names are placed before the date
 # BREAK = change breaks existing code
 # BUG	= fixed a bug that was (or could have been) crashing
+#
+#
+May 9, 2007
+    Windows bitmap copy/paste is working for scrap.
 
 May 2, 2007
     [BUG] fromstring,tostring work for alpha. Thanks Brian Fisher.
