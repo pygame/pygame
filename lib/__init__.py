@@ -114,9 +114,11 @@ except (ImportError,IOError), msg:mouse=MissingModule("mouse", msg, 1)
 try: import pygame.sprite
 except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
 
-
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
+
+try: from pygame.mask import *
+except (ImportError,IOError):Mask = lambda:Missing_Function
 
 try: from pygame.overlay import *
 except (ImportError,IOError):Overlay = lambda:Missing_Function
