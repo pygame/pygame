@@ -499,7 +499,7 @@ def collide_circle( left, right ):
     distanceSquared = xDistance ** 2 + yDistance ** 2
     return distanceSquared < get_radius_squared( left ) + get_radius_squared( right )
 
-def spritecollide(sprite, group, dokill, collided = collide_rect):
+def spritecollide(sprite, group, dokill, collided = None):
     """pygame.sprite.spritecollide(sprite, group, dokill) -> list
        collision detection between sprite and group
 
@@ -511,18 +511,34 @@ def spritecollide(sprite, group, dokill, collided = collide_rect):
        is true, the sprites that do collide will be
        automatically removed from all groups."""
     crashed = []
-    if dokill:
-        for s in group.sprites():
-            if collided( sprite, s ):
-                s.kill()
-                crashed.append(s)
+    acollide = collided
+
+
+    if not collided:
+        # special case 
+        spritecollide = sprite.rect.colliderect
+        if dokill:
+            for s in group.sprites():
+                if spritecollide(s.rect):
+                    s.kill()
+                    crashed.append(s)
+        else:
+            for s in group:
+                if spritecollide(s.rect):
+                    crashed.append(s)
     else:
-        for s in group:
-            if collided( sprite, s ):
-                crashed.append(s)
+        if dokill:
+            for s in group.sprites():
+                if acollide( sprite, s ):
+                    s.kill()
+                    crashed.append(s)
+        else:
+            for s in group:
+                if acollide( sprite, s ):
+                    crashed.append(s)
     return crashed
 
-def groupcollide(groupa, groupb, dokilla, dokillb, collided = collide_rect):
+def groupcollide(groupa, groupb, dokilla, dokillb, collided = None):
     """pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
        collision detection between group and group
 
@@ -536,6 +552,9 @@ def groupcollide(groupa, groupb, dokilla, dokillb, collided = collide_rect):
        removed from all groups."""
     crashed = {}
     SC = spritecollide
+    if not collided:
+        collided = collide_rect
+
     if dokilla:
         for s in groupa.sprites():
             c = SC(s, groupb, dokillb, collided)
@@ -549,7 +568,7 @@ def groupcollide(groupa, groupb, dokilla, dokillb, collided = collide_rect):
                 crashed[s] = c
     return crashed
 
-def spritecollideany(sprite, group, collided = collide_rect):
+def spritecollideany(sprite, group, collided = None):
     """pygame.sprite.spritecollideany(sprite, group) -> sprite
        finds any sprites that collide
 
@@ -564,7 +583,16 @@ def spritecollideany(sprite, group, collided = collide_rect):
 
        all sprites must have a "rect" value, which is a
        rectangle of the sprite area."""
-    for s in group:
-        if collided( sprite, s ):
-            return s
+
+    if collided:
+        for s in group:
+            if collided( sprite, s ):
+                return s
+    else:
+        spritecollide = sprite.rect.colliderect
+        for s in group:
+            if spritecollide(s.rect):
+                return s
+
+
     return None
