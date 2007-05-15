@@ -27,10 +27,7 @@
 #include "pygamedocs.h"
 #include <math.h>
 
-
 void scale2x(SDL_Surface *src, SDL_Surface *dst);
-
-
 
 static SDL_Surface* newsurf_fromsurf(SDL_Surface* surf, int width, int height)
 {
@@ -528,6 +525,7 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 	}
 	else
 	{
+                SDL_LockSurface(surf);
 		switch(surf->format->BytesPerPixel)
 		{
 		case 1: bgcolor = *(Uint8*)surf->pixels; break;
@@ -540,6 +538,7 @@ static PyObject* surf_rotate(PyObject* self, PyObject* arg)
 			bgcolor = (((Uint8*)surf->pixels)[2]) + (((Uint8*)surf->pixels)[1]<<8) + (((Uint8*)surf->pixels)[0]<<16);
 #endif
 		}
+                SDL_UnlockSurface(surf);
 		bgcolor &= ~surf->format->Amask;
 	}
 
@@ -850,13 +849,12 @@ static PyMethodDef transform_builtins[] =
 PYGAME_EXPORT
 void inittransform(void)
 {
-	PyObject *module;
-	module = Py_InitModule3("transform", transform_builtins, DOC_PYGAMETRANSFORM);
+    PyObject *module;
+    module = Py_InitModule3("transform", transform_builtins,
+                            DOC_PYGAMETRANSFORM);
 
-	/*imported needed apis*/
-	import_pygame_base();
-	import_pygame_rect();
-	import_pygame_surface();
+    /*imported needed apis*/
+    import_pygame_base();
+    import_pygame_rect();
+    import_pygame_surface();
 }
-
-

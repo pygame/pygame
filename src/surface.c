@@ -1045,7 +1045,7 @@ static PyObject* surf_get_rect(PyObject* self, PyObject* args, PyObject* kw)
     if(rect && kw)
     {
         PyObject *key, *value;
-        int pos=0;
+        Py_ssize_t pos=0;
         while(PyDict_Next(kw, &pos, &key, &value))
         {
             if((PyObject_SetAttr(rect, key, value) == -1))

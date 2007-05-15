@@ -149,7 +149,6 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 		if(posobj == NULL)
 		{
                         Py_BEGIN_ALLOW_THREADS
-			SMPEG_Info info;
 			SMPEG_getinfo(movie, &info);
 			SMPEG_scaleXY(movie, info.width, info.height);
                         Py_END_ALLOW_THREADS
@@ -158,7 +157,6 @@ static PyObject* movie_set_display(PyObject* self, PyObject* args)
 		else if(TwoIntsFromObj(posobj, &x, &y))
 		{
                         Py_BEGIN_ALLOW_THREADS
-			SMPEG_Info info;
 			SMPEG_getinfo(movie, &info);
 			SMPEG_scaleXY(movie, info.width, info.height);
                         Py_END_ALLOW_THREADS

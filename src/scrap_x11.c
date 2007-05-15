@@ -581,7 +581,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
             if (count && list)
             {
                 int i = 0;
-                int offset = 0;
+                int ioffset = 0;
                 int length = 0;
                 char *tmp;
 
@@ -597,12 +597,12 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
                         free (tmp);
                         return NULL;
                     }
-                    offset += length;
+                    ioffset += length;
 
                     memcpy (retval, list[i], length);
-                    memset (retval + offset, '\n', 1);
+                    memset (retval + ioffset, '\n', 1);
                 }
-                memset (retval + offset, 0, 1);
+                memset (retval + ioffset, 0, 1);
             }
         }
 

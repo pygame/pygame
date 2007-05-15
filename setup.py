@@ -31,8 +31,20 @@ if not hasattr(sys, 'version_info') or sys.version_info < (2,2):
 import os, sys
 path = os.path.split(os.path.abspath(sys.argv[0]))[0]
 os.chdir(path)
-
-
+#os.environ["CFLAGS"] = "-W -Wall -Wpointer-arith -Wcast-qual -Winline " + \
+#                       "-Wcast-align -Wconversion -Wstrict-prototypes " + \
+#                       "-Wmissing-prototypes -Wmissing-declarations " + \
+#                       "-Wnested-externs -Wshadow -Wredundant-decls"
+if "-bigw" in sys.argv:
+    os.environ["CFLAGS"] = "-W -Wimplicit-int " + \
+                       "-Wimplicit-function-declaration " + \
+                       "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
+                       "-Wcomment -Wtrigraphs -Wformat -Wchar-subscripts " + \
+                       "-Wuninitialized -Wparentheses " +\
+                       "-Wpointer-arith -Wcast-qual -Winline -Wcast-align " + \
+                       "-Wconversion -Wstrict-prototypes " + \
+                       "-Wmissing-prototypes -Wmissing-declarations " + \
+                       "-Wnested-externs -Wshadow -Wredundant-decls"
 
 import os.path, glob
 import distutils.sysconfig

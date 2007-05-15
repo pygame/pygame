@@ -193,7 +193,7 @@ static PyObject* Mask(PyObject* self, PyObject* args)
 	  return NULL; /*RAISE(PyExc_Error, "cannot create bitmask");*/
         
         /*create the new python object from mask*/        
-	maskobj = PyObject_NEW(PyMaskObject, &PyMask_Type);
+	maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
         if(maskobj)
         	maskobj->mask = mask;
 	return (PyObject*)maskobj;
