@@ -193,7 +193,7 @@ typedef struct {
 static PyObject* clock_tick_base(PyObject* self, PyObject* arg,
                                  int use_accurate_delay)
 {
-    PyClockObject* clock = (PyClockObject*)self;
+    PyClockObject* _clock = (PyClockObject*)self;
     float framerate = 0.0f;
     int nowtime;
     
@@ -203,8 +203,8 @@ static PyObject* clock_tick_base(PyObject* self, PyObject* arg,
     if(framerate)
     {
         int delay, endtime = (int)((1.0f/framerate) * 1000.0f);
-        clock->rawpassed = SDL_GetTicks() - clock->last_tick;
-        delay = endtime - clock->rawpassed;
+        _clock->rawpassed = SDL_GetTicks() - _clock->last_tick;
+        delay = endtime - _clock->rawpassed;
         
         /*just doublecheck that timer is initialized*/
         if(!SDL_WasInit(SDL_INIT_TIMER))
@@ -234,26 +234,26 @@ static PyObject* clock_tick_base(PyObject* self, PyObject* arg,
     }
         
     nowtime = SDL_GetTicks();
-    clock->timepassed = nowtime - clock->last_tick;
-    clock->fps_count += 1;
-    clock->last_tick = nowtime;
+    _clock->timepassed = nowtime - _clock->last_tick;
+    _clock->fps_count += 1;
+    _clock->last_tick = nowtime;
     if(!framerate)
-        clock->rawpassed = clock->timepassed;
+        _clock->rawpassed = _clock->timepassed;
     
-    if(!clock->fps_tick)
+    if(!_clock->fps_tick)
     {
-        clock->fps_count = 0;
-        clock->fps_tick = nowtime;
+        _clock->fps_count = 0;
+        _clock->fps_tick = nowtime;
     }
-    else if(clock->fps_count >= 10)
+    else if(_clock->fps_count >= 10)
     {
-        clock->fps = clock->fps_count /
-            ((nowtime - clock->fps_tick) / 1000.0f);
-        clock->fps_count = 0;
-        clock->fps_tick = nowtime;
-        Py_XDECREF(clock->rendered);
+        _clock->fps = _clock->fps_count /
+            ((nowtime - _clock->fps_tick) / 1000.0f);
+        _clock->fps_count = 0;
+        _clock->fps_tick = nowtime;
+        Py_XDECREF(_clock->rendered);
     }
-    return PyInt_FromLong(clock->timepassed);
+    return PyInt_FromLong(_clock->timepassed);
 }
 
 static PyObject* clock_tick(PyObject* self, PyObject* arg) 
@@ -268,20 +268,20 @@ static PyObject* clock_tick_busy_loop(PyObject* self, PyObject* arg)
 
 static PyObject* clock_get_fps(PyObject* self, PyObject* arg)
 {
-    PyClockObject* clock = (PyClockObject*)self;
-    return PyFloat_FromDouble(clock->fps);
+    PyClockObject* _clock = (PyClockObject*)self;
+    return PyFloat_FromDouble(_clock->fps);
 }
 
 static PyObject* clock_get_time(PyObject* self, PyObject* arg)
 {
-    PyClockObject* clock = (PyClockObject*)self;
-    return PyInt_FromLong(clock->timepassed);
+    PyClockObject* _clock = (PyClockObject*)self;
+    return PyInt_FromLong(_clock->timepassed);
 }
 
 static PyObject* clock_get_rawtime(PyObject* self, PyObject* arg)
 {
-    PyClockObject* clock = (PyClockObject*)self;
-    return PyInt_FromLong(clock->rawpassed);
+    PyClockObject* _clock = (PyClockObject*)self;
+    return PyInt_FromLong(_clock->rawpassed);
 }
 
 #if 0
@@ -292,7 +292,7 @@ to lazily import them when they are first needed. unfortunately
 this adds up to a lot of messy code. we'll wait on this one*/
 static PyObject* clock_render_fps(PyObject* self, PyObject* arg)
 {
-    PyClockObject* clock = (PyClockObject*)self;
+    PyClockObject* _clock = (PyClockObject*)self;
     char message[256];
     static int initialized = 0;
     
@@ -331,7 +331,7 @@ static PyObject* clock_render_fps(PyObject* self, PyObject* arg)
             Py_DECREF(func);
             func = PyObject_GetAttrString(result, "render");
             Py_DECREF(result);
-            sprintf(message, "fps: %.2f", clock->fps);
+            sprintf(message, "fps: %.2f", _clock->fps);
             result = PyObject_CallFunction(func, "si(iii)(iii)",
                                            message, 0, 255, 255, 255, 0, 0, 0);
             /**** BLIT IMG ONTO A PRESET IMAGE SIZE AND RETURN IT ****/
@@ -364,8 +364,8 @@ static struct PyMethodDef clock_methods[] =
 
 static void clock_dealloc(PyObject* self)
 {
-    PyClockObject* clock = (PyClockObject*)self;
-    Py_XDECREF(clock->rendered);
+    PyClockObject* _clock = (PyClockObject*)self;
+    Py_XDECREF(_clock->rendered);
     PyObject_DEL(self);	
 }
 
@@ -377,9 +377,9 @@ static PyObject *clock_getattr(PyObject *self, char *name)
 PyObject* clock_str(PyObject* self)
 {
     char str[1024];
-    PyClockObject* clock = (PyClockObject*)self;
+    PyClockObject* _clock = (PyClockObject*)self;
     
-    sprintf(str, "<Clock(fps=%.2f)>", (float)clock->fps);
+    sprintf(str, "<Clock(fps=%.2f)>", (float)_clock->fps);
     
     return PyString_FromString(str);
 }
@@ -410,13 +410,13 @@ static PyTypeObject PyClock_Type =
 
 PyObject* ClockInit(PyObject* self, PyObject* arg)
 {
-    PyClockObject* clock;
+    PyClockObject* _clock;
     
     if(!PyArg_ParseTuple(arg, ""))
         return NULL;
     
-    clock = PyObject_NEW(PyClockObject, &PyClock_Type);
-    if(!clock)
+    _clock = PyObject_NEW(PyClockObject, &PyClock_Type);
+    if(!_clock)
         return NULL;
     
     /*just doublecheck that timer is initialized*/
@@ -426,13 +426,13 @@ PyObject* ClockInit(PyObject* self, PyObject* arg)
             return RAISE(PyExc_SDLError, SDL_GetError());
     }
     
-    clock->fps_tick = 0;
-    clock->last_tick = SDL_GetTicks();
-    clock->fps = 0.0f;
-    clock->fps_count = 0;
-    clock->rendered = NULL;
+    _clock->fps_tick = 0;
+    _clock->last_tick = SDL_GetTicks();
+    _clock->fps = 0.0f;
+    _clock->fps_count = 0;
+    _clock->rendered = NULL;
     
-    return (PyObject*)clock;
+    return (PyObject*)_clock;
 }
 static PyMethodDef time_builtins[] =
 {

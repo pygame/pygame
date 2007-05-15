@@ -59,7 +59,6 @@ while going:
             fp = open ("data/liquid.bmp", "rb")
             buf = fp.read ()
             scrap.put ("image/bmp", buf)
-            print len (buf)
             fp.close ()
 
     pygame.display.flip()
