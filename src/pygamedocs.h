@@ -214,6 +214,15 @@
 
 #define DOC_FONTGETDESCENT "Font.get_descent(): return int\nget the descent of the font"
 
+#define DOC_FONTMETRICS \
+  "Font.metrics(text): return list\n" \
+  "Gets the metrics for each character in the pased string.\n" \
+  "\n" \
+  "The list contains tuples for each character, which contain the minimum\n" \
+  "X offset, the maximum X offset, the minimum Y offset, the maximum\n" \
+  "Y offset and the advance offset (bearing plus width) of the character.\n" \
+  "[(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), ...]"
+ 
 #define DOC_PYGAMEIMAGE "pygame module for image transfer"
 
 #define DOC_PYGAMEIMAGELOAD "pygame.image.load(filename): return Surface\npygame.image.load(fileobj, namehint=""): return Surface\nload new image from a file"

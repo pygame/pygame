@@ -497,7 +497,7 @@ static PyObject* Event(PyObject* self, PyObject* arg, PyObject* keywords)
 	if(keywords)
 	{
 		PyObject *key, *value;
-		int pos  = 0;
+		Py_ssize_t pos  = 0;
 		while(PyDict_Next(keywords, &pos, &key, &value))
 			PyDict_SetItem(dict, key, value);
 	}

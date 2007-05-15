@@ -222,7 +222,8 @@ int zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int smooth)
  
 */
 
-void transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int isin, int icos, int smooth)
+void transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx,
+                                 int cy, int isin, int icos, int smooth)
 {
     int x, y, t1, t2, dx, dy, xd, yd, sdx, sdy, ax, ay, ex, ey, sw, sh;
     tColorRGBA c00, c01, c10, c11;
@@ -395,8 +396,9 @@ void transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, 
 
 /* Local rotozoom-size function with trig result return */
 
-void rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoom, int *dstwidth, int *dstheight,
-			     double *canglezoom, double *sanglezoom)
+void rotozoomSurfaceSizeTrig(int width, int height, double angle,
+                                    double zoom, int *dstwidth, int *dstheight,
+                                    double *canglezoom, double *sanglezoom)
 {
     double x, y, cx, cy, sx, sy;
     double radangle;
@@ -427,7 +429,8 @@ void rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoom, i
 
 /* Publically available rotozoom-size function */
 
-void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth, int *dstheight)
+void rotozoomSurfaceSize(int width, int height, double angle,
+                                double zoom, int *dstwidth, int *dstheight)
 {
     double dummy_sanglezoom, dummy_canglezoom;
 
@@ -445,7 +448,8 @@ void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *
 
 */
 
-void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight)
+void zoomSurfaceSize(int width, int height, double zoomx, double zoomy,
+                            int *dstwidth, int *dstheight)
 {
     /*
      * Sanity check zoom factors 
@@ -473,7 +477,8 @@ void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dst
 
 /* Publically available rotozoom function */
 
-SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int smooth)
+SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle,
+                                    double zoom, int smooth)
 {
     SDL_Surface *rz_src;
     SDL_Surface *rz_dst;

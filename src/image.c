@@ -257,7 +257,8 @@ PyObject* image_tostring(PyObject* self, PyObject* arg)
 	PyObject *surfobj, *string=NULL;
 	char *format, *data, *pixels;
 	SDL_Surface *surf, *temp=NULL;
-	int w, h, color, len, flipped=0;
+	int w, h, color, flipped=0;
+        Py_ssize_t len;
 	int Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss, Gloss, Bloss, Aloss;
 	int hascolorkey, colorkey;
 
@@ -545,7 +546,8 @@ PyObject* image_fromstring(PyObject* self, PyObject* arg)
 	PyObject *string;
 	char *format, *data;
 	SDL_Surface *surf = NULL;
-	int w, h, len, flipped=0;
+	int w, h, flipped=0;
+        Py_ssize_t len;
 	int loopw, looph;
 
 	if(!PyArg_ParseTuple(arg, "O!(ii)s|i", &PyString_Type, &string, &w, &h, &format, &flipped))
@@ -656,7 +658,8 @@ PyObject* image_frombuffer(PyObject* self, PyObject* arg)
 	PyObject *buffer;
 	char *format, *data;
 	SDL_Surface *surf = NULL;
-	int w, h, len;
+	int w, h;
+        Py_ssize_t len;
         PyObject *surfobj;
 
 	if(!PyArg_ParseTuple(arg, "O(ii)s|i", &buffer, &w, &h, &format))

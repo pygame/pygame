@@ -449,7 +449,7 @@ static PyObject* rect_collidedict(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
 	GAME_Rect *argrect, temp;
-	int loop=0;
+	Py_ssize_t loop=0;
 	PyObject* dict, *key, *val;
 	PyObject* ret = NULL;
 
@@ -485,7 +485,7 @@ static PyObject* rect_collidedictall(PyObject* oself, PyObject* args)
 {
 	PyRectObject* self = (PyRectObject*)oself;
 	GAME_Rect *argrect, temp;
-	int loop=0;
+	Py_ssize_t loop=0;
 	PyObject* dict, *key, *val;
 	PyObject* ret = NULL;
 
@@ -721,107 +721,109 @@ static struct PyMethodDef rect_methods[] =
 
 /* sequence functions */
 
-static int rect_length(PyRectObject *self)
+static Py_ssize_t rect_length(PyRectObject *self)
 {
 	return 4;
 }
 
-static PyObject* rect_item(PyRectObject *self, int i)
+static PyObject* rect_item(PyObject *_self, Py_ssize_t i)
 {
-	int* data = (int*)&self->r;
-	if(i<0 || i>3)
-		return RAISE(PyExc_IndexError, "Invalid rect Index");
+    PyRectObject *self = (PyRectObject *) _self;
+    int* data = (int*)&self->r;
+    if(i<0 || i>3)
+        return RAISE(PyExc_IndexError, "Invalid rect Index");
 
-	return PyInt_FromLong(data[i]);
+    return PyInt_FromLong(data[i]);
 }
 
-static int rect_ass_item(PyRectObject *self, int i, PyObject *v)
+static int rect_ass_item(PyObject *_self, Py_ssize_t i, PyObject *v)
 {
-	int val;
-	int* data = (int*)&self->r;
-	if(i<0 || i>3)
-	{
-		RAISE(PyExc_IndexError, "Invalid rect Index");
-		return -1;
-	}
-	if(!IntFromObj(v, &val))
-	{
-		RAISE(PyExc_TypeError, "Must assign numeric values");
-		return -1;
-	}
-	data[i] = val;
-	return 0;
+    PyRectObject *self = (PyRectObject *) _self;
+    int val;
+    int* data = (int*)&self->r;
+    if(i<0 || i>3)
+    {
+        RAISE(PyExc_IndexError, "Invalid rect Index");
+        return -1;
+    }
+    if(!IntFromObj(v, &val))
+    {
+        RAISE(PyExc_TypeError, "Must assign numeric values");
+        return -1;
+    }
+    data[i] = val;
+    return 0;
 }
 
-
-static PyObject* rect_slice(PyRectObject *self, int ilow, int ihigh)
+static PyObject* rect_slice(PyObject *_self, Py_ssize_t ilow, Py_ssize_t ihigh)
 {
-	PyObject *list;
-	int* data = (int*)&self->r;
-	int numitems, loop, l = 4;
-
-	if (ihigh < 0) ihigh += l;
-	if (ilow  < 0) ilow  += l;
-	if (ilow < 0) ilow = 0;
-	else if (ilow > l) ilow = l;
-	if (ihigh < 0) ihigh = 0;
-	else if (ihigh > l) ihigh = l;
-	if (ihigh < ilow) ihigh = ilow;
-
-	numitems = ihigh - ilow;
-	list = PyList_New(numitems);
-	for(loop = 0; loop < numitems; ++loop)
-		PyList_SET_ITEM(list, loop, PyInt_FromLong(data[loop+ilow]));
-
-	return list;
+    PyRectObject *self = (PyRectObject *) _self;
+    PyObject *list;
+    int* data = (int*)&self->r;
+    int numitems, loop, l = 4;
+    
+    if (ihigh < 0) ihigh += l;
+    if (ilow  < 0) ilow  += l;
+    if (ilow < 0) ilow = 0;
+    else if (ilow > l) ilow = l;
+    if (ihigh < 0) ihigh = 0;
+    else if (ihigh > l) ihigh = l;
+    if (ihigh < ilow) ihigh = ilow;
+    
+    numitems = ihigh - ilow;
+    list = PyList_New(numitems);
+    for(loop = 0; loop < numitems; ++loop)
+        PyList_SET_ITEM(list, loop, PyInt_FromLong(data[loop+ilow]));
+    
+    return list;
 }
 
-
-
-static int rect_ass_slice(PyRectObject *self, int ilow, int ihigh, PyObject *v)
+static int rect_ass_slice(PyObject *_self, Py_ssize_t ilow, Py_ssize_t ihigh, 
+                          PyObject *v)
 {
-	int* data = (int*)&self->r;
-	int numitems, loop, l = 4;
-	int val;
-
-	if(!PySequence_Check(v))
-	{
-		RAISE(PyExc_TypeError, "Assigned slice must be a sequence");
-		return -1;
-	}
-
-	if (ihigh < 0) ihigh += l;
-	if (ilow  < 0) ilow  += l;
-	if (ilow < 0) ilow = 0;
-	else if (ilow > l) ilow = l;
-	if (ihigh < 0) ihigh = 0;
-	else if (ihigh > l) ihigh = l;
-	if (ihigh < ilow) ihigh = ilow;
-
-	numitems = ihigh - ilow;
-	if(numitems != PySequence_Length(v))
-	{
-		RAISE(PyExc_ValueError, "Assigned slice must be same length");
-		return -1;
-	}
-
-	for(loop = 0; loop < numitems; ++loop)
-	{
-		if(!IntFromObjIndex(v, loop, &val)) return -1;
-		data[loop+ilow] = val;
-	}
-
-	return 0;
+    PyRectObject *self = (PyRectObject *) _self;
+    int* data = (int*)&self->r;
+    int numitems, loop, l = 4;
+    int val;
+    
+    if(!PySequence_Check(v))
+    {
+        RAISE(PyExc_TypeError, "Assigned slice must be a sequence");
+        return -1;
+    }
+    
+    if (ihigh < 0) ihigh += l;
+    if (ilow  < 0) ilow  += l;
+    if (ilow < 0) ilow = 0;
+    else if (ilow > l) ilow = l;
+    if (ihigh < 0) ihigh = 0;
+    else if (ihigh > l) ihigh = l;
+    if (ihigh < ilow) ihigh = ilow;
+    
+    numitems = ihigh - ilow;
+    if(numitems != PySequence_Length(v))
+    {
+        RAISE(PyExc_ValueError, "Assigned slice must be same length");
+        return -1;
+    }
+    
+    for(loop = 0; loop < numitems; ++loop)
+    {
+        if(!IntFromObjIndex(v, loop, &val)) return -1;
+        data[loop+ilow] = val;
+    }
+    
+    return 0;
 }
 
 static PySequenceMethods rect_as_sequence = {
-	(inquiry)rect_length,				/*length*/
-	(binaryfunc)NULL,					/*concat*/
-	(intargfunc)NULL,					/*repeat*/
-	(intargfunc)rect_item,				/*item*/
-	(intintargfunc)rect_slice,			/*slice*/
-	(intobjargproc)rect_ass_item,		/*ass_item*/
-	(intintobjargproc)rect_ass_slice,	/*ass_slice*/
+    rect_length,    /*length*/
+    NULL,           /*concat*/
+    NULL,           /*repeat*/
+    rect_item,      /*item*/
+    rect_slice,     /*slice*/
+    rect_ass_item,  /*ass_item*/
+    rect_ass_slice, /*ass_slice*/
 };
 
 
