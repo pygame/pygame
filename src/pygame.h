@@ -146,17 +146,17 @@ typedef int Py_ssize_t;
     (*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
 
 #define import_pygame_base() {                                          \
-	PyObject *module = PyImport_ImportModule("pygame.base");        \
-	if (module != NULL) {                                           \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.base");        \
+	if (_module != NULL) {                                           \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_BASE_NUMSLOTS; ++i)            \
                     PyGAME_C_API[i + PYGAMEAPI_BASE_FIRSTSLOT] = localptr[i]; \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif
@@ -192,17 +192,17 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 3])
 
 #define import_pygame_rect() {                                          \
-	PyObject *module = PyImport_ImportModule("pygame.rect");        \
-	if (module != NULL) {                                           \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.rect");        \
+	if (_module != NULL) {                                         \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_RECT_NUMSLOTS; ++i)            \
                     PyGAME_C_API[i + PYGAMEAPI_RECT_FIRSTSLOT] = localptr[i]; \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif
@@ -227,17 +227,17 @@ typedef struct {
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 1])
 
 #define import_pygame_cd() {                                      \
-	PyObject *module = PyImport_ImportModule("pygame.cdrom"); \
-	if (module != NULL) {                                     \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.cdrom"); \
+	if (_module != NULL) {                                     \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_CDROM_NUMSLOTS; ++i)           \
                     PyGAME_C_API[i + PYGAMEAPI_CDROM_FIRSTSLOT] = localptr[i]; \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif
@@ -266,18 +266,18 @@ typedef struct {
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 1])
 
 #define import_pygame_joystick() {                                      \
-	PyObject *module = PyImport_ImportModule("pygame.joystick");    \
-	if (module != NULL) {                                           \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.joystick");    \
+	if (_module != NULL) {                                           \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_JOYSTICK_NUMSLOTS; ++i)        \
                     PyGAME_C_API[i + PYGAMEAPI_JOYSTICK_FIRSTSLOT] =    \
                         localptr[i];                                    \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif
@@ -304,18 +304,18 @@ typedef struct {
     (*(PyObject*(*)(SDL_VideoInfo*))                    \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #define import_pygame_display() {                                   \
-	PyObject *module = PyImport_ImportModule("pygame.display"); \
-	if (module != NULL) {                                       \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.display"); \
+	if (_module != NULL) {                                       \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_DISPLAY_NUMSLOTS; ++i)         \
                     PyGAME_C_API[i + PYGAMEAPI_DISPLAY_FIRSTSLOT] =     \
                         localptr[i];                                    \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif
@@ -348,31 +348,31 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
 
 #define import_pygame_surface() {                                   \
-	PyObject *module = PyImport_ImportModule("pygame.surface"); \
-	if (module != NULL) {                                       \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.surface"); \
+	if (_module != NULL) {                                       \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_SURFACE_NUMSLOTS; ++i)         \
                     PyGAME_C_API[i + PYGAMEAPI_SURFACE_FIRSTSLOT] =     \
                         localptr[i];                                    \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
-	module = PyImport_ImportModule("pygame.surflock");              \
-	if (module != NULL) {                                           \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	_module = PyImport_ImportModule("pygame.surflock");              \
+	if (_module != NULL) {                                           \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i)        \
                     PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] =    \
                         localptr[i];                                    \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif
@@ -433,17 +433,17 @@ typedef struct {
     (*(int (*)(PyEventObject*, SDL_Event*))             \
      PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
 #define import_pygame_event() {                                   \
-	PyObject *module = PyImport_ImportModule("pygame.event"); \
-	if (module != NULL) {                                     \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.event"); \
+	if (_module != NULL) {                                     \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_EVENT_NUMSLOTS; ++i)           \
                     PyGAME_C_API[i + PYGAMEAPI_EVENT_FIRSTSLOT] = localptr[i]; \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif
@@ -464,18 +464,18 @@ typedef struct {
 #define RWopsCheckPythonThreaded                                        \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
 #define import_pygame_rwobject() {                                   \
-	PyObject *module = PyImport_ImportModule("pygame.rwobject"); \
-	if (module != NULL) {                                        \
-            PyObject *dict = PyModule_GetDict(module);                  \
-            PyObject *c_api = PyDict_GetItemString(dict,                \
+	PyObject *_module = PyImport_ImportModule("pygame.rwobject"); \
+	if (_module != NULL) {                                        \
+            PyObject *_dict = PyModule_GetDict(_module);                  \
+            PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
-            if(PyCObject_Check(c_api)) {                                \
-                int i; void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+            if(PyCObject_Check(_c_api)) {                                \
+                int i; void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
                 for(i = 0; i < PYGAMEAPI_RWOBJECT_NUMSLOTS; ++i)        \
                     PyGAME_C_API[i + PYGAMEAPI_RWOBJECT_FIRSTSLOT] =    \
                         localptr[i];                                    \
             }                                                           \
-            Py_DECREF(module);                                          \
+            Py_DECREF(_module);                                          \
         }                                                               \
     }
 #endif

@@ -255,11 +255,11 @@ static int IntFromObj(PyObject* obj, int* val)
 	return 0;
 }
 
-static int IntFromObjIndex(PyObject* obj, int index, int* val)
+static int IntFromObjIndex(PyObject* obj, int _index, int* val)
 {
 	int result = 0;
 	PyObject* item;
-	item = PySequence_GetItem(obj, index);
+	item = PySequence_GetItem(obj, _index);
 	if(item)
 	{
 		result = IntFromObj(item, val);
@@ -298,11 +298,11 @@ static int FloatFromObj(PyObject* obj, float* val)
 	return 0;
 }
 
-static int FloatFromObjIndex(PyObject* obj, int index, float* val)
+static int FloatFromObjIndex(PyObject* obj, int _index, float* val)
 {
 	int result = 0;
 	PyObject* item;
-	item = PySequence_GetItem(obj, index);
+	item = PySequence_GetItem(obj, _index);
 	if(item)
 	{
 		result = FloatFromObj(item, val);
@@ -341,11 +341,11 @@ static int UintFromObj(PyObject* obj, Uint32* val)
 	return 0;
 }
 
-static Uint32 UintFromObjIndex(PyObject* obj, int index, Uint32* val)
+static Uint32 UintFromObjIndex(PyObject* obj, int _index, Uint32* val)
 {
 	int result = 0;
 	PyObject* item;
-	item = PySequence_GetItem(obj, index);
+	item = PySequence_GetItem(obj, _index);
 	if(item)
 	{
 		result = UintFromObj(item, val);

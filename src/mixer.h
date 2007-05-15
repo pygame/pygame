@@ -55,14 +55,14 @@ typedef struct {
 #define PyMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*))PyMIXER_C_API[5])
 #define PyMixer_AutoQuit (*(void(*)(void))PyMIXER_C_API[6])
 #define import_pygame_mixer() { \
-	PyObject *module = PyImport_ImportModule("pygame.mixer"); \
-	if (module != NULL) { \
-		PyObject *dict = PyModule_GetDict(module); \
-		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \
-		if(PyCObject_Check(c_api)) {\
-			void** localptr = (void**)PyCObject_AsVoidPtr(c_api); \
+	PyObject *_module = PyImport_ImportModule("pygame.mixer"); \
+	if (_module != NULL) { \
+		PyObject *_dict = PyModule_GetDict(_module); \
+		PyObject *_c_api = PyDict_GetItemString(_dict, PYGAMEAPI_LOCAL_ENTRY); \
+		if(PyCObject_Check(_c_api)) {\
+			void** localptr = (void**)PyCObject_AsVoidPtr(_c_api); \
 			memcpy(PyMIXER_C_API, localptr, sizeof(void*)*PYGAMEAPI_MIXER_NUMSLOTS); \
-} Py_DECREF(module); } }
+} Py_DECREF(_module); } }
 #endif
 
 

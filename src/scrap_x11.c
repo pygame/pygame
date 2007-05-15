@@ -582,7 +582,6 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
             {
                 int i = 0;
                 int ioffset = 0;
-                int length = 0;
                 char *tmp;
 
                 free (retval);
@@ -591,15 +590,15 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
                 {
                     length = strlen (list[i]);
                     tmp = retval;
-                    retval = realloc (retval, length + 1);
+                    retval = realloc (retval, (*length) + 1);
                     if (!retval)
                     {
                         free (tmp);
                         return NULL;
                     }
-                    ioffset += length;
+                    ioffset += *length;
 
-                    memcpy (retval, list[i], length);
+                    memcpy (retval, list[i], *length);
                     memset (retval + ioffset, '\n', 1);
                 }
                 memset (retval + ioffset, 0, 1);

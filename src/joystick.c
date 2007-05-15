@@ -267,18 +267,18 @@ static PyObject* joy_get_button(PyObject* self, PyObject* args)
 {
 	int joy_id = PyJoystick_AsID(self);
 	SDL_Joystick* joy = joystick_stickdata[joy_id];
-	int index, value;
+	int _index, value;
 	
-	if(!PyArg_ParseTuple(args, "i", &index))
+	if(!PyArg_ParseTuple(args, "i", &_index))
 		return NULL;
 
 	JOYSTICK_INIT_CHECK();
 	if(!joy)
 		return RAISE(PyExc_SDLError, "Joystick not initialized");
-	if(index < 0 || index >= SDL_JoystickNumButtons(joy))
+	if(_index < 0 || _index >= SDL_JoystickNumButtons(joy))
 		return RAISE(PyExc_SDLError, "Invalid joystick button");
 
-	value = SDL_JoystickGetButton(joy, index);
+	value = SDL_JoystickGetButton(joy, _index);
 	return PyInt_FromLong(value);
 }
 
@@ -303,18 +303,18 @@ static PyObject* joy_get_ball(PyObject* self, PyObject* args)
 {
 	int joy_id = PyJoystick_AsID(self);
 	SDL_Joystick* joy = joystick_stickdata[joy_id];
-	int index, dx, dy;
+	int _index, dx, dy;
 	
-	if(!PyArg_ParseTuple(args, "i", &index))
+	if(!PyArg_ParseTuple(args, "i", &_index))
 		return NULL;
 
 	JOYSTICK_INIT_CHECK();
 	if(!joy)
 		return RAISE(PyExc_SDLError, "Joystick not initialized");
-	if(index < 0 || index >= SDL_JoystickNumBalls(joy))
+	if(_index < 0 || _index >= SDL_JoystickNumBalls(joy))
 		return RAISE(PyExc_SDLError, "Invalid joystick trackball");
 
-	SDL_JoystickGetBall(joy, index, &dx, &dy);
+	SDL_JoystickGetBall(joy, _index, &dx, &dy);
 	return Py_BuildValue("(ii)", dx, dy);
 }
 
@@ -339,20 +339,20 @@ static PyObject* joy_get_hat(PyObject* self, PyObject* args)
 {
 	int joy_id = PyJoystick_AsID(self);
 	SDL_Joystick* joy = joystick_stickdata[joy_id];
-	int index, px, py;
+	int _index, px, py;
 	Uint8 value;
 
-	if(!PyArg_ParseTuple(args, "i", &index))
+	if(!PyArg_ParseTuple(args, "i", &_index))
 		return NULL;
 
 	JOYSTICK_INIT_CHECK();
 	if(!joy)
 		return RAISE(PyExc_SDLError, "Joystick not initialized");
-	if(index < 0 || index >= SDL_JoystickNumHats(joy))
+	if(_index < 0 || _index >= SDL_JoystickNumHats(joy))
 		return RAISE(PyExc_SDLError, "Invalid joystick hat");
 
 	px = py = 0;
-	value = SDL_JoystickGetHat(joy, index);
+	value = SDL_JoystickGetHat(joy, _index);
 	if(value&SDL_HAT_UP) py = 1;
 	else if(value&SDL_HAT_DOWN) py = -1;
 	if(value&SDL_HAT_RIGHT) px = 1;

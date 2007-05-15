@@ -278,19 +278,19 @@ static PyObject* surf_get_palette_at(PyObject* self, PyObject* args)
     SDL_Surface* surf = PySurface_AsSurface(self);
     SDL_Palette* pal = surf->format->palette;
     SDL_Color* c;
-    int index;
+    int _index;
     
-    if(!PyArg_ParseTuple(args, "i", &index))
+    if(!PyArg_ParseTuple(args, "i", &_index))
         return NULL;
     if(!surf)
         return RAISE(PyExc_SDLError, "display Surface quit");
 
     if(!pal)
         return RAISE(PyExc_SDLError, "Surface has no palette to set\n");
-    if(index >= pal->ncolors || index < 0)
+    if(_index >= pal->ncolors || _index < 0)
         return RAISE(PyExc_IndexError, "index out of bounds");
     
-    c = &pal->colors[index];
+    c = &pal->colors[_index];
     return Py_BuildValue("(bbb)", c->r, c->g, c->b);
 }
 
@@ -355,10 +355,10 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
     SDL_Surface* surf = PySurface_AsSurface(self);
     SDL_Palette* pal = surf->format->palette;
     SDL_Color color;
-    int index;
+    int _index;
     Uint8 r, g, b;
     
-    if(!PyArg_ParseTuple(args, "i(bbb)", &index, &r, &g, &b))
+    if(!PyArg_ParseTuple(args, "i(bbb)", &_index, &r, &g, &b))
         return NULL;
     if(!surf)
         return RAISE(PyExc_SDLError, "display Surface quit");
@@ -369,7 +369,7 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
         return NULL;
     }
     
-    if(index >= pal->ncolors || index < 0)
+    if(_index >= pal->ncolors || _index < 0)
     {
         PyErr_SetString(PyExc_IndexError, "index out of bounds");
         return NULL;
@@ -383,7 +383,7 @@ static PyObject* surf_set_palette_at(PyObject* self, PyObject* args)
     color.g = g;
     color.b = b;
     
-    SDL_SetColors(surf, &color, index, 1);
+    SDL_SetColors(surf, &color, _index, 1);
     
     Py_RETURN_NONE;
 }
@@ -1602,11 +1602,11 @@ void initsurface(void)
     lockmodule = PyImport_ImportModule("pygame.surflock");
     if(lockmodule != NULL)
     {
-        PyObject *dict = PyModule_GetDict(lockmodule);
-        PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY);
-        if(PyCObject_Check(c_api))
+        PyObject *_dict = PyModule_GetDict(lockmodule);
+        PyObject *_c_api = PyDict_GetItemString(_dict, PYGAMEAPI_LOCAL_ENTRY);
+        if(PyCObject_Check(_c_api))
         {
-            int i; void** localptr = (void*)PyCObject_AsVoidPtr(c_api);
+            int i; void** localptr = (void*)PyCObject_AsVoidPtr(_c_api);
             for(i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i)
                 PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i];
         }

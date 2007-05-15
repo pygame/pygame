@@ -348,13 +348,13 @@ static PyObject* snd_get_channel(PyObject* self, PyObject* args)
 static PyObject* snd_fadeout(PyObject* self, PyObject* args)
 {
 	Mix_Chunk* chunk = PySound_AsChunk(self);
-	int time;
-	if(!PyArg_ParseTuple(args, "i", &time))
+	int _time;
+	if(!PyArg_ParseTuple(args, "i", &_time))
 		return NULL;
 
 	MIXER_INIT_CHECK();
 
-	Mix_FadeOutGroup((intptr_t)chunk, time);
+	Mix_FadeOutGroup((intptr_t)chunk, _time);
 	Py_RETURN_NONE;
 }
 
@@ -574,13 +574,13 @@ static PyObject* chan_get_busy(PyObject* self, PyObject* args)
 static PyObject* chan_fadeout(PyObject* self, PyObject* args)
 {
 	int channelnum = PyChannel_AsInt(self);
-	int time;
-	if(!PyArg_ParseTuple(args, "i", &time))
+	int _time;
+	if(!PyArg_ParseTuple(args, "i", &_time))
 		return NULL;
 
 	MIXER_INIT_CHECK();
 
-	Mix_FadeOutChannel(channelnum, time);
+	Mix_FadeOutChannel(channelnum, _time);
 	Py_RETURN_NONE;
 }
 
@@ -889,13 +889,13 @@ static PyObject* mixer_find_channel(PyObject* self, PyObject* args)
 
 static PyObject* mixer_fadeout(PyObject* self, PyObject* args)
 {
-	int time;
-	if(!PyArg_ParseTuple(args, "i", &time))
+	int _time;
+	if(!PyArg_ParseTuple(args, "i", &_time))
 		return NULL;
 
 	MIXER_INIT_CHECK();
 
-	Mix_FadeOutChannel(-1, time);
+	Mix_FadeOutChannel(-1, _time);
 	Py_RETURN_NONE;
 }
 
@@ -1097,12 +1097,12 @@ void initmixer(void)
 	music = PyImport_ImportModule("pygame.mixer_music");
         if(music)
 	{
-		PyObject* ptr, *dict;
+		PyObject* ptr, *_dict;
 		PyModule_AddObject(module, "music", music);
-		dict = PyModule_GetDict(music);
-		ptr = PyDict_GetItemString(dict, "_MUSIC_POINTER");
+		_dict = PyModule_GetDict(music);
+		ptr = PyDict_GetItemString(_dict, "_MUSIC_POINTER");
 		current_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
-		ptr = PyDict_GetItemString(dict, "_QUEUE_POINTER");
+		ptr = PyDict_GetItemString(_dict, "_QUEUE_POINTER");
 		queue_music = (Mix_Music**)PyCObject_AsVoidPtr(ptr);
 	}
 	else /*music module not compiled? cleanly ignore*/

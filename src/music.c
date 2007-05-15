@@ -130,13 +130,13 @@ static PyObject* music_get_busy(PyObject* self, PyObject* args)
 
 static PyObject* music_fadeout(PyObject* self, PyObject* args)
 {
-	int time;
-	if(!PyArg_ParseTuple(args, "i", &time))
+	int _time;
+	if(!PyArg_ParseTuple(args, "i", &_time))
 		return NULL;
 
 	MIXER_INIT_CHECK();
 
-	Mix_FadeOutMusic(time);
+	Mix_FadeOutMusic(_time);
 	if(queue_music)
 	{
 		Mix_FreeMusic(queue_music);
