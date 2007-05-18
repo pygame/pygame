@@ -49,6 +49,13 @@ def main():
     blits[K_EQUALS] = BLEND_MAX
     blits[K_MINUS] = BLEND_MIN
 
+    blitsn = {}
+    blitsn[K_a] = "BLEND_ADD"
+    blitsn[K_s] = "BLEND_SUB"
+    blitsn[K_m] = "BLEND_MULT"
+    blitsn[K_EQUALS] = "BLEND_MAX"
+    blitsn[K_MINUS] = "BLEND_MIN"
+
 
     screen.blit(im1, (0, 0))
     pygame.display.flip()
@@ -78,6 +85,22 @@ def main():
                 t2 = time.time()
                 print "one pixel is:%s:" % [im1.get_at((0,0))]
                 print "time to do:%s:" % (t2-t1)
+
+
+            elif event.type == KEYDOWN and event.key in [K_t]:
+
+                for bkey in blits.keys():
+                    t1 = time.time()
+
+                    for x in range(300):
+                        im1.blit(img_to_blit, (0,0), None, blits[bkey])
+
+                    t2 = time.time()
+
+                    # show which key we're doing...
+                    onedoing = blitsn[bkey]
+                    print "time to do :%s: is :%s:" % (onedoing, t2-t1)
+
 
             elif event.type == KEYDOWN and event.key in [K_o]:
                 t1 = time.time()
@@ -157,6 +180,7 @@ def main():
 def usage():
     print "press keys 1-5 to change image to blit."
     print "A - ADD, S- SUB, M- MULT, - MIN, + MAX"
+    print "T - timing test for special blend modes."
 
 if __name__ == '__main__': 
     usage()
