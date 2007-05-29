@@ -588,7 +588,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
                 retval = NULL;
                 for (i = 0; i < count; i++)
                 {
-                    length = strlen (list[i]);
+                    *length = strlen (list[i]);
                     tmp = retval;
                     retval = realloc (retval, (*length) + 1);
                     if (!retval)

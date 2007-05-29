@@ -41,6 +41,7 @@ Mask.overlap(othermask, offset) -> x,y
 overlap_area
 Mask.overlap_area(othermask, offset) -> numpixels
 
+Returns the number of overlapping 'pixels'.
 <END>
 
 
