@@ -22,10 +22,10 @@ class MaskTest( unittest.TestCase ):
 
 
         # out of bounds, should get IndexError
-        m.get_at((-1,0))
-        m.set_at((-1,0), 1)
-        m.set_at((10,0), 1)
-        m.set_at((0,10), 1)
+        self.assertRaises(IndexError, lambda : m.get_at((-1,0)) )
+        self.assertRaises(IndexError, lambda : m.set_at((-1,0), 1) )
+        self.assertRaises(IndexError, lambda : m.set_at((10,0), 1) )
+        self.assertRaises(IndexError, lambda : m.set_at((0,10), 1) )
 
 
 
