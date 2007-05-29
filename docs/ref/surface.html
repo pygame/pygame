@@ -158,9 +158,10 @@
 <a name="Surface.fill">
 <big><b>Surface.fill</big></b><br><ul>
   <i>fill Surface with a solid color</i><br>
-  <tt>Surface.fill(color, rect=None): return Rect</tt><br>
+  <tt>Surface.fill(color, rect=None, special_flags=0): return Rect</tt><br>
 <p>Fill the Surface with a solid color. If no rect argument is given the entire Surface will be filled. The rect argument will limit the fill to a specific area. The fill will also be contained by the Surface clip area. </p>
 <p>The color argument can be either an <tt>RGB</tt> sequence or a mapped color index. </p>
+<p>An optional special_flags is for passing in <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> With other special blitting flags perhaps added in the future. </p>
 <p>This will return the affected Surface area. </p>
 <!--COMMENTS:Surface.fill--> &nbsp;<br> 
 <br></ul>

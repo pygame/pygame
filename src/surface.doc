@@ -157,13 +157,17 @@ pixel formats, color palettes, and transparency settings as the original.
 
 fill
 fill Surface with a solid color
-Surface.fill(color, rect=None): return Rect
+Surface.fill(color, rect=None, special_flags=0): return Rect
 
 Fill the Surface with a solid color. If no rect argument is given the
 entire Surface will be filled. The rect argument will limit the fill to
 a specific area. The fill will also be contained by the Surface clip area.
 
 The color argument can be either an RGB sequence or a mapped color index.
+
+An optional special_flags is for passing in 
+BLEND_ADD, BLEND_SUB, BLEND_MULT, BLEND_MIN, BLEND_MAX
+With other special blitting flags perhaps added in the future.
 
 This will return the affected Surface area.
 <END>
