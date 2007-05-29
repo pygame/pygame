@@ -62,7 +62,9 @@ surface_fill_blend_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     default:
     {
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt);
+        /*
         printf ("Color: %d, %d, %d, %d, BPP is: %d\n", cR, cG, cB, cA, bpp);
+        */
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -125,7 +127,9 @@ surface_fill_blend_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     default:
     {
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt);
+        /*
         printf ("Color: %d, %d, %d, %d, BPP is: %d\n", cR, cG, cB, cA, bpp);
+        */
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -188,7 +192,9 @@ surface_fill_blend_mult (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     default:
     {
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt);
+        /*
         printf ("Color: %d, %d, %d, %d, BPP is: %d\n", cR, cG, cB, cA, bpp);
+        */
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -251,7 +257,9 @@ surface_fill_blend_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     default:
     {
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt);
+        /*
         printf ("Color: %d, %d, %d, %d, BPP is: %d\n", cR, cG, cB, cA, bpp);
+        */
         while (height--)
         {
             LOOP_UNROLLED4(
@@ -314,7 +322,9 @@ surface_fill_blend_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
     default:
     {
         GET_PIXELVALS (cR, cG, cB, cA, color, fmt);
+        /*
         printf ("Color: %d, %d, %d, %d, BPP is: %d\n", cR, cG, cB, cA, bpp);
+        */
         while (height--)
         {
             LOOP_UNROLLED4(

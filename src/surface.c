@@ -260,8 +260,10 @@ surface_str (PyObject *self)
     if (surf)
     {
         type = (surf->flags & SDL_HWSURFACE) ? "HW" : "SW";
+        /*
         sprintf (str, "<Surface(%dx%dx%d %s)>", surf->w,
                  surf->h, surf->format->BitsPerPixel, type);
+        */
     }
     else
     {
@@ -1241,7 +1243,9 @@ surf_fill (PyObject *self, PyObject *args)
         if (blendargs != 0)
         {
             
+            /* 
             printf ("Using blendargs: %d\n", blendargs);
+            */
             result = surface_fill_blend (surf, &sdlrect, color, blendargs);
         }
         else
