@@ -57,6 +57,7 @@ def Run():
         outFile.close()
  
     outFile = open("src/pygamedocs.h", "w")
+    outFile.write("/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */\n")
     for doc in justDocs:
         WriteDocHeader(outFile, doc)
 

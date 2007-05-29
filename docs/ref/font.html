@@ -146,6 +146,7 @@
   <tr><td><a href="font.html#Font.set_bold">Font.set_bold</a> - <font size=-1>enable fake rendering of bold text</font></td><td>enable fake rendering of bold text</td></tr>
   <tr><td><a href="font.html#Font.get_bold">Font.get_bold</a> - <font size=-1>check if text will be rendered bold</font></td><td>check if text will be rendered bold</td></tr>
   <tr><td><a href="font.html#Font.set_italic">Font.set_italic</a> - <font size=-1>enable fake rendering of italic text</font></td><td>enable fake rendering of italic text</td></tr>
+  <tr><td><a href="font.html#Font.metrics">Font.metrics</a> - <font size=-1>Gets the metrics for each character in the pased string.</font></td><td>Gets the metrics for each character in the pased string.</td></tr>
   <tr><td><a href="font.html#Font.get_italic">Font.get_italic</a> - <font size=-1>check if the text will be rendered italic</font></td><td>check if the text will be rendered italic</td></tr>
   <tr><td><a href="font.html#Font.get_linesize">Font.get_linesize</a> - <font size=-1>get the line space of the font text</font></td><td>get the line space of the font text</td></tr>
   <tr><td><a href="font.html#Font.get_height">Font.get_height</a> - <font size=-1>get the height of the font</font></td><td>get the height of the font</td></tr>
@@ -224,6 +225,15 @@
   <tt>Font.set_bold(bool): return None</tt><br>
 <p>Enables fake rendering of italic text. This is a fake skewing of the font that doesn't look good on many font types. If possible load the font from a real italic font file. While italic the font will have a different width than when normal. This can be mixed with the bold and underline modes. </p>
 <!--COMMENTS:Font.set_italic--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Font.metrics">
+<big><b>Font.metrics</big></b><br><ul>
+  <i>Gets the metrics for each character in the pased string.</i><br>
+  <tt>Font.metrics(text): return list</tt><br>
+<p>The list contains tuples for each character, which contain the minimum <tt>X</tt> offset, the maximum <tt>X</tt> offset, the minimum <tt>Y</tt> offset, the maximum <tt>Y</tt> offset and the advance offset (bearing plus width) of the character. [(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), <tt>...]</tt> </p>
+<!--COMMENTS:Font.metrics--> &nbsp;<br> 
 <br></ul>
 
 

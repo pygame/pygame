@@ -1,3 +1,4 @@
+/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */
 #define DOC_PYGAME "the top level pygame package"
 
 #define DOC_PYGAMEINIT "pygame.init(): return (numpass, numfail)\ninitialize all imported pygame modules"
@@ -203,6 +204,8 @@
 #define DOC_FONTGETBOLD "Font.get_bold(): return bool\ncheck if text will be rendered bold"
 
 #define DOC_FONTSETITALIC "Font.set_bold(bool): return None\nenable fake rendering of italic text"
+
+#define DOC_FONTMETRICS "Font.metrics(text): return list\nGets the metrics for each character in the pased string."
 
 #define DOC_FONTGETITALIC "Font.get_italic(): return bool\ncheck if the text will be rendered italic"
 
