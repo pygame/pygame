@@ -237,6 +237,16 @@ than when normal. This can be mixed with the bold and underline modes.
 <END>
 
 
+metrics
+Gets the metrics for each character in the pased string.
+Font.metrics(text): return list
+
+The list contains tuples for each character, which contain the minimum
+X offset, the maximum X offset, the minimum Y offset, the maximum
+Y offset and the advance offset (bearing plus width) of the character.
+[(minx, maxx, miny, maxy, advance), (minx, maxx, miny, maxy, advance), ...]
+<END>
+
 
 get_italic
 check if the text will be rendered italic
