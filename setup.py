@@ -35,7 +35,7 @@ os.chdir(path)
 #                       "-Wcast-align -Wconversion -Wstrict-prototypes " + \
 #                       "-Wmissing-prototypes -Wmissing-declarations " + \
 #                       "-Wnested-externs -Wshadow -Wredundant-decls"
-if "-bigw" in sys.argv:
+if "-warnings" in sys.argv:
     os.environ["CFLAGS"] = "-W -Wimplicit-int " + \
                        "-Wimplicit-function-declaration " + \
                        "-Wimplicit -Wmain -Wreturn-type -Wunused -Wswitch " + \
@@ -45,6 +45,7 @@ if "-bigw" in sys.argv:
                        "-Wconversion -Wstrict-prototypes " + \
                        "-Wmissing-prototypes -Wmissing-declarations " + \
                        "-Wnested-externs -Wshadow -Wredundant-decls"
+    sys.argv.remove ("-warnings")
 
 import os.path, glob
 import distutils.sysconfig
