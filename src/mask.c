@@ -59,7 +59,10 @@ static PyObject* mask_get_at(PyObject* self, PyObject* args)
 	if (x >= 0 && x < mask->w && y >= 0 && y < mask->h)
 	  val = bitmask_getbit(mask, x, y);
 	else
-	  return NULL;
+	  {
+            PyErr_Format(PyExc_IndexError, "%d, %d is out of bounds", x, y);
+	    return NULL;
+	  }
 
         return PyInt_FromLong(val);
 }
@@ -80,6 +83,7 @@ static PyObject* mask_set_at(PyObject* self, PyObject* args)
 	  }
 	else
 	  {
+            PyErr_Format(PyExc_IndexError, "%d, %d is out of bounds", x, y);
 	    return NULL;
 	  }
 	Py_INCREF(Py_None);
