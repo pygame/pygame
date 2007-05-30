@@ -5,6 +5,19 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 #
 #
+May 30, 2007
+    Fixed some documentation.  mask, scrap, font modules.
+    Fixed the mask.set_at get_at functions to raise a nice exception.
+      Thanks piman!
+    surface.fill() now takes the same BLEND_ADD BLEND_SUB etc flags that
+      surface.blit() takes.  Which makes fade to white, and fade to black
+      type operates simple and fast.  Thanks Marcus!!  
+    Added the GL_SWAP_CONTROL constant from SDL.  Thanks Eyal Lotem!
+    Added the new blitters from Marcus.  These speed up the blend functions
+      and the alpha blit function.
+    Added a -warnings flag to setup.py for extra warnings with gcc.
+    A fix from Marcus for the scrap module in X11.
+
 May 9, 2007
     Windows image copy/paste is working for scrap.
     Adding bitmask code from Ulf Ekström - for pixelperfect collision.
