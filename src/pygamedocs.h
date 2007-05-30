@@ -285,15 +285,15 @@
 
 #define DOC_PYGAMEMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
 
-#define DOC_MASKGETSIZE "Mask.get_size() -> width,height"
+#define DOC_MASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
 
-#define DOC_MASKGETAT "Mask.get_at((x,y)) -> int"
+#define DOC_MASKGETAT "Mask.get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
 
-#define DOC_MASKSETAT "Mask.set_at((x,y),value)"
+#define DOC_MASKSETAT "Mask.set_at((x,y),value)\nSets the position in the mask given by x and y."
 
-#define DOC_MASKOVERLAP "Mask.overlap(othermask, offset) -> x,y"
+#define DOC_MASKOVERLAP "Mask.overlap(othermask, offset) -> x,y\nReturns nonzero if the masks overlap with the given offset."
 
-#define DOC_MASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels"
+#define DOC_MASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
 
 #define DOC_ ""
 
