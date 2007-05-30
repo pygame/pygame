@@ -10,38 +10,47 @@ New in pygame 1.8.
 <SECTION>
 
 get_size
+Returns the size of the mask.
 Mask.get_size() -> width,height
 
 <END>
 
 
 get_at
+Returns nonzero if the bit at (x,y) is set.
 Mask.get_at((x,y)) -> int
 
-Returns in the mask if it is on or off.
-
+Coordinates start at (0,0)
 <END>
 
 
 set_at
-Mask.set_at((x,y),value)
-
 Sets the position in the mask given by x and y.
-
+Mask.set_at((x,y),value)
 <END>
 
 
 
 overlap
+Returns nonzero if the masks overlap with the given offset. 
 Mask.overlap(othermask, offset) -> x,y
 
+The overlap tests uses the following offsets (which may be negative):
+
+   +----+----------..
+   |A   | yoffset   
+   |  +-+----------..
+   +--|B        
+   |xoffset      
+   |  |
+   :  :  
 <END>
 
 
 overlap_area
+Returns the number of overlapping 'pixels'.
 Mask.overlap_area(othermask, offset) -> numpixels
 
-Returns the number of overlapping 'pixels'.
 <END>
 
 
