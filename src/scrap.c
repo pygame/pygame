@@ -92,13 +92,6 @@ pygame_scrap_initialized (void)
     return _scrapinitialized;
 }
 
-/*DOC*/ static char doc_scrap_init[] = 
-/*DOC*/    "scrap.init () -> None\n"
-/*DOC*/    "Initializes the scrap module.\n"
-/*DOC*/    "\n"
-/*DOC*/    "Tries to initialize the scrap module and raises an exception, if\n"
-/*DOC*/    "it fails\n";
-
 #if !defined(MAC_SCRAP)
 /*
  * Initializes the pygame scrap module.
@@ -117,14 +110,6 @@ _scrap_init (PyObject *self, PyObject *args)
 }
 #endif
 
-/*DOC*/ static char doc_scrap_get_types[] = 
-/*DOC*/    "scrap.get_types () -> list\n"
-/*DOC*/    "Gets a list of the available clipboard types.\n"
-/*DOC*/    "\n"
-/*DOC*/    "Gets a list of strings with the identifiers for the available\n"
-/*DOC*/    "clipboard types. Each identifier can be used in the scrap.get()\n"
-/*DOC*/    "method to get the clipboard content of the specific type.\n"
-/*DOC*/    "If there is no data in the clipboard, an empty list is returned.";
 
 #if !defined(MAC_SCRAP)
 /*
@@ -163,12 +148,6 @@ _scrap_get_types (PyObject *self, PyObject *args)
 }
 #endif
 
-/*DOC*/ static char doc_scrap_contains[] =
-/*DOC*/    "scrap.contains (type) -> bool\n"
-/*DOC*/    "Checks, whether a certain type is available in the clipboard.\n"
-/*DOC*/    "\n"
-/*DOC*/    "Returns True, if data fpr the passed type is available in the\n"
-/*DOC*/    "clipboard, False otherwise.";
 
 #if !defined(MAC_SCRAP)
 /*
@@ -187,13 +166,6 @@ _scrap_contains (PyObject *self, PyObject *args)
 }
 #endif
 
-/*DOC*/ static char doc_scrap_get_scrap[] =
-/*DOC*/    "scrap.get (type) -> string\n"
-/*DOC*/    "Gets the data for the specified type from the clipboard.\n"
-/*DOC*/    "\n"
-/*DOC*/    "Returns the data for the specified type from the clipboard.\n"
-/*DOC*/    "The data is returned as string and might need further processing.\n"
-/*DOC*/    "If no data for the passed type is available, None is returned.";
 
 #if !defined(MAC_SCRAP)
 /*
@@ -241,15 +213,6 @@ _scrap_get_scrap (PyObject* self, PyObject* args)
 }
 #endif
 
-/*DOC*/ static char doc_scrap_put_scrap[] =
-/*DOC*/    "scrap.put(type, data) -> None\n"
-/*DOC*/    "Places data into the clipboard.\n"
-/*DOC*/    "\n"
-/*DOC*/    "Places data for a specific clipboard type into the clipboard.\n"
-/*DOC*/    "The data must be a string buffer.\n"
-/*DOC*/    "The method raises an exception, if the content could not be placed\n"
-/*DOC*/    "into the clipboard.\n";
-
 #if !defined(MAC_SCRAP)
 /*
  * This will put a python string into the clipboard.
@@ -289,12 +252,6 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
 }
 #endif
 
-/*DOC*/ static char doc_scrap_lost_scrap[] =
-/*DOC*/    "scrap.lost() -> bool\n"
-/*DOC*/    "Checks whether the clipboard is currently owned by the application\n"
-/*DOC*/    "\n"
-/*DOC*/    "Returns true, if the clipboard is currently owned by the pygame\n"
-/*DOC*/    "application, false otherwise.\n";
 
 #if !defined(MAC_SCRAP)
 /*
@@ -311,15 +268,6 @@ _scrap_lost_scrap (PyObject* self, PyObject* args)
 }
 #endif
 
-/*DOC*/ static char doc_scrap_set_mode[] =
-/*DOC*/    "scrap.set_mode(mode) -> None\n"
-/*DOC*/    "Sets the clipboard access mode.\n"
-/*DOC*/    "\n"
-/*DOC*/    "Sets the access mode for the clipboard. This is only of interest\n"
-/*DOC*/    "for X11 environments, where clipboard modes for mouse selections\n"
-/*DOC*/    "(SRAP_SELECTION) and the clipboard (SCRAP_CLIPBOARD) are\n"
-/*DOC*/    " available. The method does not have any influence on other\n"
-/*DOC*/    " environments.";
 
 #if !defined(MAC_SCRAP)
 /*
@@ -353,13 +301,13 @@ static PyMethodDef scrap_builtins[] =
 #if (defined(X11_SCRAP) || defined(WIN_SCRAP) || defined(QNX_SCRAP) \
      || defined(MAC_SCRAP))
 
-    { "init", _scrap_init, 1, doc_scrap_init },
-    { "contains", _scrap_contains, METH_VARARGS, doc_scrap_contains, },
-    { "get", _scrap_get_scrap, METH_VARARGS, doc_scrap_get_scrap },
-    { "get_types", _scrap_get_types, METH_NOARGS, doc_scrap_get_types },
-    { "put", _scrap_put_scrap, METH_VARARGS, doc_scrap_put_scrap },
-    { "lost", _scrap_lost_scrap, METH_NOARGS, doc_scrap_lost_scrap },
-    { "set_mode", _scrap_set_mode, METH_VARARGS, doc_scrap_set_mode },
+    { "init", _scrap_init, 1, DOC_PYGAMESCRAPINIT },
+    { "contains", _scrap_contains, METH_VARARGS, DOC_PYGAMESCRAPCONTAINS },
+    { "get", _scrap_get_scrap, METH_VARARGS, DOC_PYGAMESCRAPGET },
+    { "get_types", _scrap_get_types, METH_NOARGS, DOC_PYGAMESCRAPGETTYPES},
+    { "put", _scrap_put_scrap, METH_VARARGS, DOC_PYGAMESCRAPPUT },
+    { "lost", _scrap_lost_scrap, METH_NOARGS, DOC_PYGAMESCRAPLOST },
+    { "set_mode", _scrap_set_mode, METH_VARARGS, DOC_PYGAMESCRAPSETMODE },
 
 #endif
     { NULL, NULL, 0, NULL}

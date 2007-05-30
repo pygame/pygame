@@ -505,13 +505,19 @@
 
 #define DOC_PYGAMESCRAP ""
 
-#define DOC_PYGAMESCRAPINIT "raises an error if it can not initialise."
+#define DOC_PYGAMESCRAPINIT "scrap.init () -> None\nTries to initialize the scrap module and raises an exception, if it fails.\nInitializes the scrap module."
 
-#define DOC_PYGAMESCRAPGET "pygame.scrap.get(pygame.locals.SCRAP_TEXT): return text.\npygame.scrap.get(pygame.locals.SCRAP_BMP): return image data.\nGets stuff from the clipboard."
+#define DOC_PYGAMESCRAPGET "scrap.get (type) -> string\nGets the data for the specified type from the clipboard."
 
-#define DOC_PYGAMESCRAPPUT "pygame.scrap.put(pygame.locals.SCRAP_TEXT, 'hello clipboard'): return None.\npygame.scrap.put(pygame.locals.SCRAP_BMP, Surface): return None.\nPuts stuff into the clipboard."
+#define DOC_PYGAMESCRAPGETTYPES "scrap.get_types () -> list\nGets a list of the available clipboard types."
 
-#define DOC_PYGAMESCRAPLOST "pygame.scrap.lost() returns True or False.\nHas the clipboard contents been lost."
+#define DOC_PYGAMESCRAPPUT "scrap.put(type, data) -> None\nPlaces data into the clipboard."
+
+#define DOC_PYGAMESCRAPCONTAINS "scrap.contains (type) -> bool\nChecks, whether a certain type is available in the clipboard."
+
+#define DOC_PYGAMESCRAPLOST "scrap.lost() -> bool\nChecks whether the clipboard is currently owned by the application"
+
+#define DOC_PYGAMESCRAPSETMODE "scrap.set_mode(mode) -> None\nSets the clipboard access mode."
 
 #define DOC_PYGAMESNDARRAY "pygame module for accessing sound sample data"
 
