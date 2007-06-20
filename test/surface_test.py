@@ -18,6 +18,10 @@ class SurfaceTest( unittest.TestCase ):
         self.assertEqual(res[0], 0)
         self.assertEqual(res[2], 800)
 
+    def test_print(self):
+        surf = pygame.Surface((70,70), 0, 32)
+        self.assertEqual(repr(surf), '<Surface(70x70x32 SW)>')
+
 
 
 
