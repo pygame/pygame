@@ -260,10 +260,9 @@ surface_str (PyObject *self)
     if (surf)
     {
         type = (surf->flags & SDL_HWSURFACE) ? "HW" : "SW";
-        /*
+        /* NOTE: This sprintf is needed for __str__.  */
         sprintf (str, "<Surface(%dx%dx%d %s)>", surf->w,
                  surf->h, surf->format->BitsPerPixel, type);
-        */
     }
     else
     {
