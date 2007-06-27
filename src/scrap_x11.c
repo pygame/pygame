@@ -134,9 +134,12 @@ _add_clip_data (Atom cliptype, char *data, int srclen)
     Atom clip = GET_CLIPATOM(_currentmode);
     PyObject* dict = (_currentmode == SCRAP_CLIPBOARD) ? _clipdata :
         _selectiondata;
+    PyObject *tmp;
     char *key = _atom_to_string (cliptype);
 
-    PyDict_SetItemString (dict, key, PyString_FromStringAndSize (data, srclen));
+    tmp = PyString_FromStringAndSize (data, srclen);
+    PyDict_SetItemString (dict, key, tmp);
+    Py_DECREF (tmp);
     XChangeProperty (SDL_Display, SDL_Window, clip, cliptype,
                      8, PropModeReplace, (unsigned char *) data, srclen);
     free (key);

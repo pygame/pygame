@@ -21,8 +21,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * Dmitry Borisov
-*/
-
+ */
 
 #include <Python.h>
 #include "pygame.h"
@@ -30,156 +29,158 @@
 
 typedef struct
 {
-  PyObject_HEAD
-	SDL_Overlay *cOverlay;
-	GAME_Rect cRect;
+    PyObject_HEAD
+    SDL_Overlay *cOverlay;
+    GAME_Rect cRect;
 } PyGameOverlay;
 
-
 static void
-overlay_dealloc(PyGameOverlay *self)
+overlay_dealloc (PyGameOverlay *self)
 {
-	if(SDL_WasInit(SDL_INIT_VIDEO) && self->cOverlay)
-		SDL_FreeYUVOverlay(self->cOverlay);
+    if (SDL_WasInit (SDL_INIT_VIDEO) && self->cOverlay)
+        SDL_FreeYUVOverlay (self->cOverlay);
 
-	PyObject_Free((PyObject*)self);
+    PyObject_Free ((PyObject*)self);
 }
 
-
-static PyObject* Overlay_SetLocation(PyGameOverlay *self, PyObject *args)
+static PyObject*
+Overlay_SetLocation (PyGameOverlay *self, PyObject *args)
 {
-        GAME_Rect *rect, temp;
+    GAME_Rect *rect, temp;
     
-        rect = GameRect_FromObject(args, &temp);
-        if(!rect)
-            return RAISE(PyExc_TypeError, "Invalid rectstyle argument");
-        
-        self->cRect.x = rect->x;
-        self->cRect.y = rect->y;
-        self->cRect.w = rect->w;
-        self->cRect.h = rect->h;
+    rect = GameRect_FromObject (args, &temp);
+    if (!rect)
+        return RAISE (PyExc_TypeError, "Invalid rectstyle argument");
+    
+    self->cRect.x = rect->x;
+    self->cRect.y = rect->y;
+    self->cRect.w = rect->w;
+    self->cRect.h = rect->h;
 
-	Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
-
-static PyObject* Overlay_Display(PyGameOverlay *self, PyObject *args)
+static PyObject*
+Overlay_Display (PyGameOverlay *self, PyObject *args)
 {
     SDL_Rect cRect;
-    	// Parse data params for frame
-	int ls_y, ls_u, ls_v, y;
-	unsigned char *src_y=0, *src_u=0, *src_v=0;
+    // Parse data params for frame
+    int ls_y, ls_u, ls_v, y;
+    unsigned char *src_y=0, *src_u=0, *src_v=0;
 	
-	if(PyTuple_Size(args))
-	{
-        	if(!PyArg_ParseTuple(args, "(s#s#s#)", &src_y, &ls_y, &src_u, &ls_u, &src_v, &ls_v))
-        		return NULL;
+    if (PyTuple_Size (args))
+    {
+        if (!PyArg_ParseTuple (args, "(s#s#s#)", &src_y, &ls_y, &src_u, &ls_u,
+                               &src_v, &ls_v))
+            return NULL;
     }
 
-    if(src_y)
-	{
-                Uint8 *dst_y=0, *dst_u=0, *dst_v=0;
-		SDL_LockYUVOverlay( self->cOverlay );
+    if (src_y)
+    {
+        Uint8 *dst_y=0, *dst_u=0, *dst_v=0;
+        SDL_LockYUVOverlay (self->cOverlay);
 
-		// No clipping at this time( only support for YUV420 )
+        // No clipping at this time( only support for YUV420 )
 
-                dst_y = self->cOverlay->pixels[ 0 ];
-                dst_v = self->cOverlay->pixels[ 1 ];
-                dst_u = self->cOverlay->pixels[ 2 ];
+        dst_y = self->cOverlay->pixels[0];
+        dst_v = self->cOverlay->pixels[1];
+        dst_u = self->cOverlay->pixels[2];
 
-		for (y=0; y< self->cOverlay->h; y++)
-		{
-			memcpy( dst_y, src_y, self->cOverlay->w );
+        for (y = 0; y < self->cOverlay->h; y++)
+        {
+            memcpy (dst_y, src_y, self->cOverlay->w);
 
-			src_y += ls_y / self->cOverlay->h;
-			dst_y += self->cOverlay->pitches[ 0 ];
+            src_y += ls_y / self->cOverlay->h;
+            dst_y += self->cOverlay->pitches[0];
 
-			if (!(y & 1)) {
-				src_u += ( ls_u* 2 )/self->cOverlay->h;
-				src_v += ( ls_v* 2 )/self->cOverlay->h;
-				dst_u += self->cOverlay->pitches[ 1 ];
-				dst_v += self->cOverlay->pitches[ 2 ];
-			}
-			else
-			{
-				memcpy( dst_u, src_u, ( ls_u* 2 )/self->cOverlay->h );
-				memcpy( dst_v, src_v, ( ls_v* 2 )/self->cOverlay->h );
-			}
-		}
+            if (!(y & 1))
+            {
+                src_u += (ls_u * 2)/self->cOverlay->h;
+                src_v += (ls_v * 2)/self->cOverlay->h;
+                dst_u += self->cOverlay->pitches[ 1 ];
+                dst_v += self->cOverlay->pitches[ 2 ];
+            }
+            else
+            {
+                memcpy (dst_u, src_u, (ls_u * 2) / self->cOverlay->h);
+                memcpy (dst_v, src_v, (ls_v * 2) / self->cOverlay->h);
+            }
+        }
 
-		SDL_UnlockYUVOverlay( self->cOverlay );
-	}
+        SDL_UnlockYUVOverlay (self->cOverlay);
+    }
 
     cRect.x = self->cRect.x;
     cRect.y = self->cRect.y;
     cRect.w = self->cRect.w;
     cRect.h = self->cRect.h;
-    SDL_DisplayYUVOverlay(self->cOverlay, &cRect);
+    SDL_DisplayYUVOverlay (self->cOverlay, &cRect);
 
-	Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
-
-
-static PyObject* Overlay_GetHardware(PyGameOverlay *self, PyObject *args)
+static PyObject*
+Overlay_GetHardware (PyGameOverlay *self)
 {
-    return PyInt_FromLong(self->cOverlay->hw_overlay);
+    return PyInt_FromLong (self->cOverlay->hw_overlay);
 }
 
-
-
-PyObject* Overlay_New(PyTypeObject *type, PyObject *args, PyObject *kwds)
+PyObject*
+Overlay_New (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	int pixelformat;
-	PyGameOverlay *self;
-	int w, h;
-        SDL_Surface *screen;
-	if(!PyArg_ParseTuple(args, "i(ii)", &pixelformat, &w, &h))
-		return NULL;
+    int pixelformat;
+    PyGameOverlay *self;
+    int w, h;
+    SDL_Surface *screen;
+    if (!PyArg_ParseTuple (args, "i(ii)", &pixelformat, &w, &h))
+        return NULL;
 
-	if(!SDL_WasInit(SDL_INIT_VIDEO))
-		return RAISE(PyExc_SDLError, "cannot create overlay without pygame.display initialized");
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE
+            (PyExc_SDLError,
+             "cannot create overlay without pygame.display initialized");
 
-        screen = SDL_GetVideoSurface();
-        if(!screen)
-            return RAISE(PyExc_SDLError, "Display mode not set");
+    screen = SDL_GetVideoSurface ();
+    if (!screen)
+        return RAISE (PyExc_SDLError, "Display mode not set");
         
-	// Create new Overlay object
-	self= (PyGameOverlay *)type->tp_alloc(type, 0);
-        if( !self )
-		return NULL;
+    // Create new Overlay object
+    self= (PyGameOverlay *)type->tp_alloc (type, 0);
+    if (!self)
+        return NULL;
 
-	// Create layer with desired format
-	self->cOverlay = SDL_CreateYUVOverlay(w, h, pixelformat, screen);
-	if( !self->cOverlay )
-		return RAISE(PyExc_SDLError, "Cannot create overlay");
+    // Create layer with desired format
+    self->cOverlay = SDL_CreateYUVOverlay (w, h, pixelformat, screen);
+    if (!self->cOverlay)
+        return RAISE (PyExc_SDLError, "Cannot create overlay");
 
-	self->cRect.x= 0;
-	self->cRect.y= 0;
-	self->cRect.w= w;
-	self->cRect.h= h;
+    self->cRect.x= 0;
+    self->cRect.y= 0;
+    self->cRect.w= w;
+    self->cRect.h= h;
 
-	return (PyObject*)self;
+    return (PyObject*)self;
 }
-
 
 static PyMethodDef Overlay_methods[] = {
-  {"set_location", (PyCFunction)Overlay_SetLocation, METH_VARARGS, DOC_OVERLAYSETLOCATION},
-  {"display", (PyCFunction)Overlay_Display, METH_VARARGS, DOC_OVERLAYDISPLAY},
-  {"get_hardware", (PyCFunction)Overlay_GetHardware, METH_NOARGS, DOC_OVERLAYGETHARDWARE},
-  {NULL, NULL, 0, NULL}  /* Sentinel */
+    { "set_location", (PyCFunction) Overlay_SetLocation, METH_VARARGS,
+      DOC_OVERLAYSETLOCATION },
+    { "display", (PyCFunction) Overlay_Display, METH_VARARGS,
+      DOC_OVERLAYDISPLAY },
+    { "get_hardware", (PyCFunction) Overlay_GetHardware, METH_NOARGS,
+      DOC_OVERLAYGETHARDWARE },
+    {NULL, NULL, 0, NULL}  /* Sentinel */
 };
-
 
 PyTypeObject PyOverlay_Type =
 {
-	PyObject_HEAD_INIT(NULL)
+    PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
     "pygame.overlay",        /*tp_name*/
     sizeof(PyGameOverlay),      /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    0,												/*tp_dealloc*/
-	0,                         /*tp_print*/
+    0,				/*tp_dealloc*/
+    0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
@@ -221,21 +222,21 @@ static PyMethodDef overlay_methods[] =
 
 
 PYGAME_EXPORT
-void initoverlay(void)
+void initoverlay (void)
 {
-	PyObject *module;
-	module = Py_InitModule("overlay", overlay_methods );
+    PyObject *module;
+    module = Py_InitModule ("overlay", overlay_methods );
 
-	PyOverlay_Type.ob_type = &PyType_Type;
-	PyOverlay_Type.tp_dealloc = (destructor)overlay_dealloc;
-	PyOverlay_Type.tp_alloc =PyType_GenericAlloc;
-	PyOverlay_Type.tp_getattro = PyObject_GenericGetAttr;
-	Py_INCREF((PyObject *)&PyOverlay_Type);
-	PyType_Init(PyOverlay_Type);
+    PyOverlay_Type.ob_type = &PyType_Type;
+    PyOverlay_Type.tp_dealloc = (destructor) overlay_dealloc;
+    PyOverlay_Type.tp_alloc =PyType_GenericAlloc;
+    PyOverlay_Type.tp_getattro = PyObject_GenericGetAttr;
+    Py_INCREF ((PyObject *)&PyOverlay_Type);
+    PyType_Init (PyOverlay_Type);
 
     /* create the module reference */
-	PyModule_AddObject(module, "Overlay", (PyObject *)&PyOverlay_Type);
+    PyModule_AddObject (module, "Overlay", (PyObject *)&PyOverlay_Type);
 
-	import_pygame_base();
-	import_pygame_rect();    
+    import_pygame_base ();
+    import_pygame_rect ();    
 }

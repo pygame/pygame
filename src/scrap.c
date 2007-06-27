@@ -31,16 +31,6 @@
 #include "pygame.h"
 #include "pygamedocs.h"
 
-/* Python < 2.3/2.4 backwards compatibility - should be placed in a
- * private header by time. */
-#ifndef Py_RETURN_TRUE
-#define Py_RETURN_TRUE return Py_INCREF (Py_True), Py_True
-#endif
-
-#ifndef Py_RETURN_FALSE
-#define Py_RETURN_FALSE return Py_INCREF (Py_False), Py_False
-#endif
-
 /**
  * Indicates, whether pygame.scrap was initialized or not.
  */
@@ -121,6 +111,7 @@ _scrap_get_types (PyObject *self, PyObject *args)
     int i = 0;
     char **types;
     PyObject *list;
+    PyObject *tmp;
     
     PYGAME_SCRAP_INIT_CHECK ();
     if (!pygame_scrap_lost ())
@@ -141,7 +132,9 @@ _scrap_get_types (PyObject *self, PyObject *args)
         return list;
     while (types[i] != NULL)
     {
-        PyList_Append (list, PyString_FromString (types[i]));
+        tmp = PyString_FromString (types[i]);
+        PyList_Append (list, tmp);
+        Py_DECREF (tmp);
         i++;
     }
     return list;
@@ -223,6 +216,7 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
     int scraplen;
     char *scrap = NULL;
     char *scrap_type;
+    PyObject *tmp;
 
     PYGAME_SCRAP_INIT_CHECK ();
 
@@ -238,14 +232,20 @@ _scrap_put_scrap (PyObject* self, PyObject* args)
     switch (_currentmode)
     {
     case SCRAP_SELECTION:
-        PyDict_SetItemString (_selectiondata, scrap_type,
-                              PyString_FromStringAndSize (scrap, scraplen));
+    {
+        tmp = PyString_FromStringAndSize (scrap, scraplen);
+        PyDict_SetItemString (_selectiondata, scrap_type, tmp);
+        Py_DECREF (tmp);
         break;
+    }
     case SCRAP_CLIPBOARD:
     default:
-        PyDict_SetItemString (_clipdata, scrap_type,
-                              PyString_FromStringAndSize (scrap, scraplen));
+    {
+        tmp = PyString_FromStringAndSize (scrap, scraplen);
+        PyDict_SetItemString (_clipdata, scrap_type, tmp);
+        Py_DECREF (tmp);
         break;
+    }
     }
 
     Py_RETURN_NONE;
