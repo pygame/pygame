@@ -285,6 +285,8 @@
 
 #define DOC_PYGAMEMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
 
+#define DOC_MASKFROMSURFACE "Mask.from_surface(surface) -> Mask\nReturns the size of the mask."
+
 #define DOC_MASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
 
 #define DOC_MASKGETAT "Mask.get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."

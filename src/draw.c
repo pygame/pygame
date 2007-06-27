@@ -1544,15 +1544,15 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 
 static PyMethodDef draw_builtins[] =
 {
-	{ "aaline", aaline, 1, DOC_PYGAMEDRAWAALINE },
-	{ "line", line, 1, DOC_PYGAMEDRAWLINE },
-	{ "aalines", aalines, 1, DOC_PYGAMEDRAWAALINES },
-	{ "lines", lines, 1, DOC_PYGAMEDRAWLINES },
-	{ "ellipse", ellipse, 1, DOC_PYGAMEDRAWELLIPSE },
-	{ "arc", arc, 1, DOC_PYGAMEDRAWARC },
-	{ "circle", circle, 1, DOC_PYGAMEDRAWCIRCLE },
-	{ "polygon", polygon, 1, DOC_PYGAMEDRAWPOLYGON },
-	{ "rect", rect, 1, DOC_PYGAMEDRAWRECT },
+	{ "aaline", aaline, METH_VARARGS, DOC_PYGAMEDRAWAALINE },
+	{ "line", line, METH_VARARGS, DOC_PYGAMEDRAWLINE },
+	{ "aalines", aalines, METH_VARARGS, DOC_PYGAMEDRAWAALINES },
+	{ "lines", lines, METH_VARARGS, DOC_PYGAMEDRAWLINES },
+	{ "ellipse", ellipse, METH_VARARGS, DOC_PYGAMEDRAWELLIPSE },
+	{ "arc", arc, METH_VARARGS, DOC_PYGAMEDRAWARC },
+	{ "circle", circle, METH_VARARGS, DOC_PYGAMEDRAWCIRCLE },
+	{ "polygon", polygon, METH_VARARGS, DOC_PYGAMEDRAWPOLYGON },
+	{ "rect", rect, METH_VARARGS, DOC_PYGAMEDRAWRECT },
 
 	{ NULL, NULL, 0, NULL }
 };

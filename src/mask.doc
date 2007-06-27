@@ -9,6 +9,14 @@ New in pygame 1.8.
 
 <SECTION>
 
+
+from_surface
+Returns the size of the mask.
+Mask.from_surface(surface) -> Mask
+
+<END>
+
+
 get_size
 Returns the size of the mask.
 Mask.get_size() -> width,height

@@ -37,7 +37,7 @@ static PyMethodDef builtins[] =
 };
 
 PYGAME_EXPORT
-void initconstants(void)
+void initconstants (void)
 {
     PyObject* module;
     
