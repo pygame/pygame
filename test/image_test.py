@@ -41,7 +41,8 @@ class ImageTest( unittest.TestCase ):
 
         f = open(os.path.join("examples", "data", "alien1.jpg"), "rb")
         surf = pygame.image.load(f)
-
+        
+        surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
     def test_from_to_string(self):
         """ see if fromstring, and tostring methods are symetrical.
