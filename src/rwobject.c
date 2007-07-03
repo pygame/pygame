@@ -427,11 +427,13 @@ rw_close_th (SDL_RWops* context)
     Py_XDECREF (helper->write);
     Py_XDECREF (helper->read);
     Py_XDECREF (helper->close);
-    PyMem_Del (helper);
 
     PyThreadState_Swap (oldstate);
     PyThreadState_Clear (helper->thread);
     PyThreadState_Delete (helper->thread);
+
+    PyMem_Del (helper);
+
     PyEval_ReleaseLock ();
 
     SDL_FreeRW (context);
