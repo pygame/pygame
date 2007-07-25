@@ -90,6 +90,26 @@ in.  Also the destination surface must be the same format.
 
 
 
+smoothscale
+scale a surface to an arbitrary size smoothly
+pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface
+
+Uses one of two different algorithms for scaling each
+dimension of the input surface as required.  For shrinkage,
+the output pixels are area averages of the colors they
+cover.  For expansion, a bilinear filter is used. For the
+amd64 and i686 architectures, optimized MMX routines are
+included and will run much faster than other machine types.
+The size is a 2 number sequence for (width, height). This
+function only works for 24-bit or 32-bit surfaces.  An
+exception will be thrown if the input surface bit depth is
+less than 24.
+
+New in pygame 1.8
+<END>
+
+
+
 chop
 remove interior area of an image
 pygame.transform.chop(Surface, rect): return Surface

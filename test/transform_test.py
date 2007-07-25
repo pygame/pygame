@@ -34,7 +34,16 @@ class TransformTest( unittest.TestCase ):
         # the wrong size surface is past in.  Should raise an error.
         self.assertRaises(ValueError, pygame.transform.scale, s, (33,64), s3)
 
+        if 1:
+            s = pygame.Surface((32,32))
+            s2 = pygame.transform.smoothscale(s, (64,64))
+            s3 = s2.copy()
 
+            s3 = pygame.transform.smoothscale(s, (64,64), s3)
+            pygame.transform.smoothscale(s, (64,64), s2)
+
+            # the wrong size surface is past in.  Should raise an error.
+            self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33,64), s3)
 
 
 if __name__ == '__main__':

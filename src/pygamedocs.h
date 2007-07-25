@@ -715,5 +715,7 @@
 
 #define DOC_PYGAMETRANSFORMSCALE2X "pygame.transform.scale2x(Surface, DestSurface = None): Surface\nspecialized image doubler"
 
+#define DOC_PYGAMETRANSFORMSMOOTHSCALE "pygame.transform.smoothscale(Surface, (width, height)): return Surface\nscale a surface to an arbitrary size smoothly"
+
 #define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\nremove interior area of an image"
 
