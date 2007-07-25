@@ -51,6 +51,7 @@
   <tr><td><a href="transform.html#pygame.transform.rotate">pygame.transform.rotate</a> - <font size=-1>rotate an image</font></td><td>rotate an image</td></tr>
   <tr><td><a href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a> - <font size=-1>filtered scale and rotation</font></td><td>filtered scale and rotation</td></tr>
   <tr><td><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a> - <font size=-1>specialized image doubler</font></td><td>specialized image doubler</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a> - <font size=-1>scale a surface to an arbitrary size smoothly</font></td><td>scale a surface to an arbitrary size smoothly</td></tr>
   <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>remove interior area of an image</font></td><td>remove interior area of an image</td></tr>
 </table></small></ul>
 <p><tt>A</tt> Surface transform is an operation that moves or resizes the pixels. All these functions take a Surface to operate on and return a new Surface with the results. </p>
@@ -104,6 +105,16 @@
 <p>This really only has an effect on simple images with solid colors. On photographic and antialiased images it will look like a regular unfiltered scale. </p>
 <p>An optional destination surface can be used, rather than have it create a new one. This is quicker if you want to repeatedly scale something. However the destination must be twice the size of the source surface passed in. Also the destination surface must be the same format. </p>
 <!--COMMENTS:pygame.transform.scale2x--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.transform.smoothscale">
+<big><b>pygame.transform.smoothscale</big></b><br><ul>
+  <i>scale a surface to an arbitrary size smoothly</i><br>
+  <tt>pygame.transform.smoothscale(Surface, (width, height)): return Surface</tt><br>
+<p>Uses one of two different algorithms for scaling each dimension of the input surface as required. For shrinkage, the output pixels are area averages of the colors they cover. For expansion, a bilinear filter is used. For the amd64 and i686 architectures, optimized <tt>MMX</tt> routines are included and will run much faster than other machine types. The size is a 2 number sequence for (width, height). This function only works for 24-bit or 32-bit surfaces. An exception will be thrown if the input surface bit depth is less than 24. </p>
+<p>New in pygame <tt>1.8</tt> </p>
+<!--COMMENTS:pygame.transform.smoothscale--> &nbsp;<br> 
 <br></ul>
 
 

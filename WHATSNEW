@@ -5,6 +5,19 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 #
 #
+#
+#Changes from Marcus for ref counting bug fixes and
+
+Jun 25, 2007
+    Removed QNX support from scrap module. Thanks Marcus!
+    Added smoothscale(with MMX!) function from Richard Goedeken
+
+Jun 27, 2007
+    Fixes from Marcus for ref counting bugs.
+    Also using METH_NOARGS for functions with no arguments.
+     Which should make some functions slightly faster.
+    Thanks Marcus, and thanks Campbell Barton for spotting them.
+
 May 30, 2007
     Fixed some documentation.  mask, scrap, font modules.
     Fixed the mask.set_at get_at functions to raise a nice exception.
