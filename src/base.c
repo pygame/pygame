@@ -221,27 +221,16 @@ quit (PyObject* self)
 
 /* internal C API utility functions */
 static int
-IntFromObj (PyObject* obj, int* val)
-{
-    PyObject* intobj;
-
-    if (PyNumber_Check (obj))
+IntFromObj (PyObject* obj, int* val) {
+    int tmp_val;
+    tmp_val = PyInt_AsLong (obj);
+    if (tmp_val == -1 && PyErr_Occurred ())
     {
-        if (!(intobj = PyNumber_Int (obj)))
-        {
-            PyErr_Clear ();
-            return 0;
-        }
-        *val = PyInt_AsLong (intobj);
-        Py_DECREF (intobj);
-        if (PyErr_Occurred ())
-        {
-            PyErr_Clear ();
-            return 0;
-        }
-        return 1;
+        PyErr_Clear ();
+        return 0;
     }
-    return 0;
+    *val = tmp_val;
+    return 1;
 }
 
 static int
