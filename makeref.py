@@ -19,14 +19,17 @@ def sort_list_by_keyfunc(alist, akey):
 
 def Run():
     # get files and shuffle ordering
-    files = glob.glob('src/*.doc') + glob.glob('lib/*.doc')
-    files.remove("src/pygame.doc")
+    files = glob.glob(os.path.join('src','*.doc')) + glob.glob(os.path.join('lib','*.doc'))
+    for file in files:
+        print file
+    files.remove(os.path.join("src","pygame.doc"))
+
 
     #XXX: sort(key=) is only available in >= python2.4
     #files.sort(key=sortkey)
     files = sort_list_by_keyfunc(files, sortkey)
 
-    files.insert(0, "src/pygame.doc")
+    files.insert(0, os.path.join("src","pygame.doc"))
     docs = []
     pages = []
     for f in files:
@@ -47,7 +50,7 @@ def Run():
         MakeIndex(name, doc, index)
     
     for name, doc in docs:
-        fullname = "docs/ref/%s.html" % name
+        fullname = os.path.join("docs","ref","%s.html") % name
         outFile = open(fullname, "w")
         outFile.write(HTMLHeader % name)
         WritePageLinks(outFile, pages)
@@ -56,14 +59,14 @@ def Run():
         outFile.write(HTMLFinish)
         outFile.close()
  
-    outFile = open("src/pygamedocs.h", "w")
+    outFile = open(os.path.join("src", "pygamedocs.h"), "w")
     outFile.write("/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */\n")
     for doc in justDocs:
         WriteDocHeader(outFile, doc)
 
     topDoc = LayoutDocs(justDocs)
 
-    outFile = open("docs/ref/index.html", "w")
+    outFile = open(os.path.join("docs","ref","index.html"), "w")
     outFile.write(HTMLHeader % "Index")
     WritePageLinks(outFile, pages)
     outFile.write(HTMLMid)
