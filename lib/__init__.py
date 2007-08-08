@@ -145,8 +145,8 @@ try: import pygame.movie
 except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
 
 
-#try: import pygame.scrap
-#except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 1)
+try: import pygame.scrap
+except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 1)
 
 #try: import pygame.movieext
 #except (ImportError,IOError), msg:movieext=MissingModule("movieext", msg, 0)
