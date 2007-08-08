@@ -122,7 +122,6 @@ void initconstants (void)
     PyModule_AddIntConstant(module, "SCRAP_CLIPBOARD", 0);
     PyModule_AddIntConstant(module, "SCRAP_SELECTION", 1);
 
-#define PYGAME_BLEND_ADD 0x1
 #define PYGAME_BLEND_ADD  0x1
 #define PYGAME_BLEND_SUB  0x2
 #define PYGAME_BLEND_MULT 0x3

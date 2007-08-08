@@ -355,7 +355,7 @@ get_wm_info (PyObject* self)
     PyDict_SetItemString (dict, "window", tmp);
     Py_DECREF (tmp);
 
-    tmp = PyInt_FromLong ((long)info.hglrc)
+    tmp = PyInt_FromLong ((long)info.hglrc);
     PyDict_SetItemString (dict, "hglrc", tmp);
     Py_DECREF (tmp);
 #elif defined(__riscos__)
