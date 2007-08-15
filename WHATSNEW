@@ -8,6 +8,10 @@
 #
 #Changes from Marcus for ref counting bug fixes and
 
+Aug 15, 2007
+    Added pygame.mask.from_surface which can make a Mask object from
+     a surface.  It's 128x faster than the python version!
+
 Jun 25, 2007
     Removed QNX support from scrap module. Thanks Marcus!
     Added smoothscale(with MMX!) function from Richard Goedeken
