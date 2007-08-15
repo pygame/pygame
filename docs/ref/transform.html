@@ -111,7 +111,7 @@
 <a name="pygame.transform.smoothscale">
 <big><b>pygame.transform.smoothscale</big></b><br><ul>
   <i>scale a surface to an arbitrary size smoothly</i><br>
-  <tt>pygame.transform.smoothscale(Surface, (width, height)): return Surface</tt><br>
+  <tt>pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface</tt><br>
 <p>Uses one of two different algorithms for scaling each dimension of the input surface as required. For shrinkage, the output pixels are area averages of the colors they cover. For expansion, a bilinear filter is used. For the amd64 and i686 architectures, optimized <tt>MMX</tt> routines are included and will run much faster than other machine types. The size is a 2 number sequence for (width, height). This function only works for 24-bit or 32-bit surfaces. An exception will be thrown if the input surface bit depth is less than 24. </p>
 <p>New in pygame <tt>1.8</tt> </p>
 <!--COMMENTS:pygame.transform.smoothscale--> &nbsp;<br> 
