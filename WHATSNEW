@@ -9,8 +9,15 @@
 #Changes from Marcus for ref counting bug fixes and
 
 Aug 15, 2007
+    The sprite module has had some big changes from DR0ID.  It now has a 
+     LayeredUpdates, and LayeredDirty groups.  For using layers when
+     rendering the sprites.  LayeredDirty is an alternative to 
+     RenderUpdates that automatically finds the best display method
+     (either full screen updates, or dirty rect updates).  It's faster
+     if you have sprites that don't move.  Thanks DR0ID!
     Added pygame.mask.from_surface which can make a Mask object from
      a surface.  It's 128x faster than the python version!
+    pygame.movie bug fix. Thanks Lenard Lindstrom!
 
 Jun 25, 2007
     Removed QNX support from scrap module. Thanks Marcus!
