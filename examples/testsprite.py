@@ -9,6 +9,9 @@ from random import randint
 from time import time
 import pygame.joystick
 
+##import FastRenderGroup as FRG
+import pygame.sprite as FRG
+
 if "-psyco" in sys.argv:
     try:
         import psyco
@@ -24,6 +27,17 @@ if "-update_rects" in sys.argv:
     update_rects = True
 if "-noupdate_rects" in sys.argv:
     update_rects = False
+    
+use_static = False
+if "-static" in sys.argv:
+    use_static = True
+    
+
+use_FastRenderGroup = False
+if "-FastRenderGroup" in sys.argv:
+    update_rects = True
+    use_FastRenderGroup = True
+
 
 flags = 0
 if "-flip" in sys.argv:
@@ -60,24 +74,54 @@ else:
 print screen_dims
 
 
-class Thingy(pygame.sprite.Sprite):
+##class Thingy(pygame.sprite.Sprite):
+##    images = None
+##    def __init__(self):
+##        pygame.sprite.Sprite.__init__(self)
+##        self.image = Thingy.images[0]
+##        self.rect = self.image.get_rect()
+##        self.rect.x = randint(0, screen_dims[0])
+##        self.rect.y = randint(0, screen_dims[1])
+##        #self.vel = [randint(-10, 10), randint(-10, 10)]
+##        self.vel = [randint(-1, 1), randint(-1, 1)]
+##
+##    def move(self):
+##        for i in [0, 1]:
+##            nv = self.rect[i] + self.vel[i]
+##            if nv >= screen_dims[i] or nv < 0:
+##                self.vel[i] = -self.vel[i]
+##                nv = self.rect[i] + self.vel[i]
+##            self.rect[i] = nv
+
+class Thingy(FRG.DirtySprite):
     images = None
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
+##        pygame.sprite.Sprite.__init__(self)
+        FRG.DirtySprite.__init__(self)
         self.image = Thingy.images[0]
         self.rect = self.image.get_rect()
         self.rect.x = randint(0, screen_dims[0])
         self.rect.y = randint(0, screen_dims[1])
         #self.vel = [randint(-10, 10), randint(-10, 10)]
         self.vel = [randint(-1, 1), randint(-1, 1)]
+        self.dirty = 2
 
-    def move(self):
+    def update(self):
         for i in [0, 1]:
             nv = self.rect[i] + self.vel[i]
             if nv >= screen_dims[i] or nv < 0:
                 self.vel[i] = -self.vel[i]
                 nv = self.rect[i] + self.vel[i]
             self.rect[i] = nv
+
+class Static(FRG.DirtySprite):
+    images = None
+    def __init__(self):
+        FRG.DirtySprite.__init__(self)
+        self.image = Static.images[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = randint(0, 3*screen_dims[0]/4)
+        self.rect.y = randint(0, 3*screen_dims[1]/4)
 
 
 
@@ -104,19 +148,26 @@ def main():
     screen.fill([0,0,0])
     pygame.display.flip()
     sprite_surface = pygame.image.load(os.path.join("data", "asprite.bmp"))
+    sprite_surface2 = pygame.image.load(os.path.join("data", "static.png"))
 
     if use_rle:
         sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY|RLEACCEL)
+        sprite_surface2.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY|RLEACCEL)
     else:
         sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY)
+        sprite_surface2.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY)
 
     if use_alpha:
         sprite_surface = sprite_surface.convert_alpha()
+        sprite_surface2 = sprite_surface2.convert_alpha()
     else:
         sprite_surface = sprite_surface.convert()
+        sprite_surface2 = sprite_surface2.convert()
 
     Thingy.images = [sprite_surface]
-
+    if use_static:
+        Static.images = [sprite_surface2]
+    
     if len(sys.argv) > 1:
         try:
             numsprites = int(sys.argv[-1])
@@ -124,12 +175,19 @@ def main():
             numsprites = 100
     else:
         numsprites = 100
-    if update_rects:
-        sprites = pygame.sprite.RenderUpdates()
+    sprites = None
+    if use_FastRenderGroup:
+##        sprites = FRG.FastRenderGroup()
+        sprites = FRG.LayeredDirty()
     else:
-        sprites = pygame.sprite.Group()
+        if update_rects:
+            sprites = pygame.sprite.RenderUpdates()
+        else:
+            sprites = pygame.sprite.Group()
 
     for i in xrange(0, numsprites):
+        if use_static and i%2==0:
+            sprites.add(Static())
         sprites.add(Thingy())
 
     done = False
@@ -145,8 +203,8 @@ def main():
         if not update_rects:
             screen.fill([0,0,0])
 
-        for sprite in sprites:
-            sprite.move()
+##        for sprite in sprites:
+##            sprite.move()
 
         if update_rects:
             sprites.clear(screen, background)
