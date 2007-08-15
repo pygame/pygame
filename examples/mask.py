@@ -2,7 +2,7 @@ import sys, random
 import pygame, pygame.image, pygame.surface, pygame.time, pygame.display
 
 def maskFromSurface(surface, threshold = 127):
-    return pygame.mask.from_surface(surface, threshold)
+    #return pygame.mask.from_surface(surface, threshold)
 
     mask = pygame.mask.Mask(surface.get_size())
     key = surface.get_colorkey()
@@ -95,6 +95,23 @@ def main(argv):
     for impath in argv[1:]:
         images.append(pygame.image.load(impath).convert_alpha())
         masks.append(maskFromSurface(images[-1]))
+
+    numtimes = 10
+    import time
+    t1 = time.time()
+    for x in range(numtimes):
+        m = maskFromSurface(images[-1])
+    t2 = time.time()
+
+    print "python maskFromSurface :%s" % (t2-t1)
+
+    t1 = time.time()
+    for x in range(numtimes):
+        m = pygame.mask.from_surface(images[-1])
+    t2 = time.time()
+
+    print "C pygame.mask.from_surface :%s" % (t2-t1)
+
     sprites = []
     for i in range(20):
         j = i % len(images)

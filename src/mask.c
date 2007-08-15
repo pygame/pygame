@@ -160,22 +160,17 @@ PyObject* mask_from_surface(PyObject* self, PyObject* args)
         Uint8 *pix;
         Uint8 r, g, b, a;
 
-        printf("hi there1\n");
-
-        //TODO: set threshold as 127 default argument.
+        /* set threshold as 127 default argument. */
         threshold = 127;
 
         /* get the surface from the passed in arguments. 
          *   surface, threshold
          */
 
-        if (!PyArg_ParseTuple (args, "O!|(i)", &PySurface_Type, &surfobj, &threshold))
+        if (!PyArg_ParseTuple (args, "O!|i", &PySurface_Type, &surfobj, &threshold))
             return NULL;
 
-        printf("hi there2\n");
 	surf = PySurface_AsSurface(surfobj);
-
-        printf("hi there3\n");
 
         /* lock the surface, release the GIL. */
         PySurface_Lock (surfobj);
@@ -236,8 +231,6 @@ PyObject* mask_from_surface(PyObject* self, PyObject* args)
                 }
             }
         }
-
-
 
         /* unlock the surface, release the GIL.
          */
@@ -351,5 +344,7 @@ void initmask(void)
   module = Py_InitModule3("mask", mask_builtins, DOC_PYGAMEMASK);
   dict = PyModule_GetDict(module);
   PyDict_SetItemString(dict, "MaskType", (PyObject *)&PyMask_Type);
+  import_pygame_base ();
+  import_pygame_surface ();
 }
 
