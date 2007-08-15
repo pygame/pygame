@@ -42,12 +42,10 @@ static PyObject* PyMovie_New (SMPEG*);
 
 /* movie object methods */
 static PyObject*
-movie_play (PyObject* self, PyObject* args)
+movie_play (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
     int loops = 0;
-    if (!PyArg_ParseTuple (args, "|i", &loops))
-        return NULL;
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_loop (movie, loops);
     SMPEG_play (movie);
