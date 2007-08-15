@@ -1,9 +1,10 @@
-import profile
-import sys, bitmask, random
+import sys, random
 import pygame, pygame.image, pygame.surface, pygame.time, pygame.display
 
 def maskFromSurface(surface, threshold = 127):
-    mask = bitmask.Mask(surface.get_size())
+    return pygame.mask.from_surface(surface, threshold)
+
+    mask = pygame.mask.Mask(surface.get_size())
     key = surface.get_colorkey()
     if key:
         for y in range(surface.get_height()):

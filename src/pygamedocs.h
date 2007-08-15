@@ -283,19 +283,21 @@
 
 #define DOC_PYGAMEKEYNAME "pygame.key.name(key): return string\nget the name of a key identifier"
 
-#define DOC_PYGAMEMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
+#define DOC_PYGAMEMASK "pygame module for image masks."
 
-#define DOC_MASKFROMSURFACE "Mask.from_surface(surface) -> Mask\nReturns the size of the mask."
+#define DOC_PYGAMEMASKPYGAMEMASKFROMSURFACE "pygame.mask.from_surface(surface) -> Mask\nReturns the size of the mask."
 
-#define DOC_MASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
+#define DOC_PYGAMEMASKPYGAMEMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
 
-#define DOC_MASKGETAT "Mask.get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
+#define DOC_PYGAMEMASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
 
-#define DOC_MASKSETAT "Mask.set_at((x,y),value)\nSets the position in the mask given by x and y."
+#define DOC_PYGAMEMASKGETAT "Mask.get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
 
-#define DOC_MASKOVERLAP "Mask.overlap(othermask, offset) -> x,y\nReturns nonzero if the masks overlap with the given offset."
+#define DOC_PYGAMEMASKSETAT "Mask.set_at((x,y),value)\nSets the position in the mask given by x and y."
 
-#define DOC_MASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
+#define DOC_PYGAMEMASKOVERLAP "Mask.overlap(othermask, offset) -> x,y\nReturns nonzero if the masks overlap with the given offset."
+
+#define DOC_PYGAMEMASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
 
 #define DOC_ ""
 
@@ -715,7 +717,7 @@
 
 #define DOC_PYGAMETRANSFORMSCALE2X "pygame.transform.scale2x(Surface, DestSurface = None): Surface\nspecialized image doubler"
 
-#define DOC_PYGAMETRANSFORMSMOOTHSCALE "pygame.transform.smoothscale(Surface, (width, height)): return Surface\nscale a surface to an arbitrary size smoothly"
+#define DOC_PYGAMETRANSFORMSMOOTHSCALE "pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface\nscale a surface to an arbitrary size smoothly"
 
 #define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\nremove interior area of an image"
 

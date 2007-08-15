@@ -1,6 +1,5 @@
-pygame.Mask
-pygame object for representing 2d bitmasks
-pygame.Mask((width, height): return Mask
+pygame.mask
+pygame module for image masks.
 
 Useful for fast pixel perfect collision detection.  A Mask uses 1bit per 
 pixel to store which parts collide.
@@ -10,17 +9,22 @@ New in pygame 1.8.
 <SECTION>
 
 
-from_surface
+pygame.mask.from_surface
 Returns the size of the mask.
-Mask.from_surface(surface) -> Mask
+pygame.mask.from_surface(surface) -> Mask
 
+<END>
+
+
+pygame.Mask
+pygame object for representing 2d bitmasks
+pygame.Mask((width, height): return Mask
 <END>
 
 
 get_size
 Returns the size of the mask.
 Mask.get_size() -> width,height
-
 <END>
 
 
