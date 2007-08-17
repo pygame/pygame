@@ -2,6 +2,7 @@
 import unittest
 import pygame
 
+from pygame.locals import *
 
 class SurfaceTest( unittest.TestCase ):
     
@@ -23,6 +24,16 @@ class SurfaceTest( unittest.TestCase ):
         self.assertEqual(repr(surf), '<Surface(70x70x32 SW)>')
 
 
+    def test_SRCALPHA(self):
+
+        # has the flag been passed in ok?
+        surf = pygame.Surface((70,70), SRCALPHA, 32)
+        self.assertEqual(surf.get_flags() & SRCALPHA, SRCALPHA)
+
+        # if we have a 32 bit surface, the SRCALPHA should have worked too.
+        surf2 = pygame.Surface((70,70), SRCALPHA)
+        if surf2.get_bitsize() == 32:
+            self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
 
 
 if __name__ == '__main__':
