@@ -163,7 +163,9 @@ Fill the Surface with a solid color. If no rect argument is given the
 entire Surface will be filled. The rect argument will limit the fill to
 a specific area. The fill will also be contained by the Surface clip area.
 
-The color argument can be either an RGB sequence or a mapped color index.
+The color argument can be either a RGB sequence, a RGBA sequence or 
+a mapped color index.  If using RGBA, the Alpha (A part of RGBA) is ignored 
+unless the surface uses per pixel alpha (Surface has the SRCALPHA flag).
 
 An optional special_flags is for passing in 
 BLEND_ADD, BLEND_SUB, BLEND_MULT, BLEND_MIN, BLEND_MAX
