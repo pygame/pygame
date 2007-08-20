@@ -20,6 +20,9 @@
     pete@shinners.org
 */
 
+#ifndef PYGAME_H
+#define PYGAME_H
+
 /** This header file includes all the definitions for the
  ** base pygame extensions. This header only requires
  ** SDL and Python includes. The reason for functions
@@ -65,8 +68,10 @@
 /* macros used throughout the source */
 #define RAISE(x,y) (PyErr_SetString((x), (y)), (PyObject*)NULL)
 
-#ifndef Py_RETURN_NONE
-#define Py_RETURN_NONE return Py_INCREF (Py_None), Py_None
+#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 3
+#  define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
+#  define Py_RETURN_TRUE return Py_INCREF(Py_True), Py_True
+#  define Py_RETURN_FALSE return Py_INCREF(Py_False), Py_False
 #endif
 
 /* Py_ssize_t availability. */
@@ -493,3 +498,5 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = {NULL};
 #else
 #define PYGAME_EXPORT
 #endif
+
+#endif /* PYGAME_H */
