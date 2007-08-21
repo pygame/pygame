@@ -913,6 +913,8 @@ surf_get_alpha (PyObject *self)
 
     if (surf->flags & SDL_OPENGL)
         return RAISE (PyExc_SDLError, "Cannot call on OPENGL Surfaces");
+    if (!surf)
+        return RAISE (PyExc_SDLError, "display Surface quit");
 
     if (surf->flags & SDL_SRCALPHA)
         return PyInt_FromLong (surf->format->alpha);
@@ -1416,6 +1418,9 @@ static PyObject*
 surf_get_bitsize (PyObject *self)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
+    if (!surf)
+        return RAISE (PyExc_SDLError, "display Surface quit");
+
     return PyInt_FromLong (surf->format->BitsPerPixel);
 }
 
@@ -1423,6 +1428,8 @@ static PyObject*
 surf_get_bytesize (PyObject *self)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
+    if (!surf)
+        return RAISE (PyExc_SDLError, "display Surface quit");
     return PyInt_FromLong (surf->format->BytesPerPixel);
 }
 
