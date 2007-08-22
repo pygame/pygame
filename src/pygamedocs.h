@@ -463,6 +463,10 @@
 
 #define DOC_OVERLAYGETHARDWARE "Overlay.get_hardware(rect): return int\ntest if the Overlay is hardware accelerated"
 
+#define DOC_PYGAMEPIXELARRAY "pygame.PixelArray(surface): return PixelArray\npygame Object for direct pixel access of surfaces"
+
+#define DOC_PIXELARRAYSURFACE "PixelArray.surface: Return Surface\nGets the Surface, the PixelArray uses"
+
 #define DOC_PYGAMERECT "pygame.Rect(left, top, width, height): return Rect\npygame.Rect((left, top), (width, height)): return Rect\npygame.Rect(object): return Rect\npygame object for storing rectangular coordinates"
 
 #define DOC_RECTMOVE "Rect.move(x, y): return Rect\nmoves the rectangle"
