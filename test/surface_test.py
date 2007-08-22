@@ -30,10 +30,23 @@ class SurfaceTest( unittest.TestCase ):
         surf = pygame.Surface((70,70), SRCALPHA, 32)
         self.assertEqual(surf.get_flags() & SRCALPHA, SRCALPHA)
 
+
+        #24bit surfaces can not have SRCALPHA.
+        self.assertRaises(ValueError, pygame.Surface, (100, 100), pygame.SRCALPHA, 24)
+        #s.fill((255, 0, 0))
+
+        #self.assertEqual(s.get_bitsize(), 24)
+        #self.assertEqual(s.get_bytesize(), 4)
+
+
         # if we have a 32 bit surface, the SRCALPHA should have worked too.
         surf2 = pygame.Surface((70,70), SRCALPHA)
         if surf2.get_bitsize() == 32:
             self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
+
+
+
+
 
 
 if __name__ == '__main__':
