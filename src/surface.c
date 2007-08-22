@@ -320,29 +320,32 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
     if (depth && masks)        /* all info supplied, most errorchecking
                                 * needed */
     {
-        if (PySurface_Check (depth))
-            return (intptr_t) RAISE
-                (PyExc_ValueError,
-                 "cannot pass surface for depth and color masks");
-        if (!IntFromObj (depth, &bpp))
-            return (intptr_t) RAISE (PyExc_ValueError,
-                                     "invalid bits per pixel depth argument");
-        if (!PySequence_Check (masks) || PySequence_Length (masks) != 4)
-            return (intptr_t) RAISE
-                (PyExc_ValueError,
-                 "masks argument must be sequence of four numbers");
+        if (PySurface_Check (depth)) {
+            RAISE (PyExc_ValueError, "cannot pass surface for depth and color masks");
+            return -1;
+        }
+        if (!IntFromObj (depth, &bpp)) {
+            RAISE (PyExc_ValueError, "invalid bits per pixel depth argument");
+            return -1;
+        }
+        if (!PySequence_Check (masks) || PySequence_Length (masks) != 4) {
+            RAISE (PyExc_ValueError, "masks argument must be sequence of four numbers");
+            return -1;
+        }
         if (!UintFromObjIndex (masks, 0, &Rmask) ||
             !UintFromObjIndex (masks, 1, &Gmask) ||
             !UintFromObjIndex (masks, 2, &Bmask) ||
-            !UintFromObjIndex (masks, 3, &Amask))
-            return (intptr_t) RAISE (PyExc_ValueError,
-                                     "invalid mask values in masks sequence");
+            !UintFromObjIndex (masks, 3, &Amask)) {
+            RAISE (PyExc_ValueError, "invalid mask values in masks sequence");
+            return -1;
+        }
     }
     else if (depth && PyNumber_Check (depth))  /* use default masks */
     {
-        if (!IntFromObj (depth, &bpp))
-            return (intptr_t) RAISE (PyExc_ValueError,
-                                     "invalid bits per pixel depth argument");
+        if (!IntFromObj (depth, &bpp)) {
+            RAISE (PyExc_ValueError, "invalid bits per pixel depth argument");
+            return -1;
+        }
         if (flags & SDL_SRCALPHA)
         {
             switch (bpp)
@@ -360,10 +363,8 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
                 Amask = 0xFF << 24;
                 break;
             default:
-                return
-                    (intptr_t) RAISE
-                    (PyExc_ValueError,
-                     "no standard masks exist for given bitdepth with alpha");
+                RAISE (PyExc_ValueError, "no standard masks exist for given bitdepth with alpha");
+                return -1;
             }
         }
         else
@@ -398,8 +399,8 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
                 Bmask = 0xFF;
                 break;
             default:
-                return (intptr_t) RAISE (PyExc_ValueError,
-                                         "nonstandard bit depth given");
+                RAISE (PyExc_ValueError, "nonstandard bit depth given");
+                return -1;
             }
         }
     }
@@ -422,11 +423,37 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
             pix->Bmask = 0xFF;
         }
         bpp = pix->BitsPerPixel;
-        Rmask = pix->Rmask;
-        Gmask = pix->Gmask;
-        Bmask = pix->Bmask;
-        Amask = pix->Amask;
+
+        if (flags & SDL_SRCALPHA)
+        {
+            switch (bpp)
+            {
+            case 16:
+                Rmask = 0xF << 8;
+                Gmask = 0xF << 4;
+                Bmask = 0xF;
+                Amask = 0xF << 12;
+                break;
+            case 32:
+                Rmask = 0xFF << 16;
+                Gmask = 0xFF << 8;
+                Bmask = 0xFF;
+                Amask = 0xFF << 24;
+                break;
+            default:
+                RAISE (PyExc_ValueError, "no standard masks exist for given bitdepth with alpha");
+                return -1;
+            }
+        } else {
+            Rmask = pix->Rmask;
+            Gmask = pix->Gmask;
+            Bmask = pix->Bmask;
+            Amask = pix->Amask;
+        }
+
     }
+
+
     surface = SDL_CreateRGBSurface (flags, width, height, bpp, Rmask, Gmask,
                                     Bmask, Amask);
     if (!surface)
