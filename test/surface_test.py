@@ -23,6 +23,18 @@ class SurfaceTest( unittest.TestCase ):
         surf = pygame.Surface((70,70), 0, 32)
         self.assertEqual(repr(surf), '<Surface(70x70x32 SW)>')
 
+    def test_keyword_arguments(self):
+        surf = pygame.Surface((70,70), flags=SRCALPHA, depth=32)
+        self.assertEqual(surf.get_flags() & SRCALPHA, SRCALPHA)
+        self.assertEqual(surf.get_bitsize(), 32)
+        
+        # sanity check to make sure the check below is valid
+        surf_16 = pygame.Surface((70,70), 0, 16)
+        self.assertEqual(surf_16.get_bytesize(), 2)
+        
+        # try again with an argument list
+        surf_16 = pygame.Surface((70,70), depth=16)
+        self.assertEqual(surf_16.get_bytesize(), 2)
 
     def test_SRCALPHA(self):
 
