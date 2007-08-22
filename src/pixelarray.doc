@@ -1,0 +1,23 @@
+pygame.PixelArray
+pygame Object for direct pixel access of surfaces
+pygame.PixelArray(surface): return PixelArray
+
+The PixelArray wraps up a Surface and provides a direct 2D array access
+to its pixels using the surface its rows as first and its columns as
+second axis. It supports slicing, row and pixel manipluation and
+buffered access using the buffer() method while inplace operations such
+as addition, subtraction, multiplication, division and slice assignments
+are not allowed.
+
+During its lifetime, the PixelArray locks the surface, thus you
+explicitly have to delete it once its not used anymore and the surface
+should perform operations in the same scope.
+
+<SECTION>
+
+surface
+Gets the Surface, the PixelArray uses
+PixelArray.surface: Return Surface
+
+Gets the Surface, the PixelArray was created for.
+<END>
