@@ -295,19 +295,33 @@ surface_str (PyObject *self)
 }
 
 static intptr_t 
+//surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
 surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
 {
     Uint32 flags = 0;
     int width, height;
-    PyObject *depth = NULL, *masks = NULL;
+    PyObject *depth = NULL, *masks = NULL, *size = NULL;
     int bpp;
     Uint32 Rmask, Gmask, Bmask, Amask;
     SDL_Surface *surface;
     SDL_PixelFormat default_format;
+    int length;
 
-    if (!PyArg_ParseTuple (args, "(ii)|iOO", &width, &height, &flags, &depth,
-                           &masks))
+    char *kwids[] = { "size", "flags", "depth", "masks", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwids, &size, &flags, &depth, &masks))
+       return -1;
+
+    if (PySequence_Check (size) && (length = PySequence_Length (size)) == 2) {
+
+        if ( (!IntFromObjIndex (size, 0, &width)) || 
+             (!IntFromObjIndex (size, 1, &height)) ) {
+            RAISE (PyExc_ValueError, "size needs to be (int width, int height)");
+            return -1;
+        }
+    } else {
+        RAISE (PyExc_ValueError, "size needs to be (int width, int height)");
         return -1;
+    }
 
     if (width < 0 || height < 0)
     {
