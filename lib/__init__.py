@@ -120,6 +120,9 @@ except (ImportError,IOError):Surface = lambda:Missing_Function
 try: from pygame.mask import *
 except (ImportError,IOError):Mask = lambda:Missing_Function
 
+try: from pygame.pixelarray import *
+except (ImportError,IOError): PixelArray = lambda:Missing_Function
+
 try: from pygame.overlay import *
 except (ImportError,IOError):Overlay = lambda:Missing_Function
 
@@ -143,7 +146,6 @@ except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
 
 try: import pygame.movie
 except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
-
 
 try: import pygame.scrap
 except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 1)
