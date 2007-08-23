@@ -111,6 +111,8 @@ Pygame.
 * RGBX, 32bit image with unused space
 * RGBA, 32bit image with an alpha channel
 * ARGB, 32bit image with alpha channel first
+* RGBA_PREMULT, 32bit image with colors scaled by alpha channel
+* ARGB_PREMULT, 32bit image with colors scaled by alpha channel, alpha channel first
 <END>
 
 

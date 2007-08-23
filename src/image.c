@@ -273,9 +273,10 @@ image_tostring (PyObject* self, PyObject* arg)
     SDL_Surface *surf, *temp = NULL;
     int w, h, color, flipped = 0;
     Py_ssize_t len;
-    int Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss,
+    Uint32 Rmask, Gmask, Bmask, Amask, Rshift, Gshift, Bshift, Ashift, Rloss,
         Gloss, Bloss, Aloss;
     int hascolorkey, colorkey;
+    Uint32 alpha;
 
     if (!PyArg_ParseTuple (arg, "O!s|i", &PySurface_Type, &surfobj, &format,
                            &flipped))
@@ -483,10 +484,10 @@ image_tostring (PyObject* self, PyObject* arg)
                 {
                     color = *ptr++;
                     data[0] = (char) (((color & Rmask) >> Rshift) << Rloss);
-                    data[1] = (char) (((color & Gmask) >> Gshift) << Rloss);
-                    data[2] = (char) (((color & Bmask) >> Bshift) << Rloss);
+                    data[1] = (char) (((color & Gmask) >> Gshift) << Gloss);
+                    data[2] = (char) (((color & Bmask) >> Bshift) << Bloss);
                     data[3] = hascolorkey ? (char)(color!=colorkey)*255 :
-                        (char)(Amask ? (((color & Amask) >> Ashift) << Rloss) :
+                        (char)(Amask ? (((color & Amask) >> Ashift) << Aloss) :
                                255);
                     data += 4;
                 }
@@ -575,11 +576,179 @@ image_tostring (PyObject* self, PyObject* arg)
                 {
                     color = *ptr++;
                     data[1] = (char) (((color & Rmask) >> Rshift) << Rloss);
-                    data[2] = (char) (((color & Gmask) >> Gshift) << Rloss);
-                    data[3] = (char) (((color & Bmask) >> Bshift) << Rloss);
+                    data[2] = (char) (((color & Gmask) >> Gshift) << Gloss);
+                    data[3] = (char) (((color & Bmask) >> Bshift) << Bloss);
                     data[0] = hascolorkey ? (char)(color!=colorkey)*255 :
-                        (char)(Amask ? (((color & Amask) >> Ashift) << Rloss) :
+                        (char)(Amask ? (((color & Amask) >> Ashift) << Aloss) :
                                255);
+                    data += 4;
+                }
+            }
+            break;
+        }
+        PySurface_Unlock (surfobj);
+    }
+    else if (!strcmp (format, "RGBA_PREMULT"))
+    {
+        if (surf->format->BytesPerPixel == 1 || surf->format->Amask == 0)
+            return RAISE
+                (PyExc_ValueError,
+                 "Can only create pre-multiplied alpha strings if the surface has per-pixel alpha");
+
+        hascolorkey = 0;
+
+        string = PyString_FromStringAndSize (NULL, surf->w * surf->h * 4);
+        if (!string)
+            return NULL;
+        PyString_AsStringAndSize (string, &data, &len);
+
+        PySurface_Lock (surfobj);
+        pixels = (char*) surf->pixels;
+        switch (surf->format->BytesPerPixel)
+        {
+        case 2:
+            for (h = 0; h < surf->h; ++h)
+            {
+                Uint16* ptr = (Uint16*) DATAROW (surf->pixels, h, surf->pitch,
+                                                 surf->h, flipped);
+                for(w = 0; w < surf->w; ++w)
+                {
+                    color = *ptr++;
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[0] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
+                    data[1] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
+                    data[2] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);
+                    data[3] = (char) alpha;
+                    data += 4;
+                }
+            }
+            break;
+        case 3:
+            for (h = 0; h < surf->h; ++h)
+            {
+                Uint8* ptr = (Uint8*) DATAROW (surf->pixels, h, surf->pitch,
+                                               surf->h, flipped);
+                for (w = 0; w < surf->w; ++w)
+                {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    color = ptr[0] + (ptr[1]<<8) + (ptr[2]<<16);
+#else
+                    color = ptr[2] + (ptr[1]<<8) + (ptr[0]<<16);
+#endif
+                    ptr += 3;
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[0] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
+                    data[1] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
+                    data[2] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);
+                    data[3] = (char) alpha;
+                    data += 4;
+                }
+            }
+            break;
+        case 4:
+            for (h = 0; h < surf->h; ++h)
+            {
+                Uint32* ptr = (Uint32*) DATAROW (surf->pixels, h, surf->pitch,
+                                                 surf->h, flipped);
+                for(w = 0; w < surf->w; ++w)
+                {
+                    color = *ptr++;
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    if (alpha == 0)
+                    {
+                        data[0] = data[1] = data[2] = 0;
+                    }
+                    else
+                    {
+                        data[0] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
+                        data[1] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
+                        data[2] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);                    
+                    }
+                    data[3] = (char) alpha;
+                    data += 4;
+                }
+            }
+            break;
+        }
+        PySurface_Unlock (surfobj);
+    }
+    else if (!strcmp (format, "ARGB_PREMULT"))
+    {
+        if (surf->format->BytesPerPixel == 1 || surf->format->Amask == 0)
+            return RAISE
+                (PyExc_ValueError,
+                 "Can only create pre-multiplied alpha strings if the surface has per-pixel alpha");
+
+        hascolorkey = 0;
+
+        string = PyString_FromStringAndSize (NULL, surf->w * surf->h * 4);
+        if (!string)
+            return NULL;
+        PyString_AsStringAndSize (string, &data, &len);
+
+        PySurface_Lock (surfobj);
+        pixels = (char*) surf->pixels;
+        switch (surf->format->BytesPerPixel)
+        {
+        case 2:
+            for (h = 0; h < surf->h; ++h)
+            {
+                Uint16* ptr = (Uint16*) DATAROW (surf->pixels, h, surf->pitch,
+                                                 surf->h, flipped);
+                for(w = 0; w < surf->w; ++w)
+                {
+                    color = *ptr++;
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[1] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
+                    data[2] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
+                    data[3] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);
+                    data[0] = (char) alpha;
+                    data += 4;
+                }
+            }
+            break;
+        case 3:
+            for (h = 0; h < surf->h; ++h)
+            {
+                Uint8* ptr = (Uint8*) DATAROW (surf->pixels, h, surf->pitch,
+                                               surf->h, flipped);
+                for (w = 0; w < surf->w; ++w)
+                {
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                    color = ptr[0] + (ptr[1]<<8) + (ptr[2]<<16);
+#else
+                    color = ptr[2] + (ptr[1]<<8) + (ptr[0]<<16);
+#endif
+                    ptr += 3;
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    data[1] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
+                    data[2] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
+                    data[3] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);
+                    data[0] = (char) alpha;
+                    data += 4;
+                }
+            }
+            break;
+        case 4:
+            for (h = 0; h < surf->h; ++h)
+            {
+                Uint32* ptr = (Uint32*) DATAROW (surf->pixels, h, surf->pitch,
+                                                 surf->h, flipped);
+                for(w = 0; w < surf->w; ++w)
+                {
+                    color = *ptr++;
+                    alpha = ((color & Amask) >> Ashift) << Aloss;
+                    if (alpha == 0)
+                    {
+                        data[1] = data[2] = data[3] = 0;
+                    }
+                    else
+                    {
+                        data[1] = (char) ((((color & Rmask) >> Rshift) << Rloss)*alpha/255);
+                        data[2] = (char) ((((color & Gmask) >> Gshift) << Gloss)*alpha/255);
+                        data[3] = (char) ((((color & Bmask) >> Bshift) << Bloss)*alpha/255);                    
+                    }
+                    data[0] = (char) alpha;
                     data += 4;
                 }
             }
