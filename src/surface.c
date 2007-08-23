@@ -652,7 +652,6 @@ surf_lock (PyObject *self)
 {
     if (!PySurface_Lock (self))
         return NULL;
-
     Py_RETURN_NONE;
 }
 
@@ -661,7 +660,6 @@ surf_unlock (PyObject *self)
 {
     if (!PySurface_Unlock (self))
         return NULL;
-
     Py_RETURN_NONE;
 }
 
@@ -677,7 +675,9 @@ static PyObject*
 surf_get_locked (PyObject *self)
 {
     PySurfaceObject *surf = (PySurfaceObject *) self;
-    return PyInt_FromLong (surf->surf->pixels != NULL);
+    if (surf->surf->pixels != NULL)
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
 }
 
 static PyObject*
@@ -1385,7 +1385,7 @@ surf_get_flags (PyObject *self)
 
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
-    return PyInt_FromLong (surf->flags);
+    return PyInt_FromLong ((long)surf->flags);
 }
 
 static PyObject*

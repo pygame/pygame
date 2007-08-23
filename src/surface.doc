@@ -306,7 +306,8 @@ test if the Surface is current locked
 Surface.get_locked(): return bool
 
 Returns True when the Surface is locked. It doesn't matter how many times
-the Surface is locked.
+the Surface is locked. Surfaces that do not need locking (see
+mustlock()) will always return True.
 <END>
 
 
