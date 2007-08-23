@@ -44,11 +44,55 @@ class ImageTest( unittest.TestCase ):
         
         surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
-    def test_from_to_string(self):
-        """ see if fromstring, and tostring methods are symetrical.
+    def assertPremultipliedAreEqual(self, string1, string2, source_string):
+        self.assertEqual(len(string1), len(string2))
+        block_size = 20
+        if string1 != string2:
+            for block_start in xrange(0, len(string1), block_size):
+                block_end = min(block_start + block_size, len(string1))
+                block1 = string1[block_start:block_end]
+                block2 = string2[block_start:block_end]
+                if block1 != block2:
+                    source_block = source_string[block_start:block_end]
+                    msg = "string difference in %d to %d of %d:\n%s\n%s\nsource:\n%s" % (block_start, block_end, len(string1), block1.encode("hex"), block2.encode("hex"), source_block.encode("hex"))
+                    self.fail(msg)
+        
+    def test_to_string_premultiplied(self):
+        """ test to make sure we can export a surface to a premultiplied alpha string
         """
 
+        def convertRGBAtoPremultiplied(surface_to_modify):
+            for x in xrange(surface_to_modify.get_width()):
+                for y in xrange(surface_to_modify.get_height()):
+                    color = surface_to_modify.get_at((x, y))
+                    premult_color = (color[0]*color[3]/255,
+                                     color[1]*color[3]/255,
+                                     color[2]*color[3]/255,
+                                     color[3])
+                    surface_to_modify.set_at((x, y), premult_color)
+            
+        test_surface = pygame.Surface((256, 256), pygame.SRCALPHA, 32)
+        for x in xrange(test_surface.get_width()):
+            for y in xrange(test_surface.get_height()):
+                i = x + y*test_surface.get_width()
+                test_surface.set_at((x,y), ((i*7) % 256, (i*13) % 256, (i*27) % 256, y))
+        premultiplied_copy = test_surface.copy()
+        convertRGBAtoPremultiplied(premultiplied_copy)
+        self.assertPremultipliedAreEqual(pygame.image.tostring(test_surface, "RGBA_PREMULT"),
+                                         pygame.image.tostring(premultiplied_copy, "RGBA"),
+                                         pygame.image.tostring(test_surface, "RGBA"))
+        self.assertPremultipliedAreEqual(pygame.image.tostring(test_surface, "ARGB_PREMULT"),
+                                         pygame.image.tostring(premultiplied_copy, "ARGB"),
+                                         pygame.image.tostring(test_surface, "ARGB"))
+        
+        no_alpha_surface = pygame.Surface((256, 256), 0, 24)
+        self.assertRaises(ValueError, pygame.image.tostring, no_alpha_surface, "RGBA_PREMULT")
+        
 
+    def test_from_to_string(self):
+        """ see if fromstring, and tostring methods are symmetric.
+        """
+        
         def AreSurfacesIdentical(surf_a, surf_b):
             if surf_a.get_width() != surf_b.get_width() or surf_a.get_height() != surf_b.get_height():
                 return False
@@ -83,27 +127,28 @@ class ImageTest( unittest.TestCase ):
             return byte_buf.tostring()
                 
         ####################################################################
-        test_surface = pygame.Surface((48, 256), flags=pygame.SRCALPHA, depth=32)
+        test_surface = pygame.Surface((64, 256), flags=pygame.SRCALPHA, depth=32)
         for i in xrange(256):
             for j in xrange(16):
                 intensity = j*16 + 15
-                test_surface.set_at((j + 0, i), (intensity, i, i, 255))
-                test_surface.set_at((j + 16, i), (i, intensity, i, 255))
-                test_surface.set_at((j + 32, i), (i, i, intensity, 255))
+                test_surface.set_at((j + 0, i), (intensity, i, i, i))
+                test_surface.set_at((j + 16, i), (i, intensity, i, i))
+                test_surface.set_at((j + 32, i), (i, i, intensity, i))
+                test_surface.set_at((j + 32, i), (i, i, i, intensity))
             
-        self.assertTrue(AreSurfacesIdentical(test_surface, test_surface))
+        self.assert_(AreSurfacesIdentical(test_surface, test_surface))
 
         rgba_buf = pygame.image.tostring(test_surface, "RGBA")
         rgba_buf = RotateARGBtoRGBA(RotateRGBAtoARGB(rgba_buf))
         test_rotate_functions = pygame.image.fromstring(rgba_buf, test_surface.get_size(), "RGBA")
 
-        self.assertTrue(AreSurfacesIdentical(test_surface, test_rotate_functions))
+        self.assert_(AreSurfacesIdentical(test_surface, test_rotate_functions))
 
         rgba_buf = pygame.image.tostring(test_surface, "RGBA")
         argb_buf = RotateRGBAtoARGB(rgba_buf)
         test_from_argb_string = pygame.image.fromstring(argb_buf, test_surface.get_size(), "ARGB")
 
-        self.assertTrue(AreSurfacesIdentical(test_surface, test_from_argb_string))
+        self.assert_(AreSurfacesIdentical(test_surface, test_from_argb_string))
         #"ERROR: image.fromstring with ARGB failed"
 
 
@@ -111,14 +156,14 @@ class ImageTest( unittest.TestCase ):
         rgba_buf = RotateARGBtoRGBA(argb_buf)
         test_to_argb_string = pygame.image.fromstring(rgba_buf, test_surface.get_size(), "RGBA")
 
-        self.assertTrue(AreSurfacesIdentical(test_surface, test_to_argb_string))
+        self.assert_(AreSurfacesIdentical(test_surface, test_to_argb_string))
         #"ERROR: image.tostring with ARGB failed"
 
 
         argb_buf = pygame.image.tostring(test_surface, "ARGB")
         test_to_from_argb_string = pygame.image.fromstring(argb_buf, test_surface.get_size(), "ARGB")
 
-        self.assertTrue(AreSurfacesIdentical(test_surface, test_to_from_argb_string))
+        self.assert_(AreSurfacesIdentical(test_surface, test_to_from_argb_string))
         #"ERROR: image.fromstring and image.tostring with ARGB are not symmetric"
 
 
