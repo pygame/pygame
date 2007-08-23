@@ -8,6 +8,16 @@
 #
 #Changes from Marcus for ref counting bug fixes and
 
+Aug 23, 2007
+    pygame.image.tostring changes from Brian Fisher. 
+      RGBA_PREMULT & ARGB_PREMULT type to image.tostring (a very 
+      nice thing for getting images into OpenGL)
+
+Aug 22, 2007
+    PixelArray from Marcus.  It's going to be a replacement for surfarray.
+    [BUG] Fixed some bugs in Surface with SRCALPHA and input validation.
+        Thanks Lenard Lindstrom and Brian Fisher.
+
 Aug 15, 2007
     The sprite module has had some big changes from DR0ID.  It now has a 
      LayeredUpdates, and LayeredDirty groups.  For using layers when
