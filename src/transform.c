@@ -1015,15 +1015,15 @@ static void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int sr
 
     int xspace = 0x04000 * srcwidth / dstwidth; /* must be > 1 */
     int xrecip = (int) ((long long) 0x040000000 / xspace);
-    long long One64 = 0x4000400040004000;
+    long long One64 = 0x4000400040004000ULL;
 #if defined(__GNUC__) && defined(__x86_64__)
     long long srcdiff64 = srcdiff;
     long long dstdiff64 = dstdiff;
     asm __volatile__(" /* MMX code for X-shrink area average filter */ "
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == xrecipmmx */
-        " movq             %2,      %%mm6;           " /* mm6 = 2^14  */
-        " pshufw    $0, %%mm7,      %%mm7;           "
+        " punpcklwd     %%mm7,      %%mm7;           "
+        " punpckldq     %%mm7,      %%mm7;           "
         "1:                                          " /* outer Y-loop */
         " movl             %5,      %%ecx;           " /* ecx == xcounter */
         " pxor          %%mm1,      %%mm1;           " /* mm1 == accumulator */
@@ -1039,18 +1039,43 @@ static void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int sr
         " jmp              4f;                       "
         "3:                                          " /* prepare to output a pixel */
         " movd          %%ecx,      %%mm2;           "
-        " movq          %%mm6,      %%mm3;           " /* mm3 = 2^14  */
-        " pshufw    $0, %%mm2,      %%mm2;           "
+        " movq             %2,      %%mm3;           " /* mm3 = 2^14  */
+        " punpcklwd     %%mm2,      %%mm2;           "
+        " punpckldq     %%mm2,      %%mm2;           "
         " movd           (%0),      %%mm4;           " /* mm4 = srcpix */
         " add              $4,         %0;           "
         " punpcklbw     %%mm0,      %%mm4;           "
         " psubw         %%mm2,      %%mm3;           " /* mm3 = xfrac */
         " psllw            $2,      %%mm4;           "
-        " pmulhuw       %%mm4,      %%mm2;           " /* mm2 = (srcpix * xcounter >> 16) */
-        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix * xfrac) >> 16 */
+        " movq          %%mm4,      %%mm5;           " /* mm2 = (srcpix * xcounter >> 16) */
+        " psraw           $15,      %%mm5;           "
+        " pand          %%mm2,      %%mm5;           "
+        " movq          %%mm2,      %%mm6;           "
+        " psraw           $15,      %%mm6;           "
+        " pand          %%mm4,      %%mm6;           "
+        " pmulhw        %%mm4,      %%mm2;           "
+        " paddw         %%mm5,      %%mm2;           "
+        " paddw         %%mm6,      %%mm2;           "
+        " movq          %%mm4,      %%mm5;           " /* mm3 = (srcpix * xfrac) >> 16) */
+        " psraw           $15,      %%mm5;           "
+        " pand          %%mm3,      %%mm5;           "
+        " movq          %%mm3,      %%mm6;           "
+        " psraw           $15,      %%mm6;           "
+        " pand          %%mm4,      %%mm6;           "
+        " pmulhw        %%mm4,      %%mm3;           "
+        " paddw         %%mm5,      %%mm3;           "
+        " paddw         %%mm6,      %%mm3;           "
         " paddw         %%mm1,      %%mm2;           "
         " movq          %%mm3,      %%mm1;           " /* accumulator = (srcpix * xfrac) >> 16 */
-        " pmulhuw       %%mm7,      %%mm2;           "
+        " movq          %%mm7,      %%mm5;           "
+        " psraw           $15,      %%mm5;           "
+        " pand          %%mm2,      %%mm5;           "
+        " movq          %%mm2,      %%mm6;           "
+        " psraw           $15,      %%mm6;           "
+        " pand          %%mm7,      %%mm6;           "
+        " pmulhw        %%mm7,      %%mm2;           "
+        " paddw         %%mm5,      %%mm2;           "
+        " paddw         %%mm6,      %%mm2;           "
         " packuswb      %%mm0,      %%mm2;           "
         " movd          %%mm2,       (%1);           "
         " add              %5,      %%ecx;           "
@@ -1073,8 +1098,8 @@ static void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int sr
     asm __volatile__(" /* MMX code for X-shrink area average filter */ "
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == xrecipmmx */
-        " movq             %2,      %%mm6;           " /* mm6 = 2^14  */
-        " pshufw    $0, %%mm7,      %%mm7;           "
+        " punpcklwd     %%mm7,      %%mm7;           "
+        " punpckldq     %%mm7,      %%mm7;           "
         "1:                                          " /* outer Y-loop */
         " movl             %5,      %%ecx;           " /* ecx == xcounter */
         " pxor          %%mm1,      %%mm1;           " /* mm1 == accumulator */
@@ -1090,18 +1115,43 @@ static void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int sr
         " jmp              4f;                       "
         "3:                                          " /* prepare to output a pixel */
         " movd          %%ecx,      %%mm2;           "
-        " movq          %%mm6,      %%mm3;           " /* mm3 = 2^14  */
-        " pshufw    $0, %%mm2,      %%mm2;           "
+        " movq             %2,      %%mm3;           " /* mm3 = 2^14  */
+        " punpcklwd     %%mm2,      %%mm2;           "
+        " punpckldq     %%mm2,      %%mm2;           "
         " movd           (%0),      %%mm4;           " /* mm4 = srcpix */
         " add              $4,         %0;           "
         " punpcklbw     %%mm0,      %%mm4;           "
         " psubw         %%mm2,      %%mm3;           " /* mm3 = xfrac */
         " psllw            $2,      %%mm4;           "
-        " pmulhuw       %%mm4,      %%mm2;           " /* mm2 = (srcpix * xcounter >> 16) */
-        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix * xfrac) >> 16 */
+        " movq          %%mm4,      %%mm5;           " /* mm2 = (srcpix * xcounter >> 16) */
+        " psraw           $15,      %%mm5;           "
+        " pand          %%mm2,      %%mm5;           "
+        " movq          %%mm2,      %%mm6;           "
+        " psraw           $15,      %%mm6;           "
+        " pand          %%mm4,      %%mm6;           "
+        " pmulhw        %%mm4,      %%mm2;           "
+        " paddw         %%mm5,      %%mm2;           "
+        " paddw         %%mm6,      %%mm2;           "
+        " movq          %%mm4,      %%mm5;           " /* mm3 = (srcpix * xfrac) >> 16) */
+        " psraw           $15,      %%mm5;           "
+        " pand          %%mm3,      %%mm5;           "
+        " movq          %%mm3,      %%mm6;           "
+        " psraw           $15,      %%mm6;           "
+        " pand          %%mm4,      %%mm6;           "
+        " pmulhw        %%mm4,      %%mm3;           "
+        " paddw         %%mm5,      %%mm3;           "
+        " paddw         %%mm6,      %%mm3;           "
         " paddw         %%mm1,      %%mm2;           "
         " movq          %%mm3,      %%mm1;           " /* accumulator = (srcpix * xfrac) >> 16 */
-        " pmulhuw       %%mm7,      %%mm2;           "
+        " movq          %%mm7,      %%mm5;           "
+        " psraw           $15,      %%mm5;           "
+        " pand          %%mm2,      %%mm5;           "
+        " movq          %%mm2,      %%mm6;           "
+        " psraw           $15,      %%mm6;           "
+        " pand          %%mm7,      %%mm6;           "
+        " pmulhw        %%mm7,      %%mm2;           "
+        " paddw         %%mm5,      %%mm2;           "
+        " paddw         %%mm6,      %%mm2;           "
         " packuswb      %%mm0,      %%mm2;           "
         " movd          %%mm2,       (%1);           "
         " add              %5,      %%ecx;           "
@@ -1199,7 +1249,7 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
 
     int yspace = 0x4000 * srcheight / dstheight; /* must be > 1 */
     int yrecip = (int) ((long long) 0x040000000 / yspace);
-    long long One64 = 0x4000400040004000;
+    long long One64 = 0x4000400040004000ULL;
 #if defined(__GNUC__) && defined(__x86_64__)
     long long srcdiff64 = srcdiff;
     long long dstdiff64 = dstdiff;
@@ -1207,7 +1257,8 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == yrecipmmx */
-        " pshufw    $0, %%mm7,      %%mm7;           "
+        " punpcklwd     %%mm7,      %%mm7;           "
+        " punpckldq     %%mm7,      %%mm7;           "
         "1:                                          " /* outer Y-loop */
         " mov              %2,      %%rax;           " /* rax == accumulate */
         " cmpl        $0x4000,      %%ecx;           "
@@ -1229,7 +1280,8 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
         " movd          %%ecx,      %%mm1;           "
         " movl             %4,      %%edx;           " /* edx = width */
         " movq             %9,      %%mm6;           " /* mm6 = 2^14  */
-        " pshufw    $0, %%mm1,      %%mm1;           "
+        " punpcklwd     %%mm1,      %%mm1;           "
+        " punpckldq     %%mm1,      %%mm1;           "
         " psubw         %%mm1,      %%mm6;           " /* mm6 = yfrac */
         "4:                                          "
         " movd           (%0),      %%mm4;           " /* mm4 = srcpix */
@@ -1238,12 +1290,37 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
         " movq        (%%rax),      %%mm5;           " /* mm5 = accumulate */
         " movq          %%mm6,      %%mm3;           "
         " psllw            $2,      %%mm4;           "
-        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix * yfrac) >> 16 */
-        " pmulhuw       %%mm1,      %%mm4;           " /* mm4 = (srcpix * ycounter >> 16) */
+        " movq          %%mm4,      %%mm0;           " /* mm3 = (srcpix * yfrac) >> 16) */
+        " psraw           $15,      %%mm0;           "
+        " pand          %%mm3,      %%mm0;           "
+        " movq          %%mm3,      %%mm2;           "
+        " psraw           $15,      %%mm2;           "
+        " pand          %%mm4,      %%mm2;           "
+        " pmulhw        %%mm4,      %%mm3;           "
+        " paddw         %%mm0,      %%mm3;           "
+        " paddw         %%mm2,      %%mm3;           "
+        " movq          %%mm1,      %%mm0;           " /* mm4 = (srcpix * ycounter >> 16) */
+        " psraw           $15,      %%mm0;           "
+        " pand          %%mm4,      %%mm0;           "
+        " movq          %%mm4,      %%mm2;           "
+        " psraw           $15,      %%mm2;           "
+        " pand          %%mm1,      %%mm2;           "
+        " pmulhw        %%mm1,      %%mm4;           "
+        " paddw         %%mm0,      %%mm4;           "
+        " paddw         %%mm2,      %%mm4;           "
         " movq          %%mm3,    (%%rax);           "
         " paddw         %%mm5,      %%mm4;           "
         " add              $8,      %%rax;           "
-        " pmulhuw       %%mm7,      %%mm4;           "
+        " movq          %%mm7,      %%mm0;           "
+        " psraw           $15,      %%mm0;           "
+        " pand          %%mm4,      %%mm0;           "
+        " movq          %%mm4,      %%mm2;           "
+        " psraw           $15,      %%mm2;           "
+        " pand          %%mm7,      %%mm2;           "
+        " pmulhw        %%mm7,      %%mm4;           "
+        " paddw         %%mm0,      %%mm4;           "
+        " paddw         %%mm2,      %%mm4;           "
+        " pxor          %%mm0,      %%mm0;           "
         " packuswb      %%mm0,      %%mm4;           "
         " movd          %%mm4,       (%1);           "
         " add              $4,         %1;           "
@@ -1267,7 +1344,8 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
         " pxor          %%mm0,      %%mm0;           "
         " movd             %6,      %%mm7;           " /* mm7 == yrecipmmx */
-        " pshufw    $0, %%mm7,      %%mm7;           "
+        " punpcklwd     %%mm7,      %%mm7;           "
+        " punpckldq     %%mm7,      %%mm7;           "
         "1:                                          " /* outer Y-loop */
         " movl             %2,      %%eax;           " /* rax == accumulate */
         " cmpl        $0x4000,      %%ecx;           "
@@ -1289,7 +1367,8 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
         " movd          %%ecx,      %%mm1;           "
         " movl             %4,      %%edx;           " /* edx = width */
         " movq             %9,      %%mm6;           " /* mm6 = 2^14  */
-        " pshufw    $0, %%mm1,      %%mm1;           "
+        " punpcklwd     %%mm1,      %%mm1;           "
+        " punpckldq     %%mm1,      %%mm1;           "
         " psubw         %%mm1,      %%mm6;           " /* mm6 = yfrac */
         "4:                                          "
         " movd           (%0),      %%mm4;           " /* mm4 = srcpix */
@@ -1298,12 +1377,37 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
         " movq        (%%eax),      %%mm5;           " /* mm5 = accumulate */
         " movq          %%mm6,      %%mm3;           "
         " psllw            $2,      %%mm4;           "
-        " pmulhuw       %%mm4,      %%mm3;           " /* mm3 = (srcpix * yfrac) >> 16 */
-        " pmulhuw       %%mm1,      %%mm4;           " /* mm4 = (srcpix * ycounter >> 16) */
+        " movq          %%mm4,      %%mm0;           " /* mm3 = (srcpix * yfrac) >> 16) */
+        " psraw           $15,      %%mm0;           "
+        " pand          %%mm3,      %%mm0;           "
+        " movq          %%mm3,      %%mm2;           "
+        " psraw           $15,      %%mm2;           "
+        " pand          %%mm4,      %%mm2;           "
+        " pmulhw        %%mm4,      %%mm3;           "
+        " paddw         %%mm0,      %%mm3;           "
+        " paddw         %%mm2,      %%mm3;           "
+        " movq          %%mm1,      %%mm0;           " /* mm4 = (srcpix * ycounter >> 16) */
+        " psraw           $15,      %%mm0;           "
+        " pand          %%mm4,      %%mm0;           "
+        " movq          %%mm4,      %%mm2;           "
+        " psraw           $15,      %%mm2;           "
+        " pand          %%mm1,      %%mm2;           "
+        " pmulhw        %%mm1,      %%mm4;           "
+        " paddw         %%mm0,      %%mm4;           "
+        " paddw         %%mm2,      %%mm4;           "
         " movq          %%mm3,    (%%eax);           "
         " paddw         %%mm5,      %%mm4;           "
         " add              $8,      %%eax;           "
-        " pmulhuw       %%mm7,      %%mm4;           "
+        " movq          %%mm7,      %%mm0;           "
+        " psraw           $15,      %%mm0;           "
+        " pand          %%mm4,      %%mm0;           "
+        " movq          %%mm4,      %%mm2;           "
+        " psraw           $15,      %%mm2;           "
+        " pand          %%mm7,      %%mm2;           "
+        " pmulhw        %%mm7,      %%mm4;           "
+        " paddw         %%mm0,      %%mm4;           "
+        " paddw         %%mm2,      %%mm4;           "
+        " pxor          %%mm0,      %%mm0;           "
         " packuswb      %%mm0,      %%mm4;           "
         " movd          %%mm4,       (%1);           "
         " add              $4,         %1;           "
@@ -1532,8 +1636,10 @@ static void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
              " movd          %3,      %%mm1;                      "
              " movd          %4,      %%mm2;                      "
              " pxor       %%mm0,      %%mm0;                      "
-             " pshufw      $0, %%mm1, %%mm1;                      "
-             " pshufw      $0, %%mm2, %%mm2;                      "
+             " punpcklwd  %%mm1,      %%mm1;                      "
+             " punpckldq  %%mm1,      %%mm1;                      "
+             " punpcklwd  %%mm2,      %%mm2;                      "
+             " punpckldq  %%mm2,      %%mm2;                      "
              "1:                                                  "
              " movd        (%0),      %%mm4;                      "
              " add           $4,         %0;                      "
@@ -1561,8 +1667,10 @@ static void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
              " movd          %3,      %%mm1;                      "
              " movd          %4,      %%mm2;                      "
              " pxor       %%mm0,      %%mm0;                      "
-             " pshufw      $0, %%mm1, %%mm1;                      "
-             " pshufw      $0, %%mm2, %%mm2;                      "
+             " punpcklwd  %%mm1,      %%mm1;                      "
+             " punpckldq  %%mm1,      %%mm1;                      "
+             " punpcklwd  %%mm2,      %%mm2;                      "
+             " punpckldq  %%mm2,      %%mm2;                      "
              "1:                                                  "
              " movd        (%0),      %%mm4;                      "
              " add           $4,         %0;                      "
