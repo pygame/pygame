@@ -42,11 +42,16 @@ class SurfaceTest( unittest.TestCase ):
         s = pygame.Surface( (100, 100), 0, 24)
         s.fill((0,0,0))
 
+        # set it with a tuple.
         s.set_at((0,0), (10,10,10, 255))
         r = s.get_at((0,0))
-
         self.assertEqual(r, (10,10,10, 255))
 
+        # try setting a color with a single integer.
+        s.fill((0,0,0,255))
+        s.set_at ((10, 1), 0x0000FF)
+        r = s.get_at((10,1))
+        self.assertEqual(r, (0,0,255, 255))
 
 
     def test_SRCALPHA(self):
