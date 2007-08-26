@@ -36,6 +36,19 @@ class SurfaceTest( unittest.TestCase ):
         surf_16 = pygame.Surface((70,70), depth=16)
         self.assertEqual(surf_16.get_bytesize(), 2)
 
+    def test_set_at(self):
+
+        #24bit surfaces 
+        s = pygame.Surface( (100, 100), 0, 24)
+        s.fill((0,0,0))
+
+        s.set_at((0,0), (10,10,10, 255))
+        r = s.get_at((0,0))
+
+        self.assertEqual(r, (10,10,10, 255))
+
+
+
     def test_SRCALPHA(self):
 
         # has the flag been passed in ok?
