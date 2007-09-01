@@ -4,7 +4,7 @@ import pygame
 class PixelArrayTest (unittest.TestCase):
 
     def test_pixel_array (self):
-        sf = pygame.Surface ((10, 20))
+        sf = pygame.Surface ((10, 20), 0, 32)
         sf.fill ((0, 0, 0))
         ar = pygame.PixelArray (sf)
 
@@ -17,7 +17,7 @@ class PixelArrayTest (unittest.TestCase):
 
     # Sequence interfaces
     def test_get_column (self):
-        sf = pygame.Surface ((10, 20))
+        sf = pygame.Surface ((10, 20), 0, 32)
         sf.fill ((0, 0, 0))
         ar = pygame.PixelArray (sf)
 
@@ -28,7 +28,7 @@ class PixelArrayTest (unittest.TestCase):
         self.assertEqual (len(ar2), 20)
 
     def test_get_pixel (self):
-        sf = pygame.Surface ((10, 20))
+        sf = pygame.Surface ((10, 20), 0, 32)
         sf.fill ((0, 0, 255))
         for x in xrange(20):
             sf.set_at((1,x), 0x000011)
@@ -49,7 +49,7 @@ class PixelArrayTest (unittest.TestCase):
         self.assertEqual (ar2, 0x0000FF)
 
     def test_set_pixel (self):
-        sf = pygame.Surface ((10, 20))
+        sf = pygame.Surface ((10, 20), 0, 32)
         sf.fill ((0, 0, 0))
         ar = pygame.PixelArray (sf)
 
@@ -66,7 +66,7 @@ class PixelArrayTest (unittest.TestCase):
         self.assertEqual (ar[8][-2], 0x808080)
 
     def test_set_column (self):
-        sf = pygame.Surface ((6, 8))
+        sf = pygame.Surface ((6, 8), 0, 32)
         sf.fill ((0, 0, 0))
         ar = pygame.PixelArray (sf)
 
@@ -100,7 +100,7 @@ class PixelArrayTest (unittest.TestCase):
         self.assertEqual (ar[1][1], 0x000000)
 
     def test_get_slice (self):
-        sf = pygame.Surface ((10, 20))
+        sf = pygame.Surface ((10, 20), 0, 32)
         sf.fill ((0, 0, 0))
         ar = pygame.PixelArray (sf)
 
@@ -113,10 +113,10 @@ class PixelArrayTest (unittest.TestCase):
         # Has to resolve to ar[7:8]
         self.assertEqual (len (ar[-3:-2]), 20)
 
-    def test_set_slice (self):
-        sf = pygame.Surface ((6, 8))
-        sf.fill ((0, 0, 0))
-        ar = pygame.PixelArray (sf)
+##    def test_set_slice (self):
+##         sf = pygame.Surface ((6, 8), 0, 32)
+##         sf.fill ((0, 0, 0))
+##         ar = pygame.PixelArray (sf)
 
         # Test single value assignment
 ##         ar[0:2] = 0x808080
