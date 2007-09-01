@@ -647,4 +647,17 @@ in a mapped integer.
 
 This value is not needed for normal Pygame usage.
 <END>
+
+get_buffer
+acquires a buffer object for the pixels of the Surface.
+Surface.get_buffer(): return BufferProxy
+
+Return a buffer object for the pixels of the Surface. The buffer can be
+used for direct pixel access and manipulation.
+
+This method implicitly locks the Surface. The lock will be released,
+once the returned BufferProxy object is deleted.
+
+New in pygame 1.8.
+<END>
 <END>

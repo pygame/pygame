@@ -345,6 +345,8 @@
 
 #define DOC_SOUNDGETLENGTH "Sound.get_length(): return seconds\nget the length of the Sound"
 
+#define DOC_SOUNDGETBUFFER "Sound.get_buffer(): return BufferProxy\nacquires a buffer object for the sameples of the Sound."
+
 #define DOC_PYGAMEMIXERCHANNEL "pygame.mixer.Channel(id): return Channel\nCreate a Channel object for controlling playback"
 
 #define DOC_CHANNELPLAY "Channel.play(Sound, loops=0, time=0): return None\nplay a Sound on a specific Channel"
@@ -664,6 +666,8 @@
 #define DOC_SURFACEGETSHIFTS "Surface.get_shifts(): return (R, G, B, A)\nthe bit shifts needed to convert between a color and a mapped integer"
 
 #define DOC_SURFACEGETLOSSES "Surface.get_losses(): return (R, G, B, A)\nthe significant bits used to convert between a color and a mapped integer"
+
+#define DOC_SURFACEGETBUFFER "Surface.get_buffer(): return BufferProxy\nacquires a buffer object for the pixels of the Surface."
 
 #define DOC_PYGAMESURFARRAY "pygame module for accessing surface pixel data"
 

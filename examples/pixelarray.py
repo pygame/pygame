@@ -7,7 +7,7 @@ pygame.init ()
 screen = pygame.display.set_mode ((400, 400))
 screen.fill ((100, 100, 100))
 
-sf = pygame.Surface ((50, 50))
+sf = pygame.Surface ((50, 50), 0, 32)
 
 sf.fill ((0,0,0))
 rect = sf.get_rect ()

@@ -44,7 +44,7 @@ static void surface_cleanup (PySurfaceObject * self);
 static PyObject *surf_get_at (PyObject *self, PyObject *args);
 static PyObject *surf_set_at (PyObject *self, PyObject *args);
 static PyObject *surf_map_rgb (PyObject *self, PyObject *args);
-static PyObject *surf_unmap_rgb (PyObject *self, PyObject *args);
+static PyObject *surf_unmap_rgb (PyObject *self, PyObject *args); 
 static PyObject *surf_lock (PyObject *self);
 static PyObject *surf_unlock (PyObject *self);
 static PyObject *surf_mustlock (PyObject *self);
@@ -81,6 +81,7 @@ static PyObject *surf_get_masks (PyObject *self);
 static PyObject *surf_get_offset (PyObject *self);
 static PyObject *surf_get_parent (PyObject *self);
 static PyObject *surf_subsurface (PyObject *self, PyObject *args);
+static PyObject *surf_get_buffer (PyObject *self);
 
 static struct PyMethodDef surface_methods[] =
 {
@@ -156,6 +157,8 @@ static struct PyMethodDef surface_methods[] =
       DOC_SURFACEGETPARENT },
     { "get_abs_parent", (PyCFunction) surf_get_abs_parent, METH_NOARGS,
       DOC_SURFACEGETABSPARENT },
+    { "get_buffer", (PyCFunction) surf_get_buffer, METH_NOARGS,
+      DOC_SURFACEGETBUFFER},
 
     { NULL, NULL, 0, NULL }
 };
@@ -1652,6 +1655,48 @@ surf_get_abs_parent (PyObject *self)
     return owner;
 }
 
+static PyObject *surf_get_buffer (PyObject *self)
+{
+    PyObject *buffer;
+    PyObject *lock;
+    SDL_Surface *surface = PySurface_AsSurface (self);
+    SDL_PixelFormat *format = surface->format;
+    size_t mod;
+    Py_ssize_t length;
+
+    switch (format->BytesPerPixel)
+    {
+    case 1:
+        mod = sizeof (Uint8);
+        break;
+    case 2:
+        mod = sizeof (Uint16);
+        break;
+    case 3:
+        mod = sizeof (Uint8) * 3;
+        break;
+    default:
+        mod = sizeof (Uint32);
+        break;
+    }
+
+    length = (Py_ssize_t) surface->w * surface->h * mod;
+    lock = PySurface_LockLifetime (self);
+    if (!lock)
+    {
+        return RAISE (PyExc_SDLError, "could not lock surface");
+    }
+
+    buffer = PyBufferProxy_New (self, surface->pixels, length, lock);
+    if (!buffer)
+    {
+        Py_DECREF (lock);
+        return RAISE (PyExc_SDLError, "could acquire a buffer for the surface");
+    }
+    return buffer;
+}
+
+
 /*this internal blit function is accessable through the C api*/
 int 
 PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
@@ -1784,6 +1829,7 @@ void initsurface(void)
     /* imported needed apis */
     import_pygame_base ();
     import_pygame_rect ();
+    import_pygame_bufferproxy();
 
     /* import the surflock module manually */
     lockmodule = PyImport_ImportModule ("pygame.surflock");

@@ -82,6 +82,8 @@ typedef int Py_ssize_t;
 typedef inquiry lenfunc;
 typedef intargfunc ssizeargfunc;
 typedef intobjargproc ssizeobjargproc;
+typedef intintargfunc ssizessizeargfunc;
+typedef intintobjargproc ssizessizeobjargproc;
 typedef getreadbufferproc readbufferproc;
 typedef getwritebufferproc writebufferproc;
 typedef getsegcountproc segcountproc;
@@ -492,11 +494,73 @@ typedef struct {
     }
 #endif
 
+/* BufferProxy */
+#define PYGAMEAPI_BUFFERPROXY_FIRSTSLOT                                 \
+    (PYGAMEAPI_RWOBJECT_FIRSTSLOT + PYGAMEAPI_RWOBJECT_NUMSLOTS)
+#define PYGAMEAPI_BUFFERPROXY_NUMSLOTS 2
+#ifndef PYGAMEAPI_BUFFERPROXY_INTERNAL
+#define PyBufferProxy_Check(x)                                          \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+     PyGAME_C_API[PYGAMEAPI_BUFFERPROXY_FIRSTSLOT + 0])
+#define PyBufferProxy_New                                               \
+    (*(PyObject*(*)(PyObject*, void*, Py_ssize_t, PyObject*))           \
+    PyGAME_C_API[PYGAMEAPI_BUFFERPROXY_FIRSTSLOT + 1])
+#define import_pygame_bufferproxy()                                      \
+    {                                                                    \
+	PyObject *_module = PyImport_ImportModule ("pygame.bufferproxy");\
+	if (_module != NULL)                                             \
+        {                                                                \
+            PyObject *_dict = PyModule_GetDict (_module);                \
+            PyObject *_c_api = PyDict_GetItemString                      \
+                (_dict, PYGAMEAPI_LOCAL_ENTRY);                          \
+            if (PyCObject_Check (_c_api))                                \
+            {                                                            \
+                int i;                                                   \
+                void** localptr = (void**) PyCObject_AsVoidPtr (_c_api); \
+                for (i = 0; i < PYGAMEAPI_BUFFERPROXY_NUMSLOTS; ++i)     \
+                    PyGAME_C_API[i + PYGAMEAPI_BUFFERPROXY_FIRSTSLOT] =  \
+                        localptr[i];                                     \
+            }                                                            \
+            Py_DECREF (_module);                                         \
+        }                                                                \
+    }
+#endif /* PYGAMEAPI_BUFFERPROXY_INTERNAL */
+
+/* PixelArray */
+#define PYGAMEAPI_PIXELARRAY_FIRSTSLOT                                 \
+    (PYGAMEAPI_BUFFERPROXY_FIRSTSLOT + PYGAMEAPI_BUFFERPROXY_NUMSLOTS)
+#define PYGAMEAPI_PIXELARRAY_NUMSLOTS 2
+#ifndef PYGAMEAPI_PIXELARRAY_INTERNAL
+#define PyPixelArray_Check(x)                                           \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+     PyGAME_C_API[PYGAMEAPI_PIXELARRAY_FIRSTSLOT + 0])
+#define PyPixelArray_New                                                \
+    (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_PIXELARRAY_FIRSTSLOT + 1])
+#define import_pygame_pixelarray()                                       \
+    {                                                                    \
+	PyObject *_module = PyImport_ImportModule ("pygame.pixelarray"); \
+	if (_module != NULL)                                             \
+        {                                                                \
+            PyObject *_dict = PyModule_GetDict (_module);                \
+            PyObject *_c_api = PyDict_GetItemString                      \
+                (_dict, PYGAMEAPI_LOCAL_ENTRY);                          \
+            if (PyCObject_Check (_c_api))                                \
+            {                                                            \
+                int i;                                                   \
+                void** localptr = (void**) PyCObject_AsVoidPtr (_c_api); \
+                for (i = 0; i < PYGAMEAPI_PIXELARRAY_NUMSLOTS; ++i)      \
+                    PyGAME_C_API[i + PYGAMEAPI_PIXELARRAY_FIRSTSLOT] =   \
+                        localptr[i];                                     \
+            }                                                            \
+            Py_DECREF (_module);                                         \
+        }                                                                \
+    }
+#endif /* PYGAMEAPI_PIXELARRAY_INTERNAL */
 
 #ifndef NO_PYGAME_C_API
 #define PYGAMEAPI_TOTALSLOTS                                            \
-    (PYGAMEAPI_RWOBJECT_FIRSTSLOT + PYGAMEAPI_RWOBJECT_NUMSLOTS)
-static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = {NULL};
+    (PYGAMEAPI_PIXELARRAY_FIRSTSLOT + PYGAMEAPI_PIXELARRAY_NUMSLOTS)
+static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #endif
 
 /*last platform compiler stuff*/

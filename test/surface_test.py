@@ -74,10 +74,11 @@ class SurfaceTest( unittest.TestCase ):
         if surf2.get_bitsize() == 32:
             self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
 
-
-
-
-
+    def test_get_buffer (self):
+        surf = pygame.Surface ((70, 70), 0, 32)
+        buf = surf.get_buffer ()
+        # 70*70*4 bytes = 19600
+        self.assertEqual (repr (buf), "<BufferProxy(19600)>")
 
 if __name__ == '__main__':
     unittest.main()

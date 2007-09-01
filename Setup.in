@@ -61,6 +61,7 @@ image src/image.c $(SDL) $(DEBUG)
 overlay src/overlay.c $(SDL) $(DEBUG)
 transform src/transform.c src/rotozoom.c src/scale2x.c $(SDL) $(DEBUG)
 mask src/mask.c src/bitmask.c $(SDL) $(DEBUG)
+bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 
 #the following are placeholders. setup.py can use them to help
