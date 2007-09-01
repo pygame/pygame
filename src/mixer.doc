@@ -297,8 +297,17 @@ Sound.get_length(): return seconds
 
 Return the length of this Sound in seconds.
 <END>
-<END>
 
+get_buffer
+acquires a buffer object for the sameples of the Sound.
+Sound.get_buffer(): return BufferProxy
+
+Return a buffer object for the Sound samples. The buffer can be
+used for direct access and manipulation.
+
+New in pygame 1.8.
+<END>
+<END>
 
 
 Channel

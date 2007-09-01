@@ -5,8 +5,10 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 #
 #
-#
-#Changes from Marcus for ref counting bug fixes and
+
+Sep 1, 2007
+    Added get_buffer() methods to Surface, and Sound - which return a new
+     BufferProxy - which is a buffer interface only class.  Thanks Marcus!
 
 Aug 23, 2007
     pygame.image.tostring changes from Brian Fisher. 

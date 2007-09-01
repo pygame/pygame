@@ -358,6 +358,21 @@ snd_get_length (PyObject* self)
     return PyFloat_FromDouble ((float)numsamples / (float)freq);
 }
 
+static PyObject*
+snd_get_buffer (PyObject* self)
+{
+    PyObject *buffer;
+    Mix_Chunk* chunk;
+    MIXER_INIT_CHECK ();
+
+    chunk = PySound_AsChunk (self);
+    buffer = PyBufferProxy_New (self, chunk->abuf, (Py_ssize_t) chunk->alen,
+                                NULL);
+    if (!buffer)
+        return RAISE (PyExc_SDLError, "could acquire a buffer for the sound");
+    return buffer;
+}
+
 static PyMethodDef sound_methods[] =
 {
     { "play", snd_play, METH_VARARGS, DOC_SOUNDPLAY },
@@ -370,6 +385,8 @@ static PyMethodDef sound_methods[] =
       DOC_SOUNDGETVOLUME },
     { "get_length", (PyCFunction) snd_get_length, METH_NOARGS,
       DOC_SOUNDGETLENGTH },
+    { "get_buffer", (PyCFunction) snd_get_buffer, METH_NOARGS,
+      DOC_SOUNDGETBUFFER },
         
     { NULL, NULL, 0, NULL }
 };
@@ -976,6 +993,7 @@ void initmixer (void)
     /*imported needed apis*/
     import_pygame_base ();
     import_pygame_rwobject ();
+    import_pygame_bufferproxy ();
 
     music = PyImport_ImportModule ("pygame.mixer_music");
     if (music)
