@@ -6,6 +6,11 @@
 #
 #
 
+Dec 15, 2007
+    Mask can now get bounding rects of set bits.
+    pygame.transform can find edges in an image, get the average surface of many
+      surfaces and also threshold an image by color.
+
 Sep 1, 2007
     Added get_buffer() methods to Surface, and Sound - which return a new
      BufferProxy - which is a buffer interface only class.  Thanks Marcus!

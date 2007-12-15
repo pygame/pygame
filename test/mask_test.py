@@ -20,7 +20,8 @@ def maskFromSurface(surface, threshold = 127):
                     mask.set_at((x,y),1)
     return mask
 
-
+#pygame.init()
+#pygame.display.set_mode((10,10))
 
 
 class MaskTest( unittest.TestCase ):
@@ -53,14 +54,9 @@ class MaskTest( unittest.TestCase ):
         """  Does the mask.from_surface() work correctly?
         """
 
-
-
-
         mask_from_surface = maskFromSurface
 
         surf = pygame.Surface((70,70), SRCALPHA, 32)
-
-
 
         surf.fill((255,255,255,255))
 
@@ -84,7 +80,23 @@ class MaskTest( unittest.TestCase ):
 
 
 
+    def test_get_bounding_rects(self):
+        """
+        """
 
+        m = pygame.Mask((10,10))
+        m.set_at((0,0), 1)
+        m.set_at((1,0), 1)
+
+        m.set_at((0,1), 1)
+
+        m.set_at((0,3), 1)
+        m.set_at((3,3), 1)
+
+        r = m.get_bounding_rects()
+
+        self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
+        
 
 
 

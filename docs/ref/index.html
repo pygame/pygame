@@ -29,6 +29,7 @@
 <a href=movie.html>Movie</a>&nbsp;||&nbsp;
 <a href=music.html>Music</a>&nbsp;||&nbsp;
 <a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pixelarray.html>Pixelarray</a>&nbsp;||&nbsp;
 <a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
 <a href=rect.html>Rect</a>&nbsp;||&nbsp;
 <a href=scrap.html>Scrap</a>&nbsp;||&nbsp;
@@ -208,6 +209,7 @@
 <ul>
 <li></li>
 <li><a href="mask.html#pygame.mask.get_at">pygame.mask.get_at</a> - <font size=-1>Returns nonzero if the bit at (x,y) is set.</font></li>
+<li><a href="mask.html#pygame.mask.get_bounding_rects">pygame.mask.get_bounding_rects</a> - <font size=-1>Returns a list of bounding rects of regions of set pixels.</font></li>
 <li><a href="mask.html#pygame.mask.get_size">pygame.mask.get_size</a> - <font size=-1>Returns the size of the mask.</font></li>
 <li><a href="mask.html#pygame.mask.overlap">pygame.mask.overlap</a> - <font size=-1>Returns nonzero if the masks overlap with the given offset.</font></li>
 <li><a href="mask.html#pygame.mask.overlap_area">pygame.mask.overlap_area</a> - <font size=-1>Returns the number of overlapping 'pixels'.</font></li>
@@ -264,6 +266,7 @@
 <li><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a> - <font size=-1>Create a new Sound object from a file</font></li>
 <ul>
 <li><a href="mixer.html#Sound.fadeout">Sound.fadeout</a> - <font size=-1>stop sound playback after fading out</font></li>
+<li><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a> - <font size=-1>acquires a buffer object for the sameples of the Sound.</font></li>
 <li><a href="mixer.html#Sound.get_length">Sound.get_length</a> - <font size=-1>get the length of the Sound</font></li>
 <li><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a> - <font size=-1>count how many times this Sound is playing</font></li>
 <li><a href="mixer.html#Sound.get_volume">Sound.get_volume</a> - <font size=-1>get the playback volume</font></li>
@@ -311,6 +314,10 @@
 <li><a href="overlay.html#Overlay.display">Overlay.display</a> - <font size=-1>set the overlay pixel data</font></li>
 <li><a href="overlay.html#Overlay.get_hardware">Overlay.get_hardware</a> - <font size=-1>test if the Overlay is hardware accelerated</font></li>
 <li><a href="overlay.html#Overlay.set_location">Overlay.set_location</a> - <font size=-1>control where the overlay is displayed</font></li>
+</ul>
+<li><a href="pixelarray.html#pygame.PixelArray">pygame.PixelArray</a> - <font size=-1>pygame Object for direct pixel access of surfaces</font></li>
+<ul>
+<li><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface, the PixelArray uses</font></li>
 </ul>
 <li><a href="rect.html#pygame.Rect">pygame.Rect</a> - <font size=-1>pygame object for storing rectangular coordinates</font></li>
 <ul>
@@ -397,6 +404,7 @@
 <li><a href="surface.html#Surface.get_alpha">Surface.get_alpha</a> - <font size=-1>get the current Surface transparency value</font></li>
 <li><a href="surface.html#Surface.get_at">Surface.get_at</a> - <font size=-1>get the color value at a single pixel</font></li>
 <li><a href="surface.html#Surface.get_bitsize">Surface.get_bitsize</a> - <font size=-1>get the bit depth of the Surface pixel format</font></li>
+<li><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></li>
 <li><a href="surface.html#Surface.get_bytesize">Surface.get_bytesize</a> - <font size=-1>get the bytes used per Surface pixel</font></li>
 <li><a href="surface.html#Surface.get_clip">Surface.get_clip</a> - <font size=-1>get the current clipping are of the Surface</font></li>
 <li><a href="surface.html#Surface.get_colorkey">Surface.get_colorkey</a> - <font size=-1>Get the current transparent colorkey</font></li>
@@ -457,13 +465,17 @@
 </ul>
 <li><a href="transform.html#pygame.transform">pygame.transform</a> - <font size=-1>pygame module to transform surfaces</font></li>
 <ul>
+<li></li>
+<li><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a> - <font size=-1>find the average surface from many surfaces.</font></li>
 <li><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>remove interior area of an image</font></li>
 <li><a href="transform.html#pygame.transform.flip">pygame.transform.flip</a> - <font size=-1>flip vertically and horizontally</font></li>
+<li><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a> - <font size=-1>find edges in a surface</font></li>
 <li><a href="transform.html#pygame.transform.rotate">pygame.transform.rotate</a> - <font size=-1>rotate an image</font></li>
 <li><a href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a> - <font size=-1>filtered scale and rotation</font></li>
 <li><a href="transform.html#pygame.transform.scale">pygame.transform.scale</a> - <font size=-1>resize to new resolution</font></li>
 <li><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a> - <font size=-1>specialized image doubler</font></li>
 <li><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a> - <font size=-1>scale a surface to an arbitrary size smoothly</font></li>
+<li><a href="transform.html#pygame.transform.threshold">pygame.transform.threshold</a> - <font size=-1>finds which, and how many pixels in a surface are within a threshold of a color.</font></li>
 </ul>
 <li><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></li>
 <li><a href="pygame.html#pygame.register_quit">pygame.register_quit</a> - <font size=-1>register a function to be called when pygame quits</font></li>

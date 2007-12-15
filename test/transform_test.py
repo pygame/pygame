@@ -1,5 +1,80 @@
 import unittest
 import pygame, pygame.transform
+from pygame.locals import *
+
+
+def show_image(s, images = []):
+    #pygame.display.init()
+    size = s.get_rect()[2:]
+    screen = pygame.display.set_mode(size)
+    screen.blit(s, (0,0))
+    pygame.display.flip()
+    pygame.event.pump()
+    going = True
+    idx = 0
+    while going:
+        events = pygame.event.get()
+        for e in events:
+            if e.type == QUIT:
+                going = False
+            if e.type == KEYDOWN:
+                if e.key in [K_s, K_a]:
+                    if e.key == K_s: idx += 1
+                    if e.key == K_a: idx -= 1
+                    s = images[idx]
+                    screen.blit(s, (0,0))
+                    pygame.display.flip()
+                    pygame.event.pump()
+                else:
+                    going = False
+    pygame.display.quit()
+    pygame.display.init()
+
+
+
+
+
+def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0), change_return = True ):
+    """ given the color it makes return_surf only have areas with the given colour.
+    """
+    
+    width, height =surf.get_width(), surf.get_height()
+
+    if change_return:
+        return_surf.fill(diff_color)
+
+    try:
+        r, g, b = color
+    except ValueError:
+        r, g, b, a = color
+
+
+    try:
+        tr, tg, tb = color
+    except ValueError:
+        tr, tg, tb, ta = color
+
+
+
+    similar = 0
+    for y in xrange(height):
+        for x in xrange(width):
+            c1 = surf.get_at((x,y))
+
+            if ( (abs(c1[0] - r) < tr) &
+                 (abs(c1[1] - g) < tg) & 
+                 (abs(c1[2] - b) < tb) ):
+                # this pixel is within the threshold.
+                if change_return:
+                    return_surf.set_at((x,y), c1)
+                similar += 1
+            #else:
+            #    print c1, c2
+    
+    
+    return similar
+
+
 
 
 class TransformTest( unittest.TestCase ):
@@ -44,6 +119,138 @@ class TransformTest( unittest.TestCase ):
 
             # the wrong size surface is past in.  Should raise an error.
             self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33,64), s3)
+
+
+
+
+    def test_threshold_surface(self):
+        """
+        """
+
+        #pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels
+        threshold = pygame.transform.threshold
+
+
+
+        s1 = pygame.Surface((32,32))
+        s2 = pygame.Surface((32,32))
+        s3 = pygame.Surface((1,1))
+
+        s1.fill((40,40,40))
+        s2.fill((255,255,255))
+
+
+        num_threshold_pixels = threshold(s2, s1, (30,30,30), (11,11,11), (255,0,0), True)
+        #num_threshold_pixels = threshold(s2, s1, (30,30,30))
+        self.assertEqual(num_threshold_pixels, s1.get_height() * s1.get_width())
+        self.assertEqual(s2.get_at((0,0)), (40, 40, 40, 255))
+
+        if 1:
+
+            # only one pixel should not be changed.
+            s1.fill((40,40,40))
+            s2.fill((255,255,255))
+            s1.set_at( (0,0), (170, 170, 170) )
+            num_threshold_pixels = threshold(s2, s1, (30,30,30), (11,11,11), (0,0,0), True)
+            #num_threshold_pixels = threshold(s2, s1, (30,30,30))
+            self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
+            self.assertEqual(s2.get_at((0,0)), (0,0,0, 255))
+            self.assertEqual(s2.get_at((0,1)), (40, 40, 40, 255))
+            self.assertEqual(s2.get_at((17,1)), (40, 40, 40, 255))
+
+
+        # abs(40 - 255) < 100
+        #(abs(c1[0] - r) < tr)
+
+        if 1:
+            s1.fill((160,160,160))
+            s2.fill((255,255,255))
+            num_threshold_pixels = threshold(s2, s1, (255,255,255), (100,100,100), (0,0,0), True)
+
+            self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()))
+
+
+
+
+        if 1:
+            # only one pixel should not be changed.
+            s1.fill((40,40,40))
+            s2.fill((255,255,255))
+            s1.set_at( (0,0), (170, 170, 170) )
+            num_threshold_pixels = threshold(s3, s1, (30,30,30), (11,11,11), (0,0,0), False)
+            #num_threshold_pixels = threshold(s2, s1, (30,30,30))
+            self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
+
+
+
+    def test_laplacian(self):
+        """
+        """
+ 
+        SIZE = 32
+        s1 = pygame.Surface((SIZE, SIZE))
+        s2 = pygame.Surface((SIZE, SIZE))
+        s1.fill((10,10,70))
+        pygame.draw.line(s1, (255,0,0), (3,10), (20,20))
+
+        # a line at the last row of the image.
+        pygame.draw.line(s1, (255,0,0), (0,31), (31,31))
+
+
+        pygame.transform.laplacian(s1,s2)
+        
+        #show_image(s1)
+        #show_image(s2)
+
+        self.assertEqual(s2.get_at((0,0)), (0, 0, 0, 255))
+        self.assertEqual(s2.get_at((3,10)), (255,0,0,255))
+        self.assertEqual(s2.get_at((0,31)), (255,0,0,255))
+        self.assertEqual(s2.get_at((31,31)), (255,0,0,255))
+        
+
+        # here we create the return surface.
+        s2 = pygame.transform.laplacian(s1)
+        
+        self.assertEqual(s2.get_at((0,0)), (0, 0, 0, 255))
+        self.assertEqual(s2.get_at((3,10)), (255,0,0,255))
+        self.assertEqual(s2.get_at((0,31)), (255,0,0,255))
+        self.assertEqual(s2.get_at((31,31)), (255,0,0,255))
+        
+
+
+
+
+    def test_average_surfaces(self):
+        """
+        """
+ 
+        SIZE = 32
+        s1 = pygame.Surface((SIZE, SIZE))
+        s2 = pygame.Surface((SIZE, SIZE))
+        s3 = pygame.Surface((SIZE, SIZE))
+        s1.fill((10,10,70))
+        s2.fill((10,20,70))
+        s3.fill((10,130,10))
+
+        surfaces = [s1, s2, s3]
+        surfaces = [s1, s2]
+        sr = pygame.transform.average_surfaces(surfaces)
+
+        self.assertEqual(sr.get_at((0,0)), (10,15,70,255))
+
+
+        self.assertRaises(TypeError, pygame.transform.average_surfaces, 1)
+        self.assertRaises(TypeError, pygame.transform.average_surfaces, [])
+
+        self.assertRaises(TypeError, pygame.transform.average_surfaces, [1])
+        self.assertRaises(TypeError, pygame.transform.average_surfaces, [s1, 1])
+        self.assertRaises(TypeError, pygame.transform.average_surfaces, [1, s1])
+        self.assertRaises(TypeError, pygame.transform.average_surfaces, [s1, s2, 1])
+
+        self.assertRaises(TypeError, pygame.transform.average_surfaces, (s for s in [s1, s2,s3] ))
+
+
+
 
 
 if __name__ == '__main__':
