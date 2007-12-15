@@ -66,4 +66,12 @@ Mask.overlap_area(othermask, offset) -> numpixels
 <END>
 
 
+get_bounding_rects
+Returns a list of bounding rects of regions of set pixels.
+Mask.get_bounding_rects() -> Rects
+
+<END>
+
+
+
 <END>

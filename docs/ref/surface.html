@@ -29,6 +29,7 @@
 <a href=movie.html>Movie</a>&nbsp;||&nbsp;
 <a href=music.html>Music</a>&nbsp;||&nbsp;
 <a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pixelarray.html>Pixelarray</a>&nbsp;||&nbsp;
 <a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
 <a href=rect.html>Rect</a>&nbsp;||&nbsp;
 <a href=scrap.html>Scrap</a>&nbsp;||&nbsp;
@@ -87,6 +88,7 @@
   <tr><td><a href="surface.html#Surface.get_masks">Surface.get_masks</a> - <font size=-1>the bitmasks needed to convert between a color and a mapped integer</font></td><td>the bitmasks needed to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a> - <font size=-1>the bit shifts needed to convert between a color and a mapped integer</font></td><td>the bit shifts needed to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_losses">Surface.get_losses</a> - <font size=-1>the significant bits used to convert between a color and a mapped integer</font></td><td>the significant bits used to convert between a color and a mapped integer</td></tr>
+  <tr><td><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></td><td>acquires a buffer object for the pixels of the Surface.</td></tr>
 </table></small></ul>
 <p><tt>A</tt> pygame Surface is used to represent any image. The Surface has a fixed resolution and pixel format. Surfaces with 8bit pixels use a color palette to map to 24bit color. </p>
 <p>Call <tt><a href="surface.html#pygame.Surface">pygame.Surface</a> - <font size=-1>pygame object for representing images</font></tt> to create a new image object. The Surface will be cleared to all black. The only required arguments are the sizes. With no additional arguments, the Surface will be created in a format that best matches the display Surface. </p>
@@ -160,7 +162,7 @@
   <i>fill Surface with a solid color</i><br>
   <tt>Surface.fill(color, rect=None, special_flags=0): return Rect</tt><br>
 <p>Fill the Surface with a solid color. If no rect argument is given the entire Surface will be filled. The rect argument will limit the fill to a specific area. The fill will also be contained by the Surface clip area. </p>
-<p>The color argument can be either an <tt>RGB</tt> sequence or a mapped color index. </p>
+<p>The color argument can be either a <tt>RGB</tt> sequence, a <tt>RGBA</tt> sequence or a mapped color index. If using <tt>RGBA</tt>, the Alpha <tt>(A</tt> part of <tt>RGBA)</tt> is ignored unless the surface uses per pixel alpha (Surface has the <tt>SRCALPHA</tt> flag). </p>
 <p>An optional special_flags is for passing in <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> With other special blitting flags perhaps added in the future. </p>
 <p>This will return the affected Surface area. </p>
 <!--COMMENTS:Surface.fill--> &nbsp;<br> 
@@ -247,7 +249,7 @@
 <big><b>Surface.get_locked</big></b><br><ul>
   <i>test if the Surface is current locked</i><br>
   <tt>Surface.get_locked(): return bool</tt><br>
-<p>Returns True when the Surface is locked. It doesn't matter how many times the Surface is locked. </p>
+<p>Returns True when the Surface is locked. It doesn't matter how many times the Surface is locked. Surfaces that do not need locking (see mustlock()) will always return True. </p>
 <!--COMMENTS:Surface.get_locked--> &nbsp;<br> 
 <br></ul>
 
@@ -523,6 +525,17 @@
 <p>Return the least significan number of bits stripped from each color in a mapped integer. </p>
 <p>This value is not needed for normal Pygame usage. </p>
 <!--COMMENTS:Surface.get_losses--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_buffer">
+<big><b>Surface.get_buffer</big></b><br><ul>
+  <i>acquires a buffer object for the pixels of the Surface.</i><br>
+  <tt>Surface.get_buffer(): return BufferProxy</tt><br>
+<p>Return a buffer object for the pixels of the Surface. The buffer can be used for direct pixel access and manipulation. </p>
+<p>This method implicitly locks the Surface. The lock will be released, once the returned BufferProxy object is deleted. </p>
+<p>New in pygame <tt>1.8</tt>. </p>
+<!--COMMENTS:Surface.get_buffer--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 

@@ -470,9 +470,9 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
 
     }
 
-
     surface = SDL_CreateRGBSurface (flags, width, height, bpp, Rmask, Gmask,
                                     Bmask, Amask);
+
     if (!surface)
     {
         RAISE (PyExc_SDLError, SDL_GetError ());

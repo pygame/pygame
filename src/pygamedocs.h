@@ -299,6 +299,8 @@
 
 #define DOC_PYGAMEMASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
 
+#define DOC_PYGAMEMASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
+
 #define DOC_ ""
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
@@ -728,4 +730,12 @@
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface\nscale a surface to an arbitrary size smoothly"
 
 #define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\nremove interior area of an image"
+
+#define DOC_PYGAMETRANSFORMLAPLACIAN "pygame.transform.laplacian(Surface, DestSurface = None): return Surface\nfind edges in a surface"
+
+#define DOC_PYGAMETRANSFORMAVERAGESURFACES "pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface\nfind the average surface from many surfaces."
+
+#define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
+
+#define DOC_ ""
 

@@ -29,6 +29,7 @@
 <a href=movie.html>Movie</a>&nbsp;||&nbsp;
 <a href=music.html>Music</a>&nbsp;||&nbsp;
 <a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pixelarray.html>Pixelarray</a>&nbsp;||&nbsp;
 <a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
 <a href=rect.html>Rect</a>&nbsp;||&nbsp;
 <a href=scrap.html>Scrap</a>&nbsp;||&nbsp;
@@ -53,6 +54,10 @@
   <tr><td><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a> - <font size=-1>specialized image doubler</font></td><td>specialized image doubler</td></tr>
   <tr><td><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a> - <font size=-1>scale a surface to an arbitrary size smoothly</font></td><td>scale a surface to an arbitrary size smoothly</td></tr>
   <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>remove interior area of an image</font></td><td>remove interior area of an image</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a> - <font size=-1>find edges in a surface</font></td><td>find edges in a surface</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a> - <font size=-1>find the average surface from many surfaces.</font></td><td>find the average surface from many surfaces.</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.threshold">pygame.transform.threshold</a> - <font size=-1>finds which, and how many pixels in a surface are within a threshold of a color.</font></td><td>finds which, and how many pixels in a surface are within a threshold of a color.</td></tr>
+  <tr><td>None</td><td></td></tr>
 </table></small></ul>
 <p><tt>A</tt> Surface transform is an operation that moves or resizes the pixels. All these functions take a Surface to operate on and return a new Surface with the results. </p>
 <p>Some of the transforms are considered destructive. These means every time they are performed they lose pixel data. Common examples of this are resizing and rotating. For this reason, it is better to retransform the original surface than to keep transforming an image multiple times. (For example, suppose you are animating a bouncing spring which expands and contracts. If you applied the size changes incrementally to the previous images, you would lose detail. Instead, always begin with the original image and scale to the desired <tt>size.)</tt> </p>
@@ -124,6 +129,43 @@
   <tt>pygame.transform.chop(Surface, rect): return Surface</tt><br>
 <p>Extracts a portion of an image. All vertical and horizontal pixels surrounding the given rectangle area are removed. The resulting image is shrunken by the size of pixels removed. (The original image is not altered by this <tt>operation.)</tt> </p>
 <!--COMMENTS:pygame.transform.chop--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.transform.laplacian">
+<big><b>pygame.transform.laplacian</big></b><br><ul>
+  <i>find edges in a surface</i><br>
+  <tt>pygame.transform.laplacian(Surface, DestSurface = None): return Surface</tt><br>
+<p>Finds the edges in a surface using the laplacian algorithm. </p>
+<!--COMMENTS:pygame.transform.laplacian--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.transform.average_surfaces">
+<big><b>pygame.transform.average_surfaces</big></b><br><ul>
+  <i>find the average surface from many surfaces.</i><br>
+  <tt>pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface</tt><br>
+<p>Takes a sequence of surfaces and returns a surface with average colors from each of the surfaces. </p>
+<!--COMMENTS:pygame.transform.average_surfaces--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.transform.threshold">
+<big><b>pygame.transform.threshold</big></b><br><ul>
+  <i>finds which, and how many pixels in a surface are within a threshold of a color.</i><br>
+  <tt>pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels</tt><br>
+<p>Finds which, and how many pixels in a surface are within a threshold of a color. </p>
+<p>It can set the destination surface where all of the pixels not within the threshold are changed to diff_color. </p>
+<p>Or it can be used to just count the number of pixels within the threshold if you set change_return to False. </p>
+<p>You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So you could use an r threshold of 40 and a blue threshold of 2 if you like. </p>
+<!--COMMENTS:pygame.transform.threshold--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="">
+<big><b></big></b><br><ul>
+ &nbsp;<br> 
+<!--COMMENTS:--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
