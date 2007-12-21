@@ -70,6 +70,10 @@ class PixelArrayTest (unittest.TestCase):
         sf.fill ((0, 0, 0))
         ar = pygame.PixelArray (sf)
 
+        sf2 = pygame.Surface ((6, 8), 0, 32)
+        sf2.fill ((0, 255, 255))
+        ar2 = pygame.PixelArray (sf2)
+
         # Test single value assignment
         ar[2] = 0x808080
         self.assertEqual (ar[2][0], 0x808080)
@@ -95,9 +99,9 @@ class PixelArrayTest (unittest.TestCase):
         self.assertEqual (ar[1][1], 0x111111)
 
         # Test pixel array assignment.
-        ar[1] = ar[3]
-        self.assertEqual (ar[1][0], 0x000000)
-        self.assertEqual (ar[1][1], 0x000000)
+        ar[1] = ar2[3]
+        self.assertEqual (ar[1][0], 0x00FFFF)
+        self.assertEqual (ar[1][1], 0x00FFFF)
 
     def test_get_slice (self):
         sf = pygame.Surface ((10, 20), 0, 32)
@@ -113,12 +117,12 @@ class PixelArrayTest (unittest.TestCase):
         # Has to resolve to ar[7:8]
         self.assertEqual (len (ar[-3:-2]), 20)
 
-##    def test_set_slice (self):
+##     def test_set_slice (self):
 ##         sf = pygame.Surface ((6, 8), 0, 32)
 ##         sf.fill ((0, 0, 0))
 ##         ar = pygame.PixelArray (sf)
 
-        # Test single value assignment
+##         # Test single value assignment
 ##         ar[0:2] = 0x808080
 ##         print ar
 ##         self.assertEqual (ar[0][0], 0x808080)
@@ -136,7 +140,7 @@ class PixelArrayTest (unittest.TestCase):
 ##         self.assertEqual (ar[4][0], 0xFFFF00)
 ##         self.assertEqual (ar[-1][1], 0xFFFF00)
 
-        # Test list assignment.
+##         # Test list assignment.
 ##         ar[2:4] = [0xFFFFFF] * 16
 ##         print ar
 ##         self.assertEqual (ar[2][0], 0xFFFFFF)

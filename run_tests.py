@@ -15,6 +15,8 @@ suite = unittest.TestSuite()
 test_module_re = re.compile('^(.+_test)\.py$')
 for file in os.listdir(test_subdir):
     for module in test_module_re.findall(file):
+        if module == "scrap_test":
+            continue
         print 'loading ' + module
         __import__( module )
         test = unittest.defaultTestLoader.loadTestsFromName( module )
