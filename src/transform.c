@@ -987,13 +987,13 @@ static void filter_shrink_X_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int height, int 
             }
             else
             {
+                int xfrac = 0x10000 - xcounter;
                 /* write out a destination pixel */
                 *dstpix++ = (Uint8) (((accumulate[0] + ((srcpix[0] * xcounter) >> 16)) * xrecip) >> 16);
                 *dstpix++ = (Uint8) (((accumulate[1] + ((srcpix[1] * xcounter) >> 16)) * xrecip) >> 16);
                 *dstpix++ = (Uint8) (((accumulate[2] + ((srcpix[2] * xcounter) >> 16)) * xrecip) >> 16);
                 *dstpix++ = (Uint8) (((accumulate[3] + ((srcpix[3] * xcounter) >> 16)) * xrecip) >> 16);
                 /* reload the accumulator with the remainder of this pixel */
-                int xfrac = 0x10000 - xcounter;
                 accumulate[0] = (Uint16) ((*srcpix++ * xfrac) >> 16);
                 accumulate[1] = (Uint16) ((*srcpix++ * xfrac) >> 16);
                 accumulate[2] = (Uint16) ((*srcpix++ * xfrac) >> 16);
@@ -1180,15 +1180,15 @@ static void filter_shrink_Y_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int width, int s
     int srcdiff = srcpitch - (width * 4);
     int dstdiff = dstpitch - (width * 4);
     int x, y;
+    int yspace = 0x10000 * srcheight / dstheight; /* must be > 1 */
+    int yrecip = (int) ((long long) 0x100000000 / yspace);
+    int ycounter = yspace;
 
     /* allocate and clear a memory area for storing the accumulator line */
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == NULL) return;
     memset(templine, 0, dstpitch * 2);
 
-    int yspace = 0x10000 * srcheight / dstheight; /* must be > 1 */
-    int yrecip = (int) ((long long) 0x100000000 / yspace);
-    int ycounter = yspace;
     for (y = 0; y < srcheight; y++)
     {
         Uint16 *accumulate = templine;
@@ -1205,6 +1205,7 @@ static void filter_shrink_Y_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int width, int s
         }
         else
         {
+            int yfrac = 0x10000 - ycounter;
             /* write out a destination line */
             for (x = 0; x < width; x++)
             {
@@ -1217,7 +1218,6 @@ static void filter_shrink_Y_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int width, int s
             /* reload the accumulator with the remainder of this line */
             accumulate = templine;
             srcpix -= 4 * width;
-            int yfrac = 0x10000 - ycounter;
             for (x = 0; x < width; x++)
             {
                 *accumulate++ = (Uint16) ((*srcpix++ * yfrac) >> 16);
@@ -1241,15 +1241,15 @@ static void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int src
     int srcdiff = srcpitch - (width * 4);
     int dstdiff = dstpitch - (width * 4);
     int x, y;
+    int yspace = 0x4000 * srcheight / dstheight; /* must be > 1 */
+    int yrecip = (int) ((long long) 0x040000000 / yspace);
+    long long One64 = 0x4000400040004000ULL;
 
     /* allocate and clear a memory area for storing the accumulator line */
     templine = (Uint16 *) malloc(dstpitch * 2);
     if (templine == NULL) return;
     memset(templine, 0, dstpitch * 2);
 
-    int yspace = 0x4000 * srcheight / dstheight; /* must be > 1 */
-    int yrecip = (int) ((long long) 0x040000000 / yspace);
-    long long One64 = 0x4000400040004000ULL;
 #if defined(__GNUC__) && defined(__x86_64__)
     long long srcdiff64 = srcdiff;
     long long dstdiff64 = dstdiff;
@@ -1439,11 +1439,11 @@ static void filter_expand_X_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int height, int 
     int dstdiff = dstpitch - (dstwidth * 4);
     int *xidx0, *xmult0, *xmult1;
     int x, y;
+    int factorwidth = 4;
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
     if (xidx0 == NULL) return;
-    int factorwidth = 4;
     xmult0 = (int *) malloc(dstwidth * factorwidth);
     xmult1 = (int *) malloc(dstwidth * factorwidth);
     if (xmult0 == NULL || xmult1 == NULL)
@@ -1490,11 +1490,11 @@ static void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int sr
     int dstdiff = dstpitch - (dstwidth * 4);
     int *xidx0, *xmult0, *xmult1;
     int x, y;
+    int factorwidth = 8;
 
     /* Allocate memory for factors */
     xidx0 = malloc(dstwidth * 4);
     if (xidx0 == NULL) return;
-    int factorwidth = 8;
     xmult0 = (int *) malloc(dstwidth * factorwidth);
     xmult1 = (int *) malloc(dstwidth * factorwidth);
     if (xmult0 == NULL || xmult1 == NULL)
@@ -1507,9 +1507,9 @@ static void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int sr
     /* Create multiplier factors and starting indices and put them in arrays */
     for (x = 0; x < dstwidth; x++)
     {
-        xidx0[x] = x * (srcwidth - 1) / dstwidth;
         int xm1 = 0x100 * ((x * (srcwidth - 1)) % dstwidth) / dstwidth;
         int xm0 = 0x100 - xm1;
+        xidx0[x] = x * (srcwidth - 1) / dstwidth;
         xmult1[x*2]   = xm1 | (xm1 << 16);
         xmult1[x*2+1] = xm1 | (xm1 << 16);
         xmult0[x*2]   = xm0 | (xm0 << 16);
@@ -1751,6 +1751,9 @@ static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
 
     int bpp = src->format->BytesPerPixel;
 
+    Uint8 *temppix = NULL;
+    int tempwidth=0, temppitch=0, tempheight=0;
+
     /* convert to 32-bit if necessary */
     if (bpp == 3)
     {
@@ -1772,8 +1775,6 @@ static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
     }
 
     /* Create a temporary processing buffer if we will be scaling both X and Y */
-    Uint8 *temppix = NULL;
-    int tempwidth=0, temppitch=0, tempheight=0;
     if (srcwidth != dstwidth && srcheight != dstheight)
     {
         tempwidth = dstwidth;
@@ -1926,8 +1927,8 @@ static PyObject* surf_scalesmooth(PyObject* self, PyObject* arg)
         if (surf->w == width && surf->h == height) {
             int y;
             for (y = 0; y < height; y++) {
-                memcpy(newsurf->pixels + y * newsurf->pitch, 
-                       surf->pixels + y * surf->pitch, width * bpp);
+                memcpy((Uint8*)newsurf->pixels + y * newsurf->pitch, 
+                       (Uint8*)surf->pixels + y * surf->pitch, width * bpp);
             }
         }
         else {
@@ -2793,9 +2794,9 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
         for(x=0;x<width;x++) {
             
             the_color = SDL_MapRGB (destformat, 
-                                    (Uint8) round(*(the_idx) * div_inv),
-                                    (Uint8) round(*(the_idx + 1) * div_inv),
-                                    (Uint8) round(*(the_idx + 2) * div_inv));
+                                    (Uint8) (*(the_idx) * div_inv + .5f),
+                                    (Uint8) (*(the_idx + 1) * div_inv + .5f),
+                                    (Uint8) (*(the_idx + 2) * div_inv + .5f));
             
             SURF_SET_AT(the_color, destsurf, x, y, destpixels, destformat, byte_buf);
             
