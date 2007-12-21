@@ -284,6 +284,9 @@ _scrap_set_mode (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "i", &_currentmode))
         return NULL;
 
+    if (_currentmode != SCRAP_CLIPBOARD && _currentmode != SCRAP_SELECTION)
+        return RAISE (PyExc_ValueError, "invalid clipboard mode");
+
 #ifndef X11_SCRAP
     /* Force the clipboard, if not in a X11 environment. */
     _currentmode = SCRAP_CLIPBOARD;
