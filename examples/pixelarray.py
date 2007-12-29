@@ -1,4 +1,3 @@
-# 8 bit and 24 bit surfaces are currently broken
 import pygame
 from pygame.locals import *
 

@@ -831,7 +831,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     colorvals = malloc (sizeof (Uint32) * seqsize);
     if (!colorvals)
     {
-        PyErr_SetString(PyExc_ValueError, "could not copy pixels");
+        PyErr_SetString(PyExc_ValueError, "could not copy colors");
         return -1;
     }
 
@@ -1059,7 +1059,7 @@ _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
         low, high, 1, surface->pitch);
 
-    PyErr_SetString (PyExc_NotImplementedError, "method not implementeda");
+    PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
     return -1;
 }
 
