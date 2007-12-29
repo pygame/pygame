@@ -1066,10 +1066,6 @@ _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 /**
  * x in array
  */
-/* TODO: support:
-   [...] in array for 2D arrays
-   x in array for 1D and 2D arrays
- */
 static int
 _pxarray_contains (PyPixelArray *array, PyObject *value)
 {
@@ -1087,17 +1083,16 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
 
     if (!_get_color_from_object (value, surface->format, &color))
     {
-        /* TODO */
-         PyErr_SetString (PyExc_TypeError, "invalid color argument");
-         return -1;
+        PyErr_SetString (PyExc_TypeError, "invalid color argument");
+        return -1;
     }
 
     switch (bpp)
     {
     case 1:
-        for (x = 0; x < array->ylen; x += array->ystep)
+        for (y = 0; y < array->ylen; y += array->ystep)
         {
-            for (y = 0; y < array->xlen; y += array->xstep)
+            for (x = 0; x < array->xlen; x += array->xstep)
             {
                 _index = array->start + x;
                 if (*((Uint8 *) pixels + y * array->padding + _index)
@@ -1106,9 +1101,9 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
             }
         }
     case 2:
-        for (x = 0; x < array->ylen; x += array->ystep)
+        for (y = 0; y < array->ylen; y += array->ystep)
         {
-            for (y = 0; y < array->xlen; y += array->xstep)
+            for (x = 0; x < array->xlen; x += array->xstep)
             {
                 _index = array->start + x;
                 if (*((Uint16 *) (pixels + y * array->padding) + _index)
@@ -1121,9 +1116,9 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
     {
         Uint32 pxcolor;
         Uint8 *pix;
-        for (x = 0; x < array->ylen; x += array->ystep)
+        for (y = 0; y < array->ylen; y += array->ystep)
         {
-            for (y = 0; y < array->xlen; y += array->xstep)
+            for (x = 0; x < array->xlen; x += array->xstep)
             {
                 _index = array->start + x;
                 pix = ((Uint8 *) (pixels + y * array->padding) + _index * 3);
@@ -1139,9 +1134,9 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         break;
     }
     default: /* 4 bpp */
-        for (x = 0; x < array->ylen; x += array->ystep)
+        for (y = 0; y < array->ylen; y += array->ystep)
         {
-            for (y = 0; y < array->xlen; y += array->xstep)
+            for (x = 0; x < array->xlen; x += array->xstep)
             {
                 _index = array->start + x;
                 if (*((Uint32 *) (pixels + y * array->padding) + _index)

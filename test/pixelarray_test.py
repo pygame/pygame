@@ -138,6 +138,12 @@ class PixelArrayTest (unittest.TestCase):
             self.assertFalse ((255, 255, 0) in ar)
             self.assertFalse (0x0000ff in ar)
 
+            # Test sliced array
+            self.assertTrue ((0, 0, 0) in ar[8])
+            self.assertTrue ((255, 255, 255) in ar[8])
+            self.assertFalse ((255, 255, 0) in ar[8])
+            self.assertFalse (0x0000ff in ar[8])
+
     def test_get_surface (self):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((10, 20), 0, bpp)
