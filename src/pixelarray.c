@@ -24,8 +24,8 @@
 #include "pygamedocs.h"
 #include "surface.h"
 
-#define GET_SLICE_VALS(array, start, end, ylen, ystep, xlen, xstep, padding,\
-                       _low, _high, _step, _pad)                        \
+#define GET_SLICE_VALS(array, start, end, ylen, ystep, xlen, xstep, padding, \
+    _low, _high, _step, _pad)                                           \
     start = array->start + _low;                                        \
     end = array->end - array->xlen + _high;                             \
     ylen = array->ylen;                                                 \
@@ -53,13 +53,10 @@ typedef struct
 } PyPixelArray;
 
 static PyPixelArray* _pxarray_new_internal (PyTypeObject *type,
-                                            PyObject *surface,
-                                            Uint32 start, Uint32 end,
-                                            Uint32 xlen, Uint32 ylen,
-                                            Uint32 xstep, Uint32 ystep,
-                                            Uint32 padding, PyObject *parent);
+    PyObject *surface, Uint32 start, Uint32 end, Uint32 xlen, Uint32 ylen,
+    Uint32 xstep, Uint32 ystep, Uint32 padding, PyObject *parent);
 static PyObject* _pxarray_new (PyTypeObject *type, PyObject *args,
-                               PyObject *kwds);
+    PyObject *kwds);
 static void _pxarray_dealloc (PyPixelArray *self);
 
 static PyObject* _pxarray_get_dict (PyPixelArray *self, void *closure);
@@ -68,12 +65,13 @@ static PyObject* _pxarray_get_surface (PyPixelArray *self, void *closure);
 static PyObject* _pxarray_repr (PyPixelArray *array);
 
 static int _get_color_from_object (PyObject *val, SDL_PixelFormat *format,
-                                   Uint32 *color);
-static PyObject* _get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index);
+    Uint32 *color);
+static PyObject* _get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index,
+    Uint32 row);
 static void _set_single_pixel (Uint8 *pixels, int bpp, Uint32 _index,
-                               Uint32 color);
+    Uint32 row, SDL_PixelFormat *format, Uint32 color);
 static PyObject* _array_slice_internal (PyPixelArray *array, Uint32 _start,
-                                        Uint32 _end, Uint32 _step);
+    Uint32 _end, Uint32 _step);
 
 /* Sequence methods */
 static Py_ssize_t _pxarray_length (PyPixelArray *array);
@@ -81,15 +79,15 @@ static PyObject* _pxarray_concat (PyPixelArray *array, PyObject *value);
 static PyObject* _pxarray_repeat (PyPixelArray *a, Py_ssize_t n);
 static PyObject* _pxarray_item (PyPixelArray *array, Py_ssize_t _index);
 static PyObject* _pxarray_slice (PyPixelArray *array, Py_ssize_t low,
-                                 Py_ssize_t high);
+    Py_ssize_t high);
 static int _array_assign_array (PyPixelArray *array, Py_ssize_t low,
-                                Py_ssize_t high, PyPixelArray *val);
+    Py_ssize_t high, PyPixelArray *val);
 static int _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
-                                   Py_ssize_t high, PyObject *val);
+    Py_ssize_t high, PyObject *val);
 static int _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index,
-                              PyObject *value);
+    PyObject *value);
 static int _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low,
-                               Py_ssize_t high, PyObject *value);
+    Py_ssize_t high, PyObject *value);
 static int _pxarray_contains (PyPixelArray *array, PyObject *value);
 static PyObject* _pxarray_inplace_concat (PyPixelArray *array, PyObject *seq);
 static PyObject* _pxarray_inplace_repeat (PyPixelArray *array, Py_ssize_t n);
@@ -208,9 +206,8 @@ static PyTypeObject PyPixelArray_Type =
 
 static PyPixelArray*
 _pxarray_new_internal (PyTypeObject *type, PyObject *surface,
-                       Uint32 start, Uint32 end, Uint32 xlen, Uint32 ylen,
-                       Uint32 xstep, Uint32 ystep, Uint32 padding,
-                       PyObject *parent)
+    Uint32 start, Uint32 end, Uint32 xlen, Uint32 ylen,
+    Uint32 xstep, Uint32 ystep, Uint32 padding, PyObject *parent)
 {
     PyPixelArray *self = (PyPixelArray *) type->tp_alloc (type, 0);
     if (!self)
@@ -236,6 +233,7 @@ _pxarray_new_internal (PyTypeObject *type, PyObject *surface,
     self->ystep = ystep;
     self->padding = padding;
     self->parent = parent;
+
     return self;
 }
 
@@ -255,11 +253,11 @@ _pxarray_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (surface->format->BytesPerPixel < 1  ||
         surface->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
-                      "unsupport bit depth for reference array");
+            "unsupport bit depth for reference array");
 
     return (PyObject *) _pxarray_new_internal
         (type, surfobj, 0, (Uint32) surface->w * surface->h,
-         (Uint32) surface->w, (Uint32) surface->h, 1, 1, (Uint32) surface->w,
+         (Uint32) surface->w, (Uint32) surface->h, 1, 1, surface->pitch,
          NULL);
 }
 
@@ -320,6 +318,7 @@ _pxarray_repr (PyPixelArray *array)
     SDL_Surface *surface;
     int bpp;
     Uint8 *pixels;
+    Uint8 *px24;
     Uint32 pixel;
     Uint32 x = 0;
     Uint32 y = 0;
@@ -340,13 +339,13 @@ _pxarray_repr (PyPixelArray *array)
             for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
             {
                 /* Construct the columns */
-                pixel = (Uint32)*((Uint8 *) pixels + array->start + x +
-                                  y * array->padding);
+                pixel = (Uint32) *((Uint8 *) pixels + array->start + x +
+                    y * array->padding);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
-                                       ("%d, ", pixel));
+                    ("%d, ", pixel));
             }
-            pixel = (Uint32)*((Uint8 *) pixels + array->start +
-                              x + y * array->padding);
+            pixel = (Uint32) *((Uint8 *) pixels + array->start + x +
+                y * array->padding);
             PyString_ConcatAndDel (&string, PyString_FromFormat ("%d]", pixel));
         }
         break;
@@ -359,17 +358,44 @@ _pxarray_repr (PyPixelArray *array)
             for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
             {
                 /* Construct the columns */
-                pixel = (Uint32)*((Uint16 *) pixels + array->start + x +
-                                  y * array->padding);
+                pixel = (Uint32)*((Uint16 *) (pixels + y * array->padding) +
+                    array->start + x);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
-                                       ("%d, ", pixel));
+                    ("%d, ", pixel));
             }
-            pixel = (Uint32)*((Uint16 *) pixels + array->start +
-                              x + y * array->padding);
+            pixel = (Uint32)*((Uint16 *) (pixels + y * array->padding) +
+                array->start + x);
             PyString_ConcatAndDel (&string, PyString_FromFormat ("%d]", pixel));
         }
         break;
     case 3:
+        for (y = 0; y < array->ylen; y += array->ystep)
+        {
+            /* Construct the rows */
+            PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+
+            for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
+            {
+                /* Construct the columns */
+                px24 = ((Uint8 *) (pixels + array->start + y * array->padding) +
+                    x * 3);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                pixel = (px24[0]) + (px24[1] << 8) + (px24[2] << 16);
+#else
+                pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
+#endif
+                PyString_ConcatAndDel (&string, PyString_FromFormat
+                    ("%d, ", pixel));
+            }
+            px24 = ((Uint8 *) (pixels + array->start + y * array->padding) +
+                    x * 3);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+            pixel = (px24[0]) + (px24[1] << 8) + (px24[2] << 16);
+#else
+            pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
+#endif
+            PyString_ConcatAndDel (&string, PyString_FromFormat ("%d]", pixel));
+        }
         break;
     default: /* 4bpp */
         for (y = 0; y < array->ylen; y += array->ystep)
@@ -380,13 +406,13 @@ _pxarray_repr (PyPixelArray *array)
             for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
             {
                 /* Construct the columns */
-                pixel = *((Uint32 *) pixels + array->start + x +
-                          y * array->padding);
+                pixel = *((Uint32 *) (pixels + y * array->padding) +
+                    array->start + x);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
-                                       ("%d, ", pixel));
+                    ("%d, ", pixel));
             }
-            pixel = *((Uint32 *) pixels + array->start + x +
-                      y * array->padding);
+            pixel = *((Uint32 *) (pixels + y * array->padding) +
+                array->start + x);
             PyString_ConcatAndDel (&string, PyString_FromFormat ("%d]", pixel));
         }
         break;
@@ -445,22 +471,21 @@ _get_color_from_object (PyObject *val, SDL_PixelFormat *format, Uint32 *color)
  * array.
  */
 static PyObject*
-_get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index)
+_get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index, Uint32 row)
 {
     Uint32 pixel;
 
     switch (bpp)
     {
     case 1:
-        pixel = (Uint32)*((Uint8 *) pixels + _index);
+        pixel = (Uint32)*((Uint8 *) pixels + row + _index);
         break;
     case 2:
-        pixel = (Uint32)*((Uint16 *) pixels + _index);
+        pixel = (Uint32)*((Uint16 *) (pixels + row) + _index);
         break;
     case 3:
     {
-        /* TODO: is this correct? */
-        Uint8 *px = ((Uint8 *) pixels + _index);
+        Uint8 *px = ((Uint8 *) (pixels + row) + _index * 3);
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
         pixel = (px[0]) + (px[1] << 8) + (px[2] << 16);
 #else
@@ -469,7 +494,7 @@ _get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index)
         break;
     }
     default: /* 4 bpp */
-        pixel = *((Uint32 *) pixels + _index);
+        pixel = *((Uint32 *) (pixels + row) + _index);
         break;
     }
     
@@ -480,20 +505,36 @@ _get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index)
  * Sets a single pixel located at index from the surface pixel array.
  */
 static void
-_set_single_pixel (Uint8 *pixels, int bpp, Uint32 _index, Uint32 color)
+_set_single_pixel (Uint8 *pixels, int bpp, Uint32 _index, Uint32 row,
+    SDL_PixelFormat *format, Uint32 color)
 {
     switch (bpp)
     {
     case 1:
-        *((Uint8 *) pixels + _index) = (Uint8) color;
+        *((Uint8 *) pixels + row + _index) = (Uint8) color;
         break;
     case 2:
-        *((Uint16 *) pixels + _index) = (Uint16) color;
+        *((Uint16 *) (pixels + row) + _index) = (Uint16) color;
         break;
     case 3:
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+        *((Uint8 *) (pixels + row) + _index * 3 + (format->Rshift >> 3)) =
+            (Uint8) (color >> 16);
+        *((Uint8 *) (pixels + row) + _index * 3 + (format->Gshift >> 3)) =
+            (Uint8) (color >> 8);
+        *((Uint8 *) (pixels + row) + _index * 3 + (format->Bshift >> 3)) =
+            (Uint8) color;
+#else
+        *((Uint8 *) (pixels + row) + _index * 3 + 2 - (format->Rshift >> 3)) =
+            (Uint8) (color >> 16);
+        *((Uint8 *) (pixels + row) + _index * 3 + 2 - (format->Gshift >> 3)) =
+            (Uint8) (color >> 8);
+        *((Uint8 *) (pixels + row) + _index * 3 + 2 - (format->Bshift >> 3)) =
+            (Uint8) color;
+#endif
         break;
     default: /* 4 bpp */
-        *((Uint32 *) pixels + _index) = color;
+        *((Uint32 *) (pixels + row) + _index) = color;
         break;
     }
 }
@@ -503,7 +544,7 @@ _set_single_pixel (Uint8 *pixels, int bpp, Uint32 _index, Uint32 color)
  */
 static PyObject*
 _array_slice_internal (PyPixelArray *array, Uint32 _start, Uint32 _end,
-                       Uint32 _step)
+    Uint32 _step)
 {
     Uint32 start;
     Uint32 end;
@@ -514,15 +555,11 @@ _array_slice_internal (PyPixelArray *array, Uint32 _start, Uint32 _end,
     Uint32 padding;
     SDL_Surface *sf = PySurface_AsSurface (array->surface);
 
-    if (sf->format->BytesPerPixel == 3)
-        return RAISE (PyExc_TypeError,
-                      "slicing for 24bpp surfaces not supported");
-
     if (_end == _start)
         return RAISE (PyExc_IndexError, "array size must not be 0");
 
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
-                    _start, _end, _step, sf->w);
+        _start, _end, _step, sf->pitch);
 
     return (PyObject *) _pxarray_new_internal
         (&PyPixelArray_Type, array->surface, start, end, xlen, ylen,
@@ -570,18 +607,16 @@ _pxarray_item (PyPixelArray *array, Py_ssize_t _index)
 {
     SDL_Surface *surface;
     int bpp;
-    Uint8 *pixels;
-
-    surface = PySurface_AsSurface (array->surface);
-    bpp = surface->format->BytesPerPixel;
-    pixels = (Uint8 *) surface->pixels;
 
     if (_index < 0)
         return RAISE (PyExc_IndexError, "array index out of range");
 
+    surface = PySurface_AsSurface (array->surface);
+    bpp = surface->format->BytesPerPixel;
+
     if (array->xlen == 1) /* Access of a single column. */
-        return _get_single_pixel
-            (pixels, bpp, array->start + _index * array->padding *array->ystep);
+        return _get_single_pixel ((Uint8 *) surface->pixels, bpp,
+            array->start, _index * array->padding * array->ystep);
 
     return _array_slice_internal
         (array, (Uint32) _index, (Uint32) _index + 1, 1);
@@ -608,15 +643,18 @@ _pxarray_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high)
 
 static int
 _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
-                     PyPixelArray *val)
+    PyPixelArray *val)
 {
     SDL_Surface *surface;
     SDL_Surface *valsf;
     Uint32 x;
     Uint32 y;
+    Uint32 vx;
+    Uint32 vy;
     int bpp;
     int valbpp;
     Uint8 *pixels;
+    Uint8 *assign;
     Py_ssize_t offset = 0;
 
     Uint32 start;
@@ -630,8 +668,8 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     /* Set the correct slice indices */
     surface = PySurface_AsSurface (array->surface);
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
-                    low, high, 1, surface->w);
-
+        low, high, 1, surface->pitch);
+    
     if (val->ylen / val->ystep != ylen / ystep ||
         val->xlen / val->xstep != xlen / xstep)
     {
@@ -653,43 +691,101 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         return -1;
     }
 
+    vx = 0;
+    vy = 0;
     /* Single value assignment. */
-    for (y = 0; y < ylen; y += ystep)
+    switch (bpp)
     {
-        for (x = 0; x < xlen; x += xstep)
+    case 1:
+        for (y = 0; y < ylen; y += ystep)
         {
-            offset = start + x + y * padding;
-
-            switch (bpp)
+            vy += val->ystep;
+            vx = 0;
+            for (x = 0; x < xlen; x += xstep)
             {
-            case 1:
-                *((Uint8 *) pixels + offset) =
-                    (Uint8)*((Uint8 *) valsf->pixels + val->start +
-                             x * val->xstep + y * val->ystep * val->padding);
-                break;
-            case 2:
-                *((Uint16 *) pixels + offset) =
-                    (Uint16)*((Uint16 *) valsf->pixels + val->start +
-                             x * val->xstep + y * val->ystep * val->padding);
-                break;
-            case 3:
-                /* TODO */
-                break;
-            default: /* 4 bpp */
-                *((Uint32 *) pixels + offset) =
-                    *((Uint32 *) valsf->pixels + val->start +
-                      x * val->xstep + y * val->ystep * val->padding);
-                break;
+                offset = start + x;
+                vx += val->xstep;
+
+                *((Uint8 *) pixels + y * padding + offset) =
+                    (Uint8)*((Uint8 *)
+                        valsf->pixels + vy * val->padding + val->start + vx);
             }
         }
-    }
+        break;
+    case 2:
+        for (y = 0; y < ylen; y += ystep)
+        {
+            vy += val->ystep;
+            vx = 0;
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                vx += val->xstep;
 
+                *((Uint16 *) (pixels + y * padding) + offset) =
+                    (Uint16)*((Uint16 *)
+                        (valsf->pixels + vy * val->padding) + val->start + vy);
+            }
+        }
+        break;
+    case 3:
+    {
+        Uint8 *px;
+        Uint8 *vpx;
+        SDL_PixelFormat *format = surface->format;
+        SDL_PixelFormat *vformat = valsf->format;
+        for (y = 0; y < ylen; y += ystep)
+        {
+            vy += val->ystep;
+            vx = 0;
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                vx += val->xstep;
+
+                px = (Uint8 *) (pixels + y * padding) + offset * 3;
+                vpx = (Uint8 *) (valsf->pixels + y * val->padding) +
+                    (val->start + vx) * 3;
+
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                *(px + (format->Rshift >> 3)) = *(vpx + (vformat->Rshift >> 3));
+                *(px + (format->Gshift >> 3)) = *(vpx + (vformat->Gshift >> 3));
+                *(px + (format->Bshift >> 3)) = *(vpx + (vformat->Bshift >> 3));
+#else
+                *(px + 2 - (format->Rshift >> 3)) =
+                    *(vpx + 2 - (vformat->Rshift >> 3))
+                *(px + 2 - (format->Gshift >> 3)) =
+                    *(vpx + 2 - (vformat->Gshift >> 3))
+                *(px + 2 - (format->Bshift >> 3)) =
+                    *(vpx + 2 - (vformat->Bshift >> 3))
+#endif
+            }
+        }
+        break;
+    }
+    default:
+        for (y = 0; y < ylen; y += ystep)
+        {
+            vy += val->ystep;
+            vx = 0;
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                vx += val->xstep;
+
+                *((Uint32 *) (pixels + y * padding) + offset) =
+                    *((Uint32 *)
+                        (valsf->pixels + y * val->padding) + val->start + vx);
+            }
+        }
+        break;
+    }
     return 0;
 }
 
 static int
 _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
-                        PyObject *val)
+    PyObject *val)
 {
     SDL_Surface *surface;
     Uint32 x = 0;
@@ -715,7 +811,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 
     /* Set the correct slice indices */
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
-                    low, high, 1, surface->w);
+        low, high, 1, surface->pitch);
 
     if ((Uint32)seqsize != ylen / ystep)
     {
@@ -726,22 +822,8 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     if (seqsize == 1)
     {
         /* Single value assignment. */
-        offset = start + x + y * padding;
-        switch (bpp)
-        {
-        case 1:
-            *((Uint8 *) pixels + offset) = (Uint8) color;
-            break;
-        case 2:
-            *((Uint16 *) pixels + offset) = (Uint16) color;
-            break;
-        case 3:
-            /* TODO */
-            break;
-        default: /* 4 bpp */
-            *((Uint32 *) pixels + offset) = color;
-            break;
-        }
+        _set_single_pixel (pixels, bpp, start, x * padding * ystep,
+            surface->format, color);
         return 0;
     }
 
@@ -756,7 +838,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     for (offset = 0; offset < seqsize; offset++)
     {
         if (!_get_color_from_object (PySequence_Fast_GET_ITEM (val, offset),
-                                     surface->format, &color))
+                surface->format, &color))
         {
             free (colorvals);
             return -1;
@@ -764,30 +846,67 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         colorvals[offset] = color;
     }
 
-    for (y = 0; y < ylen; y += ystep)
+    switch (bpp)
     {
-        for (x = 0; x < xlen; x += xstep)
+    case 1:
+        for (y = 0; y < ylen; y += ystep)
         {
-            offset = start + x + y * padding;
-            color = *colorvals++;
-            switch (bpp)
+            for (x = 0; x < xlen; x += xstep)
             {
-            case 1:
-                *((Uint8 *) pixels + offset) = (Uint8) color;
-                break;
-            case 2:
-                *((Uint16 *) pixels + offset) = (Uint16) color;
-                break;
-            case 3:
-                /* TODO */
-                break;
-            default: /* 4 bpp */
-                *((Uint32 *) pixels + offset) = color;
-                break;
+                offset = start + x;
+                color = *colorvals++;
+                *((Uint8 *) pixels + y * padding + offset) = (Uint8) color;
             }
         }
+        break;
+    case 2:
+        for (y = 0; y < ylen; y += ystep)
+        {
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                color = *colorvals++;
+                *((Uint16 *) (pixels + y * padding) + offset) = (Uint16) color;
+            }
+        }
+        break;
+    case 3:
+    {
+        Uint8 *px;
+        SDL_PixelFormat *format = surface->format;
+        for (y = 0; y < ylen; y += ystep)
+        {
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                color = *colorvals++;
+
+                px = (Uint8 *) (pixels + y * padding) + offset * 3;
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                *(px + (format->Bshift >> 3)) = (Uint8) color;
+#else
+                *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                *(px - (format->Bshift >> 3)) = (Uint8) color;
+#endif
+            }
+        }
+        break;
     }
-    
+    default:
+        for (y = 0; y < ylen; y += ystep)
+        {
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                color = *colorvals++;
+                *((Uint32 *) (pixels + y * padding) + offset) = color;
+            }
+        }
+        break;
+    }
     return 0;
 }
 
@@ -823,7 +942,7 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
         {
             PyErr_Clear (); /* _get_color_from_object */
             return _array_assign_array (array, _index, _index + 1,
-                                        (PyPixelArray *) value);
+                (PyPixelArray *) value);
         }
         else if (PySequence_Check (value))
         {
@@ -836,38 +955,71 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
 
     if (array->xlen == 1) /* Single pixel access. */
     {
-        _set_single_pixel
-            (pixels, bpp, array->start + _index * array->padding * array->ystep,
-             color);
+        _set_single_pixel (pixels, bpp, array->start,
+            _index * array->padding * array->ystep, surface->format, color);
         return 0;
     }
 
     /* Set the correct slice indices */
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
-                    _index, _index + 1, 1, surface->w);
+        _index, _index + 1, 1, surface->pitch);
 
     /* Single value assignment. */
-    for (y = 0; y < ylen; y += ystep)
+    switch (bpp)
     {
-        for (x = 0; x < xlen; x += xstep)
+    case 1:
+        for (y = 0; y < ylen; y += ystep)
         {
-            offset = start + x + y * padding;
-            switch (bpp)
+            for (x = 0; x < xlen; x += xstep)
             {
-            case 1:
-                *((Uint8 *) pixels + offset) = (Uint8) color;
-                break;
-            case 2:
-                *((Uint16 *) pixels + offset) = (Uint16) color;
-                break;
-            case 3:
-                /* TODO */
-                break;
-            default: /* 4 bpp */
-                *((Uint32 *) pixels + offset) = color;
-                break;
+                offset = start + x;
+                *((Uint8 *) pixels + y * padding + offset) = (Uint8) color;
             }
         }
+        break;
+    case 2:
+        for (y = 0; y < ylen; y += ystep)
+        {
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                *((Uint16 *) (pixels + y * padding) + offset) = (Uint16) color;
+            }
+        }
+        break;
+    case 3:
+    {
+        Uint8 *px;
+        SDL_PixelFormat *format = surface->format;
+        for (y = 0; y < ylen; y += ystep)
+        {
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                px = (Uint8 *) (pixels + y * padding) + offset * 3;
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                *(px + (format->Bshift >> 3)) = (Uint8) color;
+#else
+                *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                *(px - (format->Bshift >> 3)) = (Uint8) color;
+#endif
+            }
+        }
+        break;
+    }
+    default: /* 4 bpp */
+        for (y = 0; y < ylen; y += ystep)
+        {
+            for (x = 0; x < xlen; x += xstep)
+            {
+                offset = start + x;
+                *((Uint32 *) (pixels + y * padding) + offset) = color;
+            }
+        }
+        break;
     }
 
     return 0;
@@ -882,7 +1034,7 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
  */
 static int
 _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
-                    PyObject *value)
+    PyObject *value)
 {
     SDL_Surface *surface;
     Uint32 x;
@@ -905,7 +1057,7 @@ _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     pixels = (Uint8 *) surface->pixels;
 
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
-                    low, high, 1, surface->w);
+        low, high, 1, surface->pitch);
 
     PyErr_SetString (PyExc_NotImplementedError, "method not implementeda");
     return -1;
@@ -947,8 +1099,9 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         {
             for (y = 0; y < array->xlen; y += array->xstep)
             {
-                _index = array->start + x + y * array->padding;
-                if (*((Uint8 *) pixels + _index) == (Uint8) color)
+                _index = array->start + x;
+                if (*((Uint8 *) pixels + y * array->padding + _index)
+                    == (Uint8) color)
                     return 1;
             }
         }
@@ -957,22 +1110,42 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         {
             for (y = 0; y < array->xlen; y += array->xstep)
             {
-                _index = array->start + x + y * array->padding;
-                if (*((Uint16 *) pixels + _index) == (Uint16) color)
+                _index = array->start + x;
+                if (*((Uint16 *) (pixels + y * array->padding) + _index)
+                    == (Uint16) color)
                     return 1;
             }
         }
         break;
     case 3:
-        /* TODO */
+    {
+        Uint32 pxcolor;
+        Uint8 *pix;
+        for (x = 0; x < array->ylen; x += array->ystep)
+        {
+            for (y = 0; y < array->xlen; y += array->xstep)
+            {
+                _index = array->start + x;
+                pix = ((Uint8 *) (pixels + y * array->padding) + _index * 3);
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                pxcolor = (pix[0]) + (pix[1] << 8) + (pix[2] << 16);
+#else
+                pxcolor = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
+#endif
+                if (pxcolor == color)
+                    return 1;
+            }
+        }
         break;
+    }
     default: /* 4 bpp */
         for (x = 0; x < array->ylen; x += array->ystep)
         {
             for (y = 0; y < array->xlen; y += array->xstep)
             {
-                _index = array->start + x + y * array->padding;
-                if (*((Uint32 *) pixels + _index) == color)
+                _index = array->start + x;
+                if (*((Uint32 *) (pixels + y * array->padding) + _index)
+                    == color)
                     return 1;
             }
         }
