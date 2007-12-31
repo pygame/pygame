@@ -1,0 +1,152 @@
+
+<html>
+<title>mask - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href=cdrom.html>Cdrom</a>&nbsp;||&nbsp;
+<a href=cursors.html>Cursors</a>&nbsp;||&nbsp;
+<a href=display.html>Display</a>&nbsp;||&nbsp;
+<a href=draw.html>Draw</a>&nbsp;||&nbsp;
+<a href=event.html>Event</a>&nbsp;||&nbsp;
+<a href=font.html>Font</a>&nbsp;||&nbsp;
+<a href=image.html>Image</a>&nbsp;||&nbsp;
+<a href=joystick.html>Joystick</a>&nbsp;||&nbsp;
+<a href=key.html>Key</a>&nbsp;||&nbsp;
+<a href=mask.html>Mask</a>&nbsp;||&nbsp;
+<a href=mixer.html>Mixer</a>&nbsp;||&nbsp;
+<a href=mouse.html>Mouse</a>&nbsp;||&nbsp;
+<a href=movie.html>Movie</a>&nbsp;||&nbsp;
+<a href=music.html>Music</a>&nbsp;||&nbsp;
+<a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
+<a href=pixelarray.html>Pixelarray</a>&nbsp;||&nbsp;
+<a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
+<a href=rect.html>Rect</a>&nbsp;||&nbsp;
+<a href=scrap.html>Scrap</a>&nbsp;||&nbsp;
+<a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
+<a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
+<a href=surface.html>Surface</a>&nbsp;||&nbsp;
+<a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
+<a href=time.html>Time</a>&nbsp;||&nbsp;
+<a href=transform.html>Transform</a>
+</td></tr></table>
+<br>
+
+
+<a name="pygame.mask">
+<big><b>pygame.mask</big></b><br><ul>
+  <i>pygame module for image masks.</i><br>
+<ul><small><table>
+  <tr><td><a href="mask.html#pygame.mask.pygame.mask.from_surface">pygame.mask.pygame.mask.from_surface</a> - <font size=-1>Returns the size of the mask.</font></td><td>Returns the size of the mask.</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.pygame.Mask">pygame.mask.pygame.Mask</a> - <font size=-1>pygame object for representing 2d bitmasks</font></td><td>pygame object for representing 2d bitmasks</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.get_size">pygame.mask.get_size</a> - <font size=-1>Returns the size of the mask.</font></td><td>Returns the size of the mask.</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.get_at">pygame.mask.get_at</a> - <font size=-1>Returns nonzero if the bit at (x,y) is set.</font></td><td>Returns nonzero if the bit at (x,y) is set.</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.set_at">pygame.mask.set_at</a> - <font size=-1>Sets the position in the mask given by x and y.</font></td><td>Sets the position in the mask given by x and y.</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.overlap">pygame.mask.overlap</a> - <font size=-1>Returns nonzero if the masks overlap with the given offset.</font></td><td>Returns nonzero if the masks overlap with the given offset.</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.overlap_area">pygame.mask.overlap_area</a> - <font size=-1>Returns the number of overlapping 'pixels'.</font></td><td>Returns the number of overlapping 'pixels'.</td></tr>
+  <tr><td><a href="mask.html#pygame.mask.get_bounding_rects">pygame.mask.get_bounding_rects</a> - <font size=-1>Returns a list of bounding rects of regions of set pixels.</font></td><td>Returns a list of bounding rects of regions of set pixels.</td></tr>
+  <tr><td>None</td><td></td></tr>
+</table></small></ul>
+<p>Useful for fast pixel perfect collision detection. <tt>A</tt> Mask uses 1bit per pixel to store which parts collide. </p>
+<p>New in pygame <tt>1.8</tt>. </p>
+<!--COMMENTS:pygame.mask--> &nbsp;<br> 
+
+
+<a name="pygame.mask.pygame.mask.from_surface">
+<big><b>pygame.mask.pygame.mask.from_surface</big></b><br><ul>
+  <i>Returns the size of the mask.</i><br>
+  <tt>pygame.mask.from_surface(surface) -> Mask</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.mask.pygame.mask.from_surface--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mask.pygame.Mask">
+<big><b>pygame.mask.pygame.Mask</big></b><br><ul>
+  <i>pygame object for representing 2d bitmasks</i><br>
+  <tt>pygame.Mask((width, height): return Mask</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.mask.pygame.Mask--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mask.get_size">
+<big><b>pygame.mask.get_size</big></b><br><ul>
+  <i>Returns the size of the mask.</i><br>
+  <tt>Mask.get_size() -> width,height</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.mask.get_size--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mask.get_at">
+<big><b>pygame.mask.get_at</big></b><br><ul>
+  <i>Returns nonzero if the bit at (x,y) is set.</i><br>
+  <tt>Mask.get_at((x,y)) -> int</tt><br>
+<p>Coordinates start at (0,0) </p>
+<!--COMMENTS:pygame.mask.get_at--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mask.set_at">
+<big><b>pygame.mask.set_at</big></b><br><ul>
+  <i>Sets the position in the mask given by x and y.</i><br>
+  <tt>Mask.set_at((x,y),value)</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.mask.set_at--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mask.overlap">
+<big><b>pygame.mask.overlap</big></b><br><ul>
+  <i>Returns nonzero if the masks overlap with the given offset.</i><br>
+  <tt>Mask.overlap(othermask, offset) -> x,y</tt><br>
+<p>The overlap tests uses the following offsets (which may be negative): </p>
+<pre>   +----+----------..
+   |A   | yoffset
+   |  +-+----------..
+   +--|B
+   |xoffset
+   |  |
+   :  :
+</pre>
+<!--COMMENTS:pygame.mask.overlap--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mask.overlap_area">
+<big><b>pygame.mask.overlap_area</big></b><br><ul>
+  <i>Returns the number of overlapping 'pixels'.</i><br>
+  <tt>Mask.overlap_area(othermask, offset) -> numpixels</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.mask.overlap_area--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.mask.get_bounding_rects">
+<big><b>pygame.mask.get_bounding_rects</big></b><br><ul>
+  <i>Returns a list of bounding rects of regions of set pixels.</i><br>
+  <tt>Mask.get_bounding_rects() -> Rects</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.mask.get_bounding_rects--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="">
+<big><b></big></b><br><ul>
+ &nbsp;<br> 
+<!--COMMENTS:--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+</body></html>

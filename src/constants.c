@@ -44,6 +44,9 @@ void initconstants (void)
     module = Py_InitModule3
         ("constants", builtins,
          "Constants defined by SDL and needed in Pygame.\n");
+
+    DEC_CONST (LIL_ENDIAN);
+    DEC_CONST (BIG_ENDIAN);
     
     DEC_CONST(YV12_OVERLAY);
     DEC_CONST(IYUV_OVERLAY);
