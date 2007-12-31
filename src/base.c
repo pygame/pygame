@@ -213,6 +213,12 @@ get_sdl_version (PyObject* self)
 }
 
 static PyObject*
+get_sdl_byteorder (PyObject *self)
+{
+    return PyLong_FromLong (SDL_BYTEORDER);
+}
+
+static PyObject*
 quit (PyObject* self)
 {
     atexit_quit ();
@@ -544,6 +550,8 @@ static PyMethodDef init__builtins__[] =
     { "get_error", (PyCFunction) get_error, METH_NOARGS, DOC_PYGAMEGETERROR },
     { "get_sdl_version", (PyCFunction) get_sdl_version, METH_NOARGS,
       DOC_PYGAMEGETSDLVERSION },
+    { "get_sdl_byteorder", (PyCFunction) get_sdl_byteorder, METH_NOARGS,
+      DOC_PYGAMEGETSDLBYTEORDER },
 
     { "segfault", (PyCFunction) do_segfault, METH_NOARGS, "crash" },
     { NULL, NULL, 0, NULL }

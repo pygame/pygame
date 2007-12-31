@@ -1680,7 +1680,7 @@ static PyObject *surf_get_buffer (PyObject *self)
         break;
     }
 
-    length = (Py_ssize_t) surface->w * surface->h * mod;
+    length = (Py_ssize_t) surface->pitch * surface->h;
     lock = PySurface_LockLifetime (self);
     if (!lock)
     {
@@ -1691,7 +1691,8 @@ static PyObject *surf_get_buffer (PyObject *self)
     if (!buffer)
     {
         Py_DECREF (lock);
-        return RAISE (PyExc_SDLError, "could acquire a buffer for the surface");
+        return RAISE (PyExc_SDLError,
+                      "could not acquire a buffer for the surface");
     }
     return buffer;
 }

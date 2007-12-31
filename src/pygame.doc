@@ -87,6 +87,16 @@ get_sdl_version is new in pygame 1.7.0
 <END>
 
 
+get_sdl_byteorder
+get the byte order of SDL
+pygame.get_sdl_byteorder(): return int
+
+Returns the byte order of the SDL library. It returns LIL_ENDIAN for
+little endian byte order and BIG_ENDIAN for big endian byte order.
+
+get_sdl_byteorder is new in pygame 1.8
+<END>
+
 
 register_quit
 register a function to be called when pygame quits

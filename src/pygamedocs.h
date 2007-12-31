@@ -11,6 +11,8 @@
 
 #define DOC_PYGAMEGETSDLVERSION "pygame.get_sdl_version(): return major, minor, patch\nget the version number of SDL"
 
+#define DOC_PYGAMEGETSDLBYTEORDER "pygame.get_sdl_byteorder(): return int\nget the byte order of SDL"
+
 #define DOC_PYGAMEREGISTERQUIT "register_quit(callable): return None\nregister a function to be called when pygame quits"
 
 #define DOC_PYGAMEVERSION "module pygame.version\nsmall module containing version information"
