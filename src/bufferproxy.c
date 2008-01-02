@@ -39,7 +39,9 @@ static PyObject* _bufferproxy_new (PyTypeObject *type, PyObject *args,
                                    PyObject *kwds);
 static void _bufferproxy_dealloc (PyBufferProxy *self);
 static PyObject* _bufferproxy_get_dict (PyBufferProxy *self, void *closure);
+static PyObject* _bufferproxy_get_raw (PyBufferProxy *buffer, void *closure);
 static PyObject* _bufferproxy_repr (PyBufferProxy *self);
+static PyObject* _bufferproxy_write (PyBufferProxy *buffer, PyObject *args);
 
 /* Buffer methods */
 static Py_ssize_t _bufferproxy_getreadbuf (PyBufferProxy *buffer,
@@ -60,6 +62,8 @@ static PyObject* PyBufferProxy_New (PyObject *parent, void *buffer,
  */
 static PyMethodDef _bufferproxy_methods[] =
 {
+    { "write", (PyCFunction) _bufferproxy_write, METH_VARARGS,
+      "Writes raw data to the buffer" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -69,6 +73,8 @@ static PyMethodDef _bufferproxy_methods[] =
 static PyGetSetDef _bufferproxy_getsets[] =
 {
     { "__dict__", (getter) _bufferproxy_get_dict, NULL, NULL, NULL },
+    { "raw", (getter) _bufferproxy_get_raw, NULL,
+      "The raw buffer data as string", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -88,8 +94,8 @@ static PyTypeObject PyBufferProxy_Type =
 {
     PyObject_HEAD_INIT(NULL)
     0,
-    "BufferProxy",               /* tp_name */
-    sizeof (PyBufferProxy),      /* tp_basicsize */
+    "BufferProxy",              /* tp_name */
+    sizeof (PyBufferProxy),     /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _bufferproxy_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
@@ -124,7 +130,7 @@ static PyTypeObject PyBufferProxy_Type =
     offsetof (PyBufferProxy, dict), /* tp_dictoffset */
     0,                          /* tp_init */
     0,                          /* tp_alloc */
-    _bufferproxy_new,               /* tp_new */
+    _bufferproxy_new,           /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -188,16 +194,53 @@ _bufferproxy_get_dict (PyBufferProxy *self, void *closure)
     return self->dict;
 }
 
+/**
+ * Getter for PyBufferProxy.raw.
+ */
+static PyObject*
+_bufferproxy_get_raw (PyBufferProxy *buffer, void *closure)
+{
+    return PyString_FromStringAndSize (buffer->buffer, buffer->length);
+}
+
+/**** Methods ****/
+
+/**
+ * Representation method.
+ */
 static PyObject*
 _bufferproxy_repr (PyBufferProxy *self)
 {
-/* zd is for Py_size_t which python < 2.5 doesn't have. */
+    /* zd is for Py_size_t which python < 2.5 doesn't have. */
 #if PY_VERSION_HEX < 0x02050000
     return PyString_FromFormat("<BufferProxy(%d)>", self->length);
 #else
     return PyString_FromFormat("<BufferProxy(%zd)>", self->length);
 #endif
 }
+
+/**
+ * Writes raw data to the buffer.
+ */
+static PyObject*
+_bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
+{
+    Py_ssize_t offset;
+    Py_ssize_t length;
+    char *buf;
+
+    if (!PyArg_ParseTuple (args, "s#i", &buf, &length, &offset))
+        return NULL;
+
+    if (offset + length > buffer->length)
+    {
+        return RAISE (PyExc_IndexError, "bytes to write exceed buffer size");
+    }
+
+    memcpy (buffer->buffer + offset, buf, length);
+
+    Py_RETURN_NONE;
+}   
 
 /**** Buffer interfaces ****/
 
@@ -286,7 +329,8 @@ void initbufferproxy (void)
         return;
 
     /* create the module */
-    module = Py_InitModule3 ("bufferproxy", NULL, NULL);
+    module = Py_InitModule3 ("bufferproxy", NULL,
+        "TODO");
     PyBufferProxy_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF (&PyBufferProxy_Type);
     PyModule_AddObject (module, "BufferProxy", (PyObject *)&PyBufferProxy_Type);

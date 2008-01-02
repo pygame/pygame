@@ -5,28 +5,22 @@ Useful for fast pixel perfect collision detection.  A Mask uses 1bit per
 pixel to store which parts collide.
 
 New in pygame 1.8.
-
 <SECTION>
 
-
-pygame.mask.from_surface
+from_surface
 Returns the size of the mask.
 pygame.mask.from_surface(surface) -> Mask
-
 <END>
 
-
-pygame.Mask
+Mask
 pygame object for representing 2d bitmasks
 pygame.Mask((width, height): return Mask
-<END>
-
+<SECTION>
 
 get_size
 Returns the size of the mask.
 Mask.get_size() -> width,height
 <END>
-
 
 get_at
 Returns nonzero if the bit at (x,y) is set.
@@ -35,13 +29,10 @@ Mask.get_at((x,y)) -> int
 Coordinates start at (0,0)
 <END>
 
-
 set_at
 Sets the position in the mask given by x and y.
 Mask.set_at((x,y),value)
 <END>
-
-
 
 overlap
 Returns nonzero if the masks overlap with the given offset. 
@@ -58,20 +49,13 @@ The overlap tests uses the following offsets (which may be negative):
    :  :  
 <END>
 
-
 overlap_area
 Returns the number of overlapping 'pixels'.
 Mask.overlap_area(othermask, offset) -> numpixels
-
 <END>
-
 
 get_bounding_rects
 Returns a list of bounding rects of regions of set pixels.
 Mask.get_bounding_rects() -> Rects
-
 <END>
-
-
-
 <END>

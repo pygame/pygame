@@ -11,12 +11,12 @@ division and slice assignments are not allowed.
 During its lifetime, the PixelArray locks the surface, thus you
 explicitly have to delete it once its not used anymore and the surface
 should perform operations in the same scope.
-
 <SECTION>
 
+
 surface
-Gets the Surface, the PixelArray uses
+Gets the Surface the PixelArray uses.
 PixelArray.surface: Return Surface
 
-Gets the Surface, the PixelArray was created for.
+The Surface, the PixelArray was created for.
 <END>
