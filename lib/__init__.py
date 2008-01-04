@@ -147,11 +147,14 @@ except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
 try: import pygame.movie
 except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
 
-try: import pygame.scrap
-except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 1)
-
 #try: import pygame.movieext
 #except (ImportError,IOError), msg:movieext=MissingModule("movieext", msg, 0)
+
+try: import pygame.scrap
+except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 0)
+
+try: import pygame.numpyarray
+except (ImportError,IOError), msg:numpyarray=MissingModule("numpyarray", msg, 0)
 
 try: import pygame.surfarray
 except (ImportError,IOError), msg:surfarray=MissingModule("surfarray", msg, 0)
@@ -176,6 +179,7 @@ def packager_imports():
     Some additional things that py2app/py2exe will want to see
     """
     import Numeric
+    import numpy
     import OpenGL.GL
     import pygame.macosx
     import pygame.mac_scrap
