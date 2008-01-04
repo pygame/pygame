@@ -78,7 +78,7 @@ if config.is_msys_mingw():
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
-
+headers.remove (os.path.join ('src', 'numeric_arrayobject.h'))
 
 #sanity check for any arguments
 if len(sys.argv) == 1:

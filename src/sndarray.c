@@ -22,9 +22,9 @@
 
 #include "pygame.h"
 #include "pygamedocs.h"
-#include"mixer.h"
-#include<Numeric/arrayobject.h>
-#include<SDL_byteorder.h>
+#include "mixer.h"
+#include "numeric_arrayobject.h"
+#include <SDL_byteorder.h>
 
 static PyObject*
 sndarray_samples (PyObject* self, PyObject* arg)

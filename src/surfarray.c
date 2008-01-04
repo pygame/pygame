@@ -20,10 +20,10 @@
   pete@shinners.org
 */
 
-#include"pygame.h"
+#include "pygame.h"
 #include "pygamedocs.h"
-#include<Numeric/arrayobject.h>
-#include<SDL_byteorder.h>
+#include "numeric_arrayobject.h"
+#include <SDL_byteorder.h>
 
 static PyObject*
 pixels3d (PyObject* self, PyObject* arg)
