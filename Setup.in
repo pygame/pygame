@@ -14,7 +14,6 @@ MIXER = -lSDL_mixer
 SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
-NUMERIC = -I/usr/include/python2.4/Numeric
 SCRAP = -lX11
 #--EndConfig
 
@@ -29,8 +28,8 @@ imageext src/imageext.c $(SDL) $(IMAGE) $(PNG) $(JPEG) $(DEBUG)
 font src/font.c $(SDL) $(FONT) $(DEBUG)
 mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
 mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
-surfarray src/surfarray.c $(SDL) $(NUMERIC) $(DEBUG)
-sndarray src/sndarray.c $(SDL) $(NUMERIC) $(MIXER) $(DEBUG)
+surfarray src/surfarray.c $(SDL) $(DEBUG)
+sndarray src/sndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
 scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 

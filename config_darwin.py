@@ -91,7 +91,6 @@ DEPS = [
     FrameworkDependency('IMAGE', 'SDL_image.h', 'libSDL_image', 'SDL_image'),
     FrameworkDependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer', 'SDL_mixer'),
     FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
-    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
     Dependency('PNG', 'png.h', 'libpng', ['png']),
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
     Dependency('SCRAP', '','',[])

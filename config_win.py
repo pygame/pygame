@@ -104,7 +104,6 @@ DEPS = [
     Dependency('MIXER', ['SDL_mixer-[0-9].*'], ['SDL_mixer']),
     Dependency('SMPEG', ['smpeg-[0-9].*'], ['smpeg']),
     Dependency('SCRAP', ['user32.*', 'gdi32.*'], ['user32', 'gdi32']),
-    DependencyPython('NUMERIC', 'Numeric', 'Numeric/arrayobject.h'),
 ]
 
 def setup_prebuilt():
