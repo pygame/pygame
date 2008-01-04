@@ -118,8 +118,8 @@ static PyMethodDef _pxarray_methods[] =
 static PyGetSetDef _pxarray_getsets[] =
 {
     { "__dict__", (getter) _pxarray_get_dict, NULL, NULL, NULL },
-    { "surface", (getter) _pxarray_get_surface, NULL, NULL,
-      DOC_PIXELARRAYSURFACE },
+    { "surface", (getter) _pxarray_get_surface, NULL, DOC_PIXELARRAYSURFACE,
+      NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
