@@ -6,6 +6,13 @@
 #
 #
 
+Jan 4, 2008
+    Removed Numeric compile time dependency.
+    Added numpy surface array support through pygame.numpyarray.
+
+Dec 31, 2007
+    New method pygame.get_sdl_byteorder () to get the SDL byte order.
+
 Dec 15, 2007
     Mask can now get bounding rects of set bits.
     pygame.transform can find edges in an image, get the average surface of many
