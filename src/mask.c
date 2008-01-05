@@ -36,7 +36,6 @@ staticforward PyTypeObject PyMask_Type;
 #define PyMask_AsBitmap(x) (((PyMaskObject*)x)->mask)
 
 
-
 /* mask object methods */
 
 static PyObject* mask_get_size(PyObject* self, PyObject* args)
@@ -148,7 +147,7 @@ def maskFromSurface(surface, threshold = 127):
 
 
 
-PyObject* mask_from_surface(PyObject* self, PyObject* args)
+static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 {
 	bitmask_t *mask;
 	SDL_Surface* surf;
@@ -310,11 +309,10 @@ def get_bounding_boxes(surf):
 // returns an array of regions in regions which is 
 static GAME_Rect* get_bounding_rects(bitmask_t *mask, int *num_bounding_boxes) {
 
-    int x, y, p, i, n, width, height;
+    int x, y, p, i, width, height;
     GAME_Rect **used_pixels;
     GAME_Rect *a_used_pixels;
     GAME_Rect *direction_used_pixels;
-    GAME_Rect *more_used_pixels;
     GAME_Rect *regions;
 
     GAME_Rect *aregion, *the_regions;
@@ -447,7 +445,6 @@ static GAME_Rect* get_bounding_rects(bitmask_t *mask, int *num_bounding_boxes) {
 
 static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args)
 {
-    GAME_Rect *used_pixels;
     GAME_Rect *regions;
     GAME_Rect *aregion;
     int num_bounding_boxes, i;
@@ -513,7 +510,7 @@ static PyMethodDef maskobj_builtins[] =
 	{ "get_bounding_rects", mask_get_bounding_rects, METH_VARARGS,
           DOC_MASKGETBOUNDINGRECTS },
 
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 
@@ -536,27 +533,26 @@ static PyObject* mask_getattr(PyObject* self, char* attrname)
 
 static PyTypeObject PyMask_Type = 
 {
-	PyObject_HEAD_INIT(NULL)
-	0,
-	"Mask",
-	sizeof(PyMaskObject),
-	0,
-	mask_dealloc,	
-	0,
-	mask_getattr,
-	0,
-	0,
-	0,
-	0,
-	NULL,
-	0, 
-	(hashfunc)NULL,
-	(ternaryfunc)NULL,
-	(reprfunc)NULL,
-	0L,0L,0L,0L,
-	DOC_PYGAMEMASK /* Documentation string */
+ 	PyObject_HEAD_INIT(NULL)
+        0,
+        "Mask",
+        sizeof(PyMaskObject),
+        0,
+        mask_dealloc,
+        0,
+        mask_getattr,
+        0,
+        0,
+        0,
+        0,
+        NULL,
+        0, 
+        (hashfunc)NULL,
+        (ternaryfunc)NULL,
+        (reprfunc)NULL,
+        0L,0L,0L,0L,
+        DOC_PYGAMEMASK /* Documentation string */
 };
-
 
 
 /*mask module methods*/
@@ -584,10 +580,10 @@ static PyObject* Mask(PyObject* self, PyObject* args)
 
 static PyMethodDef mask_builtins[] =
 {
-	{ "Mask", Mask, 1, DOC_PYGAMEMASK },
+	{ "Mask", Mask, METH_VARARGS, DOC_PYGAMEMASK },
 	{ "from_surface", mask_from_surface, METH_VARARGS,
           DOC_PYGAMEMASKFROMSURFACE},
-	{ NULL, NULL }
+	{ NULL, NULL, 0, NULL }
 };
 
 void initmask(void)

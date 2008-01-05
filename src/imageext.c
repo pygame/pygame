@@ -32,8 +32,6 @@
 #include "pygamedocs.h"
 #include <SDL_image.h>
 
-SDL_Surface* opengltosdl (void);
-
 static char*
 find_extension (char* fullname)
 {
@@ -93,7 +91,7 @@ image_load_ext (PyObject* self, PyObject* arg)
 
 #ifdef PNG_H
 
-int
+static int
 write_png (char *file_name, png_bytep *rows, int w, int h, int colortype,
            int bitdepth)
 {
@@ -143,7 +141,7 @@ fail:
     return -1;
 }
 
-int
+static int
 SavePNG (SDL_Surface *surface, char *file)
 {
     static unsigned char** ss_rows;
@@ -237,7 +235,7 @@ SavePNG (SDL_Surface *surface, char *file)
 
 #ifdef JPEGLIB_H
 
-int
+static int
 write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
             int image_height, int quality)
 {
@@ -280,7 +278,7 @@ write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     return 0;
 }
 
-int
+static int
 SaveJPEG (SDL_Surface *surface, char *file)
 {
     static unsigned char** ss_rows;
@@ -348,7 +346,7 @@ SaveJPEG (SDL_Surface *surface, char *file)
    need to share it between both.
 */
 
-SDL_Surface* opengltosdl (void)
+static SDL_Surface* opengltosdl (void)
 {
     /*we need to get ahold of the pyopengl glReadPixels function*/
     /*we use pyopengl's so we don't need to link with opengl at compiletime*/
@@ -430,7 +428,7 @@ SDL_Surface* opengltosdl (void)
 
     for (i=0; i<surf->h; ++i)
         memcpy (((char *) surf->pixels) + surf->pitch * i,
-                pixels + 3 * surf->w * (surf->h - i - 1), surf->w * 3);
+            pixels + 3 * surf->w * (surf->h - i - 1), (size_t) surf->w * 3);
 
     Py_DECREF (data);
     return surf;

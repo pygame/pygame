@@ -237,7 +237,7 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
         return RAISE (PyExc_IndexError, "bytes to write exceed buffer size");
     }
 
-    memcpy (buffer->buffer + offset, buf, length);
+    memcpy (buffer->buffer + offset, buf, (size_t) length);
 
     Py_RETURN_NONE;
 }   
@@ -330,7 +330,8 @@ void initbufferproxy (void)
 
     /* create the module */
     module = Py_InitModule3 ("bufferproxy", NULL,
-        "TODO");
+        "A generic proxy module that can spend arbitrary objects a buffer " \
+        "interface");
     PyBufferProxy_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF (&PyBufferProxy_Type);
     PyModule_AddObject (module, "BufferProxy", (PyObject *)&PyBufferProxy_Type);
