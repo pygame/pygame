@@ -126,6 +126,16 @@ class PixelArrayTest (unittest.TestCase):
             # Has to resolve to ar[7:8]
             self.assertEqual (len (ar[-3:-2]), 20)
 
+            # Try assignments.
+
+            # 2D assignment.
+            ar[2:5] = (255, 255, 255)
+            self.assertEqual (ar[3][3], sf.map_rgb ((255, 255, 255)))
+
+            # 1D assignment
+            ar[3][3:7] = (10, 10, 10)
+            self.assertEqual (ar[3][5], sf.map_rgb ((10, 10, 10)))
+
     def test_contains (self):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((10, 20), 0, bpp)

@@ -1028,39 +1028,46 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
 /**
  * array[x:y] = ....
  */
-/* TODO: support:
-   array[x:y] = [...] for 2D and 1D arrays
-   array[x:y] = z for 2D and 1D arrays
- */
 static int
 _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     PyObject *value)
 {
-    SDL_Surface *surface;
-    Uint32 x;
-    Uint32 y;
-    int bpp;
-    Uint8 *pixels;
-    Uint32 color = 0;
-    Py_ssize_t offset = 0;
+    int val = 0;
+    int i = 0;
 
-    Uint32 start;
-    Uint32 end;
-    Uint32 xlen;
-    Uint32 ylen;
-    Uint32 xstep;
-    Uint32 ystep;
-    Uint32 padding;
+    if (array->xlen != 1)
+    {
+        if (low < 0)
+            low = 0;
+        else if (low > (Sint32) array->xlen)
+            low = array->xlen;
+        
+        if (high < low)
+            high = low;
+        else if (high > (Sint32) array->xlen)
+            high = array->xlen;
+    }
+    else
+    {
+        if (low < 0)
+            low = 0;
+        else if (low > (Sint32) array->ylen)
+            low = array->ylen;
+        
+        if (high < low)
+            high = low;
+        else if (high > (Sint32) array->ylen)
+            high = array->ylen;
+    }
 
-    surface = PySurface_AsSurface (array->surface);
-    bpp = surface->format->BytesPerPixel;
-    pixels = (Uint8 *) surface->pixels;
+    for (i = low; i < high; i++)
+    {
+        val = _pxarray_ass_item (array, i, value);
+        if (val != 0)
+            return val;
+    }
 
-    GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
-        low, high, 1, surface->pitch);
-
-    PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
-    return -1;
+    return 0;
 }
 
 /**
