@@ -65,39 +65,33 @@ def array2d (surface):
     if bpp <= 0 or bpp > 4:
         raise ValueError, "unsupported bit depth for 2D array"
 
-    if bpp == 3:
-        # The 3 bpp handling is taken from Alex Holkner's pygame-ctypes
-        # package. Thanks a lot.
-        data = surface.get_buffer ().raw
+    # Taken from Alex Holkner's pygame-ctypes package. Thanks a lot.
+    data = surface.get_buffer ().raw
         
-        # Remove extra pitch from each row
-        width = surface.get_width ()
-        pitchdiff = surface.get_pitch () - width * 3
-        if pitchdiff > 0:
-            pattern = re.compile ('(%s)%s' % ('.' * width * bpp,
-                                              '.' * pitchdiff),
-                                  flags=re.DOTALL)
-            data = ''.join (pattern.findall (data))
+    # Remove extra pitch from each row.
+    width = surface.get_width ()
+    pitchdiff = surface.get_pitch () - width * bpp
+    if pitchdiff > 0:
+        pattern = re.compile ('(%s)%s' % ('.' * width * bpp, '.' * pitchdiff),
+                              flags=re.DOTALL)
+        data = ''.join (pattern.findall (data))
 
+    if bpp == 3:
         # Pad each triplet of bytes with another zero
         pattern = re.compile ('...', flags=re.DOTALL)
-        data = '\0'.join (pattern.findall(data))
+        data = '\0'.join (pattern.findall (data))
         if pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN:
             data += '\0'
         else:
             data = '\0' + data
-        array = numpy.fromstring (data, numpy.uint32)
-        array.shape = (width, surface.get_height ())
-        return array
-    
+        bpp = 4
+
     typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[bpp - 1]
-    array = numpy.array (numpy.frombuffer (surface.get_buffer (), typecode))
-    array.shape = surface.get_height (), surface.get_pitch () / bpp
-    
-    # Padding correction for certain depth due to padding bytes.
-    array = array[:,:surface.get_width ()]
+    array = numpy.fromstring (data, typecode)
+    array.shape = (surface.get_height (), width)
     array = numpy.transpose (array)
     return array
+    
 
 def pixels2d (surface):
     """pygame.numpyarray.pixels2d (Surface): return array
@@ -159,9 +153,9 @@ def array3d (surface):
         array = numpy.transpose (array, (1, 2, 0))
         return array
     else:
-        masks = sf.get_masks ()
-        shifts = sf.get_shifts ()
-        losses = sf.get_losses ()
+        masks = surface.get_masks ()
+        shifts = surface.get_shifts ()
+        losses = surface.get_losses ()
         planes = [((array & masks[0]) >> shifts[0]) << losses[0],
                   ((array & masks[1]) >> shifts[1]) << losses[1],
                   ((array & masks[2]) >> shifts[2]) << losses[2]]
@@ -306,7 +300,7 @@ def array_colorkey (surface):
 
     # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
     # lot.
-    array = array2d (sf)
+    array = array2d (surface)
     # Check each pixel value for the colorkey and mark it as opaque or
     # transparent as needed.
     array = numpy.choose (numpy.equal (array, colorkey), (0xff, 0))
