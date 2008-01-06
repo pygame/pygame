@@ -161,47 +161,36 @@ class PixelArrayTest (unittest.TestCase):
             ar = pygame.PixelArray (sf)
             self.assertEqual (sf, ar.surface)
 
-##     def test_set_slice (self):
-##         sf = pygame.Surface ((6, 8), 0, 32)
-##         sf.fill ((0, 0, 0))
-##         ar = pygame.PixelArray (sf)
+    def test_set_slice (self):
+        for bpp in (8, 16, 24, 32):
+            sf = pygame.Surface ((6, 8), 0, 32)
+            sf.fill ((0, 0, 0))
+            ar = pygame.PixelArray (sf)
 
-##         # Test single value assignment
-##         ar[0:2] = 0x808080
-##         print ar
-##         self.assertEqual (ar[0][0], 0x808080)
-##         self.assertEqual (ar[0][1], 0x808080)
-##         self.assertEqual (ar[1][0], 0x808080)
-##         self.assertEqual (ar[1][1], 0x808080)
+            # Test single value assignment
+            val = sf.map_rgb ((128, 128, 128))
+            ar[0:2] = val
+            self.assertEqual (ar[0][0], val)
+            self.assertEqual (ar[0][1], val)
+            self.assertEqual (ar[1][0], val)
+            self.assertEqual (ar[1][1], val)
 
-##         ar[-2:-1] = 0x00FFFF
-##         print ar
-##         self.assertEqual (ar[4][0], 0x00FFFF)
-##         self.assertEqual (ar[-1][1], 0x00FFFF)
+            val = sf.map_rgb ((0, 255, 255))
+            ar[-3:-1] = val
+            self.assertEqual (ar[3][0], val)
+            self.assertEqual (ar[-2][1], val)
 
-##         ar[-2:-1] = (255, 255, 0)
-##         print ar
-##         self.assertEqual (ar[4][0], 0xFFFF00)
-##         self.assertEqual (ar[-1][1], 0xFFFF00)
+            val = sf.map_rgb ((255, 255, 0))
+            ar[-3:] = (255, 255, 0)
+            
+            self.assertEqual (ar[4][0], val)
+            self.assertEqual (ar[-1][1], val)
 
-##         # Test list assignment.
-##         ar[2:4] = [0xFFFFFF] * 16
-##         print ar
-##         self.assertEqual (ar[2][0], 0xFFFFFF)
-##         self.assertEqual (ar[3][1], 0xFFFFFF)
-
-##         # Test tuple assignment.
-##         ar[1:4] = (0xCC00CC, 0x111111, 0xCC00CC, 0x111111,
-##                    0xCC00CC, 0x111111, 0xCC00CC, 0x111111) * 3
-##         print ar
-##         self.assertEqual (ar[1][0], 0xCC00CC)
-##         self.assertEqual (ar[1][1], 0x111111)
-
-##         # Test pixel array assignment.
-##         ar[1] = ar[3]
-##         print ar
-##         self.assertEqual (ar[1][0], 0x000000)
-##         self.assertEqual (ar[1][1], 0x000000)
+            # Test list assignment.
+            val = sf.map_rgb ((0, 255, 0))
+            ar[2:4] = [val] * 8
+            self.assertEqual (ar[2][0], val)
+            self.assertEqual (ar[3][1], val)
 
 if __name__ == '__main__':
     unittest.main()
