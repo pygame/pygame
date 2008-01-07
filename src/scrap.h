@@ -25,13 +25,6 @@
 
 /**
  * Predefined supported pygame scrap types.
- * 
- * PYGAME_SCRAP_TEXT should be used for text.
- * PYGAME_SCRAP_BMP should be used for arbitrary data in a string format.
- * 
- * PYGAME_SCRAP_BMP is only supported by pygame window instances. For
- * interchangeable data that should be used by other applications, use
- * PYGAME_SCRAP_TEXT.
  */
 #define PYGAME_SCRAP_TEXT "text/plain"
 #define PYGAME_SCRAP_BMP "image/bmp"
