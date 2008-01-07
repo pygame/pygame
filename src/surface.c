@@ -1664,22 +1664,6 @@ static PyObject *surf_get_buffer (PyObject *self)
     size_t mod;
     Py_ssize_t length;
 
-    switch (format->BytesPerPixel)
-    {
-    case 1:
-        mod = sizeof (Uint8);
-        break;
-    case 2:
-        mod = sizeof (Uint16);
-        break;
-    case 3:
-        mod = sizeof (Uint8) * 3;
-        break;
-    default:
-        mod = sizeof (Uint32);
-        break;
-    }
-
     length = (Py_ssize_t) surface->pitch * surface->h;
     lock = PySurface_LockLifetime (self);
     if (!lock)

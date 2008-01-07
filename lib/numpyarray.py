@@ -208,9 +208,10 @@ def pixels3d (surface):
             step = -1
 
     array = numpy.frombuffer (surface.get_buffer (), numpy.uint8)
-    array.shape  = surface.get_width (), surface.get_height (), 4
+    array.shape = surface.get_height (), surface.get_pitch ()
+    array = array[:,:surface.get_width () * bpp]
+    array.shape  = surface.get_width (), surface.get_height (), bpp
     array = array[:,:,start:end:step]
-    array.strides = (bpp, surface.get_pitch (), step)
     return array
 
 def array_alpha (surface):
