@@ -269,11 +269,12 @@ def pixels_alpha (surface):
         # RGBA surface.
         start = 3
 
-    shape = surface.get_pitch (), surface.get_height ()
+    width, height = surface.get_width (), surface.get_height ()
     array = numpy.frombuffer (surface.get_buffer (), numpy.uint8)
-    array = array[start::4]
-    array.shape = surface.get_width (), surface.get_height ()
-    return array
+    array.shape = height, surface.get_pitch ()
+    array = array[:, start::4]
+    array = array[:, :width * 4]
+    return numpy.transpose (array)
 
 def array_colorkey (surface):
     """pygame.numpyarray.array_colorkey (Surface): return array
@@ -335,7 +336,7 @@ def make_surface (array):
     else:
         raise ValueError, "must be a valid 2d or 3d array"
 
-    surface = pygame.Surface ((shape[0], shape[1]), 0, bpp, (r, g, b,0))
+    surface = pygame.Surface ((shape[0], shape[1]), 0, bpp, (r, g, b, 0))
     blit_array (surface, array)
     return surface
 

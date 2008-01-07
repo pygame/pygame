@@ -22,7 +22,11 @@ class ScrapTest (unittest.TestCase):
         string = pygame.image.tostring (sf, "RGBA")
         scrap.put (SCRAP_BMP, string)
         self.assertEquals (scrap.get (SCRAP_BMP), string)
-        
+
+    def test_scrap_put (self):
+        scrap.put ("arbitrary buffer", "buf")
+        self.assertEquals (scrap.get ("arbitrary buffer"), "buf")
+
 if __name__ == '__main__':
     pygame.init ()
     pygame.display.set_mode ((1, 1))
