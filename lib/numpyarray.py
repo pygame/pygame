@@ -304,8 +304,10 @@ def array_colorkey (surface):
     array = array2d (surface)
     # Check each pixel value for the colorkey and mark it as opaque or
     # transparent as needed.
-    array = numpy.choose (numpy.equal (array, colorkey), (0xff, 0))
-    array = array.astype (numpy.uint8)
+    val = surface.map_rgb (colorkey)
+    array = numpy.choose (numpy.equal (array, val),
+                          (numpy.uint8 (0xff), numpy.uint8 (0)))
+    array.shape = surface.get_width (), surface.get_height ()
     return array
 
 def make_surface (array):
