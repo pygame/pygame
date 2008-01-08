@@ -7,6 +7,12 @@ from pygame.locals import *
 import pygame.scrap as scrap
 import StringIO
 
+def usage ():
+    print "Press the 'g' key to get all of the current clipboard data"
+    print "Press the 'p' key to put a string into the clipboard"
+    print "Press the 'a' key to get a list of the currently available types"
+    print "Press the 'i' key to put an image into the clipboard"
+
 
 pygame.init ()
 screen = pygame.display.set_mode ((200, 200))
@@ -17,12 +23,14 @@ going = True
 scrap.init ()
 scrap.set_mode (SCRAP_CLIPBOARD)
 
+usage ()
+
 while going:
     for e in pygame.event.get ():
         if e.type == QUIT or (e.type == KEYDOWN and e.key == K_ESCAPE):
             going = False
 
-        if e.type == KEYDOWN and e.key == K_g:
+        elif e.type == KEYDOWN and e.key == K_g:
             # This means to look for data.
             print "Getting the different clipboard data.."
             for t in scrap.get_types ():
@@ -39,12 +47,12 @@ while going:
                         screen.blit(loaded_surf, (0,0))
 
 
-        if e.type == KEYDOWN and e.key == K_p:
+        elif e.type == KEYDOWN and e.key == K_p:
             # Place some text into the selection.
             print "Placing clipboard text."
             scrap.put (SCRAP_TEXT, "Hello. This is a message from scrap.")
 
-        if e.type == KEYDOWN and e.key == K_a:
+        elif e.type == KEYDOWN and e.key == K_a:
             # Get all available types.
             print "Getting the available types from the clipboard."
             types = scrap.get_types ()
@@ -53,7 +61,7 @@ while going:
                 print "Contains %s: %s" % (types[0], scrap.contains (types[0]))
                 print "Contains _INVALID_: ", scrap.contains ("_INVALID_")
 
-        if e.type == KEYDOWN and e.key == K_i:
+        elif e.type == KEYDOWN and e.key == K_i:
             print "Putting image into the clipboard."
             scrap.set_mode (SCRAP_CLIPBOARD)
             fp = open ("data/liquid.bmp", "rb")
@@ -61,6 +69,8 @@ while going:
             scrap.put ("image/bmp", buf)
             fp.close ()
 
+        elif e.type in (KEYDOWN, MOUSEBUTTONDOWN):
+            usage ()
     pygame.display.flip()
     c.tick(40)
 
