@@ -5,10 +5,14 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 #
 #
+Jan 8, 2008
+    pygame.surfarray now can change between Numeric and numpy using the
+       new methods pygame.surfarray.use_array () and
+       pygame.surfarray.get_arraytypes ().
 
 Jan 4, 2008
     Removed Numeric compile time dependency.
-    Added numpy surface array support through pygame.numpyarray.
+    Added numpy surface array support.
 
 Dec 31, 2007
     New method pygame.get_sdl_byteorder () to get the SDL byte order.

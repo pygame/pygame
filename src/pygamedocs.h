@@ -467,7 +467,7 @@
 
 #define DOC_OVERLAYGETHARDWARE "Overlay.get_hardware(rect): return int\ntest if the Overlay is hardware accelerated"
 
-#define DOC_PYGAMEPIXELARRAY "pygame.PixelArray(surface): return PixelArray\npygame Object for direct pixel access of surfaces"
+#define DOC_PYGAMEPIXELARRAY "pygame.PixelArray(Surface): return PixelArray\npygame Object for direct pixel access of surfaces"
 
 #define DOC_PIXELARRAYSURFACE "PixelArray.surface: Return Surface\nGets the Surface the PixelArray uses."
 
@@ -517,7 +517,7 @@
 
 #define DOC_PYGAMESCRAP ""
 
-#define DOC_PYGAMESCRAPINIT "scrap.init () -> None\nTries to initialize the scrap module and raises an exception, if it fails.\nInitializes the scrap module."
+#define DOC_PYGAMESCRAPINIT "scrap.init () -> None\nInitializes the scrap module."
 
 #define DOC_PYGAMESCRAPGET "scrap.get (type) -> string\nGets the data for the specified type from the clipboard."
 
@@ -527,7 +527,7 @@
 
 #define DOC_PYGAMESCRAPCONTAINS "scrap.contains (type) -> bool\nChecks, whether a certain type is available in the clipboard."
 
-#define DOC_PYGAMESCRAPLOST "scrap.lost() -> bool\nChecks whether the clipboard is currently owned by the application"
+#define DOC_PYGAMESCRAPLOST "scrap.lost() -> bool\nChecks whether the clipboard is currently owned by the application."
 
 #define DOC_PYGAMESCRAPSETMODE "scrap.set_mode(mode) -> None\nSets the clipboard access mode."
 
@@ -671,27 +671,31 @@
 
 #define DOC_SURFACEGETBUFFER "Surface.get_buffer(): return BufferProxy\nacquires a buffer object for the pixels of the Surface."
 
-#define DOC_PYGAMESURFARRAY "pygame module for accessing surface pixel data"
+#define DOC_PYGAMESURFARRAY "pygame module for accessing surface pixel data using array interfaces"
 
-#define DOC_PYGAMESURFARRAYARRAY2D "pygame.surfarray.array2d(Surface): return array\ncopy pixels into a 2d array"
+#define DOC_PYGAMESURFARRAYARRAY2D "pygame.surfarray.array2d(Surface): return array\nCopy pixels into a 2d array"
 
-#define DOC_PYGAMESURFARRAYPIXELS2D "pygame.surfarray.pixels2d(Surface): return array\nreference pixels into a 2d array"
+#define DOC_PYGAMESURFARRAYPIXELS2D "pygame.surfarray.pixels2d(Surface): return array\nReference pixels into a 2d array"
 
-#define DOC_PYGAMESURFARRAYARRAY3D "pygame.surfarray.array3d(Surface): return array\ncopy pixels into a 3d array"
+#define DOC_PYGAMESURFARRAYARRAY3D "pygame.surfarray.array3d(Surface): return array\nCopy pixels into a 3d array"
 
-#define DOC_PYGAMESURFARRAYPIXELS3D "pygame.surfarray.pixels3d(Surface): return array\nreference pixels into a 3d array"
+#define DOC_PYGAMESURFARRAYPIXELS3D "pygame.surfarray.pixels3d(Surface): return array\nReference pixels into a 3d array"
 
-#define DOC_PYGAMESURFARRAYARRAYALPHA "pygame.surfarray.array_alpha(Surface): return array\ncopy pixel alphas into a 2d array"
+#define DOC_PYGAMESURFARRAYARRAYALPHA "pygame.surfarray.array_alpha(Surface): return array\nCopy pixel alphas into a 2d array"
 
-#define DOC_PYGAMESURFARRAYPIXELSALPHA "pygame.surfarray.pixels_alpha(Surface): return array\nreference pixel alphas into a 2d array"
+#define DOC_PYGAMESURFARRAYPIXELSALPHA "pygame.surfarray.pixels_alpha(Surface): return array\nReference pixel alphas into a 2d array"
 
-#define DOC_PYGAMESURFARRAYARRAYCOLORKEY "pygame.surfarray.array_colorkey(Surface): return array\ncopy the colorkey values into a 2d array"
+#define DOC_PYGAMESURFARRAYARRAYCOLORKEY "pygame.surfarray.array_colorkey(Surface): return array\nCopy the colorkey values into a 2d array"
 
-#define DOC_PYGAMESURFARRAYMAKESURFACE "pygame.surfarray.make_surface(array): return Surface\ncopy an array to a new surface"
+#define DOC_PYGAMESURFARRAYMAKESURFACE "pygame.surfarray.make_surface(array): return Surface\nCopy an array to a new surface"
 
-#define DOC_PYGAMESURFARRAYBLITARRAY "pygame.surfarray.blit_array(Surface, array): return None\nblit directly from a array values"
+#define DOC_PYGAMESURFARRAYBLITARRAY "pygame.surfarray.blit_array(Surface, array): return None\nBlit directly from a array values"
 
-#define DOC_PYGAMESURFARRAYMAPARRAY "pygame.surfarray.map_array(Surface, array3d): return array2d\nmap a 3d array into a 2d array"
+#define DOC_PYGAMESURFARRAYMAPARRAY "pygame.surfarray.map_array(Surface, array3d): return array2d\nMap a 3d array into a 2d array"
+
+#define DOC_PYGAMESURFARRAYUSEARRAY "pygame.surfarray.use_array (arraytype): return None\nSets the array system to be used for surface arrays"
+
+#define DOC_PYGAMESURFARRAYGETARRAYTYPES "pygame.surfarray.get_arraytypes (): return tuple\nGets the array system types currently supported."
 
 #define DOC_PYGAMETIME "pygame module for monitoring time"
 

@@ -144,7 +144,7 @@ pixels_alpha (PyObject* self, PyObject* arg)
         return NULL;
     
     /*must discover information about how data is packed*/
-    if (surf->format->Amask == 0xff<<24)
+    if (surf->format->Amask == 0xff << 24)
         startpixel = ((char*) surf->pixels) + (lilendian ? 3 : 0);
     else if (surf->format->Amask == 0xff)
         startpixel = ((char*) surf->pixels) + (lilendian ? 0 : 3);
@@ -165,7 +165,7 @@ pixels_alpha (PyObject* self, PyObject* arg)
     return array;
 }
 
-PyObject*
+static PyObject*
 array2d (PyObject* self, PyObject* arg)
 {
     int dim[2], loopy;
@@ -260,7 +260,7 @@ array2d (PyObject* self, PyObject* arg)
     return array;
 }
 
-PyObject*
+static PyObject*
 array3d (PyObject* self, PyObject* arg)
 {
     int dim[3], loopy;
@@ -394,7 +394,7 @@ array3d (PyObject* self, PyObject* arg)
     return array;
 }
 
-PyObject*
+static PyObject*
 array_alpha (PyObject* self, PyObject* arg)
 {
     int dim[2], loopy;
@@ -425,7 +425,8 @@ array_alpha (PyObject* self, PyObject* arg)
     
     if (!Amask || surf->format->BytesPerPixel==1) /*no pixel alpha*/
     {
-        memset (((PyArrayObject*) array)->data, 255, surf->w * surf->h);
+        memset (((PyArrayObject*) array)->data, 255,
+            (size_t) surf->w * surf->h);
         return array;
     }
     
@@ -492,7 +493,7 @@ array_alpha (PyObject* self, PyObject* arg)
     return array;
 }
 
-PyObject*
+static PyObject*
 array_colorkey (PyObject* self, PyObject* arg)
 {
     int dim[2], loopy;
@@ -520,7 +521,8 @@ array_colorkey (PyObject* self, PyObject* arg)
     colorkey = surf->format->colorkey;
     if (!(surf->flags & SDL_SRCCOLORKEY)) /*no pixel alpha*/
     {
-        memset (((PyArrayObject*)array)->data, 255, surf->w * surf->h);
+        memset (((PyArrayObject*)array)->data, 255,
+            (size_t) surf->w * surf->h);
         return array;
     }
     
@@ -600,7 +602,7 @@ array_colorkey (PyObject* self, PyObject* arg)
     return array;
 }
 
-PyObject*
+static PyObject*
 map_array (PyObject* self, PyObject* arg)
 {
     int* data;
@@ -784,7 +786,7 @@ map_array (PyObject* self, PyObject* arg)
         }                                                               \
     }
 
-PyObject*
+static PyObject*
 blit_array (PyObject* self, PyObject* arg)
 {
     PyObject *surfobj, *arrayobj;
@@ -1007,7 +1009,7 @@ blit_array (PyObject* self, PyObject* arg)
     Py_RETURN_NONE;
 }
 
-PyObject*
+static PyObject*
 make_surface (PyObject* self, PyObject* arg)
 {
     PyObject *arrayobj, *surfobj, *args;
@@ -1090,12 +1092,12 @@ static PyMethodDef surfarray_builtins[] =
 };
 
 PYGAME_EXPORT
-void initsurfarray (void)
+void init_numericsurfarray (void)
 {
     PyObject *module, *dict;
     
     /* create the module */
-    module = Py_InitModule3 ("surfarray", surfarray_builtins,
+    module = Py_InitModule3 ("_numericsurfarray", surfarray_builtins,
                              DOC_PYGAMESURFARRAY);
     dict = PyModule_GetDict (module);
     

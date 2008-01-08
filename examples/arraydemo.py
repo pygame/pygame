@@ -15,6 +15,8 @@ pygame.init()
 print 'Press the mouse button to advance image.'
 print 'Press the "s" key to save the current image.'
 
+# Guarantee the usage of Numeric
+pygame.surfarray.use_array ("numeric")
 
 def surfdemo_show(array_img, name):
     "displays a surface, waits for user to continue"
