@@ -353,12 +353,18 @@ def blit_array (surface, array):
     This function will temporarily lock the Surface as the new values
     are copied.
     """
-    # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
-    # lot.
     bpp = surface.get_bytesize ()
+    if bpp <= 0 or bpp > 4:
+        raise ValueError, "unsupported bit depth for surface"
+    
     shape = array.shape
     width = surface.get_width ()
 
+    typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[bpp - 1]
+    array = array.astype (typecode)
+
+    # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
+    # lot.
     if len(shape) == 3 and shape[2] == 3:
         array = numpy.transpose (array, (1, 0, 2))
         shifts = surface.get_shifts ()

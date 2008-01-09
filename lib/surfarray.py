@@ -238,9 +238,9 @@ def make_surface (array):
     array. The array can be 2D or 3D with any sized integer values.
     """ 
     if __arraytype == "numeric":
-        return numericsf.make_surface (surface)
+        return numericsf.make_surface (array)
     elif __arraytype == "numpy":
-        return numpysf.make_surface (surface)
+        return numpysf.make_surface (array)
     raise NotImplementedError, "surface arrays are not supported"
 
 def blit_array (surface, array):
