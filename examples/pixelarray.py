@@ -11,7 +11,7 @@ while 1:
     event = pygame.event.wait ()
     if event.type == QUIT:
         break
-    if event.type == MOUSEDOWN:
+    if event.type == MOUSEBUTTONDOWN:
 
         # Create  the PixelArray
         ar = pygame.PixelArray (screen)
