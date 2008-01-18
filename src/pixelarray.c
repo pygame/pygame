@@ -753,11 +753,11 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
                 *(px + (format->Bshift >> 3)) = *(vpx + (vformat->Bshift >> 3));
 #else
                 *(px + 2 - (format->Rshift >> 3)) =
-                    *(vpx + 2 - (vformat->Rshift >> 3))
+                    *(vpx + 2 - (vformat->Rshift >> 3));
                 *(px + 2 - (format->Gshift >> 3)) =
-                    *(vpx + 2 - (vformat->Gshift >> 3))
+                    *(vpx + 2 - (vformat->Gshift >> 3));
                 *(px + 2 - (format->Bshift >> 3)) =
-                    *(vpx + 2 - (vformat->Bshift >> 3))
+                    *(vpx + 2 - (vformat->Bshift >> 3));
 #endif
             }
         }
