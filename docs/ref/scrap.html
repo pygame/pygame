@@ -95,6 +95,12 @@
   <i>Gets the data for the specified type from the clipboard.</i><br>
   <tt>scrap.get (type) -> string</tt><br>
 <p>Returns the data for the specified type from the clipboard. The data is returned as string and might need further processing. If no data for the passed type is available, None is returned. </p>
+<pre>  text = pygame.scrap.get (SCRAP_TEXT)
+  if text:
+      # Do stuff with it.
+  else:
+      print "There does not seem to be text in the clipboard."
+</pre>
 <!--COMMENTS:pygame.scrap.get--> &nbsp;<br> 
 <br></ul>
 
@@ -104,6 +110,13 @@
   <i>Gets a list of the available clipboard types.</i><br>
   <tt>scrap.get_types () -> list</tt><br>
 <p>Gets a list of strings with the identifiers for the available clipboard types. Each identifier can be used in the <tt>scrap.get()</tt> method to get the clipboard content of the specific type. If there is no data in the clipboard, an empty list is returned. </p>
+<pre>  types = pygame.scrap.get_types ()
+  for t in types:
+      if "text" in t:
+          # There is some content with the word "text" in it. It's
+          # possibly text, so print it.
+          print pygame.scrap.get (t)
+</pre>
 <!--COMMENTS:pygame.scrap.get_types--> &nbsp;<br> 
 <br></ul>
 
@@ -114,6 +127,14 @@
   <tt>scrap.put(type, data) -> None</tt><br>
 <p>Places data for a specific clipboard type into the clipboard. The data must be a string buffer. The type is a string identifying the type of data placed into the clipboard. This can be one of the native <tt>SCRAP_PBM</tt>, <tt>SCRAP_PPM</tt>, <tt>SCRAP_BMP</tt> or <tt>SCRAP_TEXT</tt> values or an own string identifier. </p>
 <p>The method raises an exception, if the content could not be placed into the clipboard. </p>
+<pre>  fp = open ("example.bmp", "rb")
+  pygame.scrap.put (SCRAP_BMP, fp.read ())
+  fp.close ()
+  # Now you can acquire the image data from the clipboard in other
+  # applications.
+  pygame.scrap.put (SCRAP_TEXT, "A text to copy")
+  pygame.scrap.put ("Plain text", "A text to copy")
+</pre>
 <!--COMMENTS:pygame.scrap.put--> &nbsp;<br> 
 <br></ul>
 
@@ -123,6 +144,11 @@
   <i>Checks, whether a certain type is available in the clipboard.</i><br>
   <tt>scrap.contains (type) -> bool</tt><br>
 <p>Returns True, if data for the passed type is available in the clipboard, False otherwise. </p>
+<pre>  if pygame.scrap.contains (SCRAP_TEXT):
+      print "There is text in the clipboard."
+  if pygame.scrap.contains ("own_data_type"):
+      print "There is stuff in the clipboard."
+</pre>
 <!--COMMENTS:pygame.scrap.contains--> &nbsp;<br> 
 <br></ul>
 
@@ -132,6 +158,9 @@
   <i>Checks whether the clipboard is currently owned by the application.</i><br>
   <tt>scrap.lost() -> bool</tt><br>
 <p>Returns True, if the clipboard is currently owned by the pygame application, False otherwise. </p>
+<pre>  if pygame.scrap.lost ():
+     print "No content from me anymore. The clipboard is used by someone else."
+</pre>
 <!--COMMENTS:pygame.scrap.lost--> &nbsp;<br> 
 <br></ul>
 

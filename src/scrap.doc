@@ -56,7 +56,8 @@ init
 Initializes the scrap module.
 scrap.init () -> None
 
-Tries to initialize the scrap module and raises an exception, if it fails.
+Tries to initialize the scrap module and raises an exception, if it
+fails.
 <END>
 
 get
@@ -66,6 +67,12 @@ scrap.get (type) -> string
 Returns the data for the specified type from the clipboard.
 The data is returned as string and might need further processing.
 If no data for the passed type is available, None is returned.
+
+  text = pygame.scrap.get (SCRAP_TEXT)
+  if text:
+      # Do stuff with it.
+  else:
+      print "There does not seem to be text in the clipboard."
 <END>
 
 get_types
@@ -76,6 +83,13 @@ Gets a list of strings with the identifiers for the available
 clipboard types. Each identifier can be used in the scrap.get()
 method to get the clipboard content of the specific type.
 If there is no data in the clipboard, an empty list is returned.
+
+  types = pygame.scrap.get_types ()
+  for t in types:
+      if "text" in t:
+          # There is some content with the word "text" in it. It's
+          # possibly text, so print it.
+          print pygame.scrap.get (t)
 <END>
 
 put
@@ -90,6 +104,15 @@ string identifier.
 
 The method raises an exception, if the content could not be placed
 into the clipboard.
+
+  fp = open ("example.bmp", "rb")
+  pygame.scrap.put (SCRAP_BMP, fp.read ())
+  fp.close ()
+  # Now you can acquire the image data from the clipboard in other
+  # applications.
+  
+  pygame.scrap.put (SCRAP_TEXT, "A text to copy")
+  pygame.scrap.put ("Plain text", "A text to copy")
 <END>
 
 contains
@@ -98,6 +121,11 @@ scrap.contains (type) -> bool
 
 Returns True, if data for the passed type is available in the
 clipboard, False otherwise.
+
+  if pygame.scrap.contains (SCRAP_TEXT):
+      print "There is text in the clipboard."
+  if pygame.scrap.contains ("own_data_type"):
+      print "There is stuff in the clipboard."
 <END>
 
 lost
@@ -106,6 +134,9 @@ scrap.lost() -> bool
 
 Returns True, if the clipboard is currently owned by the pygame
 application, False otherwise.
+
+  if pygame.scrap.lost ():
+     print "No content from me anymore. The clipboard is used by someone else."
 <END>
 
 set_mode
