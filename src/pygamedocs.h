@@ -287,21 +287,23 @@
 
 #define DOC_PYGAMEMASK "pygame module for image masks."
 
-#define DOC_PYGAMEMASKFROMSURFACE "pygame.mask.from_surface(surface) -> Mask\nReturns the size of the mask."
+#define DOC_PYGAMEMASKPYGAMEMASKFROMSURFACE "pygame.mask.from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
 
-#define DOC_PYGAMEMASKMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
+#define DOC_PYGAMEMASKPYGAMEMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
 
-#define DOC_MASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
+#define DOC_PYGAMEMASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
 
-#define DOC_MASKGETAT "Mask.get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
+#define DOC_PYGAMEMASKGETAT "Mask.get_at((x,y)) -> int\nReturns nonzero if the bit at (x,y) is set."
 
-#define DOC_MASKSETAT "Mask.set_at((x,y),value)\nSets the position in the mask given by x and y."
+#define DOC_PYGAMEMASKSETAT "Mask.set_at((x,y),value)\nSets the position in the mask given by x and y."
 
-#define DOC_MASKOVERLAP "Mask.overlap(othermask, offset) -> x,y\nReturns nonzero if the masks overlap with the given offset."
+#define DOC_PYGAMEMASKOVERLAP "Mask.overlap(othermask, offset) -> x,y\nReturns the point of intersection if the masks overlap with the given offset - or None if it does not overlap."
 
-#define DOC_MASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
+#define DOC_PYGAMEMASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
 
-#define DOC_MASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
+#define DOC_PYGAMEMASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
+
+#define DOC_ ""
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 
