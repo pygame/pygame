@@ -3,6 +3,8 @@
 import os
 try:
     import pygame
+    # Use numeric, not numpy here (otherwise, follow the NUMPY comments)
+    # NUMPY: import numpy as N
     import Numeric as N
     from pygame.locals import *
     surfarray = pygame.surfarray
@@ -17,6 +19,8 @@ print 'Press the "s" key to save the current image.'
 
 # Guarantee the usage of Numeric
 pygame.surfarray.use_array ("numeric")
+# NUMPY: pygame.surfarray.use_array ("numpy")
+
 
 def surfdemo_show(array_img, name):
     "displays a surface, waits for user to continue"
@@ -39,10 +43,8 @@ def surfdemo_show(array_img, name):
             #pygame.image.save(screen, name+'_screen.png')
             #pygame.image.save(s, name+'.tga')
             pygame.image.save(screen, name+'.png')
-        elif e.type == QUIT: raise SystemExit
-
-
-
+        elif e.type == QUIT:
+            raise SystemExit
 
 #allblack
 allblack = N.zeros((128, 128))
@@ -104,6 +106,7 @@ src = N.array(rgbarray)
 dest = N.zeros(rgbarray.shape)
 dest[:] = 20, 50, 100
 diff = (dest - src) * 0.50
+# NUMPY: xfade = src + diff.astype(N.uint)
 xfade = src + diff.astype(N.Int)
 surfdemo_show(xfade, 'xfade')
 
