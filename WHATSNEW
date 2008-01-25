@@ -14,6 +14,9 @@ Jan 24, 2008
        In now gets the paths from Setup. Consequently, setup.py is now VC/MinGW
        agnostic.
 
+    Added build_deps.py, an all-in-one dependency builder for Windows. Requires
+       MinGW and MSYS.
+
 Jan 8, 2008
     pygame.surfarray now can change between Numeric and numpy using the
        new methods pygame.surfarray.use_array () and
