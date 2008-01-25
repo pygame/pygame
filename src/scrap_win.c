@@ -20,6 +20,10 @@
 */
 #include <Windows.h>
 
+#ifndef CF_DIBV5
+#define CF_DIBV5 CF_DIB
+#endif
+
 static HWND SDL_Window;
 #define MAX_CHUNK_SIZE INT_MAX
 
