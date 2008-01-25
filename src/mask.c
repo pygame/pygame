@@ -501,14 +501,14 @@ static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args)
 
 static PyMethodDef maskobj_builtins[] =
 {
-	{ "get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE},
-	{ "get_at", mask_get_at, METH_VARARGS, DOC_MASKGETAT },
-	{ "set_at", mask_set_at, METH_VARARGS, DOC_MASKSETAT },
-	{ "overlap", mask_overlap, METH_VARARGS, DOC_MASKOVERLAP },
+	{ "get_size", mask_get_size, METH_VARARGS, DOC_PYGAMEMASKGETSIZE},
+	{ "get_at", mask_get_at, METH_VARARGS, DOC_PYGAMEMASKGETAT },
+	{ "set_at", mask_set_at, METH_VARARGS, DOC_PYGAMEMASKSETAT },
+	{ "overlap", mask_overlap, METH_VARARGS, DOC_PYGAMEMASKOVERLAP },
 	{ "overlap_area", mask_overlap_area, METH_VARARGS,
-          DOC_MASKOVERLAPAREA },
+          DOC_PYGAMEMASKOVERLAPAREA },
 	{ "get_bounding_rects", mask_get_bounding_rects, METH_VARARGS,
-          DOC_MASKGETBOUNDINGRECTS },
+          DOC_PYGAMEMASKGETBOUNDINGRECTS },
 
 	{ NULL, NULL, 0, NULL }
 };
@@ -582,7 +582,7 @@ static PyMethodDef mask_builtins[] =
 {
 	{ "Mask", Mask, METH_VARARGS, DOC_PYGAMEMASK },
 	{ "from_surface", mask_from_surface, METH_VARARGS,
-          DOC_PYGAMEMASKFROMSURFACE},
+          DOC_PYGAMEMASKPYGAMEMASKFROMSURFACE},
 	{ NULL, NULL, 0, NULL }
 };
 
