@@ -5,6 +5,15 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 #
 #
+Jan 24, 2008
+    Updated the configuration and build process under Windows. In config_msys.py
+       and config.py os.popen is replaced with the newer subprocess.Popen so
+       the MSYS will run. Calls to raw_input now show the prompt on an MSYS
+       console. In an MSYS build paths written to Setup are now Windows paths
+       for distutils. The hard coded DLL file paths have been removed from setup.py.
+       In now gets the paths from Setup. Consequently, setup.py is now VC/MinGW
+       agnostic.
+
 Jan 8, 2008
     pygame.surfarray now can change between Numeric and numpy using the
        new methods pygame.surfarray.use_array () and

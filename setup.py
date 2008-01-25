@@ -65,7 +65,6 @@ else:
         'setup_requires': ['bdist_mpkg>=0.4.2'],
     })
 
-
 import config
 # a separate method for finding dlls with mingw.
 if config.is_msys_mingw():
@@ -78,7 +77,7 @@ if config.is_msys_mingw():
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
-headers.remove (os.path.join ('src', 'numeric_arrayobject.h'))
+headers.remove(os.path.join('src', 'numeric_arrayobject.h'))
 
 #sanity check for any arguments
 if len(sys.argv) == 1:
@@ -115,70 +114,24 @@ for f in glob.glob(os.path.join('lib', '*')):
 
 #try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32':
-    
-    # check to see if we are using mingw.
-    import config
-    # a separate method for finding dlls with mingw.
-    if config.is_msys_mingw():
 
-        print data_files
-        # FIXME: hardcoding the dll paths for the moment.
-        the_dlls = ["C:\\msys\\1.0\\local\\bin\\SDL.dll",
-                    "C:\\msys\\1.0\\local\\bin\\SDL_image.dll",
-                    "C:\\msys\\1.0\\local\\bin\\SDL_ttf.dll",
-                    "C:\\msys\\1.0\\local\\bin\\SDL_mixer.dll",
-                    "C:\\msys\\1.0\\local\\bin\\jpeg.dll",
-                    "C:\\msys\\1.0\\local\\bin\\libpng13.dll",
-                    "C:\\msys\\1.0\\local\\bin\\libtiff.dll",
-                   ]
+    #add dependency DLLs to the project
+    import dll
 
-        the_dlls = ["C:\\MingW\\bin\\SDL.dll",
-                    "C:\\MingW\\bin\\SDL_image.dll",
-                    "C:\\MingW\\bin\\SDL_ttf.dll",
-                    "C:\\MingW\\bin\\SDL_mixer.dll",
-                    "C:\\MingW\\bin\\jpeg.dll",
-                    "C:\\MingW\\bin\\libpng13.dll",
-                    "C:\\MingW\\bin\\libtiff.dll",
-                   ]
-
-
-                   # no smpeg.
-                    #"C:\\msys\\1.0\\local\\bin\\smpeg.dll"]
-
-        data_files.extend(the_dlls)
-
-
-        
-        ext = "dll"
-        for e in extensions:
-            paths = []
-            print e.library_dirs
-            for d in e.library_dirs:
-                 for l in e.libraries:
-                        #name = tempcompiler.shared_lib_format%(l, ext)
-                        name = "%s.%s" %(l, ext)
-                        paths.append(os.path.join(d, name))
-            #print paths
-            for p in paths:
-                if os.path.isfile(p) and p not in data_files:
-                    data_files.append(p)
-
-
-    else:
-
-        tempcompiler = new_compiler()
-        ext = tempcompiler.shared_lib_extension
-        for e in extensions:
-            paths = []
-            print e.library_dirs
-            for d in e.library_dirs:
-                 for l in e.libraries:
-                        name = tempcompiler.shared_lib_format%(l, ext)
-                        paths.append(os.path.join(d, name))
-            for p in paths:
-                if os.path.isfile(p) and p not in data_files:
-                    data_files.append(p)
-
+    the_dlls = {}
+    required_dlls = {}
+    for e in extensions:
+        if e.name.startswith('COPYLIB__'):
+            the_dlls[e.name[9:]] = e.library_dirs[0]
+        else:
+            required_dlls.update(dll.dependencies(e.libraries))
+    for lib in required_dlls:
+        #next DLL; a distutils bug requires the paths to have Windows separators
+        f = the_dlls[lib].replace('/', os.sep)
+        if f == '_':
+            print "WARNING, DLL for %s library not found." % lib
+        else:
+            data_files.append(f)
 
 
 
