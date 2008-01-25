@@ -42,10 +42,13 @@ else:
 
 def confirm(message):
     "ask a yes/no question, return result"
-    reply = raw_input('\n' + message + ' [y/N]:')
-    if reply and string.lower(reply[0]) == 'y':
-        return 1
-    return 0
+    #The output must be flushed for the prompt to be visible on MSYS bash
+    sys.stdout.write("\n%s [Y/n]:" % message)
+    sys.stdout.flush()
+    reply = raw_input()
+    if reply and string.lower(reply[0]) == 'n':
+        return 0
+    return 1
 
 def prepdep(dep, basepath):
     "add some vars to a dep"

@@ -1,10 +1,12 @@
 """Config on Windows"""
 
+import dll
 import os, sys
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
 huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
+
 
 class Dependency:
     inc_hunt = ['include']
@@ -67,6 +69,7 @@ class Dependency:
             self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt)
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
 
+
 class DependencyPython:
     def __init__(self, name, module, header):
         self.name = name
@@ -97,13 +100,79 @@ class DependencyPython:
         else:
             print self.name + '        '[len(self.name):] + ': not found'
 
+
+class DependencyDLL(Dependency):
+    def __init__(self, name, wildcards=None, link=None):
+        Dependency.__init__(self, 'DLL_' + name, wildcards, [])
+        self.lib_name = name
+        self.test = dll.tester(name)
+        self.lib_dir = '_'
+        self.found = 1
+        self.link = link
+
+    def configure(self):
+        if self.link is None and self.wildcards:
+            self.hunt()
+            self.choosepath()
+        else:
+            self.path = self.link.path
+        if self.path is not None:
+            self.hunt_dll()
+
+    def hunt_dll(self):
+        for dir in self.lib_hunt:
+            path = os.path.join(self.path, dir)
+            try:
+                entries = os.listdir(path)
+            except:
+                pass
+            else:
+                for e in entries:
+                    if self.test(e) and os.path.isfile(os.path.join(path, e)):
+                        # Found
+                        self.lib_dir = os.path.join(path, e).replace('\\', '/')
+                        print "DLL for %s is %s" % (self.lib_name, self.lib_dir)
+                        return
+        print "DLL for %s not found" % self.lib_name
+
+                    
+class DependencyWin:
+    def __init__(self, name, libs):
+        self.name = name
+        self.inc_dir = None
+        self.lib_dir = None
+        self.libs = libs
+        self.found = 1
+        self.cflags = ''
+        
+    def configure(self):
+        pass
+
+
 DEPS = [
-    Dependency('SDL', ['SDL-[0-9].*'], ['SDL'], 1),
-    Dependency('FONT', ['SDL_ttf-[0-9].*'], ['SDL_ttf']),
-    Dependency('IMAGE', ['SDL_image-[0-9].*'], ['SDL_image']),
-    Dependency('MIXER', ['SDL_mixer-[0-9].*'], ['SDL_mixer']),
-    Dependency('SMPEG', ['smpeg-[0-9].*'], ['smpeg']),
-    Dependency('SCRAP', ['user32.*', 'gdi32.*'], ['user32', 'gdi32']),
+    Dependency('SDL', ['SDL-[1-9].*'], ['SDL'], 1),
+    Dependency('FONT', ['SDL_ttf-[2-9].*'], ['SDL_ttf']),
+    Dependency('IMAGE', ['SDL_image-[1-9].*'], ['SDL_image']),
+    Dependency('MIXER', ['SDL_mixer-[1-9].*'], ['SDL_mixer']),
+    Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg']),
+    DependencyWin('SCRAP', ['user32', 'gdi32']),
+    Dependency('JPEG', ['jpeg-[6-9]*'], ['jpeg']),
+    Dependency('PNG', ['libpng-[1-9].*'], ['png']),
+    DependencyDLL('TIFF', ['tiff-[3-9].*']),
+    DependencyDLL('VORBIS', ['libvorbis-[1-9].*']),
+    DependencyDLL('OGG', ['libogg-[1-9].*']),
+    DependencyDLL('Z', ['zlib-[1-9].*']),
+]
+
+DEPS += [
+    DependencyDLL('SDL', link=DEPS[0]),
+    DependencyDLL('FONT', link=DEPS[1]),
+    DependencyDLL('IMAGE', link=DEPS[2]),
+    DependencyDLL('MIXER', link=DEPS[3]),
+    DependencyDLL('SMPEG', link=DEPS[4]),
+    DependencyDLL('JPEG', link=DEPS[6]),
+    DependencyDLL('PNG', link=DEPS[7]),
+    DependencyDLL('VORBISFILE', link=DEPS[9]),
 ]
 
 def setup_prebuilt():
@@ -121,14 +190,14 @@ def main():
     if os.path.isdir('prebuilt'):
         reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]')
         if not reply or reply[0].lower() != 'n':
-            return setup_prebuilt()
-            raise SystemExit
+            setup_prebuilt()
+            raise SystemExit()
 
     global DEPS
     for d in DEPS:
         d.configure()
-
-    return DEPS    
+    
+    return DEPS
 
 if __name__ == '__main__':
     print """This is the configuration subscript for Windows.
