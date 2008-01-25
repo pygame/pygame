@@ -15,6 +15,18 @@ SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
 SCRAP = -lX11
+DLL_SDL = -Lprebuilt/lib/SDL.dll
+DLL_FONT = -Lprebuilt/lib/SDL_ttf.dll
+DLL_IMAGE = -Lprebuilt/lib/SDL_image.dll
+DLL_MIXER = -Lprebuilt/lib/SDL_mixer.dll
+DLL_SMPEG = -Lprebuilt/lib/smpeg.dll
+DLL_TIFF = -Lprebuilt/lib/libtiff.dll
+DLL_PNG = -Lprebuilt/lib/libpng13.dll
+DLL_JPEG = -Lprebuilt/lib/jpeg.dll
+DLL_Z = -Lprebuilt/lib/zlib1.dll
+DLL_VORBISFILE = -Lprebuilt/lib/libvorbisfile-3.dll
+DLL_VORBIS = -Lprebuilt/lib/libvorbis-0.dll
+DLL_OGG = -Lprebuilt/lib/libogg-0.dll
 #--EndConfig
 
 #DEBUG = -C-W -C-Wall
@@ -67,4 +79,15 @@ pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 #auto-copy needed DLLs into the pygame installation folder.
 #you can simply ignore these lines under non-windows, no need to
 #comment out.
-COPYLIB_smpeg $(SDL) $(SMPEG) $(DEBUG)
+COPYLIB__SDL $(DLL_SDL)
+COPYLIB__SDL_ttf $(DLL_FONT)
+COPYLIB__SDL_image $(DLL_IMAGE)
+COPYLIB__SDL_mixer $(DLL_MIXER)
+COPYLIB__smpeg $(DLL_SMPEG)
+COPYLIB__tiff $(DLL_TIFF)
+COPYLIB__png $(DLL_PNG)
+COPYLIB__jpeg $(DLL_JPEG)
+COPYLIB__z $(DLL_Z)
+COPYLIB__vorbisfile $(DLL_VORBISFILE)
+COPYLIB__vorbis $(DLL_VORBIS)
+COPYLIB__ogg $(DLL_OGG)
