@@ -107,7 +107,7 @@ def samples (sound):
     if __arraytype == "numeric":
         return numericsnd.samples (sound)
     elif __arraytype == "numpy":
-        return numpy.samples (sound)
+        return numpysnd.samples (sound)
     raise NotImplementedError, "sound arrays are not supported"
 
 def make_sound (array):
@@ -122,7 +122,7 @@ def make_sound (array):
     if __arraytype == "numeric":
         return numericnd.make_sound (array)
     elif __arraytype == "numpy":
-        return numpy.make_sound (array)
+        return numpysnd.make_sound (array)
     raise NotImplementedError, "sound arrays are not supported"
 
 def use_array (arraytype):
