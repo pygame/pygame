@@ -61,6 +61,7 @@ and wonder about the values.
 
 import pygame
 
+# Global array type setting. See use_array().
 __arraytype = None
 
 # Try to import the necessary modules.
@@ -81,9 +82,6 @@ except ImportError:
 
 if not __hasnumpy and not __hasnumeric:
     raise ImportError, "no module named numpy or Numeric found"
-
-# Global array type setting. See use_array().
-
 
 def array2d (surface):
     """pygame.surfarray.array2d (Surface): return array
@@ -320,9 +318,9 @@ def get_arraytypes ():
     """
     vals = []
     if __hasnumeric:
-        vals += ["numeric"]
+        vals.append ("numeric")
     if __hasnumpy:
-        vals += ["numpy"]
+        vals.append ("numpy")
     if len (vals) == 0:
         return None
     return tuple (vals)

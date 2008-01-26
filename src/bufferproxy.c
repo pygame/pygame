@@ -39,7 +39,8 @@ static PyObject* _bufferproxy_new (PyTypeObject *type, PyObject *args,
                                    PyObject *kwds);
 static void _bufferproxy_dealloc (PyBufferProxy *self);
 static PyObject* _bufferproxy_get_dict (PyBufferProxy *self, void *closure);
-static PyObject* _bufferproxy_get_raw (PyBufferProxy *buffer, void *closure);
+static PyObject* _bufferproxy_get_raw (PyBufferProxy *self, void *closure);
+static PyObject* _bufferproxy_get_length (PyBufferProxy *self, void *closure);
 static PyObject* _bufferproxy_repr (PyBufferProxy *self);
 static PyObject* _bufferproxy_write (PyBufferProxy *buffer, PyObject *args);
 
@@ -75,6 +76,8 @@ static PyGetSetDef _bufferproxy_getsets[] =
     { "__dict__", (getter) _bufferproxy_get_dict, NULL, NULL, NULL },
     { "raw", (getter) _bufferproxy_get_raw, NULL,
       "The raw buffer data as string", NULL },
+    { "length", (getter) _bufferproxy_get_length, NULL,
+      "The size of the buffer data.", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -198,9 +201,18 @@ _bufferproxy_get_dict (PyBufferProxy *self, void *closure)
  * Getter for PyBufferProxy.raw.
  */
 static PyObject*
-_bufferproxy_get_raw (PyBufferProxy *buffer, void *closure)
+_bufferproxy_get_raw (PyBufferProxy *self, void *closure)
 {
-    return PyString_FromStringAndSize (buffer->buffer, buffer->length);
+    return PyString_FromStringAndSize (self->buffer, self->length);
+}
+
+/**
+ * Getter for PyBufferProxy.length
+ */
+static PyObject*
+_bufferproxy_get_length (PyBufferProxy *self, void *closure)
+{
+    return PyInt_FromLong (self->length);
 }
 
 /**** Methods ****/
@@ -342,6 +354,4 @@ void initbufferproxy (void)
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
-
-
 }
