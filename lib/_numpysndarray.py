@@ -18,7 +18,19 @@
 ##    Marcus von Appen
 ##    mva@sysfault.org
 
-"""pygame module for accessing 
+"""pygame module for accessing sound sample data using numpy
+
+Functions to convert between numpy arrays and Sound objects. This module
+will only be available when pygame can use the external numpy package.
+
+Sound data is made of thousands of samples per second, and each sample
+is the amplitude of the wave at a particular moment in time. For
+example, in 22-kHz format, element number 5 of the array is the
+amplitude of the wave after 5/22000 seconds.
+
+Each sample is an 8-bit or 16-bit integer, depending on the data format.
+A stereo sound file has two values per sample, while a mono sound file
+only has one.
 """
 
 import pygame
@@ -26,7 +38,13 @@ import pygame.mixer as mixer
 import numpy
 
 def array (sound):
-    """
+    """pygame._numpysndarray.array(Sound): return array
+
+    Copy Sound samples into an array.
+
+    Creates a new array for the sound data and copies the samples. The
+    array will always be in the format returned from
+    pygame.mixer.get_init().
     """
     # Info is a (freq, format, stereo) tuple
     info = mixer.get_init ()
@@ -39,20 +57,27 @@ def array (sound):
     shape = (len (data) / channels * fmtbytes, )
     if channels > 1:
         shape = (shape[0], 2)
-        
-    typecode = None
-    # Signed or unsigned representation?
-    if info[1] in (pygame.AUDIO_S8, pygame.AUDIO_S16LSB, pygame.AUDIO_S16MSB):
-        typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[fmtbytes - 1]
-    else:
-        typecode = (numpy.int8, numpy.int16, None, numpy.int32)[fmtbytes - 1]
-        
+
+    # mixer.init () does not support different formats from the ones below,
+    # so MSB/LSB stuff is silently ignored.
+    typecode = { 8 : numpy.uint8,   # AUDIO_U8
+                 16 : numpy.uint16, # AUDIO_U16
+                 -8 : numpy.int8,   # AUDIO_S8
+                 -16 : numpy.int16  # AUDUI_S16
+                 }[info[1]]
+                 
     array = numpy.fromstring (data, typecode)
     array.shape = shape
     return array
 
 def samples (sound):
-    """
+    """pygame._numpysndarray.samples(Sound): return array
+
+    Reference Sound samples into an array.
+
+    Creates a new array that directly references the samples in a Sound
+    object. Modifying the array will change the Sound. The array will
+    always be in the format returned from pygame.mixer.get_init().
     """
     # Info is a (freq, format, stereo) tuple
     info = pygame.mixer.get_init ()
@@ -66,25 +91,30 @@ def samples (sound):
     if channels > 1:
         shape = (shape[0], 2)
         
-    typecode = None
-    # Signed or unsigned representation?
-    if format in (pygame.AUDIO_S8, pygame.AUDIO_S16LSB, pygame.AUDIO_S16MSB):
-        typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[fmtbytes - 1]
-    else:
-        typecode = (numpy.int8, numpy.int16, None, numpy.int32)[fmtbytes - 1]
-        
+    # mixer.init () does not support different formats from the ones below,
+    # so MSB/LSB stuff is silently ignored.
+    typecode = { 8 : numpy.uint8,   # AUDIO_U8
+                 16 : numpy.uint16, # AUDIO_U16
+                 -8 : numpy.int8,   # AUDIO_S8
+                 -16 : numpy.int16  # AUDUI_S16
+                 }[info[1]]
+
     array = numpy.frombuffer (data, typecode)
     array.shape = shape
     return array
 
 def make_sound (array):
-    """
+    """pygame._numpysndarray.make_sound(array): return Sound
+
+    Convert an array into a Sound object.
+    
+    Create a new playable Sound object from an array. The mixer module
+    must be initialized and the array format must be similar to the mixer
+    audio format.
     """
     # Info is a (freq, format, stereo) tuple
-    info = pygame.mixer.get_init ()
-    if not info:
+    if not pygame.mixer.get_init ():
         raise pygame.error, "Mixer not initialized"
-    fmtbytes = (abs (info[1]) & 0xff) >> 3
     channels = mixer.get_num_channels ()
 
     shape = array.shape
