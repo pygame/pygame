@@ -387,7 +387,6 @@ static PyMethodDef sound_methods[] =
       DOC_SOUNDGETLENGTH },
     { "get_buffer", (PyCFunction) snd_get_buffer, METH_NOARGS,
       DOC_SOUNDGETBUFFER },
-        
     { NULL, NULL, 0, NULL }
 };
 
@@ -851,29 +850,56 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
 {
     PyObject* file;
     char* name = NULL;
-    Mix_Chunk* chunk;
+    Mix_Chunk* chunk = NULL;
     
     ((PySoundObject*)self)->chunk = NULL;
 
     if (!PyArg_ParseTuple (arg, "O", &file))
         return -1;
 
-        
     if (!SDL_WasInit (SDL_INIT_AUDIO)) 
     {
         RAISE (PyExc_SDLError, "mixer system not initialized");
         return -1;
     }
-        
+
     if (PyString_Check (file) || PyUnicode_Check (file))
     {
-        if (!PyArg_ParseTuple (arg, "s", &name))
-            return -1;
-        Py_BEGIN_ALLOW_THREADS;
-        chunk = Mix_LoadWAV (name);
-        Py_END_ALLOW_THREADS;
+        if (PyArg_ParseTuple (arg, "s", &name))
+        {
+            Py_BEGIN_ALLOW_THREADS;
+            chunk = Mix_LoadWAV (name);
+            Py_END_ALLOW_THREADS;
+        }
     }
-    else
+    
+    if (!chunk)
+    {
+        const void *buf;
+        Py_ssize_t buflen;
+
+        if (PyObject_AsReadBuffer (file, &buf, &buflen) == -1)
+            return -1;
+        chunk = malloc (sizeof (Mix_Chunk));
+        if (!chunk)
+        {
+            RAISE (PyExc_MemoryError, "cannot allocate chunk");
+            return -1;
+        }
+        chunk->alen = buflen;
+        chunk->abuf = malloc (buflen);
+        if (!chunk->abuf)
+        {
+            free (chunk);
+            RAISE (PyExc_MemoryError, "cannot allocate chunk");
+            return -1;
+        }
+        chunk->allocated = 1;
+        chunk->volume = 128;
+        memcpy (chunk->abuf, buf, buflen);
+    }
+    
+    if (!chunk)
     {
         SDL_RWops *rw;
         if (!(rw = RWopsFromPython (file)))
