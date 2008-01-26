@@ -43,7 +43,7 @@ sndarray_samples (PyObject* self, PyObject* arg)
         return RAISE (PyExc_SDLError, "Mixer not initialized");
 
     formatbytes = (abs (format) & 0xff) / 8;
-    switch (format) 
+    switch (format)
     {
     case AUDIO_S8:
         type = PyArray_CHAR;
