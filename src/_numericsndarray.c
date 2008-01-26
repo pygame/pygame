@@ -225,12 +225,13 @@ static PyMethodDef sndarray_builtins[] =
 };
 
 PYGAME_EXPORT
-void initsndarray (void)
+void init_numericsndarray (void)
 {
     PyObject *module, *dict;
     
     /* create the module */
-    module = Py_InitModule3 ("sndarray", sndarray_builtins, DOC_PYGAMESNDARRAY);
+    module = Py_InitModule3 ("_numericsndarray", sndarray_builtins,
+        DOC_PYGAMESNDARRAY);
     dict = PyModule_GetDict (module);
         
     /*imported needed apis*/

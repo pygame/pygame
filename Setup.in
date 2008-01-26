@@ -29,7 +29,7 @@ font src/font.c $(SDL) $(FONT) $(DEBUG)
 mixer src/mixer.c $(SDL) $(MIXER) $(DEBUG)
 mixer_music src/music.c $(SDL) $(MIXER) $(DEBUG)
 _numericsurfarray src/_numericsurfarray.c $(SDL) $(DEBUG)
-sndarray src/sndarray.c $(SDL) $(MIXER) $(DEBUG)
+_numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
 scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 

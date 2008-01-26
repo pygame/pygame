@@ -21,4 +21,5 @@ docs:	install
 
 clean:
 	rm -rf build dist
+	rm -f lib/*~ src/*~ test/*~
 
