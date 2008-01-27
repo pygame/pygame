@@ -120,10 +120,10 @@ few variables to check with version of pygame has been imported.
 
 ver
 version number as a string
-pygame.version.ver = "1.2"
+pygame.version.ver = '1.2'
 
 This is the version represented as a string. It can contain a micro release
-number as well, e.g., "1.5.2"
+number as well, e.g., '1.5.2'
 <END>
 
 
@@ -137,7 +137,7 @@ numbers of the same format. An example of checking Pygame version numbers
 would look like this:
 
     if pygame.version.vernum < (1, 5):
-        print "Warning, older version of Pygame (%s)" %  pygame.version.ver
+        print 'Warning, older version of Pygame (%s)' %  pygame.version.ver
         disable_advanced_features = True
         
 <END>

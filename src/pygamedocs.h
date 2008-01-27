@@ -17,7 +17,7 @@
 
 #define DOC_PYGAMEVERSION "module pygame.version\nsmall module containing version information"
 
-#define DOC_PYGAMEVERSIONVER "pygame.version.ver = "1.2"\nversion number as a string"
+#define DOC_PYGAMEVERSIONVER "pygame.version.ver = '1.2'\nversion number as a string"
 
 #define DOC_PYGAMEVERSIONVERNUM "pygame.version.vernum = (1, 5, 3)\ntupled integers of the version"
 
@@ -303,8 +303,6 @@
 
 #define DOC_PYGAMEMASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
 
-#define DOC_ ""
-
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 
 #define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, stereo=2, buffer=1024): return None\ninitialize the mixer module"
@@ -333,7 +331,7 @@
 
 #define DOC_PYGAMEMIXERGETBUSY "pygame.mixer.get_busy(): return bool\ntest if any sound is being mixed"
 
-#define DOC_PYGAMEMIXERSOUND "pygame.mixer.Sound(filename): return Sound\npygame.mixer.Sound(object): return Sound\nCreate a new Sound object from a file"
+#define DOC_PYGAMEMIXERSOUND "pygame.mixer.Sound(filename): return Sound\npygame.mixer.Sound(buffer): return Sound\npygame.mixer.Sound(object): return Sound\nCreate a new Sound object from a file"
 
 #define DOC_SOUNDPLAY "Sound.play(loops=0, maxtime=0): return Channel\nbegin sound playback"
 
@@ -541,6 +539,10 @@
 
 #define DOC_PYGAMESNDARRAYMAKESOUND "pygame.sndarray.make_sound(array): return Sound\nconvert an array into a Sound object"
 
+#define DOC_PYGAMESNDARRAYUSEARRAY "pygame.sndarray.use_array (arraytype): return None\nSets the array system to be used for sound arrays"
+
+#define DOC_PYGAMESNDARRAYGETARRAYTYPES "pygame.sndarray.get_arraytypes (): return tuple\nGets the array system types currently supported."
+
 #define DOC_PYGAMESPRITE "pygame module with basic game object classes"
 
 #define DOC_PYGAMESPRITESPRITE "pygame.sprite.Sprite(*groups): return Sprite\nsimple base class for visible game objects"
@@ -742,6 +744,4 @@
 #define DOC_PYGAMETRANSFORMAVERAGESURFACES "pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface\nfind the average surface from many surfaces."
 
 #define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
-
-#define DOC_ ""
 
