@@ -113,16 +113,18 @@ def make_sound (array):
     audio format.
     """
     # Info is a (freq, format, stereo) tuple
-    if not pygame.mixer.get_init ():
+    info = pygame.mixer.get_init ()
+    if not info:
         raise pygame.error, "Mixer not initialized"
-    channels = mixer.get_num_channels ()
+    channels = info[2]
 
     shape = array.shape
-    if len (shape) != channels:
-        if channels == 1:
+    if channels == 1:
+        if len (shape) != 1:
             raise ValueError, "Array must be 1-dimensional for mono mixer"
-        elif channels == 2:
+    else:
+        if len (shape) != 2:
             raise ValueError, "Array must be 2-dimensional for stereo mixer"
-        else:
+        elif shape[1] != channels:
             raise ValueError, "Array depth must match number of mixer channels"
     return mixer.Sound (array)
