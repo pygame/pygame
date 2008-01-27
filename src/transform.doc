@@ -156,11 +156,4 @@ change_return to False.
 You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So
 you could use an r threshold of 40 and a blue threshold of 2 if you like.
 <END>
-
-
-
-
-
-
-
 <END>
