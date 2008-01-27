@@ -61,9 +61,9 @@ def array (sound):
     # mixer.init () does not support different formats from the ones below,
     # so MSB/LSB stuff is silently ignored.
     typecode = { 8 : numpy.uint8,   # AUDIO_U8
-                 16 : numpy.uint16, # AUDIO_U16
+                 16 : numpy.uint16, # AUDIO_U16 / AUDIO_U16SYS
                  -8 : numpy.int8,   # AUDIO_S8
-                 -16 : numpy.int16  # AUDUI_S16
+                 -16 : numpy.int16  # AUDUI_S16 / AUDIO_S16SYS
                  }[info[1]]
                  
     array = numpy.fromstring (data, typecode)

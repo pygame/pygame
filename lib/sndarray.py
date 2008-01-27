@@ -120,7 +120,7 @@ def make_sound (array):
     audio format.
     """
     if __arraytype == "numeric":
-        return numericnd.make_sound (array)
+        return numericsnd.make_sound (array)
     elif __arraytype == "numpy":
         return numpysnd.make_sound (array)
     raise NotImplementedError, "sound arrays are not supported"
