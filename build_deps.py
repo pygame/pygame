@@ -31,7 +31,7 @@ python build_deps.py --help
 
 This program has been tested against the following libraries:
 
-SDL 1.2.12
+SDL 1.2.13
 SDL_image 1.2.6
 SDL_mixer 1.2.8
 SDL_ttf 2.0.9
@@ -157,6 +157,7 @@ class MinGWPreparation(object):
         self.path = 'n/a'
         self.paths = []
         self.path = None
+        self.dlls = []
         self.shell_script = shell_script
 
     def configure(self, hunt_paths):
@@ -250,7 +251,7 @@ def init(msys_directory=None, mingw_directory=None):
             sys.exit()
     msys_root = os.path.split(os.path.split(shell)[0])[0].lower()
 
-    # Ensure MSYS_ROOT_DIRECTORY environment variable defined.
+    # Ensure MINGW_ROOT_DIRECTORY environment variable defined.
     try:
         dir_path = os.environ['MINGW_ROOT_DIRECTORY']
     except KeyError:
@@ -764,7 +765,8 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    ]
+    ]  # End dependencies = [.
+
 
 mingw_prep = MinGWPreparation('MinGW Preparation', ['mingw-runtime-[2-9].*'], r"""
 
@@ -953,7 +955,9 @@ if [ ! -f $SPECDIR/specs-original ]; then
   cp $SPECDIR/specs $SPECDIR/specs-original
 fi
 
-sed "$SEDOPTSLD $SEDOPTSVC" $SPECDIR/specs-original >$SPECDIR/specs
+SEDOPTS="$SEDOPTSLD $SEDOPTSVC"
+SEDADDCR=$'s/\\(.*\\)$/\\1\r/;'
+tr -d \\r <$SPECDIR/specs-original | sed "$SEDOPTS" | sed "$SEDADDCR" >$SPECDIR/specs
 """)
 
 if __name__ == '__main__':
