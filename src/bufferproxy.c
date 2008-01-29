@@ -64,7 +64,12 @@ static PyObject* PyBufferProxy_New (PyObject *parent, void *buffer,
 static PyMethodDef _bufferproxy_methods[] =
 {
     { "write", (PyCFunction) _bufferproxy_write, METH_VARARGS,
-      "Writes raw data to the buffer" },
+      "B.write (bufferproxy, buffer, offset) -> None\n\n"               \
+      "Writes raw data to the bufferproxy.\n\n"                         \
+      "Writes the raw data from buffer to the BufferProxy object, starting\n" \
+      "at the specified offset within the BufferProxy.\n"               \
+      "If the length of the passed buffer exceeds the length of the\n"  \
+      "BufferProxy (reduced by the offset), an IndexError will be raised." },
     { NULL, NULL, 0, NULL }
 };
 
@@ -75,9 +80,10 @@ static PyGetSetDef _bufferproxy_getsets[] =
 {
     { "__dict__", (getter) _bufferproxy_get_dict, NULL, NULL, NULL },
     { "raw", (getter) _bufferproxy_get_raw, NULL,
-      "The raw buffer data as string", NULL },
+      "The raw buffer data as string. The string may contain NUL bytes.",
+      NULL },
     { "length", (getter) _bufferproxy_get_length, NULL,
-      "The size of the buffer data.", NULL },
+      "The size of the buffer data in bytes.", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -97,7 +103,7 @@ static PyTypeObject PyBufferProxy_Type =
 {
     PyObject_HEAD_INIT(NULL)
     0,
-    "BufferProxy",              /* tp_name */
+    "pygame.bufferproxy.BufferProxy", /* tp_name */
     sizeof (PyBufferProxy),     /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _bufferproxy_dealloc, /* tp_dealloc */
@@ -116,7 +122,9 @@ static PyTypeObject PyBufferProxy_Type =
     0,                          /* tp_setattro */
     &_bufferproxy_as_buffer,    /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
-    "",                         /* tp_doc */
+    "BufferProxy () -> BufferProxy\n\n"     \
+    "Creates a new, empty BufferProxy.\n\n" \
+    "A BufferProxy usually should be constructed from C code, not Python.",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -342,8 +350,8 @@ void initbufferproxy (void)
 
     /* create the module */
     module = Py_InitModule3 ("bufferproxy", NULL,
-        "A generic proxy module that can spend arbitrary objects a buffer " \
-        "interface");
+        "A generic proxy module that can spend arbitrary " \
+        "objects a buffer interface");
     PyBufferProxy_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF (&PyBufferProxy_Type);
     PyModule_AddObject (module, "BufferProxy", (PyObject *)&PyBufferProxy_Type);
