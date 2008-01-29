@@ -194,43 +194,56 @@ image_save (PyObject* self, PyObject* arg)
     {
         int namelen;
         char* name;
+        int written = 0;
+
         if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
             return NULL;
         namelen = strlen (name);
-        if (name[namelen - 1]=='p' || name[namelen - 1]=='P')
+        if (namelen > 3)
         {
-            Py_BEGIN_ALLOW_THREADS;
-            result = SDL_SaveBMP (surf, name);
-            Py_END_ALLOW_THREADS;
-        }
-        else if ((namelen > 3) && 
-                 (((name[namelen-1]=='g' || name[namelen-1]=='G') &&
-                   (name[namelen-2]=='n' || name[namelen-2]=='N')) ||
-                  ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
-                   (name[namelen-2]=='e' || name[namelen-2]=='E')) ||
-                  ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
-                   (name[namelen-2]=='p' || name[namelen-2]=='P'))
-                     ))
-        {
-            /* If it is .png .jpg .jpeg use the extended module. */
-            /* try to get extended formats */
-            imgext = PyImport_ImportModule ("pygame.imageext");
-            if (imgext)
+            if ((name[namelen - 1]=='p' || name[namelen - 1]=='P') &&
+                (name[namelen - 2]=='m' || name[namelen - 2]=='M') &&
+                (name[namelen - 3]=='b' || name[namelen - 3]=='B'))
             {
-                PyObject *extdict = PyModule_GetDict (imgext);
-                PyObject* extsave = PyDict_GetItemString (extdict,
-                                                          "save_extended");
-                PyObject* data = PyObject_CallObject (extsave, arg);
-                if (!data)
-                    result = -1;
-                Py_DECREF (imgext);
-                /* Data must be decremented here, not? */
-                Py_DECREF (data);
+                Py_BEGIN_ALLOW_THREADS;
+                result = SDL_SaveBMP (surf, name);
+                Py_END_ALLOW_THREADS;
+                written = 1;
             }
-            else
-                result = -2;
+            else if (((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                    (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
+                    (name[namelen - 3]=='p' || name[namelen - 2]=='P')) ||
+                ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                    (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
+                    (name[namelen - 3]=='p' || name[namelen - 3]=='P') &&
+                    (name[namelen - 4]=='j' || name[namelen - 3]=='J')) ||
+                ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                    (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
+                    (name[namelen - 3]=='j' || name[namelen - 3]=='J')))
+            {
+                printf ("JPEG; PNG; JPG\n");
+                /* If it is .png .jpg .jpeg use the extended module. */
+                /* try to get extended formats */
+                imgext = PyImport_ImportModule ("pygame.imageext");
+                if (imgext)
+                {
+                    PyObject *extdict = PyModule_GetDict (imgext);
+                    PyObject* extsave = PyDict_GetItemString (extdict,
+                        "save_extended");
+                    PyObject* data = PyObject_CallObject (extsave, arg);
+                    if (!data)
+                        result = -1;
+                    Py_DECREF (imgext);
+                    /* Data must be decremented here, not? */
+                    Py_DECREF (data);
+                }
+                else
+                    result = -2;
+                written = 1;
+            }
         }
-        else
+
+        if (!written)
         {
             Py_BEGIN_ALLOW_THREADS;
             result = SaveTGA (surf, name, 1);
