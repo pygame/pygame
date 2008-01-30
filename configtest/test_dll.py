@@ -78,5 +78,16 @@ class DependencyLookupTestCase(unittest.TestCase):
         """Check special case of an empty library list"""
         self.failUnless(not dll.dependencies([]))
 
+class RootNameLookupTestCase(unittest.TestCase):
+    def test_found(self):
+        """Ensure name -> file root name works for at least one case"""
+        self.failUnlessEqual(dll.name_to_root('FONT'), 'SDL_ttf')
+
+    def test_not_found(self):
+        """Ensure an exception is raised for an unrecognized name"""
+        def test():
+            dll.name_to_root('*')
+        self.failUnlessRaises(KeyError, test)
+        
 if __name__ == '__main__':
     unittest.main()

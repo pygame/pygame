@@ -8,10 +8,12 @@ from distutils.sysconfig import get_python_inc
 huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
 
-class Dependency:
+class Dependency(object):
     inc_hunt = ['include']
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
-    def __init__(self, name, wildcards, libs, required = 0):
+    def __init__(self, name, wildcards, libs=None, required = 0):
+        if libs is None:
+            libs = [dll.name_to_root(name)]
         self.name = name
         self.wildcards = wildcards
         self.required = required
@@ -70,7 +72,7 @@ class Dependency:
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
 
 
-class DependencyPython:
+class DependencyPython(object):
     def __init__(self, name, module, header):
         self.name = name
         self.lib_dir = ''
@@ -102,8 +104,17 @@ class DependencyPython:
 
 
 class DependencyDLL(Dependency):
-    def __init__(self, name, wildcards=None, link=None):
-        Dependency.__init__(self, 'DLL_' + name, wildcards, [])
+    def __init__(self, name=None, wildcards=None, link=None, libs=None):
+        if libs is None:
+            if name is not None:
+                libs = [dll.name_to_root(name)]
+            elif link is not None:
+                libs = link.libs
+            else:
+                libs = []
+        if name is None:
+            name = link.name
+        Dependency.__init__(self, 'COPYLIB_' + name, wildcards, libs)
         self.lib_name = name
         self.test = dll.tester(name)
         self.lib_dir = '_'
@@ -136,7 +147,7 @@ class DependencyDLL(Dependency):
         print "DLL for %s not found" % self.lib_name
 
                     
-class DependencyWin:
+class DependencyWin(object):
     def __init__(self, name, libs):
         self.name = name
         self.inc_dir = None
@@ -150,30 +161,22 @@ class DependencyWin:
 
 
 DEPS = [
-    Dependency('SDL', ['SDL-[1-9].*'], ['SDL'], 1),
-    Dependency('FONT', ['SDL_ttf-[2-9].*'], ['SDL_ttf']),
-    Dependency('IMAGE', ['SDL_image-[1-9].*'], ['SDL_image']),
-    Dependency('MIXER', ['SDL_mixer-[1-9].*'], ['SDL_mixer']),
-    Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg'], ['smpeg']),
+    Dependency('SDL', ['SDL-[1-9].*'], required=1),
+    Dependency('FONT', ['SDL_ttf-[2-9].*']),
+    Dependency('IMAGE', ['SDL_image-[1-9].*']),
+    Dependency('MIXER', ['SDL_mixer-[1-9].*']),
+    Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg']),
     DependencyWin('SCRAP', ['user32', 'gdi32']),
-    Dependency('JPEG', ['jpeg-[6-9]*'], ['jpeg']),
-    Dependency('PNG', ['libpng-[1-9].*'], ['png']),
+    Dependency('JPEG', ['jpeg-[6-9]*']),
+    Dependency('PNG', ['libpng-[1-9].*']),
     DependencyDLL('TIFF', ['tiff-[3-9].*']),
     DependencyDLL('VORBIS', ['libvorbis-[1-9].*']),
     DependencyDLL('OGG', ['libogg-[1-9].*']),
     DependencyDLL('Z', ['zlib-[1-9].*']),
 ]
 
-DEPS += [
-    DependencyDLL('SDL', link=DEPS[0]),
-    DependencyDLL('FONT', link=DEPS[1]),
-    DependencyDLL('IMAGE', link=DEPS[2]),
-    DependencyDLL('MIXER', link=DEPS[3]),
-    DependencyDLL('SMPEG', link=DEPS[4]),
-    DependencyDLL('JPEG', link=DEPS[6]),
-    DependencyDLL('PNG', link=DEPS[7]),
-    DependencyDLL('VORBISFILE', link=DEPS[9]),
-]
+DEPS += [DependencyDLL(link=dep) for dep in DEPS[:] if type(dep) is Dependency]
+DEPS += [DependencyDLL('VORBISFILE', link=DEPS[9])]
 
 def setup_prebuilt():
     setup = open('Setup', 'w')

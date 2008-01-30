@@ -8,6 +8,7 @@ This test must be performed on an MSYS console.
 import sys
 sys.path.append('..')
 import config_win
+import dll
 
 import unittest
 import os
@@ -25,9 +26,12 @@ class RunConfigTestCase(unittest.TestCase):
 
     class Dependency(object):
         # Holds dependency info
-        def __init__(self, libs=None, inc_dir_rel=None, lib_dir_rel=None):
+        def __init__(self, name=None, inc_dir_rel=None, lib_dir_rel=None, libs=None):
             if libs is None:
-                libs = []
+                if name is None:
+                    libs = []
+                else:
+                    libs = [dll.name_to_root(name)]
             self.libs = libs
             self.inc_dir = None
             self.lib_dir = None
@@ -38,26 +42,32 @@ class RunConfigTestCase(unittest.TestCase):
 
     # Pygame dependencies
     expectations = {
-        'SDL': Dependency(['SDL'], 'sdl-1.2.12/include', 'sdl-1.2.12/visualc/sdl/release'),
-        'FONT': Dependency(['SDL_ttf'], 'sdl_ttf-2.0.9', 'sdl_ttf-2.0.9/release'),
-        'IMAGE': Dependency(['SDL_image'], 'sdl_image-1.2.6', 'sdl_image-1.2.6/visualc/release'),
-        'MIXER': Dependency(['SDL_mixer'], 'sdl_mixer-1.2.8', 'sdl_mixer-1.2.8/release'),
-        'SMPEG': Dependency(['smpeg'], 'smpeg', 'smpeg/release'),
-        'PNG': Dependency(['png'], 'libpng-1.2.19', 'libpng-1.2.19/lib'),
-        'JPEG': Dependency(['jpeg'], 'jpeg-6b', 'jpeg-6b/release'),
-        'SCRAP': Dependency(['user32', 'gdi32']),
-        'DLL_SDL': Dependency(lib_dir_rel='sdl-1.2.12/visualc/sdl/release/sdl.dll'),
-        'DLL_FONT': Dependency(lib_dir_rel='sdl_ttf-2.0.9/release/sdl_ttf.dll'),
-        'DLL_IMAGE': Dependency(lib_dir_rel='sdl_image-1.2.6/visualc/release/sdl_image.dll'),
-        'DLL_MIXER': Dependency(lib_dir_rel='sdl_mixer-1.2.8/release/sdl_mixer.dll'),
-        'DLL_SMPEG': Dependency(lib_dir_rel='smpeg/release/smpeg.dll'),
-        'DLL_TIFF': Dependency(lib_dir_rel='tiff-3.8.2/release/libtiff.dll'),
-        'DLL_PNG': Dependency(lib_dir_rel='libpng-1.2.19/lib/libpng13.dll'),
-        'DLL_JPEG': Dependency(lib_dir_rel='jpeg-6b/release/jpeg.dll'),
-        'DLL_Z': Dependency(lib_dir_rel='zlib-1.2.3/release/zlib1.dll'),
-        'DLL_VORBISFILE': Dependency(lib_dir_rel='libvorbis-1.2.0/release/libvorbisfile-3.dll'),
-        'DLL_VORBIS': Dependency(lib_dir_rel='libvorbis-1.2.0/release/libvorbis-0.dll'),
-        'DLL_OGG': Dependency(lib_dir_rel='libogg-1.1.3/release/libogg-0.dll'),
+        'SDL': Dependency('SDL', 'sdl-1.2.12/include', 'sdl-1.2.12/visualc/sdl/release'),
+        'FONT': Dependency('FONT', 'sdl_ttf-2.0.9', 'sdl_ttf-2.0.9/release'),
+        'IMAGE': Dependency('IMAGE', 'sdl_image-1.2.6', 'sdl_image-1.2.6/visualc/release'),
+        'MIXER': Dependency('MIXER', 'sdl_mixer-1.2.8', 'sdl_mixer-1.2.8/release'),
+        'SMPEG': Dependency('SMPEG', 'smpeg', 'smpeg/release'),
+        'PNG': Dependency('PNG', 'libpng-1.2.19', 'libpng-1.2.19/lib'),
+        'JPEG': Dependency('JPEG', 'jpeg-6b', 'jpeg-6b/release'),
+        'SCRAP': Dependency(libs=['user32', 'gdi32']),
+        'COPYLIB_SDL': Dependency('SDL',
+                                  lib_dir_rel='sdl-1.2.12/visualc/sdl/release/sdl.dll'),
+        'COPYLIB_FONT': Dependency('FONT',
+                                   lib_dir_rel='sdl_ttf-2.0.9/release/sdl_ttf.dll'),
+        'COPYLIB_IMAGE': Dependency('IMAGE',
+                                    lib_dir_rel='sdl_image-1.2.6/visualc/release/sdl_image.dll'),
+        'COPYLIB_MIXER': Dependency('MIXER',
+                                    lib_dir_rel='sdl_mixer-1.2.8/release/sdl_mixer.dll'),
+        'COPYLIB_SMPEG': Dependency('SMPEG', lib_dir_rel='smpeg/release/smpeg.dll'),
+        'COPYLIB_TIFF': Dependency('TIFF', lib_dir_rel='tiff-3.8.2/release/libtiff.dll'),
+        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='libpng-1.2.19/lib/libpng13.dll'),
+        'COPYLIB_JPEG': Dependency('JPEG', lib_dir_rel='jpeg-6b/release/jpeg.dll'),
+        'COPYLIB_Z': Dependency('Z', lib_dir_rel='zlib-1.2.3/release/zlib1.dll'),
+        'COPYLIB_VORBISFILE': Dependency('VORBISFILE',
+                                         lib_dir_rel='libvorbis-1.2.0/release/libvorbisfile-3.dll'),
+        'COPYLIB_VORBIS': Dependency('VORBIS',
+                                     lib_dir_rel='libvorbis-1.2.0/release/libvorbis-0.dll'),
+        'COPYLIB_OGG': Dependency('OGG', lib_dir_rel='libogg-1.1.3/release/libogg-0.dll'),
         }
 
     def test_dependencies(self):
@@ -68,10 +78,8 @@ class RunConfigTestCase(unittest.TestCase):
 
     def test_dll_match(self):
         """Ensure DLLs match with dll.py."""
-        import dll
-        
         for name in dll.regexs:
-            self.failUnless('DLL_' + name in dependencies, name)
+            self.failUnless('COPYLIB_' + name in dependencies, name)
 
     def test_found(self):
         """Ensure all dependencies were found"""

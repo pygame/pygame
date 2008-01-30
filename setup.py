@@ -121,8 +121,8 @@ if sys.platform == 'win32':
     the_dlls = {}
     required_dlls = {}
     for e in extensions:
-        if e.name.startswith('COPYLIB__'):
-            the_dlls[e.name[9:]] = e.library_dirs[0]
+        if e.name.startswith('COPYLIB_'):
+            the_dlls[e.libraries[0]] = e.library_dirs[0]
         else:
             required_dlls.update(dll.dependencies(e.libraries))
     for lib in required_dlls:
@@ -137,7 +137,7 @@ if sys.platform == 'win32':
 
 #clean up the list of extensions
 for e in extensions[:]:
-    if e.name[:8] == 'COPYLIB_':
+    if e.name.startswith('COPYLIB_'):
         extensions.remove(e) #don't compile the COPYLIBs, just clean them
     else:
         e.name = 'pygame.' + e.name #prepend package name on modules
