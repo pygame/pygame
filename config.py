@@ -27,26 +27,10 @@ if sys.platform == 'win32' and not is_msys_mingw():
     print 'Using WINDOWS configuration...\n'
     import config_win
     CFG = config_win
-    # !!! Cludgy fix to allow Windows extras in Setup.in while not
-    # breaking other builds. Hopefully temporary.
-    if os.path.exists('Setup_win.in'):
-        try:
-            os.rename('Setup.in', 'Setup_unix.in')
-        except IoError:
-            pass
-        os.rename('Setup_win.in', 'Setup.in')
 elif sys.platform == 'win32' and is_msys_mingw():
     print 'Using WINDOWS mingw/msys configuration...\n'
     import config_msys
     CFG = config_msys
-    # !!! Cludgy fix to allow Windows extras in Setup.in while not
-    # breaking other builds. Hopefully temporary.
-    if os.path.exists('Setup_win.in'):
-        try:
-            os.rename('Setup.in', 'Setup_unix.in')
-        except IoError:
-            pass
-        os.rename('Setup_win.in', 'Setup.in')
 elif sys.platform == 'darwin':
     print 'Using Darwin configuration...\n'
     import config_darwin
@@ -94,7 +78,11 @@ def prepdep(dep, basepath):
     libs = ''
     for lib in dep.libs: 
         libs += ' -l' + lib
-    dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + libs
+
+    if dep.name.startswith('COPYLIB_'):
+        dep.line = dep.name + libs + lid
+    else:
+        dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + libs
 
 def writesetupfile(deps, basepath):
     "create a modified copy of Setup.in"

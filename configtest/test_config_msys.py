@@ -21,6 +21,7 @@ if not os.path.isdir(test_dir):
 os.environ['LOCALBASE'] = test_dir
 sys.path.append('..')
 
+import dll
 import config_msys
 
 import unittest
@@ -33,9 +34,12 @@ class RunConfigTestCase(unittest.TestCase):
 
     class Dependency(object):
         # Holds dependency info
-        def __init__(self, libs=None, inc_dir_rel=None, lib_dir_rel=None):
+        def __init__(self, name=None, inc_dir_rel=None, lib_dir_rel=None, libs=None):
             if libs is None:
-                libs = []
+                if name is None:
+                    libs = []
+                else:
+                    libs = [dll.name_to_root(name)]
             self.libs = libs
             self.inc_dir = None
             self.lib_dir = None
@@ -46,26 +50,26 @@ class RunConfigTestCase(unittest.TestCase):
 
     # Pygame dependencies
     expectations = {
-        'SDL': Dependency(['SDL'], 'include/sdl', 'lib'),  # ? uses sdl-config script
-        'FONT': Dependency(['SDL_ttf'], 'include/sdl', 'lib'),
-        'IMAGE': Dependency(['SDL_image'], 'include/sdl', 'lib'),
-        'MIXER': Dependency(['SDL_mixer'], 'include', 'lib'),  # A deviant include dir
-        'SMPEG': Dependency(['smpeg'], 'include', 'lib'),  # ? uses smpeg-config script
-        'PNG': Dependency(['png'], 'include', 'lib'),
-        'JPEG': Dependency(['jpeg'], 'include/sdl', 'lib'),  # A deviant include dir
-        'SCRAP': Dependency(['user32', 'gdi32']),
-        'DLL_SDL': Dependency(lib_dir_rel='bin/sdl.dll'),
-        'DLL_FONT': Dependency(lib_dir_rel='bin/sdl_ttf.dll'),  # Where DLLs likely are
-        'DLL_IMAGE': Dependency(lib_dir_rel='bin/sdl_image.dll'),
-        'DLL_MIXER': Dependency(lib_dir_rel='lib/sdl_mixer.dll'),  # Where the search starts
-        'DLL_SMPEG': Dependency(lib_dir_rel='bin/smpeg.dll'),
-        'DLL_TIFF': Dependency(lib_dir_rel='bin/libtiff.dll'),
-        'DLL_PNG': Dependency(lib_dir_rel='bin/libpng13.dll'),
-        'DLL_JPEG': Dependency(lib_dir_rel='bin/jpeg.dll'),
-        'DLL_Z': Dependency(lib_dir_rel='bin/zlib1.dll'),
-        'DLL_VORBISFILE': Dependency(lib_dir_rel='bin/libvorbisfile-3.dll'),
-        'DLL_VORBIS': Dependency(lib_dir_rel='bin/libvorbis-0.dll'),
-        'DLL_OGG': Dependency(lib_dir_rel='bin/libogg-0.dll'),
+        'SDL': Dependency('SDL', 'include/sdl', 'lib'),  # ? uses sdl-config script
+        'FONT': Dependency('FONT', 'include/sdl', 'lib'),
+        'IMAGE': Dependency('IMAGE', 'include/sdl', 'lib'),
+        'MIXER': Dependency('MIXER', 'include', 'lib'),  # A deviant include dir
+        'SMPEG': Dependency('SMPEG', 'include', 'lib'),  # ? uses smpeg-config script
+        'PNG': Dependency('PNG', 'include', 'lib'),
+        'JPEG': Dependency('JPEG', 'include/sdl', 'lib'),  # A deviant include dir
+        'SCRAP': Dependency(libs=['user32', 'gdi32']),
+        'COPYLIB_SDL': Dependency('SDL', lib_dir_rel='bin/sdl.dll'),
+        'COPYLIB_FONT': Dependency('FONT', lib_dir_rel='bin/sdl_ttf.dll'),  # Where DLLs likely are
+        'COPYLIB_IMAGE': Dependency('IMAGE', lib_dir_rel='bin/sdl_image.dll'),
+        'COPYLIB_MIXER': Dependency('MIXER', lib_dir_rel='lib/sdl_mixer.dll'),  # Where the search starts
+        'COPYLIB_SMPEG': Dependency('SMPEG', lib_dir_rel='bin/smpeg.dll'),
+        'COPYLIB_TIFF': Dependency('TIFF', lib_dir_rel='bin/libtiff.dll'),
+        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='bin/libpng13.dll'),
+        'COPYLIB_JPEG': Dependency('JPEG', lib_dir_rel='bin/jpeg.dll'),
+        'COPYLIB_Z': Dependency('Z', lib_dir_rel='bin/zlib1.dll'),
+        'COPYLIB_VORBISFILE': Dependency('VORBISFILE', lib_dir_rel='bin/libvorbisfile-3.dll'),
+        'COPYLIB_VORBIS': Dependency('VORBIS', lib_dir_rel='bin/libvorbis-0.dll'),
+        'COPYLIB_OGG': Dependency('OGG', lib_dir_rel='bin/libogg-0.dll'),
         }
 
     def test_dependencies(self):
@@ -76,10 +80,8 @@ class RunConfigTestCase(unittest.TestCase):
 
     def test_dll_match(self):
         """Ensure DLLs match with dll.py."""
-        import dll
-        
         for name in dll.regexs:
-            self.failUnless('DLL_' + name in dependencies, name)
+            self.failUnless('COPYLIB_' + name in dependencies, name)
 
     def test_found(self):
         """Ensure all dependencies were found"""

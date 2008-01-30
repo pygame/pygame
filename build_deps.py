@@ -16,10 +16,9 @@ made if the --prepare-mingw command line option is chosen. The specs file
 is backed up as specs-original so the changes can be easily undone.
 
 Python 2.4 and later are linked against msvcr71.dll. By default MinGW links
-against the older msvcrt.dll. By default when --prepare-mingw option is chosen
-the MinGW specs file is updated so MinGW completely links against msvcr71.dll.
-These changes can be omitted using the --no-msvcr17 option. Restoring the specs
-file undoes the changes.
+against the older msvcrt.dll. Unless the --no-msvcr71 option is closen the
+--prepare-mingw option updates the MinGW specs file so MingGW links against
+msvcr71.dll. Restoring the specs file undoes the changes.
 
 Useful environment variables are "SHELL", the MSYS shell program (already defined
 in the MSYS console), and "MINGW_ROOT_DIRECTORY". The program will prompt for any
@@ -151,8 +150,8 @@ class Dependency(object):
         else:
             return None
 
-class MinGWPreparation(object):
-    def __init__(self, name, wild_cards, shell_script):
+class Preparation(object):
+    def __init__(self, name, shell_script):
         self.name = name
         self.path = 'n/a'
         self.paths = []
@@ -266,7 +265,7 @@ def init(msys_directory=None, mingw_directory=None):
     os.environ['MINGW_ROOT_DIRECTORY'] = dir_path
     mingw_root = dir_path.lower()
 
-def main(dependencies, mingw_preparation):
+def main(dependencies, mingw_preparation, msys_preparation):
     names = [d.name for d in dependencies]
     usage = ("usage: %prog [options] --all\n"
              "       %prog [options] [args]\n"
@@ -355,6 +354,8 @@ def main(dependencies, mingw_preparation):
         deps = []
     if options.prepare_mingw:
         deps.insert(0, mingw_preparation)
+    if deps:
+        deps.insert(0, msys_preparation)
 
     init(options.msys_directory, options.mingw_directory)
     configure(deps)
@@ -768,7 +769,18 @@ fi
     ]  # End dependencies = [.
 
 
-mingw_prep = MinGWPreparation('MinGW Preparation', ['mingw-runtime-[2-9].*'], r"""
+msys_prep = Preparation('/usr/local', """
+
+# Ensure /usr/local and its subdirectories exist.
+mkdir -p /usr/local/lib
+mkdir -p /usr/local/include
+mkdir -p /usr/local/bin
+mkdir -p /usr/local/doc
+mkdir -p /usr/local/man
+mkdir -p /usr/local/share
+""")
+    
+mingw_prep = Preparation('MinGW Preparation', r"""
 
 set -e
 
@@ -950,9 +962,11 @@ SEDOPTSLD="
 GCCVER=`gcc -dumpversion`
 SPECDIR="/mingw/lib/gcc/mingw32/$GCCVER"
 
-# Make a backup if one does not exist
+# Make a backup if one does not exist, else restore specs.
 if [ ! -f $SPECDIR/specs-original ]; then
   cp $SPECDIR/specs $SPECDIR/specs-original
+else
+  cp $SPECDIR/specs-original $SPECDIR/specs
 fi
 
 SEDOPTS="$SEDOPTSLD $SEDOPTSVC"
@@ -961,4 +975,4 @@ tr -d \\r <$SPECDIR/specs-original | sed "$SEDOPTS" | sed "$SEDADDCR" >$SPECDIR/
 """)
 
 if __name__ == '__main__':
-    sys.exit(main(dependencies, mingw_prep))
+    sys.exit(main(dependencies, mingw_prep, msys_prep))
