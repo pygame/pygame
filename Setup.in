@@ -15,6 +15,18 @@ SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
 SCRAP = -lX11
+COPYLIB_SDL $(SDL) -Lprebuilt/lib/SDL.dll
+COPYLIB_FONT $(FONT) -Lprebuilt/lib/SDL_ttf.dll
+COPYLIB_IMAGE $(IMAGE) -Lprebuilt/lib/SDL_image.dll
+COPYLIB_MIXER $(MIXER) -Lprebuilt/lib/SDL_mixer.dll
+COPYLIB_SMPEG $(SMPEG) -Lprebuilt/lib/smpeg.dll
+COPYLIB_TIFF -ltiff -Lprebuilt/lib/libtiff.dll
+COPYLIB_PNG $(PNG) -Lprebuilt/lib/libpng13.dll
+COPYLIB_JPEG $(JPEG) -Lprebuilt/lib/jpeg.dll
+COPYLIB_Z -lz -Lprebuilt/lib/zlib1.dll
+COPYLIB_VORBISFILE -lvorbisfile -Lprebuilt/lib/libvorbisfile-3.dll
+COPYLIB_VORBIS -lvorbis -Lprebuilt/lib/libvorbis-0.dll
+COPYLIB_OGG -logg -Lprebuilt/lib/libogg-0.dll
 #--EndConfig
 
 #DEBUG = -C-W -C-Wall
@@ -63,8 +75,3 @@ mask src/mask.c src/bitmask.c $(SDL) $(DEBUG)
 bufferproxy src/bufferproxy.c $(SDL) $(DEBUG)
 pixelarray src/pixelarray.c $(SDL) $(DEBUG)
 
-#the following are placeholders. setup.py can use them to help
-#auto-copy needed DLLs into the pygame installation folder.
-#you can simply ignore these lines under non-windows, no need to
-#comment out.
-COPYLIB_smpeg $(SDL) $(SMPEG) $(DEBUG)

@@ -69,7 +69,9 @@ def confirm(message):
 
 class DependencyProg:
     needs_dll = True
-    def __init__(self, name, envname, exename, minver, defaultlibs):
+    def __init__(self, name, envname, exename, minver, defaultlibs=None):
+        if defaultlibs is None:
+            defaultlibs = [dll.name_to_root(name)]
         self.name = name
         command = os.environ.get(envname, exename)
         drv, pth = os.path.splitdrive(command)
@@ -114,7 +116,9 @@ class DependencyProg:
 
 class Dependency:
     needs_dll = True
-    def __init__(self, name, checkhead, checklib, libs):
+    def __init__(self, name, checkhead, checklib, libs=None):
+        if libs is None:
+            libs = [dll.name_to_root(name)]
         self.name = name
         self.inc_dir = None
         self.lib_dir = None
@@ -197,11 +201,13 @@ class DependencyWin:
 
 class DependencyDLL:
     needs_dll = False
-    def __init__(self, name):
-        self.name = 'DLL_' + name
+    def __init__(self, name, libs=None):
+        if libs is None:
+            libs = [dll.name_to_root(name)]
+        self.name = 'COPYLIB_' + name
         self.inc_dir = None
         self.lib_dir = '_'
-        self.libs = []
+        self.libs = libs
         self.found = 1  # Alway found to make its COPYLIB work
         self.cflags = ''
         self.lib_name = name
@@ -245,13 +251,13 @@ class DependencyDLL:
 def main():
     print '\nHunting dependencies...'
     DEPS = [
-        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', ['SDL']),
-        Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.dll.a', ['SDL_ttf']),
-        Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.dll.a', ['SDL_image']),
-        Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.dll.a', ['SDL_mixer']),
-        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', ['smpeg']),
-        Dependency('PNG', 'png.h', 'libpng.dll.a', ['png']),
-        Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a', ['jpeg']),
+        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2'),
+        Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.dll.a'),
+        Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.dll.a'),
+        Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.dll.a'),
+        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3'),
+        Dependency('PNG', 'png.h', 'libpng.dll.a'),
+        Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
         DependencyWin('SCRAP', ['user32', 'gdi32']),
         DependencyDLL('TIFF'),
         DependencyDLL('VORBISFILE'),
