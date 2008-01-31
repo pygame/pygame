@@ -221,7 +221,6 @@ image_save (PyObject* self, PyObject* arg)
                     (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
                     (name[namelen - 3]=='j' || name[namelen - 3]=='J')))
             {
-                printf ("JPEG; PNG; JPG\n");
                 /* If it is .png .jpg .jpeg use the extended module. */
                 /* try to get extended formats */
                 imgext = PyImport_ImportModule ("pygame.imageext");
