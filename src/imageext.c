@@ -464,11 +464,16 @@ image_save_ext (PyObject* self, PyObject* arg)
         namelen = strlen (name);
         Py_BEGIN_ALLOW_THREADS;
         if ((namelen > 3) &&
-            (((name[namelen-1]=='g' || name[namelen-1]=='G') &&
-              (name[namelen-2]=='e' || name[namelen-2]=='E')) ||
-             ((name[namelen-1]=='g' || name[namelen-1]=='G') &&
-              (name[namelen-2]=='p' || name[namelen-2]=='P')))
-            )
+            ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
+                (name[namelen - 3]=='p' || name[namelen - 2]=='P')) ||
+            ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
+                (name[namelen - 3]=='p' || name[namelen - 3]=='P') &&
+                (name[namelen - 4]=='j' || name[namelen - 3]=='J')) ||
+            ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
+                (name[namelen - 3]=='j' || name[namelen - 3]=='J')))
         {
 #ifdef JPEGLIB_H
             result = SaveJPEG (surf, name);
