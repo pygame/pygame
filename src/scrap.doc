@@ -29,13 +29,13 @@ used as string to be passed to the respective pygame.scrap module
 functions.
 
 For Windows platforms, the additional types are supported automatically
-and resolve to its internal definitions:
+and resolve to their internal definitions:
   text/plain;charset=utf-8 for UTF-8 encoded text
   audio/wav                for WAV encoded audio
   image/tiff               for TIFF encoded image data
 
 For X11 platforms, the additional types are supported automatically
-and resolve to its internal definitions:
+and resolve to their internal definitions:
   UTF8_STRING               for UTF-8 encoded text
   text/plain;charset=utf-8  for UTF-8 encoded text
   COMPOUND_TEXT             for COMPOUND text
