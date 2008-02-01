@@ -239,8 +239,6 @@ pygame_scrap_put (char *type, int srclen, char *src)
     return 1;
 }
 
-
-
 char*
 pygame_scrap_get (char *type, unsigned long *count)
 {
@@ -250,7 +248,7 @@ pygame_scrap_get (char *type, unsigned long *count)
     if (!pygame_scrap_initialized ())
     {
         PyErr_SetString (PyExc_SDLError, "scrap system not initialized.");
-        return 0;
+        return NULL;
     }
 
     if (!pygame_scrap_lost ())
@@ -302,7 +300,7 @@ pygame_scrap_get (char *type, unsigned long *count)
                 CloseClipboard ();
                 return src;
             }
-            else  if (*count != 0)
+            else if (*count != 0)
             {
                 retval = malloc (*count);
                 if (retval)
