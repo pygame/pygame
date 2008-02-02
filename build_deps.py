@@ -39,7 +39,7 @@ freetype 2.3.5
 libogg 1.1.3
 libvorbis 1.2.0
 tiff 3.8.2
-libpng 1.2.19rc2
+libpng 1.2.24
 jpeg 6b
 zlib 1.2.3
 
@@ -47,9 +47,9 @@ The build environment used:
 
 gcc-core-3.4.5
 binutils-2.17.50
-mingw-runtime-3.12
-win32api-3.9
-mingw32-make-3.8.1.1
+mingw-runtime-3.14
+win32api-3.11
+mingw32-make-3.81.2
 gcc-g++3.4.5
 MSYS-1.0.11
 MSYS-DTK-1.0.1 (for smpeg)
