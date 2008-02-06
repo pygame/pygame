@@ -257,7 +257,7 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
         return RAISE (PyExc_IndexError, "bytes to write exceed buffer size");
     }
 
-    memcpy (buffer->buffer + offset, buf, (size_t) length);
+    memcpy (((Uint8 *)buffer->buffer) + offset, buf, (size_t) length);
 
     Py_RETURN_NONE;
 }   
