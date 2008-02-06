@@ -724,7 +724,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 
                 *((Uint16 *) (pixels + y * padding) + offset) =
                     (Uint16)*((Uint16 *)
-                        (valsf->pixels + vy * val->padding) + val->start + vy);
+                        ((Uint8*)valsf->pixels + vy * val->padding) + val->start + vy);
             }
         }
         break;
@@ -744,7 +744,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
                 vx += val->xstep;
 
                 px = (Uint8 *) (pixels + y * padding) + offset * 3;
-                vpx = (Uint8 *) (valsf->pixels + y * val->padding) +
+                vpx = (Uint8 *) ((Uint8*)valsf->pixels + y * val->padding) +
                     (val->start + vx) * 3;
 
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
@@ -775,7 +775,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 
                 *((Uint32 *) (pixels + y * padding) + offset) =
                     *((Uint32 *)
-                        (valsf->pixels + y * val->padding) + val->start + vx);
+                        ((Uint8*)valsf->pixels + y * val->padding) + val->start + vx);
             }
         }
         break;
