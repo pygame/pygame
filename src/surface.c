@@ -451,6 +451,9 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
                 Bmask = 0xF;
                 Amask = 0xF << 12;
                 break;
+            case 24:
+                bpp = 32;
+                // we automatically step up to 32 if video is 24, fall through to case below
             case 32:
                 Rmask = 0xFF << 16;
                 Gmask = 0xFF << 8;
