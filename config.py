@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# For MinGW build requires Python 2.4 or better and win32api.
 
 """Quick tool to help setup the needed paths and flags
 in your Setup file. This will call the appropriate sub-config
@@ -15,40 +16,35 @@ found: true if the dep is available
 cflags: extra compile flags
 """
 
+import msysio
+import mingwcfg
 import sys, os, shutil, string
 
-def is_msys_mingw():
-    if os.environ.has_key("MSYSTEM"):
-        if os.environ["MSYSTEM"] == "MINGW32":
-            return 1
-    return 0
-
-if sys.platform == 'win32' and not is_msys_mingw():
-    print 'Using WINDOWS configuration...\n'
-    import config_win
-    CFG = config_win
-elif sys.platform == 'win32' and is_msys_mingw():
-    print 'Using WINDOWS mingw/msys configuration...\n'
-    import config_msys
-    CFG = config_msys
-elif sys.platform == 'darwin':
-    print 'Using Darwin configuration...\n'
-    import config_darwin
-    CFG = config_darwin
-else:
-    print 'Using UNIX configuration...\n'
-    import config_unix
-    CFG = config_unix
+def print_(*args, **kwds):
+    """Simular to the Python 3.0 print function"""
+    # This not only supports MSYS but is also a head start on the move to
+    # Python 3.0. Also, this function can be overridden for testing.
+    msysio.print_(*args, **kwds)
 
 def confirm(message):
     "ask a yes/no question, return result"
-    #The output must be flushed for the prompt to be visible on MSYS bash
-    sys.stdout.write("\n%s [Y/n]:" % message)
-    sys.stdout.flush()
-    reply = raw_input()
+    reply = msysio.raw_input_("\n%s [Y/n]:" % message)
     if reply and string.lower(reply[0]) == 'n':
         return 0
     return 1
+
+def is_msys_mingw():
+    """Return true if this in an MinGW/MSYS build
+
+    The user may prompted for confirmation so only call this function
+    once.
+    """
+    if msysio.is_msys():
+        return 1
+    if ('MINGW_ROOT_DIRECTORY' in os.environ or
+        os.path.isfile(mingwcfg.path)):
+        return confirm("Is this an mingw/msys build")
+    return 0
 
 def prepdep(dep, basepath):
     "add some vars to a dep"
@@ -113,6 +109,19 @@ def writesetupfile(deps, basepath):
             newsetup.write(line)
 
 def main():
+    if sys.platform == 'win32' and not is_msys_mingw():
+        print_('Using WINDOWS configuration...\n')
+        import config_win as CFG
+    elif sys.platform == 'win32':
+        print_('Using WINDOWS mingw/msys configuration...\n')
+        import config_msys as CFG
+    elif sys.platform == 'darwin':
+        print_('Using Darwin configuration...\n')
+        import config_darwin as CFG
+    else:
+        print_('Using UNIX configuration...\n')
+        import config_unix as CFG
+    
     if os.path.isfile('Setup'):
         if "-auto" in sys.argv or confirm('Backup existing "Setup" file'):
             shutil.copyfile('Setup', 'Setup.bak')
@@ -126,10 +135,10 @@ def main():
         for d in deps:
             prepdep(d, basepath)
         writesetupfile(deps, basepath)
-        print """\nIf you get compiler errors during install, doublecheck
-the compiler flags in the "Setup" file.\n"""
+        print_("""\nIf you get compiler errors during install, doublecheck
+the compiler flags in the "Setup" file.\n""")
     else:
-        print """\nThere was an error creating the Setup file, check for errors
-or make a copy of "Setup.in" and edit by hand."""
+        print_("""\nThere was an error creating the Setup file, check for errors
+or make a copy of "Setup.in" and edit by hand.""")
 
 if __name__ == '__main__': main()

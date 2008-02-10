@@ -1,12 +1,12 @@
+# Requires Python 2.4 or better and win32api.
+
 """Config on Msys mingw"""
 
 import dll
+import msys
 import os, sys, string
-import subprocess
-import re
 from glob import glob
 from distutils.sysconfig import get_python_inc
-import itertools
 
 configcommand = os.environ.get('SDL_CONFIG', 'sdl-config',)
 configcommand = configcommand + ' --version --cflags --libs'
@@ -21,71 +21,40 @@ origlibdirs = ['/lib']
 class ConfigError(Exception):
     pass
 
-msys_root = os.path.split(os.path.split(os.environ['SHELL'])[0])[0]  # Get msys root directory
-try:
-    mingw_root = os.environ['MINGW_ROOT_DIRECTORY']
-except KeyError:
-    pass
-check_for_drive = re.compile('/[A-Z]/', re.I).match
-def has_drive(path):
-    return check_for_drive(path) is not None
-
-class ConvertionError(ConfigError):
-    pass
-
-def msys_to_windows(path):
-    """Return a Windows translation of an MSYS path
-
-    The Unix path separator is uses as it survives the distutils setup file read process.
-    """
-    if path.startswith('/usr'):
-        path =  msys_root + path[4:]
-    elif path.startswith('/mingw'):
-        try:
-            path =  mingw_root + path[6:]
-        except NameError:
-            raise ConversionError('MINGW_ROOT_DIRECTORY environment variable undefined')
-    elif has_drive(path):
-        path =  path[1] + ":" + path[2:]
-    elif path == '/':
-        path = msys_root
-    elif path.startswith('/'):
-        path =  msys_root + path
-    return path.replace(os.sep, '/')
-
 def path_join(a, *p):
     return os.path.join(a, *p).replace(os.sep, '/')
 path_split = os.path.split
 
+def print_(*args, **kwds):
+    return msys.msys_print(*args, **kwds)
+
 def confirm(message):
     "ask a yes/no question, return result"
-    #The output must be flushed for the prompt to be visible on MSYS bash
-    sys.stdout.write("\n%s [Y/n]:" % message)
-    sys.stdout.flush()
-    reply = raw_input()
+    reply = msys.msys_raw_input("\n%s [Y/n]:" % message)
     if reply and string.lower(reply[0]) == 'n':
         return 0
     return 1
 
 class DependencyProg:
     needs_dll = True
-    def __init__(self, name, envname, exename, minver, defaultlibs=None):
+    def __init__(self, name, envname, exename, minver, msys, defaultlibs=None):
         if defaultlibs is None:
             defaultlibs = [dll.name_to_root(name)]
         self.name = name
-        command = os.environ.get(envname, exename)
-        drv, pth = os.path.splitdrive(command)
-        if drv:
-            command = '/' + drv[0] + pth
-        shell = os.environ['SHELL']
+        try:
+            command = os.environ[envname]
+        except KeyError:
+            command = exename
+        else:
+            drv, pth = os.path.splitdrive(command)
+            if drv:
+                command = '/' + drv[0] + pth
         self.lib_dir = ''
         self.inc_dir = ''
         self.libs = []
         self.cflags = ''
         try:
-            config = subprocess.Popen([shell, command, '--version', '--cflags', '--libs'],
-                                      stdout=subprocess.PIPE
-                                      ).communicate()[0]
+            config = msys.run_shell_command([command, '--version', '--cflags', '--libs'])
             ver, flags = config.split('\n', 1)
             self.ver = ver.strip()
             flags = flags.split()
@@ -96,23 +65,23 @@ class DependencyProg:
             self.cflags = ''
             for f in flags:
                 if f[:2] in ('-I', '-L'):
-                    self.cflags += f[:2] + msys_to_windows(f[2:]) + ' '
+                    self.cflags += f[:2] + msys.msys_to_windows(f[2:]) + ' '
                 elif f[:2] in ('-l', '-D'):
                     self.cflags += f + ' '
                 elif f[:3] == '-Wl':
                     self.cflags += '-Xlinker ' + f + ' '
         except:
-            print 'WARNING: "%s" failed!' % command    
+            print_('WARNING: "%s" failed!' % command)
             self.found = 0
             self.ver = '0'
             self.libs = defaultlibs
 
     def configure(self, incdirs, libdir):
         if self.found:
-            print self.name + '        '[len(self.name):] + ': found ' + self.ver
+            print_(self.name + '        '[len(self.name):] + ': found ' + self.ver)
             self.found = 1
         else:
-            print self.name + '        '[len(self.name):] + ': not found'
+            print_(self.name + '        '[len(self.name):] + ': not found')
 
 class Dependency:
     needs_dll = True
@@ -133,10 +102,10 @@ class Dependency:
         self.find_lib_dir(libdirs)
         
         if self.lib_dir and self.inc_dir:
-            print self.name + '        '[len(self.name):] + ': found'
+            print_(self.name + '        '[len(self.name):] + ': found')
             self.found = 1
         else:
-            print self.name + '        '[len(self.name):] + ': not found'
+            print_(self.name + '        '[len(self.name):] + ': not found')
 
     def find_inc_dir(self, incdirs):
         incname = self.checkhead
@@ -182,9 +151,9 @@ class DependencyPython:
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print self.name + '        '[len(self.name):] + ': found', self.ver
+            print_(self.name + '        '[len(self.name):] + ': found', self.ver)
         else:
-            print self.name + '        '[len(self.name):] + ': not found'
+            print_(self.name + '        '[len(self.name):] + ': not found')
 
 class DependencyWin:
     needs_dll = False
@@ -249,13 +218,14 @@ class DependencyDLL:
 
 
 def main():
-    print '\nHunting dependencies...'
+    m = msys.Msys(require_mingw=False)
+    print_('\nHunting dependencies...')
     DEPS = [
-        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2'),
+        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', m),
         Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.dll.a'),
         Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.dll.a'),
         Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.dll.a'),
-        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3'),
+        DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', m),
         Dependency('PNG', 'png.h', 'libpng.dll.a'),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
         DependencyWin('SCRAP', ['user32', 'gdi32']),
@@ -267,8 +237,8 @@ def main():
     ]
 
     if not DEPS[0].found:
-        print 'Unable to run "sdl-config". Please make sure a development version of SDL is installed.'
-        raise SystemExit
+        print_('Unable to run "sdl-config". Please make sure a development version of SDL is installed.')
+        sys.exit(1)
 
     if localbase:
         incdirs = [localbase+d for d in origincdirs]
@@ -276,10 +246,11 @@ def main():
     else:
         incdirs = []
         libdirs = []
-    incdirs += [msys_to_windows("/usr/local"+d) for d in origincdirs]
-    libdirs += [msys_to_windows("/usr/local"+d) for d in origlibdirs]
-    incdirs += [msys_to_windows("/mingw"+d) for d in origincdirs]
-    libdirs += [msys_to_windows("/mingw"+d) for d in origlibdirs]
+    incdirs += [m.msys_to_windows("/usr/local"+d) for d in origincdirs]
+    libdirs += [m.msys_to_windows("/usr/local"+d) for d in origlibdirs]
+    if m.mingw_root is not None:
+        incdirs += [m.msys_to_windows("/mingw"+d) for d in origincdirs]
+        libdirs += [m.msys_to_windows("/mingw"+d) for d in origlibdirs]
     for arg in string.split(DEPS[0].cflags):
         if arg[:2] == '-I':
             incdirs.append(arg[2:])
@@ -297,9 +268,9 @@ def main():
     for d in DEPS:
         if isinstance(d, DependencyDLL):
             if d.lib_dir == '':
-                print "DLL for %-12s: not found" % d.lib_name
+                print_("DLL for %-12s: not found" % d.lib_name)
             else:
-                print "DLL for %-12s: %s" % (d.lib_name, d.lib_dir)
+                print_("DLL for %-12s: %s" % (d.lib_name, d.lib_dir))
     
     for d in DEPS[1:]:
         if not d.found:
@@ -313,6 +284,6 @@ will not run. Would you like to continue the configuration?"""):
     return DEPS
 
 if __name__ == '__main__':
-    print """This is the configuration subscript for MSYS.
-Please run "config.py" for full configuration."""
+    print_("""This is the configuration subscript for MSYS.
+Please run "config.py" for full configuration.""")
 
