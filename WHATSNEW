@@ -5,6 +5,20 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 #
 #
+Feb 12, 2008 (svn 1107)
+    Further Windows build updates:
+      For MinGW/MSYS the build process now finds the MSYS and MinGW
+      directories automatically. gcc links to msvcr71.dll without
+      requiring changes to the gcc specs file. This makes the build
+      process GCC Version 4 ready. By default all DLLs are Win32 GUI,
+      but can be console. The build progams will run from either the
+      Windows or MSYS terminal.
+
+      Fixed a bug where DLLs were not installed in the package directory.
+      For Windows, everything now goes into the package directory.
+
+      build_deps.py renamed to msys_build_deps.py to avoid confusion.
+
 Jan 26, 2008
     pygame.sndarray noew can change between Numeric and numpy using the
       new methods pygame.sndarray.use_array () and

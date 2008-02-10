@@ -183,7 +183,9 @@ def setup_prebuilt():
     for line in open('Setup.in').readlines():
         if line[:3] == '#--': continue
         if line[:6] == 'SDL = ':
-            line = 'SDL = -Iprebuilt/include -Lprebuilt/lib -lSDL\n'
+            line = 'SDL = -Iprebuilt/include -Iprebuilt/include/SDL -Lprebuilt/lib -lSDL\n'
+        if line[:8] == 'SMPEG = ':
+            line = 'SMPEG = -Iprebuilt/include/smpeg -lsmpeg\n'
         if line[:8] == 'SCRAP = ':
             line = 'SCRAP = -luser32 -lgdi32\n'
         setup.write(line)

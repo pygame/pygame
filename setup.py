@@ -51,7 +51,6 @@ import os.path, glob
 import distutils.sysconfig
 from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
-from distutils.ccompiler import new_compiler
 from distutils.command.install_data import install_data
 
 try:
@@ -64,16 +63,6 @@ else:
         'options': bdist_mpkg_support.options,
         'setup_requires': ['bdist_mpkg>=0.4.2'],
     })
-
-import config
-# a separate method for finding dlls with mingw.
-if config.is_msys_mingw():
-
-	# fix up the paths for msys compiling.
-	import distutils_mods
-	distutils.cygwinccompiler.Mingw32 = distutils_mods.mingcomp
-
-
 
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
@@ -111,9 +100,41 @@ for f in glob.glob(os.path.join('lib', '*')):
     if not f[-3:] =='.py' and os.path.isfile(f):
         data_files.append(f)
 
+# For Unix systems this is good enough.
+data_files_target = 'pygame'
+
+# Required. This will be filled if doing a Windows build.
+cmdclass = {}
 
 #try to find DLLs and copy them too  (only on windows)
 if sys.platform == 'win32':
+
+    from distutils.command.build_ext import build_ext
+    # mingw32distutils is optional. But we need the mingw32 compiler(s).
+    try:
+        # Allow the choice between Win32 GUI and console DLLs.
+        import mingw32distutils
+    except ImportError:
+        mingw32_compilers = ['ming32']
+    else:
+        mingw32_compilers = mingw32distutils.compilers
+    if sys.version_info < (2, 4):
+        try:
+            # !!! This part looks very outdated. distutils_mods does not
+            # even show up on a Google search. It can probably go at some
+            # point. It is not needed for Python 2.4 and higher.
+            import config
+            # a separate method for finding dlls with mingw.
+            if config.is_msys_mingw():
+
+                # fix up the paths for msys compiling.
+                import distutils_mods
+                distutils.cygwinccompiler.Mingw32 = distutils_mods.mingcomp
+        except ImportError:
+            pass
+        
+    # We want everything in the pygame package directory.
+    data_files_target = 'Lib\\site-packages\\pygame'
 
     #add dependency DLLs to the project
     import dll
@@ -132,6 +153,44 @@ if sys.platform == 'win32':
             print "WARNING, DLL for %s library not found." % lib
         else:
             data_files.append(f)
+
+    class WinBuildExt(build_ext):
+        """This build_ext sets necessary environment variables for MinGW"""
+
+        # __sdl_lib_dir is possible location of msvcrt replacement import
+        # libraries, if they exist. Pygame module base only links to SDL so
+        # should have the SDL library directory as its only -L option.
+        for e in extensions:
+            if e.name == 'base':
+                __sdl_lib_dir = e.library_dirs[0].replace('/', os.sep)
+                break
+        
+        def run(self):
+            """Extended to set MINGW_ROOT_DIRECTORY, PATH and LIBRARY_PATH"""
+            
+            if self.compiler in mingw32_compilers:
+                # Add MinGW environment variables.
+                if 'MINGW_ROOT_DIRECTORY' not in os.environ:
+                    # Use MinGW setup conifiguration file if present.
+                    import mingwcfg
+                    try:
+                        mingw_root = mingwcfg.read()
+                    except IOError:
+                        raise RuntimeError(
+                            "mingw32: required environment variable"
+                            " MINGW_ROOT_DIRECTORY not set")
+                    os.environ['MINGW_ROOT_DIRECTORY'] = mingw_root
+                    path = os.environ['PATH']
+                    os.environ['PATH'] = ';'.join([os.path.join(mingw_root, 'bin'),
+                                                   path])
+                if sys.version_info >= (2, 4):
+                    os.environ
+                    # For an MinGW build requiring msvcr71.dll linkage overide the
+                    # msvcrt.dll import libraries.
+                    os.environ['LIBRARY_PATH'] = (
+                        os.path.join(self.__sdl_lib_dir, 'msvcr71'))
+            build_ext.run(self)
+    cmdclass['build_ext'] = WinBuildExt
 
 
 
@@ -162,7 +221,8 @@ PACKAGEDATA = {
                        'pygame.gp2x': 'lib/gp2x'},
        "headers":     headers,
        "ext_modules": extensions,
-       "data_files":  [['pygame', data_files]],
+       "data_files":  [[data_files_target, data_files]],
+       "cmdclass": cmdclass,
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
