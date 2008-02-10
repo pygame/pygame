@@ -1,6 +1,6 @@
 # program test_config_msys.py
 
-"""Test config_msys.py for against a dummy directory structure.
+"""Test config_msys.py against a dummy directory structure.
 
 This test must be performed on an MSYS console.
 """
@@ -8,11 +8,6 @@ This test must be performed on an MSYS console.
 import os
 import os.path
 import sys
-
-# Ensure the execution environment is correct
-if not ("MSYSTEM" in os.environ and os.environ["MSYSTEM"] == "MINGW32"):  # cond. and
-    print "This test must be run from an MSYS console."
-    sys.exit(1)
 
 test_dir = './testdir'
 if not os.path.isdir(test_dir):
