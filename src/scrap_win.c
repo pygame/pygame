@@ -20,8 +20,9 @@
 */
 #include <Windows.h>
 
-#ifndef CF_DIBV5
-#define CF_DIBV5 CF_DIB
+#if !defined(CF_DIBV5)
+/* Missing from the MinGW win32api-3.11 winuser.h header */
+#define CF_DIBV5 17
 #endif
 
 static HWND SDL_Window;
