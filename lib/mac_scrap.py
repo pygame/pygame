@@ -7,19 +7,35 @@ from Foundation import *
 import sys
 import tempfile
 import pygame.image
-from pygame.locals import SCRAP_TEXT, SCRAP_BMP
+from pygame.locals import SCRAP_TEXT, SCRAP_BMP, SCRAP_SELECTION, SCRAP_CLIPBOARD
 from cStringIO import StringIO
 
 ScrapPboardType = u'org.pygame.scrap'
+
+
+err = "Only text has been implemented for scrap on mac. See lib/mac_scrap.py to debug."
+
+
 
 def init():
     return 1
 
 def get(scrap_type):
     board = NSPasteboard.generalPasteboard()
+    
+    if 0:
+        print board.types
+        print dir(board.types)
+        print dir(board)
+        print board.__doc__
+
     if scrap_type == SCRAP_TEXT:
         return board.stringForType_(NSStringPboardType)
-    elif scrap_type == SCRAP_BMP:
+    elif 1:
+        raise NotImplementedError(err)
+
+
+    elif 0 and scrap_type == SCRAP_BMP:
         # We could try loading directly but I don't trust pygame's TIFF
         # loading.  This is slow and stupid but it does happen to work.
         if not NSImage.canInitWithPasteboard_(board):
@@ -32,7 +48,10 @@ def get(scrap_type):
         data = rep.representationUsingType_properties_(NSBMPFileType, None)
         bmp = StringIO(data)
         return pygame.image.load(bmp, "scrap.bmp")
-    elif scrap_type in board.types:
+    #elif scrap_type in board.types:
+    elif scrap_type == SCRAP_BMP:
+        return board.dataForType_(scrap_type)
+    else:
         return board.stringForType_(scrap_type)
 
 def put(scrap_type, thing):
@@ -42,10 +61,23 @@ def put(scrap_type, thing):
         if isinstance(thing, unicode):
             text_thing = thing
         else:
-            text_thing = unicode(text_thing, 'utf-8')
+            text_thing = unicode(thing, 'utf-8')
         board.setString_forType_(text_thing, NSStringPboardType)
         board.setString_forType_(u'', ScrapPboardType)
-    elif scrap_type == SCRAP_BMP:
+    elif 1:
+        raise NotImplementedError(err)
+
+
+
+
+
+    elif 0 and scrap_type == SCRAP_BMP:
+        # Don't use this code... we put the data in as a string.
+
+        #if type(thing) != type(pygame.Surface((1,1))):
+        #    thing = pygame.image.fromstring(thing, len(thing) * 4, "RGBA")
+
+
         # This is pretty silly, we shouldn't have to do this...
         fh = tempfile.NamedTemporaryFile(suffix='.png')
         pygame.image.save(thing, fh.name)
@@ -58,12 +90,35 @@ def put(scrap_type, thing):
         board.declareTypes_owner_([NSTIFFPboardType, ScrapPboardType], None)
         board.setData_forType_(tiff, NSTIFFPboardType)
         board.setString_forType_(u'', ScrapPboardType)
+    elif scrap_type == SCRAP_BMP:
+        
+        other_type = scrap_type
+        board.declareTypes_owner_([other_type], None)
+        board.setData_forType_(thing, other_type)
+
     else:
-        pass
+        other_type = scrap_type
+        if 0:
+            board.declareTypes_owner_([NSStringPboardType, other_type], None)
+            board.setString_forType_(text_thing, NSStringPboardType)
+        elif 0:
+            board.declareTypes_owner_([other_type], None)
+            #board.setString_forType_(thing, other_type)
+            board.setData_forType_(thing, other_type)
+        else:
+            board.declareTypes_owner_([NSStringPboardType, other_type], None)
+            board.setString_forType_(thing, NSStringPboardType)
+
+        #board.setData_forType_(thing, other_type)
+
+
+
+
 
 def set_mode (mode):
     # No diversion between clipboard and selection modes on MacOS X.
-    pass
+    if mode not in [SCRAP_SELECTION, SCRAP_CLIPBOARD]:
+        raise ValueError("invalid clipboard mode")
 
 def contains (scrap_type):
     return scrap_type in NSPasteboard.generalPasteboard ().types ()
