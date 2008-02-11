@@ -20,11 +20,12 @@ class ScrapTest (unittest.TestCase):
         sf = pygame.image.load ("examples/data/asprite.bmp")
         string = pygame.image.tostring (sf, "RGBA")
         scrap.put (pygame.SCRAP_BMP, string)
-        self.assertEquals (scrap.get (pygame.SCRAP_BMP), string)
+        self.assertEquals (scrap.get(pygame.SCRAP_BMP), string)
 
     def test_scrap_put (self):
         scrap.put ("arbitrary buffer", "buf")
-        self.assertEquals (scrap.get ("arbitrary buffer"), "buf")
+        r = scrap.get ("arbitrary buffer")
+        self.assertEquals (r, "buf")
 
 if __name__ == '__main__':
     pygame.init ()

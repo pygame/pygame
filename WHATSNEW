@@ -5,7 +5,15 @@
 # BUG	= fixed a bug that was (or could have been) crashing
 #
 #
-Feb 12, 2008 (svn 1107)
+
+
+Feb 11, 2008
+    An example of using pygame with no windowing system.  Useful for webserver
+      scripts, or for little utilities.
+
+    Updated mac_scrap to pass some tests, and raise NotImplementedError 
+      otherwise.
+
     Further Windows build updates:
       For MinGW/MSYS the build process now finds the MSYS and MinGW
       directories automatically. gcc links to msvcr71.dll without
