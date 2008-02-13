@@ -84,14 +84,14 @@ void initconstants (void)
     DEC_CONST(GL_ACCUM_GREEN_SIZE);
     DEC_CONST(GL_ACCUM_BLUE_SIZE);
     DEC_CONST(GL_ACCUM_ALPHA_SIZE);
-#if SDL_VERSION_ATLEAST(1, 2, 10)
-    DEC_CONST(GL_SWAP_CONTROL);
-#endif
+
 #if SDL_VERSION_ATLEAST(1, 2, 5)
     DEC_CONST(GL_STEREO);
 #else
     PyModule_AddIntConstant(module, "GL_STEREO", -1);
 #endif
+
+
 #if SDL_VERSION_ATLEAST(1, 2, 6)
     DEC_CONST(GL_MULTISAMPLEBUFFERS);
     DEC_CONST(GL_MULTISAMPLESAMPLES);
@@ -99,6 +99,26 @@ void initconstants (void)
     PyModule_AddIntConstant(module, "GL_MULTISAMPLEBUFFERS", -1);
     PyModule_AddIntConstant(module, "GL_MULTISAMPLESAMPLES", -1);
 #endif
+
+#if SDL_VERSION_ATLEAST(1, 2, 10)
+    DEC_CONST(GL_SWAP_CONTROL);
+    DEC_CONST(GL_ACCELERATED_VISUAL);
+#else
+    PyModule_AddIntConstant(module, "GL_SWAP_CONTROL", -1);
+    PyModule_AddIntConstant(module, "GL_ACCELERATED_VISUAL", -1);
+#endif
+
+
+#if SDL_VERSION_ATLEAST(1, 2, 13)
+    DEC_CONST(BUTTON_X1);
+    DEC_CONST(BUTTON_X2);
+#else
+    PyModule_AddIntConstant(module, "BUTTON_X1", -1);
+    PyModule_AddIntConstant(module, "BUTTON_X2", -1);
+#endif
+
+
+
 
     DEC_CONSTN(TIMER_RESOLUTION);
     

@@ -46,6 +46,30 @@ key_set_repeat (PyObject* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
+
+
+static PyObject*
+key_get_repeat (PyObject* self, PyObject* args)
+{
+    int delay = 0, interval = 0;
+
+    VIDEO_INIT_CHECK ();
+#if SDL_VERSION_ATLEAST(1, 2, 10)
+    SDL_GetKeyRepeat (&delay, &interval);
+    return Py_BuildValue ("(ii)", delay, interval);
+#else
+    Py_RETURN_NONE;
+#endif
+}
+
+
+
+
+
+
+
+
+
 static PyObject*
 key_get_pressed (PyObject* self)
 {
@@ -122,6 +146,7 @@ key_get_focused (PyObject* self)
 static PyMethodDef key_builtins[] =
 {
     { "set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT },
+    { "get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT },
     { "get_pressed", (PyCFunction) key_get_pressed, METH_NOARGS,
       DOC_PYGAMEKEYGETPRESSED },
     { "name", key_name, METH_VARARGS, DOC_PYGAMEKEYNAME },
