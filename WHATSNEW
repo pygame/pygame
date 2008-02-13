@@ -6,6 +6,13 @@
 #
 #
 
+Feb 14, 2008
+    Updated constants GL_SWAP_CONTROL,GL_ACCELERATED_VISUAL,BUTTON_X1,BUTTON_X2
+
+    Added pygame.key.get_repeat to see how holding keys down repeats.  This is
+      the sister function of pygame.ket.set_repeat.
+
+    MacOSX, and Windows binaries now use latest SDL 1.2.13
 
 Feb 11, 2008
     An example of using pygame with no windowing system.  Useful for webserver
