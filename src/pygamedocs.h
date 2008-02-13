@@ -283,6 +283,8 @@
 
 #define DOC_PYGAMEKEYSETREPEAT "pygame.key.set_repeat(): return None\npygame.key.set_repeat(delay, interval): return None\ncontrol how held keys are repeated"
 
+#define DOC_PYGAMEKEYGETREPEAT "pygame.key.get_repeat(): return (delay, interval)\nsee how held keys are repeated"
+
 #define DOC_PYGAMEKEYNAME "pygame.key.name(key): return string\nget the name of a key identifier"
 
 #define DOC_PYGAMEMASK "pygame module for image masks."
