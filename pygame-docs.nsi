@@ -21,6 +21,7 @@ InstallDir "$PROGRAMFILES\${APP_NAME}"
 ShowInstDetails show
 ShowUninstDetails show
 InstallDirRegKey ${INSTDIR_REG_ROOT} "${INSTDIR_REG_KEY}" "InstallDir"
+RequestExecutionLevel admin  ; For Vista, because alters registry.
 
 Var StartMenuFolder
 Var InstalledSomething
