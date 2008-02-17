@@ -36,7 +36,7 @@ Feb 11, 2008
 
 Jan 26, 2008
     pygame.sndarray noew can change between Numeric and numpy using the
-      new methods pygame.sndarray.use_array () and
+      new methods pygame.sndarray.use_arraytype () and
       pygame.sndarray.get_arraytypes ().
 
 Jan 24, 2008
@@ -54,7 +54,7 @@ Jan 24, 2008
 
 Jan 8, 2008
     pygame.surfarray now can change between Numeric and numpy using the
-       new methods pygame.surfarray.use_array () and
+       new methods pygame.surfarray.use_arraytype () and
        pygame.surfarray.get_arraytypes ().
 
 Jan 4, 2008
