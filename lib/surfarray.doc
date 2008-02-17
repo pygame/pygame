@@ -26,7 +26,7 @@ The default will be Numeric, if installed. Otherwise, numpy will be set
 as default if installed. If neither Numeric nor numpy are installed, the
 module will raise an ImportError.
 
-The array type to use can be changed at runtime using the use_array()
+The array type to use can be changed at runtime using the use_arraytype ()
 method, which requires one of the above types as string.
 
 Note: numpy and Numeric are not completely compatible. Certain array
@@ -171,9 +171,9 @@ format to control the conversion. Palette surface formats are not
 supported.
 <END>
 
-use_array
+use_arraytype
 Sets the array system to be used for surface arrays
-pygame.surfarray.use_array (arraytype): return None
+pygame.surfarray.use_arraytype (arraytype): return None
 
 Uses the requested array type for the module functions.
 Currently supported array types are:
@@ -186,13 +186,24 @@ If the requested type is not available, a ValueError will be raised.
 New in pygame 1.8.
 <END>
 
+get_arraytype
+Gets the currently active array type.
+pygame.surfarray.get_arraytype (): return str
+
+Returns the currently active array type. This will be a value of the
+get_arraytypes() tuple and indicates which type of array module is used
+for the array creation.
+
+New in pygame 1.8
+<END>
+
 get_arraytypes
 Gets the array system types currently supported.
 pygame.surfarray.get_arraytypes (): return tuple
 
 Checks, which array systems are available and returns them as a tuple of
 strings. The values of the tuple can be used directly in the
-pygame.surfarray.use_array() method. If no supported array system could
+pygame.surfarray.use_arraytype () method. If no supported array system could
 be found, None will be returned.
 
 New in pygame 1.8.

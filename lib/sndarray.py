@@ -42,7 +42,7 @@ The default will be Numeric, if installed. Otherwise, numpy will be set
 as default if installed. If neither Numeric nor numpy are installed, the
 module will raise an ImportError.
 
-The array type to use can be changed at runtime using the use_array()
+The array type to use can be changed at runtime using the use_arraytype()
 method, which requires one of the above types as string.
 
 Note: numpy and Numeric are not completely compatible. Certain array
@@ -58,7 +58,7 @@ mind, if you use the module's functions and wonder about the values.
 
 import pygame
 
-# Global array type setting. See use_array().
+# Global array type setting. See use_arraytype().
 __arraytype = None
 
 # Try to import the necessary modules.
@@ -125,8 +125,8 @@ def make_sound (array):
         return numpysnd.make_sound (array)
     raise NotImplementedError, "sound arrays are not supported"
 
-def use_array (arraytype):
-    """pygame.sndarray.use_array (arraytype): return None
+def use_arraytype (arraytype):
+    """pygame.sndarray.use_arraytype (arraytype): return None
 
     Sets the array system to be used for sound arrays.
 
@@ -155,6 +155,17 @@ def use_array (arraytype):
     else:
         raise ValueError, "invalid array type"
 
+def get_arraytype ():
+    """pygame.sndarray.get_arraytype (): return str
+
+    Gets the currently active array type.
+
+    Returns the currently active array type. This will be a value of the
+    get_arraytypes() tuple and indicates which type of array module is
+    used for the array creation.
+    """
+    return __arraytype
+
 def get_arraytypes ():
     """pygame.sndarray.get_arraytypes (): return tuple
 
@@ -162,7 +173,7 @@ def get_arraytypes ():
 
     Checks, which array system types are available and returns them as a
     tuple of strings. The values of the tuple can be used directly in
-    the use_array () method.
+    the use_arraytype () method.
 
     If no supported array system could be found, None will be returned.
     """
