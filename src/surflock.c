@@ -68,7 +68,8 @@ static int
 PySurface_Unlock (PyObject* surfobj)
 {
     PySurfaceObject* surf = (PySurfaceObject*) surfobj;
-    SDL_UnlockSurface (surf->surf);
+    if (surf->surf != NULL)
+        SDL_UnlockSurface (surf->surf);
     if (surf->subsurface)
         PySurface_Unprep (surfobj);
     return 1;
