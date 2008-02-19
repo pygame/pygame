@@ -642,11 +642,26 @@ get_losses
 the significant bits used to convert between a color and a mapped integer
 Surface.get_losses(): return (R, G, B, A)
 
-Return the least significan number of bits stripped from each color
+Return the least significant number of bits stripped from each color
 in a mapped integer.
 
 This value is not needed for normal Pygame usage.
 <END>
+
+
+
+get_bounding_rect
+find the smallest rect containing data
+Surface.get_bounding_rect(min_alpha = 1): return Rect
+
+Returns the smallest rectangular region that contains all the pixels
+in the surface that have an alpha value greater than or equal to the
+minimum alpha value. 
+
+This function will temporarily lock and unlock the Surface as needed.
+<END>
+
+
 
 get_buffer
 acquires a buffer object for the pixels of the Surface.
