@@ -307,13 +307,13 @@
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 
-#define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, stereo=2, buffer=1024): return None\ninitialize the mixer module"
+#define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=1024): return None\ninitialize the mixer module"
 
-#define DOC_PYGAMEMIXERPREINIT "pygame.mixer.pre_init(frequency=0, size=0, stereo=0, buffersize=0): return None\npreset the mixer init arguments"
+#define DOC_PYGAMEMIXERPREINIT "pygame.mixer.pre_init(frequency=0, size=0, channels=0, buffersize=0): return None\npreset the mixer init arguments"
 
 #define DOC_PYGAMEMIXERQUIT "pygame.mixer.quit(): return None\nuninitialize the mixer"
 
-#define DOC_PYGAMEMIXERGETINIT "pygame.mixer.get_init(): return (frequency, format, stereo)\ntest if the mixer is initialized"
+#define DOC_PYGAMEMIXERGETINIT "pygame.mixer.get_init(): return (frequency, format, channels)\ntest if the mixer is initialized"
 
 #define DOC_PYGAMEMIXERSTOP "pygame.mixer.stop(): return None\nstop playback of all sound channels"
 
@@ -674,6 +674,8 @@
 #define DOC_SURFACEGETSHIFTS "Surface.get_shifts(): return (R, G, B, A)\nthe bit shifts needed to convert between a color and a mapped integer"
 
 #define DOC_SURFACEGETLOSSES "Surface.get_losses(): return (R, G, B, A)\nthe significant bits used to convert between a color and a mapped integer"
+
+#define DOC_SURFACEGETBOUNDINGRECT "Surface.get_bounding_rect(min_alpha = 1): return Rect\nfind the smallest rect containing data"
 
 #define DOC_SURFACEGETBUFFER "Surface.get_buffer(): return BufferProxy\nacquires a buffer object for the pixels of the Surface."
 
