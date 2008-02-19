@@ -878,25 +878,26 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
         const void *buf;
         Py_ssize_t buflen;
 
-        if (PyObject_AsReadBuffer (file, &buf, &buflen) == -1)
-            return -1;
-        chunk = malloc (sizeof (Mix_Chunk));
-        if (!chunk)
+        if (PyObject_AsReadBuffer (file, &buf, &buflen) == 0)
         {
-            RAISE (PyExc_MemoryError, "cannot allocate chunk");
-            return -1;
+            chunk = malloc (sizeof (Mix_Chunk));
+            if (!chunk)
+            {
+                RAISE (PyExc_MemoryError, "cannot allocate chunk");
+                return -1;
+            }
+            chunk->alen = buflen;
+            chunk->abuf = malloc (buflen);
+            if (!chunk->abuf)
+            {
+                free (chunk);
+                RAISE (PyExc_MemoryError, "cannot allocate chunk");
+                return -1;
+            }
+            chunk->allocated = 1;
+            chunk->volume = 128;
+            memcpy (chunk->abuf, buf, buflen);
         }
-        chunk->alen = buflen;
-        chunk->abuf = malloc (buflen);
-        if (!chunk->abuf)
-        {
-            free (chunk);
-            RAISE (PyExc_MemoryError, "cannot allocate chunk");
-            return -1;
-        }
-        chunk->allocated = 1;
-        chunk->volume = 128;
-        memcpy (chunk->abuf, buf, buflen);
     }
     
     if (!chunk)
