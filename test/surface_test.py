@@ -55,19 +55,12 @@ class SurfaceTest( unittest.TestCase ):
 
 
     def test_SRCALPHA(self):
-
         # has the flag been passed in ok?
         surf = pygame.Surface((70,70), SRCALPHA, 32)
         self.assertEqual(surf.get_flags() & SRCALPHA, SRCALPHA)
 
-
         #24bit surfaces can not have SRCALPHA.
         self.assertRaises(ValueError, pygame.Surface, (100, 100), pygame.SRCALPHA, 24)
-        #s.fill((255, 0, 0))
-
-        #self.assertEqual(s.get_bitsize(), 24)
-        #self.assertEqual(s.get_bytesize(), 4)
-
 
         # if we have a 32 bit surface, the SRCALPHA should have worked too.
         surf2 = pygame.Surface((70,70), SRCALPHA)
@@ -79,6 +72,48 @@ class SurfaceTest( unittest.TestCase ):
         buf = surf.get_buffer ()
         # 70*70*4 bytes = 19600
         self.assertEqual (repr (buf), "<BufferProxy(19600)>")
+
+    def test_get_bounding_rect (self):
+        surf = pygame.Surface ((70, 70), SRCALPHA, 32)
+        surf.fill((0,0,0,0))
+        bound_rect = surf.get_bounding_rect()
+        self.assertEqual(bound_rect.width, 0)
+        self.assertEqual(bound_rect.height, 0)
+        surf.set_at((30,30),(255,255,255,1))
+        bound_rect = surf.get_bounding_rect()
+        self.assertEqual(bound_rect.left, 30)
+        self.assertEqual(bound_rect.top, 30)
+        self.assertEqual(bound_rect.width, 1)
+        self.assertEqual(bound_rect.height, 1)
+        surf.set_at((29,29),(255,255,255,1))
+        bound_rect = surf.get_bounding_rect()
+        self.assertEqual(bound_rect.left, 29)
+        self.assertEqual(bound_rect.top, 29)
+        self.assertEqual(bound_rect.width, 2)
+        self.assertEqual(bound_rect.height, 2)
+        
+        surf = pygame.Surface ((70, 70), 0, 24)
+        surf.fill((0,0,0))
+        bound_rect = surf.get_bounding_rect()
+        self.assertEqual(bound_rect.width, surf.get_width())
+        self.assertEqual(bound_rect.height, surf.get_height())
+
+        surf.set_colorkey((0,0,0))
+        bound_rect = surf.get_bounding_rect()
+        self.assertEqual(bound_rect.width, 0)
+        self.assertEqual(bound_rect.height, 0)
+        surf.set_at((30,30),(255,255,255))
+        bound_rect = surf.get_bounding_rect()
+        self.assertEqual(bound_rect.left, 30)
+        self.assertEqual(bound_rect.top, 30)
+        self.assertEqual(bound_rect.width, 1)
+        self.assertEqual(bound_rect.height, 1)
+        surf.set_at((60,60),(255,255,255))
+        bound_rect = surf.get_bounding_rect()
+        self.assertEqual(bound_rect.left, 30)
+        self.assertEqual(bound_rect.top, 30)
+        self.assertEqual(bound_rect.width, 31)
+        self.assertEqual(bound_rect.height, 31)
 
 if __name__ == '__main__':
     unittest.main()

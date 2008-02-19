@@ -82,6 +82,8 @@ static PyObject *surf_get_offset (PyObject *self);
 static PyObject *surf_get_parent (PyObject *self);
 static PyObject *surf_subsurface (PyObject *self, PyObject *args);
 static PyObject *surf_get_buffer (PyObject *self);
+static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
+                                          PyObject *kwargs);
 
 static struct PyMethodDef surface_methods[] =
 {
@@ -157,6 +159,8 @@ static struct PyMethodDef surface_methods[] =
       DOC_SURFACEGETPARENT },
     { "get_abs_parent", (PyCFunction) surf_get_abs_parent, METH_NOARGS,
       DOC_SURFACEGETABSPARENT },
+    { "get_bounding_rect", (PyCFunction) surf_get_bounding_rect, METH_KEYWORDS,
+      DOC_SURFACEGETBOUNDINGRECT},
     { "get_buffer", (PyCFunction) surf_get_buffer, METH_NOARGS,
       DOC_SURFACEGETBUFFER},
 
@@ -298,7 +302,6 @@ surface_str (PyObject *self)
 }
 
 static intptr_t 
-//surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
 surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
 {
     Uint32 flags = 0;
@@ -1658,13 +1661,138 @@ surf_get_abs_parent (PyObject *self)
     return owner;
 }
 
+static PyObject *
+surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    PyObject *rect;
+    SDL_Surface *surf = PySurface_AsSurface (self);
+    SDL_PixelFormat *format = surf->format;
+    Uint8 *pixels = (Uint8 *) surf->pixels;
+    Uint8 *pixel;
+    int x, y;
+    int min_x, min_y, max_x, max_y;
+    int min_alpha = 1;
+    int found_alpha = 0;
+    Uint8 r, g, b, a;
+    int has_colorkey = 0;
+    Uint8 keyr, keyg, keyb;
+
+    char *kwids[] = { "min_alpha", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &min_alpha))
+       return RAISE (PyExc_ValueError, "get_bounding_rect only accepts a single optional min_alpha argument");
+    
+    if (!surf)
+        return RAISE (PyExc_SDLError, "display Surface quit");
+
+    if (!PySurface_Lock (self))
+    	return RAISE (PyExc_SDLError, "could not lock surface");
+
+    if (surf->flags & SDL_SRCCOLORKEY)
+    {
+        has_colorkey = 1;
+        SDL_GetRGBA (surf->format->colorkey, surf->format, &keyr, &keyg, &keyb, &a);
+    }
+    
+    pixels = (Uint8 *) surf->pixels;
+    
+    min_y = 0;
+    min_x = 0;
+    max_x = surf->w;
+    max_y = surf->h;
+
+    found_alpha = 0;
+    for (y = max_y - 1; y >= min_y; --y)
+    {
+        for (x = min_x; x < max_x; ++x)
+        {
+            pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
+            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            if (a >= min_alpha && has_colorkey == 0
+                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            {
+                found_alpha = 1;
+                break;
+            }
+        }
+        if (found_alpha == 1)
+        {
+            break;
+        }
+        max_y = y;
+    }
+    found_alpha = 0;
+    for (x = max_x - 1; x >= min_x; --x)
+    {
+        for (y = min_y; y < max_y; ++y)
+        {
+            pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
+            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            if (a >= min_alpha && has_colorkey == 0
+                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            {
+                found_alpha = 1;
+                break;
+            }
+        }
+        if (found_alpha == 1)
+        {
+            break;
+        }
+        max_x = x;
+    }
+    found_alpha = 0;
+    for (y = min_y; y < max_y; ++y)
+    {
+        min_y = y;
+        for (x = min_x; x < max_x; ++x)
+        {
+            pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
+            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            if (a >= min_alpha && has_colorkey == 0
+                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            {
+                found_alpha = 1;
+                break;
+            }
+        }
+        if (found_alpha == 1)
+        {
+            break;
+        }
+    }
+    found_alpha = 0;
+    for (x = min_x; x < max_x; ++x)
+    {
+        min_x = x;
+        for (y = min_y; y < max_y; ++y)
+        {
+            pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
+            SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
+            if (a >= min_alpha && has_colorkey == 0
+                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            {
+                found_alpha = 1;
+                break;
+            }
+        }
+        if (found_alpha == 1)
+        {
+            break;
+        }
+    }
+    if (!PySurface_Unlock (self))
+    	return RAISE (PyExc_SDLError, "could not unlock surface");
+
+    rect = PyRect_New4 (min_x, min_y, max_x - min_x, max_y - min_y);
+    return rect;
+}
+
 static PyObject *surf_get_buffer (PyObject *self)
 {
     PyObject *buffer;
     PyObject *lock;
     SDL_Surface *surface = PySurface_AsSurface (self);
     SDL_PixelFormat *format = surface->format;
-    size_t mod;
     Py_ssize_t length;
 
     length = (Py_ssize_t) surface->pitch * surface->h;
