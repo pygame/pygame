@@ -6,6 +6,10 @@
 #
 #
 
+Feb 19, 2008
+    Added Surface.get_bounding_rect() method, which returns the smallest
+    rect for the surface, that contains visible (non-transparent) data.
+
 Feb 14, 2008
     Updated constants GL_SWAP_CONTROL,GL_ACCELERATED_VISUAL,BUTTON_X1,BUTTON_X2
 
