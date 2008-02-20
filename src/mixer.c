@@ -898,6 +898,8 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
             chunk->volume = 128;
             memcpy (chunk->abuf, buf, buflen);
         }
+        else
+            PyErr_Clear ();
     }
     
     if (!chunk)
