@@ -541,7 +541,9 @@
 
 #define DOC_PYGAMESNDARRAYMAKESOUND "pygame.sndarray.make_sound(array): return Sound\nconvert an array into a Sound object"
 
-#define DOC_PYGAMESNDARRAYUSEARRAY "pygame.sndarray.use_array (arraytype): return None\nSets the array system to be used for sound arrays"
+#define DOC_PYGAMESNDARRAYUSEARRAYTYPE "pygame.sndarray.use_arraytype (arraytype): return None\nSets the array system to be used for sound arrays"
+
+#define DOC_PYGAMESNDARRAYGETARRAYTYPE "pygame.sndarray.get_arraytype (): return str\nGets the currently active array type."
 
 #define DOC_PYGAMESNDARRAYGETARRAYTYPES "pygame.sndarray.get_arraytypes (): return tuple\nGets the array system types currently supported."
 
@@ -701,7 +703,9 @@
 
 #define DOC_PYGAMESURFARRAYMAPARRAY "pygame.surfarray.map_array(Surface, array3d): return array2d\nMap a 3d array into a 2d array"
 
-#define DOC_PYGAMESURFARRAYUSEARRAY "pygame.surfarray.use_array (arraytype): return None\nSets the array system to be used for surface arrays"
+#define DOC_PYGAMESURFARRAYUSEARRAYTYPE "pygame.surfarray.use_arraytype (arraytype): return None\nSets the array system to be used for surface arrays"
+
+#define DOC_PYGAMESURFARRAYGETARRAYTYPE "pygame.surfarray.get_arraytype (): return str\nGets the currently active array type."
 
 #define DOC_PYGAMESURFARRAYGETARRAYTYPES "pygame.surfarray.get_arraytypes (): return tuple\nGets the array system types currently supported."
 
@@ -741,7 +745,7 @@
 
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface\nscale a surface to an arbitrary size smoothly"
 
-#define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\nremove interior area of an image"
+#define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\ngets a copy of an image with an interior area removed"
 
 #define DOC_PYGAMETRANSFORMLAPLACIAN "pygame.transform.laplacian(Surface, DestSurface = None): return Surface\nfind edges in a surface"
 
