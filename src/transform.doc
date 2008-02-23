@@ -111,13 +111,16 @@ New in pygame 1.8
 
 
 chop
-remove interior area of an image
+gets a copy of an image with an interior area removed
 pygame.transform.chop(Surface, rect): return Surface
 
 Extracts a portion of an image. All vertical and
-horizontal pixels surrounding the given rectangle area are removed. The
-resulting image is shrunken by the size of pixels removed.
+horizontal pixels surrounding the given rectangle area are removed.
+The corner areas (diagonal to the rect) are then brought together.
 (The original image is not altered by this operation.)
+
+NOTE: If you want a "crop" that returns the part of an image within
+a rect, you can blit with a rect to a new surface or copy a subsurface. 
 <END>
 
 
@@ -127,6 +130,8 @@ find edges in a surface
 pygame.transform.laplacian(Surface, DestSurface = None): return Surface
 
 Finds the edges in a surface using the laplacian algorithm.
+
+New in pygame 1.8
 <END>
 
 
@@ -137,6 +142,8 @@ pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface
 
 Takes a sequence of surfaces and returns a surface with average colors from each
 of the surfaces.
+
+New in pygame 1.8
 <END>
 
 
@@ -155,5 +162,7 @@ change_return to False.
 
 You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So
 you could use an r threshold of 40 and a blue threshold of 2 if you like.
+
+New in pygame 1.8
 <END>
 <END>

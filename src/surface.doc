@@ -659,6 +659,8 @@ in the surface that have an alpha value greater than or equal to the
 minimum alpha value. 
 
 This function will temporarily lock and unlock the Surface as needed.
+
+New in pygame 1.8.
 <END>
 
 
