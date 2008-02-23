@@ -744,6 +744,7 @@ set_num_channels (PyObject* self, PyObject* args)
         {
             channeldata[i].sound = NULL;
             channeldata[i].queue = NULL;
+            channeldata[i].endevent = 0;
         }
         numchanneldata = numchans;
     }
