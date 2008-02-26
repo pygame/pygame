@@ -97,7 +97,7 @@ data_files = []
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('lib', '*')):
-    if not f[-3:] =='.py' and os.path.isfile(f):
+    if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         data_files.append(f)
 
 # For Unix systems this is good enough.
@@ -222,7 +222,6 @@ PACKAGEDATA = {
        "headers":     headers,
        "ext_modules": extensions,
        "data_files":  [[data_files_target, data_files]],
-       "cmdclass": cmdclass,
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
