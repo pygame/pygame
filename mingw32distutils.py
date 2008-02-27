@@ -30,7 +30,7 @@ def new_compiler (plat=None,
         from mingw32ccompiler import Mingw32DefaultCCompiler
         return Mingw32DefaultCCompiler (None, dry_run, force)
     if compiler == 'mingw32-console':
-        from mingw32CCompiler import Mingw32ConsoleCCompiler
+        from mingw32ccompiler import Mingw32ConsoleCCompiler
         return Mingw32ConsoleCCompiler (None, dry_run, force)
     return original_new_compiler (plat, compiler, verbose, dry_run, force)
 
