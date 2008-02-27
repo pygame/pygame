@@ -100,9 +100,6 @@ for f in glob.glob(os.path.join('lib', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         data_files.append(f)
 
-# For Unix systems this is good enough.
-data_files_target = 'pygame'
-
 # Required. This will be filled if doing a Windows build.
 cmdclass = {}
 
@@ -133,9 +130,6 @@ if sys.platform == 'win32':
         except ImportError:
             pass
         
-    # We want everything in the pygame package directory.
-    data_files_target = 'Lib\\site-packages\\pygame'
-
     #add dependency DLLs to the project
     import dll
 
@@ -212,16 +206,18 @@ class smart_install_data(install_data):
         self.install_dir = getattr(install_cmd, 'install_lib')
         return install_data.run(self)
 
+cmdclass['install_data'] = smart_install_data
+
 #finally,
 #call distutils with all needed info
 PACKAGEDATA = {
-       "cmdclass":    {'install_data': smart_install_data},
+       "cmdclass":    cmdclass,
        "packages":    ['pygame', 'pygame.gp2x'],
        "package_dir": {'pygame': 'lib',
                        'pygame.gp2x': 'lib/gp2x'},
        "headers":     headers,
        "ext_modules": extensions,
-       "data_files":  [[data_files_target, data_files]],
+       "data_files":  [['pygame', data_files]],
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
