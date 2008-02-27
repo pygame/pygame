@@ -1107,6 +1107,7 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
                     return 1;
             }
         }
+	break;
     case 2:
         for (y = 0; y < array->ylen; y += array->ystep)
         {
