@@ -2,9 +2,21 @@
 #
 # CVS tag names are placed before the date
 # BREAK = change breaks existing code
-# BUG	= fixed a bug that was (or could have been) crashing
+# BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+
+
+Mar 3, 2008
+    [BUG] Fixed up pygame.mask.from_surface, got color key, and perpixel alpha 
+        modes reversed.
+
+    Also added better test to the mask test.  
+        Also it wasn't testing pygame.mask.from_surface at all!
+
+    Added pygame.sprite.collide_mask to join the mask_* collision functions.  
+        Started adding test for pygame.sprite.spritecollide.
+
 
 Feb 19, 2008
     Added Surface.get_bounding_rect() method, which returns the smallest
@@ -352,666 +364,666 @@ September 29, 2003
     Fixed 1 pixel horizontal/vertical line draw
 
 September 27, 2003
-	Fix reading from file file-like objects (thx Timothy Stranex)
+    Fix reading from file file-like objects (thx Timothy Stranex)
 
 September 21, 2003
-	Fix sysfont registry bug on winNT arch
+    Fix sysfont registry bug on winNT arch
 
 September 18, 2003
-	Fix color problem when saving opengl screenshot
+    Fix color problem when saving opengl screenshot
 
 September 10, 2003
-	SysFont now accepts None like regular Font
+    SysFont now accepts None like regular Font
 
 August 10, 2003
-	fix JOYHAT_RIGHT input (thanks Latimerius)
-	system font names have punctuation removed
+    fix JOYHAT_RIGHT input (thanks Latimerius)
+    system font names have punctuation removed
 
 July 26, 2003
-	add GL_STEREO
+    add GL_STEREO
 
 July 22, 2003
-	add GL_MULTISAMPLEBUFFERS and GL_MULTISAMPLESAMPLES
+    add GL_MULTISAMPLEBUFFERS and GL_MULTISAMPLESAMPLES
 
 June 11, 2003
-	Surface.set_at() respects clip area
-	cleaned fill circle draw
+    Surface.set_at() respects clip area
+    cleaned fill circle draw
 
 June 8, 2003
-	add system font; SysFont,get_system_fonts,match_system_font
+    add system font; SysFont,get_system_fonts,match_system_font
 
 June 7, 2003
-	Font() no longer segfaults on bad filename [BUG]
-	add color module for simple color manipulations
+    Font() no longer segfaults on bad filename [BUG]
+    add color module for simple color manipulations
 
 June 6, 2003
-	set_palette_at() index 0 fix
-	draw.arc() (thanks Lalo Martins)
-	Rects are pickleable
+    set_palette_at() index 0 fix
+    draw.arc() (thanks Lalo Martins)
+    Rects are pickleable
 
 May 12, 2003
-	Brett Calcott's quick fix for 'trunc' on visualc
+    Brett Calcott's quick fix for 'trunc' on visualc
 
 May 10, 2003
-	fix Derek Simkowiak's find of problem alphas
+    fix Derek Simkowiak's find of problem alphas
 
 March 10, 2003
-	add OPENGL support to image.tostring()
+    add OPENGL support to image.tostring()
 
 March 9, 2003
-	Bug in Clock.tick() was delaying double
-	load Font objects from any python file-like object
+    Bug in Clock.tick() was delaying double
+    load Font objects from any python file-like object
 
 February 26, 2003
-	Sprite and Group now new-style classes
+    Sprite and Group now new-style classes
 
 Februrary 12, 2003
-	fix immediate returns for first time.delay and time.wait
+    fix immediate returns for first time.delay and time.wait
 
 February 11, 2003
-	more OSX SDLmain.m patches from Andrew Straw
+    more OSX SDLmain.m patches from Andrew Straw
 
 February 5, 2003
-	antialiased lines, from Jorge Gonzalez
-	allow Font.render() with empty string
+    antialiased lines, from Jorge Gonzalez
+    allow Font.render() with empty string
 
 February 2, 2003
-	refcount bug in Font.size [BUG]
+    refcount bug in Font.size [BUG]
 
 December 5, 2002
-	tilerow stuff removed
+    tilerow stuff removed
 
 December 2, 2002
-	experimental pygame.draw.tilerow()
+    experimental pygame.draw.tilerow()
 
 November 14, 2002
-	fix unicode bugs in Font (thanks, hcyun)
+    fix unicode bugs in Font (thanks, hcyun)
 
 November 12, 2002
-	AdvanceMAME Scale2X scaling now in transform.scale2x()
+    AdvanceMAME Scale2X scaling now in transform.scale2x()
 
 October 22, 2002
-	mixer can queue sounds and music
-	channels can send finished event for sounds
+    mixer can queue sounds and music
+    channels can send finished event for sounds
 
 October 19, 2002
-	can free software surfaces without video initialized
-	added "x", "y", "w", and "h" attribs to Rect (like SDL)
-	RenderUpdates.draw() doesn't union nonoverlapping
+    can free software surfaces without video initialized
+    added "x", "y", "w", and "h" attribs to Rect (like SDL)
+    RenderUpdates.draw() doesn't union nonoverlapping
 
 October 16, 2002
-	fix crash with subsubsurface blits [BUG]
-	added Surface.get_offset() and get_abs_offset()
-	added Surface.get_parent() and get_abs_parent()
+    fix crash with subsubsurface blits [BUG]
+    added Surface.get_offset() and get_abs_offset()
+    added Surface.get_parent() and get_abs_parent()
 
 October 6, 2002
-	added event.clear() to efficiently clear the queue
+    added event.clear() to efficiently clear the queue
 
 October 1, 2002
-	sprite.RenderGroups wasn't clearing killed sprites after draw()
+    sprite.RenderGroups wasn't clearing killed sprites after draw()
 
 September 3, 2002
-	passing None as the end time to CD.play() plays to cd end
-	added pygame.vernum, a tuple of python version values
+    passing None as the end time to CD.play() plays to cd end
+    added pygame.vernum, a tuple of python version values
 
 September 2, 2002
-	add Movie.render_frame, thanks James Mazer
-	cursors.load_xbm skips comments, thanks Herve
+    add Movie.render_frame, thanks James Mazer
+    cursors.load_xbm skips comments, thanks Herve
 
 August 20, 2002
-	fix rectstyle arguments
+    fix rectstyle arguments
 
 August 15, 2002
-	Hervé Cauwelier's fix for xbm cursors without spaces
+    Hervé Cauwelier's fix for xbm cursors without spaces
 
 Auguest 14, 2002
-	switched to FSF's FreeSansBold default font
-	new font.get_default_font()
-	cleanup harmless void** typing
+    switched to FSF's FreeSansBold default font
+    new font.get_default_font()
+    cleanup harmless void** typing
 
 July 24, 2002
-	Ole Martin Bjoerndalen's CD.play fix
+    Ole Martin Bjoerndalen's CD.play fix
 
 July 17, 2002
-	Michael Hudson's unicode cleanups
+    Michael Hudson's unicode cleanups
 
 June 15, 2002
-	added get_time() and get_rawtime() to Clock
+    added get_time() and get_rawtime() to Clock
 
 pygame-15
 May 30, 2002
-	final updates for 1.5
+    final updates for 1.5
 
 May 28, 2002
-	changed default font to helmet bold
+    changed default font to helmet bold
 
 May 27, 2002
-	added smart class to handle missing modules
+    added smart class to handle missing modules
 
 May 17, 2002
-	added display.set_gamma_ramp(). thx andrew
+    added display.set_gamma_ramp(). thx andrew
 
 May 16, 2002
-	custom blitters to handle destination pixel alphas
-	fix recursive subsurfaces and subsurface blit returns
+    custom blitters to handle destination pixel alphas
+    fix recursive subsurfaces and subsurface blit returns
 
 May 13, 2002
-	fixed CD.play()
+    fixed CD.play()
 
 May 8, 2002
-	music.play() start time works
-	image.save() can save TGA images
-	cannot subsurface a subsurface [BREAK]
-	blits to subsurfaces are passed through
+    music.play() start time works
+    image.save() can save TGA images
+    cannot subsurface a subsurface [BREAK]
+    blits to subsurfaces are passed through
 
 May 7, 2002
-	added the sndarray module
-	added surfarray.make_surface()
+    added the sndarray module
+    added surfarray.make_surface()
 
 April 25, 2002
-	added gl_set_attribute(), gl_get_attribute()
+    added gl_set_attribute(), gl_get_attribute()
 
 April 16, 2002
-	mixer keeps a reference to playing Sound objects
-	channel.set_volume() can take 2 volumes for panning
-	music.play() can take a starting position for the song
+    mixer keeps a reference to playing Sound objects
+    channel.set_volume() can take 2 volumes for panning
+    music.play() can take a starting position for the song
 
 April 14, 2002
-	bug when re-initializing pygame.display [BUG]
+    bug when re-initializing pygame.display [BUG]
 
 April 8, 2002
-	rectstyle now includes any object with a "rect" attrib
-	rects now have collidedict() and collidedictall()
+    rectstyle now includes any object with a "rect" attrib
+    rects now have collidedict() and collidedictall()
 
 March 27, 2002
-	fixes for windows music.get_pos() and windows config
+    fixes for windows music.get_pos() and windows config
 
 March 23, 2002
-	big config.py update
-	music.get_pos()  (thx Michael Urman)
+    big config.py update
+    music.get_pos()  (thx Michael Urman)
 
 March 20, 2002
-	sprite.spritecollideany() now works as described
+    sprite.spritecollideany() now works as described
 
 March 4, 2002
-	sprite.RenderClear can accept a function as bgd
+    sprite.RenderClear can accept a function as bgd
 
 February 19, 2002
-	event.peek() returns next event [BREAK?]
-	Event objects have 'truth' operator
+    event.peek() returns next event [BREAK?]
+    Event objects have 'truth' operator
 
 February 13, 2002
-	all draw primitives have a default width
+    all draw primitives have a default width
 
 February 11, 2002
-	Rect unionall() and unionall_ip() fixed
+    Rect unionall() and unionall_ip() fixed
 
 February 10, 2002
-	pygame.init() not required for proper cleanup [BUG]
-	CD.play() fixed for tracks above 0
+    pygame.init() not required for proper cleanup [BUG]
+    CD.play() fixed for tracks above 0
 
 February 8, 2002
-	Rect and Surface subclassable types
+    Rect and Surface subclassable types
 
 February 1, 2002
-	locking problem with 90 degree rotate [BUG]
-	set_icon overrides default icon
+    locking problem with 90 degree rotate [BUG]
+    set_icon overrides default icon
 
 January 31, 2002
-	removed emberrasing debug printing
-	draw.rect does inside edge for bottomright
+    removed emberrasing debug printing
+    draw.rect does inside edge for bottomright
 
 pygame-14
 January 29, 2002
-	everything bumped for the 1.4 release
+    everything bumped for the 1.4 release
 
 January 28, 2002
-	update SDL_rotozoom to 2.0.3
+    update SDL_rotozoom to 2.0.3
 
 January 26, 2002
-	special cases for 90 degree transform.rotate()
-	OSX cleanups for commandline (thanks Bob)
-	added sprite.spritecollideany()
+    special cases for 90 degree transform.rotate()
+    OSX cleanups for commandline (thanks Bob)
+    added sprite.spritecollideany()
 
 January 23, 2002
-	transform.rotate() does alpha if image has alphaplane
-	transform.rotate() no longer "off by one" in the x axis
-	added CD.get_all() to get information for all tracks
-	CD.play() can now take an option start and end time
+    transform.rotate() does alpha if image has alphaplane
+    transform.rotate() no longer "off by one" in the x axis
+    added CD.get_all() to get information for all tracks
+    CD.play() can now take an option start and end time
 
 January 17, 2002
-	smarter importing code
-	default pygame icon for window
+    smarter importing code
+    default pygame icon for window
 
 January 16, 2002
-	started implementing basic unit tests
-	several bug cleanups with Rects (thx unit tests)
+    started implementing basic unit tests
+    several bug cleanups with Rects (thx unit tests)
 
 January 14, 2002
-	display.update() boundaries fixed
+    display.update() boundaries fixed
 
 January 11, 2002
-	Surface.set_clip() can take None to clear the clipping
+    Surface.set_clip() can take None to clear the clipping
 
 January 7, 2002
-	fixed sprite.Group.has
+    fixed sprite.Group.has
 
 January 6, 2002
-	Merge with bob's inital MacOSX changes
+    Merge with bob's inital MacOSX changes
 
 January 5, 2002
-	new and upgraded importing [BREAK?]
-	fixed numberhandling in set_alpha and set_colorkey
+    new and upgraded importing [BREAK?]
+    fixed numberhandling in set_alpha and set_colorkey
 
 January 2, 2002
-	Group add/remove methods work
+    Group add/remove methods work
 
 December 31, 2001
-	pygame parachute does tracebacks with python2.2
+    pygame parachute does tracebacks with python2.2
 
 December 20, 2001
-	Surface.set_alpha() and set_colorkey() accept None
-	event.set_allowed() and set_blocked() accept None
+    Surface.set_alpha() and set_colorkey() accept None
+    event.set_allowed() and set_blocked() accept None
 
 pygame-13
 December 17, 2001
-	small preps for the full 1.3 release
+    small preps for the full 1.3 release
 
 December 15, 2001
-	small changes to sprite before release
+    small changes to sprite before release
 
 December 2, 2001
-	small protection for display Surfaces after display.quit()
+    small protection for display Surfaces after display.quit()
 
 December 1, 2001
-	made time.delay() more accurate [BREAK]
-	created time.wait() to work like old delay()
-	added time.Clock objects for framerate tracking
+    made time.delay() more accurate [BREAK]
+    created time.wait() to work like old delay()
+    added time.Clock objects for framerate tracking
 
 November 26, 2001
-	Surface.convert() doesn't segfault before pygame.init()
+    Surface.convert() doesn't segfault before pygame.init()
 
 November 20, 2001
-	added pygame.sprite.Group.update()
-	Surface.blit() protection for alpha->8bit relaxed
+    added pygame.sprite.Group.update()
+    Surface.blit() protection for alpha->8bit relaxed
 
 November 19, 2001
-	fixed image.fromstring() for "RGBA" mode
+    fixed image.fromstring() for "RGBA" mode
 
 November 18, 2001
-	can stream python file-like objects to SDL threads
+    can stream python file-like objects to SDL threads
 
 November 15, 2001
-	cleanups for transform.rotate
+    cleanups for transform.rotate
 
 November 13, 2001
-	added sprite module
+    added sprite module
 
 November 12, 2001
-	image.tostring() "RGBA" works with colorkey
+    image.tostring() "RGBA" works with colorkey
 
 November 3, 2001
-	filled shape drawing now clips properly [BUG]
-	Rect object correctly compare (==,<,>)
+    filled shape drawing now clips properly [BUG]
+    Rect object correctly compare (==,<,>)
 
 November 2, 2001
-	pygame.time.get_ticks() returns 0 before pygame.init()
+    pygame.time.get_ticks() returns 0 before pygame.init()
 
 October 22, 2001
-	small fix for filled ellipses/circles
+    small fix for filled ellipses/circles
 
 September 27, 2001
-	drawing filled circles returns bounding rect
-	ellipses and circles drawn inside given area
-	mixer init can take chunksize
-	fix in clipped horizontal line drawing [BUG]
+    drawing filled circles returns bounding rect
+    ellipses and circles drawn inside given area
+    mixer init can take chunksize
+    fix in clipped horizontal line drawing [BUG]
 
 September 26, 2001
-	key.set_repeat() raises exception on error, smarter args
+    key.set_repeat() raises exception on error, smarter args
 
 September 22, 2001
-	added Rect.clamp_ip, for inplace clamping
-	display.update(None) will update full screen
+    added Rect.clamp_ip, for inplace clamping
+    display.update(None) will update full screen
 
 September 21, 2001
-	Surface.convert() respects the SRCALPHA flag when passing depth
+    Surface.convert() respects the SRCALPHA flag when passing depth
 
 
 pygame-12
 September 1, 2001
-	fixed typo in pygame.cursor
+    fixed typo in pygame.cursor
 
 Aug 30, 2001
-	added VIDEOEXPOSE event
+    added VIDEOEXPOSE event
 
 Aug 29, 2001
-	changed initializations, to allow easier embedding
+    changed initializations, to allow easier embedding
 
 Aug 28, 2001
-	added circle and rect convenciences to pygame.draw
-	removed debug printing from draw.polygon
+    added circle and rect convenciences to pygame.draw
+    removed debug printing from draw.polygon
 
 Aug 25, 2001
-	added looping, scaling, and audio to for Movies
+    added looping, scaling, and audio to for Movies
 
 Aug 15, 2001
-	added pygame.movie module with MPEG video playback
+    added pygame.movie module with MPEG video playback
 
 July 31, 2001
-	fixed mixer.music refcount
+    fixed mixer.music refcount
 
 July 26, 2001
-	 custom events work with event.peek() and event.get()
-	 added event.get_blocked() function to query blocked types
+     custom events work with event.peek() and event.get()
+     added event.get_blocked() function to query blocked types
 
 July 23, 2001
-	music specifically halted when quitting (should not matter?)
-	mixer.get_init() now returns the initialized playback format
+    music specifically halted when quitting (should not matter?)
+    mixer.get_init() now returns the initialized playback format
 
 July 21, 2001
-	all events can be posted, not just USEREVENT
-	subsurfaces inherit colorkey and alpha settings
+    all events can be posted, not just USEREVENT
+    subsurfaces inherit colorkey and alpha settings
 
 Jul 20, 2001
-	default font "finding" is smarter
+    default font "finding" is smarter
 
 Jul 17, 2001
-	added polygon() and ellipse() to pygame.draw
-	lines with width>2 are now correct (was one too small)
+    added polygon() and ellipse() to pygame.draw
+    lines with width>2 are now correct (was one too small)
 
 Jul 16, 2001
-	can work with software surfaces before pygame.init()
-	Surface.convert() now can take arguments like pygame.Surface()
-	pygame.display.set_icon() sets the windowmanager icon
+    can work with software surfaces before pygame.init()
+    Surface.convert() now can take arguments like pygame.Surface()
+    pygame.display.set_icon() sets the windowmanager icon
 
 Jul 15, 2001
-	fixed bad internal display reference counting [BUG]
+    fixed bad internal display reference counting [BUG]
 
 Jul 14, 2001
-	still makes clean-ish exit if segfault in exit handling
+    still makes clean-ish exit if segfault in exit handling
 
 Jul 10, 2001
-	image.tostring makes alpha from colorkey, if asking for RGBA
+    image.tostring makes alpha from colorkey, if asking for RGBA
 
 Jul 6, 2001
-	added python 1.5.2 compatability
+    added python 1.5.2 compatability
 
 June 25, 2001
-	horizontal transform.flip() was reading pixels off by one [BUG]
+    horizontal transform.flip() was reading pixels off by one [BUG]
 
 June 24, 2001
-	calling set_mode will change all references to the display surface
+    calling set_mode will change all references to the display surface
 
 
 pygame-11
 Jun 23, 2001
-	removed smooth underline font render protection
+    removed smooth underline font render protection
 
 Jun 19, 2001
-	fixed botched image.save() function
+    fixed botched image.save() function
 
 Jun 15, 2001
-	new inplace Rect calls: move_ip, union_ip, etc
+    new inplace Rect calls: move_ip, union_ip, etc
 
 Jun 11, 2001
-	smarter locking with subsurfaces
-	added transform.rotozoom(), which uses builtin SDL_rotozoom
+    smarter locking with subsurfaces
+    added transform.rotozoom(), which uses builtin SDL_rotozoom
 
 May 31, 2001
-	correctly handle unicode filenames
+    correctly handle unicode filenames
 
 May 29, 2001
-	set display physical palette with display.set_palette()
-	added transform module (with rotate and scale)
+    set display physical palette with display.set_palette()
+    added transform module (with rotate and scale)
 
 May 26, 2001
-	code compiles with macos now
+    code compiles with macos now
 
 May 23, 2001
-	fixed line drawing of width 1
-	draw.lines() was broken with sections outside clip
+    fixed line drawing of width 1
+    draw.lines() was broken with sections outside clip
 
 May 22, 2001
-	added midleft, midright, midtop, and midbottom to Rect
-	added Rect.unionall() function to union a list of Rects
-	fixed problem in 16bit surfarrays
-	new image.tostring() and image.fromstring()
+    added midleft, midright, midtop, and midbottom to Rect
+    added Rect.unionall() function to union a list of Rects
+    fixed problem in 16bit surfarrays
+    new image.tostring() and image.fromstring()
 
 May 20, 2001
-	applied dave wallace's patch to fix memory freeing
+    applied dave wallace's patch to fix memory freeing
 
 May 17, 2001
-	a few small compile time warning cleanups
+    a few small compile time warning cleanups
 
 May 16, 2001
-	line drawing functions now use an optional width
+    line drawing functions now use an optional width
 
 May 15, 2001
-	image module is now builtin, but formats are optional
-	enhanced save function in image (handles opengl)
-	Surface.save is now depracated
+    image module is now builtin, but formats are optional
+    enhanced save function in image (handles opengl)
+    Surface.save is now depracated
 
 May 14, 2001
-	smarter internal module handling
-	fixed blit() (broken on May 9th change)
+    smarter internal module handling
+    fixed blit() (broken on May 9th change)
 
 May 10, 2001
-	USEREVENT events now pass through the queue
-	Event() may be called with keyword args and/or a dict
-	Font.render() won't render underlines while smoothing [BUG]
+    USEREVENT events now pass through the queue
+    Event() may be called with keyword args and/or a dict
+    Font.render() won't render underlines while smoothing [BUG]
 
 May 9, 2001
-	8bit subsurfaces inherit their parents colormap
-	blit keeps SDL from crashing with alpha onto 8bit
+    8bit subsurfaces inherit their parents colormap
+    blit keeps SDL from crashing with alpha onto 8bit
 
 Apr 30, 2001
-	loading Sounds from python objects now works [BUG]
-	loading from python objects now thread safe [BUG]
+    loading Sounds from python objects now works [BUG]
+    loading from python objects now thread safe [BUG]
 
 Apr 19, 2001
-	applied Niki Spahiev's memory leak patch in event.c
-	removed minor memleak from each module's init
+    applied Niki Spahiev's memory leak patch in event.c
+    removed minor memleak from each module's init
 
 Apr 18, 2001
-	added opengl support (with example)
-	fixed display.get_init()
-	current music is free'd when mixer is quit
-	better thread sharing in various video calls
-	fixed GCC compiler error in constants.c
+    added opengl support (with example)
+    fixed display.get_init()
+    current music is free'd when mixer is quit
+    better thread sharing in various video calls
+    fixed GCC compiler error in constants.c
 
 Apr 10, 2001
-	mixer now uses the requested sample format/size
+    mixer now uses the requested sample format/size
 
 Apr 08, 2001
-	properly free SDL objects on malloc errors
-	fixed rectangle cropping in pygame.display.update()
+    properly free SDL objects on malloc errors
+    fixed rectangle cropping in pygame.display.update()
 
 
 pygame-10
 Apr 05, 2001
-	Everything set for the 1.0 release
+    Everything set for the 1.0 release
 
 Apr 04, 2001
-	cursors.load_xbm work on images without hotspots
+    cursors.load_xbm work on images without hotspots
 
 Apr 03, 2001
-	swapped endian-ness for pixels_alpha()
+    swapped endian-ness for pixels_alpha()
 
 Mar 29, 2001
-	fixed key.set_mods() (thanks rubysdl)
-	rework setup scripts for 1.0 release
-	relaxed sdl version checking
+    fixed key.set_mods() (thanks rubysdl)
+    rework setup scripts for 1.0 release
+    relaxed sdl version checking
 
 Mar 21, 2001
-	initial support for compiling on mac
-	fixed odd case with locking subsurfaces
+    initial support for compiling on mac
+    fixed odd case with locking subsurfaces
 
 Mar 20, 2001
-	font and mixer now properly auto quit()
+    font and mixer now properly auto quit()
 
 Mar 19, 2001
-	Surfaces won't crash after display module is quit [BUG]
+    Surfaces won't crash after display module is quit [BUG]
 
 Mar 18, 2001
-	friendlier type casting in surfarray (for some compilers)
-	removed non-ANSI C code
+    friendlier type casting in surfarray (for some compilers)
+    removed non-ANSI C code
 
 Mar 17, 2001
-	pygame.Surface is smarter with SRCALPHA flag
-	fixed several small bugs in surfarray [BUG]
-	new surfarray example and tutorial
+    pygame.Surface is smarter with SRCALPHA flag
+    fixed several small bugs in surfarray [BUG]
+    new surfarray example and tutorial
 
 Mar 16, 2001
-	Fixed memory leak in Rect constructor
-	Fixed improper exception in display.update(with_4_args)
+    Fixed memory leak in Rect constructor
+    Fixed improper exception in display.update(with_4_args)
 
 Feb 15, 2001
-	calling Sound.play() will make sure the channel
-		that gets selected has volume set to full
+    calling Sound.play() will make sure the channel
+        that gets selected has volume set to full
 
 Feb 14, 2001
-	fixed Surface.set_colorkey() with no args [BUG]
+    fixed Surface.set_colorkey() with no args [BUG]
 
 Feb 13, 2001
-	fixed return rect from line drawing routines
-	small fix when drawing horizontal lines
+    fixed return rect from line drawing routines
+    small fix when drawing horizontal lines
 
 
 pygame-09
 Feb 12, 2001
-	added NOFRAME to pygame.constants
+    added NOFRAME to pygame.constants
 
 Feb 11, 2001
-	workaround python parsing error for pygame.time.delay(-1)
+    workaround python parsing error for pygame.time.delay(-1)
 
 Feb 9, 2001
-	setting rectangle width/height/size changes the
-		right/bottom edges (instead of top/right) [BREAK]
+    setting rectangle width/height/size changes the
+        right/bottom edges (instead of top/right) [BREAK]
 
 Feb 6, 2001
-	fixed the music unpause() function
+    fixed the music unpause() function
 
 Jan 31, 2001
-	functions taking RGBA colors can also accept mapped ints
+    functions taking RGBA colors can also accept mapped ints
 
 Jan 30, 2001
-	added draw.lines()
+    added draw.lines()
 
 Jan 29, 2001
-	extremely revamped surface locking mechnisms
-	new Surface.subsurface for shared surfaces
+    extremely revamped surface locking mechnisms
+    new Surface.subsurface for shared surfaces
 
 Jan 25, 2001
-	added the draw module, with clipped line function
-	added alpha routines in surfarray module
-	more locking checks for surfarray
-	make extra sure all of SDL is shutdown properly
+    added the draw module, with clipped line function
+    added alpha routines in surfarray module
+    more locking checks for surfarray
+    make extra sure all of SDL is shutdown properly
 
 Jan 24, 2001
-	funcs that need locked surfaces will temporarily lock them
-	   (Surface.set_at, Surface.get_at, surfarray.arrayXd)
+    funcs that need locked surfaces will temporarily lock them
+       (Surface.set_at, Surface.get_at, surfarray.arrayXd)
 
 Jan 23, 2001
-	display.update() no longer effects input Rects [BREAK]
-	Surface.fill() no longer effects input Rect [BREAK]
-	small memory leak in display.update() fixed
+    display.update() no longer effects input Rects [BREAK]
+    Surface.fill() no longer effects input Rect [BREAK]
+    small memory leak in display.update() fixed
 
 Jan 18, 2001
-	cursor.read_xbm() renamed to cursor.load_xbm() [BREAK]
+    cursor.read_xbm() renamed to cursor.load_xbm() [BREAK]
 
 Jan 17, 2001
-	documentation updated to include python modules too
+    documentation updated to include python modules too
 
 Jan 16, 2001
-	cursors module beefed up
+    cursors module beefed up
 
 Jan 15, 2001
-	fix Surface.get_at() for 24bit surfaces
-	endian cleanups for surfarray
+    fix Surface.get_at() for 24bit surfaces
+    endian cleanups for surfarray
 
 Jan 8, 2001
-	more warning cleanups
-	music-finished callback fixed
-	replaces SDL's parachute with smarter python version
+    more warning cleanups
+    music-finished callback fixed
+    replaces SDL's parachute with smarter python version
 
 Jan 6, 2001
-	added pygame.version module
+    added pygame.version module
 
 
 pygame-05
 Jan 6, 2001
-	Final cleanups for the new release
+    Final cleanups for the new release
 
 Jan 4, 2001
-	Surface.blit() allows for rects as dest position
-	surfarray cleanups and improvements
+    Surface.blit() allows for rects as dest position
+    surfarray cleanups and improvements
 
 Dec 22, 2000
-	timer threads properly shutdown
+    timer threads properly shutdown
 
 Dec 14, 2000
-	display.set_mode pretending shorts are ints [BUG]
+    display.set_mode pretending shorts are ints [BUG]
 
 
 pygame-04
 Dec 14, 2000
-	music module had incorrect names for volume functions
-	chimp example and full tutorial added
+    music module had incorrect names for volume functions
+    chimp example and full tutorial added
 
 Dec 13, 2000
-	display.update() is entirely better in many ways [BUG]
+    display.update() is entirely better in many ways [BUG]
 
 Dec 3, 2000
-	fixed timing issues. negative time.delay() will become 0
+    fixed timing issues. negative time.delay() will become 0
 
 Nov 30, 2000
-	UserRect module added
-	all objects now have a matching type; SurfaceType, etc
+    UserRect module added
+    all objects now have a matching type; SurfaceType, etc
 
 Nov 29, 2000
-	joystick module rewrite finished [BREAK]
-	cdrom module rewrite finished [BREAK]
-	all constructors using capitalized function names [BREAK]
-		(Rect, pygame.Surface, pygame.font.Font, etc)
+    joystick module rewrite finished [BREAK]
+    cdrom module rewrite finished [BREAK]
+    all constructors using capitalized function names [BREAK]
+        (Rect, pygame.Surface, pygame.font.Font, etc)
 
 Nov 28, 2000
-	Surface.convert() better handles surface flags
-	All color arguments (and returns) are RGBA format [BREAK]
-	Removed Surface.map_rgba and unmap_rgba [BREAK]
-	Added a default font, used by passing None as font file
+    Surface.convert() better handles surface flags
+    All color arguments (and returns) are RGBA format [BREAK]
+    Removed Surface.map_rgba and unmap_rgba [BREAK]
+    Added a default font, used by passing None as font file
 
 
 pygame-03
 Nov 20, 2000
-	Added Surface.save() to create BMPs.
+    Added Surface.save() to create BMPs.
 
 Nov 16, 2000
-	Surface.set_clip() fixed when passing no args [BUG]
+    Surface.set_clip() fixed when passing no args [BUG]
 
 Nov 15, 2000
-	time.set_timer() now handles multiple timers
-	rect(), surface(), event() renamed to \
-		new_rect, new_surface(), new_event() [BREAK]
-	all new_XX() functions were added to pygame.locals
-	Moved pygame.music to a member of pygame.mixer [BREAK]
-	Surface.blit takes a source rectangle instead of pos, size [BREAK]
-	pygame.display.set_clip() correctly accepts rectstyle arg [BUG]
-	Added Surface.get_flags() and Surface.get_pitch()
-	Added set_cursor and get_cursor to pygame.mouse
-	New module, pygame.cursors, contains sample cursors
+    time.set_timer() now handles multiple timers
+    rect(), surface(), event() renamed to \
+        new_rect, new_surface(), new_event() [BREAK]
+    all new_XX() functions were added to pygame.locals
+    Moved pygame.music to a member of pygame.mixer [BREAK]
+    Surface.blit takes a source rectangle instead of pos, size [BREAK]
+    pygame.display.set_clip() correctly accepts rectstyle arg [BUG]
+    Added Surface.get_flags() and Surface.get_pitch()
+    Added set_cursor and get_cursor to pygame.mouse
+    New module, pygame.cursors, contains sample cursors
 
 Nov 14, 2000
-	Release the Python Global Interpreter Lock on delays and IO
-	Added timer events to pygame.time (check vgrade example)
-	New music playback finished events
-	surfarray.blit_array() supports all bit depths
+    Release the Python Global Interpreter Lock on delays and IO
+    Added timer events to pygame.time (check vgrade example)
+    New music playback finished events
+    surfarray.blit_array() supports all bit depths
 
 Nov 11, 2000
-	pygame.display.set_mode() uses int, not short, for size [BUG]
+    pygame.display.set_mode() uses int, not short, for size [BUG]
 
 Nov 10, 2000
-	Committed to CVS
-	Added pygame.display.get_driver()
+    Committed to CVS
+    Added pygame.display.get_driver()
 
 
 
