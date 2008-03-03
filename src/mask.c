@@ -349,9 +349,8 @@ static GAME_Rect* get_bounding_rects(bitmask_t *mask, int *num_bounding_boxes) {
 
     for(y=0; y < height; y++) {
         for(x=0; x < width; x++) {
-            /* used_pixels[y][x] = (GAME_Rect*)NULL;
-                   *((GAME_Rect **) (used_pixels + y * width) + x) = NULL;
-            */
+            /* used_pixels[y][x] = (GAME_Rect*)NULL; */
+            *((GAME_Rect **) (used_pixels + y * width) + x) = NULL;
         }
     }
 
