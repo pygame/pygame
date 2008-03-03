@@ -187,7 +187,8 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 
 
     if(!mask) {
-        //Py_END_ALLOW_THREADS;
+        /* Py_END_ALLOW_THREADS;
+         */
         return NULL; /*RAISE(PyExc_Error, "cannot create bitmask");*/
     }
     
@@ -202,6 +203,8 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 
     for(y=0; y < surf->h; y++) {
         for(x=0; x < surf->w; x++) {
+            /* Get the color.  TODO: should use an inline helper 
+             *   function for this common function. */
             switch (format->BytesPerPixel)
             {
                 case 1:
@@ -304,7 +307,8 @@ def get_bounding_boxes(surf):
 */
 
 
-// returns an array of regions in regions which is 
+/* returns an array of regions in regions. */
+
 static GAME_Rect* get_bounding_rects(bitmask_t *mask, int *num_bounding_boxes) {
 
     int x, y, p, i, width, height;
@@ -319,7 +323,8 @@ static GAME_Rect* get_bounding_rects(bitmask_t *mask, int *num_bounding_boxes) {
     int directions[8][2];
 
 
-    //for dx, dy in [(0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0), (-1,-1)]:
+    /* for dx, dy in [(0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (-1,0), (-1,-1)]:
+     */
 
     directions[0][0] = 0; directions[0][1] = -1;
     directions[1][0] = 1; directions[1][1] = -1;
@@ -344,8 +349,9 @@ static GAME_Rect* get_bounding_rects(bitmask_t *mask, int *num_bounding_boxes) {
 
     for(y=0; y < height; y++) {
         for(x=0; x < width; x++) {
-            //used_pixels[y][x] = (GAME_Rect*)NULL;
-            *((GAME_Rect **) (used_pixels + y * width) + x) = NULL;
+            /* used_pixels[y][x] = (GAME_Rect*)NULL;
+                   *((GAME_Rect **) (used_pixels + y * width) + x) = NULL;
+            */
         }
     }
 
@@ -355,9 +361,7 @@ static GAME_Rect* get_bounding_rects(bitmask_t *mask, int *num_bounding_boxes) {
 
     for(y=0; y < height; y++) {
         for(x=0; x < width; x++) {
-            //
             p = bitmask_getbit(mask, x, y);
-
 
             if(p) {
                 /* a_used_pixels is the pointer used_pixels[y][x].  */
