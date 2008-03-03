@@ -54,7 +54,7 @@ class MaskTest( unittest.TestCase ):
         """  Does the mask.from_surface() work correctly?
         """
 
-        mask_from_surface = maskFromSurface
+        mask_from_surface = pygame.mask.from_surface
 
         surf = pygame.Surface((70,70), SRCALPHA, 32)
 
@@ -77,6 +77,12 @@ class MaskTest( unittest.TestCase ):
         self.assertEqual(amask.get_at((1,0)), 1)
         self.assertEqual(amask.get_at((2,0)), 0)
         self.assertEqual(amask.get_at((3,0)), 1)
+
+        surf.fill((255,255,255,0))
+        amask = mask_from_surface(surf)
+        self.assertEqual(amask.get_at((0,0)), 0)
+
+        #TODO: test a color key surface.
 
 
 

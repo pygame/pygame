@@ -2,6 +2,7 @@
 
 
 import unittest
+import pygame
 from pygame import sprite
 
 class SpriteTest( unittest.TestCase ):
@@ -29,8 +30,55 @@ class SpriteTest( unittest.TestCase ):
 
 
 
+    def test_spritecollide(self):
+
+        ag = sprite.AbstractGroup()
+        ag2 = sprite.AbstractGroup()
+        s1 = sprite.Sprite(ag)
+        s2 = sprite.Sprite(ag2)
+        s1.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
+        s2.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
+        
+        s1.rect = s1.image.get_rect()
+        s2.rect = s2.image.get_rect()
+        
+        r = sprite.spritecollide(s1, ag2, dokill = False, collided = None)
+        self.assertTrue(r)
+        
+        
+        # need to pass a function.
+        self.assertRaises(TypeError, sprite.spritecollide, s1, ag2, dokill = False, collided = 1)
+
+        self.assertTrue( sprite.spritecollide( s1, ag2, dokill = False, collided = sprite.collide_rect) )
+
+        # if there are no mask attributes.
+        self.assertRaises( AttributeError, sprite.spritecollide, s1, ag2, dokill = False, collided = sprite.collide_mask)
+        
+        # make some sprites that are fully transparent, so they won't collide.
+        s1.image.fill((255,255,255,0))
+        s2.image.fill((255,255,255,0))
+        
+        s1.mask = pygame.mask.from_surface(s1.image, 255)
+        s2.mask = pygame.mask.from_surface(s2.image, 255)
+        
+        self.assertFalse( sprite.spritecollide( s1, ag2, dokill = False, collided = sprite.collide_mask) )
+        
+        # make some fully opaque sprites that will collide with masks.
+        s1.image.fill((255,255,255,255))
+        s2.image.fill((255,255,255,255))
+        
+        s1.mask = pygame.mask.from_surface(s1.image)
+        s2.mask = pygame.mask.from_surface(s2.image)
+        
+        self.assertTrue( sprite.spritecollide( s1, ag2, dokill = False, collided = sprite.collide_mask) )
+        
+        
+
+
+
 
 import pygame
+
 import unittest
 import pygame.sprite as FastRenderGroup
 from pygame.sprite import LayeredUpdates as LayeredRenderGroup
