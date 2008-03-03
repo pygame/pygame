@@ -1050,6 +1050,12 @@ class GroupSingle(AbstractGroup):
     # Optimizations...
     def __contains__(self, sprite): return (self.__sprite is sprite)
 
+
+
+
+
+# some different collision detection functions that could be used.
+
 def collide_rect( left, right ):
     return left.rect.colliderect( right.rect )
 
@@ -1080,6 +1086,19 @@ def collide_circle( left, right ):
     yDistance = left.rect.centery - right.rect.centery
     distanceSquared = xDistance ** 2 + yDistance ** 2
     return distanceSquared < get_radius_squared( left ) + get_radius_squared( right )
+
+
+def collide_mask( left, right ):
+
+    offset_x = left.rect[0] - right.rect[0]
+    offset_y = left.rect[1] - right.rect[1]
+    # See if the two masks at the offset are overlapping.
+    overlap = left.mask.overlap(right.mask, (offset_x, offset_y))
+    return overlap
+    
+
+
+
 
 def spritecollide(sprite, group, dokill, collided = None):
     """pygame.sprite.spritecollide(sprite, group, dokill) -> list
