@@ -53,6 +53,7 @@ from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 
+# NOTE: the pyobjc, and bdist_mpkg_support is for darwin.
 try:
     import bdist_mpkg_support
     from setuptools import setup, Extension
@@ -62,6 +63,8 @@ else:
     EXTRAS.update({
         'options': bdist_mpkg_support.options,
         'setup_requires': ['bdist_mpkg>=0.4.2'],
+        #'install_requires': ['pyobjc'],
+        #'dependency_links': ['http://rene.f0o.com/~rene/stuff/macosx/']
     })
 
 #headers to install
