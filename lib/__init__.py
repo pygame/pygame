@@ -31,7 +31,7 @@ def _check_darwin():
         import AppKit
         import Foundation
     except ImportError:
-        raise ImportError("PyObjC 1.2 or later is required to use pygame on Mac OS X")
+        raise ImportError("PyObjC 1.2 or later is required to use pygame on Mac OS X. http://pygame.org/wiki/PyObjC")
 
 if sys.platform == 'darwin':
     _check_darwin()
