@@ -28,7 +28,10 @@
 #include "pygamedocs.h"
 #include "mixer.h"
 
-#define MIX_DEFAULT_CHUNKSIZE	1024
+
+#error MIX_DEFAULT_FORMAT
+
+#define MIX_DEFAULT_CHUNKSIZE 3072
 
 staticforward PyTypeObject PySound_Type;
 staticforward PyTypeObject PyChannel_Type;
@@ -137,8 +140,10 @@ autoquit(void)
 static PyObject*
 autoinit (PyObject* self, PyObject* arg)
 {
-    int freq, size, stereo, chunk;
+    int freq, stereo, chunk;
     int i;
+    Uint16 size;
+
     freq = request_frequency;
     size = request_size;
     stereo = request_stereo;
@@ -151,6 +156,8 @@ autoinit (PyObject* self, PyObject* arg)
     else
         stereo = 1;
 
+    /* printf("size:%d:\n", size); */
+
     if (size == 8)
         size = AUDIO_U8;
     else if (size == -8)
@@ -160,9 +167,15 @@ autoinit (PyObject* self, PyObject* arg)
     else if (size == -16)
         size = AUDIO_S16SYS;
 
+
+    /* printf("size:%d:\n", size); */
+
+
+
     /*make chunk a power of 2*/
-    for (i = 0; 1 << i < chunk; ++i); //yes, semicolon on for loop
-    chunk = MAX (1 << i, 256);
+    for (i = 0; 1 << i < chunk; ++i) {
+        chunk = MAX (1 << i, 256);
+    }
 
     if (!SDL_WasInit (SDL_INIT_AUDIO))
     {
@@ -184,7 +197,7 @@ autoinit (PyObject* self, PyObject* arg)
         if (SDL_InitSubSystem (SDL_INIT_AUDIO) == -1)
             return PyInt_FromLong (0);
 
-        if (Mix_OpenAudio (freq, (Uint16)size, stereo, chunk) == -1)
+        if (Mix_OpenAudio (freq, size, stereo, chunk) == -1)
         {
             SDL_QuitSubSystem (SDL_INIT_AUDIO);
             return PyInt_FromLong (0);
@@ -192,6 +205,24 @@ autoinit (PyObject* self, PyObject* arg)
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
         Mix_ChannelFinished (endsound_callback);
 #endif
+
+        /* A bug in sdl_mixer where the stereo is reversed for 8 bit.
+           So we use this CPU hogging effect to reverse it for us.
+           Hopefully this bug is fixed in SDL_mixer 1.2.9
+        printf("MIX_MAJOR_VERSION :%d: MIX_MINOR_VERSION :%d: MIX_PATCHLEVEL :%d: \n", 
+               MIX_MAJOR_VERSION, MIX_MINOR_VERSION, MIX_PATCHLEVEL);
+        */
+
+#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL<=8
+        if(size == AUDIO_U8) {
+            if(!Mix_SetReverseStereo(MIX_CHANNEL_POST, 1)) {
+                /* We do nothing... because might as well just let it go ahead. */
+                /* return RAISE (PyExc_SDLError, Mix_GetError());
+                */
+            }
+        }
+#endif
+
 
         Mix_VolumeMusic (127);
     }
@@ -560,6 +591,7 @@ chan_set_volume (PyObject* self, PyObject* args)
     int channelnum = PyChannel_AsInt (self);
     float volume, stereovolume=-1.11f;
     int result;
+    Uint8 left, right;
 
     if (!PyArg_ParseTuple (args, "f|f", &volume, &stereovolume))
         return NULL;
@@ -573,15 +605,27 @@ chan_set_volume (PyObject* self, PyObject* args)
          * something else.  NOTE: there is no way to GetPanning
          * variables.
          */
-        result = Mix_SetPanning (channelnum, (Uint8)255, (Uint8)255);
-            
+        left = 255;
+        right = 255;
+
+        if(!Mix_SetPanning(channelnum, left, right)) {
+            return RAISE (PyExc_SDLError, Mix_GetError());
+        } 
     }
     else
     {
         /* NOTE: here the volume will be set to 1.0 and the panning will
          * be used. */
-        result = Mix_SetPanning (channelnum, (Uint8)(volume * 255),
-                                 (Uint8)(stereovolume * 255));
+        left = (Uint8)(volume * 255);
+        right = (Uint8)(stereovolume * 255);
+        /*
+        printf("left:%d:  right:%d:\n", left, right);
+        */
+
+        if(!Mix_SetPanning(channelnum, left, right)) {
+            return RAISE (PyExc_SDLError, Mix_GetError());
+        }
+
         volume = 1.0f;
     }
 #else
@@ -951,7 +995,7 @@ static PyMethodDef mixer_builtins[] =
     { "pause", (PyCFunction) mixer_pause, METH_NOARGS, DOC_PYGAMEMIXERPAUSE },
     { "unpause", (PyCFunction) mixer_unpause, METH_NOARGS,
       DOC_PYGAMEMIXERUNPAUSE },
-/*	{ "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
+/*  { "lookup_frequency", lookup_frequency, 1, doc_lookup_frequency },*/
 
     { NULL, NULL, 0, NULL }
 };
