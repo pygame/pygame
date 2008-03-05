@@ -6,7 +6,7 @@ module for this to work. Note how in this simple example we
 don't even bother loading all of the pygame package. Just
 pick the mixer for sound and time for the delay function."""
 
-import os.path
+import os.path, sys
 import pygame.mixer, pygame.time
 mixer = pygame.mixer
 time = pygame.time
@@ -16,7 +16,11 @@ mixer.init(11025) #raises exception on fail
 
 
 #load the sound    
-file = os.path.join('data', 'secosmic_lo.wav')
+
+if len(sys.argv) > 1 and "wav" in sys.argv[1]:
+    file = sys.argv[1]
+else:
+    file = os.path.join('data', 'secosmic_lo.wav')
 sound = mixer.Sound(file)
 
 
