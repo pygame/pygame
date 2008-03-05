@@ -6,6 +6,13 @@
 #
 #
 
+Mar 5, 2008
+    Updated pygame.display.update() to release the GIL whilst doing things,
+        so other threads can do things whilst it's updating the screen.
+
+    Some comments to help Mac OSX people installing, and compiling pygame.
+        About bdist_mpkg in setup, and also fixed an exception message 
+        to be nicer about requiring pyobjc.
 
 Mar 3, 2008
     [BUG] Fixed up pygame.mask.from_surface, got color key, and perpixel alpha 
