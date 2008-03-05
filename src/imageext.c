@@ -475,13 +475,10 @@ image_save_ext (PyObject* self, PyObject* arg)
                 (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
         {
 #ifdef JPEGLIB_H
-#ifndef MS_WIN32
-            Py_BEGIN_ALLOW_THREADS;
-#endif
+            /* Png, and jpg save functions are not thread safe. */
+            /*Py_BEGIN_ALLOW_THREADS; */
             result = SaveJPEG (surf, name);
-#ifndef MS_WIN32
-            Py_END_ALLOW_THREADS;
-#endif
+            /*Py_END_ALLOW_THREADS; */
 
 #else
             return RAISE (PyExc_SDLError, "No support for jpg compiled in.");
@@ -491,13 +488,9 @@ image_save_ext (PyObject* self, PyObject* arg)
         else if (name[namelen-1]=='g' || name[namelen-1]=='G')
         {
 #ifdef PNG_H
-#ifndef MS_WIN32
-            Py_BEGIN_ALLOW_THREADS;
-#endif
+            /*Py_BEGIN_ALLOW_THREADS; */
             result = SavePNG (surf, name);
-#ifndef MS_WIN32
-            Py_END_ALLOW_THREADS;
-#endif
+            /*Py_END_ALLOW_THREADS; */
 #else
             return RAISE (PyExc_SDLError, "No support for png compiled in.");
 #endif
