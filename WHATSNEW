@@ -7,6 +7,15 @@
 #
 
 Mar 5, 2008
+    [BUG] A work around for 8 bit samples being stereo reversed with SDL_mixer.
+        Also check the return value of Mix_SetPanning, and raise an 
+        error on volume errors.
+
+    [BUG] Changed default chunk size for pygame.mixer to 1024*3.  Which is 
+        the magic number which stops scratchy sounds on most systems.  
+        However it does make sounds a bit laggier... it's best provided as 
+        a config item for users.
+
     Updated pygame.display.update() to release the GIL whilst doing things,
         so other threads can do things whilst it's updating the screen.
 
