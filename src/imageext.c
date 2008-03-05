@@ -186,9 +186,9 @@ SavePNG (SDL_Surface *surface, char *file)
     surf_flags = surface->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY);
     surf_alpha = surface->format->alpha;
     if (surf_flags & SDL_SRCALPHA)
-	SDL_SetAlpha (surface, 0, 255);
+        SDL_SetAlpha (surface, 0, 255);
     if (surf_flags & SDL_SRCCOLORKEY)
-	SDL_SetColorKey (surface, 0, surface->format->colorkey);
+        SDL_SetColorKey (surface, 0, surface->format->colorkey);
 
     ss_rect.x = 0;
     ss_rect.y = 0;
@@ -204,9 +204,9 @@ SavePNG (SDL_Surface *surface, char *file)
             return -1;
     }
     if (surf_flags & SDL_SRCALPHA)
-	SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
+        SDL_SetAlpha (surface, SDL_SRCALPHA, (Uint8)surf_alpha);
     if (surf_flags & SDL_SRCCOLORKEY)
-	SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+        SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
 
     for (i = 0; i < ss_h; i++)
     {
@@ -462,7 +462,6 @@ image_save_ext (PyObject* self, PyObject* arg)
         if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
             return NULL;
         namelen = strlen (name);
-        Py_BEGIN_ALLOW_THREADS;
         if ((namelen > 3) &&
             (((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
                 (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
@@ -476,7 +475,14 @@ image_save_ext (PyObject* self, PyObject* arg)
                 (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
         {
 #ifdef JPEGLIB_H
+#ifndef MS_WIN32
+            Py_BEGIN_ALLOW_THREADS;
+#endif
             result = SaveJPEG (surf, name);
+#ifndef MS_WIN32
+            Py_END_ALLOW_THREADS;
+#endif
+
 #else
             return RAISE (PyExc_SDLError, "No support for jpg compiled in.");
 #endif
@@ -485,7 +491,13 @@ image_save_ext (PyObject* self, PyObject* arg)
         else if (name[namelen-1]=='g' || name[namelen-1]=='G')
         {
 #ifdef PNG_H
+#ifndef MS_WIN32
+            Py_BEGIN_ALLOW_THREADS;
+#endif
             result = SavePNG (surf, name);
+#ifndef MS_WIN32
+            Py_END_ALLOW_THREADS;
+#endif
 #else
             return RAISE (PyExc_SDLError, "No support for png compiled in.");
 #endif
@@ -493,7 +505,6 @@ image_save_ext (PyObject* self, PyObject* arg)
 
         else
             result = -1;
-        Py_END_ALLOW_THREADS;
     }
     else
         return NULL;
