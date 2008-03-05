@@ -27,18 +27,17 @@ will default to reasonable values, but pygame cannot perform Sound
 resampling, so the mixer should be initialized to match the values of
 your audio resources.
 
-NOTE: there is currently a bug on some windows machines which makes
-sound play back 'scratchy'.  There is not enough cpu in the sound 
-thread to feed the buffer to the sound api.
-To get around this you can increase the buffer size.  However this
-means that there is more of a delay between the time you ask to play
-the sound and when it gets played.  Try calling this before the pygame.init or 
-pygame.mixer.init calls.  pygame.mixer.pre_init(44100,-16,2, 1024 * 3)
+NOTE: Not to get less laggy sound, use a smaller buffer size.  The default
+is set to reduce the chance of scratchy sounds on some computers.  You can 
+change the default buffer by calling pygame.mixer.pre_init before 
+pygame.mixer.init or pygame.init is called.  For example:
+pygame.mixer.pre_init(44100,-16,2, 1024)
+The default size was changed from 1024 to 3072 in pygame 1.8.
 <SECTION>
 
 init
 initialize the mixer module
-pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=1024): return None
+pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=3072): return None
 
 Initialize the mixer module for Sound loading and playback. The default
 arguments can be overridden to provide specific audio mixing. The size
