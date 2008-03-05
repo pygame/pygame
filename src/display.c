@@ -718,8 +718,12 @@ update (PyObject* self, PyObject* arg)
             ++count;
         }
 
-        if (count)
+        if (count) {
+            Py_BEGIN_ALLOW_THREADS;
             SDL_UpdateRects (screen, count, rects);
+            Py_END_ALLOW_THREADS;
+        }
+
         PyMem_Free ((char*)rects);
     }
     Py_RETURN_NONE;
