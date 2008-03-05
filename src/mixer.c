@@ -29,8 +29,6 @@
 #include "mixer.h"
 
 
-#error MIX_DEFAULT_FORMAT
-
 /* 1024 * 3 seems to be the magic number to stop scratchy sound. On some systems.  */
 #define MIX_DEFAULT_CHUNKSIZE 3072
 
