@@ -17,7 +17,7 @@ if "-psyco" in sys.argv:
         import psyco
         psyco.full()
     except Exception:
-        pass
+        print "No psyco for you!  psyco failed to import and run."
 
 
 # use this to use update rects or not.
