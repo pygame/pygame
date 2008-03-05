@@ -7,6 +7,9 @@
 #
 
 Mar 5, 2008
+    [BUG] Stopped releasing GIL on png, and jpeg saving functions because
+        they do not seem to be thread safe.
+
     [BUG] A work around for 8 bit samples being stereo reversed with SDL_mixer.
         Also check the return value of Mix_SetPanning, and raise an 
         error on volume errors.
