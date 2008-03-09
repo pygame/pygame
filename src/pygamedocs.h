@@ -85,7 +85,7 @@
 
 #define DOC_PYGAMEDISPLAYGETINIT "pygame.display.get_init(): return bool\ntrue if the display module is initialized"
 
-#define DOC_PYGAMEDISPLAYSETMODE "pygame.display.set_mode(resolution, flags=0, depth=0): return Surface\ninitialize a window or screen for display"
+#define DOC_PYGAMEDISPLAYSETMODE "pygame.display.set_mode(resolution=(0,0), flags=0, depth=0): return Surface\ninitialize a window or screen for display"
 
 #define DOC_PYGAMEDISPLAYGETSURFACE "pygame.display.get_surface(): return Surface\nget a reference to the currently set display surface"
 
@@ -307,7 +307,7 @@
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 
-#define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=1024): return None\ninitialize the mixer module"
+#define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=3072): return None\ninitialize the mixer module"
 
 #define DOC_PYGAMEMIXERPREINIT "pygame.mixer.pre_init(frequency=0, size=0, channels=0, buffersize=0): return None\npreset the mixer init arguments"
 

@@ -357,10 +357,11 @@
 <li><a href="sndarray.html#pygame.sndarray">pygame.sndarray</a> - <font size=-1>pygame module for accessing sound sample data</font></li>
 <ul>
 <li><a href="sndarray.html#pygame.sndarray.array">pygame.sndarray.array</a> - <font size=-1>copy Sound samples into an array</font></li>
+<li><a href="sndarray.html#pygame.sndarray.get_arraytype">pygame.sndarray.get_arraytype</a> - <font size=-1>Gets the currently active array type.</font></li>
 <li><a href="sndarray.html#pygame.sndarray.get_arraytypes">pygame.sndarray.get_arraytypes</a> - <font size=-1>Gets the array system types currently supported.</font></li>
 <li><a href="sndarray.html#pygame.sndarray.make_sound">pygame.sndarray.make_sound</a> - <font size=-1>convert an array into a Sound object</font></li>
 <li><a href="sndarray.html#pygame.sndarray.samples">pygame.sndarray.samples</a> - <font size=-1>reference Sound samples into an array</font></li>
-<li><a href="sndarray.html#pygame.sndarray.use_array">pygame.sndarray.use_array</a> - <font size=-1>Sets the array system to be used for sound arrays</font></li>
+<li><a href="sndarray.html#pygame.sndarray.use_arraytype">pygame.sndarray.use_arraytype</a> - <font size=-1>Sets the array system to be used for sound arrays</font></li>
 </ul>
 <li><a href="sprite.html#pygame.sprite">pygame.sprite</a> - <font size=-1>pygame module with basic game object classes</font></li>
 <ul>
@@ -407,6 +408,7 @@
 <li><a href="surface.html#Surface.get_alpha">Surface.get_alpha</a> - <font size=-1>get the current Surface transparency value</font></li>
 <li><a href="surface.html#Surface.get_at">Surface.get_at</a> - <font size=-1>get the color value at a single pixel</font></li>
 <li><a href="surface.html#Surface.get_bitsize">Surface.get_bitsize</a> - <font size=-1>get the bit depth of the Surface pixel format</font></li>
+<li><a href="surface.html#Surface.get_bounding_rect">Surface.get_bounding_rect</a> - <font size=-1>find the smallest rect containing data</font></li>
 <li><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></li>
 <li><a href="surface.html#Surface.get_bytesize">Surface.get_bytesize</a> - <font size=-1>get the bytes used per Surface pixel</font></li>
 <li><a href="surface.html#Surface.get_clip">Surface.get_clip</a> - <font size=-1>get the current clipping are of the Surface</font></li>
@@ -445,13 +447,14 @@
 <li><a href="surfarray.html#pygame.surfarray.array_alpha">pygame.surfarray.array_alpha</a> - <font size=-1>Copy pixel alphas into a 2d array</font></li>
 <li><a href="surfarray.html#pygame.surfarray.array_colorkey">pygame.surfarray.array_colorkey</a> - <font size=-1>Copy the colorkey values into a 2d array</font></li>
 <li><a href="surfarray.html#pygame.surfarray.blit_array">pygame.surfarray.blit_array</a> - <font size=-1>Blit directly from a array values</font></li>
+<li><a href="surfarray.html#pygame.surfarray.get_arraytype">pygame.surfarray.get_arraytype</a> - <font size=-1>Gets the currently active array type.</font></li>
 <li><a href="surfarray.html#pygame.surfarray.get_arraytypes">pygame.surfarray.get_arraytypes</a> - <font size=-1>Gets the array system types currently supported.</font></li>
 <li><a href="surfarray.html#pygame.surfarray.make_surface">pygame.surfarray.make_surface</a> - <font size=-1>Copy an array to a new surface</font></li>
 <li><a href="surfarray.html#pygame.surfarray.map_array">pygame.surfarray.map_array</a> - <font size=-1>Map a 3d array into a 2d array</font></li>
 <li><a href="surfarray.html#pygame.surfarray.pixels2d">pygame.surfarray.pixels2d</a> - <font size=-1>Reference pixels into a 2d array</font></li>
 <li><a href="surfarray.html#pygame.surfarray.pixels3d">pygame.surfarray.pixels3d</a> - <font size=-1>Reference pixels into a 3d array</font></li>
 <li><a href="surfarray.html#pygame.surfarray.pixels_alpha">pygame.surfarray.pixels_alpha</a> - <font size=-1>Reference pixel alphas into a 2d array</font></li>
-<li><a href="surfarray.html#pygame.surfarray.use_array">pygame.surfarray.use_array</a> - <font size=-1>Sets the array system to be used for surface arrays</font></li>
+<li><a href="surfarray.html#pygame.surfarray.use_arraytype">pygame.surfarray.use_arraytype</a> - <font size=-1>Sets the array system to be used for surface arrays</font></li>
 </ul>
 <li><a href="time.html#pygame.time">pygame.time</a> - <font size=-1>pygame module for monitoring time</font></li>
 <ul>
@@ -471,7 +474,7 @@
 <li><a href="transform.html#pygame.transform">pygame.transform</a> - <font size=-1>pygame module to transform surfaces</font></li>
 <ul>
 <li><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a> - <font size=-1>find the average surface from many surfaces.</font></li>
-<li><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>remove interior area of an image</font></li>
+<li><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>gets a copy of an image with an interior area removed</font></li>
 <li><a href="transform.html#pygame.transform.flip">pygame.transform.flip</a> - <font size=-1>flip vertically and horizontally</font></li>
 <li><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a> - <font size=-1>find edges in a surface</font></li>
 <li><a href="transform.html#pygame.transform.rotate">pygame.transform.rotate</a> - <font size=-1>rotate an image</font></li>

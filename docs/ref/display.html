@@ -116,10 +116,11 @@
 <a name="pygame.display.set_mode">
 <big><b>pygame.display.set_mode</big></b><br><ul>
   <i>initialize a window or screen for display</i><br>
-  <tt>pygame.display.set_mode(resolution, flags=0, depth=0): return Surface</tt><br>
+  <tt>pygame.display.set_mode(resolution=(0,0), flags=0, depth=0): return Surface</tt><br>
 <p>This function will create a display Surface. The arguments passed in are requests for a display type. The actual created display will be the best possible match supported by the system. </p>
 <p>The resolution argument is a pair of numbers representing the width and height. The flags argument is a collection of additional options. The depth argument represents the number of bits to use for color. </p>
 <p>The Surface that gets returned can be drawn to like a regular Surface but changes will eventually be seen on the monitor. </p>
+<p>If no resolution is passed or is set to (0, 0) and pygame uses <tt>SDL</tt> version <tt>1.2.10</tt> or above, the created Surface will have the same size as the current screen resolution. If only the width or height are set to 0, the Surface will have the same width or height as the screen resolution. Using a <tt>SDL</tt> version prior to <tt>1.2.10</tt> will raise an exception. </p>
 <p>It is usually best to not pass the depth argument. It will default to the best and fastest color depth for the system. If your game requires a specific color format you can control the depth with this argument. Pygame will emulate an unavailable color depth which can be slow. </p>
 <p>When requesting fullscreen display modes, sometimes an exact match for the requested resolution cannot be made. In these situations pygame will select the closest compatable match. The returned surface will still always match the requested resolution. </p>
 <p>The flags argument controls which type of display you want. There are several to choose from, and you can even combine multiple types using the bitwise or operator, (the pipe "|" character). If you pass 0 or no flags argument it will default to a software driven window. Here are the display flags you will want to choose from: </p>

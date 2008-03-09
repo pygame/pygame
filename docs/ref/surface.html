@@ -88,6 +88,7 @@
   <tr><td><a href="surface.html#Surface.get_masks">Surface.get_masks</a> - <font size=-1>the bitmasks needed to convert between a color and a mapped integer</font></td><td>the bitmasks needed to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a> - <font size=-1>the bit shifts needed to convert between a color and a mapped integer</font></td><td>the bit shifts needed to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_losses">Surface.get_losses</a> - <font size=-1>the significant bits used to convert between a color and a mapped integer</font></td><td>the significant bits used to convert between a color and a mapped integer</td></tr>
+  <tr><td><a href="surface.html#Surface.get_bounding_rect">Surface.get_bounding_rect</a> - <font size=-1>find the smallest rect containing data</font></td><td>find the smallest rect containing data</td></tr>
   <tr><td><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></td><td>acquires a buffer object for the pixels of the Surface.</td></tr>
 </table></small></ul>
 <p><tt>A</tt> pygame Surface is used to represent any image. The Surface has a fixed resolution and pixel format. Surfaces with 8bit pixels use a color palette to map to 24bit color. </p>
@@ -522,9 +523,20 @@
 <big><b>Surface.get_losses</big></b><br><ul>
   <i>the significant bits used to convert between a color and a mapped integer</i><br>
   <tt>Surface.get_losses(): return (R, G, B, A)</tt><br>
-<p>Return the least significan number of bits stripped from each color in a mapped integer. </p>
+<p>Return the least significant number of bits stripped from each color in a mapped integer. </p>
 <p>This value is not needed for normal Pygame usage. </p>
 <!--COMMENTS:Surface.get_losses--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.get_bounding_rect">
+<big><b>Surface.get_bounding_rect</big></b><br><ul>
+  <i>find the smallest rect containing data</i><br>
+  <tt>Surface.get_bounding_rect(min_alpha = 1): return Rect</tt><br>
+<p>Returns the smallest rectangular region that contains all the pixels in the surface that have an alpha value greater than or equal to the minimum alpha value. </p>
+<p>This function will temporarily lock and unlock the Surface as needed. </p>
+<p>New in pygame <tt>1.8</tt>. </p>
+<!--COMMENTS:Surface.get_bounding_rect--> &nbsp;<br> 
 <br></ul>
 
 
