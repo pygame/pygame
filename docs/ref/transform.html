@@ -53,7 +53,7 @@
   <tr><td><a href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a> - <font size=-1>filtered scale and rotation</font></td><td>filtered scale and rotation</td></tr>
   <tr><td><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a> - <font size=-1>specialized image doubler</font></td><td>specialized image doubler</td></tr>
   <tr><td><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a> - <font size=-1>scale a surface to an arbitrary size smoothly</font></td><td>scale a surface to an arbitrary size smoothly</td></tr>
-  <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>remove interior area of an image</font></td><td>remove interior area of an image</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>gets a copy of an image with an interior area removed</font></td><td>gets a copy of an image with an interior area removed</td></tr>
   <tr><td><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a> - <font size=-1>find edges in a surface</font></td><td>find edges in a surface</td></tr>
   <tr><td><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a> - <font size=-1>find the average surface from many surfaces.</font></td><td>find the average surface from many surfaces.</td></tr>
   <tr><td><a href="transform.html#pygame.transform.threshold">pygame.transform.threshold</a> - <font size=-1>finds which, and how many pixels in a surface are within a threshold of a color.</font></td><td>finds which, and how many pixels in a surface are within a threshold of a color.</td></tr>
@@ -124,9 +124,10 @@
 
 <a name="pygame.transform.chop">
 <big><b>pygame.transform.chop</big></b><br><ul>
-  <i>remove interior area of an image</i><br>
+  <i>gets a copy of an image with an interior area removed</i><br>
   <tt>pygame.transform.chop(Surface, rect): return Surface</tt><br>
-<p>Extracts a portion of an image. All vertical and horizontal pixels surrounding the given rectangle area are removed. The resulting image is shrunken by the size of pixels removed. (The original image is not altered by this <tt>operation.)</tt> </p>
+<p>Extracts a portion of an image. All vertical and horizontal pixels surrounding the given rectangle area are removed. The corner areas (diagonal to the rect) are then brought together. (The original image is not altered by this <tt>operation.)</tt> </p>
+<p><tt>NOTE:</tt> If you want a "crop" that returns the part of an image within a rect, you can blit with a rect to a new surface or copy a subsurface. </p>
 <!--COMMENTS:pygame.transform.chop--> &nbsp;<br> 
 <br></ul>
 
@@ -136,6 +137,7 @@
   <i>find edges in a surface</i><br>
   <tt>pygame.transform.laplacian(Surface, DestSurface = None): return Surface</tt><br>
 <p>Finds the edges in a surface using the laplacian algorithm. </p>
+<p>New in pygame <tt>1.8</tt> </p>
 <!--COMMENTS:pygame.transform.laplacian--> &nbsp;<br> 
 <br></ul>
 
@@ -145,6 +147,7 @@
   <i>find the average surface from many surfaces.</i><br>
   <tt>pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface</tt><br>
 <p>Takes a sequence of surfaces and returns a surface with average colors from each of the surfaces. </p>
+<p>New in pygame <tt>1.8</tt> </p>
 <!--COMMENTS:pygame.transform.average_surfaces--> &nbsp;<br> 
 <br></ul>
 
@@ -157,6 +160,7 @@
 <p>It can set the destination surface where all of the pixels not within the threshold are changed to diff_color. </p>
 <p>Or it can be used to just count the number of pixels within the threshold if you set change_return to False. </p>
 <p>You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So you could use an r threshold of 40 and a blue threshold of 2 if you like. </p>
+<p>New in pygame <tt>1.8</tt> </p>
 <!--COMMENTS:pygame.transform.threshold--> &nbsp;<br> 
 <br></ul>
 <br></ul>

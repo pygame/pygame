@@ -87,18 +87,24 @@ Returns True if the pygame.display module is currently initialized.
 
 set_mode
 initialize a window or screen for display
-pygame.display.set_mode(resolution, flags=0, depth=0): return Surface
+pygame.display.set_mode(resolution=(0,0), flags=0, depth=0): return Surface
 
 This function will create a display Surface. The arguments passed in are
 requests for a display type. The actual created display will be the best
 possible match supported by the system.
 
 The resolution argument is a pair of numbers representing the width and
-height. The flags argument is a collection of additional options.
-The depth argument represents the number of bits to use for color.
+height. The flags argument is a collection of additional options.  The
+depth argument represents the number of bits to use for color.
 
 The Surface that gets returned can be drawn to like a regular Surface but
 changes will eventually be seen on the monitor.
+
+If no resolution is passed or is set to (0, 0) and pygame uses SDL
+version 1.2.10 or above, the created Surface will have the same size as
+the current screen resolution. If only the width or height are set to 0,
+the Surface will have the same width or height as the screen resolution.
+Using a SDL version prior to 1.2.10 will raise an exception.
 
 It is usually best to not pass the depth argument. It will default to the best
 and fastest color depth for the system. If your game requires a specific color

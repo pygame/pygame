@@ -443,15 +443,29 @@ set_mode (PyObject* self, PyObject* arg)
     SDL_Surface* surf;
     int depth = 0;
     int flags = SDL_SWSURFACE;
-    int w, h, hasbuf;
+    int w = 0;
+    int h = 0;
+    int hasbuf;
     char *title, *icontitle;
 
-    if (!PyArg_ParseTuple (arg, "(ii)|ii", &w, &h, &flags, &depth))
+    if (!PyArg_ParseTuple (arg, "|(ii)ii", &w, &h, &flags, &depth))
         return NULL;
 
-    if (w <= 0 || h <= 0)
-        return RAISE (PyExc_SDLError, "Cannot set 0 sized display mode");
-		
+    if (w < 0 || h < 0)
+        return RAISE (PyExc_SDLError, "Cannot set negative sized display mode");
+
+    if (w == 0 || h == 0)
+    {
+        SDL_version versioninfo;
+        SDL_VERSION (&versioninfo);
+        if (!(versioninfo.major > 1 || 
+             (versioninfo.major == 1 && versioninfo.minor > 2) || 
+             (versioninfo.major == 1 && versioninfo.minor == 2 && versioninfo.patch >= 10 )))
+        {
+            return RAISE (PyExc_SDLError, "Cannot set 0 sized display mode");
+        }
+    }
+
     if (!SDL_WasInit (SDL_INIT_VIDEO))
     {
         /*note SDL works special like this too*/
