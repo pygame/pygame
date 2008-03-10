@@ -101,8 +101,8 @@ def main():
     global DEPS
 
     print 'Hunting dependencies...'
-    incdirs = ['/usr/local/include']
-    libdirs = ['/usr/local/lib']
+    incdirs = ['/usr/local/include','/opt/local/include']
+    libdirs = ['/usr/local/lib','/opt/local/lib']
     newconfig = []
     for d in DEPS:
         d.configure(incdirs, libdirs)
