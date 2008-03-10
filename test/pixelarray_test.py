@@ -163,7 +163,7 @@ class PixelArrayTest (unittest.TestCase):
 
     def test_set_slice (self):
         for bpp in (8, 16, 24, 32):
-            sf = pygame.Surface ((6, 8), 0, 32)
+            sf = pygame.Surface ((6, 8), 0, bpp)
             sf.fill ((0, 0, 0))
             ar = pygame.PixelArray (sf)
 
@@ -191,6 +191,18 @@ class PixelArrayTest (unittest.TestCase):
             ar[2:4] = [val] * 8
             self.assertEqual (ar[2][0], val)
             self.assertEqual (ar[3][1], val)
+
+            # Test pixelarray assignment.
+            ar[:] = (0, 0, 0)
+            sf2 = pygame.Surface ((6, 8), 0, bpp)
+            sf2.fill ((255, 0, 255))
+
+            val = sf.map_rgb ((255, 0, 255))
+            ar2 = pygame.PixelArray (sf2)
+
+            ar[:] = ar2[:]
+            self.assertEqual (ar[0][0], val)
+            self.assertEqual (ar[5][7], val)
 
 if __name__ == '__main__':
     unittest.main()

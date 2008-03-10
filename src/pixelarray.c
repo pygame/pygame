@@ -646,7 +646,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     PyPixelArray *val)
 {
     SDL_Surface *surface;
-    SDL_Surface *valsf;
+    SDL_Surface *valsf = NULL;
     Uint32 x;
     Uint32 y;
     Uint32 vx;
@@ -669,7 +669,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     surface = PySurface_AsSurface (array->surface);
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
         low, high, 1, surface->pitch);
-    
+
     if (val->ylen / val->ystep != ylen / ystep ||
         val->xlen / val->xstep != xlen / xstep)
     {
@@ -685,47 +685,48 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 
     if (bpp != valbpp)
     {
-        /* bpp do not match. */
-        /* TODO */
+        /* bpp do not match. We cannot guarantee that the padding and co
+         * would be set correctly. */
         PyErr_SetString (PyExc_ValueError, "bit depths do not match");
         return -1;
     }
 
     vx = 0;
     vy = 0;
+
     /* Single value assignment. */
     switch (bpp)
     {
     case 1:
         for (y = 0; y < ylen; y += ystep)
         {
-            vy += val->ystep;
             vx = 0;
             for (x = 0; x < xlen; x += xstep)
             {
                 offset = start + x;
-                vx += val->xstep;
 
                 *((Uint8 *) pixels + y * padding + offset) =
                     (Uint8)*((Uint8 *)
                         valsf->pixels + vy * val->padding + val->start + vx);
+                vx += val->xstep;
             }
+            vy += val->ystep;
         }
         break;
     case 2:
         for (y = 0; y < ylen; y += ystep)
         {
-            vy += val->ystep;
             vx = 0;
             for (x = 0; x < xlen; x += xstep)
             {
                 offset = start + x;
-                vx += val->xstep;
 
                 *((Uint16 *) (pixels + y * padding) + offset) =
                     (Uint16)*((Uint16 *)
-                        ((Uint8*)valsf->pixels + vy * val->padding) + val->start + vy);
+                        ((Uint8*)valsf->pixels + vy * val->padding) + val->start + vx);
+                vx += val->xstep;
             }
+            vy += val->ystep;
         }
         break;
     case 3:
@@ -736,12 +737,10 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         SDL_PixelFormat *vformat = valsf->format;
         for (y = 0; y < ylen; y += ystep)
         {
-            vy += val->ystep;
             vx = 0;
             for (x = 0; x < xlen; x += xstep)
             {
                 offset = start + x;
-                vx += val->xstep;
 
                 px = (Uint8 *) (pixels + y * padding) + offset * 3;
                 vpx = (Uint8 *) ((Uint8*)valsf->pixels + y * val->padding) +
@@ -759,24 +758,26 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
                 *(px + 2 - (format->Bshift >> 3)) =
                     *(vpx + 2 - (vformat->Bshift >> 3));
 #endif
+                vx += val->xstep;
             }
+            vy += val->ystep;
         }
         break;
     }
     default:
         for (y = 0; y < ylen; y += ystep)
         {
-            vy += val->ystep;
             vx = 0;
             for (x = 0; x < xlen; x += xstep)
             {
                 offset = start + x;
-                vx += val->xstep;
 
                 *((Uint32 *) (pixels + y * padding) + offset) =
                     *((Uint32 *)
                         ((Uint8*)valsf->pixels + y * val->padding) + val->start + vx);
+                vx += val->xstep;
             }
+            vy += val->ystep;
         }
         break;
     }
@@ -1060,13 +1061,19 @@ _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             high = array->ylen;
     }
 
-    for (i = low; i < high; i++)
+    if (PyPixelArray_Check (value))
     {
-        val = _pxarray_ass_item (array, i, value);
-        if (val != 0)
-            return val;
+        return _array_assign_array (array, low, high, (PyPixelArray *) value);
     }
-
+    else
+    {
+        for (i = low; i < high; i++)
+        {
+            val = _pxarray_ass_item (array, i, value);
+            if (val != 0)
+                return val;
+        }
+    }
     return 0;
 }
 
