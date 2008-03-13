@@ -21,15 +21,22 @@ class PixelArrayTest (unittest.TestCase):
     # Sequence interfaces
     def test_get_column (self):
         for bpp in (8, 16, 24, 32):
-            sf = pygame.Surface ((10, 20), 0, bpp)
-            sf.fill ((0, 0, 0))
+            sf = pygame.Surface ((6, 8), 0, bpp)
+            sf.fill ((0, 0, 255))
+            val = sf.map_rgb ((0, 0, 255))
             ar = pygame.PixelArray (sf)
 
-            ar2 = ar[0]
-            self.assertEqual (len(ar2), 20)
-            
+            ar2 = ar[1]
+            self.assertEqual (len(ar2), 8)
+            self.assertEqual (ar2[0], val)
+            self.assertEqual (ar2[1], val)
+            self.assertEqual (ar2[2], val)
+
             ar2 = ar[-1]
-            self.assertEqual (len(ar2), 20)
+            self.assertEqual (len(ar2), 8)
+            self.assertEqual (ar2[0], val)
+            self.assertEqual (ar2[1], val)
+            self.assertEqual (ar2[2], val)
 
     def test_get_pixel (self):
         for bpp in (8, 16, 24, 32):
@@ -120,8 +127,9 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (len (ar[0:2]), 2)
             self.assertEqual (len (ar[3:7][3]), 20)
         
-            self.assertRaises (IndexError, ar.__getslice__, 0, 0)
-            self.assertRaises (IndexError, ar.__getslice__, 9, 9)
+            self.assertEqual (ar[0:0], None)
+            self.assertEqual (ar[5:5], None)
+            self.assertEqual (ar[9:9], None)
         
             # Has to resolve to ar[7:8]
             self.assertEqual (len (ar[-3:-2]), 20)
@@ -135,6 +143,7 @@ class PixelArrayTest (unittest.TestCase):
             # 1D assignment
             ar[3][3:7] = (10, 10, 10)
             self.assertEqual (ar[3][5], sf.map_rgb ((10, 10, 10)))
+            self.assertEqual (ar[3][6], sf.map_rgb ((10, 10, 10)))
 
     def test_contains (self):
         for bpp in (8, 16, 24, 32):
@@ -203,6 +212,69 @@ class PixelArrayTest (unittest.TestCase):
             ar[:] = ar2[:]
             self.assertEqual (ar[0][0], val)
             self.assertEqual (ar[5][7], val)
+
+##     def test_subscript (self):
+##         for bpp in (8, 16, 24, 32):
+##             sf = pygame.Surface ((6, 8), 0, bpp)
+##             sf.set_at ((1, 3), (0, 255, 0))
+##             sf.set_at ((0, 0), (0, 255, 0))
+##             sf.set_at ((4, 4), (0, 255, 0))
+##             val = sf.map_rgb ((0, 255, 0))
+
+##             ar = pygame.PixelArray (sf)
+
+##             # Test single value assignments.
+##             self.assertEqual (ar[1,3], val)
+##             self.assertEqual (ar[0,0], val)
+##             self.assertEqual (ar[4,4], val)
+##             self.assertEqual (ar[1][3], val)
+##             self.assertEqual (ar[0][0], val)
+##             self.assertEqual (ar[4][4], val)
+
+##             # Test ellipse working.
+##             self.assertEqual (len (ar[...,...]), 6)
+##             self.assertEqual (len (ar[1,...]), 8)
+##             self.assertEqual (len (ar[...,3]), 6)
+
+##             # Test simple slicing
+##             self.assertEqual (len (ar[:,]), 6)
+##             self.assertEqual (len (ar[1,:]), 8)
+##             self.assertEqual (len (ar[:,2]), 6)
+##             # Empty slices
+##             self.assertEqual (ar[4:4,], None)
+##             self.assertEqual (ar[4:4,...], None)
+##             self.assertEqual (ar[4:4,2:2], None)
+##             self.assertEqual (ar[4:4,1:4], None)
+##             self.assertEqual (ar[4:4:2,], None)
+##             self.assertEqual (ar[4:4:-2,], None)
+##             self.assertEqual (ar[4:4:1,...], None)
+##             self.assertEqual (ar[4:4:-1,...], None)
+##             self.assertEqual (ar[4:4:1,2:2], None)
+##             self.assertEqual (ar[4:4:-1,1:4], None)
+##             self.assertEqual (ar[...,4:4], None)
+##             self.assertEqual (ar[1:4,4:4], None)
+##             self.assertEqual (ar[...,4:4:1], None)
+##             self.assertEqual (ar[...,4:4:-1], None)
+##             self.assertEqual (ar[2:2,4:4:1], None)
+##             self.assertEqual (ar[1:4,4:4:-1], None)
+
+##             # Test advanced slicing
+##             ar[0] = 0
+##             ar[1] = 1
+##             ar[2] = 2
+##             ar[3] = 3
+##             ar[4] = 4
+##             ar[5] = 5
+
+##             print ar, ar[1]
+##             # We should receive something like [0,2,4]
+##             #print ar[::2,0]
+##             #print ar[::2,1]
+##             #print ar[::2,]
+##             #print ar[::2,2]
+##             #self.assertEqual (ar[::2,1][0], 0)
+##             #self.assertEqual (ar[::2,1][1], 2)
+##             #self.assertEqual (ar[::2,1][2], 4)
 
 if __name__ == '__main__':
     unittest.main()
