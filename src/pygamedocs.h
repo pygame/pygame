@@ -335,7 +335,7 @@
 
 #define DOC_PYGAMEMIXERSOUND "pygame.mixer.Sound(filename): return Sound\npygame.mixer.Sound(buffer): return Sound\npygame.mixer.Sound(object): return Sound\nCreate a new Sound object from a file"
 
-#define DOC_SOUNDPLAY "Sound.play(loops=0, maxtime=0): return Channel\nbegin sound playback"
+#define DOC_SOUNDPLAY "Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel\nbegin sound playback"
 
 #define DOC_SOUNDSTOP "Sound.stop(): return None\nstop sound playback"
 
@@ -353,7 +353,7 @@
 
 #define DOC_PYGAMEMIXERCHANNEL "pygame.mixer.Channel(id): return Channel\nCreate a Channel object for controlling playback"
 
-#define DOC_CHANNELPLAY "Channel.play(Sound, loops=0, time=0): return None\nplay a Sound on a specific Channel"
+#define DOC_CHANNELPLAY "Channel.play(Sound, loops=0, maxtime=0, fade_ms=0): return None\nplay a Sound on a specific Channel"
 
 #define DOC_CHANNELSTOP "Channel.stop(): return None\nstop playback on a Channel"
 
