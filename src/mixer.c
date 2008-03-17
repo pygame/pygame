@@ -141,10 +141,12 @@ autoinit (PyObject* self, PyObject* arg)
 {
     int freq, stereo, chunk;
     int i;
-    Uint16 size;
+    int size;
+    Uint16 fmt;
 
     freq = request_frequency;
     size = request_size;
+    fmt = request_size;
     stereo = request_stereo;
     chunk = request_chunksize;
 
@@ -158,13 +160,13 @@ autoinit (PyObject* self, PyObject* arg)
     /* printf("size:%d:\n", size); */
 
     if (size == 8)
-        size = AUDIO_U8;
+        fmt = AUDIO_U8;
     else if (size == -8)
-        size = AUDIO_S8;
+        fmt = AUDIO_S8;
     else if (size == 16)
-        size = AUDIO_U16SYS;
+        fmt = AUDIO_U16SYS;
     else if (size == -16)
-        size = AUDIO_S16SYS;
+        fmt = AUDIO_S16SYS;
 
 
     /* printf("size:%d:\n", size); */
@@ -196,7 +198,7 @@ autoinit (PyObject* self, PyObject* arg)
         if (SDL_InitSubSystem (SDL_INIT_AUDIO) == -1)
             return PyInt_FromLong (0);
 
-        if (Mix_OpenAudio (freq, size, stereo, chunk) == -1)
+        if (Mix_OpenAudio (freq, fmt, stereo, chunk) == -1)
         {
             SDL_QuitSubSystem (SDL_INIT_AUDIO);
             return PyInt_FromLong (0);
@@ -213,7 +215,7 @@ autoinit (PyObject* self, PyObject* arg)
         */
 
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL<=8
-        if(size == AUDIO_U8) {
+        if(fmt == AUDIO_U8) {
             if(!Mix_SetReverseStereo(MIX_CHANNEL_POST, 1)) {
                 /* We do nothing... because might as well just let it go ahead. */
                 /* return RAISE (PyExc_SDLError, Mix_GetError());
@@ -947,7 +949,7 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
                 return -1;
             }
             chunk->alen = buflen;
-            chunk->abuf = malloc (buflen);
+            chunk->abuf = malloc ((size_t) buflen);
             if (!chunk->abuf)
             {
                 free (chunk);
@@ -956,7 +958,7 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
             }
             chunk->allocated = 1;
             chunk->volume = 128;
-            memcpy (chunk->abuf, buf, buflen);
+            memcpy (chunk->abuf, buf, (size_t) buflen);
         }
         else
             PyErr_Clear ();
