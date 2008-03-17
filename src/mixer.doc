@@ -195,7 +195,7 @@ pygame.mixer.Sound(buffer) is new in pygame 1.8
 
 play
 begin sound playback
-Sound.play(loops=0, maxtime=0): return Channel
+Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel
 
 Begin playback of the Sound (i.e., on the computer's speakers) on an
 available Channel. This will forcibly select
@@ -211,6 +211,10 @@ will loop indefinitely (though you can still call stop() to stop it).
 The maxtime argument can be used to stop playback after a given number of
 milliseconds.
 
+The fade_ms argument will make the sound start playing at 0 volume and 
+fade up to full volume over the time given. The sample may end before the
+fade-in is complete.
+ 
 This returns the Channel object for the channel that was selected.
 <END>
 
@@ -285,7 +289,7 @@ channels is entirely optional since pygame can manage them by default.
 
 play
 play a Sound on a specific Channel
-Channel.play(Sound, loops=0, time=0): return None
+Channel.play(Sound, loops=0, maxtime=0, fade_ms=0): return None
 
 This will begin playback of a Sound on a specific Channel. If the Channel
 is currently playing any other Sound it will be stopped.
@@ -295,8 +299,10 @@ number of times to repeat the sound after the first time. If it is
 3, the sound will be played 4 times (the first time, then three more).
 If loops is -1 then the playback will repeat indefinitely.
 
-As in Sound.play(), the time argument can be used to
+As in Sound.play(), the maxtime argument can be used to
 stop playback of the Sound after a given number of milliseconds.
+
+As in Sound.play(), the fade_ms argument can be used fade in the sound.
 <END>
 
 stop

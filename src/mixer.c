@@ -287,16 +287,24 @@ pre_init (PyObject* self, PyObject* arg)
 /* sound object methods */
 
 static PyObject*
-snd_play (PyObject* self, PyObject* args)
+snd_play (PyObject* self, PyObject* args, PyObject* kwargs)
 {
     Mix_Chunk* chunk = PySound_AsChunk (self);
     int channelnum = -1;
-    int loops = 0, playtime = -1;
+    int loops = 0, playtime = -1, fade_ms = 0;
 
-    if (!PyArg_ParseTuple (args, "|ii", &loops, &playtime))
-        return NULL;
-
-    channelnum = Mix_PlayChannelTimed (-1, chunk, loops, playtime);
+    char *kwids[] = { "loops", "maxtime", "fade_ms", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|iii", kwids, &loops, &playtime, &fade_ms))
+       return NULL;
+    
+    if (fade_ms > 0)
+    {	
+    	channelnum = Mix_FadeInChannelTimed (-1, chunk, loops, fade_ms, playtime);    	
+    }
+    else
+    {
+    	channelnum = Mix_PlayChannelTimed (-1, chunk, loops, playtime);
+    }
     if (channelnum == -1)
         Py_RETURN_NONE;
 
@@ -405,7 +413,7 @@ snd_get_buffer (PyObject* self)
 
 static PyMethodDef sound_methods[] =
 {
-    { "play", snd_play, METH_VARARGS, DOC_SOUNDPLAY },
+    { "play", (PyCFunction) snd_play, METH_KEYWORDS, DOC_SOUNDPLAY },
     { "get_num_channels", (PyCFunction) snd_get_num_channels, METH_NOARGS,
       DOC_SOUNDGETNUMCHANNELS },
     { "fadeout", snd_fadeout, METH_VARARGS, DOC_SOUNDFADEOUT },
@@ -478,19 +486,27 @@ static PyTypeObject PySound_Type =
 
 /* channel object methods */
 static PyObject*
-chan_play (PyObject* self, PyObject* args)
+chan_play (PyObject* self, PyObject* args, PyObject* kwargs)
 {
     int channelnum = PyChannel_AsInt (self);
     PyObject* sound;
     Mix_Chunk* chunk;
-    int loops = 0, playtime = -1;
+    int loops = 0, playtime = -1, fade_ms = 0;
 
-    if (!PyArg_ParseTuple (args, "O!|ii", &PySound_Type, &sound, &loops,
-                           &playtime))
-        return NULL;
+    char *kwids[] = { "Sound", "loops", "maxtime", "fade_ms", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O!|iii", kwids, &PySound_Type, &sound, 
+                                     &loops, &playtime, &fade_ms))
+       return NULL;
     chunk = PySound_AsChunk (sound);
 
-    channelnum = Mix_PlayChannelTimed (channelnum, chunk, loops, playtime);
+    if (fade_ms > 0)
+    {
+        channelnum = Mix_FadeInChannelTimed (channelnum, chunk, loops, fade_ms, playtime);
+    }
+    else
+    {
+        channelnum = Mix_PlayChannelTimed (channelnum, chunk, loops, playtime);
+    }
     if (channelnum != -1)
         Mix_GroupChannel (channelnum, (intptr_t)chunk);
 
@@ -700,7 +716,7 @@ chan_get_endevent (PyObject* self)
 
 static PyMethodDef channel_builtins[] =
 {
-    { "play", chan_play, METH_VARARGS, DOC_CHANNELPLAY },
+    { "play", (PyCFunction) chan_play, METH_KEYWORDS, DOC_CHANNELPLAY },
     { "queue", chan_queue, METH_VARARGS, DOC_CHANNELQUEUE },
     { "get_busy", (PyCFunction) chan_get_busy, METH_NOARGS,
       DOC_CHANNELGETBUSY },
