@@ -6,6 +6,10 @@
 #
 #
 
+Mar 16, 2008
+    the play functions of mixer.Channel and mixer.Sound both now take keyword
+      arguments, and accept a fade_ms argument that makes the sound fade in
+    
 Mar 9, 2008
     pygame.display.set_mode() will now respect the screen resolution settings
       for the width or height set to 0 as supported by SDL >= 1.2.10. Thanks
