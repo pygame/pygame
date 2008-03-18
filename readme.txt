@@ -1,7 +1,8 @@
 
    Pygame Readme
-   Version 1.8.0rc4 Python Game Development
-   by Pete Shinners and others http://www.pygame.org
+   Version 1.8.0rc5 Python Game Development
+   Originally by Pete Shinners, now an open source community project.
+   http://www.pygame.org
    pete@shinners.org
 
    About
@@ -48,6 +49,26 @@
      Thanks to everyone who has helped contribute to this library.
      Special thanks are also in order.
 
+
+     Marcus Von Appen - many changes, and fixes, 1.7.1+ freebsd maintainer.
+
+     Lenard Lindstrom - the 1.8 windows maintainer.
+     
+     Brian Fisher - for svn auto builder, bug tracker and many contributions.
+
+     Rene Dudfield - many changes, and fixes, 1.7+ release manager/maintainer.
+
+     Phil Hassey - for his work on the pygame.org website.
+
+     DR0ID for his work on the sprite module.
+
+     Richard Goedeken for his smoothscale function.
+
+     Ulf Ekström for his pixel perfect collision detection code.
+
+     Pete Shinners - orginal author.
+
+
      David Clark - for filling the right-hand-man position
 
      Ed Boraas and Francis Irving - Debian packages
@@ -69,14 +90,22 @@
    Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
    Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
    James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
-   Spiller, Bo Jangeborg, Dmitry Borisov
+   Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
+   Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
+   Matthew L Daniel
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
-   Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, Rene
-   Dudfield, Michael Benfield, David Lau
+   Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, 
+   Michael Benfield, David Lau
 
    There's many more folks out there who've submitted helpful ideas, kept
    this project going, and basically made my life easer, Thanks!
+
+   Many thank you's for people making documentation comments, and adding to the
+   pygame.org wiki.  
+   
+   Also many thanks for people creating games and putting them on the 
+   pygame.org website for others to learn from and enjoy.
 
    Also a big thanks to Roger Dingledine and the crew at SEUL.ORG for our
    excellent hosting.
