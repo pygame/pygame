@@ -24,15 +24,27 @@
 #include "pygamedocs.h"
 #include "surface.h"
 
+#if PY_VERSION_HEX < 0x02050000
+#define PyIndex_Check(op) 0
+#endif
+
 #define GET_SLICE_VALS(array, start, end, ylen, ystep, xlen, xstep, padding, \
     _low, _high, _step, _pad)                                           \
-    start = array->start + _low;                                        \
-    end = array->end - array->xlen + _high;                             \
+    start = array->start + _low * array->xstep;                         \
+    end = (_high - _low > 0) ?                                          \
+        array->end - array->xlen + _high * array->xstep :               \
+        array->end - array->xlen + _low * array->xstep;                 \
     ylen = array->ylen;                                                 \
     ystep = array->ystep;                                               \
-    xlen = _high - _low;                                                \
-    xstep = _step;                                                      \
+    xlen = (_high - _low < 0) ? _low - _high : _high - _low;            \
+    xstep = array->xstep * _step;                                       \
     padding = _pad;
+
+
+/*
+  end = array->end - array->xlen + _high * array->xstep;
+  xstep = (_step > 1) ? (array->xstep + _step) : array->xstep;
+*/
 
 typedef struct
 {
@@ -45,8 +57,8 @@ typedef struct
     Uint32 end;         /* End offset for subarrays */
     Uint32 xlen;        /* X segment length. */
     Uint32 ylen;        /* Y segment length. */
-    Uint32 xstep;       /* X offset step width. */
-    Uint32 ystep;       /* Y offset step width. */
+    Sint32 xstep;       /* X offset step width. */
+    Sint32 ystep;       /* Y offset step width. */
     Uint32 padding;     /* Padding to get to the next x offset. */
     PyObject *parent;   /* Parent pixel array */
 
@@ -54,7 +66,7 @@ typedef struct
 
 static PyPixelArray* _pxarray_new_internal (PyTypeObject *type,
     PyObject *surface, Uint32 start, Uint32 end, Uint32 xlen, Uint32 ylen,
-    Uint32 xstep, Uint32 ystep, Uint32 padding, PyObject *parent);
+    Sint32 xstep, Sint32 ystep, Uint32 padding, PyObject *parent);
 static PyObject* _pxarray_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static void _pxarray_dealloc (PyPixelArray *self);
@@ -70,8 +82,8 @@ static PyObject* _get_single_pixel (Uint8 *pixels, int bpp, Uint32 _index,
     Uint32 row);
 static void _set_single_pixel (Uint8 *pixels, int bpp, Uint32 _index,
     Uint32 row, SDL_PixelFormat *format, Uint32 color);
-static PyObject* _array_slice_internal (PyPixelArray *array, Uint32 _start,
-    Uint32 _end, Uint32 _step);
+static PyObject* _array_slice_internal (PyPixelArray *array, Sint32 _start,
+    Sint32 _end, Sint32 _step);
 
 /* Sequence methods */
 static Py_ssize_t _pxarray_length (PyPixelArray *array);
@@ -93,7 +105,6 @@ static PyObject* _pxarray_inplace_concat (PyPixelArray *array, PyObject *seq);
 static PyObject* _pxarray_inplace_repeat (PyPixelArray *array, Py_ssize_t n);
 
 /* Mapping methods */
-
 static int _get_subslice (PyPixelArray *array, PyObject *op, Py_ssize_t length,
     Py_ssize_t *start, Py_ssize_t *stop, Py_ssize_t *step);
 static PyObject* _pxarray_subscript (PyPixelArray *array, PyObject *op);
@@ -142,7 +153,6 @@ static PySequenceMethods _pxarray_sequence =
 /**
  * Mapping interface support for the PyPixelArray.
  */
-
 static PyMappingMethods _pxarray_mapping =
 {
     (inquiry) _pxarray_length,              /*mp_length*/
@@ -154,7 +164,7 @@ static PyTypeObject PyPixelArray_Type =
 {
     PyObject_HEAD_INIT(NULL)
     0,
-    "PixelArray",               /* tp_name */
+    "pygame.PixelArray",        /* tp_name */
     sizeof (PyPixelArray),      /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _pxarray_dealloc, /* tp_dealloc */
@@ -165,7 +175,7 @@ static PyTypeObject PyPixelArray_Type =
     (reprfunc) &_pxarray_repr,  /* tp_repr */
     0,                          /* tp_as_number */
     &_pxarray_sequence,         /* tp_as_sequence */
-    0,/*&_pxarray_mapping,          /* tp_as_mapping */
+    0, /*&_pxarray_mapping,          /* tp_as_mapping */
     0,                          /* tp_hash */
     0,                          /* tp_call */
     0,                          /* tp_str */
@@ -207,7 +217,7 @@ static PyTypeObject PyPixelArray_Type =
 static PyPixelArray*
 _pxarray_new_internal (PyTypeObject *type, PyObject *surface,
     Uint32 start, Uint32 end, Uint32 xlen, Uint32 ylen,
-    Uint32 xstep, Uint32 ystep, Uint32 padding, PyObject *parent)
+    Sint32 xstep, Sint32 ystep, Uint32 padding, PyObject *parent)
 {
     PyPixelArray *self = (PyPixelArray *) type->tp_alloc (type, 0);
     if (!self)
@@ -322,6 +332,11 @@ _pxarray_repr (PyPixelArray *array)
     Uint32 pixel;
     Uint32 x = 0;
     Uint32 y = 0;
+    Sint32 xlen = 0;
+    Sint32 absxstep;
+    Sint32 absystep;
+    Uint32 posx = 0;
+    Uint32 posy = 0;
 
     surface = PySurface_AsSurface (array->surface);
     bpp = surface->format->BytesPerPixel;
@@ -332,55 +347,71 @@ _pxarray_repr (PyPixelArray *array)
         array->ylen, array->ystep, array->padding);
 */
     string = PyString_FromString ("PixelArray(");
+
+    absxstep = ABS (array->xstep);
+    absystep = ABS (array->ystep);
+    xlen = (Sint32) array->xlen - absxstep;
+
     switch (bpp)
     {
     case 1:
-        for (y = 0; y < array->ylen; y += array->ystep)
+        while (posy != array->ylen)
         {
             /* Construct the rows */
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
-
-            for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != (Uint32)xlen)
             {
                 /* Construct the columns */
                 pixel = (Uint32) *((Uint8 *) pixels + array->start + x +
                     y * array->padding);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%d, ", pixel));
+                x += array->xstep;
+                posx += absxstep;
             }
             pixel = (Uint32) *((Uint8 *) pixels + array->start + x +
                 y * array->padding);
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%d]", pixel));
+            y += array->ystep;
+            posy += absystep;
         }
         break;
     case 2:
-        for (y = 0; y < array->ylen; y += array->ystep)
+        while (posy != array->ylen)
         {
             /* Construct the rows */
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
-
-            for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != (Uint32)xlen)
             {
                 /* Construct the columns */
-                pixel = (Uint32)*((Uint16 *) (pixels + y * array->padding) +
+                pixel = (Uint32) *((Uint16 *) (pixels + y * array->padding) +
                     array->start + x);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%d, ", pixel));
+                x += array->xstep;
+                posx += absxstep;
             }
-            pixel = (Uint32)*((Uint16 *) (pixels + y * array->padding) +
+            pixel = (Uint32) *((Uint16 *) (pixels + y * array->padding) +
                 array->start + x);
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%d]", pixel));
+            y += array->ystep;
+            posy += absystep;
         }
         break;
     case 3:
-        for (y = 0; y < array->ylen; y += array->ystep)
+        while (posy != array->ylen)
         {
             /* Construct the rows */
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
-
-            for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != (Uint32)xlen)
             {
                 /* Construct the columns */
                 px24 = ((Uint8 *) (pixels + y * array->padding) +
@@ -392,6 +423,8 @@ _pxarray_repr (PyPixelArray *array)
 #endif
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%d, ", pixel));
+                x += array->xstep;
+                posx += absxstep;
             }
             px24 = ((Uint8 *) (pixels + y * array->padding) +
                 array->start * 3 + x * 3);
@@ -402,26 +435,33 @@ _pxarray_repr (PyPixelArray *array)
 #endif
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%d]", pixel));
+            y += array->ystep;
+            posy += absystep;
         }
         break;
     default: /* 4bpp */
-        for (y = 0; y < array->ylen; y += array->ystep)
+        while (posy != array->ylen)
         {
             /* Construct the rows */
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
-
-            for (x = 0; x < array->xlen - array->xstep; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != (Uint32)xlen)
             {
                 /* Construct the columns */
                 pixel = *((Uint32 *) (pixels + y * array->padding) +
                     array->start + x);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%d, ", pixel));
+                x += array->xstep;
+                posx += absxstep;
             }
             pixel = *((Uint32 *) (pixels + y * array->padding) +
                 array->start + x);
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%d]", pixel));
+            y += array->ystep;
+            posy += absystep;
         }
         break;
     }
@@ -552,15 +592,15 @@ _set_single_pixel (Uint8 *pixels, int bpp, Uint32 _index, Uint32 row,
  * Creates a 2D slice of the array.
  */
 static PyObject*
-_array_slice_internal (PyPixelArray *array, Uint32 _start, Uint32 _end,
-    Uint32 _step)
+_array_slice_internal (PyPixelArray *array, Sint32 _start, Sint32 _end,
+    Sint32 _step)
 {
     Uint32 start;
     Uint32 end;
     Uint32 xlen;
     Uint32 ylen;
-    Uint32 xstep;
-    Uint32 ystep;
+    Sint32 xstep;
+    Sint32 ystep;
     Uint32 padding;
     SDL_Surface *sf = PySurface_AsSurface (array->surface);
 
@@ -570,6 +610,10 @@ _array_slice_internal (PyPixelArray *array, Uint32 _start, Uint32 _end,
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
         _start, _end, _step, sf->pitch);
 
+/*
+    printf ("VALS: %d:%d, %d:%d %d:%d %d\n",
+        start, end, xlen, xstep, ylen, ystep, padding);
+*/
     return (PyObject *) _pxarray_new_internal
         (&PyPixelArray_Type, array->surface, start, end, xlen, ylen,
          xstep, ystep, padding, (PyObject *) array);
@@ -584,8 +628,8 @@ static Py_ssize_t
 _pxarray_length (PyPixelArray *array)
 {
     if (array->xlen > 1)
-        return array->xlen / array->xstep;
-    return array->ylen / array->ystep;
+        return array->xlen / ABS (array->xstep);
+    return array->ylen / ABS (array->ystep);
 }
 
 /**
@@ -631,8 +675,7 @@ _pxarray_item (PyPixelArray *array, Py_ssize_t _index)
         return _get_single_pixel ((Uint8 *) surface->pixels, bpp,
             array->start + _index * array->xstep, _index * array->padding);
 
-    return _array_slice_internal
-        (array, (Uint32) _index, (Uint32) _index + 1, 1);
+    return _array_slice_internal (array, _index, _index + 1, 1);
 }
 
 /**
@@ -654,7 +697,7 @@ _pxarray_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high)
     if (low == high)
         Py_RETURN_NONE;
 
-    return _array_slice_internal (array, (Uint32) low, (Uint32) high, 1);
+    return _array_slice_internal (array, low, high, 1);
 }
 
 static int
@@ -663,10 +706,10 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 {
     SDL_Surface *surface;
     SDL_Surface *valsf = NULL;
-    Uint32 x;
-    Uint32 y;
-    Uint32 vx;
-    Uint32 vy;
+    Uint32 x = 0;
+    Uint32 y = 0;
+    Uint32 vx = 0;
+    Uint32 vy = 0;
     int bpp;
     int valbpp;
     Uint8 *pixels;
@@ -677,9 +720,13 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     Uint32 end;
     Uint32 xlen;
     Uint32 ylen;
-    Uint32 xstep;
-    Uint32 ystep;
+    Sint32 xstep;
+    Sint32 ystep;
     Uint32 padding;
+    Uint32 posx = 0;
+    Uint32 posy = 0;
+    Sint32 absxstep;
+    Sint32 absystep;
 
     /* Set the correct slice indices */
     surface = PySurface_AsSurface (array->surface);
@@ -707,43 +754,53 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         return -1;
     }
 
-    vx = 0;
-    vy = 0;
+    absxstep = ABS (xstep);
+    absystep = ABS (ystep);
 
     /* Single value assignment. */
     switch (bpp)
     {
     case 1:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
             vx = 0;
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
-
                 *((Uint8 *) pixels + y * padding + offset) =
                     (Uint8)*((Uint8 *)
                         valsf->pixels + vy * val->padding + val->start + vx);
                 vx += val->xstep;
+                x += xstep;
+                posx += absxstep;
             }
             vy += val->ystep;
+            y += ystep;
+            posy += absystep;
         }
         break;
     case 2:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
             vx = 0;
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
-
                 *((Uint16 *) (pixels + y * padding) + offset) =
                     (Uint16)*((Uint16 *)
                         ((Uint8*)valsf->pixels + vy * val->padding) +
                         val->start + vx);
                 vx += val->xstep;
+                x += xstep;
+                posx += absxstep;
             }
             vy += val->ystep;
+            y += ystep;
+            posy += absystep;
         }
         break;
     case 3:
@@ -752,10 +809,13 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         Uint8 *vpx;
         SDL_PixelFormat *format = surface->format;
         SDL_PixelFormat *vformat = valsf->format;
-        for (y = 0; y < ylen; y += ystep)
+
+        while (posy != ylen)
         {
             vx = 0;
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
 
@@ -779,16 +839,22 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
                     *(vpx + 2 - (vformat->Bshift >> 3));
 #endif
                 vx += val->xstep;
+                x += xstep;
+                posx += absxstep;
             }
             vy += val->ystep;
+            y += ystep;
+            posy += absystep;
         }
         break;
     }
     default:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
             vx = 0;
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
 
@@ -797,8 +863,12 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
                         ((Uint8*)valsf->pixels + y * val->padding) +
                         val->start + vx);
                 vx += val->xstep;
+                x += xstep;
+                posx += absxstep;
             }
             vy += val->ystep;
+            y += ystep;
+            posy += absystep;
         }
         break;
     }
@@ -823,9 +893,13 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     Uint32 end;
     Uint32 xlen;
     Uint32 ylen;
-    Uint32 xstep;
-    Uint32 ystep;
+    Sint32 xstep;
+    Sint32 ystep;
     Uint32 padding;
+    Uint32 posx = 0;
+    Uint32 posy = 0;
+    Sint32 absxstep;
+    Sint32 absystep;
 
     surface = PySurface_AsSurface (array->surface);
     bpp = surface->format->BytesPerPixel;
@@ -868,41 +942,58 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         colorvals[offset] = color;
     }
 
+    absxstep = ABS (xstep);
+    absystep = ABS (ystep);
+
     switch (bpp)
     {
     case 1:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 color = *colorvals++;
                 *((Uint8 *) pixels + y * padding + offset) = (Uint8) color;
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     case 2:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 color = *colorvals++;
                 *((Uint16 *) (pixels + y * padding) + offset) = (Uint16) color;
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     case 3:
     {
         Uint8 *px;
         SDL_PixelFormat *format = surface->format;
-        for (y = 0; y < ylen; y += ystep)
+
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 color = *colorvals++;
-
                 px = (Uint8 *) (pixels + y * padding) + offset * 3;
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
@@ -913,19 +1004,29 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
                 *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
                 *(px - (format->Bshift >> 3)) = (Uint8) color;
 #endif
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     }
     default:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 color = *colorvals++;
                 *((Uint32 *) (pixels + y * padding) + offset) = color;
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     }
@@ -939,8 +1040,8 @@ static int
 _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
 {
     SDL_Surface *surface;
-    Uint32 x;
-    Uint32 y;
+    Uint32 x = 0;
+    Uint32 y = 0;
     int bpp;
     Uint8 *pixels;
     Uint32 color = 0;
@@ -950,9 +1051,13 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
     Uint32 end;
     Uint32 xlen;
     Uint32 ylen;
-    Uint32 xstep;
-    Uint32 ystep;
+    Sint32 xstep;
+    Sint32 ystep;
     Uint32 padding;
+    Uint32 posx = 0;
+    Uint32 posy = 0;
+    Sint32 absxstep;
+    Sint32 absystep;
 
     surface = PySurface_AsSurface (array->surface);
     bpp = surface->format->BytesPerPixel;
@@ -986,36 +1091,58 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
     GET_SLICE_VALS (array, start, end, ylen, ystep, xlen, xstep, padding,
         _index, _index + 1, 1, surface->pitch);
 
+/*
+    printf ("ITEM: %d:%d, %d:%d %d:%d %d\n",
+        start, end, xlen, xstep, ylen, ystep, padding);
+*/
+    absxstep = ABS (xstep);
+    absystep = ABS (ystep);
+
     /* Single value assignment. */
     switch (bpp)
     {
     case 1:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 *((Uint8 *) pixels + y * padding + offset) = (Uint8) color;
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     case 2:
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 *((Uint16 *) (pixels + y * padding) + offset) = (Uint16) color;
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     case 3:
     {
         Uint8 *px;
         SDL_PixelFormat *format = surface->format;
-        for (y = 0; y < ylen; y += ystep)
+
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 px = (Uint8 *) (pixels + y * padding) + offset * 3;
@@ -1028,22 +1155,31 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
                 *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
                 *(px - (format->Bshift >> 3)) = (Uint8) color;
 #endif
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     }
     default: /* 4 bpp */
-        for (y = 0; y < ylen; y += ystep)
+        while (posy != ylen)
         {
-            for (x = 0; x < xlen; x += xstep)
+            posx = 0;
+            x = 0;
+            while (posx != xlen)
             {
                 offset = start + x;
                 *((Uint32 *) (pixels + y * padding) + offset) = color;
+                x += xstep;
+                posx += absxstep;
             }
+            y += ystep;
+            posy += absystep;
         }
         break;
     }
-
     return 0;
 }
 
@@ -1105,12 +1241,17 @@ static int
 _pxarray_contains (PyPixelArray *array, PyObject *value)
 {
     SDL_Surface *surface;
-    Uint32 x;
-    Uint32 y;
+    Uint32 x = 0;
+    Uint32 y = 0;
     Py_ssize_t _index;
     Uint8 *pixels;
     int bpp;
     Uint32 color;
+
+    Uint32 posx = 0;
+    Uint32 posy = 0;
+    Sint32 absxstep;
+    Sint32 absystep;
 
     surface = PySurface_AsSurface (array->surface);
     bpp = surface->format->BytesPerPixel;
@@ -1122,39 +1263,57 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         return -1;
     }
 
+    absxstep = ABS (array->xstep);
+    absystep = ABS (array->ystep);
+
     switch (bpp)
     {
     case 1:
-        for (y = 0; y < array->ylen; y += array->ystep)
+        while (posy != array->ylen)
         {
-            for (x = 0; x < array->xlen; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != array->xlen)
             {
                 _index = array->start + x;
                 if (*((Uint8 *) pixels + y * array->padding + _index)
                     == (Uint8) color)
                     return 1;
+                x += array->xstep;
+                posx += absxstep;
             }
+            y += array->ystep;
+            posy += absystep;
         }
-	break;
+        break;
     case 2:
-        for (y = 0; y < array->ylen; y += array->ystep)
+        while (posy != array->ylen)
         {
-            for (x = 0; x < array->xlen; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != array->xlen)
             {
                 _index = array->start + x;
                 if (*((Uint16 *) (pixels + y * array->padding) + _index)
                     == (Uint16) color)
                     return 1;
+                x += array->xstep;
+                posx += absxstep;
             }
+            y += array->ystep;
+            posy += absystep;
         }
         break;
     case 3:
     {
         Uint32 pxcolor;
         Uint8 *pix;
-        for (y = 0; y < array->ylen; y += array->ystep)
+
+        while (posy != array->ylen)
         {
-            for (x = 0; x < array->xlen; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != array->xlen)
             {
                 _index = array->start + x;
                 pix = ((Uint8 *) (pixels + y * array->padding) + _index * 3);
@@ -1165,20 +1324,30 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
 #endif
                 if (pxcolor == color)
                     return 1;
+                x += array->xstep;
+                posx += absxstep;
             }
+            y += array->ystep;
+            posy += absystep;
         }
         break;
     }
     default: /* 4 bpp */
-        for (y = 0; y < array->ylen; y += array->ystep)
+        while (posy != array->ylen)
         {
-            for (x = 0; x < array->xlen; x += array->xstep)
+            posx = 0;
+            x = 0;
+            while (posx != array->xlen)
             {
                 _index = array->start + x;
                 if (*((Uint32 *) (pixels + y * array->padding) + _index)
                     == color)
                     return 1;
+                x += array->xstep;
+                posx += absxstep;
             }
+            y += array->ystep;
+            posy += absystep;
         }
         break;
     }
@@ -1286,7 +1455,7 @@ _pxarray_subscript (PyPixelArray *array, PyObject *op)
         if (size > 2 || (size == 2 && array->xlen == 1))
             return RAISE (PyExc_IndexError, "too many indices for the array");
 
-        lenx = (array->xlen > 1) ? array->xlen / array->xstep : -1;
+        lenx = (array->xlen > 1) ? array->xlen / array->xstep : 0;
         leny = array->ylen / array->ystep;
 
         obj = PySequence_Fast_GET_ITEM (op, 0);
@@ -1354,10 +1523,22 @@ _pxarray_subscript (PyPixelArray *array, PyObject *op)
                 surface->format->BytesPerPixel, array->start + xstart,
                 ystart * array->padding * array->ystep);
         }
+
 /*
         printf ("X: %d:%d:%d Y: %d:%d:%d\n", xstart, xstop, xstep,
             ystart, ystop, ystep);
 */
+/*
+        printf ("NEW ARRAY: %d:%d %d:%d:%d %d:%d:%d\n",
+            array->start + ystart * array->padding + xstart,
+            array->start + ystop * array->padding + xstop,
+            xstart, xstop, xstep, ystart, ystop, ystep);
+*/
+/*
+        lenx = MAX((xstop - xstart) / xstep, 1);
+        leny = MAX((ystop - ystart) / ystep, 1);
+*/
+
 /*
 static PyPixelArray* _pxarray_new_internal (PyTypeObject *type,
     PyObject *surface, Uint32 start, Uint32 end, Uint32 xlen, Uint32 ylen,
@@ -1369,14 +1550,13 @@ static PyPixelArray* _pxarray_new_internal (PyTypeObject *type,
             (Uint32) array->start + ystop * array->padding + xstop,
             (Uint32) xstop - xstart,
             (Uint32) ystop - ystart,
-            (Uint32) xstep,
-            (Uint32) ystep,
+            (Sint32) xstep,
+            (Sint32) ystep,
             (Uint32) array->padding, (PyObject *) array);
     }
     else if (PySlice_Check (op))
     {
         /* A slice */
-        PyObject *result;
         Py_ssize_t slicelen;
         Py_ssize_t step;
         Py_ssize_t start;
@@ -1387,41 +1567,47 @@ static PyPixelArray* _pxarray_new_internal (PyTypeObject *type,
         {
             /* 2D array - slice along the x axis */
             retval = PySlice_GetIndicesEx ((PySliceObject *) op,
-                array->xlen / array->xstep, &start, &stop, &step, &slicelen);
+                (Py_ssize_t) (array->xlen / array->xstep), &start, &stop, &step,
+                &slicelen);
         }
         else
         {
             /* 1D array - use the y axis. */
             retval = PySlice_GetIndicesEx ((PySliceObject *) op,
-                array->ylen / array->ystep, &start, &stop, &step, &slicelen);
+                (Py_ssize_t) (array->ylen / array->ystep), &start, &stop, &step,
+                &slicelen);
         }
-        if (retval < 0)
+        if (retval < 0 || slicelen < 0)
             return NULL;
+        if (slicelen == 0)
+            Py_RETURN_NONE;
 
-        if (slicelen < 0) /* TODO: empty surface with 0x0 px? */
-            return NULL;
-
-        return (PyObject *) _array_slice_internal
-            (array, (Uint32) start, (Uint32) stop, (Uint32) step);
 /*
-        result = (PyObject *) _pxarray_new_internal
-            (&PyPixelArray_Type, array->surface,
-                (Uint32) start, (Uint32) stop * array->ylen,
-                1, stop - start, 1, step, (PyObject *) array);
-        return result;
+        printf ("start: %d, stop: %d, step: %d, len: %d\n", start, stop,
+            step, slicelen);
 */
+        return (PyObject *) _array_slice_internal (array, start, stop, step);
     }
-    else if (PyIndex_Check (op))
+    else if (PyIndex_Check (op) || PyInt_Check (op) || PyLong_Check (op))
     {
+        Py_ssize_t i;
+#if PY_VERSION_HEX >= 0x02050000
+        PyObject *val = PyNumber_Index (op);
+        if (!val)
+            return NULL;
         /* A simple index. */
-        Py_ssize_t i = PyNumber_AsSsize_t (op, PyExc_IndexError);
-
+        i = PyNumber_AsSsize_t (val, PyExc_IndexError);
+#else
+        if (PyInt_Check (op))
+            i = PyInt_AsLong (op);
+        else
+            i = PyLong_AsLong (op);
+#endif 
         if (i == -1 && PyErr_Occurred ())
             return NULL;
-
         if (i < 0)
-            i += (array->xlen > 1) ? array->xlen / array->xstep :
-                array->ylen / array->ystep;
+            i += (array->xlen > 1) ? array->xlen / ABS (array->xstep) :
+                array->ylen / ABS (array->ystep);
 
         return _pxarray_item (array, i);
     }
@@ -1435,10 +1621,21 @@ _pxarray_ass_subscript (PyPixelArray *array, PyObject* op, PyObject* value)
 {
     SDL_Surface *surface = PySurface_AsSurface (array->surface);
     
-    if (PyIndex_Check (op))
+    if (PyIndex_Check (op) || PyInt_Check (op) || PyLong_Check (op))
     {
+        Py_ssize_t i;
+#if PY_VERSION_HEX >= 0x02050000
+        PyObject *val = PyNumber_Index (op);
+        if (!val)
+            return -1;
         /* A simple index. */
-        Py_ssize_t i = PyNumber_AsSsize_t (op, PyExc_IndexError);
+        i = PyNumber_AsSsize_t (val, PyExc_IndexError);
+#else
+        if (PyInt_Check (op))
+            i = PyInt_AsLong (op);
+        else
+            i = PyLong_AsLong (op);
+#endif 
         if (i == -1 && PyErr_Occurred ())
             return -1;
 

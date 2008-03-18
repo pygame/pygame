@@ -103,6 +103,10 @@ typedef getcharbufferproc charbufferproc;
 #define MAX(a,b) ( (a) > (b) ? (a) : (b))
 #endif
 
+#ifndef ABS
+#define ABS(a) (((a) < 0) ? -(a) : (a))
+#endif
+
 /* test sdl initializations */
 #define VIDEO_INIT_CHECK()                                              \
     if(!SDL_WasInit(SDL_INIT_VIDEO))                                    \
