@@ -49,7 +49,9 @@ the clipboard using
 can only be used by applications, which query the clipboard for the
 "own_data" type.
 
-New in pygame 1.8. Only works for Windows, X11 and Mac OS X so far.
+EXPERIMENTAL!
+
+New in pygame 1.8. Only works for Windows, X11 and Mac OS X so far.  On Mac OSX only text works at the moment - other types will be supported in the next release.
 <SECTION>
 
 init
