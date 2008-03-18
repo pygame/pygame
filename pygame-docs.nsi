@@ -54,6 +54,9 @@ Section "HTML Documents and Tutorials"
     !insertmacro UNINSTALL.LOG_OPEN_INSTALL
 
     File /r /x .svn /x *.*~ "${SOURCE_DIRECTORY}\docs"
+    File "${SOURCE_DIRECTORY}\readme.html"
+    File "${SOURCE_DIRECTORY}\install.html"
+    File "${SOURCE_DIRECTORY}\LGPL"
  
     !insertmacro UNINSTALL.LOG_CLOSE_INSTALL
 
