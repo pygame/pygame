@@ -112,6 +112,7 @@ class PixelArrayTest (unittest.TestCase):
                      (204, 0, 204), (17, 17, 17), (204, 0, 204), (17, 17, 17))
             self.assertEqual (ar[1][0], sf.map_rgb ((204, 0, 204)))
             self.assertEqual (ar[1][1], sf.map_rgb ((17, 17, 17)))
+            self.assertEqual (ar[1][2], sf.map_rgb ((204, 0, 204)))
         
             # Test pixel array assignment.
             ar[1] = ar2[3]
@@ -214,7 +215,7 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (ar[5][7], val)
 
 ##     def test_subscript (self):
-##         for bpp in (8, 16, 24, 32):
+##         for bpp in (32, ):#16, 24, 32):
 ##             sf = pygame.Surface ((6, 8), 0, bpp)
 ##             sf.set_at ((1, 3), (0, 255, 0))
 ##             sf.set_at ((0, 0), (0, 255, 0))
@@ -223,7 +224,7 @@ class PixelArrayTest (unittest.TestCase):
 
 ##             ar = pygame.PixelArray (sf)
 
-##             # Test single value assignments.
+##             # Test single value requests.
 ##             self.assertEqual (ar[1,3], val)
 ##             self.assertEqual (ar[0,0], val)
 ##             self.assertEqual (ar[4,4], val)
@@ -237,6 +238,7 @@ class PixelArrayTest (unittest.TestCase):
 ##             self.assertEqual (len (ar[...,3]), 6)
 
 ##             # Test simple slicing
+##             self.assertEqual (len (ar[:,:]), 6)
 ##             self.assertEqual (len (ar[:,]), 6)
 ##             self.assertEqual (len (ar[1,:]), 8)
 ##             self.assertEqual (len (ar[:,2]), 6)
@@ -265,16 +267,63 @@ class PixelArrayTest (unittest.TestCase):
 ##             ar[3] = 3
 ##             ar[4] = 4
 ##             ar[5] = 5
-
-##             print ar, ar[1]
+            
 ##             # We should receive something like [0,2,4]
-##             #print ar[::2,0]
-##             #print ar[::2,1]
-##             #print ar[::2,]
-##             #print ar[::2,2]
-##             #self.assertEqual (ar[::2,1][0], 0)
-##             #self.assertEqual (ar[::2,1][1], 2)
-##             #self.assertEqual (ar[::2,1][2], 4)
+##             self.assertEqual (ar[::2,1][0], 0)
+##             self.assertEqual (ar[::2,1][1], 2)
+##             self.assertEqual (ar[::2,1][2], 4)
+##             # We should receive something like [2,2,2]
+##             self.assertEqual (ar[2,::2][0], 2)
+##             self.assertEqual (ar[2,::2][1], 2)
+##             self.assertEqual (ar[2,::2][2], 2)
+            
+##             # Should create a 3x3 array of [0,2,4]
+##             ar2 = ar[::2,::2]
+##             self.assertEqual (len (ar2), 3)
+##             self.assertEqual (ar2[0][0], 0)
+##             self.assertEqual (ar2[0][1], 0)
+##             self.assertEqual (ar2[0][2], 0)
+##             self.assertEqual (ar2[2][0], 4)
+##             self.assertEqual (ar2[2][1], 4)
+##             self.assertEqual (ar2[2][2], 4)
+##             self.assertEqual (ar2[1][0], 2)
+##             self.assertEqual (ar2[2][0], 4)
+##             self.assertEqual (ar2[1][1], 2)
+
+##             # Should create a reversed 3x8 array over X of [1,2,3] -> [3,2,1]
+##             ar2 = ar[3:0:-1]
+##             self.assertEqual (len (ar2), 3)
+##             self.assertEqual (ar2[0][0], 3)
+##             self.assertEqual (ar2[0][1], 3)
+##             self.assertEqual (ar2[0][2], 3)
+##             self.assertEqual (ar2[0][7], 3)
+##             self.assertEqual (ar2[2][0], 1)
+##             self.assertEqual (ar2[2][1], 1)
+##             self.assertEqual (ar2[2][2], 1)
+##             self.assertEqual (ar2[2][7], 1)
+##             self.assertEqual (ar2[1][0], 2)
+##             self.assertEqual (ar2[1][1], 2)
+##             # Should completely reverse the array over X -> [5,4,3,2,1,0]
+##             ar2 = ar[::-1]
+##             self.assertEqual (len (ar2), 6)
+##             self.assertEqual (ar2[0][0], 5)
+##             self.assertEqual (ar2[0][1], 5)
+##             self.assertEqual (ar2[0][3], 5)
+##             self.assertEqual (ar2[0][-1], 5)
+##             self.assertEqual (ar2[1][0], 4)
+##             self.assertEqual (ar2[1][1], 4)
+##             self.assertEqual (ar2[1][3], 4)
+##             self.assertEqual (ar2[1][-1], 4)
+##             self.assertEqual (ar2[-1][-1], 0)
+##             self.assertEqual (ar2[-2][-2], 1)
+##             self.assertEqual (ar2[-3][-1], 2)
+
+##             # Test advanced slicing
+##             ar[:] = 0
+##             print "done"
+##             ar2 = ar[:,1]
+##             ar2[:] = 99
+##             print ar
 
 if __name__ == '__main__':
     unittest.main()
