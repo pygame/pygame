@@ -6,14 +6,19 @@
 #
 #
 
+Mar 18, 2008
+    Updated credits.
+    Mac OSX binary now has movie module working.
+    1.8.0rc5
+
 Mar 16, 2008
     the play functions of mixer.Channel and mixer.Sound both now take keyword
       arguments, and accept a fade_ms argument that makes the sound fade in
     
 Mar 9, 2008
     pygame.display.set_mode() will now respect the screen resolution settings
-      for the width or height set to 0 as supported by SDL >= 1.2.10. Thanks
-      Lorenz Quack!
+      for the width or height set to 0 as supported by SDL >= 1.2.10. 
+      Thanks Lorenz Quack!
 
 Mar 5, 2008
     [BUG] Stopped releasing GIL on png, and jpeg saving functions because
