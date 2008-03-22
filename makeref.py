@@ -161,7 +161,7 @@ def HtmlPrettyLine(line, index, pre):
 def WritePageLinks(outFile, pages):
     links = []
     for page in pages[1:]:
-        link = "<a href=%s.html>%s</a>" % (page, page.title())
+        link = '<a href="%s.html">%s</a>' % (page, page.title())
         links.append(link)
     outFile.write("&nbsp;||&nbsp;\n".join(links))
     #outFile.write("\n</p>\n\n")
