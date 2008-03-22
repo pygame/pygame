@@ -14,31 +14,31 @@
 	<a href=index.html>Reference Index</a> &nbsp;||
 	<br>&nbsp;<br>
 	
-<a href=cdrom.html>Cdrom</a>&nbsp;||&nbsp;
-<a href=cursors.html>Cursors</a>&nbsp;||&nbsp;
-<a href=display.html>Display</a>&nbsp;||&nbsp;
-<a href=draw.html>Draw</a>&nbsp;||&nbsp;
-<a href=event.html>Event</a>&nbsp;||&nbsp;
-<a href=font.html>Font</a>&nbsp;||&nbsp;
-<a href=image.html>Image</a>&nbsp;||&nbsp;
-<a href=joystick.html>Joystick</a>&nbsp;||&nbsp;
-<a href=key.html>Key</a>&nbsp;||&nbsp;
-<a href=mask.html>Mask</a>&nbsp;||&nbsp;
-<a href=mixer.html>Mixer</a>&nbsp;||&nbsp;
-<a href=mouse.html>Mouse</a>&nbsp;||&nbsp;
-<a href=movie.html>Movie</a>&nbsp;||&nbsp;
-<a href=music.html>Music</a>&nbsp;||&nbsp;
-<a href=overlay.html>Overlay</a>&nbsp;||&nbsp;
-<a href=pixelarray.html>Pixelarray</a>&nbsp;||&nbsp;
-<a href=pygame.html>Pygame</a>&nbsp;||&nbsp;
-<a href=rect.html>Rect</a>&nbsp;||&nbsp;
-<a href=scrap.html>Scrap</a>&nbsp;||&nbsp;
-<a href=sndarray.html>Sndarray</a>&nbsp;||&nbsp;
-<a href=sprite.html>Sprite</a>&nbsp;||&nbsp;
-<a href=surface.html>Surface</a>&nbsp;||&nbsp;
-<a href=surfarray.html>Surfarray</a>&nbsp;||&nbsp;
-<a href=time.html>Time</a>&nbsp;||&nbsp;
-<a href=transform.html>Transform</a>
+<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
+<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
+<a href="display.html">Display</a>&nbsp;||&nbsp;
+<a href="draw.html">Draw</a>&nbsp;||&nbsp;
+<a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="image.html">Image</a>&nbsp;||&nbsp;
+<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
+<a href="key.html">Key</a>&nbsp;||&nbsp;
+<a href="mask.html">Mask</a>&nbsp;||&nbsp;
+<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
+<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
+<a href="movie.html">Movie</a>&nbsp;||&nbsp;
+<a href="music.html">Music</a>&nbsp;||&nbsp;
+<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
+<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
+<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
+<a href="rect.html">Rect</a>&nbsp;||&nbsp;
+<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
+<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
+<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
+<a href="surface.html">Surface</a>&nbsp;||&nbsp;
+<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="time.html">Time</a>&nbsp;||&nbsp;
+<a href="transform.html">Transform</a>
 </td></tr></table>
 <br>
 
@@ -50,6 +50,7 @@
 <ul><small><table>
   <tr><td><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface the PixelArray uses.</font></td><td>Gets the Surface the PixelArray uses.</td></tr>
 </table></small></ul>
+<p><tt>NOTE:</tt> This is an <tt>EXPERIMENTAL</tt> class and subject to <tt>CHANGE</tt> in future versions. </p>
 <p>The PixelArray wraps up a Surface and provides a direct <tt>2D</tt> array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing and row and pixel manipluation while inplace operations such as addition, subtraction, multiplication, division and slice assignments are not allowed. </p>
 <p>While it is possible to assign both, integer color values and <tt>RGB(A)</tt> color tuples, the PixelArray will only use integers for the color representation. Thus, checking for certain colors has to be done using the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></tt> method of the surface, the PixelArray was created for. </p>
 <pre>  pxarray = pygame.PixelArray (surface)
