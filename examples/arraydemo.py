@@ -18,9 +18,8 @@ print 'Press the mouse button to advance image.'
 print 'Press the "s" key to save the current image.'
 
 # Guarantee the usage of Numeric
-pygame.surfarray.use_array ("numeric")
-# NUMPY: pygame.surfarray.use_array ("numpy")
-
+pygame.surfarray.use_arraytype ("numeric")
+# NUMPY: pygame.surfarray.use_arraytype ("numpy")
 
 def surfdemo_show(array_img, name):
     "displays a surface, waits for user to continue"
