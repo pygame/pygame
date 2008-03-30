@@ -52,17 +52,27 @@
     break;                                        \
     }
 
-#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt)          \
-    _sR = ((px & fmt->Rmask) >> fmt->Rshift) << fmt->Rloss; \
-    _sG = ((px & fmt->Gmask) >> fmt->Gshift) << fmt->Gloss; \
-    _sB = ((px & fmt->Bmask) >> fmt->Bshift) << fmt->Bloss; \
-    _sA = ((px & fmt->Amask) >> fmt->Ashift) << fmt->Aloss;
+#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt)                    \
+    _sR = ((px & fmt->Rmask) >> fmt->Rshift);                         \
+    _sR = (_sR << fmt->Rloss) + (_sR >> (8 - (fmt->Rloss << 1)));     \
+    _sG = ((px & fmt->Gmask) >> fmt->Gshift);                         \
+    _sG = (_sG << fmt->Gloss) + (_sG >> (8 - (fmt->Gloss << 1)));     \
+    _sB = ((px & fmt->Bmask) >> fmt->Bshift);                         \
+    _sB = (_sB << fmt->Bloss) + (_sB >> (8 - (fmt->Bloss << 1)));     \
+    if (fmt->Amask)                                                   \
+    {                                                                 \
+        _sA = ((px & fmt->Amask) >> fmt->Ashift);                     \
+        _sA = (_sA << fmt->Aloss) + (_sA >> (8 - (fmt->Aloss << 1))); \
+    }                                                                 \
+    else                                                              \
+    {                                                                 \
+        _sA = 255;                                                    \
+    }
 
-#define GET_PIXELVALS_1(sr, sg, sb, sa, p, _src, _fmt) \
-    p = *((Uint8 *) (_src));                           \
-    sr = _fmt->palette->colors[p].r;                   \
-    sg = _fmt->palette->colors[p].g;                   \
-    sb = _fmt->palette->colors[p].b;                   \
+#define GET_PIXELVALS_1(sr, sg, sb, sa, _src, _fmt)    \
+    sr = _fmt->palette->colors[*((Uint8 *) (_src))].r; \
+    sg = _fmt->palette->colors[*((Uint8 *) (_src))].g; \
+    sb = _fmt->palette->colors[*((Uint8 *) (_src))].b; \
     sa = 255;
 
 #define CREATE_PIXEL(buf, r, g, b, a, bp, ft)     \
