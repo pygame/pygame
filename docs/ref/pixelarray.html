@@ -49,9 +49,9 @@
   <tt>pygame.PixelArray(Surface): return PixelArray</tt><br>
 <ul><small><table>
   <tr><td><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface the PixelArray uses.</font></td><td>Gets the Surface the PixelArray uses.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a> - <font size=-1>Creates a new Surface from the current PixelArray.</font></td><td>Creates a new Surface from the current PixelArray.</td></tr>
 </table></small></ul>
-<p><tt>NOTE:</tt> This is an <tt>EXPERIMENTAL</tt> class and subject to <tt>CHANGE</tt> in future versions. </p>
-<p>The PixelArray wraps up a Surface and provides a direct <tt>2D</tt> array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing and row and pixel manipluation while inplace operations such as addition, subtraction, multiplication, division and slice assignments are not allowed. </p>
+<p>The PixelArray wraps up a Surface and provides a direct <tt>2D</tt> array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing, row and pixel manipluation, slicing and slice assignments while inplace operations such as addition, subtraction, multiplication, division and so forth are not allowed. </p>
 <p>While it is possible to assign both, integer color values and <tt>RGB(A)</tt> color tuples, the PixelArray will only use integers for the color representation. Thus, checking for certain colors has to be done using the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></tt> method of the surface, the PixelArray was created for. </p>
 <pre>  pxarray = pygame.PixelArray (surface)
   # Check, if the first pixel at the topleft corner is blue
@@ -72,8 +72,15 @@
 </pre><p>will not cause a rectangular manipulation. Instead it will be first sliced to a two-column array, which then shall be sliced by columns once more, which will fail due an IndexError. This is caused by the slicing mechanisms in python and an absolutely correct behaviour. Create a single columned slice first, which you can manipulate then: </p>
 <pre>  pxarray[2][3:5] = ...
   pxarray[3][3:5] = ...
+</pre><p>If you want to make a rectangular manipulation or create a view of a part of the PixelArray, you also can use the subscript abilities. You can easily create different view by creating 'subarrays' using the subscripts. </p>
+<pre>  # Create some new PixelArray objects providing a different view
+  # of the original array/surface.
+  newarray = pxarray[2:4,3:5]
+  otherarray = pxarray[::2,::2]
+</pre><p>Subscripts also can be used to do fast rectangular pixel manipulations instead of iterating over the x or y axis as above. </p>
+<pre>  pxarray[::2,:] = (0, 0, 0)                # Make each second column black.
 </pre><p>During its lifetime, the PixelArray locks the surface, thus you explicitly have to delete it once its not used anymore and the surface should perform operations in the same scope. </p>
-<p>New in pygame <tt>1.8</tt>. </p>
+<p>New in pygame <tt>1.8</tt>. Subscript support is new in pygame <tt>1.8.X</tt>. </p>
 <!--COMMENTS:pygame.PixelArray--> &nbsp;<br> 
 
 
@@ -83,6 +90,18 @@
   <tt>PixelArray.surface: Return Surface</tt><br>
 <p>The Surface, the PixelArray was created for. </p>
 <!--COMMENTS:PixelArray.surface--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="PixelArray.make_surface">
+<big><b>PixelArray.make_surface</big></b><br><ul>
+  <i>Creates a new Surface from the current PixelArray.</i><br>
+  <tt>PixelArray.make_surface (): Return Surface</tt><br>
+<p>Creates a new Surface from the current PixelArray. Depending on the current PixelArray the size, pixel order etc. will be different from the original Surface. </p>
+<pre>  # Create a new surface flipped around the vertical axis.
+  sf = pxarray[:,::-1].make_surface ()
+</pre><p>New in <tt>pygame.1.8.X</tt>. </p>
+<!--COMMENTS:PixelArray.make_surface--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
