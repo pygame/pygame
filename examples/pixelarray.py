@@ -1,53 +1,78 @@
-import pygame
-from pygame.locals import *
+import os, pygame
 
 pygame.init ()
 
-screen = pygame.display.set_mode ((200, 200))
+screen = pygame.display.set_mode ((255, 255))
+surface = pygame.Surface ((255, 255))
+
 pygame.display.flip ()
-rect = screen.get_rect ()
 
-while 1:
-    event = pygame.event.wait ()
-    if event.type == QUIT:
-        break
-    if event.type == MOUSEBUTTONDOWN:
+def show (image):
+    screen.fill ((0, 0, 0))
+    screen.blit (image, (0, 0))
+    pygame.display.flip ()
+    while 1:
+        event = pygame.event.wait ()
+        if event.type == pygame.QUIT:
+            raise SystemExit
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            break
 
-        # Create  the PixelArray
-        ar = pygame.PixelArray (screen)
+# Create the PixelArray.
+ar = pygame.PixelArray (surface)
+r, g, b = 0, 0, 0
+# Do some easy gradient effect.
+for y in xrange (255):
+    r, g, b = y, y, y
+    ar[:,y] = (r, g, b)
+del ar
+show (surface)
 
-        # Fill the x columns with a white color. This will create two
-        # vertical, small rects.
-        ar[3:5] = (255, 255, 255)
-        ar[-4:-2] = (255, 255, 255)
+# We have made some gradient effect, now flip it.
+ar = pygame.PixelArray (surface)
+ar[:] = ar[:,::-1]
+del ar
+show (surface)
 
-        # 
-        for px in xrange (rect.width):
-            # A diagonal line from the topleft to the bottomright
-            ar[px][px] = (255, 255, 255)
+# Every second column will be made blue
+ar = pygame.PixelArray (surface)
+ar[::2] = (0, 0, 255)
+del ar
+show (surface)
 
-            # A diagonal line from the bottomright to the topleft.
-            ar[px][-px] = (255, 255, 255)
+# Every second row will be made green
+ar = pygame.PixelArray (surface)
+ar[:,::2] = (0, 255, 0)
+del ar
+show (surface)
 
-            # Horizontal, small rects.
-            ar[px][3:5] = (255, 255, 255)
-            ar[px][-4:-2] = (255, 255, 255)
+# Manipulate the image. Flip it around the y axis.
+surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
+ar = pygame.PixelArray (surface)
+ar[:] = ar[:,::-1]
+del ar
+show (surface)
 
-            # Note, that something like
-            #
-            #   array[2:4][3:5] = ...
-            #
-            # will _not_ cause a rectangular manipulation. Instead it
-            # will be first sliced to a two-column array, which then
-            # shall be sliced by columns once more, which will fail due
-            # an IndexError.
-            #
-            # This is caused by the slicing mechanisms in python and an
-            # absolutely correct behaviour. Instead create a single
-            # columned slice first, which you can manipulate then (as
-            # done above in e.g. ar[px][3:5] = (255, 255, 255).
-            #
-            
-        del ar
+# Flip the image around the x axis.
+ar = pygame.PixelArray (surface)
+ar[:] = ar[::-1,:]
+del ar
+show (surface)
 
-        pygame.display.flip ()
+# Every second column will be made white.
+ar = pygame.PixelArray (surface)
+ar[::2] = (255, 255, 255)
+del ar
+show (surface)
+
+# Flip the image around both axes, restoring it's original layout.
+ar = pygame.PixelArray (surface)
+ar[:] = ar[::-1,::-1]
+del ar
+show (surface)
+
+surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
+ar = pygame.PixelArray (surface)
+sf2 = ar[::2,::2].make_surface ()
+del ar
+show (sf2)

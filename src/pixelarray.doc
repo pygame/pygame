@@ -2,14 +2,11 @@ pygame.PixelArray
 pygame Object for direct pixel access of surfaces
 pygame.PixelArray(Surface): return PixelArray
 
-NOTE: This is an EXPERIMENTAL module and subject to CHANGE in future
-versions.
-
 The PixelArray wraps up a Surface and provides a direct 2D array access
 to its pixels using the surface its rows as first and its columns as
-second axis. It supports slicing and row and pixel manipluation while
-inplace operations such as addition, subtraction, multiplication,
-division and slice assignments are not allowed.
+second axis. It supports slicing, row and pixel manipluation, slicing
+and slice assignments while inplace operations such as addition,
+subtraction, multiplication, division and so forth are not allowed.
 
 While it is possible to assign both, integer color values and RGB(A)
 color tuples, the PixelArray will only use integers for the color
@@ -39,7 +36,7 @@ the PixelArray however.
   pxarray[a:b] = ((255, 0, 255), 0xAACCEE, ...)        # same as above
   
   pxarray[a:b] = otherarray[x:y]            # slice sizes must match
-                                          
+
 Note, that something like
 
   pxarray[2:4][3:5] = ... 
@@ -53,11 +50,26 @@ Create a single columned slice first, which you can manipulate then:
   pxarray[2][3:5] = ...
   pxarray[3][3:5] = ...
 
+If you want to make a rectangular manipulation or create a view of a
+part of the PixelArray, you also can use the subscript abilities.  You
+can easily create different view by creating 'subarrays' using the
+subscripts.
+
+  # Create some new PixelArray objects providing a different view
+  # of the original array/surface.
+  newarray = pxarray[2:4,3:5]
+  otherarray = pxarray[::2,::2]
+
+Subscripts also can be used to do fast rectangular pixel manipulations
+instead of iterating over the x or y axis as above.
+
+  pxarray[::2,:] = (0, 0, 0)                # Make each second column black.
+
 During its lifetime, the PixelArray locks the surface, thus you
 explicitly have to delete it once its not used anymore and the surface
 should perform operations in the same scope.
 
-New in pygame 1.8.
+New in pygame 1.8. Subscript support is new in pygame 1.8.X.
 <SECTION>
 
 surface
@@ -65,4 +77,18 @@ Gets the Surface the PixelArray uses.
 PixelArray.surface: Return Surface
 
 The Surface, the PixelArray was created for.
+<END>
+
+make_surface
+Creates a new Surface from the current PixelArray.
+PixelArray.make_surface (): Return Surface
+
+Creates a new Surface from the current PixelArray. Depending on the
+current PixelArray the size, pixel order etc. will be different from the
+original Surface.
+
+  # Create a new surface flipped around the vertical axis.
+  sf = pxarray[:,::-1].make_surface () 
+
+New in pygame.1.8.X.
 <END>
