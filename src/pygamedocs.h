@@ -289,9 +289,9 @@
 
 #define DOC_PYGAMEMASK "pygame module for image masks."
 
-#define DOC_PYGAMEMASKPYGAMEMASKFROMSURFACE "pygame.mask.from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
+#define DOC_PYGAMEMASKFROMSURFACE "pygame.mask.from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
 
-#define DOC_PYGAMEMASKPYGAMEMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
+#define DOC_PYGAMEMASKMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
 
 #define DOC_PYGAMEMASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
 

@@ -536,7 +536,7 @@ static PyTypeObject PyMask_Type =
 {
     PyObject_HEAD_INIT(NULL)
     0,
-    "Mask",
+    "pygame.mask.Mask",
     sizeof(PyMaskObject),
     0,
     mask_dealloc,
@@ -552,7 +552,7 @@ static PyTypeObject PyMask_Type =
     (ternaryfunc)NULL,
     (reprfunc)NULL,
     0L,0L,0L,0L,
-    DOC_PYGAMEMASK /* Documentation string */
+    DOC_PYGAMEMASKMASK /* Documentation string */
 };
 
 
@@ -581,9 +581,9 @@ static PyObject* Mask(PyObject* self, PyObject* args)
 
 static PyMethodDef mask_builtins[] =
 {
-    { "Mask", Mask, METH_VARARGS, DOC_PYGAMEMASK },
+    { "Mask", Mask, METH_VARARGS, DOC_PYGAMEMASKMASK },
     { "from_surface", mask_from_surface, METH_VARARGS,
-      DOC_PYGAMEMASKPYGAMEMASKFROMSURFACE},
+      DOC_PYGAMEMASKFROMSURFACE},
     { NULL, NULL, 0, NULL }
 };
 
