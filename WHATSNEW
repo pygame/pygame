@@ -6,6 +6,12 @@
 #
 #
 
+Mar 30, 2008
+    Added subscript support to PixelArray and PixelArray.make_surface()
+      to create a new surface from the PixelArray view.
+    Fixed mask namespace pollution and docs.
+
+release_1_8_0release
 Mar 18, 2008
     Updated credits.
     Mac OSX binary now has movie module working.
