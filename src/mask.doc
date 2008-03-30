@@ -22,7 +22,7 @@ If the Surface is color keyed, then threshold is not used.
 Mask
 pygame object for representing 2d bitmasks
 pygame.Mask((width, height): return Mask
-<END>
+<SECTION>
 
 get_size
 Returns the size of the mask.
