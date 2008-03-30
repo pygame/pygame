@@ -117,7 +117,9 @@ except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
 
-try: from pygame.mask import *
+try:
+    import pygame.mask
+    from pygame.mask import Mask
 except (ImportError,IOError):Mask = lambda:Missing_Function
 
 try: from pygame.pixelarray import *
