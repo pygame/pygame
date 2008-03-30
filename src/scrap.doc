@@ -1,4 +1,5 @@
 pygame.scrap
+pygame module for clipboard support.
 
 The scrap module is for getting and putting stuff from the clipboard.
 So you can copy and paste things between pygame, and other application
