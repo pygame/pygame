@@ -519,7 +519,7 @@
 
 #define DOC_RECTCOLLIDEDICTALL "Rect.collidedictall(dict): return [(key, value), ...]\ntest if all rectangles in a dictionary intersect"
 
-#define DOC_PYGAMESCRAP ""
+#define DOC_PYGAMESCRAP "pygame module for clipboard support."
 
 #define DOC_PYGAMESCRAPINIT "scrap.init () -> None\nInitializes the scrap module."
 
