@@ -1030,7 +1030,9 @@ make_surface (PyObject* self, PyObject* arg)
     if (array->nd == 2)
     {
         bitsperpixel = 8;
-        rmask = gmask = bmask = 0;
+        rmask = 0xFF >> 6 << 5;
+        gmask = 0xFF >> 5 << 2;
+        bmask = 0xFF >> 6;
     }
     else
     {

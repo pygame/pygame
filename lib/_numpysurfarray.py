@@ -327,7 +327,9 @@ def make_surface (array):
     if len (shape) == 2:
         # 2D array
         bpp = 8
-        
+        r = 0xFF >> 6 << 5
+        g = 0xFF >> 5 << 2
+        b = 0xFF >> 6
     elif len (shape) == 3 and shape[2] == 3:
         bpp = 32
         r = 0xff << 16
@@ -382,7 +384,7 @@ def blit_array (surface, array):
 
     itemsize = array.itemsize
     data = array.tostring ()
-    
+
     if itemsize > bpp:
         # Trim bytes from each element, keep least significant byte(s)
         pattern = '%s(%s)' % ('.' * (itemsize - bpp), '.' * bpp)
