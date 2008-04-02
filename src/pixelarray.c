@@ -477,8 +477,8 @@ _get_color_from_object (PyObject *val, SDL_PixelFormat *format, Uint32 *color)
 
     if (PyInt_Check (val))
     {
-        int intval = PyInt_AsLong (val);
-        if (intval < 0)
+        long intval = PyInt_AsLong (val);
+        if ((intval < INT_MIN) || (intval > INT_MAX))
         {
             if (!PyErr_Occurred ())
                 PyErr_SetString (PyExc_ValueError, "invalid color argument");
@@ -489,14 +489,10 @@ _get_color_from_object (PyObject *val, SDL_PixelFormat *format, Uint32 *color)
     }
     else if (PyLong_Check (val))
     {
-        long long longval = -1;
-        /* Plain index: array[x, */
-
-        longval = PyLong_AsLong (val);
+        long long longval = PyLong_AsLong (val);
         if ((longval < INT_MIN) || (longval > INT_MAX))
         {
-            PyErr_SetString(PyExc_ValueError,
-                "index too big for array access");
+            PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
         *color = (Uint32) longval;
