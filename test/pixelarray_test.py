@@ -365,5 +365,15 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (rect.width, 5)
             self.assertEqual (rect.height, 10)
 
+    def test_iter (self):
+        for bpp in (8, 16, 24, 32):
+            sf = pygame.Surface ((5, 10), 0, bpp)
+            ar = pygame.PixelArray (sf)
+            iterations = 0
+            for col in ar:
+                self.assertEqual (len (col), 10)
+                iterations += 1
+            self.assertEqual (iterations, 5)
+
 if __name__ == '__main__':
     unittest.main()
