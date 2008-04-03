@@ -84,6 +84,7 @@ static int _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index,
 static int _pxarray_ass_slice (PyPixelArray *array, Py_ssize_t low,
     Py_ssize_t high, PyObject *value);
 static int _pxarray_contains (PyPixelArray *array, PyObject *value);
+static PyObject* _pxarray_iter (PyPixelArray *array);
 
 /* Mapping methods */
 static int _get_subslice (PyObject *op, Py_ssize_t length, Py_ssize_t *start,
@@ -157,10 +158,10 @@ static PyTypeObject PyPixelArray_Type =
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_compare */
-    (reprfunc) &_pxarray_repr,  /* tp_repr */
+    (reprfunc) _pxarray_repr,  /* tp_repr */
     0,                          /* tp_as_number */
-    &_pxarray_sequence,         /* tp_as_sequence */
-    &_pxarray_mapping,          /* tp_as_mapping */
+    &_pxarray_sequence,          /* tp_as_sequence */
+    &_pxarray_mapping,           /* tp_as_mapping */
     0,                          /* tp_hash */
     0,                          /* tp_call */
     0,                          /* tp_str */
@@ -173,7 +174,7 @@ static PyTypeObject PyPixelArray_Type =
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
     offsetof (PyPixelArray, weakrefs),  /* tp_weaklistoffset */
-    0,                          /* tp_iter */
+    (getiterfunc) _pxarray_iter, /* tp_iter */
     0,                          /* tp_iternext */
     _pxarray_methods,           /* tp_methods */
     0,                          /* tp_members */
@@ -281,11 +282,10 @@ _pxarray_dealloc (PyPixelArray *self)
 {
     if (self->weakrefs)
         PyObject_ClearWeakRefs ((PyObject *) self);
-    Py_DECREF (self->lock);
-    Py_DECREF (self->surface);
+    Py_XDECREF (self->lock);
     Py_XDECREF (self->parent);
     Py_XDECREF (self->dict);
-
+    Py_DECREF (self->surface);
     self->ob_type->tp_free ((PyObject *) self);
 }
 
@@ -609,6 +609,10 @@ _array_slice_internal (PyPixelArray *array, Sint32 _start, Sint32 _end,
         ystep = _step;
         xstep = array->xstep;
         padding = array->padding;
+
+        /* Out of bounds? */
+        if (_start >= (Sint32) array->ylen && ystep > 0)
+            return RAISE (PyExc_IndexError, "array index out of range");
     }
     else
     {
@@ -619,6 +623,10 @@ _array_slice_internal (PyPixelArray *array, Sint32 _start, Sint32 _end,
         xstep = _step;
         ystep = array->ystep;
         padding = array->padding;
+
+        /* Out of bounds? */
+        if (_start >= (Sint32) array->xlen && xstep > 0)
+            return RAISE (PyExc_IndexError, "array index out of range");
     }
 
 /*
@@ -829,15 +837,22 @@ _pxarray_item (PyPixelArray *array, Py_ssize_t _index)
      /* Access of a single column. */
     if (array->xlen == 1)
     {
+        if ((Uint32) _index >= array->ystart + array->ylen)
+            return RAISE (PyExc_IndexError, "array index out of range");
+
         return _get_single_pixel ((Uint8 *) surface->pixels, bpp,
             array->xstart, _index * array->padding * array->ystep);
     }
     if (array->ylen == 1)
     {
+        if ((Uint32) _index >= array->xstart + array->xlen)
+            return RAISE (PyExc_IndexError, "array index out of range");
+
         return _get_single_pixel ((Uint8 *) surface->pixels, bpp,
             array->xstart + _index * array->xstep,
             array->ystart * array->padding * array->ystep);
     }
+
     return _array_slice_internal (array, _index, _index + 1, 1);
 }
 
@@ -1712,6 +1727,20 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         break;
     }
     return 0;
+}
+
+/**
+ * iter (arrray), for x in array
+ */
+static PyObject*
+_pxarray_iter (PyPixelArray *array)
+{
+/*
+    printf ("Iter ARRAY: %d:%d:%d %d:%d:%d\n",
+        array->xstart, array->xlen, array->xstep,
+        array->ystart, array->ylen, array->ystep);
+*/
+    return PySeqIter_New ((PyObject *) array);
 }
 
 /**** Mapping interfaces ****/
