@@ -5,6 +5,13 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Apr 3, 2008
+    Added iter support to PixelArray.
+
+Apr 2, 2008
+    [BUG] Fixed mask settings for 8-bit surfaces created by
+        surfarray.make_surface()
+    [BUG] Fixed integer color value assignment bound checking in PixelArray.
 
 Mar 30, 2008
     Added subscript support to PixelArray and PixelArray.make_surface()
