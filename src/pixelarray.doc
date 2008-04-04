@@ -69,7 +69,7 @@ During its lifetime, the PixelArray locks the surface, thus you
 explicitly have to delete it once its not used anymore and the surface
 should perform operations in the same scope.
 
-New in pygame 1.8. Subscript support is new in pygame 1.8.X.
+New in pygame 1.8. Subscript support is new in pygame 1.8.1.
 <SECTION>
 
 surface
@@ -90,5 +90,16 @@ original Surface.
   # Create a new surface flipped around the vertical axis.
   sf = pxarray[:,::-1].make_surface () 
 
-New in pygame.1.8.X.
+New in pygame.1.8.1.
+<END>
+
+replace
+Replaces the passed color in the PixelArray with another one.
+PixelArray.replace (color, replacecolor): Return None
+
+Replaces the pixels with the passed color in the PixelArray by changing
+them them to the passed replacement color.
+
+New in pygame.1.8.1.
+<END>
 <END>

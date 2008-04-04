@@ -375,5 +375,20 @@ class PixelArrayTest (unittest.TestCase):
                 iterations += 1
             self.assertEqual (iterations, 5)
 
+    def test_replace (self):
+        for bpp in (8, 16, 24, 32):
+            sf = pygame.Surface ((10, 10), 0, bpp)
+            sf.fill ((255, 0, 0))
+            rval = sf.map_rgb ((0, 0, 255))
+            oval = sf.map_rgb ((255, 0, 0))
+            ar = pygame.PixelArray (sf)
+            ar[::2].replace ((255, 0, 0), (0, 0, 255))
+            self.assertEqual (ar[0][0], rval)
+            self.assertEqual (ar[1][0], oval)
+            self.assertEqual (ar[2][3], rval)
+            self.assertEqual (ar[3][6], oval)
+            self.assertEqual (ar[8][9], rval)
+            self.assertEqual (ar[9][9], oval)
+
 if __name__ == '__main__':
     unittest.main()
