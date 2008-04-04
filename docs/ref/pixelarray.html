@@ -50,6 +50,7 @@
 <ul><small><table>
   <tr><td><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface the PixelArray uses.</font></td><td>Gets the Surface the PixelArray uses.</td></tr>
   <tr><td><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a> - <font size=-1>Creates a new Surface from the current PixelArray.</font></td><td>Creates a new Surface from the current PixelArray.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.replace">PixelArray.replace</a> - <font size=-1>Replaces the passed color in the PixelArray with another one.</font></td><td>Replaces the passed color in the PixelArray with another one.</td></tr>
 </table></small></ul>
 <p>The PixelArray wraps up a Surface and provides a direct <tt>2D</tt> array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing, row and pixel manipluation, slicing and slice assignments while inplace operations such as addition, subtraction, multiplication, division and so forth are not allowed. </p>
 <p>While it is possible to assign both, integer color values and <tt>RGB(A)</tt> color tuples, the PixelArray will only use integers for the color representation. Thus, checking for certain colors has to be done using the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></tt> method of the surface, the PixelArray was created for. </p>
@@ -80,7 +81,7 @@
 </pre><p>Subscripts also can be used to do fast rectangular pixel manipulations instead of iterating over the x or y axis as above. </p>
 <pre>  pxarray[::2,:] = (0, 0, 0)                # Make each second column black.
 </pre><p>During its lifetime, the PixelArray locks the surface, thus you explicitly have to delete it once its not used anymore and the surface should perform operations in the same scope. </p>
-<p>New in pygame <tt>1.8</tt>. Subscript support is new in pygame <tt>1.8.X</tt>. </p>
+<p>New in pygame <tt>1.8</tt>. Subscript support is new in pygame <tt>1.8.1</tt>. </p>
 <!--COMMENTS:pygame.PixelArray--> &nbsp;<br> 
 
 
@@ -100,8 +101,18 @@
 <p>Creates a new Surface from the current PixelArray. Depending on the current PixelArray the size, pixel order etc. will be different from the original Surface. </p>
 <pre>  # Create a new surface flipped around the vertical axis.
   sf = pxarray[:,::-1].make_surface ()
-</pre><p>New in <tt>pygame.1.8.X</tt>. </p>
+</pre><p>New in <tt>pygame.1.8.1</tt>. </p>
 <!--COMMENTS:PixelArray.make_surface--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="PixelArray.replace">
+<big><b>PixelArray.replace</big></b><br><ul>
+  <i>Replaces the passed color in the PixelArray with another one.</i><br>
+  <tt>PixelArray.replace (color, replacecolor): Return None</tt><br>
+<p>Replaces the pixels with the passed color in the PixelArray by changing them them to the passed replacement color. </p>
+<p>New in <tt>pygame.1.8.1</tt>. </p>
+<!--COMMENTS:PixelArray.replace--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
