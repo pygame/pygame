@@ -200,7 +200,6 @@ static PyTypeObject PyPixelArray_Type =
 #define SURFACE_EQUALS(x,y) \
     (((PyPixelArray *)x)->surface == ((PyPixelArray *)y)->surface)
 
-
 static PyPixelArray*
 _pxarray_new_internal (PyTypeObject *type, PyObject *surface,
     Uint32 xstart, Uint32 ystart, Uint32 xlen, Uint32 ylen,
