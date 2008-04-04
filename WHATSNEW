@@ -6,8 +6,8 @@
 #
 #
 Apr 4, 2008
-    Added PixelArray.replace() method to quickly replace a certain
-      color.
+    New PixelArray.replace() and PixelArray.extract() methods to quickly
+      replace or extract a certain color.
 
 Apr 3, 2008
     Added iter support to PixelArray.

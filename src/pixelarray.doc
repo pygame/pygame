@@ -98,7 +98,19 @@ Replaces the passed color in the PixelArray with another one.
 PixelArray.replace (color, replacecolor): Return None
 
 Replaces the pixels with the passed color in the PixelArray by changing
-them them to the passed replacement color.
+them them to the passed replacement color. The replacement is done
+in place on the PixelArray.
+
+New in pygame.1.8.1.
+<END>
+
+extract
+Extracts the passed color in the PixelArray.
+PixelArray.extract (color): Return None
+
+Extracts the passed color by changing all matching pixels to white,
+while non-matching pixels are changed to black. The extraction is
+done in place on the PixelArray.
 
 New in pygame.1.8.1.
 <END>
