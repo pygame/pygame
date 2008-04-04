@@ -400,14 +400,14 @@ class PixelArrayTest (unittest.TestCase):
             black = sf.map_rgb ((0, 0, 0))
 
             ar = pygame.PixelArray (sf)
-            ar.extract ((255, 0, 0))
+            newar = ar.extract ((255, 0, 0))
 
-            self.assertEqual (ar[0][0], black)
-            self.assertEqual (ar[1][0], black)
-            self.assertEqual (ar[2][3], white)
-            self.assertEqual (ar[3][6], white)
-            self.assertEqual (ar[8][9], black)
-            self.assertEqual (ar[9][9], black)
+            self.assertEqual (newar[0][0], black)
+            self.assertEqual (newar[1][0], black)
+            self.assertEqual (newar[2][3], white)
+            self.assertEqual (newar[3][6], white)
+            self.assertEqual (newar[8][9], black)
+            self.assertEqual (newar[9][9], black)
 
 if __name__ == '__main__':
     unittest.main()

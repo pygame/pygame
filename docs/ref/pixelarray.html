@@ -51,7 +51,7 @@
   <tr><td><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface the PixelArray uses.</font></td><td>Gets the Surface the PixelArray uses.</td></tr>
   <tr><td><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a> - <font size=-1>Creates a new Surface from the current PixelArray.</font></td><td>Creates a new Surface from the current PixelArray.</td></tr>
   <tr><td><a href="pixelarray.html#PixelArray.replace">PixelArray.replace</a> - <font size=-1>Replaces the passed color in the PixelArray with another one.</font></td><td>Replaces the passed color in the PixelArray with another one.</td></tr>
-  <tr><td><a href="pixelarray.html#PixelArray.extract">PixelArray.extract</a> - <font size=-1>Extracts the passed color in the PixelArray.</font></td><td>Extracts the passed color in the PixelArray.</td></tr>
+  <tr><td><a href="pixelarray.html#PixelArray.extract">PixelArray.extract</a> - <font size=-1>Extracts the passed color from the PixelArray.</font></td><td>Extracts the passed color from the PixelArray.</td></tr>
 </table></small></ul>
 <p>The PixelArray wraps up a Surface and provides a direct <tt>2D</tt> array access to its pixels using the surface its rows as first and its columns as second axis. It supports slicing, row and pixel manipluation, slicing and slice assignments while inplace operations such as addition, subtraction, multiplication, division and so forth are not allowed. </p>
 <p>While it is possible to assign both, integer color values and <tt>RGB(A)</tt> color tuples, the PixelArray will only use integers for the color representation. Thus, checking for certain colors has to be done using the <tt><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></tt> method of the surface, the PixelArray was created for. </p>
@@ -119,9 +119,9 @@
 
 <a name="PixelArray.extract">
 <big><b>PixelArray.extract</big></b><br><ul>
-  <i>Extracts the passed color in the PixelArray.</i><br>
-  <tt>PixelArray.extract (color): Return None</tt><br>
-<p>Extracts the passed color by changing all matching pixels to white, while non-matching pixels are changed to black. The extraction is done in place on the PixelArray. </p>
+  <i>Extracts the passed color from the PixelArray.</i><br>
+  <tt>PixelArray.extract (color): Return PixelArray</tt><br>
+<p>Extracts the passed color by changing all matching pixels to white, while non-matching pixels are changed to black. This returns a new PixelArray with the black/white color mask. </p>
 <p>New in <tt>pygame.1.8.1</tt>. </p>
 <!--COMMENTS:PixelArray.extract--> &nbsp;<br> 
 <br></ul>

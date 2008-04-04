@@ -441,7 +441,9 @@ _replace_color (PyPixelArray *array, PyObject *args)
 static PyObject*
 _extract_color (PyPixelArray *array, PyObject *args)
 {
+    PyObject *sf = NULL;
     PyObject *excolor = NULL;
+    PyPixelArray *newarray = NULL;
     Uint32 color;
     Uint32 white;
     Uint32 black;
@@ -462,14 +464,22 @@ _extract_color (PyPixelArray *array, PyObject *args)
     if (!_get_color_from_object (excolor, surface->format, &color))
         return NULL;
 
+    /* Create the b/w mask surface. */
+    sf = _make_surface (array);
+    if (!sf)
+        return NULL;
+    newarray = (PyPixelArray *) PyPixelArray_New (sf);
+    if (!newarray)
+        return NULL;
+    surface = PySurface_AsSurface (newarray->surface);
+
     black = SDL_MapRGBA (surface->format, 0, 0, 0, 255);
     white = SDL_MapRGBA (surface->format, 255, 255, 255, 255);
 
-    surface = PySurface_AsSurface (array->surface);
     pixels = surface->pixels;
-    absxstep = ABS (array->xstep);
-    absystep = ABS (array->ystep);
-    y = array->ystart;
+    absxstep = ABS (newarray->xstep);
+    absystep = ABS (newarray->ystep);
+    y = newarray->ystart;
 
     switch (surface->format->BytesPerPixel)
     {
@@ -478,16 +488,16 @@ _extract_color (PyPixelArray *array, PyObject *args)
         Uint8 *pixel;
         while (posy < array->ylen)
         {
-            x = array->xstart;
+            x = newarray->xstart;
             posx = 0;
-            while (posx < array->xlen)
+            while (posx < newarray->xlen)
             {
                 pixel = ((Uint8 *) pixels + y * surface->pitch + x);
                 *pixel = (*pixel == color) ? (Uint8) white : (Uint8) black;
-                x += array->xstep;
+                x += newarray->xstep;
                 posx += absxstep;
             }
-            y += array->ystep;
+            y += newarray->ystep;
             posy += absystep;
         }
         break;
@@ -495,18 +505,18 @@ _extract_color (PyPixelArray *array, PyObject *args)
     case 2:
     {
         Uint16 *pixel;
-        while (posy < array->ylen)
+        while (posy < newarray->ylen)
         {
             x = array->xstart;
             posx = 0;
-            while (posx < array->xlen)
+            while (posx < newarray->xlen)
             {
                 pixel = ((Uint16 *) (pixels + y * surface->pitch) + x);
                 *pixel = (*pixel == color) ? (Uint16) white : (Uint16) black;
-                x += array->xstep;
+                x += newarray->xstep;
                 posx += absxstep;
             }
-            y += array->ystep;
+            y += newarray->ystep;
             posy += absystep;
         }
         break;
@@ -516,11 +526,11 @@ _extract_color (PyPixelArray *array, PyObject *args)
         Uint8 *px;
         Uint32 pxcolor;
         SDL_PixelFormat *format = surface->format;
-        while (posy < array->ylen)
+        while (posy < newarray->ylen)
         {
-            x = array->xstart;
+            x = newarray->xstart;
             posx = 0;
-            while (posx < array->xlen)
+            while (posx < newarray->xlen)
             {
                 px = (Uint8 *) (pixels + y * surface->pitch) + x * 3;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -552,10 +562,10 @@ _extract_color (PyPixelArray *array, PyObject *args)
                     *(px + 2 - (format->Bshift >> 3)) = (Uint8) black;
                 }
 #endif
-                x += array->xstep;
+                x += newarray->xstep;
                 posx += absxstep;
             }
-            y += array->ystep;
+            y += newarray->ystep;
             posy += absystep;
         }
         break;
@@ -563,22 +573,22 @@ _extract_color (PyPixelArray *array, PyObject *args)
     default:
     {
         Uint32 *pixel;
-        while (posy < array->ylen)
+        while (posy < newarray->ylen)
         {
-            x = array->xstart;
+            x = newarray->xstart;
             posx = 0;
-            while (posx < array->xlen)
+            while (posx < newarray->xlen)
             {
                 pixel = ((Uint32 *) (pixels + y * surface->pitch) + x);
                 *pixel = (*pixel == color) ? white : black;
-                x += array->xstep;
+                x += newarray->xstep;
                 posx += absxstep;
             }
-            y += array->ystep;
+            y += newarray->ystep;
             posy += absystep;
         }
         break;
     }
     }
-    Py_RETURN_NONE;
+    return (PyObject *) newarray;
 }
