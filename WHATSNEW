@@ -5,6 +5,10 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Apr 4, 2008
+    Added PixelArray.replace() method to quickly replace a certain
+      color.
+
 Apr 3, 2008
     Added iter support to PixelArray.
 
