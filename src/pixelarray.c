@@ -97,6 +97,8 @@ static PyMethodDef _pxarray_methods[] =
 {
     { "replace", (PyCFunction) _replace_color, METH_VARARGS,
       DOC_PIXELARRAYREPLACE },
+    { "extract", (PyCFunction) _extract_color, METH_VARARGS,
+      DOC_PIXELARRAYEXTRACT },
     { "make_surface", (PyCFunction) _make_surface, METH_NOARGS,
       DOC_PIXELARRAYMAKESURFACE },
     { NULL, NULL, 0, NULL }
