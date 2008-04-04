@@ -105,12 +105,12 @@ New in pygame.1.8.1.
 <END>
 
 extract
-Extracts the passed color in the PixelArray.
-PixelArray.extract (color): Return None
+Extracts the passed color from the PixelArray.
+PixelArray.extract (color): Return PixelArray
 
 Extracts the passed color by changing all matching pixels to white,
-while non-matching pixels are changed to black. The extraction is
-done in place on the PixelArray.
+while non-matching pixels are changed to black. This returns a new
+PixelArray with the black/white color mask.
 
 New in pygame.1.8.1.
 <END>
