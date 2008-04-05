@@ -95,22 +95,36 @@ New in pygame.1.8.1.
 
 replace
 Replaces the passed color in the PixelArray with another one.
-PixelArray.replace (color, replacecolor): Return None
+PixelArray.replace (color, repcolor, distance=0): Return None
 
 Replaces the pixels with the passed color in the PixelArray by changing
-them them to the passed replacement color. The replacement is done
-in place on the PixelArray.
+them them to the passed replacement color.
+
+It uses a simple weighted euclidian distance formula to calculate the
+distance between the colors. The distance space ranges from 0.0 to 255.0
+and is used as threshold for the color detection. This causes the
+replacement to take pixels with a similar but not exactly identical
+color, into account as well.
+
+This is an in place operation that directly affects the pixels of the
+PixelArray.
 
 New in pygame.1.8.1.
 <END>
 
 extract
 Extracts the passed color from the PixelArray.
-PixelArray.extract (color): Return PixelArray
+PixelArray.extract (color, distance=0): Return PixelArray
 
 Extracts the passed color by changing all matching pixels to white,
 while non-matching pixels are changed to black. This returns a new
 PixelArray with the black/white color mask.
+
+It uses a simple weighted euclidian distance formula to calculate the
+distance between the colors.  The distance space ranges from 0.0 to
+255.0 and is used as threshold for the color detection. This causes the
+extraction to take pixels with a similar but not exactly identical
+color, into account as well.
 
 New in pygame.1.8.1.
 <END>
