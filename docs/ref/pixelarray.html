@@ -112,7 +112,7 @@
   <i>Replaces the passed color in the PixelArray with another one.</i><br>
   <tt>PixelArray.replace (color, repcolor, distance=0): Return None</tt><br>
 <p>Replaces the pixels with the passed color in the PixelArray by changing them them to the passed replacement color. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from <tt>0.0</tt> to <tt>255.0</tt> and is used as threshold for the color detection. This causes the replacement to take pixels with a similar but not exactly identical color, into account as well. </p>
+<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from <tt>0.0</tt> to <tt>1.0</tt> and is used as threshold for the color detection. This causes the replacement to take pixels with a similar but not exactly identical color, into account as well. </p>
 <p>This is an in place operation that directly affects the pixels of the PixelArray. </p>
 <p>New in <tt>pygame.1.8.1</tt>. </p>
 <!--COMMENTS:PixelArray.replace--> &nbsp;<br> 
@@ -124,7 +124,7 @@
   <i>Extracts the passed color from the PixelArray.</i><br>
   <tt>PixelArray.extract (color, distance=0): Return PixelArray</tt><br>
 <p>Extracts the passed color by changing all matching pixels to white, while non-matching pixels are changed to black. This returns a new PixelArray with the black/white color mask. </p>
-<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from <tt>0.0</tt> to <tt>255.0</tt> and is used as threshold for the color detection. This causes the extraction to take pixels with a similar but not exactly identical color, into account as well. </p>
+<p>It uses a simple weighted euclidian distance formula to calculate the distance between the colors. The distance space ranges from <tt>0.0</tt> to <tt>1.0</tt> and is used as threshold for the color detection. This causes the extraction to take pixels with a similar but not exactly identical color, into account as well. </p>
 <p>New in <tt>pygame.1.8.1</tt>. </p>
 <!--COMMENTS:PixelArray.extract--> &nbsp;<br> 
 <br></ul>

@@ -20,11 +20,13 @@
 
 /* Simple weighted euclidian distance, which tries to get near to the
  * human eye reception using the weights.
+ * It receives RGB values in the range 0-255 and returns a distance
+ * value between 0.0 and 1.0.
  */
 #define COLOR_DIFF_RGB(r1,g1,b1,r2,g2,b2) \
     (sqrt (.299 * (r1 - r2) * (r1 - r2) + \
            .587 * (g1 - g2) * (g1 - g2) + \
-           .114 * (b1 - b2) * (b1 - b2)))
+           .114 * (b1 - b2) * (b1 - b2)) / 255.0)
 
 
 /**
@@ -338,9 +340,9 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
             &replcolor, &distance))
         return NULL;
 
-    if (distance < 0 || distance > 255)
+    if (distance < 0 || distance > 1)
         return RAISE (PyExc_ValueError,
-            "distance must be in the range from 0.0 to 255.0");
+            "distance must be in the range from 0.0 to 1.0");
 
     surface = PySurface_AsSurface (array->surface);
     if (!_get_color_from_object (delcolor, surface->format, &dcolor) ||
@@ -527,9 +529,9 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
             &distance))
         return NULL;
 
-    if (distance < 0 || distance > 255)
+    if (distance < 0 || distance > 1)
         return RAISE (PyExc_ValueError,
-            "distance must be in the range from 0.0 to 255.0");
+            "distance must be in the range from 0.0 to 1.0");
 
     surface = PySurface_AsSurface (array->surface);
     if (!_get_color_from_object (excolor, surface->format, &color))

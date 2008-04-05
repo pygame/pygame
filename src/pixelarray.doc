@@ -101,7 +101,7 @@ Replaces the pixels with the passed color in the PixelArray by changing
 them them to the passed replacement color.
 
 It uses a simple weighted euclidian distance formula to calculate the
-distance between the colors. The distance space ranges from 0.0 to 255.0
+distance between the colors. The distance space ranges from 0.0 to 1.0
 and is used as threshold for the color detection. This causes the
 replacement to take pixels with a similar but not exactly identical
 color, into account as well.
@@ -122,7 +122,7 @@ PixelArray with the black/white color mask.
 
 It uses a simple weighted euclidian distance formula to calculate the
 distance between the colors.  The distance space ranges from 0.0 to
-255.0 and is used as threshold for the color detection. This causes the
+1.0 and is used as threshold for the color detection. This causes the
 extraction to take pixels with a similar but not exactly identical
 color, into account as well.
 
