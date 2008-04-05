@@ -18,6 +18,15 @@
 
 */
 
+/* Simple weighted euclidian distance, which tries to get near to the
+ * human eye reception using the weights.
+ */
+#define COLOR_DIFF_RGB(r1,g1,b1,r2,g2,b2) \
+    (sqrt (.299 * (r1 - r2) * (r1 - r2) + \
+           .587 * (g1 - g2) * (g1 - g2) + \
+           .114 * (b1 - b2) * (b1 - b2)))
+
+
 /**
  * Tries to retrieve a valid color for a Surface.
  */
@@ -304,13 +313,16 @@ _make_surface(PyPixelArray *array)
 }
 
 static PyObject*
-_replace_color (PyPixelArray *array, PyObject *args)
+_replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
     PyObject *delcolor = NULL;
     PyObject *replcolor = NULL;
     Uint32 dcolor;
     Uint32 rcolor;
+    Uint8 r1, g1, b1, r2, g2, b2, a2;
     SDL_Surface *surface;
+    float distance = 0;
+    char *type;
 
     Uint32 x = 0;
     Uint32 y = 0;
@@ -320,8 +332,15 @@ _replace_color (PyPixelArray *array, PyObject *args)
     Sint32 absystep;
     Uint8 *pixels;
 
-    if (!PyArg_ParseTuple (args, "OO", &delcolor, &replcolor))
+    static char *keys[] = { "color", "repcolor", "distance", NULL };
+    
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|f", keys, &delcolor,
+            &replcolor, &distance))
         return NULL;
+
+    if (distance < 0 || distance > 255)
+        return RAISE (PyExc_ValueError,
+            "distance must be in the range from 0.0 to 255.0");
 
     surface = PySurface_AsSurface (array->surface);
     if (!_get_color_from_object (delcolor, surface->format, &dcolor) ||
@@ -333,6 +352,9 @@ _replace_color (PyPixelArray *array, PyObject *args)
     absxstep = ABS (array->xstep);
     absystep = ABS (array->ystep);
     y = array->ystart;
+
+    if (distance)
+        SDL_GetRGB (dcolor, surface->format, &r1, &g1, &b1);
 
     switch (surface->format->BytesPerPixel)
     {
@@ -346,7 +368,13 @@ _replace_color (PyPixelArray *array, PyObject *args)
             while (posx < array->xlen)
             {
                 pixel = ((Uint8 *) pixels + y * surface->pitch + x);
-                if (*pixel == dcolor)
+                if (distance)
+                {
+                    GET_PIXELVALS_1 (r2, g2, b2, a2, pixel, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                        *pixel = (Uint8) rcolor;
+                }
+                else if (*pixel == dcolor)
                     *pixel = (Uint8) rcolor;
                 x += array->xstep;
                 posx += absxstep;
@@ -366,7 +394,14 @@ _replace_color (PyPixelArray *array, PyObject *args)
             while (posx < array->xlen)
             {
                 pixel = ((Uint16 *) (pixels + y * surface->pitch) + x);
-                if (*pixel == dcolor)
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, (Uint32) *pixel,
+                        surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                        *pixel = (Uint16) rcolor;
+                }
+                else if (*pixel == dcolor)
                     *pixel = (Uint16) rcolor;
                 x += array->xstep;
                 posx += absxstep;
@@ -390,7 +425,17 @@ _replace_color (PyPixelArray *array, PyObject *args)
                 px = (Uint8 *) (pixels + y * surface->pitch) + x * 3;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
-                if (pxcolor == dcolor)
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    {
+                        *(px + (format->Rshift >> 3)) = (Uint8) (rcolor >> 16);
+                        *(px + (format->Gshift >> 3)) = (Uint8) (rcolor >> 8);
+                        *(px + (format->Bshift >> 3)) = (Uint8) rcolor;
+                    }
+                }
+                else if (pxcolor == dcolor)
                 {
                     *(px + (format->Rshift >> 3)) = (Uint8) (rcolor >> 16);
                     *(px + (format->Gshift >> 3)) = (Uint8) (rcolor >> 8);
@@ -398,7 +443,19 @@ _replace_color (PyPixelArray *array, PyObject *args)
                 }
 #else
                 pxcolor = (px[2]) + (px[1] << 8) + (px[0] << 16);
-                if (pxcolor == dcolor)
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    {
+                        *(px + 2 - (format->Rshift >> 3)) =
+                            (Uint8) (rcolor >> 16);
+                        *(px + 2 - (format->Gshift >> 3)) =
+                            (Uint8) (rcolor >> 8);
+                        *(px + 2 - (format->Bshift >> 3)) = (Uint8) rcolor;
+                    }
+                }
+                else if (pxcolor == dcolor)
                 {
                     *(px + 2 - (format->Rshift >> 3)) = (Uint8) (rcolor >> 16);
                     *(px + 2 - (format->Gshift >> 3)) = (Uint8) (rcolor >> 8);
@@ -423,7 +480,13 @@ _replace_color (PyPixelArray *array, PyObject *args)
             while (posx < array->xlen)
             {
                 pixel = ((Uint32 *) (pixels + y * surface->pitch) + x);
-                if (*pixel == dcolor)
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, *pixel, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                        *pixel = rcolor;
+                }
+                else if (*pixel == dcolor)
                     *pixel = rcolor;
                 x += array->xstep;
                 posx += absxstep;
@@ -437,9 +500,8 @@ _replace_color (PyPixelArray *array, PyObject *args)
     Py_RETURN_NONE;
 }
 
-
 static PyObject*
-_extract_color (PyPixelArray *array, PyObject *args)
+_extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
     PyObject *sf = NULL;
     PyObject *excolor = NULL;
@@ -448,6 +510,8 @@ _extract_color (PyPixelArray *array, PyObject *args)
     Uint32 white;
     Uint32 black;
     SDL_Surface *surface;
+    float distance = 0;
+    Uint8 r1, g1, b1, r2, g2, b2, a2;
 
     Uint32 x = 0;
     Uint32 y = 0;
@@ -457,8 +521,15 @@ _extract_color (PyPixelArray *array, PyObject *args)
     Sint32 absystep;
     Uint8 *pixels;
 
-    if (!PyArg_ParseTuple (args, "O", &excolor))
+    static char *keys[] = { "color", "distance", NULL };
+
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|f", keys, &excolor,
+            &distance))
         return NULL;
+
+    if (distance < 0 || distance > 255)
+        return RAISE (PyExc_ValueError,
+            "distance must be in the range from 0.0 to 255.0");
 
     surface = PySurface_AsSurface (array->surface);
     if (!_get_color_from_object (excolor, surface->format, &color))
@@ -475,6 +546,8 @@ _extract_color (PyPixelArray *array, PyObject *args)
 
     black = SDL_MapRGBA (surface->format, 0, 0, 0, 255);
     white = SDL_MapRGBA (surface->format, 255, 255, 255, 255);
+    if (distance)
+        SDL_GetRGB (color, surface->format, &r1, &g1, &b1);
 
     pixels = surface->pixels;
     absxstep = ABS (newarray->xstep);
@@ -493,7 +566,16 @@ _extract_color (PyPixelArray *array, PyObject *args)
             while (posx < newarray->xlen)
             {
                 pixel = ((Uint8 *) pixels + y * surface->pitch + x);
-                *pixel = (*pixel == color) ? (Uint8) white : (Uint8) black;
+                if (distance)
+                {
+                    GET_PIXELVALS_1 (r2, g2, b2, a2, pixel, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                        *pixel = (Uint8) white;
+                    else
+                        *pixel = (Uint8) black;
+                }
+                else
+                    *pixel = (*pixel == color) ? (Uint8) white : (Uint8) black;
                 x += newarray->xstep;
                 posx += absxstep;
             }
@@ -512,7 +594,18 @@ _extract_color (PyPixelArray *array, PyObject *args)
             while (posx < newarray->xlen)
             {
                 pixel = ((Uint16 *) (pixels + y * surface->pitch) + x);
-                *pixel = (*pixel == color) ? (Uint16) white : (Uint16) black;
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, (Uint32) *pixel,
+                        surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                        *pixel = (Uint16) white;
+                    else
+                        *pixel = (Uint16) black;
+                }
+                else
+                    *pixel = (*pixel == color) ? (Uint16) white :
+                        (Uint16) black;
                 x += newarray->xstep;
                 posx += absxstep;
             }
@@ -535,7 +628,23 @@ _extract_color (PyPixelArray *array, PyObject *args)
                 px = (Uint8 *) (pixels + y * surface->pitch) + x * 3;
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
-                if (pxcolor == color)
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <=  distance)
+                    {
+                        *(px + (format->Rshift >> 3)) = (Uint8) (white >> 16);
+                        *(px + (format->Gshift >> 3)) = (Uint8) (white >> 8);
+                        *(px + (format->Bshift >> 3)) = (Uint8) white;
+                    }
+                    else
+                    {
+                        *(px + (format->Rshift >> 3)) = (Uint8) (black >> 16);
+                        *(px + (format->Gshift >> 3)) = (Uint8) (black >> 8);
+                        *(px + (format->Bshift >> 3)) = (Uint8) black;
+                    }
+                }
+                else if (pxcolor == color)
                 {
                     *(px + (format->Rshift >> 3)) = (Uint8) (white >> 16);
                     *(px + (format->Gshift >> 3)) = (Uint8) (white >> 8);
@@ -549,7 +658,28 @@ _extract_color (PyPixelArray *array, PyObject *args)
                 }
 #else
                 pxcolor = (px[2]) + (px[1] << 8) + (px[0] << 16);
-                if (pxcolor == dcolor)
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <=
+                        distance)
+                    {
+                        *(px + 2 - (format->Rshift >> 3)) =
+                            (Uint8) (white >> 16);
+                        *(px + 2 - (format->Gshift >> 3)) =
+                            (Uint8) (white >> 8);
+                        *(px + 2 - (format->Bshift >> 3)) = (Uint8) white;
+                    }
+                    else
+                    {
+                        *(px + 2 - (format->Rshift >> 3)) =
+                            (Uint8) (black >> 16);
+                        *(px + 2 - (format->Gshift >> 3)) =
+                            (Uint8) (black >> 8);
+                        *(px + 2 - (format->Bshift >> 3)) = (Uint8) black;
+                    }
+                }
+                else if (pxcolor == dcolor)
                 {
                     *(px + 2 - (format->Rshift >> 3)) = (Uint8) (white >> 16);
                     *(px + 2 - (format->Gshift >> 3)) = (Uint8) (white >> 8);
@@ -580,7 +710,16 @@ _extract_color (PyPixelArray *array, PyObject *args)
             while (posx < newarray->xlen)
             {
                 pixel = ((Uint32 *) (pixels + y * surface->pitch) + x);
-                *pixel = (*pixel == color) ? white : black;
+                if (distance)
+                {
+                    GET_PIXELVALS (r2, g2, b2, a2, *pixel, surface->format);
+                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                        *pixel = white;
+                    else
+                        *pixel = black;
+                }
+                else
+                    *pixel = (*pixel == color) ? white : black;
                 x += newarray->xstep;
                 posx += absxstep;
             }

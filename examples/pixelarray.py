@@ -8,7 +8,7 @@ surface = pygame.Surface ((255, 255))
 pygame.display.flip ()
 
 def show (image):
-    screen.fill ((0, 0, 0))
+    screen.fill ((255, 255, 255))
     screen.blit (image, (0, 0))
     pygame.display.flip ()
     while 1:
@@ -71,8 +71,23 @@ ar[:] = ar[::-1,::-1]
 del ar
 show (surface)
 
+# Scale it by throwing each second pixel away.
 surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
 ar = pygame.PixelArray (surface)
 sf2 = ar[::2,::2].make_surface ()
 del ar
+show (sf2)
+
+# Replace anything looking like the blue color from the text.
+ar = pygame.PixelArray (surface)
+ar.replace ((60, 60, 255), (0, 255, 0), 13.6)
+del ar
+show (surface)
+
+# Extract anything which might be somewhat black.
+surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
+ar = pygame.PixelArray (surface)
+ar2 = ar.extract ((0, 0, 0), 17.55)
+sf2 = ar2.surface
+del ar, ar2
 show (sf2)

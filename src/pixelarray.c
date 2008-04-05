@@ -95,9 +95,9 @@ static PyObject* PyPixelArray_New (PyObject *surfobj);
  */
 static PyMethodDef _pxarray_methods[] =
 {
-    { "replace", (PyCFunction) _replace_color, METH_VARARGS,
+    { "replace", (PyCFunction) _replace_color, METH_KEYWORDS,
       DOC_PIXELARRAYREPLACE },
-    { "extract", (PyCFunction) _extract_color, METH_VARARGS,
+    { "extract", (PyCFunction) _extract_color, METH_KEYWORDS,
       DOC_PIXELARRAYEXTRACT },
     { "make_surface", (PyCFunction) _make_surface, METH_NOARGS,
       DOC_PIXELARRAYMAKESURFACE },
@@ -1019,7 +1019,7 @@ _array_assign_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         xstart = array->xstart;
         ystart = array->ystart + low * array->ystep;
         xlen = array->xlen;
-        ylen = high;
+        ylen = ABS (high - low);
         ystep = array->ystep;
         xstep = array->xstep;
         padding = array->padding;
@@ -1028,7 +1028,7 @@ _array_assign_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     {
         xstart = array->xstart + low * array->xstep;
         ystart = array->ystart;
-        xlen = high;
+        xlen = ABS (high - low);
         ylen = array->ylen;
         xstep = array->xstep;
         ystep = array->ystep;
