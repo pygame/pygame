@@ -80,14 +80,14 @@ show (sf2)
 
 # Replace anything looking like the blue color from the text.
 ar = pygame.PixelArray (surface)
-ar.replace ((60, 60, 255), (0, 255, 0), 13.6)
+ar.replace ((60, 60, 255), (0, 255, 0), 0.06)
 del ar
 show (surface)
 
 # Extract anything which might be somewhat black.
 surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
 ar = pygame.PixelArray (surface)
-ar2 = ar.extract ((0, 0, 0), 17.55)
+ar2 = ar.extract ((0, 0, 0), 0.07)
 sf2 = ar2.surface
 del ar, ar2
 show (sf2)
