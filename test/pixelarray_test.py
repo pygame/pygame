@@ -389,6 +389,13 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (ar[3][6], oval)
             self.assertEqual (ar[8][9], rval)
             self.assertEqual (ar[9][9], oval)
+            
+            ar[::2].replace ((0, 0, 255), (255, 0, 0), weights=(10, 20, 50))
+            self.assertEqual (ar[0][0], oval)
+            self.assertEqual (ar[2][3], oval)
+            self.assertEqual (ar[3][6], oval)
+            self.assertEqual (ar[8][9], oval)
+            self.assertEqual (ar[9][9], oval)
 
     def test_extract (self):
         for bpp in (8, 16, 24, 32):
@@ -402,6 +409,14 @@ class PixelArrayTest (unittest.TestCase):
             ar = pygame.PixelArray (sf)
             newar = ar.extract ((255, 0, 0))
 
+            self.assertEqual (newar[0][0], black)
+            self.assertEqual (newar[1][0], black)
+            self.assertEqual (newar[2][3], white)
+            self.assertEqual (newar[3][6], white)
+            self.assertEqual (newar[8][9], black)
+            self.assertEqual (newar[9][9], black)
+
+            newar = ar.extract ((255, 0, 0), weights=(10, 0.1, 50))
             self.assertEqual (newar[0][0], black)
             self.assertEqual (newar[1][0], black)
             self.assertEqual (newar[2][3], white)
