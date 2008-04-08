@@ -681,7 +681,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                         *(px + 2 - (format->Bshift >> 3)) = (Uint8) black;
                     }
                 }
-                else if (pxcolor == dcolor)
+                else if (pxcolor == color)
                 {
                     *(px + 2 - (format->Rshift >> 3)) = (Uint8) (white >> 16);
                     *(px + 2 - (format->Gshift >> 3)) = (Uint8) (white >> 8);
