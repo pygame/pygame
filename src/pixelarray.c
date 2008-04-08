@@ -368,13 +368,13 @@ _pxarray_repr (PyPixelArray *array)
                 /* Construct the columns */
                 pixel = (Uint32) *((Uint8 *) pixels + x + y * array->padding);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", pixel));
+                    ("%ld, ", (long)pixel));
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = (Uint32) *((Uint8 *) pixels + x + y * array->padding);
             PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", pixel));
+                PyString_FromFormat ("%ld]", (long)pixel));
             y += array->ystep;
             posy += absystep;
         }
@@ -392,13 +392,13 @@ _pxarray_repr (PyPixelArray *array)
                 pixel = (Uint32)
                     *((Uint16 *) (pixels + y * array->padding) + x);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", pixel));
+                    ("%ld, ", (long)pixel));
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = (Uint32) *((Uint16 *) (pixels + y * array->padding) + x);
             PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", pixel));
+                PyString_FromFormat ("%ld]", (long)pixel));
             y += array->ystep;
             posy += absystep;
         }
@@ -420,7 +420,7 @@ _pxarray_repr (PyPixelArray *array)
                 pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
 #endif
                 PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", pixel));
+                    ("%ld, ", (long)pixel));
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -431,7 +431,7 @@ _pxarray_repr (PyPixelArray *array)
             pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
 #endif
             PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", pixel));
+                PyString_FromFormat ("%ld]", (long)pixel));
             y += array->ystep;
             posy += absystep;
         }
@@ -448,13 +448,13 @@ _pxarray_repr (PyPixelArray *array)
                 /* Construct the columns */
                 pixel = *((Uint32 *) (pixels + y * array->padding) + x);
                 PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", pixel));
+                    ("%ld, ", (long)pixel));
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = *((Uint32 *) (pixels + y * array->padding) + x);
             PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", pixel));
+                PyString_FromFormat ("%ld]", (long)pixel));
             y += array->ystep;
             posy += absystep;
         }

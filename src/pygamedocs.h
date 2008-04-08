@@ -475,9 +475,9 @@
 
 #define DOC_PIXELARRAYMAKESURFACE "PixelArray.make_surface (): Return Surface\nCreates a new Surface from the current PixelArray."
 
-#define DOC_PIXELARRAYREPLACE "PixelArray.replace (color, repcolor, distance=0): Return None\nReplaces the passed color in the PixelArray with another one."
+#define DOC_PIXELARRAYREPLACE "PixelArray.replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)): Return None\nReplaces the passed color in the PixelArray with another one."
 
-#define DOC_PIXELARRAYEXTRACT "PixelArray.extract (color, distance=0): Return PixelArray\nExtracts the passed color from the PixelArray."
+#define DOC_PIXELARRAYEXTRACT "PixelArray.extract (color, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray\nExtracts the passed color from the PixelArray."
 
 #define DOC_PYGAMERECT "pygame.Rect(left, top, width, height): return Rect\npygame.Rect((left, top), (width, height)): return Rect\npygame.Rect(object): return Rect\npygame object for storing rectangular coordinates"
 
