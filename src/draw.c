@@ -962,6 +962,15 @@ static void drawaaline(SDL_Surface* surf, Uint32 color, float x1, float y1, floa
 
 	xd = x2-x1;
 	yd = y2-y1;
+
+        if (xd == 0 && yd == 0)
+        {
+            /* Single point. Due to the nature of the aaline clipping, this
+             * is less exact than the normal line. */
+            set_at (surf, x1, y1, color);
+            return;
+        }
+
 	if(fabs(xd)>fabs(yd)) {
 		if(x1>x2) {
 			swaptmp=x1; x1=x2; x2=swaptmp;
