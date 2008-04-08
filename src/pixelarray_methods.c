@@ -23,11 +23,14 @@
  * It receives RGB values in the range 0-255 and returns a distance
  * value between 0.0 and 1.0.
  */
-#define COLOR_DIFF_RGB(r1,g1,b1,r2,g2,b2) \
-    (sqrt (.299 * (r1 - r2) * (r1 - r2) + \
-           .587 * (g1 - g2) * (g1 - g2) + \
-           .114 * (b1 - b2) * (b1 - b2)) / 255.0)
+#define COLOR_DIFF_RGB(wr,wg,wb,r1,g1,b1,r2,g2,b2) \
+    (sqrt (wr * (r1 - r2) * (r1 - r2) + \
+           wg * (g1 - g2) * (g1 - g2) + \
+           wb * (b1 - b2) * (b1 - b2)) / 255.0)
 
+#define WR_NTSC 0.299
+#define WG_NTSC 0.587
+#define WB_NTSC 0.114
 
 /**
  * Tries to retrieve a valid color for a Surface.
@@ -314,9 +317,103 @@ _make_surface(PyPixelArray *array)
     return newsf;
 }
 
+static int
+_get_weights (PyObject *weights, float *wr, float *wg, float *wb)
+{
+    int success = 1;
+    float rgb[3] = { 0 };
+    
+    if (!weights)
+    {
+        *wr = WR_NTSC;
+        *wg = WG_NTSC;
+        *wb = WB_NTSC;
+        return 1;
+    }
+    
+    if (!PySequence_Check (weights))
+    {
+        PyErr_SetString (PyExc_TypeError, "weights must be a sequence");
+        success = 0;
+    }
+    else if (PySequence_Size (weights) < 3)
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "weights must contain at least 3 values");
+        success = 0;
+    }
+    else
+    {
+        PyObject *item;
+        int i;
+        
+        for (i = 0; i < 3; i++)
+        {
+            item = PySequence_GetItem (weights, i);
+            if (PyNumber_Check (item))
+            {
+                PyObject *num = NULL;
+                if ((num = PyNumber_Float (item)) != NULL)
+                {
+                    rgb[i] = (float) PyFloat_AsDouble (num);
+                    Py_DECREF (num);
+                }
+                else if ((num = PyNumber_Int (item)) != NULL)
+                {
+                    rgb[i] = (float) PyInt_AsLong (num);
+                    if (rgb[i] == -1 && PyErr_Occurred ())
+                        success = 0;
+                    Py_DECREF (num);
+                }
+                else if ((num = PyNumber_Long (item)) != NULL)
+                {
+                    rgb[i] = (float) PyLong_AsLong (num);
+                    if (PyErr_Occurred () &&
+                        PyErr_ExceptionMatches (PyExc_OverflowError))
+                        success = 0;
+                    Py_DECREF (num);
+                }
+            }
+            else
+            {
+                PyErr_SetString (PyExc_TypeError, "invalid weights");
+                success = 0;
+            }
+            Py_XDECREF (item);
+            if (!success)
+                break;
+        }
+    }
+    
+    if (success)
+    {
+        float sum = 0;
+        
+        *wr = rgb[0];
+        *wg = rgb[1];
+        *wb = rgb[2];
+        if ((*wr < 0 || *wg < 0 || *wb < 0) ||
+            (*wr == 0 && *wg == 0 && *wb == 0))
+        {
+            PyErr_SetString (PyExc_ValueError,
+                "weights must be positive and greater than 0");
+            return 0;
+        }
+        /* Build the average weight values. */
+        sum = *wr + *wg + *wb;
+        *wr = *wr / sum;
+        *wg = *wg / sum;
+        *wb = *wb / sum;
+        
+        return success;
+    }
+    return 0;
+}
+
 static PyObject*
 _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
+    PyObject *weights = NULL;
     PyObject *delcolor = NULL;
     PyObject *replcolor = NULL;
     Uint32 dcolor;
@@ -324,7 +421,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     Uint8 r1, g1, b1, r2, g2, b2, a2;
     SDL_Surface *surface;
     float distance = 0;
-    char *type;
+    float wr, wg, wb;
 
     Uint32 x = 0;
     Uint32 y = 0;
@@ -334,10 +431,10 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     Sint32 absystep;
     Uint8 *pixels;
 
-    static char *keys[] = { "color", "repcolor", "distance", NULL };
+    static char *keys[] = { "color", "repcolor", "distance", "weights", NULL };
     
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|f", keys, &delcolor,
-            &replcolor, &distance))
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|fO", keys, &delcolor,
+            &replcolor, &distance, &weights))
         return NULL;
 
     if (distance < 0 || distance > 1)
@@ -347,6 +444,9 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     surface = PySurface_AsSurface (array->surface);
     if (!_get_color_from_object (delcolor, surface->format, &dcolor) ||
         !_get_color_from_object (replcolor, surface->format, &rcolor))
+        return NULL;
+
+    if (!_get_weights (weights, &wr, &wg, &wb))
         return NULL;
 
     surface = PySurface_AsSurface (array->surface);
@@ -373,7 +473,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS_1 (r2, g2, b2, a2, pixel, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                         *pixel = (Uint8) rcolor;
                 }
                 else if (*pixel == dcolor)
@@ -400,7 +501,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, (Uint32) *pixel,
                         surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                         *pixel = (Uint16) rcolor;
                 }
                 else if (*pixel == dcolor)
@@ -430,7 +532,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                     {
                         *(px + (format->Rshift >> 3)) = (Uint8) (rcolor >> 16);
                         *(px + (format->Gshift >> 3)) = (Uint8) (rcolor >> 8);
@@ -448,7 +551,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                     {
                         *(px + 2 - (format->Rshift >> 3)) =
                             (Uint8) (rcolor >> 16);
@@ -485,7 +589,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, *pixel, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                         *pixel = rcolor;
                 }
                 else if (*pixel == dcolor)
@@ -505,6 +610,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 static PyObject*
 _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 {
+    PyObject *weights = NULL;
     PyObject *sf = NULL;
     PyObject *excolor = NULL;
     PyPixelArray *newarray = NULL;
@@ -513,6 +619,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     Uint32 black;
     SDL_Surface *surface;
     float distance = 0;
+    float wr, wg, wb;
     Uint8 r1, g1, b1, r2, g2, b2, a2;
 
     Uint32 x = 0;
@@ -523,10 +630,10 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     Sint32 absystep;
     Uint8 *pixels;
 
-    static char *keys[] = { "color", "distance", NULL };
+    static char *keys[] = { "color", "distance", "weights", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|f", keys, &excolor,
-            &distance))
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|fO", keys, &excolor,
+            &distance, &weights))
         return NULL;
 
     if (distance < 0 || distance > 1)
@@ -535,6 +642,9 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 
     surface = PySurface_AsSurface (array->surface);
     if (!_get_color_from_object (excolor, surface->format, &color))
+        return NULL;
+
+    if (!_get_weights (weights, &wr, &wg, &wb))
         return NULL;
 
     /* Create the b/w mask surface. */
@@ -571,7 +681,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS_1 (r2, g2, b2, a2, pixel, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                         *pixel = (Uint8) white;
                     else
                         *pixel = (Uint8) black;
@@ -600,7 +711,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, (Uint32) *pixel,
                         surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                         *pixel = (Uint16) white;
                     else
                         *pixel = (Uint16) black;
@@ -633,7 +745,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <=  distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                     {
                         *(px + (format->Rshift >> 3)) = (Uint8) (white >> 16);
                         *(px + (format->Gshift >> 3)) = (Uint8) (white >> 8);
@@ -663,7 +776,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <=
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                     {
                         *(px + 2 - (format->Rshift >> 3)) =
@@ -715,7 +828,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, *pixel, surface->format);
-                    if (COLOR_DIFF_RGB (r1, g1, b1, r2, g2, b2) <= distance)
+                    if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
+                        distance)
                         *pixel = white;
                     else
                         *pixel = black;
