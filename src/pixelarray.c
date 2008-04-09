@@ -696,6 +696,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     y = ystart;
     vy = val->ystart;
 
+    Py_BEGIN_ALLOW_THREADS;
     /* Single value assignment. */
     switch (bpp)
     {
@@ -800,6 +801,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         }
         break;
     }
+    Py_END_ALLOW_THREADS;
     
     if (copied)
     {
@@ -903,6 +905,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     absystep = ABS (ystep);
     y = ystart;
 
+    Py_BEGIN_ALLOW_THREADS;
     switch (bpp)
     {
     case 1:
@@ -984,6 +987,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         }
         break;
     }
+    Py_END_ALLOW_THREADS;
     return 0;
 }
 
@@ -1039,6 +1043,7 @@ _array_assign_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     absystep = ABS (ystep);
     y = ystart;
 
+    Py_BEGIN_ALLOW_THREADS;
     /* Single value assignment. */
     switch (bpp)
     {
@@ -1117,6 +1122,7 @@ _array_assign_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         }
         break;
     }
+    Py_END_ALLOW_THREADS;
     return 0;
 }
 
@@ -1196,6 +1202,7 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
     absystep = ABS (ystep);
     y = ystart;
 
+    Py_BEGIN_ALLOW_THREADS;
     /* Single value assignment. */
     switch (bpp)
     {
@@ -1274,6 +1281,7 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
         }
         break;
     }
+    Py_END_ALLOW_THREADS;
     return 0;
 }
 
@@ -1349,6 +1357,7 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
     Uint32 posy = 0;
     Sint32 absxstep;
     Sint32 absystep;
+    int found = 0;
 
     surface = PySurface_AsSurface (array->surface);
     bpp = surface->format->BytesPerPixel;
@@ -1361,10 +1370,11 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
     absystep = ABS (array->ystep);
     y = array->ystart;
 
+    Py_BEGIN_ALLOW_THREADS;
     switch (bpp)
     {
     case 1:
-        while (posy < array->ylen)
+        while (posy < array->ylen && !found)
         {
             posx = 0;
             x = array->xstart;
@@ -1372,7 +1382,10 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
             {
                 if (*((Uint8 *) pixels + y * array->padding + x)
                     == (Uint8) color)
-                    return 1;
+                {
+                    found = 1;
+                    break;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -1381,7 +1394,7 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         }
         break;
     case 2:
-        while (posy < array->ylen)
+        while (posy < array->ylen && !found)
         {
             posx = 0;
             x = array->xstart;
@@ -1389,7 +1402,10 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
             {
                 if (*((Uint16 *) (pixels + y * array->padding) + x)
                     == (Uint16) color)
-                    return 1;
+                {
+                    found = 1;
+                    break;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -1402,7 +1418,7 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         Uint32 pxcolor;
         Uint8 *pix;
 
-        while (posy < array->ylen)
+        while (posy < array->ylen && !found)
         {
             posx = 0;
             x = array->xstart;
@@ -1415,7 +1431,10 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
                 pxcolor = (pix[2]) + (pix[1] << 8) + (pix[0] << 16);
 #endif
                 if (pxcolor == color)
-                    return 1;
+                {
+                    found = 1;
+                    break;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -1425,7 +1444,7 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         break;
     }
     default: /* 4 bpp */
-        while (posy < array->ylen)
+        while (posy < array->ylen && !found)
         {
             posx = 0;
             x = array->xstart;
@@ -1433,7 +1452,10 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
             {
                 if (*((Uint32 *) (pixels + y * array->padding) + x)
                     == color)
-                    return 1;
+                {
+                    found = 1;
+                    break;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -1442,7 +1464,9 @@ _pxarray_contains (PyPixelArray *array, PyObject *value)
         }
         break;
     }
-    return 0;
+
+    Py_END_ALLOW_THREADS;
+    return found;
 }
 
 /**
