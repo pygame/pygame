@@ -96,9 +96,14 @@ _scrap_init (PyObject *self, PyObject *args)
     _clipdata = PyDict_New ();
     _selectiondata = PyDict_New ();
 
+    /* In case we've got not video surface, we won't initialize
+     * anything.
+     */
+    if (!SDL_GetVideoSurface())
+        return RAISE (PyExc_SDLError, "No display mode is set");
     if (!pygame_scrap_init ())
         return RAISE (PyExc_SDLError, SDL_GetError ());
-
+    
     Py_RETURN_NONE;
 }
 #endif
