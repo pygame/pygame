@@ -205,6 +205,7 @@ _make_surface(PyPixelArray *array)
     absystep = ABS (array->ystep);
     y = array->ystart;
 
+    Py_BEGIN_ALLOW_THREADS;
     /* Single value assignment. */
     switch (bpp)
     {
@@ -309,6 +310,8 @@ _make_surface(PyPixelArray *array)
         }
         break;
     }
+    Py_END_ALLOW_THREADS;
+
     if (SDL_MUSTLOCK (newsurf) == 0)
         SDL_UnlockSurface (newsurf);
     newsf = PySurface_New (newsurf);
@@ -458,6 +461,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     if (distance)
         SDL_GetRGB (dcolor, surface->format, &r1, &g1, &b1);
 
+    Py_BEGIN_ALLOW_THREADS;
     switch (surface->format->BytesPerPixel)
     {
     case 1:
@@ -604,6 +608,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         break;
     }
     }
+    Py_END_ALLOW_THREADS;
     Py_RETURN_NONE;
 }
 
@@ -666,6 +671,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     absystep = ABS (newarray->ystep);
     y = newarray->ystart;
 
+    Py_BEGIN_ALLOW_THREADS;
     switch (surface->format->BytesPerPixel)
     {
     case 1:
@@ -845,5 +851,6 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         break;
     }
     }
+    Py_END_ALLOW_THREADS;
     return (PyObject *) newarray;
 }
