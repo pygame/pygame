@@ -525,7 +525,7 @@ _get_data_as (Atom source, Atom format, unsigned long *length)
     {
         unsigned long boffset = 0;
         chunk = MAX_CHUNK_SIZE(SDL_Display);
-        memset (retval, 0, *length + 1);
+        memset (retval, 0, (size_t) (*length + 1));
 
         /* Read as long as there is data. */
         while (overflow)
@@ -821,7 +821,7 @@ pygame_scrap_get_types (void)
         if (!types)
             return NULL;
 
-        memset (types, 0, (PyDict_Size (dict) + 1));
+        memset (types, 0, (size_t) (PyDict_Size (dict) + 1));
         while (PyDict_Next (dict, &pos, &key, NULL))
         {
             types[i] = strdup (PyString_AsString (key));
