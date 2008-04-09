@@ -5,6 +5,10 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Apr 8, 2008
+    [BUG] Fixed pygame.draw.aaline() for cases in which only a single point
+        has to be drawn.
+
 Apr 4, 2008
     New PixelArray.replace() and PixelArray.extract() methods to quickly
       replace or extract a certain color.
