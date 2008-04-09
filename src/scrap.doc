@@ -52,7 +52,9 @@ can only be used by applications, which query the clipboard for the
 
 EXPERIMENTAL!
 
-New in pygame 1.8. Only works for Windows, X11 and Mac OS X so far.  On Mac OSX only text works at the moment - other types will be supported in the next release.
+New in pygame 1.8. Only works for Windows, X11 and Mac OS X so far.  On
+Mac OSX only text works at the moment - other types will be supported in
+the next release.
 <SECTION>
 
 init
@@ -60,7 +62,8 @@ Initializes the scrap module.
 scrap.init () -> None
 
 Tries to initialize the scrap module and raises an exception, if it
-fails.
+fails. Note that this module requires a set display surface, so you have
+to make sure, you acquired one earlier using pygame.display.set_mode().
 <END>
 
 get
