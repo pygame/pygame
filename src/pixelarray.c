@@ -957,7 +957,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 #else
                 *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
                 *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                *(px - (format->Bshift >> 3)) = (Uint8) color;
+                *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
 #endif
                 x += xstep;
                 posx += absxstep;
@@ -1091,7 +1091,7 @@ _array_assign_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
 #else
                 *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
                 *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                *(px - (format->Bshift >> 3)) = (Uint8) color;
+                *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
 #endif
                 x += xstep;
                 posx += absxstep;
@@ -1248,7 +1248,7 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
 #else
                 *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
                 *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                *(px - (format->Bshift >> 3)) = (Uint8) color;
+                *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
 #endif
                 x += xstep;
                 posx += absxstep;
