@@ -5,6 +5,10 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Apr 10, 2008
+    [BUG] Fixed pygame.surfarray.pixels3d() for 24bpp surfaces using numpy.
+        Thanks Lorenz Quack!
+
 Apr 8, 2008
     [BUG] Fixed pygame.draw.aaline() for cases in which only a single point
         has to be drawn.

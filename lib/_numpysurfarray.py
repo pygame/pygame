@@ -210,7 +210,8 @@ def pixels3d (surface):
     array = numpy.frombuffer (surface.get_buffer (), numpy.uint8)
     array.shape = surface.get_height (), surface.get_pitch ()
     array = array[:,:surface.get_width () * bpp]
-    array.shape  = surface.get_width (), surface.get_height (), bpp
+    array = numpy.reshape (array, (surface.get_width (), surface.get_height (),
+                                   bpp))
     array = array[:,:,start:end:step]
     return array
 
