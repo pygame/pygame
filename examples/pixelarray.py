@@ -91,3 +91,13 @@ ar2 = ar.extract ((0, 0, 0), 0.07)
 sf2 = ar2.surface
 del ar, ar2
 show (sf2)
+
+# Compare two images.
+surface = pygame.image.load (os.path.join ('data', 'alien1.gif'))
+surface2 = pygame.image.load (os.path.join ('data', 'alien2.gif'))
+ar1 = pygame.PixelArray (surface)
+ar2 = pygame.PixelArray (surface2)
+ar3 = ar1.compare (ar2, 0.07)
+sf3 = ar3.surface
+del ar1, ar2, ar3
+show (sf3)
