@@ -5,6 +5,9 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Apr 11, 2008
+    New PixelArray.compare() method to compare two PixelArrays.
+
 Apr 10, 2008
     [BUG] Fixed pygame.surfarray.pixels3d() for 24bpp surfaces using numpy.
         Thanks Lorenz Quack!
