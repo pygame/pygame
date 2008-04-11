@@ -88,6 +88,15 @@ static int _pxarray_ass_subscript (PyPixelArray *array, PyObject* op,
 /* C API interfaces */
 static PyObject* PyPixelArray_New (PyObject *surfobj);
 
+/* Incomplete forward declaration so we can use it in the methods included
+ * below.
+ */
+static PyTypeObject PyPixelArray_Type;
+#define PyPixelArray_Check(o) \
+    ((o)->ob_type == (PyTypeObject *) &PyPixelArray_Type)
+#define SURFACE_EQUALS(x,y) \
+    (((PyPixelArray *)x)->surface == ((PyPixelArray *)y)->surface)
+
 #include "pixelarray_methods.c"
 
 /**
@@ -95,12 +104,14 @@ static PyObject* PyPixelArray_New (PyObject *surfobj);
  */
 static PyMethodDef _pxarray_methods[] =
 {
-    { "replace", (PyCFunction) _replace_color, METH_KEYWORDS,
-      DOC_PIXELARRAYREPLACE },
+    { "compare", (PyCFunction) _compare, METH_KEYWORDS,
+      DOC_PIXELARRAYCOMPARE },
     { "extract", (PyCFunction) _extract_color, METH_KEYWORDS,
       DOC_PIXELARRAYEXTRACT },
     { "make_surface", (PyCFunction) _make_surface, METH_NOARGS,
       DOC_PIXELARRAYMAKESURFACE },
+    { "replace", (PyCFunction) _replace_color, METH_KEYWORDS,
+      DOC_PIXELARRAYREPLACE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -194,11 +205,6 @@ static PyTypeObject PyPixelArray_Type =
     0,                          /* tp_weaklist */
     0                           /* tp_del */
 };
-
-#define PyPixelArray_Check(o) \
-    ((o)->ob_type == (PyTypeObject *) &PyPixelArray_Type)
-#define SURFACE_EQUALS(x,y) \
-    (((PyPixelArray *)x)->surface == ((PyPixelArray *)y)->surface)
 
 static PyPixelArray*
 _pxarray_new_internal (PyTypeObject *type, PyObject *surface,

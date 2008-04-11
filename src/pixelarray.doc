@@ -90,7 +90,7 @@ original Surface.
   # Create a new surface flipped around the vertical axis.
   sf = pxarray[:,::-1].make_surface () 
 
-New in pygame.1.8.1.
+New in pygame 1.8.1.
 <END>
 
 replace
@@ -103,13 +103,13 @@ them them to the passed replacement color.
 It uses a simple weighted euclidian distance formula to calculate the
 distance between the colors. The distance space ranges from 0.0 to 1.0
 and is used as threshold for the color detection. This causes the
-replacement to take pixels with a similar but not exactly identical
+replacement to take pixels with a similar, but not exactly identical
 color, into account as well.
 
 This is an in place operation that directly affects the pixels of the
 PixelArray.
 
-New in pygame.1.8.1.
+New in pygame 1.8.1.
 <END>
 
 extract
@@ -123,9 +123,27 @@ PixelArray with the black/white color mask.
 It uses a simple weighted euclidian distance formula to calculate the
 distance between the colors.  The distance space ranges from 0.0 to
 1.0 and is used as threshold for the color detection. This causes the
-extraction to take pixels with a similar but not exactly identical
+extraction to take pixels with a similar, but not exactly identical
 color, into account as well.
 
-New in pygame.1.8.1.
+New in pygame 1.8.1.
+<END>
+
+compare
+Compares the PixelArray with another one.
+PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray
+
+Compares the contents of the PixelArray with those from the passed PixelArray.
+It returns a new PixelArray with a black/white color mask that indicates the
+differences (white) of both arrays. Both PixelArray objects must have indentical
+bit depths and dimensions.
+
+It uses a simple weighted euclidian distance formula to calculate the
+distance between the colors.  The distance space ranges from 0.0 to
+1.0 and is used as threshold for the color detection. This causes the
+comparision to mark pixels with a similar, but not exactly identical
+color, as black.
+
+New in pygame 1.8.1.
 <END>
 <END>

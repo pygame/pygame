@@ -376,6 +376,7 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (iterations, 5)
 
     def test_replace (self):
+        #print "replace start"
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((10, 10), 0, bpp)
             sf.fill ((255, 0, 0))
@@ -396,8 +397,10 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (ar[3][6], oval)
             self.assertEqual (ar[8][9], oval)
             self.assertEqual (ar[9][9], oval)
+        #print "replace end"
 
     def test_extract (self):
+        #print "extract start"
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((10, 10), 0, bpp)
             sf.fill ((0, 0, 255))
@@ -423,6 +426,6 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (newar[3][6], white)
             self.assertEqual (newar[8][9], black)
             self.assertEqual (newar[9][9], black)
-
+        #print "extract end"
 if __name__ == '__main__':
     unittest.main()
