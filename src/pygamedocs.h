@@ -479,6 +479,8 @@
 
 #define DOC_PIXELARRAYEXTRACT "PixelArray.extract (color, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray\nExtracts the passed color from the PixelArray."
 
+#define DOC_PIXELARRAYCOMPARE "PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray\nCompares the PixelArray with another one."
+
 #define DOC_PYGAMERECT "pygame.Rect(left, top, width, height): return Rect\npygame.Rect((left, top), (width, height)): return Rect\npygame.Rect(object): return Rect\npygame object for storing rectangular coordinates"
 
 #define DOC_RECTMOVE "Rect.move(x, y): return Rect\nmoves the rectangle"
