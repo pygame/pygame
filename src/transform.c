@@ -1738,15 +1738,15 @@ static void convert_32_24(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpit
 
 static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
 {
-	Uint8* srcpix = (Uint8*)src->pixels;
-	Uint8* dstpix = (Uint8*)dst->pixels;
+    Uint8* srcpix = (Uint8*)src->pixels;
+    Uint8* dstpix = (Uint8*)dst->pixels;
     Uint8* dst32 = NULL;
-	int srcpitch = src->pitch;
-	int dstpitch = dst->pitch;
+    int srcpitch = src->pitch;
+    int dstpitch = dst->pitch;
 
-	int srcwidth = src->w;
-	int srcheight = src->h;
-	int dstwidth = dst->w;
+    int srcwidth = src->w;
+    int srcheight = src->h;
+    int dstwidth = dst->w;
     int dstheight = dst->h;
 
     int bpp = src->format->BytesPerPixel;
@@ -1759,7 +1759,8 @@ static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
     {
         int newpitch = srcwidth * 4;
         Uint8 *newsrc = (Uint8 *) malloc(newpitch * srcheight);
-        if (!newsrc) return;
+        if (!newsrc)
+            return;
         convert_24_32(srcpix, srcpitch, newsrc, newpitch, srcwidth, srcheight);
         srcpix = newsrc;
         srcpitch = newpitch;
@@ -1768,7 +1769,7 @@ static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
         dst32 = (Uint8 *) malloc(dstpitch * dstheight);
         if (dst32 == NULL)
         {
-            free(dst32);
+            free(srcpix);
             return;
         }
         dstpix = dst32;
@@ -1871,7 +1872,8 @@ static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
         srcpix = NULL;
     }
     /* free temporary buffer if necessary */
-    if (temppix != NULL) free(temppix);
+    if (temppix != NULL)
+        free(temppix);
 
 }
 
