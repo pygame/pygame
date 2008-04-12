@@ -5,6 +5,10 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Apr 12, 2008
+    [BUG] Fixed png saving, and saving jpeg with capital letter extensions
+        Thanks Nick Irvine!
+        
 Apr 11, 2008
     New PixelArray.compare() method to compare two PixelArrays.
 
