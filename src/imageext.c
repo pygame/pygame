@@ -462,30 +462,29 @@ image_save_ext (PyObject* self, PyObject* arg)
         if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
             return NULL;
         namelen = strlen (name);
-        if ((namelen > 3) &&
+        if ((namelen >= 4) &&
             (((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
-                (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
-                (name[namelen - 3]=='p' || name[namelen - 2]=='P')) ||
-            ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
-                (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
-                (name[namelen - 3]=='p' || name[namelen - 3]=='P') &&
-                (name[namelen - 4]=='j' || name[namelen - 3]=='J')) ||
-            ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
-                (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
-                (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
+              (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
+              (name[namelen - 3]=='p' || name[namelen - 3]=='P') &&
+              (name[namelen - 4]=='j' || name[namelen - 4]=='J')) ||
+             ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+              (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
+              (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
         {
 #ifdef JPEGLIB_H
             /* Png, and jpg save functions are not thread safe. */
             /*Py_BEGIN_ALLOW_THREADS; */
             result = SaveJPEG (surf, name);
             /*Py_END_ALLOW_THREADS; */
-
 #else
             return RAISE (PyExc_SDLError, "No support for jpg compiled in.");
 #endif
 
         }
-        else if (name[namelen-1]=='g' || name[namelen-1]=='G')
+        else if ((namelen >= 3) &&
+                 ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
+                  (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
+                  (name[namelen - 3]=='p' || name[namelen - 3]=='P')))
         {
 #ifdef PNG_H
             /*Py_BEGIN_ALLOW_THREADS; */

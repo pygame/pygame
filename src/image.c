@@ -212,11 +212,11 @@ image_save (PyObject* self, PyObject* arg)
             }
             else if (((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
                     (name[namelen - 2]=='n' || name[namelen - 2]=='N') &&
-                    (name[namelen - 3]=='p' || name[namelen - 2]=='P')) ||
+                    (name[namelen - 3]=='p' || name[namelen - 3]=='P')) ||
                 ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
                     (name[namelen - 2]=='e' || name[namelen - 2]=='E') &&
                     (name[namelen - 3]=='p' || name[namelen - 3]=='P') &&
-                    (name[namelen - 4]=='j' || name[namelen - 3]=='J')) ||
+                    (name[namelen - 4]=='j' || name[namelen - 4]=='J')) ||
                 ((name[namelen - 1]=='g' || name[namelen - 1]=='G') &&
                     (name[namelen - 2]=='p' || name[namelen - 2]=='P') &&
                     (name[namelen - 3]=='j' || name[namelen - 3]=='J')))
