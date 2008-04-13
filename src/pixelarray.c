@@ -167,14 +167,14 @@ static PyTypeObject PyPixelArray_Type =
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_compare */
-    (reprfunc) _pxarray_repr,  /* tp_repr */
+    (reprfunc) _pxarray_repr,   /* tp_repr */
     0,                          /* tp_as_number */
-    &_pxarray_sequence,          /* tp_as_sequence */
-    &_pxarray_mapping,           /* tp_as_mapping */
+    &_pxarray_sequence,         /* tp_as_sequence */
+    &_pxarray_mapping,          /* tp_as_mapping */
     0,                          /* tp_hash */
     0,                          /* tp_call */
     0,                          /* tp_str */
-    PyObject_GenericGetAttr,    /* tp_getattro */
+    0,                          /* tp_getattro */
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
@@ -1923,7 +1923,7 @@ static PyObject* PyPixelArray_New (PyObject *surfobj)
     if (surface->format->BytesPerPixel < 1  ||
         surface->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
-            "unsupport bit depth for reference array");
+            "unsupported bit depth for reference array");
 
     return (PyObject *) _pxarray_new_internal
         (&PyPixelArray_Type, surfobj, 0, 0,
@@ -1946,7 +1946,7 @@ void initpixelarray (void)
     module = Py_InitModule3 ("pixelarray", NULL, NULL);
     Py_INCREF (&PyPixelArray_Type);
     PyModule_AddObject (module, "PixelArray", (PyObject *) &PyPixelArray_Type);
-
+    PyPixelArray_Type.tp_getattro = PyObject_GenericGetAttr;
     dict = PyModule_GetDict (module);
 
     c_api[0] = &PyPixelArray_Type;

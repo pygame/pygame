@@ -46,10 +46,9 @@ _get_color_from_object (PyObject *val, SDL_PixelFormat *format, Uint32 *color)
     if (PyInt_Check (val))
     {
         long intval = PyInt_AsLong (val);
-        if ((intval < INT_MIN) || (intval > INT_MAX))
+        if (intval == -1 && PyErr_Occurred ())
         {
-            if (!PyErr_Occurred ())
-                PyErr_SetString (PyExc_ValueError, "invalid color argument");
+            PyErr_SetString (PyExc_ValueError, "invalid color argument");
             return 0;
         }
         *color = (Uint32) intval;
@@ -57,8 +56,8 @@ _get_color_from_object (PyObject *val, SDL_PixelFormat *format, Uint32 *color)
     }
     else if (PyLong_Check (val))
     {
-        long long longval = PyLong_AsLong (val);
-        if ((longval < INT_MIN) || (longval > INT_MAX))
+        unsigned long longval = PyLong_AsUnsignedLong (val);
+        if (PyErr_Occurred ())
         {
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
