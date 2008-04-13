@@ -181,38 +181,39 @@ def pixels3d (surface):
     bpp = surface.get_bytesize ()
     if bpp < 3 or bpp > 4:
         raise ValueError, "unsupported bit depth for 3D reference array"
+    lilendian = pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN
 
     start = 0
     step = 0
-    end = 0
 
     # Check for RGB or BGR surface.
     shifts = surface.get_shifts ()
     if shifts[0] == 16 and shifts[1] == 8 and shifts[2] == 0:
         # RGB 
-        end = None
-        if pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN:
+        if lilendian:
             start = 2
             step = -1
         else:
             start = 0
             step = 1
-    else:
+    elif shifts[2] == 16 and shifts[1] == 8 and shifts[0] == 0:
         # BGR
-        end = 3
-        if pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN:
+        if lilendian:
             start = 0
             step = 1
         else:
             start = 2
             step = -1
+    else:
+        raise ValueError, "unsupported colormasks for 3D reference array"
 
-    array = numpy.frombuffer (surface.get_buffer (), numpy.uint8)
-    array.shape = surface.get_height (), surface.get_pitch ()
-    array = array[:,:surface.get_width () * bpp]
-    array = numpy.reshape (array, (surface.get_width (), surface.get_height (),
-                                   bpp))
-    array = array[:,:,start:end:step]
+    if bpp == 4 and not lilendian:
+        start += 1
+
+    array = numpy.ndarray \
+            (shape=(surface.get_width (), surface.get_height (), 3),
+             dtype=numpy.uint8, buffer=surface.get_buffer (),
+             offset=start, strides=(bpp, surface.get_pitch (),step))
     return array
 
 def array_alpha (surface):
@@ -262,20 +263,24 @@ def pixels_alpha (surface):
     """
     if surface.get_bytesize () != 4:
         raise ValueError, "unsupported bit depth for alpha reference array"
+    lilendian = pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN
 
     # ARGB surface.
     start = 0
     
-    if surface.get_shifts ()[3] == 24:
+    if surface.get_shifts ()[3] == 24 and lilendian:
         # RGBA surface.
         start = 3
+    elif surface.get_shifts ()[3] == 0 and not lilendian:
+        start = 3
+    else:
+        raise ValueError, "unsupported colormasks for alpha reference array"
 
-    width, height = surface.get_width (), surface.get_height ()
-    array = numpy.frombuffer (surface.get_buffer (), numpy.uint8)
-    array.shape = height, surface.get_pitch ()
-    array = array[:, start::4]
-    array = array[:, :width * 4]
-    return numpy.transpose (array)
+    array = numpy.ndarray \
+            (shape=(surface.get_width (), surface.get_height ()),
+             dtype=numpy.uint8, buffer=surface.get_buffer (),
+             offset=start, strides=(4, surface.get_pitch ()))
+    return array
 
 def array_colorkey (surface):
     """pygame.numpyarray.array_colorkey (Surface): return array
