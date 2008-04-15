@@ -8,6 +8,22 @@ import os
 import array
 
 
+
+def test_magic(f, magic_hex):
+    """ tests a given file to see if the magic hex matches.
+    """
+    data = f.read(len(magic_hex))
+
+    if len(data) != len(magic_hex):
+        return 0
+
+    for i in range(len(magic_hex)):
+        if data[i] != data[i]:
+            return 0
+    
+    return 1
+
+
 class ImageTest( unittest.TestCase ):
     
     def testLoadIcon(self):
@@ -49,17 +65,28 @@ class ImageTest( unittest.TestCase ):
 
         s = pygame.Surface((10,10))
         s.fill((23,23,23))
+        magic_hex = {}
+        magic_hex['jpg'] = [0xff, 0xd8, 0xff, 0xe0]
+        magic_hex['png'] = [0x89 ,0x50 ,0x4e ,0x47]
+        magic_hex['tga'] = [0x0, 0x0, 0xa]
+        magic_hex['bmp'] = [0x42, 0x4d]
+
         for fmt in ["jpg", "png", "tga", "bmp"]:
             try:
                 temp_filename = "%s.%s" % ("tmpimg", fmt)
                 pygame.image.save(s, temp_filename)
+                # test the magic numbers at the start of the file to ensure they are saved 
+                #   as the correct file type.
+                test_magic(open(temp_filename, "rb"), magic_hex[fmt])
+                # load the file to make sure it was saved correctly.  
+                #    Note load can load a jpg saved with a .png file name.
                 s2 = pygame.image.load(temp_filename)
                 #compare contents, might only work reliably for png... 
                 #   but because it's all one color it seems to work with jpg.
                 self.assertEquals(s2.get_at((0,0)), s.get_at((0,0)))
             finally:
                 #clean up the temp file
-                os.remove(temp_filename)
+                #os.remove(temp_filename)
                 pass
 
                 
