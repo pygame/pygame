@@ -27,10 +27,13 @@ import sys
 
 # hack the version name to a format msi doesn't have trouble with
 if "bdist_msi" in sys.argv:
-    METADATA["version"] = METADATA["version"].replace("rc", "b").replace("pre", "a").replace("release", "c")
+    METADATA["version"] = METADATA["version"].replace("pre", "a.0")
+    METADATA["version"] = METADATA["version"].replace("rc", "b.0")
+    METADATA["version"] = METADATA["version"].replace("release", "c.0")
     
-if not hasattr(sys, 'version_info') or sys.version_info < (2,2):
-    raise SystemExit, "Pygame requires Python version 2.2 or above."
+
+if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
+    raise SystemExit, "Pygame requires Python version 2.3 or above."
 
 #get us to the correct directory
 import os, sys
