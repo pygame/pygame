@@ -27,9 +27,9 @@ import sys
 
 # hack the version name to a format msi doesn't have trouble with
 if "bdist_msi" in sys.argv:
-    METADATA["version"] = METADATA["version"].replace("pre", "a.0")
-    METADATA["version"] = METADATA["version"].replace("rc", "b.0")
-    METADATA["version"] = METADATA["version"].replace("release", "c.0")
+    METADATA["version"] = METADATA["version"].replace("pre", "a0")
+    METADATA["version"] = METADATA["version"].replace("rc", "b0")
+    METADATA["version"] = METADATA["version"].replace("release", "c0s")
     
 
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
