@@ -71,13 +71,18 @@ class ImageTest( unittest.TestCase ):
         magic_hex['tga'] = [0x0, 0x0, 0xa]
         magic_hex['bmp'] = [0x42, 0x4d]
 
-        for fmt in ["jpg", "png", "tga", "bmp"]:
+
+        formats = ["jpg", "png", "tga", "bmp"]
+        # uppercase too... JPG
+        formats = formats + map(lambda x:x.upper(), formats)
+
+        for fmt in formats:
             try:
                 temp_filename = "%s.%s" % ("tmpimg", fmt)
                 pygame.image.save(s, temp_filename)
                 # test the magic numbers at the start of the file to ensure they are saved 
                 #   as the correct file type.
-                self.assertEqual((1, fmt), (test_magic(open(temp_filename, "rb"), magic_hex[fmt]), fmt))
+                self.assertEqual((1, fmt), (test_magic(open(temp_filename, "rb"), magic_hex[fmt.lower()]), fmt))
                 # load the file to make sure it was saved correctly.  
                 #    Note load can load a jpg saved with a .png file name.
                 s2 = pygame.image.load(temp_filename)
@@ -86,7 +91,7 @@ class ImageTest( unittest.TestCase ):
                 self.assertEquals(s2.get_at((0,0)), s.get_at((0,0)))
             finally:
                 #clean up the temp file, comment out to leave tmp file after run.
-                #os.remove(temp_filename)
+                os.remove(temp_filename)
                 pass
 
                 
