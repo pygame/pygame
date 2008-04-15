@@ -18,7 +18,7 @@ def test_magic(f, magic_hex):
         return 0
 
     for i in range(len(magic_hex)):
-        if data[i] != data[i]:
+        if magic_hex[i] != ord(data[i]):
             return 0
     
     return 1
@@ -77,7 +77,7 @@ class ImageTest( unittest.TestCase ):
                 pygame.image.save(s, temp_filename)
                 # test the magic numbers at the start of the file to ensure they are saved 
                 #   as the correct file type.
-                self.assertEqual(1, test_magic(open(temp_filename, "rb"), magic_hex[fmt]))
+                self.assertEqual((1, fmt), (test_magic(open(temp_filename, "rb"), magic_hex[fmt]), fmt))
                 # load the file to make sure it was saved correctly.  
                 #    Note load can load a jpg saved with a .png file name.
                 s2 = pygame.image.load(temp_filename)
@@ -85,7 +85,7 @@ class ImageTest( unittest.TestCase ):
                 #   but because it's all one color it seems to work with jpg.
                 self.assertEquals(s2.get_at((0,0)), s.get_at((0,0)))
             finally:
-                #clean up the temp file
+                #clean up the temp file, comment out to leave tmp file after run.
                 #os.remove(temp_filename)
                 pass
 
