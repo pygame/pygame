@@ -44,6 +44,27 @@ class ImageTest( unittest.TestCase ):
         
         surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
+
+    def testSave(self):
+
+        s = pygame.Surface((10,10))
+        s.fill((23,23,23))
+        for fmt in ["jpg", "png", "tga", "bmp"]:
+            try:
+                temp_filename = "%s.%s" % ("tmpimg", fmt)
+                pygame.image.save(s, temp_filename)
+                s2 = pygame.image.load(temp_filename)
+                #compare contents, might only work reliably for png... 
+                #   but because it's all one color it seems to work with jpg.
+                self.assertEquals(s2.get_at((0,0)), s.get_at((0,0)))
+            finally:
+                #clean up the temp file
+                os.remove(temp_filename)
+                pass
+
+                
+
+
     def assertPremultipliedAreEqual(self, string1, string2, source_string):
         self.assertEqual(len(string1), len(string2))
         block_size = 20
