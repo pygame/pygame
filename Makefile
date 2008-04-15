@@ -12,7 +12,7 @@ install: Setup setup.py
 Setup:
 	$(PYTHON) configure.py
 
-tests:
+check tests:
 	$(PYTHON) run_tests.py
 
 docs:	install
