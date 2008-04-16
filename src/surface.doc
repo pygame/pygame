@@ -433,7 +433,7 @@ the clip rectangle is too large it will be shrunk to fit inside the Surface.
 
 
 get_clip
-get the current clipping are of the Surface
+get the current clipping area of the Surface
 Surface.get_clip(): return Rect
 
 Return a rectangle of the current clipping area. The Surface will always
