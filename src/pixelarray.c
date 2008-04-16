@@ -758,9 +758,8 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             x = xstart;
             while (posx < xlen)
             {
-                px = (Uint8 *) (pixels + y * padding) + x * 3;
-                vpx = (Uint8 *) ((Uint8*) valpixels + vy * val->padding) +
-                    vx * 3;
+                px = ((Uint8 *) (pixels + y * padding) + x * 3);
+                vpx = ((Uint8 *) (valpixels + vy * val->padding) + vx * 3);
 
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) =
@@ -958,7 +957,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             while (posx < xlen)
             {
                 color = *colorvals++;
-                px = (Uint8 *) (pixels + y * padding) + x * 3;
+                px = ((Uint8 *) (pixels + y * padding) + x * 3);
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
                 *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
@@ -1094,7 +1093,7 @@ _array_assign_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             x = xstart;
             while (posx < xlen)
             {
-                px = (Uint8 *) (pixels + y * padding) + x * 3;
+                px = ((Uint8 *) (pixels + y * padding) + x * 3);
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
                 *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
@@ -1253,7 +1252,7 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
             x = xstart;
             while (posx < xlen)
             {
-                px = (Uint8 *) (pixels + y * padding) + x * 3;
+                px = ((Uint8 *) (pixels + y * padding) + x * 3);
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
                 *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);

@@ -267,9 +267,8 @@ _make_surface(PyPixelArray *array)
             posx = 0;
             while (posx < array->xlen)
             {
-                px = (Uint8 *) (pixels + vy * newsurf->pitch) + vx * 3;
-                vpx = (Uint8 *) ((Uint8*) origpixels + y * array->padding) +
-                    x * 3;
+                px = ((Uint8 *) (pixels + vy * newsurf->pitch) + vx * 3);
+                vpx = ((Uint8 *) (origpixels + y * array->padding) + x * 3);
 
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) =
@@ -533,7 +532,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
             posx = 0;
             while (posx < array->xlen)
             {
-                px = (Uint8 *) (pixels + y * surface->pitch) + x * 3;
+                px = ((Uint8 *) (pixels + y * surface->pitch) + x * 3);
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
                 if (distance)
@@ -750,7 +749,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
             posx = 0;
             while (posx < newarray->xlen)
             {
-                px = (Uint8 *) (pixels + y * surface->pitch) + x * 3;
+                px = ((Uint8 *) (pixels + y * surface->pitch) + x * 3);
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
                 if (distance)
@@ -1023,8 +1022,8 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
             posx = 0;
             while (posx < newarray->xlen)
             {
-                px1 = (Uint8 *) (pixels1 + y * surface1->pitch) + x * 3;
-                px2 = (Uint8 *) (pixels2 + vy * surface2->pitch) + vx * 3;
+                px1 = ((Uint8 *) (pixels1 + y * surface1->pitch) + x * 3);
+                px2 = ((Uint8 *) (pixels2 + vy * surface2->pitch) + vx * 3);
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 pxcolor1 = (px1[0]) + (px1[1] << 8) + (px1[2] << 16);
                 pxcolor2 = (px2[0]) + (px2[1] << 8) + (px2[2] << 16);
