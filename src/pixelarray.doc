@@ -1,5 +1,5 @@
 pygame.PixelArray
-pygame Object for direct pixel access of surfaces
+pygame object for direct pixel access of surfaces
 pygame.PixelArray(Surface): return PixelArray
 
 The PixelArray wraps up a Surface and provides a direct 2D array access
