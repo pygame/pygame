@@ -1202,7 +1202,7 @@ _pxarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
 /*
     printf ("ITEM: %d:%d, %d:%d %d:%d %d\n",
         xstart, ystart, xlen, xstep, ylen, ystep, padding);
-*/  
+*/
     absxstep = ABS (xstep);
     absystep = ABS (ystep);
     y = ystart;
@@ -1808,9 +1808,10 @@ _pxarray_ass_subscript (PyPixelArray *array, PyObject* op, PyObject* value)
         if (ABS (xstop - xstart) == 1 && ABS (ystop - ystart) == 1)
         {
             tmparray = _pxarray_new_internal (&PyPixelArray_Type,
-                array->surface, array->xstart + xstart,
-                ystart * array->padding * array->ystep, 1, 1, 1, 1,
-                array->padding, (PyObject *) array);
+                array->surface,
+                (Uint32) array->xstart + xstart,
+                (Uint32) array->ystart + ystart,
+                1, 1, 1, 1, (Uint32) array->padding, (PyObject *) array);
             if (!tmparray)
                 return -1;
             retval = _pxarray_ass_item (tmparray, 0, value);
