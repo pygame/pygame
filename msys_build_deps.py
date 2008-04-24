@@ -1,4 +1,6 @@
-# Program build_deps.py
+#!/usr/bin/env python
+# -*- coding: ascii -*-
+# Program msys_build_deps.py
 # Requires Python 2.4 or later and win32api.
 
 """Build Pygame dependencies using MinGW and MSYS
