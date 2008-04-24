@@ -174,9 +174,8 @@ autoinit (PyObject* self, PyObject* arg)
 
 
     /*make chunk a power of 2*/
-    for (i = 0; 1 << i < chunk; ++i) {
-        chunk = MAX (1 << i, 256);
-    }
+    for (i = 0; 1 << i < chunk; ++i); //yes, semicolon on for loop
+    chunk = MAX (1 << i, 256);
 
     if (!SDL_WasInit (SDL_INIT_AUDIO))
     {
