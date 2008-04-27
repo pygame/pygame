@@ -20,8 +20,8 @@ os.environ["SDL_VIDEODRIVER"] = "dummy"
 import pygame.transform
 
 
-if 0:
-    #some platforms might need to init the display for some parts of pygame.
+if 1:
+    #some platforms need to init the display for some parts of pygame.
     import pygame.display
     pygame.display.init()
     screen = pygame.display.set_mode((1,1))
