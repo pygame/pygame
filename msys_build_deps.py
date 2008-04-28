@@ -257,6 +257,9 @@ def command_line():
     parser.set_defaults(compile=True)
     parser.add_option('--no-install', action='store_false', dest='install',
                       help="Do not install the libraries")
+    parser.add_option('--no-strip', action='store_false', dest='strip',
+                      help="Do not strip the library")
+    parser.set_defaults(strip=True)
     parser.set_defaults(install=True)
     parser.add_option('--clean', action='store_true', dest='clean',
                       help="Remove generated files (make clean)"
@@ -291,6 +294,9 @@ def set_environment_variables(msys, options):
     environ['BDINST'] = as_flag(options.install and
                                 options.compile and
                                 not options.clean_only)
+    environ['BDSTRIP'] = as_flag(options.install and
+                                 options.strip and
+                                 not options.clean_only)
     environ['BDCLEAN'] = as_flag(options.clean or options.clean_only)
     environ.pop('INCLUDE', None)  # INCLUDE causes problems with MIXER.
     if 'CFLAGS' not in environ:
@@ -440,29 +446,6 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
 #
 #   Build specific code
 #
-# The basic configure/make steps.
-basic_build_script = """
-
-set -e
-cd $BDWD
-
-if [ x$BDCONF == x1 ]; then
-  ./configure
-fi
-
-if [ x$BDCOMP == x1 ]; then
-  make
-fi
-
-if [ x$BDINST == x1 ]; then
-  make install
-fi
-
-if [ x$BDCLEAN == x1 ]; then
-  set +e
-  make clean
-fi
-"""
 
 # This list includes the MSYS shell scripts to build each library. Each script
 # runs in an environment where MINGW_ROOT_DIRECTORY is defined and the MinGW
@@ -502,6 +485,10 @@ if [ x$BDINST == x1 ]; then
   make install
 fi
 
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/SDL.dll
+fi
+
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
@@ -528,6 +515,10 @@ if [ x$BDINST == x1 ]; then
   cp -fp zlib.h /usr/local/include
   cp -fp zconf.h /usr/local/include
   cp -fp zlib1.dll /usr/local/bin
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/zlib1.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -558,8 +549,32 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('FONT', ['SDL_ttf-[2-9].*'], ['SDL_ttf.dll'],
-               basic_build_script),
+    Dependency('FONT', ['SDL_ttf-[2-9].*'], ['SDL_ttf.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  ./configure
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/SDL_ttf.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+fi
+"""),
     Dependency('PNG', ['libpng-[1-9].*'], ['libpng13.dll'], """
 
 set -e
@@ -589,6 +604,10 @@ if [ x$BDINST == x1 ]; then
   cp -fp pngconf.h /usr/local/include
   cp -fp libpng.dll.a /usr/local/lib
   cp -fp libpng13.dll /usr/local/bin
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/libpng13.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -624,6 +643,10 @@ if [ x$BDINST == x1 ]; then
   cp -fp libjpeg.dll.a /usr/local/lib
   cp -fp jpeg.dll /usr/local/bin
   if [ x$? != x0 ]; then exit $?; fi
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/jpeg.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -667,6 +690,10 @@ if [ x$BDINST == x1 ]; then
   cd ..
 fi
 
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/libtiff.dll
+fi
+
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
@@ -693,6 +720,10 @@ if [ x$BDINST == x1 ]; then
   make install
 fi
 
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/SDL_image.dll
+fi
+
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
@@ -717,13 +748,41 @@ if [ x$BDINST == x1 ]; then
   make install
 fi
 
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/smpeg.dll
+fi
+
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
 fi
 """),
-    Dependency('OGG', ['libogg-[1-9].*'], ['libogg-0.dll'],
-               basic_build_script),
+    Dependency('OGG', ['libogg-[1-9].*'], ['libogg-0.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  ./configure
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/libogg-0.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+fi
+"""),
     Dependency('VORBIS',
                ['libvorbis-[1-9].*'],
                ['libvorbis-0.dll', 'libvorbisfile-3.dll'], """
@@ -741,6 +800,11 @@ fi
 
 if [ x$BDINST == x1 ]; then
   make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/libvorbis-0.dll
+  strip --strip-all /usr/local/bin/libvorbisfile-3.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -763,6 +827,10 @@ fi
 
 if [ x$BDINST == x1 ]; then
   make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/SDL_mixer.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
