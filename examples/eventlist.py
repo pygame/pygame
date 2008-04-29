@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 """Eventlist is a sloppy style of pygame, but is a handy
 tool for learning about pygame events and input. At the

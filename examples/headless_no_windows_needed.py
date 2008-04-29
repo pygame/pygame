@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """How to use pygame with no windowing system, like on headless servers.
 
 Thumbnail generation with scaling is an example of what you can do with pygame.

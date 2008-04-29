@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """  This is a stress test for the fastevents module.
 
 *Fast events does not appear faster!*
