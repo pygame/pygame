@@ -5,6 +5,20 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+
+Apr 30, 2008
+    updates to the sprite.py collision functions that update them to match 
+        the modules coding style, include appropriate comments, and are 
+        about 20% faster. It also includes a collide_circle_ratio function 
+        for completeness, and perhaps most importantly, fixes a bug in 
+        colide_mask which kept it from working correctly.  Also added unittests
+        for the collision functions.  Thanks John Krukoff!
+
+    [BUG] sound crackles on windows; restored chunk size 
+        calculation to pre 1143
+
+    Added \#!/usr/bin/env python to the top of examples that didn't have it.
+
 Apr 13, 2008
     [BUG] Fixed pygame.surfarray.pixels3d() for 24bpp surfaces using numpy.
         Thanks Lorenz Quack!
