@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys, random
 import pygame, pygame.image, pygame.surface, pygame.time, pygame.display
 
