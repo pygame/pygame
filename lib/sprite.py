@@ -77,8 +77,12 @@ when you add a Sprite or Group class.
 import pygame
 from pygame import Rect
 from pygame.time import get_ticks
-from pygame.mask import from_surface
 
+# Don't depend on pygame.mask if it's not there...
+try:
+    from pygame.mask import from_surface
+except:
+    pass
 
 
 class Sprite(object):
