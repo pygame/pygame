@@ -399,12 +399,6 @@ class Unit_test_LRG(unittest.TestCase):
         
 #TODO: test FRG and DirtySprite (visible, layer, blendmode and dirty)
 
-if __name__ == "__main__":
-    unittest.main()
-        
-    
-    
-    
 
 
 
