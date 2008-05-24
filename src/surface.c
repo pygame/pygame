@@ -584,7 +584,7 @@ surf_set_at (PyObject *self, PyObject *args)
 
     if (PyInt_Check (rgba_obj))
         color = (Uint32) PyInt_AsLong (rgba_obj);
-    else if (RGBAFromObj (rgba_obj, rgba))
+    else if (RGBAFromColorObj (rgba_obj, rgba))
         color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
         return RAISE (PyExc_TypeError, "invalid color argument");
@@ -630,7 +630,7 @@ surf_map_rgb (PyObject *self, PyObject *args)
     Uint8 rgba[4];
     int color;
 
-    if (!RGBAFromObj (args, rgba))
+    if (!RGBAFromColorObj (args, rgba))
         return RAISE (PyExc_TypeError, "Invalid RGBA argument");
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
@@ -869,7 +869,7 @@ surf_set_colorkey (PyObject *self, PyObject *args)
             color = (Uint32) PyInt_AsLong (intobj);
             Py_DECREF (intobj);
         }
-        else if (RGBAFromObj (rgba_obj, rgba))
+        else if (RGBAFromColorObj (rgba_obj, rgba))
             color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2],
                                  rgba[3]);
         else
@@ -1261,7 +1261,7 @@ surf_fill (PyObject *self, PyObject *args)
 
     if (PyInt_Check (rgba_obj))
         color = (Uint32) PyInt_AsLong (rgba_obj);
-    else if (RGBAFromObj (rgba_obj, rgba))
+    else if (RGBAFromColorObj (rgba_obj, rgba))
         color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
         return RAISE (PyExc_TypeError, "invalid color argument");
@@ -1944,6 +1944,7 @@ void initsurface(void)
 
     /* imported needed apis */
     import_pygame_base ();
+    import_pygame_color ();
     import_pygame_rect ();
     import_pygame_bufferproxy();
 

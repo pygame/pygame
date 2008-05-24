@@ -91,14 +91,15 @@ static PyObject* PyPixelArray_New (PyObject *surfobj);
 /* Incomplete forward declaration so we can use it in the methods included
  * below.
  */
-static PyTypeObject PyPixelArray_Type;
+staticforward PyTypeObject PyPixelArray_Type;
 #define PyPixelArray_Check(o) \
     ((o)->ob_type == (PyTypeObject *) &PyPixelArray_Type)
+
 #define SURFACE_EQUALS(x,y) \
     (((PyPixelArray *)x)->surface == ((PyPixelArray *)y)->surface)
 
 #include "pixelarray_methods.c"
-
+    
 /**
  * Methods, which are bound to the PyPixelArray type.
  */
@@ -1957,5 +1958,6 @@ void initpixelarray (void)
 
     /*imported needed apis*/
     import_pygame_base ();
+    import_pygame_color();
     import_pygame_surface ();
 }

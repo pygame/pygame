@@ -65,7 +65,7 @@ _get_color_from_object (PyObject *val, SDL_PixelFormat *format, Uint32 *color)
         *color = (Uint32) longval;
         return 1;
     }
-    else if (RGBAFromObj (val, rgba))
+    else if (RGBAFromColorObj (val, rgba))
     {
         *color = (Uint32) SDL_MapRGBA
             (format, rgba[0], rgba[1], rgba[2], rgba[3]);
