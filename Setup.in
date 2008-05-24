@@ -55,6 +55,7 @@ scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 
 base src/base.c $(SDL) $(DEBUG)
 cdrom src/cdrom.c $(SDL) $(DEBUG)
+color src/color.c $(SDL) $(DEBUG)
 constants src/constants.c $(SDL) $(DEBUG)
 display src/display.c $(SDL) $(DEBUG)
 event src/event.c $(SDL) $(DEBUG)

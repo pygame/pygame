@@ -1,0 +1,150 @@
+
+<html>
+<title>color - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
+<a href="color.html">Color</a>&nbsp;||&nbsp;
+<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
+<a href="display.html">Display</a>&nbsp;||&nbsp;
+<a href="draw.html">Draw</a>&nbsp;||&nbsp;
+<a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="image.html">Image</a>&nbsp;||&nbsp;
+<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
+<a href="key.html">Key</a>&nbsp;||&nbsp;
+<a href="mask.html">Mask</a>&nbsp;||&nbsp;
+<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
+<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
+<a href="movie.html">Movie</a>&nbsp;||&nbsp;
+<a href="music.html">Music</a>&nbsp;||&nbsp;
+<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
+<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
+<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
+<a href="rect.html">Rect</a>&nbsp;||&nbsp;
+<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
+<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
+<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
+<a href="surface.html">Surface</a>&nbsp;||&nbsp;
+<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="time.html">Time</a>&nbsp;||&nbsp;
+<a href="transform.html">Transform</a>
+</td></tr></table>
+<br>
+
+
+<a name="pygame.Color">
+<big><b>pygame.Color</big></b><br><ul>
+  <i>pygame object for color representations</i><br>
+  <tt>pygame.Color(name): Return Color</tt><br>
+  <tt>pygame.Color(r, g, b, a): Return Color</tt><br>
+  <tt>pygame.Color(rgbvalue): Return Color</tt><br>
+<ul><small><table>
+  <tr><td><a href="color.html#Color.r">Color.r</a> - <font size=-1>Gets or sets the red value of the Color.</font></td><td>Gets or sets the red value of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.g">Color.g</a> - <font size=-1>Gets or sets the green value of the Color.</font></td><td>Gets or sets the green value of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.b">Color.b</a> - <font size=-1>Gets or sets the blue value of the Color.</font></td><td>Gets or sets the blue value of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.a">Color.a</a> - <font size=-1>Gets or sets the alpha value of the Color.</font></td><td>Gets or sets the alpha value of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.hsva">Color.hsva</a> - <font size=-1>Gets or sets the normalized HSVA representation of the Color.</font></td><td>Gets or sets the normalized HSVA representation of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.hlsa">Color.hlsa</a> - <font size=-1>Gets or sets the normalized HLSA representation of the Color.</font></td><td>Gets or sets the normalized HLSA representation of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.yuv">Color.yuv</a> - <font size=-1>Gets or sets the normalized YUV representation of the Color.</font></td><td>Gets or sets the normalized YUV representation of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.normalize">Color.normalize</a> - <font size=-1>Returns the normalized RGBA values of the Color.</font></td><td>Returns the normalized RGBA values of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.correct_gamma">Color.correct_gamma</a> - <font size=-1>Applies a certain gamma value to the Color.</font></td><td>Applies a certain gamma value to the Color.</td></tr>
+</table></small></ul>
+<p>The Color class represents <tt>RGBA</tt> color values using a value range of 0-255. It allows basic arithmetic operations to create new colors, supports conversions to other color spaces such as <tt>HSV</tt> or <tt>YUV</tt>, and lets you adjust single color channels. </p>
+<p>New in pygame <tt>1.8.XX</tt>. </p>
+<!--COMMENTS:pygame.Color--> &nbsp;<br> 
+
+
+<a name="Color.r">
+<big><b>Color.r</big></b><br><ul>
+  <i>Gets or sets the red value of the Color.</i><br>
+  <tt>Color.r: Return int</tt><br>
+<p>The red value of the Color. </p>
+<!--COMMENTS:Color.r--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.g">
+<big><b>Color.g</big></b><br><ul>
+  <i>Gets or sets the green value of the Color.</i><br>
+  <tt>Color.g: Return int</tt><br>
+<p>The green value of the Color. </p>
+<!--COMMENTS:Color.g--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.b">
+<big><b>Color.b</big></b><br><ul>
+  <i>Gets or sets the blue value of the Color.</i><br>
+  <tt>Color.b: Return int</tt><br>
+<p>The blue value of the Color. </p>
+<!--COMMENTS:Color.b--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.a">
+<big><b>Color.a</big></b><br><ul>
+  <i>Gets or sets the alpha value of the Color.</i><br>
+  <tt>Color.a: Return int</tt><br>
+<p>The alpha value of the Color. </p>
+<!--COMMENTS:Color.a--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.hsva">
+<big><b>Color.hsva</big></b><br><ul>
+  <i>Gets or sets the normalized HSVA representation of the Color.</i><br>
+  <tt>Color.hsva: Return tuple</tt><br>
+<p>The normalized <tt>HSVA</tt> representation of the Color. Note that this will not return the absolutely exact <tt>HSV</tt> values for the set <tt>RGB</tt> values in all cases. Due to the <tt>RGB</tt> mapping from 0-255 and the <tt>HSV</tt> mapping from 0-1 rounding errors may cause the <tt>HSV</tt> values to differ slightly from what you might expect. </p>
+<!--COMMENTS:Color.hsva--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.hlsa">
+<big><b>Color.hlsa</big></b><br><ul>
+  <i>Gets or sets the normalized HLSA representation of the Color.</i><br>
+  <tt>Color.hlsa: Return tuple</tt><br>
+<p>The normalized <tt>HLSA</tt> representation of the Color. Note that this will not return the absolutely exact <tt>HLS</tt> values for the set <tt>RGB</tt> values in all cases. Due to the <tt>RGB</tt> mapping from 0-255 and the <tt>HLS</tt> mapping from 0-1 rounding errors may cause the <tt>HLS</tt> values to differ slightly from what you might expect. </p>
+<!--COMMENTS:Color.hlsa--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.yuv">
+<big><b>Color.yuv</big></b><br><ul>
+  <i>Gets or sets the normalized YUV representation of the Color.</i><br>
+  <tt>Color.yuv: Return tuple</tt><br>
+<p>The normalized <tt>YUV</tt> representation of the Color. Note that this will not return the absolutely exact <tt>YUV</tt> values for the set <tt>RGB</tt> values in all cases. Due to the <tt>RGB</tt> mapping from 0-255 and the <tt>YUV</tt> mapping from 0-1 rounding errors may cause the <tt>YUV</tt> values to differ slightly from what you might expect. </p>
+<!--COMMENTS:Color.yuv--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.normalize">
+<big><b>Color.normalize</big></b><br><ul>
+  <i>Returns the normalized RGBA values of the Color.</i><br>
+  <tt>Color.normalize(): Return tuple</tt><br>
+<p>Returns the normalized <tt>RGBA</tt> values of the Color as floating point values. </p>
+<!--COMMENTS:Color.normalize--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.correct_gamma">
+<big><b>Color.correct_gamma</big></b><br><ul>
+  <i>Applies a certain gamma value to the Color.</i><br>
+  <tt>Color.correct_gamma (gamma): Return Color</tt><br>
+<p>Applies a certain gamma value to the Color and returns a new Color with the adjusted <tt>RGBA</tt> values. </p>
+<!--COMMENTS:Color.correct_gamma--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+</body></html>
