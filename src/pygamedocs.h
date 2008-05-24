@@ -469,7 +469,7 @@
 
 #define DOC_OVERLAYGETHARDWARE "Overlay.get_hardware(rect): return int\ntest if the Overlay is hardware accelerated"
 
-#define DOC_PYGAMEPIXELARRAY "pygame.PixelArray(Surface): return PixelArray\npygame Object for direct pixel access of surfaces"
+#define DOC_PYGAMEPIXELARRAY "pygame.PixelArray(Surface): return PixelArray\npygame object for direct pixel access of surfaces"
 
 #define DOC_PIXELARRAYSURFACE "PixelArray.surface: Return Surface\nGets the Surface the PixelArray uses."
 
@@ -567,7 +567,7 @@
 
 #define DOC_SPRITEKILL "Sprite.kill(): return None\nremove the Sprite from all Groups"
 
-#define DOC_SPRITEALIVE "Sprite.alive(): return bool\ndoes the sprite belong to any groups"
+#define DOC_SPRITEALIVE "Sprite.alive(): return Boolean\ndoes the sprite belong to any groups"
 
 #define DOC_SPRITEGROUPS "Sprite.groups(): return group_list\nlist of Groups that contain this Sprite"
 
@@ -599,11 +599,23 @@
 
 #define DOC_PYGAMESPRITEGROUPSINGLE "pygame.sprite.GroupSingle(sprite=None): return GroupSingle\nGroup container that holds a single Sprite"
 
-#define DOC_PYGAMESPRITESPRITECOLLIDE "pygame.sprite.spritecollide(sprite, group, dokill): return Sprite_list\nfind Sprites in a Group that intersect another Sprite"
+#define DOC_PYGAMESPRITESPRITECOLLIDE "pygame.sprite.spritecollide(sprite, group, dokill, collided = None): return Sprite_list\nfind Sprites in a Group that intersect another Sprite"
+
+#define DOC_PYGAMESPRITECOLLIDERECT "pygame.sprite.collide_rect(left, right): return Boolean\ncollision detection between two sprites, using rects."
+
+#define DOC_PYGAMESPRITECOLLIDERECTRATIO "pygame.sprite.collide_rect_ratio(ratio): return collided_callable\ncollision detection between two sprites, using rects scaled to a ratio."
+
+#define DOC_PYGAMESPRITECOLLIDECIRCLE "pygame.sprite.collide_circle(left, right): return Boolean\ncollision detection between two sprites, using circles."
+
+#define DOC_PYGAMESPRITECOLLIDECIRCLERATIO "pygame.sprite.collide_circle_ratio(ratio): return collided_callable\ncollision detection between two sprites, using circles scaled to a ratio."
+
+#define DOC_PYGAMESPRITECOLLIDEMASK "pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return Boolean\ncollision detection between two sprites, using masks."
 
 #define DOC_PYGAMESPRITEGROUPCOLLIDE "pygame.sprite.groupcollide(group1, group2, dokill1, dokill2): return Sprite_dict\nfind all Sprites that collide between two Groups"
 
-#define DOC_PYGAMESPRITESPRITECOLLIDEANY "pygame.sprite.spritecollideany(sprite, group): return bool\nsimple test if a Sprite intersects anything in a Group"
+#define DOC_PYGAMESPRITESPRITECOLLIDEANY "pygame.sprite.spritecollideany(sprite, group): return Boolean\nsimple test if a Sprite intersects anything in a Group"
+
+#define DOC_ ""
 
 #define DOC_PYGAMESURFACE "pygame.Surface((width, height), flags=0, depth=0, masks=None): return Surface\npygame.Surface((width, height), flags=0, Surface): return Surface\npygame object for representing images"
 
@@ -651,7 +663,7 @@
 
 #define DOC_SURFACESETCLIP "Surface.set_clip(rect): return None\nSurface.set_clip(None): return None\nset the current clipping area of the Surface"
 
-#define DOC_SURFACEGETCLIP "Surface.get_clip(): return Rect\nget the current clipping are of the Surface"
+#define DOC_SURFACEGETCLIP "Surface.get_clip(): return Rect\nget the current clipping area of the Surface"
 
 #define DOC_SURFACESUBSURFACE "Surface.subsurface(Rect): return Surface\ncreate a new surface that references its parent"
 
