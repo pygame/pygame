@@ -1,0 +1,90 @@
+pygame.Color
+pygame object for color representations
+pygame.Color(name): Return Color
+pygame.Color(r, g, b, a): Return Color
+pygame.Color(rgbvalue): Return Color
+
+The Color class represents RGBA color values using a value range of
+0-255. It allows basic arithmetic operations to create new colors,
+supports conversions to other color spaces such as HSV or YUV, and lets
+you adjust single color channels.
+
+New in pygame 1.8.XX.
+<SECTION>
+
+r
+Gets or sets the red value of the Color.
+Color.r: Return int
+
+The red value of the Color.
+<END>
+
+g
+Gets or sets the green value of the Color.
+Color.g: Return int
+
+The green value of the Color.
+<END>
+
+b
+Gets or sets the blue value of the Color.
+Color.b: Return int
+
+The blue value of the Color.
+<END>
+
+a
+Gets or sets the alpha value of the Color.
+Color.a: Return int
+
+The alpha value of the Color.
+<END>
+
+hsva
+Gets or sets the normalized HSVA representation of the Color.
+Color.hsva: Return tuple
+
+The normalized HSVA representation of the Color.
+Note that this will not return the absolutely exact HSV values for the
+set RGB values in all cases. Due to the RGB mapping from 0-255 and the
+HSV mapping from 0-1 rounding errors may cause the HSV values to
+differ slightly from what you might expect.
+<END>
+
+hlsa
+Gets or sets the normalized HLSA representation of the Color.
+Color.hlsa: Return tuple
+
+The normalized HLSA representation of the Color.
+Note that this will not return the absolutely exact HLS values for the
+set RGB values in all cases. Due to the RGB mapping from 0-255 and the
+HLS mapping from 0-1 rounding errors may cause the HLS values to
+differ slightly from what you might expect.
+<END>
+
+yuv
+Gets or sets the normalized YUV representation of the Color.
+Color.yuv: Return tuple
+
+The normalized YUV representation of the Color.
+Note that this will not return the absolutely exact YUV values for the
+set RGB values in all cases. Due to the RGB mapping from 0-255 and the
+YUV mapping from 0-1 rounding errors may cause the YUV values to
+differ slightly from what you might expect.
+<END>
+
+normalize
+Returns the normalized RGBA values of the Color.
+Color.normalize(): Return tuple
+
+Returns the normalized RGBA values of the Color as floating point
+values.
+<END>
+
+correct_gamma
+Applies a certain gamma value to the Color.
+Color.correct_gamma (gamma): Return Color
+
+Applies a certain gamma value to the Color and returns a new Color with
+the adjusted RGBA values.
+<END>

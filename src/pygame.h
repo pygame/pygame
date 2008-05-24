@@ -563,9 +563,42 @@ typedef struct {
     }
 #endif /* PYGAMEAPI_PIXELARRAY_INTERNAL */
 
+/* Color */
+#define PYGAMEAPI_COLOR_FIRSTSLOT                                       \
+    (PYGAMEAPI_PIXELARRAY_FIRSTSLOT + PYGAMEAPI_PIXELARRAY_NUMSLOTS)
+#define PYGAMEAPI_COLOR_NUMSLOTS 3
+#ifndef PYGAMEAPI_COLOR_INTERNAL
+#define PyColor_Check(x)                                                \
+    ((x)->ob_type == (PyTypeObject*)                                    \
+        PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 0])
+#define PyColor_New                                                     \
+    (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
+#define RGBAFromColorObj                                                \
+    (*(int(*)(PyObject*, Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 2])
+#define import_pygame_color()                                           \
+    {                                                                   \
+	PyObject *_module = PyImport_ImportModule ("pygame.color");     \
+	if (_module != NULL)                                            \
+        {                                                               \
+            PyObject *_dict = PyModule_GetDict (_module);               \
+            PyObject *_c_api = PyDict_GetItemString                     \
+                (_dict, PYGAMEAPI_LOCAL_ENTRY);                         \
+            if (PyCObject_Check (_c_api))                               \
+            {                                                           \
+                int i;                                                  \
+                void** localptr = (void**) PyCObject_AsVoidPtr (_c_api); \
+                for (i = 0; i < PYGAMEAPI_COLOR_NUMSLOTS; ++i)          \
+                    PyGAME_C_API[i + PYGAMEAPI_COLOR_FIRSTSLOT] =       \
+                        localptr[i];                                    \
+            }                                                           \
+            Py_DECREF (_module);                                        \
+        }                                                               \
+    }
+#endif /* PYGAMEAPI_COLOR_INTERNAL */
+
 #ifndef NO_PYGAME_C_API
 #define PYGAMEAPI_TOTALSLOTS                                            \
-    (PYGAMEAPI_PIXELARRAY_FIRSTSLOT + PYGAMEAPI_PIXELARRAY_NUMSLOTS)
+    (PYGAMEAPI_COLOR_FIRSTSLOT + PYGAMEAPI_COLOR_NUMSLOTS)
 static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #endif
 

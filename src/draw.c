@@ -69,7 +69,7 @@ static PyObject* aaline(PyObject* self, PyObject* arg)
 	if(surf->format->BytesPerPixel !=3 && surf->format->BytesPerPixel != 4)
 		return RAISE(PyExc_ValueError, "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
-	if(RGBAFromObj(colorobj, rgba))
+	if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -136,7 +136,7 @@ static PyObject* line(PyObject* self, PyObject* arg)
 
 	if(PyInt_Check(colorobj))
 		color = (Uint32)PyInt_AsLong(colorobj);
-	else if(RGBAFromObj(colorobj, rgba))
+	else if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -208,7 +208,7 @@ static PyObject* aalines(PyObject* self, PyObject* arg)
 	if(surf->format->BytesPerPixel !=3 && surf->format->BytesPerPixel != 4)
 		return RAISE(PyExc_ValueError, "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
 
-	if(RGBAFromObj(colorobj, rgba))
+	if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -298,7 +298,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 
 	if(PyInt_Check(colorobj))
 		color = (Uint32)PyInt_AsLong(colorobj);
-	else if(RGBAFromObj(colorobj, rgba))
+	else if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -391,7 +391,7 @@ static PyObject* arc(PyObject* self, PyObject* arg)
 
 	if(PyInt_Check(colorobj))
 		color = (Uint32)PyInt_AsLong(colorobj);
-	else if(RGBAFromObj(colorobj, rgba))
+	else if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -445,7 +445,7 @@ static PyObject* ellipse(PyObject* self, PyObject* arg)
 
 	if(PyInt_Check(colorobj))
 		color = (Uint32)PyInt_AsLong(colorobj);
-	else if(RGBAFromObj(colorobj, rgba))
+	else if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -499,7 +499,7 @@ static PyObject* circle(PyObject* self, PyObject* arg)
 
 	if(PyInt_Check(colorobj))
 		color = (Uint32)PyInt_AsLong(colorobj);
-	else if(RGBAFromObj(colorobj, rgba))
+	else if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -563,7 +563,7 @@ static PyObject* polygon(PyObject* self, PyObject* arg)
 
 	if(PyInt_Check(colorobj))
 		color = (Uint32)PyInt_AsLong(colorobj);
-	else if(RGBAFromObj(colorobj, rgba))
+	else if(RGBAFromColorObj(colorobj, rgba))
 		color = SDL_MapRGBA(surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
 	else
 		return RAISE(PyExc_TypeError, "invalid color argument");
@@ -1578,6 +1578,7 @@ void initdraw(void)
 
 	/*imported needed apis*/
 	import_pygame_base();
+        import_pygame_color();
 	import_pygame_rect();
 	import_pygame_surface();
 }

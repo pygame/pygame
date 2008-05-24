@@ -257,14 +257,14 @@ font_render (PyObject* self, PyObject* args)
                            &bg_rgba_obj))
         return NULL;
 
-    if (!RGBAFromObj (fg_rgba_obj, rgba))
+    if (!RGBAFromColorObj (fg_rgba_obj, rgba))
         return RAISE (PyExc_TypeError, "Invalid foreground RGBA argument");
     foreg.r = rgba[0];
     foreg.g = rgba[1];
     foreg.b = rgba[2];
     if (bg_rgba_obj)
     {
-        if (!RGBAFromObj (bg_rgba_obj, rgba))
+        if (!RGBAFromColorObj (bg_rgba_obj, rgba))
             return RAISE (PyExc_TypeError, "Invalid background RGBA argument");
         backg.r = rgba[0];
         backg.g = rgba[1];
@@ -718,6 +718,7 @@ void initfont (void)
 
     /*imported needed apis*/
     import_pygame_base ();
+    import_pygame_color ();
     import_pygame_surface ();
     import_pygame_rwobject ();
 }

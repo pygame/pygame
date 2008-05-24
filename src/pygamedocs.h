@@ -71,6 +71,26 @@
 
 #define DOC_CDGETTRACKLENGTH "CD.get_track_length(track): return seconds\nlength of a cdrom track"
 
+#define DOC_PYGAMECOLOR "pygame.Color(name): Return Color\npygame.Color(r, g, b, a): Return Color\npygame.Color(rgbvalue): Return Color\npygame object for color representations"
+
+#define DOC_COLORR "Color.r: Return int\nGets or sets the red value of the Color."
+
+#define DOC_COLORG "Color.g: Return int\nGets or sets the green value of the Color."
+
+#define DOC_COLORB "Color.b: Return int\nGets or sets the blue value of the Color."
+
+#define DOC_COLORA "Color.a: Return int\nGets or sets the alpha value of the Color."
+
+#define DOC_COLORHSVA "Color.hsva: Return tuple\nGets or sets the normalized HSVA representation of the Color."
+
+#define DOC_COLORHLSA "Color.hlsa: Return tuple\nGets or sets the normalized HLSA representation of the Color."
+
+#define DOC_COLORYUV "Color.yuv: Return tuple\nGets or sets the normalized YUV representation of the Color."
+
+#define DOC_COLORNORMALIZE "Color.normalize(): Return tuple\nReturns the normalized RGBA values of the Color."
+
+#define DOC_COLORCORRECTGAMMA "Color.correct_gamma (gamma): Return Color\nApplies a certain gamma value to the Color."
+
 #define DOC_PYGAMECURSORS "pygame module for cursor resources"
 
 #define DOC_PYGAMECURSORSCOMPILE "pygame.cursor.compile(strings, black='X', white='.', xor='o'): return data, mask\ncreate binary cursor data from simple strings"

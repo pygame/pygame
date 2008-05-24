@@ -2276,7 +2276,7 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
 
     if (PyInt_Check (rgba_obj_color)) {
         color = (Uint32) PyInt_AsLong (rgba_obj_color);
-    } else if (RGBAFromObj (rgba_obj_color, rgba_color)) {
+    } else if (RGBAFromColorObj (rgba_obj_color, rgba_color)) {
         color = SDL_MapRGBA (surf->format, rgba_color[0], rgba_color[1], rgba_color[2], rgba_color[3]);
         /*printf("here I am! :%d:  %d, %d, %d, %d\n", color, rgba_color[0], rgba_color[1], rgba_color[2], rgba_color[3]);
         */
@@ -2291,7 +2291,7 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
 
         if (PyInt_Check (rgba_obj_threshold))
             color_threshold = (Uint32) PyInt_AsLong (rgba_obj_threshold);
-        else if (RGBAFromObj (rgba_obj_threshold, rgba_threshold))
+        else if (RGBAFromColorObj (rgba_obj_threshold, rgba_threshold))
             color_threshold = SDL_MapRGBA (surf->format, rgba_threshold[0], rgba_threshold[1], rgba_threshold[2], rgba_threshold[3]);
         else
             return RAISE (PyExc_TypeError, "invalid threshold argument");
@@ -2304,7 +2304,7 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
 
         if (PyInt_Check (rgba_obj_diff_color))
             color_diff_color = (Uint32) PyInt_AsLong (rgba_obj_diff_color);
-        else if (RGBAFromObj (rgba_obj_diff_color, rgba_diff_color))
+        else if (RGBAFromColorObj (rgba_obj_diff_color, rgba_diff_color))
             color_diff_color = SDL_MapRGBA (surf->format, rgba_diff_color[0], rgba_diff_color[1], rgba_diff_color[2], rgba_diff_color[3]);
         else
             return RAISE (PyExc_TypeError, "invalid diff_color argument");
@@ -3032,6 +3032,7 @@ void inittransform (void)
 
     /*imported needed apis*/
     import_pygame_base ();
+    import_pygame_color ();
     import_pygame_rect ();
     import_pygame_surface ();
 }
