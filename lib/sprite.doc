@@ -26,34 +26,35 @@ attribute assigned.
 
 The groups are designed for high efficiency in removing and adding Sprites
 to them. They also allow cheap testing to see if a Sprite already exists in
-a Group. A given Sprite can exist in any number of groups. A game could use some
-groups to control object rendering, and a completely separate set of groups
-to control interaction or player movement. Instead of adding type attributes
-or booleans to a derived Sprite class, consider keeping the Sprites inside
-organized Groups. This will allow for easier lookup later in the game.
+a Group. A given Sprite can exist in any number of groups. A game could use 
+some groups to control object rendering, and a completely separate set of 
+groups to control interaction or player movement. Instead of adding type 
+attributes or booleans to a derived Sprite class, consider keeping the 
+Sprites inside organized Groups. This will allow for easier lookup later 
+in the game.
 
 Sprites and Groups manage their relationships with the add() and remove()
-methods. These methods can accept a single or multiple targets for membership.
-The default initializers for these classes also takes a single or list of
-targets for initial membership. It is safe to repeatedly add and remove
-the same Sprite from a Group.
+methods. These methods can accept a single or multiple targets for 
+membership.  The default initializers for these classes also takes a 
+single or list of targets for initial membership. It is safe to repeatedly 
+add and remove the same Sprite from a Group.
 
-While it is possible to design sprite and group classes that don't derive from
-the Sprite and AbstractGroup classes below, it is strongly recommended that
-you extend those when you add a Sprite or Group class.
+While it is possible to design sprite and group classes that don't derive 
+from the Sprite and AbstractGroup classes below, it is strongly recommended 
+that you extend those when you add a Sprite or Group class.
 
 Sprites are not thread safe.  So lock them yourself if using threads.
 <SECTION>
-
 
 
 Sprite
 simple base class for visible game objects
 pygame.sprite.Sprite(*groups): return Sprite
 
-The base class for visible game objects. Derived classes will want to override
-the Sprite.update() and assign a Sprite.image and Sprite.rect attributes.
-The initializer can accept any number of Group instances to be added to.
+The base class for visible game objects. Derived classes will want to 
+override the Sprite.update() and assign a Sprite.image and 
+Sprite.rect attributes.  The initializer can accept any number of 
+Group instances to be added to.
 
 When subclassing the Sprite, be sure to call the base initializer before
 adding the Sprite to Groups.
@@ -68,8 +69,8 @@ The default implementation of this method does nothing; it's just a
 convenient "hook" that you can override. This method is called by
 Group.update() with whatever arguments you give it.
 
-There is no need to use this method if not using the convenience method
-by the same name in the Group class.
+There is no need to use this method if not using the convenience 
+method by the same name in the Group class.
 <END>
 
 
@@ -108,7 +109,7 @@ to Groups.
 
 alive
 does the sprite belong to any groups
-Sprite.alive(): return bool
+Sprite.alive(): return Boolean
 
 Returns True when the Sprite belongs to one or more Groups.
 <END>
@@ -135,7 +136,7 @@ following standard Python operations:
 
     in      test if a Sprite is contained
     len     the number of Sprites contained
-    bool    test if any Sprites are contained
+    boolean test if any Sprites are contained
     iter    iterate through all the Sprites
 
 The Sprites in the Group are not ordered, so drawing and iterating the Sprites
@@ -314,7 +315,7 @@ also be assigned to add a Sprite into the GroupSingle container.
 
 spritecollide
 find Sprites in a Group that intersect another Sprite
-pygame.sprite.spritecollide(sprite, group, dokill): return Sprite_list
+pygame.sprite.spritecollide(sprite, group, dokill, collided = None): return Sprite_list
 
 Return a list containing all Sprites in a Group that intersect with another
 Sprite. Intersection is determined by comparing the Sprite.rect attribute
@@ -322,7 +323,106 @@ of each Sprite.
 
 The dokill argument is a boolean. If set to True, all Sprites that collide
 will be removed from the Group.
+
+The collided argument is a callback function used to calculate if two sprites 
+are colliding. it should take two sprites as values, and return a boolean 
+value indicating if they are colliding. If collided is not passed, all sprites 
+must have a "rect" value, which is a rectangle of the sprite area, which will 
+be used to calculate the collision. 
+
+collided callables: 
+    collide_rect, collide_rect_ratio, collide_circle, 
+    collide_circle_ratio, collide_mask 
 <END>
+
+
+
+collide_rect
+collision detection between two sprites, using rects.
+pygame.sprite.collide_rect(left, right): return Boolean
+
+Tests for collision between two sprites. Uses the
+pygame rect colliderect function to calculate the
+collision. Intended to be passed as a collided
+callback function to the *collide functions.
+Sprites must have a "rect" attributes.
+<END>
+
+
+
+collide_rect_ratio
+collision detection between two sprites, using rects scaled to a ratio.
+pygame.sprite.collide_rect_ratio(ratio): return collided_callable
+
+A callable class that checks for collisions between two sprites, 
+using a scaled version of the sprites rects.
+
+Is created with a ratio, the instance is then intended to be passed 
+as a collided callback function to the *collide functions.
+
+A ratio is a floating point number - 1.0 is the same size, 2.0 is twice as
+big, and 0.5 is half the size.
+<END>
+
+
+
+collide_circle
+collision detection between two sprites, using circles.
+pygame.sprite.collide_circle(left, right): return Boolean
+
+Tests for collision between two sprites, by testing to
+see if two circles centered on the sprites overlap. If
+the sprites have a "radius" attribute, that is used to
+create the circle, otherwise a circle is created that
+is big enough to completely enclose the sprites rect as
+given by the "rect" attribute. Intended to be passed as
+a collided callback function to the *collide functions.
+Sprites must have a "rect" and an optional "radius"
+attribute.
+<END>
+
+
+
+collide_circle_ratio
+collision detection between two sprites, using circles scaled to a ratio.
+pygame.sprite.collide_circle_ratio(ratio): return collided_callable
+
+A callable class that checks for collisions between two sprites, 
+using a scaled version of the sprites radius.
+
+Is created with a floating point ratio, the instance is then intended 
+to be passed as a collided callback function to the *collide functions.
+
+A ratio is a floating point number - 1.0 is the same size, 2.0 is twice as
+big, and 0.5 is half the size.
+
+The created callable tests for collision between two sprites, by testing to
+see if two circles centered on the sprites overlap, after
+scaling the circles radius by the stored ratio. If
+the sprites have a "radius" attribute, that is used to
+create the circle, otherwise a circle is created that
+is big enough to completely enclose the sprites rect as
+given by the "rect" attribute. Intended to be passed as
+a collided callback function to the *collide functions.
+Sprites must have a "rect" and an optional "radius"
+attribute.
+<END>
+
+
+
+collide_mask
+collision detection between two sprites, using masks.
+pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return Boolean
+
+Tests for collision between two sprites, by testing if
+thier bitmasks overlap. If the sprites have a "mask"
+attribute, that is used as the mask, otherwise a mask is
+created from the sprite image. Intended to be passed as
+a collided callback function to the *collide functions.
+Sprites must have a "rect" and an optional "mask"
+attribute.
+<END>
+
 
 
 groupcollide
@@ -344,7 +444,7 @@ from their respective Group.
 
 spritecollideany
 simple test if a Sprite intersects anything in a Group
-pygame.sprite.spritecollideany(sprite, group): return bool
+pygame.sprite.spritecollideany(sprite, group): return Boolean
 
 Test if the given Sprite intersects with any Sprites in a Group. Intersection
 is determined by comparing of the Sprite.rect attribute of each Sprite.
@@ -352,4 +452,10 @@ is determined by comparing of the Sprite.rect attribute of each Sprite.
 This collision test can be faster than pygame.sprite.spritecollide() since
 it has less work to do.
 <END>
+
+
+
+
+
+
 <END>

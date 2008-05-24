@@ -53,8 +53,14 @@
   <tr><td><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a> - <font size=-1>RenderUpdates class that draws Sprites in order of addition</font></td><td>RenderUpdates class that draws Sprites in order of addition</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a> - <font size=-1>Group container that holds a single Sprite</font></td><td>Group container that holds a single Sprite</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></td><td>find Sprites in a Group that intersect another Sprite</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.collide_rect">pygame.sprite.collide_rect</a> - <font size=-1>collision detection between two sprites, using rects.</font></td><td>collision detection between two sprites, using rects.</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.collide_rect_ratio">pygame.sprite.collide_rect_ratio</a> - <font size=-1>collision detection between two sprites, using rects scaled to a ratio.</font></td><td>collision detection between two sprites, using rects scaled to a ratio.</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.collide_circle">pygame.sprite.collide_circle</a> - <font size=-1>collision detection between two sprites, using circles.</font></td><td>collision detection between two sprites, using circles.</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.collide_circle_ratio">pygame.sprite.collide_circle_ratio</a> - <font size=-1>collision detection between two sprites, using circles scaled to a ratio.</font></td><td>collision detection between two sprites, using circles scaled to a ratio.</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.collide_mask">pygame.sprite.collide_mask</a> - <font size=-1>collision detection between two sprites, using masks.</font></td><td>collision detection between two sprites, using masks.</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a> - <font size=-1>find all Sprites that collide between two Groups</font></td><td>find all Sprites that collide between two Groups</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.spritecollideany">pygame.sprite.spritecollideany</a> - <font size=-1>simple test if a Sprite intersects anything in a Group</font></td><td>simple test if a Sprite intersects anything in a Group</td></tr>
+  <tr><td>None</td><td></td></tr>
 </table></small></ul>
 <p>This module contains several simple classes to be used within games. There is the main Sprite class and several Group classes that contain Sprites. The use of these classes is entirely optional when using Pygame. The classes are fairly lightweight and only provide a starting place for the code that is common to most games. </p>
 <p>The Sprite class is intended to be used as a base class for the different types of objects in the game. There is also a base Group class that simply stores sprites. <tt>A</tt> game could create new types of Group classes that operate on specially customized Sprite instances they contain. </p>
@@ -124,7 +130,7 @@
 <a name="Sprite.alive">
 <big><b>Sprite.alive</big></b><br><ul>
   <i>does the sprite belong to any groups</i><br>
-  <tt>Sprite.alive(): return bool</tt><br>
+  <tt>Sprite.alive(): return Boolean</tt><br>
 <p>Returns True when the Sprite belongs to one or more Groups. </p>
 <!--COMMENTS:Sprite.alive--> &nbsp;<br> 
 <br></ul>
@@ -158,7 +164,7 @@
 <p><tt>A</tt> simple container for Sprite objects. This class can be inherited to create containers with more specific behaviors. The constructor takes any number of Sprite arguments to add to the Group. The group supports the following standard Python operations: </p>
 <pre>    in      test if a Sprite is contained
     len     the number of Sprites contained
-    bool    test if any Sprites are contained
+    boolean test if any Sprites are contained
     iter    iterate through all the Sprites
 </pre><p>The Sprites in the Group are not ordered, so drawing and iterating the Sprites is in no particular order. </p>
 <!--COMMENTS:pygame.sprite.Group--> &nbsp;<br> 
@@ -301,10 +307,65 @@
 <a name="pygame.sprite.spritecollide">
 <big><b>pygame.sprite.spritecollide</big></b><br><ul>
   <i>find Sprites in a Group that intersect another Sprite</i><br>
-  <tt>pygame.sprite.spritecollide(sprite, group, dokill): return Sprite_list</tt><br>
+  <tt>pygame.sprite.spritecollide(sprite, group, dokill, collided = None): return Sprite_list</tt><br>
 <p>Return a list containing all Sprites in a Group that intersect with another Sprite. Intersection is determined by comparing the <tt>Sprite.rect</tt> attribute of each Sprite. </p>
 <p>The dokill argument is a boolean. If set to True, all Sprites that collide will be removed from the Group. </p>
+<p>The collided argument is a callback function used to calculate if two sprites are colliding. it should take two sprites as values, and return a boolean value indicating if they are colliding. If collided is not passed, all sprites must have a "rect" value, which is a rectangle of the sprite area, which will be used to calculate the collision. </p>
+<p>collided callables: </p>
+<pre>    collide_rect, collide_rect_ratio, collide_circle,
+    collide_circle_ratio, collide_mask
+</pre>
 <!--COMMENTS:pygame.sprite.spritecollide--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sprite.collide_rect">
+<big><b>pygame.sprite.collide_rect</big></b><br><ul>
+  <i>collision detection between two sprites, using rects.</i><br>
+  <tt>pygame.sprite.collide_rect(left, right): return Boolean</tt><br>
+<p>Tests for collision between two sprites. Uses the pygame rect colliderect function to calculate the collision. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" attributes. </p>
+<!--COMMENTS:pygame.sprite.collide_rect--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sprite.collide_rect_ratio">
+<big><b>pygame.sprite.collide_rect_ratio</big></b><br><ul>
+  <i>collision detection between two sprites, using rects scaled to a ratio.</i><br>
+  <tt>pygame.sprite.collide_rect_ratio(ratio): return collided_callable</tt><br>
+<p><tt>A</tt> callable class that checks for collisions between two sprites, using a scaled version of the sprites rects. </p>
+<p>Is created with a ratio, the instance is then intended to be passed as a collided callback function to the *collide functions. </p>
+<p><tt>A</tt> ratio is a floating point number - <tt>1.0</tt> is the same size, <tt>2.0</tt> is twice as big, and <tt>0.5</tt> is half the size. </p>
+<!--COMMENTS:pygame.sprite.collide_rect_ratio--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sprite.collide_circle">
+<big><b>pygame.sprite.collide_circle</big></b><br><ul>
+  <i>collision detection between two sprites, using circles.</i><br>
+  <tt>pygame.sprite.collide_circle(left, right): return Boolean</tt><br>
+<p>Tests for collision between two sprites, by testing to see if two circles centered on the sprites overlap. If the sprites have a "radius" attribute, that is used to create the circle, otherwise a circle is created that is big enough to completely enclose the sprites rect as given by the "rect" attribute. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" and an optional "radius" attribute. </p>
+<!--COMMENTS:pygame.sprite.collide_circle--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sprite.collide_circle_ratio">
+<big><b>pygame.sprite.collide_circle_ratio</big></b><br><ul>
+  <i>collision detection between two sprites, using circles scaled to a ratio.</i><br>
+  <tt>pygame.sprite.collide_circle_ratio(ratio): return collided_callable</tt><br>
+<p><tt>A</tt> callable class that checks for collisions between two sprites, using a scaled version of the sprites radius. </p>
+<p>Is created with a floating point ratio, the instance is then intended to be passed as a collided callback function to the *collide functions. </p>
+<p><tt>A</tt> ratio is a floating point number - <tt>1.0</tt> is the same size, <tt>2.0</tt> is twice as big, and <tt>0.5</tt> is half the size. </p>
+<p>The created callable tests for collision between two sprites, by testing to see if two circles centered on the sprites overlap, after scaling the circles radius by the stored ratio. If the sprites have a "radius" attribute, that is used to create the circle, otherwise a circle is created that is big enough to completely enclose the sprites rect as given by the "rect" attribute. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" and an optional "radius" attribute. </p>
+<!--COMMENTS:pygame.sprite.collide_circle_ratio--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sprite.collide_mask">
+<big><b>pygame.sprite.collide_mask</big></b><br><ul>
+  <i>collision detection between two sprites, using masks.</i><br>
+  <tt>pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return Boolean</tt><br>
+<p>Tests for collision between two sprites, by testing if thier bitmasks overlap. If the sprites have a "mask" attribute, that is used as the mask, otherwise a mask is created from the sprite image. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" and an optional "mask" attribute. </p>
+<!--COMMENTS:pygame.sprite.collide_mask--> &nbsp;<br> 
 <br></ul>
 
 
@@ -322,10 +383,17 @@
 <a name="pygame.sprite.spritecollideany">
 <big><b>pygame.sprite.spritecollideany</big></b><br><ul>
   <i>simple test if a Sprite intersects anything in a Group</i><br>
-  <tt>pygame.sprite.spritecollideany(sprite, group): return bool</tt><br>
+  <tt>pygame.sprite.spritecollideany(sprite, group): return Boolean</tt><br>
 <p>Test if the given Sprite intersects with any Sprites in a Group. Intersection is determined by comparing of the <tt>Sprite.rect</tt> attribute of each Sprite. </p>
 <p>This collision test can be faster than <tt><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></tt> since it has less work to do. </p>
 <!--COMMENTS:pygame.sprite.spritecollideany--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="">
+<big><b></big></b><br><ul>
+ &nbsp;<br> 
+<!--COMMENTS:--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
