@@ -299,7 +299,8 @@ static struct PyMethodDef clock_methods[] =
     { "get_time", (PyCFunction) clock_get_time, METH_NOARGS, DOC_CLOCKGETTIME },
     { "get_rawtime", (PyCFunction) clock_get_rawtime, METH_NOARGS,
       DOC_CLOCKGETRAWTIME },
-    { "tick_busy_loop", clock_tick_busy_loop, METH_VARARGS, DOC_CLOCKTICK },
+    { "tick_busy_loop", clock_tick_busy_loop, METH_VARARGS,
+      DOC_CLOCKTICKBOSYLOOP },
     { NULL, NULL, 0, NULL}
 };
 

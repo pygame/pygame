@@ -58,7 +58,6 @@
   <tr><td><a href="rect.html#Rect.clamp">Rect.clamp</a> - <font size=-1>moves the rectangle inside another</font></td><td>moves the rectangle inside another</td></tr>
   <tr><td><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a> - <font size=-1>moves the rectangle inside another, in place</font></td><td>moves the rectangle inside another, in place</td></tr>
   <tr><td><a href="rect.html#Rect.clip">Rect.clip</a> - <font size=-1>crops a rectangle inside another</font></td><td>crops a rectangle inside another</td></tr>
-  <tr><td><a href="rect.html#Rect.clip_ip">Rect.clip_ip</a> - <font size=-1>crops a rectangle inside another, in place</font></td><td>crops a rectangle inside another, in place</td></tr>
   <tr><td><a href="rect.html#Rect.union">Rect.union</a> - <font size=-1>joins two rectangles into one</font></td><td>joins two rectangles into one</td></tr>
   <tr><td><a href="rect.html#Rect.union_ip">Rect.union_ip</a> - <font size=-1>joins two rectangles into one, in place</font></td><td>joins two rectangles into one, in place</td></tr>
   <tr><td><a href="rect.html#Rect.unionall">Rect.unionall</a> - <font size=-1>the union of many rectangles</font></td><td>the union of many rectangles</td></tr>
@@ -154,15 +153,6 @@
   <tt>Rect.clip(Rect): return Rect</tt><br>
 <p>Returns a new rectangle that is cropped to be completely inside the argument Rect. If the two rectangles do not overlap to begin with, a Rect with 0 size is returned. </p>
 <!--COMMENTS:Rect.clip--> &nbsp;<br> 
-<br></ul>
-
-
-<a name="Rect.clip_ip">
-<big><b>Rect.clip_ip</big></b><br><ul>
-  <i>crops a rectangle inside another, in place</i><br>
-  <tt>Rect.clip_ip(Rect): return None</tt><br>
-<p>Same as the <tt><a href="rect.html#Rect.clip">Rect.clip</a> - <font size=-1>crops a rectangle inside another</font></tt> method, but operates in place. </p>
-<!--COMMENTS:Rect.clip_ip--> &nbsp;<br> 
 <br></ul>
 
 

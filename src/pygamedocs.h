@@ -59,7 +59,7 @@
 
 #define DOC_CDGETCURRENT "CD.get_current(): return track, seconds\nthe current audio playback position"
 
-#define DOC_CDGETEMPTY "CD.get_empty(): return True\nFalse if a cdrom is in the drive"
+#define DOC_CDGETEMPTY "CD.get_empty(): return bool\nFalse if a cdrom is in the drive"
 
 #define DOC_CDGETNUMTRACKS "CD.get_numtracks(): return count\nthe number of tracks on the cdrom"
 
@@ -516,8 +516,6 @@
 #define DOC_RECTCLAMPIP "Rect.clamp_ip(Rect): return None\nmoves the rectangle inside another, in place"
 
 #define DOC_RECTCLIP "Rect.clip(Rect): return Rect\ncrops a rectangle inside another"
-
-#define DOC_RECTCLIPIP "Rect.clip_ip(Rect): return None\ncrops a rectangle inside another, in place"
 
 #define DOC_RECTUNION "Rect.union(Rect): return Rect\njoins two rectangles into one"
 

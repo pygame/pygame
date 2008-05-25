@@ -127,7 +127,7 @@
 <p>The flags argument controls which type of display you want. There are several to choose from, and you can even combine multiple types using the bitwise or operator, (the pipe "|" character). If you pass 0 or no flags argument it will default to a software driven window. Here are the display flags you will want to choose from: </p>
 <pre>   pygame.FULLSCREEN    create a fullscreen display
    pygame.DOUBLEBUF     recommended for HWSURFACE or OPENGL
-   pygame.HWSURFACE     hardware accelereated, only in FULLSCREEN
+   pygame.HWSURFACE     hardware accelerated, only in FULLSCREEN
    pygame.OPENGL        create an opengl renderable display
    pygame.RESIZABLE     display window should be sizeable
    pygame.NOFRAME       display window will have no border or controls
@@ -239,7 +239,7 @@
 <big><b>pygame.display.gl_get_attribute</big></b><br><ul>
   <i>get the value for an opengl flag for the current display</i><br>
   <tt>pygame.display.gl_get_attribute(flag): return value</tt><br>
-<p>After calling <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> with the <tt>pygame.OPENGL</tt> flag, it is a good idea to check the value of any requested OpenGL attributes. See <tt>pygame.display.get_set_attribute()</tt> for a list of valid flags. </p>
+<p>After calling <tt><a href="display.html#pygame.display.set_mode">pygame.display.set_mode</a> - <font size=-1>initialize a window or screen for display</font></tt> with the <tt>pygame.OPENGL</tt> flag, it is a good idea to check the value of any requested OpenGL attributes. See <tt><a href="display.html#pygame.display.gl_set_attribute">pygame.display.gl_set_attribute</a> - <font size=-1>request an opengl display attribute for the display mode</font></tt> for a list of valid flags. </p>
 <!--COMMENTS:pygame.display.gl_get_attribute--> &nbsp;<br> 
 <br></ul>
 
