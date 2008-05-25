@@ -136,7 +136,7 @@ Surface.convert_alpha(): return Surface
 Creates a new copy of the surface with the desired pixel format. The new
 surface will be in a format suited for quick blitting to the given format
 with per pixel alpha. If no surface is given, the new surface will be
-optimized for blittint to the current display.
+optimized for blitting to the current display.
  
 Unlike the Surface.convert() method, the pixel format for the new image will not
 be exactly the same as the requested source, but it will be optimized for
