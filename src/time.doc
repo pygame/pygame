@@ -102,6 +102,8 @@ per frame, the program will never run at more than 40 frames per second.
 
 Note that this function uses pygame.time.delay, which uses lots of cpu
 in a busy loop to make sure that timing is more acurate.
+
+New in pygame 1.8.0.
 <END>
 
 

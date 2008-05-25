@@ -6,6 +6,9 @@
 #
 #
 
+May 24, 2008
+    New Color class for color management.
+
 Apr 30, 2008
     updates to the sprite.py collision functions that update them to match 
         the modules coding style, include appropriate comments, and are 

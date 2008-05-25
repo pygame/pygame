@@ -124,16 +124,6 @@ Rect with 0 size is returned.
 <END>
 
 
-
-clip_ip
-crops a rectangle inside another, in place
-Rect.clip_ip(Rect): return None
-
-Same as the Rect.clip() method, but operates in place.
-<END>
-
-
-
 union
 joins two rectangles into one
 Rect.union(Rect): return Rect

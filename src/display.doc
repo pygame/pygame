@@ -124,7 +124,7 @@ choose from:
 
    pygame.FULLSCREEN    create a fullscreen display
    pygame.DOUBLEBUF     recommended for HWSURFACE or OPENGL
-   pygame.HWSURFACE     hardware accelereated, only in FULLSCREEN
+   pygame.HWSURFACE     hardware accelerated, only in FULLSCREEN
    pygame.OPENGL        create an opengl renderable display
    pygame.RESIZABLE     display window should be sizeable
    pygame.NOFRAME       display window will have no border or controls
@@ -280,7 +280,7 @@ pygame.display.gl_get_attribute(flag): return value
 
 After calling pygame.display.set_mode() with the pygame.OPENGL flag, it is
 a good idea to check the value of any requested OpenGL attributes. See
-pygame.display.get_set_attribute() for a list of valid flags.
+pygame.display.gl_set_attribute() for a list of valid flags.
 <END>
 
 
