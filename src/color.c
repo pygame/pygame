@@ -409,14 +409,15 @@ _color_correct_gamma (PyColor *color, PyObject *args)
     frgba[2] = pow (color->b / 255.0, _gamma);
     frgba[3] = pow (color->a / 255.0, _gamma);
 
+    // visual studio doesn't have a round func, so doing it with +.5 and truncaction
     rgba[0] = (frgba[0] > 1.0) ? 255 : ((frgba[0] < 0.0) ? 0 :
-        (Uint8) round (frgba[0] * 255));
+        (Uint8) (frgba[0] * 255 + .5));
     rgba[1] = (frgba[1] > 1.0) ? 255 : ((frgba[1] < 0.0) ? 0 :
-        (Uint8) round (frgba[1] * 255));
+        (Uint8) (frgba[1] * 255 + .5));
     rgba[2] = (frgba[2] > 1.0) ? 255 : ((frgba[2] < 0.0) ? 0 :
-        (Uint8) round (frgba[2] * 255));
+        (Uint8) (frgba[2] * 255 + .5));
     rgba[3] = (frgba[3] > 1.0) ? 255 : ((frgba[3] < 0.0) ? 0 :
-        (Uint8) round (frgba[3] * 255));
+        (Uint8) (frgba[3] * 255 + .5));
     return (PyObject *) _color_new_internal (&PyColor_Type, rgba);
 }
 
