@@ -5,6 +5,23 @@ import unittest
 import pygame
 from pygame import sprite
 
+
+def unordered_equality(iter1, iter2):
+    """ 
+    Tests to see if the contents of one iterable are all contained in the other
+    and they are of the same length.
+    """
+    
+    if len(iter1) != len(iter2):
+        return False
+    
+    for val in iter1:
+        if val not in iter2:
+            return False
+        
+    return True
+    
+    
 class SpriteTest( unittest.TestCase ):
     def testAbstractGroup_has( self ):
         """ See if abstractGroup has works as expected.
@@ -65,9 +82,10 @@ class SpriteTest( unittest.TestCase ):
         self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_rect_ratio(1.0)),[s2])
         
         # collide_rect_ratio should collide all at a 20.0 ratio.
-        a = sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_rect_ratio(20.0))
-        b = [s2,s3]
-        self.assertEqual(a,b)
+        self.assertTrue ( unordered_equality (
+            sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_rect_ratio(20.0)),
+            [s2,s3]
+        ))
         
         # collide_circle with no radius set.
         self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle),[s2])
@@ -76,16 +94,29 @@ class SpriteTest( unittest.TestCase ):
         self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle_ratio(1.0)),[s2])
 
         # collide_circle_ratio with no radius set, at a 20.0 ratio.
-        self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle_ratio(20.0)),[s2,s3])
+        self.assertTrue ( unordered_equality (
+            sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle_ratio(20.0)),
+            [s2,s3]
+        ))
 
+        
         # collide_circle with a radius set.
         s1.radius = 50
         s2.radius = 10
         s3.radius = 400
-        self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle),[s2,s3])
+        self.assertTrue ( unordered_equality (
+            sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle),
+            [s2,s3]
+        ))
 
+        
+        
         # collide_circle_ratio with a radius set.
-        self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle_ratio(0.5)),[s2,s3])
+        self.assertTrue ( unordered_equality (
+            sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle_ratio(0.5)),
+            [s2,s3]
+        ))
+                
         del s1.radius
         del s2.radius
         del s3.radius
