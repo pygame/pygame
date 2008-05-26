@@ -29,7 +29,7 @@ to them. They also allow cheap testing to see if a Sprite already exists in
 a Group. A given Sprite can exist in any number of groups. A game could use 
 some groups to control object rendering, and a completely separate set of 
 groups to control interaction or player movement. Instead of adding type 
-attributes or booleans to a derived Sprite class, consider keeping the 
+attributes or bools to a derived Sprite class, consider keeping the 
 Sprites inside organized Groups. This will allow for easier lookup later 
 in the game.
 
@@ -109,7 +109,7 @@ to Groups.
 
 alive
 does the sprite belong to any groups
-Sprite.alive(): return Boolean
+Sprite.alive(): return bool
 
 Returns True when the Sprite belongs to one or more Groups.
 <END>
@@ -170,7 +170,7 @@ following standard Python operations:
 
     in      test if a Sprite is contained
     len     the number of Sprites contained
-    boolean test if any Sprites are contained
+    bool test if any Sprites are contained
     iter    iterate through all the Sprites
 
 The Sprites in the Group are not ordered, so drawing and iterating the 
@@ -418,6 +418,75 @@ LayeredUpdates.change_layer(sprite, new_layer): return None
 
 sprite must have been added to the renderer. It is not checked.
 <END>
+
+
+
+get_layer_of_sprite
+returns the layer that sprite is currently in. 
+LayeredUpdates.get_layer_of_sprite(sprite): return layer
+
+If the sprite is not found then it will return the default layer.
+<END>
+
+
+
+get_top_layer
+returns the top layer
+LayeredUpdates.get_top_layer(): return layer
+<END>
+
+
+
+get_bottom_layer
+returns the bottom layer
+LayeredUpdates.get_bottom_layer(): return layer
+<END>
+
+
+
+move_to_front
+brings the sprite to front layer
+LayeredUpdates.move_to_front(sprite): return None
+
+Brings the sprite to front, changing sprite layer to topmost layer
+(added at the end of that layer).
+<END>
+
+
+
+move_to_back
+moves the sprite to the bottom layer
+LayeredUpdates.move_to_back(sprite): return None
+
+Moves the sprite to the bottom layer, moving it behind
+all other layers and adding one additional layer.
+<END>
+
+
+
+get_top_sprite
+returns the topmost sprite
+LayeredUpdates.get_top_sprite(): return Sprite
+<END>
+
+
+
+get_sprites_from_layer
+returns all sprites from a layer, ordered by how they where added
+LayeredUpdates.get_sprites_from_layer(layer): return sprites
+
+Returns all sprites from a layer, ordered by how they where added.
+It uses linear search and the sprites are not removed from layer.
+<END>
+
+
+ 
+switch_layer
+switches the sprites from layer1 to layer2
+LayeredUpdates.switch_layer(layer1_nr, layer2_nr): return None
+
+The layers number must exist, it is not checked.
+<END>
 <END>
 
 
@@ -444,11 +513,11 @@ Return a list containing all Sprites in a Group that intersect with another
 Sprite. Intersection is determined by comparing the Sprite.rect attribute
 of each Sprite.
 
-The dokill argument is a boolean. If set to True, all Sprites that collide
+The dokill argument is a bool. If set to True, all Sprites that collide
 will be removed from the Group.
 
 The collided argument is a callback function used to calculate if two sprites 
-are colliding. it should take two sprites as values, and return a boolean 
+are colliding. it should take two sprites as values, and return a bool 
 value indicating if they are colliding. If collided is not passed, all sprites 
 must have a "rect" value, which is a rectangle of the sprite area, which will 
 be used to calculate the collision. 
@@ -462,7 +531,7 @@ collided callables:
 
 collide_rect
 collision detection between two sprites, using rects.
-pygame.sprite.collide_rect(left, right): return Boolean
+pygame.sprite.collide_rect(left, right): return bool
 
 Tests for collision between two sprites. Uses the
 pygame rect colliderect function to calculate the
@@ -491,7 +560,7 @@ big, and 0.5 is half the size.
 
 collide_circle
 collision detection between two sprites, using circles.
-pygame.sprite.collide_circle(left, right): return Boolean
+pygame.sprite.collide_circle(left, right): return bool
 
 Tests for collision between two sprites, by testing to
 see if two circles centered on the sprites overlap. If
@@ -535,7 +604,7 @@ attribute.
 
 collide_mask
 collision detection between two sprites, using masks.
-pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return Boolean
+pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return bool
 
 Tests for collision between two sprites, by testing if
 thier bitmasks overlap. If the sprites have a "mask"
@@ -567,7 +636,7 @@ from their respective Group.
 
 spritecollideany
 simple test if a Sprite intersects anything in a Group
-pygame.sprite.spritecollideany(sprite, group): return Boolean
+pygame.sprite.spritecollideany(sprite, group): return bool
 
 Test if the given Sprite intersects with any Sprites in a Group. Intersection
 is determined by comparing of the Sprite.rect attribute of each Sprite.

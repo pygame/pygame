@@ -48,7 +48,7 @@ to them. They also allow cheap testing to see if a Sprite already exists in
 a Group. A given Sprite can exist in any number of groups. A game could use 
 some groups to control object rendering, and a completely separate set of 
 groups to control interaction or player movement. Instead of adding type 
-attributes or booleans to a derived Sprite class, consider keeping the 
+attributes or bools to a derived Sprite class, consider keeping the 
 Sprites inside organized Groups. This will allow for easier lookup later 
 in the game.
 
@@ -185,7 +185,7 @@ class Sprite(object):
 
     def alive(self):
         """does the sprite belong to any groups
-        Sprite.alive(): return Boolean
+        Sprite.alive(): return bool
 
         Returns True when the Sprite belongs to one or more Groups.
         """
@@ -463,7 +463,7 @@ class Group(AbstractGroup):
 
         in      test if a Sprite is contained
         len     the number of Sprites contained
-        boolean test if any Sprites are contained
+        bool test if any Sprites are contained
         iter    iterate through all the Sprites
 
     The Sprites in the Group are not ordered, so drawing and iterating the 
@@ -725,8 +725,9 @@ class LayeredUpdates(AbstractGroup):
         return list(layers)
 
     def change_layer(self, sprite, new_layer):
-        """
-        changes the layer of the sprite.
+        """changes the layer of the sprite
+        LayeredUpdates.change_layer(sprite, new_layer): return None
+
         sprite must have been added to the renderer. It is not checked.
         """
         sprites = self._spritelist # speedup
@@ -765,41 +766,45 @@ class LayeredUpdates(AbstractGroup):
         return self._spritelayers.get(sprite, self._default_layer)
     
     def get_top_layer(self):
-        """
-        Returns the number of the top layer.
+        """returns the top layer
+        LayeredUpdates.get_top_layer(): return layer
         """
         return self._spritelayers[self._spritelist[-1]]
-####        return max(self._spritelayers.values())
     
     def get_bottom_layer(self):
-        """
-        Returns the number of the bottom layer.
+        """returns the bottom layer
+        LayeredUpdates.get_bottom_layer(): return layer
         """
         return self._spritelayers[self._spritelist[0]]
-####        return min(self._spritelayers.values())
     
     def move_to_front(self, sprite):
-        """
-        Brings the sprite to front, changing the layer o the sprite
-        to be in the topmost layer (added at the end of that layer).
+        """brings the sprite to front layer
+        LayeredUpdates.move_to_front(sprite): return None
+
+        Brings the sprite to front, changing sprite layer to topmost layer
+        (added at the end of that layer).
         """
         self.change_layer(sprite, self.get_top_layer())
         
     def move_to_back(self, sprite):
-        """
+        """moves the sprite to the bottom layer
+        LayeredUpdates.move_to_back(sprite): return None
+
         Moves the sprite to the bottom layer, moving it behind
         all other layers and adding one additional layer.
         """
         self.change_layer(sprite, self.get_bottom_layer()-1)
         
     def get_top_sprite(self):
-        """
-        Returns the topmost sprite.
+        """returns the topmost sprite
+        LayeredUpdates.get_top_sprite(): return Sprite
         """
         return self._spritelist[-1]
     
     def get_sprites_from_layer(self, layer):
-        """
+        """returns all sprites from a layer, ordered by how they where added
+        LayeredUpdates.get_sprites_from_layer(layer): return sprites
+
         Returns all sprites from a layer, ordered by how they where added.
         It uses linear search and the sprites are not removed from layer.
         """
@@ -815,8 +820,9 @@ class LayeredUpdates(AbstractGroup):
         return sprites
         
     def switch_layer(self, layer1_nr, layer2_nr):
-        """
-        Switches the sprites from layer1 to layer2.
+        """switches the sprites from layer1 to layer2
+        LayeredUpdates.switch_layer(layer1_nr, layer2_nr): return None
+
         The layers number must exist, it is not checked.
         """
         sprites1 = self.remove_sprites_of_layer(layer1_nr)
@@ -1109,7 +1115,7 @@ class GroupSingle(AbstractGroup):
 
 def collide_rect(left, right):
     """collision detection between two sprites, using rects.
-    pygame.sprite.collide_rect(left, right): return Boolean
+    pygame.sprite.collide_rect(left, right): return bool
 
     Tests for collision between two sprites. Uses the
     pygame rect colliderect function to calculate the
@@ -1139,7 +1145,7 @@ class collide_rect_ratio:
         self.ratio = ratio
 
     def __call__( self, left, right ):
-        """pygame.sprite.collide_rect_ratio(ratio)(left, right): Boolean
+        """pygame.sprite.collide_rect_ratio(ratio)(left, right): bool
         collision detection between two sprites, using scaled rects.
 
         Tests for collision between two sprites. Uses the
@@ -1164,7 +1170,7 @@ class collide_rect_ratio:
 
 def collide_circle( left, right ):
     """collision detection between two sprites, using circles.
-    pygame.sprite.collide_circle(left, right): return Boolean
+    pygame.sprite.collide_circle(left, right): return bool
 
     Tests for collision between two sprites, by testing to
     see if two circles centered on the sprites overlap. If
@@ -1213,7 +1219,7 @@ class collide_circle_ratio( object ):
         self.halfratio = ratio ** 2 / 4.0
 
     def __call__( self, left, right ):
-        """pygame.sprite.collide_circle_radio(ratio)(left, right): return Boolean
+        """pygame.sprite.collide_circle_radio(ratio)(left, right): return bool
         collision detection between two sprites, using scaled circles.
 
         Tests for collision between two sprites, by testing to
@@ -1257,7 +1263,7 @@ class collide_circle_ratio( object ):
 
 def collide_mask(left, right):
     """collision detection between two sprites, using masks.
-    pygame.sprite.collide_mask(SpriteLeft, SpriteRight): Boolean
+    pygame.sprite.collide_mask(SpriteLeft, SpriteRight): bool
 
     Tests for collision between two sprites, by testing if
     thier bitmasks overlap. If the sprites have a "mask"
@@ -1287,11 +1293,11 @@ def spritecollide(sprite, group, dokill, collided = None):
     Sprite. Intersection is determined by comparing the Sprite.rect attribute
     of each Sprite.
 
-    The dokill argument is a boolean. If set to True, all Sprites that collide
+    The dokill argument is a bool. If set to True, all Sprites that collide
     will be removed from the Group.
 
     The collided argument is a callback function used to calculate if two sprites 
-    are colliding. it should take two sprites as values, and return a boolean 
+    are colliding. it should take two sprites as values, and return a bool 
     value indicating if they are colliding. If collided is not passed, all sprites 
     must have a "rect" value, which is a rectangle of the sprite area, which will 
     be used to calculate the collision.
@@ -1335,7 +1341,7 @@ def groupcollide(groupa, groupb, dokilla, dokillb, collided = None):
        removed from all groups.
        collided is a callback function used to calculate if
        two sprites are colliding. it should take two sprites
-       as values, and return a boolean value indicating if
+       as values, and return a bool value indicating if
        they are colliding. if collided is not passed, all
        sprites must have a "rect" value, which is a
        rectangle of the sprite area, which will be used
@@ -1370,7 +1376,7 @@ def spritecollideany(sprite, group, collided = None):
 
        collided is a callback function used to calculate if
        two sprites are colliding. it should take two sprites
-       as values, and return a boolean value indicating if
+       as values, and return a bool value indicating if
        they are colliding. if collided is not passed, all
        sprites must have a "rect" value, which is a
        rectangle of the sprite area, which will be used
