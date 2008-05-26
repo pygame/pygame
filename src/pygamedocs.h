@@ -585,7 +585,7 @@
 
 #define DOC_SPRITEKILL "Sprite.kill(): return None\nremove the Sprite from all Groups"
 
-#define DOC_SPRITEALIVE "Sprite.alive(): return Boolean\ndoes the sprite belong to any groups"
+#define DOC_SPRITEALIVE "Sprite.alive(): return bool\ndoes the sprite belong to any groups"
 
 #define DOC_SPRITEGROUPS "Sprite.groups(): return group_list\nlist of Groups that contain this Sprite"
 
@@ -637,23 +637,39 @@
 
 #define DOC_LAYEREDUPDATESCHANGELAYER "LayeredUpdates.change_layer(sprite, new_layer): return None\nchanges the layer of the sprite"
 
+#define DOC_LAYEREDUPDATESGETLAYEROFSPRITE "LayeredUpdates.get_layer_of_sprite(sprite): return layer\nreturns the layer that sprite is currently in."
+
+#define DOC_LAYEREDUPDATESGETTOPLAYER "LayeredUpdates.get_top_layer(): return layer\nreturns the top layer"
+
+#define DOC_LAYEREDUPDATESGETBOTTOMLAYER "LayeredUpdates.get_bottom_layer(): return layer\nreturns the bottom layer"
+
+#define DOC_LAYEREDUPDATESMOVETOFRONT "LayeredUpdates.move_to_front(sprite): return None\nbrings the sprite to front layer"
+
+#define DOC_LAYEREDUPDATESMOVETOBACK "LayeredUpdates.move_to_back(sprite): return None\nmoves the sprite to the bottom layer"
+
+#define DOC_LAYEREDUPDATESGETTOPSPRITE "LayeredUpdates.get_top_sprite(): return Sprite\nreturns the topmost sprite"
+
+#define DOC_LAYEREDUPDATESGETSPRITESFROMLAYER "LayeredUpdates.get_sprites_from_layer(layer): return sprites\nreturns all sprites from a layer, ordered by how they where added"
+
+#define DOC_LAYEREDUPDATESSWITCHLAYER "LayeredUpdates.switch_layer(layer1_nr, layer2_nr): return None\nswitches the sprites from layer1 to layer2"
+
 #define DOC_PYGAMESPRITEGROUPSINGLE "pygame.sprite.GroupSingle(sprite=None): return GroupSingle\nGroup container that holds a single Sprite"
 
 #define DOC_PYGAMESPRITESPRITECOLLIDE "pygame.sprite.spritecollide(sprite, group, dokill, collided = None): return Sprite_list\nfind Sprites in a Group that intersect another Sprite"
 
-#define DOC_PYGAMESPRITECOLLIDERECT "pygame.sprite.collide_rect(left, right): return Boolean\ncollision detection between two sprites, using rects."
+#define DOC_PYGAMESPRITECOLLIDERECT "pygame.sprite.collide_rect(left, right): return bool\ncollision detection between two sprites, using rects."
 
 #define DOC_PYGAMESPRITECOLLIDERECTRATIO "pygame.sprite.collide_rect_ratio(ratio): return collided_callable\ncollision detection between two sprites, using rects scaled to a ratio."
 
-#define DOC_PYGAMESPRITECOLLIDECIRCLE "pygame.sprite.collide_circle(left, right): return Boolean\ncollision detection between two sprites, using circles."
+#define DOC_PYGAMESPRITECOLLIDECIRCLE "pygame.sprite.collide_circle(left, right): return bool\ncollision detection between two sprites, using circles."
 
 #define DOC_PYGAMESPRITECOLLIDECIRCLERATIO "pygame.sprite.collide_circle_ratio(ratio): return collided_callable\ncollision detection between two sprites, using circles scaled to a ratio."
 
-#define DOC_PYGAMESPRITECOLLIDEMASK "pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return Boolean\ncollision detection between two sprites, using masks."
+#define DOC_PYGAMESPRITECOLLIDEMASK "pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return bool\ncollision detection between two sprites, using masks."
 
 #define DOC_PYGAMESPRITEGROUPCOLLIDE "pygame.sprite.groupcollide(group1, group2, dokill1, dokill2): return Sprite_dict\nfind all Sprites that collide between two Groups"
 
-#define DOC_PYGAMESPRITESPRITECOLLIDEANY "pygame.sprite.spritecollideany(sprite, group): return Boolean\nsimple test if a Sprite intersects anything in a Group"
+#define DOC_PYGAMESPRITESPRITECOLLIDEANY "pygame.sprite.spritecollideany(sprite, group): return bool\nsimple test if a Sprite intersects anything in a Group"
 
 #define DOC_ ""
 
