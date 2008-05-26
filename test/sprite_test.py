@@ -65,7 +65,9 @@ class SpriteTest( unittest.TestCase ):
         self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_rect_ratio(1.0)),[s2])
         
         # collide_rect_ratio should collide all at a 20.0 ratio.
-        self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_rect_ratio(20.0)),[s2,s3])
+        a = sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_rect_ratio(20.0))
+        b = [s2,s3]
+        self.assertEqual(a,b)
         
         # collide_circle with no radius set.
         self.assertEqual(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_circle),[s2])
