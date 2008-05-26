@@ -49,9 +49,11 @@
   <i>pygame module with basic game object classes</i><br>
 <ul><small><table>
   <tr><td><a href="sprite.html#pygame.sprite.Sprite">pygame.sprite.Sprite</a> - <font size=-1>simple base class for visible game objects</font></td><td>simple base class for visible game objects</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.DirtySprite">pygame.sprite.DirtySprite</a> - <font size=-1>a more featureful subclass of Sprite with more attributes</font></td><td>a more featureful subclass of Sprite with more attributes</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a> - <font size=-1>container class for many Sprites</font></td><td>container class for many Sprites</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></td><td>Group class that tracks dirty updates</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a> - <font size=-1>RenderUpdates class that draws Sprites in order of addition</font></td><td>RenderUpdates class that draws Sprites in order of addition</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.LayeredUpdates">pygame.sprite.LayeredUpdates</a> - <font size=-1>LayeredUpdates Group handles layers, that draws like OrderedUpdates.</font></td><td>LayeredUpdates Group handles layers, that draws like OrderedUpdates.</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a> - <font size=-1>Group container that holds a single Sprite</font></td><td>Group container that holds a single Sprite</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></td><td>find Sprites in a Group that intersect another Sprite</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.collide_rect">pygame.sprite.collide_rect</a> - <font size=-1>collision detection between two sprites, using rects.</font></td><td>collision detection between two sprites, using rects.</td></tr>
@@ -143,6 +145,42 @@
   <tt>Sprite.groups(): return group_list</tt><br>
 <p>Return a list of all the Groups that contain this Sprite. </p>
 <!--COMMENTS:Sprite.groups--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+
+<a name="pygame.sprite.DirtySprite">
+<big><b>pygame.sprite.DirtySprite</big></b><br><ul>
+  <i>a more featureful subclass of Sprite with more attributes</i><br>
+  <tt>pygame.sprite.DirtySprite(*groups): return DirtySprite</tt><br>
+<ul><small><table>
+  <tr><td>None</td><td></td></tr>
+</table></small></ul>
+<p>Extra DirtySprite attributes with their default values: </p>
+<p>dirty = 1 </p>
+<pre>    if set to 1, it is repainted and then set to 0 again
+    if set to 2 then it is always dirty ( repainted each frame,
+    flag is not reset)
+    0 means that it is not dirty and therefor not repainted again
+</pre><p>blendmode = 0 </p>
+<pre>    its the special_flags argument of blit, blendmodes
+</pre><p>source_rect = None </p>
+<pre>    source rect to use, remember that it is relative to
+    topleft (0,0) of self.image
+</pre><p>visible = 1 </p>
+<pre>    normally 1, if set to 0 it will not be repainted
+    (you must set it dirty too to be erased from screen)
+</pre><p>layer = 0 </p>
+<pre>    (READONLY value, it is read when adding it to the
+    LayeredRenderGroup, for details see doc of LayeredRenderGroup)
+</pre>
+<!--COMMENTS:pygame.sprite.DirtySprite--> &nbsp;<br> 
+
+
+<a name="">
+<big><b></big></b><br><ul>
+ &nbsp;<br> 
+<!--COMMENTS:--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
@@ -292,6 +330,99 @@
   <tt>pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates</tt><br>
 <p>This class derives from <tt><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></tt>. It maintains the order in which the Sprites were added to the Group for rendering. This makes adding and removing Sprites from the Group a little slower than regular Groups. </p>
 <!--COMMENTS:pygame.sprite.OrderedUpdates--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.sprite.LayeredUpdates">
+<big><b>pygame.sprite.LayeredUpdates</big></b><br><ul>
+  <i>LayeredUpdates Group handles layers, that draws like OrderedUpdates.</i><br>
+  <tt>pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates</tt><br>
+<ul><small><table>
+  <tr><td><a href="sprite.html#LayeredUpdates.add">LayeredUpdates.add</a> - <font size=-1>add a sprite or sequence of sprites to a group</font></td><td>add a sprite or sequence of sprites to a group</td></tr>
+  <tr><td><a href="sprite.html#LayeredUpdates.sprites">LayeredUpdates.sprites</a> - <font size=-1>returns a ordered list of sprites (first back, last top).</font></td><td>returns a ordered list of sprites (first back, last top).</td></tr>
+  <tr><td><a href="sprite.html#LayeredUpdates.draw">LayeredUpdates.draw</a> - <font size=-1>draw all sprites in the right order onto the passed surface.</font></td><td>draw all sprites in the right order onto the passed surface.</td></tr>
+  <tr><td><a href="sprite.html#LayeredUpdates.get_sprites_at">LayeredUpdates.get_sprites_at</a> - <font size=-1>returns a list with all sprites at that position.</font></td><td>returns a list with all sprites at that position.</td></tr>
+  <tr><td><a href="sprite.html#LayeredUpdates.get_sprite">LayeredUpdates.get_sprite</a> - <font size=-1>returns the sprite at the index idx from the groups sprites</font></td><td>returns the sprite at the index idx from the groups sprites</td></tr>
+  <tr><td><a href="sprite.html#LayeredUpdates.remove_sprites_of_layer">LayeredUpdates.remove_sprites_of_layer</a> - <font size=-1>removes all sprites from a layer and returns them as a list.</font></td><td>removes all sprites from a layer and returns them as a list.</td></tr>
+  <tr><td><a href="sprite.html#LayeredUpdates.layers">LayeredUpdates.layers</a> - <font size=-1>returns a list of layers defined (unique), sorted from botton up.</font></td><td>returns a list of layers defined (unique), sorted from botton up.</td></tr>
+  <tr><td><a href="sprite.html#LayeredUpdates.change_layer">LayeredUpdates.change_layer</a> - <font size=-1>changes the layer of the sprite</font></td><td>changes the layer of the sprite</td></tr>
+</table></small></ul>
+<p>This group is fully compatible with <tt>pygame.sprite.Sprite</tt>. </p>
+<p>You can set the default layer through kwargs using 'default_layer' and an integer for the layer. The default layer is 0. </p>
+<p>If the sprite you add has an attribute layer then that layer will be used. If the **kwarg contains 'layer' then the sprites passed will be added to that layer (overriding the <tt>sprite.layer</tt> attribute). If neither sprite has attribute layer nor **kwarg then the default layer is used to add the sprites. </p>
+<!--COMMENTS:pygame.sprite.LayeredUpdates--> &nbsp;<br> 
+
+
+<a name="LayeredUpdates.add">
+<big><b>LayeredUpdates.add</big></b><br><ul>
+  <i>add a sprite or sequence of sprites to a group</i><br>
+  <tt>LayeredUpdates.add(*sprites, **kwargs): return None</tt><br>
+<p>If the sprite(s) have an attribute layer then that is used for the layer. If **kwargs contains 'layer' then the sprite(s) will be added to that argument (overriding the sprite layer attribute). If neither is passed then the sprite(s) will be added to the default layer. </p>
+<!--COMMENTS:LayeredUpdates.add--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredUpdates.sprites">
+<big><b>LayeredUpdates.sprites</big></b><br><ul>
+  <i>returns a ordered list of sprites (first back, last top).</i><br>
+  <tt>LayeredUpdates.sprites(): return sprites</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:LayeredUpdates.sprites--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredUpdates.draw">
+<big><b>LayeredUpdates.draw</big></b><br><ul>
+  <i>draw all sprites in the right order onto the passed surface.</i><br>
+  <tt>LayeredUpdates.draw(surface): return Rect_list</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:LayeredUpdates.draw--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredUpdates.get_sprites_at">
+<big><b>LayeredUpdates.get_sprites_at</big></b><br><ul>
+  <i>returns a list with all sprites at that position.</i><br>
+  <tt>LayeredUpdates.get_sprites_at(pos): return colliding_sprites</tt><br>
+<p>Bottom sprites first, top last. </p>
+<!--COMMENTS:LayeredUpdates.get_sprites_at--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredUpdates.get_sprite">
+<big><b>LayeredUpdates.get_sprite</big></b><br><ul>
+  <i>returns the sprite at the index idx from the groups sprites</i><br>
+  <tt>LayeredUpdates.get_sprite(idx): return sprite</tt><br>
+<p>Raises IndexOutOfBounds if the idx is not within range. </p>
+<!--COMMENTS:LayeredUpdates.get_sprite--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredUpdates.remove_sprites_of_layer">
+<big><b>LayeredUpdates.remove_sprites_of_layer</big></b><br><ul>
+  <i>removes all sprites from a layer and returns them as a list.</i><br>
+  <tt>LayeredUpdates.remove_sprites_of_layer(layer_nr): return sprites</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:LayeredUpdates.remove_sprites_of_layer--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredUpdates.layers">
+<big><b>LayeredUpdates.layers</big></b><br><ul>
+  <i>returns a list of layers defined (unique), sorted from botton up.</i><br>
+  <tt>LayeredUpdates.layers(): return layers</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:LayeredUpdates.layers--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredUpdates.change_layer">
+<big><b>LayeredUpdates.change_layer</big></b><br><ul>
+  <i>changes the layer of the sprite</i><br>
+  <tt>LayeredUpdates.change_layer(sprite, new_layer): return None</tt><br>
+<p>sprite must have been added to the renderer. It is not checked. </p>
+<!--COMMENTS:LayeredUpdates.change_layer--> &nbsp;<br> 
+<br></ul>
 <br></ul>
 
 
