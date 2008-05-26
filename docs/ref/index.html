@@ -389,6 +389,10 @@
 <li><a href="sprite.html#pygame.sprite.collide_mask">pygame.sprite.collide_mask</a> - <font size=-1>collision detection between two sprites, using masks.</font></li>
 <li><a href="sprite.html#pygame.sprite.collide_rect">pygame.sprite.collide_rect</a> - <font size=-1>collision detection between two sprites, using rects.</font></li>
 <li><a href="sprite.html#pygame.sprite.collide_rect_ratio">pygame.sprite.collide_rect_ratio</a> - <font size=-1>collision detection between two sprites, using rects scaled to a ratio.</font></li>
+<li><a href="sprite.html#pygame.sprite.DirtySprite">pygame.sprite.DirtySprite</a> - <font size=-1>a more featureful subclass of Sprite with more attributes</font></li>
+<ul>
+<li></li>
+</ul>
 <li><a href="sprite.html#pygame.sprite.Group">pygame.sprite.Group</a> - <font size=-1>container class for many Sprites</font></li>
 <ul>
 <li><a href="sprite.html#Group.add">Group.add</a> - <font size=-1>add Sprites to this Group</font></li>
@@ -403,6 +407,17 @@
 </ul>
 <li><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a> - <font size=-1>find all Sprites that collide between two Groups</font></li>
 <li><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a> - <font size=-1>Group container that holds a single Sprite</font></li>
+<li><a href="sprite.html#pygame.sprite.LayeredUpdates">pygame.sprite.LayeredUpdates</a> - <font size=-1>LayeredUpdates Group handles layers, that draws like OrderedUpdates.</font></li>
+<ul>
+<li><a href="sprite.html#LayeredUpdates.add">LayeredUpdates.add</a> - <font size=-1>add a sprite or sequence of sprites to a group</font></li>
+<li><a href="sprite.html#LayeredUpdates.change_layer">LayeredUpdates.change_layer</a> - <font size=-1>changes the layer of the sprite</font></li>
+<li><a href="sprite.html#LayeredUpdates.draw">LayeredUpdates.draw</a> - <font size=-1>draw all sprites in the right order onto the passed surface.</font></li>
+<li><a href="sprite.html#LayeredUpdates.get_sprite">LayeredUpdates.get_sprite</a> - <font size=-1>returns the sprite at the index idx from the groups sprites</font></li>
+<li><a href="sprite.html#LayeredUpdates.get_sprites_at">LayeredUpdates.get_sprites_at</a> - <font size=-1>returns a list with all sprites at that position.</font></li>
+<li><a href="sprite.html#LayeredUpdates.layers">LayeredUpdates.layers</a> - <font size=-1>returns a list of layers defined (unique), sorted from botton up.</font></li>
+<li><a href="sprite.html#LayeredUpdates.remove_sprites_of_layer">LayeredUpdates.remove_sprites_of_layer</a> - <font size=-1>removes all sprites from a layer and returns them as a list.</font></li>
+<li><a href="sprite.html#LayeredUpdates.sprites">LayeredUpdates.sprites</a> - <font size=-1>returns a ordered list of sprites (first back, last top).</font></li>
+</ul>
 <li><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a> - <font size=-1>RenderUpdates class that draws Sprites in order of addition</font></li>
 <li><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></li>
 <ul>

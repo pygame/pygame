@@ -196,30 +196,35 @@ class Sprite(object):
 
 
 class DirtySprite(Sprite):
-    """
-    DirtySprite has new attributes:
-    
-    dirty: if set to 1, it is repainted and then set to 0 again 
-           if set to 2 then it is always dirty ( repainted each frame, 
-           flag is not reset)
-           0 means that it is not dirty and therefor not repainted again
-    blendmode: its the special_flags argument of blit, blendmodes
-    source_rect: source rect to use, remember that it relative to 
-                 topleft (0,0) of self.image
-    visible: normally 1, if set to 0 it will not be repainted 
-             (you must set it dirty too to be erased from screen)
+    """a more featureful subclass of Sprite with more attributes
+    pygame.sprite.DirtySprite(*groups): return DirtySprite 
+
+    Extra DirtySprite attributes with their default values:
+
+    dirty = 1
+        if set to 1, it is repainted and then set to 0 again 
+        if set to 2 then it is always dirty ( repainted each frame, 
+        flag is not reset)
+        0 means that it is not dirty and therefor not repainted again
+
+    blendmode = 0
+        its the special_flags argument of blit, blendmodes
+
+    source_rect = None
+        source rect to use, remember that it is relative to 
+        topleft (0,0) of self.image
+
+    visible = 1
+        normally 1, if set to 0 it will not be repainted 
+        (you must set it dirty too to be erased from screen)
+
+    layer = 0
+        (READONLY value, it is read when adding it to the 
+        LayeredRenderGroup, for details see doc of LayeredRenderGroup)
     """
     
     def __init__(self, *groups):
-        """
-        Same as pygame.sprite.Sprite but initializes the new attributes to
-        default values:
-        dirty = 1 (to be always dirty you have to set it)
-        blendmode = 0
-        layer = 0 (READONLY value, it is read when adding it to the 
-                   LayeredRenderGroup, for details see doc of 
-                   LayeredRenderGroup)
-        """
+        
         self.dirty = 1
         self.blendmode = 0  # pygame 1.8, reffered as special_flags in 
                             # the documentation of blit 
@@ -233,12 +238,14 @@ class DirtySprite(Sprite):
         self._visible = val
         if self.dirty < 2:
             self.dirty = 1
+
     def _get_visible(self):
         """returns the visible value of that sprite"""
         return self._visible
     visible = property(lambda self: self._get_visible(),\
                        lambda self, value:self._set_visible(value), \
-                       doc="you can make this sprite disappear without removing it from the group, values 0 for invisible and 1 for visible")
+                       doc="you can make this sprite disappear without removing it from the group,\n"+
+                           "values 0 for invisible and 1 for visible")
         
     def __repr__(self):
         return "<%s DirtySprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
@@ -446,11 +453,22 @@ class AbstractGroup(object):
         return "<%s(%d sprites)>" % (self.__class__.__name__, len(self))
 
 class Group(AbstractGroup):
-    """The basic Group class you will want to use.
-       It supports all of the above operations and methods.
+    """container class for many Sprites
+    pygame.sprite.Group(*sprites): return Group
 
-       The RenderPlain and RenderClear groups are aliases to Group
-       for compatibility."""
+    A simple container for Sprite objects. This class can be inherited to
+    create containers with more specific behaviors. The constructor takes any 
+    number of Sprite arguments to add to the Group. The group supports the
+    following standard Python operations:
+
+        in      test if a Sprite is contained
+        len     the number of Sprites contained
+        boolean test if any Sprites are contained
+        iter    iterate through all the Sprites
+
+    The Sprites in the Group are not ordered, so drawing and iterating the 
+    Sprites is in no particular order.
+    """
     
     def __init__(self, *sprites):
         AbstractGroup.__init__(self)
@@ -460,13 +478,12 @@ RenderPlain = Group
 RenderClear = Group
 
 class RenderUpdates(Group):
-    """A sprite group that's more efficient at updating.
-       This group supports drawing to the screen, but its draw method
-       also returns a list of the Rects updated by the draw (and any
-       clears in between the last draw and the current one). You
-       can use pygame.display.update(renderupdates_group.draw(screen))
-       to minimize the updated part of the screen. This can usually
-       make things much faster."""
+    """Group class that tracks dirty updates
+    pygame.sprite.RenderUpdates(*sprites): return RenderUpdates
+
+    This class is derived from pygame.sprite.Group(). It has an extended draw()
+    method that tracks the changed areas of the screen.
+    """
     
     def draw(self, surface):
        spritedict = self.spritedict
@@ -489,15 +506,21 @@ class RenderUpdates(Group):
        return dirty
 
 class OrderedUpdates(RenderUpdates):
-    """RenderUpdates, but the sprites are drawn in the order they were added.
-       More recently added sprites are drawn last (and so, above other
-       sprites)."""
+    """RenderUpdates class that draws Sprites in order of addition
+    pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates
+
+    This class derives from pygame.sprite.RenderUpdates().  It maintains 
+    the order in which the Sprites were added to the Group for rendering. 
+    This makes adding and removing Sprites from the Group a little 
+    slower than regular Groups.
+    """
 
     def __init__(self, *sprites):
         self._spritelist = []
         RenderUpdates.__init__(self, *sprites)
 
-    def sprites(self): return list(self._spritelist)
+    def sprites(self): 
+        return list(self._spritelist)
 
     def add_internal(self, sprite):
         RenderUpdates.add_internal(self, sprite)
@@ -509,11 +532,8 @@ class OrderedUpdates(RenderUpdates):
 
 
 class LayeredUpdates(AbstractGroup):
-    """
-    LayeredRenderGroup
-    
-    A group that handles layers. For drawing it uses the same metod as the 
-    pygame.sprite.OrderedUpdates.
+    """LayeredUpdates Group handles layers, that draws like OrderedUpdates.
+    pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates
     
     This group is fully compatible with pygame.sprite.Sprite.
     """
@@ -525,7 +545,7 @@ class LayeredUpdates(AbstractGroup):
         
         If the sprite you add has an attribute layer then that layer will
         be used.
-        If the kwarg contain 'layer' then the sprites passed will be 
+        If the **kwarg contains 'layer' then the sprites passed will be 
         added to that layer (overriding the sprite.layer attribute).
         If neither sprite has attribute layer nor kwarg then the default
         layer is used to add the sprites.
@@ -578,11 +598,9 @@ class LayeredUpdates(AbstractGroup):
         sprites.insert(mid, sprite)
         
     def add(self, *sprites, **kwargs):
-        """add(sprite, list, or group, ...)
-           add sprite to group
+        """add a sprite or sequence of sprites to a group
+        LayeredUpdates.add(*sprites, **kwargs): return None
 
-           Add a sprite or sequence of sprites to a group.
-        
         If the sprite(s) have an attribute layer then that is used 
         for the layer. If kwargs contains 'layer' then the sprite(s) 
         will be added to that argument (overriding the sprite layer 
@@ -636,14 +654,14 @@ class LayeredUpdates(AbstractGroup):
         self._spritelayers.pop(sprite)
     
     def sprites(self):
-        """
-        Returns a ordered list of sprites (first back, last top).
+        """returns a ordered list of sprites (first back, last top).
+        LayeredUpdates.sprites(): return sprites
         """
         return list(self._spritelist)
     
     def draw(self, surface):
-        """
-        Draw all sprites in the right order onto the passed surface.
+        """draw all sprites in the right order onto the passed surface.
+        LayeredUpdates.draw(surface): return Rect_list
         """
         spritedict = self.spritedict
         surface_blit = surface.blit
@@ -665,8 +683,9 @@ class LayeredUpdates(AbstractGroup):
         return dirty
 
     def get_sprites_at(self, pos):
-        """
-        Returns a list with all sprites at that position.
+        """returns a list with all sprites at that position.
+        LayeredUpdates.get_sprites_at(pos): return colliding_sprites
+
         Bottom sprites first, top last.
         """
         _sprites = self._spritelist
@@ -679,15 +698,16 @@ class LayeredUpdates(AbstractGroup):
         return colliding
 
     def get_sprite(self, idx):
-        """
-        Returns the sprite at the index idx from the sprites().
-        Raises IndexOutOfBounds.
+        """returns the sprite at the index idx from the groups sprites
+        LayeredUpdates.get_sprite(idx): return sprite
+
+        Raises IndexOutOfBounds if the idx is not within range.
         """
         return self._spritelist[idx]
     
     def remove_sprites_of_layer(self, layer_nr):
-        """
-        Removes all sprites from a layer and returns them as a list.
+        """removes all sprites from a layer and returns them as a list
+        LayeredUpdates.remove_sprites_of_layer(layer_nr): return sprites
         """
         sprites = self.get_sprites_from_layer(layer_nr)
         self.remove(sprites)
@@ -696,8 +716,8 @@ class LayeredUpdates(AbstractGroup):
 
     #---# layer methods
     def layers(self):
-        """
-        Returns a list of layers defined (unique), sorted from botton up.
+        """returns a list of layers defined (unique), sorted from botton up.
+        LayeredUpdates.layers(): return layers
         """
         layers = set()
         for layer in self._spritelayers.values():
@@ -706,7 +726,7 @@ class LayeredUpdates(AbstractGroup):
 
     def change_layer(self, sprite, new_layer):
         """
-        Changes the layer of the sprite.
+        changes the layer of the sprite.
         sprite must have been added to the renderer. It is not checked.
         """
         sprites = self._spritelist # speedup
@@ -810,7 +830,7 @@ class LayeredDirty(LayeredUpdates):
     Yet another group. It uses the dirty flag technique and is therefore 
     faster than the pygame.sprite.RenderUpdates if you have many static 
     sprites. It also switches automatically between dirty rect update and 
-    full screen rawing, so you do no have to worry what would be faster. It 
+    full screen drawing, so you do no have to worry what would be faster. It 
     only works with the DirtySprite or any sprite that has the following 
     attributes: image, rect, dirty, visible, blendmode (see doc of 
     DirtySprite).
