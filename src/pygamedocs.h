@@ -589,6 +589,10 @@
 
 #define DOC_SPRITEGROUPS "Sprite.groups(): return group_list\nlist of Groups that contain this Sprite"
 
+#define DOC_PYGAMESPRITEDIRTYSPRITE "pygame.sprite.DirtySprite(*groups): return DirtySprite\na more featureful subclass of Sprite with more attributes"
+
+#define DOC_ ""
+
 #define DOC_PYGAMESPRITEGROUP "pygame.sprite.Group(*sprites): return Group\ncontainer class for many Sprites"
 
 #define DOC_GROUPSPRITES "Group.sprites(): return sprite_list\nlist of the Sprites this Group contains"
@@ -614,6 +618,24 @@
 #define DOC_RENDERUPDATESDRAW "RenderUpdates.draw(surface): return Rect_list\nblit the Sprite images and track changed areas"
 
 #define DOC_PYGAMESPRITEORDEREDUPDATES "pygame.sprite.OrderedUpdates(*spites): return OrderedUpdates\nRenderUpdates class that draws Sprites in order of addition"
+
+#define DOC_PYGAMESPRITELAYEREDUPDATES "pygame.sprite.LayeredUpdates(*spites, **kwargs): return LayeredUpdates\nLayeredUpdates Group handles layers, that draws like OrderedUpdates."
+
+#define DOC_LAYEREDUPDATESADD "LayeredUpdates.add(*sprites, **kwargs): return None\nadd a sprite or sequence of sprites to a group"
+
+#define DOC_LAYEREDUPDATESSPRITES "LayeredUpdates.sprites(): return sprites\nreturns a ordered list of sprites (first back, last top)."
+
+#define DOC_LAYEREDUPDATESDRAW "LayeredUpdates.draw(surface): return Rect_list\ndraw all sprites in the right order onto the passed surface."
+
+#define DOC_LAYEREDUPDATESGETSPRITESAT "LayeredUpdates.get_sprites_at(pos): return colliding_sprites\nreturns a list with all sprites at that position."
+
+#define DOC_LAYEREDUPDATESGETSPRITE "LayeredUpdates.get_sprite(idx): return sprite\nreturns the sprite at the index idx from the groups sprites"
+
+#define DOC_LAYEREDUPDATESREMOVESPRITESOFLAYER "LayeredUpdates.remove_sprites_of_layer(layer_nr): return sprites\nremoves all sprites from a layer and returns them as a list."
+
+#define DOC_LAYEREDUPDATESLAYERS "LayeredUpdates.layers(): return layers\nreturns a list of layers defined (unique), sorted from botton up."
+
+#define DOC_LAYEREDUPDATESCHANGELAYER "LayeredUpdates.change_layer(sprite, new_layer): return None\nchanges the layer of the sprite"
 
 #define DOC_PYGAMESPRITEGROUPSINGLE "pygame.sprite.GroupSingle(sprite=None): return GroupSingle\nGroup container that holds a single Sprite"
 
