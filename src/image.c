@@ -234,7 +234,8 @@ image_save (PyObject* self, PyObject* arg)
                         result = -1;
                     Py_DECREF (imgext);
                     /* Data must be decremented here, not? */
-                    Py_DECREF (data);
+                    if (data)
+                    	Py_DECREF (data);
                 }
                 else
                     result = -2;
