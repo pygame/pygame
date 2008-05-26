@@ -55,7 +55,7 @@ if "-warnings" in sys.argv:
                        "-Wnested-externs -Wshadow -Wredundant-decls"
     sys.argv.remove ("-warnings")
 
-import os.path, glob
+import os.path, glob, stat
 import distutils.sysconfig
 from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
@@ -94,6 +94,13 @@ if not os.path.isfile('Setup'):
     print '\nContinuing With "setup.py"'
 
 
+try:
+    s_mtime = os.stat("Setup")[stat.ST_MTIME]
+    sin_mtime = os.stat("Setup.in")[stat.ST_MTIME]
+    if sin_mtime > s_mtime:
+        print '\n\nWARNING, "Setup.in" newer than "Setup", you might need to modify Setup."'
+except:
+    pass
 
 #get compile info for all extensions
 try: extensions = read_setup_file('Setup')
