@@ -25,8 +25,8 @@ METADATA = {
 
 import sys
 
-# hack the version name to a format msi doesn't have trouble with
 if "bdist_msi" in sys.argv:
+    # hack the version name to a format msi doesn't have trouble with
     METADATA["version"] = METADATA["version"].replace("pre", "a0")
     METADATA["version"] = METADATA["version"].replace("rc", "b0")
     METADATA["version"] = METADATA["version"].replace("release", "c0s")
@@ -225,6 +225,26 @@ class smart_install_data(install_data):
         return install_data.run(self)
 
 cmdclass['install_data'] = smart_install_data
+
+            
+if "bdist_msi" in sys.argv:
+    # if you are making an msi, we want it to overwrite files
+    from distutils.command import bdist_msi
+    import msilib
+
+    class bdist_msi_overwrite_on_install(bdist_msi.bdist_msi):
+        def run(self):
+            bdist_msi.bdist_msi.run(self)
+            
+            fullname = self.distribution.get_fullname()
+            installer_name = self.get_installer_filename(fullname)           
+            print "changing",installer_name,"to overwrite files on install"
+            
+            msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
+            self.db.Commit()
+    
+    cmdclass['bdist_msi'] = bdist_msi_overwrite_on_install
+
 
 #finally,
 #call distutils with all needed info
