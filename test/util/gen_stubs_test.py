@@ -11,7 +11,7 @@ more, more, more
 import pygame, unittest
 pygame.init()
 
-from gen_stubs import get_package_modules
+from gen_stubs import get_package_modules, module_test_stubs
 
 class TestStubGenerator(unittest.TestCase):
     def test_get_package_modules(self):
@@ -27,7 +27,9 @@ if __name__ == "__main__":
     if 1:
         unittest.main()
     else:
-        # scribble / sketch
-        pass
+        # scribble tests -->
+        
+        for _, stub in module_test_stubs(pygame):
+            print stub
         
 ################################################################################
