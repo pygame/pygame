@@ -24,12 +24,12 @@ TODO
 
 * output stubs as file per module
 
+* get some class meta info from src/*.doc using makeref
 
 BUGS
 ====
 
 * needs tests
-
 
 """
 
@@ -47,21 +47,23 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
     def ${test_name}(self):
 
         """
-            TODO: Test unit ${docstring}
+        
+        TODO: Test unit ${docstring}
+        
         """
 
-        # Doc string for unit ${unitname}:
+        # Doc string for ${unitname}:
 
-            ${comments}
+          ${comments}
 
-        self.assert_(not_completed() ''', strip_common = 1, strip_excess = 1
+        self.assert_(not_completed()) ''', strip_common = 1, strip_excess = 1
 )
 
 # for list_all_stubs
 
-DIVIDER_LINE = '\n# ' + (78 * '*')
+DIVIDER_LINE = '# ' + (78 * '*')
 
-MODULE_HEADING_LINE = '# %s\n#\n'
+MODULE_HEADING_LINE = '# module: %s\n#\n#\n'
 
 ################################### FUNCTIONS ##################################
 
@@ -103,7 +105,9 @@ def get_doc_str(f, t = None, default = ''):
         return default
 
 def py_comment(input_str):
-    return '\n'.join([('# ' + l.strip(' ')) for l in input_str.split('\n')])
+    return '\n'.join (
+        [('# ' + l.strip(' ')) for l in input_str.split('\n')]
+    )
 
 ################################################################################
 
@@ -150,6 +154,8 @@ def module_test_stubs(m):
         yield test_stub(one_deep, m)
 
         # get module.Class.callable
+        # TODO: some classes need to be instantiated before can see members
+        
         for two_deep in get_callables(one_deep):
             yield test_stub(two_deep, m)
 
@@ -162,9 +168,13 @@ def categorized_stubs(package):
 
     return stubs_categorized
 
+def dict_items_ordered_by_key(dictionary):
+    for key in sorted(dictionary.keys()):
+        yield key, dictionary[key]
+
 def list_all_stubs(categorized, list_of = dict.keys):
     output = []
-    for module, mapping in categorized.iteritems():
+    for module, mapping in dict_items_ordered_by_key(categorized):
         output += [DIVIDER_LINE]
         output += [MODULE_HEADING_LINE % module]
 
@@ -178,18 +188,19 @@ def list_all_stubs(categorized, list_of = dict.keys):
 
 if __name__ == "__main__":
     import pygame, sys
-    # pygame.init()                                    # same numbers as without 
+    # pygame.init()                                    # same numbers as without
 
     stubs = categorized_stubs(pygame)
 
     # TODO: optparse: stubs per module, run tests etc
-    if 'list' in sys.argv: render_dict_part = dict.keys
-    else: render_dict_part = dict.values
-
+    if 'list' in sys.argv:      render_dict_part = dict.keys
+    else:                       render_dict_part = dict.values
+    
+    #TODO: make it work with python.version < 2.5
     with open('test_stubs.py', 'w') as fh:
         fh.write( list_all_stubs(stubs, list_of = render_dict_part) )
 
-    total_stubs  = sum(len(m) for _, m in stubs.iteritems())
+    total_stubs   = sum(len(m) for _, m in stubs.iteritems())
     total_modules = len(stubs)
 
     print 'Done: %s public callable stubs created from %s modules containing' %\
