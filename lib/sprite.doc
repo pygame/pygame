@@ -349,6 +349,8 @@ If the **kwarg contains 'layer' then the sprites passed will be
 added to that layer (overriding the sprite.layer attribute).
 If neither sprite has attribute layer nor **kwarg then the default
 layer is used to add the sprites.
+
+New in pygame 1.8.0
 <SECTION>
 
 
@@ -491,6 +493,90 @@ The layers number must exist, it is not checked.
 
 
 
+LayeredDirty
+LayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates.
+pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty
+    
+This group requires pygame.sprite.DirtySprite or any sprite that 
+has the following attributes: 
+    image, rect, dirty, visible, blendmode (see doc of DirtySprite).
+
+It uses the dirty flag technique and is therefore faster than the 
+pygame.sprite.RenderUpdates if you have many static sprites.  It 
+also switches automatically between dirty rect update and full 
+screen drawing, so you do no have to worry what would be faster.
+
+Same as for the pygame.sprite.Group.
+You can specify some additional attributes through kwargs:
+    _use_update: True/False   default is False
+    _default_layer: default layer where sprites without a layer are added.
+    _time_threshold: treshold time for switching between dirty rect mode 
+        and fullscreen mode, defaults to 1000./80  == 1000./fps
+
+New in pygame 1.8.0
+<SECTION>
+
+
+
+draw
+draw all sprites in the right order onto the passed surface.
+LayeredDirty.draw(surface, bgd=None): return Rect_list
+
+You can pass the background too. If a background is already set, 
+then the bgd argument has no effect.
+<END>
+
+
+
+clear
+used to set background
+LayeredDirty.clear(surface, bgd): return None
+<END>
+
+
+
+repaint_rect
+repaints the given area
+LayeredDirty.repaint_rect(screen_rect): return None
+
+screen_rect is in screencoordinates.
+<END>
+
+
+
+set_clip
+clip the area where to draw. Just pass None (default) to reset the clip
+LayeredDirty.set_clip(screen_rect=None): return None
+<END>
+
+
+
+get_clip
+clip the area where to draw. Just pass None (default) to reset the clip
+LayeredDirty.get_clip(): return Rect
+<END>
+
+
+
+change_layer
+changes the layer of the sprite
+change_layer(sprite, new_layer): return None
+
+sprite must have been added to the renderer. It is not checked.
+<END>
+
+
+
+set_timing_treshold
+sets the treshold in milliseconds
+set_timing_treshold(time_ms): return None
+
+Default is 1000./80 where 80 is the fps I want to switch to full screen mode.
+<END>
+<END>
+
+
+
 GroupSingle
 Group container that holds a single Sprite
 pygame.sprite.GroupSingle(sprite=None): return GroupSingle
@@ -538,6 +624,8 @@ pygame rect colliderect function to calculate the
 collision. Intended to be passed as a collided
 callback function to the *collide functions.
 Sprites must have a "rect" attributes.
+
+New in pygame 1.8.0
 <END>
 
 
@@ -554,6 +642,8 @@ as a collided callback function to the *collide functions.
 
 A ratio is a floating point number - 1.0 is the same size, 2.0 is twice as
 big, and 0.5 is half the size.
+
+New in pygame 1.8.1
 <END>
 
 
@@ -571,6 +661,8 @@ given by the "rect" attribute. Intended to be passed as
 a collided callback function to the *collide functions.
 Sprites must have a "rect" and an optional "radius"
 attribute.
+
+New in pygame 1.8.1
 <END>
 
 
@@ -598,6 +690,8 @@ given by the "rect" attribute. Intended to be passed as
 a collided callback function to the *collide functions.
 Sprites must have a "rect" and an optional "radius"
 attribute.
+
+New in pygame 1.8.1
 <END>
 
 
@@ -613,6 +707,8 @@ created from the sprite image. Intended to be passed as
 a collided callback function to the *collide functions.
 Sprites must have a "rect" and an optional "mask"
 attribute.
+
+New in pygame 1.8.0
 <END>
 
 
