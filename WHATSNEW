@@ -6,6 +6,9 @@
 #
 #
 
+May 31, 2008
+    Updated sprite documentation - mainly for new stuff added in pygame 1.8.0
+
 May 24, 2008
     New Color class for color management.
 
