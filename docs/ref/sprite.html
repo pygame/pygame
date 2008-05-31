@@ -54,6 +54,7 @@
   <tr><td><a href="sprite.html#pygame.sprite.RenderUpdates">pygame.sprite.RenderUpdates</a> - <font size=-1>Group class that tracks dirty updates</font></td><td>Group class that tracks dirty updates</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.OrderedUpdates">pygame.sprite.OrderedUpdates</a> - <font size=-1>RenderUpdates class that draws Sprites in order of addition</font></td><td>RenderUpdates class that draws Sprites in order of addition</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.LayeredUpdates">pygame.sprite.LayeredUpdates</a> - <font size=-1>LayeredUpdates Group handles layers, that draws like OrderedUpdates.</font></td><td>LayeredUpdates Group handles layers, that draws like OrderedUpdates.</td></tr>
+  <tr><td><a href="sprite.html#pygame.sprite.LayeredDirty">pygame.sprite.LayeredDirty</a> - <font size=-1>LayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates.</font></td><td>LayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates.</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a> - <font size=-1>Group container that holds a single Sprite</font></td><td>Group container that holds a single Sprite</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></td><td>find Sprites in a Group that intersect another Sprite</td></tr>
   <tr><td><a href="sprite.html#pygame.sprite.collide_rect">pygame.sprite.collide_rect</a> - <font size=-1>collision detection between two sprites, using rects.</font></td><td>collision detection between two sprites, using rects.</td></tr>
@@ -358,6 +359,7 @@
 <p>This group is fully compatible with <tt>pygame.sprite.Sprite</tt>. </p>
 <p>You can set the default layer through kwargs using 'default_layer' and an integer for the layer. The default layer is 0. </p>
 <p>If the sprite you add has an attribute layer then that layer will be used. If the **kwarg contains 'layer' then the sprites passed will be added to that layer (overriding the <tt>sprite.layer</tt> attribute). If neither sprite has attribute layer nor **kwarg then the default layer is used to add the sprites. </p>
+<p>New in pygame <tt>1.8.0</tt> </p>
 <!--COMMENTS:pygame.sprite.LayeredUpdates--> &nbsp;<br> 
 
 
@@ -506,6 +508,95 @@
 <br></ul>
 
 
+<a name="pygame.sprite.LayeredDirty">
+<big><b>pygame.sprite.LayeredDirty</big></b><br><ul>
+  <i>LayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates.</i><br>
+  <tt>pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty</tt><br>
+<ul><small><table>
+  <tr><td><a href="sprite.html#LayeredDirty.draw">LayeredDirty.draw</a> - <font size=-1>draw all sprites in the right order onto the passed surface.</font></td><td>draw all sprites in the right order onto the passed surface.</td></tr>
+  <tr><td><a href="sprite.html#LayeredDirty.clear">LayeredDirty.clear</a> - <font size=-1>used to set background</font></td><td>used to set background</td></tr>
+  <tr><td><a href="sprite.html#LayeredDirty.repaint_rect">LayeredDirty.repaint_rect</a> - <font size=-1>repaints the given area</font></td><td>repaints the given area</td></tr>
+  <tr><td><a href="sprite.html#LayeredDirty.set_clip">LayeredDirty.set_clip</a> - <font size=-1>clip the area where to draw. Just pass None (default) to reset the clip</font></td><td>clip the area where to draw. Just pass None (default) to reset the clip</td></tr>
+  <tr><td><a href="sprite.html#LayeredDirty.get_clip">LayeredDirty.get_clip</a> - <font size=-1>clip the area where to draw. Just pass None (default) to reset the clip</font></td><td>clip the area where to draw. Just pass None (default) to reset the clip</td></tr>
+  <tr><td><a href="sprite.html#LayeredDirty.change_layer">LayeredDirty.change_layer</a> - <font size=-1>changes the layer of the sprite</font></td><td>changes the layer of the sprite</td></tr>
+  <tr><td><a href="sprite.html#LayeredDirty.set_timing_treshold">LayeredDirty.set_timing_treshold</a> - <font size=-1>sets the treshold in milliseconds</font></td><td>sets the treshold in milliseconds</td></tr>
+</table></small></ul>
+<p>This group requires <tt>pygame.sprite.DirtySprite</tt> or any sprite that has the following attributes: </p>
+<pre>    image, rect, dirty, visible, blendmode (see doc of DirtySprite).
+</pre><p>It uses the dirty flag technique and is therefore faster than the <tt>pygame.sprite.RenderUpdates</tt> if you have many static sprites. It also switches automatically between dirty rect update and full screen drawing, so you do no have to worry what would be faster. </p>
+<p>Same as for the <tt>pygame.sprite.Group</tt>. You can specify some additional attributes through kwargs: </p>
+<pre>    _use_update: True/False   default is False
+    _default_layer: default layer where sprites without a layer are added.
+    _time_threshold: treshold time for switching between dirty rect mode
+        and fullscreen mode, defaults to 1000./80  == 1000./fps
+</pre><p>New in pygame <tt>1.8.0</tt> </p>
+<!--COMMENTS:pygame.sprite.LayeredDirty--> &nbsp;<br> 
+
+
+<a name="LayeredDirty.draw">
+<big><b>LayeredDirty.draw</big></b><br><ul>
+  <i>draw all sprites in the right order onto the passed surface.</i><br>
+  <tt>LayeredDirty.draw(surface, bgd=None): return Rect_list</tt><br>
+<p>You can pass the background too. If a background is already set, then the bgd argument has no effect. </p>
+<!--COMMENTS:LayeredDirty.draw--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredDirty.clear">
+<big><b>LayeredDirty.clear</big></b><br><ul>
+  <i>used to set background</i><br>
+  <tt>LayeredDirty.clear(surface, bgd): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:LayeredDirty.clear--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredDirty.repaint_rect">
+<big><b>LayeredDirty.repaint_rect</big></b><br><ul>
+  <i>repaints the given area</i><br>
+  <tt>LayeredDirty.repaint_rect(screen_rect): return None</tt><br>
+<p>screen_rect is in screencoordinates. </p>
+<!--COMMENTS:LayeredDirty.repaint_rect--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredDirty.set_clip">
+<big><b>LayeredDirty.set_clip</big></b><br><ul>
+  <i>clip the area where to draw. Just pass None (default) to reset the clip</i><br>
+  <tt>LayeredDirty.set_clip(screen_rect=None): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:LayeredDirty.set_clip--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredDirty.get_clip">
+<big><b>LayeredDirty.get_clip</big></b><br><ul>
+  <i>clip the area where to draw. Just pass None (default) to reset the clip</i><br>
+  <tt>LayeredDirty.get_clip(): return Rect</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:LayeredDirty.get_clip--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredDirty.change_layer">
+<big><b>LayeredDirty.change_layer</big></b><br><ul>
+  <i>changes the layer of the sprite</i><br>
+  <tt>change_layer(sprite, new_layer): return None</tt><br>
+<p>sprite must have been added to the renderer. It is not checked. </p>
+<!--COMMENTS:LayeredDirty.change_layer--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="LayeredDirty.set_timing_treshold">
+<big><b>LayeredDirty.set_timing_treshold</big></b><br><ul>
+  <i>sets the treshold in milliseconds</i><br>
+  <tt>set_timing_treshold(time_ms): return None</tt><br>
+<p>Default is <tt>1000./80</tt> where 80 is the fps <tt>I</tt> want to switch to full screen mode. </p>
+<!--COMMENTS:LayeredDirty.set_timing_treshold--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+
 <a name="pygame.sprite.GroupSingle">
 <big><b>pygame.sprite.GroupSingle</big></b><br><ul>
   <i>Group container that holds a single Sprite</i><br>
@@ -536,6 +627,7 @@
   <i>collision detection between two sprites, using rects.</i><br>
   <tt>pygame.sprite.collide_rect(left, right): return bool</tt><br>
 <p>Tests for collision between two sprites. Uses the pygame rect colliderect function to calculate the collision. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" attributes. </p>
+<p>New in pygame <tt>1.8.0</tt> </p>
 <!--COMMENTS:pygame.sprite.collide_rect--> &nbsp;<br> 
 <br></ul>
 
@@ -547,6 +639,7 @@
 <p><tt>A</tt> callable class that checks for collisions between two sprites, using a scaled version of the sprites rects. </p>
 <p>Is created with a ratio, the instance is then intended to be passed as a collided callback function to the *collide functions. </p>
 <p><tt>A</tt> ratio is a floating point number - <tt>1.0</tt> is the same size, <tt>2.0</tt> is twice as big, and <tt>0.5</tt> is half the size. </p>
+<p>New in pygame <tt>1.8.1</tt> </p>
 <!--COMMENTS:pygame.sprite.collide_rect_ratio--> &nbsp;<br> 
 <br></ul>
 
@@ -556,6 +649,7 @@
   <i>collision detection between two sprites, using circles.</i><br>
   <tt>pygame.sprite.collide_circle(left, right): return bool</tt><br>
 <p>Tests for collision between two sprites, by testing to see if two circles centered on the sprites overlap. If the sprites have a "radius" attribute, that is used to create the circle, otherwise a circle is created that is big enough to completely enclose the sprites rect as given by the "rect" attribute. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" and an optional "radius" attribute. </p>
+<p>New in pygame <tt>1.8.1</tt> </p>
 <!--COMMENTS:pygame.sprite.collide_circle--> &nbsp;<br> 
 <br></ul>
 
@@ -568,6 +662,7 @@
 <p>Is created with a floating point ratio, the instance is then intended to be passed as a collided callback function to the *collide functions. </p>
 <p><tt>A</tt> ratio is a floating point number - <tt>1.0</tt> is the same size, <tt>2.0</tt> is twice as big, and <tt>0.5</tt> is half the size. </p>
 <p>The created callable tests for collision between two sprites, by testing to see if two circles centered on the sprites overlap, after scaling the circles radius by the stored ratio. If the sprites have a "radius" attribute, that is used to create the circle, otherwise a circle is created that is big enough to completely enclose the sprites rect as given by the "rect" attribute. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" and an optional "radius" attribute. </p>
+<p>New in pygame <tt>1.8.1</tt> </p>
 <!--COMMENTS:pygame.sprite.collide_circle_ratio--> &nbsp;<br> 
 <br></ul>
 
@@ -577,6 +672,7 @@
   <i>collision detection between two sprites, using masks.</i><br>
   <tt>pygame.sprite.collide_mask(SpriteLeft, SpriteRight): return bool</tt><br>
 <p>Tests for collision between two sprites, by testing if thier bitmasks overlap. If the sprites have a "mask" attribute, that is used as the mask, otherwise a mask is created from the sprite image. Intended to be passed as a collided callback function to the *collide functions. Sprites must have a "rect" and an optional "mask" attribute. </p>
+<p>New in pygame <tt>1.8.0</tt> </p>
 <!--COMMENTS:pygame.sprite.collide_mask--> &nbsp;<br> 
 <br></ul>
 

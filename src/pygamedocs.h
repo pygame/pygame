@@ -653,6 +653,22 @@
 
 #define DOC_LAYEREDUPDATESSWITCHLAYER "LayeredUpdates.switch_layer(layer1_nr, layer2_nr): return None\nswitches the sprites from layer1 to layer2"
 
+#define DOC_PYGAMESPRITELAYEREDDIRTY "pygame.sprite.LayeredDirty(*spites, **kwargs): return LayeredDirty\nLayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates."
+
+#define DOC_LAYEREDDIRTYDRAW "LayeredDirty.draw(surface, bgd=None): return Rect_list\ndraw all sprites in the right order onto the passed surface."
+
+#define DOC_LAYEREDDIRTYCLEAR "LayeredDirty.clear(surface, bgd): return None\nused to set background"
+
+#define DOC_LAYEREDDIRTYREPAINTRECT "LayeredDirty.repaint_rect(screen_rect): return None\nrepaints the given area"
+
+#define DOC_LAYEREDDIRTYSETCLIP "LayeredDirty.set_clip(screen_rect=None): return None\nclip the area where to draw. Just pass None (default) to reset the clip"
+
+#define DOC_LAYEREDDIRTYGETCLIP "LayeredDirty.get_clip(): return Rect\nclip the area where to draw. Just pass None (default) to reset the clip"
+
+#define DOC_LAYEREDDIRTYCHANGELAYER "change_layer(sprite, new_layer): return None\nchanges the layer of the sprite"
+
+#define DOC_LAYEREDDIRTYSETTIMINGTRESHOLD "set_timing_treshold(time_ms): return None\nsets the treshold in milliseconds"
+
 #define DOC_PYGAMESPRITEGROUPSINGLE "pygame.sprite.GroupSingle(sprite=None): return GroupSingle\nGroup container that holds a single Sprite"
 
 #define DOC_PYGAMESPRITESPRITECOLLIDE "pygame.sprite.spritecollide(sprite, group, dokill, collided = None): return Sprite_list\nfind Sprites in a Group that intersect another Sprite"
