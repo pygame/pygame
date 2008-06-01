@@ -346,7 +346,9 @@ SaveJPEG (SDL_Surface *surface, char *file)
    need to share it between both.
 */
 
-static SDL_Surface* opengltosdl (void)
+
+static SDL_Surface*
+opengltosdl ()
 {
     /*we need to get ahold of the pyopengl glReadPixels function*/
     /*we use pyopengl's so we don't need to link with opengl at compiletime*/
@@ -356,83 +358,62 @@ static SDL_Surface* opengltosdl (void)
     Uint32 rmask, gmask, bmask;
     int i;
     unsigned char *pixels;
-    PyObject *data;
+
+    typedef void (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
+    GL_glReadPixels_Func p_glReadPixels= NULL;
+    pixels = NULL;
+    surf = NULL;
+
+    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels"); 
 
     surf = SDL_GetVideoSurface ();
 
-    pyopengl = PyImport_ImportModule ("OpenGL.GL");
-    if (pyopengl)
-    {
-        PyObject* dict = PyModule_GetDict (pyopengl);
-        if (dict)
-        {
-            PyObject *o;
-            o = PyDict_GetItemString (dict, "GL_RGB");
-            if (!o)
-            {
-                Py_DECREF (pyopengl);
-                return NULL;
-            }
-            formatflag = PyInt_AsLong (o);
-            o = PyDict_GetItemString (dict, "GL_UNSIGNED_BYTE");
-            if (!o)
-            {
-                Py_DECREF (pyopengl);
-                return NULL;
-            }
-            typeflag = PyInt_AsLong (o);
-            readpixels = PyDict_GetItemString (dict, "glReadPixels");
-            if (!readpixels)
-            {
-                Py_DECREF (pyopengl);
-                return NULL;
-            }
-        }
-        Py_DECREF (pyopengl);
+    if(!surf) {
+        RAISE (PyExc_RuntimeError, "Cannot get video surface.");
+        return NULL;
     }
-    else
-    {
-        RAISE (PyExc_ImportError, "Cannot import PyOpenGL");
+    if(!p_glReadPixels) {
+        RAISE (PyExc_RuntimeError, "Cannot find glReadPixels function.");
         return NULL;
     }
 
-    data = PyObject_CallFunction (readpixels, "iiiiii",
-                                  0, 0, surf->w, surf->h, formatflag, typeflag);
-    if (!data)
-    {
-        RAISE (PyExc_SDLError, "glReadPixels returned NULL");
+    pixels = (unsigned char*) malloc(surf->w * surf->h * 3);
+
+    if(!pixels) {
+        RAISE (PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
         return NULL;
     }
-    pixels = (unsigned char*) PyString_AsString (data);
 
-    if(SDL_BYTEORDER == SDL_LIL_ENDIAN)
-    {
+    /* GL_RGB, GL_UNSIGNED_BYTE */
+    p_glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
+
+    if (SDL_BYTEORDER == SDL_LIL_ENDIAN) {
         rmask=0x000000FF;
         gmask=0x0000FF00;
         bmask=0x00FF0000;
-    }
-    else
-    {
+    } else {
         rmask=0x00FF0000;
         gmask=0x0000FF00;
         bmask=0x000000FF;
     }
     surf = SDL_CreateRGBSurface (SDL_SWSURFACE, surf->w, surf->h, 24,
                                  rmask, gmask, bmask, 0);
-    if (!surf)
-    {
-        Py_DECREF (data);
+    if (!surf) {
+        free(pixels);
         RAISE (PyExc_SDLError, SDL_GetError ());
         return NULL;
     }
 
-    for (i=0; i<surf->h; ++i)
+    for (i = 0; i < surf->h; ++i) {
         memcpy (((char *) surf->pixels) + surf->pitch * i,
-            pixels + 3 * surf->w * (surf->h - i - 1), (size_t) surf->w * 3);
+                pixels + 3 * surf->w * (surf->h - i - 1), surf->w * 3);
+    }
 
-    Py_DECREF (data);
+
+    free(pixels);
     return surf;
 }
+
 
 static PyObject*
 image_save_ext (PyObject* self, PyObject* arg)
