@@ -430,8 +430,183 @@ class Unit_test_LRG(unittest.TestCase):
             self.assert_(spr in self.LRG.get_sprites_from_layer(2))
         self.assert_(len(self.LRG)==len(sprites1)+len(sprites2))
         
+
+# *********************************************************************************************************************        
 #TODO: test FRG and DirtySprite (visible, layer, blendmode and dirty)
 
+from not_implemented import not_completed
+
+class FRG_DirtySprite(unittest.TestCase):
+
+    def test_DirtySprite(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite:
+    
+          # 
+          # DirtySprite has new attributes:
+          # 
+          # dirty: if set to 1, it is repainted and then set to 0 again
+          # if set to 2 then it is always dirty ( repainted each frame,
+          # flag is not reset)
+          # 0 means that it is not dirty and therefor not repainted again
+          # blendmode: its the special_flags argument of blit, blendmodes
+          # source_rect: source rect to use, remember that it relative to
+          # topleft (0,0) of self.image
+          # visible: normally 1, if set to 0 it will not be repainted
+          # (you must set it dirty too to be erased from screen)
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__add(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.add
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.add:
+    
+          # add the sprite to groups
+          # Sprite.add(*groups): return None
+          # 
+          # Any number of Group instances can be passed as arguments. The
+          # Sprite will be added to the Groups it is not already a member of.
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__add_internal(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.add_internal
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.add_internal:
+    
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__alive(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.alive
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.alive:
+    
+          # does the sprite belong to any groups
+          # Sprite.alive(): return Boolean
+          # 
+          # Returns True when the Sprite belongs to one or more Groups.
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__groups(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.groups
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.groups:
+    
+          # list of Groups that contain this Sprite
+          # Sprite.groups(): return group_list
+          # 
+          # Return a list of all the Groups that contain this Sprite.
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__kill(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.kill
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.kill:
+    
+          # remove the Sprite from all Groups
+          # Sprite.kill(): return None
+          # 
+          # The Sprite is removed from all the Groups that contain it. This won't
+          # change anything about the state of the Sprite. It is possible to continue
+          # to use the Sprite after this method has been called, including adding it
+          # to Groups.
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__remove(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.remove
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.remove:
+    
+          # remove the sprite from groups
+          # Sprite.remove(*groups): return None
+          # 
+          # Any number of Group instances can be passed as arguments. The Sprite will
+          # be removed from the Groups it is currently a member of.
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__remove_internal(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.remove_internal
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.remove_internal:
+    
+          # 
+    
+        self.assert_(not_completed())
+    
+    def test_DirtySprite__update(self):
+    
+        """
+        
+        TODO: Test unit pygame.sprite.DirtySprite.update
+        
+        """
+    
+        # Doc string for pygame.sprite.DirtySprite.update:
+    
+          # method to control sprite behavior
+          # Sprite.update(*args):
+          # 
+          # The default implementation of this method does nothing; it's just a
+          # convenient "hook" that you can override. This method is called by
+          # Group.update() with whatever arguments you give it.
+          # 
+          # There is no need to use this method if not using the convenience
+          # method by the same name in the Group class.
+          # 
 
 
 

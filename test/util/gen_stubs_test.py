@@ -9,7 +9,6 @@ more, more, more
 """
 
 import pygame, unittest
-pygame.init()
 
 from gen_stubs import get_package_modules, module_test_stubs
 
@@ -28,8 +27,7 @@ if __name__ == "__main__":
         unittest.main()
     else:
         # scribble tests -->
-        
         for _, stub in module_test_stubs(pygame):
             print stub
-        
+
 ################################################################################
