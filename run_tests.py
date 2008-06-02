@@ -11,7 +11,7 @@ os.chdir( main_dir )
 sys.path.insert( 0, test_subdir )
 
 import not_implemented
-if "-incomplete" in sys.argv or "-i" in sys.argv:
+if "--incomplete" in sys.argv or "-i" in sys.argv:
     not_implemented.fail_incomplete_tests = 1
 
 # Load all the tests
