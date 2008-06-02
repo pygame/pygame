@@ -14,13 +14,6 @@ CUBE_QUAD_VERTS = (
 )
 
 
-def drawcube():
-    glBegin(GL_QUADS)
-    for face in CUBE_QUAD_VERTS:
-        for vert in face:
-            glVertex3fv(CUBE_POINTS[vert])
-    glEnd()
-
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
         #pygame.init()
@@ -28,7 +21,13 @@ class GL_ImageSave(unittest.TestCase):
         from OpenGL.GLU import *
         screen = pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF)
 
-        drawcube()
+        glBegin(GL_QUADS)
+        for face in CUBE_QUAD_VERTS:
+            for vert in face:
+                glVertex3fv(CUBE_POINTS[vert])
+        glEnd()
+
+
         pygame.display.flip()
 
         tmp_dir = test_utils.get_tmp_dir()
