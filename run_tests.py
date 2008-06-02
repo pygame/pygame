@@ -10,9 +10,8 @@ os.chdir( main_dir )
 # Add the modules directory to the python path    
 sys.path.insert( 0, test_subdir )
 
-import not_implemented
-if "--incomplete" in sys.argv or "-i" in sys.argv:
-    not_implemented.fail_incomplete_tests = 1
+# Load test util functions
+import test_utils
 
 # Load all the tests
 suite = unittest.TestSuite()
@@ -26,6 +25,14 @@ for file in os.listdir(test_subdir):
         test = unittest.defaultTestLoader.loadTestsFromName( module )
         suite.addTest( test )
 
+# Parse command line options
+if "--incomplete" in sys.argv or "-i" in sys.argv:
+    test_utils.fail_incomplete_tests = 1
+
+verbose = "--verbose" in sys.argv or "-v" in sys.argv
+
 # Run the tests
 runner = unittest.TextTestRunner()
+
+if verbose: runner.verbosity = 2
 runner.run( suite )
