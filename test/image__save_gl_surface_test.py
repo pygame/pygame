@@ -16,33 +16,33 @@ CUBE_QUAD_VERTS = (
 try:
     from OpenGL.GL import *
     from OpenGL.GLU import *
-
-    def drawcube():
-        glBegin(GL_QUADS)
-        for face in CUBE_QUAD_VERTS:
-            for vert in face:
-                glVertex3fv(CUBE_POINTS[vert])
-        glEnd()
-
-    class GL_ImageSave(unittest.TestCase):
-        def test_image_save_works_with_opengl_surfaces(self):
-            pygame.init()
-            screen = pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF)
-
-            drawcube()
-            pygame.display.flip()
-
-            tmp_dir = test_utils.get_tmp_dir()
-            tmp_file = os.path.join(tmp_dir, "opengl_save_surface_test.png")
-
-            pygame.image.save(screen, tmp_file)
-
-            self.assert_(os.path.exists(tmp_file))
-
-            os.remove(tmp_file)
-
 except ImportError:
     print 'GL test requires PyOpenGL'
+
+def drawcube():
+    glBegin(GL_QUADS)
+    for face in CUBE_QUAD_VERTS:
+        for vert in face:
+            glVertex3fv(CUBE_POINTS[vert])
+    glEnd()
+
+class GL_ImageSave(unittest.TestCase):
+    def test_image_save_works_with_opengl_surfaces(self):
+        #pygame.init()
+        screen = pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF)
+
+        drawcube()
+        pygame.display.flip()
+
+        tmp_dir = test_utils.get_tmp_dir()
+        tmp_file = os.path.join(tmp_dir, "opengl_save_surface_test.png")
+
+        pygame.image.save(screen, tmp_file)
+
+        self.assert_(os.path.exists(tmp_file))
+
+        os.remove(tmp_file)
+
 
 if __name__ == '__main__': 
     unittest.main()
