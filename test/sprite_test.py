@@ -1,6 +1,9 @@
 
 import unittest
 import pygame
+
+import test_utils
+
 from pygame import sprite
 
 
@@ -432,17 +435,12 @@ class Unit_test_LRG(unittest.TestCase):
 # ******************************************************************************
 #TODO: test FRG and DirtySprite (visible, layer, blendmode and dirty)
 
-from not_implemented import test_not_implemented
-
 class FRG_DirtySprite(unittest.TestCase):
     
     def test_DirtySprite(self):
     
-        # """ TODO: Test unit pygame.sprite.DirtySprite """
-    
         # Doc string for pygame.sprite.DirtySprite:
     
-          # 
           # DirtySprite has new attributes:
           # 
           # dirty: if set to 1, it is repainted and then set to 0 again
@@ -455,12 +453,10 @@ class FRG_DirtySprite(unittest.TestCase):
           # visible: normally 1, if set to 0 it will not be repainted
           # (you must set it dirty too to be erased from screen)
           # 
-    
-        self.assert_(test_not_implemented())
-    
+
+        self.assert_(test_utils.test_not_implemented())
+
     def test_DirtySprite__add(self):
-    
-        # """ TODO: Test unit pygame.sprite.DirtySprite.add """
     
         # Doc string for pygame.sprite.DirtySprite.add:
     
@@ -471,11 +467,11 @@ class FRG_DirtySprite(unittest.TestCase):
           # Sprite will be added to the Groups it is not already a member of.
           # 
     
-        self.assert_(test_not_implemented())
+        self.assert_(test_utils.test_not_implemented())
     
     def test_DirtySprite__add_internal(self):
     
-        self.assert_(test_not_implemented())
+        self.assert_(test_utils.test_not_implemented())
     
     def test_DirtySprite__alive(self):
     
@@ -487,7 +483,7 @@ class FRG_DirtySprite(unittest.TestCase):
           # Returns True when the Sprite belongs to one or more Groups.
           # 
     
-        self.assert_(test_not_implemented())
+        self.assert_(test_utils.test_not_implemented())
     
     def test_DirtySprite__groups(self):
     
@@ -499,7 +495,7 @@ class FRG_DirtySprite(unittest.TestCase):
           # Return a list of all the Groups that contain this Sprite.
           # 
     
-        self.assert_(test_not_implemented())
+        self.assert_(test_utils.test_not_implemented())
     
     def test_DirtySprite__kill(self):
     
@@ -515,7 +511,7 @@ class FRG_DirtySprite(unittest.TestCase):
           # to Groups.
           # 
     
-        self.assert_(test_not_implemented())
+        self.assert_(test_utils.test_not_implemented())
     
     def test_DirtySprite__remove(self):
 
@@ -528,13 +524,13 @@ class FRG_DirtySprite(unittest.TestCase):
           # be removed from the Groups it is currently a member of.
           # 
     
-        self.assert_(test_not_implemented())
+        self.assert_(test_utils.test_not_implemented())
     
     def test_DirtySprite__remove_internal(self):
 
         # Doc string for pygame.sprite.DirtySprite.remove_internal:
     
-        self.assert_(test_not_implemented())
+        self.assert_(test_utils.test_not_implemented())
     
     def test_DirtySprite__update(self):
     
@@ -550,15 +546,15 @@ class FRG_DirtySprite(unittest.TestCase):
           # There is no need to use this method if not using the convenience
           # method by the same name in the Group class.
           # 
-    
-        self.assert_(test_not_implemented())
+
+        self.assert_(test_utils.test_not_implemented())
 
 if __name__ == '__main__':
-    import sys, not_implemented
+    import sys
     for arg in "--incomplete", "-i":
         if  arg in sys.argv:
-            not_implemented.fail_incomplete_tests = 1
-            
+            test_utils.fail_incomplete_tests = 1
+
             # remove the -i --incomplete or it will mess up unittest arg parser
             del sys.argv[sys.argv.index(arg)]
         

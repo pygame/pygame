@@ -1,4 +1,4 @@
-import pygame, unittest, os
+import pygame, unittest, os, test_utils
 from pygame.locals import *
 
 CUBE_POINTS = (
@@ -31,11 +31,17 @@ try:
 
             drawcube()
             pygame.display.flip()
-            pygame.image.save(screen, 'opengl_save_surface_test.png')
+            
+            tmp_dir = test_utils.get_tmp_dir()
+            tmp_file = os.path.join(tmp_dir, "opengl_save_surface_test.png")
 
-            self.assert_(os.path.exists('opengl_save_surface_test.png'))
+            pygame.image.save(screen, tmp_file)
 
-except:
+            self.assert_(os.path.exists(tmp_file))
+            
+            os.remove(tmp_file)
+
+except ImportError:
     print 'GL test requires PyOpenGL'
 
 if __name__ == '__main__': 
