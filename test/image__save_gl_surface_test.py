@@ -13,11 +13,6 @@ CUBE_QUAD_VERTS = (
     (4, 5, 1, 0), (1, 5, 7, 2), (4, 0, 3, 6)
 )
 
-try:
-    from OpenGL.GL import *
-    from OpenGL.GLU import *
-except ImportError:
-    print 'GL test requires PyOpenGL'
 
 def drawcube():
     glBegin(GL_QUADS)
@@ -29,6 +24,8 @@ def drawcube():
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
         #pygame.init()
+        from OpenGL.GL import *
+        from OpenGL.GLU import *
         screen = pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF)
 
         drawcube()
