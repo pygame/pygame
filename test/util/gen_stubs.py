@@ -47,17 +47,13 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 
     def ${test_name}(self):
 
-        """
-        
-        TODO: Test unit ${docstring}
-        
-        """
-
         # Doc string for ${unitname}:
 
           ${comments}
 
-        self.assert_(not_completed()) ''', strip_common = 1, strip_excess = 1
+        self.assert_(test_not_implemented()) ''', 
+        
+        strip_common = 1, strip_excess = 1
 )
 
 # for list_all_stubs()
@@ -145,7 +141,6 @@ def test_stub(f, module):
 
         test_name = test_name,
         comments = py_comment(get_doc_str(f)),
-        docstring = unit_name,
         unitname = unit_name,
     )
 
