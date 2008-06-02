@@ -10,6 +10,10 @@ os.chdir( main_dir )
 # Add the modules directory to the python path    
 sys.path.insert( 0, test_subdir )
 
+import not_implemented
+if "-incomplete" in sys.argv or "-i" in sys.argv:
+    not_implemented.fail_incomplete_tests = 1
+
 # Load all the tests
 suite = unittest.TestSuite()
 test_module_re = re.compile('^(.+_test)\.py$')
