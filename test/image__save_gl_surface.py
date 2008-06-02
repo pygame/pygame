@@ -31,14 +31,14 @@ try:
 
             drawcube()
             pygame.display.flip()
-            
+
             tmp_dir = test_utils.get_tmp_dir()
             tmp_file = os.path.join(tmp_dir, "opengl_save_surface_test.png")
 
             pygame.image.save(screen, tmp_file)
 
             self.assert_(os.path.exists(tmp_file))
-            
+
             os.remove(tmp_file)
 
 except ImportError:
