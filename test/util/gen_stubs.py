@@ -51,7 +51,7 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 
           ${comments}
 
-        self.assert_(test_utils.test_not_implemented()) ''', 
+        self.assert_(test_not_implemented()) ''', 
         
         strip_common = 1, strip_excess = 1
 )
