@@ -8,249 +8,186 @@ from pygame import sprite
     
 ################################# MODULE LEVEL #################################
 
-# class spritecollideTest( unittest.TestCase ):
-#     " Tests functions at the module level "
-    
-    # def setUp(self):
-    #     self.ag = sprite.AbstractGroup()
-    #     self.ag2 = sprite.AbstractGroup()
-    #     self.s1 = sprite.Sprite(self.ag)
-    #     self.s2 = sprite.Sprite(self.ag2)
-    #     self.s3 = sprite.Sprite(self.ag2)
-
-    #     self.s1.image = pygame.Surface((50,10), pygame.SRCALPHA, 32)
-    #     self.s2.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
-    #     self.s3.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
-
-    #     self.s1.rect = self.s1.image.get_rect()
-    #     self.s2.rect = self.s2.image.get_rect()
-    #     self.s3.rect = self.s3.image.get_rect()
-    #     self.s2.rect.move_ip(40, 0)
-    #     self.s3.rect.move_ip(100, 100)
-
-def spritecollide(test):
-    " Set up decorator for spritecollide tests "
-    def setUp(self):
-        ag = sprite.AbstractGroup()
-        ag2 = sprite.AbstractGroup()
-        s1 = sprite.Sprite(ag)
-        s2 = sprite.Sprite(ag2)
-        s3 = sprite.Sprite(ag2)
-
-        s1.image = pygame.Surface((50,10), pygame.SRCALPHA, 32)
-        s2.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
-        s3.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
-
-        s1.rect = s1.image.get_rect()
-        s2.rect = s2.image.get_rect()
-        s3.rect = s3.image.get_rect()
-        s2.rect.move_ip(40, 0)
-        s3.rect.move_ip(100, 100)
-
-        return test(self, ag, ag2, s1, s2, s3)
-
-    return setUp
-
 class SpriteModuleTest( unittest.TestCase ):
+    pass
 
-    @spritecollide
-    def test_spritecollide__works_if_collided_cb_is_None(self, *args):
-        _, ag2, s1, s2, _ = args
-        
-        # Test that sprites collide without collided function.
+class spritecollide_Test( unittest.TestCase ):
+    def setUp(self):
+        self.ag = sprite.AbstractGroup()
+        self.ag2 = sprite.AbstractGroup()
+        self.s1 = sprite.Sprite(self.ag)
+        self.s2 = sprite.Sprite(self.ag2)
+        self.s3 = sprite.Sprite(self.ag2)
+
+        self.s1.image = pygame.Surface((50,10), pygame.SRCALPHA, 32)
+        self.s2.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
+        self.s3.image = pygame.Surface((10,10), pygame.SRCALPHA, 32)
+
+        self.s1.rect = self.s1.image.get_rect()
+        self.s2.rect = self.s2.image.get_rect()
+        self.s3.rect = self.s3.image.get_rect()
+        self.s2.rect.move_ip(40, 0)
+        self.s3.rect.move_ip(100, 100)
+
+    def test_spritecollide__works_if_collided_cb_is_None(self):        
+    # Test that sprites collide without collided function.
         self.assertEqual (
             sprite.spritecollide (
-                s1, ag2, dokill = False, collided = None
+                self.s1, self.ag2, dokill = False, collided = None
             ),
-            [s2]
+            [self.s2]
         )
 
-    @spritecollide
-    def test_spritecollide__works_if_collided_cb_not_passed(self, *args):
-        _, ag2, s1, s2, _ = args
-
-        # Should also work when collided function isn't passed at all.
+    def test_spritecollide__works_if_collided_cb_not_passed(self):        
+    # Should also work when collided function isn't passed at all.
         self.assertEqual(sprite.spritecollide (
-            s1, ag2, dokill = False),
-            [s2]
+            self.s1, self.ag2, dokill = False),
+            [self.s2]
         )
     
-    @spritecollide
-    def test_spritecollide__collided_must_be_a_callable(self, *args):
-        ag, ag2, s1, s2, s3 = args
-        
+    def test_spritecollide__collided_must_be_a_callable(self):        
         # Need to pass a callable.
         self.assertRaises ( 
             TypeError, 
-            sprite.spritecollide, s1, ag2, dokill = False, collided = 1
+            sprite.spritecollide, self.s1, self.ag2, dokill = False, collided = 1
         )
 
-    @spritecollide
-    def test_spritecollide__collided_defaults_to_collide_rect(self, *args):
-        ag, ag2, s1, s2, s3 = args
-        
+    def test_spritecollide__collided_defaults_to_collide_rect(self):        
         # collide_rect should behave the same as default.
         self.assertEqual (
             sprite.spritecollide (
-                s1, ag2, dokill = False, collided = sprite.collide_rect
+                self.s1, self.ag2, dokill = False, collided = sprite.collide_rect
             ),
-            [s2]
+            [self.s2]
         )
 
-    @spritecollide
-    def test_collide_rect_ratio__ratio_of_one_like_default(self, *args):
-        ag, ag2, s1, s2, s3 = args
-
+    def test_collide_rect_ratio__ratio_of_one_like_default(self):
         # collide_rect_ratio should behave the same as default at a 1.0 ratio.
         self.assertEqual (
             sprite.spritecollide (
-                s1, ag2, dokill = False, 
+                self.s1, self.ag2, dokill = False, 
                 collided = sprite.collide_rect_ratio(1.0)
             ),
-            [s2]
+            [self.s2]
         )
     
-    @spritecollide
-    def test_collide_rect_ratio__collides_all_at_ratio_of_twenty(self, *args):
-        ag, ag2, s1, s2, s3 = args
-        
+    def test_collide_rect_ratio__collides_all_at_ratio_of_twenty(self):        
         # collide_rect_ratio should collide all at a 20.0 ratio.
         self.assert_ (
             unordered_equality (
                 sprite.spritecollide (
-                    s1, ag2, dokill = False, 
+                    self.s1, self.ag2, dokill = False, 
                     collided = sprite.collide_rect_ratio(20.0)
                 ),
-                [s2,s3]
+                [self.s2, self.s3]
             )
         )
 
-    @spritecollide
-    def test_collide_circle__no_radius_set(self, *args):
-        ag, ag2, s1, s2, s3 = args
-
+    def test_collide_circle__no_radius_set(self):
         # collide_circle with no radius set.
         self.assertEqual (
             sprite.spritecollide (
-                s1, ag2, dokill = False, collided = sprite.collide_circle
+                self.s1, self.ag2, dokill = False, collided = sprite.collide_circle
             ),
-            [s2]
+            [self.s2]
         )
 
-    @spritecollide
-    def test_collide_circle_ratio__no_radius_and_ratio_of_one(self, *args):
-        ag, ag2, s1, s2, s3 = args
-        
+    def test_collide_circle_ratio__no_radius_and_ratio_of_one(self):        
         # collide_circle_ratio with no radius set, at a 1.0 ratio.
         self.assertEqual (
             sprite.spritecollide (
-                s1, ag2, dokill = False, 
+                self.s1, self.ag2, dokill = False, 
                 collided = sprite.collide_circle_ratio(1.0)
             ),
-            [s2]
+            [self.s2]
         )
     
-    @spritecollide
-    def test_collide_circle_ratio__no_radius_and_ratio_of_twenty(self, *args):
-        ag, ag2, s1, s2, s3 = args
-
+    def test_collide_circle_ratio__no_radius_and_ratio_of_twenty(self):
         # collide_circle_ratio with no radius set, at a 20.0 ratio.
         self.assert_ ( 
             unordered_equality (
                 sprite.spritecollide (
-                    s1, ag2, dokill = False, 
+                    self.s1, self.ag2, dokill = False, 
                     collided = sprite.collide_circle_ratio(20.0)
                 ),
-                [s2,s3]
+                [self.s2, self.s3]
             )
         )
     
-    @spritecollide
-    def test_collide_circle__with_radii_set(self, *args):
-        ag, ag2, s1, s2, s3 = args
-
+    def test_collide_circle__with_radii_set(self):
         # collide_circle with a radius set.
         
-        s1.radius = 50
-        s2.radius = 10
-        s3.radius = 400
+        self.s1.radius = 50
+        self.s2.radius = 10
+        self.s3.radius = 400
 
         self.assert_ ( 
             unordered_equality (
                 sprite.spritecollide (
-                    s1, ag2, dokill = False, 
+                    self.s1, self.ag2, dokill = False, 
                     collided = sprite.collide_circle
                 ),
-                [s2,s3]
+                [self.s2, self.s3]
             )
         )
 
-    @spritecollide
-    def test_collide_circle_ratio__with_radii_set(self, *args):
-        ag, ag2, s1, s2, s3 = args
-
-        s1.radius = 50
-        s2.radius = 10
-        s3.radius = 400
+    def test_collide_circle_ratio__with_radii_set(self):
+        self.s1.radius = 50
+        self.s2.radius = 10
+        self.s3.radius = 400
 
         # collide_circle_ratio with a radius set.
         self.assert_ ( 
             unordered_equality (
                 sprite.spritecollide (
-                    s1, ag2, dokill = False, 
+                    self.s1, self.ag2, dokill = False, 
                     collided = sprite.collide_circle_ratio(0.5)
                 ),
-                [s2,s3]
+                [self.s2, self.s3]
             )
         )
                 
-    @spritecollide
-    def test_collide_mask(self, *args):
-        ag, ag2, s1, s2, s3 = args
-        
+    def test_collide_mask(self):        
         # make some fully opaque sprites that will collide with masks.
-        s1.image.fill((255,255,255,255))
-        s2.image.fill((255,255,255,255))
-        s3.image.fill((255,255,255,255))
+        self.s1.image.fill((255,255,255,255))
+        self.s2.image.fill((255,255,255,255))
+        self.s3.image.fill((255,255,255,255))
 
         # masks should be autogenerated from image if they don't exist.
         self.assertEqual (
             sprite.spritecollide (
-                s1, ag2, dokill = False, 
+                self.s1, self.ag2, dokill = False, 
                 collided = sprite.collide_mask
             ),
-            [s2]
+            [self.s2]
         )
         
-        s1.mask = pygame.mask.from_surface(s1.image)
-        s2.mask = pygame.mask.from_surface(s2.image)
-        s3.mask = pygame.mask.from_surface(s3.image)
+        self.s1.mask = pygame.mask.from_surface(self.s1.image)
+        self.s2.mask = pygame.mask.from_surface(self.s2.image)
+        self.s3.mask = pygame.mask.from_surface(self.s3.image)
 
         # with set masks.
         self.assertEqual (
             sprite.spritecollide (
-                s1, ag2, dokill = False, 
+                self.s1, self.ag2, dokill = False, 
                 collided = sprite.collide_mask
             ),
-            [s2]
+            [self.s2]
         )
 
-    @spritecollide
-    def test_collide_mask(self, *args):
-        ag, ag2, s1, s2, s3 = args
-
+    def test_collide_mask(self):
         # make some sprites that are fully transparent, so they won't collide.
-        s1.image.fill((255,255,255,0))
-        s2.image.fill((255,255,255,0))
-        s3.image.fill((255,255,255,0))
+        self.s1.image.fill((255,255,255,0))
+        self.s2.image.fill((255,255,255,0))
+        self.s3.image.fill((255,255,255,0))
 
-        s1.mask = pygame.mask.from_surface(s1.image, 255)
-        s2.mask = pygame.mask.from_surface(s2.image, 255)
-        s3.mask = pygame.mask.from_surface(s3.image, 255)
+        self.s1.mask = pygame.mask.from_surface(self.s1.image, 255)
+        self.s2.mask = pygame.mask.from_surface(self.s2.image, 255)
+        self.s3.mask = pygame.mask.from_surface(self.s3.image, 255)
 
         self.assertFalse (
             sprite.spritecollide (
-                s1, ag2, dokill = False, collided = sprite.collide_mask
+                self.s1, self.ag2, dokill = False, collided = sprite.collide_mask
             )
         )
 
