@@ -1,53 +1,16 @@
+#################################### IMPORTS ###################################
 
-import unittest
-import pygame
+import unittest, pygame, test_utils
 
-import test_utils
+from test_utils import unordered_equality, test_not_implemented
 
 from pygame import sprite
-
-
-def unordered_equality(iter1, iter2):
-    """ 
-    Tests to see if the contents of one iterable are all contained in the other
-    and they are of the same length.
-    """
     
-    if len(iter1) != len(iter2):
-        return False
+################################# MODULE LEVEL #################################
+
+class SpriteModuleTest( unittest.TestCase ):
+    " Tests functions at the module level "
     
-    for val in iter1:
-        if val not in iter2:
-            return False
-        
-    return True
-    
-    
-class SpriteTest( unittest.TestCase ):
-    def testAbstractGroup_has( self ):
-        """ See if abstractGroup has works as expected.
-        """
-        ag = sprite.AbstractGroup()
-        ag2 = sprite.AbstractGroup()
-        s1 = sprite.Sprite(ag)
-        s2 = sprite.Sprite(ag)
-        s3 = sprite.Sprite(ag2)
-        s4 = sprite.Sprite(ag2)
-
-        self.assertEqual(True, s1 in ag )
-
-        self.assertEqual(True, ag.has(s1) )
-
-        self.assertEqual(True, ag.has([s1, s2]) )
-
-        # see if one of them not being in there.
-        self.assertNotEqual(True, ag.has([s1, s2, s3]) )
-
-        # see if a second AbstractGroup works.
-        self.assertEqual(True, ag2.has(s3) )
-
-
-
     def test_spritecollide(self):
 
         ag = sprite.AbstractGroup()
@@ -147,256 +110,319 @@ class SpriteTest( unittest.TestCase ):
         s3.mask = pygame.mask.from_surface(s3.image, 255)
         
         self.assertFalse(sprite.spritecollide(s1, ag2, dokill = False, collided = sprite.collide_mask))
-                
-        
 
+################################################################################
 
+class AbstractGroupTest( unittest.TestCase ):
+    def test_has( self ):
+        " See if AbstractGroup.has() works as expected. "
 
-
-import pygame
-
-import unittest
-import pygame.sprite as FastRenderGroup
-from pygame.sprite import LayeredUpdates as LayeredRenderGroup
-
-
-class Unit_test_LRG(unittest.TestCase):
+        ag = sprite.AbstractGroup()
+        ag2 = sprite.AbstractGroup()
+        s1 = sprite.Sprite(ag)
+        s2 = sprite.Sprite(ag)
+        s3 = sprite.Sprite(ag2)
+        s4 = sprite.Sprite(ag2)
     
+        self.assertEqual(True, s1 in ag )
+    
+        self.assertEqual(True, ag.has(s1) )
+    
+        self.assertEqual(True, ag.has([s1, s2]) )
+    
+        # see if one of them not being in there.
+        self.assertNotEqual(True, ag.has([s1, s2, s3]) )
+    
+        # see if a second AbstractGroup works.
+        self.assertEqual(True, ag2.has(s3) )
+
+################################################################################
+
+class LayeredUpdatesTest(unittest.TestCase):
+    " Tests sprite.LayeredUpdates class " 
     
     def setUp(self):
-        self.LRG = LayeredRenderGroup()
+        self.LU = sprite.LayeredUpdates()
         
-    def test_get_layer_of_sprite(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+    def test_LayeredUpdates__get_layer_of_sprite(self):
+        self.assert_(len(self.LU._spritelist)==0)
         spr = pygame.sprite.Sprite()
-        self.LRG.add(spr, layer=666)
-        self.assert_(len(self.LRG._spritelist)==1)
-        self.assert_(self.LRG.get_layer_of_sprite(spr)==666)
-        self.assert_(self.LRG.get_layer_of_sprite(spr)==self.LRG._spritelayers[spr])
+        self.LU.add(spr, layer=666)
+        self.assert_(len(self.LU._spritelist)==1)
+        self.assert_(self.LU.get_layer_of_sprite(spr)==666)
+        self.assert_(self.LU.get_layer_of_sprite(spr)==self.LU._spritelayers[spr])
         
         
-    def test_add_sprite(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+    def test_LayeredUpdates__add(self):
+        "LayeredUpdates, adding a sprite"
+        
+        self.assert_(len(self.LU._spritelist)==0)
         spr = pygame.sprite.Sprite()
-        self.LRG.add(spr)
-        self.assert_(len(self.LRG._spritelist)==1)
-        self.assert_(self.LRG.get_layer_of_sprite(spr)==self.LRG._default_layer)
+        self.LU.add(spr)
+        self.assert_(len(self.LU._spritelist)==1)
+        self.assert_(self.LU.get_layer_of_sprite(spr)==self.LU._default_layer)
         
-    def test_add_sprite_with_layer_attribute(self):
-        self.assert_(len(self.LRG._spritelist)==0)
-        spr = pygame.sprite.Sprite()
-        spr._layer = 100
-        self.LRG.add(spr)
-        self.assert_(len(self.LRG._spritelist)==1)
-        self.assert_(self.LRG.get_layer_of_sprite(spr)==100)
+    def test_LayeredUpdates__add__sprite_with_layer_attribute(self):
+        #test_add_sprite_with_layer_attribute
         
-    def test_add_sprite_passing_layer(self):
-        self.assert_(len(self.LRG._spritelist)==0)
-        spr = pygame.sprite.Sprite()
-        self.LRG.add(spr, layer=100)
-        self.assert_(len(self.LRG._spritelist)==1)
-        self.assert_(self.LRG.get_layer_of_sprite(spr)==100)
-        
-    def test_add_sprite_overriding_layer_attr(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        self.assert_(len(self.LU._spritelist)==0)
         spr = pygame.sprite.Sprite()
         spr._layer = 100
-        self.LRG.add(spr, layer=200)
-        self.assert_(len(self.LRG._spritelist)==1)
-        self.assert_(self.LRG.get_layer_of_sprite(spr)==200)
+        self.LU.add(spr)
+        self.assert_(len(self.LU._spritelist)==1)
+        self.assert_(self.LU.get_layer_of_sprite(spr)==100)
         
-    def test_add_sprite_init(self):
+    def test_LayeredUpdates__add__passing_layer_keyword(self):
+        # test_add_sprite_passing_layer
+        
+        self.assert_(len(self.LU._spritelist)==0)
         spr = pygame.sprite.Sprite()
-        lrg2 = LayeredRenderGroup(spr)
+        self.LU.add(spr, layer=100)
+        self.assert_(len(self.LU._spritelist)==1)
+        self.assert_(self.LU.get_layer_of_sprite(spr)==100)
+        
+    def test_LayeredUpdates__add__overriding_sprite_layer_attr(self):
+        # test_add_sprite_overriding_layer_attr
+        
+        self.assert_(len(self.LU._spritelist)==0)
+        spr = pygame.sprite.Sprite()
+        spr._layer = 100
+        self.LU.add(spr, layer=200)
+        self.assert_(len(self.LU._spritelist)==1)
+        self.assert_(self.LU.get_layer_of_sprite(spr)==200)
+        
+    def test_LayeredUpdates__add__adding_sprite_on_init(self):
+        # test_add_sprite_init
+        
+        spr = pygame.sprite.Sprite()
+        lrg2 = sprite.LayeredUpdates(spr)
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==lrg2._default_layer)
         
-    def test_add_sprite_init_layer_attr(self):
+    def test_LayeredUpdates__add__sprite_init_layer_attr(self):
+        # test_add_sprite_init_layer_attr
+        
         spr = pygame.sprite.Sprite()
         spr._layer = 20
-        lrg2 = LayeredRenderGroup(spr)
+        lrg2 = sprite.LayeredUpdates(spr)
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==20)
         
     def test_add_sprite_init_passing_layer(self):
+        # test_add_sprite_init_passing_layer
+        
         spr = pygame.sprite.Sprite()
-        lrg2 = LayeredRenderGroup(spr, layer=33)
+        lrg2 = sprite.LayeredUpdates(spr, layer=33)
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==33)
         
     def test_add_sprite_init_overiding_layer(self):
+        # test_add_sprite_init_overiding_layer
+        
         spr = pygame.sprite.Sprite()
         spr._layer = 55
-        lrg2 = LayeredRenderGroup(spr, layer=33)
+        lrg2 = sprite.LayeredUpdates(spr, layer=33)
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==33)
         
     def test_add_spritelist(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_add_spritelist
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             sprites.append(pygame.sprite.Sprite())
-        self.LRG.add(sprites)
-        self.assert_(len(self.LRG._spritelist)==10)
+        self.LU.add(sprites)
+        self.assert_(len(self.LU._spritelist)==10)
         for i in range(10):
-            self.assert_(self.LRG.get_layer_of_sprite(sprites[i])==self.LRG._default_layer)
+            self.assert_(self.LU.get_layer_of_sprite(sprites[i])==self.LU._default_layer)
         
     def test_add_spritelist_with_layer_attr(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_add_spritelist_with_layer_attr
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             sprites.append(pygame.sprite.Sprite())
             sprites[-1]._layer = i
-        self.LRG.add(sprites)
-        self.assert_(len(self.LRG._spritelist)==10)
+        self.LU.add(sprites)
+        self.assert_(len(self.LU._spritelist)==10)
         for i in range(10):
-            self.assert_(self.LRG.get_layer_of_sprite(sprites[i])==i)
+            self.assert_(self.LU.get_layer_of_sprite(sprites[i])==i)
         
     def test_add_spritelist_passing_layer(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_add_spritelist_passing_layer
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             sprites.append(pygame.sprite.Sprite())
-        self.LRG.add(sprites, layer=33)
-        self.assert_(len(self.LRG._spritelist)==10)
+        self.LU.add(sprites, layer=33)
+        self.assert_(len(self.LU._spritelist)==10)
         for i in range(10):
-            self.assert_(self.LRG.get_layer_of_sprite(sprites[i])==33)
+            self.assert_(self.LU.get_layer_of_sprite(sprites[i])==33)
         
     def test_add_spritelist_overriding_layer(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_add_spritelist_overriding_layer
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             sprites.append(pygame.sprite.Sprite())
             sprites[-1].layer = i
-        self.LRG.add(sprites, layer=33)
-        self.assert_(len(self.LRG._spritelist)==10)
+        self.LU.add(sprites, layer=33)
+        self.assert_(len(self.LU._spritelist)==10)
         for i in range(10):
-            self.assert_(self.LRG.get_layer_of_sprite(sprites[i])==33)
+            self.assert_(self.LU.get_layer_of_sprite(sprites[i])==33)
             
     def test_add_spritelist_init(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_add_spritelist_init
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             sprites.append(pygame.sprite.Sprite())
-        lrg2 = LayeredRenderGroup(sprites)
+        lrg2 = sprite.LayeredUpdates(sprites)
         self.assert_(len(lrg2._spritelist)==10)
         for i in range(10):
-            self.assert_(lrg2.get_layer_of_sprite(sprites[i])==self.LRG._default_layer)
+            self.assert_(lrg2.get_layer_of_sprite(sprites[i])==self.LU._default_layer)
         
     def test_remove_sprite(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_remove_sprite
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             sprites.append(pygame.sprite.Sprite())
             sprites[-1].rect = 0
-        self.LRG.add(sprites)
-        self.assert_(len(self.LRG._spritelist)==10)
+        self.LU.add(sprites)
+        self.assert_(len(self.LU._spritelist)==10)
         for i in range(10):
-            self.LRG.remove(sprites[i])
-        self.assert_(len(self.LRG._spritelist)==0)
+            self.LU.remove(sprites[i])
+        self.assert_(len(self.LU._spritelist)==0)
         
     def test_sprites(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_sprites
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             sprites.append(pygame.sprite.Sprite())
             sprites[-1]._layer = 10-i
-        self.LRG.add(sprites)
-        self.assert_(len(self.LRG._spritelist)==10)
-        for idx,spr in enumerate(self.LRG.sprites()):
+        self.LU.add(sprites)
+        self.assert_(len(self.LU._spritelist)==10)
+        for idx,spr in enumerate(self.LU.sprites()):
             self.assert_(spr == sprites[9-idx])
         
     def test_layers(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_layers
+        
+        self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
             for j in range(5):
                 sprites.append(pygame.sprite.Sprite())
                 sprites[-1]._layer = i
-        self.LRG.add(sprites)
-        lays = self.LRG.layers()
+        self.LU.add(sprites)
+        lays = self.LU.layers()
         for i in range(10):
             self.assert_(lays[i] == i)
             
     def test_layers2(self):
-        self.assert_(len(self.LRG)==0)
+        # test_layers2
+        
+        self.assert_(len(self.LU)==0)
         layers = [1,4,6,8,3,6,2,6,4,5,6,1,0,9,7,6,54,8,2,43,6,1]
         for lay in layers:
-            self.LRG.add(pygame.sprite.Sprite(), layer=lay)
+            self.LU.add(pygame.sprite.Sprite(), layer=lay)
         layers.sort()
-        for idx, spr in enumerate(self.LRG.sprites()):
-            self.assert_(self.LRG.get_layer_of_sprite(spr)==layers[idx])
+        for idx, spr in enumerate(self.LU.sprites()):
+            self.assert_(self.LU.get_layer_of_sprite(spr)==layers[idx])
             
     def test_change_layer(self):
-        self.assert_(len(self.LRG._spritelist)==0)
+        # test_change_layer
+        
+        self.assert_(len(self.LU._spritelist)==0)
         spr = pygame.sprite.Sprite()
-        self.LRG.add(spr, layer=99)
-        self.assert_(self.LRG._spritelayers[spr] == 99)
-        self.LRG.change_layer(spr, 44)
-        self.assert_(self.LRG._spritelayers[spr] == 44)
+        self.LU.add(spr, layer=99)
+        self.assert_(self.LU._spritelayers[spr] == 99)
+        self.LU.change_layer(spr, 44)
+        self.assert_(self.LU._spritelayers[spr] == 44)
         
         spr2 = pygame.sprite.Sprite()
         spr2.layer = 55
-        self.LRG.add(spr2)
-        self.LRG.change_layer(spr2, 77)
+        self.LU.add(spr2)
+        self.LU.change_layer(spr2, 77)
         self.assert_(spr2.layer == 77)
         
     def test_get_top_layer(self):
+        # test_get_top_layer
+        
         layers = [1,5,2,8,4,5,3,88,23,0]
         for i in layers:
-            self.LRG.add(pygame.sprite.Sprite(), layer=i)
-        self.assert_(self.LRG.get_top_layer()==max(layers))
-        self.assert_(self.LRG.get_top_layer()==max(self.LRG._spritelayers.values()))
-        self.assert_(self.LRG.get_top_layer()==self.LRG._spritelayers[self.LRG._spritelist[-1]])
+            self.LU.add(pygame.sprite.Sprite(), layer=i)
+        self.assert_(self.LU.get_top_layer()==max(layers))
+        self.assert_(self.LU.get_top_layer()==max(self.LU._spritelayers.values()))
+        self.assert_(self.LU.get_top_layer()==self.LU._spritelayers[self.LU._spritelist[-1]])
             
     def test_get_bottom_layer(self):
+        # test_get_bottom_layer
+        
         layers = [1,5,2,8,4,5,3,88,23,0]
         for i in layers:
-            self.LRG.add(pygame.sprite.Sprite(), layer=i)
-        self.assert_(self.LRG.get_bottom_layer()==min(layers))
-        self.assert_(self.LRG.get_bottom_layer()==min(self.LRG._spritelayers.values()))
-        self.assert_(self.LRG.get_bottom_layer()==self.LRG._spritelayers[self.LRG._spritelist[0]])
+            self.LU.add(pygame.sprite.Sprite(), layer=i)
+        self.assert_(self.LU.get_bottom_layer()==min(layers))
+        self.assert_(self.LU.get_bottom_layer()==min(self.LU._spritelayers.values()))
+        self.assert_(self.LU.get_bottom_layer()==self.LU._spritelayers[self.LU._spritelist[0]])
             
     def test_move_to_front(self):
+        # test_move_to_front
+        
         layers = [1,5,2,8,4,5,3,88,23,0]
         for i in layers:
-            self.LRG.add(pygame.sprite.Sprite(), layer=i)
+            self.LU.add(pygame.sprite.Sprite(), layer=i)
         spr = pygame.sprite.Sprite()
-        self.LRG.add(spr, layer=3)
-        self.assert_(spr != self.LRG._spritelist[-1]) 
-        self.LRG.move_to_front(spr)
-        self.assert_(spr == self.LRG._spritelist[-1]) 
+        self.LU.add(spr, layer=3)
+        self.assert_(spr != self.LU._spritelist[-1]) 
+        self.LU.move_to_front(spr)
+        self.assert_(spr == self.LU._spritelist[-1]) 
         
     def test_move_to_back(self):
+        # test_move_to_back
+        
         layers = [1,5,2,8,4,5,3,88,23,0]
         for i in layers:
-            self.LRG.add(pygame.sprite.Sprite(), layer=i)
+            self.LU.add(pygame.sprite.Sprite(), layer=i)
         spr = pygame.sprite.Sprite()
-        self.LRG.add(spr, layer=55)
-        self.assert_(spr != self.LRG._spritelist[0]) 
-        self.LRG.move_to_back(spr)
-        self.assert_(spr == self.LRG._spritelist[0]) 
+        self.LU.add(spr, layer=55)
+        self.assert_(spr != self.LU._spritelist[0]) 
+        self.LU.move_to_back(spr)
+        self.assert_(spr == self.LU._spritelist[0]) 
         
     def test_get_top_sprite(self):
+        # test_get_top_sprite
+        
         layers = [1,5,2,8,4,5,3,88,23,0]
         for i in layers:
-            self.LRG.add(pygame.sprite.Sprite(), layer=i)
-        self.assert_(self.LRG.get_layer_of_sprite(self.LRG.get_top_sprite())== self.LRG.get_top_layer())
+            self.LU.add(pygame.sprite.Sprite(), layer=i)
+        self.assert_(self.LU.get_layer_of_sprite(self.LU.get_top_sprite())== self.LU.get_top_layer())
         
     def test_get_sprites_from_layer(self):
-        self.assert_(len(self.LRG)==0)
+        # test_get_sprites_from_layer
+        
+        self.assert_(len(self.LU)==0)
         sprites = {}
         layers = [1,4,5,6,3,7,8,2,1,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,0,1,6,5,4,3,2]
         for lay in layers:
             spr = pygame.sprite.Sprite()
             spr._layer = lay
-            self.LRG.add(spr)
+            self.LU.add(spr)
             if not sprites.has_key(lay):
                 sprites[lay] = []
             sprites[lay].append(spr)
             
-        for lay in self.LRG.layers():
-            for spr in self.LRG.get_sprites_from_layer(lay):
+        for lay in self.LU.layers():
+            for spr in self.LU.get_sprites_from_layer(lay):
                 self.assert_(spr in sprites[lay])
                 sprites[lay].remove(spr)
                 if len(sprites[lay]) == 0:
@@ -404,43 +430,43 @@ class Unit_test_LRG(unittest.TestCase):
         self.assert_(len(sprites.values())==0)
         
     def test_switch_layer(self):
-        self.assert_(len(self.LRG)==0)
+        # test_switch_layer
+
+        self.assert_(len(self.LU)==0)
         sprites1 = []
         sprites2 = []
         layers = [3,2,3,2,3,3,2,2,3,2,3,2,3,2,3,2,3,3,2,2,3,2,3]
         for lay in layers:
             spr = pygame.sprite.Sprite()
             spr._layer = lay
-            self.LRG.add(spr)
+            self.LU.add(spr)
             if lay==2:
                 sprites1.append(spr)
             else:
                 sprites2.append(spr)
                 
         for spr in sprites1:
-            self.assert_(spr in self.LRG.get_sprites_from_layer(2))
+            self.assert_(spr in self.LU.get_sprites_from_layer(2))
         for spr in sprites2:
-            self.assert_(spr in self.LRG.get_sprites_from_layer(3))
-        self.assert_(len(self.LRG)==len(sprites1)+len(sprites2))
-        
-        self.LRG.switch_layer(2,3)
-        
+            self.assert_(spr in self.LU.get_sprites_from_layer(3))
+        self.assert_(len(self.LU)==len(sprites1)+len(sprites2))
+
+        self.LU.switch_layer(2,3)
+
         for spr in sprites1:
-            self.assert_(spr in self.LRG.get_sprites_from_layer(3))
+            self.assert_(spr in self.LU.get_sprites_from_layer(3))
         for spr in sprites2:
-            self.assert_(spr in self.LRG.get_sprites_from_layer(2))
-        self.assert_(len(self.LRG)==len(sprites1)+len(sprites2))
-        
+            self.assert_(spr in self.LU.get_sprites_from_layer(2))
+        self.assert_(len(self.LU)==len(sprites1)+len(sprites2))
 
-# ******************************************************************************
-#TODO: test FRG and DirtySprite (visible, layer, blendmode and dirty)
+################################################################################
 
-class FRG_DirtySprite(unittest.TestCase):
-    
+class DirtySprite(unittest.TestCase):
+
     def test_DirtySprite(self):
-    
+
         # Doc string for pygame.sprite.DirtySprite:
-    
+
           # DirtySprite has new attributes:
           # 
           # dirty: if set to 1, it is repainted and then set to 0 again
@@ -454,7 +480,7 @@ class FRG_DirtySprite(unittest.TestCase):
           # (you must set it dirty too to be erased from screen)
           # 
 
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
 
     def test_DirtySprite__add(self):
     
@@ -467,11 +493,11 @@ class FRG_DirtySprite(unittest.TestCase):
           # Sprite will be added to the Groups it is not already a member of.
           # 
     
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
     
     def test_DirtySprite__add_internal(self):
     
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
     
     def test_DirtySprite__alive(self):
     
@@ -483,7 +509,7 @@ class FRG_DirtySprite(unittest.TestCase):
           # Returns True when the Sprite belongs to one or more Groups.
           # 
     
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
     
     def test_DirtySprite__groups(self):
     
@@ -495,7 +521,7 @@ class FRG_DirtySprite(unittest.TestCase):
           # Return a list of all the Groups that contain this Sprite.
           # 
     
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
     
     def test_DirtySprite__kill(self):
     
@@ -511,7 +537,7 @@ class FRG_DirtySprite(unittest.TestCase):
           # to Groups.
           # 
     
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
     
     def test_DirtySprite__remove(self):
 
@@ -524,13 +550,13 @@ class FRG_DirtySprite(unittest.TestCase):
           # be removed from the Groups it is currently a member of.
           # 
     
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
     
     def test_DirtySprite__remove_internal(self):
 
         # Doc string for pygame.sprite.DirtySprite.remove_internal:
     
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
     
     def test_DirtySprite__update(self):
     
@@ -547,15 +573,12 @@ class FRG_DirtySprite(unittest.TestCase):
           # method by the same name in the Group class.
           # 
 
-        self.assert_(test_utils.test_not_implemented())
+        self.assert_(test_not_implemented())
+
+################################################################################
 
 if __name__ == '__main__':
-    import sys
-    for arg in "--incomplete", "-i":
-        if  arg in sys.argv:
-            test_utils.fail_incomplete_tests = 1
+    if test_utils.get_cl_fail_incomplete_opt():
+        test_utils.fail_incomplete_tests = 1
 
-            # remove the -i --incomplete or it will mess up unittest arg parser
-            del sys.argv[sys.argv.index(arg)]
-        
     unittest.main()
