@@ -208,7 +208,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==20)
         
-    def test_add_sprite_init_passing_layer(self):
+    def test_LayeredUpdates__add__sprite_init_passing_layer(self):
         # test_add_sprite_init_passing_layer
         
         spr = pygame.sprite.Sprite()
@@ -216,7 +216,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==33)
         
-    def test_add_sprite_init_overiding_layer(self):
+    def test_LayeredUpdates__add__sprite_init_overiding_layer(self):
         # test_add_sprite_init_overiding_layer
         
         spr = pygame.sprite.Sprite()
@@ -225,7 +225,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==33)
         
-    def test_add_spritelist(self):
+    def test_LayeredUpdates__add__spritelist(self):
         # test_add_spritelist
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -237,7 +237,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         for i in range(10):
             self.assert_(self.LU.get_layer_of_sprite(sprites[i])==self.LU._default_layer)
         
-    def test_add_spritelist_with_layer_attr(self):
+    def test_LayeredUpdates__add__spritelist_with_layer_attr(self):
         # test_add_spritelist_with_layer_attr
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -250,7 +250,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         for i in range(10):
             self.assert_(self.LU.get_layer_of_sprite(sprites[i])==i)
         
-    def test_add_spritelist_passing_layer(self):
+    def test_LayeredUpdates__add__spritelist_passing_layer(self):
         # test_add_spritelist_passing_layer
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -262,7 +262,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         for i in range(10):
             self.assert_(self.LU.get_layer_of_sprite(sprites[i])==33)
         
-    def test_add_spritelist_overriding_layer(self):
+    def test_LayeredUpdates__add__spritelist_overriding_layer(self):
         # test_add_spritelist_overriding_layer
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -275,9 +275,9 @@ class LayeredUpdatesTest(unittest.TestCase):
         for i in range(10):
             self.assert_(self.LU.get_layer_of_sprite(sprites[i])==33)
             
-    def test_add_spritelist_init(self):
+    def test_LayeredUpdates__add__spritelist_init(self):
         # test_add_spritelist_init
-        
+
         self.assert_(len(self.LU._spritelist)==0)
         sprites = []
         for i in range(10):
@@ -287,7 +287,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         for i in range(10):
             self.assert_(lrg2.get_layer_of_sprite(sprites[i])==self.LU._default_layer)
         
-    def test_remove_sprite(self):
+    def test_LayeredUpdates__remove__sprite(self):
         # test_remove_sprite
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -301,7 +301,7 @@ class LayeredUpdatesTest(unittest.TestCase):
             self.LU.remove(sprites[i])
         self.assert_(len(self.LU._spritelist)==0)
         
-    def test_sprites(self):
+    def test_LayeredUpdates__sprites(self):
         # test_sprites
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -314,7 +314,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         for idx,spr in enumerate(self.LU.sprites()):
             self.assert_(spr == sprites[9-idx])
         
-    def test_layers(self):
+    def test_LayeredUpdates__layers(self):
         # test_layers
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -328,9 +328,9 @@ class LayeredUpdatesTest(unittest.TestCase):
         for i in range(10):
             self.assert_(lays[i] == i)
             
-    def test_layers2(self):
+    def test_LayeredUpdates__add__layers_are_correct(self):  #TODO
         # test_layers2
-        
+
         self.assert_(len(self.LU)==0)
         layers = [1,4,6,8,3,6,2,6,4,5,6,1,0,9,7,6,54,8,2,43,6,1]
         for lay in layers:
@@ -338,8 +338,8 @@ class LayeredUpdatesTest(unittest.TestCase):
         layers.sort()
         for idx, spr in enumerate(self.LU.sprites()):
             self.assert_(self.LU.get_layer_of_sprite(spr)==layers[idx])
-            
-    def test_change_layer(self):
+
+    def test_LayeredUpdates__change_layer(self):
         # test_change_layer
         
         self.assert_(len(self.LU._spritelist)==0)
@@ -355,7 +355,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.LU.change_layer(spr2, 77)
         self.assert_(spr2.layer == 77)
         
-    def test_get_top_layer(self):
+    def test_LayeredUpdates__get_top_layer(self):
         # test_get_top_layer
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -365,7 +365,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.assert_(self.LU.get_top_layer()==max(self.LU._spritelayers.values()))
         self.assert_(self.LU.get_top_layer()==self.LU._spritelayers[self.LU._spritelist[-1]])
             
-    def test_get_bottom_layer(self):
+    def test_LayeredUpdates__get_bottom_layer(self):
         # test_get_bottom_layer
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -375,7 +375,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.assert_(self.LU.get_bottom_layer()==min(self.LU._spritelayers.values()))
         self.assert_(self.LU.get_bottom_layer()==self.LU._spritelayers[self.LU._spritelist[0]])
             
-    def test_move_to_front(self):
+    def test_LayeredUpdates__move_to_front(self):
         # test_move_to_front
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -387,7 +387,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.LU.move_to_front(spr)
         self.assert_(spr == self.LU._spritelist[-1]) 
         
-    def test_move_to_back(self):
+    def test_LayeredUpdates__move_to_back(self):
         # test_move_to_back
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -399,7 +399,7 @@ class LayeredUpdatesTest(unittest.TestCase):
         self.LU.move_to_back(spr)
         self.assert_(spr == self.LU._spritelist[0]) 
         
-    def test_get_top_sprite(self):
+    def test_LayeredUpdates__get_top_sprite(self):
         # test_get_top_sprite
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -407,7 +407,7 @@ class LayeredUpdatesTest(unittest.TestCase):
             self.LU.add(pygame.sprite.Sprite(), layer=i)
         self.assert_(self.LU.get_layer_of_sprite(self.LU.get_top_sprite())== self.LU.get_top_layer())
         
-    def test_get_sprites_from_layer(self):
+    def test_LayeredUpdates__get_sprites_from_layer(self):
         # test_get_sprites_from_layer
         
         self.assert_(len(self.LU)==0)
@@ -429,7 +429,7 @@ class LayeredUpdatesTest(unittest.TestCase):
                     del sprites[lay]
         self.assert_(len(sprites.values())==0)
         
-    def test_switch_layer(self):
+    def test_LayeredUpdates__switch_layer(self):
         # test_switch_layer
 
         self.assert_(len(self.LU)==0)
