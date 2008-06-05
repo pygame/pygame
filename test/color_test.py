@@ -253,13 +253,39 @@ class ColorTest (unittest.TestCase):
 
 
     def test_webstyle(self):
-        c = pygame.Color ("#CC00CC00")
+        c = pygame.Color ("#CC00CC11")
+        self.assertEquals (c.r, 204)
+        self.assertEquals (c.g, 0)
+        self.assertEquals (c.b, 204)
+        self.assertEquals (c.a, 17)
+        self.assertEquals (hex (c), hex (0xCC00CC11))
+
+        c = pygame.Color ("#CC00CC")
         self.assertEquals (c.r, 204)
         self.assertEquals (c.g, 0)
         self.assertEquals (c.b, 204)
         self.assertEquals (c.a, 0)
         self.assertEquals (hex (c), hex (0xCC00CC00))
 
+        c = pygame.Color ("0xCC00CC11")
+        self.assertEquals (c.r, 204)
+        self.assertEquals (c.g, 0)
+        self.assertEquals (c.b, 204)
+        self.assertEquals (c.a, 17)
+        self.assertEquals (hex (c), hex (0xCC00CC11))
+
+        c = pygame.Color ("0xCC00CC")
+        self.assertEquals (c.r, 204)
+        self.assertEquals (c.g, 0)
+        self.assertEquals (c.b, 204)
+        self.assertEquals (c.a, 0)
+        self.assertEquals (hex (c), hex (0xCC00CC00))
+
+        self.assertRaises (ValueError, pygame.Color, "#cc00qq")
+        self.assertRaises (ValueError, pygame.Color, "0xcc00qq")
+        self.assertRaises (ValueError, pygame.Color, "09abcdef")
+        self.assertRaises (ValueError, pygame.Color, "09abcde")
+        self.assertRaises (ValueError, pygame.Color, "quarky")
 
     def test_int (self):
         # This will be a long

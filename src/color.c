@@ -35,6 +35,8 @@ typedef struct
 static PyObject *_COLORDICT = NULL;
 
 static int _get_color (PyObject *val, Uint32 *color);
+static int _hextoint (char *hex, Uint8 *val);
+static int _hexcolor (PyObject *color, Uint8 rgba[]);
 
 static PyColor* _color_new_internal (PyTypeObject *type, Uint8 rgba[]);
 static PyObject* _color_new (PyTypeObject *type, PyObject *args,
@@ -269,6 +271,71 @@ _get_color (PyObject *val, Uint32 *color)
     return 0;
 }
 
+static int
+_hextoint (char *hex, Uint8 *val)
+{
+    char part[3] = { '\0' };
+    char *eptr;
+    part[0] = hex[0];
+    part[1] = hex[1];
+
+    *val = strtol (part, &eptr, 16);
+    if (eptr == part) /* Failure */
+        return 0;
+    return 1;
+}
+
+static int
+_hexcolor (PyObject *color, Uint8 rgba[])
+{
+    size_t len;
+    char *name = PyString_AsString (color);
+    if (!name)
+        return 0;
+
+    len = strlen (name);
+    /* hex colors can be
+     * #RRGGBB
+     * #RRGGBBAA
+     * 0xRRGGBB
+     * 0xRRGGBBAA
+     */
+    if (len < 7)
+        return 0;
+
+    if (name[0] == '#')
+    {
+        if (len != 7 && len != 9)
+            return 0;
+        if (!_hextoint (name + 1, &rgba[0]))
+            return 0;
+        if (!_hextoint (name + 3, &rgba[1]))
+            return 0;
+        if (!_hextoint (name + 5, &rgba[2]))
+            return 0;
+        rgba[3] = 0;
+        if (len == 9 && !_hextoint (name + 7, &rgba[3]))
+            return 0;
+        return 1;
+    }
+    else if (name[0] == '0' && name[1] == 'x')
+    {
+        if (len != 8 && len != 10)
+            return 0;
+        if (!_hextoint (name + 2, &rgba[0]))
+            return 0;
+        if (!_hextoint (name + 4, &rgba[1]))
+            return 0;
+        if (!_hextoint (name + 6, &rgba[2]))
+            return 0;
+        rgba[3] = 0;
+        if (len == 10 && !_hextoint (name + 8, &rgba[3]))
+            return 0;
+        return 1;
+    }
+    return 0;
+}
+
 static PyColor*
 _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 {
@@ -305,8 +372,11 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
         
         color = PyDict_GetItem (_COLORDICT, obj);
         if (!color)
-            return RAISE (PyExc_ValueError, "invalid color name");
-        if (!RGBAFromObj (color, rgba))
+        {
+            if (!_hexcolor (obj, rgba))
+                return RAISE (PyExc_ValueError, "invalid color name");
+        }
+        else if (!RGBAFromObj (color, rgba))
             return RAISE (PyExc_ValueError, "invalid color");
 
         return (PyObject *) _color_new_internal (type, rgba);
