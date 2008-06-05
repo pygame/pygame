@@ -251,6 +251,16 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c.a, 146)
         self.assertEquals (hex (c), hex (0x33727592))
 
+
+    def test_webstyle(self):
+        c = pygame.Color ("#CC00CC00")
+        self.assertEquals (c.r, 204)
+        self.assertEquals (c.g, 0)
+        self.assertEquals (c.b, 204)
+        self.assertEquals (c.a, 0)
+        self.assertEquals (hex (c), hex (0xCC00CC00))
+
+
     def test_int (self):
         # This will be a long
         c = pygame.Color (0xCC00CC00)
