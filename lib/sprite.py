@@ -220,7 +220,7 @@ class DirtySprite(Sprite):
 
     layer = 0
         (READONLY value, it is read when adding it to the 
-        LayeredRenderGroup, for details see doc of LayeredRenderGroup)
+        LayeredUpdates, for details see doc of LayeredUpdates)
     """
     
     def __init__(self, *groups):
@@ -1056,7 +1056,7 @@ class LayeredDirty(LayeredUpdates):
 
         sprite must have been added to the renderer. It is not checked.
         """
-        LayeredRenderGroup.change_layer(self, sprite, new_layer)
+        LayeredUpdates.change_layer(self, sprite, new_layer)
         if sprite.dirty == 0:
             sprite.dirty = 1
             
