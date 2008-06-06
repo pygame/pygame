@@ -235,7 +235,20 @@ if "bdist_msi" in sys.argv:
     class bdist_msi_overwrite_on_install(bdist_msi.bdist_msi):
         def run(self):
             bdist_msi.bdist_msi.run(self)
-            
+
+            # Remove obsolete files.
+            comp = "pygame1"  # Pygame component
+            prop = comp   # Directory property
+            records = [("surfarray.pyd", comp,
+                        "SURFAR~1.PYD|surfarray.pyd", prop, 1),
+                       ("sndarray.pyd", comp,
+                        "SNDARRAY.PYD|sndarray.pyd", prop, 1),
+                       ("color.py", comp, "COLOR.PY|color.py", prop, 1),
+                       ("color.pyc", comp, "COLOR.PYC|color.pyc", prop, 1),
+                       ("color.pyo", comp, "COLOR.PYO|color.pyo", prop, 1)]
+            msilib.add_data(self.db, "RemoveFile", records)
+
+            # Overwrite outdated files.
             fullname = self.distribution.get_fullname()
             installer_name = self.get_installer_filename(fullname)           
             print "changing",installer_name,"to overwrite files on install"
