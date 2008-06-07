@@ -38,23 +38,20 @@ if sys.platform == 'darwin':
 
 
 # check if is old windows... if so use directx video driver by default.
-try:
-    import platform
-except:
-    platform = None
-
-# see if we can set directx as default video for older versions of windows.
-if platform and platform.system() in ["Windows"]:
-    # if someone sets this respect their setting...
-    if not os.environ.get('SDL_VIDEODRIVER', ''):
-        # http://docs.python.org/lib/module-sys.html
-        # 0 (VER_PLATFORM_WIN32s) 	Win32s on Windows 3.1
-        # 1 (VER_PLATFORM_WIN32_WINDOWS) 	Windows 95/98/ME
-        # 2 (VER_PLATFORM_WIN32_NT) 	Windows NT/2000/XP
-        # 3 (VER_PLATFORM_WIN32_CE) 	Windows CE
-        if sys.getwindowsversion()[3] in [1,2]:
-            os.environ['SDL_VIDEODRIVER'] = 'directx'
-
+# if someone sets this respect their setting...
+if not os.environ.get('SDL_VIDEODRIVER', ''):
+    # http://docs.python.org/lib/module-sys.html
+    # 0 (VER_PLATFORM_WIN32s) 	Win32s on Windows 3.1
+    # 1 (VER_PLATFORM_WIN32_WINDOWS) 	Windows 95/98/ME
+    # 2 (VER_PLATFORM_WIN32_NT) 	Windows NT/2000/XP
+    # 3 (VER_PLATFORM_WIN32_CE) 	Windows CE
+    if hasattr(sys, "getwindowsversion"):
+        try:
+            if (sys.getwindowsversion()[3] in [1,2] and
+                sys.getwindowsversion()[0] in [0,1,2,3,4,5]):
+                os.environ['SDL_VIDEODRIVER'] = 'directx'
+        except:
+            pass
 
 
 class MissingModule:
