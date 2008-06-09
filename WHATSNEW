@@ -6,6 +6,10 @@
 #
 #
 
+Jun 9, 2008
+    [BUG] Fixed locking and reference count leaks in Numeric surfarray
+       implementation.
+
 May 31, 2008
     Updated sprite documentation - mainly for new stuff added in pygame 1.8.0
 
