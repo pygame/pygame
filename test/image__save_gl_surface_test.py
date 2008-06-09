@@ -2,18 +2,21 @@ import unittest, os, test_utils
 
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
-        
+        cmd = 'python '
+
         if 'image__save_gl_surface_test_.py' not in os.listdir('.'):
-            cmd = 'test/'
+            cmd += 'test/'
         else:
-            cmd = ''
+            cmd += ''
 
         cmd += "image__save_gl_surface_test_.py"
 
         stdin, ret = os.popen4(cmd)
         stdin.close()        
-        ret.seek(0)
-
+        
+        try: ret.seek(0)
+        except IOError: pass
+        
         gl_surface_save_test = ret.read().strip()
         ret.close()
         
