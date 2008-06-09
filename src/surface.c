@@ -1787,7 +1787,8 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     return rect;
 }
 
-static PyObject *surf_get_buffer (PyObject *self)
+static PyObject
+*surf_get_buffer (PyObject *self)
 {
     PyObject *buffer;
     PyObject *lock;
