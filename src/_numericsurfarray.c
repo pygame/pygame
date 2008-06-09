@@ -35,6 +35,7 @@ pixels3d (PyObject* self, PyObject* arg)
     int pixelstep;
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
     PyObject* lifelock;
+    int rgb = 0;
     
     if (!PyArg_ParseTuple (arg, "O!", &PySurface_Type, &surfobj))
         return NULL;
@@ -43,44 +44,55 @@ pixels3d (PyObject* self, PyObject* arg)
     if (surf->format->BytesPerPixel <= 2 || surf->format->BytesPerPixel > 4)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for 3D reference array");
-    
-    lifelock = PySurface_LockLifetime (surfobj);
-    if (!lifelock)
-        return NULL;
-    
+
     /*must discover information about how data is packed*/
     if (surf->format->Rmask == 0xff<<16 &&
         surf->format->Gmask == 0xff<<8 &&
         surf->format->Bmask == 0xff)
     {
         pixelstep = (lilendian ? -1 : 1);
-        startpixel = ((char*) surf->pixels) + (lilendian ? 2 : 0);
+        rgb = 1;
     }
     else if (surf->format->Bmask == 0xff<<16 &&
              surf->format->Gmask == 0xff<<8 &&
              surf->format->Rmask == 0xff)
     {
         pixelstep = (lilendian ? 1 : -1);
-        startpixel = ((char*) surf->pixels) + (lilendian ? 0 : 2);
+        rgb = 0;
     }
     else
         return RAISE (PyExc_ValueError,
                       "unsupport colormasks for 3D reference array");
-    if (!lilendian && surf->format->BytesPerPixel == 4)
-        ++startpixel;
-    
+
     /*create the referenced array*/
     dim[0] = surf->w;
     dim[1] = surf->h;
     dim[2] = 3; /*could be 4 if alpha in the house*/
-    array = PyArray_FromDimsAndData (3, dim, PyArray_UBYTE, startpixel);
+
+    /* Pass a dummy string and set it correctly later */
+    array = PyArray_FromDimsAndData (3, dim, PyArray_UBYTE, "");
     if (array)
     {
+        lifelock = PySurface_LockLifetime (surfobj);
+        if (!lifelock)
+        {
+            Py_DECREF (array);
+            return NULL;
+        }
+
+        if (rgb)
+            startpixel = ((char*) surf->pixels) + (lilendian ? 2 : 0);
+        else
+            startpixel = ((char*) surf->pixels) + (lilendian ? 0 : 2);
+        if (!lilendian && surf->format->BytesPerPixel == 4)
+            ++startpixel;
+
         ((PyArrayObject*) array)->flags = OWN_DIMENSIONS|OWN_STRIDES|SAVESPACE;
         ((PyArrayObject*) array)->strides[2] = pixelstep;
         ((PyArrayObject*) array)->strides[1] = surf->pitch;
         ((PyArrayObject*) array)->strides[0] = surf->format->BytesPerPixel;
         ((PyArrayObject*) array)->base = lifelock;
+        ((PyArrayObject*) array)->data = startpixel;
     }
     return array;
 }
@@ -104,20 +116,23 @@ pixels2d (PyObject* self, PyObject* arg)
         return RAISE (PyExc_ValueError,
                       "unsupport bit depth for 2D reference array");
     
-    lifelock = PySurface_LockLifetime (surfobj);
-    if (!lifelock)
-        return NULL;
-    
     dim[0] = surf->w;
     dim[1] = surf->h;
     type = types[surf->format->BytesPerPixel-1];
-    array = PyArray_FromDimsAndData (2, dim, type, (char*) surf->pixels);
+    array = PyArray_FromDimsAndData (2, dim, type, "");
     if (array)
     {
+        lifelock = PySurface_LockLifetime (surfobj);
+        if (!lifelock)
+        {
+            Py_DECREF (array);
+            return NULL;
+        }
         ((PyArrayObject*) array)->strides[1] = surf->pitch;
         ((PyArrayObject*) array)->strides[0] = surf->format->BytesPerPixel;
         ((PyArrayObject*) array)->flags = OWN_DIMENSIONS|OWN_STRIDES;
         ((PyArrayObject*) array)->base = lifelock;
+        ((PyArrayObject*) array)->data = (char*) surf->pixels;
     }
     return array;
 }
@@ -130,6 +145,8 @@ pixels_alpha (PyObject* self, PyObject* arg)
     PyObject* lifelock;
     SDL_Surface* surf;
     char* startpixel;
+    int startoffset;
+
     const int lilendian = (SDL_BYTEORDER == SDL_LIL_ENDIAN);
 
     if (!PyArg_ParseTuple(arg, "O!", &PySurface_Type, &surfobj))
@@ -139,28 +156,32 @@ pixels_alpha (PyObject* self, PyObject* arg)
     if (surf->format->BytesPerPixel != 4)
         return RAISE (PyExc_ValueError, "unsupport bit depth for alpha array");
     
-    lifelock = PySurface_LockLifetime (surfobj);
-    if (!lifelock)
-        return NULL;
-    
     /*must discover information about how data is packed*/
     if (surf->format->Amask == 0xff << 24)
-        startpixel = ((char*) surf->pixels) + (lilendian ? 3 : 0);
+        startoffset = (lilendian ? 3 : 0);
     else if (surf->format->Amask == 0xff)
-        startpixel = ((char*) surf->pixels) + (lilendian ? 0 : 3);
+        startoffset = (lilendian ? 0 : 3);
     else
         return RAISE (PyExc_ValueError,
                       "unsupport colormasks for alpha reference array");
 
     dim[0] = surf->w;
     dim[1] = surf->h;
-    array = PyArray_FromDimsAndData (2, dim, PyArray_UBYTE, startpixel);
+    array = PyArray_FromDimsAndData (2, dim, PyArray_UBYTE, "");
     if(array)
     {
+        lifelock = PySurface_LockLifetime (surfobj);
+        if (!lifelock)
+        {
+            Py_DECREF (array);
+            return NULL;
+        }
+        startpixel = ((char*) surf->pixels) + startoffset;
         ((PyArrayObject*) array)->strides[1] = surf->pitch;
         ((PyArrayObject*) array)->strides[0] = surf->format->BytesPerPixel;
         ((PyArrayObject*) array)->flags = OWN_DIMENSIONS|OWN_STRIDES;
         ((PyArrayObject*) array)->base = lifelock;
+        ((PyArrayObject*) array)->data = startpixel;
     }
     return array;
 }
@@ -192,7 +213,10 @@ array2d (PyObject* self, PyObject* arg)
     stridey = ((PyArrayObject*) array)->strides[1];
 
     if (!PySurface_Lock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
+    }
 
     switch (surf->format->BytesPerPixel)
     {
@@ -256,7 +280,10 @@ array2d (PyObject* self, PyObject* arg)
     }
     
     if (!PySurface_Unlock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
+    }
     return array;
 }
 
@@ -302,13 +329,17 @@ array3d (PyObject* self, PyObject* arg)
     stridey = ((PyArrayObject*) array)->strides[1];
 
     if (!PySurface_Lock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
+    }
 
     switch (surf->format->BytesPerPixel)
     {
     case 1:
         if (!format->palette)
         {
+            Py_DECREF (array);
             if (!PySurface_Unlock (surfobj))
                 return NULL;
             return RAISE (PyExc_RuntimeError, "8bit surface has no palette");
@@ -390,7 +421,10 @@ array3d (PyObject* self, PyObject* arg)
     }
     
     if (!PySurface_Unlock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
+    }
     return array;
 }
 
@@ -434,8 +468,11 @@ array_alpha (PyObject* self, PyObject* arg)
     stridey = ((PyArrayObject*) array)->strides[1];
     
     if (!PySurface_Lock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
-    
+    }
+
     switch (surf->format->BytesPerPixel)
     {
     case 2:
@@ -489,7 +526,10 @@ array_alpha (PyObject* self, PyObject* arg)
     }
     
     if (!PySurface_Unlock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
+    }
     return array;
 }
 
@@ -530,8 +570,11 @@ array_colorkey (PyObject* self, PyObject* arg)
     stridey = ((PyArrayObject*) array)->strides[1];
     
     if (!PySurface_Lock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
-    
+    }
+
     switch (surf->format->BytesPerPixel)
     {
     case 1:
@@ -598,7 +641,10 @@ array_colorkey (PyObject* self, PyObject* arg)
     }
     
     if (!PySurface_Unlock (surfobj))
+    {
+        Py_DECREF (array);
         return NULL;
+    }
     return array;
 }
 
