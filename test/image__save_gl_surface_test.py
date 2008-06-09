@@ -1,22 +1,26 @@
-import pygame, unittest, os, test_utils
-from pygame.locals import *
-
+import unittest, os, test_utils
 
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
-        screen = pygame.display.set_mode((640,480), OPENGL|DOUBLEBUF)
+        
+        if 'image__save_gl_surface_test_.py' not in os.listdir('.'):
+            cmd = 'test/'
+        else:
+            cmd = ''
 
-        pygame.display.flip()
+        cmd += "image__save_gl_surface_test_.py"
 
-        tmp_dir = test_utils.get_tmp_dir()
-        tmp_file = os.path.join(tmp_dir, "opengl_save_surface_test.png")
+        stdin, ret = os.popen4(cmd)
+        stdin.close()        
+        ret.seek(0)
 
-        pygame.image.save(screen, tmp_file)
+        gl_surface_save_test = ret.read().strip()
+        ret.close()
+        
+        if "Segmentation Fault" in gl_surface_save_test:
+            raise Exception('Segmentation Fault')
 
-        self.assert_(os.path.exists(tmp_file))
-
-        os.remove(tmp_file)
-
+        self.assert_(gl_surface_save_test.endswith('OK'))
 
 if __name__ == '__main__': 
     unittest.main()
