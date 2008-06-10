@@ -644,9 +644,9 @@ class Sprite:
 
 class SpriteTest(Sprite, unittest.TestCase):
     Sprite = sprite.Sprite
-    
+
     Groups = [ sprite.Group, 
-               sprite.LayeredUpdates, 
+               sprite.LayeredUpdates,
                sprite.RenderUpdates, 
                sprite.OrderedUpdates, ]
 
@@ -662,7 +662,5 @@ class DirtySpriteTest(Sprite, unittest.TestCase):
 ################################################################################
 
 if __name__ == '__main__':
-    if test_utils.get_cl_fail_incomplete_opt():
-        test_utils.fail_incomplete_tests = 1
-
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()
