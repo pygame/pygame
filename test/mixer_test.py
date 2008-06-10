@@ -22,7 +22,7 @@ class MixerModuleTest(unittest.TestCase):
     #                 for f in FREQUENCIES
     #                 for s in SIZES
     #                 for c in CHANNELS )
-        
+
     #     for kw_conf in configs:
     #         mixer.init(*kw_conf)
 
@@ -191,7 +191,5 @@ class SoundTest(unittest.TestCase):
 ##################################### MAIN #####################################
 
 if __name__ == '__main__':
-    if test_utils.get_cl_fail_incomplete_opt():
-        test_utils.fail_incomplete_tests = 1
-        
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()
