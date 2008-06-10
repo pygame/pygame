@@ -557,106 +557,75 @@ class LayeredDirty_DirtySpriteTest(LayeredGroup, unittest.TestCase):
     def setUp(self):
         self.LG = sprite.LayeredDirty()
 
-################################################################################
 
-class DirtySprite(unittest.TestCase):
-    def test_DirtySprite(self):
+############################### SPRITE BASE CLASS ##############################
+#
+# tests common between sprite classes
 
-        # Doc string for pygame.sprite.DirtySprite:
+class Sprite:
+    def setUp(self):
+        self.groups = []
+        for Group in self.Groups:
+            self.groups.append(Group())
+        
+        self.sprite = self.Sprite()
+    
+    def test_Sprite____init____added_to_groups_passed(self):
+        self.sprite = self.Sprite(self.groups)
 
-          # DirtySprite has new attributes:
-          # 
-          # dirty: if set to 1, it is repainted and then set to 0 again
-          # if set to 2 then it is always dirty ( repainted each frame,
-          # flag is not reset)
-          # 0 means that it is not dirty and therefor not repainted again
-          # blendmode: its the special_flags argument of blit, blendmodes
-          # source_rect: source rect to use, remember that it relative to
-          # topleft (0,0) of self.image
-          # visible: normally 1, if set to 0 it will not be repainted
-          # (you must set it dirty too to be erased from screen)
-          #
+        self.assert_(unordered_equality(
+            self.sprite.groups(),
+            self.groups
+        ))
 
+    def test_Sprite__add(self):
+        self.sprite.add(self.groups)
+
+        self.assert_(unordered_equality(
+            self.sprite.groups(),
+            self.groups
+        ))
+
+    def test_Sprite__add_internal(self):
+        self.assert_(test_not_implemented())
+    
+    def test_Sprite__alive(self):
+        self.assert_(
+            not self.sprite.alive(),
+            "Sprite should not be alive if in no groups"
+        )
+
+        self.sprite.add(self.groups)
+        self.assert_(self.sprite.alive())
+
+    def test_Sprite__groups(self):
+        for i, g in enumerate(self.groups):
+            self.sprite.add(g)
+
+            groups = self.sprite.groups()
+            self.assert_( unordered_equality (
+                    groups,
+                    self.groups[:i+1],
+            ))
+    
+    def test_Sprite__kill(self):
+        self.sprite.add(self.groups)
+        
+        self.assert_(self.sprite.alive())
+        self.sprite.kill()
+        
+        self.assert_(not self.sprite.groups() and not self.sprite.alive() )        
+    
+    def test_Sprite__remove(self):
+        self.sprite.add(self.groups)
+        self.sprite.remove(self.groups)
+        self.assert_(not self.sprite.groups())
+
+    def test_Sprite__remove_internal(self):
         self.assert_(test_not_implemented())
 
-    def test_DirtySprite__add(self):
-    
-        # Doc string for pygame.sprite.DirtySprite.add:
-    
-          # add the sprite to groups
-          # Sprite.add(*groups): return None
-          # 
-          # Any number of Group instances can be passed as arguments. The
-          # Sprite will be added to the Groups it is not already a member of.
-          # 
-    
-        self.assert_(test_not_implemented())
-    
-    def test_DirtySprite__add_internal(self):
-    
-        self.assert_(test_not_implemented())
-    
-    def test_DirtySprite__alive(self):
-    
-        # Doc string for pygame.sprite.DirtySprite.alive:
-    
-          # does the sprite belong to any groups
-          # Sprite.alive(): return Boolean
-          # 
-          # Returns True when the Sprite belongs to one or more Groups.
-          # 
-    
-        self.assert_(test_not_implemented())
-    
-    def test_DirtySprite__groups(self):
-    
-        # Doc string for pygame.sprite.DirtySprite.groups:
-    
-          # list of Groups that contain this Sprite
-          # Sprite.groups(): return group_list
-          # 
-          # Return a list of all the Groups that contain this Sprite.
-          # 
-    
-        self.assert_(test_not_implemented())
-    
-    def test_DirtySprite__kill(self):
-    
-    
-        # Doc string for pygame.sprite.DirtySprite.kill:
-    
-          # remove the Sprite from all Groups
-          # Sprite.kill(): return None
-          # 
-          # The Sprite is removed from all the Groups that contain it. This won't
-          # change anything about the state of the Sprite. It is possible to continue
-          # to use the Sprite after this method has been called, including adding it
-          # to Groups.
-          # 
-    
-        self.assert_(test_not_implemented())
-    
-    def test_DirtySprite__remove(self):
-
-        # Doc string for pygame.sprite.DirtySprite.remove:
-    
-          # remove the sprite from groups
-          # Sprite.remove(*groups): return None
-          # 
-          # Any number of Group instances can be passed as arguments. The Sprite will
-          # be removed from the Groups it is currently a member of.
-          # 
-    
-        self.assert_(test_not_implemented())
-    
-    def test_DirtySprite__remove_internal(self):
-
-        # Doc string for pygame.sprite.DirtySprite.remove_internal:
-    
-        self.assert_(test_not_implemented())
-    
-    def test_DirtySprite__update(self):
-        # Doc string for pygame.sprite.DirtySprite.update:
+    def test_Sprite__update(self):
+        # Doc string for pygame.sprite.Sprite.update:
     
           # method to control sprite behavior
           # Sprite.update(*args):
@@ -668,8 +637,27 @@ class DirtySprite(unittest.TestCase):
           # There is no need to use this method if not using the convenience
           # method by the same name in the Group class.
           # 
-
+    
         self.assert_(test_not_implemented())
+
+############################## SPRITE CLASS TESTS ##############################
+
+class SpriteTest(Sprite, unittest.TestCase):
+    Sprite = sprite.Sprite
+    
+    Groups = [ sprite.Group, 
+               sprite.LayeredUpdates, 
+               sprite.RenderUpdates, 
+               sprite.OrderedUpdates, ]
+
+class DirtySpriteTest(Sprite, unittest.TestCase):
+    Sprite = sprite.DirtySprite
+    
+    Groups = [ sprite.Group,
+               sprite.LayeredUpdates,
+               sprite.RenderUpdates,
+               sprite.OrderedUpdates,
+               sprite.LayeredDirty, ]
 
 ################################################################################
 
