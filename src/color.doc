@@ -64,6 +64,18 @@ mapping from 0-100 and 0-360 rounding errors may cause the HSL values to
 differ slightly from what you might expect.
 <END>
 
+i1i2i3
+Gets or sets the I1I2I3 representation of the Color.
+Color.i1i2i3: Return tuple
+
+The I1I2I3 representation of the Color. The I1I2I3 components are in the
+ranges I1 = [0, 1], I2 = [-1/3, 1/3], I3 = [-0.5, 0.5]. Note that this
+will not return the absolutely exact I1I2I3 values for the set RGB
+values in all cases. Due to the RGB mapping from 0-255 and the I1I2I3
+mapping from 0-1 rounding errors may cause the I1I2I3 values to differ
+slightly from what you might expect.
+<END>
+
 normalize
 Returns the normalized RGBA values of the Color.
 Color.normalize(): Return tuple
