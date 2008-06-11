@@ -59,8 +59,6 @@ static PyObject* _color_get_hsva (PyColor *color, void *closure);
 static int _color_set_hsva (PyColor *color, PyObject *value, void *closure);
 static PyObject* _color_get_hsla (PyColor *color, void *closure);
 static int _color_set_hsla (PyColor *color, PyObject *value, void *closure);
-static PyObject* _color_get_yuv (PyColor *color, void *closure);
-static int _color_set_yuv (PyColor *color, PyObject *value, void *closure);
 
 /* Number protocol methods */
 static PyObject* _color_add (PyColor *color1, PyColor *color2);
@@ -109,8 +107,6 @@ static PyGetSetDef _color_getsets[] =
     { "hsva", (getter) _color_get_hsva, (setter) _color_set_hsva, DOC_COLORHSVA,
       NULL },
     { "hsla", (getter) _color_get_hsla, (setter) _color_set_hsla, DOC_COLORHSLA,
-      NULL },
-    { "yuv", (getter) _color_get_yuv, (setter) _color_set_yuv, DOC_COLORYUV,
       NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
@@ -638,9 +634,11 @@ _color_get_hsva (PyColor *color, void *closure)
         else
             hsv[0] = (60 * (frgb[0] - frgb[1]) / diff) + 240.0f;
     }
+    if (hsv[0] < 0)
+        hsv[0] += 360.0f;
 
     /* H,S,V,A */
-    return Py_BuildValue ("(ffff)", hsv[0], hsv[1], hsv[2], frgb[3]);
+    return Py_BuildValue ("(ffff)", hsv[0], hsv[1], hsv[2], frgb[3] * 100);
 }
 
 static int
@@ -658,7 +656,8 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     /* H */
     item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(hsva[0])) || hsva[0] < 0 || hsva[0] > 1)
+    if (!item || !FloatFromObj (item, &(hsva[0])) ||
+        hsva[0] < 0 || hsva[0] > 360)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
@@ -667,7 +666,8 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     /* S */
     item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(hsva[1])) || hsva[1] < 0 || hsva[1] > 1)
+    if (!item || !FloatFromObj (item, &(hsva[1])) ||
+        hsva[1] < 0 || hsva[1] > 100)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
@@ -676,7 +676,8 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     /* V */
     item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(hsva[2])) || hsva[2] < 0 || hsva[2] > 1)
+    if (!item || !FloatFromObj (item, &(hsva[2])) ||
+        hsva[2] < 0 || hsva[2] > 100)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
@@ -688,7 +689,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
     {
         item = PySequence_GetItem (value, 3);
         if (!item || !FloatFromObj (item, &(hsva[3])) ||
-            hsva[3] < 0 || hsva[3] > 1)
+            hsva[3] < 0 || hsva[3] > 100)
         {
             Py_DECREF (item);
             PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
@@ -801,10 +802,11 @@ _color_get_hsla (PyColor *color, void *closure)
     {
         hsl[0] = (60 * (frgb[0] - frgb[1]) / diff) + 240.0f;
     }
-
+    if (hsl[0] < 0)
+        hsl[0] += 360.0f;
     
     /* H,S,L,A */
-    return Py_BuildValue ("(ffff)", hsl[0], hsl[1], hsl[2], frgb[3]);
+    return Py_BuildValue ("(ffff)", hsl[0], hsl[1], hsl[2], frgb[3] * 100);
 }
 
 /**
@@ -825,7 +827,8 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
 
     /* H */
     item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(hsla[0])) || hsla[0] < 0 || hsla[0] > 1)
+    if (!item || !FloatFromObj (item, &(hsla[0])) ||
+        hsla[0] < 0 || hsla[0] > 360)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
@@ -834,7 +837,8 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
 
     /* S */
     item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(hsla[1])) || hsla[1] < 0 || hsla[1] > 1)
+    if (!item || !FloatFromObj (item, &(hsla[1])) ||
+        hsla[1] < 0 || hsla[1] > 100)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
@@ -843,7 +847,8 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
 
     /* L */
     item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(hsla[2])) || hsla[2] < 0 || hsla[2] > 1)
+    if (!item || !FloatFromObj (item, &(hsla[2])) ||
+        hsla[2] < 0 || hsla[2] > 100)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
@@ -855,7 +860,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
     {
         item = PySequence_GetItem (value, 3);
         if (!item || !FloatFromObj (item, &(hsla[3])) ||
-            hsla[3] < 0 || hsla[3] > 1)
+            hsla[3] < 0 || hsla[3] > 100)
         {
             Py_DECREF (item);
             PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
@@ -920,76 +925,6 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
     else
         color->b = (Uint8) (p * 255);
 
-    return 0;
-}
-
-/**
- * color.yuv
- */
-static PyObject*
-_color_get_yuv (PyColor *color, void *closure)
-{
-    double yuv[3] = { 0, 0, 0 };
-    double frgb[3];
-
-    /* Normalize */
-    frgb[0] = color->r / 255.0;
-    frgb[1] = color->g / 255.0;
-    frgb[2] = color->b / 255.0;
-
-    yuv[0] = 0.299 * frgb[0] + 0.587 * frgb[1] + 0.114 * frgb[2];
-    yuv[1] = 0.493 * (frgb[2] - yuv[0]);
-    yuv[2] = 0.877 * (frgb[0] - yuv[0]);
-
-    /* Y,U,V */
-    return Py_BuildValue ("(fff)", yuv[0], yuv[1], yuv[2]);
-}
-
-/**
- * color.yuv = x
- */
-static int
-_color_set_yuv (PyColor *color, PyObject *value, void *closure)
-{
-    PyObject *item;
-    float yuv[3] = { 0, 0, 0 };
-
-    if (!PySequence_Check (value) || PySequence_Size (value) < 3)
-    {
-        PyErr_SetString (PyExc_ValueError, "invalid YUV value");
-        return -1;
-    }
-
-    /* Y */
-    item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(yuv[0])) || yuv[0] < 0 || yuv[0] > 1)
-    {
-        Py_XDECREF (item);
-        PyErr_SetString (PyExc_ValueError, "invalid YUV value");
-        return -1;
-    }
-
-    /* U */
-    item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(yuv[1])) || yuv[1] < 0 || yuv[1] > 1)
-    {
-        Py_XDECREF (item);
-        PyErr_SetString (PyExc_ValueError, "invalid YUV value");
-        return -1;
-    }
-
-    /* V */
-    item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(yuv[2])) || yuv[2] < 0 || yuv[2] > 1)
-    {
-        Py_XDECREF (item);
-        PyErr_SetString (PyExc_ValueError, "invalid YUV value");
-        return -1;
-    }
-
-    color->r = (Uint8) ((yuv[0] + yuv[2] / 0.877) * 255);
-    color->g = (Uint8) ((yuv[0] - 0.39466 * yuv[1] - 0.5806 * yuv[2]) * 255);
-    color->b = (Uint8) ((yuv[0] + yuv[2] / 0.493) * 255);
     return 0;
 }
 
