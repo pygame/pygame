@@ -2,31 +2,37 @@
 #define _PYGAME_PHYSICS_BODY_
 
 
-#include <Python.h>
+#include "pgVector2.h"
 
 typedef struct _pgWorldObject pgWorldObject;
+typedef struct _pgShapeObject pgShapeObject;
 
 typedef struct _pgBodyObject{
 	PyObject_HEAD
 
 	double		fMass;
-	Py_complex	vecLinearVelocity;
+	pgVector2	vecLinearVelocity;
 	double		fAngleVelocity;
 
-	Py_complex	vecPosition;
+	pgVector2	vecPosition;
 	double		fRotation;
-	Py_complex	vecImpulse;
-	Py_complex	vecForce;
+	pgVector2	vecImpulse;
+	pgVector2	vecForce;
 	double		fTorque;
 
 	double		fRestitution;
 	double		fFriction;
+
+	pgShapeObject* shape;
+
 } pgBodyObject;
 
 pgBodyObject* PG_BodyNew();
 void	PG_BodyDestroy(pgBodyObject* body);
 
-void PG_FreeUpdateBody(pgWorldObject* world,pgBodyObject* body,double dt);
+void PG_FreeUpdateBodyVel(pgWorldObject* world, pgBodyObject* body, double dt);
+void PG_FreeUpdateBodyPos(pgWorldObject* world, pgBodyObject* body, double dt);
 
+pgVector2 PG_GetGlobalCor(pgBodyObject* body, pgVector2* local);
 
 #endif //_PYGAME_PHYSICS_BODY_

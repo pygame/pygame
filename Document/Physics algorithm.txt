@@ -1,0 +1,18 @@
+
+1.Simulation Step Algorithm
+	
+	Collision Detection and find all contacts
+	Find and build awake islands (An island contains bodys and joints which are connected together)
+		Depth first search algorithm to the body joints connect graph
+		when no body in the island is awake, the island is sleep 
+	Simulate awake islands
+		Free bodys simulation: Integrate velocities and apply damping.
+		Solve contacts and joints interatively
+		Update bodys positions
+		update body's states: whether it's sleep now. 
+	Post step
+		clear contact list
+		clear islands 
+		
+		
+

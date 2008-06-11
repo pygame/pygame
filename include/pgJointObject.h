@@ -3,23 +3,27 @@
 
 #include "pgBodyObject.h"
 
-typedef struct _pgJoint pgJoint;
+typedef struct _pgJointObject pgJointObject;
 
-typedef struct _pgJoint{
+typedef struct _pgJointObject{
 	PyObject_HEAD
 
 	pgBodyObject*	body1;
 	pgBodyObject*	body2;
-	bool	isCollideConnect;
-	void	(*SolveConstraint)(pgJoint* joint,double stepTime);
-} pgJoint;
+	int		isCollideConnect;
+	void	(*SolveConstraint)(pgJointObject* joint,double stepTime);
+	void	(*Destroy)(pgJointObject* joint);
+} pgJointObject;
+
+void PG_JointDestroy(pgJointObject* joint);
 
 typedef struct _pgDistanceJoint{
-	pgJoint		joint;
+	pgJointObject		joint;
+
 	double		distance;
-	Py_complex	anchor1,anchor2;
+	pgVector2	anchor1,anchor2;
 } pgDistanceJoint;
 
-
+pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect,double distance,pgVector2 a1,pgVector2 a2);
 
 #endif //_PYGAME_PHYSICS_JOINT_

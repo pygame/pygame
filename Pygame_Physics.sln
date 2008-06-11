@@ -10,7 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Document", "Document", "{86532ADD-793B-4E68-A6C0-E911FD382476}"
 	ProjectSection(SolutionItems) = preProject
-		ToDoList.txt = ToDoList.txt
+		Document\Physics algorithm.txt = Document\Physics algorithm.txt
+		Document\ToDoList.txt = Document\ToDoList.txt
 	EndProjectSection
 EndProject
 Global

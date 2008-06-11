@@ -1,0 +1,7 @@
+#ifndef _PYGAME_PHYSICS_COLLISION_
+#define _PYGAME_PHYSICS_COLLISION_
+
+
+
+
+#endif

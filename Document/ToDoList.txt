@@ -1,0 +1,13 @@
+1. Finish Pygame Physics Code Frame   ***DONE****
+2. Finish Test Code Frame   ****DONE****
+3. Algorithm For particle simulation   *****DONE*******
+4. Algorithm For Rigid Body simulation   
+5. Shape Defination , Collision Detection
+	Rect Shape					***DONE****
+	Circle Shape
+	Polygon Shape
+6. Joint Defination , Joint Solver
+	Distance Joint					***DONE****  
+7. Final Test and Python wrapper
+8. Pygame Physics Sprite Integration
+9. Demo

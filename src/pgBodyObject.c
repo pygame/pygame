@@ -1,17 +1,23 @@
 #include "pgBodyObject.h"
 #include "pgWorldObject.h"
-#include "pgComplexExtensions.h"
+#include "pgVector2.h"
+#include "pgShapeObject.h"
 #include <structmember.h>
 
 
-void PG_FreeUpdateBody(pgWorldObject* world,pgBodyObject* body, double dt)
+void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 {
-	Py_complex totalVelAdd,totalPosAdd;
+	pgVector2 totalVelAdd;
 	double k;
 	totalVelAdd = c_sum(body->vecForce,world->vecGravity);
 	k = dt / body->fMass;
 	totalVelAdd = c_mul_complex_with_real(totalVelAdd,k);
 	body->vecLinearVelocity = c_sum(body->vecLinearVelocity,totalVelAdd);
+}
+
+void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
+{
+	pgVector2 totalPosAdd;
 
 	totalPosAdd = c_mul_complex_with_real(body->vecLinearVelocity,dt);
 	body->vecPosition = c_sum(body->vecPosition,totalPosAdd);
@@ -25,14 +31,13 @@ void PG_BodyInit(pgBodyObject* body)
 	body->fRestitution = 1.0;
 	body->fRotation = 0.0;
 	body->fTorque = 0.0;
-	body->vecForce.real = 0.0;
-	body->vecForce.imag = 0.0;
-	body->vecImpulse.real = 0.0;
-	body->vecImpulse.imag = 0.0;
-	body->vecLinearVelocity.real = 0.0;
-	body->vecLinearVelocity.imag = 0.0;
-	body->vecPosition.real = 0.0;
-	body->vecPosition.imag = 0.0;
+	PG_Set_Vector2(body->vecForce,0.0,0.0);
+	PG_Set_Vector2(body->vecImpulse,0.0,0.0);
+	PG_Set_Vector2(body->vecLinearVelocity,0.0,0.0);
+	PG_Set_Vector2(body->vecPosition,0.0,0.0);
+
+	//TODO: here just for testing, would be replaced by generic function
+	body->shape = PG_RectShapeNew(body, 20, 20, 0);
 }
 
 pgBodyObject* PG_BodyNew()
@@ -43,7 +48,14 @@ pgBodyObject* PG_BodyNew()
 	return op;
 }
 
-
+pgVector2 PG_GetGlobalCor(pgBodyObject* body, pgVector2* local)
+{
+	pgVector2 ans;
+	ans = *local;
+	c_rotate(&ans, body->fRotation);
+	ans = c_sum(ans, body->vecPosition);
+	return ans;
+}
 
 
 

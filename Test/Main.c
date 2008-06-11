@@ -179,18 +179,45 @@ void reshape (int width , int height)
 	glLoadIdentity();									
 }
 
-void InitWorld()
+//============================================
+
+void TestBasic1Init()
+{
+	pgBodyObject* body;
+	pgJointObject* joint;
+	pgVector2 a1,a2;
+	PG_Set_Vector2(a1,0,0);
+	PG_Set_Vector2(a2,0,100);
+
+	s_world = PG_WorldNew();
+	s_world->fStepTime = 0.03;
+	body = PG_BodyNew();
+	PG_Set_Vector2(body->vecPosition,0,0)
+	PG_Set_Vector2(body->vecLinearVelocity,40,0)
+	PG_AddBodyToWorld(s_world,body);
+	
+	
+	joint = PG_DistanceJointNew(body,NULL,0,100,a1,a2);
+	PG_AddJointToWorld(s_world,joint);
+}
+
+void TestBasic2Init()
 {
 	pgBodyObject* body;
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
 	body = PG_BodyNew();
-	body->vecPosition.real = 0;
-	body->vecPosition.imag = 0;
-	body->vecLinearVelocity.real = 10;
+	PG_Set_Vector2(body->vecPosition,0,0)
+	PG_Set_Vector2(body->vecLinearVelocity,10,0)
 	PG_AddBodyToWorld(s_world,body);
 }
 
+//===============================================
+
+void InitWorld()
+{
+	TestBasic1Init();
+}
 
 int main (int argc, char** argv)
 {

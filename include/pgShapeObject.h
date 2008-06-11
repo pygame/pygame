@@ -3,38 +3,51 @@
 
 #include <Python.h>
 #include "pgAABBBox.h"
+#include "pgVector2.h"
 
 typedef struct _pgBodyObject pgBodyObject;
-
+typedef struct _pgShapeObject pgShapeObject;
 
 // shape base type
 typedef struct _pgShapeObject{
 	PyObject_HEAD
 
-	pgBodyObject*		body;
-	pgAABBBox	box;
+	pgAABBBox box;
+	pgBodyObject* body;
+	//pgVector2 centroid;
 
-	void (*DestroyShape)();
-	void (*UpdateAABBBox)();
+	//virtual functions
+	void (*Destroy)(pgShapeObject *shape);
+	int (*IsPointIn)(pgShapeObject* shape, pgVector2* point);
 } pgShapeObject;
 
 void	PG_ShapeDestroy(pgShapeObject* shape);
 
 //subclass type
-
 typedef struct _pgRectShape{
-	pgShapeObject		shape;
+	pgShapeObject shape;
 
-	pgAABBBox			rectBox;
-} pgPolygonShape;
+	union
+	{
+		struct
+		{
+			pgVector2 point[4];
+		};
+		struct
+		{
+			pgVector2 bottomLeft, bottomRight, topRight, topLeft;
+		};
+	};
+	
+} pgRectShape;
 
-pgShapeObject*	PG_RectShapeNew(pgAABBBox rect);
+pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, double seta);
 
 
-typedef struct _pgPolygonShape{
-	pgShapeObject		shape;
-
-	PyListObject*		vertexList;
-};
+//typedef struct _pgPolygonShape{
+//	pgShapeObject		shape;
+//
+//	PyListObject*		vertexList;
+//}pgPolygonShape;
 
 #endif //_PYGAME_PHYSICS_SHAPE_
