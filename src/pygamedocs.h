@@ -85,8 +85,6 @@
 
 #define DOC_COLORHSLA "Color.hsla: Return tuple\nGets or sets the HSLA representation of the Color."
 
-#define DOC_COLORYUV "Color.yuv: Return tuple\nGets or sets the normalized YUV representation of the Color."
-
 #define DOC_COLORNORMALIZE "Color.normalize(): Return tuple\nReturns the normalized RGBA values of the Color."
 
 #define DOC_COLORCORRECTGAMMA "Color.correct_gamma (gamma): Return Color\nApplies a certain gamma value to the Color."
