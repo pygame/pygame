@@ -1,5 +1,18 @@
+#################################### IMPORTS ###################################
+
 import unittest
 import pygame
+
+################################### CONSTANTS ##################################
+
+rgba_vals = [0, 1, 62, 63, 126, 127, 255]
+
+rgba_combinations =  ( (r,g,b,a) for r in rgba_vals
+                                 for g in rgba_vals
+                                 for b in rgba_vals
+                                 for a in rgba_vals )
+
+################################################################################
 
 # TODO: add tests for
 # correct_gamma()
@@ -28,13 +41,13 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c.g, 20)
         self.assertEquals (c.b, 30)
         self.assertEquals (c.a, 40)
-        
+
         c = pygame.Color ("indianred3")
         self.assertEquals (c.r, 205)
         self.assertEquals (c.g, 85)
         self.assertEquals (c.b, 85)
         self.assertEquals (c.a, 255)
-        
+
         c = pygame.Color (0xAABBCCDD)
         self.assertEquals (c.r, 0xAA)
         self.assertEquals (c.g, 0xBB)
@@ -338,7 +351,7 @@ class ColorTest (unittest.TestCase):
     def test_len (self):
         c = pygame.Color (204, 38, 194, 55)
         self.assertEquals (len (c), 4)
-        
+
     def test_get_item (self):
         c = pygame.Color (204, 38, 194, 55)
         self.assertEquals (c[0], 204)
@@ -346,21 +359,21 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c[2], 194)
         self.assertEquals (c[3], 55)
 
-    def test_set_item (self):
-        c = pygame.Color (204, 38, 194, 55)
-        self.assertEquals (c.r, 204)
-        self.assertEquals (c.g, 38)
-        self.assertEquals (c.b, 194)
-        self.assertEquals (c.a, 55)
+    # def test_set_item (self):                        DUPLICATE
+    #     c = pygame.Color (204, 38, 194, 55)
+    #     self.assertEquals (c.r, 204)
+    #     self.assertEquals (c.g, 38)
+    #     self.assertEquals (c.b, 194)
+    #     self.assertEquals (c.a, 55)
 
-        c[0] = 33
-        self.assertEquals (c[0], 33)
-        c[1] = 48
-        self.assertEquals (c[1], 48)
-        c[2] = 173
-        self.assertEquals (c[2], 173)
-        c[3] = 213
-        self.assertEquals (c[3], 213)
+    #     c[0] = 33
+    #     self.assertEquals (c[0], 33)
+    #     c[1] = 48
+    #     self.assertEquals (c[1], 48)
+    #     c[2] = 173
+    #     self.assertEquals (c[2], 173)
+    #     c[3] = 213
+    #     self.assertEquals (c[3], 213)
 
     def test_set_item (self):
         c = pygame.Color (204, 38, 194, 55)
@@ -385,6 +398,30 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c[1], 48)
         self.assertRaises (ValueError, _assign_item, c, 2, "Hello")
         self.assertEquals (c[2], 173)
+
+
+    def test_hsla(self):
+        #hlsa  hue, luminance,  saturation, alpha
+        
+        # Due to the RGB mapping from 0-255 and the
+        # +HLS mapping from 0-1 rounding errors may cause the HLS values to
+        # +differ slightly from what you might expect.
+        
+        # hsla is a tuple of length 4
+        #
+        #    for v in hsla: assert 0 <= v <= 1
+        #    assert a =~ rgba[3] / 255.0
+        
+        for r,g,b,a in rgba_combinations:
+            c = pygame.Color (r,g,b,a)
+
+            hlsa = c.hlsa
+
+            for val in hlsa:
+                self.assert_(0 <= val <= 1)
+
+            # TODO: rounding errors ?
+            self.assert_(hlsa[3] == (a / 255.0))
 
 if __name__ == '__main__':
     unittest.main()
