@@ -426,7 +426,7 @@ class ColorTest (unittest.TestCase):
         for r, g, b, a in rgba_combinations:
             c = pygame.Color (r,g,b,a)
         
-            h, s, v, a = c.hsva
+            h, s, v, _a = c.hsva
             self.assert_(0 <= h <= 360)
             self.assert_(0 <= s <= 100)
             self.assert_(0 <= v <= 100)
@@ -446,7 +446,7 @@ class ColorTest (unittest.TestCase):
     def test_yuv__sanity_testing_converted_should_not_raise(self):
         fails = 0
         
-        for i, (r,g,b,a) in enumerate(rgba_combinations):
+        for r,g,b,a in rgba_combinations:
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
             
@@ -460,7 +460,7 @@ class ColorTest (unittest.TestCase):
     def test_hsla__sanity_testing_converted_should_not_raise(self):
         fails = 0
         
-        for i, (r,g,b,a) in enumerate(rgba_combinations):
+        for r,g,b,a in rgba_combinations:
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
             
@@ -474,7 +474,7 @@ class ColorTest (unittest.TestCase):
     def test_hsva__sanity_testing_converted_should_not_raise(self):
         fails = 0
         
-        for i, (r,g,b,a) in enumerate(rgba_combinations):
+        for r,g,b,a in rgba_combinations:
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
             
@@ -482,9 +482,8 @@ class ColorTest (unittest.TestCase):
                 other.hsva = c.hsva
             except Exception:
                 fails += 1
-
-        print fails
-        self.assert_(fails == 0)
+                
+        self.assertEqual(fails, 0)
 
 ################################################################################
 
