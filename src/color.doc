@@ -9,7 +9,7 @@ The Color class represents RGBA color values using a value range of
 supports conversions to other color spaces such as HSV or YUV, and lets
 you adjust single color channels.
 
-New in pygame 1.8.XX.
+New in pygame 1.8.1.
 <SECTION>
 
 r
@@ -41,24 +41,26 @@ The alpha value of the Color.
 <END>
 
 hsva
-Gets or sets the normalized HSVA representation of the Color.
+Gets or sets the HSVA representation of the Color.
 Color.hsva: Return tuple
 
-The normalized HSVA representation of the Color.
-Note that this will not return the absolutely exact HSV values for the
-set RGB values in all cases. Due to the RGB mapping from 0-255 and the
-HSV mapping from 0-1 rounding errors may cause the HSV values to
+The HSVA representation of the Color. The HSVA components are in the
+ranges H = [0-360], S = [0-100], V = [0-100], A = [0-100]. Note that
+this will not return the absolutely exact HSV values for the set RGB
+values in all cases. Due to the RGB mapping from 0-255 and the HSV
+mapping from 0-100 and 0-360 rounding errors may cause the HSV values to
 differ slightly from what you might expect.
 <END>
 
-hlsa
-Gets or sets the normalized HLSA representation of the Color.
-Color.hlsa: Return tuple
+hsla
+Gets or sets the HSLA representation of the Color.
+Color.hsla: Return tuple
 
-The normalized HLSA representation of the Color.
-Note that this will not return the absolutely exact HLS values for the
-set RGB values in all cases. Due to the RGB mapping from 0-255 and the
-HLS mapping from 0-1 rounding errors may cause the HLS values to
+The HSLA representation of the Color. The HSLA components are in the
+ranges H = [0-360], S = [0-100], V = [0-100], A = [0-100]. Note that
+this will not return the absolutely exact HSL values for the set RGB
+values in all cases. Due to the RGB mapping from 0-255 and the HSL
+mapping from 0-100 and 0-360 rounding errors may cause the HSL values to
 differ slightly from what you might expect.
 <END>
 
