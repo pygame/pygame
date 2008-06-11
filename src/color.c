@@ -57,8 +57,8 @@ static PyObject* _color_get_a (PyColor *color, void *closure);
 static int _color_set_a (PyColor *color, PyObject *value, void *closure);
 static PyObject* _color_get_hsva (PyColor *color, void *closure);
 static int _color_set_hsva (PyColor *color, PyObject *value, void *closure);
-static PyObject* _color_get_hlsa (PyColor *color, void *closure);
-static int _color_set_hlsa (PyColor *color, PyObject *value, void *closure);
+static PyObject* _color_get_hsla (PyColor *color, void *closure);
+static int _color_set_hsla (PyColor *color, PyObject *value, void *closure);
 static PyObject* _color_get_yuv (PyColor *color, void *closure);
 static int _color_set_yuv (PyColor *color, PyObject *value, void *closure);
 
@@ -108,7 +108,7 @@ static PyGetSetDef _color_getsets[] =
     { "a", (getter) _color_get_a, (setter) _color_set_a, DOC_COLORA, NULL },
     { "hsva", (getter) _color_get_hsva, (setter) _color_set_hsva, DOC_COLORHSVA,
       NULL },
-    { "hlsa", (getter) _color_get_hlsa, (setter) _color_set_hlsa, DOC_COLORHLSA,
+    { "hsla", (getter) _color_get_hsla, (setter) _color_set_hsla, DOC_COLORHSLA,
       NULL },
     { "yuv", (getter) _color_get_yuv, (setter) _color_set_yuv, DOC_COLORYUV,
       NULL },
@@ -448,7 +448,7 @@ _color_repr (PyColor *color)
 }
 
 /**
- * color.notmalize ()
+ * color.normalize ()
  */
 static PyObject*
 _color_normalize (PyColor *color)
@@ -628,16 +628,15 @@ _color_get_hsva (PyColor *color, void *closure)
     else
     {
         diff = maxv - minv;
-        hsv[1] = (maxv == 0) ? 0 : diff / maxv;
-        hsv[2] = maxv;
+        hsv[1] = (maxv == 0) ? 0 : diff / maxv * 100.0f;
+        hsv[2] = maxv * 100.0f;
         
         if (frgb[0] == maxv)
-            hsv[0] = (frgb[1] - frgb[2]) / diff;
+            hsv[0] = (float) fmod ((60 * (frgb[1] - frgb[2]) / diff), 360.0f);
         else if (frgb[1] == maxv)
-            hsv[0] = 2.0 + (frgb[2] - frgb[0]) / diff;
+            hsv[0] = (60 * (frgb[2] - frgb[0]) / diff) + 120.0f;
         else
-            hsv[0] = 4.0 + (frgb[0] - frgb[1]) / diff;
-        hsv[0] = hsv[0] / 6.0;
+            hsv[0] = (60 * (frgb[0] - frgb[1]) / diff) + 240.0f;
     }
 
     /* H,S,V,A */
@@ -649,7 +648,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 {
     PyObject *item;
     float hsva[4] = { 0, 0, 0, 0 };
-    float h, f, p, q, t, v;
+    float h, f, p, q, t, v, s;
 
     if (!PySequence_Check (value) || PySequence_Size (value) < 3)
     {
@@ -697,52 +696,53 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         }
     }
 
-    color->a = (Uint8) (hsva[3] * 255);
+    color->a = (Uint8) ((hsva[3] / 100.0f) * 255);
 
-    v = (Uint8) (hsva[2] * 255);
+    s = hsva[1] / 100.0f;
+    v = hsva[2] / 100.0f;
     if (hsva[1] == 0)
     {
-        color->r = v;
-        color->g = v;
-        color->b = v;
+        color->r = (Uint8) (v * 255);
+        color->g = (Uint8) (v * 255);
+        color->b = (Uint8) (v * 255);
         return 0;
     }
 
-    h = floor (hsva[0] * 6);
-    f = hsva[0] * 6 - h;
-    p = hsva[2] * (1.0 - hsva[1]);
-    q = hsva[2] * (1.0 - hsva[1] * f);
-    t = hsva[2] * (1.0 - hsva[1] * (1.0 - f));
+    h = floor (hsva[0] / 60.0f);
+    f = hsva[0] / 60.0f - h;
+    p = v * (1 - s);
+    q = v * (1 - s * f);
+    t = v * (1 - s * (1.0 - f));
 
     switch (((int)h) % 6)
     {
     case 0:
-        color->r = v;
+        color->r = (Uint8) (v * 255);
         color->g = (Uint8) (t * 255);
         color->b = (Uint8) (p * 255);
         break;
     case 1:
         color->r = (Uint8) (q * 255);
-        color->g = v;
+        color->g = (Uint8) (v * 255);
         color->b = (Uint8) (p * 255);
         break;
     case 2:
         color->r = (Uint8) (p * 255);
-        color->g = v;
+        color->g = (Uint8) (v * 255);
         color->b = (Uint8) (t * 255);
         break;
     case 3:
         color->r = (Uint8) (p * 255);
         color->g = (Uint8) (q * 255);
-        color->b = v;
+        color->b = (Uint8) (v * 255);
         break;
     case 4:
         color->r = (Uint8) (t * 255);
         color->g = (Uint8) (p * 255);
-        color->b = v;
+        color->b = (Uint8) (v * 255);
         break;
     case 5:
-        color->r = v;
+        color->r = (Uint8) (v * 255);
         color->g = (Uint8) (p * 255);
         color->b = (Uint8) (q * 255);
         break;
@@ -754,12 +754,12 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 }
 
 /**
- * color.hlsa
+ * color.hsla
  */
 static PyObject*
-_color_get_hlsa (PyColor *color, void *closure)
+_color_get_hsla (PyColor *color, void *closure)
 {
-    double hls[3] = { 0, 0, 0 };
+    double hsl[3] = { 0, 0, 0 };
     double frgb[4];
     double minv, maxv, diff;
 
@@ -773,82 +773,80 @@ _color_get_hlsa (PyColor *color, void *closure)
     minv = MIN (MIN (frgb[0], frgb[1]), frgb[2]);
     
     diff = maxv - minv;
-    hls[1] = (maxv + minv) / 2.0;
+    hsl[2] = (maxv + minv) / 2.0 * 100.0f;
     if (maxv == minv)
     {
-        hls[0] = 0;
-        hls[2] = 0;
-        return Py_BuildValue ("(ffff)", hls[0], hls[1], hls[2], frgb[3]);
+        hsl[0] = 0;
+        hsl[1] = 0;
+        return Py_BuildValue ("(ffff)", hsl[0], hsl[1], hsl[2], frgb[3]);
     }
-    else if (hls[1] <= 0.5)
+    else if (hsl[2] <= 0.5)
     {
-        hls[2] = diff / (maxv + minv);
+        hsl[1] = diff / (maxv + minv) * 100.0f;
     }
     else
     {
-        hls[2] = diff / (2.0 - maxv - minv);
+        hsl[1] = diff / (2.0 - maxv - minv) * 100.0f;
     }
-
     
     if (frgb[0] == maxv)
     {
-        hls[0] = (frgb[1] - frgb[2]) / diff;
+        hsl[0] = (float) ((60 * (frgb[1] - frgb[2]) / diff), 360.0f);
     }
     else if (frgb[1] == maxv)
     {
-        hls[0] = 2.0 + (frgb[2] - frgb[0]) / diff;
+        hsl[0] = (60 * (frgb[2] - frgb[0]) / diff) + 120.0f;
     }
     else
     {
-        hls[0] = 4.0 + (frgb[0] - frgb[1]) / diff;
+        hsl[0] = (60 * (frgb[0] - frgb[1]) / diff) + 240.0f;
     }
-    hls[0] = hls[0] / 6.0;
 
     
-    /* H,L,S,A */
-    return Py_BuildValue ("(ffff)", hls[0], hls[1], hls[2], frgb[3]);
+    /* H,S,L,A */
+    return Py_BuildValue ("(ffff)", hsl[0], hsl[1], hsl[2], frgb[3]);
 }
 
 /**
- * color.hlsa = x
+ * color.hsla = x
  */
 static int
-_color_set_hlsa (PyColor *color, PyObject *value, void *closure)
+_color_set_hsla (PyColor *color, PyObject *value, void *closure)
 {
     PyObject *item;
-    float hlsa[4] = { 0, 0, 0, 0 };
-    float h, q, p = 0;
+    float hsla[4] = { 0, 0, 0, 0 };
+    float ht, h, q, p = 0, s, l = 0;
 
     if (!PySequence_Check (value) || PySequence_Size (value) < 3)
     {
-        PyErr_SetString (PyExc_ValueError, "invalid HLSA value");
+        PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
         return -1;
     }
 
     /* H */
     item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(hlsa[0])) || hlsa[0] < 0 || hlsa[0] > 1)
+    if (!item || !FloatFromObj (item, &(hsla[0])) || hsla[0] < 0 || hsla[0] > 1)
     {
         Py_XDECREF (item);
-        PyErr_SetString (PyExc_ValueError, "invalid HLSA value");
-        return -1;
-    }
-
-    /* L */
-    item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(hlsa[1])) || hlsa[1] < 0 || hlsa[1] > 1)
-    {
-        Py_XDECREF (item);
-        PyErr_SetString (PyExc_ValueError, "invalid HLSA value");
+        PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
         return -1;
     }
 
     /* S */
-    item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(hlsa[2])) || hlsa[2] < 0 || hlsa[2] > 1)
+    item = PySequence_GetItem (value, 1);
+    if (!item || !FloatFromObj (item, &(hsla[1])) || hsla[1] < 0 || hsla[1] > 1)
     {
         Py_XDECREF (item);
-        PyErr_SetString (PyExc_ValueError, "invalid HLSA value");
+        PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
+        return -1;
+    }
+
+    /* L */
+    item = PySequence_GetItem (value, 2);
+    if (!item || !FloatFromObj (item, &(hsla[2])) || hsla[2] < 0 || hsla[2] > 1)
+    {
+        Py_XDECREF (item);
+        PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
         return -1;
     }
 
@@ -856,61 +854,71 @@ _color_set_hlsa (PyColor *color, PyObject *value, void *closure)
     if (PySequence_Size (value) > 3)
     {
         item = PySequence_GetItem (value, 3);
-        if (!item || !FloatFromObj (item, &(hlsa[3])) ||
-            hlsa[3] < 0 || hlsa[3] > 1)
+        if (!item || !FloatFromObj (item, &(hsla[3])) ||
+            hsla[3] < 0 || hsla[3] > 1)
         {
             Py_DECREF (item);
-            PyErr_SetString (PyExc_ValueError, "invalid HLSA value");
+            PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
             return -1;
         }
     }
 
-    color->a = (Uint8) (hlsa[3] * 255);
+    color->a = (Uint8) (hsla[3] / 100.0f * 255);
 
-    if (hlsa[2] == 0)
+    s = hsla[1] / 100.f;
+    l = hsla[2] / 100.f;
+
+    if (hsla[1] == 0)
     {
-        color->r = (Uint8) hlsa[1] * 255;
-        color->g = (Uint8) hlsa[1] * 255;
-        color->b = (Uint8) hlsa[1] * 255;
+        color->r = (Uint8) (l * 255);
+        color->g = (Uint8) (l * 255);
+        color->b = (Uint8) (l * 255);
     }
-    else if (hlsa[1] <= 0.5)
-        p = hlsa[1] * (1.0 + hlsa[2]);
+    else if (l <= 0.5)
+        q = l * (1.0 + s);
     else
-        p = hlsa[1] + hlsa[2] - (hlsa[1] * hlsa[2]);
-    q = 2.0 * hlsa[1] - p;
+        q = l + s - (l * s);
+    p = 2.0 * l - q;
     
+    ht = hsla[0] / 360.0f; 
     /* R channel */
-    h = hlsa[0] + 1.0 / 3.0;
+    h = ht + 1.0 / 3.0;
+    h = (h < 0) ? h + 1.0 : (h > 1) ? h - 1.0 : h;
+
     if (h < 1.0/6.0)
-        color->r = (Uint8) ((q + (p - q) * h * 6.0) * 255);
+        color->r = (Uint8) ((p + (q - p) * h * 6.0) * 255);
     else if (h < 0.5)
-        color->r = (Uint8) (p * 255);
-    else if (h < 2.0 / 3.0)
-        color->r = (Uint8) ((q + (p - q) * ((2.0 / 3.0) - h) * 6.0) * 255);
-    else
         color->r = (Uint8) (q * 255);
+    else if (h < 2.0 / 3.0)
+        color->r = (Uint8) ((p + (q - p) * ((2.0 / 3.0) - h) * 6.0) * 255);
+    else
+        color->r = (Uint8) (p * 255);
 
     /* G channel */
-    h = hlsa[0];
+    h = ht;
+    h = (h < 0) ? h + 1.0 : (h > 1) ? h - 1.0 : h;
+
     if (h < 1.0/6.0)
-        color->g = (Uint8) ((q + (p - q) * h * 6.0) * 255);
+        color->g = (Uint8) ((p + (q - p) * h * 6.0) * 255);
     else if (h < 0.5)
-        color->g = (Uint8) (p * 255);
-    else if (h < 2.0 / 3.0)
-        color->g = (Uint8) ((q + (p - q) * ((2.0 / 3.0) - h) * 6.0) * 255);
-    else
         color->g = (Uint8) (q * 255);
+    else if (h < 2.0 / 3.0)
+        color->g = (Uint8) ((p + (q - p) * ((2.0 / 3.0) - h) * 6.0) * 255);
+    else
+        color->g = (Uint8) (p * 255);
 
     /* B channel */
-    h = hlsa[0] - 1.0 / 3.0;
+    h = ht - 1.0 / 3.0;
+    h = (h < 0) ? h + 1.0 : (h > 1) ? h - 1.0 : h;
+
     if (h < 1.0/6.0)
-        color->b = (Uint8) ((q + (p - q) * h * 6.0) * 255);
+        color->b = (Uint8) ((p + (q - p) * h * 6.0) * 255);
     else if (h < 0.5)
-        color->b = (Uint8) (p * 255);
-    else if (h < 2.0 / 3.0)
-        color->b = (Uint8) ((q + (p - q) * ((2.0 / 3.0) - h) * 6.0) * 255);
-    else
         color->b = (Uint8) (q * 255);
+    else if (h < 2.0 / 3.0)
+        color->b = (Uint8) ((p + (q - p) * ((2.0 / 3.0) - h) * 6.0) * 255);
+    else
+        color->b = (Uint8) (p * 255);
 
     return 0;
 }
