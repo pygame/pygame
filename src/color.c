@@ -59,6 +59,8 @@ static PyObject* _color_get_hsva (PyColor *color, void *closure);
 static int _color_set_hsva (PyColor *color, PyObject *value, void *closure);
 static PyObject* _color_get_hsla (PyColor *color, void *closure);
 static int _color_set_hsla (PyColor *color, PyObject *value, void *closure);
+static PyObject* _color_get_i1i2i3 (PyColor *color, void *closure);
+static int _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure);
 
 /* Number protocol methods */
 static PyObject* _color_add (PyColor *color1, PyColor *color2);
@@ -108,6 +110,8 @@ static PyGetSetDef _color_getsets[] =
       NULL },
     { "hsla", (getter) _color_get_hsla, (setter) _color_set_hsla, DOC_COLORHSLA,
       NULL },
+    { "i1i2i3", (getter) _color_get_i1i2i3, (setter) _color_set_i1i2i3,
+      DOC_COLORI1I2I3, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -924,6 +928,68 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         color->b = (Uint8) ((p + (q - p) * ((2.0 / 3.0) - h) * 6.0) * 255);
     else
         color->b = (Uint8) (p * 255);
+
+    return 0;
+}
+
+static PyObject*
+_color_get_i1i2i3 (PyColor *color, void *closure)
+{
+    double i1i2i3[3] = { 0, 0, 0 };
+    double frgb[3];
+
+    /* Normalize */
+    frgb[0] = color->r / 255.0;
+    frgb[1] = color->g / 255.0;
+    frgb[2] = color->b / 255.0;
+    
+    i1i2i3[0] = (frgb[0] + frgb[1] + frgb[2]) / 3.0f;
+    i1i2i3[1] = (frgb[0] - frgb[2]) / 3.0f;
+    i1i2i3[2] = (2 * frgb[2] - frgb[0] - frgb[1]) / 4.0f;
+    
+    return Py_BuildValue ("(fff)", i1i2i3[0], i1i2i3[1], i1i2i3[2]);
+}
+
+static int
+_color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
+{
+    static double onethird = 1.0 / 3.0f;
+    PyObject *item;
+    float i1i2i3[3] = { 0, 0, 0 };
+
+    /* I1 */
+    item = PySequence_GetItem (value, 0);
+    if (!item || !FloatFromObj (item, &(i1i2i3[0])) ||
+        i1i2i3[0] < 0 || i1i2i3[0] > 1)
+    {
+        Py_XDECREF (item);
+        PyErr_SetString (PyExc_ValueError, "invalid I1I2I3 value");
+        return -1;
+    }
+
+    /* I2 */
+    item = PySequence_GetItem (value, 1);
+    if (!item || !FloatFromObj (item, &(i1i2i3[1])) ||
+        i1i2i3[1] < - onethird || i1i2i3[1] > onethird)
+    {
+        Py_XDECREF (item);
+        PyErr_SetString (PyExc_ValueError, "invalid I1I2I3 value");
+        return -1;
+    }
+
+    /* I2 */
+    item = PySequence_GetItem (value, 2);
+    if (!item || !FloatFromObj (item, &(i1i2i3[2])) ||
+        i1i2i3[2] < -0.5f || i1i2i3[2] > 0.5f)
+    {
+        Py_XDECREF (item);
+        PyErr_SetString (PyExc_ValueError, "invalid I1I2I3 value");
+        return -1;
+    }
+    
+    color->b = i1i2i3[0] - i1i2i3[2] - 2.0 * i1i2i3[2] / 3.0;
+    color->r = 2.0 * i1i2i3[1] + color->b;
+    color->g = 3.0 * i1i2i3[0] - color->r - color->b;
 
     return 0;
 }
