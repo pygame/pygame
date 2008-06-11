@@ -399,8 +399,9 @@ class ColorTest (unittest.TestCase):
         self.assertRaises (ValueError, _assign_item, c, 2, "Hello")
         self.assertEquals (c[2], 173)
 
+############### HLSA HSVA YUV ALL ELEMENTS WITHIN SPECIFIED RANGE ##############
 
-    def test_hlsa(self):
+    def test_hlsa__all_elements_within_limits(self):
         #hlsa  hue, luminance,  saturation, alpha
         
         # Due to the RGB mapping from 0-255 and the
@@ -420,8 +421,72 @@ class ColorTest (unittest.TestCase):
             for val in hlsa:
                 self.assert_(0 <= val <= 1)
 
-            # TODO: rounding errors ?
-            # self.assert_(hlsa[3] == (a / 255.0))
+    def test_hsva__all_elements_within_limits(self):
+        for r,g,b,a in rgba_combinations:
+            c = pygame.Color (r,g,b,a)
+
+            hsva = c.hsva
+            
+            for val in hsva:
+                self.assert_(0 <= val <= 1)
+    
+    
+    def test_yuv__all_elements_within_limits(self):        
+        for r,g,b,a in rgba_combinations:
+            c = pygame.Color (r,g,b,a)
+
+            yuv = c.yuv
+
+            for val in yuv:
+                self.assert_(   0 <= val <= 1   )
+
+########### HSVA HLSA YUV SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
+
+    def test_yuv__sanity_testing_converted_should_not_raise(self):
+        fails = 0
+        
+        for i, (r,g,b,a) in enumerate(rgba_combinations):
+            c = pygame.Color (r,g,b,a)
+            other = pygame.Color(0)
+            
+            try:
+                other.yuv = c.yuv
+            except ValueError:
+                fails += 1
+        
+        self.assertEqual(fails, 0)
+        
+        
+    # def test_hlsa__sanity_testing_converted_should_not_raise(self):
+    #     fails = 0
+        
+    #     for i, (r,g,b,a) in enumerate(rgba_combinations):
+    #         c = pygame.Color (r,g,b,a)
+    #         other = pygame.Color(0)
+            
+    #         try:
+    #             other.hlsa = c.hlsa
+    #         except ValueError:
+    #             fails += 1
+        
+    #     self.assertEqual(fails, 0)
+
+    # def test_hsva__sanity_testing_converted_should_not_raise(self):
+    #     fails = 0
+        
+    #     for i, (r,g,b,a) in enumerate(rgba_combinations):
+    #         c = pygame.Color (r,g,b,a)
+    #         other = pygame.Color(0)
+            
+    #         try:
+    #             other.hsva = c.hsva
+    #         except Exception:
+    #             fails += 1
+        
+    #     print fails
+    #     self.assert_(fails == 0)
+
+################################################################################
 
 if __name__ == '__main__':
     unittest.main()
