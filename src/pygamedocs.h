@@ -81,9 +81,9 @@
 
 #define DOC_COLORA "Color.a: Return int\nGets or sets the alpha value of the Color."
 
-#define DOC_COLORHSVA "Color.hsva: Return tuple\nGets or sets the normalized HSVA representation of the Color."
+#define DOC_COLORHSVA "Color.hsva: Return tuple\nGets or sets the HSVA representation of the Color."
 
-#define DOC_COLORHLSA "Color.hlsa: Return tuple\nGets or sets the normalized HLSA representation of the Color."
+#define DOC_COLORHSLA "Color.hsla: Return tuple\nGets or sets the HSLA representation of the Color."
 
 #define DOC_COLORYUV "Color.yuv: Return tuple\nGets or sets the normalized YUV representation of the Color."
 
