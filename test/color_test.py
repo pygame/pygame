@@ -16,7 +16,7 @@ rgba_combinations =  ( (r,g,b,a) for r in rgba_vals
 
 # TODO: add tests for
 # correct_gamma()
-# hsva, yuv, hlsa
+# hsva, yuv, hsla
 # coerce ()
 
 def _assignr (x, y):
@@ -399,27 +399,30 @@ class ColorTest (unittest.TestCase):
         self.assertRaises (ValueError, _assign_item, c, 2, "Hello")
         self.assertEquals (c[2], 173)
 
-############### HLSA HSVA YUV ALL ELEMENTS WITHIN SPECIFIED RANGE ##############
+############### HSlA HSVA YUV ALL ELEMENTS WITHIN SPECIFIED RANGE ##############
 
-    def test_hlsa__all_elements_within_limits(self):
-        #hlsa  hue, luminance,  saturation, alpha
+    def test_hsla__all_elements_within_limits(self):
+        #hsla  hue, luminance,  saturation, alpha
         
         # Due to the RGB mapping from 0-255 and the
         # +HLS mapping from 0-1 rounding errors may cause the HLS values to
         # +differ slightly from what you might expect.
         
-        # hlsa is a tuple of length 4
+        # hsla is a tuple of length 4
         #
         #    for v in hsla: assert 0 <= v <= 1
         #    assert a =~ rgba[3] / 255.0
-        
-        for r,g,b,a in rgba_combinations:
+
+        for r, g, b, a in rgba_combinations:
             c = pygame.Color (r,g,b,a)
 
-            hlsa = c.hlsa
+            hsla = c.hsla
 
-            for val in hlsa:
-                self.assert_(0 <= val <= 1)
+            for h, l, s, _a in hsla:
+                self.assert_(0 <= h <= 360)
+                self.assert_(0 <= l <= 100)
+                self.assert_(0 <= s <= 100)
+                self.assert_(0 <= _a <= 100)
 
     def test_hsva__all_elements_within_limits(self):
         for r,g,b,a in rgba_combinations:
@@ -427,9 +430,16 @@ class ColorTest (unittest.TestCase):
 
             hsva = c.hsva
             
-            for val in hsva:
-                self.assert_(0 <= val <= 1)
-    
+            for r, g, b, a in rgba_combinations:
+                c = pygame.Color (r,g,b,a)
+            
+                hsva = c.hsva
+            
+                for h, l, s, _a in hsva:
+                    self.assert_(0 <= h <= 360)
+                    self.assert_(0 <= s <= 100)
+                    self.assert_(0 <= v <= 100)
+                    self.assert_(0 <= _a <= 100)
     
     def test_yuv__all_elements_within_limits(self):        
         for r,g,b,a in rgba_combinations:
@@ -440,7 +450,7 @@ class ColorTest (unittest.TestCase):
             for val in yuv:
                 self.assert_(   0 <= val <= 1   )
 
-########### HSVA HLSA YUV SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
+########### HSVA HSLA YUV SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
 
     def test_yuv__sanity_testing_converted_should_not_raise(self):
         fails = 0
@@ -456,35 +466,34 @@ class ColorTest (unittest.TestCase):
         
         self.assertEqual(fails, 0)
         
+    def test_hsla__sanity_testing_converted_should_not_raise(self):
+        fails = 0
         
-    # def test_hlsa__sanity_testing_converted_should_not_raise(self):
-    #     fails = 0
-        
-    #     for i, (r,g,b,a) in enumerate(rgba_combinations):
-    #         c = pygame.Color (r,g,b,a)
-    #         other = pygame.Color(0)
+        for i, (r,g,b,a) in enumerate(rgba_combinations):
+            c = pygame.Color (r,g,b,a)
+            other = pygame.Color(0)
             
-    #         try:
-    #             other.hlsa = c.hlsa
-    #         except ValueError:
-    #             fails += 1
+            try:
+                other.hsla = c.hsla
+            except ValueError:
+                fails += 1
         
-    #     self.assertEqual(fails, 0)
+        self.assertEqual(fails, 0)
 
-    # def test_hsva__sanity_testing_converted_should_not_raise(self):
-    #     fails = 0
+    def test_hsva__sanity_testing_converted_should_not_raise(self):
+        fails = 0
         
-    #     for i, (r,g,b,a) in enumerate(rgba_combinations):
-    #         c = pygame.Color (r,g,b,a)
-    #         other = pygame.Color(0)
+        for i, (r,g,b,a) in enumerate(rgba_combinations):
+            c = pygame.Color (r,g,b,a)
+            other = pygame.Color(0)
             
-    #         try:
-    #             other.hsva = c.hsva
-    #         except Exception:
-    #             fails += 1
-        
-    #     print fails
-    #     self.assert_(fails == 0)
+            try:
+                other.hsva = c.hsva
+            except Exception:
+                fails += 1
+
+        print fails
+        self.assert_(fails == 0)
 
 ################################################################################
 
