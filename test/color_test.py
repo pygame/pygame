@@ -418,28 +418,23 @@ class ColorTest (unittest.TestCase):
 
             hsla = c.hsla
 
-            for h, l, s, _a in hsla:
+            for h, s, l, _a in hsla:
                 self.assert_(0 <= h <= 360)
-                self.assert_(0 <= l <= 100)
                 self.assert_(0 <= s <= 100)
+                self.assert_(0 <= l <= 100)
                 self.assert_(0 <= _a <= 100)
 
-    def test_hsva__all_elements_within_limits(self):
-        for r,g,b,a in rgba_combinations:
+    def test_hsva__all_elements_within_limits(self):    
+        for r, g, b, a in rgba_combinations:
             c = pygame.Color (r,g,b,a)
-
+        
             hsva = c.hsva
-            
-            for r, g, b, a in rgba_combinations:
-                c = pygame.Color (r,g,b,a)
-            
-                hsva = c.hsva
-            
-                for h, l, s, _a in hsva:
-                    self.assert_(0 <= h <= 360)
-                    self.assert_(0 <= s <= 100)
-                    self.assert_(0 <= v <= 100)
-                    self.assert_(0 <= _a <= 100)
+        
+            for h, s, v, a in hsva:
+                self.assert_(0 <= h <= 360)
+                self.assert_(0 <= s <= 100)
+                self.assert_(0 <= v <= 100)
+                self.assert_(0 <= _a <= 100)
     
     def test_yuv__all_elements_within_limits(self):        
         for r,g,b,a in rgba_combinations:
