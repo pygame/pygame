@@ -85,6 +85,8 @@
 
 #define DOC_COLORHSLA "Color.hsla: Return tuple\nGets or sets the HSLA representation of the Color."
 
+#define DOC_COLORI1I2I3 "Color.i1i2i3: Return tuple\nGets or sets the I1I2I3 representation of the Color."
+
 #define DOC_COLORNORMALIZE "Color.normalize(): Return tuple\nReturns the normalized RGBA values of the Color."
 
 #define DOC_COLORCORRECTGAMMA "Color.correct_gamma (gamma): Return Color\nApplies a certain gamma value to the Color."
