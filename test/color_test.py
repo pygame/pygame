@@ -416,21 +416,27 @@ class ColorTest (unittest.TestCase):
 
 ########### HSVA HSLA YUV SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
 
-    #def test_yuv__sanity_testing_converted_should_not_raise(self):
-        #fails = 0
+    def test_yuv__sanity_testing_converted_should_not_raise(self):
+        fails = 0
         
-        #for i, (r,g,b,a) in enumerate(rgba_combinations):
-            #c = pygame.Color (r,g,b,a)
-            #other = pygame.Color(0)
+        
+        x = 0        
+        for i, (r,g,b,a) in enumerate(rgba_combinations):
+            c = pygame.Color (r,g,b,a)
+            other = pygame.Color(0)
             
-            #try:
-                #other.yuv = c.yuv
-            #except ValueError:
-                #fails += 1
+            x = i
+            
+            try:
+                other.yuv = c.yuv
+            except ValueError:
+                fails += 1
         
-        #self.assertEqual (
-            #(fails, i+1), (0, i+1)
-        #)
+        self.assert_(x != 0)
+                
+        self.assertEqual (
+            (fails, x+1), (0, x+1)
+        )
         
     #def test_hsla__sanity_testing_converted_should_not_raise(self):
         #fails = 0        
