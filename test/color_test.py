@@ -359,22 +359,6 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c[2], 194)
         self.assertEquals (c[3], 55)
 
-    # def test_set_item (self):                        DUPLICATE
-    #     c = pygame.Color (204, 38, 194, 55)
-    #     self.assertEquals (c.r, 204)
-    #     self.assertEquals (c.g, 38)
-    #     self.assertEquals (c.b, 194)
-    #     self.assertEquals (c.a, 55)
-
-    #     c[0] = 33
-    #     self.assertEquals (c[0], 33)
-    #     c[1] = 48
-    #     self.assertEquals (c[1], 48)
-    #     c[2] = 173
-    #     self.assertEquals (c[2], 173)
-    #     c[3] = 213
-    #     self.assertEquals (c[3], 213)
-
     def test_set_item (self):
         c = pygame.Color (204, 38, 194, 55)
         self.assertEquals (c[0], 204)
@@ -402,17 +386,6 @@ class ColorTest (unittest.TestCase):
 ############### HSlA HSVA YUV ALL ELEMENTS WITHIN SPECIFIED RANGE ##############
 
     def test_hsla__all_elements_within_limits(self):
-        #hsla  hue, luminance,  saturation, alpha
-        
-        # Due to the RGB mapping from 0-255 and the
-        # +HLS mapping from 0-1 rounding errors may cause the HLS values to
-        # +differ slightly from what you might expect.
-        
-        # hsla is a tuple of length 4
-        #
-        #    for v in hsla: assert 0 <= v <= 1
-        #    assert a =~ rgba[3] / 255.0
-
         for r, g, b, a in rgba_combinations:
             c = pygame.Color (r,g,b,a)
 
@@ -446,7 +419,7 @@ class ColorTest (unittest.TestCase):
     def test_yuv__sanity_testing_converted_should_not_raise(self):
         fails = 0
         
-        for r,g,b,a in rgba_combinations:
+        for i, (r,g,b,a) in enumerate(rgba_combinations):
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
             
@@ -455,12 +428,14 @@ class ColorTest (unittest.TestCase):
             except ValueError:
                 fails += 1
         
-        self.assertEqual(fails, 0)
+        self.assertEqual (
+            (fails, i+1), (0, i+1), '(fails, combos) == (0, combos)'
+        )
         
     def test_hsla__sanity_testing_converted_should_not_raise(self):
         fails = 0
-        
-        for r,g,b,a in rgba_combinations:
+
+        for i, (r,g,b,a) in enumerate(rgba_combinations):
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
             
@@ -469,21 +444,26 @@ class ColorTest (unittest.TestCase):
             except ValueError:
                 fails += 1
         
-        self.assertEqual(fails, 0)
+        self.assertEqual (
+            (fails, i+1), (0, i+1), '(fails, combos) == (0, combos)'
+        )
+
 
     def test_hsva__sanity_testing_converted_should_not_raise(self):
         fails = 0
         
-        for r,g,b,a in rgba_combinations:
+        for i, (r,g,b,a) in enumerate(rgba_combinations):
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
-            
+
             try:
                 other.hsva = c.hsva
             except Exception:
                 fails += 1
-                
-        self.assertEqual(fails, 0)
+
+        self.assertEqual (
+            (fails, i+1), (0, i+1),  '(fails, combos) == (0, combos)'
+        )
 
 ################################################################################
 
