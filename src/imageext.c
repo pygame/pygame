@@ -29,6 +29,7 @@
 #include <png.h>
 #include <jpeglib.h>
 #include "pygame.h"
+#include "pgopengl.h"
 #include "pygamedocs.h"
 #include <SDL_image.h>
 
@@ -359,7 +360,6 @@ opengltosdl ()
     int i;
     unsigned char *pixels;
 
-    typedef void (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
     GL_glReadPixels_Func p_glReadPixels= NULL;
     pixels = NULL;
     surf = NULL;
