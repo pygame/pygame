@@ -55,6 +55,7 @@
   <tr><td><a href="color.html#Color.g">Color.g</a> - <font size=-1>Gets or sets the green value of the Color.</font></td><td>Gets or sets the green value of the Color.</td></tr>
   <tr><td><a href="color.html#Color.b">Color.b</a> - <font size=-1>Gets or sets the blue value of the Color.</font></td><td>Gets or sets the blue value of the Color.</td></tr>
   <tr><td><a href="color.html#Color.a">Color.a</a> - <font size=-1>Gets or sets the alpha value of the Color.</font></td><td>Gets or sets the alpha value of the Color.</td></tr>
+  <tr><td><a href="color.html#Color.cmy">Color.cmy</a> - <font size=-1>Gets or sets the CMY representation of the Color.</font></td><td>Gets or sets the CMY representation of the Color.</td></tr>
   <tr><td><a href="color.html#Color.hsva">Color.hsva</a> - <font size=-1>Gets or sets the HSVA representation of the Color.</font></td><td>Gets or sets the HSVA representation of the Color.</td></tr>
   <tr><td><a href="color.html#Color.hsla">Color.hsla</a> - <font size=-1>Gets or sets the HSLA representation of the Color.</font></td><td>Gets or sets the HSLA representation of the Color.</td></tr>
   <tr><td><a href="color.html#Color.i1i2i3">Color.i1i2i3</a> - <font size=-1>Gets or sets the I1I2I3 representation of the Color.</font></td><td>Gets or sets the I1I2I3 representation of the Color.</td></tr>
@@ -99,6 +100,15 @@
   <tt>Color.a: Return int</tt><br>
 <p>The alpha value of the Color. </p>
 <!--COMMENTS:Color.a--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Color.cmy">
+<big><b>Color.cmy</big></b><br><ul>
+  <i>Gets or sets the CMY representation of the Color.</i><br>
+  <tt>Color.cmy: Return tuple</tt><br>
+<p>The <tt>CMY</tt> representation of the Color. The <tt>CMY</tt> components are in the ranges <tt>C</tt> = [0, 1], <tt>M</tt> = [0, 1], <tt>Y</tt> = [0, 1]. Note that this will not return the absolutely exact <tt>CMY</tt> values for the set <tt>RGB</tt> values in all cases. Due to the <tt>RGB</tt> mapping from 0-255 and the <tt>CMY</tt> mapping from 0-1 rounding errors may cause the <tt>CMY</tt> values to differ slightly from what you might expect. </p>
+<!--COMMENTS:Color.cmy--> &nbsp;<br> 
 <br></ul>
 
 

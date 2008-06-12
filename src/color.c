@@ -61,6 +61,8 @@ static PyObject* _color_get_hsla (PyColor *color, void *closure);
 static int _color_set_hsla (PyColor *color, PyObject *value, void *closure);
 static PyObject* _color_get_i1i2i3 (PyColor *color, void *closure);
 static int _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure);
+static PyObject* _color_get_cmy (PyColor *color, void *closure);
+static int _color_set_cmy (PyColor *color, PyObject *value, void *closure);
 
 /* Number protocol methods */
 static PyObject* _color_add (PyColor *color1, PyColor *color2);
@@ -112,6 +114,8 @@ static PyGetSetDef _color_getsets[] =
       NULL },
     { "i1i2i3", (getter) _color_get_i1i2i3, (setter) _color_set_i1i2i3,
       DOC_COLORI1I2I3, NULL },
+    { "cmy", (getter) _color_get_cmy, (setter) _color_set_cmy, DOC_COLORCMY,
+      NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -987,9 +991,67 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
         return -1;
     }
     
-    color->b = i1i2i3[0] - i1i2i3[2] - 2.0 * i1i2i3[2] / 3.0;
-    color->r = 2.0 * i1i2i3[1] + color->b;
-    color->g = 3.0 * i1i2i3[0] - color->r - color->b;
+    color->b = (Uint8) (i1i2i3[0] - i1i2i3[2] - 2.0 * i1i2i3[2] / 3.0);
+    color->r = (Uint8) (2.0 * i1i2i3[1] + color->b);
+    color->g = (Uint8) (3.0 * i1i2i3[0] - color->r - color->b);
+
+    return 0;
+}
+
+static PyObject*
+_color_get_cmy (PyColor *color, void *closure)
+{
+    double cmy[3] = { 0, 0, 0 };
+    double frgb[3];
+
+    /* Normalize */
+    frgb[0] = color->r / 255.0;
+    frgb[1] = color->g / 255.0;
+    frgb[2] = color->b / 255.0;
+    
+    cmy[0] = 1.0 - frgb[0];
+    cmy[1] = 1.0 - frgb[1];
+    cmy[2] = 1.0 - frgb[2];
+    
+    return Py_BuildValue ("(fff)", cmy[0], cmy[1], cmy[2]);
+}
+
+static int
+_color_set_cmy (PyColor *color, PyObject *value, void *closure)
+{
+    PyObject *item;
+    float cmy[3] = { 0, 0, 0 };
+
+    /* I1 */
+    item = PySequence_GetItem (value, 0);
+    if (!item || !FloatFromObj (item, &(cmy[0])) || cmy[0] < 0 || cmy[0] > 1)
+    {
+        Py_XDECREF (item);
+        PyErr_SetString (PyExc_ValueError, "invalid CMY value");
+        return -1;
+    }
+
+    /* I2 */
+    item = PySequence_GetItem (value, 1);
+    if (!item || !FloatFromObj (item, &(cmy[1])) || cmy[1] < 0 || cmy[1] > 1)
+    {
+        Py_XDECREF (item);
+        PyErr_SetString (PyExc_ValueError, "invalid CMY value");
+        return -1;
+    }
+
+    /* I2 */
+    item = PySequence_GetItem (value, 2);
+    if (!item || !FloatFromObj (item, &(cmy[2])) || cmy[2] < 0 || cmy[2] > 1)
+    {
+        Py_XDECREF (item);
+        PyErr_SetString (PyExc_ValueError, "invalid CMY value");
+        return -1;
+    }
+    
+    color->b = (Uint8) ((1 - cmy[0]) * 255);
+    color->r = (Uint8) ((1 - cmy[1]) * 255);
+    color->g = (Uint8) ((1 - cmy[2]) * 255);
 
     return 0;
 }
