@@ -388,7 +388,7 @@ class ColorTest (unittest.TestCase):
     def test_hsla__all_elements_within_limits(self):
         for (r, g, b, a) in rgba_combinations:
             c = pygame.Color (r,g,b,a)
-            
+
             h, s, l, _a = c.hsla
             self.assert_(0 <= h <= 360)
             self.assert_(0 <= s <= 100)
@@ -407,70 +407,59 @@ class ColorTest (unittest.TestCase):
     
 ########### HSVA HSLA SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
 
-    def test_hsla__sanity_testing_converted_should_not_raise(self):
+    def test_hsla__sanity_testing_converted_should_equate_and_not_raise(self):
         fails = 0        
 
         x = 0
-        for i, (r,g,b,a) in enumerate(rgba_combinations):
+        for r,g,b,a in rgba_combinations:
+            x += 1
+            
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
-
-            x = i
+            
             try:
                 other.hsla = c.hsla
-            except ValueError, m:
-                
-                fails += 1
-        
-        self.assertEqual (
-            (fails, x+1), (0, x+1)
-        )
-        
 
-    def test_hsva__sanity_testing_converted_should_not_raise(self):
-        fails = 0
-                
-        #print 'print works'
+                self.assert_(other.r == c.r)
+                self.assert_(other.g == c.g)
+                self.assert_(other.b == c.b)
+                self.assert_(other.a == c.a)
 
-        #print len(list(rgba_combinations)), 'len(list(rgba_combinations))'  # 0 wtf?
-        
-        #for r in rgba_combinations:
-            #print r                               # r not printed
-        x = 0
-        for i, (r,g,b,a) in enumerate(rgba_combinations):
-            c = pygame.Color (r,g,b,a)
-            other = pygame.Color(0)
-
-            x = i
-            try:
-                other.hsva = c.hsva
             except ValueError:
                 fails += 1
         
-        # local variable 'i' referenced before assignment
-        # see scoped() function
-        # i should be valid here 
-        # len(list(rgba_combinations)) == 0 
-        
         self.assertEqual (
-            (fails, x+1), (0, x+1)
+            (fails, x), (0, x)
         )
+        
+
+    def test_hsva__sanity_testing_converted_should_equate_and_not_raise(self):
+        fails = 0
+
+        x = 0
+        for r,g,b,a in rgba_combinations:
+            x += 1 
+            
+            c = pygame.Color (r,g,b,a)
+            other = pygame.Color(0)
+            
+            try:
+                other.hsva = c.hsva
+                
+                self.assert_(other.r == c.r)
+                self.assert_(other.g == c.g)
+                self.assert_(other.b == c.b)
+                self.assert_(other.a == c.a)
+
+            except ValueError:
+                fails += 1
+
+        self.assertEqual (
+            (fails, x), (0, x)
+        )
+
 
 ################################################################################
 
-def scoped():
-    # global rgba_combinations
-    for i, (r,g,b,a) in enumerate(rgba_combinations):
-        c = pygame.Color (r,g,b,a)
-        other = pygame.Color(0)
-        
-        print i
-        print r,g,b,a
-
-    print 'i', i
-
-if __name__ == '__main__':
-    #scoped()
-    #print len(list(rgba_combinations))  2401
-    
+if __name__ == '__main__':    
     unittest.main()
