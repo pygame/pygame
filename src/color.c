@@ -896,7 +896,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         color->r = (Uint8) (l * 255);
         color->g = (Uint8) (l * 255);
         color->b = (Uint8) (l * 255);
-        return;
+        return 0;
     }
 
     if (l < 0.5f)
