@@ -37,22 +37,17 @@ import pygame
 import pygame.mixer as mixer 
 import numpy
 
-def array (sound):
-    """pygame._numpysndarray.array(Sound): return array
-
-    Copy Sound samples into an array.
-
-    Creates a new array for the sound data and copies the samples. The
-    array will always be in the format returned from
-    pygame.mixer.get_init().
-    """
+def _array_samples(sound, raw):
     # Info is a (freq, format, stereo) tuple
     info = mixer.get_init ()
     if not info:
         raise pygame.error, "Mixer not initialized"
     fmtbytes = (abs (info[1]) & 0xff) >> 3
-    channels = mixer.get_num_channels ()
-    data = sound.get_buffer ().raw
+    channels = info[2]
+    if raw:
+        data = sound.get_buffer ().raw
+    else:
+        data = sound.get_buffer ()
 
     shape = (len (data) / channels * fmtbytes, )
     if channels > 1:
@@ -69,6 +64,17 @@ def array (sound):
     array = numpy.fromstring (data, typecode)
     array.shape = shape
     return array
+
+def array (sound):
+    """pygame._numpysndarray.array(Sound): return array
+
+    Copy Sound samples into an array.
+
+    Creates a new array for the sound data and copies the samples. The
+    array will always be in the format returned from
+    pygame.mixer.get_init().
+    """
+    return _array_samples(sound, True)
 
 def samples (sound):
     """pygame._numpysndarray.samples(Sound): return array
