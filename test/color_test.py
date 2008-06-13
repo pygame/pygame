@@ -418,7 +418,7 @@ class ColorTest (unittest.TestCase):
 
 ########### HSVA HSLA SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
 
-    def test_hsla__sanity_testing_converted_should_equate_and_not_raise(self):
+    def test_hsla__sanity_testing_converted_should_not_raise(self):
         fails = 0        
 
         x = 0
@@ -430,21 +430,15 @@ class ColorTest (unittest.TestCase):
 
             try:
                 other.hsla = c.hsla
-                #print c, other
-                self.assert_(other.r == c.r)
-                self.assert_(other.g == c.g)
-                self.assert_(other.b == c.b)
-                self.assert_(other.a == c.a)
-
+                
             except ValueError:
                 fails += 1
         
         self.assertEqual (
             (fails, x), (0, x)
         )
-        
 
-    def test_hsva__sanity_testing_converted_should_equate_and_not_raise(self):
+    def test_hsva__sanity_testing_converted_should_not_raise(self):
         fails = 0
 
         x = 0
@@ -457,11 +451,6 @@ class ColorTest (unittest.TestCase):
             try:
                 other.hsva = c.hsva
                 
-                self.assert_(other.r == c.r)
-                self.assert_(other.g == c.g)
-                self.assert_(other.b == c.b)
-                self.assert_(other.a == c.a)
-
             except ValueError:
                 fails += 1
 
@@ -469,7 +458,38 @@ class ColorTest (unittest.TestCase):
             (fails, x), (0, x)
         )
 
+    def test_hsla__sanity_testing_converted_should_equate(self):
+        for r,g,b,a in rgba_combinations:            
+            c = pygame.Color (r,g,b,a)
+            other = pygame.Color(0)
 
+            try:
+                other.hsla = c.hsla
+
+                self.assert_(abs(other.r - c.r) <= 1)
+                self.assert_(abs(other.b - c.b) <= 1)
+                self.assert_(abs(other.g - c.g) <= 1)
+                self.assert_(abs(other.a - c.a) <= 1)
+                
+            except ValueError:
+                pass                    # ??? other tests should catch
+        
+    def test_hsva__sanity_testing_converted_should_equate(self):
+        for r,g,b,a in rgba_combinations:
+            c = pygame.Color (r,g,b,a)
+            other = pygame.Color(0)
+            
+            try:
+                other.hsva = c.hsva
+                
+                self.assert_(abs(other.r - c.r) <= 1)
+                self.assert_(abs(other.b - c.b) <= 1)
+                self.assert_(abs(other.g - c.g) <= 1)
+                self.assert_(abs(other.a - c.a) <= 1)
+                
+            except ValueError:
+                pass
+        
 ################################################################################
 
 if __name__ == '__main__':    
