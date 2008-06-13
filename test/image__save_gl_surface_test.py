@@ -1,4 +1,5 @@
 import unittest, os, test_utils
+import re
 
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
@@ -23,7 +24,9 @@ class GL_ImageSave(unittest.TestCase):
         if "Segmentation Fault" in gl_surface_save_test:
             raise Exception('Segmentation Fault')
 
-        self.assert_(gl_surface_save_test.endswith('OK'))
+#        self.assert_(gl_surface_save_test.endswith('OK'))
+        ok = re.match(r'\s*KO', gl_surface_save_test[-1::-1]) is not None
+        self.assert_(ok)
 
 if __name__ == '__main__': 
     unittest.main()
