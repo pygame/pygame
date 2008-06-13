@@ -25,7 +25,6 @@
  *  image module for pygame
  */
 #include "pygame.h"
-#include "pgopengl.h"
 #include "pygamedocs.h"
 
 static int is_extended = 0;
@@ -92,6 +91,11 @@ opengltosdl ()
     Uint32 rmask, gmask, bmask;
     int i;
     unsigned char *pixels;
+#ifdef _WIN32
+    typedef __stdcall void (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
+#else
+    typedef void (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
+#endif
 
     GL_glReadPixels_Func p_glReadPixels= NULL;
     pixels = NULL;
