@@ -92,7 +92,7 @@ opengltosdl ()
     int i;
     unsigned char *pixels;
 #ifdef _WIN32
-    typedef __stdcall void (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
+    typedef void __stdcall (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
 #else
     typedef void (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
 #endif
