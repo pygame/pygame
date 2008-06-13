@@ -6,6 +6,9 @@
 #
 #
 
+Jun 13, 2008
+    [BUG] Fixed bug with mixer.get_init() Thanks Frankie Robertson!
+
 Jun 9, 2008
     [BUG] Fixed locking and reference count leaks in Numeric surfarray
        implementation.
