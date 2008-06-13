@@ -21,6 +21,7 @@ typedef struct _pgShapeObject{
 	int (*IsPointIn)(pgShapeObject* shape, pgVector2* point);
 } pgShapeObject;
 
+
 void	PG_ShapeDestroy(pgShapeObject* shape);
 
 //subclass type

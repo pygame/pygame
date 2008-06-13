@@ -14,10 +14,9 @@ void PG_ShapeObjectInit(pgShapeObject* shape)
 	//shape->centroid.imag = 0;
 }
 
-
-void PG_RectShapeDestroy()
+void PG_ShapeObjectDestroy(pgShapeObject* shape)
 {
-	//TODO: add destroy code
+	shape->Destroy(shape);
 }
 
 int PG_RectShapeIsPointIn(pgShapeObject* shape, pgVector2* point)
@@ -31,7 +30,7 @@ int PG_RectShapeIsPointIn(pgShapeObject* shape, pgVector2* point)
 	t1 = c_diff(ps->bottomRight, ps->bottomLeft);
 	t2 = c_diff(ps->topLeft, ps->bottomLeft);
 	s1 = fabs(c_cross(t1, t2));
-	
+
 	s2 = 0;
 
 	for(i = 0; i < 4; ++i)
@@ -47,14 +46,20 @@ int PG_RectShapeIsPointIn(pgShapeObject* shape, pgVector2* point)
 	return is_equal(s1, s2);
 }
 
+void PG_RectShapeDestroy(pgShapeObject* rectShape)
+{
+	PyObject_Free((pgRectShape*)rectShape);
+}
+
 pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, double seta)
 {
 	int i;
 	pgRectShape* p = (pgRectShape*)PyObject_MALLOC(sizeof(pgRectShape));
-	
+
 	PG_ShapeObjectInit(&(p->shape));
 	p->shape.IsPointIn = PG_RectShapeIsPointIn;
-	
+	p->shape.Destroy = PG_RectShapeDestroy;
+
 	PG_Set_Vector2(p->bottomLeft, -width/2, -height/2);
 	PG_Set_Vector2(p->bottomRight, width/2, -height/2);
 	PG_Set_Vector2(p->topRight, width/2, height/2);
