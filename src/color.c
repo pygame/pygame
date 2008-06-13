@@ -34,6 +34,7 @@ typedef struct
 
 static PyObject *_COLORDICT = NULL;
 
+static int _get_double (PyObject *obj, double *val);
 static int _get_color (PyObject *val, Uint32 *color);
 static int _hextoint (char *hex, Uint8 *val);
 static int _hexcolor (PyObject *color, Uint8 rgba[]);
@@ -241,6 +242,17 @@ static PyTypeObject PyColor_Type =
      (((PyColor *)x)->g == ((PyColor *)y)->g) && \
      (((PyColor *)x)->b == ((PyColor *)y)->b) && \
      (((PyColor *)x)->a == ((PyColor *)y)->a))
+
+static int
+_get_double (PyObject *obj, double *val)
+{
+    PyObject *floatobj;
+    if (!(floatobj = PyNumber_Float (obj)))
+        return 0;
+    *val = PyFloat_AsDouble (floatobj);
+    Py_DECREF (floatobj);
+    return 1;
+}
 
 static int
 _get_color (PyObject *val, Uint32 *color)
@@ -636,7 +648,7 @@ _color_get_hsva (PyColor *color, void *closure)
         hsv[2] = maxv * 100.0f;
         
         if (frgb[0] == maxv)
-            hsv[0] = (float) fmod ((60 * (frgb[1] - frgb[2]) / diff), 360.0f);
+            hsv[0] = fmod ((60 * (frgb[1] - frgb[2]) / diff), 360.0f);
         else if (frgb[1] == maxv)
             hsv[0] = (60 * (frgb[2] - frgb[0]) / diff) + 120.0f;
         else
@@ -653,8 +665,8 @@ static int
 _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 {
     PyObject *item;
-    float hsva[4] = { 0, 0, 0, 0 };
-    float h, f, p, q, t, v, s;
+    double hsva[4] = { 0, 0, 0, 0 };
+    double h, f, p, q, t, v, s;
 
     if (!PySequence_Check (value) || PySequence_Size (value) < 3)
     {
@@ -664,7 +676,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     /* H */
     item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(hsva[0])) ||
+    if (!item || !_get_double (item, &(hsva[0])) ||
         hsva[0] < 0 || hsva[0] > 360)
     {
         Py_XDECREF (item);
@@ -674,7 +686,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     /* S */
     item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(hsva[1])) ||
+    if (!item || !_get_double (item, &(hsva[1])) ||
         hsva[1] < 0 || hsva[1] > 100)
     {
         Py_XDECREF (item);
@@ -684,7 +696,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 
     /* V */
     item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(hsva[2])) ||
+    if (!item || !_get_double (item, &(hsva[2])) ||
         hsva[2] < 0 || hsva[2] > 100)
     {
         Py_XDECREF (item);
@@ -696,7 +708,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
     if (PySequence_Size (value) > 3)
     {
         item = PySequence_GetItem (value, 3);
-        if (!item || !FloatFromObj (item, &(hsva[3])) ||
+        if (!item || !_get_double (item, &(hsva[3])) ||
             hsva[3] < 0 || hsva[3] > 100)
         {
             Py_DECREF (item);
@@ -780,39 +792,36 @@ _color_get_hsla (PyColor *color, void *closure)
 
     maxv = MAX (MAX (frgb[0], frgb[1]), frgb[2]);
     minv = MIN (MIN (frgb[0], frgb[1]), frgb[2]);
-    
+
     diff = maxv - minv;
-    hsl[2] = (maxv + minv) / 2.0 * 100.0f;
+
+    /* Calculate L */
+    hsl[2] = 50.f * (maxv + minv); /* 1/2 (max + min) */
+
     if (maxv == minv)
     {
-        hsl[0] = 0;
         hsl[1] = 0;
-        return Py_BuildValue ("(ffff)", hsl[0], hsl[1], hsl[2], frgb[3]);
+        hsl[0] = 0;
+        return Py_BuildValue ("(ffff)", hsl[0], hsl[1], hsl[2], frgb[3] * 100);
     }
-    else if (hsl[2] <= 0.5)
-    {
-        hsl[1] = diff / (maxv + minv) * 100.0f;
-    }
+
+    /* Calculate S */
+    if (hsl[2] <= 50)
+        hsl[1] = diff / (maxv + minv);
     else
-    {
-        hsl[1] = diff / (2.0 - maxv - minv) * 100.0f;
-    }
+        hsl[1] = diff / (2 - maxv - minv);
+    hsl[1] *= 100.f;
     
-    if (frgb[0] == maxv)
-    {
-        hsl[0] = (float) ((60 * (frgb[1] - frgb[2]) / diff), 360.0f);
-    }
-    else if (frgb[1] == maxv)
-    {
-        hsl[0] = (60 * (frgb[2] - frgb[0]) / diff) + 120.0f;
-    }
+    /* Calculate H */
+    if (maxv == frgb[0])
+        hsl[0] = fmod ((60 * ((frgb[1] - frgb[2]) / diff)), 360.f);
+    else if (maxv == frgb[1])
+        hsl[0] = (60 * ((frgb[2] - frgb[0]) / diff)) + 120.f;
     else
-    {
-        hsl[0] = (60 * (frgb[0] - frgb[1]) / diff) + 240.0f;
-    }
+        hsl[0] = (60 * ((frgb[0] - frgb[1]) / diff)) + 240.f;
     if (hsl[0] < 0)
-        hsl[0] += 360.0f;
-    
+        hsl[0] += 360.f;
+
     /* H,S,L,A */
     return Py_BuildValue ("(ffff)", hsl[0], hsl[1], hsl[2], frgb[3] * 100);
 }
@@ -824,8 +833,9 @@ static int
 _color_set_hsla (PyColor *color, PyObject *value, void *closure)
 {
     PyObject *item;
-    float hsla[4] = { 0, 0, 0, 0 };
-    float ht, h, q, p = 0, s, l = 0;
+    double hsla[4] = { 0, 0, 0, 0 };
+    double ht, h, q, p = 0, s, l = 0;
+    static double onethird = 1.0 / 3.0f;
 
     if (!PySequence_Check (value) || PySequence_Size (value) < 3)
     {
@@ -835,7 +845,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
 
     /* H */
     item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(hsla[0])) ||
+    if (!item || !_get_double (item, &(hsla[0])) ||
         hsla[0] < 0 || hsla[0] > 360)
     {
         Py_XDECREF (item);
@@ -845,7 +855,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
 
     /* S */
     item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(hsla[1])) ||
+    if (!item || !_get_double (item, &(hsla[1])) ||
         hsla[1] < 0 || hsla[1] > 100)
     {
         Py_XDECREF (item);
@@ -855,7 +865,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
 
     /* L */
     item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(hsla[2])) ||
+    if (!item || !_get_double (item, &(hsla[2])) ||
         hsla[2] < 0 || hsla[2] > 100)
     {
         Py_XDECREF (item);
@@ -867,7 +877,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
     if (PySequence_Size (value) > 3)
     {
         item = PySequence_GetItem (value, 3);
-        if (!item || !FloatFromObj (item, &(hsla[3])) ||
+        if (!item || !_get_double (item, &(hsla[3])) ||
             hsla[3] < 0 || hsla[3] > 100)
         {
             Py_DECREF (item);
@@ -876,60 +886,72 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         }
     }
 
-    color->a = (Uint8) (hsla[3] / 100.0f * 255);
+    color->a = (Uint8) ((hsla[3] / 100.f) * 255);
 
     s = hsla[1] / 100.f;
     l = hsla[2] / 100.f;
 
-    if (hsla[1] == 0)
+    if (s == 0)
     {
         color->r = (Uint8) (l * 255);
         color->g = (Uint8) (l * 255);
         color->b = (Uint8) (l * 255);
+        return;
     }
-    else if (l <= 0.5)
-        q = l * (1.0 + s);
+
+    if (l < 0.5f)
+        q = l * (1 + s);
     else
         q = l + s - (l * s);
-    p = 2.0 * l - q;
-    
-    ht = hsla[0] / 360.0f; 
-    /* R channel */
-    h = ht + 1.0 / 3.0;
-    h = (h < 0) ? h + 1.0 : (h > 1) ? h - 1.0 : h;
+    p = 2 * l - q;
 
-    if (h < 1.0/6.0)
-        color->r = (Uint8) ((p + (q - p) * h * 6.0) * 255);
-    else if (h < 0.5)
+    ht = hsla[0] / 360.f;
+
+    /* Calulate R */
+    h = ht + onethird;
+    if (h < 0)
+        h += 1;
+    else if (h > 1)
+        h -= 1;
+
+    if (h < 1./6.f)
+        color->r = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
+    else if (h < 0.5f)
         color->r = (Uint8) (q * 255);
-    else if (h < 2.0 / 3.0)
-        color->r = (Uint8) ((p + (q - p) * ((2.0 / 3.0) - h) * 6.0) * 255);
+    else if (h < 2./3.f)
+        color->r = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
     else
         color->r = (Uint8) (p * 255);
 
-    /* G channel */
+    /* Calculate G */
     h = ht;
-    h = (h < 0) ? h + 1.0 : (h > 1) ? h - 1.0 : h;
+    if (h < 0)
+        h += 1;
+    else if (h > 1)
+        h -= 1;
 
-    if (h < 1.0/6.0)
-        color->g = (Uint8) ((p + (q - p) * h * 6.0) * 255);
-    else if (h < 0.5)
+    if (h < 1./6.f)
+        color->g = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
+    else if (h < 0.5f)
         color->g = (Uint8) (q * 255);
-    else if (h < 2.0 / 3.0)
-        color->g = (Uint8) ((p + (q - p) * ((2.0 / 3.0) - h) * 6.0) * 255);
+    else if (h < 2./3.f)
+        color->g = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
     else
         color->g = (Uint8) (p * 255);
 
-    /* B channel */
-    h = ht - 1.0 / 3.0;
-    h = (h < 0) ? h + 1.0 : (h > 1) ? h - 1.0 : h;
+    /* Calculate B */
+    h = ht - onethird;
+    if (h < 0)
+        h += 1;
+    else if (h > 1)
+        h -= 1;
 
-    if (h < 1.0/6.0)
-        color->b = (Uint8) ((p + (q - p) * h * 6.0) * 255);
-    else if (h < 0.5)
+    if (h < 1./6.f)
+        color->b = (Uint8) ((p + ((q - p) * 6 * h)) * 255);
+    else if (h < 0.5f)
         color->b = (Uint8) (q * 255);
-    else if (h < 2.0 / 3.0)
-        color->b = (Uint8) ((p + (q - p) * ((2.0 / 3.0) - h) * 6.0) * 255);
+    else if (h < 2./3.f)
+        color->b = (Uint8) ((p + ((q - p) * 6 * (2./3.f - h))) * 255);
     else
         color->b = (Uint8) (p * 255);
 
@@ -959,11 +981,11 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
 {
     static double onethird = 1.0 / 3.0f;
     PyObject *item;
-    float i1i2i3[3] = { 0, 0, 0 };
+    double i1i2i3[3] = { 0, 0, 0 };
 
     /* I1 */
     item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(i1i2i3[0])) ||
+    if (!item || !_get_double (item, &(i1i2i3[0])) ||
         i1i2i3[0] < 0 || i1i2i3[0] > 1)
     {
         Py_XDECREF (item);
@@ -973,7 +995,7 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
 
     /* I2 */
     item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(i1i2i3[1])) ||
+    if (!item || !_get_double (item, &(i1i2i3[1])) ||
         i1i2i3[1] < - onethird || i1i2i3[1] > onethird)
     {
         Py_XDECREF (item);
@@ -983,7 +1005,7 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
 
     /* I2 */
     item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(i1i2i3[2])) ||
+    if (!item || !_get_double (item, &(i1i2i3[2])) ||
         i1i2i3[2] < -0.5f || i1i2i3[2] > 0.5f)
     {
         Py_XDECREF (item);
@@ -1020,11 +1042,11 @@ static int
 _color_set_cmy (PyColor *color, PyObject *value, void *closure)
 {
     PyObject *item;
-    float cmy[3] = { 0, 0, 0 };
+    double cmy[3] = { 0, 0, 0 };
 
     /* I1 */
     item = PySequence_GetItem (value, 0);
-    if (!item || !FloatFromObj (item, &(cmy[0])) || cmy[0] < 0 || cmy[0] > 1)
+    if (!item || !_get_double (item, &(cmy[0])) || cmy[0] < 0 || cmy[0] > 1)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid CMY value");
@@ -1033,7 +1055,7 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
 
     /* I2 */
     item = PySequence_GetItem (value, 1);
-    if (!item || !FloatFromObj (item, &(cmy[1])) || cmy[1] < 0 || cmy[1] > 1)
+    if (!item || !_get_double (item, &(cmy[1])) || cmy[1] < 0 || cmy[1] > 1)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid CMY value");
@@ -1042,7 +1064,7 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
 
     /* I2 */
     item = PySequence_GetItem (value, 2);
-    if (!item || !FloatFromObj (item, &(cmy[2])) || cmy[2] < 0 || cmy[2] > 1)
+    if (!item || !_get_double (item, &(cmy[2])) || cmy[2] < 0 || cmy[2] > 1)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid CMY value");

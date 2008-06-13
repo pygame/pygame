@@ -390,7 +390,7 @@ class ColorTest (unittest.TestCase):
                 # this never seems to be caught :(
                 # corrupt rest of tests ?
                 s.set_colorkey(pygame.Color(*rgba))
-
+                
             except OverflowError:
                 self.assert_(False)
 
@@ -430,7 +430,7 @@ class ColorTest (unittest.TestCase):
 
             try:
                 other.hsla = c.hsla
-
+                print c, other
                 self.assert_(other.r == c.r)
                 self.assert_(other.g == c.g)
                 self.assert_(other.b == c.b)
