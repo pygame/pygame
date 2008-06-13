@@ -5,7 +5,7 @@
  ** use with the SDL function SDL_GL_GetProcAddress.
  **/
 
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #define GL_APIENTRY __stdcall
 #else
 #define GL_APIENTRY
