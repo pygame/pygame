@@ -240,7 +240,7 @@ void TestBasic3Init()
 
 void TestBasic4Init()
 {
-	#define BODY_NUM 2
+	#define BODY_NUM 3
 
 	int i;
 	pgBodyObject* body[BODY_NUM + 1];
