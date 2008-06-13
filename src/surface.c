@@ -561,7 +561,7 @@ surf_set_at (PyObject *self, PyObject *args)
     int x, y;
     Uint32 color;
     Uint8 rgba[4] = {0, 0, 0, 0 };
-    PyObject *rgba_obj;
+    PyObject *rgba_obj, *intobj;
     Uint8 *byte_buf;
 
     if (!PyArg_ParseTuple (args, "(ii)O", &x, &y, &rgba_obj))
@@ -583,7 +583,17 @@ surf_set_at (PyObject *self, PyObject *args)
     }
 
     if (PyInt_Check (rgba_obj))
+    {
         color = (Uint32) PyInt_AsLong (rgba_obj);
+        if (PyErr_Occurred () && (Sint32) color == -1)
+            return RAISE (PyExc_TypeError, "invalid color argument");
+    }
+    else if (PyLong_Check (rgba_obj))
+    {
+        color = (Uint32) PyLong_AsUnsignedLong (rgba_obj);
+        if (PyErr_Occurred () && (Sint32) color == -1)
+            return RAISE (PyExc_TypeError, "invalid color argument");
+    }
     else if (RGBAFromColorObj (rgba_obj, rgba))
         color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     else
@@ -850,7 +860,7 @@ surf_set_colorkey (PyObject *self, PyObject *args)
 {
     SDL_Surface    *surf = PySurface_AsSurface (self);
     Uint32 flags = 0, color = 0;
-    PyObject *rgba_obj = NULL, *intobj = NULL;
+    PyObject *rgba_obj = NULL;
     Uint8 rgba[4];
     int result, hascolor = 0;
 
@@ -864,14 +874,23 @@ surf_set_colorkey (PyObject *self, PyObject *args)
 
     if (rgba_obj && rgba_obj != Py_None)
     {
-        if (PyNumber_Check (rgba_obj) && (intobj = PyNumber_Int (rgba_obj)))
+        if (PyInt_Check (rgba_obj))
         {
-            color = (Uint32) PyInt_AsLong (intobj);
-            Py_DECREF (intobj);
+            color = (Uint32) PyInt_AsLong (rgba_obj);
+            if (PyErr_Occurred () && (Sint32) color == -1)
+                return RAISE (PyExc_TypeError, "invalid color argument");
+        }
+        else if (PyLong_Check (rgba_obj))
+        {
+            color = (Uint32) PyLong_AsUnsignedLong (rgba_obj);
+            if (PyErr_Occurred () && (Sint32) color == -1)
+                return RAISE (PyExc_TypeError, "invalid color argument");
         }
         else if (RGBAFromColorObj (rgba_obj, rgba))
+        {
             color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2],
-                                 rgba[3]);
+                rgba[3]);
+        }
         else
             return RAISE (PyExc_TypeError, "invalid color argument");
         hascolor = 1;
@@ -929,7 +948,7 @@ surf_set_alpha (PyObject *self, PyObject *args)
     {
         if (PyNumber_Check (alpha_obj) && (intobj = PyNumber_Int (alpha_obj)))
         {
-            alphaval = (int)PyInt_AsLong (intobj);
+            alphaval = (int) PyInt_AsLong (intobj);
             Py_DECREF (intobj);
         }
         else
