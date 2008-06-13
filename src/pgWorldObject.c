@@ -2,6 +2,8 @@
 #include "pgBodyObject.h"
 #include "pgJointObject.h"
 
+#define MAX_SOLVE_INTERAT 20
+
 void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 {
 	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
@@ -46,9 +48,15 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 
 void PG_Update(pgWorldObject* world,double stepTime)
 {
+	int i;
+
 	_PG_FreeBodySimulation(world, stepTime);
 	_PG_BodyCollisionDetection(world);
-	_PG_JointSolve(world,stepTime);
+	for (i = 0;i < MAX_SOLVE_INTERAT;i++)
+	{
+		_PG_JointSolve(world,stepTime);
+	}
+	
 	_PG_BodyPositionUpdate(world, stepTime);
 }
 

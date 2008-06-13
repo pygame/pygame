@@ -238,11 +238,48 @@ void TestBasic3Init()
 	PG_AddJointToWorld(s_world,joint);
 }
 
+void TestBasic4Init()
+{
+	#define BODY_NUM 2
+
+	int i;
+	pgBodyObject* body[BODY_NUM + 1];
+	pgJointObject* joint[BODY_NUM];
+	pgVector2 a1,a2;
+	PG_Set_Vector2(a1,0,0);
+	PG_Set_Vector2(a2,0,100);
+
+	s_world = PG_WorldNew();
+	s_world->fStepTime = 0.03;
+
+	body[0] = NULL;
+	for (i = 1;i < BODY_NUM + 1;i++)
+	{
+		body[i] = PG_BodyNew();
+		PG_Set_Vector2(body[i]->vecPosition,0,(-i*50 + 100))
+		PG_Set_Vector2(body[i]->vecLinearVelocity,0,0)
+		PG_AddBodyToWorld(s_world,body[i]);
+	}
+
+	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,50,0)
+
+	i = 0;
+	joint[i] = PG_DistanceJointNew(body[i+1],body[i],0,50,a1,a2);
+	PG_AddJointToWorld(s_world,joint[i]);
+	for (i = 1;i < BODY_NUM;i++)
+	{
+		joint[i] = PG_DistanceJointNew(body[i],body[i+1],0,50,a1,a2);
+		PG_AddJointToWorld(s_world,joint[i]);
+	}
+
+
+}
+
 //===============================================
 
 void InitWorld()
 {
-	TestBasic3Init();
+	TestBasic4Init();
 }
 
 int main (int argc, char** argv)
