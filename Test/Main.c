@@ -143,6 +143,7 @@ void display(void)
 		return;
 	}
 	dt = watch_stop();
+	watch_start();
 	/*s_updateTime += dt;
 	if(s_updateTime >= s_world->fStepTime)
 	{
@@ -155,7 +156,7 @@ void display(void)
 		glutSwapBuffers();
 	}*/
 	PG_Update(s_world,dt);
-	watch_start();
+	
 	glClear(GL_COLOR_BUFFER_BIT);
 	glLoadIdentity();
 	do_render();
@@ -208,15 +209,40 @@ void TestBasic2Init()
 	s_world->fStepTime = 0.03;
 	body = PG_BodyNew();
 	PG_Set_Vector2(body->vecPosition,0,0)
-	PG_Set_Vector2(body->vecLinearVelocity,10,0)
+	PG_Set_Vector2(body->vecLinearVelocity,0,30)
 	PG_AddBodyToWorld(s_world,body);
+}
+
+void TestBasic3Init()
+{
+	pgBodyObject* body1,*body2;
+	pgJointObject* joint;
+	pgVector2 a1,a2;
+	PG_Set_Vector2(a1,0,0);
+	PG_Set_Vector2(a2,0,0);
+
+	s_world = PG_WorldNew();
+	s_world->fStepTime = 0.03;
+	body1 = PG_BodyNew();
+	PG_Set_Vector2(body1->vecPosition,0,0)
+	PG_Set_Vector2(body1->vecLinearVelocity,10,0)
+	PG_AddBodyToWorld(s_world,body1);
+
+	body2 = PG_BodyNew();
+	PG_Set_Vector2(body2->vecPosition,0,100)
+	PG_Set_Vector2(body2->vecLinearVelocity,0,0)
+	PG_AddBodyToWorld(s_world,body2);
+
+
+	joint = PG_DistanceJointNew(body1,body2,0,100,a1,a2);
+	PG_AddJointToWorld(s_world,joint);
 }
 
 //===============================================
 
 void InitWorld()
 {
-	TestBasic1Init();
+	TestBasic3Init();
 }
 
 int main (int argc, char** argv)

@@ -47,8 +47,17 @@ void PGT_RenderJoint(pgJointObject* joint)
 	glColor3f(1.f, 0.f, 0.f);
 	glLineWidth(2.f);
 	glBegin(GL_LINES);
-	glVertex2d(joint->body1->vecPosition.real,joint->body1->vecPosition.imag);
-	glVertex2d(pj->anchor2.real,pj->anchor2.imag);
+	if (joint->body1 && (!joint->body2))
+	{
+		glVertex2d(joint->body1->vecPosition.real,joint->body1->vecPosition.imag);
+		glVertex2d(pj->anchor2.real,pj->anchor2.imag);
+	}
+	else if(joint->body1 && joint->body2)
+	{
+		glVertex2d(joint->body1->vecPosition.real,joint->body1->vecPosition.imag);
+		glVertex2d(joint->body2->vecPosition.real,joint->body2->vecPosition.imag);
+	}
+	
 	glEnd();
 	glLineWidth(1.f);
 }

@@ -15,6 +15,7 @@ int is_equal(double a, double b);
 double c_get_length_square(pgVector2 c);
 double c_get_length(pgVector2 c);
 Py_complex c_mul_complex_with_real(pgVector2 c,double d);
+Py_complex c_div_complex_with_real(pgVector2 c,double d);
 void	c_normalize(pgVector2* pVec);
 double c_dot(pgVector2 a,pgVector2 b);
 double c_cross(pgVector2 a, pgVector2 b);
