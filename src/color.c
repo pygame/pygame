@@ -622,7 +622,7 @@ _color_set_a (PyColor *color, PyObject *value, void *closure)
 static PyObject*
 _color_get_hsva (PyColor *color, void *closure)
 {
-    double hsv[3];
+    double hsv[3] = { 0, 0, 0 };
     double frgb[4];
     double minv, maxv, diff;
 
@@ -634,28 +634,30 @@ _color_get_hsva (PyColor *color, void *closure)
 
     maxv = MAX (MAX (frgb[0], frgb[1]), frgb[2]);
     minv = MIN (MIN (frgb[0], frgb[1]), frgb[2]);
+    diff = maxv - minv;
 
-    if (minv == maxv)
+    /* Calculate V */
+    hsv[2] = 100. * maxv;
+
+    if (maxv == minv)
     {
         hsv[0] = 0;
         hsv[1] = 0;
-        hsv[2] = maxv;
+        return Py_BuildValue ("(ffff)", hsv[0], hsv[1], hsv[2], frgb[3] * 100);
     }
+    /* Calculate S */
+    hsv[1] = 100. * (maxv - minv) / maxv;
+    
+    /* Calculate H */
+    if (maxv == frgb[0])
+        hsv[0] = fmod ((60 * ((frgb[1] - frgb[2]) / diff)), 360.f);
+    else if (maxv == frgb[1])
+        hsv[0] = (60 * ((frgb[2] - frgb[0]) / diff)) + 120.f;
     else
-    {
-        diff = maxv - minv;
-        hsv[1] = (maxv == 0) ? 0 : diff / maxv * 100.0f;
-        hsv[2] = maxv * 100.0f;
-        
-        if (frgb[0] == maxv)
-            hsv[0] = fmod ((60 * (frgb[1] - frgb[2]) / diff), 360.0f);
-        else if (frgb[1] == maxv)
-            hsv[0] = (60 * (frgb[2] - frgb[0]) / diff) + 120.0f;
-        else
-            hsv[0] = (60 * (frgb[0] - frgb[1]) / diff) + 240.0f;
-    }
+        hsv[0] = (60 * ((frgb[0] - frgb[1]) / diff)) + 240.f;
+
     if (hsv[0] < 0)
-        hsv[0] += 360.0f;
+        hsv[0] += 360.f;
 
     /* H,S,V,A */
     return Py_BuildValue ("(ffff)", hsv[0], hsv[1], hsv[2], frgb[3] * 100);
@@ -666,7 +668,8 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
 {
     PyObject *item;
     double hsva[4] = { 0, 0, 0, 0 };
-    double h, f, p, q, t, v, s;
+    double f, p, q, t, v, s;
+    int hi;
 
     if (!PySequence_Check (value) || PySequence_Size (value) < 3)
     {
@@ -683,6 +686,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* S */
     item = PySequence_GetItem (value, 1);
@@ -693,6 +697,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* V */
     item = PySequence_GetItem (value, 2);
@@ -703,6 +708,7 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* A */
     if (PySequence_Size (value) > 3)
@@ -715,27 +721,21 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
             PyErr_SetString (PyExc_ValueError, "invalid HSVA value");
             return -1;
         }
+        Py_DECREF (item);
     }
 
     color->a = (Uint8) ((hsva[3] / 100.0f) * 255);
 
-    s = hsva[1] / 100.0f;
-    v = hsva[2] / 100.0f;
-    if (hsva[1] == 0)
-    {
-        color->r = (Uint8) (v * 255);
-        color->g = (Uint8) (v * 255);
-        color->b = (Uint8) (v * 255);
-        return 0;
-    }
+    s = hsva[1] / 100.f;
+    v = hsva[2] / 100.f;
 
-    h = floor (hsva[0] / 60.0f);
-    f = hsva[0] / 60.0f - h;
+    hi = (int) floor (hsva[0] / 60.f);
+    f = (hsva[0] / 60.f) - hi;
     p = v * (1 - s);
     q = v * (1 - s * f);
-    t = v * (1 - s * (1.0 - f));
+    t = v * (1 - s * (1 - f));
 
-    switch (((int)h) % 6)
+    switch (hi)
     {
     case 0:
         color->r = (Uint8) (v * 255);
@@ -768,9 +768,11 @@ _color_set_hsva (PyColor *color, PyObject *value, void *closure)
         color->b = (Uint8) (q * 255);
         break;
     default:
-        PyErr_SetString (PyExc_ValueError, "unpredictable error");
+        PyErr_SetString (PyExc_OverflowError,
+            "this is not allowed to happen ever");
         return -1;
     }
+
     return 0;
 }
 
@@ -852,6 +854,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* S */
     item = PySequence_GetItem (value, 1);
@@ -862,6 +865,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* L */
     item = PySequence_GetItem (value, 2);
@@ -872,6 +876,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* A */
     if (PySequence_Size (value) > 3)
@@ -884,6 +889,7 @@ _color_set_hsla (PyColor *color, PyObject *value, void *closure)
             PyErr_SetString (PyExc_ValueError, "invalid HSLA value");
             return -1;
         }
+        Py_DECREF (item);
     }
 
     color->a = (Uint8) ((hsla[3] / 100.f) * 255);
@@ -992,6 +998,7 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid I1I2I3 value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* I2 */
     item = PySequence_GetItem (value, 1);
@@ -1002,6 +1009,7 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid I1I2I3 value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* I2 */
     item = PySequence_GetItem (value, 2);
@@ -1012,6 +1020,7 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid I1I2I3 value");
         return -1;
     }
+    Py_DECREF (item);
     
     color->b = (Uint8) (i1i2i3[0] - i1i2i3[2] - 2.0 * i1i2i3[2] / 3.0);
     color->r = (Uint8) (2.0 * i1i2i3[1] + color->b);
@@ -1052,6 +1061,7 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid CMY value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* I2 */
     item = PySequence_GetItem (value, 1);
@@ -1061,6 +1071,7 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid CMY value");
         return -1;
     }
+    Py_DECREF (item);
 
     /* I2 */
     item = PySequence_GetItem (value, 2);
@@ -1070,6 +1081,7 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
         PyErr_SetString (PyExc_ValueError, "invalid CMY value");
         return -1;
     }
+    Py_DECREF (item);
     
     color->b = (Uint8) ((1 - cmy[0]) * 255);
     color->r = (Uint8) ((1 - cmy[1]) * 255);
