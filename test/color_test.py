@@ -94,7 +94,7 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c.a, 255)
         self.assertRaises (ValueError, _assigna, c, -10)
         self.assertEquals (c.a, 255)
-
+        
     def test_repr (self):
         c = pygame.Color (68, 38, 26, 69)
         t = "(68, 38, 26, 69)"
@@ -383,6 +383,17 @@ class ColorTest (unittest.TestCase):
         self.assertRaises (ValueError, _assign_item, c, 2, "Hello")
         self.assertEquals (c[2], 173)
 
+    def test_Color_type_works_for_Surface_set_colorkey(self):
+        s = pygame.Surface((32, 32))
+        for rgba in pygame.color.THECOLORS.itervalues():
+            try:
+                # this never seems to be caught :(
+                # corrupt rest of tests ?
+                s.set_colorkey(pygame.Color(*rgba))
+
+            except OverflowError:
+                self.assert_(False)
+
 ############### HSLA HSVA ALL ELEMENTS WITHIN SPECIFIED RANGE ##############
 
     def test_hsla__all_elements_within_limits(self):
@@ -404,7 +415,7 @@ class ColorTest (unittest.TestCase):
             self.assert_(0 <= s <= 100)
             self.assert_(0 <= v <= 100)
             self.assert_(0 <= _a <= 100)
-    
+
 ########### HSVA HSLA SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
 
     def test_hsla__sanity_testing_converted_should_equate_and_not_raise(self):
@@ -416,7 +427,7 @@ class ColorTest (unittest.TestCase):
             
             c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
-            
+
             try:
                 other.hsla = c.hsla
 
