@@ -11,6 +11,6 @@
 #define GL_APIENTRY
 #endif
 
-typedef void GL_APIENTRY (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
+typedef GL_APIENTRY void (*GL_glReadPixels_Func)(int, int, int, int, unsigned int, unsigned int, void*);
 
 #endif
