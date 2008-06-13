@@ -2274,14 +2274,24 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
 
 
 
-    if (PyInt_Check (rgba_obj_color)) {
+    if (PyInt_Check (rgba_obj_color))
+    {
         color = (Uint32) PyInt_AsLong (rgba_obj_color);
-    } else if (RGBAFromColorObj (rgba_obj_color, rgba_color)) {
-        color = SDL_MapRGBA (surf->format, rgba_color[0], rgba_color[1], rgba_color[2], rgba_color[3]);
+    }
+    else if (PyLong_Check (rgba_obj_color))
+    {
+        color = (Uint32) PyLong_AsUnsignedLong (rgba_obj_color);
+    }
+    else if (RGBAFromColorObj (rgba_obj_color, rgba_color))
+    {
+        color = SDL_MapRGBA (surf->format, rgba_color[0], rgba_color[1],
+            rgba_color[2], rgba_color[3]);
         /*printf("here I am! :%d:  %d, %d, %d, %d\n", color, rgba_color[0], rgba_color[1], rgba_color[2], rgba_color[3]);
         */
 
-    } else {
+    }
+    else
+    {
         return RAISE (PyExc_TypeError, "invalid color argument");
     }
 
@@ -2291,6 +2301,9 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
 
         if (PyInt_Check (rgba_obj_threshold))
             color_threshold = (Uint32) PyInt_AsLong (rgba_obj_threshold);
+        else if (PyLong_Check (rgba_obj_threshold))
+            color_threshold = (Uint32) PyLong_AsUnsignedLong
+                (rgba_obj_threshold);
         else if (RGBAFromColorObj (rgba_obj_threshold, rgba_threshold))
             color_threshold = SDL_MapRGBA (surf->format, rgba_threshold[0], rgba_threshold[1], rgba_threshold[2], rgba_threshold[3]);
         else
@@ -2304,6 +2317,9 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
 
         if (PyInt_Check (rgba_obj_diff_color))
             color_diff_color = (Uint32) PyInt_AsLong (rgba_obj_diff_color);
+        else if (PyLong_Check (rgba_obj_threshold))
+            color_diff_color = (Uint32) PyLong_AsUnsignedLong
+                (rgba_obj_diff_color);
         else if (RGBAFromColorObj (rgba_obj_diff_color, rgba_diff_color))
             color_diff_color = SDL_MapRGBA (surf->format, rgba_diff_color[0], rgba_diff_color[1], rgba_diff_color[2], rgba_diff_color[3]);
         else

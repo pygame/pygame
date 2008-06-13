@@ -1364,7 +1364,7 @@ void initcolor (void)
         PyObject *_dict = PyModule_GetDict (colordict);
         PyObject *colors = PyDict_GetItemString (_dict, "THECOLORS");
         Py_INCREF (colors);
-        Py_INCREF (colors);
+        Py_INCREF (colors); /* Needed for the _AddObject call beneath */
         _COLORDICT = colors;
         PyModule_AddObject (module, "THECOLORS", colors);
         Py_DECREF (colordict);

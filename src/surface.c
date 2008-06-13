@@ -948,8 +948,13 @@ surf_set_alpha (PyObject *self, PyObject *args)
     {
         if (PyNumber_Check (alpha_obj) && (intobj = PyNumber_Int (alpha_obj)))
         {
-            alphaval = (int) PyInt_AsLong (intobj);
-            Py_DECREF (intobj);
+            if (PyInt_Check (intobj))
+            {
+                alphaval = (int) PyInt_AsLong (intobj);
+                Py_DECREF (intobj);
+            }
+            else
+                return RAISE (PyExc_TypeError, "invalid alpha argument");
         }
         else
             return RAISE (PyExc_TypeError, "invalid alpha argument");
@@ -1280,6 +1285,8 @@ surf_fill (PyObject *self, PyObject *args)
 
     if (PyInt_Check (rgba_obj))
         color = (Uint32) PyInt_AsLong (rgba_obj);
+    else if (PyLong_Check (rgba_obj))
+        color = (Uint32) PyLong_AsUnsignedLong (rgba_obj);
     else if (RGBAFromColorObj (rgba_obj, rgba))
         color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
     else

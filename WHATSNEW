@@ -8,6 +8,7 @@
 
 Jun 13, 2008
     [BUG] Fixed bug with mixer.get_init() Thanks Frankie Robertson!
+    [BUG] Fixed long alpha overflow bug in Surface.set_alpha().
 
 Jun 9, 2008
     [BUG] Fixed locking and reference count leaks in Numeric surfarray
