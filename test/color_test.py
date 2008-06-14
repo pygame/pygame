@@ -1,5 +1,7 @@
 #################################### IMPORTS ###################################
 
+from __future__ import generators
+
 import unittest
 import pygame
 
@@ -11,6 +13,15 @@ rgba_combinations =  [ (r,g,b,a) for r in rgba_vals
                                  for g in rgba_vals
                                  for b in rgba_vals
                                  for a in rgba_vals ]
+
+third     =   1 /  3.0
+neg_third = - 1 /  3.0
+
+################################################################################
+
+def Color_combos():
+    for rgba in rgba_combinations:
+        yield pygame.Color(*rgba)
 
 ################################################################################
 
@@ -382,90 +393,125 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c[1], 48)
         self.assertRaises (ValueError, _assign_item, c, 2, "Hello")
         self.assertEquals (c[2], 173)
-
-    def test_Color_type_works_for_Surface_set_colorkey(self):
+        
+    def test_Color_type_works_for_Surface_get_and_set_colorkey(self):
         s = pygame.Surface((32, 32))
-        for rgba in pygame.color.THECOLORS.itervalues():
-            try:
-                # this never seems to be caught :(
-                # corrupt rest of tests ?
-                s.set_colorkey(pygame.Color(*rgba))
-                
-            except OverflowError:
-                self.assert_(False)
+        for r, g, b, a in pygame.color.THECOLORS.itervalues():
+            c = pygame.Color(r,g,b,a)
 
-############### HSLA HSVA ALL ELEMENTS WITHIN SPECIFIED RANGE ##############
+            s.set_colorkey(c)
+
+            get_r, get_g, get_b, get_a = s.get_colorkey()
+
+            self.assert_(get_r == c.r)
+            self.assert_(get_g == c.g)
+            self.assert_(get_b == c.b)
+            self.assert_(get_a == c.a)
+
+######### HSLA HSVA CMY  i1i2i3 ALL ELEMENTS WITHIN SPECIFIED RANGE ############
 
     def test_hsla__all_elements_within_limits(self):
-        for (r, g, b, a) in rgba_combinations:
-            c = pygame.Color (r,g,b,a)
-
-            h, s, l, _a = c.hsla
+        for c in Color_combos():
+            h, s, l, a = c.hsla
             self.assert_(0 <= h <= 360)
             self.assert_(0 <= s <= 100)
             self.assert_(0 <= l <= 100)
-            self.assert_(0 <= _a <= 100)
+            self.assert_(0 <= a <= 100)
 
     def test_hsva__all_elements_within_limits(self):
-        for (r, g, b, a) in rgba_combinations:
-            c = pygame.Color (r,g,b,a)
-        
-            h, s, v, _a = c.hsva
+        for c in Color_combos():
+            h, s, v, a = c.hsva
             self.assert_(0 <= h <= 360)
             self.assert_(0 <= s <= 100)
             self.assert_(0 <= v <= 100)
-            self.assert_(0 <= _a <= 100)
+            self.assert_(0 <= a <= 100)
 
-########### HSVA HSLA SANITY TESTS => CONVERTED SHOULD NOT RAISE ###########
+    def test_cmy__all_elements_within_limits(self):
+        for c in Color_combos():
+            c, m, y = c.cmy
+            self.assert_(0 <= c <= 1)
+            self.assert_(0 <= m <= 1)
+            self.assert_(0 <= y <= 1)
+    
+    def test_i1i2i3__all_elements_within_limits(self):        
+        for c in Color_combos():
+            i1, i2, i3 = c.i1i2i3
+            self.assert_(      0   <= i1 <= 1)
+            self.assert_(neg_third <= i2 <= third)
+            self.assert_(     -0.5 <= i3 <= 0.5)
 
-    def test_hsla__sanity_testing_converted_should_not_raise(self):
-        fails = 0        
+###################### PROPERTY COLOR SPACE SANITY TESTS  ######################
+
+    def colorspaces_converted_should_not_raise(self, prop):
+        fails = 0
 
         x = 0
-        for r,g,b,a in rgba_combinations:
+        for c in Color_combos():
             x += 1
             
-            c = pygame.Color (r,g,b,a)
             other = pygame.Color(0)
-
+            
             try:
-                other.hsla = c.hsla
+                setattr(other, prop, getattr(c, prop))
                 
             except ValueError:
                 fails += 1
         
-        self.assertEqual (
-            (fails, x), (0, x)
-        )
+        self.assert_( x > 0 and (fails, x) == (0, x) )
+
+    def test_hsla__sanity_testing_converted_should_not_raise(self):
+        self.colorspaces_converted_should_not_raise('hsla')
+        
+        #fails = 0        
+
+        #x = 0
+        #for c in Color_combos():
+            #x += 1
+            
+            #other = pygame.Color(0)
+            #try:
+                #other.hsla = c.hsla
+                
+            #except ValueError:
+                #fails += 1
+
+        #self.assert_( x > 0 and (fails, x) == (0, x) )
 
     def test_hsva__sanity_testing_converted_should_not_raise(self):
-        fails = 0
+        self.colorspaces_converted_should_not_raise('hsva')
+        
+        #fails = 0
 
-        x = 0
-        for r,g,b,a in rgba_combinations:
-            x += 1 
+        #x = 0
+        #for c in Color_combos():
+            #x += 1
             
-            c = pygame.Color (r,g,b,a)
-            other = pygame.Color(0)
+            #other = pygame.Color(0)
             
-            try:
-                other.hsva = c.hsva
+            #try:
+                #other.hsva = c.hsva
                 
-            except ValueError:
-                fails += 1
+            #except ValueError:
+                #fails += 1
+        
+        #self.assert_( x > 0 and (fails, x) == (0, x) )
 
-        self.assertEqual (
-            (fails, x), (0, x)
-        )
+    def test_cmy__sanity_testing_converted_should_not_raise(self):
+        self.colorspaces_converted_should_not_raise('cmy')
+        
+    def test_i1i2i3__sanity_testing_converted_should_not_raise(self):
+        self.colorspaces_converted_should_not_raise('i1i2i3')
 
-    def test_hsla__sanity_testing_converted_should_equate(self):
-        for r,g,b,a in rgba_combinations:            
-            c = pygame.Color (r,g,b,a)
+################################################################################
+    
+    def colorspaces_converted_should_equate_bar_rounding(self, prop):
+        for c in Color_combos():
             other = pygame.Color(0)
 
-            try:
-                other.hsla = c.hsla
-
+            try:                
+                setattr(other, prop, getattr(c, prop))                
+                #eg other.hsla = c.hsla
+                
                 self.assert_(abs(other.r - c.r) <= 1)
                 self.assert_(abs(other.b - c.b) <= 1)
                 self.assert_(abs(other.g - c.g) <= 1)
@@ -473,23 +519,58 @@ class ColorTest (unittest.TestCase):
                 
             except ValueError:
                 pass                    # ??? other tests should catch
-        
-    def test_hsva__sanity_testing_converted_should_equate(self):
-        for r,g,b,a in rgba_combinations:
-            c = pygame.Color (r,g,b,a)
-            other = pygame.Color(0)
+
             
-            try:
-                other.hsva = c.hsva
-                
-                self.assert_(abs(other.r - c.r) <= 1)
-                self.assert_(abs(other.b - c.b) <= 1)
-                self.assert_(abs(other.g - c.g) <= 1)
-                self.assert_(abs(other.a - c.a) <= 1)
-                
-            except ValueError:
-                pass
+        # TO abstract or not abstract ?
+        # probably would have tested cmy, i1i2i3 right as well from the start
+        # had it been abstracted
         
+        # PRO: change one change all, less chance of typo
+
+        # CON: can't just print out vals on specific tests for debugging
+                # if prop == 'hsva': print bla       no probs
+
+    def test_hsla__sanity_testing_converted_should_equate_bar_rounding(self):
+        self.colorspaces_converted_should_equate_bar_rounding('hsla')
+
+
+        #for c in Color_combos():
+            #other = pygame.Color(0)
+
+            #try:
+                #other.hsla = c.hsla
+
+                #self.assert_(abs(other.r - c.r) <= 1)
+                #self.assert_(abs(other.b - c.b) <= 1)
+                #self.assert_(abs(other.g - c.g) <= 1)
+                #self.assert_(abs(other.a - c.a) <= 1)
+                
+            #except ValueError:
+                #pass                    # ??? other tests should catch
+        
+    def test_hsva__sanity_testing_converted_should_equate_bar_rounding(self):
+        self.colorspaces_converted_should_equate_bar_rounding('hsva')
+
+        #for c in Color_combos():
+            #other = pygame.Color(0)
+            
+            #try:
+                #other.hsva = c.hsva
+                
+                #self.assert_(abs(other.r - c.r) <= 1)
+                #self.assert_(abs(other.b - c.b) <= 1)
+                #self.assert_(abs(other.g - c.g) <= 1)
+                #self.assert_(abs(other.a - c.a) <= 1)
+                
+            #except ValueError:
+                #pass
+
+    def test_cmy__sanity_testing_converted_should_equate_bar_rounding(self):
+        self.colorspaces_converted_should_equate_bar_rounding('cmy')
+                    
+    def test_i1i2i3__sanity_testing_converted_should_equate_bar_rounding(self):
+        self.colorspaces_converted_should_equate_bar_rounding('i1i2i3')
+
 ################################################################################
 
 if __name__ == '__main__':    
