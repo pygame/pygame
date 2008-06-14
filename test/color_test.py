@@ -453,48 +453,19 @@ class ColorTest (unittest.TestCase):
             
             try:
                 setattr(other, prop, getattr(c, prop))
-                
+                #eg other.hsla = c.hsla
+
             except ValueError:
                 fails += 1
         
-        self.assert_( x > 0 and (fails, x) == (0, x) )
+        self.assert_(x > 0, "x is combination counter, 0 means no tests!")        
+        self.assert_((fails, x) == (0, x) )
 
     def test_hsla__sanity_testing_converted_should_not_raise(self):
         self.colorspaces_converted_should_not_raise('hsla')
         
-        #fails = 0        
-
-        #x = 0
-        #for c in Color_combos():
-            #x += 1
-            
-            #other = pygame.Color(0)
-            #try:
-                #other.hsla = c.hsla
-                
-            #except ValueError:
-                #fails += 1
-
-        #self.assert_( x > 0 and (fails, x) == (0, x) )
-
     def test_hsva__sanity_testing_converted_should_not_raise(self):
         self.colorspaces_converted_should_not_raise('hsva')
-        
-        #fails = 0
-
-        #x = 0
-        #for c in Color_combos():
-            #x += 1
-            
-            #other = pygame.Color(0)
-            
-            #try:
-                #other.hsva = c.hsva
-                
-            #except ValueError:
-                #fails += 1
-        
-        #self.assert_( x > 0 and (fails, x) == (0, x) )
 
     def test_cmy__sanity_testing_converted_should_not_raise(self):
         self.colorspaces_converted_should_not_raise('cmy')
@@ -503,7 +474,16 @@ class ColorTest (unittest.TestCase):
         self.colorspaces_converted_should_not_raise('i1i2i3')
 
 ################################################################################
-    
+
+        # TO abstract or not abstract ?
+        # probably would have tested cmy, i1i2i3 right as well from the start
+        # had it been abstracted
+        
+        # PRO: change one change all, less chance of typo
+
+        # CON: can't just print out vals on specific tests for debugging
+                # if prop == 'hsva': print bla       no probs
+
     def colorspaces_converted_should_equate_bar_rounding(self, prop):
         for c in Color_combos():
             other = pygame.Color(0)
@@ -518,52 +498,13 @@ class ColorTest (unittest.TestCase):
                 self.assert_(abs(other.a - c.a) <= 1)
                 
             except ValueError:
-                pass                    # ??? other tests should catch
-
-            
-        # TO abstract or not abstract ?
-        # probably would have tested cmy, i1i2i3 right as well from the start
-        # had it been abstracted
-        
-        # PRO: change one change all, less chance of typo
-
-        # CON: can't just print out vals on specific tests for debugging
-                # if prop == 'hsva': print bla       no probs
+                pass                    # ??? other tests will notify
 
     def test_hsla__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('hsla')
-
-
-        #for c in Color_combos():
-            #other = pygame.Color(0)
-
-            #try:
-                #other.hsla = c.hsla
-
-                #self.assert_(abs(other.r - c.r) <= 1)
-                #self.assert_(abs(other.b - c.b) <= 1)
-                #self.assert_(abs(other.g - c.g) <= 1)
-                #self.assert_(abs(other.a - c.a) <= 1)
-                
-            #except ValueError:
-                #pass                    # ??? other tests should catch
         
     def test_hsva__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('hsva')
-
-        #for c in Color_combos():
-            #other = pygame.Color(0)
-            
-            #try:
-                #other.hsva = c.hsva
-                
-                #self.assert_(abs(other.r - c.r) <= 1)
-                #self.assert_(abs(other.b - c.b) <= 1)
-                #self.assert_(abs(other.g - c.g) <= 1)
-                #self.assert_(abs(other.a - c.a) <= 1)
-                
-            #except ValueError:
-                #pass
 
     def test_cmy__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('cmy')
