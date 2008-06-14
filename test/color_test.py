@@ -15,15 +15,11 @@ rgba_combinations =  [ (r,g,b,a) for r in rgba_vals
                                  for b in rgba_vals
                                  for a in rgba_vals ]
 
-third     =   1 /  3.0
-neg_third = - 1 /  3.0
-
 ################################################################################
 
 def Color_combos():
     for rgba in rgba_combinations:
         yield pygame.Color(*rgba)
-
 
 # Python gamma correct
 # Needs checking
@@ -444,9 +440,9 @@ class ColorTest (unittest.TestCase):
     def test_i1i2i3__all_elements_within_limits(self):        
         for c in Color_combos():
             i1, i2, i3 = c.i1i2i3
-            self.assert_(      0   <= i1 <= 1)
-            self.assert_(neg_third <= i2 <= third)
-            self.assert_(     -0.5 <= i3 <= 0.5)
+            self.assert_(  0   <= i1 <= 1)
+            self.assert_( -0.5 <= i2 <= 0.5)
+            self.assert_( -0.5 <= i3 <= 0.5)
 
 ###################### PROPERTY COLOR SPACE SANITY TESTS  ######################
 
@@ -466,7 +462,7 @@ class ColorTest (unittest.TestCase):
             except ValueError:
                 fails += 1
         
-        self.assert_(x > 0, "x is combination counter, 0 means no tests!")        
+        self.assert_(x > 0, "x is combination counter, 0 means no tests!")
         self.assert_((fails, x) == (0, x) )
 
     def test_hsla__sanity_testing_converted_should_not_raise(self):
@@ -496,14 +492,16 @@ class ColorTest (unittest.TestCase):
         for c in Color_combos():
             other = pygame.Color(0)
 
-            try:                
-                setattr(other, prop, getattr(c, prop))                
+            try:
+                setattr(other, prop, getattr(c, prop))
                 #eg other.hsla = c.hsla
                 
                 self.assert_(abs(other.r - c.r) <= 1)
                 self.assert_(abs(other.b - c.b) <= 1)
                 self.assert_(abs(other.g - c.g) <= 1)
-                self.assert_(abs(other.a - c.a) <= 1)
+                # CMY and I1I2I3 do not care about the alpha
+                if not prop in ("cmy", "i1i2i3"):
+                    self.assert_(abs(other.a - c.a) <= 1)
                 
             except ValueError:
                 pass                    # ??? other tests will notify
