@@ -4,6 +4,7 @@ from __future__ import generators
 
 import unittest
 import pygame
+import math
 
 ################################### CONSTANTS ##################################
 
@@ -22,6 +23,13 @@ neg_third = - 1 /  3.0
 def Color_combos():
     for rgba in rgba_combinations:
         yield pygame.Color(*rgba)
+
+
+# Python gamma correct
+# Needs checking
+def gamma_correct(rgba_0_255, gamma):
+    corrected = round(255.0 * math.pow(rgba_0_255/255.0, gamma))
+    return max(min( int(corrected), 255), 0)
 
 ################################################################################
 
@@ -514,5 +522,27 @@ class ColorTest (unittest.TestCase):
 
 ################################################################################
 
+    def test_gamma_correction__verified_against_python_implementation(self):
+        # gamma_correct defined at top of page, needs checking
+
+        gammas = [0.4, 1.1, 2.5, 0.1, 1.0, 2.1, 2.133]
+
+        for i, c in enumerate(Color_combos()):
+            gamma = gammas[i % len(gammas)]
+
+            corrected = pygame.Color(*[gamma_correct(x, gamma) for x in tuple(c)])
+            lib_corrected = c.correct_gamma(gamma)
+
+            self.assert_(corrected.r == lib_corrected.r)
+            self.assert_(corrected.g == lib_corrected.g)
+            self.assert_(corrected.b == lib_corrected.b)
+            self.assert_(corrected.a == lib_corrected.a)
+        
+        # probably pointless and slow
+        
+        # TODO: test against statically defined verified _correct_ values
+        # assert corrected.r == 125 etc.
+
+################################################################################
 if __name__ == '__main__':    
     unittest.main()
