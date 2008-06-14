@@ -976,18 +976,18 @@ _color_get_i1i2i3 (PyColor *color, void *closure)
     frgb[2] = color->b / 255.0;
     
     i1i2i3[0] = (frgb[0] + frgb[1] + frgb[2]) / 3.0f;
-    i1i2i3[1] = (frgb[0] - frgb[2]) / 3.0f;
-    i1i2i3[2] = (2 * frgb[2] - frgb[0] - frgb[1]) / 4.0f;
-    
+    i1i2i3[1] = (frgb[0] - frgb[2]) / 2.0f;
+    i1i2i3[2] = (2 * frgb[1] - frgb[0] - frgb[2]) / 4.0f;
+ 
     return Py_BuildValue ("(fff)", i1i2i3[0], i1i2i3[1], i1i2i3[2]);
 }
 
 static int
 _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
 {
-    static double onethird = 1.0 / 3.0f;
     PyObject *item;
     double i1i2i3[3] = { 0, 0, 0 };
+    double ar, ag, ab;
 
     /* I1 */
     item = PySequence_GetItem (value, 0);
@@ -1003,7 +1003,7 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
     /* I2 */
     item = PySequence_GetItem (value, 1);
     if (!item || !_get_double (item, &(i1i2i3[1])) ||
-        i1i2i3[1] < - onethird || i1i2i3[1] > onethird)
+        i1i2i3[1] < -0.5f || i1i2i3[1] > 0.5f)
     {
         Py_XDECREF (item);
         PyErr_SetString (PyExc_ValueError, "invalid I1I2I3 value");
@@ -1011,7 +1011,7 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
     }
     Py_DECREF (item);
 
-    /* I2 */
+    /* I3 */
     item = PySequence_GetItem (value, 2);
     if (!item || !_get_double (item, &(i1i2i3[2])) ||
         i1i2i3[2] < -0.5f || i1i2i3[2] > 0.5f)
@@ -1021,10 +1021,14 @@ _color_set_i1i2i3 (PyColor *color, PyObject *value, void *closure)
         return -1;
     }
     Py_DECREF (item);
-    
-    color->b = (Uint8) (i1i2i3[0] - i1i2i3[2] - 2.0 * i1i2i3[2] / 3.0);
-    color->r = (Uint8) (2.0 * i1i2i3[1] + color->b);
-    color->g = (Uint8) (3.0 * i1i2i3[0] - color->r - color->b);
+
+    ab = i1i2i3[0] - i1i2i3[1] - 2 * i1i2i3[2] / 3.f;
+    ar = 2 * i1i2i3[1] + ab;
+    ag = 3 * i1i2i3[0] - ar - ab;
+
+    color->r = (Uint8) (ar * 255);
+    color->g = (Uint8) (ag * 255);
+    color->b = (Uint8) (ab * 255);
 
     return 0;
 }
@@ -1083,9 +1087,9 @@ _color_set_cmy (PyColor *color, PyObject *value, void *closure)
     }
     Py_DECREF (item);
     
-    color->b = (Uint8) ((1 - cmy[0]) * 255);
-    color->r = (Uint8) ((1 - cmy[1]) * 255);
-    color->g = (Uint8) ((1 - cmy[2]) * 255);
+    color->r = (Uint8) ((1.0 - cmy[0]) * 255);
+    color->g = (Uint8) ((1.0 - cmy[1]) * 255);
+    color->b = (Uint8) ((1.0 - cmy[2]) * 255);
 
     return 0;
 }
