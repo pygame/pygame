@@ -525,7 +525,7 @@ class ColorTest (unittest.TestCase):
     def test_gamma_correction__verified_against_python_implementation(self):
         # gamma_correct defined at top of page, needs checking
 
-        gammas = [0.4, 1.1, 2.5, 0.1, 1.0, 2.1, 2.133]
+        gammas = map(lambda i: i / 10.0, range(1, 31)) # [0.1 .. 3.0]
 
         for i, c in enumerate(Color_combos()):
             gamma = gammas[i % len(gammas)]
