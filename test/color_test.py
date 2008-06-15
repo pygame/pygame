@@ -17,22 +17,20 @@ rgba_combinations =  [ (r,g,b,a) for r in rgba_vals
 
 ################################################################################
 
-def Color_combos():
+def rgba_combos_Color_generator ():
     for rgba in rgba_combinations:
         yield pygame.Color(*rgba)
 
 # Python gamma correct
-# Needs checking
-def gamma_correct(rgba_0_255, gamma):
+def gamma_correct (rgba_0_255, gamma):
     corrected = round(255.0 * math.pow(rgba_0_255/255.0, gamma))
     return max(min( int(corrected), 255), 0)
 
 ################################################################################
 
 # TODO: add tests for
-# correct_gamma()
-# hsva, hsla
-# coerce ()
+# correct_gamma()  -- test against statically defined verified correct values
+# coerce ()        --  ??
 
 def _assignr (x, y):
     x.r = y
@@ -412,45 +410,45 @@ class ColorTest (unittest.TestCase):
             self.assert_(get_b == c.b)
             self.assert_(get_a == c.a)
 
-######### HSLA HSVA CMY  i1i2i3 ALL ELEMENTS WITHIN SPECIFIED RANGE ############
+########## HSLA, HSVA, CMY, I1I2I3 ALL ELEMENTS WITHIN SPECIFIED RANGE #########
 
-    def test_hsla__all_elements_within_limits(self):
-        for c in Color_combos():
+    def test_hsla__all_elements_within_limits (self):
+        for c in rgba_combos_Color_generator():
             h, s, l, a = c.hsla
             self.assert_(0 <= h <= 360)
             self.assert_(0 <= s <= 100)
             self.assert_(0 <= l <= 100)
             self.assert_(0 <= a <= 100)
 
-    def test_hsva__all_elements_within_limits(self):
-        for c in Color_combos():
+    def test_hsva__all_elements_within_limits (self):
+        for c in rgba_combos_Color_generator():
             h, s, v, a = c.hsva
             self.assert_(0 <= h <= 360)
             self.assert_(0 <= s <= 100)
             self.assert_(0 <= v <= 100)
             self.assert_(0 <= a <= 100)
 
-    def test_cmy__all_elements_within_limits(self):
-        for c in Color_combos():
+    def test_cmy__all_elements_within_limits (self):
+        for c in rgba_combos_Color_generator():
             c, m, y = c.cmy
             self.assert_(0 <= c <= 1)
             self.assert_(0 <= m <= 1)
             self.assert_(0 <= y <= 1)
-    
-    def test_i1i2i3__all_elements_within_limits(self):        
-        for c in Color_combos():
+
+    def test_i1i2i3__all_elements_within_limits (self):        
+        for c in rgba_combos_Color_generator():
             i1, i2, i3 = c.i1i2i3
             self.assert_(  0   <= i1 <= 1)
             self.assert_( -0.5 <= i2 <= 0.5)
             self.assert_( -0.5 <= i3 <= 0.5)
 
-###################### PROPERTY COLOR SPACE SANITY TESTS  ######################
+####################### COLORSPACE PROPERTY SANITY TESTS #######################
 
-    def colorspaces_converted_should_not_raise(self, prop):
+    def colorspaces_converted_should_not_raise (self, prop):
         fails = 0
 
         x = 0
-        for c in Color_combos():
+        for c in rgba_combos_Color_generator():
             x += 1
             
             other = pygame.Color(0)
@@ -461,35 +459,26 @@ class ColorTest (unittest.TestCase):
 
             except ValueError:
                 fails += 1
-        
-        self.assert_(x > 0, "x is combination counter, 0 means no tests!")
-        self.assert_((fails, x) == (0, x) )
 
-    def test_hsla__sanity_testing_converted_should_not_raise(self):
+        self.assert_(x > 0, "x is combination counter, 0 means no tests!")
+        self.assert_((fails, x) == (0, x))
+
+    def test_hsla__sanity_testing_converted_should_not_raise (self):
         self.colorspaces_converted_should_not_raise('hsla')
-        
-    def test_hsva__sanity_testing_converted_should_not_raise(self):
+
+    def test_hsva__sanity_testing_converted_should_not_raise (self):
         self.colorspaces_converted_should_not_raise('hsva')
 
-    def test_cmy__sanity_testing_converted_should_not_raise(self):
+    def test_cmy__sanity_testing_converted_should_not_raise (self):
         self.colorspaces_converted_should_not_raise('cmy')
-        
-    def test_i1i2i3__sanity_testing_converted_should_not_raise(self):
+
+    def test_i1i2i3__sanity_testing_converted_should_not_raise (self):
         self.colorspaces_converted_should_not_raise('i1i2i3')
 
 ################################################################################
 
-        # TO abstract or not abstract ?
-        # probably would have tested cmy, i1i2i3 right as well from the start
-        # had it been abstracted
-        
-        # PRO: change one change all, less chance of typo
-
-        # CON: can't just print out vals on specific tests for debugging
-                # if prop == 'hsva': print bla       no probs
-
-    def colorspaces_converted_should_equate_bar_rounding(self, prop):
-        for c in Color_combos():
+    def colorspaces_converted_should_equate_bar_rounding (self, prop):
+        for c in rgba_combos_Color_generator():
             other = pygame.Color(0)
 
             try:
@@ -504,7 +493,7 @@ class ColorTest (unittest.TestCase):
                     self.assert_(abs(other.a - c.a) <= 1)
                 
             except ValueError:
-                pass                    # ??? other tests will notify
+                pass        # other tests will notify, this tests equation
 
     def test_hsla__sanity_testing_converted_should_equate_bar_rounding(self):
         self.colorspaces_converted_should_equate_bar_rounding('hsla')
@@ -521,26 +510,27 @@ class ColorTest (unittest.TestCase):
 ################################################################################
 
     def test_gamma_correction__verified_against_python_implementation(self):
-        # gamma_correct defined at top of page, needs checking
+        # gamma_correct defined at top of page
 
         gammas = map(lambda i: i / 10.0, range(1, 31)) # [0.1 .. 3.0]
+        gamma_len = len(gammas)
 
-        for i, c in enumerate(Color_combos()):
-            gamma = gammas[i % len(gammas)]
+        for i, c in enumerate(rgba_combos_Color_generator()):
+            gamma = gammas[i % gamma_len]
 
-            corrected = pygame.Color(*[gamma_correct(x, gamma) for x in tuple(c)])
+            corrected = pygame.Color(*[gamma_correct(x, gamma) 
+                                                 for x in tuple(c)])
             lib_corrected = c.correct_gamma(gamma)
 
             self.assert_(corrected.r == lib_corrected.r)
             self.assert_(corrected.g == lib_corrected.g)
             self.assert_(corrected.b == lib_corrected.b)
             self.assert_(corrected.a == lib_corrected.a)
-        
-        # probably pointless and slow
-        
+
         # TODO: test against statically defined verified _correct_ values
         # assert corrected.r == 125 etc.
 
 ################################################################################
-if __name__ == '__main__':    
+
+if __name__ == '__main__':
     unittest.main()
