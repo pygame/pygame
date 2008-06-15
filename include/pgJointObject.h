@@ -11,7 +11,8 @@ typedef struct _pgJointObject{
 	pgBodyObject*	body1;
 	pgBodyObject*	body2;
 	int		isCollideConnect;
-	void	(*SolveConstraint)(pgJointObject* joint,double stepTime);
+	void	(*SolveConstraintPosition)(pgJointObject* joint,double stepTime);
+	void	(*SolveConstraintVelocity)(pgJointObject* joint,double stepTime);
 	void	(*Destroy)(pgJointObject* joint);
 } pgJointObject;
 

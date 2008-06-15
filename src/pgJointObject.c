@@ -5,14 +5,41 @@ void PG_InitJointBase(pgJointObject* joint,pgBodyObject* b1,pgBodyObject* b2,int
 	joint->body1 = b1;
 	joint->body2 = b2;
 	joint->isCollideConnect = bCollideConnect;
-	joint->SolveConstraint = NULL;
+	joint->SolveConstraintVelocity = NULL;
+	joint->SolveConstraintPosition = NULL;
 }
 
-void PG_SolveDistanceJoint(pgJointObject* joint,double stepTime)
+void PG_SolveDistanceJointPosition(pgJointObject* joint,double stepTime)
+{
+	pgVector2 vecL,vecP;
+	pgDistanceJoint* pJoint = (pgDistanceJoint*)joint;
+	
+	if (joint->body1 && (!joint->body2))
+	{
+		vecL = c_diff(joint->body1->vecPosition,pJoint->anchor2);
+		c_normalize(&vecL);
+		vecL = c_mul_complex_with_real(vecL,pJoint->distance);
+		joint->body1->vecPosition = c_sum(pJoint->anchor2,vecL);
+		return;
+	} 
+
+	if(joint->body1 && joint->body2)
+	{
+		vecL = c_diff(joint->body1->vecPosition,joint->body2->vecPosition);
+		vecP = c_sum(joint->body1->vecPosition,joint->body2->vecPosition);
+		c_normalize(&vecL);
+		vecL = c_mul_complex_with_real(vecL,pJoint->distance * 0.5);
+		joint->body1->vecPosition = c_sum(joint->body1->vecPosition,vecL);
+		joint->body2->vecPosition = c_diff(joint->body2->vecPosition,vecL);
+		return;
+	}
+}
+
+void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 {
 	pgVector2 vecL;
 	double lamda,cosTheta1V,cosTheta2V,mk;
-	Py_complex impuseAdd,v1Add,v2Add;
+	pgVector2 impuseAdd,v1Add,v2Add;
 	pgDistanceJoint* pJoint = (pgDistanceJoint*)joint;
 	if (joint->body1 && (!joint->body2))
 	{
@@ -51,6 +78,6 @@ pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollid
 	pjoint->distance = dist;
 	pjoint->anchor1 = a1;
 	pjoint->anchor2 = a2;
-	pjoint->joint.SolveConstraint = PG_SolveDistanceJoint;
+	pjoint->joint.SolveConstraintVelocity = PG_SolveDistanceJointVelocity;
 	return (pgJointObject*)pjoint;
 }

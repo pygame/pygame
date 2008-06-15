@@ -29,9 +29,13 @@ void _PG_JointSolve(pgWorldObject* world,double stepTime)
 	for (i = 0;i < size;i++)
 	{
 		pgJointObject* joint = (pgJointObject*)(PyList_GetItem((PyObject*)(world->jointList),i));
-		if (joint->SolveConstraint)
+		if (joint->SolveConstraintPosition)
 		{
-			joint->SolveConstraint(joint,stepTime);
+			joint->SolveConstraintPosition(joint,stepTime);
+		}
+		if (joint->SolveConstraintVelocity)
+		{
+			joint->SolveConstraintVelocity(joint,stepTime);
 		}
 	}
 }
