@@ -13,7 +13,7 @@ class SpriteModuleTest( unittest.TestCase ):
 
 ######################### SPRITECOLLIDE FUNCTIONS TEST #########################
 
-class spritecollide_Test( unittest.TestCase ):
+class SpriteCollideTest( unittest.TestCase ):
     def setUp(self):
         self.ag = sprite.AbstractGroup()
         self.ag2 = sprite.AbstractGroup()
@@ -195,8 +195,8 @@ class spritecollide_Test( unittest.TestCase ):
 
 ################################################################################
 
-class AbstractGroupTest( unittest.TestCase ):
-    def test_AbstractGroup__has( self ):
+class AbstractGroupTypeTest( unittest.TestCase ):
+    def test_has( self ):
         " See if AbstractGroup.has() works as expected. "
 
         ag = sprite.AbstractGroup()
@@ -222,8 +222,8 @@ class AbstractGroupTest( unittest.TestCase ):
 
 # A base class to share tests between similar classes
 
-class LayeredGroup:
-    def test_LayeredGroup__get_layer_of_sprite(self):
+class LayeredGroupBase:
+    def test_get_layer_of_sprite(self):
         self.assert_(len(self.LG._spritelist)==0)
         spr = self.sprite()
         self.LG.add(spr, layer=666)
@@ -232,14 +232,14 @@ class LayeredGroup:
         self.assert_(self.LG.get_layer_of_sprite(spr)==self.LG._spritelayers[spr])
         
         
-    def test_LayeredGroup__add(self):
+    def test_add(self):
         self.assert_(len(self.LG._spritelist)==0)
         spr = self.sprite()
         self.LG.add(spr)
         self.assert_(len(self.LG._spritelist)==1)
         self.assert_(self.LG.get_layer_of_sprite(spr)==self.LG._default_layer)
         
-    def test_LayeredGroup__add__sprite_with_layer_attribute(self):
+    def test_add__sprite_with_layer_attribute(self):
         #test_add_sprite_with_layer_attribute
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -249,7 +249,7 @@ class LayeredGroup:
         self.assert_(len(self.LG._spritelist)==1)
         self.assert_(self.LG.get_layer_of_sprite(spr)==100)
         
-    def test_LayeredGroup__add__passing_layer_keyword(self):
+    def test_add__passing_layer_keyword(self):
         # test_add_sprite_passing_layer
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -258,7 +258,7 @@ class LayeredGroup:
         self.assert_(len(self.LG._spritelist)==1)
         self.assert_(self.LG.get_layer_of_sprite(spr)==100)
         
-    def test_LayeredGroup__add__overriding_sprite_layer_attr(self):
+    def test_add__overriding_sprite_layer_attr(self):
         # test_add_sprite_overriding_layer_attr
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -268,7 +268,7 @@ class LayeredGroup:
         self.assert_(len(self.LG._spritelist)==1)
         self.assert_(self.LG.get_layer_of_sprite(spr)==200)
         
-    def test_LayeredGroup__add__adding_sprite_on_init(self):
+    def test_add__adding_sprite_on_init(self):
         # test_add_sprite_init
         
         spr = self.sprite()
@@ -276,7 +276,7 @@ class LayeredGroup:
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==lrg2._default_layer)
         
-    def test_LayeredGroup__add__sprite_init_layer_attr(self):
+    def test_add__sprite_init_layer_attr(self):
         # test_add_sprite_init_layer_attr
         
         spr = self.sprite()
@@ -285,7 +285,7 @@ class LayeredGroup:
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==20)
         
-    def test_LayeredGroup__add__sprite_init_passing_layer(self):
+    def test_add__sprite_init_passing_layer(self):
         # test_add_sprite_init_passing_layer
         
         spr = self.sprite()
@@ -293,7 +293,7 @@ class LayeredGroup:
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==33)
         
-    def test_LayeredGroup__add__sprite_init_overiding_layer(self):
+    def test_add__sprite_init_overiding_layer(self):
         # test_add_sprite_init_overiding_layer
         
         spr = self.sprite()
@@ -302,7 +302,7 @@ class LayeredGroup:
         self.assert_(len(lrg2._spritelist)==1)
         self.assert_(lrg2._spritelayers[spr]==33)
         
-    def test_LayeredGroup__add__spritelist(self):
+    def test_add__spritelist(self):
         # test_add_spritelist
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -314,7 +314,7 @@ class LayeredGroup:
         for i in range(10):
             self.assert_(self.LG.get_layer_of_sprite(sprites[i])==self.LG._default_layer)
         
-    def test_LayeredGroup__add__spritelist_with_layer_attr(self):
+    def test_add__spritelist_with_layer_attr(self):
         # test_add_spritelist_with_layer_attr
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -327,7 +327,7 @@ class LayeredGroup:
         for i in range(10):
             self.assert_(self.LG.get_layer_of_sprite(sprites[i])==i)
         
-    def test_LayeredGroup__add__spritelist_passing_layer(self):
+    def test_add__spritelist_passing_layer(self):
         # test_add_spritelist_passing_layer
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -339,7 +339,7 @@ class LayeredGroup:
         for i in range(10):
             self.assert_(self.LG.get_layer_of_sprite(sprites[i])==33)
         
-    def test_LayeredGroup__add__spritelist_overriding_layer(self):
+    def test_add__spritelist_overriding_layer(self):
         # test_add_spritelist_overriding_layer
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -352,7 +352,7 @@ class LayeredGroup:
         for i in range(10):
             self.assert_(self.LG.get_layer_of_sprite(sprites[i])==33)
             
-    def test_LayeredGroup__add__spritelist_init(self):
+    def test_add__spritelist_init(self):
         # test_add_spritelist_init
 
         self.assert_(len(self.LG._spritelist)==0)
@@ -364,7 +364,7 @@ class LayeredGroup:
         for i in range(10):
             self.assert_(lrg2.get_layer_of_sprite(sprites[i])==self.LG._default_layer)
         
-    def test_LayeredGroup__remove__sprite(self):
+    def test_remove__sprite(self):
         # test_remove_sprite
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -378,7 +378,7 @@ class LayeredGroup:
             self.LG.remove(sprites[i])
         self.assert_(len(self.LG._spritelist)==0)
         
-    def test_LayeredGroup__sprites(self):
+    def test_sprites(self):
         # test_sprites
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -391,7 +391,7 @@ class LayeredGroup:
         for idx,spr in enumerate(self.LG.sprites()):
             self.assert_(spr == sprites[9-idx])
         
-    def test_LayeredGroup__layers(self):
+    def test_layers(self):
         # test_layers
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -405,7 +405,7 @@ class LayeredGroup:
         for i in range(10):
             self.assert_(lays[i] == i)
             
-    def test_LayeredGroup__add__layers_are_correct(self):  #TODO
+    def test_add__layers_are_correct(self):  #TODO
         # test_layers2
 
         self.assert_(len(self.LG)==0)
@@ -416,7 +416,7 @@ class LayeredGroup:
         for idx, spr in enumerate(self.LG.sprites()):
             self.assert_(self.LG.get_layer_of_sprite(spr)==layers[idx])
 
-    def test_LayeredGroup__change_layer(self):
+    def test_change_layer(self):
         # test_change_layer
         
         self.assert_(len(self.LG._spritelist)==0)
@@ -432,7 +432,7 @@ class LayeredGroup:
         self.LG.change_layer(spr2, 77)
         self.assert_(spr2.layer == 77)
         
-    def test_LayeredGroup__get_top_layer(self):
+    def test_get_top_layer(self):
         # test_get_top_layer
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -442,7 +442,7 @@ class LayeredGroup:
         self.assert_(self.LG.get_top_layer()==max(self.LG._spritelayers.values()))
         self.assert_(self.LG.get_top_layer()==self.LG._spritelayers[self.LG._spritelist[-1]])
             
-    def test_LayeredGroup__get_bottom_layer(self):
+    def test_get_bottom_layer(self):
         # test_get_bottom_layer
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -452,7 +452,7 @@ class LayeredGroup:
         self.assert_(self.LG.get_bottom_layer()==min(self.LG._spritelayers.values()))
         self.assert_(self.LG.get_bottom_layer()==self.LG._spritelayers[self.LG._spritelist[0]])
             
-    def test_LayeredGroup__move_to_front(self):
+    def test_move_to_front(self):
         # test_move_to_front
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -464,7 +464,7 @@ class LayeredGroup:
         self.LG.move_to_front(spr)
         self.assert_(spr == self.LG._spritelist[-1]) 
         
-    def test_LayeredGroup__move_to_back(self):
+    def test_move_to_back(self):
         # test_move_to_back
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -476,7 +476,7 @@ class LayeredGroup:
         self.LG.move_to_back(spr)
         self.assert_(spr == self.LG._spritelist[0]) 
         
-    def test_LayeredGroup__get_top_sprite(self):
+    def test_get_top_sprite(self):
         # test_get_top_sprite
         
         layers = [1,5,2,8,4,5,3,88,23,0]
@@ -484,7 +484,7 @@ class LayeredGroup:
             self.LG.add(self.sprite(), layer=i)
         self.assert_(self.LG.get_layer_of_sprite(self.LG.get_top_sprite())== self.LG.get_top_layer())
         
-    def test_LayeredGroup__get_sprites_from_layer(self):
+    def test_get_sprites_from_layer(self):
         # test_get_sprites_from_layer
         
         self.assert_(len(self.LG)==0)
@@ -506,7 +506,7 @@ class LayeredGroup:
                     del sprites[lay]
         self.assert_(len(sprites.values())==0)
         
-    def test_LayeredGroup__switch_layer(self):
+    def test_switch_layer(self):
         # test_switch_layer
 
         self.assert_(len(self.LG)==0)
@@ -536,22 +536,21 @@ class LayeredGroup:
             self.assert_(spr in self.LG.get_sprites_from_layer(2))
         self.assert_(len(self.LG)==len(sprites1)+len(sprites2))
 
-
 ########################## LAYERED RENDER GROUP TESTS ##########################
 
-class LayeredUpdates_SpriteTest(LayeredGroup, unittest.TestCase):
+class LayeredUpdatesTypeTest__SpriteTest(LayeredGroupBase, unittest.TestCase):
     sprite = sprite.Sprite
 
     def setUp(self):
         self.LG = sprite.LayeredUpdates()
 
-class LayeredUpdates_DirtySpriteTest(LayeredGroup, unittest.TestCase):
+class LayeredUpdatesTypeTest__DirtySprite(LayeredGroupBase, unittest.TestCase):
     sprite = sprite.DirtySprite
 
     def setUp(self):
         self.LG = sprite.LayeredUpdates()
 
-class LayeredDirty_DirtySpriteTest(LayeredGroup, unittest.TestCase):
+class LayeredDirtyTypeTest__DirtySprite(LayeredGroupBase, unittest.TestCase):
     sprite = sprite.DirtySprite
 
     def setUp(self):
@@ -562,7 +561,7 @@ class LayeredDirty_DirtySpriteTest(LayeredGroup, unittest.TestCase):
 #
 # tests common between sprite classes
 
-class Sprite:
+class SpriteBase:
     def setUp(self):
         self.groups = []
         for Group in self.Groups:
@@ -570,7 +569,7 @@ class Sprite:
         
         self.sprite = self.Sprite()
     
-    def test_Sprite____init____added_to_groups_passed(self):
+    def test___init____added_to_groups_passed(self):
         self.sprite = self.Sprite(self.groups)
 
         self.assert_(unordered_equality(
@@ -578,7 +577,7 @@ class Sprite:
             self.groups
         ))
 
-    def test_Sprite__add(self):
+    def test_add(self):
         self.sprite.add(self.groups)
 
         self.assert_(unordered_equality(
@@ -586,10 +585,10 @@ class Sprite:
             self.groups
         ))
 
-    def test_Sprite__add_internal(self):
+    def test_add_internal(self):
         self.assert_(test_not_implemented())
     
-    def test_Sprite__alive(self):
+    def test_alive(self):
         self.assert_(
             not self.sprite.alive(),
             "Sprite should not be alive if in no groups"
@@ -598,7 +597,7 @@ class Sprite:
         self.sprite.add(self.groups)
         self.assert_(self.sprite.alive())
 
-    def test_Sprite__groups(self):
+    def test_groups(self):
         for i, g in enumerate(self.groups):
             self.sprite.add(g)
 
@@ -608,7 +607,7 @@ class Sprite:
                     self.groups[:i+1],
             ))
     
-    def test_Sprite__kill(self):
+    def test_kill(self):
         self.sprite.add(self.groups)
         
         self.assert_(self.sprite.alive())
@@ -616,15 +615,15 @@ class Sprite:
         
         self.assert_(not self.sprite.groups() and not self.sprite.alive() )        
     
-    def test_Sprite__remove(self):
+    def test_remove(self):
         self.sprite.add(self.groups)
         self.sprite.remove(self.groups)
         self.assert_(not self.sprite.groups())
 
-    def test_Sprite__remove_internal(self):
+    def test_remove_internal(self):
         self.assert_(test_not_implemented())
 
-    def test_Sprite__update(self):
+    def test_update(self):
         # Doc string for pygame.sprite.Sprite.update:
     
           # method to control sprite behavior
@@ -637,12 +636,12 @@ class Sprite:
           # There is no need to use this method if not using the convenience
           # method by the same name in the Group class.
           # 
-    
+
         self.assert_(test_not_implemented())
 
 ############################## SPRITE CLASS TESTS ##############################
 
-class SpriteTest(Sprite, unittest.TestCase):
+class SpriteTypeTest(SpriteBase, unittest.TestCase):
     Sprite = sprite.Sprite
 
     Groups = [ sprite.Group, 
@@ -650,9 +649,9 @@ class SpriteTest(Sprite, unittest.TestCase):
                sprite.RenderUpdates, 
                sprite.OrderedUpdates, ]
 
-class DirtySpriteTest(Sprite, unittest.TestCase):
+class DirtySpriteTypeTest(SpriteBase, unittest.TestCase):
     Sprite = sprite.DirtySprite
-    
+
     Groups = [ sprite.Group,
                sprite.LayeredUpdates,
                sprite.RenderUpdates,
