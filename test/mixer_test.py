@@ -180,13 +180,83 @@ class MixerModuleTest(unittest.TestCase):
         
 ############################## CHANNEL CLASS TESTS #############################
 
-class ChannelTest(unittest.TestCase):
+class ChannelTypeTest(unittest.TestCase):
     pass
 
 ############################### SOUND CLASS TESTS ##############################
 
-class SoundTest(unittest.TestCase):
-    pass
+class SoundTypeTest(unittest.TestCase):
+    def test_fadeout(self):
+    
+        # Doc string for pygame.mixer.Sound.fadeout:
+    
+          # Sound.fadeout(time): return None
+          # stop sound playback after fading out
+    
+        self.assert_(test_not_implemented())
+    
+    def test_get_buffer(self):
+    
+        # Doc string for pygame.mixer.Sound.get_buffer:
+    
+          # Sound.get_buffer(): return BufferProxy
+          # acquires a buffer object for the sameples of the Sound.
+    
+        self.assert_(test_not_implemented())
+    
+    def test_get_length(self):
+    
+        # Doc string for pygame.mixer.Sound.get_length:
+    
+          # Sound.get_length(): return seconds
+          # get the length of the Sound
+    
+        self.assert_(test_not_implemented())
+    
+    def test_get_num_channels(self):
+    
+        # Doc string for pygame.mixer.Sound.get_num_channels:
+    
+          # Sound.get_num_channels(): return count
+          # count how many times this Sound is playing
+    
+        self.assert_(test_not_implemented())
+    
+    def test_get_volume(self):
+    
+        # Doc string for pygame.mixer.Sound.get_volume:
+    
+          # Sound.get_volume(): return value
+          # get the playback volume
+    
+        self.assert_(test_not_implemented())
+    
+    def test_play(self):
+    
+        # Doc string for pygame.mixer.Sound.play:
+    
+          # Sound.play(loops=0, maxtime=0, fade_ms=0): return Channel
+          # begin sound playback
+    
+        self.assert_(test_not_implemented())
+    
+    def test_set_volume(self):
+    
+        # Doc string for pygame.mixer.Sound.set_volume:
+    
+          # Sound.set_volume(value): return None
+          # set the playback volume for this Sound
+    
+        self.assert_(test_not_implemented())
+    
+    def test_stop(self):
+    
+        # Doc string for pygame.mixer.Sound.stop:
+    
+          # Sound.stop(): return None
+          # stop sound playback
+    
+        self.assert_(test_not_implemented())
 
 ##################################### MAIN #####################################
 
