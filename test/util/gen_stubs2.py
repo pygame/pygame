@@ -8,7 +8,7 @@ from inspect import isclass, ismodule, getdoc
 
 from unittest import TestCase
 
-import pygame, sys, relative_indentation 
+import pygame, sys, relative_indentation, re
 
 ################################ TESTS DIRECTORY ###############################
 
@@ -45,6 +45,10 @@ IGNORE = (
             $  gen_stubs.py sprite.Sprite 
               only stub out sprite module etc
 
+3)
+
+    Test:
+
 """
 
 ################################ STUB TEMPLATES ################################
@@ -61,6 +65,11 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 
         strip_common = 1, strip_excess = 1
 )
+
+
+############################## REGULAR EXPRESSIONS #############################
+
+module_re = re.compile(r"pygame\.([^.]*)\.?")
 
 #################################### OPTIONS ###################################
 
@@ -149,59 +158,87 @@ def test_stub(f, module, parent_class = None):
 def names_of(*args):
     return tuple(map(lambda o: o.__name__, args))
 
+def module_stubs(module):
+    stubs = {}
+
+    classes = get_callables(module, isclass)
+    functions = get_callables(module) - classes
+
+    for class_ in classes:
+        if ("%s.%s" % names_of(module, class_)).startswith(IGNORE):
+            continue
+
+        for method in get_callables(class_):
+            stub = test_stub(method, module, class_.__name__ )
+            stubs['%s.%s.%s' % names_of(module, class_, method) ] = stub
+
+    for function in functions:
+        stub = test_stub(function, module)
+        stubs['%s.%s' % names_of(module, function) ] = stub
+    
+    return stubs
+
 def package_stubs(package):
     stubs = dict()
 
     for module in get_package_modules(package):
-        classes = get_callables(module, isclass)
-        functions = get_callables(module) - classes
-
-        for class_ in classes:
-            if ("%s.%s" % names_of(module, class_)).startswith(IGNORE):
-                continue
-            
-            for method in get_callables(class_):
-                stub = test_stub(method, module, class_.__name__ )
-                stubs['%s.%s.%s' % names_of(module, class_, method) ] = stub
-
-        for function in functions:
-            stub = test_stub(function, module)
-            stubs['%s.%s' % names_of(module, function) ] = stub
-
+        stubs.update(module_stubs(module))
+    
     return stubs
+
+def already_tested_in_module(module):
+    already = []
+
+    mod_name =  module.__name__
+    
+    test_name = "%s_test" % mod_name[7:]
+    
+    try: test_file = __import__(test_name)
+    except ImportError: 
+        # TODO: maybe notify?
+        return
+    
+    classes = get_callables(test_file, isclass)
+    test_cases = (t for t in classes if TestCase in t.__bases__)
+    
+    for class_ in test_cases:
+        class_tested = get_class_from_test_case(class_, default = '')
+    
+        for test in get_callables(class_, is_test):
+            fname = test.__name__[5:].split('__')[0]
+            already.append("%s%s.%s" % (mod_name, class_tested, fname))
+    
+    return already
 
 def already_tested(package):
     already = []
 
     for module in get_package_modules(package):
-        mod_name =  module.__name__
-        test_name = "%s_test" % mod_name[7:]
-
-        try: test = __import__(test_name)
-        except ImportError: continue
-
-        classes = get_callables(test, isclass)
-        test_cases = [t for t in classes if TestCase in t.__bases__]
-
-        for class_ in test_cases:
-            class_tested = get_class_from_test_case(class_, default = '')
-
-            for test in get_callables(class_, is_test):
-                fname = test.__name__[5:].split('__')[0]
-                already.append("%s%s.%s" % (mod_name, class_tested, fname))
-
+        already.append(already_tested_in_module(module))
+    
     return already
+
+def get_stubs(root):
+    module_root = module_re.search(root)
+    if module_root:
+        module = getattr(pygame, module_root.group(1))
+        stubs = module_stubs(module)
+        tested = already_tested_in_module(module)
+    else:
+        stubs = package_stubs(pygame)
+        tested = already_tested(pygame)
+    
+    return stubs, tested
 
 if __name__ == "__main__":
     options, args = opt_parser.parse_args()
 
     if args:
-        stubs = package_stubs(pygame)
-        tested = already_tested(pygame)
-
         root = args[0]
         if not root.startswith('pygame.'):
-            root = 'pygame.' + root
+            root = 'pygame.%s.' % root
+
+        stubs, tested = get_stubs(root)
 
         for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
             if fname.startswith( root ):
