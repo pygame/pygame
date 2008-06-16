@@ -47,7 +47,7 @@ def _assigna (x, y):
 def _assign_item (x, p, y):
     x[p] = y
 
-class ColorTest (unittest.TestCase):
+class ColorTypeTest (unittest.TestCase):
     def test_color (self):
         c = pygame.Color (10, 20, 30, 40)
         self.assertEquals (c.r, 10)
