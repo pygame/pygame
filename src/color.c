@@ -1262,7 +1262,14 @@ _color_hex (PyColor *color)
     if (tmp < INT_MAX)
         PyOS_snprintf (buf, sizeof (buf), "0x%lx", tmp);
     else
+    {
+#if PY_VERSION_HEX >= 0x02050000
         PyOS_snprintf (buf, sizeof (buf), "0x%lxL", tmp);
+#else
+        /* <= 2.4 uses capitalised hex chars. */
+        PyOS_snprintf (buf, sizeof (buf), "0x%lXL", tmp);
+#endif
+    }
     return PyString_FromString (buf);
 }
 
