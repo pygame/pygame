@@ -9,9 +9,11 @@ from test_utils import test_not_implemented
 ################################### CONSTANTS ##################################
 
 FREQUENCIES = [11025, 22050, 44100, 48000] 
-SIZES       = [-16, -8, 8]
+SIZES       = [-16, -8, 8, 16]
 CHANNELS    = [1, 2]
 BUFFERS     = [3024]
+
+# "+16 (ie unsigned 16 bit samples) are not supported."
 
 ############################## MODULE LEVEL TESTS ##############################
 
@@ -56,8 +58,6 @@ class MixerModuleTest(unittest.TestCase):
             mixer.quit()
 
             self.assertEquals(init_conf, mixer_conf)
-
-    # TODO: "+16 (ie unsigned 16 bit samples) are not supported."
 
     def test_get_init__returns_None_if_mixer_not_initialized(self):
         self.assert_(mixer.get_init() is None)
@@ -167,7 +167,7 @@ class MixerModuleTest(unittest.TestCase):
     
           # pygame.mixer.set_reserved(count): return None
           # reserve channels from being automatically used
-    
+
         self.assert_(test_not_implemented())
     
     def test_stop(self):
