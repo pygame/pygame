@@ -513,10 +513,10 @@ class ColorTest (unittest.TestCase):
         # gamma_correct defined at top of page
 
         gammas = map(lambda i: i / 10.0, range(1, 31)) # [0.1 .. 3.0]
-        gamma_len = len(gammas)
+        gammas_len = len(gammas)
 
         for i, c in enumerate(rgba_combos_Color_generator()):
-            gamma = gammas[i % gamma_len]
+            gamma = gammas[i % gammas_len]
 
             corrected = pygame.Color(*[gamma_correct(x, gamma) 
                                                  for x in tuple(c)])
