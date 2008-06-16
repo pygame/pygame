@@ -49,6 +49,7 @@ static PyObject *surf_lock (PyObject *self);
 static PyObject *surf_unlock (PyObject *self);
 static PyObject *surf_mustlock (PyObject *self);
 static PyObject *surf_get_locked (PyObject *self);
+static PyObject *surf_get_locks (PyObject *self);
 static PyObject *surf_get_palette (PyObject *self);
 static PyObject *surf_get_palette_at (PyObject *self, PyObject *args);
 static PyObject *surf_set_palette (PyObject *self, PyObject *args);
@@ -106,6 +107,8 @@ static struct PyMethodDef surface_methods[] =
       DOC_SURFACEMUSTLOCK },
     { "get_locked", (PyCFunction) surf_get_locked, METH_NOARGS,
       DOC_SURFACEGETLOCKED },
+    { "get_locks", (PyCFunction) surf_get_locks, METH_NOARGS,
+      DOC_SURFACEGETLOCKS },
 
     { "set_colorkey", surf_set_colorkey, METH_VARARGS, DOC_SURFACESETCOLORKEY },
     { "get_colorkey", (PyCFunction) surf_get_colorkey, METH_NOARGS,
@@ -239,6 +242,8 @@ surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->surf = NULL;
         self->subsurface = NULL;
         self->weakreflist = NULL;
+        self->dependency = NULL;
+        self->locklist = NULL;
     }
     return (PyObject *) self;
 }
@@ -268,6 +273,12 @@ surface_cleanup (PySurfaceObject *self)
     {
         Py_DECREF (self->dependency);
         self->dependency = NULL;
+    }
+
+    if (self->locklist)
+    {
+        Py_DECREF (self->locklist);
+        self->locklist = NULL;
     }
 }
 
@@ -677,8 +688,7 @@ surf_lock (PyObject *self)
 static PyObject*
 surf_unlock (PyObject *self)
 {
-    if (!PySurface_Unlock (self))
-        return NULL;
+    PySurface_Unlock (self);
     Py_RETURN_NONE;
 }
 
@@ -687,16 +697,40 @@ surf_mustlock (PyObject *self)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
     return PyInt_FromLong (SDL_MUSTLOCK (surf) ||
-                           ((PySurfaceObject *) self)->subsurface);
+        ((PySurfaceObject *) self)->subsurface);
 }
 
 static PyObject*
 surf_get_locked (PyObject *self)
 {
     PySurfaceObject *surf = (PySurfaceObject *) self;
-    if (surf->surf->pixels != NULL)
+
+    if (surf->locklist && PyList_Size (surf->locklist) > 0)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
+}
+
+static PyObject*
+surf_get_locks (PyObject *self)
+{
+    PySurfaceObject *surf = (PySurfaceObject *) self;
+    Py_ssize_t len, i = 0;
+    PyObject *tuple, *tmp;
+    if (!surf->locklist)
+        return PyTuple_New (0);
+
+    len = PyList_Size (surf->locklist);
+    tuple = PyTuple_New (len);
+    if (!tuple)
+        return NULL;
+    
+    for (i = 0; i < len; i++)
+    {
+        tmp = PyWeakref_GetObject (PyList_GetItem (surf->locklist, i));
+        Py_INCREF (tmp);
+        PyTuple_SetItem (tuple, i, tmp);
+    }
+    return tuple;
 }
 
 static PyObject*
@@ -1823,22 +1857,25 @@ static PyObject
     Py_ssize_t length;
 
     length = (Py_ssize_t) surface->pitch * surface->h;
-    lock = PySurface_LockLifetime (self);
-    if (!lock)
-    {
-        return RAISE (PyExc_SDLError, "could not lock surface");
-    }
 
-    buffer = PyBufferProxy_New (self, surface->pixels, length, lock);
+    buffer = PyBufferProxy_New (self, NULL, length, NULL);
     if (!buffer)
     {
-        Py_DECREF (lock);
         return RAISE (PyExc_SDLError,
-                      "could not acquire a buffer for the surface");
+            "could not acquire a buffer for the surface");
     }
+    
+    lock = PySurface_LockLifetime (self, buffer);
+    if (!lock)
+    {
+        Py_DECREF (buffer);
+        return RAISE (PyExc_SDLError, "could not lock surface");
+    }
+    ((PyBufferProxy *) buffer)->buffer = surface->pixels;
+    ((PyBufferProxy *) buffer)->lock = lock;
+
     return buffer;
 }
-
 
 /*this internal blit function is accessable through the C api*/
 int 
