@@ -350,7 +350,8 @@ typedef struct {
     SDL_Surface* surf;
     struct SubSurface_Data* subsurface;  /*ptr to subsurface data (if a
                                           * subsurface)*/
-    PyObject* weakreflist;
+    PyObject *weakreflist;
+    PyObject *locklist;
     PyObject *dependency;
 } PySurfaceObject;
 #define PySurface_AsSurface(x) (((PySurfaceObject*)x)->surf)
@@ -401,7 +402,7 @@ typedef struct {
 /* SURFLOCK */    /*auto import/init by surface*/
 #define PYGAMEAPI_SURFLOCK_FIRSTSLOT                            \
     (PYGAMEAPI_SURFACE_FIRSTSLOT + PYGAMEAPI_SURFACE_NUMSLOTS)
-#define PYGAMEAPI_SURFLOCK_NUMSLOTS 5
+#define PYGAMEAPI_SURFLOCK_NUMSLOTS 8
 struct SubSurface_Data
 {
     PyObject* owner;
@@ -409,23 +410,41 @@ struct SubSurface_Data
     int offsetx, offsety;
 };
 
-#ifndef PYGAMEAPI_SURFLOCK_INTERNAL
-#define PySurface_Prep(x)                                               \
-    if(((PySurfaceObject*)x)->subsurface)                               \
-        (*(*(void(*)(PyObject*))                                        \
-           PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 0]))(x)
+typedef struct
+{
+    PyObject_HEAD
+    PyObject *surface;
+    PyObject *lockobj;
+    PyObject *weakrefs;
+} PyLifetimeLock;
 
-#define PySurface_Unprep(x)                                             \
+#ifndef PYGAMEAPI_SURFLOCK_INTERNAL
+#define PyLifetimeLock_Check(x)                         \
+    ((x)->ob_type == (PyTypeObject*)                    \
+        PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 0])
+#define PySurface_Prep(x)                                               \
     if(((PySurfaceObject*)x)->subsurface)                               \
         (*(*(void(*)(PyObject*))                                        \
            PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 1]))(x)
 
+#define PySurface_Unprep(x)                                             \
+    if(((PySurfaceObject*)x)->subsurface)                               \
+        (*(*(void(*)(PyObject*))                                        \
+           PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 2]))(x)
+
 #define PySurface_Lock                                                  \
-    (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 2])
-#define PySurface_Unlock                                                \
     (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 3])
+#define PySurface_Unlock                                                \
+    (*(int(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 4])
+#define PySurface_LockBy                                                \
+    (*(int(*)(PyObject*,PyObject*))                                     \
+        PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 5])
+#define PySurface_UnlockBy                                              \
+    (*(int(*)(PyObject*,PyObject*))                                     \
+        PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 6])
 #define PySurface_LockLifetime                                          \
-    (*(PyObject*(*)(PyObject*))PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 4])
+    (*(PyObject*(*)(PyObject*,PyObject*))                               \
+        PyGAME_C_API[PYGAMEAPI_SURFLOCK_FIRSTSLOT + 7])
 #endif
 
 
@@ -501,6 +520,18 @@ typedef struct {
 #endif
 
 /* BufferProxy */
+typedef struct
+{
+    PyObject_HEAD
+    PyObject *dict;     /* dict for subclassing */
+    PyObject *weakrefs; /* Weakrefs for subclassing */
+    void *buffer;       /* Pointer to the buffer of the parent object. */
+    Py_ssize_t length;  /* Length of the buffer. */
+    PyObject *parent;   /* Parent object associated with this object. */
+    PyObject *lock;     /* Lock object for the surface. */
+
+} PyBufferProxy;
+
 #define PYGAMEAPI_BUFFERPROXY_FIRSTSLOT                                 \
     (PYGAMEAPI_RWOBJECT_FIRSTSLOT + PYGAMEAPI_RWOBJECT_NUMSLOTS)
 #define PYGAMEAPI_BUFFERPROXY_NUMSLOTS 2

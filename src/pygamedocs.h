@@ -719,6 +719,8 @@
 
 #define DOC_SURFACEGETLOCKED "Surface.get_locked(): return bool\ntest if the Surface is current locked"
 
+#define DOC_SURFACEGETLOCKS "Surface.get_locks(): return tuple\nGets the locks for the Surface"
+
 #define DOC_SURFACEGETAT "Surface.get_at((x, y)): return Color\nget the color value at a single pixel"
 
 #define DOC_SURFACESETAT "Surface.set_at((x, y), Color): return None\nset the color value for a single pixel"

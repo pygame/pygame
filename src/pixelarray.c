@@ -123,7 +123,7 @@ static PyGetSetDef _pxarray_getsets[] =
 {
     { "__dict__", (getter) _pxarray_get_dict, NULL, NULL, NULL },
     { "surface", (getter) _pxarray_get_surface, NULL, DOC_PIXELARRAYSURFACE,
-      NULL },
+      NULL }, 
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -226,7 +226,7 @@ _pxarray_new_internal (PyTypeObject *type, PyObject *surface,
         /* Initial PixelArray */
         if (surface)
         {
-            self->lock = PySurface_LockLifetime (surface);
+            self->lock = PySurface_LockLifetime (surface, (PyObject *) self);
             if (!self->lock)
             {
                 Py_DECREF (surface);
@@ -239,7 +239,7 @@ _pxarray_new_internal (PyTypeObject *type, PyObject *surface,
     {
         self->parent = parent;
         Py_INCREF (parent);
-        self->lock = ((PyPixelArray*) parent)->lock;
+        self->lock = ((PyPixelArray *)parent)->lock;
         Py_INCREF (self->lock);
     }
 
