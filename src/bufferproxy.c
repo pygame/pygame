@@ -23,18 +23,6 @@
 #include "pygame.h"
 #include "pygamedocs.h"
 
-typedef struct
-{
-    PyObject_HEAD
-    PyObject *dict;     /* dict for subclassing */
-    PyObject *weakrefs; /* Weakrefs for subclassing */
-    void *buffer;       /* Pointer to the buffer of the parent object. */
-    Py_ssize_t length;  /* Length of the buffer. */
-    PyObject *parent;   /* Parent object associated with this object. */
-    PyObject *lock;     /* Lock object for the surface. */
-
-} PyBufferProxy;
-
 static PyObject* _bufferproxy_new (PyTypeObject *type, PyObject *args,
                                    PyObject *kwds);
 static void _bufferproxy_dealloc (PyBufferProxy *self);
@@ -178,10 +166,8 @@ _bufferproxy_dealloc (PyBufferProxy *self)
 {
     if (self->weakrefs)
         PyObject_ClearWeakRefs ((PyObject *) self);
-    if (self->lock)
-    {
-        Py_DECREF (self->lock);
-    }
+
+    Py_XDECREF (self->lock);
     Py_XDECREF (self->dict);
     self->ob_type->tp_free ((PyObject *) self);
 }

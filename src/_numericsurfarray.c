@@ -73,7 +73,7 @@ pixels3d (PyObject* self, PyObject* arg)
     array = PyArray_FromDimsAndData (3, dim, PyArray_UBYTE, "");
     if (array)
     {
-        lifelock = PySurface_LockLifetime (surfobj);
+        lifelock = PySurface_LockLifetime (surfobj, array);
         if (!lifelock)
         {
             Py_DECREF (array);
@@ -122,7 +122,7 @@ pixels2d (PyObject* self, PyObject* arg)
     array = PyArray_FromDimsAndData (2, dim, type, "");
     if (array)
     {
-        lifelock = PySurface_LockLifetime (surfobj);
+        lifelock = PySurface_LockLifetime (surfobj, array);
         if (!lifelock)
         {
             Py_DECREF (array);
@@ -170,7 +170,7 @@ pixels_alpha (PyObject* self, PyObject* arg)
     array = PyArray_FromDimsAndData (2, dim, PyArray_UBYTE, "");
     if(array)
     {
-        lifelock = PySurface_LockLifetime (surfobj);
+        lifelock = PySurface_LockLifetime (surfobj, array);
         if (!lifelock)
         {
             Py_DECREF (array);
@@ -212,7 +212,7 @@ array2d (PyObject* self, PyObject* arg)
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
 
-    if (!PySurface_Lock (surfobj))
+    if (!PySurface_LockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -279,7 +279,7 @@ array2d (PyObject* self, PyObject* arg)
         break;
     }
     
-    if (!PySurface_Unlock (surfobj))
+    if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -328,7 +328,7 @@ array3d (PyObject* self, PyObject* arg)
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
 
-    if (!PySurface_Lock (surfobj))
+    if (!PySurface_LockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -340,7 +340,7 @@ array3d (PyObject* self, PyObject* arg)
         if (!format->palette)
         {
             Py_DECREF (array);
-            if (!PySurface_Unlock (surfobj))
+            if (!PySurface_UnlockBy (surfobj, array))
                 return NULL;
             return RAISE (PyExc_RuntimeError, "8bit surface has no palette");
         }
@@ -420,7 +420,7 @@ array3d (PyObject* self, PyObject* arg)
         break;
     }
     
-    if (!PySurface_Unlock (surfobj))
+    if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -467,7 +467,7 @@ array_alpha (PyObject* self, PyObject* arg)
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
     
-    if (!PySurface_Lock (surfobj))
+    if (!PySurface_LockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -525,7 +525,7 @@ array_alpha (PyObject* self, PyObject* arg)
         break;
     }
     
-    if (!PySurface_Unlock (surfobj))
+    if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -569,7 +569,7 @@ array_colorkey (PyObject* self, PyObject* arg)
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
     
-    if (!PySurface_Lock (surfobj))
+    if (!PySurface_LockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -640,7 +640,7 @@ array_colorkey (PyObject* self, PyObject* arg)
         break;
     }
     
-    if (!PySurface_Unlock (surfobj))
+    if (!PySurface_UnlockBy (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -870,7 +870,7 @@ blit_array (PyObject* self, PyObject* arg)
     
     if (sizex != surf->w || sizey != surf->h)
         return RAISE (PyExc_ValueError, "array must match surface dimensions");
-    if (!PySurface_Lock (surfobj))
+    if (!PySurface_LockBy (surfobj, (PyObject *) array))
         return NULL;
     
     switch (surf->format->BytesPerPixel)
@@ -893,7 +893,7 @@ blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D(Uint8, Uint64);
                 break;
             default:
-                if (!PySurface_Unlock (surfobj))
+                if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
                     return NULL;
                 return RAISE (PyExc_ValueError,
                               "unsupported datatype for array\n");
@@ -918,7 +918,7 @@ blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D(Uint16, Uint64);
                 break;
             default:
-                if (!PySurface_Unlock (surfobj))
+                if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
                     return NULL;
                 return RAISE (PyExc_ValueError,
                               "unsupported datatype for array\n");
@@ -941,7 +941,7 @@ blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_3D(Uint16, Uint64);
                 break;
             default:
-                if (!PySurface_Unlock (surfobj))
+                if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
                     return NULL;
                 return RAISE (PyExc_ValueError,
                               "unsupported datatype for array\n");
@@ -966,7 +966,7 @@ blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D_24(Uint64);
                 break;
             default:
-                if (!PySurface_Unlock (surfobj))
+                if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
                     return NULL;
                 return RAISE (PyExc_ValueError,
                               "unsupported datatype for array\n");
@@ -989,7 +989,7 @@ blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_3D_24(Uint64);
                 break;
             default:
-                if (!PySurface_Unlock (surfobj))
+                if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
                     return NULL;
                 return RAISE (PyExc_ValueError,
                               "unsupported datatype for array\n");
@@ -1014,7 +1014,7 @@ blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D(Uint32, Uint64);
                 break;
             default:
-                if (!PySurface_Unlock (surfobj))
+                if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
                     return NULL;
                 return RAISE (PyExc_ValueError,
                              "unsupported datatype for array\n");
@@ -1037,7 +1037,7 @@ blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_3D(Uint32, Uint64);
                 break;
             default:
-                if (!PySurface_Unlock (surfobj))
+                if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
                     return NULL;
                 return RAISE (PyExc_ValueError,
                               "unsupported datatype for array\n");
@@ -1045,12 +1045,12 @@ blit_array (PyObject* self, PyObject* arg)
         }
         break;
     default:
-        if (!PySurface_Unlock (surfobj))
+        if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
             return NULL;
         return RAISE (PyExc_RuntimeError, "unsupported bit depth for image");
     }
     
-    if (!PySurface_Unlock (surfobj))
+    if (!PySurface_UnlockBy (surfobj, (PyObject *) array))
         return NULL;
     Py_RETURN_NONE;
 }

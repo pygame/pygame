@@ -6,6 +6,14 @@
 #
 #
 
+Jun 16, 2008
+    Reworked locking code. Locks are now more strict and can only be
+    removed by the object(s), that caused them.
+    New Surface.get_locks() method, which returns the currently existing
+    locks.
+    [BUG] Fixed Surface.get_locked() bug for Surfaces which do not
+      require locking, but have third-party locks attached.
+    
 Jun 13, 2008
     [BUG] Fixed bug with mixer.get_init() Thanks Frankie Robertson!
     [BUG] Fixed long alpha overflow bug in Surface.set_alpha().
