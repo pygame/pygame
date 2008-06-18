@@ -1,5 +1,6 @@
 #include "pgAABBBox.h"
 
+
 pgAABBBox PG_GenAABB(double left, double right, double bottom, double top)
 {
 	pgAABBBox box;
