@@ -173,6 +173,31 @@ static PyMemberDef _pgWorld_members[] =
 	
 };
 
+static PyObject* _pgWorld_getGravity(pgWorldObject* world,void* closure)
+{
+	return PyComplex_FromCComplex(world->vecGravity);
+}
+
+static int _pgWorld_setGravity(pgWorldObject* world,PyObject* value,void* closure)
+{
+	if (value == NULL || (!PyComplex_Check(value))) {
+		PyErr_SetString(PyExc_TypeError, "Cannot set the gravity attribute");
+		return -1;
+	}
+	else
+	{
+		world->vecGravity = PyComplex_AsCComplex(value);
+		return 0;
+	}
+}
+
+static PyGetSetDef _pgWorld_getseters[] = {
+	{
+		"gravity",(getter)_pgWorld_getGravity,(setter)_pgWorld_setGravity,"gravity",
+	}
+
+};
+
 static PyTypeObject pgWorldType =
 {
 	PyObject_HEAD_INIT(NULL)
@@ -205,7 +230,7 @@ static PyTypeObject pgWorldType =
 	0,                          /* tp_iternext */
 	_pgWorld_methods,           /* tp_methods */
 	_pgWorld_members,           /* tp_members */
-	0,                          /* tp_getset */
+	_pgWorld_getseters,         /* tp_getset */
 	0,                          /* tp_base */
 	0,                          /* tp_dict */
 	0,                          /* tp_descr_get */
