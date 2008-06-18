@@ -1,6 +1,7 @@
 #include "pgWorldObject.h"
 #include "pgBodyObject.h"
 #include "pgJointObject.h"
+#include <structmember.h>
 
 #define MAX_SOLVE_INTERAT 20
 
@@ -141,7 +142,10 @@ void PG_WorldDestroy(pgWorldObject* world)
 static PyObject* _world_test_noargs(pgWorldObject *world)
 {
 	/* Do some things here */
-	Py_RETURN_NONE;
+	//Py_RETURN_NONE;
+	PyObject* result;
+	result = Py_BuildValue("s","world test");
+	return result;
 }
 
 static PyObject* _world_test_args(pgWorldObject *world, PyObject *args)
@@ -161,6 +165,12 @@ static PyMethodDef _pgWorld_methods[] =
 	{ "test_noargs", (PyCFunction) _world_test_noargs, METH_NOARGS, "" },
 	{ "test_args", (PyCFunction) _world_test_args, METH_VARARGS, "" },
 	{ NULL, NULL, 0, NULL } /* The NULL sentinel is important! */
+};
+
+static PyMemberDef _pgWorld_members[] = 
+{
+	{"damping",T_DOUBLE,offsetof(pgWorldObject,fDamping),0,""},
+	
 };
 
 static PyTypeObject pgWorldType =
@@ -194,7 +204,7 @@ static PyTypeObject pgWorldType =
 	0,                          /* tp_iter */
 	0,                          /* tp_iternext */
 	_pgWorld_methods,           /* tp_methods */
-	0,                          /* tp_members */
+	_pgWorld_members,           /* tp_members */
 	0,                          /* tp_getset */
 	0,                          /* tp_base */
 	0,                          /* tp_dict */
