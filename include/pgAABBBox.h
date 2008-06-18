@@ -20,6 +20,15 @@ typedef struct _pgAABBBox{
 	};
 } pgAABBBox;
 
+enum pgBoxDirect
+{
+	BD_NONE = -1,
+	BD_LEFT,
+	BD_BOTTOM,
+	BD_RIGHT,
+	BD_TOP
+};
+
 pgAABBBox PG_GenAABB(double left, double right, double bottom, double top);
 void PG_AABBExpandTo(pgAABBBox* box, pgVector2* p);
 void PG_AABBClear(pgAABBBox* box);
