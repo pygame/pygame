@@ -14,15 +14,15 @@ typedef struct _pgShapeObject{
 
 	pgAABBBox box;
 	pgBodyObject* body;
-	//pgVector2 centroid;
 
 	//virtual functions
-	void (*Destroy)(pgShapeObject *shape);
+	void (*Destroy)(pgShapeObject* shape);
 	int (*IsPointIn)(pgShapeObject* shape, pgVector2* point);
+	void (*UpdateAABB)(pgShapeObject* shape);
 } pgShapeObject;
 
 
-void	PG_ShapeDestroy(pgShapeObject* shape);
+void	PG_ShapeObjectDestroy(pgShapeObject* shape);
 
 //subclass type
 typedef struct _pgRectShape{

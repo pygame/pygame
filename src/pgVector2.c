@@ -1,6 +1,5 @@
 #include "pgVector2.h"
 #include <assert.h>
-#include <math.h>
 
 int is_zero(double num)
 {

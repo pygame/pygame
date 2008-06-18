@@ -33,6 +33,17 @@ void	PG_BodyDestroy(pgBodyObject* body);
 void PG_FreeUpdateBodyVel(pgWorldObject* world, pgBodyObject* body, double dt);
 void PG_FreeUpdateBodyPos(pgWorldObject* world, pgBodyObject* body, double dt);
 
-pgVector2 PG_GetGlobalCor(pgBodyObject* body, pgVector2* local);
+//transform point local_p's position from body's local coordinate to the world's global one.
+//TODO: is the local coordinate necessary? anyway let it alone right now.
+pgVector2 PG_GetGlobalPos(pgBodyObject* body, pgVector2* local_p);
+
+//return the global velocity of a point p (on the rigid body)
+//(notice: here p is defined in the global coordinate)
+pgVector2 PG_GetVelocity(pgBodyObject* body, pgVector2* global_p);
+
+pgVector2 PG_GetVelocity1(pgVector2 r, double w);
+
+//return p_in_A
+pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B);
 
 #endif //_PYGAME_PHYSICS_BODY_

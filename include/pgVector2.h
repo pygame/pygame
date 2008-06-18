@@ -3,14 +3,23 @@
 
 
 #include <Python.h>
+#include <math.h>
 
 #define ZERO_EPSILON 1e-7
 
+#ifndef M_PI
+#define M_PI 3.1415926535897932384626433832795
+#endif
+
+
 typedef Py_complex	pgVector2;
-#define PG_Set_Vector2(vec, x, y) {vec.real = x;vec.imag = y;}
+#define PG_Set_Vector2(vec, x, y) {vec.real = x; vec.imag = y;}
 
 int is_zero(double num);
 int is_equal(double a, double b);
+
+#define MAX(x, y) ( ((x) > (y)) ? (x) : (y) )
+#define MIN(x, y) ( ((x) < (y)) ? (x) : (y) )
 
 double c_get_length_square(pgVector2 c);
 double c_get_length(pgVector2 c);

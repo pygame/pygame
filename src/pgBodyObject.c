@@ -25,6 +25,7 @@ void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
 
 	totalPosAdd = c_mul_complex_with_real(body->vecLinearVelocity,dt);
 	body->vecPosition = c_sum(body->vecPosition,totalPosAdd);
+	body->shape->UpdateAABB(body->shape);
 }
 
 void PG_BodyInit(pgBodyObject* body)
@@ -119,23 +120,72 @@ static PyTypeObject pgBodyType =
 
 pgBodyObject* PG_BodyNew()
 {
-	//pgBodyObject* op;
-	//op = (pgBodyObject*)PyObject_MALLOC(sizeof(pgBodyObject));
-	//PG_BodyInit(op);
-	//return op;
 	return (pgBodyObject*) _PG_BodyNew(&pgBodyType, NULL, NULL);
 }
 
-pgVector2 PG_GetGlobalCor(pgBodyObject* body, pgVector2* local)
+pgVector2 PG_GetGlobalPos(pgBodyObject* body, pgVector2* local_p)
 {
 	pgVector2 ans;
-	ans = *local;
+	
+	ans = *local_p;
 	c_rotate(&ans, body->fRotation);
 	ans = c_sum(ans, body->vecPosition);
+
 	return ans;
 }
 
+pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B)
+{
+	pgVector2 trans, p_in_A;
+	double rotate;
+	
+	trans = c_diff(bodyB->vecPosition, bodyA->vecPosition);
+	rotate = bodyA->fRotation - bodyB->fRotation;
+	p_in_A = *p_in_B;
+	c_rotate(&p_in_A, rotate);
+	p_in_A = c_sum(p_in_A, trans);
+	
+	return p_in_A;
+}
 
+pgVector2 PG_GetVelocity1(pgVector2 r, double w)
+{
+	pgVector2 v;
+	double r_len, v_len;
+
+	r_len = c_get_length(r);
+	if(is_zero(r_len))
+	{
+		v.imag = v.real = 0;
+	}
+	else
+	{
+		r.real /= r_len;
+		r.imag /= r_len;
+		v_len = fabs(r_len*w);
+		r.real *= v_len;
+		r.imag *= v_len;
+		if(w > 0) //counter-clock wise
+		{	
+			v.real = -r.imag;
+			v.imag = r.real;
+		}
+		else
+		{
+			v.real = r.imag;
+			v.imag = -r.real;
+		}
+	}
+
+	return v;
+}
+
+pgVector2 PG_GetVelocity(pgBodyObject* body, pgVector2* global_p)
+{	
+	//get rotate radius vector r
+	pgVector2 r = c_diff(*global_p, body->vecPosition);
+	return PG_GetVelocity1(r, body->fRotation);
+}
 
 
 //static PyMemberDef Body_members[] = {

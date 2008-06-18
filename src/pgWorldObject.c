@@ -87,6 +87,11 @@ void PG_RemoveJointFromWorld(pgWorldObject* world,pgJointObject* joint)
 
 }
 
+
+
+
+
+
 void PG_WorldInit(pgWorldObject* world)
 {
 	world->bodyList = (PyListObject*)PyList_New(0);

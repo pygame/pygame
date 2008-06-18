@@ -6,12 +6,10 @@
 
 void PG_ShapeObjectInit(pgShapeObject* shape)
 {
-	//TODO: maybe these init methods are not suitable. need refined.
+	//TODO: maybe these init methods are not suitable. needing refined.
 	memset(&(shape->box), 0, sizeof(shape->box));
 	shape->Destroy = NULL;
 	shape->IsPointIn = NULL;
-	//shape->centroid.real = 0;
-	//shape->centroid.imag = 0;
 }
 
 void PG_ShapeObjectDestroy(pgShapeObject* shape)
@@ -34,7 +32,7 @@ int PG_RectShapeIsPointIn(pgShapeObject* shape, pgVector2* point)
 	s2 = 0;
 
 	for(i = 0; i < 4; ++i)
-		gp[i] = PG_GetGlobalCor(ps->shape.body, &(ps->point[i]));
+		gp[i] = PG_GetGlobalPos(ps->shape.body, &(ps->point[i]));
 
 	for(i = 0; i < 4; ++i)
 	{
@@ -44,6 +42,15 @@ int PG_RectShapeIsPointIn(pgShapeObject* shape, pgVector2* point)
 	}
 
 	return is_equal(s1, s2);
+}
+
+void PG_RectShapeUpdateAABB(pgShapeObject* rectShape)
+{
+	int i;
+	pgRectShape *p = (pgRectShape*)rectShape;
+	PG_AABBClear(&(p->shape.box));
+	for(i = 0; i < 4; ++i)
+		PG_AABBExpandTo(&(p->shape.box), &(p->point[i]));
 }
 
 void PG_RectShapeDestroy(pgShapeObject* rectShape)
@@ -59,6 +66,7 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 	PG_ShapeObjectInit(&(p->shape));
 	p->shape.IsPointIn = PG_RectShapeIsPointIn;
 	p->shape.Destroy = PG_RectShapeDestroy;
+	p->shape.UpdateAABB = PG_RectShapeUpdateAABB;
 
 	PG_Set_Vector2(p->bottomLeft, -width/2, -height/2);
 	PG_Set_Vector2(p->bottomRight, width/2, -height/2);
@@ -67,7 +75,6 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 	for(i = 0; i < 4; ++i)
 		c_rotate(&(p->point[i]), seta);
 
-	//p->shape.centroid = center;
 	p->shape.body = body;
 
 	return (pgShapeObject*)p;

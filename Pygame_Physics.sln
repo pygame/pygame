@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pygame_Physics", "Pygame_Physics.vcproj", "{DCBBE6BC-CD5F-4F51-B5C0-66715D9A72D8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", "{04AC4F22-E18F-4297-A791-A65126FAB7AA}"
@@ -10,6 +10,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Document", "Document", "{86532ADD-793B-4E68-A6C0-E911FD382476}"
 	ProjectSection(SolutionItems) = preProject
+		Document\API List.txt = Document\API List.txt
 		Document\Physics algorithm.txt = Document\Physics algorithm.txt
 		Document\ToDoList.txt = Document\ToDoList.txt
 	EndProjectSection
