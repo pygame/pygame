@@ -162,7 +162,7 @@ static PyTypeObject pgWorldType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"physics.World",            /* tp_name */
+	"physics.world",            /* tp_name */
 	sizeof(pgWorldObject),      /* tp_basicsize */
 	0,                          /* tp_itemsize */
 	(destructor) PG_WorldDestroy,/* tp_dealloc */
@@ -208,3 +208,24 @@ static PyTypeObject pgWorldType =
 	0,                          /* tp_weaklist */
 	0                           /* tp_del */
 };
+
+#ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
+#define PyMODINIT_FUNC void
+#endif
+PyMODINIT_FUNC
+initphysics(void) 
+{
+	PyObject* m;
+
+	if (PyType_Ready(&pgWorldType) < 0)
+		return;
+
+	m = Py_InitModule3("physics", _pgWorld_methods,
+		"Example module that creates an extension type.");
+
+	if (m == NULL)
+		return;
+
+	Py_INCREF(&pgWorldType);
+	PyModule_AddObject(m, "world", (PyObject *)&pgWorldType);
+}

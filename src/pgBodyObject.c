@@ -70,7 +70,7 @@ static PyTypeObject pgBodyType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"physics.Body",            /* tp_name */
+	"physics.body",            /* tp_name */
 	sizeof(pgBodyObject),      /* tp_basicsize */
 	0,                          /* tp_itemsize */
 	(destructor)PG_BodyDestroy,/* tp_dealloc */
