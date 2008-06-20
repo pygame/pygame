@@ -46,4 +46,6 @@ pgVector2 PG_GetVelocity1(pgVector2 r, double w);
 //return p_in_A
 pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B);
 
+void	PG_InitBodyModule();
+
 #endif //_PYGAME_PHYSICS_BODY_

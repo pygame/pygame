@@ -28,9 +28,10 @@ pgWorldObject* PG_WorldNew();
 void	PG_WorldDestroy(pgWorldObject* world);
 
 void	PG_Update(pgWorldObject* world,double stepTime);
-void	PG_AddBodyToWorld(pgWorldObject* world,pgBodyObject* body);
-void	PG_RemoveBodyFromWorld(pgWorldObject* world,pgBodyObject* body);
-void	PG_AddJointToWorld(pgWorldObject* world,pgJointObject* joint);
-void	PG_RemoveJointFromWorld(pgWorldObject* world,pgJointObject* joint);
+int		PG_AddBodyToWorld(pgWorldObject* world,pgBodyObject* body);
+int		PG_RemoveBodyFromWorld(pgWorldObject* world,pgBodyObject* body);
+int		PG_AddJointToWorld(pgWorldObject* world,pgJointObject* joint);
+int		PG_RemoveJointFromWorld(pgWorldObject* world,pgJointObject* joint);
+void	PG_InitWorldModule();
 
 #endif

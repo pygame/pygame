@@ -4,6 +4,8 @@
 #include "pgShapeObject.h"
 #include <structmember.h>
 
+static PyTypeObject pgBodyType;
+
 
 
 void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
@@ -67,56 +69,7 @@ void PG_BodyDestroy(pgBodyObject* body)
 	body->ob_type->tp_free((PyObject*)body);
 }
 
-static PyTypeObject pgBodyType =
-{
-	PyObject_HEAD_INIT(NULL)
-	0,
-	"physics.body",            /* tp_name */
-	sizeof(pgBodyObject),      /* tp_basicsize */
-	0,                          /* tp_itemsize */
-	(destructor)PG_BodyDestroy,/* tp_dealloc */
-	0,                          /* tp_print */
-	0,                          /* tp_getattr */
-	0,                          /* tp_setattr */
-	0,                          /* tp_compare */
-	0,                          /* tp_repr */
-	0,                          /* tp_as_number */
-	0,                          /* tp_as_sequence */
-	0,                          /* tp_as_mapping */
-	0,                          /* tp_hash */
-	0,                          /* tp_call */
-	0,                          /* tp_str */
-	0,                          /* tp_getattro */
-	0,                          /* tp_setattro */
-	0,                          /* tp_as_buffer */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-	"",                         /* tp_doc */
-	0,                          /* tp_traverse */
-	0,                          /* tp_clear */
-	0,                          /* tp_richcompare */
-	0,                          /* tp_weaklistoffset */
-	0,                          /* tp_iter */
-	0,                          /* tp_iternext */
-	0,		   		            /* tp_methods */
-	0,                          /* tp_members */
-	0,                          /* tp_getset */
-	0,                          /* tp_base */
-	0,                          /* tp_dict */
-	0,                          /* tp_descr_get */
-	0,                          /* tp_descr_set */
-	0,                          /* tp_dictoffset */
-	0,                          /* tp_init */
-	0,                          /* tp_alloc */
-	_PG_BodyNew,                /* tp_new */
-	0,                          /* tp_free */
-	0,                          /* tp_is_gc */
-	0,                          /* tp_bases */
-	0,                          /* tp_mro */
-	0,                          /* tp_cache */
-	0,                          /* tp_subclasses */
-	0,                          /* tp_weaklist */
-	0                           /* tp_del */
-};
+
 
 pgBodyObject* PG_BodyNew()
 {
@@ -187,19 +140,155 @@ pgVector2 PG_GetVelocity(pgBodyObject* body, pgVector2* global_p)
 	return PG_GetVelocity1(r, body->fRotation);
 }
 
+//============================================================
+//getter and setter functions
 
-//static PyMemberDef Body_members[] = {
-//	{"mass", T_FLOAT, offsetof(pgBodyObject,fMass), 0,"Mass"},
-//	{"linear_velocity",T_DOUBLE,offsetof(pyBodyObject,vecLinearVelocity),"Linear Velocity"},
-//	{"angle_velocity", T_FLOAT, offsetof(pgBodyObject,fAngleVelocity), 0,"Angle Velocity"},
-//	{"position", T_DOUBLE, offsetof(pgBodyObject,vecPosition), 0,"position"},
-//	{"rotation", T_FLOAT, offsetof(pgBodyObject,fRotation), 0,"Rotation"},
-//    {NULL}  /* Sentinel */
-//};
-//
-//static PyMethodDef Body_methods[] = {
-//    {NULL}  /* Sentinel */
-//};
-//
+//velocity
+static PyObject* _pgBody_getVelocity(pgBodyObject* body,void* closure)
+{
+	return PyComplex_FromCComplex(body->vecLinearVelocity);
+}
 
+static int _pgBody_setVelocity(pgBodyObject* body,PyObject* value,void* closure)
+{
+	if (value == NULL || (!PyComplex_Check(value))) {
+		PyErr_SetString(PyExc_TypeError, "Cannot set the velocity attribute");
+		return -1;
+	}
+	else
+	{
+		body->vecLinearVelocity = PyComplex_AsCComplex(value);
+		return 0;
+	}
+}
+
+//position
+static PyObject* _pgBody_getPosition(pgBodyObject* body,void* closure)
+{
+	return PyComplex_FromCComplex(body->vecPosition);
+}
+
+static int _pgBody_setPosition(pgBodyObject* body,PyObject* value,void* closure)
+{
+	if (value == NULL || (!PyComplex_Check(value))) {
+		PyErr_SetString(PyExc_TypeError, "Cannot set the position attribute");
+		return -1;
+	}
+	else
+	{
+		body->vecPosition = PyComplex_AsCComplex(value);
+		return 0;
+	}
+}
+
+//force
+static PyObject* _pgBody_getForce(pgBodyObject* body,void* closure)
+{
+	return PyComplex_FromCComplex(body->vecForce);
+}
+
+static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
+{
+	if (value == NULL || (!PyComplex_Check(value))) {
+		PyErr_SetString(PyExc_TypeError, "Cannot set the force attribute");
+		return -1;
+	}
+	else
+	{
+		body->vecForce = PyComplex_AsCComplex(value);
+		return 0;
+	}
+}
+
+//===============================================================
+
+
+static PyMemberDef _pgBody_members[] = {
+	{"mass", T_DOUBLE, offsetof(pgBodyObject,fMass), 0,"Mass"},
+	{"rotation", T_DOUBLE, offsetof(pgBodyObject,fRotation), 0,"Rotation"},
+	{"torque",T_DOUBLE,offsetof(pgBodyObject,fTorque),0,""},
+	{"restitution",T_DOUBLE,offsetof(pgBodyObject,fRestitution),0,""},
+	{"friction",T_DOUBLE,offsetof(pgBodyObject,fFriction),0,""},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef _pgBody_methods[] = {
+    {NULL}  /* Sentinel */
+};
+
+static PyGetSetDef _pgBody_getseters[] = {
+	{"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
+	{"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
+	{"force",(getter)_pgBody_getForce,(setter)_pgBody_setForce,"force",NULL},
+	{ NULL}
+};
+
+static PyTypeObject pgBodyType =
+{
+	PyObject_HEAD_INIT(NULL)
+	0,
+	"physics.body",            /* tp_name */
+	sizeof(pgBodyObject),      /* tp_basicsize */
+	0,                          /* tp_itemsize */
+	(destructor)PG_BodyDestroy,/* tp_dealloc */
+	0,                          /* tp_print */
+	0,                          /* tp_getattr */
+	0,                          /* tp_setattr */
+	0,                          /* tp_compare */
+	0,                          /* tp_repr */
+	0,                          /* tp_as_number */
+	0,                          /* tp_as_sequence */
+	0,                          /* tp_as_mapping */
+	0,                          /* tp_hash */
+	0,                          /* tp_call */
+	0,                          /* tp_str */
+	0,                          /* tp_getattro */
+	0,                          /* tp_setattro */
+	0,                          /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+	"",                         /* tp_doc */
+	0,                          /* tp_traverse */
+	0,                          /* tp_clear */
+	0,                          /* tp_richcompare */
+	0,                          /* tp_weaklistoffset */
+	0,                          /* tp_iter */
+	0,                          /* tp_iternext */
+	_pgBody_methods,		   	/* tp_methods */
+	_pgBody_members,            /* tp_members */
+	_pgBody_getseters,          /* tp_getset */
+	0,                          /* tp_base */
+	0,                          /* tp_dict */
+	0,                          /* tp_descr_get */
+	0,                          /* tp_descr_set */
+	0,                          /* tp_dictoffset */
+	0,                          /* tp_init */
+	0,                          /* tp_alloc */
+	_PG_BodyNew,                /* tp_new */
+	0,                          /* tp_free */
+	0,                          /* tp_is_gc */
+	0,                          /* tp_bases */
+	0,                          /* tp_mro */
+	0,                          /* tp_cache */
+	0,                          /* tp_subclasses */
+	0,                          /* tp_weaklist */
+	0                           /* tp_del */
+};
+
+
+void PG_InitBodyModule()
+{
+	PyObject* m;
+
+	if (PyType_Ready(&pgBodyType) < 0)
+		return;
+
+	m = Py_InitModule3("physics", _pgBody_methods,
+		"Example module that creates an extension type.");
+
+	if (m == NULL)
+		return;
+
+	Py_INCREF(&pgBodyType);
+	PyModule_AddObject(m, "body", (PyObject *)&pgBodyType);
+}
 
