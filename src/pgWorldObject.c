@@ -5,7 +5,7 @@
 
 #define MAX_SOLVE_INTERAT 20
 
-static PyTypeObject pgWorldType;
+extern PyTypeObject pgWorldType;
 
 void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 {
@@ -164,9 +164,16 @@ static PyObject* _world_update(pgWorldObject* world,PyObject* pyfloat)
 static PyObject* _world_add_body(pgWorldObject* world,PyObject* pybody)
 {
 	pgBodyObject* body = (pgBodyObject*)pybody;
-	PG_AddBodyToWorld(world,body);
-	Py_RETURN_NONE;
+	if(PG_AddBodyToWorld(world,body))
+	{
+		Py_RETURN_TRUE;
+	}
+	else
+	{
+		Py_RETURN_FALSE;
+	}
 }
+
 
 static PyObject* _pgWorld_getGravity(pgWorldObject* world,void* closure)
 {
@@ -209,6 +216,7 @@ static PyMethodDef _pgWorld_methods[] =
 	//{ "test_noargs", (PyCFunction) _world_test_noargs, METH_NOARGS, "" },
 	//{ "test_args", (PyCFunction) _world_test_args, METH_VARARGS, "" },
 	{ "update", (PyCFunction) _world_update, METH_VARARGS, "" },
+	{"add_body",(PyCFunction) _world_add_body, METH_VARARGS, ""},
 	{ NULL, NULL, 0, NULL } /* The NULL sentinel is important! */
 };
 
@@ -218,12 +226,12 @@ static PyMemberDef _pgWorld_members[] =
 	{
 		NULL
 	}
-};
+}; 
 
 
 
 
-static PyTypeObject pgWorldType =
+PyTypeObject pgWorldType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
@@ -274,20 +282,3 @@ static PyTypeObject pgWorldType =
 	0                           /* tp_del */
 };
 
-
-void PG_InitWorldModule()
-{
-	PyObject* m;
-
-	if (PyType_Ready(&pgWorldType) < 0)
-		return;
-
-	m = Py_InitModule3("physics", _pgWorld_methods,
-		"Example module that creates an extension type.");
-
-	if (m == NULL)
-		return;
-
-	Py_INCREF(&pgWorldType);
-	PyModule_AddObject(m, "world", (PyObject *)&pgWorldType);
-}

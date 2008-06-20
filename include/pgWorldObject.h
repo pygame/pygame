@@ -32,6 +32,6 @@ int		PG_AddBodyToWorld(pgWorldObject* world,pgBodyObject* body);
 int		PG_RemoveBodyFromWorld(pgWorldObject* world,pgBodyObject* body);
 int		PG_AddJointToWorld(pgWorldObject* world,pgJointObject* joint);
 int		PG_RemoveJointFromWorld(pgWorldObject* world,pgJointObject* joint);
-void	PG_InitWorldModule();
+
 
 #endif

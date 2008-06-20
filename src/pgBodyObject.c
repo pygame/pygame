@@ -4,7 +4,7 @@
 #include "pgShapeObject.h"
 #include <structmember.h>
 
-static PyTypeObject pgBodyType;
+extern PyTypeObject pgBodyType;
 
 
 
@@ -223,7 +223,7 @@ static PyGetSetDef _pgBody_getseters[] = {
 	{ NULL}
 };
 
-static PyTypeObject pgBodyType =
+PyTypeObject pgBodyType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
@@ -274,21 +274,4 @@ static PyTypeObject pgBodyType =
 	0                           /* tp_del */
 };
 
-
-void PG_InitBodyModule()
-{
-	PyObject* m;
-
-	if (PyType_Ready(&pgBodyType) < 0)
-		return;
-
-	m = Py_InitModule3("physics", _pgBody_methods,
-		"Example module that creates an extension type.");
-
-	if (m == NULL)
-		return;
-
-	Py_INCREF(&pgBodyType);
-	PyModule_AddObject(m, "body", (PyObject *)&pgBodyType);
-}
 
