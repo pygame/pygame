@@ -104,8 +104,10 @@ class MixerModuleTest(unittest.TestCase):
 
         try:
             chans = mixer.get_num_channels()
-        except Exception, e:
-            self.assert_(type(e) == pygame.error)
+        except pygame.error:
+            pass
+        except Exception:
+            self.fail()
         else:
             self.assert_( chans is
                 'get_num_channels() Should throw pygame.error if uninitialized '
