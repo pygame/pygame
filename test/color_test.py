@@ -509,7 +509,7 @@ class ColorTypeTest (unittest.TestCase):
 
 ################################################################################
 
-    def test_gamma_correction__verified_against_python_implementation(self):
+    def test_gamma_correct__verified_against_python_implementation(self):
         # gamma_correct defined at top of page
 
         gammas = map(lambda i: i / 10.0, range(1, 31)) # [0.1 .. 3.0]
