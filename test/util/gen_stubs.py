@@ -29,6 +29,7 @@ sys.path.append(
 
 IGNORE = (
     'pygame.sprite.Rect',
+    'pygame.mixer.Channel',
 )
 
 ##################################### TODO #####################################
@@ -166,8 +167,11 @@ def module_stubs(module):
             stubs['%s.%s.%s' % names_of(module, class_, method) ] = stub
 
     for function in functions:
+        fname = '%s.%s' % names_of(module, function)
+        if fname.startswith(IGNORE): continue
+
         stub = test_stub(function, module)
-        stubs['%s.%s' % names_of(module, function) ] = stub
+        stubs[fname] = stub
     
     return stubs
 

@@ -198,7 +198,8 @@ class MixerModuleTest(unittest.TestCase):
 ############################## CHANNEL CLASS TESTS #############################
 
 class ChannelTypeTest(unittest.TestCase):
-    pass
+    def test___init__(self):
+      self.assert_(test_not_implemented())
 
 ############################### SOUND CLASS TESTS ##############################
 
