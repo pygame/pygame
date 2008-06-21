@@ -33,6 +33,22 @@
 #define PYGAME_BLEND_MIN  0x4
 #define PYGAME_BLEND_MAX  0x5
 
+#define PYGAME_BLEND_RGB_ADD  0x1
+#define PYGAME_BLEND_RGB_SUB  0x2
+#define PYGAME_BLEND_RGB_MULT 0x3
+#define PYGAME_BLEND_RGB_MIN  0x4
+#define PYGAME_BLEND_RGB_MAX  0x5
+
+#define PYGAME_BLEND_RGBA_ADD  0x6
+#define PYGAME_BLEND_RGBA_SUB  0x7
+#define PYGAME_BLEND_RGBA_MULT 0x8
+#define PYGAME_BLEND_RGBA_MIN  0x9
+#define PYGAME_BLEND_RGBA_MAX  0x10
+
+
+
+
+
 #define GET_PIXEL(pxl, bpp, source)               \
     switch (bpp)                                  \
     {                                             \
@@ -112,6 +128,8 @@
     code;              \
     code;
 
+
+
 #define BLEND_ADD(tmp, sR, sG, sB, sA, dR, dG, dB, dA)  \
     tmp = dR + sR; dR = (tmp <= 255 ? tmp : 255);       \
     tmp = dG + sG; dG = (tmp <= 255 ? tmp : 255);       \
@@ -136,6 +154,51 @@
     if(sR > dR) { dR = sR; }                      \
     if(sG > dG) { dG = sG; }                      \
     if(sB > dB) { dB = sB; }
+
+
+
+
+
+
+#define BLEND_RGBA_ADD(tmp, sR, sG, sB, sA, dR, dG, dB, dA)  \
+    tmp = dR + sR; dR = (tmp <= 255 ? tmp : 255);       \
+    tmp = dG + sG; dG = (tmp <= 255 ? tmp : 255);       \
+    tmp = dB + sB; dB = (tmp <= 255 ? tmp : 255);       \
+    tmp = dA + sA; dA = (tmp <= 255 ? tmp : 255);
+
+#define BLEND_RGBA_SUB(tmp, sR, sG, sB, sA, dR, dG, dB, dA) \
+    tmp = dR - sR; dR = (tmp >= 0 ? tmp : 0);          \
+    tmp = dG - sG; dG = (tmp >= 0 ? tmp : 0);          \
+    tmp = dB - sB; dB = (tmp >= 0 ? tmp : 0);          \
+    tmp = dA - sA; dA = (tmp >= 0 ? tmp : 0);
+
+#define BLEND_RGBA_MULT(sR, sG, sB, sA, dR, dG, dB, dA) \
+    dR = (dR && sR) ? (dR * sR) >> 8 : 0;          \
+    dG = (dG && sG) ? (dG * sG) >> 8 : 0;          \
+    dB = (dB && sB) ? (dB * sB) >> 8 : 0;          \
+    dA = (dA && sA) ? (dA * sA) >> 8 : 0;
+
+#define BLEND_RGBA_MIN(sR, sG, sB, sA, dR, dG, dB, dA) \
+    if(sR < dR) { dR = sR; }                      \
+    if(sG < dG) { dG = sG; }                      \
+    if(sB < dB) { dB = sB; }                      \
+    if(sA < dA) { dA = sA; }
+
+#define BLEND_RGBA_MAX(sR, sG, sB, sA, dR, dG, dB, dA) \
+    if(sR > dR) { dR = sR; }                      \
+    if(sG > dG) { dG = sG; }                      \
+    if(sB > dB) { dB = sB; }                      \
+    if(sA > dA) { dA = sA; }
+
+
+
+
+
+
+
+
+
+
 
 #if 1
 #define ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB, dA) \
