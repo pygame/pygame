@@ -152,6 +152,7 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
             blit_blend_max (&info);
             break;
         }
+
         case PYGAME_BLEND_RGBA_ADD:
         {
             blit_blend_rgba_add (&info);
@@ -232,15 +233,13 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
+                REPEAT_4(
                 {
                     tmp = (*dst) + (*src);
                     (*dst) = (tmp <= 255 ? tmp : 255);
                     src++;
                     dst++;
                 });
-                src++;
-                dst++;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -353,15 +352,13 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
+                REPEAT_4(
                 {
                     tmp2 = (*dst) - (*src);
                     (*dst) = (tmp2 >= 0 ? tmp2 : 0);
                     src++;
                     dst++;
                 });
-                src++;
-                dst++;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -474,15 +471,13 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
+                REPEAT_4(
                 {
                     tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) >> 8 : 0;
                     (*dst) = (tmp <= 255 ? tmp : 255);
                     src++;
                     dst++;
                 });
-                src++;
-                dst++;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -594,15 +589,13 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
+                REPEAT_4(
                 {
                     if ((*src) < (*dst))
                         (*dst) = (*src);
                     src++;
                     dst++;
                 });
-                src++;
-                dst++;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -714,15 +707,13 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
+                REPEAT_4(
                 {
                     if ((*src) > (*dst))
                         (*dst) = (*src);
                     src++;
                     dst++;
                 });
-                src++;
-                dst++;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -1886,7 +1877,7 @@ pygame_Blit (SDL_Surface * src, SDL_Rect * srcrect,
 
 int 
 pygame_AlphaBlit (SDL_Surface * src, SDL_Rect * srcrect,
-                  SDL_Surface * dst, SDL_Rect * dstrect)
+                  SDL_Surface * dst, SDL_Rect * dstrect, int the_args)
 {
-    return pygame_Blit (src, srcrect, dst, dstrect, 0);
+    return pygame_Blit (src, srcrect, dst, dstrect, the_args);
 }

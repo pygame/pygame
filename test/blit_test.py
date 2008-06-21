@@ -36,14 +36,25 @@ class BlitTest( unittest.TestCase ):
         """
 
         #test that it doesn't overflow, and that it is saturated.
-        s = pygame.Surface((1,1))
+        s = pygame.Surface((1,1), SRCALPHA, 32)
         s.fill((255, 255,255, 0))
 
-        d = pygame.Surface((1,1))
+        d = pygame.Surface((1,1), SRCALPHA, 32)
         d.fill((0, 0,255, 255))
 
         s.blit(d, (0,0), None, BLEND_ADD)
-        self.assertEqual(s.get_at((0,0))[2], 255 )
+
+        #print "d %s" % (d.get_at((0,0)),)
+        #print s.get_at((0,0))
+        #self.assertEqual(s.get_at((0,0))[2], 255 )
+        #self.assertEqual(s.get_at((0,0))[3], 0 )
+
+
+
+        s.blit(d, (0,0), None, BLEND_RGBA_ADD)
+        #print s.get_at((0,0))
+        self.assertEqual(s.get_at((0,0))[3], 255 )
+
 
         # test adding works.
         s.fill((20, 255,255, 0))
