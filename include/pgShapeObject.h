@@ -15,7 +15,7 @@ typedef enum _ShapeType
 
 
 // shape base type
-typedef struct _pgShapeObject{
+struct _pgShapeObject{
 	PyObject_HEAD
 
 	pgAABBBox box;

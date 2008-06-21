@@ -4,7 +4,7 @@
 #include "pgBodyObject.h"
 #include "pgDeclare.h"
 
-typedef struct _pgJointObject{
+struct _pgJointObject{
 	PyObject_HEAD
 
 	pgBodyObject*	body1;
