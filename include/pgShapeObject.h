@@ -4,22 +4,29 @@
 #include <Python.h>
 #include "pgAABBBox.h"
 #include "pgVector2.h"
+#include "pgDeclare.h"
 
-typedef struct _pgBodyObject pgBodyObject;
-typedef struct _pgShapeObject pgShapeObject;
+
+typedef enum _ShapeType
+{
+	ST_RECT,
+	ST_CIRCLE
+}ShapeType;
+
 
 // shape base type
 typedef struct _pgShapeObject{
 	PyObject_HEAD
 
 	pgAABBBox box;
-	pgBodyObject* body;
+	ShapeType type;
 
 	//virtual functions
 	void (*Destroy)(pgShapeObject* shape);
-	int (*IsPointIn)(pgShapeObject* shape, pgVector2* point);
+	int (*Collision)(pgBodyObject* selfBody, pgBodyObject* incidBody, PyListObject* contactPoints, 
+		               pgVector2* contactNormal);
 	void (*UpdateAABB)(pgShapeObject* shape);
-} pgShapeObject;
+};
 
 
 void	PG_ShapeObjectDestroy(pgShapeObject* shape);
@@ -43,7 +50,6 @@ typedef struct _pgRectShape{
 } pgRectShape;
 
 pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, double seta);
-
 
 //typedef struct _pgPolygonShape{
 //	pgShapeObject		shape;

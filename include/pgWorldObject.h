@@ -4,11 +4,9 @@
 
 #include <Python.h>
 #include "pgAABBBox.h"
+#include "pgDeclare.h"
 
-typedef struct _pgBodyObject pgBodyObject;
-typedef struct _pgJointObject pgJointObject;
-
-typedef struct _pgWorldObject 
+struct _pgWorldObject 
 {
 	PyObject_HEAD
 
@@ -22,7 +20,7 @@ typedef struct _pgWorldObject
 	double			fTotalTime;
 	pgAABBBox		worldBox;
 
-} pgWorldObject;
+};
 
 pgWorldObject* PG_WorldNew();
 void	PG_WorldDestroy(pgWorldObject* world);

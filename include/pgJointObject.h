@@ -2,8 +2,7 @@
 #define _PYGAME_PHYSICS_JOINT_
 
 #include "pgBodyObject.h"
-
-typedef struct _pgJointObject pgJointObject;
+#include "pgDeclare.h"
 
 typedef struct _pgJointObject{
 	PyObject_HEAD
@@ -14,7 +13,7 @@ typedef struct _pgJointObject{
 	void	(*SolveConstraintPosition)(pgJointObject* joint,double stepTime);
 	void	(*SolveConstraintVelocity)(pgJointObject* joint,double stepTime);
 	void	(*Destroy)(pgJointObject* joint);
-} pgJointObject;
+};
 
 void PG_JointDestroy(pgJointObject* joint);
 

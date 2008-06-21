@@ -3,11 +3,12 @@
 
 
 #include "pgVector2.h"
+#include "pgDeclare.h"
 
-typedef struct _pgWorldObject pgWorldObject;
-typedef struct _pgShapeObject pgShapeObject;
+//! typedef struct _pgWorldObject pgWorldObject;
+//! typedef struct _pgShapeObject pgShapeObject;
 
-typedef struct _pgBodyObject{
+struct _pgBodyObject{
 	PyObject_HEAD
 
 	double		fMass;
@@ -25,7 +26,7 @@ typedef struct _pgBodyObject{
 
 	pgShapeObject* shape;
 
-} pgBodyObject;
+};
 
 pgBodyObject* PG_BodyNew();
 void	PG_BodyDestroy(pgBodyObject* body);
@@ -43,9 +44,10 @@ pgVector2 PG_GetVelocity(pgBodyObject* body, pgVector2* global_p);
 
 pgVector2 PG_GetVelocity1(pgVector2 r, double w);
 
-//return p_in_A
+//translate vector from coordinate B to coordinate A
 pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B);
 
 
 
 #endif //_PYGAME_PHYSICS_BODY_
+
