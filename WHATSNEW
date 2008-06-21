@@ -6,6 +6,9 @@
 #
 #
 
+Jun 21, 2008
+    Added BLEND_RGBA_* special flags for blit, and fill.
+
 Jun 16, 2008
     Reworked locking code. Locks are now more strict and can only be
     removed by the object(s), that caused them.
