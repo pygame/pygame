@@ -1942,7 +1942,7 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
         /* special case, SDL works */
         (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel == 4))
     {
-        result = pygame_AlphaBlit (src, srcrect, dst, dstrect);
+        result = pygame_AlphaBlit (src, srcrect, dst, dstrect, the_args);
     }
     else if (the_args != 0)
     {

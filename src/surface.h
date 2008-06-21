@@ -91,6 +91,12 @@
     sb = _fmt->palette->colors[*((Uint8 *) (_src))].b; \
     sa = 255;
 
+
+
+
+
+
+
 #define CREATE_PIXEL(buf, r, g, b, a, bp, ft)     \
     switch (bp)                                   \
     {                                             \
@@ -128,6 +134,11 @@
     code;              \
     code;
 
+#define REPEAT_4(code) \
+    code;              \
+    code;              \
+    code;              \
+    code;
 
 
 #define BLEND_ADD(tmp, sR, sG, sB, sA, dR, dG, dB, dA)  \
@@ -244,7 +255,7 @@ surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
 
 int 
 pygame_AlphaBlit (SDL_Surface * src, SDL_Rect * srcrect,
-                  SDL_Surface * dst, SDL_Rect * dstrect);
+                  SDL_Surface * dst, SDL_Rect * dstrect, int the_args);
 
 int 
 pygame_Blit (SDL_Surface * src, SDL_Rect * srcrect,
