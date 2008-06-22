@@ -2,15 +2,18 @@
 #define _PYGAME_PHYSICS_COLLISION_
 
 #include "pgBodyObject.h"
+#include "pgJointObject.h"
 #include "pgAABBBox.h"
 
 typedef struct _pgContact
 {
+	//assert body2 is the incident rigid body
+	//and body1 is the reference rigid body
+	pgJointObject joint;
+
 	pgVector2 pos;
 	pgVector2 normal;
 	double depth;
-	pgBodyObject* incBody; //incident rigid body
-	pgBodyObject* refBody; //reference rigid body
 }pgContact;
 
 typedef enum _pgCollisionType

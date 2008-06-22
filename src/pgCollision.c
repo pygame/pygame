@@ -78,10 +78,10 @@ int PG_LiangBarskey(pgAABBBox* box, pgVector2* p1, pgVector2* p2,
 		*ans_p1 = *p1;
 	else
 		*ans_p1 = c_sum(*p1, c_mul_complex_with_real(dp, u1)); //ans_p1 = p1 + u1*dp
-	if(u2 == 0.f)
+	if(u2 == 1.f)
 		*ans_p2 = *p2;
 	else
-		*ans_p2 = c_sum(*p2, c_mul_complex_with_real(dp, u2)); //ans_p2 = p2 + u2*dp;
+		*ans_p2 = c_sum(*p1, c_mul_complex_with_real(dp, u2)); //ans_p2 = p2 + u2*dp;
 
 	return 1;
 }

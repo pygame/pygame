@@ -13,7 +13,7 @@
 
 
 typedef Py_complex	pgVector2;
-#define PG_Set_Vector2(vec, x, y) {vec.real = x; vec.imag = y;}
+#define PG_Set_Vector2(vec, x, y) {(vec).real = x; (vec).imag = y;}
 
 int is_zero(double num);
 int is_equal(double a, double b);

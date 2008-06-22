@@ -38,8 +38,8 @@ void PG_RectShapeDestroy(pgShapeObject* rectShape)
 	PyObject_Free((pgRectShape*)rectShape);
 }
 
-int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, 
-						  PyListObject* contactPoints, pgVector2* contactNormal);
+
+int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObject* contactList);
 
 
 pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, double seta)
@@ -66,25 +66,79 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 
 //we use a simple SAT to select the contactNormal:
 //Supposing the relative velocity between selfBody and incidBody in
-//two frame is small, the
-static void _SAT_GetContactNormal(pgAABBBox* clipBox, PyListObject* contactPoints,
-								  pgVector2* contactNormal)
+//two frame is small, the face(actually is an edge in 2D) with minimum 
+//average penetrating depth is considered to be contact face, then we
+//get the contact normal
+//note: this method is not available in CCD(continue collision detection)
+static void _SAT_GetContactNormal(pgAABBBox* clipBox, PyObject* contactList,
+								  int from, int to)
 {
+	int i;
+	int id;
+	double deps[4], min_dep;
+	pgContact* p;
+	pgVector2 normal;
+		
+	memset(deps, 0, sizeof(deps));
+	for(i = from; i <= to; ++i)
+	{
+		p = (pgContact*)PyList_GetItem(contactList, i);
+		deps[0] += p->pos.real - clipBox->left; //left
+		deps[1] += p->pos.imag - clipBox->bottom; //bottom
+		deps[2] += clipBox->right - p->pos.real; //right
+		deps[3] += clipBox->top - p->pos.imag; //top
+	}
+	
+	//find min penetrating face
+	id = 0;
+	min_dep = deps[0];
+	for(i = 1; i < 4; ++i)
+	{
+		if(min_dep > deps[i])
+		{
+			min_dep = deps[i];
+			id = i;
+		}
+	}
+
+	//generate contactNormal
+	switch(id)
+	{
+	case 0://left
+		PG_Set_Vector2(normal, -1, 0);
+		break;
+	case 1://bottom
+		PG_Set_Vector2(normal, 0, -1);
+		break;
+	case 2://right
+		PG_Set_Vector2(normal, 1, 0);
+		break;
+	case 3://top
+		PG_Set_Vector2(normal, 0, 1);
+		break;
+	}
+
+    for(i = from; i <= to; ++i)
+    {
+        p = (pgContact*)PyList_GetItem(contactList, i);
+        p->normal = normal;
+    }
 
 }
 
 
 //TODO: now just detect Box-Box collision, later add Box-Circle
-int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, 
-						  PyListObject* contactPoints, pgVector2* contactNormal)
+int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObject* contactList)
 {
 	int i, i1;
+	int from, to;
 	int apart;
 	pgVector2 ip[4];
 	int has_ip[4]; //use it to prevent from duplication
 	pgVector2 pf, pt;
 	pgRectShape *self, *incid;
 	pgAABBBox clipBox;
+	pgContact* contact;
 
 	self = (pgRectShape*)selfBody->shape;
 	incid = (pgRectShape*)incidBody->shape;
@@ -98,9 +152,8 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 		self->bottomLeft.imag, self->topRight.imag);
 	apart = 1;
 	memset(has_ip, 0, sizeof(has_ip));
-	//watch out! we create contactPoints here
-	contactPoints = (PyListObject*)PyList_New(0);
 
+	from = PyList_Size(contactList);
 	for(i = 0; i < 4; ++i)
 	{
 		i1 = (i+1)%4;
@@ -112,13 +165,27 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 		{
 			apart = 0;
 			if(pf.real == ip[i].real && pf.imag == ip[i].imag)
+			{
 				has_ip[i] = 1;
+			}
 			else
-				PyList_Append((PyObject*)contactPoints, (PyObject*)PyComplex_FromCComplex(pf));
+			{
+				contact = (pgContact*)PyObject_MALLOC(sizeof(pgContact));
+				contact->pos = pf;
+				PyList_Append(contactList, (PyObject*)contact);
+			}
+			
 			if(pt.real == ip[i1].real && pt.imag == ip[i1].imag)
+			{	
 				has_ip[i1] = 1;
+			}
 			else
-				PyList_Append((PyObject*)contactPoints, (PyObject*)PyComplex_FromCComplex(pt));
+			{
+				contact = (pgContact*)PyObject_MALLOC(sizeof(pgContact));
+				contact->pos = pt;
+				PyList_Append(contactList, (PyObject*)contact);
+			}
+
 		}
 	}
 
@@ -128,11 +195,29 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	for(i = 0; i < 4; ++i)
 	{
 		if(has_ip[i])
-			PyList_Append((PyObject*)contactPoints, (PyObject*)PyComplex_FromCComplex(ip[i]));
+		{
+			contact = (pgContact*)PyObject_MALLOC(sizeof(pgContact));
+			contact->pos = ip[i];
+			PyList_Append(contactList, (PyObject*)contact);
+		}
 	}
 	//now all the contact points are added to list
-	//note at the moment they are in selfBody's locate coordinate system
+	to = PyList_Size(contactList);
+
 	
+	_SAT_GetContactNormal(&clipBox, contactList, from, to);
+
+	//transform vectors from selfBody's locate coordinate
+    //to global coordinate
+	for(i = from; i <= to; ++i)
+	{
+		contact = (pgContact*)PyList_GetItem(contactList, i);
+
+		c_rotate(&(contact->pos), selfBody->fRotation);
+		c_sum(contact->pos, selfBody->vecPosition);
+		
+		c_rotate(&(contact->normal), selfBody->fRotation);
+	}
 
 
 	return 1;
