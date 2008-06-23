@@ -14,6 +14,7 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 	for (i = 0;i < size;i++)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));
+		
 		PG_FreeUpdateBodyVel(world,body,stepTime);
 	}
 }

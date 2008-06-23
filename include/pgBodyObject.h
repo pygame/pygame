@@ -14,6 +14,7 @@ struct _pgBodyObject{
 	double		fMass;
 	pgVector2	vecLinearVelocity;
 	double		fAngleVelocity;
+	int			bStatic;
 
 	pgVector2	vecPosition;
 	double		fRotation;
