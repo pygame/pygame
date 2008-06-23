@@ -78,7 +78,7 @@ void PGT_RenderBody(pgBodyObject* body)
 
 void PGT_RenderJoint(pgJointObject* joint)
 {
-	pgDistanceJoint* pj = (pgDistanceJoint*)joint;
+	pgDistanceJointObject* pj = (pgDistanceJointObject*)joint;
 	glColor3f(1.f, 0.f, 0.f);
 	glLineWidth(2.f);
 	glBegin(GL_LINES);

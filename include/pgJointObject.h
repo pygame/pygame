@@ -17,12 +17,12 @@ struct _pgJointObject{
 
 void PG_JointDestroy(pgJointObject* joint);
 
-typedef struct _pgDistanceJoint{
+typedef struct _pgDistanceJointObject{
 	pgJointObject		joint;
 
 	double		distance;
 	pgVector2	anchor1,anchor2;
-} pgDistanceJoint;
+} pgDistanceJointObject;
 
 pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect,double distance,pgVector2 a1,pgVector2 a2);
 

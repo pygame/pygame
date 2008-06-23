@@ -3,6 +3,9 @@
 
 extern PyTypeObject pgWorldType;
 extern PyTypeObject pgBodyType;
+//Joint types
+extern PyTypeObject pgJointType;
+extern PyTypeObject pgDistanceJointType;
 
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
@@ -18,14 +21,22 @@ initphysics(void)
 		return;
 	if (PyType_Ready(&pgBodyType) < 0)
 		return;
+	if (PyType_Ready(&pgJointType) < 0)
+		return;
+	if (PyType_Ready(&pgDistanceJointType) < 0)
+		return;
 
 		/* Increase their ref counts. */
 	Py_INCREF (&pgWorldType);
 	Py_INCREF (&pgBodyType);
+	Py_INCREF (&pgJointType);
+	Py_INCREF (&pgDistanceJointType);
 
 	/* Init the module and add the object types. */
 	mod = Py_InitModule3("physics", NULL, "Simple 2D physics module");
 	PyModule_AddObject (mod, "world", (PyObject *) &pgWorldType);
 	PyModule_AddObject (mod, "body", (PyObject *) &pgBodyType);
+	PyModule_AddObject (mod, "joint", (PyObject *) &pgJointType);
+	PyModule_AddObject (mod, "distance_joint", (PyObject *) &pgDistanceJointType);
 
 }
