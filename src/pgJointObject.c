@@ -222,7 +222,7 @@ PyTypeObject pgDistanceJointType =
 	"physics.distance_joint",            /* tp_name */
 	sizeof(pgDistanceJointObject),      /* tp_basicsize */
 	0,                          /* tp_itemsize */
-	(destructor) 0,/* tp_dealloc */
+	(destructor) 0,				/* tp_dealloc */
 	0,                          /* tp_print */
 	0,                          /* tp_getattr */
 	0,                          /* tp_setattr */
@@ -245,9 +245,9 @@ PyTypeObject pgDistanceJointType =
 	0,                          /* tp_weaklistoffset */
 	0,                          /* tp_iter */
 	0,                          /* tp_iternext */
-	0,           /* tp_methods */
-	0,           /* tp_members */
-	0,         /* tp_getset */
+	0,							/* tp_methods */
+	0,							/* tp_members */
+	0,							/* tp_getset */
 	0,                          /* tp_base */
 	0,                          /* tp_dict */
 	0,                          /* tp_descr_get */
@@ -255,7 +255,7 @@ PyTypeObject pgDistanceJointType =
 	0,                          /* tp_dictoffset */
 	0,                          /* tp_init */
 	0,                          /* tp_alloc */
-	0,               /* tp_new */
+	0,							/* tp_new */
 	0,                          /* tp_free */
 	0,                          /* tp_is_gc */
 	0,                          /* tp_bases */

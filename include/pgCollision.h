@@ -26,4 +26,7 @@ typedef enum _pgCollisionType
 int PG_LiangBarskey(pgAABBBox* box, pgVector2* p1, pgVector2* p2, 
 					 pgVector2* ans_p1, pgVector2* ans_p2);
 
+pgJointObject* PG_ContactNew(pgBodyObject* refBody, pgBodyObject* incidBody);
+void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* contactList);
+
 #endif

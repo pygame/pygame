@@ -12,6 +12,7 @@ struct _pgWorldObject
 
 	PyListObject*	bodyList;
 	PyListObject*	jointList;
+	PyListObject*	contactList;
 
 	Py_complex		vecGravity;
 	double			fDamping;

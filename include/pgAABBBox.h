@@ -13,6 +13,7 @@ typedef struct _pgAABBBox{
 		{
 			double left, bottom, right, top;
 		};
+
 		struct
 		{
 			double from[2], to[2];

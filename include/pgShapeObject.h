@@ -20,6 +20,7 @@ struct _pgShapeObject{
 
 	pgAABBBox box;
 	ShapeType type;
+	double rInertia; //Rotor inertia  
 
 	//virtual functions
 	void (*Destroy)(pgShapeObject* shape);

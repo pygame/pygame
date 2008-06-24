@@ -1,6 +1,8 @@
 #include "pgWorldObject.h"
 #include "pgBodyObject.h"
 #include "pgJointObject.h"
+#include "pgCollision.h"
+#include "pgShapeObject.h"
 #include <structmember.h>
 
 #define MAX_SOLVE_INTERAT 20
@@ -21,7 +23,21 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 
 void _PG_BodyCollisionDetection(pgWorldObject* world)
 {
-
+	int i, j;
+	pgBodyObject* refBody, *incBody;
+	int size = PyList_Size((PyObject*)(world->bodyList));
+	for(i = 0; i < size-1; ++i)
+	{
+		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
+		for(j = i+1; j < size; ++j)
+		{
+			incBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), j));
+			if(PG_IsOverlap(&(refBody->shape->box), &(refBody->shape->box)))
+			{
+				PG_AppendContact(refBody, incBody, (PyObject*)world->contactList);
+			}
+		}
+	}
 }
 
 void _PG_JointSolve(pgWorldObject* world,double stepTime)

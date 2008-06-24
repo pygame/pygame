@@ -51,6 +51,7 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 	p->shape.Destroy = PG_RectShapeDestroy;
 	p->shape.UpdateAABB = PG_RectShapeUpdateAABB;
 	p->shape.type = ST_RECT;
+	p->shape.rInertia = body->fMass*(width*width + height*height)/12; // I = M(a^2 + b^2)/12
 
 	PG_Set_Vector2(p->bottomLeft, -width/2, -height/2);
 	PG_Set_Vector2(p->bottomRight, width/2, -height/2);
@@ -63,13 +64,15 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 }
 
 //-------------box's collision test------------------
+//TEST: these functions have been partly tested.
 
 //we use a simple SAT to select the contactNormal:
 //Supposing the relative velocity between selfBody and incidBody in
-//two frame is small, the face(actually is an edge in 2D) with minimum 
+//two frame is "small", the face(actually is an edge in 2D) with minimum 
 //average penetrating depth is considered to be contact face, then we
-//get the contact normal
+//get the contact normal.
 //note: this method is not available in CCD(continue collision detection)
+//since the velocity is not small.
 static void _SAT_GetContactNormal(pgAABBBox* clipBox, PyObject* contactList,
 								  int from, int to)
 {
@@ -170,7 +173,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 			}
 			else
 			{
-				contact = (pgContact*)PyObject_MALLOC(sizeof(pgContact));
+				contact = (pgContact*)PG_ContactNew(selfBody, incidBody);
 				contact->pos = pf;
 				PyList_Append(contactList, (PyObject*)contact);
 			}
@@ -181,7 +184,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 			}
 			else
 			{
-				contact = (pgContact*)PyObject_MALLOC(sizeof(pgContact));
+				contact = (pgContact*)PG_ContactNew(selfBody, incidBody);
 				contact->pos = pt;
 				PyList_Append(contactList, (PyObject*)contact);
 			}
@@ -196,7 +199,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 	{
 		if(has_ip[i])
 		{
-			contact = (pgContact*)PyObject_MALLOC(sizeof(pgContact));
+			contact = (pgContact*)PG_ContactNew(selfBody, incidBody);
 			contact->pos = ip[i];
 			PyList_Append(contactList, (PyObject*)contact);
 		}
@@ -207,8 +210,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 	
 	_SAT_GetContactNormal(&clipBox, contactList, from, to);
 
-	//transform vectors from selfBody's locate coordinate
-    //to global coordinate
+	//transform from selfBody's locate coordinate to global coordinate
 	for(i = from; i <= to; ++i)
 	{
 		contact = (pgContact*)PyList_GetItem(contactList, i);
