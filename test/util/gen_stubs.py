@@ -1,14 +1,12 @@
 #################################### IMPORTS ###################################
 
 from __future__ import with_statement
-
 from optparse import OptionParser
-
 from inspect import isclass, ismodule, getdoc
-
 from unittest import TestCase
 
-import pygame, sys, relative_indentation, re
+import pygame, sys, datetime, re
+import relative_indentation
 
 ################################ TESTS DIRECTORY ###############################
 
@@ -44,19 +42,26 @@ IGNORE = (
 
     Test
 
+3)
+
+    Properties
+    Helper functions that return objects, ie time.Clock() etc
+
 """
 
 ################################ STUB TEMPLATES ################################
+
+date = datetime.datetime.now().date()
 
 STUB_TEMPLATE = relative_indentation.Template ( '''
 
     def ${test_name}(self):
 
-        # Doc string for ${unitname}:
+        # __doc__ (as of %s) for ${unitname}:
 
           ${comments}
 
-        self.assert_(test_not_implemented()) ''', 
+        self.assert_(test_not_implemented()) ''' % date, 
 
         strip_common = 1, strip_excess = 1
 )
@@ -191,8 +196,7 @@ def already_tested_in_module(module):
     test_name = "%s_test" % mod_name[7:]
     
     try: test_file = __import__(test_name)
-    except ImportError: 
-        # TODO: maybe notify?
+    except ImportError:
         return
     
     classes = get_callables(test_file, isclass)
@@ -229,25 +233,24 @@ def get_stubs(root):
 
 if __name__ == "__main__":
     options, args = opt_parser.parse_args()
+    if not sys.argv[1:]: 
+        sys.exit(opt_parser.print_help())
+    
+    root = args and args[0] or 'pygame'
+    if root != 'pygame' and not root.startswith('pygame'):
+        root = 'pygame.' + root
 
-    if args:
-        root = args[0]
-        if not root.startswith('pygame.'):
-            root = 'pygame.%s.' % root
+    stubs, tested = get_stubs(root)
 
-        stubs, tested = get_stubs(root)
+    for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
+        if not fname.startswith(root): continue  # eg. module.Class
 
-        for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
-            if not fname.startswith(root): continue  # eg. module.Class
+        test_name, stub = stubs[fname]
 
-            test_name, stub = stubs[fname]
-
-            if options.list:
-                print ('%13s: %s\n%13s: %s\n' %
-                      ('Callable Name', fname, 'Test Name', test_name))
-            else:
-                print stub
-    else:
-        opt_parser.print_help()
+        if options.list:
+            print ('%13s: %s\n%13s: %s\n' %
+                  ('Callable Name', fname, 'Test Name', test_name))
+        else:
+            print stub
 
 ################################################################################
