@@ -149,7 +149,7 @@ pgJointObject* PG_ContactNew(pgBodyObject* refBody, pgBodyObject* incidBody)
 	contact->joint.body1 = refBody;
 	contact->joint.body2 = incidBody;
 	contact->joint.SolveConstraintPosition = PG_UpdateP;
-	contact->joint.SolveConstraintVelocity = PG_UPdateV;
+	contact->joint.SolveConstraintVelocity = PG_UpdateV;
 
 	return (pgJointObject*)contact;
 }

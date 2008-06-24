@@ -1,4 +1,5 @@
 #include "pgJointObject.h"
+#include <structmember.h>
 
 extern PyTypeObject pgJointType;
 extern PyTypeObject pgDistanceJointType;
@@ -35,8 +36,25 @@ PyObject* _PG_JointBaseNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	/* In case we have arguments in the python code, parse them later
 	* on.
 	*/
+	PyObject* joint;
 	if(PyType_Ready(type)==-1) return NULL;
-	return (PyObject*) _PG_JointNewInternal(type);
+	
+	joint = (PyObject*) _PG_JointNewInternal(type);
+	
+	return joint;
+}
+
+static int _pgJointBase_init(pgJointObject* joint,PyObject *args, PyObject *kwds)
+{
+	PyObject* body1,*body2;
+	int bCollide;
+	static char *kwlist[] = {"body1", "body2", "isCollideConnect", NULL};
+	if(!PyArg_ParseTupleAndKeywords(args,kwds,"|OOi",kwlist,&body1,&body2,&bCollide))
+	{
+		return -1;
+	}
+	PG_InitJointBase(joint,(pgBodyObject*)body1,(pgBodyObject*)body2,bCollide);
+	return 0;
 }
 
 static int _pgJoint_setBody1(pgJointObject* joint,PyObject* value,void* closure)
@@ -89,6 +107,8 @@ static PyGetSetDef _pgJointBase_getseters[] = {
 	}
 };
 
+
+
 PyTypeObject pgJointType =
 {
 	PyObject_HEAD_INIT(NULL)
@@ -127,7 +147,7 @@ PyTypeObject pgJointType =
 	0,                          /* tp_descr_get */
 	0,                          /* tp_descr_set */
 	0,                          /* tp_dictoffset */
-	0,                          /* tp_init */
+	(initproc)_pgJointBase_init,                          /* tp_init */
 	0,                          /* tp_alloc */
 	_PG_JointBaseNew,               /* tp_new */
 	0,                          /* tp_free */
@@ -139,6 +159,26 @@ PyTypeObject pgJointType =
 	0,                          /* tp_weaklist */
 	0                           /* tp_del */
 };
+
+void PG_DistanceJointInit(pgDistanceJointObject* joint)
+{
+	joint->distance = 10.0;
+	PG_Set_Vector2(joint->anchor1,0,0);
+	PG_Set_Vector2(joint->anchor2,0,0);
+}
+
+
+static int _pgDistanceJoint_init(pgDistanceJointObject* joint,PyObject *args, PyObject *kwds)
+{
+	if(pgJointType.tp_init((PyObject*)joint,args,kwds) < 0)
+	{
+		return -1;
+	}
+	PG_DistanceJointInit(joint);
+	return 0;
+}
+
+
 
 void PG_SolveDistanceJointPosition(pgJointObject* joint,double stepTime)
 {
@@ -202,6 +242,7 @@ void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 	}
 }
 
+//just for C test useage, not for python
 pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect,double dist,pgVector2 a1,pgVector2 a2)
 {
 	pgDistanceJointObject* pjoint = (pgDistanceJointObject*)PyObject_MALLOC(sizeof(pgDistanceJointObject));	
@@ -212,6 +253,14 @@ pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollid
 	pjoint->joint.SolveConstraintVelocity = PG_SolveDistanceJointVelocity;
 	return (pgJointObject*)pjoint;
 }
+
+static PyMemberDef _pgDistanceJoint_members[] = 
+{
+	{"distance",T_DOUBLE,offsetof(pgDistanceJointObject,distance),0,""},
+	{
+		NULL
+	}
+}; 
 
 
 
@@ -248,12 +297,12 @@ PyTypeObject pgDistanceJointType =
 	0,							/* tp_methods */
 	0,							/* tp_members */
 	0,							/* tp_getset */
-	0,                          /* tp_base */
+	&pgJointType,                          /* tp_base */
 	0,                          /* tp_dict */
 	0,                          /* tp_descr_get */
 	0,                          /* tp_descr_set */
 	0,                          /* tp_dictoffset */
-	0,                          /* tp_init */
+	(initproc)_pgDistanceJoint_init,                          /* tp_init */
 	0,                          /* tp_alloc */
 	0,							/* tp_new */
 	0,                          /* tp_free */
