@@ -23,9 +23,10 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 
 void _PG_BodyCollisionDetection(pgWorldObject* world)
 {
-	int i, j;
+	Py_ssize_t i, j;
 	pgBodyObject* refBody, *incBody;
-	int size = PyList_Size((PyObject*)(world->bodyList));
+	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
+	//TODO: clear contactList first
 	for(i = 0; i < size-1; ++i)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
@@ -75,7 +76,7 @@ void PG_Update(pgWorldObject* world,double stepTime)
 	int i;
 
 	_PG_FreeBodySimulation(world, stepTime);
-	_PG_BodyCollisionDetection(world);
+	//_PG_BodyCollisionDetection(world);
 	for (i = 0;i < MAX_SOLVE_INTERAT;i++)
 	{
 		_PG_JointSolve(world,stepTime);

@@ -144,7 +144,7 @@ void PG_UpdateP(pgJointObject* joint, double step)
 pgJointObject* PG_ContactNew(pgBodyObject* refBody, pgBodyObject* incidBody)
 {
 	pgContact* contact;
-	//TODO: this function would be changed
+	//TODO: this function would be replaced.
 	contact = (pgContact*)PyObject_MALLOC(sizeof(pgContact));
 	contact->joint.body1 = refBody;
 	contact->joint.body2 = incidBody;

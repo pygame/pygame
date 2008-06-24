@@ -295,14 +295,14 @@ PyTypeObject pgDistanceJointType =
 	0,                          /* tp_iter */
 	0,                          /* tp_iternext */
 	0,							/* tp_methods */
-	_pgDistanceJoint_members,							/* tp_members */
+	_pgDistanceJoint_members,	/* tp_members */
 	0,							/* tp_getset */
-	&pgJointType,                          /* tp_base */
+	&pgJointType,               /* tp_base */
 	0,                          /* tp_dict */
 	0,                          /* tp_descr_get */
 	0,                          /* tp_descr_set */
 	0,                          /* tp_dictoffset */
-	(initproc)_pgDistanceJoint_init,                          /* tp_init */
+	(initproc)_pgDistanceJoint_init,  /* tp_init */
 	0,                          /* tp_alloc */
 	0,							/* tp_new */
 	0,                          /* tp_free */

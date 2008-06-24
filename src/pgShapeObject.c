@@ -50,6 +50,7 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 	PG_ShapeObjectInit(&(p->shape));
 	p->shape.Destroy = PG_RectShapeDestroy;
 	p->shape.UpdateAABB = PG_RectShapeUpdateAABB;
+	p->shape.Collision = PG_RectShapeCollision;
 	p->shape.type = ST_RECT;
 	p->shape.rInertia = body->fMass*(width*width + height*height)/12; // I = M(a^2 + b^2)/12
 
