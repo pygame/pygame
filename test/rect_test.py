@@ -1,10 +1,11 @@
-
-
-
 import unittest
+
+import test_utils
+from test_utils import test_not_implemented
+
 from pygame import Rect
 
-class RectTest( unittest.TestCase ):
+class RectTypeTest( unittest.TestCase ):
     def testConstructionXYWidthHeight( self ):
         r = Rect(1,2,3,4)
         self.assertEqual( 1, r.left )
@@ -41,7 +42,7 @@ class RectTest( unittest.TestCase ):
         self.assertEqual( (r.left,r.centery), r.midleft )
         self.assertEqual( (r.right,r.centery), r.midright )
     
-    def testNormalize( self ):
+    def test_normalize( self ):
         r = Rect( 1, 2, -3, -6 )
         r2 = Rect(r)
         r2.normalize()
@@ -286,7 +287,7 @@ class RectTest( unittest.TestCase ):
         self.assertEqual( new_size, r.size )
         self.assertEqual( old_topleft, r.topleft )
 
-    def testContains( self ):
+    def test_contains( self ):
         r = Rect( 1, 2, 3, 4 )
         
         self.failUnless( r.contains( Rect( 2, 3, 1, 1 ) ),
@@ -302,7 +303,7 @@ class RectTest( unittest.TestCase ):
         self.failIf( r.contains( Rect(4,6,0,0) ),
                      "r contains Rect(4,6,0,0)" )
     
-    def testCollidePoint( self ):
+    def test_collidepoint( self ):
         r = Rect( 1, 2, 3, 4 )
         
         self.failUnless( r.collidepoint( r.left, r.top ),
@@ -323,7 +324,7 @@ class RectTest( unittest.TestCase ):
         self.failIf( r.collidepoint( r.right, r.bottom-1 ),
                      "r collides with point (right,bottom-1)" )
 
-    def testInflateLarger( self ):
+    def test_inflate__larger( self ):
         "The inflate method inflates around the center of the rectangle"
         r = Rect( 2, 4, 6, 8 )
         r2 = r.inflate( 4, 6 )
@@ -336,7 +337,7 @@ class RectTest( unittest.TestCase ):
         self.assertEqual( r.width+4, r2.width )
         self.assertEqual( r.height+6, r2.height )
 
-    def testInflateSmaller( self ):
+    def test_inflate__smaller( self ):
         "The inflate method inflates around the center of the rectangle"
         r = Rect( 2, 4, 6, 8 )
         r2 = r.inflate( -4, -6 )
@@ -349,7 +350,7 @@ class RectTest( unittest.TestCase ):
         self.assertEqual( r.width-4, r2.width )
         self.assertEqual( r.height-6, r2.height )
 
-    def testInflateLargerIP( self ):    
+    def test_inflate_ip__larger( self ):    
         "The inflate_ip method inflates around the center of the rectangle"
         r = Rect( 2, 4, 6, 8 )
         r2 = Rect( r )
@@ -363,7 +364,7 @@ class RectTest( unittest.TestCase ):
         self.assertEqual( r.width-4, r2.width )
         self.assertEqual( r.height-6, r2.height )
 
-    def testInflateSmallerIP( self ):
+    def test_inflate_ip__smaller( self ):
         "The inflate method inflates around the center of the rectangle"
         r = Rect( 2, 4, 6, 8 )
         r2 = Rect( r )
@@ -377,7 +378,7 @@ class RectTest( unittest.TestCase ):
         self.assertEqual( r.width-4, r2.width )
         self.assertEqual( r.height-6, r2.height )
 
-    def testClamp( self ):
+    def test_clamp( self ):
         r = Rect(10, 10, 10, 10)
         c = Rect(19, 12, 5, 5).clamp(r)
         self.assertEqual(c.right, r.right)
@@ -387,7 +388,7 @@ class RectTest( unittest.TestCase ):
         c = Rect(5, 500, 22, 33).clamp(r)
         self.assertEqual(c.center, r.center)
 
-    def testClampIP( self ):
+    def test_clamp_ip( self ):
         r = Rect(10, 10, 10, 10)
         c = Rect(19, 12, 5, 5)
         c.clamp_ip(r)
@@ -400,7 +401,7 @@ class RectTest( unittest.TestCase ):
         c.clamp_ip(r)
         self.assertEqual(c.center, r.center)
         
-    def testClip( self ):
+    def test_clip( self ):
         r1 = Rect( 1, 2, 3, 4 )
         self.assertEqual( Rect( 1, 2, 2, 2 ), r1.clip( Rect(0,0,3,4) ) )
         self.assertEqual( Rect( 2, 2, 2, 4 ), r1.clip( Rect(2,2,10,20) ) )
@@ -409,7 +410,7 @@ class RectTest( unittest.TestCase ):
         self.assertEqual( r1, r1.clip( Rect(r1) ),
                           "r1 does not clip an identical rect to itself" )
         
-    def testMove( self ):
+    def test_move( self ):
         r = Rect( 1, 2, 3, 4 )
         move_x = 10
         move_y = 20
@@ -417,7 +418,7 @@ class RectTest( unittest.TestCase ):
         expected_r2 = Rect(r.left+move_x,r.top+move_y,r.width,r.height)
         self.assertEqual( expected_r2, r2 )
     
-    def testMoveIP( self ):    
+    def test_move_ip( self ):    
         r = Rect( 1, 2, 3, 4 )
         r2 = Rect( r )
         move_x = 10
@@ -426,22 +427,22 @@ class RectTest( unittest.TestCase ):
         expected_r2 = Rect(r.left+move_x,r.top+move_y,r.width,r.height)
         self.assertEqual( expected_r2, r2 )
     
-    def testUnion( self ):
+    def test_union( self ):
         r1 = Rect( 1, 1, 1, 2 )
         r2 = Rect( -2, -2, 1, 2 )
         self.assertEqual( Rect( -2, -2, 4, 5 ), r1.union(r2) )
     
-    def testUnionWithIdenticalRect( self ):
+    def test_union__with_identical_Rect( self ):
         r1 = Rect( 1, 2, 3, 4 )
         self.assertEqual( r1, r1.union( Rect(r1) ) )
     
-    def testUnionIP( self ):
+    def test_union_ip( self ):
         r1 = Rect( 1, 1, 1, 2 )
         r2 = Rect( -2, -2, 1, 2 )
         r1.union_ip(r2)
         self.assertEqual( Rect( -2, -2, 4, 5 ), r1 )
     
-    def testUnionAll( self ):
+    def test_unionall( self ):
         r1 = Rect( 0, 0, 1, 1 )
         r2 = Rect( -2, -2, 1, 1 )
         r3 = Rect( 2, 2, 1, 1 )
@@ -449,7 +450,7 @@ class RectTest( unittest.TestCase ):
         r4 = r1.unionall( [r2,r3] )
         self.assertEqual( Rect(-2, -2, 5, 5), r4 )
     
-    def testUnionAllIP( self ):
+    def test_unionall_ip( self ):
         r1 = Rect( 0, 0, 1, 1 )
         r2 = Rect( -2, -2, 1, 1 )
         r3 = Rect( 2, 2, 1, 1 )
@@ -459,7 +460,7 @@ class RectTest( unittest.TestCase ):
 
 
 
-    def testCollideRect( self ):
+    def test_colliderect( self ):
         r1 = Rect(1,2,3,4)
         self.failUnless( r1.colliderect( Rect(0,0,2,3) ),
                          "r1 does not collide with Rect(0,0,2,3)" )
@@ -482,6 +483,50 @@ class RectTest( unittest.TestCase ):
         self.failIf( r1.colliderect( Rect(r1.right,r1.bottom,1,1) ),
                      "r1 collides with Rect(r1.right,r1.bottom,1,1)" )
 
+    def test_collidedict(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidedict:
+
+          # Rect.collidedict(dict): return (key, value)
+          # test if one rectangle in a dictionary intersects
+
+        self.assert_(test_not_implemented()) 
+
+    def test_collidedictall(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidedictall:
+
+          # Rect.collidedictall(dict): return [(key, value), ...]
+          # test if all rectangles in a dictionary intersect
+
+        self.assert_(test_not_implemented()) 
+
+    def test_collidelist(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidelist:
+
+          # Rect.collidelist(list): return index
+          # test if one rectangle in a list intersects
+
+        self.assert_(test_not_implemented()) 
+
+    def test_collidelistall(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidelistall:
+
+          # Rect.collidelistall(list): return indices
+          # test if all rectangles in a list intersect
+
+        self.assert_(test_not_implemented()) 
+
+    def test_fit(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.fit:
+
+          # Rect.fit(Rect): return Rect
+          # resize and move a rectangle with aspect ratio
+
+        self.assert_(test_not_implemented()) 
 
     def testEquals( self ):
         """ check to see how the rect uses __eq__ 
@@ -516,9 +561,6 @@ class RectTest( unittest.TestCase ):
         rect_list.remove(r2)
         self.assertRaises(ValueError, rect_list.remove, r2)
 
-
-
-
-
 if __name__ == '__main__':
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()

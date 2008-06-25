@@ -6,6 +6,9 @@ import unittest
 import pygame
 import math
 
+import test_utils
+from test_utils import test_not_implemented
+
 ################################### CONSTANTS ##################################
 
 rgba_vals = [0, 1, 62, 63, 126, 127, 255]
@@ -509,7 +512,7 @@ class ColorTypeTest (unittest.TestCase):
 
 ################################################################################
 
-    def test_gamma_correct__verified_against_python_implementation(self):
+    def test_correct_gamma__verified_against_python_implementation(self):
         # gamma_correct defined at top of page
 
         gammas = map(lambda i: i / 10.0, range(1, 31)) # [0.1 .. 3.0]
@@ -533,4 +536,5 @@ class ColorTypeTest (unittest.TestCase):
 ################################################################################
 
 if __name__ == '__main__':
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()
