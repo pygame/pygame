@@ -571,8 +571,9 @@ surf_rotate (PyObject* self, PyObject* arg)
         return RAISE (PyExc_ValueError,
                       "unsupport Surface bit depth for transform");
 
-    if (!(((int) angle) % 90))
-    {
+
+
+    if ( !( fmodf(angle, 90.0f) ) ) {
         PySurface_Lock (surfobj);
 
         Py_BEGIN_ALLOW_THREADS;

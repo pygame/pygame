@@ -6,6 +6,15 @@
 #
 #
 
+Jun 25, 2008
+    Added many extra empty test stubs for untested things.  Thanks Nicholas!
+    Test runner that works with subprocess and threads to isolate tests.
+        So that if a crash happens in one test the other tests still run.
+        Thanks Nicholas!
+
+    [BUG] Added a fix for rotate on multiples of 90.0000001-90.99999 degrees.
+        Thanks Charlie Nolan, and Marcus!
+
 Jun 21, 2008
     Added BLEND_RGBA_* special flags for blit, and fill.
 
