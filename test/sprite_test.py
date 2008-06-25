@@ -8,9 +8,25 @@ from pygame import sprite
     
 ################################# MODULE LEVEL #################################
 
-class SpriteModuleTest( unittest.TestCase ):
-    pass
-
+class SpriteModuleTest( unittest.TestCase ):       
+    def test_from_surface(self):
+    
+        # __doc__ (as of 2008-06-24) for pygame.sprite.from_surface:
+    
+          # pygame.mask.from_surface(Surface, threshold = 127) -> Mask
+          # Returns a Mask from the given surface.
+    
+        self.assert_(test_not_implemented())
+    
+    def test_get_ticks(self):
+    
+        # __doc__ (as of 2008-06-24) for pygame.sprite.get_ticks:
+    
+          # pygame.time.get_ticks(): return milliseconds
+          # get the time in milliseconds
+    
+        self.assert_(test_not_implemented())
+    
 ######################### SPRITECOLLIDE FUNCTIONS TEST #########################
 
 class SpriteCollideTest( unittest.TestCase ):
@@ -192,6 +208,74 @@ class SpriteCollideTest( unittest.TestCase ):
                 self.s1, self.ag2, dokill = False, collided = sprite.collide_mask
             )
         )
+
+    def test_groupcollide(self):
+    
+        # __doc__ (as of 2008-06-24) for pygame.sprite.groupcollide:
+    
+          # pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
+          # collision detection between group and group
+          # 
+          # given two groups, this will find the intersections
+          # between all sprites in each group. it returns a
+          # dictionary of all sprites in the first group that
+          # collide. the value for each item in the dictionary
+          # is a list of the sprites in the second group it
+          # collides with. the two dokill arguments control if
+          # the sprites from either group will be automatically
+          # removed from all groups.
+          # collided is a callback function used to calculate if
+          # two sprites are colliding. it should take two sprites
+          # as values, and return a bool value indicating if
+          # they are colliding. if collided is not passed, all
+          # sprites must have a "rect" value, which is a
+          # rectangle of the sprite area, which will be used
+          # to calculate the collision.
+    
+        self.assert_(test_not_implemented())
+    
+    def test_spritecollideany(self):
+    
+        # __doc__ (as of 2008-06-24) for pygame.sprite.spritecollideany:
+    
+          # pygame.sprite.spritecollideany(sprite, group) -> sprite
+          # finds any sprites that collide
+          # 
+          # given a sprite and a group of sprites, this will
+          # return return any single sprite that collides with
+          # with the given sprite. If there are no collisions
+          # this returns None.
+          # 
+          # if you don't need all the features of the
+          # spritecollide function, this function will be a
+          # bit quicker.
+          # 
+          # collided is a callback function used to calculate if
+          # two sprites are colliding. it should take two sprites
+          # as values, and return a bool value indicating if
+          # they are colliding. if collided is not passed, all
+          # sprites must have a "rect" value, which is a
+          # rectangle of the sprite area, which will be used
+          # to calculate the collision.
+    
+        self.assert_(test_not_implemented())
+
+    def test_collide_rect(self):
+    
+        # __doc__ (as of 2008-06-24) for pygame.sprite.collide_rect:
+    
+          # collision detection between two sprites, using rects.
+          # pygame.sprite.collide_rect(left, right): return bool
+          # 
+          # Tests for collision between two sprites. Uses the
+          # pygame rect colliderect function to calculate the
+          # collision. Intended to be passed as a collided
+          # callback function to the *collide functions.
+          # Sprites must have a "rect" attributes.
+          # 
+          # New in pygame 1.8.0
+    
+        self.assert_(test_not_implemented())
 
 ################################################################################
 
@@ -555,7 +639,6 @@ class LayeredDirtyTypeTest__DirtySprite(LayeredGroupBase, unittest.TestCase):
 
     def setUp(self):
         self.LG = sprite.LayeredDirty()
-
 
 ############################### SPRITE BASE CLASS ##############################
 #
