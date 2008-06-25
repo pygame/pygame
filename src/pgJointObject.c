@@ -268,7 +268,7 @@ PyTypeObject pgDistanceJointType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"physics.Distance_Joint",            /* tp_name */
+	"physics.DistanceJoint",            /* tp_name */
 	sizeof(pgDistanceJointObject),      /* tp_basicsize */
 	0,                          /* tp_itemsize */
 	(destructor) 0,				/* tp_dealloc */
