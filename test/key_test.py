@@ -1,25 +1,71 @@
 import unittest
+
+import test_utils
+from test_utils import test_not_implemented
+
 import pygame
 import pygame.display
 
-
-class KeyTest (unittest.TestCase):
-
+class KeyModuleTest(unittest.TestCase):
     def test_import(self):
         'does it import'
         import pygame.key
 
-    def test_get_repeat(self):
-        pass
-        # the line below won't work because you need a window
-        #delay, interval = pygame.key.get_repeat()
+    def test_get_focused(self):
+        # __doc__ (as of 2008-06-25) for pygame.key.get_focused:
 
-    def test_add_more_tests(self):
-        'we need to add more tests'
-        pass
-        #raise NotImplementedError("TODO: key tests need improving.")
+          # pygame.key.get_focused(): return bool
+          # true if the display is receiving keyboard input from the system
 
+        self.assert_(test_not_implemented()) 
+
+    def test_get_mods(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.key.get_mods:
+
+          # pygame.key.get_mods(): return int
+          # determine which modifier keys are being held
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_pressed(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.key.get_pressed:
+
+          # pygame.key.get_pressed(): return bools
+          # get the state of all keyboard buttons
+
+        self.assert_(test_not_implemented()) 
+
+    def test_name(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.key.name:
+
+          # pygame.key.name(key): return string
+          # get the name of a key identifier
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_mods(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.key.set_mods:
+
+          # pygame.key.set_mods(int): return None
+          # temporarily set which modifier keys are pressed
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_repeat(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.key.set_repeat:
+
+          # pygame.key.set_repeat(): return None
+          # pygame.key.set_repeat(delay, interval): return None
+          # control how held keys are repeated
+
+        self.assert_(test_not_implemented()) 
 
 
 if __name__ == '__main__':
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()

@@ -1,5 +1,8 @@
-
 import unittest
+
+import test_utils
+from test_utils import test_not_implemented
+
 import pygame
 import pygame.mask
 
@@ -23,9 +26,17 @@ def maskFromSurface(surface, threshold = 127):
 #pygame.init()
 #pygame.display.set_mode((10,10))
 
-
-class MaskTest( unittest.TestCase ):
+class MaskTypeTest( unittest.TestCase ):
     
+    def test_Mask(self):
+    
+        # __doc__ (as of 2008-06-25) for pygame.mask.Mask:
+    
+          # pygame.Mask((width, height): return Mask
+          # pygame object for representing 2d bitmasks
+    
+        self.assert_(test_not_implemented()) 
+        
     def test_mask_access( self ):
         """ do the set_at, and get_at parts work correctly? 
         """
@@ -40,17 +51,14 @@ class MaskTest( unittest.TestCase ):
         #self.assertEqual(s.get_at((1,0)), (0, 0, 1, 255))
         #s.set_at((-1,0), (0, 0, 1, 255))
 
-
-
         # out of bounds, should get IndexError
         self.assertRaises(IndexError, lambda : m.get_at((-1,0)) )
         self.assertRaises(IndexError, lambda : m.set_at((-1,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((10,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((0,10), 1) )
 
-
-
-    def test_mask_from_surface(self):
+class MaskModuleTest(unittest.TestCase):
+    def test_from_surface(self):
         """  Does the mask.from_surface() work correctly?
         """
 
@@ -102,17 +110,13 @@ class MaskTest( unittest.TestCase ):
         r = m.get_bounding_rects()
 
         self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
-        
-
-
-
 
 if __name__ == '__main__':
 
     if 1:
+        test_utils.get_fail_incomplete_tests_option()
         unittest.main()
     else:
-
         mask_from_surface = maskFromSurface
 
         surf = pygame.Surface((70,70), SRCALPHA, 32)
@@ -122,4 +126,3 @@ if __name__ == '__main__':
 
         print "asdf"
         print surf
-

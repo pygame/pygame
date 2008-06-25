@@ -1,13 +1,12 @@
-
-
-
 import unittest
+
+import test_utils
+from test_utils import test_not_implemented
+
 import pygame, pygame.image, pygame.pkgdata
 import os
 
 import array
-
-
 
 def test_magic(f, magic_hex):
     """ tests a given file to see if the magic hex matches.
@@ -24,8 +23,7 @@ def test_magic(f, magic_hex):
     return 1
 
 
-class ImageTest( unittest.TestCase ):
-    
+class ImageModuleTest( unittest.TestCase ):
     def testLoadIcon(self):
         """ see if we can load the pygame icon.
         """
@@ -37,7 +35,6 @@ class ImageTest( unittest.TestCase ):
         self.assertEqual(surf.get_at((0,0)),(5, 4, 5, 255))
         self.assertEqual(surf.get_height(),32)
         self.assertEqual(surf.get_width(),32)
-
 
     def testLoadPNG(self):
         """ see if we can load a png.
@@ -61,7 +58,7 @@ class ImageTest( unittest.TestCase ):
         surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
 
-    def testSave(self):
+    def test_save(self):
 
         s = pygame.Surface((10,10))
         s.fill((23,23,23))
@@ -142,7 +139,7 @@ class ImageTest( unittest.TestCase ):
         self.assertRaises(ValueError, pygame.image.tostring, no_alpha_surface, "RGBA_PREMULT")
         
 
-    def test_from_to_string(self):
+    def test_fromstring__and_tostring(self):
         """ see if fromstring, and tostring methods are symmetric.
         """
         
@@ -218,10 +215,52 @@ class ImageTest( unittest.TestCase ):
 
         self.assert_(AreSurfacesIdentical(test_surface, test_to_from_argb_string))
         #"ERROR: image.fromstring and image.tostring with ARGB are not symmetric"
+    
+    test_tostring = test_fromstring__and_tostring # for gen_stubs.py
 
+    def test_frombuffer(self):
 
+        # __doc__ (as of 2008-06-25) for pygame.image.frombuffer:
 
+          # pygame.image.frombuffer(string, size, format): return Surface
+          # create a new Surface that shares data inside a string buffer
 
+        self.assert_(test_not_implemented()) 
+
+    def test_get_extended(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.image.get_extended:
+
+          # pygame.image.get_extended(): return bool
+          # test if extended image formats can be loaded
+
+        self.assert_(test_not_implemented()) 
+
+    def test_load_basic(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.image.load_basic:
+
+          # pygame.image.load(filename): return Surface
+          # pygame.image.load(fileobj, namehint=): return Surface
+          # load new image from a file
+
+        self.assert_(test_not_implemented()) 
+
+    def test_load_extended(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.image.load_extended:
+
+          # pygame module for image transfer
+
+        self.assert_(test_not_implemented()) 
+
+    def test_save_extended(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.image.save_extended:
+
+          # pygame module for image transfer
+
+        self.assert_(test_not_implemented()) 
 
 if __name__ == '__main__':
     unittest.main()
