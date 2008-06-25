@@ -1,11 +1,12 @@
-
 import unittest
 import pygame
 
+import test_utils
+from test_utils import test_not_implemented
+
 from pygame.locals import *
 
-class SurfaceTest( unittest.TestCase ):
-    
+class SurfaceTypeTest(unittest.TestCase):
     def test_set_clip( self ):
         """ see if surface.set_clip(None) works correctly.
         """
@@ -115,5 +116,356 @@ class SurfaceTest( unittest.TestCase ):
         self.assertEqual(bound_rect.width, 31)
         self.assertEqual(bound_rect.height, 31)
 
+
+    def test_blit(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.blit:
+
+          # Surface.blit(source, dest, area=None, special_flags = 0): return Rect
+          # draw one image onto another
+
+        self.assert_(test_not_implemented()) 
+
+    def test_convert(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.convert:
+
+          # Surface.convert(Surface): return Surface
+          # Surface.convert(depth, flags=0): return Surface
+          # Surface.convert(masks, flags=0): return Surface
+          # Surface.convert(): return Surface
+          # change the pixel format of an image
+
+        self.assert_(test_not_implemented()) 
+
+    def test_convert_alpha(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.convert_alpha:
+
+          # Surface.convert_alpha(Surface): return Surface
+          # Surface.convert_alpha(): return Surface
+          # change the pixel format of an image including per pixel alphas
+
+        self.assert_(test_not_implemented()) 
+
+    def test_copy(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.copy:
+
+          # Surface.copy(): return Surface
+          # create a new copy of a Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_fill(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.fill:
+
+          # Surface.fill(color, rect=None, special_flags=0): return Rect
+          # fill Surface with a solid color
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_abs_offset(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_abs_offset:
+
+          # Surface.get_abs_offset(): return (x, y)
+          # find the absolute position of a child subsurface inside its top level parent
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_abs_parent(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_abs_parent:
+
+          # Surface.get_abs_parent(): return Surface
+          # find the top level parent of a subsurface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_alpha(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_alpha:
+
+          # Surface.get_alpha(): return int_value or None
+          # get the current Surface transparency value
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_at(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_at:
+
+          # Surface.get_at((x, y)): return Color
+          # get the color value at a single pixel
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_bitsize(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_bitsize:
+
+          # Surface.get_bitsize(): return int
+          # get the bit depth of the Surface pixel format
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_bytesize(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_bytesize:
+
+          # Surface.get_bytesize(): return int
+          # get the bytes used per Surface pixel
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_clip(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_clip:
+
+          # Surface.get_clip(): return Rect
+          # get the current clipping area of the Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_colorkey(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_colorkey:
+
+          # Surface.get_colorkey(): return RGB or None
+          # Get the current transparent colorkey
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_flags(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_flags:
+
+          # Surface.get_flags(): return int
+          # get the additional flags used for the Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_height(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_height:
+
+          # Surface.get_height(): return height
+          # get the height of the Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_locked(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_locked:
+
+          # Surface.get_locked(): return bool
+          # test if the Surface is current locked
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_locks(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_locks:
+
+          # Surface.get_locks(): return tuple
+          # Gets the locks for the Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_losses(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_losses:
+
+          # Surface.get_losses(): return (R, G, B, A)
+          # the significant bits used to convert between a color and a mapped integer
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_masks(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_masks:
+
+          # Surface.get_masks(): return (R, G, B, A)
+          # the bitmasks needed to convert between a color and a mapped integer
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_offset(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_offset:
+
+          # Surface.get_offset(): return (x, y)
+          # find the position of a child subsurface inside a parent
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_palette(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_palette:
+
+          # Surface.get_palette(): return [RGB, RGB, RGB, ...]
+          # get the color index palette for an 8bit Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_palette_at(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_palette_at:
+
+          # Surface.get_palette_at(index): return RGB
+          # get the color for a single entry in a palette
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_parent(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_parent:
+
+          # Surface.get_parent(): return Surface
+          # find the parent of a subsurface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_pitch(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_pitch:
+
+          # Surface.get_pitch(): return int
+          # get the number of bytes used per Surface row
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_rect(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_rect:
+
+          # Surface.get_rect(**kwargs): return Rect
+          # get the rectangular area of the Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_shifts(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_shifts:
+
+          # Surface.get_shifts(): return (R, G, B, A)
+          # the bit shifts needed to convert between a color and a mapped integer
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_size(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_size:
+
+          # Surface.get_size(): return (width, height)
+          # get the dimensions of the Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_width(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.get_width:
+
+          # Surface.get_width(): return width
+          # get the width of the Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_lock(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.lock:
+
+          # Surface.lock(): return None
+          # lock the Surface memory for pixel access
+
+        self.assert_(test_not_implemented()) 
+
+    def test_map_rgb(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.map_rgb:
+
+          # Surface.map_rgb(Color): return mapped_int
+          # convert a color into a mapped color value
+
+        self.assert_(test_not_implemented()) 
+
+    def test_mustlock(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.mustlock:
+
+          # Surface.mustlock(): return bool
+          # test if the Surface requires locking
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_alpha(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.set_alpha:
+
+          # Surface.set_alpha(value, flags=0): return None
+          # Surface.set_alpha(None): return None
+          # set the alpha value for the full Surface image
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_colorkey(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.set_colorkey:
+
+          # Surface.set_colorkey(Color, flags=0): return None
+          # Surface.set_colorkey(None): return None
+          # Set the transparent colorkey
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_palette(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.set_palette:
+
+          # Surface.set_palette([RGB, RGB, RGB, ...]): return None
+          # set the color palette for an 8bit Surface
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_palette_at(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.set_palette_at:
+
+          # Surface.set_at(index, RGB): return None
+          # set the color for a single index in an 8bit Surface palette
+
+        self.assert_(test_not_implemented()) 
+
+    def test_subsurface(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.subsurface:
+
+          # Surface.subsurface(Rect): return Surface
+          # create a new surface that references its parent
+
+        self.assert_(test_not_implemented()) 
+
+    def test_unlock(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.unlock:
+
+          # Surface.unlock(): return None
+          # unlock the Surface memory from pixel access
+
+        self.assert_(test_not_implemented()) 
+
+    def test_unmap_rgb(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.surface.Surface.unmap_rgb:
+
+          # Surface.map_rgb(mapped_int): return Color
+          # convert a mapped integer color value into a Color
+
+        self.assert_(test_not_implemented()) 
+
+
 if __name__ == '__main__':
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()

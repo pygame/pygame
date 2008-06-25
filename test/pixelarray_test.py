@@ -1,7 +1,18 @@
 import unittest
+
+import test_utils
+from test_utils import test_not_implemented
+
 import pygame
 
-class PixelArrayTest (unittest.TestCase):
+class PixelArrayTypeTest (unittest.TestCase):
+    def test_compare(self):
+        # __doc__ (as of 2008-06-25) for pygame.pixelarray.PixelArray.compare:
+
+          # PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray
+          # Compares the PixelArray with another one.
+
+        self.assert_(test_not_implemented())
 
     def test_pixel_array (self):
         for bpp in (8, 16, 24, 32):
@@ -427,5 +438,7 @@ class PixelArrayTest (unittest.TestCase):
             self.assertEqual (newar[8][9], black)
             self.assertEqual (newar[9][9], black)
         #print "extract end"
+
 if __name__ == '__main__':
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()

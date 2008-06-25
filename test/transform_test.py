@@ -1,7 +1,10 @@
 import unittest
+
+import test_utils
+from test_utils import test_not_implemented
+
 import pygame, pygame.transform
 from pygame.locals import *
-
 
 def show_image(s, images = []):
     #pygame.display.init()
@@ -29,10 +32,6 @@ def show_image(s, images = []):
                     going = False
     pygame.display.quit()
     pygame.display.init()
-
-
-
-
 
 def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0), change_return = True ):
     """ given the color it makes return_surf only have areas with the given colour.
@@ -77,9 +76,9 @@ def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0
 
 
 
-class TransformTest( unittest.TestCase ):
+class TransformModuleTest( unittest.TestCase ):
     
-    def test_scale_alpha( self ):
+    def test_scale__alpha( self ):
         """ see if set_alpha information is kept.
         """
 
@@ -95,7 +94,7 @@ class TransformTest( unittest.TestCase ):
         self.assertEqual(s.get_alpha(),s2.get_alpha())
 
 
-    def test_scale_destination( self ):
+    def test_scale__destination( self ):
         """ see if the destination surface can be passed in to use.
         """
 
@@ -123,7 +122,7 @@ class TransformTest( unittest.TestCase ):
 
 
 
-    def test_threshold_surface(self):
+    def test_threshold__surface(self):
         """
         """
 
@@ -215,10 +214,6 @@ class TransformTest( unittest.TestCase ):
         self.assertEqual(s2.get_at((3,10)), (255,0,0,255))
         self.assertEqual(s2.get_at((0,31)), (255,0,0,255))
         self.assertEqual(s2.get_at((31,31)), (255,0,0,255))
-        
-
-
-
 
     def test_average_surfaces(self):
         """
@@ -250,8 +245,60 @@ class TransformTest( unittest.TestCase ):
         self.assertRaises(TypeError, pygame.transform.average_surfaces, (s for s in [s1, s2,s3] ))
 
 
+    def test_chop(self):
 
+        # __doc__ (as of 2008-06-25) for pygame.transform.chop:
 
+          # pygame.transform.chop(Surface, rect): return Surface
+          # gets a copy of an image with an interior area removed
+
+        self.assert_(test_not_implemented()) 
+
+    def test_flip(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.transform.flip:
+
+          # pygame.transform.flip(Surface, xbool, ybool): return Surface
+          # flip vertically and horizontally
+
+        self.assert_(test_not_implemented()) 
+
+    def test_rotate(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.transform.rotate:
+
+          # pygame.transform.rotate(Surface, angle): return Surface
+          # rotate an image
+
+        self.assert_(test_not_implemented()) 
+
+    def test_rotozoom(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.transform.rotozoom:
+
+          # pygame.transform.rotozoom(Surface, angle, scale): return Surface
+          # filtered scale and rotation
+
+        self.assert_(test_not_implemented()) 
+
+    def test_scale2x(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.transform.scale2x:
+
+          # pygame.transform.scale2x(Surface, DestSurface = None): Surface
+          # specialized image doubler
+
+        self.assert_(test_not_implemented()) 
+
+    def test_smoothscale(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.transform.smoothscale:
+
+          # pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface
+          # scale a surface to an arbitrary size smoothly
+
+        self.assert_(test_not_implemented()) 
 
 if __name__ == '__main__':
+    test_utils.get_fail_incomplete_tests_option()
     unittest.main()

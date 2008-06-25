@@ -1,10 +1,58 @@
 import unittest
+
+import test_utils
+from test_utils import test_not_implemented
+
 import pygame
 import pygame.scrap as scrap
 
-class ScrapTest (unittest.TestCase):
+class ScrapModuleTest(unittest.TestCase):
+    def test_contains(self):
 
-    def test_scrap_mode (self):
+        # __doc__ (as of 2008-06-25) for pygame.scrap.contains:
+
+          # scrap.contains (type) -> bool
+          # Checks, whether a certain type is available in the clipboard.
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.scrap.get:
+
+          # scrap.get (type) -> string
+          # Gets the data for the specified type from the clipboard.
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_types(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.scrap.get_types:
+
+          # scrap.get_types () -> list
+          # Gets a list of the available clipboard types.
+
+        self.assert_(test_not_implemented()) 
+
+    def test_init(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.scrap.init:
+
+          # scrap.init () -> None
+          # Initializes the scrap module.
+
+        self.assert_(test_not_implemented()) 
+
+    def test_lost(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.scrap.lost:
+
+          # scrap.lost() -> bool
+          # Checks whether the clipboard is currently owned by the application.
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_mode (self):
         scrap.set_mode (pygame.SCRAP_SELECTION)
         scrap.set_mode (pygame.SCRAP_CLIPBOARD)
         self.assertRaises (ValueError, scrap.set_mode, 1099)
@@ -22,12 +70,14 @@ class ScrapTest (unittest.TestCase):
         scrap.put (pygame.SCRAP_BMP, string)
         self.assertEquals (scrap.get(pygame.SCRAP_BMP), string)
 
-    def test_scrap_put (self):
+    def test_put (self):
         scrap.put ("arbitrary buffer", "buf")
         r = scrap.get ("arbitrary buffer")
         self.assertEquals (r, "buf")
 
 if __name__ == '__main__':
+    test_utils.get_fail_incomplete_tests_option()
+
     pygame.init ()
     pygame.display.set_mode ((1, 1))
     scrap.init ()
