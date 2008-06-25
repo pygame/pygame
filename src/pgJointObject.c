@@ -113,7 +113,7 @@ PyTypeObject pgJointType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"physics.joint",            /* tp_name */
+	"physics.Joint",            /* tp_name */
 	sizeof(pgJointObject),      /* tp_basicsize */
 	0,                          /* tp_itemsize */
 	(destructor) PG_JointDestroy,/* tp_dealloc */
@@ -242,7 +242,7 @@ void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 	}
 }
 
-//just for C test useage, not for python
+//just for C test usage, not for python
 pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect,double dist,pgVector2 a1,pgVector2 a2)
 {
 	pgDistanceJointObject* pjoint = (pgDistanceJointObject*)PyObject_MALLOC(sizeof(pgDistanceJointObject));	
@@ -268,7 +268,7 @@ PyTypeObject pgDistanceJointType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"physics.distance_joint",            /* tp_name */
+	"physics.Distance_Joint",            /* tp_name */
 	sizeof(pgDistanceJointObject),      /* tp_basicsize */
 	0,                          /* tp_itemsize */
 	(destructor) 0,				/* tp_dealloc */

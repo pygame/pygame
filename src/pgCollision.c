@@ -153,3 +153,4 @@ pgJointObject* PG_ContactNew(pgBodyObject* refBody, pgBodyObject* incidBody)
 
 	return (pgJointObject*)contact;
 }
+

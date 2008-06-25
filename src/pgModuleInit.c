@@ -34,9 +34,10 @@ initphysics(void)
 
 	/* Init the module and add the object types. */
 	mod = Py_InitModule3("physics", NULL, "Simple 2D physics module");
-	PyModule_AddObject (mod, "world", (PyObject *) &pgWorldType);
-	PyModule_AddObject (mod, "body", (PyObject *) &pgBodyType);
-	PyModule_AddObject (mod, "joint", (PyObject *) &pgJointType);
-	PyModule_AddObject (mod, "distance_joint", (PyObject *) &pgDistanceJointType);
+	PyModule_AddObject (mod, "World", (PyObject *) &pgWorldType);
+	PyModule_AddObject (mod, "Body", (PyObject *) &pgBodyType);
+	PyModule_AddObject (mod, "Joint", (PyObject *) &pgJointType);
+	PyModule_AddObject (mod, "DistanceJoint", (PyObject *) &pgDistanceJointType);
 
 }
+

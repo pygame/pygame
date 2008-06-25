@@ -253,7 +253,7 @@ PyTypeObject pgWorldType =
 {
 	PyObject_HEAD_INIT(NULL)
 	0,
-	"physics.world",            /* tp_name */
+	"physics.World",            /* tp_name */
 	sizeof(pgWorldObject),      /* tp_basicsize */
 	0,                          /* tp_itemsize */
 	(destructor) PG_WorldDestroy,/* tp_dealloc */

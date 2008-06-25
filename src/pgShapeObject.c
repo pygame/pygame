@@ -104,7 +104,7 @@ static void _SAT_GetContactNormal(pgAABBBox* clipBox, PyObject* contactList,
 			id = i;
 		}
 	}
-
+	PG_Set_Vector2(normal, 0, 0);
 	//generate contactNormal
 	switch(id)
 	{
