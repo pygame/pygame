@@ -297,7 +297,7 @@ PyTypeObject pgDistanceJointType =
 	0,							/* tp_methods */
 	_pgDistanceJoint_members,	/* tp_members */
 	0,							/* tp_getset */
-	&pgJointType,               /* tp_base */
+	0,               /* tp_base */
 	0,                          /* tp_dict */
 	0,                          /* tp_descr_get */
 	0,                          /* tp_descr_set */

@@ -23,6 +23,7 @@ initphysics(void)
 		return;
 	if (PyType_Ready(&pgJointType) < 0)
 		return;
+        pgDistanceJointType.tp_base = &pgJointType;
 	if (PyType_Ready(&pgDistanceJointType) < 0)
 		return;
 
