@@ -54,7 +54,6 @@ IGNORE = (
 date = datetime.datetime.now().date()
 
 STUB_TEMPLATE = relative_indentation.Template ( '''
-
     def ${test_name}(self):
 
         # __doc__ (as of %s) for ${unitname}:
@@ -63,7 +62,7 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 
         self.assert_(test_not_implemented()) ''' % date, 
 
-        strip_common = 1, strip_excess = 1
+        strip_common = 0, strip_excess = 0
 )
 
 ############################## REGULAR EXPRESSIONS #############################
