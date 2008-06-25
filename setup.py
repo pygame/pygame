@@ -19,8 +19,6 @@ if __name__ == "__main__":
         "version" : "0.0.1",
         "description" : "blabla",
         "license": "LGPL",
-        "packages" : [ "physics" ],
-        "package_dir" : { "physics" : "src" },
         "ext_modules" : [ extphysics ],
         }
     setup (**setupdata)
