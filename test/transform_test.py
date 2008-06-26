@@ -74,10 +74,7 @@ def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0
     return similar
 
 
-
-
 class TransformModuleTest( unittest.TestCase ):
-    
     def test_scale__alpha( self ):
         """ see if set_alpha information is kept.
         """

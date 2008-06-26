@@ -12,7 +12,6 @@ def pygame_quit():
     quit_called = quit_called + 1
 
 
-
 class BaseModuleTest(unittest.TestCase):
     def testAutoInit(self):
         pygame.init()

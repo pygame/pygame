@@ -5,11 +5,8 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class Test(unittest.TestCase):
-    pass
-
+class MouseModuleTest(unittest.TestCase):
     def test_get_cursor(self):
-
         # __doc__ (as of 2008-06-25) for pygame.mouse.get_cursor:
 
           # pygame.mouse.get_cursor(): return (size, hotspot, xormasks, andmasks)

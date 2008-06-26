@@ -13,12 +13,9 @@ SIZES       = [-16, -8, 8, 16]
 CHANNELS    = [1, 2]
 BUFFERS     = [3024]
 
-# "+16 (ie unsigned 16 bit samples) are not supported."
-
 ############################## MODULE LEVEL TESTS ##############################
 
 class MixerModuleTest(unittest.TestCase):
-    
     # def test_init__keyword_args(self):
     #     configs = ( {'frequency' : f, 'size' : s, 'channels': c }
     #                 for f in FREQUENCIES
@@ -198,7 +195,7 @@ class MixerModuleTest(unittest.TestCase):
 ############################## CHANNEL CLASS TESTS #############################
 
 class ChannelTypeTest(unittest.TestCase):
-    def test___init__(self):
+    def test_Channel(self):
       self.assert_(test_not_implemented())
 
 ############################### SOUND CLASS TESTS ##############################

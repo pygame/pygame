@@ -27,6 +27,12 @@ def maskFromSurface(surface, threshold = 127):
 #pygame.display.set_mode((10,10))
 
 class MaskTypeTest( unittest.TestCase ):
+    # get_at             
+    # get_size           
+    # overlap_area
+    # get_bounding_rects 
+    # overlap            
+    # set_at
     
     def test_Mask(self):
     
@@ -56,6 +62,23 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertRaises(IndexError, lambda : m.set_at((-1,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((10,0), 1) )
         self.assertRaises(IndexError, lambda : m.set_at((0,10), 1) )
+
+    def test_get_bounding_rects(self):
+        """
+        """
+
+        m = pygame.Mask((10,10))
+        m.set_at((0,0), 1)
+        m.set_at((1,0), 1)
+
+        m.set_at((0,1), 1)
+
+        m.set_at((0,3), 1)
+        m.set_at((3,3), 1)
+
+        r = m.get_bounding_rects()
+
+        self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
 
 class MaskModuleTest(unittest.TestCase):
     def test_from_surface(self):
@@ -91,25 +114,6 @@ class MaskModuleTest(unittest.TestCase):
         self.assertEqual(amask.get_at((0,0)), 0)
 
         #TODO: test a color key surface.
-
-
-
-    def test_get_bounding_rects(self):
-        """
-        """
-
-        m = pygame.Mask((10,10))
-        m.set_at((0,0), 1)
-        m.set_at((1,0), 1)
-
-        m.set_at((0,1), 1)
-
-        m.set_at((0,3), 1)
-        m.set_at((3,3), 1)
-
-        r = m.get_bounding_rects()
-
-        self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
 
 if __name__ == '__main__':
 
