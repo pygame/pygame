@@ -5,11 +5,18 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class Test(unittest.TestCase):
-    pass
-
+class ClockTypeTest(unittest.TestCase):
     def test_Clock(self):
 
+        # __doc__ (as of 2008-06-25) for pygame.time.Clock:
+
+          # pygame.time.Clock(): return Clock
+          # create an object to help track time
+
+        self.assert_(test_not_implemented()) 
+
+class TimeModuleTest(unittest.TestCase):
+    def test_Clock(self):
         # __doc__ (as of 2008-06-25) for pygame.time.Clock:
 
           # pygame.time.Clock(): return Clock
@@ -52,7 +59,6 @@ class Test(unittest.TestCase):
           # pause the program for an amount of time
 
         self.assert_(test_not_implemented()) 
-
 
 ################################################################################
 

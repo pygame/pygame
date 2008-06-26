@@ -5,9 +5,7 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class Test(unittest.TestCase):
-    pass
-
+class CursorsModuleTest(unittest.TestCase):
     def test_compile(self):
 
         # __doc__ (as of 2008-06-25) for pygame.cursors.compile:

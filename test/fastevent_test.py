@@ -5,28 +5,7 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class Test(unittest.TestCase):
-    pass
-
-    def test_Event(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.Event:
-
-          # pygame.event.Event(type, dict): return Event
-          # pygame.event.Event(type, **attributes): return Event
-          # create a new event object
-
-        self.assert_(test_not_implemented()) 
-
-    def test_event_name(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.event_name:
-
-          # pygame.event.event_name(type): return string
-          # get the string name from and event id
-
-        self.assert_(test_not_implemented()) 
-
+class FasteventModuleTest(unittest.TestCase):
     def test_get(self):
 
         # __doc__ (as of 2008-06-25) for pygame.fastevent.get:

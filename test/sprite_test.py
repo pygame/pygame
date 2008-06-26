@@ -9,23 +9,7 @@ from pygame import sprite
 ################################# MODULE LEVEL #################################
 
 class SpriteModuleTest( unittest.TestCase ):       
-    def test_from_surface(self):
-    
-        # __doc__ (as of 2008-06-24) for pygame.sprite.from_surface:
-    
-          # pygame.mask.from_surface(Surface, threshold = 127) -> Mask
-          # Returns a Mask from the given surface.
-    
-        self.assert_(test_not_implemented())
-    
-    def test_get_ticks(self):
-    
-        # __doc__ (as of 2008-06-24) for pygame.sprite.get_ticks:
-    
-          # pygame.time.get_ticks(): return milliseconds
-          # get the time in milliseconds
-    
-        self.assert_(test_not_implemented())
+    pass
     
 ######################### SPRITECOLLIDE FUNCTIONS TEST #########################
 
