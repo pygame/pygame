@@ -24,9 +24,11 @@ def rect_perimeter_pts(rect):
         
           topleft to topright
          topright to bottomright
-     bottom right to bottom left
-      bottom left to top left
+      bottomright to bottomleft
+       bottomleft to topleft
     
+    Duplicate pts are not returned
+
     """
     clock_wise_from_top_left = (
       ((l,       rect.top) for l in xrange(rect.left,      rect.right)      ),
@@ -53,14 +55,14 @@ def rect_outer_bounds(rect):
     ) 
 
 def test_helpers():
-    r = pygame.Rect(0, 0, 100, 100)
+    r = pygame.Rect(0, 0, 10, 10)
     assert (
-        rect_outer_bounds ( r ) == [(100,   0), # tr
-                                    (  0, 100), # bl
-                                    (100, 100)] # br
+        rect_outer_bounds ( r ) == [(10,  0), # tr
+                                    ( 0, 10), # bl
+                                    (10, 10)] # br
     )
-    assert len(list(rect_area_pts(r))) == 100 * 100
-
+    assert len(list(rect_area_pts(r))) == 100 
+    
     r = pygame.Rect(0, 0, 3, 3)
     assert list(rect_perimeter_pts(r)) == [
         (0, 0), (1, 0), (2, 0),                 # tl -> tr
