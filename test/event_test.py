@@ -5,19 +5,18 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class Test(unittest.TestCase):
-    pass
-
+class EventTypeTest(unittest.TestCase):
     def test_Event(self):
-
+        
         # __doc__ (as of 2008-06-25) for pygame.event.Event:
-
+        
           # pygame.event.Event(type, dict): return Event
           # pygame.event.Event(type, **attributes): return Event
           # create a new event object
-
+        
         self.assert_(test_not_implemented()) 
 
+class EventModuleTest(unittest.TestCase):
     def test_clear(self):
 
         # __doc__ (as of 2008-06-25) for pygame.event.clear:

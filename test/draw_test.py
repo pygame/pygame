@@ -5,9 +5,7 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class Test(unittest.TestCase):
-    pass
-
+class DrawModuleTest(unittest.TestCase):
     def test_aaline(self):
 
         # __doc__ (as of 2008-06-25) for pygame.draw.aaline:

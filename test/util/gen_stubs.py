@@ -23,11 +23,33 @@ sys.path.append(
 # pygame.sprite.Sprite.__module__ = 'pygame.sprite' 
 # pygame.sprite.Rect.__module__   = 'pygame'
 
-# Can not then filter out nonsensical classes automatically
+# In [7]: pygame.overlay.Overlay.__name__
+# Out[7]: 'overlay'
+
+# Can not then filter out nonsensical classes or functions automatically
 
 IGNORE = (
     'pygame.sprite.Rect',
     'pygame.mixer.Channel',
+    'pygame.sprite.from_surface',
+    'pygame.sprite.get_ticks',
+    'pygame.fastevent.Event',
+    'pygame.fastevent.event_name',
+    'pygame.sysfont.SysFont',
+    'pygame.sysfont.get_fonts',
+    'pygame.sysfont.match_font',
+)
+
+# Types that need instantiating before inspection
+INSTANTIATE = (
+    'pygame.event.Event',
+    'pygame.cdrom.CD',
+    'pygame.joystick.Joystick',
+    'pygame.time.Clock',
+    'pygame.mixer.Channel',
+    'pygame.movie.Movie',
+    'pygame.mask.Mask',
+    'pygame.display.Info',
 )
 
 ##################################### TODO #####################################

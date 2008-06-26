@@ -5,18 +5,16 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class Test(unittest.TestCase):
-    pass
-
+class JoystickTypeTest(unittest.TestCase):
     def test_Joystick(self):
-
         # __doc__ (as of 2008-06-25) for pygame.joystick.Joystick:
-
+    
           # pygame.joystick.Joystick(id): return Joystick
           # create a new Joystick object
+    
+        self.assert_(test_not_implemented())
 
-        self.assert_(test_not_implemented()) 
-
+class JoytickModuleTest(unittest.TestCase):
     def test_get_count(self):
 
         # __doc__ (as of 2008-06-25) for pygame.joystick.get_count:
