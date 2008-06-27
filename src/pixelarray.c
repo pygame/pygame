@@ -993,6 +993,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         }
         break;
     }
+    free (colorvals);
     Py_END_ALLOW_THREADS;
     return 0;
 }
