@@ -151,6 +151,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 	pgRectShape *self, *incid;
 	pgAABBBox clipBox;
 	pgContact* contact;
+	pgVector2* pAcc;
 
 	self = (pgRectShape*)selfBody->shape;
 	incid = (pgRectShape*)incidBody->shape;
@@ -215,21 +216,23 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 	}
 	//now all the contact points are added to list
 	to = PyList_Size(contactList) - 1;
-
-	
 	_SAT_GetContactNormal(&clipBox, contactList, from, to);
 
-	//transform from selfBody's locate coordinate to global coordinate
+	pAcc = PyObject_Malloc(sizeof(pgVector2));
+	pAcc->real = pAcc->imag = 0;
 	for(i = from; i <= to; ++i)
 	{
 		contact = (pgContact*)PyList_GetItem(contactList, i);
 
 		c_rotate(&(contact->pos), selfBody->fRotation);
 		contact->pos = c_sum(contact->pos, selfBody->vecPosition);
-		
 		c_rotate(&(contact->normal), selfBody->fRotation);
-	}
 
+		contact->ppAccMoment = PyObject_Malloc(sizeof(pgVector2*));
+		*(contact->ppAccMoment) = pAcc;
+
+		contact->weight = (to-from)+1;
+	}
 
 	return 1;
 }

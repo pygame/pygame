@@ -13,10 +13,10 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 {
 	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
 	Py_ssize_t i;
-	for (i = 0;i < size;i++)
+	for (i = 0; i < size; ++i)
 	{
-		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));		
-		PG_FreeUpdateBodyVel(world,body,stepTime);
+		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));		
+		PG_FreeUpdateBodyVel(world, body, stepTime);
 	}
 }
 
@@ -30,17 +30,18 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	//clear contactList first
 	cnt = PyList_Size((PyObject*)(world->contactList));
 	if(PyList_SetSlice((PyObject*)(world->contactList), 0, cnt, NULL) < 0) return;
-	cnt = PyList_Size((PyObject*)(world->contactList));//test
-	assert(cnt==0);
+	assert(PyList_Size((PyObject*)(world->contactList))==0);
 	//Py_XDECREF((PyObject*)world->contactList);
 	//world->contactList = (PyListObject*)PyList_New(0);
 	//for all pair of objects, do collision test
+
 	//update AABB
 	for(i = 0; i < size; ++i)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
 		refBody->shape->UpdateAABB(refBody);
 	}
+	//collision test
 	for(i = 0; i < size-1; ++i)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
@@ -53,12 +54,23 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 			}
 		}
 	}
-	//now collision reaction
+	//collision reaction
 	cnt = PyList_Size((PyObject*)(world->contactList));
 	for(i = 0; i < cnt; ++i)
 	{
 		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
+		PG_ApplyContact(contact);
+	}
+	//update V
+	for(i = 0; i < cnt; ++i)
+	{
+		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
 		contact->SolveConstraintVelocity(contact, step);
+	}
+	//update T
+	for(i = 0; i < cnt; ++i)
+	{
+		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
 		contact->SolveConstraintPosition(contact, step);
 	}
 }
@@ -67,7 +79,7 @@ void _PG_JointSolve(pgWorldObject* world,double stepTime)
 {
 	Py_ssize_t size = PyList_Size((PyObject*)(world->jointList));
 	Py_ssize_t i;
-	for (i = 0;i < size;i++)
+	for (i = 0; i < size; ++i)
 	{
 		pgJointObject* joint = (pgJointObject*)(PyList_GetItem((PyObject*)(world->jointList),i));
 		if (joint->SolveConstraintPosition)
@@ -85,7 +97,7 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 {
 	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
 	Py_ssize_t i;
-	for (i = 0;i < size;i++)
+	for (i = 0; i < size; ++i)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));
 		PG_FreeUpdateBodyPos(world,body,stepTime);
@@ -152,7 +164,7 @@ PyObject* _PG_WorldNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	/* In case we have arguments in the python code, parse them later
 	* on.
 	*/
-	if(PyType_Ready(type)==-1) return NULL;
+	if(PyType_Ready(type) == -1) return NULL;
 	return (PyObject*) _PG_WorldNewInternal(type);
 }
 
@@ -168,9 +180,8 @@ void PG_WorldDestroy(pgWorldObject* world)
 	* release any other memory hold by it.
 	*/
 	Py_XDECREF(world->bodyList);
-	//TODO: i don't know how to release jointObject here,
-	//		since it's sub class's constructor function is diff from each other
-	//Py_XDECREF(world->jointList);
+	Py_XDECREF(world->jointList);
+	Py_XDECREF(world->contactList);
 
 	world->ob_type->tp_free((PyObject*)world);
 }

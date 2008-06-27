@@ -6,18 +6,22 @@
 
 extern PyTypeObject pgBodyType;
 
-
+void PG_Bind_RectShape(pgBodyObject* body, int width, int height, double seta)
+{
+	body->shape = PG_RectShapeNew(body, width, height, seta);
+}
 
 void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 {
 	pgVector2 totalVelAdd;
+	pgVector2 totalF;
 	double k;
 	if(body->bStatic) return;
 
-	totalVelAdd = c_sum(body->vecForce,world->vecGravity);
+	totalF = c_sum(body->vecForce, world->vecGravity);
 	k = dt / body->fMass;
-	totalVelAdd = c_mul_complex_with_real(totalVelAdd,k);
-	body->vecLinearVelocity = c_sum(body->vecLinearVelocity,totalVelAdd);
+	totalVelAdd = c_mul_complex_with_real(totalF, k);
+	body->vecLinearVelocity = c_sum(body->vecLinearVelocity, totalVelAdd);
 }
 
 void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
@@ -45,9 +49,6 @@ void PG_BodyInit(pgBodyObject* body)
 	PG_Set_Vector2(body->vecImpulse,0.0,0.0);
 	PG_Set_Vector2(body->vecLinearVelocity,0.0,0.0);
 	PG_Set_Vector2(body->vecPosition,0.0,0.0);
-
-	//TODO: here just for testing, would be replaced by generic function
-	body->shape = PG_RectShapeNew(body, 20, 20, 0);
 }
 
 PyObject* _PG_BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)

@@ -25,8 +25,7 @@ void PGT_RenderWorld(pgWorldObject* world)
 
 void PGT_RenderAABB(pgBodyObject* body)
 {
-	pgVector2 p[4], gp[4];
-	int i;
+	pgVector2 p[4];
 	pgAABBBox* box;
 
 	box = &(body->shape->box);

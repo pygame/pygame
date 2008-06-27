@@ -84,7 +84,7 @@ void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* 
 	refBody->shape->Collision(refBody, incidBody, contactList);
 }
 
-void PG_UpdateV(pgJointObject* joint, double step)
+void PG_ApplyContact(PyObject* contactObject)
 {
 	pgVector2 neg_dV, refV, incidV;
 	pgVector2 refR, incidR;
@@ -93,10 +93,11 @@ void PG_UpdateV(pgJointObject* joint, double step)
 	double k, tmp1, tmp2;
 	double moment_len;
 	pgVector2 moment;
+	pgVector2* p;
 
-	contact = (pgContact*)joint;
-	refBody = joint->body1;
-	incidBody = joint->body2;
+	contact = (pgContact*)contactObject;
+	refBody = contact->joint.body1;
+	incidBody = contact->joint.body2;
 
 	//calculate the normal impulse
 	//k
@@ -120,20 +121,39 @@ void PG_UpdateV(pgJointObject* joint, double step)
 		moment_len = 0;
 	//finally we get the momentum(oh...)
 	moment = c_mul_complex_with_real(contact->normal, moment_len);
+	p = *(contact->ppAccMoment);
+	//TODO: test weight, temp codes
+	p->real += moment.real / 2;
+	p->imag += moment.imag / 2; 
+}
 
-	//update the v and w
+void PG_UpdateV(pgJointObject* joint, double step)
+{
+	pgContact *contact;
+	pgBodyObject *refBody, *incidBody;
+	pgVector2 moment;
+	pgVector2 refR, incidR;
+
+	contact = (pgContact*)joint;
+	refBody = joint->body1;
+	incidBody = joint->body2;
+	moment = **(contact->ppAccMoment);
+
+	refR = c_diff(contact->pos, refBody->vecPosition);
+	incidR = c_diff(contact->pos, incidBody->vecPosition);
+
 	if(!refBody->bStatic)
 	{
 		refBody->vecLinearVelocity = c_diff(refBody->vecLinearVelocity, 
-			c_div_complex_with_real(moment, refBody->fMass/10));
-		//refBody->fAngleVelocity -= c_cross(refR, moment)/refBody->shape->rInertia;
+			c_div_complex_with_real(moment, refBody->fMass));
+		refBody->fAngleVelocity -= c_cross(refR, moment)/refBody->shape->rInertia;
 	}
 
 	if(!incidBody->bStatic)
 	{
 		incidBody->vecLinearVelocity = c_sum(incidBody->vecLinearVelocity, 
 			c_div_complex_with_real(moment, incidBody->fMass));
-		//incidBody->fAngleVelocity -= c_cross(refR, moment)/incidBody->shape->rInertia;
+		incidBody->fAngleVelocity += c_cross(refR, moment)/incidBody->shape->rInertia;
 	}
 }
 
@@ -155,6 +175,21 @@ void PG_UpdateP(pgJointObject* joint, double step)
 	}
 }
 
+PG_ContactDestroy(pgJointObject* contact)
+{
+	pgVector2 **p = ((pgContact*)contact)->ppAccMoment;
+	if(p)
+	{
+		if(*p)
+		{
+			PyObject_Free(*p);
+			*p = NULL;
+		}
+		PyObject_Free(p);
+		p = NULL;
+	}
+}
+
 PyObject* _PG_ContactNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
 	pgContact* op;
@@ -173,7 +208,9 @@ pgJointObject* PG_ContactNew(pgBodyObject* refBody, pgBodyObject* incidBody)
 	contact->joint.body2 = incidBody;
 	contact->joint.SolveConstraintPosition = PG_UpdateP;
 	contact->joint.SolveConstraintVelocity = PG_UpdateV;
-	contact->joint.Destroy = NULL;
+	contact->joint.Destroy = PG_ContactDestroy;
+
+	contact->ppAccMoment = NULL;
 
 	return (pgJointObject*)contact;
 }

@@ -83,10 +83,8 @@ void do_render()
 	glColor3f(1.f, 1.f, 1.f);
 	PG_Update(s_world, 0.005);
 	PGT_RenderWorld(s_world);
-	glprintf(0, 0, "vec of body:(%.2f, %.2f)", body->vecLinearVelocity.real, 
+	glprintf(0, 0, "Velocity of body1:(%.2f, %.2f)", body->vecLinearVelocity.real, 
 		body->vecLinearVelocity.imag);
-	glprintf(0, 16, "force of body: (%.2f, %.2f)", body->vecForce.real,
-		body->vecForce.imag);
 }
 
 
@@ -165,6 +163,7 @@ void TestBasic1Init()
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
 	body = PG_BodyNew();
+	PG_Bind_RectShape(body, 20, 20, 0);
 	PG_Set_Vector2(body->vecPosition,0,0)
 	PG_Set_Vector2(body->vecLinearVelocity,40,0)
 	PG_AddBodyToWorld(s_world,body);
@@ -174,17 +173,20 @@ void TestBasic1Init()
 	PG_AddJointToWorld(s_world,joint);
 }
 
+//test collision
 void TestBasic2Init()
 {
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
 	body = PG_BodyNew();
-	PG_Set_Vector2(body->vecPosition,0,0)
-	PG_Set_Vector2(body->vecLinearVelocity,0,30)
+	PG_Set_Vector2(body->vecPosition,0,0);
+	PG_Set_Vector2(body->vecLinearVelocity,0,30);
+	PG_Bind_RectShape(body, 20, 20, 0);
 	PG_AddBodyToWorld(s_world, body);
 	body1 = PG_BodyNew();
 	PG_Set_Vector2(body1->vecPosition,0, -100);
 	body1->bStatic = 1;
+	PG_Bind_RectShape(body1, 20, 20, 0);
 	PG_AddBodyToWorld(s_world, body1);
 }
 
@@ -199,11 +201,13 @@ void TestBasic3Init()
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
 	body1 = PG_BodyNew();
+	PG_Bind_RectShape(body1, 20, 20, 0);
 	PG_Set_Vector2(body1->vecPosition,0,0)
 	PG_Set_Vector2(body1->vecLinearVelocity,10,0)
 	PG_AddBodyToWorld(s_world,body1);
 
 	body2 = PG_BodyNew();
+	PG_Bind_RectShape(body2, 20, 20, 0);
 	PG_Set_Vector2(body2->vecPosition,0,100)
 	PG_Set_Vector2(body2->vecLinearVelocity,0,0)
 	PG_AddBodyToWorld(s_world,body2);
@@ -231,6 +235,7 @@ void TestBasic4Init()
 	for (i = 1;i < BODY_NUM + 1;i++)
 	{
 		body[i] = PG_BodyNew();
+		PG_Bind_RectShape(body[i], 20, 20, 0);
 		PG_Set_Vector2(body[i]->vecPosition,0,(-i*50 + 100))
 		PG_Set_Vector2(body[i]->vecLinearVelocity,0,0)
 		PG_AddBodyToWorld(s_world,body[i]);

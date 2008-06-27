@@ -48,6 +48,8 @@ pgVector2 PG_AngleToLinear(pgVector2* r, double w);
 pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B);
 
 
+//bind rect shape with body
+void PG_Bind_RectShape(pgBodyObject* body, int width, int height, double seta);
 
 #endif //_PYGAME_PHYSICS_BODY_
 
