@@ -123,8 +123,8 @@ void PG_ApplyContact(PyObject* contactObject)
 	moment = c_mul_complex_with_real(contact->normal, moment_len);
 	p = *(contact->ppAccMoment);
 	//TODO: test weight, temp codes
-	p->real += moment.real / 2;
-	p->imag += moment.imag / 2; 
+	p->real += moment.real / 3;
+	p->imag += moment.imag / 3; 
 }
 
 void PG_UpdateV(pgJointObject* joint, double step)

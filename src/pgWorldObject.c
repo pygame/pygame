@@ -67,7 +67,7 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
 		contact->SolveConstraintVelocity(contact, step);
 	}
-	//update T
+	//update P
 	for(i = 0; i < cnt; ++i)
 	{
 		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
