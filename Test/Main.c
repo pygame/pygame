@@ -18,7 +18,6 @@ static double s_updateTime = 0.0;
 
 //跑表
 static double s_time;
-static int s_first = 1;
 
 void watch_start()
 {
@@ -76,17 +75,18 @@ void glprintf(int x, int y, const char* fmt, ...)
 
 /*-------------------------------测试函数----------------------------*/
 
+pgBodyObject* body, * body1;
+
 //渲染函数
 void do_render()
 {
-	//glprintf(0, 0, "Your RP value is: %d", 0);
 	glColor3f(1.f, 1.f, 1.f);
-	/*glBegin(GL_LINES);
-	glVertex2f(-10, 0);
-	glVertex2f(10, 0);
-	glEnd();*/
+	PG_Update(s_world, 0.005);
 	PGT_RenderWorld(s_world);
-
+	glprintf(0, 0, "vec of body:(%.2f, %.2f)", body->vecLinearVelocity.real, 
+		body->vecLinearVelocity.imag);
+	glprintf(0, 16, "force of body: (%.2f, %.2f)", body->vecForce.real,
+		body->vecForce.imag);
 }
 
 
@@ -132,39 +132,10 @@ void InitGL()
 
 void display(void)
 {
-	double dt;
-	//watch_start();
-
-	
-
-	if(s_first)
-	{
-		watch_start();
-		s_first = 0;
-		return;
-	}
-	dt = watch_stop();
-	watch_start();
-	/*s_updateTime += dt;
-	if(s_updateTime >= s_world->fStepTime)
-	{
-		PG_Update(s_world,s_updateTime);
-		s_updateTime = 0.0;
-
-		glClear(GL_COLOR_BUFFER_BIT);
-		glLoadIdentity();
-		do_render();
-		glutSwapBuffers();
-	}*/
-	PG_Update(s_world,dt);
-	
 	glClear(GL_COLOR_BUFFER_BIT);
 	glLoadIdentity();
 	do_render();
 	glutSwapBuffers();
-
-	
-	
 }
 
 //这个函数一开始就会被调用，故gluPerspective函数没必要在initGL或者display函数里调用
@@ -205,13 +176,16 @@ void TestBasic1Init()
 
 void TestBasic2Init()
 {
-	pgBodyObject* body;
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
 	body = PG_BodyNew();
 	PG_Set_Vector2(body->vecPosition,0,0)
 	PG_Set_Vector2(body->vecLinearVelocity,0,30)
-	PG_AddBodyToWorld(s_world,body);
+	PG_AddBodyToWorld(s_world, body);
+	body1 = PG_BodyNew();
+	PG_Set_Vector2(body1->vecPosition,0, -100);
+	body1->bStatic = 1;
+	PG_AddBodyToWorld(s_world, body1);
 }
 
 void TestBasic3Init()
@@ -280,7 +254,7 @@ void TestBasic4Init()
 
 void InitWorld()
 {
-	TestBasic4Init();
+	TestBasic2Init();
 }
 
 int main (int argc, char** argv)

@@ -25,7 +25,7 @@ struct _pgShapeObject{
 	//virtual functions
 	void (*Destroy)(pgShapeObject* shape);
 	int (*Collision)(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObject* contactList);
-	void (*UpdateAABB)(pgShapeObject* shape);
+	void (*UpdateAABB)(pgBodyObject* body);
 };
 
 

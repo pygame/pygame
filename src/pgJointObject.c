@@ -1,7 +1,6 @@
 #include "pgJointObject.h"
 #include <structmember.h>
 
-extern PyTypeObject pgJointType;
 extern PyTypeObject pgDistanceJointType;
 
 void PG_InitJointBase(pgJointObject* joint,pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect)
@@ -21,13 +20,14 @@ pgJointObject* _PG_JointNewInternal(PyTypeObject *type)
 	return op;
 }
 
+//TODO: this function would get err when inherited level > 2
 void PG_JointDestroy(pgJointObject* joint)
 {
 	if (joint->Destroy)
 	{
 		joint->Destroy(joint);
 	}
-	
+
 	joint->ob_type->tp_free((PyObject*)joint);
 }
 
@@ -46,7 +46,7 @@ PyObject* _PG_JointBaseNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static int _pgJointBase_init(pgJointObject* joint,PyObject *args, PyObject *kwds)
 {
-	PyObject* body1,*body2;
+	PyObject* body1, *body2;
 	int bCollide;
 	static char *kwlist[] = {"body1", "body2", "isCollideConnect", NULL};
 	if(!PyArg_ParseTupleAndKeywords(args,kwds,"|OOi",kwlist,&body1,&body2,&bCollide))
@@ -139,17 +139,17 @@ PyTypeObject pgJointType =
 	0,                          /* tp_weaklistoffset */
 	0,                          /* tp_iter */
 	0,                          /* tp_iternext */
-	0,           /* tp_methods */
-	0,           /* tp_members */
-	_pgJointBase_getseters,         /* tp_getset */
+	0,							/* tp_methods */
+	0,							/* tp_members */
+	_pgJointBase_getseters,     /* tp_getset */
 	0,                          /* tp_base */
 	0,                          /* tp_dict */
 	0,                          /* tp_descr_get */
 	0,                          /* tp_descr_set */
 	0,                          /* tp_dictoffset */
-	(initproc)_pgJointBase_init,                          /* tp_init */
+	(initproc)_pgJointBase_init, /* tp_init */
 	0,                          /* tp_alloc */
-	_PG_JointBaseNew,               /* tp_new */
+	_PG_JointBaseNew,           /* tp_new */
 	0,                          /* tp_free */
 	0,                          /* tp_is_gc */
 	0,                          /* tp_bases */
@@ -170,7 +170,7 @@ void PG_DistanceJointInit(pgDistanceJointObject* joint)
 
 static int _pgDistanceJoint_init(pgDistanceJointObject* joint,PyObject *args, PyObject *kwds)
 {
-	if(pgJointType.tp_init((PyObject*)joint,args,kwds) < 0)
+	if(pgJointType.tp_init((PyObject*)joint, args, kwds) < 0)
 	{
 		return -1;
 	}
@@ -242,7 +242,7 @@ void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 	}
 }
 
-//just for C test usage, not for python
+//just for C test usage, not for python???
 pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect,double dist,pgVector2 a1,pgVector2 a2)
 {
 	pgDistanceJointObject* pjoint = (pgDistanceJointObject*)PyObject_MALLOC(sizeof(pgDistanceJointObject));	
@@ -297,7 +297,7 @@ PyTypeObject pgDistanceJointType =
 	0,							/* tp_methods */
 	_pgDistanceJoint_members,	/* tp_members */
 	0,							/* tp_getset */
-	0,               /* tp_base */
+	0,							/* tp_base */
 	0,                          /* tp_dict */
 	0,                          /* tp_descr_get */
 	0,                          /* tp_descr_set */

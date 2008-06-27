@@ -24,13 +24,21 @@ void PG_ShapeObjectDestroy(pgShapeObject* shape)
 
 //functions of pgRectShape
 
-void PG_RectShapeUpdateAABB(pgShapeObject* rectShape)
+void PG_RectShapeUpdateAABB(pgBodyObject* body)
 {
 	int i;
-	pgRectShape *p = (pgRectShape*)rectShape;
-	PG_AABBClear(&(p->shape.box));
-	for(i = 0; i < 4; ++i)
-		PG_AABBExpandTo(&(p->shape.box), &(p->point[i]));
+	pgVector2 gp[4];
+
+	if(body->shape->type == ST_RECT)
+	{
+		pgRectShape *p = (pgRectShape*)body->shape;
+		
+		PG_AABBClear(&(p->shape.box));
+		for(i = 0; i < 4; ++i)
+			gp[i] = PG_GetGlobalPos(body, &(p->point[i]));
+		for(i = 0; i < 4; ++i)
+			PG_AABBExpandTo(&(p->shape.box), &gp[i]);
+	}
 }
 
 void PG_RectShapeDestroy(pgShapeObject* rectShape)
@@ -206,7 +214,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 		}
 	}
 	//now all the contact points are added to list
-	to = PyList_Size(contactList);
+	to = PyList_Size(contactList) - 1;
 
 	
 	_SAT_GetContactNormal(&clipBox, contactList, from, to);
@@ -217,7 +225,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObj
 		contact = (pgContact*)PyList_GetItem(contactList, i);
 
 		c_rotate(&(contact->pos), selfBody->fRotation);
-		c_sum(contact->pos, selfBody->vecPosition);
+		contact->pos = c_sum(contact->pos, selfBody->vecPosition);
 		
 		c_rotate(&(contact->normal), selfBody->fRotation);
 	}

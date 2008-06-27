@@ -12,6 +12,8 @@ void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 {
 	pgVector2 totalVelAdd;
 	double k;
+	if(body->bStatic) return;
+
 	totalVelAdd = c_sum(body->vecForce,world->vecGravity);
 	k = dt / body->fMass;
 	totalVelAdd = c_mul_complex_with_real(totalVelAdd,k);
@@ -25,9 +27,10 @@ void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
 	//totalVelAdd = c_div_complex_with_real(body->vecImpulse,body->fMass);
 	//body->vecLinearVelocity = c_sum(body->vecLinearVelocity,totalVelAdd);
 
+	if(body->bStatic) return;
+
 	totalPosAdd = c_mul_complex_with_real(body->vecLinearVelocity,dt);
 	body->vecPosition = c_sum(body->vecPosition,totalPosAdd);
-	body->shape->UpdateAABB(body->shape);
 }
 
 void PG_BodyInit(pgBodyObject* body)
