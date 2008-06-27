@@ -827,6 +827,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     Uint8 *pixels;
     Uint32 color = 0;
     Uint32 *colorvals = NULL;
+    Uint32 *nextcolor = NULL;
     Py_ssize_t offset = 0;
     Py_ssize_t seqsize = PySequence_Size (val);
 
@@ -910,6 +911,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     absxstep = ABS (xstep);
     absystep = ABS (ystep);
     y = ystart;
+    nextcolor = colorvals;
 
     Py_BEGIN_ALLOW_THREADS;
     switch (bpp)
@@ -921,7 +923,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             x = xstart;
             while (posx < xlen)
             {
-                color = *colorvals++;
+                color = *nextcolor++;
                 *((Uint8 *) pixels + y * padding + x) = (Uint8) color;
                 x += xstep;
                 posx += absxstep;
@@ -937,7 +939,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             x = xstart;
             while (posx < xlen)
             {
-                color = *colorvals++;
+                color = *nextcolor++;
                 *((Uint16 *) (pixels + y * padding) + x) = (Uint16) color;
                 x += xstep;
                 posx += absxstep;
@@ -957,7 +959,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             x = xstart;
             while (posx < xlen)
             {
-                color = *colorvals++;
+                color = *nextcolor++;
                 px = ((Uint8 *) (pixels + y * padding) + x * 3);
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
@@ -983,7 +985,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             x = xstart;
             while (posx < xlen)
             {
-                color = *colorvals++;
+                color = *nextcolor++;
                 *((Uint32 *) (pixels + y * padding) + x) = color;
                 x += xstep;
                 posx += absxstep;
