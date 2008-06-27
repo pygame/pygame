@@ -6,8 +6,6 @@ from test_utils import test_not_implemented, unordered_equality
 import pygame
 import pygame.draw as draw 
 
-pygame.init()
-
 ################################################################################
 
 def rect_area_pts(rect):
