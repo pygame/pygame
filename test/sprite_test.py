@@ -196,7 +196,7 @@ class SpriteCollideTest( unittest.TestCase ):
     def test_groupcollide(self):
     
         # __doc__ (as of 2008-06-24) for pygame.sprite.groupcollide:
-    
+        
           # pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
           # collision detection between group and group
           # 
@@ -215,9 +215,11 @@ class SpriteCollideTest( unittest.TestCase ):
           # sprites must have a "rect" value, which is a
           # rectangle of the sprite area, which will be used
           # to calculate the collision.
-    
-        self.assert_(test_not_implemented())
-    
+        
+        collision = pygame.sprite.groupcollide(self.ag, self.ag2, False, False)
+        
+        self.assert_(collision == {self.s1 : [self.s2]})
+
     def test_spritecollideany(self):
     
         # __doc__ (as of 2008-06-24) for pygame.sprite.spritecollideany:
@@ -244,7 +246,7 @@ class SpriteCollideTest( unittest.TestCase ):
     
         self.assert_(test_not_implemented())
 
-    def test_collide_rect(self):
+    test_collide_rect = test_spritecollide__collided_defaults_to_collide_rect
     
         # __doc__ (as of 2008-06-24) for pygame.sprite.collide_rect:
     
@@ -259,7 +261,6 @@ class SpriteCollideTest( unittest.TestCase ):
           # 
           # New in pygame 1.8.0
     
-        self.assert_(test_not_implemented())
 
 ################################################################################
 

@@ -261,13 +261,26 @@ class TransformModuleTest( unittest.TestCase ):
         self.assert_(test_not_implemented()) 
 
     def test_rotate(self):
-
         # __doc__ (as of 2008-06-25) for pygame.transform.rotate:
 
           # pygame.transform.rotate(Surface, angle): return Surface
           # rotate an image
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
+
+    def test_rotate__lossless_at_90_degrees(self):
+        w, h = 32, 32
+        s = pygame.Surface((w, h), pygame.SRCALPHA)
+
+        gradient = list(test_utils.gradient(w, h))
+
+        for pt, color in gradient: s.set_at(pt, color)
+
+        for rotation in (90, -90): 
+            s = pygame.transform.rotate(s,rotation)
+
+        for pt, color in gradient:
+            self.assert_(s.get_at(pt) == color)
 
     def test_rotozoom(self):
 
