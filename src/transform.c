@@ -573,7 +573,7 @@ surf_rotate (PyObject* self, PyObject* arg)
 
 
 
-    if ( !( fmod(angle, 90.0f) ) ) {
+    if ( !( fmod((double)angle, (double)90.0f) ) ) {
         PySurface_Lock (surfobj);
 
         Py_BEGIN_ALLOW_THREADS;
