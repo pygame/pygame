@@ -6,7 +6,7 @@
 
 extern PyTypeObject pgBodyType;
 
-void PG_Bind_RectShape(pgBodyObject* body, int width, int height, double seta)
+void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta)
 {
 	body->shape = PG_RectShapeNew(body, width, height, seta);
 }

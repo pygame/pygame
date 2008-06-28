@@ -49,7 +49,7 @@ pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2*
 
 
 //bind rect shape with body
-void PG_Bind_RectShape(pgBodyObject* body, int width, int height, double seta);
+void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta);
 
 #endif //_PYGAME_PHYSICS_BODY_
 

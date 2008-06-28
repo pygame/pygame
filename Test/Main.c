@@ -12,6 +12,7 @@
 /*-------------------------------≤‚ ‘π§æﬂ----------------------------*/
 
 #include "pgPhysicsRenderer.h"
+#include "pgBodyObject.h"
 
 static pgWorldObject* s_world = NULL;
 static double s_updateTime = 0.0;
