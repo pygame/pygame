@@ -3,6 +3,8 @@
 import test_utils, unittest
 from test_utils import test_not_implemented
 
+from pygame.threads import FuncResult, tmap, WorkerQueue
+
 ################################################################################
 
 class WorkerQueueTypeTest(unittest.TestCase):
@@ -88,9 +90,66 @@ class ThreadsModuleTest(unittest.TestCase):
           # wait - True means that the results are returned when everything is finished.
           #        False means that we return the [worker_queue, results] right away instead. 
           #        results, is returned as a list of FuncResult instances.
-          # stop_on_error - 
+          # stop_on_error -
 
-        self.assert_(test_not_implemented()) 
+        func, data = lambda x:x+1, xrange(100)
+
+        tmapped = tmap(func, data)
+        mapped = map(func, data)
+
+        self.assert_(tmapped == mapped)
+        
+    def test_tmap__None_func_and_multiple_sequences(self):
+        """ Using a None as func and multiple seqences """
+
+        res =  tmap(None, [1,2,3,4])
+
+        res2 = tmap(None, [1,2,3,4], [22, 33, 44, 55])
+        
+        res3 = tmap(None, [1,2,3,4], [22, 33, 44, 55, 66])
+        
+        res4 = tmap(None, [1,2,3,4,5], [22, 33, 44, 55])
+        
+        self.assertEqual([1, 2, 3, 4], res)
+        self.assertEqual([(1, 22), (2, 33), (3, 44), (4, 55)], res2)
+        self.assertEqual([(1, 22), (2, 33), (3, 44), (4, 55), (None, 66)], res3)
+        self.assertEqual([(1, 22), (2, 33), (3, 44), (4, 55), (5,None)], res4)
+        
+    def test_tmap__wait(self):
+        r = range(1000)
+        wq, results = tmap(lambda x:x, r, num_workers = 5, wait=False)
+        wq.wait()
+        r2 = map(lambda x:x.result, results)
+        self.assert_(r == r2)
+
+    def test_FuncResult(self):
+        
+        # as of 2008-06-28
+        # FuncResult(f, callback = None, errback = None)
+        
+        # Used for wrapping up a function call so that the results are stored
+        #      inside the instances result attribute.
+        
+        
+        #     f - is the function we that we call 
+        #         callback(result) - this is called when the function(f) returns
+        #         errback(exception) - this is called when the function(f) raises
+        #                                an exception.
+
+        # Results are stored in result attribute
+        fr = FuncResult(lambda x:x+1)
+        fr(2)
+        self.assert_(fr.result == 3)
+        
+        # Exceptions are store in exception attribute
+        self.assert_(fr.exception is None,  "when no exception raised")
+        
+        exception = ValueError('rast')
+        def x(sdf):
+            raise exception
+        fr = FuncResult(x)
+        fr(None)
+        self.assert_(fr.exception is exception)
 
 ################################################################################
 
