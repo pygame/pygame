@@ -6,11 +6,10 @@ import sys, os, re, unittest, subprocess, time
 
 main_dir = os.path.split(os.path.abspath(sys.argv[0]))[0]
 test_subdir = os.path.join(main_dir, 'test')
-lib_subdir = os.path.join(main_dir, 'lib')
 
-sys.path += [lib_subdir, test_subdir] 
+sys.path += [test_subdir] 
 
-import test_utils, threadmap
+import test_utils, pygame.threads
 
 ################################### CONSTANTS ##################################
 
@@ -57,7 +56,7 @@ test_cmds = [('python test/%s' % f) for f in os.listdir(test_subdir)
 t = time.time()
 
 if '-t' in sys.argv:
-    tests = threadmap.tmap (
+    tests = pygame.threads.tmap (
         run_test, test_cmds, 
         stop_on_error = False,
         num_workers = len(sys.argv) == 3 and int(sys.argv[2]) or 4
