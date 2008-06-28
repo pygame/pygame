@@ -245,6 +245,8 @@ class SpriteCollideTest( unittest.TestCase ):
           # to calculate the collision.
     
         self.assert_(test_not_implemented())
+    
+    # TODO, move to gen_stubs.py IGNORE list
 
     test_collide_rect = test_spritecollide__collided_defaults_to_collide_rect
     
