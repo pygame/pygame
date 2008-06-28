@@ -132,6 +132,12 @@ except (ImportError,IOError), msg:mouse=MissingModule("mouse", msg, 1)
 try: import pygame.sprite
 except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
 
+
+try: import pygame.threads
+except (ImportError,IOError), msg:threads=MissingModule("threads", msg, 1)
+
+
+
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
 
