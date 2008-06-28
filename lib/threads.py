@@ -10,9 +10,6 @@ __author__ = "Rene Dudfield"
 __version__ = "0.3.0"
 __license__ = 'Python license'
 
-#sys.path = ['/home/illume/tmp/lib/python/'] + sys.path
-
-
 
 import traceback
 
@@ -303,73 +300,3 @@ def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_o
         return map(lambda x:x.result, results)
     else:
         return [wq, results]
-
-
-
-
-
-if __name__ == "__main__":
-
-    # testing the func result.
-    if 0:
-        fr = FuncResult(lambda x:x+1)
-        fr(2)
-        print fr.result == 3
-
-    if 0:
-        def x(sdf):
-            raise "asdf"
-        fr = FuncResult(x)
-        print fr.exception
-
-    #print "best number of workers is :%s:" % (benchmark_workers())
-
-    init()
-    r = tmap(lambda x:x+1, range(1000))
-    print len(r)
-    print "_use_workers :%s:" % _use_workers
-
-    import sys
-    sys.exit()
-
-
-
-    if 1:
-        # simple example.
-        r = tmap(lambda x:x+1, range(1000))
-
-
-
-
-    if 1:
-        r = tmap(lambda x:x, range(1000))
-        print r
-        r2 = range(1000)
-        print r == r2
-
-        wq, results = tmap(lambda x:x, range(1000), num_workers = 5, wait=False)
-        wq.threadloop()
-        r = map(lambda x:x.result, results)
-        print r == r2
-
-
-    if 1:
-        # how to call with different functions.
-        def f(x):
-            return x+1
-
-        def f2(x):
-            return x+2
-
-        wq = WorkerQueue()
-        fr = FuncResult(f)
-        fr2 = FuncResult(f2)
-        wq.do(fr, [1], {})
-        wq.do(fr2, [1], {})
-        wq.stop()
-        wq.threadloop()
-        print fr.result == 2
-        print fr2.result == 3
-
-
-
