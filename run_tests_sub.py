@@ -1,21 +1,33 @@
 #!/usr/bin/env python
 
+"""
+
+Runs tests in subprocesses. Requires win32 extensions for async_sub
+
+"""
+
 #################################### IMPORTS ###################################
 
-import sys, os, re, unittest, subprocess, time
+import sys, os, re, unittest, subprocess, time, pygame.threads, async_sub
 
 main_dir = os.path.split(os.path.abspath(sys.argv[0]))[0]
 test_subdir = os.path.join(main_dir, 'test')
 
 sys.path += [test_subdir] 
 
-import test_utils, pygame.threads
+import test_utils
 
 ################################### CONSTANTS ##################################
+
+TIME_OUT = 30
 
 IGNORE = (
 	"scrap_test.py",
 )
+
+DIV = (70 * "-") + "\nRan"
+
+################################################################################
 
 TEST_MODULE_RE = re.compile('^(.+_test\.py)$')
 
@@ -23,29 +35,45 @@ NUM_TESTS_RE   = re.compile(r"Ran (\d+) tests?")
 NUM_FAILS_RE   = re.compile(r"failures=(\d+)")
 NUM_ERRORS_RE  = re.compile(r"errors=(\d+)")
 
-DIV = (70 * "-") + "\nRan"
+def count_of(regex, test_output):
+    count = regex.search(test_output)
+    return count and int(count.group(1)) or 0
 
+################################################################################
+
+if sys.platform == 'win32':
+    if not os.system('taskkill /? >> nul'):
+        os.kill = lambda pid: os.system('taskkill /F /T /PID %s' % pid)
+    else:
+        raise Exception('No way of killing unruly processes')
+        
 ################################################################################
 
 def run_test(cmd):
     test_name = os.path.basename(cmd)
     print 'running %s' % test_name
 
-    proc = subprocess.Popen (
+    proc = async_sub.Popen (
         cmd, shell = True, bufsize = -1,
-        stdout = subprocess.PIPE, stderr = subprocess.STDOUT
+        stdin = subprocess.PIPE, stdout = subprocess.PIPE, 
+        stderr = subprocess.STDOUT, universal_newlines = 1
     )
 
-    ret_code = proc.wait()
-    response = proc.stdout.read().replace("\r\n", "\n").replace("\r", "\n")
+    ret_code = None
+    response = []
+
+    t = time.time()
+    while ret_code is None and ((time.time() -t) < TIME_OUT):
+        ret_code = proc.poll()
+        response += [proc.read_async(wait=0.1, e=0)]
+
+    if ret_code is None:
+        os.kill(proc.pid)
+        ret_code = 'Process timed out'
+
+    response = ''.join(response)
 
     return test_name, ret_code, response
-
-################################################################################
-
-def count_of(regex, test_output):
-    count = regex.search(test_output)
-    return count and int(count.group(1)) or 0
 
 ################################################################################
 
