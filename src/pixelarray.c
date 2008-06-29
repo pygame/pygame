@@ -638,7 +638,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         ystart = array->ystart + low * array->ystep;
         xlen = array->xlen;
         ylen = ABS (high - low);
-        ystep = 1;
+        ystep = array->ystep;
         xstep = array->xstep;
         padding = array->padding;
     }
@@ -648,7 +648,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         ystart = array->ystart;
         xlen = ABS (high - low);
         ylen = array->ylen;
-        xstep = 1;
+        xstep = array->xstep;
         ystep = array->ystep;
         padding = array->padding;
     }
@@ -855,7 +855,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         ystart = array->ystart + low * array->ystep;
         xlen = array->xlen;
         ylen = ABS (high - low);
-        ystep = 1;
+        ystep = array->ystep;
         xstep = array->xstep;
         padding = array->padding;
     }
@@ -865,7 +865,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         ystart = array->ystart;
         xlen = ABS (high - low);
         ylen = array->ylen;
-        xstep = 1;
+        xstep = array->xstep;
         ystep = array->ystep;
         padding = array->padding;
     }
