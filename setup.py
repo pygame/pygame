@@ -263,8 +263,9 @@ if "bdist_msi" in sys.argv:
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame', 'pygame.gp2x'],
+       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads'],
        "package_dir": {'pygame': 'lib',
+                       'pygame.threads': 'lib/threads',
                        'pygame.gp2x': 'lib/gp2x'},
        "headers":     headers,
        "ext_modules": extensions,
