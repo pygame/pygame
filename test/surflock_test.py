@@ -134,7 +134,7 @@ class SurfaceLockTest (unittest.TestCase):
         self.assertEquals (sf.get_locks (), ())
 
     def test_surfarray_ref (self):
-        sf = pygame.Surface ((5, 5))
+        sf = pygame.Surface ((5, 5), 32)
         for atype in pygame.surfarray.get_arraytypes ():
             pygame.surfarray.use_arraytype (atype)
             
