@@ -207,11 +207,30 @@ class PixelArrayTypeTest (unittest.TestCase):
             self.assertEqual (ar[4][0], val)
             self.assertEqual (ar[-1][1], val)
 
-            # Test list assignment.
+            # Test list assignment, this is a vertical assignment.
             val = sf.map_rgb ((0, 255, 0))
             ar.__setslice__ (2, 4, [val] * 8)
             self.assertEqual (ar[2][0], val)
+            self.assertEqual (ar[2][1], val)
+            self.assertEqual (ar[2][4], val)
+            self.assertEqual (ar[2][5], val)
+            self.assertEqual (ar[3][0], val)
             self.assertEqual (ar[3][1], val)
+            self.assertEqual (ar[3][4], val)
+            self.assertEqual (ar[3][5], val)
+
+            # And the horizontal assignment.
+            val = sf.map_rgb ((255, 0, 0))
+            val2 = sf.map_rgb ((128, 0, 255))
+            ar.__setslice__ (0, 2, [val, val2])
+            self.assertEqual (ar[0][0], val)
+            self.assertEqual (ar[1][0], val2)
+            self.assertEqual (ar[0][1], val)
+            self.assertEqual (ar[1][1], val2)
+            self.assertEqual (ar[0][4], val)
+            self.assertEqual (ar[1][4], val2)
+            self.assertEqual (ar[0][5], val)
+            self.assertEqual (ar[1][5], val2)
 
             # Test pixelarray assignment.
             ar[:] = (0, 0, 0)
