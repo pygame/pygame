@@ -10,14 +10,20 @@ __author__ = "Rene Dudfield"
 __version__ = "0.3.0"
 __license__ = 'Python license'
 
+import traceback, sys
 
-import traceback
+if sys.version_info[0] == 2 and sys.version_info[1] < 5:
+    # Less than py 2.5 use shipped Queue
+    
+    from Py25Queue import Queue
+    from Py25Queue import Empty
+else:   # use up to date version
+    from Queue import Queue
+    from Queue import Empty
 
 import threading
 Thread = threading.Thread
 #from threading import Thread
-from Queue import Queue
-from Queue import Empty
 STOP = object()
 FINISH = object()
 DONE_ONE = object()
