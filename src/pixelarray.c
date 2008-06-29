@@ -824,6 +824,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     Uint32 x = 0;
     Uint32 y = 0;
     int bpp;
+    int gooverx = 0;
     Uint8 *pixels;
     Uint32 color = 0;
     Uint32 *colorvals = NULL;
@@ -869,9 +870,6 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         padding = array->padding;
     }
 
-/*
-    printf ("LEN: %d:%d - %d\n", xlen / xstep, ylen / ystep, seqsize);
-*/
     if ((Uint32)seqsize != ylen / ABS (ystep))
     {
         if ((Uint32)seqsize != xlen / ABS (xstep))
@@ -879,8 +877,9 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             PyErr_SetString(PyExc_ValueError, "sequence size mismatch");
             return -1;
         }
+        gooverx = 1; /* We have to iterate over the x axis. */
     }
-   
+
     if (seqsize == 1)
     {
         /* Single value assignment. */
@@ -893,7 +892,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     colorvals = malloc (sizeof (Uint32) * seqsize);
     if (!colorvals)
     {
-        PyErr_SetString(PyExc_ValueError, "could not copy colors");
+        PyErr_SetString (PyExc_ValueError, "could not copy colors");
         return -1;
     }
 
@@ -917,35 +916,77 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     switch (bpp)
     {
     case 1:
-        while (posy < ylen)
+        if (gooverx)
         {
-            posx = 0;
-            x = xstart;
-            color = *nextcolor++;
-            while (posx < xlen)
+            while (posy < ylen)
             {
-                *((Uint8 *) pixels + y * padding + x) = (Uint8) color;
-                x += xstep;
-                posx += absxstep;
+                posx = 0;
+                x = xstart;
+                nextcolor = colorvals;
+                while (posx < xlen)
+                {
+                    color = *nextcolor++;
+                    *((Uint8 *) pixels + y * padding + x) = (Uint8) color;
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
             }
-            y += ystep;
-            posy += absystep;
         }
+        else
+        {
+            while (posy < ylen)
+            {
+                posx = 0;
+                x = xstart;
+                color = *nextcolor++;
+                while (posx < xlen)
+                {
+                    *((Uint8 *) pixels + y * padding + x) = (Uint8) color;
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
+            }
+        }        
         break;
     case 2:
-        while (posy < ylen)
+        if (gooverx)
         {
-            posx = 0;
-            x = xstart;
-            color = *nextcolor++;
-            while (posx < xlen)
+            while (posy < ylen)
             {
-                *((Uint16 *) (pixels + y * padding) + x) = (Uint16) color;
-                x += xstep;
-                posx += absxstep;
+                posx = 0;
+                x = xstart;
+                nextcolor = colorvals;
+                while (posx < xlen)
+                {
+                    color = *nextcolor++;
+                    *((Uint16 *) (pixels + y * padding) + x) = (Uint16) color;
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
             }
-            y += ystep;
-            posy += absystep;
+        }
+        else
+        {
+            while (posy < ylen)
+            {
+                posx = 0;
+                x = xstart;
+                color = *nextcolor++;
+                while (posx < xlen)
+                {
+                    *((Uint16 *) (pixels + y * padding) + x) = (Uint16) color;
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
+            }
         }
         break;
     case 3:
@@ -953,45 +994,96 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         Uint8 *px;
         SDL_PixelFormat *format = surface->format;
 
-        while (posy < ylen)
+        if (gooverx)
         {
-            posx = 0;
-            x = xstart;
-            color = *nextcolor++;
-            while (posx < xlen)
+            while (posy < ylen)
             {
-                px = ((Uint8 *) (pixels + y * padding) + x * 3);
+                posx = 0;
+                x = xstart;
+                nextcolor = colorvals;
+                while (posx < xlen)
+                {
+                    color = *nextcolor++;
+                    px = ((Uint8 *) (pixels + y * padding) + x * 3);
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
-                *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
-                *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                *(px + (format->Bshift >> 3)) = (Uint8) color;
+                    *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                    *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                    *(px + (format->Bshift >> 3)) = (Uint8) color;
 #else
-                *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
-                *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
-                *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
+                    *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                    *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                    *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
 #endif
-                x += xstep;
-                posx += absxstep;
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
             }
-            y += ystep;
-            posy += absystep;
+        }
+        else
+        {
+            while (posy < ylen)
+            {
+                posx = 0;
+                x = xstart;
+                color = *nextcolor++;
+                while (posx < xlen)
+                {
+                    px = ((Uint8 *) (pixels + y * padding) + x * 3);
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                    *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                    *(px + (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                    *(px + (format->Bshift >> 3)) = (Uint8) color;
+#else
+                    *(px + 2 - (format->Rshift >> 3)) = (Uint8) (color >> 16);
+                    *(px + 2 - (format->Gshift >> 3)) = (Uint8) (color >> 8);
+                    *(px + 2 - (format->Bshift >> 3)) = (Uint8) color;
+#endif
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
+            }
         }
         break;
     }
     default:
-        while (posy < ylen)
+        if (gooverx)
         {
-            posx = 0;
-            x = xstart;
-            color = *nextcolor++;
-            while (posx < xlen)
+            while (posy < ylen)
             {
-                *((Uint32 *) (pixels + y * padding) + x) = color;
-                x += xstep;
-                posx += absxstep;
+                posx = 0;
+                x = xstart;
+                nextcolor = colorvals;
+                while (posx < xlen)
+                {
+                    color = *nextcolor++;
+                    *((Uint32 *) (pixels + y * padding) + x) = color;
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
             }
-            y += ystep;
-            posy += absystep;
+        }
+        else
+        {
+            while (posy < ylen)
+            {
+                posx = 0;
+                x = xstart;
+                color = *nextcolor++;
+                while (posx < xlen)
+                {
+                    *((Uint32 *) (pixels + y * padding) + x) = color;
+                    x += xstep;
+                    posx += absxstep;
+                }
+                y += ystep;
+                posy += absystep;
+            }
         }
         break;
     }
