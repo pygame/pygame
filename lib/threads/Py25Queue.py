@@ -1,13 +1,6 @@
 """A multi-producer, multi-consumer queue."""
 
-# Workaround for the fact that Py25Queue.py will be in pygame package directory
-# alongside time.pyd
-
-from imp import init_builtin
-_time = init_builtin('time').time
-
-
-# from time import time as _time
+from time import time as _time
 
 from collections import deque
 
