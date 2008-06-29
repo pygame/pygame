@@ -921,9 +921,9 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         {
             posx = 0;
             x = xstart;
+            color = *nextcolor++;
             while (posx < xlen)
             {
-                color = *nextcolor++;
                 *((Uint8 *) pixels + y * padding + x) = (Uint8) color;
                 x += xstep;
                 posx += absxstep;
@@ -937,9 +937,9 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         {
             posx = 0;
             x = xstart;
+            color = *nextcolor++;
             while (posx < xlen)
             {
-                color = *nextcolor++;
                 *((Uint16 *) (pixels + y * padding) + x) = (Uint16) color;
                 x += xstep;
                 posx += absxstep;
@@ -957,9 +957,9 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         {
             posx = 0;
             x = xstart;
+            color = *nextcolor++;
             while (posx < xlen)
             {
-                color = *nextcolor++;
                 px = ((Uint8 *) (pixels + y * padding) + x * 3);
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
                 *(px + (format->Rshift >> 3)) = (Uint8) (color >> 16);
@@ -983,9 +983,9 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         {
             posx = 0;
             x = xstart;
+            color = *nextcolor++;
             while (posx < xlen)
             {
-                color = *nextcolor++;
                 *((Uint32 *) (pixels + y * padding) + x) = color;
                 x += xstep;
                 posx += absxstep;
