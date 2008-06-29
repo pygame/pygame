@@ -42,7 +42,7 @@ def count_of(regex, test_output):
 ################################################################################
 
 if sys.platform == 'win32':
-    if not os.system('taskkill /? >> nul'):
+    if not os.system('taskkill /? > NUL'):
         os.kill = lambda pid: os.system('taskkill /F /T /PID %s' % pid)
     else:
         raise Exception('No way of killing unruly processes')
