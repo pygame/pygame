@@ -46,29 +46,27 @@ def count_of(regex, test_output):
 if sys.platform == 'win32':
     win32_kill_commands = (
         ('pskill', 'pskill -t %s'),
-        ('taskkill', 'taskkill /F /T /PID %s'),
+        ('taskkill /?', 'taskkill /F /T /PID %s'),  # /? so no err code
     )
 
     for test_cmd, kill_cmd in win32_kill_commands:
-        try:
-            subprocess.Popen(
-                test_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                shell = 1,
-            ).wait()
-            
+        _test = subprocess.Popen(
+            test_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            shell = 1,
+        ).wait()
+
+        if _test is not 1:
             os.kill = lambda pid: (
                 subprocess.Popen(
                     kill_cmd % pid, stdout=subprocess.PIPE, 
                     stderr=subprocess.PIPE, shell = 1,
                 )
             )
-            
-            print '\nUsing subprocess.Popen(%s) for os.kill\n' % test_cmd
+            print '\nUsing subprocess.Popen("%s") for os.kill\n' % (kill_cmd % '$PID')
             break
 
-        except WindowsError:
-            os.kill = None
-            
+        else: os.kill = None
+
     if os.kill is None:
         raise Exception('No way of killing unruly processes. '
                         'Try installing sysinternals pskill')
