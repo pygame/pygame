@@ -122,7 +122,6 @@ def run_test(cmd):
     return test_name, ret_code, response
 
 ################################################################################
-
 # Run all the tests
 
 os.chdir(main_dir)
@@ -173,8 +172,8 @@ total_fails, total_errors = all_dots.count('F'), all_dots.count('E')
 total_tests = len(all_dots)
 
 print all_dots
-print '\n'.join(failures).lstrip('\n')
-print "\n%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)
+if failures: print '\n'.join(failures).lstrip('\n')
+print "%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)
 
 if not failures:
     print 'OK'
