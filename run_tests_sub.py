@@ -30,21 +30,32 @@ test_subdir = os.path.join(main_dir, 'test')
 sys.path += [test_subdir]
 
 import test_utils
+
 ################################### CONSTANTS ##################################
 
 # If an xxxx_test.py take longer than TIME_OUT seconds it will be killed
-
 TIME_OUT = 30
 
 # Any tests in IGNORE will not be ran
-
 IGNORE = (
     "scrap_test.py",         # No need to ignore as pygame.init() in another
-                               # process
+                             # process
 )
 
-# Division in test output that afterwards shows "Ran x tests, OK" etc
-DIV = (70 * "-") + "\nRan"
+################################################################################
+
+COMPLETE_FAILURE_TEMPLATE = """
+======================================================================
+ERROR: all_tests_for (%s.AllTestCases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test\%s.py", line 1, in all_tests_for
+
+subprocess completely failed with return code of %s
+
+"""  # Leave that last empty line else build page regex won't match
+
+RAN_TESTS_DIV = (70 * "-") + "\nRan"
 
 ################################################################################
 
@@ -73,7 +84,7 @@ if sys.platform == 'win32':
                     stderr=subprocess.STDOUT, shell = 1,
                 )
             )
-            # print '\nUsing subprocess.Popen("%s" '%kill_cmd+'% pid) for os.kill\n'
+            # '\nUsing subprocess.Popen("%s" '%kill_cmd+'% pid) for os.kill\n'
             break
 
         else: os.kill = None
@@ -112,9 +123,11 @@ def run_test(cmd):
 
 ################################################################################
 
-os.chdir(main_dir) 
+# Run all the tests
+
+os.chdir(main_dir)
 test_cmds = [('python test/%s' % f) for f in os.listdir(test_subdir) 
-                                          if TEST_MODULE_RE.match(f) 
+                                          if TEST_MODULE_RE.match(f)
                                           and f not in IGNORE]
 t = time.time()
 
@@ -131,37 +144,40 @@ t = time.time() - t
 
 ################################################################################
 
+# Output results
+
 all_dots = ''
 failures = []
-complete_failures = {}
+complete_failures = 0
 
 for module, ret_code, ret in test_results:
     if ret_code and ret_code is not 1:                  # TODO: ??
-        complete_failures[module] = ret_code, ret
+        failures.append (
+            COMPLETE_FAILURE_TEMPLATE % (module, module, ret_code)
+        )
+        complete_failures += 1
         continue
 
     dots = DOTS.search(ret).group(1)
     all_dots += dots
 
     if 'E' in dots or 'F' in dots:
-        failures.append(ret.split(DIV)[0][ret.index(dots)+len(dots):])
+        failure = ret.split(RAN_TESTS_DIV)[0][ret.index(dots)+len(dots):]
+        failures.append (
+            failure.replace( "(__main__.", "(%s." % module)
+        )
 
-total_fails, total_errors  = all_dots.count('F'), all_dots.count('E')
-total_tests  = len(all_dots)
+total_fails, total_errors = all_dots.count('F'), all_dots.count('E')
+total_tests = len(all_dots)
 
 print all_dots
 print '\n'.join(failures).lstrip('\n')
-print "\n%s %s tests in %.3fs\n" % (DIV, total_tests, t)
+print "\n%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)
 
-if not total_errors and not total_fails:
+if not failures:
     print 'OK'
 else:
-    print 'FAILED (failures=%s, errors=%s)' % (total_fails, total_errors)
-
-################################################################################
-
-if complete_failures: print '\n%s\nComplete Failures\n' % (70 * '=')
-for module, (ret_code, ret) in complete_failures.iteritems():
-    print "%s failed with return code of %s\n%s" % (module, ret_code, ret)
-
+    print ( 'FAILED (failures=%s, errors=%s, complete_failures=%s)' % 
+                 (total_fails, total_errors, complete_failures) )
+    
 ################################################################################
