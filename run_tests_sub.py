@@ -66,25 +66,19 @@ TEST_MODULE_RE = re.compile('^(.+_test\.py)$')
 ################################################################################
 
 if sys.platform == 'win32':
+    def call_proc(cmd):
+        return subprocess.Popen (
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell = 1,
+        )
+
     win32_kill_commands = (
         ('pskill', 'pskill -t %s'),
         ('taskkill /?', 'taskkill /F /T /PID %s'),  # /? so no err code
     )
 
     for test_cmd, kill_cmd in win32_kill_commands:
-        test_cmd_ret_code = subprocess.Popen(
-            test_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            shell = 1,
-        ).wait()
-
-        if test_cmd_ret_code is not 1:
-            os.kill = lambda pid: (
-                subprocess.Popen(
-                    kill_cmd % pid, stdout=subprocess.PIPE, 
-                    stderr=subprocess.STDOUT, shell = 1,
-                )
-            )
-            # '\nUsing subprocess.Popen("%s" '%kill_cmd+'% pid) for os.kill\n'
+        if call_proc(test_cmd).wait() is not 1:
+            os.kill = lambda pid: call_proc(kill_cmd % pid)
             break
 
         else: os.kill = None
@@ -142,7 +136,7 @@ else:
 t = time.time() - t
 
 ################################################################################
-# Output results ( mimicking run_tests.py)
+# Output results ( mimicking run_tests.py )
 
 all_dots = ''
 failures = []
@@ -179,9 +173,11 @@ if not failures:
     print 'OK'
 else:
     print 'FAILED (%s)' % ', '.join (
-        total_fails  and ["failures=%s" % total_fails] or [] +
-        total_errors and ["errors=%s"  % total_errors] or [] + 
-        complete_failures and ["complete_failures=%s" % complete_failures] or []
+        (total_fails  and ["failures=%s" % total_fails] or []) +
+        (total_errors and ["errors=%s"  % total_errors] or []) + 
+        (complete_failures and ["complete_failures=%s" % complete_failures] or [])
     )
+
+print complete_failures
 
 ################################################################################
