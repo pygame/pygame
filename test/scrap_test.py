@@ -78,6 +78,7 @@ class ScrapModuleTest(unittest.TestCase):
 if __name__ == '__main__':
     test_utils.get_fail_incomplete_tests_option()
 
+    #TODO....
     pygame.init ()
     pygame.display.set_mode ((1, 1))
     scrap.init ()
