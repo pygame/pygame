@@ -174,8 +174,8 @@ if not failures:
 else:
     print 'FAILED (%s)' % ', '.join (
         (total_fails  and ["failures=%s" % total_fails] or []) +
-        (total_errors and ["errors=%s"  % total_errors] or []) +
-        (complete_failures and ["complete_failures=%s" % complete_failures] or [])
+        (total_errors and ["errors=%s"  % total_errors] or []) #+
+        # (complete_failures and ["complete_failures=%s" % complete_failures] or [])
     )
 
 ################################################################################
