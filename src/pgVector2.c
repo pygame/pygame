@@ -68,3 +68,4 @@ void c_rotate(pgVector2* a, double seta)
 	a->real = x*cos(seta) - y*sin(seta);
 	a->imag = x*sin(seta) + y*cos(seta);
 }
+

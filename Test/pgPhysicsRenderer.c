@@ -1,7 +1,7 @@
 #include "pgPhysicsRenderer.h"
 #include "pgShapeObject.h"
 #include "pgAABBBox.h"
-#include <gl/glut.h>
+#include <GL/glut.h>
 
 int RENDER_AABB = 1;
 

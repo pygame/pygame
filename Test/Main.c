@@ -179,17 +179,21 @@ void TestBasic2Init()
 {
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
+
 	body = PG_BodyNew();
 	PG_Set_Vector2(body->vecPosition,0,0);
-	PG_Set_Vector2(body->vecLinearVelocity,0,30);
-	body->fAngleVelocity = -5.f;
+	PG_Set_Vector2(body->vecLinearVelocity, 0, -80.f);
+	body->fRotation = M_PI/4;
+	body->fAngleVelocity = 0.f;
 	PG_Bind_RectShape(body, 20, 20, 0);
 	PG_AddBodyToWorld(s_world, body);
+	
 	body1 = PG_BodyNew();
 	PG_Set_Vector2(body1->vecPosition,0, -100);
 	body1->bStatic = 1;
-	PG_Bind_RectShape(body1, 20, 20, 0);
+	PG_Bind_RectShape(body1, 300, 20, 0);
 	PG_AddBodyToWorld(s_world, body1);
+
 }
 
 void TestBasic3Init()

@@ -89,15 +89,17 @@ pgVector2 PG_GetGlobalPos(pgBodyObject* body, pgVector2* local_p)
 	return ans;
 }
 
+
 pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B)
 {
 	pgVector2 trans, p_in_A;
 	double rotate;
 	
 	trans = c_diff(bodyB->vecPosition, bodyA->vecPosition);
+	c_rotate(&trans, -bodyA->fRotation);
 	rotate = bodyA->fRotation - bodyB->fRotation;
 	p_in_A = *p_in_B;
-	c_rotate(&p_in_A, rotate);
+	c_rotate(&p_in_A, -rotate);
 	p_in_A = c_sum(p_in_A, trans);
 	
 	return p_in_A;

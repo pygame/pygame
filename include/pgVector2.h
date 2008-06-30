@@ -30,4 +30,6 @@ double c_dot(pgVector2 a,pgVector2 b);
 double c_cross(pgVector2 a, pgVector2 b);
 void c_rotate(pgVector2* a, double seta);
 
-#endif //_PYGAME_COMPLEX_EXTENSIONS_
+#endif
+
+

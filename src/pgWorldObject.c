@@ -59,7 +59,7 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	for(i = 0; i < cnt; ++i)
 	{
 		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
-		PG_ApplyContact(contact);
+		PG_ApplyContact((PyObject*)contact);
 	}
 	//update V
 	for(i = 0; i < cnt; ++i)
@@ -127,7 +127,7 @@ int PG_AddBodyToWorld(pgWorldObject* world,pgBodyObject* body)
 
 int PG_RemoveBodyFromWorld(pgWorldObject* world,pgBodyObject* body)
 {
-	
+	return 0;
 }
 
 int PG_AddJointToWorld(pgWorldObject* world,pgJointObject* joint)
@@ -137,7 +137,7 @@ int PG_AddJointToWorld(pgWorldObject* world,pgJointObject* joint)
 
 int PG_RemoveJointFromWorld(pgWorldObject* world,pgJointObject* joint)
 {
-
+    return 0;
 }
 
 void PG_WorldInit(pgWorldObject* world)
