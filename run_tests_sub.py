@@ -30,7 +30,6 @@ test_subdir = os.path.join(main_dir, 'test')
 sys.path += [test_subdir]
 
 import test_utils
-
 ################################### CONSTANTS ##################################
 
 # If an xxxx_test.py take longer than TIME_OUT seconds it will be killed
@@ -40,7 +39,7 @@ TIME_OUT = 30
 # Any tests in IGNORE will not be ran
 
 IGNORE = (
-    # "scrap_test.py",         # No need to ignore as pygame.init() in another
+    "scrap_test.py",         # No need to ignore as pygame.init() in another
                                # process
 )
 
@@ -49,15 +48,9 @@ DIV = (70 * "-") + "\nRan"
 
 ################################################################################
 
+DOTS = re.compile("^([FE.]+)$", re.MULTILINE)
+
 TEST_MODULE_RE = re.compile('^(.+_test\.py)$')
-
-NUM_TESTS_RE   = re.compile(r"Ran (\d+) tests?")
-NUM_FAILS_RE   = re.compile(r"failures=(\d+)")
-NUM_ERRORS_RE  = re.compile(r"errors=(\d+)")
-
-def count_of(regex, test_output):
-    count = regex.search(test_output)
-    return count and int(count.group(1)) or 0
 
 ################################################################################
 
@@ -80,7 +73,7 @@ if sys.platform == 'win32':
                     stderr=subprocess.STDOUT, shell = 1,
                 )
             )
-            print '\nUsing subprocess.Popen("%s" '%kill_cmd+'% pid) for os.kill\n'
+            # print '\nUsing subprocess.Popen("%s" '%kill_cmd+'% pid) for os.kill\n'
             break
 
         else: os.kill = None
@@ -92,8 +85,8 @@ if sys.platform == 'win32':
 ################################################################################
 
 def run_test(cmd):
-    test_name = os.path.basename(cmd)
-    print 'running %s' % test_name
+    test_name = os.path.basename(cmd).split('.')[0]
+    print 'loading %s' % test_name
 
     proc = async_sub.Popen (
         cmd, shell = True, bufsize = -1,
@@ -129,7 +122,7 @@ if '-t' in sys.argv:
     test_results = pygame.threads.tmap (
         run_test, test_cmds,
         stop_on_error = False,
-        num_workers = len(sys.argv) == 3 and int(sys.argv[2]) or 4
+        num_workers = sys.argv[2:] and int(sys.argv[2]) or 4
     )
 else:
     test_results = map(run_test, test_cmds)
@@ -138,21 +131,26 @@ t = time.time() - t
 
 ################################################################################
 
-total_tests = total_fails = total_errors = 0
-
+all_dots = ''
+failures = []
 complete_failures = {}
 
 for module, ret_code, ret in test_results:
-    if ret_code:
+    if ret_code and ret_code is not 1:                  # TODO: ??
         complete_failures[module] = ret_code, ret
         continue
 
-    total_errors += count_of(NUM_ERRORS_RE, ret)
-    total_fails  += count_of(NUM_FAILS_RE,  ret)
-    total_tests  += count_of(NUM_TESTS_RE,  ret)
+    dots = DOTS.search(ret).group(1)
+    all_dots += dots
 
-    print "%s %s" % (module, 'OK' in ret and 'OK' or ret.split(DIV)[0])
+    if 'E' in dots or 'F' in dots:
+        failures.append(ret.split(DIV)[0][ret.index(dots)+len(dots):])
 
+total_fails, total_errors  = all_dots.count('F'), all_dots.count('E')
+total_tests  = len(all_dots)
+
+print all_dots
+print '\n'.join(failures).lstrip('\n')
 print "\n%s %s tests in %.3fs\n" % (DIV, total_tests, t)
 
 if not total_errors and not total_fails:
