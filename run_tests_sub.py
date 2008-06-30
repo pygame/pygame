@@ -13,7 +13,7 @@ import sys, os, re, unittest, subprocess, time, pygame.threads, async_sub
 main_dir = os.path.split(os.path.abspath(sys.argv[0]))[0]
 test_subdir = os.path.join(main_dir, 'test')
 
-sys.path += [test_subdir] 
+sys.path += [test_subdir]
 
 import test_utils
 
@@ -22,8 +22,10 @@ import test_utils
 TIME_OUT = 30
 
 IGNORE = (
-	"scrap_test.py",
+    # "scrap_test.py",         # No need to ignore as pygame.init() in another
+                               # process
 )
+
 
 DIV = (70 * "-") + "\nRan"
 
@@ -42,11 +44,35 @@ def count_of(regex, test_output):
 ################################################################################
 
 if sys.platform == 'win32':
-    if not os.system('taskkill /? > NUL'):
-        os.kill = lambda pid: os.system('taskkill /F /T /PID %s' % pid)
-    else:
-        raise Exception('No way of killing unruly processes')
-        
+    win32_kill_commands = (
+        ('pskill', 'pskill -t %s'),
+        ('taskkill', 'taskkill /F /T /PID %s'),
+    )
+
+    for test_cmd, kill_cmd in win32_kill_commands:
+        try:
+            subprocess.Popen(
+                test_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                shell = 1,
+            ).wait()
+            
+            os.kill = lambda pid: (
+                subprocess.Popen(
+                    kill_cmd % pid, stdout=subprocess.PIPE, 
+                    stderr=subprocess.PIPE, shell = 1,
+                )
+            )
+            
+            print '\nUsing subprocess.Popen(%s) for os.kill\n' % test_cmd
+            break
+
+        except WindowsError:
+            os.kill = None
+            
+    if os.kill is None:
+        raise Exception('No way of killing unruly processes. '
+                        'Try installing sysinternals pskill')
+
 ################################################################################
 
 def run_test(cmd):
@@ -85,7 +111,7 @@ t = time.time()
 
 if '-t' in sys.argv:
     tests = pygame.threads.tmap (
-        run_test, test_cmds, 
+        run_test, test_cmds,
         stop_on_error = False,
         num_workers = len(sys.argv) == 3 and int(sys.argv[2]) or 4
     )
