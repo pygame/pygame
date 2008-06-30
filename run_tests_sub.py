@@ -178,6 +178,4 @@ else:
         (complete_failures and ["complete_failures=%s" % complete_failures] or [])
     )
 
-print complete_failures
-
 ################################################################################
