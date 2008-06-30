@@ -33,7 +33,7 @@ import test_utils
 
 ################################### CONSTANTS ##################################
 
-# If an xxxx_test.py take longer than TIME_OUT seconds it will be killed
+# If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
 TIME_OUT = 30
 
 # Any tests in IGNORE will not be ran
@@ -157,7 +157,7 @@ for module, ret_code, ret in test_results:
     all_dots += dots
 
     if 'E' in dots or 'F' in dots:
-        failure = ret.split(RAN_TESTS_DIV)[0][ret.index(dots)+len(dots):]
+        failure = ret[len(dots):].split(RAN_TESTS_DIV)[0]
         failures.append (
             failure.replace( "(__main__.", "(%s." % module)
         )
@@ -174,7 +174,7 @@ if not failures:
 else:
     print 'FAILED (%s)' % ', '.join (
         (total_fails  and ["failures=%s" % total_fails] or []) +
-        (total_errors and ["errors=%s"  % total_errors] or []) + 
+        (total_errors and ["errors=%s"  % total_errors] or []) +
         (complete_failures and ["complete_failures=%s" % complete_failures] or [])
     )
 
