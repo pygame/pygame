@@ -143,7 +143,6 @@ else:
 t = time.time() - t
 
 ################################################################################
-
 # Output results
 
 all_dots = ''
@@ -158,7 +157,10 @@ for module, ret_code, ret in test_results:
         complete_failures += 1
         continue
 
-    dots = DOTS.search(ret).group(1)
+    dots = DOTS.search(ret)
+    if not dots: continue                   # in case of empty xxxx_test.py
+    else: dots = dots.group(1)
+
     all_dots += dots
 
     if 'E' in dots or 'F' in dots:
@@ -177,7 +179,10 @@ print "\n%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)
 if not failures:
     print 'OK'
 else:
-    print ( 'FAILED (failures=%s, errors=%s, complete_failures=%s)' % 
-                 (total_fails, total_errors, complete_failures) )
+    print 'FAILED (%s)' % ', '.join (
+        total_fails  and ["failures=%s" % total_fails] or [] +
+        total_errors and ["errors=%s"  % total_errors] or [] + 
+        complete_failures and ["complete_failures=%s" % complete_failures] or []
+    )
     
 ################################################################################
