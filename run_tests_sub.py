@@ -95,7 +95,7 @@ def run_test(cmd):
 
     if ret_code is None:
         os.kill(proc.pid)
-        ret_code = 'Process timed out'
+        ret_code = '"Process timed out (TIME_OUT = %s secs)"' % TIME_OUT
 
     response = ''.join(response)
 
