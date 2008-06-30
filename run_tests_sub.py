@@ -2,8 +2,22 @@
 
 """
 
-Runs tests in subprocesses. Requires win32 extensions for async_sub
+Runs tests in subprocesses using subprocess and async_sub. Will poll tests for
+return code and if tests don't return after TIME_OUT, will kill process with 
+os.kill.
 
+os.kill is defined on win32 platform using subprocess.Popen to call either 
+pskill or taskkill if available on the system $PATH. If not, the script will
+raise SystemExit. 
+
+taskkill is shipped with windows from XP on.
+pskill is available from SysInternals website
+
+Dependencies:
+    async_sub.py:
+        Requires win32 extensions when run on windows:
+            Maybe able to get away with win32file.pyd, win32pipe.pyd zipped to 
+            about 35kbytes and ship with that.
 """
 
 #################################### IMPORTS ###################################
@@ -19,14 +33,18 @@ import test_utils
 
 ################################### CONSTANTS ##################################
 
+# If an xxxx_test.py take longer than TIME_OUT seconds it will be killed
+
 TIME_OUT = 30
+
+# Any tests in IGNORE will not be ran
 
 IGNORE = (
     # "scrap_test.py",         # No need to ignore as pygame.init() in another
                                # process
 )
 
-
+# Division in test output that afterwards shows "Ran x tests, OK" etc
 DIV = (70 * "-") + "\nRan"
 
 ################################################################################
@@ -50,26 +68,26 @@ if sys.platform == 'win32':
     )
 
     for test_cmd, kill_cmd in win32_kill_commands:
-        _test = subprocess.Popen(
+        test_cmd_ret_code = subprocess.Popen(
             test_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             shell = 1,
         ).wait()
 
-        if _test is not 1:
+        if test_cmd_ret_code is not 1:
             os.kill = lambda pid: (
                 subprocess.Popen(
                     kill_cmd % pid, stdout=subprocess.PIPE, 
-                    stderr=subprocess.PIPE, shell = 1,
+                    stderr=subprocess.STDOUT, shell = 1,
                 )
             )
-            print '\nUsing subprocess.Popen("%s") for os.kill\n' % (kill_cmd % '$PID')
+            print '\nUsing subprocess.Popen("%s" '%kill_cmd+'% pid) for os.kill\n'
             break
 
         else: os.kill = None
 
     if os.kill is None:
-        raise Exception('No way of killing unruly processes. '
-                        'Try installing sysinternals pskill')
+        raise SystemExit('No way of killing unruly processes. Try installing '
+                         'sysinternals pskill and placing on %PATH%.')
 
 ################################################################################
 
@@ -108,13 +126,13 @@ test_cmds = [('python test/%s' % f) for f in os.listdir(test_subdir)
 t = time.time()
 
 if '-t' in sys.argv:
-    tests = pygame.threads.tmap (
+    test_results = pygame.threads.tmap (
         run_test, test_cmds,
         stop_on_error = False,
         num_workers = len(sys.argv) == 3 and int(sys.argv[2]) or 4
     )
 else:
-    tests = map(run_test, test_cmds)
+    test_results = map(run_test, test_cmds)
 
 t = time.time() - t
 
@@ -124,7 +142,7 @@ total_tests = total_fails = total_errors = 0
 
 complete_failures = {}
 
-for module, ret_code, ret in tests:
+for module, ret_code, ret in test_results:
     if ret_code:
         complete_failures[module] = ret_code, ret
         continue
