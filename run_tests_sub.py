@@ -142,7 +142,7 @@ else:
 t = time.time() - t
 
 ################################################################################
-# Output results
+# Output results ( mimicking run_tests.py)
 
 all_dots = ''
 failures = []
@@ -172,7 +172,7 @@ total_fails, total_errors = all_dots.count('F'), all_dots.count('E')
 total_tests = len(all_dots)
 
 print all_dots
-if failures: print '\n'.join(failures).lstrip('\n')
+if failures: print ''.join(failures).lstrip('\n')[:-1]
 print "%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)
 
 if not failures:
@@ -183,5 +183,5 @@ else:
         total_errors and ["errors=%s"  % total_errors] or [] + 
         complete_failures and ["complete_failures=%s" % complete_failures] or []
     )
-    
+
 ################################################################################
