@@ -12,11 +12,11 @@ import relative_indentation
 
 from os.path import normpath, join, dirname, abspath
 
-sys.path.append(
-    abspath(normpath(
-        join(dirname(__file__), '../')
-    ))
-)
+sys.path.append( abspath(normpath( join(dirname(__file__), '../') )) )
+
+################################################################################
+
+ROOT_PACKAGE = 'pygame'
 
 #################################### IGNORES ###################################
 
@@ -26,30 +26,28 @@ sys.path.append(
 # In [7]: pygame.overlay.Overlay.__name__
 # Out[7]: 'overlay'
 
-# Can not then filter out nonsensical classes or functions automatically
-
-IGNORE = (
-    'pygame.sprite.Rect',
-    'pygame.mixer.Channel',
-    'pygame.sprite.from_surface',
-    'pygame.sprite.get_ticks',
-    'pygame.fastevent.Event',
-    'pygame.fastevent.event_name',
-    'pygame.sysfont.SysFont',
-    'pygame.sysfont.get_fonts',
-    'pygame.sysfont.match_font',
-)
+# Mapping of callable to module
+REAL_HOMES = {
+    pygame.rect.Rect         : pygame.rect,
+    pygame.mask.from_surface : pygame.mask,
+    pygame.time.get_ticks    : pygame.time,
+    pygame.event.Event       : pygame.event,
+    pygame.event.event_name  : pygame.event,
+    pygame.font.SysFont      : pygame.font,
+    pygame.font.get_fonts    : pygame.font,
+    pygame.font.match_font   : pygame.font,
+}
 
 # Types that need instantiating before inspection
 INSTANTIATE = (
-    'pygame.event.Event',
-    'pygame.cdrom.CD',
-    'pygame.joystick.Joystick',
-    'pygame.time.Clock',
-    'pygame.mixer.Channel',
-    'pygame.movie.Movie',
-    'pygame.mask.Mask',
-    'pygame.display.Info',
+    pygame.event.Event,
+    pygame.cdrom.CD,
+    pygame.joystick.Joystick,
+    pygame.time.Clock,
+    pygame.mixer.Channel,
+    pygame.movie.Movie,
+    pygame.mask.Mask,
+    pygame.display.Info,
 )
 
 ##################################### TODO #####################################
@@ -57,14 +55,10 @@ INSTANTIATE = (
 """
 
 1)
-    IGNORE. Find a better solution.
-
-
-2)
 
     Test
 
-3)
+2)
 
     Properties
     Helper functions that return objects, ie time.Clock() etc
@@ -95,11 +89,8 @@ module_re = re.compile(r"pygame\.([^.]*)\.?")
 
 opt_parser = OptionParser()
 
-opt_parser.add_option(
-
-     "-l",  "--list",
-     dest   = "list",
-     action = 'store_true',
+opt_parser.add_option (
+     "-l",  "--list", dest = "list", action = 'store_true',
      help   = "list only test names not stubs" )
 
 opt_parser.set_usage(
@@ -139,13 +130,14 @@ def is_public(obj_name):
 def is_test(f):
     return f.__name__.startswith('test_')
 
-def get_callables(obj, if_of = None):
+def get_callables(obj, if_of = None, check_where_defined=False):
     publics = (getattr(obj, x) for x in dir(obj) if is_public(x))
     callables = [x for x in publics if callable(x)]
     
-    if type(obj) is types.ModuleType: 
-        callables = [x for x in callables if "pygame" in x.__module__]
-                                            # XXXX, find something better
+    if check_where_defined:
+        callables = [ c for c in callables if ROOT_PACKAGE in c.__module__ 
+                        and (c not in REAL_HOMES or REAL_HOMES.get(c) is obj) ]
+
     if if_of:
         callables = [x for x in callables if if_of(x)] # isclass, ismethod etc
     
@@ -184,21 +176,16 @@ def names_of(*args):
 def module_stubs(module):
     stubs = {}
 
-    classes = get_callables(module, isclass)
-    functions = get_callables(module) - classes
+    classes = get_callables(module, isclass, check_where_defined = 1)
+    functions = get_callables(module, check_where_defined = 1) - classes
 
     for class_ in classes:
-        if ("%s.%s" % names_of(module, class_)).startswith(IGNORE):
-            continue
-
         for method in get_callables(class_):
             stub = test_stub(method, module, class_.__name__ )
             stubs['%s.%s.%s' % names_of(module, class_, method) ] = stub
 
     for function in functions:
         fname = '%s.%s' % names_of(module, function)
-        if fname.startswith(IGNORE): continue
-
         stub = test_stub(function, module)
         stubs[fname] = stub
     
@@ -221,7 +208,7 @@ def already_tested_in_module(module):
     
     try: test_file = __import__(test_name)
     except ImportError:
-        return
+        return []
     
     classes = get_callables(test_file, isclass)
     test_cases = (t for t in classes if TestCase in t.__bases__)
@@ -239,7 +226,7 @@ def already_tested_in_package(package):
     already = []
 
     for module in get_package_modules(package):
-        already.append(already_tested_in_module(module))
+        already += already_tested_in_module(module)
 
     return already
 
@@ -257,23 +244,24 @@ def get_stubs(root):
 
 if __name__ == "__main__":
     options, args = opt_parser.parse_args()
-    if not sys.argv[1:]: 
+    if not sys.argv[1:]:
         sys.exit(opt_parser.print_help())
-    
-    root = args and args[0] or 'pygame'
-    if root != 'pygame' and not root.startswith('pygame'):
-        root = 'pygame.' + root
+
+    root = args and args[0] or ROOT_PACKAGE
+    if not root.startswith(ROOT_PACKAGE):
+        root = '%s.%s' % (ROOT_PACKAGE, root)
 
     stubs, tested = get_stubs(root)
-
+    
     for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
         if not fname.startswith(root): continue  # eg. module.Class
 
         test_name, stub = stubs[fname]
 
         if options.list:
-            print ('%13s: %s\n%13s: %s\n' %
-                  ('Callable Name', fname, 'Test Name', test_name))
+            print fname
+            # print ('%13s: %s\n%13s: %s\n' %
+            #       ('Callable Name', fname, 'Test Name', test_name))
         else:
             print stub
 
