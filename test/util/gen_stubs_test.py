@@ -8,6 +8,7 @@ tests for new stubber: deleted tests for missing units
 
 """
 
-import pygame, unittest
+import pygame, unittest, gen_stubs
+
 
 ################################################################################

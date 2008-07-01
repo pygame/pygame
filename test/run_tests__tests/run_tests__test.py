@@ -50,6 +50,8 @@ test_suite_dirs = [x for x in os.listdir(main_dir)
                            and x not in IGNORE ]
 
 ################################################################################
+# Test that output is the same in single process and subprocess modes 
+#
 
 single_cmd = "%s run_tests_sub.py -f %s"
 subprocess_cmd = single_cmd + ' -s'
@@ -81,5 +83,6 @@ for suite in test_suite_dirs:
         )
 
 print "\n%s/%s passes" % (passes, len(test_suite_dirs))
+print "\n-h for help"
 
 ################################################################################
