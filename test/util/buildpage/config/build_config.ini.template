@@ -1,0 +1,7 @@
+[DEFAULT]
+python_path=C:/Python25
+make_package=bdist_howtomakepackage
+package_mask=*.ext
+test_dir_subpath=Lib/site-packages
+
+[build_env]
