@@ -248,7 +248,7 @@ class DirtySprite(Sprite):
                            "values 0 for invisible and 1 for visible")
         
     def __repr__(self):
-        return "<%s DirtySprite(in %d groups)>" % (self.__class__.__name__, len(self.__g))
+        return "<%s DirtySprite(in %d groups)>" % (self.__class__.__name__, len(self.groups()))
 
 
 
