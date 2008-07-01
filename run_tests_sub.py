@@ -40,7 +40,6 @@ import test_utils
 # Defaults:
 #    See optparse options below for more options
 #
-ALWAYS_SUBPROCESS = 0
 
 # If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
 # This is only the default, can be over-ridden on command line
@@ -85,7 +84,13 @@ TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 # Set the command line options
 #
 
-opt_parser = optparse.OptionParser()
+USEAGE = """
+
+Runs all the test/xxxx_test.py tests.
+
+"""
+
+opt_parser = optparse.OptionParser(USEAGE)
 opt_parser.add_option(
      "-v",  "--verbose", action = 'store_true',
      help   = "be verbose in output (only single process mode)" )
@@ -95,8 +100,8 @@ opt_parser.add_option (
      help   = "fail incomplete tests (only single process mode)" )
 
 opt_parser.add_option (
-     "-s",  "--subprocess", action = 'store_true', default = ALWAYS_SUBPROCESS,
-     help   = "run tests in subprocesses" )
+     "-s",  "--subprocess", action = 'store_true',
+     help   = "run test suites in subprocesses (default: same process)" )
 
 opt_parser.add_option (
      "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
