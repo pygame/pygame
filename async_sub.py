@@ -1,10 +1,19 @@
+################################################################################
+"""
+
+Modification of http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/440554
+
+"""
+
+#################################### IMPORTS ###################################
+
 import os
 import subprocess
 import errno
 import time
 import sys
-
-PIPE = subprocess.PIPE
+import unittest
+import tempfile
 
 if subprocess.mswindows:
     # sys.path.append('async_libs.zip')
@@ -12,9 +21,38 @@ if subprocess.mswindows:
     from win32pipe import PeekNamedPipe
 
     import msvcrt
+
+    def _call_proc(cmd):
+        return subprocess.Popen (
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell = 1,
+        )
+
+    win32_kill_commands = (
+        ('pskill', 'pskill -t %s'),
+        ('taskkill /?', 'taskkill /F /T /PID %s'),  # /? so no err code
+    )
+
+    for test_cmd, kill_cmd in win32_kill_commands:
+        if _call_proc(test_cmd).wait() is not 1:
+            os.kill = lambda pid: _call_proc(kill_cmd % pid)
+            break
+
+        else: os.kill = None
+
+    if os.kill is None:
+        raise SystemExit('No way of killing unruly processes. Try installing '
+                         'sysinternals pskill and placing on %PATH%.')
+
 else:
     import select
     import fcntl
+
+################################### CONSTANTS ##################################
+
+PIPE = subprocess.PIPE
+
+################################################################################
+
 
 class Popen(subprocess.Popen):
     def recv(self, maxsize=None):
@@ -148,7 +186,51 @@ class Popen(subprocess.Popen):
                 if not conn.closed:
                     fcntl.fcntl(conn, fcntl.F_SETFL, flags)
 
-if __name__ == '__main__':
+################################################################################
+
+def proc_in_time_or_kill(cmd, time_out):
+    proc = Popen (
+        cmd, shell = True, bufsize = -1,
+        stdin = subprocess.PIPE, stdout = subprocess.PIPE, 
+        stderr = subprocess.STDOUT, universal_newlines = 1
+    )
+
+    ret_code = None
+    response = []
+
+    t = time.time()
+    while ret_code is None and ((time.time() -t) < time_out):
+        ret_code = proc.poll()
+        response += [proc.read_async(wait=0.1, e=0)]
+
+    if ret_code is None:
+        os.kill(proc.pid)
+        ret_code = '"Process timed out (time_out = %s secs)"' % time_out
+
+    return ret_code, ''.join(response)
+
+################################################################################
+
+class AsyncTest(unittest.TestCase):
+    def test_proc_in_time_or_kill(self):
+        temp_dir   = tempfile.mkdtemp()
+        temp_file  = os.path.join(temp_dir, 'xxxxxx.py')
+        fh = open(temp_file, 'w')
+        try:
+            fh.write('while True: print "GST"')
+        finally:
+            fh.close()
+
+        ret_code, response = proc_in_time_or_kill(temp_file, time_out=3)
+
+        self.assert_(
+            ret_code.startswith('"Process timed out') and
+            "GST" in response
+        )    
+
+################################################################################
+
+def _example():
     if sys.platform == 'win32':
         shell, commands, tail = ('cmd', ('echo "hello"', 'echo "HELLO WORLD"'), '\r\n')
     else:
@@ -162,3 +244,11 @@ if __name__ == '__main__':
     a.send_all('exit' + tail)
     print a.read_async(e=0)
     a.wait()
+
+################################################################################
+    
+if __name__ == '__main__':
+    if 1:
+        unittest.main()
+    else:
+        _example()
