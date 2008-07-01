@@ -37,14 +37,19 @@ sys.path.insert(0, test_subdir)
 import test_utils
 
 ################################### CONSTANTS ##################################
+# Defaults:
+#    See optparse options below for more options
+#
+ALWAYS_SUBPROCESS = 0
 
 # If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
+# This is only the default, can be over-ridden on command line
+
 TIME_OUT = 30
 
 # Any tests in IGNORE will not be ran
 IGNORE = (
     "scrap_test",
-    "fake_time_out_test",
 )
 
 # Subprocess has less of a need to worry about interference between tests
@@ -63,6 +68,11 @@ Traceback (most recent call last):
 
 subprocess completely failed with return code of %s
 
+cmd: %s
+
+return (abbrv):
+%s
+
 """  # Leave that last empty line else build page regex won't match
 
 RAN_TESTS_DIV = (70 * "-") + "\nRan"
@@ -78,30 +88,41 @@ TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 opt_parser = optparse.OptionParser()
 opt_parser.add_option(
      "-v",  "--verbose", action = 'store_true',
-     help   = "Be verbose in output (only single process mode)" )
+     help   = "be verbose in output (only single process mode)" )
 
 opt_parser.add_option (
      "-i",  "--incomplete", action = 'store_true',
-     help   = "Fail incomplete tests (only single process mode)" )
+     help   = "fail incomplete tests (only single process mode)" )
 
 opt_parser.add_option (
-     "-s",  "--subprocess", action = 'store_true',
-     help   = "Run tests in subprocesses" )
+     "-s",  "--subprocess", action = 'store_true', default = ALWAYS_SUBPROCESS,
+     help   = "run tests in subprocesses" )
 
 opt_parser.add_option (
-     "-t",  "--threaded", metavar = 'THREADS', type = 'int',
-     help   = "Run subprocessed tests in x THREADS" )
+     "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
+     help   = "run subprocessed tests in x THREADS" )
+
+opt_parser.add_option (
+     "-t",  "--time_out", metavar = 'SECONDS', type = 'int', default = TIME_OUT,
+     help   = "kill stalled subprocessed tests after SECONDS" )
 
 opt_parser.add_option (
      "-f",  "--fake", metavar = "DIR",
-     help   = "Run fake tests in %s"  % fake_test_subdir)
+     help   = "run fake tests in %s%s$DIR"  % (fake_test_subdir, os.path.sep) )
+
+opt_parser.add_option (
+     "-p",  "--python", metavar = "PYTHON", default = sys.executable,
+     help   = "path to python excutable to run subproccesed tests\n"
+              "default (sys.executable): %s" % sys.executable)
+
+     # can be used for testing ret_code resilience
 
 options, args = opt_parser.parse_args()
 
 ################################################################################
 # Change to working directory and compile a list of test modules
 # If options.fake, then compile list of fake xxxx_test.py from run_tests__tests
-#
+# this is used for testing subprocess output against single process mode
 
 if options.fake:
     test_subdir = os.path.join(fake_test_subdir, options.fake )
@@ -115,9 +136,9 @@ for f in os.listdir(test_subdir):
         test_modules.append(match)
 
 ################################################################################
-# Run all the tests in one process 
+# Run all the tests in one process
 # unittest.TextTestRunner().run(unittest.TestSuite())
-# 
+#
 
 if not options.subprocess:
     suite = unittest.TestSuite()
@@ -144,18 +165,19 @@ if not options.subprocess:
 ################################################################################
 # Runs an individual xxxx_test.py test suite in a subprocess
 #
-
 def run_test(cmd):
     module = os.path.basename(cmd).split('.')[0]
     print 'loading %s' % module
-    ret_code, response = async_sub.proc_in_time_or_kill(cmd, time_out=TIME_OUT)
-    return module, ret_code, response
+    ret_code, response = async_sub.proc_in_time_or_kill (
+        cmd, time_out=options.time_out
+    )
+    return cmd, module, ret_code, response
 
 ################################################################################
 # Run all the tests in subprocesses
 #
 
-test_cmd = ('python %s/' % test_subdir) + '%s.py'
+test_cmd = ('%s %s/' % (options.python, test_subdir)) + '%s.py'
 # test_cmd += flags and options to pass on
 
 test_cmds = [ test_cmd % m for m in test_modules if 
@@ -163,11 +185,11 @@ test_cmds = [ test_cmd % m for m in test_modules if
 
 t = time.time()
 
-if options.threaded:
+if options.multi_thread:
     test_results = pygame.threads.tmap (
         run_test, test_cmds,
         stop_on_error = False,
-        num_workers = options.threaded
+        num_workers = options.multi_thread
     )
 else:
     test_results = map(run_test, test_cmds)
@@ -182,10 +204,12 @@ all_dots = ''
 failures = []
 complete_failures = 0
 
-for module, ret_code, ret in test_results:
-    if ret_code and ret_code is not 1:                                # TODO: ??
+for cmd, module, ret_code, ret in test_results:
+    if ret_code and RAN_TESTS_DIV not in ret:
+        ret = '\n'.join(ret.split('\n')[:5])
+
         failures.append (
-            COMPLETE_FAILURE_TEMPLATE % (module, module, ret_code)
+            COMPLETE_FAILURE_TEMPLATE % (module, module, ret_code, cmd, ret)
         )
         complete_failures += 1
         continue
