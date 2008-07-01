@@ -5,7 +5,7 @@ from optparse import OptionParser
 from inspect import isclass, ismodule, getdoc
 from unittest import TestCase
 
-import pygame, sys, datetime, re
+import pygame, sys, datetime, re, types
 import relative_indentation
 
 ################################ TESTS DIRECTORY ###############################
@@ -142,7 +142,10 @@ def is_test(f):
 def get_callables(obj, if_of = None):
     publics = (getattr(obj, x) for x in dir(obj) if is_public(x))
     callables = [x for x in publics if callable(x)]
-
+    
+    if type(obj) is types.ModuleType: 
+        callables = [x for x in callables if "pygame" in x.__module__]
+                                            # XXXX, find something better
     if if_of:
         callables = [x for x in callables if if_of(x)] # isclass, ismethod etc
     
