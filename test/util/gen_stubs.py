@@ -26,7 +26,7 @@ ROOT_PACKAGE = 'pygame'
 # In [7]: pygame.overlay.Overlay.__name__
 # Out[7]: 'overlay'
 
-# Mapping of callable to module
+# Mapping of callable to module where it's defined
 REAL_HOMES = {
     pygame.rect.Rect         : pygame.rect,
     pygame.mask.from_surface : pygame.mask,
@@ -61,6 +61,7 @@ INSTANTIATE = (
 2)
 
     Properties
+    
     Helper functions that return objects, ie time.Clock() etc
 
 """
@@ -136,30 +137,32 @@ def get_callables(obj, if_of = None, check_where_defined=False):
     
     if check_where_defined:
         callables = [ c for c in callables if ROOT_PACKAGE in c.__module__ 
-                        and (c not in REAL_HOMES or REAL_HOMES.get(c) is obj) ]
+                        and (c not in REAL_HOMES or REAL_HOMES[c] is obj) ]
 
     if if_of:
         callables = [x for x in callables if if_of(x)] # isclass, ismethod etc
     
     return set(callables)
 
-def get_class_from_test_case(TC, default = ''):
+def get_class_from_test_case(TC):
     TC = TC.__name__
     if 'Type' in TC:
         return '.' + TC[:TC.index('Type')]
+
+def names_of(*args):
+    return tuple(map(lambda o: o.__name__, args))
+
+def callable_name(module, c, class_=None):
+    if class_:
+        return '%s.%s.%s' % names_of(module, class_, c)
     else:
-        return default
+        return '%s.%s' % names_of(module, c)
 
 ################################################################################
 
 def test_stub(f, module, parent_class = None):
     test_name = 'test_%s' % f.__name__
-    unit_name = '%s.' % module.__name__
-
-    if parent_class:
-        unit_name += '%s.' % parent_class
-
-    unit_name += f.__name__
+    unit_name = callable_name(module, f, parent_class)
 
     stub = STUB_TEMPLATE.render (
 
@@ -168,27 +171,21 @@ def test_stub(f, module, parent_class = None):
         unitname = unit_name,
     )
 
-    return test_name, stub
+    return unit_name, stub
 
-def names_of(*args):
-    return tuple(map(lambda o: o.__name__, args))
+def make_stubs(seq, module, class_=None):
+    return dict( test_stub(f, module, class_) for f in seq )
 
 def module_stubs(module):
     stubs = {}
-
-    classes = get_callables(module, isclass, check_where_defined = 1)
-    functions = get_callables(module, check_where_defined = 1) - classes
+    all_callables = get_callables(module, check_where_defined = True)
+    classes = set(c for c in all_callables if isclass(c))
 
     for class_ in classes:
-        for method in get_callables(class_):
-            stub = test_stub(method, module, class_.__name__ )
-            stubs['%s.%s.%s' % names_of(module, class_, method) ] = stub
+        stubs.update( make_stubs(get_callables(class_), module, class_) )
 
-    for function in functions:
-        fname = '%s.%s' % names_of(module, function)
-        stub = test_stub(function, module)
-        stubs[fname] = stub
-    
+    stubs.update(make_stubs(all_callables - classes, module))
+
     return stubs
 
 def package_stubs(package):
@@ -196,14 +193,13 @@ def package_stubs(package):
 
     for module in get_package_modules(package):
         stubs.update(module_stubs(module))
-    
+
     return stubs
 
 def already_tested_in_module(module):
     already = []
 
     mod_name =  module.__name__
-    
     test_name = "%s_test" % mod_name[7:]
     
     try: test_file = __import__(test_name)
@@ -214,8 +210,8 @@ def already_tested_in_module(module):
     test_cases = (t for t in classes if TestCase in t.__bases__)
     
     for class_ in test_cases:
-        class_tested = get_class_from_test_case(class_, default = '')
-    
+        class_tested = get_class_from_test_case(class_) or ''
+
         for test in get_callables(class_, is_test):
             fname = test.__name__[5:].split('__')[0]
             already.append("%s%s.%s" % (mod_name, class_tested, fname))
@@ -244,7 +240,7 @@ def get_stubs(root):
 
 if __name__ == "__main__":
     options, args = opt_parser.parse_args()
-    if not sys.argv[1:]:
+    if not sys.argv[1:]: 
         sys.exit(opt_parser.print_help())
 
     root = args and args[0] or ROOT_PACKAGE
@@ -252,17 +248,10 @@ if __name__ == "__main__":
         root = '%s.%s' % (ROOT_PACKAGE, root)
 
     stubs, tested = get_stubs(root)
-    
+
     for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
         if not fname.startswith(root): continue  # eg. module.Class
-
-        test_name, stub = stubs[fname]
-
-        if options.list:
-            print fname
-            # print ('%13s: %s\n%13s: %s\n' %
-            #       ('Callable Name', fname, 'Test Name', test_name))
-        else:
-            print stub
+        stub = stubs[fname]
+        print options.list and fname or stub
 
 ################################################################################
