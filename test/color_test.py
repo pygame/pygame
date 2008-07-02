@@ -401,17 +401,16 @@ class ColorTypeTest (unittest.TestCase):
         
     def test_Color_type_works_for_Surface_get_and_set_colorkey(self):
         s = pygame.Surface((32, 32))
-        for r, g, b, a in pygame.color.THECOLORS.itervalues():
-            c = pygame.Color(r,g,b,a)
+        
+        c = pygame.Color(33, 22, 11, 255)
+        s.set_colorkey(c)
 
-            s.set_colorkey(c)
+        get_r, get_g, get_b, get_a = s.get_colorkey()
 
-            get_r, get_g, get_b, get_a = s.get_colorkey()
-
-            self.assert_(get_r == c.r)
-            self.assert_(get_g == c.g)
-            self.assert_(get_b == c.b)
-            self.assert_(get_a == c.a)
+        self.assert_(get_r == c.r)
+        self.assert_(get_g == c.g)
+        self.assert_(get_b == c.b)
+        self.assert_(get_a == c.a)
 
 ########## HSLA, HSVA, CMY, I1I2I3 ALL ELEMENTS WITHIN SPECIFIED RANGE #########
 

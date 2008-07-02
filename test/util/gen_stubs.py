@@ -14,10 +14,6 @@ from os.path import normpath, join, dirname, abspath
 
 sys.path.append( abspath(normpath( join(dirname(__file__), '../') )) )
 
-################################################################################
-
-ROOT_PACKAGE = 'pygame'
-
 #################################### IGNORES ###################################
 
 # pygame.sprite.Sprite.__module__ = 'pygame.sprite' 
@@ -39,30 +35,39 @@ REAL_HOMES = {
 }
 
 # Types that need instantiating before inspection
-INSTANTIATE = (
-    pygame.event.Event,
-    pygame.cdrom.CD,
-    pygame.joystick.Joystick,
-    pygame.time.Clock,
-    pygame.mixer.Channel,
-    pygame.movie.Movie,
-    pygame.mask.Mask,
-    pygame.display.Info,
-)
+MUST_INSTANTIATE = {
+    pygame.cdrom.CDType          :  (pygame.cdrom.CD, (1,)),
+
+    # pygame.event.Event       :  None,
+    # pygame.joystick.Joystick :  None,
+    # pygame.time.Clock        :  (),
+    # pygame.mixer.Channel     :  None,
+    # pygame.movie.Movie       :  None,
+    # pygame.mask.Mask         :  None,
+    # pygame.display.Info      :  None,
+}
+
+if MUST_INSTANTIATE:
+    pygame.init()
+
+def get_instance(type_):
+    helper = MUST_INSTANTIATE.get(type_)
+    if callable(helper): return helper()
+    helper, arg = helper
+
+    try:
+        return helper(*arg)
+    except:
+        "FAILED TO CREATE INSTANCE OF %s" % type_
+        return type_
 
 ##################################### TODO #####################################
 
 """
 
-1)
-
-    Test
-
-2)
-
-    Properties
+Test
     
-    Helper functions that return objects, ie time.Clock() etc
+More instances
 
 """
 
@@ -126,6 +131,8 @@ def py_comment(input_str):
     )
 
 def is_public(obj_name):
+    try: obj_name += ''
+    except TypeError: obj_name = obj_name.__name__
     return not obj_name.startswith(('__','_'))
 
 def is_test(f):
@@ -136,8 +143,9 @@ def get_callables(obj, if_of = None, check_where_defined=False):
     callables = [x for x in publics if callable(x)]
     
     if check_where_defined:
-        callables = [ c for c in callables if ROOT_PACKAGE in c.__module__ 
-                        and (c not in REAL_HOMES or REAL_HOMES[c] is obj) ]
+        callables = (c for c in callables if ( 'pygame' in c.__module__ or 
+                    ('__builtin__' == c.__module__ and isclass(c)) )
+                    and REAL_HOMES.get(c) in (None, obj))
 
     if if_of:
         callables = [x for x in callables if if_of(x)] # isclass, ismethod etc
@@ -150,7 +158,7 @@ def get_class_from_test_case(TC):
         return '.' + TC[:TC.index('Type')]
 
 def names_of(*args):
-    return tuple(map(lambda o: o.__name__, args))
+    return tuple(map(lambda o: getattr(o, "__name__", str(o)), args))
 
 def callable_name(module, c, class_=None):
     if class_:
@@ -179,13 +187,20 @@ def make_stubs(seq, module, class_=None):
 def module_stubs(module):
     stubs = {}
     all_callables = get_callables(module, check_where_defined = True)
-    classes = set(c for c in all_callables if isclass(c))
 
+    classes = set(c for c in all_callables if isclass(c))
+    
     for class_ in classes:
-        callables = (m[1] for m in getmembers(class_, isgetsetdescriptor))
-        callables = set(c for c in callables if is_public(c.__name__))
+        base_type = class_          # eg cdrom.CD has no __name__
+        
+        if class_ in MUST_INSTANTIATE: 
+            class_ = get_instance(class_)
+            
+        get_set = (m[1] for m in getmembers(class_, isgetsetdescriptor))
+        get_set = set(c for c in get_set if is_public(c))
+
         stubs.update (
-            make_stubs(callables ^ get_callables(class_), module, class_) 
+            make_stubs(get_set ^ get_callables(class_), module, base_type) 
         )
 
     stubs.update(make_stubs(all_callables - classes, module))
@@ -247,9 +262,9 @@ if __name__ == "__main__":
     if not sys.argv[1:]: 
         sys.exit(opt_parser.print_help())
 
-    root = args and args[0] or ROOT_PACKAGE
-    if not root.startswith(ROOT_PACKAGE):
-        root = '%s.%s' % (ROOT_PACKAGE, root)
+    root = args and args[0] or 'pygame'
+    if not root.startswith('pygame'):
+        root = '%s.%s' % ('pygame', root)
 
     stubs, tested = get_stubs(root)
 
