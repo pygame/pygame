@@ -2,7 +2,7 @@
 
 from __future__ import with_statement
 from optparse import OptionParser
-from inspect import isclass, ismodule, getdoc
+from inspect import isclass, ismodule, getdoc, isgetsetdescriptor, getmembers
 from unittest import TestCase
 
 import pygame, sys, datetime, re, types
@@ -182,7 +182,11 @@ def module_stubs(module):
     classes = set(c for c in all_callables if isclass(c))
 
     for class_ in classes:
-        stubs.update( make_stubs(get_callables(class_), module, class_) )
+        callables = (m[1] for m in getmembers(class_, isgetsetdescriptor))
+        callables = set(c for c in callables if is_public(c.__name__))
+        stubs.update (
+            make_stubs(callables ^ get_callables(class_), module, class_) 
+        )
 
     stubs.update(make_stubs(all_callables - classes, module))
 
