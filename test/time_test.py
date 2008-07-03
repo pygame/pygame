@@ -5,25 +5,55 @@ from test_utils import test_not_implemented
 
 ################################################################################
 
-class ClockTypeTest(unittest.TestCase):
-    def test_Clock(self):
+class ClockTypeTest(unittest.TestCase):    
+    def test_get_fps(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.time.Clock:
+        # __doc__ (as of 2008-07-03) for pygame.time.Clock.get_fps:
 
-          # pygame.time.Clock(): return Clock
-          # create an object to help track time
+          # Clock.get_fps(): return float
+          # compute the clock framerate
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_rawtime(self):
+
+        # __doc__ (as of 2008-07-03) for pygame.time.Clock.get_rawtime:
+
+          # Clock.get_rawtime(): return milliseconds
+          # actual time used in the previous tick
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_time(self):
+
+        # __doc__ (as of 2008-07-03) for pygame.time.Clock.get_time:
+
+          # Clock.get_time(): return milliseconds
+          # time used in the previous tick
+
+        self.assert_(test_not_implemented()) 
+
+    def test_tick(self):
+
+        # __doc__ (as of 2008-07-03) for pygame.time.Clock.tick:
+
+          # Clock.tick(framerate=0): return milliseconds
+          # control timer events
+          # update the clock
+
+        self.assert_(test_not_implemented()) 
+
+    def test_tick_busy_loop(self):
+
+        # __doc__ (as of 2008-07-03) for pygame.time.Clock.tick_busy_loop:
+
+          # Clock.tick_busy_loop(framerate=0): return milliseconds
+          # control timer events
+          # update the clock
 
         self.assert_(test_not_implemented()) 
 
 class TimeModuleTest(unittest.TestCase):
-    def test_Clock(self):
-        # __doc__ (as of 2008-06-25) for pygame.time.Clock:
-
-          # pygame.time.Clock(): return Clock
-          # create an object to help track time
-
-        self.assert_(test_not_implemented()) 
-
     def test_delay(self):
 
         # __doc__ (as of 2008-06-25) for pygame.time.delay:
