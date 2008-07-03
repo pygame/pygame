@@ -27,13 +27,17 @@ Dependencies:
 #################################### IMPORTS ###################################
 
 import sys, os, re, unittest, subprocess, time, optparse
-import pygame.threads, async_sub
+import pygame.threads 
+
+# async_sub imported if needed when run in subprocess mode
 
 main_dir = os.path.split(os.path.abspath(sys.argv[0]))[0]
 test_subdir = os.path.join(main_dir, 'test')
 fake_test_subdir = os.path.join(test_subdir, 'run_tests__tests')
 
 sys.path.insert(0, test_subdir)
+
+# sys.path.append( os.path.join(os.path.dirname(__file__), "async_libs.zip") )
 
 import test_utils
 
@@ -171,6 +175,9 @@ if not options.subprocess:
 ################################################################################
 # Runs an individual xxxx_test.py test suite in a subprocess
 #
+
+import async_sub
+
 def run_test(cmd):
     module = os.path.basename(cmd).split('.')[0]
     print 'loading %s' % module
