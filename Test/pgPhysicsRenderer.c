@@ -59,7 +59,7 @@ void PGT_RenderBody(pgBodyObject* body)
 		gp[i] = PG_GetGlobalPos(body, &(rect->point[i]));
 
 	glColor3f(1.f, 1.f, 0.f);
-	glLineWidth(2.f);
+	glLineWidth(1.f);
 	glBegin(GL_LINE_LOOP);
 	glVertex2d(gp[0].real, gp[0].imag);
 	glVertex2d(gp[1].real, gp[1].imag);
@@ -77,7 +77,7 @@ void PGT_RenderJoint(pgJointObject* joint)
 {
 	pgDistanceJointObject* pj = (pgDistanceJointObject*)joint;
 	glColor3f(1.f, 0.f, 0.f);
-	glLineWidth(2.f);
+	glLineWidth(1.f);
 	glBegin(GL_LINES);
 	if (joint->body1 && (!joint->body2))
 	{

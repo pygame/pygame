@@ -3,12 +3,30 @@
 
 int is_zero(double num)
 {
-	return fabs(num) < ZERO_EPSILON;
+	return fabs(num) <= ZERO_EPSILON;
 }
 
 int is_equal(double a, double b)
 {
-	return is_zero(a - b);
+	double rErr;
+	if(is_zero(a - b)) return 1;
+
+	if(fabs(b) > fabs(a))
+		rErr = fabs((a - b) / b);
+	else
+		rErr = fabs((a - b) / a);
+
+	return rErr <= RELATIVE_ZERO;
+}
+
+int less_equal(double a, double b)
+{
+	return a < b || is_equal(a, b);
+}
+
+int more_equal(double a, double b)
+{
+	return a > b || is_equal(a, b);
 }
 
 double c_get_length_square(Py_complex c)
@@ -61,6 +79,22 @@ double c_cross(pgVector2 a, pgVector2 b)
 	return a.real*b.imag - a.imag*b.real;
 }
 
+pgVector2 c_fcross(double a, pgVector2 b)
+{
+	pgVector2 ans;
+	ans.real = -a*b.imag;
+	ans.imag = a*b.real;
+	return ans;
+}
+
+pgVector2 c_crossf(pgVector2 a, double b)
+{
+	pgVector2 ans;
+	ans.real = a.imag*b;
+	ans.imag = -a.real*b;
+	return ans;
+}
+
 void c_rotate(pgVector2* a, double seta)
 {
 	double x = a->real;
@@ -68,4 +102,10 @@ void c_rotate(pgVector2* a, double seta)
 	a->real = x*cos(seta) - y*sin(seta);
 	a->imag = x*sin(seta) + y*cos(seta);
 }
+
+int c_equal(pgVector2* a, pgVector2* b)
+{
+	return is_equal(a->real, b->real) && is_equal(a->imag, b->imag);
+}
+
 

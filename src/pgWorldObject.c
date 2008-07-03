@@ -48,6 +48,7 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 		for(j = i+1; j < size; ++j)
 		{
 			incBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), j));
+			if(refBody->bStatic && incBody->bStatic) continue;
 			if(PG_IsOverlap(&(refBody->shape->box), &(incBody->shape->box)))
 			{
 				PG_AppendContact(refBody, incBody, (PyObject*)world->contactList);

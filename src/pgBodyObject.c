@@ -107,34 +107,38 @@ pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2*
 
 pgVector2 PG_AngleToLinear(pgVector2* r, double w)
 {
-	pgVector2 v;
-	double r_len, v_len;
+	//pgVector2 v;
+	//double r_len, v_len;
 
-	r_len = c_get_length(*r);
-	if(is_zero(r_len))
-	{
-		v.imag = v.real = 0;
-	}
-	else
-	{
-		r->real /= r_len;
-		r->imag /= r_len;
-		v_len = fabs(r_len*w);
-		r->real *= v_len;
-		r->imag *= v_len;
-		if(w > 0) //counter-clock wise
-		{	
-			v.real = -r->imag;
-			v.imag = r->real;
-		}
-		else //clock wise
-		{
-			v.real = r->imag;
-			v.imag = -r->real;
-		}
-	}
+	//r_len = c_get_length(*r);
+	//if(is_zero(r_len))
+	//{
+	//	v.imag = v.real = 0;
+	//}
+	//else
+	//{
+	//	r->real /= r_len;
+	//	r->imag /= r_len;
+	//	v_len = fabs(r_len*w);
+	//	r->real *= v_len;
+	//	r->imag *= v_len;
+	//	if(w > 0) //counter-clock wise
+	//	{	
+	//		v.real = -r->imag;
+	//		v.imag = r->real;
+	//	}
+	//	else //clock wise
+	//	{
+	//		v.real = r->imag;
+	//		v.imag = -r->real;
+	//	}
+	//}
 
-	return v;
+	//return v;
+
+	pgVector2 ans;
+	ans = c_fcross(w, *r);
+	return ans;
 }
 
 pgVector2 PG_AngleToLinear1(pgBodyObject* body, pgVector2* global_p)

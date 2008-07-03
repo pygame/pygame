@@ -79,6 +79,66 @@ int PG_LiangBarskey(pgAABBBox* box, pgVector2* p1, pgVector2* p2,
 	return 1;
 }
 
+int PG_PartlyLB(pgAABBBox* box, pgVector2* p1, pgVector2* p2, 
+				pgCollisionAxis axis, pgVector2* ans_p1, pgVector2* ans_p2, 
+				int* valid_p1, int* valid_p2)
+{
+	pgVector2 dp;
+	double u1, u2;
+	
+	u1 = 0.f;
+	u2 = 1.f;
+	dp = c_diff(*p2, *p1);
+
+	switch(axis)
+	{
+	case CA_X:
+		if(!_LiangBarskey_Internal(-dp.imag, p1->imag - box->bottom, &u1, &u2)) return 0;
+		if(!_LiangBarskey_Internal(dp.imag, box->top - p1->imag, &u1, &u2)) return 0;
+		break;
+	case CA_Y:
+		if(!_LiangBarskey_Internal(-dp.real, p1->real - box->left, &u1, &u2)) return 0;
+		if(!_LiangBarskey_Internal(dp.real, box->right - p1->real, &u1, &u2)) return 0;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	if(u1 > u2) return 0;
+
+	if(u1 == 0.f)
+		*ans_p1 = *p1;
+	else
+		*ans_p1 = c_sum(*p1, c_mul_complex_with_real(dp, u1)); //ans_p1 = p1 + u1*dp
+	if(u2 == 1.f)
+		*ans_p2 = *p2;
+	else
+		*ans_p2 = c_sum(*p1, c_mul_complex_with_real(dp, u2)); //ans_p2 = p2 + u2*dp;
+
+	switch(axis)
+	{
+	case CA_X:
+		*valid_p1 = less_equal(box->left, ans_p1->real) && 
+					less_equal(ans_p1->real, box->right);
+		*valid_p2 = less_equal(box->left, ans_p2->real) && 
+					less_equal(ans_p2->real, box->right);
+		break;
+	case CA_Y:
+		*valid_p1 = less_equal(box->bottom, ans_p1->imag) && 
+					less_equal(ans_p1->imag, box->top);
+		*valid_p2 = less_equal(box->bottom, ans_p2->imag) && 
+					less_equal(ans_p2->imag, box->top);
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	return *valid_p1 || *valid_p2;
+}
+
+
 void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* contactList)
 {
 	refBody->shape->Collision(refBody, incidBody, contactList);
@@ -99,32 +159,42 @@ void PG_ApplyContact(PyObject* contactObject)
 	refBody = contact->joint.body1;
 	incidBody = contact->joint.body2;
 
+	contact->resist = sqrtf(refBody->fRestitution*incidBody->fRestitution);
+
 	//calculate the normal impulse
 	//k
 	refR = c_diff(contact->pos, refBody->vecPosition);
 	incidR = c_diff(contact->pos, incidBody->vecPosition);
 	
-	tmp1 = refR.real*contact->normal.imag - refR.imag*contact->normal.real;
-	tmp2 = incidR.real*contact->normal.imag - incidR.imag*contact->normal.real;
+	//tmp1 = refR.real*contact->normal.imag - refR.imag*contact->normal.real;
+	//tmp2 = incidR.real*contact->normal.imag - incidR.imag*contact->normal.real;
 
-	k = 1/refBody->fMass + 1/incidBody->fMass + tmp1*tmp1/refBody->shape->rInertia
-		+ tmp2*tmp2/incidBody->shape->rInertia;
+	//k = 1/refBody->fMass + 1/incidBody->fMass + tmp1*tmp1/refBody->shape->rInertia
+	//	+ tmp2*tmp2/incidBody->shape->rInertia;
+
+	tmp1 = c_dot(c_fcross(c_cross(refR, contact->normal), refR), contact->normal)
+		 /refBody->shape->rInertia;
+	tmp2 = c_dot(c_fcross(c_cross(incidR, contact->normal), incidR), contact->normal)
+		/incidBody->shape->rInertia;
+
+	k = 1/refBody->fMass + 1/incidBody->fMass + tmp1 + tmp2;
 	
 	//dV = v2 + w2xr2 - (v1 + w1xr1)
 	incidV = c_sum(incidBody->vecLinearVelocity, PG_AngleToLinear1(incidBody, &(contact->pos)));
 	refV = c_sum(refBody->vecLinearVelocity, PG_AngleToLinear1(refBody, &(contact->pos)));
+	contact->dv = c_diff(incidV, refV);
 	neg_dV = c_diff(refV, incidV);
 	
 	moment_len = c_dot(neg_dV, contact->normal)/k;
-	moment_len *= refBody->fRestitution;
+	moment_len *= contact->resist;
 	if(moment_len < 0)
 		moment_len = 0;
 	//finally we get the momentum(oh...)
 	moment = c_mul_complex_with_real(contact->normal, moment_len);
 	p = *(contact->ppAccMoment);
 	//TODO: test weight, temp codes
-	p->real += moment.real / contact->weight;
-	p->imag += moment.imag / contact->weight; 
+	p->real += moment.real/contact->weight;
+	p->imag += moment.imag/contact->weight; 
 }
 
 void PG_UpdateV(pgJointObject* joint, double step)
@@ -141,6 +211,8 @@ void PG_UpdateV(pgJointObject* joint, double step)
 
 	refR = c_diff(contact->pos, refBody->vecPosition);
 	incidR = c_diff(contact->pos, incidBody->vecPosition);
+
+	if(contact->dv.imag > 0 && contact->dv.real > 0) return;
 
 	if(!refBody->bStatic)
 	{

@@ -13,8 +13,10 @@ typedef struct _pgContact
 
 	pgVector2 pos;
 	pgVector2 normal;
+	pgVector2 dv;
 	double depth;
 	double weight;
+	double resist;
 	pgVector2** ppAccMoment;
 }pgContact;
 
@@ -25,8 +27,26 @@ typedef enum _pgCollisionType
 	MOVING_TOWARD
 }pgCollisionType;
 
+typedef enum _pgCollisionAxis
+{
+	CA_X = 0,
+	CA_Y = 1
+}pgCollisionAxis;
+
+typedef enum _pgCollisionFace
+{
+	CF_LEFT,
+	CF_BOTTOM,
+	CF_RIGHT,
+	CF_TOP
+}pgCollisionFace;
+
 int PG_LiangBarskey(pgAABBBox* box, pgVector2* p1, pgVector2* p2, 
 					 pgVector2* ans_p1, pgVector2* ans_p2);
+
+int PG_PartlyLB(pgAABBBox* box, pgVector2* p1, pgVector2* p2, 
+				pgCollisionAxis axis, pgVector2* ans_p1, pgVector2* ans_p2,
+				int* valid_p1, int* valid_p2);
 
 pgJointObject* PG_ContactNew(pgBodyObject* refBody, pgBodyObject* incidBody);
 

@@ -82,10 +82,10 @@ pgBodyObject* body, * body1;
 void do_render()
 {
 	glColor3f(1.f, 1.f, 1.f);
-	PG_Update(s_world, 0.005);
+	PG_Update(s_world, 0.003);
 	PGT_RenderWorld(s_world);
-	glprintf(0, 0, "Velocity of body1:(%.2f, %.2f)", body->vecLinearVelocity.real, 
-		body->vecLinearVelocity.imag);
+	//glprintf(0, 0, "Velocity of body1:(%.2f, %.2f)", body->vecLinearVelocity.real, 
+	//	body->vecLinearVelocity.imag);
 }
 
 
@@ -181,17 +181,20 @@ void TestBasic2Init()
 	s_world->fStepTime = 0.03;
 
 	body = PG_BodyNew();
-	PG_Set_Vector2(body->vecPosition,0,0);
-	PG_Set_Vector2(body->vecLinearVelocity, 0, -80.f);
-	body->fRotation = M_PI/4;
+	PG_Set_Vector2(body->vecPosition, 0, 0);
+	PG_Set_Vector2(body->vecLinearVelocity, 0, 0.f);
+	body->fRotation = 0;
 	body->fAngleVelocity = 0.f;
+	body->fRestitution = 1.f;
 	PG_Bind_RectShape(body, 20, 20, 0);
 	PG_AddBodyToWorld(s_world, body);
 	
 	body1 = PG_BodyNew();
 	PG_Set_Vector2(body1->vecPosition,0, -100);
 	body1->bStatic = 1;
-	PG_Bind_RectShape(body1, 300, 20, 0);
+	body1->fRestitution = 1.f;//for test
+	body1->fMass = 1e24;
+	PG_Bind_RectShape(body1, 600, 20, 0);
 	PG_AddBodyToWorld(s_world, body1);
 
 }
