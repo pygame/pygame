@@ -221,9 +221,7 @@ class CDTypeTest(unittest.TestCase):
           # CD.stop(): return None
           # stop audio playback
 
-        self.assert_(test_not_implemented()) 
-
-
+        self.assert_(test_not_implemented())
 
 ################################################################################
 
