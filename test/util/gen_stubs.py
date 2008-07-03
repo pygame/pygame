@@ -16,13 +16,33 @@ sys.path.append( abspath(normpath( join(dirname(__file__), '../') )) )
 
 #################################### IGNORES ###################################
 
+# Anything not wanted to be stubbed, such as aliases, or redundancies
+
+IGNORES = set([
+
+    pygame.rect.Rect.h,           pygame.rect.Rect.w,
+    pygame.rect.Rect.x,           pygame.rect.Rect.y,
+
+    pygame.color.Color.a,         pygame.color.Color.b,
+    pygame.color.Color.g,         pygame.color.Color.r,
+    
+    # Ignore by class: all methods and getter setters cut from root
+    
+    # pygame.sprite.AbstractGroup,
+
+    pygame.sprite.LayeredUpdates,
+    pygame.sprite.LayeredDirty,
+    pygame.sprite.OrderedUpdates,
+    pygame.sprite.GroupSingle,
+    pygame.sprite.RenderUpdates,
+    pygame.sprite.Group,
+])
+
 # pygame.sprite.Sprite.__module__ = 'pygame.sprite' 
 # pygame.sprite.Rect.__module__   = 'pygame'
 
-# In [7]: pygame.overlay.Overlay.__name__
-# Out[7]: 'overlay'
-
 # Mapping of callable to module where it's defined
+# Place any object that appears in modules other than it's home in here
 
 REAL_HOMES = {
     pygame.rect.Rect         : pygame.rect,
@@ -34,12 +54,13 @@ REAL_HOMES = {
     pygame.font.get_fonts    : pygame.font,
     pygame.font.match_font   : pygame.font,
 }
-  
-MUST_INSTANTIATE = {
-    # BaseType                        # Instance
 
-    pygame.cdrom.CDType            :  (pygame.cdrom.CD, (1,)),
-    pygame.mixer.ChannelType       :  (pygame.mixer.Channel, (1,)),
+MUST_INSTANTIATE = {
+    
+    # BaseType / Helper               # (Instantiator / Args) / Callable
+
+    pygame.cdrom.CDType            :  (pygame.cdrom.CD, (0,)),
+    pygame.mixer.ChannelType       :  (pygame.mixer.Channel, (0,)),
     pygame.time.Clock              :  (pygame.time.Clock, ()),
 
     # pygame.event.Event         :  None,
@@ -58,9 +79,9 @@ def get_instance(type_):
 
     try:
         return helper(*arg)
-    except:
-        # TODO: raise or not to raise??
-        raw_input("FAILED TO CREATE INSTANCE OF %s" % type_)
+    except Exception, e:
+        raw_input("FAILED TO CREATE INSTANCE OF %s\n%s\n" 
+                  "Press Enter to continue" % (type_, e))
         return type_
 
 ##################################### TODO #####################################
@@ -89,15 +110,19 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 
 ############################## REGULAR EXPRESSIONS #############################
 
-module_re = re.compile(r"pygame\.([^.]*)\.?")
+module_re = re.compile(r"pygame\.([^.]+)\.?")
 
 #################################### OPTIONS ###################################
 
 opt_parser = OptionParser()
 
 opt_parser.add_option (
-     "-l",  "--list", dest = "list", action = 'store_true',
-     help   = "list only callable names not stubs" )
+     "-l",  "--list", action = 'store_true',
+     help   = "list callable names not stubs" )
+
+opt_parser.add_option (
+     "-t",  "--test_names", action = 'store_true',
+     help   = "list test names not stubs" )
 
 opt_parser.set_usage(
 """
@@ -177,14 +202,14 @@ def test_stub(f, module, parent_class = None):
         unitname = unit_name,
     )
 
-    return unit_name, stub
+    return unit_name, (test_name, stub)
 
 def make_stubs(seq, module, class_=None):
     return dict( test_stub(c, module, class_) for c in seq )
 
 def module_stubs(module):
     stubs = {}
-    all_callables = get_callables(module, check_where_defined = True)
+    all_callables = get_callables(module, check_where_defined = True) - IGNORES
     classes = set (
         c for c in all_callables if isclass(c) or c in MUST_INSTANTIATE
     )
@@ -196,7 +221,7 @@ def module_stubs(module):
             class_ = get_instance(class_)
 
         stubs.update (
-            make_stubs(get_callables(class_), module, base_type)
+            make_stubs(get_callables(class_) - IGNORES, module, base_type)
         )
 
     stubs.update(make_stubs(all_callables - classes, module))
@@ -232,7 +257,7 @@ def already_tested_in_module(module):
         for test in get_callables(class_, is_test):
             fname = test.__name__[5:].split('__')[0]
             already.append("%s%s.%s" % (mod_name, class_tested, fname))
-    
+
     return already
 
 def already_tested_in_package(package):
@@ -245,7 +270,7 @@ def already_tested_in_package(package):
 
 ################################################################################
 
-def get_stubs(root):    
+def get_stubs(root):
     module_root = module_re.search(root)
     if module_root:
         module = getattr(pygame, module_root.group(1))
@@ -270,6 +295,10 @@ if __name__ == "__main__":
 
     for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
         if not fname.startswith(root): continue  # eg. module.Class
-        print options.list and fname or stubs[fname]
+        test_name, stub = stubs[fname]
+
+        if options.list: print "%s," % fname
+        elif options.test_names: print test_name
+        else: print stub
 
 ################################################################################
