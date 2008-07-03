@@ -23,6 +23,7 @@ sys.path.append( abspath(normpath( join(dirname(__file__), '../') )) )
 # Out[7]: 'overlay'
 
 # Mapping of callable to module where it's defined
+
 REAL_HOMES = {
     pygame.rect.Rect         : pygame.rect,
     pygame.mask.from_surface : pygame.mask,
@@ -33,24 +34,24 @@ REAL_HOMES = {
     pygame.font.get_fonts    : pygame.font,
     pygame.font.match_font   : pygame.font,
 }
-
-# Types that need instantiating before inspection
+  
 MUST_INSTANTIATE = {
-    pygame.cdrom.CDType          :  (pygame.cdrom.CD, (1,)),
+    # BaseType                        # Instance
 
-    # pygame.event.Event       :  None,
-    # pygame.joystick.Joystick :  None,
-    # pygame.time.Clock        :  (),
-    # pygame.mixer.Channel     :  None,
+    pygame.cdrom.CDType            :  (pygame.cdrom.CD, (1,)),
+    pygame.mixer.ChannelType       :  (pygame.mixer.Channel, (1,)),
+    pygame.time.Clock              :  (pygame.time.Clock, ()),
+
+    # pygame.event.Event         :  None,
+    # pygame.joystick.Joystick   :  None,
     # pygame.movie.Movie       :  None,
     # pygame.mask.Mask         :  None,
     # pygame.display.Info      :  None,
 }
 
-if MUST_INSTANTIATE:
+def get_instance(type_):
     pygame.init()
 
-def get_instance(type_):
     helper = MUST_INSTANTIATE.get(type_)
     if callable(helper): return helper()
     helper, arg = helper
@@ -58,7 +59,8 @@ def get_instance(type_):
     try:
         return helper(*arg)
     except:
-        "FAILED TO CREATE INSTANCE OF %s" % type_
+        # TODO: raise or not to raise??
+        raw_input("FAILED TO CREATE INSTANCE OF %s" % type_)
         return type_
 
 ##################################### TODO #####################################
@@ -66,8 +68,6 @@ def get_instance(type_):
 """
 
 Test
-    
-More instances
 
 """
 
@@ -97,7 +97,7 @@ opt_parser = OptionParser()
 
 opt_parser.add_option (
      "-l",  "--list", dest = "list", action = 'store_true',
-     help   = "list only test names not stubs" )
+     help   = "list only callable names not stubs" )
 
 opt_parser.set_usage(
 """
@@ -140,16 +140,16 @@ def is_test(f):
 
 def get_callables(obj, if_of = None, check_where_defined=False):
     publics = (getattr(obj, x) for x in dir(obj) if is_public(x))
-    callables = [x for x in publics if callable(x)]
-    
+    callables = (x for x in publics if callable(x) or isgetsetdescriptor(x))
+
     if check_where_defined:
-        callables = (c for c in callables if ( 'pygame' in c.__module__ or 
+        callables = (c for c in callables if ( 'pygame' in c.__module__ or
                     ('__builtin__' == c.__module__ and isclass(c)) )
-                    and REAL_HOMES.get(c) in (None, obj))
+                    and REAL_HOMES.get(c, 0) in (0, obj))
 
     if if_of:
-        callables = [x for x in callables if if_of(x)] # isclass, ismethod etc
-    
+        callables = (x for x in callables if if_of(x)) # isclass, ismethod etc
+
     return set(callables)
 
 def get_class_from_test_case(TC):
@@ -160,17 +160,15 @@ def get_class_from_test_case(TC):
 def names_of(*args):
     return tuple(map(lambda o: getattr(o, "__name__", str(o)), args))
 
-def callable_name(module, c, class_=None):
-    if class_:
-        return '%s.%s.%s' % names_of(module, class_, c)
-    else:
-        return '%s.%s' % names_of(module, c)
+def callable_name(*args):
+    args = [a for a in args if a]
+    return ('.'.join(['%s'] * len(args))) % names_of(*args)
 
 ################################################################################
 
 def test_stub(f, module, parent_class = None):
     test_name = 'test_%s' % f.__name__
-    unit_name = callable_name(module, f, parent_class)
+    unit_name = callable_name(module, parent_class, f)
 
     stub = STUB_TEMPLATE.render (
 
@@ -182,25 +180,23 @@ def test_stub(f, module, parent_class = None):
     return unit_name, stub
 
 def make_stubs(seq, module, class_=None):
-    return dict( test_stub(f, module, class_) for f in seq )
+    return dict( test_stub(c, module, class_) for c in seq )
 
 def module_stubs(module):
     stubs = {}
     all_callables = get_callables(module, check_where_defined = True)
+    classes = set (
+        c for c in all_callables if isclass(c) or c in MUST_INSTANTIATE
+    )
 
-    classes = set(c for c in all_callables if isclass(c))
-    
     for class_ in classes:
-        base_type = class_          # eg cdrom.CD has no __name__
-        
-        if class_ in MUST_INSTANTIATE: 
+        base_type = class_
+
+        if class_ in MUST_INSTANTIATE:
             class_ = get_instance(class_)
-            
-        get_set = (m[1] for m in getmembers(class_, isgetsetdescriptor))
-        get_set = set(c for c in get_set if is_public(c))
 
         stubs.update (
-            make_stubs(get_set ^ get_callables(class_), module, base_type) 
+            make_stubs(get_callables(class_), module, base_type)
         )
 
     stubs.update(make_stubs(all_callables - classes, module))
@@ -215,16 +211,18 @@ def package_stubs(package):
 
     return stubs
 
+################################################################################
+
 def already_tested_in_module(module):
     already = []
 
     mod_name =  module.__name__
     test_name = "%s_test" % mod_name[7:]
-    
+
     try: test_file = __import__(test_name)
-    except ImportError:
+    except ImportError:                              #TODO:  create a test file?
         return []
-    
+
     classes = get_callables(test_file, isclass)
     test_cases = (t for t in classes if TestCase in t.__bases__)
     
@@ -245,7 +243,9 @@ def already_tested_in_package(package):
 
     return already
 
-def get_stubs(root):
+################################################################################
+
+def get_stubs(root):    
     module_root = module_re.search(root)
     if module_root:
         module = getattr(pygame, module_root.group(1))
@@ -259,7 +259,7 @@ def get_stubs(root):
 
 if __name__ == "__main__":
     options, args = opt_parser.parse_args()
-    if not sys.argv[1:]: 
+    if not sys.argv[1:]:
         sys.exit(opt_parser.print_help())
 
     root = args and args[0] or 'pygame'
@@ -270,7 +270,6 @@ if __name__ == "__main__":
 
     for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
         if not fname.startswith(root): continue  # eg. module.Class
-        stub = stubs[fname]
-        print options.list and fname or stub
+        print options.list and fname or stubs[fname]
 
 ################################################################################

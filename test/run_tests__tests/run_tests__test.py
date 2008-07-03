@@ -9,8 +9,8 @@ IGNORE =  (
     'infinite_loop',
 )
 NORMALIZERS = (
-    (r"Ran (\d+) tests in (\d+\.\d+)s", "Ran \\1 tests in X.XXXs" ),
-    (r'File ".*?([^/\\.]+\.py)"', 'File "\\1"')  
+    (r"Ran (\d+) tests in (\d+\.\d+)s",   "Ran \\1 tests in X.XXXs" ),
+    (r'File ".*?([^/\\.]+\.py)"',         'File "\\1"')  
     #TODO: look into why os.path.sep differs
 )
 
@@ -53,7 +53,7 @@ test_suite_dirs = [x for x in os.listdir(main_dir)
 # Test that output is the same in single process and subprocess modes 
 #
 
-single_cmd = "%s run_tests_sub.py -f %s"
+single_cmd = "%s run_tests.py -f %s"
 subprocess_cmd = single_cmd + ' -s'
 
 passes = 0

@@ -195,8 +195,129 @@ class MixerModuleTest(unittest.TestCase):
 ############################## CHANNEL CLASS TESTS #############################
 
 class ChannelTypeTest(unittest.TestCase):
+    
     def test_Channel(self):
       self.assert_(test_not_implemented())
+      
+    def test_fadeout(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.fadeout:
+
+          # Channel.fadeout(time): return None
+          # stop playback after fading channel out
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_busy(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.get_busy:
+
+          # Channel.get_busy(): return bool
+          # check if the channel is active
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_endevent(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.get_endevent:
+
+          # Channel.get_endevent(): return type
+          # get the event a channel sends when playback stops
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_queue(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.get_queue:
+
+          # Channel.get_queue(): return Sound
+          # return any Sound that is queued
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_sound(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.get_sound:
+
+          # Channel.get_sound(): return Sound
+          # get the currently playing Sound
+
+        self.assert_(test_not_implemented()) 
+
+    def test_get_volume(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.get_volume:
+
+          # Channel.get_volume(): return value
+          # get the volume of the playing channel
+
+        self.assert_(test_not_implemented()) 
+
+    def test_pause(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.pause:
+
+          # Channel.pause(): return None
+          # temporarily stop playback of a channel
+
+        self.assert_(test_not_implemented()) 
+
+    def test_play(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.play:
+
+          # Channel.play(Sound, loops=0, maxtime=0, fade_ms=0): return None
+          # play a Sound on a specific Channel
+
+        self.assert_(test_not_implemented()) 
+
+    def test_queue(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.queue:
+
+          # Channel.queue(Sound): return None
+          # queue a Sound object to follow the current
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_endevent(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.set_endevent:
+
+          # Channel.set_endevent(): return None
+          # Channel.set_endevent(type): return None
+          # have the channel send an event when playback stops
+
+        self.assert_(test_not_implemented()) 
+
+    def test_set_volume(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.set_volume:
+
+          # Channel.set_volume(value): return None
+          # Channel.set_volume(left, right): return None
+          # set the volume of a playing channel
+
+        self.assert_(test_not_implemented()) 
+
+    def test_stop(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.stop:
+
+          # Channel.stop(): return None
+          # stop playback on a Channel
+
+        self.assert_(test_not_implemented()) 
+
+    def test_unpause(self):
+
+        # __doc__ (as of 2008-07-02) for pygame.mixer.Channel.unpause:
+
+          # Channel.unpause(): return None
+          # resume pause playback of a channel
+
+        self.assert_(test_not_implemented()) 
+
 
 ############################### SOUND CLASS TESTS ##############################
 
