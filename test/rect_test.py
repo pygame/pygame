@@ -51,7 +51,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( (abs(r.width),abs(r.height)), r2.size )
         self.assertEqual( (-2,-4), r2.topleft )
 
-    def testSetLeft( self ):
+    def test_left( self ):
         """Changing the left attribute moves the rect and does not change
            the rect's width
         """
@@ -62,7 +62,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( new_left, r.left )
         self.assertEqual( Rect(new_left,2,3,4), r )
     
-    def testSetRight( self ):
+    def test_right( self ):
         """Changing the right attribute moves the rect and does not change
            the rect's width
         """
@@ -76,7 +76,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_left, r.left )
         self.assertEqual( old_width, r.width )
        
-    def testSetTop( self ):
+    def test_top( self ):
         """Changing the top attribute moves the rect and does not change
            the rect's width
         """
@@ -87,7 +87,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( Rect(1,new_top,3,4), r )
         self.assertEqual( new_top, r.top )
     
-    def testSetBottom( self ):
+    def test_bottom( self ):
         """Changing the bottom attribute moves the rect and does not change
            the rect's height
         """
@@ -101,7 +101,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_top, r.top )
         self.assertEqual( old_height, r.height )
     
-    def testSetCenterX( self ):
+    def test_centerx( self ):
         """Changing the centerx attribute moves the rect and does not change
            the rect's width
         """
@@ -115,7 +115,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_left, r.left )
         self.assertEqual( old_width, r.width )
     
-    def testSetCenterY( self ):
+    def test_centery( self ):
         """Changing the centerx attribute moves the rect and does not change
            the rect's width
         """
@@ -129,7 +129,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_top, r.top )
         self.assertEqual( old_height, r.height )
     
-    def testSetTopLeft( self ):
+    def test_topleft( self ):
         """Changing the topleft attribute moves the rect and does not change
            the rect's size
         """
@@ -141,7 +141,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( new_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
         
-    def testSetBottomLeft( self ):
+    def test_bottomleft( self ):
         """Changing the bottomleft attribute moves the rect and does not change
            the rect's size
         """
@@ -155,7 +155,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetTopRight( self ):
+    def test_topright( self ):
         """Changing the bottomleft attribute moves the rect and does not change
            the rect's size
         """
@@ -169,7 +169,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetBottomRight( self ):
+    def test_bottomright( self ):
         """Changing the bottomright attribute moves the rect and does not change
            the rect's size
         """
@@ -183,7 +183,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetCenter( self ):
+    def test_center( self ):
         """Changing the center attribute moves the rect and does not change
            the rect's size
         """
@@ -197,7 +197,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetMidLeft( self ):
+    def test_midleft( self ):
         """Changing the midleft attribute moves the rect and does not change
            the rect's size
         """
@@ -211,7 +211,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetMidRight( self ):
+    def test_midright( self ):
         """Changing the midright attribute moves the rect and does not change
            the rect's size
         """
@@ -225,7 +225,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetMidTop( self ):
+    def test_midtop( self ):
         """Changing the midtop attribute moves the rect and does not change
            the rect's size
         """
@@ -239,7 +239,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetMidBottom( self ):
+    def test_midbottom( self ):
         """Changing the midbottom attribute moves the rect and does not change
            the rect's size
         """
@@ -253,7 +253,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
     
-    def testSetWidth( self ):
+    def test_width( self ):
         "Changing the width resizes the rect from the top-left corner"
         r = Rect( 1, 2, 3, 4 )
         new_width = 10
@@ -265,7 +265,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( old_height, r.height )
         self.assertEqual( old_topleft, r.topleft )
     
-    def testSetHeight( self ):
+    def test_height( self ):
         "Changing the height resizes the rect from the top-left corner"
         r = Rect( 1, 2, 3, 4 )
         new_height = 10
@@ -277,7 +277,7 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( old_width, r.width )
         self.assertEqual( old_topleft, r.topleft )
     
-    def testSetSize( self ):
+    def test_size( self ):
         "Changing the size resizes the rect from the top-left corner"
         r = Rect( 1, 2, 3, 4 )
         new_size = (10,20)
