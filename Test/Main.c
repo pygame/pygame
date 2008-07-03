@@ -250,7 +250,13 @@ void TestBasic4Init()
 		PG_AddBodyToWorld(s_world,body[i]);
 	}
 
-	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,50,0)
+	body1 = PG_BodyNew();
+	PG_Set_Vector2(body1->vecPosition,50, 0);
+	body1->bStatic = 1;
+	PG_Bind_RectShape(body1, 20, 300, 0);
+	PG_AddBodyToWorld(s_world, body1);
+
+	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,100,0)
 
 	i = 0;
 	joint[i] = PG_DistanceJointNew(body[i+1],body[i],0,50,a1,a2);

@@ -18,7 +18,8 @@ void PG_ShapeObjectInit(pgShapeObject* shape)
 
 void PG_ShapeObjectDestroy(pgShapeObject* shape)
 {
-	shape->Destroy(shape);
+	if(shape != NULL)
+		shape->Destroy(shape);
 }
 
 

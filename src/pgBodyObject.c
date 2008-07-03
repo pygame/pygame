@@ -43,6 +43,7 @@ void PG_BodyInit(pgBodyObject* body)
 	body->fRestitution = 1.0;
 	body->fRotation = 0.0;
 	body->fTorque = 0.0;
+	body->shape = NULL;
 	PG_Set_Vector2(body->vecForce,0.0,0.0);
 	PG_Set_Vector2(body->vecImpulse,0.0,0.0);
 	PG_Set_Vector2(body->vecLinearVelocity,0.0,0.0);

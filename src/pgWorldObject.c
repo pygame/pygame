@@ -214,11 +214,11 @@ static PyObject* _world_add_body(pgWorldObject* world,PyObject* pybody)
 	pgBodyObject* body = (pgBodyObject*)pybody;
 	if(PG_AddBodyToWorld(world,body))
 	{
-		Py_RETURN_TRUE;
+		Py_RETURN_FALSE;
 	}
 	else
 	{
-		Py_RETURN_FALSE;
+		Py_RETURN_TRUE;
 	}
 }
 

@@ -56,6 +56,7 @@ Py_complex c_mul_complex_with_real(Py_complex c,double d)
 Py_complex c_div_complex_with_real(pgVector2 c,double d)
 {
 	Py_complex r;
+	assert(d != 0);
 	r.real = c.real / d;
 	r.imag = c.imag / d;
 	return r;
