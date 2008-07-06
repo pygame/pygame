@@ -208,7 +208,7 @@ void TestBasic4Init()
 
 void InitWorld()
 {
-	TestBasic2Init();
+	TestBasic4Init();
 }
 
 int main (int argc, char** argv)

@@ -166,6 +166,31 @@ static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
 	}
 }
 
+static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
+{
+	double width,height,seta;
+	if (!PyArg_ParseTuple(args,"ddd",&width,&height,&seta))
+	{
+		//printf("fail\n"); //for test
+		PyErr_SetString(PyExc_ValueError,"parameters are wrong");
+		return NULL;
+	}
+	else
+	{
+		PG_Bind_RectShape((pgBodyObject*)body,width,height,seta);
+		if (((pgBodyObject*)body)->shape == NULL)
+		{
+			PyErr_SetString(PyExc_ValueError,"shape binding is failed");
+			return NULL;
+		}
+		else
+		{
+			//printf("%d\n",((pgBodyObject*)body)->shape);
+			Py_RETURN_NONE;
+		}
+	}
+}
+
 //===============================================================
 
 
@@ -179,7 +204,8 @@ static PyMemberDef _pgBody_members[] = {
 };
 
 static PyMethodDef _pgBody_methods[] = {
-    {NULL}  /* Sentinel */
+	{"bind_rect_shape",_pgBody_bindRectShape,METH_VARARGS,""},
+    {NULL, NULL, 0, NULL}   /* Sentinel */
 };
 
 static PyGetSetDef _pgBody_getseters[] = {

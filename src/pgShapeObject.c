@@ -70,7 +70,7 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 	PG_Set_Vector2(p->topLeft, -width/2, height/2);
 	for(i = 0; i < 4; ++i)
 		c_rotate(&(p->point[i]), seta);
-
+	
 	return (pgShapeObject*)p;
 }
 
