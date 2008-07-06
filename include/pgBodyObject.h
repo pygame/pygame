@@ -39,11 +39,6 @@ void PG_FreeUpdateBodyPos(pgWorldObject* world, pgBodyObject* body, double dt);
 //TODO: is the local coordinate necessary? anyway let it alone right now.
 pgVector2 PG_GetGlobalPos(pgBodyObject* body, pgVector2* local_p);
 
-//return the global velocity of a point p (on the rigid body)
-//(notice: here p is defined in the global coordinate)
-pgVector2 PG_AngleToLinear1(pgBodyObject* body, pgVector2* global_p);
-pgVector2 PG_AngleToLinear(pgVector2* r, double w);
-
 //translate vector from coordinate B to coordinate A
 pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B);
 

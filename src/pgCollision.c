@@ -2,7 +2,9 @@
 #include "pgAABBBox.h"
 #include "pgShapeObject.h"
 #include "pgBodyObject.h"
+#include "glTestSuite.h"
 #include <assert.h>
+#include <GL/glut.h>
 
 extern PyTypeObject pgContactType;
 
@@ -165,12 +167,6 @@ void PG_ApplyContact(PyObject* contactObject)
 	//k
 	refR = c_diff(contact->pos, refBody->vecPosition);
 	incidR = c_diff(contact->pos, incidBody->vecPosition);
-	
-	//tmp1 = refR.real*contact->normal.imag - refR.imag*contact->normal.real;
-	//tmp2 = incidR.real*contact->normal.imag - incidR.imag*contact->normal.real;
-
-	//k = 1/refBody->fMass + 1/incidBody->fMass + tmp1*tmp1/refBody->shape->rInertia
-	//	+ tmp2*tmp2/incidBody->shape->rInertia;
 
 	tmp1 = c_dot(c_fcross(c_cross(refR, contact->normal), refR), contact->normal)
 		 /refBody->shape->rInertia;
@@ -180,8 +176,11 @@ void PG_ApplyContact(PyObject* contactObject)
 	k = 1/refBody->fMass + 1/incidBody->fMass + tmp1 + tmp2;
 	
 	//dV = v2 + w2xr2 - (v1 + w1xr1)
-	incidV = c_sum(incidBody->vecLinearVelocity, PG_AngleToLinear1(incidBody, &(contact->pos)));
-	refV = c_sum(refBody->vecLinearVelocity, PG_AngleToLinear1(refBody, &(contact->pos)));
+	incidV = c_sum(incidBody->vecLinearVelocity, c_fcross(incidBody->fAngleVelocity,
+		           incidR));
+	refV = c_sum(refBody->vecLinearVelocity, c_fcross(refBody->fAngleVelocity,
+		         refR));
+
 	contact->dv = c_diff(incidV, refV);
 	neg_dV = c_diff(refV, incidV);
 	
@@ -212,7 +211,13 @@ void PG_UpdateV(pgJointObject* joint, double step)
 	refR = c_diff(contact->pos, refBody->vecPosition);
 	incidR = c_diff(contact->pos, incidBody->vecPosition);
 
-	if(contact->dv.imag > 0 && contact->dv.real > 0) return;
+	if(c_dot(contact->dv, contact->normal) > 0) return;
+	glPointSize(6.f);
+	glColor3f(1.f, 0.f, 0.f);
+	glBegin(GL_POINTS);
+	glVertex2d(contact->pos.real, contact->pos.imag);
+	glEnd();
+	glPointSize(1.f);
 
 	if(!refBody->bStatic)
 	{
@@ -225,7 +230,7 @@ void PG_UpdateV(pgJointObject* joint, double step)
 	{
 		incidBody->vecLinearVelocity = c_sum(incidBody->vecLinearVelocity, 
 			c_div_complex_with_real(moment, incidBody->fMass));
-		incidBody->fAngleVelocity += c_cross(refR, moment)/incidBody->shape->rInertia;
+		incidBody->fAngleVelocity += c_cross(incidR, moment)/incidBody->shape->rInertia;
 	}
 }
 

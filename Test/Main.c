@@ -1,78 +1,15 @@
 #include <GL/glut.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <stdarg.h>
-#include <stdio.h>
 
 #define HEIGHT 600
 #define WIDTH 600
-#define MAX_STR_LEN 1000
 
 /*-------------------------------测试工具----------------------------*/
 
 #include "pgPhysicsRenderer.h"
 #include "pgBodyObject.h"
+#include "glTestSuite.h"
 
 static pgWorldObject* s_world = NULL;
-static double s_updateTime = 0.0;
-
-//跑表
-static double s_time;
-
-void watch_start()
-{
-	s_time = (double)clock();
-}
-
-//计算从跑表打开到停止共经历了多少秒
-double watch_stop()
-{
-	return ((double)clock() - s_time)/CLOCKS_PER_SEC;
-}
-
-//渲染文字, 仅限英文，(x, y)是文字矩阵左上角坐标
-//每个字符字符宽9像素，高15像素
-void draw_text(int x, int y, char *str)
-{
-	int len, i, w, h;
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	w = glutGet(GLUT_WINDOW_WIDTH);
-	h = glutGet(GLUT_WINDOW_HEIGHT);
-	gluOrtho2D(0, w, h, 0);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glColor3f(0.6f, 0.8f, 0.6f);
-	glRasterPos2i(x, y + 15);
-	len = (int) strlen(str);
-	for (i = 0; i < len; i++)
-		glutBitmapCharacter(GLUT_BITMAP_9_BY_15, str[i]);
-
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-}
-
-//打印文字到屏幕，类似printf，推荐
-void glprintf(int x, int y, const char* fmt, ...)
-{
-	static char buf[MAX_STR_LEN];
-	va_list p;
-	va_start(p, fmt);
-	memset(buf, 0, sizeof(buf));
-	vsprintf(buf, fmt, p);
-	draw_text(x, y, buf);
-}
-
-
-
-
 
 /*-------------------------------测试函数----------------------------*/
 
@@ -82,10 +19,11 @@ pgBodyObject* body, * body1;
 void do_render()
 {
 	glColor3f(1.f, 1.f, 1.f);
-	PG_Update(s_world, 0.003);
+	PG_Update(s_world, 0.005);
 	PGT_RenderWorld(s_world);
-	//glprintf(0, 0, "Velocity of body1:(%.2f, %.2f)", body->vecLinearVelocity.real, 
+	//glprintf(0, 0, "Velocity of body: (%.2f, %.2f)", body->vecLinearVelocity.real, 
 	//	body->vecLinearVelocity.imag);
+	//glprintf(0, 20, "w of body: %d", body->fAngleVelocity);
 }
 
 
@@ -101,9 +39,6 @@ void keyboard (unsigned char key, int x, int y)
 		break;
 	}
 }
-
-
-
 
 
 /*-------------------------------设置函数----------------------------*/
@@ -166,14 +101,13 @@ void TestBasic1Init()
 	body = PG_BodyNew();
 	PG_Bind_RectShape(body, 20, 20, 0);
 	PG_Set_Vector2(body->vecPosition,0,0)
-	PG_Set_Vector2(body->vecLinearVelocity,40,0)
+	PG_Set_Vector2(body->vecLinearVelocity, 40, 0)
 	PG_AddBodyToWorld(s_world,body);
 	
 	
 	joint = PG_DistanceJointNew(body,NULL,0,100,a1,a2);
 	PG_AddJointToWorld(s_world,joint);
 }
-
 //test collision
 void TestBasic2Init()
 {
@@ -181,12 +115,12 @@ void TestBasic2Init()
 	s_world->fStepTime = 0.03;
 
 	body = PG_BodyNew();
-	PG_Set_Vector2(body->vecPosition, 0, 0);
-	PG_Set_Vector2(body->vecLinearVelocity, 0, 0.f);
-	body->fRotation = 0;
-	body->fAngleVelocity = 0.f;
+	PG_Set_Vector2(body->vecPosition, -50, 0);
+	PG_Set_Vector2(body->vecLinearVelocity, 10.f, -10.f);
+	body->fRotation = M_PI/4;
+	body->fAngleVelocity = 2.f;
 	body->fRestitution = 1.f;
-	PG_Bind_RectShape(body, 20, 20, 0);
+	PG_Bind_RectShape(body, 30, 30, 0);
 	PG_AddBodyToWorld(s_world, body);
 	
 	body1 = PG_BodyNew();
@@ -194,7 +128,7 @@ void TestBasic2Init()
 	body1->bStatic = 1;
 	body1->fRestitution = 1.f;//for test
 	body1->fMass = 1e24;
-	PG_Bind_RectShape(body1, 600, 20, 0);
+	PG_Bind_RectShape(body1, 500, 20, 0);
 	PG_AddBodyToWorld(s_world, body1);
 
 }
@@ -291,4 +225,3 @@ int main (int argc, char** argv)
 	glutMainLoop();
 	return 0;
 }
-
