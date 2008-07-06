@@ -116,9 +116,9 @@ void TestBasic2Init()
 
 	body = PG_BodyNew();
 	PG_Set_Vector2(body->vecPosition, -50, 0);
-	PG_Set_Vector2(body->vecLinearVelocity, 10.f, -10.f);
+	PG_Set_Vector2(body->vecLinearVelocity, 16.f, -400.f);
 	body->fRotation = M_PI/4;
-	body->fAngleVelocity = 2.f;
+	body->fAngleVelocity = 5.f;
 	body->fRestitution = 1.f;
 	PG_Bind_RectShape(body, 30, 30, 0);
 	PG_AddBodyToWorld(s_world, body);
