@@ -8,7 +8,13 @@ extern PyTypeObject pgBodyType;
 
 void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta)
 {
-	body->shape = PG_RectShapeNew(body, width, height, seta);
+	if(body->shape == NULL)
+		body->shape = PG_RectShapeNew(body, width, height, seta);
+	else
+	{
+		Py_DECREF(body->shape);
+		body->shape = PG_RectShapeNew(body, width, height, seta);
+	}
 }
 
 void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
@@ -68,7 +74,7 @@ void PG_BodyDestroy(pgBodyObject* body)
 	*/
 
 	//delete shape
-	PG_ShapeObjectDestroy(body->shape);
+	Py_DECREF(body->shape);
 	body->ob_type->tp_free((PyObject*)body);
 }
 
@@ -187,6 +193,7 @@ static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
 		{
 			//printf("%d\n",((pgBodyObject*)body)->shape);
 			Py_RETURN_NONE;
+			//return ((pgBodyObject*)body)->shape;
 		}
 	}
 }

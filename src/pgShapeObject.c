@@ -6,6 +6,9 @@
 #include <assert.h>
 #include <float.h>
 
+//PyTypeObject pgShapeType;
+//PyTypeObject pgRectShapeType;
+
 //functions of pgShapeObject
 
 void PG_ShapeObjectInit(pgShapeObject* shape)
@@ -16,11 +19,88 @@ void PG_ShapeObjectInit(pgShapeObject* shape)
 	shape->Collision = NULL;
 }
 
+//pgShapeObject* _PG_ShapeNewInternal(PyTypeObject *type)
+//{
+//	pgShapeObject* op = (pgShapeObject*)type->tp_alloc(type, 0);
+//	PG_ShapeObjectInit(op);
+//	return op;
+//}
+//
 void PG_ShapeObjectDestroy(pgShapeObject* shape)
 {
 	if(shape != NULL)
 		shape->Destroy(shape);
+	PyObject_Free(shape);
 }
+//
+//PyObject* _pgShapeNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
+//{
+//	/* In case we have arguments in the python code, parse them later
+//	* on.
+//	*/
+//	PyObject* shape;
+//	if(PyType_Ready(type)==-1) return NULL;
+//
+//	shape = (PyObject*) _PG_ShapeNewInternal(type);
+//	return shape;
+//}
+//
+//static int _pgShape_init(pgShapeObject* shape,PyObject *args, PyObject *kwds)
+//{
+//	PG_ShapeObjectInit(shape);
+//	return 0;
+//}
+//
+//PyTypeObject pgShapeType =
+//{
+//	PyObject_HEAD_INIT(NULL)
+//	0,
+//	"physics.Shape",            /* tp_name */
+//	sizeof(pgShapeObject),      /* tp_basicsize */
+//	0,                          /* tp_itemsize */
+//	(destructor)PG_ShapeObjectDestroy,/* tp_dealloc */
+//	0,                          /* tp_print */
+//	0,                          /* tp_getattr */
+//	0,                          /* tp_setattr */
+//	0,                          /* tp_compare */
+//	0,                          /* tp_repr */
+//	0,                          /* tp_as_number */
+//	0,                          /* tp_as_sequence */
+//	0,                          /* tp_as_mapping */
+//	0,                          /* tp_hash */
+//	0,                          /* tp_call */
+//	0,                          /* tp_str */
+//	0,                          /* tp_getattro */
+//	0,                          /* tp_setattro */
+//	0,                          /* tp_as_buffer */
+//	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+//	"",                         /* tp_doc */
+//	0,                          /* tp_traverse */
+//	0,                          /* tp_clear */
+//	0,                          /* tp_richcompare */
+//	0,                          /* tp_weaklistoffset */
+//	0,                          /* tp_iter */
+//	0,                          /* tp_iternext */
+//	0,		   	/* tp_methods */
+//	0,            /* tp_members */
+//	0,          /* tp_getset */
+//	0,                          /* tp_base */
+//	0,                          /* tp_dict */
+//	0,                          /* tp_descr_get */
+//	0,                          /* tp_descr_set */
+//	0,                          /* tp_dictoffset */
+//	_pgShape_init,                          /* tp_init */
+//	0,                          /* tp_alloc */
+//	_pgShapeNew,                /* tp_new */
+//	0,                          /* tp_free */
+//	0,                          /* tp_is_gc */
+//	0,                          /* tp_bases */
+//	0,                          /* tp_mro */
+//	0,                          /* tp_cache */
+//	0,                          /* tp_subclasses */
+//	0,                          /* tp_weaklist */
+//	0                           /* tp_del */
+//};
 
 
 
@@ -51,13 +131,14 @@ void PG_RectShapeDestroy(pgShapeObject* rectShape)
 
 int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObject* contactList);
 
-
+//just for C test usage, not for python???
 pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, double seta)
 {
 	int i;
 	pgRectShape* p = (pgRectShape*)PyObject_MALLOC(sizeof(pgRectShape));
+	//pgRectShape* p = PyObject_New(pgRectShape,&pgRectShapeType);
 
-	PG_ShapeObjectInit(&(p->shape));
+	//PG_ShapeObjectInit(&(p->shape));
 	p->shape.Destroy = PG_RectShapeDestroy;
 	p->shape.UpdateAABB = PG_RectShapeUpdateAABB;
 	p->shape.Collision = PG_RectShapeCollision;
@@ -73,6 +154,16 @@ pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, 
 	
 	return (pgShapeObject*)p;
 }
+
+//static int _pgRectShape_init(pgRectShape* joint,PyObject *args, PyObject *kwds)
+//{
+//	if(pgJointType.tp_init((PyObject*)joint, args, kwds) < 0)
+//	{
+//		return -1;
+//	}
+//
+//	return 0;
+//}
 
 //-------------box's collision test------------------
 //TEST: these functions have been partly tested.
@@ -652,3 +743,56 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	return 1;
 
 }
+
+
+//PyTypeObject pgRectShapeType =
+//{
+//	PyObject_HEAD_INIT(NULL)
+//	0,
+//	"physics.RectShape",            /* tp_name */
+//	sizeof(pgRectShape),      /* tp_basicsize */
+//	0,                          /* tp_itemsize */
+//	(destructor) 0,				/* tp_dealloc */
+//	0,                          /* tp_print */
+//	0,                          /* tp_getattr */
+//	0,                          /* tp_setattr */
+//	0,                          /* tp_compare */
+//	0,                          /* tp_repr */
+//	0,                          /* tp_as_number */
+//	0,                          /* tp_as_sequence */
+//	0,                          /* tp_as_mapping */
+//	0,                          /* tp_hash */
+//	0,                          /* tp_call */
+//	0,                          /* tp_str */
+//	0,                          /* tp_getattro */
+//	0,                          /* tp_setattro */
+//	0,                          /* tp_as_buffer */
+//	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+//	"",                         /* tp_doc */
+//	0,                          /* tp_traverse */
+//	0,                          /* tp_clear */
+//	0,                          /* tp_richcompare */
+//	0,                          /* tp_weaklistoffset */
+//	0,                          /* tp_iter */
+//	0,                          /* tp_iternext */
+//	0,							/* tp_methods */
+//	0,	/* tp_members */
+//	0,							/* tp_getset */
+//	0,							/* tp_base */
+//	0,                          /* tp_dict */
+//	0,                          /* tp_descr_get */
+//	0,                          /* tp_descr_set */
+//	0,                          /* tp_dictoffset */
+//	(initproc)_pgRectShape_init,  /* tp_init */
+//	0,                          /* tp_alloc */
+//	0,							/* tp_new */
+//	0,                          /* tp_free */
+//	0,                          /* tp_is_gc */
+//	0,                          /* tp_bases */
+//	0,                          /* tp_mro */
+//	0,                          /* tp_cache */
+//	0,                          /* tp_subclasses */
+//	0,                          /* tp_weaklist */
+//	0                           /* tp_del */
+//};
+

@@ -246,6 +246,7 @@ void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect,double dist,pgVector2 a1,pgVector2 a2)
 {
 	pgDistanceJointObject* pjoint = (pgDistanceJointObject*)PyObject_MALLOC(sizeof(pgDistanceJointObject));	
+	//pgDistanceJointObject* pjoint = (pgDistanceJointObject*)PyObject_MALLOC(sizeof(pgDistanceJointObject));
 	PG_InitJointBase(&(pjoint->joint), b1, b2, bCollideConnect);
 	pjoint->distance = dist;
 	pjoint->anchor1 = a1;
