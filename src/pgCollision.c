@@ -146,8 +146,11 @@ void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* 
 	refBody->shape->Collision(refBody, incidBody, contactList);
 }
 
-void PG_ApplyContact(PyObject* contactObject)
+void PG_ApplyContact(PyObject* contactObject, double step)
 {
+#define MAX_C_DEP 0.08
+#define BIAS_FACTOR 0.02
+
 	pgVector2 neg_dV, refV, incidV;
 	pgVector2 refR, incidR;
 	pgContact *contact;
@@ -156,11 +159,13 @@ void PG_ApplyContact(PyObject* contactObject)
 	double moment_len;
 	pgVector2 moment;
 	pgVector2* p;
+	double vbias;
 
 	contact = (pgContact*)contactObject;
 	refBody = contact->joint.body1;
 	incidBody = contact->joint.body2;
 
+	vbias = BIAS_FACTOR*MAX(0, contact->depth - MAX_C_DEP)/step;
 	contact->resist = sqrtf(refBody->fRestitution*incidBody->fRestitution);
 
 	//calculate the normal impulse
@@ -186,8 +191,9 @@ void PG_ApplyContact(PyObject* contactObject)
 	
 	moment_len = c_dot(neg_dV, contact->normal)/k;
 	moment_len *= contact->resist;
-	if(moment_len < 0)
-		moment_len = 0;
+	//climp
+	moment_len = MAX(0, moment_len + vbias/k);
+	
 	//finally we get the momentum(oh...)
 	moment = c_mul_complex_with_real(contact->normal, moment_len);
 	p = *(contact->ppAccMoment);

@@ -60,7 +60,7 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	for(i = 0; i < cnt; ++i)
 	{
 		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
-		PG_ApplyContact((PyObject*)contact);
+		PG_ApplyContact((PyObject*)contact, step);
 	}
 	//update V
 	for(i = 0; i < cnt; ++i)

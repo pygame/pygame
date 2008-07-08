@@ -598,7 +598,8 @@ static int _Get_Depth(pgBodyObject* refBody, pgBodyObject* incBody,
 
 static int _SAT_Select(pgBodyObject* body1, pgBodyObject* body2,
 					   pgBodyObject** refBody, pgBodyObject** incBody,
-					   int* face_id, pgVector2* gp_in_ref, pgAABBBox* clipBox)
+					   int* face_id, pgVector2* gp_in_ref, pgAABBBox* clipBox,
+					   double* minDep)
 {
 	double min_dep[2];
 	int id[2];
@@ -621,6 +622,7 @@ static int _SAT_Select(pgBodyObject* body1, pgBodyObject* body2,
 		for(i = 0; i < 4; ++i)
 			gp_in_ref[i] = gp[0][i];
 		*clipBox = cb[0];
+		*minDep = min_dep[0];
 	}
 	else
 	{
@@ -630,6 +632,7 @@ static int _SAT_Select(pgBodyObject* body1, pgBodyObject* body2,
 		for(i = 0; i < 4; ++i)
 			gp_in_ref[i] = gp[1][i];
 		*clipBox = cb[1];
+		*minDep = min_dep[1];
 	}
 
 	return 1;
@@ -679,7 +682,7 @@ int _Build_Contacts(pgVector2* gp, pgAABBBox* clipBox, int axis,
 int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody, 
 						  PyObject* contactList)
 {
-#define MAX_CONTACTS 10
+#define MAX_CONTACTS 8
 
 	pgBodyObject* ref = NULL, *inc = NULL;
 	int face_id;
@@ -692,11 +695,12 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	pgVector2* pAcc;
 	pgContact* contact;
 	int i;
+	double minDep;
 
 
 	overlap = _SAT_Select(selfBody, incidBody,
 						  &ref, &inc,
-						  &face_id, gp, &clipBox);
+						  &face_id, gp, &clipBox, &minDep);
 
 	if(!overlap) return 0;
 
@@ -737,6 +741,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 		contact->ppAccMoment = PyObject_Malloc(sizeof(pgVector2*));
 		*(contact->ppAccMoment) = pAcc;
 		contact->weight = csize;
+		contact->depth = minDep;
 		PyList_Append(contactList, (PyObject*)contact);
 	}
 
