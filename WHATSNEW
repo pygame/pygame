@@ -6,6 +6,9 @@
 #
 #
 
+Jul 8, 2008
+    run_tests.py improved with --help and running stuff in subprocesses.
+
 Jun 25, 2008
     Added many extra empty test stubs for untested things.  Thanks Nicholas!
     Test runner that works with subprocess and threads to isolate tests.
