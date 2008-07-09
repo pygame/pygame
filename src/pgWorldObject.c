@@ -17,7 +17,6 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));		
 		PG_FreeUpdateBodyVel(world, body, stepTime);
-		printf("body pointer in body free:%d\n",body);	
 	}
 }
 
@@ -40,8 +39,6 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	for(i = 0; i < size; ++i)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
-		printf("update AABB shape:%d\n",refBody->shape); 
-		printf("body pointer in body AABB:%d\n",refBody);
 		refBody->shape->UpdateAABB(refBody);
 	}
 	
@@ -107,6 +104,7 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));
 		PG_FreeUpdateBodyPos(world,body,stepTime);
+		
 	}
 }
 
@@ -115,10 +113,8 @@ void PG_Update(pgWorldObject* world,double stepTime)
 {
 	int i;
 	pgBodyObject* refBody;
-	printf("world update:%d\n",world);
 	_PG_FreeBodySimulation(world, stepTime);
 	_PG_BodyCollisionDetection(world, stepTime);
-	printf("OK\n");
 	for (i = 0;i < MAX_SOLVE_INTERAT;i++)
 	{
 		_PG_JointSolve(world, stepTime);
@@ -126,13 +122,11 @@ void PG_Update(pgWorldObject* world,double stepTime)
 	
 	_PG_BodyPositionUpdate(world, stepTime);
 	refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), 0));
-	printf("body pointer in world update:%d\n",refBody);
 }
 
 
 int PG_AddBodyToWorld(pgWorldObject* world,pgBodyObject* body)
 {
-	printf("body pointer in body add:%d\n",body);
 	return PyList_Append((PyObject*)world->bodyList,(PyObject*)body);
 }
 
@@ -218,8 +212,7 @@ static PyObject* _world_update(pgWorldObject* world,PyObject* pyfloat)
 {
 	double dt = 0.1;
 	//double dt = PyFloat_AsDouble(pyfloat);
-	printf("%f,%d\n",dt,world);
-	
+		
 	PG_Update(world,dt);
 	Py_RETURN_NONE;
 }
@@ -263,6 +256,7 @@ static int _pgWorld_setGravity(pgWorldObject* world,PyObject* value,void* closur
 
 static PyObject* _pgWorld_getBodyList(pgWorldObject* world,void* closure)
 {
+	Py_INCREF ((PyObject*)world->bodyList);
 	return (PyObject*)world->bodyList;
 }
 

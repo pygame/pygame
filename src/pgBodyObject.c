@@ -8,7 +8,6 @@ extern PyTypeObject pgBodyType;
 
 void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta)
 {
-	printf("body pointer in bind:%d\n",body);
 	if(body->shape == NULL)
 		body->shape = PG_RectShapeNew(body, width, height, seta);
 	else
@@ -29,6 +28,7 @@ void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 	k = dt / body->fMass;
 	totalVelAdd = c_mul_complex_with_real(totalF, k);
 	body->vecLinearVelocity = c_sum(body->vecLinearVelocity, totalVelAdd);
+	
 }
 
 void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
@@ -51,6 +51,7 @@ void PG_BodyInit(pgBodyObject* body)
 	body->fRotation = 0.0;
 	body->fTorque = 0.0;
 	body->shape = NULL;
+	body->bStatic = 0;
 	PG_Set_Vector2(body->vecForce,0.0,0.0);
 	PG_Set_Vector2(body->vecImpulse,0.0,0.0);
 	PG_Set_Vector2(body->vecLinearVelocity,0.0,0.0);
@@ -66,7 +67,6 @@ PyObject* _PG_BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	op = PyObject_New(pgBodyObject,type);
 	Py_INCREF(op);
 	PG_BodyInit(op);
-	printf("body pointer in body new:%d\n",op);
 	return (PyObject*)op;
 }
 
@@ -181,7 +181,6 @@ static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
 	double width,height,seta;
 	if (!PyArg_ParseTuple(args,"ddd",&width,&height,&seta))
 	{
-		//printf("fail\n"); //for test
 		PyErr_SetString(PyExc_ValueError,"parameters are wrong");
 		return NULL;
 	}
@@ -195,7 +194,6 @@ static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
 		}
 		else
 		{
-			printf("bind shape:%d\n",((pgBodyObject*)body)->shape);
 			Py_RETURN_NONE;
 			//return ((pgBodyObject*)body)->shape;
 		}

@@ -17,9 +17,11 @@ def render_world(world,surface,color):
 
 def init_world():
     w = physics.World()
+    w.gravity = 0+1j
     body1 = physics.Body()
     body1.bind_rect_shape(2,2,0)
-    body1.position = 1+2j
+    body1.position = 10+20j
+    body1.velocity = 1+0j;
     w.add_body(body1)
     return w
 
