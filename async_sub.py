@@ -207,7 +207,9 @@ class AsyncTest(unittest.TestCase):
         finally:
             fh.close()
 
-        ret_code, response = proc_in_time_or_kill(temp_file, time_out=1)
+        ret_code, response = proc_in_time_or_kill(
+            "%s %s" % (sys.executable, temp_file), time_out = 1
+        )
 
         self.assert_(
             ret_code.startswith('"Process timed out') and
