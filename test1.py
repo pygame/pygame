@@ -22,7 +22,14 @@ def init_world():
     body1.bind_rect_shape(2,2,0)
     body1.position = 10+20j
     body1.velocity = 1+0j;
+    body1.restitution = 3.0
     w.add_body(body1)
+    body2 = physics.Body()
+    body2.bind_rect_shape(2,2,0)
+    body2.position = 20+20j
+    body2.velocity = -1+0j;
+    body1.restitution = 3.0
+    w.add_body(body2)
     return w
 
 
