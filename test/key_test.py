@@ -4,7 +4,6 @@ import test_utils
 from test_utils import test_not_implemented
 
 import pygame
-import pygame.display
 
 class KeyModuleTest(unittest.TestCase):
     def test_import(self):

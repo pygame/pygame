@@ -1,9 +1,11 @@
 #################################### IMPORTS ###################################
 
-import test_utils, unittest
+import test_utils, unittest, time
 from test_utils import test_not_implemented
 
-from pygame.threads import FuncResult, tmap, WorkerQueue
+from pygame.threads import FuncResult, tmap, WorkerQueue, Empty, STOP
+
+import pygame.threads as threads
 
 ################################################################################
 
@@ -18,8 +20,8 @@ class WorkerQueueTypeTest(unittest.TestCase):
         wq = WorkerQueue()
         fr = FuncResult(f)
         fr2 = FuncResult(f2)
-        wq.do(fr, [1], {})
-        wq.do(fr2, [1], {})
+        wq.do(fr, 1)
+        wq.do(fr2, 1)
         wq.wait()
         wq.stop()
 
@@ -31,9 +33,8 @@ class WorkerQueueTypeTest(unittest.TestCase):
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.do:
 
           # puts a function on a queue for running later.
-          #         
-
-        self.assert_(test_not_implemented()) 
+          #
+        return
 
     def test_stop(self):
 
@@ -41,8 +42,18 @@ class WorkerQueueTypeTest(unittest.TestCase):
 
           # Stops the WorkerQueue, waits for all of the threads to finish up.
           #         
-
-        self.assert_(test_not_implemented()) 
+        
+        wq = WorkerQueue()
+        
+        self.assert_(len(wq.pool) > 0)
+        for t in wq.pool: self.assert_(t.isAlive())
+        
+        for i in xrange(200): wq.do(lambda x: x+1, i)
+        
+        wq.stop()
+        for t in wq.pool: self.assert_(not t.isAlive())
+        
+        self.assert_(wq.queue.get() is STOP)
 
     def test_threadloop(self):
 
@@ -51,7 +62,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
           # Loops until all of the tasks are finished.
           #         
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_wait(self):
 
@@ -60,10 +71,18 @@ class WorkerQueueTypeTest(unittest.TestCase):
           # waits until all tasks are complete.
           #         
 
-        self.assert_(test_not_implemented()) 
+        wq = WorkerQueue()
+        
+        for i in xrange(2000): wq.do(lambda x: x+1, i)
+        wq.wait()
+
+        self.assertRaises(Empty, wq.queue.get_nowait)
+
+        wq.stop()
 
 class ThreadsModuleTest(unittest.TestCase):
     def test_benchmark_workers(self):
+        "tags:long_running"
 
         # __doc__ (as of 2008-06-28) for pygame.threads.benchmark_workers:
 
@@ -75,7 +94,7 @@ class ThreadsModuleTest(unittest.TestCase):
           # a_bench_func - f(data)
           # the_data - data to work on.
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_init(self):
 
@@ -83,19 +102,27 @@ class ThreadsModuleTest(unittest.TestCase):
 
           # Does a little test to see if threading is worth it.
           #   Sets up a global worker queue if it's worth it.
-          # 
+          #
           # Calling init() is not required, but is generally better to do.
 
-        self.assert_(test_not_implemented()) 
+        threads.init(8)
+
+        self.assert_(isinstance(threads._wq, WorkerQueue))
+
+        threads.quit()
 
     def test_quit(self):
 
         # __doc__ (as of 2008-06-28) for pygame.threads.quit:
 
           # cleans up everything.
-          #     
+          #
 
-        self.assert_(test_not_implemented()) 
+        threads.init(8)
+
+        threads.quit()
+
+        self.assert_(threads._wq is None)
 
     def test_tmap(self):
         # __doc__ (as of 2008-06-28) for pygame.threads.tmap:

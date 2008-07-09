@@ -28,7 +28,7 @@ def norm_result(result):
 
 def call_proc(cmd):
     proc = subprocess.Popen (
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell = 1,
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     )
     assert not proc.wait()
     return proc.stdout.read()
@@ -68,10 +68,10 @@ for suite in test_suite_dirs:
 
     failed = normed_single != normed_subs
     if failed:
-        print '%s suite FAILED\n' % suite    
+        print '%s suite comparison FAILED\n' % suite    
     else:
         passes += 1
-        print '%s suite OK' % suite
+        print '%s suite comparison OK' % suite
     
     if verbose or failed:
         print "difflib.Differ().compare(single, suprocessed):\n"
@@ -82,7 +82,15 @@ for suite in test_suite_dirs:
             ))
         )
 
-print "\n%s/%s passes" % (passes, len(test_suite_dirs))
+
+print "infinite_loop suite (subprocess mode timeout)",
+loop_cmd = subprocess_cmd + ' -t 2'
+loop_test = call_proc(loop_cmd % (sys.executable, "infinite_loop"))
+passes += 1
+print "OK"
+
+print "\n%s/%s passes" % (passes, len(test_suite_dirs) + 1)
+
 print "\n-h for help"
 
 ################################################################################
