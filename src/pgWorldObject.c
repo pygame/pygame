@@ -17,7 +17,7 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));		
 		PG_FreeUpdateBodyVel(world, body, stepTime);
-		
+		printf("body pointer in body free:%d\n",body);	
 	}
 }
 
@@ -41,6 +41,7 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
 		printf("update AABB shape:%d\n",refBody->shape); 
+		printf("body pointer in body AABB:%d\n",refBody);
 		refBody->shape->UpdateAABB(refBody);
 	}
 	
@@ -77,6 +78,7 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
 		contact->SolveConstraintPosition(contact, step);
 	}
+	
 }
 
 void _PG_JointSolve(pgWorldObject* world,double stepTime)
@@ -112,24 +114,29 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 void PG_Update(pgWorldObject* world,double stepTime)
 {
 	int i;
-
+	pgBodyObject* refBody;
+	printf("world update:%d\n",world);
 	_PG_FreeBodySimulation(world, stepTime);
-	
 	_PG_BodyCollisionDetection(world, stepTime);
-	printf("OK");
+	printf("OK\n");
 	for (i = 0;i < MAX_SOLVE_INTERAT;i++)
 	{
 		_PG_JointSolve(world, stepTime);
 	}
 	
 	_PG_BodyPositionUpdate(world, stepTime);
+	refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), 0));
+	printf("body pointer in world update:%d\n",refBody);
 }
 
 
 int PG_AddBodyToWorld(pgWorldObject* world,pgBodyObject* body)
 {
+	printf("body pointer in body add:%d\n",body);
 	return PyList_Append((PyObject*)world->bodyList,(PyObject*)body);
 }
+
+
 
 int PG_RemoveBodyFromWorld(pgWorldObject* world,pgBodyObject* body)
 {
@@ -217,9 +224,14 @@ static PyObject* _world_update(pgWorldObject* world,PyObject* pyfloat)
 	Py_RETURN_NONE;
 }
 
-static PyObject* _world_add_body(pgWorldObject* world,PyObject* pybody)
+static PyObject* _world_add_body(pgWorldObject* world,PyObject* args)
 {
-	pgBodyObject* body = (pgBodyObject*)pybody;
+	pgBodyObject* body;
+	if (!PyArg_ParseTuple(args,"O",&body))
+	{
+		PyErr_SetString(PyExc_ValueError,"arg is not body type");
+		return NULL;
+	}
 	if(PG_AddBodyToWorld(world,body))
 	{
 		Py_RETURN_FALSE;

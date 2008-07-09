@@ -8,6 +8,7 @@ extern PyTypeObject pgBodyType;
 
 void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta)
 {
+	printf("body pointer in bind:%d\n",body);
 	if(body->shape == NULL)
 		body->shape = PG_RectShapeNew(body, width, height, seta);
 	else
@@ -61,8 +62,11 @@ PyObject* _PG_BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	//TODO: parse args later on
 	pgBodyObject* op;
 	if(PyType_Ready(type)==-1) return NULL;
-	op = (pgBodyObject*)type->tp_alloc(type, 0);
+	//op = (pgBodyObject*)type->tp_alloc(type, 0);
+	op = PyObject_New(pgBodyObject,type);
+	Py_INCREF(op);
 	PG_BodyInit(op);
+	printf("body pointer in body new:%d\n",op);
 	return (PyObject*)op;
 }
 
