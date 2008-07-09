@@ -10,18 +10,12 @@ Option to run tests in subprocesses using subprocess and async_sub. Will poll
 tests for return code and if tests don't return after TIME_OUT, will kill 
 process with os.kill.
 
-os.kill is defined on win32 platform using subprocess.Popen to call either 
-pskill or taskkill if on the system $PATH. If not, the script will raise 
-SystemExit.
-
-taskkill is shipped with windows from XP on.
-pskill is available from SysInternals website
+os.kill is defined on win32 platform using win32api.TerminateProcess
 
 Dependencies:
     async_sub.py:
-        Requires win32 extensions when run on windows:
-            Maybe able to get away with win32file.pyd, win32pipe.pyd zipped to 
-            about 35kbytes and ship with that.
+        Requires win32 extensions when run on windows
+
 """
 
 #################################### IMPORTS ###################################
@@ -36,8 +30,6 @@ test_subdir = os.path.join(main_dir, 'test')
 fake_test_subdir = os.path.join(test_subdir, 'run_tests__tests')
 
 sys.path.insert(0, test_subdir)
-
-# sys.path.append( os.path.join(os.path.dirname(__file__), "async_libs.zip") )
 
 import test_utils
 
@@ -125,8 +117,6 @@ opt_parser.add_option (
      help   = "path to python excutable to run subproccesed tests\n"
               "default (sys.executable): %s" % sys.executable)
 
-     # can be used for testing ret_code resilience
-
 options, args = opt_parser.parse_args()
 
 ################################################################################
@@ -182,7 +172,7 @@ def run_test(cmd):
     module = os.path.basename(cmd).split('.')[0]
     print 'loading %s' % module
     ret_code, response = async_sub.proc_in_time_or_kill (
-        cmd, time_out=options.time_out
+        cmd, time_out = options.time_out
     )
     return cmd, module, ret_code, response
 
