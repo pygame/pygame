@@ -1,4 +1,6 @@
 """
+* Experimental *
+
 Like the map function, but can use a pool of threads.
 
 Really easy to use threads.  eg.  tmap(f, alist)
@@ -15,18 +17,19 @@ import traceback, sys
 if (sys.version_info[0] == 2 and sys.version_info[1] < 5):
     from Py25Queue import Queue
     from Py25Queue import Empty
-else:   # use up to date version
+else:
+    # use up to date version
     from Queue import Queue
     from Queue import Empty
-
+    
 import threading
 Thread = threading.Thread
-#from threading import Thread
+
 STOP = object()
 FINISH = object()
-DONE_ONE = object()
-DONE_TWO = object()
 
+# DONE_ONE = object()
+# DONE_TWO = object()
 
 # a default worker queue.
 _wq = None
@@ -162,7 +165,7 @@ class WorkerQueue(object):
             a_thread.start()
 
 
-    def do(self, f, args, kwArgs):
+    def do(self, f, *args, **kwArgs):
         """ puts a function on a queue for running later.
         """
         self.queue.put((f, args, kwArgs))
@@ -176,7 +179,7 @@ class WorkerQueue(object):
             thread.join()
 
 
-    def threadloop(self, finish = False):
+    def threadloop(self): #, finish = False):
         """ Loops until all of the tasks are finished.
         """
         while True:
@@ -198,10 +201,6 @@ class WorkerQueue(object):
         """ waits until all tasks are complete.
         """
         self.queue.join()
-
-    #def __del__(self):
-    #    self.stop()
-
 
 class FuncResult:
     """ Used for wrapping up a function call so that the results are stored
@@ -271,7 +270,7 @@ def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_o
     results = []
     for sa in seq_args:
         results.append(FuncResult(f))
-        wq.do(results[-1], [sa], {})
+        wq.do(results[-1], sa)
 
 
     #wq.stop()
