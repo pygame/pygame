@@ -16,32 +16,10 @@ import unittest
 import tempfile
 
 if subprocess.mswindows:
-    # sys.path.append('async_libs.zip')
     from win32file import ReadFile, WriteFile
     from win32pipe import PeekNamedPipe
-
+    import win32api
     import msvcrt
-
-    def _call_proc(cmd):
-        return subprocess.Popen (
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell = 1,
-        )
-
-    win32_kill_commands = (
-        ('pskill', 'pskill -t %s'),
-        ('taskkill /?', 'taskkill /F /T /PID %s'),  # /? so no err code
-    )
-
-    for test_cmd, kill_cmd in win32_kill_commands:
-        if _call_proc(test_cmd).wait() is not 1:
-            os.kill = lambda pid: _call_proc(kill_cmd % pid)
-            break
-
-        else: os.kill = None
-
-    if os.kill is None:
-        raise SystemExit('No way of killing unruly processes. Try installing '
-                         'sysinternals pskill and placing on %PATH%.')
 
 else:
     import select
@@ -106,6 +84,11 @@ class Popen(subprocess.Popen):
         setattr(self, which, None)
     
     if subprocess.mswindows:
+        def kill(self):
+            """kill function for Win32"""
+            handle = win32api.OpenProcess(1, 0, self.pid)
+            return (0 != win32api.TerminateProcess(handle, 0))
+        
         def send(self, input):
             if not self.stdin:
                 return None
@@ -146,6 +129,9 @@ class Popen(subprocess.Popen):
             return read
 
     else:
+        def kill(self):
+            os.kill(self.pid)
+        
         def send(self, input):
             if not self.stdin:
                 return None
@@ -190,7 +176,7 @@ class Popen(subprocess.Popen):
 
 def proc_in_time_or_kill(cmd, time_out):
     proc = Popen (
-        cmd, shell = True, bufsize = -1,
+        cmd, bufsize = -1,
         stdin = subprocess.PIPE, stdout = subprocess.PIPE, 
         stderr = subprocess.STDOUT, universal_newlines = 1
     )
@@ -204,7 +190,7 @@ def proc_in_time_or_kill(cmd, time_out):
         response += [proc.read_async(wait=0.1, e=0)]
 
     if ret_code is None:
-        os.kill(proc.pid)
+        proc.kill()
         ret_code = '"Process timed out (time_out = %s secs)"' % time_out
 
     return ret_code, ''.join(response)
