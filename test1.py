@@ -1,5 +1,4 @@
 # The python file is under test
-# for python wrapping
 
 import pygame
 import physics
@@ -13,7 +12,7 @@ def render_body(body,surface,color):
 
 def render_world(world,surface,color):
     for body in world.body_list:
-        render_body(body,color)
+        render_body(body,surface,color)
         
 
 def init_world():
@@ -55,6 +54,7 @@ def main():
     
     world = init_world()
     
+    
 #Main Loop
     while 1:
         t = clock.tick(60)
@@ -74,9 +74,11 @@ def main():
 
     #Draw Everything
         background.fill((0,0,0))
+        #print world.body_list[0]
         render_world(world,background,white)
         screen.blit(background, (0, 0))
         pygame.display.flip()
+        
 
 #Game Over
 
