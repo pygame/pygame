@@ -17,6 +17,7 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));		
 		PG_FreeUpdateBodyVel(world, body, stepTime);
+		
 	}
 }
 
@@ -34,13 +35,15 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	//Py_XDECREF((PyObject*)world->contactList);
 	//world->contactList = (PyListObject*)PyList_New(0);
 	//for all pair of objects, do collision test
-
+	
 	//update AABB
 	for(i = 0; i < size; ++i)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
+		printf("update AABB shape:%d\n",refBody->shape); 
 		refBody->shape->UpdateAABB(refBody);
 	}
+	
 	//collision test
 	for(i = 0; i < size-1; ++i)
 	{
@@ -111,7 +114,9 @@ void PG_Update(pgWorldObject* world,double stepTime)
 	int i;
 
 	_PG_FreeBodySimulation(world, stepTime);
+	
 	_PG_BodyCollisionDetection(world, stepTime);
+	printf("OK");
 	for (i = 0;i < MAX_SOLVE_INTERAT;i++)
 	{
 		_PG_JointSolve(world, stepTime);
@@ -204,7 +209,10 @@ void PG_WorldDestroy(pgWorldObject* world)
 
 static PyObject* _world_update(pgWorldObject* world,PyObject* pyfloat)
 {
-	double dt = PyFloat_AsDouble(pyfloat);
+	double dt = 0.1;
+	//double dt = PyFloat_AsDouble(pyfloat);
+	printf("%f,%d\n",dt,world);
+	
 	PG_Update(world,dt);
 	Py_RETURN_NONE;
 }
@@ -241,6 +249,11 @@ static int _pgWorld_setGravity(pgWorldObject* world,PyObject* value,void* closur
 	}
 }
 
+static PyObject* _pgWorld_getBodyList(pgWorldObject* world,void* closure)
+{
+	return (PyObject*)world->bodyList;
+}
+
 
 /**
 * Here we allow the Python object to do stuff like
@@ -252,6 +265,9 @@ static int _pgWorld_setGravity(pgWorldObject* world,PyObject* value,void* closur
 static PyGetSetDef _pgWorld_getseters[] = {
 	{
 		"gravity",(getter)_pgWorld_getGravity,(setter)_pgWorld_setGravity,"gravity",NULL,
+	},
+	{
+		"body_list",(getter)_pgWorld_getBodyList,NULL,NULL
 	},
 	{
 		NULL

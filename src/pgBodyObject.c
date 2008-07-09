@@ -191,7 +191,7 @@ static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
 		}
 		else
 		{
-			//printf("%d\n",((pgBodyObject*)body)->shape);
+			printf("bind shape:%d\n",((pgBodyObject*)body)->shape);
 			Py_RETURN_NONE;
 			//return ((pgBodyObject*)body)->shape;
 		}
