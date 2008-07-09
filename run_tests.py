@@ -8,9 +8,7 @@ By default, runs all test/xxxx_test.py files in a single process.
 
 Option to run tests in subprocesses using subprocess and async_sub. Will poll 
 tests for return code and if tests don't return after TIME_OUT, will kill 
-process with os.kill.
-
-os.kill is defined on win32 platform using win32api.TerminateProcess
+process with os.kill. On win32 platform win32api.TerminateProcess is used.
 
 Dependencies:
     async_sub.py:
@@ -57,23 +55,23 @@ SUBPROCESS_IGNORE = (
 
 COMPLETE_FAILURE_TEMPLATE = """
 ======================================================================
-ERROR: all_tests_for (%s.AllTestCases)
+ERROR: all_tests_for (%(module)s.AllTestCases)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "test\%s.py", line 1, in all_tests_for
+  File "test\%(module)s.py", line 1, in all_tests_for
 
-subprocess completely failed with return code of %s
+subprocess completely failed with return code of %(ret_code)s
 
-cmd: %s
+cmd: %(cmd)s
 
 return (abbrv):
-%s
+%(ret)s
 
 """  # Leave that last empty line else build page regex won't match
 
 RAN_TESTS_DIV = (70 * "-") + "\nRan"
 
-DOTS = re.compile("^([FE.]+)$", re.MULTILINE)
+DOTS = re.compile("^([FE.]*)$", re.MULTILINE)
 
 TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
@@ -205,22 +203,14 @@ t = time.time() - t
 
 all_dots = ''
 failures = []
-complete_failures = 0
 
 for cmd, module, ret_code, ret in test_results:
     if ret_code and RAN_TESTS_DIV not in ret:
         ret = ''.join(ret.splitlines(1)[:5])
-
-        failures.append (
-            COMPLETE_FAILURE_TEMPLATE % (module, module, ret_code, cmd, ret)
-        )
-        complete_failures += 1
+        failures.append( COMPLETE_FAILURE_TEMPLATE % locals() )
         continue
 
-    dots = DOTS.search(ret)
-    if not dots: continue                        # in case of empty xxxx_test.py
-    else: dots = dots.group(1)
-
+    dots = DOTS.search(ret).group(1)
     all_dots += dots
 
     if 'E' in dots or 'F' in dots:
@@ -229,7 +219,7 @@ for cmd, module, ret_code, ret in test_results:
             failure.replace( "(__main__.", "(%s." % module)
         )
 
-total_fails, total_errors = all_dots.count('F'), all_dots.count('E')
+total_fails, total_errors = map(all_dots.count, 'FE')
 total_tests = len(all_dots)
 
 print all_dots
