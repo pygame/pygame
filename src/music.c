@@ -96,14 +96,18 @@ music_play (PyObject* self, PyObject* args)
     music_pos_time = SDL_GetTicks ();
 
 #if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>=3
+    Py_BEGIN_ALLOW_THREADS
     volume = Mix_VolumeMusic (-1);
     val = Mix_FadeInMusicPos (current_music, loops, 0, startpos);
     Mix_VolumeMusic (volume);
+    Py_END_ALLOW_THREADS
 #else
     if (startpos)
         return RAISE (PyExc_NotImplementedError,
                       "music start position requires SDL_mixer-1.2.4");
+    Py_BEGIN_ALLOW_THREADS
     val = Mix_PlayMusic (current_music, loops);
+    Py_END_ALLOW_THREADS
 #endif
     if (val == -1)
         return RAISE (PyExc_SDLError, SDL_GetError ());
@@ -240,46 +244,83 @@ music_get_endevent (PyObject* self)
 static PyObject*
 music_load (PyObject* self, PyObject* args)
 {
-    char* filename;
-    if (!PyArg_ParseTuple (args, "s", &filename))
+    char* name = NULL;
+    PyObject* file;
+    Mix_Music* new_music;
+    SDL_RWops *rw;
+    if(!PyArg_ParseTuple(args, "O", &file))
         return NULL;
 
     MIXER_INIT_CHECK ();
+
+    #if MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL >= 010207
+    if(!PyString_Check(file) && !PyUnicode_Check(file))
+    {
+        rw = RWopsFromPythonThreaded(file);
+        if(!rw)
+            return NULL;
+        Py_BEGIN_ALLOW_THREADS
+        new_music = Mix_LoadMUS_RW(rw);
+        Py_END_ALLOW_THREADS
+    }
+    else
+    #endif
+    {
+        if(!PyArg_ParseTuple(args, "s", &name))
+            return NULL;
+        Py_BEGIN_ALLOW_THREADS
+        new_music = Mix_LoadMUS(name);
+        Py_END_ALLOW_THREADS
+    }
+
+    if (!new_music)
+        return RAISE (PyExc_SDLError, SDL_GetError ());
 
     if (current_music)
     {
         Mix_FreeMusic (current_music);
         current_music = NULL;
     }
-    Py_BEGIN_ALLOW_THREADS;
-    current_music = Mix_LoadMUS (filename);
-    Py_END_ALLOW_THREADS;
-
-    if (!current_music)
-        return RAISE (PyExc_SDLError, SDL_GetError ());
-
     if (queue_music)
     {
         Mix_FreeMusic (queue_music);
         queue_music = NULL;
     }
-
+    current_music = new_music;
     Py_RETURN_NONE;
 }
 
 static PyObject*
 music_queue (PyObject* self, PyObject* args)
 {
-    char* filename;
+    char* name = NULL;
+    PyObject* file;
     Mix_Music* new_music;
-    if (!PyArg_ParseTuple (args, "s", &filename))
+    SDL_RWops *rw;
+    if (!PyArg_ParseTuple (args, "O", &file))
         return NULL;
 
     MIXER_INIT_CHECK ();
 
-    Py_BEGIN_ALLOW_THREADS;
-    new_music = Mix_LoadMUS (filename);
-    Py_END_ALLOW_THREADS;
+    #if MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL >= 010207
+    if(!PyString_Check(file) && !PyUnicode_Check(file))
+    {
+        rw = RWopsFromPythonThreaded(file);
+        if(!rw)
+            return NULL;
+        Py_BEGIN_ALLOW_THREADS
+        new_music = Mix_LoadMUS_RW(rw);
+        Py_END_ALLOW_THREADS
+    }
+    else
+    #endif
+    {
+        if(!PyArg_ParseTuple(args, "s", &name))
+            return NULL;
+        Py_BEGIN_ALLOW_THREADS
+        new_music = Mix_LoadMUS(name);
+        Py_END_ALLOW_THREADS
+    }
 
     if (!new_music)
         return RAISE (PyExc_SDLError, SDL_GetError ());
@@ -340,4 +381,5 @@ void initmixer_music (void)
 
     /*imported needed apis*/
     import_pygame_base ();
+    import_pygame_rwobject ();
 }

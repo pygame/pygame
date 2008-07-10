@@ -269,10 +269,6 @@ RWopsFromPythonThreaded (PyObject* obj)
     if (!obj)
         return (SDL_RWops*) RAISE (PyExc_TypeError, "Invalid filetype object");
 
-    rw = get_standard_rwop (obj);
-    if (rw)
-        return rw;
-
 #ifndef WITH_THREAD
     return (SDL_RWops*) RAISE (PyExc_NotImplementedError,
                                "Python built without thread support");
