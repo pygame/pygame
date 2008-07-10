@@ -20,8 +20,9 @@ if subprocess.mswindows:
     from win32pipe import PeekNamedPipe
     import win32api
     import msvcrt
+    
 else:
-    import signal
+    from signal import SIGINT, SIGTERM, SIGKILL
     import select
     import fcntl
 
@@ -31,6 +32,25 @@ PIPE = subprocess.PIPE
 
 ################################################################################
 
+# import signal
+
+# cludge: try to mimic the standard library kill
+# signal.SIGKILL = 120
+
+# def kill(pid, sig):
+#     cludge: try to mimic the standard library kill
+#     assert sig == signal.SIGKILL 
+#     handle = win32api.OpenProcess(win32con.PROCESS_TERMINATE, 0, pid)
+#     win32api.TerminateProcess(handle, 1) # exit status
+
+# def waitpid(pid):
+#     handle = win32api.OpenProcess(win32con.SYNCHRONIZE|win32con .PROCESS_QUERY_INFORMATION , 0, pid)
+#     win32event.WaitForSingleObject(handle, win32event.INFINITE)
+#     exitCode = win32process.GetExitCodeProcess(handle)
+
+# return pid, exitCode
+
+################################################################################
 
 class Popen(subprocess.Popen):
     def recv(self, maxsize=None):
@@ -84,8 +104,16 @@ class Popen(subprocess.Popen):
     
     if subprocess.mswindows:
         def kill(self):
+            # Recipes
+            #http://me.in-berlin.de/doc/python/faq/windows.html#how-do-i-emulate-os-kill-in-windows
+            #http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/347462
+            
             """kill function for Win32"""
             try:
+                # This works as well
+                # win32api.TerminateProcess(int(self._handle), 0)
+                                           # handle,  # exit code
+
                 handle = win32api.OpenProcess(1, 0, self.pid)
                 try:
                     win32api.TerminateProcess(handle, 0)
@@ -136,7 +164,31 @@ class Popen(subprocess.Popen):
 
     else:
         def kill(self):
-            os.kill(self.pid, signal.SIGKILL)
+            # TODO make return val consistent with windows
+            
+            # waitpid
+             
+            # and return a tuple containing its pid and exit status
+            # indication: a 16-bit number, whose low byte is the
+            # signal number that killed the process, and whose high
+            # byte is the exit status (if the signal number is
+            # zero); the high bit of the low byte is set if a core
+            # file was produced. Availability: Macintosh, Unix.
+
+            try:
+                for i, sig in enumerate([SIGTERM, SIGKILL] * 2):
+                    if i % 2 == 0:  os.kill(self.pid, sig)
+                    else:           time.sleep((i+1)/10.0)
+
+                    killed_pid, stat = os.waitpid(self.pid, os.WNOHANG)
+
+                    # print (i, killed_pid, stat)
+
+                    if killed_pid != 0: return True  # ???
+            except OSError:
+                pass
+
+            return False
 
         def send(self, input):
             if not self.stdin:
@@ -205,24 +257,10 @@ def proc_in_time_or_kill(cmd, time_out):
 
 class AsyncTest(unittest.TestCase):
     def test_proc_in_time_or_kill(self):
-        temp_dir   = tempfile.mkdtemp()
-        temp_file  = os.path.join(temp_dir, 'xxxxxx.py')
-        fh = open(temp_file, 'w')
-        try:
-            fh.write('while True: print "GST"')
-        finally:
-            fh.close()
-
         ret_code, response = proc_in_time_or_kill(
-            "%s %s" % (sys.executable, temp_file), time_out = 1
+            ['python.exe', '-c', 'while 1: pass'], time_out = 1
         )
-        
-        os.remove(temp_file)
-
-        self.assert_(
-            ret_code.startswith('"Process timed out') and
-            "GST" in response
-        )
+        self.assert_( ret_code.startswith('"Process timed out') )
 
 ################################################################################
 
