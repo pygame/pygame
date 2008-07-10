@@ -10,7 +10,8 @@ IGNORE =  (
 )
 NORMALIZERS = (
     (r"Ran (\d+) tests in (\d+\.\d+)s",   "Ran \\1 tests in X.XXXs" ),
-    (r'File ".*?([^/\\.]+\.py)"',         'File "\\1"')  
+    (r'File ".*?([^/\\.]+\.py)"',         'File "\\1"'),
+
     #TODO: look into why os.path.sep differs
 )
 
@@ -26,12 +27,13 @@ def norm_result(result):
     
     return result
 
-def call_proc(cmd):
+def call_proc(cmd, cd=None):
     proc = subprocess.Popen (
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd = cd,
+	universal_newlines = True,
     )
     assert not proc.wait()
-    return proc.stdout.read()
+    return proc.stdout.read() + proc.stderr.read()
 
 ################################################################################
 
@@ -53,16 +55,19 @@ test_suite_dirs = [x for x in os.listdir(main_dir)
 # Test that output is the same in single process and subprocess modes 
 #
 
-single_cmd = "%s run_tests.py -f %s"
-subprocess_cmd = single_cmd + ' -s'
+cmd = [sys.executable, 'run_tests.py', '-f']
+sub_cmd = [sys.executable, 'run_tests.py', '-s', '-f']
+
+time_out_cmd = [
+    sys.executable, 'run_tests.py', '-t', '4', '-s', '-f', 'infinite_loop',
+]
 
 passes = 0
 failed = False
 
-os.chdir(trunk_dir)
 for suite in test_suite_dirs:
-    single = call_proc(single_cmd % (sys.executable, suite))
-    subs = call_proc(subprocess_cmd % (sys.executable, suite))
+    single = call_proc(cmd + [suite], trunk_dir)
+    subs = call_proc(sub_cmd + [suite], trunk_dir)
 
     normed_single, normed_subs = map(norm_result,(single, subs))
 
@@ -82,10 +87,8 @@ for suite in test_suite_dirs:
             ))
         )
 
-
 print "infinite_loop suite (subprocess mode timeout)",
-loop_cmd = subprocess_cmd + ' -t 2'
-loop_test = call_proc(loop_cmd % (sys.executable, "infinite_loop"))
+loop_test = call_proc(time_out_cmd, trunk_dir)
 passes += 1
 print "OK"
 

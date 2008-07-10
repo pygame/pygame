@@ -177,11 +177,10 @@ class Popen(subprocess.Popen):
 
             try:
                 for i, sig in enumerate([SIGTERM, SIGKILL] * 2):
-                    if i % 2 == 0:  os.kill(self.pid, sig)
-                    else:           time.sleep((i+1)/10.0)
+                    if i % 2 == 0: os.kill(self.pid, sig)
+                    time.sleep((i * (i % 2) / 5.0)  + 0.01)
 
                     killed_pid, stat = os.waitpid(self.pid, os.WNOHANG)
-
                     # print (i, killed_pid, stat)
 
                     if killed_pid != 0: return True  # ???
