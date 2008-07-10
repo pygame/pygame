@@ -21,6 +21,7 @@ if subprocess.mswindows:
     import win32api
     import msvcrt
 else:
+    import signal
     import select
     import fcntl
 
@@ -136,7 +137,7 @@ class Popen(subprocess.Popen):
 
     else:
         def kill(self):
-            os.kill(self.pid)
+            os.kill(self.pid, signal.SIGTERM)
         
         def send(self, input):
             if not self.stdin:
