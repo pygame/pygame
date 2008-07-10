@@ -136,8 +136,8 @@ class Popen(subprocess.Popen):
 
     else:
         def kill(self):
-            os.kill(self.pid, signal.SIGTERM)
-        
+            os.kill(self.pid, signal.SIGKILL)
+
         def send(self, input):
             if not self.stdin:
                 return None
