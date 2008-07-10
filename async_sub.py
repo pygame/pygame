@@ -65,7 +65,6 @@ class Popen(subprocess.Popen):
         return ''.join(y)
         
     def send_all(self, data):
-        data += '\r\n'
         while len(data):
             sent = self.send(data)
             if sent is None:
@@ -217,6 +216,8 @@ class AsyncTest(unittest.TestCase):
         ret_code, response = proc_in_time_or_kill(
             "%s %s" % (sys.executable, temp_file), time_out = 1
         )
+        
+        os.remove(temp_file)
 
         self.assert_(
             ret_code.startswith('"Process timed out') and
