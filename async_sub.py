@@ -258,7 +258,7 @@ def proc_in_time_or_kill(cmd, time_out):
 class AsyncTest(unittest.TestCase):
     def test_proc_in_time_or_kill(self):
         ret_code, response = proc_in_time_or_kill(
-            ['python.exe', '-c', 'while 1: pass'], time_out = 1
+            [sys.executable, '-c', 'while 1: pass'], time_out = 1
         )
         self.assert_( ret_code.startswith('"Process timed out') )
 
