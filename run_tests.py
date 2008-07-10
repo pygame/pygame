@@ -129,7 +129,7 @@ if options.fake:
 os.chdir(main_dir)
 
 test_modules = []
-for f in os.listdir(test_subdir):
+for f in sorted(os.listdir(test_subdir)):
     for match in TEST_MODULE_RE.findall(f):
         test_modules.append(match)
 
@@ -166,8 +166,8 @@ if not options.subprocess:
 
 import async_sub
 
-def run_test(cmd):
-    module = os.path.basename(cmd).split('.')[0]
+def run_test(args):
+    module, cmd = args
     print 'loading %s' % module
     ret_code, response = async_sub.proc_in_time_or_kill (
         cmd, time_out = options.time_out
@@ -178,11 +178,12 @@ def run_test(cmd):
 # Run all the tests in subprocesses
 #
 
-test_cmd = ('%s %s/' % (options.python, test_subdir)) + '%s.py'
-# test_cmd += flags and options to pass on
+flags = []
+test_cmds = [ 
+    (m, [options.python, os.path.join(test_subdir, '%s.py' % m)] + flags)
+        for m in test_modules if  m not in SUBPROCESS_IGNORE 
+]
 
-test_cmds = [ test_cmd % m for m in test_modules if 
-                         m not in SUBPROCESS_IGNORE ]
 
 t = time.time()
 
