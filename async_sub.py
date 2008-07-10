@@ -20,7 +20,6 @@ if subprocess.mswindows:
     from win32pipe import PeekNamedPipe
     import win32api
     import msvcrt
-
 else:
     import select
     import fcntl
@@ -86,9 +85,16 @@ class Popen(subprocess.Popen):
     if subprocess.mswindows:
         def kill(self):
             """kill function for Win32"""
-            handle = win32api.OpenProcess(1, 0, self.pid)
-            return (0 != win32api.TerminateProcess(handle, 0))
-        
+            try:
+                handle = win32api.OpenProcess(1, 0, self.pid)
+                try:
+                    win32api.TerminateProcess(handle, 0)
+                finally:
+                    win32api.CloseHandle(handle)
+            except win32api.error:
+                return False
+            return True
+
         def send(self, input):
             if not self.stdin:
                 return None
