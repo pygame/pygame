@@ -1,4 +1,4 @@
-import unittest
+import unittest, test_utils
 import pygame
 from pygame.locals import *
 
@@ -77,4 +77,5 @@ class BlitTest( unittest.TestCase ):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    test_utils.get_command_line_options()
+    #unittest.main()()

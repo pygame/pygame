@@ -109,19 +109,20 @@ class Popen(subprocess.Popen):
             #http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/347462
             
             """kill function for Win32"""
-            try:
+            # try:
                 # This works as well
-                # win32api.TerminateProcess(int(self._handle), 0)
+            
+            win32api.TerminateProcess(int(self._handle), 0) # returns None
                                            # handle,  # exit code
 
-                handle = win32api.OpenProcess(1, 0, self.pid)
-                try:
-                    win32api.TerminateProcess(handle, 0)
-                finally:
-                    win32api.CloseHandle(handle)
-            except win32api.error:
-                return False
-            return True
+            #     handle = win32api.OpenProcess(1, 0, self.pid)
+            #     try:
+            #         win32api.TerminateProcess(handle, 0)
+            #     finally:
+            #         win32api.CloseHandle(handle)
+            # except win32api.error:
+            #     return False
+            # return True
 
         def send(self, input):
             if not self.stdin:
@@ -175,19 +176,21 @@ class Popen(subprocess.Popen):
             # zero); the high bit of the low byte is set if a core
             # file was produced. Availability: Macintosh, Unix.
 
-            try:
-                for i, sig in enumerate([SIGTERM, SIGKILL] * 2):
-                    if i % 2 == 0: os.kill(self.pid, sig)
-                    time.sleep((i * (i % 2) / 5.0)  + 0.01)
+            # try:
 
-                    killed_pid, stat = os.waitpid(self.pid, os.WNOHANG)
-                    # print (i, killed_pid, stat)
+            for i, sig in enumerate([SIGTERM, SIGKILL] * 2):
+                if i % 2 == 0: os.kill(self.pid, sig)
+                time.sleep((i * (i % 2) / 5.0)  + 0.01)
 
-                    if killed_pid != 0: return True  # ???
-            except OSError:
-                pass
+                killed_pid, stat = os.waitpid(self.pid, os.WNOHANG)
+                # print (i, killed_pid, stat)
 
-            return False
+                if killed_pid != 0: return #True  # ???
+
+            # except OSError:
+            #     pass
+
+            # return False
 
         def send(self, input):
             if not self.stdin:
@@ -247,8 +250,12 @@ def proc_in_time_or_kill(cmd, time_out):
         response += [proc.read_async(wait=0.1, e=0)]
 
     if ret_code is None:
-        proc.kill()
-        ret_code = '"Process timed out (time_out = %s secs)"' % time_out
+        ret_code = '"Process timed out (time_out = %s secs) ' % time_out
+        try:
+            proc.kill()
+            ret_code += 'and was successfully terminated"'
+        except (win32api.error, OSError), e:
+            ret_code += 'and termination failed (exception: %s)"' % e
 
     return ret_code, ''.join(response)
 
@@ -259,7 +266,9 @@ class AsyncTest(unittest.TestCase):
         ret_code, response = proc_in_time_or_kill(
             [sys.executable, '-c', 'while 1: pass'], time_out = 1
         )
-        self.assert_( ret_code.startswith('"Process timed out') )
+        
+        self.assert_( 'rocess timed out' in ret_code )
+        self.assert_( 'successfully terminated' in ret_code )
 
 ################################################################################
 

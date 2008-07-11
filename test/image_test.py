@@ -263,4 +263,5 @@ class ImageModuleTest( unittest.TestCase ):
         self.assert_(test_not_implemented()) 
 
 if __name__ == '__main__':
-    unittest.main()
+    test_utils.get_command_line_options()
+    #unittest.main()()

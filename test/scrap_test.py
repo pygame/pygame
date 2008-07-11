@@ -76,10 +76,10 @@ class ScrapModuleTest(unittest.TestCase):
         self.assertEquals (r, "buf")
 
 if __name__ == '__main__':
-    test_utils.get_fail_incomplete_tests_option()
+    test_utils.get_command_line_options()
 
     #TODO....
     pygame.init ()
     pygame.display.set_mode ((1, 1))
     scrap.init ()
-    unittest.main()
+    #unittest.main()()

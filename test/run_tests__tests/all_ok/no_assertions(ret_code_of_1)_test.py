@@ -1,4 +1,4 @@
-import unittest
+import unittest, test_utils
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
@@ -20,4 +20,4 @@ class KeyModuleTest(unittest.TestCase):
         pass
 
 if __name__ == '__main__':
-    unittest.main()
+    test_utils.get_command_line_options()
