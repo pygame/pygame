@@ -243,11 +243,13 @@ def proc_in_time_or_kill(cmd, time_out):
 
     ret_code = None
     response = []
+    # err = []
 
     t = time.time()
     while ret_code is None and ((time.time() -t) < time_out):
         ret_code = proc.poll()
         response += [proc.read_async(wait=0.1, e=0)]
+        # err      += [proc.read_async(wait=0.1, e=0, stderr=1)]
 
     if ret_code is None:
         ret_code = '"Process timed out (time_out = %s secs) ' % time_out
@@ -257,7 +259,7 @@ def proc_in_time_or_kill(cmd, time_out):
         except (win32api.error, OSError), e:
             ret_code += 'and termination failed (exception: %s)"' % e
 
-    return ret_code, ''.join(response)
+    return ret_code, ''.join(response) #+ ''.join(err)
 
 ################################################################################
 
