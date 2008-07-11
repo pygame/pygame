@@ -1,4 +1,4 @@
-import unittest, sys
+import unittest, test_utils
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
@@ -8,11 +8,12 @@ class KeyModuleTest(unittest.TestCase):
         self.assert_(True) 
 
     def test_get_pressed(self):
+        print 'jibberish ruins everything'
         self.assert_(True) 
 
     def test_name(self):
-        print 'jibberish messes things up'
-        self.assert_(False) 
+        print 'forgot to remove debug crap'
+        self.assert_(True) 
 
     def test_set_mods(self):
         self.assert_(True) 
@@ -21,4 +22,4 @@ class KeyModuleTest(unittest.TestCase):
         self.assert_(True) 
 
 if __name__ == '__main__':
-    unittest.main()
+    test_utils.get_command_line_options()

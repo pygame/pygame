@@ -1,4 +1,4 @@
-import unittest, sys
+import unittest, sys, test_utils
 import pygame
 
 class SurfaceLockTest (unittest.TestCase):
@@ -155,4 +155,5 @@ class SurfaceLockTest (unittest.TestCase):
         #print "test_surfarray_ref - end"
 
 if __name__ == '__main__':
-    unittest.main()
+    test_utils.get_command_line_options()
+    #unittest.main()()

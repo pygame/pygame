@@ -263,7 +263,7 @@ class SurfaceTypeTest(unittest.TestCase):
           # Surface.get_locked(): return bool
           # test if the Surface is current locked
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_get_locks(self):
 
@@ -344,7 +344,7 @@ class SurfaceTypeTest(unittest.TestCase):
           # Surface.get_rect(**kwargs): return Rect
           # get the rectangular area of the Surface
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_get_shifts(self):
 
@@ -467,5 +467,5 @@ class SurfaceTypeTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    test_utils.get_fail_incomplete_tests_option()
-    unittest.main()
+    test_utils.get_command_line_options()
+    #unittest.main()()

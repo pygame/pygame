@@ -38,5 +38,5 @@ class OverlayTypeTest(unittest.TestCase):
 ################################################################################
 
 if __name__ == '__main__':
-    test_utils.get_fail_incomplete_tests_option()
-    unittest.main()
+    test_utils.get_command_line_options()
+    #unittest.main()()
