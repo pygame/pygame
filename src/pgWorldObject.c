@@ -22,7 +22,7 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 
 void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 {
-	Py_ssize_t i, j, cnt, size;
+	Py_ssize_t i, j, cnt, size, body_size;
 	pgBodyObject* refBody, *incBody;
 	pgJointObject* contact;
 	
@@ -31,9 +31,16 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	cnt = PyList_Size((PyObject*)(world->contactList));
 	if(PyList_SetSlice((PyObject*)(world->contactList), 0, cnt, NULL) < 0) return;
 	assert(PyList_Size((PyObject*)(world->contactList))==0);
-	//Py_XDECREF((PyObject*)world->contactList);
-	//world->contactList = (PyListObject*)PyList_New(0);
+	
 	//for all pair of objects, do collision test
+	//clear bias
+	body_size = PyList_Size((PyObject*)(world->bodyList));
+	for(i = 0; i < body_size; ++i)
+	{
+		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
+		PG_Set_Vector2(refBody->cBiasLV, 0.f, 0.f);
+		refBody->cBiasW = 0.f;
+	}
 	
 	//update AABB
 	for(i = 0; i < size; ++i)
@@ -63,12 +70,14 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
 		PG_ApplyContact((PyObject*)contact, step);
 	}
+	
 	//update V
-	for(i = 0; i < cnt; ++i)
-	{
-		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
-		contact->SolveConstraintVelocity(contact, step);
-	}
+	for(j = 0; j < 1; ++j)
+		for(i = 0; i < cnt; ++i)
+		{
+			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
+			contact->SolveConstraintVelocity(contact, step);
+		}
 	//update P
 	for(i = 0; i < cnt; ++i)
 	{
@@ -114,6 +123,7 @@ void PG_Update(pgWorldObject* world,double stepTime)
 	int i;
 	pgBodyObject* refBody;
 	_PG_FreeBodySimulation(world, stepTime);
+
 	_PG_BodyCollisionDetection(world, stepTime);
 	for (i = 0;i < MAX_SOLVE_INTERAT;i++)
 	{

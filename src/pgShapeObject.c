@@ -692,7 +692,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	pgVector2 normal;
 	pgAABBBox clipBox;
 	int overlap;
-	pgVector2* pAcc;
+	pgVector2* pAcc, * pSplitAcc;
 	pgContact* contact;
 	int i;
 	double minDep;
@@ -729,6 +729,8 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 
 	pAcc = PyObject_Malloc(sizeof(pgVector2));
 	pAcc->real = pAcc->imag = 0;
+	pSplitAcc = PyObject_Malloc(sizeof(pgVector2));
+	pSplitAcc->real = pSplitAcc->imag = 0;
 	for(i = 0; i < csize; ++i)
 	{
 		contact = (pgContact*)PG_ContactNew(ref, inc);
@@ -740,6 +742,9 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 
 		contact->ppAccMoment = PyObject_Malloc(sizeof(pgVector2*));
 		*(contact->ppAccMoment) = pAcc;
+		contact->ppSplitAccMoment = PyObject_Malloc(sizeof(pgVector2*));
+		*(contact->ppSplitAccMoment) = pSplitAcc;
+
 		contact->weight = csize;
 		contact->depth = minDep;
 		PyList_Append(contactList, (PyObject*)contact);

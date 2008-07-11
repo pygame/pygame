@@ -18,6 +18,7 @@ typedef struct _pgContact
 	double weight;
 	double resist;
 	pgVector2** ppAccMoment;
+	pgVector2** ppSplitAccMoment;
 }pgContact;
 
 typedef enum _pgCollisionType

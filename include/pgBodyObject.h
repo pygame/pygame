@@ -27,6 +27,9 @@ struct _pgBodyObject{
 
 	pgShapeObject* shape;
 
+	pgVector2 cBiasLV;
+	double cBiasW;
+
 };
 
 pgBodyObject* PG_BodyNew();

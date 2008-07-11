@@ -1,4 +1,5 @@
 #include <GL/glut.h>
+#include <math.h>
 
 #define HEIGHT 600
 #define WIDTH 600
@@ -19,7 +20,7 @@ pgBodyObject* body, * body1;
 void do_render()
 {
 	glColor3f(1.f, 1.f, 1.f);
-	PG_Update(s_world, 0.004);
+	PG_Update(s_world, 0.005);
 	PGT_RenderWorld(s_world);
 	//glprintf(0, 0, "Velocity of body: (%.2f, %.2f)", body->vecLinearVelocity.real, 
 	//	body->vecLinearVelocity.imag);
@@ -111,24 +112,28 @@ void TestBasic1Init()
 //test collision
 void TestBasic2Init()
 {
+	int i = 0;
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
 
-	body = PG_BodyNew();
-	PG_Set_Vector2(body->vecPosition, -50, 0);
-	PG_Set_Vector2(body->vecLinearVelocity, 20.f, -100.f);
-	body->fRotation = M_PI/4;
-	body->fAngleVelocity = -2.f;
-	body->fRestitution = 1.f;
-	PG_Bind_RectShape(body, 40, 15, 0);
-	PG_AddBodyToWorld(s_world, body);
-	
+	for(i = 0; i < 3; ++i)
+	{
+		body = PG_BodyNew();
+		PG_Set_Vector2(body->vecPosition, -100+100*i, 200);
+		PG_Set_Vector2(body->vecLinearVelocity, (100 - 100)/2, 0.f);
+		body->fRotation = .8f;
+		body->fAngleVelocity = 30.f;
+		body->fRestitution = 0.f;
+		PG_Bind_RectShape(body, 50, 30, 0);
+		PG_AddBodyToWorld(s_world, body);
+	}
+
 	body1 = PG_BodyNew();
 	PG_Set_Vector2(body1->vecPosition,0, -100);
 	body1->bStatic = 1;
 	body1->fRestitution = 1.f;//for test
 	body1->fMass = 1e24;
-	PG_Bind_RectShape(body1, 500, 20, 0);
+	PG_Bind_RectShape(body1, 10000, 20, 0);
 	PG_AddBodyToWorld(s_world, body1);
 
 }
@@ -208,7 +213,7 @@ void TestBasic4Init()
 
 void InitWorld()
 {
-	TestBasic4Init();
+	TestBasic2Init();
 }
 
 int main (int argc, char** argv)

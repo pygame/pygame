@@ -148,8 +148,8 @@ void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* 
 
 void PG_ApplyContact(PyObject* contactObject, double step)
 {
-#define MAX_C_DEP 0.08
-#define BIAS_FACTOR 0.02
+#define MAX_C_DEP 0.01
+#define BIAS_FACTOR 0.1
 
 	pgVector2 neg_dV, refV, incidV;
 	pgVector2 refR, incidR;
@@ -159,13 +159,16 @@ void PG_ApplyContact(PyObject* contactObject, double step)
 	double moment_len;
 	pgVector2 moment;
 	pgVector2* p;
+
 	double vbias;
+	pgVector2 brefV, bincidV, bneg_dV;
+	double bm_len;
+	pgVector2 bm;
 
 	contact = (pgContact*)contactObject;
 	refBody = contact->joint.body1;
 	incidBody = contact->joint.body2;
 
-	vbias = BIAS_FACTOR*MAX(0, contact->depth - MAX_C_DEP)/step;
 	contact->resist = sqrtf(refBody->fRestitution*incidBody->fRestitution);
 
 	//calculate the normal impulse
@@ -189,30 +192,47 @@ void PG_ApplyContact(PyObject* contactObject, double step)
 	contact->dv = c_diff(incidV, refV);
 	neg_dV = c_diff(refV, incidV);
 	
-	moment_len = c_dot(neg_dV, contact->normal)/k;
-	moment_len *= contact->resist;
-	//climp
-	moment_len = MAX(0, moment_len + vbias/k);
+	moment_len = c_dot(c_mul_complex_with_real(neg_dV, (1 + contact->resist)), 
+		               contact->normal)/k;
+	moment_len = MAX(0, moment_len);
+	//moment_len = MAX(0, moment_len + vbias/k);
 	
 	//finally we get the momentum(oh...)
 	moment = c_mul_complex_with_real(contact->normal, moment_len);
 	p = *(contact->ppAccMoment);
-	//TODO: test weight, temp codes
+	//TODO: test weight
 	p->real += moment.real/contact->weight;
 	p->imag += moment.imag/contact->weight; 
+
+	//split impulse
+	vbias = BIAS_FACTOR*MAX(0, contact->depth - MAX_C_DEP)/step;
+	//biasdv
+	bincidV = c_sum(incidBody->cBiasLV, c_fcross(incidBody->cBiasW, incidR));
+	brefV = c_sum(refBody->cBiasLV, c_fcross(refBody->cBiasW, refR));
+	bneg_dV = c_diff(brefV, bincidV); 
+	//bias_moment
+	bm_len = c_dot(c_mul_complex_with_real(bneg_dV, (1+contact->resist)),
+		contact->normal)/k;
+	bm_len = MAX(0, bm_len + vbias/k);
+	bm = c_mul_complex_with_real(contact->normal, bm_len);
+	p = *(contact->ppSplitAccMoment);
+	p->real += bm.real/contact->weight;
+	p->imag += bm.imag/contact->weight;
+
 }
 
 void PG_UpdateV(pgJointObject* joint, double step)
 {
 	pgContact *contact;
 	pgBodyObject *refBody, *incidBody;
-	pgVector2 moment;
+	pgVector2 moment, bm;
 	pgVector2 refR, incidR;
 
 	contact = (pgContact*)joint;
 	refBody = joint->body1;
 	incidBody = joint->body2;
 	moment = **(contact->ppAccMoment);
+	bm = **(contact->ppSplitAccMoment);
 
 	refR = c_diff(contact->pos, refBody->vecPosition);
 	incidR = c_diff(contact->pos, incidBody->vecPosition);
@@ -230,6 +250,10 @@ void PG_UpdateV(pgJointObject* joint, double step)
 		refBody->vecLinearVelocity = c_diff(refBody->vecLinearVelocity, 
 			c_div_complex_with_real(moment, refBody->fMass));
 		refBody->fAngleVelocity -= c_cross(refR, moment)/refBody->shape->rInertia;
+
+		refBody->cBiasLV = c_diff(refBody->cBiasLV,
+			c_div_complex_with_real(bm, refBody->fMass));
+		refBody->cBiasW -= c_cross(refR, bm)/refBody->shape->rInertia;
 	}
 
 	if(!incidBody->bStatic)
@@ -237,30 +261,56 @@ void PG_UpdateV(pgJointObject* joint, double step)
 		incidBody->vecLinearVelocity = c_sum(incidBody->vecLinearVelocity, 
 			c_div_complex_with_real(moment, incidBody->fMass));
 		incidBody->fAngleVelocity += c_cross(incidR, moment)/incidBody->shape->rInertia;
+
+		incidBody->cBiasLV = c_sum(incidBody->cBiasLV,
+			c_div_complex_with_real(bm, incidBody->fMass));
+		incidBody->cBiasW += c_cross(incidR, bm)/incidBody->shape->rInertia;
 	}
 }
 
 void PG_UpdateP(pgJointObject* joint, double step)
 {
+
+	pgVector2 v;
+	double w;
+
 	//TODO: concern dt
 	if(!joint->body1->bStatic)
 	{
+		v = c_sum(joint->body1->vecLinearVelocity, joint->body1->cBiasLV);
+		w = joint->body1->fAngleVelocity + joint->body1->cBiasW;
+
 		joint->body1->vecPosition = c_sum(joint->body1->vecPosition, 
-			c_mul_complex_with_real(joint->body1->vecLinearVelocity, step));
-		joint->body1->fRotation += joint->body1->fAngleVelocity*step;
+			c_mul_complex_with_real(v, step));
+		joint->body1->fRotation += w*step;
 	}
 
 	if(!joint->body2->bStatic)
 	{
+		v = c_sum(joint->body2->vecLinearVelocity, joint->body2->cBiasLV);
+		w = joint->body2->fAngleVelocity + joint->body2->cBiasW;
+
 		joint->body2->vecPosition = c_sum(joint->body2->vecPosition, 
-			c_mul_complex_with_real(joint->body2->vecLinearVelocity, step));
-		joint->body2->fRotation += joint->body2->fAngleVelocity*step;
+			c_mul_complex_with_real(v, step));
+		joint->body2->fRotation += w*step;
 	}
 }
 
 void PG_ContactDestroy(pgJointObject* contact)
 {
 	pgVector2 **p = ((pgContact*)contact)->ppAccMoment;
+	if(p)
+	{
+		if(*p)
+		{
+			PyObject_Free(*p);
+			*p = NULL;
+		}
+		PyObject_Free(p);
+		p = NULL;
+	}
+
+	p = ((pgContact*)contact)->ppSplitAccMoment;
 	if(p)
 	{
 		if(*p)
@@ -294,6 +344,7 @@ pgJointObject* PG_ContactNew(pgBodyObject* refBody, pgBodyObject* incidBody)
 	contact->joint.Destroy = PG_ContactDestroy;
 
 	contact->ppAccMoment = NULL;
+	contact->ppSplitAccMoment = NULL;
 
 	return (pgJointObject*)contact;
 }
