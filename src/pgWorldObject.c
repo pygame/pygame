@@ -78,13 +78,6 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
 			contact->SolveConstraintVelocity(contact, step);
 		}
-	//update P
-	for(i = 0; i < cnt; ++i)
-	{
-		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
-		contact->SolveConstraintPosition(contact, step);
-	}
-	
 }
 
 void _PG_JointSolve(pgWorldObject* world,double stepTime)
@@ -94,6 +87,7 @@ void _PG_JointSolve(pgWorldObject* world,double stepTime)
 	for (i = 0; i < size; ++i)
 	{
 		pgJointObject* joint = (pgJointObject*)(PyList_GetItem((PyObject*)(world->jointList),i));
+		//what happened here?
 		if (joint->SolveConstraintPosition)
 		{
 			joint->SolveConstraintPosition(joint,stepTime);
@@ -112,8 +106,7 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 	for (i = 0; i < size; ++i)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));
-		PG_FreeUpdateBodyPos(world,body,stepTime);
-		
+		PG_FreeUpdateBodyPos(world,body,stepTime);	
 	}
 }
 
@@ -121,7 +114,6 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 void PG_Update(pgWorldObject* world,double stepTime)
 {
 	int i;
-	pgBodyObject* refBody;
 	_PG_FreeBodySimulation(world, stepTime);
 
 	_PG_BodyCollisionDetection(world, stepTime);
@@ -131,7 +123,6 @@ void PG_Update(pgWorldObject* world,double stepTime)
 	}
 	
 	_PG_BodyPositionUpdate(world, stepTime);
-	refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), 0));
 }
 
 

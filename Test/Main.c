@@ -20,7 +20,7 @@ pgBodyObject* body, * body1;
 void do_render()
 {
 	glColor3f(1.f, 1.f, 1.f);
-	PG_Update(s_world, 0.005);
+	PG_Update(s_world, 0.02);
 	PGT_RenderWorld(s_world);
 	//glprintf(0, 0, "Velocity of body: (%.2f, %.2f)", body->vecLinearVelocity.real, 
 	//	body->vecLinearVelocity.imag);
@@ -115,16 +115,18 @@ void TestBasic2Init()
 	int i = 0;
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
+	PG_Set_Vector2(s_world->vecGravity, 0, -600.f); //Orz重力居然要-10000.f才像话
 
-	for(i = 0; i < 3; ++i)
+	for(i = 0; i < 7; ++i)
 	{
 		body = PG_BodyNew();
 		PG_Set_Vector2(body->vecPosition, -100+100*i, 200);
-		PG_Set_Vector2(body->vecLinearVelocity, (100 - 100)/2, 0.f);
-		body->fRotation = .8f;
-		body->fAngleVelocity = 30.f;
-		body->fRestitution = 0.f;
-		PG_Bind_RectShape(body, 50, 30, 0);
+		PG_Set_Vector2(body->vecLinearVelocity, (20 - 10*i)/2, 0.f);
+		body->fRotation = 0;
+		body->fAngleVelocity = 3.f;
+		body->fRestitution = 0.0f;
+		body->fMass = 30.f;
+		PG_Bind_RectShape(body, 40, 25, 0);
 		PG_AddBodyToWorld(s_world, body);
 	}
 
@@ -133,7 +135,7 @@ void TestBasic2Init()
 	body1->bStatic = 1;
 	body1->fRestitution = 1.f;//for test
 	body1->fMass = 1e24;
-	PG_Bind_RectShape(body1, 10000, 20, 0);
+	PG_Bind_RectShape(body1, 1000, 20, 0);
 	PG_AddBodyToWorld(s_world, body1);
 
 }

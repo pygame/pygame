@@ -148,8 +148,8 @@ void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* 
 
 void PG_ApplyContact(PyObject* contactObject, double step)
 {
-#define MAX_C_DEP 0.01
-#define BIAS_FACTOR 0.1
+#define MAX_C_DEP 0.02
+#define BIAS_FACTOR 0.05
 
 	pgVector2 neg_dV, refV, incidV;
 	pgVector2 refR, incidR;
@@ -211,7 +211,7 @@ void PG_ApplyContact(PyObject* contactObject, double step)
 	brefV = c_sum(refBody->cBiasLV, c_fcross(refBody->cBiasW, refR));
 	bneg_dV = c_diff(brefV, bincidV); 
 	//bias_moment
-	bm_len = c_dot(c_mul_complex_with_real(bneg_dV, (1+contact->resist)),
+	bm_len = c_dot(c_mul_complex_with_real(bneg_dV, (1)),
 		contact->normal)/k;
 	bm_len = MAX(0, bm_len + vbias/k);
 	bm = c_mul_complex_with_real(contact->normal, bm_len);
@@ -275,25 +275,31 @@ void PG_UpdateP(pgJointObject* joint, double step)
 	double w;
 
 	//TODO: concern dt
-	if(!joint->body1->bStatic)
-	{
-		v = c_sum(joint->body1->vecLinearVelocity, joint->body1->cBiasLV);
-		w = joint->body1->fAngleVelocity + joint->body1->cBiasW;
+	//if(!joint->body1->bStatic)
+	//{
+	//	//v = joint->body1->vecLinearVelocity;
+	//	//w = joint->body1->fAngleVelocity;
 
-		joint->body1->vecPosition = c_sum(joint->body1->vecPosition, 
-			c_mul_complex_with_real(v, step));
-		joint->body1->fRotation += w*step;
-	}
+	//	v = c_sum(joint->body1->vecLinearVelocity, joint->body1->cBiasLV);
+	//	w = joint->body1->fAngleVelocity + joint->body1->cBiasW;
 
-	if(!joint->body2->bStatic)
-	{
-		v = c_sum(joint->body2->vecLinearVelocity, joint->body2->cBiasLV);
-		w = joint->body2->fAngleVelocity + joint->body2->cBiasW;
+	//	joint->body1->vecPosition = c_sum(joint->body1->vecPosition, 
+	//		c_mul_complex_with_real(v, step));
+	//	joint->body1->fRotation += w*step;
+	//}
 
-		joint->body2->vecPosition = c_sum(joint->body2->vecPosition, 
-			c_mul_complex_with_real(v, step));
-		joint->body2->fRotation += w*step;
-	}
+	//if(!joint->body2->bStatic)
+	//{
+	//	//v = joint->body1->vecLinearVelocity;
+	//	//w = joint->body1->fAngleVelocity;
+
+	//	v = c_sum(joint->body2->vecLinearVelocity, joint->body2->cBiasLV);
+	//	w = joint->body2->fAngleVelocity + joint->body2->cBiasW;
+
+	//	joint->body2->vecPosition = c_sum(joint->body2->vecPosition, 
+	//		c_mul_complex_with_real(v, step));
+	//	joint->body2->fRotation += w*step;
+	//}
 }
 
 void PG_ContactDestroy(pgJointObject* contact)

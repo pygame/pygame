@@ -33,13 +33,16 @@ void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 
 void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
 {
-	pgVector2 totalPosAdd;
+	pgVector2 v;
+	double w;
 
 	if(body->bStatic) return;
-
-	totalPosAdd = c_mul_complex_with_real(body->vecLinearVelocity, dt);
-	body->vecPosition = c_sum(body->vecPosition,totalPosAdd);
-	body->fRotation += body->fAngleVelocity*dt;
+	
+	v = c_sum(body->vecLinearVelocity, body->cBiasLV);
+	w = body->fAngleVelocity + body->cBiasW;
+	body->vecPosition = c_sum(body->vecPosition, 
+		c_mul_complex_with_real(v, dt));
+	body->fRotation += w*dt;
 }
 
 void PG_BodyInit(pgBodyObject* body)
