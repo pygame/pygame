@@ -95,6 +95,10 @@ opt_parser.add_option (
      help   = "fail incomplete tests (only single process mode)" )
 
 opt_parser.add_option (
+     "-r",  "--redirect", action = 'store_true',
+     help   = "redirect stderr/stdio, print only test results" )
+
+opt_parser.add_option (
      "-s",  "--subprocess", action = 'store_true',
      help   = "run test suites in subprocesses (default: same process)" )
 
@@ -123,6 +127,7 @@ options, args = opt_parser.parse_args()
 # this is used for testing subprocess output against single process mode
 
 if options.fake:
+    os.environ.update({"PYTHONPATH" : test_subdir})
     test_subdir = os.path.join(fake_test_subdir, options.fake )
     sys.path.append(test_subdir)
 
@@ -139,26 +144,38 @@ for f in sorted(os.listdir(test_subdir)):
 #
 
 if not options.subprocess:
+    ## INITIATE TEST SUITE
     suite = unittest.TestSuite()
-    runner = unittest.TextTestRunner()
-        
+    if options.redirect: test_out, runner = test_utils.StringIO_TextTestRunner()
+    else: runner = unittest.TextTestRunner()
+
+    ## LOAD THE TEST MODULES AND COMPILE TESTS
     for module in [m for m in test_modules if m not in IGNORE]:
         print 'loading ' + module
         __import__( module )
         test = unittest.defaultTestLoader.loadTestsFromName( module )
         suite.addTest( test )
     
+    ## REDIRECT STDERR, STDOUT
+    if options.redirect:
+        (stderr, stdout), redirected = test_utils.redirect_io()
+
+    ## GET OPTIONS AND RUN THE TESTS    
     test_utils.fail_incomplete_tests = options.incomplete
-    if options.verbose:
-        runner.verbosity = 2
-    
+    if options.verbose: runner.verbosity = 2
     runner.run( suite )
-    
-    sys.exit()
+
+    ## RETURN STDERR, STDOUT
+    if options.redirect:
+        sys.stderr, sys.stdout = stderr, stdout
+        test_out.seek(0)
+        sys.stderr.write(test_out.read())
+        # redirected has anything >> stderr | stdout
 
     ###########################
     # SYS.EXIT() FLOW CONTROL #
     ###########################
+    sys.exit()
 
 ################################################################################
 # Runs an individual xxxx_test.py test suite in a subprocess
@@ -177,13 +194,12 @@ def run_test(args):
 ################################################################################
 # Run all the tests in subprocesses
 #
-
 flags = []
+if options.redirect: flags += ['-r']
 test_cmds = [ 
     (m, [options.python, os.path.join(test_subdir, '%s.py' % m)] + flags)
         for m in test_modules if  m not in SUBPROCESS_IGNORE 
 ]
-
 
 t = time.time()
 
@@ -201,6 +217,9 @@ t = time.time() - t
 ################################################################################
 # Combine subprocessed TextTestRunner() results to mimick single run
 # Puts complete failures in a form the build page will pick up
+#
+# NOTE: regexes will possibly fail if tests are noisy on stdout or stderr
+#       so use -r --redirect io option when using subprocess
 
 all_dots = ''
 failures = []
@@ -215,7 +234,7 @@ for cmd, module, ret_code, ret in test_results:
     all_dots += dots
 
     if 'E' in dots or 'F' in dots:
-        failure = ret[len(dots):].split(RAN_TESTS_DIV)[0]
+        failure = ret[len(dots)+1:].split(RAN_TESTS_DIV)[0]
         failures.append (
             failure.replace( "(__main__.", "(%s." % module)
         )

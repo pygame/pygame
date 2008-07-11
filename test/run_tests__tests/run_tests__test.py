@@ -29,11 +29,11 @@ def norm_result(result):
 
 def call_proc(cmd, cd=None):
     proc = subprocess.Popen (
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd = cd,
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd = cd,
 	universal_newlines = True,
     )
     assert not proc.wait()
-    return proc.stdout.read() + proc.stderr.read()
+    return proc.stdout.read()
 
 ################################################################################
 
@@ -47,6 +47,8 @@ if '-h' in sys.argv or '--help' in sys.argv: sys.exit (
 main_dir  = os.path.split(os.path.abspath(sys.argv[0]))[0]
 trunk_dir = os.path.normpath(os.path.join(main_dir, '../../'))
 
+os.environ.update({"PYTHONPATH" : os.path.join(trunk_dir, 'test')})
+
 test_suite_dirs = [x for x in os.listdir(main_dir) 
                            if os.path.isdir(os.path.join(main_dir, x))
                            and x not in IGNORE ]
@@ -55,8 +57,8 @@ test_suite_dirs = [x for x in os.listdir(main_dir)
 # Test that output is the same in single process and subprocess modes 
 #
 
-cmd = [sys.executable, 'run_tests.py', '-f']
-sub_cmd = [sys.executable, 'run_tests.py', '-s', '-f']
+cmd = [sys.executable, 'run_tests.py', '-r', '-f']
+sub_cmd = [sys.executable, 'run_tests.py', '-r', '-s', '-f']
 
 time_out_cmd = [
     sys.executable, 'run_tests.py', '-t', '4', '-s', '-f', 'infinite_loop',
@@ -77,7 +79,7 @@ for suite in test_suite_dirs:
     else:
         passes += 1
         print '%s suite comparison OK' % suite
-    
+
     if verbose or failed:
         print "difflib.Differ().compare(single, suprocessed):\n"
         print ''.join ( list(
