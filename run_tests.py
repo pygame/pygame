@@ -221,6 +221,9 @@ t = time.time() - t
 # NOTE: regexes will possibly fail if tests are noisy on stdout or stderr
 #       so use -r --redirect io option when using subprocess
 
+def print_err(*args):
+    for arg in args: sys.stderr.write(arg + '\n')
+
 all_dots = ''
 failures = []
 
@@ -242,16 +245,16 @@ for cmd, module, ret_code, ret in test_results:
 total_fails, total_errors = map(all_dots.count, 'FE')
 total_tests = len(all_dots)
 
-print all_dots
-if failures: print ''.join(failures).lstrip('\n')[:-1]
-print "%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)
+print_err(all_dots)
+if failures: print_err(''.join(failures).lstrip('\n')[:-1])
+print_err("%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t))
 
 if not failures:
-    print 'OK'
+    print_err('OK')
 else:
-    print 'FAILED (%s)' % ', '.join (
+    print_err ('FAILED (%s)' % ', '.join (
         (total_fails  and ["failures=%s" % total_fails] or []) +
         (total_errors and ["errors=%s"  % total_errors] or [])
-    )
+    ))
 
 ################################################################################
