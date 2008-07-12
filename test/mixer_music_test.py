@@ -7,19 +7,24 @@ class MixerMusicModuleTest(unittest.TestCase):
         
           # pygame.mixer.music.load(filename): return None
           # Load a music file for playback
-        
+
+
         data_fname = os.path.join('examples', 'data')
-        pygame.init()
-        #note, I just added house_lo.mus to svn.
-        #formats = ['ogg', 'wav', 'mp3']
-        formats = ['mp3']
+        pygame.mixer.init()
+
+        formats = ['mp3', 'ogg', 'wav']
+
         for f in formats:
             musfn = os.path.join(data_fname, 'house_lo.%s' % f)
     
             pygame.mixer.music.load(musfn)
-            pygame.mixer.music.load(open(musfn))
-            musf = open(musfn)
-            pygame.mixer.music.load(musf)
+
+            #NOTE: TODO: loading from filelikes are disabled...
+            # because as of writing it only works in SDL_mixer svn.
+            #pygame.mixer.music.load(open(musfn))
+            #musf = open(musfn)
+            #pygame.mixer.music.load(musf)
+        pygame.mixer.quit()
     
     
     def test_queue(self):
