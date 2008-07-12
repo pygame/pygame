@@ -1,4 +1,4 @@
-import unittest, test_utils
+import unittest
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
@@ -21,4 +21,4 @@ class KeyModuleTest(unittest.TestCase):
         self.assert_(True) 
 
 if __name__ == '__main__':
-    test_utils.get_command_line_options()
+    unittest.main()

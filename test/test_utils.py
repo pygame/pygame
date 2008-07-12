@@ -1,6 +1,6 @@
 #################################### IMPORTS ###################################
 
-import tempfile, sys, pygame, unittest, StringIO
+import tempfile, sys, pygame, unittest
 
 ############################### INCOMPLETE TESTS ###############################
 
@@ -19,53 +19,13 @@ def check_option(*args):
 def get_command_line_options():
     global fail_incomplete_tests
     if check_option("--incomplete", "-i"):  fail_incomplete_tests = 1
-    if check_option("--redirect", "-r"):    low_noise_test()
-    else: unittest.main()
+    
+    unittest.main()
 
 ################################## TEMP FILES ##################################
 
 def get_tmp_dir():
     return tempfile.mkdtemp()
-
-############################# UNITTEST EXTENSIONS ##############################
-
-REDIRECT_DIVISION = "<[[! MULTIPLEXED UNITTEST, STDERR, STDOUT STARTS HERE !]]>"
-
-class Redirect(StringIO.StringIO):
-    def write(self, val):
-        sys.stdout.write(val)
-        StringIO.StringIO.write(self, val)
-        
-def StringIO_TextTestRunner():
-    test_out = Redirect()
-    runner = unittest.TextTestRunner(stream=test_out)
-    return test_out, runner
-
-def redirect_io():
-    yield sys.stderr, sys.stdout
-    sys.stderr = sys.stdout = StringIO.StringIO()
-    yield sys.stdout
-
-class Main(unittest.main):
-    def runTests(self):
-        self.testRunner.run(self.test)
-
-def low_noise_test(exit=True):
-    (oerr, oout), rerr_out = redirect_io()
-
-    test_out, runner = StringIO_TextTestRunner()
-    Main(testRunner = runner)
-
-    sys.stderr, sys.stdout = oerr, oout
-
-    test_out.seek(0)
-    # rerr_out.seek(0)
-
-    sys.stderr.write(test_out.read())          # unittest
-    # print REDIRECT_DIVISION
-    # sys.stdout.write(rerr_out.read())        # unittest, stderr, stdout
-
-    if exit: sys.exit()
 
 #################################### HELPERS ###################################
 
