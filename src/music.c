@@ -252,8 +252,13 @@ music_load (PyObject* self, PyObject* args)
         return NULL;
 
     MIXER_INIT_CHECK ();
+/*
+    #if (MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL) > 010207
+*/
+#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>8
 
-    #if MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL >= 010207
+/* this is for loading music from file likes..
+*/
     if(!PyString_Check(file) && !PyUnicode_Check(file))
     {
         rw = RWopsFromPythonThreaded(file);
