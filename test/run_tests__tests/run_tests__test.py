@@ -11,8 +11,6 @@ IGNORE =  (
 NORMALIZERS = (
     (r"Ran (\d+) tests in (\d+\.\d+)s",   "Ran \\1 tests in X.XXXs" ),
     (r'File ".*?([^/\\.]+\.py)"',         'File "\\1"'),
-
-    #TODO: look into why os.path.sep differs
 )
 
 ################################################################################
@@ -32,7 +30,10 @@ def call_proc(cmd, cd=None):
         cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd = cd,
 	universal_newlines = True,
     )
-    assert not proc.wait()
+    if proc.wait():
+        print cmd, proc.wait()
+        raise Exception(proc.stdout.read())
+
     return proc.stdout.read()
 
 ################################################################################
@@ -40,14 +41,18 @@ def call_proc(cmd, cd=None):
 unnormed_diff = '-u' in sys.argv
 verbose = '-v' in sys.argv or unnormed_diff
 if '-h' in sys.argv or '--help' in sys.argv: sys.exit (
+    "\nCOMPARES OUTPUT OF SINGLE VS SUBPROCESS MODE OF RUN_TESTS.PY\n\n"
     '-v, to output diffs even on success\n'
-    '-u, to output diffs of unnormalized tests'
+    '-u, to output diffs of unnormalized tests\n\n'
+    "Each line of a Differ delta begins with a two-letter code:\n\n"
+    "    '- '    line unique to sequence 1\n"
+    "    '+ '    line unique to sequence 2\n"
+    "    '  '    line common to both sequences\n"
+    "    '? '    line not present in either input sequence\n"
 )
 
 main_dir  = os.path.split(os.path.abspath(sys.argv[0]))[0]
 trunk_dir = os.path.normpath(os.path.join(main_dir, '../../'))
-
-os.environ.update({"PYTHONPATH" : os.path.join(trunk_dir, 'test')})
 
 test_suite_dirs = [x for x in os.listdir(main_dir) 
                            if os.path.isdir(os.path.join(main_dir, x))
@@ -57,12 +62,11 @@ test_suite_dirs = [x for x in os.listdir(main_dir)
 # Test that output is the same in single process and subprocess modes 
 #
 
-cmd = [sys.executable, 'run_tests.py', '-r', '-f']
-sub_cmd = [sys.executable, 'run_tests.py', '-r', '-s', '-f']
+base_cmd = [sys.executable, 'run_tests.py']
 
-time_out_cmd = [
-    sys.executable, 'run_tests.py', '-t', '4', '-s', '-f', 'infinite_loop',
-]
+cmd = base_cmd + ['-f']
+sub_cmd = base_cmd + ['-s', '-f']
+time_out_cmd =  base_cmd  + ['-t', '4', '-s', '-f', 'infinite_loop' ]
 
 passes = 0
 failed = False
@@ -91,6 +95,7 @@ for suite in test_suite_dirs:
 
 print "infinite_loop suite (subprocess mode timeout)",
 loop_test = call_proc(time_out_cmd, trunk_dir)
+assert "ERROR: all_tests_for" in loop_test
 passes += 1
 print "OK"
 

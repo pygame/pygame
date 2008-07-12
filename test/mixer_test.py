@@ -192,22 +192,6 @@ class MixerModuleTest(unittest.TestCase):
           # stop playback of all sound channels
     
         self.assert_(test_not_implemented())
-        
-
-    def test_mixer_music__load(self):
-        data_fname = os.path.join('examples', 'data')
-        pygame.init()
-        #note, I just added house_lo.mus to svn.
-        #formats = ['ogg', 'wav', 'mp3']
-        formats = ['mp3']
-        for f in formats:
-            musfn = os.path.join(data_fname, 'house_lo.%s' % f)
-
-            pygame.mixer.music.load(musfn)
-            pygame.mixer.music.load(open(musfn))
-            musf = open(musfn)
-            pygame.mixer.music.load(musf)
-
 
 ############################## CHANNEL CLASS TESTS #############################
 
