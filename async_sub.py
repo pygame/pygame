@@ -234,9 +234,9 @@ class Popen(subprocess.Popen):
 
 ################################################################################
 
-def proc_in_time_or_kill(cmd, time_out):
+def proc_in_time_or_kill(cmd, time_out, wd = None, env = None):
     proc = Popen (
-        cmd, bufsize = -1,
+        cmd, cwd = wd, env = env,
         stdin = subprocess.PIPE, stdout = subprocess.PIPE, 
         stderr = subprocess.STDOUT, universal_newlines = 1
     )
@@ -256,7 +256,7 @@ def proc_in_time_or_kill(cmd, time_out):
         try:
             proc.kill()
             ret_code += 'and was successfully terminated"'
-        except (win32api.error, OSError), e:
+        except Exception, e:
             ret_code += 'and termination failed (exception: %s)"' % e
 
     return ret_code, ''.join(response) #+ ''.join(err)
