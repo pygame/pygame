@@ -25,7 +25,7 @@ pgAABBBox PG_GenAABB(double left, double right, double bottom, double top);
 void PG_AABBExpandTo(pgAABBBox* box, pgVector2* p);
 void PG_AABBClear(pgAABBBox* box);
 int PG_IsOverlap(pgAABBBox* boxA, pgAABBBox* boxB);
-int PG_IsIn(pgVector2* p, pgAABBBox* box);
+int PG_IsIn(pgVector2* p, pgAABBBox* box, double eps);
 
 #endif //_PYGAME_MATH_AABBBOX_
 

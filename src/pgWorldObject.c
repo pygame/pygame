@@ -5,14 +5,14 @@
 #include "pgShapeObject.h"
 #include <structmember.h>
 
-#define MAX_SOLVE_INTERAT 10
+#define MAX_ITERATION 5
 
 extern PyTypeObject pgWorldType;
 
 void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 {
-	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
 	Py_ssize_t i;
+	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
 	for (i = 0; i < size; ++i)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));		
@@ -22,38 +22,29 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 
 void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 {
-	Py_ssize_t i, j, cnt, size, body_size;
+	Py_ssize_t i, j, body_cnt, contact_cnt;
 	pgBodyObject* refBody, *incBody;
 	pgJointObject* contact;
 	
-	size = PyList_Size((PyObject*)(world->bodyList));
+	body_cnt = PyList_Size((PyObject*)(world->bodyList));
 	//clear contactList first
-	cnt = PyList_Size((PyObject*)(world->contactList));
-	if(PyList_SetSlice((PyObject*)(world->contactList), 0, cnt, NULL) < 0) return;
+	contact_cnt = PyList_Size((PyObject*)(world->contactList));
+	if(PyList_SetSlice((PyObject*)(world->contactList), 0, contact_cnt, NULL) < 0) return;
 	assert(PyList_Size((PyObject*)(world->contactList))==0);
 	
-	//for all pair of objects, do collision test
-	//clear bias
-	body_size = PyList_Size((PyObject*)(world->bodyList));
-	for(i = 0; i < body_size; ++i)
-	{
-		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
-		PG_Set_Vector2(refBody->cBiasLV, 0.f, 0.f);
-		refBody->cBiasW = 0.f;
-	}
-	
+	//for all pair of objects, do collision test	
 	//update AABB
-	for(i = 0; i < size; ++i)
+	for(i = 0; i < body_cnt; ++i)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
 		refBody->shape->UpdateAABB(refBody);
 	}
 	
 	//collision test
-	for(i = 0; i < size-1; ++i)
+	for(i = 0; i < body_cnt-1; ++i)
 	{
 		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
-		for(j = i+1; j < size; ++j)
+		for(j = i+1; j < body_cnt; ++j)
 		{
 			incBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), j));
 			if(refBody->bStatic && incBody->bStatic) continue;
@@ -63,21 +54,39 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 			}
 		}
 	}
-	//collision reaction
-	cnt = PyList_Size((PyObject*)(world->contactList));
-	for(i = 0; i < cnt; ++i)
+
+	contact_cnt = PyList_Size((PyObject*)(world->contactList));
+	for(j = 0; j < MAX_ITERATION; ++j)
 	{
-		contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
-		PG_ApplyContact((PyObject*)contact, step);
-	}
-	
-	//update V
-	for(j = 0; j < 1; ++j)
-		for(i = 0; i < cnt; ++i)
+		//clear bias
+		for(i = 0; i < body_cnt; ++i)
+		{
+			refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
+			PG_Set_Vector2(refBody->cBiasLV, 0.f, 0.f);
+			refBody->cBiasW = 0.f;
+		}
+		//clear impulse
+		for(i = 0; i < contact_cnt; ++i)
+		{
+			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
+			PG_Set_Vector2(**(((pgContact*)contact)->ppAccMoment), 0, 0);
+			PG_Set_Vector2(**(((pgContact*)contact)->ppSplitAccMoment), 0, 0);
+		}
+
+		//collision reaction
+		contact_cnt = PyList_Size((PyObject*)(world->contactList));
+		for(i = 0; i < contact_cnt; ++i)
+		{
+			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
+			PG_ApplyContact((PyObject*)contact, step);
+		}
+		//update V	
+		for(i = 0; i < contact_cnt; ++i)
 		{
 			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
 			contact->SolveConstraintVelocity(contact, step);
 		}
+	}
 }
 
 void _PG_JointSolve(pgWorldObject* world,double stepTime)
@@ -114,14 +123,11 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 void PG_Update(pgWorldObject* world,double stepTime)
 {
 	int i;
-	_PG_FreeBodySimulation(world, stepTime);
 
+	_PG_FreeBodySimulation(world, stepTime);
 	_PG_BodyCollisionDetection(world, stepTime);
-	for (i = 0;i < MAX_SOLVE_INTERAT;i++)
-	{
+	for(i = 0; i < MAX_ITERATION; ++i)
 		_PG_JointSolve(world, stepTime);
-	}
-	
 	_PG_BodyPositionUpdate(world, stepTime);
 }
 

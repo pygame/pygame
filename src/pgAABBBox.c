@@ -38,8 +38,8 @@ int PG_IsOverlap(pgAABBBox* boxA, pgAABBBox* boxB)
 	return from_x <= to_x && from_y <= to_y;
 }
 
-PG_IsIn(pgVector2* p, pgAABBBox* box)
+PG_IsIn(pgVector2* p, pgAABBBox* box, double eps)
 {
-	return box->left <= p->real && p->real <= box->right
-		&& box->bottom <= p->imag && p->imag <= box->top;
+	return box->left - eps < p->real && p->real < box->right + eps
+		&& box->bottom - eps < p->imag && p->imag < box->top + eps;
 }

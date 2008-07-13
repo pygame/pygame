@@ -149,7 +149,7 @@ void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* 
 void PG_ApplyContact(PyObject* contactObject, double step)
 {
 #define MAX_C_DEP 0.02
-#define BIAS_FACTOR 0.05
+#define BIAS_FACTOR 0.15
 
 	pgVector2 neg_dV, refV, incidV;
 	pgVector2 refR, incidR;

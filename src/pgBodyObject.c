@@ -19,15 +19,13 @@ void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double s
 
 void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 {
-	pgVector2 totalVelAdd;
 	pgVector2 totalF;
-	double k;
 	if(body->bStatic) return;
 
-	totalF = c_sum(body->vecForce, world->vecGravity);
-	k = dt / body->fMass;
-	totalVelAdd = c_mul_complex_with_real(totalF, k);
-	body->vecLinearVelocity = c_sum(body->vecLinearVelocity, totalVelAdd);
+	totalF = c_sum(body->vecForce, c_mul_complex_with_real(world->vecGravity,
+		body->fMass));
+	body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
+		c_mul_complex_with_real(totalF, dt/body->fMass));
 	
 }
 
