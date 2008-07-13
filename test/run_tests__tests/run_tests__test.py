@@ -83,7 +83,7 @@ for suite in test_suite_dirs:
     else:
         passes += 1
         print '%s suite comparison OK' % suite
-
+    
     if verbose or failed:
         print "difflib.Differ().compare(single, suprocessed):\n"
         print ''.join ( list(
@@ -95,7 +95,7 @@ for suite in test_suite_dirs:
 
 print "infinite_loop suite (subprocess mode timeout)",
 loop_test = call_proc(time_out_cmd, trunk_dir)
-assert "ERROR: all_tests_for" in loop_test
+assert "successfully terminated" in loop_test
 passes += 1
 print "OK"
 

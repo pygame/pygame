@@ -3,7 +3,7 @@
 import sys, os, re, unittest, subprocess, time, optparse
 import pygame.threads 
 
-from test_runner import run_test, TEST_RESULTS_RE
+from test_runner import run_test, TEST_RESULTS_RE, TEST_RESULTS_START
 from pprint import pformat
 
 # async_sub imported if needed when run in subprocess mode
@@ -37,6 +37,8 @@ SUBPROCESS_IGNORE = (
 )
 
 ################################################################################
+# Human readable output
+#
 
 COMPLETE_FAILURE_TEMPLATE = """
 ======================================================================
@@ -65,43 +67,20 @@ DOTS = re.compile("^([FE.]*)$", re.MULTILINE)
 ################################################################################
 # Set the command line options
 #
+# Defined in test_runner.py as it shares options, added to here
 
-USEAGE = """
+from test_runner import opt_parser
+
+opt_parser.set_usage("""
 
 Runs all the test/xxxx_test.py tests.
 
-"""
+""")
 
-opt_parser = optparse.OptionParser(USEAGE)
-
-opt_parser.add_option (
-     "-i",  "--incomplete", action = 'store_true',
-     help   = "fail incomplete tests (only single process mode)" )
-
-opt_parser.add_option (
-     "-s",  "--subprocess", action = 'store_true',
-     help   = "run test suites in subprocesses (default: same process)" )
-
-opt_parser.add_option (
-     "-d",  "--dump", action = 'store_true',
-     help   = "dump results as dict ready to eval" )
-
-opt_parser.add_option (
-     "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
-     help   = "run subprocessed tests in x THREADS" )
-
-opt_parser.add_option (
-     "-t",  "--time_out", metavar = 'SECONDS', type = 'int', default = TIME_OUT,
-     help   = "kill stalled subprocessed tests after SECONDS" )
-
-opt_parser.add_option (
-     "-f",  "--fake", metavar = "DIR",
-     help   = "run fake tests in %s%s$DIR"  % (fake_test_subdir, os.path.sep) )
-
-opt_parser.add_option (
-     "-p",  "--python", metavar = "PYTHON", default = sys.executable,
-     help   = "path to python excutable to run subproccesed tests\n"
-              "default (sys.executable): %s" % sys.executable)
+opt_parser.set_defaults (
+    python = sys.executable,
+    time_out = TIME_OUT,
+)
 
 options, args = opt_parser.parse_args()
 
@@ -123,30 +102,29 @@ os.chdir(working_dir)
 test_modules = []
 for f in sorted(os.listdir(test_subdir)):
     for match in TEST_MODULE_RE.findall(f):
+        if ((options.subprocess and match in SUBPROCESS_IGNORE) 
+             or match in IGNORE): continue
         test_modules.append(match)
+if args:    
+    test_modules = [
+        m.endswith('_test') and m or ('%s_test' % m) for m in args
+    ]    
 
 ################################################################################
 # Single process mode
 #
 
-if not options.subprocess:
-    test_utils.fail_incomplete_tests = options.incomplete
-    single_results = run_test([m for m in test_modules if m not in IGNORE])
-    if options.dump: print pformat(single_results)
+if not options.subprocess:    
+    single_results = run_test (
+        test_modules,
+        options = options
+    )
+    if options.dump: print pformat(single_results)    #TODO
     else: print single_results['output']
 
 ################################################################################
 # Subprocess mode
 #
-
-def count(results, *args):
-    for arg in args:
-        all_of = [a for a in [v.get(arg) for v in results.values()] if a]
-        if not all_of: yield 0
-        else:
-            yield sum (
-            isinstance(all_of[0], int) and all_of or (len(v) for v in all_of)
-        )
 
 def combine_results(all_results, t):
     """
@@ -166,8 +144,10 @@ def combine_results(all_results, t):
         )
 
         if not output or (return_code and RAN_TESTS_DIV not in output):
+            # would this effect the original? TODO
             results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
             failures.append( COMPLETE_FAILURE_TEMPLATE % results )
+            all_dots += 'E'
             continue
 
         dots = DOTS.search(output).group(1)
@@ -194,13 +174,36 @@ def combine_results(all_results, t):
 
 ################################################################################
 
+def count(results, *args):
+    for arg in args:
+        all_of = [a for a in [v.get(arg) for v in results.values()] if a]
+        if not all_of: yield 0
+        else:
+            yield sum (
+            isinstance(all_of[0], int) and all_of or (len(v) for v in all_of)
+        )
+
+def test_failures(results):
+    total,   = count(results, 'num_tests')
+    errors = {}
+
+    for module, result in results.items():
+        for breaker in ['errors', 'failures', 'return_code']:
+            if breaker not in result or result[breaker]:
+                if breaker not in result: total += 1
+                errors.update({module:result})
+                break
+
+    return total, errors
+
+################################################################################
+
 if options.subprocess:
     from async_sub import proc_in_time_or_kill
 
     def sub_test(module):
         print 'loading', module
-        
-        cmd = [options.python, test_runner_py, module ]
+        cmd = [options.python, test_runner_py, module ] + sys.argv[1:]
 
         return module, (cmd, test_env, working_dir), proc_in_time_or_kill (
             cmd,
@@ -208,7 +211,7 @@ if options.subprocess:
             env = test_env,
             wd = working_dir,
         )
-    
+
     if options.multi_thread:
         def tmap(f, args):
             return pygame.threads.tmap (
@@ -216,15 +219,13 @@ if options.subprocess:
                 num_workers = options.multi_thread
             )
     else: tmap = map
-        
 
-    test_modules = (m for m in test_modules if m not in SUBPROCESS_IGNORE)
     results = {}
 
     t = time.time()
 
-    for module, proc, (return_code, raw_return) in tmap(sub_test, test_modules):
-        cmd, test_env, working_dir = proc
+    for module, cmd, (return_code, raw_return) in tmap(sub_test, test_modules):
+        cmd, test_env, working_dir = cmd
 
         test_results = TEST_RESULTS_RE.search(raw_return)
         if test_results: 
@@ -245,16 +246,12 @@ if options.subprocess:
         )
 
     untrusty_total, combined = combine_results(results, time.time() -t)
-    errors, failures, total  = count(results, 'errors', 'failures', 'num_tests')
+    total, fails = test_failures(results)
 
-    if not options.dump and untrusty_total == total:
+    if not options.dump or (options.human and untrusty_total == total):
         print combined
     else:
-        for module, result in results.items():
-            for breaker in ['errors', 'return_code', 'failures']:
-                if breaker not in result or result[breaker]:
-                    print pformat(result)
-
-        print "Tests:%s Errors:%s Failures:%s"% (total, errors, failures)
+        print TEST_RESULTS_START
+        print pformat(fails)
 
 ################################################################################

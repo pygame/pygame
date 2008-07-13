@@ -92,24 +92,17 @@ class MixerModuleTest(unittest.TestCase):
             self.assert_(mixer.get_num_channels() == i)
 
         mixer.quit()
-    
+
     def test_quit(self):
+        """ get_num_channels() Should throw pygame.error if uninitialized
+        after mixer.quit() """
+
         mixer.init()
         mixer.quit()
 
-        # assertRaises does not work here
-        # self.assertRaises(pygame.error, mixer.get_num_channels())
-
-        try:
-            chans = mixer.get_num_channels()
-        except pygame.error:
-            pass
-        except Exception:
-            self.fail()
-        else:
-            self.assert_( chans is
-                'get_num_channels() Should throw pygame.error if uninitialized '
-                'after mixer.quit()' )
+        self.assertRaises (
+            pygame.error, mixer.get_num_channels,
+        )
 
     def test_pre_init(self):
     

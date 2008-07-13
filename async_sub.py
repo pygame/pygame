@@ -32,26 +32,6 @@ PIPE = subprocess.PIPE
 
 ################################################################################
 
-# import signal
-
-# cludge: try to mimic the standard library kill
-# signal.SIGKILL = 120
-
-# def kill(pid, sig):
-#     cludge: try to mimic the standard library kill
-#     assert sig == signal.SIGKILL 
-#     handle = win32api.OpenProcess(win32con.PROCESS_TERMINATE, 0, pid)
-#     win32api.TerminateProcess(handle, 1) # exit status
-
-# def waitpid(pid):
-#     handle = win32api.OpenProcess(win32con.SYNCHRONIZE|win32con .PROCESS_QUERY_INFORMATION , 0, pid)
-#     win32event.WaitForSingleObject(handle, win32event.INFINITE)
-#     exitCode = win32process.GetExitCodeProcess(handle)
-
-# return pid, exitCode
-
-################################################################################
-
 class Popen(subprocess.Popen):
     def recv(self, maxsize=None):
         return self._recv('stdout', maxsize)
@@ -109,20 +89,9 @@ class Popen(subprocess.Popen):
             #http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/347462
             
             """kill function for Win32"""
-            # try:
-                # This works as well
             
             win32api.TerminateProcess(int(self._handle), 0) # returns None
                                            # handle,  # exit code
-
-            #     handle = win32api.OpenProcess(1, 0, self.pid)
-            #     try:
-            #         win32api.TerminateProcess(handle, 0)
-            #     finally:
-            #         win32api.CloseHandle(handle)
-            # except win32api.error:
-            #     return False
-            # return True
 
         def send(self, input):
             if not self.stdin:
@@ -165,33 +134,13 @@ class Popen(subprocess.Popen):
 
     else:
         def kill(self):
-            # TODO make return val consistent with windows
-            
-            # waitpid
-             
-            # and return a tuple containing its pid and exit status
-            # indication: a 16-bit number, whose low byte is the
-            # signal number that killed the process, and whose high
-            # byte is the exit status (if the signal number is
-            # zero); the high bit of the low byte is set if a core
-            # file was produced. Availability: Macintosh, Unix.
-
-            # try:
-
             for i, sig in enumerate([SIGTERM, SIGKILL] * 2):
                 if i % 2 == 0: os.kill(self.pid, sig)
                 time.sleep((i * (i % 2) / 5.0)  + 0.01)
 
                 killed_pid, stat = os.waitpid(self.pid, os.WNOHANG)
-                # print (i, killed_pid, stat)
-
-                if killed_pid != 0: return #True  # ???
-
-            # except OSError:
-            #     pass
-
-            # return False
-
+                if killed_pid != 0: return
+                
         def send(self, input):
             if not self.stdin:
                 return None
@@ -243,13 +192,11 @@ def proc_in_time_or_kill(cmd, time_out, wd = None, env = None):
 
     ret_code = None
     response = []
-    # err = []
 
     t = time.time()
     while ret_code is None and ((time.time() -t) < time_out):
         ret_code = proc.poll()
         response += [proc.read_async(wait=0.1, e=0)]
-        # err      += [proc.read_async(wait=0.1, e=0, stderr=1)]
 
     if ret_code is None:
         ret_code = '"Process timed out (time_out = %s secs) ' % time_out
@@ -259,7 +206,7 @@ def proc_in_time_or_kill(cmd, time_out, wd = None, env = None):
         except Exception, e:
             ret_code += 'and termination failed (exception: %s)"' % e
 
-    return ret_code, ''.join(response) #+ ''.join(err)
+    return ret_code, ''.join(response)
 
 ################################################################################
 
@@ -292,7 +239,5 @@ def _example():
 ################################################################################
     
 if __name__ == '__main__':
-    if 1:
-        unittest.main()
-    else:
-        _example()
+    if 1: unittest.main()
+    else: _example()
