@@ -3,17 +3,15 @@
 import sys, os, re, unittest, subprocess, time, optparse
 import pygame.threads 
 
-from test_runner import run_test, TEST_RESULTS_RE, TEST_RESULTS_START
+from test_runner import run_test, TEST_RESULTS_RE, TEST_RESULTS_START,\
+                        prepare_test_env
+
 from pprint import pformat
 
-# async_sub imported if needed when run in subprocess mode
-
-main_dir = os.path.split(os.path.abspath(sys.argv[0]))[0]
-test_subdir = os.path.join(main_dir, 'test')
+main_dir, test_subdir = prepare_test_env()
 fake_test_subdir = os.path.join(test_subdir, 'run_tests__tests')
 test_runner_py = os.path.join(main_dir, "test_runner.py")
 
-sys.path.insert(0, test_subdir)
 import test_utils
 
 ################################### CONSTANTS ##################################
@@ -108,7 +106,7 @@ for f in sorted(os.listdir(test_subdir)):
 if args:    
     test_modules = [
         m.endswith('_test') and m or ('%s_test' % m) for m in args
-    ]    
+    ]
 
 ################################################################################
 # Single process mode
@@ -203,7 +201,9 @@ if options.subprocess:
 
     def sub_test(module):
         print 'loading', module
-        cmd = [options.python, test_runner_py, module ] + sys.argv[1:]
+        
+        pass_on_args = [a for a in sys.argv[1:] if a not in args]
+        cmd = [options.python, test_runner_py, module ] + pass_on_args
 
         return module, (cmd, test_env, working_dir), proc_in_time_or_kill (
             cmd,
@@ -228,7 +228,7 @@ if options.subprocess:
         cmd, test_env, working_dir = cmd
 
         test_results = TEST_RESULTS_RE.search(raw_return)
-        if test_results: 
+        if test_results:
             try:     results.update(eval(test_results.group(1)))
             except:  raise Exception("BUGGY EVAL:\n %s" % test_results.group(1))
 
@@ -252,6 +252,6 @@ if options.subprocess:
         print combined
     else:
         print TEST_RESULTS_START
-        print pformat(fails)
+        print pformat(options.all and results or fails)
 
 ################################################################################
