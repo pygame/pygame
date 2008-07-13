@@ -2,6 +2,17 @@ import sys, os, re, unittest, StringIO, time, optparse
 from pprint import pformat
 
 ################################################################################
+
+def prepare_test_env():
+    main_dir = os.path.split(os.path.abspath(sys.argv[0]))[0]
+    test_subdir = os.path.join(main_dir, 'test')
+    sys.path.insert(0, test_subdir)
+    return main_dir, test_subdir
+
+main_dir, test_subdir = prepare_test_env()
+import test_utils
+
+################################################################################
 # Set the command line options
 #
 # options are shared with run_tests.py so make sure not to conflict
@@ -19,7 +30,11 @@ opt_parser.add_option (
 
 opt_parser.add_option (
      "-d",  "--dump", action = 'store_true',
-     help   = "dump results as dict ready to eval" )
+     help   = "dump failures/errors as dict ready to eval" )
+
+opt_parser.add_option (
+     "-a",  "--all", action = 'store_true',
+     help   = "dump all results not just errors eg. -da" )
 
 opt_parser.add_option (
      "-H",  "--human", action = 'store_true',
@@ -60,7 +75,7 @@ def StringIOContents(io):
     io.seek(0)
     return io.read()
     
-unittest._TextTestResult.monkey = lambda self, errors: [
+unittest._TextTestResult.monkeyRepr = lambda self, errors: [
     (self.getDescription(e[0]), e[1]) for e in errors
 ]
 
@@ -95,8 +110,8 @@ def run_test(modules, options):
             options.subprocess and modules[0] or 'all_tests':
             {
                 'num_tests' : results.testsRun,
-                'failures'  : results.monkey(results.failures),
-                'errors'    : results.monkey(results.errors),
+                'failures'  : results.monkeyRepr(results.failures),
+                'errors'    : results.monkeyRepr(results.errors),
                 'output'    : captured,
                 'stderr'    : err,
                 'stdout'    : out,
