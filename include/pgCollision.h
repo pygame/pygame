@@ -17,6 +17,7 @@ typedef struct _pgContact
 	double depth;
 	double weight;
 	double resist;
+	double kFactor, tFactor;
 	pgVector2** ppAccMoment;
 	pgVector2** ppSplitAccMoment;
 }pgContact;

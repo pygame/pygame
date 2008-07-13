@@ -301,6 +301,8 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	pgContact* contact;
 	int i;
 	double minDep;
+	pgVector2 refR, incidR;
+	double tmp1, tmp2;
 
 
 	overlap = _SAT_Select(selfBody, incidBody,
@@ -332,6 +334,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 		break;
 	}
 
+
 	pAcc = PyObject_Malloc(sizeof(pgVector2));
 	pAcc->real = pAcc->imag = 0;
 	pSplitAcc = PyObject_Malloc(sizeof(pgVector2));
@@ -352,6 +355,18 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 
 		contact->weight = csize;
 		contact->depth = minDep;
+
+		//precompute kFactor
+		refR = c_diff(contact->pos, selfBody->vecPosition);
+		incidR = c_diff(contact->pos, incidBody->vecPosition);
+		tmp1 = c_dot(c_fcross(c_cross(refR, contact->normal), refR), contact->normal)
+			 /selfBody->shape->rInertia;
+		tmp2 = c_dot(c_fcross(c_cross(incidR, contact->normal), incidR), contact->normal)
+			/incidBody->shape->rInertia;
+
+		contact->kFactor = 1/selfBody->fMass + 1/incidBody->fMass + tmp1 + tmp2;
+
+
 		PyList_Append(contactList, (PyObject*)contact);
 	}
 

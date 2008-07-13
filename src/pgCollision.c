@@ -148,14 +148,13 @@ void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* 
 
 void PG_ApplyContact(PyObject* contactObject, double step)
 {
-#define MAX_C_DEP 0.02
-#define BIAS_FACTOR 0.15
+#define MAX_C_DEP 0.01
+#define BIAS_FACTOR 0.25
 
 	pgVector2 neg_dV, refV, incidV;
 	pgVector2 refR, incidR;
 	pgContact *contact;
 	pgBodyObject *refBody, *incidBody;
-	double k, tmp1, tmp2;
 	double moment_len;
 	pgVector2 moment;
 	pgVector2* p;
@@ -171,18 +170,8 @@ void PG_ApplyContact(PyObject* contactObject, double step)
 
 	contact->resist = sqrtf(refBody->fRestitution*incidBody->fRestitution);
 
-	//calculate the normal impulse
-	//k
 	refR = c_diff(contact->pos, refBody->vecPosition);
 	incidR = c_diff(contact->pos, incidBody->vecPosition);
-
-	tmp1 = c_dot(c_fcross(c_cross(refR, contact->normal), refR), contact->normal)
-		 /refBody->shape->rInertia;
-	tmp2 = c_dot(c_fcross(c_cross(incidR, contact->normal), incidR), contact->normal)
-		/incidBody->shape->rInertia;
-
-	k = 1/refBody->fMass + 1/incidBody->fMass + tmp1 + tmp2;
-	
 	//dV = v2 + w2xr2 - (v1 + w1xr1)
 	incidV = c_sum(incidBody->vecLinearVelocity, c_fcross(incidBody->fAngleVelocity,
 		           incidR));
@@ -193,9 +182,8 @@ void PG_ApplyContact(PyObject* contactObject, double step)
 	neg_dV = c_diff(refV, incidV);
 	
 	moment_len = c_dot(c_mul_complex_with_real(neg_dV, (1 + contact->resist)), 
-		               contact->normal)/k;
+		contact->normal)/contact->kFactor;
 	moment_len = MAX(0, moment_len);
-	//moment_len = MAX(0, moment_len + vbias/k);
 	
 	//finally we get the momentum(oh...)
 	moment = c_mul_complex_with_real(contact->normal, moment_len);
@@ -212,8 +200,8 @@ void PG_ApplyContact(PyObject* contactObject, double step)
 	bneg_dV = c_diff(brefV, bincidV); 
 	//bias_moment
 	bm_len = c_dot(c_mul_complex_with_real(bneg_dV, (1)),
-		contact->normal)/k;
-	bm_len = MAX(0, bm_len + vbias/k);
+		contact->normal)/contact->kFactor;
+	bm_len = MAX(0, bm_len + vbias/contact->kFactor);
 	bm = c_mul_complex_with_real(contact->normal, bm_len);
 	p = *(contact->ppSplitAccMoment);
 	p->real += bm.real/contact->weight;
@@ -270,36 +258,7 @@ void PG_UpdateV(pgJointObject* joint, double step)
 
 void PG_UpdateP(pgJointObject* joint, double step)
 {
-
-	pgVector2 v;
-	double w;
-
-	//TODO: concern dt
-	//if(!joint->body1->bStatic)
-	//{
-	//	//v = joint->body1->vecLinearVelocity;
-	//	//w = joint->body1->fAngleVelocity;
-
-	//	v = c_sum(joint->body1->vecLinearVelocity, joint->body1->cBiasLV);
-	//	w = joint->body1->fAngleVelocity + joint->body1->cBiasW;
-
-	//	joint->body1->vecPosition = c_sum(joint->body1->vecPosition, 
-	//		c_mul_complex_with_real(v, step));
-	//	joint->body1->fRotation += w*step;
-	//}
-
-	//if(!joint->body2->bStatic)
-	//{
-	//	//v = joint->body1->vecLinearVelocity;
-	//	//w = joint->body1->fAngleVelocity;
-
-	//	v = c_sum(joint->body2->vecLinearVelocity, joint->body2->cBiasLV);
-	//	w = joint->body2->fAngleVelocity + joint->body2->cBiasW;
-
-	//	joint->body2->vecPosition = c_sum(joint->body2->vecPosition, 
-	//		c_mul_complex_with_real(v, step));
-	//	joint->body2->fRotation += w*step;
-	//}
+	//isolated function
 }
 
 void PG_ContactDestroy(pgJointObject* contact)
