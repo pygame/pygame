@@ -201,6 +201,45 @@ static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
 	}
 }
 
+#define FLOAT_TO_INT_MUL 10
+
+static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
+{
+	pgBodyObject* body = (pgBodyObject*)self;
+	int i;
+	PyListObject* list;
+
+	/*if (!PyArg_ParseTuple(args,"O",&body))
+	{
+		PyErr_SetString(PyExc_ValueError,"arg is not body type");
+		return NULL;
+	}
+	else*/
+	{
+		if (body->shape == NULL)
+		{
+			PyErr_SetString(PyExc_ValueError,"Shape is NULL");
+			return NULL;
+		}
+		list = (PyListObject*)PyList_New(4);
+		for (i = 0;i < 4;i++)
+		{
+			pgVector2* pVertex = &(((pgRectShape*)(body->shape))->point[i]);
+			pgVector2 golVertex = PG_GetGlobalPos(body,pVertex);
+			PyTupleObject* tuple = (PyTupleObject*)PyTuple_New(2);
+
+			long ix = golVertex.real * FLOAT_TO_INT_MUL;
+			long iy = golVertex.imag * FLOAT_TO_INT_MUL;
+			PyIntObject* xnum = PyInt_FromLong(ix);
+			PyIntObject* ynum = PyInt_FromLong(iy);
+			PyTuple_SetItem((PyObject*)tuple,0,xnum);
+			PyTuple_SetItem((PyObject*)tuple,1,ynum);
+			PyList_SetItem((PyObject*)list,i,(PyObject*)tuple);
+		}
+		return (PyObject*)list;
+	}
+}
+
 //===============================================================
 
 
@@ -215,6 +254,7 @@ static PyMemberDef _pgBody_members[] = {
 
 static PyMethodDef _pgBody_methods[] = {
 	{"bind_rect_shape",_pgBody_bindRectShape,METH_VARARGS,""},
+	{"get_point_list",_pg_getPointListFromBody,METH_VARARGS,""	},
     {NULL, NULL, 0, NULL}   /* Sentinel */
 };
 

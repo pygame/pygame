@@ -7,9 +7,9 @@ extern PyTypeObject pgBodyType;
 extern PyTypeObject pgJointType;
 extern PyTypeObject pgDistanceJointType;
 
-////Shape types
-//extern PyTypeObject pgShapeType;
-//extern PyTypeObject pgRectShapeType;
+//Shape types
+extern PyTypeObject pgShapeType;
+extern PyTypeObject pgRectShapeType;
 
 //help functions
 extern PyMethodDef pgHelpMethods[];
@@ -33,18 +33,18 @@ initphysics(void)
         pgDistanceJointType.tp_base = &pgJointType;
 	if (PyType_Ready(&pgDistanceJointType) < 0)
 		return;
-	/*if (PyType_Ready(&pgShapeType) < 0)
+	if (PyType_Ready(&pgShapeType) < 0)
 		return;
 	if (PyType_Ready(&pgRectShapeType) < 0)
-		return;*/
+		return;
 
 		/* Increase their ref counts. */
 	Py_INCREF (&pgWorldType);
 	Py_INCREF (&pgBodyType);
 	Py_INCREF (&pgJointType);
 	Py_INCREF (&pgDistanceJointType);
-	/*Py_INCREF (&pgShapeType);
-	Py_INCREF (&pgRectShapeType);*/
+	Py_INCREF (&pgShapeType);
+	Py_INCREF (&pgRectShapeType);
 
 	/* Init the module and add the object types. */
 	mod = Py_InitModule3("physics", pgHelpMethods, "Simple 2D physics module");
@@ -52,7 +52,7 @@ initphysics(void)
 	PyModule_AddObject (mod, "Body", (PyObject *) &pgBodyType);
 	PyModule_AddObject (mod, "Joint", (PyObject *) &pgJointType);
 	PyModule_AddObject (mod, "DistanceJoint", (PyObject *) &pgDistanceJointType);
-	/*PyModule_AddObject (mod, "Shape", (PyObject *) &pgShapeType);
-	PyModule_AddObject (mod, "RectShape", (PyObject *) &pgRectShapeType);*/
+	PyModule_AddObject (mod, "Shape", (PyObject *) &pgShapeType);
+	PyModule_AddObject (mod, "RectShape", (PyObject *) &pgRectShapeType);
 }
 
