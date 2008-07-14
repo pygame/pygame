@@ -71,7 +71,12 @@ from test_runner import opt_parser
 
 opt_parser.set_usage("""
 
-Runs all the test/xxxx_test.py tests.
+Runs all or some of the test/xxxx_test.py tests.
+
+$ run_tests.py sprite threads -sd
+
+Runs the sprite and threads module tests isolated in subprocesses, dumping all
+failing tests info in the form of a dict.
 
 """)
 
@@ -97,27 +102,28 @@ else:
 test_env = {"PYTHONPATH": test_subdir}
 os.chdir(working_dir)
 
-test_modules = []
-for f in sorted(os.listdir(test_subdir)):
-    for match in TEST_MODULE_RE.findall(f):
-        if ((options.subprocess and match in SUBPROCESS_IGNORE) 
-             or match in IGNORE): continue
-        test_modules.append(match)
-if args:    
+if args:
     test_modules = [
         m.endswith('_test') and m or ('%s_test' % m) for m in args
     ]
+else:
+    if options.subprocess: ignore = SUBPROCESS_IGNORE
+    else: ignore = IGNORE
+
+    test_modules = []
+    for f in sorted(os.listdir(test_subdir)):
+        for match in TEST_MODULE_RE.findall(f):
+            if match in ignore: continue
+            test_modules.append(match)
 
 ################################################################################
 # Single process mode
 #
 
 if not options.subprocess:    
-    single_results = run_test (
-        test_modules,
-        options = options
-    )
-    if options.dump: print pformat(single_results)    #TODO
+    single_results = run_test ( test_modules, options = options)
+    if options.dump: print pformat(single_results)
+    #TODO  make consistent with subprocess mode
     else: print single_results['output']
 
 ################################################################################
@@ -142,7 +148,7 @@ def combine_results(all_results, t):
         )
 
         if not output or (return_code and RAN_TESTS_DIV not in output):
-            # would this effect the original? TODO
+            # would this effect the original dict? TODO
             results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
             failures.append( COMPLETE_FAILURE_TEMPLATE % results )
             all_dots += 'E'
@@ -177,9 +183,9 @@ def count(results, *args):
         all_of = [a for a in [v.get(arg) for v in results.values()] if a]
         if not all_of: yield 0
         else:
-            yield sum (
-            isinstance(all_of[0], int) and all_of or (len(v) for v in all_of)
-        )
+            if isinstance(all_of[0], int): the_sum = all_of
+            else: the_sum = (len(v) for v in all_of)
+            yield sum(the_sum)
 
 def test_failures(results):
     total,   = count(results, 'num_tests')

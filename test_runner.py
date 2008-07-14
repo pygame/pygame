@@ -38,8 +38,9 @@ opt_parser.add_option (
 
 opt_parser.add_option (
      "-H",  "--human", action = 'store_true',
-     help   = "dump results as dict ready to eval if unsure" 
-              " (subprocess mode)" ) # TODO
+     help   = "dump results as dict ready to eval if unsure "
+              "that pieced together results are correct "
+              "(subprocess mode)" ) # TODO
 
 opt_parser.add_option (
      "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
@@ -83,15 +84,16 @@ def run_test(modules, options):
     if isinstance(modules, str): modules = [modules]
     suite = unittest.TestSuite()
 
-    if not options.fake:
-        import test_utils
-        test_utils.fail_incomplete_tests = options.incomplete
 
+    #TODO: ability to pass module.TestCase etc (names) from run_test.py
     for module in modules:
         __import__(module)
         print 'loading', module
-
-        # filter test by tags based on options
+        
+        # TODO: based on optparse options
+        # filter test by tags
+        # decorate tests with profiling wrappers etc
+        
         test = unittest.defaultTestLoader.loadTestsFromName(module)
         suite.addTest(test)
 
@@ -100,8 +102,10 @@ def run_test(modules, options):
 
     captured = StringIO.StringIO()
     runner = unittest.TextTestRunner(stream = captured)
-    results = runner.run(suite)
 
+    test_utils.fail_incomplete_tests = options.incomplete
+
+    results = runner.run(suite)
     captured, err, out = map(StringIOContents, (captured, err, out))
     restore_output(realerr, realout)
 

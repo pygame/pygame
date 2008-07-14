@@ -58,11 +58,37 @@ test_suite_dirs = [x for x in os.listdir(main_dir)
                            if os.path.isdir(os.path.join(main_dir, x))
                            and x not in IGNORE ]
 
+
+################################################################################
+
+def assert_on_results(suite, single, sub):
+    test = globals().get('%s_test' % suite)
+    if callable(test):
+        test(suite, single, sub)
+        print "assertions on %s OK" % suite
+
+def incomplete_test(suite, *args):
+    for results in args:
+        assert 'self.assert_(test_utils.test_not_implemented())' in results
+
+# Don't modify tests in suites below. These assertions are in place to make sure
+# that tests are actually being ran
+
+def all_ok_test(uite, *args):
+    for results in args:
+        assert "Ran 36 tests" in results      # some tests are runing
+        assert "OK" in results                # OK
+
+def failures1_test(suite, *args):
+    for results in args: 
+        assert "FAILED (failures=2)" in results
+        assert "Ran 18 tests" in results
+
 ################################################################################
 # Test that output is the same in single process and subprocess modes 
 #
 
-base_cmd = [sys.executable, 'run_tests.py']
+base_cmd = [sys.executable, 'run_tests.py', '-i']
 
 cmd = base_cmd + ['-f']
 sub_cmd = base_cmd + ['-s', '-f']
@@ -79,11 +105,13 @@ for suite in test_suite_dirs:
 
     failed = normed_single != normed_subs
     if failed:
-        print '%s suite comparison FAILED\n' % suite    
+        print '%s suite comparison FAILED\n' % suite
     else:
         passes += 1
         print '%s suite comparison OK' % suite
     
+    assert_on_results(suite, single, subs)
+
     if verbose or failed:
         print "difflib.Differ().compare(single, suprocessed):\n"
         print ''.join ( list(
@@ -99,7 +127,7 @@ assert "successfully terminated" in loop_test
 passes += 1
 print "OK"
 
-print "\n%s/%s passes" % (passes, len(test_suite_dirs) + 1)
+print "\n%s/%s suites pass" % (passes, len(test_suite_dirs) + 1)
 
 print "\n-h for help"
 
