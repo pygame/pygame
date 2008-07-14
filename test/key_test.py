@@ -1,4 +1,4 @@
-import unittest
+import unittest, os
 
 import test_utils
 from test_utils import test_not_implemented
@@ -15,7 +15,7 @@ class KeyModuleTest(unittest.TestCase):
 
           # pygame.key.get_focused(): return bool
           # true if the display is receiving keyboard input from the system
-
+        
         self.assert_(test_not_implemented()) 
 
     def test_get_mods(self):
@@ -66,5 +66,4 @@ class KeyModuleTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    test_utils.get_command_line_options()
-    #unittest.main()()
+    unittest.main()
