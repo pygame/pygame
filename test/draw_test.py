@@ -138,5 +138,4 @@ class DrawModuleTest(unittest.TestCase):
 ################################################################################
 
 if __name__ == '__main__':
-    test_utils.get_command_line_options()
-    #unittest.main()()
+    unittest.main()

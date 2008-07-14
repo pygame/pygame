@@ -11,7 +11,6 @@ def pygame_quit():
     global quit_called
     quit_called = quit_called + 1
 
-
 class BaseModuleTest(unittest.TestCase):
     def testAutoInit(self):
         pygame.init()
@@ -81,7 +80,5 @@ class BaseModuleTest(unittest.TestCase):
 
         self.assert_(test_not_implemented()) 
 
-
 if __name__ == '__main__':
-    test_utils.get_command_line_options()
-    #unittest.main()()
+    unittest.main()
