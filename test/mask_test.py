@@ -118,8 +118,7 @@ class MaskModuleTest(unittest.TestCase):
 if __name__ == '__main__':
 
     if 1:
-        test_utils.get_command_line_options()
-        #unittest.main()()
+        unittest.main()
     else:
         mask_from_surface = maskFromSurface
 

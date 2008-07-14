@@ -9,19 +9,6 @@ fail_incomplete_tests = 0
 def test_not_implemented():
     return not fail_incomplete_tests
 
-def check_option(*args):
-    # Remove the flags or it will mess up unittest cmd line arg parser
-    for arg in args:
-        if arg in sys.argv:
-            del sys.argv[sys.argv.index(arg)]
-            return True
-
-def get_command_line_options():
-    global fail_incomplete_tests
-    if check_option("--incomplete", "-i"):  fail_incomplete_tests = 1
-    
-    unittest.main()
-
 ################################## TEMP FILES ##################################
 
 def get_tmp_dir():

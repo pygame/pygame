@@ -25,8 +25,7 @@ class MixerMusicModuleTest(unittest.TestCase):
             #musf = open(musfn)
             #pygame.mixer.music.load(musf)
         pygame.mixer.quit()
-    
-    
+        
     def test_queue(self):
 
         # __doc__ (as of 2008-07-13) for pygame.mixer_music.queue:

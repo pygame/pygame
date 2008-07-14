@@ -562,5 +562,4 @@ class RectTypeTest( unittest.TestCase ):
         self.assertRaises(ValueError, rect_list.remove, r2)
 
 if __name__ == '__main__':
-    test_utils.get_command_line_options()
-    #unittest.main()()
+    unittest.main()

@@ -82,4 +82,4 @@ if __name__ == '__main__':
     pygame.init ()
     pygame.display.set_mode ((1, 1))
     scrap.init ()
-    #unittest.main()()
+    #unittest.main()
