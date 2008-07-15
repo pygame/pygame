@@ -132,11 +132,13 @@ class TransformModuleTest( unittest.TestCase ):
         
         # New in pygame 1.8
 
+        ################################################################         
         # Sizes
         (w, h) = size = (32, 32)
 
         # the original_color is within the threshold of the threshold_color
         threshold = (20, 20, 20, 20)
+
         original_color = (25,25,25,25)
         threshold_color = (10, 10, 10, 10)
 
@@ -151,7 +153,9 @@ class TransformModuleTest( unittest.TestCase ):
         original_surface.fill(original_color)
         third_surface.fill(threshold_color)
 
-        # Threshold testing
+        ################################################################
+        # All pixels for color should be within threshold
+        # 
         pixels_within_threshold = pygame.transform.threshold (
             dest_surface, original_surface, threshold_color,
             threshold,
@@ -160,21 +164,82 @@ class TransformModuleTest( unittest.TestCase ):
         )
 
         self.assertEqual(w*h, pixels_within_threshold)
-        
-        # This should respect third_surface colors in place of 3rd arg color
-        # Should be the same as the surface.fill(threshold_color)
+
+        ################################################################  
+        # This should respect third_surface colors in place of 3rd arg 
+        # color Should be the same as: surface.fill(threshold_color)
+        # all within threshold
         
         pixels_within_threshold = pygame.transform.threshold (
             dest_surface, 
             original_surface,                              
-            0,                                            # color 
+            0,                            # color (would fail if honored)
             threshold,
-            0,                                            # diff_color 
-            0,                                            # change_return
+            0,                                              # diff_color 
+            0,                                           # change_return
+            third_surface,
+        )
+        self.assertEqual(w*h, pixels_within_threshold)
+        
+        
+        ################################################################  
+        # Change dest_surface on return (not expected)
+
+        change_color = (255, 10, 10, 10)
+
+        pixels_within_threshold = pygame.transform.threshold (
+            dest_surface, 
+            original_surface,                              
+            0,                                           # color 
+            threshold,
+            change_color,                                # diff_color 
+            1,                                           # change_return
             third_surface,
         )
         
+        # Return, of pixels within threshold is correct
         self.assertEqual(w*h, pixels_within_threshold)
+        
+        # Size of dest surface is correct
+        dest_rect = dest_surface.get_rect()
+        dest_size = dest_rect.size
+        self.assertEqual(size, dest_size)
+        
+        # The color is not the change_color specified for every pixel As all
+        # pixels are within threshold
+
+        for pt in test_utils.rect_area_pts(dest_rect):
+            self.assert_(dest_surface.get_at(pt) != change_color)
+        
+        ################################################################  
+        # Lowering the threshold, expecting changed surface        
+
+        pixels_within_threshold = pygame.transform.threshold (
+            dest_surface, 
+            original_surface,                              
+            0,                                           # color 
+            0,                                           # threshold
+            change_color,                                # diff_color 
+            1,                                           # change_return
+            third_surface,
+        )
+        
+        # Return, of pixels within threshold is correct
+        self.assertEqual(0, pixels_within_threshold)
+        
+        # Size of dest surface is correct
+        dest_rect = dest_surface.get_rect()
+        dest_size = dest_rect.size
+        self.assertEqual(size, dest_size)
+        
+        # The color is the change_color specified for every pixel As all
+        # pixels are not within threshold
+        
+        for pt in test_utils.rect_area_pts(dest_rect):
+            self.assert_(dest_surface.get_at(pt) == change_color)
+
+        ################################################################  
+
 
     def test_threshold__surface(self):
         """
