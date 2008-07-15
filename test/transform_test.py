@@ -116,8 +116,65 @@ class TransformModuleTest( unittest.TestCase ):
             # the wrong size surface is past in.  Should raise an error.
             self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33,64), s3)
 
+    
+    
+    
+    def test_threshold__honors_third_surface(self):
+        # __doc__ for threshold as of Tue 07/15/2008
 
+        # pygame.transform.threshold(DestSurface, Surface, color, threshold =
+        # (0,0,0,0), diff_color = (0,0,0,0), change_return = True, Surface =
+        # None): return num_threshold_pixels
 
+        # When given the optional third
+        # surface, it would use the colors in that rather than the "color"
+        # specified in the function to check against.
+        
+        # New in pygame 1.8
+
+        # Sizes
+        (w, h) = size = (32, 32)
+
+        # the original_color is within the threshold of the threshold_color
+        threshold = (20, 20, 20, 20)
+        original_color = (25,25,25,25)
+        threshold_color = (10, 10, 10, 10)
+
+        # Surfaces
+        original_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
+        dest_surface    = pygame.Surface(size, pygame.SRCALPHA, 32)
+        
+        # Third surface is used in lieu of 3rd position arg color
+        third_surface   = pygame.Surface(size, pygame.SRCALPHA, 32)
+
+        # Color filling
+        original_surface.fill(original_color)
+        third_surface.fill(threshold_color)
+
+        # Threshold testing
+        pixels_within_threshold = pygame.transform.threshold (
+            dest_surface, original_surface, threshold_color,
+            threshold,
+            0, # diff_color
+            0  # change_return
+        )
+
+        self.assertEqual(w*h, pixels_within_threshold)
+        
+        # This should respect third_surface colors in place of 3rd arg color
+        # Should be the same as the surface.fill(threshold_color)
+        
+        pixels_within_threshold = pygame.transform.threshold (
+            dest_surface, 
+            original_surface,                              
+            0,                                            # color 
+            threshold,
+            0,                                            # diff_color 
+            0,                                            # change_return
+            third_surface,
+        )
+        
+        self.assertEqual(w*h, pixels_within_threshold)
 
     def test_threshold__surface(self):
         """

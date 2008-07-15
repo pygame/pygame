@@ -3,13 +3,13 @@
 import sys, os, re, unittest, subprocess, time, optparse
 import pygame.threads 
 
-from test_runner import run_test, TEST_RESULTS_RE, TEST_RESULTS_START,\
-                        prepare_test_env
+from test_runner import run_test, get_test_results, TEST_RESULTS_START,\
+                        prepare_test_env, from_namespace, many_modules_key,\
+                        count, test_failures
 
 from pprint import pformat
 
-main_dir, test_subdir = prepare_test_env()
-fake_test_subdir = os.path.join(test_subdir, 'run_tests__tests')
+main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 test_runner_py = os.path.join(main_dir, "test_runner.py")
 
 import test_utils
@@ -120,11 +120,11 @@ else:
 # Single process mode
 #
 
-if not options.subprocess:    
+if not options.subprocess:
     single_results = run_test ( test_modules, options = options)
     if options.dump: print pformat(single_results)
     #TODO  make consistent with subprocess mode
-    else: print single_results['output']
+    else: print single_results[many_modules_key(test_modules)]['output']
 
 ################################################################################
 # Subprocess mode
@@ -135,7 +135,9 @@ def combine_results(all_results, t):
 
     Return pieced together subprocessed results in a form fit for human 
     consumption. Don't rely on results. Was originally meant for that purpose 
-    but was found to be unreliable. See options.dump for reliable results.
+    but was found to be unreliable. 
+    
+    See options.dump or options.human for reliable results.
 
     """
 
@@ -151,7 +153,6 @@ def combine_results(all_results, t):
             # would this effect the original dict? TODO
             results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
             failures.append( COMPLETE_FAILURE_TEMPLATE % results )
-            all_dots += 'E'
             continue
 
         dots = DOTS.search(output).group(1)
@@ -178,44 +179,17 @@ def combine_results(all_results, t):
 
 ################################################################################
 
-def count(results, *args):
-    for arg in args:
-        all_of = [a for a in [v.get(arg) for v in results.values()] if a]
-        if not all_of: yield 0
-        else:
-            if isinstance(all_of[0], int): the_sum = all_of
-            else: the_sum = (len(v) for v in all_of)
-            yield sum(the_sum)
-
-def test_failures(results):
-    total,   = count(results, 'num_tests')
-    errors = {}
-
-    for module, result in results.items():
-        for breaker in ['errors', 'failures', 'return_code']:
-            if breaker not in result or result[breaker]:
-                if breaker not in result: total += 1
-                errors.update({module:result})
-                break
-
-    return total, errors
-
-################################################################################
-
 if options.subprocess:
     from async_sub import proc_in_time_or_kill
 
     def sub_test(module):
         print 'loading', module
-        
+
         pass_on_args = [a for a in sys.argv[1:] if a not in args]
         cmd = [options.python, test_runner_py, module ] + pass_on_args
 
         return module, (cmd, test_env, working_dir), proc_in_time_or_kill (
-            cmd,
-            options.time_out,
-            env = test_env,
-            wd = working_dir,
+            cmd, options.time_out,  env = test_env,  wd = working_dir,
         )
 
     if options.multi_thread:
@@ -227,29 +201,23 @@ if options.subprocess:
     else: tmap = map
 
     results = {}
-
     t = time.time()
 
     for module, cmd, (return_code, raw_return) in tmap(sub_test, test_modules):
+        test_file = '%s.py' % os.path.join(test_subdir, module)
         cmd, test_env, working_dir = cmd
 
-        test_results = TEST_RESULTS_RE.search(raw_return)
-        if test_results:
-            try:     results.update(eval(test_results.group(1)))
-            except:  raise Exception("BUGGY EVAL:\n %s" % test_results.group(1))
-
+        test_results = get_test_results(raw_return)
+        if test_results: results.update(test_results)
         else: results[module] = {}
+        
+        add_to_results = [
+            'return_code', 'raw_return',  'cmd', 'test_file',
+            'test_env', 'working_dir', 'module',
+        ]
+        # conditional adds here
 
-        results[module].update (
-            {
-                'return_code': return_code,
-                'raw_return' : raw_return,
-                'cmd'        : cmd,
-                'test_env'   : test_env,
-                'working_dir': working_dir,
-                'module'     : module,
-            }
-        )
+        results[module].update(from_namespace(locals(), add_to_results))
 
     untrusty_total, combined = combine_results(results, time.time() -t)
     total, fails = test_failures(results)
@@ -258,6 +226,7 @@ if options.subprocess:
         print combined
     else:
         print TEST_RESULTS_START
+        # print pformat(list(combined_errs(fails)))
         print pformat(options.all and results or fails)
 
 ################################################################################

@@ -118,7 +118,7 @@
   <tt>Surface.blit(source, dest, area=None, special_flags = 0): return Rect</tt><br>
 <p>Draws a source Surface onto this Surface. The draw can be positioned with the dest argument. Dest can either be pair of coordinates representing the upper left corner of the source. <tt>A</tt> Rect can also be passed as the destination and the topleft corner of the rectangle will be used as the position for the blit. The size of the destination rectangle does not effect the blit. </p>
 <p>An optional area rectangle can be passed as well. This represents a smaller portion of the source Surface to draw. </p>
-<p>An optional special flags is for passing in <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> With other special blitting flags perhaps added in the future. </p>
+<p>An optional special flags is for passing in new in <tt>1.8.0:</tt> <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> new in <tt>1.8.1:</tt> <tt>BLEND_RGBA_ADD</tt>, <tt>BLEND_RGBA_SUB</tt>, <tt>BLEND_RGBA_MULT</tt>, <tt>BLEND_RGBA_MIN</tt>, <tt>BLEND_RGBA_MAX</tt> <tt>BLEND_RGB_ADD</tt>, <tt>BLEND_RGB_SUB</tt>, <tt>BLEND_RGB_MULT</tt>, <tt>BLEND_RGB_MIN</tt>, <tt>BLEND_RGB_MAX</tt> With other special blitting flags perhaps added in the future. </p>
 <p>The return rectangle is the area of the affected pixels, excluding any pixels outside the destination Surface, or outside the clipping area. </p>
 <p>Pixel alphas will be ignored when blitting to an 8 bit Surface. </p>
 <p>special_flags new in pygame <tt>1.8</tt>. </p>
@@ -166,7 +166,7 @@
   <tt>Surface.fill(color, rect=None, special_flags=0): return Rect</tt><br>
 <p>Fill the Surface with a solid color. If no rect argument is given the entire Surface will be filled. The rect argument will limit the fill to a specific area. The fill will also be contained by the Surface clip area. </p>
 <p>The color argument can be either a <tt>RGB</tt> sequence, a <tt>RGBA</tt> sequence or a mapped color index. If using <tt>RGBA</tt>, the Alpha <tt>(A</tt> part of <tt>RGBA)</tt> is ignored unless the surface uses per pixel alpha (Surface has the <tt>SRCALPHA</tt> flag). </p>
-<p>An optional special_flags is for passing in <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> With other special blitting flags perhaps added in the future. </p>
+<p>An optional special_flags is for passing in new in <tt>1.8.0:</tt> <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> new in <tt>1.8.1:</tt> <tt>BLEND_RGBA_ADD</tt>, <tt>BLEND_RGBA_SUB</tt>, <tt>BLEND_RGBA_MULT</tt>, <tt>BLEND_RGBA_MIN</tt>, <tt>BLEND_RGBA_MAX</tt> <tt>BLEND_RGB_ADD</tt>, <tt>BLEND_RGB_SUB</tt>, <tt>BLEND_RGB_MULT</tt>, <tt>BLEND_RGB_MIN</tt>, <tt>BLEND_RGB_MAX</tt> With other special blitting flags perhaps added in the future. </p>
 <p>This will return the affected Surface area. </p>
 <!--COMMENTS:Surface.fill--> &nbsp;<br> 
 <br></ul>
