@@ -52,7 +52,7 @@
 
      Marcus Von Appen - many changes, and fixes, 1.7.1+ freebsd maintainer.
 
-     Lenard Lindstrom - the 1.8 windows maintainer.
+     Lenard Lindstrom - the 1.8+ windows maintainer.
      
      Brian Fisher - for svn auto builder, bug tracker and many contributions.
 
@@ -86,13 +86,18 @@
 
      TheCorruptor for his incredible logos and graphics
 
+     Nicholas Dudfield - many test improvements.
+
+     Alex Folkner - for pygame-ctypes
+
      Thanks to those sending in patches and fixes: Niki Spahiev, Gordon
    Tyler, Nathaniel Pryce, Dave Wallace, John Popplewell, Michael Urman,
    Andrew Straw, Michael Hudson, Ole Martin Bjoerndalen, Hervé Cauwelier,
    James Mazer, Lalo Martins, Timothy Stranex, Chad Lester, Matthias
    Spiller, Bo Jangeborg, Dmitry Borisov, Campbell Barton, Diego Essaya,
    Eyal Lotem, Regis Desgroppes, Emmanuel Hainry, Randy Kaelber
-   Matthew L Daniel
+   Matthew L Daniel, Nirav Patel, Forrest Voight, Charlie Nolan, 
+   Frankie Robertson, John Krukoff, Lorenz Quack, Nick Irvine
 
      And our bug hunters above and beyond: Angus, Guillaume Proux, Frank
    Raiser, Austin Henry, Kaweh Kazemi, Arturo Aldama, Mike Mulcheck, 

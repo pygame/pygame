@@ -10,6 +10,9 @@ Jul 14, 2008
     [BUG] Fixed bug with transform.threshold() not honoring third surface
     Updated transform.threshold() docs Thanks Nirav Patel
 
+Jul 10, 2008
+    Added patch for filelikes in mixer.music.load thanks Forrest Voight!
+
 Jul 8, 2008
     run_tests.py improved with --help and running stuff in subprocesses.
 
