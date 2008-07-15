@@ -2200,9 +2200,8 @@ get_threshold (SDL_Surface *destsurf, SDL_Surface *surf, SDL_Surface *surf2, Uin
                         break;
                     }
 
-
-                    similar++;
                 }
+                    similar++;
 
 
 
