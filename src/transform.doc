@@ -150,15 +150,17 @@ New in pygame 1.8
 
 threshold
 finds which, and how many pixels in a surface are within a threshold of a color.
-pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels
 
-Finds which, and how many pixels in a surface are within a threshold of a color.
+pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True, Surface =None): return num_threshold_pixels
 
 It can set the destination surface where all of the pixels not within the 
 threshold are changed to diff_color.
 
 Or it can be used to just count the number of pixels within the threshold if you set
 change_return to False.
+
+When given the optional third surface, it will use the colors in that rather 
+than the 3rd position "color" arg.
 
 You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So
 you could use an r threshold of 40 and a blue threshold of 2 if you like.

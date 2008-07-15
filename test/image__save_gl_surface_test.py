@@ -3,6 +3,8 @@ from pygame.locals import *
 
 class GL_ImageSave(unittest.TestCase):
     def test_image_save_works_with_opengl_surfaces(self):
+        "|tags:display,slow|"
+
         pygame.display.init()
         
         
@@ -28,6 +30,7 @@ class GL_ImageSave(unittest.TestCase):
         self.assert_(os.path.exists(tmp_file))
         
         os.remove(tmp_file)
+        # os.rmdir(tmp_dir)
         
         
         pygame.display.quit()
