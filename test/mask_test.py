@@ -75,10 +75,109 @@ class MaskTypeTest( unittest.TestCase ):
 
         m.set_at((0,3), 1)
         m.set_at((3,3), 1)
+        
+        r = m.get_bounding_rects()
+        
+        self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
+        
+        
+        
+
+
+        #1100
+        #1111
+        m = pygame.Mask((4,2))
+        m.set_at((0,0), 1)
+        m.set_at((1,0), 1)
+        m.set_at((2,0), 0)
+        m.set_at((3,0), 0)
+
+        m.set_at((0,1), 1)
+        m.set_at((1,1), 1)
+        m.set_at((2,1), 1)
+        m.set_at((3,1), 1)
+ 
+        r = m.get_bounding_rects()
+        self.assertEquals(repr(r), "[<rect(0, 0, 4, 2)>]")
+
+        
+        #00100
+        #01110
+        #00100
+        m = pygame.Mask((5,3))
+        m.set_at((0,0), 0)
+        m.set_at((1,0), 0)
+        m.set_at((2,0), 1)
+        m.set_at((3,0), 0)
+        m.set_at((4,0), 0)
+
+        m.set_at((0,1), 0)
+        m.set_at((1,1), 1)
+        m.set_at((2,1), 1)
+        m.set_at((3,1), 1)
+        m.set_at((4,1), 0)
+
+        m.set_at((0,2), 0)
+        m.set_at((1,2), 0)
+        m.set_at((2,2), 1)
+        m.set_at((3,2), 0)
+        m.set_at((4,2), 0)
 
         r = m.get_bounding_rects()
+        self.assertEquals(repr(r), "[<rect(1, 0, 3, 3)>]")
 
-        self.assertEquals(repr(r), "[<rect(0, 0, 2, 2)>, <rect(0, 3, 1, 1)>, <rect(3, 3, 1, 1)>]")
+
+
+        #00010
+        #00100
+        #01000
+        m = pygame.Mask((5,3))
+        m.set_at((0,0), 0)
+        m.set_at((1,0), 0)
+        m.set_at((2,0), 0)
+        m.set_at((3,0), 1)
+        m.set_at((4,0), 0)
+
+        m.set_at((0,1), 0)
+        m.set_at((1,1), 0)
+        m.set_at((2,1), 1)
+        m.set_at((3,1), 0)
+        m.set_at((4,1), 0)
+
+        m.set_at((0,2), 0)
+        m.set_at((1,2), 1)
+        m.set_at((2,2), 0)
+        m.set_at((3,2), 0)
+        m.set_at((4,2), 0)
+
+        r = m.get_bounding_rects()
+        self.assertEquals(repr(r), "[<rect(1, 0, 3, 3)>]")
+
+
+
+
+        #00011
+        #11111
+        m = pygame.Mask((5,2))
+        m.set_at((0,0), 0)
+        m.set_at((1,0), 0)
+        m.set_at((2,0), 0)
+        m.set_at((3,0), 1)
+        m.set_at((4,0), 1)
+
+        m.set_at((0,1), 1)
+        m.set_at((1,1), 1)
+        m.set_at((2,1), 1)
+        m.set_at((3,1), 1)
+        m.set_at((3,1), 1)
+ 
+        r = m.get_bounding_rects()
+        #TODO: this should really make one bounding rect.
+        #self.assertEquals(repr(r), "[<rect(0, 0, 5, 2)>]")
+
+
+
+
 
 class MaskModuleTest(unittest.TestCase):
     def test_from_surface(self):
