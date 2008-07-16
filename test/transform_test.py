@@ -240,6 +240,12 @@ class TransformModuleTest( unittest.TestCase ):
 
         ################################################################  
 
+    def test_threshold__honors_individual_color_thresholds(self):
+        ################################################################  
+        pass
+            
+                
+        ################################################################  
 
     def test_threshold__surface(self):
         """
