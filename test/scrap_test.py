@@ -6,7 +6,7 @@ from test_utils import test_not_implemented
 import pygame
 import pygame.scrap as scrap
 
-class ScrapModuleTest(unittest.TestCase):
+class ScrapModuleTest(unittest.TestCase):    
     def test_contains(self):
 
         # __doc__ (as of 2008-06-25) for pygame.scrap.contains:
@@ -76,10 +76,7 @@ class ScrapModuleTest(unittest.TestCase):
         self.assertEquals (r, "buf")
 
 if __name__ == '__main__':
-    test_utils.get_command_line_options()
-
-    #TODO....
     pygame.init ()
     pygame.display.set_mode ((1, 1))
     scrap.init ()
-    #unittest.main()
+    unittest.main()

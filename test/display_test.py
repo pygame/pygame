@@ -7,9 +7,10 @@ from test_utils import test_not_implemented
 class DisplayModuleTest( unittest.TestCase ):
     def test_update( self ):
         """ see if pygame.display.update takes rects with negative values.
+            "|Tags:display|"
         """
 
-        if 0:
+        if 1:
             pygame.init()
             screen = pygame.display.set_mode((100,100))
             screen.fill((55,55,55))
@@ -27,6 +28,12 @@ class DisplayModuleTest( unittest.TestCase ):
             pygame.quit()
             #  I think it's because unittest runs stuff in threads
             # here's a stack trace...
+            
+            # NOTE to author of above:
+            #   unittest doesn't run tests in threads    
+            #   segfault was probably caused by another tests need 
+            #   for a "clean slate"
+            
             """
     #0  0x08103b7c in PyFrame_New ()
     #1  0x080bd666 in PyEval_EvalCodeEx ()
@@ -41,20 +48,6 @@ class DisplayModuleTest( unittest.TestCase ):
     #10 0x08054e31 in _start ()
 
             """
-
-
-
-    def test_init__quit( self ):
-        """ see if initing, and quiting works.
-        """
-        # old test, was disabled so placing reminder
-        self.assert_(test_not_implemented())
-        
-        if 0:
-            pygame.init()
-            screen = pygame.display.set_mode((100,100))
-            #pygame.quit()
-    
     def test_Info(self):
     
         # __doc__ (as of 2008-06-25) for pygame.display.Info:
