@@ -202,7 +202,7 @@ def unittest_TestCase_run(self, result=None):
                     result.addSuccess(self)
             else: break
         
-        t = (time.time() -t) / 5
+        t = (time.time() -t) / self.times_run
 
         result.timings.update({repr(self): t})
 
@@ -219,7 +219,7 @@ def TestResult___init__(func):
         self.timings = {}
     return wrapper
 
-def monkeyPatchProfiling(times_run):
+def monkeyPatchTiming(times_run):
     unittest.TestCase.run = unittest_TestCase_run
     unittest.TestCase.times_run = times_run
     
@@ -300,7 +300,7 @@ def run_test(modules, options):
             [e.strip() for e in options.exclude.split(',')]
         )
     
-    if options.profile: monkeyPatchProfiling(options.profile)
+    if options.profile: monkeyPatchTiming(options.profile)
 
     ########################################################################
     # load modules, filtering by tag
