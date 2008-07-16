@@ -219,7 +219,7 @@ def TestResult___init__(func):
         self.timings = {}
     return wrapper
 
-def monkeyPatchTiming(times_run):
+def monkeyPatchTiming(times_runtiming):
     unittest.TestCase.run = unittest_TestCase_run
     unittest.TestCase.times_run = times_run
     
@@ -273,7 +273,10 @@ unittest.defaultTestLoader.exclude = []
 # For complete failures (+ namespace saving)
 
 def from_namespace(ns, template):
-    return dict((i, ns.get(i, template[i])) for i in template)
+    if isinstance(template, dict):
+        return dict((i, ns.get(i, template[i])) for i in template)
+    else:
+        return dict((i, ns[i]) for i in template)
 
 RESULTS_TEMPLATE = {
     'output'     :  '',
@@ -300,7 +303,7 @@ def run_test(modules, options):
             [e.strip() for e in options.exclude.split(',')]
         )
     
-    if options.profile: monkeyPatchTiming(options.profile)
+    if options.timings: monkeyPatchTiming(options.timings)
 
     ########################################################################
     # load modules, filtering by tag
@@ -335,7 +338,7 @@ def run_test(modules, options):
     num_tests = results.testsRun
     failures  = results.monkeyedFailRepr('FAIL', results.failures)
     errors    = results.monkeyedFailRepr('ERROR', results.errors)
-    if options.profile:
+    if options.timings:
         timings   = results.timings
 
     ########################################################################
