@@ -11,6 +11,12 @@ def pygame_quit():
     global quit_called
     quit_called = quit_called + 1
 
+
+quit_hook_ran = 0
+def quit_hook():
+    global quit_hook_ran
+    quit_hook_ran = 1
+
 class BaseModuleTest(unittest.TestCase):
     def testAutoInit(self):
         pygame.init()
@@ -25,7 +31,7 @@ class BaseModuleTest(unittest.TestCase):
           # pygame.get_error(): return errorstr
           # get the current error message
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_get_sdl_byteorder(self):
 
@@ -34,7 +40,7 @@ class BaseModuleTest(unittest.TestCase):
           # pygame.get_sdl_byteorder(): return int
           # get the byte order of SDL
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(pygame.get_sdl_byteorder() + 1) 
 
     def test_get_sdl_version(self):
 
@@ -43,9 +49,10 @@ class BaseModuleTest(unittest.TestCase):
           # pygame.get_sdl_version(): return major, minor, patch
           # get the version number of SDL
 
-        self.assert_(test_not_implemented()) 
+        self.assert_( len(pygame.get_sdl_version()) == 3) 
 
     def test_init(self):
+        return
 
         # __doc__ (as of 2008-06-25) for pygame.base.init:
 
@@ -54,14 +61,41 @@ class BaseModuleTest(unittest.TestCase):
 
         self.assert_(test_not_implemented()) 
 
-    def test_quit(self):
+    def not_init_assertions(self):
+        self.assert_(not pygame.display.get_init())
+        self.assert_(not pygame.mixer.get_init())
+        self.assert_(not pygame.font.get_init())
+        
+        self.assertRaises(pygame.error, pygame.scrap.get)
+        
+        # pygame.cdrom
+        # pygame.joystick
 
+    def init_assertions(self):
+        self.assert_(pygame.display.get_init())
+        self.assert_(pygame.mixer.get_init())
+        self.assert_(pygame.font.get_init())
+
+    def test_quit__and_init(self):
         # __doc__ (as of 2008-06-25) for pygame.base.quit:
 
           # pygame.quit(): return None
           # uninitialize all pygame modules
+        
+        # Make sure everything is not init
+        self.not_init_assertions()
+    
+        # Initiate it 
+        pygame.init()
+        
+        # Check
+        self.init_assertions()
 
-        self.assert_(test_not_implemented()) 
+        # Quit
+        pygame.quit()
+        
+        # All modules have quit
+        self.not_init_assertions()
 
     def test_register_quit(self):
 
@@ -69,8 +103,14 @@ class BaseModuleTest(unittest.TestCase):
 
           # register_quit(callable): return None
           # register a function to be called when pygame quits
+        
+        self.assert_(not quit_hook_ran)
 
-        self.assert_(test_not_implemented()) 
+        pygame.init()
+        pygame.register_quit(quit_hook)
+        pygame.quit()
+
+        self.assert_(quit_hook_ran)
 
     def test_segfault(self):
 
