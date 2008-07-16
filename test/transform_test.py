@@ -117,8 +117,6 @@ class TransformModuleTest( unittest.TestCase ):
             self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33,64), s3)
 
     
-    
-    
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
 
@@ -236,14 +234,37 @@ class TransformModuleTest( unittest.TestCase ):
         # pixels are not within threshold
         
         for pt in test_utils.rect_area_pts(dest_rect):
-            self.assert_(dest_surface.get_at(pt) == change_color)
+            self.assertEqual(dest_surface.get_at(pt), change_color)
+
+
+    def test_threshold__uneven_colors(self):
+        (w,h) = size = (16, 16)
+        
+        original_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
+        dest_surface    = pygame.Surface(size, pygame.SRCALPHA, 32)
+        
+        original_surface.fill(0)
+
+        threshold_color_template = [5, 5, 5, 5]
+        threshold_template       = [6, 6, 6, 6]
 
         ################################################################  
 
-    def test_threshold__honors_individual_color_thresholds(self):
-        ################################################################  
-        pass
+        for pos in range(len('rgb')):
+            threshold_color = threshold_color_template[:]
+            threshold       = threshold_template
+
+            threshold_color[pos] = 45
+            threshold[pos] = 50
+
+            pixels_within_threshold = pygame.transform.threshold (
+                dest_surface, original_surface, threshold_color,
+                threshold,
+                0, # diff_color
+                0  # change_return
+            )
             
+            self.assertEqual(w*h, pixels_within_threshold)
                 
         ################################################################  
 
@@ -253,8 +274,6 @@ class TransformModuleTest( unittest.TestCase ):
 
         #pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels
         threshold = pygame.transform.threshold
-
-
 
         s1 = pygame.Surface((32,32))
         s2 = pygame.Surface((32,32))
