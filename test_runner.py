@@ -106,10 +106,10 @@ def StringIOContents(io):
     return io.read()
 
 def merged_dict(*args):
-    dictionary = {}
+    merged = {}
     for arg in args: dictionary.update(arg)        
-    return dictionary
-    
+    return merged
+
 def from_namespace(ns, listing):
     return dict((i, ns[i]) for i in listing)
 
@@ -119,7 +119,7 @@ def many_modules_key(modules):
 ################################################################################
 # ERRORS
 
-unittest._TextTestResult.monkeyRepr = lambda self, flavour, errors:  [
+unittest._TextTestResult.monkeyedFailRepr = lambda self, flavour, errors:  [
     (
         "%s: %s" % (flavour, self.getDescription(e[0])),     # Description
         e[1],                                                # TraceBack
@@ -157,26 +157,45 @@ def test_failures(results):
     return total, errors
 
 ################################################################################
+# Exclude by tags
+#
 
-TAGS_RE = re.compile(r"\|[tT]ags:([ a-zA-Z,0-9_\n]+)\|", re.DOTALL | re.MULTILINE)
+TAGS_RE = re.compile(r"\|[tT]ags:([ a-zA-Z,0-9_\n]+)\|", re.M)
 
 def get_tags(obj):
     tags = TAGS_RE.search(getdoc(obj) or '')
     return tags and [t.strip() for t in tags.group(1).split(',')] or []
 
-def is_test_case(obj):
-    return isclass(obj) and issubclass(obj, unittest.TestCase)
+def getTestCaseNames(self, testCaseClass):
+    """
+        MonkeyPatched method from unittest.TestLoader:
+            Filters test by tags
 
-def is_test(obj):
-    return callable(obj) and obj.__name__.startswith('test_') 
+        Original __doc__:
+            
+            Return a sorted sequence of method names found within testCaseClass
+    """
 
-def filter_by_tags(module, tags):
-    for tcstr, test_case in (m for m in getmembers(module, is_test_case)):
-        for tstr, test in (t for t in getmembers(test_case, is_test)):
-            for tag in get_tags(test):
-                if tag in tags:
-                    exec 'del module.%s.%s' % (tcstr, tstr)
-                    break
+    def test_wanted(attrname, testCaseClass=testCaseClass, prefix=self.testMethodPrefix):
+        actual_attr = getattr(testCaseClass, attrname)
+        filtered = bool([t for t in get_tags(actual_attr) if t in self.exclude])
+        return ( attrname.startswith(prefix) and callable(actual_attr)
+                 and not filtered )
+
+    testFnNames = filter(test_wanted, dir(testCaseClass))
+    
+    for baseclass in testCaseClass.__bases__:
+        for testFnName in self.getTestCaseNames(baseclass):
+            if testFnName not in testFnNames:  # handle overridden methods
+                testFnNames.append(testFnName)
+
+    if self.sortTestMethodsUsing:
+        testFnNames.sort(self.sortTestMethodsUsing)
+    
+    return testFnNames
+
+unittest.TestLoader.getTestCaseNames = getTestCaseNames
+unittest.defaultTestLoader.exclude = []
 
 ################################################################################
 # For complete failures (+ namespace saving)
@@ -193,50 +212,72 @@ RESULTS_TEMPLATE = {
 ################################################################################
 
 def run_test(modules, options):
+    ########################################################################
+        
     if isinstance(modules, str): modules = [modules]
     suite = unittest.TestSuite()
 
-    #TODO: ability to pass module.TestCase etc (names) from run_test.py
+    ########################################################################
+    # Options
+        
+    test_utils.fail_incomplete_tests = options.incomplete
+    if options.exclude:
+        unittest.defaultTestLoader.exclude = (
+            [e.strip() for e in options.exclude.split(',')]
+        )
+    
+    ########################################################################
+    # load modules, filtering by tag
+    
     for module in modules:
         m = __import__(module)
 
         print 'loading', module
 
-        if options.exclude:
-            filter_by_tags(m, [e.strip() for e in options.exclude.split(',')])
-        
-        # decorate tests with profiling wrappers etc
-        
         test = unittest.defaultTestLoader.loadTestsFromName(module)
         suite.addTest(test)
-
+        
+    ########################################################################
+    # redirect stderr / stdout
+    
     (realerr, realout), (stderr, stdout) =  redirect_output()
     # restore_output(realerr, realout)       DEBUG
 
     output = StringIO.StringIO()
     runner = unittest.TextTestRunner(stream = output)
-
-    test_utils.fail_incomplete_tests = options.incomplete
-
+    
+    ########################################################################
+    # run the test suite 
+    
     results = runner.run(suite)
+    
+    ########################################################################
+    # restore output and compile get results
+    
     output, stderr, stdout = map(StringIOContents, (output, stderr, stdout))
     restore_output(realerr, realout)
     
     num_tests = results.testsRun
-    failures  = results.monkeyRepr('FAIL', results.failures)
-    errors    = results.monkeyRepr('ERROR', results.errors)
+    failures  = results.monkeyedFailRepr('FAIL', results.failures)
+    errors    = results.monkeyedFailRepr('ERROR', results.errors)
+
+    ########################################################################
+    # conditional adds here, profiling etc
     
-    # conditional adds here
     results = {
         many_modules_key(modules): from_namespace(locals(), RESULTS_TEMPLATE)
     }
-
+    
+    ########################################################################
+    
     if options.subprocess:
         print TEST_RESULTS_START
         print pformat(results)
     else:
         return results
 
+    ########################################################################
+    
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
     if not args: sys.exit('Called from run_tests.py, use that')

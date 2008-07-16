@@ -44,18 +44,16 @@ ERROR: all_tests_for (%(module)s.AllTestCases)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
   File "test\%(module)s.py", line 1, in all_tests_for
-
 subprocess completely failed with return code of %(return_code)s
-
 cmd:          %(cmd)s
 test_env:     %(test_env)s
 working_dir:  %(working_dir)s
-
 return (top 5 lines):
 %(raw_return)s
 
 """  # Leave that last empty line else build page regex won't match
-
+     # Text also needs to be vertically compressed
+    
 TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
 RAN_TESTS_DIV = (70 * "-") + "\nRan"
