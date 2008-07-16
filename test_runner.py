@@ -37,6 +37,10 @@ opt_parser.add_option (
      help   = "dump failures/errors as dict ready to eval" )
 
 opt_parser.add_option (
+     "-T",  "--timings", type = 'int',
+     help   = "get timings for individual tests" )
+
+opt_parser.add_option (
      "-e",  "--exclude", 
      help   = "exclude tests containing any of TAGS" )
 
@@ -110,9 +114,6 @@ def merged_dict(*args):
     for arg in args: dictionary.update(arg)        
     return merged
 
-def from_namespace(ns, listing):
-    return dict((i, ns[i]) for i in listing)
-
 def many_modules_key(modules):
     return ', '.join(modules)
 
@@ -157,6 +158,76 @@ def test_failures(results):
     return total, errors
 
 ################################################################################
+# Profiling
+#
+
+#unittest.TestCase.run
+def unittest_TestCase_run(self, result=None):
+    if result is None: result = self.defaultTestResult()
+    result.startTest(self)
+    testMethod = getattr(self, self._testMethodName)
+    try:
+        t = time.time()
+
+        for i in range(self.times_run):
+            try:
+                self.setUp()
+            except KeyboardInterrupt:
+                raise
+            except:
+                result.addError(self, self._exc_info())
+                return
+
+            ok = False
+            try:
+                testMethod()
+                ok = True
+            except self.failureException:
+                result.addFailure(self, self._exc_info())
+            except KeyboardInterrupt:
+                raise
+            except:
+                result.addError(self, self._exc_info())
+            
+            try:
+                self.tearDown()
+            except KeyboardInterrupt:
+                raise
+            except:
+                result.addError(self, self._exc_info())
+                ok = False
+    
+            if ok:
+                if not i:
+                    result.addSuccess(self)
+            else: break
+        
+        t = (time.time() -t) / 5
+
+        result.timings.update({repr(self): t})
+
+    finally:
+        result.stopTest(self)
+
+# unittest.TestCase.__repr__ = lambda self: (
+#     "%s.%s"% (unittest._strclass(self.__class__), self._testMethodName)
+# )
+
+def TestResult___init__(func):
+    def wrapper(self, *args, **kw):
+        func(self, *args, **kw)
+        self.timings = {}
+    return wrapper
+
+def monkeyPatchProfiling(times_run):
+    unittest.TestCase.run = unittest_TestCase_run
+    unittest.TestCase.times_run = times_run
+    
+    unittest.TestResult.__init__ = TestResult___init__(
+        unittest.TestResult.__init__
+    )
+
+################################################################################
 # Exclude by tags
 #
 
@@ -174,6 +245,7 @@ def getTestCaseNames(self, testCaseClass):
         Original __doc__:
             
             Return a sorted sequence of method names found within testCaseClass
+            
     """
 
     def test_wanted(attrname, testCaseClass=testCaseClass, prefix=self.testMethodPrefix):
@@ -200,6 +272,9 @@ unittest.defaultTestLoader.exclude = []
 ################################################################################
 # For complete failures (+ namespace saving)
 
+def from_namespace(ns, template):
+    return dict((i, ns.get(i, template[i])) for i in template)
+
 RESULTS_TEMPLATE = {
     'output'     :  '',
     'stderr'     :  '',
@@ -207,14 +282,13 @@ RESULTS_TEMPLATE = {
     'num_tests'  :   0,
     'failures'   :  [],
     'errors'     :  [],
+    'timings'    :   {},
 }
 
 ################################################################################
 
 def run_test(modules, options):
     ########################################################################
-        
-    if isinstance(modules, str): modules = [modules]
     suite = unittest.TestSuite()
 
     ########################################################################
@@ -226,12 +300,13 @@ def run_test(modules, options):
             [e.strip() for e in options.exclude.split(',')]
         )
     
+    if options.profile: monkeyPatchProfiling(options.profile)
+
     ########################################################################
     # load modules, filtering by tag
     
     for module in modules:
-        m = __import__(module)
-
+        __import__(module)
         print 'loading', module
 
         test = unittest.defaultTestLoader.loadTestsFromName(module)
@@ -260,6 +335,8 @@ def run_test(modules, options):
     num_tests = results.testsRun
     failures  = results.monkeyedFailRepr('FAIL', results.failures)
     errors    = results.monkeyedFailRepr('ERROR', results.errors)
+    if options.profile:
+        timings   = results.timings
 
     ########################################################################
     # conditional adds here, profiling etc
@@ -281,6 +358,6 @@ def run_test(modules, options):
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
     if not args: sys.exit('Called from run_tests.py, use that')
-    run_test(args[0], options)
+    run_test([args[0]], options)
     
 ################################################################################
