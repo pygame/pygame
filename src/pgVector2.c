@@ -110,3 +110,12 @@ int c_equal(pgVector2* a, pgVector2* b)
 }
 
 
+pgVector2 c_project(pgVector2 l,pgVector2 p)
+{
+	double lp;
+	c_normalize(&l);
+	lp = c_dot(l,p);
+	return c_mul_complex_with_real(l,lp);
+}
+
+

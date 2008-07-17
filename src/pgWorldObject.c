@@ -97,14 +97,14 @@ void _PG_JointSolve(pgWorldObject* world,double stepTime)
 	{
 		pgJointObject* joint = (pgJointObject*)(PyList_GetItem((PyObject*)(world->jointList),i));
 		//what happened here?
-		if (joint->SolveConstraintPosition)
-		{
-			joint->SolveConstraintPosition(joint,stepTime);
-		}
 		if (joint->SolveConstraintVelocity)
 		{
 			joint->SolveConstraintVelocity(joint,stepTime);
 		}
+		/*if (joint->SolveConstraintPosition)
+		{
+			joint->SolveConstraintPosition(joint,stepTime);
+		}*/
 	}
 }
 
@@ -242,6 +242,24 @@ static PyObject* _world_add_body(pgWorldObject* world,PyObject* args)
 	}
 }
 
+static PyObject* _world_add_joint(pgWorldObject* world,PyObject* args)
+{
+	pgJointObject* joint;
+	if (!PyArg_ParseTuple(args,"O",&joint))
+	{
+		PyErr_SetString(PyExc_ValueError,"arg is not joint type");
+		return NULL;
+	}
+	if(PG_AddJointToWorld(world,joint))
+	{
+		Py_RETURN_FALSE;
+	}
+	else
+	{
+		Py_RETURN_TRUE;
+	}
+}
+
 
 static PyObject* _pgWorld_getGravity(pgWorldObject* world,void* closure)
 {
@@ -267,6 +285,13 @@ static PyObject* _pgWorld_getBodyList(pgWorldObject* world,void* closure)
 	return (PyObject*)world->bodyList;
 }
 
+static PyObject* _pgWorld_getJointList(pgWorldObject* world,void* closure)
+{
+	Py_INCREF ((PyObject*)world->jointList);
+	return (PyObject*)world->jointList;
+}
+
+
 
 /**
 * Here we allow the Python object to do stuff like
@@ -283,6 +308,9 @@ static PyGetSetDef _pgWorld_getseters[] = {
 		"body_list",(getter)_pgWorld_getBodyList,NULL,NULL
 	},
 	{
+		"joint_list",(getter)_pgWorld_getJointList,NULL,NULL
+	},
+	{
 		NULL
 	}
 };
@@ -294,6 +322,7 @@ static PyMethodDef _pgWorld_methods[] =
 	//{ "test_args", (PyCFunction) _world_test_args, METH_VARARGS, "" },
 	{ "update", (PyCFunction) _world_update, METH_VARARGS, "" },
 	{"add_body",(PyCFunction) _world_add_body, METH_VARARGS, ""},
+	{"add_joint",(PyCFunction) _world_add_joint, METH_VARARGS, ""},
 	{ NULL, NULL, 0, NULL } /* The NULL sentinel is important! */
 };
 

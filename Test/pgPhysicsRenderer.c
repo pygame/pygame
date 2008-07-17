@@ -3,7 +3,7 @@
 #include "pgAABBBox.h"
 #include <GL/glut.h>
 
-int RENDER_AABB = 1;
+int RENDER_AABB = 0;
 
 void PGT_RenderWorld(pgWorldObject* world)
 {
@@ -81,7 +81,9 @@ void PGT_RenderJoint(pgJointObject* joint)
 	glBegin(GL_LINES);
 	if (joint->body1 && (!joint->body2))
 	{
-		glVertex2d(joint->body1->vecPosition.real,joint->body1->vecPosition.imag);
+		pgVector2 pos = PG_GetGlobalPos(joint->body1,&pj->anchor1);
+		glVertex2d(pos.real,pos.imag);
+		//glVertex2d(joint->body1->vecPosition.real,joint->body1->vecPosition.imag);
 		glVertex2d(pj->anchor2.real,pj->anchor2.imag);
 	}
 	else if(joint->body1 && joint->body2)

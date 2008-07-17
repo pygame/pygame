@@ -117,6 +117,12 @@ pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2*
 	return p_in_A;
 }
 
+pgVector2 PG_GetLocalPointVelocity(pgBodyObject* body,pgVector2 localPoint)
+{
+	pgVector2 vel = c_fcross(body->fAngleVelocity,localPoint);
+	return c_sum(vel,body->vecLinearVelocity);
+}
+
 //============================================================
 //getter and setter functions
 

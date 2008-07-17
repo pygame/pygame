@@ -36,6 +36,7 @@ pgVector2 c_fcross(double a, pgVector2 b);
 pgVector2 c_crossf(pgVector2 a, double b);
 void c_rotate(pgVector2* a, double seta);
 int c_equal(pgVector2* a, pgVector2* b);
+pgVector2 c_project(pgVector2 l,pgVector2 p);
 
 #endif
 

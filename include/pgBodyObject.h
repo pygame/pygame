@@ -49,5 +49,8 @@ pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2*
 //bind rect shape with body
 void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta);
 
+//get velocity with a local point of a body,assume center is local (0,0)
+pgVector2 PG_GetLocalPointVelocity(pgBodyObject* body,pgVector2 localPoint);
+
 #endif //_PYGAME_PHYSICS_BODY_
 

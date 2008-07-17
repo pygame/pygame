@@ -172,13 +172,13 @@ void TestBasic3Init()
 
 void TestBasic4Init()
 {
-	#define BODY_NUM 3
+#define  BODY_NUM  3
 
 	int i;
 	pgBodyObject* body[BODY_NUM + 1];
 	pgJointObject* joint[BODY_NUM];
 	pgVector2 a1,a2;
-	PG_Set_Vector2(a1,0,0);
+	PG_Set_Vector2(a1,5,0);
 	PG_Set_Vector2(a2,0,100);
 
 	s_world = PG_WorldNew();
@@ -194,11 +194,11 @@ void TestBasic4Init()
 		PG_AddBodyToWorld(s_world,body[i]);
 	}
 
-	body1 = PG_BodyNew();
+	/*body1 = PG_BodyNew();
 	PG_Set_Vector2(body1->vecPosition,50, 0);
 	body1->bStatic = 1;
 	PG_Bind_RectShape(body1, 20, 300, 0);
-	PG_AddBodyToWorld(s_world, body1);
+	PG_AddBodyToWorld(s_world, body1);*/
 
 	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,100,0)
 
@@ -210,15 +210,54 @@ void TestBasic4Init()
 		joint[i] = PG_DistanceJointNew(body[i],body[i+1],0,50,a1,a2);
 		PG_AddJointToWorld(s_world,joint[i]);
 	}
+#undef BODY_NUM
+
+}
+
+void TestBasic5Init()
+{
+#define  BODY_NUM  1
+
+	int i;
+	pgBodyObject* body[BODY_NUM + 1];
+	pgJointObject* joint[BODY_NUM];
+	pgVector2 a1,a2;
+	PG_Set_Vector2(a1,0,0);
+	PG_Set_Vector2(a2,0,0);
+
+	s_world = PG_WorldNew();
+	s_world->fStepTime = 0.03;
+
+	body[0] = NULL;
+	for (i = 1;i < BODY_NUM + 1;i++)
+	{
+		body[i] = PG_BodyNew();
+		PG_Bind_RectShape(body[i], 20, 20, 0);
+		PG_Set_Vector2(body[i]->vecPosition,0,(-i*50))
+			PG_Set_Vector2(body[i]->vecLinearVelocity,50,0)
+			PG_AddBodyToWorld(s_world,body[i]);
+	}
 
 
+	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,30,0)
+
+		i = 0;
+	joint[i] = PG_DistanceJointNew(body[i+1],body[i],0,50,a1,a2);
+	PG_AddJointToWorld(s_world,joint[i]);
+	for (i = 1;i < BODY_NUM;i++)
+	{
+		joint[i] = PG_DistanceJointNew(body[i],body[i+1],0,50,a1,a2);
+		PG_AddJointToWorld(s_world,joint[i]);
+	}
+
+	#undef BODY_NUM
 }
 
 //===============================================
 
 void InitWorld()
 {
-	TestBasic2Init();
+	TestBasic4Init();
 }
 
 int main (int argc, char** argv)
