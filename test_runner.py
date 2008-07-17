@@ -1,8 +1,13 @@
 ################################################################################
 
+#TODO: clean up imports
+
 import sys, os, re, unittest, StringIO, time, optparse
 from inspect import getdoc, getmembers, isclass
 from pprint import pformat
+
+import unittest_patch
+from unittest_patch import StringIOContents
 
 ################################################################################
 
@@ -37,12 +42,17 @@ opt_parser.add_option (
      help   = "dump failures/errors as dict ready to eval" )
 
 opt_parser.add_option (
-     "-T",  "--timings", type = 'int',
-     help   = "get timings for individual tests" )
+     "-T",  "--timings", type = 'int', default = 1, metavar = 'T',
+     help   = "get timings for individual tests.\n" 
+              "Run test T times, giving average time")
 
 opt_parser.add_option (
      "-e",  "--exclude", 
      help   = "exclude tests containing any of TAGS" )
+
+opt_parser.add_option (
+     "-w",  "--show_output", action = 'store_true',
+     help   = "show silenced stderr/stdout on errors" )
 
 opt_parser.add_option (
      "-a",  "--all", action = 'store_true',
@@ -52,7 +62,7 @@ opt_parser.add_option (
      "-H",  "--human", action = 'store_true',
      help   = "dump results as dict ready to eval if unsure "
               "that pieced together results are correct "
-              "(subprocess mode)" ) # TODO
+              "(subprocess mode)" )
 
 opt_parser.add_option (
      "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
@@ -72,10 +82,80 @@ opt_parser.add_option (
               "default (sys.executable): %s" % sys.executable)
 
 ################################################################################
+# Human readable output
+#
+
+COMPLETE_FAILURE_TEMPLATE = """
+======================================================================
+ERROR: all_tests_for (%(module)s.AllTestCases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test\%(module)s.py", line 1, in all_tests_for
+subprocess completely failed with return code of %(return_code)s
+cmd:          %(cmd)s
+test_env:     %(test_env)s
+working_dir:  %(working_dir)s
+return (top 5 lines):
+%(raw_return)s
+
+"""  # Leave that last empty line else build page regex won't match
+     # Text also needs to be vertically compressed
+    
+
+RAN_TESTS_DIV = (70 * "-") + "\nRan"
+
+DOTS = re.compile("^([FE.]*)$", re.MULTILINE)
+
+def combine_results(all_results, t):
+    """
+
+    Return pieced together results in a form fit for human consumption. Don't
+    rely on results if  piecing together subprocessed  results (single process
+    mode is fine). Was originally meant for that  purpose but was found to be
+    unreliable.  See options.dump or options.human for reliable results.
+
+    """
+
+    all_dots = ''
+    failures = []
+
+    for module, results in sorted(all_results.items()):
+        output, return_code, raw_return = map (
+            results.get, ('output','return_code', 'raw_return')
+        )
+
+        if not output or (return_code and RAN_TESTS_DIV not in output):
+            # would this effect the original dict? TODO
+            results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
+            failures.append( COMPLETE_FAILURE_TEMPLATE % results )
+            continue
+
+        dots = DOTS.search(output).group(1)
+        all_dots += dots
+
+        if 'E' in dots or 'F' in dots:
+            failures.append( output[len(dots)+1:].split(RAN_TESTS_DIV)[0] )
+    
+    total_fails, total_errors = map(all_dots.count, 'FE')
+    total_tests = len(all_dots)
+
+    combined = [all_dots]
+    if failures: combined += [''.join(failures).lstrip('\n')[:-1]]
+    combined += ["%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)]
+
+    if not failures: combined += ['OK\n']
+    else: combined += [
+        'FAILED (%s)\n' % ', '.join (
+            (total_fails  and ["failures=%s" % total_fails] or []) +
+            (total_errors and ["errors=%s"  % total_errors] or [])
+        )]
+
+    return total_tests, '\n'.join(combined)
+
+################################################################################
 
 TEST_RESULTS_START = "<--!! TEST RESULTS START HERE !!-->"
 TEST_RESULTS_RE = re.compile('%s\n(.*)' % TEST_RESULTS_START, re.DOTALL | re.M)
-FILE_LINENUMBER_RE = re.compile(r'File "([^"]+)", line ([0-9]+)')
 
 def get_test_results(raw_return):
     test_results = TEST_RESULTS_RE.search(raw_return)
@@ -85,71 +165,27 @@ def get_test_results(raw_return):
             "BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1)
         )
 
-def count(results, *args, **kw):
-    if kw.get('single'): results = {'single' : results}
-    for arg in args:
-        all_of = [a for a in [v.get(arg) for v in results.values()] if a]
-        if not all_of: yield 0
-        else:
-            if isinstance(all_of[0], int): the_sum = all_of
-            else: the_sum = (len(v) for v in all_of)
-            yield sum(the_sum)
-
-################################################################################
-
-def redirect_output():
-    yield sys.stderr, sys.stdout
-    sys.stderr, sys.stdout = StringIO.StringIO(), StringIO.StringIO()
-    yield sys.stderr, sys.stdout
-
-def restore_output(err, out):
-    sys.stderr, sys.stdout = err, out
-
-def StringIOContents(io):
-    io.seek(0)
-    return io.read()
-
-def merged_dict(*args):
-    merged = {}
-    for arg in args: dictionary.update(arg)        
-    return merged
-
-def many_modules_key(modules):
-    return ', '.join(modules)
-
 ################################################################################
 # ERRORS
-
-unittest._TextTestResult.monkeyedFailRepr = lambda self, flavour, errors:  [
-    (
-        "%s: %s" % (flavour, self.getDescription(e[0])),     # Description
-        e[1],                                                # TraceBack
-        FILE_LINENUMBER_RE.search(e[1]).groups(),            # Blame Info
-    )
-    for e in errors
-]
+# TODO
 
 def make_complete_failure_error(result):
     return (
         "ERROR: all_tests_for (%s.AllTestCases)" % result['module'],
         "Complete Failure (ret code: %s)" % result['return_code'],
-        (result['test_file'], '1'),
+        result['test_file'], 
+        '1',
     )
-
-def combined_errs(results):
-    for result in results.itervalues():
-        combined_errs = result['errors'] + result['failures']
-        for err in combined_errs:
-            yield err
-
-# For combined results, plural, used in subprocess mode
+    
+# For combined results, plural
 def test_failures(results):
     errors = {}
-    total, = count(results, 'num_tests')
-
+    total =  sum(v.get('num_tests', 0) for v in results.values())
     for module, result in results.items():
-        num_errors = sum(count(result, 'failures', 'errors', single = 1))
-        if num_errors is 0 and result['return_code']:
+        num_errors = (
+            len(result.get('failures', [])) + len(result.get('errors', []))
+        )
+        if num_errors is 0 and result.get('return_code'):
             result.update(RESULTS_TEMPLATE)
             result['errors'].append(make_complete_failure_error(result))
             num_errors += 1
@@ -157,117 +193,11 @@ def test_failures(results):
 
     return total, errors
 
-################################################################################
-# Profiling
-#
-
-#unittest.TestCase.run
-def unittest_TestCase_run(self, result=None):
-    if result is None: result = self.defaultTestResult()
-    result.startTest(self)
-    testMethod = getattr(self, self._testMethodName)
-    try:
-        t = time.time()
-
-        for i in range(self.times_run):
-            try:
-                self.setUp()
-            except KeyboardInterrupt:
-                raise
-            except:
-                result.addError(self, self._exc_info())
-                return
-
-            ok = False
-            try:
-                testMethod()
-                ok = True
-            except self.failureException:
-                result.addFailure(self, self._exc_info())
-            except KeyboardInterrupt:
-                raise
-            except:
-                result.addError(self, self._exc_info())
-            
-            try:
-                self.tearDown()
-            except KeyboardInterrupt:
-                raise
-            except:
-                result.addError(self, self._exc_info())
-                ok = False
-    
-            if ok:
-                if not i:
-                    result.addSuccess(self)
-            else: break
-        
-        t = (time.time() -t) / self.times_run
-
-        result.timings.update({repr(self): t})
-
-    finally:
-        result.stopTest(self)
-
-# unittest.TestCase.__repr__ = lambda self: (
-#     "%s.%s"% (unittest._strclass(self.__class__), self._testMethodName)
-# )
-
-def TestResult___init__(func):
-    def wrapper(self, *args, **kw):
-        func(self, *args, **kw)
-        self.timings = {}
-    return wrapper
-
-def monkeyPatchTiming(times_runtiming):
-    unittest.TestCase.run = unittest_TestCase_run
-    unittest.TestCase.times_run = times_run
-    
-    unittest.TestResult.__init__ = TestResult___init__(
-        unittest.TestResult.__init__
-    )
-
-################################################################################
-# Exclude by tags
-#
-
-TAGS_RE = re.compile(r"\|[tT]ags:([ a-zA-Z,0-9_\n]+)\|", re.M)
-
-def get_tags(obj):
-    tags = TAGS_RE.search(getdoc(obj) or '')
-    return tags and [t.strip() for t in tags.group(1).split(',')] or []
-
-def getTestCaseNames(self, testCaseClass):
-    """
-        MonkeyPatched method from unittest.TestLoader:
-            Filters test by tags
-
-        Original __doc__:
-            
-            Return a sorted sequence of method names found within testCaseClass
-            
-    """
-
-    def test_wanted(attrname, testCaseClass=testCaseClass, prefix=self.testMethodPrefix):
-        actual_attr = getattr(testCaseClass, attrname)
-        filtered = bool([t for t in get_tags(actual_attr) if t in self.exclude])
-        return ( attrname.startswith(prefix) and callable(actual_attr)
-                 and not filtered )
-
-    testFnNames = filter(test_wanted, dir(testCaseClass))
-    
-    for baseclass in testCaseClass.__bases__:
-        for testFnName in self.getTestCaseNames(baseclass):
-            if testFnName not in testFnNames:  # handle overridden methods
-                testFnNames.append(testFnName)
-
-    if self.sortTestMethodsUsing:
-        testFnNames.sort(self.sortTestMethodsUsing)
-    
-    return testFnNames
-
-unittest.TestLoader.getTestCaseNames = getTestCaseNames
-unittest.defaultTestLoader.exclude = []
+def combined_errs(results):
+    for result in results.values():
+        combined_errs = result['errors'] + result['failures']
+        for err in combined_errs:
+            yield err
 
 ################################################################################
 # For complete failures (+ namespace saving)
@@ -275,80 +205,40 @@ unittest.defaultTestLoader.exclude = []
 def from_namespace(ns, template):
     if isinstance(template, dict):
         return dict((i, ns.get(i, template[i])) for i in template)
-    else:
-        return dict((i, ns[i]) for i in template)
+    return dict((i, ns[i]) for i in template)
 
 RESULTS_TEMPLATE = {
     'output'     :  '',
-    'stderr'     :  '',
-    'stdout'     :  '',
     'num_tests'  :   0,
     'failures'   :  [],
     'errors'     :  [],
-    'timings'    :   {},
+    'tests'      :  {},
 }
 
 ################################################################################
 
-def run_test(modules, options):
-    ########################################################################
+def run_test(module, options):
     suite = unittest.TestSuite()
-
-    ########################################################################
-    # Options
-        
     test_utils.fail_incomplete_tests = options.incomplete
-    if options.exclude:
-        unittest.defaultTestLoader.exclude = (
-            [e.strip() for e in options.exclude.split(',')]
-        )
-    
-    if options.timings: monkeyPatchTiming(options.timings)
 
-    ########################################################################
-    # load modules, filtering by tag
-    
-    for module in modules:
-        __import__(module)
-        print 'loading', module
+    __import__(module)
+    print 'loading', module
 
-        test = unittest.defaultTestLoader.loadTestsFromName(module)
-        suite.addTest(test)
+    test = unittest.defaultTestLoader.loadTestsFromName(module)
+    suite.addTest(test)
         
-    ########################################################################
-    # redirect stderr / stdout
-    
-    (realerr, realout), (stderr, stdout) =  redirect_output()
-    # restore_output(realerr, realout)       DEBUG
-
     output = StringIO.StringIO()
     runner = unittest.TextTestRunner(stream = output)
     
-    ########################################################################
-    # run the test suite 
-    
     results = runner.run(suite)
-    
-    ########################################################################
-    # restore output and compile get results
-    
-    output, stderr, stdout = map(StringIOContents, (output, stderr, stdout))
-    restore_output(realerr, realout)
-    
-    num_tests = results.testsRun
-    failures  = results.monkeyedFailRepr('FAIL', results.failures)
-    errors    = results.monkeyedFailRepr('ERROR', results.errors)
-    if options.timings:
-        timings   = results.timings
+    output  = StringIOContents(output)
 
-    ########################################################################
-    # conditional adds here, profiling etc
-    
-    results = {
-        many_modules_key(modules): from_namespace(locals(), RESULTS_TEMPLATE)
-    }
-    
-    ########################################################################
+    num_tests = results.testsRun
+    failures  = results.failures
+    errors    = results.errors
+    tests     = results.tests
+
+    results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
     
     if options.subprocess:
         print TEST_RESULTS_START
@@ -356,11 +246,12 @@ def run_test(modules, options):
     else:
         return results
 
-    ########################################################################
-    
+################################################################################
+
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
+    unittest_patch.patch(options)
     if not args: sys.exit('Called from run_tests.py, use that')
-    run_test([args[0]], options)
-    
+    run_test(args[0], options)
+
 ################################################################################

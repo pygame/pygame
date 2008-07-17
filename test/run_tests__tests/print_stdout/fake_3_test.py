@@ -9,7 +9,7 @@ class KeyModuleTest(unittest.TestCase):
 
     def test_get_pressed(self):
         print 'jibberish ruins everything'
-        self.assert_(True) 
+        self.assert_(False) 
 
     def test_name(self):
         print 'forgot to remove debug crap'
