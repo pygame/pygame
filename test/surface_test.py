@@ -527,5 +527,26 @@ class SurfaceTypeTest(unittest.TestCase):
         self.assert_(test_not_implemented()) 
 
 
+
+    def test_set_masks(self):
+        s = pygame.Surface((32,32))
+        r,g,b,a = s.get_masks()
+        s.set_masks((b,g,r,a))
+        r2,g2,b2,a2 = s.get_masks()
+        self.assertEqual((r,g,b,a), (b2,g2,r2,a2))
+
+
+    def test_set_shifts(self):
+        s = pygame.Surface((32,32))
+        r,g,b,a = s.get_shifts()
+        s.set_shifts((b,g,r,a))
+        r2,g2,b2,a2 = s.get_shifts()
+        self.assertEqual((r,g,b,a), (b2,g2,r2,a2))
+
+
+
+
+
+
 if __name__ == '__main__':
     unittest.main()
