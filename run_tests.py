@@ -1,22 +1,20 @@
 #################################### IMPORTS ###################################
+# TODO: clean up imports
 
 import sys, os, re, unittest, subprocess, time, optparse
-import pygame.threads 
+import pygame.threads, pygame
 
-from test_runner import run_test, get_test_results, TEST_RESULTS_START,\
-                        prepare_test_env, from_namespace, many_modules_key,\
-                        count, test_failures
-
+from test_runner import *
 from pprint import pformat
 
 main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 test_runner_py = os.path.join(main_dir, "test_runner.py")
 
-import test_utils
+import test_utils, unittest_patch
 
 ################################### CONSTANTS ##################################
 # Defaults:
-#    See optparse options below for more options
+#    See optparse options below for more options (test_runner.py)
 #
 
 # If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
@@ -33,32 +31,6 @@ IGNORE = (
 SUBPROCESS_IGNORE = (
     "scrap_test",
 )
-
-################################################################################
-# Human readable output
-#
-
-COMPLETE_FAILURE_TEMPLATE = """
-======================================================================
-ERROR: all_tests_for (%(module)s.AllTestCases)
-----------------------------------------------------------------------
-Traceback (most recent call last):
-  File "test\%(module)s.py", line 1, in all_tests_for
-subprocess completely failed with return code of %(return_code)s
-cmd:          %(cmd)s
-test_env:     %(test_env)s
-working_dir:  %(working_dir)s
-return (top 5 lines):
-%(raw_return)s
-
-"""  # Leave that last empty line else build page regex won't match
-     # Text also needs to be vertically compressed
-    
-TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
-
-RAN_TESTS_DIV = (70 * "-") + "\nRan"
-
-DOTS = re.compile("^([FE.]*)$", re.MULTILINE)
 
 ################################################################################
 # Set the command line options
@@ -88,7 +60,8 @@ options, args = opt_parser.parse_args()
 ################################################################################
 # Change to working directory and compile a list of test modules
 # If options.fake, then compile list of fake xxxx_test.py from run_tests__tests
-# this is used for testing subprocess output against single process mode
+
+TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
 if options.fake:
     test_subdir = os.path.join(fake_test_subdir, options.fake )
@@ -116,66 +89,19 @@ else:
 
 ################################################################################
 # Single process mode
-#
 
 if not options.subprocess:
-    single_results = run_test ( test_modules, options = options)
-    if options.dump: print pformat(single_results)
-    #TODO  make consistent with subprocess mode
-    else: print single_results[many_modules_key(test_modules)]['output']
+    results = {}
+    unittest_patch.patch(options)
+
+    t = time.time()
+    for module in test_modules:
+        results.update(run_test(module, options = options))
+    t = time.time() - t
 
 ################################################################################
 # Subprocess mode
 #
-
-def combine_results(all_results, t):
-    """
-
-    Return pieced together subprocessed results in a form fit for human 
-    consumption. Don't rely on results. Was originally meant for that purpose 
-    but was found to be unreliable. 
-    
-    See options.dump or options.human for reliable results.
-
-    """
-
-    all_dots = ''
-    failures = []
-
-    for module, results in sorted(all_results.items()):
-        output, return_code, raw_return = map (
-            results.get, ('output','return_code', 'raw_return')
-        )
-
-        if not output or (return_code and RAN_TESTS_DIV not in output):
-            # would this effect the original dict? TODO
-            results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
-            failures.append( COMPLETE_FAILURE_TEMPLATE % results )
-            continue
-
-        dots = DOTS.search(output).group(1)
-        all_dots += dots
-
-        if 'E' in dots or 'F' in dots:
-            failures.append( output[len(dots)+1:].split(RAN_TESTS_DIV)[0] )
-    
-    total_fails, total_errors = map(all_dots.count, 'FE')
-    total_tests = len(all_dots)
-
-    combined = [all_dots]
-    if failures: combined += [''.join(failures).lstrip('\n')[:-1]]
-    combined += ["%s %s tests in %.3fs\n" % (RAN_TESTS_DIV, total_tests, t)]
-
-    if not failures: combined += ['OK\n']
-    else: combined += [
-        'FAILED (%s)\n' % ', '.join (
-            (total_fails  and ["failures=%s" % total_fails] or []) +
-            (total_errors and ["errors=%s"  % total_errors] or [])
-        )]
-
-    return total_tests, '\n'.join(combined)
-
-################################################################################
 
 if options.subprocess:
     from async_sub import proc_in_time_or_kill
@@ -208,23 +134,29 @@ if options.subprocess:
         test_results = get_test_results(raw_return)
         if test_results: results.update(test_results)
         else: results[module] = {}
-        
+
         add_to_results = [
             'return_code', 'raw_return',  'cmd', 'test_file',
             'test_env', 'working_dir', 'module',
         ]
-        # conditional adds here
 
         results[module].update(from_namespace(locals(), add_to_results))
+    
+    t = time.time() -t
 
-    untrusty_total, combined = combine_results(results, time.time() -t)
-    total, fails = test_failures(results)
+################################################################################
+# Output Results
+#
 
-    if not options.dump or (options.human and untrusty_total == total):
-        print combined
-    else:
-        print TEST_RESULTS_START
-        # print pformat(list(combined_errs(fails)))
-        print pformat(options.all and results or fails)
+untrusty_total, combined = combine_results(results, t)
+total, fails = test_failures(results)
+
+if not options.subprocess: assert total == untrusty_total
+
+if not options.dump or (options.human and untrusty_total == total):
+    print combined
+else:
+    print TEST_RESULTS_START
+    print pformat(options.all and results or fails)
 
 ################################################################################
