@@ -5,6 +5,9 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Jul 18, 2008
+    Added Surface.set_masks and .set_shifts useful for using data in
+        b,g,r,a mode... and other fun hacks.
 
 Jul 14, 2008
     [BUG] Fixed bug with transform.threshold() not honoring third surface
