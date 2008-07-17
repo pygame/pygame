@@ -769,7 +769,11 @@
 
 #define DOC_SURFACEGETMASKS "Surface.get_masks(): return (R, G, B, A)\nthe bitmasks needed to convert between a color and a mapped integer"
 
+#define DOC_SURFACESETMASKS "Surface.set_masks((r,g,b,a)): return None\nset the bitmasks needed to convert between a color and a mapped integer"
+
 #define DOC_SURFACEGETSHIFTS "Surface.get_shifts(): return (R, G, B, A)\nthe bit shifts needed to convert between a color and a mapped integer"
+
+#define DOC_SURFACESETSHIFTS "Surface.get_shifts((r,g,b,a)): return None\nsets the bit shifts needed to convert between a color and a mapped integer"
 
 #define DOC_SURFACEGETLOSSES "Surface.get_losses(): return (R, G, B, A)\nthe significant bits used to convert between a color and a mapped integer"
 

@@ -641,6 +641,16 @@ This value is not needed for normal Pygame usage.
 
 
 
+set_masks
+set the bitmasks needed to convert between a color and a mapped integer
+Surface.set_masks((r,g,b,a)): return None
+
+This is not needed for normal Pygame usage.
+New in pygame 1.8.1
+<END>
+
+
+
 get_shifts
 the bit shifts needed to convert between a color and a mapped integer
 Surface.get_shifts(): return (R, G, B, A)
@@ -651,6 +661,15 @@ integer.
 This value is not needed for normal Pygame usage.
 <END>
 
+
+
+set_shifts
+sets the bit shifts needed to convert between a color and a mapped integer
+Surface.get_shifts((r,g,b,a)): return None
+
+This is not needed for normal Pygame usage.
+New in pygame 1.8.1
+<END>
 
 
 get_losses

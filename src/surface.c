@@ -76,9 +76,11 @@ static PyObject *surf_get_rect (PyObject *self, PyObject *args,
                                 PyObject *kwargs);
 static PyObject *surf_get_width (PyObject *self);
 static PyObject *surf_get_shifts (PyObject *self);
+static PyObject *surf_set_shifts (PyObject *self, PyObject *args);
 static PyObject *surf_get_size (PyObject *self);
 static PyObject *surf_get_losses (PyObject *self);
 static PyObject *surf_get_masks (PyObject *self);
+static PyObject *surf_set_masks (PyObject *self, PyObject *args);
 static PyObject *surf_get_offset (PyObject *self);
 static PyObject *surf_get_parent (PyObject *self);
 static PyObject *surf_subsurface (PyObject *self, PyObject *args);
@@ -150,6 +152,11 @@ static struct PyMethodDef surface_methods[] =
       DOC_SURFACEGETMASKS },
     { "get_shifts", (PyCFunction) surf_get_shifts, METH_NOARGS,
       DOC_SURFACEGETSHIFTS },
+    { "set_masks", (PyCFunction) surf_set_masks, METH_VARARGS,
+      DOC_SURFACESETMASKS },
+    { "set_shifts", (PyCFunction) surf_set_shifts, METH_VARARGS,
+      DOC_SURFACESETSHIFTS },
+
     { "get_losses", (PyCFunction) surf_get_losses, METH_NOARGS,
       DOC_SURFACEGETLOSSES },
 
@@ -1554,6 +1561,30 @@ surf_get_masks (PyObject *self)
                           surf->format->Bmask, surf->format->Amask);
 }
 
+
+static PyObject*
+surf_set_masks (PyObject *self, PyObject *args)
+{
+    SDL_Surface *surf = PySurface_AsSurface (self);
+    Uint32 r, g, b, a;
+
+    if (!PyArg_ParseTuple (args, "(kkkk)", &r, &g, &b, &a))
+        return NULL;
+    if (!surf)
+        return RAISE (PyExc_SDLError, "display Surface quit");
+
+    surf->format->Rmask = r;
+	surf->format->Gmask = g;
+    surf->format->Bmask = b;
+	surf->format->Amask = a;
+
+    Py_RETURN_NONE;
+}
+
+
+
+
+
 static PyObject*
 surf_get_shifts (PyObject *self)
 {
@@ -1564,6 +1595,32 @@ surf_get_shifts (PyObject *self)
     return Py_BuildValue ("(iiii)", surf->format->Rshift, surf->format->Gshift,
                           surf->format->Bshift, surf->format->Ashift);
 }
+
+
+static PyObject*
+surf_set_shifts (PyObject *self, PyObject *args)
+{
+    SDL_Surface *surf = PySurface_AsSurface (self);
+    Uint32 r, g, b, a;
+
+    if (!PyArg_ParseTuple (args, "(kkkk)", &r, &g, &b, &a))
+        return NULL;
+    if (!surf)
+        return RAISE (PyExc_SDLError, "display Surface quit");
+
+    surf->format->Rshift = r;
+	surf->format->Gshift = g;
+    surf->format->Bshift = b;
+	surf->format->Ashift = a;
+
+    Py_RETURN_NONE;
+}
+
+
+
+
+
+
 
 static PyObject*
 surf_get_losses (PyObject *self)

@@ -88,7 +88,9 @@
   <tr><td><a href="surface.html#Surface.get_flags">Surface.get_flags</a> - <font size=-1>get the additional flags used for the Surface</font></td><td>get the additional flags used for the Surface</td></tr>
   <tr><td><a href="surface.html#Surface.get_pitch">Surface.get_pitch</a> - <font size=-1>get the number of bytes used per Surface row</font></td><td>get the number of bytes used per Surface row</td></tr>
   <tr><td><a href="surface.html#Surface.get_masks">Surface.get_masks</a> - <font size=-1>the bitmasks needed to convert between a color and a mapped integer</font></td><td>the bitmasks needed to convert between a color and a mapped integer</td></tr>
+  <tr><td><a href="surface.html#Surface.set_masks">Surface.set_masks</a> - <font size=-1>set the bitmasks needed to convert between a color and a mapped integer</font></td><td>set the bitmasks needed to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a> - <font size=-1>the bit shifts needed to convert between a color and a mapped integer</font></td><td>the bit shifts needed to convert between a color and a mapped integer</td></tr>
+  <tr><td><a href="surface.html#Surface.set_shifts">Surface.set_shifts</a> - <font size=-1>sets the bit shifts needed to convert between a color and a mapped integer</font></td><td>sets the bit shifts needed to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_losses">Surface.get_losses</a> - <font size=-1>the significant bits used to convert between a color and a mapped integer</font></td><td>the significant bits used to convert between a color and a mapped integer</td></tr>
   <tr><td><a href="surface.html#Surface.get_bounding_rect">Surface.get_bounding_rect</a> - <font size=-1>find the smallest rect containing data</font></td><td>find the smallest rect containing data</td></tr>
   <tr><td><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></td><td>acquires a buffer object for the pixels of the Surface.</td></tr>
@@ -520,6 +522,15 @@
 <br></ul>
 
 
+<a name="Surface.set_masks">
+<big><b>Surface.set_masks</big></b><br><ul>
+  <i>set the bitmasks needed to convert between a color and a mapped integer</i><br>
+  <tt>Surface.set_masks((r,g,b,a)): return None</tt><br>
+<p>This is not needed for normal Pygame usage. New in pygame <tt>1.8.1</tt> </p>
+<!--COMMENTS:Surface.set_masks--> &nbsp;<br> 
+<br></ul>
+
+
 <a name="Surface.get_shifts">
 <big><b>Surface.get_shifts</big></b><br><ul>
   <i>the bit shifts needed to convert between a color and a mapped integer</i><br>
@@ -527,6 +538,15 @@
 <p>Returns the pixel shifts need to convert between each color and a mapped integer. </p>
 <p>This value is not needed for normal Pygame usage. </p>
 <!--COMMENTS:Surface.get_shifts--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.set_shifts">
+<big><b>Surface.set_shifts</big></b><br><ul>
+  <i>sets the bit shifts needed to convert between a color and a mapped integer</i><br>
+  <tt>Surface.get_shifts((r,g,b,a)): return None</tt><br>
+<p>This is not needed for normal Pygame usage. New in pygame <tt>1.8.1</tt> </p>
+<!--COMMENTS:Surface.set_shifts--> &nbsp;<br> 
 <br></ul>
 
 
