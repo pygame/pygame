@@ -1,6 +1,6 @@
-import unittest
-
 import test_utils
+import test.unittest as unittest
+
 from test_utils import test_not_implemented
 
 from pygame import Rect

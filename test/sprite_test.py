@@ -1,6 +1,8 @@
 #################################### IMPORTS ###################################
 
-import unittest, pygame, test_utils
+import test_utils
+import test.unittest as unittest
+import pygame, test_utils
 
 from test_utils import unordered_equality, test_not_implemented
 

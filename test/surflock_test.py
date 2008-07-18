@@ -1,4 +1,6 @@
-import unittest, sys, test_utils
+import test_utils
+import test.unittest as unittest
+import sys, test_utils
 import pygame
 
 class SurfaceLockTest (unittest.TestCase):

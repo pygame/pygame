@@ -1,4 +1,6 @@
-import unittest, os, pygame
+import test_utils
+import test.unittest as unittest
+import os, pygame
 from test_utils import test_not_implemented
 
 class MixerMusicModuleTest(unittest.TestCase):

@@ -2,7 +2,9 @@
 
 #TODO: clean up imports
 
-import sys, os, re, unittest, StringIO, time, optparse
+import test.unittest as unittest
+
+import sys, os, re, StringIO, time, optparse
 from inspect import getdoc, getmembers, isclass
 from pprint import pformat
 
@@ -47,7 +49,7 @@ opt_parser.add_option (
               "Run test T times, giving average time")
 
 opt_parser.add_option (
-     "-e",  "--exclude", 
+     "-e",  "--exclude",
      help   = "exclude tests containing any of TAGS" )
 
 opt_parser.add_option (
@@ -221,7 +223,14 @@ def run_test(module, options):
     suite = unittest.TestSuite()
     test_utils.fail_incomplete_tests = options.incomplete
 
-    __import__(module)
+    m = __import__(module)
+    if m.unittest is not unittest:
+        raise ImportError(
+            "%s is not using correct unittest\n\n" % module +
+            "should be: %s\n is using: %s" % (unittest.__file__,
+                                              m.unittest.__file__)
+        )
+    
     print 'loading', module
 
     test = unittest.defaultTestLoader.loadTestsFromName(module)

@@ -1,7 +1,11 @@
 ################################################################################
 
-import unittest, re, time, sys, StringIO
+import test.unittest as unittest
+import re, time, sys, StringIO
 from inspect import getdoc
+
+# This is needed for correct tracebacks
+__unittest = 1
 
 ################################################################################
 # Redirect stdout / stderr for the tests

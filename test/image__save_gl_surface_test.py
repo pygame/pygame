@@ -1,4 +1,7 @@
-import pygame, unittest, os, test_utils
+import test_utils
+import test.unittest as unittest
+
+import pygame, os
 from pygame.locals import *
 
 class GL_ImageSave(unittest.TestCase):
