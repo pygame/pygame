@@ -46,6 +46,11 @@ movie_play (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
     int loops = 0;
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_loop (movie, loops);
     SMPEG_play (movie);
@@ -57,6 +62,11 @@ static PyObject*
 movie_stop (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_stop (movie);
     Py_END_ALLOW_THREADS;
@@ -64,9 +74,14 @@ movie_stop (PyObject* self)
 }
 
 static PyObject*
-movie_pause (PyObject* self)
-{
+movie_pause (PyObject* self) {
     SMPEG* movie = PyMovie_AsSMPEG (self);
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
+
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_pause (movie);
     Py_END_ALLOW_THREADS;
@@ -77,6 +92,11 @@ static PyObject*
 movie_rewind (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_rewind (movie);
     Py_END_ALLOW_THREADS;
@@ -88,7 +108,13 @@ movie_skip (PyObject* self, PyObject* args)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
     float seconds;
-    if (!PyArg_ParseTuple (args, "f", &seconds))
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+	return RAISE (PyExc_SDLError,
+				  "cannot convert without pygame.display initialized");
+
+	
+	if (!PyArg_ParseTuple (args, "f", &seconds))
         return NULL;
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_skip (movie, seconds);
@@ -104,6 +130,11 @@ movie_set_volume (PyObject* self, PyObject* args)
     int volume;
     if (!PyArg_ParseTuple (args, "f", &value))
         return NULL;
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
 
     Py_BEGIN_ALLOW_THREADS;
     volume = (int) (value * 100);
@@ -125,6 +156,12 @@ movie_set_display (PyObject* self, PyObject* args)
     int x=0, y=0;
     if (!PyArg_ParseTuple (args, "O|O", &surfobj, &posobj))
         return NULL;
+
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
 
     Py_XDECREF (((PyMovieObject*) self)->surftarget);
     ((PyMovieObject*) self)->surftarget = NULL;
@@ -187,6 +224,10 @@ movie_has_video (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_getinfo (movie, &info);
     Py_END_ALLOW_THREADS;
@@ -198,6 +239,11 @@ movie_has_audio (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
 
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_getinfo (movie, &info);
@@ -211,6 +257,10 @@ movie_get_size (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_getinfo (movie, &info);
     Py_END_ALLOW_THREADS;
@@ -222,6 +272,10 @@ movie_get_frame (PyObject* self)
 {
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
 
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_getinfo (movie, &info);
@@ -235,6 +289,10 @@ movie_get_time (PyObject* self)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
 
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_getinfo (movie, &info);
     Py_END_ALLOW_THREADS;
@@ -244,8 +302,14 @@ movie_get_time (PyObject* self)
 static PyObject*
 movie_get_length (PyObject* self)
 {
-    SMPEG* movie = PyMovie_AsSMPEG (self);
+	SMPEG* movie;
     SMPEG_Info info;
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
+	movie = PyMovie_AsSMPEG (self);
 
     Py_BEGIN_ALLOW_THREADS;
     SMPEG_getinfo (movie, &info);
@@ -256,7 +320,14 @@ movie_get_length (PyObject* self)
 static PyObject*
 movie_get_busy (PyObject* self)
 {
-    SMPEG* movie = PyMovie_AsSMPEG (self);
+    SMPEG* movie;
+
+	if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
+    movie = PyMovie_AsSMPEG (self);
+
     return PyInt_FromLong (SMPEG_status (movie) == SMPEG_PLAYING);
 }
 
@@ -266,6 +337,10 @@ movie_render_frame (PyObject* self, PyObject* args)
     SMPEG* movie = PyMovie_AsSMPEG (self);
     SMPEG_Info info;
     int framenum;
+
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
 
     if (!PyArg_ParseTuple (args, "i", &framenum))
         return NULL;
@@ -357,6 +432,11 @@ Movie (PyObject* self, PyObject* arg)
     SDL_Surface* screen;
     char* error;
     int audioavail = 0;
+
+    if (!SDL_WasInit (SDL_INIT_VIDEO))
+        return RAISE (PyExc_SDLError,
+                      "cannot convert without pygame.display initialized");
+
     if (!PyArg_ParseTuple (arg, "O", &file))
         return NULL;
 
