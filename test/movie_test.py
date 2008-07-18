@@ -22,7 +22,7 @@ class MovieTypeTest( unittest.TestCase ):
         # that the command 
         
         # mencoder -of mpeg -ovc lavc -oac lavc -lavcopts \
-        # acodec=mp2:vcodec=mpeg1video:vbitrate=5000 -o new.mpg old.avi 
+        # acodec=mp2:vcodec=mpeg1video:vbitrate=1000 -o new.mpg old.avi 
         
         # os.environ.update({"SDL_VIDEODRIVER":'windib'})
         
@@ -35,11 +35,16 @@ class MovieTypeTest( unittest.TestCase ):
         self.assertEqual(movie_dimensions, (320, 240))
 
         screen = pygame.display.set_mode(movie_dimensions)
+        off_screen = pygame.Surface(movie_dimensions)
 
         movie.set_display(screen)
         movie.render_frame(5)
-
+        
+        movie.set_display(off_screen)
+        movie.render_frame(5)
+        
         self.assertEqual(screen.get_at((10,10)), (16, 16, 255, 255))
+        self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
 
         pygame.display.quit()
 
