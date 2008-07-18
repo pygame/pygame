@@ -27,20 +27,31 @@ class MovieTypeTest( unittest.TestCase ):
         
         # os.environ.update({"SDL_VIDEODRIVER":'windib'})
         
-        pygame.display.init() # Needs to be init or will segfault
-        
         movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
-        movie = pygame.movie.Movie(movie_file)
+        
+	# Need to init display before using it.
+        self.assertRaises(Exception, (pygame.movie.Movie, movie_file))
+
+    
+        pygame.display.init() # Needs to be init
+        
+        
+	movie = pygame.movie.Movie(movie_file)
         movie_dimensions = movie.get_size()
+        screen = pygame.display.set_mode(movie_dimensions)
 
         self.assertEqual(movie_dimensions, (320, 240))
 
-        off_screen = pygame.Surface(movie_dimensions)
+        off_screen = pygame.Surface(movie_dimensions).convert()
 
         movie.set_display(off_screen)
-        movie.render_frame(5)
-                
-        self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
+	pygame.event.get()
+        frame_number = movie.render_frame(5)
+	pygame.event.get()
+
+	
+        #self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
+        self.assert_(off_screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
 
         pygame.display.quit()
 
@@ -58,7 +69,8 @@ class MovieTypeTest( unittest.TestCase ):
         movie.set_display(screen)
         movie.render_frame(5)
         
-        self.assertEqual(screen.get_at((10,10)), (16, 16, 255, 255))
+        #self.assertEqual(screen.get_at((10,10)), (16, 16, 255, 255))
+        self.assert_(screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
 
         pygame.display.quit()
 
