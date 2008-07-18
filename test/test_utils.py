@@ -1,6 +1,7 @@
 #################################### IMPORTS ###################################
 
-import tempfile, sys, pygame, unittest
+import tempfile, sys, pygame, unittest, time, os
+from test import pystone
 
 ############################### INCOMPLETE TESTS ###############################
 
@@ -13,6 +14,50 @@ def test_not_implemented():
 
 def get_tmp_dir():
     return tempfile.mkdtemp()
+
+################################################################################
+
+trunk_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+
+def trunk_relative_path(relative):
+    return os.path.normpath(os.path.join(trunk_dir, relative))
+
+################################################################################
+
+# TOLERANCE in Pystones
+# kPS = 1000
+# TOLERANCE = 0.5*kPS 
+
+# class DurationError(AssertionError): pass
+
+# def local_pystone():
+#     return pystone.pystones(loops=pystone.LOOPS)
+
+# def timedtest(max_num_pystones, current_pystone=local_pystone()):
+#     """ decorator timedtest """
+#     if not isinstance(max_num_pystones, float):
+#         max_num_pystones = float(max_num_pystones)
+
+#     def _timedtest(function):
+#         def wrapper(*args, **kw):
+#             start_time = time.time()
+#             try:
+#                 return function(*args, **kw)
+#             finally:
+#                 total_time = time.time() - start_time
+#                 if total_time == 0:
+#                     pystone_total_time = 0
+#                 else:
+#                     pystone_rate = current_pystone[0] / current_pystone[1]
+#                     pystone_total_time = total_time / pystone_rate
+#                 if pystone_total_time > (max_num_pystones + TOLERANCE):
+#                     raise DurationError((('Test too long (%.2f Ps, '
+#                                         'need at most %.2f Ps)')
+#                                         % (pystone_total_time,
+#                                             max_num_pystones)))
+#         return wrapper
+
+#     return _timedtest
 
 #################################### HELPERS ###################################
 
