@@ -1,7 +1,9 @@
 #################################### IMPORTS ###################################
 # TODO: clean up imports
 
-import sys, os, re, unittest, subprocess, time, optparse
+import test.unittest as unittest
+
+import sys, os, re, subprocess, time, optparse
 import pygame.threads, pygame
 
 from test_runner import *
@@ -70,7 +72,7 @@ if options.fake:
 else:
     working_dir = main_dir
 
-test_env = {"PYTHONPATH": test_subdir}
+test_env = {"PYTHONPATH": test_subdir}     #TODO:  append to PYTHONPATH
 os.chdir(working_dir)
 
 if args:
@@ -95,7 +97,7 @@ if not options.subprocess:
     unittest_patch.patch(options)
 
     t = time.time()
-    for module in test_modules:
+    for module in test_modules:        
         results.update(run_test(module, options = options))
     t = time.time() - t
 

@@ -1,6 +1,8 @@
 #################################### IMPORTS ###################################
 
-import test_utils, unittest, time
+import test_utils, time
+import test.unittest as unittest
+
 from test_utils import test_not_implemented
 
 from pygame.threads import FuncResult, tmap, WorkerQueue, Empty, STOP

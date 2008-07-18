@@ -2,11 +2,12 @@
 
 from __future__ import generators
 
-import unittest
+import test_utils
+import test.unittest as unittest
+
 import pygame
 import math
 
-import test_utils
 from test_utils import test_not_implemented
 
 ################################### CONSTANTS ##################################
