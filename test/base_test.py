@@ -1,5 +1,6 @@
-import unittest, pygame
 import test_utils
+import test.unittest as unittest
+import pygame
 from test_utils import test_not_implemented
 
 init_called = quit_called = 0

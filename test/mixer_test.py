@@ -1,6 +1,9 @@
 #################################### IMPORTS ###################################
 
-import pygame, unittest, test_utils
+import test_utils
+import test.unittest as unittest
+
+import pygame
 
 from pygame import mixer
 import os

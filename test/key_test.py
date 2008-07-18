@@ -1,6 +1,7 @@
-import unittest, os
-
 import test_utils
+import test.unittest as unittest
+import os
+
 from test_utils import test_not_implemented
 
 import pygame

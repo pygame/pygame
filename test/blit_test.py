@@ -1,4 +1,6 @@
-import unittest, test_utils
+import test_utils
+import test.unittest as unittest
+import test_utils
 import pygame
 from pygame.locals import *
 

@@ -1,7 +1,7 @@
-import unittest
+import test_utils
+import test.unittest as unittest
 import pygame, pygame.transform
 
-import test_utils
 from test_utils import test_not_implemented
 
 class DisplayModuleTest( unittest.TestCase ):

@@ -1,6 +1,7 @@
-import unittest, os, sys
-
 import test_utils
+import test.unittest as unittest
+import os, sys
+
 from test_utils import test_not_implemented
 
 import pygame, pygame.movie, time
@@ -10,7 +11,7 @@ from pygame.locals import *
 # TODO fix bugs: checking to avoid segfaults
 
 class MovieTypeTest( unittest.TestCase ):            
-    def test_Movie(self):
+    def test_render_frame__off_screen(self):
         # __doc__ (as of 2008-06-25) for pygame.movie.Movie:
     
           # pygame.movie.Movie(filename): return Movie
@@ -34,17 +35,30 @@ class MovieTypeTest( unittest.TestCase ):
 
         self.assertEqual(movie_dimensions, (320, 240))
 
-        screen = pygame.display.set_mode(movie_dimensions)
         off_screen = pygame.Surface(movie_dimensions)
 
+        movie.set_display(off_screen)
+        movie.render_frame(5)
+                
+        self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
+
+        pygame.display.quit()
+
+    def test_render_frame__on_screen(self):
+
+        pygame.display.init() # Needs to be init or will segfault
+        
+        movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
+        movie = pygame.movie.Movie(movie_file)
+        movie_dimensions = movie.get_size()
+
+        self.assertEqual(movie_dimensions, (320, 240))
+
+        screen = pygame.display.set_mode(movie_dimensions)
         movie.set_display(screen)
         movie.render_frame(5)
         
-        movie.set_display(off_screen)
-        movie.render_frame(5)
-        
         self.assertEqual(screen.get_at((10,10)), (16, 16, 255, 255))
-        self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
 
         pygame.display.quit()
 

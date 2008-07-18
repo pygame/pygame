@@ -1,7 +1,19 @@
 #################################### IMPORTS ###################################
 
-import tempfile, sys, pygame, unittest, time, os
-from test import pystone
+import tempfile, sys, pygame, time, os
+
+# from test import pystone
+
+################################################################################
+
+trunk_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+
+def trunk_relative_path(relative):
+    return os.path.normpath(os.path.join(trunk_dir, relative))
+
+sys.path.insert(0, trunk_relative_path('.'))
+
+import test.unittest as unittest
 
 ############################### INCOMPLETE TESTS ###############################
 
@@ -15,12 +27,6 @@ def test_not_implemented():
 def get_tmp_dir():
     return tempfile.mkdtemp()
 
-################################################################################
-
-trunk_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
-
-def trunk_relative_path(relative):
-    return os.path.normpath(os.path.join(trunk_dir, relative))
 
 ################################################################################
 

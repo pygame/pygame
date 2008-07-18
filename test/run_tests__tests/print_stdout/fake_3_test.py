@@ -1,4 +1,5 @@
-import unittest
+import test_utils
+import test.unittest as unittest
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
