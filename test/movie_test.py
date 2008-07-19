@@ -10,6 +10,20 @@ from pygame.locals import *
 
 # TODO fix bugs: checking to avoid segfaults
 
+
+
+def within(a,b, error_range):
+    return abs(a - b) < error_range
+
+def within_seq(a,b,error_range):
+    for x,y in zip(a,b):
+	#print x,y
+	if not within(x,y,error_range):
+	    return 0
+    return 1
+
+
+
 class MovieTypeTest( unittest.TestCase ):            
     def test_render_frame__off_screen(self):
         # __doc__ (as of 2008-06-25) for pygame.movie.Movie:
@@ -51,7 +65,8 @@ class MovieTypeTest( unittest.TestCase ):
 
 	
         #self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
-        self.assert_(off_screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
+        #self.assert_(off_screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
+        self.assert_(within_seq( off_screen.get_at((10,10)), (16, 16, 255, 255), 20 ))
 
         pygame.display.quit()
 
@@ -70,7 +85,8 @@ class MovieTypeTest( unittest.TestCase ):
         movie.render_frame(5)
         
         #self.assertEqual(screen.get_at((10,10)), (16, 16, 255, 255))
-        self.assert_(screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
+        #self.assert_(screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
+        self.assert_(within_seq( screen.get_at((10,10)), (16, 16, 255, 255), 20 ))
 
         pygame.display.quit()
 
