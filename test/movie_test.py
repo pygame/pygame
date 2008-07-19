@@ -59,10 +59,7 @@ class MovieTypeTest( unittest.TestCase ):
         off_screen = pygame.Surface(movie_dimensions).convert()
 
         movie.set_display(off_screen)
-	pygame.event.get()
         frame_number = movie.render_frame(5)
-	pygame.event.get()
-
 	
         #self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
         #self.assert_(off_screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
