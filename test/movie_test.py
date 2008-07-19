@@ -43,14 +43,14 @@ class MovieTypeTest( unittest.TestCase ):
         
         movie_file = test_utils.trunk_relative_path('examples/data/blue.mpg')
         
-	# Need to init display before using it.
+        # Need to init display before using it.
         self.assertRaises(Exception, (pygame.movie.Movie, movie_file))
 
     
         pygame.display.init() # Needs to be init
         
         
-	movie = pygame.movie.Movie(movie_file)
+        movie = pygame.movie.Movie(movie_file)
         movie_dimensions = movie.get_size()
         screen = pygame.display.set_mode(movie_dimensions)
 
@@ -60,7 +60,7 @@ class MovieTypeTest( unittest.TestCase ):
 
         movie.set_display(off_screen)
         frame_number = movie.render_frame(5)
-	
+
         #self.assertEqual(off_screen.get_at((10,10)), (16, 16, 255, 255))
         #self.assert_(off_screen.get_at((10,10)) in [(16, 16, 255, 255), (18, 13, 238, 255)])
         self.assert_(within_seq( off_screen.get_at((10,10)), (16, 16, 255, 255), 20 ))
