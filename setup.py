@@ -12,7 +12,8 @@ def get_c_files ():
 if __name__ == "__main__":
 
     extphysics = Extension ("physics", sources = get_c_files (),
-                            include_dirs = [ "include" ])
+                            include_dirs = [ "include" ],
+                            extra_compile_args=["-g", "-W", "-Wall"])
 
     setupdata = {
         "name" : "physics",

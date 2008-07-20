@@ -2,9 +2,7 @@
 #include "pgAABBBox.h"
 #include "pgShapeObject.h"
 #include "pgBodyObject.h"
-#include "glTestSuite.h"
 #include <assert.h>
-#include <GL/glut.h>
 
 extern PyTypeObject pgContactType;
 
@@ -226,12 +224,6 @@ void PG_UpdateV(pgJointObject* joint, double step)
 	incidR = c_diff(contact->pos, incidBody->vecPosition);
 
 	if(c_dot(contact->dv, contact->normal) > 0) return;
-	glPointSize(6.f);
-	glColor3f(1.f, 0.f, 0.f);
-	glBegin(GL_POINTS);
-	glVertex2d(contact->pos.real, contact->pos.imag);
-	glEnd();
-	glPointSize(1.f);
 
 	if(!refBody->bStatic)
 	{

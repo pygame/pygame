@@ -213,7 +213,7 @@ static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
 {
 	pgBodyObject* body = (pgBodyObject*)self;
 	int i;
-	PyListObject* list;
+	PyObject* list;
 
 	/*if (!PyArg_ParseTuple(args,"O",&body))
 	{
@@ -227,20 +227,20 @@ static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
 			PyErr_SetString(PyExc_ValueError,"Shape is NULL");
 			return NULL;
 		}
-		list = (PyListObject*)PyList_New(4);
+		list = PyList_New(4);
 		for (i = 0;i < 4;i++)
 		{
 			pgVector2* pVertex = &(((pgRectShape*)(body->shape))->point[i]);
 			pgVector2 golVertex = PG_GetGlobalPos(body,pVertex);
-			PyTupleObject* tuple = (PyTupleObject*)PyTuple_New(2);
+			PyObject* tuple = PyTuple_New(2);
 
 			long ix = golVertex.real * FLOAT_TO_INT_MUL;
 			long iy = golVertex.imag * FLOAT_TO_INT_MUL;
-			PyIntObject* xnum = PyInt_FromLong(ix);
-			PyIntObject* ynum = PyInt_FromLong(iy);
-			PyTuple_SetItem((PyObject*)tuple,0,xnum);
-			PyTuple_SetItem((PyObject*)tuple,1,ynum);
-			PyList_SetItem((PyObject*)list,i,(PyObject*)tuple);
+			PyObject* xnum = PyInt_FromLong(ix);
+			PyObject* ynum = PyInt_FromLong(iy);
+			PyTuple_SetItem(tuple,0,xnum);
+			PyTuple_SetItem(tuple,1,ynum);
+			PyList_SetItem(list,i,tuple);
 		}
 		return (PyObject*)list;
 	}
@@ -255,7 +255,7 @@ static PyMemberDef _pgBody_members[] = {
 	{"torque",T_DOUBLE,offsetof(pgBodyObject,fTorque),0,""},
 	{"restitution",T_DOUBLE,offsetof(pgBodyObject,fRestitution),0,""},
 	{"friction",T_DOUBLE,offsetof(pgBodyObject,fFriction),0,""},
-    {NULL}  /* Sentinel */
+        {NULL, 0, 0, 0, NULL}  /* Sentinel */
 };
 
 static PyMethodDef _pgBody_methods[] = {
@@ -268,7 +268,7 @@ static PyGetSetDef _pgBody_getseters[] = {
 	{"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
 	{"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
 	{"force",(getter)_pgBody_getForce,(setter)_pgBody_setForce,"force",NULL},
-	{ NULL}
+	{ NULL, NULL, NULL, NULL, NULL}
 };
 
 PyTypeObject pgBodyType =

@@ -692,8 +692,8 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	int face_id;
 	pgVector2 gp[4];
 	pgVector2 contacts[MAX_CONTACTS];
-	int csize;
-	pgVector2 normal;
+	int csize = 0;
+	pgVector2 normal = { 0, 0 };
 	pgAABBBox clipBox;
 	int overlap;
 	pgVector2* pAcc, * pSplitAcc;

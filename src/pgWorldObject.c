@@ -15,7 +15,7 @@ void _PG_FreeBodySimulation(pgWorldObject* world,double stepTime)
 	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
 	for (i = 0; i < size; ++i)
 	{
-		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));		
+		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem(world->bodyList, i));		
 		PG_FreeUpdateBodyVel(world, body, stepTime);
 	}
 }
@@ -26,64 +26,64 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	pgBodyObject* refBody, *incBody;
 	pgJointObject* contact;
 	
-	body_cnt = PyList_Size((PyObject*)(world->bodyList));
+	body_cnt = PyList_Size(world->bodyList);
 	//clear contactList first
-	contact_cnt = PyList_Size((PyObject*)(world->contactList));
-	if(PyList_SetSlice((PyObject*)(world->contactList), 0, contact_cnt, NULL) < 0) return;
-	assert(PyList_Size((PyObject*)(world->contactList))==0);
+	contact_cnt = PyList_Size(world->contactList);
+	if(PyList_SetSlice(world->contactList, 0, contact_cnt, NULL) < 0) return;
+	assert(PyList_Size(world->contactList)==0);
 	
 	//for all pair of objects, do collision test	
 	//update AABB
 	for(i = 0; i < body_cnt; ++i)
 	{
-		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
+		refBody = (pgBodyObject*)(PyList_GetItem(world->bodyList, i));
 		refBody->shape->UpdateAABB(refBody);
 	}
 	
 	//collision test
 	for(i = 0; i < body_cnt-1; ++i)
 	{
-		refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
+		refBody = (pgBodyObject*)(PyList_GetItem(world->bodyList, i));
 		for(j = i+1; j < body_cnt; ++j)
 		{
-			incBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), j));
+			incBody = (pgBodyObject*)(PyList_GetItem(world->bodyList, j));
 			if(refBody->bStatic && incBody->bStatic) continue;
 			if(PG_IsOverlap(&(refBody->shape->box), &(incBody->shape->box), 1e-8))
 			{
-				PG_AppendContact(refBody, incBody, (PyObject*)world->contactList);
+				PG_AppendContact(refBody, incBody, world->contactList);
 			}
 		}
 	}
 
-	contact_cnt = PyList_Size((PyObject*)(world->contactList));
+	contact_cnt = PyList_Size(world->contactList);
 	for(j = 0; j < MAX_ITERATION; ++j)
 	{
 		//clear bias
 		for(i = 0; i < body_cnt; ++i)
 		{
-			refBody = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList), i));
+			refBody = (pgBodyObject*)(PyList_GetItem(world->bodyList, i));
 			PG_Set_Vector2(refBody->cBiasLV, 0.f, 0.f);
 			refBody->cBiasW = 0.f;
 		}
 		//clear impulse
 		for(i = 0; i < contact_cnt; ++i)
 		{
-			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
+			contact = (pgJointObject*)(PyList_GetItem(world->contactList, i));
 			PG_Set_Vector2(**(((pgContact*)contact)->ppAccMoment), 0, 0);
 			PG_Set_Vector2(**(((pgContact*)contact)->ppSplitAccMoment), 0, 0);
 		}
 
 		//collision reaction
-		contact_cnt = PyList_Size((PyObject*)(world->contactList));
+		contact_cnt = PyList_Size(world->contactList);
 		for(i = 0; i < contact_cnt; ++i)
 		{
-			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
+			contact = (pgJointObject*)(PyList_GetItem(world->contactList, i));
 			PG_ApplyContact((PyObject*)contact, step);
 		}
 		//update V	
 		for(i = 0; i < contact_cnt; ++i)
 		{
-			contact = (pgJointObject*)(PyList_GetItem((PyObject*)(world->contactList), i));
+			contact = (pgJointObject*)(PyList_GetItem(world->contactList, i));
 			contact->SolveConstraintVelocity(contact, step);
 		}
 	}
@@ -95,7 +95,7 @@ void _PG_JointSolve(pgWorldObject* world,double stepTime)
 	Py_ssize_t i;
 	for (i = 0; i < size; ++i)
 	{
-		pgJointObject* joint = (pgJointObject*)(PyList_GetItem((PyObject*)(world->jointList),i));
+		pgJointObject* joint = (pgJointObject*)(PyList_GetItem(world->jointList,i));
 		//what happened here?
 		if (joint->SolveConstraintVelocity)
 		{
@@ -110,11 +110,11 @@ void _PG_JointSolve(pgWorldObject* world,double stepTime)
 
 void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 {
-	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
+	Py_ssize_t size = PyList_Size(world->bodyList);
 	Py_ssize_t i;
 	for (i = 0; i < size; ++i)
 	{
-		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));
+		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem(world->bodyList,i));
 		PG_FreeUpdateBodyPos(world,body,stepTime);	
 	}
 }
@@ -134,7 +134,7 @@ void PG_Update(pgWorldObject* world,double stepTime)
 
 int PG_AddBodyToWorld(pgWorldObject* world,pgBodyObject* body)
 {
-	return PyList_Append((PyObject*)world->bodyList,(PyObject*)body);
+	return PyList_Append(world->bodyList,(PyObject*)body);
 }
 
 
@@ -146,7 +146,7 @@ int PG_RemoveBodyFromWorld(pgWorldObject* world,pgBodyObject* body)
 
 int PG_AddJointToWorld(pgWorldObject* world,pgJointObject* joint)
 {
-	return PyList_Append((PyObject*)world->jointList,(PyObject*)joint);
+	return PyList_Append(world->jointList,(PyObject*)joint);
 }
 
 int PG_RemoveJointFromWorld(pgWorldObject* world,pgJointObject* joint)
@@ -156,9 +156,9 @@ int PG_RemoveJointFromWorld(pgWorldObject* world,pgJointObject* joint)
 
 void PG_WorldInit(pgWorldObject* world)
 {
-	world->bodyList = (PyListObject*)PyList_New(0);
-	world->jointList = (PyListObject*)PyList_New(0);
-	world->contactList = (PyListObject*)PyList_New(0);
+	world->bodyList = PyList_New(0);
+	world->jointList = PyList_New(0);
+	world->contactList = PyList_New(0);
 	world->fDamping = 0.0;
 	world->fStepTime = 0.1;
 	PG_Set_Vector2(world->vecGravity,0.0,-50);
@@ -281,14 +281,14 @@ static int _pgWorld_setGravity(pgWorldObject* world,PyObject* value,void* closur
 
 static PyObject* _pgWorld_getBodyList(pgWorldObject* world,void* closure)
 {
-	Py_INCREF ((PyObject*)world->bodyList);
-	return (PyObject*)world->bodyList;
+	Py_INCREF (world->bodyList);
+	return world->bodyList;
 }
 
 static PyObject* _pgWorld_getJointList(pgWorldObject* world,void* closure)
 {
-	Py_INCREF ((PyObject*)world->jointList);
-	return (PyObject*)world->jointList;
+	Py_INCREF (world->jointList);
+	return world->jointList;
 }
 
 
@@ -305,13 +305,13 @@ static PyGetSetDef _pgWorld_getseters[] = {
 		"gravity",(getter)_pgWorld_getGravity,(setter)_pgWorld_setGravity,"gravity",NULL,
 	},
 	{
-		"body_list",(getter)_pgWorld_getBodyList,NULL,NULL
+            "body_list",(getter)_pgWorld_getBodyList,NULL,NULL,NULL
 	},
 	{
-		"joint_list",(getter)_pgWorld_getJointList,NULL,NULL
+            "joint_list",(getter)_pgWorld_getJointList,NULL,NULL,NULL
 	},
 	{
-		NULL
+            NULL, NULL, NULL, NULL, NULL
 	}
 };
 
@@ -330,7 +330,7 @@ static PyMemberDef _pgWorld_members[] =
 {
 	{"damping",T_DOUBLE,offsetof(pgWorldObject,fDamping),0,""},
 	{
-		NULL
+            NULL, 0, 0, 0, NULL
 	}
 }; 
 

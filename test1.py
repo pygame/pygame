@@ -6,7 +6,7 @@ from pygame.locals import *
 
 
 def render_body(body,surface,color):
-    l = physics.get_point_list(body)
+    l = body.get_point_list()
     pygame.draw.polygon(surface,color,l)
 
 

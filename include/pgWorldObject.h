@@ -10,9 +10,9 @@ struct _pgWorldObject
 {
 	PyObject_HEAD
 
-	PyListObject*	bodyList;
-	PyListObject*	jointList;
-	PyListObject*	contactList;
+	PyObject*	bodyList;
+	PyObject*	jointList;
+	PyObject*	contactList;
 
 	Py_complex		vecGravity;
 	double			fDamping;

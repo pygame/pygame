@@ -127,7 +127,7 @@ static PyGetSetDef _pgJointBase_getseters[] = {
 		"body2",(getter)_pgJoint_getBody2,(setter)_pgJoint_setBody2,"",NULL,
 	},
 	{
-		NULL
+            NULL, NULL, NULL, NULL, NULL
 	}
 };
 
@@ -531,7 +531,7 @@ static int _pgDistanceJoint_setAnchor2(pgDistanceJointObject* joint,PyObject* va
 
 static PyMemberDef _pgDistanceJoint_members[] = 
 {
-	{	NULL }
+    {	NULL, 0, 0, 0, NULL}
 }; 
 
 static PyGetSetDef _pgDistanceJoint_getseters[] = {
@@ -545,7 +545,7 @@ static PyGetSetDef _pgDistanceJoint_getseters[] = {
 		"anchor2",(getter)_pgDistanceJoint_getAnchor2,(setter)_pgDistanceJoint_setAnchor2,"",NULL,
 	},
 	{
-		NULL
+            NULL, NULL, NULL, NULL, NULL
 	}
 };
 
