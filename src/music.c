@@ -252,13 +252,8 @@ music_load (PyObject* self, PyObject* args)
         return NULL;
 
     MIXER_INIT_CHECK ();
-/*
-    #if (MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL) > 010207
-*/
-#if MIX_MAJOR_VERSION>=1 && MIX_MINOR_VERSION>=2 && MIX_PATCHLEVEL>8
 
-/* this is for loading music from file likes..
-*/
+    #if (MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL) >= 10208
     if(!PyString_Check(file) && !PyUnicode_Check(file))
     {
         rw = RWopsFromPythonThreaded(file);
@@ -281,6 +276,7 @@ music_load (PyObject* self, PyObject* args)
     if (!new_music)
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
+    Py_BEGIN_ALLOW_THREADS
     if (current_music)
     {
         Mix_FreeMusic (current_music);
@@ -291,6 +287,8 @@ music_load (PyObject* self, PyObject* args)
         Mix_FreeMusic (queue_music);
         queue_music = NULL;
     }
+    Py_END_ALLOW_THREADS
+
     current_music = new_music;
     Py_RETURN_NONE;
 }
@@ -307,7 +305,7 @@ music_queue (PyObject* self, PyObject* args)
 
     MIXER_INIT_CHECK ();
 
-    #if MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL >= 010207
+    #if MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL >= 10208
     if(!PyString_Check(file) && !PyUnicode_Check(file))
     {
         rw = RWopsFromPythonThreaded(file);
@@ -330,11 +328,14 @@ music_queue (PyObject* self, PyObject* args)
     if (!new_music)
         return RAISE (PyExc_SDLError, SDL_GetError ());
 
+    Py_BEGIN_ALLOW_THREADS
     if (queue_music)
     {
         Mix_FreeMusic (queue_music);
         queue_music = NULL;
     }
+    Py_END_ALLOW_THREADS
+
     queue_music = new_music;
     Py_RETURN_NONE;
 }
