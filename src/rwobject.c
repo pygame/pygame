@@ -317,21 +317,30 @@ rw_seek_th (SDL_RWops* context, int offset, int whence)
     PyEval_AcquireLock ();
     oldstate = PyThreadState_Swap (helper->thread);
 
-    if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
+    if (!(offset == 0 && whence == SEEK_CUR)) /* being seek'd, not just tell'd */
     {
         result = PyObject_CallFunction (helper->seek, "ii", offset, whence);
         if(!result)
-            return -1;
+        {
+            PyErr_Print();
+            retval = -1;
+            goto end;
+        }
         Py_DECREF (result);
     }
 
     result = PyObject_CallFunction (helper->tell, NULL);
     if (!result)
-        return -1;
+    {
+        PyErr_Print();
+        retval = -1;
+        goto end;
+    }
 
     retval = PyInt_AsLong (result);
     Py_DECREF (result);
 
+end:
     PyThreadState_Swap (oldstate);
     PyEval_ReleaseLock ();
 
@@ -354,12 +363,18 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
 
     result = PyObject_CallFunction (helper->read, "i", size * maxnum);
     if (!result)
-        return -1;
+    {
+        PyErr_Print();
+        retval = -1;
+        goto end;
+    }
 
     if (!PyString_Check (result))
     {
         Py_DECREF (result);
-        return -1;
+        PyErr_Print();
+        retval = -1;
+        goto end;
     }
 
     retval = PyString_GET_SIZE (result);
@@ -368,6 +383,7 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
 
     Py_DECREF (result);
 
+end:
     PyThreadState_Swap (oldstate);
     PyEval_ReleaseLock ();
 
@@ -379,6 +395,7 @@ rw_write_th (SDL_RWops* context, const void* ptr, int size, int num)
 {
     RWHelper* helper = (RWHelper*) context->hidden.unknown.data1;
     PyObject* result;
+    int retval;
     PyThreadState* oldstate;
 
     if (!helper->write)
@@ -389,14 +406,20 @@ rw_write_th (SDL_RWops* context, const void* ptr, int size, int num)
 
     result = PyObject_CallFunction (helper->write, "s#", ptr, size * num);
     if (!result)
-        return -1;
+    {
+        PyErr_Print();
+        retval = -1;
+        goto end;
+    }
 
     Py_DECREF (result);
+    retval = num;
 
+end:
     PyThreadState_Swap (oldstate);
     PyEval_ReleaseLock ();
 
-    return num;
+    return retval;
 }
 
 static int
@@ -413,8 +436,11 @@ rw_close_th (SDL_RWops* context)
     if (helper->close)
     {
         result = PyObject_CallFunction (helper->close, NULL);
-        if (result)
+        if (!result)
+        {
+            PyErr_Print();
             retval = -1;
+        }
         Py_XDECREF (result);
     }
 
