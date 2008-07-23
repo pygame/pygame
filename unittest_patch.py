@@ -104,6 +104,8 @@ def TestResult___init__(self):
     self.testsRun   = 0
     self.shouldStop = 0
 
+
+# TODO: all this is available in the traceback object
 FILE_LINENUMBER_RE = re.compile(r'File "([^"]+)", line ([0-9]+)')
 
 def errorHandling(key):
@@ -114,10 +116,10 @@ def errorHandling(key):
             test.dot_syntax_name(),
             traceback,
             error_file,
-            line_number,
+            line_number,         #TODO: add locals etc
         )
         getattr(self, key).append(error)
-        
+
         # Append it to individual test dict for easy access
         self.tests[test.dot_syntax_name()][key[:-1]] = error
 
@@ -135,9 +137,8 @@ def printErrorList(self, flavour, errors):
         # DUMP REDIRECTED STDERR / STDOUT ON ERROR / FAILURE
         if self.show_redirected_on_errors:
             stderr, stdout = map(self.tests[test].get, ('stderr','stdout'))
-            if stderr or stdout:
-                if stderr: self.stream.writeln("STDERR:\n%s" % stderr)
-                if stdout: self.stream.writeln("STDOUT:\n%s" % stdout)
+            if stderr: self.stream.writeln("STDERR:\n%s" % stderr)
+            if stdout: self.stream.writeln("STDOUT:\n%s" % stdout)
 
 ################################################################################
 # Exclude by tags
@@ -152,6 +153,7 @@ def get_tags(obj):
 def getTestCaseNames(self, testCaseClass):
     def test_wanted(attrname, testCaseClass=testCaseClass, 
                                     prefix=self.testMethodPrefix):
+                                    #TODO: ('test_','todo_')
 
         actual_attr = getattr(testCaseClass, attrname)
         filtered = bool([t for t in get_tags(actual_attr) if t in self.exclude])
@@ -173,6 +175,11 @@ def getTestCaseNames(self, testCaseClass):
 ################################################################################
 
 def patch(options):
+    if options.incomplete:
+        unittest.TestLoader.testMethodPrefix = tuple (
+            list(self.testMethodPrefix) + ['todo_']
+        )
+    
     # Tag exclusion
     if options.exclude:
         unittest.TestLoader.getTestCaseNames = getTestCaseNames
