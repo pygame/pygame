@@ -190,21 +190,31 @@ static int _pgBody_setPosition(pgBodyObject* body,PyObject* value,void* closure)
 //force
 static PyObject* _pgBody_getForce(pgBodyObject* body,void* closure)
 {
-    return PyComplex_FromCComplex (body->vecForce);
+    return Py_BuildValue ("(ff)", body->vecForce.real, body->vecForce.imag);
 }
 
 
 static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
 {
-	if (value == NULL || (!PyComplex_Check(value))) {
-		PyErr_SetString(PyExc_TypeError, "Cannot set the force attribute");
-		return -1;
-	}
-	else
-	{
-		body->vecForce = PyComplex_AsCComplex(value);
-		return 0;
-	}
+    PyObject *item;
+    double real, imag;
+
+    if (!PySequence_Check(value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_TypeError, "force must be a x, y sequence");
+        return -1;
+    }
+
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &real))
+        return -1;
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &imag))
+        return -1;
+    
+    body->vecForce.real = real;
+    body->vecForce.imag = imag;
+    return 0;
 }
 
 /**
@@ -242,7 +252,6 @@ static int _pgBody_setMass(pgBodyObject* body,PyObject* value,void* closure)
     return -1;
 }
 
-
 /**
  * Getter for retrieving the rotation of the passed body.
  */
@@ -270,6 +279,96 @@ static int _pgBody_setRotation(pgBodyObject* body,PyObject* value,void* closure)
         }
     }
     PyErr_SetString (PyExc_TypeError, "rotation must be a float");
+    return -1;
+}
+
+/**
+ * Getter for retrieving the torque of the passed body.
+ */
+static PyObject* _pgBody_getTorque (pgBodyObject* body,void* closure)
+{
+    return PyFloat_FromDouble (body->fTorque);
+}
+
+/**
+ * Sets the torque of the passed body.
+ */
+static int _pgBody_setTorque (pgBodyObject* body,PyObject* value,void* closure)
+{
+    if (PyNumber_Check (value))
+    {
+        PyObject *tmp = PyNumber_Float (value);
+
+        if (tmp)
+        {
+            double torque = PyFloat_AsDouble (tmp);
+            if (PyErr_Occurred ())
+                return -1;
+            body->fTorque = torque;
+            return 0;
+        }
+    }
+    PyErr_SetString (PyExc_TypeError, "torque must be a float");
+    return -1;
+}
+
+/**
+ * Getter for retrieving the restitution of the passed body.
+ */
+static PyObject* _pgBody_getRestitution (pgBodyObject* body,void* closure)
+{
+    return PyFloat_FromDouble (body->fRestitution);
+}
+
+/**
+ * Sets the restitution of the passed body.
+ */
+static int _pgBody_setRestitution (pgBodyObject* body,PyObject* value,void* closure)
+{
+    if (PyNumber_Check (value))
+    {
+        PyObject *tmp = PyNumber_Float (value);
+
+        if (tmp)
+        {
+            double rest = PyFloat_AsDouble (tmp);
+            if (PyErr_Occurred ())
+                return -1;
+            body->fRestitution = rest;
+            return 0;
+        }
+    }
+    PyErr_SetString (PyExc_TypeError, "torque must be a float");
+    return -1;
+}
+
+/**
+ * Getter for retrieving the friction of the passed body.
+ */
+static PyObject* _pgBody_getFriction (pgBodyObject* body,void* closure)
+{
+    return PyFloat_FromDouble (body->fFriction);
+}
+
+/**
+ * Sets the friction of the passed body.
+ */
+static int _pgBody_setFriction (pgBodyObject* body,PyObject* value,void* closure)
+{
+    if (PyNumber_Check (value))
+    {
+        PyObject *tmp = PyNumber_Float (value);
+
+        if (tmp)
+        {
+            double friction = PyFloat_AsDouble (tmp);
+            if (PyErr_Occurred ())
+                return -1;
+            body->fFriction = friction;
+            return 0;
+        }
+    }
+    PyErr_SetString (PyExc_TypeError, "torque must be a float");
     return -1;
 }
 
@@ -338,14 +437,6 @@ static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
 
 //===============================================================
 
-
-static PyMemberDef _pgBody_members[] = {
-	{"torque",T_DOUBLE,offsetof(pgBodyObject,fTorque),0,""},
-	{"restitution",T_DOUBLE,offsetof(pgBodyObject,fRestitution),0,""},
-	{"friction",T_DOUBLE,offsetof(pgBodyObject,fFriction),0,""},
-        {NULL, 0, 0, 0, NULL}  /* Sentinel */
-};
-
 static PyMethodDef _pgBody_methods[] = {
 	{"bind_rect_shape",_pgBody_bindRectShape,METH_VARARGS,""},
 	{"get_point_list",_pg_getPointListFromBody,METH_VARARGS,""	},
@@ -355,8 +446,14 @@ static PyMethodDef _pgBody_methods[] = {
 static PyGetSetDef _pgBody_getseters[] = {
     { "mass", (getter) _pgBody_getMass, (setter) _pgBody_setMass, "Mass",
       NULL },
-    {"rotation", (getter) _pgBody_getRotation, (setter) _pgBody_setRotation,
-     "Rotation", NULL },
+    { "rotation", (getter) _pgBody_getRotation, (setter) _pgBody_setRotation,
+      "Rotation", NULL },
+    { "torque", (getter) _pgBody_getTorque, (setter) _pgBody_setTorque,
+      "Torque", NULL },
+    { "restitution", (getter) _pgBody_getRestitution,
+      (setter) _pgBody_setRestitution, "Restitution", NULL },
+    {"friction", (getter) _pgBody_getFriction, (setter) _pgBody_setFriction,
+     "Friction", NULL },
 
     {"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
     {"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
@@ -395,7 +492,7 @@ PyTypeObject pgBodyType =
 	0,                          /* tp_iter */
 	0,                          /* tp_iternext */
 	_pgBody_methods,		   	/* tp_methods */
-	_pgBody_members,            /* tp_members */
+	0,                          /* tp_members */
 	_pgBody_getseters,          /* tp_getset */
 	0,                          /* tp_base */
 	0,                          /* tp_dict */
