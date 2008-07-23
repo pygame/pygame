@@ -130,6 +130,7 @@ def combine_results(all_results, t):
             # would this effect the original dict? TODO
             results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
             failures.append( COMPLETE_FAILURE_TEMPLATE % results )
+            all_dot += 'E'
             continue
 
         dots = DOTS.search(output).group(1)
@@ -191,6 +192,7 @@ def test_failures(results):
             result.update(RESULTS_TEMPLATE)
             result['errors'].append(make_complete_failure_error(result))
             num_errors += 1
+            total += 1
         if num_errors: errors.update({module:result})
 
     return total, errors

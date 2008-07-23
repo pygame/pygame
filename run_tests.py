@@ -25,14 +25,18 @@ import test_utils, unittest_patch
 TIME_OUT = 30
 
 # Any tests in IGNORE will not be ran
-IGNORE = (
+IGNORE = set ([
     "scrap_test",
-)
+])
 
 # Subprocess has less of a need to worry about interference between tests
-SUBPROCESS_IGNORE = (
+SUBPROCESS_IGNORE = set ([
     "scrap_test",
-)
+])
+
+INTERACTIVE = set ([
+    'cdrom_test'
+])
 
 ################################################################################
 # Set the command line options
@@ -80,14 +84,17 @@ if args:
         m.endswith('_test') and m or ('%s_test' % m) for m in args
     ]
 else:
-    if options.subprocess: ignore = SUBPROCESS_IGNORE
-    else: ignore = IGNORE
+    if options.subprocess: ignore = SUBPROCESS_IGNORE.copy()
+    else: ignore = IGNORE.copy()
+
+    # TODO: add option to run only INTERACTIVE, or include them, etc
+    ignore |= INTERACTIVE
 
     test_modules = []
     for f in sorted(os.listdir(test_subdir)):
         for match in TEST_MODULE_RE.findall(f):
-            if match in ignore: continue
-            test_modules.append(match)
+            if match not in ignore:
+                test_modules.append(match)
 
 ################################################################################
 # Single process mode
@@ -97,7 +104,7 @@ if not options.subprocess:
     unittest_patch.patch(options)
 
     t = time.time()
-    for module in test_modules:        
+    for module in test_modules:
         results.update(run_test(module, options = options))
     t = time.time() - t
 
