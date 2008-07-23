@@ -2253,8 +2253,8 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
     num_threshold_pixels = 0;
     change_return = 1;
 
-    rgba_threshold[0] = 0; rgba_threshold[1] = 0; rgba_threshold[2] = 0; rgba_threshold[4] = 255;
-    rgba_diff_color[0] = 0; rgba_diff_color[1] = 0; rgba_diff_color[2] = 0; rgba_diff_color[4] = 255;
+    rgba_threshold[0] = 0; rgba_threshold[1] = 0; rgba_threshold[2] = 0; rgba_threshold[3] = 255;
+    rgba_diff_color[0] = 0; rgba_diff_color[1] = 0; rgba_diff_color[2] = 0; rgba_diff_color[3] = 255;
 
 
     /*get all the arguments*/
