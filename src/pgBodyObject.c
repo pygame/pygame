@@ -2,6 +2,7 @@
 #include "pgWorldObject.h"
 #include "pgVector2.h"
 #include "pgShapeObject.h"
+#include "pgHelpFunctions.h"
 #include <structmember.h>
 
 extern PyTypeObject pgBodyType;
@@ -129,46 +130,69 @@ pgVector2 PG_GetLocalPointVelocity(pgBodyObject* body,pgVector2 localPoint)
 //velocity
 static PyObject* _pgBody_getVelocity(pgBodyObject* body,void* closure)
 {
-	return PyComplex_FromCComplex(body->vecLinearVelocity);
+    return Py_BuildValue ("(ff)", body->vecLinearVelocity.real,
+        body->vecLinearVelocity.imag);
 }
 
 static int _pgBody_setVelocity(pgBodyObject* body,PyObject* value,void* closure)
 {
-	if (value == NULL || (!PyComplex_Check(value))) {
-		PyErr_SetString(PyExc_TypeError, "Cannot set the velocity attribute");
-		return -1;
-	}
-	else
-	{
-		body->vecLinearVelocity = PyComplex_AsCComplex(value);
-		return 0;
-	}
+    PyObject *item;
+    double real, imag;
+
+    if (!PySequence_Check(value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_TypeError, "velocity must be a x, y sequence");
+        return -1;
+    }
+
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &real))
+        return -1;
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &imag))
+        return -1;
+    
+    body->vecLinearVelocity.real = real;
+    body->vecLinearVelocity.imag = imag;
+    return 0;
 }
 
 //position
 static PyObject* _pgBody_getPosition(pgBodyObject* body,void* closure)
 {
-	return PyComplex_FromCComplex(body->vecPosition);
+    return Py_BuildValue ("(ff)", body->vecPosition.real,
+        body->vecPosition.imag);
 }
 
 static int _pgBody_setPosition(pgBodyObject* body,PyObject* value,void* closure)
 {
-	if (value == NULL || (!PyComplex_Check(value))) {
-		PyErr_SetString(PyExc_TypeError, "Cannot set the position attribute");
-		return -1;
-	}
-	else
-	{
-		body->vecPosition = PyComplex_AsCComplex(value);
-		return 0;
-	}
+    PyObject *item;
+    double real, imag;
+
+    if (!PySequence_Check(value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_TypeError, "position must be a x, y sequence");
+        return -1;
+    }
+
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &real))
+        return -1;
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &imag))
+        return -1;
+    
+    body->vecPosition.real = real;
+    body->vecPosition.imag = imag;
+    return 0;
 }
 
 //force
 static PyObject* _pgBody_getForce(pgBodyObject* body,void* closure)
 {
-	return PyComplex_FromCComplex(body->vecForce);
+    return PyComplex_FromCComplex (body->vecForce);
 }
+
 
 static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
 {
@@ -181,6 +205,72 @@ static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
 		body->vecForce = PyComplex_AsCComplex(value);
 		return 0;
 	}
+}
+
+/**
+ * Getter for retrieving the mass of the passed body.
+ */
+static PyObject* _pgBody_getMass (pgBodyObject* body,void* closure)
+{
+    return PyFloat_FromDouble (body->fMass);
+}
+
+/**
+ * Sets the mass of the passed body.
+ */
+static int _pgBody_setMass(pgBodyObject* body,PyObject* value,void* closure)
+{
+    if (PyNumber_Check (value))
+    {
+        PyObject *tmp = PyNumber_Float (value);
+
+        if (tmp)
+        {
+            double mass = PyFloat_AsDouble (tmp);
+            if (PyErr_Occurred ())
+                return -1;
+            if (mass < 0)
+            {
+                PyErr_SetString(PyExc_ValueError, "mass must not be negative");
+                return -1;
+            }
+            body->fMass = mass;
+            return 0;
+        }
+    }
+    PyErr_SetString (PyExc_TypeError, "mass must be a float");
+    return -1;
+}
+
+
+/**
+ * Getter for retrieving the rotation of the passed body.
+ */
+static PyObject* _pgBody_getRotation (pgBodyObject* body,void* closure)
+{
+    return PyFloat_FromDouble (body->fRotation);
+}
+
+/**
+ * Sets the rotation of the passed body.
+ */
+static int _pgBody_setRotation(pgBodyObject* body,PyObject* value,void* closure)
+{
+    if (PyNumber_Check (value))
+    {
+        PyObject *tmp = PyNumber_Float (value);
+
+        if (tmp)
+        {
+            double rotation = PyFloat_AsDouble (tmp);
+            if (PyErr_Occurred ())
+                return -1;
+            body->fRotation = rotation;
+            return 0;
+        }
+    }
+    PyErr_SetString (PyExc_TypeError, "rotation must be a float");
+    return -1;
 }
 
 static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
@@ -250,8 +340,6 @@ static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
 
 
 static PyMemberDef _pgBody_members[] = {
-	{"mass", T_DOUBLE, offsetof(pgBodyObject,fMass), 0,"Mass"},
-	{"rotation", T_DOUBLE, offsetof(pgBodyObject,fRotation), 0,"Rotation"},
 	{"torque",T_DOUBLE,offsetof(pgBodyObject,fTorque),0,""},
 	{"restitution",T_DOUBLE,offsetof(pgBodyObject,fRestitution),0,""},
 	{"friction",T_DOUBLE,offsetof(pgBodyObject,fFriction),0,""},
@@ -265,10 +353,15 @@ static PyMethodDef _pgBody_methods[] = {
 };
 
 static PyGetSetDef _pgBody_getseters[] = {
-	{"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
-	{"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
-	{"force",(getter)_pgBody_getForce,(setter)_pgBody_setForce,"force",NULL},
-	{ NULL, NULL, NULL, NULL, NULL}
+    { "mass", (getter) _pgBody_getMass, (setter) _pgBody_setMass, "Mass",
+      NULL },
+    {"rotation", (getter) _pgBody_getRotation, (setter) _pgBody_setRotation,
+     "Rotation", NULL },
+
+    {"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
+    {"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
+    {"force",(getter)_pgBody_getForce,(setter)_pgBody_setForce,"force",NULL},
+    { NULL, NULL, NULL, NULL, NULL}
 };
 
 PyTypeObject pgBodyType =

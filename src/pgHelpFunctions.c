@@ -78,7 +78,30 @@
 ////	}
 ////}
 //
+
+int
+DoubleFromObj (PyObject* obj, double* val)
+{
+    PyObject* floatobj;
+    
+    if (PyNumber_Check (obj))
+    {
+        if (!(floatobj = PyNumber_Float (obj)))
+            return 0;
+        *val = PyFloat_AsDouble (floatobj);
+        Py_DECREF (floatobj);
+
+        if (PyErr_Occurred ())
+            return 0;
+        return 1;
+    }
+    return 0;
+}
+
+
 PyMethodDef pgHelpMethods[] = {
 	//{"get_point_list",_pg_getPointListFromBody,METH_VARARGS,""	},
 	{NULL, NULL, 0, NULL} 
 };
+
+
