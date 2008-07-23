@@ -4,6 +4,14 @@ import test_utils
 import test.unittest as unittest
 from test_utils import test_not_implemented
 
+import pygame
+
+def question(q):
+    return raw_input('%s ' % q).lower().strip() == 'y'
+
+def prompt(p):
+    return raw_input('%s (and press enter to continue)' % p)
+
 ################################################################################
 
 class CdromModuleTest(unittest.TestCase):
@@ -14,7 +22,7 @@ class CdromModuleTest(unittest.TestCase):
           # pygame.cdrom.CD(id): return CD
           # class to manage a cdrom drive
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_get_count(self):
 
@@ -23,7 +31,7 @@ class CdromModuleTest(unittest.TestCase):
           # pygame.cdrom.get_count(): return count
           # number of cd drives on the system
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_get_init(self):
 
@@ -53,14 +61,36 @@ class CdromModuleTest(unittest.TestCase):
         self.assert_(test_not_implemented()) 
 
 class CDTypeTest(unittest.TestCase):
-    def test_eject(self):
+    '|Tags:interactive|'
+
+    def setUp(self):
+        pygame.cdrom.init()
+
+        try:
+            self.cd = pygame.cdrom.CD(0)
+        except pygame.error:
+            self.cd = None
+
+    def tearDown(self):
+        pygame.cdrom.quit()
+
+    def test_1_eject(self):
 
         # __doc__ (as of 2008-07-02) for pygame.cdrom.CD.eject:
 
           # CD.eject(): return None
           # eject or open the cdrom drive
+        
+        # should raise if cd object not initialized
+        if self.cd:
+            self.cd.init()
+            self.cd.eject()
 
-        self.assert_(test_not_implemented()) 
+            self.assert_(question('Did the cd eject?'))
+    
+            prompt("Please close the cd drive")
+
+        # self.assert_(test_not_implemented())
 
     def test_get_all(self):
 
@@ -68,7 +98,9 @@ class CDTypeTest(unittest.TestCase):
 
           # CD.get_all(): return [(audio, start, end, lenth), ...]
           # get all track information
-
+        
+        # self.cd.init()
+        
         self.assert_(test_not_implemented()) 
 
     def test_get_busy(self):
@@ -114,16 +146,21 @@ class CDTypeTest(unittest.TestCase):
           # CD.get_init(): return bool
           # true if this cd device initialized
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
-    def test_get_name(self):
+    def test_2_get_name(self):
 
         # __doc__ (as of 2008-07-02) for pygame.cdrom.CD.get_name:
 
           # CD.get_name(): return name
           # the system name of the cdrom drive
 
-        self.assert_(test_not_implemented()) 
+        if self.cd:
+            cd_name = self.cd.get_name()
+    
+            self.assert_ (
+                question('Is %s the correct name for the cd drive?' % cd_name)
+            )
 
     def test_get_numtracks(self):
 
@@ -198,7 +235,6 @@ class CDTypeTest(unittest.TestCase):
         self.assert_(test_not_implemented()) 
 
     def test_quit(self):
-
         # __doc__ (as of 2008-07-02) for pygame.cdrom.CD.quit:
 
           # CD.quit(): return None
@@ -207,7 +243,6 @@ class CDTypeTest(unittest.TestCase):
         self.assert_(test_not_implemented()) 
 
     def test_resume(self):
-
         # __doc__ (as of 2008-07-02) for pygame.cdrom.CD.resume:
 
           # CD.resume(): return None
@@ -216,7 +251,6 @@ class CDTypeTest(unittest.TestCase):
         self.assert_(test_not_implemented()) 
 
     def test_stop(self):
-
         # __doc__ (as of 2008-07-02) for pygame.cdrom.CD.stop:
 
           # CD.stop(): return None
