@@ -6,7 +6,10 @@ import test.unittest as unittest
 import sys, os, re, subprocess, time, optparse
 import pygame.threads, pygame
 
-from test_runner import *
+from test_runner import prepare_test_env, run_test, combine_results, \
+                        test_failures, get_test_results, from_namespace, \
+                        TEST_RESULTS_START
+
 from pprint import pformat
 
 main_dir, test_subdir, fake_test_subdir = prepare_test_env()
@@ -84,11 +87,11 @@ if args:
         m.endswith('_test') and m or ('%s_test' % m) for m in args
     ]
 else:
-    if options.subprocess: ignore = SUBPROCESS_IGNORE.copy()
-    else: ignore = IGNORE.copy()
+    if options.subprocess: ignore = SUBPROCESS_IGNORE
+    else: ignore = IGNORE
 
     # TODO: add option to run only INTERACTIVE, or include them, etc
-    ignore |= INTERACTIVE
+    ignore = ignore | INTERACTIVE
 
     test_modules = []
     for f in sorted(os.listdir(test_subdir)):

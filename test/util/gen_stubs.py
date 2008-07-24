@@ -3,7 +3,6 @@
 from __future__ import with_statement
 from optparse import OptionParser
 from inspect import isclass, ismodule, getdoc, isgetsetdescriptor, getmembers
-from unittest import TestCase
 
 import pygame, sys, datetime, re, types
 import relative_indentation
@@ -12,7 +11,10 @@ import relative_indentation
 
 from os.path import normpath, join, dirname, abspath
 
-sys.path.append( abspath(normpath( join(dirname(__file__), '../') )) )
+for relpath in ('../../','../'):
+    sys.path.insert(0, abspath(normpath( join(dirname(__file__), relpath) )) )
+
+from test.unittest import TestCase
 
 #################################### IGNORES ###################################
 
@@ -36,6 +38,8 @@ IGNORES = set([
     pygame.sprite.GroupSingle,
     pygame.sprite.RenderUpdates,
     pygame.sprite.Group,
+    
+    pygame.image.tostring,
 ])
 
 # pygame.sprite.Sprite.__module__ = 'pygame.sprite' 
@@ -56,12 +60,11 @@ REAL_HOMES = {
 }
 
 MUST_INSTANTIATE = {
-    
     # BaseType / Helper               # (Instantiator / Args) / Callable
 
-    pygame.cdrom.CDType            :  (pygame.cdrom.CD, (0,)),
+    pygame.cdrom.CDType            :  (pygame.cdrom.CD,      (0,)),
     pygame.mixer.ChannelType       :  (pygame.mixer.Channel, (0,)),
-    pygame.time.Clock              :  (pygame.time.Clock, ()),
+    pygame.time.Clock              :  (pygame.time.Clock,    ()),
 
     # pygame.event.Event         :  None,
     # pygame.joystick.Joystick   :  None,
@@ -160,9 +163,6 @@ def is_public(obj_name):
     except TypeError: obj_name = obj_name.__name__
     return not obj_name.startswith(('__','_'))
 
-def is_test(f):
-    return f.__name__.startswith('test_')
-
 def get_callables(obj, if_of = None, check_where_defined=False):
     publics = (getattr(obj, x) for x in dir(obj) if is_public(x))
     callables = (x for x in publics if callable(x) or isgetsetdescriptor(x))
@@ -170,7 +170,7 @@ def get_callables(obj, if_of = None, check_where_defined=False):
     if check_where_defined:
         callables = (c for c in callables if ( 'pygame' in c.__module__ or
                     ('__builtin__' == c.__module__ and isclass(c)) )
-                    and REAL_HOMES.get(c, 0) in (0, obj))
+                    and REAL_HOMES.get(c, 0) in (obj, 0))
 
     if if_of:
         callables = (x for x in callables if if_of(x)) # isclass, ismethod etc
@@ -180,7 +180,7 @@ def get_callables(obj, if_of = None, check_where_defined=False):
 def get_class_from_test_case(TC):
     TC = TC.__name__
     if 'Type' in TC:
-        return '.' + TC[:TC.index('Type')]
+        return '.' + TC[:TC.rindex('Type')]
 
 def names_of(*args):
     return tuple(map(lambda o: getattr(o, "__name__", str(o)), args))
@@ -192,7 +192,7 @@ def callable_name(*args):
 ################################################################################
 
 def test_stub(f, module, parent_class = None):
-    test_name = 'test_%s' % f.__name__
+    test_name = 'todo_test_%s' % f.__name__
     unit_name = callable_name(module, parent_class, f)
 
     stub = STUB_TEMPLATE.render (
@@ -238,6 +238,19 @@ def package_stubs(package):
 
 ################################################################################
 
+TEST_NAME_RE = re.compile(r"test[_\d]+(.*)")
+
+def is_test(f):
+    return f.__name__.startswith(('test_', 'todo_'))
+
+def get_tested_from_testname(test):
+    tn = test.__name__
+    separated = tn.rfind('__')
+    if separated != -1: tn = tn[:separated]
+    return TEST_NAME_RE.search(tn).group(1)
+
+################################################################################
+
 def already_tested_in_module(module):
     already = []
 
@@ -255,7 +268,7 @@ def already_tested_in_module(module):
         class_tested = get_class_from_test_case(class_) or ''
 
         for test in get_callables(class_, is_test):
-            fname = test.__name__[5:].split('__')[0]
+            fname = get_tested_from_testname(test)
             already.append("%s%s.%s" % (mod_name, class_tested, fname))
 
     return already
