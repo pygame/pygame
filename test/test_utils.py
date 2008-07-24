@@ -2,8 +2,6 @@
 
 import tempfile, sys, pygame, time, os
 
-# from test import pystone
-
 ################################################################################
 
 trunk_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
@@ -16,6 +14,10 @@ sys.path.insert(0, trunk_relative_path('.'))
 import test.unittest as unittest
 
 ############################### INCOMPLETE TESTS ###############################
+# TODO: PHASE THIS OUT
+# Just prefix TODO test names with todo_. 
+# eg def todo_test_sanity__is_overrated(self): self.fail()
+# Change test loader to load test_ and todo_ TestCase callables as tests
 
 fail_incomplete_tests = 0
 
@@ -27,43 +29,13 @@ def test_not_implemented():
 def get_tmp_dir():
     return tempfile.mkdtemp()
 
-
 ################################################################################
 
-# TOLERANCE in Pystones
-# kPS = 1000
-# TOLERANCE = 0.5*kPS 
+def question(q):
+    return raw_input('%s ' % q.rstrip(' ')).lower().strip() == 'y'
 
-# class DurationError(AssertionError): pass
-
-# def local_pystone():
-#     return pystone.pystones(loops=pystone.LOOPS)
-
-# def timedtest(max_num_pystones, current_pystone=local_pystone()):
-#     """ decorator timedtest """
-#     if not isinstance(max_num_pystones, float):
-#         max_num_pystones = float(max_num_pystones)
-
-#     def _timedtest(function):
-#         def wrapper(*args, **kw):
-#             start_time = time.time()
-#             try:
-#                 return function(*args, **kw)
-#             finally:
-#                 total_time = time.time() - start_time
-#                 if total_time == 0:
-#                     pystone_total_time = 0
-#                 else:
-#                     pystone_rate = current_pystone[0] / current_pystone[1]
-#                     pystone_total_time = total_time / pystone_rate
-#                 if pystone_total_time > (max_num_pystones + TOLERANCE):
-#                     raise DurationError((('Test too long (%.2f Ps, '
-#                                         'need at most %.2f Ps)')
-#                                         % (pystone_total_time,
-#                                             max_num_pystones)))
-#         return wrapper
-
-#     return _timedtest
+def prompt(p):
+    return raw_input('%s (and press enter to continue) ' % p.rstrip(' '))
 
 #################################### HELPERS ###################################
 
@@ -164,7 +136,7 @@ def rect_outer_bounds(rect):
     """
     return (
          (rect.left is not 0 and [(rect.left-1, rect.top)] or []) +
-        [ rect.topright,                                          
+        [ rect.topright,
           rect.bottomleft,                                             
           rect.bottomright]  
     ) 

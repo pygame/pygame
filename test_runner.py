@@ -1,7 +1,5 @@
 ################################################################################
 
-#TODO: clean up imports
-
 import test.unittest as unittest
 
 import sys, os, re, StringIO, time, optparse
@@ -49,7 +47,7 @@ opt_parser.add_option (
               "Run test T times, giving average time")
 
 opt_parser.add_option (
-     "-e",  "--exclude",
+     "-e",  "--exclude", default = '',
      help   = "exclude tests containing any of TAGS" )
 
 opt_parser.add_option (
@@ -130,7 +128,7 @@ def combine_results(all_results, t):
             # would this effect the original dict? TODO
             results['raw_return'] = ''.join(raw_return.splitlines(1)[:5])
             failures.append( COMPLETE_FAILURE_TEMPLATE % results )
-            all_dot += 'E'
+            all_dots += 'E'
             continue
 
         dots = DOTS.search(output).group(1)
@@ -237,7 +235,7 @@ def run_test(module, options):
 
     test = unittest.defaultTestLoader.loadTestsFromName(module)
     suite.addTest(test)
-        
+
     output = StringIO.StringIO()
     runner = unittest.TextTestRunner(stream = output)
     

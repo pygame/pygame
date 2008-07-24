@@ -34,11 +34,15 @@ def TestCase_run(self, result=None):
     
     ########################################################################
     # Pre run:
-        
+
+        #TODO: only redirect output if not tagged interactive
+
         result.tests[self.dot_syntax_name()] = {}
         tests = result.tests[self.dot_syntax_name()]
         (realerr, realout), (stderr, stdout) =  redirect_output()
-        # restore_output(realerr, realout)      # DEBUG
+
+        if 0 or 'interactive' in get_tags(testMethod):       # DEBUG
+            restore_output(realerr, realout)
 
         t = time.time()
 
@@ -83,7 +87,7 @@ def TestCase_run(self, result=None):
         t = (time.time() -t) / self.times_run
         
         restore_output(realerr, realout)
-        
+
         tests["time"]   = t
         tests["stdout"] = StringIOContents(stdout)
         tests["stderr"] = StringIOContents(stderr)
@@ -104,8 +108,7 @@ def TestResult___init__(self):
     self.testsRun   = 0
     self.shouldStop = 0
 
-
-# TODO: all this is available in the traceback object
+# TODO: all this is available in the traceback object err
 FILE_LINENUMBER_RE = re.compile(r'File "([^"]+)", line ([0-9]+)')
 
 def errorHandling(key):
@@ -144,24 +147,73 @@ def printErrorList(self, flavour, errors):
 # Exclude by tags
 #
 
-TAGS_RE = re.compile(r"\|[tT]ags:([ a-zA-Z,0-9_\n]+)\|", re.M)
+TAGS_RE = re.compile(r"\|[tT]ags:(-?[ a-zA-Z,0-9_\n]+)\|", re.M)
 
-def get_tags(obj):
-    tags = TAGS_RE.search(getdoc(obj) or '')
-    return tags and [t.strip() for t in tags.group(1).split(',')] or []
+class TestTags:
+    def __init__(self):
+        self.memoized = {}
+        self.parent_modules = {}
+
+    def get_parent_module(self, class_):
+        while class_ not in self.parent_modules:
+            self.parent_modules[class_] = __import__(class_.__module__)
+        return self.parent_modules[class_]
+
+    def __call__(self, obj):
+        while obj not in self.memoized:
+            parent_class  = obj.im_class
+            parent_module = self.get_parent_module(parent_class)
+
+            module_tags = getattr(parent_module, '__tags__', [])
+            class_tags  = getattr(parent_class,  '__tags__', [])
+
+            tags = TAGS_RE.search(getdoc(obj) or '')
+            if tags: test_tags = [t.strip() for t in tags.group(1).split(',')]
+            else:    test_tags = []
+        
+            combined = set()
+            for tags in (module_tags, class_tags, test_tags):
+                if not tags: continue
+        
+                add    = set(t for t in tags if not t.startswith('-'))
+                remove = set(t[1:] for t in tags if t not in add)
+        
+                if add:     combined.update(add)
+                if remove:  combined.difference_update(remove)
+    
+            self.memoized[obj] = combined
+
+        return self.memoized[obj]
+
+get_tags = TestTags()
+
+################################################################################
 
 def getTestCaseNames(self, testCaseClass):
-    def test_wanted(attrname, testCaseClass=testCaseClass, 
-                                    prefix=self.testMethodPrefix):
-                                    #TODO: ('test_','todo_')
+    def test_wanted(attrname, testCaseClass=testCaseClass,
+                              prefix=self.testMethodPrefix):
+        if not attrname.startswith(prefix): return False
+        else:
+            actual_attr = getattr(testCaseClass, attrname)
+            return (
+                 callable(actual_attr) and
+                 not [t for t in  get_tags(actual_attr) if t in self.exclude]
+            )
 
-        actual_attr = getattr(testCaseClass, attrname)
-        filtered = bool([t for t in get_tags(actual_attr) if t in self.exclude])
-        return ( attrname.startswith(prefix) and callable(actual_attr)
-                 and not filtered )
+    # TODO:
 
-    testFnNames = filter(test_wanted, dir(testCaseClass))
+    # Replace test_not_implemented mechanism with technique that names the tests
+    # todo_test_xxxxxx, then when wanting to fail them, loads any members that
+    # startswith(test_prefix)
     
+    # REGEX FOR TEST_NOT_IMPLEMENTED
+    # SEARCH:
+    #    def (test_[^ ]+)((?:\s+#.*\n?)+\s+)self\.assert_\(test_not_implemented\(\)\)
+    # REPLACE:
+    #    def todo_\1\2self.fail()
+    
+    testFnNames = filter(test_wanted, dir(testCaseClass))
+
     for baseclass in testCaseClass.__bases__:
         for testFnName in self.getTestCaseNames(baseclass):
             if testFnName not in testFnNames:  # handle overridden methods
@@ -176,15 +228,13 @@ def getTestCaseNames(self, testCaseClass):
 
 def patch(options):
     if options.incomplete:
-        unittest.TestLoader.testMethodPrefix = tuple (
-            list(self.testMethodPrefix) + ['todo_']
+        unittest.TestLoader.testMethodPrefix = (
+            unittest.TestLoader.testMethodPrefix, 'todo_'
         )
-    
-    # Tag exclusion
-    if options.exclude:
-        unittest.TestLoader.getTestCaseNames = getTestCaseNames
-        unittest.TestLoader.exclude = (
-            [e.strip() for e in options.exclude.split(',')] )
+
+    unittest.TestLoader.getTestCaseNames = getTestCaseNames
+    unittest.TestLoader.exclude = (
+        [e.strip() for e in options.exclude.split(',')] )
 
     # Timing
     unittest.TestCase.times_run = options.timings
