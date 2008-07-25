@@ -115,20 +115,47 @@ void _PG_BodyPositionUpdate(pgWorldObject* world,double stepTime)
 	for (i = 0; i < size; ++i)
 	{
 		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem(world->bodyList,i));
-		PG_FreeUpdateBodyPos(world,body,stepTime);	
+		PG_FreeUpdateBodyPos(body,stepTime);	
 	}
 }
 
 
+//void PG_Update(pgWorldObject* world,double stepTime)
+//{
+//	int i;
+//
+//	_PG_FreeBodySimulation(world, stepTime);
+//	_PG_BodyCollisionDetection(world, stepTime);
+//	for(i = 0; i < MAX_ITERATION; ++i)
+//		_PG_JointSolve(world, stepTime);
+//	_PG_BodyPositionUpdate(world, stepTime);
+//}
+
+void _PG_BodyPositionCorrection(pgWorldObject* world,double stepTime)
+{
+	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
+	Py_ssize_t i;
+	for (i = 0; i < size; ++i)
+	{
+		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));
+		PG_CorrectBodyPos(body,stepTime);	
+	}
+}
+
 void PG_Update(pgWorldObject* world,double stepTime)
 {
 	int i;
-
 	_PG_FreeBodySimulation(world, stepTime);
-	_PG_BodyCollisionDetection(world, stepTime);
-	for(i = 0; i < MAX_ITERATION; ++i)
-		_PG_JointSolve(world, stepTime);
 	_PG_BodyPositionUpdate(world, stepTime);
+	for(i = 0; i < MAX_ITERATION; ++i)
+	{
+		_PG_BodyCollisionDetection(world, stepTime);
+		_PG_BodyPositionCorrection(world,stepTime);
+		_PG_JointSolve(world, stepTime);
+		
+	}
+	//_PG_BodyPositionUpdate(world, stepTime);
+	
 }
 
 
@@ -161,7 +188,7 @@ void PG_WorldInit(pgWorldObject* world)
 	world->contactList = PyList_New(0);
 	world->fDamping = 0.0;
 	world->fStepTime = 0.1;
-	PG_Set_Vector2(world->vecGravity,0.0,-50);
+	PG_Set_Vector2(world->vecGravity,0.0,-10);
 	world->fTotalTime = 0.0;
 
 }

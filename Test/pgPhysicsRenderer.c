@@ -63,7 +63,7 @@ void PGT_RenderBody(pgBodyObject* body)
 	glBegin(GL_LINE_LOOP);
 	glVertex2d(gp[0].real, gp[0].imag);
 	glVertex2d(gp[1].real, gp[1].imag);
-	glVertex2d(gp[2].real, gp[2].imag);
+	glVertex2d(gp[2].real, gp[2].imag);                                  
 	glVertex2d(gp[3].real, gp[3].imag);
 	glVertex2d(gp[0].real, gp[0].imag);
 	glEnd();
@@ -83,13 +83,14 @@ void PGT_RenderJoint(pgJointObject* joint)
 	{
 		pgVector2 pos = PG_GetGlobalPos(joint->body1,&pj->anchor1);
 		glVertex2d(pos.real,pos.imag);
-		//glVertex2d(joint->body1->vecPosition.real,joint->body1->vecPosition.imag);
 		glVertex2d(pj->anchor2.real,pj->anchor2.imag);
 	}
 	else if(joint->body1 && joint->body2)
 	{
-		glVertex2d(joint->body1->vecPosition.real,joint->body1->vecPosition.imag);
-		glVertex2d(joint->body2->vecPosition.real,joint->body2->vecPosition.imag);
+		pgVector2 pos1 = PG_GetGlobalPos(joint->body1,&pj->anchor1);
+		pgVector2 pos2 = PG_GetGlobalPos(joint->body2,&pj->anchor2);
+		glVertex2d(pos1.real,pos1.imag);
+		glVertex2d(pos2.real,pos2.imag);
 	}
 	
 	glEnd();

@@ -36,7 +36,8 @@ pgBodyObject* PG_BodyNew();
 void	PG_BodyDestroy(pgBodyObject* body);
 
 void PG_FreeUpdateBodyVel(pgWorldObject* world, pgBodyObject* body, double dt);
-void PG_FreeUpdateBodyPos(pgWorldObject* world, pgBodyObject* body, double dt);
+void PG_FreeUpdateBodyPos(pgBodyObject* body, double dt);
+void PG_CorrectBodyPos(pgBodyObject* body, double dt);
 
 //transform point local_p's position from body's local coordinate to the world's global one.
 //TODO: is the local coordinate necessary? anyway let it alone right now.

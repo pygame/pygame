@@ -20,7 +20,7 @@ pgBodyObject* body, * body1;
 void do_render()
 {
 	glColor3f(1.f, 1.f, 1.f);
-	PG_Update(s_world, 0.002);
+	PG_Update(s_world, 0.02);
 	PGT_RenderWorld(s_world);
 	//glprintf(0, 0, "Velocity of body: (%.2f, %.2f)", body->vecLinearVelocity.real, 
 	//	body->vecLinearVelocity.imag);
@@ -183,6 +183,7 @@ void TestBasic4Init()
 
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
+	PG_Set_Vector2(s_world->vecGravity,0,-100)
 
 	body[0] = NULL;
 	for (i = 1;i < BODY_NUM + 1;i++)
@@ -190,7 +191,7 @@ void TestBasic4Init()
 		body[i] = PG_BodyNew();
 		PG_Bind_RectShape(body[i], 20, 20, 0);
 		PG_Set_Vector2(body[i]->vecPosition,0,(-i*60 + 100))
-		PG_Set_Vector2(body[i]->vecLinearVelocity,50,0)
+		//PG_Set_Vector2(body[i]->vecLinearVelocity,20,0)
 		PG_AddBodyToWorld(s_world,body[i]);
 	}
 
@@ -200,14 +201,14 @@ void TestBasic4Init()
 	PG_Bind_RectShape(body1, 20, 300, 0);
 	PG_AddBodyToWorld(s_world, body1);*/
 
-	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,100,0)
+	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,40,0)
 
 	i = 0;
 	joint[i] = PG_DistanceJointNew(body[i+1],body[i],0,50,a1,a2);
 	PG_AddJointToWorld(s_world,joint[i]);
 	for (i = 1;i < BODY_NUM;i++)
 	{
-		joint[i] = PG_DistanceJointNew(body[i],body[i+1],0,50,a1,a2);
+		joint[i] = PG_DistanceJointNew(body[i],body[i+1],0,50,a1,a1);
 		PG_AddJointToWorld(s_world,joint[i]);
 	}
 #undef BODY_NUM
@@ -222,26 +223,28 @@ void TestBasic5Init()
 	pgBodyObject* body[BODY_NUM + 1];
 	pgJointObject* joint[BODY_NUM];
 	pgVector2 a1,a2;
-	PG_Set_Vector2(a1,0,0);
+	PG_Set_Vector2(a1,5,0);
 	PG_Set_Vector2(a2,0,0);
 
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
+	PG_Set_Vector2(s_world->vecGravity,0,0)
+
 
 	body[0] = NULL;
 	for (i = 1;i < BODY_NUM + 1;i++)
 	{
 		body[i] = PG_BodyNew();
 		PG_Bind_RectShape(body[i], 20, 20, 0);
-		PG_Set_Vector2(body[i]->vecPosition,0,(-i*50))
-			PG_Set_Vector2(body[i]->vecLinearVelocity,50,0)
+		PG_Set_Vector2(body[i]->vecPosition,10,(-i*50))
+			//PG_Set_Vector2(body[i]->vecLinearVelocity,50,0)
 			PG_AddBodyToWorld(s_world,body[i]);
 	}
 
 
-	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,30,0)
+	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,20,60)
 
-		i = 0;
+	i = 0;
 	joint[i] = PG_DistanceJointNew(body[i+1],body[i],0,50,a1,a2);
 	PG_AddJointToWorld(s_world,joint[i]);
 	for (i = 1;i < BODY_NUM;i++)
@@ -251,6 +254,34 @@ void TestBasic5Init()
 	}
 
 	#undef BODY_NUM
+}
+
+void TestBasic6Init()
+{
+	pgBodyObject* body[2];
+	pgJointObject* joint;
+	pgVector2 a1,a2;
+	PG_Set_Vector2(a1,10,0);
+	PG_Set_Vector2(a2,10,0);
+	s_world = PG_WorldNew();
+	s_world->fStepTime = 0.03;
+	PG_Set_Vector2(s_world->vecGravity,0,0)
+
+	body[0] = PG_BodyNew();
+	PG_Bind_RectShape(body[0], 20, 20, 0);
+	PG_Set_Vector2(body[0]->vecPosition,-50,0)
+	PG_AddBodyToWorld(s_world,body[0]);
+
+	body[1] = PG_BodyNew();
+	PG_Bind_RectShape(body[1], 20, 20, 0);
+	PG_Set_Vector2(body[1]->vecPosition,50,0)
+	PG_AddBodyToWorld(s_world,body[1]);
+
+	PG_Set_Vector2(body[0]->vecLinearVelocity,0,100)
+	PG_Set_Vector2(body[1]->vecLinearVelocity,0,0)
+
+	joint = PG_DistanceJointNew(body[0],body[1],0,100,a1,a2);
+	PG_AddJointToWorld(s_world,joint);
 }
 
 //===============================================

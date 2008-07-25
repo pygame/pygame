@@ -30,19 +30,51 @@ void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 	
 }
 
-void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
-{
-	pgVector2 v;
-	double w;
+//void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
+//{
+//	pgVector2 v;
+//	double w;
+//
+//	if(body->bStatic) return;
+//	
+//	v = c_sum(body->vecLinearVelocity, body->cBiasLV);
+//	w = body->fAngleVelocity + body->cBiasW;
+//	body->vecPosition = c_sum(body->vecPosition, 
+//		c_mul_complex_with_real(v, dt));
+//	body->fRotation += w*dt;
+//}
 
+void PG_FreeUpdateBodyPos(pgBodyObject* body,double dt)
+{
 	if(body->bStatic) return;
-	
-	v = c_sum(body->vecLinearVelocity, body->cBiasLV);
-	w = body->fAngleVelocity + body->cBiasW;
+
 	body->vecPosition = c_sum(body->vecPosition, 
-		c_mul_complex_with_real(v, dt));
-	body->fRotation += w*dt;
+		c_mul_complex_with_real(body->vecLinearVelocity, dt));
+	body->fRotation += body->fAngleVelocity*dt;
 }
+
+void PG_CorrectBodyPos(pgBodyObject* body, double dt)
+{
+	if(body->bStatic) return;
+
+	body->vecPosition = c_sum(body->vecPosition, 
+		c_mul_complex_with_real(body->cBiasLV, dt));
+	body->fRotation += body->cBiasW*dt;
+}
+
+//void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
+//{
+//	pgVector2 v;
+//	double w;
+//
+//	if(body->bStatic) return;
+//
+//	v = c_sum(body->vecLinearVelocity, body->cBiasLV);
+//	w = body->fAngleVelocity + body->cBiasW;
+//	body->vecPosition = c_sum(body->vecPosition, 
+//		c_mul_complex_with_real(v, dt));
+//	body->fRotation += w*dt;
+//}
 
 void PG_BodyInit(pgBodyObject* body)
 {

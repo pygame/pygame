@@ -230,7 +230,7 @@ void PG_SolveDistanceJointPosition(pgJointObject* joint,double stepTime)
 	}
 }
 
-void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnchor,pgVector2* localAnchor,double stepTime)
+void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnchor,pgVector2* localAnchor,double distance,double stepTime)
 {
 	/*double a,b,c,d,e,f,k;
 	pgVector2 localP = PG_GetGlobalPos(body,localAnchor);
@@ -261,18 +261,19 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 	dAngleV /= k;
 	body->fRotation += dAngleV;*/
 
-	double a,b,k,temp,lengthP; //for solve equation
+	double a,b,bb,k,temp,lengthP; //for solve equation
 	pgVector2 localP = PG_GetGlobalPos(body,localAnchor);
-	pgVector2 L = c_diff(localP,*staticAnchor);
+	pgVector2 L = c_diff(*staticAnchor,localP);
 	pgVector2 vP = PG_GetLocalPointVelocity(body,*localAnchor);
 	pgVector2 vPL = c_project(L,vP);
 	pgVector2 dvBody;
 	double dAngleV;
-	vPL = c_neg(vPL);
+	//vPL = c_neg(vPL);
 
 	localP = c_diff(localP,body->vecPosition);
 	k = body->shape->rInertia / body->fMass;
-
+	k += c_get_length_square(localP);
+	bb = (distance - c_get_length(L));
 	c_normalize(&L);
 	temp = c_cross(localP,L);
 	a = 1 + c_dot(c_fcross(temp,localP),L) / k;
@@ -286,7 +287,8 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 		a = (1 + temp * temp / (k * lengthP));
 	}*/
 	
-	b = c_dot(vPL,L);
+	b = -c_dot(vPL,L);
+	
 
 	temp = b /a;
 	dvBody = c_mul_complex_with_real(L,temp);
@@ -296,13 +298,27 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 	dAngleV /= k;
 	body->fAngleVelocity += dAngleV;
 
+
+	//for position correction
+	
+	temp = -bb /a;
+	dvBody = c_mul_complex_with_real(L,temp);
+	dAngleV = c_cross(localP,dvBody);
+	dAngleV /= k;
+	body->vecPosition = c_sum(body->vecPosition,dvBody);
+	body->fRotation += dAngleV;
+
+	/*temp = c_get_length(c_diff(*staticAnchor,PG_GetGlobalPos(body,localAnchor)));
+	temp -= distance; 
+	printf("%f\n",temp);*/
+
 	return;
 }
 
 void _PG_DistanceJoint_ComputeTwoDynamic(pgDistanceJointObject* joint,double stepTime)
 {
 	pgBodyObject *body1 = joint->joint.body1,*body2 = joint->joint.body2;
-	double a1,a2,b1,b2,k1,k2,temp,temp1,temp2,lengthP1,lengthP2; //for solve equation
+	double a1,a2,b1,b2,bb,k1,k2,temp,temp1,temp2,lengthP1,lengthP2; //for solve equation
 	pgVector2 localP1 = PG_GetGlobalPos(body1,&joint->anchor1);
 	pgVector2 localP2 = PG_GetGlobalPos(body2,&joint->anchor2);
 	pgVector2 L = c_diff(localP1,localP2);
@@ -314,36 +330,22 @@ void _PG_DistanceJoint_ComputeTwoDynamic(pgDistanceJointObject* joint,double ste
 	double dAngleV1,dAngleV2;
 	k1 = body1->shape->rInertia / body1->fMass;
 	k2 = body2->shape->rInertia / body2->fMass;
+	
 
 	localP1 = c_diff(localP1,body1->vecPosition);
 	localP2 = c_diff(localP2,body2->vecPosition);
+	k1 += c_get_length_square(localP1);
+	k2 += c_get_length_square(localP2);
 
+	bb = (joint->distance - c_get_length(L)) ;
 	c_normalize(&L);
 	temp = c_cross(localP1,L);
 	a1 = 1 + c_dot(c_fcross(temp,localP1),L) / k1;
-	/*lengthP1 = c_get_length(localP1);
-	if (lengthP1 < 1e-5)
-	{
-		a1 = 1;
-	}
-	else
-	{
-		a1 = (1 + temp * temp / (k1 * lengthP1));
-	}*/
 
 	a1 /= body1->fMass;
 
 	temp = c_cross(localP2,L);
 	a2 = 1 + c_dot(c_fcross(temp,localP2),L) / k2;
-	/*lengthP2 = c_get_length(localP2);
-	if (lengthP2 < 1e-5)
-	{
-		a2 = 1;
-	}
-	else
-	{
-		a2 = (1 + temp * temp / (k2 * lengthP2));
-	}*/
 
 	a2 /= body2->fMass;
 
@@ -366,6 +368,44 @@ void _PG_DistanceJoint_ComputeTwoDynamic(pgDistanceJointObject* joint,double ste
 	dAngleV2 /= k2;
 	body2->fAngleVelocity += dAngleV2;
 
+	//for position correction
+	temp = bb /(a1 + a2);
+	temp1 = temp / body1->fMass;
+	temp2 = -temp / body2->fMass;
+	dvBody1 = c_mul_complex_with_real(L,temp1);
+	dvBody2 = c_mul_complex_with_real(L,temp2);
+
+	body1->vecPosition = c_sum(body1->vecPosition,dvBody1);
+	body2->vecPosition = c_sum(body2->vecPosition,dvBody2);
+	body1->vecLinearVelocity = c_sum(body1->vecLinearVelocity,c_mul_complex_with_real(dvBody1,1/stepTime));
+	body2->vecLinearVelocity = c_sum(body2->vecLinearVelocity,c_mul_complex_with_real(dvBody2,1/stepTime));
+	dAngleV1 = c_cross(localP1,dvBody1);
+	dAngleV1 /= k1;
+	dAngleV2 = c_cross(localP2,dvBody2);
+	dAngleV2 /= k2;
+	body1->fRotation += dAngleV1;
+	body2->fRotation += dAngleV2;
+	body1->fAngleVelocity += (dAngleV1 / stepTime);
+	body2->fAngleVelocity += (dAngleV2 / stepTime);
+	temp = c_get_length(c_diff(PG_GetGlobalPos(body1,&joint->anchor1),PG_GetGlobalPos(body2,&joint->anchor2)));
+	temp -= joint->distance; 
+	printf("%f\n",temp);
+
+
+	////body1->cBiasLV = c_sum(body1->cBiasLV,dvBody1);
+	//body1->cBiasLV = dvBody1;
+	//dAngleV1 = c_cross(localP1,dvBody1);
+	//dAngleV1 /= k1;
+	//body1->cBiasW = dAngleV1;
+
+	////body2->cBiasLV = c_sum(body2->cBiasLV,dvBody2);
+	//body2->cBiasLV = dvBody2;
+	//dAngleV2 = c_cross(localP2,dvBody2);
+	//dAngleV2 /= k2;
+	//body2->cBiasW = dAngleV2;
+
+	//PG_CorrectBodyPos(body1,stepTime);
+	//PG_CorrectBodyPos(body2,stepTime);
 }
 
 void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
@@ -412,7 +452,7 @@ void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 		}
 		else
 		{
-			_PG_DistanceJoint_ComputeOneDynamic(body1,&pJoint->anchor2,&pJoint->anchor1,stepTime);
+			_PG_DistanceJoint_ComputeOneDynamic(body1,&pJoint->anchor2,&pJoint->anchor1,pJoint->distance,stepTime);
 
 			/*double a,b,c,d,e,f,k;
 			pgVector2 localP = PG_GetGlobalPos(body1,&pJoint->anchor1);
@@ -465,7 +505,18 @@ pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollid
 	//pgDistanceJointObject* pjoint = (pgDistanceJointObject*)PyObject_MALLOC(sizeof(pgDistanceJointObject));	
 	pgDistanceJointObject* pjoint = (pgDistanceJointObject*)PyObject_MALLOC(sizeof(pgDistanceJointObject));
 	PG_InitJointBase(&(pjoint->joint), b1, b2, bCollideConnect);
-	pjoint->distance = dist;
+	//pjoint->distance = dist;
+	if (b1 && b2)
+	{
+		pgVector2 s1 = PG_GetGlobalPos(b1,&a1);
+		pgVector2 s2 = PG_GetGlobalPos(b2,&a2);
+		pjoint->distance = c_get_length(c_diff(s1,s2));
+	}
+	else
+	{
+		pgVector2 s1 = PG_GetGlobalPos(b1,&a1);
+		pjoint->distance = c_get_length(c_diff(s1,a2));
+	}
 	pjoint->anchor1 = a1;
 	pjoint->anchor2 = a2;
 	pjoint->joint.SolveConstraintVelocity = PG_SolveDistanceJointVelocity;
