@@ -80,6 +80,11 @@ else:
     working_dir = main_dir
 
 test_env = {"PYTHONPATH": test_subdir}     #TODO:  append to PYTHONPATH
+try:
+    # Required by Python 2.6 on Windows.
+    test_env["SystemRoot"] = os.environ["SystemRoot"]
+except KeyError:
+    pass
 os.chdir(working_dir)
 
 if args:
