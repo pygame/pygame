@@ -195,12 +195,28 @@ if sys.platform == 'win32':
                     path = os.environ['PATH']
                     os.environ['PATH'] = ';'.join([os.path.join(mingw_root, 'bin'),
                                                    path])
-                if sys.version_info >= (2, 4):
-                    os.environ
-                    # For an MinGW build requiring msvcr71.dll linkage overide the
-                    # msvcrt.dll import libraries.
-                    os.environ['LIBRARY_PATH'] = (
-                        os.path.join(self.__sdl_lib_dir, 'msvcr71'))
+                if sys.version_info >= (2, 6):
+                    # The Visual Studio 2008 C library is msvcr90.dll.
+                    c_runtime_path = os.path.join(self.__sdl_lib_dir, 'msvcr90')
+                elif sys.version_info >= (2, 4):
+                    # The Visual Studio 2003 C library is msvcr71.dll.
+                    c_runtime_path = os.path.join(self.__sdl_lib_dir, 'msvcr71')
+                else:
+                    # The Visual Studio 6.0 C library is msvcrt.dll,
+                    # the MinGW default.
+                    c_runtime_path = ''
+                if c_runtime_path and os.path.isdir(c_runtime_path):
+                    # Override the default msvcrt.dll linkage.
+                    os.environ['LIBRARY_PATH'] = c_runtime_path
+                elif not (c_runtime_path or
+                          glob.glob(os.path.join(self.__sdl_lib_dir,
+                                                 'msvcr*'))):
+                    pass
+                else:
+                    raise RuntimeError("The dependencies are linked to"
+                                       " the wrong C runtime for"
+                                       " Python %i.%i" %
+                                       sys.version_info[:2])
             build_ext.run(self)
     cmdclass['build_ext'] = WinBuildExt
 
