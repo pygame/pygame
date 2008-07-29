@@ -8,7 +8,7 @@
 
 #include "pgPhysicsRenderer.h"
 #include "pgBodyObject.h"
-#include "glTestSuite.h"
+//#include "glTestSuite.h"
 
 static pgWorldObject* s_world = NULL;
 

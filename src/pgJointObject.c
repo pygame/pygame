@@ -261,7 +261,7 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 	dAngleV /= k;
 	body->fRotation += dAngleV;*/
 
-	double a,b,bb,k,temp,lengthP; //for solve equation
+	double a,b,bb,k,temp; //for solve equation
 	pgVector2 localP = PG_GetGlobalPos(body,localAnchor);
 	pgVector2 L = c_diff(*staticAnchor,localP);
 	pgVector2 vP = PG_GetLocalPointVelocity(body,*localAnchor);
@@ -318,7 +318,7 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 void _PG_DistanceJoint_ComputeTwoDynamic(pgDistanceJointObject* joint,double stepTime)
 {
 	pgBodyObject *body1 = joint->joint.body1,*body2 = joint->joint.body2;
-	double a1,a2,b1,b2,bb,k1,k2,temp,temp1,temp2,lengthP1,lengthP2; //for solve equation
+	double a1,a2,b1,b2,bb,k1,k2,temp,temp1,temp2; //for solve equation
 	pgVector2 localP1 = PG_GetGlobalPos(body1,&joint->anchor1);
 	pgVector2 localP2 = PG_GetGlobalPos(body2,&joint->anchor2);
 	pgVector2 L = c_diff(localP1,localP2);

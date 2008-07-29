@@ -54,4 +54,3 @@ void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double s
 pgVector2 PG_GetLocalPointVelocity(pgBodyObject* body,pgVector2 localPoint);
 
 #endif //_PYGAME_PHYSICS_BODY_
-
