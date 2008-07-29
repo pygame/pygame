@@ -65,12 +65,12 @@ MUST_INSTANTIATE = {
     pygame.cdrom.CDType            :  (pygame.cdrom.CD,      (0,)),
     pygame.mixer.ChannelType       :  (pygame.mixer.Channel, (0,)),
     pygame.time.Clock              :  (pygame.time.Clock,    ()),
+    pygame.mask.Mask               :  (pygame.mask.Mask,     ((32,32),))
 
     # pygame.event.Event         :  None,
     # pygame.joystick.Joystick   :  None,
-    # pygame.movie.Movie       :  None,
-    # pygame.mask.Mask         :  None,
-    # pygame.display.Info      :  None,
+    # pygame.movie.Movie         :  None,
+    # pygame.display.Info        :  None,
 }
 
 def get_instance(type_):
@@ -106,7 +106,7 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 
           ${comments}
 
-        self.assert_(test_not_implemented()) ''' % date, 
+        self.fail() ''' % date, 
 
         strip_common = 0, strip_excess = 0
 )
