@@ -4,20 +4,94 @@ import test_utils
 import test.unittest as unittest
 from test_utils import test_not_implemented
 
+import pygame
+
 ################################################################################
 
 class EventTypeTest(unittest.TestCase):
     def test_Event(self):
-        
         # __doc__ (as of 2008-06-25) for pygame.event.Event:
-        
+
           # pygame.event.Event(type, dict): return Event
           # pygame.event.Event(type, **attributes): return Event
           # create a new event object
-        
-        self.assert_(test_not_implemented()) 
+
+        e = pygame.event.Event(pygame.USEREVENT, some_attr=1, other_attr='1')
+
+        self.assertEquals(e.some_attr, 1)
+        self.assertEquals(e.other_attr, "1")
+
+race_condition_notification = """
+This test is dependent on timing. The event queue is cleared in preparation for 
+tests. There is a small window where outside events from the OS may have effected
+results. Try running the test again.
+"""
 
 class EventModuleTest(unittest.TestCase):
+    def setUp(self):
+        # flush events
+        pygame.display.init()
+        pygame.event.clear()
+        self.assert_(not pygame.event.get())
+
+    def tearDown(self):
+        pygame.display.quit()
+
+    def test_set_blocked(self):
+        # __doc__ (as of 2008-06-25) for pygame.event.set_blocked:
+    
+          # pygame.event.set_blocked(type): return None
+          # pygame.event.set_blocked(typelist): return None
+          # pygame.event.set_blocked(None): return None
+          # control which events are allowed on the queue
+        
+        pygame.event.set_blocked(2)
+
+        self.assert_(pygame.event.get_blocked(2))
+
+        pygame.event.post(pygame.event.Event(2))
+
+        events = pygame.event.get()
+        should_be_blocked = [e for e in events if e.type == 2]
+        
+        self.assertEquals(should_be_blocked, [])
+                
+    def test_post__and_poll(self):
+        # __doc__ (as of 2008-06-25) for pygame.event.post:
+
+          # pygame.event.post(Event): return None
+          # place a new event on the queue
+
+        e1 = pygame.event.Event(pygame.USEREVENT, attr1='attr1')
+
+        pygame.event.post(e1)
+
+        posted_event = pygame.event.poll()
+        self.assertEquals (
+            e1.attr1, posted_event.attr1, race_condition_notification
+        )
+        
+        # fuzzing event types
+        for i in range(1, 11):
+            pygame.event.post(pygame.event.Event(i))
+            self.assertEquals (
+                pygame.event.poll().type, i, race_condition_notification
+            )
+
+    def test_get(self):
+        # __doc__ (as of 2008-06-25) for pygame.event.get:
+
+          # pygame.event.get(): return Eventlist
+          # pygame.event.get(type): return Eventlist
+          # pygame.event.get(typelist): return Eventlist
+          # get events from the queue
+
+        # Put 10 events on the queue
+        for _ in range(1, 11):
+            pygame.event.post(pygame.event.Event(pygame.USEREVENT))
+
+        self.assert_ ( len(pygame.event.get()) >= 10 )
+
     def test_clear(self):
 
         # __doc__ (as of 2008-06-25) for pygame.event.clear:
@@ -27,7 +101,14 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.clear(typelist): return None
           # remove all events from the queue
 
-        self.assert_(test_not_implemented()) 
+        for _ in range(1, 11):
+            pygame.event.post(pygame.event.Event(_))
+        
+        self.assert_(pygame.event.poll())  # there are some events on queue
+
+        pygame.event.clear()
+
+        self.assert_(not pygame.event.poll(), race_condition_notification)
 
     def test_event_name(self):
 
@@ -36,37 +117,18 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.event_name(type): return string
           # get the string name from and event id
 
-        self.assert_(test_not_implemented()) 
+        self.assertEquals(pygame.event.event_name(2), "KeyDown")
+        self.assertEquals(pygame.event.event_name(24), "UserEvent")
 
-    def test_get(self):
+    def test_wait(self):
+        # __doc__ (as of 2008-06-25) for pygame.event.wait:
 
-        # __doc__ (as of 2008-06-25) for pygame.event.get:
+          # pygame.event.wait(): return Event
+          # wait for a single event from the queue
 
-          # pygame.event.get(): return Eventlist
-          # pygame.event.get(type): return Eventlist
-          # pygame.event.get(typelist): return Eventlist
-          # get events from the queue
-
-        self.assert_(test_not_implemented()) 
-
-    def test_get_blocked(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.event.get_blocked:
-
-          # pygame.event.get_blocked(type): return bool
-          # test if a type of event is blocked from the queue
-
-        self.assert_(test_not_implemented()) 
-
-    def test_get_grab(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.event.get_grab:
-
-          # pygame.event.get_grab(): return bool
-          # test if the program is sharing input devices
-
-        self.assert_(test_not_implemented()) 
-
+        pygame.event.post ( pygame.event.Event(2) )
+        self.assert_(pygame.event.wait())
+        
     def test_peek(self):
 
         # __doc__ (as of 2008-06-25) for pygame.event.peek:
@@ -75,37 +137,17 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.peek(typelist): return bool
           # test if event types are waiting on the queue
 
-        self.assert_(test_not_implemented()) 
+        event_types = [2, 3, 4]
 
-    def test_poll(self):
+        for event_type in event_types:
+            pygame.event.post (
+                pygame.event.Event(event_type)
+            )
+            self.assert_(pygame.event.peek(event_type))
 
-        # __doc__ (as of 2008-06-25) for pygame.event.poll:
-
-          # pygame.event.poll(): return Event
-          # get a single event from the queue
-
-        self.assert_(test_not_implemented()) 
-
-    def test_post(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.event.post:
-
-          # pygame.event.post(Event): return None
-          # place a new event on the queue
-
-        self.assert_(test_not_implemented()) 
-
-    def test_pump(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.event.pump:
-
-          # pygame.event.pump(): return None
-          # internally process pygame event handlers
-
-        self.assert_(test_not_implemented()) 
+        self.assert_(pygame.event.peek(event_types))
 
     def test_set_allowed(self):
-
         # __doc__ (as of 2008-06-25) for pygame.event.set_allowed:
 
           # pygame.event.set_allowed(type): return None
@@ -113,37 +155,67 @@ class EventModuleTest(unittest.TestCase):
           # pygame.event.set_allowed(None): return None
           # control which events are allowed on the queue
 
-        self.assert_(test_not_implemented()) 
+        pygame.event.set_blocked(2)
+        self.assert_(pygame.event.get_blocked(2))
+        pygame.event.set_allowed(2)
+        self.assert_(not pygame.event.get_blocked(2))
 
-    def test_set_blocked(self):
+    def test_pump(self):
+        # __doc__ (as of 2008-06-25) for pygame.event.pump:
 
-        # __doc__ (as of 2008-06-25) for pygame.event.set_blocked:
+          # pygame.event.pump(): return None
+          # internally process pygame event handlers
+        
+        # see it doesn't cause an error
+        pygame.event.pump()
 
-          # pygame.event.set_blocked(type): return None
-          # pygame.event.set_blocked(typelist): return None
-          # pygame.event.set_blocked(None): return None
-          # control which events are allowed on the queue
-
-        self.assert_(test_not_implemented()) 
-
-    def test_set_grab(self):
+    def test_set_grab__and_get_symmetric(self):
 
         # __doc__ (as of 2008-06-25) for pygame.event.set_grab:
 
           # pygame.event.set_grab(bool): return None
           # control the sharing of input devices with other applications
 
-        self.assert_(test_not_implemented()) 
+        pygame.event.set_grab(True)
+        self.assert_(pygame.event.get_grab())
+        pygame.event.set_grab(False)
+        self.assert_(not pygame.event.get_grab())
 
-    def test_wait(self):
+    def todo_test_get_blocked(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.event.wait:
+        # __doc__ (as of 2008-06-25) for pygame.event.get_blocked:
 
-          # pygame.event.wait(): return Event
-          # wait for a single event from the queue
+          # pygame.event.get_blocked(type): return bool
+          # test if a type of event is blocked from the queue
 
-        self.assert_(test_not_implemented()) 
+        self.fail()
 
+    def todo_test_poll(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.event.poll:
+
+          # pygame.event.poll(): return Event
+          # get a single event from the queue
+
+        self.fail()
+        
+    def todo_test_set_grab(self):
+
+        # __doc__ (as of 2008-06-25) for pygame.event.set_grab:
+
+          # pygame.event.set_grab(bool): return None
+          # control the sharing of input devices with other applications
+        
+        self.fail()
+
+    def todo_test_get_grab(self):
+    
+        # __doc__ (as of 2008-06-25) for pygame.event.get_grab:
+    
+          # pygame.event.get_grab(): return bool
+          # test if the program is sharing input devices
+    
+        self.fail() 
 
 ################################################################################
 

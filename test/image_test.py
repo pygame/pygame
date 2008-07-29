@@ -1,7 +1,7 @@
 import test_utils
 import test.unittest as unittest
 
-from test_utils import test_not_implemented
+from test_utils import test_not_implemented, example_path
 
 import pygame, pygame.image, pygame.pkgdata
 import os
@@ -39,23 +39,30 @@ class ImageModuleTest( unittest.TestCase ):
     def testLoadPNG(self):
         """ see if we can load a png.
         """
-        f = os.path.join("examples", "data", "alien1.png")
+        f = example_path('data/alien1.png') # normalized
+        # f = os.path.join("examples", "data", "alien1.png")
         surf = pygame.image.load(f)
 
-        f = open(os.path.join("examples", "data", "alien1.png"), "rb")
+        f = open(f, 'rb')
+        # f = open(os.path.join("examples", "data", "alien1.png"), "rb")
         surf = pygame.image.load(f)
 
 
     def testLoadJPG(self):
         """ see if we can load a jpg.
         """
-        f = os.path.join("examples", "data", "alien1.jpg")
+
+        f = example_path('data/alien1.jpg')      # normalized
+        # f = os.path.join("examples", "data", "alien1.jpg")
         surf = pygame.image.load(f)
 
-        f = open(os.path.join("examples", "data", "alien1.jpg"), "rb")
+        f = open(f, "rb")
+
+        # f = open(os.path.join("examples", "data", "alien1.jpg"), "rb")
+        
         surf = pygame.image.load(f)
         
-        surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
+        # surf = pygame.image.load(open(os.path.join("examples", "data", "alien1.jpg"), "rb"))
 
 
     def test_save(self):
@@ -107,7 +114,7 @@ class ImageModuleTest( unittest.TestCase ):
                     msg = "string difference in %d to %d of %d:\n%s\n%s\nsource:\n%s" % (block_start, block_end, len(string1), block1.encode("hex"), block2.encode("hex"), source_block.encode("hex"))
                     self.fail(msg)
         
-    def test_to_string_premultiplied(self):
+    def test_to_string__premultiplied(self):
         """ test to make sure we can export a surface to a premultiplied alpha string
         """
 
@@ -215,8 +222,6 @@ class ImageModuleTest( unittest.TestCase ):
 
         self.assert_(AreSurfacesIdentical(test_surface, test_to_from_argb_string))
         #"ERROR: image.fromstring and image.tostring with ARGB are not symmetric"
-    
-    test_tostring = test_fromstring__and_tostring # for gen_stubs.py
 
     def test_frombuffer(self):
 
@@ -234,7 +239,7 @@ class ImageModuleTest( unittest.TestCase ):
           # pygame.image.get_extended(): return bool
           # test if extended image formats can be loaded
 
-        self.assert_(test_not_implemented()) 
+        self.assert_(test_not_implemented())
 
     def test_load_basic(self):
 

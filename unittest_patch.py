@@ -31,7 +31,7 @@ def TestCase_run(self, result=None):
     result.startTest(self)
     testMethod = getattr(self, self._testMethodName)
     try:
-    
+
     ########################################################################
     # Pre run:
 
@@ -41,7 +41,9 @@ def TestCase_run(self, result=None):
         tests = result.tests[self.dot_syntax_name()]
         (realerr, realout), (stderr, stdout) =  redirect_output()
 
-        if 0 or 'interactive' in get_tags(testMethod):       # DEBUG
+        test_tags = list(get_tags(testMethod))
+
+        if 0 or 'interactive' in test_tags:       # DEBUG
             restore_output(realerr, realout)
 
         t = time.time()
@@ -91,6 +93,7 @@ def TestCase_run(self, result=None):
         tests["time"]   = t
         tests["stdout"] = StringIOContents(stdout)
         tests["stderr"] = StringIOContents(stderr)
+        tests["tags"]   = test_tags
 
     ########################################################################
 
