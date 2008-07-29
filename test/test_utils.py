@@ -9,6 +9,12 @@ trunk_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
 def trunk_relative_path(relative):
     return os.path.normpath(os.path.join(trunk_dir, relative))
 
+def fixture_path(path):
+    return trunk_relative_path(os.path.join('test/fixtures/', path))
+
+def example_path(path):
+    return trunk_relative_path(os.path.join('examples/',  path))
+
 sys.path.insert(0, trunk_relative_path('.'))
 
 import test.unittest as unittest
@@ -82,9 +88,13 @@ def unordered_equality(seq1, seq2):
     and that they are of the same length.
     
     """
-    
+            
     if len(seq1) != len(seq2):
         return False
+
+    # if isinstance(seq1, dict) and isinstance(seq2, dict):
+    #    seq1 = seq1.items()
+    #    seq2 = seq2.items()
 
     for val in seq1:
         if val not in seq2:
@@ -103,7 +113,7 @@ def rect_perimeter_pts(rect):
     Returns pts ((L, T) tuples) encompassing the perimeter of a rect.
     
     The order is clockwise:
-        
+
           topleft to topright
          topright to bottomright
       bottomright to bottomleft
@@ -114,7 +124,7 @@ def rect_perimeter_pts(rect):
     """
     clock_wise_from_top_left = (
       ((l,       rect.top) for l in xrange(rect.left,      rect.right)      ),
-      ((rect.right -1,  t) for t in xrange(rect.top   + 1, rect.bottom)     ), 
+      ((rect.right -1,  t) for t in xrange(rect.top   + 1, rect.bottom)     ),
       ((l, rect.bottom -1) for l in xrange(rect.right  -2, rect.left -1, -1)), 
       ((rect.left,      t) for t in xrange(rect.bottom -2, rect.top,     -1))
     )
