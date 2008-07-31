@@ -1,8 +1,8 @@
 #include <GL/glut.h>
 #include <math.h>
 
-#define HEIGHT 600
-#define WIDTH 600
+#define HEIGHT 800
+#define WIDTH 800
 
 /*-------------------------------²âÊÔ¹¤¾ß----------------------------*/
 
@@ -217,37 +217,48 @@ void TestBasic4Init()
 
 void TestBasic5Init()
 {
-#define  BODY_NUM  1
+#define  BODY_NUM  4
 
 	int i;
 	pgBodyObject* body[BODY_NUM + 1];
 	pgJointObject* joint[BODY_NUM];
 	pgVector2 a1,a2;
-	PG_Set_Vector2(a1,5,0);
+	PG_Set_Vector2(a1,0,0);
 	PG_Set_Vector2(a2,0,0);
 
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
-	PG_Set_Vector2(s_world->vecGravity,0,0)
+	PG_Set_Vector2(s_world->vecGravity,0,10)
 
 
-	body[0] = NULL;
-	for (i = 1;i < BODY_NUM + 1;i++)
+	for (i = 0;i < BODY_NUM;i++)
 	{
 		body[i] = PG_BodyNew();
-		PG_Bind_RectShape(body[i], 20, 20, 0);
-		PG_Set_Vector2(body[i]->vecPosition,10,(-i*50))
+		if (i != BODY_NUM - 1)
+		{
+			PG_Bind_RectShape(body[i], 20, 20, 0);
+		}
+		else
+		{
+			PG_Bind_RectShape(body[i], 20, 100, 0);
+		}
+		
+		
 			//PG_Set_Vector2(body[i]->vecLinearVelocity,50,0)
 			PG_AddBodyToWorld(s_world,body[i]);
 	}
+	PG_Set_Vector2(body[0]->vecPosition,200,0)
+	PG_Set_Vector2(body[1]->vecPosition,200,100)
+	PG_Set_Vector2(body[2]->vecPosition,300,200)
+	PG_Set_Vector2(body[3]->vecPosition,300,200)
+	body[0]->bStatic = 1;
+	body[3]->bStatic = 1;
+	
+
+	//PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,20,60)
 
 
-	PG_Set_Vector2(body[BODY_NUM]->vecLinearVelocity,20,60)
-
-	i = 0;
-	joint[i] = PG_DistanceJointNew(body[i+1],body[i],0,50,a1,a2);
-	PG_AddJointToWorld(s_world,joint[i]);
-	for (i = 1;i < BODY_NUM;i++)
+	for (i = 0;i < BODY_NUM - 2;i++)
 	{
 		joint[i] = PG_DistanceJointNew(body[i],body[i+1],0,50,a1,a2);
 		PG_AddJointToWorld(s_world,joint[i]);
@@ -284,11 +295,13 @@ void TestBasic6Init()
 	PG_AddJointToWorld(s_world,joint);
 }
 
+
+
 //===============================================
 
 void InitWorld()
 {
-	TestBasic4Init();
+	TestBasic5Init();
 }
 
 int main (int argc, char** argv)

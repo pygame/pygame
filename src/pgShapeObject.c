@@ -665,20 +665,29 @@ int _Build_Contacts(pgVector2* gp, pgAABBBox* clipBox, int axis,
 				if(c_equal(&pf, &gp[i]))
 					has_ip[i] = 1;
 				else
+				{
+					//assert(0);
 					contacts[(*size)++] = pf;
+				}
 			}
 			if(valid_pt)
 			{
 				if(c_equal(&pt, &gp[i1]))
 					has_ip[i1] = 1;
 				else
+				{
+					//assert(0);
 					contacts[(*size)++] = pt;
+				}
 			}
 		}
 	}
 	for(i = 0; i < 4; ++i)
 		if(has_ip[i])
+		{
+			//assert(0);
 			contacts[(*size)++] = gp[i];
+		}
 
 	return !apart;
 }
@@ -738,6 +747,10 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	pAcc->real = pAcc->imag = 0;
 	pSplitAcc = PyObject_Malloc(sizeof(pgVector2));
 	pSplitAcc->real = pSplitAcc->imag = 0;
+
+	//for test
+	//printf("face id: %d; csize: %d\n", face_id, csize);
+
 	for(i = 0; i < csize; ++i)
 	{
 		contact = (pgContact*)PG_ContactNew(ref, inc);

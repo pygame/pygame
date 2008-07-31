@@ -48,14 +48,21 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 		{
 			incBody = (pgBodyObject*)(PyList_GetItem(world->bodyList, j));
 			if(refBody->bStatic && incBody->bStatic) continue;
+			
 			if(PG_IsOverlap(&(refBody->shape->box), &(incBody->shape->box), 1e-8))
 			{
+				
 				PG_AppendContact(refBody, incBody, world->contactList);
 			}
 		}
 	}
 
 	contact_cnt = PyList_Size(world->contactList);
+	if (contact_cnt)
+	{
+		printf("contact_cnt:%d\n",contact_cnt);
+	}
+	
 	for(j = 0; j < MAX_ITERATION; ++j)
 	{
 		//clear bias
