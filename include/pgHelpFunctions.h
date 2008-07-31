@@ -12,4 +12,7 @@
 int
 DoubleFromObj (PyObject* obj, double* val);
 
+
+PyObject* FromPhysicsVector2ToPygamePoint(pgVector2 v2);
+
 #endif /* _PG_HELPFUNCTIONS_H */

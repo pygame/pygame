@@ -2,6 +2,8 @@
 #include "pgBodyObject.h"
 #include "pgShapeObject.h"
 
+#define FLOAT_TO_INT_MUL 10
+
 //#define FLOAT_TO_INT_MUL 10
 //
 ////these functions are for pygame rendering
@@ -96,6 +98,19 @@ DoubleFromObj (PyObject* obj, double* val)
         return 1;
     }
     return 0;
+}
+
+PyObject* FromPhysicsVector2ToPygamePoint(pgVector2 v2)
+{
+	PyObject* tuple = PyTuple_New(2);
+
+	long ix = v2.real * FLOAT_TO_INT_MUL;
+	long iy = v2.imag * FLOAT_TO_INT_MUL;
+	PyObject* xnum = PyInt_FromLong(ix);
+	PyObject* ynum = PyInt_FromLong(iy);
+	PyTuple_SetItem(tuple,0,xnum);
+	PyTuple_SetItem(tuple,1,ynum);
+	return tuple;
 }
 
 

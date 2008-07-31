@@ -246,7 +246,6 @@ static PyObject* _world_update(pgWorldObject* world,PyObject* pyfloat)
 {
 	double dt = 0.1;
 	//double dt = PyFloat_AsDouble(pyfloat);
-		
 	PG_Update(world,dt);
 	Py_RETURN_NONE;
 }

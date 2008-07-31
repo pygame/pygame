@@ -404,6 +404,29 @@ static int _pgBody_setFriction (pgBodyObject* body,PyObject* value,void* closure
     return -1;
 }
 
+/**
+* Getter for retrieving the bStatic of the passed body.
+*/
+static PyObject* _pgBody_getBStatic (pgBodyObject* body,void* closure)
+{
+	return PyInt_FromLong (body->bStatic);
+}
+
+/**
+* Sets the bStatic of the passed body.
+*/
+static int _pgBody_setBStatic (pgBodyObject* body,PyObject* value,void* closure)
+{
+	if (PyInt_Check (value))
+	{
+		body->bStatic = PyInt_AsLong (value);
+		return 0;
+
+	}
+	PyErr_SetString (PyExc_TypeError, "torque must be a float");
+	return -1;
+}
+
 static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
 {
 	double width,height,seta;
@@ -428,7 +451,7 @@ static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
 	}
 }
 
-#define FLOAT_TO_INT_MUL 10
+
 
 static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
 {
@@ -453,14 +476,7 @@ static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
 		{
 			pgVector2* pVertex = &(((pgRectShape*)(body->shape))->point[i]);
 			pgVector2 golVertex = PG_GetGlobalPos(body,pVertex);
-			PyObject* tuple = PyTuple_New(2);
-
-			long ix = golVertex.real * FLOAT_TO_INT_MUL;
-			long iy = golVertex.imag * FLOAT_TO_INT_MUL;
-			PyObject* xnum = PyInt_FromLong(ix);
-			PyObject* ynum = PyInt_FromLong(iy);
-			PyTuple_SetItem(tuple,0,xnum);
-			PyTuple_SetItem(tuple,1,ynum);
+			PyObject* tuple = FromPhysicsVector2ToPygamePoint(golVertex);
 			PyList_SetItem(list,i,tuple);
 		}
 		return (PyObject*)list;
@@ -490,6 +506,7 @@ static PyGetSetDef _pgBody_getseters[] = {
     {"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
     {"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
     {"force",(getter)_pgBody_getForce,(setter)_pgBody_setForce,"force",NULL},
+	{"static",(getter)_pgBody_getBStatic,(setter)_pgBody_setBStatic,"whether static",NULL},
     { NULL, NULL, NULL, NULL, NULL}
 };
 

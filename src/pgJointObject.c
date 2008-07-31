@@ -17,6 +17,7 @@ void PG_InitJointBase(pgJointObject* joint,pgBodyObject* b1,pgBodyObject* b2,int
 pgJointObject* _PG_JointNewInternal(PyTypeObject *type)
 {
 	pgJointObject* op = (pgJointObject*)type->tp_alloc(type, 0);
+	Py_INCREF(op);
 	//PG_InitJointBase(op);
 	return op;
 }
@@ -272,6 +273,7 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 
 	localP = c_diff(localP,body->vecPosition);
 	k = body->shape->rInertia / body->fMass;
+	k *= 2;
 	k += c_get_length_square(localP);
 	bb = (distance - c_get_length(L));
 	c_normalize(&L);
@@ -329,8 +331,9 @@ void _PG_DistanceJoint_ComputeTwoDynamic(pgDistanceJointObject* joint,double ste
 	pgVector2 dvBody1,dvBody2;
 	double dAngleV1,dAngleV2;
 	k1 = body1->shape->rInertia / body1->fMass;
+	k1 *= 2;
 	k2 = body2->shape->rInertia / body2->fMass;
-	
+	k2 *= 2;
 
 	localP1 = c_diff(localP1,body1->vecPosition);
 	localP2 = c_diff(localP2,body2->vecPosition);
@@ -490,8 +493,20 @@ void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 
 	if(body1 && body2)
 	{
-		if (body1->bStatic || body2->bStatic)
+		if (body1->bStatic && body2->bStatic)
 		{
+			return;
+		}
+		if (body1->bStatic)
+		{
+			pgVector2 staticAnchor = PG_GetGlobalPos(body1,&pJoint->anchor1);
+			_PG_DistanceJoint_ComputeOneDynamic(body2,&staticAnchor,&pJoint->anchor2,pJoint->distance,stepTime);
+			return;
+		}
+		if (body2->bStatic)
+		{
+			pgVector2 staticAnchor = PG_GetGlobalPos(body2,&pJoint->anchor2);
+			_PG_DistanceJoint_ComputeOneDynamic(body1,&staticAnchor,&pJoint->anchor1,pJoint->distance,stepTime);
 			return;
 		}
 		_PG_DistanceJoint_ComputeTwoDynamic(pJoint,stepTime);
@@ -580,8 +595,38 @@ static int _pgDistanceJoint_setAnchor2(pgDistanceJointObject* joint,PyObject* va
 	}
 }
 
+static PyObject* _pgDistanceJoint_getPointList(PyObject *self, PyObject *args)
+{
+	pgDistanceJointObject* joint = (pgDistanceJointObject*)self;
+	PyObject* list  = PyList_New(2);
+
+	pgVector2 p = PG_GetGlobalPos(joint->joint.body1,&joint->anchor1);
+	PyObject* tuple = FromPhysicsVector2ToPygamePoint(p);
+	PyList_SetItem(list,0,tuple);
+
+	if(joint->joint.body2)
+	{
+		p = PG_GetGlobalPos(joint->joint.body2,&joint->anchor2);
+		
+	}
+	else
+	{
+		p = joint->anchor2;
+	}
+
+	tuple = FromPhysicsVector2ToPygamePoint(p);
+	PyList_SetItem(list,1,tuple);
+	return list;
+}
+
+static PyMethodDef _pgDistanceJoint_methods[] = {
+	{"get_point_list",_pgDistanceJoint_getPointList,METH_VARARGS,""	},
+	{NULL, NULL, 0, NULL}   /* Sentinel */
+};
+
 static PyMemberDef _pgDistanceJoint_members[] = 
 {
+	
     {	NULL, 0, 0, 0, NULL}
 }; 
 
@@ -633,7 +678,7 @@ PyTypeObject pgDistanceJointType =
 	0,                          /* tp_weaklistoffset */
 	0,                          /* tp_iter */
 	0,                          /* tp_iternext */
-	0,							/* tp_methods */
+	_pgDistanceJoint_methods,							/* tp_methods */
 	_pgDistanceJoint_members,	/* tp_members */
 	_pgDistanceJoint_getseters,	/* tp_getset */
 	0,							/* tp_base */
