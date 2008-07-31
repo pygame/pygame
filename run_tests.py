@@ -126,9 +126,7 @@ if options.randomize or options.seed:
     meta['random_seed'] = seed
     print "\nRANDOM SEED USED: %s\n" % seed
     random.seed(seed)
-    
-    # if options.randomize or options.seed:
-    #     print "\nRANDOM SEED USED: %s\n" % meta_results['random_seed']
+    random.shuffle(test_modules)
         
 ################################################################################
 # Single process mode
@@ -192,12 +190,15 @@ if options.subprocess:
 untrusty_total, combined = combine_results(results, t)
 total, fails = test_failures(results)
 
-if not options.subprocess: assert total == untrusty_total
+if not options.subprocess:
+    assert total == untrusty_total
 
-if not options.dump:# or (options.human and untrusty_total == total):
+if not options.dump:
     print combined
 else:
     results = options.all and results or fails
+    meta['total_tests'] = total
+    meta['combined'] = combined
     results.update(meta_results)
 
     print TEST_RESULTS_START

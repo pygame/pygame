@@ -198,11 +198,11 @@ def test_failures(results):
 
     return total, errors
 
-def combined_errs(results):
-    for result in results.values():
-        combined_errs = result['errors'] + result['failures']
-        for err in combined_errs:
-            yield err
+# def combined_errs(results):
+#     for result in results.values():
+#         combined_errs = result['errors'] + result['failures']
+#         for err in combined_errs:
+#             yield err
 
 ################################################################################
 # For complete failures (+ namespace saving)
