@@ -1,7 +1,12 @@
 ################################################################################
 
 import test.unittest as unittest
-import re, time, sys, StringIO
+import re
+import time
+import sys 
+import StringIO
+import random
+
 from inspect import getdoc
 
 # This is needed for correct tracebacks
@@ -30,27 +35,30 @@ def TestCase_run(self, result=None):
     if result is None: result = self.defaultTestResult()
     result.startTest(self)
     testMethod = getattr(self, self._testMethodName)
+    
+    print self._testMethodName
     try:
 
     ########################################################################
     # Pre run:
-
         #TODO: only redirect output if not tagged interactive
 
-        result.tests[self.dot_syntax_name()] = {}
+        result.tests[self.dot_syntax_name()] = {
+            'times' : [],
+        }
+        
         tests = result.tests[self.dot_syntax_name()]
         (realerr, realout), (stderr, stdout) =  redirect_output()
-
         test_tags = list(get_tags(testMethod))
 
         if 0 or 'interactive' in test_tags:       # DEBUG
             restore_output(realerr, realout)
 
-        t = time.time()
-
     ########################################################################
 
         for i in range(self.times_run):
+            t = time.time()
+            
             try:
                 self.setUp()
             except KeyboardInterrupt:
@@ -77,20 +85,22 @@ def TestCase_run(self, result=None):
             except:
                 result.addError(self, self._exc_info())
                 ok = False
-    
+            
+            
+            tests["times"] += [time.time() -t]
+            
             if ok:
                 if i == 0:
                     result.addSuccess(self)
             else: break
-
+            
+            
+            
     ########################################################################
     # Post run
 
-        t = (time.time() -t) / self.times_run
-        
         restore_output(realerr, realout)
 
-        tests["time"]   = t
         tests["stdout"] = StringIOContents(stdout)
         tests["stderr"] = StringIOContents(stderr)
         tests["tags"]   = test_tags
@@ -158,12 +168,12 @@ class TestTags:
         self.parent_modules = {}
 
     def get_parent_module(self, class_):
-        while class_ not in self.parent_modules:
+        if class_ not in self.parent_modules:
             self.parent_modules[class_] = __import__(class_.__module__)
         return self.parent_modules[class_]
 
     def __call__(self, obj):
-        while obj not in self.memoized:
+        if obj not in self.memoized:
             parent_class  = obj.im_class
             parent_module = self.get_parent_module(parent_class)
 
@@ -191,7 +201,8 @@ class TestTags:
 get_tags = TestTags()
 
 ################################################################################
-
+# unittest.TestLoader
+#
 def getTestCaseNames(self, testCaseClass):
     def test_wanted(attrname, testCaseClass=testCaseClass,
                               prefix=self.testMethodPrefix):
@@ -222,7 +233,9 @@ def getTestCaseNames(self, testCaseClass):
             if testFnName not in testFnNames:  # handle overridden methods
                 testFnNames.append(testFnName)
 
-    if self.sortTestMethodsUsing:
+    if self.randomize_tests:
+        random.shuffle(testFnNames)
+    elif self.sortTestMethodsUsing:
         testFnNames.sort(self.sortTestMethodsUsing)
 
     return testFnNames
@@ -234,6 +247,8 @@ def patch(options):
         unittest.TestLoader.testMethodPrefix = (
             unittest.TestLoader.testMethodPrefix, 'todo_'
         )
+    
+    unittest.TestLoader.randomize_tests = options.randomize or options.seed
 
     unittest.TestLoader.getTestCaseNames = getTestCaseNames
     unittest.TestLoader.exclude = (
