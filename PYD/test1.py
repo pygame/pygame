@@ -58,15 +58,15 @@ def main():
     #pointlist = [(0,10),(10,0),(0,0)]
     white = 250, 250, 250
     theta = 0
-    
     world = init_world()
+    
     
     
 #Main Loop
     while 1:
-        t = clock.tick(60)
-        t = t/1000.0;
-        world.update(t)
+        # t = clock.tick(60)
+        # t = t/1000.0;
+        world.update(0.1)
     #Handle Input Events
         for event in pygame.event.get():
             if event.type == QUIT:
