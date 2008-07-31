@@ -88,13 +88,15 @@ def TestCase_run(self, result=None):
             
             tests["times"] += [time.time() -t]
             
-            if ok:
-                if i == 0:
-                    result.addSuccess(self)
-            else: break
-            
-            
-            
+            if not ok: break            
+        
+            # if ok:
+            #     if i == 0:
+            #         result.addSuccess(self)
+            # else: break
+    
+        if ok:
+            result.addSuccess(self)
     ########################################################################
     # Post run
 
@@ -232,7 +234,7 @@ def getTestCaseNames(self, testCaseClass):
             if testFnName not in testFnNames:  # handle overridden methods
                 testFnNames.append(testFnName)
 
-    if self.randomize_tests:
+    if self.randomize_tests: 
         random.shuffle(testFnNames)
     elif self.sortTestMethodsUsing:
         testFnNames.sort(self.sortTestMethodsUsing)
@@ -242,11 +244,13 @@ def getTestCaseNames(self, testCaseClass):
 ################################################################################
 
 def patch(options):
+    # Incomplete todo_xxx tests
     if options.incomplete:
         unittest.TestLoader.testMethodPrefix = (
             unittest.TestLoader.testMethodPrefix, 'todo_'
         )
     
+    # Randomizing    
     unittest.TestLoader.randomize_tests = options.randomize or options.seed
 
     unittest.TestLoader.getTestCaseNames = getTestCaseNames
