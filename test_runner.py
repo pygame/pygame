@@ -8,6 +8,7 @@ from pprint import pformat
 
 import unittest_patch
 from unittest_patch import StringIOContents
+# from safe_eval import safe_eval as eval
 
 ################################################################################
 
@@ -59,10 +60,12 @@ opt_parser.add_option (
      help   = "dump all results not just errors eg. -da" )
 
 opt_parser.add_option (
-     "-H",  "--human", action = 'store_true',
-     help   = "dump results as dict ready to eval if unsure "
-              "that pieced together results are correct "
-              "(subprocess mode)" )
+     "-r",  "--randomize", action = 'store_true',
+     help   = "randomize order of tests" )
+
+opt_parser.add_option (
+     "-S",  "--seed", type = 'int',
+     help   = "seed randomizer" )
 
 opt_parser.add_option (
      "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
@@ -120,6 +123,7 @@ def combine_results(all_results, t):
     failures = []
 
     for module, results in sorted(all_results.items()):
+        if module == '__meta__': continue
         output, return_code, raw_return = map (
             results.get, ('output','return_code', 'raw_return')
         )
@@ -238,7 +242,7 @@ def run_test(module, options):
 
     output = StringIO.StringIO()
     runner = unittest.TextTestRunner(stream = output)
-    
+
     results = runner.run(suite)
     output  = StringIOContents(output)
 
@@ -248,7 +252,7 @@ def run_test(module, options):
     tests     = results.tests
 
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
-    
+
     if options.subprocess:
         print TEST_RESULTS_START
         print pformat(results)

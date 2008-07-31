@@ -3,8 +3,14 @@
 
 import test.unittest as unittest
 
-import sys, os, re, subprocess, time, optparse
+import sys
+import os
+import re
+import subprocess
+import time
+import optparse
 import pygame.threads, pygame
+import random
 
 from test_runner import prepare_test_env, run_test, combine_results, \
                         test_failures, get_test_results, from_namespace, \
@@ -15,7 +21,8 @@ from pprint import pformat
 main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 test_runner_py = os.path.join(main_dir, "test_runner.py")
 
-import test_utils, unittest_patch
+import test_utils
+import unittest_patch
 
 ################################### CONSTANTS ##################################
 # Defaults:
@@ -105,6 +112,20 @@ else:
                 test_modules.append(match)
 
 ################################################################################
+# Meta results
+
+meta_results = {}
+
+################################################################################
+# Randomization
+
+if options.randomize or options.seed:
+    t = time.time()
+    meta_results['random_seed'] = t
+    if options.seed: random.seed(options.seed)
+    else:            random.seed(t)
+        
+################################################################################
 # Single process mode
 
 if not options.subprocess:
@@ -141,7 +162,6 @@ if options.subprocess:
             )
     else: tmap = map
 
-    results = {}
     t = time.time()
 
     for module, cmd, (return_code, raw_return) in tmap(sub_test, test_modules):
