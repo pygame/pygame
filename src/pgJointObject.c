@@ -185,8 +185,10 @@ PyTypeObject pgJointType =
 	0                           /* tp_del */
 };
 
+void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime);
 void PG_DistanceJointInit(pgDistanceJointObject* joint)
 {
+	joint->joint.SolveConstraintVelocity = PG_SolveDistanceJointVelocity;
 	joint->distance = 10.0;
 	PG_Set_Vector2(joint->anchor1,0,0);
 	PG_Set_Vector2(joint->anchor2,0,0);
@@ -390,9 +392,9 @@ void _PG_DistanceJoint_ComputeTwoDynamic(pgDistanceJointObject* joint,double ste
 	body2->fRotation += dAngleV2;
 	body1->fAngleVelocity += (dAngleV1 / stepTime);
 	body2->fAngleVelocity += (dAngleV2 / stepTime);
-	temp = c_get_length(c_diff(PG_GetGlobalPos(body1,&joint->anchor1),PG_GetGlobalPos(body2,&joint->anchor2)));
+	/*temp = c_get_length(c_diff(PG_GetGlobalPos(body1,&joint->anchor1),PG_GetGlobalPos(body2,&joint->anchor2)));
 	temp -= joint->distance; 
-	printf("%f\n",temp);
+	printf("%f\n",temp);*/
 
 
 	////body1->cBiasLV = c_sum(body1->cBiasLV,dvBody1);
@@ -455,6 +457,7 @@ void PG_SolveDistanceJointVelocity(pgJointObject* joint,double stepTime)
 		}
 		else
 		{
+			
 			_PG_DistanceJoint_ComputeOneDynamic(body1,&pJoint->anchor2,&pJoint->anchor1,pJoint->distance,stepTime);
 
 			/*double a,b,c,d,e,f,k;

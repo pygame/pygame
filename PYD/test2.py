@@ -18,30 +18,7 @@ def render_world(world,surface,body_color,joint_color):
     for joint in world.joint_list:
         render_joint(joint,surface,joint_color)        
 
-def init_world1():
-    w = physics.World()
-    w.gravity = 0+1j
-    body1 = physics.Body()
-    body1.bind_rect_shape(2,2,0)
-    body1.position = 20, 10
-    body1.velocity = 1,0
-    body1.restitution = 3.0
-    w.add_body(body1)
-    body2 = physics.Body()
-    body2.bind_rect_shape(2,2,0)
-    body2.position = 20, 20
-    body2.velocity = -1, 0
-    body1.restitution = 3.0
-    w.add_body(body2)
-    joint1 = physics.DistanceJoint(body1,1)
-    joint1.anchor1 = 5+0j
-    joint1.anchor2 = 20+0j
-    w.add_joint(joint1)
-    joint2 = physics.DistanceJoint(body1,body2,1)
-    joint2.anchor1 = 5+0j
-    joint2.anchor2 = 5+0j
-    w.add_joint(joint2)
-    return w
+
     
 
 def init_world():
@@ -70,8 +47,8 @@ def init_world():
     joint1.anchor2 = 0+0j
     w.add_joint(joint1)
     joint2 = physics.DistanceJoint(body1,body2,1)
-    joint2.anchor1 = 1+0j
-    joint2.anchor2 = 1+0j
+    joint2.anchor1 = 0+0j
+    joint2.anchor2 = 0+0j
     w.add_joint(joint2)
     return w
 
