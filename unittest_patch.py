@@ -36,7 +36,6 @@ def TestCase_run(self, result=None):
     result.startTest(self)
     testMethod = getattr(self, self._testMethodName)
     
-    print self._testMethodName
     try:
 
     ########################################################################

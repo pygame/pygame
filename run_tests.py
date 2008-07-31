@@ -114,22 +114,26 @@ else:
 ################################################################################
 # Meta results
 
-meta_results = {}
+results = {}
+meta_results = {'__meta__' : {}}
+meta = meta_results['__meta__']
 
 ################################################################################
 # Randomization
 
 if options.randomize or options.seed:
-    t = time.time()
-    meta_results['random_seed'] = t
-    if options.seed: random.seed(options.seed)
-    else:            random.seed(t)
+    seed = options.seed or time.time()
+    meta['random_seed'] = seed
+    print "\nRANDOM SEED USED: %s\n" % seed
+    random.seed(seed)
+    
+    # if options.randomize or options.seed:
+    #     print "\nRANDOM SEED USED: %s\n" % meta_results['random_seed']
         
 ################################################################################
 # Single process mode
 
 if not options.subprocess:
-    results = {}
     unittest_patch.patch(options)
 
     t = time.time()
@@ -190,10 +194,13 @@ total, fails = test_failures(results)
 
 if not options.subprocess: assert total == untrusty_total
 
-if not options.dump or (options.human and untrusty_total == total):
+if not options.dump:# or (options.human and untrusty_total == total):
     print combined
 else:
+    results = options.all and results or fails
+    results.update(meta_results)
+
     print TEST_RESULTS_START
-    print pformat(options.all and results or fails)
+    print pformat(results)
 
 ################################################################################
