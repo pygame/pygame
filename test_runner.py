@@ -123,7 +123,6 @@ def combine_results(all_results, t):
     failures = []
 
     for module, results in sorted(all_results.items()):
-        if module == '__meta__': continue
         output, return_code, raw_return = map (
             results.get, ('output','return_code', 'raw_return')
         )
