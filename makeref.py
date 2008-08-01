@@ -16,20 +16,41 @@ def sort_list_by_keyfunc(alist, akey):
     alist = map(lambda x:x[1], keys_and_list)
     return alist
 
-
-def Run():
+def collect_doc_files():
+    # ABSPATH ONLY WORKS FOR docs_as_dict
+    #
+    # if __name__ == '__main__': Run()
+    #     must be ran from in trunk dir
+    
     # get files and shuffle ordering
-    files = glob.glob(os.path.join('src','*.doc')) + glob.glob(os.path.join('lib','*.doc'))
-    for file in files:
-        print file
-    files.remove(os.path.join("src","pygame.doc"))
+    trunk_dir = os.path.abspath(os.path.dirname(__file__))
+    
+    src_dir = os.path.join(trunk_dir, 'src')
+    lib_dir = os.path.join(trunk_dir, 'lib')
 
+    pygame_doc = os.path.join(src_dir, "pygame.doc")
 
+    files = (
+        glob.glob(os.path.join(src_dir,'*.doc')) +
+        glob.glob(os.path.join(lib_dir,'*.doc'))
+    )
+
+    files.remove(pygame_doc)
+    
     #XXX: sort(key=) is only available in >= python2.4
-    #files.sort(key=sortkey)
+    # files.sort(key=sortkey)
     files = sort_list_by_keyfunc(files, sortkey)
 
-    files.insert(0, os.path.join("src","pygame.doc"))
+    files.insert(0, pygame_doc)
+
+    return files
+
+def Run():
+    files = collect_doc_files()
+    for file in files:
+        # print file
+        print os.path.basename(file)
+    
     docs = []
     pages = []
     for f in files:
@@ -305,7 +326,45 @@ class Doc(object):
     def __cmp__(self, b):
         return cmp(self.name.lower(), b.name.lower())
 
+def docs_as_dict():
+    """
 
+    Dict Format:
+
+        {'pygame.rect.Rect.center': 'Rect.center: ...' ...}
+
+    Generally works, has some workarounds, inspect results manually.
+
+    """
+
+    import pygame
+    files = collect_doc_files()
+
+    def make_mapping(doc, parent_name):
+        docs = {}
+        for k in doc.kids:
+            if k.docs:
+                kid_name = k.fullname
+
+                if parent_name == 'pygame':
+                    if hasattr(pygame.base, k.name):
+                        kid_name = '%s.%s' % ('pygame.base', k.name)
+
+                elif not kid_name.startswith(parent_name):
+                    kid_name = '%s.%s' % (parent_name, kid_name)
+
+                docs[kid_name] = '\n'.join(k.docs)
+
+            if k.kids:
+                docs.update(make_mapping(k, parent_name))
+        return docs
+
+    mapping = {}
+    for f in files:
+        doc = Doc('', open(f, "U"))
+        mapping.update(make_mapping(doc, doc.name.lower()))
+
+    return mapping
 
 HTMLHeader = """
 <html>
@@ -334,8 +393,5 @@ HTMLFinish = """
 </body></html>
 """
 
-
-
 if __name__ == '__main__':
     Run()
-
