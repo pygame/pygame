@@ -7,6 +7,8 @@ from inspect import isclass, ismodule, getdoc, isgetsetdescriptor, getmembers
 import pygame, sys, datetime, re, types
 import relative_indentation
 
+import textwrap
+
 ################################ TESTS DIRECTORY ###############################
 
 from os.path import normpath, join, dirname, abspath
@@ -15,6 +17,8 @@ for relpath in ('../../','../'):
     sys.path.insert(0, abspath(normpath( join(dirname(__file__), relpath) )) )
 
 from test.unittest import TestCase
+
+from makeref import docs_as_dict
 
 #################################### IGNORES ###################################
 
@@ -127,6 +131,10 @@ opt_parser.add_option (
      "-t",  "--test_names", action = 'store_true',
      help   = "list test names not stubs" )
 
+opt_parser.add_option (
+     "-d",  "--docs", action = 'store_true',
+     help   = "get (more detailed) docs using makeref.py" )
+
 opt_parser.set_usage(
 """
 $ %prog ROOT
@@ -154,9 +162,15 @@ def get_package_modules(pkg):
                                                  # Don't want to pick up 
                                                  # string module for example
 def py_comment(input_str):
-    return '\n'.join (
-        [('# ' + l) for l in input_str.split('\n')]
-    )
+    lines = []
+    for line in input_str.split('\n'):
+        if len(line) > 80:
+            lines += textwrap.wrap(line, 68)
+            lines += ['']
+        else:
+            lines += [line]
+
+    return '\n'.join([('# ' + l) for l in lines])
 
 def is_public(obj_name):
     try: obj_name += ''
@@ -198,7 +212,9 @@ def test_stub(f, module, parent_class = None):
     stub = STUB_TEMPLATE.render (
 
         test_name = test_name,
-        comments = py_comment(getdoc(f) or ''),
+        
+        # docs is a global, possibly empty dict, depending on options.docs
+        comments = py_comment(docs.get(unit_name) or getdoc(f) or ''),
         unitname = unit_name,
     )
 
@@ -300,6 +316,8 @@ if __name__ == "__main__":
     if not sys.argv[1:]:
         sys.exit(opt_parser.print_help())
 
+    docs = options.docs and docs_as_dict() or {}
+    
     root = args and args[0] or 'pygame'
     if not root.startswith('pygame'):
         root = '%s.%s' % ('pygame', root)
