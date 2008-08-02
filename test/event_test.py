@@ -10,11 +10,19 @@ import pygame
 
 class EventTypeTest(unittest.TestCase):
     def test_Event(self):
-        # __doc__ (as of 2008-06-25) for pygame.event.Event:
+        # __doc__ (as of 2008-08-02) for pygame.event.Event:
 
           # pygame.event.Event(type, dict): return Event
           # pygame.event.Event(type, **attributes): return Event
           # create a new event object
+          # 
+          # Creates a new event with the given type. The event is created with
+          # the given attributes and values. The attributes can come from a
+          # dictionary argument, or as string keys from a dictionary.
+          # 
+          # The given attributes will be readonly attributes on the new event
+          # object itself. These are the only attributes on the Event object,
+          # there are no methods attached to Event objects.
 
         e = pygame.event.Event(pygame.USEREVENT, some_attr=1, other_attr='1')
 
@@ -183,38 +191,40 @@ class EventModuleTest(unittest.TestCase):
 
     def todo_test_get_blocked(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.event.get_blocked:
+        # __doc__ (as of 2008-08-02) for pygame.event.get_blocked:
 
           # pygame.event.get_blocked(type): return bool
           # test if a type of event is blocked from the queue
+          # 
+          # Returns true if the given event type is blocked from the queue. 
 
-        self.fail()
+        self.fail() 
+
+    def todo_test_get_grab(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.event.get_grab:
+
+          # pygame.event.get_grab(): return bool
+          # test if the program is sharing input devices
+          # 
+          # Returns true when the input events are grabbed for this application.
+          # Use pygame.event.set_grab() to control this state.
+          # 
+
+        self.fail() 
 
     def todo_test_poll(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.event.poll:
+        # __doc__ (as of 2008-08-02) for pygame.event.poll:
 
           # pygame.event.poll(): return Event
           # get a single event from the queue
+          # 
+          # Returns a single event from the queue. If the event queue is empty
+          # an event of type pygame.NOEVENT will be returned immediately. The
+          # returned event is removed from the queue.
+          # 
 
-        self.fail()
-        
-    def todo_test_set_grab(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.event.set_grab:
-
-          # pygame.event.set_grab(bool): return None
-          # control the sharing of input devices with other applications
-        
-        self.fail()
-
-    def todo_test_get_grab(self):
-    
-        # __doc__ (as of 2008-06-25) for pygame.event.get_grab:
-    
-          # pygame.event.get_grab(): return bool
-          # test if the program is sharing input devices
-    
         self.fail() 
 
 ################################################################################

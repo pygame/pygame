@@ -25,15 +25,6 @@ class BaseModuleTest(unittest.TestCase):
         self.assertEqual(init_called, 1)
         self.assertEqual(quit_called, 1)
 
-    def test_get_error(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.base.get_error:
-
-          # pygame.get_error(): return errorstr
-          # get the current error message
-
-        self.assert_(test_not_implemented())
-
     def test_get_sdl_byteorder(self):
 
         # __doc__ (as of 2008-06-25) for pygame.base.get_sdl_byteorder:
@@ -52,16 +43,6 @@ class BaseModuleTest(unittest.TestCase):
 
         self.assert_( len(pygame.get_sdl_version()) == 3) 
 
-    def test_init(self):
-        return
-
-        # __doc__ (as of 2008-06-25) for pygame.base.init:
-
-          # pygame.init(): return (numpass, numfail)
-          # initialize all imported pygame modules
-
-        self.assert_(test_not_implemented()) 
-
     def not_init_assertions(self):
         self.assert_(not pygame.display.get_init(),  "display shouldn't be initialized" )
         self.assert_(not pygame.mixer.get_init(),  "mixer shouldn't be initialized" )
@@ -77,9 +58,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assert_(pygame.mixer.get_init())
         self.assert_(pygame.font.get_init())
 
-    def test_quit__and_init(self):
-        return # TODO
-
+    def todo_test_quit__and_init(self):
         # __doc__ (as of 2008-06-25) for pygame.base.quit:
 
           # pygame.quit(): return None
@@ -115,13 +94,51 @@ class BaseModuleTest(unittest.TestCase):
 
         self.assert_(quit_hook_ran)
 
-    def test_segfault(self):
+    def todo_test_get_error(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.base.segfault:
+        # __doc__ (as of 2008-08-02) for pygame.base.get_error:
+
+          # pygame.get_error(): return errorstr
+          # get the current error message
+          # 
+          # SDL maintains an internal error message. This message will usually
+          # be given to you when pygame.error is raised. You will rarely need to
+          # call this function.
+          # 
+
+        self.fail() 
+
+    def todo_test_init(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.base.init:
+
+          # pygame.init(): return (numpass, numfail)
+          # initialize all imported pygame modules
+          # 
+          # Initialize all imported Pygame modules. No exceptions will be raised
+          # if a module fails, but the total number if successful and failed
+          # inits will be returned as a tuple. You can always initialize
+          # individual modules manually, but pygame.init is a convenient way to
+          # get everything started. The init() functions for individual modules
+          # will raise exceptions when they fail.
+          # 
+          # You may want to initalise the different modules seperately to speed
+          # up your program or to not use things your game does not.
+          # 
+          # It is safe to call this init() more than once: repeated calls will
+          # have no effect. This is true even if you have pygame.quit() all the
+          # modules.
+          # 
+
+        self.fail() 
+
+    def todo_test_segfault(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.base.segfault:
 
           # crash
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
 
 if __name__ == '__main__':
     unittest.main()

@@ -27,24 +27,69 @@ def maskFromSurface(surface, threshold = 127):
 #pygame.display.set_mode((10,10))
 
 class MaskTypeTest( unittest.TestCase ):
-    # get_at             
-    # get_size           
-    # overlap_area
-    # get_bounding_rects 
-    # overlap            
-    # set_at
+    def todo_test_get_at(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.get_at:
+
+          # Mask.get_at((x,y)) -> int
+          # Returns nonzero if the bit at (x,y) is set.
+          # 
+          # Coordinates start at (0,0) is top left - just like Surfaces. 
+
+        self.fail() 
+
+    def todo_test_get_size(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.get_size:
+
+          # Mask.get_size() -> width,height
+          # Returns the size of the mask.
+
+        self.fail() 
+
+    def todo_test_overlap(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.overlap:
+
+          # Mask.overlap(othermask, offset) -> x,y
+          # Returns the point of intersection if the masks overlap with the
+          # given offset - or None if it does not overlap.
+
+          # The overlap tests uses the following offsets (which may be negative): 
+          #    +----+----------..
+          #    |A   | yoffset
+          #    |  +-+----------..
+          #    +--|B
+          #    |xoffset
+          #    |  |
+          #    :  :
+
+        self.fail() 
+
+    def todo_test_overlap_area(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.overlap_area:
+
+          # Mask.overlap_area(othermask, offset) -> numpixels
+          # Returns the number of overlapping 'pixels'.
+          # 
+          # You can see how many pixels overlap with the other mask given.  This
+          # can be used to see in which direction things collide, or to see how
+          # much the two masks collide.
+
+        self.fail() 
+
+    def todo_test_set_at(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.mask.Mask.set_at:
+
+          # Mask.set_at((x,y),value)
+          # Sets the position in the mask given by x and y.
+
+        self.fail() 
     
-    def test_Mask(self):
-    
-        # __doc__ (as of 2008-06-25) for pygame.mask.Mask:
-    
-          # pygame.Mask((width, height): return Mask
-          # pygame object for representing 2d bitmasks
-    
-        self.assert_(test_not_implemented()) 
-        
     def test_mask_access( self ):
-        """ do the set_at, and get_at parts work correctly? 
+        """ do the set_at, and get_at parts work correctly?
         """
         m = pygame.Mask((10,10))
         m.set_at((0,0), 1)
@@ -174,10 +219,6 @@ class MaskTypeTest( unittest.TestCase ):
         r = m.get_bounding_rects()
         #TODO: this should really make one bounding rect.
         #self.assertEquals(repr(r), "[<rect(0, 0, 5, 2)>]")
-
-
-
-
 
 class MaskModuleTest(unittest.TestCase):
     def test_from_surface(self):

@@ -15,7 +15,7 @@ class SpriteModuleTest( unittest.TestCase ):
     
 ######################### SPRITECOLLIDE FUNCTIONS TEST #########################
 
-class SpriteCollideTest( unittest.TestCase ):
+class SpriteCollideTest( unittest.TestCase ):    
     def setUp(self):
         self.ag = sprite.AbstractGroup()
         self.ag2 = sprite.AbstractGroup()
@@ -33,6 +33,8 @@ class SpriteCollideTest( unittest.TestCase ):
         self.s2.rect.move_ip(40, 0)
         self.s3.rect.move_ip(100, 100)
 
+
+    
     def test_spritecollide__works_if_collided_cb_is_None(self):
     # Test that sprites collide without collided function.
         self.assertEqual (
@@ -42,7 +44,7 @@ class SpriteCollideTest( unittest.TestCase ):
             [self.s2]
         )
 
-    def test_spritecollide__works_if_collided_cb_not_passed(self):        
+    def test_spritecollide__works_if_collided_cb_not_passed(self):
     # Should also work when collided function isn't passed at all.
         self.assertEqual(sprite.spritecollide (
             self.s1, self.ag2, dokill = False),
@@ -194,38 +196,11 @@ class SpriteCollideTest( unittest.TestCase ):
                 self.s1, self.ag2, dokill = False, collided = sprite.collide_mask
             )
         )
+    
+    def todo_test_spritecollideany(self):
 
-    def test_groupcollide(self):
-    
-        # __doc__ (as of 2008-06-24) for pygame.sprite.groupcollide:
-        
-          # pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
-          # collision detection between group and group
-          # 
-          # given two groups, this will find the intersections
-          # between all sprites in each group. it returns a
-          # dictionary of all sprites in the first group that
-          # collide. the value for each item in the dictionary
-          # is a list of the sprites in the second group it
-          # collides with. the two dokill arguments control if
-          # the sprites from either group will be automatically
-          # removed from all groups.
-          # collided is a callback function used to calculate if
-          # two sprites are colliding. it should take two sprites
-          # as values, and return a bool value indicating if
-          # they are colliding. if collided is not passed, all
-          # sprites must have a "rect" value, which is a
-          # rectangle of the sprite area, which will be used
-          # to calculate the collision.
-        
-        collision = pygame.sprite.groupcollide(self.ag, self.ag2, False, False)
-        
-        self.assert_(collision == {self.s1 : [self.s2]})
+        # __doc__ (as of 2008-08-02) for pygame.sprite.spritecollideany:
 
-    def test_spritecollideany(self):
-    
-        # __doc__ (as of 2008-06-24) for pygame.sprite.spritecollideany:
-    
           # pygame.sprite.spritecollideany(sprite, group) -> sprite
           # finds any sprites that collide
           # 
@@ -245,15 +220,55 @@ class SpriteCollideTest( unittest.TestCase ):
           # sprites must have a "rect" value, which is a
           # rectangle of the sprite area, which will be used
           # to calculate the collision.
-    
-        self.assert_(test_not_implemented())
-    
-    # TODO, move to gen_stubs.py IGNORE list
+          # 
+          # Test if the given Sprite intersects with any Sprites in a Group.
+          # Intersection is determined by comparing of the Sprite.rect attribute
+          # of each Sprite.
+          # 
+          # This collision test can be faster than pygame.sprite.spritecollide()
+          # since it has less work to do.
 
-    test_collide_rect = test_spritecollide__collided_defaults_to_collide_rect
+        self.fail() 
     
-        # __doc__ (as of 2008-06-24) for pygame.sprite.collide_rect:
-    
+    def todo_test_groupcollide(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.groupcollide:
+
+          # pygame.sprite.groupcollide(groupa, groupb, dokilla, dokillb) -> dict
+          # collision detection between group and group
+          # 
+          # given two groups, this will find the intersections
+          # between all sprites in each group. it returns a
+          # dictionary of all sprites in the first group that
+          # collide. the value for each item in the dictionary
+          # is a list of the sprites in the second group it
+          # collides with. the two dokill arguments control if
+          # the sprites from either group will be automatically
+          # removed from all groups.
+          # collided is a callback function used to calculate if
+          # two sprites are colliding. it should take two sprites
+          # as values, and return a bool value indicating if
+          # they are colliding. if collided is not passed, all
+          # sprites must have a "rect" value, which is a
+          # rectangle of the sprite area, which will be used
+          # to calculate the collision.
+          # 
+          # This will find intersections between all the Sprites in two groups.
+          # Intersection is determined by comparing the Sprite.rect attribute of
+          # each Sprite.
+          # 
+          # Every Sprite inside group1 is added to the return dictionary. The
+          # value for each item is the list of Sprites in group2 that intersect.
+          # 
+          # If either dokill argument is True, the intersecting Sprites will be
+          # removed from their respective Group.
+
+        self.fail()
+
+    def todo_test_collide_rect(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.collide_rect:
+
           # collision detection between two sprites, using rects.
           # pygame.sprite.collide_rect(left, right): return bool
           # 
@@ -264,7 +279,15 @@ class SpriteCollideTest( unittest.TestCase ):
           # Sprites must have a "rect" attributes.
           # 
           # New in pygame 1.8.0
-    
+          # 
+          # Tests for collision between two sprites. Uses the pygame rect
+          # colliderect function to calculate the collision. Intended to be
+          # passed as a collided callback function to the *collide functions.
+          # Sprites must have a "rect" attributes.
+          # 
+          # New in pygame 1.8.0 
+
+        self.fail() 
 
 ################################################################################
 
@@ -290,6 +313,126 @@ class AbstractGroupTypeTest( unittest.TestCase ):
     
         # see if a second AbstractGroup works.
         self.assertEqual(True, ag2.has(s3) )
+
+    def todo_test_add(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.add:
+
+          # add(sprite, list, or group, ...)
+          # add sprite to group
+          # 
+          # Add a sprite or sequence of sprites to a group.
+
+        self.fail() 
+
+    def todo_test_add_internal(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.add_internal:
+
+          # 
+
+        self.fail() 
+
+    def todo_test_clear(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.clear:
+
+          # clear(surface, bgd)
+          # erase the previous position of all sprites
+          # 
+          # Clears the area of all drawn sprites. the bgd
+          # argument should be Surface which is the same
+          # dimensions as the surface. The bgd can also be
+          # a function which gets called with the passed
+          # surface and the area to be cleared.
+
+        self.fail() 
+
+    def todo_test_copy(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.copy:
+
+          # copy()
+          # copy a group with all the same sprites
+          # 
+          # Returns a copy of the group that is the same class
+          # type, and has the same sprites in it.
+
+        self.fail() 
+
+    def todo_test_draw(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.draw:
+
+          # draw(surface)
+          # draw all sprites onto the surface
+          # 
+          # Draws all the sprites onto the given surface.
+
+        self.fail() 
+
+    def todo_test_empty(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.empty:
+
+          # empty()
+          # remove all sprites
+          # 
+          # Removes all the sprites from the group.
+
+        self.fail() 
+
+    def todo_test_has_internal(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.has_internal:
+
+          # 
+
+        self.fail() 
+
+    def todo_test_remove(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.remove:
+
+          # remove(sprite, list, or group, ...)
+          # remove sprite from group
+          # 
+          # Remove a sprite or sequence of sprites from a group.
+
+        self.fail() 
+
+    def todo_test_remove_internal(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.remove_internal:
+
+        self.fail() 
+
+    def todo_test_sprites(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.sprites:
+
+          # sprites()
+          # get a list of sprites in the group
+          # 
+          # Returns an object that can be looped over with a 'for' loop.
+          # (For now it is always a list, but newer version of Python
+          # could return different iterators.) You can also iterate directly
+          # over the sprite group.
+
+        self.fail() 
+
+    def todo_test_update(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.AbstractGroup.update:
+
+          # update(*args)
+          # call update for all member sprites
+          # 
+          # calls the update method for all sprites in the group.
+          # Passes all arguments on to the Sprite update function.
+
+        self.fail()
+
 
 ################################################################################
 
@@ -641,6 +784,41 @@ class SpriteBase:
         
         self.sprite = self.Sprite()
     
+    def todo_test_add_internal(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.Sprite.add_internal:
+
+        self.fail() 
+
+    def todo_test_remove_internal(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.sprite.Sprite.remove_internal:
+
+        self.fail()
+    
+    def todo_test_update(self):
+    
+        # __doc__ (as of 2008-08-02) for pygame.sprite.Sprite.update:
+    
+          # method to control sprite behavior
+          # Sprite.update(*args):
+          # 
+          # The default implementation of this method does nothing; it's just a
+          # convenient "hook" that you can override. This method is called by
+          # Group.update() with whatever arguments you give it.
+          # 
+          # There is no need to use this method if not using the convenience 
+          # method by the same name in the Group class.
+          # 
+          # The default implementation of this method does nothing; it's just a
+          # convenient "hook" that you can override. This method is called by
+          # Group.update() with whatever arguments you give it.
+          # 
+          # There is no need to use this method if not using the convenience
+          # method by the same name in the Group class.
+    
+        self.fail() 
+    
     def test___init____added_to_groups_passed(self):
         self.sprite = self.Sprite(self.groups)
 
@@ -657,9 +835,6 @@ class SpriteBase:
             self.groups
         ))
 
-    def test_add_internal(self):
-        self.assert_(test_not_implemented())
-    
     def test_alive(self):
         self.assert_(
             not self.sprite.alive(),
@@ -691,25 +866,6 @@ class SpriteBase:
         self.sprite.add(self.groups)
         self.sprite.remove(self.groups)
         self.assert_(not self.sprite.groups())
-
-    def test_remove_internal(self):
-        self.assert_(test_not_implemented())
-
-    def test_update(self):
-        # Doc string for pygame.sprite.Sprite.update:
-    
-          # method to control sprite behavior
-          # Sprite.update(*args):
-          # 
-          # The default implementation of this method does nothing; it's just a
-          # convenient "hook" that you can override. This method is called by
-          # Group.update() with whatever arguments you give it.
-          # 
-          # There is no need to use this method if not using the convenience
-          # method by the same name in the Group class.
-          # 
-
-        self.assert_(test_not_implemented())
 
 ############################## SPRITE CLASS TESTS ##############################
 

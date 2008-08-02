@@ -6,13 +6,13 @@ from test_utils import test_not_implemented
 import pygame
 
 class PixelArrayTypeTest (unittest.TestCase):
-    def test_compare(self):
+    def todo_test_compare(self):
         # __doc__ (as of 2008-06-25) for pygame.pixelarray.PixelArray.compare:
 
           # PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)): Return PixelArray
           # Compares the PixelArray with another one.
 
-        self.assert_(test_not_implemented())
+        self.fail()
 
     def test_pixel_array (self):
         for bpp in (8, 16, 24, 32):
@@ -457,6 +457,17 @@ class PixelArrayTypeTest (unittest.TestCase):
             self.assertEqual (newar[8][9], black)
             self.assertEqual (newar[9][9], black)
         #print "extract end"
+
+    def todo_test_surface(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.pixelarray.PixelArray.surface:
+
+          # PixelArray.surface: Return Surface
+          # Gets the Surface the PixelArray uses.
+          # 
+          # The Surface, the PixelArray was created for. 
+
+        self.fail() 
 
 if __name__ == '__main__':
     unittest.main()
