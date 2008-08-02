@@ -42,8 +42,8 @@ class CursorsModuleTest(unittest.TestCase):
           # should work with typical XBM files.
 
         # Test that load_xbm will take filenames as arguments
-        cursorfile = fixture_path(r"xbm_cursors\white_sizing.xbm")
-        maskfile   = fixture_path(r"xbm_cursors\white_sizing_mask.xbm")
+        cursorfile = fixture_path(r"xbm_cursors/white_sizing.xbm")
+        maskfile   = fixture_path(r"xbm_cursors/white_sizing_mask.xbm")
         cursor = pygame.cursors.load_xbm(cursorfile, maskfile)
         
         # Test that load_xbm will take file objects as arguments
