@@ -7,40 +7,40 @@ from test_utils import test_not_implemented
 ################################################################################
 
 class FasteventModuleTest(unittest.TestCase):
-    def test_get(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.get:
-
+    def todo_test_get(self):
+    
+        # __doc__ (as of 2008-08-02) for pygame.fastevent.get:
+    
           # pygame.fastevent.get() -> list of Events
           # get all events from the queue
-
-        self.assert_(test_not_implemented()) 
-
-    def test_init(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.init:
-
+    
+        self.fail() 
+    
+    def todo_test_init(self):
+    
+        # __doc__ (as of 2008-08-02) for pygame.fastevent.init:
+    
           # pygame.fastevent.init() -> None
           # initialize pygame.fastevent.
-
-        self.assert_(test_not_implemented()) 
-
-    def test_poll(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.poll:
-
+    
+        self.fail() 
+    
+    def todo_test_poll(self):
+    
+        # __doc__ (as of 2008-08-02) for pygame.fastevent.poll:
+    
           # pygame.fastevent.poll() -> Event
           # get an available event
           # 
           # Returns next event on queue. If there is no event waiting on the
           # queue, this will return an event with type NOEVENT.
-
-        self.assert_(test_not_implemented()) 
-
-    def test_post(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.post:
-
+    
+        self.fail() 
+    
+    def todo_test_post(self):
+    
+        # __doc__ (as of 2008-08-02) for pygame.fastevent.post:
+    
           # pygame.fastevent.post(Event) -> None
           # place an event on the queue
           # 
@@ -56,13 +56,13 @@ class FasteventModuleTest(unittest.TestCase):
           # event on to a full queue from the thread that processes events.
           # For that reason I do not recommend using this function in the
           # main thread of an SDL program.
-
-        self.assert_(test_not_implemented()) 
-
-    def test_pump(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.pump:
-
+    
+        self.fail() 
+    
+    def todo_test_pump(self):
+    
+        # __doc__ (as of 2008-08-02) for pygame.fastevent.pump:
+    
           # pygame.fastevent.pump() -> None
           # update the internal messages
           # 
@@ -76,13 +76,13 @@ class FasteventModuleTest(unittest.TestCase):
           # event queue. The main window may need to be repainted. Certain joysticks
           # must be polled for their values. If you fail to make a call to the event
           # queue for too long, the system may decide your program has locked up.
-
-        self.assert_(test_not_implemented()) 
-
-    def test_wait(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.fastevent.wait:
-
+    
+        self.fail() 
+    
+    def todo_test_wait(self):
+    
+        # __doc__ (as of 2008-08-02) for pygame.fastevent.wait:
+    
           # pygame.fastevent.wait() -> Event
           # wait for an event
           # 
@@ -91,10 +91,9 @@ class FasteventModuleTest(unittest.TestCase):
           # available. Sometimes it is important to use this wait to get
           # events from the queue, it will allow your application to idle
           # when the user isn't doing anything with it.
-
-        self.assert_(test_not_implemented()) 
-
-
+    
+        self.fail() 
+    
 ################################################################################
 
 if __name__ == '__main__':

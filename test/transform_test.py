@@ -252,7 +252,7 @@ class TransformModuleTest( unittest.TestCase ):
 
         for pos in range(len('rgb')):
             threshold_color = threshold_color_template[:]
-            threshold       = threshold_template
+            threshold       = threshold_template[:]
 
             threshold_color[pos] = 45
             threshold[pos] = 50
@@ -388,34 +388,13 @@ class TransformModuleTest( unittest.TestCase ):
 
         self.assertRaises(TypeError, pygame.transform.average_surfaces, (s for s in [s1, s2,s3] ))
 
-
-    def test_chop(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.transform.chop:
-
-          # pygame.transform.chop(Surface, rect): return Surface
-          # gets a copy of an image with an interior area removed
-
-        self.assert_(test_not_implemented()) 
-
-    def test_flip(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.transform.flip:
-
-          # pygame.transform.flip(Surface, xbool, ybool): return Surface
-          # flip vertically and horizontally
-
-        self.assert_(test_not_implemented()) 
-
-    def test_rotate(self):
+    def todo_test_rotate(self):
         
         # __doc__ (as of 2008-06-25) for pygame.transform.rotate:
 
           # pygame.transform.rotate(Surface, angle): return Surface
           # rotate an image
-        
-        self.assert_(test_not_implemented()) 
-        
+                
         # color = (128, 128, 128, 255)
         # s = pygame.Surface((3, 3))
         
@@ -424,6 +403,8 @@ class TransformModuleTest( unittest.TestCase ):
         # self.assert_(s.get_at((0, 0)) != color)
         # s = pygame.transform.rotate(s, 90)
         # self.assert_(s.get_at((0, 0)) == color)
+        
+        self.fail()
 
     def test_rotate__lossless_at_90_degrees(self):
         w, h = 32, 32
@@ -439,32 +420,88 @@ class TransformModuleTest( unittest.TestCase ):
         for pt, color in gradient:
             self.assert_(s.get_at(pt) == color)
 
-    def test_rotozoom(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.transform.rotozoom:
-
-          # pygame.transform.rotozoom(Surface, angle, scale): return Surface
-          # filtered scale and rotation
-
-        self.assert_(test_not_implemented()) 
-
     def test_scale2x(self):
 
         # __doc__ (as of 2008-06-25) for pygame.transform.scale2x:
 
           # pygame.transform.scale2x(Surface, DestSurface = None): Surface
           # specialized image doubler
+        
+        w, h = 32, 32
+        s = pygame.Surface((w, h), pygame.SRCALPHA, 32)
+        
+        # s.set_at((0,0), (20, 20, 20, 255))
 
-        self.assert_(test_not_implemented()) 
+        s2 = pygame.transform.scale2x(s)
+        self.assertEquals(s2.get_rect().size, (64, 64))
 
-    def test_smoothscale(self):
+    def todo_test_chop(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.transform.smoothscale:
+        # __doc__ (as of 2008-08-02) for pygame.transform.chop:
 
-          # pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface
+          # pygame.transform.chop(Surface, rect): return Surface
+          # gets a copy of an image with an interior area removed
+          # 
+          # Extracts a portion of an image. All vertical and horizontal pixels
+          # surrounding the given rectangle area are removed. The corner areas
+          # (diagonal to the rect) are then brought together. (The original
+          # image is not altered by this operation.)
+          # 
+          # NOTE: If you want a "crop" that returns the part of an image within
+          # a rect, you can blit with a rect to a new surface or copy a
+          # subsurface.
+
+        self.fail() 
+
+    def todo_test_flip(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.transform.flip:
+
+          # pygame.transform.flip(Surface, xbool, ybool): return Surface
+          # flip vertically and horizontally
+          # 
+          # This can flip a Surface either vertically, horizontally, or both.
+          # Flipping a Surface is nondestructive and returns a new Surface with
+          # the same dimensions.
+
+        self.fail() 
+
+    def todo_test_rotozoom(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.transform.rotozoom:
+
+          # pygame.transform.rotozoom(Surface, angle, scale): return Surface
+          # filtered scale and rotation
+          # 
+          # This is a combined scale and rotation transform. The resulting
+          # Surface will be a filtered 32-bit Surface. The scale argument is a
+          # floating point value that will be multiplied by the current
+          # resolution. The angle argument is a floating point value that
+          # represents the counterclockwise degrees to rotate. A negative
+          # rotation angle will rotate clockwise.
+
+        self.fail() 
+
+    def todo_test_smoothscale(self):
+        # __doc__ (as of 2008-08-02) for pygame.transform.smoothscale:
+
+          # pygame.transform.smoothscale(Surface, (width, height), DestSurface =
+          # None): return Surface
+          # 
           # scale a surface to an arbitrary size smoothly
+          # 
+          # Uses one of two different algorithms for scaling each dimension of
+          # the input surface as required.  For shrinkage, the output pixels are
+          # area averages of the colors they cover.  For expansion, a bilinear
+          # filter is used. For the amd64 and i686 architectures, optimized MMX
+          # routines are included and will run much faster than other machine
+          # types. The size is a 2 number sequence for (width, height). This
+          # function only works for 24-bit or 32-bit surfaces.  An exception
+          # will be thrown if the input surface bit depth is less than 24.
+          # 
+          # New in pygame 1.8 
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
 
 if __name__ == '__main__':
     unittest.main()

@@ -57,21 +57,19 @@ class WorkerQueueTypeTest(unittest.TestCase):
         
         self.assert_(wq.queue.get() is STOP)
 
-    def test_threadloop(self):
+    def todo_test_threadloop(self):
 
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.threadloop:
 
           # Loops until all of the tasks are finished.
-          #         
 
-        self.assert_(test_not_implemented())
+        self.fail()
 
     def test_wait(self):
 
         # __doc__ (as of 2008-06-28) for pygame.threads.WorkerQueue.wait:
 
           # waits until all tasks are complete.
-          #         
 
         wq = WorkerQueue()
         
@@ -83,7 +81,7 @@ class WorkerQueueTypeTest(unittest.TestCase):
         wq.stop()
 
 class ThreadsModuleTest(unittest.TestCase):
-    def test_benchmark_workers(self):
+    def todo_test_benchmark_workers(self):
         "tags:long_running"
 
         # __doc__ (as of 2008-06-28) for pygame.threads.benchmark_workers:
@@ -96,7 +94,7 @@ class ThreadsModuleTest(unittest.TestCase):
           # a_bench_func - f(data)
           # the_data - data to work on.
 
-        self.assert_(test_not_implemented())
+        self.fail()
 
     def test_init(self):
 

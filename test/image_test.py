@@ -223,49 +223,61 @@ class ImageModuleTest( unittest.TestCase ):
         self.assert_(AreSurfacesIdentical(test_surface, test_to_from_argb_string))
         #"ERROR: image.fromstring and image.tostring with ARGB are not symmetric"
 
-    def test_frombuffer(self):
+    def todo_test_frombuffer(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.image.frombuffer:
+        # __doc__ (as of 2008-08-02) for pygame.image.frombuffer:
 
           # pygame.image.frombuffer(string, size, format): return Surface
           # create a new Surface that shares data inside a string buffer
+          # 
+          # Create a new Surface that shares pixel data directly from the string
+          # buffer. This method takes the same arguments as
+          # pygame.image.fromstring(), but is unable to vertically flip the
+          # source data.
+          # 
+          # This will run much faster than pygame.image.fromstring, since no
+          # pixel data must be allocated and copied.
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
 
-    def test_get_extended(self):
+    def todo_test_get_extended(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.image.get_extended:
+        # __doc__ (as of 2008-08-02) for pygame.image.get_extended:
 
           # pygame.image.get_extended(): return bool
           # test if extended image formats can be loaded
+          # 
+          # If pygame is built with extended image formats this function will
+          # return True. It is still not possible to determine which formats
+          # will be available, but generally you will be able to load them all.
 
-        self.assert_(test_not_implemented())
+        self.fail() 
 
-    def test_load_basic(self):
+    def todo_test_load_basic(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.image.load_basic:
+        # __doc__ (as of 2008-08-02) for pygame.image.load_basic:
 
           # pygame.image.load(filename): return Surface
           # pygame.image.load(fileobj, namehint=): return Surface
           # load new image from a file
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
 
-    def test_load_extended(self):
+    def todo_test_load_extended(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.image.load_extended:
-
-          # pygame module for image transfer
-
-        self.assert_(test_not_implemented()) 
-
-    def test_save_extended(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.image.save_extended:
+        # __doc__ (as of 2008-08-02) for pygame.image.load_extended:
 
           # pygame module for image transfer
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
+
+    def todo_test_save_extended(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.image.save_extended:
+
+          # pygame module for image transfer
+
+        self.fail() 
 
 if __name__ == '__main__':
     unittest.main()

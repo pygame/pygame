@@ -27,124 +27,170 @@ class MixerMusicModuleTest(unittest.TestCase):
             #musf = open(musfn)
             #pygame.mixer.music.load(musf)
         pygame.mixer.quit()
-        
-    def test_queue(self):
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.queue:
+    def todo_test_queue(self):
 
-          # pygame.mixer.music.queue(filename): return None
-          # queue a music file to follow the current
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.queue:
 
-        self.assert_(test_not_implemented())
+          # This will load a music file and queue it. A queued music file will
+          # begin as soon as the current music naturally ends. If the current
+          # music is ever stopped or changed, the queued song will be lost.
+          # 
+          # The following example will play music by Bach six times, then play
+          # music by Mozart once:
+          # 
+          #     pygame.mixer.music.load('bach.ogg')
+          #     pygame.mixer.music.play(5)        # Plays six times, not five!
+          #     pygame.mixer.music.queue('mozart.ogg')
 
-    def test_stop(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.stop:
+    def todo_test_stop(self):
 
-          # pygame.mixer.music.stop(): return None
-          # stop the music playback
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.stop:
 
-        self.assert_(test_not_implemented())
+          # Stops the music playback if it is currently playing. 
 
-    def test_rewind(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.rewind:
+    def todo_test_rewind(self):
 
-          # pygame.mixer.music.rewind(): return None
-          # restart music
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.rewind:
 
-        self.assert_(test_not_implemented())
+          # Resets playback of the current music to the beginning. 
 
-    def test_get_pos(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.get_pos:
+    def todo_test_get_pos(self):
 
-          # pygame.mixer.music.get_pos(): return time
-          # get the music play time
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_pos:
 
-        self.assert_(test_not_implemented())
+          # This gets the number of milliseconds that the music has been playing
+          # for. The returned time only represents how long the music has been
+          # playing; it does not take into account any starting position
+          # offsets.
+          # 
 
-    def test_fadeout(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.fadeout:
+    def todo_test_fadeout(self):
 
-          # pygame.mixer.music.fadeout(time): return None
-          # stop music playback after fading out
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.fadeout:
 
-        self.assert_(test_not_implemented())
+          # This will stop the music playback after it has been faded out over
+          # the specified time (measured in milliseconds).
+          # 
+          # Note, that this function blocks until the music has faded out. 
 
-    def test_play(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.play:
+    def todo_test_play(self):
 
-          # pygame.mixer.music.play(loops=0, start=0.0): return None
-          # Start the playback of the music stream
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.play:
 
-        self.assert_(test_not_implemented())
+          # This will play the loaded music stream. If the music is already
+          # playing it will be restarted.
+          # 
+          # The loops argument controls the number of repeats a music will play.
+          # play(5) will cause the music to played once, then repeated five
+          # times, for a total of six. If the loops is -1 then the music will
+          # repeat indefinitely.
+          # 
+          # The starting position argument controls where in the music the song
+          # starts playing. The starting position is dependent on the format of
+          # music playing. MP3 and OGG use the position as time (in seconds).
+          # MOD music it is the pattern order number. Passing a startpos will
+          # raise a NotImplementedError if it cannot set the start position
+          # 
 
-    def test_get_volume(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.get_volume:
+    def todo_test_load(self):
 
-          # pygame.mixer.music.get_volume(): return value
-          # get the music volume
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.load:
 
-        self.assert_(test_not_implemented())
+          # This will load a music file and prepare it for playback. If a music
+          # stream is already playing it will be stopped. This does not start
+          # the music playing.
+          # 
+          # Music can only be loaded from filenames, not python file objects
+          # like the other pygame loading functions.
+          # 
 
-    def test_set_endevent(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.set_endevent:
+    def todo_test_get_volume(self):
 
-          # pygame.mixer.music.set_endevent(): return None
-          # pygame.mixer.music.set_endevent(type): return None
-          # have the music send an event when playback stops
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_volume:
 
-        self.assert_(test_not_implemented())
+          # Returns the current volume for the mixer. The value will be between
+          # 0.0 and 1.0.
+          # 
 
-    def test_pause(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.pause:
+    def todo_test_set_endevent(self):
 
-          # pygame.mixer.music.pause(): return None
-          # temporarily stop music playback
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_endevent:
 
-        self.assert_(test_not_implemented())
+          # This causes Pygame to signal (by means of the event queue) when the
+          # music is done playing. The argument determines the type of event
+          # that will be queued.
+          # 
+          # The event will be queued every time the music finishes, not just the
+          # first time. To stop the event from being queued, call this method
+          # with no argument.
+          # 
 
-    def test_get_busy(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.get_busy:
+    def todo_test_pause(self):
 
-          # pygame.mixer.music.get_busy(): return bool
-          # check if the music stream is playing
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.pause:
 
-        self.assert_(test_not_implemented())
+          # Temporarily stop playback of the music stream. It can be resumed
+          # with the pygame.mixer.music.unpause() function.
+          # 
 
-    def test_get_endevent(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.get_endevent:
+    def todo_test_get_busy(self):
 
-          # pygame.mixer.music.get_endevent(): return type
-          # get the event a channel sends when playback stops
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_busy:
 
-        self.assert_(test_not_implemented())
+          # Returns True when the music stream is actively playing. When the
+          # music is idle this returns False.
+          # 
 
-    def test_unpause(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.unpause:
+    def todo_test_get_endevent(self):
 
-          # pygame.mixer.music.unpause(): return None
-          # resume paused music
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.get_endevent:
 
-        self.assert_(test_not_implemented())
+          # Returns the event type to be sent every time the music finishes
+          # playback. If there is no endevent the function returns
+          # pygame.NOEVENT.
+          # 
 
-    def test_set_volume(self):
+        self.fail() 
 
-        # __doc__ (as of 2008-07-13) for pygame.mixer_music.set_volume:
+    def todo_test_unpause(self):
 
-          # pygame.mixer.music.set_volume(value): return None
-          # set the music volume
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.unpause:
 
-        self.assert_(test_not_implemented())
-        
+          # This will resume the playback of a music stream after it has been paused. 
+
+        self.fail() 
+
+    def todo_test_set_volume(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.mixer_music.set_volume:
+
+          # Set the volume of the music playback. The value argument is between
+          # 0.0 and 1.0. When new music is loaded the volume is reset.
+          # 
+
+        self.fail() 
 if __name__ == '__main__':
     unittest.main()

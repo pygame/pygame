@@ -15,124 +15,193 @@ class ClockTypeTest(unittest.TestCase):
         c = Clock()
         self.assert_(c, "Clock can be constructed")
     
-    def test_get_fps(self):
-        self.assert_(test_not_implemented())
-        return
-        
-        # __doc__ (as of 2008-07-03) for pygame.time.Clock.get_fps:
+    def todo_test_get_fps(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_fps:
 
           # Clock.get_fps(): return float
           # compute the clock framerate
+          # 
+          # Compute your game's framerate (in frames per second). It is computed
+          # by averaging the last few calls to Clock.tick().
+          # 
 
-        delay_per_frame = 1 / 100.0
+        self.fail()
 
-        c = Clock()
+        # delay_per_frame = 1 / 100.0
+        # 
+        # c = Clock()
+        # 
+        # for f in range(100):
+        #     c.tick()
+        #     time.sleep(delay_per_frame)
+        # 
+        # self.assert_(99.0 < c.get_fps() < 101.0)
 
-        for f in range(100):
-            c.tick()
-            time.sleep(delay_per_frame)
+    def todo_test_get_rawtime(self):
 
-        self.assert_(99.0 < c.get_fps() < 101.0)
+        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_rawtime:
 
-    def test_tick(self):
-        self.assert_(test_not_implemented())
-        return
+          # Clock.get_rawtime(): return milliseconds
+          # actual time used in the previous tick
+          # 
+          # Similar to Clock.get_time(), but this does not include any time used
+          # while Clock.tick() was delaying to limit the framerate.
+          # 
 
-        # __doc__ (as of 2008-07-03) for pygame.time.Clock.tick:
+        self.fail() 
+
+    def todo_test_get_time(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.time.Clock.get_time:
+
+          # Clock.get_time(): return milliseconds
+          # time used in the previous tick
+          # 
+          # Returns the parameter passed to the last call to Clock.tick(). It is
+          # the number of milliseconds passed between the previous two calls to
+          # Pygame.tick().
+          # 
+        
+        self.fail() 
+
+        # c = Clock()
+        # c.tick()                    #between   here 
+        # time.sleep(0.02)         
+        #                                              #get_time()
+        # c.tick()                    #          here
+        # 
+        # time.sleep(0.02)
+        # 
+        # self.assert_(20 <= c.get_time() <= 30)
+        
+
+    def todo_test_tick(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.time.Clock.tick:
 
           # Clock.tick(framerate=0): return milliseconds
           # control timer events
           # update the clock
-        
-        collection = []
-        c = Clock()
+          # 
+          # This method should be called once per frame. It will compute how
+          # many milliseconds have passed since the previous call.
+          # 
+          # If you pass the optional framerate argument the function will delay
+          # to keep the game running slower than the given ticks per second.
+          # This can be used to help limit the runtime speed of a game. By
+          # calling Clock.tick(40) once per frame, the program will never run at
+          # more than 40 frames per second.
+          # 
+          # Note that this function uses SDL_Delay function which is not
+          # accurate on every platform, but does not use much cpu.  Use
+          # tick_busy_loop if you want an accurate timer, and don't mind chewing
+          # cpu.
+          # 
 
-        c.tick()
-        for i in range(100):
-            time.sleep(0.005)
-            collection.append(c.tick())
+        self.fail() 
 
-        for outlier in [min(collection), max(collection)]:
-            if outlier != 5: collection.remove(outlier)
+        # collection = []
+        # c = Clock()
+        # 
+        # c.tick()
+        # for i in range(100):
+        #     time.sleep(0.005)
+        #     collection.append(c.tick())
+        # 
+        # for outlier in [min(collection), max(collection)]:
+        #     if outlier != 5: collection.remove(outlier)
+        # 
+        # self.assert_(sum(collection) / len(collection) == 5)
 
-        self.assert_(sum(collection) / len(collection) == 5)
+    def todo_test_tick_busy_loop(self):
 
-
-    def test_get_rawtime(self):
-        # __doc__ (as of 2008-07-03) for pygame.time.Clock.get_rawtime:
-
-          # Clock.get_rawtime(): return milliseconds
-          # actual time used in the previous tick
-
-        self.assert_(test_not_implemented())
-
-    def test_get_time(self):
-        
-        # __doc__ (as of 2008-07-03) for pygame.time.Clock.get_time:
-
-          # Clock.get_time(): return milliseconds
-          # time used in the previous tick
-
-        self.assert_(test_not_implemented())
-        return
-        
-        c = Clock()
-        c.tick()                    #between   here 
-        time.sleep(0.02)         
-                                                     #get_time()
-        c.tick()                    #          here
-
-        time.sleep(0.02)
-        
-        self.assert_(20 <= c.get_time() <= 30)
-        
-    def test_tick_busy_loop(self):
-
-        # __doc__ (as of 2008-07-03) for pygame.time.Clock.tick_busy_loop:
+        # __doc__ (as of 2008-08-02) for pygame.time.Clock.tick_busy_loop:
 
           # Clock.tick_busy_loop(framerate=0): return milliseconds
           # control timer events
           # update the clock
+          # 
+          # This method should be called once per frame. It will compute how
+          # many milliseconds have passed since the previous call.
+          # 
+          # If you pass the optional framerate argument the function will delay
+          # to keep the game running slower than the given ticks per second.
+          # This can be used to help limit the runtime speed of a game. By
+          # calling Clock.tick(40) once per frame, the program will never run at
+          # more than 40 frames per second.
+          # 
+          # Note that this function uses pygame.time.delay, which uses lots of
+          # cpu in a busy loop to make sure that timing is more acurate.
+          # 
+          # New in pygame 1.8.0. 
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
 
 class TimeModuleTest(unittest.TestCase):
-    def test_delay(self):
+    def todo_test_delay(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.time.delay:
+        # __doc__ (as of 2008-08-02) for pygame.time.delay:
 
           # pygame.time.delay(milliseconds): return time
           # pause the program for an amount of time
+          # 
+          # Will pause for a given number of milliseconds. This function will
+          # use the processor (rather than sleeping) in order to make the delay
+          # more accurate than pygame.time.wait().
+          # 
+          # This returns the actual number of milliseconds used. 
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
 
-    def test_get_ticks(self):
+    def todo_test_get_ticks(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.time.get_ticks:
+        # __doc__ (as of 2008-08-02) for pygame.time.get_ticks:
 
           # pygame.time.get_ticks(): return milliseconds
           # get the time in milliseconds
+          # 
+          # Return the number of millisconds since pygame.init() was called.
+          # Before pygame is initialized this will always be 0.
+          # 
 
-        self.assert_(test_not_implemented()) 
+        self.fail() 
 
-    def test_set_timer(self):
+    def todo_test_set_timer(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.time.set_timer:
+        # __doc__ (as of 2008-08-02) for pygame.time.set_timer:
 
           # pygame.time.set_timer(eventid, milliseconds): return None
           # repeatedly create an event on the event queue
+          # 
+          # Set an event type to appear on the event queue every given number of
+          # milliseconds. The first event will not appear until the amount of
+          # time has passed.
+          # 
+          # Every event type can have a separate timer attached to it. It is
+          # best to use the value between pygame.USEREVENT and pygame.NUMEVENTS.
+          # 
+          # To disable the timer for an event, set the milliseconds argument to 0. 
 
-        self.assert_(test_not_implemented())
+        self.fail() 
 
-    def test_wait(self):
+    def todo_test_wait(self):
 
-        # __doc__ (as of 2008-06-25) for pygame.time.wait:
+        # __doc__ (as of 2008-08-02) for pygame.time.wait:
 
           # pygame.time.wait(milliseconds): return time
           # pause the program for an amount of time
+          # 
+          # Will pause for a given number of milliseconds. This function sleeps
+          # the process to share the processor with other programs. A program
+          # that waits for even a few milliseconds will consume very little
+          # processor time. It is slightly less accurate than the
+          # pygame.time.delay() function.
+          # 
+          # This returns the actual number of milliseconds used. 
 
-        self.assert_(test_not_implemented()) 
-
+        self.fail() 
+    
 ################################################################################
 
 if __name__ == '__main__':

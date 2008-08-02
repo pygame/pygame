@@ -483,51 +483,6 @@ class RectTypeTest( unittest.TestCase ):
         self.failIf( r1.colliderect( Rect(r1.right,r1.bottom,1,1) ),
                      "r1 collides with Rect(r1.right,r1.bottom,1,1)" )
 
-    def test_collidedict(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidedict:
-
-          # Rect.collidedict(dict): return (key, value)
-          # test if one rectangle in a dictionary intersects
-
-        self.assert_(test_not_implemented()) 
-
-    def test_collidedictall(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidedictall:
-
-          # Rect.collidedictall(dict): return [(key, value), ...]
-          # test if all rectangles in a dictionary intersect
-
-        self.assert_(test_not_implemented()) 
-
-    def test_collidelist(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidelist:
-
-          # Rect.collidelist(list): return index
-          # test if one rectangle in a list intersects
-
-        self.assert_(test_not_implemented()) 
-
-    def test_collidelistall(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.collidelistall:
-
-          # Rect.collidelistall(list): return indices
-          # test if all rectangles in a list intersect
-
-        self.assert_(test_not_implemented()) 
-
-    def test_fit(self):
-
-        # __doc__ (as of 2008-06-25) for pygame.rect.Rect.fit:
-
-          # Rect.fit(Rect): return Rect
-          # resize and move a rectangle with aspect ratio
-
-        self.assert_(test_not_implemented()) 
-
     def testEquals( self ):
         """ check to see how the rect uses __eq__ 
         """
@@ -560,6 +515,77 @@ class RectTypeTest( unittest.TestCase ):
         rect_list.remove(r2)
         rect_list.remove(r2)
         self.assertRaises(ValueError, rect_list.remove, r2)
+
+    def todo_test_collidedict(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidedict:
+
+          # Rect.collidedict(dict): return (key, value)
+          # test if one rectangle in a dictionary intersects
+          # 
+          # Returns the key and value of the first dictionary value that
+          # collides with the Rect. If no collisions are found, None is
+          # returned.
+          # 
+          # Rect objects are not hashable and cannot be used as keys in a
+          # dictionary, only as values.
+
+        self.fail() 
+
+    def todo_test_collidedictall(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidedictall:
+
+          # Rect.collidedictall(dict): return [(key, value), ...]
+          # test if all rectangles in a dictionary intersect
+          # 
+          # Returns a list of all the key and value pairs that intersect with
+          # the Rect. If no collisions are found an empty dictionary is
+          # returned.
+          # 
+          # Rect objects are not hashable and cannot be used as keys in a
+          # dictionary, only as values.
+
+        self.fail() 
+
+    def todo_test_collidelist(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
+
+          # Rect.collidelist(list): return index
+          # test if one rectangle in a list intersects
+          # 
+          # Test whether the rectangle collides with any in a sequence of
+          # rectangles. The index of the first collision found is returned. If
+          # no collisions are found an index of -1 is returned.
+
+        self.fail() 
+
+    def todo_test_collidelistall(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
+
+          # Rect.collidelistall(list): return indices
+          # test if all rectangles in a list intersect
+          # 
+          # Returns a list of all the indices that contain rectangles that
+          # collide with the Rect. If no intersecting rectangles are found, an
+          # empty list is returned.
+
+        self.fail() 
+
+    def todo_test_fit(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.rect.Rect.fit:
+
+          # Rect.fit(Rect): return Rect
+          # resize and move a rectangle with aspect ratio
+          # 
+          # Returns a new rectangle that is moved and resized to fit another.
+          # The aspect ratio of the original Rect is preserved, so the new
+          # rectangle may be smaller than the target in either width or height.
+
+        self.fail() 
 
 if __name__ == '__main__':
     unittest.main()
