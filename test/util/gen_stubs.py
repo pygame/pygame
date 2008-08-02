@@ -1,6 +1,5 @@
 #################################### IMPORTS ###################################
 
-from __future__ import with_statement
 from optparse import OptionParser
 from inspect import isclass, ismodule, getdoc, isgetsetdescriptor, getmembers
 
@@ -17,8 +16,8 @@ for relpath in ('../../','../'):
     sys.path.insert(0, abspath(normpath( join(dirname(__file__), relpath) )) )
 
 from test.unittest import TestCase
-
 from makeref import docs_as_dict
+from test_utils import trunk_relative_path
 
 #################################### IGNORES ###################################
 
@@ -44,6 +43,7 @@ IGNORES = set([
     pygame.sprite.Group,
     
     pygame.image.tostring,
+    pygame.base.error.args,
 ])
 
 # pygame.sprite.Sprite.__module__ = 'pygame.sprite' 
@@ -63,17 +63,20 @@ REAL_HOMES = {
     pygame.font.match_font   : pygame.font,
 }
 
+def get_Movie():
+    return pygame.movie.Movie( trunk_relative_path('examples/data/blue.mpg') )
+
 MUST_INSTANTIATE = {
     # BaseType / Helper               # (Instantiator / Args) / Callable
 
     pygame.cdrom.CDType            :  (pygame.cdrom.CD,      (0,)),
     pygame.mixer.ChannelType       :  (pygame.mixer.Channel, (0,)),
     pygame.time.Clock              :  (pygame.time.Clock,    ()),
-    pygame.mask.Mask               :  (pygame.mask.Mask,     ((32,32),))
-
+    pygame.mask.Mask               :  (pygame.mask.Mask,     ((32,32),)),
+    pygame.movie.Movie             :  get_Movie,
+    
     # pygame.event.Event         :  None,
     # pygame.joystick.Joystick   :  None,
-    # pygame.movie.Movie         :  None,
     # pygame.display.Info        :  None,
 }
 
@@ -153,6 +156,8 @@ def test_add(self):
 
 ################################### FUNCTIONS ##################################
 
+docs = {}
+
 def module_in_package(module, pkg):
     return ("%s." % pkg.__name__) in module.__name__
 
@@ -170,7 +175,7 @@ def py_comment(input_str):
         else:
             lines += [line]
 
-    return '\n'.join([('# ' + l) for l in lines])
+    return '\n'.join([('# ' + l) for l in lines]).rstrip('\n# ')
 
 def is_public(obj_name):
     try: obj_name += ''
@@ -214,7 +219,11 @@ def test_stub(f, module, parent_class = None):
         test_name = test_name,
         
         # docs is a global, possibly empty dict, depending on options.docs
-        comments = py_comment(docs.get(unit_name) or getdoc(f) or ''),
+        comments = py_comment ( "%s\n\n%s" %
+            (
+                getdoc(f) or '', docs.get(unit_name, ''),
+            )
+        ),
         unitname = unit_name,
     )
 
