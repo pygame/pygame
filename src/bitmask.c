@@ -32,6 +32,59 @@
 #define MIN(a,b) ((a) <= (b) ? (a) : (b))
 #define MAX(a,b) ((a) >= (b) ? (a) : (b))
 
+/* The code by Gillies is slightly (1-3%) faster than the more
+   readable code below */
+#define GILLIES
+
+static INLINE unsigned int bitcount(BITMASK_W n)
+{
+  if (BITMASK_W_LEN == 32)
+    {
+#ifdef GILLIES
+/* (C) Donald W. Gillies, 1992.  All rights reserved.  You may reuse
+   this bitcount() function anywhere you please as long as you retain
+   this Copyright Notice. */
+      register unsigned long tmp;
+      return (tmp = (n) - (((n) >> 1) & 033333333333) - 
+	      (((n) >> 2) & 011111111111),
+	      tmp = ((tmp + (tmp >> 3)) & 030707070707),
+	      tmp =  (tmp + (tmp >> 6)),
+	      tmp = (tmp + (tmp >> 12) + (tmp >> 24)) & 077);
+/* End of Donald W. Gillies bitcount code */
+#else
+   /* This piece taken from Jorg Arndt's "Algorithms for Programmers" */
+    n  = ((n>>1) & 0x55555555) + (n & 0x55555555);  // 0-2 in 2 bits
+    n  = ((n>>2) & 0x33333333) + (n & 0x33333333);  // 0-4 in 4 bits
+    n  = ((n>>4) + n) & 0x0f0f0f0f;                 // 0-8 in 4 bits
+    n +=  n>> 8;                                    // 0-16 in 8 bits
+    n +=  n>>16;                                    // 0-32 in 8 bits
+    return  n & 0xff;
+#endif
+    }
+  else if (BITMASK_W_LEN == 64)
+    {
+      n  = ((n>>1) & 0x5555555555555555) + (n & 0x5555555555555555);
+      n  = ((n>>2) & 0x3333333333333333) + (n & 0x3333333333333333);
+      n  = ((n>>4) + n) & 0x0f0f0f0f0f0f0f0f;
+      n +=  n>> 8;                                    
+      n +=  n>>16;                                    
+      n +=  n>>32;
+      return  n & 0xff;
+    }
+  else
+    {
+      /* Handle non-32 or 64 bit case the slow way */
+      unsigned int nbits = 0;
+      while (n)
+	{
+	  if (n & 1)
+	    nbits++;
+	  n = n >> 1;
+	}
+      return nbits;
+    }
+}
+
 bitmask_t *bitmask_create(int w, int h)
 {
   bitmask_t *temp;
@@ -56,10 +109,53 @@ void bitmask_clear(bitmask_t *m)
 
 void bitmask_fill(bitmask_t *m)
 {
-  int x,y;
-  for (y = 0; y < m->h; y++)
-    for (x = 0; x < m->w; x++)
-      bitmask_setbit(m, x, y);
+    int len, shift;
+    BITMASK_W *pixels, cmask, full;
+    
+    len = m->h*((m->w - 1)/BITMASK_W_LEN);
+    shift = BITMASK_W_LEN - (m->w % BITMASK_W_LEN);
+    full = ~(BITMASK_W)0;
+    cmask = (~(BITMASK_W)0) >> shift;    
+    /* fill all the pixels that aren't in the rightmost BITMASK_Ws */
+    for (pixels = m->bits; pixels < (m->bits + len); pixels++) {
+        *pixels = full;
+    }
+    /* for the rightmost BITMASK_Ws, use cmask to ensure we aren't setting
+       bits that are outside of the mask */
+    for (pixels = m->bits + len; pixels < (m->bits + len + m->h); pixels++) {
+        *pixels = cmask;
+    }
+}
+
+void bitmask_invert(bitmask_t *m)
+{
+    int len, shift;
+    BITMASK_W *pixels, cmask;
+    
+    len = m->h*((m->w - 1)/BITMASK_W_LEN);
+    shift = BITMASK_W_LEN - (m->w % BITMASK_W_LEN);
+    cmask = (~(BITMASK_W)0) >> shift;    
+    /* flip all the pixels that aren't in the rightmost BITMASK_Ws */
+    for (pixels = m->bits; pixels < (m->bits + len); pixels++) {
+        *pixels = ~(*pixels);
+    }
+    /* for the rightmost BITMASK_Ws, & with cmask to ensure we aren't setting
+       bits that are outside of the mask */
+    for (pixels = m->bits + len; pixels < (m->bits + len + m->h); pixels++) {
+        *pixels = cmask & ~(*pixels);
+    }
+}
+
+unsigned int bitmask_count(bitmask_t *m)
+{
+    BITMASK_W *pixels;
+    unsigned int tot = 0;
+    
+    for (pixels=m->bits; pixels<(m->bits+m->h*((m->w-1)/BITMASK_W_LEN + 1)); pixels++) {
+        tot += bitcount(*pixels);
+    }
+    
+    return tot;
 }
 
 int bitmask_overlap(const bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
@@ -280,59 +376,6 @@ int bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b, int xoffset, int
     }
 }
 
-/* The code by Gillies is slightly (1-3%) faster than the more
-   readable code below */
-#define GILLIES
-
-static INLINE unsigned int bitcount(BITMASK_W n)
-{
-  if (BITMASK_W_LEN == 32)
-    {
-#ifdef GILLIES
-/* (C) Donald W. Gillies, 1992.  All rights reserved.  You may reuse
-   this bitcount() function anywhere you please as long as you retain
-   this Copyright Notice. */
-      register unsigned long tmp;
-      return (tmp = (n) - (((n) >> 1) & 033333333333) - 
-	      (((n) >> 2) & 011111111111),
-	      tmp = ((tmp + (tmp >> 3)) & 030707070707),
-	      tmp =  (tmp + (tmp >> 6)),
-	      tmp = (tmp + (tmp >> 12) + (tmp >> 24)) & 077);
-/* End of Donald W. Gillies bitcount code */
-#else
-   /* This piece taken from Jorg Arndt's "Algorithms for Programmers" */
-    n  = ((n>>1) & 0x55555555) + (n & 0x55555555);  // 0-2 in 2 bits
-    n  = ((n>>2) & 0x33333333) + (n & 0x33333333);  // 0-4 in 4 bits
-    n  = ((n>>4) + n) & 0x0f0f0f0f;                 // 0-8 in 4 bits
-    n +=  n>> 8;                                    // 0-16 in 8 bits
-    n +=  n>>16;                                    // 0-32 in 8 bits
-    return  n & 0xff;
-#endif
-    }
-  else if (BITMASK_W_LEN == 64)
-    {
-      n  = ((n>>1) & 0x5555555555555555) + (n & 0x5555555555555555);
-      n  = ((n>>2) & 0x3333333333333333) + (n & 0x3333333333333333);
-      n  = ((n>>4) + n) & 0x0f0f0f0f0f0f0f0f;
-      n +=  n>> 8;                                    
-      n +=  n>>16;                                    
-      n +=  n>>32;
-      return  n & 0xff;
-    }
-  else
-    {
-      /* Handle non-32 or 64 bit case the slow way */
-      unsigned int nbits = 0;
-      while (n)
-	{
-	  if (n & 1)
-	    nbits++;
-	  n = n >> 1;
-	}
-      return nbits;
-    }
-}
-
 int bitmask_overlap_area(const bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset)
 {
   const BITMASK_W *a_entry,*a_end, *b_entry, *ap,*bp;
@@ -413,6 +456,175 @@ int bitmask_overlap_area(const bitmask_t *a, const bitmask_t *b, int xoffset, in
       xoffset *= -1;
       yoffset *= -1;
       goto swapentry;
+    }
+}
+
+/* Makes a mask of the overlap of two other masks */
+void bitmask_overlap_mask(const bitmask_t *a, const bitmask_t *b, bitmask_t *c, int xoffset, int yoffset)
+{
+  const BITMASK_W *a_entry,*a_end, *ap;
+  const BITMASK_W *b_entry, *b_end, *bp;
+  BITMASK_W *c_entry, *c_end, *cp;
+  int shift,rshift,i,astripes,bstripes;
+  
+  if ((xoffset >= a->w) || (yoffset >= a->h) || (yoffset <= - b->h)) 
+      return;
+  
+  if (xoffset >= 0) 
+    {
+      if (yoffset >= 0)
+	{
+	  a_entry = a->bits + a->h*(xoffset/BITMASK_W_LEN) + yoffset;
+	  c_entry = c->bits + c->h*(xoffset/BITMASK_W_LEN) + yoffset;
+	  a_end = a_entry + MIN(b->h,a->h - yoffset);
+	  b_entry = b->bits;
+	}
+      else
+	{
+	  a_entry = a->bits + a->h*(xoffset/BITMASK_W_LEN);
+	  c_entry = c->bits + c->h*(xoffset/BITMASK_W_LEN);
+	  a_end = a_entry + MIN(b->h + yoffset,a->h);
+	  b_entry = b->bits - yoffset;
+	}
+      shift = xoffset & BITMASK_W_MASK;
+      if (shift)
+	{
+	  rshift = BITMASK_W_LEN - shift;
+	  astripes = (a->w - 1)/BITMASK_W_LEN - xoffset/BITMASK_W_LEN;
+	  bstripes = (b->w - 1)/BITMASK_W_LEN + 1;
+	  if (bstripes > astripes) /* zig-zag .. zig*/
+	    {
+	      for (i=0;i<astripes;i++)
+		{
+		  for (ap = a_entry,bp = b_entry,cp = c_entry;ap < a_end;ap++,bp++,cp++)
+		    *cp = *ap & (*bp << shift);
+		  a_entry += a->h;
+		  c_entry += c->h;
+		  a_end += a->h;
+		  for (ap = a_entry,bp = b_entry,cp = c_entry;ap < a_end;ap++,bp++,cp++)
+		    *cp = *ap & (*bp >> rshift);
+		  b_entry += b->h;
+		}
+	      for (ap = a_entry,bp = b_entry,cp = c_entry;ap < a_end;ap++,bp++,cp++)
+		*cp = *ap & (*bp << shift);
+	    }
+	  else /* zig-zag */
+	    {
+	      for (i=0;i<bstripes;i++)
+		{
+		  for (ap = a_entry,bp = b_entry,cp = c_entry;ap < a_end;ap++,bp++,cp++)
+		    *cp = *ap & (*bp << shift);
+		  a_entry += a->h;
+		  c_entry += c->h;
+		  a_end += a->h;
+		  for (ap = a_entry,bp = b_entry,cp = c_entry;ap < a_end;ap++,bp++,cp++)
+		    *cp = *ap & (*bp >> rshift);
+		  b_entry += b->h;
+		}
+	    }
+	}
+      else /* xoffset is a multiple of the stripe width, 
+	      and the above routines won't work. */
+	{
+	  astripes = (MIN(b->w,a->w - xoffset) - 1)/BITMASK_W_LEN + 1;
+	  for (i=0;i<astripes;i++)
+	    {
+	      for (ap = a_entry,bp = b_entry,cp = c_entry;ap < a_end;ap++,bp++,cp++)
+		{
+		  *cp = *ap & *bp;
+		}
+	      a_entry += a->h;
+	      c_entry += c->h;
+	      a_end += a->h;
+	      b_entry += b->h;
+	    }
+	}
+    }
+  else  
+    {
+      xoffset *= -1;
+      yoffset *= -1;
+
+      if (yoffset >= 0)
+	{
+	  b_entry = b->bits + b->h*(xoffset/BITMASK_W_LEN) + yoffset;
+	  b_end = b_entry + MIN(a->h,b->h - yoffset);
+	  a_entry = a->bits;
+	  c_entry = c->bits;
+	}
+      else
+	{
+	  b_entry = b->bits + b->h*(xoffset/BITMASK_W_LEN);
+	  b_end = b_entry + MIN(a->h + yoffset,b->h);
+	  a_entry = a->bits - yoffset;
+	  c_entry = c->bits - yoffset;
+	}
+      shift = xoffset & BITMASK_W_MASK;
+      if (shift)
+	{
+	  rshift = BITMASK_W_LEN - shift;
+	  astripes = (b->w - 1)/BITMASK_W_LEN - xoffset/BITMASK_W_LEN;
+	  bstripes = (a->w - 1)/BITMASK_W_LEN + 1;
+	  if (bstripes > astripes) /* zig-zag .. zig*/
+	    {
+	      for (i=0;i<astripes;i++)
+		{
+		  for (bp = b_entry,ap = a_entry,cp = c_entry;bp < b_end;bp++,ap++,cp++)
+		    *cp = *ap & (*bp >> shift);
+		  b_entry += b->h;
+		  b_end += b->h;
+		  for (bp = b_entry,ap = a_entry,cp = c_entry;bp < b_end;bp++,ap++,cp++)
+		    *cp = *ap & (*bp <<rshift); 
+		  a_entry += a->h;
+		  c_entry += c->h;
+		}
+	      for (bp = b_entry,ap = a_entry,cp = c_entry;bp < b_end;bp++,ap++,cp++)
+		*cp = *ap & (*bp >> shift);
+	    }
+	  else /* zig-zag */
+	    {
+	      for (i=0;i<bstripes;i++)
+		{
+		  for (bp = b_entry,ap = a_entry,cp = c_entry;bp < b_end;bp++,ap++,cp++)
+		    *cp = *ap & (*bp >> shift);
+		  b_entry += b->h;
+		  b_end += b->h;
+		  for (bp = b_entry,ap = a_entry,cp = c_entry;bp < b_end;bp++,ap++,cp++)
+		    *cp = *ap & (*bp << rshift);
+		  a_entry += a->h;
+		  c_entry += c->h;
+		}
+	    }
+	}
+      else /* xoffset is a multiple of the stripe width, and the above routines won't work. */
+	{
+	  astripes = (MIN(a->w,b->w - xoffset) - 1)/BITMASK_W_LEN + 1;
+	  for (i=0;i<astripes;i++)
+	    {
+	      for (bp = b_entry,ap = a_entry,cp = c_entry;bp < b_end;bp++,ap++,cp++)
+		{
+		  *cp = *ap & *bp;
+		}
+	      b_entry += b->h;
+	      b_end += b->h;
+	      a_entry += a->h;
+	      c_entry += c->h;
+	    }
+	}
+      xoffset *= -1;
+      yoffset *= -1;
+    }	
+  /* Zero out bits outside the mask rectangle (to the right), if there
+   is a chance we were drawing there. */
+  if (xoffset + b->w > c->w)
+    {
+      BITMASK_W edgemask;
+      int n = c->w/BITMASK_W_LEN;
+      shift = (n + 1)*BITMASK_W_LEN - c->w;
+      edgemask = (~(BITMASK_W)0) >> shift;
+      c_end = c->bits + n*c->h + MIN(c->h,b->h + yoffset);
+      for (cp = c->bits + n*c->h + MAX(yoffset,0);cp<c_end;cp++)
+	*cp &= edgemask;
     }
 }
 

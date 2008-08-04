@@ -19,9 +19,20 @@ given threshold.
 If the Surface is color keyed, then threshold is not used.
 <END>
 
+from_threshold
+Creates a mask by thresholding Surfaces
+pygame.mask.from_surface(Surface, color, threshold = (0,0,0,255), othersurface = None) -> Mask
+
+This is a more featureful method of getting a Mask from a Surface.  If supplied
+with only one Surface, all pixels within the threshold of the supplied color are
+set in the Mask. If given the optional othersurface, all pixels in Surface that
+are within the threshold of the corresponding pixel in othersurface are set in
+the Mask.
+<END>
+
 Mask
 pygame object for representing 2d bitmasks
-pygame.Mask((width, height): return Mask
+pygame.Mask((width, height)): return Mask
 <SECTION>
 
 get_size
@@ -62,7 +73,110 @@ Mask.overlap_area(othermask, offset) -> numpixels
 
 You can see how many pixels overlap with the other mask given.  This can
 be used to see in which direction things collide, or to see how much the
-two masks collide.
+two masks collide.  An approximate collision normal can be found by calculating
+the gradient of the overlap area through the finite difference.
+
+ dx = Mask.overlap_area(othermask,(x+1,y)) - Mask.overlap_area(othermask,(x-1,y))
+ dy = Mask.overlap_area(othermask,(x,y+1)) - Mask.overlap_area(othermask,(x,y-1))
+<END>
+
+overlap_mask
+Returns a mask of the overlapping pixels
+Mask.overlap_mask(othermask, offset) -> Mask
+
+Returns a Mask the size of the original Mask containing only the overlapping
+pixels between Mask and othermask.
+<END>
+
+fill
+Sets all bits to 1
+Mask.fill()
+
+Sets all bits in a Mask to 1.
+<END>
+
+clear
+Sets all bits to 0
+Mask.clear()
+
+Sets all bits in a Mask to 0.
+<END>
+
+invert
+Flips the bits in a Mask
+Mask.invert()
+
+Flips all of the bits in a Mask, so that the set pixels turn to unset pixels and
+the unset pixels turn to set pixels.
+<END>
+
+scale
+Resizes a mask
+Mask.scale((x, y)) -> Mask
+
+Returns a new Mask of the Mask scaled to the requested size.
+<END>
+
+draw
+Draws a mask onto another
+Mask.draw(othermask, offset)
+
+Performs a bitwise OR, drawing othermask onto Mask.
+<END>
+
+erase
+Erases a mask from another
+Mask.erase(othermask, offset)
+
+Erases all pixels set in othermask from Mask.
+<END>
+
+count
+Returns the number of set pixels
+Mask.count() -> pixels
+
+Returns the number of set pixels in the Mask.
+<END>
+
+centroid
+Returns the centroid of the pixels in a Mask
+Mask.centroid() -> (x, y)
+
+Finds the centroid, the center of pixel mass, of a Mask.  Returns a coordinate
+tuple for the centroid of the Mask. In the event the Mask is empty, it will
+return (0,0).
+<END>
+
+angle
+Returns the orientation of the pixels
+Mask.angle() -> theta
+
+Finds the approximate orientation of the pixels in the image from -90 to 90
+degrees.  This works best if performed on one connected component of pixels.  It
+will return 0.0 on an empty Mask.
+<END>
+
+outline
+list of points outlining an object
+Mask.outline(every = 1) -> [(x,y), (x,y) ...]
+
+Returns a list of points of the outline of the first object it comes across in a
+Mask.  For this to be useful, there should probably only be one connected
+component of pixels in the Mask.  The every option allows you to skip pixels in
+the outline.  For example, setting it to 10 would return a list of every 10th
+pixel in the outline.
+<END>
+
+connected_component
+Returns a mask of a connected region of pixels.
+Mask.connected_component((x,y) = None) -> Mask
+
+This uses the SAUF algorithm to find a connected component in the
+Mask. It checks 8 point connectivity.  By default, it will return the largest
+connected component in the image.  Optionally, a coordinate pair of a pixel can
+be specified, and the connected component containing it will be returned.  In
+the event the pixel at that location is not set, the returned Mask will be
+empty.  The Mask returned is the same size as the original Mask.
 <END>
 
 get_bounding_rects
