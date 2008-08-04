@@ -851,5 +851,7 @@
 
 #define DOC_PYGAMETRANSFORMAVERAGESURFACES "pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface\nfind the average surface from many surfaces."
 
-#define DOC_PYGAMETRANSFORMTHRESHOLD "finds which, and how many pixels in a surface are within a threshold of a color."
+#define DOC_PYGAMETRANSFORMAVERAGECOLOR "pygame.transform.average_color(Surface, Rect = None): return Color\nfinds the average color of a surface"
+
+#define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True, Surface = None, inverse = False): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
 
