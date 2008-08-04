@@ -57,6 +57,7 @@
   <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>gets a copy of an image with an interior area removed</font></td><td>gets a copy of an image with an interior area removed</td></tr>
   <tr><td><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a> - <font size=-1>find edges in a surface</font></td><td>find edges in a surface</td></tr>
   <tr><td><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a> - <font size=-1>find the average surface from many surfaces.</font></td><td>find the average surface from many surfaces.</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.average_color">pygame.transform.average_color</a> - <font size=-1>finds the average color of a surface</font></td><td>finds the average color of a surface</td></tr>
   <tr><td><a href="transform.html#pygame.transform.threshold">pygame.transform.threshold</a> - <font size=-1>finds which, and how many pixels in a surface are within a threshold of a color.</font></td><td>finds which, and how many pixels in a surface are within a threshold of a color.</td></tr>
 </table></small></ul>
 <p><tt>A</tt> Surface transform is an operation that moves or resizes the pixels. All these functions take a Surface to operate on and return a new Surface with the results. </p>
@@ -153,13 +154,23 @@
 <br></ul>
 
 
+<a name="pygame.transform.average_color">
+<big><b>pygame.transform.average_color</big></b><br><ul>
+  <i>finds the average color of a surface</i><br>
+  <tt>pygame.transform.average_color(Surface, Rect = None): return Color</tt><br>
+<p>Finds the average color of a Surface or a region of a surface specified by a Rect, and returns it as a Color. </p>
+<!--COMMENTS:pygame.transform.average_color--> &nbsp;<br> 
+<br></ul>
+
+
 <a name="pygame.transform.threshold">
 <big><b>pygame.transform.threshold</big></b><br><ul>
   <i>finds which, and how many pixels in a surface are within a threshold of a color.</i><br>
-<p><tt>pygame.transform.threshold(DestSurface</tt>, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True, Surface =None): return num_threshold_pixels </p>
-<p>It can set the destination surface where all of the pixels not within the threshold are changed to diff_color. </p>
+  <tt>pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True, Surface = None, inverse = False): return num_threshold_pixels</tt><br>
+<p>Finds which, and how many pixels in a surface are within a threshold of a color. </p>
+<p>It can set the destination surface where all of the pixels not within the threshold are changed to diff_color. If inverse is optionally set to True, the pixels that are within the threshold are instead changed to diff_color. </p>
+<p>If the optional second surface is given, it is used to threshold against rather than the specified color. That is, it will find each pixel in the first Surface that is within the threshold of the pixel at the same coordinates of the second Surface. If change_return is set, the pixels set in DestSurface will be those from the first Surface. </p>
 <p>Or it can be used to just count the number of pixels within the threshold if you set change_return to False. </p>
-<p>When given the optional third surface, it will use the colors in that rather than the 3rd position "color" arg. </p>
 <p>You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So you could use an r threshold of 40 and a blue threshold of 2 if you like. </p>
 <p>New in pygame <tt>1.8</tt> </p>
 <!--COMMENTS:pygame.transform.threshold--> &nbsp;<br> 
