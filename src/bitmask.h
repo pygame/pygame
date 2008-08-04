@@ -68,6 +68,12 @@ void bitmask_clear(bitmask_t *m);
 /* Sets all bits in the mask */
 void bitmask_fill(bitmask_t *m);
 
+/* Flips all bits in the mask */
+void bitmask_invert(bitmask_t *m);
+
+/* Counts the bits in the mask */
+unsigned int bitmask_count(bitmask_t *m);
+
 /* Returns nonzero if the bit at (x,y) is set.  Coordinates start at
    (0,0) */
 static INLINE int bitmask_getbit(const bitmask_t *m, int x, int y) 
@@ -109,7 +115,8 @@ int bitmask_overlap_pos(const bitmask_t *a, const bitmask_t *b,
 /* Returns the number of overlapping 'pixels' */
 int bitmask_overlap_area(const bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset);
 
-
+/* Fills a mask with the overlap of two other masks. A bitwise AND. */
+void bitmask_overlap_mask (const bitmask_t *a, const bitmask_t *b, bitmask_t *c, int xoffset, int yoffset);
 
 /* Draws mask b onto mask a (bitwise OR). Can be used to compose large
    (game background?) mask from several submasks, which may speed up

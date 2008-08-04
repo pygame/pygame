@@ -313,7 +313,9 @@
 
 #define DOC_PYGAMEMASKFROMSURFACE "pygame.mask.from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
 
-#define DOC_PYGAMEMASKMASK "pygame.Mask((width, height): return Mask\npygame object for representing 2d bitmasks"
+#define DOC_PYGAMEMASKFROMTHRESHOLD "pygame.mask.from_surface(Surface, color, threshold = (0,0,0,255), othersurface = None) -> Mask\nCreates a mask by thresholding Surfaces"
+
+#define DOC_PYGAMEMASKMASK "pygame.Mask((width, height)): return Mask\npygame object for representing 2d bitmasks"
 
 #define DOC_MASKGETSIZE "Mask.get_size() -> width,height\nReturns the size of the mask."
 
@@ -324,6 +326,30 @@
 #define DOC_MASKOVERLAP "Mask.overlap(othermask, offset) -> x,y\nReturns the point of intersection if the masks overlap with the given offset - or None if it does not overlap."
 
 #define DOC_MASKOVERLAPAREA "Mask.overlap_area(othermask, offset) -> numpixels\nReturns the number of overlapping 'pixels'."
+
+#define DOC_MASKOVERLAPMASK "Mask.overlap_mask(othermask, offset) -> Mask\nReturns a mask of the overlapping pixels"
+
+#define DOC_MASKFILL "Mask.fill()\nSets all bits to 1"
+
+#define DOC_MASKCLEAR "Mask.clear()\nSets all bits to 0"
+
+#define DOC_MASKINVERT "Mask.invert()\nFlips the bits in a Mask"
+
+#define DOC_MASKSCALE "Mask.scale((x, y)) -> Mask\nResizes a mask"
+
+#define DOC_MASKDRAW "Mask.draw(othermask, offset)\nDraws a mask onto another"
+
+#define DOC_MASKERASE "Mask.erase(othermask, offset)\nErases a mask from another"
+
+#define DOC_MASKCOUNT "Mask.count() -> pixels\nReturns the number of set pixels"
+
+#define DOC_MASKCENTROID "Mask.centroid() -> (x, y)\nReturns the centroid of the pixels in a Mask"
+
+#define DOC_MASKANGLE "Mask.angle() -> theta\nReturns the orientation of the pixels"
+
+#define DOC_MASKOUTLINE "Mask.outline(every = 1) -> [(x,y), (x,y) ...]\nlist of points outlining an object"
+
+#define DOC_MASKCONNECTEDCOMPONENT "Mask.connected_component((x,y) = None) -> Mask\nReturns a mask of a connected region of pixels."
 
 #define DOC_MASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
 
