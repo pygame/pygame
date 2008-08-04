@@ -508,6 +508,7 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                         Uint32 color,  Uint32 threshold)
 {
     int x, y, rshift, gshift, bshift, rshift2, gshift2, bshift2;
+    int rloss, gloss, bloss, rloss2, gloss2, bloss2;
     Uint8 *pixels, *pixels2;
     SDL_PixelFormat *format, *format2;
     Uint32 the_color, the_color2, rmask, gmask, bmask, rmask2, gmask2, bmask2;
@@ -523,6 +524,9 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     rshift = format->Rshift;
     gshift = format->Gshift;
     bshift = format->Bshift;
+    rloss = format->Rloss;
+    gloss = format->Gloss;
+    bloss = format->Bloss;
 
     if(surf2) {
         format2 = surf2->format;
@@ -532,10 +536,14 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         rshift2 = format2->Rshift;
         gshift2 = format2->Gshift;
         bshift2 = format2->Bshift;
+        rloss2 = format2->Rloss;
+        gloss2 = format2->Gloss;
+        bloss2 = format2->Bloss;
         pixels2 = (Uint8 *) surf2->pixels;
     } else { /* make gcc stop complaining */
         rmask2 = gmask2 = bmask2 = 0;
         rshift2 = gshift2 = bshift2 = 0;
+        rloss2 = gloss2 = bloss2 = 0;
         format2 = NULL;
         pixels2 = NULL;
     }
@@ -599,15 +607,15 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                         pixels2 += 4;
                         break;
                 }              
-                if ((abs(((the_color2 & rmask2) >> rshift2) - ((the_color & rmask) >> rshift)) < tr) & 
-                    (abs(((the_color2 & gmask2) >> gshift2) - ((the_color & gmask) >> gshift)) < tg) & 
-                    (abs(((the_color2 & bmask2) >> bshift2) - ((the_color & bmask) >> bshift)) < tb)) {
+                if ((abs((((the_color2 & rmask2) >> rshift2) << rloss2) - (((the_color & rmask) >> rshift) << rloss)) < tr) & 
+                    (abs((((the_color2 & gmask2) >> gshift2) << gloss2) - (((the_color & gmask) >> gshift) << gloss)) < tg) & 
+                    (abs((((the_color2 & bmask2) >> bshift2) << bloss2) - (((the_color & bmask) >> bshift) << bloss)) < tb)) {
                     /* this pixel is within the threshold of othersurface. */
                     bitmask_setbit(m, x, y);
                 }
-            } else if ((abs(((the_color & rmask) >> rshift) - r) < tr) & 
-                       (abs(((the_color & gmask) >> gshift) - g) < tg) & 
-                       (abs(((the_color & bmask) >> bshift) - b) < tb)) {
+            } else if ((abs((((the_color & rmask) >> rshift) << rloss) - r) < tr) & 
+                       (abs((((the_color & gmask) >> gshift) << gloss) - g) < tg) & 
+                       (abs((((the_color & bmask) >> bshift) << bloss) - b) < tb)) {
                 /* this pixel is within the threshold of the color. */
                 bitmask_setbit(m, x, y);
             }
