@@ -34,21 +34,13 @@ def prepare_dir(dir):
     if os.path.exists(dir): cleardir(dir)
     else: os.mkdir(dir)
 
-def create_zip_from_dict(zip_file, files):
+def create_zip(zip_file, *files, **var):
     zip = zipfile.ZipFile(zip_file, 'w', compression = zipfile.ZIP_DEFLATED)
-    for k, v in files.items():
-        zip.writestr(k, v)
-    zip.close()
-
-def add_files_to_zip(zip_file, *files):
-    zip = zipfile.ZipFile(zip_file, 'a', compression = zipfile.ZIP_DEFLATED)
     for f in files: zip.write(f, os.path.basename(f))
+    for k, v in var.items(): zip.writestr(k, v)
     zip.close()
 
 ################################################################################
 
 if __name__ == '__main__':
-    create_zip_from_dict('test.zip', {'one.txt':'hello world'})
-    assert os.path.exists('test.zip')
-    os.remove('test.zip')
-    print 'OK'
+    pass

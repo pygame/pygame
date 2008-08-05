@@ -3,6 +3,7 @@ import os
 
 import update
 import config
+import helpers
 
 def mock_config(*args, **kw):
     if args: kw = args[0]
@@ -10,6 +11,20 @@ def mock_config(*args, **kw):
 
 def fixture(f):
     return open(os.path.join('test_fixtures', f)).read()
+
+
+class HelpersTest(unittest.TestCase):
+    def test_create_zip(self):
+        helpers.create_zip (
+            'test.zip',
+
+            *( 'update_test.py',
+               'update.py'),
+            
+            **{ 'run_tests__output.txt'   :    'test',
+                'setup_py__output.txt'    :    'test',
+                'build_config.txt'        :    'test'}
+        )
 
 class UpdateBuildsTest(unittest.TestCase):
     def setUp(self):
@@ -20,7 +35,7 @@ class UpdateBuildsTest(unittest.TestCase):
 
         mock_config (
             build_cmd = ['echo', 'mochachino'], 
-            src_path  = '/',
+            src_path  = '.',
             build_env = os.environ,
         )
 
