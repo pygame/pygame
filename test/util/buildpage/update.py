@@ -21,14 +21,18 @@ from helpers import *
 ################################################################################
 # Results
 
-BUILD_FAILED       = "Build FAILED, Tests not run"
-BUILD_LINK_FAILED   = "Link FAILED, Tests not run"
+BUILD_FAILED               = "Build FAILED, Tests not run"
+BUILD_LINK_FAILED          = "Link FAILED, Tests not run"
 
-TESTS_PASSED       = "Build Successful, Tests Passed"
-TESTS_FAILED       = "Build Successful, Tests FAILED"
-TESTS_INVALID      = "Build Successful, Invalid Test Results"
+BUILD_FAILED_EXCEPTION     = "Build FAILED, Exception"
+BUILD_FAILED_UNKNOWN       = "Build FAILED, Unknown Errors"
+BUILD_FAILED_UNPARSEABLE   = "Build FAILED, Unparseable Results"
 
-BUILD_SUCCESSFUL   = "Build Successful"
+TESTS_PASSED               = "Build Successful, Tests Passed"
+TESTS_FAILED               = "Build Successful, Tests FAILED"
+TESTS_INVALID              = "Build Successful, Invalid Test Results"
+
+BUILD_SUCCESSFUL           = "Build Successful"
 
 ################################################################################
 # Format Strings for errors
@@ -71,14 +75,17 @@ def errors_by_file_4_web(errors_by_file, format, cb = None, join='<hr>'):
 
 ################################################################################
 
+def svn_blame(error_file):
+    return callproc.GetReturnCodeAndOutput (
+    ["svn", "blame", error_file], config.src_path, lineprintdiv = 100 )
+
 def add_blame_to_errors_by_file( src_root, errors_by_file, line_func = None):
     if not line_func: line_func = lambda error: int(error['line'])
     
     for error_file, errors in errors_by_file.items():
         print "blame for %s" % error_file
 
-        ret_code, blame_output = callproc.GetReturnCodeAndOutput (
-            ["svn", "blame", error_file], src_root, lineprintdiv = 100 )
+        ret_code, blame_output = svn_blame(error_file)
 
         if ret_code is 0:
             blame_lines = blame_output.split('\n')
@@ -168,15 +175,16 @@ def parse_build_results(ret_code, output):
     exceptions = BUILD_TRACEBACK_RE.search(output)
     if exceptions:
         errors = exceptions.groupdict()['traceback'].replace("\n", "<br>")
-        return BUILD_FAILED, errors
+        return BUILD_FAILED_EXCEPTION, errors
     
     # UNKNOWN ERRORS
     error_matches = re.findall(r"^error: ([^\r\n]+)", output, re.MULTILINE)
     if error_matches:
-        return BUILD_FAILED, ''.join(["%s<br>" % m for m in error_matches])
+        errors = ''.join(["%s<br>" % m for m in error_matches])
+        return BUILD_FAILED_UNKNOWN, errors
     
     # ELSE
-    return BUILD_FAILED, output.replace("\n", "<br>")
+    return BUILD_FAILED_UNPARSEABLE, output.replace("\n", "<br>")
 
 ################################################################################
 
@@ -214,12 +222,16 @@ def upload_build_results( build_result, build_errors, build_warnings,
            build_result, build_errors, build_warnings] )
     )
     create_zip_from_dict (
-        config.buildresults_zip, {  
-          'run_tests__output.txt'   :   test_output,
-          'setup_py__output.txt'    :   build_output,
-          'build_config.txt'        :   config.htmlDump() }
+        config.buildresults_zip, {
+          'run_tests__output.txt'   :    test_output,
+          'setup_py__output.txt'    :    build_output,
+          'build_config.txt'        :    str(config), }
     )
-    add_files_to_zip(config.buildresults_zip, config.buildresults_filename)
+    add_files_to_zip (
+        config.buildresults_zip, 
+        config.buildresults_filename, 
+        os.path.join(config.src_path, 'Setup'),
+    )
 
     for results in (config.buildresults_filename, config.buildresults_zip):
         upload_results.scp(results)
@@ -244,7 +256,7 @@ def upload_installer(build_result):
         write_file_lines(config.prebuilts_filename, build_info + [upload])
         upload_results.scp(config.prebuilts_filename)
 
-        if upload is installer_filename:
+        if upload is "uploading":
             upload_results.scp(output_installer_path)
 
 ################################################################################

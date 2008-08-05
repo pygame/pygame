@@ -42,7 +42,7 @@ def create_zip_from_dict(zip_file, files):
 
 def add_files_to_zip(zip_file, *files):
     zip = zipfile.ZipFile(zip_file, 'a', compression = zipfile.ZIP_DEFLATED)
-    for f in files: zip.write(f)
+    for f in files: zip.write(f, os.path.basename(f))
     zip.close()
 
 ################################################################################
