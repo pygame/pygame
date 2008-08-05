@@ -35,7 +35,7 @@ def prepare_dir(dir):
     else: os.mkdir(dir)
 
 def create_zip_from_dict(zip_file, files):
-    zip = zipfile.ZipFile(zip_file, 'w')
+    zip = zipfile.ZipFile(zip_file, 'w', compression = zipfile.ZIP_DEFLATED)
     for k, v in files.items():
         zip.writestr(k, v)
     zip.close()
