@@ -769,11 +769,21 @@ event_post (PyObject* self, PyObject* args)
 {
     PyEventObject* e;
     SDL_Event event;
+    int isblocked = 0;
 
     if (!PyArg_ParseTuple (args, "O!", &PyEvent_Type, &e))
         return NULL;
 
     VIDEO_INIT_CHECK ();
+
+
+    /* see if the event is blocked before posting it. */
+	isblocked = SDL_EventState (e->type, SDL_QUERY) == SDL_IGNORE;
+    
+	if (isblocked) {
+		/* event is blocked, so we don't post it. */
+        Py_RETURN_NONE;
+    }
 
     if (PyEvent_FillUserEvent (e, &event))
         return NULL;
