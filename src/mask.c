@@ -444,7 +444,7 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     usethresh = !(surf->flags & SDL_SRCCOLORKEY);
 
     for(y=0; y < surf->h; y++) {
-        pixels = surf->pixels + y*surf->pitch;
+        pixels = (Uint8 *) surf->pixels + y*surf->pitch;
         for(x=0; x < surf->w; x++) {
             /* Get the color.  TODO: should use an inline helper 
              *   function for this common function. */
@@ -552,9 +552,9 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     SDL_GetRGBA (threshold, format, &tr, &tg, &tb, &ta);
 
     for(y=0; y < surf->h; y++) {
-        pixels = surf->pixels + y*surf->pitch;
+        pixels = (Uint8 *) surf->pixels + y*surf->pitch;
         if (surf2) {
-            pixels2 = surf2->pixels + y*surf2->pitch;
+            pixels2 = (Uint8 *) surf2->pixels + y*surf2->pitch;
         }
         for(x=0; x < surf->w; x++) {
             /* the_color = surf->get_at(x,y) */
