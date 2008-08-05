@@ -145,7 +145,11 @@ def configure(c):
     # SUBVERSION
     # Possibly updated between builds?? Here's a good spot?
     c.latest_rev = get_and_brand_latest_svn(c.src_path)
-
+    
+    # CONFIG.PY INTERACTION
+    # ini files are parsed as raw strings
+    c.config_py_interaction = c.config_py_interaction.replace('\\n','\n')
+    
     # BUILD
     c.build_cmd += c.extra_build_flags.split(' ')
 
@@ -177,6 +181,7 @@ def configure(c):
     # RESULTS
     c.prebuilts_filename = "./output/prebuilt_%s.txt" % c.platform_id
     c.buildresults_filename = "./output/buildresults_%s.txt" % c.platform_id
+    c.buildresults_zip = "./output/%s__%s.zip" % (c.platform_id, c.latest_rev)
 
 ################################################################################
 

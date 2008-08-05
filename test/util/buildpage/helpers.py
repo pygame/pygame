@@ -2,6 +2,7 @@
 
 import re
 import os
+import zipfile
 
 ################################################################################
 
@@ -33,4 +34,16 @@ def prepare_dir(dir):
     if os.path.exists(dir): cleardir(dir)
     else: os.mkdir(dir)
 
+def create_zip_from_dict(zip_file, files):
+    zip = zipfile.ZipFile(zip_file, 'w')
+    for k, v in files.items():
+        zip.writestr(k, v)
+    zip.close()
+
 ################################################################################
+
+if __name__ == '__main__':
+    create_zip_from_dict('test.zip', {'one.txt':'hello world'})
+    assert os.path.exists('test.zip')
+    os.remove('test.zip')
+    print 'OK'
