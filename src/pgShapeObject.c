@@ -5,6 +5,7 @@
 #include <math.h>
 #include <assert.h>
 #include <float.h>
+#include <GL/glut.h>
 
 PyTypeObject pgShapeType;
 PyTypeObject pgRectShapeType;
@@ -558,7 +559,7 @@ static int _Get_Depth(pgBodyObject* refBody, pgBodyObject* incBody,
 					   int* faceId, double* min_dep, pgVector2* gp_in_ref, 
 					   pgAABBBox* clipBox)
 {
-#define _EPS_DEPTH 1e-8
+#define _EPS_DEPTH 1e-2
 
 	int i, apart;
 	pgRectShape *ref, *inc;
@@ -712,6 +713,9 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	pgVector2 refR, incidR;
 	double tmp1, tmp2;
 
+	//for test
+	pgVector2 tgp[4];
+
 
 	overlap = _SAT_Select(selfBody, incidBody,
 						  &ref, &inc,
@@ -741,6 +745,34 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 		assert(0);
 		break;
 	}
+
+	//for test
+	for(i = 0; i < 4; ++i)
+		tgp[i] = PG_GetGlobalPos(ref, &(((pgRectShape*)ref->shape)->point[i]));
+	glColor3f(1.f, 0.0f, 0.5f);
+	glBegin(GL_LINES);
+	switch(face_id)
+	{
+	case CF_LEFT:
+		glVertex2f(tgp[0].real, tgp[0].imag);
+		glVertex2f(tgp[3].real, tgp[3].imag);
+		break;
+	case CF_RIGHT:
+		glVertex2f(tgp[1].real, tgp[1].imag);
+		glVertex2f(tgp[2].real, tgp[2].imag);
+		break;
+	case CF_TOP:
+		glVertex2f(tgp[2].real, tgp[2].imag);
+		glVertex2f(tgp[3].real, tgp[3].imag);
+		break;
+	case CF_BOTTOM:
+		glVertex2f(tgp[0].real, tgp[0].imag);
+		glVertex2f(tgp[1].real, tgp[1].imag);
+		break;
+	default:
+		break;
+	}
+	glEnd();
 
 
 	pAcc = PyObject_Malloc(sizeof(pgVector2));

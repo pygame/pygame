@@ -139,7 +139,7 @@ int PG_PartlyLB(pgAABBBox* box, pgVector2* p1, pgVector2* p2,
 }
 
 
-void PG_AppendContact(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* contactList)
+void PG_DetectCollision(pgBodyObject* refBody, pgBodyObject* incidBody, PyObject* contactList)
 {
 	refBody->shape->Collision(refBody, incidBody, contactList);
 }

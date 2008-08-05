@@ -115,9 +115,9 @@ void TestBasic2Init()
 	int i = 0;
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
-	PG_Set_Vector2(s_world->vecGravity, 0, -600.f);
+	PG_Set_Vector2(s_world->vecGravity, 0, -2000.f);
 
-	for(i = 0; i < 12; ++i)
+	for(i = 0; i < 10; ++i)
 	{
 		body = PG_BodyNew();
 		//PG_Set_Vector2(body->vecPosition, -100+100*i, 200);
@@ -126,7 +126,7 @@ void TestBasic2Init()
 		
 		body->fRotation = 0.f;
 		body->fAngleVelocity = 0.f;
-		body->fRestitution = 1.f;
+		body->fRestitution = 0.0f;
 		body->fMass = 10;
 		PG_Bind_RectShape(body, 30, 30, 0);
 		PG_AddBodyToWorld(s_world, body);
