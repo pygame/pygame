@@ -8,7 +8,9 @@ def scp(local_path, remote_file = None):
     config_file = "./config/upload.ini"
     config_data = ConfigParser.SafeConfigParser()
     config_data.read([config_file])
-
+    
+    local_path = os.path.normpath(local_path)
+    
     file_vars = {"local_path":local_path, "remote_file":remote_file}
     command = config_data.get("DEFAULT", "scp", vars = file_vars)
     callproc.ExecuteAssertSuccess(command)
