@@ -1,5 +1,0 @@
-[DEFAULT]
-host=website.com
-user=user
-remote_path=path/to/builds
-scp=scp %(local_path)s %(user)s@%(host)s:%(remote_path)s/%(remote_file)s
