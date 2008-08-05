@@ -5,7 +5,6 @@
 #include <math.h>
 #include <assert.h>
 #include <float.h>
-#include <GL/glut.h>
 
 PyTypeObject pgShapeType;
 PyTypeObject pgRectShapeType;
@@ -747,6 +746,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	}
 
 	//for test
+/*
 	for(i = 0; i < 4; ++i)
 		tgp[i] = PG_GetGlobalPos(ref, &(((pgRectShape*)ref->shape)->point[i]));
 	glColor3f(1.f, 0.0f, 0.5f);
@@ -773,7 +773,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 		break;
 	}
 	glEnd();
-
+*/
 
 	pAcc = PyObject_Malloc(sizeof(pgVector2));
 	pAcc->real = pAcc->imag = 0;
