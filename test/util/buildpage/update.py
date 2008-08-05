@@ -183,7 +183,7 @@ def configure_build():
         config.config_cmd, config.config_py_interaction, 
         config.src_path, config.build_env
     )
-    assert ret_code is 0
+    if ret_code is not 0: sys.exit ("config.py error:\n%s" % output)
 
 def build():
     return callproc.GetReturnCodeAndOutput (
@@ -204,28 +204,42 @@ def run_tests():
 
 ################################################################################
 
-def prepare_build_env():
-    if config.make_package:
-        if os.path.exists(config.dist_path): cleardir(config.dist_path)
-
-    prepare_dir(config.temp_install_path)
-    os.makedirs(config.temp_install_pythonpath)
-
-################################################################################
-
-def upload_build_results(build_result, build_errors, build_warnings):
+def upload_build_results( build_result, build_errors, build_warnings,
+                          test_output, build_output ):
     write_file_lines (
         config.buildresults_filename,
         ( [config.latest_rev, time.strftime("%Y-%m-%d %H:%M"),
            build_result, build_errors, build_warnings] )
     )
 
-    upload_results.scp(config.buildresults_filename)
+    create_zip_from_dict (
+        config.buildresults_zip,
+        { 'build_result.txt'        :   build_result,
+          'build_errors.txt'        :   build_errors, 
+          'build_warnings.txt'      :   build_warnings,
+          'run_tests__output.txt'   :   test_output,
+          'setup_py__output.txt'    :   build_output,
+          'build_config.txt'        :   config.htmlDump(),
+        }
+    )
+
+    for results in (config.buildresults_filename, config.buildresults_zip):
+        upload_results.scp(results)
+
     file(config.last_rev_filename, "w").write(str(config.latest_rev))
 
 def upload_installer():
     print "TODO"
 
+################################################################################
+
+def prepare_build_env():
+    if config.make_package:
+        if os.path.exists(config.dist_path): cleardir(config.dist_path)
+
+    prepare_dir(config.temp_install_path)
+    os.makedirs(config.temp_install_pythonpath)
+    
 ################################################################################
 
 def update_build():
@@ -237,14 +251,18 @@ def update_build():
 
     if build_result is BUILD_SUCCESSFUL:
         install()
-        build_result, build_errors = parse_test_results(*run_tests())
+        
+        ret_code, test_output = run_tests()
+        build_result, build_errors = parse_test_results(ret_code, test_output)
 
         if build_result is TESTS_PASSED:
             upload_installer()
 
     print '\n%s\n' % build_result
 
-    upload_build_results(build_result, build_errors, build_warnings)
+    upload_build_results (
+        build_result, build_errors, build_warnings, test_output, build_output
+    )
 
 ################################################################################
 
