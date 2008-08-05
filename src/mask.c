@@ -26,6 +26,9 @@
 #include "bitmask.h"
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 typedef struct {
   PyObject_HEAD
@@ -285,7 +288,7 @@ static PyObject* mask_angle(PyObject* self, PyObject* args)
     if (m00) {
         xc = m10/m00;
         yc = m01/m00;
-        theta = -90.0*atan2(2*(m11/m00 - xc*yc),(m20/m00 - xc*xc)-(m02/m00 - yc*yc))/3.14159265358979323846;
+        theta = -90.0*atan2(2*(m11/m00 - xc*yc),(m20/m00 - xc*xc)-(m02/m00 - yc*yc))/M_PI;
         return Py_BuildValue ("O", PyFloat_FromDouble(theta));
     } else {
         return Py_BuildValue ("O", PyFloat_FromDouble(0));
