@@ -82,16 +82,18 @@ def config_to_dict(config_file):
     config_data = ConfigParser.SafeConfigParser()
     config_data.read([config_file])
 
-    config = dict ()
-    for sections in config_data.sections() or ['DEFAULT']:
-        config[sections] = dict(config_data.items(sections))
+    defaults = set(config_data.items('DEFAULT'))
+    config = {'DEFAULT' : dict(defaults)}
+
+    for sections in config_data.sections():
+        config[sections] = dict(set(config_data.items(sections)) - defaults)
 
     return config
 
 ################################################################################
 
 def update_cmds_with_alternate_python(config):
-    python = config['build'].get('python_path')
+    python = config['DEFAULT'].get('python_path')
     if python:
         for key in config:
             if key.endswith('_cmd'): config[key][0] = python
@@ -101,7 +103,7 @@ def merge_defaults_and_objectify_config(config_file):
     config_dict = config_to_dict(config_file)
 
     merge_dict(config, config_dict)
-    config.update(config_dict['build'])
+    config.update(config_dict['DEFAULT'])
 
     update_cmds_with_alternate_python(config)
     
@@ -156,14 +158,6 @@ def configure(c):
     # INSTALLER
     if c.make_package:
         c.dist_path = os.path.join(c.src_path, 'dist')
-    
-        c.installer_dist_path = glob.glob (
-            os.path.join(c.dist_path, c.package_mask))[0]
-    
-        c.installer_filename = os.path.basename(c.installer_dist_path)
-    
-        c.installer_path = os.path.join('./output', c.installer_filename)
-
         c.build_cmd += [c.make_package]
 
     # INSTALL / TEST PATH
@@ -181,7 +175,7 @@ def configure(c):
     # RESULTS
     c.prebuilts_filename = "./output/prebuilt_%s.txt" % c.platform_id
     c.buildresults_filename = "./output/buildresults_%s.txt" % c.platform_id
-    c.buildresults_zip = "./output/%s__%s.zip" % (c.platform_id, c.latest_rev)
+    c.buildresults_zip = "./output/buildresults_%s.zip" % c.platform_id
 
 ################################################################################
 

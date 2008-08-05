@@ -7,6 +7,8 @@ import os
 import re
 import cgi
 import time
+import glob
+import shutil
 
 # User Libs
 import callproc
@@ -211,25 +213,39 @@ def upload_build_results( build_result, build_errors, build_warnings,
         ( [config.latest_rev, time.strftime("%Y-%m-%d %H:%M"),
            build_result, build_errors, build_warnings] )
     )
-
     create_zip_from_dict (
-        config.buildresults_zip,
-        { 'build_result.txt'        :   build_result,
-          'build_errors.txt'        :   build_errors, 
-          'build_warnings.txt'      :   build_warnings,
+        config.buildresults_zip, {  
           'run_tests__output.txt'   :   test_output,
           'setup_py__output.txt'    :   build_output,
-          'build_config.txt'        :   config.htmlDump(),
-        }
+          'build_config.txt'        :   config.htmlDump() }
     )
+    add_files_to_zip(config.buildresults_zip, config.buildresults_filename)
 
     for results in (config.buildresults_filename, config.buildresults_zip):
         upload_results.scp(results)
 
     file(config.last_rev_filename, "w").write(str(config.latest_rev))
 
-def upload_installer():
-    print "TODO"
+def upload_installer(build_result):
+    installer_dist_path = glob.glob (
+        os.path.join(config.dist_path, config.package_mask))[0]
+
+    installer_filename = os.path.basename(installer_dist_path)
+
+    if BUILD_SUCCESSFUL not in build_result:
+        installer_filename = "failed_tests_%s" % installer_filename
+
+    output_installer_path = os.path.join('./output', installer_filename)
+    shutil.move(installer_dist_path, output_installer_path)
+
+    build_info = [config.latest_rev, time.strftime("%Y-%m-%d %H:%M")]
+    
+    for upload in ("uploading", installer_filename):
+        write_file_lines(config.prebuilts_filename, build_info + [upload])
+        upload_results.scp(config.prebuilts_filename)
+
+        if upload is installer_filename:
+            upload_results.scp(output_installer_path)
 
 ################################################################################
 
@@ -251,12 +267,11 @@ def update_build():
 
     if build_result is BUILD_SUCCESSFUL:
         install()
-        
+
         ret_code, test_output = run_tests()
         build_result, build_errors = parse_test_results(ret_code, test_output)
 
-        if build_result is TESTS_PASSED:
-            upload_installer()
+        upload_installer(build_result)
 
     print '\n%s\n' % build_result
 
@@ -272,7 +287,7 @@ def main():
 
     global config
     for config in config.get_configs(sys.argv[1:]):
-        if config.previous_rev < config.latest_rev:
+        if 1 or config.previous_rev < config.latest_rev:
             prepare_build_env()
             update_build()
 
