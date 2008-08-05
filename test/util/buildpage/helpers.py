@@ -40,6 +40,11 @@ def create_zip_from_dict(zip_file, files):
         zip.writestr(k, v)
     zip.close()
 
+def add_files_to_zip(zip_file, *files):
+    zip = zipfile.ZipFile(zip_file, 'a', compression = zipfile.ZIP_DEFLATED)
+    for f in files: zip.write(f)
+    zip.close()
+
 ################################################################################
 
 if __name__ == '__main__':
