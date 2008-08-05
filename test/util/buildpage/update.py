@@ -154,7 +154,7 @@ def parse_build_results(ret_code, output):
         errors_by_file = categorize_errors_by_file (errors)
         web_friendly = errors_by_file_4_web(errors_by_file, BUILD_FAILED)
         return BUILD_FAILED, web_friendly
-    
+
     # LINK ERRORS
     link_errors = [
         "%(source_name)s:%(message)s<br>" % s.groupdict()
@@ -179,22 +179,21 @@ def parse_build_results(ret_code, output):
 ################################################################################
 
 def configure_build():
-    interaction = ''.join(['%s\n' % a for a in config.config_py_interaction])
-    
     ret_code, output = callproc.InteractiveGetReturnCodeAndOutput (
-        config.config_cmd, interaction, config.src_path, config.build_env
+        config.config_cmd, config.config_py_interaction, 
+        config.src_path, config.build_env
     )
     assert ret_code is 0
 
 def build():
     return callproc.GetReturnCodeAndOutput (
-        [c for c in config.build_cmd + [config.make_package] if c], 
+        config.build_cmd, 
         config.src_path, config.build_env
     )
 
 def install():
     return callproc.ExecuteAssertSuccess (
-        config.install_cmd + [config.temp_install_path], 
+        config.install_cmd, 
         config.src_path, config.install_env
     )
 
