@@ -1,7 +1,7 @@
 ################################################################################
 # Imports
 
-# Stdlib
+# StdLib
 import os 
 import sys
 import cgi
@@ -29,9 +29,9 @@ defaults = dict (
     #
 
     config_cmd = [sys.executable, "config.py"],
-    
-    config_py_interaction = 'YYY',
-    
+
+    config_py_interaction = 'Y\nY\nY\n',
+
     build_cmd =  [ 
         sys.executable, "setup.py", "build", 
     ],
@@ -90,11 +90,8 @@ def config_to_dict(config_file):
 
 ################################################################################
 
-def update_cmds_with_ini_options(config):
+def update_cmds_with_alternate_python(config):
     python = config['build'].get('python_path')
-
-    config['build_cmd'] += config['extra_build_flags'].split(' ')
-
     if python:
         for key in config:
             if key.endswith('_cmd'): config[key][0] = python
@@ -106,7 +103,7 @@ def merge_defaults_and_objectify_config(config_file):
     merge_dict(config, config_dict)
     config.update(config_dict['build'])
 
-    update_cmds_with_ini_options(config)
+    update_cmds_with_alternate_python(config)
     
     return  config_obj(config)
 
@@ -137,7 +134,6 @@ def get_platform_and_previous_rev(config, config_file):
     
     config.last_rev_filename = "./output/last_rev_%s.txt" % ( 
         config.platform_id )
-    
     try:
         config.previous_rev = int(file(config.last_rev_filename, "r").read())
     except:
@@ -150,6 +146,9 @@ def configure(c):
     # Possibly updated between builds?? Here's a good spot?
     c.latest_rev = get_and_brand_latest_svn(c.src_path)
 
+    # BUILD
+    c.build_cmd += c.extra_build_flags.split(' ')
+
     # INSTALLER
     if c.make_package:
         c.dist_path = os.path.join(c.src_path, 'dist')
@@ -161,11 +160,14 @@ def configure(c):
     
         c.installer_path = os.path.join('./output', c.installer_filename)
 
+        c.build_cmd += [c.make_package]
+
     # INSTALL / TEST PATH
     c.temp_install_path = os.path.join(os.getcwd(), "install_test")
     c.temp_install_pythonpath = os.path.join (
         c.temp_install_path, c.test_dir_subpath
     )
+    c.install_cmd += [c.temp_install_path]
     
     # INSTALL / TEST ENV
     c.test_env = {"PYTHONPATH" : c.temp_install_pythonpath}
