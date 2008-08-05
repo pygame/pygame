@@ -285,7 +285,7 @@ static PyObject* mask_angle(PyObject* self, PyObject* args)
     if (m00) {
         xc = m10/m00;
         yc = m01/m00;
-        theta = -90.0*atan2(2*(m11/m00 - xc*yc),(m20/m00 - xc*xc)-(m02/m00 - yc*yc))/M_PIl;
+        theta = -90.0*atan2(2*(m11/m00 - xc*yc),(m20/m00 - xc*xc)-(m02/m00 - yc*yc))/3.14159265358979323846;
         return Py_BuildValue ("O", PyFloat_FromDouble(theta));
     } else {
         return Py_BuildValue ("O", PyFloat_FromDouble(0));
@@ -870,7 +870,7 @@ unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind
 static GAME_Rect* get_bounding_rects(bitmask_t *input, int *num_bounding_boxes)
 {
     unsigned int *image, *ufind, *largest, *buf;
-    unsigned int x, y, w, h, temp, label, relabel;
+    int x, y, w, h, temp, label, relabel;
     GAME_Rect* rects;
     
     label = 0;
