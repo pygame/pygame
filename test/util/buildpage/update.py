@@ -221,16 +221,15 @@ def upload_build_results( build_result, build_errors, build_warnings,
         ( [config.latest_rev, time.strftime("%Y-%m-%d %H:%M"),
            build_result, build_errors, build_warnings] )
     )
-    create_zip_from_dict (
-        config.buildresults_zip, {
-          'run_tests__output.txt'   :    test_output,
-          'setup_py__output.txt'    :    build_output,
-          'build_config.txt'        :    str(config), }
-    )
-    add_files_to_zip (
-        config.buildresults_zip, 
-        config.buildresults_filename, 
-        os.path.join(config.src_path, 'Setup'),
+    create_zip (
+        config.buildresults_zip,
+        
+        *( config.buildresults_filename, 
+           os.path.join(config.src_path, 'Setup')),
+
+        **{ 'run_tests__output.txt'   :    test_output,
+            'setup_py__output.txt'    :    build_output,
+            'build_config.txt'        :    str(config) }
     )
 
     for results in (config.buildresults_filename, config.buildresults_zip):
@@ -262,6 +261,8 @@ def upload_installer(build_result):
 ################################################################################
 
 def prepare_build_env():
+    os.chdir(os.path.dirname(__file__))
+
     if config.make_package:
         if os.path.exists(config.dist_path): cleardir(config.dist_path)
 

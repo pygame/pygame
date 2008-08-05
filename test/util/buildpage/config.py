@@ -32,13 +32,9 @@ defaults = dict (
 
     config_py_interaction = 'Y\nY\nY\n',
 
-    build_cmd =  [ 
-        sys.executable, "setup.py", "build", 
-    ],
+    build_cmd =  [ sys.executable, "setup.py", "build" ],
         
-    install_cmd  = [
-        sys.executable, "setup.py", "install", "--prefix", #temp_test_install
-    ],
+    install_cmd  = [ sys.executable, "setup.py", "install"],
 
     tests_cmd = [sys.executable, "run_tests.py", 'event'],
     
@@ -161,11 +157,11 @@ def configure(c):
         c.build_cmd += [c.make_package]
 
     # INSTALL / TEST PATH
-    c.temp_install_path = os.path.join(os.getcwd(), "install_test")
+    c.temp_install_path = os.path.join(os.path.dirname(__file__),"install_test")
     c.temp_install_pythonpath = os.path.join (
         c.temp_install_path, c.test_dir_subpath
     )
-    c.install_cmd += [c.temp_install_path]
+    c.install_cmd += ["--prefix", c.temp_install_path]
     
     # INSTALL / TEST ENV
     c.test_env = {"PYTHONPATH" : c.temp_install_pythonpath}
