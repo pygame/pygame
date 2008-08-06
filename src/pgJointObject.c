@@ -1,4 +1,4 @@
-include "pgJointObject.h"
+#include "pgJointObject.h"
 #include "pgShapeObject.h"
 #include "pgHelpFunctions.h"
 #include <structmember.h>
@@ -276,7 +276,7 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 
 	localP = c_diff(localP,body->vecPosition);
 	k = body->shape->rInertia / body->fMass;
-	k *= 2;
+	k*=2;
 	k += c_get_length_square(localP);
 	bb = (distance - c_get_length(L));
 	c_normalize(&L);
@@ -303,15 +303,21 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 	dAngleV /= k;
 	body->fAngleVelocity += dAngleV;
 
+	//printf("dvBody %f,%f\n",dvBody.real,dvBody.imag);
+	if (c_get_length(body->vecLinearVelocity) < 100)
+	{
+		printf("joint\n");
+		printf("body speed:%f,%f\n",body->vecLinearVelocity.real,body->vecLinearVelocity.imag);
+	}
 
 	//for position correction
 	
-	temp = -bb /a;
+	/*temp = -bb /a;
 	dvBody = c_mul_complex_with_real(L,temp);
 	dAngleV = c_cross(localP,dvBody);
 	dAngleV /= k;
 	body->vecPosition = c_sum(body->vecPosition,dvBody);
-	body->fRotation += dAngleV;
+	body->fRotation += dAngleV;*/
 
 	/*temp = c_get_length(c_diff(*staticAnchor,PG_GetGlobalPos(body,localAnchor)));
 	temp -= distance; 
@@ -334,9 +340,7 @@ void _PG_DistanceJoint_ComputeTwoDynamic(pgDistanceJointObject* joint,double ste
 	pgVector2 dvBody1,dvBody2;
 	double dAngleV1,dAngleV2;
 	k1 = body1->shape->rInertia / body1->fMass;
-	k1 *= 2;
 	k2 = body2->shape->rInertia / body2->fMass;
-	k2 *= 2;
 
 	localP1 = c_diff(localP1,body1->vecPosition);
 	localP2 = c_diff(localP2,body2->vecPosition);
@@ -542,6 +546,23 @@ pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollid
 	return (pgJointObject*)pjoint;
 }
 
+void ReComputeDistance(pgDistanceJointObject* joint)
+{
+	pgBodyObject *b1 = joint->joint.body1;
+	pgBodyObject *b2 = joint->joint.body2;
+	if (b1 && b2)
+	{
+		pgVector2 s1 = PG_GetGlobalPos(b1,&joint->anchor1);
+		pgVector2 s2 = PG_GetGlobalPos(b2,&joint->anchor2);
+		joint->distance = c_get_length(c_diff(s1,s2));
+	}
+	else
+	{
+		pgVector2 s1 = PG_GetGlobalPos(b1,&joint->anchor1);
+		joint->distance = c_get_length(c_diff(s1,joint->anchor2));
+	}
+}
+
 static PyObject* _pgDistanceJoint_getDistance(pgDistanceJointObject* joint,void* closure)
 {
 	return PyFloat_FromDouble(joint->distance);
@@ -566,11 +587,14 @@ static PyObject* _pgDistanceJoint_getAnchor1(pgDistanceJointObject* joint,void* 
 	return PyComplex_FromCComplex(joint->anchor1);
 }
 
+
+
 static int _pgDistanceJoint_setAnchor1(pgDistanceJointObject* joint,PyObject* value,void* closure)
 {
 	if (PyComplex_Check(value))
 	{
 		joint->anchor1 = PyComplex_AsCComplex(value);
+		ReComputeDistance(joint);
 		return 0;
 	}
 	else
@@ -590,6 +614,7 @@ static int _pgDistanceJoint_setAnchor2(pgDistanceJointObject* joint,PyObject* va
 	if (PyComplex_Check(value))
 	{
 		joint->anchor2 = PyComplex_AsCComplex(value);
+		ReComputeDistance(joint);
 		return 0;
 	}
 	else
@@ -636,7 +661,7 @@ static PyMemberDef _pgDistanceJoint_members[] =
 
 static PyGetSetDef _pgDistanceJoint_getseters[] = {
 	{
-		"distance",(getter)_pgDistanceJoint_getDistance,(setter)_pgDistanceJoint_setDistance,"",NULL,
+		"distance",(getter)NULL,(setter)_pgDistanceJoint_setDistance,"",NULL, //can't direct set distance
 	},
 	{
 		"anchor1",(getter)_pgDistanceJoint_getAnchor1,(setter)_pgDistanceJoint_setAnchor1,"",NULL,

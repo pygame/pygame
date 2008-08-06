@@ -172,7 +172,7 @@ void TestBasic3Init()
 
 void TestBasic4Init()
 {
-#define  BODY_NUM  3
+#define  BODY_NUM  1
 
 	int i;
 	pgBodyObject* body[BODY_NUM + 1];
@@ -183,7 +183,7 @@ void TestBasic4Init()
 
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
-	PG_Set_Vector2(s_world->vecGravity,0,-100)
+	PG_Set_Vector2(s_world->vecGravity,0,0)
 
 	body[0] = NULL;
 	for (i = 1;i < BODY_NUM + 1;i++)
@@ -272,8 +272,8 @@ void TestBasic6Init()
 	pgBodyObject* body[2];
 	pgJointObject* joint;
 	pgVector2 a1,a2;
-	PG_Set_Vector2(a1,10,0);
-	PG_Set_Vector2(a2,10,0);
+	PG_Set_Vector2(a1,0,0);
+	PG_Set_Vector2(a2,0,0);
 	s_world = PG_WorldNew();
 	s_world->fStepTime = 0.03;
 	PG_Set_Vector2(s_world->vecGravity,0,0)
@@ -288,7 +288,7 @@ void TestBasic6Init()
 	PG_Set_Vector2(body[1]->vecPosition,50,0)
 	PG_AddBodyToWorld(s_world,body[1]);
 
-	PG_Set_Vector2(body[0]->vecLinearVelocity,0,100)
+	PG_Set_Vector2(body[0]->vecLinearVelocity,0,0)
 	PG_Set_Vector2(body[1]->vecLinearVelocity,0,0)
 
 	joint = PG_DistanceJointNew(body[0],body[1],0,100,a1,a2);
@@ -301,7 +301,7 @@ void TestBasic6Init()
 
 void InitWorld()
 {
-	TestBasic5Init();
+	TestBasic6Init();
 }
 
 int main (int argc, char** argv)

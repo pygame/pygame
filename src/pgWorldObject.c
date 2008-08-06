@@ -62,7 +62,7 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 	contact_cnt = PyList_Size(world->contactList);
 	if (contact_cnt)
 	{
-		printf("contact_cnt:%d\n",contact_cnt);
+		//printf("contact_cnt:%d\n",contact_cnt);
 	}
 	
 	for(j = 0; j < MAX_ITERATION; ++j)
@@ -155,7 +155,7 @@ void PG_Update(pgWorldObject* world,double stepTime)
 {
 	int i;
 	_PG_FreeBodySimulation(world, stepTime);
-	_PG_BodyPositionUpdate(world, stepTime);
+	//_PG_BodyPositionUpdate(world, stepTime);
 	for(i = 0; i < MAX_ITERATION; ++i)
 	{
 		_PG_BodyCollisionDetection(world, stepTime);
@@ -163,7 +163,7 @@ void PG_Update(pgWorldObject* world,double stepTime)
 		_PG_JointSolve(world, stepTime);
 		
 	}
-	//_PG_BodyPositionUpdate(world, stepTime);
+	_PG_BodyPositionUpdate(world, stepTime);
 	
 }
 
