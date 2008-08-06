@@ -268,6 +268,7 @@ static int _pgBody_setMass(pgBodyObject* body,PyObject* value,void* closure)
         if (tmp)
         {
             double mass = PyFloat_AsDouble (tmp);
+            Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
             if (mass < 0)
@@ -303,6 +304,7 @@ static int _pgBody_setRotation(pgBodyObject* body,PyObject* value,void* closure)
         if (tmp)
         {
             double rotation = PyFloat_AsDouble (tmp);
+            Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
             body->fRotation = rotation;
@@ -333,6 +335,7 @@ static int _pgBody_setTorque (pgBodyObject* body,PyObject* value,void* closure)
         if (tmp)
         {
             double torque = PyFloat_AsDouble (tmp);
+            Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
             body->fTorque = torque;
@@ -363,13 +366,14 @@ static int _pgBody_setRestitution (pgBodyObject* body,PyObject* value,void* clos
         if (tmp)
         {
             double rest = PyFloat_AsDouble (tmp);
+            Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
             body->fRestitution = rest;
             return 0;
         }
     }
-    PyErr_SetString (PyExc_TypeError, "torque must be a float");
+    PyErr_SetString (PyExc_TypeError, "restitution must be a float");
     return -1;
 }
 
@@ -393,13 +397,14 @@ static int _pgBody_setFriction (pgBodyObject* body,PyObject* value,void* closure
         if (tmp)
         {
             double friction = PyFloat_AsDouble (tmp);
+            Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
             body->fFriction = friction;
             return 0;
         }
     }
-    PyErr_SetString (PyExc_TypeError, "torque must be a float");
+    PyErr_SetString (PyExc_TypeError, "friction must be a float");
     return -1;
 }
 
@@ -416,13 +421,13 @@ static PyObject* _pgBody_getBStatic (pgBodyObject* body,void* closure)
 */
 static int _pgBody_setBStatic (pgBodyObject* body,PyObject* value,void* closure)
 {
-	if (PyInt_Check (value))
+	if (PyBool_Check (value))
 	{
-		body->bStatic = PyInt_AsLong (value);
-		return 0;
+            body->bStatic = (value == Py_True) ? 1 : 0;
+            return 0;
 
 	}
-	PyErr_SetString (PyExc_TypeError, "torque must be a float");
+	PyErr_SetString (PyExc_TypeError, "static must be a bool");
 	return -1;
 }
 
@@ -505,7 +510,7 @@ static PyGetSetDef _pgBody_getseters[] = {
     {"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
     {"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
     {"force",(getter)_pgBody_getForce,(setter)_pgBody_setForce,"force",NULL},
-	{"static",(getter)_pgBody_getBStatic,(setter)_pgBody_setBStatic,"whether static",NULL},
+    {"static",(getter)_pgBody_getBStatic,(setter)_pgBody_setBStatic,"whether static",NULL},
     { NULL, NULL, NULL, NULL, NULL}
 };
 

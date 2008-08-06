@@ -306,8 +306,8 @@ void _PG_DistanceJoint_ComputeOneDynamic(pgBodyObject* body,pgVector2* staticAnc
 	//printf("dvBody %f,%f\n",dvBody.real,dvBody.imag);
 	if (c_get_length(body->vecLinearVelocity) < 100)
 	{
-		printf("joint\n");
-		printf("body speed:%f,%f\n",body->vecLinearVelocity.real,body->vecLinearVelocity.imag);
+/* 		printf("joint\n"); */
+/* 		printf("body speed:%f,%f\n",body->vecLinearVelocity.real,body->vecLinearVelocity.imag); */
 	}
 
 	//for position correction
@@ -570,16 +570,22 @@ static PyObject* _pgDistanceJoint_getDistance(pgDistanceJointObject* joint,void*
 
 static int _pgDistanceJoint_setDistance(pgDistanceJointObject* joint,PyObject* value,void* closure)
 {
-	if(PyFloat_Check(value))
-	{
-		joint->distance = PyFloat_AsDouble(value);
-		return 0;
-	}
-	else
-	{
-		PyErr_SetString(PyExc_TypeError, "value must be float number");
-		return -1;
-	}
+    if (PyNumber_Check (value))
+    {
+        PyObject *tmp = PyNumber_Float (value);
+
+        if (tmp)
+        {
+            double distance = PyFloat_AsDouble (tmp);
+            Py_DECREF (tmp);
+            if (PyErr_Occurred ())
+                return -1;
+            joint->distance = distance;
+            return 0;
+        }
+    }
+    PyErr_SetString (PyExc_TypeError, "distance must be a float");
+    return -1;
 }
 
 static PyObject* _pgDistanceJoint_getAnchor1(pgDistanceJointObject* joint,void* closure)
