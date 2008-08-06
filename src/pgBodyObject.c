@@ -27,7 +27,6 @@ void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
 		body->fMass));
 	body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
 		c_mul_complex_with_real(totalF, dt/body->fMass));
-	
 }
 
 //void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
@@ -180,7 +179,7 @@ static int _pgBody_setVelocity(pgBodyObject* body,PyObject* value,void* closure)
     item = PySequence_GetItem (value, 0);
     if (!DoubleFromObj (item, &real))
         return -1;
-    item = PySequence_GetItem (value, 0);
+    item = PySequence_GetItem (value, 1);
     if (!DoubleFromObj (item, &imag))
         return -1;
     
@@ -210,7 +209,7 @@ static int _pgBody_setPosition(pgBodyObject* body,PyObject* value,void* closure)
     item = PySequence_GetItem (value, 0);
     if (!DoubleFromObj (item, &real))
         return -1;
-    item = PySequence_GetItem (value, 0);
+    item = PySequence_GetItem (value, 1);
     if (!DoubleFromObj (item, &imag))
         return -1;
     
@@ -240,7 +239,7 @@ static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
     item = PySequence_GetItem (value, 0);
     if (!DoubleFromObj (item, &real))
         return -1;
-    item = PySequence_GetItem (value, 0);
+    item = PySequence_GetItem (value, 1);
     if (!DoubleFromObj (item, &imag))
         return -1;
     
@@ -476,7 +475,7 @@ static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
 		{
 			pgVector2* pVertex = &(((pgRectShape*)(body->shape))->point[i]);
 			pgVector2 golVertex = PG_GetGlobalPos(body,pVertex);
-			PyObject* tuple = FromPhysicsVector2ToPygamePoint(golVertex);
+			PyObject* tuple = FromPhysicsVector2ToPoint(golVertex);
 			PyList_SetItem(list,i,tuple);
 		}
 		return (PyObject*)list;

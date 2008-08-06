@@ -15,17 +15,17 @@ def render_world(world,surface,color):
 
 def init_world():
     w = physics.World()
-    w.gravity = 0+1j
+    w.gravity = 0, 1
     body1 = physics.Body()
-    body1.bind_rect_shape(2,2,0)
-    body1.position = 10, 20
-    body1.velocity = 1,0
+    body1.bind_rect_shape(20,20,0)
+    body1.position = 100, 100
+    body1.velocity = 10,0
     body1.restitution = 3.0
     w.add_body(body1)
     body2 = physics.Body()
-    body2.bind_rect_shape(2,2,0)
-    body2.position = 20, 20
-    body2.velocity = -1, 0
+    body2.bind_rect_shape(20,20,0)
+    body2.position = 200, 100
+    body2.velocity = -2, 0
     body1.restitution = 3.0
     w.add_body(body2)
     return w
@@ -39,7 +39,6 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((800, 800))
     pygame.display.set_caption('physics test')
-    pygame.mouse.set_visible(0)
 
 #Create The Backgound
     background = pygame.Surface(screen.get_size())

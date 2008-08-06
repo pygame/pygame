@@ -1,5 +1,6 @@
-#include "pgJointObject.h"
+include "pgJointObject.h"
 #include "pgShapeObject.h"
+#include "pgHelpFunctions.h"
 #include <structmember.h>
 
 extern PyTypeObject pgDistanceJointType;
@@ -604,7 +605,7 @@ static PyObject* _pgDistanceJoint_getPointList(PyObject *self, PyObject *args)
 	PyObject* list  = PyList_New(2);
 
 	pgVector2 p = PG_GetGlobalPos(joint->joint.body1,&joint->anchor1);
-	PyObject* tuple = FromPhysicsVector2ToPygamePoint(p);
+	PyObject* tuple = FromPhysicsVector2ToPoint(p);
 	PyList_SetItem(list,0,tuple);
 
 	if(joint->joint.body2)
@@ -617,7 +618,7 @@ static PyObject* _pgDistanceJoint_getPointList(PyObject *self, PyObject *args)
 		p = joint->anchor2;
 	}
 
-	tuple = FromPhysicsVector2ToPygamePoint(p);
+	tuple = FromPhysicsVector2ToPoint(p);
 	PyList_SetItem(list,1,tuple);
 	return list;
 }

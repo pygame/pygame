@@ -100,14 +100,12 @@ DoubleFromObj (PyObject* obj, double* val)
     return 0;
 }
 
-PyObject* FromPhysicsVector2ToPygamePoint(pgVector2 v2)
+PyObject* FromPhysicsVector2ToPoint(pgVector2 v2)
 {
 	PyObject* tuple = PyTuple_New(2);
 
-	long ix = v2.real * FLOAT_TO_INT_MUL;
-	long iy = v2.imag * FLOAT_TO_INT_MUL;
-	PyObject* xnum = PyInt_FromLong(ix);
-	PyObject* ynum = PyInt_FromLong(iy);
+	PyObject* xnum = PyFloat_FromDouble (v2.real);
+	PyObject* ynum = PyFloat_FromDouble (v2.imag);
 	PyTuple_SetItem(tuple,0,xnum);
 	PyTuple_SetItem(tuple,1,ynum);
 	return tuple;

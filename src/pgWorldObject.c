@@ -3,6 +3,8 @@
 #include "pgJointObject.h"
 #include "pgCollision.h"
 #include "pgShapeObject.h"
+#include "pgHelpFunctions.h"
+
 #include <structmember.h>
 
 #define MAX_ITERATION 5
@@ -296,20 +298,31 @@ static PyObject* _world_add_joint(pgWorldObject* world,PyObject* args)
 
 static PyObject* _pgWorld_getGravity(pgWorldObject* world,void* closure)
 {
-	return PyComplex_FromCComplex(world->vecGravity);
+    return Py_BuildValue ("(ff)", world->vecGravity.real,
+        world->vecGravity.imag);
 }
 
 static int _pgWorld_setGravity(pgWorldObject* world,PyObject* value,void* closure)
 {
-	if (value == NULL || (!PyComplex_Check(value))) {
-		PyErr_SetString(PyExc_TypeError, "Cannot set the gravity attribute");
-		return -1;
-	}
-	else
-	{
-		world->vecGravity = PyComplex_AsCComplex(value);
-		return 0;
-	}
+    PyObject *item;
+    double real, imag;
+
+    if (!PySequence_Check(value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_TypeError, "gravity must be a x, y sequence");
+        return -1;
+    }
+
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &real))
+        return -1;
+    item = PySequence_GetItem (value, 1);
+    if (!DoubleFromObj (item, &imag))
+        return -1;
+    
+    world->vecGravity.real = real;
+    world->vecGravity.imag = imag;
+    return 0;
 }
 
 static PyObject* _pgWorld_getBodyList(pgWorldObject* world,void* closure)

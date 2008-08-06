@@ -1,6 +1,9 @@
 #ifndef _PG_HELPFUNCTIONS_H
 #define _PG_HELPFUNCTIONS_H
 
+#include <Python.h>
+#include "pgVector2.h"
+
 /**
  * Tries to retrieve the double value from a python object.
  * Taken from the pygame codebase.
@@ -12,7 +15,7 @@
 int
 DoubleFromObj (PyObject* obj, double* val);
 
-
-PyObject* FromPhysicsVector2ToPygamePoint(pgVector2 v2);
+PyObject*
+FromPhysicsVector2ToPoint (pgVector2 v2);
 
 #endif /* _PG_HELPFUNCTIONS_H */
