@@ -81,7 +81,7 @@ def svn_blame(error_file):
 
 def add_blame_to_errors_by_file( src_root, errors_by_file, line_func = None):
     if not line_func: line_func = lambda error: int(error['line'])
-    
+
     for error_file, errors in errors_by_file.items():
         print "blame for %s" % error_file
 
@@ -99,22 +99,22 @@ def add_blame_to_errors_by_file( src_root, errors_by_file, line_func = None):
 
 def categorize_errors_by_file(errors, add_blame = 1):
     errors_by_file = {}
-    
+
     for error in errors:
         error_file = error['file']
         if error_file not in errors_by_file: errors_by_file[error_file] = []
         errors_by_file[error_file].append(error)
-    
+
     if add_blame:
         add_blame_to_errors_by_file( config.src_path, errors_by_file )
-    
+
     return errors_by_file
 
 ################################################################################
 
 def build_warnings_html(build_output):
     warnings = [w.groupdict() for w in BUILD_WARNINGS_RE.finditer(build_output)]
-    
+
     if warnings:
         warnings_by_file = categorize_errors_by_file(warnings)
         return errors_by_file_4_web (warnings_by_file, "BUILD_WARNINGS")
