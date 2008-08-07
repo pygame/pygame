@@ -11,9 +11,12 @@ import ConfigParser
 import pprint
 import webbrowser
 
+from os.path import normpath as npath
+
 # User Lib
 import callproc
 from helpers import *
+
 
 ################################################################################
 
@@ -22,7 +25,7 @@ defaults = dict (
     ########################################################################
     # Paths
 
-    src_path = './pygame/trunk',
+    src_path = npath('./pygame/trunk'),
 
     ########################################################################
     # Commands
@@ -34,7 +37,8 @@ defaults = dict (
 
     build_cmd =  [ sys.executable, "setup.py", "build" ],
         
-    install_cmd  = [ sys.executable, "setup.py", "install"],
+    # install_cmd  = [ sys.executable, "setup.py", "install"],
+    # install_cmd is extrapolated below in configure function
 
     tests_cmd = [sys.executable, "run_tests.py", 'event'],
     
@@ -59,12 +63,22 @@ class config_obj(object):
 
     __repr__ = __str__
     
-    def htmlDump(self):
-        return ("<hr><h3>%s</h3>"
-                "<pre>%s</pre><hr>" % (
-                    self.platform_id,
-                    cgi.escape(str(self)).replace('\n', '<br />')
-                ))
+    def htmlDump(self, open_in_browser = False, template='%(config)s'):        
+        html = template % {'config' : (
+            "<hr><h3>%s</h3>"
+            "<pre>%s</pre><hr>" % (
+                self.platform_id,
+                cgi.escape(str(self)).replace('\n', '<br />')
+        ))}
+        
+        if open_in_browser:
+            config_html_file = '%s_config.html' % self.platform_id
+            config_html = file(config_html_file, 'w')
+            config_html.write (html)
+            config_html.close()
+            webbrowser.open(config_html_file)
+        
+        return html
 
 def merge_dict(dest, indict):
     for key, val in indict.items():
@@ -130,8 +144,8 @@ def get_platform_and_previous_rev(config, config_file):
     config.platform_id = re.search (
         r"build_([^.]+).ini", os.path.basename(config_file) ).group(1)
     
-    config.last_rev_filename = "./output/last_rev_%s.txt" % ( 
-        config.platform_id )
+    config.last_rev_filename = npath(
+        "./output/last_rev_%s.txt" % config.platform_id )
     try:
         config.previous_rev = int(file(config.last_rev_filename, "r").read())
     except:
@@ -139,29 +153,34 @@ def get_platform_and_previous_rev(config, config_file):
 
 ################################################################################
 
-def configure(c):
+def configure(c):    
     # SUBVERSION
     # Possibly updated between builds?? Here's a good spot?
     c.latest_rev = get_and_brand_latest_svn(c.src_path)
     
+    # WORKING DIR 
+    c.working_dir = os.path.dirname(__file__)
+    os.chdir(c.working_dir)
+
     # CONFIG.PY INTERACTION
     # ini files are parsed as raw strings
     c.config_py_interaction = c.config_py_interaction.replace('\\n','\n')
     
     # BUILD
     c.build_cmd += c.extra_build_flags.split(' ')
-
+    c.install_cmd = c.build_cmd[:]
+    
     # INSTALLER
     if c.make_package:
         c.dist_path = os.path.join(c.src_path, 'dist')
         c.build_cmd += [c.make_package]
 
-    # INSTALL / TEST PATH
+    # INSTALL CMD / TEST PATH
     c.temp_install_path = os.path.join(os.path.dirname(__file__),"install_test")
     c.temp_install_pythonpath = os.path.join (
         c.temp_install_path, c.test_dir_subpath
     )
-    c.install_cmd += ["--prefix", c.temp_install_path]
+    c.install_cmd += ['install', '--prefix', c.temp_install_path]
     
     # INSTALL / TEST ENV
     c.test_env = {"PYTHONPATH" : c.temp_install_pythonpath}
@@ -169,15 +188,14 @@ def configure(c):
     c.install_env.update(c.test_env)
 
     # RESULTS
-    c.prebuilts_filename = "./output/prebuilt_%s.txt" % c.platform_id
-    c.buildresults_filename = "./output/buildresults_%s.txt" % c.platform_id
-    c.buildresults_zip = "./output/buildresults_%s.zip" % c.platform_id
+    c.prebuilts_filename = npath("./output/prebuilt_%s.txt" % c.platform_id)
+    c.buildresults_filename = npath("./output/buildresults_%s.txt" % c.platform_id)
+    c.buildresults_zip = npath("./output/buildresults_%s.zip" % c.platform_id)
 
 ################################################################################
 
 def get_configs(args):
     search = "./config/build_%s.ini" % (args and args[0] or '*')
-
     config_file_list = glob.glob(search)
 
     for config_file in config_file_list:
@@ -187,14 +205,14 @@ def get_configs(args):
 
         yield config
 
+
+def main():
+    for conf in get_configs(sys.argv[1:]):
+        conf.htmlDump(open_in_browser = True)
+        
 ################################################################################
 
 if __name__ == '__main__':
-    for conf in get_configs(sys.argv[1:]):
-        config_html_file = '%s_config.html' % conf.platform_id
-        config_html = file(config_html_file, 'w')
-        config_html.write (conf.htmlDump())
-        config_html.close()
-        webbrowser.open(config_html_file)
-
+    main()
+    
 ################################################################################

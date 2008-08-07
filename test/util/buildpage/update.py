@@ -6,14 +6,19 @@ import sys
 import os
 import re
 import cgi
+import cgitb
 import time
 import glob
 import shutil
+import traceback
+
+from os.path import normpath as npath
 
 # User Libs
 import callproc
 import config
 import upload_results
+import mocks
 
 from regexes import *
 from helpers import *
@@ -101,9 +106,7 @@ def categorize_errors_by_file(errors, add_blame = 1):
     errors_by_file = {}
 
     for error in errors:
-        error_file = error['file']
-        if error_file not in errors_by_file: errors_by_file[error_file] = []
-        errors_by_file[error_file].append(error)
+        errors_by_file.setdefault(error['file'], []).append(error)
 
     if add_blame:
         add_blame_to_errors_by_file( config.src_path, errors_by_file )
@@ -146,10 +149,10 @@ def parse_test_results(ret_code, output):
         return TESTS_INVALID, output.replace("\n", "<br>")
     
     else:
-        tests_run = re.findall(r"loading ([^\r\n]+)", output)
-        test_text = [test + " passed" for test in tests_run]
+        # tests_run = re.findall(r"loading ([^\r\n]+)", output)
+        # test_text = [test + " passed" for test in tests_run]
 
-        return TESTS_PASSED, "<br>".join(test_text)
+        return TESTS_PASSED, ''  #"<br>".join(test_text)
 
 ################################################################################
 
@@ -189,11 +192,10 @@ def parse_build_results(ret_code, output):
 ################################################################################
 
 def configure_build():
-    ret_code, output = callproc.InteractiveGetReturnCodeAndOutput (
+    return callproc.InteractiveGetReturnCodeAndOutput (
         config.config_cmd, config.config_py_interaction, 
         config.src_path, config.build_env
     )
-    if ret_code is not 0: sys.exit ("config.py error:\n%s" % output)
 
 def build():
     return callproc.GetReturnCodeAndOutput (
@@ -223,9 +225,9 @@ def upload_build_results( build_result, build_errors, build_warnings,
     )
     create_zip (
         config.buildresults_zip,
-        
-        *( config.buildresults_filename, 
-           os.path.join(config.src_path, 'Setup')),
+
+        config.buildresults_filename, 
+        os.path.join(config.src_path, 'Setup'),
 
         **{ 'run_tests__output.txt'   :    test_output,
             'setup_py__output.txt'    :    build_output,
@@ -235,6 +237,7 @@ def upload_build_results( build_result, build_errors, build_warnings,
     for results in (config.buildresults_filename, config.buildresults_zip):
         upload_results.scp(results)
 
+    
     file(config.last_rev_filename, "w").write(str(config.latest_rev))
 
 def upload_installer(build_result):
@@ -246,7 +249,7 @@ def upload_installer(build_result):
     if BUILD_SUCCESSFUL not in build_result:
         installer_filename = "failed_tests_%s" % installer_filename
 
-    output_installer_path = os.path.join('./output', installer_filename)
+    output_installer_path = npath(os.path.join('./output', installer_filename))
     shutil.move(installer_dist_path, output_installer_path)
 
     build_info = [config.latest_rev, time.strftime("%Y-%m-%d %H:%M")]
@@ -261,11 +264,10 @@ def upload_installer(build_result):
 ################################################################################
 
 def prepare_build_env():
-    os.chdir(os.path.dirname(__file__))
-
     if config.make_package:
         if os.path.exists(config.dist_path): cleardir(config.dist_path)
-
+    
+    prepare_dir(npath("./output"))
     prepare_dir(config.temp_install_path)
     os.makedirs(config.temp_install_pythonpath)
     
@@ -285,7 +287,10 @@ def update_build():
         build_result, build_errors = parse_test_results(ret_code, test_output)
 
         upload_installer(build_result)
-
+    
+    else:
+        test_output = ''
+    
     print '\n%s\n' % build_result
 
     upload_build_results (
@@ -293,16 +298,39 @@ def update_build():
     )
 
 ################################################################################
+# Debugging
 
+def debugging(f):
+    def wrapped():
+        try:
+            f()
+        except:
+            html_formatted_info = "%s<br />%s" % ( 
+                cgitb.html(sys.exc_info()), config.htmlDump()
+            )
+            dump_and_open_in_browser ( html_formatted_info )
+            # TODO: email breakage info to maintainer
+            raise
+
+    return wrapped
+
+################################################################################
+
+@debugging
 def main():
-    # All configuration done before hand in config.py. + ini files Treat config
-    # as readonly from here on in.
+    """
 
+    All configuration done before hand in config.py. + ini files Treat config
+    as readonly from here on in.
+
+    """
     global config
     for config in config.get_configs(sys.argv[1:]):
         if 1 or config.previous_rev < config.latest_rev:
             prepare_build_env()
             update_build()
+        else:
+            print 'revision already built'
 
 if __name__ == '__main__':
     main()

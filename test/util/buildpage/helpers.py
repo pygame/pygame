@@ -3,6 +3,7 @@
 import re
 import os
 import zipfile
+import webbrowser
 
 ################################################################################
 
@@ -39,6 +40,11 @@ def create_zip(zip_file, *files, **var):
     for f in files: zip.write(f, os.path.basename(f))
     for k, v in var.items(): zip.writestr(k, v)
     zip.close()
+
+def dump_and_open_in_browser(string):
+    write_file_lines('temp.html', [string])
+    webbrowser.open('temp.html')                
+    
 
 ################################################################################
 
