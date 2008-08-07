@@ -601,9 +601,8 @@ static int _Get_Depth(pgBodyObject* refBody, pgBodyObject* incBody,
 }
 
 static int _SAT_Select(pgBodyObject* body1, pgBodyObject* body2,
-					   pgBodyObject** refBody, pgBodyObject** incBody,
-					   int* face_id, pgVector2* gp_in_ref, pgAABBBox* clipBox,
-					   double* minDep)
+    pgBodyObject** refBody, pgBodyObject** incBody,
+    int* face_id, pgVector2* gp_in_ref, pgAABBBox* clipBox, double* minDep)
 {
 	double min_dep[2];
 	int id[2];
@@ -653,6 +652,7 @@ int _Build_Contacts(pgVector2* gp, pgAABBBox* clipBox, int axis,
 
 	*size = 0;
 	memset(has_ip, 0, sizeof(has_ip));
+
 	for(i = 0; i < 4; ++i)
 	{
 		i1 = (i+1)%4;
@@ -717,8 +717,7 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 
 
 	overlap = _SAT_Select(selfBody, incidBody,
-						  &ref, &inc,
-						  &face_id, gp, &clipBox, &minDep);
+            &ref, &inc, &face_id, gp, &clipBox, &minDep);
 
 	if(!overlap) return 0;
 
@@ -726,19 +725,19 @@ int PG_RectShapeCollision(pgBodyObject* selfBody, pgBodyObject* incidBody,
 	{
 	case CF_LEFT:
 		PG_Set_Vector2(normal, -1, 0);
-		assert(_Build_Contacts(gp, &clipBox, CA_X, contacts, &csize)); 
+		_Build_Contacts(gp, &clipBox, CA_X, contacts, &csize);
 		break;
 	case CF_BOTTOM:
 		PG_Set_Vector2(normal, 0, -1);
-		assert(_Build_Contacts(gp, &clipBox, CA_Y, contacts, &csize));
+		_Build_Contacts(gp, &clipBox, CA_Y, contacts, &csize);
 		break;
 	case CF_RIGHT:
 		PG_Set_Vector2(normal, 1, 0);
-		assert(_Build_Contacts(gp, &clipBox, CA_X, contacts, &csize));
+		_Build_Contacts(gp, &clipBox, CA_X, contacts, &csize);
 		break;
 	case CF_TOP:
 		PG_Set_Vector2(normal, 0, 1);
-		assert(_Build_Contacts(gp, &clipBox, CA_Y, contacts, &csize));
+		_Build_Contacts(gp, &clipBox, CA_Y, contacts, &csize);
 		break;
 	default:
 		assert(0);

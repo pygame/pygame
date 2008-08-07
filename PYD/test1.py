@@ -17,9 +17,9 @@ def init_world():
     w = physics.World()
     w.gravity = 0, 1
     body1 = physics.Body()
-    body1.bind_rect_shape(20,20,0)
+    body1.bind_rect_shape(80,33,0)
     body1.position = 100, 100
-    body1.velocity = 10,0
+    body1.velocity = 2,0
     body1.restitution = 3.0
     w.add_body(body1)
     body2 = physics.Body()

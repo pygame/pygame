@@ -590,44 +590,62 @@ static int _pgDistanceJoint_setDistance(pgDistanceJointObject* joint,PyObject* v
 
 static PyObject* _pgDistanceJoint_getAnchor1(pgDistanceJointObject* joint,void* closure)
 {
-	return PyComplex_FromCComplex(joint->anchor1);
+    return Py_BuildValue ("(ff)", joint->anchor1.real, joint->anchor1.imag);
 }
 
 
 
 static int _pgDistanceJoint_setAnchor1(pgDistanceJointObject* joint,PyObject* value,void* closure)
 {
-	if (PyComplex_Check(value))
-	{
-		joint->anchor1 = PyComplex_AsCComplex(value);
-		ReComputeDistance(joint);
-		return 0;
-	}
-	else
-	{
-		PyErr_SetString(PyExc_TypeError, "value must be complex number");
-		return -1;
-	}
+    PyObject *item;
+    double real, imag;
+
+    if (!PySequence_Check(value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_TypeError, "anchor must be a x, y sequence");
+        return -1;
+    }
+
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &real))
+        return -1;
+    item = PySequence_GetItem (value, 1);
+    if (!DoubleFromObj (item, &imag))
+        return -1;
+    
+    joint->anchor1.real = real;
+    joint->anchor1.imag = imag;
+    ReComputeDistance(joint);
+    return 0;
 }
 
 static PyObject* _pgDistanceJoint_getAnchor2(pgDistanceJointObject* joint,void* closure)
 {
-	return PyComplex_FromCComplex(joint->anchor2);
+    return Py_BuildValue ("(ff)", joint->anchor2.real, joint->anchor2.imag);
 }
 
 static int _pgDistanceJoint_setAnchor2(pgDistanceJointObject* joint,PyObject* value,void* closure)
 {
-	if (PyComplex_Check(value))
-	{
-		joint->anchor2 = PyComplex_AsCComplex(value);
-		ReComputeDistance(joint);
-		return 0;
-	}
-	else
-	{
-		PyErr_SetString(PyExc_TypeError, "value must be complex number");
-		return -1;
-	}
+    PyObject *item;
+    double real, imag;
+
+    if (!PySequence_Check(value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_TypeError, "anchor must be a x, y sequence");
+        return -1;
+    }
+
+    item = PySequence_GetItem (value, 0);
+    if (!DoubleFromObj (item, &real))
+        return -1;
+    item = PySequence_GetItem (value, 1);
+    if (!DoubleFromObj (item, &imag))
+        return -1;
+    
+    joint->anchor2.real = real;
+    joint->anchor2.imag = imag;
+    ReComputeDistance(joint);
+    return 0;
 }
 
 static PyObject* _pgDistanceJoint_getPointList(PyObject *self, PyObject *args)

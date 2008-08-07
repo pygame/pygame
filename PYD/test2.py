@@ -26,7 +26,7 @@ def init_world():
     body.bind_rect_shape(20,20,0)
     body.position = 200, 100
     body.restitution = 3.0
-    body.static = 1
+    body.static = True
     w.add_body(body)
     body1 = physics.Body()
     body1.bind_rect_shape(20,20,0)
@@ -35,19 +35,19 @@ def init_world():
     w.add_body(body1)
     body2 = physics.Body()
     body2.bind_rect_shape(20,20,0)
-    body2.position = 300, 300
+    body2.position = 300, 200
     body1.restitution = 3.0
     w.add_body(body2)
     
     joint1 = physics.DistanceJoint(body1,body,1)
-    joint1.distance = 100.
-    joint1.anchor1 = 0+0j
-    joint1.anchor2 = 0+0j
+    joint1.distance = 100
+    joint1.anchor1 = 0, 0
+    joint1.anchor2 = 0, 0
     w.add_joint(joint1)
     joint2 = physics.DistanceJoint(body1,body2,1)
-    joint2.distance = 100.
-    joint2.anchor1 = 0+0j
-    joint2.anchor2 = 0+0j
+    joint2.distance = 100
+    joint2.anchor1 = 0, 0
+    joint2.anchor2 = 0, 0
     w.add_joint(joint2)
     return w
 

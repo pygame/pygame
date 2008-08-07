@@ -53,7 +53,6 @@ void _PG_BodyCollisionDetection(pgWorldObject* world, double step)
 			
 			if(PG_IsOverlap(&(refBody->shape->box), &(incBody->shape->box), 1e-8))
 			{
-				
 				PG_DetectCollision(refBody, incBody, world->contactList);
 			}
 		}
