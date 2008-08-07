@@ -33,7 +33,9 @@ class GL_ImageSave(unittest.TestCase):
         self.assert_(os.path.exists(tmp_file))
         
         os.remove(tmp_file)
-        # os.rmdir(tmp_dir)
+        
+        # stops tonnes of tmp dirs building up in trunk dir
+        os.rmdir(tmp_dir)
         
         
         pygame.display.quit()
