@@ -37,9 +37,7 @@ def prepare_dir(dir):
 
 def create_zip(zip_file, *files, **var):
     zip = zipfile.ZipFile(zip_file, 'w', compression = zipfile.ZIP_DEFLATED)
-    for f in files:
-        if os.path.exists(f):
-            zip.write(f, os.path.basename(f))
+    for f in files: zip.write(f, os.path.basename(f))
     for k, v in var.items(): zip.writestr(k, v)
     zip.close()
 
