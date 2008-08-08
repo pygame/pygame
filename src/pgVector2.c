@@ -1,121 +1,105 @@
+/*
+  pygame physics - Pygame physics module
+
+  Copyright (C) 2008 Zhang Fan
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
+
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#define PHYSICS_SHAPE_INTERNAL
+
 #include "pgVector2.h"
-#include <assert.h>
 
-int is_zero(double num)
+int PyMath_IsNearEqual(double a, double b)
 {
-	return fabs(num) <= ZERO_EPSILON;
+    double rErr;
+    if(IS_NEAR_ZERO(a - b)) return 1;
+
+    if(fabs(b) > fabs(a))
+        rErr = fabs((a - b) / b);
+    else
+        rErr = fabs((a - b) / a);
+
+    return rErr <= RELATIVE_ZERO;
 }
 
-int is_equal(double a, double b)
+int PyMath_LessEqual(double a, double b)
 {
-	double rErr;
-	if(is_zero(a - b)) return 1;
-
-	if(fabs(b) > fabs(a))
-		rErr = fabs((a - b) / b);
-	else
-		rErr = fabs((a - b) / a);
-
-	return rErr <= RELATIVE_ZERO;
+    return a < b || PyMath_IsNearEqual(a, b);
 }
 
-int less_equal(double a, double b)
+int PyMath_MoreEqual(double a, double b)
 {
-	return a < b || is_equal(a, b);
+    return a > b || PyMath_IsNearEqual(a, b);
 }
 
-int more_equal(double a, double b)
+int PyVector2_Equal(PyVector2* a, PyVector2* b)
 {
-	return a > b || is_equal(a, b);
+    return PyMath_IsNearEqual(a->real, b->real) && PyMath_IsNearEqual(a->imag, b->imag);
 }
 
-double c_get_length_square(Py_complex c)
+PyVector2 PyVector2_MultiplyWithReal (PyVector2 a, double f)
 {
-	double r;
-	r = c.real * c.real;
-	r += (c.imag * c.imag);
-	return r;
+    PyVector2 res;
+    res.real = a.real * f;
+    res.imag = a.imag * f;
+    return res;
 }
 
-double c_get_length(Py_complex c)
+PyVector2 PyVector2_DivideWithReal (PyVector2 a, double f)
 {
-	double r;
-	r = c.real * c.real;
-	r += (c.imag * c.imag);
-	return sqrt(r);
-}
-
-Py_complex c_mul_complex_with_real(Py_complex c,double d)
-{
-	Py_complex r;
-	r.real = c.real * d;
-	r.imag = c.imag * d;
-	return r;
-}
-
-Py_complex c_div_complex_with_real(pgVector2 c,double d)
-{
-	Py_complex r;
-	assert(d != 0);
-	r.real = c.real / d;
-	r.imag = c.imag / d;
-	return r;
-}
-
-void c_normalize(pgVector2* pVec)
-{
-	double l = c_get_length(*pVec);
-	assert(l > 0);
-	pVec->real /= l;
-	pVec->imag /= l;
-}
-
-double c_dot(pgVector2 a,pgVector2 b)
-{
-	return a.real * b.real + a.imag * b.imag;
-}
-
-double c_cross(pgVector2 a, pgVector2 b)
-{
-	return a.real*b.imag - a.imag*b.real;
-}
-
-pgVector2 c_fcross(double a, pgVector2 b)
-{
-	pgVector2 ans;
-	ans.real = -a*b.imag;
-	ans.imag = a*b.real;
-	return ans;
-}
-
-pgVector2 c_crossf(pgVector2 a, double b)
-{
-	pgVector2 ans;
-	ans.real = a.imag*b;
-	ans.imag = -a.real*b;
-	return ans;
-}
-
-void c_rotate(pgVector2* a, double seta)
-{
-	double x = a->real;
-	double y = a->imag;
-	a->real = x*cos(seta) - y*sin(seta);
-	a->imag = x*sin(seta) + y*cos(seta);
-}
-
-int c_equal(pgVector2* a, pgVector2* b)
-{
-	return is_equal(a->real, b->real) && is_equal(a->imag, b->imag);
+    PyVector2 res;
+    res.real = a.real / f;
+    res.imag = a.imag / f;
+    return res;
 }
 
 
-pgVector2 c_project(pgVector2 l,pgVector2 p)
+PyVector2 PyVector2_fCross(double f, PyVector2 a)
 {
-	double lp;
-	c_normalize(&l);
-	lp = c_dot(l,p);
-	return c_mul_complex_with_real(l,lp);
+    PyVector2 res;
+    res.real = -f * a.imag;
+    res.imag = f * a.real;
+    return res;
 }
 
+PyVector2 PyVector2_Crossf(PyVector2 a, double f)
+{
+    PyVector2 res;
+    res.real = f * a.imag;
+    res.imag = -f * a.real;
+    return res;
+}   
 
+PyVector2 PyVector2_Project(PyVector2 a, PyVector2 p)
+{
+    double lp;
+    PyVector2_Normalize(&a);
+    lp = PyVector2_Dot(a, p);
+    return PyVector2_MultiplyWithReal (a, lp);
+}
+
+void PyMath_ExportCAPI (void **c_api)
+{
+    c_api[PHYSICS_MATH_FIRSTSLOT] = &PyMath_IsNearEqual;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 1] = &PyMath_LessEqual;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 2] = &PyMath_MoreEqual;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 3] = &PyVector2_Equal;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 4] = &PyVector2_MultiplyWithReal;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 5] = &PyVector2_DivideWithReal;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 6] = &PyVector2_fCross;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 7] = &PyVector2_Crossf;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 8] = &PyVector2_Project;
+}

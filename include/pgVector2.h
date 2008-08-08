@@ -1,43 +1,49 @@
-#ifndef _PYGAME_COMPLEX_EXTENSIONS_
-#define _PYGAME_COMPLEX_EXTENSIONS_
+/*
+  pygame physics - Pygame physics module
 
+  Copyright (C) 2008 Zhang Fan
 
-#include <Python.h>
-#include <math.h>
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
 
-#define ZERO_EPSILON 1e-6
-#define RELATIVE_ZERO 1e-6
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
 
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#ifndef _PYGAME_VECTOR2_H_
+#define _PYGAME_VECTOR2_H_
+
+#define PHYSICS_MATH_INTERNAL
+
+#include "pgphysics.h"
+
+/*
+ * Internal math function declarations. Used to circumvent the C API
+ * array. See pgphysics.h for their descriptions.
+ */
+int PyMath_IsNearEqual(double a, double b);
+int PyMath_LessEqual(double a, double b);
+int PyMath_MoreEqual(double a, double b);
+int PyVector2_Equal(PyVector2* a, PyVector2* b);
+PyVector2 PyVector2_MultiplyWithReal (PyVector2 a, double f);
+PyVector2 PyVector2_DivideWithReal (PyVector2 a, double f);
+PyVector2 PyVector2_fCross(double f, PyVector2 a);
+PyVector2 PyVector2_Crossf(PyVector2 a, double f);
+PyVector2 PyVector2_Project(PyVector2 a, PyVector2 p);
+
+/**
+ * Python C API export hook
+ *
+ * @param c_api Pointer to the C API array.
+ */
+void PyMath_ExportCAPI (void **c_api);
+
 #endif
-
-
-typedef Py_complex	pgVector2;
-#define PG_Set_Vector2(vec, x, y) {(vec).real = x; (vec).imag = y;}
-
-int is_zero(double num);
-int is_equal(double a, double b);
-int less_equal(double a, double b);
-int more_equal(double a, double b);
-
-#define MAX(x, y) ( ((x) > (y)) ? (x) : (y) )
-#define MIN(x, y) ( ((x) < (y)) ? (x) : (y) )
-
-
-double c_get_length_square(pgVector2 c);
-double c_get_length(pgVector2 c);
-Py_complex c_mul_complex_with_real(pgVector2 c,double d);
-Py_complex c_div_complex_with_real(pgVector2 c,double d);
-void	c_normalize(pgVector2* pVec);
-double c_dot(pgVector2 a,pgVector2 b);
-double c_cross(pgVector2 a, pgVector2 b);
-pgVector2 c_fcross(double a, pgVector2 b);
-pgVector2 c_crossf(pgVector2 a, double b);
-void c_rotate(pgVector2* a, double seta);
-int c_equal(pgVector2* a, pgVector2* b);
-pgVector2 c_project(pgVector2 l,pgVector2 p);
-
-#endif
-
-

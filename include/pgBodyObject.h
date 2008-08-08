@@ -1,56 +1,92 @@
-#ifndef _PYGAME_PHYSICS_BODY_
-#define _PYGAME_PHYSICS_BODY_
+/*
+  pygame physics - Pygame physics module
 
+  Copyright (C) 2008 Zhang Fan
 
-#include "pgVector2.h"
-#include "pgDeclare.h"
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
 
-//! typedef struct _pgWorldObject pgWorldObject;
-//! typedef struct _pgShapeObject pgShapeObject;
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
 
-struct _pgBodyObject{
-	PyObject_HEAD
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
-	double		fMass;
-	pgVector2	vecLinearVelocity;
-	double		fAngleVelocity;
-	int			bStatic;
+#ifndef _PHYSICS_BODY_H_
+#define _PHYSICS_BODY_H_
 
-	pgVector2	vecPosition;
-	double		fRotation;
-	pgVector2	vecImpulse;
-	pgVector2	vecForce;
-	double		fTorque;
+#include "pgphysics.h"
 
-	double		fRestitution;
-	double		fFriction;
+/**
+ * TODO
+ *
+ * @param body
+ * @param gravity
+ * @param dt
+ */
+void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
+    double dt);
 
-	pgShapeObject* shape;
+/**
+ * TODO
+ *
+ * @param body
+ * @param dt
+ */
+void PyBodyObject_FreeUpdatePos (PyBodyObject* body, double dt);
 
-	pgVector2 cBiasLV;
-	double cBiasW;
+/**
+ * TODO
+ *
+ * @param body
+ * @param dt
+ */
+void PyBodyObject_CorrectPos(PyBodyObject* body, double dt);
 
-};
+/**
+ * Transform point local_p's position from body's local coordinate to
+ * the world's global one.
+ * TODO: is the local coordinate necessary?  anyway let it alone right
+ * now.
+ *
+ * @param body
+ * @param local_p
+ * @return
+ */
+PyVector2 PyBodyObject_GetGlobalPos(PyBodyObject* body, PyVector2* local_p);
 
-pgBodyObject* PG_BodyNew();
-void	PG_BodyDestroy(pgBodyObject* body);
+/**
+ * Translate vector from coordinate B to coordinate A
+ *
+ * @param bodyA
+ * @param bodyB
+ * @param p_in_B
+ * @return
+ */
+PyVector2 PyBodyObject_GetRelativePos(PyBodyObject* bodyA, PyBodyObject* bodyB,
+    PyVector2* p_in_B);
 
-void PG_FreeUpdateBodyVel(pgWorldObject* world, pgBodyObject* body, double dt);
-void PG_FreeUpdateBodyPos(pgBodyObject* body, double dt);
-void PG_CorrectBodyPos(pgBodyObject* body, double dt);
+/**
+ * Get velocity with a local point of a body,assume center is local (0,0)
+ *
+ * @param body
+ * @param localPoint
+ * @return
+ */
+PyVector2 PyBodyObject_GetLocalPointVelocity(PyBodyObject* body,
+    PyVector2 localPoint);
 
-//transform point local_p's position from body's local coordinate to the world's global one.
-//TODO: is the local coordinate necessary? anyway let it alone right now.
-pgVector2 PG_GetGlobalPos(pgBodyObject* body, pgVector2* local_p);
+/**
+ * Python C API export hook
+ *
+ * @param c_api Pointer to the C API array.
+ */
+void PyBodyObject_ExportCAPI (void **c_api);
 
-//translate vector from coordinate B to coordinate A
-pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B);
-
-
-//bind rect shape with body
-void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta);
-
-//get velocity with a local point of a body,assume center is local (0,0)
-pgVector2 PG_GetLocalPointVelocity(pgBodyObject* body,pgVector2 localPoint);
-
-#endif //_PYGAME_PHYSICS_BODY_
+#endif /* _PHYSICS_BODY_H_ */

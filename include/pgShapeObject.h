@@ -1,60 +1,31 @@
-#ifndef _PYGAME_PHYSICS_SHAPE_
-#define _PYGAME_PHYSICS_SHAPE_
+/*
+  pygame physics - Pygame physics module
 
-#include <Python.h>
-#include "pgAABBBox.h"
-#include "pgVector2.h"
-#include "pgDeclare.h"
+  Copyright (C) 2008 Zhang Fan
 
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
 
-typedef enum _ShapeType
-{
-	ST_RECT,
-	ST_CIRCLE
-}ShapeType;
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
 
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
-// shape base type
-struct _pgShapeObject{
-	PyObject_HEAD
+#ifndef _PHYSICS_SHAPE_H_
+#define _PHYSICS_SHAPE_H_
 
-	pgAABBBox box;
-	ShapeType type;
-	double rInertia; //Rotor inertia  
+/**
+ * Python C API export hook
+ *
+ * @param c_api Pointer to the C API array.
+ */
+void PyShapeObject_ExportCAPI (void **c_api);
 
-	//virtual functions
-	void (*Destroy)(pgShapeObject* shape);
-	int (*Collision)(pgBodyObject* selfBody, pgBodyObject* incidBody, PyObject* contactList);
-	void (*UpdateAABB)(pgBodyObject* body);
-};
-
-
-void	PG_ShapeObjectDestroy(pgShapeObject* shape);
-
-//subclass type
-typedef struct _pgRectShape{
-	pgShapeObject shape;
-
-	union
-	{
-		struct
-		{
-			pgVector2 point[4];
-		};
-		struct
-		{
-			pgVector2 bottomLeft, bottomRight, topRight, topLeft;
-		};
-	};
-	
-} pgRectShape;
-
-pgShapeObject*	PG_RectShapeNew(pgBodyObject* body, double width, double height, double seta);
-
-//typedef struct _pgPolygonShape{
-//	pgShapeObject		shape;
-//
-//	PyListObject*		vertexList;
-//}pgPolygonShape;
-
-#endif //_PYGAME_PHYSICS_SHAPE_
+#endif /* _PHYSICS_SHAPE_H_ */

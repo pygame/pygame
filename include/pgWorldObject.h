@@ -1,36 +1,31 @@
-#ifndef _PYGAME_PHYSICS_WORLD_
-#define _PYGAME_PHYSICS_WORLD_
+/*
+  pygame physics - Pygame physics module
 
+  Copyright (C) 2008 Zhang Fan
 
-#include <Python.h>
-#include "pgAABBBox.h"
-#include "pgDeclare.h"
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
 
-struct _pgWorldObject 
-{
-	PyObject_HEAD
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
 
-	PyObject*	bodyList;
-	PyObject*	jointList;
-	PyObject*	contactList;
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
-	Py_complex		vecGravity;
-	double			fDamping;
+#ifndef _PHYSICS_WORLD_H_
+#define _PHYSICS_WORLD_H_
 
-	double			fStepTime;
-	double			fTotalTime;
-	pgAABBBox		worldBox;
+/**
+ * Python C API export hook
+ *
+ * @param c_api Pointer to the C API array.
+ */
+void PyWorldObject_ExportCAPI (void **c_api);
 
-};
-
-pgWorldObject* PG_WorldNew();
-void	PG_WorldDestroy(pgWorldObject* world);
-
-void	PG_Update(pgWorldObject* world, double stepTime);
-int		PG_AddBodyToWorld(pgWorldObject* world, pgBodyObject* body);
-int		PG_RemoveBodyFromWorld(pgWorldObject* world, pgBodyObject* body);
-int		PG_AddJointToWorld(pgWorldObject* world, pgJointObject* joint);
-int		PG_RemoveJointFromWorld(pgWorldObject* world, pgJointObject* joint);
-
-
-#endif
+#endif /* _PHYSICS_JOINT_H_ */

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from distutils.core import setup, Extension
-import os, glob
+import os, glob, sys
 
 
 def get_c_files ():
@@ -11,15 +11,29 @@ def get_c_files ():
 
 if __name__ == "__main__":
 
+    warn_flags = ["-W", "-Wall", "-Wpointer-arith", "-Wcast-qual",
+                  "-Winline", "-Wcast-align", "-Wconversion",
+                  "-Wstrict-prototypes", "-Wmissing-prototypes",
+                  "-Wmissing-declarations", "-Wnested-externs",
+                  "-Wshadow", "-Wredundant-decls"
+                  ]
+    compile_args = [ "-std=c99", "-g"]
+    if True:
+        compile_args += warn_flags
+
     extphysics = Extension ("physics", sources = get_c_files (),
                             include_dirs = [ "include" ],
-                            extra_compile_args=["-g", "-W", "-Wall"])
+                            define_macros = [("PHYSICS_INTERNAL", "1")],
+                            extra_compile_args = compile_args)
 
     setupdata = {
         "name" : "physics",
         "version" : "0.0.1",
-        "description" : "blabla",
+        "author" : "Zhang Fan",
+        "url" : "http://www.pygame.org",
+        "description" : "2D physics module",
         "license": "LGPL",
         "ext_modules" : [ extphysics ],
+        "headers" : [ "include/pgphysics.h" ]
         }
     setup (**setupdata)

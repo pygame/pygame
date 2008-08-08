@@ -1,171 +1,183 @@
-#include "pgBodyObject.h"
-#include "pgWorldObject.h"
-#include "pgVector2.h"
-#include "pgShapeObject.h"
+/*
+  pygame physics - Pygame physics module
+
+  Copyright (C) 2008 Zhang Fan
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
+
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#define PHYSICS_BODY_INTERNAL
+#include "pgDeclare.h"
+#include "pgphysics.h"
 #include "pgHelpFunctions.h"
-#include <structmember.h>
+#include "pgVector2.h"
+#include "pgBodyObject.h"
 
-extern PyTypeObject pgBodyType;
+static void _BodyInit(PyBodyObject* body);
+static PyObject* _BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static void _BodyDestroy(PyBodyObject* body);
 
-void PG_Bind_RectShape(pgBodyObject* body, double width, double height, double seta)
+static PyObject* _Body_getVelocity(PyBodyObject* body,void* closure);
+static int _Body_setVelocity(PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getPosition(PyBodyObject* body,void* closure);
+static int _Body_setPosition(PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getForce(PyBodyObject* body,void* closure);
+static int _Body_setForce(PyBodyObject* body,PyObject* value,void* closure);
+
+static PyObject* _Body_getMass (PyBodyObject* body,void* closure);
+static int _Body_setMass(PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getRotation (PyBodyObject* body,void* closure);
+static int _Body_setRotation (PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getTorque (PyBodyObject* body,void* closure);
+static int _Body_setTorque (PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getRestitution (PyBodyObject* body,void* closure);
+static int _Body_setRestitution (PyBodyObject* body,PyObject* value,
+    void* closure);
+static PyObject* _Body_getFriction (PyBodyObject* body,void* closure);
+static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getBStatic (PyBodyObject* body,void* closure);
+static int _Body_setBStatic (PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getShape(PyBodyObject* body,void* closure);
+static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure);
+static PyObject *_Body_getPointList(PyObject *self, PyObject *args);
+
+
+static PyMethodDef _Body_methods[] = {
+    { "get_points",_Body_getPointList,METH_VARARGS,"" },
+    { NULL, NULL, 0, NULL }   /* Sentinel */
+};
+
+static PyGetSetDef _Body_getseters[] = {
+    { "mass", (getter) _Body_getMass, (setter) _Body_setMass, "Mass",
+      NULL },
+    { "shape",(getter)_Body_getShape,(setter)_Body_setShape,"Shape", NULL},
+    { "rotation", (getter) _Body_getRotation, (setter) _Body_setRotation,
+      "Rotation", NULL },
+    { "torque", (getter) _Body_getTorque, (setter) _Body_setTorque,
+      "Torque", NULL },
+    { "restitution", (getter) _Body_getRestitution,
+      (setter) _Body_setRestitution, "Restitution", NULL },
+    {"friction", (getter) _Body_getFriction, (setter) _Body_setFriction,
+     "Friction", NULL },
+
+    {"velocity",(getter)_Body_getVelocity,(setter)_Body_setVelocity,"velocity",NULL},
+    {"position",(getter)_Body_getPosition,(setter)_Body_setPosition,"position",NULL},
+    {"force",(getter)_Body_getForce,(setter)_Body_setForce,"force",NULL},
+    {"static",(getter)_Body_getBStatic,(setter)_Body_setBStatic,"whether static",NULL},
+    { NULL, NULL, NULL, NULL, NULL}
+};
+
+PyTypeObject PyBody_Type =
 {
-	if(body->shape == NULL)
-		body->shape = PG_RectShapeNew(body, width, height, seta);
-	else
-	{
-		Py_DECREF(body->shape);
-		body->shape = PG_RectShapeNew(body, width, height, seta);
-	}
+    PyObject_HEAD_INIT(NULL)
+    0,
+    "physics.Body",             /* tp_name */
+    sizeof(PyBodyObject),       /* tp_basicsize */
+    0,                          /* tp_itemsize */
+    (destructor)_BodyDestroy,   /* tp_dealloc */
+    0,                          /* tp_print */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    0,                          /* tp_compare */
+    0,                          /* tp_repr */
+    0,                          /* tp_as_number */
+    0,                          /* tp_as_sequence */
+    0,                          /* tp_as_mapping */
+    0,                          /* tp_hash */
+    0,                          /* tp_call */
+    0,                          /* tp_str */
+    0,                          /* tp_getattro */
+    0,                          /* tp_setattro */
+    0,                          /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    "",                         /* tp_doc */
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_richcompare */
+    0,                          /* tp_weaklistoffset */
+    0,                          /* tp_iter */
+    0,                          /* tp_iternext */
+    _Body_methods,              /* tp_methods */
+    0,                          /* tp_members */
+    _Body_getseters,            /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    0,                          /* tp_descr_get */
+    0,                          /* tp_descr_set */
+    0,                          /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                          /* tp_alloc */
+    _BodyNew,                   /* tp_new */
+    0,                          /* tp_free */
+    0,                          /* tp_is_gc */
+    0,                          /* tp_bases */
+    0,                          /* tp_mro */
+    0,                          /* tp_cache */
+    0,                          /* tp_subclasses */
+    0,                          /* tp_weaklist */
+    0                           /* tp_del */
+};
+
+static void _BodyInit(PyBodyObject* body)
+{
+    body->fAngleVelocity = 0.0;
+    body->fFriction = 0.0;
+    body->fMass = 1.0;
+    body->fRestitution = 1.0;
+    body->fRotation = 0.0;
+    body->fTorque = 0.0;
+    body->shape = NULL;
+    body->bStatic = 0;
+    PyVector2_Set(body->vecForce,0.0,0.0);
+    PyVector2_Set(body->vecImpulse,0.0,0.0);
+    PyVector2_Set(body->vecLinearVelocity,0.0,0.0);
+    PyVector2_Set(body->vecPosition,0.0,0.0);
 }
 
-void PG_FreeUpdateBodyVel(pgWorldObject* world,pgBodyObject* body, double dt)
+static PyObject* _BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	pgVector2 totalF;
-	if(body->bStatic) return;
-
-	totalF = c_sum(body->vecForce, c_mul_complex_with_real(world->vecGravity,
-		body->fMass));
-	body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
-		c_mul_complex_with_real(totalF, dt/body->fMass));
+    //TODO: parse args later on
+    PyBodyObject* op = (PyBodyObject*)type->tp_alloc(type, 0);
+    _BodyInit(op);
+    return (PyObject*)op;
 }
 
-//void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
-//{
-//	pgVector2 v;
-//	double w;
-//
-//	if(body->bStatic) return;
-//	
-//	v = c_sum(body->vecLinearVelocity, body->cBiasLV);
-//	w = body->fAngleVelocity + body->cBiasW;
-//	body->vecPosition = c_sum(body->vecPosition, 
-//		c_mul_complex_with_real(v, dt));
-//	body->fRotation += w*dt;
-//}
-
-void PG_FreeUpdateBodyPos(pgBodyObject* body,double dt)
+static void _BodyDestroy(PyBodyObject* body)
 {
-	if(body->bStatic) return;
+    /*
+     * DECREF anything related to the Body, such as the lists and
+     * release any other memory hold by it.
+     */
 
-	body->vecPosition = c_sum(body->vecPosition, 
-		c_mul_complex_with_real(body->vecLinearVelocity, dt));
-	body->fRotation += body->fAngleVelocity*dt;
+    //delete shape
+    Py_XDECREF(body->shape);
+    body->ob_type->tp_free((PyObject*)body);
 }
 
-void PG_CorrectBodyPos(pgBodyObject* body, double dt)
-{
-	if(body->bStatic) return;
-
-	body->vecPosition = c_sum(body->vecPosition, 
-		c_mul_complex_with_real(body->cBiasLV, dt));
-	body->fRotation += body->cBiasW*dt;
-}
-
-//void PG_FreeUpdateBodyPos(pgWorldObject* world,pgBodyObject* body,double dt)
-//{
-//	pgVector2 v;
-//	double w;
-//
-//	if(body->bStatic) return;
-//
-//	v = c_sum(body->vecLinearVelocity, body->cBiasLV);
-//	w = body->fAngleVelocity + body->cBiasW;
-//	body->vecPosition = c_sum(body->vecPosition, 
-//		c_mul_complex_with_real(v, dt));
-//	body->fRotation += w*dt;
-//}
-
-void PG_BodyInit(pgBodyObject* body)
-{
-	body->fAngleVelocity = 0.0;
-	body->fFriction = 0.0;
-	body->fMass = 1.0;
-	body->fRestitution = 1.0;
-	body->fRotation = 0.0;
-	body->fTorque = 0.0;
-	body->shape = NULL;
-	body->bStatic = 0;
-	PG_Set_Vector2(body->vecForce,0.0,0.0);
-	PG_Set_Vector2(body->vecImpulse,0.0,0.0);
-	PG_Set_Vector2(body->vecLinearVelocity,0.0,0.0);
-	PG_Set_Vector2(body->vecPosition,0.0,0.0);
-}
-
-PyObject* _PG_BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-	//TODO: parse args later on
-	pgBodyObject* op;
-	if(PyType_Ready(type)==-1) return NULL;
-	//op = (pgBodyObject*)type->tp_alloc(type, 0);
-	op = PyObject_New(pgBodyObject,type);
-	Py_INCREF(op);
-	PG_BodyInit(op);
-	return (PyObject*)op;
-}
-
-void PG_BodyDestroy(pgBodyObject* body)
-{
-	/*
-	* DECREF anything related to the Body, such as the lists and
-	* release any other memory hold by it.
-	*/
-
-	//delete shape
-	Py_DECREF(body->shape);
-	body->ob_type->tp_free((PyObject*)body);
-}
-
-
-
-pgBodyObject* PG_BodyNew()
-{
-	return (pgBodyObject*) _PG_BodyNew(&pgBodyType, NULL, NULL);
-}
-
-pgVector2 PG_GetGlobalPos(pgBodyObject* body, pgVector2* local_p)
-{
-	pgVector2 ans;
-	
-	ans = *local_p;
-	c_rotate(&ans, body->fRotation);
-	ans = c_sum(ans, body->vecPosition);
-
-	return ans;
-}
-
-
-pgVector2 PG_GetRelativePos(pgBodyObject* bodyA, pgBodyObject* bodyB, pgVector2* p_in_B)
-{
-	pgVector2 trans, p_in_A;
-	double rotate;
-	
-	trans = c_diff(bodyB->vecPosition, bodyA->vecPosition);
-	c_rotate(&trans, -bodyA->fRotation);
-	rotate = bodyA->fRotation - bodyB->fRotation;
-	p_in_A = *p_in_B;
-	c_rotate(&p_in_A, -rotate);
-	p_in_A = c_sum(p_in_A, trans);
-	
-	return p_in_A;
-}
-
-pgVector2 PG_GetLocalPointVelocity(pgBodyObject* body,pgVector2 localPoint)
-{
-	pgVector2 vel = c_fcross(body->fAngleVelocity,localPoint);
-	return c_sum(vel,body->vecLinearVelocity);
-}
 
 //============================================================
 //getter and setter functions
 
 //velocity
-static PyObject* _pgBody_getVelocity(pgBodyObject* body,void* closure)
+static PyObject* _Body_getVelocity(PyBodyObject* body,void* closure)
 {
     return Py_BuildValue ("(ff)", body->vecLinearVelocity.real,
         body->vecLinearVelocity.imag);
 }
 
-static int _pgBody_setVelocity(pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setVelocity(PyBodyObject* body,PyObject* value,void* closure)
 {
     PyObject *item;
     double real, imag;
@@ -189,13 +201,13 @@ static int _pgBody_setVelocity(pgBodyObject* body,PyObject* value,void* closure)
 }
 
 //position
-static PyObject* _pgBody_getPosition(pgBodyObject* body,void* closure)
+static PyObject* _Body_getPosition(PyBodyObject* body,void* closure)
 {
     return Py_BuildValue ("(ff)", body->vecPosition.real,
         body->vecPosition.imag);
 }
 
-static int _pgBody_setPosition(pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setPosition(PyBodyObject* body,PyObject* value,void* closure)
 {
     PyObject *item;
     double real, imag;
@@ -219,13 +231,12 @@ static int _pgBody_setPosition(pgBodyObject* body,PyObject* value,void* closure)
 }
 
 //force
-static PyObject* _pgBody_getForce(pgBodyObject* body,void* closure)
+static PyObject* _Body_getForce(PyBodyObject* body,void* closure)
 {
     return Py_BuildValue ("(ff)", body->vecForce.real, body->vecForce.imag);
 }
 
-
-static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setForce(PyBodyObject* body,PyObject* value,void* closure)
 {
     PyObject *item;
     double real, imag;
@@ -251,7 +262,7 @@ static int _pgBody_setForce(pgBodyObject* body,PyObject* value,void* closure)
 /**
  * Getter for retrieving the mass of the passed body.
  */
-static PyObject* _pgBody_getMass (pgBodyObject* body,void* closure)
+static PyObject* _Body_getMass (PyBodyObject* body,void* closure)
 {
     return PyFloat_FromDouble (body->fMass);
 }
@@ -259,7 +270,7 @@ static PyObject* _pgBody_getMass (pgBodyObject* body,void* closure)
 /**
  * Sets the mass of the passed body.
  */
-static int _pgBody_setMass(pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setMass(PyBodyObject* body,PyObject* value,void* closure)
 {
     if (PyNumber_Check (value))
     {
@@ -287,7 +298,7 @@ static int _pgBody_setMass(pgBodyObject* body,PyObject* value,void* closure)
 /**
  * Getter for retrieving the rotation of the passed body.
  */
-static PyObject* _pgBody_getRotation (pgBodyObject* body,void* closure)
+static PyObject* _Body_getRotation (PyBodyObject* body,void* closure)
 {
     return PyFloat_FromDouble (body->fRotation);
 }
@@ -295,7 +306,7 @@ static PyObject* _pgBody_getRotation (pgBodyObject* body,void* closure)
 /**
  * Sets the rotation of the passed body.
  */
-static int _pgBody_setRotation(pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setRotation(PyBodyObject* body,PyObject* value,void* closure)
 {
     if (PyNumber_Check (value))
     {
@@ -318,7 +329,7 @@ static int _pgBody_setRotation(pgBodyObject* body,PyObject* value,void* closure)
 /**
  * Getter for retrieving the torque of the passed body.
  */
-static PyObject* _pgBody_getTorque (pgBodyObject* body,void* closure)
+static PyObject* _Body_getTorque (PyBodyObject* body,void* closure)
 {
     return PyFloat_FromDouble (body->fTorque);
 }
@@ -326,7 +337,7 @@ static PyObject* _pgBody_getTorque (pgBodyObject* body,void* closure)
 /**
  * Sets the torque of the passed body.
  */
-static int _pgBody_setTorque (pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setTorque (PyBodyObject* body,PyObject* value,void* closure)
 {
     if (PyNumber_Check (value))
     {
@@ -349,7 +360,7 @@ static int _pgBody_setTorque (pgBodyObject* body,PyObject* value,void* closure)
 /**
  * Getter for retrieving the restitution of the passed body.
  */
-static PyObject* _pgBody_getRestitution (pgBodyObject* body,void* closure)
+static PyObject* _Body_getRestitution (PyBodyObject* body,void* closure)
 {
     return PyFloat_FromDouble (body->fRestitution);
 }
@@ -357,7 +368,8 @@ static PyObject* _pgBody_getRestitution (pgBodyObject* body,void* closure)
 /**
  * Sets the restitution of the passed body.
  */
-static int _pgBody_setRestitution (pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setRestitution (PyBodyObject* body,PyObject* value,
+    void* closure)
 {
     if (PyNumber_Check (value))
     {
@@ -380,7 +392,7 @@ static int _pgBody_setRestitution (pgBodyObject* body,PyObject* value,void* clos
 /**
  * Getter for retrieving the friction of the passed body.
  */
-static PyObject* _pgBody_getFriction (pgBodyObject* body,void* closure)
+static PyObject* _Body_getFriction (PyBodyObject* body,void* closure)
 {
     return PyFloat_FromDouble (body->fFriction);
 }
@@ -388,7 +400,7 @@ static PyObject* _pgBody_getFriction (pgBodyObject* body,void* closure)
 /**
  * Sets the friction of the passed body.
  */
-static int _pgBody_setFriction (pgBodyObject* body,PyObject* value,void* closure)
+static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure)
 {
     if (PyNumber_Check (value))
     {
@@ -409,160 +421,188 @@ static int _pgBody_setFriction (pgBodyObject* body,PyObject* value,void* closure
 }
 
 /**
-* Getter for retrieving the bStatic of the passed body.
-*/
-static PyObject* _pgBody_getBStatic (pgBodyObject* body,void* closure)
+ * Getter for retrieving the bStatic of the passed body.
+ */
+static PyObject* _Body_getBStatic (PyBodyObject* body,void* closure)
 {
-	return PyInt_FromLong (body->bStatic);
+    return PyInt_FromLong (body->bStatic);
 }
 
 /**
-* Sets the bStatic of the passed body.
-*/
-static int _pgBody_setBStatic (pgBodyObject* body,PyObject* value,void* closure)
+ * Sets the bStatic of the passed body.
+ */
+static int _Body_setBStatic (PyBodyObject* body,PyObject* value,void* closure)
 {
-	if (PyBool_Check (value))
-	{
-            body->bStatic = (value == Py_True) ? 1 : 0;
-            return 0;
+    if (PyBool_Check (value))
+    {
+        body->bStatic = (value == Py_True) ? 1 : 0;
+        return 0;
 
-	}
-	PyErr_SetString (PyExc_TypeError, "static must be a bool");
-	return -1;
+    }
+    PyErr_SetString (PyExc_TypeError, "static must be a bool");
+    return -1;
 }
 
-static PyObject* _pgBody_bindRectShape(PyObject* body,PyObject* args)
+/**
+ * Getter for retrieving the shape of the passed body.
+ */
+static PyObject* _Body_getShape (PyBodyObject* body,void* closure)
 {
-	double width,height,seta;
-	if (!PyArg_ParseTuple(args,"ddd",&width,&height,&seta))
-	{
-		PyErr_SetString(PyExc_ValueError,"parameters are wrong");
-		return NULL;
-	}
-	else
-	{
-		PG_Bind_RectShape((pgBodyObject*)body,width,height,seta);
-		if (((pgBodyObject*)body)->shape == NULL)
-		{
-			PyErr_SetString(PyExc_ValueError,"shape binding is failed");
-			return NULL;
-		}
-		else
-		{
-			Py_RETURN_NONE;
-			//return ((pgBodyObject*)body)->shape;
-		}
-	}
+    if (!body->shape)
+        Py_RETURN_NONE;
+
+    Py_INCREF (body->shape);
+    return body->shape;
+}
+
+/**
+ * Sets the shape of the passed body.
+ */
+static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure)
+{
+    PyShapeObject *shape;
+    if (!PyShape_Check (value))
+    {
+        PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
+        return -1;
+    }
+    if (body->shape)
+    {
+        Py_DECREF (body->shape);
+    }
+    Py_INCREF (value);
+    body->shape = value;
+
+    // I = M(a^2 + b^2)/12
+    // TODO:
+    // This should be automatically be done by the shape.
+    shape = (PyShapeObject*) value;
+    if (shape->type == ST_RECT)
+    {
+        PyRectShape* rsh = (PyRectShape*) shape;
+        double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
+        double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
+        shape->rInertia = body->fMass *
+            (width * width + height * height) / 12;
+    }
+    return 0;
+}
+
+static PyObject *_Body_getPointList(PyObject *self, PyObject *args)
+{
+    PyBodyObject* body = (PyBodyObject*)self;
+    PyObject* list;
+    PyVector2* pVertex;
+    PyVector2 golVertex;
+    PyObject* tuple;
+
+    if (!body->shape)
+    {
+        Py_RETURN_NONE;
+    }
+
+    /* TODO: shapes */
+    list = PyList_New (4);
+
+    pVertex = &(((PyRectShape*)(body->shape))->bottomleft);
+    golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
+    tuple = FromPhysicsVector2ToPoint(golVertex);
+    PyList_SetItem(list,0,tuple);
+
+    pVertex = &(((PyRectShape*)(body->shape))->bottomright);
+    golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
+    tuple = FromPhysicsVector2ToPoint(golVertex);
+    PyList_SetItem(list,1,tuple);
+
+    pVertex = &(((PyRectShape*)(body->shape))->topright);
+    golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
+    tuple = FromPhysicsVector2ToPoint(golVertex);
+    PyList_SetItem(list,2,tuple);
+
+    pVertex = &(((PyRectShape*)(body->shape))->topleft);
+    golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
+    tuple = FromPhysicsVector2ToPoint(golVertex);
+    PyList_SetItem(list,3,tuple);
+
+    return list;
+}
+
+void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
+    double dt)
+{
+    PyVector2 totalF;
+    if (body->bStatic)
+        return;
+
+    totalF = c_sum(body->vecForce,
+        PyVector2_MultiplyWithReal(gravity, body->fMass));
+    body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
+        PyVector2_MultiplyWithReal(totalF, dt/body->fMass));
+}
+
+void PyBodyObject_FreeUpdatePos(PyBodyObject* body,double dt)
+{
+    if (body->bStatic)
+        return;
+
+    body->vecPosition = c_sum(body->vecPosition, 
+        PyVector2_MultiplyWithReal(body->vecLinearVelocity, dt));
+    body->fRotation += body->fAngleVelocity*dt;
+}
+
+void PyBodyObject_CorrectPos(PyBodyObject* body, double dt)
+{
+    if (body->bStatic)
+        return;
+
+    body->vecPosition = c_sum(body->vecPosition, 
+        PyVector2_MultiplyWithReal(body->cBiasLV, dt));
+    body->fRotation += body->cBiasW*dt;
+}
+
+PyVector2 PyBodyObject_GetGlobalPos(PyBodyObject* body, PyVector2* local_p)
+{
+    PyVector2 ans;
+	
+    ans = *local_p;
+    PyVector2_Rotate(&ans, body->fRotation);
+    ans = c_sum(ans, body->vecPosition);
+
+    return ans;
+}
+
+PyVector2 PyBodyObject_GetRelativePos(PyBodyObject* bodyA, PyBodyObject* bodyB,
+    PyVector2* p_in_B)
+{
+    PyVector2 trans, p_in_A;
+    double rotate;
+	
+    trans = c_diff(bodyB->vecPosition, bodyA->vecPosition);
+    PyVector2_Rotate(&trans, -bodyA->fRotation);
+    rotate = bodyA->fRotation - bodyB->fRotation;
+    p_in_A = *p_in_B;
+    PyVector2_Rotate(&p_in_A, -rotate);
+    p_in_A = c_sum(p_in_A, trans);
+	
+    return p_in_A;
+}
+
+PyVector2 PyBodyObject_GetLocalPointVelocity(PyBodyObject* body,
+    PyVector2 localPoint)
+{
+    PyVector2 vel = PyVector2_fCross(body->fAngleVelocity,localPoint);
+    return c_sum(vel,body->vecLinearVelocity);
 }
 
 
-
-static PyObject * _pg_getPointListFromBody(PyObject *self, PyObject *args)
+/* C API */
+static PyObject* PyBody_New(void)
 {
-	pgBodyObject* body = (pgBodyObject*)self;
-	int i;
-	PyObject* list;
-
-	/*if (!PyArg_ParseTuple(args,"O",&body))
-	{
-		PyErr_SetString(PyExc_ValueError,"arg is not body type");
-		return NULL;
-	}
-	else*/
-	{
-		if (body->shape == NULL)
-		{
-			PyErr_SetString(PyExc_ValueError,"Shape is NULL");
-			return NULL;
-		}
-		list = PyList_New(4);
-		for (i = 0;i < 4;i++)
-		{
-			pgVector2* pVertex = &(((pgRectShape*)(body->shape))->point[i]);
-			pgVector2 golVertex = PG_GetGlobalPos(body,pVertex);
-			PyObject* tuple = FromPhysicsVector2ToPoint(golVertex);
-			PyList_SetItem(list,i,tuple);
-		}
-		return (PyObject*)list;
-	}
+    return _BodyNew(&PyBody_Type, NULL, NULL);
 }
 
-//===============================================================
-
-static PyMethodDef _pgBody_methods[] = {
-	{"bind_rect_shape",_pgBody_bindRectShape,METH_VARARGS,""},
-	{"get_point_list",_pg_getPointListFromBody,METH_VARARGS,""	},
-    {NULL, NULL, 0, NULL}   /* Sentinel */
-};
-
-static PyGetSetDef _pgBody_getseters[] = {
-    { "mass", (getter) _pgBody_getMass, (setter) _pgBody_setMass, "Mass",
-      NULL },
-    { "rotation", (getter) _pgBody_getRotation, (setter) _pgBody_setRotation,
-      "Rotation", NULL },
-    { "torque", (getter) _pgBody_getTorque, (setter) _pgBody_setTorque,
-      "Torque", NULL },
-    { "restitution", (getter) _pgBody_getRestitution,
-      (setter) _pgBody_setRestitution, "Restitution", NULL },
-    {"friction", (getter) _pgBody_getFriction, (setter) _pgBody_setFriction,
-     "Friction", NULL },
-
-    {"velocity",(getter)_pgBody_getVelocity,(setter)_pgBody_setVelocity,"velocity",NULL},
-    {"position",(getter)_pgBody_getPosition,(setter)_pgBody_setPosition,"position",NULL},
-    {"force",(getter)_pgBody_getForce,(setter)_pgBody_setForce,"force",NULL},
-    {"static",(getter)_pgBody_getBStatic,(setter)_pgBody_setBStatic,"whether static",NULL},
-    { NULL, NULL, NULL, NULL, NULL}
-};
-
-PyTypeObject pgBodyType =
+void PyBodyObject_ExportCAPI (void **c_api)
 {
-	PyObject_HEAD_INIT(NULL)
-	0,
-	"physics.Body",            /* tp_name */
-	sizeof(pgBodyObject),      /* tp_basicsize */
-	0,                          /* tp_itemsize */
-	(destructor)PG_BodyDestroy,/* tp_dealloc */
-	0,                          /* tp_print */
-	0,                          /* tp_getattr */
-	0,                          /* tp_setattr */
-	0,                          /* tp_compare */
-	0,                          /* tp_repr */
-	0,                          /* tp_as_number */
-	0,                          /* tp_as_sequence */
-	0,                          /* tp_as_mapping */
-	0,                          /* tp_hash */
-	0,                          /* tp_call */
-	0,                          /* tp_str */
-	0,                          /* tp_getattro */
-	0,                          /* tp_setattro */
-	0,                          /* tp_as_buffer */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-	"",                         /* tp_doc */
-	0,                          /* tp_traverse */
-	0,                          /* tp_clear */
-	0,                          /* tp_richcompare */
-	0,                          /* tp_weaklistoffset */
-	0,                          /* tp_iter */
-	0,                          /* tp_iternext */
-	_pgBody_methods,		   	/* tp_methods */
-	0,                          /* tp_members */
-	_pgBody_getseters,          /* tp_getset */
-	0,                          /* tp_base */
-	0,                          /* tp_dict */
-	0,                          /* tp_descr_get */
-	0,                          /* tp_descr_set */
-	0,                          /* tp_dictoffset */
-	0,                          /* tp_init */
-	0,                          /* tp_alloc */
-	_PG_BodyNew,                /* tp_new */
-	0,                          /* tp_free */
-	0,                          /* tp_is_gc */
-	0,                          /* tp_bases */
-	0,                          /* tp_mro */
-	0,                          /* tp_cache */
-	0,                          /* tp_subclasses */
-	0,                          /* tp_weaklist */
-	0                           /* tp_del */
-};
-
-
+    c_api[PHYSICS_BODY_FIRSTSLOT] = &PyBody_Type;
+    c_api[PHYSICS_BODY_FIRSTSLOT + 1] = &PyBody_New;
+}

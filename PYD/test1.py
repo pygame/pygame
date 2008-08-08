@@ -5,7 +5,7 @@ import physics
 from pygame.locals import *
 
 def render_body(body,surface,color):
-    l = body.get_point_list()
+    l = body.get_points()
     pygame.draw.polygon(surface,color,l)
 
 def render_world(world,surface,color):
@@ -17,13 +17,13 @@ def init_world():
     w = physics.World()
     w.gravity = 0, 1
     body1 = physics.Body()
-    body1.bind_rect_shape(80,33,0)
+    body1.shape = physics.RectShape(80,33,0)
     body1.position = 100, 100
     body1.velocity = 2,0
     body1.restitution = 3.0
     w.add_body(body1)
     body2 = physics.Body()
-    body2.bind_rect_shape(20,20,0)
+    body2.shape = physics.RectShape (20,20,0)
     body2.position = 200, 100
     body2.velocity = -2, 0
     body1.restitution = 3.0

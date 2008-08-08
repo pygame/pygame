@@ -1,32 +1,31 @@
-#ifndef _PYGAME_PHYSICS_JOINT_
-#define _PYGAME_PHYSICS_JOINT_
+/*
+  pygame physics - Pygame physics module
 
-#include "pgBodyObject.h"
-#include "pgDeclare.h"
+  Copyright (C) 2008 Zhang Fan
 
-struct _pgJointObject{
-	PyObject_HEAD
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
 
-	pgBodyObject*	body1;
-	pgBodyObject*	body2;
-	int		isCollideConnect;
-	void	(*SolveConstraintPosition)(pgJointObject* joint,double stepTime);
-	void	(*SolveConstraintVelocity)(pgJointObject* joint,double stepTime);
-	void	(*Destroy)(pgJointObject* joint);
-};
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
 
-void PG_JointDestroy(pgJointObject* joint);
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
 
-typedef struct _pgDistanceJointObject{
-	pgJointObject		joint;
+#ifndef _PHYSICS_JOINT_H_
+#define _PHYSICS_JOINT_H_
 
-	double		distance;
-	pgVector2	anchor1,anchor2;
-} pgDistanceJointObject;
+/**
+ * Python C API export hook.
+ *
+ * @param c_api Pointer to the C API array.
+ */
+void PyJointObject_ExportCAPI (void **c_api);
 
-pgJointObject* PG_DistanceJointNew(pgBodyObject* b1,pgBodyObject* b2,int bCollideConnect,double distance,pgVector2 a1,pgVector2 a2);
-
-extern PyTypeObject pgJointType;
-
-#endif //_PYGAME_PHYSICS_JOINT_
-
+#endif /* _PHYSICS_JOINT_H_ */
