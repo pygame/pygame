@@ -12,13 +12,10 @@ import glob
 import shutil
 import traceback
 
-from os.path import normpath as npath
-
 # User Libs
 import callproc
 import config
 import upload_results
-import mocks
 
 from regexes import *
 from helpers import *
@@ -105,8 +102,7 @@ def add_blame_to_errors_by_file( src_root, errors_by_file, line_func = None):
 def categorize_errors_by_file(errors, add_blame = 1):
     errors_by_file = {}
 
-    for error in errors:
-        errors_by_file.setdefault(error['file'], []).append(error)
+    [errors_by_file.setdefault(e['file'], []).append(e) for e in errors]
 
     if add_blame:
         add_blame_to_errors_by_file( config.src_path, errors_by_file )
@@ -147,12 +143,9 @@ def parse_test_results(ret_code, output):
            (ret_code is not 0 and not failed_test) ):
 
         return TESTS_INVALID, output.replace("\n", "<br>")
-    
-    else:
-        # tests_run = re.findall(r"loading ([^\r\n]+)", output)
-        # test_text = [test + " passed" for test in tests_run]
 
-        return TESTS_PASSED, ''  #"<br>".join(test_text)
+    else:
+        return TESTS_PASSED, ''
 
 ################################################################################
 
@@ -191,24 +184,36 @@ def parse_build_results(ret_code, output):
 
 ################################################################################
 
+def dumped(f):
+    def dump():
+        dump.ret_code, dump.output = f()
+        write_file_lines('%s.txt' % normp('output', f.__name__), [dump.output])
+        return dump.ret_code, dump.output
+    dump.__name__ = f.__name__
+    return dump
+
+@dumped
 def configure_build():
     return callproc.InteractiveGetReturnCodeAndOutput (
         config.config_cmd, config.config_py_interaction, 
         config.src_path, config.build_env
     )
 
+@dumped
 def build():
     return callproc.GetReturnCodeAndOutput (
         config.build_cmd, 
         config.src_path, config.build_env
     )
 
+@dumped
 def install():
     return callproc.ExecuteAssertSuccess (
         config.install_cmd, 
         config.src_path, config.install_env
     )
 
+@dumped
 def run_tests():
     return callproc.GetReturnCodeAndOutput (
         config.tests_cmd, config.src_path, config.test_env
@@ -216,8 +221,7 @@ def run_tests():
 
 ################################################################################
 
-def upload_build_results( build_result, build_errors, build_warnings,
-                          test_output, build_output ):
+def upload_build_results( build_result, build_errors, build_warnings):
     write_file_lines (
         config.buildresults_filename,
         ( [config.latest_rev, time.strftime("%Y-%m-%d %H:%M"),
@@ -226,30 +230,26 @@ def upload_build_results( build_result, build_errors, build_warnings,
     create_zip (
         config.buildresults_zip,
 
-        config.buildresults_filename, 
-        os.path.join(config.src_path, 'Setup'),
+        * glob.glob(normp('output', '*.txt')) + config.buildresult_files,
 
-        **{ 'run_tests__output.txt'   :    test_output,
-            'setup_py__output.txt'    :    build_output,
-            'build_config.txt'        :    str(config) }
+        **{ 'build_config.txt' : str(config) }
     )
 
     for results in (config.buildresults_filename, config.buildresults_zip):
         upload_results.scp(results)
-
     
     file(config.last_rev_filename, "w").write(str(config.latest_rev))
 
 def upload_installer(build_result):
     installer_dist_path = glob.glob (
-        os.path.join(config.dist_path, config.package_mask))[0]
+        normp(config.dist_path, config.package_mask))[0]
 
     installer_filename = os.path.basename(installer_dist_path)
 
     if BUILD_SUCCESSFUL not in build_result:
         installer_filename = "failed_tests_%s" % installer_filename
 
-    output_installer_path = npath(os.path.join('./output', installer_filename))
+    output_installer_path = normp('./output', installer_filename)
     shutil.move(installer_dist_path, output_installer_path)
 
     build_info = [config.latest_rev, time.strftime("%Y-%m-%d %H:%M")]
@@ -264,38 +264,30 @@ def upload_installer(build_result):
 ################################################################################
 
 def prepare_build_env():
-    if config.make_package:
-        if os.path.exists(config.dist_path): cleardir(config.dist_path)
-    
-    prepare_dir(npath("./output"))
-    prepare_dir(config.temp_install_path)
+    for d in (config.dist_path, normp("./output"), config.temp_install_path):
+        prepare_dir(d)
+
     os.makedirs(config.temp_install_pythonpath)
-    
+
 ################################################################################
 
 def update_build():
     configure_build()
-    ret_code, build_output = build()
 
-    build_result, build_errors = parse_build_results(ret_code, build_output)
-    build_warnings = build_warnings_html(build_output)
+    build_result, build_errors = parse_build_results(*build())
+    build_warnings = build_warnings_html(build.output)
 
     if build_result is BUILD_SUCCESSFUL:
         install()
 
-        ret_code, test_output = run_tests()
-        build_result, build_errors = parse_test_results(ret_code, test_output)
+        build_result, build_errors = parse_test_results(*run_tests())
 
-        upload_installer(build_result)
-    
-    else:
-        test_output = ''
-    
+        if config.make_package:
+            upload_installer(build_result)
+
     print '\n%s\n' % build_result
 
-    upload_build_results (
-        build_result, build_errors, build_warnings, test_output, build_output
-    )
+    upload_build_results(build_result, build_errors, build_warnings)
 
 ################################################################################
 # Debugging
@@ -305,8 +297,11 @@ def debugging(f):
         try:
             f()
         except:
+            config_dump = getattr(config, 'htmlDump', '')
+            config_dump = config_dump and config_dump()
+
             html_formatted_info = "%s<br />%s" % ( 
-                cgitb.html(sys.exc_info()), config.htmlDump()
+                cgitb.html(sys.exc_info()), config_dump
             )
             dump_and_open_in_browser ( html_formatted_info )
             # TODO: email breakage info to maintainer
@@ -324,9 +319,10 @@ def main():
     as readonly from here on in.
 
     """
+    
     global config
     for config in config.get_configs(sys.argv[1:]):
-        if 1 or config.previous_rev < config.latest_rev:
+        if config.previous_rev < config.latest_rev:
             prepare_build_env()
             update_build()
         else:
