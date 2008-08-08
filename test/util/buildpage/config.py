@@ -36,7 +36,7 @@ defaults = dict (
         
     # install_cmd is extrapolated below in configure function
 
-    tests_cmd = [sys.executable, "run_tests.py", 'event'],
+    tests_cmd = [sys.executable, "run_tests.py"],
     
     ########################################################################
     # Environments
@@ -58,22 +58,22 @@ class config_obj(object):
         return pprint.pformat(self.__dict__)
 
     __repr__ = __str__
-    
-    def htmlDump(self, open_in_browser = False, template='%(config)s'):        
-        html = template % {'config' : (
+
+    def htmlDump(self, open_in_browser = False):
+        html = (
             "<hr><h3>%s</h3>"
             "<pre>%s</pre><hr>" % (
                 self.platform_id,
                 cgi.escape(str(self)).replace('\n', '<br />')
-        ))}
-        
+        ))
+
         if open_in_browser:
             config_html_file = '%s_config.html' % self.platform_id
             config_html = file(config_html_file, 'w')
             config_html.write (html)
             config_html.close()
             webbrowser.open(config_html_file)
-        
+
         return html
 
 def merge_dict(dest, indict):
@@ -149,6 +149,9 @@ def get_platform_and_previous_rev(config, config_file):
 
 ################################################################################
 
+def extra_flags(flags):
+    return [c for c in flags.split() if c]
+
 def configure(config_file):
     # READ INI FILE
     c = merge_defaults_and_objectify_config(config_file)    
@@ -168,7 +171,7 @@ def configure(config_file):
     c.config_py_interaction = c.config_py_interaction.replace('\\n','\n')
 
     # BUILD
-    c.build_cmd += c.extra_build_flags.split()
+    c.build_cmd += extra_flags(c.extra_build_flags)
     c.install_cmd = c.build_cmd[:]
 
     # INSTALLER
@@ -176,12 +179,13 @@ def configure(config_file):
         c.dist_path = os.path.join(c.src_path, 'dist')
         c.build_cmd += [c.make_package]
 
-    # INSTALL CMD / TEST PATH
+    # INSTALL / TEST CMDS / PATH
     c.temp_install_path = os.path.join(os.path.dirname(__file__),"install_test")
     c.temp_install_pythonpath = os.path.join (
         c.temp_install_path, c.test_dir_subpath
     )
     c.install_cmd += ['install', '--prefix', c.temp_install_path]
+    c.tests_cmd += extra_flags(c.extra_test_flags)
     
     # INSTALL / TEST ENV
     c.test_env = {"PYTHONPATH" : c.temp_install_pythonpath}
@@ -213,7 +217,7 @@ def get_configs(args):
 def main():
     for conf in get_configs(sys.argv[1:]):
         conf.htmlDump(open_in_browser = True)
-        
+
 ################################################################################
 
 if __name__ == '__main__':
