@@ -216,7 +216,7 @@ def install():
 @dumped
 def run_tests():
     return callproc.GetReturnCodeAndOutput (
-        config.tests_cmd, config.src_path, config.test_env
+        config.tests_cmd, config.src_path, config.install_env
     )
 
 ################################################################################

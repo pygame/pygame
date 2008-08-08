@@ -23,7 +23,7 @@ def ExecuteAssertSuccess(cmd, *args, **keywords):
 
 def GetReturnCodeAndOutput(cmd, dir=None, env=None, bufsize=-1, lineprintdiv=1):
     cmd = get_cmd_str(cmd)
-    print "executing:", cmd
+    print "executing:", cmd, 'from dir', dir and dir or '.'
     
     proc = subprocess.Popen (
         cmd, cwd = dir, env = env, shell=True,
@@ -54,11 +54,12 @@ def GetReturnCodeAndOutput(cmd, dir=None, env=None, bufsize=-1, lineprintdiv=1):
 def InteractiveGetReturnCodeAndOutput(cmd, input_string, dir=None, 
                                                env=None, bufsize=-1):
     cmd = get_cmd_str(cmd)
-    print "executing:", cmd
+    print "executing:", cmd, 'from dir', dir and dir or '.'
 
     proc = subprocess.Popen (
         cmd, cwd=dir, env=env, shell=True, bufsize=bufsize,
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+        universal_newlines = 1
     )
         
     print "---------------"

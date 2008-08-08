@@ -188,10 +188,10 @@ def configure(config_file):
     c.tests_cmd += extra_flags(c.extra_test_flags)
     
     # INSTALL / TEST ENV
-    c.test_env = {"PYTHONPATH" : c.temp_install_pythonpath}
+    test_env = {"PYTHONPATH" : c.temp_install_pythonpath}
     c.install_env = c.build_env.copy()
-    c.install_env.update(c.test_env)
-
+    c.install_env.update(test_env)
+    
     # RESULTS
     c.prebuilts_filename = normp("./output/prebuilt_%s.txt" % c.platform_id)
     c.buildresults_filename = normp("./output/buildresults_%s.txt" % c.platform_id)
