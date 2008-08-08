@@ -93,7 +93,7 @@ COMPLETE_FAILURE_TEMPLATE = """
 ERROR: all_tests_for (%(module)s.AllTestCases)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "test\%(module)s.py", line 1, in all_tests_for
+  File "test/%(module)s.py", line 1, in all_tests_for
 subprocess completely failed with return code of %(return_code)s
 cmd:          %(cmd)s
 test_env:     %(test_env)s
