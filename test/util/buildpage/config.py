@@ -11,12 +11,9 @@ import ConfigParser
 import pprint
 import webbrowser
 
-from os.path import normpath as npath
-
 # User Lib
 import callproc
 from helpers import *
-
 
 ################################################################################
 
@@ -25,7 +22,7 @@ defaults = dict (
     ########################################################################
     # Paths
 
-    src_path = npath('./pygame/trunk'),
+    src_path = normp('./pygame/trunk'),
 
     ########################################################################
     # Commands
@@ -37,7 +34,6 @@ defaults = dict (
 
     build_cmd =  [ sys.executable, "setup.py", "build" ],
         
-    # install_cmd  = [ sys.executable, "setup.py", "install"],
     # install_cmd is extrapolated below in configure function
 
     tests_cmd = [sys.executable, "run_tests.py", 'event'],
@@ -124,27 +120,27 @@ def merge_defaults_and_objectify_config(config_file):
 def get_and_brand_latest_svn(src_path):
     if not os.path.exists(src_path): os.makedirs(src_path)
     
-    output = callproc.ExecuteAssertSuccess(
-        ["svn","co","svn://seul.org/svn/pygame/trunk", src_path])
+    rc, output = callproc.ExecuteAssertSuccess (
+        ["svn","co","svn://seul.org/svn/pygame/trunk", src_path] )
     
     rev_match = re.search(r"(At)|(Checked out) revision ([0-9]+)\.", output)
-    latest_rev = int(rev_match.group(3))
+    latest_rev = rev_match.group(3)
 
     callproc.ExecuteAssertSuccess(["svn","revert",src_path,"-R"])
-    
-    version_source = src_path + '/lib/version.py'
-    
+
+    version_source = normp(src_path, 'lib/version.py')
+
     re_sub_file( version_source, 
                  r"(ver\s*=\s*)'([0-9]+\.[0-9]+\.[0-9]+[^']*)'", 
-                 r"\1'\2-svn"+str(latest_rev)+"'")
-    
-    return latest_rev
+                 r"\1'\2-svn"+latest_rev+"'")
+
+    return int(latest_rev)
 
 def get_platform_and_previous_rev(config, config_file):
     config.platform_id = re.search (
         r"build_([^.]+).ini", os.path.basename(config_file) ).group(1)
     
-    config.last_rev_filename = npath(
+    config.last_rev_filename = normp(
         "./output/last_rev_%s.txt" % config.platform_id )
     try:
         config.previous_rev = int(file(config.last_rev_filename, "r").read())
@@ -153,23 +149,28 @@ def get_platform_and_previous_rev(config, config_file):
 
 ################################################################################
 
-def configure(c):    
+def configure(config_file):
+    # READ INI FILE
+    c = merge_defaults_and_objectify_config(config_file)    
+    
     # SUBVERSION
+    get_platform_and_previous_rev(c, config_file)
+    
     # Possibly updated between builds?? Here's a good spot?
     c.latest_rev = get_and_brand_latest_svn(c.src_path)
     
     # WORKING DIR 
-    c.working_dir = os.path.dirname(__file__)
+    c.working_dir = normp(os.path.dirname(__file__))
     os.chdir(c.working_dir)
 
     # CONFIG.PY INTERACTION
     # ini files are parsed as raw strings
     c.config_py_interaction = c.config_py_interaction.replace('\\n','\n')
-    
+
     # BUILD
-    c.build_cmd += c.extra_build_flags.split(' ')
+    c.build_cmd += c.extra_build_flags.split()
     c.install_cmd = c.build_cmd[:]
-    
+
     # INSTALLER
     if c.make_package:
         c.dist_path = os.path.join(c.src_path, 'dist')
@@ -188,9 +189,17 @@ def configure(c):
     c.install_env.update(c.test_env)
 
     # RESULTS
-    c.prebuilts_filename = npath("./output/prebuilt_%s.txt" % c.platform_id)
-    c.buildresults_filename = npath("./output/buildresults_%s.txt" % c.platform_id)
-    c.buildresults_zip = npath("./output/buildresults_%s.zip" % c.platform_id)
+    c.prebuilts_filename = normp("./output/prebuilt_%s.txt" % c.platform_id)
+    c.buildresults_filename = normp("./output/buildresults_%s.txt" % c.platform_id)
+    c.buildresults_zip = normp("./output/buildresults_%s.zip" % c.platform_id)
+    
+    # FILES TO ADD TO RESULTS ZIP
+    c.buildresult_files = [
+       normp('config', 'build_%s.ini' % c.platform_id),
+       normp(c.src_path, 'Setup'),
+    ]
+
+    return c
 
 ################################################################################
 
@@ -198,13 +207,8 @@ def get_configs(args):
     search = "./config/build_%s.ini" % (args and args[0] or '*')
     config_file_list = glob.glob(search)
 
-    for config_file in config_file_list:
-        config = merge_defaults_and_objectify_config(config_file)
-        get_platform_and_previous_rev(config, config_file)
-        configure(config)
-
-        yield config
-
+    for config_file in config_file_list:        
+        yield configure(config_file)
 
 def main():
     for conf in get_configs(sys.argv[1:]):
