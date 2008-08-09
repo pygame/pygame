@@ -1,8 +1,12 @@
 ################################################################################
 
+# StdLib
 import subprocess
 import os
 import sys
+
+# User Libs
+from helpers import ProgressIndicator
 
 ################################################################################
 
@@ -14,6 +18,9 @@ def get_cmd_str(cmd):
         if sys.platform == 'win32': cmd = subprocess.list2cmdline(cmd)
         else: cmd = ' '.join(cmd)
         return cmd
+
+def log_cmd(cmd, dir):
+    print "executing:", cmd, 'from dir', os.path.abspath(dir or os.getcwd())
 
 ################################################################################
 
@@ -28,31 +35,23 @@ def ExecuteAssertSuccess(cmd, *args, **keywords):
 
 def GetReturnCodeAndOutput(cmd, dir=None, env=None, bufsize=-1, lineprintdiv=1):
     cmd = get_cmd_str(cmd)
-    print "executing:", cmd, 'from dir', dir and dir or '.'
+    log_cmd(cmd, dir)
     
     proc = subprocess.Popen (
-        cmd, cwd = dir, env = env, shell=True,
-        bufsize = bufsize, 
+        cmd, cwd = dir, env = env, shell = True, bufsize = bufsize, 
         stdout = subprocess.PIPE, stderr = subprocess.STDOUT,
         universal_newlines = 1,
     )
-    
+
     response = []
-    finished = False
-    numlines = 0
-    
-    while not finished or proc.poll() == None:
-        line = proc.stdout.readline()
+    progress = ProgressIndicator(lineprintdiv)
 
-        numlines += 1
-        if numlines % lineprintdiv == 0:
-            sys.stdout.write(".")
-            sys.stdout.flush()
-        response += [line]
+    while proc.poll() is None:
+        response += [proc.stdout.readline()]
+        if response[-1] is "": break
+        progress()
 
-        finished = line == ""
-
-    sys.stdout.write("\n")
+    progress.finish()
     return proc.wait(), ''.join(response)
 
 ################################################################################
@@ -60,12 +59,12 @@ def GetReturnCodeAndOutput(cmd, dir=None, env=None, bufsize=-1, lineprintdiv=1):
 def InteractiveGetReturnCodeAndOutput(cmd, input_string, dir=None, 
                                                env=None, bufsize=-1):
     cmd = get_cmd_str(cmd)
-    print "executing:", cmd, 'from dir', dir and dir or '.'
+    log_cmd(cmd, dir)
 
     proc = subprocess.Popen (
-        cmd, cwd=dir, env=env, shell=True, bufsize=bufsize,
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        universal_newlines = 1
+        cmd, cwd = dir, env = env, shell = True, bufsize = bufsize, 
+        stdin = subprocess.PIPE,    stdout = subprocess.PIPE, 
+        stderr = subprocess.STDOUT, universal_newlines = 1
     )
         
     print "---------------"
