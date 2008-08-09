@@ -7,8 +7,13 @@ import sys
 ################################################################################
 
 def get_cmd_str(cmd):
-    if isinstance(cmd, str): return cmd
-    else: return subprocess.list2cmdline([c for c in cmd if c])
+    if isinstance(cmd, str): 
+        return cmd
+    else:
+        cmd = [c for c in cmd if c]
+        if sys.platform == 'win32': cmd = subprocess.list2cmdline(cmd)
+        else: cmd = ' '.join(cmd)
+        return cmd
 
 ################################################################################
 
