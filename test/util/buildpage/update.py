@@ -48,7 +48,8 @@ FORMATS = {
 
     TESTS_FAILED : FILE_INFO  + (
         '<br />%(test)s'
-        '<br /><pre>%(traceback)s</pre>' ),
+        # '<br /><pre>%(traceback)s</pre>' 
+        ),
 
     BUILD_FAILED : FILE_INFO  + (
         '<br>ERROR: %(message)s' ),
@@ -232,7 +233,7 @@ def upload_build_results( build_result, build_errors, build_warnings):
 
         * glob.glob(normp('output', '*.txt')) + config.buildresult_files,
 
-        **{ 'build_config.txt' : str(config) }
+        **{ 'config.txt' : str(config) }
     )
 
     for results in (config.buildresults_filename, config.buildresults_zip):
@@ -246,7 +247,7 @@ def upload_installer(build_result):
 
     installer_filename = os.path.basename(installer_dist_path)
 
-    if BUILD_SUCCESSFUL not in build_result:
+    if build_result is not TESTS_PASSED:
         installer_filename = "failed_tests_%s" % installer_filename
 
     output_installer_path = normp('./output', installer_filename)
@@ -276,6 +277,8 @@ def update_build():
 
     build_result, build_errors = parse_build_results(*build())
     build_warnings = build_warnings_html(build.output)
+
+    assert configure_build.output != build.output
 
     if build_result is BUILD_SUCCESSFUL:
         install()
@@ -326,7 +329,7 @@ def main():
             prepare_build_env()
             update_build()
         else:
-            print 'revision already built'
+            print 'Revision already built for %s' % config.platform_id
 
 if __name__ == '__main__':
     main()
