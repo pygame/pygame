@@ -86,12 +86,17 @@ if options.fake:
 else:
     working_dir = main_dir
 
-test_env = {"PYTHONPATH": test_subdir}     #TODO:  append to PYTHONPATH
-try:
-    # Required by Python 2.6 on Windows.
-    test_env["SystemRoot"] = os.environ["SystemRoot"]
-except KeyError:
-    pass
+
+# Added in because some machines will need os.environ else there will be false
+# failures in subprocess mode. Same issue as python2.6. Needs some env vars.
+
+test_env = os.environ.copy()
+
+#test_env["PYTHONPATH"] = test_subdir ??
+test_env["PYTHONPATH"] = os.pathsep.join (
+    [pth for pth in ([test_subdir] + [test_env.get("PYTHONPATH")]) if pth]
+)
+
 os.chdir(working_dir)
 
 if args:
