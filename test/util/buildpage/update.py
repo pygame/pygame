@@ -245,9 +245,8 @@ def upload_installer(build_result):
     installer_dist_path = glob.glob (
         normp(config.dist_path, config.package_mask))[0]
 
-    installer_filename = "%s_rev_%s_%s" % (
-        config.platform_id, config.latest_rev, 
-        os.path.basename(installer_dist_path)
+    installer_filename = "%s_%s" % (
+        config.platform_id, os.path.basename(installer_dist_path)
     )
 
     if build_result is not TESTS_PASSED:
