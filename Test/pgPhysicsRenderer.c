@@ -1,39 +1,40 @@
-#include "pgPhysicsRenderer.h"
-#include "pgShapeObject.h"
-#include "pgAABBBox.h"
+#ifdef WIN32
+#include <windows.h>
+#endif
 #include <GL/glut.h>
+#include "pgPhysicsRenderer.h"
 
 int RENDER_AABB = 0;
 
-void PGT_RenderWorld(pgWorldObject* world)
+void PGT_RenderWorld(PyWorldObject* world)
 {
-	Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
+	Py_ssize_t size = PyList_Size(world->bodyList);
 	Py_ssize_t i;
 	for (i = 0;i < size;i++)
 	{
-		pgBodyObject* body = (pgBodyObject*)(PyList_GetItem((PyObject*)(world->bodyList),i));
+		PyBodyObject* body = (PyBodyObject*)(PyList_GetItem(world->bodyList,i));
 		PGT_RenderBody(body);
 	}
 
-	size = PyList_Size((PyObject*)(world->jointList));
+	size = PyList_Size(world->jointList);
 	for (i = 0;i < size;i++)
 	{
-		pgJointObject* joint = (pgJointObject*)(PyList_GetItem((PyObject*)(world->jointList),i));
+		PyJointObject* joint = (PyJointObject*)(PyList_GetItem(world->jointList,i));
 		PGT_RenderJoint(joint);
 	}
 }
 
-void PGT_RenderAABB(pgBodyObject* body)
+void PGT_RenderAABB(PyBodyObject* body)
 {
-	pgVector2 p[4];
-	pgAABBBox* box;
+	PyVector2 p[4];
+	AABBBox* box;
 
-	box = &(body->shape->box);
+	box = &(((PyShapeObject*)body->shape)->box);
 	
-	PG_Set_Vector2(p[0], box->left, box->bottom);
-	PG_Set_Vector2(p[1], box->right, box->bottom);
-	PG_Set_Vector2(p[2], box->right, box->top);
-	PG_Set_Vector2(p[3], box->left, box->top);
+	PyVector2_Set(p[0], box->left, box->bottom);
+	PyVector2_Set(p[1], box->right, box->bottom);
+	PyVector2_Set(p[2], box->right, box->top);
+	PyVector2_Set(p[3], box->left, box->top);
 
 	glColor3f(0.f, 1.f, 1.f);
 	glEnable(GL_LINE_STIPPLE);
@@ -49,14 +50,19 @@ void PGT_RenderAABB(pgBodyObject* body)
 	glDisable(GL_LINE_STIPPLE);
 }
 
-void PGT_RenderBody(pgBodyObject* body)
+void PGT_RenderBody(PyBodyObject* body)
 {
-	pgVector2 gp[4];
+	PyVector2 gp[4];
 	int i;
-	pgRectShape* rect = (pgRectShape*)body->shape;
+	PyRectShapeObject* rect = (PyRectShapeObject*)body->shape;
 
-	for(i = 0; i < 4; ++i)
-		gp[i] = PG_GetGlobalPos(body, &(rect->point[i]));
+	// Evil hack for the threads.
+	import_physics ();
+	
+	gp[0] = PyBody_GetGlobalPos((PyObject*)body, rect->bottomleft);
+	gp[1] = PyBody_GetGlobalPos((PyObject*)body, rect->bottomright);
+	gp[2] = PyBody_GetGlobalPos((PyObject*)body, rect->topright);
+	gp[3] = PyBody_GetGlobalPos((PyObject*)body, rect->topleft);
 
 	glColor3f(1.f, 1.f, 0.f);
 	glLineWidth(1.f);
@@ -73,22 +79,22 @@ void PGT_RenderBody(pgBodyObject* body)
 		PGT_RenderAABB(body);
 }
 
-void PGT_RenderJoint(pgJointObject* joint)
+void PGT_RenderJoint(PyJointObject* joint)
 {
-	pgDistanceJointObject* pj = (pgDistanceJointObject*)joint;
+	PyDistanceJointObject* pj = (PyDistanceJointObject*)joint;
 	glColor3f(1.f, 0.f, 0.f);
 	glLineWidth(1.f);
 	glBegin(GL_LINES);
 	if (joint->body1 && (!joint->body2))
 	{
-		pgVector2 pos = PG_GetGlobalPos(joint->body1,&pj->anchor1);
+		PyVector2 pos = PyBody_GetGlobalPos(joint->body1, pj->anchor1);
 		glVertex2d(pos.real,pos.imag);
 		glVertex2d(pj->anchor2.real,pj->anchor2.imag);
 	}
 	else if(joint->body1 && joint->body2)
 	{
-		pgVector2 pos1 = PG_GetGlobalPos(joint->body1,&pj->anchor1);
-		pgVector2 pos2 = PG_GetGlobalPos(joint->body2,&pj->anchor2);
+		PyVector2 pos1 = PyBody_GetGlobalPos(joint->body1, pj->anchor1);
+		PyVector2 pos2 = PyBody_GetGlobalPos(joint->body2, pj->anchor2);
 		glVertex2d(pos1.real,pos1.imag);
 		glVertex2d(pos2.real,pos2.imag);
 	}

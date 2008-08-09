@@ -22,21 +22,92 @@
 #define _PYGAME_VECTOR2_H_
 
 #define PHYSICS_MATH_INTERNAL
-
 #include "pgphysics.h"
 
 /*
  * Internal math function declarations. Used to circumvent the C API
- * array. See pgphysics.h for their descriptions.
+ * array.
+ */
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param b
+ * return
  */
 int PyMath_IsNearEqual(double a, double b);
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param b
+ * return
+ */
 int PyMath_LessEqual(double a, double b);
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param b
+ * return
+ */
 int PyMath_MoreEqual(double a, double b);
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param b
+ * return
+ */
 int PyVector2_Equal(PyVector2* a, PyVector2* b);
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param f
+ * return
+ */
 PyVector2 PyVector2_MultiplyWithReal (PyVector2 a, double f);
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param f
+ * return
+ */
 PyVector2 PyVector2_DivideWithReal (PyVector2 a, double f);
+
+/**
+ * TODO
+ *
+ * @param f
+ * @param a
+ * return
+ */
 PyVector2 PyVector2_fCross(double f, PyVector2 a);
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param f
+ * return
+ */
 PyVector2 PyVector2_Crossf(PyVector2 a, double f);
+
+/**
+ * TODO
+ *
+ * @param a
+ * @param p
+ * return
+ */
 PyVector2 PyVector2_Project(PyVector2 a, PyVector2 p);
 
 /**

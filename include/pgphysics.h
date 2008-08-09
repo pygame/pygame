@@ -21,6 +21,7 @@
 #ifndef _PHYSICS_H_
 #define _PHYSICS_H_
 
+#include <math.h>
 #include <Python.h>
 
 #ifndef ABS
@@ -43,11 +44,6 @@
 #define M_PI 3.1415926535897932384626433832795
 #endif
 
-/**
- * Checks whether the passed double/float value is near zero.
- *
- * @param num The value to check.
- */
 #define IS_NEAR_ZERO(num) (fabs(num) <= ZERO_EPSILON)
 
 /**
@@ -57,31 +53,27 @@ typedef Py_complex PyVector2;
 
 #define PyVector2_Check(x) (PyObject_TypeCheck(op, &PyComplex_Type))
 #define PyVector2_CheckExact(x) ((op)->ob_type == &PyComplex_Type)
-
-#define PyVector2_Set(vec, x, y) \
-    (vec).real = (x);          \
+#define PyVector2_Set(vec, x, y)                \
+    (vec).real = (x);                           \
     (vec).imag = (y);
 
 #define PyVector2_GetLengthSquare(x) ((x).real * (x).real + (x).imag * (x).imag)
 #define PyVector2_GetLength(x) (sqrt(PyVector2_GetLengthSquare(x)))
 #define PyVector2_Dot(x, y) ((x).real * (y).real + (x).imag * (y).imag)
 #define PyVector2_Cross(x, y) ((x).real * (y).imag - (x).imag * (y).real)
-
-#define PyVector2_Normalize(x)                  \
-{                                               \
-    double __pg_tmp = PyVector2_GetLength(*(x)); \
-    (x)->real /=  __pg_tmp;                      \
-    (x)->imag /=  __pg_tmp;                      \
-}
-
-#define PyVector2_Rotate(x, a)                      \
-{                                                   \
-    double __pg_x = (x)->real;                       \
-    double __pg_y = (x)->imag;                       \
-    (x)->real = __pg_x * cos(a) - __pg_y * sin(a);   \
-    (x)->imag = __pg_x * sin(a) + __pg_y * cos(a);   \
-}
-
+#define PyVector2_Normalize(x)                          \
+    {                                                   \
+        double __pg_tmp = PyVector2_GetLength(*(x));    \
+        (x)->real /=  __pg_tmp;                         \
+        (x)->imag /=  __pg_tmp;                         \
+    }
+#define PyVector2_Rotate(x, a)                          \
+    {                                                   \
+        double __pg_x = (x)->real;                      \
+        double __pg_y = (x)->imag;                      \
+        (x)->real = __pg_x * cos(a) - __pg_y * sin(a);  \
+        (x)->imag = __pg_x * sin(a) + __pg_y * cos(a);  \
+    }
 #define PHYSICS_MATH_FIRSTSLOT 0
 #define PHYSICS_MATH_NUMSLOTS 9
 #ifndef PHYSICS_MATH_INTERNAL
@@ -93,15 +85,15 @@ typedef Py_complex PyVector2;
     (*(int(*)(double,double))PyPhysics_C_API[PHYSICS_MATH_FIRSTSLOT+2])
 #define PyVector2_Equal                                                 \
     (*(int(*)(PyVector2,PyVector2))PyPhysics_C_API[PHYSICS_MATH_FIRSTSLOT+3])
-#define PyVector2_MultiplyWithReal                                                 \
+#define PyVector2_MultiplyWithReal                                      \
     (*(PyVector2(*)(PyVector2,double))PyPhysics_C_API[PHYSICS_MATH_FIRSTSLOT+4])
-#define PyVector2_DivideWithReal                                                 \
+#define PyVector2_DivideWithReal                                        \
     (*(PyVector2(*)(PyVector2,double))PyPhysics_C_API[PHYSICS_MATH_FIRSTSLOT+5])
-#define PyVector2_fCross                                                 \
+#define PyVector2_fCross                                                \
     (*(PyVector2(*)(double,PyVector2))PyPhysics_C_API[PHYSICS_MATH_FIRSTSLOT+6])
-#define PyVector2_Crossf                                                 \
+#define PyVector2_Crossf                                                \
     (*(PyVector2(*)(PyVector2,double))PyPhysics_C_API[PHYSICS_MATH_FIRSTSLOT+7])
-#define PyVector2_Project                                                 \
+#define PyVector2_Project                                               \
     (*(PyVector2(*)(PyVector2,PyVector2))PyPhysics_C_API[PHYSICS_MATH_FIRSTSLOT+8])
 
 #endif /* PYGAME_MATH_INTERNAL */
@@ -146,13 +138,17 @@ typedef struct
 } PyBodyObject;
 
 #define PHYSICS_BODY_FIRSTSLOT (PHYSICS_MATH_FIRSTSLOT + PHYSICS_MATH_NUMSLOTS)
-#define PHYSICS_BODY_NUMSLOTS 2
+#define PHYSICS_BODY_NUMSLOTS 4
 #ifndef PHYSICS_BODY_INTERNAL
 #define PyBody_Check(x)                                                 \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+0]))
-#define PyBody_New \
+#define PyBody_New                                                      \
     (*(PyObject*(*)(void))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+1])
+#define PyBody_SetShape                                                 \
+    (*(int(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+2])
+#define PyBody_GetGlobalPos                                             \
+    (*(PyVector2(*)(PyObject*,PyVector2))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+3])
 #endif /* PYGAME_BODY_INTERNAL */
 
 /**
@@ -184,18 +180,20 @@ typedef struct
 
 #define PHYSICS_JOINT_FIRSTSLOT \
     (PHYSICS_BODY_FIRSTSLOT + PHYSICS_BODY_NUMSLOTS)
-#define PHYSICS_JOINT_NUMSLOTS 4
+#define PHYSICS_JOINT_NUMSLOTS 5
 #ifndef PHYSICS_JOINT_INTERNAL
 #define PyJoint_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+0]))
-#define PyJoint_New \
-    (*(PyObject*(*)(void))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+1])
+#define PyJoint_New                                                     \
+    (*(PyObject*(*)(PyObject*,PyObject*,int))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+1])
 #define PyDistanceJoint_Check(x)                                        \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+2]))
-#define PyDistanceJoint_New \
-    (*(PyObject*(*)(void))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+3])
+#define PyDistanceJoint_New                                             \
+    (*(PyObject*(*)(PyObject*,PyObject*,int))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+3])
+#define PyDistanceJoint_SetAnchors                                      \
+    (*(int(*)(PyObject*,PyVector2,PyVector2))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+4])
 #endif /* PYGAME_JOINT_INTERNAL */
 
 /**
@@ -236,7 +234,7 @@ typedef struct
     PyVector2 bottomright;
     PyVector2 topright;
     PyVector2 topleft;
-} PyRectShape;
+} PyRectShapeObject;
 
 #define PHYSICS_SHAPE_FIRSTSLOT \
     (PHYSICS_JOINT_FIRSTSLOT + PHYSICS_JOINT_NUMSLOTS)
@@ -245,12 +243,12 @@ typedef struct
 #define PyShape_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+0]))
-#define PyShape_New \
+#define PyShape_New                                                     \
     (*(PyObject*(*)(void))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+1])
 #define PyRectShape_Check(x)                                            \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+2]))
-#define PyRectShape_New \
+#define PyRectShape_New                                                 \
     (*(PyObject*(*)(double,double,double))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+3])
 #endif /* PYGAME_SHAPE_INTERNAL */
 
@@ -277,24 +275,24 @@ typedef struct
 
 #define PHYSICS_WORLD_FIRSTSLOT \
     (PHYSICS_SHAPE_FIRSTSLOT + PHYSICS_SHAPE_NUMSLOTS)
-#define PHYSICS_WORLD_NUMSLOTS 6
+#define PHYSICS_WORLD_NUMSLOTS 7
 #ifndef PHYSICS_WORLD_INTERNAL
 #define PyWorld_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+0])
-#define PyWorld_New \
+#define PyWorld_New                                                     \
     (*(PyObject*(*)(void))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+1])
-#define PyWorld_AddBody \
+#define PyWorld_AddBody                                                 \
     (*(PyObject*(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+2])
-#define PyWorld_RemoveBody \
+#define PyWorld_RemoveBody                                              \
     (*(PyObject*(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+3])
-#define PyWorld_AddJoint \
+#define PyWorld_AddJoint                                                \
     (*(PyObject*(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+4])
-#define PyWorld_RemoveJoint \
+#define PyWorld_RemoveJoint                                             \
     (*(PyObject*(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+5])
-#define PyWorld_Update \
-    (*(void(*)(PyObject*,double))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+6])
-    
+#define PyWorld_Update                                                  \
+    (*(int(*)(PyObject*,double))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+6])
+
 #endif /* PYGAME_WORLD_INTERNAL */
 
 /**
@@ -327,4 +325,4 @@ static int import_physics (void)
 #endif
 PyMODINIT_FUNC initphysics (void);
 
-#endif //_PYGAME_PHYSICS_H_
+#endif /*_PYGAME_PHYSICS_H_*/

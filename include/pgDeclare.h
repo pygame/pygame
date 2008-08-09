@@ -45,8 +45,8 @@ extern PyTypeObject PyRectShape_Type;
 
 #define PyBody_Check(x) (PyObject_TypeCheck(x, &PyBody_Type))
 #define PyContact_Check(x) (PyObject_TypeCheck(x, &PyContact_Type))
-#define PyJoint_Check(x) (PyObject_TypeCheck(x, &PyDistanceJoint_Type))
-#define PyDistanceJoint_Check(x) (PyObject_TypeCheck(x, &PyBody_Type))
+#define PyJoint_Check(x) (PyObject_TypeCheck(x, &PyJoint_Type))
+#define PyDistanceJoint_Check(x) (PyObject_TypeCheck(x, &PyDistanceJoint_Type))
 #define PyWorld_Check(x) (PyObject_TypeCheck(x, &PyWorld_Type))
 #define PyShape_Check(x) (PyObject_TypeCheck(x, &PyShape_Type))
 #define PyRechtShape_Check(x) (PyObject_TypeCheck(x, &PyRectShape_Type))

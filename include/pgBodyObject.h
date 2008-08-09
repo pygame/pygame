@@ -51,7 +51,7 @@ void PyBodyObject_CorrectPos(PyBodyObject* body, double dt);
 
 /**
  * Transform point local_p's position from body's local coordinate to
- * the world's global one.
+ * the world's global.
  * TODO: is the local coordinate necessary?  anyway let it alone right
  * now.
  *
@@ -62,7 +62,7 @@ void PyBodyObject_CorrectPos(PyBodyObject* body, double dt);
 PyVector2 PyBodyObject_GetGlobalPos(PyBodyObject* body, PyVector2* local_p);
 
 /**
- * Translate vector from coordinate B to coordinate A
+ * Translate vector from coordinate B to the body coordinates A
  *
  * @param bodyA
  * @param bodyB
@@ -73,7 +73,7 @@ PyVector2 PyBodyObject_GetRelativePos(PyBodyObject* bodyA, PyBodyObject* bodyB,
     PyVector2* p_in_B);
 
 /**
- * Get velocity with a local point of a body,assume center is local (0,0)
+ * Get velocity with a local point of a body, assume center is local (0,0).
  *
  * @param body
  * @param localPoint

@@ -20,9 +20,8 @@
 
 #define PHYSICS_BODY_INTERNAL
 #include "pgDeclare.h"
-#include "pgphysics.h"
-#include "pgHelpFunctions.h"
 #include "pgVector2.h"
+#include "pgHelpFunctions.h"
 #include "pgBodyObject.h"
 
 static void _BodyInit(PyBodyObject* body);
@@ -53,12 +52,22 @@ static PyObject* _Body_getShape(PyBodyObject* body,void* closure);
 static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure);
 static PyObject *_Body_getPointList(PyObject *self, PyObject *args);
 
+/* C API */
+static PyObject* PyBody_New(void);
+static int PyBody_SetShape(PyObject *body, PyObject *shape);
+static PyVector2 PyBody_GetGlobalPos (PyObject *body, PyVector2 point);
 
+/**
+ * Methods used by the Body object.
+ */
 static PyMethodDef _Body_methods[] = {
     { "get_points",_Body_getPointList,METH_VARARGS,"" },
     { NULL, NULL, 0, NULL }   /* Sentinel */
 };
 
+/**
+ * Getter/Setter definitions used by the Body
+ */
 static PyGetSetDef _Body_getseters[] = {
     { "mass", (getter) _Body_getMass, (setter) _Body_setMass, "Mass",
       NULL },
@@ -149,9 +158,12 @@ static void _BodyInit(PyBodyObject* body)
 static PyObject* _BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     //TODO: parse args later on
-    PyBodyObject* op = (PyBodyObject*)type->tp_alloc(type, 0);
-    _BodyInit(op);
-    return (PyObject*)op;
+    PyObject* op = type->tp_alloc(type, 0);
+    if (!op)
+        return NULL;
+
+    _BodyInit((PyBodyObject*)op);
+    return op;
 }
 
 static void _BodyDestroy(PyBodyObject* body)
@@ -249,11 +261,19 @@ static int _Body_setForce(PyBodyObject* body,PyObject* value,void* closure)
 
     item = PySequence_GetItem (value, 0);
     if (!DoubleFromObj (item, &real))
+    {
+        Py_DECREF (item);
         return -1;
+    }
+    Py_DECREF (item);
     item = PySequence_GetItem (value, 1);
     if (!DoubleFromObj (item, &imag))
+    {
+        Py_DECREF (item);
         return -1;
-    
+    }
+    Py_DECREF (item);
+
     body->vecForce.real = real;
     body->vecForce.imag = imag;
     return 0;
@@ -479,7 +499,7 @@ static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure)
     shape = (PyShapeObject*) value;
     if (shape->type == ST_RECT)
     {
-        PyRectShape* rsh = (PyRectShape*) shape;
+        PyRectShapeObject* rsh = (PyRectShapeObject*) shape;
         double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
         double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
         shape->rInertia = body->fMass *
@@ -504,22 +524,22 @@ static PyObject *_Body_getPointList(PyObject *self, PyObject *args)
     /* TODO: shapes */
     list = PyList_New (4);
 
-    pVertex = &(((PyRectShape*)(body->shape))->bottomleft);
+    pVertex = &(((PyRectShapeObject*)(body->shape))->bottomleft);
     golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
     tuple = FromPhysicsVector2ToPoint(golVertex);
     PyList_SetItem(list,0,tuple);
 
-    pVertex = &(((PyRectShape*)(body->shape))->bottomright);
+    pVertex = &(((PyRectShapeObject*)(body->shape))->bottomright);
     golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
     tuple = FromPhysicsVector2ToPoint(golVertex);
     PyList_SetItem(list,1,tuple);
 
-    pVertex = &(((PyRectShape*)(body->shape))->topright);
+    pVertex = &(((PyRectShapeObject*)(body->shape))->topright);
     golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
     tuple = FromPhysicsVector2ToPoint(golVertex);
     PyList_SetItem(list,2,tuple);
 
-    pVertex = &(((PyRectShape*)(body->shape))->topleft);
+    pVertex = &(((PyRectShapeObject*)(body->shape))->topleft);
     golVertex = PyBodyObject_GetGlobalPos(body,pVertex);
     tuple = FromPhysicsVector2ToPoint(golVertex);
     PyList_SetItem(list,3,tuple);
@@ -594,15 +614,33 @@ PyVector2 PyBodyObject_GetLocalPointVelocity(PyBodyObject* body,
     return c_sum(vel,body->vecLinearVelocity);
 }
 
-
 /* C API */
 static PyObject* PyBody_New(void)
 {
     return _BodyNew(&PyBody_Type, NULL, NULL);
 }
 
+static int PyBody_SetShape(PyObject *body, PyObject *shape)
+{
+    if (!PyBody_Check (body))
+    {
+        PyErr_SetString (PyExc_TypeError, "body must be a Body");
+        return 0;
+    }
+    if (_Body_setShape ((PyBodyObject*)body, shape, NULL) == -1)
+        return 0;
+    return 1;
+}
+
+static PyVector2 PyBody_GetGlobalPos (PyObject *body, PyVector2 point)
+{
+    return PyBodyObject_GetGlobalPos ((PyBodyObject*) body, &point);
+}
+
 void PyBodyObject_ExportCAPI (void **c_api)
 {
     c_api[PHYSICS_BODY_FIRSTSLOT] = &PyBody_Type;
     c_api[PHYSICS_BODY_FIRSTSLOT + 1] = &PyBody_New;
+    c_api[PHYSICS_BODY_FIRSTSLOT + 2] = &PyBody_SetShape;
+    c_api[PHYSICS_BODY_FIRSTSLOT + 3] = &PyBody_GetGlobalPos;
 }

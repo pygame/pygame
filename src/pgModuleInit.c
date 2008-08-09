@@ -19,13 +19,11 @@
 */
 
 #include "pgDeclare.h"
-#include "pgphysics.h"
+#include "pgVector2.h"
 #include "pgWorldObject.h"
 #include "pgBodyObject.h"
 #include "pgJointObject.h"
 #include "pgShapeObject.h"
-#include "pgVector2.h"
-
 
 PyMODINIT_FUNC
 initphysics(void) 

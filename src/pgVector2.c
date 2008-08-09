@@ -18,8 +18,6 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#define PHYSICS_SHAPE_INTERNAL
-
 #include "pgVector2.h"
 
 int PyMath_IsNearEqual(double a, double b)

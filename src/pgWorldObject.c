@@ -60,7 +60,7 @@ static int PyWorld_AddBody(PyObject* world, PyObject* body);
 static int PyWorld_RemoveBody(PyObject* world, PyObject* body);
 static int PyWorld_AddJoint(PyObject* world, PyObject* joint);
 static int PyWorld_RemoveJoint(PyObject* world, PyObject* joint);
-static void PyWorld_Update(PyObject* world, double dt);
+static int PyWorld_Update(PyObject* world, double dt);
 
 /**
  * Here we allow the Python object to do stuff like
@@ -192,11 +192,10 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
     }
 
     contact_cnt = PyList_Size(world->contactList);
-    if (contact_cnt)
-    {
-        //printf("contact_cnt:%d\n",contact_cnt);
-    }
-	
+/*     if (contact_cnt) */
+/*     { */
+/*         printf("contact_cnt:%d\n",contact_cnt); */
+/*     } */
     for(j = 0; j < MAX_ITERATION; ++j)
     {
         //clear bias
@@ -215,7 +214,6 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
         }
 
         //collision reaction
-        contact_cnt = PyList_Size(world->contactList);
         for(i = 0; i < contact_cnt; ++i)
         {
             contact = (PyJointObject*)(PyList_GetItem(world->contactList, i));
@@ -304,6 +302,9 @@ static void _WorldInit(PyWorldObject* world)
 static PyWorldObject* _WorldNewInternal(PyTypeObject *type)
 {
     PyWorldObject* op = (PyWorldObject*)type->tp_alloc(type, 0);
+    if (!op)
+        return NULL;
+
     _WorldInit(op);
     return op;
 }
@@ -386,6 +387,7 @@ static int _World_setGravity(PyWorldObject* world,PyObject* value,void* closure)
 {
     PyObject *item;
     double real, imag;
+    
 
     if (!PySequence_Check(value) || PySequence_Size (value) != 2)
     {
@@ -395,11 +397,20 @@ static int _World_setGravity(PyWorldObject* world,PyObject* value,void* closure)
 
     item = PySequence_GetItem (value, 0);
     if (!DoubleFromObj (item, &real))
+    {
+        Py_DECREF (item);
         return -1;
+    }
+    Py_DECREF (item);
+
     item = PySequence_GetItem (value, 1);
     if (!DoubleFromObj (item, &imag))
+    {
+        Py_DECREF (item);
         return -1;
-    
+    }    
+    Py_DECREF (item);
+
     world->vecGravity.real = real;
     world->vecGravity.imag = imag;
     return 0;
@@ -453,29 +464,106 @@ static PyObject* PyWorld_New (void)
 
 static int PyWorld_AddBody(PyObject* world, PyObject* body)
 {
-    return !PyList_Append(((PyWorldObject*)world)->bodyList,body);
+    if (!PyWorld_Check (world))
+    {
+        PyErr_SetString (PyExc_TypeError, "world must be a World");
+        return 0;
+    }
+ 
+    if (!PyBody_Check (body))
+    {
+        PyErr_SetString (PyExc_TypeError, "body must be a Body");
+        return 0;
+    }
+        
+    if (PyList_Append(((PyWorldObject*)world)->bodyList, body) == 0)
+        return 1;
+    return 0;
 }
 
 static int PyWorld_RemoveBody(PyObject* world, PyObject* body)
 {
-    // TODO
+    Py_ssize_t _index;
+
+    if (!PyWorld_Check (world))
+    {
+        PyErr_SetString (PyExc_TypeError, "world must be a World");
+        return 0;
+    }
+ 
+    if (!PyBody_Check (body))
+    {
+        PyErr_SetString (PyExc_TypeError, "body must be a Body");
+        return 0;
+    }
+
+    _index = PySequence_Index (((PyWorldObject*)world)->bodyList, body);
+    if (_index != -1)
+    {
+        if (PySequence_DelItem (((PyWorldObject*)world)->bodyList, _index) == -1)
+            return 0; /* Could not delete */
+        return 1;
+    }
+    /* Not in list. */
     return 0;
 }
 
 static int PyWorld_AddJoint(PyObject* world, PyObject* joint)
 {
-    return !PyList_Append(((PyWorldObject*)world)->jointList,joint);
+    if (!PyWorld_Check (world))
+    {
+        PyErr_SetString (PyExc_TypeError, "world must be a World");
+        return 0;
+    }
+ 
+    if (!PyJoint_Check (joint))
+    {
+        PyErr_SetString (PyExc_TypeError, "joint must be a Joint");
+        return 0;
+    }
+    
+    if (PyList_Append(((PyWorldObject*)world)->jointList, joint) == 0)
+        return 1;
+    return 0;
 }
 
 static int PyWorld_RemoveJoint(PyObject* world, PyObject* joint)
 {
-    // TODO
+    Py_ssize_t _index;
+
+    if (!PyWorld_Check (world))
+    {
+        PyErr_SetString (PyExc_TypeError, "world must be a World");
+        return 0;
+    }
+ 
+    if (!PyJoint_Check (joint))
+    {
+        PyErr_SetString (PyExc_TypeError, "joint must be a Joint");
+        return 0;
+    }
+
+    _index = PySequence_Index (((PyWorldObject*)world)->jointList, joint);
+    if (_index != -1)
+    {
+        if (PySequence_DelItem (((PyWorldObject*)world)->jointList, _index) == -1)
+            return 0; /* Could not delete */
+        return 1;
+    }
+    /* Not in list. */
     return 0;
 }
 
-static void PyWorld_Update(PyObject* world, double dt)
+static int PyWorld_Update(PyObject* world, double dt)
 {
+    if (!PyWorld_Check (world))
+    {
+        PyErr_SetString (PyExc_TypeError, "world must be a World");
+        return 0;
+    }
+
     _Update ((PyWorldObject*)world, dt);
+    return 1;
 }
 
 void PyWorldObject_ExportCAPI (void **c_api)

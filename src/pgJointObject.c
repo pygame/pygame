@@ -20,13 +20,12 @@
 
 #define PHYSICS_JOINT_INTERNAL
 #include "pgDeclare.h"
-#include "pgphysics.h"
 #include "pgVector2.h"
+#include "pgHelpFunctions.h"
 #include "pgBodyObject.h"
 #include "pgJointObject.h"
-#include "pgHelpFunctions.h"
 
-static int _JointBase_InitInternal(PyJointObject* joint,PyObject* b1,
+static void _JointBase_InitInternal(PyJointObject* joint,PyObject* b1,
     PyObject* b2,int bCollideConnect);
 static void _JointDestroy(PyJointObject* joint);
 static PyObject* _JointBaseNew(PyTypeObject *type, PyObject *args,
@@ -54,8 +53,8 @@ static void _ReComputeDistance(PyDistanceJointObject* joint);
 
 static PyObject* _DistanceJoint_getDistance(PyDistanceJointObject* joint,
     void* closure);
-static int _DistanceJoint_setDistance(PyDistanceJointObject* joint,
-    PyObject* value,void* closure);
+/*static int _DistanceJoint_setDistance(PyDistanceJointObject* joint,
+  PyObject* value,void* closure);*/
 static PyObject* _DistanceJoint_getAnchor1(PyDistanceJointObject* joint,
     void* closure);
 static int _DistanceJoint_setAnchor1(PyDistanceJointObject* joint,
@@ -65,6 +64,11 @@ static PyObject* _DistanceJoint_getAnchor2(PyDistanceJointObject* joint,
 static int _DistanceJoint_setAnchor2(PyDistanceJointObject* joint,
     PyObject* value,void* closure);
 static PyObject* _DistanceJoint_getPointList(PyObject *self, PyObject *args);
+
+/* C API */
+static PyObject* PyJoint_New(PyObject *body1, PyObject *body2, int collideConnect);
+static PyObject* PyDistanceJoint_New(PyObject *body1, PyObject *body2, int collideConnect);
+static int PyDistanceJoint_SetAnchors(PyObject *joint,PyVector2 anchor1,PyVector2 anchor2);
 
 
 static PyGetSetDef _JointBase_getseters[] = {
@@ -124,43 +128,40 @@ PyTypeObject PyJoint_Type =
     0                           /* tp_del */
 };
 
-static int _JointBase_InitInternal(PyJointObject* joint,PyObject* b1,
+static void _JointBase_InitInternal(PyJointObject* joint,PyObject* b1,
     PyObject* b2,int bCollideConnect)
 {
-    if (!PyBody_Check (b1))
-    {
-        PyErr_SetString (PyExc_TypeError, "body1 must be a Body");
-        return 0;
-    }
-    if (!PyBody_Check (b2))
-    {
-        PyErr_SetString (PyExc_TypeError, "body2 must be a Body");
-        return 0;
-    }
-    
     Py_INCREF (b1);
     Py_INCREF (b2);
-    
     joint->body1 = b1;
     joint->body2 = b2;
     joint->isCollideConnect = bCollideConnect;
-    return 1;
 }
 
 static int _JointBase_init(PyJointObject* joint,PyObject *args, PyObject *kwds)
 {
     PyObject* body1, *body2;
     int bCollide;
-    static char *kwlist[] = {"body1", "body2", "isCollideConnect", NULL};
+    static char *kwlist[] = {"body1", "body2", "collide_connect", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args,kwds,"OOi",kwlist,&body1,&body2,
             &bCollide))
     {
         return -1;
     }
-    
-    if (!_JointBase_InitInternal(joint, body1, body2, bCollide))
+ 
+    if (!PyBody_Check (body1))
+    {
+        PyErr_SetString (PyExc_TypeError, "body1 must be a Body");
         return -1;
+    }
+    if (!PyBody_Check (body2))
+    {
+        PyErr_SetString (PyExc_TypeError, "body2 must be a Body");
+        return -1;
+    }
+   
+    _JointBase_InitInternal(joint, body1, body2, bCollide);
     return 0;
 }
 
@@ -183,6 +184,9 @@ static PyObject* _JointBaseNew(PyTypeObject *type, PyObject *args,
      * on.
      */
     PyJointObject* joint = (PyJointObject*)type->tp_alloc(type, 0);
+    if (!joint)
+        return NULL;
+
     joint->body1 = NULL;
     joint->body2 = NULL;
     joint->isCollideConnect = 0;
@@ -239,7 +243,7 @@ static PyMethodDef _DistanceJoint_methods[] = {
 
 static PyGetSetDef _DistanceJoint_getseters[] = {
     { "distance",(getter)_DistanceJoint_getDistance,
-      (setter)_DistanceJoint_setDistance,"",NULL, },
+      /*(setter)_DistanceJoint_setDistance*/NULL,"",NULL, },
     { "anchor1",(getter)_DistanceJoint_getAnchor1,
       (setter)_DistanceJoint_setAnchor1,"",NULL, },
     { "anchor2",(getter)_DistanceJoint_getAnchor2,
@@ -317,7 +321,7 @@ static PyObject* _DistanceJointNew(PyTypeObject *type, PyObject *args,
     
     joint->joint.SolveConstraintVelocity = _SolveDistanceJointVelocity;
     //joint->joint.SolveConstraintPosition = _SolveDistanceJointPosition;
-    joint->distance = 10.0;
+    joint->distance = 0.0;
     PyVector2_Set(joint->anchor1,0,0);
     PyVector2_Set(joint->anchor2,0,0);
 
@@ -383,8 +387,7 @@ static void _DistanceJoint_ComputeOneDynamic (PyBodyObject* body,
     dAngleV /= k;
     body->fAngleVelocity += dAngleV;
 
-    // TODO: Position correction, badly needed, otherwise the python tests
-    // will cause the joints to grow in their size %-).
+    // Position correction.
     temp = -bb /a;
     dvBody = PyVector2_MultiplyWithReal(L,temp);
     dAngleV = PyVector2_Cross(localP,dvBody);
@@ -567,6 +570,7 @@ static PyObject* _DistanceJoint_getDistance(PyDistanceJointObject* joint,
     return PyFloat_FromDouble(joint->distance);
 }
 
+/*
 static int _DistanceJoint_setDistance(PyDistanceJointObject* joint,
     PyObject* value,void* closure)
 {
@@ -586,7 +590,8 @@ static int _DistanceJoint_setDistance(PyDistanceJointObject* joint,
     }
     PyErr_SetString (PyExc_TypeError, "distance must be a float");
     return -1;
-}
+    }
+*/
 
 static PyObject* _DistanceJoint_getAnchor1(PyDistanceJointObject* joint,
     void* closure)
@@ -675,15 +680,65 @@ static PyObject* _DistanceJoint_getPointList(PyObject *self, PyObject *args)
 }
 
 /* C API */
-static PyObject* PyJoint_New(void)
+static PyObject* PyJoint_New(PyObject *body1, PyObject *body2, int collideConnect)
 {
-    return _JointBaseNew(&PyJoint_Type, NULL, NULL);
+    PyObject *joint;
+
+    if (!PyBody_Check (body1))
+    {
+        PyErr_SetString (PyExc_TypeError, "body1 must be a Body");
+        return 0;
+    }
+    if (!PyBody_Check (body2))
+    {
+        PyErr_SetString (PyExc_TypeError, "body2 must be a Body");
+        return 0;
+    }
+
+    joint = _JointBaseNew (&PyJoint_Type, NULL, NULL);
+    if (!joint)
+        return NULL;
+    _JointBase_InitInternal ((PyJointObject*)joint, body1, body2, collideConnect);
+    return joint;
 }
 
-static PyObject* PyDistanceJoint_New(void)
+static PyObject* PyDistanceJoint_New(PyObject *body1, PyObject *body2, int collideConnect)
 {
-    PyObject* op = PyDistanceJoint_Type.tp_alloc(&PyDistanceJoint_Type, 0);
-    return op;
+    PyObject* joint;
+
+    if (!PyBody_Check (body1))
+    {
+        PyErr_SetString (PyExc_TypeError, "body1 must be a Body");
+        return 0;
+    }
+    if (!PyBody_Check (body2))
+    {
+        PyErr_SetString (PyExc_TypeError, "body2 must be a Body");
+        return 0;
+    }
+
+    joint = _DistanceJointNew (&PyDistanceJoint_Type, NULL, NULL);
+    if (!joint)
+        return NULL;
+
+    _JointBase_InitInternal ((PyJointObject*)joint, body1, body2, collideConnect);
+    return joint;
+}
+
+static int PyDistanceJoint_SetAnchors(PyObject *joint,PyVector2 anchor1,PyVector2 anchor2)
+{
+    if (!PyDistanceJoint_Check (joint))
+    {
+        PyErr_SetString (PyExc_TypeError, "joint must be a DistanceJoint");
+        return 0;
+    }
+
+    ((PyDistanceJointObject*)joint)->anchor1.real = anchor1.real;
+    ((PyDistanceJointObject*)joint)->anchor1.imag = anchor1.imag;
+    ((PyDistanceJointObject*)joint)->anchor2.real = anchor2.real;
+    ((PyDistanceJointObject*)joint)->anchor2.imag = anchor2.imag;
+    _ReComputeDistance((PyDistanceJointObject*)joint);
+    return 1;
 }
 
 void PyJointObject_ExportCAPI (void **c_api)
@@ -692,4 +747,5 @@ void PyJointObject_ExportCAPI (void **c_api)
     c_api[PHYSICS_JOINT_FIRSTSLOT + 1] = &PyJoint_New;
     c_api[PHYSICS_JOINT_FIRSTSLOT + 2] = &PyDistanceJoint_Type;
     c_api[PHYSICS_JOINT_FIRSTSLOT + 3] = &PyDistanceJoint_New;
+    c_api[PHYSICS_JOINT_FIRSTSLOT + 4] = &PyDistanceJoint_SetAnchors;
 }

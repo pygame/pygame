@@ -20,9 +20,8 @@
 
 #include <assert.h>
 #include "pgDeclare.h"
-#include "pgphysics.h"
-#include "pgCollision.h"
 #include "pgVector2.h"
+#include "pgCollision.h"
 
 static int _LiangBarskey_Internal(double p, double q, double* u1, double* u2);
 static void _UpdateV(PyJointObject* joint, double step);
@@ -82,7 +81,6 @@ static void _UpdateV(PyJointObject* joint, double step)
     PyVector2 moment, bm;
     PyVector2 refR, incidR;
     PyShapeObject *refShape, *incidShape;
-
 
     contact = (PyContact*)joint;
     refBody = (PyBodyObject *)joint->body1;

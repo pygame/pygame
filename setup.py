@@ -18,8 +18,7 @@ if __name__ == "__main__":
                   "-Wshadow", "-Wredundant-decls"
                   ]
     compile_args = [ "-std=c99", "-g"]
-    if True:
-        compile_args += warn_flags
+    compile_args += warn_flags
 
     extphysics = Extension ("physics", sources = get_c_files (),
                             include_dirs = [ "include" ],

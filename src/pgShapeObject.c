@@ -20,21 +20,19 @@
 
 #define PHYSICS_SHAPE_INTERNAL
 #include <float.h>
-
 #include "pgDeclare.h"
-#include "pgphysics.h"
 #include "pgAABBBox.h"
+#include "pgVector2.h"
+#include "pgCollision.h"
 #include "pgBodyObject.h"
 #include "pgShapeObject.h"
-#include "pgCollision.h"
-#include "pgVector2.h"
 
 static PyObject* _ShapeNew(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static void _ShapeObjectDestroy(PyShapeObject* shape);
 
 static void _RectShapeUpdateAABB(PyBodyObject* body);
-static int _RectShape_init(PyRectShape* shape,PyObject *args, PyObject *kwds);
-static void _RectShape_InitInternal (PyRectShape *shape, double width,
+static int _RectShape_init(PyRectShapeObject* shape,PyObject *args, PyObject *kwds);
+static void _RectShape_InitInternal (PyRectShapeObject *shape, double width,
     double height, double seta);
 static PyObject* _RectShapeNew(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
@@ -48,6 +46,7 @@ static int _Build_Contacts(PyVector2* gp, AABBBox* clipBox, int axis,
 static int _RectShapeCollision(PyBodyObject* selfBody,
     PyBodyObject* incidBody, PyObject* contactList);
 
+/* C API */
 static PyObject *PyShape_New (void);
 static PyObject *PyRectShape_New (double width, double height, double seta);
 
@@ -129,7 +128,7 @@ PyTypeObject PyRectShape_Type =
     PyObject_HEAD_INIT(NULL)
     0,
     "physics.RectShape",        /* tp_name */
-    sizeof(PyRectShape),        /* tp_basicsize */
+    sizeof(PyRectShapeObject),  /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) 0,				/* tp_dealloc */
     0,                          /* tp_print */
@@ -184,7 +183,7 @@ static void _RectShapeUpdateAABB(PyBodyObject* body)
 
     if(((PyShapeObject*)body->shape)->type == ST_RECT)
     {
-        PyRectShape *p = (PyRectShape*)body->shape;
+        PyRectShapeObject *p = (PyRectShapeObject*)body->shape;
 		
         AABB_Clear(&(p->shape.box));
 
@@ -198,7 +197,7 @@ static void _RectShapeUpdateAABB(PyBodyObject* body)
     }
 }
 
-static void _RectShape_InitInternal (PyRectShape *shape, double width,
+static void _RectShape_InitInternal (PyRectShapeObject *shape, double width,
     double height, double seta)
 {
     PyVector2_Set(shape->bottomleft, -width/2, -height/2);
@@ -211,7 +210,7 @@ static void _RectShape_InitInternal (PyRectShape *shape, double width,
     PyVector2_Rotate(&(shape->topleft), seta);
 }
 
-static int _RectShape_init(PyRectShape* shape,PyObject *args, PyObject *kwds)
+static int _RectShape_init(PyRectShapeObject* shape,PyObject *args, PyObject *kwds)
 {
     double width, height, seta = 0;
     if (PyShape_Type.tp_init((PyObject*)shape, args, kwds) < 0)
@@ -226,7 +225,7 @@ static int _RectShape_init(PyRectShape* shape,PyObject *args, PyObject *kwds)
 static PyObject* _RectShapeNew(PyTypeObject *type, PyObject *args,
     PyObject *kwds)
 {
-    PyRectShape *shape = (PyRectShape*) _ShapeNew (type, args, kwds);
+    PyRectShapeObject *shape = (PyRectShapeObject*) _ShapeNew (type, args, kwds);
     if (!shape)
         return NULL;
     
@@ -242,11 +241,11 @@ static int _Get_Depth(PyBodyObject* refBody, PyBodyObject* incBody,
 #define _EPS_DEPTH 1e-2
 
     int i, apart;
-    PyRectShape *ref, *inc;
+    PyRectShapeObject *ref, *inc;
     double deps[4];
 
-    ref = (PyRectShape*)refBody->shape;
-    inc = (PyRectShape*)incBody->shape;
+    ref = (PyRectShapeObject*)refBody->shape;
+    inc = (PyRectShapeObject*)incBody->shape;
     memset(gp_in_ref, 0, sizeof(gp_in_ref));
     memset(deps, 0, sizeof(deps));
     
@@ -509,7 +508,8 @@ static PyObject *PyShape_New (void)
 
 static PyObject *PyRectShape_New (double width, double height, double seta)
 {
-    PyRectShape *shape = (PyRectShape*)_RectShapeNew (&PyRectShape_Type, NULL, NULL);
+    PyRectShapeObject *shape = (PyRectShapeObject*)
+        _RectShapeNew (&PyRectShape_Type, NULL, NULL);
     _RectShape_InitInternal (shape, width, height, seta);
     return (PyObject*) shape;
 }
