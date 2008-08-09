@@ -34,7 +34,7 @@ def cleardir(path_to_clear):
             os.remove(os.path.join(root, name))
         for name in dirs:
             os.rmdir(os.path.join(root, name))
-            
+
 def prepare_dir(dir):
     if os.path.exists(dir): cleardir(dir)
     else: os.mkdir(dir)
@@ -59,27 +59,15 @@ def write_stdout(out):
     sys.stdout.flush()
 
 class ProgressIndicator(object):
-    def __init__(self, report_every = 1, wait = 1):
+    def __init__(self, report_every = 1):
         self.progress = 1
         self.report_every = report_every
-        self.last_progress = time.time()
-        t = threading.Thread(target = self.wait_thread, args=(wait,))
-        t.setDaemon(1)
-        t.start()
 
     def __call__(self):
         self.progress += 1
-        self.last_progress = time.time()
         if self.progress % self.report_every == 0:  write_stdout(".")
-    
-    def wait_thread(self, wait):
-        while self.progress:
-            since_last_progress = time.time() - self.last_progress
-            if since_last_progress > wait:  write_stdout('w')
-            time.sleep(wait)
 
     def finish(self):
-        self.progress = 0
         write_stdout('\n')
 
 ################################################################################
