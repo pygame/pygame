@@ -245,7 +245,10 @@ def upload_installer(build_result):
     installer_dist_path = glob.glob (
         normp(config.dist_path, config.package_mask))[0]
 
-    installer_filename = os.path.basename(installer_dist_path)
+    installer_filename = "%s_rev_%s_%s" % (
+        config.platform_id, config.latest_rev, 
+        os.path.basename(installer_dist_path)
+    )
 
     if build_result is not TESTS_PASSED:
         installer_filename = "failed_tests_%s" % installer_filename
@@ -254,7 +257,7 @@ def upload_installer(build_result):
     shutil.move(installer_dist_path, output_installer_path)
 
     build_info = [config.latest_rev, time.strftime("%Y-%m-%d %H:%M")]
-    
+
     for upload in ("uploading", installer_filename):
         write_file_lines(config.prebuilts_filename, build_info + [upload])
         upload_results.scp(config.prebuilts_filename)
@@ -277,8 +280,6 @@ def update_build():
 
     build_result, build_errors = parse_build_results(*build())
     build_warnings = build_warnings_html(build.output)
-
-    assert configure_build.output != build.output
 
     if build_result is BUILD_SUCCESSFUL:
         install()
