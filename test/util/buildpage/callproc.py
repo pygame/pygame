@@ -47,6 +47,7 @@ def GetReturnCodeAndOutput(cmd, dir=None, env=None, bufsize=-1, lineprintdiv=1):
         numlines += 1
         if numlines % lineprintdiv == 0:
             sys.stdout.write(".")
+            sys.stdout.flush()
         response += [line]
 
         finished = line == ""
