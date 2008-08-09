@@ -404,7 +404,7 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     PyObject* surfobj;
     PyMaskObject *maskobj;
 
-    int x, y, threshold, ashift, usethresh;
+    int x, y, threshold, ashift, aloss, usethresh;
     Uint8 *pixels;
 
     SDL_PixelFormat *format;
@@ -444,6 +444,7 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     format = surf->format;
     amask = format->Amask;
     ashift = format->Ashift;
+    aloss = format->Aloss;
     usethresh = !(surf->flags & SDL_SRCCOLORKEY);
 
     for(y=0; y < surf->h; y++) {
@@ -478,7 +479,7 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 
 
             if (usethresh) {
-                a = (color & amask) >> ashift;
+                a = ((color & amask) >> ashift) << aloss;
                 /* no colorkey, so we check the threshold of the alpha */
                 if (a > threshold) {
                     bitmask_setbit(mask, x, y);
