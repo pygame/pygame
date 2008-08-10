@@ -149,6 +149,8 @@ static void _BodyInit(PyBodyObject* body)
     body->fTorque = 0.0;
     body->shape = NULL;
     body->bStatic = 0;
+	body->fLinearVelDamping = 0.0;
+	body->fAngleVelDamping = 0.06;
     PyVector2_Set(body->vecForce,0.0,0.0);
     PyVector2_Set(body->vecImpulse,0.0,0.0);
     PyVector2_Set(body->vecLinearVelocity,0.0,0.0);
@@ -551,6 +553,7 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
     double dt)
 {
     PyVector2 totalF;
+	double k1,k2;
     if (body->bStatic)
         return;
 
@@ -558,6 +561,10 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
         PyVector2_MultiplyWithReal(gravity, body->fMass));
     body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
         PyVector2_MultiplyWithReal(totalF, dt/body->fMass));
+	k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0,1);
+	k2 = PG_Clamp(1-dt*body->fAngleVelocity,0,1);
+	body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
+	body->fAngleVelocity *= k2;
 }
 
 void PyBodyObject_FreeUpdatePos(PyBodyObject* body,double dt)

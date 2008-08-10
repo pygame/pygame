@@ -44,4 +44,13 @@ DoubleFromObj (PyObject* obj, double* val);
 PyObject*
 FromPhysicsVector2ToPoint (PyVector2 v2);
 
+/**
+* Return a clamp value between low and high value
+*
+* @param 
+* @return 
+*/
+double
+PG_Clamp(double x,double low,double high);
+
 #endif /* _PHYSICS_HELPFUNCTIONS_H_ */

@@ -129,6 +129,8 @@ typedef struct
     
     double    fRestitution;
     double    fFriction;
+	double	  fLinearVelDamping;
+	double	  fAngleVelDamping;
     
     PyObject* shape;
     

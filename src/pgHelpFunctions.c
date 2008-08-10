@@ -19,7 +19,9 @@
 */
 
 #include "pgVector2.h"
+#include <assert.h>
 #include "pgHelpFunctions.h"
+
 
 int
 DoubleFromObj (PyObject* obj, double* val)
@@ -49,4 +51,13 @@ PyObject* FromPhysicsVector2ToPoint(PyVector2 v2)
 	PyTuple_SetItem(tuple,0,xnum);
 	PyTuple_SetItem(tuple,1,ynum);
 	return tuple;
+}
+
+
+double PG_Clamp(double x,double low,double high)
+{
+	double t;
+	assert(low<high);
+	t = x<high?x:high;
+	return t>low?t:low;
 }

@@ -371,7 +371,6 @@ static void _DistanceJoint_ComputeOneDynamic (PyBodyObject* body,
 
     localP = c_diff(localP,body->vecPosition);
     k = ((PyShapeObject*)body->shape)->rInertia / body->fMass;
-    k*=2;
     k += PyVector2_GetLengthSquare(localP);
     bb = (distance - PyVector2_GetLength(L));
     PyVector2_Normalize(&L);
@@ -407,12 +406,15 @@ static void _DistanceJoint_ComputeTwoDynamic(PyDistanceJointObject* joint,
     PyVector2 localP1 = PyBodyObject_GetGlobalPos(body1,&joint->anchor1);
     PyVector2 localP2 = PyBodyObject_GetGlobalPos(body2,&joint->anchor2);
     PyVector2 L = c_diff(localP1,localP2);
+	PyVector2 eL = L;
     PyVector2 vP1 = PyBodyObject_GetLocalPointVelocity(body1,joint->anchor1);
     PyVector2 vP2 = PyBodyObject_GetLocalPointVelocity(body2,joint->anchor2);
-    PyVector2 vPL1 = PyVector2_Project(L,vP1);
-    PyVector2 vPL2 = PyVector2_Project(L,vP2);
+    PyVector2 vPL1,vPL2;
     PyVector2 dvBody1,dvBody2;
     double dAngleV1,dAngleV2;
+	PyVector2_Normalize(&eL)
+	vPL1 = PyVector2_Project(eL,vP1);
+	vPL2 = PyVector2_Project(eL,vP2);
     k1 = ((PyShapeObject*)body1->shape)->rInertia / body1->fMass;
     k2 = ((PyShapeObject*)body2->shape)->rInertia / body2->fMass;
     
