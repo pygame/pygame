@@ -111,36 +111,58 @@ void TestBasic1Init()
     PyDistanceJoint_SetAnchors (joint,a1,a2);
     PyWorld_AddJoint(s_world,joint);
 }
+
 //test collision
 void TestBasic2Init()
 {
-    int i = 0;
-    PyObject* body, *body1;
-    s_world = PyWorld_New();
-    ((PyWorldObject*)s_world)->fStepTime = 0.03;
-    PyVector2_Set(((PyWorldObject*)s_world)->vecGravity, 0, -2000.f);
+	int i = 0;
+	s_world = PG_WorldNew();
+	s_world->fStepTime = 0.03;
+	PG_Set_Vector2(s_world->vecGravity, 0, -20.f);
 
-    for(i = 0; i < 10; ++i)
-    {
-        body = PyBody_New();
-        PyVector2_Set(((PyBodyObject*)body)->vecPosition, 0, 400 - 40*i);
-        
-        ((PyBodyObject*)body)->fRotation = 0.f;
-        ((PyBodyObject*)body)->fAngleVelocity = 0.f;
-        ((PyBodyObject*)body)->fRestitution = 0.0f;
-        ((PyBodyObject*)body)->fMass = 10;
-        PyBody_SetShape (body, PyRectShape_New(30, 30, 0));
-        PyWorld_AddBody(s_world, body);
-    }
+	for(i = 0; i < 100; ++i)
+	{
+		body = PG_BodyNew();
+		PG_Set_Vector2(body->vecPosition, 0, 4200 - 40*i);
+		
+		body->fRotation = i;
+		body->fAngleVelocity = 0.f;
+		body->fRestitution = 0.0f;
+		body->fMass = 30;
+		PG_Bind_RectShape(body, 30, 30, 0);
+		PG_AddBodyToWorld(s_world, body);
+	}
 
-    body1 = PyBody_New();
-    PyVector2_Set(((PyBodyObject*)body1)->vecPosition,0, -100);
-    ((PyBodyObject*)body1)->bStatic = 1;
-    ((PyBodyObject*)body1)->fRestitution = 1.f;//for test
-    ((PyBodyObject*)body1)->fMass = 1e32;
-    ((PyBodyObject*)body1)->fRotation = 0.f;
-    PyBody_SetShape(body1, PyRectShape_New (1000, 20, 0));
-    PyWorld_AddBody(s_world, body1);
+	body1 = PG_BodyNew();
+	PG_Set_Vector2(body1->vecPosition,0, -100);
+	body1->bStatic = 1;
+	body1->fRestitution = 1.f;//for test
+	body1->fMass = 1e32;
+	body1->fRotation = 0.f;
+	PG_Bind_RectShape(body1, 1000, 20, 0);
+	PG_AddBodyToWorld(s_world, body1);
+
+}
+
+void TestBasic22Init()
+{
+	int i = 0;
+	s_world = PG_WorldNew();
+	PG_Set_Vector2(s_world->vecGravity, 0.f, -0.f);
+	
+	body = PG_BodyNew();
+	PG_Set_Vector2(body->vecPosition, -100.f, 200.f);
+	PG_Set_Vector2(body->vecLinearVelocity, 10.f, 0.f);
+	body->fMass = 1e10;
+	PG_Bind_RectShape(body, 30, 30, 0);
+	PG_AddBodyToWorld(s_world, body);
+
+	body1 = PG_BodyNew();
+	PG_Set_Vector2(body1->vecPosition, 100.f, 200.f);
+	PG_Set_Vector2(body1->vecLinearVelocity, -10.f, 0.f);
+	body1->fMass = 1e10;
+	PG_Bind_RectShape(body1, 30, 30, 0);
+	PG_AddBodyToWorld(s_world, body1);
 }
 
 void TestBasic3Init()
@@ -343,7 +365,7 @@ void TestBasic7Init()
 
 void InitWorld()
 {
-    TestBasic7Init();
+	TestBasic2Init();
 }
 
 int main (int argc, char** argv)
