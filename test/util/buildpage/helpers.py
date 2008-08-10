@@ -6,8 +6,6 @@ import sys
 import time
 import zipfile
 import webbrowser
-import threading
-import random
 
 ################################################################################
 
