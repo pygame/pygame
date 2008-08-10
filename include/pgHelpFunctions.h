@@ -35,6 +35,17 @@ int
 DoubleFromObj (PyObject* obj, double* val);
 
 /**
+ * Tries to retrieve the int value from a python object.
+ * Taken from the pygame codebase.
+ *
+ * @param obj The PyObject to get the int from.
+ * @param val Pointer to the int to store the value in.
+ * @return 0 on failure, 1 on success
+ */
+int
+IntFromObj (PyObject* obj, int* val);
+
+/**
  * Returns a two-value tuple containing floats representing the passed
  * PyVector2.
  *

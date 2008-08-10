@@ -42,6 +42,26 @@ DoubleFromObj (PyObject* obj, double* val)
     return 0;
 }
 
+int
+IntFromObj (PyObject* obj, int* val)
+{
+    PyObject* intobj;
+    long tmp;
+    
+    if (PyNumber_Check (obj))
+    {
+        if (!(intobj = PyNumber_Int (obj)))
+            return 0;
+        tmp = PyInt_AsLong (intobj);
+        Py_DECREF (intobj);
+        if (tmp == -1 && PyErr_Occurred ())
+            return 0;
+        *val = tmp;
+        return 1;
+    }
+    return 0;
+}
+
 PyObject* FromPhysicsVector2ToPoint(PyVector2 v2)
 {
 	PyObject* tuple = PyTuple_New(2);

@@ -149,8 +149,8 @@ static void _BodyInit(PyBodyObject* body)
     body->fTorque = 0.0;
     body->shape = NULL;
     body->bStatic = 0;
-	body->fLinearVelDamping = 0.0;
-	body->fAngleVelDamping = 0.06;
+    body->fLinearVelDamping = 0.0;
+    body->fAngleVelDamping = 0.06;
     PyVector2_Set(body->vecForce,0.0,0.0);
     PyVector2_Set(body->vecImpulse,0.0,0.0);
     PyVector2_Set(body->vecLinearVelocity,0.0,0.0);
@@ -403,6 +403,12 @@ static int _Body_setRestitution (PyBodyObject* body,PyObject* value,
             Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
+            if (rest < 0 || rest > 1)
+            {
+                PyErr_SetString(PyExc_ValueError,
+                    "restitution must be in the range [0,1]");
+                return -1;
+            }
             body->fRestitution = rest;
             return 0;
         }
@@ -434,6 +440,12 @@ static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure)
             Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
+            if (friction < 0)
+            {
+                PyErr_SetString(PyExc_ValueError,
+                    "friction must not be negative");
+                return -1;
+            }
             body->fFriction = friction;
             return 0;
         }
@@ -447,7 +459,9 @@ static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure)
  */
 static PyObject* _Body_getBStatic (PyBodyObject* body,void* closure)
 {
-    return PyInt_FromLong (body->bStatic);
+    if (body->bStatic)
+        Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
 }
 
 /**
@@ -553,7 +567,8 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
     double dt)
 {
     PyVector2 totalF;
-	double k1,k2;
+    double k1,k2;
+    
     if (body->bStatic)
         return;
 
@@ -561,10 +576,10 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
         PyVector2_MultiplyWithReal(gravity, body->fMass));
     body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
         PyVector2_MultiplyWithReal(totalF, dt/body->fMass));
-	k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0,1);
-	k2 = PG_Clamp(1-dt*body->fAngleVelocity,0,1);
-	body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
-	body->fAngleVelocity *= k2;
+    k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0.,1.);
+    k2 = PG_Clamp(1-dt*body->fAngleVelocity,0.,1.);
+    body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
+    body->fAngleVelocity *= k2;
 }
 
 void PyBodyObject_FreeUpdatePos(PyBodyObject* body,double dt)

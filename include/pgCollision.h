@@ -118,16 +118,6 @@ PyJointObject* Collision_ContactNew(PyBodyObject* refBody,
  *
  * @param
  * @param
- * @param
- */
-void Collision_DetectCollision(PyBodyObject* refBody, PyBodyObject* incidBody,
-    PyObject* contactList);
-
-/**
- * TODO
- *
- * @param
- * @param
  */
 void Collision_ApplyContact(PyObject* contactObject, double step);
 

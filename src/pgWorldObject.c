@@ -22,9 +22,10 @@
 #include "pgDeclare.h"
 #include "pgphysics.h"
 #include "pgVector2.h"
+#include "pgAABBBox.h"
 #include "pgBodyObject.h"
 #include "pgWorldObject.h"
-#include "pgAABBBox.h"
+#include "pgShapeObject.h"
 #include "pgCollision.h"
 #include "pgHelpFunctions.h"
 
@@ -170,7 +171,7 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
     {
         refBody = (PyBodyObject*)(PyList_GetItem(world->bodyList, i));
         refShape = (PyShapeObject*)refBody->shape;
-        refShape->UpdateAABB(refBody);
+        PyShapeObject_UpdateAABB (refShape, refBody);
     }
     
     //collision test
@@ -186,7 +187,8 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
             incShape = (PyShapeObject*)incBody->shape;
             if(AABB_IsOverlap(&(refShape->box), &(incShape->box), 1e-8))
             {
-                Collision_DetectCollision(refBody, incBody, world->contactList);
+                PyShapeObject_Collision (refShape, refBody, incBody,
+                    world->contactList);
             }
         }
     }
@@ -336,6 +338,12 @@ static PyObject* _World_update (PyWorldObject* world, PyObject* args)
     
     if (!PyArg_ParseTuple(args,"|d", &dt))
         dt = 0.1;
+    if (dt < 0)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "step time must not be smaller than 0");
+        return NULL;
+    }
     _Update (world,dt);
     Py_RETURN_NONE;
 }

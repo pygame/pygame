@@ -214,13 +214,6 @@ int Collision_PartlyLB(AABBBox* box, PyVector2* p1, PyVector2* p2,
     return *valid_p1 || *valid_p2;
 }
 
-
-void Collision_DetectCollision(PyBodyObject* refBody, PyBodyObject* incidBody,
-    PyObject* contactList)
-{
-    ((PyShapeObject*)refBody->shape)->Collision(refBody, incidBody, contactList);
-}
-
 void Collision_ApplyContact(PyObject* contactObject, double step)
 {
 #define MAX_C_DEP 0.01

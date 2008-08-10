@@ -115,54 +115,55 @@ void TestBasic1Init()
 //test collision
 void TestBasic2Init()
 {
-	int i = 0;
-	s_world = PG_WorldNew();
-	s_world->fStepTime = 0.03;
-	PG_Set_Vector2(s_world->vecGravity, 0, -20.f);
-
-	for(i = 0; i < 100; ++i)
-	{
-		body = PG_BodyNew();
-		PG_Set_Vector2(body->vecPosition, 0, 4200 - 40*i);
-		
-		body->fRotation = i;
-		body->fAngleVelocity = 0.f;
-		body->fRestitution = 0.0f;
-		body->fMass = 30;
-		PG_Bind_RectShape(body, 30, 30, 0);
-		PG_AddBodyToWorld(s_world, body);
-	}
-
-	body1 = PG_BodyNew();
-	PG_Set_Vector2(body1->vecPosition,0, -100);
-	body1->bStatic = 1;
-	body1->fRestitution = 1.f;//for test
-	body1->fMass = 1e32;
-	body1->fRotation = 0.f;
-	PG_Bind_RectShape(body1, 1000, 20, 0);
-	PG_AddBodyToWorld(s_world, body1);
-
+    PyObject *body, *body1;
+    int i = 0;
+    s_world = PyWorld_New();
+    ((PyWorldObject*)s_world)->fStepTime = 0.03;
+    PyVector2_Set(((PyWorldObject*)s_world)->vecGravity, 0, -1.f);
+    
+    for(i = 0; i < 100; ++i)
+    {
+        body = PyBody_New();
+        PyVector2_Set(((PyBodyObject*)body)->vecPosition, 0, 4200 - 40*i);
+	
+        ((PyBodyObject*)body)->fRotation = i;
+        ((PyBodyObject*)body)->fAngleVelocity = 0.f;
+        ((PyBodyObject*)body)->fRestitution = 0.0f;
+        ((PyBodyObject*)body)->fMass = 30;
+        PyBody_SetShape (body, PyRectShape_New (30, 30, 0));
+        PyWorld_AddBody(s_world, body);
+    }
+    
+    body1 = PyBody_New();
+    PyVector2_Set(((PyBodyObject*)body1)->vecPosition,0, -100);
+    ((PyBodyObject*)body1)->bStatic = 1;
+    ((PyBodyObject*)body1)->fRestitution = 1.0f;//for test
+    ((PyBodyObject*)body1)->fMass = 1e32;
+    ((PyBodyObject*)body1)->fRotation = 0.f;
+    PyBody_SetShape (body1, PyRectShape_New (1000, 20, 0));
+    PyWorld_AddBody(s_world, body1);
 }
 
 void TestBasic22Init()
 {
-	int i = 0;
-	s_world = PG_WorldNew();
-	PG_Set_Vector2(s_world->vecGravity, 0.f, -0.f);
-	
-	body = PG_BodyNew();
-	PG_Set_Vector2(body->vecPosition, -100.f, 200.f);
-	PG_Set_Vector2(body->vecLinearVelocity, 10.f, 0.f);
-	body->fMass = 1e10;
-	PG_Bind_RectShape(body, 30, 30, 0);
-	PG_AddBodyToWorld(s_world, body);
-
-	body1 = PG_BodyNew();
-	PG_Set_Vector2(body1->vecPosition, 100.f, 200.f);
-	PG_Set_Vector2(body1->vecLinearVelocity, -10.f, 0.f);
-	body1->fMass = 1e10;
-	PG_Bind_RectShape(body1, 30, 30, 0);
-	PG_AddBodyToWorld(s_world, body1);
+    PyObject *body, *body1;
+    int i = 0;
+    s_world = PyWorld_New();
+    PyVector2_Set(((PyWorldObject*)s_world)->vecGravity, 0.f, -0.f);
+    
+    body = PyBody_New();
+    PyVector2_Set(((PyBodyObject*)body)->vecPosition, -100.f, 200.f);
+    PyVector2_Set(((PyBodyObject*)body)->vecLinearVelocity, 10.f, 0.f);
+    ((PyBodyObject*)body)->fMass = 1e10;
+    PyBody_SetShape (body, PyRectShape_New(30, 30, 0));
+    PyWorld_AddBody(s_world, body);
+    
+    body1 = PyBody_New();
+    PyVector2_Set(((PyBodyObject*)body1)->vecPosition, 100.f, 200.f);
+    PyVector2_Set(((PyBodyObject*)body1)->vecLinearVelocity, -10.f, 0.f);
+    ((PyBodyObject*)body1)->fMass = 1e10;
+    PyBody_SetShape (body1, PyRectShape_New(30, 30, 0));
+    PyWorld_AddBody(s_world, body1);
 }
 
 void TestBasic3Init()
@@ -254,8 +255,8 @@ void TestBasic5Init()
     ((PyWorldObject*)s_world)->fStepTime = 0.03;
     PyVector2_Set(((PyWorldObject*)s_world)->vecGravity,0,10);
 
-	for (i = 0;i < BODY_NUM;i++)
-	{
+    for (i = 0;i < BODY_NUM;i++)
+    {
         body[i] = PyBody_New();
         if (i != BODY_NUM - 1)
         {
@@ -267,12 +268,12 @@ void TestBasic5Init()
         }
         //PyVector2_Set(((PyBodyObject*)body[i])->vecLinearVelocity,50,0)
         PyWorld_AddBody(s_world,body[i]);
-	}
+    }
     PyVector2_Set(((PyBodyObject*)body[0])->vecPosition,200,0);
-	PyVector2_Set(((PyBodyObject*)body[1])->vecPosition,200,100);
-	PyVector2_Set(((PyBodyObject*)body[2])->vecPosition,300,200);
-	PyVector2_Set(((PyBodyObject*)body[3])->vecPosition,300,200);
-	((PyBodyObject*)body[0])->bStatic = 1;
+    PyVector2_Set(((PyBodyObject*)body[1])->vecPosition,200,100);
+    PyVector2_Set(((PyBodyObject*)body[2])->vecPosition,300,200);
+    PyVector2_Set(((PyBodyObject*)body[3])->vecPosition,300,200);
+    ((PyBodyObject*)body[0])->bStatic = 1;
     ((PyBodyObject*)body[3])->bStatic = 1;
 
     //PyVector2_Set(((PyBodyObject*)body[BODY_NUM])->vecLinearVelocity,20,60);
@@ -299,20 +300,20 @@ void TestBasic6Init()
     ((PyWorldObject*)s_world)->fStepTime = 0.03;
     PyVector2_Set(((PyWorldObject*)s_world)->vecGravity,0,0);
 
-	body[0] = PyBody_New();
+    body[0] = PyBody_New();
     PyBody_SetShape (body[0], PyRectShape_New (20, 20, 0));
-    PyVector2_Set(((PyBodyObject*)body[0])->vecPosition,-50,0)
-	PyWorld_AddBody(s_world,body[0]);
+    PyVector2_Set(((PyBodyObject*)body[0])->vecPosition,-50,0);
+    PyWorld_AddBody(s_world,body[0]);
 
     body[1] = PyBody_New();
     PyBody_SetShape (body[1], PyRectShape_New (20, 20, 0));
     PyVector2_Set(((PyBodyObject*)body[1])->vecPosition,50,0);
-	PyWorld_AddBody(s_world,body[1]);
+    PyWorld_AddBody(s_world,body[1]);
 
     PyVector2_Set(((PyBodyObject*)body[0])->vecLinearVelocity,0,0);
-	PyVector2_Set(((PyBodyObject*)body[1])->vecLinearVelocity,0,0);
+    PyVector2_Set(((PyBodyObject*)body[1])->vecLinearVelocity,0,0);
 
-	joint = PyDistanceJoint_New(body[0],body[1],0);
+    joint = PyDistanceJoint_New(body[0],body[1],0);
     PyDistanceJoint_SetAnchors (joint,a1, a2);
     PyWorld_AddJoint(s_world,joint);
 }
@@ -330,32 +331,32 @@ void TestBasic7Init()
     ((PyWorldObject*)s_world)->fStepTime = 0.03;
     PyVector2_Set(((PyWorldObject*)s_world)->vecGravity,0,-.1);
 
-	body[0] = PyBody_New();
+    body[0] = PyBody_New();
     //((PyBodyObject*)body[0])->bStatic = 1;
     PyBody_SetShape (body[0], PyRectShape_New (20, 20, 0));
-    PyVector2_Set(((PyBodyObject*)body[0])->vecPosition,10,200)
-	PyWorld_AddBody(s_world,body[0]);
+    PyVector2_Set(((PyBodyObject*)body[0])->vecPosition,10,200);
+    PyWorld_AddBody(s_world,body[0]);
 
     body[1] = PyBody_New();
     ((PyBodyObject*)body[1])->bStatic = 1;
     PyBody_SetShape (body[1], PyRectShape_New (20, 20, 0));
     PyVector2_Set(((PyBodyObject*)body[1])->vecPosition,0,100);
-	PyWorld_AddBody(s_world,body[1]);
+    PyWorld_AddBody(s_world,body[1]);
 
     body[2] = PyBody_New();
     PyBody_SetShape (body[2], PyRectShape_New (20, 20, 0));
     PyVector2_Set(((PyBodyObject*)body[2])->vecPosition,0,0);
-	PyWorld_AddBody(s_world,body[2]);
+    PyWorld_AddBody(s_world,body[2]);
 
     PyVector2_Set(((PyBodyObject*)body[0])->vecLinearVelocity,0,0);
-	PyVector2_Set(((PyBodyObject*)body[1])->vecLinearVelocity,0,0);
+    PyVector2_Set(((PyBodyObject*)body[1])->vecLinearVelocity,0,0);
     PyVector2_Set(((PyBodyObject*)body[2])->vecLinearVelocity,0,0);
 
-	joint = PyDistanceJoint_New(body[0],body[1],0);
+    joint = PyDistanceJoint_New(body[0],body[1],0);
     PyDistanceJoint_SetAnchors (joint,a1, a2);
     PyWorld_AddJoint(s_world,joint);
     
-	joint = PyDistanceJoint_New(body[1],body[2],0);
+    joint = PyDistanceJoint_New(body[1],body[2],0);
     PyDistanceJoint_SetAnchors (joint,a1, a2);
     PyWorld_AddJoint(s_world,joint);
 }
@@ -365,7 +366,7 @@ void TestBasic7Init()
 
 void InitWorld()
 {
-	TestBasic2Init();
+    TestBasic2Init();
 }
 
 int main (int argc, char** argv)
@@ -375,14 +376,14 @@ int main (int argc, char** argv)
     glutInitWindowSize(WIDTH, HEIGHT);
     glutCreateWindow("test physics");
     
-	Py_Initialize();
+    Py_Initialize();
     if (import_physics () == -1)
-	{
-		// Needed for the glut threading.
-		Py_Finalize();
+    {
+        // Needed for the glut threading.
+        Py_Finalize();
         return 0;
-	}
-	InitWorld();
+    }
+    InitWorld();
     InitGL();
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);

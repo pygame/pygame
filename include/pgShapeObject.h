@@ -21,6 +21,13 @@
 #ifndef _PHYSICS_SHAPE_H_
 #define _PHYSICS_SHAPE_H_
 
+#include "pgphysics.h"
+
+int PyShapeObject_UpdateAABB (PyShapeObject *shape, PyBodyObject *refbody);
+
+int PyShapeObject_Collision (PyShapeObject *shape, PyBodyObject *refbody,
+    PyBodyObject *incbody, PyObject *contactlist);
+
 /**
  * Python C API export hook
  *
