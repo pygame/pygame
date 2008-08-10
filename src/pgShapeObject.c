@@ -36,15 +36,235 @@ static void _RectShape_InitInternal (PyRectShapeObject *shape, double width,
     double height, double seta);
 static PyObject* _RectShapeNew(PyTypeObject *type, PyObject *args, PyObject *kwds);
 
-static int _Get_Depth(PyBodyObject* refBody, PyBodyObject* incBody,
-    int* faceId, double* min_dep, PyVector2* gp_in_ref, AABBBox* clipBox);
-static int _SAT_Select(PyBodyObject* body1, PyBodyObject* body2,
-    PyBodyObject** refBody, PyBodyObject** incBody,
-    int* face_id, PyVector2* gp_in_ref, AABBBox* clipBox, double* minDep);
-static int _Build_Contacts(PyVector2* gp, AABBBox* clipBox, int axis,
-    PyVector2 contacts[], int* size);
+
 static int _RectShapeCollision(PyBodyObject* selfBody,
     PyBodyObject* incidBody, PyObject* contactList);
+
+
+/* collision test for RectShape */
+
+#define MAX_CONTACTS 16
+
+typedef struct _Candidate_
+{
+	PyVector2 normal;
+	PyVector2 contacts[MAX_CONTACTS];
+	double kFactors[MAX_CONTACTS];
+	int contact_size;
+	double min_depth;
+}_Candidate;
+
+
+static int _ClipTest(AABBBox* box, PyVector2* points, _Candidate* candi)
+{
+	int  i, i1;
+	int apart;
+	PyVector2 pf, pt;
+	int has_ip[4];
+
+	memset(has_ip, 0, sizeof(has_ip));
+	apart = 1;
+	candi->contact_size = 0;
+	for(i = 0; i < 4; ++i)
+	{
+		i1 = (i + 1)%4;
+		if(Collision_LiangBarskey(box, &points[i], &points[i1], &pf, &pt))
+		{
+			apart = 0;
+			if(PyVector2_Equal(&pf, &points[i]))
+				has_ip[i] = 1;
+			else
+				candi->contacts[candi->contact_size++] = pf;
+
+			if(PyVector2_Equal(&pt, &points[i1]))
+				has_ip[i1] = 1;
+			else
+				candi->contacts[candi->contact_size++] = pt;
+		}
+	}
+
+	if(apart) return 0;
+
+	for(i = 0; i < 4; ++i)
+		if(has_ip[i])
+			candi->contacts[candi->contact_size++] = points[i];
+
+	return 1;
+
+}
+
+static void _SATFindCollisionProperty(PyBodyObject* selfBody, PyBodyObject* incBody, 
+							 AABBBox* selfBox, AABBBox* incBox, _Candidate *candi,
+							 PyBodyObject** ans_ref, PyBodyObject** ans_inc)
+{
+	int i, k;
+	double deps[4];
+	double min_dep[2];
+	int face_id[2];
+	PyVector2 conts[2][MAX_CONTACTS];
+	AABBBox* box[2];
+	PyBodyObject* self[2], * inc[2];
+	PyVector2 refR, incidR;
+	int size;
+	double tmp1, tmp2;
+		
+	for(i = 0; i < candi->contact_size; ++i)
+	{
+		conts[0][i] = candi->contacts[i];
+		conts[1][i] = PyBodyObject_GetRelativePos(incBody, selfBody, &conts[0][i]);
+	}
+	box[0] = selfBox;
+	box[1] = incBox;
+	self[0] = inc[1] = selfBody;
+	inc[0] = self[1] = incBody;
+
+	for(k = 0; k <= 1; ++k)
+	{
+		memset(deps, 0, sizeof(deps));
+		for(i = 0; i < candi->contact_size; ++i)
+		{
+			deps[CF_LEFT] += fabs(conts[k][i].real - box[k]->left);
+			deps[CF_RIGHT] += fabs(box[k]->right - conts[k][i].real);
+			deps[CF_BOTTOM] += fabs(conts[k][i].imag - box[k]->bottom);
+			deps[CF_TOP] += fabs(box[k]->top - conts[k][i].imag);
+		}
+
+		min_dep[k] = DBL_MAX;
+		for(i = CF_LEFT; i <= CF_TOP; ++i)
+			if(min_dep[k] > deps[i])
+			{
+				face_id[k] = i;
+				min_dep[k] = deps[i];
+			}
+	}
+
+	//now select min depth one
+	k = min_dep[0] < min_dep[1] ? 0 : 1;
+
+	candi->min_depth = min_dep[k];
+	size = candi->contact_size;
+	candi->contact_size = 0;
+	switch(face_id[k])
+	{
+	case CF_LEFT:
+		PyVector2_Set(candi->normal, -1, 0);
+		for(i = 0; i < size; ++i)
+			if(!PyMath_IsNearEqual(conts[k][i].real, box[k]->left))
+				candi->contacts[candi->contact_size++] = conts[k][i];
+		break;
+	case CF_RIGHT:
+		PyVector2_Set(candi->normal, 1, 0);
+		for(i = 0; i < size; ++i)
+			if(!PyMath_IsNearEqual(conts[k][i].real, box[k]->right))
+				candi->contacts[candi->contact_size++] = conts[k][i];
+		break;
+	case CF_BOTTOM:
+		PyVector2_Set(candi->normal, 0, -1);
+		for(i = 0; i < size; ++i)
+			if(!PyMath_IsNearEqual(conts[k][i].imag, box[k]->bottom))
+				candi->contacts[candi->contact_size++] = conts[k][i];
+		break;
+	case CF_TOP:
+		PyVector2_Set(candi->normal, 0, 1);
+		for(i = 0; i < size; ++i)
+			if(!PyMath_IsNearEqual(conts[k][i].imag, box[k]->top))
+				candi->contacts[candi->contact_size++] = conts[k][i];		
+		break;
+	default:
+		assert(0);
+	}
+	
+	//translate to global coordinate
+	PyVector2_Rotate(&(candi->normal), self[k]->fRotation);
+	for(i = 0; i < candi->contact_size; ++i)
+	{
+		PyVector2_Rotate(&(candi->contacts[i]), self[k]->fRotation);
+		candi->contacts[i] = c_sum(candi->contacts[i], self[k]->vecPosition);
+		//precompute kFactor
+		refR = c_diff(candi->contacts[i], self[k]->vecPosition);
+		incidR = c_diff(candi->contacts[i], inc[k]->vecPosition);
+		tmp1 = PyVector2_Dot(PyVector2_fCross(PyVector2_Cross(refR, candi->normal), refR), candi->normal)
+			 /((PyShapeObject*)self[k]->shape)->rInertia;
+		tmp2 = PyVector2_Dot(PyVector2_fCross(PyVector2_Cross(incidR, candi->normal), incidR), candi->normal)
+			 /((PyShapeObject*)inc[k]->shape)->rInertia;
+
+		candi->kFactors[i] = 1/self[k]->fMass + 1/inc[k]->fMass + tmp1 + tmp2;
+	}
+
+	*ans_ref = self[k];
+	*ans_inc = inc[k];
+
+}
+
+static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody, 
+							   PyObject* contactList)
+{
+	
+	//PyVector2 p_in_self[4];
+	//PyVector2 p_in_inc[4];
+	//pgAABBBox box_self, box_inc;
+	//int i;
+	//pgRectShape * self, * inc;
+	//_Candidate candi;
+	//pgContact* contact;
+	//PyVector2 * pAcc, * pSplitAcc;
+	//pgBodyObject* ans_ref, * ans_inc;
+
+	//
+	//self = (pgRectShape*)selfBody->shape;
+	//inc = (pgRectShape*)incidBody->shape;
+
+	//for(i = 0; i < 4; ++i)
+	//{
+	//	p_in_self[i] = PG_GetRelativePos(selfBody, incidBody, &(inc->point[i]));
+	//	p_in_inc[i] = PG_GetRelativePos(incidBody, selfBody, &(self->point[i]));
+	//}
+
+	//box_self = PG_GenAABB(self->bottomLeft.real, self->topRight.real,
+	//	self->bottomLeft.imag, self->topRight.imag);
+	//box_inc = PG_GenAABB(inc->bottomLeft.real, inc->topRight.real,
+	//	inc->bottomLeft.imag, inc->topRight.imag);
+
+	//if(!_ClipTest(&box_self, p_in_self, &candi)) return 0;
+
+	//for(i = 0; i < 4; ++i)
+	//	if(PG_IsIn(&p_in_inc[i], &box_inc, 0.f))
+	//		candi.contacts[candi.contact_size++] = self->point[i];
+
+	//_SATFindCollisionProperty(selfBody, incidBody, &box_self, &box_inc, &candi, &ans_ref, &ans_inc);
+
+	//
+	//pAcc = PyObject_Malloc(sizeof(PyVector2));
+	//pAcc->real = pAcc->imag = 0;
+	//pSplitAcc = PyObject_Malloc(sizeof(PyVector2));
+	//pSplitAcc->real = pSplitAcc->imag = 0;
+	//for(i = 0; i < candi.contact_size; ++i)
+	//{
+	//	contact = (pgContact*)PG_ContactNew(ans_ref, ans_inc);
+	//	contact->pos = candi.contacts[i];
+	//	contact->normal = candi.normal;
+
+	//	contact->ppAccMoment = PyObject_Malloc(sizeof(PyVector2*));
+	//	*(contact->ppAccMoment) = pAcc;
+	//	contact->ppSplitAccMoment = PyObject_Malloc(sizeof(PyVector2*));
+	//	*(contact->ppSplitAccMoment) = pSplitAcc;
+
+	//	contact->weight = candi.contact_size;
+	//	contact->depth = candi.min_depth;
+	//	contact->kFactor = candi.kFactors[i];
+
+	//	PyList_Append(contactList, (PyObject*)contact);
+	//}
+
+	return 1;
+}
+
+
+#undef MAX_CONTACTS
+
+
+
+
 
 /* C API */
 static PyObject *PyShape_New (void);
@@ -235,271 +455,6 @@ static PyObject* _RectShapeNew(PyTypeObject *type, PyObject *args,
     return (PyObject*)shape;
 }
 
-static int _Get_Depth(PyBodyObject* refBody, PyBodyObject* incBody,
-    int* faceId, double* min_dep, PyVector2* gp_in_ref, AABBBox* clipBox)
-{
-#define _EPS_DEPTH 1e-2
-
-    int i, apart;
-    PyRectShapeObject *ref, *inc;
-    double deps[4];
-
-    ref = (PyRectShapeObject*)refBody->shape;
-    inc = (PyRectShapeObject*)incBody->shape;
-    memset(gp_in_ref, 0, sizeof(gp_in_ref));
-    memset(deps, 0, sizeof(deps));
-    
-    gp_in_ref[0] = PyBodyObject_GetRelativePos(refBody, incBody,
-        &(inc->bottomleft));
-    gp_in_ref[1] = PyBodyObject_GetRelativePos(refBody, incBody,
-        &(inc->bottomright));
-    gp_in_ref[2] = PyBodyObject_GetRelativePos(refBody, incBody,
-        &(inc->topright));
-    gp_in_ref[3] = PyBodyObject_GetRelativePos(refBody, incBody,
-        &(inc->topleft));
-
-    *clipBox = AABB_Gen(ref->bottomleft.real, ref->topright.real,
-        ref->bottomleft.imag, ref->topright.imag);
-
-    apart = 1;
-    for(i = 0; i < 4; ++i)
-        if(AABB_IsIn(&gp_in_ref[i], clipBox, _EPS_DEPTH))
-        {
-            apart = 0;
-            deps[CF_LEFT] += fabs(gp_in_ref[i].real - clipBox->left);
-            deps[CF_RIGHT] += fabs(clipBox->right - gp_in_ref[i].real);
-            deps[CF_BOTTOM] += fabs(gp_in_ref[i].imag - clipBox->bottom);
-            deps[CF_TOP] += fabs(clipBox->top - gp_in_ref[i].imag);
-        }
-
-    if(apart) return 0;
-
-    *min_dep = deps[0];
-    *faceId = 0;
-
-    for(i = 1; i < 4; ++i)
-        if(deps[i] < *min_dep)
-        {
-            *min_dep = deps[i];
-            *faceId = i;
-        }
-
-    return 1;
-}
-
-static int _SAT_Select(PyBodyObject* body1, PyBodyObject* body2,
-    PyBodyObject** refBody, PyBodyObject** incBody,
-    int* face_id, PyVector2* gp_in_ref, AABBBox* clipBox, double* minDep)
-{
-    double min_dep[2];
-    int id[2];
-    PyVector2 gp[2][4];
-    AABBBox cb[2];
-    int is_in[2];
-    int i;
-	
-    min_dep[0] = min_dep[1] = DBL_MAX;
-    is_in[0] = _Get_Depth(body1, body2, &id[0], &min_dep[0], gp[0], &cb[0]);
-    is_in[1] = _Get_Depth(body2, body1, &id[1], &min_dep[1], gp[1], &cb[1]);
-
-    if(!is_in[0] && !is_in[1]) return 0;
-
-    if(min_dep[0] < min_dep[1])
-    {
-        *refBody = body1;
-        *incBody = body2;
-        *face_id = id[0];
-        for(i = 0; i < 4; ++i)
-            gp_in_ref[i] = gp[0][i];
-        *clipBox = cb[0];
-        *minDep = min_dep[0];
-    }
-    else
-    {
-        *refBody = body2;
-        *incBody = body1;
-        *face_id = id[1];
-        for(i = 0; i < 4; ++i)
-            gp_in_ref[i] = gp[1][i];
-        *clipBox = cb[1];
-        *minDep = min_dep[1];
-    }
-
-    return 1;
-}
-
-static int _Build_Contacts(PyVector2* gp, AABBBox* clipBox, int axis,
-    PyVector2 contacts[], int* size)
-{
-    int i, i1;
-    int apart = 1;
-    int has_ip[4];
-    PyVector2 pf, pt;
-    int valid_pf, valid_pt;
-
-    *size = 0;
-    memset(has_ip, 0, sizeof(has_ip));
-
-    for(i = 0; i < 4; ++i)
-    {
-        i1 = (i+1)%4;
-        if(Collision_PartlyLB(clipBox, &gp[i], &gp[i1], axis, 
-                &pf, &pt, &valid_pf, &valid_pt))
-        {
-            apart = 0;
-            if(valid_pf)
-            {
-                if(PyVector2_Equal(&pf, &gp[i]))
-                    has_ip[i] = 1;
-                else
-                {
-                    //assert(0);
-                    contacts[(*size)++] = pf;
-                }
-            }
-            if(valid_pt)
-            {
-                if(PyVector2_Equal(&pt, &gp[i1]))
-                    has_ip[i1] = 1;
-                else
-                {
-                    //assert(0);
-                    contacts[(*size)++] = pt;
-                }
-            }
-        }
-    }
-    for(i = 0; i < 4; ++i)
-        if(has_ip[i])
-        {
-            //assert(0);
-            contacts[(*size)++] = gp[i];
-        }
-
-    return !apart;
-}
-
-static int _RectShapeCollision(PyBodyObject* selfBody,
-    PyBodyObject* incidBody, PyObject* contactList)
-{
-#define MAX_CONTACTS 8
-
-    PyBodyObject* ref = NULL, *inc = NULL;
-    int face_id;
-    PyVector2 gp[4];
-    PyVector2 contacts[MAX_CONTACTS];
-    int csize = 0;
-    PyVector2 normal = { 0, 0 };
-    AABBBox clipBox;
-    int overlap;
-    PyVector2* pAcc, * pSplitAcc;
-    PyContact* contact;
-    int i;
-    double minDep;
-    PyVector2 refR, incidR;
-    double tmp1, tmp2;
-
-    //for test
-    PyVector2 tgp[4];
-
-
-    overlap = _SAT_Select(selfBody, incidBody,
-        &ref, &inc, &face_id, gp, &clipBox, &minDep);
-
-    if(!overlap) return 0;
-
-    switch(face_id)
-    {
-    case CF_LEFT:
-        PyVector2_Set (normal, -1, 0);
-        _Build_Contacts(gp, &clipBox, CA_X, contacts, &csize);
-        break;
-    case CF_BOTTOM:
-        PyVector2_Set (normal, 0, -1);
-        _Build_Contacts(gp, &clipBox, CA_Y, contacts, &csize);
-        break;
-    case CF_RIGHT:
-        PyVector2_Set (normal, 1, 0);
-        _Build_Contacts(gp, &clipBox, CA_X, contacts, &csize);
-        break;
-    case CF_TOP:
-        PyVector2_Set (normal, 0, 1);
-        _Build_Contacts(gp, &clipBox, CA_Y, contacts, &csize);
-        break;
-    default:
-        assert(0);
-        break;
-    }
-
-    //for test
-/*
-  for(i = 0; i < 4; ++i)
-  tgp[i] = PG_GetGlobalPos(ref, &(((pgRectShape*)ref->shape)->point[i]));
-  glColor3f(1.f, 0.0f, 0.5f);
-  glBegin(GL_LINES);
-  switch(face_id)
-  {
-  case CF_LEFT:
-  glVertex2f(tgp[0].real, tgp[0].imag);
-  glVertex2f(tgp[3].real, tgp[3].imag);
-  break;
-  case CF_RIGHT:
-  glVertex2f(tgp[1].real, tgp[1].imag);
-  glVertex2f(tgp[2].real, tgp[2].imag);
-  break;
-  case CF_TOP:
-  glVertex2f(tgp[2].real, tgp[2].imag);
-  glVertex2f(tgp[3].real, tgp[3].imag);
-  break;
-  case CF_BOTTOM:
-  glVertex2f(tgp[0].real, tgp[0].imag);
-  glVertex2f(tgp[1].real, tgp[1].imag);
-  break;
-  default:
-  break;
-  }
-  glEnd();
-*/
-
-    pAcc = PyObject_Malloc(sizeof(PyVector2));
-    pAcc->real = pAcc->imag = 0;
-    pSplitAcc = PyObject_Malloc(sizeof(PyVector2));
-    pSplitAcc->real = pSplitAcc->imag = 0;
-
-    //for test
-    //printf("face id: %d; csize: %d\n", face_id, csize);
-
-    for(i = 0; i < csize; ++i)
-    {
-        contact = (PyContact*) PyContact_New(ref, inc);
-        contact->pos = contacts[i];
-        contact->normal = normal;
-        PyVector2_Rotate(&(contact->pos), ref->fRotation);
-        contact->pos = c_sum(contact->pos, ref->vecPosition);
-        PyVector2_Rotate(&(contact->normal), ref->fRotation);
-
-        contact->ppAccMoment = PyObject_Malloc(sizeof(PyVector2*));
-        *(contact->ppAccMoment) = pAcc;
-        contact->ppSplitAccMoment = PyObject_Malloc(sizeof(PyVector2*));
-        *(contact->ppSplitAccMoment) = pSplitAcc;
-
-        contact->weight = csize;
-        contact->depth = minDep;
-
-        //precompute kFactor
-        refR = c_diff(contact->pos, selfBody->vecPosition);
-        incidR = c_diff(contact->pos, incidBody->vecPosition);
-        tmp1 = PyVector2_Dot(PyVector2_fCross(PyVector2_Cross(refR, contact->normal), refR), contact->normal)
-            /((PyShapeObject*)selfBody->shape)->rInertia;
-        tmp2 = PyVector2_Dot(PyVector2_fCross(PyVector2_Cross(incidR, contact->normal), incidR), contact->normal)
-            /((PyShapeObject*)incidBody->shape)->rInertia;
-
-        contact->kFactor = 1/selfBody->fMass + 1/incidBody->fMass + tmp1 + tmp2;
-        PyList_Append(contactList, (PyObject*)contact);
-    }
-    return 1;
-}
-
 /* C API */
 static PyObject *PyShape_New (void)
 {
@@ -521,3 +476,4 @@ void PyShapeObject_ExportCAPI (void **c_api)
     c_api[PHYSICS_SHAPE_FIRSTSLOT + 2] = &PyRectShape_Type;
     c_api[PHYSICS_SHAPE_FIRSTSLOT + 3] = &PyRectShape_New;
 }
+
