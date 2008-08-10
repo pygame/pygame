@@ -20,6 +20,7 @@
 
 #define PHYSICS_SHAPE_INTERNAL
 #include <float.h>
+#include <assert.h>
 #include "pgDeclare.h"
 #include "pgAABBBox.h"
 #include "pgVector2.h"
@@ -200,61 +201,72 @@ static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody,
 							   PyObject* contactList)
 {
 	
-	//PyVector2 p_in_self[4];
-	//PyVector2 p_in_inc[4];
-	//pgAABBBox box_self, box_inc;
-	//int i;
-	//pgRectShape * self, * inc;
-	//_Candidate candi;
-	//pgContact* contact;
-	//PyVector2 * pAcc, * pSplitAcc;
-	//pgBodyObject* ans_ref, * ans_inc;
+	PyVector2 p_in_self[4], p_in_inc[4];
+	AABBBox box_self, box_inc;
+	int i;
+	PyRectShapeObject * self, * inc;
+	_Candidate candi;
+	PyContact* contact;
+	PyVector2 * pAcc, * pSplitAcc;
+	PyBodyObject* ans_ref, * ans_inc;
 
-	//
-	//self = (pgRectShape*)selfBody->shape;
-	//inc = (pgRectShape*)incidBody->shape;
+	
+	self = (PyRectShapeObject*)selfBody->shape;
+	inc = (PyRectShapeObject*)incidBody->shape;
 
-	//for(i = 0; i < 4; ++i)
-	//{
-	//	p_in_self[i] = PG_GetRelativePos(selfBody, incidBody, &(inc->point[i]));
-	//	p_in_inc[i] = PG_GetRelativePos(incidBody, selfBody, &(self->point[i]));
-	//}
+	p_in_self[0] = PyBodyObject_GetRelativePos(selfBody, incidBody, &(inc->bottomleft));
+	p_in_self[1] = PyBodyObject_GetRelativePos(selfBody, incidBody, &(inc->bottomright));
+	p_in_self[2] = PyBodyObject_GetRelativePos(selfBody, incidBody, &(inc->topright));
+	p_in_self[3] = PyBodyObject_GetRelativePos(selfBody, incidBody, &(inc->topleft));
+	
+	p_in_inc[0] = PyBodyObject_GetRelativePos(incidBody, selfBody, &(self->bottomleft));
+	p_in_inc[1] = PyBodyObject_GetRelativePos(incidBody, selfBody, &(self->bottomright));
+	p_in_inc[2] = PyBodyObject_GetRelativePos(incidBody, selfBody, &(self->topright));
+	p_in_inc[3] = PyBodyObject_GetRelativePos(incidBody, selfBody, &(self->topleft));
 
-	//box_self = PG_GenAABB(self->bottomLeft.real, self->topRight.real,
-	//	self->bottomLeft.imag, self->topRight.imag);
-	//box_inc = PG_GenAABB(inc->bottomLeft.real, inc->topRight.real,
-	//	inc->bottomLeft.imag, inc->topRight.imag);
 
-	//if(!_ClipTest(&box_self, p_in_self, &candi)) return 0;
+	box_self = AABB_Gen(self->bottomleft.real, self->topright.real,
+		self->bottomleft.imag, self->topright.imag);
+	box_inc = AABB_Gen(inc->bottomleft.real, inc->topright.real,
+		inc->bottomleft.imag, inc->topright.imag);
 
-	//for(i = 0; i < 4; ++i)
-	//	if(PG_IsIn(&p_in_inc[i], &box_inc, 0.f))
-	//		candi.contacts[candi.contact_size++] = self->point[i];
+	if(!_ClipTest(&box_self, p_in_self, &candi)) return 0;
 
-	//_SATFindCollisionProperty(selfBody, incidBody, &box_self, &box_inc, &candi, &ans_ref, &ans_inc);
+	assert(0);
 
-	//
-	//pAcc = PyObject_Malloc(sizeof(PyVector2));
-	//pAcc->real = pAcc->imag = 0;
-	//pSplitAcc = PyObject_Malloc(sizeof(PyVector2));
-	//pSplitAcc->real = pSplitAcc->imag = 0;
-	//for(i = 0; i < candi.contact_size; ++i)
-	//{
-	//	contact = (pgContact*)PG_ContactNew(ans_ref, ans_inc);
-	//	contact->pos = candi.contacts[i];
-	//	contact->normal = candi.normal;
+	if(AABB_IsIn(&p_in_inc[0], &box_inc, 0.f))
+		candi.contacts[candi.contact_size++] = self->bottomleft;
+	if(AABB_IsIn(&p_in_inc[1], &box_inc, 0.f))
+		candi.contacts[candi.contact_size++] = self->bottomright;
+	if(AABB_IsIn(&p_in_inc[2], &box_inc, 0.f))
+		candi.contacts[candi.contact_size++] = self->topright;
+	if(AABB_IsIn(&p_in_inc[3], &box_inc, 0.f))
+		candi.contacts[candi.contact_size++] = self->topleft;
 
-	//	contact->ppAccMoment = PyObject_Malloc(sizeof(PyVector2*));
-	//	*(contact->ppAccMoment) = pAcc;
-	//	contact->ppSplitAccMoment = PyObject_Malloc(sizeof(PyVector2*));
-	//	*(contact->ppSplitAccMoment) = pSplitAcc;
+	_SATFindCollisionProperty(selfBody, incidBody, &box_self, &box_inc, &candi, &ans_ref, &ans_inc);
 
-	//	contact->weight = candi.contact_size;
-	//	contact->depth = candi.min_depth;
-	//	contact->kFactor = candi.kFactors[i];
+	
+	pAcc = PyObject_Malloc(sizeof(PyVector2));
+	pAcc->real = pAcc->imag = 0;
+	pSplitAcc = PyObject_Malloc(sizeof(PyVector2));
+	pSplitAcc->real = pSplitAcc->imag = 0;
+	for(i = 0; i < candi.contact_size; ++i)
+	{
+		contact = (PyContact*)PyContact_New(ans_ref, ans_inc);
+		contact->pos = candi.contacts[i];
+		contact->normal = candi.normal;
 
-	//	PyList_Append(contactList, (PyObject*)contact);
-	//}
+		contact->ppAccMoment = PyObject_Malloc(sizeof(PyVector2*));
+		*(contact->ppAccMoment) = pAcc;
+		contact->ppSplitAccMoment = PyObject_Malloc(sizeof(PyVector2*));
+		*(contact->ppSplitAccMoment) = pSplitAcc;
+
+		contact->weight = candi.contact_size;
+		contact->depth = candi.min_depth;
+		contact->kFactor = candi.kFactors[i];
+
+		PyList_Append(contactList, (PyObject*)contact);
+	}
 
 	return 1;
 }
