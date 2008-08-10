@@ -232,8 +232,6 @@ static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody,
 
 	if(!_ClipTest(&box_self, p_in_self, &candi)) return 0;
 
-	assert(0);
-
 	if(AABB_IsIn(&p_in_inc[0], &box_inc, 0.f))
 		candi.contacts[candi.contact_size++] = self->bottomleft;
 	if(AABB_IsIn(&p_in_inc[1], &box_inc, 0.f))
