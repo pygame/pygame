@@ -71,8 +71,8 @@ initphysics(void)
     PyModule_AddObject (mod, "Joint", (PyObject *) &PyJoint_Type);
     PyModule_AddObject (mod, "DistanceJoint",
         (PyObject *) &PyDistanceJoint_Type);
-	PyModule_AddObject (mod, "RevoluteJoint",
-		(PyObject *) &PyRevoluteJoint_Type);
+	/*PyModule_AddObject (mod, "RevoluteJoint",
+		(PyObject *) &PyRevoluteJoint_Type);*/
     PyModule_AddObject (mod, "Shape", (PyObject *) &PyShape_Type);
     PyModule_AddObject (mod, "RectShape", (PyObject *) &PyRectShape_Type);
 
