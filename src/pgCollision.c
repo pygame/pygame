@@ -217,7 +217,7 @@ int Collision_PartlyLB(AABBBox* box, PyVector2* p1, PyVector2* p2,
 void Collision_ApplyContact(PyObject* contactObject, double step)
 {
 #define MAX_C_DEP 0.01
-#define BIAS_FACTOR 0.25
+#define BIAS_FACTOR 0.2
 
     PyVector2 neg_dV, refV, incidV;
     PyVector2 refR, incidR;
@@ -275,6 +275,9 @@ void Collision_ApplyContact(PyObject* contactObject, double step)
     p->real += bm.real/contact->weight;
     p->imag += bm.imag/contact->weight;
 
+
+#undef MAX_C_DEP
+#undef BIAS_FACTOR
 }
 
 

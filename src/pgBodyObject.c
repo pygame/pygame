@@ -359,9 +359,7 @@ static PyObject* _Body_getAngularVel (PyBodyObject* body,void* closure)
 	return PyFloat_FromDouble (body->fAngleVelocity);
 }
 
-/**
-* Sets the rotation of the passed body.
-*/
+
 static int _Body_setAngularVel(PyBodyObject* body,PyObject* value,void* closure)
 {
 	if (PyNumber_Check (value))

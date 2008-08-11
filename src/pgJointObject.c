@@ -1051,7 +1051,7 @@ static PyObject* _RevoluteJoint_getAnchor(PyRevoluteJointObject* joint,
 	}
 	else
 	{
-		assert(false);
+		assert(0);
 	}
 	return Py_BuildValue ("(ff)", global_p.real, global_p.imag);
 }
