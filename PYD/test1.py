@@ -21,12 +21,17 @@ def init_world():
     body1.position = 100, 100
     body1.velocity = 2,0
     body1.restitution = 1.0
+    body1.rotation = 2
+    body1.mass = 80*33
     w.add_body(body1)
     body2 = physics.Body()
     body2.shape = physics.RectShape (20,20,0)
     body2.position = 200, 100
     body2.velocity = -2, 0
     body1.restitution = 1.0
+    body1.rotation = 3
+    body1.angle_velocity = 1
+    body1.mass = 20*20
     w.add_body(body2)
     return w
 

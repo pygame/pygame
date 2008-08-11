@@ -28,11 +28,12 @@ def init_world():
     
     
     body2 = physics.Body()
-    body2.shape = physics.RectShape (1000,20,0)
+    body2.shape = physics.RectShape (760, 20, 0)
     body2.position = 400, 600
     body2.restitution = 0.0
     body2.mass = 1e100
     body2.static = True
+    body2.rotation = 0.2
     w.add_body(body2)
     
     return w
@@ -62,7 +63,7 @@ def main():
         
     #rect = pygame.Rect(0,0,20,20)
     #pointlist = [(0,10),(10,0),(0,0)]
-    white = 250, 250, 250
+    white = 0, 250, 250
     theta = 0
     world = init_world()
     

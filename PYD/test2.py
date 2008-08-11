@@ -25,25 +25,27 @@ def init_world():
     body = physics.Body()
     body.shape = physics.RectShape (20, 20, 0)
     body.position = 200, 100
-    body.restitution = 1.0
+    body.restitution = 3.0
     body.static = True
     w.add_body(body)
     body1 = physics.Body()
     body1.shape = physics.RectShape (20,20,0)
     body1.position = 200, 200
-    body1.restitution = 1.0
+    body1.restitution = 300.0
     w.add_body(body1)
     body2 = physics.Body()
     body2.shape = physics.RectShape (20,20,0)
     body2.position = 300, 200
-    body1.restitution = 1.0
+    body1.restitution = 3.0
     w.add_body(body2)
     
     joint1 = physics.DistanceJoint(body1,body,1)
+    #joint1.distance = 10
     joint1.anchor1 = 0, 0
     joint1.anchor2 = 0, 0
     w.add_joint(joint1)
     joint2 = physics.DistanceJoint(body1,body2,1)
+    #joint2.distance = 10
     joint2.anchor1 = 0, 0
     joint2.anchor2 = 0, 0
     w.add_joint(joint2)
