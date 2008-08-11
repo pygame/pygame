@@ -21,31 +21,27 @@ def render_world(world,surface,body_color,joint_color):
 def init_world():
     w = physics.World()
     w.gravity = 0, 5
-    
     body = physics.Body()
-    body.shape = physics.RectShape (20, 20, 0)
-    body.position = 200, 100
+    body.shape = physics.RectShape(1, 1, 0)
+    body.position = 400, 20
+    body.restitution = 0.0
     body.static = True
     w.add_body(body)
-    body1 = physics.Body()
-    body1.shape = physics.RectShape (20,20,0)
-    body1.position = 200, 200
-    w.add_body(body1)
-    body2 = physics.Body()
-    body2.shape = physics.RectShape (20,20,0)
-    body2.position = 300, 200
-    w.add_body(body2)
+    pre_body = body
+    for i in range(1, 30):
+        body = physics.Body()
+        body.shape = physics.RectShape(5, 5, 0)
+        body.position = 400+10*i, 10*i+20
+        body.restitution = 0.0
+        body.mass = 20
+        w.add_body(body)
+        joint = physics.DistanceJoint(pre_body,body,0)
+        joint.anchor1 = 0, 0
+        joint.anchor2 = 0, 0
+        w.add_joint(joint)
+        pre_body = body
+        
     
-    joint1 = physics.DistanceJoint(body1,body,1)
-    #joint1.distance = 10
-    joint1.anchor1 = 0, 0
-    joint1.anchor2 = 0, 0
-    w.add_joint(joint1)
-    joint2 = physics.DistanceJoint(body1,body2,1)
-    #joint2.distance = 10
-    joint2.anchor1 = 0, 0
-    joint2.anchor2 = 0, 0
-    w.add_joint(joint2)
     return w
 
 def main():
