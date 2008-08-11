@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics_Test", "Physics_Test.vcproj", "{2C436876-149E-4AF0-AD5D-3BBA93CF9313}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics_Module", "Physics_Module.vcproj", "{8EF22482-B2E1-4D85-BCB8-BFEC4EFD541E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2C436876-149E-4AF0-AD5D-3BBA93CF9313}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2C436876-149E-4AF0-AD5D-3BBA93CF9313}.Debug|Win32.Build.0 = Debug|Win32
+		{2C436876-149E-4AF0-AD5D-3BBA93CF9313}.Release|Win32.ActiveCfg = Release|Win32
+		{2C436876-149E-4AF0-AD5D-3BBA93CF9313}.Release|Win32.Build.0 = Release|Win32
+		{8EF22482-B2E1-4D85-BCB8-BFEC4EFD541E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8EF22482-B2E1-4D85-BCB8-BFEC4EFD541E}.Debug|Win32.Build.0 = Debug|Win32
+		{8EF22482-B2E1-4D85-BCB8-BFEC4EFD541E}.Release|Win32.ActiveCfg = Release|Win32
+		{8EF22482-B2E1-4D85-BCB8-BFEC4EFD541E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

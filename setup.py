@@ -11,14 +11,18 @@ def get_c_files ():
 
 if __name__ == "__main__":
 
-    warn_flags = ["-W", "-Wall", "-Wpointer-arith", "-Wcast-qual",
-                  "-Winline", "-Wcast-align", "-Wconversion",
-                  "-Wstrict-prototypes", "-Wmissing-prototypes",
-                  "-Wmissing-declarations", "-Wnested-externs",
-                  "-Wshadow", "-Wredundant-decls"
-                  ]
-    compile_args = [ "-std=c99", "-g"]
-    compile_args += warn_flags
+    compile_args = []
+    if sys.platform == "win32":
+        pass
+    else:
+        warn_flags = ["-W", "-Wall", "-Wpointer-arith", "-Wcast-qual",
+                      "-Winline", "-Wcast-align", "-Wconversion",
+                      "-Wstrict-prototypes", "-Wmissing-prototypes",
+                      "-Wmissing-declarations", "-Wnested-externs",
+                      "-Wshadow", "-Wredundant-decls"
+                     ]
+        compile_args = [ "-std=c99", "-g"]
+        compile_args += warn_flags
 
     extphysics = Extension ("physics", sources = get_c_files (),
                             include_dirs = [ "include" ],
