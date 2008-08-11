@@ -24,6 +24,7 @@
 #include "pgVector2.h"
 #include "pgAABBBox.h"
 #include "pgBodyObject.h"
+#include "pgJointObject.h"
 #include "pgWorldObject.h"
 #include "pgShapeObject.h"
 #include "pgCollision.h"
@@ -225,7 +226,7 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
         for(i = 0; i < contact_cnt; ++i)
         {
             contact = (PyJointObject*)(PyList_GetItem(world->contactList, i));
-            contact->SolveConstraintVelocity(contact, step);
+            JointObject_SolveConstraintVelocity (contact, step);
         }
     }
 }
@@ -242,7 +243,7 @@ static void _JointSolve(PyWorldObject* world,double stepTime)
         //what happened here?
         if (joint->SolveConstraintVelocity)
         {
-            joint->SolveConstraintVelocity(joint,stepTime);
+            JointObject_SolveConstraintVelocity (joint, stepTime);
         }
         /*if (joint->SolveConstraintPosition)
           {

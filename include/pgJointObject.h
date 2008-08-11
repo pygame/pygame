@@ -21,6 +21,9 @@
 #ifndef _PHYSICS_JOINT_H_
 #define _PHYSICS_JOINT_H_
 
+int JointObject_SolveConstraintVelocity (PyJointObject *joint, double stepTime);
+int JointObject_SolveConstraintPosition (PyJointObject *joint, double stepTime);
+
 /**
  * Python C API export hook.
  *

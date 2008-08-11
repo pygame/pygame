@@ -182,15 +182,15 @@ typedef struct
 
 typedef struct  
 {
-	PyJointObject joint;
-	//notice : we can't set local anchor directly, because init position may violate the constraint.
-	PyVector2	anchor1;
-	PyVector2	anchor2;
+    PyJointObject joint;
+    //notice : we can't set local anchor directly, because init position may violate the constraint.
+    PyVector2	anchor1;
+    PyVector2	anchor2;
 } PyRevoluteJointObject;
 
 #define PHYSICS_JOINT_FIRSTSLOT \
     (PHYSICS_BODY_FIRSTSLOT + PHYSICS_BODY_NUMSLOTS)
-#define PHYSICS_JOINT_NUMSLOTS 5
+#define PHYSICS_JOINT_NUMSLOTS 8
 #ifndef PHYSICS_JOINT_INTERNAL
 #define PyJoint_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
@@ -204,6 +204,13 @@ typedef struct
     (*(PyObject*(*)(PyObject*,PyObject*,int))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+3])
 #define PyDistanceJoint_SetAnchors                                      \
     (*(int(*)(PyObject*,PyVector2,PyVector2))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+4])
+#define PyRevoluteJoint_Check(x)                                        \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+5]))
+#define PyRevoluteJoint_New                                             \
+    (*(PyObject*(*)(PyObject*,PyObject*,int))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+6])
+#define PyRevoluteJoint_SetAnchorsFromConnectWorldAnchor                \
+    (*(int(*)(PyObject*,PyVector2))PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+7])
 #endif /* PYGAME_JOINT_INTERNAL */
 
 /**

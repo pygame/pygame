@@ -608,10 +608,10 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
         PyVector2_MultiplyWithReal(gravity, body->fMass));
     body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
         PyVector2_MultiplyWithReal(totalF, dt/body->fMass));
-	k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0,1);
-	k2 = PG_Clamp(1-dt*body->fAngleVelDamping,0,1);
-	body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
-	body->fAngleVelocity *= k2;
+    k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0.0,1.0);
+    k2 = PG_Clamp(1-dt*body->fAngleVelDamping,0.0,1.0);
+    body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
+    body->fAngleVelocity *= k2;
 }
 
 void PyBodyObject_FreeUpdatePos(PyBodyObject* body,double dt)
