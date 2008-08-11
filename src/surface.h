@@ -212,13 +212,23 @@
 
 
 #if 1
+/* Choose an alpha blend equation. If the sign is preserved on a right shift
+ * then use a specialized, faster, equation. Otherwise a more general form,
+ * where all additions are done before the shift, is needed.
+*/
+#if (-1 >> 1) < 0
+#define ALPHA_BLEND_COMP(sC, dC, dA) ((((sC - dC) * sA + sC) >> 8) + dC)
+#else
+#define ALPHA_BLEND_COMP(sC, dC, dA) (((dC << 8) + (sC - dC) * sA + sC) >> 8)
+#endif
+
 #define ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB, dA) \
     do {                                            \
         if (dA)                                     \
         {                                           \
-            dR = (((sR - dR) * sA) >> 8) + dR;      \
-            dG = (((sG - dG) * sA) >> 8) + dG;      \
-            dB = (((sB - dB) * sA) >> 8) + dB;      \
+            dR = ALPHA_BLEND_COMP(sR, dR, dA);      \
+            dG = ALPHA_BLEND_COMP(sG, dG, dA);      \
+            dB = ALPHA_BLEND_COMP(sB, dB, dA);      \
             dA = sA + dA - ((sA * dA) / 255);       \
         }                                           \
         else                                        \
