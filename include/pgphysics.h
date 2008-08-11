@@ -180,6 +180,14 @@ typedef struct
     PyVector2     anchor2;
 } PyDistanceJointObject;
 
+typedef struct  
+{
+	PyJointObject joint;
+	//notice : we can't set local anchor directly, because init position may violate the constraint.
+	PyVector2	anchor1;
+	PyVector2	anchor2;
+} PyRevoluteJointObject;
+
 #define PHYSICS_JOINT_FIRSTSLOT \
     (PHYSICS_BODY_FIRSTSLOT + PHYSICS_BODY_NUMSLOTS)
 #define PHYSICS_JOINT_NUMSLOTS 5

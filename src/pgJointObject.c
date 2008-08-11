@@ -65,10 +65,24 @@ static int _DistanceJoint_setAnchor2(PyDistanceJointObject* joint,
     PyObject* value,void* closure);
 static PyObject* _DistanceJoint_getPointList(PyObject *self, PyObject *args);
 
+static PyObject* _RevoluteJoint_getPointList(PyRevoluteJointObject* joint,void* closure);
+static int _RevoluteJoint_setAnchor(PyRevoluteJointObject* joint,
+									 PyObject* value,void* closure);
+static PyObject* _RevoluteJoint_getAnchor(PyRevoluteJointObject* joint,
+										   void* closure);
+
+static int _RevoluteJoint_init(PyRevoluteJointObject* joint,PyObject *args,
+							   PyObject *kwds);
+static PyObject* _RevoluteJointNew(PyTypeObject *type, PyObject *args,
+								   PyObject *kwds);
+
+static void _SolveRevoluteJointVelocity(PyJointObject* joint,double stepTime);
 /* C API */
 static PyObject* PyJoint_New(PyObject *body1, PyObject *body2, int collideConnect);
 static PyObject* PyDistanceJoint_New(PyObject *body1, PyObject *body2, int collideConnect);
 static int PyDistanceJoint_SetAnchors(PyObject *joint,PyVector2 anchor1,PyVector2 anchor2);
+static PyObject* PyRevoluteJoint_New(PyObject *body1,PyObject *body2,int collideConnect);
+static int PyRevoluteJoint_SetAnchorsFromConnectWorldAnchor(PyObject* joint,PyVector2 initWorldAnchor);
 
 
 static PyGetSetDef _JointBase_getseters[] = {
@@ -741,6 +755,328 @@ static int PyDistanceJoint_SetAnchors(PyObject *joint,PyVector2 anchor1,PyVector
     ((PyDistanceJointObject*)joint)->anchor2.imag = anchor2.imag;
     _ReComputeDistance((PyDistanceJointObject*)joint);
     return 1;
+}
+
+
+/*RevoluteJoint*/
+static PyMethodDef _RevoluteJoint_methods[] = {
+	{"get_points",_RevoluteJoint_getPointList,METH_VARARGS,""	},
+	{NULL, NULL, 0, NULL}   /* Sentinel */
+};
+
+static PyGetSetDef _RevoluteJoint_getseters[] = {
+	{ "anchor",(getter)_RevoluteJoint_getAnchor,
+	(setter)_RevoluteJoint_setAnchor,"",NULL, },
+	{ NULL, NULL, NULL, NULL, NULL }
+};
+
+
+PyTypeObject PyRevoluteJoint_Type =
+{
+	PyObject_HEAD_INIT(NULL)
+	0,
+	"physics.RevoluteJoint",            /* tp_name */
+	sizeof(PyRevoluteJointObject),      /* tp_basicsize */
+	0,                          /* tp_itemsize */
+	(destructor) 0,		/* tp_dealloc */
+	0,                          /* tp_print */
+	0,                          /* tp_getattr */
+	0,                          /* tp_setattr */
+	0,                          /* tp_compare */
+	0,                          /* tp_repr */
+	0,                          /* tp_as_number */
+	0,                          /* tp_as_sequence */
+	0,                          /* tp_as_mapping */
+	0,                          /* tp_hash */
+	0,                          /* tp_call */
+	0,                          /* tp_str */
+	0,                          /* tp_getattro */
+	0,                          /* tp_setattro */
+	0,                          /* tp_as_buffer */
+	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+	"",                         /* tp_doc */
+	0,                          /* tp_traverse */
+	0,                          /* tp_clear */
+	0,                          /* tp_richcompare */
+	0,                          /* tp_weaklistoffset */
+	0,                          /* tp_iter */
+	0,                          /* tp_iternext */
+	_RevoluteJoint_methods,    /* tp_methods */
+	0,                          /* tp_members */
+	_RevoluteJoint_getseters,	/* tp_getset */
+	0,				/* tp_base */
+	0,                          /* tp_dict */
+	0,                          /* tp_descr_get */
+	0,                          /* tp_descr_set */
+	0,                          /* tp_dictoffset */
+	(initproc)_RevoluteJoint_init,  /* tp_init */
+	0,                          /* tp_alloc */
+	_RevoluteJointNew,          /* tp_new */
+	0,                          /* tp_free */
+	0,                          /* tp_is_gc */
+	0,                          /* tp_bases */
+	0,                          /* tp_mro */
+	0,                          /* tp_cache */
+	0,                          /* tp_subclasses */
+	0,                          /* tp_weaklist */
+	0                           /* tp_del */
+};
+
+static int _RevoluteJoint_init(PyRevoluteJointObject* joint,PyObject *args,
+							   PyObject *kwds)
+{
+	if(PyJoint_Type.tp_init((PyObject*)joint, args, kwds) < 0)
+		return -1;
+	return 0;
+}
+
+static PyObject* _RevoluteJointNew(PyTypeObject *type, PyObject *args,
+								   PyObject *kwds)
+{
+	PyRevoluteJointObject *joint = (PyRevoluteJointObject*)
+		_JointBaseNew (type, args, kwds);
+	if (!joint)
+		return NULL;
+
+	joint->joint.SolveConstraintVelocity = _SolveRevoluteJointVelocity;
+	PyVector2_Set(joint->anchor1,0,0);
+	PyVector2_Set(joint->anchor2,0,0);
+
+	return (PyObject*)joint;
+}
+
+
+static void _RevoluteJoint_ComputeOneDynamic (PyBodyObject* body,
+											  PyVector2* staticAnchor, PyVector2* localAnchor,
+											  double stepTime)
+{
+	double a,b,k,temp; //for solve equation
+	PyVector2 localP = PyBodyObject_GetGlobalPos(body,localAnchor);
+	PyVector2 vP = PyBodyObject_GetLocalPointVelocity(body,*localAnchor);
+	PyVector2 L = c_diff(*staticAnchor,localP);
+	PyVector2 dvBody;
+	double dAngleV;
+
+	localP = c_diff(localP,body->vecPosition);
+	k = ((PyShapeObject*)body->shape)->rInertia / body->fMass;
+	k += PyVector2_GetLengthSquare(localP);
+	b = -PyVector2_GetLength(vP);
+	/*bb = PyVector2_GetLength(L);*/
+	PyVector2_Normalize(&vP);
+	temp = PyVector2_Cross(localP,vP);
+	a = 1 + PyVector2_Dot(PyVector2_fCross(temp,localP),vP) / k;
+
+
+	temp = b /a;
+	dvBody = PyVector2_MultiplyWithReal(vP,temp);
+
+	body->vecLinearVelocity = c_sum(body->vecLinearVelocity,dvBody);
+	dAngleV = PyVector2_Cross(localP,dvBody);
+	dAngleV /= k;
+	body->fAngleVelocity += dAngleV;
+
+	// Position correction.
+	/*temp = -bb /a;
+	dvBody = PyVector2_MultiplyWithReal(L,temp);
+	dAngleV = PyVector2_Cross(localP,dvBody);
+	dAngleV /= k;
+	body->vecPosition = c_sum(body->vecPosition,dvBody);
+	body->fRotation += dAngleV;*/
+
+	body->vecPosition = c_sum(body->vecPosition,L);
+
+	return;
+}
+
+static void _RevoluteJoint_ComputeTwoDynamic(PyDistanceJointObject* joint,
+											 double stepTime)
+{
+	PyBodyObject *body1 = (PyBodyObject*)joint->joint.body1;
+	PyBodyObject *body2 = (PyBodyObject*)joint->joint.body2;
+	double a1,a2,b1,b2,bb,k1,k2,temp,temp1,temp2; //for solve equation
+	PyVector2 localP1 = PyBodyObject_GetGlobalPos(body1,&joint->anchor1);
+	PyVector2 localP2 = PyBodyObject_GetGlobalPos(body2,&joint->anchor2);
+	PyVector2 L = c_diff(localP1,localP2);
+	PyVector2 eL = L;
+	PyVector2 vP1 = PyBodyObject_GetLocalPointVelocity(body1,joint->anchor1);
+	PyVector2 vP2 = PyBodyObject_GetLocalPointVelocity(body2,joint->anchor2);
+	PyVector2 vPL1,vPL2;
+	PyVector2 dvBody1,dvBody2;
+	double dAngleV1,dAngleV2;
+	PyVector2_Normalize(&eL)
+		vPL1 = PyVector2_Project(eL,vP1);
+	vPL2 = PyVector2_Project(eL,vP2);
+	k1 = ((PyShapeObject*)body1->shape)->rInertia / body1->fMass;
+	k2 = ((PyShapeObject*)body2->shape)->rInertia / body2->fMass;
+
+	localP1 = c_diff(localP1,body1->vecPosition);
+	localP2 = c_diff(localP2,body2->vecPosition);
+	k1 += PyVector2_GetLengthSquare(localP1);
+	k2 += PyVector2_GetLengthSquare(localP2);
+
+	bb = (joint->distance - PyVector2_GetLength(L)) ;
+	PyVector2_Normalize(&L);
+	temp = PyVector2_Cross(localP1,L);
+	a1 = 1 + PyVector2_Dot(PyVector2_fCross(temp,localP1),L) / k1;
+
+	a1 /= body1->fMass;
+
+	temp = PyVector2_Cross(localP2,L);
+	a2 = 1 + PyVector2_Dot(PyVector2_fCross(temp,localP2),L) / k2;
+
+	a2 /= body2->fMass;
+
+	b1 = PyVector2_Dot(vPL1,L);
+	b2 = PyVector2_Dot(vPL2,L);
+
+	temp = (b2 - b1) /(a1 + a2);
+	temp1 = temp / body1->fMass;
+	temp2 = -temp / body2->fMass;
+	dvBody1 = PyVector2_MultiplyWithReal(L,temp1);
+	dvBody2 = PyVector2_MultiplyWithReal(L,temp2);
+
+	body1->vecLinearVelocity = c_sum(body1->vecLinearVelocity,dvBody1);
+	dAngleV1 = PyVector2_Cross(localP1,dvBody1);
+	dAngleV1 /= k1;
+	body1->fAngleVelocity += dAngleV1;
+
+	body2->vecLinearVelocity = c_sum(body2->vecLinearVelocity,dvBody2);
+	dAngleV2 = PyVector2_Cross(localP2,dvBody2);
+	dAngleV2 /= k2;
+	body2->fAngleVelocity += dAngleV2;
+
+	//for position correction
+
+	temp = bb /(a1 + a2);
+	temp1 = temp / body1->fMass;
+	temp2 = -temp / body2->fMass;
+	dvBody1 = PyVector2_MultiplyWithReal(L,temp1);
+	dvBody2 = PyVector2_MultiplyWithReal(L,temp2);
+
+	body1->vecPosition = c_sum(body1->vecPosition,dvBody1);
+	body2->vecPosition = c_sum(body2->vecPosition,dvBody2);
+	body1->vecLinearVelocity = c_sum(body1->vecLinearVelocity,PyVector2_MultiplyWithReal(dvBody1,1/stepTime));
+	body2->vecLinearVelocity = c_sum(body2->vecLinearVelocity,PyVector2_MultiplyWithReal(dvBody2,1/stepTime));
+	dAngleV1 = PyVector2_Cross(localP1,dvBody1);
+	dAngleV1 /= k1;
+	dAngleV2 = PyVector2_Cross(localP2,dvBody2);
+	dAngleV2 /= k2;
+	body1->fRotation += dAngleV1;
+	body2->fRotation += dAngleV2;
+	body1->fAngleVelocity += (dAngleV1 / stepTime);
+	body2->fAngleVelocity += (dAngleV2 / stepTime);
+}
+
+static void _SolveRevoluteJointVelocity(PyJointObject* joint,double stepTime)
+{
+	PyDistanceJointObject* pJoint = (PyDistanceJointObject*)joint;
+	PyBodyObject* body1 = (PyBodyObject*) joint->body1;
+	PyBodyObject* body2 = (PyBodyObject*) joint->body2;
+	
+
+	if(body1 && body2)
+	{
+		if (body1->bStatic && body2->bStatic)
+		{
+			return;
+		}
+		if (body1->bStatic)
+		{
+			PyVector2 staticAnchor = PyBodyObject_GetGlobalPos(body1,&pJoint->anchor1);
+			_RevoluteJoint_ComputeOneDynamic(body2,&staticAnchor,&pJoint->anchor2,stepTime);
+			return;
+		}
+		if (body2->bStatic)
+		{
+			PyVector2 staticAnchor = PyBodyObject_GetGlobalPos(body2,&pJoint->anchor2);
+			_RevoluteJoint_ComputeOneDynamic(body1,&staticAnchor,&pJoint->anchor1,stepTime);
+			return;
+		}
+		_RevoluteJoint_ComputeTwoDynamic(pJoint,stepTime);
+
+	}
+}
+
+static int _RevoluteJoint_setAnchor(PyRevoluteJointObject* joint,
+									PyObject* value,void* closure)
+{
+	PyObject *item;
+	PyVector2 global_p;
+
+	if (!PySequence_Check(value) || PySequence_Size (value) != 2)
+	{
+		PyErr_SetString (PyExc_TypeError, "anchor must be a x, y sequence");
+		return -1;
+	}
+
+	item = PySequence_GetItem (value, 0);
+	if (!DoubleFromObj (item, &global_p.real))
+		return -1;
+	item = PySequence_GetItem (value, 1);
+	if (!DoubleFromObj (item, &global_p.imag))
+		return -1;
+
+	if (joint->joint.body1)
+	{
+		joint->anchor1 = PyBodyObject_GetRelativePosFromGlobal(joint->joint.body1,&global_p);
+	}
+	else
+	{
+		joint->anchor1 = global_p;
+	}
+
+	if (joint->joint.body2)
+	{
+		joint->anchor2 = PyBodyObject_GetRelativePosFromGlobal(joint->joint.body2,&global_p);
+	}
+	else
+	{
+		joint->anchor2 = global_p;
+	}
+
+	return 0;
+}
+
+static PyObject* _RevoluteJoint_getAnchor(PyRevoluteJointObject* joint,
+										  void* closure)
+{
+	PyVector2 global_p;
+	if (joint->joint.body1)
+	{
+		global_p = PyBodyObject_GetGlobalPos(joint->joint.body1,&joint->anchor1);
+	}
+	else if(joint->joint.body2)
+	{
+		global_p = PyBodyObject_GetGlobalPos(joint->joint.body2,&joint->anchor2);
+	}
+	else
+	{
+		assert(false);
+	}
+	return Py_BuildValue ("(ff)", global_p.real, global_p.imag);
+}
+
+static PyObject* _RevoluteJoint_getPointList(PyRevoluteJointObject* joint,void* closure)
+{
+	PyObject* list  = PyList_New(2);
+
+	PyVector2 p = PyBodyObject_GetGlobalPos(((PyBodyObject*)joint->joint.body1),&joint->anchor1);
+	PyObject* tuple = FromPhysicsVector2ToPoint(p);
+	PyList_SetItem(list,0,tuple);
+
+	if(joint->joint.body2)
+	{
+		p = PyBodyObject_GetGlobalPos(((PyBodyObject*)joint->joint.body2),&joint->anchor2);
+
+	}
+	else
+	{
+		p = joint->anchor2;
+	}
+
+	tuple = FromPhysicsVector2ToPoint(p);
+	PyList_SetItem(list,1,tuple);
+	return list;
 }
 
 void PyJointObject_ExportCAPI (void **c_api)

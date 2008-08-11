@@ -10,7 +10,8 @@
 
 /*-------------------------------≤‚ ‘π§æﬂ----------------------------*/
 
-#include <physics/pgphysics.h>
+//#include <physics/pgphysics.h>
+#include "pgphysics.h"
 #include "pgPhysicsRenderer.h"
 
 static PyObject* s_world = NULL;

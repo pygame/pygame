@@ -33,6 +33,7 @@ extern PyTypeObject PyBody_Type;
 extern PyTypeObject PyContact_Type;
 extern PyTypeObject PyJoint_Type;
 extern PyTypeObject PyDistanceJoint_Type;
+extern PyTypeObject PyRevoluteJoint_Type;
 extern PyTypeObject PyWorld_Type;
 extern PyTypeObject PyShape_Type;
 extern PyTypeObject PyRectShape_Type;

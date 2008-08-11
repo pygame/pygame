@@ -53,7 +53,6 @@ void PGT_RenderAABB(PyBodyObject* body)
 void PGT_RenderBody(PyBodyObject* body)
 {
 	PyVector2 gp[4];
-	int i;
 	PyRectShapeObject* rect = (PyRectShapeObject*)body->shape;
 
 	// Evil hack for the threads.

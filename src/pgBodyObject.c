@@ -30,6 +30,8 @@ static void _BodyDestroy(PyBodyObject* body);
 
 static PyObject* _Body_getVelocity(PyBodyObject* body,void* closure);
 static int _Body_setVelocity(PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getAngularVel (PyBodyObject* body,void* closure);
+static int _Body_setAngularVel(PyBodyObject* body,PyObject* value,void* closure);
 static PyObject* _Body_getPosition(PyBodyObject* body,void* closure);
 static int _Body_setPosition(PyBodyObject* body,PyObject* value,void* closure);
 static PyObject* _Body_getForce(PyBodyObject* body,void* closure);
@@ -82,6 +84,7 @@ static PyGetSetDef _Body_getseters[] = {
      "Friction", NULL },
 
     {"velocity",(getter)_Body_getVelocity,(setter)_Body_setVelocity,"velocity",NULL},
+	{"angle_velocity",(getter)_Body_getAngularVel,(setter)_Body_setAngularVel,"Angular Velocity",NULL},
     {"position",(getter)_Body_getPosition,(setter)_Body_setPosition,"position",NULL},
     {"force",(getter)_Body_getForce,(setter)_Body_setForce,"force",NULL},
     {"static",(getter)_Body_getBStatic,(setter)_Body_setBStatic,"whether static",NULL},
@@ -349,6 +352,37 @@ static int _Body_setRotation(PyBodyObject* body,PyObject* value,void* closure)
 }
 
 /**
+* Getter for retrieving the angular velocity of the passed body.
+*/
+static PyObject* _Body_getAngularVel (PyBodyObject* body,void* closure)
+{
+	return PyFloat_FromDouble (body->fAngleVelocity);
+}
+
+/**
+* Sets the rotation of the passed body.
+*/
+static int _Body_setAngularVel(PyBodyObject* body,PyObject* value,void* closure)
+{
+	if (PyNumber_Check (value))
+	{
+		PyObject *tmp = PyNumber_Float (value);
+
+		if (tmp)
+		{
+			double fAngleVelocity = PyFloat_AsDouble (tmp);
+			Py_DECREF (tmp);
+			if (PyErr_Occurred ())
+				return -1;
+			body->fAngleVelocity = fAngleVelocity;
+			return 0;
+		}
+	}
+	PyErr_SetString (PyExc_TypeError, "rotation must be a float");
+	return -1;
+}
+
+/**
  * Getter for retrieving the torque of the passed body.
  */
 static PyObject* _Body_getTorque (PyBodyObject* body,void* closure)
@@ -576,10 +610,10 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
         PyVector2_MultiplyWithReal(gravity, body->fMass));
     body->vecLinearVelocity = c_sum(body->vecLinearVelocity, 
         PyVector2_MultiplyWithReal(totalF, dt/body->fMass));
-    k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0.,1.);
-    k2 = PG_Clamp(1-dt*body->fAngleVelocity,0.,1.);
-    body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
-    body->fAngleVelocity *= k2;
+	k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0,1);
+	k2 = PG_Clamp(1-dt*body->fAngleVelDamping,0,1);
+	body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
+	body->fAngleVelocity *= k2;
 }
 
 void PyBodyObject_FreeUpdatePos(PyBodyObject* body,double dt)
@@ -611,6 +645,14 @@ PyVector2 PyBodyObject_GetGlobalPos(PyBodyObject* body, PyVector2* local_p)
     ans = c_sum(ans, body->vecPosition);
 
     return ans;
+}
+
+PyVector2 PyBodyObject_GetRelativePosFromGlobal(PyBodyObject* body, PyVector2* global_p)
+{
+	PyVector2 ans = c_diff(*global_p,body->vecPosition);
+
+	PyVector2_Rotate(&ans, -body->fRotation);
+	return ans;
 }
 
 PyVector2 PyBodyObject_GetRelativePos(PyBodyObject* bodyA, PyBodyObject* bodyB,

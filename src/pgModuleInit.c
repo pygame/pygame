@@ -42,6 +42,9 @@ initphysics(void)
     PyDistanceJoint_Type.tp_base = &PyJoint_Type;
     if (PyType_Ready(&PyDistanceJoint_Type) < 0)
         return;
+	PyRevoluteJoint_Type.tp_base = &PyJoint_Type;
+	if (PyType_Ready(&PyRevoluteJoint_Type) < 0)
+		return;
     PyContact_Type.tp_base = &PyJoint_Type;
     if (PyType_Ready(&PyContact_Type) < 0)
         return;
@@ -56,6 +59,7 @@ initphysics(void)
     Py_INCREF (&PyBody_Type);
     Py_INCREF (&PyJoint_Type);
     Py_INCREF (&PyDistanceJoint_Type);
+	Py_INCREF (&PyRevoluteJoint_Type);
     Py_INCREF (&PyContact_Type);
     Py_INCREF (&PyShape_Type);
     Py_INCREF (&PyRectShape_Type);
@@ -67,6 +71,8 @@ initphysics(void)
     PyModule_AddObject (mod, "Joint", (PyObject *) &PyJoint_Type);
     PyModule_AddObject (mod, "DistanceJoint",
         (PyObject *) &PyDistanceJoint_Type);
+	PyModule_AddObject (mod, "RevoluteJoint",
+		(PyObject *) &PyRevoluteJoint_Type);
     PyModule_AddObject (mod, "Shape", (PyObject *) &PyShape_Type);
     PyModule_AddObject (mod, "RectShape", (PyObject *) &PyRectShape_Type);
 
