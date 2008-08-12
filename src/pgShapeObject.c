@@ -39,16 +39,26 @@ static int _RectShape_init(PyRectShapeObject* shape,PyObject *args, PyObject *kw
 static void _RectShape_InitInternal (PyRectShapeObject *shape, double width,
     double height, double seta);
 static PyObject* _RectShapeNew(PyTypeObject *type, PyObject *args, PyObject *kwds);
-
+static PyObject* _RectShape_collision(PyRectShapeObject* shape, PyObject *args);
+static PyObject* _RectShape_updateAABB(PyRectShapeObject* shape, PyObject *args);
 
 static int _RectShapeCollision(PyBodyObject* selfBody,
     PyBodyObject* incidBody, PyObject* contactList);
 
+/* C API */
+static PyObject *PyShape_New (void);
+static PyObject *PyRectShape_New (double width, double height, double seta);
 
 /* collision test for RectShape */
 
+/**
+ * TODO
+ */
 #define MAX_CONTACTS 16
 
+/**
+ * TODO
+ */
 typedef struct _Candidate_
 {
     PyVector2 normal;
@@ -59,6 +69,14 @@ typedef struct _Candidate_
 }_Candidate;
 
 
+/**
+ * TODO
+ *
+ * @param box
+ * @param points
+ * @param candi
+ * @return
+ */
 static int _ClipTest(AABBBox* box, PyVector2* points, _Candidate* candi)
 {
     int  i, i1;
@@ -96,6 +114,17 @@ static int _ClipTest(AABBBox* box, PyVector2* points, _Candidate* candi)
     return 1;
 }
 
+/**
+ * TODO
+ * 
+ * @param selfBody
+ * @param incBody
+ * @param selfBox
+ * @param incBox
+ * @param candi
+ * @param ans_ref
+ * @param ans_inc
+ */
 static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     PyBodyObject* incBody, AABBBox* selfBox, AABBBox* incBox, _Candidate *candi,
     PyBodyObject** ans_ref, PyBodyObject** ans_inc)
@@ -111,6 +140,9 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     int size;
     double tmp1, tmp2;
     
+    /*
+     * TODO: describe the magic here.
+     */
     for(i = 0; i < candi->contact_size; ++i)
     {
         conts[0][i] = candi->contacts[i];
@@ -140,6 +172,10 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
                 min_dep[k] = deps[i];
             }
     }
+
+    /*
+     * TODO describe the magic here
+     */
     
     //now select min depth one
     k = min_dep[0] < min_dep[1] ? 0 : 1;
@@ -177,6 +213,10 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
         assert(0);
     }
     
+    /*
+     * TODO: describe the magic here.
+     */
+
     //translate to global coordinate
     PyVector2_Rotate(&(candi->normal), self[k]->fRotation);
     for(i = 0; i < candi->contact_size; ++i)
@@ -198,6 +238,13 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     *ans_inc = inc[k];
 }
 
+/**
+ * TODO
+ *
+ * @param selfBody
+ * @param incidBody
+ * @param contactList
+ */
 static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody, 
     PyObject* contactList)
 {
@@ -225,7 +272,7 @@ static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody,
     p_in_inc[2] = PyBodyObject_GetRelativePos(incidBody, selfBody, &(self->topright));
     p_in_inc[3] = PyBodyObject_GetRelativePos(incidBody, selfBody, &(self->topleft));
     
-    
+
     box_self = AABB_Gen(self->bottomleft.real, self->topright.real,
         self->bottomleft.imag, self->topright.imag);
     box_inc = AABB_Gen(inc->bottomleft.real, inc->topright.real,
@@ -243,7 +290,6 @@ static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody,
         candi.contacts[candi.contact_size++] = self->topleft;
     
     _SATFindCollisionProperty(selfBody, incidBody, &box_self, &box_inc, &candi, &ans_ref, &ans_inc);
-    
     
     pAcc = PyObject_Malloc(sizeof(PyVector2));
     pAcc->real = pAcc->imag = 0;
@@ -269,21 +315,16 @@ static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody,
 
     return 1;
 }
-
-
 #undef MAX_CONTACTS
 
-
-/* C API */
-static PyObject *PyShape_New (void);
-static PyObject *PyRectShape_New (double width, double height, double seta);
-
+/**
+ Methods used by the Shape.
+ */
 static PyMethodDef _Shape_methods[] = {
     { "_collision",(PyCFunction)_Shape_collision,METH_VARARGS,"" },
     { "_update_aabb",(PyCFunction)_Shape_updateAABB,METH_VARARGS,"" },
     { NULL, NULL, 0, NULL }   /* Sentinel */
 };
-
 
 PyTypeObject PyShape_Type =
 {
@@ -336,8 +377,9 @@ PyTypeObject PyShape_Type =
     0                           /* tp_del */
 };
 
-//functions of pgShapeObject
-
+/**
+ * Creates a new PyShapeObject and initializes its internals.
+ */
 static PyObject* _ShapeNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     /* In case we have arguments in the python code, parse them later
@@ -352,22 +394,42 @@ static PyObject* _ShapeNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject*) shape;
 }
 
+/**
+ * Deallocates a PyShapeObject
+ */
 static void _ShapeObjectDestroy(PyShapeObject* shape)
 {
     shape->ob_type->tp_free((PyObject*)shape);
 }
 
+/* Shape methods */
+
+/**
+ * Shape._collision
+ */
 static PyObject* _Shape_collision(PyShapeObject* shape, PyObject *args)
 {
     PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
     return NULL;
 }
 
+/**
+ * Shape._update_aabb
+ */
 static PyObject* _Shape_updateAABB(PyShapeObject* shape, PyObject *args)
 {
     PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
     return NULL;
 }
+
+/**
+ Methods used by the RectShape.
+ */
+static PyMethodDef _RectShape_methods[] = {
+    { "_collision",(PyCFunction)_RectShape_collision,METH_VARARGS,"" },
+    { "_update_aabb",(PyCFunction)_RectShape_updateAABB,METH_VARARGS,"" },
+    { NULL, NULL, 0, NULL }   /* Sentinel */
+};
 
 PyTypeObject PyRectShape_Type =
 {
@@ -399,10 +461,10 @@ PyTypeObject PyRectShape_Type =
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    0,				/* tp_methods */
+    _RectShape_methods,         /* tp_methods */
     0,	                        /* tp_members */
-    0,				/* tp_getset */
-    0,				/* tp_base */
+    0,                          /* tp_getset */
+    0,				            /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
@@ -420,8 +482,61 @@ PyTypeObject PyRectShape_Type =
     0                           /* tp_del */
 };
 
-//functions of pgRectShape
+/**
+ * Initializes the internals of the passed PyRectShapeObject.
+ *
+ * @param shape The PyRectShapeObject to initialize
+ * @param width The width of the rectangular shape area.
+ * @param height The height of the rectangular shape area.
+ * @param seta The initial rotation angle of the rectangular area.
+ */
+static void _RectShape_InitInternal (PyRectShapeObject *shape, double width,
+    double height, double seta)
+{
+    PyVector2_Set(shape->bottomleft, -width/2, -height/2);
+    PyVector2_Set(shape->bottomright, width/2, -height/2);
+    PyVector2_Set(shape->topright, width/2, height/2);
+    PyVector2_Set(shape->topleft, -width/2, height/2);
+    PyVector2_Rotate(&(shape->bottomleft), seta);
+    PyVector2_Rotate(&(shape->bottomright), seta);
+    PyVector2_Rotate(&(shape->topright), seta);
+    PyVector2_Rotate(&(shape->topleft), seta);
+}
 
+/**
+ * Initializes the passed PyRectShapeObject (from python code).
+ */
+static int _RectShape_init(PyRectShapeObject* shape,PyObject *args, PyObject *kwds)
+{
+    double width, height, seta = 0;
+    if (PyShape_Type.tp_init((PyObject*)shape, args, kwds) < 0)
+        return -1;
+    if (!PyArg_ParseTuple (args, "dd|d", &width, &height, &seta))
+        return -1;
+
+    _RectShape_InitInternal (shape, width, height, seta);
+    return 0;
+}
+
+/**
+ * Creates a new PyRectShapeObject.
+ */
+static PyObject* _RectShapeNew(PyTypeObject *type, PyObject *args,
+    PyObject *kwds)
+{
+    PyRectShapeObject *shape = (PyRectShapeObject*) _ShapeNew (type, args, kwds);
+    if (!shape)
+        return NULL;
+    
+    shape->shape.UpdateAABB = _RectShapeUpdateAABB;
+    shape->shape.Collision = _RectShapeCollision;
+    shape->shape.type = ST_RECT;
+    return (PyObject*)shape;
+}
+
+/**
+ * Internal RectShape._update_aabb implementation.
+ */
 static void _RectShapeUpdateAABB(PyBodyObject* body)
 {
     int i;
@@ -443,57 +558,67 @@ static void _RectShapeUpdateAABB(PyBodyObject* body)
     }
 }
 
-static void _RectShape_InitInternal (PyRectShapeObject *shape, double width,
-    double height, double seta)
-{
-    PyVector2_Set(shape->bottomleft, -width/2, -height/2);
-    PyVector2_Set(shape->bottomright, width/2, -height/2);
-    PyVector2_Set(shape->topright, width/2, height/2);
-    PyVector2_Set(shape->topleft, -width/2, height/2);
-    PyVector2_Rotate(&(shape->bottomleft), seta);
-    PyVector2_Rotate(&(shape->bottomright), seta);
-    PyVector2_Rotate(&(shape->topright), seta);
-    PyVector2_Rotate(&(shape->topleft), seta);
-}
+/* RectShape methods */
 
-static int _RectShape_init(PyRectShapeObject* shape,PyObject *args, PyObject *kwds)
+/**
+ * RectShape._collision
+ */
+static PyObject* _RectShape_collision(PyRectShapeObject* shape, PyObject *args)
 {
-    double width, height, seta = 0;
-    if (PyShape_Type.tp_init((PyObject*)shape, args, kwds) < 0)
-        return -1;
-    if (!PyArg_ParseTuple (args, "dd|d", &width, &height, &seta))
-        return -1;
-
-    _RectShape_InitInternal (shape, width, height, seta);
-    return 0;
-}
-
-static PyObject* _RectShapeNew(PyTypeObject *type, PyObject *args,
-    PyObject *kwds)
-{
-    PyRectShapeObject *shape = (PyRectShapeObject*) _ShapeNew (type, args, kwds);
-    if (!shape)
+    PyObject *body1, *body2, *list;
+    if (!PyArg_ParseTuple (args, "OOO", &body1, &body2, &list))
         return NULL;
+
+    if (!PyBody_Check (body1))
+    {
+        PyErr_SetString (PyExc_TypeError, "body1 must be a Body");
+        return NULL;
+    }
+    if (!PyBody_Check (body2))
+    {
+        PyErr_SetString (PyExc_TypeError, "body2 must be a Body");
+        return NULL;
+    }
     
-    shape->shape.UpdateAABB = _RectShapeUpdateAABB;
-    shape->shape.Collision = _RectShapeCollision;
-    shape->shape.type = ST_RECT;
-    return (PyObject*)shape;
+    _RectShapeCollision ((PyBodyObject*)body1,(PyBodyObject*)body2,list);
+    Py_RETURN_NONE;
 }
 
-int PyShapeObject_UpdateAABB (PyShapeObject *shape, PyBodyObject *refbody)
+/**
+ * RectShape._update_aabb
+ */
+static PyObject* _RectShape_updateAABB(PyRectShapeObject* shape, PyObject *args)
+{
+    PyObject *body;
+    if (!PyArg_ParseTuple (args, "O", &body))
+        return NULL;
+
+    if (!PyBody_Check (body))
+    {
+        PyErr_SetString (PyExc_TypeError, "body must be a Body");
+        return NULL;
+    }
+    
+    _RectShapeUpdateAABB ((PyBodyObject*)body);
+    Py_RETURN_NONE;
+}
+
+
+/* Internally used functions */
+
+int PyShapeObject_UpdateAABB (PyBodyObject *refbody)
 {
     PyObject *result;
     int retval;
 
     /* C implementations should fill that */
-    if (shape->UpdateAABB)
+    if (((PyShapeObject*)refbody->shape)->UpdateAABB)
     {
-        shape->UpdateAABB (refbody);
+        ((PyShapeObject*)refbody->shape)->UpdateAABB (refbody);
         return 1;
     }
     /* No internal collision implementation, try the python one. */
-    result = PyObject_CallMethod ((PyObject*)shape, "_update_aabb", "O",
+    result = PyObject_CallMethod (refbody->shape, "_update_aabb", "O",
         (PyObject*)refbody);
     if (!result)
         return 0;
@@ -502,18 +627,19 @@ int PyShapeObject_UpdateAABB (PyShapeObject *shape, PyBodyObject *refbody)
     return retval;
 }
 
-int PyShapeObject_Collision (PyShapeObject *shape, PyBodyObject *refbody,
+int PyShapeObject_Collision (PyBodyObject *refbody,
     PyBodyObject *incbody, PyObject *contactlist)
 {
     PyObject *result;
     int retval;
 
     /* C implementations should fill that */
-    if (shape->Collision)
-        return shape->Collision (refbody, incbody, contactlist);
+    if (((PyShapeObject*)refbody->shape)->Collision)
+        return ((PyShapeObject*)refbody->shape)->Collision (refbody, incbody,
+            contactlist);
 
     /* No internal collision implementation, try the python one. */
-    result = PyObject_CallMethod ((PyObject*)shape, "_collision", "OOO",
+    result = PyObject_CallMethod (refbody->shape, "_collision", "OOO",
         (PyObject*)refbody, (PyObject*)incbody, contactlist);
     if (!result)
         return -1;

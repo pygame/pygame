@@ -65,27 +65,26 @@ static int PyWorld_RemoveJoint(PyObject* world, PyObject* joint);
 static int PyWorld_Update(PyObject* world, double dt);
 
 /**
- * Here we allow the Python object to do stuff like
- *
- *  myworld.test_noargs ()
- *  myworld.test_args (arg1, arg2, ...)
+ * Getters and setters for the World
  */
 static PyGetSetDef _World_getseters[] = {
     { "damping", (getter)_World_getDamping, (setter)_World_setDamping,
       "damping", NULL },
     { "gravity",(getter)_World_getGravity, (setter)_World_setGravity,
       "gravity",NULL, },
-    { "body_list",(getter)_World_getBodyList,NULL,NULL,NULL },
-    { "joint_list",(getter)_World_getJointList,NULL,NULL,NULL },
+    { "bodies",(getter)_World_getBodyList,NULL,NULL,NULL },
+    { "joints",(getter)_World_getJointList,NULL,NULL,NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
-
+/**
+ * Methods for the world.
+ */
 static PyMethodDef _World_methods[] =
 {
     { "update", (PyCFunction) _World_update, METH_VARARGS, "" },
-    {"add_body",(PyCFunction) _World_addBody, METH_VARARGS, ""},
-    {"add_joint",(PyCFunction) _World_addJoint, METH_VARARGS, ""},
+    { "add_body",(PyCFunction) _World_addBody, METH_VARARGS, "" },
+     {"add_joint",(PyCFunction) _World_addJoint, METH_VARARGS, "" },
     { NULL, NULL, 0, NULL } /* The NULL sentinel is important! */
 };
 
@@ -120,7 +119,7 @@ PyTypeObject PyWorld_Type =
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
     _World_methods,             /* tp_methods */
-    0,             /* tp_members */
+    0,                          /* tp_members */
     _World_getseters,           /* tp_getset */
     0,                          /* tp_base */
     0,                          /* tp_dict */
@@ -140,6 +139,12 @@ PyTypeObject PyWorld_Type =
     0                           /* tp_del */
 };
 
+/**
+ * Updates the velocity of the bodies attached to the world.
+ *
+ * @param world The PyWorldObject to update the bodies for.
+ * @param stepTime The time passed since the last update.
+ */ 
 static void _FreeBodySimulation(PyWorldObject* world,double stepTime)
 {
     Py_ssize_t i;
@@ -152,6 +157,13 @@ static void _FreeBodySimulation(PyWorldObject* world,double stepTime)
     }
 }
 
+/**
+ * Checks the bodies and joints attached to the world for collisions and
+ * updates them accordingly.
+ *
+ * @param world The PyWorldObject to check the bodies and joints for.
+ * @param step The time passed since the last update.
+ */
 static void _BodyCollisionDetection(PyWorldObject* world, double step)
 {
     Py_ssize_t i, j, body_cnt, contact_cnt;
@@ -171,8 +183,7 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
     for(i = 0; i < body_cnt; ++i)
     {
         refBody = (PyBodyObject*)(PyList_GetItem(world->bodyList, i));
-        refShape = (PyShapeObject*)refBody->shape;
-        PyShapeObject_UpdateAABB (refShape, refBody);
+        PyShapeObject_UpdateAABB (refBody);
     }
     
     //collision test
@@ -188,8 +199,7 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
             incShape = (PyShapeObject*)incBody->shape;
             if(AABB_IsOverlap(&(refShape->box), &(incShape->box), 1e-8))
             {
-                PyShapeObject_Collision (refShape, refBody, incBody,
-                    world->contactList);
+                PyShapeObject_Collision (refBody, incBody, world->contactList);
             }
         }
     }
@@ -231,6 +241,12 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
     }
 }
 
+/**
+ * Updates all joints attached to the world.
+ *
+ * @param world The PyWorldObject to update the joints for.
+ * @param stepTime The time passed since the last update.
+ */
 static void _JointSolve(PyWorldObject* world,double stepTime)
 {
     Py_ssize_t size = PyList_Size((PyObject*)(world->jointList));
@@ -252,6 +268,12 @@ static void _JointSolve(PyWorldObject* world,double stepTime)
     }
 }
 
+/**
+ * Updates the positions of the bodies attached to the world.
+ *
+ * @param world The PyWorldObject to update the body positions for.
+ * @param stepTime The time passed since the last update.
+ */
 static void _BodyPositionUpdate(PyWorldObject* world,double stepTime)
 {
     Py_ssize_t size = PyList_Size(world->bodyList);
@@ -264,6 +286,12 @@ static void _BodyPositionUpdate(PyWorldObject* world,double stepTime)
     }
 }
 
+/**
+ * Performs any necessary position correction for the attached bodies.
+ *
+ * @param world The PyWorldObject to update the bodies for.
+ * @param stepTime The time passed since the last update.
+ */
 static void _BodyPositionCorrection(PyWorldObject* world,double stepTime)
 {
     Py_ssize_t size = PyList_Size((PyObject*)(world->bodyList));
@@ -276,6 +304,13 @@ static void _BodyPositionCorrection(PyWorldObject* world,double stepTime)
     }
 }
 
+/**
+ * Performs a full world update inluding body updates, collision dection and
+ * any necessary correctins.
+ *
+ * @param world The PyWorldObject to update.
+ * @param stepTime The time passed since the last update.
+*/
 static void _Update(PyWorldObject* world,double stepTime)
 {
     int i;
@@ -291,6 +326,11 @@ static void _Update(PyWorldObject* world,double stepTime)
 	
 }
 
+/**
+ * Initializes the internals of the passed PyWorldObject with their defaults.
+ *
+ * @param world The PyWorldObject to initialize.
+ */
 static void _WorldInit(PyWorldObject* world)
 {
     world->bodyList = PyList_New(0);
@@ -302,6 +342,9 @@ static void _WorldInit(PyWorldObject* world)
     world->fTotalTime = 0.0;
 }
 
+/**
+ * Creates a new PyWorldObject and initializes it.
+ */
 static PyWorldObject* _WorldNewInternal(PyTypeObject *type)
 {
     PyWorldObject* op = (PyWorldObject*)type->tp_alloc(type, 0);
@@ -312,6 +355,9 @@ static PyWorldObject* _WorldNewInternal(PyTypeObject *type)
     return op;
 }
 
+/**
+ * Creates a new PyWorldObject and initializes it.
+ */
 static PyObject* _WorldNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     /* In case we have arguments in the python code, parse them later
@@ -320,6 +366,11 @@ static PyObject* _WorldNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject*) _WorldNewInternal(type);
 }
 
+/**
+ * Deallocates the passed PyWorldObject.
+ *
+ * @param world The PyWorldObject to deallocate.
+ */
 static void _WorldDestroy(PyWorldObject* world)
 {
     /*
@@ -333,65 +384,20 @@ static void _WorldDestroy(PyWorldObject* world)
     world->ob_type->tp_free((PyObject*)world);
 }
 
-static PyObject* _World_update (PyWorldObject* world, PyObject* args)
-{
-    double dt;
-    
-    if (!PyArg_ParseTuple(args,"|d", &dt))
-        dt = 0.1;
-    if (dt < 0)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "step time must not be smaller than 0");
-        return NULL;
-    }
-    _Update (world,dt);
-    Py_RETURN_NONE;
-}
+/* World getters/setters */
 
-static PyObject* _World_addBody(PyWorldObject* world, PyObject* args)
-{
-    PyObject* body;
-    if (!PyArg_ParseTuple(args,"O",&body) || !PyBody_Check (body))
-    {
-        PyErr_SetString(PyExc_ValueError, "argument must be a body");
-        return NULL;
-    }
-
-    if(!PyWorld_AddBody((PyObject*)world, body))
-    {
-        Py_RETURN_FALSE;
-    }
-    else
-    {
-        Py_RETURN_TRUE;
-    }
-}
-
-static PyObject* _World_addJoint(PyWorldObject* world,PyObject* args)
-{
-    PyObject* joint;
-    if (!PyArg_ParseTuple(args,"O",&joint) || !PyJoint_Check (joint))
-    {
-        PyErr_SetString(PyExc_ValueError,"argument must be a joint");
-        return NULL;
-    }
-    if(!PyWorld_AddJoint((PyObject*)world,joint))
-    {
-        Py_RETURN_FALSE;
-    }
-    else
-    {
-        Py_RETURN_TRUE;
-    }
-}
-
+/**
+ * Getter for World.gravity.
+ */
 static PyObject* _World_getGravity(PyWorldObject* world,void* closure)
 {
     return Py_BuildValue ("(ff)", world->vecGravity.real,
         world->vecGravity.imag);
 }
 
+/**
+ * Setter for World.gravity = (x, y)
+ */
 static int _World_setGravity(PyWorldObject* world,PyObject* value,void* closure)
 {
     PyObject *item;
@@ -425,11 +431,17 @@ static int _World_setGravity(PyWorldObject* world,PyObject* value,void* closure)
     return 0;
 }
 
+/**
+ * Getter for World.damping
+ */
 static PyObject* _World_getDamping(PyWorldObject* world,void* closure)
 {
     return PyFloat_FromDouble (world->fDamping);
 }
 
+/**
+ * Setter for World.damping = x
+ */
 static int _World_setDamping(PyWorldObject* world,PyObject* value,
     void* closure)
 {
@@ -452,18 +464,90 @@ static int _World_setDamping(PyWorldObject* world,PyObject* value,
     
 }
 
+/**
+ * Getter for World.bodies
+ */
 static PyObject* _World_getBodyList(PyWorldObject* world,void* closure)
 {
-    Py_INCREF (world->bodyList);
-    return world->bodyList;
+    /* Return a copy of the list, so the user cannot manipulate the bodies
+     * directly. */
+    return PySequence_List (world->bodyList);
 }
 
+/**
+ * Getter for World.joints
+ */
 static PyObject* _World_getJointList(PyWorldObject* world,void* closure)
 {
-    Py_INCREF (world->jointList);
-    return world->jointList;
+    /* Return a copy of the list, so the user cannot manipulate the bodies
+     * directly. */
+    return PySequence_List (world->jointList);
 }
 
+
+/* World methods */
+
+/**
+ * World.update (x)
+ */
+static PyObject* _World_update (PyWorldObject* world, PyObject* args)
+{
+    double dt;
+    
+    if (!PyArg_ParseTuple(args,"|d", &dt))
+        dt = 0.1;
+    if (dt < 0)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "step time must not be smaller than 0");
+        return NULL;
+    }
+    _Update (world,dt);
+    Py_RETURN_NONE;
+}
+
+/**
+ * World.add_body (x)
+ */
+static PyObject* _World_addBody(PyWorldObject* world, PyObject* args)
+{
+    PyObject* body;
+    if (!PyArg_ParseTuple(args,"O",&body) || !PyBody_Check (body))
+    {
+        PyErr_SetString(PyExc_ValueError, "argument must be a body");
+        return NULL;
+    }
+
+    if(!PyWorld_AddBody((PyObject*)world, body))
+    {
+        Py_RETURN_FALSE;
+    }
+    else
+    {
+        Py_RETURN_TRUE;
+    }
+}
+
+/**
+ * World.add_joint (x)
+ */
+static PyObject* _World_addJoint(PyWorldObject* world,PyObject* args)
+{
+    PyObject* joint;
+    if (!PyArg_ParseTuple(args,"O",&joint) || !PyJoint_Check (joint))
+    {
+        PyErr_SetString(PyExc_ValueError,"argument must be a joint");
+        return NULL;
+    }
+    if(!PyWorld_AddJoint((PyObject*)world,joint))
+    {
+        Py_RETURN_FALSE;
+    }
+    else
+    {
+        Py_RETURN_TRUE;
+    }
+}
 
 /* C API */
 static PyObject* PyWorld_New (void)

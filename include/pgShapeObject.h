@@ -29,7 +29,7 @@
  * @param shape
  * @param refbody
  */
-int PyShapeObject_UpdateAABB (PyShapeObject *shape, PyBodyObject *refbody);
+int PyShapeObject_UpdateAABB (PyBodyObject *refbody);
 
 /**
  * TODO
@@ -39,8 +39,8 @@ int PyShapeObject_UpdateAABB (PyShapeObject *shape, PyBodyObject *refbody);
  * @param incbody
  * @param conactlist
  */
-int PyShapeObject_Collision (PyShapeObject *shape, PyBodyObject *refbody,
-    PyBodyObject *incbody, PyObject *contactlist);
+int PyShapeObject_Collision (PyBodyObject *refbody, PyBodyObject *incbody,
+    PyObject *contactlist);
 
 /**
  * Python C API export hook

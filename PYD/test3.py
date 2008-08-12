@@ -9,7 +9,7 @@ def render_body(body,surface,color):
     pygame.draw.polygon(surface,color,l)
 
 def render_world(world,surface,color):
-    for body in world.body_list:
+    for body in world.bodies:
         render_body(body,surface,color)
         
 

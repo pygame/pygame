@@ -13,9 +13,9 @@ def render_joint(joint,surface,color):
 	pygame.draw.lines(surface,color,False,l)
 
 def render_world(world,surface,body_color,joint_color):
-    for body in world.body_list:
+    for body in world.bodies:
         render_body(body,surface,body_color)
-    for joint in world.joint_list:
+    for joint in world.joints:
         render_joint(joint,surface,joint_color)        
 
 def init_world():
