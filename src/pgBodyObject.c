@@ -80,14 +80,17 @@ static PyGetSetDef _Body_getseters[] = {
       "Torque", NULL },
     { "restitution", (getter) _Body_getRestitution,
       (setter) _Body_setRestitution, "Restitution", NULL },
-    {"friction", (getter) _Body_getFriction, (setter) _Body_setFriction,
-     "Friction", NULL },
-
-    {"velocity",(getter)_Body_getVelocity,(setter)_Body_setVelocity,"velocity",NULL},
-	{"angle_velocity",(getter)_Body_getAngularVel,(setter)_Body_setAngularVel,"Angular Velocity",NULL},
-    {"position",(getter)_Body_getPosition,(setter)_Body_setPosition,"position",NULL},
-    {"force",(getter)_Body_getForce,(setter)_Body_setForce,"force",NULL},
-    {"static",(getter)_Body_getBStatic,(setter)_Body_setBStatic,"whether static",NULL},
+    { "friction", (getter) _Body_getFriction, (setter) _Body_setFriction,
+      "Friction", NULL },
+    { "velocity",(getter)_Body_getVelocity,(setter)_Body_setVelocity,
+      "velocity",NULL },
+    { "angular_velocity",(getter)_Body_getAngularVel,
+      (setter)_Body_setAngularVel,"Angular Velocity",NULL },
+    { "position",(getter)_Body_getPosition,(setter)_Body_setPosition,
+      "position",NULL },
+    { "force",(getter)_Body_getForce,(setter)_Body_setForce,"force",NULL },
+    { "static",(getter)_Body_getBStatic,(setter)_Body_setBStatic,
+      "whether static",NULL },
     { NULL, NULL, NULL, NULL, NULL}
 };
 
@@ -142,6 +145,12 @@ PyTypeObject PyBody_Type =
     0                           /* tp_del */
 };
 
+/**
+ * Internal body initialization. Fill the fields of the Body structure
+ * with the default values.
+ *
+ * @param body The PyBodyObject to initialize.
+ */
 static void _BodyInit(PyBodyObject* body)
 {
     body->fAngleVelocity = 0.0;
@@ -160,6 +169,9 @@ static void _BodyInit(PyBodyObject* body)
     PyVector2_Set(body->vecPosition,0.0,0.0);
 }
 
+/**
+ * Creates a new PyBodyObject.
+ */
 static PyObject* _BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     //TODO: parse args later on
@@ -171,6 +183,11 @@ static PyObject* _BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return op;
 }
 
+/**
+ * Deallocates the passed PyBodyObject.
+ *
+ * @param body The PyBodyObject to deallocate.
+ */
 static void _BodyDestroy(PyBodyObject* body)
 {
     /*
@@ -187,13 +204,18 @@ static void _BodyDestroy(PyBodyObject* body)
 //============================================================
 //getter and setter functions
 
-//velocity
+/**
+ * Getter for Body.velocity
+ */
 static PyObject* _Body_getVelocity(PyBodyObject* body,void* closure)
 {
     return Py_BuildValue ("(ff)", body->vecLinearVelocity.real,
         body->vecLinearVelocity.imag);
 }
 
+/**
+ * Setter for Body.velocity = (x, y)
+ */
 static int _Body_setVelocity(PyBodyObject* body,PyObject* value,void* closure)
 {
     PyObject *item;
@@ -217,13 +239,18 @@ static int _Body_setVelocity(PyBodyObject* body,PyObject* value,void* closure)
     return 0;
 }
 
-//position
+/**
+ * Getter for Body.position
+ */
 static PyObject* _Body_getPosition(PyBodyObject* body,void* closure)
 {
     return Py_BuildValue ("(ff)", body->vecPosition.real,
         body->vecPosition.imag);
 }
 
+/**
+ * Setter for Body.position = (x, y)
+ */
 static int _Body_setPosition(PyBodyObject* body,PyObject* value,void* closure)
 {
     PyObject *item;
@@ -247,12 +274,17 @@ static int _Body_setPosition(PyBodyObject* body,PyObject* value,void* closure)
     return 0;
 }
 
-//force
+/**
+ * Getter for Body.force
+ */
 static PyObject* _Body_getForce(PyBodyObject* body,void* closure)
 {
     return Py_BuildValue ("(ff)", body->vecForce.real, body->vecForce.imag);
 }
 
+/**
+ * Setter for Body.force = (x, y)
+ */
 static int _Body_setForce(PyBodyObject* body,PyObject* value,void* closure)
 {
     PyObject *item;
@@ -285,7 +317,7 @@ static int _Body_setForce(PyBodyObject* body,PyObject* value,void* closure)
 }
 
 /**
- * Getter for retrieving the mass of the passed body.
+ * Getter for Body.mass
  */
 static PyObject* _Body_getMass (PyBodyObject* body,void* closure)
 {
@@ -293,7 +325,7 @@ static PyObject* _Body_getMass (PyBodyObject* body,void* closure)
 }
 
 /**
- * Sets the mass of the passed body.
+ * Setter for Body.mass = x
  */
 static int _Body_setMass(PyBodyObject* body,PyObject* value,void* closure)
 {
@@ -321,7 +353,7 @@ static int _Body_setMass(PyBodyObject* body,PyObject* value,void* closure)
 }
 
 /**
- * Getter for retrieving the rotation of the passed body.
+ * Getter for Body.rotation.
  */
 static PyObject* _Body_getRotation (PyBodyObject* body,void* closure)
 {
@@ -329,7 +361,7 @@ static PyObject* _Body_getRotation (PyBodyObject* body,void* closure)
 }
 
 /**
- * Sets the rotation of the passed body.
+ * Setter for Body.rotation = x
  */
 static int _Body_setRotation(PyBodyObject* body,PyObject* value,void* closure)
 {
@@ -352,36 +384,38 @@ static int _Body_setRotation(PyBodyObject* body,PyObject* value,void* closure)
 }
 
 /**
-* Getter for retrieving the angular velocity of the passed body.
+* Getter for Body.angular_velocity
 */
 static PyObject* _Body_getAngularVel (PyBodyObject* body,void* closure)
 {
 	return PyFloat_FromDouble (body->fAngleVelocity);
 }
 
-
+/**
+ * Setter for Body.angular_velocity = x
+ */
 static int _Body_setAngularVel(PyBodyObject* body,PyObject* value,void* closure)
 {
-	if (PyNumber_Check (value))
-	{
-		PyObject *tmp = PyNumber_Float (value);
+    if (PyNumber_Check (value))
+    {
+        PyObject *tmp = PyNumber_Float (value);
 
-		if (tmp)
-		{
-			double fAngleVelocity = PyFloat_AsDouble (tmp);
-			Py_DECREF (tmp);
-			if (PyErr_Occurred ())
-				return -1;
-			body->fAngleVelocity = fAngleVelocity;
-			return 0;
-		}
-	}
-	PyErr_SetString (PyExc_TypeError, "rotation must be a float");
-	return -1;
+        if (tmp)
+        {
+            double fAngleVelocity = PyFloat_AsDouble (tmp);
+            Py_DECREF (tmp);
+            if (PyErr_Occurred ())
+                return -1;
+            body->fAngleVelocity = fAngleVelocity;
+            return 0;
+        }
+    }
+    PyErr_SetString (PyExc_TypeError, "rotation must be a float");
+    return -1;
 }
 
 /**
- * Getter for retrieving the torque of the passed body.
+ * Getter for Body.torque
  */
 static PyObject* _Body_getTorque (PyBodyObject* body,void* closure)
 {
@@ -389,7 +423,7 @@ static PyObject* _Body_getTorque (PyBodyObject* body,void* closure)
 }
 
 /**
- * Sets the torque of the passed body.
+ * Setter for Body.torque = x
  */
 static int _Body_setTorque (PyBodyObject* body,PyObject* value,void* closure)
 {
@@ -412,7 +446,7 @@ static int _Body_setTorque (PyBodyObject* body,PyObject* value,void* closure)
 }
 
 /**
- * Getter for retrieving the restitution of the passed body.
+ * Getter for Body.restitution
  */
 static PyObject* _Body_getRestitution (PyBodyObject* body,void* closure)
 {
@@ -420,7 +454,7 @@ static PyObject* _Body_getRestitution (PyBodyObject* body,void* closure)
 }
 
 /**
- * Sets the restitution of the passed body.
+ * Setter for Body.restitution = x
  */
 static int _Body_setRestitution (PyBodyObject* body,PyObject* value,
     void* closure)
@@ -450,7 +484,7 @@ static int _Body_setRestitution (PyBodyObject* body,PyObject* value,
 }
 
 /**
- * Getter for retrieving the friction of the passed body.
+ * Getter for Body.friction
  */
 static PyObject* _Body_getFriction (PyBodyObject* body,void* closure)
 {
@@ -458,7 +492,7 @@ static PyObject* _Body_getFriction (PyBodyObject* body,void* closure)
 }
 
 /**
- * Sets the friction of the passed body.
+ * Setter for Body.friction = x
  */
 static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure)
 {
@@ -487,7 +521,7 @@ static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure)
 }
 
 /**
- * Getter for retrieving the bStatic of the passed body.
+ * Setter for Body.static = x
  */
 static PyObject* _Body_getBStatic (PyBodyObject* body,void* closure)
 {
@@ -497,7 +531,7 @@ static PyObject* _Body_getBStatic (PyBodyObject* body,void* closure)
 }
 
 /**
- * Sets the bStatic of the passed body.
+ * Getter for Body.static
  */
 static int _Body_setBStatic (PyBodyObject* body,PyObject* value,void* closure)
 {
@@ -512,7 +546,7 @@ static int _Body_setBStatic (PyBodyObject* body,PyObject* value,void* closure)
 }
 
 /**
- * Getter for retrieving the shape of the passed body.
+ * Getter for Body.shape
  */
 static PyObject* _Body_getShape (PyBodyObject* body,void* closure)
 {
@@ -524,7 +558,7 @@ static PyObject* _Body_getShape (PyBodyObject* body,void* closure)
 }
 
 /**
- * Sets the shape of the passed body.
+ * Setter for Body.shape = x
  */
 static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure)
 {
@@ -556,6 +590,12 @@ static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure)
     return 0;
 }
 
+
+/* Body methods */
+
+/**
+ * Body.get_points ()
+ */
 static PyObject *_Body_getPointList(PyObject *self, PyObject *args)
 {
     PyBodyObject* body = (PyBodyObject*)self;
@@ -595,6 +635,8 @@ static PyObject *_Body_getPointList(PyObject *self, PyObject *args)
     return list;
 }
 
+/* Internally used Body functions */
+
 void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
     double dt)
 {
@@ -610,7 +652,8 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
         PyVector2_MultiplyWithReal(totalF, dt/body->fMass));
     k1 = PG_Clamp(1-dt*body->fLinearVelDamping,0.0,1.0);
     k2 = PG_Clamp(1-dt*body->fAngleVelDamping,0.0,1.0);
-    body->vecLinearVelocity = PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
+    body->vecLinearVelocity =
+        PyVector2_MultiplyWithReal(body->vecLinearVelocity,k1);
     body->fAngleVelocity *= k2;
 }
 
@@ -645,7 +688,8 @@ PyVector2 PyBodyObject_GetGlobalPos(PyBodyObject* body, PyVector2* local_p)
     return ans;
 }
 
-PyVector2 PyBodyObject_GetRelativePosFromGlobal(PyBodyObject* body, PyVector2* global_p)
+PyVector2 PyBodyObject_GetRelativePosFromGlobal(PyBodyObject* body,
+    PyVector2* global_p)
 {
 	PyVector2 ans = c_diff(*global_p,body->vecPosition);
 

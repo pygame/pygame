@@ -21,7 +21,20 @@
 #ifndef _PHYSICS_JOINT_H_
 #define _PHYSICS_JOINT_H_
 
+/**
+ * TODO
+ *
+ * @param joint
+ * @param stepTime
+ */
 int JointObject_SolveConstraintVelocity (PyJointObject *joint, double stepTime);
+
+/**
+ * TODO
+ *
+ * @param joint
+ * @param stepTime
+ */
 int JointObject_SolveConstraintPosition (PyJointObject *joint, double stepTime);
 
 /**

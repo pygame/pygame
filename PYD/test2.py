@@ -37,12 +37,10 @@ def init_world():
     w.add_body(body2)
     
     joint1 = physics.DistanceJoint(body1,body,1)
-    #joint1.distance = 10
     joint1.anchor1 = 0, 0
     joint1.anchor2 = 0, 0
     w.add_joint(joint1)
     joint2 = physics.DistanceJoint(body1,body2,1)
-    #joint2.distance = 10
     joint2.anchor1 = 0, 0
     joint2.anchor2 = 0, 0
     w.add_joint(joint2)

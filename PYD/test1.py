@@ -30,7 +30,7 @@ def init_world():
     body2.velocity = -2, 0
     body1.restitution = 1.0
     body1.rotation = 3
-    body1.angle_velocity = 1
+    body1.angular_velocity = 1
     body1.mass = 20*20
     w.add_body(body2)
     return w

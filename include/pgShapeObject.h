@@ -23,8 +23,22 @@
 
 #include "pgphysics.h"
 
+/**
+ * TODO
+ *
+ * @param shape
+ * @param refbody
+ */
 int PyShapeObject_UpdateAABB (PyShapeObject *shape, PyBodyObject *refbody);
 
+/**
+ * TODO
+ *
+ * @param shape
+ * @param refbody
+ * @param incbody
+ * @param conactlist
+ */
 int PyShapeObject_Collision (PyShapeObject *shape, PyBodyObject *refbody,
     PyBodyObject *incbody, PyObject *contactlist);
 

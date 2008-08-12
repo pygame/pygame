@@ -68,7 +68,8 @@ PyVector2 PyBodyObject_GetGlobalPos(PyBodyObject* body, PyVector2* local_p);
 * @param global_p
 * @return
 */
-PyVector2 PyBodyObject_GetRelativePosFromGlobal(PyBodyObject* body, PyVector2* global_p);
+PyVector2 PyBodyObject_GetRelativePosFromGlobal(PyBodyObject* body,
+    PyVector2* global_p);
 
 /**
  * Translate vector from coordinate B to the body coordinates A
