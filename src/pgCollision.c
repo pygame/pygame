@@ -49,10 +49,18 @@ static PyJointObject* _ContactNew(PyBodyObject* refBody,
 //TODO: add rest contact
 
 
-// Apply Liang-Barskey clip on a AABB box
-// (p1, p2) is the input line segment to be clipped (note: it's a 2d vector)
-// (ans_p1, ans_p2) is the output line segment
-//TEST: Liang-Barskey clip has been tested.
+/**
+ * Apply Liang-Barskey clip on a AABB box
+ * (p1, p2) is the input line segment to be clipped (note: it's a 2d vector)
+ * (ans_p1, ans_p2) is the output line segment
+ * TEST: Liang-Barskey clip has been tested.
+ *
+ * @param p
+ * @param q
+ * @param u1
+ * @param u2
+ * @return
+ */
 static int _LiangBarskey_Internal(double p, double q, double* u1, double* u2)
 {
     double val;
@@ -74,6 +82,12 @@ static int _LiangBarskey_Internal(double p, double q, double* u1, double* u2)
     return 1; 
 }
 
+/**
+ * TODO
+ *
+ * @param joint
+ * @param step
+ */
 static void _UpdateV(PyJointObject* joint, double step)
 {
     PyContact *contact;
@@ -119,11 +133,16 @@ static void _UpdateV(PyJointObject* joint, double step)
     }
 }
 
+/**
+ * TODO
+ *
+ * @param joint
+ * @param step
+ */
 static void _UpdateP(PyJointObject* joint, double step)
 {
     //isolated function
 }
-
 
 int Collision_LiangBarskey(AABBBox* box, PyVector2* p1, PyVector2* p2, 
     PyVector2* ans_p1, PyVector2* ans_p2)
@@ -216,7 +235,14 @@ int Collision_PartlyLB(AABBBox* box, PyVector2* p1, PyVector2* p2,
 
 void Collision_ApplyContact(PyObject* contactObject, double step)
 {
+/**
+ * TODO
+ */
 #define MAX_C_DEP 0.01
+
+/**
+ * TODO
+ */
 #define BIAS_FACTOR 0.2
 
     PyVector2 neg_dV, refV, incidV;
@@ -237,6 +263,10 @@ void Collision_ApplyContact(PyObject* contactObject, double step)
     incidBody = (PyBodyObject*)contact->joint.body2;
 
     contact->resist = sqrt(refBody->fRestitution*incidBody->fRestitution);
+
+    /*
+     * TODO: explain the magic happening here.
+     */
 
     refR = c_diff(contact->pos, refBody->vecPosition);
     incidR = c_diff(contact->pos, incidBody->vecPosition);
@@ -332,7 +362,11 @@ PyTypeObject PyContact_Type =
     0                           /* tp_del */
 };
 
-
+/**
+ * Deallocates the passed PyContact.
+ *
+ * @param contact The PyContact to deallocate
+ */
 static void _ContactDestroy(PyJointObject* contact)
 {
     PyVector2 **p = ((PyContact*)contact)->ppAccMoment;
@@ -360,6 +394,9 @@ static void _ContactDestroy(PyJointObject* contact)
     }
 }
 
+/**
+ * Creates a new PyContact object.
+ */
 static PyObject* _ContactNewInternal(PyTypeObject *type, PyObject *args,
     PyObject *kwds)
 {
@@ -369,6 +406,13 @@ static PyObject* _ContactNewInternal(PyTypeObject *type, PyObject *args,
     return (PyObject*)op;
 }
 
+/**
+ * Creates a new PyContact object and initializes its internals.
+ *
+ * @param refBody
+ * @param incidBody
+ * @return A new PyContact.
+ */
 static PyJointObject* _ContactNew(PyBodyObject* refBody,PyBodyObject* incidBody)
 {
     PyContact* contact;
@@ -385,6 +429,8 @@ static PyJointObject* _ContactNew(PyBodyObject* refBody,PyBodyObject* incidBody)
 
     return (PyJointObject*)contact;
 }
+
+/* Internally used PyContact functions */
 
 PyObject* PyContact_New(PyBodyObject* refBody, PyBodyObject* incidBody)
 {

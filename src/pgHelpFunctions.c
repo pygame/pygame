@@ -22,7 +22,6 @@
 #include <assert.h>
 #include "pgHelpFunctions.h"
 
-
 int
 DoubleFromObj (PyObject* obj, double* val)
 {
