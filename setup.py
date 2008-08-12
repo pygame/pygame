@@ -61,6 +61,13 @@ from distutils.core import setup, Extension
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 
+
+# allow optionally using setuptools for bdist_egg.
+if "-setuptools" in sys.argv:
+    from setuptools import setup, find_packages
+    sys.argv.remove ("-setuptools")
+
+
 # NOTE: the pyobjc, and bdist_mpkg_support is for darwin.
 try:
     import bdist_mpkg_support
