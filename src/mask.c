@@ -20,6 +20,16 @@
 
 */
 
+/* a couple of print debugging helpers */
+/*
+#define CALLLOG2(x,y) fprintf(stderr, (x), (y));
+#define CALLLOG(x) fprintf(stderr, (x));
+*/
+
+#define CALLLOG(x);
+#define CALLLOG2(x,y);
+
+
 #include "pygame.h"
 #include "pygamedocs.h"
 #include "structmember.h"
@@ -704,9 +714,21 @@ static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
     return (PyObject*)maskobj;
 }
 
-/* the initial labelling phase of the connected components algorithm */
-unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind, unsigned int* largest)
-{
+
+
+
+/* the initial labelling phase of the connected components algorithm 
+
+Returns: TODO:FIXME: what does it return?
+
+TODO: FIXME: what are these arguments?
+input - 
+image - 
+ufind - 
+largest - 
+
+*/
+unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind, unsigned int* largest) {
     unsigned int *buf;
     unsigned int x, y, w, h, root, aroot, croot, temp, label;
     
@@ -727,7 +749,12 @@ unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind
         *buf = 0;
     }
     buf++;
-    /* special case for first row */
+
+
+
+    /* special case for first row.  
+	   Go over the first row except the first pixel. 
+	*/
     for(x = 1; x < w; x++) {
         if (bitmask_getbit(input, x, 0)) {
             if (*(buf-1)) {                    /* d label */
@@ -744,6 +771,9 @@ unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind
         }
         buf++;
     }
+
+
+
     /* the rest of the image */
     for(y = 1; y < h; y++) {
         /* first pixel of the row */
@@ -864,6 +894,8 @@ unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind
     return label;
 }
 
+
+
 /* Connected component labeling based on the SAUF algorithm by Kesheng Wu,
    Ekow Otoo, and Kenji Suzuki.  The algorithm is best explained by their paper,
    "Two Strategies to Speed up Connected Component Labeling Algorithms", but in
@@ -871,28 +903,53 @@ unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind
    It uses a decision tree to minimize the number of neighbors that need to be
    checked.  It stores equivalence information in an array based union-find.
    This implementation also has a final step of finding bounding boxes. */
-static GAME_Rect* get_bounding_rects(bitmask_t *input, int *num_bounding_boxes)
-{
+
+/* 
+returns -2 on memory allocation error, otherwise 0 on success.
+
+input - the input mask.
+num_bounding_boxes - returns the number of bounding rects found.
+rects - returns the rects that are found.  Allocates the memory for the rects.
+
+*/
+static int get_bounding_rects(bitmask_t *input, int *num_bounding_boxes, GAME_Rect** ret_rects) {
     unsigned int *image, *ufind, *largest, *buf;
     int x, y, w, h, temp, label, relabel;
-    GAME_Rect* rects;
+	GAME_Rect* rects;
+
+	rects = NULL;
     
     label = 0;
+
     w = input->w;
     h = input->h;
 
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *) malloc(sizeof(int)*w*h);
+	if(!image) { return -2; }
+
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
     ufind = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
+	if(!ufind) { return -2; }
+
     largest = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
+	if(!largest) { return -2; }
     
+
+	
     /* do the initial labelling */
     label = cc_label(input, image, ufind, largest);
+    
+    CALLLOG("yoyoyo 1\n");
+    CALLLOG2("label :%d: \n", label);
+
 
     relabel = 0;
     /* flatten and relabel the union-find equivalence array */
+
+    /* TODO:FIXME: should the bounds here be < label?  Why does x start at 1 and not 0? */
+
     for (x = 1; x <= label; x++) {
          if (ufind[x] < x) {             /* is it a union find root? */
              ufind[x] = ufind[ufind[x]]; /* relabel it to its root */
@@ -901,14 +958,38 @@ static GAME_Rect* get_bounding_rects(bitmask_t *input, int *num_bounding_boxes)
              ufind[x] = relabel;  /* assign the lowest label available */
          }
     }
+    CALLLOG("yoyoyo 2\n");
+    CALLLOG2("relabel :%d: \n", relabel);
 
     *num_bounding_boxes = relabel;
+
+	if (relabel == 0) {
+		/* early out, as we didn't find anything. */
+
+		free(image);
+		free(ufind);
+		free(largest);
+		*ret_rects = rects;
+
+		return 0;
+	}
+
+
+
+
+
+
     /* the bounding rects, need enough space for the number of labels */
-    rects = (GAME_Rect *) malloc(sizeof(GAME_Rect) * (relabel + 1));
+    rects = (GAME_Rect *) malloc(sizeof(GAME_Rect) * (relabel +1));
+    if(!rects) { return -2; }
+    
+    /* TODO:FIXME: should the bounds here be < relabel?  */
     for (temp = 0; temp <= relabel; temp++) {
         rects[temp].h = 0;        /* so we know if its a new rect or not */
     }
-    
+
+	CALLLOG("yoyoyo 3\n");
+
     /* find the bounding rect of each connected component */
     buf = image;
     for (y = 0; y < h; y++) {
@@ -930,43 +1011,65 @@ static GAME_Rect* get_bounding_rects(bitmask_t *input, int *num_bounding_boxes)
             buf++;
         }
     }
+	CALLLOG("yoyoyo 4\n");
     
+	
     free(image);
     free(ufind);
+	free(largest);
+	*ret_rects = rects;
 
-    return rects;
+    return 0;
 }
 
-static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args)
-{
+static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args) {
     GAME_Rect *regions;
     GAME_Rect *aregion;
-    int num_bounding_boxes, i;
+    int num_bounding_boxes, i, r;
     PyObject* ret;
     PyObject* rect;
+	
 
     bitmask_t *mask = PyMask_AsBitmap(self);
 
     ret = NULL;
+	regions = NULL;
+	aregion = NULL;
+
     num_bounding_boxes = 0;
+
+	CALLLOG("here 1\n");
+
+    Py_BEGIN_ALLOW_THREADS;
+
+    r = get_bounding_rects(mask, &num_bounding_boxes, &regions);
+
+    Py_END_ALLOW_THREADS;
+
+	CALLLOG("here 2\n");
+
+
+    if(r == -2) {
+		/* memory out failure */
+        return RAISE (PyExc_MemoryError, "Not enough memory to get bounding rects. \n");
+	}
 
     ret = PyList_New (0);
     if (!ret)
         return NULL;
 
-    Py_BEGIN_ALLOW_THREADS;
-
-    regions = get_bounding_rects(mask, &num_bounding_boxes);
-
-    Py_END_ALLOW_THREADS;
+	CALLLOG2("here 3: %d\n", num_bounding_boxes);
 
     /* build a list of rects to return.  */
+	/* TODO: FIXME: why do we start at i=1 here? */
     for(i=1; i <= num_bounding_boxes; i++) {
         aregion = regions + i;
         rect = PyRect_New4 ( aregion->x, aregion->y, aregion->w, aregion->h );
         PyList_Append (ret, rect);
         Py_DECREF (rect);
     }
+
+	CALLLOG("here 4\n");
 
     free(regions);
 
