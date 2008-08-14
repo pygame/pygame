@@ -3024,21 +3024,32 @@ static PyObject* surf_average_color(PyObject* self, PyObject* arg)
     SDL_Surface* surf;
     GAME_Rect* rect, temp;
     Uint8 r, g, b, a;
+    int x, y, w, h;
 
     if (!PyArg_ParseTuple (arg, "O!|O", &PySurface_Type, &surfobj, &rectobj))
         return NULL;
     
     surf = PySurface_AsSurface (surfobj);   
     PySurface_Lock (surfobj);
-    Py_BEGIN_ALLOW_THREADS;
+
     if (!rectobj) {
-        average_color(surf, 0, 0, surf->w, surf->h, &r, &g, &b, &a);
+        x = 0;
+        y = 0;
+        w = surf->w;
+        h = surf->h;
     } else {
         if (!(rect = GameRect_FromObject (rectobj, &temp)))
             return RAISE (PyExc_TypeError, "Rect argument is invalid");
-        average_color(surf, rect->x, rect->y, rect->w, rect->h, &r, &g, &b, &a);
-    }
+        x = rect->x;
+        y = rect->y;
+        w = rect->w;
+        h = rect->h;
+    }            
+
+    Py_BEGIN_ALLOW_THREADS;    
+    average_color(surf, x, y, w, h, &r, &g, &b, &a);
     Py_END_ALLOW_THREADS;
+
     PySurface_Unlock (surfobj);
     return Py_BuildValue ("(bbbb)", r, g, b, a);
 }   
