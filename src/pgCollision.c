@@ -32,7 +32,7 @@ static PyObject* _ContactNewInternal(PyTypeObject *type, PyObject *args,
 static PyJointObject* _ContactNew(PyBodyObject* refBody,
     PyBodyObject* incidBody);
 
-// We borrow this graph from Box2DLite
+// We borrow this graph from Box2D Lite
 // Box vertex and edge numbering:
 //
 //        ^ y
