@@ -46,20 +46,18 @@ static PyJointObject* _ContactNew(PyBodyObject* refBody,
 //        e1
 
 
-//TODO: add rest contact
-
-
 /**
- * Apply Liang-Barskey clip on a AABB box
- * (p1, p2) is the input line segment to be clipped (note: it's a 2d vector)
- * (ans_p1, ans_p2) is the output line segment
- * TEST: Liang-Barskey clip has been tested.
+ * _LiangBarskey_Internal is an internal function used for Liang-Barskey clipping function
+ * 
  *
- * @param p
- * @param q
- * @param u1
- * @param u2
- * @return
+ * @param p Start point of the directed line segment to be clipped 
+ * @param q End point of the directed line segment to be clipped
+ * @param u1 Start parameter of clipped line
+ * @param u2 End parameter of clipped line
+ * @return If there is no overlap, return 0. Otherwise return 1
+ * note: ans_p1 = p1 + u1*(p2-p1);
+ *       ans_p2 = p2 + u2*(p2-2p);
+ * that's why we need u1 and u2.
  */
 static int _LiangBarskey_Internal(double p, double q, double* u1, double* u2)
 {
@@ -83,10 +81,10 @@ static int _LiangBarskey_Internal(double p, double q, double* u1, double* u2)
 }
 
 /**
- * TODO
+ * update the two bodies' velocity connected by PyContact
  *
- * @param joint
- * @param step
+ * @param joint It's a PyContact
+ * @param step Time step
  */
 static void _UpdateV(PyJointObject* joint, double step)
 {
@@ -134,14 +132,10 @@ static void _UpdateV(PyJointObject* joint, double step)
 }
 
 /**
- * TODO
- *
- * @param joint
- * @param step
+ * This function is isolated and only hold the place
  */
 static void _UpdateP(PyJointObject* joint, double step)
 {
-    //isolated function
 }
 
 int Collision_LiangBarskey(AABBBox* box, PyVector2* p1, PyVector2* p2, 
@@ -174,75 +168,16 @@ int Collision_LiangBarskey(AABBBox* box, PyVector2* p1, PyVector2* p2,
     return 1;
 }
 
-int Collision_PartlyLB(AABBBox* box, PyVector2* p1, PyVector2* p2, 
-    CollisionAxis axis, PyVector2* ans_p1, PyVector2* ans_p2, 
-    int* valid_p1, int* valid_p2)
-{
-    PyVector2 dp;
-    double u1, u2;
-	
-    u1 = 0.f;
-    u2 = 1.f;
-    dp = c_diff(*p2, *p1);
-
-    switch(axis)
-    {
-    case CA_X:
-        if(!_LiangBarskey_Internal(-dp.imag, p1->imag - box->bottom, &u1, &u2)) return 0;
-        if(!_LiangBarskey_Internal(dp.imag, box->top - p1->imag, &u1, &u2)) return 0;
-        break;
-    case CA_Y:
-        if(!_LiangBarskey_Internal(-dp.real, p1->real - box->left, &u1, &u2)) return 0;
-        if(!_LiangBarskey_Internal(dp.real, box->right - p1->real, &u1, &u2)) return 0;
-        break;
-    default:
-        assert(0);
-        break;
-    }
-
-    if(u1 > u2) return 0;
-
-    if(u1 == 0.f)
-        *ans_p1 = *p1;
-    else
-        *ans_p1 = c_sum(*p1, PyVector2_MultiplyWithReal(dp, u1)); //ans_p1 = p1 + u1*dp
-    if(u2 == 1.f)
-        *ans_p2 = *p2;
-    else
-        *ans_p2 = c_sum(*p1, PyVector2_MultiplyWithReal(dp, u2)); //ans_p2 = p2 + u2*dp;
-
-    switch(axis)
-    {
-    case CA_X:
-        *valid_p1 = PyMath_LessEqual(box->left, ans_p1->real) && 
-            PyMath_LessEqual(ans_p1->real, box->right);
-        *valid_p2 = PyMath_LessEqual(box->left, ans_p2->real) && 
-            PyMath_LessEqual(ans_p2->real, box->right);
-        break;
-    case CA_Y:
-        *valid_p1 = PyMath_LessEqual(box->bottom, ans_p1->imag) && 
-            PyMath_LessEqual(ans_p1->imag, box->top);
-        *valid_p2 = PyMath_LessEqual(box->bottom, ans_p2->imag) && 
-            PyMath_LessEqual(ans_p2->imag, box->top);
-        break;
-    default:
-        assert(0);
-        break;
-    }
-
-    return *valid_p1 || *valid_p2;
-}
-
 void Collision_ApplyContact(PyObject* contactObject, double step)
 {
 /**
- * TODO
+ * MAX_C_DEP is the maximal permitted penetrating depth after collision reaction.
+ * BIAS_FACTOR is a empirical factor. The two constants are used for position collision
+ * after collision reaction is done.
+ * for further learning you can read Erin Canto's GDC 2006 Slides, page 23.
+ * (You can download it from www.gphysics.com)
  */
 #define MAX_C_DEP 0.01
-
-/**
- * TODO
- */
 #define BIAS_FACTOR 0.2
 
     PyVector2 neg_dV, refV, incidV;
@@ -265,9 +200,10 @@ void Collision_ApplyContact(PyObject* contactObject, double step)
     contact->resist = sqrt(refBody->fRestitution*incidBody->fRestitution);
 
     /*
-     * TODO: explain the magic happening here.
+     * The algorithm below is an implementation of the empirical formula for
+	 * impulse-based collision reaction. You can learn the formula thoroughly
+	 * from Helmut Garstenauer's thesis, Page 60.
      */
-
     refR = c_diff(contact->pos, refBody->vecPosition);
     incidR = c_diff(contact->pos, incidBody->vecPosition);
     //dV = v2 + w2xr2 - (v1 + w1xr1)
@@ -286,17 +222,16 @@ void Collision_ApplyContact(PyObject* contactObject, double step)
     //finally we get the momentum(oh...)
     moment = PyVector2_MultiplyWithReal(contact->normal, moment_len);
     p = *(contact->ppAccMoment);
-    //TODO: test weight
     p->real += moment.real/contact->weight;
     p->imag += moment.imag/contact->weight; 
 
     //split impulse
     vbias = BIAS_FACTOR*MAX(0, contact->depth - MAX_C_DEP)/step;
-    //biasdv
+    //biased dv
     bincidV = c_sum(incidBody->cBiasLV, PyVector2_fCross(incidBody->cBiasW, incidR));
     brefV = c_sum(refBody->cBiasLV, PyVector2_fCross(refBody->cBiasW, refR));
     bneg_dV = c_diff(brefV, bincidV); 
-    //bias_moment
+    //biased moment
     bm_len = PyVector2_Dot(PyVector2_MultiplyWithReal(bneg_dV, 1.),
         contact->normal)/contact->kFactor;
     bm_len = MAX(0, bm_len + vbias/contact->kFactor);
@@ -416,7 +351,7 @@ static PyObject* _ContactNewInternal(PyTypeObject *type, PyObject *args,
 static PyJointObject* _ContactNew(PyBodyObject* refBody,PyBodyObject* incidBody)
 {
     PyContact* contact;
-    //TODO: this function would be replaced.
+
     contact = (PyContact*)_ContactNewInternal(&PyContact_Type, NULL, NULL);
     contact->joint.body1 = (PyObject*)refBody;
     contact->joint.body2 = (PyObject*)incidBody;

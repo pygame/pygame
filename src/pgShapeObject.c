@@ -49,15 +49,57 @@ static int _RectShapeCollision(PyBodyObject* selfBody,
 static PyObject *PyShape_New (void);
 static PyObject *PyRectShape_New (double width, double height, double seta);
 
-/* collision test for RectShape */
+
+/*
+	Below are collision test functions for rectangle shape. 
+	Here we employ an algorithm similar to Box2D Lite and Chipmunk. The
+	key difference is we only make use of a single clipping method to find
+	collision face and points, thus it's more robust. It includes such steps:
+	
+	(1) Given two bodies who have already passed AABB box testing, we employ
+	a 2D line clipping method(e.g. Liang-Barskey line clipping) to find the 
+	overlapped convex polygon. If there's no such polygon the two bodies don't
+	collide at all. Otherwise we come to step (2).
+	
+	(2) Use a heuristic method to figure out the collision face(the face on which 
+	collision happens): 
+	Calculate every average distance of all the vertices of the polygon to 8 candidate 
+	faces(two bodies, who each has 4 faces), and select the face with minimal distance 
+	to be the collision face, who's normal imply the direction of reacting impulse.
+	We say the body which collision face is on is a reference body, and the other one
+	is an incident body.
+	The key idea is we consider the collision face should has minimal penetrating depth.
+
+	(3) Reject vertices which is just on the collision face to speed up reaction calculation. 
+	Return the rest of them and the normal of collision face. That's all.
+
+
+	Some other issues:
+	1) For more information of this algorithm you should read the Erin Catto's slides 
+	on www.gphysics.com, and Helmut Garstenauer's thesis, "A Unified Framework for Rigid 
+	Body Dynamics" (URL is too long but you can easily google it out :). 
+
+	2) The algorithm isn't a Continuous Collision Detection(CCD) method. So it would 
+	break down if we can't grasp the early stage of collision. that means you should
+	choose proper initial velocities, sizes of bodies and time step. 
+	The total collision test method would be replaced by a CCD one in the future.
+
+*/
 
 /**
- * TODO
- */
+* MAX_CONTACTS imply the max possible collision points of the two rectangle bodies.
+* 16 is plentiful.
+*/
 #define MAX_CONTACTS 16
 
+
 /**
- * TODO
+ * _Candiate is a internal structure for saving informations of collision test.
+ @param normal collision normal
+ @param contacts collision points
+ @param kFactors precomputed factors for later computation
+ @param contact_size size of contacts and kFactors
+ @param min_depth the minimal penetrating depth
  */
 typedef struct _Candidate_
 {
@@ -68,14 +110,16 @@ typedef struct _Candidate_
     double min_depth;
 }_Candidate;
 
-
 /**
- * TODO
+ * _ClipTest is an internal function for Rectangle Collsion Test
  *
- * @param box
- * @param points
- * @param candi
- * @return
+ * @param box the AABB box used for 2D line clipping
+ * @param points the candidate 4 point, then we can make 4 directed line segment:
+		  (0, 1) (1, 2) (2, 3) (3, 1)
+ * @param candi clip the 4 directed line segment against the AABB box and save resulting
+          vertices of clipped line segment to candi
+ * @return If there is no line overlapped with the AABB box, return 0.
+           Otherwise return 1
  */
 static int _ClipTest(AABBBox* box, PyVector2* points, _Candidate* candi)
 {
@@ -115,15 +159,18 @@ static int _ClipTest(AABBBox* box, PyVector2* points, _Candidate* candi)
 }
 
 /**
- * TODO
+ * _SATFindCollisionProperty is an internal function for Rectangle Collsion Test
  * 
- * @param selfBody
- * @param incBody
- * @param selfBox
- * @param incBox
- * @param candi
- * @param ans_ref
- * @param ans_inc
+ * @param selfBody the reference body which the normal face is on.
+          note it isn't the real reference body. we just suppose it to be.
+		  ans_ref and ans_inc will be the real reference & incident body.
+ * @param incBody the reference body
+ * @param selfBox selfBody's AABB box(in selfBody's local coordinate)
+ * @param incBox incident body's AABB box
+ * @param candi resulting collision points (so called contacts) and collision
+          normal and some other value would be saved in candi
+ * @param ans_ref the real reference body
+ * @param ans_inc the real incident body
  */
 static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     PyBodyObject* incBody, AABBBox* selfBox, AABBBox* incBox, _Candidate *candi,
@@ -141,7 +188,14 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     double tmp1, tmp2;
     
     /*
-     * TODO: describe the magic here.
+     * Here conts[0][i] represent the contacts calculated in selfBody's local coordinate.
+	   conts[1][i] represent the contacts translated to incBody's local coordinate.
+	   then we can rightly get the two minimal depth.
+
+	   The key is whether we appoint which one to be the reference body, the resuting contacts
+	   are equivalent only except for different coordinate. but while calculating the penetrating 
+	   depth to all the candidate collision face, we must make sure all the contacts are in the
+	   same local coordinate at one time.
      */
     for(i = 0; i < candi->contact_size; ++i)
     {
@@ -153,6 +207,13 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     self[0] = inc[1] = selfBody;
     inc[0] = self[1] = incBody;
     
+	/*
+	 * Now we appoint selfBody to be the reference body and incBody
+	   to be the incident body for computing min_dep[0]. And vice versa for min_dep[1].
+	   
+	   Since each computation happens in reference body's local coordinate,
+	   it's very simple to get the minimal penetrating depth.
+	 */
     for(k = 0; k <= 1; ++k)
     {
         memset(deps, 0, sizeof(deps));
@@ -174,16 +235,20 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     }
 
     /*
-     * TODO describe the magic here
+     * If min_dep[0] < min_dep[1], we choose selfBody to be the right reference body
+	   and incBody to be the incident one. And vice versa. 
      */
-    
-    //now select min depth one
     k = min_dep[0] < min_dep[1] ? 0 : 1;
     
     candi->min_depth = min_dep[k];
     size = candi->contact_size;
     candi->contact_size = 0;
-    switch(face_id[k])
+    
+	/* 
+	 * Gete collision normal according to the collision face
+	   and delete the contacts on the collision face.
+	 */
+	switch(face_id[k])
     {
     case CF_LEFT:
         PyVector2_Set(candi->normal, -1, 0);
@@ -214,16 +279,25 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
     }
     
     /*
-     * TODO: describe the magic here.
+     * We are nearly reaching the destination except for three things:
+
+	   First, collsion normal and contact are in reference body's local coordinate.
+	   We must translate them to the global coordinate for easy usage.
+
+	   Second, In the impulse-based collsion reaction formula, we find there is a small
+	   part can be precomputed to speed up the total computation. that's so called kFactor.
+	   For more information of that you can read Helmut Garstenauer's thesis.
+
+	   Third, we must assign the right referent body and incident body to ans_ref and ans_inc.
      */
 
-    //translate to global coordinate
     PyVector2_Rotate(&(candi->normal), self[k]->fRotation);
     for(i = 0; i < candi->contact_size; ++i)
     {
         PyVector2_Rotate(&(candi->contacts[i]), self[k]->fRotation);
         candi->contacts[i] = c_sum(candi->contacts[i], self[k]->vecPosition);
-        //precompute kFactor
+		
+		/*precompute KFactor*/
         refR = c_diff(candi->contacts[i], self[k]->vecPosition);
         incidR = c_diff(candi->contacts[i], inc[k]->vecPosition);
         tmp1 = PyVector2_Dot(PyVector2_fCross(PyVector2_Cross(refR, candi->normal), refR), candi->normal)
@@ -239,11 +313,13 @@ static void _SATFindCollisionProperty(PyBodyObject* selfBody,
 }
 
 /**
- * TODO
+ * _RectShapeCollision is the user interface for rectangle body's collsion test
  *
- * @param selfBody
- * @param incidBody
- * @param contactList
+ * @param selfBody One of the two possible colliding bodies, who's shape must be a rectangle 
+ * @param incidBody The other one of the two, who's shape also must be a rectangle
+ * @param contactList Resulting contacts and collision normal would be append to contactList
+          for the coming soon collision reaction calculation.
+   @return If the two bodies are really colliding, return 1. Otherwise return 0
  */
 static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody, 
     PyObject* contactList)
@@ -315,7 +391,10 @@ static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody,
 
     return 1;
 }
+
 #undef MAX_CONTACTS
+
+
 
 /**
  Methods used by the Shape.

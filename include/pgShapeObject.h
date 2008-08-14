@@ -24,20 +24,17 @@
 #include "pgphysics.h"
 
 /**
- * TODO
- *
- * @param shape
- * @param refbody
+ * PyShapeObject_UpdateAABB updates the AABB box after refbody's moving
+ * @param refbody we'll update refbody's AABB box
  */
 int PyShapeObject_UpdateAABB (PyBodyObject *refbody);
 
 /**
- * TODO
+ * PyShapeObject_Collision does collision test between refbody and incbody
  *
- * @param shape
  * @param refbody
  * @param incbody
- * @param conactlist
+ * @param conactlist we'll put the possible collision information to contactList
  */
 int PyShapeObject_Collision (PyBodyObject *refbody, PyBodyObject *incbody,
     PyObject *contactlist);
