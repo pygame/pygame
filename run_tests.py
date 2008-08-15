@@ -195,6 +195,10 @@ if options.subprocess:
 untrusty_total, combined = combine_results(results, t)
 total, fails = test_failures(results)
 
+meta['total_tests'] = total
+meta['combined'] = combined
+results.update(meta_results)
+
 if not options.subprocess:
     assert total == untrusty_total
 
@@ -202,11 +206,12 @@ if not options.dump:
     print combined
 else:
     results = options.all and results or fails
-    meta['total_tests'] = total
-    meta['combined'] = combined
-    results.update(meta_results)
-
     print TEST_RESULTS_START
     print pformat(results)
+
+if options.file:
+    results_file = open(options.file, 'w')
+    try:        results_file.write(pformat(results))
+    finally:    results_file.close()
 
 ################################################################################
