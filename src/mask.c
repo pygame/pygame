@@ -382,6 +382,9 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
                 e--;
                 if (!e) {
                     e = every;
+                    if ((curry == firsty && currx == firstx) && (secx == nextx && secy == nexty)) {
+                        break;
+                    }
                     PyList_Append(plist, Py_BuildValue("(ii)", nextx-1, nexty-1));
                 }
                 break;
