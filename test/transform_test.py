@@ -387,6 +387,19 @@ class TransformModuleTest( unittest.TestCase ):
         self.assertRaises(TypeError, pygame.transform.average_surfaces, [s1, s2, 1])
 
         self.assertRaises(TypeError, pygame.transform.average_surfaces, (s for s in [s1, s2,s3] ))
+        
+    def test_average_color(self):
+        """
+        """
+        
+        a = [24, 32]
+        for i in a:
+            s = pygame.Surface((32,32), 0, i)
+            s.fill((0,100,200))
+            s.fill((10,50,100), (0,0,16,32))
+
+            self.assertEqual(pygame.transform.average_color(s),(5,75,150,0))
+            self.assertEqual(pygame.transform.average_color(s, (16,0,16,32)), (0,100,200,0))
 
     def todo_test_rotate(self):
         
