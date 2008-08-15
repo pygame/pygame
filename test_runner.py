@@ -43,6 +43,10 @@ opt_parser.add_option (
      help   = "dump failures/errors as dict ready to eval" )
 
 opt_parser.add_option (
+     "-F",  "--file",
+     help   = "dump failures/errors to a file" )
+
+opt_parser.add_option (
      "-T",  "--timings", type = 'int', default = 1, metavar = 'T',
      help   = "get timings for individual tests.\n" 
               "Run test T times, giving average time")
