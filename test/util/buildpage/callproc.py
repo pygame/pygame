@@ -52,7 +52,7 @@ def GetReturnCodeAndOutput(cmd, dir=None, env=None, bufsize=-1, lineprintdiv=1):
         progress()
 
     progress.finish()
-    return proc.wait(), ''.join(response)
+    return proc.wait(), ''.join(response) + proc.stdout.read() # needed ubuntu
 
 ################################################################################
 
