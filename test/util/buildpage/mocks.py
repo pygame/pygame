@@ -4,13 +4,15 @@
 # StdLib
 import sys
 import optparse
+import os
 
 # User Libs
 import regexes 
 import config
 import update
 
-from update_test import fixture
+from update_test import fixture, mock_config
+from helpers import normp
 
 ################################################################################
 
@@ -23,12 +25,6 @@ def get_platform_and_previous_rev(c, cfile):
     old_get_platform(c, cfile)
     c.previous_rev = -1
 
-from update import dumped 
-
-# @update.dumped
-# def build():
-#     return 0, fixture("BUILD_SUCCESSFUL")
-
 ################################################################################
 
 def skip_svn():
@@ -38,6 +34,18 @@ def skip_svn():
 def force_build():    
     config.get_platform_and_previous_rev = get_platform_and_previous_rev
 
+def run_tests():
+    mock_config (
+        tests_cmd        =    ['run_tests.py', 'sprite', '-s', '-F', 
+                               '../../output/arstdhneoi.txt'],
+        src_path         =    'pygame/trunk',
+        install_env      =    os.environ.copy(),
+    )
+
+    update.run_tests()
+    
+    print update.run_tests.output
+
 ################################################################################
 
 opt_parser = optparse.OptionParser()
@@ -45,7 +53,7 @@ opt_parser = optparse.OptionParser()
 opt_parser.add_option('-c', '--config',      action = 'store_true')
 opt_parser.add_option('-s', '--skip_svn',    action = 'store_true')
 opt_parser.add_option('-f', '--force_build', action = 'store_true')
-# opt_parser.add_option('-m', '--mock_build',  action = 'store_true')
+opt_parser.add_option('-t', '--test',  action = 'store_true')
 
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
@@ -53,10 +61,12 @@ if __name__ == '__main__':
     
     if options.skip_svn:     skip_svn()
     if options.force_build:  force_build()
-    # if options.mock_build:   mock_build()
-
-    # Swap out some slow components for quick debugging
-    if options.config: config.main()
-    else:              update.main()
+    
+    if options.test:
+        run_tests()
+    else:
+        # Swap out some slow components for quick debugging
+        if options.config: config.main()
+        else:              update.main()
     
 ################################################################################
