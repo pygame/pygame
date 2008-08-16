@@ -276,39 +276,80 @@ class SurfaceTypeTest(unittest.TestCase):
         s.set_shifts((b,g,r,a))
         r2,g2,b2,a2 = s.get_shifts()
         self.assertEqual((r,g,b,a), (b2,g2,r2,a2))
-
+    
+    
     def todo_test_blit(self):
-
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.blit:
 
           # Surface.blit(source, dest, area=None, special_flags = 0): return Rect
           # draw one image onto another
-          # 
+          #
           # Draws a source Surface onto this Surface. The draw can be positioned
           # with the dest argument. Dest can either be pair of coordinates
           # representing the upper left corner of the source. A Rect can also be
           # passed as the destination and the topleft corner of the rectangle
           # will be used as the position for the blit. The size of the
           # destination rectangle does not effect the blit.
-          # 
+          #
           # An optional area rectangle can be passed as well. This represents a
           # smaller portion of the source Surface to draw.
-          # 
+          #
           # An optional special flags is for passing in new in 1.8.0: BLEND_ADD,
           # BLEND_SUB, BLEND_MULT, BLEND_MIN, BLEND_MAX new in 1.8.1:
           # BLEND_RGBA_ADD, BLEND_RGBA_SUB, BLEND_RGBA_MULT, BLEND_RGBA_MIN,
           # BLEND_RGBA_MAX BLEND_RGB_ADD, BLEND_RGB_SUB, BLEND_RGB_MULT,
           # BLEND_RGB_MIN, BLEND_RGB_MAX With other special blitting flags
           # perhaps added in the future.
-          # 
+          #
           # The return rectangle is the area of the affected pixels, excluding
           # any pixels outside the destination Surface, or outside the clipping
           # area.
-          # 
+          #
           # Pixel alphas will be ignored when blitting to an 8 bit Surface. 
           # special_flags new in pygame 1.8. 
 
-        self.fail() 
+        self.fail()
+
+    def test_blit__SRCALPHA_opaque_source(self):
+        src = pygame.Surface( (256,256), SRCALPHA ,32)
+        dst = src.copy()
+
+        for i, j in test_utils.rect_area_pts(src.get_rect()):
+            dst.set_at( (i,j), (i,0,0,j) )
+            src.set_at( (i,j), (0,i,0,255) )
+
+        dst.blit(src, (0,0))
+
+        for pt in test_utils.rect_area_pts(src.get_rect()):
+            self.assertEquals ( dst.get_at(pt)[1], src.get_at(pt)[1] )
+
+    def todo_test_blit__blit_to_self(self): #TODO
+        src = pygame.Surface( (256,256), SRCALPHA, 32)
+        rect = src.get_rect()
+
+        for pt, color in test_utils.gradient(rect.width, rect.height):
+            src.set_at(pt, color)
+        
+        src.blit(src, (0, 0))
+        
+    def todo_test_blit__SRCALPHA_to_SRCALPHA_non_zero(self): #TODO
+        # " There is no unit test for blitting a SRCALPHA source with non-zero
+        #   alpha to a SRCALPHA destination with non-zero alpha " LL
+
+        w,h = size = 32,32
+
+        s = pygame.Surface(size, pygame.SRCALPHA, 32)
+        s2 = s.copy()
+
+        s.fill((32,32,32,111))
+        s2.fill((32,32,32,31))
+
+        s.blit(s2, (0,0))
+
+        # TODO:
+        # what is the correct behaviour ?? should it blend? what algorithm?
+
+        self.assertEquals(s.get_at((0,0)), (32,32,32,31))
 
     def todo_test_convert(self):
 
