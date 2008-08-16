@@ -65,7 +65,8 @@ initphysics(void)
     Py_INCREF (&PyRectShape_Type);
 
     /* Init the module and add the object types. */
-    mod = Py_InitModule3("physics", NULL, "Simple 2D physics module");
+    mod = Py_InitModule3("physics", NULL,
+        "A simple 2D physics module");
     PyModule_AddObject (mod, "World", (PyObject *) &PyWorld_Type);
     PyModule_AddObject (mod, "Body", (PyObject *) &PyBody_Type);
     PyModule_AddObject (mod, "Joint", (PyObject *) &PyJoint_Type);

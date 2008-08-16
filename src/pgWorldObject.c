@@ -46,7 +46,9 @@ static void _WorldDestroy(PyWorldObject* world);
 
 static PyObject* _World_update (PyWorldObject* world, PyObject* args);
 static PyObject* _World_addBody(PyWorldObject* world,PyObject* args);
+static PyObject* _World_removeBody(PyWorldObject* world,PyObject* args);
 static PyObject* _World_addJoint(PyWorldObject* world,PyObject* args);
+static PyObject* _World_removeJoint(PyWorldObject* world,PyObject* args);
 static PyObject* _World_getGravity(PyWorldObject* world,void* closure);
 static int _World_setGravity(PyWorldObject* world,PyObject* value,
     void* closure);
@@ -69,11 +71,13 @@ static int PyWorld_Update(PyObject* world, double dt);
  */
 static PyGetSetDef _World_getseters[] = {
     { "damping", (getter)_World_getDamping, (setter)_World_setDamping,
-      "damping", NULL },
+      "The damping within the world. Currently not implemented.", NULL },
     { "gravity",(getter)_World_getGravity, (setter)_World_setGravity,
-      "gravity",NULL, },
-    { "bodies",(getter)_World_getBodyList,NULL,NULL,NULL },
-    { "joints",(getter)_World_getJointList,NULL,NULL,NULL },
+      "The gravity vector of the world as a (x, y) tuple,", NULL, },
+    { "bodies",(getter)_World_getBodyList,NULL,
+      "Read-only list of bodies currently attached to the world", NULL },
+    { "joints",(getter)_World_getJointList,NULL,
+      "Read-only list of joints currently attached to the world",NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -82,9 +86,31 @@ static PyGetSetDef _World_getseters[] = {
  */
 static PyMethodDef _World_methods[] =
 {
-    { "update", (PyCFunction) _World_update, METH_VARARGS, "" },
-    { "add_body",(PyCFunction) _World_addBody, METH_VARARGS, "" },
-     {"add_joint",(PyCFunction) _World_addJoint, METH_VARARGS, "" },
+    { "update", (PyCFunction) _World_update, METH_VARARGS,
+      "W.update (steptime=0.1) -> None\n\n"
+      "Performs a simulation for the whole world.\n\n"
+      "Simulates the movements, collisions and anything else for all bodies\n"
+      "and joints within the world. The steptime represents the resolution\n"
+      "for the simulation. Thus a higher steptime will result in a faster,\n"
+      "but also more inexact simulation, while a low steptime will cause\n"
+      "more precise simulation results."
+    },
+    { "add_body",(PyCFunction) _World_addBody, METH_VARARGS,
+      "W.add_body (body) -> None\n\n"
+      "Adds a body to the world. If the body was already added, this raises\n"
+      "a ValueError."},
+     {"add_joint",(PyCFunction) _World_addJoint, METH_VARARGS,
+      "W.add_joint (joint) -> None\n\n"
+      "Adds a joint to the world. If the joint was already added, this raises\n"
+      "a ValueError."},
+    { "remove_body",(PyCFunction) _World_removeBody, METH_VARARGS,
+      "W.remove_body (body) -> None\n\n"
+      "Removes a body from the world. If the body was not added, this raises\n"
+      "a ValueError."},
+     {"remove_joint",(PyCFunction) _World_removeJoint, METH_VARARGS,
+      "W.remove_joint (joint) -> None\n\n"
+      "Remove a joint from the world. If the joint was not added, this raises\n"
+      "a ValueError."},
     { NULL, NULL, 0, NULL } /* The NULL sentinel is important! */
 };
 
@@ -111,7 +137,8 @@ PyTypeObject PyWorld_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "",                         /* tp_doc */
+    "World () -> World\n\n"
+    "Creates a new World object.",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -496,6 +523,7 @@ static PyObject* _World_update (PyWorldObject* world, PyObject* args)
     
     if (!PyArg_ParseTuple(args,"|d", &dt))
         dt = 0.1;
+
     if (dt < 0)
     {
         PyErr_SetString (PyExc_ValueError,
@@ -512,20 +540,38 @@ static PyObject* _World_update (PyWorldObject* world, PyObject* args)
 static PyObject* _World_addBody(PyWorldObject* world, PyObject* args)
 {
     PyObject* body;
-    if (!PyArg_ParseTuple(args,"O",&body) || !PyBody_Check (body))
+    if (!PyArg_ParseTuple(args,"O",&body))
+        return NULL;
+
+    if (!PyBody_Check (body))
     {
         PyErr_SetString(PyExc_ValueError, "argument must be a body");
         return NULL;
     }
 
     if(!PyWorld_AddBody((PyObject*)world, body))
+        return NULL;
+    Py_RETURN_NONE;
+}
+
+/**
+ * World.remove_body (x)
+ */
+static PyObject* _World_removeBody(PyWorldObject* world, PyObject* args)
+{
+    PyObject* body;
+    if (!PyArg_ParseTuple(args,"O",&body))
+        return NULL;
+
+    if (!PyBody_Check (body))
     {
-        Py_RETURN_FALSE;
+        PyErr_SetString(PyExc_ValueError, "argument must be a body");
+        return NULL;
     }
-    else
-    {
-        Py_RETURN_TRUE;
-    }
+
+    if(!PyWorld_RemoveBody((PyObject*)world, body))
+        return NULL;
+    Py_RETURN_NONE;
 }
 
 /**
@@ -534,19 +580,37 @@ static PyObject* _World_addBody(PyWorldObject* world, PyObject* args)
 static PyObject* _World_addJoint(PyWorldObject* world,PyObject* args)
 {
     PyObject* joint;
-    if (!PyArg_ParseTuple(args,"O",&joint) || !PyJoint_Check (joint))
+    if (!PyArg_ParseTuple(args,"O",&joint))
+        return NULL;
+
+    if (!PyJoint_Check (joint))
     {
         PyErr_SetString(PyExc_ValueError,"argument must be a joint");
         return NULL;
     }
     if(!PyWorld_AddJoint((PyObject*)world,joint))
+        return NULL;
+    Py_RETURN_NONE;
+}
+
+/**
+ * World.remove_joint (x)
+ */
+static PyObject* _World_removeJoint(PyWorldObject* world, PyObject* args)
+{
+    PyObject* joint;
+    if (!PyArg_ParseTuple(args,"O",&joint))
+        return NULL;
+
+    if (!PyJoint_Check (joint))
     {
-        Py_RETURN_FALSE;
+        PyErr_SetString(PyExc_ValueError, "argument must be a joint");
+        return NULL;
     }
-    else
-    {
-        Py_RETURN_TRUE;
-    }
+
+    if(!PyWorld_RemoveJoint((PyObject*)world, joint))
+        return NULL;
+    Py_RETURN_NONE;
 }
 
 /* C API */
@@ -557,6 +621,8 @@ static PyObject* PyWorld_New (void)
 
 static int PyWorld_AddBody(PyObject* world, PyObject* body)
 {
+    int contained;
+
     if (!PyWorld_Check (world))
     {
         PyErr_SetString (PyExc_TypeError, "world must be a World");
@@ -568,7 +634,16 @@ static int PyWorld_AddBody(PyObject* world, PyObject* body)
         PyErr_SetString (PyExc_TypeError, "body must be a Body");
         return 0;
     }
-        
+
+    contained = PySequence_Contains (((PyWorldObject*)world)->bodyList, body);
+    if (contained == 1)
+    {
+        PyErr_SetString (PyExc_ValueError, "body already added");
+        return 0;
+    }
+    else if (contained == -1)
+        return 0; /* Error set by the sequence */
+
     if (PyList_Append(((PyWorldObject*)world)->bodyList, body) == 0)
         return 1;
     return 0;
@@ -603,6 +678,8 @@ static int PyWorld_RemoveBody(PyObject* world, PyObject* body)
 
 static int PyWorld_AddJoint(PyObject* world, PyObject* joint)
 {
+    int contained;
+
     if (!PyWorld_Check (world))
     {
         PyErr_SetString (PyExc_TypeError, "world must be a World");
@@ -615,6 +692,15 @@ static int PyWorld_AddJoint(PyObject* world, PyObject* joint)
         return 0;
     }
     
+    contained = PySequence_Contains (((PyWorldObject*)world)->jointList, joint);
+    if (contained == 1)
+    {
+        PyErr_SetString (PyExc_ValueError, "joint already added");
+        return 0;
+    }
+    else if (contained == -1)
+        return 0; /* Error set by the sequence */
+
     if (PyList_Append(((PyWorldObject*)world)->jointList, joint) == 0)
         return 1;
     return 0;
