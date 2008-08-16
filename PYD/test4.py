@@ -21,16 +21,14 @@ def render_world(world,surface,body_color,joint_color):
 def init_world():
     w = physics.World()
     w.gravity = 0, 5
-    body = physics.Body()
-    body.shape = physics.RectShape(1, 1, 0)
+    body = physics.Body(physics.RectShape(1, 1, 0))
     body.position = 400, 20
     body.restitution = 0.0
     body.static = True
     w.add_body(body)
     pre_body = body
     for i in range(1, 30):
-        body = physics.Body()
-        body.shape = physics.RectShape(5, 5, 0)
+        body = physics.Body(physics.RectShape(5, 5, 0))
         body.position = 400+10*i, 10*i+20
         body.restitution = 0.0
         body.mass = 20

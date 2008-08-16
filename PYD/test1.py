@@ -16,16 +16,14 @@ def render_world(world,surface,color):
 def init_world():
     w = physics.World()
     w.gravity = 0, 1
-    body1 = physics.Body()
-    body1.shape = physics.RectShape(80,33,0)
+    body1 = physics.Body(physics.RectShape(80,33,0))
     body1.position = 100, 100
     body1.velocity = 2,0
     body1.restitution = 1.0
     body1.rotation = 2
     body1.mass = 80*33
     w.add_body(body1)
-    body2 = physics.Body()
-    body2.shape = physics.RectShape (20,20,0)
+    body2 = physics.Body(physics.RectShape (20,20,0))
     body2.position = 200, 100
     body2.velocity = -2, 0
     body1.restitution = 1.0

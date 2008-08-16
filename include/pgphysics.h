@@ -140,17 +140,15 @@ typedef struct
 } PyBodyObject;
 
 #define PHYSICS_BODY_FIRSTSLOT (PHYSICS_MATH_FIRSTSLOT + PHYSICS_MATH_NUMSLOTS)
-#define PHYSICS_BODY_NUMSLOTS 4
+#define PHYSICS_BODY_NUMSLOTS 3
 #ifndef PHYSICS_BODY_INTERNAL
 #define PyBody_Check(x)                                                 \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+0]))
 #define PyBody_New                                                      \
-    (*(PyObject*(*)(void))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+1])
-#define PyBody_SetShape                                                 \
-    (*(int(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+2])
+    (*(PyObject*(*)(PyObject*))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+1])
 #define PyBody_GetGlobalPos                                             \
-    (*(PyVector2(*)(PyObject*,PyVector2))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+3])
+    (*(PyVector2(*)(PyObject*,PyVector2))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+2])
 #endif /* PYGAME_BODY_INTERNAL */
 
 /**

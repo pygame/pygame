@@ -24,7 +24,8 @@
 #include "pgHelpFunctions.h"
 #include "pgBodyObject.h"
 
-static void _BodyInit(PyBodyObject* body);
+static void _BodyNewInternal (PyBodyObject* body);
+static int _BodyInit (PyBodyObject *body, PyObject *args, PyObject *kwds);
 static PyObject* _BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static void _BodyDestroy(PyBodyObject* body);
 
@@ -51,12 +52,10 @@ static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure);
 static PyObject* _Body_getBStatic (PyBodyObject* body,void* closure);
 static int _Body_setBStatic (PyBodyObject* body,PyObject* value,void* closure);
 static PyObject* _Body_getShape(PyBodyObject* body,void* closure);
-static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure);
 static PyObject *_Body_getPointList(PyObject *self, PyObject *args);
 
 /* C API */
-static PyObject* PyBody_New(void);
-static int PyBody_SetShape(PyObject *body, PyObject *shape);
+static PyObject* PyBody_New(PyObject *shape);
 static PyVector2 PyBody_GetGlobalPos (PyObject *body, PyVector2 point);
 
 /**
@@ -73,7 +72,7 @@ static PyMethodDef _Body_methods[] = {
 static PyGetSetDef _Body_getseters[] = {
     { "mass", (getter) _Body_getMass, (setter) _Body_setMass, "Mass",
       NULL },
-    { "shape",(getter)_Body_getShape,(setter)_Body_setShape,"Shape", NULL},
+    { "shape",(getter)_Body_getShape, NULL,"Shape", NULL},
     { "rotation", (getter) _Body_getRotation, (setter) _Body_setRotation,
       "Rotation", NULL },
     { "torque", (getter) _Body_getTorque, (setter) _Body_setTorque,
@@ -132,7 +131,7 @@ PyTypeObject PyBody_Type =
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
+    (initproc)_BodyInit,                  /* tp_init */
     0,                          /* tp_alloc */
     _BodyNew,                   /* tp_new */
     0,                          /* tp_free */
@@ -151,7 +150,7 @@ PyTypeObject PyBody_Type =
  *
  * @param body The PyBodyObject to initialize.
  */
-static void _BodyInit(PyBodyObject* body)
+static void _BodyNewInternal(PyBodyObject* body)
 {
     body->fAngleVelocity = 0.0;
     body->fFriction = 0.0;
@@ -174,13 +173,41 @@ static void _BodyInit(PyBodyObject* body)
  */
 static PyObject* _BodyNew(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    //TODO: parse args later on
     PyObject* op = type->tp_alloc(type, 0);
     if (!op)
         return NULL;
 
-    _BodyInit((PyBodyObject*)op);
+    _BodyNewInternal((PyBodyObject*)op);
     return op;
+}
+
+static int _BodyInit (PyBodyObject *body, PyObject *args, PyObject *kwds)
+{
+    PyObject *shape;
+
+    if (!PyArg_ParseTuple (args, "O", &shape))
+        return -1;
+    if (!PyShape_Check (shape))
+    {
+        PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
+        return -1;
+    }
+    Py_INCREF (shape);
+    body->shape = shape;
+
+    // I = M(a^2 + b^2)/12
+    // TODO:
+    // This should be automatically be done by the shape.
+    if (((PyShapeObject*)shape)->type == ST_RECT)
+    {
+        PyRectShapeObject* rsh = (PyRectShapeObject*) shape;
+        double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
+        double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
+        ((PyShapeObject*)shape)->rInertia = body->fMass *
+            (width * width + height * height) / 12;
+    }
+
+    return 0;
 }
 
 /**
@@ -557,39 +584,6 @@ static PyObject* _Body_getShape (PyBodyObject* body,void* closure)
     return body->shape;
 }
 
-/**
- * Setter for Body.shape = x
- */
-static int _Body_setShape(PyBodyObject* body,PyObject* value,void* closure)
-{
-    PyShapeObject *shape;
-    if (!PyShape_Check (value))
-    {
-        PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
-        return -1;
-    }
-    if (body->shape)
-    {
-        Py_DECREF (body->shape);
-    }
-    Py_INCREF (value);
-    body->shape = value;
-
-    // I = M(a^2 + b^2)/12
-    // TODO:
-    // This should be automatically be done by the shape.
-    shape = (PyShapeObject*) value;
-    if (shape->type == ST_RECT)
-    {
-        PyRectShapeObject* rsh = (PyRectShapeObject*) shape;
-        double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
-        double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
-        shape->rInertia = body->fMass *
-            (width * width + height * height) / 12;
-    }
-    return 0;
-}
-
 
 /* Body methods */
 
@@ -721,21 +715,33 @@ PyVector2 PyBodyObject_GetLocalPointVelocity(PyBodyObject* body,
 }
 
 /* C API */
-static PyObject* PyBody_New(void)
+static PyObject* PyBody_New(PyObject *shape)
 {
-    return _BodyNew(&PyBody_Type, NULL, NULL);
-}
-
-static int PyBody_SetShape(PyObject *body, PyObject *shape)
-{
-    if (!PyBody_Check (body))
+    PyBodyObject* body;
+    PyShapeObject *sh;
+    
+    if (!PyShape_Check (shape))
     {
-        PyErr_SetString (PyExc_TypeError, "body must be a Body");
-        return 0;
+        PyErr_SetString (PyExc_TypeError, "shape must be Shape");
+        return NULL;
     }
-    if (_Body_setShape ((PyBodyObject*)body, shape, NULL) == -1)
-        return 0;
-    return 1;
+
+    body = (PyBodyObject*) _BodyNew(&PyBody_Type, NULL, NULL);
+    body->shape = shape;
+
+    // I = M(a^2 + b^2)/12
+    // TODO:
+    // This should be automatically be done by the shape.
+    if (((PyShapeObject*)shape)->type == ST_RECT)
+    {
+        PyRectShapeObject* rsh = (PyRectShapeObject*) shape;
+        double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
+        double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
+        ((PyShapeObject*)shape)->rInertia = body->fMass *
+            (width * width + height * height) / 12;
+    }
+    return (PyObject*)body;
+    
 }
 
 static PyVector2 PyBody_GetGlobalPos (PyObject *body, PyVector2 point)
@@ -747,6 +753,5 @@ void PyBodyObject_ExportCAPI (void **c_api)
 {
     c_api[PHYSICS_BODY_FIRSTSLOT] = &PyBody_Type;
     c_api[PHYSICS_BODY_FIRSTSLOT + 1] = &PyBody_New;
-    c_api[PHYSICS_BODY_FIRSTSLOT + 2] = &PyBody_SetShape;
-    c_api[PHYSICS_BODY_FIRSTSLOT + 3] = &PyBody_GetGlobalPos;
+    c_api[PHYSICS_BODY_FIRSTSLOT + 2] = &PyBody_GetGlobalPos;
 }

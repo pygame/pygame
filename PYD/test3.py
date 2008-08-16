@@ -18,8 +18,7 @@ def init_world():
     w.gravity = 0, 1
     
     for i in range(1, 30):
-        body1 = physics.Body()
-        body1.shape = physics.RectShape(30, 28, 0)
+        body1 = physics.Body(physics.RectShape(30, 28, 0))
         body1.position = 400, -900 + 40*i
         body1.rotation = i
         body1.restitution = 0.0
@@ -27,8 +26,7 @@ def init_world():
         w.add_body(body1)
     
     
-    body2 = physics.Body()
-    body2.shape = physics.RectShape (760, 20, 0)
+    body2 = physics.Body(physics.RectShape (760, 20, 0))
     body2.position = 400, 600
     body2.restitution = 0.0
     body2.mass = 1e100

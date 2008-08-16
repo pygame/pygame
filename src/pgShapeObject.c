@@ -400,8 +400,19 @@ static int _RectShapeCollision(PyBodyObject* selfBody, PyBodyObject* incidBody,
  Methods used by the Shape.
  */
 static PyMethodDef _Shape_methods[] = {
-    { "_collision",(PyCFunction)_Shape_collision,METH_VARARGS,"" },
-    { "_update_aabb",(PyCFunction)_Shape_updateAABB,METH_VARARGS,"" },
+
+/*     { "_collision",(PyCFunction)_Shape_collision,METH_VARARGS, */
+/*       "S._collision (refbody, incbody, contacts) -> int\n\n" */
+/*       "Simulates a collision and performs appropriate updates.\n\n" */
+/*       "Simulates a collision between the passed bodies and updates their\n" */
+/*       "information such as the velocity or rotation according to it.\n" */
+/*       "Not fully supported yet!" */
+/*     }, */
+/*     { "_update_aabb",(PyCFunction)_Shape_updateAABB,METH_VARARGS, */
+/*       "S._update_aabb (refbody) -> int\n\n" */
+/*       "Updates the passed body's shape AABB information.\n" */
+/*       "Not fully supported yet!" */
+/*     }, */
     { NULL, NULL, 0, NULL }   /* Sentinel */
 };
 
@@ -428,7 +439,8 @@ PyTypeObject PyShape_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "",                         /* tp_doc */
+    "Shape () -> Shape\n\n"
+    "Creates a new Shape.",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -505,8 +517,10 @@ static PyObject* _Shape_updateAABB(PyShapeObject* shape, PyObject *args)
  Methods used by the RectShape.
  */
 static PyMethodDef _RectShape_methods[] = {
-    { "_collision",(PyCFunction)_RectShape_collision,METH_VARARGS,"" },
-    { "_update_aabb",(PyCFunction)_RectShape_updateAABB,METH_VARARGS,"" },
+/*     { "_collision",(PyCFunction)_RectShape_collision,METH_VARARGS, */
+/*       "" */
+/*     }, */
+/*     { "_update_aabb",(PyCFunction)_RectShape_updateAABB,METH_VARARGS,"" }, */
     { NULL, NULL, 0, NULL }   /* Sentinel */
 };
 
@@ -533,7 +547,8 @@ PyTypeObject PyRectShape_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "",                         /* tp_doc */
+    "RectShape (width, height, rotation=0) -> RectShape\n\n"
+    "Creates a new RectShape with the given dimensions and initial rotation.\n\n",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

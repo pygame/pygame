@@ -22,17 +22,14 @@ def init_world():
     w = physics.World()
     w.gravity = 0, 5
     
-    body = physics.Body()
-    body.shape = physics.RectShape (20, 20, 0)
+    body = physics.Body(physics.RectShape (20, 20, 0))
     body.position = 200, 100
     body.static = True
     w.add_body(body)
-    body1 = physics.Body()
-    body1.shape = physics.RectShape (20,20,0)
+    body1 = physics.Body(physics.RectShape (20,20,0))
     body1.position = 200, 200
     w.add_body(body1)
-    body2 = physics.Body()
-    body2.shape = physics.RectShape (20,20,0)
+    body2 = physics.Body(physics.RectShape (20,20,0))
     body2.position = 300, 200
     w.add_body(body2)
     
