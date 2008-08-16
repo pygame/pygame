@@ -29,7 +29,7 @@ run an unmodified version of unittest. ( unittest.main() )
 *** NOTE ***
 
 Be sure to import test_utils first at the top of your file, this will set the
-sys.path required for test.unittest to run, otherwise run_tests.py will work
+sys.path required for test.unittest to run, otherwise run_tests.py will not work
 properly
 
 import test_utils
@@ -48,11 +48,11 @@ Follow the naming convention
 
 trunk/test/util/gen_stubs.py
 
-The gen_stubs.py utility will inspect pygame, and compile stubs of the each
+The gen_stubs.py utility will inspect pygame, and compile stubs of each of the
 module's callables (funcs, methods, getter/setters). It will include in the
 test's comment the __doc__ and the documentation found in the relevant xxxx.doc
 files. There is a naming convention in place that maps test names to callables
-in a one to one mapping. If there are no untested (or unstubbed) callables then
+in a one to one manner. If there are no untested (or unstubbed) callables then
 gen_stubs.py will output nothing.
 
 gen_stubs.py --help
@@ -79,15 +79,14 @@ Each class has corresponding TestCase[s] in form of $Class + "Type"
 
     pygame.color.Color : color_test.ColorTypeTest
     pygame.color.Color : color_test.ColorTypeTestOtherAspect
-    
 
     *** NOTE *** 
-    
-    Use the names of the instantiator helper functions:
-    
-        eg pygame.cdrom.CD and not pygame.cdrom.CDType    
 
-Each test should be name in the form,   test_$funcname__comment
+    Use the names of the instantiator helper functions:
+
+        eg pygame.cdrom.CD and not pygame.cdrom.CDType
+
+Each test should be named in the form, test_$funcname__$comment
 
     Surface.blit      : test_blit__raises_exception_if_locked
 
@@ -98,7 +97,7 @@ Each test should be name in the form,   test_$funcname__comment
 There are three levels of tagging available, module level, TestCase level and
 individual test level.
 
-For class and module level tagging, assign a tag attribute __tags__ = []
+For class and module level tagging assign a tag attribute __tags__ = []
 
 Module Level Tags
 -----------------
