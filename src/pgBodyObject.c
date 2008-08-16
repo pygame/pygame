@@ -62,7 +62,12 @@ static PyVector2 PyBody_GetGlobalPos (PyObject *body, PyVector2 point);
  * Methods used by the Body object.
  */
 static PyMethodDef _Body_methods[] = {
-    { "get_points",_Body_getPointList,METH_VARARGS,"" },
+    { "get_points",_Body_getPointList,METH_VARARGS,
+      "B.get_points () -> list\n\n"
+      "Gets a list of points describing the edges of the Body.\n\n"
+      "Gets a list of  points in the form [(x1, y1), (x2, y2), ...], which\n"
+      "describe the edges of the body."
+    },
     { NULL, NULL, 0, NULL }   /* Sentinel */
 };
 
@@ -75,22 +80,32 @@ static PyGetSetDef _Body_getseters[] = {
     { "shape",(getter)_Body_getShape, NULL,
       "The shape of the Body. (Read-only)", NULL},
     { "rotation", (getter) _Body_getRotation, (setter) _Body_setRotation,
-      "Rotation", NULL },
+      "The current rotation angle of the body in degrees.", NULL },
     { "torque", (getter) _Body_getTorque, (setter) _Body_setTorque,
-      "Torque", NULL },
+      "The torque of the Body. This influences the increment and decrement\n"
+      "of the angular velocity.", NULL },
     { "restitution", (getter) _Body_getRestitution,
-      (setter) _Body_setRestitution, "Restitution", NULL },
+      (setter) _Body_setRestitution,
+      "The restitution of the Body. This influences the collision behavior\n"
+      "of the collision (inelastic to elastic).",
+      NULL },
     { "friction", (getter) _Body_getFriction, (setter) _Body_setFriction,
-      "Friction", NULL },
+      "The friction of the body surface. Currently not supported.", NULL },
     { "velocity",(getter)_Body_getVelocity,(setter)_Body_setVelocity,
-      "velocity",NULL },
+      "The velocity of the body as a (x, y) tuple. This describes the\n"
+      "velocity in x and y direction", NULL },
     { "angular_velocity",(getter)_Body_getAngularVel,
-      (setter)_Body_setAngularVel,"Angular Velocity",NULL },
+      (setter)_Body_setAngularVel,
+      "The angular velocity of the body in degrees. This influences the\n"
+      "rotational speed",NULL },
     { "position",(getter)_Body_getPosition,(setter)_Body_setPosition,
-      "position",NULL },
-    { "force",(getter)_Body_getForce,(setter)_Body_setForce,"force",NULL },
+      "The current position of the Body.",NULL },
+    { "force",(getter)_Body_getForce,(setter)_Body_setForce,
+      "Additional force to apply to the velocity calculation for the Body",
+      NULL },
     { "static",(getter)_Body_getBStatic,(setter)_Body_setBStatic,
-      "whether static",NULL },
+      "Indicates, whether the Body is static. Static bodies do not move\n"
+      "nor rotate.", NULL },
     { NULL, NULL, NULL, NULL, NULL}
 };
 
@@ -117,7 +132,8 @@ PyTypeObject PyBody_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "",                         /* tp_doc */
+    "Body (shape) -> Body\n\n"
+    "Creates a new Body with the specified shape",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
