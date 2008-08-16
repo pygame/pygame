@@ -52,7 +52,7 @@ opt_parser.add_option (
               "Run test T times, giving average time")
 
 opt_parser.add_option (
-     "-e",  "--exclude", default = '',
+     "-e",  "--exclude",
      help   = "exclude tests containing any of TAGS" )
 
 opt_parser.add_option (

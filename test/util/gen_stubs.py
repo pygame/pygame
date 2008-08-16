@@ -197,9 +197,8 @@ def get_callables(obj, if_of = None, check_where_defined=False):
     return set(callables)
 
 def get_class_from_test_case(TC):
-    TC = TC.__name__
-    if 'Type' in TC:
-        return '.' + TC[:TC.rindex('Type')]
+    TC = getattr(TC, "__name__", str(TC))
+    if 'Type' in TC: return TC[:TC.rindex('Type')]
 
 def names_of(*args):
     return tuple(map(lambda o: getattr(o, "__name__", str(o)), args))
@@ -264,12 +263,13 @@ def package_stubs(package):
 ################################################################################
 
 TEST_NAME_RE = re.compile(r"test[_\d]+(.*)")
+              # re.compile(r"test[\d_]+((?:[^_]+.[^_])+)") #
 
 def is_test(f):
     return f.__name__.startswith(('test_', 'todo_'))
 
 def get_tested_from_testname(test):
-    tn = test.__name__
+    tn = getattr(test.__name__, str(test))
     separated = tn.rfind('__')
     if separated != -1: tn = tn[:separated]
     return TEST_NAME_RE.search(tn).group(1)
@@ -294,7 +294,7 @@ def already_tested_in_module(module):
 
         for test in get_callables(class_, is_test):
             fname = get_tested_from_testname(test)
-            already.append("%s%s.%s" % (mod_name, class_tested, fname))
+            already.append( callable_name( mod_name, class_tested, fname ))
 
     return already
 
@@ -332,7 +332,7 @@ if __name__ == "__main__":
         root = '%s.%s' % ('pygame', root)
 
     stubs, tested = get_stubs(root)
-
+            
     for fname in sorted(s for s in stubs.iterkeys() if s not in tested):
         if not fname.startswith(root): continue  # eg. module.Class
         test_name, stub = stubs[fname]
