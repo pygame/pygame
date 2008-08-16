@@ -8,9 +8,9 @@
 
 The test runner for PyGame was developed for these purposes:
     
-    * Isolation of test modules per process
-    * Tagging of tests for exclusion by tag (interactive tests etc)
-    * Timing of tests
+    * Per process isolation of test modules
+    * Ability to tag tests for exclusion (interactive tests etc)
+    * Record timings of tests
 
 It does this by altering the behaviour of unittest at run time. As much as
 possible each individual module was left to be fully compatible with the
@@ -64,6 +64,9 @@ You will need to manually merge the stubs into relevant TestCases.
 ================================================================================
 = Test Naming Convention =
 ==========================
+
+This convention is in place so the stub generator can tell what has already been
+tested and for other introspection purposes.
 
 Each module in the pygame package has a corresponding test module in the
 trunk/test directory.
@@ -139,5 +142,27 @@ run_tests.py --exclude display,slow for exclusion of tags
 
 This contains utility routines for common testing needs as well as sets the
 sys.path required for test.unittest to work.
+
+some convenience functions:
+
+question(q)
+    Will ask q and return True if they answered yes
+
+prompt(p)
+    Will notify the user of p and then prompt them to "press enter to continue"
+
+trunk_relative_path(pth)
+    Will return a normalized relative path, relative to the test_module
+    
+    eg trunk_relative_path('examples\\data\\alien.jpg') will work on linux
+    
+    This is so the test module can be run from anywhere with working paths
+        eg ../test/color_test.py 
+        
+fixture_path(pth)
+    Likewise but paths are relative to trunk\test\fixtures
+
+example_path(pth)
+    Likewise but paths are relative to trunk\examples
 
 ================================================================================

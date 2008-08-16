@@ -32,7 +32,7 @@ defaults = dict (
 
     config_py_interaction = 'Y\nY\nY\n',
 
-    build_cmd =  [ sys.executable, "setup.py", "build" ],
+    build_cmd =  [sys.executable, "setup.py", "build"],
         
     # install_cmd is extrapolated below in configure function
 

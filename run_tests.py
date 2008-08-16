@@ -1,6 +1,4 @@
 #################################### IMPORTS ###################################
-# TODO: clean up imports
-
 import test.unittest as unittest
 
 import sys
@@ -44,10 +42,6 @@ SUBPROCESS_IGNORE = set ([
     "scrap_test",
 ])
 
-INTERACTIVE = set ([
-    'cdrom_test'
-])
-
 ################################################################################
 # Set the command line options
 #
@@ -66,9 +60,12 @@ failing tests info in the form of a dict.
 
 """)
 
+# DEFAULTS
+
 opt_parser.set_defaults (
     python = sys.executable,
     time_out = TIME_OUT,
+    exclude = 'interactive',
 )
 
 options, args = opt_parser.parse_args()
@@ -91,8 +88,6 @@ else:
 # failures in subprocess mode. Same issue as python2.6. Needs some env vars.
 
 test_env = os.environ.copy()
-
-#test_env["PYTHONPATH"] = test_subdir ??
 test_env["PYTHONPATH"] = os.pathsep.join (
     [pth for pth in ([test_subdir] + [test_env.get("PYTHONPATH")]) if pth]
 )
@@ -106,9 +101,6 @@ if args:
 else:
     if options.subprocess: ignore = SUBPROCESS_IGNORE
     else: ignore = IGNORE
-
-    # TODO: add option to run only INTERACTIVE, or include them, etc
-    ignore = ignore | INTERACTIVE
 
     test_modules = []
     for f in sorted(os.listdir(test_subdir)):
