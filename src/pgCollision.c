@@ -25,7 +25,6 @@
 
 static int _LiangBarskey_Internal(double p, double q, double* u1, double* u2);
 static void _UpdateV(PyJointObject* joint, double step);
-static void _UpdateP(PyJointObject* joint, double step);
 static void _ContactDestroy(PyJointObject* contact);
 static PyObject* _ContactNewInternal(PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -129,13 +128,6 @@ static void _UpdateV(PyJointObject* joint, double step)
             PyVector2_DivideWithReal(bm, incidBody->fMass));
         incidBody->cBiasW += PyVector2_Cross(incidR, bm)/incidShape->rInertia;
     }
-}
-
-/**
- * This function is isolated and only hold the place
- */
-static void _UpdateP(PyJointObject* joint, double step)
-{
 }
 
 int Collision_LiangBarskey(AABBBox* box, PyVector2* p1, PyVector2* p2, 
@@ -355,8 +347,7 @@ static PyJointObject* _ContactNew(PyBodyObject* refBody,PyBodyObject* incidBody)
     contact = (PyContact*)_ContactNewInternal(&PyContact_Type, NULL, NULL);
     contact->joint.body1 = (PyObject*)refBody;
     contact->joint.body2 = (PyObject*)incidBody;
-    contact->joint.SolveConstraintPosition = _UpdateP;
-    contact->joint.SolveConstraintVelocity = _UpdateV;
+    contact->joint.SolveConstraints = _UpdateV;
     contact->joint.Destroy = _ContactDestroy;
 
     contact->ppAccMoment = NULL;

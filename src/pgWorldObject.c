@@ -263,7 +263,7 @@ static void _BodyCollisionDetection(PyWorldObject* world, double step)
         for(i = 0; i < contact_cnt; ++i)
         {
             contact = (PyJointObject*)(PyList_GetItem(world->contactList, i));
-            JointObject_SolveConstraintVelocity (contact, step);
+            JointObject_SolveConstraints (contact, step);
         }
     }
 }
@@ -284,14 +284,10 @@ static void _JointSolve(PyWorldObject* world,double stepTime)
     {
         joint = (PyJointObject*)(PyList_GetItem(world->jointList,i));
         //what happened here?
-        if (joint->SolveConstraintVelocity)
+        if (joint->SolveConstraints)
         {
-            JointObject_SolveConstraintVelocity (joint, stepTime);
+            JointObject_SolveConstraints (joint, stepTime);
         }
-        /*if (joint->SolveConstraintPosition)
-          {
-          joint->SolveConstraintPosition(joint,stepTime);
-          }*/
     }
 }
 

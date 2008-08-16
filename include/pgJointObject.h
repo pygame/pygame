@@ -40,20 +40,12 @@
 #define _PHYSICS_JOINT_H_
 
 /**
- * Solve joint velocity constraint.
+ * Solve the joint constraints.
  *
  * @param joint
  * @param stepTime
  */
-int JointObject_SolveConstraintVelocity (PyJointObject *joint, double stepTime);
-
-/**
- * Solve joint position constraint.
- *
- * @param joint
- * @param stepTime
- */
-int JointObject_SolveConstraintPosition (PyJointObject *joint, double stepTime);
+int JointObject_SolveConstraints (PyJointObject *joint, double stepTime);
 
 /**
  * Python C API export hook.

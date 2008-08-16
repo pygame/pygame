@@ -31,14 +31,9 @@ static void _JointDestroy(PyJointObject* joint);
 static PyObject* _JointBaseNew(PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static int _JointBase_init(PyJointObject* joint,PyObject *args, PyObject *kwds);
-static PyObject* _Joint_SolveConstraintVelocity(PyJointObject* joint,
-    PyObject *args);
-static PyObject* _Joint_SolveConstraintPosition(PyJointObject* joint,
-    PyObject *args);
+static PyObject* _Joint_SolveConstraint(PyJointObject* joint, PyObject *args);
 
-static int _Joint_setBody1(PyJointObject* joint,PyObject* value,void* closure);
 static PyObject* _Joint_getBody1(PyJointObject* joint,void* closure);
-static int _Joint_setBody2(PyJointObject* joint,PyObject* value,void* closure);
 static PyObject* _Joint_getBody2(PyJointObject* joint,void* closure);
 
 static int _DistanceJoint_init(PyDistanceJointObject* joint,PyObject *args,
@@ -46,13 +41,12 @@ static int _DistanceJoint_init(PyDistanceJointObject* joint,PyObject *args,
 static PyObject* _DistanceJointNew(PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 
-static void _SolveDistanceJointPosition(PyJointObject* joint,double stepTime);
 static void _DistanceJoint_ComputeOneDynamic (PyBodyObject* body,
     PyVector2* staticAnchor, PyVector2* localAnchor,double distance,
     double stepTime);
 static void _DistanceJoint_ComputeTwoDynamic(PyDistanceJointObject* joint,
     double stepTime);
-static void _SolveDistanceJointVelocity(PyJointObject* joint,double stepTime);
+static void _SolveDistanceJoint(PyJointObject* joint,double stepTime);
 static void _ReComputeDistance(PyDistanceJointObject* joint);
 
 static PyObject* _DistanceJoint_getDistance(PyDistanceJointObject* joint,
@@ -81,7 +75,7 @@ static int _RevoluteJoint_init(PyRevoluteJointObject* joint,PyObject *args,
 static PyObject* _RevoluteJointNew(PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 
-static void _SolveRevoluteJointVelocity(PyJointObject* joint,double stepTime);
+static void _SolveRevoluteJoint(PyJointObject* joint,double stepTime);
 
 /* C API */
 static PyObject* PyJoint_New(PyObject *body1, PyObject *body2, int collideConnect);
@@ -91,16 +85,20 @@ static PyObject* PyRevoluteJoint_New(PyObject *body1,PyObject *body2,int collide
 static int PyRevoluteJoint_SetAnchorsFromConnectWorldAnchor(PyObject* joint,PyVector2 initWorldAnchor);
 
 static PyMethodDef _JointBase_methods[] = {
-    { "_solve_constraint_velocity",(PyCFunction)_Joint_SolveConstraintVelocity,
-      METH_VARARGS, "" },
-    { "_solve_constraint_position",(PyCFunction)_Joint_SolveConstraintPosition,
-      METH_VARARGS, "" },
+    { "_solve_constraints",(PyCFunction)_Joint_SolveConstraint,
+      METH_VARARGS,
+      "J._solve_constraints(steptime) -> None\n"
+      "Resolves the constraints between the two connected bodies.\n\n"
+      "Has to be implemented by inheriting classes."
+    },
     {NULL, NULL, 0, NULL}   /* Sentinel */
 };
 
 static PyGetSetDef _JointBase_getseters[] = {
-    { "body1",(getter)_Joint_getBody1,(setter)_Joint_setBody1,"",NULL },
-    { "body2",(getter)_Joint_getBody2,(setter)_Joint_setBody2,"",NULL },
+    { "body1",(getter)_Joint_getBody1, NULL,
+      "The first body connected by the Joint",NULL },
+    { "body2",(getter)_Joint_getBody2, NULL,
+      "The second body connected by the Joint",NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -127,7 +125,8 @@ PyTypeObject PyJoint_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "",                         /* tp_doc */
+    "Joint (body1, body2) -> Joint\n\n"
+    "Creates a new Joint with the specified bodies",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -217,58 +216,23 @@ static PyObject* _JointBaseNew(PyTypeObject *type, PyObject *args,
     joint->body1 = NULL;
     joint->body2 = NULL;
     joint->isCollideConnect = 0;
-    joint->SolveConstraintVelocity = NULL;
-    joint->SolveConstraintPosition = NULL;
+    joint->SolveConstraints = NULL;
     joint->Destroy = NULL;
 
     return (PyObject*) joint;
 }
 
-static PyObject* _Joint_SolveConstraintVelocity(PyJointObject* joint,
+static PyObject* _Joint_SolveConstraint(PyJointObject* joint,
     PyObject *args)
 {
     PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
     return NULL;
-}
-
-static PyObject* _Joint_SolveConstraintPosition(PyJointObject* shape,
-    PyObject *args)
-{
-    PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
-    return NULL;
-}
-
-
-static int _Joint_setBody1(PyJointObject* joint,PyObject* value,void* closure)
-{
-    if(!PyBody_Check (value))
-    {
-        PyErr_SetString(PyExc_TypeError, "argument must be a Body");
-        return -1;
-    }
-    Py_XDECREF (joint->body1);
-    Py_INCREF (value);
-    joint->body1 = value;
-    return 0;
 }
 
 static PyObject* _Joint_getBody1(PyJointObject* joint,void* closure)
 {
     Py_INCREF (joint->body1);
     return joint->body1;
-}
-
-static int _Joint_setBody2(PyJointObject* joint,PyObject* value,void* closure)
-{
-    if(!PyBody_Check (value))
-    {
-        PyErr_SetString(PyExc_TypeError, "argument must be a Body");
-        return -1;
-    }
-    Py_XDECREF (joint->body2);
-    Py_INCREF (value);
-    joint->body2 = value;
-    return 0;
 }
 
 static PyObject* _Joint_getBody2(PyJointObject* joint,void* closure)
@@ -279,17 +243,22 @@ static PyObject* _Joint_getBody2(PyJointObject* joint,void* closure)
 
 /* Distance joint */
 static PyMethodDef _DistanceJoint_methods[] = {
-    {"get_points",_DistanceJoint_getPointList,METH_VARARGS,""	},
+    {"get_points",_DistanceJoint_getPointList,METH_VARARGS,
+     "D.get_points () -> list\n\n"
+     "Gets the start and ending points of the DistanceJoint in the form\n"
+     "[(x1, y1), (x2, y2)]."},
     {NULL, NULL, 0, NULL}   /* Sentinel */
 };
 
 static PyGetSetDef _DistanceJoint_getseters[] = {
-    { "distance",(getter)_DistanceJoint_getDistance,
-      /*(setter)_DistanceJoint_setDistance*/NULL,"",NULL, },
+    { "distance",(getter)_DistanceJoint_getDistance, NULL,
+      "The distance between the both connected bodies.", NULL, },
     { "anchor1",(getter)_DistanceJoint_getAnchor1,
-      (setter)_DistanceJoint_setAnchor1,"",NULL, },
+      (setter)_DistanceJoint_setAnchor1,
+      "The local anchor point within the first body shape", NULL, },
     { "anchor2",(getter)_DistanceJoint_getAnchor2,
-      (setter)_DistanceJoint_setAnchor2,"",NULL, },
+      (setter)_DistanceJoint_setAnchor2,
+      "The local anchor point within the first body shape", NULL, },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -317,7 +286,10 @@ PyTypeObject PyDistanceJoint_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "",                         /* tp_doc */
+    "DistanceJoint (body1, body2) -> DistanceJoint\n\n"
+    "Creates a new DistanceJoint with the specified bodies.\n\n"
+    "The DistanceJoint causes the bodies to be connected with a fixed\n"
+    "distance between them",
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -361,42 +333,12 @@ static PyObject* _DistanceJointNew(PyTypeObject *type, PyObject *args,
     if (!joint)
         return NULL;
     
-    joint->joint.SolveConstraintVelocity = _SolveDistanceJointVelocity;
-    //joint->joint.SolveConstraintPosition = _SolveDistanceJointPosition;
+    joint->joint.SolveConstraints = _SolveDistanceJoint;
     joint->distance = 0.0;
     PyVector2_Set(joint->anchor1,0,0);
     PyVector2_Set(joint->anchor2,0,0);
 
     return (PyObject*)joint;
-}
-
-static void _SolveDistanceJointPosition(PyJointObject* joint,double stepTime)
-{
-    PyVector2 vecL,vecP;
-    PyDistanceJointObject* pJoint = (PyDistanceJointObject*)joint;
-    PyBodyObject *b1, *b2;
-    if (joint->body1 && (!joint->body2))
-    {
-        b1 = (PyBodyObject*)joint->body1;
-        vecL = c_diff(b1->vecPosition, pJoint->anchor2);
-        PyVector2_Normalize(&vecL);
-        vecL = PyVector2_MultiplyWithReal(vecL,pJoint->distance);
-        b1->vecPosition = c_sum(pJoint->anchor2,vecL);
-        return;
-    } 
-
-    if(joint->body1 && joint->body2)
-    {
-        b1 = (PyBodyObject*)joint->body1;
-        b2 = (PyBodyObject*)joint->body2;
-        vecL = c_diff(b1->vecPosition, b2->vecPosition);
-        PyVector2_Normalize(&vecL);
-        vecP = c_sum(b1->vecPosition, b2->vecPosition);
-        vecL = PyVector2_MultiplyWithReal(vecL,pJoint->distance * 0.5);
-        b1->vecPosition = c_sum(b1->vecPosition,vecL);
-        b2->vecPosition = c_diff(b2->vecPosition,vecL);
-        return;
-    }
 }
 
 static void _DistanceJoint_ComputeOneDynamic (PyBodyObject* body,
@@ -518,7 +460,7 @@ static void _DistanceJoint_ComputeTwoDynamic(PyDistanceJointObject* joint,
     body2->fAngleVelocity += (dAngleV2 / stepTime);
 }
 
-static void _SolveDistanceJointVelocity(PyJointObject* joint,double stepTime)
+static void _SolveDistanceJoint(PyJointObject* joint,double stepTime)
 {
     PyDistanceJointObject* pJoint = (PyDistanceJointObject*)joint;
     PyBodyObject* body1 = (PyBodyObject*) joint->body1;
@@ -624,6 +566,7 @@ static int _DistanceJoint_setAnchor1(PyDistanceJointObject* joint,
     PyObject* value,void* closure)
 {
     PyObject *item;
+    PyBodyObject *body;
     double real, imag;
 
     if (!PySequence_Check(value) || PySequence_Size (value) != 2)
@@ -638,6 +581,30 @@ static int _DistanceJoint_setAnchor1(PyDistanceJointObject* joint,
     item = PySequence_GetItem (value, 1);
     if (!DoubleFromObj (item, &imag))
         return -1;
+
+    if (real < 0 || imag < 0)
+    {
+        PyErr_SetString (PyExc_TypeError, "anchor values must not be negative");
+        return -1;
+    }
+
+    /* They have to be within the shape of the body. */
+    /* TODO */
+    body = (PyBodyObject*) joint->joint.body1;
+    if (((PyShapeObject*)body->shape)->type == ST_RECT)
+    {
+        PyRectShapeObject* rsh = (PyRectShapeObject*) body->shape;
+        double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
+        double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
+        if (real > width || imag > height)
+        {
+            PyErr_SetString (PyExc_TypeError,
+                "anchor values must be within the shape limits of the body");
+            return -1;
+        }
+    }
+    joint->anchor2.real = real;
+    joint->anchor2.imag = imag;
     
     joint->anchor1.real = real;
     joint->anchor1.imag = imag;
@@ -654,6 +621,7 @@ static PyObject* _DistanceJoint_getAnchor2(PyDistanceJointObject* joint,
 static int _DistanceJoint_setAnchor2(PyDistanceJointObject* joint,
     PyObject* value,void* closure)
 {
+    PyBodyObject *body;
     PyObject *item;
     double real, imag;
 
@@ -669,9 +637,32 @@ static int _DistanceJoint_setAnchor2(PyDistanceJointObject* joint,
     item = PySequence_GetItem (value, 1);
     if (!DoubleFromObj (item, &imag))
         return -1;
-    
+
+    if (real < 0 || imag < 0)
+    {
+        PyErr_SetString (PyExc_TypeError, "anchor values must not be negative");
+        return -1;
+    }
+
+    /* They have to be within the shape of the body. */
+    /* TODO */
+    body = (PyBodyObject*) joint->joint.body2;
+    if (((PyShapeObject*)body->shape)->type == ST_RECT)
+    {
+        PyRectShapeObject* rsh = (PyRectShapeObject*) body->shape;
+        double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
+        double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
+        if (real > width || imag > height)
+        {
+            PyErr_SetString (PyExc_TypeError,
+                "anchor values must be within the shape limits of the body");
+            return -1;
+        }
+    }
     joint->anchor2.real = real;
     joint->anchor2.imag = imag;
+
+
     _ReComputeDistance(joint);
     return 0;
 }
@@ -780,7 +771,7 @@ static PyObject* _RevoluteJointNew(PyTypeObject *type, PyObject *args,
     if (!joint)
         return NULL;
 
-    joint->joint.SolveConstraintVelocity = _SolveRevoluteJointVelocity;
+    joint->joint.SolveConstraints = _SolveRevoluteJoint;
     PyVector2_Set(joint->anchor1,0,0);
     PyVector2_Set(joint->anchor2,0,0);
 
@@ -908,7 +899,7 @@ static void _RevoluteJoint_ComputeTwoDynamic(PyDistanceJointObject* joint,
     body2->fAngleVelocity += (dAngleV2 / stepTime);
 }
 
-static void _SolveRevoluteJointVelocity(PyJointObject* joint,double stepTime)
+static void _SolveRevoluteJoint(PyJointObject* joint,double stepTime)
 {
     PyDistanceJointObject* pJoint = (PyDistanceJointObject*)joint;
     PyBodyObject* body1 = (PyBodyObject*) joint->body1;
@@ -1026,43 +1017,21 @@ static PyObject* _RevoluteJoint_getPointList(PyRevoluteJointObject* joint,void* 
     return list;
 }
 
-int JointObject_SolveConstraintVelocity (PyJointObject *joint, double stepTime)
+int JointObject_SolveConstraints (PyJointObject *joint, double stepTime)
 {
     PyObject *result;
     int retval;
 
     /* C implementations should fill that */
-    if (joint->SolveConstraintVelocity)
+    if (joint->SolveConstraints)
     {
-        joint->SolveConstraintVelocity (joint, stepTime);
+        joint->SolveConstraints (joint, stepTime);
         return 1;
     }
     
     /* No internal collision implementation, try the python one. */
     result = PyObject_CallMethod ((PyObject*)joint,
-        "_solve_constraint_velocity", "d", stepTime);
-    if (!result)
-        return -1;
-    if (!IntFromObj (result, &retval))
-        return -1;
-    return retval;    
-}
-
-int JointObject_SolveConstraintPosition (PyJointObject *joint, double stepTime)
-{
-    PyObject *result;
-    int retval;
-
-    /* C implementations should fill that */
-    if (joint->SolveConstraintPosition)
-    {
-        joint->SolveConstraintPosition (joint, stepTime);
-        return 1;
-    }
-    
-    /* No internal collision implementation, try the python one. */
-    result = PyObject_CallMethod ((PyObject*)joint,
-        "_solve_constraint_position", "d", stepTime);
+        "_solve_constraints", "d", stepTime);
     if (!result)
         return -1;
     if (!IntFromObj (result, &retval))

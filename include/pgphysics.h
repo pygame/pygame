@@ -168,8 +168,7 @@ struct _PyJointObject
     PyObject* body1;
     PyObject* body2;
     int       isCollideConnect;
-    void      (*SolveConstraintPosition)(PyJointObject* joint,double stepTime);
-    void      (*SolveConstraintVelocity)(PyJointObject* joint,double stepTime);
+    void      (*SolveConstraints)(PyJointObject* joint,double stepTime);
     void      (*Destroy)(PyJointObject* joint);
 };
 
