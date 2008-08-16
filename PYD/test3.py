@@ -20,7 +20,7 @@ def init_world():
     for i in range(1, 30):
         body1 = physics.Body(physics.RectShape(30, 28, 0))
         body1.position = 400, -900 + 40*i
-        body1.rotation = i
+        body1.rotation = 33*i
         body1.restitution = 0.0
         body1.mass = 20
         w.add_body(body1)
@@ -31,7 +31,7 @@ def init_world():
     body2.restitution = 0.0
     body2.mass = 1e100
     body2.static = True
-    body2.rotation = 0.2
+    body2.rotation = 15
     w.add_body(body2)
     
     return w

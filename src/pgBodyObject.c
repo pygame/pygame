@@ -70,9 +70,10 @@ static PyMethodDef _Body_methods[] = {
  * Getter/Setter definitions used by the Body
  */
 static PyGetSetDef _Body_getseters[] = {
-    { "mass", (getter) _Body_getMass, (setter) _Body_setMass, "Mass",
-      NULL },
-    { "shape",(getter)_Body_getShape, NULL,"Shape", NULL},
+    { "mass", (getter) _Body_getMass, (setter) _Body_setMass,
+      "The mass of the Body.", NULL },
+    { "shape",(getter)_Body_getShape, NULL,
+      "The shape of the Body. (Read-only)", NULL},
     { "rotation", (getter) _Body_getRotation, (setter) _Body_setRotation,
       "Rotation", NULL },
     { "torque", (getter) _Body_getTorque, (setter) _Body_setTorque,
@@ -376,6 +377,19 @@ static int _Body_setMass(PyBodyObject* body,PyObject* value,void* closure)
         }
     }
     PyErr_SetString (PyExc_TypeError, "mass must be a float");
+
+    // I = M(a^2 + b^2)/12
+    // TODO:
+    // This should be automatically be done by the shape.
+    if (((PyShapeObject*)body->shape)->type == ST_RECT)
+    {
+        PyRectShapeObject* rsh = (PyRectShapeObject*) body->shape;
+        double width = ABS (rsh->bottomright.real - rsh->bottomleft.real);
+        double height = ABS (rsh->bottomright.imag - rsh->topright.imag);
+        ((PyShapeObject*)body->shape)->rInertia = body->fMass *
+            (width * width + height * height) / 12;
+    }
+
     return -1;
 }
 
@@ -384,7 +398,7 @@ static int _Body_setMass(PyBodyObject* body,PyObject* value,void* closure)
  */
 static PyObject* _Body_getRotation (PyBodyObject* body,void* closure)
 {
-    return PyFloat_FromDouble (body->fRotation);
+    return PyFloat_FromDouble (RAD2DEG(body->fRotation));
 }
 
 /**
@@ -402,7 +416,7 @@ static int _Body_setRotation(PyBodyObject* body,PyObject* value,void* closure)
             Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
-            body->fRotation = rotation;
+            body->fRotation = DEG2RAD(rotation);
             return 0;
         }
     }
@@ -415,7 +429,7 @@ static int _Body_setRotation(PyBodyObject* body,PyObject* value,void* closure)
 */
 static PyObject* _Body_getAngularVel (PyBodyObject* body,void* closure)
 {
-	return PyFloat_FromDouble (body->fAngleVelocity);
+    return PyFloat_FromDouble (RAD2DEG(body->fAngleVelocity));
 }
 
 /**
@@ -433,7 +447,7 @@ static int _Body_setAngularVel(PyBodyObject* body,PyObject* value,void* closure)
             Py_DECREF (tmp);
             if (PyErr_Occurred ())
                 return -1;
-            body->fAngleVelocity = fAngleVelocity;
+            body->fAngleVelocity = DEG2RAD(fAngleVelocity);
             return 0;
         }
     }
@@ -718,7 +732,6 @@ PyVector2 PyBodyObject_GetLocalPointVelocity(PyBodyObject* body,
 static PyObject* PyBody_New(PyObject *shape)
 {
     PyBodyObject* body;
-    PyShapeObject *sh;
     
     if (!PyShape_Check (shape))
     {
