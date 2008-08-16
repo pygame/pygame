@@ -24,7 +24,8 @@
 #include "pgphysics.h"
 
 /**
- * TODO
+ * Free update body's velocity and angle velocity 
+ * swithout considering any constraint
  *
  * @param body
  * @param gravity
@@ -34,7 +35,7 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
     double dt);
 
 /**
- * TODO
+ * Free update body's position and rotation without considering any constraint
  *
  * @param body
  * @param dt
@@ -42,7 +43,7 @@ void PyBodyObject_FreeUpdateVel(PyBodyObject* body, PyVector2 gravity,
 void PyBodyObject_FreeUpdatePos (PyBodyObject* body, double dt);
 
 /**
- * TODO
+ * Correct Body's attributes by solving constraints
  *
  * @param body
  * @param dt

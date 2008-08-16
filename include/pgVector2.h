@@ -30,7 +30,7 @@
  */
 
 /**
- * TODO
+ * Test whether the two double number are nearly equal
  *
  * @param a
  * @param b
@@ -39,7 +39,7 @@
 int PyMath_IsNearEqual(double a, double b);
 
 /**
- * TODO
+ * Test whether the number a is less than b
  *
  * @param a
  * @param b
@@ -48,7 +48,7 @@ int PyMath_IsNearEqual(double a, double b);
 int PyMath_LessEqual(double a, double b);
 
 /**
- * TODO
+ * Test whether the number a is larger than b
  *
  * @param a
  * @param b
@@ -57,7 +57,7 @@ int PyMath_LessEqual(double a, double b);
 int PyMath_MoreEqual(double a, double b);
 
 /**
- * TODO
+ * Test whether the number a is equal than b
  *
  * @param a
  * @param b
@@ -66,7 +66,7 @@ int PyMath_MoreEqual(double a, double b);
 int PyVector2_Equal(PyVector2* a, PyVector2* b);
 
 /**
- * TODO
+ * return value = f * a
  *
  * @param a
  * @param f
@@ -75,7 +75,7 @@ int PyVector2_Equal(PyVector2* a, PyVector2* b);
 PyVector2 PyVector2_MultiplyWithReal (PyVector2 a, double f);
 
 /**
- * TODO
+ * return value = (1/f) * a
  *
  * @param a
  * @param f
@@ -84,7 +84,7 @@ PyVector2 PyVector2_MultiplyWithReal (PyVector2 a, double f);
 PyVector2 PyVector2_DivideWithReal (PyVector2 a, double f);
 
 /**
- * TODO
+ * basic cross operation
  *
  * @param f
  * @param a
@@ -93,7 +93,7 @@ PyVector2 PyVector2_DivideWithReal (PyVector2 a, double f);
 PyVector2 PyVector2_fCross(double f, PyVector2 a);
 
 /**
- * TODO
+ *basic cross operation
  *
  * @param a
  * @param f
@@ -102,7 +102,7 @@ PyVector2 PyVector2_fCross(double f, PyVector2 a);
 PyVector2 PyVector2_Crossf(PyVector2 a, double f);
 
 /**
- * TODO
+ * project a vector into direction p
  *
  * @param a
  * @param p

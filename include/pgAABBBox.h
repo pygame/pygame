@@ -24,7 +24,7 @@
 #include "pgphysics.h"
 
 /**
- * TODO
+ * Generate an AABBBox by defining its attributes
  *
  * @param left
  * @param right
@@ -35,7 +35,7 @@
 AABBBox AABB_Gen(double left, double right, double bottom, double top);
 
 /**
- * TODO
+ * expand the aabbbox
  *
  * @param box
  * @param p
@@ -43,14 +43,14 @@ AABBBox AABB_Gen(double left, double right, double bottom, double top);
 void AABB_ExpandTo(AABBBox* box, PyVector2* p);
 
 /**
- * TODO
+ * Set the aabbbox to infinite big
  *
  * @param box
  */
 void AABB_Clear(AABBBox* box);
 
 /**
- * TODO
+ * Test whether two boxes are overlaped
  *
  * @param boxA
  * @param boxB
@@ -60,7 +60,7 @@ void AABB_Clear(AABBBox* box);
 int AABB_IsOverlap(AABBBox* boxA, AABBBox* boxB, double eps);
 
 /**
- * TODO
+ * Test whether the point is in the aabbbox
  *
  * @param p
  * @param box
