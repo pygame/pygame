@@ -27,6 +27,10 @@
  * Internally used declarations.
  */
 
+#if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION <= 4
+typedef int Py_ssize_t;
+#endif
+
 #ifdef PHYSICS_INTERNAL
 
 extern PyTypeObject PyBody_Type;
