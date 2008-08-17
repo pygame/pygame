@@ -47,6 +47,10 @@ static int _Body_setTorque (PyBodyObject* body,PyObject* value,void* closure);
 static PyObject* _Body_getRestitution (PyBodyObject* body,void* closure);
 static int _Body_setRestitution (PyBodyObject* body,PyObject* value,
     void* closure);
+static PyObject* _Body_getLinearVelDamping (PyBodyObject* body,void* closure);
+static int _Body_setLinearVelDamping (PyBodyObject* body,PyObject* value,void* closure);
+static PyObject* _Body_getAngleVelDamping (PyBodyObject* body,void* closure);
+static int _Body_setAngleVelDamping (PyBodyObject* body,PyObject* value,void* closure);
 static PyObject* _Body_getFriction (PyBodyObject* body,void* closure);
 static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure);
 static PyObject* _Body_getBStatic (PyBodyObject* body,void* closure);
@@ -89,8 +93,12 @@ static PyGetSetDef _Body_getseters[] = {
       "The restitution of the Body. This influences the collision behavior\n"
       "of the collision (inelastic to elastic).",
       NULL },
-    { "friction", (getter) _Body_getFriction, (setter) _Body_setFriction,
-      "The friction of the body surface. Currently not supported.", NULL },
+    { "linear_vel_damping", (getter) _Body_getLinearVelDamping, (setter) _Body_setLinearVelDamping,
+      "the damping coefficient of linear velocity,must be in [0.0,1.0].", NULL },
+	{ "angle_vel_damping", (getter) _Body_getAngleVelDamping, (setter) _Body_setAngleVelDamping,
+	"the damping coefficient of linear velocity,must be in [0.0,1.0].", NULL },
+	{ "friction", (getter) _Body_getFriction, (setter) _Body_setFriction,
+	"The friction of the body surface. Currently not supported.", NULL },
     { "velocity",(getter)_Body_getVelocity,(setter)_Body_setVelocity,
       "The velocity of the body as a (x, y) tuple. This describes the\n"
       "velocity in x and y direction", NULL },
@@ -575,6 +583,80 @@ static int _Body_setFriction (PyBodyObject* body,PyObject* value,void* closure)
     }
     PyErr_SetString (PyExc_TypeError, "friction must be a float");
     return -1;
+}
+
+/**
+* Getter for Body.linear_vel_damping
+*/
+static PyObject* _Body_getLinearVelDamping (PyBodyObject* body,void* closure)
+{
+	return PyFloat_FromDouble (body->fLinearVelDamping);
+}
+
+/**
+* Setter for Body.linear_vel_damping = x
+*/
+static int _Body_setLinearVelDamping (PyBodyObject* body,PyObject* value,void* closure)
+{
+	if (PyNumber_Check (value))
+	{
+		PyObject *tmp = PyNumber_Float (value);
+
+		if (tmp)
+		{
+			double damping = PyFloat_AsDouble (tmp);
+			Py_DECREF (tmp);
+			if (PyErr_Occurred ())
+				return -1;
+			if (damping < 0.0 || damping > 1.0)
+			{
+				PyErr_SetString(PyExc_ValueError,
+					"linear_vel_damping must not be in [0.0,1.0]");
+				return -1;
+			}
+			body->fLinearVelDamping = damping;
+			return 0;
+		}
+	}
+	PyErr_SetString (PyExc_TypeError, "linear_vel_damping must be a float");
+	return -1;
+}
+
+/**
+* Getter for Body.angle_vel_damping
+*/
+static PyObject* _Body_getAngleVelDamping (PyBodyObject* body,void* closure)
+{
+	return PyFloat_FromDouble (body->fAngleVelDamping);
+}
+
+/**
+* Setter for Body.angle_vel_damping = x
+*/
+static int _Body_setAngleVelDamping (PyBodyObject* body,PyObject* value,void* closure)
+{
+	if (PyNumber_Check (value))
+	{
+		PyObject *tmp = PyNumber_Float (value);
+
+		if (tmp)
+		{
+			double damping = PyFloat_AsDouble (tmp);
+			Py_DECREF (tmp);
+			if (PyErr_Occurred ())
+				return -1;
+			if (damping < 0.0 || damping > 1.0)
+			{
+				PyErr_SetString(PyExc_ValueError,
+					"angle_vel_damping must not be in [0.0,1.0]");
+				return -1;
+			}
+			body->fAngleVelDamping = damping;
+			return 0;
+		}
+	}
+	PyErr_SetString (PyExc_TypeError, "angle_vel_damping must be a float");
+	return -1;
 }
 
 /**
