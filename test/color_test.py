@@ -52,6 +52,9 @@ def _assign_item (x, p, y):
     x[p] = y
 
 class ColorTypeTest (unittest.TestCase):
+    def test_case_insensitivity_of_string_args(self):
+        self.assertEquals(pygame.color.Color('red'), pygame.color.Color('Red'))
+    
     def test_color (self):
         c = pygame.Color (10, 20, 30, 40)
         self.assertEquals (c.r, 10)
