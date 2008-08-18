@@ -297,8 +297,8 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c.r, 204)
         self.assertEquals (c.g, 0)
         self.assertEquals (c.b, 204)
-        self.assertEquals (c.a, 0)
-        self.assertEquals (hex (c), hex (0xCC00CC00))
+        self.assertEquals (c.a, 255)
+        self.assertEquals (hex (c), hex (0xCC00CCFF))
 
         c = pygame.Color ("0xCC00CC11")
         self.assertEquals (c.r, 204)
@@ -311,8 +311,8 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c.r, 204)
         self.assertEquals (c.g, 0)
         self.assertEquals (c.b, 204)
-        self.assertEquals (c.a, 0)
-        self.assertEquals (hex (c), hex (0xCC00CC00))
+        self.assertEquals (c.a, 255)
+        self.assertEquals (hex (c), hex (0xCC00CCFF))
 
         self.assertRaises (ValueError, pygame.Color, "#cc00qq")
         self.assertRaises (ValueError, pygame.Color, "0xcc00qq")
