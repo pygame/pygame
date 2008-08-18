@@ -2,30 +2,48 @@
 
 import test_utils
 import test.unittest as unittest
-from test_utils import test_not_implemented
+
+import pygame
+import pygame.event as event
+import pygame.fastevent as fastevent
+
+from event_test import race_condition_notification
 
 ################################################################################
 
 class FasteventModuleTest(unittest.TestCase):
-    def todo_test_get(self):
+    def setUp(self):
+        pygame.display.init()
+        fastevent.init()
+        event.clear()
+        self.assert_(not event.get())
+
+    def tearDown(self):
+        pygame.display.quit()
     
+    def test_get(self):
         # __doc__ (as of 2008-08-02) for pygame.fastevent.get:
     
           # pygame.fastevent.get() -> list of Events
           # get all events from the queue
-    
-        self.fail() 
-    
+
+        for _ in range(1, 11):
+            event.post(event.Event(pygame.USEREVENT))
+        
+        self.assertEquals (
+            [e.type for e in fastevent.get()], [pygame.USEREVENT] * 10,
+            race_condition_notification
+        )
+
     def todo_test_init(self):
-    
         # __doc__ (as of 2008-08-02) for pygame.fastevent.init:
     
           # pygame.fastevent.init() -> None
           # initialize pygame.fastevent.
-    
-        self.fail() 
-    
-    def todo_test_poll(self):
+
+        self.fail()
+
+    def test_poll(self):
     
         # __doc__ (as of 2008-08-02) for pygame.fastevent.poll:
     
@@ -34,10 +52,12 @@ class FasteventModuleTest(unittest.TestCase):
           # 
           # Returns next event on queue. If there is no event waiting on the
           # queue, this will return an event with type NOEVENT.
+        
+        self.assertEquals (
+            fastevent.poll().type, pygame.NOEVENT, race_condition_notification
+        )
     
-        self.fail() 
-    
-    def todo_test_post(self):
+    def test_post(self):
     
         # __doc__ (as of 2008-08-02) for pygame.fastevent.post:
     
@@ -57,7 +77,13 @@ class FasteventModuleTest(unittest.TestCase):
           # For that reason I do not recommend using this function in the
           # main thread of an SDL program.
     
-        self.fail() 
+        for _ in range(1, 11):
+            fastevent.post(event.Event(pygame.USEREVENT))
+        
+        self.assertEquals (
+            [e.type for e in event.get()], [pygame.USEREVENT] * 10,
+            race_condition_notification
+        )
     
     def todo_test_pump(self):
     
@@ -79,7 +105,7 @@ class FasteventModuleTest(unittest.TestCase):
     
         self.fail() 
     
-    def todo_test_wait(self):
+    def test_wait(self):
     
         # __doc__ (as of 2008-08-02) for pygame.fastevent.wait:
     
@@ -91,8 +117,9 @@ class FasteventModuleTest(unittest.TestCase):
           # available. Sometimes it is important to use this wait to get
           # events from the queue, it will allow your application to idle
           # when the user isn't doing anything with it.
-    
-        self.fail() 
+        
+        event.post(pygame.event.Event(1))
+        self.assertEquals(fastevent.wait().type, 1, race_condition_notification)
     
 ################################################################################
 
