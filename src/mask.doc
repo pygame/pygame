@@ -179,6 +179,14 @@ the event the pixel at that location is not set, the returned Mask will be
 empty.  The Mask returned is the same size as the original Mask.
 <END>
 
+connected_components
+Returns a list of masks of connected regions of pixels.
+Mask.connected_components(min = 0) -> [Masks]
+
+Returns a list of masks of connected regions of pixels.  An optional minimum
+number of pixels per connected region can be specified to filter out noise.
+<END>
+
 get_bounding_rects
 Returns a list of bounding rects of regions of set pixels.
 Mask.get_bounding_rects() -> Rects

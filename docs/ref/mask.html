@@ -99,6 +99,7 @@
   <tr><td><a href="mask.html#Mask.angle">Mask.angle</a> - <font size=-1>Returns the orientation of the pixels</font></td><td>Returns the orientation of the pixels</td></tr>
   <tr><td><a href="mask.html#Mask.outline">Mask.outline</a> - <font size=-1>list of points outlining an object</font></td><td>list of points outlining an object</td></tr>
   <tr><td><a href="mask.html#Mask.connected_component">Mask.connected_component</a> - <font size=-1>Returns a mask of a connected region of pixels.</font></td><td>Returns a mask of a connected region of pixels.</td></tr>
+  <tr><td><a href="mask.html#Mask.connected_components">Mask.connected_components</a> - <font size=-1>Returns a list of masks of connected regions of pixels.</font></td><td>Returns a list of masks of connected regions of pixels.</td></tr>
   <tr><td><a href="mask.html#Mask.get_bounding_rects">Mask.get_bounding_rects</a> - <font size=-1>Returns a list of bounding rects of regions of set pixels.</font></td><td>Returns a list of bounding rects of regions of set pixels.</td></tr>
 </table></small></ul>
  &nbsp;<br> 
@@ -266,6 +267,15 @@
   <tt>Mask.connected_component((x,y) = None) -> Mask</tt><br>
 <p>This uses the <tt>SAUF</tt> algorithm to find a connected component in the Mask. It checks 8 point connectivity. By default, it will return the largest connected component in the image. Optionally, a coordinate pair of a pixel can be specified, and the connected component containing it will be returned. In the event the pixel at that location is not set, the returned Mask will be empty. The Mask returned is the same size as the original Mask. </p>
 <!--COMMENTS:Mask.connected_component--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Mask.connected_components">
+<big><b>Mask.connected_components</big></b><br><ul>
+  <i>Returns a list of masks of connected regions of pixels.</i><br>
+  <tt>Mask.connected_components(min = 0) -> [Masks]</tt><br>
+<p>Returns a list of masks of connected regions of pixels. An optional minimum number of pixels per connected region can be specified to filter out noise. </p>
+<!--COMMENTS:Mask.connected_components--> &nbsp;<br> 
 <br></ul>
 
 
