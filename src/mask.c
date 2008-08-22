@@ -910,7 +910,8 @@ num_bounding_boxes - returns the number of bounding rects found.
 rects - returns the rects that are found.  Allocates the memory for the rects.
 
 */
-static int get_bounding_rects(bitmask_t *input, int *num_bounding_boxes, GAME_Rect** ret_rects) {
+static int get_bounding_rects(bitmask_t *input, int *num_bounding_boxes, GAME_Rect** ret_rects)
+{
     unsigned int *image, *ufind, *largest, *buf;
     int x, y, w, h, temp, label, relabel;
     GAME_Rect* rects;
@@ -999,7 +1000,8 @@ static int get_bounding_rects(bitmask_t *input, int *num_bounding_boxes, GAME_Re
     return 0;
 }
 
-static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args) {
+static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args)
+{
     GAME_Rect *regions;
     GAME_Rect *aregion;
     int num_bounding_boxes, i, r;
@@ -1031,8 +1033,7 @@ static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args) {
     if (!ret)
         return NULL;
 
-    /* build a list of rects to return.  */
-	/* TODO: FIXME: why do we start at i=1 here? */
+    /* build a list of rects to return.  Starts at 1 because we never use 0. */
     for(i=1; i <= num_bounding_boxes; i++) {
         aregion = regions + i;
         rect = PyRect_New4 ( aregion->x, aregion->y, aregion->w, aregion->h );
@@ -1045,6 +1046,129 @@ static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args) {
     return ret;
 }
 
+static int get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
+{
+    unsigned int *image, *ufind, *largest, *buf;
+    int x, y, w, h, label, relabel;
+    bitmask_t** comps;
+
+    label = 0;
+
+    w = mask->w;
+    h = mask->h;
+
+    /* a temporary image to assign labels to each bit of the mask */
+    image = (unsigned int *) malloc(sizeof(int)*w*h);
+    if(!image) { return -2; }
+
+    /* allocate enough space for the maximum possible connected components */
+    /* the union-find array. see wikipedia for info on union find */
+    ufind = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
+    if(!ufind) { return -2; }
+
+    largest = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
+    if(!largest) { return -2; }
+	
+    /* do the initial labelling */
+    label = cc_label(mask, image, ufind, largest);
+    
+    for (x = 1; x <= label; x++) {
+        if (ufind[x] < x) {
+            largest[ufind[x]] += largest[x];
+        }
+    }
+
+    relabel = 0;
+    /* flatten and relabel the union-find equivalence array.  Start at label 1
+       because label 0 indicates an unset pixel.  For this reason, we also use
+       <= label rather than < label. */
+    for (x = 1; x <= label; x++) {
+        if (ufind[x] < x) {             /* is it a union find root? */
+            ufind[x] = ufind[ufind[x]]; /* relabel it to its root */
+        } else {                 /* its a root */
+            if (largest[x] >= min) {
+                relabel++;                      
+                ufind[x] = relabel;  /* assign the lowest label available */
+            } else {
+                ufind[x] = 0;
+            }
+        }
+    }
+
+    if (relabel == 0) {
+    /* early out, as we didn't find anything. */
+        free(image);
+        free(ufind);
+        free(largest);
+        return 0;
+    }
+
+    /* allocate space for the mask array */
+    comps = (bitmask_t **) malloc(sizeof(bitmask_t *) * (relabel +1));
+    if(!comps) { return -2; }
+    
+    /* create the empty masks */
+    for (x = 1; x <= relabel; x++) {
+        comps[x] = bitmask_create(w, h);
+    }
+
+    /* set the bits in each mask */
+    buf = image;
+    for (y = 0; y < h; y++) {
+        for (x = 0; x < w; x++) {
+            if (ufind[*buf]) {         /* if the pixel is part of a component */
+                bitmask_setbit(comps[ufind[*buf]], x, y);
+            }
+            buf++;
+        }
+    }
+    
+    free(image);
+    free(ufind);
+    free(largest);
+
+    *components = comps;
+
+    return relabel;
+}    
+
+static PyObject* mask_connected_components(PyObject* self, PyObject* args)
+{
+    PyObject* ret;
+    PyMaskObject *maskobj;
+    bitmask_t **components;
+    bitmask_t *mask = PyMask_AsBitmap(self);
+    int i, num_components, min;
+    
+    min = 0;
+    components = NULL;
+    
+    if(!PyArg_ParseTuple(args, "|i", &min)) {
+        return NULL;
+    }
+    
+    Py_BEGIN_ALLOW_THREADS;
+    num_components = get_connected_components(mask, &components, min);
+    Py_END_ALLOW_THREADS;
+    
+    if (num_components == -2)
+        return RAISE (PyExc_MemoryError, "Not enough memory to get components. \n");
+        
+    ret = PyList_New(0);
+    if (!ret)
+        return NULL;    
+    
+    for (i=1; i <= num_components; i++) {
+        maskobj = PyObject_New(PyMaskObject, &PyMask_Type);
+        if(maskobj) {
+            maskobj->mask = components[i];
+            PyList_Append (ret, (PyObject *) maskobj);
+        }
+    }
+    
+    free(components);
+    return ret;
+}
 
 /* Connected component labeling based on the SAUF algorithm by Kesheng Wu,
    Ekow Otoo, and Kenji Suzuki.  The algorithm is best explained by their paper,
@@ -1120,7 +1244,7 @@ static PyObject* mask_connected_component(PyObject* self, PyObject* args)
 
     if(!PyArg_ParseTuple(args, "|(ii)", &x, &y)) {
         return NULL;
-    }    
+    }
     
     /* if a coordinate is specified, make the pixel there is actually set */
     if (x == -1 || bitmask_getbit(input, x, y)) {
@@ -1156,6 +1280,8 @@ static PyMethodDef maskobj_builtins[] =
     { "outline", mask_outline, METH_VARARGS, DOC_MASKOUTLINE },
     { "connected_component", mask_connected_component, METH_VARARGS,
       DOC_MASKCONNECTEDCOMPONENT },
+    { "connected_components", mask_connected_components, METH_VARARGS,
+      DOC_MASKCONNECTEDCOMPONENTS },
     { "get_bounding_rects", mask_get_bounding_rects, METH_NOARGS,
       DOC_MASKGETBOUNDINGRECTS },
 

@@ -351,6 +351,8 @@
 
 #define DOC_MASKCONNECTEDCOMPONENT "Mask.connected_component((x,y) = None) -> Mask\nReturns a mask of a connected region of pixels."
 
+#define DOC_MASKCONNECTEDCOMPONENTS "Mask.connected_components(min = 0) -> [Masks]\nReturns a list of masks of connected regions of pixels."
+
 #define DOC_MASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
