@@ -150,6 +150,41 @@ class MaskTypeTest( unittest.TestCase ):
         self.assertEqual(m.outline(2), [(10,10), (10,12), (10,10)])
         
         #TODO: Test more corner case outlines.
+        
+    def test_connected_components(self):
+        """
+        """
+        
+        m = pygame.Mask((10,10))
+        self.assertEquals(repr(m.connected_components()), "[]")
+        
+        comp = m.connected_component()
+        self.assertEquals(m.count(), comp.count())
+        
+        m.set_at((0,0), 1)
+        m.set_at((1,1), 1)
+        comp = m.connected_component()
+        comps = m.connected_components()
+        comps1 = m.connected_components(1)
+        comps2 = m.connected_components(2)
+        comps3 = m.connected_components(3)
+        self.assertEquals(comp.count(), comps[0].count())
+        self.assertEquals(comps1[0].count(), 2)
+        self.assertEquals(comps2[0].count(), 2)
+        self.assertEquals(repr(comps3), "[]")
+        
+        m.set_at((9, 9), 1)
+        comp = m.connected_component()
+        comps = m.connected_components()
+        comps1 = m.connected_components(1)
+        comps2 = m.connected_components(2)
+        comps3 = m.connected_components(3)
+        self.assertEquals(comp.count(), 2)
+        self.assertEquals(len(comps), 2)
+        self.assertEquals(len(comps1), 2)
+        self.assertEquals(len(comps2), 1)
+        self.assertEquals(len(comps3), 0)
+        
 
     def test_get_bounding_rects(self):
         """
