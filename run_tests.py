@@ -27,11 +27,6 @@ import unittest_patch
 #    See optparse options below for more options (test_runner.py)
 #
 
-# If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
-# This is only the default, can be over-ridden on command line
-
-TIME_OUT = 30
-
 # Any tests in IGNORE will not be ran
 IGNORE = set ([
     "scrap_test",
@@ -59,14 +54,6 @@ Runs the sprite and threads module tests isolated in subprocesses, dumping all
 failing tests info in the form of a dict.
 
 """)
-
-# DEFAULTS
-
-opt_parser.set_defaults (
-    python = sys.executable,
-    time_out = TIME_OUT,
-    exclude = 'interactive',
-)
 
 options, args = opt_parser.parse_args()
 

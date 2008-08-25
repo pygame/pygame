@@ -89,6 +89,21 @@ opt_parser.add_option (
               "default (sys.executable): %s" % sys.executable)
 
 ################################################################################
+
+# If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
+# This is only the default, can be over-ridden on command line
+
+TIME_OUT = 30
+
+# DEFAULTS
+
+opt_parser.set_defaults (
+    python = sys.executable,
+    time_out = TIME_OUT,
+    exclude = 'interactive',
+)
+
+################################################################################
 # Human readable output
 #
 
