@@ -105,14 +105,14 @@
             ((r >> ft->Rloss) << ft->Rshift) |    \
             ((g >> ft->Gloss) << ft->Gshift) |    \
             ((b >> ft->Bloss) << ft->Bshift) |    \
-            ((a << ft->Aloss) << ft->Ashift);     \
+            ((a >> ft->Aloss) << ft->Ashift);     \
         break;                                    \
     case 4:                                       \
         *((Uint32 *) (buf)) =                     \
             ((r >> ft->Rloss) << ft->Rshift) |    \
             ((g >> ft->Gloss) << ft->Gshift) |    \
             ((b >> ft->Bloss) << ft->Bshift) |    \
-            ((a << ft->Aloss) << ft->Ashift);     \
+            ((a >> ft->Aloss) << ft->Ashift);     \
         break;                                    \
     }
 

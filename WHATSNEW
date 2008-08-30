@@ -5,6 +5,10 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+Aug 30, 2008
+	[BUG] Fixed CREATE_PIXEL macro's use of Aloss
+		which was making surface.fill with surfaces with no alpha go green 
+		
 Jul 18, 2008
     Added Surface.set_masks and .set_shifts useful for using data in
         b,g,r,a mode... and other fun hacks.
