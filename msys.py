@@ -86,14 +86,14 @@ def find_msys_registry():
     
     subkey = (
         'Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\MSYS-1.0_is1')
-    key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, subkey)
     try:
+        key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, subkey)
         try:
             return _winreg.QueryValueEx(key, 'Inno Setup: App Path')[0].encode()
-        except WindowsError:
-            raise LookupError("MSYS not found in the registry")
-    finally:
-        key.Close()
+        finally:
+            key.Close()
+    except WindowsError:
+        raise LookupError("MSYS not found in the registry")
 
 def as_shell(msys_root):
     """Append MSYS shell program to MSYS root directory path"""
