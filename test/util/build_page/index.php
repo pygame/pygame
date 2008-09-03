@@ -21,6 +21,7 @@ function sandwiched_file_list($prefix, $suffix)
 	}
 	return $file_map;
 }
+
 $prebuilt_list = sandwiched_file_list("prebuilt_", ".txt");
 $results_list = sandwiched_file_list("buildresults_", ".txt");
 
@@ -73,10 +74,19 @@ $results_list = sandwiched_file_list("buildresults_", ".txt");
 		{    
             if (preg_match('/failed_tests_(.*)/', $platform_file[2], $group)) {
                 $passing_installer = $group[1];
+                
                 echo "<td>Most Recent Build: <br /><a href='" . $platform_file[2] . "'>" . $platform_file[2] . "</a><br />";
-                // if exists passing installler 
-                echo "<br />Most Recent Build Successfuly Passing Tests: <br/>(see pygame.version.ver for svn version number)";
-                echo "<br/><a href='" . $passing_installer . "'>  " . $passing_installer . "</a></td>";
+                echo "<br />Most Recent Build Successfuly Passing Tests: <br/>(see pygame.version.ver for svn version number)<br/>";
+                
+                if (file_exists($passing_installer))
+                {
+                    echo "<a href='" . $passing_installer . "'>  " . $passing_installer . "</a></td>";
+                }
+                else
+                {
+                    echo "No passing build yet!";
+                }
+                
             } else {
                 echo "<td><a href='" . $platform_file[2] . "'>" . $platform_file[2] . "</a></td>";
             }
@@ -131,7 +141,7 @@ $results_list = sandwiched_file_list("buildresults_", ".txt");
 		if (trim($platform_file[4]) != "")
 		{
 			echo "<a href='warnings.php?tag=$platform_tag'>view warnings </a>";
-            echo "&nbsp;<a href='results.php?tag=$platform_tag'> build info </a>";
+            echo "&nbsp;<a href='results/$platform_tag/$platform_file[0]/setup'> build info </a>";
 		}
         echo "</td>";
         

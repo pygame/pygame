@@ -141,7 +141,7 @@ def parse_test_results(ret_code, output):
         return TESTS_FAILED, web_friendly
 
     elif ( (failed_test and not errors) or
-           (ret_code is not 0 and not failed_test) ):
+           (ret_code and not failed_test) ):
 
         return TESTS_INVALID, output.replace("\n", "<br>")
 
@@ -188,7 +188,7 @@ def parse_build_results(ret_code, output):
 def dumped(f):
     def dump():
         dump.ret_code, dump.output = f()
-        write_file_lines('%s.txt' % normp('output', f.__name__), [dump.output])
+        write_file_lines('%s_dump' % normp('output', f.__name__), [dump.output])
         return dump.ret_code, dump.output
     dump.__name__ = f.__name__
     return dump
@@ -222,26 +222,7 @@ def run_tests():
 
 ################################################################################
 
-def upload_build_results( build_result, build_errors, build_warnings):
-    write_file_lines (
-        config.buildresults_filename,
-        ( [config.latest_rev, time.strftime("%Y-%m-%d %H:%M"),
-           build_result, build_errors, build_warnings] )
-    )
-    create_zip (
-        config.buildresults_zip,
-
-        * glob.glob(normp('output', '*.txt')) + config.buildresult_files,
-
-        **{ 'config.txt' : str(config) }
-    )
-
-    for results in (config.buildresults_filename, config.buildresults_zip):
-        upload_results.scp(results)
-    
-    file(config.last_rev_filename, "w").write(str(config.latest_rev))
-
-def upload_installer(build_result):
+def prepare_installer( build_result):
     installer_dist_path = glob.glob (
         normp(config.dist_path, config.package_mask))[0]
 
@@ -251,26 +232,42 @@ def upload_installer(build_result):
 
     if build_result is not TESTS_PASSED:
         installer_filename = "failed_tests_%s" % installer_filename
-
+    
     output_installer_path = normp('./output', installer_filename)
     shutil.move(installer_dist_path, output_installer_path)
 
-    build_info = [config.latest_rev, time.strftime("%Y-%m-%d %H:%M")]
+    write_file_lines (
+        config.prebuilts_filename,
+        [config.latest_rev, time.strftime("%Y-%m-%d %H:%M"),
+        installer_filename]
+    )    
 
-    for upload in ("uploading", installer_filename):
-        write_file_lines(config.prebuilts_filename, build_info + [upload])
-        upload_results.scp(config.prebuilts_filename)
 
-        if upload is "uploading":
-            upload_results.scp(output_installer_path)
+def prepare_build_results( build_result, build_errors, build_warnings):
+    write_file_lines (
+        config.buildresults_filename,
+        [ config.latest_rev, time.strftime("%Y-%m-%d %H:%M"),
+          build_result, build_errors, build_warnings]
+    )
+
+    create_zip (
+        config.buildresults_zip,
+        * glob.glob(normp('output', '*')) + config.buildresult_files
+    )
+
+    file(config.last_rev_filename, "w").write(str(config.latest_rev))
+
+def post_build():
+    print upload_results.post_build(config.buildresults_zip)
 
 ################################################################################
 
 def prepare_build_env():
     for d in (config.dist_path, normp("./output"), config.temp_install_path):
-        prepare_dir(d)
-
-    os.makedirs(config.temp_install_pythonpath)
+        clear_or_make_dirs(d)
+    
+    # DUMP CONFIG TO TEXT FILE
+    write_file_lines(normp("./output/config.txt"), [str(config)])
 
 ################################################################################
 
@@ -286,11 +283,13 @@ def update_build():
         build_result, build_errors = parse_test_results(*run_tests())
 
         if config.make_package:
-            upload_installer(build_result)
+            prepare_installer(build_result)
 
     print '\n%s\n' % build_result
 
-    upload_build_results(build_result, build_errors, build_warnings)
+    prepare_build_results(build_result, build_errors, build_warnings)
+
+    post_build()
 
 ################################################################################
 # Debugging
