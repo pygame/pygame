@@ -17,8 +17,8 @@ class HelpersTest(unittest.TestCase):
         helpers.create_zip (
             'test.zip',
 
-            'update_test.py',
-            'update.py',
+           * ('update_test.py',
+            'update.py' ),
             
             **{ 'run_tests__output.txt'   :    'test',
                 'setup_py__output.txt'    :    'test',

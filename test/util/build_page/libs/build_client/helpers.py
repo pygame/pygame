@@ -33,9 +33,9 @@ def cleardir(path_to_clear):
         for name in dirs:
             os.rmdir(os.path.join(root, name))
 
-def prepare_dir(dir):
+def clear_or_make_dirs(dir):
     if os.path.exists(dir): cleardir(dir)
-    else: os.mkdir(dir)
+    else: os.makedirs(dir)
 
 def create_zip(zip_file, *files, **var):
     zip = zipfile.ZipFile(zip_file, 'w', compression = zipfile.ZIP_DEFLATED)

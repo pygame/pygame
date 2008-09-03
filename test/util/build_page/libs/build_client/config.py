@@ -141,7 +141,7 @@ def get_platform_and_previous_rev(config, config_file):
         r"build_([^.]+).ini", os.path.basename(config_file) ).group(1)
     
     config.last_rev_filename = normp(
-        "./output/last_rev_%s.txt" % config.platform_id )
+        "./last_rev_%s.txt" % config.platform_id )
     try:
         config.previous_rev = int(file(config.last_rev_filename, "r").read())
     except:
@@ -186,17 +186,17 @@ def configure(config_file):
     )
     c.install_cmd += ['install', '--prefix', c.temp_install_path]
     c.tests_cmd += extra_flags(c.extra_test_flags)
-    
+
     # INSTALL / TEST ENV
     test_env = {"PYTHONPATH" : c.temp_install_pythonpath}
     c.install_env = c.build_env.copy()  #TODO rename to test_install_env
     c.install_env.update(test_env)
 
     # RESULTS
-    c.prebuilts_filename = normp("./output/prebuilt_%s.txt" % c.platform_id)
-    c.buildresults_filename = normp("./output/buildresults_%s.txt" % c.platform_id)
-    c.buildresults_zip = normp("./output/buildresults_%s.zip" % c.platform_id)
-    
+    c.prebuilts_filename = normp("./output/prebuilt")
+    c.buildresults_filename = normp("./output/buildresults")
+    c.buildresults_zip = normp("./output/build.zip")
+
     # FILES TO ADD TO RESULTS ZIP
     c.buildresult_files = [
        normp('config', 'build_%s.ini' % c.platform_id),
