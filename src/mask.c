@@ -248,6 +248,7 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
     bitmask_t *mask = PyMask_AsBitmap(self);
     int x, y;
     long int m10, m01, m00;
+    PyObject *ret, *xobj, *yobj;
 
     m10 = m01 = m00 = 0;
     
@@ -262,11 +263,17 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
     }
     
     if (m00) {
-        return Py_BuildValue ("(OO)", PyInt_FromLong(m10/m00),
-                              PyInt_FromLong(m01/m00));
+        xobj = PyInt_FromLong(m10/m00);
+        yobj = PyInt_FromLong(m01/m00);
     } else {
-        return Py_BuildValue ("(OO)", PyInt_FromLong(0), PyInt_FromLong(0));
+        xobj = PyInt_FromLong(0);
+        yobj = PyInt_FromLong(0);
     }
+    
+    ret =  Py_BuildValue ("(OO)", xobj, yobj);
+    Py_DECREF(xobj);
+    Py_DECREF(yobj);
+    return ret;
 }
 
 static PyObject* mask_angle(PyObject* self, PyObject* args)
@@ -295,9 +302,9 @@ static PyObject* mask_angle(PyObject* self, PyObject* args)
         xc = m10/m00;
         yc = m01/m00;
         theta = -90.0*atan2(2*(m11/m00 - xc*yc),(m20/m00 - xc*xc)-(m02/m00 - yc*yc))/M_PI;
-        return Py_BuildValue ("O", PyFloat_FromDouble(theta));
+        return PyFloat_FromDouble(theta);
     } else {
-        return Py_BuildValue ("O", PyFloat_FromDouble(0));
+        return PyFloat_FromDouble(0);
     }
 }
 
