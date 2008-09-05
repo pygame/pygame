@@ -312,7 +312,7 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
 {
     bitmask_t* c = PyMask_AsBitmap(self);
     bitmask_t* m = bitmask_create(c->w + 2, c->h + 2); 
-    PyObject* plist;
+    PyObject *plist, *value;
     int x, y, every, e, firstx, firsty, secx, secy, currx, curry, nextx, nexty, n;
     int a[14], b[14];
     a[0] = a[1] = a[7] = a[8] = a[9] = b[1] = b[2] = b[3] = b[9] = b[10] = b[11]= 1;
@@ -343,7 +343,9 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
             if (bitmask_getbit(m, x, y)) {
                  firstx = x;
                  firsty = y;
-                 PyList_Append(plist, Py_BuildValue("(ii)", x-1, y-1));
+                 value = Py_BuildValue("(ii)", x-1, y-1);
+                 PyList_Append(plist, value);
+                 Py_DECREF(value);
                  break;
             }
         }
@@ -367,7 +369,9 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
             e--;
             if (!e) {
                 e = every;
-                PyList_Append(plist, Py_BuildValue("(ii)", secx-1, secy-1));
+                value = Py_BuildValue("(ii)", secx-1, secy-1);
+                PyList_Append(plist, value);
+                Py_DECREF(value);
             }
             break;
         }
@@ -392,7 +396,9 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
                     if ((curry == firsty && currx == firstx) && (secx == nextx && secy == nexty)) {
                         break;
                     }
-                    PyList_Append(plist, Py_BuildValue("(ii)", nextx-1, nexty-1));
+                    value = Py_BuildValue("(ii)", nextx-1, nexty-1);
+                    PyList_Append(plist, value);
+                    Py_DECREF(value);                   
                 }
                 break;
             }
@@ -1170,6 +1176,7 @@ static PyObject* mask_connected_components(PyObject* self, PyObject* args)
         if(maskobj) {
             maskobj->mask = components[i];
             PyList_Append (ret, (PyObject *) maskobj);
+            Py_DECREF((PyObject *) maskobj);
         }
     }
     
