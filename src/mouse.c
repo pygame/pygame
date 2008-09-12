@@ -171,7 +171,7 @@ static PyObject*
 mouse_get_cursor (PyObject* self)
 {
     SDL_Cursor *cursor = NULL;
-    PyObject* xordata, *anddata;
+    PyObject* xordata, *anddata, *ret;
     int size, loop, w, h, spotx, spoty;
 
     VIDEO_INIT_CHECK ();
@@ -202,7 +202,10 @@ mouse_get_cursor (PyObject* self)
         PyTuple_SET_ITEM (anddata, loop, PyInt_FromLong (cursor->mask[loop]));
     }
 
-    return Py_BuildValue ("((ii)(ii)OO)", w, h, spotx, spoty, xordata, anddata);
+    ret = Py_BuildValue ("((ii)(ii)OO)", w, h, spotx, spoty, xordata, anddata);
+    Py_DECREF(xordata);
+    Py_DECREF(anddata);
+    return ret;
 }
 
 static PyMethodDef mouse_builtins[] =
