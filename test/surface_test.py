@@ -753,7 +753,7 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_subsurface(self):
+    def test_subsurface(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.subsurface:
 
@@ -776,7 +776,26 @@ class SurfaceTypeTest(unittest.TestCase):
           # about the state of a subsurface.
           # 
 
-        self.fail() 
+        surf = pygame.Surface((16, 16))
+        s = surf.subsurface(0,0,1,1)
+        s = surf.subsurface((0,0,1,1))
+
+
+
+        #s = surf.subsurface((0,0,1,1), 1)
+        # This form is not acceptable.
+        #s = surf.subsurface(0,0,10,10, 1)
+
+        self.assertRaises(ValueError, surf.subsurface, (0,0,1,1,666))
+
+
+        self.assertEquals(s.get_shifts(), surf.get_shifts())
+        self.assertEquals(s.get_masks(), surf.get_masks())
+        self.assertEquals(s.get_losses(), surf.get_losses())
+
+
+
+
 
     def todo_test_unlock(self):
 
