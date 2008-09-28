@@ -21,6 +21,30 @@
 
 #define DOC_PYGAMEVERSIONVERNUM "pygame.version.vernum = (1, 5, 3)\ntupled integers of the version"
 
+#define DOC_PYGAMECAMERA "pygame module for camera use"
+
+#define DOC_PYGAMECAMERACOLORSPACE "pygame.camera.colorspace(Surface, format, DestSurface = None): return Surface\nSurface colorspace conversion"
+
+#define DOC_PYGAMECAMERALISTCAMERAS "pygame.camera.list_cameras(): return [cameras]\nreturns a list of available cameras"
+
+#define DOC_PYGAMECAMERACAMERA "pygame.camera.Camera(device, (width, height), format): return Camera\nload a camera"
+
+#define DOC_CAMERASTART "Camera.start(): return None\nopens, initializes, and starts capturing"
+
+#define DOC_CAMERASTOP "Camera.stop(): return None\nstops, uninitializes, and closes the camera"
+
+#define DOC_CAMERAGETCONTROLS "Camera.get_controls(): return (hflip = bool, vflip = bool)\ngets current values of user controls"
+
+#define DOC_CAMERASETCONTROLS "Camera.set_controls(hflip = bool, vflip = bool): return (hflip = bool, vflip = bool)\nchanges camera settings if supported by the camera"
+
+#define DOC_CAMERAGETSIZE "Camera.get_size(): return (width, height)\nreturns the dimensions of the images being recorded"
+
+#define DOC_CAMERAQUERYIMAGE "Camera.query_image(): return bool\nchecks if a frame is ready"
+
+#define DOC_CAMERAGETIMAGE "Camera.get_image(Surface = None): return Surface\ncaptures an image as a Surface"
+
+#define DOC_CAMERAGETRAW "Camera.get_raw(): return string\nreturns an unmodified image as a string"
+
 #define DOC_PYGAMECDROM "pygame module for audio cdrom control"
 
 #define DOC_PYGAMECDROMINIT "pygame.cdrom.init(): return None\ninitialize the cdrom module"
