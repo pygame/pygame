@@ -1,0 +1,174 @@
+
+<html>
+<title>camera - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href="camera.html">Camera</a>&nbsp;||&nbsp;
+<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
+<a href="color.html">Color</a>&nbsp;||&nbsp;
+<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
+<a href="display.html">Display</a>&nbsp;||&nbsp;
+<a href="draw.html">Draw</a>&nbsp;||&nbsp;
+<a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="image.html">Image</a>&nbsp;||&nbsp;
+<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
+<a href="key.html">Key</a>&nbsp;||&nbsp;
+<a href="mask.html">Mask</a>&nbsp;||&nbsp;
+<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
+<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
+<a href="movie.html">Movie</a>&nbsp;||&nbsp;
+<a href="music.html">Music</a>&nbsp;||&nbsp;
+<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
+<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
+<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
+<a href="rect.html">Rect</a>&nbsp;||&nbsp;
+<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
+<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
+<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
+<a href="surface.html">Surface</a>&nbsp;||&nbsp;
+<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="time.html">Time</a>&nbsp;||&nbsp;
+<a href="transform.html">Transform</a>
+</td></tr></table>
+<br>
+
+
+<a name="pygame.camera">
+<big><b>pygame.camera</big></b><br><ul>
+  <i>pygame module for camera use</i><br>
+<ul><small><table>
+  <tr><td><a href="camera.html#pygame.camera.colorspace">pygame.camera.colorspace</a> - <font size=-1>Surface colorspace conversion</font></td><td>Surface colorspace conversion</td></tr>
+  <tr><td><a href="camera.html#pygame.camera.list_cameras">pygame.camera.list_cameras</a> - <font size=-1>returns a list of available cameras</font></td><td>returns a list of available cameras</td></tr>
+  <tr><td><a href="camera.html#pygame.camera.Camera">pygame.camera.Camera</a> - <font size=-1>load a camera</font></td><td>load a camera</td></tr>
+</table></small></ul>
+<p>Pygame currently supports only Linux and v4l2 cameras. </p>
+<!--COMMENTS:pygame.camera--> &nbsp;<br> 
+
+
+<a name="pygame.camera.colorspace">
+<big><b>pygame.camera.colorspace</big></b><br><ul>
+  <i>Surface colorspace conversion</i><br>
+  <tt>pygame.camera.colorspace(Surface, format, DestSurface = None): return Surface</tt><br>
+<p>Allows for conversion from <tt>"RGB"</tt> to a destination colorspace of <tt>"HSV"</tt> or <tt>"YUV"</tt>. The source and destination surfaces must be the same size and pixel depth. This is useful for computer vision on devices with limited processing power. Capture as small of an image as possible, <tt>transform.scale()</tt> it even smaller, and then convert the colorspace to <tt>YUV</tt> or <tt>HSV</tt> before doing any processing on it. </p>
+<!--COMMENTS:pygame.camera.colorspace--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.camera.list_cameras">
+<big><b>pygame.camera.list_cameras</big></b><br><ul>
+  <i>returns a list of available cameras</i><br>
+  <tt>pygame.camera.list_cameras(): return [cameras]</tt><br>
+<p>Checks the computer for available cameras and returns a list of strings of camera names, ready to be fed into <tt>pygame.camera.Camera</tt>. </p>
+<!--COMMENTS:pygame.camera.list_cameras--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.camera.Camera">
+<big><b>pygame.camera.Camera</big></b><br><ul>
+  <i>load a camera</i><br>
+  <tt>pygame.camera.Camera(device, (width, height), format): return Camera</tt><br>
+<ul><small><table>
+  <tr><td><a href="camera.html#Camera.start">Camera.start</a> - <font size=-1>opens, initializes, and starts capturing</font></td><td>opens, initializes, and starts capturing</td></tr>
+  <tr><td><a href="camera.html#Camera.stop">Camera.stop</a> - <font size=-1>stops, uninitializes, and closes the camera</font></td><td>stops, uninitializes, and closes the camera</td></tr>
+  <tr><td><a href="camera.html#Camera.get_controls">Camera.get_controls</a> - <font size=-1>gets current values of user controls</font></td><td>gets current values of user controls</td></tr>
+  <tr><td><a href="camera.html#Camera.set_controls">Camera.set_controls</a> - <font size=-1>changes camera settings if supported by the camera</font></td><td>changes camera settings if supported by the camera</td></tr>
+  <tr><td><a href="camera.html#Camera.get_size">Camera.get_size</a> - <font size=-1>returns the dimensions of the images being recorded</font></td><td>returns the dimensions of the images being recorded</td></tr>
+  <tr><td><a href="camera.html#Camera.query_image">Camera.query_image</a> - <font size=-1>checks if a frame is ready</font></td><td>checks if a frame is ready</td></tr>
+  <tr><td><a href="camera.html#Camera.get_image">Camera.get_image</a> - <font size=-1>captures an image as a Surface</font></td><td>captures an image as a Surface</td></tr>
+  <tr><td><a href="camera.html#Camera.get_raw">Camera.get_raw</a> - <font size=-1>returns an unmodified image as a string</font></td><td>returns an unmodified image as a string</td></tr>
+</table></small></ul>
+<p>Loads a v4l2 camera. The device is typically something like "/dev/video0". Default width and height are 640 by 480. Format is the desired colorspace of the output. This is useful for computer vision purposes. The following are supported: </p>
+<ul>
+ <li> RGB - Red, Green, Blue </li>
+ <li> YUV - Luma, Blue Chrominance, Red Chrominance </li>
+ <li> HSV - Hue, Saturation, Value </li>
+</ul>
+<!--COMMENTS:pygame.camera.Camera--> &nbsp;<br> 
+
+
+<a name="Camera.start">
+<big><b>Camera.start</big></b><br><ul>
+  <i>opens, initializes, and starts capturing</i><br>
+  <tt>Camera.start(): return None</tt><br>
+<p>Opens the camera device, attempts to initialize it, and begins recording images to a buffer. </p>
+<!--COMMENTS:Camera.start--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Camera.stop">
+<big><b>Camera.stop</big></b><br><ul>
+  <i>stops, uninitializes, and closes the camera</i><br>
+  <tt>Camera.stop(): return None</tt><br>
+<p>Stops recording, uninitializes the camera, and closes it. </p>
+<!--COMMENTS:Camera.stop--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Camera.get_controls">
+<big><b>Camera.get_controls</big></b><br><ul>
+  <i>gets current values of user controls</i><br>
+  <tt>Camera.get_controls(): return (hflip = bool, vflip = bool)</tt><br>
+<p>If the camera supports it, get_controls will return the current settings for horizontal and vertical image flip as bools. If unsupported, it will return the default values of (0, 0). Note that the return values here may be different than those returned by set_controls, though these are more likely to be correct. </p>
+<!--COMMENTS:Camera.get_controls--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Camera.set_controls">
+<big><b>Camera.set_controls</big></b><br><ul>
+  <i>changes camera settings if supported by the camera</i><br>
+  <tt>Camera.set_controls(hflip = bool, vflip = bool): return (hflip = bool, vflip = bool)</tt><br>
+<p>Allows you to change camera settings if the camera supports it. The return values will be the input values if the camera claims it succeeded or the values previously in use if not. Each argument is optional, and the desired one can be chosen by supplying the keyword, like hflip. Note that the actual settings being used by the camera may not be the same as those returned by set_controls. </p>
+<!--COMMENTS:Camera.set_controls--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Camera.get_size">
+<big><b>Camera.get_size</big></b><br><ul>
+  <i>returns the dimensions of the images being recorded</i><br>
+  <tt>Camera.get_size(): return (width, height)</tt><br>
+<p>Returns the current dimensions of the images being captured by the camera. </p>
+<!--COMMENTS:Camera.get_size--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Camera.query_image">
+<big><b>Camera.query_image</big></b><br><ul>
+  <i>checks if a frame is ready</i><br>
+  <tt>Camera.query_image(): return bool</tt><br>
+<p>If an image is ready to get, it returns true. Otherwise it returns false. Note that some webcams will always return False and will only queue a frame when called with a blocking function like get_image(). </p>
+<!--COMMENTS:Camera.query_image--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Camera.get_image">
+<big><b>Camera.get_image</big></b><br><ul>
+  <i>captures an image as a Surface</i><br>
+  <tt>Camera.get_image(Surface = None): return Surface</tt><br>
+<p>Pulls an image off of the buffer as an <tt>RGB</tt> Surface. It can optionally reuse an existing Surface to save time. The bit depth of the surface is either 24bits or the same as the optionally supplied Surface. </p>
+<!--COMMENTS:Camera.get_image--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Camera.get_raw">
+<big><b>Camera.get_raw</big></b><br><ul>
+  <i>returns an unmodified image as a string</i><br>
+  <tt>Camera.get_raw(): return string</tt><br>
+<p>Gets an image from a camera as a string in the native pixelformat of the camera. Useful for integration with other libraries. </p>
+<!--COMMENTS:Camera.get_raw--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+<br></ul>
+
+</body></html>
