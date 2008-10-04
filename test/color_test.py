@@ -52,6 +52,51 @@ def _assign_item (x, p, y):
     x[p] = y
 
 class ColorTypeTest (unittest.TestCase):
+    def test_invalid_html_hex_codes(self):
+        # This was a problem with the way 2 digit hex numbers were
+        # calculated. The test_hex_digits test is related to the fix.
+        Color = pygame.color.Color
+        self.failUnlessRaises(ValueError, lambda: Color('# f000000'))
+        self.failUnlessRaises(ValueError, lambda: Color('#f 000000'))
+        self.failUnlessRaises(ValueError, lambda: Color('#-f000000'))
+
+    def test_hex_digits(self):
+        # This is an implementation specific test.
+        # Two digit hex numbers are calculated using table lookups
+        # for the upper and lower digits.
+        Color = pygame.color.Color
+        self.assertEqual(Color('#00000000').r, 0x00)
+        self.assertEqual(Color('#10000000').r, 0x10)
+        self.assertEqual(Color('#20000000').r, 0x20)
+        self.assertEqual(Color('#30000000').r, 0x30)
+        self.assertEqual(Color('#40000000').r, 0x40)
+        self.assertEqual(Color('#50000000').r, 0x50)
+        self.assertEqual(Color('#60000000').r, 0x60)
+        self.assertEqual(Color('#70000000').r, 0x70)
+        self.assertEqual(Color('#80000000').r, 0x80)
+        self.assertEqual(Color('#90000000').r, 0x90)
+        self.assertEqual(Color('#A0000000').r, 0xA0)
+        self.assertEqual(Color('#B0000000').r, 0xB0)
+        self.assertEqual(Color('#C0000000').r, 0xC0)
+        self.assertEqual(Color('#D0000000').r, 0xD0)
+        self.assertEqual(Color('#E0000000').r, 0xE0)
+        self.assertEqual(Color('#F0000000').r, 0xF0)
+        self.assertEqual(Color('#01000000').r, 0x01)
+        self.assertEqual(Color('#02000000').r, 0x02)
+        self.assertEqual(Color('#03000000').r, 0x03)
+        self.assertEqual(Color('#04000000').r, 0x04)
+        self.assertEqual(Color('#05000000').r, 0x05)
+        self.assertEqual(Color('#06000000').r, 0x06)
+        self.assertEqual(Color('#07000000').r, 0x07)
+        self.assertEqual(Color('#08000000').r, 0x08)
+        self.assertEqual(Color('#09000000').r, 0x09)
+        self.assertEqual(Color('#0A000000').r, 0x0A)
+        self.assertEqual(Color('#0B000000').r, 0x0B)
+        self.assertEqual(Color('#0C000000').r, 0x0C)
+        self.assertEqual(Color('#0D000000').r, 0x0D)
+        self.assertEqual(Color('#0E000000').r, 0x0E)
+        self.assertEqual(Color('#0F000000').r, 0x0F)
+
     def test_comparison(self):
         Color = pygame.color.Color
         self.failUnless(Color(255, 0, 0, 0) == Color(255, 0, 0, 0))
