@@ -38,6 +38,7 @@ static int _get_double (PyObject *obj, double *val);
 static int _get_color (PyObject *val, Uint32 *color);
 static int _hextoint (char *hex, Uint8 *val);
 static int _hexcolor (PyObject *color, Uint8 rgba[]);
+static int _coerce_obj(PyObject *obj, Uint8 rgba[]);
 
 static PyColor* _color_new_internal (PyTypeObject *type, Uint8 rgba[]);
 static PyObject* _color_new (PyTypeObject *type, PyObject *args,
@@ -83,6 +84,9 @@ static PyObject* _color_hex (PyColor *color);
 static Py_ssize_t _color_length (PyColor *color);
 static PyObject* _color_item (PyColor *color, Py_ssize_t _index);
 static int _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value);
+
+/* Comparison */
+static PyObject* _color_richcompare(PyObject *o1, PyObject *o2, int opid);
 
 /* C API interfaces */
 static PyObject* PyColor_New (Uint8 rgba[]);
@@ -209,7 +213,7 @@ static PyTypeObject PyColor_Type =
     DOC_PYGAMECOLOR,            /* tp_doc */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
+    _color_richcompare,         /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
@@ -352,6 +356,68 @@ _hexcolor (PyObject *color, Uint8 rgba[])
     return 0;
 }
 
+static int
+_coerce_obj(PyObject *obj, Uint8 rgba[])
+{
+    if (RGBAFromObj (obj, rgba))
+    {
+        return 1;
+    }
+    else if (PyErr_Occurred ())
+    {
+	return -1;
+    }
+    else if (PyString_Check (obj))
+    {
+	if (_hexcolor (obj, rgba))
+        {
+	    return 1;
+	}
+	if (PyErr_Occurred ())
+        {
+	    return -1;
+	}
+    }
+    else if (PyInt_Check (obj))
+    {
+	long color = PyInt_AsLong (obj);
+	if (color == -1 && PyErr_Occurred ())
+        {
+	    return -1;
+	}
+        rgba[0] = (Uint8) ((Uint32) color >> 24);
+        rgba[1] = (Uint8) ((Uint32) color >> 16);
+        rgba[2] = (Uint8) ((Uint32) color >> 8);
+        rgba[3] = (Uint8) color;
+	return 1;
+    }
+    else if (PyLong_Check (obj))
+    {
+        unsigned long color = PyLong_AsUnsignedLong (obj);
+	if (PyErr_Occurred ())
+	{
+            if (!PyErr_ExceptionMatches (PyExc_OverflowError))
+            {
+	        return -1;
+	    }
+	    else
+	    {
+		PyErr_Clear ();
+	    }
+	}
+	else
+	{
+            rgba[0] = (Uint8) (color >> 24);
+            rgba[1] = (Uint8) (color >> 16);
+            rgba[2] = (Uint8) (color >> 8);
+            rgba[3] = (Uint8) color;
+	    return 1;
+	}
+    }
+
+    return 0;
+}
+
 static PyColor*
 _color_new_internal (PyTypeObject *type, Uint8 rgba[])
 {
@@ -383,17 +449,34 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     {
         /* Named color */
         PyObject *color = NULL;
+        PyObject *name1 = NULL, *name2 = NULL;
         if (obj1 || obj2 || obj3)
             return RAISE (PyExc_ValueError, "invalid arguments");
         
-        color = PyDict_GetItem (_COLORDICT, obj);
+        name1 = PyObject_CallMethod(obj, "replace", "(ss)", " ", "");
+        if (!name1)
+	{
+	    return NULL;
+	}
+        name2 = PyObject_CallMethod(name1, "lower", NULL);
+        Py_DECREF(name1);
+        if (!name2)
+	{
+	    return NULL;
+        }
+        color = PyDict_GetItem (_COLORDICT, name2);
+        Py_DECREF(name2);
         if (!color)
         {
             if (!_hexcolor (obj, rgba))
+	    {
                 return RAISE (PyExc_ValueError, "invalid color name");
+            }
         }
         else if (!RGBAFromObj (color, rgba))
+	{
             return RAISE (PyExc_ValueError, "invalid color");
+        }
 
         return (PyObject *) _color_new_internal (type, rgba);
     }
@@ -1326,6 +1409,49 @@ _color_ass_item (PyColor *color, Py_ssize_t _index, PyObject *value)
         break;
     }
     return -1;
+}
+
+/*
+ * colorA == colorB
+ * colorA != colorB
+ */
+static PyObject*
+_color_richcompare(PyObject *o1, PyObject *o2, int opid)
+{
+    Uint8 rgba1[4], rgba2[4];
+
+    switch (_coerce_obj (o1, rgba1))
+    {
+    case -1:
+	return 0;
+    case 0:
+	goto Unimplemented;
+    default:
+        break;
+    }
+    switch (_coerce_obj (o2, rgba2))
+    {
+    case -1:
+	return 0;
+    case 0:
+	goto Unimplemented;
+    default:
+        break;
+    }
+
+    switch (opid)
+    {
+    case Py_EQ:
+        return PyBool_FromLong (*((Uint32 *) rgba1) == *((Uint32 *) rgba2));
+    case Py_NE:
+        return PyBool_FromLong (*((Uint32 *) rgba1) != *((Uint32 *) rgba2));
+    default:
+        break;
+    }
+
+Unimplemented:
+    Py_INCREF (Py_NotImplemented);
+    return Py_NotImplemented;
 }
 
 /**** C API interfaces ****/
