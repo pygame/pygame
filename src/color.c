@@ -21,6 +21,7 @@
 
 #include "pygamedocs.h"
 #include "pygame.h"
+#include <ctype.h>
 
 typedef struct
 {
@@ -294,14 +295,119 @@ _get_color (PyObject *val, Uint32 *color)
 static int
 _hextoint (char *hex, Uint8 *val)
 {
-    char part[3] = { '\0' };
-    char *eptr;
-    part[0] = hex[0];
-    part[1] = hex[1];
+    /* 'hex' is a two digit hexadecimal number, no spaces, no signs.
+     * This algorithm is brute force, but it is character system agnostic.
+     * It is definitely not a general purpose solution.
+     */
+    Uint8 temp = 0;
 
-    *val = strtol (part, &eptr, 16);
-    if (eptr == part) /* Failure */
+    switch (toupper(hex[0]))
+    {
+    case '0':
+        break;
+    case '1':
+        temp += 0x10;
+        break;
+    case '2':
+        temp += 0x20;
+        break;
+    case '3':
+        temp += 0x30;
+        break;
+    case '4':
+        temp += 0x40;
+        break;
+    case '5':
+        temp += 0x50;
+        break;
+    case '6':
+        temp += 0x60;
+        break;
+    case '7':
+        temp += 0x70;
+        break;
+    case '8':
+        temp += 0x80;
+        break;
+    case '9':
+        temp += 0x90;
+        break;
+    case 'A':
+        temp += 0xA0;
+        break;
+    case 'B':
+        temp += 0xB0;
+        break;
+    case 'C':
+        temp += 0xC0;
+        break;
+    case 'D':
+        temp += 0xD0;
+        break;
+    case 'E':
+        temp += 0xE0;
+        break;
+    case 'F':
+        temp += 0xF0;
+        break;
+    default:
         return 0;
+    }
+
+    switch (toupper(hex[1]))
+    {
+    case '0':
+        break;
+    case '1':
+        temp += 0x01;
+        break;
+    case '2':
+        temp += 0x02;
+        break;
+    case '3':
+        temp += 0x03;
+        break;
+    case '4':
+        temp += 0x04;
+        break;
+    case '5':
+        temp += 0x05;
+        break;
+    case '6':
+        temp += 0x06;
+        break;
+    case '7':
+        temp += 0x07;
+        break;
+    case '8':
+        temp += 0x08;
+        break;
+    case '9':
+        temp += 0x09;
+        break;
+    case 'A':
+        temp += 0x0A;
+        break;
+    case 'B':
+        temp += 0x0B;
+        break;
+    case 'C':
+        temp += 0x0C;
+        break;
+    case 'D':
+        temp += 0x0D;
+        break;
+    case 'E':
+        temp += 0x0E;
+        break;
+    case 'F':
+        temp += 0x0F;
+        break;
+    default:
+        return 0;
+    }
+
+    *val = temp;
     return 1;
 }
 
