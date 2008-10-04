@@ -333,7 +333,7 @@ _hexcolor (PyObject *color, Uint8 rgba[])
             return 0;
         if (!_hextoint (name + 5, &rgba[2]))
             return 0;
-        rgba[3] = 0;
+        rgba[3] = 255;
         if (len == 9 && !_hextoint (name + 7, &rgba[3]))
             return 0;
         return 1;
@@ -348,7 +348,7 @@ _hexcolor (PyObject *color, Uint8 rgba[])
             return 0;
         if (!_hextoint (name + 6, &rgba[2]))
             return 0;
-        rgba[3] = 0;
+        rgba[3] = 255;
         if (len == 10 && !_hextoint (name + 8, &rgba[3]))
             return 0;
         return 1;
