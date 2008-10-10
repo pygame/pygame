@@ -74,6 +74,7 @@ typedef struct
     int size;
     int hflip;
     int vflip;
+    int brightness;
     int fd;
 } PyCameraObject;
 

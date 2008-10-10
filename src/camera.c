@@ -214,18 +214,23 @@ PyObject* camera_get_controls (PyCameraObject* self)
     
     if (v4l2_get_control(self->fd, V4L2_CID_VFLIP, &value))
         self->vflip = value;
+
+    if (v4l2_get_control(self->fd, V4L2_CID_BRIGHTNESS, &value))
+        self->brightness = value;
 #endif    
-    return Py_BuildValue ("(OO)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip));
+    return Py_BuildValue ("(OOO)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
 }
 
 /* set_controls() - changes camera settings if supported by the camera */
 PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kwds)
 {
+    camera_get_controls(self);
     int hflip = self->hflip;
     int vflip = self->vflip;
+    int brightness = self->brightness;
     
-    char *kwids[] = {"hflip", "vflip", NULL};
-    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|ii", kwids, &hflip, &vflip))
+    char *kwids[] = {"hflip", "vflip", "brightness", NULL};
+    if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip, &brightness))
         return NULL;
 #if defined(__unix__)        
     if (v4l2_set_control(self->fd, V4L2_CID_HFLIP, hflip))
@@ -233,8 +238,11 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
         
     if (v4l2_set_control(self->fd, V4L2_CID_VFLIP, vflip))
         self->vflip = vflip;
+        
+    if (v4l2_set_control(self->fd, V4L2_CID_BRIGHTNESS, brightness))
+        self->brightness = brightness;
 #endif    
-    return Py_BuildValue ("(OO)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip));
+    return Py_BuildValue ("(OOO)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
 }
 
 /* get_size() - returns the dimensions of the images being recorded */
@@ -1274,6 +1282,7 @@ PyObject* Camera (PyCameraObject* self, PyObject* arg)
         cameraobj->size = 0;
         cameraobj->hflip = 0;
         cameraobj->vflip = 0;
+        cameraobj->brightness = 0;
         cameraobj->fd = -1;
     }
     
