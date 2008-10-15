@@ -486,9 +486,10 @@ class TransformModuleTest( unittest.TestCase ):
     def test_get_smoothscale_backend(self):
         filter_type = pygame.transform.get_smoothscale_backend()
         self.failUnless(filter_type in ['GENERIC', 'MMX', 'SSE'])
-        #What is this testing?
-        self.failUnless(filter_type == 'GENERIC' or platform.machine() in ['i386', 'i686', ''])
-        
+        # It would be nice to test if a non-generic type corresponds to an x86
+        # processor. But there is no simple test for this. platform.machine()
+        # returns process version specific information, like 'i686'.
+       
     def todo_test_chop(self):
 
         # __doc__ (as of 2008-08-02) for pygame.transform.chop:

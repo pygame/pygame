@@ -229,18 +229,16 @@ if sys.platform == 'win32':
     cmdclass['build_ext'] = WinBuildExt
 
     # Add the precompiled smooth scale MMX functions to transform.
-    for e in extensions:
-        if e.name == 'transform':
-            e.extra_objects.append('obj\\win32\\scale_mmx.obj')
-            e.sources.remove('scale_mmx.c')
-
-#else:
-    # Add smooth scale MMX functions source file to transform extension. This
-    # file is safe for non-Pentium or non-GCC builds as it will produce an
-    # empty object file.
-#    for e in extensions:
-#        if e.name == 'transform':
-#            e.sources.append('scale_mmx.c')
+    def replace_scale_mmx():
+        for e in extensions:
+            if e.name == 'transform':
+                e.extra_objects.append(
+                    os.path.join('obj', 'win32', 'scale_mmx.obj'))
+                for i in range(len(e.sources)):
+                    if e.sources[i].endswith('scale_mmx.c'):
+                        del e.sources[i]
+                        return
+    replace_scale_mmx()
 
 
 #clean up the list of extensions
