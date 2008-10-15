@@ -85,6 +85,7 @@ else:
 #headers to install
 headers = glob.glob(os.path.join('src', '*.h'))
 headers.remove(os.path.join('src', 'numeric_arrayobject.h'))
+headers.remove(os.path.join('src', 'scale.h'))
 
 #sanity check for any arguments
 if len(sys.argv) == 1:
@@ -227,6 +228,17 @@ if sys.platform == 'win32':
             build_ext.run(self)
     cmdclass['build_ext'] = WinBuildExt
 
+    # Add the precompiled smooth scale MMX functions to transform.
+    for e in extensions:
+        if e.name == 'transform':
+            e.extra_objects.append('obj\\win32\\scale_mmx.obj')
+else:
+    # Add smooth scale MMX functions source file to transform extension. This
+    # file is safe for non-Pentium or non-GCC builds as it will produce an
+    # empty object file.
+    for e in extensions:
+        if e.name == 'transform':
+            e.sources.append('scale_mmx.c')
 
 
 #clean up the list of extensions

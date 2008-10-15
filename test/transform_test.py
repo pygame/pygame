@@ -6,6 +6,8 @@ from test_utils import test_not_implemented
 import pygame, pygame.transform
 from pygame.locals import *
 
+import platform
+
 def show_image(s, images = []):
     #pygame.display.init()
     size = s.get_rect()[2:]
@@ -481,6 +483,11 @@ class TransformModuleTest( unittest.TestCase ):
         s2 = pygame.transform.scale2x(s)
         self.assertEquals(s2.get_rect().size, (64, 64))
 
+    def test_get_smoothscale_backend(self):
+        filter_type = pygame.transform.get_smoothscale_backend()
+        self.failUnless(filter_type in ['GENERIC', 'MMX', 'SSE'])
+        self.failUnless(filter_type == 'GENERIC' or platform.machine() in ['i386', ''])
+        
     def todo_test_chop(self):
 
         # __doc__ (as of 2008-08-02) for pygame.transform.chop:
