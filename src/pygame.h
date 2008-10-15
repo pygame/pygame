@@ -57,7 +57,15 @@
  ** is a dereferenced NULL pointer that is easier to diagnose
  ** than it could be :]
  **/
+#if defined(HAVE_SNPRINTF)  /* defined in python.h (pyerrors.h) and SDL.h (SDL_config.h) */
+#undef HAVE_SNPRINTF        /* remove GCC redefine warning */
+#endif
+
 #include <Python.h>
+
+#if defined(HAVE_SNPRINTF)
+#undef HAVE_SNPRINTF
+#endif
 
 #ifdef MS_WIN32 /*Python gives us MS_WIN32, SDL needs just WIN32*/
 #ifndef WIN32
