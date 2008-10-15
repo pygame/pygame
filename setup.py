@@ -232,13 +232,15 @@ if sys.platform == 'win32':
     for e in extensions:
         if e.name == 'transform':
             e.extra_objects.append('obj\\win32\\scale_mmx.obj')
-else:
+            e.sources.remove('scale_mmx.c')
+
+#else:
     # Add smooth scale MMX functions source file to transform extension. This
     # file is safe for non-Pentium or non-GCC builds as it will produce an
     # empty object file.
-    for e in extensions:
-        if e.name == 'transform':
-            e.sources.append('scale_mmx.c')
+#    for e in extensions:
+#        if e.name == 'transform':
+#            e.sources.append('scale_mmx.c')
 
 
 #clean up the list of extensions
