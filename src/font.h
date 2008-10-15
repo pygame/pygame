@@ -21,6 +21,9 @@
 */
 
 #include <Python.h>
+#if defined(HAVE_SNPRINTF)  /* also defined in SDL_ttf (SDL.h) */
+#undef HAVE_SNPRINTF        /* remove GCC macro redefine warning */
+#endif
 #include <SDL_ttf.h>
 
 
