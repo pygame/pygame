@@ -486,7 +486,8 @@ class TransformModuleTest( unittest.TestCase ):
     def test_get_smoothscale_backend(self):
         filter_type = pygame.transform.get_smoothscale_backend()
         self.failUnless(filter_type in ['GENERIC', 'MMX', 'SSE'])
-        self.failUnless(filter_type == 'GENERIC' or platform.machine() in ['i386', ''])
+        #What is this testing?
+        self.failUnless(filter_type == 'GENERIC' or platform.machine() in ['i386', 'i686', ''])
         
     def todo_test_chop(self):
 
