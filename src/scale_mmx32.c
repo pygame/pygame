@@ -448,7 +448,7 @@ void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     free(xmult1);
 }
 
-void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth) __attribute__ ((alias ("filter_expand_X_MMX")));
+void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth) __attribute__ ((weak, alias ("filter_expand_X_MMX")));
 
 /* These functions implements a bilinear filter in the Y-dimension.
  */
