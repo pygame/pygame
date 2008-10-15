@@ -224,12 +224,14 @@ PyObject* camera_get_controls (PyCameraObject* self)
 /* set_controls() - changes camera settings if supported by the camera */
 PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kwds)
 {
-    camera_get_controls(self);
-    int hflip = self->hflip;
-    int vflip = self->vflip;
-    int brightness = self->brightness;
-    
+    int hflip = 0, vflip = 0, brightness = 0;
     char *kwids[] = {"hflip", "vflip", "brightness", NULL};
+
+    camera_get_controls(self);
+    hflip = self->hflip;
+    vflip = self->vflip;
+    brightness = self->brightness;
+    
     if (!PyArg_ParseTupleAndKeywords(arg, kwds, "|iii", kwids, &hflip, &vflip, &brightness))
         return NULL;
 #if defined(__unix__)        
