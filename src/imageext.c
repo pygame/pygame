@@ -28,6 +28,13 @@
  */
 #include <png.h>
 #include <jpeglib.h>
+/* Remove GCC macro redefine warnings. */
+#if defined(HAVE_STDDEF_H)  /* also defined in pygame.h (python.h) */
+#undef HAVE_STDDEF_H
+#endif
+#if defined(HAVE_STDLIB_H)  /* also defined in pygame.h (SDL.h) */
+#undef HAVE_STDLIB_H
+#endif
 #include "pygame.h"
 #include "pygamedocs.h"
 #include "pgopengl.h"
