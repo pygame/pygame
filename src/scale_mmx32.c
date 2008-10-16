@@ -377,8 +377,8 @@ filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int d
 
 /* These functions implement a bilinear filter in the X-dimension.
  */
-inline void
-filter_expand_X(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+void
+filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int x, y;
@@ -454,15 +454,79 @@ filter_expand_X(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstp
 }
 
 void
-filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
-{
-    filter_expand_X(srcpix, dstpix, height, srcpitch, dstpitch, srcwidth, dstwidth);
-}
-
-void
 filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
 {
-    filter_expand_X(srcpix, dstpix, height, srcpitch, dstpitch, srcwidth, dstwidth);
+    int *xidx0, *xmult0, *xmult1;
+    int x, y;
+    int factorwidth = 8;
+  	long long One64 = 0x0100010001000100ULL;
+
+    /* Allocate memory for factors */
+    xidx0 = malloc(dstwidth * 4);
+    if (xidx0 == 0) return;
+    xmult0 = (int *) malloc(dstwidth * factorwidth);
+    xmult1 = (int *) malloc(dstwidth * factorwidth);
+    if (xmult0 == 0 || xmult1 == 0)
+    {
+        free(xidx0);
+        if (xmult0) free(xmult0);
+        if (xmult1) free(xmult1);
+    }
+
+    /* Create multiplier factors and starting indices and put them in arrays */
+    for (x = 0; x < dstwidth; x++)
+    {
+        int xm1 = 0x100 * ((x * (srcwidth - 1)) % dstwidth) / dstwidth;
+        int xm0 = 0x100 - xm1;
+        xidx0[x] = x * (srcwidth - 1) / dstwidth;
+        xmult1[x*2]   = xm1 | (xm1 << 16);
+        xmult1[x*2+1] = xm1 | (xm1 << 16);
+        xmult0[x*2]   = xm0 | (xm0 << 16);
+        xmult0[x*2+1] = xm0 | (xm0 << 16);
+    }
+
+    /* Do the scaling in raster order so we don't trash the cache */
+    for (y = 0; y < height; y++)
+    {
+        Uint8 *srcrow0 = srcpix + y * srcpitch;
+        Uint8 *dstrow = dstpix + y * dstpitch;
+        int *xm0 = xmult0;
+        int *x0 = xidx0;
+    	int width = dstwidth;
+        asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
+             " pxor          %%mm0,      %%mm0;           "
+             " movq             %5,      %%mm7;           "
+             "1:                                          "
+             " movl           (%2),      %%eax;           " /* get xidx0[x] */
+             " add              $4,         %2;           "
+             " movq          %%mm7,      %%mm2;           "
+             " movq           (%0),      %%mm1;           " /* load mult0 */
+             " add              $8,         %0;           "
+             " psubw         %%mm1,      %%mm2;           " /* load mult1 */
+             " movd   (%4,%%eax,4),      %%mm4;           "
+             " movd  4(%4,%%eax,4),      %%mm5;           "
+             " punpcklbw     %%mm0,      %%mm4;           "
+             " punpcklbw     %%mm0,      %%mm5;           "
+             " pmullw        %%mm1,      %%mm4;           "
+             " pmullw        %%mm2,      %%mm5;           "
+             " paddw         %%mm4,      %%mm5;           "
+             " psrlw            $8,      %%mm5;           "
+             " packuswb      %%mm0,      %%mm5;           "
+             " movd          %%mm5,       (%1);           "
+             " add              $4,         %1;           "
+             " decl             %3;                       "
+             " jne              1b;                       "
+             " emms;                                      "
+             : "+r"(xm0),    "+r"(dstrow), "+r"(x0), "+m"(width)  /* outputs */
+             : "S"(srcrow0), "m"(One64)    /* input */
+             : "%eax"            /* clobbered */
+             );
+    }
+
+    /* free memory */
+    free(xidx0);
+    free(xmult0);
+    free(xmult1);
 }
 
 /* These functions implement a bilinear filter in the Y-dimension.
