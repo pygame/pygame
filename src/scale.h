@@ -26,6 +26,9 @@
  * Sorry, no Win64 support yet for Visual C builds, but it can be added.
  */
 
+#if !defined(SCALE_HEADER)
+#define SCALE_HEADER
+
 #if (defined(__GNUC__) && (defined(__x86_64__) || defined(__i386__))) || defined(MS_WIN32)
 #define SCALE_MMX_SUPPORT
 
@@ -49,10 +52,6 @@ void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, 
 
 void filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
 
-#if defined(_WIN32) || defined(_WIN64)
-#define SCALE_MMX_ALIAS __attribute__ ((alias ("filter_expand_X_MMX")))
-#else
-#define SCALE_MMX_ALIAS __attribute__ ((weak, alias ("filter_expand_X_MMX")))
-#endif
+#endif /* #if (defined(__GNUC__) && .....) */
 
-#endif
+#endif /* #if !defined(SCALE_HEADER) */
