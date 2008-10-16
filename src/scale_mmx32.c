@@ -38,9 +38,10 @@ typedef uint16_t Uint16;  /* SDL convension */
 #include <memory.h>
 #include "scale.h"
 
-/* These functions implements an area-averaging shrinking filter in the X-dimension.
+/* These functions implement an area-averaging shrinking filter in the X-dimension.
  */
-void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+void
+filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
 {
     int srcdiff = srcpitch - (srcwidth * 4);
     int dstdiff = dstpitch - (dstwidth * 4);
@@ -126,7 +127,8 @@ void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
         );
 }
 
-void filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+void
+filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
 {
     int srcdiff = srcpitch - (srcwidth * 4);
     int dstdiff = dstpitch - (dstwidth * 4);
@@ -187,9 +189,10 @@ void filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
         );
 }
 
-/* These functions implements an area-averaging shrinking filter in the Y-dimension.
+/* These functions implement an area-averaging shrinking filter in the Y-dimension.
  */
-void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+void
+filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
     int srcdiff = srcpitch - (width * 4);
@@ -294,7 +297,8 @@ void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, 
     free(templine);
 }
 
-void filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+void
+filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
     int srcdiff = srcpitch - (width * 4);
@@ -371,9 +375,10 @@ void filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, 
     free(templine);
 }
 
-/* These functions implements a bilinear filter in the X-dimension.
+/* These functions implement a bilinear filter in the X-dimension.
  */
-void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+inline void
+filter_expand_X(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int x, y;
@@ -448,9 +453,19 @@ void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     free(xmult1);
 }
 
-void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth) SCALE_MMX_ALIAS;
+void
+filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+{
+    filter_expand_X(srcpix, dstpix, height, srcpitch, dstpitch, srcwidth, dstwidth);
+}
 
-/* These functions implements a bilinear filter in the Y-dimension.
+void
+filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+{
+    filter_expand_X(srcpix, dstpix, height, srcpitch, dstpitch, srcwidth, dstwidth);
+}
+
+/* These functions implement a bilinear filter in the Y-dimension.
  */
 void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
