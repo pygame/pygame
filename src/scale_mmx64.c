@@ -102,7 +102,7 @@ void filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
         );
 }
 
-void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth) __attribute__ ((alias ("filter_shrink_X_SSE")));
+void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth) SCALE_MMX_ALIAS;
 
 /* this function implements an area-averaging shrinking filter in the Y-dimension */
 void filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
@@ -184,7 +184,7 @@ void filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, 
     free(templine);
 }
 
-void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight) __attribute__((alias "filter_shrink_Y_SSE")));
+void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight) SCALE_MMX_ALIAS;
 
 /* this function implements a bilinear filter in the X-dimension */
 void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
@@ -260,7 +260,7 @@ void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     free(xmult1);
 }
 
-void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth) __attribute__ ((alias ("filter_expand_X_SSE")));
+void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth) SCALE_MMX_ALIAS;
 
 /* this function implements a bilinear filter in the Y-dimension */
 void filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
@@ -306,4 +306,4 @@ void filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, 
     }
 }
 
-void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight) __attribute__ ((alias ("filter_expand_Y_SSE")));
+void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight) SCALE_MMX_ALIAS;
