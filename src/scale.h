@@ -48,4 +48,11 @@ void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
 void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
 
 void filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
+
+#if defined(_WIN32) || defined(_WIN64)
+#define SCALE_MMX_ALIAS __attribute__ ((alias ("filter_expand_X_MMX")))
+#else
+#define SCALE_MMX_ALIAS __attribute__ ((weak, alias ("filter_expand_X_MMX")))
+#endif
+
 #endif
