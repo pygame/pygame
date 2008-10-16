@@ -2163,7 +2163,7 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
     /* blit the accumulated array back to the destination surface. */
     
     
-    div_inv = 1. / (num_surfaces);
+    div_inv = (float) (1.0L / (num_surfaces));
     
     the_idx = accumulate;
     
