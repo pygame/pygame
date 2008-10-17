@@ -32,22 +32,26 @@
 #if (defined(__GNUC__) && (defined(__x86_64__) || defined(__i386__))) || defined(MS_WIN32)
 #define SCALE_MMX_SUPPORT
 
-/* these functions implements an area-averaging shrinking filter in the X-dimension */
+/* These functions implement an area-averaging shrinking filter in the X-dimension.
+ */
 void filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
 
 void filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
 
-/* these functions implements an area-averaging shrinking filter in the Y-dimension */
+/* These functions implement an area-averaging shrinking filter in the Y-dimension.
+ */
 void filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
 
 void filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
 
-/* these functions implements a bilinear filter in the X-dimension */
+/* These functions implement a bilinear filter in the X-dimension.
+ */
 void filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
 
 void filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth);
 
-/* these functions implements a bilinear filter in the Y-dimension */
+/* These functions implement a bilinear filter in the Y-dimension.
+ */
 void filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
 
 void filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight);
