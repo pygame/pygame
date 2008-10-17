@@ -26,9 +26,8 @@
  */
 #if defined(__GNUC__)
 /* Choose between the 32 bit and 64 bit versions.
- * Including source code like this may be frownd upon by some,
- * but the altermative is a bunch of ungainly conditionally
- * compiled code.
+ * Including source code like this may be frowned upon by some,
+ * but the alternative is ungainly conditionally compiled code.
  */
 #   if defined(__x86_64__)
 #       include "scale_mmx64.c"
