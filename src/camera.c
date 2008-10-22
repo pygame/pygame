@@ -218,7 +218,7 @@ PyObject* camera_get_controls (PyCameraObject* self)
     if (v4l2_get_control(self->fd, V4L2_CID_BRIGHTNESS, &value))
         self->brightness = value;
 #endif    
-    return Py_BuildValue ("(OOO)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
+    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
 }
 
 /* set_controls() - changes camera settings if supported by the camera */
@@ -244,7 +244,7 @@ PyObject* camera_set_controls (PyCameraObject* self, PyObject* arg, PyObject *kw
     if (v4l2_set_control(self->fd, V4L2_CID_BRIGHTNESS, brightness))
         self->brightness = brightness;
 #endif    
-    return Py_BuildValue ("(OOO)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
+    return Py_BuildValue ("(NNN)", PyBool_FromLong(self->hflip), PyBool_FromLong(self->vflip), PyInt_FromLong(self->brightness));
 }
 
 /* get_size() - returns the dimensions of the images being recorded */
