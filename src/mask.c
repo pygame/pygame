@@ -248,7 +248,7 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
     bitmask_t *mask = PyMask_AsBitmap(self);
     int x, y;
     long int m10, m01, m00;
-    PyObject *ret, *xobj, *yobj;
+    PyObject *xobj, *yobj;
 
     m10 = m01 = m00 = 0;
     
@@ -270,10 +270,7 @@ static PyObject* mask_centroid(PyObject* self, PyObject* args)
         yobj = PyInt_FromLong(0);
     }
     
-    ret =  Py_BuildValue ("(OO)", xobj, yobj);
-    Py_DECREF(xobj);
-    Py_DECREF(yobj);
-    return ret;
+    return Py_BuildValue("(NN)", xobj, yobj);
 }
 
 static PyObject* mask_angle(PyObject* self, PyObject* args)
