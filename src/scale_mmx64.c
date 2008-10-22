@@ -419,6 +419,7 @@ filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         Uint8 *srcrow0 = srcpix + y * srcpitch;
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
+		int *xm1 = xmult1;
         int *x0 = xidx0;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
              " movl             %5,      %%ecx;           "
@@ -493,6 +494,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
         Uint8 *srcrow0 = srcpix + y * srcpitch;
         Uint8 *dstrow = dstpix + y * dstpitch;
         int *xm0 = xmult0;
+		int *xm1 = xmult1;
         int *x0 = xidx0;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
              " movl             %5,      %%ecx;           "
@@ -533,7 +535,7 @@ filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int 
 /* These functions implement a bilinear filter in the Y-dimension
  */
 void
-filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
 {
     int y;
 
