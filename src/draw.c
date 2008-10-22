@@ -640,11 +640,10 @@ static PyObject* rect(PyObject* self, PyObject* arg)
 	/*build the pointlist*/
 	points = Py_BuildValue("((ii)(ii)(ii)(ii))", l, t, r, t, r, b, l, b);
 
-	args = Py_BuildValue("(OOOi)", surfobj, colorobj, points, width);
+	args = Py_BuildValue("(OONi)", surfobj, colorobj, points, width);
 	if(args) ret = polygon(NULL, args);
 
 	Py_XDECREF(args);
-	Py_XDECREF(points);
 	return ret;
 }
 
