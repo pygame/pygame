@@ -27,7 +27,7 @@ python build_deps.py --help
 
 This program has been tested against the following libraries:
 
-SDL 1.2.13
+SDL 1.2 (.13) revision 4114 from SVN 
 SDL_image 1.2.6
 SDL_mixer 1.2.8
 SDL_ttf 2.0.9
@@ -63,7 +63,7 @@ Build issues:
     
     It may not be possible to use the --all option to build all Pygame
     dependencies in one session. Instead the job may need to be split into two
-    or more sessions, with a reboot of the operatingsystem between each. Use
+    or more sessions, with a reboot of the operating system between each. Use
     the --help-args option to list the libraries in the their proper build
     order.
 """
@@ -476,6 +476,10 @@ if [ x$BDCONF == x1 ]; then
     BDDXHDR=
   done
 
+  # This comes straight from SVN so has no configure script
+  if [ ! -f "./configure" ]; then
+    ./autogen.sh
+  fi
   ./configure
 fi
 
@@ -738,7 +742,9 @@ cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
   # This comes straight from SVN so has no configure script
-  ./autogen.sh
+  if [ ! -f "./configure" ]; then
+    ./autogen.sh
+  fi
   ./configure --disable-gtk-player --disable-opengl-player --disable-gtktest
 fi
 
