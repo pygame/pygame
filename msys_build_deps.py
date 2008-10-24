@@ -5,7 +5,7 @@
 
 """Build Pygame dependencies using MinGW and MSYS
 
-Configured for Pygame 1.8 and Python 2.4 and up.
+Configured for Pygame 1.9.0 and Python 2.4 and up.
 
 The libraries are installed in /usr/local of the MSYS directory structure.
 
@@ -44,13 +44,15 @@ The build environment used:
 
 gcc-core-3.4.5
 binutils-2.17.50
-mingw-runtime-3.14
-win32api-3.11
-mingw32-make-3.81.2
-gcc-g++3.4.5
-MSYS-1.0.11
-MSYS-DTK-1.0.1 (for smpeg)
-nasm (from www.libsdl.org)
+mingwrt-3.15.1
+win32api-3.12
+mingw32-make-3.81-20080326
+MSYS-1.0.10
+msysDTK-1.0.1
+msys-automake-1.8.2
+msys-autocont-2.59
+m4-1.4.7-MSYS
+nasm-2.05rc6-win32 (SourceForge)
 
 Builds have been performed on Windows 98 and XP.
 
@@ -860,166 +862,11 @@ set -e
 #   msvcr71.dll support
 #
 if [ ! -f "$DBMSVCR71/libmoldname.a" ]; then
-  OBJS='isascii.o iscsym.o iscsymf.o toascii.o
-        strcasecmp.o strncasecmp.o wcscmpi.o'
-  if [ ! -d /tmp/build_deps ]; then mkdir /tmp/build_deps; fi
-  cd /tmp/build_deps
-  # These definitions are taken from mingw-runtime-3.12 .
-  # The file was generated with the following command:
-  #
-  # gcc -DRUNTIME=msvcrt -D__FILENAME__=moldname-msvcrt.def
-  #   -D__MSVCRT__ -C -E -P -xc-header moldname.def.in >moldname-msvcrt.def
-  cat > moldname-msvcrt.def << 'THE_END'
-EXPORTS
-access
-chdir
-chmod
-chsize
-close
-creat
-cwait
-
-daylight DATA
-
-dup
-dup2
-ecvt
-eof
-execl
-execle
-execlp
-execlpe
-execv
-execve
-execvp
-execvpe
-fcvt
-fdopen
-fgetchar
-fgetwchar
-filelength
-fileno
-; Alias fpreset is set in CRT_fp10,c and CRT_fp8.c.
-; fpreset
-fputchar
-fputwchar
-fstat
-ftime
-gcvt
-getch
-getche
-getcwd
-getpid
-getw
-heapwalk
-isatty
-itoa
-kbhit
-lfind
-lsearch
-lseek
-ltoa
-memccpy
-memicmp
-mkdir
-mktemp
-open
-pclose
-popen
-putch
-putenv
-putw
-read
-rmdir
-rmtmp
-searchenv
-setmode
-sopen
-spawnl
-spawnle
-spawnlp
-spawnlpe
-spawnv
-spawnve
-spawnvp
-spawnvpe
-stat
-strcmpi
-strdup
-stricmp
-stricoll
-strlwr
-strnicmp
-strnset
-strrev
-strset
-strupr
-swab
-tell
-tempnam
-
-timezone DATA
-
-; export tzname for both. See <time.h>
-tzname DATA
-tzset
-umask
-ungetch
-unlink
-utime
-wcsdup
-wcsicmp
-wcsicoll
-wcslwr
-wcsnicmp
-wcsnset
-wcsrev
-wcsset
-wcsupr
-
-wpopen
-
-write
-; non-ANSI functions declared in math.h
-j0
-j1
-jn
-y0
-y1
-yn
-chgsign
-scalb
-finite
-fpclass
-; C99 functions
-cabs
-hypot
-logb
-nextafter
-THE_END
-
   mkdir -p "$DBMSVCR71"
-  ar x /mingw/lib/libmoldname.a $OBJS
-  dlltool --as as -k -U \
-     --dllname msvcr71.dll \
-     --def moldname-msvcrt.def \
-     --output-lib libmoldname.a
-  ar rc libmoldname.a $OBJS
-  ranlib libmoldname.a
-  mv -f libmoldname.a "$DBMSVCR71"
-  ar x /mingw/lib/libmoldnamed.a $OBJS
-  dlltool --as as -k -U \
-     --dllname msvcr71.dll \
-     --def moldname-msvcrt.def \
-     --output-lib libmoldnamed.a
-  ar rc libmoldnamed.a $OBJS
-  ranlib libmoldnamed.a
-  mv -f libmoldnamed.a "$DBMSVCR71"
+  cp -fp /mingw/lib/libmoldname71.a "$DBMSVCR71/libmoldname.a"
+  cp -fp /mingw/lib/libmoldname71d.a "$DBMSVCR71/libmoldnamed.a"
   cp -fp /mingw/lib/libmsvcr71.a "$DBMSVCR71/libmsvcrt.a"
   cp -fp /mingw/lib/libmsvcr71d.a "$DBMSVCR71/libmsvcrtd.a"
-  rm -f ./*
-  cd $OLDPWD
-  rmdir /tmp/build_deps
 fi
 """)
 
