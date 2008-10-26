@@ -29,7 +29,7 @@ This program has been tested against the following libraries:
 
 SDL 1.2 (.13) revision 4114 from SVN 
 SDL_image 1.2.6
-SDL_mixer 1.2.8
+SDL_mixer 1.2 (.8) revision 3942 from SVN
 SDL_ttf 2.0.9
 smpeg revision 370 from SVN
 freetype 2.3.5
@@ -43,6 +43,7 @@ zlib 1.2.3
 The build environment used:
 
 gcc-core-3.4.5
+gcc-c++-3.4.5
 binutils-2.17.50
 mingwrt-3.15.1
 win32api-3.12
@@ -826,7 +827,12 @@ set -e
 cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --disable-music-ogg-shared --disable-music-mp3-shared
+  # This comes straight from SVN so has no configure script
+  if [ ! -f "./configure" ]; then
+    ./autogen.sh
+  fi
+  ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
+    --disable-music-flac
 fi
 
 if [ x$BDCOMP == x1 ]; then
