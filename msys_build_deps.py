@@ -35,6 +35,7 @@ smpeg revision 370 from SVN
 freetype 2.3.5
 libogg 1.1.3
 libvorbis 1.2.0
+FLAC 1.2.1
 tiff 3.8.2
 libpng 1.2.24
 jpeg 6b
@@ -471,7 +472,7 @@ if [ x$BDCONF == x1 ]; then
   for d in video audio; do
     BDDXHDR=src/$d/windx5/directx.h
     cp -f $BDDXHDR $BDDXHDR'_'
-    sed 's/^\\(\\#define NONAMELESSUNION\\)/\\/*\\1*\\//' $BDDXHDR'_' >$BDDXHDR
+    sed 's/^\\(#define NONAMELESSUNION\\)/\\/*\\1*\\//' $BDDXHDR'_' >$BDDXHDR
     if [ x$? != x0 ]; then exit $?; fi
     rm $BDDXHDR'_'
     BDDXHDR=
@@ -821,6 +822,40 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
+    Dependency('FLAC', ['flac-[1-9].*'], [], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  # Add __MINGW32__ to SIZE_T_MAX declaration test in alloc.h header.
+  BDHDR='include/share/alloc.h'
+  BDTMP='alloc.h_'
+  cp -f "$BDHDR" "$BDTMP"
+  sed 's/^#  ifdef _MSC_VER$/#  if defined _MSC_VER || defined __MINGW32__/' \
+    "$BDTMP" >"$BDHDR"
+  rm "$BDTMP"
+
+  # Will only install a static library, but that is all that is needed.
+  ./configure --disable-shared --disable-ogg --disable-cpplibs \
+    --disable-doxygen-docs
+fi
+
+#if [ x$BDCOMP == x1 ]; then
+#  make
+#fi
+
+if [ x$BDINST == x1 ]; then
+  cp src/libFLAC/.libs/libFLAC.a /usr/local/lib
+  mkdir -p /usr/local/include/FLAC
+  cp -f include/FLAC/*.h /usr/local/include/FLAC
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+fi
+"""),
     Dependency('MIXER', ['SDL_mixer-[1-9].*'], ['SDL_mixer.dll'], """
 
 set -e
@@ -831,8 +866,16 @@ if [ x$BDCONF == x1 ]; then
   if [ ! -f "./configure" ]; then
     ./autogen.sh
   fi
+  # Need to add Ws2_32 library for FLAC.
+  cp -f configure configure_
+  sed '
+s/\\(EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lFLAC\\)"/\\1 -lWs2_32"/
+s/\\(LIBS="-lFLAC\\)\\(  $LIBS"\\)/\\1 -lWs2_32\\2/' \
+    configure_ >configure
+  rm configure_
+  # No dynamic loading of dependent libraries.
   ./configure --disable-music-ogg-shared --disable-music-mp3-shared \
-    --disable-music-flac
+    --disable-music-flac-shared
 fi
 
 if [ x$BDCOMP == x1 ]; then
