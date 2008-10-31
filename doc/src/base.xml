@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func | class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+
+<!ELEMENT desc (#PCDATA)>
+
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+
+<!ELEMENT class (constructor, desc, (attr | method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+
+]>
+
+<module name="pygame2.base">
+  <desc>
+    Base module for pygame2 that contains features shared and used
+    throughout the whole pygame2 package.
+  </desc>
+
+  <class name="BufferProxy">
+    <constructor>
+      BufferProxy () -> BufferProxy
+    </constructor>
+    <desc>
+      BufferProxy () -> BufferProxy
+
+      Creates a new, empty BufferProxy.
+
+      A buffer interface object that acts as a proxy on classes and attributes
+      not featuring the buffer interface. A BufferProxy usually should be
+      constructed from C code, not Python.
+    </desc>
+
+    <attr name="length">Gets the size of the buffer data in bytes.</attr>
+    <attr name="raw">
+      Gets the raw buffer data as string. The string may contain NUL bytes.
+    </attr>
+
+    <method name="write">
+      <desc>
+        B.write (bufferproxy, buffer, offset) -> None
+
+        Writes raw data to the BufferProxy.
+        
+        Writes the raw data from buffer to the BufferProxy object, starting at
+        the specified offset within the BufferProxy.  If the length of the
+        passed buffer exceeds the length of the BufferProxy (reduced by the
+        offset), an IndexError will be raised.
+      </desc>
+    </method>
+  </class>
+
+  <class name="Color">
+    <constructor>
+      Color (name)
+      Color (r, g, b, a)
+      Color (rgbvalue)
+    </constructor>
+    <desc>
+      Color (...) -> Color
+      
+      Creates a new Color object.
+
+      The Color class represents RGBA color values using a value range of
+      0-255. It allows basic arithmetic operations to create new colors,
+      supports conversions to other color spaces such as HSV or HSL and lets
+      you adjust single color channels.
+    </desc>
+    <attr name="a">
+      Gets or sets the alpha value of the Color.
+    </attr>
+    <attr name="b">
+      Gets or sets the blue value of the Color.
+    </attr>
+    <attr name="cmy">
+      The CMY representation of the Color. The CMY components are in the
+      ranges C = [0, 1], M = [0, 1], Y = [0, 1]. Note that this will not
+      return the absolutely exact CMY values for the set RGB values in all
+      cases. Due to the RGB mapping from 0-255 and the CMY mapping from 0-1
+      rounding errors may cause the CMY values to differ slightly from what
+      you might expect.
+    </attr>
+    <method name="correct_gamma">
+      <desc>
+        Color.correct_gamma (gamma) -> Color
+        
+        Applies a certain gamma value to the Color.
+        
+        Applies a certain gamma value to the Color and returns a new Color with
+        the adjusted RGBA values.
+      </desc>
+    </method>
+    
+    <attr name="g">Gets or sets the green value of the Color.</attr>
+    <attr name="hsla">
+      The HSLA representation of the Color. The HSLA components are in the
+      ranges H = [0, 360], S = [0, 100], L = [0, 100], A = [0, 100]. Note that
+      this will not return the absolutely exact HSL values for the set RGB
+      values in all cases. Due to the RGB mapping from 0-255 and the HSL
+      mapping from 0-100 and 0-360 rounding errors may cause the HSL values to
+      differ slightly from what you might expect.
+    </attr>
+    <attr name="hsva">
+      The HSVA representation of the Color. The HSVA components are in the
+      ranges H = [0, 360], S = [0, 100], V = [0, 100], A = [0, 100]. Note that
+      this will not return the absolutely exact HSV values for the set RGB
+      values in all cases. Due to the RGB mapping from 0-255 and the HSV
+      mapping from 0-100 and 0-360 rounding errors may cause the HSV values to
+      differ slightly from what you might expect.
+    </attr>
+    <attr name="i1i2i3">
+      The I1I2I3 representation of the Color. The I1I2I3 components are in the
+      ranges I1 = [0, 1], I2 = [-0.5, 0.5], I3 = [-0.5, 0.5]. Note that this
+      will not return the absolutely exact I1I2I3 values for the set RGB
+      values in all cases. Due to the RGB mapping from 0-255 and the I1I2I3
+      mapping from 0-1 rounding errors may cause the I1I2I3 values to differ
+      slightly from what you might expect.
+    </attr>
+    <method name="normalize">
+      <desc>
+        Color.normalize() -> tuple
+
+        Returns the normalized RGBA values of the Color.
+
+        Returns the normalized RGBA values of the Color as floating point
+        values.
+      </desc>
+    </method>
+    <attr name="r">
+      Gets or sets the red value of the Color.
+    </attr>
+  </class>
+
+  <class name="Error">
+    <constructor>Error (...) -> Error</constructor>
+    <desc>The typical pygame2 exception.</desc>
+  </class>
+
+  <class name="Rect">
+    <constructor>
+      Rect (Rect)
+      Rect (FRect)
+      Rect (x, y, w, h)
+      Rect (w, h)
+    </constructor>
+    <desc>
+      Rect (...) -> Rect
+
+      A class for storing rectangular coordinates.
+
+      A Rect is used to store and manipulate rectangular coordinates.  TODO
+    </desc>
+    <attr name="bottom">
+      Gets or sets the bottom edge position of the Rect.
+    </attr>
+    <attr name="bottomleft">
+      Gets or sets the bottom left corner position of the Rect.
+    </attr>
+    <attr name="bottomright">
+      Gets or sets the bottom right corner position of the Rect.
+    </attr>
+    <attr name="center">
+      Gets or sets the center position of the Rect.
+    </attr>
+    <attr name="centerx">
+      Gets or sets the horizontal center position of the Rect.
+    </attr>
+    <attr name="centery">
+      Gets or sets the vertical center position of the Rect.
+    </attr>
+    <method name="clamp">
+      <desc>
+        Rect.clamp (Rect) -> Rect
+
+        Moves the rectangle inside another.
+
+        Returns a new rectangle that is moved to be completely inside
+        the argument Rect. If the rectangle is too large to fit inside,
+        it is centered inside the argument Rect, but its size is not
+        changed.
+      </desc>
+    </method>
+    <method name="clamp_ip">
+      <desc>
+        Rect.clamp_ip (Rect) -> None
+
+        Moves the rectangle inside another, in place.
+
+        Same as Rect.clamp(Rect), but operates in place.
+      </desc>
+    </method>
+    <method name="clip">
+      <desc>
+        Rect.clip (Rect) -> Rect
+
+        Crops a rectangle inside another.
+
+        Returns a new rectangle that is cropped to be completely inside
+        the argument Rect. If the two rectangles do not overlap to begin
+        with, a Rect with 0 size is returned. Thus it returns the area, in
+        which both rects overlap.
+      </desc>
+    </method>
+    <method name="collidedict">
+      <desc>
+        Rect.collidedict (dict) -> (key, value)
+
+        Test if one rectangle in a dictionary intersects.
+
+        Returns the key and value of the first dictionary value that
+        collides with the Rect. If no collisions are found, None is
+        returned. They keys of the passed dict must be Rect objects.
+      </desc>
+    </method>
+    <method name="collidedictall">
+      <desc>
+        Rect.collidedictall (dict) -> [(key, value), ...]
+
+        Test if all rectangles in a dictionary intersect.
+
+        Returns a list of all the key and value pairs that intersect
+        with the Rect. If no collisions are found an empty list is
+        returned. They keys of the passed dict must be Rect objects.
+      </desc>
+    </method>
+    <method name="collidelist">
+      <desc>
+        Rect.collidelist (list) -> index
+
+        Test if one rectangle in a list intersects.
+
+        Test whether the rectangle collides with any in a sequence of
+        rectangles. The index of the first collision found is
+        returned. If no collisions are found an index of -1 is returned.
+      </desc>
+    </method>
+    <method name="collidelistall">
+      <desc>
+        Rect.collidelistall (list) -> [index, ...]
+
+        Test if all rectangles in a list intersect.
+
+        Returns a list of all the indices that contain rectangles that
+        collide with the Rect. If no intersecting rectangles are found,
+        an empty list is returned.
+      </desc>
+    </method>
+    <method name="collidepoint">
+      <desc>
+        Rect.collidepoint (x, y) -> bool
+
+        Test if a point is inside a rectangle.
+
+        Returns true if the given point is inside the rectangle. A point
+        along the right or bottom edge is not considered to be inside
+        the rectangle.
+      </desc>
+    </method>
+    <method name="colliderect">
+      <desc>
+        Rect.colliderect (Rect) -> bool
+
+        Test if two rectangles overlap.
+
+        Returns true if any portion of either rectangle overlap (except
+        the top+bottom or left+right edges).
+      </desc>
+    </method>
+    <method name="contains">
+      <desc>
+        Rect.contains (Rect) -> bool
+
+        Test if one rectangle is inside another.
+
+        Returns true when the argument rectangle is completely inside
+        the Rect.
+      </desc>
+    </method>
+    <method name="fit">
+      <desc>
+        Rect.fit (Rect) -> Rect
+
+        Resize and move a rectangle with aspect ratio.
+
+        Returns a new rectangle that is moved and resized to fit
+        another. The aspect ratio of the original Rect is preserved, so
+        the new rectangle may be smaller than the target in either width
+        or height.
+      </desc>
+    </method>
+    <attr name="height">
+      Gets or sets the height of the Rect.
+    </attr>
+    <method name="inflate">
+      <desc>
+        Rect.inflate (x, y) -> Rect
+
+        Grow or shrink the rectangle size.
+
+        Returns a new rectangle with the size changed by the given
+        offset. The rectangle remains centered around its current
+        center. Negative values will shrink the rectangle.
+      </desc>
+    </method>
+    <method name="inflate_ip">
+      <desc>
+        Rect.inflate_ip (x, y) -> None
+
+        Grow or shrink the rectangle size, in place.
+
+        Same as Rect.inflate(x, y), but operates in place.
+      </desc>
+    </method>
+    <attr name="left">
+      Gets or sets the left edge position of the Rect.
+    </attr>
+    <attr name="midbottom">
+      Gets or sets the mid bottom edge position of the Rect.
+    </attr>
+    <attr name="midleft">
+      Gets or sets the mid left edge position of the Rect.
+    </attr>
+    <attr name="midright">
+      Gets or sets the mid right edge position of the Rect.
+    </attr>
+    <attr name="midtop">
+      Gets or sets the mid top edge position of the Rect.
+    </attr>
+    <method name="move">
+      <desc>
+        Rect.move (x, y) -> Rect
+
+        Moves the rectangle.
+
+        Returns a new rectangle that is moved by the given offset. The x
+        and y arguments can be any integer value, positive or negative.
+      </desc>
+    </method>
+    <method name="move_ip">
+      <desc>
+        Rect.move_ip (x, y) -> None
+
+        Moves the rectangle, in place.
+
+        Same as Rect.move (x, y), but operates in place.
+      </desc>
+    </method>
+    <attr name="right">
+      Gets or sets the right position of the Rect.
+    </attr>
+    <attr name="size">
+      Gets or sets the width and height of the Rect as 2-value tuple.
+    </attr>
+    <attr name="top">
+      Gets or sets the top edge position of the Rect.
+    </attr>
+    <attr name="topleft">
+      Gets or sets the top left corner position of the Rect.
+    </attr>
+    <attr name="topright">
+      Gets or sets the top right corner position of the Rect.
+    </attr>
+    <method name="union">
+      <desc>
+        Rect.union (Rect) -> Rect
+
+        Joins two rectangles into one.
+
+        Returns a new rectangle that completely covers the area of the
+        two provided rectangles. There may be area inside the new Rect
+        that is not covered by the originals.
+      </desc>
+    </method>
+    <method name="union_ip">
+      <desc>
+        Rect.union_ip (Rect) -> Rect
+
+        Joins two rectangles into one, in place.
+
+        Same as Rect.union(Rect), but operates in place.
+      </desc>
+    </method>
+    <attr name="width">
+      Gets or sets the width of the Rect.
+    </attr>
+    <attr name="x">
+      Gets or sets the horizontal top left position of the Rect.
+    </attr>
+    <attr name="y">
+      Gets or sets the vertical top left position of the Rect.
+    </attr>
+  </class>
+
+  <class name="FRect">
+    <constructor>
+      FRect (Rect)
+      FRect (FRect)
+      FRect (x, y, w, h)
+      FRect (w, h)
+    </constructor>
+    <desc>
+      FRect (...) -> FRect
+
+      A class for storing rectangular coordinates.
+
+      A FRect is used to store and manipulate rectangular coordinates.  TODO
+    </desc>
+    <attr name="bottom">
+      Gets or sets the bottom edge position of the FRect.
+    </attr>
+    <attr name="bottomleft">
+      Gets or sets the bottom left corner position of the FRect.
+    </attr>
+    <attr name="bottomright">
+      Gets or sets the bottom right corner position of the FRect.
+    </attr>
+    <method name="ceil">
+      <desc>
+        FRect.ceil () -> Rect
+        
+        TODO
+      </desc>
+    </method>
+    <attr name="center">
+      Gets or sets the center position of the FRect.
+    </attr>
+    <attr name="centerx">
+      Gets or sets the horizontal center position of the FRect.
+    </attr>
+    <attr name="centery">
+      Gets or sets the vertical center position of the FRect.
+    </attr>
+    <method name="clamp">
+      <desc>
+        FRect.clamp (FRect) -> FRect
+
+        Moves the rectangle inside another.
+
+        Returns a new rectangle that is moved to be completely inside
+        the argument FRect. If the rectangle is too large to fit inside,
+        it is centered inside the argument FRect, but its size is not
+        changed.
+      </desc>
+    </method>
+    <method name="clamp_ip">
+      <desc>
+        FRect.clamp_ip (FRect) -> None
+
+        Moves the rectangle inside another, in place.
+
+        Same as FRect.clamp(FRect), but operates in place.
+      </desc>
+    </method>
+    <method name="clip">
+      <desc>
+        FRect.clip (FRect) -> FRect
+
+        Crops a rectangle inside another.
+
+        Returns a new rectangle that is cropped to be completely inside
+        the argument FRect. If the two rectangles do not overlap to begin
+        with, a FRect with 0 size is returned. Thus it returns the area, in
+        which both rects overlap.
+      </desc>
+    </method>
+    <method name="collidedict">
+      <desc>
+        FRect.collidedict (dict) -> (key, value)
+
+        Test if one rectangle in a dictionary intersects.
+
+        Returns the key and value of the first dictionary value that
+        collides with the FRect. If no collisions are found, None is
+        returned. They keys of the passed dict must be FRect objects.
+      </desc>
+    </method>
+    <method name="collidedictall">
+      <desc>
+        FRect.collidedictall (dict) -> [(key, value), ...]
+
+        Test if all rectangles in a dictionary intersect.
+
+        Returns a list of all the key and value pairs that intersect
+        with the FRect. If no collisions are found an empty list is
+        returned. They keys of the passed dict must be FRect objects.
+      </desc>
+    </method>
+    <method name="collidelist">
+      <desc>
+        FRect.collidelist (list) -> index
+
+        Test if one rectangle in a list intersects.
+
+        Test whether the rectangle collides with any in a sequence of
+        rectangles. The index of the first collision found is
+        returned. If no collisions are found an index of -1 is returned.
+      </desc>
+    </method>
+    <method name="collidelistall">
+      <desc>
+        FRect.collidelistall (list) -> [index, ...]
+
+        Test if all rectangles in a list intersect.
+
+        Returns a list of all the indices that contain rectangles that
+        collide with the FRect. If no intersecting rectangles are found,
+        an empty list is returned.
+      </desc>
+    </method>
+    <method name="collidepoint">
+      <desc>
+        FRect.collidepoint (x, y) -> bool
+
+        Test if a point is inside a rectangle.
+
+        Returns true if the given point is inside the rectangle. A point
+        along the right or bottom edge is not considered to be inside
+        the rectangle.
+      </desc>
+    </method>
+    <method name="collidefrect">
+      <desc>
+        FRect.collidefrect (FRect) -> bool
+
+        Test if two rectangles overlap.
+
+        Returns true if any portion of either rectangle overlap (except
+        the top+bottom or left+right edges).
+      </desc>
+    </method>
+    <method name="contains">
+      <desc>
+        FRect.contains (FRect) -> bool
+
+        Test if one rectangle is inside another.
+
+        Returns true when the argument rectangle is completely inside
+        the FRect.
+      </desc>
+    </method>
+    <method name="fit">
+      <desc>
+        FRect.fit (FRect) -> FRect
+
+        Resize and move a rectangle with aspect ratio.
+
+        Returns a new rectangle that is moved and resized to fit
+        another. The aspect ratio of the original FRect is preserved, so
+        the new rectangle may be smaller than the target in either width
+        or height.
+      </desc>
+    </method>
+    <method name="floor">
+      <desc>
+        FRect.floor () -> Rect
+        
+        TODO
+      </desc>
+    </method>
+    <attr name="height">
+      Gets or sets the height of the FRect.
+    </attr>
+    <method name="inflate">
+      <desc>
+        FRect.inflate (x, y) -> FRect
+
+        Grow or shrink the rectangle size.
+
+        Returns a new rectangle with the size changed by the given
+        offset. The rectangle remains centered around its current
+        center. Negative values will shrink the rectangle.
+      </desc>
+    </method>
+    <method name="inflate_ip">
+      <desc>
+        FRect.inflate_ip (x, y) -> None
+
+        Grow or shrink the rectangle size, in place.
+
+        Same as FRect.inflate(x, y), but operates in place.
+      </desc>
+    </method>
+    <attr name="left">
+      Gets or sets the left edge position of the FRect.
+    </attr>
+    <attr name="midbottom">
+      Gets or sets the mid bottom edge position of the FRect.
+    </attr>
+    <attr name="midleft">
+      Gets or sets the mid left edge position of the FRect.
+    </attr>
+    <attr name="midright">
+      Gets or sets the mid right edge position of the FRect.
+    </attr>
+    <attr name="midtop">
+      Gets or sets the mid top edge position of the FRect.
+    </attr>
+    <method name="move">
+      <desc>
+        FRect.move (x, y) -> FRect
+
+        Moves the rectangle.
+
+        Returns a new rectangle that is moved by the given offset. The x
+        and y arguments can be any integer value, positive or negative.
+      </desc>
+    </method>
+    <method name="move_ip">
+      <desc>
+        FRect.move_ip (x, y) -> None
+
+        Moves the rectangle, in place.
+
+        Same as FRect.move (x, y), but operates in place.
+      </desc>
+    </method>
+    <attr name="right">
+      Gets or sets the right position of the FRect.
+    </attr>
+    <method name="round">
+      <desc>
+        FRect.round () -> Rect
+        
+        TODO
+      </desc>
+    </method>
+    <attr name="size">
+      Gets or sets the width and height of the FRect as 2-value tuple.
+    </attr>
+    <attr name="top">
+      Gets or sets the top edge position of the FRect.
+    </attr>
+    <attr name="topleft">
+      Gets or sets the top left corner position of the FRect.
+    </attr>
+    <attr name="topright">
+      Gets or sets the top right corner position of the FRect.
+    </attr>
+    <method name="trunc">
+      <desc>
+        FRect.trunc () -> Rect
+        
+        TODO
+      </desc>
+    </method>
+    <method name="union">
+      <desc>
+        FRect.union (FRect) -> FRect
+
+        Joins two rectangles into one.
+
+        Returns a new rectangle that completely covers the area of the
+        two provided rectangles. There may be area inside the new FRect
+        that is not covered by the originals.
+      </desc>
+    </method>
+    <method name="union_ip">
+      <desc>
+        FRect.union_ip (FRect) -> FRect
+
+        Joins two rectangles into one, in place.
+
+        Same as FRect.union(FRect), but operates in place.
+      </desc>
+    </method>
+    <attr name="width">
+      Gets or sets the width of the FRect.
+    </attr>
+    <attr name="x">
+      Gets or sets the horizontal top left position of the FRect.
+    </attr>
+    <attr name="y">
+      Gets or sets the vertical top left position of the FRect.
+    </attr>
+  </class>
+
+</module>

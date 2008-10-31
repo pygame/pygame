@@ -1,0 +1,1295 @@
+/*
+  pygame - Python Game Library
+  Copyright (C) 2000-2001 Pete Shinners
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Library General Public
+  License as published by the Free Software Foundation; either
+  version 2 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Library General Public License for more details.
+
+  You should have received a copy of the GNU Library General Public
+  License along with this library; if not, write to the Free
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+*/
+#define PYGAME_RECT_INTERNAL
+
+#include "internals.h"
+#include "pgbase.h"
+#include "base_doc.h"
+
+#define INTERSECT(A,B) \
+    (((A->x >= B->x && A->x < B->x + B->w) ||        \
+     (B->x >= A->x && B->x < A->x + A->w)) &&        \
+    ((A->y >= B->y && A->y < B->y + B->h)   ||       \
+     (B->y >= A->y && B->y < A->y + A->h)))
+
+static int _rect_init (PyObject *cursor, PyObject *args, PyObject *kwds);
+static void _rect_dealloc (PyRect *self);
+static PyObject* _rect_repr (PyObject *self);
+
+static PyObject* _rect_getx (PyObject *self, void *closure);
+static int _rect_setx (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_gety (PyObject *self, void *closure);
+static int _rect_sety (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getwidth (PyObject *self, void *closure);
+static int _rect_setwidth (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getheight (PyObject *self, void *closure);
+static int _rect_setheight (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getbottom (PyObject *self, void *closure);
+static int _rect_setbottom (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getright (PyObject *self, void *closure);
+static int _rect_setright (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getcenterx (PyObject *self, void *closure);
+static int _rect_setcenterx (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getcentery (PyObject *self, void *closure);
+static int _rect_setcentery (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getcenter (PyObject *self, void *closure);
+static int _rect_setcenter (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getsize (PyObject *self, void *closure);
+static int _rect_setsize (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getmidtop (PyObject *self, void *closure);
+static int _rect_setmidtop (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getmidleft (PyObject *self, void *closure);
+static int _rect_setmidleft (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getmidbottom (PyObject *self, void *closure);
+static int _rect_setmidbottom (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getmidright (PyObject *self, void *closure);
+static int _rect_setmidright (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_gettopleft (PyObject *self, void *closure);
+static int _rect_settopleft (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_gettopright (PyObject *self, void *closure);
+static int _rect_settopright (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getbottomleft (PyObject *self, void *closure);
+static int _rect_setbottomleft (PyObject *self, PyObject *value, void *closure);
+static PyObject* _rect_getbottomright (PyObject *self, void *closure);
+static int _rect_setbottomright (PyObject *self, PyObject *value,
+    void *closure);
+
+static PyObject* _rect_clip (PyObject* self, PyObject *args);
+static PyObject* _rect_move (PyObject* self, PyObject *args);
+static PyObject* _rect_move_ip (PyObject* self, PyObject *args);
+static PyObject* _rect_union (PyObject* self, PyObject *args);
+static PyObject* _rect_union_ip (PyObject* self, PyObject *args);
+static PyObject* _rect_inflate (PyObject* self, PyObject *args);
+static PyObject* _rect_inflate_ip (PyObject* self, PyObject *args);
+static PyObject* _rect_clamp (PyObject* self, PyObject *args);
+static PyObject* _rect_clamp_ip (PyObject* self, PyObject *args);
+static PyObject* _rect_fit (PyObject* self, PyObject *args);
+static PyObject* _rect_contains (PyObject* self, PyObject *args);
+static PyObject* _rect_collidepoint (PyObject *self, PyObject *args);
+static PyObject* _rect_colliderect (PyObject *self, PyObject *args);
+static PyObject* _rect_collidelist (PyObject *self, PyObject *args);
+static PyObject* _rect_collidelistall (PyObject *self, PyObject *args);
+static PyObject* _rect_collidedict (PyObject *self, PyObject *args);
+static PyObject* _rect_collidedictall (PyObject *self, PyObject *args);
+
+/**
+ */
+static PyMethodDef _rect_methods[] = {
+    { "clip", _rect_clip, METH_VARARGS, DOC_BASE_RECT_CLIP },
+    { "move", _rect_move, METH_VARARGS, DOC_BASE_RECT_MOVE },
+    { "move_ip",  _rect_move_ip, METH_VARARGS, DOC_BASE_RECT_MOVE_IP },
+    { "union",  _rect_union, METH_VARARGS, DOC_BASE_RECT_UNION },
+    { "union_ip", _rect_union_ip, METH_VARARGS, DOC_BASE_RECT_UNION_IP },
+    { "inflate",  _rect_inflate, METH_VARARGS, DOC_BASE_RECT_INFLATE },
+    { "inflate_ip", _rect_inflate_ip, METH_VARARGS, DOC_BASE_RECT_INFLATE_IP },
+    { "clamp", _rect_clamp, METH_VARARGS, DOC_BASE_RECT_CLAMP },
+    { "clamp_ip", _rect_clamp_ip, METH_VARARGS, DOC_BASE_RECT_CLAMP_IP },
+    { "fit", _rect_fit, METH_VARARGS, DOC_BASE_RECT_FIT },
+    { "contains", _rect_contains, METH_VARARGS, DOC_BASE_RECT_CONTAINS },
+    { "collidepoint", _rect_collidepoint, METH_VARARGS,
+      DOC_BASE_RECT_COLLIDEPOINT },
+    { "colliderect", _rect_colliderect, METH_VARARGS,
+      DOC_BASE_RECT_COLLIDERECT },
+    { "collidelist", _rect_collidelist, METH_VARARGS,
+      DOC_BASE_RECT_COLLIDELIST },
+    { "collidelistall", _rect_collidelistall, METH_VARARGS,
+      DOC_BASE_RECT_COLLIDELISTALL },
+    { "collidedict", _rect_collidedict, METH_VARARGS,
+      DOC_BASE_RECT_COLLIDEDICT },
+    { "collidedictall", _rect_collidedictall, METH_VARARGS,
+      DOC_BASE_RECT_COLLIDEDICTALL },
+    { NULL, NULL, 0, NULL }
+};
+
+/**
+ */
+static PyGetSetDef _rect_getsets[] = {
+    { "x", _rect_getx, _rect_setx, DOC_BASE_RECT_X, NULL },
+    { "y", _rect_gety, _rect_sety, DOC_BASE_RECT_Y, NULL },
+    { "width", _rect_getwidth, _rect_setwidth, DOC_BASE_RECT_WIDTH, NULL },
+    { "height", _rect_getheight, _rect_setheight, DOC_BASE_RECT_HEIGHT, NULL },
+    { "size", _rect_getsize, _rect_setsize, DOC_BASE_RECT_SIZE, NULL },
+
+    { "left", _rect_getx, _rect_setx, DOC_BASE_RECT_LEFT, NULL },
+    { "top", _rect_gety, _rect_sety, DOC_BASE_RECT_TOP, NULL },
+    { "bottom", _rect_getbottom, _rect_setbottom, DOC_BASE_RECT_BOTTOM, NULL },
+    { "right", _rect_getright, _rect_setright, DOC_BASE_RECT_RIGHT, NULL },
+
+    { "centerx", _rect_getcenterx, _rect_setcenterx, DOC_BASE_RECT_CENTERX,
+      NULL },
+    { "centery", _rect_getcentery, _rect_setcentery, DOC_BASE_RECT_CENTERY,
+      NULL },
+    { "center", _rect_getcenter, _rect_setcenter, DOC_BASE_RECT_CENTER, NULL },
+
+    { "midtop", _rect_getmidtop, _rect_setmidtop, DOC_BASE_RECT_MIDTOP, NULL },
+    { "midleft", _rect_getmidleft, _rect_setmidleft, DOC_BASE_RECT_MIDLEFT,
+      NULL },
+    { "midbottom", _rect_getmidbottom, _rect_setmidbottom,
+      DOC_BASE_RECT_MIDBOTTOM, NULL },
+    { "midright", _rect_getmidright, _rect_setmidright,
+      DOC_BASE_RECT_MIDRIGHT, NULL },
+
+    { "topleft", _rect_gettopleft, _rect_settopleft, DOC_BASE_RECT_TOPLEFT,
+      NULL },
+    { "topright", _rect_gettopright, _rect_settopright, DOC_BASE_RECT_TOPRIGHT,
+      NULL },
+    { "bottomleft", _rect_getbottomleft, _rect_setbottomleft,
+      DOC_BASE_RECT_BOTTOMLEFT, NULL },
+    { "bottomright", _rect_getbottomright, _rect_setbottomright,
+      DOC_BASE_RECT_BOTTOMRIGHT, NULL },
+
+    { NULL, NULL, NULL, NULL, NULL }
+};
+
+/**
+ */
+PyTypeObject PyRect_Type =
+{
+    TYPE_HEAD(NULL, 0)
+    "base.Rect",                /* tp_name */
+    sizeof (PyRect),            /* tp_basicsize */
+    0,                          /* tp_itemsize */
+    (destructor) _rect_dealloc, /* tp_dealloc */
+    0,                          /* tp_print */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    0,                          /* tp_compare */
+    (reprfunc)_rect_repr,       /* tp_repr */
+    0,                          /* tp_as_number */
+    0,                          /* tp_as_sequence */
+    0,                          /* tp_as_mapping */
+    0,                          /* tp_hash */
+    0,                          /* tp_call */
+    0,                          /* tp_str */
+    0,                          /* tp_getattro */
+    0,                          /* tp_setattro */
+    0,                          /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+    DOC_BASE_RECT,
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_richcompare */
+    0,                          /* tp_weaklistoffset */
+    0,                          /* tp_iter */
+    0,                          /* tp_iternext */
+    _rect_methods,              /* tp_methods */
+    0,                          /* tp_members */
+    _rect_getsets,              /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    0,                          /* tp_descr_get */
+    0,                          /* tp_descr_set */
+    0,                          /* tp_dictoffset */
+    (initproc) _rect_init,      /* tp_init */
+    0,                          /* tp_alloc */
+    0,                          /* tp_new */
+    0,                          /* tp_free */
+    0,                          /* tp_is_gc */
+    0,                          /* tp_bases */
+    0,                          /* tp_mro */
+    0,                          /* tp_cache */
+    0,                          /* tp_subclasses */
+    0,                          /* tp_weaklist */
+    0,                          /* tp_del */
+#if PY_VERSION_HEX >= 0x02060000
+    0                           /* tp_version_tag */
+#endif
+};
+
+static void
+_rect_dealloc (PyRect *self)
+{
+    ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static int
+_rect_init (PyObject *self, PyObject *args, PyObject *kwds)
+{
+    pgint16 x, y;
+    pgint32 w, h;
+    PyObject *rect = NULL;
+
+    if (!PyArg_ParseTuple (args, "O", &rect))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "iiii", &x, &y, &w, &h))
+        {
+            x = y = 0;
+            PyErr_Clear ();
+            if (!PyArg_ParseTuple (args, "ii", &w, &h))
+            {
+                return -1;
+            }
+        }
+    }
+    
+    if (rect)
+    {
+        if (PyRect_Check (rect))
+        {
+            x = ((PyRect*)rect)->x;
+            y = ((PyRect*)rect)->y;
+            w = ((PyRect*)rect)->w;
+            h = ((PyRect*)rect)->h;
+        }
+        else if (PyFRect_Check (rect))
+        {
+            x = (pgint16) trunc (((PyFRect*)rect)->x);
+            y = (pgint16) trunc (((PyFRect*)rect)->y);
+            w = (pgint32) trunc (((PyFRect*)rect)->w);
+            h = (pgint32) trunc (((PyFRect*)rect)->h);
+        }
+        else
+        {
+            PyErr_SetString (PyExc_TypeError, 
+                "argument must be a Rect or FRect");
+            return -1;
+        }
+    }
+    
+    if (w < 0 || h < 0)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "width and height must not be negative");
+        return -1;
+    }
+
+    ((PyRect*)self)->x = x;
+    ((PyRect*)self)->y = y;
+    ((PyRect*)self)->w = (pguint16)w;
+    ((PyRect*)self)->h = (pguint16)h;
+
+    return 0;
+}
+
+static PyObject*
+_rect_repr (PyObject *self)
+{
+    PyRect *r = (PyRect*) self;
+    char buf[256];
+    PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %d, %d)",
+        r->x, r->y, r->w, r->h);
+    return PyString_FromString (buf);
+}
+
+/* Rect getters/setters */
+static PyObject*
+_rect_getx (PyObject *self, void *closure)
+{
+    return PyInt_FromLong (((PyRect*)self)->x);
+}
+
+static int
+_rect_setx (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x;
+    if (!IntFromObj (value, &x))
+        return -1;
+    ((PyRect*)self)->x = x;
+    return 0;
+}
+
+static PyObject*
+_rect_gety (PyObject *self, void *closure)
+{
+    return PyInt_FromLong (((PyRect*)self)->y);
+}
+
+static int
+_rect_sety (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 y;
+    if (!IntFromObj (value, &y))
+        return -1;
+    ((PyRect*)self)->y = y;
+    return 0;
+}
+
+static PyObject*
+_rect_getwidth (PyObject *self, void *closure)
+{
+    return PyInt_FromLong (((PyRect*)self)->w);
+}
+
+static int
+_rect_setwidth (PyObject *self, PyObject *value, void *closure)
+{
+    pguint16 w;
+    if (!UintFromObj (value, &w))
+        return -1;
+    ((PyRect*)self)->w = w;
+    return 0;
+}
+
+static PyObject*
+_rect_getheight (PyObject *self, void *closure)
+{
+    return PyInt_FromLong (((PyRect*)self)->h);
+}
+
+static int
+_rect_setheight (PyObject *self, PyObject *value, void *closure)
+{
+    pguint16 h;
+    if (!UintFromObj (value, &h))
+        return -1;
+    ((PyRect*)self)->h = h;
+    return 0;
+}
+
+static PyObject*
+_rect_getbottom (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return PyInt_FromLong (r->y + r->h);
+}
+
+static int
+_rect_setbottom (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 bottom;
+    if (!IntFromObj (value, &bottom))
+        return -1;
+    ((PyRect*)self)->y = bottom - ((PyRect*)self)->h;
+    return 0;
+}
+
+static PyObject*
+_rect_getright (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return PyInt_FromLong (r->x + r->w);
+}
+
+static int
+_rect_setright (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 right;
+    if (!IntFromObj (value, &right))
+        return -1;
+    ((PyRect*)self)->x = right - ((PyRect*)self)->w;
+    return 0;
+}
+
+static PyObject*
+_rect_getcenterx (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return PyInt_FromLong (r->x + (r->w >> 1));
+}
+
+static int
+_rect_setcenterx (PyObject *self, PyObject *value, void *closure)
+{
+    int centerx;
+    if (!IntFromObj (value, &centerx))
+        return -1;
+
+    ((PyRect*)self)->x = centerx - (((PyRect*)self)->w >> 1);
+    return 0;
+}
+
+static PyObject*
+_rect_getcentery (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return PyInt_FromLong (r->y + (r->h >> 1));
+}
+
+static int
+_rect_setcentery (PyObject *self, PyObject *value, void *closure)
+{
+    int centery;
+    if (!IntFromObj (value, &centery))
+        return -1;
+
+    ((PyRect*)self)->y = centery - (((PyRect*)self)->h >> 1);
+    return 0;
+}
+
+static PyObject*
+_rect_getcenter (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x + (r->w >> 1), r->y + (r->h >> 1));
+}
+
+static int
+_rect_setcenter (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError, "center must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x - (((PyRect*)self)->w >> 1);
+    ((PyRect*)self)->y = y - (((PyRect*)self)->h >> 1);
+    return 0;
+}
+
+static PyObject*
+_rect_getsize (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->w, r->h);
+}
+
+static int
+_rect_setsize (PyObject *self, PyObject *value, void *closure)
+{
+    pguint16 w, h;
+
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError, "size must be a 2-value sequence");
+        return -1;
+    }
+    if (!UintFromSeqIndex (value, 0, &w))
+        return -1;
+    if (!UintFromSeqIndex (value, 1, &h))
+        return -1;
+
+    ((PyRect*)self)->w = w;
+    ((PyRect*)self)->h = h;
+    return 0;
+}
+
+static PyObject*
+_rect_getmidtop (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x + (r->w >> 1), r->y);
+}
+
+static int
+_rect_setmidtop (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError, "midtop must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x - (((PyRect*)self)->w >> 1);
+    ((PyRect*)self)->y = y;
+    return 0;
+}
+
+static PyObject*
+_rect_getmidleft (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x, r->y +  (r->h >> 1));
+}
+
+static int
+_rect_setmidleft (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "midleft must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x;
+    ((PyRect*)self)->y = y - (((PyRect*)self)->h >> 1);
+    return 0;
+}
+
+static PyObject*
+_rect_getmidbottom (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x + (r->w >> 1), r->y + r->h);
+}
+
+static int
+_rect_setmidbottom (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "midbottom must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x - (((PyRect*)self)->w >> 1);
+    ((PyRect*)self)->y = y - ((PyRect*)self)->h;
+    return 0;
+}
+
+static PyObject*
+_rect_getmidright (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x + r->w, r->y + (r->h >> 1));
+}
+
+static int
+_rect_setmidright (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "midright must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x - ((PyRect*)self)->w;
+    ((PyRect*)self)->y = y - (((PyRect*)self)->h >> 1);
+    return 0;
+}
+
+static PyObject*
+_rect_gettopleft (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x, r->y);
+}
+static int
+_rect_settopleft (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "topleft must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x;
+    ((PyRect*)self)->y = y;
+    return 0;
+}
+
+static PyObject*
+_rect_gettopright (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x + r->w, r->y);
+}
+
+static int
+_rect_settopright (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "topright must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x - ((PyRect*)self)->w;
+    ((PyRect*)self)->y = y;
+    return 0;
+}
+
+static PyObject*
+_rect_getbottomleft (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x, r->y + r->h);
+}
+
+static int
+_rect_setbottomleft (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "bottomleft must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x;
+    ((PyRect*)self)->y = y - ((PyRect*)self)->h;
+    return 0;
+}
+
+static PyObject*
+_rect_getbottomright (PyObject *self, void *closure)
+{
+    PyRect *r = (PyRect*) self;
+    return Py_BuildValue ("(ii)", r->x + r->w, r->y + r->h);
+}
+
+static int
+_rect_setbottomright (PyObject *self, PyObject *value, void *closure)
+{
+    pgint16 x, y;
+    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "bottomleft must be a 2-value sequence");
+        return -1;
+    }
+    if (!IntFromSeqIndex (value, 0, &x))
+        return -1;
+    if (!IntFromSeqIndex (value, 1, &y))
+        return -1;
+
+    ((PyRect*)self)->x = x - ((PyRect*)self)->w;
+    ((PyRect*)self)->y = y - ((PyRect*)self)->h;
+    return 0;
+}
+
+/* Rect methods */
+static PyObject*
+_rect_clip (PyObject* self, PyObject *args)
+{
+    PyObject *rect;
+    PyRect *rself, *rarg;
+
+    pgint16 x, y;
+    pguint16 w, h;
+
+    pgint16 selfright, argright;
+    pgint16 selfbottom, argbottom;
+
+    if (!PyArg_ParseTuple (args, "O:clip", &rect))
+        return NULL;
+    if (!PyRect_Check (rect))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+        return NULL;
+    }
+
+    rself = (PyRect*) self;
+    rarg = (PyRect*) rect;
+
+    selfright = rself->x + rself->w;
+    selfbottom = rself->y + rself->h;
+    argright = rarg->x + rarg->w;
+    argbottom = rarg->y + rarg->h;
+
+    /* Check left and right non-overlaps */
+    if (rarg->x > selfright || rself->x > argright)
+        return PyRect_New (0, 0, 0, 0);
+
+    /* Check bottom and top non-overlaps */
+    if (rarg->y > selfbottom || rself->y > argbottom)
+        return PyRect_New (0, 0, 0, 0);
+
+    /* Clip x and y by testing self in arg overlap */
+    x = (rself->x >= rarg->x) ? rself->x : rarg->x;
+    y = (rself->y >= rarg->y) ? rself->y : rarg->y;
+    
+    /* Clip width and height */
+    if (selfright <= argright)
+        w = selfright - x;
+    else
+        w = argright - x;
+
+    if (selfbottom <= argbottom)
+        h = selfbottom - y;
+    else
+        h = argbottom - y;
+
+    return PyRect_New (x, y, w, h);
+}
+
+static PyObject*
+_rect_move (PyObject* self, PyObject *args)
+{
+    PyRect *rect = (PyRect*) self;
+    pgint16 x, y;
+
+    if (!PyArg_ParseTuple (args, "ii:move", &x, &y))
+        return NULL;
+
+    return PyRect_New (rect->x + x, rect->y + y, rect->w, rect->h);
+}
+
+static PyObject*
+_rect_move_ip (PyObject* self, PyObject *args)
+{
+    PyRect *rect = (PyRect*) self;
+    pgint16 x, y;
+
+    if (!PyArg_ParseTuple (args, "ii:move_ip", &x, &y))
+        return NULL;
+    rect->x += x;
+    rect->y += y;
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_rect_union (PyObject* self, PyObject *args)
+{
+    PyObject *rect, *list;
+    PyRect *rself, *rarg;
+    Py_ssize_t count, i;
+    pgint16 x, y;
+    pguint16 r, b;
+
+    rself = (PyRect*) self;
+    if (!PyArg_ParseTuple (args, "O:union", &list))
+        return NULL;
+
+    if (!PySequence_Check (list))
+    {
+        if (!PyRect_Check (list))
+        {
+            PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+            return NULL;
+        }
+        rarg = (PyRect*) list;
+
+        x = MIN (rself->x, rarg->x);
+        y = MIN (rself->y, rarg->y);
+        r = MAX (rself->x + rself->w, rarg->x + rarg->w);
+        b = MAX (rself->y + rself->h, rarg->y + rarg->h);
+        return PyRect_New (x, y, r - x, b - y);
+    }
+
+    /* Sequence of rects. */
+    x = rself->x;
+    y = rself->y;
+    r = rself->x + rself->w;
+    b = rself->y + rself->h;
+    count = PySequence_Size (list);
+    if (count == -1)
+        return NULL;
+
+    for (i = 0; i < count; i++)
+    {
+        rect = PySequence_ITEM (list, i);
+        if (!PyRect_Check (rect))
+        {
+            Py_XDECREF (rect);
+            PyErr_SetString (PyExc_TypeError,
+                "argument must be a sequence of Rect objects.");
+            return NULL;
+        }
+        rarg = (PyRect*) rect;
+
+        x = MIN (x, rarg->x);
+        y = MIN (y, rarg->y);
+        r = MAX (r, rarg->x + rarg->w);
+        b = MAX (b, rarg->y + rarg->h);
+
+        Py_DECREF (rect);
+    }
+    return PyRect_New (x, y, r - x, b - y);
+}
+
+static PyObject*
+_rect_union_ip (PyObject* self, PyObject *args)
+{
+    PyObject *rect, *list;
+    PyRect *rself, *rarg;
+    Py_ssize_t count, i;
+    pgint16 x, y;
+    pguint16 r, b;
+
+    rself = (PyRect*) self;
+    
+    if (!PyArg_ParseTuple (args, "O:union_ip", &list))
+        return NULL;
+    if (!PySequence_Check (list))
+    {
+        if (!PyRect_Check (list))
+        {
+            PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+            return NULL;
+        }
+        rarg = (PyRect*) list;
+
+        rself->x = MIN (rself->x, rarg->x);
+        rself->y = MIN (rself->y, rarg->y);
+        rself->w = MAX (rself->x + rself->w, rarg->x + rarg->w) - rself->x;
+        rself->h = MAX (rself->y + rself->h, rarg->y + rarg->h) - rself->y;
+
+        Py_RETURN_NONE;
+    }
+
+    /* Sequence of rects. */
+    x = rself->x;
+    y = rself->y;
+    r = rself->x + rself->w;
+    b = rself->y + rself->h;
+    count = PySequence_Size (list);
+    if (count == -1)
+        return NULL;
+
+    for (i = 0; i < count; i++)
+    {
+        rect = PySequence_ITEM (list, i);
+        if (!PyRect_Check (rect))
+        {
+            Py_XDECREF (rect);
+            PyErr_SetString (PyExc_TypeError,
+                "argument must be a sequence of Rect objects.");
+            return NULL;
+        }
+        rarg = (PyRect*) rect;
+
+        x = MIN (x, rarg->x);
+        y = MIN (y, rarg->y);
+        r = MAX (r, rarg->x + rarg->w);
+        b = MAX (b, rarg->y + rarg->h);
+
+        Py_DECREF (rect);
+    }
+    rself->x = x;
+    rself->y = y;
+    rself->w = r - x;
+    rself->h = b - y;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_rect_inflate (PyObject* self, PyObject *args)
+{
+    PyRect *rect = (PyRect*) self;
+    pgint16 x, y;
+
+    if (!PyArg_ParseTuple (args, "ii:inflate", &x, &y))
+        return NULL;
+
+    return PyRect_New (rect->x - x / 2, rect->y - y / 2, rect->w + x,
+        rect->h + y);
+}
+
+static PyObject*
+_rect_inflate_ip (PyObject* self, PyObject *args)
+{
+    PyRect *rect = (PyRect*) self;
+    pgint16 x, y;
+
+    if (!PyArg_ParseTuple (args, "ii:inflate_ip", &x, &y))
+        return NULL;
+    rect->x -= x / 2;
+    rect->y -= y / 2;
+    rect->w += x;
+    rect->h += y;
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_rect_clamp (PyObject* self, PyObject *args)
+{
+    PyRect *rself, *rarg;
+    int x, y;
+
+    if (!PyArg_ParseTuple (args, "O:clamp", &rarg))
+        return NULL;
+    if (!PyRect_Check (rarg))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+        return NULL;
+    }
+    rself = (PyRect*) self;
+
+    if (rself->w >= rarg->w)
+        x = rarg->x + rarg->w / 2 - rself->w / 2;
+    else if (rself->x < rarg->x)
+        x = rarg->x;
+    else if (rself->x + rself->w > rarg->x + rarg->w)
+        x = rarg->x + rarg->w - rself->w;
+    else
+        x = rself->x;
+
+    if (rself->h >= rarg->h)
+        y = rarg->y + rarg->h / 2 - rself->h / 2;
+    else if (rself->y < rarg->y)
+        y = rarg->y;
+    else if (rself->y + rself->h > rarg->y + rarg->h)
+        y = rarg->y + rarg->h - rself->h;
+    else
+        y = rself->y;
+
+    return PyRect_New (x, y, rself->w, rself->h);
+}
+
+static PyObject*
+_rect_clamp_ip (PyObject* self, PyObject *args)
+{
+    PyRect *rself, *rarg;
+
+    if (!PyArg_ParseTuple (args, "O:clamp_ip", &rarg))
+        return NULL;
+    if (!PyRect_Check (rarg))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+        return NULL;
+    }
+    rself = (PyRect*) self;
+
+    if (rself->w >= rarg->w)
+        rself->x = rarg->x + rarg->w / 2 - rself->w / 2;
+    else if (rself->x < rarg->x)
+        rself->x = rarg->x;
+    else if (rself->x + rself->w > rarg->x + rarg->w)
+        rself->x = rarg->x + rarg->w - rself->w;
+    else
+        rself->x = rself->x;
+
+    if (rself->h >= rarg->h)
+        rself->y = rarg->y + rarg->h / 2 - rself->h / 2;
+    else if (rself->y < rarg->y)
+        rself->y = rarg->y;
+    else if (rself->y + rself->h > rarg->y + rarg->h)
+        rself->y = rarg->y + rarg->h - rself->h;
+    else
+        rself->y = rself->y;
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_rect_fit (PyObject* self, PyObject *args)
+{
+    PyRect *rself, *rarg;
+    float xratio, yratio, maxratio;
+    pgint16 x, y;
+    pguint16 w, h;
+    
+    rself = (PyRect*) self;
+
+    if (!PyArg_ParseTuple (args, "O:fit", &rarg))
+        return NULL;
+
+    if (!PyRect_Check (rarg))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+        return NULL;
+    }
+
+    xratio = (float) rself->w / (float) rarg->w;
+    yratio = (float) rself->h / (float) rarg->h;
+    maxratio = (xratio > yratio) ? xratio : yratio;
+
+    w = (pguint16) (rself->w / maxratio);
+    h = (pguint16) (rself->h / maxratio);
+    x = rarg->x + (rarg->w - w) / 2;
+    y = rarg->y + (rarg->h - h) / 2;
+
+    return PyRect_New (x, y, w, h);
+}
+
+static PyObject*
+_rect_contains (PyObject* self, PyObject *args)
+{
+    PyRect* rself, *rarg;
+
+    if (!PyArg_ParseTuple (args, "O:contains", &rarg))
+        return NULL;
+
+    if (!PyRect_Check (rarg))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+        return NULL;
+    }
+    rself = (PyRect*) self;
+
+    if ((rself->x <= rarg->x) && (rself->y <= rarg->y) &&
+        (rself->x + rself->w >= rarg->x + rarg->w) &&
+        (rself->y + rself->h >= rarg->y + rarg->h) &&
+        (rself->x + rself->w > rarg->x) && (rself->y + rself->h > rarg->y))
+    {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject*
+_rect_collidepoint (PyObject *self, PyObject *args)
+{
+    PyRect *rself = (PyRect*) self;
+    pgint16 x, y;
+
+    if (!PyArg_ParseTuple (args, "ii:collidepoint", &x, &y))
+        return NULL;
+
+    if (x >= rself->x && x < rself->x + rself->w &&
+        y >= rself->y && y < rself->y + rself->h)
+    {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject*
+_rect_colliderect (PyObject *self, PyObject *args)
+{
+    PyRect *rarg, *rself = (PyRect*) self;
+    PyObject *rect;
+
+    if (!PyArg_ParseTuple (args, "O:colliderect", &rect))
+        return NULL;
+    if (!PyRect_Check (rect))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Rect");
+        return NULL;
+    }
+    rarg = (PyRect*) rect;
+
+    if (INTERSECT (rself, rarg))
+    {
+        Py_RETURN_TRUE;
+    }
+    Py_RETURN_FALSE;
+}
+
+static PyObject*
+_rect_collidelist (PyObject *self, PyObject *args)
+{
+    PyRect *rarg, *rself = (PyRect*) self;
+    PyObject *list, *rect;
+    Py_ssize_t i, count;
+    
+    if (!PyArg_ParseTuple (args, "O:collidelist", &list))
+        return NULL;
+    if (!PySequence_Check (list))
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "argument must be a sequence of Rect objects");
+        return NULL;
+    }
+
+    count = PySequence_Size (list);
+    if (count == -1)
+        return NULL;
+
+    for (i = 0; i < count; i++)
+    {
+        rect = PySequence_ITEM (list, i);
+        if (!PyRect_Check (rect))
+        {
+            Py_XDECREF (rect);
+            PyErr_SetString (PyExc_TypeError,
+                "argument must be a sequence of Rect objects.");
+            return NULL;
+        }
+        rarg = (PyRect*) rect;
+
+        if (INTERSECT (rself, rarg))
+        {
+            Py_DECREF (rect);
+            return PyInt_FromSsize_t (i);
+        }
+        Py_DECREF (rect);
+    }
+    return PyInt_FromLong (-1);
+}
+
+static PyObject*
+_rect_collidelistall (PyObject *self, PyObject *args)
+{
+    PyRect *rarg, *rself = (PyRect*) self;
+    PyObject *list, *rect, *indices;
+    Py_ssize_t i, count;
+    
+    if (!PyArg_ParseTuple (args, "O:collidelistall", &list))
+        return NULL;
+    if (!PySequence_Check (list))
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "argument must be a sequence of Rect objects");
+        return NULL;
+    }
+
+    count = PySequence_Size (list);
+    if (count == -1)
+        return NULL;
+
+    indices = PyList_New (0);
+    if (!indices)
+        return NULL;
+
+    for (i = 0; i < count; i++)
+    {
+        rect = PySequence_ITEM (list, i);
+        if (!PyRect_Check (rect))
+        {
+            Py_XDECREF (rect);
+            Py_DECREF (indices);
+            PyErr_SetString (PyExc_TypeError,
+                "argument must be a sequence of Rect objects.");
+            return NULL;
+        }
+        rarg = (PyRect*) rect;
+
+        if (INTERSECT (rself, rarg))
+        {
+            PyObject *obj =  PyInt_FromSsize_t (i);
+            if (PyList_Append (indices, obj) == -1)
+            {
+                Py_DECREF (obj);
+                Py_DECREF (indices);
+                Py_DECREF (rect);
+                return NULL;
+            }
+            Py_DECREF (obj);
+        }
+        Py_DECREF (rect);
+    }
+
+    return indices;
+}
+
+static PyObject*
+_rect_collidedict (PyObject *self, PyObject *args)
+{
+    PyRect *rarg, *rself = (PyRect*) self;
+    PyObject *dict, *key, *val;
+    Py_ssize_t pos = 0;
+
+    if (!PyArg_ParseTuple (args, "O:collidedict", &dict))
+        return NULL;
+
+    if (!PyDict_Check (dict))
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "argument must be a dict with Rect keys.");
+        return NULL;
+    }
+    
+    while (PyDict_Next (dict, &pos, &key, &val))
+    {
+        if (!PyRect_Check (key))
+        {
+            PyErr_SetString (PyExc_TypeError, 
+                "argument must be a dict with Rect keys.");
+            return NULL;
+        }
+        rarg = (PyRect*) key;
+
+        if (INTERSECT (rself, rarg))
+            return Py_BuildValue ("(OO)", key, val);
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+_rect_collidedictall (PyObject *self, PyObject *args)
+{
+    PyRect *rarg, *rself = (PyRect*) self;
+    PyObject *dict, *key, *val, *list;
+    Py_ssize_t pos = 0;
+
+    if (!PyArg_ParseTuple (args, "O:collidedict", &dict))
+        return NULL;
+
+    if (!PyDict_Check (dict))
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "argument must be a dict with Rect keys.");
+        return NULL;
+    }
+
+    list = PyList_New (0);
+    if (!list)
+        return NULL;
+    
+    while (PyDict_Next (dict, &pos, &key, &val))
+    {
+        if (!PyRect_Check (key))
+        {
+            PyErr_SetString (PyExc_TypeError, 
+                "argument must be a dict with Rect keys.");
+            return NULL;
+        }
+        rarg = (PyRect*) key;
+
+        if (INTERSECT (rself, rarg))
+        {
+            PyObject *obj = Py_BuildValue ("(OO)", key, val);
+            if (!obj)
+            {
+                Py_DECREF (list);
+                return NULL;
+            }
+
+            if (PyList_Append (list, obj) == -1)
+            {
+                Py_DECREF (obj);
+                Py_DECREF (list);
+                return NULL;
+            }
+        }
+    }
+    return list;
+}
+
+/* C API */
+PyObject*
+PyRect_New (pgint16 x, pgint16 y, pguint16 w, pguint16 h)
+{
+    PyRect *rect = (PyRect*) PyObject_New (PyRect, &PyRect_Type);
+    if (!rect)
+        return NULL;
+
+    rect->x = x;
+    rect->y = y;
+    rect->w = w;
+    rect->h = h;
+    return (PyObject*) rect;
+}
+
+void
+rect_export_capi (void **capi)
+{
+    capi[PYGAME_RECT_FIRSTSLOT] = &PyRect_Type;
+    capi[PYGAME_RECT_FIRSTSLOT+1] = PyRect_New;
+}

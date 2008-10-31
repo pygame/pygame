@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdl.video">
+  <desc></desc>
+
+  <class name="Overlay">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <method name="display">
+      <desc></desc>
+    </method>
+    <attr name="format"></attr>
+    <attr name="h"></attr>
+    <attr name="height"></attr>
+    <attr name="hw_overlay"></attr>
+    <method name="lock">
+      <desc></desc>
+    </method>
+    <attr name="locked"></attr>
+    <attr name="pitches"></attr>
+    <attr name="pixels"></attr>
+    <attr name="planes"></attr>
+    <attr name="size"></attr>
+    <method name="unlock">
+      <desc></desc>
+    </method>
+    <attr name="w"></attr>
+    <attr name="width"></attr>
+  </class>
+
+  <class name="PixelFormat">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="alpha"></attr>
+    <attr name="bits_per_pixel"></attr>
+    <attr name="bytes_per_pixel"></attr>
+    <attr name="colorkey"></attr>
+    <attr name="losses"></attr>
+    <attr name="masks"></attr>
+    <attr name="palette"></attr>
+    <attr name="shifts"></attr>
+  </class>
+
+  <class name="Surface">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <method name="blit">
+      <desc></desc>
+    </method>
+    <attr name="clip_rect"></attr>
+    <method name="convert">
+      <desc></desc>
+    </method>
+    <method name="fill">
+      <desc></desc>
+    </method>
+    <attr name="flags"></attr>
+    <method name="flip">
+      <desc></desc>
+    </method>
+    <attr name="format"></attr>
+    <method name="get_alpha">
+      <desc></desc>
+    </method>
+    <method name="get_colorkey">
+      <desc></desc>
+    </method>
+    <method name="get_palette">
+      <desc></desc>
+    </method>
+    <attr name="h"></attr>
+    <attr name="height"></attr>
+    <method name="lock">
+      <desc></desc>
+    </method>
+    <attr name="locked"></attr>
+    <attr name="pitch"></attr>
+    <attr name="pixels"></attr>
+    <method name="save">
+      <desc></desc>
+    </method>
+    <method name="set_alpha">
+      <desc></desc>
+    </method>
+    <method name="set_colorkey">
+      <desc></desc>
+    </method>
+    <method name="set_colors">
+      <desc></desc>
+    </method>
+    <method name="set_palette">
+      <desc></desc>
+    </method>
+    <attr name="size"></attr>
+    <method name="unlock">
+      <desc></desc>
+    </method>
+    <method name="update">
+      <desc></desc>
+    </method>
+    <attr name="w"></attr>
+    <attr name="width"></attr>
+  </class>
+
+  <func name="get_drivername">
+    <desc></desc>
+  </func>
+  <func name="get_gammaramp">
+    <desc></desc>
+  </func>
+  <func name="get_info">
+    <desc></desc>
+  </func>
+  <func name="get_videosurface">
+    <desc></desc>
+  </func>
+  <func name="init">
+    <desc></desc>
+  </func>
+  <func name="is_mode_ok">
+    <desc></desc>
+  </func>
+  <func name="list_modes">
+    <desc></desc>
+  </func>
+  <func name="quit">
+    <desc></desc>
+  </func>
+  <func name="set_gamma">
+    <desc></desc>
+  </func>
+  <func name="set_gammaramp">
+    <desc></desc>
+  </func>
+  <func name="set_mode">
+    <desc></desc>
+  </func>
+  <func name="was_init">
+    <desc></desc>
+  </func>
+</module>
+

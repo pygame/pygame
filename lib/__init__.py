@@ -1,0 +1,15 @@
+"""
+Pygame2 is a set of Python modules designed for writing games.
+It is written on top of the excellent SDL library. This allows you
+to create fully featured games and multimedia programs in the python
+language. The package is highly portable, with games running on
+Windows, MacOS, OS X, BeOS, FreeBSD, IRIX, and Linux.
+"""
+
+import os
+
+# Manipulate the PATH environment, so that the DLLs are loaded correctly.
+path = os.path.dirname (os.path.abspath (__file__))
+os.environ['PATH'] += ";%s;%s" % (path,  os.path.join (path, "dll"))
+
+from pygame2.base import *

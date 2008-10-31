@@ -1,0 +1,27 @@
+[DEFAULT]
+python_path=C:/Python25/python.exe
+
+; Added to the default build_cmd (set in buildpage\config.py)
+extra_build_flags=--compiler=mingw32
+
+; Added to the default test_cmd (set in buildpage\config.py)
+extra_test_flags=-s
+
+; Sent to trunk\config.py as answers to questions (Y|N) 
+; eg Y\nY\nY\n translates to Y, Enter, Y, Enter, Y, Enter
+config_py_interaction = N\nN\nY\nY\n
+
+; Determines which installer setup.py will make
+make_package=bdist_wininst
+package_mask=*.exe
+
+; TODO:
+test_dir_subpath=Lib/site-packages
+
+[build_env]
+; Anything in this will (be merged with | overide) os.environ
+; Can use string interpolation %(var)s from [DEFAULT]
+
+; PYTHONPATH=
+; PATH=
+; TMP=

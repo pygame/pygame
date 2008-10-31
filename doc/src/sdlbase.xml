@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdl.base">
+  <desc>Pygame SDL wrapper module</desc>
+
+  <func name="get_compiled_version">
+    <desc>
+      pygame2.sdl.get_compiled_version () -> tuple
+
+      Gets the SDL version pygame2 was compiled against as three-value tuple.
+
+      This version is built at compile time. It can be used to detect
+      which features may not be available through Pygame, if it is used
+      as precompiled package using a different version of the SDL
+      library.
+    </desc>
+  </func>
+  <func name="get_error">
+    <desc>
+      pygame2.sdl.get_error () -> pygame2.Error
+
+      Gets the last pygame2 error occured.
+
+      SDL maintains an internal error message. This message will usually
+      be given to you when a pygame2.Error is raised. You will rarely
+      need to call this function.
+    </desc>
+  </func>
+  <func name="get_version">
+    <desc>
+      pygame2.sdl.get_version () -> tuple
+      
+      Gets the SDL version pygame2 currently uses as three-value tuple.
+
+      This version is detected at runtime. It can be used to detect
+      which features may not be available through Pygame, if it is used
+      as precompiled package using a different version of the SDL library.
+    </desc>
+  </func>
+  <func name="init">
+    <desc>
+      pygame2.sdl.init (flags) -> bool
+
+      Initializes the underlying SDL library.
+
+      Initializes the underlying SDL library using the passed SDL
+      flags. The flags indicate, which subsystems of SDL should be
+      initialized and can be a bitwise combination of the INIT_*
+      constants.
+      
+      In case an error occured, False will be returned. The detailled
+      error can be received using pygame2.sdl.get_error().
+    </desc>
+  </func>
+  <func name="init_subsystem">
+    <desc>
+      pygame2.sdl.init_subsystem (flags) -> bool
+
+      Initializes one or more SDL subsystems.
+
+      In case a specific part of SDL was not initialized using
+      pygame2.sdl.init(), this funciton can be used to initialize it at
+      a later time.
+
+      In case an error occured, False will be returned. The detailled
+      error can be received using pygame2.sdl.get_error().
+    </desc>
+  </func>
+  <func name="quit">
+    <desc>
+      pygame2.sdl.quit () -> None
+
+      Shuts down all subsystems of the underlying SDL library.
+
+      After calling this function, you should not invoke any SDL related
+      class, method or function as they are likely to fail or might give
+      unpredictable results.
+    </desc>
+  </func>
+  <func name="quit_subsystem">
+    <desc>
+      pygame2.sdl.quit_subsystem (flags) -> None
+
+      Shuts down one or more subsystems of the underlying SDL library.
+
+      After calling this function, you should not invoke any class,
+      method or function related to the specified subsystems as they are
+      likely to fail or might give unpredictable results.
+    </desc>
+  </func>
+  <func name="was_init">
+    <desc>
+      pygame2.sdl.was_init () -> long
+
+      Gets a bitwise OR'ed combination of the initialized SDL subsystems.
+
+      Returns a bitwise combination of the currently initialized SDL
+      subsystems.
+    </desc>
+  </func>
+</module>
+

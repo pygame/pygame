@@ -1,0 +1,100 @@
+Pygame2 Readme
+
+Content:
+--------
+0. Description
+1. Installation
+    1.1 Dependencies
+    1.2 Notes on SVN usage
+    1.3 Notes for Windows users
+    1.4 Notes for Mac OS users
+2. Getting started
+3. Credits
+4. License
+
+0. Description
+--------------
+Pygame2 is a cross-platform multimedia framework for the excellent Python
+programmling language. It's purpose is to make writing multimedia applications,
+such as games, with Python as easy as possible, while providing the developer a
+reliable and extensible programming interface.
+
+Pygame2 can be configured in numerous ways to tweak it to the specific needs
+of the target application and environment. It can make use of different
+3rd party libraries, such as SDL, to provide enhanced functionality.
+
+1. Installation
+---------------
+You can either use the python way of installing the package or the make
+command using the Makefile.
+Simply type
+
+  python setup.py install 
+
+for the traditional python way or
+
+  make install
+
+for using the Makefile. This will try to perform a default installation with
+as many features as possible. If it does not suit your needs or you do not have
+all the dependencies available (see the section 1.1), you can tweak the
+features to build and install by making the necessary adjustments within the
+"cfg.py" file. 
+
+1.1 Dependencies
+----------------
+Pygame2 is designed to run in as many environments as possible. As such, the
+only absolutely necessary dependency is a working Python installation.
+Additionally other librarie are needed, if you want to enable certain features
+of Pygame2.
+
+* Python 2.4, 2.5, 2.6, 3.0 supported   (http://www.python.org)
+
+[Optional dependencies]
+* SDL >= 1.2.10              (http://www.libsdl.org)
+* SDL_mixer >= 1.2.8         (http://www.libsdl.org/projects/SDL_mixer/)
+* SDL_ttf >= 2.0.9           (http://www.libsdl.org/projects/SDL_ttf/)
+* SDL_image >= 1.2.7         (http://www.libsdl.org/projects/SDL_image/)
+* SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* libpng >= 1.2.24           (http://www.libpng.org)
+* libjpeg >= 6b              (http://www.ijg.org/)
+
+1.2 Notes on SVN usage
+----------------------
+The SVN version of Pygame2 is not intended to be used in a production
+environment. Interfaces may change from one checkin to another, methods,
+classes or modules can be broken and so on. If you want more reliable
+code, please refer to the official releases.
+
+1.3 Notes for Windows users
+---------------------------
+Bulding Pygame2 from its source code is only supported in combination with the
+MinGW compiler suite at the moment.
+
+TODO
+
+1.4 Notes for Mac OS users
+--------------------------
+TODO
+
+2. Getting started
+------------------
+To gain ground quickly, you can find many examples, the reference and tutorials
+within the doc/ directory.
+
+3. Credits
+----------
+TODO
+
+4. License
+----------
+This library is distributed under GNU LGPL version 2.1, which can be found in
+the file "doc/LGPL".
+
+This basically means you can use Pygame2 in any project you want, but if
+you make any changes or additions to pygame itself, those must be
+released with a compatible license (preferably submitted back to the
+pygame project). Closed source and commercial games are fine.
+
+The programs in the "doc/examples" subdirectory are in the public domain.
+The documentation generators in the doc/ directory are in the public domain.

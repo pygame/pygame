@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdlext.draw">
+  <desc></desc>
+
+  <func name="aaline">
+    <desc></desc>
+  </func>
+  <func name="aalines">
+    <desc></desc>
+  </func>
+  <func name="arc">
+    <desc></desc>
+  </func>
+  <func name="circle">
+    <desc></desc>
+  </func>
+  <func name="ellipse">
+    <desc></desc>
+  </func>
+  <func name="line">
+    <desc></desc>
+  </func>
+  <func name="lines">
+    <desc></desc>
+  </func>
+  <func name="polygon">
+    <desc></desc>
+  </func>
+  <func name="rect">
+    <desc></desc>
+  </func>
+</module>
+

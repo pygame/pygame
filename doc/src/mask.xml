@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.mask">
+  <desc>
+    A module for image masks, suitable for fast pixel-perfect collision
+    detections.
+  </desc>
+
+  <class name="Mask">
+    <constructor>
+      Mask (width, height) -> Mask
+    </constructor>
+    <desc>
+      Mask (width, height) -> Mask
+      
+      Creates a new, empty Mask with the desired dimensions.
+      
+      The Mask is a 2D array using single bits to represent states within a
+      x,y matrix. This makes it suitable for pixel-perfect overlap handling
+      of image buffers.
+    </desc>
+    <attr name="angle">
+      Gets the orientation of the pixels. Finds the approximate
+      orientation of the pixels in the image from -90 to 90
+      degrees. This works best if performed on one connected component
+      of pixels. It will return 0.0 on an empty Mask.
+    </attr>
+    <attr name="centroid">
+      Gets the centroid, the center of pixel mass, of the pixels in a
+      Mask. Returns a coordinate tuple for the centroid of the Mask. if
+      the Mask is empty, it will return (0,0).
+    </attr>
+    <method name="clear">
+      <desc>
+        Mask.clear () -> None
+      
+        Clears all bits in the Mask.
+        
+        Resets the state of all bits in the Mask to 0..
+      </desc>
+    </method>
+    <method name="connected_component">
+      <desc>
+        Mask.connected_component (x=None, y=None) -> Mask
+
+        Returns a Mask of a connected region of pixels.
+        
+        This uses the SAUF algorithm to find a connected component in
+        the Mask. It checks 8 point connectivity. By default, it will
+        return the largest connected component in the image. Optionally,
+        a coordinate pair of a pixel can be specified, and the connected
+        component containing it will be returned. In the event the pixel
+        at that location is not set, the returned Mask will be
+        empty. The Mask returned is the same size as the original Mask.
+      </desc>
+    </method>
+    <method name="connected_components">
+      <desc>
+        Mask.connected_components (min = 0) -> [Mask, Mask, ...]
+
+        Returns a list of masks of connected regions of pixels.
+        
+        Returns a list of masks of connected regions of pixels. An
+        optional minimum number of pixels per connected region can be
+        specified to filter out noise.
+      </desc>
+    </method>
+    <attr name="count">Gets the amount of bits in the Mask.</attr>
+    <method name="draw">
+      <desc>
+        Mask.draw (mask, x, y) -> None
+        
+        Draws the passed Mask onto the Mask.
+        
+        This performs a bitwise OR operation upon the calling Mask. The
+        passed mask's start offset for the draw operation will be the x and
+        y offset passed to the method.
+      </desc>
+    </method>
+    <method name="erase">
+      <desc>
+        Mask.erase (mask, x, y) -> None
+        
+        Erases the passed Mask from the Mask.
+        
+        This performs a bitwise NAND operation upon the calling Mask. The
+        passed mask's start offfset for the erase operation will be the x and
+        y offset passed to the method.
+      </desc>
+    </method>
+    <method name="fill">
+      <desc>
+        Mask.fill () -> None
+        
+        Sets all bits to 1 within the Mask.
+      </desc>
+    </method>
+    <method name="get_at">
+      <desc>
+        Mask.get_at (x, y) -> int
+        
+        Gets the bit value at the desired location.
+      </desc>
+    </method>
+    <method name="get_bounding_rects">
+      <desc>
+        Mask.get_bounding_rects () -> [Mask, Mask ...]
+        
+        Returns a list of bounding rects of regions of set pixels.
+        
+        This gets a bounding rect of connected regions of set bits. A bounding
+        rect is one for which each of the connected pixels is inside the rect.
+      </desc>
+    </method>
+    <attr name="height">Gets the height of the Mask.</attr>
+    <method name="invert">
+      <desc>
+        Mask.invert () -> None
+        
+        Inverts all bits in the Mask.
+      </desc>
+    </method>
+    <method name="outline">
+      <desc>
+        Mask.outline(every=1) -> [(x,y), (x,y) ...]
+
+        Returns a list of points outlining an object
+
+        Returns a list of points of the outline of the first object it
+        comes across in a Mask. For this to be useful, there should
+        probably only be one connected component of pixels in the
+        Mask. The every option allows you to skip pixels in the
+        outline. For example, setting it to 10 would return a list of
+        every 10th pixel in the outline.
+      </desc>
+    </method>
+    <method name="overlap">
+      <desc>
+        Mask.overlap (mask, x, y) -> int, int
+      
+        Returns nonzero if the masks overlap with the given offset. 
+        
+        The overlap tests uses the following offsets (which may be negative):
+
+        +----+----------..
+        |A   | yoffset   
+        |  +-+----------..
+        +--|B        
+        |xoffset      
+        |  |
+        :  :  
+      </desc>
+    </method>
+    <method name="overlap_area">
+      <desc>
+        Mask.overlap_area (mask, x, y) -> int
+
+        Returns the number of overlapping bits of two Masks.
+        
+        This returns how many pixels overlap with the other mask given. It
+        can be used to see in which direction things collide, or to see how
+        much the two masks collide. 
+      </desc>
+    </method>
+    <method name="overlap_mask">
+      <desc>
+        Mask.overlap_mask (mask, x, y) -> Mask.
+      
+        Returns a mask with the overlap of two other masks. A bitwise AND.
+      </desc>
+    </method>
+    <method name="scale">
+      <desc>
+        Mask.scale (width, height) -> Mask
+ 
+        Creates a new scaled Mask with the given width and height.
+
+        The quality of the scaling may not be perfect for all circumstances,
+        but it should be reasonable. If either w or h is 0 a clear 1x1 mask is
+        returned.        
+      </desc>
+    </method>
+    <method name="set_at">
+      <desc>
+        Mask.set_at (x, y) -> None
+        
+        Sets the bit value at the desired location.
+      </desc>
+    </method>
+    <attr name="size">
+      Gets the width and height of the Mask as 2-value tuple.
+    </attr>
+    <attr name="width">Gets the width of the Mask</attr>
+  </class>
+
+  <func name="from_surface">
+    <desc>
+      pygame2.mask.from_surface (surface, threshold) -> Mask
+    
+      Returns a Mask from the given pygame2.sdl.video.Surface.
+      
+      Makes the transparent parts of the Surface not set, and the opaque parts
+      set. The alpha of each pixel is checked to see if it is greater than the
+      given threshold. If the Surface is color keyed, then threshold is not
+      used. 
+      
+      This requires pygame2 to be built with SDL support enabled.
+    </desc>
+  </func>
+  <func name="from_threshold">
+    <desc>
+      TODO
+    </desc>
+  </func>
+</module>
+

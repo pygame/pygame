@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdlmixer.base">
+  <desc></desc>
+
+  <class name="Channel">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="chunk"></attr>
+    <method name="expire">
+      <desc></desc>
+    </method>
+    <method name="fade_in">
+      <desc></desc>
+    </method>
+    <method name="fade_out">
+      <desc></desc>
+    </method>
+    <attr name="fading"></attr>
+    <method name="halt">
+      <desc></desc>
+    </method>
+    <method name="pause">
+      <desc></desc>
+    </method>
+    <attr name="paused"></attr>
+    <method name="play">
+      <desc></desc>
+    </method>
+    <attr name="playing"></attr>
+    <method name="resume">
+      <desc></desc>
+    </method>
+    <attr name="volume"></attr>
+  </class>
+
+  <class name="Chunk">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="buf"></attr>
+    <attr name="len"></attr>
+    <attr name="volume"></attr>
+  </class>
+
+  <class name="Music">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="type"></attr>
+  </class>
+
+  <func name="close_audio">
+    <desc></desc>
+  </func>
+  <func name="get_compiled_version">
+    <desc></desc>
+  </func>
+  <func name="get_error">
+    <desc></desc>
+  </func>
+  <func name="get_version">
+    <desc></desc>
+  </func>
+  <func name="init">
+    <desc></desc>
+  </func>
+  <func name="open_audio">
+    <desc></desc>
+  </func>
+  <func name="query_spec">
+    <desc></desc>
+  </func>
+  <func name="quit">
+    <desc></desc>
+  </func>
+  <func name="was_init">
+    <desc></desc>
+  </func>
+</module>
+

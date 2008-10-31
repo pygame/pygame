@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdlext.numericsurfarray">
+  <desc></desc>
+
+  <func name="array2d">
+    <desc></desc>
+  </func>
+  <func name="array3d">
+    <desc></desc>
+  </func>
+  <func name="array_alpha">
+    <desc></desc>
+  </func>
+  <func name="array_colorkey">
+    <desc></desc>
+  </func>
+  <func name="blit_array">
+    <desc></desc>
+  </func>
+  <func name="make_surface">
+    <desc></desc>
+  </func>
+  <func name="map_array">
+    <desc></desc>
+  </func>
+  <func name="pixels2d">
+    <desc></desc>
+  </func>
+  <func name="pixels3d">
+    <desc></desc>
+  </func>
+  <func name="pixels_alpha">
+    <desc></desc>
+  </func>
+</module>
+

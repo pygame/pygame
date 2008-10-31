@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdlgfx.rotozoom">
+  <desc></desc>
+
+  <func name="rotate_90">
+    <desc></desc>
+  </func>
+  <func name="rotozoom">
+    <desc></desc>
+  </func>
+  <func name="rotozoom_size">
+    <desc></desc>
+  </func>
+  <func name="rotozoom_size_xy">
+    <desc></desc>
+  </func>
+  <func name="rotozoom_xy">
+    <desc></desc>
+  </func>
+  <func name="shrink">
+    <desc></desc>
+  </func>
+  <func name="zoom">
+    <desc></desc>
+  </func>
+  <func name="zoom_size">
+    <desc></desc>
+  </func>
+</module>
+

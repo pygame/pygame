@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdlmixer.music">
+  <desc></desc>
+
+  <func name="fade_out">
+    <desc></desc>
+  </func>
+  <func name="fading">
+    <desc></desc>
+  </func>
+  <func name="get_volume">
+    <desc></desc>
+  </func>
+  <func name="halt">
+    <desc></desc>
+  </func>
+  <func name="pause">
+    <desc></desc>
+  </func>
+  <func name="paused">
+    <desc></desc>
+  </func>
+  <func name="playing">
+    <desc></desc>
+  </func>
+  <func name="resume">
+    <desc></desc>
+  </func>
+  <func name="set_position">
+    <desc></desc>
+  </func>
+  <func name="set_volume">
+    <desc></desc>
+  </func>
+</module>
+

@@ -1,0 +1,41 @@
+CRITICAL:
+=========
+* PyFile_* and PyString_* API under python 3.x (see pgcompat.h)
+* recheck and redesign X11 implementation for pygame.sdlext.scrap
+* merge transform/scale asm changes in rev. 1657:1669
+* complete physics collision and contacts and merge it back to the branch
+* make LayeredGroups class independent from sdl surfaces, where possible
+* check all BuildValue and ParseTuple calls for the correct value range
+
+Things to ADD:
+==============
+* (re)add tests
+* add examples
+* reorganise and add camera module
+* add proper config_win support to make use of VC++
+* add a Point class to make position arguments such as in Surface.blit
+  easier to use
+
+Things to FIX:
+==============
+* respect surface->clip_rect where necessary!
+* sdl.mouse.cursors, NOT pygame2.sdl.cursors or whatever
+* sdlext.transform.threshod_* -> clip_rect, surfaces with different sizes
+* documentation
+* finish html converter for docs
+* get rid of os.system() output under msys (2>/dev/null does not seem to work)
+* correct argument checks in pyg_scrap* functions
+* check for clipboard resource destruction within pygame.sdlext.scrap.
+* surfarray problems (naming, 32/24bpp, see mailing list around 2008-10-21/22)
+* SDL_gfx has to set the correct errors (SDL_SetError()). Fix that and
+  merge it back to the SDL_gfx upstream
+
+Things to WRAP:
+===============
+* SDL_LoadObject
+* SDL_LoadFunction
+* SDL_UnloadObject
+* SDL_Audio*
+* SDL_Thread*
+* SDL_gfx image filter functions
+

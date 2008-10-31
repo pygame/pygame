@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func | class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+
+<!ELEMENT desc (#PCDATA)>
+
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+
+<!ELEMENT class (constructor, desc, (attr | method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+
+]>
+
+<!-- 
+     Pygame C API template for generating the C code doc strings and 
+     HTML documentation.
+-->
+<module name="NAME">
+  <desc>DESCRIPTION</desc>
+  
+    <func name="METHODNAME">
+      <desc>DESCRIPTION</desc>
+    </func>
+    
+    <class name="CLASSNAME">
+      <desc>DESCRIPTION</desc>
+      <attr name="NAME">DESCRIPTION</attr>
+      <method name="METHODNAME">
+        <desc>DESCRIPTION</desc>
+      </method>
+    </class>
+  </module>

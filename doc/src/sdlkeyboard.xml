@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdl.keyboard">
+  <desc></desc>
+
+  <func name="enable_repeat">
+    <desc></desc>
+  </func>
+  <func name="enable_unicode">
+    <desc></desc>
+  </func>
+  <func name="get_key_name">
+    <desc></desc>
+  </func>
+  <func name="get_mod_state">
+    <desc></desc>
+  </func>
+  <func name="get_repeat">
+    <desc></desc>
+  </func>
+  <func name="get_state">
+    <desc></desc>
+  </func>
+  <func name="set_mod_state">
+    <desc></desc>
+  </func>
+</module>
+

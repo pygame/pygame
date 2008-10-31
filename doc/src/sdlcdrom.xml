@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdl.cdrom">
+  <desc></desc>
+
+  <class name="CD">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <method name="close">
+      <desc></desc>
+    </method>
+    <attr name="cur_frame"></attr>
+    <attr name="cur_track"></attr>
+    <method name="eject">
+      <desc></desc>
+    </method>
+    <attr name="index"></attr>
+    <attr name="name"></attr>
+    <attr name="num_tracks"></attr>
+    <method name="open">
+      <desc></desc>
+    </method>
+    <method name="pause">
+      <desc></desc>
+    </method>
+    <method name="play">
+      <desc></desc>
+    </method>
+    <method name="play_tracks">
+      <desc></desc>
+    </method>
+    <method name="resume">
+      <desc></desc>
+    </method>
+    <attr name="status"></attr>
+    <method name="stop">
+      <desc></desc>
+    </method>
+    <attr name="tracks"></attr>
+  </class>
+
+  <class name="CDTrack">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="id"></attr>
+    <attr name="length"></attr>
+    <attr name="minutes"></attr>
+    <attr name="offset"></attr>
+    <attr name="seconds"></attr>
+    <attr name="time"></attr>
+    <attr name="type"></attr>
+  </class>
+
+  <func name="get_name">
+    <desc></desc>
+  </func>
+  <func name="init">
+    <desc></desc>
+  </func>
+  <func name="num_drives">
+    <desc></desc>
+  </func>
+  <func name="quit">
+    <desc></desc>
+  </func>
+  <func name="was_init">
+    <desc></desc>
+  </func>
+</module>
+

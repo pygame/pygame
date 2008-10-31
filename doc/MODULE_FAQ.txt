@@ -1,0 +1,42 @@
+C API
+-----
+The C API contains numerous macros and functions that ease the
+developer's life. In order to have a similar behaviour without
+implementing the same things again and again, those will be listed here.
+
+base/pgbase.h contains some useful numeric macros:
+
+  MIN(x,y)      - returns the minimum of two values
+  MAX(x,y)      - returns the maximum of two values
+  ABS(x)        - returns the absolute value
+  trunc(x)      - truncates a number
+  round(x)      - rounds a number
+  
+Additionally base/pgbase.h contains several functions to get a integer
+or floating point value from a PyObject. Those however require other
+module to import the base module.
+
+* SDL Rectangles *
+
+sdl/pgsdl.h defines some handy routines to quickly get a SDL_Rect from
+the base.Rect and base.FRect classes, SDLRect_FromRect(). Use it
+wherever methods require a rectangular object. IsValidRect() checks only,
+whether the passed argument is a base.Rect or base.FRect.
+
+* SDL surface pixel manipulation *
+
+sdl/surface.h contains tons of macros to manipulate surface pixels. It
+should be your first address to look for a matching operation whenever
+you need it.
+
+* SDL color handling *
+
+The Color class uses a ARGB layout for PyColor_AsNumber(). In order to
+prepare this value for color operations within the SDL functions or
+pixel manipulations, use the RGB2FORMAT() and ARGB2FORMAT() macros,
+defined in sdl/surface.h.
+
+* SDL subsystems *
+
+Whenever you require a certain subsystem to be available, use the
+corresponding ASSERT_***_INIT() macro from sdl/pgsdl.h.

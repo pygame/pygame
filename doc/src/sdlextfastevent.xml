@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdlext.fastevent">
+  <desc></desc>
+
+  <class name="Event">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="type"></attr>
+  </class>
+
+  <func name="get">
+    <desc></desc>
+  </func>
+  <func name="init">
+    <desc></desc>
+  </func>
+  <func name="poll">
+    <desc></desc>
+  </func>
+  <func name="push">
+    <desc></desc>
+  </func>
+  <func name="quit">
+    <desc></desc>
+  </func>
+  <func name="wait">
+    <desc></desc>
+  </func>
+</module>
+

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.physics">
+  <desc>None</desc>
+
+  <class name="Body">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="angle_vel_damping">None</attr>
+    <attr name="angular_velocity">None</attr>
+    <attr name="force">None</attr>
+    <attr name="friction">None</attr>
+    <method name="get_points">
+      <desc>None</desc>
+    </method>
+    <attr name="lin_vel_damping">None</attr>
+    <attr name="mass">None</attr>
+    <attr name="position">None</attr>
+    <attr name="restitution">None</attr>
+    <attr name="rotation">None</attr>
+    <attr name="shape">None</attr>
+    <attr name="static">None</attr>
+    <attr name="torque">None</attr>
+    <attr name="velocity">None</attr>
+  </class>
+
+  <class name="Contact">
+    <constructor>TODO</constructor>
+    <desc></desc>
+  </class>
+
+  <class name="Joint">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="body1">None</attr>
+    <attr name="body2">None</attr>
+    <attr name="is_collide_connect">None</attr>
+    <method name="solve_constraints">
+      <desc>None</desc>
+    </method>
+  </class>
+
+  <class name="RectShape">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <attr name="rect">None</attr>
+  </class>
+
+  <class name="Shape">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <method name="collide">
+      <desc>None</desc>
+    </method>
+    <method name="get_AABBox">
+      <desc>None</desc>
+    </method>
+    <method name="get_vertices">
+      <desc>None</desc>
+    </method>
+    <attr name="inertia">None</attr>
+    <attr name="rotation">None</attr>
+    <method name="update">
+      <desc>None</desc>
+    </method>
+  </class>
+
+  <class name="World">
+    <constructor>TODO</constructor>
+    <desc></desc>
+    <method name="add_body">
+      <desc>None</desc>
+    </method>
+    <method name="add_joint">
+      <desc>None</desc>
+    </method>
+    <attr name="bodies">None</attr>
+    <attr name="damping">None</attr>
+    <attr name="gravity">None</attr>
+    <attr name="joints">None</attr>
+    <method name="remove_body">
+      <desc>None</desc>
+    </method>
+    <method name="remove_joint">
+      <desc>None</desc>
+    </method>
+    <method name="update">
+      <desc>None</desc>
+    </method>
+  </class>
+
+</module>
+

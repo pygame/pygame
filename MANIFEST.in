@@ -1,0 +1,7 @@
+include *.txt *.py Makefile
+recursive-include config *.py *.cfg
+recursive-include doc *.py *.xml *.txt LGPL
+recursive-include examples *
+recursive-include lib *
+recursive-include src *
+recursive-include test *

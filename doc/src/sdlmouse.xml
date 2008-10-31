@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module [
+<!ELEMENT module (desc, (func|class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT func (desc)>
+<!ATTLIST func name CDATA #REQUIRED>
+<!ELEMENT class (constructor, desc, (attr|method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+<!ELEMENT constructor (#PCDATA)>
+<!ELEMENT attr (#PCDATA)>
+<!ATTLIST attr name CDATA #REQUIRED>
+<!ELEMENT method (desc)>
+<!ATTLIST method name CDATA #REQUIRED>
+]>
+
+<module name="pygame2.sdl.mouse">
+  <desc></desc>
+
+  <class name="Cursor">
+    <constructor>TODO</constructor>
+    <desc></desc>
+  </class>
+
+  <func name="get_position">
+    <desc></desc>
+  </func>
+  <func name="get_rel_position">
+    <desc></desc>
+  </func>
+  <func name="get_rel_state">
+    <desc></desc>
+  </func>
+  <func name="get_state">
+    <desc></desc>
+  </func>
+  <func name="set_cursor">
+    <desc></desc>
+  </func>
+  <func name="set_position">
+    <desc></desc>
+  </func>
+  <func name="set_visible">
+    <desc></desc>
+  </func>
+  <func name="show_cursor">
+    <desc></desc>
+  </func>
+  <func name="warp">
+    <desc></desc>
+  </func>
+</module>
+
