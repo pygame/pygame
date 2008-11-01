@@ -23,11 +23,11 @@
 #include "pgbase.h"
 #include "base_doc.h"
 
-#define INTERSECT(A,B) \
-    (((A->x >= B->x && A->x < B->x + B->w) ||        \
-     (B->x >= A->x && B->x < A->x + A->w)) &&        \
-    ((A->y >= B->y && A->y < B->y + B->h)   ||       \
-     (B->y >= A->y && B->y < A->y + A->h)))
+#define INTERSECT(A,B)                                          \
+    (((A->x >= B->x && A->x < (pgint32)(B->x + B->w)) ||        \
+        (B->x >= A->x && B->x < (pgint32)(A->x + A->w))) &&     \
+        ((A->y >= B->y && A->y < (pgint32) (B->y + B->h))   ||  \
+            (B->y >= A->y && B->y < (pgint32)(A->y + A->h))))
 
 static int _rect_init (PyObject *cursor, PyObject *args, PyObject *kwds);
 static void _rect_dealloc (PyRect *self);
@@ -88,6 +88,8 @@ static PyObject* _rect_collidelist (PyObject *self, PyObject *args);
 static PyObject* _rect_collidelistall (PyObject *self, PyObject *args);
 static PyObject* _rect_collidedict (PyObject *self, PyObject *args);
 static PyObject* _rect_collidedictall (PyObject *self, PyObject *args);
+
+static int _rect_compare (PyObject *self, PyObject *other);
 
 /**
  */
@@ -170,7 +172,7 @@ PyTypeObject PyRect_Type =
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
-    0,                          /* tp_compare */
+    (cmpfunc)_rect_compare,     /* tp_compare */
     (reprfunc)_rect_repr,       /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
@@ -284,7 +286,7 @@ _rect_repr (PyObject *self)
 {
     PyRect *r = (PyRect*) self;
     char buf[256];
-    PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %d, %d)",
+    PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %u, %u)",
         r->x, r->y, r->w, r->h);
     return PyString_FromString (buf);
 }
@@ -367,7 +369,7 @@ _rect_setbottom (PyObject *self, PyObject *value, void *closure)
     pgint16 bottom;
     if (!IntFromObj (value, &bottom))
         return -1;
-    ((PyRect*)self)->y = bottom - ((PyRect*)self)->h;
+    INT16_SUB_UINT16_LIMIT (bottom, ((PyRect*)self)->h, ((PyRect*)self)->y);
     return 0;
 }
 
@@ -384,7 +386,7 @@ _rect_setright (PyObject *self, PyObject *value, void *closure)
     pgint16 right;
     if (!IntFromObj (value, &right))
         return -1;
-    ((PyRect*)self)->x = right - ((PyRect*)self)->w;
+    INT16_SUB_UINT16_LIMIT (right, ((PyRect*)self)->w, ((PyRect*)self)->x);
     return 0;
 }
 
@@ -402,7 +404,8 @@ _rect_setcenterx (PyObject *self, PyObject *value, void *closure)
     if (!IntFromObj (value, &centerx))
         return -1;
 
-    ((PyRect*)self)->x = centerx - (((PyRect*)self)->w >> 1);
+    INT16_SUB_UINT16_LIMIT (centerx, (((PyRect*)self)->w >> 1),
+        ((PyRect*)self)->x);
     return 0;
 }
 
@@ -420,7 +423,8 @@ _rect_setcentery (PyObject *self, PyObject *value, void *closure)
     if (!IntFromObj (value, &centery))
         return -1;
 
-    ((PyRect*)self)->y = centery - (((PyRect*)self)->h >> 1);
+    INT16_SUB_UINT16_LIMIT (centery, (((PyRect*)self)->h >> 1),
+        ((PyRect*)self)->y);
     return 0;
 }
 
@@ -445,8 +449,8 @@ _rect_setcenter (PyObject *self, PyObject *value, void *closure)
     if (!IntFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyRect*)self)->x = x - (((PyRect*)self)->w >> 1);
-    ((PyRect*)self)->y = y - (((PyRect*)self)->h >> 1);
+    INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
+    INT16_SUB_UINT16_LIMIT (y, (((PyRect*)self)->h >> 1), ((PyRect*)self)->y);
     return 0;
 }
 
@@ -498,7 +502,7 @@ _rect_setmidtop (PyObject *self, PyObject *value, void *closure)
     if (!IntFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyRect*)self)->x = x - (((PyRect*)self)->w >> 1);
+    INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
     ((PyRect*)self)->y = y;
     return 0;
 }
@@ -526,7 +530,7 @@ _rect_setmidleft (PyObject *self, PyObject *value, void *closure)
         return -1;
 
     ((PyRect*)self)->x = x;
-    ((PyRect*)self)->y = y - (((PyRect*)self)->h >> 1);
+    INT16_SUB_UINT16_LIMIT (y, (((PyRect*)self)->h >> 1), ((PyRect*)self)->y);
     return 0;
 }
 
@@ -552,8 +556,8 @@ _rect_setmidbottom (PyObject *self, PyObject *value, void *closure)
     if (!IntFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyRect*)self)->x = x - (((PyRect*)self)->w >> 1);
-    ((PyRect*)self)->y = y - ((PyRect*)self)->h;
+    INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
+    INT16_SUB_UINT16_LIMIT (y, ((PyRect*)self)->h, ((PyRect*)self)->y);
     return 0;
 }
 
@@ -579,8 +583,8 @@ _rect_setmidright (PyObject *self, PyObject *value, void *closure)
     if (!IntFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyRect*)self)->x = x - ((PyRect*)self)->w;
-    ((PyRect*)self)->y = y - (((PyRect*)self)->h >> 1);
+    INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
+    INT16_SUB_UINT16_LIMIT (y, (((PyRect*)self)->h >> 1), ((PyRect*)self)->y);
     return 0;
 }
 
@@ -632,7 +636,7 @@ _rect_settopright (PyObject *self, PyObject *value, void *closure)
     if (!IntFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyRect*)self)->x = x - ((PyRect*)self)->w;
+    INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
     ((PyRect*)self)->y = y;
     return 0;
 }
@@ -660,7 +664,7 @@ _rect_setbottomleft (PyObject *self, PyObject *value, void *closure)
         return -1;
 
     ((PyRect*)self)->x = x;
-    ((PyRect*)self)->y = y - ((PyRect*)self)->h;
+    INT16_SUB_UINT16_LIMIT (y, ((PyRect*)self)->h, ((PyRect*)self)->y);
     return 0;
 }
 
@@ -686,8 +690,8 @@ _rect_setbottomright (PyObject *self, PyObject *value, void *closure)
     if (!IntFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyRect*)self)->x = x - ((PyRect*)self)->w;
-    ((PyRect*)self)->y = y - ((PyRect*)self)->h;
+    INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
+    INT16_SUB_UINT16_LIMIT (y, ((PyRect*)self)->h, ((PyRect*)self)->y);
     return 0;
 }
 
@@ -701,8 +705,8 @@ _rect_clip (PyObject* self, PyObject *args)
     pgint16 x, y;
     pguint16 w, h;
 
-    pgint16 selfright, argright;
-    pgint16 selfbottom, argbottom;
+    pgint32 selfright, argright;
+    pgint32 selfbottom, argbottom;
 
     if (!PyArg_ParseTuple (args, "O:clip", &rect))
         return NULL;
@@ -715,10 +719,10 @@ _rect_clip (PyObject* self, PyObject *args)
     rself = (PyRect*) self;
     rarg = (PyRect*) rect;
 
-    selfright = rself->x + rself->w;
-    selfbottom = rself->y + rself->h;
-    argright = rarg->x + rarg->w;
-    argbottom = rarg->y + rarg->h;
+    INT16_ADD_UINT16_LIMIT (rself->x, rself->w, selfright);
+    INT16_ADD_UINT16_LIMIT (rself->y, rself->h, selfbottom);
+    INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w, argright);
+    INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h, argbottom);
 
     /* Check left and right non-overlaps */
     if (rarg->x > selfright || rself->x > argright)
@@ -734,14 +738,14 @@ _rect_clip (PyObject* self, PyObject *args)
     
     /* Clip width and height */
     if (selfright <= argright)
-        w = selfright - x;
+        w = (pguint16)(selfright - x);
     else
-        w = argright - x;
+        w = (pguint16)(argright - x);
 
     if (selfbottom <= argbottom)
-        h = selfbottom - y;
+        h = (pguint16)(selfbottom - y);
     else
-        h = argbottom - y;
+        h = (pguint16)(argbottom - y);
 
     return PyRect_New (x, y, w, h);
 }
@@ -766,8 +770,8 @@ _rect_move_ip (PyObject* self, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "ii:move_ip", &x, &y))
         return NULL;
-    rect->x += x;
-    rect->y += y;
+    rect->x = INT16_ADD_LIMIT (rect->x, x);
+    rect->y = INT16_ADD_LIMIT (rect->y, y);
     Py_RETURN_NONE;
 }
 
@@ -778,7 +782,7 @@ _rect_union (PyObject* self, PyObject *args)
     PyRect *rself, *rarg;
     Py_ssize_t count, i;
     pgint16 x, y;
-    pguint16 r, b;
+    pgint32 r, b, t, q;
 
     rself = (PyRect*) self;
     if (!PyArg_ParseTuple (args, "O:union", &list))
@@ -795,16 +799,20 @@ _rect_union (PyObject* self, PyObject *args)
 
         x = MIN (rself->x, rarg->x);
         y = MIN (rself->y, rarg->y);
-        r = MAX (rself->x + rself->w, rarg->x + rarg->w);
-        b = MAX (rself->y + rself->h, rarg->y + rarg->h);
-        return PyRect_New (x, y, r - x, b - y);
+        INT16_ADD_UINT16_LIMIT (rself->x, rself->w, t);
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w, q);
+        r = MAX (t, q);
+        INT16_ADD_UINT16_LIMIT (rself->y, rself->h, t);
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h, q)
+        b = MAX (t, q);
+        return PyRect_New (x, y, (pguint16)(r - x), (pguint16)(b - y));
     }
 
     /* Sequence of rects. */
     x = rself->x;
     y = rself->y;
-    r = rself->x + rself->w;
-    b = rself->y + rself->h;
+    INT16_ADD_UINT16_LIMIT (rself->x, rself->w, r);
+    INT16_ADD_UINT16_LIMIT (rself->y, rself->h, b);
     count = PySequence_Size (list);
     if (count == -1)
         return NULL;
@@ -823,12 +831,14 @@ _rect_union (PyObject* self, PyObject *args)
 
         x = MIN (x, rarg->x);
         y = MIN (y, rarg->y);
-        r = MAX (r, rarg->x + rarg->w);
-        b = MAX (b, rarg->y + rarg->h);
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w, t);
+        r = MAX (r, t);
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h, t);
+        b = MAX (b, t);
 
         Py_DECREF (rect);
     }
-    return PyRect_New (x, y, r - x, b - y);
+    return PyRect_New (x, y, (pguint16)(r - x), (pguint16)(b - y));
 }
 
 static PyObject*
@@ -838,7 +848,7 @@ _rect_union_ip (PyObject* self, PyObject *args)
     PyRect *rself, *rarg;
     Py_ssize_t count, i;
     pgint16 x, y;
-    pguint16 r, b;
+    pgint32 r, b, t, q;
 
     rself = (PyRect*) self;
     
@@ -853,19 +863,27 @@ _rect_union_ip (PyObject* self, PyObject *args)
         }
         rarg = (PyRect*) list;
 
-        rself->x = MIN (rself->x, rarg->x);
-        rself->y = MIN (rself->y, rarg->y);
-        rself->w = MAX (rself->x + rself->w, rarg->x + rarg->w) - rself->x;
-        rself->h = MAX (rself->y + rself->h, rarg->y + rarg->h) - rself->y;
+        x = MIN (rself->x, rarg->x);
+        y = MIN (rself->y, rarg->y);
+        INT16_ADD_UINT16_LIMIT (rself->x, rself->w, t);
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w, q);
+        r = MAX (t, q);
+        INT16_ADD_UINT16_LIMIT (rself->y, rself->h, t);
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h, q)
+        b = MAX (t, q);
 
+        rself->x = x;
+        rself->y = y;
+        rself->w = (pguint16) (r - x);
+        rself->h = (pguint16) (b - y);
         Py_RETURN_NONE;
     }
 
     /* Sequence of rects. */
     x = rself->x;
     y = rself->y;
-    r = rself->x + rself->w;
-    b = rself->y + rself->h;
+    INT16_ADD_UINT16_LIMIT (rself->x, rself->w, r);
+    INT16_ADD_UINT16_LIMIT (rself->y, rself->h, b);
     count = PySequence_Size (list);
     if (count == -1)
         return NULL;
@@ -884,15 +902,17 @@ _rect_union_ip (PyObject* self, PyObject *args)
 
         x = MIN (x, rarg->x);
         y = MIN (y, rarg->y);
-        r = MAX (r, rarg->x + rarg->w);
-        b = MAX (b, rarg->y + rarg->h);
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w, t);
+        r = MAX (r, t);
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h, t);
+        b = MAX (b, t);
 
         Py_DECREF (rect);
     }
     rself->x = x;
     rself->y = y;
-    rself->w = r - x;
-    rself->h = b - y;
+    rself->w = (pguint16)(r - x);
+    rself->h = (pguint16)(b - y);
 
     Py_RETURN_NONE;
 }
@@ -902,12 +922,18 @@ _rect_inflate (PyObject* self, PyObject *args)
 {
     PyRect *rect = (PyRect*) self;
     pgint16 x, y;
+    pgint32 w, h;
 
     if (!PyArg_ParseTuple (args, "ii:inflate", &x, &y))
         return NULL;
 
-    return PyRect_New (rect->x - x / 2, rect->y - y / 2, rect->w + x,
-        rect->h + y);
+    w = (pgint32)(rect->w + x);
+    h = (pgint32)(rect->h + y);
+    
+    return PyRect_New (INT16_SUB_LIMIT (rect->x, x / 2),
+        INT16_SUB_LIMIT (rect->y, y / 2),
+        MIN ((pguint16)w, UINT_MAX),
+        MIN ((pguint16)h, UINT_MAX));
 }
 
 static PyObject*
@@ -915,13 +941,16 @@ _rect_inflate_ip (PyObject* self, PyObject *args)
 {
     PyRect *rect = (PyRect*) self;
     pgint16 x, y;
+    pgint32 w, h;
 
     if (!PyArg_ParseTuple (args, "ii:inflate_ip", &x, &y))
         return NULL;
-    rect->x -= x / 2;
-    rect->y -= y / 2;
-    rect->w += x;
-    rect->h += y;
+    rect->x = INT16_SUB_LIMIT (rect->x, x / 2);
+    rect->y = INT16_SUB_LIMIT (rect->y, y / 2);
+    w = (pgint32)(rect->w + x);
+    h = (pgint32)(rect->h + y);
+    rect->w = MIN ((pguint16)w, UINT_MAX);
+    rect->h = MIN ((pguint16)h, UINT_MAX);
 
     Py_RETURN_NONE;
 }
@@ -930,7 +959,7 @@ static PyObject*
 _rect_clamp (PyObject* self, PyObject *args)
 {
     PyRect *rself, *rarg;
-    int x, y;
+    pgint16 x, y, t;
 
     if (!PyArg_ParseTuple (args, "O:clamp", &rarg))
         return NULL;
@@ -942,20 +971,32 @@ _rect_clamp (PyObject* self, PyObject *args)
     rself = (PyRect*) self;
 
     if (rself->w >= rarg->w)
-        x = rarg->x + rarg->w / 2 - rself->w / 2;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w / 2, t);
+        INT16_SUB_UINT16_LIMIT (t, rself->w / 2, x);
+    }
     else if (rself->x < rarg->x)
         x = rarg->x;
     else if (rself->x + rself->w > rarg->x + rarg->w)
-        x = rarg->x + rarg->w - rself->w;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w, t);
+        INT16_SUB_UINT16_LIMIT (t, rself->w, x);
+    }
     else
         x = rself->x;
 
     if (rself->h >= rarg->h)
-        y = rarg->y + rarg->h / 2 - rself->h / 2;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h / 2, t);
+        INT16_SUB_UINT16_LIMIT (t, rself->h / 2, y);
+    }
     else if (rself->y < rarg->y)
         y = rarg->y;
     else if (rself->y + rself->h > rarg->y + rarg->h)
-        y = rarg->y + rarg->h - rself->h;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h, t)
+        INT16_SUB_UINT16_LIMIT (t, rself->h, y);
+    }
     else
         y = rself->y;
 
@@ -966,6 +1007,7 @@ static PyObject*
 _rect_clamp_ip (PyObject* self, PyObject *args)
 {
     PyRect *rself, *rarg;
+    pgint16 t;
 
     if (!PyArg_ParseTuple (args, "O:clamp_ip", &rarg))
         return NULL;
@@ -977,20 +1019,32 @@ _rect_clamp_ip (PyObject* self, PyObject *args)
     rself = (PyRect*) self;
 
     if (rself->w >= rarg->w)
-        rself->x = rarg->x + rarg->w / 2 - rself->w / 2;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w / 2, t);
+        INT16_SUB_UINT16_LIMIT (t, rself->w / 2, rself->x);
+    }
     else if (rself->x < rarg->x)
         rself->x = rarg->x;
     else if (rself->x + rself->w > rarg->x + rarg->w)
-        rself->x = rarg->x + rarg->w - rself->w;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->x, rarg->w, t);
+        INT16_SUB_UINT16_LIMIT (t, rself->w, rself->x);
+    }
     else
         rself->x = rself->x;
 
     if (rself->h >= rarg->h)
-        rself->y = rarg->y + rarg->h / 2 - rself->h / 2;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h / 2, t);
+        INT16_SUB_UINT16_LIMIT (t, rself->h / 2, rself->y);
+    }
     else if (rself->y < rarg->y)
         rself->y = rarg->y;
     else if (rself->y + rself->h > rarg->y + rarg->h)
-        rself->y = rarg->y + rarg->h - rself->h;
+    {
+        INT16_ADD_UINT16_LIMIT (rarg->y, rarg->h, t);
+        INT16_SUB_UINT16_LIMIT (t, rself->h, rself->y);
+    }
     else
         rself->y = rself->y;
     Py_RETURN_NONE;
@@ -1021,8 +1075,8 @@ _rect_fit (PyObject* self, PyObject *args)
 
     w = (pguint16) (rself->w / maxratio);
     h = (pguint16) (rself->h / maxratio);
-    x = rarg->x + (rarg->w - w) / 2;
-    y = rarg->y + (rarg->h - h) / 2;
+    INT16_ADD_UINT16_LIMIT (rarg->x, (rarg->w - w) / 2, x);
+    INT16_ADD_UINT16_LIMIT (rarg->y, (rarg->h - h) / 2, y);
 
     return PyRect_New (x, y, w, h);
 }
@@ -1031,6 +1085,7 @@ static PyObject*
 _rect_contains (PyObject* self, PyObject *args)
 {
     PyRect* rself, *rarg;
+    pgint32 ar, br, ab, bb;
 
     if (!PyArg_ParseTuple (args, "O:contains", &rarg))
         return NULL;
@@ -1042,10 +1097,13 @@ _rect_contains (PyObject* self, PyObject *args)
     }
     rself = (PyRect*) self;
 
-    if ((rself->x <= rarg->x) && (rself->y <= rarg->y) &&
-        (rself->x + rself->w >= rarg->x + rarg->w) &&
-        (rself->y + rself->h >= rarg->y + rarg->h) &&
-        (rself->x + rself->w > rarg->x) && (rself->y + rself->h > rarg->y))
+    ar = rself->x + rself->w;
+    ab = rself->y + rself->h;
+    br = rarg->x + rarg->w;
+    bb = rarg->y + rarg->h;
+
+    if ((rself->x <= rarg->x) && (rself->y <= rarg->y) && (ar >= br) &&
+        (ab >= bb) && (ar > rarg->x) && (ab > rarg->y))
     {
         Py_RETURN_TRUE;
     }
@@ -1057,12 +1115,15 @@ _rect_collidepoint (PyObject *self, PyObject *args)
 {
     PyRect *rself = (PyRect*) self;
     pgint16 x, y;
+    pgint32 r, b;
 
     if (!PyArg_ParseTuple (args, "ii:collidepoint", &x, &y))
         return NULL;
 
-    if (x >= rself->x && x < rself->x + rself->w &&
-        y >= rself->y && y < rself->y + rself->h)
+    r = rself->x + rself->w;
+    b = rself->y + rself->h;
+
+    if (x >= rself->x && x < r && y >= rself->y && y < b)
     {
         Py_RETURN_TRUE;
     }
@@ -1270,6 +1331,49 @@ _rect_collidedictall (PyObject *self, PyObject *args)
         }
     }
     return list;
+}
+
+
+static int
+_rect_compare (PyObject *self, PyObject *other)
+{
+    PyRect *rect = (PyRect*) self;
+
+    if (PyFRect_Check (other))
+    {
+        PyFRect *rect2 = (PyFRect*) other;
+        pgint16 rx = (pgint16) trunc(rect2->x);
+        pgint16 ry = (pgint16) trunc(rect2->y);
+        pguint16 rw = (pguint16) trunc(rect2->w);
+        pguint16 rh = (pguint16) trunc(rect2->h);
+
+        if (rect->x != rx)
+            return rect->x < rx ? -1 : 1;
+        if (rect->y != ry)
+            return rect->y < ry ? -1 : 1;
+        if (rect->w != rw)
+            return rect->w < rw ? -1 : 1;
+        if (rect->h != rh)
+            return rect->h < rh ? -1 : 1;
+        return 0;
+    }
+    else if (PyRect_Check (other))
+    {
+        PyRect *rect2 = (PyRect*) other;
+
+        if (rect->x != rect2->x)
+            return rect->x < rect2->x ? -1 : 1;
+        if (rect->y != rect2->y)
+            return rect->y < rect2->y ? -1 : 1;
+        if (rect->w != rect2->w)
+            return rect->w < rect2->w ? -1 : 1;
+        if (rect->h != rect2->h)
+            return rect->h < rect2->h ? -1 : 1;
+        return 0;
+    }
+     PyErr_SetString (PyExc_TypeError,
+        "comparision value should be a Rect or FRect");
+    return -1;
 }
 
 /* C API */

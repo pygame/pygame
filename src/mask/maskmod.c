@@ -49,11 +49,6 @@ static PyMethodDef _mask_methods[] =
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
 
-/* TODO: Using
- *     #include "sdl.h"
- *     #include "surface.h"
- * makes the MinGW setup system unhappy.
- */
 #include "pgsdl.h"
 #include "surface.h"
 

@@ -445,3 +445,6 @@ class FRectTest (unittest.TestCase):
         # Gets or sets the vertical top left position of the FRect.
 
         self.fail() 
+
+if __name__ == "__main__":
+    unittest.main ()

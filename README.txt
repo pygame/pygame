@@ -45,7 +45,7 @@ features to build and install by making the necessary adjustments within the
 ----------------
 Pygame2 is designed to run in as many environments as possible. As such, the
 only absolutely necessary dependency is a working Python installation.
-Additionally other librarie are needed, if you want to enable certain features
+Additionally other libraries are needed, if you want to enable certain features
 of Pygame2.
 
 * Python 2.4, 2.5, 2.6, 3.0 supported   (http://www.python.org)
@@ -54,7 +54,7 @@ of Pygame2.
 * SDL >= 1.2.10              (http://www.libsdl.org)
 * SDL_mixer >= 1.2.8         (http://www.libsdl.org/projects/SDL_mixer/)
 * SDL_ttf >= 2.0.9           (http://www.libsdl.org/projects/SDL_ttf/)
-* SDL_image >= 1.2.7         (http://www.libsdl.org/projects/SDL_image/)
+* SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
 * SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24           (http://www.libpng.org)
 * libjpeg >= 6b              (http://www.ijg.org/)

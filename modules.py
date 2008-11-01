@@ -28,6 +28,7 @@ modules = [
                       "src/base/floatrect.c",
                       "src/base/rect.c" ],
             [ "src/base/pgbase.h",
+              "src/base/pgdefines.h",
               "src/base/pgtypes.h" ], "base.xml"),
 
     Module ("mask", [ "src/mask/bitmask.c",

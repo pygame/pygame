@@ -94,6 +94,8 @@ static PyObject* _frect_ceil (PyObject *self);
 static PyObject* _frect_floor (PyObject *self);
 static PyObject* _frect_trunc (PyObject *self);
 
+static int _frect_compare (PyObject *self, PyObject *other);
+
 /**
  */
 static PyMethodDef _frect_methods[] = {
@@ -184,7 +186,7 @@ PyTypeObject PyFRect_Type =
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
-    0,                          /* tp_compare */
+    (cmpfunc)_frect_compare,    /* tp_compare */
     (reprfunc)_frect_repr,      /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
@@ -381,7 +383,7 @@ _frect_setbottom (PyObject *self, PyObject *value, void *closure)
     double bottom;
     if (!DoubleFromObj (value, &bottom))
         return -1;
-    ((PyFRect*)self)->y = bottom - ((PyFRect*)self)->h;
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (bottom, ((PyFRect*)self)->h);
     return 0;
 }
 
@@ -398,7 +400,7 @@ _frect_setright (PyObject *self, PyObject *value, void *closure)
     double right;
     if (!DoubleFromObj (value, &right))
         return -1;
-    ((PyFRect*)self)->x = right - ((PyFRect*)self)->w;
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (right, ((PyFRect*)self)->w);
     return 0;
 }
 
@@ -416,7 +418,7 @@ _frect_setcenterx (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromObj (value, &centerx))
         return -1;
 
-    ((PyFRect*)self)->x = centerx - (((PyFRect*)self)->w / 2);
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (centerx, (((PyFRect*)self)->w / 2));
     return 0;
 }
 
@@ -434,7 +436,7 @@ _frect_setcentery (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromObj (value, &centery))
         return -1;
 
-    ((PyFRect*)self)->y = centery - (((PyFRect*)self)->h / 2);
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (centery, (((PyFRect*)self)->h / 2));
     return 0;
 }
 
@@ -459,8 +461,8 @@ _frect_setcenter (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyFRect*)self)->x = x - (((PyFRect*)self)->w / 2);
-    ((PyFRect*)self)->y = y - (((PyFRect*)self)->h / 2);
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, (((PyFRect*)self)->h / 2));
     return 0;
 }
 
@@ -512,7 +514,7 @@ _frect_setmidtop (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyFRect*)self)->x = x - (((PyFRect*)self)->w / 2);
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
     ((PyFRect*)self)->y = y;
     return 0;
 }
@@ -540,7 +542,7 @@ _frect_setmidleft (PyObject *self, PyObject *value, void *closure)
         return -1;
 
     ((PyFRect*)self)->x = x;
-    ((PyFRect*)self)->y = y - (((PyFRect*)self)->h / 2);
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, (((PyFRect*)self)->h / 2));
     return 0;
 }
 
@@ -566,8 +568,8 @@ _frect_setmidbottom (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyFRect*)self)->x = x - (((PyFRect*)self)->w / 2);
-    ((PyFRect*)self)->y = y - ((PyFRect*)self)->h;
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, ((PyFRect*)self)->h);
     return 0;
 }
 
@@ -593,8 +595,8 @@ _frect_setmidright (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyFRect*)self)->x = x - ((PyFRect*)self)->w;
-    ((PyFRect*)self)->y = y - (((PyFRect*)self)->h / 2);
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, (((PyFRect*)self)->h / 2));
     return 0;
 }
 
@@ -646,7 +648,7 @@ _frect_settopright (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyFRect*)self)->x = x - ((PyFRect*)self)->w;
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
     ((PyFRect*)self)->y = y;
     return 0;
 }
@@ -674,7 +676,7 @@ _frect_setbottomleft (PyObject *self, PyObject *value, void *closure)
         return -1;
 
     ((PyFRect*)self)->x = x;
-    ((PyFRect*)self)->y = y - ((PyFRect*)self)->h;
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, ((PyFRect*)self)->h);
     return 0;
 }
 
@@ -700,8 +702,8 @@ _frect_setbottomright (PyObject *self, PyObject *value, void *closure)
     if (!DoubleFromSeqIndex (value, 1, &y))
         return -1;
 
-    ((PyFRect*)self)->x = x - ((PyFRect*)self)->w;
-    ((PyFRect*)self)->y = y - ((PyFRect*)self)->h;
+    ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
+    ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, ((PyFRect*)self)->h);
     return 0;
 }
 
@@ -727,10 +729,10 @@ _frect_clip (PyObject* self, PyObject *args)
     rself = (PyFRect*) self;
     rarg = (PyFRect*) frect;
 
-    selfright = rself->x + rself->w;
-    selfbottom = rself->y + rself->h;
-    argright = rarg->x + rarg->w;
-    argbottom = rarg->y + rarg->h;
+    selfright = DBL_ADD_LIMIT (rself->x, rself->w);
+    selfbottom = DBL_ADD_LIMIT (rself->y, rself->h);
+    argright = DBL_ADD_LIMIT (rarg->x, rarg->w);
+    argbottom = DBL_ADD_LIMIT (rarg->y, rarg->h);
 
     /* Check left and right non-overlaps */
     if (rarg->x > selfright || rself->x > argright)
@@ -778,8 +780,8 @@ _frect_move_ip (PyObject* self, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "dd:move_ip", &x, &y))
         return NULL;
-    frect->x += x;
-    frect->y += y;
+    frect->x = DBL_ADD_LIMIT (frect->x, x);
+    frect->y = DBL_ADD_LIMIT (frect->y, y);
     Py_RETURN_NONE;
 }
 
@@ -807,16 +809,18 @@ _frect_union (PyObject* self, PyObject *args)
 
         x = MIN (rself->x, rarg->x);
         y = MIN (rself->y, rarg->y);
-        r = MAX (rself->x + rself->w, rarg->x + rarg->w);
-        b = MAX (rself->y + rself->h, rarg->y + rarg->h);
+        r = MAX (DBL_ADD_LIMIT (rself->x, rself->w),
+            DBL_ADD_LIMIT (rarg->x, rarg->w));
+        b = MAX (DBL_ADD_LIMIT (rself->y, rself->h),
+            DBL_ADD_LIMIT (rarg->y, rarg->h));
         return PyFRect_New (x, y, r - x, b - y);
     }
 
     /* Sequence of frects. */
     x = rself->x;
     y = rself->y;
-    r = rself->x + rself->w;
-    b = rself->y + rself->h;
+    r = DBL_ADD_LIMIT (rself->x, rself->w);
+    b = DBL_ADD_LIMIT (rself->y, rself->h);
     count = PySequence_Size (list);
     if (count == -1)
         return NULL;
@@ -835,8 +839,8 @@ _frect_union (PyObject* self, PyObject *args)
 
         x = MIN (x, rarg->x);
         y = MIN (y, rarg->y);
-        r = MAX (r, rarg->x + rarg->w);
-        b = MAX (b, rarg->y + rarg->h);
+        r = MAX (r, DBL_ADD_LIMIT (rarg->x, rarg->w));
+        b = MAX (b, DBL_ADD_LIMIT (rarg->y, rarg->h));
 
         Py_DECREF (frect);
     }
@@ -867,8 +871,10 @@ _frect_union_ip (PyObject* self, PyObject *args)
 
         rself->x = MIN (rself->x, rarg->x);
         rself->y = MIN (rself->y, rarg->y);
-        rself->w = MAX (rself->x + rself->w, rarg->x + rarg->w) - rself->x;
-        rself->h = MAX (rself->y + rself->h, rarg->y + rarg->h) - rself->y;
+        rself->w = MAX (DBL_ADD_LIMIT (rself->x, rself->w),
+            DBL_ADD_LIMIT (rarg->x, rarg->w)) - rself->x;
+        rself->h = MAX (DBL_ADD_LIMIT (rself->y, rself->h),
+            DBL_ADD_LIMIT (rarg->y, rarg->h)) - rself->y;
 
         Py_RETURN_NONE;
     }
@@ -876,8 +882,8 @@ _frect_union_ip (PyObject* self, PyObject *args)
     /* Sequence of frects. */
     x = rself->x;
     y = rself->y;
-    r = rself->x + rself->w;
-    b = rself->y + rself->h;
+    r = DBL_ADD_LIMIT (rself->x, rself->w);
+    b = DBL_ADD_LIMIT (rself->y, rself->h);
     count = PySequence_Size (list);
     if (count == -1)
         return NULL;
@@ -896,8 +902,8 @@ _frect_union_ip (PyObject* self, PyObject *args)
 
         x = MIN (x, rarg->x);
         y = MIN (y, rarg->y);
-        r = MAX (r, rarg->x + rarg->w);
-        b = MAX (b, rarg->y + rarg->h);
+        r = MAX (r, DBL_ADD_LIMIT (rarg->x, rarg->w));
+        b = MAX (b, DBL_ADD_LIMIT (rarg->y, rarg->h));
 
         Py_DECREF (frect);
     }
@@ -918,8 +924,9 @@ _frect_inflate (PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple (args, "dd:inflate", &x, &y))
         return NULL;
 
-    return PyFRect_New (frect->x - x / 2, frect->y - y / 2, frect->w + x,
-        frect->h + y);
+    return PyFRect_New (DBL_SUB_LIMIT (frect->x, x / 2),
+        DBL_SUB_LIMIT (frect->y, y / 2), DBL_ADD_LIMIT (frect->w, x),
+        DBL_ADD_LIMIT (frect->h, y));
 }
 
 static PyObject*
@@ -930,10 +937,10 @@ _frect_inflate_ip (PyObject* self, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "dd:inflate_ip", &x, &y))
         return NULL;
-    frect->x -= x / 2;
-    frect->y -= y / 2;
-    frect->w += x;
-    frect->h += y;
+    frect->x = DBL_SUB_LIMIT (frect->x, x / 2);
+    frect->y = DBL_SUB_LIMIT (frect->y, y / 2);
+    frect->w = DBL_ADD_LIMIT (frect->w, x);
+    frect->h = DBL_ADD_LIMIT (frect->h, y);
 
     Py_RETURN_NONE;
 }
@@ -954,20 +961,20 @@ _frect_clamp (PyObject* self, PyObject *args)
     rself = (PyFRect*) self;
 
     if (rself->w >= rarg->w)
-        x = rarg->x + rarg->w / 2 - rself->w / 2;
+        x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w / 2), rself->w / 2);
     else if (rself->x < rarg->x)
         x = rarg->x;
     else if (rself->x + rself->w > rarg->x + rarg->w)
-        x = rarg->x + rarg->w - rself->w;
+        x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w), rself->w);
     else
         x = rself->x;
 
     if (rself->h >= rarg->h)
-        y = rarg->y + rarg->h / 2 - rself->h / 2;
+        y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h / 2), rself->h / 2);
     else if (rself->y < rarg->y)
         y = rarg->y;
     else if (rself->y + rself->h > rarg->y + rarg->h)
-        y = rarg->y + rarg->h - rself->h;
+        y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h), rself->h);
     else
         y = rself->y;
 
@@ -989,20 +996,22 @@ _frect_clamp_ip (PyObject* self, PyObject *args)
     rself = (PyFRect*) self;
 
     if (rself->w >= rarg->w)
-        rself->x = rarg->x + rarg->w / 2 - rself->w / 2;
+        rself->x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w / 2),
+            rself->w / 2);
     else if (rself->x < rarg->x)
         rself->x = rarg->x;
     else if (rself->x + rself->w > rarg->x + rarg->w)
-        rself->x = rarg->x + rarg->w - rself->w;
+        rself->x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w), rself->w);
     else
         rself->x = rself->x;
 
     if (rself->h >= rarg->h)
-        rself->y = rarg->y + rarg->h / 2 - rself->h / 2;
+        rself->y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h / 2),
+            rself->h / 2);
     else if (rself->y < rarg->y)
         rself->y = rarg->y;
     else if (rself->y + rself->h > rarg->y + rarg->h)
-        rself->y = rarg->y + rarg->h - rself->h;
+        rself->y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h), rself->h);
     else
         rself->y = rself->y;
     Py_RETURN_NONE;
@@ -1032,8 +1041,8 @@ _frect_fit (PyObject* self, PyObject *args)
 
     w = rself->w / maxratio;
     h = rself->h / maxratio;
-    x = rarg->x + (rarg->w - w) / 2;
-    y = rarg->y + (rarg->h - h) / 2;
+    x = DBL_ADD_LIMIT (rarg->x, (rarg->w - w) / 2);
+    y = DBL_ADD_LIMIT (rarg->y, (rarg->h - h) / 2);
 
     return PyFRect_New (x, y, w, h);
 }
@@ -1341,6 +1350,48 @@ _frect_trunc (PyObject *self)
     rect->h = (pguint16) ((frect->h < 0) ? 0 : trunc (frect->h));
 
     return (PyObject*) rect;
+}
+
+static int
+_frect_compare (PyObject *self, PyObject *other)
+{
+    PyFRect *rect = (PyFRect*) self;
+
+    if (PyFRect_Check (other))
+    {
+        PyFRect *rect2 = (PyFRect*) other;
+
+        if (rect->x != rect2->x)
+            return rect->x < rect2->x ? -1 : 1;
+        if (rect->y != rect2->y)
+            return rect->y < rect2->y ? -1 : 1;
+        if (rect->w != rect2->w)
+            return rect->w < rect2->w ? -1 : 1;
+        if (rect->h != rect2->h)
+            return rect->h < rect2->h ? -1 : 1;
+        return 0;
+    }
+    else if (PyFRect_Check (other))
+    {
+        PyRect *rect2 = (PyRect*) other;
+        pgint16 rx = (pgint16) trunc(rect->x);
+        pgint16 ry = (pgint16) trunc(rect->y);
+        pguint16 rw = (pguint16) trunc(rect->w);
+        pguint16 rh = (pguint16) trunc(rect->h);
+
+        if (rect2->x != rx)
+            return rect2->x < rx ? -1 : 1;
+        if (rect2->y != ry)
+            return rect2->y < ry ? -1 : 1;
+        if (rect2->w != rw)
+            return rect2->w < rw ? -1 : 1;
+        if (rect2->h != rh)
+            return rect2->h < rh ? -1 : 1;
+        return 0;
+    }
+     PyErr_SetString (PyExc_TypeError,
+        "comparision value should be a Rect or FRect");
+    return -1;
 }
 
 /* C API */

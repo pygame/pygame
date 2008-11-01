@@ -21,28 +21,11 @@
 #define _PYGAME_BASE_H_
 
 #include <Python.h>
-#include <math.h>
 #include "pgcompat.h"
-#include "pgtypes.h"
+#include "pgdefines.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifndef MIN
-#define MIN(x,y) (((x) < (y)) ? (x) : (y))
-#endif
-#ifndef MAX
-#define MAX(x,y) (((x) > (y)) ? (x) : (y))
-#endif
-#ifndef ABS
-#define ABS(x) (((x) < 0) ? -(x) : (x))
-#endif
-#ifndef trunc
-#define trunc(d) (((d) >= 0.0) ? (floor(d)) : (ceil(d)))
-#endif
-#ifndef round
-#define round(d) (((d) > 0.0) ? (floor ((d) + .5)) : (ceil (d - .5)))
 #endif
 
 #define PYGAME_BASE_FIRSTSLOT 0
