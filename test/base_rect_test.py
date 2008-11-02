@@ -172,7 +172,7 @@ class RectTest (unittest.TestCase):
         self.assertEqual(c.top, 12)
         c = Rect(1, 2, 3, 4).clamp(r)
         self.assertEqual(c.topleft, r.topleft)
-        c = Rect(5, 500, 22, 33).clamp(r)
+        c = Rect(5, 500, 22, 20).clamp(r)
         self.assertEqual(c.center, r.center)
 
     def test_pygame2_base_Rect_clamp_ip(self):

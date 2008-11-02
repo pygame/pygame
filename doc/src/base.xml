@@ -526,9 +526,9 @@
         the rectangle.
       </desc>
     </method>
-    <method name="collidefrect">
+    <method name="colliderect">
       <desc>
-        FRect.collidefrect (FRect) -> bool
+        FRect.colliderect (FRect) -> bool
 
         Test if two rectangles overlap.
 

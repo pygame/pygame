@@ -2,29 +2,112 @@ import unittest
 from pygame2.base import FRect
 
 class FRectTest (unittest.TestCase):
-    def todo_test_pygame2_base_FRect_bottom(self):
+
+    def testConstructionXYWidthHeight( self ):
+        r = FRect(1.1 ,2.2 ,3.3 ,4.4 )
+        self.assertEqual( 1.1, r.left )
+        self.assertEqual( 2.2, r.top )
+        self.assertEqual( 3.3, r.width )
+        self.assertEqual( 4.4, r.height )
+
+    def testCalculatedAttributes( self ):
+        r = FRect( 1.7, 2, 3, 4.9 )
+        
+        self.assertEqual( r.left + r.width, r.right )
+        self.assertEqual( r.top + r.height, r.bottom )
+        self.assertEqual( (r.width,r.height), r.size )
+        self.assertEqual( (r.left,r.top), r.topleft )
+        self.assertEqual( (r.right,r.top), r.topright )
+        self.assertEqual( (r.left,r.bottom), r.bottomleft )
+        self.assertEqual( (r.right,r.bottom), r.bottomright )
+
+        midx = r.left + r.width / 2
+        midy = r.top + r.height / 2
+
+        self.assertEqual( midx, r.centerx )
+        self.assertEqual( midy, r.centery )
+        self.assertEqual( (r.centerx,r.centery), r.center )
+        self.assertEqual( (r.centerx,r.top), r.midtop )
+        self.assertEqual( (r.centerx,r.bottom), r.midbottom )
+        self.assertEqual( (r.left,r.centery), r.midleft )
+        self.assertEqual( (r.right,r.centery), r.midright )
+
+    def testEquals( self ):
+        """ check to see how the FRect uses __eq__ 
+        """
+        r1 = FRect(1.65,2,3,4)
+        r2 = FRect(10,20,30,40)
+        r3 = (10,20,30,40)
+        r4 = FRect(10,20,30,40)
+
+        class foo (FRect):
+            def __eq__(self,other):
+                return id(self) == id(other);
+
+        class foo2 (FRect):
+            pass
+
+        r5 = foo(10,20,30,40)
+        r6 = foo2(10,20,30,40)
+
+        self.assertNotEqual(r5, r2)
+
+        # because we define equality differently for this subclass.
+        self.assertEqual(r6, r2)
+
+
+        rect_list = [r1,r2,r3,r4,r6]
+
+        # see if we can remove 4 of these.
+        rect_list.remove(r2)
+        rect_list.remove(r2)
+        rect_list.remove(r2)
+        self.assertRaises(ValueError, rect_list.remove, r2)
+
+    def test_pygame2_base_FRect_bottom(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.bottom:
 
         # Gets or sets the bottom edge position of the FRect.
+        r = FRect( 1.99, 2, 3, 4 )
+        new_bottom = r.bottom + 20.34
+        expected_top = r.top + 20.34
+        old_height = r.height
+        
+        r.bottom = new_bottom
+        self.assertEqual( new_bottom, r.bottom )
+        self.assertEqual( expected_top, r.top )
+        self.assertEqual( old_height, r.height )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_bottomleft(self):
+    def test_pygame2_base_FRect_bottomleft(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.bottomleft:
 
         # Gets or sets the bottom left corner position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_bottomleft = (r.left+20,r.bottom+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.bottomleft = new_bottomleft
+        self.assertEqual( new_bottomleft, r.bottomleft )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_bottomright(self):
+    def test_pygame2_base_FRect_bottomright(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.bottomright:
 
         # Gets or sets the bottom right corner position of the FRect.
-
-        self.fail() 
+        r = FRect( 1, 2, 3, 4 )
+        new_bottomright = (r.right+20,r.bottom+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.bottomright = new_bottomright
+        self.assertEqual( new_bottomright, r.bottomright )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
     def todo_test_pygame2_base_FRect_ceil(self):
 
@@ -36,31 +119,52 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_center(self):
+    def test_pygame2_base_FRect_center(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.center:
 
         # Gets or sets the center position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_center = (r.centerx+20,r.centery+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.center = new_center
+        self.assertEqual( new_center, r.center )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_centerx(self):
+    def test_pygame2_base_FRect_centerx(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.centerx:
 
         # Gets or sets the horizontal center position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_centerx = r.centerx + 20
+        expected_left = r.left + 20
+        old_width = r.width
+        
+        r.centerx = new_centerx
+        self.assertEqual( new_centerx, r.centerx )
+        self.assertEqual( expected_left, r.left )
+        self.assertEqual( old_width, r.width )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_centery(self):
+    def test_pygame2_base_FRect_centery(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.centery:
 
         # Gets or sets the vertical center position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_centery = r.centery + 20
+        expected_top = r.top + 20
+        old_height = r.height
+        
+        r.centery = new_centery
+        self.assertEqual( new_centery, r.centery )
+        self.assertEqual( expected_top, r.top )
+        self.assertEqual( old_height, r.height )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_clamp(self):
+    def test_pygame2_base_FRect_clamp(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.clamp:
 
@@ -72,10 +176,17 @@ class FRectTest (unittest.TestCase):
         # Returns a new rectangle that is moved to be completely inside the
         # argument FRect. If the rectangle is too large to fit inside, it is
         # centered inside the argument FRect, but its size is not changed.
+        r = FRect(10, 10, 10, 10)
+        c = FRect(19, 12, 5, 5).clamp(r)
+        self.assertEqual(c.right, r.right)
+        self.assertEqual(c.top, 12)
+        
+        c = FRect(1, 2, 3, 4).clamp(r)
+        self.assertEqual(c.topleft, r.topleft)
+        c = FRect(5, 500, 22, 30).clamp(r)
+        self.assertEqual(c.center, r.center)
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_clamp_ip(self):
+    def test_pygame2_base_FRect_clamp_ip(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.clamp_ip:
 
@@ -84,10 +195,19 @@ class FRectTest (unittest.TestCase):
         # Moves the rectangle inside another, in place.
         # 
         # Same as FRect.clamp(FRect), but operates in place.
+        r = FRect(10, 10, 10, 10)
+        c = FRect(19, 12, 5, 5)
+        c.clamp_ip(r)
+        self.assertEqual(c.right, r.right)
+        self.assertEqual(c.top, 12)
+        c = FRect(1, 2, 3, 4)
+        c.clamp_ip(r)
+        self.assertEqual(c.topleft, r.topleft)
+        c = FRect(5, 500, 22, 30)
+        c.clamp_ip(r)
+        self.assertEqual(c.center, r.center)
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_clip(self):
+    def test_pygame2_base_FRect_clip(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.clip:
 
@@ -100,8 +220,13 @@ class FRectTest (unittest.TestCase):
         # argument FRect. If the two rectangles do not overlap to begin with,
         # a FRect with 0 size is returned. Thus it returns the area, in which
         # both rects overlap.
-
-        self.fail() 
+        r1 = FRect( 1, 2, 3, 4 )
+        self.assertEqual( FRect( 1, 2, 2, 2 ), r1.clip( FRect(0,0,3,4) ) )
+        self.assertEqual( FRect( 2, 2, 2, 4 ), r1.clip( FRect(2,2,10,20) ) )
+        self.assertEqual( FRect(2,3,1,2), r1.clip( FRect(2,3,1,2) ) )
+        self.assertEqual( (0,0), r1.clip(FRect (20,30,5,6)).size )
+        self.assertEqual( r1, r1.clip( FRect(r1) ),
+                          "r1 does not clip an identical rect to itself" )
 
     def todo_test_pygame2_base_FRect_collidedict(self):
 
@@ -135,19 +260,38 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_collidefrect(self):
+    def test_pygame2_base_FRect_colliderect(self):
 
-        # __doc__ (as of 2008-10-17) for pygame2.base.FRect.collidefrect:
+        # __doc__ (as of 2008-10-17) for pygame2.base.FRect.colliderect:
 
-        # FRect.collidefrect (FRect) -> bool
+        # FRect.colliderect (FRect) -> bool
         # 
         # Test if two rectangles overlap.
         # 
-        # FRect.collidefrect (FRect) -> bool  Test if two rectangles overlap.
+        # FRect.colliderect (FRect) -> bool  Test if two rectangles overlap.
         # Returns true if any portion of either rectangle overlap (except the
         # top+bottom or left+right edges).
-
-        self.fail() 
+        r1 = FRect(1,2,3,4)
+        self.failUnless( r1.colliderect( FRect(0,0,2,3) ),
+                         "r1 does not collide with Rect(0,0,2,3)" )
+        self.failIf( r1.colliderect( FRect(0,0,1,2) ),
+                     "r1 collides with Rect(0,0,1,2)" )
+        self.failIf( r1.colliderect( FRect(r1.right,r1.bottom,2,2) ),
+                     "r1 collides with Rect(r1.right,r1.bottom,2,2)" )
+        self.failUnless( r1.colliderect( FRect(r1.left+1,r1.top+1,
+                                               r1.width-2,r1.height-2) ),
+                         "r1 does not collide with Rect(r1.left+1,r1.top+1,"+
+                         "r1.width-2,r1.height-2)" )
+        self.failUnless( r1.colliderect( FRect(r1.left-1,r1.top-1,
+                                               r1.width+2,r1.height+2) ),
+                         "r1 does not collide with Rect(r1.left-1,r1.top-1,"+
+                         "r1.width+2,r1.height+2)" )
+        self.failUnless( r1.colliderect( FRect(r1) ),
+                         "r1 does not collide with an identical rect" )
+        self.failIf( r1.colliderect( FRect(r1.right,r1.bottom,0,0) ),
+                     "r1 collides with Rect(r1.right,r1.bottom,0,0)" )
+        self.failIf( r1.colliderect( FRect(r1.right,r1.bottom,1,1) ),
+                     "r1 collides with Rect(r1.right,r1.bottom,1,1)" )
 
     def todo_test_pygame2_base_FRect_collidelist(self):
 
@@ -179,7 +323,7 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_collidepoint(self):
+    def test_pygame2_base_FRect_collidepoint(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.collidepoint:
 
@@ -191,10 +335,27 @@ class FRectTest (unittest.TestCase):
         # rectangle.  Returns true if the given point is inside the rectangle.
         # A point along the right or bottom edge is not considered to be
         # inside the rectangle.
+        r = FRect( 1, 2, 3, 4 )
+        
+        self.failUnless( r.collidepoint( r.left, r.top ),
+                         "r does not collide with point (left,top)" )
+        self.failIf( r.collidepoint( r.left-1, r.top ),
+                     "r collides with point (left-1,top)"  )
+        self.failIf( r.collidepoint( r.left, r.top-1 ),
+                     "r collides with point (left,top-1)"  )
+        self.failIf( r.collidepoint( r.left-1,r.top-1 ),
+                     "r collides with point (left-1,top-1)"  )
+        
+        self.failUnless( r.collidepoint( r.right-1, r.bottom-1 ),
+                         "r does not collide with point (right-1,bottom-1)")
+        self.failIf( r.collidepoint( r.right, r.bottom ),
+                     "r collides with point (right,bottom)" )
+        self.failIf( r.collidepoint( r.right-1, r.bottom ),
+                     "r collides with point (right-1,bottom)" )
+        self.failIf( r.collidepoint( r.right, r.bottom-1 ),
+                     "r collides with point (right,bottom-1)" )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_contains(self):
+    def test_pygame2_base_FRect_contains(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.contains:
 
@@ -205,8 +366,20 @@ class FRectTest (unittest.TestCase):
         # FRect.contains (FRect) -> bool  Test if one rectangle is inside
         # another.  Returns true when the argument rectangle is completely
         # inside the FRect.
-
-        self.fail() 
+        r = FRect( 1, 2, 3, 4 )
+        
+        self.failUnless( r.contains( FRect( 2, 3, 1, 1 ) ),
+                         "r does not contain Rect(2,3,1,1)" )
+        self.failUnless( r.contains( FRect(r) ),
+                         "r does not contain the same rect as itself" )
+        self.failUnless( r.contains( FRect(2,3,0,0) ),
+                         "r does not contain an empty rect within its bounds" )
+        self.failIf( r.contains( FRect(0,0,1,2) ),
+                     "r contains Rect(0,0,1,2)" )
+        self.failIf( r.contains( FRect(4,6,1,1) ),
+                     "r contains Rect(4,6,1,1)" )
+        self.failIf( r.contains( FRect(4,6,0,0) ),
+                     "r contains Rect(4,6,0,0)" )
 
     def todo_test_pygame2_base_FRect_fit(self):
 
@@ -234,13 +407,74 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_height(self):
+    def test_pygame2_base_FRect_height(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.height:
 
         # Gets or sets the height of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_height = 10
+        old_topleft = r.topleft
+        old_width = r.width
+        
+        r.height = new_height
+        self.assertEqual( new_height, r.height )
+        self.assertEqual( old_width, r.width )
+        self.assertEqual( old_topleft, r.topleft )
 
-        self.fail() 
+    def test_inflate__larger( self ):
+        "The inflate method inflates around the center of the rectangle"
+        r = FRect( 2, 4, 6, 8 )
+        r2 = r.inflate( 4, 6 )
+
+        self.assertEqual( r.center, r2.center )
+        self.assertEqual( r.left-2, r2.left )
+        self.assertEqual( r.top-3, r2.top )
+        self.assertEqual( r.right+2, r2.right )
+        self.assertEqual( r.bottom+3, r2.bottom )
+        self.assertEqual( r.width+4, r2.width )
+        self.assertEqual( r.height+6, r2.height )
+
+    def test_inflate__smaller( self ):
+        "The inflate method inflates around the center of the rectangle"
+        r = FRect( 2, 4, 6, 8 )
+        r2 = r.inflate( -4, -6 )
+
+        self.assertEqual( r.center, r2.center )
+        self.assertEqual( r.left+2, r2.left )
+        self.assertEqual( r.top+3, r2.top )
+        self.assertEqual( r.right-2, r2.right )
+        self.assertEqual( r.bottom-3, r2.bottom )
+        self.assertEqual( r.width-4, r2.width )
+        self.assertEqual( r.height-6, r2.height )
+
+    def test_inflate_ip__larger( self ):    
+        "The inflate_ip method inflates around the center of the rectangle"
+        r = FRect( 2, 4, 6, 8 )
+        r2 = FRect( r )
+        r2.inflate_ip( -4, -6 )
+        
+        self.assertEqual( r.center, r2.center )
+        self.assertEqual( r.left+2, r2.left )
+        self.assertEqual( r.top+3, r2.top )
+        self.assertEqual( r.right-2, r2.right )
+        self.assertEqual( r.bottom-3, r2.bottom )
+        self.assertEqual( r.width-4, r2.width )
+        self.assertEqual( r.height-6, r2.height )
+
+    def test_inflate_ip__smaller( self ):
+        "The inflate method inflates around the center of the rectangle"
+        r = FRect( 2, 4, 6, 8 )
+        r2 = FRect( r )
+        r2.inflate_ip( -4, -6 )
+        
+        self.assertEqual( r.center, r2.center )
+        self.assertEqual( r.left+2, r2.left )
+        self.assertEqual( r.top+3, r2.top )
+        self.assertEqual( r.right-2, r2.right )
+        self.assertEqual( r.bottom-3, r2.bottom )
+        self.assertEqual( r.width-4, r2.width )
+        self.assertEqual( r.height-6, r2.height )
 
     def todo_test_pygame2_base_FRect_inflate(self):
 
@@ -269,47 +503,79 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_left(self):
+    def test_pygame2_base_FRect_left(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.left:
 
         # Gets or sets the left edge position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_left = 10
+        
+        r.left = new_left
+        self.assertEqual( new_left, r.left )
+        self.assertEqual( FRect(new_left,2,3,4), r )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_midbottom(self):
+    def test_pygame2_base_FRect_midbottom(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.midbottom:
 
         # Gets or sets the mid bottom edge position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_midbottom = (r.centerx+20,r.bottom+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.midbottom = new_midbottom
+        self.assertEqual( new_midbottom, r.midbottom )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_midleft(self):
+    def test_pygame2_base_FRect_midleft(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.midleft:
 
         # Gets or sets the mid left edge position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_midleft = (r.left+20,r.centery+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.midleft = new_midleft
+        self.assertEqual( new_midleft, r.midleft )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_midright(self):
+    def test_pygame2_base_FRect_midright(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.midright:
 
         # Gets or sets the mid right edge position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_midright= (r.right+20,r.centery+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.midright = new_midright
+        self.assertEqual( new_midright, r.midright )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_midtop(self):
+    def test_pygame2_base_FRect_midtop(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.midtop:
 
         # Gets or sets the mid top edge position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_midtop= (r.centerx+20,r.top+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.midtop = new_midtop
+        self.assertEqual( new_midtop, r.midtop )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_move(self):
+    def test_pygame2_base_FRect_move(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.move:
 
@@ -320,10 +586,14 @@ class FRectTest (unittest.TestCase):
         # FRect.move (x, y) -> FRect  Moves the rectangle.  Returns a new
         # rectangle that is moved by the given offset. The x and y arguments
         # can be any integer value, positive or negative.
+        r = FRect( 1, 2, 3, 4 )
+        move_x = 10
+        move_y = 20
+        r2 = r.move( move_x, move_y )
+        expected_r2 = FRect(r.left+move_x,r.top+move_y,r.width,r.height)
+        self.assertEqual( expected_r2, r2 )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_move_ip(self):
+    def test_pygame2_base_FRect_move_ip(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.move_ip:
 
@@ -332,16 +602,28 @@ class FRectTest (unittest.TestCase):
         # Moves the rectangle, in place.
         # 
         # Same as FRect.move (x, y), but operates in place.
+        r = FRect( 1, 2, 3, 4 )
+        r2 = FRect( r )
+        move_x = 10
+        move_y = 20
+        r2.move_ip( move_x, move_y )
+        expected_r2 = FRect(r.left+move_x,r.top+move_y,r.width,r.height)
+        self.assertEqual( expected_r2, r2 )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_right(self):
+    def test_pygame2_base_FRect_right(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.right:
 
         # Gets or sets the right position of the FRect.
-
-        self.fail() 
+        r = FRect( 1, 2, 3, 4 )
+        new_right = r.right + 20
+        expected_left = r.left + 20
+        old_width = r.width
+        
+        r.right = new_right
+        self.assertEqual( new_right, r.right )
+        self.assertEqual( expected_left, r.left )
+        self.assertEqual( old_width, r.width )
 
     def todo_test_pygame2_base_FRect_round(self):
 
@@ -353,37 +635,58 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_size(self):
+    def test_pygame2_base_FRect_size(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.size:
 
         # Gets or sets the width and height of the FRect as 2-value tuple.
+        r = FRect( 1, 2, 3, 4 )
+        new_size = (10,20)
+        old_topleft = r.topleft
+        
+        r.size = new_size
+        self.assertEqual( new_size, r.size )
+        self.assertEqual( old_topleft, r.topleft )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_top(self):
+    def test_pygame2_base_FRect_top(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.top:
 
         # Gets or sets the top edge position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_top = 10
+        
+        r.top = new_top
+        self.assertEqual( FRect(1,new_top,3,4), r )
+        self.assertEqual( new_top, r.top )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_topleft(self):
+    def test_pygame2_base_FRect_topleft(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.topleft:
 
         # Gets or sets the top left corner position of the FRect.
+        r = FRect( 1, 2, 3, 4 )
+        new_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.topleft = new_topleft
+        self.assertEqual( new_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
-        self.fail() 
-
-    def todo_test_pygame2_base_FRect_topright(self):
+    def test_pygame2_base_FRect_topright(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.topright:
 
         # Gets or sets the top right corner position of the FRect.
-
-        self.fail() 
+        r = FRect( 1, 2, 3, 4 )
+        new_topright = (r.right+20,r.top+30)
+        expected_topleft = (r.left+20,r.top+30)
+        old_size = r.size
+        
+        r.topright = new_topright
+        self.assertEqual( new_topright, r.topright )
+        self.assertEqual( expected_topleft, r.topleft )
+        self.assertEqual( old_size, r.size )
 
     def todo_test_pygame2_base_FRect_trunc(self):
 
@@ -395,7 +698,7 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_union(self):
+    def test_pygame2_base_FRect_union(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.union:
 
@@ -407,10 +710,15 @@ class FRectTest (unittest.TestCase):
         # Returns a new rectangle that completely covers the area of the two
         # provided rectangles. There may be area inside the new FRect that is
         # not covered by the originals.
+        r1 = FRect( 1, 1, 1, 2 )
+        r2 = FRect( -2, -2, 1, 2 )
+        self.assertEqual( FRect( -2, -2, 4, 5 ), r1.union(r2) )
 
-        self.fail() 
+    def test_union__with_identical_Rect( self ):
+        r1 = FRect( 1, 2, 3, 4 )
+        self.assertEqual( r1, r1.union( FRect(r1) ) )
 
-    def todo_test_pygame2_base_FRect_union_ip(self):
+    def test_pygame2_base_FRect_union_ip(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.union_ip:
 
@@ -419,16 +727,41 @@ class FRectTest (unittest.TestCase):
         # Joins two rectangles into one, in place.
         # 
         # Same as FRect.union(FRect), but operates in place.
+        r1 = FRect( 1, 1, 1, 2 )
+        r2 = FRect( -2, -2, 1, 2 )
+        r1.union_ip(r2)
+        self.assertEqual( FRect( -2, -2, 4, 5 ), r1 ) 
 
-        self.fail() 
+    def test_union__list( self ):
+        r1 = FRect( 0, 0, 1, 1 )
+        r2 = FRect( -2, -2, 1, 1 )
+        r3 = FRect( 2, 2, 1, 1 )
+        
+        r4 = r1.union( [r2,r3] )
+        self.assertEqual( FRect(-2, -2, 5, 5), r4 )
+    
+    def test_union_ip__list( self ):
+        r1 = FRect( 0, 0, 1, 1 )
+        r2 = FRect( -2, -2, 1, 1 )
+        r3 = FRect( 2, 2, 1, 1 )
+        
+        r1.union_ip( [r2,r3] )
+        self.assertEqual( FRect(-2, -2, 5, 5), r1 )
 
-    def todo_test_pygame2_base_FRect_width(self):
+    def test_pygame2_base_FRect_width(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.width:
 
         # Gets or sets the width of the FRect.
-
-        self.fail() 
+        r = FRect( 1, 2, 3, 4 )
+        new_width = 10
+        old_topleft = r.topleft
+        old_height = r.height
+        
+        r.width = new_width
+        self.assertEqual( new_width, r.width )
+        self.assertEqual( old_height, r.height )
+        self.assertEqual( old_topleft, r.topleft )
 
     def todo_test_pygame2_base_FRect_x(self):
 

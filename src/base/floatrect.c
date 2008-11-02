@@ -84,7 +84,7 @@ static PyObject* _frect_clamp_ip (PyObject* self, PyObject *args);
 static PyObject* _frect_fit (PyObject* self, PyObject *args);
 static PyObject* _frect_contains (PyObject* self, PyObject *args);
 static PyObject* _frect_collidepoint (PyObject *self, PyObject *args);
-static PyObject* _frect_collidefrect (PyObject *self, PyObject *args);
+static PyObject* _frect_colliderect (PyObject *self, PyObject *args);
 static PyObject* _frect_collidelist (PyObject *self, PyObject *args);
 static PyObject* _frect_collidelistall (PyObject *self, PyObject *args);
 static PyObject* _frect_collidedict (PyObject *self, PyObject *args);
@@ -114,8 +114,8 @@ static PyMethodDef _frect_methods[] = {
     { "contains", _frect_contains, METH_VARARGS, DOC_BASE_FRECT_CONTAINS },
     { "collidepoint", _frect_collidepoint, METH_VARARGS,
       DOC_BASE_FRECT_COLLIDEPOINT },
-    { "collidefrect", _frect_collidefrect, METH_VARARGS,
-      DOC_BASE_FRECT_COLLIDEFRECT},
+    { "colliderect", _frect_colliderect, METH_VARARGS,
+      DOC_BASE_FRECT_COLLIDERECT},
     { "collidelist", _frect_collidelist, METH_VARARGS,
       DOC_BASE_FRECT_COLLIDELIST},
     { "collidelistall", _frect_collidelistall, METH_VARARGS,
@@ -266,7 +266,7 @@ _frect_init (PyObject *self, PyObject *args, PyObject *kwds)
             w = ((PyRect*)frect)->w;
             h = ((PyRect*)frect)->h;
         }
-        else if (!PyFRect_Check (frect))
+        else if (PyFRect_Check (frect))
         {
             x = ((PyFRect*)frect)->x;
             y = ((PyFRect*)frect)->y;
@@ -870,13 +870,17 @@ _frect_union_ip (PyObject* self, PyObject *args)
         }
         rarg = (PyFRect*) list;
 
-        rself->x = MIN (rself->x, rarg->x);
-        rself->y = MIN (rself->y, rarg->y);
-        rself->w = MAX (DBL_ADD_LIMIT (rself->x, rself->w),
-            DBL_ADD_LIMIT (rarg->x, rarg->w)) - rself->x;
-        rself->h = MAX (DBL_ADD_LIMIT (rself->y, rself->h),
-            DBL_ADD_LIMIT (rarg->y, rarg->h)) - rself->y;
+        x = MIN (rself->x, rarg->x);
+        y = MIN (rself->y, rarg->y);
+        r = MAX (DBL_ADD_LIMIT (rself->x, rself->w),
+            DBL_ADD_LIMIT (rarg->x, rarg->w));
+        b = MAX (DBL_ADD_LIMIT (rself->y, rself->h),
+            DBL_ADD_LIMIT (rarg->y, rarg->h));
 
+        rself->x = x;
+        rself->y = y;
+        rself->w = r - x;
+        rself->h = b - y;
         Py_RETURN_NONE;
     }
 
@@ -950,7 +954,7 @@ static PyObject*
 _frect_clamp (PyObject* self, PyObject *args)
 {
     PyFRect *rself, *rarg;
-    double x, y;
+    double x, y, t;
 
     if (!PyArg_ParseTuple (args, "O:clamp", &rarg))
         return NULL;
@@ -962,20 +966,32 @@ _frect_clamp (PyObject* self, PyObject *args)
     rself = (PyFRect*) self;
 
     if (rself->w >= rarg->w)
-        x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w / 2), rself->w / 2);
+    {
+        t = DBL_ADD_LIMIT (rarg->x, rarg->w / 2);
+        x = DBL_SUB_LIMIT (t, rself->w / 2);
+    }
     else if (rself->x < rarg->x)
         x = rarg->x;
     else if (rself->x + rself->w > rarg->x + rarg->w)
-        x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w), rself->w);
+    {
+        t = DBL_ADD_LIMIT (rarg->x, rarg->w);
+        x = DBL_SUB_LIMIT (t, rself->w);
+    }
     else
         x = rself->x;
 
     if (rself->h >= rarg->h)
-        y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h / 2), rself->h / 2);
+    {
+        t = DBL_ADD_LIMIT (rarg->y, rarg->h / 2);
+        y = DBL_SUB_LIMIT (t, rself->h / 2);
+    }
     else if (rself->y < rarg->y)
         y = rarg->y;
     else if (rself->y + rself->h > rarg->y + rarg->h)
-        y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h), rself->h);
+    {
+        t = DBL_ADD_LIMIT (rarg->y, rarg->h);
+        y = DBL_SUB_LIMIT (t, rself->h);
+    }
     else
         y = rself->y;
 
@@ -986,6 +1002,7 @@ static PyObject*
 _frect_clamp_ip (PyObject* self, PyObject *args)
 {
     PyFRect *rself, *rarg;
+    double t;
 
     if (!PyArg_ParseTuple (args, "O:clamp_ip", &rarg))
         return NULL;
@@ -997,22 +1014,32 @@ _frect_clamp_ip (PyObject* self, PyObject *args)
     rself = (PyFRect*) self;
 
     if (rself->w >= rarg->w)
-        rself->x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w / 2),
-            rself->w / 2);
+    {
+        t = DBL_ADD_LIMIT (rarg->x, rarg->w / 2);
+        rself->x = DBL_SUB_LIMIT (t, rself->w / 2);
+    }
     else if (rself->x < rarg->x)
         rself->x = rarg->x;
     else if (rself->x + rself->w > rarg->x + rarg->w)
-        rself->x = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->x, rarg->w), rself->w);
+    {
+        t = DBL_ADD_LIMIT (rarg->x, rarg->w);
+        rself->x = DBL_SUB_LIMIT (t, rself->w);
+    }
     else
         rself->x = rself->x;
 
     if (rself->h >= rarg->h)
-        rself->y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h / 2),
-            rself->h / 2);
+    {
+        t = DBL_ADD_LIMIT (rarg->y, rarg->h / 2);
+        rself->y = DBL_SUB_LIMIT (t, rself->h / 2);
+    }
     else if (rself->y < rarg->y)
         rself->y = rarg->y;
     else if (rself->y + rself->h > rarg->y + rarg->h)
-        rself->y = DBL_SUB_LIMIT (DBL_ADD_LIMIT (rarg->y, rarg->h), rself->h);
+    {
+        t = DBL_ADD_LIMIT (rarg->y, rarg->h);
+        rself->y = DBL_SUB_LIMIT (t, rself->h);
+    }
     else
         rself->y = rself->y;
     Py_RETURN_NONE;
@@ -1091,12 +1118,12 @@ _frect_collidepoint (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_frect_collidefrect (PyObject *self, PyObject *args)
+_frect_colliderect (PyObject *self, PyObject *args)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
     PyObject *frect;
 
-    if (!PyArg_ParseTuple (args, "O:collidefrect", &frect))
+    if (!PyArg_ParseTuple (args, "O:colliderect", &frect))
         return NULL;
     if (!PyFRect_Check (frect))
     {
