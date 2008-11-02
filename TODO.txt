@@ -6,8 +6,8 @@ CRITICAL:
 * complete physics collision and contacts and merge it back to the branch
 * make LayeredGroups class independent from sdl surfaces, where possible
 * check all BuildValue and ParseTuple calls for the correct value range
-* check anything for possible integer/float overflows.
-* fix up python2.4 and 3.0 async test runner
+* check anything for possible integer/float overflows
+* fix up python2.4 async test runner
 
 Things to ADD:
 ==============

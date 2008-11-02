@@ -90,6 +90,7 @@ static PyObject* _rect_collidedict (PyObject *self, PyObject *args);
 static PyObject* _rect_collidedictall (PyObject *self, PyObject *args);
 
 static int _rect_compare (PyObject *self, PyObject *other);
+static PyObject* _rect_richcompare (PyObject *o1, PyObject *o2, int opid);
 
 /**
  */
@@ -187,7 +188,7 @@ PyTypeObject PyRect_Type =
     DOC_BASE_RECT,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
+    _rect_richcompare,          /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
@@ -1374,6 +1375,64 @@ _rect_compare (PyObject *self, PyObject *other)
      PyErr_SetString (PyExc_TypeError,
         "comparision value should be a Rect or FRect");
     return -1;
+}
+
+static PyObject*
+_rect_richcompare (PyObject *o1, PyObject *o2, int opid)
+{
+    PyRect tmp1, tmp2;
+    PyRect *r1 = NULL, *r2 = NULL;
+    PyFRect *fr = NULL;
+    int equal;
+
+    if (PyFRect_Check (o1))
+    {
+        fr = (PyFRect *) o1;
+        tmp1.x = (pgint16) trunc (fr->x);
+        tmp1.y = (pgint16) trunc (fr->y);
+        tmp1.w = (pguint16) trunc (fr->w);
+        tmp1.h = (pguint16) trunc (fr->h);
+        r1 = &tmp1;
+    }
+    else if (PyRect_Check (o1))
+        r1 = (PyRect *) o1;
+    else
+    {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }
+
+    if (PyFRect_Check (o2))
+    {
+        fr = (PyFRect *) o2;
+        tmp2.x = (pgint16) trunc (fr->x);
+        tmp2.y = (pgint16) trunc (fr->y);
+        tmp2.w = (pguint16) trunc (fr->w);
+        tmp2.h = (pguint16) trunc (fr->h);
+        r2 = &tmp2;
+    }
+    else if (PyRect_Check(o2))
+        r2 = (PyRect *) o2;
+    else
+    {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }
+
+    equal = r1->x == r2->x && r1->y == r2->y &&
+        r1->w == r2->w && r1->h == r2->h;
+
+    switch (opid)
+    {
+    case Py_EQ:
+        return PyBool_FromLong (equal);
+    case Py_NE:
+        return PyBool_FromLong (!equal);
+    default:
+        break;
+    }
+    Py_INCREF (Py_NotImplemented);
+    return Py_NotImplemented;
 }
 
 /* C API */

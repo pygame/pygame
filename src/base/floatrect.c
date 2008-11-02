@@ -95,6 +95,7 @@ static PyObject* _frect_floor (PyObject *self);
 static PyObject* _frect_trunc (PyObject *self);
 
 static int _frect_compare (PyObject *self, PyObject *other);
+static PyObject* _frect_richcompare (PyObject *o1, PyObject *o2, int opid);
 
 /**
  */
@@ -201,19 +202,19 @@ PyTypeObject PyFRect_Type =
     DOC_BASE_FRECT,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
+    _frect_richcompare,         /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    _frect_methods,              /* tp_methods */
+    _frect_methods,             /* tp_methods */
     0,                          /* tp_members */
-    _frect_getsets,              /* tp_getset */
+    _frect_getsets,             /* tp_getset */
     0,                          /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    (initproc) _frect_init,      /* tp_init */
+    (initproc) _frect_init,     /* tp_init */
     0,                          /* tp_alloc */
     0,                          /* tp_new */
     0,                          /* tp_free */
@@ -1371,13 +1372,13 @@ _frect_compare (PyObject *self, PyObject *other)
             return rect->h < rect2->h ? -1 : 1;
         return 0;
     }
-    else if (PyFRect_Check (other))
+    else if (PyRect_Check (other))
     {
         PyRect *rect2 = (PyRect*) other;
-        pgint16 rx = (pgint16) trunc(rect->x);
-        pgint16 ry = (pgint16) trunc(rect->y);
-        pguint16 rw = (pguint16) trunc(rect->w);
-        pguint16 rh = (pguint16) trunc(rect->h);
+        double rx = (double) rect2->x;
+        double ry = (double) rect2->y;
+        double rw = (double) rect2->w;
+        double rh = (double) rect2->h;
 
         if (rect2->x != rx)
             return rect2->x < rx ? -1 : 1;
@@ -1392,6 +1393,64 @@ _frect_compare (PyObject *self, PyObject *other)
      PyErr_SetString (PyExc_TypeError,
         "comparision value should be a Rect or FRect");
     return -1;
+}
+
+static PyObject*
+_frect_richcompare (PyObject *o1, PyObject *o2, int opid)
+{
+    PyFRect tmp1, tmp2;
+    PyRect *r = NULL;
+    PyFRect *fr1 = NULL, *fr2 = NULL;
+    int equal;
+
+    if (PyRect_Check (o1))
+    {
+        r = (PyRect *) o1;
+        tmp1.x = (double) r->x;
+        tmp1.y = (double) r->y;
+        tmp1.w = (double) r->w;
+        tmp1.h = (double) r->h;
+        fr1 = &tmp1;
+    }
+    else if (PyFRect_Check (o1))
+        fr1 = (PyFRect *) o1;
+    else
+    {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }
+
+    if (PyRect_Check (o2))
+    {
+        r = (PyRect *) o2;
+        tmp2.x = (double) r->x;
+        tmp2.y = (double) r->y;
+        tmp2.w = (double) r->w;
+        tmp2.h = (double) r->h;
+        fr2 = &tmp2;
+    }
+    else if (PyFRect_Check(o2))
+        fr2 = (PyFRect *) o2;
+    else
+    {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }
+
+    equal = fr1->x == fr2->x && fr1->y == fr2->y &&
+        fr1->w == fr2->w && fr1->h == fr2->h;
+
+    switch (opid)
+    {
+    case Py_EQ:
+        return PyBool_FromLong (equal);
+    case Py_NE:
+        return PyBool_FromLong (!equal);
+    default:
+        break;
+    }
+    Py_INCREF (Py_NotImplemented);
+    return Py_NotImplemented;
 }
 
 /* C API */

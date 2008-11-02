@@ -162,7 +162,7 @@ static PyNumberMethods _color_as_number =
     (binaryfunc) _color_add, /* nb_add */
     (binaryfunc) _color_sub, /* nb_subtract */
     (binaryfunc) _color_mul, /* nb_multiply */
-    0,                       /* nb_remainder */
+    (binaryfunc) _color_mod, /* nb_remainder */
     0,                       /* nb_divmod */
     0,                       /* nb_power */
     0,                       /* nb_negative */
@@ -189,7 +189,7 @@ static PyNumberMethods _color_as_number =
     0,                       /* nb_inplace_xor */
     0,                       /* nb_inplace_or */
     (binaryfunc) _color_div, /* nb_floor_divide */
-    0,                       /* nb_true_divide */
+    (binaryfunc) _color_div, /* nb_true_divide */
     0,                       /* nb_inplace_floor_divide */
     0,                       /* nb_inplace_true_divide */
     (unaryfunc) _color_int,  /* nb_index */
@@ -1411,7 +1411,7 @@ _color_richcompare (PyObject *o1, PyObject *o2, int opid)
     PyColor *c1, *c2;
     int equal;
     
-    if (!(PyColor_Check(o1) && PyColor_Check (o1)))
+    if (!(PyColor_Check(o1) && PyColor_Check (o2)))
     {
 		Py_INCREF (Py_NotImplemented);
 		return Py_NotImplemented;
@@ -1419,8 +1419,8 @@ _color_richcompare (PyObject *o1, PyObject *o2, int opid)
     c1 = (PyColor*) o1;
     c2 = (PyColor*) o2;
     
-    equal = c1->r == c2->r && c1->g == c2->g && c1->b == c2->b &&
-        c1->a == c2->a;
+    equal = c1->r == c2->r && c1->g == c2->g &&
+        c1->b == c2->b && c1->a == c2->a;
 
     switch (opid)
     {
@@ -1432,7 +1432,7 @@ _color_richcompare (PyObject *o1, PyObject *o2, int opid)
         break;
     }
     Py_INCREF (Py_NotImplemented);
-	return Py_NotImplemented;
+    return Py_NotImplemented;
 }
 
 /* C API */

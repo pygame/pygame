@@ -181,7 +181,7 @@ class TestTags:
 
     def __call__(self, obj):
         if obj not in self.memoized:
-            parent_class  = obj.im_class
+            parent_class  = obj.__class__
             parent_module = self.get_parent_module(parent_class)
 
             module_tags = getattr(parent_module, '__tags__', [])
@@ -216,10 +216,16 @@ def getTestCaseNames(self, testCaseClass):
         if not attrname.startswith(prefix): return False
         else:
             actual_attr = getattr(testCaseClass, attrname)
-            return (
-                 callable(actual_attr) and
-                 not [t for t in  get_tags(actual_attr) if t in self.exclude]
-            )
+            if sys.version_info >= (3, 0, 0):
+                return (
+                    hasattr (actual_attr, "__call__") and
+                    not [t for t in  get_tags(actual_attr) if t in self.exclude]
+                    )
+            else:
+                return (
+                    callable(actual_attr) and
+                    not [t for t in  get_tags(actual_attr) if t in self.exclude]
+                    )
 
     # TODO:
 
@@ -248,7 +254,7 @@ def getTestCaseNames(self, testCaseClass):
         random.shuffle(testFnNames)
     elif self.sortTestMethodsUsing:
         if sys.version_info >= (3, 0, 0):
-            testFnNames.sort(key=self.sortTestMethodsUsing)
+            testFnNames = sorted(testFnNames)
         else:
             testFnNames.sort(cmp=self.sortTestMethodsUsing)
 

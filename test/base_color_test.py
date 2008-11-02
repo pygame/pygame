@@ -1,6 +1,10 @@
+import sys
 import unittest
 import math
 from pygame2.base import Color
+
+if sys.version_info >= (3, 0, 0):
+    long = int
 
 rgba_vals = [0, 1, 62, 63, 126, 127, 255]
 
@@ -34,6 +38,7 @@ def _assigna (x, y):
 
 def _assign_item (x, p, y):
     x[p] = y
+
 
 class ColorTest (unittest.TestCase):
     def test_invalid_html_hex_codes (self):
@@ -449,10 +454,10 @@ class ColorTest (unittest.TestCase):
 
         t = c.normalize ()
 
-        self.assertAlmostEquals (t[0], 0.800000, 5)
-        self.assertAlmostEquals (t[1], 0.149016, 5)
-        self.assertAlmostEquals (t[2], 0.760784, 5)
-        self.assertAlmostEquals (t[3], 0.215686, 5)
+        self.assertAlmostEquals (t[0], 0.800000, places=5)
+        self.assertAlmostEquals (t[1], 0.149016, places=5)
+        self.assertAlmostEquals (t[2], 0.760784, places=5)
+        self.assertAlmostEquals (t[3], 0.215686, places=5)
 
     def test_len (self):
         c = Color (204, 38, 194, 55)
@@ -590,7 +595,7 @@ class ColorTest (unittest.TestCase):
         "|tags:slow|"
         # gamma_correct defined at top of page
 
-        gammas = map(lambda i: i / 10.0, range(1, 31)) # [0.1 .. 3.0]
+        gammas = list (map(lambda i: i / 10.0, range(1, 31))) # [0.1 .. 3.0]
         gammas_len = len(gammas)
 
         for i, c in enumerate(rgba_combos_Color_generator()):
