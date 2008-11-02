@@ -27,6 +27,7 @@
 static int _get_color (PyObject *val, pguint32 *color);
 static int _hextoint (char *hex, pgbyte *val);
 static int _hexcolor (PyObject *color, pgbyte rgba[]);
+static int _resolve_colorname (PyObject *name, pgbyte rgba[]);
 
 static int _color_init (PyObject *color, PyObject *args, PyObject *kwds);
 static void _color_dealloc (PyColor *color);
@@ -468,6 +469,65 @@ _hexcolor (PyObject *color, pgbyte rgba[])
     return 0;
 }
 
+static int
+_resolve_colorname (PyObject *name, pgbyte rgba[])
+{
+    static PyObject *_COLORDICT = NULL;
+
+    if (!_COLORDICT)
+    {
+        PyObject *colordict = PyImport_ImportModule ("pygame2.colordict");
+        if (colordict)
+        {
+            PyObject *_dict = PyModule_GetDict (colordict);
+            PyObject *colors = PyDict_GetItemString (_dict, "THECOLORS");
+            Py_INCREF (colors);
+            _COLORDICT = colors;
+            Py_DECREF (colordict);
+        }
+    }
+    
+    if (_COLORDICT)
+    {
+        int i;
+        pguint32 c;
+        PyObject *color, *item;
+        PyObject *name2 = PyObject_CallMethod (name, "lower", NULL);
+        if (!name2)
+            return 0;
+        color = PyDict_GetItem (_COLORDICT, name2);
+        Py_DECREF (name2);
+
+        if (!color)
+        {
+            PyErr_SetString (PyExc_ValueError, "invalid color name");
+            return 0;
+        }
+        if (!PySequence_Check (color) || PySequence_Size (color) != 4)
+        {
+            PyErr_SetString (PyExc_ValueError, "invalid color value");
+            return 0;
+        }
+
+        for (i = 0; i < 4; i++)
+        {
+            item = PySequence_GetItem (color, i);
+            if (!_get_color (item, &c) || c > 255)
+            {
+                Py_XDECREF (item);
+                PyErr_SetString (PyExc_ValueError, "invalid color value");
+                return 0;
+            }
+            Py_DECREF (item);
+            rgba[i] = (pgbyte) c;
+        }
+        return 1;
+    }
+
+    PyErr_SetString (PyExc_PyGameError, "colordict package could not be found");
+    return 0;
+}
+
 /**
  * Creates a new PyColor.
  */
@@ -490,10 +550,9 @@ _color_init (PyObject *color, PyObject *args, PyObject *kwds)
         }
 
         if (!_hexcolor (obj, rgba))
-        {
-            PyErr_SetString (PyExc_ValueError, "invalid color name");
-            return -1;
-        }
+            if (!_resolve_colorname (obj, rgba))
+                return -1;
+
         ((PyColor*)color)->r = rgba[0];
         ((PyColor*)color)->g = rgba[1];
         ((PyColor*)color)->b = rgba[2];

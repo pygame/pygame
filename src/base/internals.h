@@ -30,6 +30,8 @@
 #define PYGAME_FRECT_INTERNAL
 #define PYGAME_BUFFERPROXY_INTERNAL
 
+extern PyObject* PyExc_PyGameError;
+
 int DoubleFromObj (PyObject* obj, double* val);
 int IntFromObj (PyObject* obj, int* val);
 int UintFromObj (PyObject* obj, unsigned int* val);

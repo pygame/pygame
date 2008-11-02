@@ -1,4 +1,7 @@
-import unittest
+try:
+    import test.pgunittest as unittest
+except:
+    import pgunittest as unittest
 from pygame2.base import FRect
 
 class FRectTest (unittest.TestCase):

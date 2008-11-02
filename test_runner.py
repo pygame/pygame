@@ -1,7 +1,6 @@
 ################################################################################
 
-import unittest
-
+import test.pgunittest as unittest
 import sys, os, re, time, optparse
 try:
     import StringIO as stringio

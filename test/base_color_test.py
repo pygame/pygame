@@ -1,5 +1,8 @@
+try:
+    import test.pgunittest as unittest
+except:
+    import pgunittest as unittest
 import sys
-import unittest
 import math
 from pygame2.base import Color
 
@@ -153,11 +156,11 @@ class ColorTest (unittest.TestCase):
         self.assertEquals (c.b, 30)
         self.assertEquals (c.a, 40)
 
-        #c = Color ("indianred3")
-        #self.assertEquals (c.r, 205)
-        #self.assertEquals (c.g, 85)
-        #self.assertEquals (c.b, 85)
-        #self.assertEquals (c.a, 255)
+        c = Color ("indianred3")
+        self.assertEquals (c.r, 205)
+        self.assertEquals (c.g, 85)
+        self.assertEquals (c.b, 85)
+        self.assertEquals (c.a, 255)
 
         c = Color (0xDDAABBCC)
         self.assertEquals (c.r, 0xAA)

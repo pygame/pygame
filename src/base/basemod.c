@@ -23,10 +23,11 @@
 #include "pgbase.h"
 #include "base_doc.h"
 
+PyObject* PyExc_PyGameError;
+
 static PyMethodDef _base_methods[] = {
     { NULL, NULL, 0, NULL }
 };
-static PyObject* PyExc_PyGameError;
 
 int
 DoubleFromObj (PyObject* obj, double* val)

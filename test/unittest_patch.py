@@ -1,6 +1,6 @@
 ################################################################################
 
-import unittest
+import test.pgunittest as unittest
 import re
 import time
 import sys
@@ -37,10 +37,7 @@ def StringIOContents(io):
 def TestCase_run(self, result=None):
     if result is None: result = self.defaultTestResult()
     result.startTest(self)
-    if sys.version_info < (2,5,0):
-        testMethod = getattr(self, '_TestCase__testMethodName')
-    else:
-        testMethod = getattr(self, self._testMethodName)
+    testMethod = getattr(self, self._testMethodName)
     
     try:
 
@@ -279,13 +276,8 @@ def patch(options):
     # Timing
     unittest.TestCase.times_run = options.timings
     unittest.TestCase.run = TestCase_run
-    if sys.version_info < (2,5,0):
-        unittest.TestCase.dot_syntax_name = lambda self: (
-            "%s.%s"% (self.__class__.__name__,
-                      getattr(self, '_TestCase__testMethodName')) )
-    else:
-        unittest.TestCase.dot_syntax_name = lambda self: (
-            "%s.%s"% (self.__class__.__name__, self._testMethodName) )
+    unittest.TestCase.dot_syntax_name = lambda self: (
+        "%s.%s"% (self.__class__.__name__, self._testMethodName) )
 
     # Error logging
     unittest.TestResult.show_redirected_on_errors = options.show_output
