@@ -22,6 +22,8 @@
 #include "cdrommod.h"
 #include "pgsdl.h"
 
+static PyObject* _cdtrack_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _cdtrack_init (PyObject *track, PyObject *args, PyObject *kwds);
 static void _cdtrack_dealloc (PyCDTrack *self);
 
@@ -87,7 +89,7 @@ PyTypeObject PyCDTrack_Type =
     0,                          /* tp_dictoffset */
     (initproc) _cdtrack_init,   /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _cdtrack_new,               /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -105,6 +107,17 @@ static void
 _cdtrack_dealloc (PyCDTrack *self)
 {
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_cdtrack_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyCDTrack *track = (PyCDTrack*) type->tp_alloc (type, 0);
+    track->track.id = 0;
+    track->track.type = 0;
+    track->track.length = 0;
+    track->track.offset = 0;
+    return (PyObject*) track;
 }
 
 static int

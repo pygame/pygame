@@ -170,13 +170,10 @@ PyMODINIT_FUNC initbase (void)
         NULL, NULL, NULL, NULL
     };
 #endif
-    PyChunk_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyChunk_Type) < 0)
         goto fail;
-    PyChannel_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyChannel_Type) < 0)
         goto fail;
-    PyMusic_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyMusic_Type) < 0)
         goto fail;
 

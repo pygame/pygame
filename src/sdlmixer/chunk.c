@@ -23,6 +23,8 @@
 #include "pgsdl.h"
 #include "pgmixer.h"
 
+static PyObject* _chunk_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _chunk_init (PyObject *chunk, PyObject *args, PyObject *kwds);
 static void _chunk_dealloc (PyChunk *self);
 
@@ -81,7 +83,7 @@ PyTypeObject PyChunk_Type =
     0,                          /* tp_dictoffset */
     (initproc) _chunk_init,     /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _chunk_new,                 /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -105,6 +107,17 @@ _chunk_dealloc (PyChunk *self)
         Mix_FreeChunk (self->chunk);
     }
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_chunk_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyChunk *chunk = (PyChunk*) type->tp_alloc (type, 0);
+    if (!chunk)
+        return NULL;
+    chunk->playchannel = -1;
+    chunk->chunk = NULL;
+    return (PyObject*) chunk;
 }
 
 static int

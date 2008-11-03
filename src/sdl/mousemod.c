@@ -174,7 +174,6 @@ PyMODINIT_FUNC initmouse (void)
 #endif
 
     /* Complete types */
-    PyCursor_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyCursor_Type) < 0)
         goto fail;
     

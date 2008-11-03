@@ -22,6 +22,8 @@
 #include "joystickmod.h"
 #include "pgsdl.h"
 
+static PyObject* _joystick_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _joystick_init (PyObject *joystick, PyObject *args, PyObject *kwds);
 static void _joystick_dealloc (PyJoystick *self);
 
@@ -104,9 +106,9 @@ PyTypeObject PyJoystick_Type =
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    (initproc) _joystick_init,    /* tp_init */
+    (initproc) _joystick_init,  /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _joystick_new,              /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -129,6 +131,17 @@ _joystick_dealloc (PyJoystick *self)
         joystickmod_remove_joystick (self->index);
     }
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_joystick_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyJoystick *stick = (PyJoystick*) type->tp_alloc (type, 0);
+    if (!stick)
+        return NULL;
+    stick->index = 0;
+    stick->joystick = NULL;
+    return (PyObject *) stick;
 }
 
 static int
@@ -356,8 +369,8 @@ PyJoystick_New (int _index)
         return NULL;
     }
 
-   joystick = (PyJoystick*) PyObject_New (PyJoystick, &PyJoystick_Type);
-   joystick->joystick = NULL;
+   joystick = (PyJoystick*) PyJoystick_Type.tp_new (&PyJoystick_Type, NULL,
+       NULL);
    if (!joystick)
        return NULL;
         

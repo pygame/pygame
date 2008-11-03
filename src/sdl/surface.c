@@ -28,6 +28,8 @@
 #include "png.h"
 #endif
 
+static PyObject* _surface_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _surface_init (PyObject *surface, PyObject *args, PyObject *kwds);
 static void _surface_dealloc (PySurface *self);
 
@@ -61,6 +63,7 @@ static PyObject* _surface_blit (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_fill (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_save (PyObject *self, PyObject *args);
 static PyObject* _surface_getat (PyObject *self, PyObject *args);
+static PyObject* _surface_setat (PyObject *self, PyObject *args);
 
 static void _release_c_lock (void *ptr);
 
@@ -79,6 +82,7 @@ static PyMethodDef _surface_methods[] = {
     { "get_alpha", (PyCFunction) _surface_getalpha, METH_NOARGS, "" },
     { "set_alpha", _surface_setalpha, METH_VARARGS, "" },
     { "get_at", _surface_getat, METH_VARARGS, "" },
+    { "set_at", _surface_setat, METH_VARARGS, "" },
     { "convert", _surface_convert, METH_VARARGS, "" },
     { "clone", (PyCFunction)_surface_clone, METH_NOARGS, "" },
     { "blit", _surface_blit, METH_VARARGS | METH_KEYWORDS, "" },
@@ -146,7 +150,7 @@ PyTypeObject PySurface_Type =
     offsetof (PySurface, dict), /* tp_dictoffset */
     (initproc) _surface_init,   /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _surface_new,               /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -172,6 +176,20 @@ _surface_dealloc (PySurface *self)
         SDL_FreeSurface (self->surface);
 
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PySurface *surface = (PySurface *)type->tp_alloc (type, 0);
+    if (!surface)
+        return NULL;
+
+    surface->locklist = NULL;
+    surface->dict = NULL;
+    surface->weakrefs = NULL;
+    surface->intlocks = 0;
+    return (PyObject*) surface;
 }
 
 static int
@@ -736,6 +754,43 @@ _surface_getat (PyObject *self, PyObject *args)
 }
 
 static PyObject*
+_surface_setat (PyObject *self, PyObject *args)
+{
+    int x, y;
+    SDL_Surface *surface = PySurface_AsSurface (self);
+    SDL_PixelFormat *fmt = surface->format;
+    PyObject *color;
+    Uint32 value;
+
+    if (!PyArg_ParseTuple (args, "iiO", &x, &y, &color))
+        return NULL;
+    
+    if (x < 0 || x > surface->w || y < 0 || y >= surface->h)
+    {
+        PyErr_SetString (PyExc_IndexError, "pixel index out of range");
+        return NULL;
+    }
+
+    if (!Uint32FromObj (color, &value))
+        return NULL;
+    ARGB2FORMAT (value, surface->format);
+    
+    if (fmt->BytesPerPixel < 1 || fmt->BytesPerPixel > 4)
+    {
+        PyErr_SetString (PyExc_TypeError, "invalid bit depth for surface");
+        return NULL;
+    }
+    if (SDL_LockSurface (surface) == -1)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return NULL;
+    }
+    SET_PIXEL_AT (surface, fmt, x, y, value);
+    SDL_UnlockSurface (surface);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 _surface_clone (PyObject *self)
 {
     return PySurface_Clone (self);
@@ -947,7 +1002,7 @@ PySurface_New (int w, int h)
         return NULL;
     }
 
-    surface = PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
+    surface = (PyObject*) PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
     if (!surface)
     {
         SDL_FreeSurface (sf);
@@ -979,6 +1034,11 @@ PySurface_AddRefLock (PyObject *surface, PyObject *lock)
     if (!PySurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
+        return 0;
+    }
+    if (!lock)
+    {
+        PyErr_SetString (PyExc_TypeError, "lock must not be NULL");
         return 0;
     }
 

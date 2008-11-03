@@ -194,7 +194,6 @@ PyMODINIT_FUNC initjoystick (void)
 #endif
 
     /* Complete types */
-    PyJoystick_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyJoystick_Type) < 0)
         goto fail;
     Py_INCREF (&PyJoystick_Type);

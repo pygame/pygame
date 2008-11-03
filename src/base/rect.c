@@ -1439,7 +1439,7 @@ _rect_richcompare (PyObject *o1, PyObject *o2, int opid)
 PyObject*
 PyRect_New (pgint16 x, pgint16 y, pguint16 w, pguint16 h)
 {
-    PyRect *rect = (PyRect*) PyObject_New (PyRect, &PyRect_Type);
+    PyRect *rect = (PyRect*) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
     if (!rect)
         return NULL;
 

@@ -142,7 +142,6 @@ PyMODINIT_FUNC initbase (void)
     };
 #endif
 
-    PyFont_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyFont_Type) < 0)
         goto fail;
 

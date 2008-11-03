@@ -1502,7 +1502,7 @@ PyColor_New (pgbyte rgba[])
     if (!rgba)
         return NULL;
     
-    color = (PyColor*) PyObject_New (PyColor, &PyColor_Type);
+    color = (PyColor*) PyColor_Type.tp_new (&PyColor_Type, NULL, NULL);
     if (!color)
         return NULL;
 

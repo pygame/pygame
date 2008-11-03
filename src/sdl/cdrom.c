@@ -22,6 +22,7 @@
 #include "cdrommod.h"
 #include "pgsdl.h"
 
+static PyObject* _cd_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _cd_init (PyObject *cd, PyObject *args, PyObject *kwds);
 static void _cd_dealloc (PyCD *self);
 
@@ -110,7 +111,7 @@ PyTypeObject PyCD_Type =
     0,                          /* tp_dictoffset */
     (initproc) _cd_init,        /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _cd_new,                    /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -133,6 +134,17 @@ _cd_dealloc (PyCD *self)
         cdrommod_remove_drive (self->index);
     }
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_cd_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyCD* cd = (PyCD*) type->tp_alloc (type, 0);
+    if (!cd)
+        return NULL;
+    cd->cd = NULL;
+    cd->index = -1;
+    return (PyObject*) cd;
 }
 
 static int
@@ -454,10 +466,9 @@ PyCD_New (int _index)
         return NULL;
     }
 
-    cd = (PyCD*) PyObject_New (PyCD, &PyCD_Type);
+    cd = (PyCD*) PyCD_Type.tp_new (&PyCD_Type, NULL, NULL);
     if (!cd)
         return NULL;
-    cd->cd = NULL;
 
     cdrom = SDL_CDOpen (_index);
     if (!cdrom)

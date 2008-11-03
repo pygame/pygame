@@ -475,13 +475,10 @@ PyMODINIT_FUNC initvideo (void)
 #endif
 
     /* Complete types */
-    PySurface_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PySurface_Type) < 0)
         goto fail;
-    PyOverlay_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyOverlay_Type) < 0)
         goto fail;
-    PyPixelFormat_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyPixelFormat_Type) < 0)
         goto fail;
 

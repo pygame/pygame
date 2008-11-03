@@ -23,6 +23,8 @@
 #include "pgsdl.h"
 #include "pgmixer.h"
 
+static PyObject* _music_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _music_init (PyObject *music, PyObject *args, PyObject *kwds);
 static void _music_dealloc (PyMusic *self);
 
@@ -87,7 +89,7 @@ PyTypeObject PyMusic_Type =
     0,                          /* tp_dictoffset */
     (initproc) _music_init,     /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _music_new,                 /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -107,6 +109,16 @@ _music_dealloc (PyMusic *self)
     if (self->music)
         Mix_FreeMusic (self->music);
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_music_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyMusic *music = (PyMusic*) type->tp_alloc (type, 0);
+    if (!music)
+        return NULL;
+    music->music = NULL;
+    return (PyObject*) music;
 }
 
 static int

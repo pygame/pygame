@@ -59,7 +59,6 @@ PyMODINIT_FUNC initbase (void)
         NULL, NULL, NULL, NULL
     };
 #endif
-    PyFPSmanager_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyFPSmanager_Type) < 0)
         goto fail;
 

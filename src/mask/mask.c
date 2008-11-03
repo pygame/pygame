@@ -36,6 +36,7 @@ static int _get_bounding_rects (bitmask_t *input,
 static int _get_connected_components (bitmask_t *mask, bitmask_t ***components,
     int min);
 
+static PyObject *_mask_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _mask_init (PyObject *mask, PyObject *args, PyObject *kwds);
 static void _mask_dealloc (PyMask *self);
 
@@ -135,7 +136,7 @@ PyTypeObject PyMask_Type =
     0,                          /* tp_dictoffset */
     (initproc) _mask_init,      /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _mask_new,                  /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -155,6 +156,16 @@ _mask_dealloc (PyMask *self)
     if (self->mask)
         bitmask_free (self->mask);
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_mask_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyMask* mask = (PyMask*) type->tp_alloc (type, 0);
+    if (!mask)
+        return NULL;
+    mask->mask = NULL;
+    return (PyObject*) mask;
 }
 
 static int
@@ -398,7 +409,7 @@ _mask_overlapmask (PyObject* self, PyObject* args)
         return NULL;
     }
 
-    maskobj2 = PyObject_New (PyMask, &PyMask_Type);
+    maskobj2 = (PyMask*) PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     if (!maskobj2)
     {
         bitmask_free (output);
@@ -447,7 +458,7 @@ _mask_scale (PyObject* self, PyObject *args)
     if (!PyArg_ParseTuple (args, "(ii)", &x, &y))
         return NULL;
 
-    maskobj = PyObject_New (PyMask, &PyMask_Type);
+    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     maskobj->mask = NULL;
     if (!maskobj)
         return NULL;
@@ -665,7 +676,7 @@ _mask_connectedcomponents (PyObject* self, PyObject* args)
     num_components = _get_connected_components (mask, &components, min);
     Py_END_ALLOW_THREADS;
     
-    if (num_components == -2)
+    if (num_components == -1)
     {
         PyErr_SetString (PyExc_MemoryError, "memory allocation failed");
         return NULL;
@@ -677,7 +688,7 @@ _mask_connectedcomponents (PyObject* self, PyObject* args)
     
     for (i=1; i <= num_components; i++)
     {
-        maskobj = PyObject_New (PyMask, &PyMask_Type);
+        maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
         if (!maskobj)
         {
             int j;
@@ -728,7 +739,7 @@ _mask_connectedcomponent (PyObject* self, PyObject* args)
         return NULL;
     }
 
-    maskobj = PyObject_New (PyMask, &PyMask_Type);
+    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     maskobj->mask = NULL;
     if (!maskobj)
     {
@@ -772,9 +783,6 @@ _mask_getboundingrects (PyObject* self)
     Py_END_ALLOW_THREADS;
 
     if (r == 0)
-        Py_RETURN_NONE;
-
-    if (r == -2)
     {
         /* memory out failure */
         PyErr_SetString (PyExc_MemoryError, "memory allocation failed");
@@ -817,7 +825,7 @@ _mask_getboundingrects (PyObject* self)
    This implementation also has a final step of finding bounding boxes. */
 
 /* 
-   returns -2 on memory allocation error, otherwise 0 on success.
+   returns 0 on memory allocation error, otherwise 1 on success.
 
    input - the input mask.
    num_bounding_boxes - returns the number of bounding rects found.
@@ -841,7 +849,7 @@ _get_bounding_rects (bitmask_t *input, int *num_bounding_boxes,
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *) malloc (sizeof (int) * w * h);
     if (!image)
-        return -2;
+        return 0;
 
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
@@ -849,7 +857,7 @@ _get_bounding_rects (bitmask_t *input, int *num_bounding_boxes,
     if (!ufind)
     {
         free (image);
-        return -2;
+        return 0;
     }
 
     largest = (unsigned int *) malloc (sizeof (int) * (w/2 + 1) * (h/2 + 1));
@@ -857,7 +865,7 @@ _get_bounding_rects (bitmask_t *input, int *num_bounding_boxes,
     {
         free (image);
         free (ufind);
-        return -2;
+        return 0;
     }
 
     /* do the initial labelling */
@@ -888,7 +896,7 @@ _get_bounding_rects (bitmask_t *input, int *num_bounding_boxes,
         free(ufind);
         free(largest);
         *ret_rects = NULL;
-        return 0;
+        return 1;
     }
 
     /* the bounding rects, need enough space for the number of labels */
@@ -898,7 +906,7 @@ _get_bounding_rects (bitmask_t *input, int *num_bounding_boxes,
         free(image);
         free(ufind);
         free(largest);
-        return -2;
+        return 0;
     }
 
     for (temp = 0; temp <= relabel; temp++)
@@ -944,7 +952,7 @@ _get_bounding_rects (bitmask_t *input, int *num_bounding_boxes,
     free(largest);
     *ret_rects = rects;
 
-    return 0;
+    return 1;
 }
 
 static int
@@ -962,7 +970,7 @@ _get_connected_components (bitmask_t *mask, bitmask_t ***components, int min)
     /* a temporary image to assign labels to each bit of the mask */
     image = (unsigned int *) malloc (sizeof (int) * w * h);
     if (!image)
-        return -2;
+        return -1;
 
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
@@ -970,7 +978,7 @@ _get_connected_components (bitmask_t *mask, bitmask_t ***components, int min)
     if (!ufind)
     {
         free (image);
-        return -2;
+        return -1;
     }
 
     largest = (unsigned int *) malloc (sizeof (int) * (w/2 + 1) * (h/2 + 1));
@@ -978,7 +986,7 @@ _get_connected_components (bitmask_t *mask, bitmask_t ***components, int min)
     {
         free (image);
         free (ufind);
-        return -2;
+        return -1;
     }
 	
     /* do the initial labelling */
@@ -1028,7 +1036,7 @@ _get_connected_components (bitmask_t *mask, bitmask_t ***components, int min)
         free (image);
         free (ufind);
         free (largest);
-        return -2;
+        return -1;
     }
     
     /* create the empty masks */
@@ -1046,7 +1054,7 @@ _get_connected_components (bitmask_t *mask, bitmask_t ***components, int min)
             free (ufind);
             free (largest);
             free (comps);
-            return -2;
+            return -1;
         }
     }
 
@@ -1335,7 +1343,7 @@ PyObject*
 PyMask_New (int w, int h)
 {
     bitmask_t *m;
-    PyMask *mask = (PyMask*) PyObject_New (PyMask, &PyMask_Type);
+    PyMask *mask = (PyMask*) PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     mask->mask = NULL;
     if (!mask)
         return NULL;

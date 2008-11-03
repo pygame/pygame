@@ -22,6 +22,8 @@
 #include "mousemod.h"
 #include "pgsdl.h"
 
+static PyObject* _cursor_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _cursor_init (PyObject *cursor, PyObject *args, PyObject *kwds);
 static void _cursor_dealloc (PyCursor *self);
 
@@ -81,7 +83,7 @@ PyTypeObject PyCursor_Type =
     0,                          /* tp_dictoffset */
     (initproc) _cursor_init,    /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _cursor_new,                /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -102,6 +104,16 @@ _cursor_dealloc (PyCursor *self)
         SDL_FreeCursor (self->cursor);
 
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_cursor_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyCursor *cursor = (PyCursor*) type->tp_alloc (type, 0);
+    if (!cursor)
+        return NULL;
+    cursor->cursor = NULL;
+    return (PyObject*) cursor;
 }
 
 static int

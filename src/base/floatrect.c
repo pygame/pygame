@@ -1324,7 +1324,7 @@ static PyObject*
 _frect_round (PyObject *self)
 {
     PyFRect *frect = (PyFRect*) self;
-    PyRect *rect = PyObject_New (PyRect, &PyRect_Type);
+    PyRect *rect = (PyRect*) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
     if (!rect)
         return NULL;
     rect->x = (pgint16) round (frect->x);
@@ -1339,7 +1339,7 @@ static PyObject*
 _frect_ceil (PyObject *self)
 {
     PyFRect *frect = (PyFRect*) self;
-    PyRect *rect = PyObject_New (PyRect, &PyRect_Type);
+    PyRect *rect = (PyRect*) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
     if (!rect)
         return NULL;
     rect->x = (pgint16) ceil (frect->x);
@@ -1354,7 +1354,7 @@ static PyObject*
 _frect_floor (PyObject *self)
 {
     PyFRect *frect = (PyFRect*) self;
-    PyRect *rect = PyObject_New (PyRect, &PyRect_Type);
+    PyRect *rect = (PyRect*) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
     if (!rect)
         return NULL;
     rect->x = (pgint16) floor (frect->x);
@@ -1369,7 +1369,7 @@ static PyObject*
 _frect_trunc (PyObject *self)
 {
     PyFRect *frect = (PyFRect*) self;
-    PyRect *rect = PyObject_New (PyRect, &PyRect_Type);
+    PyRect *rect = (PyRect*) PyRect_Type.tp_new (&PyRect_Type, NULL, NULL);
     if (!rect)
         return NULL;
     rect->x = (pgint16) trunc (frect->x);
@@ -1484,7 +1484,7 @@ _frect_richcompare (PyObject *o1, PyObject *o2, int opid)
 PyObject*
 PyFRect_New (double x, double y, double w, double h)
 {
-    PyFRect *frect = (PyFRect*) PyObject_New (PyFRect, &PyFRect_Type);
+    PyFRect *frect = (PyFRect*) PyFRect_Type.tp_new (&PyFRect_Type, NULL, NULL);
     if (!frect)
         return NULL;
 

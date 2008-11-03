@@ -26,6 +26,8 @@
 #define IS_READONLY(x) (((PyPixelFormat*)(x))->readonly == 1)
 
 static SDL_PixelFormat* _sdlpixelformat_new (void);
+static PyObject* _pixelformat_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _pixelformat_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _pixelformat_dealloc (PyPixelFormat *self);
 
@@ -119,7 +121,7 @@ PyTypeObject PyPixelFormat_Type =
     0,                          /* tp_dictoffset */
     (initproc) _pixelformat_init,    /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _pixelformat_new,           /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -149,6 +151,28 @@ _sdlpixelformat_new (void)
     fmt->colorkey = 0;
     fmt->alpha = 0;
     return fmt;
+}
+
+static PyObject*
+_pixelformat_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    SDL_PixelFormat *fmt;
+    PyPixelFormat *pxfmt;
+
+    fmt = _sdlpixelformat_new ();
+    if (!fmt)
+        return NULL;
+
+    pxfmt = (PyPixelFormat *)type->tp_alloc (type, 0);
+    if (!pxfmt)
+    {
+        PyMem_Free (fmt);
+        return NULL;
+    }
+
+    pxfmt->format = fmt;
+    pxfmt->readonly = 0;
+    return (PyObject *) pxfmt;
 }
 
 static void
@@ -500,20 +524,8 @@ PyObject*
 PyPixelFormat_New (void)
 {
     PyPixelFormat *format;
-    SDL_PixelFormat *fmt = _sdlpixelformat_new ();
-    if (!fmt)
-        return NULL;
-    
     format = (PyPixelFormat*) PyPixelFormat_Type.tp_new (&PyPixelFormat_Type,
         NULL, NULL);
-    if (!format)
-    {
-        free (fmt);
-        return NULL;
-    }
-
-    format->format = fmt;
-    format->readonly = 0;
     return (PyObject*) format;
 }
 
@@ -529,6 +541,7 @@ PyPixelFormat_NewFromSDLPixelFormat (SDL_PixelFormat *fmt)
     if (!format)
         return NULL;
 
+    PyMem_Free (format->format);
     format->readonly = 1;
     format->format = fmt;
     return (PyObject*) format;

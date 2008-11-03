@@ -156,10 +156,8 @@ PyMODINIT_FUNC initcdrom (void)
 #endif
     
     /* Complete types */
-    PyCD_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyCD_Type) < 0)
         goto fail;
-    PyCDTrack_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyCDTrack_Type) < 0)
         goto fail;
 

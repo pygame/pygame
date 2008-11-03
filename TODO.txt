@@ -4,6 +4,7 @@ CRITICAL:
 * recheck and redesign X11 implementation for pygame.sdlext.scrap
 * merge transform/scale asm changes in rev. 1657:1669
 * complete physics collision and contacts and merge it back to the branch
+* Fix __new__ constructors in physics module (PyXXX_Type.tp_new!)
 * make LayeredGroups class independent from sdl surfaces, where possible
 * check all BuildValue and ParseTuple calls for the correct value range
 * check anything for possible integer/float overflows

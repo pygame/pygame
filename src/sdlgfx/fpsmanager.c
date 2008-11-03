@@ -22,6 +22,7 @@
 #include "gfxmod.h"
 #include "pggfx.h"
 
+static PyObject* _fps_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static void _fps_dealloc (PyFPSmanager *self);
 static int _fps_init (PyObject *self, PyObject *args, PyObject *kwds);
 
@@ -81,7 +82,7 @@ PyTypeObject PyFPSmanager_Type =
     0,                          /* tp_dictoffset */
     (initproc) _fps_init,       /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _fps_new,                   /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -102,6 +103,16 @@ _fps_dealloc (PyFPSmanager *self)
     if (self->fps)
         PyMem_Free (self->fps);
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_fps_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyFPSmanager *fps = (PyFPSmanager*) type->tp_alloc (type, 0);
+    if (!fps)
+        return NULL;
+    fps->fps = NULL;
+    return 0;
 }
 
 static int

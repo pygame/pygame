@@ -28,6 +28,8 @@ static int _get_item (PyObject *dict, char *key, PyObject **value);
 
 static PyObject* _create_dict_from_event (SDL_Event *event);
 static int _create_event_from_dict (PyObject *dict, SDL_Event *event);
+static PyObject* _event_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _event_init (PyObject *event, PyObject *args, PyObject *kwds);
 static void _event_dealloc (PyEvent *self);
 
@@ -89,7 +91,7 @@ PyTypeObject PyEvent_Type =
     offsetof (PyEvent, dict),   /* tp_dictoffset */
     (initproc) _event_init,     /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _event_new,                 /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -108,6 +110,17 @@ _event_dealloc (PyEvent *self)
 {
     Py_XDECREF (self->dict);
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_event_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyEvent *event = (PyEvent *) type->tp_alloc (type, 0);
+    if (!event)
+        return NULL;
+    event->dict = NULL;
+    event->type = 0;
+    return (PyObject*) event;
 }
 
 static int
@@ -599,7 +612,7 @@ PyEvent_New (SDL_Event *event)
     PyObject *dict;
     PyEvent *ev;
 
-    ev = (PyEvent*) PyObject_New (PyEvent, &PyEvent_Type);
+    ev = (PyEvent*) PyEvent_Type.tp_new (&PyEvent_Type, NULL, NULL);
     if (!ev)
         return NULL;
 

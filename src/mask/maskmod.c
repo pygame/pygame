@@ -52,7 +52,6 @@ static PyMethodDef _mask_methods[] =
 #include "pgsdl.h"
 #include "surface.h"
 
-
 static void
 _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2, 
     Uint32 color, Uint32 threshold);
@@ -74,7 +73,7 @@ _mask_fromsurface (PyObject* self, PyObject* args)
     bitmask_t *mask;
     SDL_Surface* surf;
 
-    PyObject* surfobj;
+    PyObject* surfobj, *lock;
     PyMask *maskobj;
 
     int x, y, threshold, ashift, aloss, usethresh;
@@ -107,7 +106,8 @@ _mask_fromsurface (PyObject* self, PyObject* args)
     }
 
     /* lock the surface, release the GIL. */
-    if (!PySurface_AddRefLock (surfobj, self))
+    lock = PySurface_AcquireLockObj (surfobj, self);
+    if (!lock)
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -152,10 +152,10 @@ _mask_fromsurface (PyObject* self, PyObject* args)
 
     /* unlock the surface, release the GIL.
      */
-    PySurface_RemoveRefLock (surfobj, self);
+    Py_DECREF (lock);
 
     /*create the new python object from mask*/        
-    maskobj = PyObject_New (PyMask, &PyMask_Type);
+    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     if (maskobj)
         maskobj->mask = mask;
     else
@@ -236,7 +236,7 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
         PySurface_RemoveRefLock (surfobj2, self);
     }
 
-    maskobj = PyObject_New(PyMask, &PyMask_Type);
+    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     if(maskobj)
         maskobj->mask = m;
     else
@@ -399,7 +399,6 @@ PyMODINIT_FUNC initmask (void)
 #endif
 
     /* Complete types */
-    PyMask_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyMask_Type) < 0)
         goto fail;
     

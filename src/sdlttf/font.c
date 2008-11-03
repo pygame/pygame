@@ -23,6 +23,7 @@
 #include "pgsdl.h"
 #include "pgttf.h"
 
+static PyObject *_font_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _font_init (PyObject *chunk, PyObject *args, PyObject *kwds);
 static void _font_dealloc (PyFont *self);
 
@@ -106,7 +107,7 @@ PyTypeObject PyFont_Type =
     0,                          /* tp_dictoffset */
     (initproc) _font_init,      /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _font_new,                  /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -125,6 +126,16 @@ _font_dealloc (PyFont *self)
 {
     TTF_CloseFont (self->font);
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_font_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyFont *font = (PyFont*) type->tp_alloc (type, 0);
+    if (!font)
+        return NULL;
+    font->font = NULL;
+    return (PyObject*) font;
 }
 
 static int

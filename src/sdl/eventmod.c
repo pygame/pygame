@@ -639,7 +639,6 @@ PyMODINIT_FUNC initevent (void)
 #endif
 
     /* Complete types */
-    PyEvent_Type.tp_new = &PyType_GenericNew;
     if (PyType_Ready (&PyEvent_Type) < 0)
         goto fail;
     Py_INCREF (&PyEvent_Type);

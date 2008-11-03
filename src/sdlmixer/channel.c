@@ -23,6 +23,8 @@
 #include "pgsdl.h"
 #include "pgmixer.h"
 
+static PyObject* _channel_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _channel_init (PyObject *chunk, PyObject *args, PyObject *kwds);
 static void _channel_dealloc (PyChannel *self);
 
@@ -106,7 +108,7 @@ PyTypeObject PyChannel_Type =
     0,                          /* tp_dictoffset */
     (initproc) _channel_init,   /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _channel_new,               /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -131,6 +133,18 @@ _channel_dealloc (PyChannel *self)
         Py_DECREF (self->playchunk);
     }
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_channel_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyChannel *channel = (PyChannel *) type->tp_alloc (type, 0);
+    if (!channel)
+        return NULL;
+
+    channel->channel = -1;
+    channel->playchunk = NULL;
+    return (PyObject*) channel;
 }
 
 static int
@@ -160,9 +174,6 @@ _channel_init (PyObject *self, PyObject *args, PyObject *kwds)
             return -1;
         }
     }
-
-    ((PyChannel*)self)->channel = channel;
-    ((PyChannel*)self)->playchunk = NULL;
     return 0;
 }
 

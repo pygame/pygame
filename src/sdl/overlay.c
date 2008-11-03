@@ -22,6 +22,8 @@
 #include "videomod.h"
 #include "pgsdl.h"
 
+static PyObject* _overlay_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _overlay_init (PyObject *overlay, PyObject *args, PyObject *kwds);
 static void _overlay_dealloc (PyOverlay *overlay);
 
@@ -108,7 +110,7 @@ PyTypeObject PyOverlay_Type =
     offsetof (PyOverlay, dict), /* tp_dictoffset */
     (initproc) _overlay_init,   /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _overlay_new,               /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -134,6 +136,18 @@ _overlay_dealloc (PyOverlay *self)
         SDL_FreeYUVOverlay (self->overlay);
 
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+}
+
+static PyObject*
+_overlay_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyOverlay *overlay = (PyOverlay *)type->tp_alloc (type, 0);
+    if (!overlay)
+        return NULL;
+    overlay->locklist = NULL;
+    overlay->dict = NULL;
+    overlay->weakrefs = NULL;
+    return (PyObject*) overlay;
 }
 
 static int
@@ -172,6 +186,9 @@ _overlay_init (PyObject *self, PyObject *args, PyObject *kwds)
 
     ((PyOverlay*)self)->surface = surf;
     ((PyOverlay*)self)->overlay = overlay;
+    ((PyOverlay*)self)->locklist = NULL;
+    ((PyOverlay*)self)->dict = NULL;
+    ((PyOverlay*)self)->weakrefs = NULL;
     Py_INCREF (surf);
 
     return 0;
@@ -397,6 +414,11 @@ PyOverlay_AddRefLock (PyObject *overlay, PyObject *lock)
     if (!PyOverlay_Check (overlay))
     {
         PyErr_SetString (PyExc_TypeError, "overlay must be an Overlay");
+        return 0;
+    }
+    if (!lock)
+    {
+        PyErr_SetString (PyExc_TypeError, "lock must not be NULL");
         return 0;
     }
 

@@ -201,7 +201,7 @@ if __name__ == "__main__":
     root = args[0] or 'pygame2'
     if not root.startswith('pygame2'):
         root = '%s.%s' % ('pygame2', root)
-    
+
     stubs = get_stubs (root)
     tested = get_tested ()
     for fname in sorted (stubs.keys ()):

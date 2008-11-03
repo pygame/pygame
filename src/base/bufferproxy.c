@@ -310,13 +310,11 @@ static PyObject*
 PyBufferProxy_New (PyObject *object, void *buffer, Py_ssize_t length,
     bufferunlock_func unlock_func)
 {
-    PyBufferProxy *buf = (PyBufferProxy*) PyObject_New (PyBufferProxy,
-        &PyBufferProxy_Type);
+    PyBufferProxy *buf = (PyBufferProxy*) PyBufferProxy_Type.tp_new
+        (&PyBufferProxy_Type, NULL, NULL);
     if (!buf)
         return NULL;
 
-    buf->weakrefs = NULL;
-    buf->dict = NULL;
     buf->object = object;
     buf->buffer = buffer;
     buf->length = length;
