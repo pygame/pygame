@@ -478,13 +478,39 @@ class MaskTest (unittest.TestCase):
         amask = mask_from_surface(surf)
         self.assertEqual(amask.get_at(0, 0), 0)
 
-    def todo_test_pygame2_mask_from_threshold(self):
+    def test_pygame2_mask_from_threshold(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.from_threshold:
 
         # TODO
-
-        self.fail() 
+        video.init ()
+        a = [16, 24, 32]
+        
+        for i in a:
+            surf = video.Surface (70, 70, i)
+            surf.fill (pygame2.Color (100,50,200), pygame2.Rect (20,20,20,20))
+            mask = pygame2.mask.from_threshold (surf,
+                                                pygame2.Color (100,50,200,255),
+                                                pygame2.Color (10,10,10,255))
+            
+            self.assertEqual (mask.count, 400)
+            self.assertEqual (mask.get_bounding_rects (),
+                              [pygame2.Rect (20, 20, 20, 20)])
+            
+        for i in a:
+            surf = video.Surface (70, 70, i)
+            surf2 = video.Surface (70,70, i)
+            surf.fill (pygame2.Color (100, 100, 100))
+            surf2.fill (pygame2.Color (150, 150, 150))
+            surf2.fill (pygame2.Color (100, 100, 100),
+                        pygame2.Rect (40, 40, 10, 10))
+            mask = pygame2.mask.from_threshold(surf, pygame2.Color (0, 0, 0, 0),
+                                               pygame2.Color (10, 10, 10, 255),
+                                               surf2)
+            
+            self.assertEqual (mask.count, 100)
+            self.assertEqual (mask.get_bounding_rects(),
+                              [pygame2.Rect (40, 40, 10, 10)])
 
 if __name__ == "__main__":
     unittest.main ()

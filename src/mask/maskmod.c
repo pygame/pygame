@@ -167,7 +167,7 @@ _mask_fromsurface (PyObject* self, PyObject* args)
 static PyObject*
 _mask_fromthreshold (PyObject* self, PyObject* args)
 {
-    PyObject *surfobj, *surfobj2;
+    PyObject *surfobj, *surfobj2, *lock1, *lock2 = NULL;
     PyMask *maskobj;
     bitmask_t* m;
     SDL_Surface* surf, *surf2;
@@ -209,8 +209,9 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_MemoryError, "memory allocation failed");
         return NULL;
     }
-	
-    if (!PySurface_AddRefLock (surfobj, self))
+    
+    lock1 = PySurface_AcquireLockObj (surfobj, self);
+    if (!lock1)
     {
         bitmask_free (m);
         return NULL;
@@ -218,9 +219,10 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
 
     if (surfobj2)
     {
-        if (!PySurface_AddRefLock(surfobj2, self))
+        lock2 = PySurface_AcquireLockObj (surfobj2, self);
+        if (!lock2)
         {
-            PySurface_RemoveRefLock (surfobj, self);
+            Py_DECREF (lock1);
             bitmask_free (m);
             return NULL;
         }
@@ -230,11 +232,8 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
     _bitmask_threshold (m, surf, surf2, color,  color_threshold);
     Py_END_ALLOW_THREADS;
 
-    PySurface_RemoveRefLock(surfobj, self);
-    if (surfobj2)
-    {
-        PySurface_RemoveRefLock (surfobj2, self);
-    }
+    Py_DECREF (lock1);
+    Py_XDECREF (lock2);
 
     maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     if(maskobj)
