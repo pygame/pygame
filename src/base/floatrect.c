@@ -351,6 +351,11 @@ _frect_setwidth (PyObject *self, PyObject *value, void *closure)
     double w;
     if (!DoubleFromObj (value, &w))
         return -1;
+    if (w < 0)
+    {
+        PyErr_SetString (PyExc_ValueError, "width must not be negative");
+        return -1;
+    }
     ((PyFRect*)self)->w = w;
     return 0;
 }
@@ -367,6 +372,11 @@ _frect_setheight (PyObject *self, PyObject *value, void *closure)
     double h;
     if (!DoubleFromObj (value, &h))
         return -1;
+    if (h < 0)
+    {
+        PyErr_SetString (PyExc_ValueError, "height must not be negative");
+        return -1;
+    }
     ((PyFRect*)self)->h = h;
     return 0;
 }
@@ -488,6 +498,13 @@ _frect_setsize (PyObject *self, PyObject *value, void *closure)
         return -1;
     if (!DoubleFromSeqIndex (value, 1, &h))
         return -1;
+
+    if (w < 0 || h < 0)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "width and height must not be negative");
+        return -1;
+    }
 
     ((PyFRect*)self)->w = w;
     ((PyFRect*)self)->h = h;
@@ -1328,7 +1345,7 @@ _frect_round (PyObject *self)
     if (!rect)
         return NULL;
     rect->x = (pgint16) round (frect->x);
-    rect->x = (pgint16) round (frect->y);
+    rect->y = (pgint16) round (frect->y);
     rect->w = (pguint16) ((frect->w < 0) ? 0 : round (frect->w));
     rect->h = (pguint16) ((frect->h < 0) ? 0 : round (frect->h));
 
@@ -1343,7 +1360,7 @@ _frect_ceil (PyObject *self)
     if (!rect)
         return NULL;
     rect->x = (pgint16) ceil (frect->x);
-    rect->x = (pgint16) ceil (frect->y);
+    rect->y = (pgint16) ceil (frect->y);
     rect->w = (pguint16) ((frect->w < 0) ? 0 : ceil (frect->w));
     rect->h = (pguint16) ((frect->h < 0) ? 0 : ceil (frect->h));
 
@@ -1358,7 +1375,7 @@ _frect_floor (PyObject *self)
     if (!rect)
         return NULL;
     rect->x = (pgint16) floor (frect->x);
-    rect->x = (pgint16) floor (frect->y);
+    rect->y = (pgint16) floor (frect->y);
     rect->w = (pguint16) ((frect->w < 0) ? 0 : floor (frect->w));
     rect->h = (pguint16) ((frect->h < 0) ? 0 : floor (frect->h));
 
@@ -1373,7 +1390,7 @@ _frect_trunc (PyObject *self)
     if (!rect)
         return NULL;
     rect->x = (pgint16) trunc (frect->x);
-    rect->x = (pgint16) trunc (frect->y);
+    rect->y = (pgint16) trunc (frect->y);
     rect->w = (pguint16) ((frect->w < 0) ? 0 : trunc (frect->w));
     rect->h = (pguint16) ((frect->h < 0) ? 0 : trunc (frect->h));
 

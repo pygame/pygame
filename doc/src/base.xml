@@ -426,7 +426,10 @@
       <desc>
         FRect.ceil () -> Rect
         
-        TODO
+        Creates a Rect from the specified FRect.
+
+        This creates a Rect using the smallest integral values greater
+        or equal to the FRect floating point values.
       </desc>
     </method>
     <attr name="center">
@@ -562,7 +565,10 @@
       <desc>
         FRect.floor () -> Rect
         
-        TODO
+        Creates a Rect from the specified FRect.
+
+        This creates a Rect using the largest integral values less than
+        or equal to the FRect floating point values.
       </desc>
     </method>
     <attr name="height">
@@ -629,7 +635,10 @@
       <desc>
         FRect.round () -> Rect
         
-        TODO
+        Creates a Rect from the specified FRect.
+
+        This creates a Rect using the FRect floating point values
+        rounded to the nearest integral value.
       </desc>
     </method>
     <attr name="size">
@@ -648,7 +657,10 @@
       <desc>
         FRect.trunc () -> Rect
         
-        TODO
+        Creates a Rect from the specified FRect.
+
+        This creates a Rect using truncated integral values from the 
+        Frect floating point values.
       </desc>
     </method>
     <method name="union">

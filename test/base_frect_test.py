@@ -2,7 +2,7 @@ try:
     import test.pgunittest as unittest
 except:
     import pgunittest as unittest
-from pygame2.base import FRect
+from pygame2.base import FRect, Rect
 
 class FRectTest (unittest.TestCase):
 
@@ -112,15 +112,19 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
 
-    def todo_test_pygame2_base_FRect_ceil(self):
+    def test_pygame2_base_FRect_ceil(self):
 
-        # __doc__ (as of 2008-10-17) for pygame2.base.FRect.ceil:
+        # __doc__ (as of 2008-11-04) for pygame2.base.FRect.ceil:
 
         # FRect.ceil () -> Rect
+        #
+        # Creates a Rect from the specified FRect.
         # 
-        # TODO
-
-        self.fail() 
+        # FRect.ceil () -> Rect Creates a Rect from the specified FRect.
+        # This creates a Rect using the smallest integral values greater
+        # or equal to the FRect floating point values.
+        r = FRect (2.1, -2.9, 5.8, 3.01)
+        self.assertEqual (r.ceil (), Rect (3, -2, 6, 4))
 
     def test_pygame2_base_FRect_center(self):
 
@@ -400,15 +404,19 @@ class FRectTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_FRect_floor(self):
+    def test_pygame2_base_FRect_floor(self):
 
-        # __doc__ (as of 2008-10-17) for pygame2.base.FRect.floor:
+        # __doc__ (as of 2008-11-04) for pygame2.base.FRect.floor:
 
         # FRect.floor () -> Rect
-        # 
-        # TODO
-
-        self.fail() 
+        #
+        # Creates a Rect from the specified FRect.
+        #
+        # FRect.floor () -> Rect Creates a Rect from the specified FRect.
+        # This creates a Rect using the largest integral values less than
+        # or equal to the FRect floating point values.
+        r = FRect (2.1, -2.9, 5.8, 3.01)
+        self.assertEqual (r.floor (), Rect (2, -3, 5, 3))
 
     def test_pygame2_base_FRect_height(self):
 
@@ -628,15 +636,19 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( expected_left, r.left )
         self.assertEqual( old_width, r.width )
 
-    def todo_test_pygame2_base_FRect_round(self):
+    def test_pygame2_base_FRect_round(self):
 
-        # __doc__ (as of 2008-10-17) for pygame2.base.FRect.round:
+        # __doc__ (as of 2008-11-04) for pygame2.base.FRect.round:
 
         # FRect.round () -> Rect
         # 
-        # TODO
-
-        self.fail() 
+        # Creates a Rect from the specified FRect.
+        # 
+        # FRect.round () -> Rect Creates a Rect from the specified FRect.
+        # This creates a Rect using the FRect floating point values
+        # rounded to the nearest integral value.
+        r = FRect (2.1, -2.9, 5.8, 3.01)
+        self.assertEqual (r.round (), Rect (2, -3, 6, 3))
 
     def test_pygame2_base_FRect_size(self):
 
@@ -691,15 +703,19 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( expected_topleft, r.topleft )
         self.assertEqual( old_size, r.size )
 
-    def todo_test_pygame2_base_FRect_trunc(self):
+    def test_pygame2_base_FRect_trunc(self):
 
-        # __doc__ (as of 2008-10-17) for pygame2.base.FRect.trunc:
+        # __doc__ (as of 2008-11-04) for pygame2.base.FRect.trunc:
 
         # FRect.trunc () -> Rect
-        # 
-        # TODO
+        #
+        # Creates a Rect from the specified FRect.
 
-        self.fail() 
+        # FRect.trunc() -> Rect. Creates a Rect from the specified FRect.
+        # This creates a Rect using truncated integral values from the 
+        # Frect floating point values.
+        r = FRect (-1.57, 2.99, 8.1, 5.77)
+        self.assertEqual (r.trunc (), Rect (-1, 2, 8, 5))
 
     def test_pygame2_base_FRect_union(self):
 
