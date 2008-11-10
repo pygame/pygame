@@ -410,6 +410,7 @@ int
 PyOverlay_AddRefLock (PyObject *overlay, PyObject *lock)
 {
     PyOverlay *ov = (PyOverlay*)overlay;
+    PyObject *wkref;
 
     if (!PyOverlay_Check (overlay))
     {
@@ -432,16 +433,16 @@ PyOverlay_AddRefLock (PyObject *overlay, PyObject *lock)
     if (SDL_LockYUVOverlay (ov->overlay) == -1)
         return 0;
 
-    if (PyList_Append (ov->locklist, lock) == -1)
+    wkref = PyWeakref_NewRef (lock, NULL);
+    if (!wkref)
+        return 0;
+
+    if (PyList_Append (ov->locklist, wkref) == -1)
     {
         SDL_UnlockYUVOverlay (ov->overlay);
+        Py_DECREF (wkref);
         return 0;
     }
-    /* Append increments the refcount, but we do not want that. The
-     * locklist simulates a sort of weak reference list.
-     */
-    Py_DECREF (lock);
-    Py_INCREF (overlay);
 
     return 1;
 }
@@ -450,7 +451,9 @@ int
 PyOverlay_RemoveRefLock (PyObject *overlay, PyObject *lock)
 {
     PyOverlay *ov = (PyOverlay*)overlay;
-    Py_ssize_t pos;
+    PyObject *ref, *item;
+    Py_ssize_t size;
+    int found = 0, noerror = 1;
 
     if (!PyOverlay_Check (overlay))
     {
@@ -464,28 +467,42 @@ PyOverlay_RemoveRefLock (PyObject *overlay, PyObject *lock)
         return 0;
     }
 
-    pos = PySequence_Index (ov->locklist, lock);
-    if (pos == -1)
+    size = PyList_Size (ov->locklist);
+    if (size == 0)
     {
         PyErr_SetString (PyExc_ValueError, "no locks are hold by the object");
         return 0;
     }
-
-    /* We are about to remove the lock object from the locklist.
-     * This requires us to increment its refcount, so that the removal
-     * won't destroy it.
-     */
-    Py_INCREF (lock);
-    if (PySequence_DelItem (ov->locklist, pos) == -1)
+    
+    while (--size >= 0)
     {
-        /* Failed */
-        Py_DECREF (lock);
-        return 0;
+        ref = PyList_GET_ITEM (ov->locklist, size);
+        item = PyWeakref_GET_OBJECT (ref);
+        if (item == lock)
+        {
+            if (PySequence_DelItem (ov->locklist, size) == -1)
+                return 0;
+            found++;
+        }
+        else if (item == Py_None)
+        {
+            /* Clear dead references */
+            if (PySequence_DelItem (ov->locklist, size) != -1)
+                found++;
+            else
+                noerror = 0;
+        }
     }
-    SDL_UnlockYUVOverlay (ov->overlay);
-    Py_DECREF (overlay);
+    if (!found)
+        return noerror;
 
-    return 1;
+    /* Release all locks on the overlay */
+    while (found > 0)
+    {
+        SDL_UnlockYUVOverlay (ov->overlay);
+        found--;
+    }
+    return noerror;
 }
 
 void

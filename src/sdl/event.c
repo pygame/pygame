@@ -118,7 +118,12 @@ _event_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyEvent *event = (PyEvent *) type->tp_alloc (type, 0);
     if (!event)
         return NULL;
-    event->dict = NULL;
+    event->dict = PyDict_New ();
+    if (!event->dict)
+    {
+        Py_DECREF (event);
+        return NULL;
+    }
     event->type = 0;
     return (PyObject*) event;
 }
@@ -140,6 +145,7 @@ _event_init (PyObject *self, PyObject *args, PyObject *kwds)
     }
 
     event->type = eventid;
+    
     if (PyDict_Update (event->dict, dict) == -1)
         return -1;
 

@@ -50,6 +50,7 @@ clean:
 	@echo "Cleaning up in $(top_srcdir)/ ..."
 	@rm -f *.cache *.core *~ MANIFEST *.pyc
 	@rm -rf src/doc
+	@rm -rf doc/ref
 	@rm -rf build dist
 
 	@for dir in $(SUBDIRS); do \

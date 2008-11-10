@@ -1,21 +1,17 @@
 from xml.dom.minidom import parse
 import os, glob, sys
 
-HTML_HEAD = """
+HTML_HEADER = """
 <html>
-<title>%s - Pygame Documentation</title>
-<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+<head>
+<title>%s</title>
+</head>
+<body>
+"""
 
-<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%%'>
-<tr>
-<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
-<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
-	||&nbsp;
-	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
-	<a href=../index.html>Help Contents</a> &nbsp;||
-	<a href=index.html>Reference Index</a> &nbsp;||
-	<br>&nbsp;<br>
-	
+HTML_FOOTER = """
+</body>
+</html>
 """
 
 class DocClass (object):
@@ -51,7 +47,7 @@ class Doc(object):
     def __init__ (self, filename):
         self.filename = filename
         self.modulename = None
-        self.description = None
+        self.description = ""
         self.classes = []
         self.functions = []
     
@@ -63,23 +59,32 @@ class Doc(object):
     
     def get_module_docs (self, dom):
         module = dom.getElementsByTagName ("module")[0]
-        self.module = module.getAttribute ("name")
-        self.description = module.getElementsByTagName \
-            ("desc")[0].firstChild.nodeValue
+        self.modulename = module.getAttribute ("name")
+        node = module.getElementsByTagName ("desc")[0]
+        if node.firstChild:
+            self.description = node.firstChild.nodeValue
         return module
     
     def get_module_funcs (self, module):
         functions = module.getElementsByTagName ("func")
         for func in functions:
             name = func.getAttribute ("name")
-            desc = func.getElementsByTagName ("desc")[0].firstChild.nodeValue
+            node = func.getElementsByTagName ("desc")[0]
+            if node.firstChild:
+                desc = node.firstChild.nodeValue
+            else:
+                desc = ""
             self.functions.append (DocMethod (None, name, desc))
 
     def get_class_refs (self, module):
         classes = module.getElementsByTagName ("class")
         for cls in classes:
             name = cls.getAttribute ("name")
-            desc = cls.getElementsByTagName ("desc")[0].firstChild.nodeValue
+            node = cls.getElementsByTagName ("desc")[0]
+            if node.firstChild:
+                desc = node.firstChild.nodeValue
+            else:
+                desc = ""
             clsdoc = DocClass (name, desc)
 
             attrs = cls.getElementsByTagName ("attr")
@@ -94,17 +99,80 @@ class Doc(object):
 
     def create_attr_ref (self, doccls, attr):
         name = attr.getAttribute ("name")
-        desc = attr.firstChild.nodeValue
+        if attr.firstChild:
+            desc = attr.firstChild.nodeValue
+        else:
+            desc = ""
         doccls.attributes.append (DocAttribute (name, desc))
 
     def create_method_ref (self, doccls, method):
         name = method.getAttribute ("name")
-        desc = method.getElementsByTagName ("desc")[0].firstChild.nodeValue
+        node = method.getElementsByTagName ("desc")[0]
+        if node.firstChild:
+            desc = node.firstChild.nodeValue
+        else:
+            desc = ""
         doccls.methods.append (DocMethod (doccls, name, desc))
+
+    def create_desc_html (self, desc, refcache):
+        data = '<p>'
+        written = 0
+        blocks = 0
+        for line in desc.split ('\n'):
+            line = line.strip ()
+            if written > 0 and line == '':
+                data += '</p><p>'
+                blocks += 1
+            else:
+                data += line
+            written += 1
+        if blocks > 0:
+            data += '</p>'
+        return data
+    
+    def create_func_html (self, func, refcache):
+        data = '<dt class="functions"><a name="%s">%s</a></dt>\n' % \
+               (func.name, func.name)
+        data += '<dd class="functions">%s</dd>\n' % \
+                self.create_desc_html (func.description, refcache)
+        return data
+    
+    def create_html (self, refcache):
+        fname = os.path.join ("ref", "%s.html")
+        fp = open (fname % self.modulename.replace (".", "_"), "w")
+        fp.write (HTML_HEADER % self.modulename)
+        if len (self.functions) > 0:
+            fp.write ('<dl class="functions">\n')
+            for func in self.functions:
+                fp.write (self.create_func_html (func, refcache))
+            fp.write ("</dl>")
+
+        if len (self.classes) > 0:
+            for cls in self.classes:
+                fp.write (cls.name)
+                fp.write (cls.description)
+                for attr in cls.attributes:
+                    fp.write (attr.name)
+                    fp.write (attr.description)
+                for method in cls.methods:
+                    fp.write (method.name)
+                    fp.write (method.description)
+        fp.write (HTML_FOOTER)
+        fp.close ()
         
-    def create_html (self, doclist):
-        # TODO
-        pass
+def create_html (docs):
+    refcache = {}
+    if not os.path.exists ("ref"):
+        os.mkdir ("ref")
+
+    for doc in docs:
+        for cls in doc.classes:
+            refcache[cls.name] = doc.filename
+        for func in doc.functions:
+            refcache[func.name] = doc.filename
+    for doc in docs:
+        print ("Now writing HTML for %s...." % doc.modulename)
+        doc.create_html (refcache)
 
 def get_doc_files ():
     docs = []
@@ -116,5 +184,6 @@ def get_doc_files ():
 if __name__ == "__main__":
     docs = get_doc_files ()
     for doc in docs:
+        print ("Parsing file %s..." % doc.filename)
         doc.parse_content ()
-        doc.create_html (docs)
+    create_html (docs)

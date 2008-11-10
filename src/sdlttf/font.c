@@ -409,7 +409,7 @@ _font_render (PyObject *self, PyObject* args)
 
     ASSERT_TTF_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OO|iO:render", &text, &colorfg, &colorbg,
+    if (!PyArg_ParseTuple (args, "OO|Oi:render", &text, &colorfg, &colorbg,
             &render))
         return NULL;
 

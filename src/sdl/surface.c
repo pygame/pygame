@@ -1030,6 +1030,7 @@ int
 PySurface_AddRefLock (PyObject *surface, PyObject *lock)
 {
     PySurface *sf = (PySurface*)surface;
+    PyObject *wkref;
 
     if (!PySurface_Check (surface))
     {
@@ -1052,16 +1053,16 @@ PySurface_AddRefLock (PyObject *surface, PyObject *lock)
     if (SDL_LockSurface (sf->surface) == -1)
         return 0;
 
-    if (PyList_Append (sf->locklist, lock) == -1)
+    wkref = PyWeakref_NewRef (lock, NULL);
+    if (!wkref)
+        return 0;
+
+    if (PyList_Append (sf->locklist, wkref) == -1)
     {
         SDL_UnlockSurface (sf->surface);
+        Py_DECREF (wkref);
         return 0;
     }
-    /* Append increments the refcount, but we do not want that. The
-     * locklist simulates a sort of weak reference list.
-     */
-    Py_DECREF (lock);
-    Py_INCREF (surface);
 
     return 1;
 }
@@ -1070,7 +1071,9 @@ int
 PySurface_RemoveRefLock (PyObject *surface, PyObject *lock)
 {
     PySurface *sf = (PySurface*)surface;
-    Py_ssize_t pos;
+    PyObject *ref, *item;
+    Py_ssize_t size;
+    int found = 0, noerror = 1;
 
     if (!PySurface_Check (surface))
     {
@@ -1084,28 +1087,42 @@ PySurface_RemoveRefLock (PyObject *surface, PyObject *lock)
         return 0;
     }
 
-    pos = PySequence_Index (sf->locklist, lock);
-    if (pos == -1)
+    size = PyList_Size (sf->locklist);
+    if (size == 0)
     {
         PyErr_SetString (PyExc_ValueError, "no locks are hold by the object");
         return 0;
     }
-
-    /* We are about to remove the lock object from the locklist.
-     * This requires us to increment its refcount, so that the removal
-     * won't destroy it.
-     */
-    Py_INCREF (lock);
-    if (PySequence_DelItem (sf->locklist, pos) == -1)
+    
+    while (--size >= 0)
     {
-        /* Failed */
-        Py_DECREF (lock);
-        return 0;
+        ref = PyList_GET_ITEM (sf->locklist, size);
+        item = PyWeakref_GET_OBJECT (ref);
+        if (item == lock)
+        {
+            if (PySequence_DelItem (sf->locklist, size) == -1)
+                return 0;
+            found++;
+        }
+        else if (item == Py_None)
+        {
+            /* Clear dead references */
+            if (PySequence_DelItem (sf->locklist, size) != -1)
+                found++;
+            else
+                noerror = 0;
+        }
     }
-    SDL_UnlockSurface (sf->surface);
-    Py_DECREF (surface);
+    if (!found)
+        return noerror;
 
-    return 1;
+    /* Release all locks on the surface */
+    while (found > 0)
+    {
+        SDL_UnlockSurface (sf->surface);
+        found--;
+    }
+    return noerror;
 }
 
 PyObject*
