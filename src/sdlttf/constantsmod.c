@@ -24,7 +24,7 @@
 
 /* macros used to create each constant */
 #define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) TTF_##x)
-#define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (int) #x)
+#define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (int) x)
 
 #if PY_VERSION_HEX >= 0x03000000
 PyMODINIT_FUNC PyInit_constants (void)

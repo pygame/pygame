@@ -29,7 +29,7 @@ static void _font_dealloc (PyFont *self);
 
 static PyObject* _font_glyphmetrics (PyObject *self, PyObject* args);
 static PyObject* _font_getsize (PyObject *self, PyObject* args);
-static PyObject* _font_render (PyObject *self, PyObject* args);
+static PyObject* _font_render (PyObject *self, PyObject* args, PyObject *kwds);
 
 static PyObject* _font_getstyle (PyObject *self, void *closure);
 static int _font_setstyle (PyObject *self, PyObject *value, void *closure);
@@ -47,7 +47,7 @@ static PyObject* _font_getstylename (PyObject *self, void *closure);
 static PyMethodDef _font_methods[] = {
     { "get_glyph_metrics", _font_glyphmetrics, METH_VARARGS, "" },
     { "get_size", _font_getsize, METH_VARARGS, "" },
-    { "render", _font_render, METH_VARARGS, "" },
+    { "render", _font_render, METH_VARARGS | METH_KEYWORDS, "" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -399,7 +399,7 @@ _font_getsize (PyObject *self, PyObject* args)
 }
 
 static PyObject*
-_font_render (PyObject *self, PyObject* args)
+_font_render (PyObject *self, PyObject* args, PyObject *kwds)
 {
     PyFont *font = (PyFont*) self;
     PyObject *text, *colorfg, *pysurf, *colorbg = NULL;
@@ -407,10 +407,12 @@ _font_render (PyObject *self, PyObject* args)
     SDL_Color fgcolor, bgcolor;
     int render = -1;
 
+    static char *kwlist[] = { "text", "fgcolor", "bgcolor", "blendargs", NULL };
+
     ASSERT_TTF_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OO|Oi:render", &text, &colorfg, &colorbg,
-            &render))
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|Oi:render", &kwlist,
+            &text, &colorfg, &colorbg, &render))
         return NULL;
 
     if (!PyColor_Check (colorfg))
