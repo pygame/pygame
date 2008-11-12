@@ -28,11 +28,12 @@ static PyObject* _channel_new (PyTypeObject *type, PyObject *args,
 static int _channel_init (PyObject *chunk, PyObject *args, PyObject *kwds);
 static void _channel_dealloc (PyChannel *self);
 
-static PyObject* _channel_play (PyObject *self, PyObject *args);
+static PyObject* _channel_play (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _channel_pause (PyObject *self);
 static PyObject* _channel_halt (PyObject *self);
 static PyObject* _channel_resume (PyObject *self);
-static PyObject* _channel_fadein (PyObject *self, PyObject *args);
+static PyObject* _channel_fadein (PyObject *self, PyObject *args,
+    PyObject *kwds);
 static PyObject* _channel_fadeout (PyObject *self, PyObject *args);
 static PyObject* _channel_expire (PyObject *self, PyObject *args);
 
@@ -46,11 +47,12 @@ static PyObject* _channel_getfading (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _channel_methods[] = {
-    { "play", _channel_play, METH_VARARGS, "" },
+    { "play", (PyCFunction)_channel_play, METH_VARARGS | METH_KEYWORDS, "" },
     { "pause", (PyCFunction) _channel_pause, METH_NOARGS, "" },
     { "halt", (PyCFunction) _channel_halt, METH_NOARGS, "" },
     { "resume", (PyCFunction) _channel_resume, METH_NOARGS, "" },
-    { "fade_in", _channel_fadein, METH_VARARGS, "" },
+    { "fade_in", (PyCFunction)_channel_fadein, METH_VARARGS | METH_KEYWORDS,
+      "" },
     { "fade_out", _channel_fadeout, METH_VARARGS, "" },
     { "expire", _channel_expire, METH_VARARGS, "" },
     { NULL, NULL, 0, NULL }
@@ -241,14 +243,17 @@ _channel_getfading (PyObject *self, void *closure)
 
 /* Methods */
 static PyObject*
-_channel_play (PyObject *self, PyObject *args)
+_channel_play (PyObject *self, PyObject *args, PyObject *kwds)
 {
     int loops = -1, ticks = -1, retval;
     PyObject *obj;
     PyChannel *chan = (PyChannel*) self;
     PyChunk *chunk;
 
-    if (!PyArg_ParseTuple (args, "O|ii:play", &obj, &loops, &ticks))
+    static char *kwlist[] = { "sound", "loops", "ticks", NULL };
+    
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|ii:play", kwlist, &obj,
+        &loops, &ticks))
         return NULL;
 
     if (!PyChunk_Check (obj))
@@ -316,14 +321,17 @@ _channel_resume (PyObject *self)
 }
 
 static PyObject*
-_channel_fadein (PyObject *self, PyObject *args)
+_channel_fadein (PyObject *self, PyObject *args, PyObject *kwds)
 {
     int loops = -1, ticks = -1, ms, retval;
     PyObject *obj;
     PyChannel *chan = (PyChannel*) self;
     PyChunk *chunk;
 
-    if (!PyArg_ParseTuple (args, "Oi|ii:fade_in", &obj, &ms, &loops, &ticks))
+    static char *kwlist[] = { "sound", "ms", "loops", "ticks", NULL };
+    
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "Oi|ii:fade_in", kwlist,
+        &obj, &ms, &loops, &ticks))
         return NULL;
 
     if (ms < 0)

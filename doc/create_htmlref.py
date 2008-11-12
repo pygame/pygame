@@ -115,25 +115,27 @@ class Doc(object):
         doccls.methods.append (DocMethod (doccls, name, desc))
 
     def create_desc_html (self, desc, refcache):
-        data = '<p>'
         written = 0
         blocks = 0
+        data = '<p>'
         for line in desc.split ('\n'):
             line = line.strip ()
             if written > 0 and line == '':
                 data += '</p><p>'
                 blocks += 1
-            else:
+            elif line != '':
                 data += line
-            written += 1
+                written += 1
         if blocks > 0:
             data += '</p>'
+        if written == 0:
+            return ''
         return data
     
     def create_func_html (self, func, refcache):
-        data = '<dt class="functions"><a name="%s">%s</a></dt>\n' % \
+        data = '    <dt class="functions"><a name="%s">%s</a></dt>\n' % \
                (func.name, func.name)
-        data += '<dd class="functions">%s</dd>\n' % \
+        data += '    <dd class="functions">%s</dd>\n' % \
                 self.create_desc_html (func.description, refcache)
         return data
     
@@ -141,11 +143,16 @@ class Doc(object):
         fname = os.path.join ("ref", "%s.html")
         fp = open (fname % self.modulename.replace (".", "_"), "w")
         fp.write (HTML_HEADER % self.modulename)
+        
+        fp.write ('<h1 class="module">%s</h1>\n' % self.modulename)
+        fp.write ('<div class="module">\n%s</div>\n' % self.description)
+        fp.write ('<div class="moddefs">\n')
+        
         if len (self.functions) > 0:
-            fp.write ('<dl class="functions">\n')
+            fp.write ('  <dl class="functions">\n')
             for func in self.functions:
                 fp.write (self.create_func_html (func, refcache))
-            fp.write ("</dl>")
+            fp.write ("  </dl>\n")
 
         if len (self.classes) > 0:
             for cls in self.classes:
@@ -157,6 +164,7 @@ class Doc(object):
                 for method in cls.methods:
                     fp.write (method.name)
                     fp.write (method.description)
+        fp.write ('</div>\n')
         fp.write (HTML_FOOTER)
         fp.close ()
         

@@ -29,7 +29,7 @@ static int _music_init (PyObject *music, PyObject *args, PyObject *kwds);
 static void _music_dealloc (PyMusic *self);
 
 static PyObject* _music_play (PyObject *self, PyObject *args);
-static PyObject* _music_fadein (PyObject *self, PyObject *args);
+static PyObject* _music_fadein (PyObject *self, PyObject *args, PyObject *kwds);
 
 static PyObject* _music_gettype (PyObject *self, void *closure);
 
@@ -37,7 +37,8 @@ static PyObject* _music_gettype (PyObject *self, void *closure);
  */
 static PyMethodDef _music_methods[] = {
     { "play", _music_play, METH_VARARGS, "" },
-    { "fade_in", _music_fadein, METH_VARARGS, "" },
+    { "fade_in", (PyCFunction) _music_fadein, METH_VARARGS | METH_KEYWORDS,
+      "" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -199,14 +200,17 @@ _music_play (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_music_fadein (PyObject *self, PyObject *args)
+_music_fadein (PyObject *self, PyObject *args, PyObject *kwds)
 {
     int loops = -1, ms, retval;
     double pos = 0;
 
+    static char *kwlist[] = { "ms", "loops", "pos", NULL };
+    
     ASSERT_MIXER_OPEN(NULL);
 
-    if (!PyArg_ParseTuple (args, "i|id:fade_in", &ms, &loops, &pos))
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "i|id:fade_in", kwlist, &ms,
+        &loops, &pos))
         return NULL;
 
     if (ms < 0)

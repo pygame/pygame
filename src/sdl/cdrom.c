@@ -37,7 +37,8 @@ static PyObject* _cd_gettracks (PyObject *self, void *closure);
 static PyObject* _cd_open (PyObject *self);
 static PyObject* _cd_close (PyObject *self);
 static PyObject* _cd_play (PyObject *self, PyObject *args);
-static PyObject* _cd_playtracks (PyObject *self, PyObject *args);
+static PyObject* _cd_playtracks (PyObject *self, PyObject *args,
+    PyObject *kwds);
 static PyObject* _cd_pause (PyObject *self);
 static PyObject* _cd_resume (PyObject *self);
 static PyObject* _cd_stop (PyObject *self);
@@ -49,7 +50,8 @@ static PyMethodDef _cd_methods[] = {
     { "open", (PyCFunction) _cd_open, METH_NOARGS, "" },
     { "close", (PyCFunction) _cd_close, METH_NOARGS, "" },
     { "play", _cd_play, METH_VARARGS, "" },
-    { "play_tracks", _cd_playtracks, METH_VARARGS, "" },
+    { "play_tracks", (PyCFunction) _cd_playtracks, METH_VARARGS | METH_KEYWORDS,
+      "" },
     { "pause", (PyCFunction) _cd_pause, METH_NOARGS, "" },
     { "resume", (PyCFunction) _cd_resume, METH_NOARGS, "" },
     { "stop", (PyCFunction) _cd_stop, METH_NOARGS, "" },
@@ -342,17 +344,20 @@ _cd_play (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_cd_playtracks (PyObject *self, PyObject *args)
+_cd_playtracks (PyObject *self, PyObject *args, PyObject *kwds)
 {
     int start_track = 0, start_frame = 0, ntracks = 0, nframes = 0;
     PyObject *asfps = Py_False;
     int istrue;
-    
     SDL_CD *cd = ((PyCD*)self)->cd;
+    
+    static char *kwlist[] = { "starttrack", "ntracks", "startframe", "nframes",
+                              "asfps", NULL };
+    
     ASSERT_CDROM_OPEN(self, NULL);
 
-    if (!PyArg_ParseTuple (args, "|iiiiO:play_tracks", &start_track, &ntracks,
-            &start_frame, &nframes, asfps))
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|iiiiO:play_tracks", kwlist,
+            &start_track, &ntracks, &start_frame, &nframes, asfps))
         return NULL;
 
     if (start_track < 0 || start_track > cd->numtracks)

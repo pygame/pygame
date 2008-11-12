@@ -19,7 +19,7 @@ integer and double additions and subtractions with overflow checking.
 
 Additionally base/pgbase.h contains several functions to get an integer
 or floating point value from a PyObject. Those however require other
-module to import the base module.
+modules to import the base module.
 
 * SDL Rectangles *
 

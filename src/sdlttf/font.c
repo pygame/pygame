@@ -47,7 +47,7 @@ static PyObject* _font_getstylename (PyObject *self, void *closure);
 static PyMethodDef _font_methods[] = {
     { "get_glyph_metrics", _font_glyphmetrics, METH_VARARGS, "" },
     { "get_size", _font_getsize, METH_VARARGS, "" },
-    { "render", _font_render, METH_VARARGS | METH_KEYWORDS, "" },
+    { "render", (PyCFunction)_font_render, METH_VARARGS | METH_KEYWORDS, "" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -411,7 +411,7 @@ _font_render (PyObject *self, PyObject* args, PyObject *kwds)
 
     ASSERT_TTF_INIT (NULL);
 
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|Oi:render", &kwlist,
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|Oi:render", kwlist,
             &text, &colorfg, &colorbg, &render))
         return NULL;
 

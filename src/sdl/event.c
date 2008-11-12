@@ -34,6 +34,7 @@ static int _event_init (PyObject *event, PyObject *args, PyObject *kwds);
 static void _event_dealloc (PyEvent *self);
 
 static PyObject* _event_gettype (PyObject *self, void *closure);
+static PyObject* _event_getname (PyObject *self, void *closure);
 
 /**
  */
@@ -47,6 +48,7 @@ static PyMethodDef _event_methods[] = {
  */
 static PyGetSetDef _event_getsets[] = {
     { "type", _event_gettype, NULL, "", NULL },
+    { "name", _event_getname, NULL, "", NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -609,6 +611,50 @@ static PyObject*
 _event_gettype (PyObject *self, void *closure)
 {
     return PyInt_FromLong (((PyEvent*)self)->type);
+}
+
+static PyObject*
+_event_getname (PyObject *self, void *closure)
+{
+    switch (((PyEvent*)self)->type)
+    {
+    case SDL_ACTIVEEVENT:
+        return PyString_FromString ("ActiveEvent");
+    case SDL_KEYDOWN:
+        return PyString_FromString ("KeyDown");
+    case SDL_KEYUP:
+        return PyString_FromString ("KeyUp");
+    case SDL_MOUSEMOTION:
+        return PyString_FromString ("MouseMotion");
+    case SDL_MOUSEBUTTONDOWN:
+        return PyString_FromString ("MouseButtonDown");
+    case SDL_MOUSEBUTTONUP:
+        return PyString_FromString ("MouseButtonUp");
+    case SDL_JOYAXISMOTION:
+        return PyString_FromString ("JoyAxisMotion");
+    case SDL_JOYBALLMOTION:
+        return PyString_FromString ("JoyBallMotion");
+    case SDL_JOYHATMOTION:
+        return PyString_FromString ("JoyHatMotion");
+    case SDL_JOYBUTTONUP:
+        return PyString_FromString ("JoyButtonUp");
+    case SDL_JOYBUTTONDOWN:
+        return PyString_FromString ("JoyButtonDown");
+    case SDL_QUIT:
+        return PyString_FromString ("Quit");
+    case SDL_SYSWMEVENT:
+        return PyString_FromString ("SysWMEvent");
+    case SDL_VIDEORESIZE:
+        return PyString_FromString ("VideoResize");
+    case SDL_VIDEOEXPOSE:
+        return PyString_FromString ("VideoExpose");
+    case SDL_NOEVENT:
+        return PyString_FromString ("NoEvent");
+    }
+    if (((PyEvent*)self)->type >= SDL_USEREVENT &&
+        ((PyEvent*)self)->type < SDL_NUMEVENTS)
+        return PyString_FromString ("UserEvent");
+    return PyString_FromString ("Unknown");
 }
 
 /* C API */

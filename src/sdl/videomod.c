@@ -35,8 +35,10 @@ static PyObject* _sdl_setgamma (PyObject *self, PyObject *args);
 static PyObject* _sdl_getgammaramp (PyObject *self);
 static PyObject* _sdl_setgammaramp (PyObject *self, PyObject *args);
 static PyObject* _sdl_videomodeok (PyObject *self, PyObject *args);
-static PyObject* _sdl_listmodes (PyObject *self, PyObject *args);
-static PyObject* _sdl_setvideomode (PyObject *self, PyObject *args);
+static PyObject* _sdl_listmodes (PyObject *self, PyObject *args,
+    PyObject *kwds);
+static PyObject* _sdl_setvideomode (PyObject *self, PyObject *args,
+    PyObject *kwds);
 
 static PyMethodDef _video_methods[] = {
     { "init", (PyCFunction) _sdl_videoinit, METH_NOARGS, "" },
@@ -49,8 +51,10 @@ static PyMethodDef _video_methods[] = {
     { "get_gammaramp", (PyCFunction)_sdl_getgammaramp, METH_NOARGS, "" },
     { "set_gammaramp", _sdl_setgammaramp, METH_VARARGS, "" },
     { "is_mode_ok", _sdl_videomodeok, METH_VARARGS, "" },
-    { "list_modes", _sdl_listmodes, METH_VARARGS, "" },
-    { "set_mode", _sdl_setvideomode, METH_VARARGS, "" },
+    { "list_modes", (PyCFunction) _sdl_listmodes, METH_VARARGS | METH_KEYWORDS,
+      "" },
+    { "set_mode", (PyCFunction)_sdl_setvideomode, METH_VARARGS | METH_KEYWORDS,
+      "" },
     { NULL, NULL, 0, NULL }
 };
 
@@ -316,7 +320,7 @@ _sdl_videomodeok (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_sdl_listmodes (PyObject *self, PyObject *args)
+_sdl_listmodes (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *pxfmt = NULL;
     Uint32 flags = 0;
@@ -324,9 +328,11 @@ _sdl_listmodes (PyObject *self, PyObject *args)
     int i;
     PyObject *list, *rect;
 
+    static char *kwlist[] = { "format", "flags", NULL };
     ASSERT_VIDEO_INIT(NULL);
     
-    if (!PyArg_ParseTuple (args, "|Ol:list_modes", &pxfmt, &flags))
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|Ol:list_modes", kwlist,
+        &pxfmt, &flags))
         return NULL;
     
     if (pxfmt && !PyPixelFormat_Check (pxfmt))
@@ -371,7 +377,7 @@ _sdl_listmodes (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_sdl_setvideomode (PyObject *self, PyObject *args)
+_sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
 {
     int width, height;
     int bpp = 32;
@@ -379,13 +385,15 @@ _sdl_setvideomode (PyObject *self, PyObject *args)
     SDL_Surface *surface;
     PyObject *sf;
 
+    static char *kwlist[] = { "width", "height", "bpp", "flags", NULL };
+    
     /* Not necessary usually. SDL_SetVideoMode() seems to do that
      * implicitly for recent versions of SDL. Though we'll force users
      * to do it explicitly. */
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "ii|il:set_mode", &width, &height, &bpp,
-            &flags))
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "ii|il:set_mode", kwlist,
+        &width, &height, &bpp, &flags))
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS;

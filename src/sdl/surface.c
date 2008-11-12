@@ -57,7 +57,8 @@ static PyObject* _surface_getcolorkey (PyObject *self);
 static PyObject* _surface_setcolorkey (PyObject *self, PyObject *args);
 static PyObject* _surface_getalpha (PyObject *self);
 static PyObject* _surface_setalpha (PyObject *self, PyObject *args);
-static PyObject* _surface_convert (PyObject *self, PyObject *args);
+static PyObject* _surface_convert (PyObject *self, PyObject *args,
+    PyObject *kwds);
 static PyObject* _surface_clone (PyObject *self);
 static PyObject* _surface_blit (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_fill (PyObject *self, PyObject *args, PyObject *kwds);
@@ -83,10 +84,11 @@ static PyMethodDef _surface_methods[] = {
     { "set_alpha", _surface_setalpha, METH_VARARGS, "" },
     { "get_at", _surface_getat, METH_VARARGS, "" },
     { "set_at", _surface_setat, METH_VARARGS, "" },
-    { "convert", _surface_convert, METH_VARARGS, "" },
+    { "convert", (PyCFunction) _surface_convert, METH_VARARGS | METH_KEYWORDS,
+        "" },
     { "clone", (PyCFunction)_surface_clone, METH_NOARGS, "" },
-    { "blit", _surface_blit, METH_VARARGS | METH_KEYWORDS, "" },
-    { "fill", _surface_fill, METH_VARARGS | METH_KEYWORDS, "" },
+    { "blit", (PyCFunction)_surface_blit, METH_VARARGS | METH_KEYWORDS, "" },
+    { "fill", (PyCFunction)_surface_fill, METH_VARARGS | METH_KEYWORDS, "" },
     { "save", _surface_save, METH_VARARGS, "" },
     { NULL, NULL, 0, NULL }
 };
@@ -677,14 +679,16 @@ _surface_setalpha (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_surface_convert (PyObject *self, PyObject *args)
+_surface_convert (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *pxfmt = NULL, *sf;
     Uint32 flags = 0;
     SDL_Surface *surface;
     SDL_PixelFormat *fmt;
     
-    if (!PyArg_ParseTuple (args, "|Ol;convert", &pxfmt, &flags))
+    static char *keys[] = { "format", "flags", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|Ol;convert", keys, &pxfmt,
+        &flags))
         return NULL;
 
     if (pxfmt && !PyPixelFormat_Check (pxfmt))
