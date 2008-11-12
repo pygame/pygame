@@ -127,6 +127,8 @@ PyMODINIT_FUNC initimage (void)
     if (!mod)
         goto fail;
 
+    if (import_pygame2_base () < 0)
+        goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;
     MODINIT_RETURN(mod);

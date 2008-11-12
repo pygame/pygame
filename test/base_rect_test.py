@@ -13,6 +13,38 @@ class RectTest (unittest.TestCase):
         self.assertEqual( 3, r.width )
         self.assertEqual( 4, r.height )
 
+    def testConstructionWidthHeight( self ):
+        r = Rect (3, 4)
+        self.assertEqual( 0, r.left )
+        self.assertEqual( 0, r.top )
+        self.assertEqual( 3, r.width )
+        self.assertEqual( 4, r.height )
+
+        r2 = Rect (r.size)
+        self.assertEqual( 0, r2.left )
+        self.assertEqual( 0, r2.top )
+        self.assertEqual( 3, r2.width )
+        self.assertEqual( 4, r2.height )
+
+        r2 = Rect ((3,4))
+        self.assertEqual( 0, r2.left )
+        self.assertEqual( 0, r2.top )
+        self.assertEqual( 3, r2.width )
+        self.assertEqual( 4, r2.height )
+
+    def testConstructionPointSize( self ):
+        r = Rect ((1,2),(3,4))
+        self.assertEqual( 1, r.left )
+        self.assertEqual( 2, r.top )
+        self.assertEqual( 3, r.width )
+        self.assertEqual( 4, r.height )
+
+        r2 = Rect (r.topleft, r.size)
+        self.assertEqual( 1, r2.left )
+        self.assertEqual( 2, r2.top )
+        self.assertEqual( 3, r2.width )
+        self.assertEqual( 4, r2.height )
+
     def testCalculatedAttributes( self ):
         r = Rect( 1, 2, 3, 4 )
         

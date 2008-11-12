@@ -216,8 +216,9 @@ _create_dict_from_event (SDL_Event *event)
             goto failed;
         if (!_set_item (dict, "mod", PyInt_FromLong (event->key.keysym.mod)))
             goto failed;
+        /* if SDL_EnableUNICODE() == 0, unicode will be a 0 character */
         if (!_set_item (dict, "unicode",
-                PyInt_FromLong (event->key.keysym.unicode)))
+                PyUnicode_FromOrdinal (event->key.keysym.unicode)))
             goto failed;
         break;
 

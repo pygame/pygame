@@ -124,7 +124,8 @@ class Doc(object):
                 data += '</p><p>'
                 blocks += 1
             elif line != '':
-                data += line
+                # TODO: replace pygame2.XXX references with links.
+                data += ' ' + line
                 written += 1
         if blocks > 0:
             data += '</p>'

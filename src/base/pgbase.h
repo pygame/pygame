@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 #define PYGAME_BASE_FIRSTSLOT 0
-#define PYGAME_BASE_NUMSLOTS 7
+#define PYGAME_BASE_NUMSLOTS 11
 #ifndef PYGAME_BASE_INTERNAL
 #define PyExc_PyGameError ((PyObject*)PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT])
 #define DoubleFromObj                                                   \
@@ -44,6 +44,14 @@ extern "C" {
     (*(int(*)(PyObject*, Py_ssize_t, int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+5])
 #define UintFromSeqIndex                                                 \
     (*(int(*)(PyObject*, Py_ssize_t, unsigned int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+6])
+#define PointFromObject                                                 \
+    (*(int(*)(PyObject*, int*, int*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+7])
+#define SizeFromObject                                                  \
+    (*(int(*)(PyObject*, pgint32*, pgint32*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+8])
+#define FPointFromObject                                                 \
+    (*(int(*)(PyObject*, double*, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+9])
+#define FSizeFromObject                                                  \
+    (*(int(*)(PyObject*, double*, double*))PyGameBase_C_API[PYGAME_BASE_FIRSTSLOT+10])
 #endif /* PYGAME_BASE_INTERNAL */
 
 typedef struct

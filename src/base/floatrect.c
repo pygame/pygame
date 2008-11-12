@@ -241,46 +241,51 @@ _frect_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     double x, y;
     double w, h;
-    PyObject *frect = NULL;
 
-    if (!PyArg_ParseTuple (args, "O", &frect))
+    if (!PyArg_ParseTuple (args, "dddd", &x, &y, &w, &h))
     {
+        x = y = 0;
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "dddd", &x, &y, &w, &h))
+        if (!PyArg_ParseTuple (args, "dd", &w, &h))
         {
-            x = y = 0;
+            PyObject *pt, *rect;
             PyErr_Clear ();
-            if (!PyArg_ParseTuple (args, "dd", &w, &h))
+            /* Rect ((x,y),(w,h)) */
+            if (!PyArg_ParseTuple (args, "OO", &pt, &rect))
             {
-                return -1;
+                PyErr_Clear ();
+                /* Rect ((w,h)) || Rect (rect) */
+                if (!PyArg_ParseTuple (args, "O", &rect))
+                {
+                    return -1;
+                }
+                if (PyRect_Check (rect))
+                {
+                    x = ((PyRect*)rect)->x;
+                    y = ((PyRect*)rect)->y;
+                    w = ((PyRect*)rect)->w;
+                    h = ((PyRect*)rect)->h;
+                }
+                else if (PyFRect_Check (rect))
+                {
+                    x = ((PyFRect*)rect)->x;
+                    y = ((PyFRect*)rect)->y;
+                    w = ((PyFRect*)rect)->w;
+                    h = ((PyFRect*)rect)->h;
+                }
+                else if (!FSizeFromObject (rect, &w, &h))
+                    return -1;
+            }
+            else
+            {
+                if (!FPointFromObject (pt, &x, &y))
+                    return -1;
+                if (!FSizeFromObject (rect, &w, &h))
+                    return -1;
             }
         }
     }
-    
-    if (frect)
-    {
-        if (PyRect_Check (frect))
-        {
-            x = ((PyRect*)frect)->x;
-            y = ((PyRect*)frect)->y;
-            w = ((PyRect*)frect)->w;
-            h = ((PyRect*)frect)->h;
-        }
-        else if (PyFRect_Check (frect))
-        {
-            x = ((PyFRect*)frect)->x;
-            y = ((PyFRect*)frect)->y;
-            w = ((PyFRect*)frect)->w;
-            h = ((PyFRect*)frect)->h;
-        }
-        else
-        {
-            PyErr_SetString (PyExc_TypeError,
-                "argument must be a Rect or Frect");
-            return -1;
-        }
-    }
-    
+
     if (w < 0 || h < 0)
     {
         PyErr_SetString (PyExc_ValueError,

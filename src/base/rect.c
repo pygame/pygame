@@ -227,43 +227,48 @@ _rect_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     pgint16 x, y;
     pgint32 w, h;
-    PyObject *rect = NULL;
 
-    if (!PyArg_ParseTuple (args, "O", &rect))
+    if (!PyArg_ParseTuple (args, "iiii", &x, &y, &w, &h))
     {
+        x = y = 0;
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "iiii", &x, &y, &w, &h))
+        if (!PyArg_ParseTuple (args, "ii", &w, &h))
         {
-            x = y = 0;
+            PyObject *pt, *rect;
             PyErr_Clear ();
-            if (!PyArg_ParseTuple (args, "ii", &w, &h))
+            /* Rect ((x,y),(w,h)) */
+            if (!PyArg_ParseTuple (args, "OO", &pt, &rect))
             {
-                return -1;
+                PyErr_Clear ();
+                /* Rect ((w,h)) || Rect (rect) */
+                if (!PyArg_ParseTuple (args, "O", &rect))
+                {
+                    return -1;
+                }
+                if (PyRect_Check (rect))
+                {
+                    x = ((PyRect*)rect)->x;
+                        y = ((PyRect*)rect)->y;
+                        w = ((PyRect*)rect)->w;
+                        h = ((PyRect*)rect)->h;
+                }
+                else if (PyFRect_Check (rect))
+                {
+                    x = (pgint16) trunc (((PyFRect*)rect)->x);
+                    y = (pgint16) trunc (((PyFRect*)rect)->y);
+                    w = (pgint32) trunc (((PyFRect*)rect)->w);
+                    h = (pgint32) trunc (((PyFRect*)rect)->h);
+                }
+                else if (!SizeFromObject (rect, &w, &h))
+                    return -1;
             }
-        }
-    }
-    
-    if (rect)
-    {
-        if (PyRect_Check (rect))
-        {
-            x = ((PyRect*)rect)->x;
-            y = ((PyRect*)rect)->y;
-            w = ((PyRect*)rect)->w;
-            h = ((PyRect*)rect)->h;
-        }
-        else if (PyFRect_Check (rect))
-        {
-            x = (pgint16) trunc (((PyFRect*)rect)->x);
-            y = (pgint16) trunc (((PyFRect*)rect)->y);
-            w = (pgint32) trunc (((PyFRect*)rect)->w);
-            h = (pgint32) trunc (((PyFRect*)rect)->h);
-        }
-        else
-        {
-            PyErr_SetString (PyExc_TypeError, 
-                "argument must be a Rect or FRect");
-            return -1;
+            else
+            {
+                if (!PointFromObject (pt, &x, &y))
+                    return -1;
+                if (!SizeFromObject (rect, &w, &h))
+                    return -1;
+            }
         }
     }
     

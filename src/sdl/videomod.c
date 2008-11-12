@@ -98,12 +98,14 @@ _sdl_videoinit (PyObject *self)
 {
     if (SDL_WasInit (SDL_INIT_VIDEO))
         Py_RETURN_NONE;
-        
     if (SDL_InitSubSystem (SDL_INIT_VIDEO) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }
+    /* Enable unicode by default */
+    SDL_EnableUNICODE (1);
+
     Py_RETURN_NONE;
 }
 

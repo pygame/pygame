@@ -13,6 +13,38 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( 3.3, r.width )
         self.assertEqual( 4.4, r.height )
 
+    def testConstructionWidthHeight( self ):
+        r = FRect (3.99, 4.7)
+        self.assertEqual( 0, r.left )
+        self.assertEqual( 0, r.top )
+        self.assertEqual( 3.99, r.width )
+        self.assertEqual( 4.7, r.height )
+
+        r2 = FRect (r.size)
+        self.assertEqual( 0, r2.left )
+        self.assertEqual( 0, r2.top )
+        self.assertEqual( 3.99, r2.width )
+        self.assertEqual( 4.7, r2.height )
+
+        r2 = FRect ((3.009,4.1))
+        self.assertEqual( 0, r2.left )
+        self.assertEqual( 0, r2.top )
+        self.assertEqual( 3.009, r2.width )
+        self.assertEqual( 4.1, r2.height )
+
+    def testConstructionPointSize( self ):
+        r = FRect ((1.1, 2.2), (3.3, 4.4))
+        self.assertEqual( 1.1, r.left )
+        self.assertEqual( 2.2, r.top )
+        self.assertEqual( 3.3, r.width )
+        self.assertEqual( 4.4, r.height )
+
+        r2 = FRect (r.topleft, r.size)
+        self.assertEqual( 1.1, r2.left )
+        self.assertEqual( 2.2, r2.top )
+        self.assertEqual( 3.3, r2.width )
+        self.assertEqual( 4.4, r2.height )
+
     def testCalculatedAttributes( self ):
         r = FRect( 1.7, 2, 3, 4.9 )
         

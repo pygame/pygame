@@ -38,6 +38,10 @@ int UintFromObj (PyObject* obj, unsigned int* val);
 int IntFromSeqIndex (PyObject* obj, Py_ssize_t _index, int* val);
 int UintFromSeqIndex (PyObject* obj, Py_ssize_t _index, unsigned int* val);
 int DoubleFromSeqIndex (PyObject* obj, Py_ssize_t _index, double* val);
+int PointFromObject (PyObject* obj, int *x, int *y);
+int SizeFromObject (PyObject* obj, pgint32 *w, pgint32 *h);
+int FPointFromObject (PyObject* obj, double *x, double *y);
+int FSizeFromObject (PyObject* obj, double *w, double *h);
 
 extern PyTypeObject PyColor_Type;
 #define PyColor_Check(x) (PyObject_TypeCheck(x, &PyColor_Type))

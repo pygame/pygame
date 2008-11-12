@@ -337,12 +337,25 @@ Uint32FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint32* val)
 static int
 IsValidRect (PyObject* rect)
 {
-    if (!PyRect_Check (rect) && !PyFRect_Check (rect))
+    if (PyRect_Check (rect) || PyFRect_Check (rect))
+        return 1;
+    else if (PySequence_Check (rect) && PySequence_Size (rect) == 4)
     {
-        PyErr_SetString (PyExc_TypeError, "rect must be a Rect or FRect");
-        return 0;
+        Sint16 x, y;
+        Uint16 w, h;
+        if (!Sint16FromSeqIndex (rect, 0, &x))
+            goto failed;
+        if (!Sint16FromSeqIndex (rect, 1, &y))
+            goto failed;
+        if (!Uint16FromSeqIndex (rect, 2, &w))
+            goto failed;
+        if (!Uint16FromSeqIndex (rect, 3, &h))
+            goto failed;
+        return 1;
     }
-    return 1;
+failed:
+    PyErr_SetString (PyExc_TypeError, "rect must be a Rect or FRect");
+    return 0;
 }
 
 static int
@@ -364,8 +377,21 @@ SDLRect_FromRect (PyObject* rect, SDL_Rect *sdlrect)
         sdlrect->h = (Uint32) round (((PyFRect*)rect)->h);
         return 1;
     }
-    
-    PyErr_SetString (PyExc_TypeError, "rect must be a Rect or FRect");
+    else if (PySequence_Check (rect) && PySequence_Size (rect) == 4)
+    {
+        if (!Sint16FromSeqIndex (rect, 0, &(sdlrect->x)))
+            goto failed;
+        if (!Sint16FromSeqIndex (rect, 1, &(sdlrect->y)))
+            goto failed;
+        if (!Uint16FromSeqIndex (rect, 2, &(sdlrect->w)))
+            goto failed;
+        if (!Uint16FromSeqIndex (rect, 3, &(sdlrect->h)))
+            goto failed;
+        return 1;
+    }
+failed:
+    PyErr_SetString (PyExc_TypeError,
+        "rect must be a Rect, FRect or 4-value sequence");
     return 0;
 }
 

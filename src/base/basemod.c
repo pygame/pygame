@@ -136,6 +136,121 @@ DoubleFromSeqIndex (PyObject* obj, Py_ssize_t _index, double* val)
     return result;
 }
 
+int
+PointFromObject (PyObject *obj, int *x, int *y)
+{
+    if (PyRect_Check (obj))
+    {
+        *x = (int) ((PyRect*)obj)->x;
+        *y = (int) ((PyRect*)obj)->y;
+        return 1;
+    }
+    else if (PyFRect_Check (obj))
+    {
+        *x = (int) round (((PyFRect*)obj)->x);
+        *y = (int) round (((PyFRect*)obj)->y);
+        return 1;
+    }
+    else if (PySequence_Check (obj) && PySequence_Size (obj) >= 2)
+    {
+        if (!IntFromSeqIndex (obj, 0, x))
+            goto failed;
+        if (!IntFromSeqIndex (obj, 1, y))
+            goto failed;
+        return 1;
+    }
+failed:
+    PyErr_SetString (PyExc_TypeError,
+        "object must be a Rect, FRect or 2-value sequence");
+    return 0;
+}
+
+int
+FPointFromObject (PyObject *obj, double *x, double *y)
+{
+    if (PyRect_Check (obj))
+    {
+        *x = (double) ((PyRect*)obj)->x;
+        *y = (double) ((PyRect*)obj)->y;
+        return 1;
+    }
+    else if (PyFRect_Check (obj))
+    {
+        *x = ((PyFRect*)obj)->x;
+        *y = ((PyFRect*)obj)->y;
+        return 1;
+    }
+    else if (PySequence_Check (obj) && PySequence_Size (obj) >= 2)
+    {
+        if (!DoubleFromSeqIndex (obj, 0, x))
+            goto failed;
+        if (!DoubleFromSeqIndex (obj, 1, y))
+            goto failed;
+        return 1;
+    }
+failed:
+    PyErr_SetString (PyExc_TypeError,
+        "object must be a Rect, FRect or 2-value sequence");
+    return 0;
+}
+
+int
+SizeFromObject (PyObject *obj, pgint32 *w, pgint32 *h)
+{
+    if (PyRect_Check (obj))
+    {
+        *w = (pgint32) ((PyRect*)obj)->w;
+        *h = (pgint32) ((PyRect*)obj)->h;
+        return 1;
+    }
+    else if (PyFRect_Check (obj))
+    {
+        *w = (pgint32) round (((PyFRect*)obj)->w);
+        *h = (pgint32) round (((PyFRect*)obj)->h);
+        return 1;
+    }
+    else if (PySequence_Check (obj) && PySequence_Size (obj) >= 2)
+    {
+        if (!IntFromSeqIndex (obj, 0, w))
+            goto failed;
+        if (!IntFromSeqIndex (obj, 1, h))
+            goto failed;
+        return 1;
+    }
+failed:
+    PyErr_SetString (PyExc_TypeError,
+        "object must be a Rect, FRect or 2-value sequence");
+    return 0;
+}
+
+int
+FSizeFromObject (PyObject *obj, double *w, double *h)
+{
+    if (PyRect_Check (obj))
+    {
+        *w = (double) ((PyRect*)obj)->w;
+        *h = (double) ((PyRect*)obj)->h;
+        return 1;
+    }
+    else if (PyFRect_Check (obj))
+    {
+        *w = ((PyFRect*)obj)->w;
+        *h = ((PyFRect*)obj)->h;
+        return 1;
+    }
+    else if (PySequence_Check (obj) && PySequence_Size (obj) >= 2)
+    {
+        if (!DoubleFromSeqIndex (obj, 0, w))
+            goto failed;
+        if (!DoubleFromSeqIndex (obj, 1, h))
+            goto failed;
+        return 1;
+    }
+failed:
+    PyErr_SetString (PyExc_TypeError,
+        "object must be a Rect, FRect or 2-value sequence");
+    return 0;
+}
 
 #if PY_VERSION_HEX >= 0x03000000
 PyMODINIT_FUNC PyInit_base (void)
@@ -198,6 +313,10 @@ PyMODINIT_FUNC initbase (void)
     c_api[PYGAME_BASE_FIRSTSLOT+4] = DoubleFromSeqIndex;
     c_api[PYGAME_BASE_FIRSTSLOT+5] = IntFromSeqIndex;
     c_api[PYGAME_BASE_FIRSTSLOT+6] = UintFromSeqIndex;
+    c_api[PYGAME_BASE_FIRSTSLOT+7] = PointFromObject;
+    c_api[PYGAME_BASE_FIRSTSLOT+8] = SizeFromObject;
+    c_api[PYGAME_BASE_FIRSTSLOT+9] = FPointFromObject;
+    c_api[PYGAME_BASE_FIRSTSLOT+10] = FSizeFromObject;
 
     color_export_capi (c_api);
     rect_export_capi (c_api);
