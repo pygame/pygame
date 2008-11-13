@@ -25,7 +25,7 @@ else:
 
 screen = video.set_mode (surface.w + 10, surface.h + 10)
 screen.fill (pygame2.Color (255, 255, 255))
-screen.blit (surface, pygame2.Rect (5, 5, 10, 10))
+screen.blit (surface, (5, 5))
 screen.flip ()
 
 while True:

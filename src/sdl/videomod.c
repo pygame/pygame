@@ -312,7 +312,15 @@ _sdl_videomodeok (PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "iiil:is_mode_ok", &width, &height, &bpp,
             &flags))
-        return NULL;
+    {
+        PyObject *size;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "Oil:is_mode_ok", &size, &bpp, &flags))
+            return NULL;
+        if (!SizeFromObject (size, &width, &height))
+            return NULL;
+    }
+
     retbpp = SDL_VideoModeOK (width, height, bpp, flags);
     if (!retbpp)
         Py_RETURN_FALSE;
@@ -396,7 +404,14 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
 
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "ii|il:set_mode", kwlist,
         &width, &height, &bpp, &flags))
-        return NULL;
+    {
+        PyObject *size;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "0|il:set_mode", &size, &bpp, &flags))
+            return NULL;
+        if (!SizeFromObject (size, &width, &height))
+            return NULL;
+    }
 
     Py_BEGIN_ALLOW_THREADS;
     surface = SDL_SetVideoMode (width, height, bpp, flags);

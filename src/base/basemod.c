@@ -211,9 +211,9 @@ SizeFromObject (PyObject *obj, pgint32 *w, pgint32 *h)
     }
     else if (PySequence_Check (obj) && PySequence_Size (obj) >= 2)
     {
-        if (!IntFromSeqIndex (obj, 0, w))
+        if (!IntFromSeqIndex (obj, 0, (int)w))
             goto failed;
-        if (!IntFromSeqIndex (obj, 1, h))
+        if (!IntFromSeqIndex (obj, 1, (int)h))
             goto failed;
         return 1;
     }

@@ -209,7 +209,15 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
                             NULL };
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "ii|ilO", keys, &width,
             &height, &depth, &flags, &masks))
-        return -1;
+    {
+        PyObject *size;
+
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O|ilO", &size, &depth, &flags, &masks))
+            return -1;
+        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+            return -1;
+    }
 
     if (width < 0 || height < 0)
     {
@@ -733,8 +741,15 @@ _surface_getat (PyObject *self, PyObject *args)
     Uint32 value;
 
     if (!PyArg_ParseTuple (args, "ii", &x, &y))
-        return NULL;
-    
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O", &pos))
+            return NULL;
+        if (!PointFromObject (pos, &x, &y))
+            return NULL;
+    }
+
     if (x < 0 || x > surface->w || y < 0 || y >= surface->h)
     {
         PyErr_SetString (PyExc_IndexError, "pixel index out of range");
@@ -767,8 +782,15 @@ _surface_setat (PyObject *self, PyObject *args)
     Uint32 value;
 
     if (!PyArg_ParseTuple (args, "iiO", &x, &y, &color))
-        return NULL;
-    
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OO", &pos, &color))
+            return NULL;
+        if (!PointFromObject (pos, &x, &y))
+            return NULL;
+    }
+
     if (x < 0 || x > surface->w || y < 0 || y >= surface->h)
     {
         PyErr_SetString (PyExc_IndexError, "pixel index out of range");
@@ -813,24 +835,22 @@ _surface_blit (PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|OOi:blit", keys, &srcsf,
             &dstr, &srcr, &blitargs))
         return NULL;
-        
+   
     if (!PySurface_Check (srcsf))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
+
     if (srcr && !SDLRect_FromRect (srcr, &srcrect))
     {
         PyErr_Clear();
         PyErr_SetString (PyExc_TypeError, "srcrect must be a Rect or FRect");
         return NULL;
     }
-    if (dstr && !SDLRect_FromRect (dstr, &dstrect))
-    {
-        PyErr_Clear();
-        PyErr_SetString (PyExc_TypeError, "dstrect must be a Rect or FRect");
+
+    if (dstr && !PointFromObject (dstr, (int*)&(dstrect.x), (int*)&(dstrect.y)))
         return NULL;
-    }
 
     src = ((PySurface*)srcsf)->surface;
     dst = ((PySurface*)self)->surface;

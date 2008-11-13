@@ -90,7 +90,7 @@ def run ():
     screen = video.set_mode (320, 240, 32)
     screen.fill (black)
     surface = image.load_bmp ("array.bmp").convert (flags=sdlconst.SRCALPHA)
-    screen.blit (surface, pygame2.Rect (0, 0))
+    screen.blit (surface)
     screen.flip ()
     
     while True:
@@ -104,7 +104,7 @@ def run ():
                 if curmethod >= len (methods):
                     curmethod = 0
                 screen.fill (black)
-                screen.blit (surface, pygame2.Rect (0, 0))
+                screen.blit (surface)
                 methods[curmethod](screen)
                 screen.flip ()
 

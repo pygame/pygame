@@ -108,7 +108,7 @@ def run ():
     
     color = white
     screen.fill (color)
-    screen.blit (surface, pygame2.Rect (40, 50, 0, 0))
+    screen.blit (surface, (40, 50))
     screen.flip ()
     
     while True:
@@ -127,7 +127,7 @@ def run ():
                         color = black
 
                 screen.fill (color)
-                screen.blit (surface, pygame2.Rect (40, 50, 0, 0))
+                screen.blit (surface, (40, 50))
                 filltypes[curtype] (screen)
                 screen.flip ()
 

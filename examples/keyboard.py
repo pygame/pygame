@@ -39,22 +39,20 @@ def run ():
     
     video.init ()
     
-    dest = pygame2.Rect (0, 0, 0, 0)
     fontimgmap = create_mapping ()
     font_surface = image.load_bmp ("font.bmp")
     
     screen = video.set_mode (640, 480)
     screen.fill (white)
     
-    centerx = 320 - font_surface.w / 2
-    font_rect = pygame2.Rect (centerx, 10, 0, 0)
-    screen.blit (font_surface, font_rect)
+    center = (320 - font_surface.w / 2, 10)
+    screen.blit (font_surface, center)
     screen.flip ()
 
     wm.set_caption ("Keyboard demo")
 
     x = 0, 0
-    pos = pygame2.Rect (310, 300, 0, 0)
+    pos = (310, 300)
     area = pygame2.Rect (300, 290, 50, 50)
     while True:
         for ev in event.get ():
@@ -66,7 +64,7 @@ def run ():
                 elif fontimgmap.has_key (ev.unicode):
                     screen.fill (white)
                     screen.fill (black, area)
-                    screen.blit (font_surface, font_rect)
+                    screen.blit (font_surface, center)
                     screen.blit (font_surface, pos, fontimgmap[ev.unicode])
                     screen.flip ()
                     

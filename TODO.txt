@@ -8,7 +8,8 @@ CRITICAL:
 * make LayeredGroups class independent from sdl surfaces, where possible
 * check all BuildValue and ParseTuple calls for the correct value range
 * check anything for possible integer/float overflows
-* Use copy.copy and copy.deepcopy for consistent object copies.
+* use copy.copy and copy.deepcopy for consistent object copies
+* make use of PointFromObject and SizeFromObject where necessary
 
 Things to ADD:
 ==============

@@ -150,6 +150,7 @@
       Rect (FRect)
       Rect (x, y, w, h)
       Rect (w, h)
+      Rect ((x, y), (w, h))
     </constructor>
     <desc>
       Rect (...) -> Rect
@@ -405,6 +406,7 @@
       FRect (FRect)
       FRect (x, y, w, h)
       FRect (w, h)
+      FRect ((x, y), (w, h))
     </constructor>
     <desc>
       FRect (...) -> FRect

@@ -19,23 +19,19 @@ redt = pygame2.Color (255, 0, 0, 75)
 yellowt = pygame2.Color (0, 255, 0, 75)
 bluet = pygame2.Color (0, 0, 255, 75)
 
-rect = pygame2.Rect (10, 10, 10, 10)
-rect2 = pygame2.Rect (220, 220, 200, 200)
-rect3 = pygame2.Rect (250, 170, 240, 100)
-
 def blit (screen, sf1, sf2, sf3, args1=None, args2=None, args3=None):
     if args1 is not None:
-        screen.blit (sf1, dstrect=rect, blendargs=args1)
+        screen.blit (sf1, dstrect=(10, 10), blendargs=args1)
     else:
-        screen.blit (sf1, rect)
+        screen.blit (sf1, (10, 10))
     if args2 is not None:
-        screen.blit (sf2, dstrect=rect2, blendargs=args2)
+        screen.blit (sf2, dstrect=(220, 220), blendargs=args2)
     else:
-        screen.blit (sf2, rect2)
+        screen.blit (sf2, (220, 220))
     if args3 is not None:
-        screen.blit (sf3, dstrect=rect3, blendargs=args3)
+        screen.blit (sf3, dstrect=(250, 170), blendargs=args3)
     else:
-        screen.blit (sf3, rect3)
+        screen.blit (sf3, (250, 170))
 
 def blit_solid (screen):
     wm.set_caption ("Solid blit")
