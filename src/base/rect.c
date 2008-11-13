@@ -763,7 +763,14 @@ _rect_move (PyObject* self, PyObject *args)
     pgint16 x, y;
 
     if (!PyArg_ParseTuple (args, "ii:move", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:move", &pos))
+            return NULL;
+        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+            return NULL;
+    }
 
     return PyRect_New (rect->x + x, rect->y + y, rect->w, rect->h);
 }
@@ -775,7 +782,14 @@ _rect_move_ip (PyObject* self, PyObject *args)
     pgint16 x, y;
 
     if (!PyArg_ParseTuple (args, "ii:move_ip", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:move_ip", &pos))
+            return NULL;
+        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+            return NULL;
+    }
     rect->x = INT16_ADD_LIMIT (rect->x, x);
     rect->y = INT16_ADD_LIMIT (rect->y, y);
     Py_RETURN_NONE;
@@ -931,7 +945,14 @@ _rect_inflate (PyObject* self, PyObject *args)
     pgint32 w, h;
 
     if (!PyArg_ParseTuple (args, "ii:inflate", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:inflate", &pos))
+            return NULL;
+        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+            return NULL;
+    }
 
     w = (pgint32)(rect->w + x);
     h = (pgint32)(rect->h + y);
@@ -950,7 +971,15 @@ _rect_inflate_ip (PyObject* self, PyObject *args)
     pgint32 w, h;
 
     if (!PyArg_ParseTuple (args, "ii:inflate_ip", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:inflate_ip", &pos))
+            return NULL;
+        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+            return NULL;
+    }
+
     rect->x = INT16_SUB_LIMIT (rect->x, x / 2);
     rect->y = INT16_SUB_LIMIT (rect->y, y / 2);
     w = (pgint32)(rect->w + x);
@@ -1124,7 +1153,14 @@ _rect_collidepoint (PyObject *self, PyObject *args)
     pgint32 r, b;
 
     if (!PyArg_ParseTuple (args, "ii:collidepoint", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:collidepoint", &pos))
+            return NULL;
+        if (!PointFromObject (pos, (int*)&x, (int*)&y))
+            return NULL;
+    }
 
     r = rself->x + rself->w;
     b = rself->y + rself->h;

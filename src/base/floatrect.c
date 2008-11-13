@@ -790,7 +790,14 @@ _frect_move (PyObject* self, PyObject *args)
     double x, y;
 
     if (!PyArg_ParseTuple (args, "dd:move", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:move", &pos))
+            return NULL;
+        if (!FPointFromObject (pos, &x, &y))
+            return NULL;
+    }
 
     return PyFRect_New (frect->x + x, frect->y + y, frect->w, frect->h);
 }
@@ -802,7 +809,15 @@ _frect_move_ip (PyObject* self, PyObject *args)
     double x, y;
 
     if (!PyArg_ParseTuple (args, "dd:move_ip", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:move_ip", &pos))
+            return NULL;
+        if (!FPointFromObject (pos, &x, &y))
+            return NULL;
+    }
+
     frect->x = DBL_ADD_LIMIT (frect->x, x);
     frect->y = DBL_ADD_LIMIT (frect->y, y);
     Py_RETURN_NONE;
@@ -949,7 +964,14 @@ _frect_inflate (PyObject* self, PyObject *args)
     double x, y;
 
     if (!PyArg_ParseTuple (args, "dd:inflate", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:inflate", &pos))
+            return NULL;
+        if (!FPointFromObject (pos, &x, &y))
+            return NULL;
+    }
 
     return PyFRect_New (DBL_SUB_LIMIT (frect->x, x / 2),
         DBL_SUB_LIMIT (frect->y, y / 2), DBL_ADD_LIMIT (frect->w, x),
@@ -963,7 +985,15 @@ _frect_inflate_ip (PyObject* self, PyObject *args)
     double x, y;
 
     if (!PyArg_ParseTuple (args, "dd:inflate_ip", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:inflate_ip", &pos))
+            return NULL;
+        if (!FPointFromObject (pos, &x, &y))
+            return NULL;
+    }
+
     frect->x = DBL_SUB_LIMIT (frect->x, x / 2);
     frect->y = DBL_SUB_LIMIT (frect->y, y / 2);
     frect->w = DBL_ADD_LIMIT (frect->w, x);
@@ -1129,7 +1159,14 @@ _frect_collidepoint (PyObject *self, PyObject *args)
     double x, y;
 
     if (!PyArg_ParseTuple (args, "dd:collidepoint", &x, &y))
-        return NULL;
+    {
+        PyObject *pos;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O:collidepoint", &pos))
+            return NULL;
+        if (!FPointFromObject (pos, &x, &y))
+            return NULL;
+    }
 
     if (x >= rself->x && x < rself->x + rself->w &&
         y >= rself->y && y < rself->y + rself->h)

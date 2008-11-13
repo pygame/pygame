@@ -66,7 +66,6 @@ class RectTest (unittest.TestCase):
         self.assertEqual( (r.centerx,r.bottom), r.midbottom )
         self.assertEqual( (r.left,r.centery), r.midleft )
         self.assertEqual( (r.right,r.centery), r.midright )
-    
 
     def testEquals( self ):
         """ check to see how the rect uses __eq__ 
