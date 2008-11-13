@@ -202,11 +202,12 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
     Uint32 rmask, gmask, bmask, amask;
     SDL_Surface *surface;
     PyObject *masks = NULL;
+    
+    static char *keys[] = { "width", "height", "depth", "flags", "masks",
+                            NULL };
 
     ASSERT_VIDEO_INIT (-1);
 
-    static char *keys[] = { "width", "height", "depth", "flags", "masks",
-                            NULL };
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "ii|ilO", keys, &width,
             &height, &depth, &flags, &masks))
     {

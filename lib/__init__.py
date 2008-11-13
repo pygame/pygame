@@ -12,4 +12,6 @@ import os
 path = os.path.dirname (os.path.abspath (__file__))
 os.environ['PATH'] += ";%s;%s" % (path,  os.path.join (path, "dll"))
 
+DLLPATH = os.path.join (path, "dll")
+
 from pygame2.base import *

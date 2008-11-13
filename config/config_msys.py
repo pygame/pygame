@@ -65,8 +65,8 @@ def msys_to_windows (path):
 
 def get_sys_libs (module):
     # Gets a list of system libraries to link the module against.
-    if module == "sdl.scrap":
-        return [ "-luser32", "-lgdi32" ]
+    if module == "sdlext.scrap":
+        return [ "user32", "gdi32" ]
 
 def get_install_libs (cfg):
     # Gets the libraries to install for the target platform.

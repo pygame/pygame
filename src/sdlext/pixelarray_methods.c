@@ -285,10 +285,10 @@ _make_surface(PyPixelArray *array)
 }
 
 static int
-_get_weights (PyObject *weights, float *wr, float *wg, float *wb)
+_get_weights (PyObject *weights, double *wr, double *wg, double *wb)
 {
     int success = 1;
-    float rgb[3] = { 0 };
+    double rgb[3] = { 0 };
     
     if (!weights)
     {
@@ -322,19 +322,19 @@ _get_weights (PyObject *weights, float *wr, float *wg, float *wb)
                 PyObject *num = NULL;
                 if ((num = PyNumber_Float (item)) != NULL)
                 {
-                    rgb[i] = (float) PyFloat_AsDouble (num);
+                    rgb[i] = PyFloat_AsDouble (num);
                     Py_DECREF (num);
                 }
                 else if ((num = PyNumber_Int (item)) != NULL)
                 {
-                    rgb[i] = (float) PyInt_AsLong (num);
+                    rgb[i] = (double) PyInt_AsLong (num);
                     if (rgb[i] == -1 && PyErr_Occurred ())
                         success = 0;
                     Py_DECREF (num);
                 }
                 else if ((num = PyNumber_Long (item)) != NULL)
                 {
-                    rgb[i] = (float) PyLong_AsLong (num);
+                    rgb[i] = (double) PyLong_AsLong (num);
                     if (PyErr_Occurred () &&
                         PyErr_ExceptionMatches (PyExc_OverflowError))
                         success = 0;
@@ -354,7 +354,7 @@ _get_weights (PyObject *weights, float *wr, float *wg, float *wb)
     
     if (success)
     {
-        float sum = 0;
+        double sum = 0;
         
         *wr = rgb[0];
         *wg = rgb[1];
@@ -387,8 +387,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     Uint32 rcolor;
     Uint8 r1, g1, b1, r2, g2, b2, a2;
     SDL_Surface *surface;
-    float distance = 0;
-    float wr, wg, wb;
+    double distance = 0;
+    double wr, wg, wb;
 
     Uint32 x = 0;
     Uint32 y = 0;
@@ -400,7 +400,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 
     static char *keys[] = { "color", "repcolor", "distance", "weights", NULL };
     
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|fO", keys, &delcolor,
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "OO|dO", keys, &delcolor,
             &replcolor, &distance, &weights))
         return NULL;
 
@@ -590,8 +590,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     Uint32 white;
     Uint32 black;
     SDL_Surface *surface;
-    float distance = 0;
-    float wr, wg, wb;
+    double distance = 0;
+    double wr, wg, wb;
     Uint8 r1, g1, b1, r2, g2, b2, a2;
 
     Uint32 x = 0;
@@ -604,7 +604,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
 
     static char *keys[] = { "color", "distance", "weights", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|fO", keys, &excolor,
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|dO", keys, &excolor,
             &distance, &weights))
         return NULL;
 
@@ -838,9 +838,9 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
     SDL_Surface *surface2 = NULL;
     Uint32 black;
     Uint32 white;
-    float distance = 0;
+    double distance = 0;
     Uint8 r1, g1, b1, a1, r2, g2, b2, a2;
-    float wr, wg, wb;
+    double wr, wg, wb;
 
     Uint32 x = 0;
     Uint32 y = 0;
@@ -855,7 +855,7 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
 
     static char *keys[] = { "array", "distance", "weights", NULL };
 
-    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|fO", keys, &newarray,
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "O|dO", keys, &newarray,
             &distance, &weights))
         return NULL;
 

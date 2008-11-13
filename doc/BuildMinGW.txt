@@ -1,0 +1,94 @@
+Building Pygame2 using MinGW
+----------------------------
+Using MinGW on Win32 platforms is probably the most comfortable way to build
+and install Pygame2, thanks to a handy script, that will do most of the work
+for you.
+
+NOTE: At http://pygame.org/wiki/MingW you can find more information and details
+      about the build and installation process.
+
+Setting up MSYS and MinGW
+-------------------------
+First of all, you have to make sure, you have an up to date and working MinGW
+and MSYS installation running. If you have not, install both of them first.
+Visit http://mingw.org/ and follow their instructions to install and configure
+anything.
+The following setup has been tested to work well on several Win32
+installations:
+
+* MinGW 5.1.4 installer (or newer)
+  http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=240780
+
+  On installing, make sure you install the C compiler, C++ compiler and win32api
+  packages. This is usually done by checking the options "MinGW base" and
+  "g++ Compiler".
+
+* Msys 1.0.10 installer (or newer)
+  http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=24963
+
+  Simply follow the installation instructions. In the post install step, make
+  sure you set up your MinGW/MSYS environment properly.
+
+* Msys DTK 1.0.1 installer (or newer)
+  http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=67879
+
+  Simply follow the installation instructions.
+
+If anything went right, MSYS and MinGW should be set up correctly now. Now it's
+time to get the dependencies.
+
+Building the dependencies
+-------------------------
+NOTE: The following list of dependencies might not be the most actual one.
+      Please check the README.txt file in the top source directory for the
+      most actual dependency list!
+
+Make sure, you have at least one of the following Python versions installed:
+* Python 2.4, 2.5, 2.6, 3.0 (http://www.python.org)
+
+To build anything, you will have to download the following additional source
+packages:
+
+* SDL >= 1.2.10              (http://www.libsdl.org)
+* SDL_mixer >= 1.2.8         (http://www.libsdl.org/projects/SDL_mixer/)
+* SDL_ttf >= 2.0.9           (http://www.libsdl.org/projects/SDL_ttf/)
+* SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
+* SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* libpng >= 1.2.24           (http://www.libpng.org)
+* libjpeg >= 6b              (http://www.ijg.org/)
+* zlib >= 1.2.3              (http://www.zlib.net)
+* tiff >= 3.8.2              (http://libtiff.org)
+* libvorbis >= 1.2.0  	     (http://www.vorbis.com)
+* libogg >= 1.1.3            (http://www.vorbis.com)
+* freetype >= 2.3.5          (http://www.freetype.org)
+* FLAC >= 1.2.1              (http://flac.sourceforge.net)
+
+Once you downloaded all source packages, unpack them and put them all into a
+common directory, where the msys_build_deps.py script can find them.
+The script will search the directory where it resides, the parent directory of
+it and a directory named 'deps' for the unpacked sources.
+NOTE: At this point, we strongly recommend a directory named 'deps' that is
+      created under the Pygame2 source directory.
+
+Once anything's unpacked, move the Pygame2 source directory to your MSYS home
+directory (in a default installation this would be C:\msys\1.0\home\%USERNAME%).
+Start the Msys shell and change to the Pygame2 source directory:
+
+    cd pgreloaded
+
+Now start the msys_build_deps.py script:
+
+    python msys_build_deps.py --all
+
+This will start to build all necessary dependencies and takes some time to
+finish. Now is a good time to get yourself another cup of coffee and read
+the newspaper.
+
+Building Pygame2
+----------------
+Now that all dependencies are built and installed, you can proceed to build
+and install Pygame2 itself. Simply type:
+
+    python setup.py build --compiler=mingw32 install
+
+This will build and install Pygame2 in one step.

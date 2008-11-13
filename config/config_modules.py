@@ -97,8 +97,18 @@ def prepare_modules (buildsystem, modules, cfg):
         sdlcflags = sdlconfig.get_cflags ()
         sdllflags = sdlconfig.get_lflags ()
     else:
-        # TODO: Try to find all necessary things manually.
-        pass
+        d = find_incdir (buildsystem, "SDL.h")
+        if d != None:
+            sdlincdirs = [ d, sdlincpath ]
+            sdllibs = [ "SDL" ]
+            if buildsystem in ("win", "msys"):
+                sdllibs.append ("SDLmain")    
+                sdllibdirs = [ find_libdir (buildsystem, "SDL") ]
+            else:
+                sdllibdirs = [ find_libdir (buildsystem, "libSDL") ]
+            
+            sdlcflags = []
+            sdllflags = []
 
     if cfg.WITH_PNG and not haspng:
         d = find_incdir (buildsystem, "png.h")

@@ -16,9 +16,6 @@ Things to ADD:
 * (re)add tests
 * add examples
 * reorganise and add camera module
-* add proper config_win support to make use of VC++
-* add a Point class to make position arguments such as in Surface.blit
-  easier to use
 
 Things to FIX:
 ==============

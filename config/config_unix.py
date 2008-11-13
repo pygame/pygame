@@ -33,8 +33,8 @@ def sdl_get_version ():
 
 def get_sys_libs (module):
     # Gets a list of system libraries to link the module against.
-    if module == "sdl.scrap":
-        return [ "-lX11" ]
+    if module == "sdlext.scrap":
+        return [ "X11" ]
 
 def get_install_libs (cfg):
     # Gets the libraries to install for the target platform.

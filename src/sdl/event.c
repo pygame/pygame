@@ -391,12 +391,12 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_ACTIVEEVENT:
         if (!_get_item (dict, "gain", &val))
             return 0;
-        event->active.gain = PyInt_AsLong (val);
+        event->active.gain = (Uint8) PyInt_AsLong (val);
         if (event->active.gain == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "state", &val))
             return 0;
-        event->active.state = PyInt_AsLong (val);
+        event->active.state = (Uint8) PyInt_AsLong (val);
         if (event->active.state == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         break;
@@ -405,12 +405,12 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_KEYUP:
         if (!_get_item (dict, "state", &val))
             return 0;
-        event->key.state = PyInt_AsLong (val);
+        event->key.state = (Uint8) PyInt_AsLong (val);
         if (event->key.state == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "scancode", &val))
             return 0;
-        event->key.keysym.scancode = PyInt_AsLong (val);
+        event->key.keysym.scancode = (Uint8) PyInt_AsLong (val);
         if (event->key.keysym.scancode == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "key", &val))
@@ -425,7 +425,7 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
             return 0;
         if (!_get_item (dict, "unicode", &val))
             return 0;
-        event->key.keysym.unicode = PyInt_AsLong (val);
+        event->key.keysym.unicode = (Uint16) PyInt_AsLong (val);
         if (event->key.keysym.unicode == (Uint16)-1 && PyErr_Occurred ())
             return 0;
         break;
@@ -433,27 +433,27 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_MOUSEMOTION:
         if (!_get_item (dict, "state", &val))
             return 0;
-        event->motion.state = PyInt_AsLong (val);
+        event->motion.state = (Uint8) PyInt_AsLong (val);
         if (event->motion.state == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "x", &val))
             return 0;
-        event->motion.x = PyInt_AsLong (val);
+        event->motion.x = (Uint16) PyInt_AsLong (val);
         if (event->motion.x == (Uint16)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "y", &val))
             return 0;
-        event->motion.y = PyInt_AsLong (val);
+        event->motion.y = (Uint16) PyInt_AsLong (val);
         if (event->motion.y == (Uint16)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "xrel", &val))
             return 0;
-        event->motion.xrel = PyInt_AsLong (val);
+        event->motion.xrel = (Sint16) PyInt_AsLong (val);
         if (event->motion.xrel == -1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "yrel", &val))
             return 0;
-        event->motion.yrel = PyInt_AsLong (val);
+        event->motion.yrel = (Sint16) PyInt_AsLong (val);
         if (event->motion.yrel == -1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "buttons", &tuple))
@@ -485,22 +485,22 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_MOUSEBUTTONUP:
         if (!_get_item (dict, "button", &val))
             return 0;
-        event->button.button = PyInt_AsLong (val);
+        event->button.button = (Uint8) PyInt_AsLong (val);
         if (event->button.button == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "x", &val))
             return 0;
-        event->button.x = PyInt_AsLong (val);
+        event->button.x = (Uint16) PyInt_AsLong (val);
         if (event->button.x == (Uint16)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "y", &val))
             return 0;
-        event->button.y = PyInt_AsLong (val);
+        event->button.y = (Uint16) PyInt_AsLong (val);
         if (event->button.y == (Uint16)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "state", &val))
             return 0;
-        event->button.state = PyInt_AsLong (val);
+        event->button.state = (Uint8) PyInt_AsLong (val);
         if (event->button.state == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         break;
@@ -508,17 +508,17 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_JOYAXISMOTION:
         if (!_get_item (dict, "which", &val))
             return 0;
-        event->jaxis.which = PyInt_AsLong (val);
+        event->jaxis.which = (Uint8) PyInt_AsLong (val);
         if (event->jaxis.which == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "axis", &val))
             return 0;
-        event->jaxis.axis = PyInt_AsLong (val);
+        event->jaxis.axis = (Uint8) PyInt_AsLong (val);
         if (event->jaxis.axis == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "value", &val))
             return 0;
-        event->jaxis.value = PyInt_AsLong (val);
+        event->jaxis.value = (Sint16) PyInt_AsLong (val);
         if (event->jaxis.value == -1 && PyErr_Occurred ())
             return 0;
         break;
@@ -526,22 +526,22 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_JOYBALLMOTION:
         if (!_get_item (dict, "which", &val))
             return 0;
-        event->jball.which = PyInt_AsLong (val);
+        event->jball.which = (Uint8) PyInt_AsLong (val);
         if (event->jball.which == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "ball", &val))
             return 0;
-        event->jball.ball = PyInt_AsLong (val);
+        event->jball.ball = (Uint8) PyInt_AsLong (val);
         if (event->jball.ball == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "xrel", &val))
             return 0;
-        event->jball.xrel = PyInt_AsLong (val);
+        event->jball.xrel = (Sint16) PyInt_AsLong (val);
         if (event->jball.xrel == -1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "yrel", &val))
             return 0;
-        event->jball.yrel = PyInt_AsLong (val);
+        event->jball.yrel = (Sint16) PyInt_AsLong (val);
         if (event->jball.yrel == -1 && PyErr_Occurred ())
             return 0;
         break;
@@ -549,17 +549,17 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_JOYHATMOTION:
         if (!_get_item (dict, "which", &val))
             return 0;
-        event->jhat.which = PyInt_AsLong (val);
+        event->jhat.which = (Uint8) PyInt_AsLong (val);
         if (event->jhat.which == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "hat", &val))
             return 0;
-        event->jhat.hat = PyInt_AsLong (val);
+        event->jhat.hat = (Uint8) PyInt_AsLong (val);
         if (event->jhat.hat == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "value", &val))
             return 0;
-        event->jhat.value = PyInt_AsLong (val);
+        event->jhat.value = (Uint8) PyInt_AsLong (val);
         if (event->jhat.value == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         break;
@@ -568,17 +568,17 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     case SDL_JOYBUTTONUP:
         if (!_get_item (dict, "which", &val))
             return 0;
-        event->jbutton.which = PyInt_AsLong (val);
+        event->jbutton.which = (Uint8) PyInt_AsLong (val);
         if (event->jbutton.which == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "button", &val))
             return 0;
-        event->jbutton.button = PyInt_AsLong (val);
+        event->jbutton.button = (Uint8) PyInt_AsLong (val);
         if (event->jbutton.button == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         if (!_get_item (dict, "state", &val))
             return 0;
-        event->jbutton.state = PyInt_AsLong (val);
+        event->jbutton.state = (Uint8) PyInt_AsLong (val);
         if (event->jbutton.state == (Uint8)-1 && PyErr_Occurred ())
             return 0;
         break;

@@ -317,7 +317,7 @@ _sdl_videomodeok (PyObject *self, PyObject *args)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "Oil:is_mode_ok", &size, &bpp, &flags))
             return NULL;
-        if (!SizeFromObject (size, &width, &height))
+        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
     }
 
@@ -409,7 +409,7 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "0|il:set_mode", &size, &bpp, &flags))
             return NULL;
-        if (!SizeFromObject (size, &width, &height))
+        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
     }
 

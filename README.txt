@@ -68,10 +68,12 @@ code, please refer to the official releases.
 
 1.3 Notes for Windows users
 ---------------------------
-Bulding Pygame2 from its source code is only supported in combination with the
-MinGW compiler suite at the moment.
+Bulding Pygame2 from its source code is supported in combination with the
+MinGW compiler suite or Microsoft Visual C++.
 
-TODO
+Please take a look at the doc/BuildMingGW.txt and doc/BuildVC.txt documents for
+more details about how to configure and install Pygame2 on your Windows
+platform.
 
 1.4 Notes for Mac OS users
 --------------------------

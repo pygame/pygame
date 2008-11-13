@@ -10,7 +10,12 @@ def prepare_text (text):
     lines = text.split ("\n")
     for l in lines:
         newtext += l.strip () + "\\n"
-    return newtext.strip("\\n")
+    newtext = newtext.strip ("\\n")
+    if len (newtext) > 2040:
+        # Split once after 2040 characters to avoid
+        # problems with the Visual C++ 2048 character limit
+        newtext = newtext[:2040] + "\"\"" + newtext[2040:]
+    return newtext
 
 def create_cref (dom, buf):
     module = dom.getElementsByTagName ("module")[0]
