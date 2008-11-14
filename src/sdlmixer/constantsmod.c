@@ -78,7 +78,10 @@ PyMODINIT_FUNC initconstants (void)
     DEC_CONSTN(MUS_MID);
     DEC_CONSTN(MUS_OGG);
     DEC_CONSTN(MUS_MP3);
+
+#ifdef MUS_MP3_MAD /* Not all SDL_mixer versions might use libmad */
     DEC_CONSTN(MUS_MP3_MAD);
+#endif
 
     DEC_CONSTMIX(CHANNELS);
     DEC_CONSTMIX(DEFAULT_FREQUENCY);
