@@ -46,7 +46,7 @@ PyTypeObject PyRectShape_Type =
 {
     TYPE_HEAD(NULL, 0)
     "physics.RectShape",        /* tp_name */
-    sizeof (PyShape),           /* tp_basicsize */
+    sizeof (PyRectShape),       /* tp_basicsize */
     0,                          /* tp_itemsize */
     0,                          /* tp_dealloc */
     0,                          /* tp_print */
@@ -142,16 +142,22 @@ static int
 _update (PyShape *shape, PyBody *body)
 {
     PyRectShape *r = (PyRectShape*)shape;
-    PyVector2 gp[4];
+    PyVector2 gp[4], tl, tr, bl, br;
     
     if (!shape || !body)
         return 0;
 
+    PyVector2_Set (tl, r->topleft.real, r->topleft.imag);
+    PyVector2_Set (tr, r->topright.real, r->topright.imag);
+    PyVector2_Set (bl, r->bottomleft.real, r->bottomleft.imag);
+    PyVector2_Set (br, r->bottomright.real, r->bottomright.imag);
+
     /* Update the aabbox. */
-    PyBody_GetGlobalPos (body, r->bottomleft, gp[0]);
-    PyBody_GetGlobalPos (body, r->bottomright, gp[1]);
-    PyBody_GetGlobalPos (body, r->topright, gp[2]);
-    PyBody_GetGlobalPos (body, r->topleft, gp[3]);
+    PyBody_GetGlobalPos (body, bl, gp[0]);
+    PyBody_GetGlobalPos (body, br, gp[1]);
+    PyBody_GetGlobalPos (body, tr, gp[2]);
+    PyBody_GetGlobalPos (body, tl, gp[3]);
+
     AABBox_ExpandTo (&(r->box), &(gp[0]));
     AABBox_ExpandTo (&(r->box), &(gp[1]));
     AABBox_ExpandTo (&(r->box), &(gp[2]));
@@ -166,11 +172,17 @@ static PyObject *_rectshape_new (PyTypeObject *type, PyObject *args,
     PyRectShape *shape = (PyRectShape*) type->tp_alloc (type, 0);
     if (!shape)
         return NULL;
+
     shape->shape.get_aabbox = _get_aabbox;
     shape->shape.get_vertices = _get_vertices;
     shape->shape.update = _update;
     shape->shape.type = RECT;
-    
+
+    PyVector2_Set (shape->bottomleft, 0, 0);
+    PyVector2_Set (shape->bottomright, 0, 0);
+    PyVector2_Set (shape->topleft, 0, 0);
+    PyVector2_Set (shape->topright, 0, 0);
+
     AABBox_Reset (&(shape->box));
     
     return (PyObject*) shape;
@@ -188,14 +200,14 @@ _rectshape_init (PyRectShape *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "O", &tuple))
         return -1;
 
-    box = AABBox_FromSequence (tuple);
+    box = AABBox_FromRect (tuple);
     if (!box)
         return -1;
-
-    self->box.top = box->top;
-    self->box.left = box->left;
-    self->box.right = box->right;
-    self->box.bottom = box->bottom;
+    
+    PyVector2_Set (self->topleft, box->left, box->top);
+    PyVector2_Set (self->topright, box->right, box->top);
+    PyVector2_Set (self->bottomleft, box->left, box->bottom);
+    PyVector2_Set (self->bottomright, box->right, box->bottom);
 
     PyMem_Free (box);
     return 0;
@@ -207,11 +219,10 @@ _rectshape_getrect (PyRectShape *self, void *closure)
 {
     AABBox box;
     
-    AABBox_Reset (&box);
-    AABBox_ExpandTo (&box, &(self->topleft));
-    AABBox_ExpandTo (&box, &(self->topright));
-    AABBox_ExpandTo (&box, &(self->bottomleft));
-    AABBox_ExpandTo (&box, &(self->bottomright));
+    box.top = self->topleft.imag;
+    box.left = self->topleft.real;
+    box.right = self->bottomright.real;
+    box.bottom = self->bottomright.imag;
     
     return AABBox_AsFRect (&box);
 }
@@ -221,7 +232,7 @@ PyObject*
 PyRectShape_New (AABBox box)
 {
     /* TODO: is anything correctly initialised? */
-    PyRectShape *shape = PyObject_New (PyRectShape, &PyRectShape_Type);
+    PyRectShape *shape = (PyRectShape*)PyRectShape_Type.tp_new (&PyRectShape_Type, NULL, NULL);
     if (!shape)
         return NULL;
 
@@ -236,5 +247,5 @@ void
 rectshape_export_capi (void **capi)
 {
     capi[PHYSICS_SHAPE_FIRSTSLOT + 0] = &PyRectShape_Type;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 1] = &PyRectShape_New;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 1] = PyRectShape_New;
 }

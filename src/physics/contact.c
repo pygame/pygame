@@ -194,5 +194,6 @@ void
 contact_export_capi (void **capi)
 {
     capi[PHYSICS_CONTACT_FIRSTSLOT + 0] = &PyContact_Type;
+    capi[PHYSICS_CONTACT_FIRSTSLOT + 1] = PyContact_New;
 }
 

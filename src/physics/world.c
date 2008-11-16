@@ -34,7 +34,8 @@ static void _update_positions (PyWorld *world, double step);
 static void _world_dealloc (PyWorld *world);
 static PyObject* _world_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
-
+static int _world_init (PyWorld *world, PyObject *args, PyObject *kwds);
+    
 /* Getters/Setters */
 static PyObject* _world_getdict (PyWorld *world, void *closure);
 static PyObject* _world_getdamping (PyWorld *world, void *closure);
@@ -115,7 +116,7 @@ PyTypeObject PyWorld_Type =
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     offsetof (PyWorld, dict),   /* tp_dictoffset */
-    0,                          /* tp_init */
+    (initproc)_world_init,      /* tp_init */
     0,                          /* tp_alloc */
     _world_new,                 /* tp_new */
     0,                          /* tp_free */
@@ -157,6 +158,7 @@ _update_body_simulation (PyWorld *world, double step)
  *
  * @param world The PyWorld to check the bodies and joints for.
  * @param step The time passed since the last update.
+ * @return 1 on success, 0 in case an error occured.
  */
 static int
 _detect_collisions (PyWorld *world, double step)
@@ -169,7 +171,7 @@ _detect_collisions (PyWorld *world, double step)
     contact_cnt = PyList_Size (world->contactlist);
     if (PyList_SetSlice (world->contactlist, 0, contact_cnt, NULL) == -1)
         return 0;
-            
+
     /* For all pair of objects, do collision test        
      * update AABB
      */
@@ -190,8 +192,9 @@ _detect_collisions (PyWorld *world, double step)
             incbody = (PyBody*) PyList_GET_ITEM (world->bodylist, j);
             if (refbody->isstatic && incbody->isstatic)
                 continue;
-                
-            contacts = PyBody_CheckCollision_FAST (refbody, incbody);
+            
+            /* TODO: remove, once the collision handling is done */
+            /*contacts = PyBody_CheckCollision_FAST (refbody, incbody);*/
             if (!contacts)
             {
                 /* TODO: What to do here? */
@@ -242,7 +245,7 @@ _detect_collisions (PyWorld *world, double step)
             PyJoint_SolveConstraints_FAST ((PyJoint*)contact, step);
         }
     }
-    return 0;
+    return 1;
 }
 
 /**
@@ -346,11 +349,19 @@ _world_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
+    world->dict = NULL;
     world->damping = 0.0;
     world->totaltime = 0.0;
     world->steptime = 0.1;
+    AABBox_Reset (&(world->area));
     PyVector2_Set (world->gravity,0.0,-10);
     return (PyObject*) world;
+}
+
+static int
+_world_init (PyWorld *world, PyObject *args, PyObject *kwds)
+{
+    return 0;
 }
 
 /* Getters/Setters */
@@ -436,7 +447,13 @@ _world_update (PyWorld* world, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "|d:update", &dt))
         return NULL;
-    if (!PyWorld_Update ((PyObject*)world, dt))
+    if (dt < 0)
+    {
+        PyErr_SetString (PyExc_ValueError, "step time must not be negative");
+        return NULL;
+    }
+
+    if (!PyWorld_Update_FAST (world, dt))
         return NULL;
     Py_RETURN_NONE;
 }
@@ -445,6 +462,7 @@ static PyObject*
 _world_addbody (PyWorld* world, PyObject* args)
 {
     PyObject *body;
+    
     if (!PyArg_ParseTuple (args, "O:add_body", &body))
         return NULL;
     if (!PyWorld_AddBody ((PyObject*)world, body))
@@ -487,10 +505,10 @@ _world_removejoint (PyWorld* world, PyObject* args)
 
 
 /* C API */
-static PyObject*
+PyObject*
 PyWorld_New (void)
 {
-    PyWorld *world = (PyWorld*) PyObject_New (PyWorld, &PyWorld_Type);
+    PyWorld *world = (PyWorld*) PyWorld_Type.tp_new (&PyWorld_Type, NULL, NULL);
     if (!world)
         return NULL;
 
@@ -647,8 +665,6 @@ PyWorld_RemoveJoint (PyObject *world, PyObject *joint)
 int
 PyWorld_Update (PyObject* world, double step)
 {
-    int i;
-
     if (!PyWorld_Check (world))
     {
         PyErr_SetString (PyExc_TypeError, "world must be a World");
@@ -661,15 +677,23 @@ PyWorld_Update (PyObject* world, double step)
         return 0;
     }
 
+    return PyWorld_Update_FAST ((PyWorld*)world, step);
+}
+
+int
+PyWorld_Update_FAST (PyWorld *world, double step)
+{
+    int i;
+
     _update_body_simulation ((PyWorld*) world, step);
 
-    for(i = 0; i < MAX_ITERATION; ++i)
+    for (i = 0; i < MAX_ITERATION; ++i)
     {
         if (!_detect_collisions ((PyWorld*) world, step))
             return 0;
 
-        _correct_positions ((PyWorld*) world, step);
-        _solve_joints ((PyWorld*) world, step);
+        // _correct_positions ((PyWorld*) world, step);
+        // _solve_joints ((PyWorld*) world, step);
     }
     _update_positions ((PyWorld*) world, step);
 
@@ -680,11 +704,11 @@ void
 world_export_capi (void **capi)
 {
     capi[PHYSICS_WORLD_FIRSTSLOT] = &PyWorld_Type;
-    capi[PHYSICS_WORLD_FIRSTSLOT + 1] = &PyWorld_New;
-    capi[PHYSICS_WORLD_FIRSTSLOT + 2] = &PyWorld_AddBody;
-    capi[PHYSICS_WORLD_FIRSTSLOT + 3] = &PyWorld_RemoveBody;
-    capi[PHYSICS_WORLD_FIRSTSLOT + 4] = &PyWorld_AddJoint;
-    capi[PHYSICS_WORLD_FIRSTSLOT + 5] = &PyWorld_RemoveJoint;
-    capi[PHYSICS_WORLD_FIRSTSLOT + 6] = &PyWorld_Update;
+    capi[PHYSICS_WORLD_FIRSTSLOT + 1] = PyWorld_New;
+    capi[PHYSICS_WORLD_FIRSTSLOT + 2] = PyWorld_AddBody;
+    capi[PHYSICS_WORLD_FIRSTSLOT + 3] = PyWorld_RemoveBody;
+    capi[PHYSICS_WORLD_FIRSTSLOT + 4] = PyWorld_AddJoint;
+    capi[PHYSICS_WORLD_FIRSTSLOT + 5] = PyWorld_RemoveJoint;
+    capi[PHYSICS_WORLD_FIRSTSLOT + 6] = PyWorld_Update;
+    capi[PHYSICS_WORLD_FIRSTSLOT + 7] = PyWorld_Update_FAST;
 }
-

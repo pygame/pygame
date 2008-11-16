@@ -69,13 +69,11 @@ _draw_aaline (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
-    
     surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
+        return NULL;
+    
     if (surface->format->BytesPerPixel != 3 &&
         surface->format->BytesPerPixel != 4)
     {
@@ -83,8 +81,6 @@ _draw_aaline (PyObject* self, PyObject* args)
             "unsupported bit depth for aaline draw (supports 32 & 24 bit)");
         return NULL;
     }
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
 
     Py_BEGIN_ALLOW_THREADS;
     drawn = pyg_draw_aaline (surface, &surface->clip_rect, color, x1, _y1,
@@ -114,20 +110,17 @@ _draw_line (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+    
     if (width < 1)
     {
         PyErr_SetString (PyExc_ValueError, "width must be >= 1");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
-
+    
     Py_BEGIN_ALLOW_THREADS;
     drawn = pyg_draw_line (surface, &surface->clip_rect, color, x1, _y1,
         x2, y2, width, &area);
@@ -158,11 +151,11 @@ _draw_aalines (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+    
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
@@ -170,7 +163,6 @@ _draw_aalines (PyObject* self, PyObject* args)
         return NULL;
     }
 
-    surface = ((PySurface*)surfobj)->surface;
     if (surface->format->BytesPerPixel != 3 &&
         surface->format->BytesPerPixel != 4)
     {
@@ -178,8 +170,7 @@ _draw_aalines (PyObject* self, PyObject* args)
             "unsupported bit depth for aalines draw (supports 32 & 24 bit)");
         return NULL;
     }
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
+
     count = PySequence_Size (list);
     if (count < 2)
     {
@@ -214,6 +205,7 @@ _draw_aalines (PyObject* self, PyObject* args)
         }
         left = MIN (x, left);
         right = MAX (x, right);
+        xpts[i] = x;
 
         if (!IntFromSeqIndex (item, 1, &y))
         {
@@ -225,6 +217,7 @@ _draw_aalines (PyObject* self, PyObject* args)
         }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
+        ypts[i] = y;
         
         Py_DECREF (item);
     }
@@ -262,11 +255,11 @@ _draw_lines (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+    
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
@@ -278,8 +271,7 @@ _draw_lines (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_ValueError, "width must be >= 1");
         return NULL;
     }
-
-    surface = ((PySurface*)surfobj)->surface;
+    
     if (surface->format->BytesPerPixel != 3 &&
         surface->format->BytesPerPixel != 4)
     {
@@ -287,8 +279,7 @@ _draw_lines (PyObject* self, PyObject* args)
             "unsupported bit depth for aalines draw (supports 32 & 24 bit)");
         return NULL;
     }
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
+    
     count = PySequence_Size (list);
     if (count < 2)
     {
@@ -323,6 +314,7 @@ _draw_lines (PyObject* self, PyObject* args)
         }
         left = MIN (x, left);
         right = MAX (x, right);
+        xpts[i] = x;
 
         if (!IntFromSeqIndex (item, 1, &y))
         {
@@ -334,7 +326,8 @@ _draw_lines (PyObject* self, PyObject* args)
         }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
-        
+        ypts[i] = y;
+
         Py_DECREF (item);
     }
 
@@ -370,11 +363,11 @@ _draw_ellipse (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+
     if (!SDLRect_FromRect (rectobj, &rect))
         return NULL;
 
@@ -383,10 +376,6 @@ _draw_ellipse (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_ValueError, "width must not be negative");
         return NULL;
     }
-
-    surface = ((PySurface*)surfobj)->surface;
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
 
     if (((pguint16)width) > rect.w / 2 || ((pguint16)width) > rect.h / 2)
     {
@@ -447,11 +436,11 @@ _draw_arc (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+
     if (!SDLRect_FromRect (rectobj, &rect))
         return NULL;
 
@@ -460,9 +449,6 @@ _draw_arc (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_ValueError, "width must not be negative");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
 
     if (((pguint16)width) > rect.w / 2 || ((pguint16)width) > rect.h / 2)
     {
@@ -516,11 +502,11 @@ _draw_circle (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+
     if (radius < 0)
     {
         PyErr_SetString (PyExc_ValueError, "radius must not be negative");
@@ -537,10 +523,6 @@ _draw_circle (PyObject* self, PyObject* args)
             "width must not be greater than radius");
         return NULL;
     }
-
-    surface = ((PySurface*)surfobj)->surface;
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
 
     Py_BEGIN_ALLOW_THREADS;
     if (width == 0)
@@ -585,26 +567,23 @@ _draw_polygon (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
             "points must be a sequence of points");
         return NULL;
     }
-    if (width < 1)
+    if (width < 0)
     {
-        PyErr_SetString (PyExc_ValueError, "width must be >= 1");
+        PyErr_SetString (PyExc_ValueError, "width must not be negative");
         return NULL;
     }
 
-    surface = ((PySurface*)surfobj)->surface;
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
     count = PySequence_Size (list);
     if (count < 2)
     {
@@ -634,11 +613,13 @@ _draw_polygon (PyObject* self, PyObject* args)
             Py_XDECREF (item);
             PyMem_Free (xpts);
             PyMem_Free (ypts);
+            /* TODO: makes the interpreter go booom */
             PyErr_SetString (PyExc_ValueError, "invalid point list");
             return NULL;
         }
         left = MIN (x, left);
         right = MAX (x, right);
+        xpts[i] = x;
 
         if (!IntFromSeqIndex (item, 1, &y))
         {
@@ -650,13 +631,22 @@ _draw_polygon (PyObject* self, PyObject* args)
         }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
-        
+        ypts[i] = y;
+
         Py_DECREF (item);
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    drawn = pyg_draw_polygon (surface, &surface->clip_rect, color, xpts, ypts,
-        (unsigned int)count, width, &area);
+    if (width == 0)
+    {
+        drawn = pyg_draw_filled_polygon (surface, &surface->clip_rect, color,
+            xpts, ypts, (unsigned int) count, &area);
+    }
+    else
+    {
+        drawn = pyg_draw_polygon (surface, &surface->clip_rect, color, xpts,
+            ypts, (unsigned int)count, width, &area);
+    }
     Py_END_ALLOW_THREADS;
 
     PyMem_Free (xpts);
@@ -687,11 +677,11 @@ _draw_aapolygon (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+    surface = ((PySurface*)surfobj)->surface;
+    
+    if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
-    }
+    
     if (!PySequence_Check (list))
     {
         PyErr_SetString (PyExc_TypeError,
@@ -699,9 +689,6 @@ _draw_aapolygon (PyObject* self, PyObject* args)
         return NULL;
     }
 
-    surface = ((PySurface*)surfobj)->surface;
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
     count = PySequence_Size (list);
     if (count < 2)
     {
@@ -736,6 +723,7 @@ _draw_aapolygon (PyObject* self, PyObject* args)
         }
         left = MIN (x, left);
         right = MAX (x, right);
+        xpts[i] = x;
 
         if (!IntFromSeqIndex (item, 1, &y))
         {
@@ -747,7 +735,8 @@ _draw_aapolygon (PyObject* self, PyObject* args)
         }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
-        
+        ypts[i] = y;
+
         Py_DECREF (item);
     }
 
@@ -782,25 +771,13 @@ _draw_rect (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!PyColor_Check (colorobj))
-    {
-        PyErr_SetString (PyExc_TypeError, "color must be a Color");
-        return NULL;
-    }
-    if (!SDLRect_FromRect (rectobj, &rect))
-    {
-        PyErr_SetString (PyExc_TypeError, "rect must be a Rect");
-        return NULL;
-    }
-    if (width < 0)
-    {
-        PyErr_SetString (PyExc_ValueError, "width must not be negative");
-        return NULL;
-    }
-
     surface = ((PySurface*)surfobj)->surface;
-    color = (Uint32) PyColor_AsNumber (colorobj);
-    ARGB2FORMAT(color, surface->format);
+    
+    if (!ColorFromObj (colorobj, surface->format,  &color))
+        return NULL;
+
+    if (!SDLRect_FromRect (rectobj, &rect))
+        return NULL;
 
     xpts[0] = rect.x; ypts[0] = rect.y;
     xpts[1] = rect.x + rect.w - 1; ypts[1] = rect.y;
@@ -845,7 +822,7 @@ PyMODINIT_FUNC initdraw (void)
 #endif
 
 #if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("draw", _draw_methods, "");
+    mod = Py_InitModule3 ("draw", _draw_methods, NULL);
 #else
     mod = PyModule_Create (&_module);
 #endif
@@ -854,8 +831,11 @@ PyMODINIT_FUNC initdraw (void)
 
     if (import_pygame2_base () < 0)
         goto fail;
+    if (import_pygame2_sdl_base () < 0)
+        goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;
+
     MODINIT_RETURN (mod);
 fail:
     Py_XDECREF (mod);

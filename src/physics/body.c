@@ -159,20 +159,23 @@ PyTypeObject PyBody_Type =
 static void
 _body_init_values (PyBody *body)
 {
-    body->angle_velocity = 0.0;
-    body->friction = 0.0;
-    body->mass = 1.0;
-    body->restitution = 1.0;
-    body->rotation = 0.0;
-    body->torque = 0.0;
+    body->dict = NULL;
     body->shape = NULL;
+    body->mass = 1.0;
     body->isstatic = 0;
+    body->rotation = 0.0;
+    PyVector2_Set (body->position, 0.0, 0.0);
+    PyVector2_Set (body->impulse, 0.0, 0.0);
+    PyVector2_Set (body->force, 0.0, 0.0);
+    body->torque = 0.0;
+    PyVector2_Set (body->linear_velocity, 0.0, 0.0);
+    body->angle_velocity = 0.0;
+    body->restitution = 1.0;
+    body->friction = 0.0;
     body->linear_vel_damping = 0.0;
     body->angle_vel_damping = 0.06;
-    PyVector2_Set (body->force, 0.0, 0.0);
-    PyVector2_Set (body->impulse, 0.0, 0.0);
-    PyVector2_Set (body->linear_velocity, 0.0, 0.0);
-    PyVector2_Set (body->position, 0.0, 0.0);
+    PyVector2_Set (body->bias_lv, 0.0, 0.0);    
+    body->bias_w = 0.0;
 }
 
 static void
@@ -208,12 +211,14 @@ _body_init (PyBody *body, PyObject *args, PyObject *kwds)
 
     Py_INCREF (shape);
     body->shape = shape;
+
     if (!PyShape_Update_FAST ((PyShape*) body->shape, body))
     {
         /* An error occured. */
         Py_DECREF (shape);
         return -1;
     }
+
     return 0;
 }
 
@@ -545,12 +550,28 @@ _body_getpoints (PyObject *self, PyObject *args)
 
 /* C API */
 PyObject*
-PyBody_New (void)
+PyBody_New (PyObject *shape)
 {
-    PyBody* body = (PyBody*) PyObject_New (PyBody, &PyBody_Type);
+    PyBody* body = (PyBody*) PyBody_Type.tp_new (&PyBody_Type, NULL, NULL);
     if (!body)
         return NULL;
-    _body_init_values (body);
+
+    if (!PyShape_Check (shape))
+    {
+        PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
+        Py_DECREF (body);
+        return NULL;
+    }
+
+    Py_INCREF (shape);
+    body->shape = shape;
+    if (!PyShape_Update_FAST ((PyShape*) body->shape, body))
+    {
+        /* An error occured. */
+        Py_DECREF (body);
+        return NULL;
+    }
+
     return (PyObject*) body;
 }
 
@@ -580,6 +601,8 @@ PyBody_CheckCollision_FAST (PyBody *body1, PyBody *body2)
     Py_ssize_t i;
     
     PyErr_Clear ();
+
+    /* TODO! */
     
     /* Assume, the objects are consistent! */
     retval = PyShape_Collide_FAST ((PyShape*)body1->shape, body1->position,
@@ -601,9 +624,23 @@ PyBody_CheckCollision_FAST (PyBody *body1, PyBody *body2)
     return retval;
 }
 
+PyObject*
+PyBody_GetPoints (PyObject *body)
+{
+    if (!PyBody_Check (body))
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must be a Body");
+        return NULL;
+    }
+    return _body_getpoints (body, NULL);
+}
+
 void
 body_export_capi (void **capi)
 {
     capi[PHYSICS_BODY_FIRSTSLOT] = &PyBody_Type;
-    capi[PHYSICS_BODY_FIRSTSLOT + 1] = &PyBody_New;
+    capi[PHYSICS_BODY_FIRSTSLOT + 1] = PyBody_New;
+    capi[PHYSICS_BODY_FIRSTSLOT + 2] = PyBody_CheckCollision;
+    capi[PHYSICS_BODY_FIRSTSLOT + 3] = PyBody_CheckCollision_FAST;
+    capi[PHYSICS_BODY_FIRSTSLOT + 4] = PyBody_GetPoints;
 }

@@ -290,6 +290,7 @@ _get_color (PyObject *val, pguint32 *color)
         longval = PyLong_AsUnsignedLong (val);
         if (PyErr_Occurred ())
         {
+            PyErr_Clear ();
             PyErr_SetString (PyExc_ValueError, "color argument too large");
             return 0;
         }

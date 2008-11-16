@@ -185,13 +185,19 @@ typedef struct
 
 #define PHYSICS_BODY_FIRSTSLOT \
     (PHYSICS_AABBOX_FIRSTSLOT + PHYSICS_AABBOX_NUMSLOTS)
-#define PHYSICS_BODY_NUMSLOTS 2
+#define PHYSICS_BODY_NUMSLOTS 5
 #ifndef PHYSICS_BODY_INTERNAL
 #define PyBody_Check(x)                                                 \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+0]))
 #define PyBody_New                                                      \
     (*(PyObject*(*)(PyObject*))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+1])
+#define PyBody_CheckCollision                                           \
+    (*(PyObject*(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+2])
+#define PyBody_CheckCollision_FAST                                      \
+    (*(PyObject*(*)(PyBody*,PyBody*))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+3])
+#define PyBody_GetPoints                                                \
+    (*(PyObject*(*)(PyObject*))PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+4])
 #endif /* PHYSICS_BODY_INTERNAL */
 
 typedef enum
@@ -251,7 +257,7 @@ typedef PyObject* (*collisionfunc)(PyShape*,PyVector2,double,PyShape*,PyVector2,
  */
 typedef struct
 {
-    PyShape   shape;
+    PyShape  shape;
     AABBox   box;
     
     PyVector2 topleft;
@@ -346,8 +352,8 @@ typedef struct
 } PyWorld;
 
 #define PHYSICS_WORLD_FIRSTSLOT \
-    (PHYSICS_JOINT_FIRSTSLOT + PHYSICS_JOINT_NUMSLOTS)
-#define PHYSICS_WORLD_NUMSLOTS 7
+    (PHYSICS_CONTACT_FIRSTSLOT + PHYSICS_CONTACT_NUMSLOTS)
+#define PHYSICS_WORLD_NUMSLOTS 8
 #ifndef PHYSICS_WORLD_INTERNAL
 #define PyWorld_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
@@ -364,7 +370,8 @@ typedef struct
     (*(int(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+5])
 #define PyWorld_Update                                                  \
     (*(int(*)(PyObject*,double))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+6])
-
+#define PyWorld_Update_FAST                                             \
+    (*(int(*)(PyWorld*,double))PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+7])
 #endif /* PHYSICS_WORLD_INTERNAL */
 
 /**

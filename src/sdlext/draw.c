@@ -118,9 +118,9 @@ static int
 _clipline (SDL_Rect *clip, int x1, int _y1, int x2, int y2, int *outpts)
 {
     int left = clip->x;
-    int right = clip->x + clip->w;
+    int right = clip->x + clip->w - 1;
     int top = clip->y;
-    int bottom = clip->y + clip->h;
+    int bottom = clip->y + clip->h - 1;
     int code1, code2;
     int draw = 0;
     int swaptmp;
@@ -200,10 +200,10 @@ static int
 _clipaaline (SDL_Rect *clip, float x1, float _y1, float x2, float y2,
     float *outpts)
 {
-    int left = clip->x;
-    int right = clip->x + clip->w;
-    int top = clip->y;
-    int bottom = clip->y + clip->h;
+    int left = clip->x + 1;
+    int right = clip->x + clip->w - 2;
+    int top = clip->y + 1;
+    int bottom = clip->y + clip->h - 2;
     int code1, code2;
     int draw = 0;
     float swaptmp;
@@ -1426,6 +1426,7 @@ pyg_draw_aapolygon (SDL_Surface *surface, SDL_Rect *cliprect, Uint32 color,
 
         if (_clipaaline (cliprect, xa, ya, xb, yb, pts))
         {
+            printf ("pts: %f, %f, %f, %f\n", pts[0],pts[1],pts[2],pts[3]);
             _drawaaline (surface, color, (int)pts[0], (int)pts[1], (int)pts[2],
                 (int)pts[3], blendargs);
             anydrawn = 1;

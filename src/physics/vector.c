@@ -116,6 +116,7 @@ PyVector2_AsTuple (PyVector2 v)
         Py_DECREF (tuple);
         return NULL;
     }
+
     ynum = PyFloat_FromDouble (v.imag);
     if (!ynum)
     {
@@ -183,17 +184,17 @@ PyVector2_TransformMultiple (PyVector2 *vin, PyVector2 *vout, int count,
 void
 math_export_capi (void **c_api)
 {
-    c_api[PHYSICS_MATH_FIRSTSLOT] = &PyMath_IsNearEqual;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 1] = &PyMath_LessEqual;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 2] = &PyMath_MoreEqual;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 3] = &PyVector2_Equal;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 4] = &PyVector2_MultiplyWithReal;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 5] = &PyVector2_DivideWithReal;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 6] = &PyVector2_fCross;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 7] = &PyVector2_Crossf;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 8] = &PyVector2_Project;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 9] = &PyVector2_AsTuple;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 10] = &PyVector2_FromSequence;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 11] = &PyVector2_Transform;
-    c_api[PHYSICS_MATH_FIRSTSLOT + 12] = &PyVector2_TransformMultiple;
+    c_api[PHYSICS_MATH_FIRSTSLOT] = PyMath_IsNearEqual;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 1] = PyMath_LessEqual;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 2] = PyMath_MoreEqual;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 3] = PyVector2_Equal;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 4] = PyVector2_MultiplyWithReal;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 5] = PyVector2_DivideWithReal;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 6] = PyVector2_fCross;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 7] = PyVector2_Crossf;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 8] = PyVector2_Project;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 9] = PyVector2_AsTuple;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 10] = PyVector2_FromSequence;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 11] = PyVector2_Transform;
+    c_api[PHYSICS_MATH_FIRSTSLOT + 12] = PyVector2_TransformMultiple;
 }

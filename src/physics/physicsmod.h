@@ -68,11 +68,13 @@ void aabbox_export_capi (void **capi);
 /* World API */
 extern PyTypeObject PyWorld_Type;
 #define PyWorld_Check(x) (PyObject_TypeCheck(x, &PyWorld_Type))
+PyObject* PyWorld_New (void);
 int PyWorld_AddBody (PyObject *world, PyObject *body);
 int PyWorld_RemoveBody (PyObject *world, PyObject *body);
 int PyWorld_AddJoint (PyObject *world, PyObject *joint);
 int PyWorld_RemoveJoint (PyObject *world, PyObject *joint);
 int PyWorld_Update (PyObject* world, double step);
+int PyWorld_Update_FAST (PyWorld *world, double step);
 void world_export_capi (void **capi);
 
 
@@ -119,9 +121,10 @@ extern PyTypeObject PyBody_Type;
         body->angle_velocity *= __k2;                                   \
     }
 
-PyObject* PyBody_New (void);
+PyObject* PyBody_New (PyObject *shape);
 PyObject* PyBody_CheckCollision (PyObject *body1, PyObject *body2);
 PyObject* PyBody_CheckCollision_FAST (PyBody *body1, PyBody *body2);
+PyObject* PyBody_GetPoints (PyObject *body);
 void body_export_capi (void **capi);
 
 /* Shape API */

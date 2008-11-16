@@ -178,6 +178,7 @@ _joint_solveconstraints (PyJoint *joint, PyObject *args)
         if (!PyArg_ParseTuple (args, "d", &steptime))
             return NULL;
         joint->solve_constraints (joint, steptime);
+        Py_RETURN_NONE;
     }
     PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
     return NULL;

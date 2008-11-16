@@ -41,10 +41,10 @@ AABBox_Reset (AABBox* box)
     if (!box)
         return;
 
-    box->left = DBL_MAX;
-    box->bottom = DBL_MAX;
-    box->top = -DBL_MAX;
-    box->right = -DBL_MAX;
+    box->top = DBL_MAX;
+    box->right = DBL_MAX;
+    box->bottom = -DBL_MAX;
+    box->left = -DBL_MAX;
 }
 
 void
@@ -97,7 +97,7 @@ AABBox_AsFRect (AABBox *box)
 AABBox*
 AABBox_FromSequence (PyObject *seq)
 {
-    double t, l, b, r;
+    double x, y, w, h;
     AABBox *box;
     if (!PySequence_Check (seq) || PySequence_Size (seq) < 4)
     {
@@ -106,23 +106,23 @@ AABBox_FromSequence (PyObject *seq)
         return NULL;
     }
 
-    if (!DoubleFromSeqIndex (seq, 0, &t))
+    if (!DoubleFromSeqIndex (seq, 0, &x))
         return NULL;
-    if (!DoubleFromSeqIndex (seq, 1, &l))
+    if (!DoubleFromSeqIndex (seq, 1, &y))
         return NULL;
-    if (!DoubleFromSeqIndex (seq, 2, &b))
+    if (!DoubleFromSeqIndex (seq, 2, &w))
         return NULL;
-    if (!DoubleFromSeqIndex (seq, 3, &r))
+    if (!DoubleFromSeqIndex (seq, 3, &h))
         return NULL;
     
     box = PyMem_New (AABBox, 1);
     if (!box)
         return NULL;
 
-    box->top = t;
-    box->left = l;
-    box->bottom = b;
-    box->right = r;
+    box->top = x;
+    box->left = y;
+    box->bottom = y + h;
+    box->right = x + w;
     return box;
 }
 
@@ -147,7 +147,11 @@ AABBox_FromRect (PyObject *rect)
     }
     else
     {
-        PyErr_SetString (PyExc_TypeError, "argument must be a Rect or FRect");
+        box = AABBox_FromSequence (rect);
+        if (box)
+            return box;
+        PyErr_SetString (PyExc_TypeError,
+            "argument must be a Rect, FRect or 4-value sequence");
         return NULL;
     }
     

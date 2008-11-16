@@ -298,7 +298,7 @@ PyShape_Update (PyObject *shape, PyObject *body)
     }
     if (!PyBody_Check (body))
     {
-        PyErr_SetString (PyExc_TypeError, "body must be a body");
+        PyErr_SetString (PyExc_TypeError, "body must be a Body");
         return 0;
     }
     return PyShape_Update_FAST ((PyShape*)shape, (PyBody*) body);
@@ -411,12 +411,12 @@ void
 shape_export_capi (void **capi)
 {
     capi[PHYSICS_SHAPE_FIRSTSLOT + 0] = &PyShape_Type;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 1] = &PyShape_Collide;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 2] = &PyShape_Collide_FAST;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 3] = &PyShape_Update;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 4] = &PyShape_Update_FAST;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 5] = &PyShape_GetAABBox;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 6] = &PyShape_GetAABBox_FAST;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 7] = &PyShape_GetVertices;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 8] = &PyShape_GetVertices_FAST;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 1] = PyShape_Collide;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 2] = PyShape_Collide_FAST;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 3] = PyShape_Update;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 4] = PyShape_Update_FAST;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 5] = PyShape_GetAABBox;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 6] = PyShape_GetAABBox_FAST;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 7] = PyShape_GetVertices;
+    capi[PHYSICS_SHAPE_FIRSTSLOT + 8] = PyShape_GetVertices_FAST;
 }

@@ -445,6 +445,7 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
         long intval = PyInt_AsLong (value);
         if (intval == -1 && PyErr_Occurred ())
         {
+            PyErr_Clear ();
             PyErr_SetString (PyExc_ValueError, "invalid color argument");
             return 0;
         }
@@ -456,6 +457,7 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
         unsigned long longval = PyLong_AsUnsignedLong (value);
         if (PyErr_Occurred ())
         {
+            PyErr_Clear ();
             PyErr_SetString(PyExc_ValueError, "invalid color argument");
             return 0;
         }
