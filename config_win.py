@@ -168,10 +168,11 @@ DEPS = [
     Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg']),
     DependencyWin('SCRAP', ['user32', 'gdi32']),
     Dependency('JPEG', ['jpeg-[6-9]*']),
-    Dependency('PNG', ['libpng-[1-9].*']),
+    Dependency('PNG', ['libpng1[2-9]-[0-9].*']),
     DependencyDLL('TIFF', ['tiff-[3-9].*']),
     DependencyDLL('VORBIS', ['libvorbis-[1-9].*']),
     DependencyDLL('OGG', ['libogg-[1-9].*']),
+    DependencyDLL('FREETYPE', ['freetype-[2-9].*']),
     DependencyDLL('Z', ['zlib-[1-9].*']),
 ]
 
@@ -180,6 +181,34 @@ DEPS += [DependencyDLL('VORBISFILE', link=DEPS[9])]
 
 def setup_prebuilt():
     setup = open('Setup', 'w')
+    try:
+        try:
+            setup_win_in = open(os.path.join('prebuilt', 'Setup_Win.in'))
+        except IOError:
+            # prebuilt lacks a Setup_Win.in. Use defaults.
+            setup_prebuilt_oldstyle(setup)
+        else:
+            # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
+            # block with prebuilt\Setup_Win.in .
+            setup_in = open('Setup.in')
+            try:
+                do_copy = True
+                for line in setup_in:
+                    if line.startswith('#--StartConfig'):
+                        do_copy = False
+                        setup.write(setup_win_in.read())
+                    elif line.startswith('#--EndConfig'):
+                        do_copy = True
+                    elif do_copy:
+                        setup.write(line)
+            finally:
+                setup_in.close()
+    finally:
+        setup.close()
+
+def setup_prebuilt_oldstyle(setup):
+    # Copy setup to file 'Setup'. Use the contents of the
+    # BeginConfig/EndConfig block, with modifications.
     for line in open('Setup.in').readlines():
         if line[:3] == '#--': continue
         if line[:6] == 'SDL = ':
