@@ -611,11 +611,6 @@ fi
 
 if [ x$BDINST == x1 ]; then
   make install
-  # Pygame expects the headers to be at the top level.
-  cp -fp /usr/local/include/libpng12/*.h /usr/local/include
-  # Keep the library name 'png' to be consistent with Unix
-  # and not to mess up Setup.in.
-  cp -fp /usr/local/lib/libpng12.dll.a /usr/local/lib/libpng.dll.a
 fi
 
 if [ x$BDSTRIP == x1 ]; then
