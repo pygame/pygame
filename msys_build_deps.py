@@ -540,14 +540,10 @@ set -e
 cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
-  ./configure --disable-shared
-  # The build cannot be -pedentic as the runtime headers are not.
-  BDMK=builds/unix/unix-cc.mk
-  cp -f "$BDMK" temp_
-  sed '
-s/ -pedantic//
-s/ -ansi//' temp_ >"$BDMK"
-  rm temp_
+  # Need to define inline as freetypes is compiled as -pedentic
+  # yet stdlib.h is not.
+  export CPPFLAGS="-Dinline=__inline__ $CPPFLAGS"
+  ./configure
 fi
 
 if [ x$BDCOMP == x1 ]; then
