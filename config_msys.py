@@ -233,6 +233,7 @@ def main():
         DependencyDLL('VORBISFILE'),
         DependencyDLL('VORBIS'),
         DependencyDLL('OGG'),
+        DependencyDLL('FREETYPE'),
         DependencyDLL('Z'),
     ]
 
