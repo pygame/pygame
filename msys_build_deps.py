@@ -32,12 +32,12 @@ SDL_image 1.2.6
 SDL_mixer 1.2 (.8) revision 3942 from SVN
 SDL_ttf 2.0.9
 smpeg revision 370 from SVN
-freetype 2.3.5
+freetype 2.3.7
 libogg 1.1.3
 libvorbis 1.2.0
 FLAC 1.2.1
 tiff 3.8.2
-libpng 1.2.24
+libpng 1.2.32
 jpeg 6b
 zlib 1.2.3
 
@@ -534,14 +534,20 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('FREETYPE', ['freetype-[2-9].*'], [], """
+    Dependency('FREETYPE', ['freetype-[2-9].*'], ['libfreetype-6.dll'], """
 
 set -e
 cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
-  # Will only install a static library, but that is all that is needed.
   ./configure --disable-shared
+  # The build cannot be -pedentic as the runtime headers are not.
+  BDMK=builds/unix/unix-cc.mk
+  cp -f "$BDMK" temp_
+  sed '
+s/ -pedantic//
+s/ -ansi//' temp_ >"$BDMK"
+  rm temp_
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -550,6 +556,10 @@ fi
 
 if [ x$BDINST == x1 ]; then
   make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/libfreetype-6.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -583,47 +593,42 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('PNG', ['libpng-[1-9].*'], ['libpng13.dll'], """
+    Dependency('PNG', ['libpng-[1-9].*'], ['libpng12-0.dll'], """
 
 set -e
 cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
   # This will only build a static library.
-  ./configure --with-libpng-compat=no --disable-shared
+  ./configure --with-libpng-compat=no
 
   # Remove a duplicate entry in the def file.
-  sed '222 d' scripts/pngw32.def >in.def
+  BDDEF=scripts/pngw32.def
+  cp -f "$BDDEF" temp_
+  sed '222 s/^\\(  png_malloc_warn @195\\)/;\\1/' temp_ >"$BDDEF"
+  rm temp_
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Build the DLL as win32 gui.
   make
-  dlltool -D libpng13.dll -d in.def -l libpng.dll.a
-  ranlib libpng.dll.a
-  gcc -shared -s $LDFLAGS -def in.def -o libpng13.dll .libs/libpng12.a -lz
 fi
 
 if [ x$BDINST == x1 ]; then
-  # Only install the headers and import library, otherwise SDL_image will
-  # statically link to png.
-  make install-pkgincludeHEADERS
-  cp -fp png.h /usr/local/include
-  cp -fp pngconf.h /usr/local/include
-  cp -fp libpng.dll.a /usr/local/lib
-  cp -fp libpng13.dll /usr/local/bin
+  make install
+  # Pygame expects the headers to be at the top level.
+  cp -fp /usr/local/include/libpng12/*.h /usr/local/include
+  # Keep the library name 'png' to be consistent with Unix
+  # and not to mess up Setup.in.
+  cp -fp /usr/local/lib/libpng12.dll.a /usr/local/lib/libpng.dll.a
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libpng13.dll
+  strip --strip-all /usr/local/bin/libpng12-0.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
-  rm -f in.def
-  rm -f libpng.dll.a
-  rm -f libpng13.dll
 fi
 """),
     Dependency('JPEG', ['jpeg-[6-9]*'], ['jpeg.dll'], """

@@ -24,8 +24,9 @@ libraries = [
      ['SDL', 'jpeg', 'png', 'tiff']),
     ('TIFF', 'tiff', r'(lib){0,1}tiff\.dll$',  ['jpeg', 'z']),
     ('JPEG', 'jpeg', r'(lib){0,1}jpeg\.dll$', []),
-    ('PNG', 'png', r'(lib){0,1}png(1[23])\.dll$', ['z']),
-    ('FONT', 'SDL_ttf', r'(lib){0,1}SDL_ttf\.dll$', ['SDL', 'z']),
+    ('PNG', 'png', r'(lib){0,1}png(1[23])(-0){0,1}\.dll$', ['z']),
+    ('FONT', 'SDL_ttf', r'(lib){0,1}SDL_ttf\.dll$', ['freetype', 'SDL']),
+    ('FREETYPE', 'freetype', r'(lib)freetype(-6)\.dll$', ['z']),
     ('Z', 'z', r'zlib1\.dll$', []),
     ('SDL', 'SDL', r'(lib){0,1}SDL\.dll$', [])
 ]
