@@ -172,7 +172,7 @@ DEPS = [
     DependencyDLL('TIFF', ['tiff-[3-9].*']),
     DependencyDLL('VORBIS', ['libvorbis-[1-9].*']),
     DependencyDLL('OGG', ['libogg-[1-9].*']),
-    DependencyDLL('FREETYPE', ['freetype-[2-9].*']),
+#    DependencyDLL('FREETYPE', ['freetype-[2-9].*']),
     DependencyDLL('Z', ['zlib-[1-9].*']),
 ]
 
