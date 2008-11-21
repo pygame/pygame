@@ -20,13 +20,15 @@ class MatchTestCase(unittest.TestCase):
         ('SMPEG', ['smpeg.dll', 'SMPEG.DLL', 'libsmpeg.dll'], ['smpeg.dll.a']),
         ('TIFF', ['tiff.dll', 'TIFF.DLL', 'libtiff.dll'], ['tiff.dll.a']),
         ('JPEG', ['jpeg.dll', 'JPEG.DLL', 'libjpeg.dll'], ['jpeg.dll.a']),
-        ('PNG', ['libpng13.dll', 'LIBPNG13.DLL', 'libpng12.dll', 'png12.dll', 'png13.dll'],
-                ['libpng.dll', 'libpng13.dll.a']),
+        ('PNG', ['libpng13.dll', 'LIBPNG13.DLL', 'libpng12.dll', 'png12.dll', 'png13.dll', 'libpng12-0.dll'],
+                ['libpng.dll', 'libpng13.dll.a', 'libpng12.dll.a']),
         ('Z', ['zlib1.dll', 'ZLIB1.DLL'], ['z.dll', 'libzlib1.dll', 'zlib1.dll.a']),
         ('VORBIS', ['vorbis.dll', 'VORBIS.DLL', 'libvorbis-0.dll'], ['libvorbis-1.dll', 'libvorbis-0.dll.a']),
         ('VORBISFILE', ['vorbisfile.dll', 'VORBISFILE.DLL', 'libvorbisfile-3.dll'],
                        ['libvorbisfile-0.dll', 'libvorbisfile-3.dll.a']),
         ('OGG', ['ogg.dll', 'OGG.DLL', 'libogg-0.dll'], ['libogg-1.dll', 'libogg-0.dll.a']),
+        ('FREETYPE', ['freetype.dll', 'FREETYPE.DLL', 'libfreetype-6.dll'],
+         ['libfreetype.dll.a']),
         ]
 
     def test_compat(self):
@@ -60,15 +62,15 @@ class DependencyLookupTestCase(unittest.TestCase):
 
     def test_multiple_dependencies(self):
         """Ensure dependencies are recursively traced"""
-        expected_libs = ['vorbisfile', 'vorbis', 'ogg']
-        libs = dll.dependencies(['vorbisfile'])
+        expected_libs = ['VORBISFILE', 'VORBIS', 'OGG']
+        libs = dll.dependencies(['VORBISFILE'])
         self.failUnlessEqual(len(libs), len(expected_libs))
         for lib in expected_libs:
             self.failUnless(lib in libs)
 
     def test_multiple_libs(self):
         """Ensure mutliple libraries in a list are handled"""
-        expected_libs = ['SDL', 'z']  # Chosen for not having dependencies
+        expected_libs = ['SDL', 'Z']  # Chosen for not having dependencies
         libs = dll.dependencies(expected_libs)
         self.failUnlessEqual(len(libs), len(expected_libs))
         for lib in expected_libs:

@@ -42,25 +42,25 @@ class RunConfigTestCase(unittest.TestCase):
 
     # Pygame dependencies
     expectations = {
-        'SDL': Dependency('SDL', 'sdl-1.2.12/include', 'sdl-1.2.12/visualc/sdl/release'),
+        'SDL': Dependency('SDL', 'sdl-1.2/include', 'sdl-1.2/visualc/sdl/release'),
         'FONT': Dependency('FONT', 'sdl_ttf-2.0.9', 'sdl_ttf-2.0.9/release'),
         'IMAGE': Dependency('IMAGE', 'sdl_image-1.2.6', 'sdl_image-1.2.6/visualc/release'),
-        'MIXER': Dependency('MIXER', 'sdl_mixer-1.2.8', 'sdl_mixer-1.2.8/release'),
+        'MIXER': Dependency('MIXER', 'sdl_mixer-1.2', 'sdl_mixer-1.2/release'),
         'SMPEG': Dependency('SMPEG', 'smpeg', 'smpeg/release'),
-        'PNG': Dependency('PNG', 'libpng-1.2.19', 'libpng-1.2.19/lib'),
+        'PNG': Dependency('PNG', 'libpng-1.2.32', 'libpng-1.2.32/lib'),
         'JPEG': Dependency('JPEG', 'jpeg-6b', 'jpeg-6b/release'),
         'SCRAP': Dependency(libs=['user32', 'gdi32']),
         'COPYLIB_SDL': Dependency('SDL',
-                                  lib_dir_rel='sdl-1.2.12/visualc/sdl/release/sdl.dll'),
+                                  lib_dir_rel='sdl-1.2/visualc/sdl/release/sdl.dll'),
         'COPYLIB_FONT': Dependency('FONT',
                                    lib_dir_rel='sdl_ttf-2.0.9/release/sdl_ttf.dll'),
         'COPYLIB_IMAGE': Dependency('IMAGE',
                                     lib_dir_rel='sdl_image-1.2.6/visualc/release/sdl_image.dll'),
         'COPYLIB_MIXER': Dependency('MIXER',
-                                    lib_dir_rel='sdl_mixer-1.2.8/release/sdl_mixer.dll'),
+                                    lib_dir_rel='sdl_mixer-1.2/release/sdl_mixer.dll'),
         'COPYLIB_SMPEG': Dependency('SMPEG', lib_dir_rel='smpeg/release/smpeg.dll'),
         'COPYLIB_TIFF': Dependency('TIFF', lib_dir_rel='tiff-3.8.2/release/libtiff.dll'),
-        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='libpng-1.2.19/lib/libpng13.dll'),
+        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='libpng-1.2.32/lib/libpng13.dll'),
         'COPYLIB_JPEG': Dependency('JPEG', lib_dir_rel='jpeg-6b/release/jpeg.dll'),
         'COPYLIB_Z': Dependency('Z', lib_dir_rel='zlib-1.2.3/release/zlib1.dll'),
         'COPYLIB_VORBISFILE': Dependency('VORBISFILE',
@@ -68,6 +68,8 @@ class RunConfigTestCase(unittest.TestCase):
         'COPYLIB_VORBIS': Dependency('VORBIS',
                                      lib_dir_rel='libvorbis-1.2.0/release/libvorbis-0.dll'),
         'COPYLIB_OGG': Dependency('OGG', lib_dir_rel='libogg-1.1.3/release/libogg-0.dll'),
+        'COPYLIB_FREETYPE': Dependency('FREETYPE',
+                                       lib_dir_rel='freetype-2.3.7/objs/freetype.dll'),
         }
 
     def test_dependencies(self):

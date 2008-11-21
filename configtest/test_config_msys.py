@@ -50,7 +50,7 @@ class RunConfigTestCase(unittest.TestCase):
         'IMAGE': Dependency('IMAGE', 'include/sdl', 'lib'),
         'MIXER': Dependency('MIXER', 'include', 'lib'),  # A deviant include dir
         'SMPEG': Dependency('SMPEG', 'include', 'lib'),  # ? uses smpeg-config script
-        'PNG': Dependency('PNG', 'include', 'lib'),
+        'PNG': Dependency('PNG', 'include/libpng12', 'lib'),
         'JPEG': Dependency('JPEG', 'include/sdl', 'lib'),  # A deviant include dir
         'SCRAP': Dependency(libs=['user32', 'gdi32']),
         'COPYLIB_SDL': Dependency('SDL', lib_dir_rel='bin/sdl.dll'),
@@ -59,12 +59,13 @@ class RunConfigTestCase(unittest.TestCase):
         'COPYLIB_MIXER': Dependency('MIXER', lib_dir_rel='lib/sdl_mixer.dll'),  # Where the search starts
         'COPYLIB_SMPEG': Dependency('SMPEG', lib_dir_rel='bin/smpeg.dll'),
         'COPYLIB_TIFF': Dependency('TIFF', lib_dir_rel='bin/libtiff.dll'),
-        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='bin/libpng13.dll'),
+        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='bin/libpng12-0.dll'),
         'COPYLIB_JPEG': Dependency('JPEG', lib_dir_rel='bin/jpeg.dll'),
         'COPYLIB_Z': Dependency('Z', lib_dir_rel='bin/zlib1.dll'),
         'COPYLIB_VORBISFILE': Dependency('VORBISFILE', lib_dir_rel='bin/libvorbisfile-3.dll'),
         'COPYLIB_VORBIS': Dependency('VORBIS', lib_dir_rel='bin/libvorbis-0.dll'),
         'COPYLIB_OGG': Dependency('OGG', lib_dir_rel='bin/libogg-0.dll'),
+        'COPYLIB_FREETYPE': Dependency('FREETYPE', lib_dir_rel='bin/libfreetype-6.dll'),
         }
 
     def test_dependencies(self):
