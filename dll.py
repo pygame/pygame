@@ -14,19 +14,19 @@ import re
 # name, root, File regex, Dependency list of file root names
 libraries = [
     ('MIXER', 'SDL_mixer', r'(lib){0,1}SDL_mixer\.dll$',
-     ['SDL', 'vorbisfile', 'smpeg']),
+     ['SDL', 'VORBISFILE', 'SMPEG']),
     ('VORBISFILE', 'vorbisfile',  r'(lib){0,1}vorbisfile(-3){0,1}\.dll$',
-     ['vorbis']),
-    ('VORBIS', 'vorbis', r'(lib){0,1}vorbis(-0){0,1}\.dll$', ['ogg']),
+     ['VORBIS']),
+    ('VORBIS', 'vorbis', r'(lib){0,1}vorbis(-0){0,1}\.dll$', ['OGG']),
     ('OGG', 'ogg', r'(lib){0,1}ogg(-0){0,1}\.dll$', []),
     ('SMPEG', 'smpeg', r'(lib){0,1}smpeg\.dll$', ['SDL']),
     ('IMAGE', 'SDL_image', r'(lib){0,1}SDL_image\.dll$',
-     ['SDL', 'jpeg', 'png', 'tiff']),
-    ('TIFF', 'tiff', r'(lib){0,1}tiff\.dll$',  ['jpeg', 'z']),
+     ['SDL', 'JPEG', 'PNG', 'TIFF']),
+    ('TIFF', 'tiff', r'(lib){0,1}tiff\.dll$',  ['JPEG', 'Z']),
     ('JPEG', 'jpeg', r'(lib){0,1}jpeg\.dll$', []),
-    ('PNG', 'png', r'(lib){0,1}png(1[23])(-0){0,1}\.dll$', ['z']),
-    ('FONT', 'SDL_ttf', r'(lib){0,1}SDL_ttf\.dll$', ['freetype', 'SDL']),
-    ('FREETYPE', 'freetype', r'(lib)freetype(-6)\.dll$', ['z']),
+    ('PNG', 'png12', r'(lib){0,1}png(1[23])(-0){0,1}\.dll$', ['Z']),
+    ('FONT', 'SDL_ttf', r'(lib){0,1}SDL_ttf\.dll$', ['FREETYPE', 'SDL']),
+    ('FREETYPE', 'freetype', r'(lib){0,1}freetype(-6){0,1}\.dll$', ['Z']),
     ('Z', 'z', r'zlib1\.dll$', []),
     ('SDL', 'SDL', r'(lib){0,1}SDL\.dll$', [])
 ]
@@ -40,7 +40,7 @@ lib_dependencies = {}
 file_root_names = {}
 for name, root, regex, deps in libraries:
     regexs[name] = regex
-    lib_dependencies[root] = deps
+    lib_dependencies[name] = deps
     file_root_names[name] = root
 del name, root, regex, deps
 
@@ -56,22 +56,22 @@ def tester(name):
     test.library_name = name  # Available for debugging.
     return test
 
-def dependencies(roots):
-    """Return a set of dependencies for the list of library file roots
+def dependencies(names):
+    """Return a set of dependencies for the list of library names
 
-    The return set is a dictionary keyed on library root name with values of 1.
+    The return set is a dictionary keyed on library name with values of 1.
     """
 
-    root_set = {}
-    for root in roots:
+    name_set = {}
+    for name in names:
         try:
-            deps = lib_dependencies[root]
+            deps = lib_dependencies[name]
         except KeyError:
             pass
         else:
-            root_set[root] = 1
-            root_set.update(dependencies(deps))
-    return root_set
+            name_set[name] = 1
+            name_set.update(dependencies(deps))
+    return name_set
 
 def name_to_root(name):
     """Return the library file root for the library name"""
