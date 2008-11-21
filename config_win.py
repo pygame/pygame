@@ -1,5 +1,8 @@
 """Config on Windows"""
 
+# **** The search part is broken. Only the prebuilt section creates
+# a correct Setup file.
+
 import dll
 import os, sys
 from glob import glob
@@ -10,7 +13,7 @@ huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
 class Dependency(object):
     inc_hunt = ['include']
-    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib', 'objs']
+    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
     def __init__(self, name, wildcards, libs=None, required = 0):
         if libs is None:
             libs = [dll.name_to_root(name)]
@@ -172,7 +175,6 @@ DEPS = [
     DependencyDLL('TIFF', ['tiff-[3-9].*']),
     DependencyDLL('VORBIS', ['libvorbis-[1-9].*']),
     DependencyDLL('OGG', ['libogg-[1-9].*']),
-#    DependencyDLL('FREETYPE', ['freetype-[2-9].*']),
     DependencyDLL('Z', ['zlib-[1-9].*']),
 ]
 
@@ -186,38 +188,25 @@ def setup_prebuilt():
             setup_win_in = open(os.path.join('prebuilt', 'Setup_Win.in'))
         except IOError:
             # prebuilt lacks a Setup_Win.in. Use defaults.
-            setup_prebuilt_oldstyle(setup)
-        else:
-            # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
-            # block with prebuilt\Setup_Win.in .
-            setup_in = open('Setup.in')
-            try:
-                do_copy = True
-                for line in setup_in:
-                    if line.startswith('#--StartConfig'):
-                        do_copy = False
-                        setup.write(setup_win_in.read())
-                    elif line.startswith('#--EndConfig'):
-                        do_copy = True
-                    elif do_copy:
-                        setup.write(line)
-            finally:
-                setup_in.close()
+            setup_win_in = open('Default_Setup_Win.in')
+
+        # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
+        # block with prebuilt\Setup_Win.in .
+        setup_in = open('Setup.in')
+        try:
+            do_copy = True
+            for line in setup_in:
+                if line.startswith('#--StartConfig'):
+                    do_copy = False
+                    setup.write(setup_win_in.read())
+                elif line.startswith('#--EndConfig'):
+                    do_copy = True
+                elif do_copy:
+                    setup.write(line)
+        finally:
+            setup_in.close()
     finally:
         setup.close()
-
-def setup_prebuilt_oldstyle(setup):
-    # Copy setup to file 'Setup'. Use the contents of the
-    # BeginConfig/EndConfig block, with modifications.
-    for line in open('Setup.in').readlines():
-        if line[:3] == '#--': continue
-        if line[:6] == 'SDL = ':
-            line = 'SDL = -Iprebuilt/include -Iprebuilt/include/SDL -Lprebuilt/lib -lSDL\n'
-        if line[:8] == 'SMPEG = ':
-            line = 'SMPEG = -Iprebuilt/include/smpeg -lsmpeg\n'
-        if line[:8] == 'SCRAP = ':
-            line = 'SCRAP = -luser32 -lgdi32\n'
-        setup.write(line)
 
 
 def main():
