@@ -10,7 +10,7 @@ huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
 class Dependency(object):
     inc_hunt = ['include']
-    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
+    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib', 'objs']
     def __init__(self, name, wildcards, libs=None, required = 0):
         if libs is None:
             libs = [dll.name_to_root(name)]
@@ -168,7 +168,7 @@ DEPS = [
     Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg']),
     DependencyWin('SCRAP', ['user32', 'gdi32']),
     Dependency('JPEG', ['jpeg-[6-9]*']),
-    Dependency('PNG', ['libpng1[2-9]-[0-9].*']),
+    Dependency('PNG', ['libpng-[1-9].*']),
     DependencyDLL('TIFF', ['tiff-[3-9].*']),
     DependencyDLL('VORBIS', ['libvorbis-[1-9].*']),
     DependencyDLL('OGG', ['libogg-[1-9].*']),
