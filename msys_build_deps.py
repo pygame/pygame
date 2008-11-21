@@ -837,9 +837,9 @@ if [ x$BDCONF == x1 ]; then
     --disable-doxygen-docs
 fi
 
-#if [ x$BDCOMP == x1 ]; then
-#  make
-#fi
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
 
 if [ x$BDINST == x1 ]; then
   cp src/libFLAC/.libs/libFLAC.a /usr/local/lib
