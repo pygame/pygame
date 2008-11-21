@@ -157,15 +157,35 @@ if sys.platform == 'win32':
             pass
         
     #add dependency DLLs to the project
-    import dll
+    lib_dependencies = {}
+    for e in extensions:
+        if e.name.startswith('COPYLIB_'):
+            lib_dependencies[e.name[8:]] = e.libraries
+
+    def dependencies(roots):
+        """Return a set of dependencies for the list of library file roots
+        
+        The return set is a dictionary keyed on library root name with values of 1.
+        """
+
+        root_set = {}
+        for root in roots:
+            try:
+                deps = lib_dependencies[root]
+            except KeyError:
+                pass
+            else:
+                root_set[root] = 1
+                root_set.update(dependencies(deps))
+        return root_set
 
     the_dlls = {}
     required_dlls = {}
     for e in extensions:
         if e.name.startswith('COPYLIB_'):
-            the_dlls[e.libraries[0]] = e.library_dirs[0]
+            the_dlls[e.name[8:]] = e.library_dirs[0]
         else:
-            required_dlls.update(dll.dependencies(e.libraries))
+            required_dlls.update(dependencies(e.libraries))
     for lib in required_dlls:
         #next DLL; a distutils bug requires the paths to have Windows separators
         f = the_dlls[lib].replace('/', os.sep)
