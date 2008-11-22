@@ -1,0 +1,22 @@
+# Pygame 1.9.0 Windows dependency macros.
+SDL = -Iprebuilt/include -Iprebuilt/include/SDL -Lprebuilt/lib -lSDL
+FONT = -lSDL_ttf
+IMAGE = -lSDL_image
+MIXER = -lSDL_mixer
+SMPEG = -Iprebuilt/include/smpeg -lsmpeg
+PNG = -Iprebuilt/include/libpng12 -lpng12
+JPEG = -ljpeg
+SCRAP = -luser32 -lgdi32
+COPYLIB_SDL -Lprebuilt/lib/SDL.dll
+COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
+COPYLIB_SDL_image -lSDL -ljpef -lpng12 -ltiff -Lprebuilt/lib/SDL_image.dll
+COPYLIB_SDL_mixer -lSDL -lvorbisfile -lsmpeg -Lprebuilt/lib/SDL_mixer.dll
+COPYLIB_freetype -lz -Lprebuilt/lib/libfreetype-6.dll
+COPYLIB_smpeg -lSDL -Lprebuilt/lib/smpeg.dll
+COPYLIB_tiff -ljpeg -lz -Lprebuilt/lib/libtiff.dll
+COPYLIB_png12 -lz -Lprebuilt/lib/libpng12-0.dll
+COPYLIB_jpeg -Lprebuilt/lib/jpeg.dll
+COPYLIB_z -Lprebuilt/lib/zlib1.dll
+COPYLIB_vorbisfile -lvorbis -Lprebuilt/lib/libvorbisfile-3.dll
+COPYLIB_vorbis -logg -Lprebuilt/lib/libvorbis-0.dll
+COPYLIB_ogg -Lprebuilt/lib/libogg-0.dll
