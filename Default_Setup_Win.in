@@ -1,0 +1,22 @@
+# These default macros represent the Pygame 1.8 prebuilt dependencies.
+# This may also be how a Visual Studio built prebuilt would appear.
+SDL = -Iprebuilt/include -Iprebuilt/include/SDL -Lprebuilt/lib -lSDL
+FONT = -lSDL_ttf
+IMAGE = -lSDL_image
+MIXER = -lSDL_mixer
+SMPEG = -Iprebuilt/include/smpeg -lsmpeg
+PNG = -lpng
+JPEG = -ljpeg
+SCRAP = -luser32 -lgdi32
+COPYLIB_SDL -Lprebuilt/lib/SDL.dll
+COPYLIB_SDL_ttf -lSDL -lz -Lprebuilt/lib/SDL_ttf.dll
+COPYLIB_SDL_image -lSDL -ljpeg -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
+COPYLIB_SDL_mixer -lSDL -lvorbisfile -lsmpeg -Lprebuilt/lib/SDL_mixer.dll
+COPYLIB_smpeg -lSDL -Lprebuilt/lib/smpeg.dll
+COPYLIB_tiff -ljpeg -lz -Lprebuilt/lib/libtiff.dll
+COPYLIB_png -lz -Lprebuilt/lib/libpng13.dll
+COPYLIB_jpeg -Lprebuilt/lib/jpeg.dll
+COPYLIB_z -Lprebuilt/lib/zlib1.dll
+COPYLIB_vorbisfile -lvorbis -Lprebuilt/lib/libvorbisfile-3.dll
+COPYLIB_vorbis -logg -Lprebuilt/lib/libvorbis-0.dll
+COPYLIB_ogg -Lprebuilt/lib/libogg-0.dll
