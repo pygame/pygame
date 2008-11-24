@@ -1,8 +1,13 @@
 # Requires Python 2.4 or better and win32api.
 
-"""Config on Msys mingw"""
+"""Config on Msys mingw
+
+This version expects the Pygame 1.9.0 dependencies as built by
+msys_build_deps.py
+"""
 
 import dll
+from setup_win_common import get_definitions
 import msys
 import os, sys, string
 from glob import glob
@@ -155,25 +160,12 @@ class DependencyPython:
         else:
             print_(self.name + '        '[len(self.name):] + ': not found')
 
-class DependencyWin:
-    needs_dll = False
-    def __init__(self, name, libs):
-        self.name = name
-        self.inc_dir = None
-        self.lib_dir = None
-        self.libs = libs
-        self.found = 1
-        self.cflags = ''
-        
-    def configure(self, incdirs, libdirs):
-        pass
-
 class DependencyDLL:
     needs_dll = False
     def __init__(self, name, libs=None):
         if libs is None:
-            libs = [dll.name_to_root(name)]
-        self.name = 'COPYLIB_' + name
+            libs = dll.libraries(name)
+        self.name = 'COPYLIB_' + dll.name_to_root(name)
         self.inc_dir = None
         self.lib_dir = '_'
         self.libs = libs
@@ -216,19 +208,31 @@ class DependencyDLL:
         # Not found
         return False
 
+class DependencyWin:
+    needs_dll = False
+    def __init__(self, name, cflags):
+        self.name = name
+        self.inc_dir = None
+        self.lib_dir = None
+        self.libs = []
+        self.found = 1
+        self.cflags = cflags
+        
+    def configure(self, incdirs, libdirs):
+        pass
+
 
 def main():
     m = msys.Msys(require_mingw=False)
     print_('\nHunting dependencies...')
     DEPS = [
-        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2', m),
+        DependencyProg('SDL', 'SDL_CONFIG', 'sdl-config', '1.2.13', m),
         Dependency('FONT', 'SDL_ttf.h', 'libSDL_ttf.dll.a'),
         Dependency('IMAGE', 'SDL_image.h', 'libSDL_image.dll.a'),
         Dependency('MIXER', 'SDL_mixer.h', 'libSDL_mixer.dll.a'),
         DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', m),
         Dependency('PNG', 'png.h', 'libpng12.dll.a'),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
-        DependencyWin('SCRAP', ['user32', 'gdi32']),
         DependencyDLL('TIFF'),
         DependencyDLL('VORBISFILE'),
         DependencyDLL('VORBIS'),
@@ -266,6 +270,8 @@ def main():
             dll_deps.append(dll_dep)
 
     DEPS += dll_deps
+    for d in get_definitions():
+        DEPS.append(DependencyWin(d.name, d.value))
     for d in DEPS:
         if isinstance(d, DependencyDLL):
             if d.lib_dir == '':

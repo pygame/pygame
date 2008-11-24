@@ -2,7 +2,8 @@
 
 """Test config_msys.py against a dummy directory structure.
 
-This test must be performed on an MSYS console.
+This test requires MSYS. It is specific to the Pygame 1.9.0 dependencies
+as built by msys_build_deps.py.
 """
 
 import os
@@ -18,54 +19,75 @@ sys.path.append('..')
 
 import dll
 import config_msys
+import msys
 
 import unittest
-    
-dependencies = dict([(dep.name, dep) for dep in config_msys.main()])
 
+cwd = os.getcwd()
+m = msys.Msys(require_mingw=False)
+os.environ['SDL_CONFIG'] = m.windows_to_msys(os.path.join(cwd, 'test-sdl-config'))
+os.environ['SMPEG_CONFIG'] = m.windows_to_msys(os.path.join(cwd, 'test-smpeg-config'))
+dependencies = dict([(dep.name, dep) for dep in config_msys.main()])
+del m
+
+class Dependency(object):
+    # Holds dependency info
+    def __init__(self, name=None, inc_dir_rel=None, lib_dir_rel=None, libs=None, cflags=None):
+        if libs is None:
+            if name is None:
+                libs = []
+            else:
+                libs = [dll.name_to_root(name)]
+        if cflags is None:
+            cflags = ''
+        self.libs = libs
+        self.inc_dir = None
+        self.lib_dir = None
+        if inc_dir_rel is not None:
+            self.inc_dir = '%s/%s' % (test_dir, inc_dir_rel)
+        if lib_dir_rel is not None:
+            self.lib_dir = '%s/%s' % (test_dir, lib_dir_rel)
+        self.cflags = cflags
+
+class DependencyDLL(Dependency):
+    def __init__(self, name=None, inc_dir_rel=None, lib_dir_rel=None, libs=None):
+        if libs is None:
+            if name is not None:
+                libs = dll.libraries(name)
+        super(DependencyDLL, self).__init__(name, inc_dir_rel, lib_dir_rel, libs)
 
 class RunConfigTestCase(unittest.TestCase):
     """Test dependencies returned by config_msys.main()"""
 
-    class Dependency(object):
-        # Holds dependency info
-        def __init__(self, name=None, inc_dir_rel=None, lib_dir_rel=None, libs=None):
-            if libs is None:
-                if name is None:
-                    libs = []
-                else:
-                    libs = [dll.name_to_root(name)]
-            self.libs = libs
-            self.inc_dir = None
-            self.lib_dir = None
-            if inc_dir_rel is not None:
-                self.inc_dir = '%s/%s' % (test_dir, inc_dir_rel)
-            if lib_dir_rel is not None:
-                self.lib_dir = '%s/%s' % (test_dir, lib_dir_rel)
-
     # Pygame dependencies
     expectations = {
-        'SDL': Dependency('SDL', 'include/sdl', 'lib'),  # ? uses sdl-config script
+        'SDL': Dependency('SDL', 'include/sdl', 'lib',
+                          cflags='-I./SDL/include -DSDL_MACRO=1 '
+                                 '-Xlinker -Wl,sdl_1,sdl_2 '
+                                 '-L./SDL/lib -lSDL '),  # uses test-sdl-config script
         'FONT': Dependency('FONT', 'include/sdl', 'lib'),
         'IMAGE': Dependency('IMAGE', 'include/sdl', 'lib'),
         'MIXER': Dependency('MIXER', 'include', 'lib'),  # A deviant include dir
-        'SMPEG': Dependency('SMPEG', 'include', 'lib'),  # ? uses smpeg-config script
+        'SMPEG': Dependency('SMPEG', 'include', 'lib',
+                            cflags='-I./smpeg/include -DSMPEG_MACRO=1 '
+                                   '-Xlinker -Wl,smpeg_xlinker '
+                                   '-L./smpeg/lib -lsmpeg '),  # uses test-smpeg-config script
         'PNG': Dependency('PNG', 'include/libpng12', 'lib'),
         'JPEG': Dependency('JPEG', 'include/sdl', 'lib'),  # A deviant include dir
-        'SCRAP': Dependency(libs=['user32', 'gdi32']),
-        'COPYLIB_SDL': Dependency('SDL', lib_dir_rel='bin/sdl.dll'),
-        'COPYLIB_FONT': Dependency('FONT', lib_dir_rel='bin/sdl_ttf.dll'),  # Where DLLs likely are
-        'COPYLIB_IMAGE': Dependency('IMAGE', lib_dir_rel='bin/sdl_image.dll'),
-        'COPYLIB_MIXER': Dependency('MIXER', lib_dir_rel='lib/sdl_mixer.dll'),  # Where the search starts
-        'COPYLIB_SMPEG': Dependency('SMPEG', lib_dir_rel='bin/smpeg.dll'),
-        'COPYLIB_TIFF': Dependency('TIFF', lib_dir_rel='bin/libtiff.dll'),
-        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='bin/libpng12-0.dll'),
-        'COPYLIB_JPEG': Dependency('JPEG', lib_dir_rel='bin/jpeg.dll'),
-        'COPYLIB_Z': Dependency('Z', lib_dir_rel='bin/zlib1.dll'),
-        'COPYLIB_VORBISFILE': Dependency('VORBISFILE', lib_dir_rel='bin/libvorbisfile-3.dll'),
-        'COPYLIB_VORBIS': Dependency('VORBIS', lib_dir_rel='bin/libvorbis-0.dll'),
-        'COPYLIB_OGG': Dependency('OGG', lib_dir_rel='bin/libogg-0.dll'),
-        'COPYLIB_FREETYPE': Dependency('FREETYPE', lib_dir_rel='bin/libfreetype-6.dll'),
+        'SCRAP': Dependency(cflags='-luser32 -lgdi32'),
+        'COPYLIB_SDL': DependencyDLL('SDL', lib_dir_rel='bin/sdl.dll'),
+        'COPYLIB_SDL_ttf': DependencyDLL('FONT', lib_dir_rel='bin/sdl_ttf.dll'),  # Where DLLs likely are
+        'COPYLIB_SDL_image': DependencyDLL('IMAGE', lib_dir_rel='bin/sdl_image.dll'),
+        'COPYLIB_SDL_mixer': DependencyDLL('MIXER', lib_dir_rel='lib/sdl_mixer.dll'),  # Where the search starts
+        'COPYLIB_smpeg': DependencyDLL('SMPEG', lib_dir_rel='bin/smpeg.dll'),
+        'COPYLIB_tiff': DependencyDLL('TIFF', lib_dir_rel='bin/libtiff.dll'),
+        'COPYLIB_png12': DependencyDLL('PNG', lib_dir_rel='bin/libpng12-0.dll'),
+        'COPYLIB_jpeg': DependencyDLL('JPEG', lib_dir_rel='bin/jpeg.dll'),
+        'COPYLIB_z': DependencyDLL('Z', lib_dir_rel='bin/zlib1.dll'),
+        'COPYLIB_vorbisfile': DependencyDLL('VORBISFILE', lib_dir_rel='bin/libvorbisfile-3.dll'),
+        'COPYLIB_vorbis': DependencyDLL('VORBIS', lib_dir_rel='bin/libvorbis-0.dll'),
+        'COPYLIB_ogg': DependencyDLL('OGG', lib_dir_rel='bin/libogg-0.dll'),
+        'COPYLIB_freetype': DependencyDLL('FREETYPE', lib_dir_rel='bin/libfreetype-6.dll'),
         }
 
     def test_dependencies(self):
@@ -77,7 +99,7 @@ class RunConfigTestCase(unittest.TestCase):
     def test_dll_match(self):
         """Ensure DLLs match with dll.py."""
         for name in dll.regexs:
-            self.failUnless('COPYLIB_' + name in dependencies, name)
+            self.failUnless('COPYLIB_' + dll.name_to_root(name) in dependencies, name)
 
     def test_found(self):
         """Ensure all dependencies were found"""
@@ -126,6 +148,13 @@ class RunConfigTestCase(unittest.TestCase):
                 dlib_dir = dlib_dir.lower()
             elib_dir = self.expectations[name].lib_dir
             self.failUnlessEqual(dlib_dir, elib_dir, "%s: %s != %s" % (name, dlib_dir, elib_dir))
+
+    def test_cflags(self):
+        """Ensure the cflags are properly set"""
+        for name, dep in dependencies.items():
+            dcflags = dep.cflags
+            ecflags = self.expectations[name].cflags
+            self.failUnlessEqual(dcflags, ecflags, "%s: '%s' != '%s'" % (name, dcflags, ecflags))
 
 if __name__ == '__main__':
     unittest.main()

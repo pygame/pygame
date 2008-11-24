@@ -8,7 +8,6 @@ This test must be performed on an MSYS console.
 import sys
 sys.path.append('..')
 import config_win
-import dll
 
 import unittest
 import os
@@ -26,12 +25,16 @@ class RunConfigTestCase(unittest.TestCase):
 
     class Dependency(object):
         # Holds dependency info
-        def __init__(self, name=None, inc_dir_rel=None, lib_dir_rel=None, libs=None):
+        def __init__(self, lib=None, inc_dir_rel=None, lib_dir_rel=None, libs=None, cflags=None):
             if libs is None:
-                if name is None:
-                    libs = []
+                if libs is not None:
+                    libs = libs
+                elif lib is not None:
+                    libs = [lib]
                 else:
-                    libs = [dll.name_to_root(name)]
+                    libs = []
+            if cflags is  None:
+                cflags = ''
             self.libs = libs
             self.inc_dir = None
             self.lib_dir = None
@@ -39,37 +42,35 @@ class RunConfigTestCase(unittest.TestCase):
                 self.inc_dir = '%s/%s' % ('..', inc_dir_rel)
             if lib_dir_rel is not None:
                 self.lib_dir = '%s/%s' % ('..', lib_dir_rel)
+            self.cflags = cflags
 
     # Pygame dependencies
     expectations = {
         'SDL': Dependency('SDL', 'sdl-1.2/include', 'sdl-1.2/visualc/sdl/release'),
-        'FONT': Dependency('FONT', 'sdl_ttf-2.0.9', 'sdl_ttf-2.0.9/release'),
-        'IMAGE': Dependency('IMAGE', 'sdl_image-1.2.6', 'sdl_image-1.2.6/visualc/release'),
-        'MIXER': Dependency('MIXER', 'sdl_mixer-1.2', 'sdl_mixer-1.2/release'),
-        'SMPEG': Dependency('SMPEG', 'smpeg', 'smpeg/release'),
-        'PNG': Dependency('PNG', 'libpng-1.2.32', 'libpng-1.2.32/lib'),
-        'JPEG': Dependency('JPEG', 'jpeg-6b', 'jpeg-6b/release'),
-        'SCRAP': Dependency(libs=['user32', 'gdi32']),
-        'COPYLIB_SDL': Dependency('SDL',
-                                  lib_dir_rel='sdl-1.2/visualc/sdl/release/sdl.dll'),
-        'COPYLIB_FONT': Dependency('FONT',
-                                   lib_dir_rel='sdl_ttf-2.0.9/release/sdl_ttf.dll'),
-        'COPYLIB_IMAGE': Dependency('IMAGE',
-                                    lib_dir_rel='sdl_image-1.2.6/visualc/release/sdl_image.dll'),
-        'COPYLIB_MIXER': Dependency('MIXER',
-                                    lib_dir_rel='sdl_mixer-1.2/release/sdl_mixer.dll'),
-        'COPYLIB_SMPEG': Dependency('SMPEG', lib_dir_rel='smpeg/release/smpeg.dll'),
-        'COPYLIB_TIFF': Dependency('TIFF', lib_dir_rel='tiff-3.8.2/release/libtiff.dll'),
-        'COPYLIB_PNG': Dependency('PNG', lib_dir_rel='libpng-1.2.32/lib/libpng13.dll'),
-        'COPYLIB_JPEG': Dependency('JPEG', lib_dir_rel='jpeg-6b/release/jpeg.dll'),
-        'COPYLIB_Z': Dependency('Z', lib_dir_rel='zlib-1.2.3/release/zlib1.dll'),
-        'COPYLIB_VORBISFILE': Dependency('VORBISFILE',
+        'FONT': Dependency('SDL_ttf', 'sdl_ttf-2.0.9', 'sdl_ttf-2.0.9/release'),
+        'IMAGE': Dependency('SDL_image', 'sdl_image-1.2.6', 'sdl_image-1.2.6/visualc/release'),
+        'MIXER': Dependency('SDL_mixer','sdl_mixer-1.2', 'sdl_mixer-1.2/release'),
+        'SMPEG': Dependency('smpeg', 'smpeg', 'smpeg/release'),
+        'PNG': Dependency('png', 'libpng-1.2.32', 'libpng-1.2.32/lib'),
+        'JPEG': Dependency('jpeg', 'jpeg-6b', 'jpeg-6b/release'),
+        'SCRAP': Dependency(cflags=' -luser32 -lgdi32'),
+        'COPYLIB_SDL': Dependency(lib_dir_rel='sdl-1.2/visualc/sdl/release/sdl.dll'),
+        'COPYLIB_SDL_ttf': Dependency(libs=['SDL', 'z'],
+                                      lib_dir_rel='sdl_ttf-2.0.9/release/sdl_ttf.dll'),
+        'COPYLIB_SDL_image': Dependency(libs=['SDL', 'png', 'jpeg', 'tiff'],
+                                        lib_dir_rel='sdl_image-1.2.6/visualc/release/sdl_image.dll'),
+        'COPYLIB_SDL_mixer': Dependency(libs=['SDL', 'vorbisfile', 'smpeg'],
+                                        lib_dir_rel='sdl_mixer-1.2/release/sdl_mixer.dll'),
+        'COPYLIB_smpeg': Dependency(libs=['SDL'], lib_dir_rel='smpeg/release/smpeg.dll'),
+        'COPYLIB_tiff': Dependency(libs=['jpeg', 'z'], lib_dir_rel='tiff-3.8.2/release/libtiff.dll'),
+        'COPYLIB_png': Dependency(libs=['z'], lib_dir_rel='libpng-1.2.32/lib/libpng13.dll'),
+        'COPYLIB_jpeg': Dependency(lib_dir_rel='jpeg-6b/release/jpeg.dll'),
+        'COPYLIB_z': Dependency(lib_dir_rel='zlib-1.2.3/release/zlib1.dll'),
+        'COPYLIB_vorbisfile': Dependency(libs=['vorbis'],
                                          lib_dir_rel='libvorbis-1.2.0/release/libvorbisfile-3.dll'),
-        'COPYLIB_VORBIS': Dependency('VORBIS',
+        'COPYLIB_vorbis': Dependency(libs=['ogg'],
                                      lib_dir_rel='libvorbis-1.2.0/release/libvorbis-0.dll'),
-        'COPYLIB_OGG': Dependency('OGG', lib_dir_rel='libogg-1.1.3/release/libogg-0.dll'),
-        'COPYLIB_FREETYPE': Dependency('FREETYPE',
-                                       lib_dir_rel='freetype-2.3.7/objs/freetype.dll'),
+        'COPYLIB_ogg': Dependency(lib_dir_rel='libogg-1.1.3/release/libogg-0.dll'),
         }
 
     def test_dependencies(self):
@@ -77,11 +78,6 @@ class RunConfigTestCase(unittest.TestCase):
         self.failUnlessEqual(len(dependencies), len(self.expectations))
         for name in self.expectations:
             self.failUnless(name in dependencies, name)
-
-    def test_dll_match(self):
-        """Ensure DLLs match with dll.py."""
-        for name in dll.regexs:
-            self.failUnless('COPYLIB_' + name in dependencies, name)
 
     def test_found(self):
         """Ensure all dependencies were found"""
@@ -94,8 +90,8 @@ class RunConfigTestCase(unittest.TestCase):
     def test_libs(self):
         """Ensure each dependency has the proper libraries"""
         for name, dep in dependencies.items():
-            dlibs = dep.libs
-            elibs = self.expectations[name].libs
+            dlibs = set(dep.libs)
+            elibs = set(self.expectations[name].libs)
             self.failUnlessEqual(dlibs, elibs, "%s: %s != %s" % (name, dlibs, elibs))
 
     def test_proper_include_paths(self):
@@ -116,5 +112,12 @@ class RunConfigTestCase(unittest.TestCase):
             elib_dir = self.expectations[name].lib_dir
             self.failUnlessEqual(dlib_dir, elib_dir, "%s: %s != %s" % (name, dlib_dir, elib_dir))
 
+    def test_cflags(self):
+        """Ensure the cflags are properly set"""
+        for name, dep in dependencies.items():
+            dcflags = dep.cflags
+            ecflags = self.expectations[name].cflags
+            self.failUnlessEqual(dcflags, ecflags, "%s: %s != %s" % (name, dcflags, ecflags))
+        
 if __name__ == '__main__':
     unittest.main()
