@@ -6,7 +6,6 @@ MIXER = -lSDL_mixer
 SMPEG = -Iprebuilt/include/smpeg -lsmpeg
 PNG = -Iprebuilt/include/libpng12 -lpng12
 JPEG = -ljpeg
-SCRAP = -luser32 -lgdi32
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng12 -ltiff -Lprebuilt/lib/SDL_image.dll

@@ -1,10 +1,12 @@
 """Config on Windows"""
 
-# **** The search part is broken. Only the prebuilt section creates
-# a correct Setup file.
+# **** The search part is broken. For instance, the png Visual Studio project
+# places to dll in a directory not checked by this module.
 
-import dll
+from setup_win_common import get_definitions
+
 import os, sys
+import re
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
@@ -16,7 +18,7 @@ class Dependency(object):
     lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
     def __init__(self, name, wildcards, libs=None, required = 0):
         if libs is None:
-            libs = [dll.name_to_root(name)]
+            libs = []
         self.name = name
         self.wildcards = wildcards
         self.required = required
@@ -107,19 +109,12 @@ class DependencyPython(object):
 
 
 class DependencyDLL(Dependency):
-    def __init__(self, name=None, wildcards=None, link=None, libs=None):
-        if libs is None:
-            if name is not None:
-                libs = [dll.name_to_root(name)]
-            elif link is not None:
-                libs = link.libs
-            else:
-                libs = []
-        if name is None:
-            name = link.name
-        Dependency.__init__(self, 'COPYLIB_' + name, wildcards, libs)
-        self.lib_name = name
-        self.test = dll.tester(name)
+    def __init__(self, dll_regex, lib=None, wildcards=None, libs=None, link=None):
+        if lib is None:
+            lib = link.libs[0]
+        Dependency.__init__(self, 'COPYLIB_' + lib, wildcards, libs)
+        self.lib_name = lib
+        self.test = re.compile(dll_regex, re.I).match
         self.lib_dir = '_'
         self.found = 1
         self.link = link
@@ -149,37 +144,75 @@ class DependencyDLL(Dependency):
                         return
         print "DLL for %s not found" % self.lib_name
 
-                    
 class DependencyWin(object):
-    def __init__(self, name, libs):
+    def __init__(self, name, cflags):
         self.name = name
         self.inc_dir = None
         self.lib_dir = None
-        self.libs = libs
+        self.libs = []
         self.found = 1
-        self.cflags = ''
+        self.cflags = cflags
         
     def configure(self):
         pass
 
+class DependencyGroup(object):
+    def __init__(self):
+        self.dependencies =[]
+        self.dlls = []
 
-DEPS = [
-    Dependency('SDL', ['SDL-[1-9].*'], required=1),
-    Dependency('FONT', ['SDL_ttf-[2-9].*']),
-    Dependency('IMAGE', ['SDL_image-[1-9].*']),
-    Dependency('MIXER', ['SDL_mixer-[1-9].*']),
-    Dependency('SMPEG', ['smpeg-[0-9].*', 'smpeg']),
-    DependencyWin('SCRAP', ['user32', 'gdi32']),
-    Dependency('JPEG', ['jpeg-[6-9]*']),
-    Dependency('PNG', ['libpng-[1-9].*']),
-    DependencyDLL('TIFF', ['tiff-[3-9].*']),
-    DependencyDLL('VORBIS', ['libvorbis-[1-9].*']),
-    DependencyDLL('OGG', ['libogg-[1-9].*']),
-    DependencyDLL('Z', ['zlib-[1-9].*']),
-]
+    def add(self, name, lib, wildcards, dll_regex, libs=None, required=0):
+        if libs is None:
+            libs = []
+        dep = Dependency(name, wildcards, [lib], required)
+        self.dependencies.append(dep)
+        self.dlls.append(DependencyDLL(dll_regex, link=dep, libs=libs))
 
-DEPS += [DependencyDLL(link=dep) for dep in DEPS[:] if type(dep) is Dependency]
-DEPS += [DependencyDLL('VORBISFILE', link=DEPS[9])]
+    def add_win(self, name, cflags):
+        self.dependencies.append(DependencyWin(name, cflags))
+                                 
+    def add_dll(self, dll_regex, lib=None, wildcards=None, libs=None, link_lib=None):
+        link = None
+        if link_lib is not None:
+            name = 'COPYLIB_' + link_lib
+            for d in self.dlls:
+                if d.name == name:
+                    link = d
+                    break
+            else:
+                raise KeyError("Link lib %s not found" % link_lib)
+        self.dlls.append(DependencyDLL(dll_regex, lib, wildcards, libs, link))
+
+    def configure(self):
+        for d in self:
+            d.configure()
+
+    def __iter__(self):
+        for d in self.dependencies:
+            yield d
+        for d in self.dlls:
+            yield d
+
+DEPS = DependencyGroup()
+DEPS.add('SDL', 'SDL', ['SDL-[1-9].*'], r'(lib){0,1}SDL\.dll$', required=1)
+DEPS.add('FONT', 'SDL_ttf', ['SDL_ttf-[2-9].*'], r'(lib){0,1}SDL_ttf\.dll$', ['SDL', 'z'])
+DEPS.add('IMAGE', 'SDL_image', ['SDL_image-[1-9].*'], r'(lib){0,1}SDL_image\.dll$',
+         ['SDL', 'jpeg', 'png', 'tiff'], 0),
+DEPS.add('MIXER', 'SDL_mixer', ['SDL_mixer-[1-9].*'], r'(lib){0,1}SDL_mixer\.dll$',
+         ['SDL', 'vorbisfile', 'smpeg'])
+DEPS.add('SMPEG', 'smpeg', ['smpeg-[0-9].*', 'smpeg'], r'smpeg\.dll$', ['SDL'])
+DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
+DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
+DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
+DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
+DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
+             ['ogg'])
+DEPS.add_dll(r'(libvorbisfile-3|vorbisfile)\.dll$', 'vorbisfile',
+             link_lib='vorbis', libs=['vorbis'])
+DEPS.add_dll(r'(libogg-0|ogg)\.dll$', 'ogg', ['libogg-[1-9].*'])
+for d in get_definitions():
+    DEPS.add_win(d.name, d.value)
+
 
 def setup_prebuilt():
     setup = open('Setup', 'w')
@@ -199,6 +232,15 @@ def setup_prebuilt():
                 if line.startswith('#--StartConfig'):
                     do_copy = False
                     setup.write(setup_win_in.read())
+                    try:
+                        setup_win_common_in = open('Setup_Win_Common.in')
+                    except:
+                        pass
+                    else:
+                        try:
+                            setup.write(setup_win_common_in.read())
+                        finally:
+                            setup_win_common_in.close()
                 elif line.startswith('#--EndConfig'):
                     do_copy = True
                 elif do_copy:
@@ -217,10 +259,9 @@ def main():
             raise SystemExit()
 
     global DEPS
-    for d in DEPS:
-        d.configure()
     
-    return DEPS
+    DEPS.configure()
+    return list(DEPS)
 
 if __name__ == '__main__':
     print """This is the configuration subscript for Windows.
