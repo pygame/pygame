@@ -15,7 +15,7 @@ huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
 class Dependency(object):
     inc_hunt = ['include']
-    lib_hunt = ['.', 'VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
+    lib_hunt = ['VisualC\\SDL\\Release', 'VisualC\\Release', 'Release', 'lib']
     def __init__(self, name, wildcards, libs=None, required = 0):
         if libs is None:
             libs = []
@@ -130,10 +130,7 @@ class DependencyDLL(Dependency):
 
     def hunt_dll(self):
         for dir in self.lib_hunt:
-            if dir == '.':
-                path = self.path
-            else:
-                path = os.path.join(self.path, dir)
+            path = os.path.join(self.path, dir)
             try:
                 entries = os.listdir(path)
             except:
@@ -256,18 +253,10 @@ def setup_prebuilt():
 
 def main():
     if os.path.isdir('prebuilt'):
-        reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]:')
+        reply = raw_input('\nUse the SDL libraries in "prebuilt"? [Y/n]')
         if not reply or reply[0].lower() != 'n':
             setup_prebuilt()
-            sys.exit(0)
-    reply = raw_input('\n'
-                      'This program is somewhat outdated so it may not\n'
-                      'find all DLLs. Try moving the DLLs to top level\n'
-                      'directory positions first.\n'
-                      '\n'
-                      'Continue? [Y/n]:')
-    if not reply or reply[0].lower() == 'n':
-        sys.exit(0)
+            raise SystemExit()
 
     global DEPS
     
