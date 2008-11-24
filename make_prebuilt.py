@@ -1,5 +1,3 @@
-# This is a work in progress
-
 import msys
 from distutils.extension import read_setup_file
 

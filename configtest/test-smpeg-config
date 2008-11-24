@@ -1,0 +1,7 @@
+#!/bin/sh
+ARGS="$@"
+if [ "$ARGS" = '--version --cflags --libs' ]; then
+  echo '0.4.5'
+  echo '-I./smpeg/include -DSMPEG_MACRO=1 -Wl,smpeg_xlinker'
+  echo '-L./smpeg/lib -lsmpeg'
+fi
