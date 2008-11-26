@@ -6,6 +6,12 @@ MIXER = -lSDL_mixer
 SMPEG = -Iprebuilt/include/smpeg -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
+FREETYPE = -Iprebuilt/include/freetype2 -lfreetype
+TIFF = -ltiff
+ZLIB = -lz
+VORBISFILE = -lvorbisfile
+VORBIS = -Iprebuilt/include/vorbis -lvorbis
+OGG = -Iprebuilt/include/ogg -logg
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
