@@ -7,7 +7,17 @@ pygame.Color(rgbvalue): Return Color
 The Color class represents RGBA color values using a value range of
 0-255. It allows basic arithmetic operations to create new colors,
 supports conversions to other color spaces such as HSV or HSL and lets
-you adjust single color channels.
+you adjust single color channels. Alpha defaults to 255 when not given.
+
+'rgbvalue' can be either a color name, an HTML color format string,
+a hex number string, or an integer pixel value. The HTML format is
+'#rrggbbaa', where rr, gg, bb, and aa are 2 digit hex numbers. The
+alpha aa is optional. A hex number string has the form '0xrrggbbaa',
+where aa is optional.
+
+Color objects support equality comparison with other color objects,
+3 or 4 element integer sequences, HTML color format strings,
+'0xrrggbbaa' strings, and integer pixel values.
 
 New in pygame 1.8.1.
 <SECTION>
