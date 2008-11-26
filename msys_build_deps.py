@@ -611,6 +611,9 @@ fi
 
 if [ x$BDINST == x1 ]; then
   make install
+  
+  # Sorry, but no one else recognizes png12
+  cp -f /usr/local/lib/libpng12.dll.a /usr/local/lib/libpng.dll.a
 fi
 
 if [ x$BDSTRIP == x1 ]; then
