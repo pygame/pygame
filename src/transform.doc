@@ -110,6 +110,18 @@ New in pygame 1.8
 
 
 
+get_smoothscale_backend
+return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'
+pygame.transform.get_smoothscale_backend(): return String
+
+Shows whether or not smoothscale is using MMX or SSE acceleration.
+If no acceleration is available then "GENERIC" is returned. For a
+x86 processor the level of acceleration to use is determined at
+runtime.
+<END>
+
+
+
 chop
 gets a copy of an image with an interior area removed
 pygame.transform.chop(Surface, rect): return Surface

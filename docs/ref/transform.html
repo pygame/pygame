@@ -55,6 +55,7 @@
   <tr><td><a href="transform.html#pygame.transform.rotozoom">pygame.transform.rotozoom</a> - <font size=-1>filtered scale and rotation</font></td><td>filtered scale and rotation</td></tr>
   <tr><td><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a> - <font size=-1>specialized image doubler</font></td><td>specialized image doubler</td></tr>
   <tr><td><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a> - <font size=-1>scale a surface to an arbitrary size smoothly</font></td><td>scale a surface to an arbitrary size smoothly</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.get_smoothscale_backend">pygame.transform.get_smoothscale_backend</a> - <font size=-1>return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</font></td><td>return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</td></tr>
   <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>gets a copy of an image with an interior area removed</font></td><td>gets a copy of an image with an interior area removed</td></tr>
   <tr><td><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a> - <font size=-1>find edges in a surface</font></td><td>find edges in a surface</td></tr>
   <tr><td><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a> - <font size=-1>find the average surface from many surfaces.</font></td><td>find the average surface from many surfaces.</td></tr>
@@ -122,6 +123,15 @@
 <p>Uses one of two different algorithms for scaling each dimension of the input surface as required. For shrinkage, the output pixels are area averages of the colors they cover. For expansion, a bilinear filter is used. For the amd64 and i686 architectures, optimized <tt>MMX</tt> routines are included and will run much faster than other machine types. The size is a 2 number sequence for (width, height). This function only works for 24-bit or 32-bit surfaces. An exception will be thrown if the input surface bit depth is less than 24. </p>
 <p>New in pygame <tt>1.8</tt> </p>
 <!--COMMENTS:pygame.transform.smoothscale--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.transform.get_smoothscale_backend">
+<big><b>pygame.transform.get_smoothscale_backend</big></b><br><ul>
+  <i>return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</i><br>
+  <tt>pygame.transform.get_smoothscale_backend(): return String</tt><br>
+<p>Shows whether or not smoothscale is using <tt>MMX</tt> or <tt>SSE</tt> acceleration. If no acceleration is available then <tt>"GENERIC"</tt> is returned. For a x86 processor the level of acceleration to use is determined at runtime. </p>
+<!--COMMENTS:pygame.transform.get_smoothscale_backend--> &nbsp;<br> 
 <br></ul>
 
 
