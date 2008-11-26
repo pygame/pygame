@@ -1458,7 +1458,7 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
         destpixels = NULL;
         destformat = NULL;
     }
-    
+
     if(surf2) {
         format2 = surf2->format;
         rmask2 = format2->Rmask;
@@ -1539,13 +1539,16 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
                         pixels2 += 4;
                         break;
                 }
-                
-                if (((abs((((the_color2 & rmask2) >> rshift2) << rloss2) - (((the_color & rmask) >> rshift) << rloss)) <= tr) & 
-                    (abs((((the_color2 & gmask2) >> gshift2) << gloss2) - (((the_color & gmask) >> gshift) << gloss)) <= tg) & 
+
+                if (((abs((((the_color2 & rmask2) >> rshift2) << rloss2) - (((the_color & rmask) >> rshift) << rloss)) <= tr) &
+                    (abs((((the_color2 & gmask2) >> gshift2) << gloss2) - (((the_color & gmask) >> gshift) << gloss)) <= tg) &
                     (abs((((the_color2 & bmask2) >> bshift2) << bloss2) - (((the_color & bmask) >> bshift) << bloss)) <= tb))
                     ^ inverse) {
-                    /* this pixel is within the threshold. */
-                    if (change_return) {
+                    /* this pixel is within the threshold of the pixel in the
+		       other surface. */
+                    if (change_return == 2) {
+		        /* change the pixel to the color from the first surface.  */
+
                         /* destsurf->set_at((x,y), the_color) */
                         switch (destformat->BytesPerPixel) {
                             case 1:
@@ -1571,16 +1574,46 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
                                 break;
                         }
                     }
+		    else if (change_return == 1) {
+		        /* change the pixel to color.  */
+                        /* destsurf->set_at((x,y), color) */
+                        switch (destformat->BytesPerPixel) {
+                            case 1:
+                                *((Uint8 *) destpixels + y * destsurf->pitch + x) = (Uint8) color;
+                                break;
+                            case 2:
+                                *((Uint16 *) (destpixels + y * destsurf->pitch) + x) = (Uint16) color;
+                                break;
+                            case 3:
+                                byte_buf = (Uint8 *) (destpixels + y * destsurf->pitch) + x * 3;
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                                *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (color >> 16);
+                                *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (color >> 8);
+                                *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) color;
+#else
+                                *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (color >> 16);
+                                *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (color >> 8);
+                                *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) color;
+#endif
+                                break;
+                            default:                  /* case 4: */
+                                *((Uint32 *) (destpixels + y * destsurf->pitch) + x) = color;
+                                break;
+                        }
+                    }
+
                     similar++;
                 }
-                
-            } else if (((abs((((the_color & rmask) >> rshift) << rloss) - r) <= tr) & 
-                 (abs((((the_color & gmask) >> gshift) << gloss) - g) <= tg) & 
+
+            } else if (((abs((((the_color & rmask) >> rshift) << rloss) - r) <= tr) &
+                 (abs((((the_color & gmask) >> gshift) << gloss) - g) <= tg) &
                  (abs((((the_color & bmask) >> bshift) << bloss) - b) <= tb))
                  ^ inverse) {
 
+		/* Comparing the threshold against the color. */
+
                 /* this pixel is within the threshold. */
-                if (change_return) {
+                if (change_return == 2) {
                     /* destsurf->set_at((x,y), the_color) */
                     switch (destformat->BytesPerPixel)
                     {
@@ -1607,6 +1640,36 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
                         break;
                     }
                 }
+                else if (change_return == 1) {
+
+                    /* change the pixel to color.  */
+                    /* destsurf->set_at((x,y), color) */
+                    switch (destformat->BytesPerPixel)
+                    {
+                    case 1:
+                        *((Uint8 *) destpixels + y * destsurf->pitch + x) = (Uint8) color;
+                        break;
+                    case 2:
+                        *((Uint16 *) (destpixels + y * destsurf->pitch) + x) = (Uint16) color;
+                        break;
+                    case 3:
+                        byte_buf = (Uint8 *) (destpixels + y * destsurf->pitch) + x * 3;
+#if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
+                        *(byte_buf + (destformat->Rshift >> 3)) = (Uint8) (color >> 16);
+                        *(byte_buf + (destformat->Gshift >> 3)) = (Uint8) (color >> 8);
+                        *(byte_buf + (destformat->Bshift >> 3)) = (Uint8) color;
+#else
+                        *(byte_buf + 2 - (destformat->Rshift >> 3)) = (Uint8) (color >> 16);
+                        *(byte_buf + 2 - (destformat->Gshift >> 3)) = (Uint8) (color >> 8);
+                        *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) color;
+#endif
+                        break;
+                    default:                  /* case 4: */
+                        *((Uint32 *) (destpixels + y * destsurf->pitch) + x) = color;
+                        break;
+                    }
+		}
+
                 similar++;
             }
         }
@@ -1652,11 +1715,10 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
     rgba_threshold[0] = 0; rgba_threshold[1] = 0; rgba_threshold[2] = 0; rgba_threshold[3] = 255;
     rgba_diff_color[0] = 0; rgba_diff_color[1] = 0; rgba_diff_color[2] = 0; rgba_diff_color[3] = 255;
 
-
     /*get all the arguments*/
-    if (!PyArg_ParseTuple (arg, "O!O!O|OOiO!i", &PySurface_Type, &surfobj, 
+    if (!PyArg_ParseTuple (arg, "O!O!O|OOiO!i", &PySurface_Type, &surfobj,
                            &PySurface_Type, &surfobj2,
-                           &rgba_obj_color,  &rgba_obj_threshold, &rgba_obj_diff_color, 
+                           &rgba_obj_color,  &rgba_obj_threshold, &rgba_obj_diff_color,
                            &change_return,
                            &PySurface_Type, &surfobj3, &inverse))
         return NULL;
@@ -1714,7 +1776,7 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
     }
 
     bpp = surf->format->BytesPerPixel;
-	
+
     PySurface_Lock(surfobj);
     PySurface_Lock(surfobj2);
 
@@ -1856,10 +1918,10 @@ void laplacian(SDL_Surface *surf, SDL_Surface *destsurf) {
     SDL_PixelFormat *format, *destformat;
     Uint8 *pixels, *destpixels;
     Uint8 *pix;
-    
+
     Uint8 *byte_buf;
-    
-    
+
+
     height = surf->h;
     width = surf->w;
 
@@ -1885,16 +1947,16 @@ void laplacian(SDL_Surface *surf, SDL_Surface *destsurf) {
 
     for(y=0;y<height;y++) {
         for(x=0;x<width;x++) {
-            
+
             // Need to bounds check these accesses.
 
             if(y > 0) {
                 if(x>0) {
                     SURF_GET_AT(sample[0], surf, x+ -1, y+ -1, pixels, format, pix);
                 }
-                
+
                 SURF_GET_AT(sample[1], surf, x+  0, y+ -1, pixels, format, pix);
-                
+
                 if(x+1<width) {
                     SURF_GET_AT(sample[2], surf, x+  1, y+ -1, pixels, format, pix);
                 }
@@ -1903,14 +1965,14 @@ void laplacian(SDL_Surface *surf, SDL_Surface *destsurf) {
                 sample[1] = LAPLACIAN_NUM;
                 sample[2] = LAPLACIAN_NUM;
             }
-            
+
             if(x>0) {
                 SURF_GET_AT(sample[3], surf, x+ -1, y+  0, pixels, format, pix);
             } else {
                 sample[3] = LAPLACIAN_NUM;
             }
-            
-            
+
+
             //SURF_GET_AT(sample[4], surf, x+0 , y+0);
             sample[4] = 0;
 
@@ -1936,24 +1998,24 @@ void laplacian(SDL_Surface *surf, SDL_Surface *destsurf) {
                 sample[7] = LAPLACIAN_NUM;
                 sample[8] = LAPLACIAN_NUM;
             }
-            
-            
+
+
             total[0] = 0; total[1] = 0; total[2] = 0; total[3] = 0;
-            
+
             for(ii =0; ii<9; ii++) {
                 SDL_GetRGBA (sample[ii], format, &c1r, &c1g, &c1b, &c1a);
                 total[0] += c1r; total[1] += c1g; total[2] += c1b; total[3] += c1a;
             }
-            
-            
+
+
             SURF_GET_AT(sample[4], surf, x, y, pixels, format, pix);
-            
+
             SDL_GetRGBA (sample[4], format, &c1r, &c1g, &c1b, &c1a);
-            
+
             // cast on the right to a signed int, and then clamp to 0-255.
 
             //atmp = c1r * 8
-            
+
 
             atmp0 = c1r * 8;
             acolor[0] = MIN(MAX(atmp0 - total[0], 0), 255);
@@ -1965,24 +2027,24 @@ void laplacian(SDL_Surface *surf, SDL_Surface *destsurf) {
             acolor[3] = MIN(MAX(atmp3 - total[3], 0), 255);
 
             //printf("%d;;%d;;%d;;  ", atmp0, acolor[0],total[0]);
-            
-            
+
+
             //printf("%d,%d,%d,%d;;  \n", acolor[0], acolor[1], acolor[2], acolor[3]);
-            
+
             //the_color = (Uint32)acolor;
             //the_color = 0x00000000;
-            
-            
-            
+
+
+
             // cast on the right to Uint32, and then clamp to 255.
-            
+
             the_color = SDL_MapRGBA (surf->format, acolor[0], acolor[1], acolor[2], acolor[3]);
 
 
 
 
             // set_at(destsurf, color, x,y);
-            
+
             switch (destformat->BytesPerPixel)
             {
             case 1:
@@ -2003,7 +2065,7 @@ void laplacian(SDL_Surface *surf, SDL_Surface *destsurf) {
                 *(byte_buf + 2 - (destformat->Bshift >> 3)) = (Uint8) the_color;
 #endif
                 break;
-            default:                  
+            default:
                 *((Uint32 *) (destpixels + y * destsurf->pitch) + x) = the_color;
                 break;
             }

@@ -77,6 +77,11 @@ def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0
 
 
 class TransformModuleTest( unittest.TestCase ):
+    #class TransformModuleTest( object ):
+
+    #def assertEqual(self, x,x2):
+    #    print x,x2
+
     def test_scale__alpha( self ):
         """ see if set_alpha information is kept.
         """
@@ -165,46 +170,46 @@ class TransformModuleTest( unittest.TestCase ):
 
         self.assertEqual(w*h, pixels_within_threshold)
 
-        ################################################################  
-        # This should respect third_surface colors in place of 3rd arg 
+        ################################################################
+        # This should respect third_surface colors in place of 3rd arg
         # color Should be the same as: surface.fill(threshold_color)
         # all within threshold
-        
+
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface, 
-            original_surface,                              
+            dest_surface,
+            original_surface,
             0,                            # color (would fail if honored)
             threshold,
-            0,                                              # diff_color 
+            0,                                              # diff_color
             0,                                           # change_return
             third_surface,
         )
         self.assertEqual(w*h, pixels_within_threshold)
-        
-        
-        ################################################################  
+
+
+        ################################################################
         # Change dest_surface on return (not expected)
 
         change_color = (255, 10, 10, 10)
 
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface, 
-            original_surface,                              
-            0,                                           # color 
+            dest_surface,
+            original_surface,
+            0,                                           # color
             threshold,
-            change_color,                                # diff_color 
+            change_color,                                # diff_color
             1,                                           # change_return
             third_surface,
         )
-        
+
         # Return, of pixels within threshold is correct
         self.assertEqual(w*h, pixels_within_threshold)
-        
+
         # Size of dest surface is correct
         dest_rect = dest_surface.get_rect()
         dest_size = dest_rect.size
         self.assertEqual(size, dest_size)
-        
+
         # The color is not the change_color specified for every pixel As all
         # pixels are within threshold
 
@@ -237,6 +242,72 @@ class TransformModuleTest( unittest.TestCase ):
         
         for pt in test_utils.rect_area_pts(dest_rect):
             self.assertEqual(dest_surface.get_at(pt), change_color)
+
+
+
+#XXX
+    def test_threshold_non_src_alpha(self):
+
+        result  = pygame.Surface((10,10))
+        s1 = pygame.Surface((10,10))
+        s2 = pygame.Surface((10,10))
+        s3 = pygame.Surface((10,10))
+        s4 = pygame.Surface((10,10))
+        result = pygame.Surface((10,10))
+        x = s1.fill((0,0,0))
+        x = s2.fill((0,20,0))
+        x = s3.fill((0,0,0))
+        x = s4.fill((0,0,0))
+        s1.set_at((0,0), (32, 20, 0 ))
+        s2.set_at((0,0), (33, 21, 0 ))
+        s2.set_at((3,0), (63, 61, 0 ))
+        s3.set_at((0,0), (112, 31, 0 ))
+        s4.set_at((0,0), (11, 31, 0 ))
+        s4.set_at((1,1), (12, 31, 0 ))
+
+        self.assertEqual( s1.get_at((0,0)), (32, 20, 0, 255) )
+        self.assertEqual( s2.get_at((0,0)), (33, 21, 0, 255) )
+        self.assertEqual( (0,0), (s1.get_flags(), s2.get_flags()))
+
+
+
+        #All one hundred of the pixels should be within the threshold.
+
+        #>>> object_tracking.diff_image(result, s1, s2, threshold = 20)
+        #100
+
+        similar_color = (255, 255, 255,255)
+        diff_color=(222,0,0,255)
+        threshold_color = (20,20,20,255)
+
+        rr = pygame.transform.threshold(result, s1, similar_color, threshold_color, diff_color, 1, s2)
+        self.assertEqual(rr, 99)
+
+        self.assertEqual( result.get_at((0,0)), (255,255,255, 255) )
+
+
+
+        rr = pygame.transform.threshold(result, s1, similar_color,
+                threshold_color, diff_color, 2, s2)
+        self.assertEqual(rr, 99)
+
+        self.assertEqual( result.get_at((0,0)), (32, 20, 0, 255) )
+
+
+
+
+        # this is within the threshold,
+        #     so the color is copied from the s1 surface.
+        self.assertEqual( result.get_at((1,0)), (0, 0, 0, 255) )
+
+        # this color was not in the threshold so it has been set to diff_color
+        self.assertEqual( result.get_at((3,0)), (222, 0, 0, 255) )
+
+
+
+
+
+
 
 
     def test_threshold__uneven_colors(self):
@@ -285,10 +356,28 @@ class TransformModuleTest( unittest.TestCase ):
         s2.fill((255,255,255))
 
 
-        num_threshold_pixels = threshold(s2, s1, (30,30,30), (11,11,11), (255,0,0), True)
+
+
+        dest_surface = s2
+        surface1 = s1
+        color = (30,30,30)
+        the_threshold = (11,11,11)
+        diff_color = (255,0,0)
+        change_return = 2
+
+        # set the similar pixels in destination surface to the color 
+        #     in the first surface.
+        num_threshold_pixels = threshold(dest_surface, surface1, color,
+                                         the_threshold, diff_color, 
+                                         change_return)
+        
         #num_threshold_pixels = threshold(s2, s1, (30,30,30))
         self.assertEqual(num_threshold_pixels, s1.get_height() * s1.get_width())
         self.assertEqual(s2.get_at((0,0)), (40, 40, 40, 255))
+
+
+
+
 
         if 1:
 
@@ -296,7 +385,11 @@ class TransformModuleTest( unittest.TestCase ):
             s1.fill((40,40,40))
             s2.fill((255,255,255))
             s1.set_at( (0,0), (170, 170, 170) )
-            num_threshold_pixels = threshold(s2, s1, (30,30,30), (11,11,11), (0,0,0), True)
+            # set the similar pixels in destination surface to the color 
+            #     in the first surface.
+            num_threshold_pixels = threshold(s2, s1, (30,30,30), (11,11,11),
+                                             (0,0,0), 2)
+
             #num_threshold_pixels = threshold(s2, s1, (30,30,30))
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
             self.assertEqual(s2.get_at((0,0)), (0,0,0, 255))
@@ -409,9 +502,9 @@ class TransformModuleTest( unittest.TestCase ):
         self.assertEqual( sr.get_flags(), s1.get_flags() )
         self.assertEqual( sr.get_losses(), s1.get_losses() )
 
-        print ( sr.get_masks(), s1.get_masks() )
-        print ( sr.get_flags(), s1.get_flags() )
-        print ( sr.get_losses(), s1.get_losses() )
+        #print ( sr.get_masks(), s1.get_masks() )
+        #print ( sr.get_flags(), s1.get_flags() )
+        #print ( sr.get_losses(), s1.get_losses() )
 
         self.assertEqual(sr.get_at((0,0)), (10,53,50,255))
 
@@ -559,4 +652,7 @@ class TransformModuleTest( unittest.TestCase ):
         self.fail() 
 
 if __name__ == '__main__':
+    #tt = TransformModuleTest()
+    #tt.test_threshold_non_src_alpha()
+
     unittest.main()
