@@ -167,11 +167,13 @@
 <a name="pygame.transform.threshold">
 <big><b>pygame.transform.threshold</big></b><br><ul>
   <i>finds which, and how many pixels in a surface are within a threshold of a color.</i><br>
-  <tt>pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True, Surface = None, inverse = False): return num_threshold_pixels</tt><br>
+  <tt>pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False): return num_threshold_pixels</tt><br>
 <p>Finds which, and how many pixels in a surface are within a threshold of a color. </p>
 <p>It can set the destination surface where all of the pixels not within the threshold are changed to diff_color. If inverse is optionally set to True, the pixels that are within the threshold are instead changed to diff_color. </p>
-<p>If the optional second surface is given, it is used to threshold against rather than the specified color. That is, it will find each pixel in the first Surface that is within the threshold of the pixel at the same coordinates of the second Surface. If change_return is set, the pixels set in DestSurface will be those from the first Surface. </p>
-<p>Or it can be used to just count the number of pixels within the threshold if you set change_return to False. </p>
+<p>If the optional second surface is given, it is used to threshold against rather than the specified color. That is, it will find each pixel in the first Surface that is within the threshold of the pixel at the same coordinates of the second Surface. </p>
+<p>If change_return is set to 0, it can be used to just count the number of pixels within the threshold if you set </p>
+<p>If change_return is set to 1, the pixels set in DestSurface will be those from the color. </p>
+<p>If change_return is set to 2, the pixels set in DestSurface will be those from the first Surface. </p>
 <p>You can use a threshold of (r,g,b,a) where the r,g,b can have different thresholds. So you could use an r threshold of 40 and a blue threshold of 2 if you like. </p>
 <p>New in pygame <tt>1.8</tt> </p>
 <!--COMMENTS:pygame.transform.threshold--> &nbsp;<br> 

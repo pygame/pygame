@@ -897,8 +897,6 @@
 
 #define DOC_PYGAMETRANSFORMSMOOTHSCALE "pygame.transform.smoothscale(Surface, (width, height), DestSurface = None): return Surface\nscale a surface to an arbitrary size smoothly"
 
-#define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "pygame.transform.get_smoothscale_backend(): return String\nReturn smoothscale filter version in use: \"GENERIC\", \"MMX\" or \"SSE\"."
-
 #define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\ngets a copy of an image with an interior area removed"
 
 #define DOC_PYGAMETRANSFORMLAPLACIAN "pygame.transform.laplacian(Surface, DestSurface = None): return Surface\nfind edges in a surface"
@@ -907,5 +905,5 @@
 
 #define DOC_PYGAMETRANSFORMAVERAGECOLOR "pygame.transform.average_color(Surface, Rect = None): return Color\nfinds the average color of a surface"
 
-#define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True, Surface = None, inverse = False): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
+#define DOC_PYGAMETRANSFORMTHRESHOLD "pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = 1, Surface = None, inverse = False): return num_threshold_pixels\nfinds which, and how many pixels in a surface are within a threshold of a color."
 
