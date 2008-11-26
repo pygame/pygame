@@ -1412,7 +1412,7 @@ static PyObject* surf_scalesmooth(PyObject* self, PyObject* arg)
 }
 
 static PyObject *
-get_smoothscale_backend()
+surf_get_smoothscale_backend()
 {
     return PyString_FromString(filter_type);
 }
@@ -2585,7 +2585,7 @@ static PyMethodDef transform_builtins[] =
     { "chop", surf_chop, METH_VARARGS, DOC_PYGAMETRANSFORMCHOP },
     { "scale2x", surf_scale2x, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE2X },
     { "smoothscale", surf_scalesmooth, METH_VARARGS, DOC_PYGAMETRANSFORMSMOOTHSCALE },
-    { "get_smoothscale_backend", (PyCFunction) get_smoothscale_backend, METH_NOARGS,
+    { "get_smoothscale_backend", (PyCFunction) surf_get_smoothscale_backend, METH_NOARGS,
           DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND },
     { "threshold", surf_threshold, METH_VARARGS, DOC_PYGAMETRANSFORMTHRESHOLD },
     { "laplacian", surf_laplacian, METH_VARARGS, DOC_PYGAMETRANSFORMTHRESHOLD },
