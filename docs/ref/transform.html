@@ -56,6 +56,7 @@
   <tr><td><a href="transform.html#pygame.transform.scale2x">pygame.transform.scale2x</a> - <font size=-1>specialized image doubler</font></td><td>specialized image doubler</td></tr>
   <tr><td><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a> - <font size=-1>scale a surface to an arbitrary size smoothly</font></td><td>scale a surface to an arbitrary size smoothly</td></tr>
   <tr><td><a href="transform.html#pygame.transform.get_smoothscale_backend">pygame.transform.get_smoothscale_backend</a> - <font size=-1>return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</font></td><td>return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</td></tr>
+  <tr><td><a href="transform.html#pygame.transform.set_smoothscale_backend">pygame.transform.set_smoothscale_backend</a> - <font size=-1>set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'</font></td><td>set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'</td></tr>
   <tr><td><a href="transform.html#pygame.transform.chop">pygame.transform.chop</a> - <font size=-1>gets a copy of an image with an interior area removed</font></td><td>gets a copy of an image with an interior area removed</td></tr>
   <tr><td><a href="transform.html#pygame.transform.laplacian">pygame.transform.laplacian</a> - <font size=-1>find edges in a surface</font></td><td>find edges in a surface</td></tr>
   <tr><td><a href="transform.html#pygame.transform.average_surfaces">pygame.transform.average_surfaces</a> - <font size=-1>find the average surface from many surfaces.</font></td><td>find the average surface from many surfaces.</td></tr>
@@ -131,7 +132,18 @@
   <i>return smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'</i><br>
   <tt>pygame.transform.get_smoothscale_backend(): return String</tt><br>
 <p>Shows whether or not smoothscale is using <tt>MMX</tt> or <tt>SSE</tt> acceleration. If no acceleration is available then <tt>"GENERIC"</tt> is returned. For a x86 processor the level of acceleration to use is determined at runtime. </p>
+<p>This function is provided for Pygame testing and debugging. </p>
 <!--COMMENTS:pygame.transform.get_smoothscale_backend--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.transform.set_smoothscale_backend">
+<big><b>pygame.transform.set_smoothscale_backend</big></b><br><ul>
+  <i>set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'</i><br>
+  <tt>pygame.transform.get_smoothscale_backend(type): return None</tt><br>
+<p>Sets smoothscale acceleration. Takes a string argument. <tt>A</tt> value of <tt>'GENERIC'</tt> turns off acceleration. <tt>'MMX'</tt> uses <tt>MMX</tt> instructions only. <tt>'SSE'</tt> allows <tt>SSE</tt> extensions as well. <tt>A</tt> value error is raised if type is not recognized or not supported by the current processor. </p>
+<p>This function is provided for Pygame testing and debugging. If smoothscale causes an invalid instruction error then it is a Pygame/SDL bug that should be reported. Use this function as a temporary fix only. </p>
+<!--COMMENTS:pygame.transform.set_smoothscale_backend--> &nbsp;<br> 
 <br></ul>
 
 

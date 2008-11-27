@@ -582,7 +582,37 @@ class TransformModuleTest( unittest.TestCase ):
         # It would be nice to test if a non-generic type corresponds to an x86
         # processor. But there is no simple test for this. platform.machine()
         # returns process version specific information, like 'i686'.
-       
+
+    def test_set_smoothscale_backend(self):
+        # All machines should allow 'GENERIC'.
+        original_type = pygame.transform.get_smoothscale_backend()
+        pygame.transform.set_smoothscale_backend('GENERIC')
+        filter_type = pygame.transform.get_smoothscale_backend()
+        self.failUnlessEqual(filter_type, 'GENERIC')
+        # All machines should allow returning to original value.
+        # Also check that keyword argument works.
+        pygame.transform.set_smoothscale_backend(type=original_type)
+        # Something invalid.
+        def change():
+            pygame.transform.set_smoothscale_backend('mmx')
+        self.failUnlessRaises(ValueError, change)
+        # Invalid argument keyword.
+        def change():
+            pygame.transform.set_smoothscale_backend(t='GENERIC')
+        self.failUnlessRaises(TypeError, change)
+        # Invalid argument type.
+        def change():
+            pygame.transform.set_smoothscale_backend(1)
+        self.failUnlessRaises(TypeError, change)
+        # Unsupported type, if possible.
+        if original_type != 'SSE':
+            def change():
+                pygame.transform.set_smoothscale_backend('SSE')
+            self.failUnlessRaises(ValueError, change)
+        # Should be back where we started.
+        filter_type = pygame.transform.get_smoothscale_backend()
+        self.failUnlessEqual(filter_type, original_type)
+
     def todo_test_chop(self):
 
         # __doc__ (as of 2008-08-02) for pygame.transform.chop:

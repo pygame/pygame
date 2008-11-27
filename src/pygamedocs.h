@@ -899,6 +899,8 @@
 
 #define DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND "pygame.transform.get_smoothscale_backend(): return String\nreturn smoothscale filter version in use: 'GENERIC', 'MMX', or 'SSE'"
 
+#define DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND "pygame.transform.get_smoothscale_backend(type): return None\nset smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'"
+
 #define DOC_PYGAMETRANSFORMCHOP "pygame.transform.chop(Surface, rect): return Surface\ngets a copy of an image with an interior area removed"
 
 #define DOC_PYGAMETRANSFORMLAPLACIAN "pygame.transform.laplacian(Surface, DestSurface = None): return Surface\nfind edges in a surface"
