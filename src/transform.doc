@@ -118,6 +118,25 @@ Shows whether or not smoothscale is using MMX or SSE acceleration.
 If no acceleration is available then "GENERIC" is returned. For a
 x86 processor the level of acceleration to use is determined at
 runtime.
+
+This function is provided for Pygame testing and debugging.
+<END>
+
+
+
+set_smoothscale_backend
+set smoothscale filter version to one of: 'GENERIC', 'MMX', or 'SSE'
+pygame.transform.get_smoothscale_backend(type): return None
+
+Sets smoothscale acceleration. Takes a string argument. A value
+of 'GENERIC' turns off acceleration. 'MMX' uses MMX instructions
+only. 'SSE' allows SSE extensions as well. A value error is raised
+if type is not recognized or not supported by the current processor.
+
+This function is provided for Pygame testing and debugging. If
+smoothscale causes an invalid instruction error then it is a
+Pygame/SDL bug that should be reported. Use this function as a
+temporary fix only.
 <END>
 
 
