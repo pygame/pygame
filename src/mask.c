@@ -379,7 +379,7 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
         bitmask_free(m);
         return plist;
     }
-    
+
     /* the outline tracing loop */
     for (;;) {
         /* look around the pixel, it has to have a neighbor */
@@ -395,11 +395,11 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
                     }
                     value = Py_BuildValue("(ii)", nextx-1, nexty-1);
                     PyList_Append(plist, value);
-                    Py_DECREF(value);                   
+                    Py_DECREF(value);
                 }
                 break;
             }
-        }   
+        }
         /* if we are back at the first pixel, and the next one will be the
            second one we visited, we are done */
         if ((curry == firsty && currx == firstx) && (secx == nextx && secy == nexty)) {
@@ -409,9 +409,9 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
         curry = nexty;
         currx = nextx;
     }
-    
+
     bitmask_free(m);
-    
+
     return plist;
 }
 
@@ -538,6 +538,8 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     Uint8 *pix;
     Uint8 r, g, b, a;
     Uint8 tr, tg, tb, ta;
+    int bpp1, bpp2;
+
 
     pixels = (Uint8 *) surf->pixels;
     format = surf->format;
@@ -550,6 +552,7 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     rloss = format->Rloss;
     gloss = format->Gloss;
     bloss = format->Bloss;
+    bpp1 = surf->format->BytesPerPixel;
 
     if(surf2) {
         format2 = surf2->format;
@@ -563,13 +566,16 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         gloss2 = format2->Gloss;
         bloss2 = format2->Bloss;
         pixels2 = (Uint8 *) surf2->pixels;
+        bpp2 = surf->format->BytesPerPixel;
     } else { /* make gcc stop complaining */
         rmask2 = gmask2 = bmask2 = 0;
         rshift2 = gshift2 = bshift2 = 0;
         rloss2 = gloss2 = bloss2 = 0;
         format2 = NULL;
         pixels2 = NULL;
+        bpp2 = 0;
     }
+
 
     SDL_GetRGBA (color, format, &r, &g, &b, &a);
     SDL_GetRGBA (threshold, format, &tr, &tg, &tb, &ta);
@@ -581,7 +587,7 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         }
         for(x=0; x < surf->w; x++) {
             /* the_color = surf->get_at(x,y) */
-            switch (format->BytesPerPixel)
+            switch (bpp1)
             {
             case 1:
                 the_color = (Uint32)*((Uint8 *) pixels);
@@ -607,7 +613,7 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
             }
 
             if (surf2) {
-                switch (format2->BytesPerPixel) {
+                switch (bpp2) {
                     case 1:
                         the_color2 = (Uint32)*((Uint8 *) pixels2);
                         pixels2++;
@@ -761,8 +767,8 @@ unsigned int cc_label(bitmask_t *input, unsigned int* image, unsigned int* ufind
 
 
     /* special case for first row.
-	   Go over the first row except the first pixel.
-	*/
+           Go over the first row except the first pixel.
+    */
     for(x = 1; x < w; x++) {
         if (bitmask_getbit(input, x, 0)) {
             if (*(buf-1)) {                    /* d label */
