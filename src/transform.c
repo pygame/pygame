@@ -27,6 +27,7 @@
 #include "pygame.h"
 #include "pygamedocs.h"
 #include <math.h>
+#include <string.h>
 #include "scale.h"
 
 #if defined(SCALE_MMX_SUPPORT)
@@ -1161,11 +1162,11 @@ static void filter_expand_Y_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int width, int s
 
 #if defined(SCALE_MMX_SUPPORT)
 static void
-smoothscale_init()
+smoothscale_init ()
 {
     if (filter_shrink_X == 0)
     {
-	if (SDL_HasSSE())
+	if (SDL_HasSSE ())
 	{
 	    filter_type = "SSE";
 	    filter_shrink_X = filter_shrink_X_SSE;
@@ -1173,7 +1174,7 @@ smoothscale_init()
 	    filter_expand_X = filter_expand_X_SSE;
 	    filter_expand_Y = filter_expand_Y_SSE;
 	}
-	else if (SDL_HasMMX())
+	else if (SDL_HasMMX ())
 	{
 	    filter_type = "MMX";
 	    filter_shrink_X = filter_shrink_X_MMX;
@@ -1412,11 +1413,79 @@ static PyObject* surf_scalesmooth(PyObject* self, PyObject* arg)
 }
 
 static PyObject *
-surf_get_smoothscale_backend()
+surf_get_smoothscale_backend ()
 {
-    return PyString_FromString(filter_type);
+    return PyString_FromString (filter_type);
 }
 
+static  PyObject *
+surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
+{
+    char *keywords[] = {"type", NULL};
+    const char *type;
+
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "s:set_smoothscale_backend",
+                                      keywords, &type))
+    {
+	return NULL;
+    }
+
+#if defined(SCALE_MMX_SUPPORT)
+    if (strcmp (type, "GENERIC") == 0)
+    {
+	filter_type = "GENERIC";
+	filter_shrink_X = filter_shrink_X_ONLYC;
+	filter_shrink_Y = filter_shrink_Y_ONLYC;
+	filter_expand_X = filter_expand_X_ONLYC;
+	filter_expand_Y = filter_expand_Y_ONLYC;
+    }
+    else if (strcmp (type, "MMX") == 0)
+    {
+	if (!SDL_HasMMX ())
+	{
+	    return RAISE (PyExc_ValueError,
+                          "MMX not supported on this machine");
+	}
+	filter_type = "MMX";
+	filter_shrink_X = filter_shrink_X_MMX;
+	filter_shrink_Y = filter_shrink_Y_MMX;
+	filter_expand_X = filter_expand_X_MMX;
+	filter_expand_Y = filter_expand_Y_MMX;
+    }
+    else if (strcmp (type, "SSE") == 0)
+    {
+	if (!SDL_HasSSE ())
+	{
+	    return RAISE (PyExc_ValueError,
+                          "SSE not supported on this machine");
+	}
+	filter_type = "SSE";
+	filter_shrink_X = filter_shrink_X_SSE;
+	filter_shrink_Y = filter_shrink_Y_SSE;
+	filter_expand_X = filter_expand_X_SSE;
+	filter_expand_Y = filter_expand_Y_SSE;
+    }
+    else
+    {
+	return PyErr_Format (PyExc_ValueError,
+                             "Unknown backend type %s", type);
+    }
+    Py_RETURN_NONE;
+#else /* Not an x86 processor */
+    if (strcmp (type, "GENERIC") != 0)
+    {
+	if (strcmp (filter_type, "MMX") == 0 ||
+	    strcmp (filter_type, "SSE") == 0    )
+	{
+	    return PyErr_Format (PyExc_ValueError,
+                                 "%s not supported on this machine", type);
+	}
+	return PyErr_Format (PyExc_ValueError,
+                             "Unknown backend type %s", type);
+    }
+    Py_RETURN_NONE;
+#endif /* defined(SCALE_MMX_SUPPORT) */
+}
 
 
 static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
@@ -2587,6 +2656,9 @@ static PyMethodDef transform_builtins[] =
     { "smoothscale", surf_scalesmooth, METH_VARARGS, DOC_PYGAMETRANSFORMSMOOTHSCALE },
     { "get_smoothscale_backend", (PyCFunction) surf_get_smoothscale_backend, METH_NOARGS,
           DOC_PYGAMETRANSFORMGETSMOOTHSCALEBACKEND },
+    { "set_smoothscale_backend", (PyCFunction) surf_set_smoothscale_backend,
+          METH_VARARGS | METH_KEYWORDS,
+          DOC_PYGAMETRANSFORMSETSMOOTHSCALEBACKEND },
     { "threshold", surf_threshold, METH_VARARGS, DOC_PYGAMETRANSFORMTHRESHOLD },
     { "laplacian", surf_laplacian, METH_VARARGS, DOC_PYGAMETRANSFORMTHRESHOLD },
     { "average_surfaces", surf_average_surfaces, METH_VARARGS, DOC_PYGAMETRANSFORMAVERAGESURFACES },
