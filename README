@@ -1,14 +1,13 @@
-So what does Microsoft's Windows Installer have to do with Pygame.
-Well, Pygame is destributed on Windows in a .msi file. And the
-msidb.py module was originally written to help create a Windows
-installer for the Pygame documents and examples. It is just too
-useful to not have a home somewhere.
+msidb.py is a Python Database API 2.0 module for reading and altering
+Windows Installer, .msi, files. It is modeled somewhat on the SQLite
+module that is part of the Python standard library.
 
-msidb.py is a Database 2.0 module for reading and changing Windows
-Installer, .msi, files. It is moduled somewhat on the SQLite module
-that is part of the Python standard library. It has enought features
-to be useful but needs a proper until test and to be polished up
-a little.
+So what does Microsoft's Windows Installer have to do with Pygame.
+Well, Pygame is distributed on Windows in a .msi file. And the
+msidb.py module was originally written to help create a Windows
+installer for the Pygame documents and examples. The msilib package
+bundled with Python 2.5 cannot read .msi files. This module can.
+It is just too useful to not have a home somewhere.
 
 For now I will place it under the LGPL (copied from Pygame).
 

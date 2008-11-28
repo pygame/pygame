@@ -7,15 +7,37 @@
 #
 # This module is licensed under the GNU LESSER GENERAL PUBLIC LICENSE,
 # Version 2.1, February 1999. Keep with the associated license LGPL.
+#
+# This module is designed to work with both the character and wide
+# character forms of the Windows msi routines. The constant TCHAR_TYPE
+# determines which version are used: 'A' or 'W'.
 
-"""A partial DB-API 2.0 interface for msi databases"""
+"""A Python Database API 2.0 for Windows Installer databases (.msi files)
+
+For specifics on the the database api see PEP 249.
+
+The Windows installer database is a partial implementation of an
+SQL relational database. It only supports a few native data types:
+integers, strings and binary streams. So Date and Time just return
+integers. BINARY represents a stream. Reading a stream field will
+copy data to a buffer. Streams take input from a file. So the
+Binary function uses temporary files in the current working directory.
+
+Additional types:
+  Stream: a file path to binary data for insertion into a stream field.
+  String: The Python string type of database character fields.
+"""
 
 from ctypes import (c_char, c_int, c_uint, c_ulong,
                     c_char_p, c_wchar_p, c_void_p, POINTER,
                     byref, windll, create_string_buffer, cast)
 import itertools
 import re
+import os
 import weakref
+import atexit
+import datetime
+import time
 
 TCHAR_TYPE = 'A'
 if TCHAR_TYPE == 'A':
@@ -165,7 +187,7 @@ def get_field_stream(rec, field):
     rc = MsiRecordReadStream(rec, field, buf, byref(csize))
     if rc != ERROR_SUCCESS:
         raise error(rc)
-    return buf
+    return buffer(buf)
 
 def column_info(view_handle, info_type):
     record_handle = Handle()
@@ -233,7 +255,9 @@ class Cursor(object):
             self._close_view()
             raise
 
-    description = property(lambda self: self._description)
+    def get_description(self):
+        return self._description
+    description = property(get_description)
 
     def executemany(self, operation, seq_of_parameters):
         if not self:
@@ -321,6 +345,16 @@ class Cursor(object):
             self._status = 0
         else:
             raise ProgrammingError("Cursor already closed")
+
+    def setinputsizes(self, *args, **kwds):
+        return
+
+    def setoutputsize(self, size, column=None):
+        return
+
+    def get_connection(self):
+        return self._connection
+    connection = property(get_connection)
 
     def __nonzero__(self):
         return self._connection is not None
@@ -440,6 +474,71 @@ STRING = 'STRING'
 NUMBER = 'NUMBER'
 BINARY = 'BINARY'
 OBJECT = 'OBJECT'
+DATE = 'DATE'  # Never returned; dates are stored as numbers.
+TIME = DATE
+DATETIME = DATE
+ROWID = 'ROWID'  # Never returned; no row ids.
+
+def Date(year, month, day):
+    """Return the year, month, and day as a Windows installer date/time
+
+    Only years from 1980 to 2099 can be represented. The database stores
+    date/time as a NUMBER (DoubleInteger, SDL LONG). The time part is left
+    zero.
+    """
+    datetime.date(year, month, day)
+    if not (1980 <= year <= 2099):
+        raise ValueError("year is out of range")
+    return day << 0x1B | month << 0x17 | day << 0x10
+
+def Time(hour, minute, second):
+    """Return the hour, minute, and second as a Windows installer date/time
+
+    The datebase stores date/time as a NUMBER (DoubleInteger, SQL LONG). The
+    date part is left zero.
+    """
+    datetime.time(hour, minute, second)
+    return second // 2 << 0x0B | minute << 0x05 | hour
+
+def Timestamp(year, month, day, hour, minute, second):
+    """Return the date and time as a Windows installer date/time
+
+    The database stores date/time as a NUMBER (DoubleInteger, SQL LONG).
+    """
+    return Date(year, month, day) | Time(hour, minute, second)
+
+def DateFromTicks(ticks):
+    return Date(*time.localtime(ticks)[:3])
+
+def TimeFromTicks(ticks):
+    return Time(*time.localtime(ticks)[3:6])
+
+def TimestampFromTicks(ticks):
+    return Timestamp(*time.localtime(ticks)[:6])
+
+def Binary(string):
+    global _temp_files
+
+    try:
+        next_id = len(_temp_files)
+    except NameError:
+        from atexit import register
+        _temp_files = []
+        def remove_temp_files():
+            global _temp_files
+            for file_path in _temp_files:
+                os.remove(file_path)
+            _temp_files = []
+        register(remove_temp_files)
+        next_id = 0
+    file_path = os.path.join(os.getcwd(), "msidb-bin-%04d.tmp" % next_id)
+    f = open(file_path, 'wb')
+    try:
+        f.write(string)
+    finally:
+        f.close()
+    _temp_files.append(file_path)
+    return Stream(String(file_path))
 
 apilevel = '2.0'
 threadsafety = 1
@@ -485,7 +584,14 @@ class NotSupportedError(DatabaseError):
     pass
 Connection.NotSupportedError =  NotSupportedError
 
+String = TStr
+
 class Stream(object):
+    """Stream(file_path) => stream object
+
+    The path of a file containing binary data for insertion into
+    a stream field.
+    """
     def __init__(self, file_path):
         if not isinstance(file_path, TStr):
             raise TypeError("The file path is not of type %s" % TStr)
@@ -575,8 +681,9 @@ def field_type(code):
     return (data_type, display_size, internal_size, precision, None, null_ok)
 
 __all__ = ['OPEN_READONLY', 'OPEN_TRANSACT', 'OPEN_DIRECT', 'OPEN_CREATE',
-           'STRING', 'NUMBER', 'BINARY', 'apilevel', 'threadsafety',
+           'STRING', 'NUMBER', 'BINARY', 'ROWID', 'apilevel', 'threadsafety',
            'paramstyle','Error', 'Warning', 'InterfaceError', 'DatabaseError',
            'InternalError', 'OperationalError', 'ProgrammingError',
            'IntegrityError', 'DataError', 'NotSupportedError', 'Stream',
-           'connect']
+           'connect', 'Binary', 'Date', 'Time', 'Timestamp', 'DateFromTicks',
+           'TimeFromTicks', 'TimestampFromTicks', 'String']
