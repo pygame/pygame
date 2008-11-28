@@ -57,7 +57,7 @@ def ff(lib, name, restype, *args):
 
 char_types = {'A':'A', 'W':'W', 'T':TCHAR_TYPE, '':''}
 
-def add_foriegn_functions(lib, declarations, globals_):
+def add_foreign_functions(lib, declarations, globals_):
     for declaration in declarations:
         name, char_type, restype = declaration[0:3]
         argtypes = declaration[3:]
@@ -85,7 +85,7 @@ msi_functions = [
     ('MsiCloseHandle', '', c_uint, Handle),
     ]
 
-add_foriegn_functions(windll.Msi, msi_functions, globals())
+add_foreign_functions(windll.Msi, msi_functions, globals())
 
 class Record(object):
     class NullRecord(object):
@@ -126,14 +126,20 @@ class Record(object):
             raise
 
     def close(self):
-        if self._handle != None:
+        if self:
             MsiCloseHandle(self._handle)
             self._handle = None
+        else:
+            raise ProgrammingError("Database already closed")
+
+    def __nonzero__(self):
+        return self._handle != None
 
     handle = property(lambda self: self._handle)
 
     def __del__(self):
-        self.close()
+        if self:
+            self.close()
 
 def get_field_string(handle, field):
     size = MsiRecordDataSize(handle, field)
@@ -186,11 +192,12 @@ class Cursor(object):
         obj._description = None
         obj._have_items = False
         obj._next_record = None
+        obj._arraysize = 1
         return obj
 
     def execute(self, operation, parameters=None):
         if not self:
-            raise OperationalError("Operation on a closed cursor")
+            raise ProgrammingError("Operation on a closed cursor")
         self._close_view()
         self._description = None
         self._have_items = False
@@ -215,6 +222,7 @@ class Cursor(object):
             else:
                 definitions = column_info(self._view, MSICOLINFO_TYPES)
                 if definitions:
+                    self._have_items = True
                     names = column_info(self._view, MSICOLINFO_NAMES)
                     self._description = [
                         (nm,) + field_type(defn)
@@ -229,7 +237,7 @@ class Cursor(object):
 
     def executemany(self, operation, seq_of_parameters):
         if not self:
-            raise OperationalError("Operation on a closed cursor")
+            raise ProgrammingError("Operation on a closed cursor")
         self._close_view()
         self._description = None
         self._have_items = False
@@ -257,21 +265,28 @@ class Cursor(object):
                         self._get_next_record()
                     finally:
                         self._description = None
-                    if self._have_items:
-                        self._have_items = False
+                    if self._next_record is not None:
                         self._next_record = None
-                        raise DatabaseError("Unexpected result set created by"
-                                            " the operation")
+                        raise ProgrammingError("Unexpected result set created by"
+                                               " the operation")
         finally:
             self._close_view()
 
     def get_rowcount(self):
-        if self._next_record is not None:
-            return None
-        if self._have_items:
-            return 0
         return -1
     rowcount = property(get_rowcount)
+
+    def get_arraysize(self):
+        return self._arraysize
+
+    def set_arraysize(self, value):
+        if not isinstance(value, (int, long)):
+            raise TypeError("arraysize must be an integer, not %s", type(value))
+        if value < 0:
+            raise ValueError("arraysize must be non-negative, not %d", value)
+        self._arraysize = value
+
+    arraysize = property(get_arraysize, set_arraysize)
 
     def fetchone(self):
         if not self._have_items:
@@ -281,6 +296,17 @@ class Cursor(object):
             self._get_next_record()
         return record
 
+    def fetchmany(self, arraysize=None):
+        if arraysize is None:
+            arraysize = self.arraysize
+        rows = []
+        for i in range(arraysize):
+            row = self.fetchone()
+            if row is None:
+                break
+            rows.append(row)
+        return rows
+        
     def fetchall(self):
         return [record for record in self]
 
@@ -293,12 +319,15 @@ class Cursor(object):
             self._connection._remove_cursor(self._key)
             self._connection = None
             self._status = 0
+        else:
+            raise ProgrammingError("Cursor already closed")
 
     def __nonzero__(self):
         return self._connection is not None
 
     def __del__(self):
-        self.close()
+        if self:
+            self.close()
 
     def _close_view(self):
         if self._view is not None:
@@ -315,7 +344,6 @@ class Cursor(object):
             return
         if rc != ERROR_SUCCESS:
             raise error(rc)
-        self._have_items = True
         try:
             record = []
             for i, format in enumerate(self.description):
@@ -356,7 +384,7 @@ class Connection(object):
         if self:
             for cursor_weakref in self._cursors.values():
                 cursor = cursor_weakref()
-                if cursor is not None:
+                if cursor is not None and cursor:
                     cursor.close()
             self._cursors = None
             if self._commit_on_close or not self._rollback:
@@ -366,9 +394,12 @@ class Connection(object):
                     pass
             MsiCloseHandle(self._handle)
             self._handle = None
+        else:
+            raise ProgrammingError("Connection already closed")
             
     def __del__(self):
-        self.close()
+        if self:
+            self.close()
         
     def cursor(self):
         key = self._next_cursor_key
@@ -379,7 +410,7 @@ class Connection(object):
     
     def commit(self):
         if not self:
-            raise OperationalError("Commit not supported on a closed database")
+            raise ProgrammingError("Commit not supported on a closed database")
         rc = MsiDatabaseCommit(self._handle)
         if rc != ERROR_SUCCESS:
             raise error(rc)
@@ -416,33 +447,43 @@ paramstyle = 'qmark'
 
 class Error(StandardError):
     pass
+Connection.Error = Error
 
 class Warning(StandardError):
     pass
+Connection.Warning = Warning
 
 class InterfaceError(Error):
     pass
+Connection.InterfaceError = InterfaceError
 
 class DatabaseError(Error):
     pass
+Connection.DatabaseError = DatabaseError
 
 class InternalError(DatabaseError):
     pass
+Connection.InternalError = InternalError
 
 class OperationalError(DatabaseError):
     pass
+Connection.OperationalError = OperationalError
 
 class ProgrammingError(DatabaseError):
     pass
+Connection.ProgrammingError = ProgrammingError
 
 class IntegrityError(DatabaseError):
     pass
+Connection.IntegrityError = IntegrityError
 
 class DataError(DatabaseError):
     pass
+Connection.DataError = DataError
 
 class NotSupportedError(DatabaseError):
     pass
+Connection.NotSupportedError =  NotSupportedError
 
 class Stream(object):
     def __init__(self, file_path):
