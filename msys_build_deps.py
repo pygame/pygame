@@ -647,6 +647,7 @@ if [ x$BDINST == x1 ]; then
   # Only install the headers and import library, otherwise SDL_image will
   # statically link to jpeg.
   make install-headers
+  cp -fp libjpeg.a /usr/local/lib
   cp -fp libjpeg.dll.a /usr/local/lib
   cp -fp jpeg.dll /usr/local/bin
   if [ x$? != x0 ]; then exit $?; fi
@@ -691,6 +692,7 @@ if [ x$BDINST == x1 ]; then
   # statically link to jpeg.
   cd libtiff
   make install-data-am
+  cp -fp .libs/libtiff.a /usr/local/lib
   cp -fp libtiff.dll.a /usr/local/lib
   cp -fp libtiff.dll /usr/local/bin
   if [ x$? != x0 ]; then exit $?; fi
