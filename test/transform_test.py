@@ -38,7 +38,7 @@ def show_image(s, images = []):
 def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0), change_return = True ):
     """ given the color it makes return_surf only have areas with the given colour.
     """
-    
+
     width, height =surf.get_width(), surf.get_height()
 
     if change_return:
@@ -63,7 +63,7 @@ def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0
             c1 = surf.get_at((x,y))
 
             if ( (abs(c1[0] - r) < tr) &
-                 (abs(c1[1] - g) < tg) & 
+                 (abs(c1[1] - g) < tg) &
                  (abs(c1[2] - b) < tb) ):
                 # this pixel is within the threshold.
                 if change_return:
@@ -71,8 +71,8 @@ def threshold(return_surf, surf, color, threshold = (0,0,0), diff_color = (0,0,0
                 similar += 1
             #else:
             #    print c1, c2
-    
-    
+
+
     return similar
 
 
@@ -123,7 +123,7 @@ class TransformModuleTest( unittest.TestCase ):
             # the wrong size surface is past in.  Should raise an error.
             self.assertRaises(ValueError, pygame.transform.smoothscale, s, (33,64), s3)
 
-    
+
     def test_threshold__honors_third_surface(self):
         # __doc__ for threshold as of Tue 07/15/2008
 
@@ -134,10 +134,10 @@ class TransformModuleTest( unittest.TestCase ):
         # When given the optional third
         # surface, it would use the colors in that rather than the "color"
         # specified in the function to check against.
-        
+
         # New in pygame 1.8
 
-        ################################################################         
+        ################################################################
         # Sizes
         (w, h) = size = (32, 32)
 
@@ -150,7 +150,7 @@ class TransformModuleTest( unittest.TestCase ):
         # Surfaces
         original_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
         dest_surface    = pygame.Surface(size, pygame.SRCALPHA, 32)
-        
+
         # Third surface is used in lieu of 3rd position arg color
         third_surface   = pygame.Surface(size, pygame.SRCALPHA, 32)
 
@@ -160,7 +160,7 @@ class TransformModuleTest( unittest.TestCase ):
 
         ################################################################
         # All pixels for color should be within threshold
-        # 
+        #
         pixels_within_threshold = pygame.transform.threshold (
             dest_surface, original_surface, threshold_color,
             threshold,
@@ -215,31 +215,31 @@ class TransformModuleTest( unittest.TestCase ):
 
         for pt in test_utils.rect_area_pts(dest_rect):
             self.assert_(dest_surface.get_at(pt) != change_color)
-        
-        ################################################################  
-        # Lowering the threshold, expecting changed surface        
+
+        ################################################################
+        # Lowering the threshold, expecting changed surface
 
         pixels_within_threshold = pygame.transform.threshold (
-            dest_surface, 
-            original_surface,                              
-            0,                                           # color 
+            dest_surface,
+            original_surface,
+            0,                                           # color
             0,                                           # threshold
-            change_color,                                # diff_color 
+            change_color,                                # diff_color
             1,                                           # change_return
             third_surface,
         )
-        
+
         # Return, of pixels within threshold is correct
         self.assertEqual(0, pixels_within_threshold)
-        
+
         # Size of dest surface is correct
         dest_rect = dest_surface.get_rect()
         dest_size = dest_rect.size
         self.assertEqual(size, dest_size)
-        
+
         # The color is the change_color specified for every pixel As all
         # pixels are not within threshold
-        
+
         for pt in test_utils.rect_area_pts(dest_rect):
             self.assertEqual(dest_surface.get_at(pt), change_color)
 
@@ -312,16 +312,16 @@ class TransformModuleTest( unittest.TestCase ):
 
     def test_threshold__uneven_colors(self):
         (w,h) = size = (16, 16)
-        
+
         original_surface = pygame.Surface(size, pygame.SRCALPHA, 32)
         dest_surface    = pygame.Surface(size, pygame.SRCALPHA, 32)
-        
+
         original_surface.fill(0)
 
         threshold_color_template = [5, 5, 5, 5]
         threshold_template       = [6, 6, 6, 6]
 
-        ################################################################  
+        ################################################################
 
         for pos in range(len('rgb')):
             threshold_color = threshold_color_template[:]
@@ -336,10 +336,10 @@ class TransformModuleTest( unittest.TestCase ):
                 0, # diff_color
                 0  # change_return
             )
-            
+
             self.assertEqual(w*h, pixels_within_threshold)
-                
-        ################################################################  
+
+        ################################################################
 
     def test_threshold__surface(self):
         """
@@ -348,9 +348,9 @@ class TransformModuleTest( unittest.TestCase ):
         #pygame.transform.threshold(DestSurface, Surface, color, threshold = (0,0,0,0), diff_color = (0,0,0,0), change_return = True): return num_threshold_pixels
         threshold = pygame.transform.threshold
 
-        s1 = pygame.Surface((32,32))
-        s2 = pygame.Surface((32,32))
-        s3 = pygame.Surface((1,1))
+        s1 = pygame.Surface((32,32), SRCALPHA, 32)
+        s2 = pygame.Surface((32,32), SRCALPHA, 32)
+        s3 = pygame.Surface((1,1), SRCALPHA, 32)
 
         s1.fill((40,40,40))
         s2.fill((255,255,255))
@@ -365,12 +365,12 @@ class TransformModuleTest( unittest.TestCase ):
         diff_color = (255,0,0)
         change_return = 2
 
-        # set the similar pixels in destination surface to the color 
+        # set the similar pixels in destination surface to the color
         #     in the first surface.
         num_threshold_pixels = threshold(dest_surface, surface1, color,
-                                         the_threshold, diff_color, 
+                                         the_threshold, diff_color,
                                          change_return)
-        
+
         #num_threshold_pixels = threshold(s2, s1, (30,30,30))
         self.assertEqual(num_threshold_pixels, s1.get_height() * s1.get_width())
         self.assertEqual(s2.get_at((0,0)), (40, 40, 40, 255))
@@ -385,7 +385,7 @@ class TransformModuleTest( unittest.TestCase ):
             s1.fill((40,40,40))
             s2.fill((255,255,255))
             s1.set_at( (0,0), (170, 170, 170) )
-            # set the similar pixels in destination surface to the color 
+            # set the similar pixels in destination surface to the color
             #     in the first surface.
             num_threshold_pixels = threshold(s2, s1, (30,30,30), (11,11,11),
                                              (0,0,0), 2)
@@ -420,11 +420,43 @@ class TransformModuleTest( unittest.TestCase ):
             self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
 
 
+        if 1:
+            # test end markers.  0, and 255
+
+            # the pixels are different by 1.
+            s1.fill((254,254,254))
+            s2.fill((255,255,255))
+            s3.fill((255,255,255))
+            s1.set_at( (0,0), (170, 170, 170) )
+            num_threshold_pixels = threshold(s3, s1, (254,254,254), (1,1,1),
+                                             (44,44,44,255), False)
+            self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
+
+
+            # compare the two surfaces.  Should be all but one matching.
+            num_threshold_pixels = threshold(s3, s1, 0, (1,1,1),
+                                             (44,44,44,255), False, s2)
+            self.assertEqual(num_threshold_pixels, (s1.get_height() * s1.get_width()) -1)
+
+
+            # within (0,0,0) threshold?  Should match no pixels.
+            num_threshold_pixels = threshold(s3, s1, (253,253,253), (0,0,0),
+                                             (44,44,44,255), False)
+            self.assertEqual(num_threshold_pixels, 0)
+
+
+            # other surface within (0,0,0) threshold?  Should match no pixels.
+            num_threshold_pixels = threshold(s3, s1, 0, (0,0,0),
+                                             (44,44,44,255), False, s2)
+            self.assertEqual(num_threshold_pixels, 0)
+
+
+
 
     def test_laplacian(self):
         """
         """
- 
+
         SIZE = 32
         s1 = pygame.Surface((SIZE, SIZE))
         s2 = pygame.Surface((SIZE, SIZE))
@@ -436,7 +468,7 @@ class TransformModuleTest( unittest.TestCase ):
 
 
         pygame.transform.laplacian(s1,s2)
-        
+
         #show_image(s1)
         #show_image(s2)
 
@@ -444,11 +476,11 @@ class TransformModuleTest( unittest.TestCase ):
         self.assertEqual(s2.get_at((3,10)), (255,0,0,255))
         self.assertEqual(s2.get_at((0,31)), (255,0,0,255))
         self.assertEqual(s2.get_at((31,31)), (255,0,0,255))
-        
+
 
         # here we create the return surface.
         s2 = pygame.transform.laplacian(s1)
-        
+
         self.assertEqual(s2.get_at((0,0)), (0, 0, 0, 255))
         self.assertEqual(s2.get_at((3,10)), (255,0,0,255))
         self.assertEqual(s2.get_at((0,31)), (255,0,0,255))
@@ -457,7 +489,7 @@ class TransformModuleTest( unittest.TestCase ):
     def test_average_surfaces(self):
         """
         """
- 
+
         SIZE = 32
         s1 = pygame.Surface((SIZE, SIZE))
         s2 = pygame.Surface((SIZE, SIZE))
@@ -515,11 +547,11 @@ class TransformModuleTest( unittest.TestCase ):
 
 
 
-        
+
     def test_average_color(self):
         """
         """
-        
+
         a = [24, 32]
         for i in a:
             s = pygame.Surface((32,32), 0, i)
@@ -530,21 +562,21 @@ class TransformModuleTest( unittest.TestCase ):
             self.assertEqual(pygame.transform.average_color(s, (16,0,16,32)), (0,100,200,0))
 
     def todo_test_rotate(self):
-        
+
         # __doc__ (as of 2008-06-25) for pygame.transform.rotate:
 
           # pygame.transform.rotate(Surface, angle): return Surface
           # rotate an image
-                
+
         # color = (128, 128, 128, 255)
         # s = pygame.Surface((3, 3))
-        
+
         # s.set_at((2, 0), color)
 
         # self.assert_(s.get_at((0, 0)) != color)
         # s = pygame.transform.rotate(s, 90)
         # self.assert_(s.get_at((0, 0)) == color)
-        
+
         self.fail()
 
     def test_rotate__lossless_at_90_degrees(self):
@@ -567,10 +599,10 @@ class TransformModuleTest( unittest.TestCase ):
 
           # pygame.transform.scale2x(Surface, DestSurface = None): Surface
           # specialized image doubler
-        
+
         w, h = 32, 32
         s = pygame.Surface((w, h), pygame.SRCALPHA, 32)
-        
+
         # s.set_at((0,0), (20, 20, 20, 255))
 
         s2 = pygame.transform.scale2x(s)
@@ -619,17 +651,17 @@ class TransformModuleTest( unittest.TestCase ):
 
           # pygame.transform.chop(Surface, rect): return Surface
           # gets a copy of an image with an interior area removed
-          # 
+          #
           # Extracts a portion of an image. All vertical and horizontal pixels
           # surrounding the given rectangle area are removed. The corner areas
           # (diagonal to the rect) are then brought together. (The original
           # image is not altered by this operation.)
-          # 
+          #
           # NOTE: If you want a "crop" that returns the part of an image within
           # a rect, you can blit with a rect to a new surface or copy a
           # subsurface.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_flip(self):
 
@@ -637,12 +669,12 @@ class TransformModuleTest( unittest.TestCase ):
 
           # pygame.transform.flip(Surface, xbool, ybool): return Surface
           # flip vertically and horizontally
-          # 
+          #
           # This can flip a Surface either vertically, horizontally, or both.
           # Flipping a Surface is nondestructive and returns a new Surface with
           # the same dimensions.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_rotozoom(self):
 
@@ -650,7 +682,7 @@ class TransformModuleTest( unittest.TestCase ):
 
           # pygame.transform.rotozoom(Surface, angle, scale): return Surface
           # filtered scale and rotation
-          # 
+          #
           # This is a combined scale and rotation transform. The resulting
           # Surface will be a filtered 32-bit Surface. The scale argument is a
           # floating point value that will be multiplied by the current
@@ -658,16 +690,16 @@ class TransformModuleTest( unittest.TestCase ):
           # represents the counterclockwise degrees to rotate. A negative
           # rotation angle will rotate clockwise.
 
-        self.fail() 
+        self.fail()
 
     def todo_test_smoothscale(self):
         # __doc__ (as of 2008-08-02) for pygame.transform.smoothscale:
 
           # pygame.transform.smoothscale(Surface, (width, height), DestSurface =
           # None): return Surface
-          # 
+          #
           # scale a surface to an arbitrary size smoothly
-          # 
+          #
           # Uses one of two different algorithms for scaling each dimension of
           # the input surface as required.  For shrinkage, the output pixels are
           # area averages of the colors they cover.  For expansion, a bilinear
@@ -676,10 +708,10 @@ class TransformModuleTest( unittest.TestCase ):
           # types. The size is a 2 number sequence for (width, height). This
           # function only works for 24-bit or 32-bit surfaces.  An exception
           # will be thrown if the input surface bit depth is less than 24.
-          # 
-          # New in pygame 1.8 
+          #
+          # New in pygame 1.8
 
-        self.fail() 
+        self.fail()
 
 if __name__ == '__main__':
     #tt = TransformModuleTest()
