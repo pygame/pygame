@@ -218,6 +218,7 @@ SizeFromObject (PyObject *obj, pgint32 *w, pgint32 *h)
         return 1;
     }
 failed:
+    PyErr_Clear ();
     PyErr_SetString (PyExc_TypeError,
         "object must be a Rect, FRect or 2-value sequence");
     return 0;
@@ -247,6 +248,7 @@ FSizeFromObject (PyObject *obj, double *w, double *h)
         return 1;
     }
 failed:
+    PyErr_Clear ();
     PyErr_SetString (PyExc_TypeError,
         "object must be a Rect, FRect or 2-value sequence");
     return 0;

@@ -407,7 +407,7 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
     {
         PyObject *size;
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "0|il:set_mode", &size, &bpp, &flags))
+        if (!PyArg_ParseTuple (args, "O|il:set_mode", &size, &bpp, &flags))
             return NULL;
         if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
