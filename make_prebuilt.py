@@ -63,6 +63,9 @@ def main(dest_dir=None):
     # Top level directories.
     if dest_dir is None:
         dest_dir = prebuilt_dir
+    if re.match(r'([A-Za-z]:){0,1}[^"<>:|?*]+$', dest_dir) is None:
+        print "Invalid directory path name %s" % dest_dir
+        return 1
     dest_dir = os.path.abspath(dest_dir)
     if os.path.isdir(dest_dir):
         if not confirm("Directory %s already exists;\ncontinue" % dest_dir):
