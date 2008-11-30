@@ -579,7 +579,7 @@ surf_set_at (PyObject *self, PyObject *args)
     int x, y;
     Uint32 color;
     Uint8 rgba[4] = {0, 0, 0, 0 };
-    PyObject *rgba_obj, *intobj;
+    PyObject *rgba_obj;
     Uint8 *byte_buf;
 
     if (!PyArg_ParseTuple (args, "(ii)O", &x, &y, &rgba_obj))
@@ -1796,7 +1796,8 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
 
     char *kwids[] = { "min_alpha", NULL };
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwids, &min_alpha))
-       return RAISE (PyExc_ValueError, "get_bounding_rect only accepts a single optional min_alpha argument");
+       return RAISE (PyExc_ValueError,
+                     "get_bounding_rect only accepts a single optional min_alpha argument");
     
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
@@ -1807,7 +1808,9 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     if (surf->flags & SDL_SRCCOLORKEY)
     {
         has_colorkey = 1;
-        SDL_GetRGBA (surf->format->colorkey, surf->format, &keyr, &keyg, &keyb, &a);
+        SDL_GetRGBA (surf->format->colorkey,
+                     surf->format,
+                     &keyr, &keyg, &keyb, &a);
     }
     
     pixels = (Uint8 *) surf->pixels;
@@ -1824,8 +1827,8 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
         {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
             SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
-            if (a >= min_alpha && has_colorkey == 0
-                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            if ((a >= min_alpha && has_colorkey == 0) ||
+                (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
             {
                 found_alpha = 1;
                 break;
@@ -1844,8 +1847,8 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
         {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
             SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
-            if (a >= min_alpha && has_colorkey == 0
-                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            if ((a >= min_alpha && has_colorkey == 0) ||
+                (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
             {
                 found_alpha = 1;
                 break;
@@ -1865,8 +1868,8 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
         {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
             SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
-            if (a >= min_alpha && has_colorkey == 0
-                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            if ((a >= min_alpha && has_colorkey == 0) ||
+                (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
             {
                 found_alpha = 1;
                 break;
@@ -1885,8 +1888,8 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
         {
             pixel = (pixels + y * surf->pitch) + x*format->BytesPerPixel;
             SDL_GetRGBA (*((Uint32*)pixel), surf->format, &r, &g, &b, &a);
-            if (a >= min_alpha && has_colorkey == 0
-                || (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
+            if ((a >= min_alpha && has_colorkey == 0) ||
+                (has_colorkey != 0 && (r != keyr || g != keyg || b != keyb)))
             {
                 found_alpha = 1;
                 break;
@@ -1910,7 +1913,6 @@ static PyObject
     PyObject *buffer;
     PyObject *lock;
     SDL_Surface *surface = PySurface_AsSurface (self);
-    SDL_PixelFormat *format = surface->format;
     Py_ssize_t length;
 
     length = (Py_ssize_t) surface->pitch * surface->h;

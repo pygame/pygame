@@ -360,18 +360,14 @@ opengltosdl ()
 {
     /*we need to get ahold of the pyopengl glReadPixels function*/
     /*we use pyopengl's so we don't need to link with opengl at compiletime*/
-    PyObject *pyopengl, *readpixels = NULL;
-    int typeflag=0, formatflag=0;
-    SDL_Surface *surf;
+    SDL_Surface *surf = NULL;
     Uint32 rmask, gmask, bmask;
     int i;
-    unsigned char *pixels;
+    unsigned char *pixels = NULL;
 
     GL_glReadPixels_Func p_glReadPixels= NULL;
-    pixels = NULL;
-    surf = NULL;
 
-    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels"); 
+    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress ("glReadPixels"); 
 
     surf = SDL_GetVideoSurface ();
 
@@ -384,7 +380,7 @@ opengltosdl ()
         return NULL;
     }
 
-    pixels = (unsigned char*) malloc(surf->w * surf->h * 3);
+    pixels = (unsigned char*) malloc (surf->w * surf->h * 3);
 
     if(!pixels) {
         RAISE (PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
@@ -392,7 +388,7 @@ opengltosdl ()
     }
 
     /* GL_RGB, GL_UNSIGNED_BYTE */
-    p_glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
+    p_glReadPixels (0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
 
     if (SDL_BYTEORDER == SDL_LIL_ENDIAN) {
         rmask=0x000000FF;
@@ -406,7 +402,7 @@ opengltosdl ()
     surf = SDL_CreateRGBSurface (SDL_SWSURFACE, surf->w, surf->h, 24,
                                  rmask, gmask, bmask, 0);
     if (!surf) {
-        free(pixels);
+        free (pixels);
         RAISE (PyExc_SDLError, SDL_GetError ());
         return NULL;
     }
@@ -417,7 +413,7 @@ opengltosdl ()
     }
 
 
-    free(pixels);
+    free (pixels);
     return surf;
 }
 

@@ -765,7 +765,7 @@ static struct PyMethodDef rect_methods[] =
 /* sequence functions */
 
 static Py_ssize_t
-rect_length (PyRectObject *self)
+rect_length (PyObject *_self)
 {
     return 4;
 }
