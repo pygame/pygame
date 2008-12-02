@@ -297,7 +297,9 @@ class Doc(object):
                         curdocline += line + " "
                 elif not self.name:
                     self.name = line
-                    if parentname:
+                    if len(line) > 1 and line[0] == '"' and line[-1] == '"':
+                        self.fullname = line[1:-1]
+                    elif parentname:
                         splitparent = parentname.split(".")
                         if splitparent[-1][0].isupper():
                             self.fullname = splitparent[-1] + "." + line
