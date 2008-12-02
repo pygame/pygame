@@ -1,0 +1,269 @@
+
+<html>
+<title>locals - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href="camera.html">Camera</a>&nbsp;||&nbsp;
+<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
+<a href="color.html">Color</a>&nbsp;||&nbsp;
+<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
+<a href="display.html">Display</a>&nbsp;||&nbsp;
+<a href="draw.html">Draw</a>&nbsp;||&nbsp;
+<a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="image.html">Image</a>&nbsp;||&nbsp;
+<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
+<a href="key.html">Key</a>&nbsp;||&nbsp;
+<a href="locals.html">Locals</a>&nbsp;||&nbsp;
+<a href="mask.html">Mask</a>&nbsp;||&nbsp;
+<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
+<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
+<a href="movie.html">Movie</a>&nbsp;||&nbsp;
+<a href="music.html">Music</a>&nbsp;||&nbsp;
+<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
+<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
+<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
+<a href="rect.html">Rect</a>&nbsp;||&nbsp;
+<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
+<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
+<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
+<a href="surface.html">Surface</a>&nbsp;||&nbsp;
+<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="time.html">Time</a>&nbsp;||&nbsp;
+<a href="transform.html">Transform</a>
+</td></tr></table>
+<br>
+
+
+<a name="pygame.contants">
+<big><b>pygame.contants</big></b><br><ul>
+  <i>Pygame constants</i><br>
+<ul><small><table>
+  <tr><td><a href="locals.html#display">display</a> - <font size=-1>The following constants are used by the display module and Surfaces</font></td><td>The following constants are used by the display module and Surfaces</td></tr>
+  <tr><td><a href="locals.html#events">events</a> - <font size=-1>These constants define the various event types</font></td><td>These constants define the various event types</td></tr>
+  <tr><td><a href="locals.html#keyboard">keyboard</a> - <font size=-1>These constants represent the keys on the keyboard.</font></td><td>These constants represent the keys on the keyboard.</td></tr>
+  <tr><td><a href="locals.html#modifiers">modifiers</a> - <font size=-1>These constants represent the modifier keys on the keyboard.</font></td><td>These constants represent the modifier keys on the keyboard.</td></tr>
+  <tr><td><a href="locals.html#time">time</a> - <font size=-1>These constants define the various time constants</font></td><td>These constants define the various time constants</td></tr>
+</table></small></ul>
+<p>These constants are defined by <tt>SDL</tt>, and needed in pygame. Note that many of the flags for <tt>SDL</tt> are not needed in pygame, and are not included here. These constants are generally accessed from the <tt>pygame.locals</tt> module. This module is automatically placed in the pygame namespace, but you will usually want to place them directly into your module's namespace with the following command, 'from <tt>pygame.locals</tt> import *'. </p>
+<!--COMMENTS:pygame.contants--> &nbsp;<br> 
+
+
+<a name="display">
+<big><b>display</big></b><br><ul>
+  <i>The following constants are used by the display module and Surfaces</i><br>
+<pre>    HWSURFACE - surface in hardware video memory. (equal to 1)
+    RESIZABLE - display window is resizeable
+    ASYNCBLIT - surface blits happen asynchronously (threaded)
+    OPENGL - display surface will be controlled by opengl
+    HWPALETTE - display surface has animatable hardware palette entries
+    DOUBLEBUF - hardware display surface is page flippable
+    FULLSCREEN - display surface is fullscreen (nonwindowed)
+    RLEACCEL - compile for quick alpha blits, only set in alpha or colorkey funcs
+    NOFRAME - no window decorations
+</pre>
+<!--COMMENTS:display--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="events">
+<big><b>events</big></b><br><ul>
+  <i>These constants define the various event types</i><br>
+<pre>    NOEVENT - no event, represents an empty event list, equal to 0
+    ACTIVEEVENT - window has gain/lost mouse/keyboard/visiblity focus
+    KEYDOWN - keyboard button has been pressed (or down and repeating)
+    KEYUP - keyboard button has been released
+    MOUSEMOTION - mouse has moved
+    MOUSEBUTTONDOWN - mouse button has been pressed
+    MOUSEBUTTONUP - mouse button has been released
+    JOYAXISMOTION - an opened joystick axis has changed
+    JOYBALLMOTION - an opened joystick ball has moved
+    JOYHATMOTION - an opened joystick hat has moved
+    JOYBUTTONDOWN - an opened joystick button has been pressed
+    JOYBUTTONUP - an opened joystick button has been released
+    VIDEORESIZE - the display window has been resized by the user
+    QUIT - the user has requested the game to quit
+    SYSWMEVENT - currently unsupported, system dependant
+    USEREVENT - all user messages are this or higher
+    NUMEVENTS - all user messages must be lower than this, equal to 32
+</pre>
+<!--COMMENTS:events--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="keyboard">
+<big><b>keyboard</big></b><br><ul>
+  <i>These constants represent the keys on the keyboard.</i><br>
+<p>There are many keyboard constants, they are used to represent keys on the keyboard. The following is a list of all keyboard constants </p>
+<pre>    <b>KeyASCII</b>       <b>ASCII</b> <b>Common Name</b>
+    K_BACKSPACE    \b    <i>backspace</i>
+    K_TAB          \t    <i>tab</i>
+    K_CLEAR              <i>clear</i>
+    K_RETURN       \r    <i>return</i>
+    K_PAUSE              <i>pause</i>
+    K_ESCAPE       ^[    <i>escape</i>
+    K_SPACE              <i>space</i>
+    K_EXCLAIM      !     <i>exclaim</i>
+    K_QUOTEDBL     &quot;     <i>quotedbl</i>
+    K_HASH         #     <i>hash</i>
+    K_DOLLAR       $     <i>dollar</i>
+    K_AMPERSAND    &amp;     <i>ampersand</i>
+    K_QUOTE        '     <i>quote</i>
+    K_LEFTPAREN    (     <i>left parenthesis</i>
+    K_RIGHTPAREN   )     <i>right parenthesis</i>
+    K_ASTERISK     *     <i>asterisk</i>
+    K_PLUS         +     <i>plus sign</i>
+    K_COMMA        ,     <i>comma</i>
+    K_MINUS        -     <i>minus sign</i>
+    K_PERIOD       .     <i>period</i>
+    K_SLASH        /     <i>forward slash</i>
+    K_0            0     <i>0</i>
+    K_1            1     <i>1</i>
+    K_2            2     <i>2</i>
+    K_3            3     <i>3</i>
+    K_4            4     <i>4</i>
+    K_5            5     <i>5</i>
+    K_6            6     <i>6</i>
+    K_7            7     <i>7</i>
+    K_8            8     <i>8</i>
+    K_9            9     <i>9</i>
+    K_COLON        :     <i>colon</i>
+    K_SEMICOLON    ;     <i>semicolon</i>
+    K_LESS         &lt;     <i>less-than sign</i>
+    K_EQUALS       =     <i>equals sign</i>
+    K_GREATER      &gt;     <i>greater-than sign</i>
+    K_QUESTION     ?     <i>question mark</i>
+    K_AT           @     <i>at</i>
+    K_LEFTBRACKET  [     <i>left bracket</i>
+    K_BACKSLASH    \     <i>backslash</i>
+    K_RIGHTBRACKET ]     <i>right bracket</i>
+    K_CARET        ^     <i>caret</i>
+    K_UNDERSCORE   _     <i>underscore</i>
+    K_BACKQUOTE    `     <i>grave</i>
+    K_a            a     <i>a</i>
+    K_b            b     <i>b</i>
+    K_c            c     <i>c</i>
+    K_d            d     <i>d</i>
+    K_e            e     <i>e</i>
+    K_f            f     <i>f</i>
+    K_g            g     <i>g</i>
+    K_h            h     <i>h</i>
+    K_i            i     <i>i</i>
+    K_j            j     <i>j</i>
+    K_k            k     <i>k</i>
+    K_l            l     <i>l</i>
+    K_m            m     <i>m</i>
+    K_n            n     <i>n</i>
+    K_o            o     <i>o</i>
+    K_p            p     <i>p</i>
+    K_q            q     <i>q</i>
+    K_r            r     <i>r</i>
+    K_s            s     <i>s</i>
+    K_t            t     <i>t</i>
+    K_u            u     <i>u</i>
+    K_v            v     <i>v</i>
+    K_w            w     <i>w</i>
+    K_x            x     <i>x</i>
+    K_y            y     <i>y</i>
+    K_z            z     <i>z</i>
+    K_DELETE             <i>delete</i>
+    K_KP0                <i>keypad 0</i>
+    K_KP1                <i>keypad 1</i>
+    K_KP2                <i>keypad 2</i>
+    K_KP3                <i>keypad 3</i>
+    K_KP4                <i>keypad 4</i>
+    K_KP5                <i>keypad 5</i>
+    K_KP6                <i>keypad 6</i>
+    K_KP7                <i>keypad 7</i>
+    K_KP8                <i>keypad 8</i>
+    K_KP9                <i>keypad 9</i>
+    K_KP_PERIOD    .     <i>keypad period</i>
+    K_KP_DIVIDE    /     <i>keypad divide</i>
+    K_KP_MULTIPLY  *     <i>keypad multiply</i>
+    K_KP_MINUS     -     <i>keypad minus</i>
+    K_KP_PLUS      +     <i>keypad plus</i>
+    K_KP_ENTER     \r    <i>keypad enter</i>
+    K_KP_EQUALS    =     <i>keypad equals</i>
+    K_UP                 <i>up arrow</i>
+    K_DOWN               <i>down arrow</i>
+    K_RIGHT              <i>right arrow</i>
+    K_LEFT               <i>left arrow</i>
+    K_INSERT             <i>insert</i>
+    K_HOME               <i>home</i>
+    K_END                <i>end</i>
+    K_PAGEUP             <i>page up</i>
+    K_PAGEDOWN           <i>page down</i>
+    K_F1                 <i>F1</i>
+    K_F2                 <i>F2</i>
+    K_F3                 <i>F3</i>
+    K_F4                 <i>F4</i>
+    K_F5                 <i>F5</i>
+    K_F6                 <i>F6</i>
+    K_F7                 <i>F7</i>
+    K_F8                 <i>F8</i>
+    K_F9                 <i>F9</i>
+    K_F10                <i>F10</i>
+    K_F11                <i>F11</i>
+    K_F12                <i>F12</i>
+    K_F13                <i>F13</i>
+    K_F14                <i>F14</i>
+    K_F15                <i>F15</i>
+    K_NUMLOCK            <i>numlock</i>
+    K_CAPSLOCK           <i>capslock</i>
+    K_SCROLLOCK          <i>scrollock</i>
+    K_RSHIFT             <i>right shift</i>
+    K_LSHIFT             <i>left shift</i>
+    K_RCTRL              <i>right ctrl</i>
+    K_LCTRL              <i>left ctrl</i>
+    K_RALT               <i>right alt</i>
+    K_LALT               <i>left alt</i>
+    K_RMETA              <i>right meta</i>
+    K_LMETA              <i>left meta</i>
+    K_LSUPER             <i>left windows key</i>
+    K_RSUPER             <i>right windows key</i>
+    K_MODE               <i>mode shift</i>
+    K_HELP               <i>help</i>
+    K_PRINT              <i>print-screen</i>
+    K_SYSREQ             <i>SysRq</i>
+    K_BREAK              <i>break</i>
+    K_MENU               <i>menu</i>
+    K_POWER              <i>power</i>
+    K_EURO               <i>euro</i>
+</pre>
+<!--COMMENTS:keyboard--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="modifiers">
+<big><b>modifiers</big></b><br><ul>
+  <i>These constants represent the modifier keys on the keyboard.</i><br>
+<p>Their states are treated slightly differently than normal keyboard button states, and you can temporarily set their states. </p>
+<pre>    KMOD_NONE, KMOD_LSHIFT, KMOD_RSHIFT, KMOD_SHIFT, KMOD_CAPS,
+    KMOD_LCTRL, KMOD_RCTRL, KMOD_CTRL, KMOD_LALT, KMOD_RALT,
+    KMOD_ALT, KMOD_LMETA, KMOD_RMETA, KMOD_META, KMOD_NUM, KMOD_MODE
+</pre>
+<!--COMMENTS:modifiers--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="time">
+<big><b>time</big></b><br><ul>
+  <i>These constants define the various time constants</i><br>
+<pre>    TIMER_RESOLUTION - minimum timer resolution in milliseconds
+</pre>
+<!--COMMENTS:time--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+</body></html>
