@@ -86,16 +86,12 @@ opengltosdl ()
 {
     /*we need to get ahold of the pyopengl glReadPixels function*/
     /*we use pyopengl's so we don't need to link with opengl at compiletime*/
-    PyObject *pyopengl, *readpixels = NULL;
-    int typeflag=0, formatflag=0;
-    SDL_Surface *surf;
+    SDL_Surface *surf = NULL;
     Uint32 rmask, gmask, bmask;
     int i;
-    unsigned char *pixels;
+    unsigned char *pixels = NULL;
 
-    GL_glReadPixels_Func p_glReadPixels= NULL;
-    pixels = NULL;
-    surf = NULL;
+    GL_glReadPixels_Func p_glReadPixels = NULL;
 
     p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels"); 
 
@@ -221,10 +217,14 @@ image_save (PyObject* self, PyObject* arg)
                     Py_DECREF (imgext);
                     /* Data must be decremented here, not? */
                     if (data)
+		    {
                     	Py_DECREF (data);
+		    }
                 }
                 else
+		{
                     result = -2;
+		}
                 written = 1;
             }
         }
