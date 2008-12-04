@@ -273,7 +273,8 @@ pygame_scrap_get (char *type, unsigned long *count)
     {
         HANDLE hMem;
         char *src;
-        
+        src = NULL;
+
         hMem = GetClipboardData (format);
         if (hMem)
         {
@@ -290,7 +291,7 @@ pygame_scrap_get (char *type, unsigned long *count)
                 }
                 *count = GlobalSize (hMem);
             }
-            
+
             if (format == CF_DIB || format == CF_DIBV5)
             {
                 /* Count will be increased accordingly in
@@ -303,6 +304,11 @@ pygame_scrap_get (char *type, unsigned long *count)
             }
             else if (*count != 0)
             {
+                /* weird error, shouldn't get here. */
+                if(!src) {
+                    return NULL;
+                }
+
                 retval = malloc (*count);
                 if (retval)
                 {
