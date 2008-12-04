@@ -59,7 +59,6 @@ static PyObject* _scrap_set_mode (PyObject* self, PyObject* args);
     #include "scrap_x11.c"
 #elif defined(__WIN32__)
     #define WIN_SCRAP
-static UINT _cliptype = 0;
     #include "scrap_win.c"
 /*
 #elif defined(__QNXNTO__)
