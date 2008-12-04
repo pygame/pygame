@@ -775,5 +775,10 @@ surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
         break;
     }
     }
+
+    if (locked)
+    {
+	SDL_UnlockSurface (surface);
+    }
     return result;
 }
