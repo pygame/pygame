@@ -26,6 +26,8 @@
 #define CALLLOG(x) fprintf(stderr, (x));
 */
 
+#define PYGAMEAPI_MASK_INTERNAL 1
+#include "mask.h"
 #include "pygame.h"
 #include "pygamedocs.h"
 #include "structmember.h"
@@ -36,15 +38,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-typedef struct {
-  PyObject_HEAD
-  bitmask_t *mask;
-} PyMaskObject;
-
 staticforward PyTypeObject PyMask_Type;
-#define PyMask_Check(x) ((x)->ob_type == &PyMask_Type)
-#define PyMask_AsBitmap(x) (((PyMaskObject*)x)->mask)
-
 
 /* mask object methods */
 
@@ -1389,13 +1383,24 @@ static PyMethodDef mask_builtins[] =
 
 void initmask(void)
 {
-  PyObject *module, *dict;
+  PyObject *module, *dict, *apiobj;
+  static void* c_api[PYGAMEAPI_MASK_NUMSLOTS];
+
+  /* create the mask type */
   PyType_Init(PyMask_Type);
 
   /* create the module */
   module = Py_InitModule3("mask", mask_builtins, DOC_PYGAMEMASK);
   dict = PyModule_GetDict(module);
   PyDict_SetItemString(dict, "MaskType", (PyObject *)&PyMask_Type);
+
+  /* export the c api */
+  Py_INCREF((PyObject*) &PyMask_Type);
+  c_api[0] = &PyMask_Type;
+  apiobj   = PyCObject_FromVoidPtr (c_api, NULL);
+  PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+
+  /* import other modules */
   import_pygame_base ();
   import_pygame_color ();
   import_pygame_surface ();
