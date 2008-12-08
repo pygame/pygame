@@ -305,10 +305,10 @@ _frect_repr (PyObject *self)
 {
     PyFRect *r = (PyFRect*) self;
     char buf[256];
-    /* TODO: check for overflow */
+    /* TODO: overflow possible? */
     PyOS_snprintf (buf, sizeof (buf), "(%.3f, %.3f, %.3f, %.3f)",
         r->x, r->y, r->w, r->h);
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 /* FRect getters/setters */

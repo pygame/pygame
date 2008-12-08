@@ -25,6 +25,8 @@ typedef getcharbufferproc charbufferproc;
 
 /* Python 3.x compatibility */
 #if PY_VERSION_HEX >= 0x03000000
+#define IS_PYTHON_3
+
 /* Define some aliases for the removed PyInt_* functions */
 #define PyInt_Check(op) PyLong_Check(op)
 #define PyInt_FromString PyLong_FromString
@@ -45,24 +47,6 @@ typedef getcharbufferproc charbufferproc;
 #define MODINIT_RETURN(x) return(x)
 #define TYPE_HEAD(x,y) PyVarObject_HEAD_INIT(x,y)
 
-/* TODO: REMOVE THOSE!
- * They are not safe - instead we will need the correct functions and
- * converters or whatever for them.
- */
-#define PyString_AsString PyUnicode_AS_DATA
-#define PyString_FromFormat PyUnicode_FromFormat
-#define PyString_FromString PyUnicode_FromString
-#define PyString_FromStringAndSize PyUnicode_FromStringAndSize
-#define PyString_Check PyUnicode_Check
-#define PyString_GET_SIZE PyUnicode_GET_SIZE
-#define PyString_Size PyUnicode_GetSize
-#define PyString_ConcatAndDel(x,y)
-
-#define PyFile_Check(x) 1
-#define PyFile_AsFile(x) PyObject_AsFileDescriptor(x)
-
-/* TODO END */
-
 #else /* PY_VERSION_HEX >= 0x03000000 */
 
 /* Used for the changed PyMODINIT_FUNC defines in 3.0 and 
@@ -74,5 +58,47 @@ typedef getcharbufferproc charbufferproc;
     0,
 
 #endif /* PY_VERSION_HEX >= 0x03000000 */ 
+
+/**
+ * Text interfaces. Those assume the text is pure ASCII or UTF-8
+ */
+#if PY_VERSION_HEX >= 0x03000000
+#define Text_Check PyUnicode_Check
+#define Text_FromUTF8 PyUnicode_FromString
+#define Text_FromUTF8AndSize PyUnicode_FromStringAndSize
+#define Text_FromFormat PyUnicode_FromFormat
+#define Text_GetSize PyUnicode_GetSize
+#define Text_GET_SIZE PyUnicode_GET_SIZE
+
+#define Bytes_Check PyBytes_Check
+#define Bytes_Size PyBytes_Size
+#define Bytes_AsString PyBytes_AsString
+#define Bytes_AsStringAndSize PyBytes_AsStringAndSize
+#define Bytes_FromStringAndSize PyBytes_FromStringAndSize
+#define Bytes_AS_STRING PyBytes_AS_STRING
+#define Bytes_GET_SIZE PyBytes_GET_SIZE
+
+#define IsTextObj(x) (PyUnicode_Check(x) || PyBytes_Check(x))
+
+#else  /* PY_VERSION_HEX >= 0x03000000 */
+
+#define Text_Check PyString_Check
+#define Text_FromUTF8 PyString_FromString
+#define Text_FromUTF8AndSize PyString_FromStringAndSize
+#define Text_FromFormat PyString_FromFormat
+#define Text_GetSize PyString_GetSize
+#define Text_GET_SIZE PyString_GET_SIZE
+
+#define Bytes_Check PyString_Check
+#define Bytes_Size PyString_Size
+#define Bytes_AsString PyString_AsString
+#define Bytes_AsStringAndSize PyString_AsStringAndSize
+#define Bytes_FromStringAndSize PyString_FromStringAndSize
+#define Bytes_AS_STRING PyString_AS_STRING
+#define Bytes_GET_SIZE PyString_GET_SIZE
+
+#define IsTextObj(x) (PyString_Check(x) || PyUnicode_Check(x))
+
+#endif  /* PY_VERSION_HEX >= 0x03000000 */ 
 
 #endif /* _PYGAME_PYTHONCOMPAT_H_ */

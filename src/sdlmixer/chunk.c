@@ -126,21 +126,28 @@ _chunk_init (PyObject *self, PyObject *args, PyObject *kwds)
     char *filename;
     PyObject *file;
     Mix_Chunk *chunk;
-    
+
     ASSERT_MIXER_OPEN (-1);
     
     if (!PyArg_ParseTuple (args, "O", &file))
         return -1;
 
-    if (PyString_Check (file) || PyUnicode_Check (file))
+    if (IsTextObj (file))
     {
-        filename = PyString_AsString (file);
+        PyObject *tmp;
+        if (!UTF8FromObject (file, &filename, &tmp))
+            return NULL;
 
         Py_BEGIN_ALLOW_THREADS;
         chunk = Mix_LoadWAV (filename);
         Py_END_ALLOW_THREADS;
+        Py_XDECREF (tmp);
     }
+#ifdef IS_PYTHON_3
+    else if (PyObject_AsFileDescriptor (file) != -1)
+#else
     else if (PyFile_Check (file))
+#endif
     {
         SDL_RWops *rw = RWopsFromPython (file);
         if (!rw)
@@ -152,6 +159,9 @@ _chunk_init (PyObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
+#ifdef IS_PYTHON_3
+        PyErr_Clear (); /* Set by PyObject_AsFileDescriptor () */
+#endif
         PyErr_SetString (PyExc_TypeError, "file must be string for file");
         return -1;
     }

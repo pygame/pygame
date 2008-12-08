@@ -155,17 +155,28 @@ _font_init (PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if (PyString_Check (file) || PyUnicode_Check (file))
+    if (IsTextObj (file))
     {
-        char *filename = PyString_AsString (file);
+        char *filename;
+        PyObject *tmp;
+
+        if (!UTF8FromObject (file, &filename, &tmp))
+            return NULL;
+
         Py_BEGIN_ALLOW_THREADS;
         if (_index == 0)
             font = TTF_OpenFont (filename, ptsize);
         else
             font = TTF_OpenFontIndex (filename, ptsize, _index);
         Py_END_ALLOW_THREADS;
+
+        Py_XDECREF (tmp);
     }
+#ifdef IS_PYTHON_3
+    else if (PyObject_AsFileDescriptor (file) != -1)
+#else
     else if (PyFile_Check (file))
+#endif
     {
         SDL_RWops *rw = RWopsFromPython (file);
         if (!rw)
@@ -180,6 +191,9 @@ _font_init (PyObject *self, PyObject *args, PyObject *kwds)
     }
     else
     {
+#ifdef IS_PYTHON_3
+        PyErr_Clear (); /* Set by PyObject_AsFileDescriptor() */
+#endif
         PyErr_SetString (PyExc_TypeError, "file must be a string or file");
         return -1;
     }
@@ -260,14 +274,14 @@ static PyObject*
 _font_getfamilyname (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyString_FromString (TTF_FontFaceFamilyName (((PyFont*)self)->font));
+    return Text_FromUTF8 (TTF_FontFaceFamilyName (((PyFont*)self)->font));
 }
 
 static PyObject*
 _font_getstylename (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyString_FromString (TTF_FontFaceStyleName (((PyFont*)self)->font));
+    return Text_FromUTF8 (TTF_FontFaceStyleName (((PyFont*)self)->font));
 }
 
 /* Methods */
@@ -290,8 +304,8 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
         buf = PyUnicode_AsUnicode (textobj);
         isunicode = 1;
     }
-    else if (PyString_Check (textobj))
-        buf = PyString_AsString (textobj);
+    else if (Bytes_Check (textobj))
+        buf = Bytes_AS_STRING (textobj);
     else
     {
         PyErr_SetString (PyExc_TypeError,
@@ -304,7 +318,7 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
     if (isunicode)
         length = PyUnicode_GetSize (textobj);
     else
-        length = PyString_Size (textobj);
+        length = Bytes_Size (textobj);
     if (length == 0)
         Py_RETURN_NONE;
 
@@ -372,7 +386,7 @@ _font_getsize (PyObject *self, PyObject* args)
     if (PyUnicode_Check (text))
     {
         PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
-        char *string = PyString_AsString (strob);
+        char *string = Bytes_AS_STRING (strob);
         if (TTF_SizeUTF8 (font->font, string, &w, &h) == -1)
         {
             PyErr_SetString (PyExc_PyGameError, TTF_GetError ());
@@ -383,9 +397,9 @@ _font_getsize (PyObject *self, PyObject* args)
         return Py_BuildValue ("(ii)", w, h);
     }
     
-    if (PyString_Check (text))
+    if (Bytes_Check (text))
     {
-        char* string = PyString_AsString (text);
+        char* string = Bytes_AS_STRING (text);
         if (TTF_SizeText (font->font, string, &w, &h) == -1)
         {
             PyErr_SetString (PyExc_PyGameError, TTF_GetError ());
@@ -448,7 +462,7 @@ _font_render (PyObject *self, PyObject* args, PyObject *kwds)
     if (PyUnicode_Check (text))
     {
         PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
-        char *string = PyString_AsString (strob);
+        char *string = Bytes_AS_STRING (strob);
 
         switch (render)
         {
@@ -465,9 +479,9 @@ _font_render (PyObject *self, PyObject* args, PyObject *kwds)
         }
         Py_DECREF (strob);
     }
-    else if (PyString_Check (text))
+    else if (Bytes_Check (text))
     {
-        char* string = PyString_AsString (text);
+        char* string = Bytes_AS_STRING (text);
 
         switch (render)
         {

@@ -59,7 +59,10 @@ static int RWopsCheckPythonThreaded (SDL_RWops* rw);
 static SDL_RWops*
 get_standard_rwop (PyObject* obj)
 {
-    if (PyString_Check (obj) || PyUnicode_Check (obj))
+#ifdef IS_PYTHON_3
+    int fd;
+#endif
+    if (IsTextObj (obj))
     {
         int result;
         char* name;
@@ -75,8 +78,14 @@ get_standard_rwop (PyObject* obj)
         /* TODO: allow wb ops! */
         return SDL_RWFromFile (name, "rb");
     }
+#ifdef IS_PYTHON_3
+    else if ((fd = PyObject_AsFileDescriptor (obj)) != -1)
+        return SDL_RWFromFP (fd, 0);
+    PyErr_Clear ();
+#else
     else if (PyFile_Check(obj))
         return SDL_RWFromFP (PyFile_AsFile (obj), 0);
+#endif
     return NULL;
 }
 
@@ -175,14 +184,14 @@ rw_read (SDL_RWops* context, void* ptr, int size, int maxnum)
     if (!result)
         return -1;
 
-    if (!PyString_Check (result))
+    if (!Bytes_Check (result))
     {
         Py_DECREF (result);
         return -1;
     }
 
-    retval = PyString_GET_SIZE (result);
-    memcpy (ptr, PyString_AsString (result), (size_t) retval);
+    retval = Bytes_GET_SIZE (result);
+    memcpy (ptr, Bytes_AS_STRING (result), (size_t) retval);
     retval /= size;
 
     Py_DECREF (result);
@@ -299,7 +308,7 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
         goto end;
     }
 
-    if (!PyString_Check (result))
+    if (!Bytes_Check (result))
     {
         Py_DECREF (result);
         PyErr_Print();
@@ -307,8 +316,8 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
         goto end;
     }
 
-    retval = PyString_GET_SIZE (result);
-    memcpy (ptr, PyString_AsString (result), (size_t) retval);
+    retval = Bytes_GET_SIZE (result);
+    memcpy (ptr, Bytes_AS_STRING (result), (size_t) retval);
     retval /= size;
 
     Py_DECREF (result);

@@ -106,7 +106,7 @@ _sdl_keygetkeyname (PyObject *self, PyObject *args)
         PyErr_SetString (PyExc_ValueError, "invalid key value");
         return 0;
     }
-    return PyString_FromString (SDL_GetKeyName ((SDLKey)key));
+    return Text_FromUTF8 (SDL_GetKeyName ((SDLKey)key));
 }
 
 static PyObject*

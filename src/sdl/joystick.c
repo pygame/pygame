@@ -178,7 +178,7 @@ static PyObject*
 _joystick_getname (PyObject *self, void *closure)
 {
     ASSERT_JOYSTICK_INIT(NULL);
-    return PyString_FromString (SDL_JoystickName (((PyJoystick*)self)->index));
+    return Text_FromUTF8 (SDL_JoystickName (((PyJoystick*)self)->index));
 }
 
 static PyObject*

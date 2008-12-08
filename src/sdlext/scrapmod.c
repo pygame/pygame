@@ -165,7 +165,7 @@ _scrap_get (PyObject* self, PyObject* args)
     }
     if (!result)
         Py_RETURN_NONE;
-    return PyString_FromStringAndSize (data, size);
+    return Text_FromUTF8AndSize (data, size);
 }
 
 static PyObject*
@@ -191,7 +191,7 @@ _scrap_put (PyObject* self, PyObject* args)
     {
     case SCRAP_SELECTION:
     {
-        tmp = PyString_FromStringAndSize (data, length);
+        tmp = Text_FromUTF8AndSize (data, length);
         PyDict_SetItemString (_scrapselection, type, tmp);
         Py_DECREF (tmp);
         break;
@@ -199,7 +199,7 @@ _scrap_put (PyObject* self, PyObject* args)
     case SCRAP_CLIPBOARD:
     default:
     {
-        tmp = PyString_FromStringAndSize (data, length);
+        tmp = Text_FromUTF8AndSize (data, length);
         PyDict_SetItemString (_scrapclipboard, type, tmp);
         Py_DECREF (tmp);
         break;
@@ -245,7 +245,7 @@ _scrap_gettypes (PyObject* self)
 
     while (types[i])
     {
-        item = PyString_FromString (types[i]);
+        item = Text_FromUTF8 (types[i]);
         PyList_Append (list, item);
         Py_DECREF (item);
         free (types[i]);

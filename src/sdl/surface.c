@@ -956,14 +956,23 @@ _surface_save (PyObject *self, PyObject *args)
 
     surface = ((PySurface*)self)->surface;
 
-    if (PyString_Check (file) || PyUnicode_Check (file))
+    if (IsTextObj (file))
     {
-        filename = PyString_AsString (file);
+        PyObject *tmp;
+        if (!UTF8FromObject (file, &filename, &tmp))
+            return NULL;
+        
         Py_BEGIN_ALLOW_THREADS;
         retval = pyg_surface_save (surface, filename, type);
         Py_END_ALLOW_THREADS;
+        
+        Py_XDECREF (tmp);
     }
+#ifdef IS_PYTHON_3
+    else if (PyObject_AsFileDescriptor (file) != -1)
+#else
     else if (PyFile_Check (file))
+#endif
     {
         SDL_RWops* rw;
         
@@ -979,6 +988,9 @@ _surface_save (PyObject *self, PyObject *args)
     }
     else
     {
+#ifdef IS_PYTHON_3
+        PyErr_Clear (); /* Set by PyObject_AsFileDescriptor() */
+#endif
         PyErr_SetString (PyExc_TypeError,
             "file must be file-like object or a string");
         return NULL;

@@ -111,7 +111,7 @@ _sdl_cdgetname (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    return PyString_FromString (SDL_CDName (drive));
+    return Text_FromUTF8 (SDL_CDName (drive));
 }
 
 void

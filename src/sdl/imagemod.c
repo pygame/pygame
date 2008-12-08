@@ -36,18 +36,27 @@ _sdl_loadbmp (PyObject *self, PyObject *args)
     SDL_Surface *surface;
     PyObject *sf, *file;
     char *filename;
-    
+
     if (!PyArg_ParseTuple (args, "O:load_bmp", &file))
         return NULL;
 
-    if (PyString_Check (file) || PyUnicode_Check (file))
+    if (IsTextObj (file))
     {
-        filename = PyString_AsString (file);
+        PyObject *tmp;
+        if (!UTF8FromObject (file, &filename, &tmp))
+            return NULL;
+
         Py_BEGIN_ALLOW_THREADS;
         surface = SDL_LoadBMP ((const char*)filename);
         Py_END_ALLOW_THREADS;
+
+        Py_XDECREF (tmp);
     }
+#ifdef IS_PYTHON_3
+    else if (PyObject_AsFileDescriptor (file) != -1)
+#else
     else if (PyFile_Check (file))
+#endif
     {
         SDL_RWops *rw = RWopsFromPython (file);
         if (!rw)
@@ -59,6 +68,9 @@ _sdl_loadbmp (PyObject *self, PyObject *args)
     }
     else
     {
+#ifdef IS_PYTHON_3
+        PyErr_Clear (); /* Set by the PyObject_AsFileDescriptor() call */
+#endif
         PyErr_SetString (PyExc_TypeError, "file must be a string or file");
         return NULL;
     }
@@ -84,7 +96,7 @@ _sdl_savebmp (PyObject *self, PyObject *args)
     char *filename;
     int _stat;
     
-    if (!PyArg_ParseTuple (args, "Os:save_bmp", &surface, &filename))
+    if (!PyArg_ParseTuple (args, "OO:save_bmp", &surface, &filename))
         return NULL;
     if (!PySurface_Check (surface))
     {

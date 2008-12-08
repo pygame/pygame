@@ -294,7 +294,7 @@ _rect_repr (PyObject *self)
     char buf[256];
     PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %u, %u)",
         r->x, r->y, r->w, r->h);
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 /* Rect getters/setters */

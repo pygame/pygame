@@ -22,14 +22,14 @@
 from pygame2 import Rect, FRect, Color
 from pygame2.sdl.video import Surface
 
-DEFAULTMAP = [ u"0123456789",
-               u"ABCDEFGHIJ",
-               u"KLMNOPQRST",
-               u"UVWXYZ    ",
-               u"abcdefghij",
-               u"klmnopqrst",
-               u"uvwxyz    ",
-               u",;.:!?+-()" ]
+DEFAULTMAP = [ "0123456789",
+               "ABCDEFGHIJ",
+               "KLMNOPQRST",
+               "UVWXYZ    ",
+               "abcdefghij",
+               "klmnopqrst",
+               "uvwxyz    ",
+               ",;.:!?+-()" ]
 
 class BitmapFont (object):
     """BitmapFont (surface, size, mapping=None) -> BitmapFont

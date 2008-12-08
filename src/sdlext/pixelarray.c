@@ -316,12 +316,15 @@ _pixelarray_repr (PyPixelArray *array)
     Sint32 absystep;
     Uint32 posx = 0;
     Uint32 posy = 0;
+#ifdef IS_PYTHON_3
+    PyObject *tmp1, *tmp2;
+#endif
 
     surface = ((PySurface*)array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
-    string = PyString_FromString ("PixelArray(");
+    string = Text_FromUTF8 ("PixelArray(");
 
     absxstep = ABS (array->xstep);
     absystep = ABS (array->ystep);
@@ -335,21 +338,51 @@ _pixelarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromUTF8 ("\n  [");
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+#endif
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
             {
                 /* Construct the columns */
                 pixel = (Uint32) *((Uint8 *) pixels + x + y * array->padding);
+#ifdef IS_PYTHON_3
+                tmp1 = string;
+                tmp2 = Text_FromFormat ("%ld, ", (long)pixel);
+                string = PyUnicode_Concat (tmp1, tmp2);
+                Py_XDECREF (tmp1);
+                Py_XDECREF (tmp2);
+                if (!string)
+                    return NULL;
+#else
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%ld, ", (long)pixel));
+#endif
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = (Uint32) *((Uint8 *) pixels + x + y * array->padding);
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromFormat ("%ld]", (long)pixel);
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%ld]", (long)pixel));
+#endif
             y += array->ystep;
             posy += absystep;
         }
@@ -358,7 +391,17 @@ _pixelarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromUTF8 ("\n  [");
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+#endif
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
@@ -366,14 +409,34 @@ _pixelarray_repr (PyPixelArray *array)
                 /* Construct the columns */
                 pixel = (Uint32)
                     *((Uint16 *) (pixels + y * array->padding) + x);
+#ifdef IS_PYTHON_3
+                tmp1 = string;
+                tmp2 = Text_FromFormat ("%ld, ", (long)pixel);
+                string = PyUnicode_Concat (tmp1, tmp2);
+                Py_XDECREF (tmp1);
+                Py_XDECREF (tmp2);
+                if (!string)
+                    return NULL;
+#else
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%ld, ", (long)pixel));
+#endif
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = (Uint32) *((Uint16 *) (pixels + y * array->padding) + x);
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromFormat ("%ld]", (long)pixel);
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%ld]", (long)pixel));
+#endif
             y += array->ystep;
             posy += absystep;
         }
@@ -382,7 +445,17 @@ _pixelarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromUTF8 ("\n  [");
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+#endif
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
@@ -394,8 +467,18 @@ _pixelarray_repr (PyPixelArray *array)
 #else
                 pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
 #endif
+#ifdef IS_PYTHON_3
+                tmp1 = string;
+                tmp2 = Text_FromFormat ("%ld, ", (long)pixel);
+                string = PyUnicode_Concat (tmp1, tmp2);
+                Py_XDECREF (tmp1);
+                Py_XDECREF (tmp2);
+                if (!string)
+                    return NULL;
+#else
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%ld, ", (long)pixel));
+#endif
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -405,8 +488,18 @@ _pixelarray_repr (PyPixelArray *array)
 #else
             pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
 #endif
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromFormat ("%ld]", (long)pixel);
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%ld]", (long)pixel));
+#endif
             y += array->ystep;
             posy += absystep;
         }
@@ -415,27 +508,67 @@ _pixelarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromUTF8 ("\n  [");
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+#endif
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
             {
                 /* Construct the columns */
                 pixel = *((Uint32 *) (pixels + y * array->padding) + x);
+#ifdef IS_PYTHON_3
+                tmp1 = string;
+                tmp2 = Text_FromFormat ("%ld, ", (long)pixel);
+                string = PyUnicode_Concat (tmp1, tmp2);
+                Py_XDECREF (tmp1);
+                Py_XDECREF (tmp2);
+                if (!string)
+                    return NULL;
+#else
                 PyString_ConcatAndDel (&string, PyString_FromFormat
                     ("%ld, ", (long)pixel));
+#endif
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = *((Uint32 *) (pixels + y * array->padding) + x);
+#ifdef IS_PYTHON_3
+            tmp1 = string;
+            tmp2 = Text_FromFormat ("%ld]", (long)pixel);
+            string = PyUnicode_Concat (tmp1, tmp2);
+            Py_XDECREF (tmp1);
+            Py_XDECREF (tmp2);
+            if (!string)
+                return NULL;
+#else
             PyString_ConcatAndDel (&string,
                 PyString_FromFormat ("%ld]", (long)pixel));
+#endif
             y += array->ystep;
             posy += absystep;
         }
         break;
     }
+#ifdef IS_PYTHON_3
+    tmp1 = string;
+    tmp2 = Text_FromUTF8 ("\n)");
+    string = PyUnicode_Concat (tmp1, tmp2);
+    Py_XDECREF (tmp1);
+    Py_XDECREF (tmp2);
+    if (!string)
+        return NULL;
+#else
     PyString_ConcatAndDel (&string, PyString_FromString ("\n)"));
+#endif
     return string;
 }
 

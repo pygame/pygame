@@ -183,7 +183,7 @@ static PyObject*
 _cd_getname (PyObject *self, void *closure)
 {
     ASSERT_CDROM_INIT(NULL);
-    return PyString_FromString (SDL_CDName (((PyCD*)self)->index));
+    return Text_FromUTF8 (SDL_CDName (((PyCD*)self)->index));
 }
 
 static PyObject*

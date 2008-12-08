@@ -208,7 +208,7 @@ _sdl_videodrivername (PyObject *self)
     char buf[256];
     if (!SDL_VideoDriverName (buf, sizeof (buf)))
         Py_RETURN_NONE;
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 static PyObject*

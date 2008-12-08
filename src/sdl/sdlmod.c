@@ -168,7 +168,7 @@ _sdl_geterror (PyObject *self)
     char *err = SDL_GetError ();
     if (!err)
         Py_RETURN_NONE;
-    return PyString_FromString (err);
+    return Text_FromUTF8 (err);
 }
 
 static PyObject*

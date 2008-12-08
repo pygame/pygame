@@ -1,6 +1,5 @@
 CRITICAL:
 =========
-* PyFile_* and PyString_* API under python 3.x (see pgcompat.h)
 * recheck and redesign X11 implementation for pygame.sdlext.scrap
 * merge transform/scale asm changes in rev. 1657:1669
 * complete physics collision and contacts and merge it back to the branch
@@ -10,6 +9,7 @@ CRITICAL:
 * check anything for possible integer/float overflows
 * use copy.copy and copy.deepcopy for consistent object copies
 * make use of PointFromObject and SizeFromObject where necessary
+* Merge transform smooth scale changes in rev. 1715:1717
 
 Things to ADD:
 ==============
@@ -19,6 +19,7 @@ Things to ADD:
 
 Things to FIX:
 ==============
+* check all string/unicode conversions, esp. file I/O with !UTF-8 and !ASCII
 * respect surface->clip_rect where necessary!
 * sdl.mouse.cursors, NOT pygame2.sdl.cursors or whatever
 * sdlext.transform.threshod_* -> clip_rect, surfaces with different sizes

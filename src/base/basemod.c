@@ -254,6 +254,48 @@ failed:
     return 0;
 }
 
+int
+ASCIIFromObject (PyObject *obj, char **text, PyObject **freeme)
+{
+    *freeme = NULL;
+    *text = NULL;
+
+    if (PyUnicode_Check (obj))
+    {
+        *freeme = PyUnicode_AsEncodedString (obj, "ascii", NULL);
+        if (!(*freeme))
+            return 0;
+        *text = Bytes_AS_STRING (*freeme);
+    }
+    else if (Bytes_Check (obj))
+        *text = Bytes_AS_STRING (obj);
+    else
+        return 0;
+
+    return 1;
+}
+
+int
+UTF8FromObject (PyObject *obj, char **text, PyObject **freeme)
+{
+    *freeme = NULL;
+    *text = NULL;
+
+    if (PyUnicode_Check (obj))
+    {
+        *freeme = PyUnicode_AsUTF8String (obj);
+        if (!(*freeme))
+            return 0;
+        *text = Bytes_AS_STRING (*freeme);
+    }
+    else if (Bytes_Check (obj))
+        *text = Bytes_AS_STRING (obj);
+    else
+        return 0;
+
+    return 1;
+}
+
 #if PY_VERSION_HEX >= 0x03000000
 PyMODINIT_FUNC PyInit_base (void)
 #else
@@ -319,6 +361,8 @@ PyMODINIT_FUNC initbase (void)
     c_api[PYGAME_BASE_FIRSTSLOT+8] = SizeFromObject;
     c_api[PYGAME_BASE_FIRSTSLOT+9] = FPointFromObject;
     c_api[PYGAME_BASE_FIRSTSLOT+10] = FSizeFromObject;
+    c_api[PYGAME_BASE_FIRSTSLOT+11] = ASCIIFromObject;
+    c_api[PYGAME_BASE_FIRSTSLOT+12] = UTF8FromObject;
 
     color_export_capi (c_api);
     rect_export_capi (c_api);

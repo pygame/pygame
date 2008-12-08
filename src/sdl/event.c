@@ -351,7 +351,7 @@ _create_dict_from_event (SDL_Event *event)
                 PyInt_FromLong (event-> syswm.msg->lParam)))
             goto failed;
 #elif defined(SDL_VIDEO_DRIVER_X11)
-        if (!_set_item (dict,  "event", PyString_FromStringAndSize
+        if (!_set_item (dict,  "event", Text_FromUTF8AndSize
                 ((char*) &(event->syswm.msg->event.xevent), sizeof (XEvent))))
             goto failed;
 #endif
@@ -620,42 +620,42 @@ _event_getname (PyObject *self, void *closure)
     switch (((PyEvent*)self)->type)
     {
     case SDL_ACTIVEEVENT:
-        return PyString_FromString ("ActiveEvent");
+        return Text_FromUTF8 ("ActiveEvent");
     case SDL_KEYDOWN:
-        return PyString_FromString ("KeyDown");
+        return Text_FromUTF8 ("KeyDown");
     case SDL_KEYUP:
-        return PyString_FromString ("KeyUp");
+        return Text_FromUTF8 ("KeyUp");
     case SDL_MOUSEMOTION:
-        return PyString_FromString ("MouseMotion");
+        return Text_FromUTF8 ("MouseMotion");
     case SDL_MOUSEBUTTONDOWN:
-        return PyString_FromString ("MouseButtonDown");
+        return Text_FromUTF8 ("MouseButtonDown");
     case SDL_MOUSEBUTTONUP:
-        return PyString_FromString ("MouseButtonUp");
+        return Text_FromUTF8 ("MouseButtonUp");
     case SDL_JOYAXISMOTION:
-        return PyString_FromString ("JoyAxisMotion");
+        return Text_FromUTF8 ("JoyAxisMotion");
     case SDL_JOYBALLMOTION:
-        return PyString_FromString ("JoyBallMotion");
+        return Text_FromUTF8 ("JoyBallMotion");
     case SDL_JOYHATMOTION:
-        return PyString_FromString ("JoyHatMotion");
+        return Text_FromUTF8 ("JoyHatMotion");
     case SDL_JOYBUTTONUP:
-        return PyString_FromString ("JoyButtonUp");
+        return Text_FromUTF8 ("JoyButtonUp");
     case SDL_JOYBUTTONDOWN:
-        return PyString_FromString ("JoyButtonDown");
+        return Text_FromUTF8 ("JoyButtonDown");
     case SDL_QUIT:
-        return PyString_FromString ("Quit");
+        return Text_FromUTF8 ("Quit");
     case SDL_SYSWMEVENT:
-        return PyString_FromString ("SysWMEvent");
+        return Text_FromUTF8 ("SysWMEvent");
     case SDL_VIDEORESIZE:
-        return PyString_FromString ("VideoResize");
+        return Text_FromUTF8 ("VideoResize");
     case SDL_VIDEOEXPOSE:
-        return PyString_FromString ("VideoExpose");
+        return Text_FromUTF8 ("VideoExpose");
     case SDL_NOEVENT:
-        return PyString_FromString ("NoEvent");
+        return Text_FromUTF8 ("NoEvent");
     }
     if (((PyEvent*)self)->type >= SDL_USEREVENT &&
         ((PyEvent*)self)->type < SDL_NUMEVENTS)
-        return PyString_FromString ("UserEvent");
-    return PyString_FromString ("Unknown");
+        return Text_FromUTF8 ("UserEvent");
+    return Text_FromUTF8 ("Unknown");
 }
 
 /* C API */

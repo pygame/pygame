@@ -113,7 +113,7 @@ _sdl_joygetname (PyObject *self, PyObject *args)
         PyErr_SetString (PyExc_ValueError, "invalid joystick index");
         return NULL;
     }
-    return PyString_FromString (SDL_JoystickName (joy));
+    return Text_FromUTF8 (SDL_JoystickName (joy));
 }
 
 static PyObject*

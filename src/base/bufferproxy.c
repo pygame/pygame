@@ -206,11 +206,7 @@ _bufferproxy_get_dict (PyBufferProxy *self, void *closure)
 static PyObject*
 _bufferproxy_get_raw (PyBufferProxy *self, void *closure)
 {
-#if PY_VERSION_HEX < 0x03000000
-    return PyString_FromStringAndSize (self->buffer, self->length);
-#else
-    return PyBytes_FromStringAndSize (self->buffer, self->length);
-#endif
+    return Bytes_FromStringAndSize (self->buffer, self->length);
 }
 
 /**
@@ -234,7 +230,7 @@ _bufferproxy_repr (PyBufferProxy *self)
 #if PY_VERSION_HEX < 0x02050000
     return PyString_FromFormat ("<BufferProxy(%d)>", self->length);
 #else
-    return PyString_FromFormat ("<BufferProxy(%zd)>", self->length);
+    return Text_FromFormat ("<BufferProxy(%zd)>", self->length);
 #endif
 }
 

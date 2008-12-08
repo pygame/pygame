@@ -422,9 +422,12 @@ _hextoint (char *hex, pgbyte *val)
 static int
 _hexcolor (PyObject *color, pgbyte rgba[])
 {
+    int retval = 0;
     size_t len;
-    char *name = PyString_AsString (color);
-    if (!name)
+    char *name;
+    PyObject *tmp;
+
+    if (!ASCIIFromObject (color, &name, &tmp))
         return 0;
 
     len = strlen (name);
@@ -435,39 +438,45 @@ _hexcolor (PyObject *color, pgbyte rgba[])
      * 0xRRGGBBAA
      */
     if (len < 7)
-        return 0;
+        goto fail;
 
     if (name[0] == '#')
     {
         if (len != 7 && len != 9)
-            return 0;
+            goto fail;
         if (!_hextoint (name + 1, &rgba[0]))
-            return 0;
+            goto fail;
         if (!_hextoint (name + 3, &rgba[1]))
-            return 0;
+            goto fail;
         if (!_hextoint (name + 5, &rgba[2]))
-            return 0;
+            goto fail;
         rgba[3] = 255;
         if (len == 9 && !_hextoint (name + 7, &rgba[3]))
-            return 0;
-        return 1;
+            goto fail;
+        goto success;
     }
     else if (name[0] == '0' && name[1] == 'x')
     {
         if (len != 8 && len != 10)
-            return 0;
+            goto fail;
         if (!_hextoint (name + 2, &rgba[0]))
-            return 0;
+            goto fail;
         if (!_hextoint (name + 4, &rgba[1]))
-            return 0;
+            goto fail;
         if (!_hextoint (name + 6, &rgba[2]))
-            return 0;
+            goto fail;
         rgba[3] = 255;
         if (len == 10 && !_hextoint (name + 8, &rgba[3]))
-            return 0;
-        return 1;
+            goto fail;
+        goto success;
     }
+fail:
+    Py_XDECREF (tmp);
     return 0;
+
+success:
+    Py_XDECREF (tmp);
+    return 1;
 }
 
 static int
@@ -541,7 +550,7 @@ _color_init (PyObject *color, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "O|OOO", &obj, &obj1, &obj2, &obj3))
         return -1;
 
-    if (PyString_Check (obj))
+    if (IsTextObj (obj))
     {
         /* Named color */
         if (obj1 || obj2 || obj3)
@@ -638,7 +647,7 @@ _color_repr (PyColor *color)
     char buf[21];
     PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %d, %d)",
         color->r, color->g, color->b, color->a);
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 /**
@@ -1379,7 +1388,7 @@ _color_oct (PyColor *color)
         PyOS_snprintf (buf, sizeof (buf), "0%lo", tmp);
     else
         PyOS_snprintf (buf, sizeof (buf), "0%loL", tmp);
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 /**
@@ -1402,7 +1411,7 @@ _color_hex (PyColor *color)
         PyOS_snprintf (buf, sizeof (buf), "0x%lXL", tmp);
 #endif
     }
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 /* Sequence protocol methods */
