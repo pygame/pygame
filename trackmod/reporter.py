@@ -1,3 +1,4 @@
+# Keep this first.
 def listmods():
     return [n for n, m in sys.modules.iteritems() if m is not None]
 
@@ -5,6 +6,7 @@ import sys
 already_loaded = listmods()
 import threading
 
+collect_data = True
 
 def print_(*args, **kwds):
     stream = kwds.get('file', sys.stdout)
@@ -53,25 +55,31 @@ def write_report(repfile):
         rep(name, "(%s)" % attr)
     rep("\n=== end of report ===")
 
-def init():
+def begin():
     global already_loaded, loaded, accessed, data_lock, added_by_trackmod
     added_by_trackmod = list(set(listmods()) - set(already_loaded))
     loaded = set()
     accessed = set()
     data_lock = threading.Lock()
 
+def end():
+    global collect_data
+    collect_data = False
+
 def add_loaded(name):
-    data_lock.acquire()
-    try:
-        loaded.add(name)
-    finally:
-        data_lock.release()
+    if collect_data:
+        data_lock.acquire()
+        try:
+            loaded.add(name)
+        finally:
+            data_lock.release()
 
 def add_accessed(name, attr):
-    data_lock.acquire()
-    try:
-        accessed.add((name, attr))
-    finally:
-        data_lock.release()
+    if collect_data:
+        data_lock.acquire()
+        try:
+            accessed.add((name, attr))
+        finally:
+            data_lock.release()
 
 

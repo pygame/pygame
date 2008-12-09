@@ -8,20 +8,25 @@ from trackmod import loader
 from trackmod import module
 
 
+collect_data = True
+
 def find_module(fullname, path=None):
-    if fullname in sys.modules:
-        return None
-    try:
+    if collect_data and fullname not in sys.modules:
         m = module.Module(fullname)
         sys.modules[fullname] = m
         try:
-            reload(m)
+            try:
+                reload(m)
+            except ImportError:
+                return None;
         finally:
             del sys.modules[fullname]
-    except ImportError:
+        m.__class__ = module.TrackerModule
+        loader.add(fullname, m)
+        return loader
+    else:
         return None
-    m.__class__ = module.TrackerModule
-    loader.add(fullname, m)
-    return loader
 
-
+def end():
+    global collect_data
+    collect_data = False

@@ -2,7 +2,7 @@
 
 """A package for tracking module use
 
-Exports start(repfilepth).
+Exports begin(repfilepth=None).
 
 """
 
@@ -27,15 +27,20 @@ def generate_report(repfilepth):
     finally:
         repfile.close()
     
-def start(repfilepth):
+def begin(repfilepth=None):
     global installed
 
     if not installed:
         sys.meta_path.insert(0, importer)
         installed = True
-        atexit.register(generate_report, repfilepth)
+        if repfilepth is not None:
+            atexit.register(generate_report, repfilepth)
 
-reporter.init()
+def end():
+    reporter.end()
+    importer.end()
+
+reporter.begin()  # Keep this last.
 
 
 
