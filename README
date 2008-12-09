@@ -1,0 +1,11 @@
+A preliminary module tracker.
+
+This package tracks module imports and generates a report on program
+completion. It has been added to Pygame's SVN with the purpose of
+incorporating it into the unit tests. To that end it need testing
+and report feature replaced some kind of runtime inspection mechanism.
+Possibly the report generation can be optional. The data collection
+sets in reporter can also be exposed with an api. Finally, should
+it be a single module?
+
+See the playmus.py example for how it is currently used.
