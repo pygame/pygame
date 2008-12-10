@@ -3,17 +3,20 @@ A preliminary module import tracker.
 This package tracks module imports and can generate a report on program
 completion. It has been added to Pygame's SVN with the purpose of
 incorporating it into the unit tests. The package still needs testing.
-The package has been successfully tried on a zipped package. Still
-should have a way to limit what modules will be tracked.
+The package has been successfully tried on a zipped package.
 
 
 See the playmus.py example for how it is currently used.
 
-rev 1740: - Report generation now optional.
-          - Added a report end feature.
+Log:
 
-rev 1741: - Added a data inspection api.
+rev 1743: - Added optional module pattern to limit which modules are monitored.
+          - Added optional continuous attribute access recording.
+
+rev 1741: - Added a data inspection API.
           - Now have a data collection stop function.
           - For testing, reload resets the entire package.
           - Readied for capture of all module attribute accesses.
 
+rev 1740: - Report generation now optional.
+          - Added a record end feature.

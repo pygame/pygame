@@ -3,8 +3,7 @@
 """A sys.meta_path importer for tracking module usage."""
 
 import sys
-
-from trackmod import module, reporter
+from trackmod import module, reporter, namereg
 
 try:
     collect_data
@@ -13,8 +12,11 @@ except NameError:
 else:
     # reload: reload imported modules.
     reload(module)  # implicit reload of reporter
+    reload(namereg)
 
-collect_data = True
+no_modules = []  # Contains nothing.
+modules_of_interest = no_modules
+
 
 class Loader(object):
     def __init__(self, fullname, module):
@@ -29,7 +31,7 @@ class Loader(object):
         return self.module
 
 def find_module(fullname, path=None):
-    if collect_data and fullname not in sys.modules:
+    if fullname in modules_of_interest and fullname not in sys.modules:
         # Put this first so the order of inserts follows the order of calls to
         # find_module: package, subpackage, etc.
         reporter.add_import(fullname)
@@ -65,5 +67,11 @@ def find_module(fullname, path=None):
         return None
 
 def end():
-    global collect_data
-    collect_data = False
+    global modules_of_interest
+    modules_of_interest = no_modules
+
+def begin(pattern=None):
+    global modules_of_interest, collect_data
+    if pattern is None:
+        pattern = ['*']
+    modules_of_interest = namereg.NameRegistry(pattern)

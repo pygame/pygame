@@ -15,6 +15,7 @@ else:
     reload(reporter)
 
 ModuleType = type(reporter)
+getattribute = ModuleType.__getattribute__
 
 
 class Module(ModuleType):
@@ -31,14 +32,12 @@ class TrackerModule(ModuleType):
         if attr in ['__name__', '__path__']:
             # The name attribute is the one attribute guaranteed to not trigger
             # an import. __path__ is just noise in the reporting.
-            return ModuleType.__getattribute__(self, attr)
+            return getattribute(self, attr)
         report(self, attr)
-        # At this point self's type has changed so getattr will not
-        # recursively call this method.
-        return getattr(self, attr)
+        return getattribute(self, attr)
 
 
-def report(module, attr):
+def report_oneshot(module, attr):
     name = module.__name__  # Safe: no recursive call on __name__.
     lock = keylock.Lock(name)
     try:
@@ -46,3 +45,46 @@ def report(module, attr):
         ModuleType.__setattr__(module, '__class__', Module)
     finally:
         lock.free()
+
+def report_continuous(module, attr):
+    name = module.__name__  # Safe: no recursive call on __name__.
+    lock = keylock.Lock(name)
+    try:
+        reporter.add_access(name, attr)
+    finally:
+        lock.free()
+
+def report_quit(module, attr):
+    name = module.__name__  # Safe: no recursive call on __name__.
+    lock = keylock.Lock(name)
+    try:
+        ModuleType.__setattr__(module, '__class__', Module)
+    finally:
+        lock.free()
+    
+def set_report_mode(mode=None):
+    """Set whether access checking is oneshot or continuous
+
+    if mode (default 'oneshot') is 'oneshot' or None then a TrackerModule
+    module will stop recording attribute accesses after the first non-trivial
+    access. If 'continuous' then all attribute accesses are recorded. If
+    'quit' then access recording stops and further calls to this function
+    have no effect.
+
+    """
+    global report
+    
+    if report is report_quit:
+        return
+    if mode is None:
+        mode = 'oneshot'
+    if mode == 'oneshot':
+        report = report_oneshot
+    elif mode == 'continuous':
+        report = report_continuous
+    elif mode == 'quit':
+        report = report_quit
+    else:
+        raise ValueError("Unknown mode %s" % mode)
+
+report = report_oneshot

@@ -1,7 +1,8 @@
 import sys
 
 import trackmod
-trackmod.begin('playmus_rep.txt')
+trackmod.begin('playmus_rep.txt',
+               ['pygame', 'pygame.mixer', 'pygame.mixer_music'], True)
 import pygame
 
 MusicEnd = pygame.USEREVENT

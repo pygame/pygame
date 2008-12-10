@@ -20,7 +20,7 @@ from trackmod import reporter  # Keep this first.
 import sys
 import atexit
 
-from trackmod import importer
+from trackmod import importer, module
 
 try:
     installed
@@ -28,7 +28,7 @@ except NameError:
     installed = False
 else:
     # reloaded; reload submodules.
-    reload(importer)  # implicit reporter reload.
+    reload(importer)  # implicit reporter and module reload.
 
 def print_(*args, **kwds):
     stream = kwds.get('file', sys.stdout)
@@ -112,11 +112,26 @@ def write_report(repfile=None):
         else:
             _write_report(repfile)
 
-def begin(repfile=None):
+def begin(repfile=None, pattern=None, continuous=False):
     """Start collecting import and module access information
 
-    repfile, if provided, is the destination for an end-of-run module import
-    and access report. It can be either a file path or an open file object.
+    repfile (default no file) is the destination for an
+    end-of-run module import and access report. It can be either a file
+    path or an open file object.
+
+    pattern (default ['*']) is a list of modules on which to collect data. It
+    is a list of one or more dotted full module names. An asterisk '*' is a
+    wild card an matches everything. Examples:
+      ['pygame']               Will on report on top level pygame package
+      ['pygame', 'numpy']      Only top level pygame and numpy modules
+      ['pygame', 'pygame.surface']
+                               pygame and pygame.surface
+      ['pygame', 'pygame.*']   pygame and all its submodules
+      ['*']                    everything
+
+    continous (default False) indicates whether per-module attribute access
+    recording should stop with the first access or be continuous. Set False
+    to stop after the first access, True for continuous recording.
 
     """
     global installed, collecting
@@ -131,12 +146,16 @@ def begin(repfile=None):
             return
     except NameError:
         collecting = True
+    if continuous:
+        module.set_report_mode('continuous')
+    importer.begin(pattern)
 
 def end():
     global collecting
     collecting = False
     reporter.end()
     importer.end()
+    module.set_report_mode('quit')
 
 reporter.begin()  # Keep this last.
 
