@@ -1,22 +1,20 @@
+# module trackmod.reporter
+
 # Keep this first.
 def listmods():
     return [n for n, m in sys.modules.iteritems() if m is not None]
 
 import sys
-already_loaded = listmods()
+previous_imports = listmods()  #  Keep this after sys but before other imports.
 import threading
 
+# This module is does not need explicit thread protection since all calls
+# to the data entry methods are made while the import lock is acquired.
 collect_data = True
+my_imports = None
+accesses = None
+failed_imports = None
 
-def print_(*args, **kwds):
-    stream = kwds.get('file', sys.stdout)
-    sep = kwds.get('sep', ' ')
-    end = kwds.get('end', '\n')
-
-    if args:
-        stream.write(sep.join([str(arg) for arg in args]))
-    if end:
-        stream.write(end)
 
 def process_accessed():
     acc_names = dict(accessed)
@@ -28,58 +26,58 @@ def process_accessed():
                 acc_names[subname] = parts[i]
     return set(acc_names.iteritems())
 
-def write_report(repfile):
-    def rep(*args, **kwds):
-        print_(file=repfile, *args, **kwds)
-
-    accessed = process_accessed()
-    rep("=== module usage report ===")
-    rep("\n-- modules already imported (ignored) --")
-    already_loaded.sort()
-    for name in already_loaded:
-        rep(name)
-    rep("\n-- modules added by trackmod (ignored) --")
-    added_by_trackmod.sort()
-    for name in added_by_trackmod:
-        rep(name)
-    rep("\n-- modules imported but not accessed --")
-    acc = set([n for n, ignored in accessed])
-    unaccessed = list(loaded - acc)
-    unaccessed.sort()
-    for name in unaccessed:
-        rep(name)
-    rep("\n-- modules accessed --")
-    acc = list(accessed)
-    acc.sort()
-    for name, attr in acc:
-        rep(name, "(%s)" % attr)
-    rep("\n=== end of report ===")
-
 def begin():
-    global already_loaded, loaded, accessed, data_lock, added_by_trackmod
-    added_by_trackmod = list(set(listmods()) - set(already_loaded))
-    loaded = set()
-    accessed = set()
-    data_lock = threading.Lock()
+    global previous_imports, my_imports, accesses, failed_imports
+    my_imports = list(set(listmods()) - set(previous_imports))
+    accesses = {}
+    failed_imports = set()
 
 def end():
     global collect_data
     collect_data = False
 
-def add_loaded(name):
-    if collect_data:
-        data_lock.acquire()
-        try:
-            loaded.add(name)
-        finally:
-            data_lock.release()
+def add_import(name):
+    """Add a module to the import list
 
-def add_accessed(name, attr):
+    Expects to be called in the order in which modules are created:
+    package, submodule, etc.
+
+    """
     if collect_data:
-        data_lock.acquire()
-        try:
-            accessed.add((name, attr))
-        finally:
-            data_lock.release()
+        accesses[name] = set()
+ 
+def remove_import(name):
+    del accesses[name]
+    failed_imports.add(name)
+
+def add_access(name, attr):
+    if collect_data:
+        accesses[name].add(attr)
+
+def get_previous_imports():
+    """Return a new sorted name list of previously imported modules"""
+    return sorted(previous_imports)
+
+def get_my_imports():
+    """Return a new sorted name list of module imported by this package"""
+    return sorted(my_imports)
+
+def get_imports():
+    """Return a new sorted name list of imported modules"""
+    return sorted(accesses.iterkeys())
+
+def get_unaccessed_modules():
+    """Return a new sorted name list of unaccessed imported modules"""
+    return sorted(n for n, a in accesses.iteritems() if not a)
+    
+def get_accessed_modules():
+    """Return a new sorted name list of accessed modules"""
+    return sorted(n for n, a in accesses.iteritems() if a)
+
+def get_accesses():
+    """Return a new dictionary of sorted lists of attributes by module name"""
+    return dict((n, sorted(a)) for n, a in accesses.iteritems() if a)
+
+
 
 

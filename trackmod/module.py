@@ -5,8 +5,17 @@
 from trackmod import keylock
 from trackmod import reporter
 
+try:
+    ModuleType
+except NameError:
+    pass
+else:
+    # reload; reload imported modules
+    reload(keylock)
+    reload(reporter)
 
 ModuleType = type(reporter)
+
 
 class Module(ModuleType):
     # A heap subtype of the module type.
@@ -33,7 +42,7 @@ def report(module, attr):
     name = module.__name__  # Safe: no recursive call on __name__.
     lock = keylock.Lock(name)
     try:
-        reporter.add_accessed(name, attr)
+        reporter.add_access(name, attr)
         ModuleType.__setattr__(module, '__class__', Module)
     finally:
         lock.free()
