@@ -8,6 +8,9 @@ import sys
 previous_imports = listmods()  #  Keep this after sys but before other imports.
 import threading
 
+import module
+
+
 # This module is does not need explicit thread protection since all calls
 # to the data entry methods are made while the import lock is acquired.
 collect_data = True
@@ -15,6 +18,26 @@ my_imports = None
 accesses = None
 failed_imports = None
 
+try:
+    next
+except NameError:
+    def next(iterator):
+        return iterator.next()
+
+class Largest(object):
+    """This object is always greater than any other non Largest object"""
+    def __lt__(self, other):
+        return False
+    def __le__(self, other):
+        return self == other
+    def __eq__(self, other):
+        return isinstance(other, Largest)
+    def __ne__(self, other):
+        not self == other
+    def __gt__(self, other):
+        return True
+    def __ge__(self, other):
+        return True
 
 def process_accessed():
     acc_names = dict(accessed)
@@ -64,19 +87,47 @@ def get_my_imports():
 
 def get_imports():
     """Return a new sorted name list of imported modules"""
-    return sorted(accesses.iterkeys())
+    tracked_types = (module.Module, module.TrackerModule)
+    return sorted(n for n, m in list(sys.modules.iteritems())
+                    if isinstance(m, tracked_types))
 
 def get_unaccessed_modules():
     """Return a new sorted name list of unaccessed imported modules"""
-    return sorted(n for n, a in accesses.iteritems() if not a)
-    
+    unaccessed = []
+    iaccessed = iter(get_accessed_modules())
+    accessed_name = ''
+    for imports_name in get_imports():
+        while accessed_name < imports_name:
+            try:
+                accessed_name = next(iaccessed)
+            except StopIteration:
+                accessed_name = Largest()
+        if imports_name < accessed_name:
+            unaccessed.append(imports_name)
+    return unaccessed
+
 def get_accessed_modules():
     """Return a new sorted name list of accessed modules"""
-    return sorted(n for n, a in accesses.iteritems() if a)
+    accessed = []
+    previous_name = ''
+    for name, ignored in module.get_accesses():
+        if name != previous_name:
+            accessed.append(name)
+            previous_name = name
+    return accessed
 
 def get_accesses():
     """Return a new dictionary of sorted lists of attributes by module name"""
-    return dict((n, sorted(a)) for n, a in accesses.iteritems() if a)
+    accesses = {}
+    previous_name = ''
+    for name, attribute in module.get_accesses():
+        if name != previous_name:
+            attributes = []
+            accesses[name] = attributes
+            previous_name = name
+        attributes.append(attribute)
+    return accesses
+
 
 
 

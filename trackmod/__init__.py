@@ -112,7 +112,10 @@ def write_report(repfile=None):
         else:
             _write_report(repfile)
 
-def begin(repfile=None, pattern=None, continuous=False):
+def begin(repfile=None,
+          pattern=None,
+          continuous=False,
+          submodule_accesses=True):
     """Start collecting import and module access information
 
     repfile (default no file) is the destination for an
@@ -133,6 +136,9 @@ def begin(repfile=None, pattern=None, continuous=False):
     recording should stop with the first access or be continuous. Set False
     to stop after the first access, True for continuous recording.
 
+    submodule_accesses (default True) indicates whether submodules imports
+    are to be included as an access on the containing package.
+
     """
     global installed, collecting
 
@@ -148,7 +154,7 @@ def begin(repfile=None, pattern=None, continuous=False):
         collecting = True
     if continuous:
         module.set_report_mode('continuous')
-    importer.begin(pattern)
+    importer.begin(pattern, submodule_accesses)
 
 def end():
     global collecting

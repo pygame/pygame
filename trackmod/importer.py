@@ -3,7 +3,7 @@
 """A sys.meta_path importer for tracking module usage."""
 
 import sys
-from trackmod import module, reporter, namereg
+from trackmod import module, namereg
 
 try:
     collect_data
@@ -16,6 +16,7 @@ else:
 
 no_modules = []  # Contains nothing.
 modules_of_interest = no_modules
+add_submodule_accesses = True
 
 
 class Loader(object):
@@ -32,11 +33,7 @@ class Loader(object):
 
 def find_module(fullname, path=None):
     if fullname in modules_of_interest and fullname not in sys.modules:
-        # Put this first so the order of inserts follows the order of calls to
-        # find_module: package, subpackage, etc.
-        reporter.add_import(fullname)
-
-        # reload doesn't get any tracked TrackerModule attributes.
+        # reload doesn't "get" any tracked TrackerModule attributes.
         m = module.TrackerModule(fullname)
 
         # Add m to modules so reload works and to prevent infinite recursion.
@@ -45,22 +42,23 @@ def find_module(fullname, path=None):
             try:
                 reload(m)
             except ImportError, e:
-                reporter.remove_import(fullname)
                 return None;
         finally:
             del sys.modules[fullname]
 
         # Add parent package access.
-        parts = fullname.rsplit('.', 1)
-        if len(parts) == 2:
-            try:
-                pkg = sys.modules[parts[0]]
+        if add_submodule_accesses:
+            parts = fullname.rsplit('.', 1)
+            if len(parts) == 2:
                 try:
-                    getattr(pkg, parts[1])
-                except AttributeError:
+                    pkg = sys.modules[parts[0]]
+                except KeyError:
                     pass
-            except KeyError:
-                pass
+                else:
+                    try:
+                        getattr(pkg, parts[1])
+                    except AttributeError:
+                        pass
 
         return Loader(fullname, m)
     else:
@@ -70,8 +68,9 @@ def end():
     global modules_of_interest
     modules_of_interest = no_modules
 
-def begin(pattern=None):
-    global modules_of_interest, collect_data
+def begin(pattern=None, submodule_accesses=True):
+    global modules_of_interest, collect_data, add_submodule_accesses
     if pattern is None:
         pattern = ['*']
     modules_of_interest = namereg.NameRegistry(pattern)
+    add_submodule_accesses = submodule_accesses

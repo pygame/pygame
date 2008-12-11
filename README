@@ -6,9 +6,16 @@ incorporating it into the unit tests. The package still needs testing.
 The package has been successfully tried on a zipped package.
 
 
-See the playmus.py example for how it is currently used.
+See the playmus.py and check_test.py for usage examples.
+
 
 Log:
+
+rev 1745: - Made optional the recording of a submodule import as an
+            access on the containing package.
+          - Added preliminary check_test.py unit test checker.
+          - Simplified checkmod data collection in importer and module.
+            Replaced with some extra report generation overhead in reporter.
 
 rev 1743: - Added optional module pattern to limit which modules are monitored.
           - Added optional continuous attribute access recording.

@@ -2,20 +2,13 @@
 
 """Implements a module usage tracker module type"""
 
-from trackmod import keylock
-from trackmod import reporter
+import threading
 
-try:
-    ModuleType
-except NameError:
-    pass
-else:
-    # reload; reload imported modules
-    reload(keylock)
-    reload(reporter)
 
-ModuleType = type(reporter)
+ModuleType = type(threading)
 getattribute = ModuleType.__getattribute__
+accesses = set()
+accesses_lock = threading.RLock()
 
 
 class Module(ModuleType):
@@ -28,40 +21,41 @@ class Module(ModuleType):
 
 
 class TrackerModule(ModuleType):
+    # A heap subtype of the module type that tracks attribute gets.
+    #
+    # Allows __class__ to be changed. Otherwise it is just the same.
+    # To preserve the module docs this description is a comment.
+
+    # Attributes to ignore in reporting. The module name is the one
+    # attribute guarenteed to not be recorded. The class is used by
+    # the reporter. The path is just noise.
+    ignored_attributes = set(['__name__', '__class__', '__path__'])
+    
     def __getattribute__(self, attr):
-        if attr in ['__name__', '__path__']:
-            # The name attribute is the one attribute guaranteed to not trigger
-            # an import. __path__ is just noise in the reporting.
+        if attr in TrackerModule.ignored_attributes:
             return getattribute(self, attr)
         report(self, attr)
         return getattribute(self, attr)
 
 
-def report_oneshot(module, attr):
-    name = module.__name__  # Safe: no recursive call on __name__.
-    lock = keylock.Lock(name)
-    try:
-        reporter.add_access(name, attr)
-        ModuleType.__setattr__(module, '__class__', Module)
-    finally:
-        lock.free()
-
 def report_continuous(module, attr):
-    name = module.__name__  # Safe: no recursive call on __name__.
-    lock = keylock.Lock(name)
+    accesses_lock.acquire()
     try:
-        reporter.add_access(name, attr)
+        # Safe: no recursive call on __name__ attribute.
+        accesses.add((module.__name__, attr))
     finally:
-        lock.free()
+        accesses_lock.release()
 
 def report_quit(module, attr):
-    name = module.__name__  # Safe: no recursive call on __name__.
-    lock = keylock.Lock(name)
-    try:
-        ModuleType.__setattr__(module, '__class__', Module)
-    finally:
-        lock.free()
-    
+    module.__class__ = Module
+
+def report_oneshot(module, attr):
+    report_continuous(module, attr)
+    report_quit(module, attr)
+
+report = report_oneshot
+
+
 def set_report_mode(mode=None):
     """Set whether access checking is oneshot or continuous
 
@@ -87,4 +81,11 @@ def set_report_mode(mode=None):
     else:
         raise ValueError("Unknown mode %s" % mode)
 
-report = report_oneshot
+
+def get_accesses():
+    accesses_lock.acquire()
+    try:
+        return sorted(accesses)
+    finally:
+        accesses_lock.release()
+
