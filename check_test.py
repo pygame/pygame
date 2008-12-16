@@ -1,3 +1,21 @@
+# Program check_test.py
+# Requires Python 2.4
+
+"""A program for listing the modules accessed by a Pygame unit test module
+
+Usage:
+
+python check_test.py <test module>
+
+e.g.
+
+python check_test.py surface_test.py
+
+The returned list will show which Pygame modules were imported and accessed.
+Each module name is followed by a list of attributes accessed.
+
+"""
+
 import sys
 import os
 import trackmod
