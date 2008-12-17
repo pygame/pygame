@@ -648,21 +648,16 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 
 static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
 {
-    PyObject *surfobj, *surfobj2;
+    PyObject *surfobj, *surfobj2 = NULL;
     PyMaskObject *maskobj;
     bitmask_t* m;
-    SDL_Surface* surf, *surf2;
+    SDL_Surface* surf = NULL, *surf2 = NULL;
     int bpp;
-    PyObject *rgba_obj_color, *rgba_obj_threshold;
+    PyObject *rgba_obj_color, *rgba_obj_threshold = NULL;
     Uint8 rgba_color[4];
-    Uint8 rgba_threshold[4];
+    Uint8 rgba_threshold[4] = {0, 0, 0, 255};
     Uint32 color;
     Uint32 color_threshold;
-
-    surf2 = surf = NULL;
-    surfobj2 = NULL;
-    rgba_obj_threshold = NULL;
-    rgba_threshold[0] = 0; rgba_threshold[1] = 0; rgba_threshold[2] = 0; rgba_threshold[4] = 255;
 
     if (!PyArg_ParseTuple (args, "O!O|OO!", &PySurface_Type, &surfobj,
                            &rgba_obj_color,  &rgba_obj_threshold,
