@@ -197,8 +197,12 @@ except (ImportError,IOError), msg:fastevent=MissingModule("fastevent", msg, 0)
 try: import pygame.imageext; del pygame.imageext
 except (ImportError,IOError):pass
 
-try: import pygame.mixer_music; del pygame.mixer_music
-except (ImportError,IOError):pass
+try:
+    import pygame.mixer_music
+    del pygame.mixer_music
+    print "NOTE2: failed importing pygame.mixer_music in lib/__init__.py"
+except (ImportError,IOError):
+    pass
 
 def packager_imports():
     """
