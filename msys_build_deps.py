@@ -896,6 +896,143 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
+    Dependency('PORTMIDI', ['portmidi', 'portmidi-[1-9].*'], ['portmidi.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  cat > GNUmakefile << 'THE_END'
+# Makefile for portmidi, generated for Pygame by msys_build_deps.py.
+
+target = /usr/local
+
+pmcom = pm_common
+pmwin = pm_win
+pt = porttime
+
+pmdll = portmidi.dll
+pmimplib = libportmidi.dll.a
+pmcomobj = $(pmcom)/portmidi.o $(pmcom)/pmutil.o
+pmwinobj = $(pmwin)/pmwin.o $(pmwin)/pmwinmm.o
+pmobj = $(pmcomobj) $(pmwinobj)
+pmcomsrc = $(pmcom)/portmidi.c $(pmcom)/pmutil.c
+pmwinsrc = $(pmwin)/pmwin.c $(pmwin)/pmwinmm.c
+pmsrc = $(pmcomsrc) $(pmwinsrc)
+pmreqhdr = $(pmcom)/portmidi.h $(pmcom)/pmutil.h
+pmhdr = $(pmreqhdr) $(pmcom)/pminternal.h $(pmwin)/pmwinmm.h
+
+ptobj = $(pt)/porttime.o porttime/ptwinmm.o
+ptsrc = $(pt)/porttime.c porttime/ptwinmm.c
+ptreqhdr = $(pt)/porttime.h
+pthdr = $(ptreqhdr)
+
+src = $(pmsrc) $(ptsrc)
+reqhdr = $(pmreqhdr) $(ptreqhdr)
+hdr = $(pmhdr) $(pthdr)
+obj = $(pmobj) $(ptobj)
+def = portmidi.def
+
+IHDR := -I$(pmcom) -I$(pmwin) -I$(pt)
+FLAGS := -shared $(CPPFLAGS) $(IHDR) $(CFLAGS)
+LIBS := $(LOADLIBES) $(LDLIBS) -lwinmm
+
+all : $(pmdll)
+.PHONY : all
+
+$(pmdll) : $(src) $(hdr) $(def)
+\t$(CC) $(FLAGS) -Wl,--out-implib,$(pmimplib) $(src) $(def) $(LIBS) -o $@
+
+.PHONY : install
+
+install : $(pmdll)
+\tcp -f --target-directory=$(target)/bin $<
+\tcp -f --target-directory=$(target)/lib $(pmimplib)
+\tcp -f --target-directory=$(target)/include $(reqhdr)
+
+.PHONY : clean
+
+clean :
+\trm -f *.o $(pmdll) $(pmimplib)
+THE_END
+
+  cat > portmidi.def << 'THE_END'
+LIBRARY portmidi.dll
+EXPORTS
+Pm_Abort
+Pm_Close
+Pm_CountDevices
+Pm_Dequeue
+Pm_Enqueue
+Pm_GetDefaultInputDeviceID
+Pm_GetDefaultOutputDeviceID
+Pm_GetDeviceInfo
+Pm_GetErrorText
+Pm_GetHostErrorText
+Pm_HasHostError
+Pm_Initialize
+Pm_OpenInput
+Pm_OpenOutput
+Pm_Poll
+Pm_QueueCreate
+Pm_QueueDestroy
+Pm_QueueEmpty
+Pm_QueueFull
+Pm_QueuePeek
+Pm_Read
+Pm_SetChannelMask
+Pm_SetFilter
+Pm_SetOverflow
+Pm_Terminate
+Pm_Write
+Pm_WriteShort
+Pm_WriteSysEx
+Pt_Sleep
+Pt_Start
+Pt_Started
+Pt_Stop
+Pt_Time
+pm_add_device
+pm_alloc
+pm_descriptor_index DATA
+pm_descriptor_max DATA
+pm_fail_fn
+pm_fail_timestamp_fn
+pm_free
+pm_hosterror DATA
+pm_hosterror_text DATA
+pm_init
+pm_none_dictionary DATA
+pm_read_bytes
+pm_read_short
+pm_success_fn
+pm_term
+pm_winmm_in_dictionary DATA
+pm_winmm_init
+pm_winmm_out_dictionary DATA
+pm_winmm_term
+THE_END
+
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/portmidi.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+  rm -f GNUmakefile portmidi.def
+fi
+"""),
     ]  # End dependencies = [.
 
 
