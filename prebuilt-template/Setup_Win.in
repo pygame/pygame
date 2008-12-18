@@ -12,6 +12,7 @@ ZLIB = -lz
 VORBISFILE = -lvorbisfile
 VORBIS = -Iprebuilt/include/vorbis -lvorbis
 OGG = -Iprebuilt/include/ogg -logg
+PORTMIDI = -lportmidi
 COPYLIB_SDL -Lprebuilt/lib/SDL.dll
 COPYLIB_SDL_ttf -lSDL -lfreetype -Lprebuilt/lib/SDL_ttf.dll
 COPYLIB_SDL_image -lSDL -ljpef -lpng -ltiff -Lprebuilt/lib/SDL_image.dll
@@ -25,3 +26,5 @@ COPYLIB_z -Lprebuilt/lib/zlib1.dll
 COPYLIB_vorbisfile -lvorbis -Lprebuilt/lib/libvorbisfile-3.dll
 COPYLIB_vorbis -logg -Lprebuilt/lib/libvorbis-0.dll
 COPYLIB_ogg -Lprebuilt/lib/libogg-0.dll
+COPYLIB_portmidi -Lprebuilt/lib/portmidi.dll
+
