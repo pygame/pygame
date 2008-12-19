@@ -267,7 +267,7 @@ write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     cinfo.image_height = image_height;
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
-  
+
     jpeg_set_defaults (&cinfo);
     jpeg_set_quality (&cinfo, quality, TRUE);
 
@@ -326,16 +326,17 @@ SaveJPEG (SDL_Surface *surface, char *file)
     ss_rect.h = ss_h;
     SDL_BlitSurface (surface, &ss_rect, ss_surface, NULL);
 
-    if (ss_size == 0)
-    {
-        ss_size = ss_h;
-        ss_rows = (unsigned char**) malloc (sizeof (unsigned char*) * ss_size);
-        if(ss_rows == NULL)
-            return -1;
+
+    ss_size = ss_h;
+    ss_rows = (unsigned char**) malloc (sizeof (unsigned char*) * ss_size);
+    if(ss_rows == NULL) {
+        /* clean up the allocated surface too */
+        SDL_FreeSurface (ss_surface);
+        return -1;
     }
 
-    for (i = 0; i < ss_h; i++)
-    {
+
+    for (i = 0; i < ss_h; i++) {
         ss_rows[i] = ((unsigned char*)ss_surface->pixels) +
             i * ss_surface->pitch;
     }
@@ -350,7 +351,7 @@ SaveJPEG (SDL_Surface *surface, char *file)
 
 #endif /* end if JPEGLIB_H */
 
-/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c  
+/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c
    need to share it between both.
 */
 
