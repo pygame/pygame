@@ -1087,6 +1087,13 @@ void initmixer (void)
     import_pygame_bufferproxy ();
 
     music = PyImport_ImportModule ("pygame.mixer_music");
+    if (!music) {
+        /* try loading it under this name...
+        */
+        music = PyImport_ImportModule ("mixer_music");
+        printf("NOTE3: here in mixer.c...\n");
+    }
+
     if (music) {
         printf("NOTE: failed loading pygame.mixer_music in src/mixer.c\n");
         PyObject* ptr, *_dict;
