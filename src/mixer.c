@@ -1095,8 +1095,8 @@ void initmixer (void)
     }
 
     if (music) {
-        printf("NOTE: failed loading pygame.mixer_music in src/mixer.c\n");
         PyObject* ptr, *_dict;
+        printf("NOTE: failed loading pygame.mixer_music in src/mixer.c\n");
         PyModule_AddObject (module, "music", music);
         _dict = PyModule_GetDict (music);
         ptr = PyDict_GetItemString (_dict, "_MUSIC_POINTER");
