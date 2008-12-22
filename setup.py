@@ -186,7 +186,13 @@ if sys.platform == 'win32':
             the_dlls[e.name[8:]] = e.library_dirs[0]
         else:
             required_dlls.update(dependencies(e.libraries))
-    for lib in required_dlls:
+
+    # join the required_dlls and the_dlls keys together.
+    lib_names = {}
+    for lib in list(required_dlls.keys()) + list(the_dlls.keys()):
+        lib_names[lib] = 1
+
+    for lib in lib_names.keys():
         #next DLL; a distutils bug requires the paths to have Windows separators
         f = the_dlls[lib].replace('/', os.sep)
         if f == '_':
