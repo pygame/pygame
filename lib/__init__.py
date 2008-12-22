@@ -213,7 +213,6 @@ def packager_imports():
     import OpenGL.GL
     import pygame.macosx
     import pygame.mac_scrap
-    import pygame.mixer_music
 
 #make Rects pickleable
 import copy_reg
