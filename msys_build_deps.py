@@ -912,18 +912,17 @@ pmwin = pm_win
 pt = porttime
 
 pmdll = portmidi.dll
+pmlib = libportmidi.a
 pmimplib = libportmidi.dll.a
-pmcomobj = $(pmcom)/portmidi.o $(pmcom)/pmutil.o
-pmwinobj = $(pmwin)/pmwin.o $(pmwin)/pmwinmm.o
-pmobj = $(pmcomobj) $(pmwinobj)
 pmcomsrc = $(pmcom)/portmidi.c $(pmcom)/pmutil.c
 pmwinsrc = $(pmwin)/pmwin.c $(pmwin)/pmwinmm.c
+pmobj = portmidi.o pmutil.o pmwin.o pmwinmm.o
 pmsrc = $(pmcomsrc) $(pmwinsrc)
 pmreqhdr = $(pmcom)/portmidi.h $(pmcom)/pmutil.h
 pmhdr = $(pmreqhdr) $(pmcom)/pminternal.h $(pmwin)/pmwinmm.h
 
-ptobj = $(pt)/porttime.o porttime/ptwinmm.o
 ptsrc = $(pt)/porttime.c porttime/ptwinmm.c
+ptobj = porttime.o ptwinmm.o
 ptreqhdr = $(pt)/porttime.h
 pthdr = $(ptreqhdr)
 
@@ -934,26 +933,33 @@ obj = $(pmobj) $(ptobj)
 def = portmidi.def
 
 IHDR := -I$(pmcom) -I$(pmwin) -I$(pt)
-FLAGS := -shared $(CPPFLAGS) $(IHDR) $(CFLAGS)
 LIBS := $(LOADLIBES) $(LDLIBS) -lwinmm
 
 all : $(pmdll)
 .PHONY : all
 
-$(pmdll) : $(src) $(hdr) $(def)
-\t$(CC) $(FLAGS) -Wl,--out-implib,$(pmimplib) $(src) $(def) $(LIBS) -o $@
+$(pmlib) : $(src) $(hdr)
+\t$(CC) $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
+\tar rc $(pmlib) $(obj)
+\tranlib $(pmlib)
+
+$(pmdll) : $(pmlib) $(def)
+\t$(CC) -shared $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
+\tdlltool -D $(pmdll) -d $(def) -l $(pmimplib)
+\tranlib $(pmimplib)
 
 .PHONY : install
 
 install : $(pmdll)
 \tcp -f --target-directory=$(target)/bin $<
+\tcp -f --target-directory=$(target)/lib $(pmlib)
 \tcp -f --target-directory=$(target)/lib $(pmimplib)
 \tcp -f --target-directory=$(target)/include $(reqhdr)
 
 .PHONY : clean
 
 clean :
-\trm -f *.o $(pmdll) $(pmimplib)
+\trm -f $(obj) $(pmdll) $(pmimplib) $(pmlib)
 THE_END
 
   cat > portmidi.def << 'THE_END'
