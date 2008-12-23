@@ -31,7 +31,8 @@ libraries = [
     ('FONT', 'SDL_ttf', r'SDL_ttf\.dll$', ['SDL']),
     ('FREETYPE', 'freetype', r'libfreetype-6\.dll$', ['Z']),
     ('Z', 'z', r'zlib1\.dll$', []),
-    ('SDL', 'SDL', r'SDL\.dll$', [])
+    ('SDL', 'SDL', r'SDL\.dll$', []),
+    ('PORTMIDI', 'portmidi', r'portmidi\.dll', []),
 ]
 
 # regexs: Maps name to DLL file name regex.
