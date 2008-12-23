@@ -7,7 +7,9 @@ point.
 """
 
 
-import pypm
+import pygame.pypm
+pypm = pygame.pypm
+
 
 import pygame
 import pygame.locals
@@ -72,7 +74,7 @@ class Input(object):
 
 
 def midis2events(midis, device_id):
-    """ takes a midi event and turns it into a pygame event.
+    """ takes a sequence of midi events and returns pygame events.
     """
     evs = []
     for midi in midis:
