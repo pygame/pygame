@@ -167,6 +167,14 @@ try:
     pygame.font.match_font = pygame.sysfont.match_font
 except (ImportError,IOError), msg:font=MissingModule("font", msg, 0)
 
+# try and load pygame.mixer_music before mixer, for py2app...
+try:
+    import pygame.mixer_music
+    #del pygame.mixer_music
+    #print "NOTE2: failed importing pygame.mixer_music in lib/__init__.py"
+except (ImportError,IOError):
+    pass
+
 try: import pygame.mixer
 except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
 
@@ -196,13 +204,6 @@ except (ImportError,IOError), msg:fastevent=MissingModule("fastevent", msg, 0)
 #programs get everything they need (like py2exe)
 try: import pygame.imageext; del pygame.imageext
 except (ImportError,IOError):pass
-
-try:
-    import pygame.mixer_music
-    del pygame.mixer_music
-    #print "NOTE2: failed importing pygame.mixer_music in lib/__init__.py"
-except (ImportError,IOError):
-    pass
 
 def packager_imports():
     """
