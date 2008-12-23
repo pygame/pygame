@@ -198,10 +198,11 @@ class Output:
     cdef PmStream *midi
     cdef int debug
 
-    def __init__(self, OutputDevice, latency):
+    def __init__(self, OutputDevice, latency=0):
+        
         cdef PtTimestamp (*PmPtr) ()
         cdef PmError err
-        
+
         self.i = OutputDevice
         self.debug = 0
         
@@ -210,8 +211,16 @@ class Output:
         else:
             PmPtr = &Pt_Time
         if self.debug: print "Opening Midi Output"
-        err = Pm_OpenOutput(&self.midi, self.i, NULL, 0, PmPtr, NULL, latency)
-        if err < 0: raise Exception, Pm_GetErrorText(err)
+	# Why is bufferSize 0 here?
+        err = Pm_OpenOutput(&(self.midi), self.i, NULL, 0, PmPtr, NULL, latency)
+        if err < 0:
+                s = Pm_GetErrorText(err)
+                # Something's amiss here - if we try to throw an Exception
+               	# here, we crash.
+                if not err == -10000:
+                        raise Exception,s
+                else:
+                        print "Unable to open Midi OutputDevice=",OutputDevice," err=",s
 
     def __dealloc__(self):
         if self.debug: print "Closing MIDI output stream and destroying instance"
@@ -314,20 +323,21 @@ class Input:
     cdef int debug
     cdef int i
 
-    def __init__(self, InputDevice):
+    def __init__(self, InputDevice, buffersize=4096):
         cdef PmError err
         self.i = InputDevice
         self.debug = 0
-        err= Pm_OpenInput(&self.midi,self.i,NULL,100,&Pt_Time,NULL)
+        err= Pm_OpenInput(&(self.midi),self.i,NULL,buffersize,&Pt_Time,NULL)
         if err < 0: raise Exception, Pm_GetErrorText(err)
         if self.debug: print "MIDI input opened."
 
     def __dealloc__(self):
         cdef PmError err
         if self.debug: print "Closing MIDI input stream and destroying instance"
-        Pm_Abort(self.midi)
-        if err < 0: raise Exception, Pm_GetErrorText(err)
-        Pm_Close(self.midi)
+	# DO NOT CALL Pm_Abort on Inputs!
+        # err = Pm_Abort(self.midi)
+        # if err < 0: raise Exception, Pm_GetErrorText(err)
+        err = Pm_Close(self.midi)
         if err < 0: raise Exception, Pm_GetErrorText(err)
         
     def SetFilter(self, filters):
@@ -351,20 +361,15 @@ class Input:
         """
         cdef PmEvent buffer[1]
         cdef PmError err
-        cdef PmError err1
         
-        Pm_SetFilter(self.midi, filters)
-        if err < 0:
-            raise Exception, Pm_GetErrorText(err)
+        err = Pm_SetFilter(self.midi, filters)
 
-        err1 = Pm_Poll(self.midi)
+        if err < 0: raise Exception, Pm_GetErrorText(err)
 
-        while( err1 != 0):
+        while(Pm_Poll(self.midi) != pmNoError):
+
             err = Pm_Read(self.midi,buffer,1)
-            if err < 0:
-                raise Exception, Pm_GetErrorText(err)
-
-            err1 = Pm_Poll(self.midi)
+            if err < 0: raise Exception, Pm_GetErrorText(err)
 
     def SetChannelMask(self, mask):
         """
