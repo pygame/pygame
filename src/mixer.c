@@ -1091,7 +1091,8 @@ void initmixer (void)
         /* try loading it under this name...
         */
         music = PyImport_ImportModule("mixer_music");
-        printf("NOTE3: here in mixer.c...\n");
+        /*printf("NOTE3: here in mixer.c...\n");
+         */
     }
 
     if (music) {
