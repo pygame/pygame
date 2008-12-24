@@ -158,44 +158,6 @@ def midis2events(midis, device_id):
 
 
 
-if __name__ == "__main__":
-    import pygame
-    from pygame.locals import *
-    pygame.init()
-    pygame.fastevent.init()
-    event_get = pygame.fastevent.get
-    event_post = pygame.fastevent.post
-
-    init()
-
-    i = Input(1)
-
-    pygame.display.set_mode((1,1))
-
-
-
-    going = True
-    while going:
-        events = event_get()
-        for e in events:
-            if e.type in [QUIT]:
-                going = False
-            if e.type in [KEYDOWN]:
-                going = False
-            if e.type in [MIDIIN]:
-                print e
-
-        if i.poll():
-            midi_events = i.read(10)
-            # convert them into pygame events.
-            midi_evs = midis2events(midi_events, i.device_id)
-
-            for m_e in midi_evs:
-                event_post( m_e )
-
-    del i
-    quit()
-
 
 
 
