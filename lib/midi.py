@@ -13,20 +13,34 @@ pypm = pygame.pypm
 
 import pygame
 import pygame.locals
+
+import atexit
+
+
 #
 MIDIIN = pygame.locals.USEREVENT + 10
 MIDIOUT = pygame.locals.USEREVENT + 11
 
-
+_init = False
 
 
 
 def init():
-    pypm.Initialize()
-    return 1
+    global _init
+    if not _init:
+        pypm.Initialize()
+        _init = True
+        atexit.register(quit)
 
 def quit():
-    pypm.Terminate()
+    global _init
+    if _init:
+        # TODO: find all Input and Output classes and close them first?
+        pypm.Terminate()
+        _init = False
+
+
+
 
 def get_count():
     """ gets the count of devices.
@@ -44,10 +58,10 @@ class MidiException(Exception):
 
 
 class Input(object):
-    def __init__(self, device_id):
+    def __init__(self, device_id, buffer_size=4096):
         """
         """
-        self._input = pypm.Input(device_id)
+        self._input = pypm.Input(device_id, buffer_size)
         self.device_id = device_id
 
 
@@ -58,6 +72,7 @@ class Input(object):
 
     def poll(self):
         """ returns true if there's data, or false if not.
+            Otherwise it raises a MidiException.
         """
         r = self._input.Poll()
         if r == pypm.TRUE:
@@ -66,7 +81,55 @@ class Input(object):
             return False
         else:
             err_text = GetErrorText(r)
-            raise MidiException( (err_text, r) )
+            raise MidiException( (r, err_text) )
+
+
+
+
+class Output(object):
+    def __init__(self, device_id, latency = 0):
+        """
+        """
+        self._output = pypm.Output(device_id, latency)
+        self.device_id = device_id
+
+    def write(self, data):
+        """
+        """
+        self._output.Write(data)
+
+    def write_short(self, status, data1 = 0, data2 = 0):
+        """
+        """
+        self._output.WriteShort(status, data1, data2)
+
+    def write_sys_ex(self, when, msg):
+        """
+        """
+        self._output.WriteSysEx(when, msg)
+
+
+
+    def note_on(self, note, velocity=None):
+        """
+        """
+        if velocity is None:
+            velocity = 0
+        self.write_short(0x90, note, velocity)
+
+    def note_off(self, note, velocity=None):
+        """
+        """
+        if velocity is None:
+            velocity = 0
+        self.write_short(0x80, note, velocity)
+
+    def set_instrument(self, instrument_id):
+        """
+        """
+        if not (0 <= instrument_id <= 127):
+            raise ValueError("Undefined instrument id: %d" % instrument_id)
+        self.write_short(0xc0, instrument_id)
 
 
 
@@ -82,12 +145,12 @@ def midis2events(midis, device_id):
         ((status,data1,data2,data3),timestamp) = midi
 
         e = pygame.event.Event(MIDIIN,
-                         status=status,
-                         data1=data1,
-                         data2=data2,
-                         data3=data3,
-                         timestamp=timestamp,
-                         device_id = device_id)
+                               status=status,
+                               data1=data1,
+                               data2=data2,
+                               data3=data3,
+                               timestamp=timestamp,
+                               vice_id = device_id)
         evs.append( e )
 
 
@@ -107,6 +170,8 @@ if __name__ == "__main__":
 
     i = Input(1)
 
+    pygame.display.set_mode((1,1))
+
 
 
     going = True
@@ -116,8 +181,8 @@ if __name__ == "__main__":
             if e.type in [QUIT]:
                 going = False
             if e.type in [KEYDOWN]:
-                pass
-            if e.type in [MIDIIN, MIDIOUT]:
+                going = False
+            if e.type in [MIDIIN]:
                 print e
 
         if i.poll():
@@ -128,7 +193,7 @@ if __name__ == "__main__":
             for m_e in midi_evs:
                 event_post( m_e )
 
-
+    del i
     quit()
 
 
