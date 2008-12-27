@@ -50,6 +50,22 @@ def get_count():
 
 
 
+def get_default_input_device_id():
+    """gets the device number of the default input device.
+    """
+    return pypm.GetDefaultInputDeviceID()
+
+
+
+
+def get_default_output_device_id():
+    """get the device number of the default output device.
+    """
+    return pypm.GetDefaultOutputDeviceID()
+
+
+
+
 class MidiException(Exception):
     def __init__(self, value):
         self.parameter = value
