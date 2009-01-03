@@ -367,7 +367,7 @@ static PyObject* lines(PyObject* self, PyObject* arg)
 }
 
 
-static PyObject* arc(PyObject* self, PyObject* arg)
+static PyObject* drawarc(PyObject* self, PyObject* args)
 {
 	PyObject *surfobj, *colorobj, *rectobj;
 	GAME_Rect *rect, temp;
@@ -378,7 +378,7 @@ static PyObject* arc(PyObject* self, PyObject* arg)
 	double angle_start, angle_stop;
 
 	/*get all the arguments*/
-	if(!PyArg_ParseTuple(arg, "O!OOdd|i", &PySurface_Type, &surfobj, &colorobj, &rectobj,
+	if(!PyArg_ParseTuple(args, "O!OOdd|i", &PySurface_Type, &surfobj, &colorobj, &rectobj,
 			                      &angle_start, &angle_stop, &width))
 		return NULL;
 	rect = GameRect_FromObject(rectobj, &temp);
@@ -1557,7 +1557,7 @@ static PyMethodDef draw_builtins[] =
 	{ "aalines", aalines, METH_VARARGS, DOC_PYGAMEDRAWAALINES },
 	{ "lines", lines, METH_VARARGS, DOC_PYGAMEDRAWLINES },
 	{ "ellipse", ellipse, METH_VARARGS, DOC_PYGAMEDRAWELLIPSE },
-	{ "arc", arc, METH_VARARGS, DOC_PYGAMEDRAWARC },
+	{ "arc", drawarc, METH_VARARGS, DOC_PYGAMEDRAWARC },
 	{ "circle", circle, METH_VARARGS, DOC_PYGAMEDRAWCIRCLE },
 	{ "polygon", polygon, METH_VARARGS, DOC_PYGAMEDRAWPOLYGON },
 	{ "rect", rect, METH_VARARGS, DOC_PYGAMEDRAWRECT },
