@@ -1,0 +1,51 @@
+== Instructions to build pygame for PyS60. ==
+
+Basic requirements:
+- S60 3rd or 5th ed. SDK 
+- SVN client
+
+
+=== Getting necessary libraries ===
+
+Get ogg to symbian/deps/ogg
+- IMPORTANT: Revision 7524
+- SVN: http://svn.xiph.org/trunk/ogg 
+
+Get vorbis to symbian/deps/vorbis
+- IMPORTANT: Revision 7543
+- SVN: http://svn.xiph.org/trunk/vorbis
+
+
+Get SDL for Series60
+- Available at: http://koti.mbnet.fi/mertama/sdl.html
+- Follow the instructions and copy the pathced SDL S60 folder to symbian/deps/SDL
+
+Get SDL_mixer to symbian/deps/SDL_mixer
+- http://www.libsdl.org/projects/SDL_mixer/
+
+Get SDL_ttf to symbian/deps/SDL_ttf
+- http://www.libsdl.org/projects/SDL_ttf/
+
+Get Symbian FreeType2 port to symbian/deps/sft2
+- SVN: https://sft2.svn.sourceforge.net/svnroot/sft2/trunk/sft2
+
+
+=== Building ===
+
+- The build scripts use SCons for Symbian. 
+-- http://code.google.com/p/scons-for-symbian/
+-- Follow the installation instructions
+
+- Go to pygame/symbian directory and invoke 'scons'
+
+=== Misc info ===
+
+pygame library
+- The pygame is implemented as static library to be statically linked to pygame application.
+
+
+About selecting Python:
+- You can select the python.dll to link against by giving scons parameter 'pythondll' 
+- ex. scons pythondll=Python222
+
+

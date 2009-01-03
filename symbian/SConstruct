@@ -1,0 +1,37 @@
+from scons_symbian import *
+
+# Pygame's installer package
+PACKAGE_NAME = ARGUMENTS.get( "package", "pygame" )
+#: Name of the python dll to use
+PYTHON_LIB_NAME = ARGUMENTS.get( "pythondll", "pygame_python" )
+#: Path to the libraries of pygame
+PATH_PY_LIBS = ARGUMENTS.get( "pylibs", "data/pygame/libs" )
+#: Path to python core sources
+PYTHON_CORE = ARGUMENTS.get( "pythoncore", "../../PyS60Community/pygame/src/core" )
+#: Name of the used sdl.dll ( pygame_sdl.dll )
+SDL_DLL_NAME = ARGUMENTS.get( "sdldll", "pygame_sdl" )
+Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS PYTHON_CORE SDL_DLL_NAME")
+
+# Build external libraries. Conditional because needed only once and takes extra time after that.
+if ARGUMENTS.get( "buildlibs", True ):
+    SConscript( "SConscript.sft2.py" )
+    SConscript( "SConscript.Ogg.py" )    
+    SConscript( "SConscript.Vorbis.py" )    
+    
+    TARGET_NAME = SDL_DLL_NAME   
+    UID3 = ARGUMENTS.get( "sdluid", "0xE0006021" )
+    Export( "TARGET_NAME UID3" )
+    SConscript( "SConscript.SDL.py" )
+    
+# Build pygame.lib
+SConscript( "SConscript.pygame.py")
+
+#TODO: Build pygame python
+
+# Build pygame application
+UID_PYGAMEAPP = ARGUMENTS.get( "appuid", "0xE0006020" )
+CAPABILITIES  = ARGUMENTS.get( "capabilities", CAPS_SELF_SIGNED)
+Export("UID_PYGAMEAPP CAPABILITIES")
+
+SConscript( "SConscript.app.py")
+
