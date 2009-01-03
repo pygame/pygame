@@ -430,6 +430,7 @@ PyGame_Video_AutoInit (void)
 static void
 pygame_parachute (int sig)
 {
+#ifdef HAVE_SIGNAL_H
     char* signaltype;
     
     signal (sig, SIG_DFL);
@@ -462,6 +463,7 @@ pygame_parachute (int sig)
 
     atexit_quit ();
     Py_FatalError (signaltype);
+#endif    
 }
 
 static int fatal_signals[] =
@@ -483,6 +485,7 @@ static int parachute_installed = 0;
 static void
 install_parachute (void)
 {
+#ifdef HAVE_SIGNAL_H
     int i;
     void (*ohandler)(int);
 
@@ -497,7 +500,8 @@ install_parachute (void)
         if (ohandler != SIG_DFL)
             signal (fatal_signals[i], ohandler);
     }
-#ifdef SIGALRM
+    
+#if defined(SIGALRM) && defined(HAVE_SIGACTION) 
     {/* Set SIGALRM to be ignored -- necessary on Solaris */
         struct sigaction action, oaction;
         /* Set SIG_IGN action */
@@ -509,12 +513,14 @@ install_parachute (void)
             sigaction (SIGALRM, &oaction, NULL);
     }
 #endif
+#endif    
     return;
 }
 
 static void
 uninstall_parachute (void)
 {
+#ifdef HAVE_SIGNAL_H
     int i;
     void (*ohandler)(int);
 
@@ -529,6 +535,7 @@ uninstall_parachute (void)
         if (ohandler != pygame_parachute)
             signal (fatal_signals[i], ohandler);
     }
+#endif    
 }
 
 /* bind functions to python */
@@ -564,7 +571,7 @@ void initbase (void)
     static void* c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
     /* create the module */
-    module = Py_InitModule3 ("base", init__builtins__, DOC_PYGAME);
+    module = Py_InitModule (MODPREFIX "base", init__builtins__);
     dict = PyModule_GetDict (module);
 
     /* create the exceptions */
@@ -593,7 +600,10 @@ void initbase (void)
 
     /*some intiialization*/
     Py_AtExit (atexit_quit);
+#ifdef HAVE_SIGNAL_H    
     install_parachute ();
+#endif
+    
 #ifdef MS_WIN32
     SDL_RegisterApp ("pygame", 0, GetModuleHandle (NULL));
 #endif
