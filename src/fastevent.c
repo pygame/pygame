@@ -261,14 +261,14 @@ initfastevent (void)
     PyObject *module, *eventmodule, *dict;
 
     /* create the module */
-    module = Py_InitModule3 ("fastevent", fastevent_builtins,
+    module = Py_InitModule3 ( MODPREFIX "fastevent", fastevent_builtins,
                              doc_fastevent_MODULE);
     dict = PyModule_GetDict (module);
 
     /* imported needed apis */
     import_pygame_base ();
     import_pygame_event ();
-    eventmodule = PyImport_ImportModule (MODPREFIX "event");
+    eventmodule = PyImport_ImportModule (IMPPREFIX "event");
     if (eventmodule)
     {
         char *NAMES[] = {"Event", "event_name", NULL};

@@ -2072,7 +2072,7 @@ void initsurface(void)
     import_pygame_bufferproxy();
 
     /* import the surflock module manually */
-    lockmodule = PyImport_ImportModule (MODPREFIX "surflock");
+    lockmodule = PyImport_ImportModule (IMPPREFIX "surflock");
     if (lockmodule != NULL)
     {
         PyObject *_dict = PyModule_GetDict (lockmodule);

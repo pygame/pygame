@@ -205,7 +205,7 @@ image_save (PyObject* self, PyObject* arg)
             {
                 /* If it is .png .jpg .jpeg use the extended module. */
                 /* try to get extended formats */
-                imgext = PyImport_ImportModule (MODPREFIX "imageext");
+                imgext = PyImport_ImportModule (IMPPREFIX "imageext");
                 if (imgext)
                 {
                     PyObject *extdict = PyModule_GetDict (imgext);
@@ -1281,7 +1281,7 @@ void initimage (void)
 
 
     /* try to get extended formats */
-    extmodule = PyImport_ImportModule (MODPREFIX "imageext");
+    extmodule = PyImport_ImportModule (IMPPREFIX "imageext");
     if (extmodule)
     {
         PyObject *extdict = PyModule_GetDict (extmodule);

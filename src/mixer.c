@@ -1086,7 +1086,7 @@ void initmixer (void)
     import_pygame_rwobject ();
     import_pygame_bufferproxy ();
 
-    music = PyImport_ImportModule (MODPREFIX "mixer_music");
+    music = PyImport_ImportModule (IMPPREFIX "mixer_music");
     if (!music) {
         /* try loading it under this name...
         */

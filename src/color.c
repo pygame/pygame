@@ -1608,7 +1608,7 @@ void initcolor (void)
     PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type);
     dict = PyModule_GetDict (module);
 
-    colordict = PyImport_ImportModule (MODPREFIX "colordict");
+    colordict = PyImport_ImportModule (IMPPREFIX "colordict");
     if (colordict)
     {
         PyObject *_dict = PyModule_GetDict (colordict);
