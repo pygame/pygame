@@ -475,7 +475,7 @@ void initrwobject (void)
     static void* c_api[PYGAMEAPI_RWOBJECT_NUMSLOTS];
 
     /* Create the module and add the functions */
-    module = Py_InitModule3 ("rwobject", rwobject__builtins__,
+    module = Py_InitModule3 (MODPREFIX "rwobject", rwobject__builtins__,
                              "SDL_RWops support");
     dict = PyModule_GetDict (module);
 

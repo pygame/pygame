@@ -2049,7 +2049,7 @@ void initsurface(void)
         return;
     
     /* create the module */
-    module = Py_InitModule3 ("surface", surface_builtins, DOC_PYGAMESURFACE);
+    module = Py_InitModule3 (MODPREFIX "surface", surface_builtins, DOC_PYGAMESURFACE);
     dict = PyModule_GetDict (module);
 
     PyDict_SetItemString (dict, "SurfaceType", (PyObject *) &PySurface_Type);
@@ -2072,7 +2072,7 @@ void initsurface(void)
     import_pygame_bufferproxy();
 
     /* import the surflock module manually */
-    lockmodule = PyImport_ImportModule ("pygame.surflock");
+    lockmodule = PyImport_ImportModule (MODPREFIX "surflock");
     if (lockmodule != NULL)
     {
         PyObject *_dict = PyModule_GetDict (lockmodule);

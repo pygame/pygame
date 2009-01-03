@@ -2671,7 +2671,7 @@ PYGAME_EXPORT
 void inittransform (void)
 {
     PyObject *module;
-    module = Py_InitModule3 ("transform", transform_builtins,
+    module = Py_InitModule3 (MODPREFIX "transform", transform_builtins,
                              DOC_PYGAMETRANSFORM);
 
     /*imported needed apis*/

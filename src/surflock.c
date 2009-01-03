@@ -197,6 +197,7 @@ static PyTypeObject PyLifetimeLock_Type =
     0,                          /* tp_init */
     0,                          /* tp_alloc */
     0,                          /* tp_new */
+#ifndef __SYMBIAN32__
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -205,6 +206,7 @@ static PyTypeObject PyLifetimeLock_Type =
     0,                          /* tp_subclasses */
     0,                          /* tp_weaklist */
     0                           /* tp_del */
+#endif    
 };
 
 /* lifetimelock object internals */
@@ -255,7 +257,7 @@ void initsurflock (void)
     PyType_Init (PyLifetimeLock_Type);
 
     /* Create the module and add the functions */
-    module = Py_InitModule3 ("surflock", surflock__builtins__,
+    module = Py_InitModule3 (MODPREFIX "surflock", surflock__builtins__,
                              "Surface locking support");
     dict = PyModule_GetDict (module);
     

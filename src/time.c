@@ -392,14 +392,18 @@ static PyMethodDef time_builtins[] =
 };
 
 PYGAME_EXPORT
-void inittime (void)
+#ifdef __SYMBIAN32__
+void initpygame_time (void)
+#else
+void inittime (void)    
+#endif    
 {
     PyObject *module;
     
     PyType_Init (PyClock_Type);
     
     /* create the module */
-    module = Py_InitModule3 ("time", time_builtins, DOC_PYGAMETIME);
+    module = Py_InitModule3 (MODPREFIX "time", time_builtins, DOC_PYGAMETIME);
     
     /*need to import base module, just so SDL is happy*/
     import_pygame_base ();

@@ -329,7 +329,7 @@ void initscrap (void)
     PyObject *mod;
 
     /* create the module */
-    mod = Py_InitModule3 ("scrap", scrap_builtins, NULL);
+    mod = Py_InitModule3 ( MODPREFIX "scrap", scrap_builtins, NULL);
 
     /*imported needed apis*/
     import_pygame_base ();
