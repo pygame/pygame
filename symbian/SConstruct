@@ -1,16 +1,43 @@
 from scons_symbian import *
 
 # Pygame's installer package
-PACKAGE_NAME = ARGUMENTS.get( "package", "pygame" )
+PACKAGE_NAME = ARGUMENTS.get( "package",    "pygame.sis" )
+PACKAGE_TITLE = ARGUMENTS.get( "sisappname", "pygame for S60" )
 #: Name of the python dll to use
 PYTHON_LIB_NAME = ARGUMENTS.get( "pythondll", "pygame_python" )
 #: Path to the libraries of pygame
 PATH_PY_LIBS = ARGUMENTS.get( "pylibs", "data/pygame/libs" )
-#: Path to python core sources
-PYTHON_CORE = ARGUMENTS.get( "pythoncore", "../../PyS60Community/pygame/src/core" )
 #: Name of the used sdl.dll ( pygame_sdl.dll )
 SDL_DLL_NAME = ARGUMENTS.get( "sdldll", "pygame_sdl" )
-Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS PYTHON_CORE SDL_DLL_NAME")
+
+UID_PACKAGE   = ARGUMENTS.get( "sisuid" )
+UID_PYGAMEAPP = ARGUMENTS.get( "appuid" )
+UID_SDL       = ARGUMENTS.get( "sdluid" )
+
+CAPABILITIES  = ARGUMENTS.get( "capabilities", CAPS_SELF_SIGNED).split("+")
+SISVERSION    = ARGUMENTS.get( "sisversion", "1,0,0").split(",")
+PYTHON_INCLUDE = ARGUMENTS.get( "pythoninclude", EPOC32_INCLUDE + "/python")
+
+# SIS certificate 
+CERT = ARGUMENTS.get("cert", None)
+KEY  = ARGUMENTS.get("privkey", None)
+PASSPHRASE  = ARGUMENTS.get("passphrase", "" )
+
+
+EMBEDDED_PYTHON_SIS = ARGUMENTS.get( "pythonsis", "none" )
+if EMBEDDED_PYTHON_SIS.lower() != "none":
+    # Read the UID
+    f=open( EMBEDDED_PYTHON_SIS,'rb')
+    # First 16 bytes are for UIDs
+    # See: http://homepage.ntlworld.com/thouky/software/psifs/sis.html
+    data=f.read(16)
+    f.close()
+    import struct
+    uids = struct.unpack("IIII", data )
+    EMBEDDED_PYTHON_SIS_UID = hex(uids[2]).replace("L","")
+    print "Read UID %s from '%s'" % ( EMBEDDED_PYTHON_SIS_UID, EMBEDDED_PYTHON_SIS  )
+
+Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS SDL_DLL_NAME CAPABILITIES PYTHON_INCLUDE")
 
 # Build external libraries. Conditional because needed only once and takes extra time after that.
 if ARGUMENTS.get( "buildlibs", True ):
@@ -18,20 +45,40 @@ if ARGUMENTS.get( "buildlibs", True ):
     SConscript( "SConscript.Ogg.py" )    
     SConscript( "SConscript.Vorbis.py" )    
     
-    TARGET_NAME = SDL_DLL_NAME   
-    UID3 = ARGUMENTS.get( "sdluid", "0xE0006021" )
+    TARGET_NAME = SDL_DLL_NAME  
+    UID3        = UID_SDL     
     Export( "TARGET_NAME UID3" )
     SConscript( "SConscript.SDL.py" )
     
 # Build pygame.lib
 SConscript( "SConscript.pygame.py")
 
-#TODO: Build pygame python
-
 # Build pygame application
-UID_PYGAMEAPP = ARGUMENTS.get( "appuid", "0xE0006020" )
-CAPABILITIES  = ARGUMENTS.get( "capabilities", CAPS_SELF_SIGNED)
 Export("UID_PYGAMEAPP CAPABILITIES")
 
 SConscript( "SConscript.app.py")
+
+#===============================================================================
+# Create the package
+#===============================================================================
+pkgtemplate = "pygame_pkgtemplate.txt"
+
+# Python is embedded as a sis
+pkgargs = {
+    "version" : SISVERSION,
+    "uid"     : UID_PACKAGE,
+    "appname" : PACKAGE_TITLE,
+    'cert':      CERT,
+    'key':       KEY,
+    'passwd':    PASSPHRASE
+}
+
+preppydata = {
+      "EMBEDDED_PYTHON_SIS"     : EMBEDDED_PYTHON_SIS, 
+      "EMBEDDED_PYTHON_SIS_UID" : EMBEDDED_PYTHON_SIS_UID,
+}
+
+Depends( PACKAGE_NAME, EMBEDDED_PYTHON_SIS )
+SymbianPackage(PACKAGE_NAME, pkgargs=pkgargs, pkgtemplate = pkgtemplate, preppydata = preppydata )
+
 

@@ -4,7 +4,7 @@ import glob
 
 Import("*")
 
-python_includes = [ join( PYTHON_CORE, x ) for x in r"Symbian Objects Parser Python include Modules".split() ]
+python_includes = [ PYTHON_INCLUDE ]
 
 #music.c
 #mixer.c

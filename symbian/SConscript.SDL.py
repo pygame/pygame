@@ -119,5 +119,7 @@ SymbianProgram( target, targettype,
     sysincludes = sysincludes,
     libraries   = libraries,
     defines     = defines,
+    capabilities = CAPABILITIES,
     uid3 = UID3,
+    package = PACKAGE_NAME,
 )

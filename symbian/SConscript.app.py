@@ -3,7 +3,7 @@ from scons_symbian import *
 # Import all from main SConstruct
 Import("*")
 
-python_includes = [ join( PYTHON_CORE, x ) for x in r"Symbian Objects Parser Python include Modules".split() ]
+python_includes = [ PYTHON_INCLUDE ]
 
 pygame_rss = File("app/pygame.rss")
 pygame_reg_rss = File( "app/pygame_reg.rss")
@@ -48,4 +48,5 @@ def to_package(**kwargs):
 
 to_package( source = "app/pygame_main.py", target = "data/pygame" )
 #to_package( source = "app/ambient.ogg", target = "data/pygame" )
+
 
