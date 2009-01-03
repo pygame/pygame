@@ -378,7 +378,7 @@ void initmixer_music (void)
 
     PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*clean an unused warning*/
     /* create the module */
-    module = Py_InitModule3 ("mixer_music", music_builtins,
+    module = Py_InitModule3 (MODPREFIX "mixer_music", music_builtins,
                              DOC_PYGAMEMIXERMUSIC);
     PyModule_AddObject(module, "_MUSIC_POINTER",
                        PyCObject_FromVoidPtr (&current_music, NULL));

@@ -165,7 +165,7 @@ void initkey (void)
     PyObject *module, *dict;
 
     /* create the module */
-    module = Py_InitModule3 ("key", key_builtins, DOC_PYGAMEKEY);
+    module = Py_InitModule3 (MODPREFIX "key", key_builtins, DOC_PYGAMEKEY);
     dict = PyModule_GetDict (module);
 
     /*imported needed apis*/

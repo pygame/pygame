@@ -1062,7 +1062,7 @@ void initmixer (void)
 
     /* create the module */
     PySound_Type.tp_new = &PyType_GenericNew;
-    module = Py_InitModule3 ("mixer", mixer_builtins, DOC_PYGAMEMIXER);
+    module = Py_InitModule3 (MODPREFIX "mixer", mixer_builtins, DOC_PYGAMEMIXER);
     dict = PyModule_GetDict (module);
 
     PyDict_SetItemString (dict, "Sound", (PyObject *)&PySound_Type);
@@ -1086,7 +1086,7 @@ void initmixer (void)
     import_pygame_rwobject ();
     import_pygame_bufferproxy ();
 
-    music = PyImport_ImportModule("pygame.mixer_music");
+    music = PyImport_ImportModule (MODPREFIX "mixer_music");
     if (!music) {
         /* try loading it under this name...
         */

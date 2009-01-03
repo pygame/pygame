@@ -1514,7 +1514,7 @@ void initrect (void)
     if (PyType_Ready (&PyRect_Type) < 0)
         return;
 
-    module = Py_InitModule3 ("rect", rect__builtins__, rectangle_doc);
+    module = Py_InitModule3 (MODPREFIX "rect", rect__builtins__, rectangle_doc);
     dict = PyModule_GetDict (module);
 
     PyDict_SetItemString (dict, "RectType", (PyObject *)&PyRect_Type);

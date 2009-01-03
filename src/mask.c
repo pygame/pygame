@@ -648,16 +648,21 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 
 static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
 {
-    PyObject *surfobj, *surfobj2 = NULL;
+    PyObject *surfobj, *surfobj2;
     PyMaskObject *maskobj;
     bitmask_t* m;
-    SDL_Surface* surf = NULL, *surf2 = NULL;
+    SDL_Surface* surf, *surf2;
     int bpp;
-    PyObject *rgba_obj_color, *rgba_obj_threshold = NULL;
+    PyObject *rgba_obj_color, *rgba_obj_threshold;
     Uint8 rgba_color[4];
-    Uint8 rgba_threshold[4] = {0, 0, 0, 255};
+    Uint8 rgba_threshold[4];
     Uint32 color;
     Uint32 color_threshold;
+
+    surf2 = surf = NULL;
+    surfobj2 = NULL;
+    rgba_obj_threshold = NULL;
+    rgba_threshold[0] = 0; rgba_threshold[1] = 0; rgba_threshold[2] = 0; rgba_threshold[4] = 255;
 
     if (!PyArg_ParseTuple (args, "O!O|OO!", &PySurface_Type, &surfobj,
                            &rgba_obj_color,  &rgba_obj_threshold,
@@ -1385,7 +1390,7 @@ void initmask(void)
   PyType_Init(PyMask_Type);
 
   /* create the module */
-  module = Py_InitModule3("mask", mask_builtins, DOC_PYGAMEMASK);
+  module = Py_InitModule3(MODPREFIX "mask", mask_builtins, DOC_PYGAMEMASK);
   dict = PyModule_GetDict(module);
   PyDict_SetItemString(dict, "MaskType", (PyObject *)&PyMask_Type);
 

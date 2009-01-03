@@ -225,7 +225,7 @@ PYGAME_EXPORT
 void initoverlay (void)
 {
     PyObject *module;
-    module = Py_InitModule ("overlay", overlay_methods );
+    module = Py_InitModule (MODPREFIX "overlay", overlay_methods );
 
     PyOverlay_Type.ob_type = &PyType_Type;
     PyOverlay_Type.tp_dealloc = (destructor) overlay_dealloc;

@@ -73,6 +73,14 @@
 #endif
 #endif
 
+
+#define MODPREFIX "pygame."
+
+#ifdef __SYMBIAN32__
+#undef MODPREFIX
+#define MODPREFIX "pygame_"
+#endif
+
 #include <SDL.h>
 
 /* macros used throughout the source */
@@ -174,7 +182,7 @@ typedef getcharbufferproc charbufferproc;
     (*(int(*)(PyObject*, Uint8*))PyGAME_C_API[PYGAMEAPI_BASE_FIRSTSLOT + 12])
 
 #define import_pygame_base() {                                          \
-	PyObject *_module = PyImport_ImportModule("pygame.base");        \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "base");        \
 	if (_module != NULL) {                                           \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -220,7 +228,7 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_RECT_FIRSTSLOT + 3])
 
 #define import_pygame_rect() {                                          \
-	PyObject *_module = PyImport_ImportModule("pygame.rect");        \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "rect");        \
 	if (_module != NULL) {                                         \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -255,7 +263,7 @@ typedef struct {
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_CDROM_FIRSTSLOT + 1])
 
 #define import_pygame_cd() {                                      \
-	PyObject *_module = PyImport_ImportModule("pygame.cdrom"); \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "cdrom"); \
 	if (_module != NULL) {                                     \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -294,7 +302,7 @@ typedef struct {
     (*(PyObject*(*)(int))PyGAME_C_API[PYGAMEAPI_JOYSTICK_FIRSTSLOT + 1])
 
 #define import_pygame_joystick() {                                      \
-	PyObject *_module = PyImport_ImportModule("pygame.joystick");    \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "joystick");    \
 	if (_module != NULL) {                                           \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -332,7 +340,7 @@ typedef struct {
     (*(PyObject*(*)(SDL_VideoInfo*))                    \
      PyGAME_C_API[PYGAMEAPI_DISPLAY_FIRSTSLOT + 1])
 #define import_pygame_display() {                                   \
-	PyObject *_module = PyImport_ImportModule("pygame.display"); \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "display"); \
 	if (_module != NULL) {                                       \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -377,7 +385,7 @@ typedef struct {
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
 
 #define import_pygame_surface() {                                   \
-	PyObject *_module = PyImport_ImportModule("pygame.surface"); \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "surface"); \
 	if (_module != NULL) {                                       \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -390,7 +398,7 @@ typedef struct {
             }                                                           \
             Py_DECREF(_module);                                          \
         }                                                               \
-	_module = PyImport_ImportModule("pygame.surflock");              \
+	_module = PyImport_ImportModule(MODPREFIX "surflock");              \
 	if (_module != NULL) {                                           \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -480,7 +488,7 @@ typedef struct {
     (*(int (*)(PyEventObject*, SDL_Event*))             \
      PyGAME_C_API[PYGAMEAPI_EVENT_FIRSTSLOT + 3])
 #define import_pygame_event() {                                   \
-	PyObject *_module = PyImport_ImportModule("pygame.event"); \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "event"); \
 	if (_module != NULL) {                                     \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -511,7 +519,7 @@ typedef struct {
 #define RWopsCheckPythonThreaded                                        \
     (*(int(*)(SDL_RWops*))PyGAME_C_API[PYGAMEAPI_RWOBJECT_FIRSTSLOT + 3])
 #define import_pygame_rwobject() {                                   \
-	PyObject *_module = PyImport_ImportModule("pygame.rwobject"); \
+	PyObject *_module = PyImport_ImportModule(MODPREFIX "rwobject"); \
 	if (_module != NULL) {                                        \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
@@ -552,7 +560,7 @@ typedef struct
     PyGAME_C_API[PYGAMEAPI_BUFFERPROXY_FIRSTSLOT + 1])
 #define import_pygame_bufferproxy()                                      \
     {                                                                    \
-	PyObject *_module = PyImport_ImportModule ("pygame.bufferproxy");\
+	PyObject *_module = PyImport_ImportModule (MODPREFIX "bufferproxy");\
 	if (_module != NULL)                                             \
         {                                                                \
             PyObject *_dict = PyModule_GetDict (_module);                \
@@ -583,7 +591,7 @@ typedef struct
     (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_PIXELARRAY_FIRSTSLOT + 1])
 #define import_pygame_pixelarray()                                       \
     {                                                                    \
-	PyObject *_module = PyImport_ImportModule ("pygame.pixelarray"); \
+	PyObject *_module = PyImport_ImportModule (MODPREFIX "pixelarray"); \
 	if (_module != NULL)                                             \
         {                                                                \
             PyObject *_dict = PyModule_GetDict (_module);                \
@@ -616,7 +624,7 @@ typedef struct
     (*(int(*)(PyObject*, Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 2])
 #define import_pygame_color()                                           \
     {                                                                   \
-	PyObject *_module = PyImport_ImportModule ("pygame.color");     \
+	PyObject *_module = PyImport_ImportModule (MODPREFIX "color");     \
 	if (_module != NULL)                                            \
         {                                                               \
             PyObject *_dict = PyModule_GetDict (_module);               \
@@ -642,10 +650,47 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #endif
 
 /*last platform compiler stuff*/
-#if defined(macintosh) && defined(__MWERKS__)
+#if defined(macintosh) && defined(__MWERKS__) || defined(__SYMBIAN32__)
 #define PYGAME_EXPORT __declspec(export)
 #else
 #define PYGAME_EXPORT
 #endif
+
+// Redifined as empty for the rest of the code
+#undef MODPREFIX
+#define MODPREFIX ""
+
+#ifdef __SYMBIAN32__
+
+#undef MODPREFIX
+#define MODPREFIX "pygame_"
+
+// These are missing from Python 2.2
+#ifndef Py_RETURN_NONE
+
+#define Py_RETURN_NONE     return Py_INCREF(Py_None), Py_None
+#define Py_RETURN_TRUE     return Py_INCREF(Py_True), Py_True
+#define Py_RETURN_FALSE    return Py_INCREF(Py_False), Py_False
+#ifndef intrptr_t
+#define intptr_t int
+
+// No PySlice_GetIndicesEx on Py 2.2        
+#define PySlice_GetIndicesEx(a,b,c,d,e,f) PySlice_GetIndices(a,b,c,d,e)
+
+#define PyBool_FromLong(x) 	Py_BuildValue("b", x)
+#endif
+
+// _symport_free and malloc are not exported in python.dll
+// See http://discussion.forum.nokia.com/forum/showthread.php?t=57874
+#undef PyObject_NEW
+#define PyObject_NEW PyObject_New
+#undef PyMem_MALLOC
+#define PyMem_MALLOC PyMem_Malloc
+#undef PyObject_DEL
+#define PyObject_DEL PyObject_Del
+
+#endif // Python 2.2.2
+
+#endif // __SYMBIAN32__
 
 #endif /* PYGAME_H */

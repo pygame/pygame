@@ -197,6 +197,7 @@ static PyTypeObject PyPixelArray_Type =
     0,                          /* tp_init */
     0,                          /* tp_alloc */
     _pxarray_new,               /* tp_new */
+#ifndef __SYMBIAN32__
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -205,6 +206,7 @@ static PyTypeObject PyPixelArray_Type =
     0,                          /* tp_subclasses */
     0,                          /* tp_weaklist */
     0                           /* tp_del */
+#endif    
 };
 
 static PyPixelArray*
@@ -2039,7 +2041,7 @@ void initpixelarray (void)
         return;
     
     /* create the module */
-    module = Py_InitModule3 ("pixelarray", NULL, NULL);
+    module = Py_InitModule3 (MODPREFIX "pixelarray", NULL, NULL);
     Py_INCREF (&PyPixelArray_Type);
     PyModule_AddObject (module, "PixelArray", (PyObject *) &PyPixelArray_Type);
     PyPixelArray_Type.tp_getattro = PyObject_GenericGetAttr;
