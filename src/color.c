@@ -229,6 +229,7 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_init */
     0,                          /* tp_alloc */
     _color_new,                 /* tp_new */
+#ifndef __SYMBIAN32__ 
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -237,6 +238,7 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_subclasses */
     0,                          /* tp_weaklist */
     0                           /* tp_del */
+#endif    
 };
 
 #define PyColor_Check(o) \
@@ -1582,6 +1584,11 @@ RGBAFromColorObj (PyObject *color, Uint8 rgba[])
         return RGBAFromObj (color, rgba);
 }
 
+static PyMethodDef color_builtins[] =
+{ 
+    { NULL, NULL, 0, NULL }
+};
+
 PYGAME_EXPORT
 void initcolor (void)
 {
@@ -1595,13 +1602,13 @@ void initcolor (void)
         return;
     
     /* create the module */
-    module = Py_InitModule3 ("color", NULL, "color module for pygame");
+    module = Py_InitModule3 (MODPREFIX "color", color_builtins, "color module for pygame");
     PyColor_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF (&PyColor_Type);
     PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type);
     dict = PyModule_GetDict (module);
 
-    colordict = PyImport_ImportModule ("pygame.colordict");
+    colordict = PyImport_ImportModule (MODPREFIX "colordict");
     if (colordict)
     {
         PyObject *_dict = PyModule_GetDict (colordict);

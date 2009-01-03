@@ -42,7 +42,7 @@ void initconstants (void)
     PyObject* module;
     
     module = Py_InitModule3
-        ("constants", builtins,
+        (MODPREFIX "constants", builtins,
          "Constants defined by SDL and needed in Pygame.\n");
 
     DEC_CONST (LIL_ENDIAN);
