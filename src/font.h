@@ -47,7 +47,7 @@ typedef struct {
 #define PyFont_New (*(PyObject*(*)(TTF_Font*))PyFONT_C_API[1])
 /*slot 2 taken by FONT_INIT_CHECK*/
 #define import_pygame_font() { \
-	PyObject *module = PyImport_ImportModule("pygame.font"); \
+	PyObject *module = PyImport_ImportModule(MODPREFIX "font"); \
 	if (module != NULL) { \
 		PyObject *dict = PyModule_GetDict(module); \
 		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY); \

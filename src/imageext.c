@@ -267,7 +267,7 @@ write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     cinfo.image_height = image_height;
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
-
+  
     jpeg_set_defaults (&cinfo);
     jpeg_set_quality (&cinfo, quality, TRUE);
 
@@ -351,7 +351,7 @@ SaveJPEG (SDL_Surface *surface, char *file)
 
 #endif /* end if JPEGLIB_H */
 
-/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c
+/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c  
    need to share it between both.
 */
 
@@ -368,7 +368,7 @@ opengltosdl ()
 
     GL_glReadPixels_Func p_glReadPixels= NULL;
 
-    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress ("glReadPixels"); 
+    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels"); 
 
     surf = SDL_GetVideoSurface ();
 
@@ -381,7 +381,7 @@ opengltosdl ()
         return NULL;
     }
 
-    pixels = (unsigned char*) malloc (surf->w * surf->h * 3);
+    pixels = (unsigned char*) malloc(surf->w * surf->h * 3);
 
     if(!pixels) {
         RAISE (PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
@@ -389,7 +389,7 @@ opengltosdl ()
     }
 
     /* GL_RGB, GL_UNSIGNED_BYTE */
-    p_glReadPixels (0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
+    p_glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
 
     if (SDL_BYTEORDER == SDL_LIL_ENDIAN) {
         rmask=0x000000FF;
@@ -403,7 +403,7 @@ opengltosdl ()
     surf = SDL_CreateRGBSurface (SDL_SWSURFACE, surf->w, surf->h, 24,
                                  rmask, gmask, bmask, 0);
     if (!surf) {
-        free (pixels);
+        free(pixels);
         RAISE (PyExc_SDLError, SDL_GetError ());
         return NULL;
     }
@@ -414,7 +414,7 @@ opengltosdl ()
     }
 
 
-    free (pixels);
+    free(pixels);
     return surf;
 }
 
@@ -508,7 +508,7 @@ PYGAME_EXPORT
 void initimageext (void)
 {
     /* create the module */
-    Py_InitModule3 ("imageext", image_builtins, NULL);
+    Py_InitModule3 (MODPREFIX "imageext", image_builtins, NULL);
 
     /*imported needed apis*/
     import_pygame_base ();

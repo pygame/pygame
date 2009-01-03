@@ -64,8 +64,8 @@ font_resource (char *filename)
         goto font_resource_end;
 
     if (PyFile_Check (result))
-    {
-        PyObject *tmp = PyFile_Name (result);
+    {		
+        PyObject *tmp = PyFile_Name (result);        
         Py_INCREF (tmp);
         Py_DECREF (result);
         result = tmp;
@@ -513,7 +513,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
     int fontsize;
     TTF_Font* font = NULL;
     PyObject* fileobj;
-	
+    
     self->font = NULL;
     if (!PyArg_ParseTuple (args, "Oi", &fileobj, &fontsize))
         return -1;
@@ -536,7 +536,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         if (!fileobj)
         {
             char error[1024];
-            snprintf (error, 1024, "default font not found '%s'",
+            PyOS_snprintf (error, 1024, "default font not found '%s'",
                       font_defaultname);
             RAISE (PyExc_RuntimeError, error);
             return -1;
@@ -545,17 +545,18 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         if (fontsize <= 1)
             fontsize = 1;
     }
-
+     
     if (PyString_Check (fileobj) || PyUnicode_Check (fileobj))
     {
         FILE* test;
         char* filename = PyString_AsString (fileobj);
-        Py_DECREF (fileobj);
+#ifndef __SYMBIAN32__        
+        Py_DECREF (fileobj); 
         fileobj = NULL;
-
+#endif        
         if (!filename)
             return -1;
-
+                
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = fopen (filename, "rb");
         if(!test)
@@ -575,6 +576,12 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
             font = TTF_OpenFont(filename, fontsize);
             Py_END_ALLOW_THREADS;
         }
+#ifdef __SYMBIAN32__        
+		// Moved here for Symbian. filename is corrupted if the fileobj is destroyed. 
+        // Possible bug on other platforms too.
+        Py_DECREF (fileobj);
+        fileobj = NULL;
+#endif		
     }
     if (!font)
     {
@@ -701,7 +708,7 @@ void initfont (void)
     PyFont_Type.ob_type = &PyType_Type;
     PyFont_Type.tp_new = &PyType_GenericNew;
 
-    module = Py_InitModule3 ("font", font_builtins, DOC_PYGAMEFONT);
+    module = Py_InitModule3 (MODPREFIX "font", font_builtins, DOC_PYGAMEFONT);
     self_module = module;
 
     Py_INCREF ((PyObject*) &PyFont_Type);
