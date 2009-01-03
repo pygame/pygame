@@ -7,6 +7,8 @@ Basic requirements:
 
 === Getting necessary libraries ===
 
+Create symbian/deps directory
+
 Get ogg to symbian/deps/ogg
 - IMPORTANT: Revision 7524
 - SVN: http://svn.xiph.org/trunk/ogg 
@@ -14,7 +16,6 @@ Get ogg to symbian/deps/ogg
 Get vorbis to symbian/deps/vorbis
 - IMPORTANT: Revision 7543
 - SVN: http://svn.xiph.org/trunk/vorbis
-
 
 Get SDL for Series60
 - Available at: http://koti.mbnet.fi/mertama/sdl.html
@@ -43,9 +44,8 @@ Get Symbian FreeType2 port to symbian/deps/sft2
 pygame library
 - The pygame is implemented as static library to be statically linked to pygame application.
 
-
 About selecting Python:
 - You can select the python.dll to link against by giving scons parameter 'pythondll' 
 - ex. scons pythondll=Python222
-
+- default is "pygame_python"
 
