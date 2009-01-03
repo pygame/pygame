@@ -46,6 +46,14 @@ def collect_doc_files():
     return files
 
 def Run():
+    
+    from optparse import OptionParser    
+    parser = OptionParser()
+    parser.add_option("", "--no-code-docs", dest="have_code_docs",
+                      action="store_false", default=True,
+                      help="No python documentation in code.")
+    (options, args) = parser.parse_args()
+
     files = collect_doc_files()
     for file in files:
         # print file
@@ -83,7 +91,7 @@ def Run():
     outFile = open(os.path.join("src", "pygamedocs.h"), "w")
     outFile.write("/* Auto generated file: with makeref.py .  Docs go in src/ *.doc . */\n")
     for doc in justDocs:
-        WriteDocHeader(outFile, doc)
+        WriteDocHeader(outFile, doc, options.have_code_docs)
 
     topDoc = LayoutDocs(justDocs)
 
@@ -229,24 +237,25 @@ def WriteIndex(outFile, index, doc):
 
 
 
-def WriteDocHeader(f, doc):
+def WriteDocHeader(f, doc, have_code_docs ):
     name = doc.fullname.replace(".", "")
     name = name.replace("_", "")
     name = name.upper()
     defineName = "DOC_" + name
     text = ""
-    if doc.protos:
-        text = "\\n".join(doc.protos)
-    if doc.descr:
-        if text:
-            text += "\\n"
-        text += doc.descr
+    if have_code_docs:
+        if doc.protos:
+            text = "\\n".join(doc.protos)
+        if doc.descr:
+            if text:
+                text += "\\n"
+            text += doc.descr
     
     f.write('#define %s "%s"\n\n' % (defineName, text))
 
     if doc.kids:
         for kid in doc.kids:
-            WriteDocHeader(f, kid)
+            WriteDocHeader(f, kid, have_code_docs)
 
 
 class Doc(object):
