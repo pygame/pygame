@@ -1572,7 +1572,7 @@ void initdraw(void)
 	PyObject *module, *dict;
 
     /* create the module */
-	module = Py_InitModule3("draw", draw_builtins, DOC_PYGAMEDRAW);
+	module = Py_InitModule3(MODPREFIX "draw", draw_builtins, DOC_PYGAMEDRAW);
 	dict = PyModule_GetDict(module);
 
 	/*imported needed apis*/

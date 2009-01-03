@@ -1041,7 +1041,7 @@ void initdisplay (void)
     PyType_Init (PyVidInfo_Type);
 
     /* create the module */
-    module = Py_InitModule3 ("display", display_builtins, DOC_PYGAMEDISPLAY);
+    module = Py_InitModule3 (MODPREFIX "display", display_builtins, DOC_PYGAMEDISPLAY);
     dict = PyModule_GetDict (module);
     self_module = module;
 

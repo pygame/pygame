@@ -268,7 +268,7 @@ initfastevent (void)
     /* imported needed apis */
     import_pygame_base ();
     import_pygame_event ();
-    eventmodule = PyImport_ImportModule ("pygame.event");
+    eventmodule = PyImport_ImportModule (MODPREFIX "event");
     if (eventmodule)
     {
         char *NAMES[] = {"Event", "event_name", NULL};
