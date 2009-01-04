@@ -131,6 +131,14 @@ void bitmask_erase(bitmask_t *a, const bitmask_t *b, int xoffset, int yoffset);
    be reasonable. If either w or h is 0 a clear 1x1 mask is returned. */
 bitmask_t *bitmask_scale(const bitmask_t *m, int w, int h);
 
+/* Convolve b into a, drawing the output into o, shifted by offset.  If offset
+ * is 0, then the (x,y) bit will be set if and only if
+ * bitmask_overlap(a, b, x - b->w - 1, y - b->h - 1) returns true.
+ *
+ * Modifies bits o[xoffset ... xoffset + a->w + b->w - 1)
+ *                [yoffset ... yoffset + a->h + b->h - 1). */
+void bitmask_convolve(const bitmask_t *a, const bitmask_t *b, bitmask_t *o, int xoffset, int yoffset);
+
 #ifdef __cplusplus
 } /* End of extern "C" { */
 #endif
