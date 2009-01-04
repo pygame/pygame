@@ -977,3 +977,14 @@ bitmask_t *bitmask_scale(const bitmask_t *m, int w, int h)
   return nm;
 }
 
+void bitmask_convolve(const bitmask_t *a, const bitmask_t *b, bitmask_t *o, int xoffset, int yoffset)
+{
+  int x, y;
+
+  xoffset += b->w - 1;
+  yoffset += b->h - 1;
+  for (y = 0; y < b->h; y++)
+    for (x = 0; x < b->w; x++)
+      if (bitmask_getbit(b, x, y))
+        bitmask_draw(o, a, xoffset - x, yoffset - y);
+}

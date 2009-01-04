@@ -385,6 +385,8 @@
 
 #define DOC_MASKOUTLINE "Mask.outline(every = 1) -> [(x,y), (x,y) ...]\nlist of points outlining an object"
 
+#define DOC_MASKCONVOLVE "Mask.convolve(othermask, outputmask = None, offset = (0,0)) -> Mask\nReturn the convolution of self with another mask."
+
 #define DOC_MASKCONNECTEDCOMPONENT "Mask.connected_component((x,y) = None) -> Mask\nReturns a mask of a connected region of pixels."
 
 #define DOC_MASKCONNECTEDCOMPONENTS "Mask.connected_components(min = 0) -> [Masks]\nReturns a list of masks of connected regions of pixels."
