@@ -521,7 +521,7 @@
 
 #define DOC_PYGAMEMIXERMUSIC "pygame module for controlling streamed audio"
 
-#define DOC_PYGAMEMIXERMUSICLOAD "pygame.mixer.music.load(filename): return None\nLoad a music file for playback"
+#define DOC_PYGAMEMIXERMUSICLOAD "pygame.mixer.music.load(filename): return None\npygame.mixer.music.load(object): return None\nLoad a music file for playback"
 
 #define DOC_PYGAMEMIXERMUSICPLAY "pygame.mixer.music.play(loops=0, start=0.0): return None\nStart the playback of the music stream"
 
