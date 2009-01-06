@@ -1,5 +1,7 @@
 from scons_symbian import *
 
+gcce.GCCE_OPTIMIZATION_FLAGS = "-O2 -fno-unit-at-a-time"
+
 # Pygame's installer package
 PACKAGE_NAME = ARGUMENTS.get( "package",    "pygame.sis" )
 PACKAGE_TITLE = ARGUMENTS.get( "sisappname", "pygame for S60" )
@@ -9,12 +11,17 @@ PYTHON_LIB_NAME = ARGUMENTS.get( "pythondll", "pygame_python" )
 PATH_PY_LIBS = ARGUMENTS.get( "pylibs", "data/pygame/libs" )
 #: Name of the used sdl.dll ( pygame_sdl.dll )
 SDL_DLL_NAME = ARGUMENTS.get( "sdldll", "pygame_sdl" )
+#: Name of the used jpeg.dll
+JPEG_DLL_NAME = ARGUMENTS.get( "jpegdll", "pygame_libjpeg" )
 
-UID_PACKAGE   = ARGUMENTS.get( "sisuid" )
-UID_PYGAMEAPP = ARGUMENTS.get( "appuid" )
-UID_SDL       = ARGUMENTS.get( "sdluid" )
+UID_PACKAGE    = ARGUMENTS.get( "sisuid" )
+UID_PYGAMEAPP  = ARGUMENTS.get( "appuid" )
+UID_SDL        = ARGUMENTS.get( "sdluid" )
+UID_JPEG       = ARGUMENTS.get( "jpeguid" )
 
-CAPABILITIES  = ARGUMENTS.get( "capabilities", CAPS_SELF_SIGNED).split("+")
+CAPABILITIES  = ARGUMENTS.get( "capabilities", "").split("+")
+if len(CAPABILITIES) == 0: CAPABILITIES = CAPS_SELF_SIGNED
+
 SISVERSION    = ARGUMENTS.get( "sisversion", "1,0,0").split(",")
 PYTHON_INCLUDE = ARGUMENTS.get( "pythoninclude", EPOC32_INCLUDE + "/python")
 
@@ -43,7 +50,12 @@ Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS SDL_DLL_NAME CAPABILITIES PYTH
 if ARGUMENTS.get( "buildlibs", True ):
     SConscript( "SConscript.sft2.py" )
     SConscript( "SConscript.Ogg.py" )    
-    SConscript( "SConscript.Vorbis.py" )    
+    SConscript( "SConscript.Vorbis.py" )
+    
+    UID3 = UID_JPEG
+    TARGET_NAME = JPEG_DLL_NAME  
+    Export("TARGET_NAME UID3")
+    SConscript( "SConscript.jpeg.py" )  
     
     TARGET_NAME = SDL_DLL_NAME  
     UID3        = UID_SDL     

@@ -5,6 +5,23 @@ Import("*")
 
 target     = TARGET_NAME
 targettype = "dll"
+
+
+includes    = [ 'deps/SDL/src', 'deps/SDL/src/video', 
+                'deps/SDL/src/events', 'deps/SDL/src/audio', 
+                'deps/SDL/src/audio/symbian', 'deps/SDL/src/main/symbian', 
+                'deps/SDL/src/video/symbian', 'deps/SDL/src/thread', 
+                'deps/SDL/src/thread/generic', 'deps/SDL/src/thread/symbian', 
+                'deps/SDL/src/timer', 'deps/SDL/src/joystick', 
+                'deps/SDL/symbian/inc', 'deps/SDL/inc/internal']
+
+sysincludes = ['deps/SDL/include', '/epoc32/include', 
+               'inc', '/epoc32/include/SDL', 
+               '/epoc32/include/gles', 
+               '/epoc32/include/EGL', 
+               '/epoc32/include/libc', 
+               ]
+
 libraries  = ['euser',
  'fbscli',
  'ws32',
@@ -23,9 +40,13 @@ libraries  = ['euser',
 # 'libm',
  'estlib']
 
-# Static libs
-libraries = [ 'vorbis.lib', 'ogg.lib', 'SDL_ttf.lib', 'libsft2.lib'] + libraries
-
+# Static libraries
+staticlibs = [ 'vorbis.lib', 'ogg.lib', 
+             'SDL_ttf.lib', 
+             'libsft2.lib',
+             'pygame_libjpeg'
+             ]
+defines = []
 sources = ['deps/SDL/symbian/src/vectorbuffer.cpp',
  'deps/SDL/symbian/src/sdlappsrv.cpp',
  'deps/SDL/symbian/src/sdlenv.cpp',
@@ -83,7 +104,7 @@ sources = ['deps/SDL/symbian/src/vectorbuffer.cpp',
 sources += [
  'deps/SDL_mixer/mixer.c',
  'deps/SDL_mixer/music.c',
- 'deps/SDL_mixer/playwave.c',
+ #'deps/SDL_mixer/playwave.c',
  'deps/SDL_mixer/wavestream.c',
  'deps/SDL_mixer/effects_internal.c',
  'deps/SDL_mixer/effect_position.c',
@@ -94,22 +115,37 @@ sources += [
  'deps/SDL_mixer/dynamic_ogg.c',
  'deps/SDL_mixer/music_ogg.c',
 ]
+sysincludes += ['deps/vorbis/include', 
+               'deps/vorbis/include/vorbis', 
+               'deps/ogg/include', 
+               'deps/ogg/include/ogg']
+
+defines += [ 'WAV_MUSIC', 'OGG_MUSIC', ]
 
 # Configure SDL_ttf
 sources += [
  'deps/SDL_ttf/SDL_ttf.c',
 ]
 
+# Configure SDL_image
+sources += Glob('deps/SDL_image/IMG*.c',)
+defines += [
+            'LOAD_JPG',
+            'LOAD_BMP',
+            'LOAD_GIF',
+            'LOAD_TGA'
+            #'LOAD_PNG' # requires glib. We need OpenC
+            ]
+sysincludes += [
+    'deps/jpeg/', 
+]
 
-includes    = [ 'deps/SDL/src', 'deps/SDL/src/video', 
-                'deps/SDL/src/events', 'deps/SDL/src/audio', 
-                'deps/SDL/src/audio/symbian', 'deps/SDL/src/main/symbian', 
-                'deps/SDL/src/video/symbian', 'deps/SDL/src/thread', 
-                'deps/SDL/src/thread/generic', 'deps/SDL/src/thread/symbian', 
-                'deps/SDL/src/timer', 'deps/SDL/src/joystick', 
-                'deps/SDL/symbian/inc', 'deps/SDL/inc/internal']
-sysincludes = ['deps/SDL/include', '/epoc32/include', 'inc', '/epoc32/include/SDL', '/epoc32/include/gles', '/epoc32/include/EGL', '/epoc32/include/libc', 'deps/vorbis/include', 'deps/vorbis/include/vorbis', 'deps/ogg/include', 'deps/ogg/include/ogg']
-defines     = ['SYMBIANC', 'SYMBIAN_SERIES60', 'NO_SIGNAL_H', 'ENABLE_EPOC', 'DISABLE_JOYSTICK', 'DISABLE_CDROM', 'WAV_MUSIC', 'OGG_MUSIC']
+
+
+defines     +=['SYMBIANC', 'SYMBIAN_SERIES60', 
+               'NO_SIGNAL_H', 'ENABLE_EPOC', 
+               'DISABLE_JOYSTICK', 'DISABLE_CDROM',                
+               ]
 
 includes += ["deps/SDL_ttf/", "deps/sft2/inc/sys"]
 
@@ -117,7 +153,7 @@ SymbianProgram( target, targettype,
     sources = sources,
     includes    = includes,
     sysincludes = sysincludes,
-    libraries   = libraries,
+    libraries   = staticlibs + libraries,
     defines     = defines,
     capabilities = CAPABILITIES,
     uid3 = UID3,

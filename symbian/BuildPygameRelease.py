@@ -11,11 +11,18 @@ from scons_symbian.config.constants import CAPS_SELF_SIGNED
 BASE_CMD = "scons dosis=true"
 
 UID_PACKAGE   = 0xE0006020
-UID_PYGAMEAPP = UID_PACKAGE + 1
-UID_SDL       = UID_PYGAMEAPP + 1
+__uid = UID_PACKAGE 
+def getuid(): 
+    global __uid
+    __uid += 1
+    return __uid  
+
+UID_PYGAMEAPP = getuid()
+UID_SDL       = getuid()
+UID_JPEG      = getuid()
 
 #: Base uid for PyS60 CE scripts
-UID_BASE = UID_SDL + 1
+UID_BASE = getuid()
 
 #: Capability configuration
 CAPABILITIES = CAPS_SELF_SIGNED[:]
@@ -55,21 +62,24 @@ def build():
              'libpath'      : "data/pygame/libs",
              }
     
-    # Build PyS60 
-    curdir = os.getcwd()
-    os.chdir(config.pys60_ce_src)
-    
+    # Build PyS60 CE
+    sisname   = ""  
     if config.build_python:
-        dobuild(args)
+        curdir = os.getcwd()
+        os.chdir(config.pys60_ce_src)                
+        dobuild(args)    
+        os.chdir(curdir)
     
-    os.chdir(curdir)
+        sisname = "python_for_pygame_%s_signed.sisx" % version
+        pys60_sis = os.path.join( config.pys60_ce_src, sisname )
+                
+        # Copy the sis to current directory
+        import shutil
+        shutil.copyfile(pys60_sis, sisname)
     
-    sisname = "python_for_pygame_%s_signed.sisx" % version
-    sissource = os.path.join( config.pys60_ce_src, sisname )
+    else:
+        sisname = config.pys60_sis
     
-    # Copy the sis to current directory
-    import shutil
-    shutil.copyfile(sissource, sisname)
      
     # Build pygame
     args["pythonsis"]  = sisname
@@ -80,7 +90,7 @@ def build():
     args['sisuid'] = hex(UID_PACKAGE).replace("L","")
     args['appuid'] = hex(UID_PYGAMEAPP).replace("L","")
     args['sdluid'] = hex(UID_SDL).replace("L","")
-    
+    args['jpeguid']= hex(UID_JPEG).replace("L","")
     dobuild(args)
     
     

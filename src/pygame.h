@@ -81,6 +81,7 @@
 
 #ifdef __SYMBIAN32__
 #undef MODPREFIX
+#undef IMPPREFIX
 // On Symbian there is no pygame package. The extensions are built-in or in sys\bin.
 #define MODPREFIX "pygame_"
 #define IMPPREFIX "pygame_"

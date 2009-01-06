@@ -7,13 +7,16 @@ Basic requirements:
 
 === Getting necessary libraries ===
 
+Run 'makeref.py --no-code-docs'
+- This regenerates pygame module documentation without documentation in code.
+
 Create symbian/deps directory
 
-Get ogg to symbian/deps/ogg
+Checkout ogg to symbian/deps/ogg
 - IMPORTANT: Revision 7524
 - SVN: http://svn.xiph.org/trunk/ogg 
 
-Get vorbis to symbian/deps/vorbis
+Checkout vorbis to symbian/deps/vorbis
 - IMPORTANT: Revision 7543
 - SVN: http://svn.xiph.org/trunk/vorbis
 
@@ -31,13 +34,52 @@ Get Symbian FreeType2 port to symbian/deps/sft2
 - SVN: https://sft2.svn.sourceforge.net/svnroot/sft2/trunk/sft2
 
 
-=== Building ===
+Get SDL_image to symbian/deps/SDL_image
+- http://www.libsdl.org/projects/SDL_image/
+
+
+Checkout jpeg library to symbian/deps/jpeg
+- https://movino.svn.sourceforge.net/svnroot/movino/libjpeg/trunk
+
+
 
 - The build scripts use SCons for Symbian. 
 -- http://code.google.com/p/scons-for-symbian/
 -- Follow the installation instructions
 
-- Go to pygame/symbian directory and invoke 'scons'
+
+=== Building ===
+
+==== Using the release building script ====
+- Go to pygame/symbian directory
+
+The pygame can be built against the official(or any) pys60 version. 
+Initialize the release script by giving it information about the python dll to be linked with
+and the sis file to be embedded with it's UID.
+- TODO: Not implemented yet!!
+- configure.py --pythondll=python222 --pys60-embed=Python_1.4.5_3rdEd.sis
+- configure.py --pythondll=python25  --pys60-embed=Python_1.9.0_3rdEd.sis
+
+or
+
+- Use BuildPygameRelease.py script to build the 'pygame_python' with PyS60 Community Edition,
+  the depended libraries and the pygame itself. All in one.
+- Give the path to the PyS60 CE's 'src' directory as a parameter for the script 
+- The CE version is used to do some customizations for the Python installation. 
+- The above parameters are handled automatically in that case.
+- Of course, you can build the PyS60 CE manually and configure the build script as above.
+
+configure.py --pys60-ce=\projects\pys60ce\trunk\src
+
+==== Do the build ====
+
+Emulator:
+- Run: BuildPygameRelease.py 
+
+Device:
+- Run: BuildPygameRelease.py compiler=gcce release=urel cert=mycert.cer privkey=mycert.key passphprase=mypassword gcce_options="-O2 -fno-unit-at-a-time"
+-- NOTE: The gcce_options are optional but recommended to reduce the binary size.
+
 
 === Misc info ===
 

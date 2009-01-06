@@ -25,6 +25,7 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
                              PYTHON_LIB_NAME,
                              SDL_DLL_NAME,
                              "pygame.lib",
+                             'pygame_libjpeg',
                              #"LogMan"
                              ],
                 uid3=UID_PYGAMEAPP,

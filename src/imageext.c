@@ -26,8 +26,15 @@
  *  the extended load and save functions, which are autmatically used
  *  by the normal pygame.image module if it is available.
  */
+// This is temporal until PNG support is done for Symbian
+#ifdef __SYMBIAN32__
+#include <stdio.h>
+#else
 #include <png.h>
+#endif
 #include <jpeglib.h>
+
+
 /* Remove GCC macro redefine warnings. */
 #if defined(HAVE_STDDEF_H)  /* also defined in pygame.h (python.h) */
 #undef HAVE_STDDEF_H

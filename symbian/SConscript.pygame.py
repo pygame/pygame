@@ -9,10 +9,10 @@ python_includes = [ PYTHON_INCLUDE ]
 #music.c
 #mixer.c
 #font.c
+#imageext.c
 ignored = r"""
 camera.c
 ffmovie.c
-imageext.c
 movie.c
 movieext.c
 pixelarray_methods.c
@@ -46,7 +46,9 @@ SymbianProgram( "pygame", TARGETTYPE_LIB,
                 defines = [                    
                 ],
                 includes = python_includes + [
-                             "common",
+                             "common",                             
+                             join( "deps", "jpeg"),
+                             join( "deps", "SDL_image"),
                              join( EPOC32_INCLUDE, "SDL"),
                              join( EPOC32_INCLUDE, "libc"),                             
                              #join( "..", "..", "tools", "debug" )

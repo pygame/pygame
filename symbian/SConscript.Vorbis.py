@@ -49,8 +49,6 @@ SymbianProgram( target, targettype,
     sysincludes = sysincludes,
     libraries   = libraries,
     defines     = defines,
-    epocstacksize = 8192,
-    epocheapsize  = (0x400,0x100000),
     uid3 = uid3,
 )
 
