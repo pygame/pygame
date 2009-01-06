@@ -1,3 +1,5 @@
+""" Full build configuration for pygame """
+
 import sys
 import time
 import os
@@ -62,6 +64,12 @@ def build():
              'libpath'      : "data/pygame/libs",
              }
     
+    # Add certificate stuff
+    if config.cert is not None:
+        args['cert'] = config.cert        
+        args['privkey'] = config.privkey
+        args['passphrase'] = config.passphrase
+        
     # Build PyS60 CE
     sisname   = ""  
     if config.build_python:
@@ -91,6 +99,10 @@ def build():
     args['appuid'] = hex(UID_PYGAMEAPP).replace("L","")
     args['sdluid'] = hex(UID_SDL).replace("L","")
     args['jpeguid']= hex(UID_JPEG).replace("L","")
+    
+    if config.pythondll is not None:
+        args['pythondll'] = config.pythondll
+    
     dobuild(args)
     
     

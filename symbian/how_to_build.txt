@@ -57,8 +57,8 @@ The pygame can be built against the official(or any) pys60 version.
 Initialize the release script by giving it information about the python dll to be linked with
 and the sis file to be embedded with it's UID.
 - TODO: Not implemented yet!!
-- configure.py --pythondll=python222 --pys60-embed=Python_1.4.5_3rdEd.sis
-- configure.py --pythondll=python25  --pys60-embed=Python_1.9.0_3rdEd.sis
+- configure.py pythondll=python222 pys60-embed=Python_1.4.5_3rdEd.sis
+- configure.py pythondll=python25  pys60-embed=Python_1.9.0_3rdEd.sis
 
 or
 
@@ -69,7 +69,11 @@ or
 - The above parameters are handled automatically in that case.
 - Of course, you can build the PyS60 CE manually and configure the build script as above.
 
-configure.py --pys60-ce=\projects\pys60ce\trunk\src
+# Build everything, including pys60
+configure.py pys60_ce_src=\projects\pys60ce\trunk\src
+
+# Use existing python sis. Need to configure the python dll for linker.
+configure.py build_python=False pys60_sis=official_python.sisx pythondll=python222.dll
 
 ==== Do the build ====
 
