@@ -63,8 +63,8 @@ static PyObject *surf_convert (PyObject *self, PyObject *args);
 static PyObject *surf_convert_alpha (PyObject *self, PyObject *args);
 static PyObject *surf_set_clip (PyObject *self, PyObject *args);
 static PyObject *surf_get_clip (PyObject *self);
-static PyObject *surf_blit (PyObject *self, PyObject *args);
-static PyObject *surf_fill (PyObject *self, PyObject *args);
+static PyObject *surf_blit (PyObject *self, PyObject *args, PyObject *keywds);
+static PyObject *surf_fill (PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject *surf_get_abs_offset (PyObject *self);
 static PyObject *surf_get_abs_parent (PyObject *self);
 static PyObject *surf_get_bitsize (PyObject *self);
@@ -129,8 +129,10 @@ static struct PyMethodDef surface_methods[] =
     { "get_clip", (PyCFunction) surf_get_clip, METH_NOARGS,
       DOC_SURFACEGETCLIP },
 
-    { "fill", surf_fill, METH_VARARGS, DOC_SURFACEFILL },
-    { "blit", surf_blit, METH_VARARGS, DOC_SURFACEBLIT },
+    { "fill", (PyCFunction) surf_fill, METH_VARARGS | METH_KEYWORDS,
+      DOC_SURFACEFILL },
+    { "blit", (PyCFunction) surf_blit, METH_VARARGS | METH_KEYWORDS,
+      DOC_SURFACEBLIT },
 
     { "get_flags", (PyCFunction) surf_get_flags, METH_NOARGS,
       DOC_SURFACEGETFLAGS },
@@ -1304,7 +1306,7 @@ surf_get_clip (PyObject *self)
 
 
 static PyObject*
-surf_fill (PyObject *self, PyObject *args)
+surf_fill (PyObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
     GAME_Rect *rect, temp;
@@ -1316,7 +1318,9 @@ surf_fill (PyObject *self, PyObject *args)
     SDL_Rect sdlrect;
     int blendargs = 0;
 
-    if (!PyArg_ParseTuple (args, "O|Oi", &rgba_obj, &r, &blendargs))
+    static char *kwids[] = {"color", "rect", "special_flags", NULL};
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "O|Oi", kwids,
+                                      &rgba_obj, &r, &blendargs))
         return NULL;
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
@@ -1383,7 +1387,7 @@ surf_fill (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-surf_blit (PyObject *self, PyObject *args)
+surf_blit (PyObject *self, PyObject *args, PyObject *keywds)
 {
     SDL_Surface *src, *dest = PySurface_AsSurface (self);
     GAME_Rect *src_rect, temp;
@@ -1391,12 +1395,12 @@ surf_blit (PyObject *self, PyObject *args)
     int dx, dy, result;
     SDL_Rect dest_rect, sdlsrc_rect;
     int sx, sy;
-    int the_args;
+    int the_args = 0;
 
-    the_args = 0;
-
-    if (!PyArg_ParseTuple (args, "O!O|Oi", &PySurface_Type, &srcobject,
-                           &argpos, &argrect, &the_args))
+    static char *kwids[] = {"source", "dest", "area", "special_flags", NULL};
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "O!O|Oi", kwids,
+                                      &PySurface_Type, &srcobject, &argpos,
+                                      &argrect, &the_args))
         return NULL;
 
     src = PySurface_AsSurface (srcobject);
