@@ -154,6 +154,14 @@ class SurfaceTypeTest(unittest.TestCase):
         for pt in test_utils.rect_outer_bounds(fill_rect):
             self.assert_(s1.get_at(pt) != color )
 
+    def test_fill_keyword_args(self):
+        color = (1, 2, 3, 255)
+        area = (1, 1, 2, 2)
+        s1 = pygame.Surface((4, 4), 0, 32)
+        s1.fill(special_flags=pygame.BLEND_ADD, color=color, rect=area)
+        self.assert_(s1.get_at((0, 0)) == (0, 0, 0, 255))
+        self.assert_(s1.get_at((1, 1)) == color)
+                     
     ########################################################################
 
     def test_get_alpha(self):
@@ -277,7 +285,16 @@ class SurfaceTypeTest(unittest.TestCase):
         r2,g2,b2,a2 = s.get_shifts()
         self.assertEqual((r,g,b,a), (b2,g2,r2,a2))
     
-    
+    def test_blit_keyword_args(self):
+        color = (1, 2, 3, 255)
+        s1 = pygame.Surface((4, 4), 0, 32)
+        s2 = pygame.Surface((2, 2), 0, 32)
+        s2.fill((1, 2, 3))
+        s1.blit(special_flags=BLEND_ADD, source=s2,
+                dest=(1, 1), area=s2.get_rect())
+        self.assertEqual(s1.get_at((0, 0)), (0, 0, 0, 255))
+        self.assertEqual(s1.get_at((1, 1)), color)
+
     def todo_test_blit(self):
         # __doc__ (as of 2008-08-02) for pygame.surface.Surface.blit:
 
