@@ -57,7 +57,7 @@ if "-warnings" in sys.argv:
 
 import os.path, glob, stat
 import distutils.sysconfig
-from distutils.core import setup, Extension
+from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 
@@ -318,6 +318,39 @@ if "bdist_msi" in sys.argv:
             self.db.Commit()
     
     cmdclass['bdist_msi'] = bdist_msi_overwrite_on_install
+
+
+
+
+
+# test command.  For doing 'python setup.py test'
+
+class TestCommand(Command):
+    user_options = [ ]
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs the tests with default options.
+        '''
+        import subprocess
+        return subprocess.call([sys.executable, "run_tests.py"])
+
+cmdclass['test'] = TestCommand
+
+
+
+
+
+
+
+
+
 
 
 #finally,
