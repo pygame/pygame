@@ -58,11 +58,13 @@ def output_main():
     This is a piano keyboard example, with a two octave keyboard, starting at
     note F3. Left mouse down over a key starts a note, left up stops it. The
     notes are also mapped to the computer keyboard keys, assuming an American
-    English keyboard (sorry everyone else, but I don't know if I can map to
+    English PC keyboard (sorry everyone else, but I don't know if I can map to
     absolute key position instead of value.) The white keys are on the second
     row, TAB to BACKSLASH, starting with note F3. The black keys map to the top
-    row, '1' to BACKSPACE, starting with F#3. Close the window or pressing
-    ESCAPE to quit the program.
+    row, '1' to BACKSPACE, starting with F#3. 'r' is middle C. Close the
+    window or pressing ESCAPE to quit the program. Key velocity (note
+    amplitude) varies vertically on the keyboard image, with minimum velocity
+    at the top of a key and maximum velocity at bottom.
 
     Midi output is to the default midi output device for the computer.
     
@@ -74,16 +76,15 @@ def output_main():
     # understand how the keyboard display works to appreciate how midi
     # messages are sent.
 
-    # The keyboard is drawn by a Keyboard instance. This instance maps window
-    # position and Midi note to musical keyboard keys. A separate key_mapping
-    # dictionary maps computer keyboard keys to (Midi note, velocity) pairs.
-    # Midi sound is controlled with direct method calls to a pygame.midi.Output
-    # instance.
+    # The keyboard is drawn by a Keyboard instance. This instance maps Midi
+    # notes to musical keyboard keys. A regions surface maps window position
+    # to (Midi note, velocity) pairs. A key_mapping dictionary does the same
+    # for computer keyboard keys. Midi sound is controlled with direct method
+    # calls to a pygame.midi.Output instance.
     #
     # Things to consider when using pygame.midi:
     #
-    # 1) Initialize the midi module with an explicitly call to
-    #    pygame.midi.init().
+    # 1) Initialize the midi module with a to pygame.midi.init().
     # 2) Create a midi.Output instance for the desired output device port.
     # 3) Select instruments with set_instrument() method calls.
     # 4) Play notes with note_on() and note_off() method calls.
@@ -96,19 +97,24 @@ def output_main():
 
     instrument = CHURCH_ORGAN
     #instrument = GRAND_PIANO
-    start_note = 33  # F3 (white key note)
+    start_note = 53  # F3 (white key note)
     n_notes = 24  # Two octaves (14 white keys)
 
     bg_color = Color('slategray')
 
+    key_mapping = make_key_mapping([K_TAB, K_1, K_q, K_2, K_w, K_3, K_e, K_r,
+                                    K_5, K_t, K_6, K_y, K_u, K_8, K_i, K_9,
+                                    K_o, K_0, K_p, K_LEFTBRACKET, K_EQUALS,
+                                    K_RIGHTBRACKET, K_BACKSPACE, K_BACKSLASH],
+                                   start_note)
+    
     port = pygame.midi.get_default_output_device_id()
     pygame.init()
     pygame.midi.init()
     midi_out = pygame.midi.Output(port, 0)
     try:
-        keyboard_id = 1
         midi_out.set_instrument(instrument)
-        keyboard = Keyboard(start_note, n_notes, keyboard_id)
+        keyboard = Keyboard(start_note, n_notes)
 
         screen = pygame.display.set_mode(keyboard.rect.size)
         screen.fill(bg_color)
@@ -120,31 +126,8 @@ def output_main():
         keyboard.draw(screen, background, dirty_rects)
         pygame.display.update(dirty_rects)
 
-        key_mapping = {pygame.K_TAB: (33, 127),
-                       pygame.K_1: (34, 127),
-                       pygame.K_q: (35, 127),
-                       pygame.K_2: (36, 127),
-                       pygame.K_w: (37, 127),
-                       pygame.K_3: (38, 127),
-                       pygame.K_e: (39, 127),
-                       pygame.K_r: (40, 127),
-                       pygame.K_5: (41, 127),
-                       pygame.K_t: (42, 127),
-                       pygame.K_6: (43, 127),
-                       pygame.K_y: (44, 127),
-                       pygame.K_u: (45, 127),
-                       pygame.K_8: (46, 127),
-                       pygame.K_i: (47, 127),
-                       pygame.K_9: (48, 127),
-                       pygame.K_o: (49, 127),
-                       pygame.K_0: (50, 127),
-                       pygame.K_p: (51, 127),
-                       pygame.K_LEFTBRACKET: (52, 127),
-                       pygame.K_EQUALS: (53, 127),
-                       pygame.K_RIGHTBRACKET: (54, 127),
-                       pygame.K_BACKSPACE: (55, 127),
-                       pygame.K_BACKSLASH: (56, 127),
-                      }
+        regions = pygame.Surface(screen.get_size())
+        keyboard.map_regions(regions)
 
         pygame.event.set_blocked(MOUSEMOTION)
         repeat = 1
@@ -153,11 +136,9 @@ def output_main():
             update_rects = None
             for e in pygame.event.get():
                 if e.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_note, id, velocity = keyboard.mouse_down(e.pos)
-                    if id == keyboard_id:
-                        midi_out.note_on(mouse_note, velocity)
-                    else:
-                        mouse_note = 0
+                    mouse_note, velocity, __, __  = regions.get_at(e.pos)
+                    keyboard.key_down(mouse_note)
+                    midi_out.note_on(mouse_note, velocity)
                 elif e.type == pygame.MOUSEBUTTONUP:
                     if mouse_note:
                         midi_out.note_off(mouse_note)
@@ -191,6 +172,14 @@ def output_main():
     finally:
         del midi_out
         pygame.midi.quit()
+
+def make_key_mapping(key_list, start_note):
+    """Return a dictionary of (note, velocity) by computer keyboard key code"""
+    
+    mapping = {}
+    for i in range(len(key_list)):
+        mapping[key_list[i]] = (start_note + i, 127)
+    return mapping
 
 class NullKey(object):
     """A dummy key that ignores events passed to it by other keys
@@ -246,9 +235,9 @@ def key_class(updates, image_strip, image_rects, is_white=True):
     # shadow on an adjacent white key. The shadow changes depending of whether
     # the black or white key is depressed. A white key casts a shadow on the
     # white key to its left if it is up and the left key is down. Therefore
-    # a keys state, and image it will draw, is determined entirely by its itself
-    # and the key immediately adjacent to it on the right. A white key is always
-    # assumed to have an adjacent white key.
+    # a keys state, and image it will draw, is determined entirely by its
+    # itself and the key immediately adjacent to it on the right. A white key
+    # is always assumed to have an adjacent white key.
     #
     # There can be up to eight key states, representing all permutations
     # of the three fundamental states of self up/down, adjacent white
@@ -272,9 +261,9 @@ def key_class(updates, image_strip, image_rects, is_white=True):
     c_image_strip = image_strip
     c_width, c_height = image_rects[0].size
 
-    # A key propogates its up/down state change to the adjacent white key on
+    # A key propagates its up/down state change to the adjacent white key on
     # the left by calling the adjacent key's _right_black_down or
-    #_right_white_down method. 
+    # _right_white_down method. 
     #
     if is_white:
         key_color = 'white'
@@ -309,7 +298,8 @@ def key_class(updates, image_strip, image_rects, is_white=True):
     c_event_right_black_down = c_event_right_white_down.copy()
     c_event_right_black_up = c_event_right_white_down.copy()
     if len(image_rects) > 2:
-        c_event_down[down_state_white] = (down_state_self_white, image_rects[2])
+        c_event_down[down_state_white] = (
+            down_state_self_white, image_rects[2])
         c_event_up[down_state_self_white] = (down_state_white, image_rects[0])
         c_event_right_white_down[down_state_none] = (down_state_white, None)
         c_event_right_white_down[down_state_self] = (
@@ -363,7 +353,7 @@ def key_class(updates, image_strip, image_rects, is_white=True):
         ident - A unique key identifier. Any immutable type suitable as a key.
         posn - The location of the key on the display surface.
         key_left - Optional, the adjacent white key to the left. Changes in
-            up and down state are propogated to that key.
+            up and down state are propagated to that key.
 
         A key has an associated position and state. Related to state is the
         image drawn. State changes are managed with method calls, one method
@@ -417,7 +407,7 @@ def key_class(updates, image_strip, image_rects, is_white=True):
         def _right_white_down(self):
             """Signal that the adjacent white key has been depressed
 
-            This method is for internal propogation of events between
+            This method is for internal propagation of events between
             key instances.
 
             """
@@ -430,7 +420,7 @@ def key_class(updates, image_strip, image_rects, is_white=True):
         def _right_white_up(self):
             """Signal that the adjacent white key has been released
 
-            This method is for internal propogation of events between
+            This method is for internal propagation of events between
             key instances.
 
             """
@@ -443,7 +433,7 @@ def key_class(updates, image_strip, image_rects, is_white=True):
         def _right_black_down(self):
             """Signal that the adjacent black key has been depressed
 
-            This method is for internal propogation of events between
+            This method is for internal propagation of events between
             key instances.
 
             """
@@ -456,7 +446,7 @@ def key_class(updates, image_strip, image_rects, is_white=True):
         def _right_black_up(self):
             """Signal that the adjacent black key has been released
 
-            This method is for internal propogation of events between
+            This method is for internal propagation of events between
             key instances.
 
             """
@@ -490,8 +480,8 @@ def key_class(updates, image_strip, image_rects, is_white=True):
         def draw(self, surf, background, dirty_rects):
             """Redraw the key on the surface surf
 
-            The background is redrawn. The altered rectangle is added
-            to the dirty_rects list.
+            The background is redrawn. The altered region is added to the
+            dirty_rects list.
 
             """
             
@@ -507,7 +497,7 @@ def key_images():
     The return tuple is a surface and a dictionary of rects mapped to key
     type.
 
-    This function encapsolates the constants relevant to the keyboard image
+    This function encapsulates the constants relevant to the keyboard image
     file. There are five key types. One is the black key. The other four
     white keys are determined by the proximity of the black keys. The plain
     white key has no black key adjacent to it. A white-left and white-right
@@ -516,6 +506,7 @@ def key_images():
     images depending on the state of adjacent keys to its right.
 
     """
+    
     strip_file = 'data/midikeys.png'
     white_key_width = 42
     white_key_height = 160
@@ -546,10 +537,9 @@ class Keyboard(object):
     Constructor arguments:
     start_note: midi note value of the starting note on the keyboard.
     n_notes: number of notes (keys) on the keyboard.
-    id: The widget identifier, and integer between 0 and 255 inclusive.
 
     A Keyboard instance draws the musical keyboard and maintains the state of
-    all the keyboard keys. Individual keys can be in a down (depresssed) or
+    all the keyboard keys. Individual keys can be in a down (depressed) or
     up (released) state.
 
     """
@@ -601,18 +591,16 @@ class Keyboard(object):
                                _rects['white-right self'],
                                _rects['white-right self-white']])
 
-    def __init__(self, start_note, n_notes, id):
+    def __init__(self, start_note, n_notes):
         """Return a new Keyboard instance with n_note keys"""
 
         self._start_note = start_note
         self._end_note = start_note + n_notes - 1
-        self._id = id
         self._set_rect()
         self._add_keys()
-        self._map_regions()
 
     def _set_rect(self):
-        """Calculate the image rectangle"""
+        """Calculate the image rectangle at location posn"""
 
         # The width of the keyboard is determined by the number of white keys
         # with allowance added if a black key is on either end.
@@ -621,8 +609,7 @@ class Keyboard(object):
         for note in range(self._start_note, self._end_note + 1):
             if is_white_key(note):
                 n_white_notes += 1
-        top = 0
-        left = 0
+        top = left = 0
         width = n_white_notes * self.white_key_width
         height = self.white_key_height
         if not is_white_key(self._start_note):
@@ -650,71 +637,60 @@ class Keyboard(object):
         end_note = self._end_note
         black_offset = self.black_key_width // 2
         prev_white_key = None
+        x, y = self.rect.topleft
         if is_white_key(start_note):
-            x = 0
             is_prev_white = True
         else:
-            x = black_offset
+            x += black_offset
             is_prev_white = False
         for note in range(start_note, end_note + 1):
             ident = note  # For now notes uniquely identify keyboard keys.
             if is_white_key(note):
                 if is_prev_white:
                     if note == end_note or is_white_key(note + 1):
-                        key = self.WhiteKey(ident, (x, 0), prev_white_key)
+                        key = self.WhiteKey(ident, (x, y), prev_white_key)
                     else:
-                        key = self.WhiteKeyLeft(ident, (x, 0), prev_white_key)
+                        key = self.WhiteKeyLeft(ident, (x, y), prev_white_key)
                 else:
                     if note == end_note or is_white_key(note + 1):
-                        key = self.WhiteKeyRight(ident, (x, 0), prev_white_key)
+                        key = self.WhiteKeyRight(ident, (x, y), prev_white_key)
                     else:
-                        key = self.WhiteKeyCenter(ident, (x, 0), prev_white_key)
+                        key = self.WhiteKeyCenter(ident,
+                                                  (x, y),
+                                                  prev_white_key)
                 is_prev_white = True
                 x += self.white_key_width
                 prev_white_key = key
             else:
-                key = self.BlackKey(ident, (x - black_offset, 0), prev_white_key)
+                key = self.BlackKey(ident,
+                                    (x - black_offset, y),
+                                    prev_white_key)
                 is_prev_white = False
             key_map[note] = key
 
         self._keys = key_map
 
-    def _map_regions(self):
-        """Create an internal surface that is colored by key positions
+    def map_regions(self, regions):
+        """Draw the key regions onto surface regions.
 
-        Sets the _regions attribute.
-        
+        Regions must have at least 3 byte pixels. Each pixel of the keyboard
+        rectangle is set to the color (note, velocity, 0). The regions surface
+        must be at least as large as (0, 0, self.rect.left, self.rect.bottom)
+
         """
 
-        # The pixels of the _regions surface map a position to a
-        # (note, id, velocity) tuple. It is a quick way to detemine which key
-        # was clicked.
+        # First draw the white key regions. Then add the overlapping
+        # black key regions.
         #
-        id = self._id
-        regions = pygame.Surface(self.rect.size, 0, 24)
         black_keys = []
+        cutoff = self.black_key_height
         for note, key in self._keys.iteritems():
             if is_white_key(note):
-                regions.fill((note, id, 127), key.rect)
+                fill_region(regions, note, key.rect, cutoff)
             else:
                 black_keys.append((note, key))
         for note, key in black_keys:
-            regions.fill((note, id, 127), key.rect)
-        self._regions = regions
-
-    def mouse_down(self, posn):
-        """Signal a key down event for the key at position posn"""
-        
-        message = self._regions.get_at(posn)
-        self.key_down(message[0])
-        return message[:3]
-
-    def mouse_up(self, posn):
-        """Signal a key up event for the key at position posn"""
-        
-        note, id, __ = self._regions.get_at(posn)
-        self.key_up(note)
-        return note
+            fill_region(regions, note, key.rect)
 
     def draw(self, surf, background, dirty_rects):
         """Redraw all altered keyboard keys"""
@@ -733,12 +709,33 @@ class Keyboard(object):
         
         self._keys[note].up()
 
+def fill_region(regions, note, rect, cutoff=None):
+    """Fill the region defined by rect with a (note, velocity, 0) color
+
+    The velocity varies from a small value at the top of the region to
+    127 at the bottom. cutoff, if None, means the key is evenly split
+    into subregions. If cutoff is provided then everything from the
+    cutoff to the bottom of the key has velocity 127.
+
+    """
+
+    x, y, width, height = rect
+    if cutoff is None:
+        cutoff = height
+    delta_height = cutoff // 3
+    regions.fill((note, 42, 0),
+                 (x, y, width, delta_height))
+    regions.fill((note, 84, 0),
+                 (x, y + delta_height, width, delta_height))
+    regions.fill((note, 127, 0),
+                 (x, y + 2 * delta_height, width, height - 2 * delta_height))
+    
 def is_white_key(note):
     """True if note is represented by a white key"""
     
     key_pattern = [True, False, True, True, False, True,
                    False, True, True, False, True, False]
-    return key_pattern[(note - 1) % len(key_pattern)]
+    return key_pattern[(note - 21) % len(key_pattern)]
 
 
 
