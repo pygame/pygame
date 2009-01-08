@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # 1. Basic image capturing and displaying using the camera module
 
