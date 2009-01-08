@@ -245,10 +245,10 @@ SavePNG (SDL_Surface *surface, char *file)
 
 #define NUM_LINES_TO_WRITE 500
 
-static int
-write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
-            int image_height, int quality)
-{
+
+int write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
+            int image_height, int quality) {
+
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
     FILE * outfile;
@@ -279,7 +279,7 @@ write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     cinfo.in_color_space = JCS_RGB;
     /* cinfo.optimize_coding = FALSE;
      */
-    
+
 
 
     jpeg_set_defaults (&cinfo);
@@ -321,9 +321,10 @@ write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     return 0;
 }
 
-static int
-SaveJPEG (SDL_Surface *surface, char *file)
-{
+
+
+int SaveJPEG (SDL_Surface *surface, char *file) {
+
     static unsigned char** ss_rows;
     static int ss_size;
     static int ss_w, ss_h;
@@ -530,10 +531,10 @@ image_save_ext (PyObject* self, PyObject* arg)
               (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
         {
 #ifdef JPEGLIB_H
-            /* Png, and jpg save functions are not thread safe. */
-            /*Py_BEGIN_ALLOW_THREADS; */
+            /* jpg save functions seem thread safe on windows. */
+            Py_BEGIN_ALLOW_THREADS;
             result = SaveJPEG (surf, name);
-            /*Py_END_ALLOW_THREADS; */
+            Py_END_ALLOW_THREADS;
 #else
             return RAISE (PyExc_SDLError, "No support for jpg compiled in.");
 #endif
