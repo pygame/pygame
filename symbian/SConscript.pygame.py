@@ -79,8 +79,5 @@ for x in glob( "../lib/*.py"):
 for x in glob( "lib/*.py"): 
     to_package( source = x, target = pygame_lib )
     
-#sdl_path = "/epoc32/release/%s/%s/sdl.dll" % ( COMPILER, RELEASE ) 
-#to_package( source = sdl_path, target = "sys/bin/") 
-
 # Install default font
 to_package( source = "../lib/freesansbold.ttf", target = pygame_lib )

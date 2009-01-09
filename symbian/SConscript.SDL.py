@@ -129,20 +129,29 @@ sources += [
 
 # Configure SDL_image
 sources += Glob('deps/SDL_image/IMG*.c',)
+[sources.remove(x) for x in Glob('deps/SDL_image/IMG_png*c') ]
+
 defines += [
             'LOAD_JPG',
             'LOAD_BMP',
             'LOAD_GIF',
-            'LOAD_TGA'
-            #'LOAD_PNG' # requires glib. We need OpenC
+            'LOAD_TGA',            
             ]
 sysincludes += [
-    'deps/jpeg/', 
+    'deps/jpeg/',    
 ]
 
+# png.h does not like __DLL__ define
+SymbianProgram( "pygame_SDL_libpng", TARGETTYPE_LIB,
+                sources = ["deps/SDL_Image/IMG_png.c"],
+                includes = includes,
+                sysincludes = sysincludes + ["deps/libpng"],
+                defines = ["LOAD_PNG"],                
+                )
+staticlibs += ["pygame_SDL_libpng.lib", "pygame_libpng.lib"]
+libraries  += ["ezlib"] # For libpng
 
-
-defines     +=['SYMBIANC', 'SYMBIAN_SERIES60', 
+defines += ['SYMBIANC', 'SYMBIAN_SERIES60', 
                'NO_SIGNAL_H', 'ENABLE_EPOC', 
                'DISABLE_JOYSTICK', 'DISABLE_CDROM',                
                ]

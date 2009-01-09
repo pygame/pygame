@@ -41,7 +41,8 @@ Get SDL_image to symbian/deps/SDL_image
 Checkout jpeg library to symbian/deps/jpeg
 - https://movino.svn.sourceforge.net/svnroot/movino/libjpeg/trunk
 
-
+Checkout PNG library to symbian/deps/libpng
+- http://pamp.svn.sourceforge.net/svnroot/pamp/libpng/trunk/libpng-1.2.18
 
 - The build scripts use SCons for Symbian. 
 -- http://code.google.com/p/scons-for-symbian/

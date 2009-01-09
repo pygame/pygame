@@ -84,10 +84,13 @@ def build():
         # Copy the sis to current directory
         import shutil
         shutil.copyfile(pys60_sis, sisname)
-    
+        
+        args['pythondll'] =  args['basename']
+         
     else:
         sisname = config.pys60_sis
-    
+        if config.pythondll is not None:
+            args['pythondll'] = config.pythondll
      
     # Build pygame
     args["pythonsis"]  = sisname
@@ -99,9 +102,6 @@ def build():
     args['appuid'] = hex(UID_PYGAMEAPP).replace("L","")
     args['sdluid'] = hex(UID_SDL).replace("L","")
     args['jpeguid']= hex(UID_JPEG).replace("L","")
-    
-    if config.pythondll is not None:
-        args['pythondll'] = config.pythondll
     
     dobuild(args)
     
