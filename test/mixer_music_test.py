@@ -1,7 +1,24 @@
-import test_utils
-import test.unittest as unittest
-import os, pygame
-from test_utils import test_not_implemented
+if __name__ == '__main__':
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
+
+if is_pygame_pkg:
+    from pygame.tests.test_utils \
+         import test_not_implemented, unittest, example_path
+else:
+    from test.test_utils \
+         import test_not_implemented, unittest, example_path
+import pygame
+
+import os
 
 class MixerMusicModuleTest(unittest.TestCase):
     def test_load(self):
@@ -10,8 +27,7 @@ class MixerMusicModuleTest(unittest.TestCase):
           # pygame.mixer.music.load(filename): return None
           # Load a music file for playback
 
-
-        data_fname = os.path.join('examples', 'data')
+        data_fname = example_path('data')
         pygame.mixer.init()
 
         formats = ['mp3', 'ogg', 'wav']

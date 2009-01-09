@@ -224,5 +224,9 @@ def __rect_reduce(r):
 	return __rect_constructor, (r.x, r.y, r.w, r.h)
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
+def test():
+    from pygame import tests
+    tests.run()
+
 #cleanup namespace
 del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg

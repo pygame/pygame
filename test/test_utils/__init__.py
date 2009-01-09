@@ -1,23 +1,32 @@
 #################################### IMPORTS ###################################
 
+is_pygame_pkg = __name__.startswith('pygame.tests.')
+if is_pygame_pkg:
+    from pygame.tests.test_utils import unittest
+else:
+    from test.test_utils import unittest
+
 import tempfile, sys, pygame, time, os
 
 ################################################################################
 
-trunk_dir = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+this_dir = os.path.dirname(os.path.abspath(__file__))
+trunk_dir = os.path.split(os.path.split(this_dir)[0])[0]
+if is_pygame_pkg:
+    test_module = 'tests'
+else:
+    test_module = 'test'
 
 def trunk_relative_path(relative):
     return os.path.normpath(os.path.join(trunk_dir, relative))
 
 def fixture_path(path):
-    return trunk_relative_path(os.path.join('test/fixtures/', path))
+    return trunk_relative_path(os.path.join(test_module, 'fixtures', path))
 
 def example_path(path):
-    return trunk_relative_path(os.path.join('examples/',  path))
+    return trunk_relative_path(os.path.join('examples',  path))
 
 sys.path.insert(0, trunk_relative_path('.'))
-
-import test.unittest as unittest
 
 ############################### INCOMPLETE TESTS ###############################
 # TODO: PHASE THIS OUT
@@ -151,7 +160,13 @@ def rect_outer_bounds(rect):
           rect.bottomright]  
     ) 
 
-def helpers_test():
+def import_submodule(module):
+    m = __import__(module)
+    for n in module.split('.')[1:]:
+        m = getattr(m, n)
+    return m
+
+def test():
     """
     
     Lightweight test for helpers
@@ -175,10 +190,13 @@ def helpers_test():
         (1, 2), (0, 2),                         # br -> bl
         (0, 1)                                  # bl -> tl
     ]
-        
-    print 'Tests: OK'
 
-if __name__ == '__main__':
-    helpers_test()
+    if is_pygame_pkg:
+        module = 'pygame.tests.test_utils.unittest'
+    else:
+        module = 'test.test_utils.unittest'
+    assert import_submodule(module) is unittest
+    
+    print 'Tests: OK'
 
 ################################################################################
