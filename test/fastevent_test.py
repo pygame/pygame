@@ -1,13 +1,25 @@
 #################################### IMPORTS ###################################
 
-import test_utils
-import test.unittest as unittest
+if __name__ == '__main__':
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+if is_pygame_pkg:
+    from pygame.tests.test_utils import test_not_implemented, unittest
+    from pygame.tests.event_test import race_condition_notification
+else:
+    from test.test_utils import test_not_implemented, unittest
+    from test.event_test import race_condition_notification
 import pygame
-import pygame.event as event
-import pygame.fastevent as fastevent
-
-from event_test import race_condition_notification
+from pygame import event, fastevent
 
 ################################################################################
 

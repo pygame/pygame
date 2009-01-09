@@ -1,6 +1,9 @@
 ################################################################################
 
-import test.unittest as unittest
+if __name__.startswith('pygame.tests.'):
+    from pygame.tests.test_utils import unittest, import_submodule
+else:
+    from test.test_utils import unittest, import_submodule
 import re
 import time
 import sys 
@@ -170,7 +173,7 @@ class TestTags:
 
     def get_parent_module(self, class_):
         if class_ not in self.parent_modules:
-            self.parent_modules[class_] = __import__(class_.__module__)
+            self.parent_modules[class_] = import_submodule(class_.__module__)
         return self.parent_modules[class_]
 
     def __call__(self, obj):
@@ -272,3 +275,4 @@ def patch(options):
     unittest._TextTestResult.printErrorList = printErrorList
     
 ################################################################################
+
