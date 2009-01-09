@@ -1,9 +1,15 @@
 #################################### IMPORTS ###################################
 
-import test_utils
-import test.unittest as unittest
-from test_utils import test_not_implemented
+if __name__ == '__main__':
+    import sys
+    import os
+    parent_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
+    sys.path.insert(0, parent_dir)
 
+try:
+    from test.test_utils import test_not_implemented, unittest
+except:
+    from pygame.tests.test_utils import test_not_implemented, unittest
 import pygame
 
 ################################################################################

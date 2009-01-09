@@ -1,26 +1,46 @@
 ################################################################################
 
-import test.unittest as unittest
+if __name__ == '__main__':
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    print "1)", parent_dir, pkg_name
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+    print "2)", is_pygame_pkg
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
+
+if is_pygame_pkg:
+    from pygame.tests import test_utils
+    from pygame.tests.test_utils \
+         import unittest, unittest_patch, import_submodule
+    from pygame.tests.test_utils.unittest_patch import StringIOContents
+else:
+    from test import test_utils
+    from test.test_utils \
+         import unittest, unittest_patch, import_submodule
+    from test.test_utils.unittest_patch import StringIOContents
 
 import sys, os, re, StringIO, time, optparse
 from inspect import getdoc, getmembers, isclass
 from pprint import pformat
 
-import unittest_patch
-from unittest_patch import StringIOContents
 # from safe_eval import safe_eval as eval
 
 ################################################################################
 
 def prepare_test_env():
-    main_dir = os.path.split(os.path.abspath(__file__))[0]
-    test_subdir = os.path.join(main_dir, 'test')
+    test_subdir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
+    main_dir = os.path.split(test_subdir)[0]
     sys.path.insert(0, test_subdir)
     fake_test_subdir = os.path.join(test_subdir, 'run_tests__tests')
     return main_dir, test_subdir, fake_test_subdir
 
 main_dir, test_subdir, fake_test_subdir = prepare_test_env()
-import test_utils
 
 ################################################################################
 # Set the command line options
@@ -245,7 +265,7 @@ def run_test(module, options):
     suite = unittest.TestSuite()
     test_utils.fail_incomplete_tests = options.incomplete
 
-    m = __import__(module)
+    m = import_submodule(module)
     if m.unittest is not unittest:
         raise ImportError(
             "%s is not using correct unittest\n\n" % module +
@@ -286,3 +306,4 @@ if __name__ == '__main__':
     run_test(args[0], options)
 
 ################################################################################
+

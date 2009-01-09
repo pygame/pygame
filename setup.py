@@ -118,13 +118,18 @@ perhaps make a clean copy from "Setup.in"."""
 
 #extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
-data_files = []
+pygame_data_files = []
+data_files = [('pygame', pygame_data_files)]
 
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('lib', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
-        data_files.append(f)
+        pygame_data_files.append(f)
+
+#examples
+data_files.append(('pygame/examples/data',
+                   glob.glob(os.path.join('examples', 'data', '*'))))
 
 # Required. This will be filled if doing a Windows build.
 cmdclass = {}
@@ -198,7 +203,7 @@ if sys.platform == 'win32':
         if f == '_':
             print "WARNING, DLL for %s library not found." % lib
         else:
-            data_files.append(f)
+            pygame_data_files.append(f)
 
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
@@ -343,6 +348,8 @@ class TestCommand(Command):
 
 cmdclass['test'] = TestCommand
 
+# Prune empty file lists.
+date_files = [(path, files) for path, files in data_files if files]
 
 
 
@@ -357,13 +364,17 @@ cmdclass['test'] = TestCommand
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads'],
+       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads',
+                       'pygame.tests'],
        "package_dir": {'pygame': 'lib',
                        'pygame.threads': 'lib/threads',
-                       'pygame.gp2x': 'lib/gp2x'},
+                       'pygame.gp2x': 'lib/gp2x',
+                       'pygame.tests': 'test'},
+       "package_data": {'pygame.tests': ['test_utils/*.py',
+                                         'fixtures/xbm_cursors/*.xbm']},
        "headers":     headers,
        "ext_modules": extensions,
-       "data_files":  [['pygame', data_files]],
+       "data_files":  data_files,
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)
