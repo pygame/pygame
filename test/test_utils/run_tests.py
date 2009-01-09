@@ -1,18 +1,20 @@
 #################################### IMPORTS ##################################
 
 if __name__ == '__main__':
-    raise RuntimeError("This module is for import only")
+    import sys
+    sys.exit("This module is for import only")
 
-is_pygame_pkg = __name__.startswith('pygame.tests.')
+test_pkg_name = '.'.join(__name__.split('.')[0:-2])
+is_pygame_pkg = test_pkg_name == 'pygame.tests'
 if is_pygame_pkg:
-    from pygame.tests import test_utils
+    from pygame.tests import test_utils, IGNORE, SUBPROCESS_IGNORE
     from pygame.tests.test_utils import unittest, unittest_patch
     from pygame.tests.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, test_failures, \
                 get_test_results, from_namespace, TEST_RESULTS_START, \
                 opt_parser
 else:
-    from test import test_utils
+    from test import test_utils, IGNORE, SUBPROCESS_IGNORE
     from test.test_utils import unittest, unittest_patch
     from test.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, test_failures, \
@@ -34,39 +36,28 @@ main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
 cur_working_dir = os.path.abspath(os.getcwd())
 
-################################### CONSTANTS #################################
-# Defaults:
-#    See optparse options below for more options (test_runner.py)
-#
+def run(caller_name=None):
+    global test_subdir
 
-# Any tests in IGNORE will not be ran
-IGNORE = set ([
-    "scrap_test",
-])
-
-# Subprocess has less of a need to worry about interference between tests
-SUBPROCESS_IGNORE = set ([
-    "scrap_test",
-])
-
-def run():
+    if  caller_name is None:
+        caller_name = ('python -c "import %(pkg)s; %(pkg)s.run()"' %
+                       {'pkg': test_pkg_name})
+        
     ###########################################################################
     # Set the command line options
     #
     # Defined in test_runner.py as it shares options, added to here
 
-    global test_subdir
-
     opt_parser.set_usage("""
 
-    Runs all or some of the test/xxxx_test.py tests.
+    Runs all or some of the %(pkg)s.xxxx_test tests.
 
-    $ run_tests.py sprite threads -sd
+    $ %(exec)s sprite threads -sd
 
     Runs the sprite and threads module tests isolated in subprocesses, dumping
     all failing tests info in the form of a dict.
 
-    """)
+    """ % {'pkg': test_pkg_name, 'exec': caller_name})
 
     options, args = opt_parser.parse_args()
 
