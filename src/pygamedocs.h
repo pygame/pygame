@@ -875,6 +875,10 @@
 
 #define DOC_PYGAMESURFARRAYGETARRAYTYPES "pygame.surfarray.get_arraytypes (): return tuple\nGets the array system types currently supported."
 
+#define DOC_PYGAMETESTS "Pygame unit test suite package"
+
+#define DOC_PYGAMETESTSRUN "pygame.tests.run(my_name=None): return None\nRun the Pygame unit test suite"
+
 #define DOC_PYGAMETIME "pygame module for monitoring time"
 
 #define DOC_PYGAMETIMEGETTICKS "pygame.time.get_ticks(): return milliseconds\nget the time in milliseconds"

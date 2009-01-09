@@ -1,0 +1,32 @@
+pygame.tests
+Pygame unit test suite package
+
+Exports function run()
+
+A quick way to run the test suite package from the command line
+is by importing the go submodule:
+
+python -c "import pygame.tests.go" [&lt;test options&gt;]
+
+Command line option --help displays a usage message.
+
+The xxxx_test submodules of the tests package are unit test suites for
+individual parts of Pygame. Each can also be run as a main program. This is
+useful if the test, such as cdrom_test, is interactive.
+
+For Pygame development the test suite can also be run from a Pygame installation
+director. Installation directory program run_tests.py is provided for convenience,
+though test/go.py and test/xxxx_test.py can be run directly.
+<SECTION>
+
+
+
+run
+Run the Pygame unit test suite
+pygame.tests.run(my_name=None): return None
+
+The run function is configured with command line options. The --help option
+displays a command line usage message. Optional argument my_name replaces
+the executable name in the help message.
+<END>
+

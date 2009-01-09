@@ -5,12 +5,10 @@ if __name__ == '__main__':
     import os
     pkg_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
-    print "1)", parent_dir, pkg_name
     is_pygame_pkg = (pkg_name == 'tests' and
                      os.path.split(parent_dir)[1] == 'pygame')
     if not is_pygame_pkg:
         sys.path.insert(0, parent_dir)
-    print "2)", is_pygame_pkg
 else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
@@ -302,7 +300,13 @@ def run_test(module, options):
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
     unittest_patch.patch(options)
-    if not args: sys.exit('Called from run_tests.py, use that')
+    if not args:
+        
+        if is_pygame_pkg:
+            run_from = 'pygame.tests.run()'
+        else:
+            run_from = os.path.join(main_dir, 'run_tests.py')
+        sys.exit('Do not run directly; use %s' % run_from)
     run_test(args[0], options)
 
 ################################################################################
