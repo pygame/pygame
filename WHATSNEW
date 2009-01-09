@@ -6,6 +6,11 @@
 #
 #
 
+[SVN 1812:1814] Jan 09, 2009
+    Pygame unit test suite is now the pygame.tests package. For Pygame
+    development the unit tests still run from test in the installation
+    directory without conficts.
+
 Dec 05, 2008
     exposed mask C API from Michael George.  Thanks!
 
