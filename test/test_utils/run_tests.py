@@ -68,9 +68,13 @@ def run(caller_name=None):
 
     TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
+    test_mods_pkg_name = test_pkg_name
+    
     if options.fake:
+        test_mods_pkg_name = '.'.join([test_mods_pkg_name,
+                                       'run_tests__tests',
+                                       options.fake])
         test_subdir = os.path.join(fake_test_subdir, options.fake )
-        sys.path.append(test_subdir)
         working_dir = test_subdir
     else:
         working_dir = main_dir
@@ -90,11 +94,10 @@ def run(caller_name=None):
         [pth for pth in python_path_dirs if pth]
     )
 
-    os.chdir(working_dir)
+    os.chdir(working_dir)  # Is this needed when absolute paths are used?
 
-    package_name = '.'.join(__name__.split('.')[0:-2])
-    fmt1 = '%s.%%s' % package_name
-    fmt2 = '%s.%%s_test' % package_name
+    fmt1 = '%s.%%s' % test_mods_pkg_name
+    fmt2 = '%s.%%s_test' % test_mods_pkg_name
     if args:
         test_modules = [
             m.endswith('_test') and (fmt1 % m) or (fmt2 % m) for m in args
