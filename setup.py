@@ -121,13 +121,17 @@ data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
 pygame_data_files = []
 data_files = [('pygame', pygame_data_files)]
 
+#add files in distribution directory
+pygame_data_files.append('LGPL')
+pygame_data_files.append('readme.html')
+pygame_data_files.append('install.html')
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('lib', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         pygame_data_files.append(f)
 
-#examples
+# For adding directory structures to data files.
 def add_datafiles(data_files, pattern):
     def do_directory(root_dest_path, root_src_path, subpattern):
         subdir, elements = subpattern
@@ -145,6 +149,7 @@ def add_datafiles(data_files, pattern):
         data_files.append((dest_path, files))
     do_directory('pygame', '', pattern)
 
+#examples
 add_datafiles(data_files,
               ['examples',
                   ['*.py',
@@ -161,6 +166,29 @@ add_datafiles(data_files,
                                   ['MainMenu.nib',
                                       ['*']]]]]]]]]])
 
+#docs
+add_datafiles(data_files,
+              ['docs',
+                  ['*.html',
+                   '*.gif',
+                   ['ref',
+                       ['*.html']],
+                   ['tut',
+                       ['*.html',
+                        ['chimp',
+                            ['*.html',
+                             '*.gif']],
+                        ['intro',
+                            ['*.html',
+                             '*.gif',
+                             '*.jpg']],
+                        ['surfarray',
+                            ['*.html',
+                             '*.jpg']],
+                        ['tom',
+                            ['*.html',
+                             '*.png']]]]]])
+              
 # Required. This will be filled if doing a Windows build.
 cmdclass = {}
 
@@ -395,20 +423,19 @@ date_files = [(path, files) for path, files in data_files if files]
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
        "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads',
-                       'pygame.tests'],
+                       'pygame.tests',
+                       'pygame.tests.test_utils',
+                       'pygame.tests.run_tests__tests',
+                       'pygame.tests.run_tests__tests.all_ok',
+                       'pygame.tests.run_tests__tests.failures1',
+                       'pygame.tests.run_tests__tests.incomplete',
+                       'pygame.tests.run_tests__tests.infinite_loop',
+                       'pygame.tests.run_tests__tests.print_stderr',
+                       'pygame.tests.run_tests__tests.print_stdout'],
        "package_dir": {'pygame': 'lib',
                        'pygame.threads': 'lib/threads',
                        'pygame.gp2x': 'lib/gp2x',
                        'pygame.tests': 'test'},
-       "package_data": {'pygame.tests': ['test_utils/*.py',
-                                         'fixtures/xbm_cursors/*.xbm',
-                                         'run_tests__tests/__init__.py',
-                                         'run_tests__tests/all_ok/*.py',
-                                         'run_tests__tests/failures1/*.py',
-                                         'run_tests__tests/incomplete/*.py',
-                                         'run_tests__tests/infinite_loop/*.py',
-                                         'run_tests__tests/print_stderr/*.py',
-                                         'run_tests__tests/print_stdout/*.py']},
        "headers":     headers,
        "ext_modules": extensions,
        "data_files":  data_files,
