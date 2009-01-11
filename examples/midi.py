@@ -7,6 +7,7 @@ python midi.py --input
 """
 
 import sys
+import os
 
 import pygame
 import pygame.midi
@@ -516,8 +517,9 @@ def key_images():
     images depending on the state of adjacent keys to its right.
 
     """
-    
-    strip_file = 'data/midikeys.png'
+
+    my_dir = os.path.split(os.path.abspath(__file__))[0]
+    strip_file = os.path.join(my_dir, 'data', 'midikeys.png')
     white_key_width = 42
     white_key_height = 160
     black_key_width = 22
