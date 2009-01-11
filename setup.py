@@ -128,8 +128,38 @@ for f in glob.glob(os.path.join('lib', '*')):
         pygame_data_files.append(f)
 
 #examples
-data_files.append(('pygame/examples/data',
-                   glob.glob(os.path.join('examples', 'data', '*'))))
+def add_datafiles(data_files, pattern):
+    def do_directory(root_dest_path, root_src_path, subpattern):
+        subdir, elements = subpattern
+        files = []
+        dest_path = '/'.join([root_dest_path, subdir])
+        if root_src_path:
+            src_path = os.path.join(root_src_path, subdir)
+        else:
+            src_path = subdir
+        for e in elements:
+            if isinstance(e, list):
+                do_directory(dest_path, src_path, e)
+            else:
+                files.extend(glob.glob(os.path.join(src_path, e)))
+        data_files.append((dest_path, files))
+    do_directory('pygame', '', pattern)
+
+add_datafiles(data_files,
+              ['examples',
+                  ['*.py',
+                   'readme.txt',
+                   ['data',
+                       ['*']],
+                   ['macosx',
+                       ['*.py',
+                        ['aliens_app_example',
+                            ['*.py',
+                             'README.txt',
+                             ['English.lproj',
+                                 ['aliens.icns',
+                                  ['MainMenu.nib',
+                                      ['*']]]]]]]]]])
 
 # Required. This will be filled if doing a Windows build.
 cmdclass = {}
@@ -371,7 +401,14 @@ PACKAGEDATA = {
                        'pygame.gp2x': 'lib/gp2x',
                        'pygame.tests': 'test'},
        "package_data": {'pygame.tests': ['test_utils/*.py',
-                                         'fixtures/xbm_cursors/*.xbm']},
+                                         'fixtures/xbm_cursors/*.xbm',
+                                         'run_tests__tests/__init__.py',
+                                         'run_tests__tests/all_ok/*.py',
+                                         'run_tests__tests/failures1/*.py',
+                                         'run_tests__tests/incomplete/*.py',
+                                         'run_tests__tests/infinite_loop/*.py',
+                                         'run_tests__tests/print_stderr/*.py',
+                                         'run_tests__tests/print_stdout/*.py']},
        "headers":     headers,
        "ext_modules": extensions,
        "data_files":  data_files,
