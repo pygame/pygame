@@ -55,13 +55,14 @@ def build():
     args = { "applications" : "",
              "capabilities" : CAPABILITIES,
              "builtin"      : "sysinfo,socket",
+             #"pyds"         : "gles",
              "basename"     : "pygame_python",            
              "uidbase"      : hex(UID_BASE).replace("L",""),             
              "sisappname"   : '"Python for Pygame"',
              # Convert to int or may be converted to octal due to zero at beginning
              'sisversion'   : '"(1,%d,%d%s)"' % ( int(version[2:4]), int( version[4:6]),version[6:]),
              'pythonsis'    : sisname,
-             'libpath'      : "data/pygame/libs",
+             'libpath'      : "data/pygame/libs",             
              }
     
     # Add certificate stuff
@@ -74,16 +75,19 @@ def build():
     sisname   = ""  
     if config.build_python:
         curdir = os.getcwd()
-        os.chdir(config.pys60_ce_src)                
-        dobuild(args)    
+        os.chdir(config.pys60_ce_src)   
+        a = args.copy()
+        a["gcce_options"] = '"-O2 -fno-unit-at-a-time"'             
+        dobuild(a)    
         os.chdir(curdir)
     
         sisname = "python_for_pygame_%s_signed.sisx" % version
         pys60_sis = os.path.join( config.pys60_ce_src, sisname )
                 
         # Copy the sis to current directory
-        import shutil
-        shutil.copyfile(pys60_sis, sisname)
+        if os.path.exists(pys60_sis):
+            import shutil
+            shutil.copyfile(pys60_sis, sisname)
         
         args['pythondll'] =  args['basename']
          

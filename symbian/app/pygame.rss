@@ -24,7 +24,7 @@ RESOURCE TBUF r_default_document_name
 RESOURCE EIK_APP_INFO
     {
     menubar=r_app_menubar;
-    cba=R_AVKON_SOFTKEYS_OPTIONS_EXIT;
+    cba=R_AVKON_SOFTKEYS_EMPTY;
     }
 
 RESOURCE MENU_BAR r_app_menubar

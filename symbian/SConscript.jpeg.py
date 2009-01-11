@@ -1,7 +1,7 @@
 # This file is generated with mmp2sconscript
 from scons_symbian import *
 
-Import("TARGET_NAME UID3 PACKAGE_NAME")
+Import("TARGET_NAME UID3 PACKAGE_NAME CAPABILITIES")
 
 # Built as dll because needed by SDL and the application
 target     = TARGET_NAME
@@ -72,7 +72,8 @@ SymbianProgram( target, targettype,
     sysincludes = sysincludes,
     libraries   = libraries,
     defines     = defines,
-    uid3 = uid3, 
+    capabilities = CAPABILITIES,
+    uid3 = uid3,
     package = PACKAGE_NAME,
 )
 

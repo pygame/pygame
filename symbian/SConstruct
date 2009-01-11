@@ -35,7 +35,7 @@ PASSPHRASE  = ARGUMENTS.get("passphrase", "" )
 
 
 EMBEDDED_PYTHON_SIS = ARGUMENTS.get( "pythonsis", "none" )
-if EMBEDDED_PYTHON_SIS.lower() != "none":
+if EMBEDDED_PYTHON_SIS.lower() != "none" and COMPILER != COMPILER_WINSCW:
     # Read the UID
     f=open( EMBEDDED_PYTHON_SIS,'rb')
     # First 16 bytes are for UIDs
@@ -46,7 +46,10 @@ if EMBEDDED_PYTHON_SIS.lower() != "none":
     uids = struct.unpack("IIII", data )
     EMBEDDED_PYTHON_SIS_UID = hex(uids[2]).replace("L","")
     print "Read UID %s from '%s'" % ( EMBEDDED_PYTHON_SIS_UID, EMBEDDED_PYTHON_SIS  )
-
+else:
+    EMBEDDED_PYTHON_SIS = ""
+    EMBEDDED_PYTHON_SIS_UID = 0x0
+      
 Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS SDL_DLL_NAME CAPABILITIES PYTHON_INCLUDE")
 
 # Build external libraries. Conditional because needed only once and takes extra time after that.
@@ -90,15 +93,12 @@ pkgargs = {
     "appname" : PACKAGE_TITLE,
     'cert':      CERT,
     'key':       KEY,
-    'passwd':    PASSPHRASE
-}
-
-preppydata = {
-      "EMBEDDED_PYTHON_SIS"     : EMBEDDED_PYTHON_SIS, 
-      "EMBEDDED_PYTHON_SIS_UID" : EMBEDDED_PYTHON_SIS_UID,
+    'passwd':    PASSPHRASE,
+    "EMBEDDED_PYTHON_SIS"     : EMBEDDED_PYTHON_SIS, 
+    "EMBEDDED_PYTHON_SIS_UID" : EMBEDDED_PYTHON_SIS_UID,
 }
 
 Depends( PACKAGE_NAME, EMBEDDED_PYTHON_SIS )
-SymbianPackage(PACKAGE_NAME, pkgargs=pkgargs, pkgtemplate = pkgtemplate, preppydata = preppydata )
+SymbianPackage(PACKAGE_NAME, pkgargs=pkgargs, pkgtemplate = pkgtemplate )
 
 

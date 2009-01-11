@@ -48,6 +48,8 @@ def to_package(**kwargs):
 #    to_package( source = x, target = "data/pygame")
 
 to_package( source = "app/pygame_main.py", target = "data/pygame" )
-#to_package( source = "app/ambient.ogg", target = "data/pygame" )
+to_package( source = "app/launcher/logo.jpg", target = "data/pygame/launcher" )
+to_package( source = "app/launcher/pygame_launcher.py", target = "data/pygame/launcher" )
+to_package( source = "app/apps/liquid_s60.py", target = "data/pygame/apps" )
 
 

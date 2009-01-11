@@ -8,6 +8,8 @@
 
 #include "pygame.hrh"
 
+#include "logmanutils.h"
+
 const TUid KUidPygameApp =
 { __UID3__ };
 
@@ -21,7 +23,7 @@ public:
 	virtual void DoExit(TInt aErr) = 0;
 };
 
-class CExitWait : public CActive
+class CExitWait: public CActive
 {
 public:
 	CExitWait(MExitWait& aWait);
@@ -35,7 +37,7 @@ private:
 	TRequestStatus* iStatusPtr;
 };
 
-class CSDLWin : public CCoeControl
+class CSDLWin: public CCoeControl
 {
 public:
 	void ConstructL(const TRect& aRect);
@@ -45,7 +47,7 @@ private:
 	void Draw(const TRect& aRect) const;
 };
 
-class CSdlApplication : public CAknApplication
+class CSdlApplication: public CAknApplication
 {
 private:
 	// from CApaApplication
@@ -53,7 +55,7 @@ private:
 	TUid AppDllUid() const;
 };
 
-class CSdlAppDocument : public CAknDocument
+class CSdlAppDocument: public CAknDocument
 {
 public:
 	CSdlAppDocument(CEikApplication& aApp) :
@@ -64,7 +66,7 @@ private:
 	CEikAppUi* CreateAppUiL();
 };
 
-class CSdlAppUi : public CAknAppUi, public MExitWait
+class CSdlAppUi: public CAknAppUi, public MExitWait
 {
 public:
 	void ConstructL();
@@ -101,7 +103,9 @@ void CExitWait::RunL()
 void CExitWait::DoCancel()
 {
 	if (iStatusPtr != NULL)
+	{
 		User::RequestComplete(iStatusPtr, KErrCancel);
+	}
 }
 
 void CExitWait::Start()
@@ -124,14 +128,30 @@ RWindow& CSDLWin::GetWindow() const
 
 void CSDLWin::Draw(const TRect& /*aRect*/) const
 {
+	// Be transparent until app is ready. I don't want to force anyone use black initial screen.
+#if(0)	
 	CWindowGc& gc = SystemGc();
-	gc.SetPenStyle(CGraphicsContext::ESolidPen);
+	gc.SetDrawMode( CGraphicsContext::EDrawModeWriteAlpha );
+	gc.Clear();
+	
+	gc.SetPenStyle(CGraphicsContext::ENullPen);
 	gc.SetPenColor(0x000000);
 	gc.SetBrushStyle(CGraphicsContext::ESolidBrush);
-	gc.SetBrushColor(0x000000);
+	gc.SetBrushColor(0x80010101);
 	gc.DrawRect(Rect());
-	 
+#endif
 }
+/*
+ TKeyResponse CSDLWin::OfferKeyEventL(const TKeyEvent &aKeyEvent, TEventCode aType)
+ {
+ TKeyResponse result = EKeyWasNotConsumed;
+ if ( aKeyEvent.iScanCode == 164 )
+ {		
+ result = EKeyWasConsumed;
+ }
+ return result;
+ }
+ */
 
 void CSdlAppUi::ConstructL()
 {
@@ -141,72 +161,91 @@ void CSdlAppUi::ConstructL()
 	iSDLWin->ConstructL(ApplicationRect());
 
 	iWait = new (ELeave) CExitWait(*this);
-	
+
 	StartTestL(0);
 }
 
 void CSdlAppUi::HandleCommandL(TInt aCommand)
 {
-	
-	switch(aCommand)
-	{
-		//case EAknCmdExit:
-		case EAknSoftkeyExit:
-		//case EEikCmdExit:
-		Done = 1;
-		iExit = ETrue;
-		if(iWait == NULL || !iWait->IsActive())
-		Exit();
-		
-		break; 
-	}
-	
-	
-	//if(iSdl == NULL)
-	//	StartTestL(aCommand);
+LOGMAN_SENDLOGF("HandleCommandL:%d", aCommand)
+#if(0)
+switch (aCommand)
+{
+	//case EAknCmdExit:
+	case EAknSoftkeyExit:
+	//case EEikCmdExit:
+	Done = 1;
+	iExit = ETrue;
+	if (iWait == NULL || !iWait->IsActive())
+	Exit();
+
+	break;
+}
+
+if(iSdl == NULL)
+StartTestL(aCommand);
+#endif	
 }
 
 void CSdlAppUi::StartTestL(TInt aCmd)
 {
-	TInt flags = CSDL::EDrawModeDSBDoubleBuffer;;
- 
+
+	//TInt flags = CSDL::EDrawModeGdi | CSDL::EEnableFocusStop
+	//		| CSDL::EMainThread;// | CSDL::EAutoOrientation;
+		
+	TInt flags = 0;
+	// This seems to be required to support pygame launcher.
+	flags |= CSDL::EDrawModeDSBDoubleBuffer;
+	// Don't draw when in background. 
+	flags |= CSDL::EEnableFocusStop;
+	// This should be on by default anyway
+	flags |= CSDL::EMainThread;
+	
 	iSdl = CSDL::NewL(flags);
 
-	iSdl->SetContainerWindowL(iSDLWin->GetWindow(), 
-	iEikonEnv->WsSession(), *iEikonEnv->ScreenDevice());	
+	iSdl->SetContainerWindowL(iSDLWin->GetWindow(), iEikonEnv->WsSession(),
+			*iEikonEnv->ScreenDevice());
 	iSdl->CallMainL(iWait->iStatus);
 	iWait->Start();
 }
- 
+
 void CSdlAppUi::DoExit(TInt aErr)
 {
 	if (aErr != KErrNone)
 	{
 		CAknErrorNote* err = new (ELeave) CAknErrorNote(ETrue);
 		TBuf<64> buf;
-		buf.Format(_L("SDL Error %d"), aErr);
+		if (aErr == 1)
+		{
+			buf.Copy(_L("Python run-time error."));
+		}
+		else
+		{
+			buf.Format(_L("SDL Error %d"), aErr);
+		}
 		err->ExecuteLD(buf);
 	}
 	else
 	{
 		/*
-		CAknInformationNote* info = new (ELeave) CAknInformationNote(ETrue);
-		info->SetTimeout(CAknNoteDialog::ENoTimeout);
-		TBuf<64> buf;
-		const TReal ticks = TReal(Ticks) / 1000.0;
-		const TReal fps = TReal(Frames) / ticks;
-		buf.Format(_L("Fps %f, %dms %d frames"), fps, Ticks, Frames);
-		info->ExecuteLD(buf);
-		*/
+		 CAknInformationNote* info = new (ELeave) CAknInformationNote(ETrue);
+		 info->SetTimeout(CAknNoteDialog::ENoTimeout);
+		 TBuf<64> buf;
+		 const TReal ticks = TReal(Ticks) / 1000.0;
+		 const TReal fps = TReal(Frames) / ticks;
+		 buf.Format(_L("Fps %f, %dms %d frames"), fps, Ticks, Frames);
+		 info->ExecuteLD(buf);
+		 */
 	}
 	delete iSdl;
 	iSdl = NULL;
 
 	// Exits after main script has completed
-	Exit(); 
+	Exit();
 }
 
-void CSdlAppUi::HandleWsEventL(const TWsEvent& aEvent, CCoeControl* aDestination)
+void CSdlAppUi::HandleWsEventL(const TWsEvent& aEvent,
+		CCoeControl* aDestination)
 {
 	if (iSdl != NULL)
 		iSdl->AppendWsEvent(aEvent);
@@ -224,7 +263,7 @@ CSdlAppUi::~CSdlAppUi()
 
 CEikAppUi* CSdlAppDocument::CreateAppUiL()
 {
-	return new(ELeave) CSdlAppUi();
+	return new (ELeave) CSdlAppUi();
 }
 
 TUid CSdlApplication::AppDllUid() const
@@ -245,9 +284,9 @@ LOCAL_C CApaApplication* NewApplication()
 
 GLDEF_C TInt E32Main()
 {
-// TODO: Is this the only way to set heap size on emulator?
+	// TODO: Is this the only way to set heap size on emulator?
 	//#ifdef __WINS__	
-	RHeap *heap = UserHeap::ChunkHeap(0,100000,10000000,100000);
+	RHeap *heap = UserHeap::ChunkHeap(0, 100000, 10000000, 100000);
 	User::SwitchHeap(heap);
 	//#endif	
 	TInt result = EikStart::RunApplication(NewApplication);
