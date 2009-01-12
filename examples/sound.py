@@ -11,6 +11,8 @@ import pygame.mixer, pygame.time
 mixer = pygame.mixer
 time = pygame.time
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+
 #choose a desired audio format
 mixer.init(11025) #raises exception on fail
 
@@ -20,7 +22,7 @@ mixer.init(11025) #raises exception on fail
 if len(sys.argv) > 1 and "wav" in sys.argv[1]:
     file = sys.argv[1]
 else:
-    file = os.path.join('data', 'secosmic_lo.wav')
+    file = os.path.join(main_dir, 'data', 'secosmic_lo.wav')
 sound = mixer.Sound(file)
 
 

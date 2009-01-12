@@ -15,6 +15,8 @@ error codes.
 import os, pygame
 from pygame.locals import *
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+
 #our game object class
 class GameObject:
     def __init__(self, image, height, speed):
@@ -29,7 +31,7 @@ class GameObject:
 
 #quick function to load an image
 def load_image(name):
-    path = os.path.join('data', name)
+    path = os.path.join(main_dir, 'data', name)
     return pygame.image.load(path).convert()
 
 

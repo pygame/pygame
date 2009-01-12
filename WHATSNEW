@@ -5,6 +5,9 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+[SVN 1820] Jan 11, 2009
+    The Pygame documents and examples are now part of the Pygame package,
+    directories docs and examples respectively.
 
 [SVN 1812:1814] Jan 09, 2009
     Pygame unit test suite is now the pygame.tests package. For Pygame

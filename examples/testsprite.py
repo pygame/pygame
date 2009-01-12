@@ -19,6 +19,8 @@ if "-psyco" in sys.argv:
     except Exception:
         print "No psyco for you!  psyco failed to import and run."
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, 'data')
 
 # use this to use update rects or not.
 #  If the screen is mostly full, then update rects are not useful.
@@ -147,8 +149,8 @@ def main():
 
     screen.fill([0,0,0])
     pygame.display.flip()
-    sprite_surface = pygame.image.load(os.path.join("data", "asprite.bmp"))
-    sprite_surface2 = pygame.image.load(os.path.join("data", "static.png"))
+    sprite_surface = pygame.image.load(os.path.join(data_dir, "asprite.bmp"))
+    sprite_surface2 = pygame.image.load(os.path.join(data_dir, "static.png"))
 
     if use_rle:
         sprite_surface.set_colorkey([0xFF, 0xFF, 0xFF], SRCCOLORKEY|RLEACCEL)

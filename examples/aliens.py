@@ -19,10 +19,11 @@ ALIEN_RELOAD   = 12     #frames between new aliens
 SCREENRECT     = Rect(0, 0, 640, 480)
 SCORE          = 0
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 def load_image(file):
     "loads an image, prepares it for play"
-    file = os.path.join('data', file)
+    file = os.path.join(main_dir, 'data', file)
     try:
         surface = pygame.image.load(file)
     except pygame.error:
@@ -41,7 +42,7 @@ class dummysound:
 
 def load_sound(file):
     if not pygame.mixer: return dummysound()
-    file = os.path.join('data', file)
+    file = os.path.join(main_dir, 'data', file)
     try:
         sound = pygame.mixer.Sound(file)
         return sound
@@ -215,7 +216,7 @@ def main(winstyle = 0):
     boom_sound = load_sound('boom.wav')
     shoot_sound = load_sound('car_door.wav')
     if pygame.mixer:
-        music = os.path.join('data', 'house_lo.wav')
+        music = os.path.join(main_dir, 'data', 'house_lo.wav')
         pygame.mixer.music.load(music)
         pygame.mixer.music.play(-1)
 
