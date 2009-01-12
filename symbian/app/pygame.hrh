@@ -1,0 +1,10 @@
+enum
+	{
+	ETestDsa = 0x5000,
+	ETestDsbDb,
+	ETestDsbIu,
+	ETestDsbDbA,
+	ETestDsbIuA,
+	ETestGdi,
+	ETestViewBuildDate
+	};
