@@ -84,17 +84,7 @@ def run(caller_name=None):
     # false failures in subprocess mode. Same issue as python2.6. Needs some
     # env vars.
 
-    test_env = os.environ.copy()
-    if is_pygame_pkg:
-        package_dir = None
-    else:
-        package_dir = main_dir
-    python_path_dirs = [test_subdir, package_dir, test_env.get("PYTHONPATH")]
-    test_env["PYTHONPATH"] = os.pathsep.join (
-        [pth for pth in python_path_dirs if pth]
-    )
-
-    os.chdir(working_dir)  # Is this needed when absolute paths are used?
+    test_env = os.environ
 
     fmt1 = '%s.%%s' % test_mods_pkg_name
     fmt2 = '%s.%%s_test' % test_mods_pkg_name

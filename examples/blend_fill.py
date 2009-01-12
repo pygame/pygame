@@ -14,12 +14,15 @@ changed = False
 blendtype = 0
 step = 5
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, 'data')
+
 pygame.init ()
 screen = pygame.display.set_mode ((640, 480), 0, 32)
 screen.fill ((100, 100, 100))
 
-image = pygame.image.load (os.path.join ("data", "liquid.bmp")).convert()
-blendimage = pygame.image.load (os.path.join ("data", "liquid.bmp")).convert()
+image = pygame.image.load (os.path.join (data_dir, "liquid.bmp")).convert()
+blendimage = pygame.image.load (os.path.join (data_dir, "liquid.bmp")).convert()
 screen.blit (image, (10, 10))
 screen.blit (blendimage, (200, 10))
 

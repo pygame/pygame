@@ -15,13 +15,15 @@ import pygame, os
 from pygame.locals import *
 from math import sin
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+
 def main():
     #initialize and setup screen
     pygame.init()
     screen = pygame.display.set_mode((640, 480), HWSURFACE|DOUBLEBUF)
 
     #load image and quadruple
-    imagename = os.path.join('data', 'liquid.bmp')
+    imagename = os.path.join(main_dir, 'data', 'liquid.bmp')
     bitmap = pygame.image.load(imagename)
     bitmap = pygame.transform.scale2x(bitmap)
     bitmap = pygame.transform.scale2x(bitmap)

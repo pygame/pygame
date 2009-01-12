@@ -14,6 +14,8 @@ except:
 
 import time
         
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, 'data')
 
 def main():
     pygame.init()
@@ -34,9 +36,9 @@ def main():
 
     images = {}
     images[K_1] = im2
-    images[K_2] = pygame.image.load(os.path.join("data", "chimp.bmp"))
-    images[K_3] = pygame.image.load(os.path.join("data", "alien3.gif"))
-    images[K_4] = pygame.image.load(os.path.join("data", "liquid.bmp"))
+    images[K_2] = pygame.image.load(os.path.join(data_dir, "chimp.bmp"))
+    images[K_3] = pygame.image.load(os.path.join(data_dir, "alien3.gif"))
+    images[K_4] = pygame.image.load(os.path.join(data_dir, "liquid.bmp"))
     img_to_blit = im2.convert()
     iaa = img_to_blit.convert_alpha()
 

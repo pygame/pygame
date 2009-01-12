@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 import os, pygame
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, 'data')
+
 pygame.init ()
 
 screen = pygame.display.set_mode ((255, 255))
@@ -48,7 +51,7 @@ del ar
 show (surface)
 
 # Manipulate the image. Flip it around the y axis.
-surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
+surface = pygame.image.load (os.path.join (data_dir, 'arraydemo.bmp'))
 ar = pygame.PixelArray (surface)
 ar[:] = ar[:,::-1]
 del ar
@@ -73,7 +76,7 @@ del ar
 show (surface)
 
 # Scale it by throwing each second pixel away.
-surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
+surface = pygame.image.load (os.path.join (data_dir, 'arraydemo.bmp'))
 ar = pygame.PixelArray (surface)
 sf2 = ar[::2,::2].make_surface ()
 del ar
@@ -86,7 +89,7 @@ del ar
 show (surface)
 
 # Extract anything which might be somewhat black.
-surface = pygame.image.load (os.path.join ('data', 'arraydemo.bmp'))
+surface = pygame.image.load (os.path.join (data_dir, 'arraydemo.bmp'))
 ar = pygame.PixelArray (surface)
 ar2 = ar.extract ((0, 0, 0), 0.07)
 sf2 = ar2.surface
@@ -94,8 +97,8 @@ del ar, ar2
 show (sf2)
 
 # Compare two images.
-surface = pygame.image.load (os.path.join ('data', 'alien1.gif'))
-surface2 = pygame.image.load (os.path.join ('data', 'alien2.gif'))
+surface = pygame.image.load (os.path.join (data_dir, 'alien1.gif'))
+surface2 = pygame.image.load (os.path.join (data_dir, 'alien2.gif'))
 ar1 = pygame.PixelArray (surface)
 ar2 = pygame.PixelArray (surface2)
 ar3 = ar1.compare (ar2, 0.07)
