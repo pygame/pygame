@@ -10,6 +10,8 @@ Tested on windowsXP sp2 athlon, and freebsd.
 
 However... on my debian duron 850 machine fastevents is faster.
 """
+
+import pygame
 from pygame import *
 
 # the config to try different settings out with the event queues.
@@ -60,18 +62,18 @@ class post_them(Thread):
                 except:
                     pytime.sleep(0.001)
                     try_post = 1
-                
+
             if self.stop:
                 return
         self.done.append(1)
-        
-        
+
+
 
 import time as pytime
 
 def main():
     init()
-    
+
     if use_fast_events:
         fastevent.init()
 
@@ -85,14 +87,14 @@ def main():
     t1 = pytime.time()
     poster.start()
 
-
-    while 1:
+    going = True
+    while going:
 #        for e in event.get():
         #for x in range(200):
         #    ee = event.Event(USEREVENT)
         #    r = event_module.post(ee)
         #    print r
-        
+
         #for e in event_module.get():
         event_list = []
         event_list = event_module.get()
@@ -101,27 +103,28 @@ def main():
             if e.type == QUIT:
                 print c.get_fps()
                 poster.stop.append(1)
-                return
+                going = False
             if e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
                     print c.get_fps()
                     poster.stop.append(1)
-                    return
+                    going = False
         if poster.done:
             print c.get_fps()
             print c
             t2 = pytime.time()
             print "total time:%s" % (t2 - t1)
             print "events/second:%s" % (NUM_EVENTS_TO_POST / (t2 - t1))
-            return
+            going = False
         if with_display:
             display.flip()
         if slow_tick:
             c.tick(40)
-        
-        
+
+
+    pygame.quit()
 
 
 
-
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    main()
