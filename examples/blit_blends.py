@@ -63,18 +63,19 @@ def main():
     pygame.display.flip()
     clock = pygame.time.Clock()
     print "one pixel is:%s:" % [im1.get_at((0,0))]
-    
-    while 1:
+
+    going = True
+    while going:
         clock.tick(60)
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                return
+                going = False
             if event.type == KEYDOWN:
                 usage()
 
             if event.type == KEYDOWN and event.key == K_ESCAPE:
-                return
+                going = False
 
             elif event.type == KEYDOWN and event.key in images.keys():
                 img_to_blit = images[event.key]
@@ -178,6 +179,8 @@ def main():
 
         screen.blit(im1, (0, 0))
         pygame.display.flip()
+
+    pygame.quit()
 
 def usage():
     print "press keys 1-5 to change image to blit."

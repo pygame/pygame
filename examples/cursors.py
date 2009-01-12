@@ -85,13 +85,15 @@ def main():
     pygame.display.update()
     for cursor in [no, arrow]:
         TestCursor(cursor)
-        quit = 0
-        while not quit:
+        going = True
+        while going:
             pygame.event.pump()
             for e in pygame.event.get():
                 if e.type == pygame.MOUSEBUTTONDOWN:
-                    quit = 1
+                    going = False
     pygame.quit()
 
-main()
+
+if __name__ == '__main__':
+    main()
 

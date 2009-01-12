@@ -313,6 +313,7 @@ def main(winstyle = 0):
     if pygame.mixer:
         pygame.mixer.music.fadeout(1000)
     pygame.time.wait(1000)
+    pygame.quit()
 
 
 
