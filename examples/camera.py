@@ -6,7 +6,6 @@ import pygame
 import pygame.camera
 from pygame.locals import *
 
-pygame.init()
 
 class VideoCapturePlayer(object):
 
@@ -14,21 +13,21 @@ class VideoCapturePlayer(object):
    def __init__(self, **argd):
        self.__dict__.update(**argd)
        super(VideoCapturePlayer, self).__init__(**argd)
-       
+
        # create a display surface. standard pygame stuff
        self.display = pygame.display.set_mode( self.size, 0 )
-       
+
        # gets a list of available cameras.
        self.clist = pygame.camera.list_cameras()
-       
+
        # creates the camera of the specified size and in RGB colorspace
        self.camera = pygame.camera.Camera(self.clist[0], self.size, "RGB")
-       
+
        # starts the camera
        self.camera.start()
-       
+
        self.clock = pygame.time.Clock()
-       
+
        # create a surface to capture to.  for performance purposes, you want the
        # bit depth to be the same as that of the display surface.
        self.snapshot = pygame.surface.Surface(self.size, 0, self.display)
@@ -40,7 +39,7 @@ class VideoCapturePlayer(object):
        if self.camera.query_image():
            # capture an image
            self.snapshot = self.camera.get_image(self.snapshot)
-           
+
        # blit it to the display surface.  simple!
        self.display.blit(self.snapshot, (0,0))
        pygame.display.flip()
@@ -57,4 +56,10 @@ class VideoCapturePlayer(object):
            self.clock.tick()
 #           print self.clock.get_fps()
 
-VideoCapturePlayer().main()
+def main():
+    pygame.init()
+    VideoCapturePlayer().main()
+    pygame.quit()
+
+if __name__ == '__main__':
+    main()
