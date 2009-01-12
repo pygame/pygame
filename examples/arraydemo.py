@@ -3,23 +3,23 @@
 import os
 try:
     import pygame
-    # Use numeric, not numpy here (otherwise, follow the NUMPY comments)
-    # NUMPY: import numpy as N
-    import Numeric as N
+    from pygame import surfarray
+    if 'numpy' in surfarray.get_arraytypes():
+        surfarray.use_arraytype('numpy')
+        import numpy as N
+    else:
+        import Numeric as N
+        surfarray.use_arraytype('numeric')
     from pygame.locals import *
-    surfarray = pygame.surfarray
-    if not surfarray: raise ImportError
 except ImportError:
     raise ImportError, 'Error Importing Pygame/surfarray or Numeric'
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 pygame.init()
+print 'Using', surfarray.get_arraytype().capitalize()
 print 'Press the mouse button to advance image.'
 print 'Press the "s" key to save the current image.'
-
-# Guarantee the usage of Numeric
-pygame.surfarray.use_arraytype ("numeric")
-# NUMPY: pygame.surfarray.use_arraytype ("numpy")
 
 def surfdemo_show(array_img, name):
     "displays a surface, waits for user to continue"
@@ -58,7 +58,7 @@ surfdemo_show(striped, 'striped')
 
 
 #imgarray
-imagename = os.path.join('data', 'arraydemo.bmp')
+imagename = os.path.join(main_dir, 'data', 'arraydemo.bmp')
 imgsurface = pygame.image.load(imagename)
 imgarray = surfarray.array2d(imgsurface)
 surfdemo_show(imgarray, 'imgarray')
@@ -105,8 +105,10 @@ src = N.array(rgbarray)
 dest = N.zeros(rgbarray.shape)
 dest[:] = 20, 50, 100
 diff = (dest - src) * 0.50
-# NUMPY: xfade = src + diff.astype(N.uint)
-xfade = src + diff.astype(N.Int)
+if surfarray.get_arraytype() == 'numpy':
+    xfade = src + diff.astype(N.uint)
+else:
+    xfade = src + diff.astype(N.Int)
 surfdemo_show(xfade, 'xfade')
 
 

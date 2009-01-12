@@ -2,6 +2,8 @@
 """
 Demonstrates the clipboard capabilities of pygame.
 """
+import os
+
 import pygame
 from pygame.locals import *
 import pygame.scrap as scrap
@@ -13,6 +15,7 @@ def usage ():
     print "Press the 'a' key to get a list of the currently available types"
     print "Press the 'i' key to put an image into the clipboard"
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 pygame.init ()
 screen = pygame.display.set_mode ((200, 200))
@@ -64,7 +67,7 @@ while going:
         elif e.type == KEYDOWN and e.key == K_i:
             print "Putting image into the clipboard."
             scrap.set_mode (SCRAP_CLIPBOARD)
-            fp = open ("data/liquid.bmp", "rb")
+            fp = open (os.path.join(main_dir, 'data', 'liquid.bmp'), 'rb')
             buf = fp.read ()
             scrap.put ("image/bmp", buf)
             fp.close ()

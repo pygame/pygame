@@ -36,14 +36,14 @@ SCREENRECT     = Rect(0, 0, 640, 480)
 dirtyrects = [] # list of update_rects
 next_tick = 0   # used for timing
 class Img: pass # container for images
-
+main_dir = os.path.split(os.path.abspath(__file__))[0]  # Program's diretory
 
 
 #first, we define some utility functions
     
 def load_image(file, transparent):
     "loads an image, prepares it for play"
-    file = os.path.join('data', file)
+    file = os.path.join(main_dir, 'data', file)
     try:
         surface = pygame.image.load(file)
     except pygame.error:

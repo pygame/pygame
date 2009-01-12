@@ -14,10 +14,12 @@ from pygame.locals import *
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, 'data')
 
 #functions to create our resources
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join(data_dir, name)
     try:
         image = pygame.image.load(fullname)
     except pygame.error, message:
@@ -35,7 +37,7 @@ def load_sound(name):
         def play(self): pass
     if not pygame.mixer or not pygame.mixer.get_init():
         return NoneSound()
-    fullname = os.path.join('data', name)
+    fullname = os.path.join(data_dir, name)
     try:
         sound = pygame.mixer.Sound(fullname)
     except pygame.error, message:
