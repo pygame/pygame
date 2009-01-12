@@ -22,6 +22,11 @@ if "-psyco" in sys.argv:
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, 'data')
 
+
+
+
+
+
 # use this to use update rects or not.
 #  If the screen is mostly full, then update rects are not useful.
 update_rects = True
@@ -29,11 +34,11 @@ if "-update_rects" in sys.argv:
     update_rects = True
 if "-noupdate_rects" in sys.argv:
     update_rects = False
-    
+
 use_static = False
 if "-static" in sys.argv:
     use_static = True
-    
+
 
 use_FastRenderGroup = False
 if "-FastRenderGroup" in sys.argv:
@@ -127,8 +132,18 @@ class Static(FRG.DirtySprite):
 
 
 
-def main():
-    global update_rects, flags
+def main(update_rects = True, 
+        use_static = False,
+        use_FastRenderGroup = False,
+        screen_dims = [640, 480],
+        use_alpha = False,
+        flags = 0,
+        ):
+
+    if use_FastRenderGroup:
+        update_rects = True
+
+
     #pygame.init()
     pygame.display.init()
 
@@ -227,8 +242,14 @@ def main():
         frames += 1
     end = time()
     print "FPS: %f" % (frames / ((end - start)))
+    pygame.quit()
 
 
 
 if __name__ == "__main__":
-    main()
+    main( update_rects,
+          use_static,
+          use_FastRenderGroup,
+          screen_dims,
+          use_alpha,
+          flags )
