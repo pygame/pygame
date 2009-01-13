@@ -64,6 +64,10 @@ def get_default_output_device_id():
     return pypm.GetDefaultOutputDeviceID()
 
 
+def get_device_info(an_id):
+    """ returns (interf, name, input, output, opened)
+    """
+    return pypm.GetDeviceInfo(an_id) 
 
 
 class MidiException(Exception):
