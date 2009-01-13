@@ -94,6 +94,8 @@ DEPS = [
     Dependency('PNG', 'png.h', 'libpng', ['png']),
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
     Dependency('SCRAP', '','',[])
+    Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
+
 ]
 
 
