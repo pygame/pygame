@@ -19,7 +19,23 @@ except NameError:
     from sets import Set as set
 
 
-def input_main():
+def print_device_info():
+    for i in range( pygame.midi.get_count() ):
+        r = pygame.midi.get_device_info(i)
+        (interf, name, input, output, opened) = r
+
+        in_out = ""
+        if input:
+            in_out = "(input)"
+        if output:
+            in_out = "(output)"
+
+        print "interface :%s:, name :%s:, opened :%s:  %s" % (interf, name, opened, in_out)
+        
+
+
+
+def input_main(device_id = None):
     pygame.init()
     pygame.fastevent.init()
     event_get = pygame.fastevent.get
@@ -27,7 +43,16 @@ def input_main():
 
     pygame.midi.init()
 
-    i = pygame.midi.Input(1)
+    print_device_info()
+
+
+    if device_id is None:
+        input_id = pygame.midi.get_default_input_device_id()
+    else:
+        input_id = device_id
+
+    print "using input_id :%s:" % input_id 
+    i = pygame.midi.Input( input_id )
 
     pygame.display.set_mode((1,1))
 
@@ -57,7 +82,7 @@ def input_main():
 
 
 
-def output_main():
+def output_main(device_id = None):
     """Execute a musical keyboard example for the Church Organ instrument
 
     This is a piano keyboard example, with a two octave keyboard, starting at
@@ -113,9 +138,22 @@ def output_main():
                                     K_RIGHTBRACKET, K_BACKSPACE, K_BACKSLASH],
                                    start_note)
     
-    port = pygame.midi.get_default_output_device_id()
+
+
     pygame.init()
     pygame.midi.init()
+
+    print_device_info()
+
+    if device_id is None:
+        port = pygame.midi.get_default_output_device_id()
+    else:
+        port = device_id
+
+    print "using output_id :%s:" % port
+
+
+
     midi_out = pygame.midi.Output(port, 0)
     try:
         midi_out.set_instrument(instrument)
@@ -729,12 +767,22 @@ def is_white_key(note):
     return key_pattern[(note - 21) % len(key_pattern)]
 
 
+def usage():
+    print "--input [device_id]"
+    print "--output [device_id]"
 
 if __name__ == '__main__':
-    if "--input" in sys.argv or "-i" in sys.argv:
-        input_main()
 
-    #elif "--output" in sys.argv or "-o" in sys.argv:
-    # output example is run by default.
+    try:
+        device_id = int( sys.argv[-1] )
+    except:
+        device_id = None
+
+    if "--input" in sys.argv or "-i" in sys.argv:
+
+        input_main(device_id)
+
+    elif "--output" in sys.argv or "-o" in sys.argv:
+        output_main(device_id)
     else:
-        output_main()
+        useage()
