@@ -140,6 +140,7 @@ def main():
         Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
+        Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
     ]
 
     if not DEPS[0].found:
