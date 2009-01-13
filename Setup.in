@@ -15,6 +15,7 @@ SMPEG = -lsmpeg
 PNG = -lpng
 JPEG = -ljpeg
 SCRAP = -lX11
+PORTMIDI = -lportmidi
 #--EndConfig
 
 #DEBUG = -C-W -C-Wall
