@@ -30,7 +30,8 @@ def print_device_info():
         if output:
             in_out = "(output)"
 
-        print "interface :%s:, name :%s:, opened :%s:  %s" % (interf, name, opened, in_out)
+        print ("%2i: interface :%s:, name :%s:, opened :%s:  %s" %
+               (i, interf, name, opened, in_out))
         
 
 
@@ -768,9 +769,32 @@ def is_white_key(note):
 
 
 def usage():
-    print "--input [device_id]"
-    print "--output [device_id]"
+    print "--input [device_id] : Midi message logger"
+    print "--output [device_id] : Midi piano keyboard"
+    print "--list : list available midi devices"
 
+def main(mode='output', device_id=None):
+    """Run a Midi example
+
+    Arguments:
+    mode - if 'output' run a midi keyboard output example
+              'input' run a midi event logger input example
+              'list' list available midi devices
+           (default 'output')
+    device_id - midi device number; if None then use the default midi input or
+                output device for the system
+
+    """
+
+    if mode == 'input':
+        input_main(device_id)
+    elif mode == 'output':
+        output_main(device_id)
+    elif mode == 'list':
+        print_device_info()
+    else:
+        raise ValueError("Unknown mode option '%s'" % mode)
+                
 if __name__ == '__main__':
 
     try:
@@ -784,5 +808,7 @@ if __name__ == '__main__':
 
     elif "--output" in sys.argv or "-o" in sys.argv:
         output_main(device_id)
+    elif "--list" in sys.argv or "-l" in sys.argv:
+        print_device_info()
     else:
-        useage()
+        usage()
