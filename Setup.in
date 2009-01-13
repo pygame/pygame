@@ -16,6 +16,7 @@ PNG = -lpng
 JPEG = -ljpeg
 SCRAP = -lX11
 PORTMIDI = -lportmidi
+PORTTIME = -lporttime
 #--EndConfig
 
 #DEBUG = -C-W -C-Wall
@@ -34,7 +35,7 @@ _numericsndarray src/_numericsndarray.c $(SDL) $(MIXER) $(DEBUG)
 movie src/movie.c $(SDL) $(SMPEG) $(DEBUG)
 scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 camera src/camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
-pypm src/pypm.c $(SDL) $(PORTMIDI) $(DEBUG)
+pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
 #experimental new movie movie. requires libavcodec and libavformat.
 #add any necessary compile flags to this line and uncomment.
