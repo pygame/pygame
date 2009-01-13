@@ -222,8 +222,7 @@ def setup_prebuilt():
         try:
             setup_win_in = open(os.path.join('prebuilt', 'Setup_Win.in'))
         except IOError:
-            # prebuilt lacks a Setup_Win.in. Use defaults.
-            setup_win_in = open('Default_Setup_Win.in')
+            raise IOError("prebuilt missing required Setup_Win.in")
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .
