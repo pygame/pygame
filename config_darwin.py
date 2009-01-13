@@ -93,7 +93,7 @@ DEPS = [
     FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
     Dependency('PNG', 'png.h', 'libpng', ['png']),
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
-    Dependency('SCRAP', '','',[])
+    Dependency('SCRAP', '','',[]),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
     Dependency('PORTTIME', 'porttime.h', 'libporttime', ['porttime']),
 ]
