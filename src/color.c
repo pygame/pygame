@@ -463,61 +463,25 @@ _hexcolor (PyObject *color, Uint8 rgba[])
 }
 
 static int
-_coerce_obj(PyObject *obj, Uint8 rgba[])
+_coerce_obj (PyObject *obj, Uint8 rgba[])
 {
-    if (RGBAFromObj (obj, rgba))
+    if (PyType_IsSubtype (obj->ob_type, &PyColor_Type))
     {
-        return 1;
-    }
-    else if (PyErr_Occurred ())
-    {
-	return -1;
-    }
-    else if (PyString_Check (obj))
-    {
-	if (_hexcolor (obj, rgba))
-        {
-	    return 1;
-	}
-	if (PyErr_Occurred ())
-        {
-	    return -1;
-	}
-    }
-    else if (PyInt_Check (obj))
-    {
-	long color = PyInt_AsLong (obj);
-	if (color == -1 && PyErr_Occurred ())
-        {
-	    return -1;
-	}
-        rgba[0] = (Uint8) ((Uint32) color >> 24);
-        rgba[1] = (Uint8) ((Uint32) color >> 16);
-        rgba[2] = (Uint8) ((Uint32) color >> 8);
-        rgba[3] = (Uint8) color;
+	rgba[0] = ((PyColor *) obj)->r;
+	rgba[1] = ((PyColor *) obj)->g;
+	rgba[2] = ((PyColor *) obj)->b;
+	rgba[3] = ((PyColor *) obj)->a;
 	return 1;
     }
-    else if (PyLong_Check (obj))
+    else if (PyType_IsSubtype (obj->ob_type, &PyTuple_Type))
     {
-        unsigned long color = PyLong_AsUnsignedLong (obj);
-	if (PyErr_Occurred ())
+	if (RGBAFromObj (obj, rgba))
 	{
-            if (!PyErr_ExceptionMatches (PyExc_OverflowError))
-            {
-	        return -1;
-	    }
-	    else
-	    {
-		PyErr_Clear ();
-	    }
-	}
-	else
-	{
-            rgba[0] = (Uint8) (color >> 24);
-            rgba[1] = (Uint8) (color >> 16);
-            rgba[2] = (Uint8) (color >> 8);
-            rgba[3] = (Uint8) color;
 	    return 1;
+	}
+	else if (PyErr_Occurred ())
+	{
+	    return -1;
 	}
     }
 
