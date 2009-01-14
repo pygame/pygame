@@ -15,9 +15,8 @@ a hex number string, or an integer pixel value. The HTML format is
 alpha aa is optional. A hex number string has the form '0xrrggbbaa',
 where aa is optional.
 
-Color objects support equality comparison with other color objects,
-3 or 4 element integer sequences, HTML color format strings,
-'0xrrggbbaa' strings, and integer pixel values.
+Color objects support equality comparison with other color objects
+and 3 or 4 element tuples of integers (New in 1.9.0).
 
 New in pygame 1.8.1.
 <SECTION>

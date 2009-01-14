@@ -110,6 +110,8 @@ class ColorTypeTest (unittest.TestCase):
 
     def test_comparison(self):
         Color = pygame.color.Color
+
+        # Check valid comparisons
         self.failUnless(Color(255, 0, 0, 0) == Color(255, 0, 0, 0))
         self.failUnless(Color(0, 255, 0, 0) == Color(0, 255, 0, 0))
         self.failUnless(Color(0, 0, 255, 0) == Color(0, 0, 255, 0))
@@ -161,86 +163,34 @@ class ColorTypeTest (unittest.TestCase):
         self.failIf((0, 0, 255, 0) != Color(0, 0, 255, 0))
         self.failIf((0, 0, 0, 255) != Color(0, 0, 0, 255))
 
-        self.failUnless(Color(255, 0, 0, 0) == "#ff000000")
-        self.failUnless(Color(0, 255, 0, 0) == "#00ff0000")
-        self.failUnless(Color(0, 0, 255, 0) == "#0000ff00")
-        self.failUnless(Color(0, 0, 0, 255) == "#000000ff")
-        self.failIf(Color(0, 0, 0, 0) == "#ff000000")
-        self.failIf(Color(0, 0, 0, 0) == "#00ff0000")
-        self.failIf(Color(0, 0, 0, 0) == "#0000ff00")
-        self.failIf(Color(0, 0, 0, 0) == "#000000ff")
-        self.failUnless(Color(0, 0, 0, 0) != "#ff000000")
-        self.failUnless(Color(0, 0, 0, 0) != "#00ff0000")
-        self.failUnless(Color(0, 0, 0, 0) != "#0000ff00")
-        self.failUnless(Color(0, 0, 0, 0) != "#000000ff")
-        self.failIf(Color(255, 0, 0, 0) != "#ff000000")
-        self.failIf(Color(0, 255, 0, 0) != "#00ff0000")
-        self.failIf(Color(0, 0, 255, 0) != "#0000ff00")
-        self.failIf(Color(0, 0, 0, 255) != "#000000ff")
+        class TupleSubclass(tuple):
+            pass
+        self.failUnless(Color(255, 0, 0, 0) == TupleSubclass((255, 0, 0, 0)))
+        self.failUnless(TupleSubclass((255, 0, 0, 0)) == Color(255, 0, 0, 0))
+        self.failIf(Color(255, 0, 0, 0) != TupleSubclass((255, 0, 0, 0)))
+        self.failIf(TupleSubclass((255, 0, 0, 0)) != Color(255, 0, 0, 0))
 
-        self.failUnless("#ff000000" == Color(255, 0, 0, 0))
-        self.failUnless("#00ff0000" == Color(0, 255, 0, 0))
-        self.failUnless("#0000ff00" == Color(0, 0, 255, 0))
-        self.failUnless("#000000ff" == Color(0, 0, 0, 255))
-        self.failIf("#ff000000" == Color(0, 0, 0, 0))
-        self.failIf("#00ff0000" == Color(0, 0, 0, 0))
-        self.failIf("#0000ff00" == Color(0, 0, 0, 0))
-        self.failIf("#000000ff" == Color(0, 0, 0, 0))
-        self.failUnless("#ff000000" != Color(0, 0, 0, 0))
-        self.failUnless("#00ff0000" != Color(0, 0, 0, 0))
-        self.failUnless("#0000ff00" != Color(0, 0, 0, 0))
-        self.failUnless("#000000ff" != Color(0, 0, 0, 0))
-        self.failIf("#ff000000" != Color(255, 0, 0, 0))
-        self.failIf("#00ff0000" != Color(0, 255, 0, 0))
-        self.failIf("#0000ff00" != Color(0, 0, 255, 0))
-        self.failIf("#000000ff" != Color(0, 0, 0, 255))
+        # These are not supported so will be unequal.
+        self.failIf(Color(255, 0, 0, 0) == "#ff000000")
+        self.failUnless(Color(255, 0, 0, 0) != "#ff000000")
 
-        self.failUnless(Color(255, 0, 0, 0) == 0xff000000)
-        self.failUnless(Color(0, 255, 0, 0) == 0x00ff0000)
-        self.failUnless(Color(0, 0, 255, 0) == 0x0000ff00)
-        self.failUnless(Color(0, 0, 0, 255) == 0x000000ff)
-        self.failIf(Color(0, 0, 0, 0) == 0xff000000)
-        self.failIf(Color(0, 0, 0, 0) == 0x00ff0000)
-        self.failIf(Color(0, 0, 0, 0) == 0x0000ff00)
-        self.failIf(Color(0, 0, 0, 0) == 0x000000ff)
-        self.failUnless(Color(0, 0, 0, 0) != 0xff000000)
-        self.failUnless(Color(0, 0, 0, 0) != 0x00ff0000)
-        self.failUnless(Color(0, 0, 0, 0) != 0x0000ff00)
-        self.failUnless(Color(0, 0, 0, 0) != 0x000000ff)
-        self.failIf(Color(255, 0, 0, 0) != 0xff000000)
-        self.failIf(Color(0, 255, 0, 0) != 0x00ff0000)
-        self.failIf(Color(0, 0, 255, 0) != 0x0000ff00)
-        self.failIf(Color(0, 0, 0, 255) != 0x000000ff)
+        self.failIf("#ff000000" == Color(255, 0, 0, 0))
+        self.failUnless("#ff000000" != Color(255, 0, 0, 0))
 
-        self.failUnless(0xff000000 == Color(255, 0, 0, 0))
-        self.failUnless(0x00ff0000 == Color(0, 255, 0, 0))
-        self.failUnless(0x0000ff00 == Color(0, 0, 255, 0))
-        self.failUnless(0x000000ff == Color(0, 0, 0, 255))
-        self.failIf(0xff000000 == Color(0, 0, 0, 0))
-        self.failIf(0x00ff0000 == Color(0, 0, 0, 0))
-        self.failIf(0x0000ff00 == Color(0, 0, 0, 0))
-        self.failIf(0x000000ff == Color(0, 0, 0, 0))
-        self.failUnless(0xff000000 != Color(0, 0, 0, 0))
-        self.failUnless(0x00ff0000 != Color(0, 0, 0, 0))
-        self.failUnless(0x0000ff00 != Color(0, 0, 0, 0))
-        self.failUnless(0x000000ff != Color(0, 0, 0, 0))
-        self.failIf(0xff000000 != Color(255, 0, 0, 0))
-        self.failIf(0x00ff0000 != Color(0, 255, 0, 0))
-        self.failIf(0x0000ff00 != Color(0, 0, 255, 0))
-        self.failIf(0x000000ff != Color(0, 0, 0, 255))
+        self.failIf(Color(255, 0, 0, 0) == 0xff000000)
+        self.failUnless(Color(255, 0, 0, 0) != 0xff000000)
 
-        # Comparison is not implemented for invalid color values
+        self.failIf(0xff000000 == Color(255, 0, 0, 0))
+        self.failUnless(0xff000000 != Color(255, 0, 0, 0))
+
+        self.failIf(Color(255, 0, 0, 0) == [255, 0, 0, 0])
+        self.failUnless(Color(255, 0, 0, 0) != [255, 0, 0, 0])
+        
+        self.failIf([255, 0, 0, 0] == Color(255, 0, 0 ,0))
+        self.failUnless([255, 0, 0, 0] != Color(255, 0, 0, 0))
+
+        # Comparison is not implemented for invalid color values.
         class Test(object):
-            def __eq__(self, other):
-                return -1
-            def __ne__(self, other):
-                return -2
-        class TestLong(long):
-            def __eq__(self, other):
-                return -1
-            def __ne__(self, other):
-                return -2
-        class TestStr(str):
             def __eq__(self, other):
                 return -1
             def __ne__(self, other):
@@ -252,22 +202,12 @@ class ColorTypeTest (unittest.TestCase):
                 return -2
 
         t = Test()
-        t_str = TestStr("Not a color")
-        t_long = TestLong(0xff00000000)
         t_tuple = TestTuple(('a', 0, 0, 0))
         black = Color('black')
         self.assertEqual(black == t, -1)
         self.assertEqual(t == black, -1)
         self.assertEqual(black != t, -2)
         self.assertEqual(t != black, -2)
-        self.assertEqual(black == t_str, -1)
-        self.assertEqual(black != t_str, -2)
-        self.assertEqual(t_str == black, -1)
-        self.assertEqual(t_str != black, -2)
-        self.assertEqual(black == t_long, -1)
-        self.assertEqual(black != t_long, -2)
-        self.assertEqual(t_long == black, -1)
-        self.assertEqual(t_long != black, -2)
         self.assertEqual(black == t_tuple, -1)
         self.assertEqual(black != t_tuple, -2)
         self.assertEqual(t_tuple == black, -1)
