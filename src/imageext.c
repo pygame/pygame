@@ -531,10 +531,14 @@ image_save_ext (PyObject* self, PyObject* arg)
               (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
         {
 #ifdef JPEGLIB_H
-            /* jpg save functions seem thread safe on windows. */
+            /* jpg save functions seem *NOT* thread safe at least on windows. */
+            /*
             Py_BEGIN_ALLOW_THREADS;
+            */
             result = SaveJPEG (surf, name);
+            /*
             Py_END_ALLOW_THREADS;
+            */
 #else
             return RAISE (PyExc_SDLError, "No support for jpg compiled in.");
 #endif
