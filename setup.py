@@ -62,6 +62,23 @@ from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 
 
+def add_datafiles(data_files, dest_dir, pattern):
+    """Add directory structures to data files according to a pattern"""
+    src_dir, elements = pattern
+    def do_directory(root_dest_path, root_src_path, elements):
+        files = []
+        for e in elements:
+            if isinstance(e, list):
+                src_dir, elems = e
+                dest_path = '/'.join([root_dest_path, src_dir])
+                src_path = os.path.join(root_src_path, src_dir)
+                do_directory(dest_path, src_path, elems)
+            else:
+                files.extend(glob.glob(os.path.join(root_src_path, e)))
+        if files:
+            data_files.append((root_dest_path, files))
+    do_directory(dest_dir, src_dir, elements)
+
 # allow optionally using setuptools for bdist_egg.
 if "-setuptools" in sys.argv:
     from setuptools import setup, find_packages
@@ -131,26 +148,15 @@ for f in glob.glob(os.path.join('lib', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
         pygame_data_files.append(f)
 
-# For adding directory structures to data files.
-def add_datafiles(data_files, pattern):
-    def do_directory(root_dest_path, root_src_path, subpattern):
-        subdir, elements = subpattern
-        files = []
-        dest_path = '/'.join([root_dest_path, subdir])
-        if root_src_path:
-            src_path = os.path.join(root_src_path, subdir)
-        else:
-            src_path = subdir
-        for e in elements:
-            if isinstance(e, list):
-                do_directory(dest_path, src_path, e)
-            else:
-                files.extend(glob.glob(os.path.join(src_path, e)))
-        data_files.append((dest_path, files))
-    do_directory('pygame', '', pattern)
+#tests/fixtures
+add_datafiles(data_files, 'pygame/tests',
+              ['test',
+                  [['fixtures',
+                      [['xbm_cursors',
+                          ['*.xbm']]]]]])
 
 #examples
-add_datafiles(data_files,
+add_datafiles(data_files, 'pygame/examples',
               ['examples',
                   ['readme.txt',
                    ['data',
@@ -166,7 +172,7 @@ add_datafiles(data_files,
                                       ['*']]]]]]]]]])
 
 #docs
-add_datafiles(data_files,
+add_datafiles(data_files, 'pygame/docs',
               ['docs',
                   ['*.html',
                    '*.gif',
@@ -188,7 +194,7 @@ add_datafiles(data_files,
                             ['*.html',
                              '*.png']]]]]])
               
-# Required. This will be filled if doing a Windows build.
+#required. This will be filled if doing a Windows build.
 cmdclass = {}
 
 #try to find DLLs and copy them too  (only on windows)
