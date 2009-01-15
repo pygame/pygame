@@ -877,7 +877,7 @@
 
 #define DOC_PYGAMETESTS "Pygame unit test suite package"
 
-#define DOC_PYGAMETESTSRUN "pygame.tests.run(my_name=None): return None\nRun the Pygame unit test suite"
+#define DOC_PYGAMETESTSRUN "pygame.tests.run(*args, **kwds): return tuple\nRun the Pygame unit test suite"
 
 #define DOC_PYGAMETIME "pygame module for monitoring time"
 

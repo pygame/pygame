@@ -29,17 +29,8 @@ SUBPROCESS_IGNORE = set ([
     "scrap_test",
 ])
 
-def run(my_name=None):
-    """Run the Pygame unit test suite
+if __name__ == 'pygame.tests':
+    from pygame.tests.test_utils.run_tests import run
+else:
+    from test.test_utils.run_tests import run
 
-    The run function is configured with command line options. The --help option
-    displays a command line usage message. Optional argument my_name replaces
-    the executable name in the help message.
-
-    """
-    
-    if __name__ == 'pygame.tests':
-        from pygame.tests.test_utils.run_tests import run
-    else:
-        from test.test_utils.run_tests import run
-    run(my_name)

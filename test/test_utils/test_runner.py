@@ -1,6 +1,7 @@
 ################################################################################
 
 if __name__ == '__main__':
+    
     import sys
     import os
     pkg_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
@@ -57,14 +58,6 @@ opt_parser.add_option (
      help   = "run test suites in subprocesses (default: same process)" )
 
 opt_parser.add_option (
-     "-d",  "--dump", action = 'store_true',
-     help   = "dump failures/errors as dict ready to eval" )
-
-opt_parser.add_option (
-     "-F",  "--file",
-     help   = "dump failures/errors to a file" )
-
-opt_parser.add_option (
      "-T",  "--timings", type = 'int', default = 1, metavar = 'T',
      help   = "get timings for individual tests.\n" 
               "Run test T times, giving average time")
@@ -78,10 +71,6 @@ opt_parser.add_option (
      help   = "show silenced stderr/stdout on errors" )
 
 opt_parser.add_option (
-     "-a",  "--all", action = 'store_true',
-     help   = "dump all results not just errors eg. -da" )
-
-opt_parser.add_option (
      "-r",  "--randomize", action = 'store_true',
      help   = "randomize order of tests" )
 
@@ -89,25 +78,7 @@ opt_parser.add_option (
      "-S",  "--seed", type = 'int',
      help   = "seed randomizer" )
 
-opt_parser.add_option (
-     "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
-     help   = "run subprocessed tests in x THREADS" )
-
-opt_parser.add_option (
-     "-t",  "--time_out", metavar = 'SECONDS', type = 'int',
-     help   = "kill stalled subprocessed tests after SECONDS" )
-
-opt_parser.add_option (
-     "-f",  "--fake", metavar = "DIR",
-     help   = "run fake tests in run_tests__tests/$DIR" )
-
-opt_parser.add_option (
-     "-p",  "--python", metavar = "PYTHON",
-     help   = "path to python excutable to run subproccesed tests\n"
-              "default (sys.executable): %s" % sys.executable)
-
 ################################################################################
-
 # If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
 # This is only the default, can be over-ridden on command line
 
@@ -116,8 +87,6 @@ TIME_OUT = 30
 # DEFAULTS
 
 opt_parser.set_defaults (
-    python = sys.executable,
-    time_out = TIME_OUT,
     exclude = 'interactive',
 )
 
@@ -152,7 +121,7 @@ def combine_results(all_results, t):
     Return pieced together results in a form fit for human consumption. Don't
     rely on results if  piecing together subprocessed  results (single process
     mode is fine). Was originally meant for that  purpose but was found to be
-    unreliable.  See options.dump or options.human for reliable results.
+    unreliable.  See the dump option for reliable results.
 
     """
 
@@ -259,9 +228,19 @@ RESULTS_TEMPLATE = {
 
 ################################################################################
 
-def run_test(module, options):
+def run_test(module, **kwds):
+    """Run a unit test module
+
+    Recognized keyword arguments:
+    incomplete, subprocess
+
+    """
+    
+    option_incomplete = kwds.get('incomplete', False)
+    option_subprocess = kwds.get('subprocess', False)
+
     suite = unittest.TestSuite()
-    test_utils.fail_incomplete_tests = options.incomplete
+    test_utils.fail_incomplete_tests = option_incomplete
 
     m = import_submodule(module)
     if m.unittest is not unittest:
@@ -277,7 +256,7 @@ def run_test(module, options):
     suite.addTest(test)
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(stream = output)
+    runner = unittest.TextTestRunner(stream=output)
 
     results = runner.run(suite)
     output  = StringIOContents(output)
@@ -289,7 +268,7 @@ def run_test(module, options):
 
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
 
-    if options.subprocess:
+    if option_subprocess:
         print TEST_RESULTS_START
         print pformat(results)
     else:
@@ -299,15 +278,22 @@ def run_test(module, options):
 
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
-    unittest_patch.patch(options)
+    unittest_patch.patch(incomplete=options.incomplete,
+                         randomize=options.randomize,
+                         seed=options.seed,
+                         exclude=options.exclude,
+                         timings=options.timings,
+                         show_output=options.show_output)
     if not args:
         
         if is_pygame_pkg:
-            run_from = 'pygame.tests.run()'
+            run_from = 'pygame.tests.go'
         else:
             run_from = os.path.join(main_dir, 'run_tests.py')
-        sys.exit('Do not run directly; use %s' % run_from)
-    run_test(args[0], options)
+        sys.exit('Do not run directly; use %s instead' % run_from)
+    run_test(args[0],
+             incomplete=options.incomplete,
+             subprocess=options.subprocess)
 
 ################################################################################
 

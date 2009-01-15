@@ -32,49 +32,96 @@ import optparse
 import random
 from pprint import pformat
 
-main_dir, test_subdir, fake_test_subdir = prepare_test_env()
-test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
-cur_working_dir = os.path.abspath(os.getcwd())
+was_run = False
 
-def run(caller_name=None):
-    global test_subdir
+def run(*args, **kwds):
+    """Run the Pygame unit test suite and return (total tests run, fails dict)
 
-    if  caller_name is None:
-        caller_name = ('python -c "import %(pkg)s; %(pkg)s.run()"' %
-                       {'pkg': test_pkg_name})
-        
+    Positional arguments (optional):
+    The names of tests to include. If omitted then all tests are run. Test names
+    need not include the trailing '_test'.
+
+    Keyword arguments:
+    incomplete - fail incomplete tests (default False)
+    subprocess - run test suites in subprocesses (default False, same process)
+    dump - dump failures/errors as dict ready to eval (default False)
+    file - if provided, the name of a file into which to dump failures/errors
+    timings - if provided, the number of times to run each individual test to
+              get an average run time (default is run each test once)
+    exclude - A list of TAG names to exclude from the run
+    show_output - show silenced stderr/stdout on errors (default False)
+    all - dump all results, not just errors (default False)
+    randomize - randomize order of tests (default False)
+    seed - if provided, a seed randomizer integer
+    multi_thread - if provided, the number of THREADS in which to run
+                   subprocessed tests
+    time_out - if subprocess is True then the time limit in seconds before
+               killing a test (default 30)
+    fake - if provided, the name of the a fake tests package in the
+           run_tests__tests subpackage to run instead of the normal
+           Pygame tests
+    python - the path to a python executable to run subprocessed tests
+             (default sys.executable)
+    
+    Return value:
+    A tuple of total number of tests run, dictionary of error information.
+    The dictionary is empty if no errors were recorded.
+
+    Tests can be run in the current process or a subprocess, depending on
+    the 'subprocess' argument. If tests are run in separate processes then
+    frozen tests will be killed. Also, using subprocesses more realistically
+    reproduces normal Pygame usage, where pygame.init() and pygame.quit() are
+    called only once per program execution.
+
+    Tests are run in a randomized order if the randomize argument is True
+    of a seed argument is provided. If no seed integer is provided then
+    the system time is used.
+
+    Individual test modules may have a TAG attribute, a list of TAG attributes
+    used to select modules to omit from a run. By default only 'interactive'
+    modules such as cdrom_test are ignored. An interactive module must be run
+    from the console as a Python program.
+
+    This function can only be called once per Python session. It is not
+    reentrant.
+
+    """
+
+    global was_run
+
+    if was_run:
+        raise RuntimeError("run() was already called this session")
+    was_run = True
+                           
+    options = kwds.copy()
+    option_subprocess = options.get('subprocess', False)
+    option_dump = options.pop('dump', False)
+    option_file = options.pop('file', None)
+    option_all = options.pop('all', False)
+    option_randomize = options.get('randomize', False)
+    option_seed = options.get('seed', None)
+    option_multi_thread = options.pop('multi_thread', 1)
+    option_time_out = options.pop('time_out', 30)
+    option_fake = options.pop('fake', None)
+    option_python = options.pop('python', sys.executable)
+
+    main_dir, test_subdir, fake_test_subdir = prepare_test_env()
+    test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
+    cur_working_dir = os.path.abspath(os.getcwd())
+
     ###########################################################################
-    # Set the command line options
-    #
-    # Defined in test_runner.py as it shares options, added to here
-
-    opt_parser.set_usage("""
-
-    Runs all or some of the %(pkg)s.xxxx_test tests.
-
-    $ %(exec)s sprite threads -sd
-
-    Runs the sprite and threads module tests isolated in subprocesses, dumping
-    all failing tests info in the form of a dict.
-
-    """ % {'pkg': test_pkg_name, 'exec': caller_name})
-
-    options, args = opt_parser.parse_args()
-
-    ###########################################################################
-    # Change to working directory and compile a list of test modules
-    # If options.fake, then compile list of fake xxxx_test.py from
-    # run_tests__tests
+    # Compile a list of test modules. If fake, then compile list of fake
+    # xxxx_test.py from run_tests__tests
 
     TEST_MODULE_RE = re.compile('^(.+_test)\.py$')
 
     test_mods_pkg_name = test_pkg_name
     
-    if options.fake:
+    if option_fake is not None:
         test_mods_pkg_name = '.'.join([test_mods_pkg_name,
                                        'run_tests__tests',
-                                       options.fake])
-        test_subdir = os.path.join(fake_test_subdir, options.fake )
+                                       option_fake])
+        test_subdir = os.path.join(fake_test_subdir, option_fake)
         working_dir = test_subdir
     else:
         working_dir = main_dir
@@ -93,7 +140,7 @@ def run(caller_name=None):
             m.endswith('_test') and (fmt1 % m) or (fmt2 % m) for m in args
         ]
     else:
-        if options.subprocess:
+        if option_subprocess:
             ignore = SUBPROCESS_IGNORE
         else:
             ignore = IGNORE
@@ -114,49 +161,60 @@ def run(caller_name=None):
     ###########################################################################
     # Randomization
 
-    if options.randomize or options.seed:
-        seed = options.seed or time.time()
-        meta['random_seed'] = seed
-        print "\nRANDOM SEED USED: %s\n" % seed
-        random.seed(seed)
+    if option_randomize or option_seed is not None:
+        if option_seed is None:
+            option_seed = time.time()
+        meta['random_seed'] = option_seed
+        print "\nRANDOM SEED USED: %s\n" % option_seed
+        random.seed(option_seed)
         random.shuffle(test_modules)
 
     ###########################################################################
     # Single process mode
 
-    if not options.subprocess:
-        unittest_patch.patch(options)
+    if not option_subprocess:
+        unittest_patch.patch(**kwds)
 
         t = time.time()
         for module in test_modules:
-            results.update(run_test(module, options = options))
+            results.update(run_test(module, **kwds))
         t = time.time() - t
 
     ###########################################################################
     # Subprocess mode
     #
 
-    if options.subprocess:
+    if option_subprocess:
         if is_pygame_pkg:
             from pygame.tests.test_utils.async_sub import proc_in_time_or_kill
         else:
             from test.test_utils.async_sub import proc_in_time_or_kill
 
+        pass_on_args = []
+        for option in ['timings', 'exclude', 'seed']:
+            value = options.pop(option, None)
+            if value is not None:
+                pass_on_args.append('--%s' % option)
+                pass_on_args.append(str(value))
+        for option, value in options.items():
+            if value:
+                pass_on_args.append('--%s' % option)
+
         def sub_test(module):
             print 'loading', module
 
-            pass_on_args = [a for a in sys.argv[1:] if a not in args]
-            cmd = [options.python, test_runner_py, module ] + pass_on_args
+            cmd = [option_python, test_runner_py, module ] + pass_on_args
 
-            return module, (cmd, test_env, working_dir), proc_in_time_or_kill (
-                cmd, options.time_out,  env = test_env,  wd = working_dir,
-            )
+            return (module,
+                    (cmd, test_env, working_dir),
+                    proc_in_time_or_kill(cmd, option_time_out, env=test_env,
+                                         wd=working_dir))
 
-        if options.multi_thread:
+        if option_multi_thread > 1:
             def tmap(f, args):
                 return pygame.threads.tmap (
                     f, args, stop_on_error = False,
-                    num_workers = options.multi_thread
+                    num_workers = option_multi_thread
                 )
         else:
             tmap = map
@@ -194,23 +252,24 @@ def run(caller_name=None):
     meta['combined'] = combined
     results.update(meta_results)
 
-    if not options.subprocess:
+    if not option_subprocess:
         assert total == untrusty_total
 
-    if not options.dump:
+    if not option_dump:
         print combined
     else:
-        results = options.all and results or fails
+        results = option_all and results or fails
         print TEST_RESULTS_START
         print pformat(results)
 
-    if options.file:
-        results_file = open(options.file, 'w')
+    if option_file is not None:
+        results_file = open(option_file, 'w')
         try:
             results_file.write(pformat(results))
         finally:
             results_file.close()
 
+    return total, fails
 
 ###############################################################################
 
