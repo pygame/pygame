@@ -128,8 +128,8 @@ RWindow& CSDLWin::GetWindow() const
 
 void CSDLWin::Draw(const TRect& /*aRect*/) const
 {
-	// Be transparent until app is ready. I don't want to force anyone use black initial screen.
-#if(0)	
+	// Draw black( it will be white otherwise and that's even worse looking )
+	// TODO: Take a screenshot and maybe do some kind of fade thingy
 	CWindowGc& gc = SystemGc();
 	gc.SetDrawMode( CGraphicsContext::EDrawModeWriteAlpha );
 	gc.Clear();
@@ -137,9 +137,9 @@ void CSDLWin::Draw(const TRect& /*aRect*/) const
 	gc.SetPenStyle(CGraphicsContext::ENullPen);
 	gc.SetPenColor(0x000000);
 	gc.SetBrushStyle(CGraphicsContext::ESolidBrush);
-	gc.SetBrushColor(0x80010101);
+	gc.SetBrushColor(0x000000);
 	gc.DrawRect(Rect());
-#endif
+
 }
 /*
  TKeyResponse CSDLWin::OfferKeyEventL(const TKeyEvent &aKeyEvent, TEventCode aType)
