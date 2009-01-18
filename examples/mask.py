@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+"""A pgyame.mask collition detection example
+
+exports main()
+
+This module can also be run as a stand-alone program, excepting
+one or more image file names as command line arguments.
+
+"""
+
 import sys, random
 import pygame, pygame.image, pygame.surface, pygame.time, pygame.display
 
@@ -83,17 +92,24 @@ class Sprite:
         self.pos[1] += dt*self.vel[1]
 
 
-def main(argv):
-    if len(argv) < 2:
-        print 'Usage: pygame_example IMAGE'
-        print 'Let many copies of IMAGE bounce against each other'
-        print 'Press any key to quit'
-        return
+def main(*args):
+    """Display multiple images bounce off each other using collition detection
+
+    Positional arguments:
+      one or more image file names.
+
+    This pygame.masks demo will display multiple moving sprites bouncing
+    off each other. More than one sprite image can be provided.
+
+    """
+    
+    if len(args) == 0:
+        raise ValueError("Require at least one image file name: non given")
     print 'Press any key to quit'
     screen = pygame.display.set_mode((640,480))
     images = []
     masks = []
-    for impath in argv[1:]:
+    for impath in args:
         images.append(pygame.image.load(impath).convert_alpha())
         masks.append(maskFromSurface(images[-1]))
 
@@ -147,7 +163,13 @@ def main(argv):
         elif event.type == pygame.KEYDOWN:
             return
 
-main(sys.argv)
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print 'Usage: mask.py <IMAGE> [<IMAGE> ...]'
+        print 'Let many copies of IMAGE(s) bounce against each other'
+        print 'Press any key to quit'
+    else:
+        main(*sys.argv[1:])
 
 
 

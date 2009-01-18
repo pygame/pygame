@@ -2,7 +2,7 @@
 """How to use pygame with no windowing system, like on headless servers.
 
 Thumbnail generation with scaling is an example of what you can do with pygame.
-NOTE: the pygame scale function uses mmx if available, and can be run 
+NOTE: the pygame scale function uses mmx/sse if available, and can be run 
   in multiple threads.
 
 """
@@ -38,12 +38,15 @@ def scaleit(fin, fout, w, h):
         scaled_image = pygame.transform.scale(i, (w,h))
     pygame.image.save(scaled_image, fout)
 
+def main(fin, fout, w, h):
+    """smoothscale image file named fin as fout with new size (w,h)"""
+    scaleit(fin, fout, w, h)
 
 if __name__ == "__main__":
     if "-scale" in sys.argv:
         fin, fout, w, h = sys.argv[2:]
         w, h = map(int, [w,h])
-        scaleit(fin, fout, w,h)
+        main(fin, fout, w,h)
     else:
         print useage
 
