@@ -21,9 +21,9 @@ This page is adapted from the original examples readme.txt by:
 
 Further references
 
-  pySDL    : http://pysdl.sourceforge.net
-  SDL      : http://www.libsdl.org
-  aliens.c : http://www.libsdl.org/projects/aliens
+  pySDL    : <a href="http://pysdl.sourceforge.net">http://pysdl.sourceforge.net<a/>
+  SDL      : <a href="http://www.libsdl.org">http://www.libsdl.org<a/>
+  aliens.c : <a href="http://www.libsdl.org/projects/aliens">http://www.libsdl.org/projects/aliens<a/>
 
 examples as a package is new to pygame 1.9.0.
 <SECTION>
