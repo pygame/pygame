@@ -3,22 +3,22 @@
 import sys, time
 import pygame
 
-def main():
-    # check input parameters
-    if len(sys.argv) < 2:
-        print"Usage: %s ImageFile [-t] [-convert_alpha]" % sys.argv[0]
-        print"       [-t] = Run Speed Test\n"
-        print"       [-convert_alpha] = Use convert_alpha() on the surf.\n"
-        return
-    imagefile = sys.argv[1]
-    bSpeedTest = False
-    if len(sys.argv) > 2 and sys.argv[2] == '-t':
-        bSpeedTest = True
+def main(imagefile, convert_alpha=False, run_speed_test=False):
+    """show an interactive image scaler
+
+    arguemnts:
+    imagefile - name of source image (required)
+    convert_alpha - use convert_alpha() on the surf (default False)
+    run_speed_test - (default False)
+
+    """
+
+    bSpeedTest = run_speed_test
     # initialize display
     pygame.display.init()
     # load background image
     background = pygame.image.load(imagefile)
-    if "-convert_alpha" in sys.argv:
+    if convert_alpha:
         screen = pygame.display.set_mode((1024, 768), pygame.FULLSCREEN)
         background = background.convert_alpha()
 
@@ -110,4 +110,12 @@ def SpeedTest(image):
 
 
 if __name__ == '__main__':
-    main()
+    # check input parameters
+    if len(sys.argv) < 2:
+        print"Usage: %s ImageFile [-t] [-convert_alpha]" % sys.argv[0]
+        print"       [-t] = Run Speed Test\n"
+        print"       [-convert_alpha] = Use convert_alpha() on the surf.\n"
+    else:
+        main(sys.argv[1],
+             convert_alpha = '-convert_alpha' in sys.argv,
+             run_speed_test = '-t' in sys.argv)
