@@ -290,7 +290,7 @@ if __name__ == '__main__':
             run_from = 'pygame.tests.go'
         else:
             run_from = os.path.join(main_dir, 'run_tests.py')
-        sys.exit('Do not run directly; use %s instead' % run_from)
+        sys.exit('No test module provided; consider using %s instead' % run_from)
     run_test(args[0],
              incomplete=options.incomplete,
              subprocess=options.subprocess)
