@@ -221,6 +221,40 @@
 
 #define DOC_PYGAMEEVENTEVENT "pygame.event.Event(type, dict): return Event\npygame.event.Event(type, **attributes): return Event\ncreate a new event object"
 
+#define DOC_PYGAMEEXAMPLES "module of example programs"
+
+#define DOC_PYGAMEEXAMPLESALIENSMAIN "pygame.aliens.main(): return None\nplay the full aliens example"
+
+#define DOC_PYGAMEEXAMPLESOLDALIENMAIN "pygame.examples.oldalien.main(): return None\nplay the original aliens example"
+
+#define DOC_PYGAMEEXAMPLESSTARSMAIN "pygame.examples.stars.main(): return None\nrun a simple starfield example"
+
+#define DOC_PYGAMEEXAMPLESFONTYMAIN "pygame.examples.fonty.main(): return None\nrun a font rendering example"
+
+#define DOC_PYGAMEEXAMPLESVGRADEMAIN "pygame.examples.vgrade.main(): return None\ndisplay a vertical gradient"
+
+#define DOC_PYGAMEEXAMPLESARRAYDEMOMAIN "pygame.examples.arraydemo.main(): return None\nshow various surfarray effects"
+
+#define DOC_PYGAMEEXAMPLESSOUNDMAIN "pygame.examples.sound.main(file_path=None): return None\nload and play a sound"
+
+#define DOC_PYGAMEEXAMPLESLIQUIDMAIN "pygame.examples.liquid.main(): return None\ndisplay an animated liquid effect"
+
+#define DOC_PYGAMEEXAMPLESGLCUBEMAIN "pygame.examples.glcube.main(): return None\ndisplay an animated 3D cube using OpenGL"
+
+#define DOC_PYGAMEEXAMPLESSCRAPCLIPBOARDMAIN "pygame.examples.scrap_clipboard.main(): return None\naccess the clipboard"
+
+#define DOC_PYGAMEEXAMPLESMASKMAIN "pygame.examples.mask.main(*args): return None\ndisplay multiple images bounce off each other using collision detection"
+
+#define DOC_PYGAMEEXAMPLESTESTSTRITEMAIN "pygame.examples.testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0): return None\nshow lots of sprites moving around"
+
+#define DOC_PYGAMEEXAMPLESHEADLESSNOWINDOWSNEEDEDMAIN "pygame.examples.headless_no_windows_needed.main(fin, fout, w, h): return None\nwrite an image file that is smoothscaled copy of an input file"
+
+#define DOC_PYGAMEEXAMPLESOVERLAYMAIN "pygame.examples.overlay.main(fname): return None\nplay a .pgm video using overlays"
+
+#define DOC_PYGAMEEXAMPLESSCALETESTMAIN "pygame.examples.scaletest.main(imagefile, convert_alpha=False, run_speed_test=True): return None\ninteractively scale an image using smoothscale"
+
+#define DOC_PYGAMEEXAMPLESMIDIMAIN "pygame.examples.midi.main(mode='output', device_id=None): return None\nrun a midi example"
+
 #define DOC_PYGAMEFONT "pygame module for loading and rendering fonts"
 
 #define DOC_PYGAMEFONTINIT "pygame.font.init(): return None\ninitialize the font module"
