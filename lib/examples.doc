@@ -91,15 +91,17 @@ Numeric arrays, don't worry about the source for this one :]
 
 arraydemo.main
 show various surfarray effects
-pygame.examples.arraydemo.main(): return None
+pygame.examples.arraydemo.main(arraytype=None): return None
 
 Another example filled with various surfarray
 effects. It requires the surfarray and image modules to
 be installed. This little demo can also make a good starting
 point for any of your own tests with surfarray
 
-The example will use NumPy by default, but will use Numeric
-as a alternative (New pygame 1.9.0).
+If arraytype is provided then use that array package. Valid
+values are 'numeric' or 'numpy'. Otherwise default to NumPy,
+or fall back on Numeric if NumPy is not installed. As a program
+surfarray.py accepts an optional --numeric or --numpy flag. (New pygame 1.9.0)
 <END>
 
 

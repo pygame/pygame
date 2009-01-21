@@ -233,7 +233,7 @@
 
 #define DOC_PYGAMEEXAMPLESVGRADEMAIN "pygame.examples.vgrade.main(): return None\ndisplay a vertical gradient"
 
-#define DOC_PYGAMEEXAMPLESARRAYDEMOMAIN "pygame.examples.arraydemo.main(): return None\nshow various surfarray effects"
+#define DOC_PYGAMEEXAMPLESARRAYDEMOMAIN "pygame.examples.arraydemo.main(arraytype=None): return None\nshow various surfarray effects"
 
 #define DOC_PYGAMEEXAMPLESSOUNDMAIN "pygame.examples.sound.main(file_path=None): return None\nload and play a sound"
 
