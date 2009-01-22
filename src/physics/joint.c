@@ -24,6 +24,8 @@
 #include "pgphysics.h"
 
 static void _joint_dealloc (PyJoint *joint);
+static PyObject* _joint_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _joint_init (PyJoint *joint, PyObject *args, PyObject *kwds);
 
 static PyObject* _joint_getdict (PyJoint *joint, void *closure);
@@ -95,7 +97,7 @@ PyTypeObject PyJoint_Type =
     offsetof (PyJoint, dict),   /* tp_dictoffset */
     (initproc)_joint_init,      /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _joint_new,                 /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -114,6 +116,21 @@ _joint_dealloc (PyJoint *joint)
 {
     Py_XDECREF (joint->dict);
     ((PyObject*)joint)->ob_type->tp_free ((PyObject*)joint);
+}
+
+static PyObject*
+_joint_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyJoint* joint = (PyJoint*) type->tp_alloc (type, 0);
+    if (!joint)
+        return NULL;
+    
+    joint->dict = NULL;
+    joint->body1 = NULL;
+    joint->body2 = NULL;
+    joint->iscollideconnect = 0;
+    joint->solve_constraints = NULL;
+    return (PyObject *) joint;
 }
 
 static int

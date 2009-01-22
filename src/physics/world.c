@@ -182,7 +182,7 @@ _detect_collisions (PyWorld *world, double step)
         refbody = (PyBody*) PyList_GET_ITEM (world->bodylist, i);
         PyShape_Update_FAST ((PyShape*)refbody->shape, refbody);
     }
-
+    
     /* collision test */
     for (i = 0; i < body_cnt - 1; ++i)
     {
@@ -194,10 +194,10 @@ _detect_collisions (PyWorld *world, double step)
                 continue;
             
             /* TODO: remove, once the collision handling is done */
-            /*contacts = PyBody_CheckCollision_FAST (refbody, incbody);*/
+            contacts = PyBody_CheckCollision_FAST (refbody, incbody);
             if (!contacts)
             {
-                /* TODO: What to do here? */
+                /* TODO: An error occured - what to do here? */
             }
             if (contacts == Py_None)
             {
@@ -206,12 +206,16 @@ _detect_collisions (PyWorld *world, double step)
             }
             else
             {
-                /* TODO: Append to world contact list */
+                Py_ssize_t k, len;
+                len = PyList_GET_SIZE (contacts);
+                for (k = 0; k < len; k++)
+                    PyList_Append (world->contactlist,
+                        PyList_GET_ITEM (contacts, k));
             }
         }
     }
 
-    contact_cnt = PyList_Size (world->contactlist);
+    contact_cnt = PyList_GET_SIZE (world->contactlist);
     for (j = 0; j < MAX_ITERATION; ++j)
     {
         /* clear bias */
@@ -235,7 +239,6 @@ _detect_collisions (PyWorld *world, double step)
         {
             contact = PyList_GET_ITEM (world->contactlist, i);
             PyContact_Collision_FAST ((PyContact*)contact, step);
-/*             Collision_ApplyContact((PyObject*)contact, step); */
         }
 
         /* update V */
@@ -691,9 +694,8 @@ PyWorld_Update_FAST (PyWorld *world, double step)
     {
         if (!_detect_collisions ((PyWorld*) world, step))
             return 0;
-
-        // _correct_positions ((PyWorld*) world, step);
-        // _solve_joints ((PyWorld*) world, step);
+        _correct_positions ((PyWorld*) world, step);
+        _solve_joints ((PyWorld*) world, step);
     }
     _update_positions ((PyWorld*) world, step);
 

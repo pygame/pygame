@@ -597,29 +597,46 @@ PyObject*
 PyBody_CheckCollision_FAST (PyBody *body1, PyBody *body2)
 {
     PyObject *retval = NULL;
+    PyBody *refbody, *incbody;
+    PyVector2 refr, incr;
     PyContact *contact;
+    double tmp1, tmp2, refinertia, incinertia;
+    int refid;
     Py_ssize_t i;
     
     PyErr_Clear ();
 
-    /* TODO! */
-    
     /* Assume, the objects are consistent! */
     retval = PyShape_Collide_FAST ((PyShape*)body1->shape, body1->position,
         body1->rotation, (PyShape*)body2->shape, body2->position,
-        body2->rotation);
+        body2->rotation, &refid);
     
     if (!retval) /* Error */
         return NULL;
     if (retval == Py_None)
         return retval;
-
-    for (i = 0; i < PyList_Size (retval); i++)
+    
+    refbody = (refid == 0) ? body1 : body2;
+    incbody = (refid == 0) ? body2 : body1;
+    refinertia = (refid == 0) ? ((PyShape*)body1->shape)->inertia :
+        ((PyShape*)body2->shape)->inertia;
+    incinertia = (refid == 0) ? ((PyShape*)body2->shape)->inertia :
+        ((PyShape*)body1->shape)->inertia;
+    for (i = 0; i < PyList_GET_SIZE (retval); i++)
     {
         /* Update the empty contacts. */
         contact = (PyContact*) PyList_GET_ITEM (retval, i);
         contact->joint.body1 = (PyObject*) body1;
         contact->joint.body2 = (PyObject*) body2;
+        
+        /* precompute KFactor */
+        refr = c_diff (contact->position, refbody->position);
+        incr = c_diff (contact->position, incbody->position);
+        tmp1 = PyVector2_Dot (PyVector2_fCross (PyVector2_Cross (refr,
+            contact->normal), refr), contact->normal) / refinertia;
+        tmp2 = PyVector2_Dot (PyVector2_fCross (PyVector2_Cross (incr,
+            contact->normal), incr), contact->normal) / incinertia;
+        contact->kfactor = 1 / refbody->mass + 1 / incbody->mass + tmp1 + tmp2;
     }
     return retval;
 }

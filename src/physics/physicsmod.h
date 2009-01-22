@@ -131,9 +131,9 @@ void body_export_capi (void **capi);
 extern PyTypeObject PyShape_Type;
 #define PyShape_Check(x) (PyObject_TypeCheck(x, &PyShape_Type))
 PyObject* PyShape_Collide (PyObject *shape1, PyVector2 pos1, double rot1,
-    PyObject *shape2, PyVector2 pos2, double rot2);
+    PyObject *shape2, PyVector2 pos2, double rot2, int *refid);
 PyObject* PyShape_Collide_FAST (PyShape *shape1, PyVector2 pos1, double rot1,
-    PyShape *shape2, PyVector2 pos2, double rot2);
+    PyShape *shape2, PyVector2 pos2, double rot2, int *refid);
 int PyShape_Update (PyObject *shape, PyObject *body);
 int PyShape_Update_FAST (PyShape *shape, PyBody *body);
 AABBox* PyShape_GetAABBox (PyObject *shape);

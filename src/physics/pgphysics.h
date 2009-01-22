@@ -226,7 +226,7 @@ struct _PyShape
 
 /**
  */
-typedef PyObject* (*collisionfunc)(PyShape*,PyVector2,double,PyShape*,PyVector2,double);
+typedef PyObject* (*collisionfunc)(PyShape*,PyVector2,double,PyShape*,PyVector2,double,int*);
 
 #define PHYSICS_SHAPE_FIRSTSLOT \
     (PHYSICS_BODY_FIRSTSLOT + PHYSICS_BODY_NUMSLOTS)
@@ -236,9 +236,9 @@ typedef PyObject* (*collisionfunc)(PyShape*,PyVector2,double,PyShape*,PyVector2,
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+0]))
 #define PyShape_Collide                                                 \
-    (*(PyObject*(*)(PyObject*,PyVector2,double,PyObject*,PyVector2,double))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+1])
+    (*(PyObject*(*)(PyObject*,PyVector2,double,PyObject*,PyVector2,double,int*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+1])
 #define PyShape_Collide_FAST                                            \
-    (*(PyObject*(*)(PyShape*,PyVector2,double,PyShape*,PyVector2,double))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+2])
+    (*(PyObject*(*)(PyShape*,PyVector2,double,PyShape*,PyVector2,double,int*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+2])
 #define PyShape_Update                                                  \
     (*(int(*)(PyObject*,PyObject*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+3])
 #define PyShape_Update_FAST                                             \

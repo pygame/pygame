@@ -40,7 +40,7 @@ static PyObject* _shape_update (PyShape *shape, PyObject *args);
 static PyMethodDef _shape_methods[] =
 {
     { "get_vertices", (PyCFunction) _shape_getvertices, METH_NOARGS, NULL },
-    { "get_AABBox", (PyCFunction) _shape_getaabbox, METH_NOARGS, NULL },
+    { "get_aabbox", (PyCFunction) _shape_getaabbox, METH_NOARGS, NULL },
     { "collide", (PyCFunction) _shape_collide, METH_VARARGS, NULL },
     { "update", (PyCFunction) _shape_update, METH_VARARGS, NULL },
     { NULL, NULL, 0, NULL }
@@ -206,7 +206,7 @@ _shape_collide (PyShape *shape, PyObject *args)
 {
     PyObject *shape2;
     PyVector2 pos = { 0, 0 };
-    int swap;
+    int swap, refid;
     collisionfunc collider = NULL;
 
     if (!PyArg_ParseTuple (args, "O!:collide", &PyShape_Type, &shape2))
@@ -222,7 +222,7 @@ _shape_collide (PyShape *shape, PyObject *args)
             shape = (PyShape*) shape2;
             shape2 = (PyObject*) tmp;
         }
-        return collider (shape, pos, 0.0, (PyShape*)shape2, pos, 0.0);
+        return collider (shape, pos, 0.0, (PyShape*)shape2, pos, 0.0, &refid);
     }
 
     PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
@@ -247,7 +247,7 @@ _shape_update (PyShape *shape, PyObject *args)
 /* C API */
 PyObject*
 PyShape_Collide (PyObject *shape1, PyVector2 pos1, double rot1,
-    PyObject *shape2, PyVector2 pos2, double rot2)
+    PyObject *shape2, PyVector2 pos2, double rot2, int *refid)
 {
     if (!PyShape_Check (shape1) || !PyShape_Check (shape2))
     {
@@ -257,12 +257,12 @@ PyShape_Collide (PyObject *shape1, PyVector2 pos1, double rot1,
     }
 
     return PyShape_Collide_FAST ((PyShape*)shape1, pos1, rot1, (PyShape*)shape2,
-        pos2, rot2);
+        pos2, rot2, refid);
 }
 
 PyObject*
 PyShape_Collide_FAST (PyShape *shape1, PyVector2 pos1, double rot1,
-    PyShape *shape2, PyVector2 pos2, double rot2)
+    PyShape *shape2, PyVector2 pos2, double rot2, int *refid)
 {
     int swap = 0;
     collisionfunc LHCollider = NULL;
@@ -285,7 +285,7 @@ PyShape_Collide_FAST (PyShape *shape1, PyVector2 pos1, double rot1,
         shape2 = tmp;
     }
 
-    return LHCollider (shape1, pos1, rot1, shape2, pos2, rot2);
+    return LHCollider (shape1, pos1, rot1, shape2, pos2, rot2, refid);
 }
 
 int
@@ -338,10 +338,11 @@ PyShape_GetAABBox_FAST (PyShape *shape)
 {
     PyObject *result;
     AABBox *box = NULL;
+    
     if (shape->get_aabbox)
         return shape->get_aabbox (shape);
 
-    result =  PyObject_CallMethod ((PyObject*)shape, "update", NULL);
+    result =  PyObject_CallMethod ((PyObject*)shape, "get_aabbox", NULL);
     if (!result)
         return NULL;
     box = AABBox_FromSequence (result);

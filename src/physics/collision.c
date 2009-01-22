@@ -16,12 +16,21 @@
         ret = 1;                       \
     }
 
+typedef enum
+{
+    CF_LEFT,
+    CF_BOTTOM,
+    CF_RIGHT,
+    CF_TOP
+} CollisionFace;
+
 #define MAX_CONTACTS 16
 typedef struct
 {
     PyVector2 normal;
     PyVector2 contacts[MAX_CONTACTS];
     int       contact_size;
+    int       refno;
     double    min_depth;
 } _Collision;
     
@@ -31,11 +40,11 @@ static void _sat_collision (PyVector2 *pos1, double rot1, PyVector2 *pos2,
     double rot2, AABBox *box1, AABBox *box2, _Collision *collision);
 
 static PyObject* _collide_rect_rect (PyShape* shape1, PyVector2 pos1,
-    double rot1, PyShape *shape2, PyVector2 pos2, double rot2);
+    double rot1, PyShape *shape2, PyVector2 pos2, double rot2, int *refid);
 static PyObject* _collide_rect_circle (PyShape* shape1, PyVector2 pos1,
-    double rot1, PyShape *shape2, PyVector2 pos2, double rot2);
+    double rot1, PyShape *shape2, PyVector2 pos2, double rot2, int *refid);
 static PyObject* _collide_circle_circle (PyShape* shape1, PyVector2 pos1,
-    double rot1, PyShape *shape2, PyVector2 pos2, double rot2);
+    double rot1, PyShape *shape2, PyVector2 pos2, double rot2, int *refid);
 
 static int
 _clip_test (AABBox *box, PyVector2 *vertices, int count, _Collision *collision)
@@ -84,156 +93,142 @@ _clip_test (AABBox *box, PyVector2 *vertices, int count, _Collision *collision)
 
 static void
 _sat_collision (PyVector2 *pos1, double rot1, PyVector2 *pos2, double rot2,
-    AABBox *box1, AABBox *box2,  _Collision *collision)
+    AABBox *box1, AABBox *box2, _Collision *collision)
 {
-/*     int i, k, size, face_id[2]; */
-/*     double deps[4], min_dep[2], tmp1, tmp2; */
-/*     PyVector2 conts[2][MAX_CONTACTS]; */
-/*     AABBox* box[2]; */
-/*     PyVector2 refr, incidr; */
-
-/*     /\* */
-/*      * Here conts[0][i] represent the contacts calculated in selfBody's local */
-/*      * coordinate. */
-/*      * conts[1][i] represent the contacts translated to incBody's local */
-/*      *  coordinate. */
-/*      * then we can rightly get the two minimal depth. */
-/*      * */
-/*      * The key is whether we appoint which one to be the reference body, the */
-/*      * resuting contacts */
-/*      * are equivalent only except for different coordinate. but while */
-/*      * calculating the penetrating  */
-/*      * depth to all the candidate collision face, we must make sure all the */
-/*      * contacts are in the */
-/*      * same local coordinate at one time. */
-/*      *\/ */
-/*     for (i = 0; i < collision->contact_size; ++i) */
-/*     { */
-/*         conts[0][i] = collision->contacts[i]; */
-/*         /\* TODO *\/ */
-/*         conts[1][i] = PyVector2_Transform (conts[0][i], inc, incr, self, selfr); */
-/*     } */
+    int i, k, size, face_id[2]; 
+    double deps[4], min_dep[2];
+    PyVector2 conts[2][MAX_CONTACTS];
+    AABBox* box[2];
+    PyVector2 ppos[2], incpos[2];
+    double prot[2], incrot[2];
     
-/*     box[0] = box1; */
-/*     box[1] = box2; */
-/*     /\* TODO *\/ */
-/*     self[0] = inc[1] = selfBody; */
-/*     inc[0] = self[1] = incBody; */
+    /**
+     * pos1 = body1 pos
+     * pos2 = body2 pos
+     */
+     
+    /*
+     * Here conts[0][i] represent the contacts calculated in selfBody's local
+     * coordinate.
+     * conts[1][i] represent the contacts translated to incBody's local
+     *  coordinate.
+     * then we can rightly get the two minimal depth.
+     *
+     * The key is whether we appoint which one to be the reference body, the
+     * resuting contacts
+     * are equivalent only except for different coordinate. but while
+     * calculating the penetrating
+     * depth to all the candidate collision face, we must make sure all the
+     * contacts are in the
+     * same local coordinate at one time.
+     */
+    for (i = 0; i < collision->contact_size; ++i)
+    {
+        conts[0][i] = collision->contacts[i];
+        /* TODO: Maybe invert pos1/pos2 */
+        conts[1][i] = PyVector2_Transform (conts[0][i], *pos1, rot1, *pos2, rot2);
+    }
+    
+    box[0] = box1;
+    box[1] = box2;
+    /* TODO */
+    ppos[0] = incpos[1] = *pos1;
+    prot[0] = incrot[1] = rot1;
+    ppos[1] = incpos[0] = *pos2;
+    prot[1] = incrot[0] = rot2;
 
-/*     /\* */
-/*      * Now we appoint selfBody to be the reference body and incBody */
-/*      * to be the incident body for computing min_dep[0]. And vice versa for */
-/*      * min_dep[1]. */
-/*      *     */
-/*      * Since each computation happens in reference body's local coordinate, */
-/*      * it's very simple to get the minimal penetrating depth. */
-/*      *\/ */
-/*     for (k = 0; k <= 1; ++k) */
-/*     { */
-/*         memset (deps, 0, sizeof(deps)); */
-/*         for (i = 0; i < collision->contact_size; ++i) */
-/*         { */
-/*             deps[CF_LEFT] += fabs (conts[k][i].real - box[k]->left); */
-/*             deps[CF_RIGHT] += fabs (box[k]->right - conts[k][i].real); */
-/*             deps[CF_BOTTOM] += fabs (conts[k][i].imag - box[k]->bottom); */
-/*             deps[CF_TOP] += fabs (box[k]->top - conts[k][i].imag); */
-/*         } */
+
+    /*
+     * Now we appoint selfBody to be the reference body and incBody
+     * to be the incident body for computing min_dep[0]. And vice versa for
+     * min_dep[1].
+     *
+     * Since each computation happens in reference body's local coordinate,
+     * it's very simple to get the minimal penetrating depth.
+     */
+    for (k = 0; k <= 1; ++k)
+    {
+        memset (deps, 0, sizeof (deps));
+        for (i = 0; i < collision->contact_size; ++i)
+        {
+            deps[CF_LEFT] += fabs (conts[k][i].real - box[k]->left);
+            deps[CF_RIGHT] += fabs (box[k]->right - conts[k][i].real);
+            deps[CF_BOTTOM] += fabs (conts[k][i].imag - box[k]->bottom);
+            deps[CF_TOP] += fabs (box[k]->top - conts[k][i].imag);
+        }
         
-/*         min_dep[k] = DBL_MAX; */
-/*         for (i = CF_LEFT; i <= CF_TOP; ++i) */
-/*         { */
-/*             if (min_dep[k] > deps[i]) */
-/*             { */
-/*                 face_id[k] = i; */
-/*                 min_dep[k] = deps[i]; */
-/*             } */
-/*         } */
-/*     } */
-
-/*    /\* */
-/*     * If min_dep[0] < min_dep[1], we choose selfBody to be the right reference */
-/*     * body and incBody to be the incident one. And vice versa.  */
-/*     *\/ */
-/*     k = min_dep[0] < min_dep[1] ? 0 : 1; */
+        min_dep[k] = DBL_MAX;
+        for (i = CF_LEFT; i <= CF_TOP; ++i)
+        {
+            if (min_dep[k] > deps[i])
+            {
+                face_id[k] = i;
+                min_dep[k] = deps[i];
+            }
+        }
+    }
     
-/*     candi->min_depth = min_dep[k]; */
-/*     size = collision->contact_size; */
-/*     collision->contact_size = 0; */
+    /*
+     * If min_dep[0] < min_dep[1], we choose selfBody to be the right reference
+     * body and incBody to be the incident one. And vice versa.
+     */
+    collision->refno = k = min_dep[0] < min_dep[1] ? 0 : 1;
+    collision->min_depth = min_dep[k];
+    size = collision->contact_size;
+    collision->contact_size = 0;
     
-/*     /\*  */
-/*      * Get collision normal according to the collision face */
-/*      * and delete the contacts on the collision face. */
-/*      *\/ */
-/*     switch (face_id[k]) */
-/*     { */
-/*     case CF_LEFT: */
-/*         PyVector2_Set (collision->normal, -1, 0); */
-/*         for (i = 0; i < size; ++i) */
-/*             if (!PyMath_IsNearEqual(conts[k][i].real, box[k]->left)) */
-/*                 collision->contacts[collision->contact_size++] = conts[k][i]; */
-/*         break; */
-/*     case CF_RIGHT: */
-/*         PyVector2_Set(collision->normal, 1, 0); */
-/*         for(i = 0; i < size; ++i) */
-/*             if(!PyMath_IsNearEqual(conts[k][i].real, box[k]->right)) */
-/*                 collision->contacts[collision->contact_size++] = conts[k][i]; */
-/*         break; */
-/*     case CF_BOTTOM: */
-/*         PyVector2_Set(collision->normal, 0, -1); */
-/*         for(i = 0; i < size; ++i) */
-/*             if(!PyMath_IsNearEqual(conts[k][i].imag, box[k]->bottom)) */
-/*                 collision->contacts[collision->contact_size++] = conts[k][i]; */
-/*         break; */
-/*     case CF_TOP: */
-/*         PyVector2_Set(collision->normal, 0, 1); */
-/*         for(i = 0; i < size; ++i) */
-/*             if(!PyMath_IsNearEqual(conts[k][i].imag, box[k]->top)) */
-/*                 collision->contacts[collision->contact_size++] = conts[k][i]; */
-/*         break; */
-/*     default: */
-/*         assert(0); */
-/*     } */
-/*     /\* */
-/*      * We are nearly reaching the destination except for three things: */
-/*      * */
-/*      * First, collsion normal and contact are in reference body's local */
-/*      * coordinate. */
-/*      * We must translate them to the global coordinate for easy usage. */
-/*      * */
-/*      * Second, In the impulse-based collsion reaction formula, we find there */
-/*      * is a small */
-/*      * part can be precomputed to speed up the total computation. that's so */
-/*      * called kFactor. */
-/*      * For more information of that you can read Helmut Garstenauer's thesis. */
-/*      * */
-/*      * Third, we must assign the right referent body and incident body to */
-/*      *  ans_ref and ans_inc. */
-/*      *\/ */
-
-/*     PyVector2_Rotate(&(collision->normal), self[k]->fRotation); */
-/*     for (i = 0; i < collision->contact_size; ++i) */
-/*     { */
-/*         PyVector2_Rotate(&(collision->contacts[i]), self[k]->fRotation); */
-/*         collision->contacts[i] = c_sum(collision->contacts[i], */
-/*             self[k]->vecPosition); */
-                
-/*         /\*precompute KFactor*\/ */
-/*         refR = c_diff(collision->contacts[i], self[k]->vecPosition); */
-/*         incidR = c_diff(collision->contacts[i], inc[k]->vecPosition); */
-/*         tmp1 = PyVector2_Dot(PyVector2_fCross(PyVector2_Cross(refR, */
-/*                     collision->normal), refR), collision->normal) */
-/*             / ((PyShapeObject*)self[k]->shape)->rInertia; */
-/*         tmp2 = PyVector2_Dot(PyVector2_fCross(PyVector2_Cross(incidR, */
-/*                     collision->normal), incidR), collision->normal) */
-/*             /((PyShapeObject*)inc[k]->shape)->rInertia; */
-        
-/*         collision->kFactors[i] = 1/self[k]->fMass + 1/inc[k]->fMass + tmp1 + */
-/*             tmp2; */
-/*     } */
-    
-/*     *ans_ref = self[k]; */
-/*     *ans_inc = inc[k]; */
-
+    /*
+     * Get collision normal according to the collision face
+     * and delete the contacts on the collision face.
+     */
+    switch (face_id[k])
+    {
+    case CF_LEFT:
+        PyVector2_Set (collision->normal, -1, 0);
+        for (i = 0; i < size; ++i)
+            if (!PyMath_IsNearEqual(conts[k][i].real, box[k]->left))
+                collision->contacts[collision->contact_size++] = conts[k][i];
+        break;
+    case CF_RIGHT:
+        PyVector2_Set (collision->normal, 1, 0);
+        for(i = 0; i < size; ++i)
+            if(!PyMath_IsNearEqual(conts[k][i].real, box[k]->right))
+                collision->contacts[collision->contact_size++] = conts[k][i];
+        break;
+    case CF_BOTTOM:
+        PyVector2_Set (collision->normal, 0, -1);
+        for (i = 0; i < size; ++i)
+            if (!PyMath_IsNearEqual(conts[k][i].imag, box[k]->bottom))
+                collision->contacts[collision->contact_size++] = conts[k][i];
+        break;
+    case CF_TOP:
+        PyVector2_Set (collision->normal, 0, 1);
+        for (i = 0; i < size; ++i)
+            if (!PyMath_IsNearEqual(conts[k][i].imag, box[k]->top))
+                collision->contacts[collision->contact_size++] = conts[k][i];
+         break;
+    default:
+        assert(0);
+     }
+    /*
+     * We are nearly reaching the destination except for three things:
+     *
+     * First, collsion normal and contact are in reference body's local
+     * coordinate.
+     * We must translate them to the global coordinate for easy usage.
+     *
+     * Second, In the impulse-based collsion reaction formula, we find there
+     * is a small
+     * part can be precomputed to speed up the total computation. that's so
+     * called kFactor.
+     * For more information of that you can read Helmut Garstenauer's thesis.
+     */
+    PyVector2_Rotate (&(collision->normal), prot[k]);
+    for (i = 0; i < collision->contact_size; ++i)
+    {
+        PyVector2_Rotate (&(collision->contacts[i]), prot[k]);
+        collision->contacts[i] = c_sum (collision->contacts[i], ppos[k]);
+    }
 }
 
 /**
@@ -242,13 +237,14 @@ _sat_collision (PyVector2 *pos1, double rot1, PyVector2 *pos2, double rot2,
  */
 static PyObject*
 _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
-    PyShape *shape2, PyVector2 pos2, double rot2)
+    PyShape *shape2, PyVector2 pos2, double rot2, int *refid)
 {
     AABBox *box1, *box2;
     PyVector2 *vertices1, *vertices2;
     PyVector2 inpos1[4], inpos2[4];
-    int count1, count2;
+    int count1, count2, i;
     PyObject *retval;
+    PyContact *contact;
     _Collision collision;
     PyRectShape *rsh1 = (PyRectShape*) shape1;
     PyRectShape *rsh2 = (PyRectShape*) shape2;
@@ -293,42 +289,51 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
         goto back;
     }
 
-/*     if (AABBox_Contains (&box2, &vertices1[0], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->bottomleft; */
-/*     if (AABBox_Contains (&box2, &vertices1[1], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->bottomright; */
-/*     if (AABBox_Contains (&box2, &vertices1[2], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->topright; */
-/*     if (AABBox_Contains (&box2, &vertices1[3], 0.f)) */
-/*         collision.contacts[collision.contact_size++] = rsh1->topleft; */
+    if (AABBox_Contains (box2, &vertices1[0], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->bottomleft;
+    if (AABBox_Contains (box2, &vertices1[1], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->bottomright;
+    if (AABBox_Contains (box2, &vertices1[2], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->topright;
+    if (AABBox_Contains (box2, &vertices1[3], 0.f))
+        collision.contacts[collision.contact_size++] = rsh1->topleft;
 
-/*     _sat_collision (&pos1, rot1, &pos2, rot2, &box1, &box2, collision); */
+    _sat_collision (&pos1, rot1, &pos2, rot2, box1, box2, &collision);
 
-/*     /\* */
-/*      * */
-/*      *\/ */
-/*     pAcc = PyObject_Malloc(sizeof(PyVector2)); */
-/*     pAcc->real = pAcc->imag = 0; */
-/*     pSplitAcc = PyObject_Malloc(sizeof(PyVector2)); */
-/*     pSplitAcc->real = pSplitAcc->imag = 0; */
-/*     for(i = 0; i < candi.contact_size; ++i) */
-/*     { */
-/*         contact = (PyContact*)PyContact_New(ans_ref, ans_inc); */
-/*         contact->pos = candi.contacts[i]; */
-/*         contact->normal = candi.normal; */
+    /*
+     *
+     */
+    retval = PyList_New (0);
+    if (!retval)
+        goto back;
 
-/*         contact->ppAccMoment = PyObject_Malloc(sizeof(PyVector2*)); */
-/*         *(contact->ppAccMoment) = pAcc; */
-/*         contact->ppSplitAccMoment = PyObject_Malloc(sizeof(PyVector2*)); */
-/*         *(contact->ppSplitAccMoment) = pSplitAcc; */
-
-/*         contact->weight = candi.contact_size; */
-/*         contact->depth = candi.min_depth; */
-/*         contact->kFactor = candi.kFactors[i]; */
-
-/*         PyList_Append(contactList, (PyObject*)contact); */
-/*     } */
-
+    for (i = 0; i < collision.contact_size; ++i)
+    {
+        contact = (PyContact*) PyContact_New ();
+        if (!contact)
+        {
+            Py_DECREF (retval);
+            retval = NULL;
+            goto back;
+        }
+        
+        contact->position = collision.contacts[i];
+        contact->normal = collision.normal;
+        PyVector2_Set (contact->acc_moment, 0, 0);
+        PyVector2_Set (contact->split_acc_moment, 0, 0);
+        contact->weight = collision.contact_size;
+        contact->depth = collision.min_depth;
+        
+        if (PyList_Append (retval, (PyObject*)contact) == -1)
+        {
+            Py_DECREF (retval);
+            retval = NULL;
+            goto back;
+        }
+    }
+    
+    *refid = collision.refno;
+    
 back:
     if (box1)
         PyMem_Free (box1);
@@ -343,14 +348,14 @@ back:
 
 static PyObject*
 _collide_rect_circle (PyShape* shape1, PyVector2 pos1, double rot1,
-    PyShape *shape2, PyVector2 pos2, double rot2)
+    PyShape *shape2, PyVector2 pos2, double rot2, int *refid)
 {
     return NULL;
 }
 
 static PyObject*
 _collide_circle_circle (PyShape* shape1, PyVector2 pos1, double rot1,
-    PyShape *shape2, PyVector2 pos2, double rot2)
+    PyShape *shape2, PyVector2 pos2, double rot2, int *refid)
 {
     return NULL;
 }

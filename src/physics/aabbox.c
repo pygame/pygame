@@ -41,10 +41,10 @@ AABBox_Reset (AABBox* box)
     if (!box)
         return;
 
-    box->top = DBL_MAX;
-    box->right = DBL_MAX;
-    box->bottom = -DBL_MAX;
-    box->left = -DBL_MAX;
+    box->top = -DBL_MAX;
+    box->right = -DBL_MAX;
+    box->bottom = DBL_MAX;
+    box->left = DBL_MAX;
 }
 
 void

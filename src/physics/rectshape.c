@@ -129,7 +129,7 @@ _get_aabbox (PyShape *shape)
     box = PyMem_New (AABBox, 1);
     if (!box)
         return NULL;
-    
+
     box->top = r->box.top;
     box->left = r->box.left;
     box->bottom = r->box.bottom;
@@ -162,7 +162,6 @@ _update (PyShape *shape, PyBody *body)
     AABBox_ExpandTo (&(r->box), &(gp[1]));
     AABBox_ExpandTo (&(r->box), &(gp[2]));
     AABBox_ExpandTo (&(r->box), &(gp[3]));
-    
     return 1;
 }
 
