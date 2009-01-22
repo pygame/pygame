@@ -404,12 +404,18 @@ PyGame_Video_AutoInit (void)
         PyObject *rval;
         module = PyImport_ImportModule ("pygame.macosx");
         if (!module)
+        {
+        	printf("ERROR: pygame.macosx import FAILED\n");
             return -1;
+        }
 
-        rval = PyObject_CallMethod (module, "init", "");
+        rval = PyObject_CallMethod (module, "Video_AutoInit", "");
         Py_DECREF (module);
         if (!rval)
+        {
+        	printf("ERROR: pygame.macosx.Video_AutoInit() call FAILED\n");
             return -1;
+        }
 
         status = PyObject_IsTrue (rval);
         Py_DECREF (rval);

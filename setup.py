@@ -85,7 +85,7 @@ if "-setuptools" in sys.argv:
     sys.argv.remove ("-setuptools")
 
 
-# NOTE: the pyobjc, and bdist_mpkg_support is for darwin.
+# NOTE: the bdist_mpkg_support is for darwin.
 try:
     import bdist_mpkg_support
     from setuptools import setup, Extension
@@ -127,10 +127,13 @@ try:
 except:
     pass
 
-#get compile info for all extensions
-try: extensions = read_setup_file('Setup')
-except: raise SystemExit, """Error with the "Setup" file,
+# get compile info for all extensions
+try: 
+    extensions = read_setup_file('Setup')
+except: 
+    print """Error with the "Setup" file,
 perhaps make a clean copy from "Setup.in"."""
+    raise
 
 
 #extra files to install
