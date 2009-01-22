@@ -67,7 +67,7 @@ def main(arraytype=None):
                 raise SystemExit
 
     #allblack
-    allblack = N.zeros((128, 128))
+    allblack = N.zeros((128, 128), int32)
     surfdemo_show(allblack, 'allblack')
 
 
