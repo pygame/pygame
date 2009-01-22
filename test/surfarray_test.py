@@ -15,11 +15,88 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
+from pygame.locals import *
+
+# Needed for 8 bits-per-pixel color palette surface tests
+pygame.init()
+if pygame.surfarray.get_arraytype() == 'numpy':
+    from numpy import \
+         uint8, uint16, uint32, uint64, zeros, float64
+else:
+    from Numeric import \
+         UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
+         Float64 as float64
 
 class SurfarrayModuleTest (unittest.TestCase):
+
     def test_import(self):
         'does it import'
         import pygame.surfarray
+
+    pixels2d = {8: True, 16: True, 24: False, 32: True}
+    pixels3d = {8: False, 16: False, 24: True, 32: True}
+    array2d = {8: True, 16: True, 24: True, 32: True}
+    array3d = {8: False, 16: False, 24: True, 32: True}
+
+    test_palette = [(0, 0, 0, 255),
+                    (10, 30, 60, 255),
+                    (25, 75, 100, 255),
+                    (100, 150, 200, 255),
+                    (0, 100, 200, 255)]
+    surf_size = (10, 12)
+    test_points = [((0, 0), 1), ((4, 5), 1), ((9, 0), 2),
+                   ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
+                   ((9, 11), 4), ((5, 6), 4)]
+
+    def _make_surface(self, bitsize, srcalpha=False):
+        flags = 0
+        if srcalpha:
+            flags |= SRCALPHA
+        surf = pygame.Surface(self.surf_size, flags, bitsize)
+        if bitsize == 8:
+            surf.set_palette([c[:3] for c in self.test_palette])
+        return surf
+
+    def _fill_surface(self, surf):
+        surf.fill(self.test_palette[1], (0, 0, 5, 6))
+        surf.fill(self.test_palette[2], (5, 0, 5, 6))
+        surf.fill(self.test_palette[3], (0, 6, 5, 6))
+        surf.fill(self.test_palette[4], (5, 6, 5, 6))
+
+    def _make_src_surface(self, bitsize, srcalpha=False):
+        surf = self._make_surface(bitsize, srcalpha)
+        self._fill_surface(surf)
+        return surf
+
+    def _assert_surface(self, surf, palette=None, msg=""):
+        if palette is None:
+            palette = self.test_palette
+        if surf.get_bitsize() == 16:
+            palette = [surf.unmap_rgb(surf.map_rgb(c)) for c in palette]
+        for posn, i in self.test_points:
+            self.failUnlessEqual(surf.get_at(posn), palette[i],
+                                 "%s != %s: flags: %i, bpp: %i, posn: %s%s" %
+                                 (surf.get_at(posn),
+                                  palette[i], surf.get_flags(),
+                                  surf.get_bitsize(), posn, msg))
+
+    def _make_array3d(self, dtype):
+        return zeros((self.surf_size[0], self.surf_size[1], 3), dtype)
+
+    def _fill_array3d(self, arr):
+        palette = self.test_palette
+        arr[:5,:6] = palette[1][:3]
+        arr[5:,:6] = palette[2][:3]
+        arr[:5,6:] = palette[3][:3]
+        arr[5:,6:] = palette[4][:3]
+
+    def _make_src_array3d(self, dtype):
+        arr = self._make_array3d(dtype)
+        self._fill_array3d(arr)
+        return arr
+
+    def _make_array2d(self, dtype):
+        return zeros(self.surf_size, dtype)
 
     def todo_test_array2d(self):
 
@@ -133,31 +210,125 @@ class SurfarrayModuleTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_blit_array(self):
+    def test_blit_array(self):
+        # bug 24 at http://pygame.motherhamster.org/bugzilla/
+        if 'numpy' in pygame.surfarray.get_arraytypes():
+            prev = pygame.surfarray.get_arraytype()
+            # This would raise exception:
+            #  File "[...]\pygame\_numpysurfarray.py", line 381, in blit_array
+            #    (array[:,:,1::3] >> losses[1] << shifts[1]) | \
+            # TypeError: unsupported operand type(s) for >>: 'float' and 'int'
+            pygame.surfarray.use_arraytype('numpy')
+            s = pygame.Surface((10,10), 0, 24)
+            a = pygame.surfarray.array3d(s)
+            pygame.surfarray.blit_array(s, a)
+            prev = pygame.surfarray.use_arraytype(prev)
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.blit_array:
+        # target surfaces
+        targets = [self._make_surface(8),
+                   self._make_surface(16),
+                   self._make_surface(16, srcalpha=True),
+                   self._make_surface(24),
+                   self._make_surface(32),
+                   self._make_surface(32, srcalpha=True),
+                   ]
+        
+        # source arrays
+        arrays3d = []
+        dtypes = [(8, uint8), (16, uint16), (32, uint32)]
+        try:
+            dtypes.append((64, uint64))
+        except NameError:
+            pass
+        arrays3d = [(self._make_src_array3d(dtype), None)
+                    for __, dtype in dtypes]
+        for bitsize in [8, 16, 24, 32]:
+            palette = None
+            if bitsize == 16:
+                s = pygame.Surface((1,1), 0, 16)
+                palette = [s.unmap_rgb(s.map_rgb(c))
+                           for c in self.test_palette]
+            if self.pixels3d[bitsize]:
+                surf = self._make_src_surface(bitsize)
+                arr = pygame.surfarray.pixels3d(surf)
+                arrays3d.append((arr, palette))
+            if self.array3d[bitsize]:
+                surf = self._make_src_surface(bitsize)
+                arr = pygame.surfarray.array3d(surf)
+                arrays3d.append((arr, palette))
+                for sz, dtype in dtypes:
+                    arrays3d.append((arr.astype(dtype), palette))
 
-          # pygame.surfarray.blit_array (Surface, array): return None
-          # 
-          # Blit directly from a array values.
-          # 
-          # Directly copy values from an array into a Surface. This is faster
-          # than converting the array into a Surface and blitting. The array
-          # must be the same dimensions as the Surface and will completely
-          # replace all pixel values.
-          # 
-          # This function will temporarily lock the Surface as the new values
-          # are copied.
-          # 
-          # Directly copy values from an array into a Surface. This is faster
-          # than converting the array into a Surface and blitting. The array
-          # must be the same dimensions as the Surface and will completely
-          # replace all pixel values.
-          # 
-          # This function will temporarily lock the Surface as the new values are copied. 
+        # tests on arrays
+        def do_blit(surf, arr):
+            pygame.surfarray.blit_array(surf, arr)
 
-        self.fail() 
+        for surf in targets:
+            bitsize = surf.get_bitsize()
+            for arr, palette in arrays3d:
+                surf.fill((0, 0, 0, 0))
+                if bitsize == 8:
+                    self.failUnlessRaises(ValueError, do_blit, surf, arr)
+                else:
+                    pygame.surfarray.blit_array(surf, arr)
+                    self._assert_surface(surf, palette)
 
+            if self.pixels2d[bitsize]:
+                surf.fill((0, 0, 0, 0))
+                s = self._make_src_surface(bitsize, surf.get_flags())
+                arr = pygame.surfarray.pixels2d(s)
+                pygame.surfarray.blit_array(surf, arr)
+                self._assert_surface(surf)
+
+            if self.array2d[bitsize]:
+                s = self._make_src_surface(bitsize, surf.get_flags())
+                arr = pygame.surfarray.array2d(s)
+                for sz, dtype in dtypes:
+                    surf.fill((0, 0, 0, 0))
+                    if sz >= bitsize:
+                        pygame.surfarray.blit_array(surf, arr.astype(dtype))
+                        self._assert_surface(surf)
+                    else:
+                        self.failUnlessRaises(ValueError, do_blit,
+                                              surf, self._make_array2d(dtype))
+
+        # Check alpha for 2D arrays
+        surf = self._make_surface(16, srcalpha=True)
+        arr = zeros(surf.get_size(), uint16)
+        arr[...] = surf.map_rgb((0, 128, 255, 64))
+        color = surf.unmap_rgb(arr[0, 0])
+        pygame.surfarray.blit_array(surf, arr)
+        self.failUnlessEqual(surf.get_at((5, 5)), color)
+
+        surf = self._make_surface(32, srcalpha=True)
+        arr = zeros(surf.get_size(), uint32)
+        color = (0, 111, 255, 63)
+        arr[...] = surf.map_rgb(color)
+        pygame.surfarray.blit_array(surf, arr)
+        self.failUnlessEqual(surf.get_at((5, 5)), color)
+        
+        # Invalid arrays
+        surf = pygame.Surface((1,1), 0, 32)
+        t = 'abcd'
+        self.failUnlessRaises(ValueError, do_blit, surf, t)
+
+        surf_size = self.surf_size
+        surf = pygame.Surface(surf_size, 0, 32)
+        arr = zeros([surf_size[0], surf_size[1] + 1, 3], uint32)
+        self.failUnlessRaises(ValueError, do_blit, surf, arr)
+        arr = zeros([surf_size[0] + 1, surf_size[1], 3], uint32)
+        self.failUnlessRaises(ValueError, do_blit, surf, arr)
+
+        surf = pygame.Surface((1, 4), 0, 32)
+        arr = zeros((4,), uint32)
+        self.failUnlessRaises(ValueError, do_blit, surf, arr)
+        arr.shape = (1, 1, 1, 4)
+        self.failUnlessRaises(ValueError, do_blit, surf, arr)
+
+        arr = zeros((10, 10), float64)
+        surf = pygame.Surface((10, 10), 0, 32)
+        self.failUnlessRaises(ValueError, do_blit, surf, arr)
+        
     def todo_test_get_arraytype(self):
 
         # __doc__ (as of 2008-08-02) for pygame.surfarray.get_arraytype:
