@@ -156,7 +156,7 @@ pygame.surfarray.blit_array(Surface, array): return None
 Directly copy values from an array into a Surface. This is faster than
 converting the array into a Surface and blitting. The array must be the
 same dimensions as the Surface and will completely replace all pixel
-values.
+values. Only integer, ascii character and record arrays are accepted.
 
 This function will temporarily lock the Surface as the new values are
 copied.
