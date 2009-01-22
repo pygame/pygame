@@ -1,0 +1,2 @@
+#This file defines platform specific modules for mac os x
+sdlmain_osx src/sdlmain_osx.m $(SDL) $(DEBUG)
