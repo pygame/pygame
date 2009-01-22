@@ -41,6 +41,8 @@ extern OSErr CPSEnableForegroundOperation( CPSProcessSerNum *psn, UInt32 _arg2, 
 extern OSErr CPSSetFrontProcess( CPSProcessSerNum *psn);
 extern OSErr CPSSetProcessName ( CPSProcessSerNum *psn, const char *processname );
 
+static bool HasInstalledApplication = 0;
+
 static NSString *getApplicationName(void)
 {
     const NSDictionary *dict;
@@ -97,6 +99,10 @@ _WMEnable(PyObject* self)
 static PyObject*
 _RunningFromBundleWithNSApplication(PyObject* self)
 {
+	if (HasInstalledApplication)
+	{
+		Py_RETURN_TRUE;
+	}
 	CFBundleRef MainBundle = CFBundleGetMainBundle();
 	if (MainBundle != NULL)
 	{
@@ -221,6 +227,8 @@ _InstallNSApplication(PyObject* self, PyObject* arg)
     [NSApp updateWindows];
     [NSApp activateIgnoringOtherApps:true];
 
+    HasInstalledApplication = 1;
+    
 	Py_RETURN_TRUE;
 }
 
