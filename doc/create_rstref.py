@@ -1,22 +1,14 @@
 from xml.dom.minidom import parse
 import os, glob, sys
 
-HTML_HEADER = """
-<html>
-<head>
-<title>%s</title>
-</head>
-<body>
-"""
+RST_HEADER = """"""
 
-HTML_FOOTER = """
-</body>
-</html>
-"""
+RST_FOOTER = """"""
 
 class DocClass (object):
-    def __init__ (self, name, description):
+    def __init__ (self, name, constructor, description):
         self.name = name
+        self.constructor = constructor
         self.description = description
         self.attributes = []
         self.methods = []
@@ -33,8 +25,9 @@ class DocAttribute (object):
         return "<DocAttribute '%s'>" % self.name
 
 class DocMethod (object):
-    def __init__ (self, cls, name, description):
+    def __init__ (self, cls, name, call, description):
         self.name = name
+        self.call = call
         self.cls = cls
         self.description = description
 
@@ -69,23 +62,33 @@ class Doc(object):
         functions = module.getElementsByTagName ("func")
         for func in functions:
             name = func.getAttribute ("name")
+            node = func.getElementsByTagName ("call")[0]
+            if node.firstChild:
+                call = node.firstChild.nodeValue
+            else:
+                call = ""
             node = func.getElementsByTagName ("desc")[0]
             if node.firstChild:
                 desc = node.firstChild.nodeValue
             else:
                 desc = ""
-            self.functions.append (DocMethod (None, name, desc))
+            self.functions.append (DocMethod (None, name, call, desc))
 
     def get_class_refs (self, module):
         classes = module.getElementsByTagName ("class")
         for cls in classes:
             name = cls.getAttribute ("name")
+            node = cls.getElementsByTagName ("constructor")[0]
+            if node.firstChild:
+                const = node.firstChild.nodeValue
+            else:
+                const = ""
             node = cls.getElementsByTagName ("desc")[0]
             if node.firstChild:
                 desc = node.firstChild.nodeValue
             else:
                 desc = ""
-            clsdoc = DocClass (name, desc)
+            clsdoc = DocClass (name, const, desc)
 
             attrs = cls.getElementsByTagName ("attr")
             for attr in attrs:
@@ -107,69 +110,81 @@ class Doc(object):
 
     def create_method_ref (self, doccls, method):
         name = method.getAttribute ("name")
+        node = method.getElementsByTagName ("call")[0]
+        if node.firstChild:
+            call = node.firstChild.nodeValue
+        else:
+            call = ""
         node = method.getElementsByTagName ("desc")[0]
         if node.firstChild:
             desc = node.firstChild.nodeValue
         else:
             desc = ""
-        doccls.methods.append (DocMethod (doccls, name, desc))
+        doccls.methods.append (DocMethod (doccls, name, call, desc))
 
-    def create_desc_html (self, desc, refcache):
+    def create_desc_rst (self, desc, refcache):
         written = 0
         blocks = 0
-        data = '<p>'
-        for line in desc.split ('\n'):
-            line = line.strip ()
-            if written > 0 and line == '':
-                data += '</p><p>'
-                blocks += 1
-            elif line != '':
-                # TODO: replace pygame2.XXX references with links.
-                data += ' ' + line
-                written += 1
-        if blocks > 0:
-            data += '</p>'
-        if written == 0:
-            return ''
-        return data
-    
-    def create_func_html (self, func, refcache):
-        data = '    <dt class="functions"><a name="%s">%s</a></dt>\n' % \
-               (func.name, func.name)
-        data += '    <dd class="functions">%s</dd>\n' % \
-                self.create_desc_html (func.description, refcache)
-        return data
-    
-    def create_html (self, refcache):
-        fname = os.path.join ("ref", "%s.html")
-        fp = open (fname % self.modulename.replace (".", "_"), "w")
-        fp.write (HTML_HEADER % self.modulename)
+        data = ""
         
-        fp.write ('<h1 class="module">%s</h1>\n' % self.modulename)
-        fp.write ('<div class="module">\n%s</div>\n' % self.description)
-        fp.write ('<div class="moddefs">\n')
+        for line in desc.split ("\n"):
+            line = line.strip ()
+            if written > 0 and line == "":
+                blocks += 1
+            elif line != "":
+                data += "\n" + line
+                written += 1
+        if written == 0:
+            return ""
+        return data + "\n\n"
+    
+    def create_func_rst (self, func, refcache):
+        data = "%s - %s\n" % (func.name, func.name)
+        data += "%s\n" % self.create_desc_rst (func.description, refcache)
+        return data
+    
+    def create_rst (self, refcache):
+        fname = os.path.join ("ref", "%s.rst")
+        fp = open (fname % self.modulename.replace (".", "_"), "w")
+        fp.write (RST_HEADER)
+        
+        fp.write ("%s\n" % self.modulename)
+        fp.write ("=" * len (self.modulename) + "\n")
+        fp.write ("%s\n\n" % self.create_desc_rst (self.description, refcache))
         
         if len (self.functions) > 0:
-            fp.write ('  <dl class="functions">\n')
+            fp.write ("\n")
+            fp.write ("Module functions\n")
+            fp.write ("----------------\n")
             for func in self.functions:
-                fp.write (self.create_func_html (func, refcache))
-            fp.write ("  </dl>\n")
+                fp.write (self.create_func_rst (func, refcache))
 
         if len (self.classes) > 0:
             for cls in self.classes:
-                fp.write (cls.name)
-                fp.write (cls.description)
-                for attr in cls.attributes:
-                    fp.write (attr.name)
-                    fp.write (attr.description)
-                for method in cls.methods:
-                    fp.write (method.name)
-                    fp.write (method.description)
-        fp.write ('</div>\n')
-        fp.write (HTML_FOOTER)
+                fp.write (cls.name + "\n")
+                fp.write ("-" * len (cls.name) + "\n")
+                fp.write ("*" + cls.constructor + "*\n")
+                fp.write (self.create_desc_rst (cls.description, refcache))
+                if len (cls.attributes) > 0:
+                        fp.write ("Attributes\n")
+                        fp.write ("^^^^^^^^^^\n")
+                        for attr in cls.attributes:
+                            fp.write ("**" + attr.name + "**")
+                            fp.write (self.create_desc_rst (attr.description,
+                                                            refcache))
+                if len (cls.methods) > 0:
+                    fp.write ("Methods\n")
+                    fp.write ("^^^^^^^\n")
+                    for method in cls.methods:
+                        fp.write ("**" + method.name + "**\n")
+                        fp.write ("*" + method.call + "*\n")
+                        fp.write (self.create_desc_rst (method.description,
+                                                        refcache))
+        fp.write ("\n")
+        fp.write (RST_FOOTER)
         fp.close ()
         
-def create_html (docs):
+def create_rst (docs):
     refcache = {}
     if not os.path.exists ("ref"):
         os.mkdir ("ref")
@@ -180,8 +195,8 @@ def create_html (docs):
         for func in doc.functions:
             refcache[func.name] = doc.filename
     for doc in docs:
-        print ("Now writing HTML for %s...." % doc.modulename)
-        doc.create_html (refcache)
+        print ("Now writing RST for %s...." % doc.modulename)
+        doc.create_rst (refcache)
 
 def get_doc_files ():
     docs = []
@@ -195,4 +210,4 @@ if __name__ == "__main__":
     for doc in docs:
         print ("Parsing file %s..." % doc.filename)
         doc.parse_content ()
-    create_html (docs)
+    create_rst (docs)

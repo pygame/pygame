@@ -1,6 +1,8 @@
 include *.txt *.py Makefile
+include doc/LGPL doc/Makefile
 recursive-include config *.py *.cfg
-recursive-include doc *.py *.xml *.txt LGPL
+recursive-include doc *.py *.html *.rst *.xml *.txt
+recursive-include doc/sphinx *
 recursive-include examples *
 recursive-include lib *
 recursive-include src *

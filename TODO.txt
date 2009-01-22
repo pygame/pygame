@@ -10,12 +10,14 @@ CRITICAL:
 * use copy.copy and copy.deepcopy for consistent object copies
 * make use of PointFromObject and SizeFromObject where necessary
 * Merge transform smooth scale changes in rev. 1715:1717
+* Merge convolve from rev. 1796
 
 Things to ADD:
 ==============
 * (re)add tests
 * add examples
 * reorganise and add camera module
+* Subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
 
 Things to FIX:
 ==============

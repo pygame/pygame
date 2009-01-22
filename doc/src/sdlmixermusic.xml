@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -18,33 +19,43 @@
   <desc></desc>
 
   <func name="fade_out">
+    <call></call>
     <desc></desc>
   </func>
   <func name="fading">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_volume">
+    <call></call>
     <desc></desc>
   </func>
   <func name="halt">
+    <call></call>
     <desc></desc>
   </func>
   <func name="pause">
+    <call></call>
     <desc></desc>
   </func>
   <func name="paused">
+    <call></call>
     <desc></desc>
   </func>
   <func name="playing">
+    <call></call>
     <desc></desc>
   </func>
   <func name="resume">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_position">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_volume">
+    <call></call>
     <desc></desc>
   </func>
 </module>

@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -22,27 +23,34 @@
     <desc></desc>
     <attr name="chunk"></attr>
     <method name="expire">
+      <call></call>
       <desc></desc>
     </method>
     <method name="fade_in">
+      <call></call>
       <desc></desc>
     </method>
     <method name="fade_out">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="fading"></attr>
     <method name="halt">
+      <call></call>
       <desc></desc>
     </method>
     <method name="pause">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="paused"></attr>
     <method name="play">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="playing"></attr>
     <method name="resume">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="volume"></attr>
@@ -63,30 +71,39 @@
   </class>
 
   <func name="close_audio">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_compiled_version">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_error">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_version">
+    <call></call>
     <desc></desc>
   </func>
   <func name="init">
+    <call></call>
     <desc></desc>
   </func>
   <func name="open_audio">
+    <call></call>
     <desc></desc>
   </func>
   <func name="query_spec">
+    <call></call>
     <desc></desc>
   </func>
   <func name="quit">
+    <call></call>
     <desc></desc>
   </func>
   <func name="was_init">
+    <call></call>
     <desc></desc>
   </func>
 </module>

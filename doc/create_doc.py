@@ -32,14 +32,15 @@ def write_dtd (buf):
     buf.write ("<!ELEMENT module (desc, (func|class)*)>\n")
     buf.write ("<!ATTLIST module name CDATA #REQUIRED>\n")
     buf.write ("<!ELEMENT desc (#PCDATA)>\n")
-    buf.write ("<!ELEMENT func (desc)>\n")
+    buf.write ("<!ELEMENT call (#PCDATA)>\n")
+    buf.write ("<!ELEMENT func (call, desc)>\n")
     buf.write ("<!ATTLIST func name CDATA #REQUIRED>\n")
     buf.write ("<!ELEMENT class (constructor, desc, (attr|method)*)>\n")
     buf.write ("<!ATTLIST class name CDATA #REQUIRED>\n")
     buf.write ("<!ELEMENT constructor (#PCDATA)>\n")
     buf.write ("<!ELEMENT attr (#PCDATA)>\n")
     buf.write ("<!ATTLIST attr name CDATA #REQUIRED>\n")
-    buf.write ("<!ELEMENT method (desc)>\n")
+    buf.write ("<!ELEMENT method (call, desc)>\n")
     buf.write ("<!ATTLIST method name CDATA #REQUIRED>\n")
     buf.write ("]>\n\n")
 
@@ -72,15 +73,50 @@ def document_attr (attr, buf, indent):
 def document_func (func, buf, indent):
     iindent = indent + 2
     buf.write (" " * indent + "<func name=\"%s\">\n" % func.__name__)
-    buf.write (" " * iindent + "<desc>%s</desc>\n" % func.__doc__)
+    buf.write (" " * iindent + "<call>%s</call>\n" % get_call_line (func))
+    buf.write (" " * iindent + "<desc>%s</desc>\n" % get_desc_wo_call (func))
     buf.write (" " * indent + "</func>\n")
 
 def document_method (method, buf, indent):
     iindent = indent + 2
     buf.write (" " * indent + "<method name=\"%s\">\n" % method.__name__)
-    buf.write (" " * iindent + "<desc>%s</desc>\n" % method.__doc__)
+    buf.write (" " * iindent + "<call>%s</call>\n" % get_call_line (method))
+    buf.write (" " * iindent + "<desc>%s</desc>\n" % get_desc_wo_call (method))
     buf.write (" " * indent + "</method>\n")
 
+def get_call_line (obj):
+    data = obj.__doc__
+    call = ""
+    if not data:
+        return call
+    lines = data.split ("\n")
+    for l in lines:
+        l = l.strip ()
+        if len (l) == 0:
+            continue
+        call = l.strip ()
+        break
+    return call
+
+def get_desc_wo_call (obj):
+    data = obj.__doc__
+    desc = ""
+    callf = False
+    if not data:
+        return desc
+    lines = data.split ("\n")
+    for l in lines:
+        l = l.strip ()
+        if len (l) == 0:
+            if not callf:
+                continue
+        if not callf:
+            callf = True
+            continue
+        if callf:
+            desc += l + '\n'
+    return desc
+    
 def document_module (module, buf):
 
     # Module header.

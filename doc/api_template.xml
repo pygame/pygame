@@ -5,8 +5,9 @@
 <!ATTLIST module name CDATA #REQUIRED>
 
 <!ELEMENT desc (#PCDATA)>
+<!ELEMENT call (#PCDATA)>
 
-<!ELEMENT func (desc)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 
 <!ELEMENT class (constructor, desc, (attr | method)*)>
@@ -14,26 +15,29 @@
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 
 ]>
 
 <!-- 
      Pygame C API template for generating the C code doc strings and 
-     HTML documentation.
+     RST/HTML documentation.
 -->
 <module name="NAME">
   <desc>DESCRIPTION</desc>
   
     <func name="METHODNAME">
+      <call>FUNC()</call>
       <desc>DESCRIPTION</desc>
     </func>
     
     <class name="CLASSNAME">
+      <cosntructor>CLASS()</cosntructor>
       <desc>DESCRIPTION</desc>
       <attr name="NAME">DESCRIPTION</attr>
       <method name="METHODNAME">
+        <call>METHOD()</call>
         <desc>DESCRIPTION</desc>
       </method>
     </class>

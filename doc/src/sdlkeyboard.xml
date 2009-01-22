@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -18,24 +19,31 @@
   <desc></desc>
 
   <func name="enable_repeat">
+    <call></call>
     <desc></desc>
   </func>
   <func name="enable_unicode">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_key_name">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_mod_state">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_repeat">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_state">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_mod_state">
+    <call></call>
     <desc></desc>
   </func>
 </module>

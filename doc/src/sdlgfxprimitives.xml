@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -18,69 +19,91 @@
   <desc></desc>
 
   <func name="aacircle">
+    <call></call>
     <desc></desc>
   </func>
   <func name="aaellipse">
+    <call></call>
     <desc></desc>
   </func>
   <func name="aapolygon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="aatrigon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="arc">
+    <call></call>
     <desc></desc>
   </func>
   <func name="bezier">
+    <call></call>
     <desc></desc>
   </func>
   <func name="box">
+    <call></call>
     <desc></desc>
   </func>
   <func name="circle">
+    <call></call>
     <desc></desc>
   </func>
   <func name="ellipse">
+    <call></call>
     <desc></desc>
   </func>
   <func name="filled_circle">
+    <call></call>
     <desc></desc>
   </func>
   <func name="filled_ellipse">
+    <call></call>
     <desc></desc>
   </func>
   <func name="filled_polygon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="filled_trigon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="hline">
+    <call></call>
     <desc></desc>
   </func>
   <func name="line">
+    <call></call>
     <desc></desc>
   </func>
   <func name="pie">
+    <call></call>
     <desc></desc>
   </func>
   <func name="pixel">
+    <call></call>
     <desc></desc>
   </func>
   <func name="polygon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="rectangle">
+    <call></call>
     <desc></desc>
   </func>
   <func name="textured_polygon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="trigon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="vline">
+    <call></call>
     <desc></desc>
   </func>
 </module>

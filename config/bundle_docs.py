@@ -11,7 +11,8 @@ import re
 sys.path.append (os.path.pardir)
 
 # Exclude list that cannot be easily regexp'd.
-excludes = [ "create_cref.py", "create_htmlref.py", "create_doc.py" ]
+excludes = [ "create_cref.py", "create_rstref.py", "create_doc.py",
+             "conf.py", "Makefile" ]
 
 def add_files (bundle, root, alias, file_names):
     for file_name in file_names:
@@ -20,11 +21,11 @@ def add_files (bundle, root, alias, file_names):
         bundle.add (os.path.join (root, file_name), file_alias)
 
 def add_directory (bundle, root, alias):
-    reject_dirs = re.compile (r'(src)|(.svn)$')
+    reject_dirs = re.compile (r'(sphinx)|(src)|(.svn)$')
 
     # Since it is the file extension that is of interest the reversed
     # file name is checked.
-    reject_files_reversed = re.compile(r'((~.*)|(cyp\..*)|(lmx\..*))')
+    reject_files_reversed = re.compile(r'((~.*)|(cyp\..*)|(lmx\..*)|(tsr\..*))')
     for sub_root, directories, files in os.walk (root):
         directories[:] = [d for d in directories if reject_dirs.match(d) is None]
         files[:] = [f for f in files \
@@ -59,6 +60,8 @@ def main():
         add_files (bundle, root, alias, ['README.txt', ])
         add_directory (bundle, os.path.join(root, 'doc'),
                        os.path.join(alias, 'doc'))
+        add_directory (bundle, os.path.join(root, 'examples'),
+                       os.path.join(alias, 'examples'))
         print ("\nFinished: %s" % bundle_name)
     finally:
         bundle.close()

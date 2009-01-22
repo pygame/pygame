@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -21,18 +22,23 @@
     <constructor>TODO</constructor>
     <desc></desc>
     <method name="close">
+      <call></call>
       <desc></desc>
     </method>
     <method name="get_axis">
+      <call></call>
       <desc></desc>
     </method>
     <method name="get_ball">
+      <call></call>
       <desc></desc>
     </method>
     <method name="get_button">
+      <call></call>
       <desc></desc>
     </method>
     <method name="get_hat">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="index"></attr>
@@ -42,33 +48,42 @@
     <attr name="num_buttons"></attr>
     <attr name="num_hats"></attr>
     <method name="open">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="opened"></attr>
   </class>
 
   <func name="get_name">
+    <call></call>
     <desc></desc>
   </func>
   <func name="init">
+    <call></call>
     <desc></desc>
   </func>
   <func name="num_joysticks">
+    <call></call>
     <desc></desc>
   </func>
   <func name="opened">
+    <call></call>
     <desc></desc>
   </func>
   <func name="quit">
+    <call></call>
     <desc></desc>
   </func>
   <func name="state">
+    <call></call>
     <desc></desc>
   </func>
   <func name="update">
+    <call></call>
     <desc></desc>
   </func>
   <func name="was_init">
+    <call></call>
     <desc></desc>
   </func>
 </module>

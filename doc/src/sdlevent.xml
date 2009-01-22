@@ -3,66 +3,82 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
 <module name="pygame2.sdl.event">
-  <desc>Pygame SDL event subsystem wrapper module.</desc>
+  <desc></desc>
 
   <class name="Event">
     <constructor>TODO</constructor>
     <desc></desc>
+    <attr name="name"></attr>
     <attr name="type"></attr>
   </class>
 
   <func name="clear">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_app_state">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_blocked">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_filter">
+    <call></call>
     <desc></desc>
   </func>
   <func name="peek">
+    <call></call>
     <desc></desc>
   </func>
   <func name="peep">
+    <call></call>
     <desc></desc>
   </func>
   <func name="poll">
+    <call></call>
     <desc></desc>
   </func>
   <func name="pump">
+    <call></call>
     <desc></desc>
   </func>
   <func name="push">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_blocked">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_filter">
+    <call></call>
     <desc></desc>
   </func>
   <func name="state">
+    <call></call>
     <desc></desc>
   </func>
   <func name="wait">
+    <call></call>
     <desc></desc>
   </func>
 </module>

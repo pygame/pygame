@@ -23,8 +23,11 @@ def create_cref (dom, buf):
     tmp = modname.split (".")[-1]
     headname = tmp.upper()
     docprefix = "DOC_%s_" % headname
-    desc = module.getElementsByTagName ("desc")[0].firstChild.nodeValue
-    desc = prepare_text (desc)
+    desc = ""
+    node = module.getElementsByTagName ("desc")
+    if node and node[0].firstChild:
+        desc = node[0].firstChild.nodeValue
+        desc = prepare_text (desc)
     
     buf.write ("#ifndef _PYGAME2_DOC%s_H_\n" % headname)
     buf.write ("#define _PYGAME2_DOC%s_H_\n\n" % headname)
@@ -39,7 +42,11 @@ def create_func_refs (module, docprefix, buf):
     funcs = module.getElementsByTagName ("func")
     for func in funcs:
         name = func.getAttribute ("name").upper ()
-        desc = func.getElementsByTagName ("desc")[0].firstChild.nodeValue
+        call = func.getAttribute ("call") + "\n"
+        node = func.getElementsByTagName ("desc")
+        desc = call
+        if node and node[0].firstChild:
+            desc += node[0].firstChild.nodeValue
         desc = prepare_text (desc)
         buf.write ("#define %s \"%s\"\n" % (docprefix + name, desc))
     
@@ -47,7 +54,12 @@ def create_class_refs (module, docprefix, buf):
     classes = module.getElementsByTagName ("class")
     for cls in classes:
         name = cls.getAttribute ("name").upper ()
-        desc = cls.getElementsByTagName ("desc")[0].firstChild.nodeValue
+        constructor = cls.getElementsByTagName \
+                      ("constructor")[0].firstChild.nodeValue + "\n"
+        desc = constructor
+        node = cls.getElementsByTagName ("desc")
+        if node and node[0].firstChild:
+            desc += node[0].firstChild.nodeValue
         desc = prepare_text (desc)
         buf.write ("#define %s \"%s\"\n" % (docprefix + name, desc))
 
@@ -63,13 +75,23 @@ def create_class_refs (module, docprefix, buf):
 
 def create_attr_ref (attr, prefix, buf):
     name = attr.getAttribute ("name").upper ()
-    desc = attr.firstChild.nodeValue
-    desc = prepare_text (desc)
+    desc = ""
+    if attr.firstChild:
+        desc = attr.firstChild.nodeValue
+        desc = prepare_text (desc)
     buf.write ("#define %s \"%s\"\n" % (prefix + name, desc))
     
 def create_method_ref (method, prefix, buf):
     name = method.getAttribute ("name").upper ()
-    desc = method.getElementsByTagName ("desc")[0].firstChild.nodeValue
+    call = ""
+    desc = ""
+    node = method.getElementsByTagName ("call")
+    if node and node[0].firstChild:
+        call = node[0].firstChild.nodeValue + "\n"
+        desc = call
+    node = method.getElementsByTagName ("desc")
+    if node and node[0].firstChild:
+        desc += node[0].firstChild.nodeValue
     desc = prepare_text (desc)
     buf.write ("#define %s \"%s\"\n" % (prefix + name, desc))
 
@@ -83,7 +105,8 @@ def create_c_header (infile, outfile):
         f.flush ()
         f.close ()
     except Exception:
-        print (sys.exc_info()[1])
+        raise
+        #print (sys.exc_info()[1])
     
     
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-PYTHON = python3.0
+PYTHON = python
 top_srcdir = `pwd`
 SUBDIRS = \
 	$(top_srcdir)/config \
@@ -29,11 +29,11 @@ SUBDIRS = \
 
 all: clean build
 
-dist: clean
+dist: clean docs
 	@echo "Creating dist..."
 	@$(PYTHON) setup.py sdist
 
-bdist: clean
+bdist: clean docs
 	@echo "Creating bdist..."
 	@$(PYTHON) setup.py bdist
 
@@ -50,7 +50,6 @@ clean:
 	@echo "Cleaning up in $(top_srcdir)/ ..."
 	@rm -f *.cache *.core *~ MANIFEST *.pyc
 	@rm -rf src/doc
-	@rm -rf doc/ref
 	@rm -rf build dist
 
 	@for dir in $(SUBDIRS); do \
@@ -65,9 +64,12 @@ clean:
 
 docs:
 	@echo "Creating docs package"
-	@$(PYTHON) config/bundle_docs.py
+	@cd doc && make html
+	@mv doc/sphinx/build/html doc/html
+	@rm -rf doc/sphinx/build
 
-release: clean dist
+release: dist
+	@$(PYTHON) config/bundle_docs.py
 
 # Do not run these in production environments! They are for testing
 # only!

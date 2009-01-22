@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -25,7 +26,8 @@
     <attr name="force">None</attr>
     <attr name="friction">None</attr>
     <method name="get_points">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <attr name="lin_vel_damping">None</attr>
     <attr name="mass">None</attr>
@@ -50,7 +52,8 @@
     <attr name="body2">None</attr>
     <attr name="is_collide_connect">None</attr>
     <method name="solve_constraints">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
   </class>
 
@@ -64,18 +67,22 @@
     <constructor>TODO</constructor>
     <desc></desc>
     <method name="collide">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <method name="get_AABBox">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <method name="get_vertices">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <attr name="inertia">None</attr>
     <attr name="rotation">None</attr>
     <method name="update">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
   </class>
 
@@ -83,23 +90,28 @@
     <constructor>TODO</constructor>
     <desc></desc>
     <method name="add_body">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <method name="add_joint">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <attr name="bodies">None</attr>
     <attr name="damping">None</attr>
     <attr name="gravity">None</attr>
     <attr name="joints">None</attr>
     <method name="remove_body">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <method name="remove_joint">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
     <method name="update">
-      <desc>None</desc>
+      <call></call>
+      <desc></desc>
     </method>
   </class>
 

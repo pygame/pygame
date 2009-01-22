@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -25,15 +26,18 @@
     <attr name="faces"></attr>
     <attr name="family_name"></attr>
     <method name="get_glyph_metrics">
+      <call></call>
       <desc></desc>
     </method>
     <method name="get_size">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="height"></attr>
     <attr name="is_fixed_width"></attr>
     <attr name="line_skip"></attr>
     <method name="render">
+      <call></call>
       <desc></desc>
     </method>
     <attr name="style"></attr>
@@ -41,24 +45,31 @@
   </class>
 
   <func name="get_compiled_version">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_error">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_version">
+    <call></call>
     <desc></desc>
   </func>
   <func name="init">
+    <call></call>
     <desc></desc>
   </func>
   <func name="quit">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_byte_swapped_unicode">
+    <call></call>
     <desc></desc>
   </func>
   <func name="was_init">
+    <call></call>
     <desc></desc>
   </func>
 </module>

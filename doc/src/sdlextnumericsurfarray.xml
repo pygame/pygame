@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -18,33 +19,43 @@
   <desc></desc>
 
   <func name="array2d">
+    <call></call>
     <desc></desc>
   </func>
   <func name="array3d">
+    <call></call>
     <desc></desc>
   </func>
   <func name="array_alpha">
+    <call></call>
     <desc></desc>
   </func>
   <func name="array_colorkey">
+    <call></call>
     <desc></desc>
   </func>
   <func name="blit_array">
+    <call></call>
     <desc></desc>
   </func>
   <func name="make_surface">
+    <call></call>
     <desc></desc>
   </func>
   <func name="map_array">
+    <call></call>
     <desc></desc>
   </func>
   <func name="pixels2d">
+    <call></call>
     <desc></desc>
   </func>
   <func name="pixels3d">
+    <call></call>
     <desc></desc>
   </func>
   <func name="pixels_alpha">
+    <call></call>
     <desc></desc>
   </func>
 </module>

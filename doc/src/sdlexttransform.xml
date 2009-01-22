@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -18,33 +19,43 @@
   <desc></desc>
 
   <func name="average_color">
+    <call></call>
     <desc></desc>
   </func>
   <func name="average_surfaces">
+    <call></call>
     <desc></desc>
   </func>
   <func name="chop">
+    <call></call>
     <desc></desc>
   </func>
   <func name="flip">
+    <call></call>
     <desc></desc>
   </func>
   <func name="laplacian">
+    <call></call>
     <desc></desc>
   </func>
   <func name="rotate">
+    <call></call>
     <desc></desc>
   </func>
   <func name="scale">
+    <call></call>
     <desc></desc>
   </func>
   <func name="scale2x">
+    <call></call>
     <desc></desc>
   </func>
   <func name="smoothscale">
+    <call></call>
     <desc></desc>
   </func>
   <func name="threshold">
+    <call></call>
     <desc></desc>
   </func>
 </module>

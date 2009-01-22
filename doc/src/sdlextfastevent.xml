@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -20,25 +21,32 @@
   <class name="Event">
     <constructor>TODO</constructor>
     <desc></desc>
+    <attr name="name"></attr>
     <attr name="type"></attr>
   </class>
 
   <func name="get">
+    <call></call>
     <desc></desc>
   </func>
   <func name="init">
+    <call></call>
     <desc></desc>
   </func>
   <func name="poll">
+    <call></call>
     <desc></desc>
   </func>
   <func name="push">
+    <call></call>
     <desc></desc>
   </func>
   <func name="quit">
+    <call></call>
     <desc></desc>
   </func>
   <func name="wait">
+    <call></call>
     <desc></desc>
   </func>
 </module>

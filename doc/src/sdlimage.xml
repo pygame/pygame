@@ -3,24 +3,31 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
-<module name="pygame2.sdl.image">
-  <desc></desc>
+<module name="pygame2.sdlimage">
+  <desc>None</desc>
 
-  <func name="load_bmp">
+  <func name="get_error">
+    <call></call>
     <desc></desc>
   </func>
-  <func name="save_bmp">
+  <func name="load">
+    <call></call>
+    <desc></desc>
+  </func>
+  <func name="read_xpm_from_array">
+    <call></call>
     <desc></desc>
   </func>
 </module>

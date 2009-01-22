@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -18,27 +19,35 @@
   <desc></desc>
 
   <func name="rotate_90">
+    <call></call>
     <desc></desc>
   </func>
   <func name="rotozoom">
+    <call></call>
     <desc></desc>
   </func>
   <func name="rotozoom_size">
+    <call></call>
     <desc></desc>
   </func>
   <func name="rotozoom_size_xy">
+    <call></call>
     <desc></desc>
   </func>
   <func name="rotozoom_xy">
+    <call></call>
     <desc></desc>
   </func>
   <func name="shrink">
+    <call></call>
     <desc></desc>
   </func>
   <func name="zoom">
+    <call></call>
     <desc></desc>
   </func>
   <func name="zoom_size">
+    <call></call>
     <desc></desc>
   </func>
 </module>

@@ -3,14 +3,15 @@
 <!ELEMENT module (desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 <!ELEMENT desc (#PCDATA)>
-<!ELEMENT func (desc)>
+<!ELEMENT call (#PCDATA)>
+<!ELEMENT func (call, desc)>
 <!ATTLIST func name CDATA #REQUIRED>
 <!ELEMENT class (constructor, desc, (attr|method)*)>
 <!ATTLIST class name CDATA #REQUIRED>
 <!ELEMENT constructor (#PCDATA)>
 <!ELEMENT attr (#PCDATA)>
 <!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (desc)>
+<!ELEMENT method (call, desc)>
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
@@ -18,24 +19,31 @@
   <desc></desc>
 
   <func name="get_caption">
+    <call></call>
     <desc></desc>
   </func>
   <func name="get_info">
+    <call></call>
     <desc></desc>
   </func>
   <func name="grab_input">
+    <call></call>
     <desc></desc>
   </func>
   <func name="iconify_window">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_caption">
+    <call></call>
     <desc></desc>
   </func>
   <func name="set_icon">
+    <call></call>
     <desc></desc>
   </func>
   <func name="toggle_fullscreen">
+    <call></call>
     <desc></desc>
   </func>
 </module>
