@@ -25,17 +25,6 @@ Windows, MacOS, OS X, BeOS, FreeBSD, IRIX, and Linux.
 """
 
 import sys, os, string
-def _check_darwin():
-    try:
-        from objc import loadBundleFunctions
-        import AppKit
-        import Foundation
-    except ImportError:
-        raise ImportError("PyObjC 1.2 or later is required to use pygame on Mac OS X. http://pygame.org/wiki/PyObjC")
-
-if sys.platform == 'darwin':
-    _check_darwin()
-
 
 # check if is old windows... if so use directx video driver by default.
 # if someone sets this respect their setting...
