@@ -84,18 +84,18 @@ _get_array_interface(PyObject *obj,
         }                                                               \
     }
 
-#define COPYMACRO_3D(DST, SRC)                                          \
-    for (loopy = 0; loopy < sizey; ++loopy)                             \
-    {                                                                   \
-        DST* pix = (DST*)(((char*)surf->pixels) + surf->pitch * loopy); \
-        char* data = array_data + stridey * loopy;                      \
-        for (loopx = 0; loopx < sizex; ++loopx) {                       \
-            *pix++ = (DST)(*(SRC*)(data) >> Rloss << Rshift) |          \
-                (*(SRC*)(data+stridez) >> Gloss << Gshift) |            \
-                (*(SRC*)(data+stridez2) >> Bloss << Bshift) |           \
-                alpha;                                                  \
-            data += stridex;                                            \
-        }                                                               \
+#define COPYMACRO_3D(DST, SRC)                                            \
+    for (loopy = 0; loopy < sizey; ++loopy)                               \
+    {                                                                     \
+        DST *pix = (DST *)(((char *)surf->pixels) + surf->pitch * loopy); \
+        char *data = array_data + stridey * loopy;                        \
+        for (loopx = 0; loopx < sizex; ++loopx) {                         \
+            *pix++ = (DST)(*(SRC *)(data) >> Rloss << Rshift) |           \
+                (*(SRC *)(data+stridez) >> Gloss << Gshift) |             \
+                (*(SRC *)(data+stridez2) >> Bloss << Bshift) |            \
+                alpha;                                                    \
+            data += stridex;                                              \
+        }                                                                 \
     }
 
 #define COPYMACRO_3D_24(SRC)                                            \
@@ -118,14 +118,12 @@ blit_array(PyObject* self, PyObject* arg)
     PyObject *surfobj, *arrayobj;
     PyObject *cobj;
     PyArrayInterface *inter;
-    void *array_data;
+    char *array_data;
     SDL_Surface* surf;
     SDL_PixelFormat* format;
     int loopx, loopy;
     int stridex, stridey, stridez=0, stridez2=0, sizex, sizey;
     int Rloss, Gloss, Bloss, Rshift, Gshift, Bshift;
-    char typekind, *cptr;
-    const char *validtypekinds = "iuSV";
     
     if (!PyArg_ParseTuple(arg, "O!O", &PySurface_Type, &surfobj, &arrayobj)) {
         return NULL;
@@ -137,14 +135,19 @@ blit_array(PyObject* self, PyObject* arg)
         return 0;
     }
 
-    typekind = inter->typekind;
-    for (cptr = validtypekinds; *cptr && *cptr != typekind; ++cptr) {
-	;
-    }
-    if (!*cptr) {
+    switch (inter->typekind) {
+    case 'i':  /* integer */
+	break;
+    case 'u':  /* unsigned integer */ 
+	break;
+    case 'S':  /* fixed length character field */
+	break;
+    case 'V':  /* structured element: record */
+	break;
+    default:
 	Py_DECREF(cobj);
 	PyErr_Format(PyExc_ValueError, "unsupported array type '%c'",
-		     typekind);
+		     inter->typekind);
 	return NULL;
     }
 
@@ -174,7 +177,7 @@ blit_array(PyObject* self, PyObject* arg)
         return NULL;
     }
     
-    array_data = inter->data;
+    array_data = (char *)inter->data;
 
     switch (surf->format->BytesPerPixel) {
     case 1:
@@ -282,25 +285,25 @@ blit_array(PyObject* self, PyObject* arg)
         }
         else {
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-	    size_t stridez_0 = (format->Rmask & 0x0000ff ? 0        : 
-			        format->Gmask & 0x0000ff ? stridez  :
-                                                           stridez2   );
-	    size_t stridez_1 = (format->Rmask & 0x00ff00 ? 0        :
-			        format->Gmask & 0x00ff00 ? stridez  :
-                                                           stridez2   );
-	    size_t stridez_2 = (format->Rmask & 0xff0000 ? 0        :
-			        format->Gmask & 0xff0000 ? stridez  :
-                                                           stridez2   );
+	    size_t stridez_0 = (Rshift ==  0 ? 0        :
+				Gshift ==  0 ? stridez  :
+				               stridez2   );
+	    size_t stridez_1 = (Rshift ==  8 ? 0        :
+				Gshift ==  8 ? stridez  :
+                                               stridez2   );
+	    size_t stridez_2 = (Rshift == 16 ? 0        :
+                                Gshift == 16 ? stridez  :
+				               stridez2   );
 #else
-	    size_t stridez_2 = (format->Rmask & 0x0000ff ? 0        : 
-			        format->Gmask & 0x0000ff ? stridez  :
-                                                           stridez2   );
-	    size_t stridez_1 = (format->Rmask & 0x00ff00 ? 0        :
-			        format->Gmask & 0x00ff00 ? stridez  :
-                                                           stridez2   );
-	    size_t stridez_0 = (format->Rmask & 0xff0000 ? 0        :
-			        format->Gmask & 0xff0000 ? stridez  :
-                                                           stridez2   );
+	    size_t stridez_2 = (Rshift ==  0 ? 0        :
+				Gshift ==  0 ? stridez  :
+				               stridez2   );
+	    size_t stridez_1 = (Rshift ==  8 ? 0        :
+				Gshift ==  8 ? stridez  :
+                                               stridez2   );
+	    size_t stridez_0 = (Rshift == 16 ? 0        :
+                                Gshift == 16 ? stridez  :
+				               stridez2   );
 #endif
             switch (inter->itemsize) {
             case sizeof (Uint8):
