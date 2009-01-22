@@ -19,6 +19,8 @@ from pygame.locals import *
 
 # Needed for 8 bits-per-pixel color palette surface tests
 pygame.init()
+
+
 if pygame.surfarray.get_arraytype() == 'numpy':
     from numpy import \
          uint8, uint16, uint32, uint64, zeros, float64
@@ -306,7 +308,31 @@ class SurfarrayModuleTest (unittest.TestCase):
         arr[...] = surf.map_rgb(color)
         pygame.surfarray.blit_array(surf, arr)
         self.failUnlessEqual(surf.get_at((5, 5)), color)
-        
+
+        # Check shifts
+        arr3d = self._make_src_array3d(uint8)
+
+        shift_tests = [(16,
+                        [12, 0, 8, 4],
+                        [0xf000, 0xf, 0xf00, 0xf0]),
+                       (24,
+                        [16, 0, 8, 0],
+                        [0xff0000, 0xff, 0xff00, 0]),
+                       (32,
+                        [0, 16, 24, 8],
+                        [0xff, 0xff0000, 0xff000000, 0xff00])]
+
+        for bitsize, shifts, masks in shift_tests:
+            surf = self._make_surface(bitsize, srcalpha=(bitsize != 24))
+            palette = None
+            if bitsize == 16:
+                palette = [surf.unmap_rgb(surf.map_rgb(c))
+                           for c in self.test_palette]
+            surf.set_shifts(shifts)
+            surf.set_masks(masks)
+            pygame.surfarray.blit_array(surf, arr3d)
+            self._assert_surface(surf, palette)
+
         # Invalid arrays
         surf = pygame.Surface((1,1), 0, 32)
         t = 'abcd'
