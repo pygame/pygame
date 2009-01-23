@@ -1,3 +1,5 @@
+__tags__ = ['surfarray']
+
 if __name__ == '__main__':
     import sys
     import os
@@ -21,19 +23,19 @@ from pygame.locals import *
 pygame.init()
 
 
-if pygame.surfarray.get_arraytype() == 'numpy':
+skip_tests = False
+try:
     from numpy import \
          uint8, uint16, uint32, uint64, zeros, float64
-else:
-    from Numeric import \
-         UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
-         Float64 as float64
+except ImportError:
+    try:
+        from Numeric import \
+             UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
+             Float64 as float64
+    except ImportError:
+        skip_tests = True
 
 class SurfarrayModuleTest (unittest.TestCase):
-
-    def test_import(self):
-        'does it import'
-        import pygame.surfarray
 
     pixels2d = {8: True, 16: True, 24: False, 32: True}
     pixels3d = {8: False, 16: False, 24: True, 32: True}
@@ -99,6 +101,12 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def _make_array2d(self, dtype):
         return zeros(self.surf_size, dtype)
+
+    def test_import(self):
+        'does it import'
+        if skip_tests:
+            return
+        import pygame.surfarray
 
     def todo_test_array2d(self):
 
@@ -213,6 +221,9 @@ class SurfarrayModuleTest (unittest.TestCase):
         self.fail() 
 
     def test_blit_array(self):
+        if skip_tests:
+            return
+
         # bug 24 at http://pygame.motherhamster.org/bugzilla/
         if 'numpy' in pygame.surfarray.get_arraytypes():
             prev = pygame.surfarray.get_arraytype()
@@ -557,4 +568,7 @@ class SurfarrayModuleTest (unittest.TestCase):
         self.fail() 
 
 if __name__ == '__main__':
-    unittest.main()
+    if skip_tests:
+        print "No array package is installed. Cannot run unit tests."
+    else:
+        unittest.main()
