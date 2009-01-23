@@ -63,9 +63,9 @@
 <p>Sound data is made of thousands of samples per second, and each sample is the amplitude of the wave at a particular moment in time. For example, in 22-kHz format, element number 5 of the array is the amplitude of the wave after 5/22000 seconds. </p>
 <p>Each sample is an 8-bit or 16-bit integer, depending on the data format. <tt>A</tt> stereo sound file has two values per sample, while a mono sound file only has one. </p>
 <p>Supported array systems are </p>
-<pre>  numeric
-  numpy
-</pre><p>The default will be Numeric, if installed. Otherwise, numpy will be set as default if installed. If neither Numeric nor numpy are installed, the module will raise an ImportError. </p>
+<pre>  numpy
+  numeric
+</pre><p>The default will be numpy, if installed. Otherwise, Numeric will be set as default if installed. If neither numpy nor Numeric are installed, the module will raise an ImportError. </p>
 <p>The array type to use can be changed at runtime using the use_arraytype() method, which requires one of the above types as string. </p>
 <p>Note: numpy and Numeric are not completely compatible. Certain array manipulations, which work for one type, might behave differently or even completely break for the other. </p>
 <p>Additionally, in contrast to Numeric numpy can use unsigned 16-bit integers. Sounds with 16-bit data will be treated as unsigned integers, if the sound sample type requests this. Numeric instead always uses signed integers for the representation, which is important to keep in mind, if you use the module's functions and wonder about the values. </p>
