@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <pygame2/pgbase.h>
 
 #define ERROR(x)                                \
@@ -9,6 +10,7 @@
         Py_Finalize ();                         \
         exit(1);                                \
     }
+#define NEAR_ZERO(x) (fabs(x) <= 1e-6)
 
 static void
 test_helpers (void)
@@ -178,6 +180,48 @@ test_rect (void)
     
     Py_DECREF (rect);
 }
+
+static void
+test_frect (void)
+{
+    PyObject *rect;
+    double x, y, w, h;
+    pgint32 sw, sh;
+    int ix, iy;
+
+    rect = PyFRect_New (1.01f, 2.02f, 3.03f, 4.04f);
+    if (!PyFRect_Check (rect))
+        ERROR ("FRect mismatch in PyFRect_Check");
+
+    if (((PyFRect*)rect)->x != 1.01f ||
+        ((PyFRect*)rect)->y != 2.02f ||
+        ((PyFRect*)rect)->w != 3.03f ||
+        ((PyFRect*)rect)->h != 4.04f)
+        ERROR ("FRect mismatch in PyFRect_New");
+
+    if (!SizeFromObject (rect, &sw, &sh))
+        ERROR ("Mismatch in SizeFromObject for PyFRect");
+    if (sw != 3 || sh != 4)
+        ERROR ("Mismatch in SizeFromObject result for PyFRect");
+
+    if (!PointFromObject (rect, &ix, &iy))
+        ERROR ("Mismatch in PointFromObject for PyFRect");
+    if (ix != 1 || iy != 2)
+        ERROR ("Mismatch in PointFromObject result for PyFRect");
+
+    if (!FSizeFromObject (rect, &w, &h))
+        ERROR ("Mismatch in FSizeFromObject for PyFRect");
+    if (!NEAR_ZERO (w - 3.03) || !NEAR_ZERO (h - 4.04))
+        ERROR ("Mismatch in FSizeFromObject result for PyFRect");
+
+    if (!FPointFromObject (rect, &x, &y))
+        ERROR ("Mismatch in FPointFromObject for PyFRect");
+    if (!NEAR_ZERO (x - 1.01) || !NEAR_ZERO (y - 2.02))
+        ERROR ("Mismatch in FPointFromObject result for PyFRect");
+    
+    Py_DECREF (rect);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -188,6 +232,7 @@ main (int argc, char *argv[])
     test_helpers ();
     test_colors ();
     test_rect ();
+    test_frect ();
     Py_Finalize ();
     return 0;
 }
