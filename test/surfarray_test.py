@@ -112,6 +112,23 @@ class SurfarrayModuleTest (unittest.TestCase):
     def _make_array2d(self, dtype):
         return zeros(self.surf_size, dtype)
 
+    def _assert_locking(self, func):
+        surf = self._make_surface(32)
+
+        arr = func(surf)
+        self.failUnless(surf.get_locked())
+
+        # Numpy uses the surface's buffer.
+        if arraytype == "numeric":
+            self.failUnlessEqual(sf.get_locks(), (ar,))
+
+        surf.unlock()
+        self.failUnless(surf.get_locked())
+
+        del ar
+        self.failUnless(surf.get_locked())
+        self.failUnlessEqual(surf.get_locks(), ())
+
     def setUp(self):
         if arraytype:
             pygame.surfarray.use_arraytype(arraytype)
@@ -149,32 +166,33 @@ class SurfarrayModuleTest (unittest.TestCase):
                                       unsigned(map_rgb(alpha_color)),
                                       surf.get_bitsize()))
 
-    def todo_test_array3d(self):
+    def test_array3d(self):
+        if not arraytype:
+            return
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.array3d:
+        sources = [self._make_src_surface(16),
+                   self._make_src_surface(16, srcalpha=True),
+                   self._make_src_surface(24),
+                   self._make_src_surface(32),
+                   self._make_src_surface(32, srcalpha=True)]
+        palette = self.test_palette
 
-          # pygame.surfarray.array3d (Surface): return array
-          # 
-          # Copy pixels into a 3d array.
-          # 
-          # Copy the pixels from a Surface into a 3D array. The bit depth of the
-          # surface will control the size of the integer values, and will work
-          # for any type of pixel format.
-          # 
-          # This function will temporarily lock the Surface as pixels are copied
-          # (see the Surface.lock - lock the Surface memory for pixel access
-          # method).
-          # 
-          # Copy the pixels from a Surface into a 3D array. The bit depth of the
-          # surface will control the size of the integer values, and will work
-          # for any type of pixel format.
-          # 
-          # This function will temporarily lock the Surface as pixels are copied
-          # (see the Surface.lock - lock the Surface memory for pixel access
-          # method).
-          # 
-
-        self.fail() 
+        for surf in sources:
+            arr = pygame.surfarray.array3d(surf)
+            map_rgb = surf.map_rgb
+            unmap_rgb = surf.unmap_rgb
+            def same_color(ac, sc):
+                sc = unmap_rgb(map_rgb(sc))
+                return (ac[0] == sc[0] and
+                        ac[1] == sc[1] and
+                        ac[2] == sc[2])
+            for (x, y), i in self.test_points:
+                self.failUnless(same_color(arr[x, y], palette[i]),
+                                "%s != %s: flags: %i, bpp: %i, posn: %s" %
+                                (tuple(arr[x, y]),
+                                 unmap_rgb(map_rgb(palette[i])),
+                                 surf.get_flags(), surf.get_bitsize(),
+                                 (x, y)))
 
     def todo_test_array_alpha(self):
 
