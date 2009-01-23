@@ -152,13 +152,25 @@ def array3d (surface):
         array = numpy.array (planes)
         array = numpy.transpose (array, (1, 2, 0))
         return array
+    elif bpp == 2:
+        masks = surface.get_masks ()
+        shifts = surface.get_shifts ()
+        losses = surface.get_losses ()
+        vr = (array & masks[0]) >> shifts[0]
+        vg = (array & masks[1]) >> shifts[1]
+        vb = (array & masks[2]) >> shifts[2]
+        planes = [(vr << losses[0]) + (vr >> (8 - (losses[0] << 1))),
+                  (vg << losses[1]) + (vg >> (8 - (losses[1] << 1))),
+                  (vb << losses[2]) + (vb >> (8 - (losses[2] << 1)))]
+        array = numpy.array (planes)
+        return numpy.transpose (array, (1, 2, 0))
     else:
         masks = surface.get_masks ()
         shifts = surface.get_shifts ()
         losses = surface.get_losses ()
-        planes = [((array & masks[0]) >> shifts[0]) << losses[0],
-                  ((array & masks[1]) >> shifts[1]) << losses[1],
-                  ((array & masks[2]) >> shifts[2]) << losses[2]]
+        planes = [((array & masks[0]) >> shifts[0]), # << losses[0], Assume 0
+                  ((array & masks[1]) >> shifts[1]), # << losses[1],
+                  ((array & masks[2]) >> shifts[2])] # << losses[2]]
         array = numpy.array (planes)
         return numpy.transpose (array, (1, 2, 0))
 
