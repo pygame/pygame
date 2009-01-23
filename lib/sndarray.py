@@ -67,7 +67,7 @@ try:
     __hasnumpy = True
     __arraytype = "numpy"
 except ImportError, msg:
-    __hasnumeric = False
+    __hasnumpy = False
 
 try:
     import pygame._numericsndarray as numericsnd
@@ -75,7 +75,7 @@ try:
     if not __hasnumeric:
         __arraytype = "numeric"
 except ImportError:
-    __hasnumpy = False
+    __hasnumeric = False
 
 if not __hasnumpy and not __hasnumeric:
     raise ImportError, "no module named numpy or Numeric found"
