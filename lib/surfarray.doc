@@ -19,11 +19,11 @@ blue.
 
 Supported array systems are
 
-  numeric
   numpy
+  numeric
 
-The default will be Numeric, if installed. Otherwise, numpy will be set
-as default if installed. If neither Numeric nor numpy are installed, the
+The default will be numpy, if installed. Otherwise, Numeric will be set
+as default if installed. If neither numpy nor Numeric are installed, the
 module will raise an ImportError.
 
 The array type to use can be changed at runtime using the use_arraytype ()

@@ -28,6 +28,8 @@ sndarray = pygame.sndarray
 import time
 from math import sin
 from Numeric import *
+sndarray.use_arraytype('numeric')
+pygame.surfarray.use_arraytype('numeric')
 
 #mixer.init(44100, -16, 0)
 mixer.init()
