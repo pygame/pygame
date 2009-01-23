@@ -398,48 +398,37 @@ class SurfarrayModuleTest (unittest.TestCase):
         surf = pygame.Surface((10, 10), 0, 32)
         self.failUnlessRaises(ValueError, do_blit, surf, arr)
         
-    def todo_test_get_arraytype(self):
+    def test_get_arraytype(self):
+        if not arraytype:
+            return
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.get_arraytype:
+        self.failUnless((pygame.surfarray.get_arraytype() in
+                         ['numpy', 'numeric']),
+                        ("unknown array type %s" %
+                         pygame.surfarray.get_arraytype()))
 
-          # pygame.surfarray.get_arraytype (): return str
-          # 
-          # Gets the currently active array type.
-          # 
-          # Returns the currently active array type. This will be a value of the
-          # get_arraytypes() tuple and indicates which type of array module is
-          # used for the array creation.
-          # 
-          # Returns the currently active array type. This will be a value of the
-          # get_arraytypes() tuple and indicates which type of array module is
-          # used for the array creation.
-          # 
-          # New in pygame 1.8 
+    def test_get_arraytypes(self):
+        if not arraytype:
+            return
 
-        self.fail() 
+        arraytypes = pygame.surfarray.get_arraytypes()
+        try:
+            import numpy
+        except ImportError:
+            self.failIf('numpy' in arraytypes)
+        else:
+            self.failUnless('numpy' in arraytypes)
 
-    def todo_test_get_arraytypes(self):
+        try:
+            import Numeric
+        except ImportError:
+            self.failIf('numeric' in arraytypes)
+        else:
+            self.failUnless('numeric' in arraytypes)
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.get_arraytypes:
-
-          # pygame.surfarray.get_arraytypes (): return tuple
-          # 
-          # Gets the array system types currently supported.
-          # 
-          # Checks, which array system types are available and returns them as a
-          # tuple of strings. The values of the tuple can be used directly in
-          # the use_arraytype () method.
-          # 
-          # If no supported array system could be found, None will be returned.
-          # 
-          # Checks, which array systems are available and returns them as a
-          # tuple of strings. The values of the tuple can be used directly in
-          # the pygame.surfarray.use_arraytype () method. If no supported array
-          # system could be found, None will be returned.
-          # 
-          # New in pygame 1.8. 
-
-        self.fail() 
+        for atype in arraytypes:
+            self.failUnless(atype in ['numpy', 'numeric'],
+                            "unknown array type %s" % atype)
 
     def todo_test_make_surface(self):
 
@@ -574,30 +563,31 @@ class SurfarrayModuleTest (unittest.TestCase):
         self.fail() 
 
     def todo_test_use_arraytype(self):
+        if not arraytype:
+            return
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.use_arraytype:
+        def do_use_arraytype(atype):
+            pygame.surfarray.use_arraytype(atype)
 
-          # pygame.surfarray.use_arraytype (arraytype): return None
-          # 
-          # Sets the array system to be used for surface arrays.
-          # 
-          # Uses the requested array type for the module functions.
-          # Currently supported array types are:
-          # 
-          #   numeric 
-          #   numpy
-          # 
-          # If the requested type is not available, a ValueError will be raised.
-          # 
-          # Uses the requested array type for the module functions. Currently
-          # supported array types are:
-          # 
-          #   numeric
-          #   numpy
-          # If the requested type is not available, a ValueError will be raised. 
-          # New in pygame 1.8. 
+        try:
+            import numpy
+        except ImportError:
+            self.failUnlessRaises(ValueError, do_use_arraytype, 'numpy')
+            self.failIfEqual(pygame.surfarray.get_arraytype(), 'numpy')
+        else:
+            pygame.surfarray.use_arraytype('numpy')
+            self.failUnlessEqual(pygame.surfarray.get_arraytype(), 'numpy')
 
-        self.fail() 
+        try:
+            import Numeric
+        except ImportError:
+            self.failUnlessRaises(ValueError, do_use_arraytype, 'numeric')
+            self.failIfEqual(pygame.surfarray.get_arraytype(), 'numeric')
+        else:
+            pygame.surfarray.use_arraytype('numeric')
+            self.failUnlessEqual(pygame.surfarray.get_arraytype(), 'numeric')
+
+        self.failUnlessRaises(ValueError, do_use_arraytype, 'not an option')
 
     def test_surf_lock (self):
         if not arraytype:
