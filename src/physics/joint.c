@@ -205,7 +205,7 @@ _joint_solveconstraints (PyJoint *joint, PyObject *args)
 int
 PyJoint_SolveConstraints (PyObject *joint, double steptime)
 {
-    if (!PyJoint_Check (joint))
+    if (!joint || !PyJoint_Check (joint))
     {
         PyErr_SetString (PyExc_TypeError, "joint must be a Joint");
         return 0;

@@ -203,7 +203,7 @@ _body_init (PyBody *body, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "O", &shape))
         return -1;
 
-    if (!PyShape_Check (shape))
+    if (!shape || !PyShape_Check (shape))
     {
         PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
         return -1;
@@ -556,7 +556,7 @@ PyBody_New (PyObject *shape)
     if (!body)
         return NULL;
 
-    if (!PyShape_Check (shape))
+    if (!shape || !PyShape_Check (shape))
     {
         PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
         Py_DECREF (body);
@@ -578,7 +578,7 @@ PyBody_New (PyObject *shape)
 PyObject*
 PyBody_CheckCollision (PyObject *body1, PyObject *body2)
 {
-    if (!PyBody_Check (body1) || !PyBody_Check (body2))
+    if (!body1 || !body2 || !PyBody_Check (body1) || !PyBody_Check (body2))
     {
         PyErr_SetString (PyExc_TypeError,
             "body arguments must be Body objects");
@@ -644,7 +644,7 @@ PyBody_CheckCollision_FAST (PyBody *body1, PyBody *body2)
 PyObject*
 PyBody_GetPoints (PyObject *body)
 {
-    if (!PyBody_Check (body))
+    if (!body || !PyBody_Check (body))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a Body");
         return NULL;

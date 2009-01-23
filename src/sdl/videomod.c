@@ -437,7 +437,7 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
 {
     Uint8 rgba[4];
 
-    if (!value)
+    if (!value || !format || !color)
         return 0;
 
     if (PyInt_Check (value))

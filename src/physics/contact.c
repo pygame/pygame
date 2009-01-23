@@ -191,14 +191,13 @@ _contact_init (PyContact *self, PyObject *args, PyObject *kwds)
 PyObject*
 PyContact_New (void)
 {
-    /* TODO */
     return (PyObject*) PyContact_Type.tp_new (&PyContact_Type, NULL, NULL);
 }
 
 int
 PyContact_Collision (PyObject *contact, double steptime)
 {
-    if (!PyContact_Check (contact))
+    if (!contact || !PyContact_Check (contact))
     {
         PyErr_SetString (PyExc_TypeError, "contact must be a Contact");
         return 0;
@@ -210,9 +209,10 @@ int
 PyContact_Collision_FAST (PyContact *contact, double steptime)
 {
 /**
- * MAX_C_DEP is the maximal permitted penetrating depth after collision reaction.
- * BIAS_FACTOR is a empirical factor. The two constants are used for position collision
- * after collision reaction is done.
+ * MAX_C_DEP is the maximal permitted penetrating depth after collision
+ * reaction.
+ * BIAS_FACTOR is a empirical factor. The two constants are used for
+ * position collision after collision reaction is done.
  * for further learning you can read Erin Canto's GDC 2006 Slides, page 23.
  * (You can download it from www.gphysics.com)
  */
@@ -237,36 +237,37 @@ PyContact_Collision_FAST (PyContact *contact, double steptime)
 
     /*
      * The algorithm below is an implementation of the empirical formula for
-	 * impulse-based collision reaction. You can learn the formula thoroughly
-	 * from Helmut Garstenauer's thesis, Page 60.
+     * impulse-based collision reaction. You can learn the formula thoroughly
+     * from Helmut Garstenauer's thesis, Page 60.
      */
     refR = c_diff(contact->position, refBody->position);
     incidR = c_diff(contact->position, incidBody->position);
     //dV = v2 + w2xr2 - (v1 + w1xr1)
-    incidV = c_sum(incidBody->linear_velocity, PyVector2_fCross(incidBody->angle_velocity,
-            incidR));
-    refV = c_sum(refBody->linear_velocity, PyVector2_fCross(refBody->angle_velocity,
-            refR));
+    incidV = c_sum(incidBody->linear_velocity,
+        PyVector2_fCross(incidBody->angle_velocity, incidR));
+    refV = c_sum(refBody->linear_velocity,
+        PyVector2_fCross(refBody->angle_velocity, refR));
 
     contact->dv = c_diff(incidV, refV);
     neg_dV = c_diff(refV, incidV);
 	
-    moment_len = PyVector2_Dot(PyVector2_MultiplyWithReal(neg_dV, (1 + contact->resist)), 
-        contact->normal)/contact->kfactor;
+    moment_len = PyVector2_Dot (PyVector2_MultiplyWithReal(neg_dV,
+            (1 + contact->resist)), contact->normal)/contact->kfactor;
     moment_len = MAX(0, moment_len);
     
-    //finally we get the momentum(oh...)
+    /* finally we get the momentum(oh...) */
     moment = PyVector2_MultiplyWithReal(contact->normal, moment_len);
     contact->acc_moment.real += moment.real/contact->weight;
     contact->acc_moment.imag += moment.imag/contact->weight; 
 
-    //split impulse
+    /* split impulse */
     vbias = BIAS_FACTOR*MAX(0, contact->depth - MAX_C_DEP)/steptime;
-    //biased dv
-    bincidV = c_sum(incidBody->bias_lv, PyVector2_fCross(incidBody->bias_w, incidR));
+    /* biased dv */
+    bincidV = c_sum(incidBody->bias_lv,
+        PyVector2_fCross(incidBody->bias_w, incidR));
     brefV = c_sum(refBody->bias_lv, PyVector2_fCross(refBody->bias_w, refR));
     bneg_dV = c_diff(brefV, bincidV); 
-    //biased moment
+    /* biased moment */
     bm_len = PyVector2_Dot(PyVector2_MultiplyWithReal(bneg_dV, 1.),
         contact->normal)/contact->kfactor;
     bm_len = MAX(0, bm_len + vbias/contact->kfactor);

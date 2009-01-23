@@ -374,7 +374,7 @@ PyOverlay_New (PyObject *surface, int width, int height, Uint32 format)
     SDL_Surface *sdlsurface;
     SDL_Overlay *sdloverlay;
 
-    if (!PySurface_Check (surface))
+    if (!surface || !PySurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
@@ -412,7 +412,7 @@ PyOverlay_AddRefLock (PyObject *overlay, PyObject *lock)
     PyOverlay *ov = (PyOverlay*)overlay;
     PyObject *wkref;
 
-    if (!PyOverlay_Check (overlay))
+    if (!overlay || !PyOverlay_Check (overlay))
     {
         PyErr_SetString (PyExc_TypeError, "overlay must be an Overlay");
         return 0;
@@ -455,7 +455,13 @@ PyOverlay_RemoveRefLock (PyObject *overlay, PyObject *lock)
     Py_ssize_t size;
     int found = 0, noerror = 1;
 
-    if (!PyOverlay_Check (overlay))
+    if (!lock)
+    {
+        PyErr_SetString (PyExc_TypeError, "lock must not be NULL");
+        return 0;
+    }
+
+    if (!overlay || !PyOverlay_Check (overlay))
     {
         PyErr_SetString (PyExc_TypeError, "overlay must be an Overlay");
         return 0;

@@ -231,6 +231,9 @@ PyChunk_New (char *filename)
 
     ASSERT_MIXER_OPEN(NULL);
     
+    if (!filename)
+        return NULL;
+
     chunk = (PyChunk*) PyChunk_Type.tp_new (&PyChunk_Type, NULL, NULL);
     if (!chunk)
         return NULL;
@@ -252,6 +255,9 @@ PyChunk_NewFromMixerChunk (Mix_Chunk *sample)
     PyChunk *chunk;
 
     ASSERT_MIXER_OPEN(NULL);
+
+    if (!sample)
+        return NULL;
 
     chunk = (PyChunk*) PyChunk_Type.tp_new (&PyChunk_Type, NULL, NULL);
     if (!chunk)

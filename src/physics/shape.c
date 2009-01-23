@@ -249,7 +249,8 @@ PyObject*
 PyShape_Collide (PyObject *shape1, PyVector2 pos1, double rot1,
     PyObject *shape2, PyVector2 pos2, double rot2, int *refid)
 {
-    if (!PyShape_Check (shape1) || !PyShape_Check (shape2))
+    if (!shape1 || !shape2 || !PyShape_Check (shape1) ||
+        !PyShape_Check (shape2))
     {
         PyErr_SetString (PyExc_TypeError,
             "shape arguments must be Shape objects");
@@ -291,12 +292,12 @@ PyShape_Collide_FAST (PyShape *shape1, PyVector2 pos1, double rot1,
 int
 PyShape_Update (PyObject *shape, PyObject *body)
 {
-    if (!PyShape_Check (shape))
+    if (!shape || !PyShape_Check (shape))
     {
         PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
         return 0;
     }
-    if (!PyBody_Check (body))
+    if (!body || !PyBody_Check (body))
     {
         PyErr_SetString (PyExc_TypeError, "body must be a Body");
         return 0;
@@ -325,7 +326,7 @@ PyShape_Update_FAST (PyShape *shape, PyBody *body)
 AABBox*
 PyShape_GetAABBox (PyObject *shape)
 {
-    if (!PyShape_Check (shape))
+    if (!shape || !PyShape_Check (shape))
     {
         PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
         return NULL;
@@ -358,7 +359,7 @@ PyShape_GetVertices (PyObject *shape, Py_ssize_t *count)
         PyErr_SetString (PyExc_RuntimeError, "count argument missing");
         return NULL;
     }
-    if (!PyShape_Check (shape))
+    if (!shape || !PyShape_Check (shape))
     {
         PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
         return NULL;

@@ -126,12 +126,12 @@ _sat_collision (PyVector2 *pos1, double rot1, PyVector2 *pos2, double rot2,
     {
         conts[0][i] = collision->contacts[i];
         /* TODO: Maybe invert pos1/pos2 */
-        conts[1][i] = PyVector2_Transform (conts[0][i], *pos1, rot1, *pos2, rot2);
+        conts[1][i] = PyVector2_Transform (conts[0][i], *pos1, rot1,
+            *pos2, rot2);
     }
     
     box[0] = box1;
     box[1] = box2;
-    /* TODO */
     ppos[0] = incpos[1] = *pos1;
     prot[0] = incrot[1] = rot1;
     ppos[1] = incpos[0] = *pos2;
@@ -248,6 +248,9 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
     _Collision collision;
     PyRectShape *rsh1 = (PyRectShape*) shape1;
     PyRectShape *rsh2 = (PyRectShape*) shape2;
+
+    if (!shape1 || !shape2)
+        return NULL;
 
     collision.normal.real = collision.normal.imag = 0;
     

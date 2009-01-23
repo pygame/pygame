@@ -70,7 +70,8 @@ AABBox_Overlaps (AABBox* boxA, AABBox* boxB, double eps)
     from_y = MAX (boxA->bottom, boxB->bottom);
     to_x = MIN (boxA->right, boxB->right);
     to_y = MIN (boxA->top, boxB->top);
-    return from_x - eps <= to_x + eps && from_y - eps <= to_y + eps;
+
+    return (from_x - eps <= to_x + eps) && (from_y - eps <= to_y + eps);
 }
 
 int
@@ -99,7 +100,7 @@ AABBox_FromSequence (PyObject *seq)
 {
     double x, y, w, h;
     AABBox *box;
-    if (!PySequence_Check (seq) || PySequence_Size (seq) < 4)
+    if (!seq || !PySequence_Check (seq) || PySequence_Size (seq) < 4)
     {
         PyErr_SetString (PyExc_TypeError,
             "argument must be a 4-value sequence");
@@ -131,6 +132,14 @@ AABBox_FromRect (PyObject *rect)
 {
     double t, l, b, r;
     AABBox *box;
+
+    if (!rect)
+    {
+        PyErr_SetString (PyExc_TypeError,
+            "argument must be a Rect, FRect or 4-value sequence");
+        return NULL;
+    }
+
     if (PyRect_Check (rect))
     {
         l = ((PyRect*)rect)->x;

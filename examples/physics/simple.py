@@ -25,24 +25,25 @@ def init_world ():
     world = None
     world = physics.World ()
     world.gravity = 0, 1
-
-    shape = physics.RectShape ((0, 0, 20, 20))
-    body = physics.Body (shape)
-    body.position = 0, 0
-    body.velocity = 2, 0
-    body.restitution = 1
-    body.mass = 20
-
-    world.add_body (body)
     
-    shape = physics.RectShape ((0, 0, 100, 10))
+    for i in range(1, 2):
+        shape = physics.RectShape ((0, 0, 30, 28))
+        body = physics.Body (shape)
+        body.position = 400, 100 + 40 * i
+        body.rotation = 33 * i
+        body.restitution = 0.0
+        body.mass = 20
+        world.add_body (body)
+    
+    shape = physics.RectShape ((0, 0, 760, 20))
     base = physics.Body (shape)
-    base.position = 0, 400
+    base.position = 20, 300
+    base.restitution = 0.0
+    base.rotation = 15
     base.static = True
-    base.mass = 200000
-    
+    base.mass = 1e100
+
     world.add_body (base)
-    
     return world
 
 def run ():

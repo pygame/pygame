@@ -106,7 +106,7 @@ _mask_fromsurface (PyObject* self, PyObject* args)
     }
 
     /* lock the surface, release the GIL. */
-    lock = PySurface_AcquireLockObj (surfobj, self);
+    lock = PySurface_AcquireLockObj (surfobj, (PyObject*)mask);
     if (!lock)
         return NULL;
 
@@ -209,20 +209,29 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_MemoryError, "memory allocation failed");
         return NULL;
     }
-    
-    lock1 = PySurface_AcquireLockObj (surfobj, self);
+
+    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
+    if (!maskobj)
+    {
+        bitmask_free (m);
+        return NULL;
+    }
+
+    lock1 = PySurface_AcquireLockObj (surfobj, (PyObject*)maskobj);
     if (!lock1)
     {
+        Py_DECREF (maskobj);
         bitmask_free (m);
         return NULL;
     }
 
     if (surfobj2)
     {
-        lock2 = PySurface_AcquireLockObj (surfobj2, self);
+        lock2 = PySurface_AcquireLockObj (surfobj2, (PyObject*)maskobj);
         if (!lock2)
         {
             Py_DECREF (lock1);
+            Py_DECREF (maskobj);
             bitmask_free (m);
             return NULL;
         }
@@ -235,12 +244,7 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
     Py_DECREF (lock1);
     Py_XDECREF (lock2);
 
-    maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
-    if(maskobj)
-        maskobj->mask = m;
-    else
-        bitmask_free (m);
-
+    maskobj->mask = m;
     return (PyObject*)maskobj;
 }
 

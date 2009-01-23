@@ -256,6 +256,9 @@ PyMusic_New (char *filename)
     Mix_Music *sample;
 
     ASSERT_MIXER_OPEN(NULL);
+
+    if (!filename)
+        return NULL;
     
     music = (PyMusic*) PyMusic_Type.tp_new (&PyMusic_Type, NULL, NULL);
     if (!music)

@@ -2104,7 +2104,7 @@ PyPixelArray_New (PyObject *surfobj)
 {
     SDL_Surface *surface;
 
-    if (!PySurface_Check (surfobj))
+    if (!surfobj || !PySurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a Surface");
         return NULL;

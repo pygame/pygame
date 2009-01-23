@@ -64,7 +64,6 @@ PyMODINIT_FUNC initphysics (void)
     Py_INCREF (&PyShape_Type);
     Py_INCREF (&PyRectShape_Type);
 
-
 #if PY_VERSION_HEX < 0x03000000
     mod = Py_InitModule3 ("physics", NULL, NULL);
 #else
@@ -85,6 +84,7 @@ PyMODINIT_FUNC initphysics (void)
     aabbox_export_capi (c_api);
     body_export_capi (c_api);
     shape_export_capi (c_api);
+    rectshape_export_capi (c_api);
     joint_export_capi (c_api);
     contact_export_capi (c_api);
     world_export_capi (c_api);

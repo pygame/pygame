@@ -158,6 +158,7 @@ _update (PyShape *shape, PyBody *body)
     PyBody_GetGlobalPos (body, tr, gp[2]);
     PyBody_GetGlobalPos (body, tl, gp[3]);
 
+    AABBox_Reset (&(r->box));
     AABBox_ExpandTo (&(r->box), &(gp[0]));
     AABBox_ExpandTo (&(r->box), &(gp[1]));
     AABBox_ExpandTo (&(r->box), &(gp[2]));
@@ -231,7 +232,8 @@ PyObject*
 PyRectShape_New (AABBox box)
 {
     /* TODO: is anything correctly initialised? */
-    PyRectShape *shape = (PyRectShape*)PyRectShape_Type.tp_new (&PyRectShape_Type, NULL, NULL);
+    PyRectShape *shape = (PyRectShape*)PyRectShape_Type.tp_new
+        (&PyRectShape_Type, NULL, NULL);
     if (!shape)
         return NULL;
 

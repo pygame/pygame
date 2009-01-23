@@ -537,7 +537,10 @@ PyFont_New (char *file, int ptsize)
     TTF_Font *ttf;
 
     ASSERT_TTF_INIT (NULL);
-    
+
+    if (!file)
+        return NULL;
+
     font = (PyFont*) PyFont_Type.tp_new (&PyFont_Type, NULL, NULL);
     if (!font)
         return NULL;

@@ -6,6 +6,7 @@ SUBDIRS = \
 	$(top_srcdir)/doc \
 	$(top_srcdir)/doc/src \
 	$(top_srcdir)/test \
+	$(top_srcdir)/test/c_api \
 	$(top_srcdir)/test/util \
 	$(top_srcdir)/lib \
 	$(top_srcdir)/lib/sdl \

@@ -226,7 +226,7 @@ _detect_collisions (PyWorld *world, double step)
             refbody->bias_w = 0.f;
         }
 
-        /* Clear impulse */
+        /* clear impulse */
         for (i = 0; i < contact_cnt; ++i)
         {
             contact = PyList_GET_ITEM (world->contactlist, i);

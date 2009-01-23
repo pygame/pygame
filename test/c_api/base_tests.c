@@ -1,0 +1,193 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pygame2/pgbase.h>
+
+#define ERROR(x)                                \
+    {                                           \
+        fprintf(stderr, "*** %s\n", x);         \
+        PyErr_Print ();                         \
+        Py_Finalize ();                         \
+        exit(1);                                \
+    }
+
+static void
+test_helpers (void)
+{
+    PyObject *val, *seq, *string, *tmp;
+    pgint32 sw, sh;
+    double d, e;
+    int i, j;
+    unsigned int u;
+    char *str;
+
+    val = PyFloat_FromDouble (55.33f);
+    if (!DoubleFromObj(val, &d))
+        ERROR ("Mismatch in DoubleFromObj");
+    if (d != 55.33f)
+        ERROR ("Mismatch in DoubleFromObj result");
+    Py_DECREF (val);
+    
+    val = PyLong_FromLong (-10);
+    if (!IntFromObj(val, &i))
+        ERROR ("Mismatch in IntFromObj");
+    if (i != -10)
+        ERROR ("Mismatch in IntFromObj result");
+    Py_DECREF (val);
+
+    val = PyLong_FromLong (10);
+    if (!UintFromObj(val, &u))
+        ERROR ("Mismatch in UintFromObj");
+    if (u != 10)
+        ERROR ("Mismatch in UintFromObj result");
+    Py_DECREF (val);
+
+    seq = PyTuple_New (2);
+    PyTuple_SET_ITEM (seq, 0, PyLong_FromLong (2));
+    PyTuple_SET_ITEM (seq, 1, PyLong_FromLong (4));
+
+    if (!DoubleFromSeqIndex (seq, 0, &d))
+        ERROR ("Mismatch in DoubleFromSeqIndex (0)");
+    if (d != 2.f)
+        ERROR ("Mismatch in DoubleFromSeqIndex result 0");
+    if (!DoubleFromSeqIndex (seq, 1, &d))
+        ERROR ("Mismatch in DoubleFromSeqIndex (1)");
+    if (d != 4.f)
+        ERROR ("Mismatch in DoubleFromSeqIndex result 1");
+
+    if (!IntFromSeqIndex (seq, 0, &i))
+        ERROR ("Mismatch in IntFromSeqIndex (0)");
+    if (i != 2)
+        ERROR ("Mismatch in IntFromSeqIndex result 0");
+    if (!IntFromSeqIndex (seq, 1, &i))
+        ERROR ("Mismatch in IntFromSeqIndex (1)");
+    if (i != 4)
+        ERROR ("Mismatch in IntFromSeqIndex result 1");
+
+    if (!UintFromSeqIndex (seq, 0, &u))
+        ERROR ("Mismatch in UintFromSeqIndex (0)");
+    if (u != 2)
+        ERROR ("Mismatch in UintFromSeqIndex result 0");
+    if (!UintFromSeqIndex (seq, 1, &u))
+        ERROR ("Mismatch in UintFromSeqIndex (1)");
+    if (u != 4)
+        ERROR ("Mismatch in UintFromSeqIndex result 1");
+
+    if (!PointFromObject (seq, &i, &j))
+        ERROR ("Mismatch in PointFromObject");
+    if (i != 2 || j != 4)
+        ERROR ("Mismatch in PointFromObject result");
+
+    if (!SizeFromObject (seq, &sw, &sh))
+        ERROR ("Mismatch in SizeFromObject");
+    if (sw != 2 || sh != 4)
+        ERROR ("Mismatch in SizeFromObject result");
+
+    if (!FPointFromObject (seq, &d, &e))
+        ERROR ("Mismatch in FPointFromObject");
+    if (d != 2.f || e != 4.f)
+        ERROR ("Mismatch in FPointFromObject result");
+
+    if (!FSizeFromObject (seq, &d, &e))
+        ERROR ("Mismatch in FSizeFromObject");
+    if (d != 2.f || e != 4.f)
+        ERROR ("Mismatch in FSizeFromObject result");
+    Py_DECREF (seq);
+
+    string = PyString_FromString ("Hello World!");
+    if (!ASCIIFromObject (string, &str, &tmp))
+        ERROR ("Mismatch in ASCIIFromObject");
+    if (strcmp (str, "Hello World!") != 0)
+        ERROR ("Mismatch in ASCIIFromObject result");
+    Py_XDECREF (tmp);
+
+    if (!UTF8FromObject (string, &str, &tmp))
+        ERROR ("Mismatch in UTF8FromObject");
+    if (strcmp (str, "Hello World!") != 0)
+        ERROR ("Mismatch in UTF8FromObject result");
+    Py_XDECREF (tmp);
+}
+
+static void
+test_colors (void)
+{
+    PyObject *color;
+    pgbyte rgba[4] = { 255, 155, 55, 5 };
+    pguint32 rgba_int = 0x05ff9b37;
+    pguint32 tmp;
+
+    color = PyColor_New (rgba);
+    if (!PyColor_Check (color))
+        ERROR ("Color mismatch in PyColor_Check");
+
+    if (((PyColor*)color)->r != 255 ||
+        ((PyColor*)color)->g != 155 ||
+        ((PyColor*)color)->b != 55 ||
+        ((PyColor*)color)->a != 5)
+        ERROR ("Color mismatch in PyColor_New");
+
+    tmp = PyColor_AsNumber (color);
+    if (tmp != rgba_int)
+        ERROR("Color mismatch in PyColor_AsNumber");
+    Py_DECREF (color);
+
+    rgba_int = 0xFF00FF00;
+    color = PyColor_NewFromNumber (rgba_int);
+    tmp = PyColor_AsNumber (color);
+    if (tmp != rgba_int)
+        ERROR("Color mismatch in PyColor_NewFromNumber");
+    Py_DECREF (color);
+}
+
+static void
+test_rect (void)
+{
+    PyObject *rect;
+    double dx, dy, dw, dh;
+    pgint32 x, y;
+    pgint32 w, h;
+
+    rect = PyRect_New (1, 2, 3, 4);
+    if (!PyRect_Check (rect))
+        ERROR ("Rect mismatch in PyRect_Check");
+
+    if (((PyRect*)rect)->x != 1 ||
+        ((PyRect*)rect)->y != 2 ||
+        ((PyRect*)rect)->w != 3 ||
+        ((PyRect*)rect)->h != 4)
+        ERROR ("Rect mismatch in PyRect_New");
+
+    if (!SizeFromObject (rect, &w, &h))
+        ERROR ("Mismatch in SizeFromObject for PyRect");
+    if (w != 3 || h != 4)
+        ERROR ("Mismatch in SizeFromObject result for PyRect");
+
+    if (!PointFromObject (rect, (int*)&x, (int*)&y))
+        ERROR ("Mismatch in PointFromObject for PyRect");
+    if (x != 1 || y != 2)
+        ERROR ("Mismatch in PointFromObject result for PyRect");
+
+    if (!FSizeFromObject (rect, &dw, &dh))
+        ERROR ("Mismatch in FSizeFromObject for PyRect");
+    if (dw != 3 || dh != 4)
+        ERROR ("Mismatch in FSizeFromObject result for PyRect");
+
+    if (!FPointFromObject (rect, &dx, &dy))
+        ERROR ("Mismatch in FPointFromObject for PyRect");
+    if (dx != 1 || dy != 2)
+        ERROR ("Mismatch in FPointFromObject result for PyRect");
+    
+    Py_DECREF (rect);
+}
+int
+main (int argc, char *argv[])
+{
+    Py_Initialize ();
+    if (import_pygame2_base () == -1)
+        ERROR("Could not import pygame2.base");
+    
+    test_helpers ();
+    test_colors ();
+    test_rect ();
+    Py_Finalize ();
+    return 0;
+}

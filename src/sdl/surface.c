@@ -1112,6 +1112,12 @@ PySurface_RemoveRefLock (PyObject *surface, PyObject *lock)
     Py_ssize_t size;
     int found = 0, noerror = 1;
 
+    if (!lock)
+    {
+        PyErr_SetString (PyExc_TypeError, "lock must not be NULL");
+        return 0;
+    }
+
     if (!PySurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -1168,7 +1174,13 @@ PySurface_AcquireLockObj (PyObject *surface, PyObject *lock)
     PyObject *cobj;
     SurfaceLock *c_lock;
 
-    if (!PySurface_Check (surface))
+    if (!lock)
+    {
+        PyErr_SetString (PyExc_TypeError, "lock must not be NULL");
+        return 0;
+    }
+
+    if (!surface || !PySurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return 0;
@@ -1211,7 +1223,7 @@ PySurface_Clone (PyObject *source)
     PyObject *surfobj;
     SDL_Surface *surface, *newsurface;
 
-    if (!PySurface_Check (source))
+    if (!source || !PySurface_Check (source))
     {
         PyErr_SetString (PyExc_TypeError, "source must be a Surface");
         return NULL;

@@ -692,7 +692,10 @@ PyEvent_New (SDL_Event *event)
 int
 PyEvent_SDLEventFromEvent (PyObject *ev, SDL_Event *event)
 {
-    if (!PyEvent_Check (ev))
+    if (!event)
+        return NULL;
+
+    if (!ev || !PyEvent_Check (ev))
     {
         PyErr_SetString (PyExc_TypeError, "event must be an Event");
         return 0;
