@@ -1,4 +1,4 @@
-/*
+/* 
   pygame physics - Pygame physics module
 
   Copyright (C) 2008 Zhang Fan
@@ -91,8 +91,8 @@ AABBox_AsFRect (AABBox *box)
         PyErr_SetString (PyExc_RuntimeError, "argument is NULL");
         return NULL;
     }
-    return PyFRect_New (box->top, box->left, box->bottom - box->top,
-        box->right - box->left);
+    return PyFRect_New (box->left, box->top, box->right - box->left,
+        box->top - box->bottom);
 }
 
 AABBox*
@@ -120,8 +120,8 @@ AABBox_FromSequence (PyObject *seq)
     if (!box)
         return NULL;
 
-    box->top = x;
-    box->left = y;
+    box->top = y;
+    box->left = x;
     box->bottom = y + h;
     box->right = x + w;
     return box;
@@ -144,15 +144,15 @@ AABBox_FromRect (PyObject *rect)
     {
         l = ((PyRect*)rect)->x;
         t = ((PyRect*)rect)->y;
-        r = ((PyRect*)rect)->w + l;
         b = ((PyRect*)rect)->h + t;
+        r = ((PyRect*)rect)->w + l;
     }
     else if (PyFRect_Check (rect))
     {
         l = ((PyFRect*)rect)->x;
         t = ((PyFRect*)rect)->y;
-        r = ((PyFRect*)rect)->w + l;
         b = ((PyFRect*)rect)->h + t;
+        r = ((PyFRect*)rect)->w + l;
     }
     else
     {

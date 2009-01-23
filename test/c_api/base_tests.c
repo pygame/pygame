@@ -222,6 +222,20 @@ test_frect (void)
     Py_DECREF (rect);
 }
 
+static void
+test_bufferproxy (void)
+{
+    PyObject *buf, *str;
+    void *strbuf;
+
+    str = PyString_FromString ("Hello World!");
+    strbuf = PyString_AS_STRING (str);
+    buf = PyBufferProxy_New (str, strbuf, PyString_GET_SIZE (str), NULL);
+    if (!PyBufferProxy_Check (buf))
+        ERROR ("BufferProxy mismatch in PyBufferProxy_Check");
+    Py_DECREF (buf);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -233,6 +247,7 @@ main (int argc, char *argv[])
     test_colors ();
     test_rect ();
     test_frect ();
+    test_bufferproxy ();
     Py_Finalize ();
     return 0;
 }

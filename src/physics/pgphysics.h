@@ -149,7 +149,7 @@ typedef struct
 #define AABBox_Overlaps                                                \
     (*(int(*)(AABBox*,AABBox*,double))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+3])
 #define AABBox_Contains                                                \
-    (*(int(*)(AABBox*,double))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+4])
+    (*(int(*)(AABBox*,PyVector2*,double))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+4])
 #define AABBox_AsFRect                                                 \
     (*(PyObject*(*)(AABBox*))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+5])
 #define AABBox_FromSequence                                            \

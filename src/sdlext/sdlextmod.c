@@ -72,6 +72,7 @@ PyMODINIT_FUNC initbase (void)
         goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;
+
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

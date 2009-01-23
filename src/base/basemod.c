@@ -367,6 +367,7 @@ PyMODINIT_FUNC initbase (void)
     color_export_capi (c_api);
     rect_export_capi (c_api);
     floatrect_export_capi (c_api);
+    bufferproxy_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

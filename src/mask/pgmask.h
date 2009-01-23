@@ -22,6 +22,7 @@
 
 #include <Python.h>
 #include "bitmask.h"
+#include "pgbase.h"
 
 typedef struct {
     PyObject_HEAD

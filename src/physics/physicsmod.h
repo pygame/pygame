@@ -39,7 +39,7 @@
 int PyMath_IsNearEqual (double a, double b);
 int PyMath_LessEqual (double a, double b);
 int PyMath_MoreEqual (double a, double b);
-int PyVector2_Equal (PyVector2* a, PyVector2* b);
+int PyVector2_Equal (PyVector2 a, PyVector2 b);
 PyVector2 PyVector2_MultiplyWithReal (PyVector2 a, double f);
 PyVector2 PyVector2_DivideWithReal (PyVector2 a, double f);
 PyVector2 PyVector2_fCross (double f, PyVector2 a);

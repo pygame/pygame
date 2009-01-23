@@ -51,10 +51,10 @@ PyMath_MoreEqual (double a, double b)
 }
 
 int
-PyVector2_Equal (PyVector2* a, PyVector2* b)
+PyVector2_Equal (PyVector2 a, PyVector2 b)
 {
-    return PyMath_IsNearEqual (a->real, b->real) &&
-        PyMath_IsNearEqual (a->imag, b->imag);
+    return PyMath_IsNearEqual (a.real, b.real) &&
+        PyMath_IsNearEqual (a.imag, b.imag);
 }
 
 PyVector2
