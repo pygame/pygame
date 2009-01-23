@@ -1,5 +1,3 @@
-__tags__ = ['array']
-
 if __name__ == '__main__':
     import sys
     import os
@@ -152,26 +150,6 @@ class SurfaceLockTest (unittest.TestCase):
         self.assertEquals (sf.get_locked (), False)
         self.assertEquals (sf.get_locks (), ())
 
-    def test_surfarray_ref (self):
-        sf = pygame.Surface ((5, 5), 32)
-        for atype in pygame.surfarray.get_arraytypes ():
-            pygame.surfarray.use_arraytype (atype)
-            
-            ar = pygame.surfarray.pixels2d (sf)
-            self.assertEquals (sf.get_locked (), True)
-
-            # Numpy uses the Surface's buffer.
-            if atype == "numeric":
-                self.assertEquals (sf.get_locks (), (ar,))
-
-            sf.unlock ()
-            self.assertEquals (sf.get_locked (), True)
-
-            del ar
-            self.assertEquals (sf.get_locked (), False)
-            self.assertEquals (sf.get_locks (), ())
-
-        #print "test_surfarray_ref - end"
 
 if __name__ == '__main__':
     unittest.main()

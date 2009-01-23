@@ -23,23 +23,24 @@ from pygame.locals import *
 pygame.init()
 
 
-skip_tests = False
+arraytype = ""
 try:
     import pygame.surfarray
 except ImportError:
-    skip_tests = True
+    pass
 else:
-    if pygame.surfarray.get_arraytype() == 'numpy':
+    arraytype = pygame.surfarray.get_arraytype()
+    if arraytype == 'numpy':
         from numpy import \
              uint8, uint16, uint32, uint64, zeros, float64
-    elif pygame.surfarray.get_arraytype() == 'numeric':
+    elif arraytype == 'numeric':
         from Numeric import \
              UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
              Float64 as float64
     else:
         print ("Unknown array type %s; tests skipped" %
                pygame.surfarray.get_arraytype())
-        skip_tests = True
+        arraytype = ""
 
 def unsigned(i):
     return 0xffffffff & i
@@ -111,8 +112,12 @@ class SurfarrayModuleTest (unittest.TestCase):
     def _make_array2d(self, dtype):
         return zeros(self.surf_size, dtype)
 
+    def setUp(self):
+        if arraytype:
+            pygame.surfarray.use_arraytype(arraytype)
+
     def test_array2d(self):
-        if skip_tests:
+        if not arraytype:
             return
 
         sources = [self._make_src_surface(8),
@@ -230,7 +235,7 @@ class SurfarrayModuleTest (unittest.TestCase):
         self.fail() 
 
     def test_blit_array(self):
-        if skip_tests:
+        if not arraytype:
             return
 
         # bug 24 at http://pygame.motherhamster.org/bugzilla/
@@ -576,8 +581,33 @@ class SurfarrayModuleTest (unittest.TestCase):
 
         self.fail() 
 
+    def test_surf_lock (self):
+        if not arraytype:
+            return
+
+        sf = pygame.Surface ((5, 5), 0, 32)
+        for atype in pygame.surfarray.get_arraytypes ():
+            pygame.surfarray.use_arraytype (atype)
+            
+            ar = pygame.surfarray.pixels2d (sf)
+            self.assertEquals (sf.get_locked (), True)
+
+            # Numpy uses the Surface's buffer.
+            if atype == "numeric":
+                self.assertEquals (sf.get_locks (), (ar,))
+                
+            sf.unlock ()
+            self.assertEquals (sf.get_locked (), True)
+                
+            del ar
+            self.assertEquals (sf.get_locked (), False)
+            self.assertEquals (sf.get_locks (), ())
+
+        #print "test_surf_lock - end"
+
+
 if __name__ == '__main__':
-    if skip_tests:
+    if not arraytype:
         print "No array package is installed. Cannot run unit tests."
     else:
         unittest.main()
