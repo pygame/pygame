@@ -1,4 +1,4 @@
-__tags__ = ['surfarray']
+__tags__ = ['array']
 
 if __name__ == '__main__':
     import sys
@@ -25,15 +25,20 @@ pygame.init()
 
 skip_tests = False
 try:
-    from numpy import \
-         uint8, uint16, uint32, uint64, zeros, float64
-except ImportError:
-    try:
+    import pygame.surfarray
+    if pygame.surfarray.get_arraytype() == 'numpy':
+        from numpy import \
+             uint8, uint16, uint32, uint64, zeros, float64
+    elif pygame.surfarray.get_arraytype() == 'numeric':
         from Numeric import \
              UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
              Float64 as float64
-    except ImportError:
+    else:
+        print ("Unknown array type %s; tests skipped" %
+               pygame.surfarray.get_arraytype())
         skip_tests = True
+except ImportError:
+    skip_tests = True
 
 class SurfarrayModuleTest (unittest.TestCase):
 
@@ -101,12 +106,6 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def _make_array2d(self, dtype):
         return zeros(self.surf_size, dtype)
-
-    def test_import(self):
-        'does it import'
-        if skip_tests:
-            return
-        import pygame.surfarray
 
     def todo_test_array2d(self):
 
