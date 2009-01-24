@@ -54,8 +54,9 @@ opt_parser.add_option (
      help   = "fail incomplete tests" )
 
 opt_parser.add_option (
-     "-s",  "--subprocess", action = 'store_true',
-     help   = "run test suites in subprocesses (default: same process)" )
+     "-n",  "--nosubprocess", action = "store_true",
+     help   = "run everything in a single process "
+              " (default: use subprocesses)" )
 
 opt_parser.add_option (
      "-T",  "--timings", type = 'int', default = 1, metavar = 'T',
@@ -233,12 +234,12 @@ def run_test(module, **kwds):
     """Run a unit test module
 
     Recognized keyword arguments:
-    incomplete, subprocess
+    incomplete, nosubprocess
 
     """
     
     option_incomplete = kwds.get('incomplete', False)
-    option_subprocess = kwds.get('subprocess', False)
+    option_nosubprocess = kwds.get('nosubprocess', False)
 
     suite = unittest.TestSuite()
     test_utils.fail_incomplete_tests = option_incomplete
@@ -269,7 +270,7 @@ def run_test(module, **kwds):
 
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
 
-    if option_subprocess:
+    if not option_nosubprocess:
         print TEST_RESULTS_START
         print pformat(results)
     else:
@@ -294,7 +295,7 @@ if __name__ == '__main__':
         sys.exit('No test module provided; consider using %s instead' % run_from)
     run_test(args[0],
              incomplete=options.incomplete,
-             subprocess=options.subprocess)
+             nosubprocess=options.nosubprocess)
 
 ################################################################################
 
