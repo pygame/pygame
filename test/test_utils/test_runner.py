@@ -170,10 +170,11 @@ TEST_RESULTS_RE = re.compile('%s\n(.*)' % TEST_RESULTS_START, re.DOTALL | re.M)
 def get_test_results(raw_return):
     test_results = TEST_RESULTS_RE.search(raw_return)
     if test_results:
-        try:     return eval(test_results.group(1))
-        except:  raise Exception (
-            "BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1)
-        )
+        try:
+            return eval(test_results.group(1))
+        except:
+            print "BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1)
+            raise
 
 ################################################################################
 # ERRORS
