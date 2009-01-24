@@ -57,7 +57,7 @@ def run(*args, **kwds):
                    subprocessed tests
     time_out - if subprocess is True then the time limit in seconds before
                killing a test (default 30)
-    fake - if provided, the name of the a fake tests package in the
+    fake - if provided, the name of the fake tests package in the
            run_tests__tests subpackage to run instead of the normal
            Pygame tests
     python - the path to a python executable to run subprocessed tests
