@@ -43,7 +43,8 @@ def run(*args, **kwds):
 
     Keyword arguments:
     incomplete - fail incomplete tests (default False)
-    subprocess - run test suites in subprocesses (default False, same process)
+    nosubprocess - run all test suites in the current process
+                   (default False, use separate subprocesses)
     dump - dump failures/errors as dict ready to eval (default False)
     file - if provided, the name of a file into which to dump failures/errors
     timings - if provided, the number of times to run each individual test to
@@ -67,11 +68,14 @@ def run(*args, **kwds):
     A tuple of total number of tests run, dictionary of error information.
     The dictionary is empty if no errors were recorded.
 
-    Tests can be run in the current process or a subprocess, depending on
-    the 'subprocess' argument. If tests are run in separate processes then
-    frozen tests will be killed. Also, using subprocesses more realistically
-    reproduces normal Pygame usage, where pygame.init() and pygame.quit() are
-    called only once per program execution.
+    By default individual test modules are run in separate subprocesses.
+    This recreates normal Pygame usage where pygame.init() and pygame.quit()
+    are called only once per program execution, and avoids unfortunate
+    interactions between test modules. Also, a time limit is placed on
+    test execution, so frozen tests are killed when there time allotment
+    expired. Use the single process option if threading is not working
+    properly or if tests are taking too long. It is not guaranteed that
+    all tests will pass in single process mode.
 
     Tests are run in a randomized order if the randomize argument is True
     or a seed argument is provided. If no seed integer is provided then
@@ -94,7 +98,7 @@ def run(*args, **kwds):
     was_run = True
                            
     options = kwds.copy()
-    option_subprocess = options.get('subprocess', False)
+    option_nosubprocess = options.get('nosubprocess', False)
     option_dump = options.pop('dump', False)
     option_file = options.pop('file', None)
     option_all = options.pop('all', False)
@@ -140,10 +144,10 @@ def run(*args, **kwds):
             m.endswith('_test') and (fmt1 % m) or (fmt2 % m) for m in args
         ]
     else:
-        if option_subprocess:
-            ignore = SUBPROCESS_IGNORE
-        else:
+        if option_nosubprocess:
             ignore = IGNORE
+        else:
+            ignore = SUBPROCESS_IGNORE
 
         test_modules = []
         for f in sorted(os.listdir(test_subdir)):
@@ -172,7 +176,7 @@ def run(*args, **kwds):
     ###########################################################################
     # Single process mode
 
-    if not option_subprocess:
+    if option_nosubprocess:
         unittest_patch.patch(**kwds)
 
         t = time.time()
@@ -184,7 +188,7 @@ def run(*args, **kwds):
     # Subprocess mode
     #
 
-    if option_subprocess:
+    if not option_nosubprocess:
         if is_pygame_pkg:
             from pygame.tests.test_utils.async_sub import proc_in_time_or_kill
         else:
@@ -252,7 +256,7 @@ def run(*args, **kwds):
     meta['combined'] = combined
     results.update(meta_results)
 
-    if not option_subprocess:
+    if option_nosubprocess:
         assert total == untrusty_total
 
     if not option_dump:
