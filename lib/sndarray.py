@@ -72,7 +72,7 @@ except ImportError, msg:
 try:
     import pygame._numericsndarray as numericsnd
     __hasnumeric = True
-    if not __hasnumeric:
+    if not __hasnumpy:
         __arraytype = "numeric"
 except ImportError:
     __hasnumeric = False
