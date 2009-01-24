@@ -6,7 +6,8 @@ is by importing the go submodule:
 
 python -c "import pygame.tests.go" [&lt;test options&gt;]
 
-Command line option --help displays a usage message.
+Command line option --help displays a usage message. Available options
+correspond to the pygame.tests.run arguments.
 
 The xxxx_test submodules of the tests package are unit test suites for
 individual parts of Pygame. Each can also be run as a main program. This is
@@ -60,11 +61,11 @@ reproduces normal Pygame usage, where pygame.init() and pygame.quit() are
 called only once per program execution.
 
 Tests are run in a randomized order if the randomize argument is True
-of a seed argument is provided. If no seed integer is provided then
+or a seed argument is provided. If no seed integer is provided then
 the system time is used.
 
-Individual test modules may have a TAG attribute, a list of TAG attributes
-used to select modules to omit from a run. By default only 'interactive'
+Individual test modules may have a __tags__ attribute, a list of tag strings
+used to selectively omit modules from a run. By default only 'interactive'
 modules such as cdrom_test are ignored. An interactive module must be run
 from the console as a Python program.
 
