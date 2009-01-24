@@ -62,7 +62,7 @@ def run(*args, **kwds):
            Pygame tests
     python - the path to a python executable to run subprocessed tests
              (default sys.executable)
-    
+
     Return value:
     A tuple of total number of tests run, dictionary of error information.
     The dictionary is empty if no errors were recorded.
@@ -74,11 +74,11 @@ def run(*args, **kwds):
     called only once per program execution.
 
     Tests are run in a randomized order if the randomize argument is True
-    of a seed argument is provided. If no seed integer is provided then
+    or a seed argument is provided. If no seed integer is provided then
     the system time is used.
 
-    Individual test modules may have a TAG attribute, a list of TAG attributes
-    used to select modules to omit from a run. By default only 'interactive'
+    Individual test modules may have a __tags__ attribute, a list of tag strings
+    used to selectively omit modules from a run. By default only 'interactive'
     modules such as cdrom_test are ignored. An interactive module must be run
     from the console as a Python program.
 
