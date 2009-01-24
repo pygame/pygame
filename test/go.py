@@ -103,8 +103,8 @@ options, args = opt_parser.parse_args()
 kwds = {}
 if options.incomplete:
     kwds['incomplete'] = True
-if options.subprocess:
-    kwds['subprocess'] = True
+if options.nosubprocess:
+    kwds['nosubprocess'] = True
 if options.dump:
     kwds['dump'] = True
 if options.file:
