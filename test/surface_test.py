@@ -689,24 +689,21 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_map_rgb(self):
+    def test_map_rgb(self):
 
-        # __doc__ (as of 2008-08-02) for pygame.surface.Surface.map_rgb:
+        color = Color(0, 128, 255, 64)
+        surf = pygame.Surface((5, 5), SRCALPHA, 32)
+        c = surf.map_rgb(color)
+        self.failUnlessEqual(surf.unmap_rgb(c), color)
 
-          # Surface.map_rgb(Color): return mapped_int
-          # convert a color into a mapped color value
-          # 
-          # Convert an RGBA color into the mapped integer value for this
-          # Surface. The returned integer will contain no more bits than the bit
-          # depth of the Surface. Mapped color values are not often used inside
-          # Pygame, but can be passed to most functions that require a Surface
-          # and a color.
-          # 
-          # See the Surface object documentation for more information about
-          # colors and pixel formats.
-          # 
+        self.failUnlessEqual(surf.get_at((0, 0)), (0, 0, 0, 0))
+        surf.fill(c)
+        self.failUnlessEqual(surf.get_at((0, 0)), color)
 
-        self.fail() 
+        surf.fill((0, 0, 0, 0))
+        self.failUnlessEqual(surf.get_at((0, 0)), (0, 0, 0, 0))
+        surf.set_at((0, 0), c)
+        self.failUnlessEqual(surf.get_at((0, 0)), color)
 
     def todo_test_mustlock(self):
 
