@@ -16,9 +16,38 @@ import unittest
 import tempfile
 
 if subprocess.mswindows:
-    from win32file import ReadFile, WriteFile
-    from win32pipe import PeekNamedPipe
-    import win32api
+    try:
+        import ctypes
+        from ctypes.wintypes import DWORD
+        kernel32 = ctypes.windll.kernel32
+        TerminateProcess = ctypes.windll.kernel32.TerminateProcess
+        def WriteFile(handle, data, ol = None):
+            c_written = DWORD()
+            success = ctypes.windll.kernel32.WriteFile(handle, ctypes.create_string_buffer(data), len(data), ctypes.byref(c_written), ol)
+            return ctypes.windll.kernel32.GetLastError(), c_written.value
+        def ReadFile(handle, desired_bytes, ol = None):
+            c_read = DWORD()
+            buffer = ctypes.create_string_buffer(desired_bytes+1)
+            success = ctypes.windll.kernel32.ReadFile(handle, buffer, desired_bytes, ctypes.byref(c_read), ol)
+            buffer[c_read.value] = '\0'
+            return ctypes.windll.kernel32.GetLastError(), buffer.value
+        def PeekNamedPipe(handle, desired_bytes):
+            c_avail = DWORD()
+            c_message = DWORD()
+            if desired_bytes > 0:
+                c_read = DWORD()
+                buffer = ctypes.create_string_buffer(desired_bytes+1)
+                success = ctypes.windll.kernel32.PeekNamedPipe(handle, buffer, desired_bytes, ctypes.byref(c_read), ctypes.byref(c_avail), ctypes.byref(c_message))
+                buffer[c_read.value] = '\0'
+                return buffer.value, c_avail.value, c_message.value
+            else:
+                success = ctypes.windll.kernel32.PeekNamedPipe(handle, None, desired_bytes, None, ctypes.byref(c_avail), ctypes.byref(c_message))
+                return "", c_avail.value, c_message.value
+                
+    except ImportError:
+        from win32file import ReadFile, WriteFile, TerminateProcess
+        from win32pipe import PeekNamedPipe
+        from win32api import TerminateProcess
     import msvcrt
     
 else:
@@ -89,9 +118,7 @@ class Popen(subprocess.Popen):
             #http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/347462
             
             """kill function for Win32"""
-            
-            win32api.TerminateProcess(int(self._handle), 0) # returns None
-                                           # handle,  # exit code
+            TerminateProcess(int(self._handle), 0) # returns None
 
         def send(self, input):
             if not self.stdin:
