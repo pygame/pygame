@@ -44,7 +44,7 @@ static void surface_cleanup (PySurfaceObject * self);
 static PyObject *surf_get_at (PyObject *self, PyObject *args);
 static PyObject *surf_set_at (PyObject *self, PyObject *args);
 static PyObject *surf_map_rgb (PyObject *self, PyObject *args);
-static PyObject *surf_unmap_rgb (PyObject *self, PyObject *args); 
+static PyObject *surf_unmap_rgb (PyObject *self, PyObject *arg); 
 static PyObject *surf_lock (PyObject *self);
 static PyObject *surf_unlock (PyObject *self);
 static PyObject *surf_mustlock (PyObject *self);
@@ -93,7 +93,7 @@ static struct PyMethodDef surface_methods[] =
     { "get_at", surf_get_at, METH_VARARGS, DOC_SURFACEGETAT },
     { "set_at", surf_set_at, METH_VARARGS, DOC_SURFACESETAT },
     { "map_rgb", surf_map_rgb, METH_VARARGS, DOC_SURFACEMAPRGB },
-    { "unmap_rgb", surf_unmap_rgb, METH_VARARGS, DOC_SURFACEUNMAPRGB },
+    { "unmap_rgb", surf_unmap_rgb, METH_O, DOC_SURFACEUNMAPRGB },
 
     { "get_palette", (PyCFunction) surf_get_palette, METH_NOARGS,
       DOC_SURFACEGETPALETTE },
@@ -666,18 +666,21 @@ surf_map_rgb (PyObject *self, PyObject *args)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
     color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    return PyInt_FromLong (color);
+    return PyLong_FromLong (color);
 }
 
 static PyObject*
-surf_unmap_rgb (PyObject *self, PyObject *args)
+surf_unmap_rgb (PyObject *self, PyObject *arg)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
     Uint32 col;
     Uint8 r, g, b, a;
 
-    if (!PyArg_ParseTuple (args, "i", &col))
-        return NULL;
+    col = (Uint32)PyInt_AsLong (arg);
+    if (col == (Uint32) -1 && PyErr_Occurred()) {
+	PyErr_Clear();
+	return RAISE (PyExc_TypeError, "unmap_rgb expects 1 number argument");
+    }
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
