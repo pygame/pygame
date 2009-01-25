@@ -95,7 +95,7 @@ DEPS = [
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
     Dependency('SCRAP', '','',[]),
     Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
-    Dependency('PORTTIME', 'porttime.h', 'libporttime', ['porttime']),
+    FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
 ]
 
 
