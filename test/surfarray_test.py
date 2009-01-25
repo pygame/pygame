@@ -19,7 +19,6 @@ else:
 import pygame
 from pygame.locals import *
 
-# Needed for 8 bits-per-pixel color palette surface tests
 pygame.init()
 
 
@@ -41,9 +40,6 @@ else:
         print ("Unknown array type %s; tests skipped" %
                pygame.surfarray.get_arraytype())
         arraytype = ""
-
-def unsigned(i):
-    return 0xffffffff & i
 
 class SurfarrayModuleTest (unittest.TestCase):
 
@@ -130,8 +126,15 @@ class SurfarrayModuleTest (unittest.TestCase):
         self.failUnlessEqual(surf.get_locks(), ())
 
     def setUp(self):
+        # Needed for 8 bits-per-pixel color palette surface tests.
+        pygame.init()
+
+        # Makes sure the same array package is used each time.
         if arraytype:
             pygame.surfarray.use_arraytype(arraytype)
+
+    def tearDown(self):
+        pygame.quit()
 
     def test_array2d(self):
         if not arraytype:
@@ -150,25 +153,25 @@ class SurfarrayModuleTest (unittest.TestCase):
             arr = pygame.surfarray.array2d(surf)
             map_rgb = surf.map_rgb
             for (x, y), i in self.test_points:
-                self.failUnlessEqual(arr[x, y], unsigned(map_rgb(palette[i])),
+                self.failUnlessEqual(arr[x, y], map_rgb(palette[i]),
                                      "%s != %s: flags: %i, bpp: %i, posn: %s" %
                                      (arr[x, y],
-                                      unsigned(map_rgb(palette[i])),
+                                      map_rgb(palette[i]),
                                       surf.get_flags(), surf.get_bitsize(),
                                       (x, y)))
 
             if surf.get_flags() & SRCALPHA:
                 surf.fill(alpha_color)
                 arr = pygame.surfarray.array2d(surf)
-                self.failUnlessEqual(arr[0, 0], unsigned(map_rgb(alpha_color)),
+                self.failUnlessEqual(arr[0, 0], map_rgb(alpha_color),
                                      "%s != %s: bpp: %i" %
                                      (arr[0, 0],
-                                      unsigned(map_rgb(alpha_color)),
+                                      map_rgb(alpha_color),
                                       surf.get_bitsize()))
 
     def test_array3d(self):
         if not arraytype:
-            return
+            self.fail("no array package installed")
 
         sources = [self._make_src_surface(16),
                    self._make_src_surface(16, srcalpha=True),
@@ -254,7 +257,7 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def test_blit_array(self):
         if not arraytype:
-            return
+            self.fail("no array package installed")
 
         # bug 24 at http://pygame.motherhamster.org/bugzilla/
         if 'numpy' in pygame.surfarray.get_arraytypes():
@@ -400,7 +403,7 @@ class SurfarrayModuleTest (unittest.TestCase):
         
     def test_get_arraytype(self):
         if not arraytype:
-            return
+            self.fail("no array package installed")
 
         self.failUnless((pygame.surfarray.get_arraytype() in
                          ['numpy', 'numeric']),
@@ -409,7 +412,7 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def test_get_arraytypes(self):
         if not arraytype:
-            return
+            self.fail("no array package installed")
 
         arraytypes = pygame.surfarray.get_arraytypes()
         try:
@@ -564,7 +567,7 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def todo_test_use_arraytype(self):
         if not arraytype:
-            return
+            self.fail("no array package installed")
 
         def do_use_arraytype(atype):
             pygame.surfarray.use_arraytype(atype)
@@ -591,7 +594,7 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def test_surf_lock (self):
         if not arraytype:
-            return
+            self.fail("no array package installed")
 
         sf = pygame.Surface ((5, 5), 0, 32)
         for atype in pygame.surfarray.get_arraytypes ():
