@@ -93,6 +93,13 @@ class SurfarrayModuleTest (unittest.TestCase):
     def _make_array3d(self, dtype):
         return zeros((self.surf_size[0], self.surf_size[1], 3), dtype)
 
+    def _fill_array2d(self, arr, surf):
+        palette = self.test_palette
+        arr[:5,:6] = surf.map_rgb(palette[1])
+        arr[5:,:6] = surf.map_rgb(palette[2])
+        arr[:5,6:] = surf.map_rgb(palette[3])
+        arr[5:,6:] = surf.map_rgb(palette[4])
+
     def _fill_array3d(self, arr):
         palette = self.test_palette
         arr[:5,:6] = palette[1][:3]
@@ -121,7 +128,7 @@ class SurfarrayModuleTest (unittest.TestCase):
         surf.unlock()
         self.failUnless(surf.get_locked())
 
-        del ar
+        del arr
         self.failUnless(surf.get_locked())
         self.failUnlessEqual(surf.get_locks(), ())
 
@@ -138,7 +145,7 @@ class SurfarrayModuleTest (unittest.TestCase):
 
     def test_array2d(self):
         if not arraytype:
-            return
+            self.fail("no array package installed")
 
         sources = [self._make_src_surface(8),
                    self._make_src_surface(16),
@@ -469,71 +476,76 @@ class SurfarrayModuleTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pixels2d(self):
+    def test_pixels2d(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.pixels2d:
+        sources = [self._make_surface(8),
+                   self._make_surface(16, srcalpha=True),
+                   self._make_surface(32, srcalpha=True)]
 
-          # pygame.surfarray.pixels2d (Surface): return array
-          # 
-          # Reference pixels into a 2d array.
-          # 
-          # Create a new 2D array that directly references the pixel values in a
-          # Surface. Any changes to the array will affect the pixels in the
-          # Surface. This is a fast operation since no data is copied.
-          # 
-          # Pixels from a 24-bit Surface cannot be referenced, but all other
-          # Surface bit depths can.
-          # 
-          # The Surface this references will remain locked for the lifetime of
-          # the array (see the Surface.lock - lock the Surface memory for pixel
-          # access method).
-          # 
-          # Create a new 2D array that directly references the pixel values in a
-          # Surface. Any changes to the array will affect the pixels in the
-          # Surface. This is a fast operation since no data is copied.
-          # 
-          # Pixels from a 24-bit Surface cannot be referenced, but all other
-          # Surface bit depths can.
-          # 
-          # The Surface this references will remain locked for the lifetime of
-          # the array (see the Surface.lock - lock the Surface memory for pixel
-          # access method).
-          # 
+        for surf in sources:
+            self.failIf(surf.get_locked())
+            arr = pygame.surfarray.pixels2d(surf)
+            self.failUnless(surf.get_locked())
+            # Numpy uses the surface's buffer.
+            if arraytype == "numeric":
+                self.failUnlessEqual(surf.get_locks(), (ar,))
+            self._fill_array2d(arr, surf)
+            surf.unlock()
+            self.failUnless(surf.get_locked())
+            del arr
+            self.failIf(surf.get_locked())
+            self.failUnlessEqual(surf.get_locks(), ())
+            self._assert_surface(surf)
 
-        self.fail() 
+        # Error checks
+        def do_pixels2d(surf):
+            pygame.surfarray.pixels2d(surf)
 
-    def todo_test_pixels3d(self):
+        self.failUnlessRaises(ValueError,
+                              do_pixels2d,
+                              self._make_surface(24))
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.pixels3d:
+    def test_pixels3d(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-          # pygame.surfarray.pixels3d (Surface): return array
-          # 
-          # Reference pixels into a 3d array.
-          # 
-          # Create a new 3D array that directly references the pixel values in a
-          # Surface. Any changes to the array will affect the pixels in the
-          # Surface. This is a fast operation since no data is copied.
-          # 
-          # This will only work on Surfaces that have 24-bit or 32-bit
-          # formats. Lower pixel formats cannot be referenced.
-          # 
-          # The Surface this references will remain locked for the lifetime of
-          # the array (see the Surface.lock - lock the Surface memory for pixel
-          # access method).
-          # 
-          # Create a new 3D array that directly references the pixel values in a
-          # Surface. Any changes to the array will affect the pixels in the
-          # Surface. This is a fast operation since no data is copied.
-          # 
-          # This will only work on Surfaces that have 24-bit or 32-bit formats.
-          # Lower pixel formats cannot be referenced.
-          # 
-          # The Surface this references will remain locked for the lifetime of
-          # the array (see the Surface.lock - lock the Surface memory for pixel
-          # access method).
-          # 
+        sources = [self._make_surface(24),
+                   self._make_surface(32)]
 
-        self.fail() 
+        for surf in sources:
+            self.failIf(surf.get_locked())
+            arr = pygame.surfarray.pixels3d(surf)
+            self.failUnless(surf.get_locked())
+            # Numpy uses the surface's buffer.
+            if arraytype == "numeric":
+                self.failUnlessEqual(surf.get_locks(), (ar,))
+            self._fill_array3d(arr)
+            surf.unlock()
+            self.failUnless(surf.get_locked())
+            del arr
+            self.failIf(surf.get_locked())
+            self.failUnlessEqual(surf.get_locks(), ())
+            self._assert_surface(surf)
+
+        # Alpha check
+        color = (1, 2, 3, 0)
+        surf = self._make_surface(32, srcalpha=True)
+        arr = pygame.surfarray.pixels3d(surf)
+        arr[0,0] = color[:3]
+        self.failUnlessEqual(surf.get_at((0, 0)), color)
+
+        # Error checks
+        def do_pixels3d(surf):
+            pygame.surfarray.pixels3d(surf)
+
+        self.failUnlessRaises(ValueError,
+                              do_pixels3d,
+                              self._make_surface(8))
+        self.failUnlessRaises(ValueError,
+                              do_pixels3d,
+                              self._make_surface(16))
 
     def todo_test_pixels_alpha(self):
 
