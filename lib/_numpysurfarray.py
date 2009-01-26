@@ -153,6 +153,7 @@ def array3d (surface):
         array = numpy.transpose (array, (1, 2, 0))
         return array
     elif bpp == 2:
+        # Taken from SDL_GetRGBA.
         masks = surface.get_masks ()
         shifts = surface.get_shifts ()
         losses = surface.get_losses ()
@@ -252,9 +253,14 @@ def array_alpha (surface):
         return array
 
     array = array2d (surface)
-    # Those shifts match the results from the old numeric system
-    # exactly.
-    array = array >> surface.get_shifts ()[3] << surface.get_losses ()[3]
+    if surface.get_bytesize () == 2:
+        # Taken from SDL_GetRGBA.
+        va = (array & surface.get_masks ()[3]) >> surface.get_shifts ()[3]
+        array = ((va << surface.get_losses ()[3]) +
+                 (va >> (8 - (surface.get_losses ()[3] << 1))))
+    else:
+        # Taken from _numericsurfarray.c.
+        array = array >> surface.get_shifts ()[3] << surface.get_losses ()[3]
     array = array.astype (numpy.uint8)
     return array
 
