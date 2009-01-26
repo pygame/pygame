@@ -31,11 +31,11 @@ else:
     arraytype = pygame.surfarray.get_arraytype()
     if arraytype == 'numpy':
         from numpy import \
-             uint8, uint16, uint32, uint64, zeros, float64
+             uint8, uint16, uint32, uint64, zeros, float64, alltrue
     elif arraytype == 'numeric':
         from Numeric import \
              UInt8 as uint8, UInt16 as uint16, UInt32 as uint32, zeros, \
-             Float64 as float64
+             Float64 as float64, alltrue
     else:
         print ("Unknown array type %s; tests skipped" %
                pygame.surfarray.get_arraytype())
@@ -58,24 +58,28 @@ class SurfarrayModuleTest (unittest.TestCase):
                    ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
                    ((9, 11), 4), ((5, 6), 4)]
 
-    def _make_surface(self, bitsize, srcalpha=False):
+    def _make_surface(self, bitsize, srcalpha=False, palette=None):
+        if palette is None:
+            palette = self.test_palette
         flags = 0
         if srcalpha:
             flags |= SRCALPHA
         surf = pygame.Surface(self.surf_size, flags, bitsize)
         if bitsize == 8:
-            surf.set_palette([c[:3] for c in self.test_palette])
+            surf.set_palette([c[:3] for c in palette])
         return surf
 
-    def _fill_surface(self, surf):
-        surf.fill(self.test_palette[1], (0, 0, 5, 6))
-        surf.fill(self.test_palette[2], (5, 0, 5, 6))
-        surf.fill(self.test_palette[3], (0, 6, 5, 6))
-        surf.fill(self.test_palette[4], (5, 6, 5, 6))
+    def _fill_surface(self, surf, palette=None):
+        if palette is None:
+            palette = self.test_palette
+        surf.fill(palette[1], (0, 0, 5, 6))
+        surf.fill(palette[2], (5, 0, 5, 6))
+        surf.fill(palette[3], (0, 6, 5, 6))
+        surf.fill(palette[4], (5, 6, 5, 6))
 
-    def _make_src_surface(self, bitsize, srcalpha=False):
-        surf = self._make_surface(bitsize, srcalpha)
-        self._fill_surface(surf)
+    def _make_src_surface(self, bitsize, srcalpha=False, palette=None):
+        surf = self._make_surface(bitsize, srcalpha, palette)
+        self._fill_surface(surf, palette)
         return surf
 
     def _assert_surface(self, surf, palette=None, msg=""):
@@ -207,63 +211,76 @@ class SurfarrayModuleTest (unittest.TestCase):
                                  surf.get_flags(), surf.get_bitsize(),
                                  (x, y)))
 
-    def todo_test_array_alpha(self):
+    def test_array_alpha(self):
+        if not arraytype:
+            self.fail("no array package installed")
+        if arraytype == 'numeric':
+            # This is known to fail with numeric
+            return
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.array_alpha:
+        palette = [(0, 0, 0, 0),
+                   (10, 50, 100, 255),
+                   (60, 120, 240, 130),
+                   (64, 128, 255, 0),
+                   (255, 128, 0, 65)]
+        targets = [self._make_src_surface(8, palette=palette),
+                   self._make_src_surface(16, palette=palette),
+                   self._make_src_surface(16, palette=palette, srcalpha=True),
+                   self._make_src_surface(24, palette=palette),
+                   self._make_src_surface(32, palette=palette),
+                   self._make_src_surface(32, palette=palette, srcalpha=True)]
 
-          # pygame.surfarray.array_alpha (Surface): return array
-          # 
-          # Copy pixel alphas into a 2d array.
-          # 
-          # Copy the pixel alpha values (degree of transparency) from a Surface
-          # into a 2D array. This will work for any type of Surface
-          # format. Surfaces without a pixel alpha will return an array with all
-          # opaque values.
-          # 
-          # This function will temporarily lock the Surface as pixels are copied
-          # (see the Surface.lock - lock the Surface memory for pixel access
-          # method).
-          # 
-          # Copy the pixel alpha values (degree of transparency) from a Surface
-          # into a 2D array. This will work for any type of Surface format.
-          # Surfaces without a pixel alpha will return an array with all opaque
-          # values.
-          # 
-          # This function will temporarily lock the Surface as pixels are copied
-          # (see the Surface.lock - lock the Surface memory for pixel access
-          # method).
-          # 
+        for surf in targets:
+            p = palette
+            if surf.get_bitsize() == 16:
+                p = [surf.unmap_rgb(surf.map_rgb(c)) for c in p]
+            arr = pygame.surfarray.array_alpha(surf)
+            if surf.get_flags() & SRCALPHA:
+                for (x, y), i in self.test_points:
+                    self.failUnlessEqual(arr[x, y], p[i][3],
+                                         ("%i != %i, posn: (%i, %i), "
+                                          "bitsize: %i" %
+                                          (arr[x, y], p[i][3],
+                                           x, y,
+                                           surf.get_bitsize())))
+            else:
+                self.failUnless(alltrue(arr == 255))
 
-        self.fail() 
+    def test_array_colorkey(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-    def todo_test_array_colorkey(self):
+        palette = [(0, 0, 0, 0),
+                   (10, 50, 100, 255),
+                   (60, 120, 240, 130),
+                   (64, 128, 255, 0),
+                   (255, 128, 0, 65)]
+        targets = [self._make_src_surface(8, palette=palette),
+                   self._make_src_surface(16, palette=palette),
+                   self._make_src_surface(16, palette=palette, srcalpha=True),
+                   self._make_src_surface(24, palette=palette),
+                   self._make_src_surface(32, palette=palette),
+                   self._make_src_surface(32, palette=palette, srcalpha=True)]
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.array_colorkey:
-
-          # pygame.surfarray.array_colorkey (Surface): return array
-          # 
-          # Copy the colorkey values into a 2d array.
-          # 
-          # Create a new array with the colorkey transparency value from each
-          # pixel. If the pixel matches the colorkey it will be fully
-          # tranparent; otherwise it will be fully opaque.
-          # 
-          # This will work on any type of Surface format. If the image has no
-          # colorkey a solid opaque array will be returned.
-          # 
-          # This function will temporarily lock the Surface as pixels are
-          # copied.
-          # 
-          # Create a new array with the colorkey transparency value from each
-          # pixel. If the pixel matches the colorkey it will be fully
-          # tranparent; otherwise it will be fully opaque.
-          # 
-          # This will work on any type of Surface format. If the image has no
-          # colorkey a solid opaque array will be returned.
-          # 
-          # This function will temporarily lock the Surface as pixels are copied. 
-
-        self.fail() 
+        for surf in targets:
+            p = palette
+            if surf.get_bitsize() == 16:
+                p = [surf.unmap_rgb(surf.map_rgb(c)) for c in p]
+            surf.set_colorkey(None)
+            arr = pygame.surfarray.array_colorkey(surf)
+            self.failUnless(alltrue(arr == 255))
+            for i in range(1, len(palette)):
+                surf.set_colorkey(p[i])
+                alphas = [255] * len(p)
+                alphas[i] = 0
+                arr = pygame.surfarray.array_colorkey(surf)
+                for (x, y), j in self.test_points:
+                    self.failUnlessEqual(arr[x, y], alphas[j],
+                                         ("%i != %i, posn: (%i, %i), "
+                                          "bitsize: %i" %
+                                          (arr[x, y], alphas[j],
+                                           x, y,
+                                           surf.get_bitsize())))
 
     def test_blit_array(self):
         if not arraytype:
