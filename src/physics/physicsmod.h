@@ -61,8 +61,8 @@ void AABBox_ExpandTo (AABBox* box, PyVector2* p);
 int AABBox_Overlaps (AABBox* boxA, AABBox* boxB, double eps);
 int AABBox_Contains (AABBox* box, PyVector2* p, double eps);
 PyObject* AABBox_AsFRect (AABBox *box);
-AABBox* AABBox_FromSequence (PyObject *seq);
-AABBox* AABBox_FromRect (PyObject *rect);
+int AABBox_FromSequence (PyObject *seq, AABBox *box);
+int AABBox_FromRect (PyObject *rect, AABBox *box);
 void aabbox_export_capi (void **capi);
 
 /* World API */
@@ -136,8 +136,8 @@ PyObject* PyShape_Collide_FAST (PyShape *shape1, PyVector2 pos1, double rot1,
     PyShape *shape2, PyVector2 pos2, double rot2, int *refid);
 int PyShape_Update (PyObject *shape, PyObject *body);
 int PyShape_Update_FAST (PyShape *shape, PyBody *body);
-AABBox* PyShape_GetAABBox (PyObject *shape);
-AABBox* PyShape_GetAABBox_FAST (PyShape *shape);
+int PyShape_GetAABBox (PyObject *shape, AABBox* box);
+int PyShape_GetAABBox_FAST (PyShape *shape, AABBox* box);
 PyVector2* PyShape_GetVertices (PyObject *shape, Py_ssize_t *count);
 PyVector2* PyShape_GetVertices_FAST (PyShape *shape, Py_ssize_t *count);
 void shape_export_capi (void **capi);

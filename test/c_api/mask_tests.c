@@ -26,6 +26,8 @@ int
 main (int argc, char *argv[])
 {
     Py_Initialize ();
+    if (import_pygame2_base () == -1)
+        ERROR("Could not import pygame2.base");
     if (import_pygame2_mask () == -1)
         ERROR("Could not import pygame2.mask");
     

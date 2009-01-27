@@ -239,7 +239,7 @@ static PyObject*
 _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
     PyShape *shape2, PyVector2 pos2, double rot2, int *refid)
 {
-    AABBox *box1, *box2;
+    AABBox box1, box2;
     PyVector2 *vertices1, *vertices2;
     PyVector2 inpos1[4], inpos2[4];
     int count1, count2, i;
@@ -254,21 +254,12 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
 
     collision.normal.real = collision.normal.imag = 0;
     
-    box1 = PyShape_GetAABBox_FAST (shape1);
-    box2 = PyShape_GetAABBox_FAST (shape2);
-    if (!box1 || !box2)
-    {
-        if (box1)
-            PyMem_Free (box1);
-        if (box2)
-            PyMem_Free (box2);
+    if (!PyShape_GetAABBox_FAST (shape1, &box1) ||
+        !PyShape_GetAABBox_FAST (shape2, &box2))
         return NULL;
-    }
 
-    if (!AABBox_Overlaps (box1, box2, OVERLAP_ZERO))
+    if (!AABBox_Overlaps (&box1, &box2, OVERLAP_ZERO))
     {
-        PyMem_Free (box1);
-        PyMem_Free (box2);
         Py_RETURN_NONE; /* No collision at all. */
     }
 
@@ -285,23 +276,23 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
     PyVector2_TransformMultiple (vertices1, inpos1, count1, pos2, rot2, pos1,
         rot1);
     
-    if (!_clip_test (box1, inpos2, count2, &collision))
+    if (!_clip_test (&box1, inpos2, count2, &collision))
     {
         retval = Py_None;
         Py_INCREF (retval);
         goto back;
     }
 
-    if (AABBox_Contains (box2, &vertices1[0], 0.f))
+    if (AABBox_Contains (&box2, &vertices1[0], 0.f))
         collision.contacts[collision.contact_size++] = rsh1->bottomleft;
-    if (AABBox_Contains (box2, &vertices1[1], 0.f))
+    if (AABBox_Contains (&box2, &vertices1[1], 0.f))
         collision.contacts[collision.contact_size++] = rsh1->bottomright;
-    if (AABBox_Contains (box2, &vertices1[2], 0.f))
+    if (AABBox_Contains (&box2, &vertices1[2], 0.f))
         collision.contacts[collision.contact_size++] = rsh1->topright;
-    if (AABBox_Contains (box2, &vertices1[3], 0.f))
+    if (AABBox_Contains (&box2, &vertices1[3], 0.f))
         collision.contacts[collision.contact_size++] = rsh1->topleft;
 
-    _sat_collision (&pos1, rot1, &pos2, rot2, box1, box2, &collision);
+    _sat_collision (&pos1, rot1, &pos2, rot2, &box1, &box2, &collision);
 
     /*
      *
@@ -338,10 +329,6 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
     *refid = collision.refno;
     
 back:
-    if (box1)
-        PyMem_Free (box1);
-    if (box2)
-        PyMem_Free (box2);
     if (vertices1)
         PyMem_Free (vertices1);
     if (vertices2)

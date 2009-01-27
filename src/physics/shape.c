@@ -191,11 +191,10 @@ _shape_getaabbox (PyShape *shape)
 {
     if (shape->get_aabbox)
     {
-        PyObject *rect;
-        AABBox* box = shape->get_aabbox (shape);
-        rect = AABBox_AsFRect (box);
-        PyMem_Free (box);
-        return rect;
+        AABBox box;
+        if (!shape->get_aabbox (shape, &box))
+            return NULL;
+        return AABBox_AsFRect (&box);
     }
     PyErr_SetString (PyExc_NotImplementedError, "method not implemented");
     return NULL;
@@ -323,32 +322,39 @@ PyShape_Update_FAST (PyShape *shape, PyBody *body)
     return retval;
 }
 
-AABBox*
-PyShape_GetAABBox (PyObject *shape)
+int
+PyShape_GetAABBox (PyObject *shape, AABBox* box)
 {
+    if (!box)
+    {
+        PyErr_SetString (PyExc_TypeError, "box argument must not be NULL");
+        return 0;
+    }
+
     if (!shape || !PyShape_Check (shape))
     {
         PyErr_SetString (PyExc_TypeError, "shape must be a Shape");
-        return NULL;
+        return 0;
     }
-    return PyShape_GetAABBox_FAST ((PyShape*)shape);
+    return PyShape_GetAABBox_FAST ((PyShape*)shape, box);
 }
 
-AABBox*
-PyShape_GetAABBox_FAST (PyShape *shape)
+int
+PyShape_GetAABBox_FAST (PyShape *shape, AABBox* box)
 {
     PyObject *result;
-    AABBox *box = NULL;
-    
+    int ret;
+
     if (shape->get_aabbox)
-        return shape->get_aabbox (shape);
+        return shape->get_aabbox (shape, box);
 
     result =  PyObject_CallMethod ((PyObject*)shape, "get_aabbox", NULL);
     if (!result)
-        return NULL;
-    box = AABBox_FromSequence (result);
+        return 0;
+
+    ret = AABBox_FromSequence (result, box);
     Py_XDECREF (result);
-    return box;
+    return ret;
 }
 
 PyVector2*

@@ -1054,7 +1054,10 @@ PySurface_NewFromSDLSurface (SDL_Surface *sf)
 {
     PySurface *surface;
     if (!sf)
+    {
+        PyErr_SetString (PyExc_TypeError, "sf must not be NULL");
         return NULL;
+    }
     surface = (PySurface*) PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
     if (!surface)
         return NULL;
@@ -1069,7 +1072,7 @@ PySurface_AddRefLock (PyObject *surface, PyObject *lock)
     PySurface *sf = (PySurface*)surface;
     PyObject *wkref;
 
-    if (!PySurface_Check (surface))
+    if (!surface || !PySurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return 0;
@@ -1118,7 +1121,7 @@ PySurface_RemoveRefLock (PyObject *surface, PyObject *lock)
         return 0;
     }
 
-    if (!PySurface_Check (surface))
+    if (!surface || !PySurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return 0;

@@ -132,7 +132,6 @@ test_math (void)
     if (!PyMath_LessEqual (a, a2))
         ERROR ("Mismatch in PyMath_LessEqual (1,1.000001)");
 
-
     if (PyMath_MoreEqual (a, b))
         ERROR ("Mismatch in PyMath_MoreEqual (1,1.1)");
     if (!PyMath_MoreEqual (a, c))
@@ -144,7 +143,7 @@ test_math (void)
 static void
 test_aabbox (void)
 {
-    AABBox a, b, *c;
+    AABBox a, b, c;
     PyVector2 v;
     PyObject *rect, *seq;
 
@@ -180,7 +179,7 @@ test_aabbox (void)
         ERROR ("Mismatch in AABBox_Contains (.8, 8)");
 
     rect = AABBox_AsFRect (&a);
-    if (!PyFRect_Check (rect))
+    if (!rect || !PyFRect_Check (rect))
         ERROR ("Mismatch in AABBox_AsFRect return value");
     if (((PyFRect*)rect)->x != 1 || ((PyFRect*)rect)->y != 10 ||
         ((PyFRect*)rect)->w != 9 || ((PyFRect*)rect)->h != 7)
@@ -191,35 +190,75 @@ test_aabbox (void)
     PyTuple_SET_ITEM (seq, 1, PyLong_FromLong (2));
     PyTuple_SET_ITEM (seq, 2, PyLong_FromLong (3));
     PyTuple_SET_ITEM (seq, 3, PyLong_FromLong (4));
-    c = AABBox_FromSequence (seq);
-    if (!c)
+    if (!AABBox_FromSequence (seq, &c))
         ERROR ("Mismatch in AABBox_FromSequence creation");
-
-    if (c->left != 1 || c->top != 2 || c->right != 4 || c->bottom != 6)
+    if (c.left != 1 || c.top != 2 || c.right != 4 || c.bottom != 6)
         ERROR ("Mismatch in AABBox_FromSequence");
-    PyMem_Free (c);
 
-    c = AABBox_FromRect (rect);
-    if (!IS_NEAR_ZERO (c->top - 10.f) ||
-        !IS_NEAR_ZERO (c->left - 1.f) ||
-        !IS_NEAR_ZERO (c->bottom - 17.f) ||
-        !IS_NEAR_ZERO (c->right - 10.f))
+    if (!AABBox_FromRect (rect, &c))
+        ERROR ("Mismatch in AABBox_FromRect creation");
+    if (!IS_NEAR_ZERO (c.top - 10.f) || !IS_NEAR_ZERO (c.left - 1.f) ||
+        !IS_NEAR_ZERO (c.bottom - 17.f) || !IS_NEAR_ZERO (c.right - 10.f))
         ERROR ("Mismatch in AABBox_FromRect");
-    PyMem_Free (c);
     
     Py_DECREF (rect);
+}
+
+static void
+test_shape (void)
+{
+    PyVector2 *vertices;
+    Py_ssize_t count;
+    PyObject *shape1;
+    PyRectShape *rshape1;
+    AABBox box = AABBox_New (10, 20, 20, 10);
+
+    shape1 = PyRectShape_New (box);
+    if (!shape1 || !PyRectShape_Check (shape1))
+        ERROR ("Mismatch in PyRectShape_New");
+    rshape1 = (PyRectShape *)shape1;
+
+    if (rshape1->topleft.real != 10 || rshape1->topleft.imag != 10 || 
+        rshape1->topright.real != 20 || rshape1->topright.imag != 10 || 
+        rshape1->bottomleft.real != 10 || rshape1->bottomleft.imag != 20 || 
+        rshape1->bottomright.real != 20 || rshape1->bottomright.imag != 20)
+        ERROR ("Mismatch in PyRectShape_New box assignment");
+
+    vertices = PyShape_GetVertices (shape1, &count);
+    if (!vertices || count != 4)
+        ERROR ("Mismatch in PyShape_GetVertices");
+    if (vertices[0].real != 10 || vertices[0].imag != 20 ||
+        vertices[1].real != 20 || vertices[1].imag != 20 ||
+        vertices[2].real != 20 || vertices[2].imag != 10 ||
+        vertices[3].real != 10 || vertices[3].imag != 10)
+        ERROR ("Mismatch in PyShape_GetVertices assignment");
+    PyMem_Free (vertices);
+
+    vertices = PyShape_GetVertices_FAST ((PyShape*)shape1, &count);
+    if (!vertices || count != 4)
+        ERROR ("Mismatch in PyShape_GetVertices_FAST");
+    if (vertices[0].real != 10 || vertices[0].imag != 20 ||
+        vertices[1].real != 20 || vertices[1].imag != 20 ||
+        vertices[2].real != 20 || vertices[2].imag != 10 ||
+        vertices[3].real != 10 || vertices[3].imag != 10)
+        ERROR ("Mismatch in PyShape_GetVertices_FAST assignment");
+    PyMem_Free (vertices);
 }
 
 int
 main (int argc, char *argv[])
 {
     Py_Initialize ();
+    if (import_pygame2_base () == -1)
+        ERROR("Could not import pygame2.base");
     if (import_pygame2_physics () == -1)
         ERROR("Could not import pygame2.physics");
 
     test_vector ();
     test_math ();
     test_aabbox ();
+    test_shape ();
     Py_Finalize ();
     return 0;
 }
+

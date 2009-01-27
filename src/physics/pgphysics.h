@@ -153,9 +153,9 @@ typedef struct
 #define AABBox_AsFRect                                                 \
     (*(PyObject*(*)(AABBox*))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+5])
 #define AABBox_FromSequence                                            \
-    (*(AABBox*(*)(PyObject*))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+6])
+    (*(int(*)(PyObject*,AABBox*))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+6])
 #define AABBox_FromRect                                                \
-    (*(AABBox*(*)(PyObject*))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+7])
+    (*(int(*)(PyObject*,AABBox*))PyPhysics_C_API[PHYSICS_AABBOX_FIRSTSLOT+7])
 #endif /* PHYSICS_AABBOX_INTERNAL */
 
 /**
@@ -187,6 +187,8 @@ typedef struct
     (PHYSICS_AABBOX_FIRSTSLOT + PHYSICS_AABBOX_NUMSLOTS)
 #define PHYSICS_BODY_NUMSLOTS 5
 #ifndef PHYSICS_BODY_INTERNAL
+#define PyBody_Type                                             \
+    (*(PyTypeObject*)PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+0])
 #define PyBody_Check(x)                                                 \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_BODY_FIRSTSLOT+0]))
@@ -220,7 +222,7 @@ struct _PyShape
     PyObject   *dict;
 
     PyVector2*  (*get_vertices)(PyShape*,Py_ssize_t*);
-    AABBox*     (*get_aabbox)(PyShape*);
+    int         (*get_aabbox)(PyShape*,AABBox*);
     int         (*update)(PyShape*,PyBody*);
 };
 
@@ -232,6 +234,8 @@ typedef PyObject* (*collisionfunc)(PyShape*,PyVector2,double,PyShape*,PyVector2,
     (PHYSICS_BODY_FIRSTSLOT + PHYSICS_BODY_NUMSLOTS)
 #define PHYSICS_SHAPE_NUMSLOTS 9
 #ifndef PHYSICS_SHAPE_INTERNAL
+#define PyShape_Type                                            \
+    (*(PyTypeObject*)PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+0])
 #define PyShape_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+0]))
@@ -244,9 +248,9 @@ typedef PyObject* (*collisionfunc)(PyShape*,PyVector2,double,PyShape*,PyVector2,
 #define PyShape_Update_FAST                                             \
     (*(int(*)(PyShape*,PyBody*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+4])
 #define PyShape_GetAABBox                                              \
-    (*(AABBox*(*)(PyObject*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+5])
+    (*(int(*)(PyObject*,AABBox*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+5])
 #define PyShape_GetAABBox_FAST                                         \
-    (*(AABBox*(*)(PyShape*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+6])
+    (*(int(*)(PyShape*,AABBox*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+6])
 #define PyShape_GetVertices                                             \
     (*(PyVector2*(*)(PyObject*,Py_ssize_t*))PyPhysics_C_API[PHYSICS_SHAPE_FIRSTSLOT+7])
 #define PyShape_GetVertices_FAST                                        \
@@ -270,6 +274,8 @@ typedef struct
     (PHYSICS_SHAPE_FIRSTSLOT + PHYSICS_SHAPE_NUMSLOTS)
 #define PHYSICS_RECTSHAPE_NUMSLOTS 2
 #ifndef PHYSICS_RECTSHAPE_INTERNAL
+#define PyRectShape_Type                                            \
+    (*(PyTypeObject*)PyPhysics_C_API[PHYSICS_RECTSHAPE_FIRSTSLOT+0])
 #define PyRectShape_Check(x)                                            \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_RECTSHAPE_FIRSTSLOT+0]))
@@ -295,6 +301,8 @@ struct _PyJoint
     (PHYSICS_RECTSHAPE_FIRSTSLOT + PHYSICS_RECTSHAPE_NUMSLOTS)
 #define PHYSICS_JOINT_NUMSLOTS 2
 #ifndef PHYSICS_JOINT_INTERNAL
+#define PyJoint_Type                                                    \
+    (*(PyTypeObject*)PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+0])
 #define PyJoint_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_JOINT_FIRSTSLOT+0]))
@@ -326,6 +334,8 @@ typedef struct
     (PHYSICS_JOINT_FIRSTSLOT + PHYSICS_JOINT_NUMSLOTS)
 #define PHYSICS_CONTACT_NUMSLOTS 2
 #ifndef PHYSICS_CONTACT_INTERNAL
+#define PyContact_Type                                                  \
+    (*(PyTypeObject*)PyPhysics_C_API[PHYSICS_CONTACT_FIRSTSLOT+0])
 #define PyContact_Check(x)                                              \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_CONTACT_FIRSTSLOT+0]))
@@ -355,6 +365,8 @@ typedef struct
     (PHYSICS_CONTACT_FIRSTSLOT + PHYSICS_CONTACT_NUMSLOTS)
 #define PHYSICS_WORLD_NUMSLOTS 8
 #ifndef PHYSICS_WORLD_INTERNAL
+#define PyWorld_Type                                                    \
+    (*(PyTypeObject*)PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+0])
 #define PyWorld_Check(x)                                                \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyPhysics_C_API[PHYSICS_WORLD_FIRSTSLOT+0]))

@@ -39,7 +39,10 @@ void
 AABBox_Reset (AABBox* box)
 {
     if (!box)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument must not be NULL");
         return;
+    }
 
     box->top = -DBL_MAX;
     box->right = -DBL_MAX;
@@ -51,7 +54,10 @@ void
 AABBox_ExpandTo (AABBox* box, PyVector2* p)
 {
     if (!box || !p)
+    {
+        PyErr_SetString (PyExc_TypeError, "arguments must not be NULL");
         return;
+    }
     box->left = MIN (box->left, p->real);
     box->right = MAX (box->right, p->real);
     box->bottom = MIN (box->bottom, p->imag);
@@ -64,7 +70,10 @@ AABBox_Overlaps (AABBox* boxA, AABBox* boxB, double eps)
     double from_x, from_y, to_x, to_y;
 
     if (!boxA || !boxB)
+    {
+        PyErr_SetString (PyExc_TypeError, "arguments must not be NULL");
         return 0;
+    }
 
     from_x = MAX (boxA->left, boxB->left);
     from_y = MAX (boxA->bottom, boxB->bottom);
@@ -78,7 +87,10 @@ int
 AABBox_Contains (AABBox* box, PyVector2* p, double eps)
 {
     if (!box || !p)
+    {
+        PyErr_SetString (PyExc_TypeError, "arguments must not be NULL");
         return 0;
+    }
     return box->left - eps < p->real && p->real < box->right + eps
         && box->bottom - eps < p->imag && p->imag < box->top + eps;
 }
@@ -88,56 +100,63 @@ AABBox_AsFRect (AABBox *box)
 {
     if (!box)
     {
-        PyErr_SetString (PyExc_RuntimeError, "argument is NULL");
+        PyErr_SetString (PyExc_TypeError, "argument must not be NULL");
         return NULL;
     }
+
     return PyFRect_New (box->left, box->top, box->right - box->left,
         box->top - box->bottom);
 }
 
-AABBox*
-AABBox_FromSequence (PyObject *seq)
+int
+AABBox_FromSequence (PyObject *seq, AABBox *box)
 {
     double x, y, w, h;
-    AABBox *box;
+
+    if (!box)
+    {
+        PyErr_SetString (PyExc_TypeError, "box argument must not be NULL");
+        return 0;
+    }
+
     if (!seq || !PySequence_Check (seq) || PySequence_Size (seq) < 4)
     {
         PyErr_SetString (PyExc_TypeError,
             "argument must be a 4-value sequence");
-        return NULL;
+        return 0;
     }
 
     if (!DoubleFromSeqIndex (seq, 0, &x))
-        return NULL;
+        return 0;
     if (!DoubleFromSeqIndex (seq, 1, &y))
-        return NULL;
+        return 0;
     if (!DoubleFromSeqIndex (seq, 2, &w))
-        return NULL;
+        return 0;
     if (!DoubleFromSeqIndex (seq, 3, &h))
-        return NULL;
+        return 0;
     
-    box = PyMem_New (AABBox, 1);
-    if (!box)
-        return NULL;
-
     box->top = y;
     box->left = x;
     box->bottom = y + h;
     box->right = x + w;
-    return box;
+    return 1;
 }
 
-AABBox*
-AABBox_FromRect (PyObject *rect)
+int
+AABBox_FromRect (PyObject *rect, AABBox *box)
 {
     double t, l, b, r;
-    AABBox *box;
 
+    if (!box)
+    {
+        PyErr_SetString (PyExc_TypeError, "box argument must not be NULL");
+        return 0;
+    }
     if (!rect)
     {
         PyErr_SetString (PyExc_TypeError,
             "argument must be a Rect, FRect or 4-value sequence");
-        return NULL;
+        return 0;
     }
 
     if (PyRect_Check (rect))
@@ -155,24 +174,13 @@ AABBox_FromRect (PyObject *rect)
         r = ((PyFRect*)rect)->w + l;
     }
     else
-    {
-        box = AABBox_FromSequence (rect);
-        if (box)
-            return box;
-        PyErr_SetString (PyExc_TypeError,
-            "argument must be a Rect, FRect or 4-value sequence");
-        return NULL;
-    }
+        return AABBox_FromSequence (rect, box);
     
-    box = PyMem_New (AABBox, 1);
-    if (!box)
-        return NULL;
-
     box->top = t;
     box->left = l;
     box->bottom = b;
     box->right = r;
-    return box;
+    return 1;
 }
 
 void

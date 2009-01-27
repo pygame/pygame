@@ -32,7 +32,7 @@ typedef struct {
 #define PYGAME_MASK_FIRSTSLOT 0
 #define PYGAME_MASK_NUMSLOTS 2
 #ifndef PYGAME_MASK_INTERNAL
-#define PyMask_Type                                           \
+#define PyMask_Type                                             \
     (*(PyTypeObject*)PyGameMask_C_API[PYGAME_MASK_FIRSTSLOT+0])
 #define PyMask_Check(x)                                                 \
     (PyObject_TypeCheck(x,                                              \

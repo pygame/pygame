@@ -24,7 +24,7 @@
 #include "pgphysics.h"
 
 static PyVector2* _get_vertices (PyShape *shape, Py_ssize_t *count);
-static AABBox* _get_aabbox (PyShape *shape);
+static int _get_aabbox (PyShape *shape, AABBox *box);
 static int _update (PyShape *shape, PyBody *body);
 
 static PyObject *_rectshape_new (PyTypeObject *type, PyObject *args,
@@ -117,25 +117,22 @@ _get_vertices (PyShape *shape, Py_ssize_t *count)
     return vertices;
 }
 
-static AABBox*
-_get_aabbox (PyShape *shape)
+static int
+_get_aabbox (PyShape *shape, AABBox* box)
 {
-    AABBox *box;
     PyRectShape *r = (PyRectShape*)shape;
     
-    if (!r)
-        return NULL;
-    
-    box = PyMem_New (AABBox, 1);
-    if (!box)
-        return NULL;
+    if (!shape || !box)
+    {
+        PyErr_SetString (PyExc_TypeError, "arguments must not be NULL");
+        return 0;
+    }
 
     box->top = r->box.top;
     box->left = r->box.left;
     box->bottom = r->box.bottom;
     box->right = r->box.right;
-    
-    return box;
+    return 1;
 }
 
 static int
@@ -192,7 +189,7 @@ static int
 _rectshape_init (PyRectShape *self, PyObject *args, PyObject *kwds)
 {
     PyObject *tuple;
-    AABBox *box;
+    AABBox box;
 
     if (PyShape_Type.tp_init ((PyObject*)self, args, kwds) < 0)
         return -1;
@@ -200,16 +197,14 @@ _rectshape_init (PyRectShape *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "O", &tuple))
         return -1;
 
-    box = AABBox_FromRect (tuple);
-    if (!box)
+    if (!AABBox_FromRect (tuple, &box))
         return -1;
     
-    PyVector2_Set (self->topleft, box->left, box->top);
-    PyVector2_Set (self->topright, box->right, box->top);
-    PyVector2_Set (self->bottomleft, box->left, box->bottom);
-    PyVector2_Set (self->bottomright, box->right, box->bottom);
+    PyVector2_Set (self->topleft, box.left, box.top);
+    PyVector2_Set (self->topright, box.right, box.top);
+    PyVector2_Set (self->bottomleft, box.left, box.bottom);
+    PyVector2_Set (self->bottomright, box.right, box.bottom);
 
-    PyMem_Free (box);
     return 0;
 }
 
@@ -237,16 +232,16 @@ PyRectShape_New (AABBox box)
     if (!shape)
         return NULL;
 
-    shape->box.top = box.top;
-    shape->box.left = box.left;
-    shape->box.right = box.right;
-    shape->box.bottom = box.bottom;
+    PyVector2_Set (shape->topleft, box.left, box.top);
+    PyVector2_Set (shape->topright, box.right, box.top);
+    PyVector2_Set (shape->bottomleft, box.left, box.bottom);
+    PyVector2_Set (shape->bottomright, box.right, box.bottom);
     return (PyObject*) shape;
 }
 
 void
 rectshape_export_capi (void **capi)
 {
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 0] = &PyRectShape_Type;
-    capi[PHYSICS_SHAPE_FIRSTSLOT + 1] = PyRectShape_New;
+    capi[PHYSICS_RECTSHAPE_FIRSTSLOT + 0] = &PyRectShape_Type;
+    capi[PHYSICS_RECTSHAPE_FIRSTSLOT + 1] = PyRectShape_New;
 }
