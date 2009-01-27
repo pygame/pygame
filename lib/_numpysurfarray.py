@@ -451,7 +451,7 @@ def map_array (surface, array):
     # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
     # lot.
     bpp = surface.get_bytesize ()
-    if bpp <= 0 or bpp > 4:
+    if bpp <= 1 or bpp > 4:
         raise ValueError, "unsupported bit depth for surface array"
 
     shape = array.shape
@@ -460,7 +460,11 @@ def map_array (surface, array):
 
     shifts = surface.get_shifts ()
     losses = surface.get_losses ()
-    array = (array[:,:,::3] >> losses[0] << shifts[0]) | \
-            (array[:,:,1::3] >> losses[1] << shifts[1]) | \
-            (array[:,:,2::3] >> losses[2] << shifts[2])
-    return array
+    if array.dtype != numpy.int32:
+        array = array.astype(numpy.int32)
+    out       = array[...,0] >> losses[0] << shifts[0]
+    out[...] |= array[...,1] >> losses[1] << shifts[1]
+    out[...] |= array[...,2] >> losses[2] << shifts[2]
+    if surface.get_flags() & pygame.SRCALPHA:
+        out[...] |= numpy.int32(255) >> losses[3] << shifts[3]
+    return out
