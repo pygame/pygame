@@ -119,23 +119,6 @@ class SurfarrayModuleTest (unittest.TestCase):
     def _make_array2d(self, dtype):
         return zeros(self.surf_size, dtype)
 
-    def _assert_locking(self, func):
-        surf = self._make_surface(32)
-
-        arr = func(surf)
-        self.failUnless(surf.get_locked())
-
-        # Numpy uses the surface's buffer.
-        if arraytype == "numeric":
-            self.failUnlessEqual(sf.get_locks(), (ar,))
-
-        surf.unlock()
-        self.failUnless(surf.get_locked())
-
-        del arr
-        self.failUnless(surf.get_locked())
-        self.failUnlessEqual(surf.get_locks(), ())
-
     def setUp(self):
         # Needed for 8 bits-per-pixel color palette surface tests.
         pygame.init()
@@ -151,7 +134,8 @@ class SurfarrayModuleTest (unittest.TestCase):
         if not arraytype:
             self.fail("no array package installed")
         if arraytype == 'numeric':
-            # This is known to fail with Numeric
+            # This is known to fail with Numeric (incompatible
+            # get_rgb and array element types).
             return
 
         sources = [self._make_src_surface(8),
@@ -215,7 +199,8 @@ class SurfarrayModuleTest (unittest.TestCase):
         if not arraytype:
             self.fail("no array package installed")
         if arraytype == 'numeric':
-            # This is known to fail with numeric
+            # This is known to fail with Numeric (differing values for
+            # get_rgb and array element for 16 bit surfaces).
             return
 
         palette = [(0, 0, 0, 0),
@@ -460,47 +445,63 @@ class SurfarrayModuleTest (unittest.TestCase):
             self.failUnless(atype in ['numpy', 'numeric'],
                             "unknown array type %s" % atype)
 
-    def todo_test_make_surface(self):
+    def test_make_surface(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.make_surface:
+        # How does one properly test this with 2d arrays. It makes no sense
+        # since the pixel format is not entirely dependent on element size.
+        # Just make sure the surface pixel size is at least as large as the
+        # array element size I guess.
+        #
+        for bitsize, dtype in [(8, uint8), (16, uint16), (24, uint32)]:
+## Even this simple assertion fails for 2d arrays. Where's the problem?
+##            surf = pygame.surfarray.make_surface(self._make_array2d(dtype))
+##            self.failUnless(surf.get_bitsize() >= bitsize,
+##                            "not %i >= %i)" % (surf.get_bitsize(), bitsize))
+##
+            surf = pygame.surfarray.make_surface(self._make_src_array3d(dtype))
+            self._assert_surface(surf)
 
-          # pygame.surfarray.make_surface (array): return Surface
-          # 
-          # Copy an array to a new surface.
-          # 
-          # Create a new Surface that best resembles the data and format on the
-          # array. The array can be 2D or 3D with any sized integer values.
-          # 
-          # Create a new Surface that best resembles the data and format on the
-          # array. The array can be 2D or 3D with any sized integer values.
-          # 
+    def test_map_array(self):
+        if not arraytype:
+            self.fail("no array package installed")
+        if not arraytype == 'numpy':
+            # This test would probably fail for Numeric
+            # (incompatible get_rgb and array element types
+            #  and zero alpha for SRCALPHA surfaces).
+            return
 
-        self.fail() 
+        arr3d = self._make_src_array3d(uint8)
+        targets = [self._make_surface(16),
+                   self._make_surface(16, srcalpha=True),
+                   self._make_surface(24),
+                   self._make_surface(32),
+                   self._make_surface(32, srcalpha=True)]
+        palette = self.test_palette
 
-    def todo_test_map_array(self):
+        for surf in targets:
+            arr2d = pygame.surfarray.map_array(surf, arr3d)
+            for (x, y), i in self.test_points:
+                self.failUnlessEqual(arr2d[x, y], surf.map_rgb(palette[i]),
+                                     "%i != %i, bitsize: %i, flags: %i" %
+                                     (arr2d[x, y], surf.map_rgb(palette[i]),
+                                      surf.get_bitsize(), surf.get_flags()))
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.map_array:
+        # Exception checks
+        def do_map_array(surf, arr):
+            pygame.surfarray.map_array(surf, arr)
 
-          # pygame.surfarray.map_array (Surface, array3d): return array2d
-          # 
-          # Map a 3D array into a 2D array.
-          # 
-          # Convert a 3D array into a 2D array. This will use the given Surface
-          # format to control the conversion. Palette surface formats are not
-          # supported.
-          # 
-          # Convert a 3D array into a 2D array. This will use the given Surface
-          # format to control the conversion. Palette surface formats are not
-          # supported.
-          # 
-
-        self.fail() 
+        self.failUnlessRaises(ValueError, do_map_array,
+                              self._make_surface(32),
+                              self._make_array2d(uint8))
 
     def test_pixels2d(self):
         if not arraytype:
             self.fail("no array package installed")
         if arraytype == 'numeric':
-            # This is known to fail with Numeric.
+            # This is known to fail with Numeric
+            # (incompatible get_rgb and array element types).
             return
 
         sources = [self._make_surface(8),
@@ -570,35 +571,55 @@ class SurfarrayModuleTest (unittest.TestCase):
                               do_pixels3d,
                               self._make_surface(16))
 
-    def todo_test_pixels_alpha(self):
+    def test_pixels_alpha(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-        # __doc__ (as of 2008-08-02) for pygame.surfarray.pixels_alpha:
+        palette = [(0, 0, 0, 0),
+                   (127, 127, 127, 0),
+                   (127, 127, 127, 85),
+                   (127, 127, 127, 170),
+                   (127, 127, 127, 255)]
+        alphas = [0, 45, 86, 99, 180]
 
-          # pygame.surfarray.pixels_alpha (Surface): return array
-          # 
-          # Reference pixel alphas into a 2d array.
-          # 
-          # Create a new 2D array that directly references the alpha values
-          # (degree of transparency) in a Surface. Any changes to the array will
-          # affect the pixels in the Surface. This is a fast operation since no
-          # data is copied.
-          # 
-          # This can only work on 32-bit Surfaces with a per-pixel alpha value.
-          # 
-          # The Surface this array references will remain locked for the
-          # lifetime of the array.
-          # 
-          # Create a new 2D array that directly references the alpha values
-          # (degree of transparency) in a Surface. Any changes to the array will
-          # affect the pixels in the Surface. This is a fast operation since no
-          # data is copied.
-          # 
-          # This can only work on 32-bit Surfaces with a per-pixel alpha value. 
-          # The Surface this array references will remain locked for the
-          # lifetime of the array.
-          # 
+        surf = self._make_src_surface(32, srcalpha=True, palette=palette)
 
-        self.fail() 
+        self.failIf(surf.get_locked())
+        arr = pygame.surfarray.pixels_alpha(surf)
+        self.failUnless(surf.get_locked())
+        # Numpy uses the surface's buffer.
+        if arraytype == 'numeric':
+            self.failUnlessEqual(surf.get_locks(), (arr,))
+        surf.unlock()
+        self.failUnless(surf.get_locked())
+
+        for (x, y), i in self.test_points:
+            self.failUnlessEqual(arr[x, y], palette[i][3])
+
+        for (x, y), i in self.test_points:
+            alpha = alphas[i]
+            arr[x, y] = alpha
+            color = (127, 127, 127, alpha)
+            self.failUnlessEqual(surf.get_at((x, y)), color,
+                                 "posn: (%i, %i)" % (x, y))
+
+        del arr
+        self.failIf(surf.get_locked())
+        self.failUnlessEqual(surf.get_locks(), ())
+
+        # Check exceptions.
+        def do_pixels_alpha(surf):
+            pygame.surfarray.pixels_alpha(surf)
+
+        targets = [(8, False),
+                   (16, False),
+                   (16, True),
+                   (24, False),
+                   (32, False)]
+
+        for bitsize, srcalpha in targets:
+            self.failUnlessRaises(ValueError, do_pixels_alpha,
+                                  self._make_surface(bitsize, srcalpha))
 
     def test_use_arraytype(self):
         if not arraytype:
