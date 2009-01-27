@@ -47,7 +47,7 @@ def run_checks ():
     return buildsystem
 
 if __name__ == "__main__":
-    
+
     buildsystem = None
     try:
         buildsystem = run_checks ()
