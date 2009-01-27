@@ -666,7 +666,7 @@ surf_map_rgb (PyObject *self, PyObject *args)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
     color = SDL_MapRGBA (surf->format, rgba[0], rgba[1], rgba[2], rgba[3]);
-    return PyLong_FromLong (color);
+    return PyInt_FromLong (color);
 }
 
 static PyObject*
