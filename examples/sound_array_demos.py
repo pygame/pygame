@@ -19,17 +19,15 @@ __license__ = "Public Domain"
 __version__ = "2.0"
 
 
+import sys
 import os.path
 import pygame.mixer, pygame.time, pygame.sndarray, pygame
 import pygame.surfarray, pygame.transform
+from pygame import sndarray, mixer
 
-mixer = pygame.mixer
-sndarray = pygame.sndarray
 import time
 from math import sin
-from Numeric import *
-sndarray.use_arraytype('numeric')
-pygame.surfarray.use_arraytype('numeric')
+
 
 #mixer.init(44100, -16, 0)
 mixer.init()
@@ -54,7 +52,7 @@ def make_echo(sound, samples_per_second,  mydebug = True):
     length = a1.shape[0]
 
     #myarr = zeros(length+12000)
-    myarr = zeros(a1.shape)
+    myarr = zeros(a1.shape, int32)
 
     if len(a1.shape) > 1:
         mult = a1.shape[1]
@@ -67,7 +65,7 @@ def make_echo(sound, samples_per_second,  mydebug = True):
 
     if mydebug:
         print int(echo_length * a1.shape[0])
-    myarr = zeros(size)
+    myarr = zeros(size, int32)
 
 
 
@@ -94,7 +92,7 @@ def make_echo(sound, samples_per_second,  mydebug = True):
         print 'SHAPE2:', myarr.shape
 
 
-    sound2 = sndarray.make_sound(myarr.astype(Int16))
+    sound2 = sndarray.make_sound(myarr.astype(int16))
 
     return sound2
 
@@ -121,7 +119,7 @@ def slow_down_sound(sound, rate):
     print a1.shape
     print a2.shape
     print a2
-    sound2 = sndarray.make_sound(a2.astype(Int16))
+    sound2 = sndarray.make_sound(a2.astype(int16))
     return sound2
 
 
@@ -158,10 +156,34 @@ def sound_from_pos(sound, start_pos, samples_per_second = None, inplace = 1):
 
 
 
-if __name__ == "__main__":
+def main(arraytype=None):
+    """play various sndarray effects
 
-    import sys
+    If arraytype is provided then use that array package. Valid
+    values are 'numeric' or 'numpy'. Otherwise default to NumPy,
+    or fall back on Numeric if NumPy is not installed.
 
+    """
+
+    global zeros, int16, int32
+
+    if arraytype is None:
+        if 'numpy' in sndarray.get_arraytypes():
+            sndarray.use_arraytype('numpy')
+        elif 'numeric' in sndarray.get_arraytype():
+            sndfarray.use_arraytype('numeric')
+        else:
+            raise ImportError, 'No array package is installed'
+    else:
+        sndarray.use_arraytype(arraytype)
+    pygame.surfarray.use_arraytype(sndarray.get_arraytype())
+
+    if sndarray.get_arraytype() == 'numpy':
+        from numpy import zeros, int16, int32
+    else:
+        from Numeric import zeros, Int16 as int16, Int32 as int32
+
+    print "Using %s array package" % sndarray.get_arraytype()
     print "mixer.get_init", mixer.get_init()
     inited = mixer.get_init()
 
@@ -251,7 +273,23 @@ if __name__ == "__main__":
         pygame.time.wait(200)
 
 
+def usage():
+    print "Usage: command line option [--numpy|--numeric]"
+    print "  The default is to use NumPy if installed,"
+    print "  otherwise Numeric"
 
+if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        if '--numpy' in sys.argv:
+            main('numpy')
+        elif '--numeric' in sys.argv:
+            main('numeric')
+        else:
+            usage()
+    elif len(sys.argv) == 1:
+        main()
+    else:
+        usage()
 
 
 
