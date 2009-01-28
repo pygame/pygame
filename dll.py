@@ -33,6 +33,7 @@ libraries = [
     ('Z', 'z', r'zlib1\.dll$', []),
     ('SDL', 'SDL', r'SDL\.dll$', []),
     ('PORTMIDI', 'portmidi', r'portmidi\.dll', []),
+    ('PORTTIME', 'portmidi', r'portmidi\.dll', []),
 ]
 
 # regexs: Maps name to DLL file name regex.
