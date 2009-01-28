@@ -362,24 +362,24 @@ PyCollision_GetCollisionFunc (ShapeType t1, ShapeType t2, int *swap)
     swap = 0;
     switch (t1)
     {
-        case RECT:
+        case ST_RECT:
             switch (t2)
             {
-                case RECT:
+                case ST_RECT:
                     return _collide_rect_rect;
-                case CIRCLE:
+                case ST_CIRCLE:
                     return _collide_rect_circle;
                 default:
                     break;
             }
             break;
-        case CIRCLE:
+        case ST_CIRCLE:
             switch (t2)
             {
-                case RECT:
+                case ST_RECT:
                     *swap = 1;
                     return _collide_rect_circle;
-                case CIRCLE:
+                case ST_CIRCLE:
                     return _collide_circle_circle;
                 default:
                     break;

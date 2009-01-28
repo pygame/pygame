@@ -16,35 +16,47 @@
 ]>
 
 <module name="pygame2.sdl.wm">
-  <desc></desc>
+  <desc>Pygame SDL window manager wrapper module.</desc>
 
   <func name="get_caption">
-    <call></call>
-    <desc></desc>
+    <call>get_caption () -> str</call>
+    <desc>Gets the caption of the current pygame2.sdl window.</desc>
   </func>
   <func name="get_info">
-    <call></call>
-    <desc></desc>
+    <call>get_info () -> dict</call>
+    <desc>
+      Gets operating system and window manager specific information about the
+      current pygame2.sdl window .
+    </desc>
   </func>
   <func name="grab_input">
-    <call></call>
-    <desc></desc>
+    <call>grab_input (mode) -> mode</call>
+    <desc>
+      Advices the window manager to let the window grab the mouse and keyboard
+      input focus (or release it). The function returns the previously set mode.
+    </desc>
   </func>
   <func name="iconify_window">
-    <call></call>
-    <desc></desc>
+    <call>iconify_window () -> bool</call>
+    <desc>
+      Advices the window manager to iconify the window and returns, whether the
+      operation was successful or not.
+    </desc>
   </func>
   <func name="set_caption">
-    <call></call>
-    <desc></desc>
+    <call>set_caption (str) -> None</call>
+    <desc>Sets the caption of the current pygame2.sdl window.</desc>
   </func>
   <func name="set_icon">
-    <call></call>
-    <desc></desc>
+    <call>set_icon (surface[, mask]) -> None</call>
+    <desc>Sets window manager icon to be used by the window.</desc>
   </func>
   <func name="toggle_fullscreen">
-    <call></call>
-    <desc></desc>
+    <call>toggle_fullscren (bool) -> bool</call>
+    <desc>
+      Tries to toggle the fullscreen mode for the pygame2.sdl window and
+      returns, whether the operation was successful or not.
+    </desc>
   </func>
 </module>
 

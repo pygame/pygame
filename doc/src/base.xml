@@ -42,13 +42,22 @@
   </class>
 
   <class name="Color">
-    <constructor>Color (...) -> Color</constructor>
+    <constructor>Color (...) ->Color</constructor>
     <desc>Creates a new Color object.
 
     The Color class represents RGBA color values using a value range of
     0-255. It allows basic arithmetic operations to create new colors,
     supports conversions to other color spaces such as HSV or HSL and lets
-    you adjust single color channels.</desc>
+    you adjust single color channels. The following constructors are supported:
+    
+    * Color (0xAARRGGBB)
+    * Color (0xRRGGBB)
+    * Color (r, g, b, a)
+    * Color (r, g, b)
+    * Color ("0xRRGGBBAA")
+    * Color ("#RRGGBBAA")
+    * Color ("name")
+    </desc>
     <attr name="a">Gets or sets the alpha value of the Color.</attr>
     <attr name="b">Gets or sets the blue value of the Color.</attr>
     <attr name="cmy">The CMY representation of the Color. The CMY components are in the
@@ -98,8 +107,11 @@
   </class>
 
   <class name="Error">
-    <constructor>TODO</constructor>
-    <desc>None</desc>
+    <constructor>Error (...) -> Error</constructor>
+    <desc>
+      A specialized exception class that indicates a misbehaviour within the
+      pygame2 modules.
+    </desc>
   </class>
 
   <class name="FRect">

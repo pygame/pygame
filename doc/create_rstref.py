@@ -124,13 +124,32 @@ class Doc(object):
 
     def create_desc_rst (self, desc, refcache):
         written = 0
-        blocks = 0
         data = ""
+        cindent = indent = 0
+        insrcblock = False
         
         for line in desc.split ("\n"):
-            line = line.strip ()
+            line = line.rstrip ()
+            if len (line) != 0:
+                # Prepare indentation stuff
+                cindent = len (line) - len (line.lstrip ())
+            
+            if cindent < indent:
+                # Left the current block, reset the markers
+                insrcblock = False
+                indent = cindent
+                
+            # Check whether a source code block is about to start
+            if not insrcblock:
+                line = line.lstrip ()
+                insrcblock = line.endswith ("::")
+                if insrcblock:
+                    # We are in a source code block. update the indentation
+                    indent = cindent + 1
+                    cindent += 1 # Set for following, empty lines.
+
             if written > 0 and line == "":
-                blocks += 1
+                data += "\n"
             elif line != "":
                 data += "\n" + line
                 written += 1
@@ -139,7 +158,8 @@ class Doc(object):
         return data + "\n\n"
     
     def create_func_rst (self, func, refcache):
-        data = "%s - %s\n" % (func.name, func.name)
+        data = "**%s**\n" % (func.name)
+        data += "*%s*\n" % (func.call)
         data += "%s\n" % self.create_desc_rst (func.description, refcache)
         return data
     

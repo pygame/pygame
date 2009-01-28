@@ -19,28 +19,28 @@
   <desc>Pygame SDL audio subsystem wrapper module.</desc>
 
   <func name="init">
-    <call>pygame2.sdl.audio.init () -> None</call>
+    <call>init () -> None</call>
     <desc>
-Initializes the audio subsystem of the SDL library.
+      Initializes the audio subsystem of the SDL library.
 
-Initializes the audio subsystem of the SDL library.
-</desc>
+      Initializes the audio subsystem of the SDL library.
+     </desc>
   </func>
   <func name="quit">
-    <call>pygame2.sdl.audio.quit () -> None</call>
+    <call>quit () -> None</call>
     <desc>
-Shuts down the audio subsystem of the SDL library.
+      Shuts down the audio subsystem of the SDL library.
 
-After calling this function, you should not invoke any class,
-method or function related to the audio subsystem as they are
-likely to fail or might give unpredictable results.
-</desc>
+      After calling this function, you should not invoke any class,
+      method or function related to the audio subsystem as they are
+      likely to fail or might give unpredictable results.
+    </desc>
   </func>
   <func name="was_init">
-    <call>pygame2.sdl.audio.was_init () -> bool</call>
+    <call>was_init () -> bool</call>
     <desc>
-Returns, whether the audio subsystem of the SDL library is initialized.
-</desc>
+      Returns, whether the audio subsystem of the SDL library is initialized.
+    </desc>
   </func>
 </module>
 

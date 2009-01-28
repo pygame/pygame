@@ -7,9 +7,11 @@ except ImportError:
 
 def prepare_text (text):
     newtext = ""
+    text = text.replace ("\"", "\\\"")
     lines = text.split ("\n")
     for l in lines:
-        newtext += l.strip () + "\\n"
+        l = l.strip ().rstrip ("::")
+        newtext += l + "\\n"
     newtext = newtext.strip ("\\n")
     if len (newtext) > 2040:
         # Split once after 2040 characters to avoid

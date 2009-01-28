@@ -148,9 +148,12 @@ _event_init (PyObject *self, PyObject *args, PyObject *kwds)
 
     event->type = eventid;
     
-    if (PyDict_Update (event->dict, dict) == -1)
-        return -1;
-
+    if (dict)
+    {
+        Py_XDECREF (event->dict);
+        event->dict = dict;
+        Py_INCREF (dict);
+    }
     return 0;
 }
 
@@ -668,6 +671,7 @@ PyEvent_New (SDL_Event *event)
     ev = (PyEvent*) PyEvent_Type.tp_new (&PyEvent_Type, NULL, NULL);
     if (!ev)
         return NULL;
+    Py_XDECREF (ev->dict);
 
     if (!event)
     {
@@ -683,6 +687,7 @@ PyEvent_New (SDL_Event *event)
         return NULL;
     }
 
+    
     ev->dict = dict;
     ev->type = event->type;
     
@@ -693,7 +698,7 @@ int
 PyEvent_SDLEventFromEvent (PyObject *ev, SDL_Event *event)
 {
     if (!event)
-        return NULL;
+        return 0;
 
     if (!ev || !PyEvent_Check (ev))
     {

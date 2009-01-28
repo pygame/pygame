@@ -205,8 +205,8 @@ typedef struct
 typedef enum
 {
     UNKNOWN = -1,
-    RECT,
-    CIRCLE,
+    ST_RECT,
+    ST_CIRCLE,
 } ShapeType;
 
 /**

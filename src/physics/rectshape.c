@@ -173,7 +173,7 @@ static PyObject *_rectshape_new (PyTypeObject *type, PyObject *args,
     shape->shape.get_aabbox = _get_aabbox;
     shape->shape.get_vertices = _get_vertices;
     shape->shape.update = _update;
-    shape->shape.type = RECT;
+    shape->shape.type = ST_RECT;
 
     PyVector2_Set (shape->bottomleft, 0, 0);
     PyVector2_Set (shape->bottomright, 0, 0);

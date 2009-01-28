@@ -422,7 +422,6 @@ _hextoint (char *hex, pgbyte *val)
 static int
 _hexcolor (PyObject *color, pgbyte rgba[])
 {
-    int retval = 0;
     size_t len;
     char *name;
     PyObject *tmp;

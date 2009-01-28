@@ -314,7 +314,7 @@ PyShape_Update_FAST (PyShape *shape, PyBody *body)
         return shape->update (shape, body);
         
     /* No update method, use the shape's implementation. */
-    result =  PyObject_CallMethod ((PyObject*)shape, "update", "O",
+    result = PyObject_CallMethod ((PyObject*)shape, "update", "O",
         (PyObject*) body, NULL);
     if (!result)
         retval = 0;
