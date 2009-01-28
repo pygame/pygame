@@ -49,7 +49,7 @@ def _array_samples(sound, raw):
     else:
         data = sound.get_buffer ()
 
-    shape = (len (data) / channels * fmtbytes, )
+    shape = (len (data) / (channels * fmtbytes), )
     if channels > 1:
         shape = (shape[0], 2)
 
