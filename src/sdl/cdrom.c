@@ -21,6 +21,7 @@
 
 #include "cdrommod.h"
 #include "pgsdl.h"
+#include "sdlcdrom_doc.h"
 
 static PyObject* _cd_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _cd_init (PyObject *cd, PyObject *args, PyObject *kwds);
@@ -47,28 +48,28 @@ static PyObject* _cd_eject (PyObject *self);
 /**
  */
 static PyMethodDef _cd_methods[] = {
-    { "open", (PyCFunction) _cd_open, METH_NOARGS, "" },
-    { "close", (PyCFunction) _cd_close, METH_NOARGS, "" },
-    { "play", _cd_play, METH_VARARGS, "" },
+    { "open", (PyCFunction) _cd_open, METH_NOARGS, DOC_CDROM_CD_OPEN },
+    { "close", (PyCFunction) _cd_close, METH_NOARGS, DOC_CDROM_CD_CLOSE },
+    { "play", _cd_play, METH_VARARGS, DOC_CDROM_CD_PLAY },
     { "play_tracks", (PyCFunction) _cd_playtracks, METH_VARARGS | METH_KEYWORDS,
-      "" },
-    { "pause", (PyCFunction) _cd_pause, METH_NOARGS, "" },
-    { "resume", (PyCFunction) _cd_resume, METH_NOARGS, "" },
-    { "stop", (PyCFunction) _cd_stop, METH_NOARGS, "" },
-    { "eject", (PyCFunction) _cd_eject, METH_NOARGS, "" },
+      DOC_CDROM_CD_PLAY_TRACKS },
+    { "pause", (PyCFunction) _cd_pause, METH_NOARGS, DOC_CDROM_CD_PAUSE },
+    { "resume", (PyCFunction) _cd_resume, METH_NOARGS, DOC_CDROM_CD_RESUME },
+    { "stop", (PyCFunction) _cd_stop, METH_NOARGS, DOC_CDROM_CD_STOP },
+    { "eject", (PyCFunction) _cd_eject, METH_NOARGS, DOC_CDROM_CD_EJECT },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _cd_getsets[] = {
-    { "name", _cd_getname, NULL, "", NULL },
-    { "index", _cd_getindex, NULL, "", NULL },
-    { "status", _cd_getstatus, NULL, "", NULL },
-    { "num_tracks", _cd_getnumtracks, NULL, "", NULL },
-    { "cur_track", _cd_getcurtrack, NULL, "", NULL },
-    { "cur_frame", _cd_getcurframe, NULL, "", NULL },
-    { "tracks", _cd_gettracks, NULL, "", NULL },
+    { "name", _cd_getname, NULL, DOC_CDROM_CD_NAME, NULL },
+    { "index", _cd_getindex, NULL, DOC_CDROM_CD_INDEX, NULL },
+    { "status", _cd_getstatus, NULL, DOC_CDROM_CD_STATUS, NULL },
+    { "num_tracks", _cd_getnumtracks, NULL, DOC_CDROM_CD_NUM_TRACKS, NULL },
+    { "cur_track", _cd_getcurtrack, NULL, DOC_CDROM_CD_CUR_TRACK, NULL },
+    { "cur_frame", _cd_getcurframe, NULL, DOC_CDROM_CD_CUR_FRAME, NULL },
+    { "tracks", _cd_gettracks, NULL, DOC_CDROM_CD_TRACKS, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -77,7 +78,7 @@ static PyGetSetDef _cd_getsets[] = {
 PyTypeObject PyCD_Type =
 {
     TYPE_HEAD(NULL,0)
-    "cdrom.CD",                   /* tp_name */
+    "cdrom.CD",                 /* tp_name */
     sizeof (PyCD),              /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _cd_dealloc,   /* tp_dealloc */
@@ -96,7 +97,7 @@ PyTypeObject PyCD_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_CDROM_CD,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -346,18 +347,18 @@ _cd_play (PyObject *self, PyObject *args)
 static PyObject*
 _cd_playtracks (PyObject *self, PyObject *args, PyObject *kwds)
 {
-    int start_track = 0, start_frame = 0, ntracks = 0, nframes = 0;
+    int start_track = 0, start = 0, ntracks = 0, length = 0;
     PyObject *asfps = Py_False;
     int istrue;
     SDL_CD *cd = ((PyCD*)self)->cd;
     
-    static char *kwlist[] = { "starttrack", "ntracks", "startframe", "nframes",
+    static char *kwlist[] = { "starttrack", "ntracks", "start", "length",
                               "asfps", NULL };
     
     ASSERT_CDROM_OPEN(self, NULL);
 
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "|iiiiO:play_tracks", kwlist,
-            &start_track, &ntracks, &start_frame, &nframes, asfps))
+            &start_track, &ntracks, &start, &length, asfps))
         return NULL;
 
     if (start_track < 0 || start_track > cd->numtracks)
@@ -366,16 +367,16 @@ _cd_playtracks (PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
     
-    if (ntracks < 0 || ntracks < cd->numtracks - start_track)
+    if (ntracks < 0 || ntracks > cd->numtracks - start_track)
     {
         PyErr_SetString (PyExc_ValueError, "invalid track amount");
         return NULL;
     }
     
-    if (start_frame < 0 || nframes < 0)
+    if (start < 0 || length < 0)
     {
         PyErr_SetString (PyExc_ValueError,
-            "start frame and number of frames must not be negative");
+            "start and length must not be negative");
         return NULL;
     }
 
@@ -386,13 +387,13 @@ _cd_playtracks (PyObject *self, PyObject *args, PyObject *kwds)
     if (istrue == 0)
     {
         /* Start and length are in seconds */
-        start_frame *= CD_FPS;
-        nframes *= CD_FPS;
+        start *= CD_FPS;
+        length *= CD_FPS;
     }
     
     SDL_CDStatus (cd);
     
-    if (SDL_CDPlayTracks (cd, start_track, start_frame, ntracks, nframes) == -1)
+    if (SDL_CDPlayTracks (cd, start_track, start, ntracks, length) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;

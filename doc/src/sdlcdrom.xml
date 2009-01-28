@@ -16,83 +16,145 @@
 ]>
 
 <module name="pygame2.sdl.cdrom">
-  <desc></desc>
+  <desc>
+    The cdrom module manages the CD and DVD drives on a computer. It can
+    also control the playback of audio cd's.
+  </desc>
 
   <class name="CD">
-    <constructor>TODO</constructor>
-    <desc></desc>
+    <constructor>CD (index) -> CD</constructor>
+    <desc>
+      Creates a new CD object for the CD- or DVD-ROM specified by the
+      passed index. The index identifies the matching system CD/DVD-ROM
+      number as returned by cdrom.num_drives ().
+
+      The CD itself provides access to the track data on the CD/DVD,
+      playing audio tracks, opening and closing the drive tray and so
+      forth.
+    </desc>
     <method name="close">
-      <call></call>
-      <desc></desc>
+      <call>CD.close () -> None</call>
+      <desc>
+        Releases the CD internals. Useful for e.g. switching CDs within
+        the drive without the need to recreate the CD object. CD.open()
+        will reinitialise the CD internals. You should not use any other
+        method or attribute until a call to CD.open().
+      </desc>
     </method>
-    <attr name="cur_frame"></attr>
-    <attr name="cur_track"></attr>
+    <attr name="cur_frame">
+      The current frame offset within the curent track.
+    </attr>
+    <attr name="cur_track">The current track</attr>
     <method name="eject">
-      <call></call>
-      <desc></desc>
+      <call>CD.eject () -> None</call>
+      <desc>Ejects the CD or DVD.</desc>
     </method>
-    <attr name="index"></attr>
-    <attr name="name"></attr>
-    <attr name="num_tracks"></attr>
+    <attr name="index">The drive index as specified in the constructor.</attr>
+    <attr name="name">
+      The system-dependent drive name (e.g. "/dev/cdrom" or "D:")
+    </attr>
+    <attr name="num_tracks">The total number of tracks on the CD or DVD</attr>
     <method name="open">
-      <call></call>
-      <desc></desc>
+      <call>CD.open () -> None</call>
+      <desc>
+        (Re-)Opens the CD and initialises the CD object internals after
+        a CD.close() call.
+      </desc>
     </method>
     <method name="pause">
-      <call></call>
-      <desc></desc>
+      <call>CD.pause () -> None</call>
+      <desc>
+        Pauses the actual CD playback.
+      </desc>
     </method>
     <method name="play">
-      <call></call>
-      <desc></desc>
+      <call>CD.play (start, length[, asfps]) -> None</call>
+      <desc>
+        Starts playing the current CD beginning at the give start time
+        for a maximum of length seconds. The start and length arguments
+        are handled as seconds. To use an exact frame offset instead of
+        seconds, pass True as third asfps parameter.
+      </desc>
     </method>
     <method name="play_tracks">
-      <call></call>
-      <desc></desc>
+      <call>
+        CD.play_tracks ([starttrack, ntracks, start, length, asfps]) -> None
+      </call>
+      <desc>
+        Plays a certain number of tracks beginning at the passed start
+        track. If start and length are not 0, start determines the
+        offset of starttrack to begin the playback at and length
+        specifies the amount of seconds to play from the last track
+        within the track list. To use an exact frame offset instead of
+        seconds for the start and length parameters, pass True as asfps
+        parameter.
+      </desc>
     </method>
     <method name="resume">
-      <call></call>
-      <desc></desc>
+      <call>CD.resume () -> None</call>
+      <desc>Resumes a previously paused playback.</desc>
     </method>
-    <attr name="status"></attr>
+    <attr name="status">Gets the current CD status.</attr>
     <method name="stop">
-      <call></call>
-      <desc></desc>
+      <call>CD.stop () -> None</call>
+      <desc>Stops the current playback.</desc>
     </method>
-    <attr name="tracks"></attr>
+    <attr name="tracks">
+      Gets a list of CDTrack objects with the CD track information.
+    </attr>
   </class>
 
   <class name="CDTrack">
-    <constructor>TODO</constructor>
-    <desc></desc>
-    <attr name="id"></attr>
-    <attr name="length"></attr>
-    <attr name="minutes"></attr>
-    <attr name="offset"></attr>
-    <attr name="seconds"></attr>
-    <attr name="time"></attr>
-    <attr name="type"></attr>
+    <constructor>CDTrack() -> CDTrack</constructor>
+    <desc>
+      The CDTrack class provides information about the track contents of
+      a CD or DVD. it should not be created within user code.
+    </desc>
+    <attr name="id">Gets the CD track id.</attr>
+    <attr name="length">Gets the track length in frames.</attr>
+    <attr name="minutes">Gets the approximate track length in minutes.</attr>
+    <attr name="offset">Gets the frame offset of the track on the CD.</attr>
+    <attr name="seconds">Gets the approximate track length in seconds.</attr>
+    <attr name="time">
+      Gets the approximate track length in minutes and seconds as tuple.
+    </attr>
+    <attr name="type">Gets the track type (data or audio).</attr>
   </class>
 
   <func name="get_name">
-    <call></call>
-    <desc></desc>
+    <call>get_name (index) -> str</call>
+    <desc>
+      Gets the name of the specified CD- or DVD-ROM drive.
+
+      Gets the system-dependent drive name (e.g. "/dev/cdrom" or "D:")
+      for the CD- or DVD-Rom specified by the passed index.
+    </desc>
   </func>
   <func name="init">
-    <call></call>
-    <desc></desc>
+    <call>init () -> None</call>
+    <desc>Initialises the CD-ROM subsystem of the SDL library.</desc>
   </func>
   <func name="num_drives">
-    <call></call>
-    <desc></desc>
+    <call>num_drives () -> int</call>
+    <desc>
+      Gets the number of accessible CD- and DVD-ROM drives for the system.
+    </desc>
   </func>
   <func name="quit">
-    <call></call>
-    <desc></desc>
+    <call>quit () -> None</call>
+    <desc>
+      Shuts down the CD-ROM subsystem of the SDL library.
+
+      After calling this function, you should not invoke any class,
+      method or function related to the CD-ROM subsystem as they are
+      likely to fail or might give unpredictable results.
+    </desc>
   </func>
   <func name="was_init">
-    <call></call>
-    <desc></desc>
+    <call>was_init () -> bool</call>
+    <desc>
+      Returns, whether the CD-ROM subsystem of the SDL library is initialized.
+    </desc>
   </func>
 </module>
 

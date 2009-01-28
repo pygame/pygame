@@ -21,6 +21,7 @@
 
 #include "cdrommod.h"
 #include "pgsdl.h"
+#include "sdlcdrom_doc.h"
 
 static PyObject* _cdtrack_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -38,13 +39,13 @@ static PyObject* _cdtrack_getseconds (PyObject *self, void *closure);
 /**
  */
 static PyGetSetDef _cdtrack_getsets[] = {
-    { "id", _cdtrack_getid, NULL, "", NULL },
-    { "type", _cdtrack_gettype, NULL, "", NULL },
-    { "length", _cdtrack_getlength, NULL, "", NULL },
-    { "offset", _cdtrack_getoffset, NULL, "", NULL },
-    { "time", _cdtrack_gettime, NULL, "", NULL },
-    { "minutes", _cdtrack_getminutes, NULL, "", NULL },
-    { "seconds", _cdtrack_getseconds, NULL, "", NULL },
+    { "id", _cdtrack_getid, NULL, DOC_CDROM_CDTRACK_ID, NULL },
+    { "type", _cdtrack_gettype, NULL, DOC_CDROM_CDTRACK_TYPE, NULL },
+    { "length", _cdtrack_getlength, NULL, DOC_CDROM_CDTRACK_LENGTH, NULL },
+    { "offset", _cdtrack_getoffset, NULL, DOC_CDROM_CDTRACK_OFFSET, NULL },
+    { "time", _cdtrack_gettime, NULL, DOC_CDROM_CDTRACK_TIME, NULL },
+    { "minutes", _cdtrack_getminutes, NULL, DOC_CDROM_CDTRACK_MINUTES, NULL },
+    { "seconds", _cdtrack_getseconds, NULL, DOC_CDROM_CDTRACK_SECONDS, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -72,7 +73,7 @@ PyTypeObject PyCDTrack_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_CDROM_CDTRACK,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

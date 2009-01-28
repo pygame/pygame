@@ -21,6 +21,7 @@
 
 #include "cdrommod.h"
 #include "pgsdl.h"
+#include "sdlcdrom_doc.h"
 
 #define MAX_CDROMS 32
 static SDL_CD *_cdrom_drives[MAX_CDROMS] = { NULL };
@@ -34,11 +35,13 @@ static PyObject* _sdl_cdnumdrives (PyObject *self);
 static PyObject* _sdl_cdgetname (PyObject *self, PyObject *args);
 
 static PyMethodDef _cdrom_methods[] = {
-    { "init", (PyCFunction) _sdl_cdinit, METH_NOARGS, "" },
-    { "was_init", (PyCFunction) _sdl_cdwasinit, METH_NOARGS, "" },
-    { "quit", (PyCFunction) _sdl_cdquit, METH_NOARGS, "" },
-    { "num_drives", (PyCFunction) _sdl_cdnumdrives, METH_NOARGS, "" },
-    { "get_name", _sdl_cdgetname, METH_VARARGS, "" },
+    { "init", (PyCFunction) _sdl_cdinit, METH_NOARGS, DOC_CDROM_INIT },
+    { "was_init", (PyCFunction) _sdl_cdwasinit, METH_NOARGS,
+      DOC_CDROM_WAS_INIT },
+    { "quit", (PyCFunction) _sdl_cdquit, METH_NOARGS, DOC_CDROM_QUIT },
+    { "num_drives", (PyCFunction) _sdl_cdnumdrives, METH_NOARGS,
+      DOC_CDROM_NUM_DRIVES },
+    { "get_name", _sdl_cdgetname, METH_VARARGS, DOC_CDROM_GET_NAME },
     { NULL, NULL, 0, NULL }
 };
 
@@ -150,7 +153,7 @@ PyMODINIT_FUNC initcdrom (void)
 
 #if PY_VERSION_HEX >= 0x03000000
     static struct PyModuleDef _cdrommodule = {
-        PyModuleDef_HEAD_INIT, "cdrom", "", -1, _cdrom_methods,
+        PyModuleDef_HEAD_INIT, "cdrom", DOC_CDROM, -1, _cdrom_methods,
         NULL, NULL, NULL, NULL
     };
 #endif
@@ -165,7 +168,7 @@ PyMODINIT_FUNC initcdrom (void)
     Py_INCREF (&PyCDTrack_Type);
 
 #if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("cdrom", _cdrom_methods, "");
+    mod = Py_InitModule3 ("cdrom", _cdrom_methods, DOC_CDROM);
 #else
     mod = PyModule_Create (&_cdrommodule);
 #endif
