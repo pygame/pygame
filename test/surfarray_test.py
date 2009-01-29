@@ -19,8 +19,6 @@ else:
 import pygame
 from pygame.locals import *
 
-pygame.init()
-
 
 arraytype = ""
 try:
