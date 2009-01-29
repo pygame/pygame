@@ -20,11 +20,11 @@ import pygame
 
 arraytype = ""
 try:
-    import pygame.surfarray
+    import pygame.sndarray
 except ImportError:
     pass
 else:
-    arraytype = pygame.surfarray.get_arraytype()
+    arraytype = pygame.sndarray.get_arraytype()
     if arraytype == 'numpy':
         from numpy import \
              int8, int16, uint8, uint16, array, alltrue
@@ -34,12 +34,13 @@ else:
              array, alltrue
     else:
         print ("Unknown array type %s; tests skipped" %
-               pygame.surfarray.get_arraytype())
+               pygame.sndarray.get_arraytype())
         arraytype = ""
 
 
 class SndarrayTest (unittest.TestCase):
-    array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16}
+    if arraytype:
+        array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16}
 
     def _assert_compatible(self, arr, size):
         dtype = self.array_dtypes[size]
@@ -55,6 +56,9 @@ class SndarrayTest (unittest.TestCase):
         import pygame.sndarray
 
     def test_array(self):
+        if not arraytype:
+            self.fail("no array package installed")
+
         def check_array(size, channels, test_data):
             pygame.mixer.init(22050, size, channels)
             try:
@@ -117,6 +121,9 @@ class SndarrayTest (unittest.TestCase):
                             "unknown array type %s" % atype)
 
     def test_make_sound(self):
+        if not arraytype:
+            self.fail("no array package installed")
+
         def check_sound(size, channels, test_data):
             pygame.mixer.init(22050, size, channels)
             try:
@@ -146,6 +153,9 @@ class SndarrayTest (unittest.TestCase):
                              [0x7fff, 0], [0, 0x7fff]])
 
     def test_samples(self):
+        if not arraytype:
+            self.fail("no array package installed")
+
         def check_sample(size, channels, test_data):
             pygame.mixer.init(22050, size, channels)
             try:
