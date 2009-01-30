@@ -16,38 +16,127 @@
 ]>
 
 <module name="pygame2.sdl.event">
-  <desc></desc>
+  <desc>
+    Pygame SDL event wrapper module. The event module manages the SDL
+    related event system and allows one to receive, send and manipulate
+    events.
+
+    The event module is the main messaging system for SDL windows and
+    uses a queue to deal with events such as mouse and keyboard input,
+    window state changes or user-defined ones.
+  </desc>
 
   <class name="Event">
-    <constructor>TODO</constructor>
-    <desc></desc>
-    <attr name="name"></attr>
-    <attr name="type"></attr>
+    <constructor>Event (type, dict) -> Event</constructor>
+    <desc>
+      Creates a new event to be used in the event messaging system.
+      
+      The type can be one of the valid SDL event type constants. Each
+      event carries a certain set of atttributes, which are only
+      available for that event within the event object. Those are
+      
+        * ACTIVEEVENT       state, gain
+        * KEYDOWN           state, scancode, sym, key, mod, unicode
+        * KEYUP             state, scancode, sym, key, mod, unicode
+        * MOUSEMOTION       state, x, y, xrel, yrel, pos, rel, buttons
+        * MOUSEBUTTONDOWN   state, x, y, pos, button
+        * MOUSEBUTTONUP     state, x, y, pos, button
+        * JOYAXISMOTION     which, joy, axis, value
+        * JOYBALLMOTION     which, joy, ball, xrel, yrel, rel
+        * JOYHATMOTION      which, joy, hat, value
+        * JOYBUTTONDOWN     which, joy, button, state
+        * JOYBUTTONUP       which, joy, button, state
+        * VIDEORESIZE       w, h, size
+        * VIDEOEXPOSE       [no attributes]
+        * QUIT              [no attributes]
+
+      Some events have special or system-dependent attributes.
+      
+        * SYSWMEVENT        hwnd, msg, wparam, lparam [for Windows]
+        * SYSWMEVENT        event                     [for X11]
+        * SYSWMEVENT        [no attributes]           [for others]
+      
+      For user-defiend events, there is the special USEREVENT type (and
+      above). User-defined events can carry their own type, which must
+      be in the range [USEREVENT, (NUMEVENTS - 1)]. If they are sent
+      from pygame code directly, they do not carry specific attributes,
+      just those given to them by the passed dictionary.
+
+      If they come from another system (e.g. 3rd party library), they
+      might carry the following attributes:
+
+        * USEREVENT         code, data1, data2
+    </desc>
+    <attr name="name">Gets the name of the Event.</attr>
+    <attr name="type">Gets type id of the Event.</attr>
   </class>
 
   <func name="clear">
-    <call></call>
-    <desc></desc>
+    <call>clear ([events]) -> None</call>
+    <desc>
+      Clears the event queue from certain event types.
+
+      Clears the event queue from certain event types. If no argument is
+      passed, all current events are removed from the queue. Otherwise
+      the argument can be a sequence or a bitmask combination of event
+      types to clear.
+    </desc>
   </func>
   <func name="get">
-    <call></call>
-    <desc></desc>
+    <call>get ([events]) -> list</call>
+    <desc>
+      Gets events from the event queue.
+
+      Gets the current events from the event queue. If no argument is
+      passed, all currently available events are received from the event
+      queue and returned as list. Otherwise, the argument can be a
+      sequence or a bitmask combination of event types to receive from
+      the queue.
+
+      If no matching events are found on the queue, None will be
+      returned.
+    </desc>
   </func>
   <func name="get_app_state">
-    <call></call>
-    <desc></desc>
+    <call>get_app_state () -> int</call>
+    <desc>
+      Gets the current application state.
+
+      Gets the current application state. This will be a bitmask
+      combination of the APPMOUSEFOCUS, APPINPUTFOCUS or APPACTIVE
+      masks, indicating whether the application currently is active and
+      has the mouse and keyboard input focus.
+    </desc>
   </func>
   <func name="get_blocked">
-    <call></call>
-    <desc></desc>
+    <call>get_blocked () -> list</call>
+    <desc>
+      Gets a list of currently blocked event types.
+      
+      Gets a list of currently blocked event types. Events having the
+      matching type will not be processed by the event queue.
+    </desc>
   </func>
   <func name="get_filter">
-    <call></call>
-    <desc></desc>
+    <call>get_filter () -> object</call>
+    <desc>
+      Gets the currently set filter hook method.
+
+      Gets the filter hook method set previously by set_filter().
+    </desc>
   </func>
   <func name="peek">
-    <call></call>
-    <desc></desc>
+    <call>peek ([events]) -> bool</call>
+    <desc>
+      Checks, whether certain event types are currently on the queue.
+      
+      Checks, whether certain event types are currently on the queue. If
+      no argument is passed, this method simply checks, if there is any
+      event on the event queue. Otherwise, the argument can be a
+      sequence or a bitmask combination of event types to check for.  In
+      case one event is found, which corresponds to the requested
+      type(s), True is returned.
+    </desc>
   </func>
   <func name="peep">
     <call></call>

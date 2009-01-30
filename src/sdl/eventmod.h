@@ -28,6 +28,7 @@
 extern PyTypeObject PyEvent_Type;
 
 #define PyEvent_Check(x) (PyObject_TypeCheck (x, &PyEvent_Type))
+PyObject* PyEvent_NewInternal (SDL_Event *event, int release);
 PyObject* PyEvent_New (SDL_Event *event);
 int PyEvent_SDLEventFromEvent (PyObject *ev, SDL_Event *event);
 

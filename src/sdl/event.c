@@ -22,11 +22,12 @@
 #include <SDL_syswm.h>
 #include "eventmod.h"
 #include "pgsdl.h"
+#include "sdlevent_doc.h"
 
 static int _set_item (PyObject *dict, char *key, PyObject *value);
 static int _get_item (PyObject *dict, char *key, PyObject **value);
 
-static PyObject* _create_dict_from_event (SDL_Event *event);
+static PyObject* _create_dict_from_event (SDL_Event *event, int release);
 static int _create_event_from_dict (PyObject *dict, SDL_Event *event);
 static PyObject* _event_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -47,8 +48,8 @@ static PyMethodDef _event_methods[] = {
 /**
  */
 static PyGetSetDef _event_getsets[] = {
-    { "type", _event_gettype, NULL, "", NULL },
-    { "name", _event_getname, NULL, "", NULL },
+    { "type", _event_gettype, NULL, DOC_EVENT_EVENT_TYPE, NULL },
+    { "name", _event_getname, NULL, DOC_EVENT_EVENT_NAME, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -76,7 +77,7 @@ PyTypeObject PyEvent_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_EVENT_EVENT,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -150,10 +151,10 @@ _event_init (PyObject *self, PyObject *args, PyObject *kwds)
     
     if (dict)
     {
-        Py_XDECREF (event->dict);
-        event->dict = dict;
-        Py_INCREF (dict);
+        if (PyDict_Update (event->dict, dict) == -1)
+            return -1;
     }
+
     return 0;
 }
 
@@ -182,7 +183,7 @@ _get_item (PyObject *dict, char *key, PyObject **value)
 }
 
 static PyObject*
-_create_dict_from_event (SDL_Event *event)
+_create_dict_from_event (SDL_Event *event, int release)
 {
     PyObject *val = NULL;
     PyObject *dict = PyDict_New ();
@@ -191,9 +192,31 @@ _create_dict_from_event (SDL_Event *event)
 
     if (event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
     {
-        if (!_set_item (dict, "code", PyInt_FromLong (event->user.code)))
-            goto failed;
-        /* TODO: user data ptrs. */
+        if (event->user.code == PYGAME_USEREVENT_CODE &&
+            event->user.data1 == (void*)PYGAME_USEREVENT)
+        {
+            /* It comes from pygame, it goes to pygame. */
+            PyObject *vdict = (PyObject*) event->user.data2;
+            if (PyDict_Update (dict, vdict) == -1)
+                goto failed;
+            if (release)
+            {
+                Py_DECREF (vdict);
+            }
+            return dict;
+        }
+        else
+        {
+            /* It comes from some SDL stuff, it goes to pygame. */
+            if (!_set_item (dict, "code", PyInt_FromLong (event->user.code)))
+                goto failed;
+            if (!_set_item (dict, "data1",
+                    PyCObject_FromVoidPtr (event->user.data1, NULL)))
+                goto failed;
+            if (!_set_item (dict, "data2",
+                    PyCObject_FromVoidPtr (event->user.data2, NULL)))
+                goto failed;
+        }
         return dict;
     }
 
@@ -382,10 +405,11 @@ _create_event_from_dict (PyObject *dict, SDL_Event *event)
     
     if (event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS)
     {
-        val = PyDict_GetItemString (dict, "code");
-        event->user.code = PyInt_AsLong (val);
-        if (event->user.code == (Uint8)-1 && PyErr_Occurred ())
-            return 0;
+        /* We use a special mapping - outline this in the docs! */
+        event->user.code = PYGAME_USEREVENT_CODE;
+        event->user.data1 = (void*)PYGAME_USEREVENT;
+        event->user.data2 = dict;
+        Py_INCREF (dict);
         return 1;
     }
 
@@ -663,7 +687,7 @@ _event_getname (PyObject *self, void *closure)
 
 /* C API */
 PyObject*
-PyEvent_New (SDL_Event *event)
+PyEvent_NewInternal (SDL_Event *event, int release)
 {
     PyObject *dict;
     PyEvent *ev;
@@ -671,16 +695,15 @@ PyEvent_New (SDL_Event *event)
     ev = (PyEvent*) PyEvent_Type.tp_new (&PyEvent_Type, NULL, NULL);
     if (!ev)
         return NULL;
-    Py_XDECREF (ev->dict);
 
     if (!event)
     {
         ev->type = SDL_NOEVENT;
-        ev->dict = PyDict_New ();
         return (PyObject*) ev;
     }
 
-    dict = _create_dict_from_event (event);
+    Py_XDECREF (ev->dict);
+    dict = _create_dict_from_event (event, release);
     if (!dict)
     {
         Py_DECREF (ev);
@@ -692,6 +715,12 @@ PyEvent_New (SDL_Event *event)
     ev->type = event->type;
     
     return (PyObject*) ev;
+}
+
+PyObject*
+PyEvent_New (SDL_Event *event)
+{
+    return PyEvent_NewInternal (event, 0);
 }
 
 int

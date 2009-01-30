@@ -21,6 +21,7 @@
 
 #include "eventmod.h"
 #include "pgsdl.h"
+#include "sdlevent_doc.h"
 
 static PyObject *_filterhook = NULL;
 static int _sdl_filter_events (const SDL_Event *event);
@@ -41,20 +42,24 @@ static PyObject* _sdl_eventgetfilter (PyObject *self);
 static PyObject* _sdl_eventgetappstate (PyObject *self);
 
 static PyMethodDef _event_methods[] = {
-    { "pump", (PyCFunction)_sdl_eventpump, METH_NOARGS, "" },
-    { "poll", (PyCFunction)_sdl_eventpoll, METH_NOARGS, "" },
-    { "wait", (PyCFunction)_sdl_eventwait, METH_NOARGS, "" },
-    { "push", _sdl_eventpush, METH_VARARGS, "" },
-    { "state", _sdl_eventstate, METH_VARARGS, "" },
-    { "peep", _sdl_eventpeep, METH_VARARGS, "" },
-    { "clear", _sdl_eventclear, METH_VARARGS, "" },
-    { "get", _sdl_eventget, METH_VARARGS, "" },
-    { "peek", _sdl_eventpeek, METH_VARARGS, "" },
-    { "set_blocked", _sdl_eventsetblocked, METH_VARARGS, "" },
-    { "get_blocked", (PyCFunction)_sdl_eventgetblocked, METH_NOARGS, "" },
-    { "set_filter", _sdl_eventsetfilter, METH_VARARGS, "" },
-    { "get_filter", (PyCFunction)_sdl_eventgetfilter, METH_NOARGS, "" },
-    { "get_app_state", (PyCFunction) _sdl_eventgetappstate, METH_NOARGS, "" },
+    { "pump", (PyCFunction)_sdl_eventpump, METH_NOARGS, DOC_EVENT_PUMP },
+    { "poll", (PyCFunction)_sdl_eventpoll, METH_NOARGS, DOC_EVENT_POLL },
+    { "wait", (PyCFunction)_sdl_eventwait, METH_NOARGS, DOC_EVENT_WAIT },
+    { "push", _sdl_eventpush, METH_VARARGS, DOC_EVENT_PUSH },
+    { "state", _sdl_eventstate, METH_VARARGS, DOC_EVENT_STATE },
+    { "peep", _sdl_eventpeep, METH_VARARGS, DOC_EVENT_PEEP },
+    { "clear", _sdl_eventclear, METH_VARARGS, DOC_EVENT_CLEAR },
+    { "get", _sdl_eventget, METH_VARARGS, DOC_EVENT_GET },
+    { "peek", _sdl_eventpeek, METH_VARARGS, DOC_EVENT_PEEK },
+    { "set_blocked", _sdl_eventsetblocked, METH_VARARGS,
+      DOC_EVENT_SET_BLOCKED },
+    { "get_blocked", (PyCFunction)_sdl_eventgetblocked, METH_NOARGS,
+      DOC_EVENT_GET_BLOCKED },
+    { "set_filter", _sdl_eventsetfilter, METH_VARARGS, DOC_EVENT_SET_FILTER },
+    { "get_filter", (PyCFunction)_sdl_eventgetfilter, METH_NOARGS,
+      DOC_EVENT_GET_FILTER },
+    { "get_app_state", (PyCFunction) _sdl_eventgetappstate, METH_NOARGS,
+      DOC_EVENT_GET_APP_STATE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -82,6 +87,16 @@ _sdl_filter_events (const SDL_Event *event)
         retval = 0;
     }
 
+    if (!retval)
+    {
+        if (event->type >= SDL_USEREVENT && event->type < SDL_NUMEVENTS &&
+            event->user.code == PYGAME_USEREVENT_CODE &&
+            event->user.data1 == (void*)PYGAME_USEREVENT)
+        {
+            Py_DECREF ((PyObject*) event->user.data2);
+        }
+    }
+
     Py_XDECREF (result);
     return retval;
 }
@@ -101,7 +116,7 @@ _sdl_eventpoll (PyObject *self)
     
     ASSERT_VIDEO_INIT(NULL);
     if (SDL_PollEvent (&event))
-        return PyEvent_New (&event);
+        return PyEvent_NewInternal (&event, 1);
     Py_RETURN_NONE;
 }
 
@@ -118,7 +133,7 @@ _sdl_eventwait (PyObject *self)
     Py_END_ALLOW_THREADS;
     
     if (_stat)
-        return PyEvent_New (&event);
+        return PyEvent_NewInternal (&event, 1);
     
     PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
     return NULL;
@@ -253,6 +268,7 @@ _sdl_eventpeep (PyObject *self, PyObject *args)
     case SDL_PEEKEVENT:
     {
         int i;
+        int release = (action == SDL_PEEKEVENT) ? 0 : 1;
         PyObject *ev;
 
         events = PyMem_New (SDL_Event, (size_t) count);
@@ -276,7 +292,7 @@ _sdl_eventpeep (PyObject *self, PyObject *args)
 
         for (i = 0; i < count; i++)
         {
-            ev = PyEvent_New (&(events[i]));
+            ev = PyEvent_NewInternal (&(events[i]), release);
             if (!ev)
             {
                 Py_DECREF (list);
@@ -304,7 +320,7 @@ _sdl_eventclear (PyObject *self, PyObject *args)
 
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "O:clear", &events))
+    if (!PyArg_ParseTuple (args, "|O:clear", &events))
         return NULL;
     if (!events)
     {
@@ -344,6 +360,13 @@ _sdl_eventclear (PyObject *self, PyObject *args)
         SDL_PumpEvents ();
         while (SDL_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
         {
+            /* Release any memory hold by the Python system. */
+            if (event.type >= SDL_USEREVENT && event.type < SDL_NUMEVENTS &&
+                event.user.code == PYGAME_USEREVENT_CODE &&
+                event.user.data1 == (void*)PYGAME_USEREVENT)
+            {
+                Py_DECREF ((PyObject*) event.user.data2);
+            }
         }
     }
     Py_RETURN_NONE;
@@ -406,7 +429,7 @@ _sdl_eventget (PyObject *self, PyObject *args)
         SDL_PumpEvents ();
         while (SDL_PeepEvents (&event, 1, SDL_GETEVENT, mask) == 1)
         {
-            e = PyEvent_New (&event);
+            e = PyEvent_NewInternal (&event, 1);
             if (!e)
             {
                 Py_DECREF (list);
@@ -436,7 +459,7 @@ _sdl_eventpeek (PyObject *self, PyObject *args)
 
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "O:peek", &events))
+    if (!PyArg_ParseTuple (args, "|O:peek", &events))
         return NULL;
     if (!events)
     {
@@ -633,7 +656,7 @@ PyMODINIT_FUNC initevent (void)
 
 #if PY_VERSION_HEX >= 0x03000000
     static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT, "event", "", -1, _event_methods,
+        PyModuleDef_HEAD_INIT, "event", DOC_EVENT, -1, _event_methods,
         NULL, NULL, NULL, NULL
     };
 #endif
@@ -644,7 +667,7 @@ PyMODINIT_FUNC initevent (void)
     Py_INCREF (&PyEvent_Type);
 
 #if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("event", _event_methods, "");
+    mod = Py_InitModule3 ("event", _event_methods, DOC_EVENT);
 #else
     mod = PyModule_Create (&_module);
 #endif

@@ -298,6 +298,16 @@ typedef struct
     Uint8     type;
     PyObject *dict;
 } PyEvent;
+
+/*
+ * Define a specialised user event constant to check against.
+ * >>> hex (hash ("PYGAME_SDLEVENT_USEREVENT"))
+ * '0x5F79938C'
+ * 
+ */
+#define PYGAME_USEREVENT 0x5F79938C
+#define PYGAME_USEREVENT_CODE 0x5F
+
 #define PYGAME_SDLEVENT_FIRSTSLOT 0
 #define PYGAME_SDLEVENT_NUMSLOTS 3
 #ifndef PYGAME_SDLEVENT_INTERNAL
