@@ -38,7 +38,7 @@ class MixerModuleTest(unittest.TestCase):
 ##                    for f in FREQUENCIES
 ##                    for s in SIZES
 ##                    for c in CHANNELS )
-        config = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
+        configs = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
 
         for kw_conf in configs:
             mixer.init(**kw_conf)
@@ -62,7 +62,7 @@ class MixerModuleTest(unittest.TestCase):
 ##                    for f in FREQUENCIES
 ##                    for s in SIZES
 ##                    for c in CHANNELS )
-        config = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
+        configs = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
 
         for kw_conf in configs:
             mixer.pre_init(**kw_conf)
