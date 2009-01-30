@@ -32,10 +32,13 @@ BUFFERS     = [3024]
 
 class MixerModuleTest(unittest.TestCase):
     def test_init__keyword_args(self):
-        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
-                    for f in FREQUENCIES
-                    for s in SIZES
-                    for c in CHANNELS )
+## Probably don't need to be so exhaustive. Besides being slow the repeated
+## init/quit calls may be causing problems on the Mac.
+##        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
+##                    for f in FREQUENCIES
+##                    for s in SIZES
+##                    for c in CHANNELS )
+        config = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
 
         for kw_conf in configs:
             mixer.init(**kw_conf)
@@ -53,10 +56,13 @@ class MixerModuleTest(unittest.TestCase):
             mixer.quit()
     
     def test_pre_init__keyword_args(self):
-        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
-                    for f in FREQUENCIES
-                    for s in SIZES
-                    for c in CHANNELS )
+## Probably don't need to be so exhaustive. Besides being slow the repeated
+## init/quit calls may be causing problems on the Mac.
+##        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
+##                    for f in FREQUENCIES
+##                    for s in SIZES
+##                    for c in CHANNELS )
+        config = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
 
         for kw_conf in configs:
             mixer.pre_init(**kw_conf)
