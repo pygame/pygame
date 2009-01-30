@@ -228,16 +228,19 @@ PYGAME_EXPORT
 void init_numericsndarray (void)
 {
     PyObject *module, *dict;
+    PyObject *numeric_module;
     
-    /* create the module */
-    module = Py_InitModule3 ("_numericsndarray", sndarray_builtins,
-        DOC_PYGAMESNDARRAY);
-    dict = PyModule_GetDict (module);
+    numeric_module = PyImport_ImportModule ("Numeric");
+    if (numeric_module != 0)
+    {
+	/* create the module */
+	module = Py_InitModule3 ("_numericsndarray", sndarray_builtins,
+				 DOC_PYGAMESNDARRAY);
+	dict = PyModule_GetDict (module);
         
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_mixer ();
-    import_array ();
-    /*needed for Numeric in python2.3*/
-    PyImport_ImportModule ("Numeric");
+	/*imported needed apis*/
+	import_pygame_base ();
+	import_pygame_mixer ();
+	import_array ();
+    }
 }
