@@ -317,7 +317,7 @@ _get_weights (PyObject *weights, double *wr, double *wg, double *wb)
         for (i = 0; i < 3; i++)
         {
             item = PySequence_ITEM (weights, i);
-            if (PyNumber_Check (item))
+            if (item && PyNumber_Check (item))
             {
                 PyObject *num = NULL;
                 if ((num = PyNumber_Float (item)) != NULL)

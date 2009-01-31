@@ -1881,6 +1881,7 @@ _pixelarray_subscript (PyPixelArray *array, PyObject *op)
             return NULL;
         /* A simple index. */
         i = PyNumber_AsSsize_t (val, PyExc_IndexError);
+        Py_DECREF (val);
 #else
         if (PyInt_Check (op))
             i = PyInt_AsLong (op);
@@ -2078,6 +2079,7 @@ _pixelarray_ass_subscript (PyPixelArray *array, PyObject* op, PyObject* value)
             return -1;
         /* A simple index. */
         i = PyNumber_AsSsize_t (val, PyExc_IndexError);
+        Py_DECREF (val);
 #else
         if (PyInt_Check (op))
             i = PyInt_AsLong (op);
