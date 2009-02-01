@@ -66,6 +66,35 @@ perspective by leftclicking the mouse on the screen.
 
 
 
+chimp.main
+hit the moving chimp
+pygame.examples.chimp.main(): return None
+
+This simple example is derived from the line-by-line tutorial
+that comes with pygame. It is based on a 'popular' web banner.
+Note there are comments here, but for the full explanation,
+follow along in the tutorial.
+<END>
+
+
+
+
+moveit.main
+display animated objects on the screen
+pygame.examples.moveit.main(): return None
+
+This is the full and final example from the Pygame Tutorial,
+"How Do I Make It Move". It creates 10 objects and animates
+them on the screen.
+
+Note it's a bit scant on error checking, but it's easy to read. :]
+Fortunately, this is python, and we needn't wrestle with a pile of
+error codes.
+<END>
+
+
+
+
 fonty.main
 run a font rendering example
 pygame.examples.fonty.main(): return None
@@ -86,6 +115,23 @@ second and report the time needed to create and display the
 image. If you're not prepared to start working with the
 Numeric arrays, don't worry about the source for this one :]
 <END>
+
+
+
+eventlist.main
+display pygame events
+pygame.examples.eventlist.main(): return None
+
+Eventlist is a sloppy style of pygame, but is a handy
+tool for learning about pygame events and input. At the
+top of the screen are the state of several device values,
+and a scrolling list of events are displayed on the bottom.
+
+This is not quality 'ui' code at all, but you can see how
+to implement very non-interactive status displays, or even
+a crude text output control.
+<END>
+
 
 
 
@@ -117,6 +163,24 @@ If provided, use the audio file 'file_path', otherwise use a
 default file.
 
 sound.py optional command line argument: an audio file
+<END>
+
+
+
+sound_array_demos.main
+play various sndarray effects
+pygame.examples.sound_array_demos.main(arraytype=None): return None
+
+If arraytype is provided then use that array package. Valid
+values are 'numeric' or 'numpy'. Otherwise default to NumPy,
+or fall back on Numeric if NumPy is not installed.
+
+Uses sndarray and MumPy ( or Numeric) to create offset faded copies of the
+original sound. Currently it just uses hardcoded values for the
+number of echos and the delay. Easy for you to recreate as 
+needed. Run as a program sound_array_demos.py takes an optional
+command line option, --numpy or --numeric, specifying which array package
+to use.
 <END>
 
 
@@ -169,7 +233,7 @@ as command line arguments.
 
 
 
-teststrite.main
+testsprite.main
 show lots of sprites moving around
 pygame.examples.testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0): return None
 
@@ -215,6 +279,25 @@ command line arguments:
 
 
 
+fastevents.main
+stress test the fastevents module
+pygame.examples.fastevents.main(): return None
+
+This is a stress test for the fastevents module.
+
+*Fast events does not appear faster!*
+
+So far it looks like normal pygame.event is faster by up to two times.
+So maybe fastevent isn't fast at all.
+
+Tested on windowsXP sp2 athlon, and freebsd.
+
+However... on my debian duron 850 machine fastevents is faster.
+<END>
+
+
+
+
 overlay.main
 play a .pgm video using overlays
 pygame.examples.overlay.main(fname): return None
@@ -222,6 +305,32 @@ pygame.examples.overlay.main(fname): return None
 Play the .pgm video fila a path fname.
 
 If run as a program overlay.py takes the file name as a command line argument.
+<END>
+
+
+
+blend_fill.main
+demonstrate the various surface.fill method blend options
+pygame.examples.blend_fill.main(): return None
+
+A interactive demo that lets one choose which BLEND_xxx option to apply to a surface.
+<END>
+
+
+cursors.main
+display two different custom cursors
+pygame.examples.cursors.main(): return None
+
+Display an arrow or circle with crossbar cursor.
+<END>
+
+
+
+pixelarray.main
+display various pixelarray generated effects
+pygame.examples.pixelarray.main(): return None
+
+Display various pixelarray generated effects.
 <END>
 
 
