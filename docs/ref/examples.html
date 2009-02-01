@@ -55,17 +55,25 @@
   <tr><td><a href="examples.html#pygame.examples.aliens.main">pygame.examples.aliens.main</a> - <font size=-1>play the full aliens example</font></td><td>play the full aliens example</td></tr>
   <tr><td><a href="examples.html#pygame.examples.oldalien.main">pygame.examples.oldalien.main</a> - <font size=-1>play the original aliens example</font></td><td>play the original aliens example</td></tr>
   <tr><td><a href="examples.html#pygame.examples.stars.main">pygame.examples.stars.main</a> - <font size=-1>run a simple starfield example</font></td><td>run a simple starfield example</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.chimp.main">pygame.examples.chimp.main</a> - <font size=-1>hit the moving chimp</font></td><td>hit the moving chimp</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.moveit.main">pygame.examples.moveit.main</a> - <font size=-1>display animated objects on the screen</font></td><td>display animated objects on the screen</td></tr>
   <tr><td><a href="examples.html#pygame.examples.fonty.main">pygame.examples.fonty.main</a> - <font size=-1>run a font rendering example</font></td><td>run a font rendering example</td></tr>
   <tr><td><a href="examples.html#pygame.examples.vgrade.main">pygame.examples.vgrade.main</a> - <font size=-1>display a vertical gradient</font></td><td>display a vertical gradient</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.eventlist.main">pygame.examples.eventlist.main</a> - <font size=-1>display pygame events</font></td><td>display pygame events</td></tr>
   <tr><td><a href="examples.html#pygame.examples.arraydemo.main">pygame.examples.arraydemo.main</a> - <font size=-1>show various surfarray effects</font></td><td>show various surfarray effects</td></tr>
   <tr><td><a href="examples.html#pygame.examples.sound.main">pygame.examples.sound.main</a> - <font size=-1>load and play a sound</font></td><td>load and play a sound</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.sound_array_demos.main">pygame.examples.sound_array_demos.main</a> - <font size=-1>play various sndarray effects</font></td><td>play various sndarray effects</td></tr>
   <tr><td><a href="examples.html#pygame.examples.liquid.main">pygame.examples.liquid.main</a> - <font size=-1>display an animated liquid effect</font></td><td>display an animated liquid effect</td></tr>
   <tr><td><a href="examples.html#pygame.examples.glcube.main">pygame.examples.glcube.main</a> - <font size=-1>display an animated 3D cube using OpenGL</font></td><td>display an animated 3D cube using OpenGL</td></tr>
   <tr><td><a href="examples.html#pygame.examples.scrap_clipboard.main">pygame.examples.scrap_clipboard.main</a> - <font size=-1>access the clipboard</font></td><td>access the clipboard</td></tr>
   <tr><td><a href="examples.html#pygame.examples.mask.main">pygame.examples.mask.main</a> - <font size=-1>display multiple images bounce off each other using collision detection</font></td><td>display multiple images bounce off each other using collision detection</td></tr>
-  <tr><td><a href="examples.html#pygame.examples.teststrite.main">pygame.examples.teststrite.main</a> - <font size=-1>show lots of sprites moving around</font></td><td>show lots of sprites moving around</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.testsprite.main">pygame.examples.testsprite.main</a> - <font size=-1>show lots of sprites moving around</font></td><td>show lots of sprites moving around</td></tr>
   <tr><td><a href="examples.html#pygame.examples.headless_no_windows_needed.main">pygame.examples.headless_no_windows_needed.main</a> - <font size=-1>write an image file that is smoothscaled copy of an input file</font></td><td>write an image file that is smoothscaled copy of an input file</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.fastevents.main">pygame.examples.fastevents.main</a> - <font size=-1>stress test the fastevents module</font></td><td>stress test the fastevents module</td></tr>
   <tr><td><a href="examples.html#pygame.examples.overlay.main">pygame.examples.overlay.main</a> - <font size=-1>play a .pgm video using overlays</font></td><td>play a .pgm video using overlays</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.blend_fill.main">pygame.examples.blend_fill.main</a> - <font size=-1>demonstrate the various surface.fill method blend options</font></td><td>demonstrate the various surface.fill method blend options</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.cursors.main">pygame.examples.cursors.main</a> - <font size=-1>display two different custom cursors</font></td><td>display two different custom cursors</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.pixelarray.main">pygame.examples.pixelarray.main</a> - <font size=-1>display various pixelarray generated effects</font></td><td>display various pixelarray generated effects</td></tr>
   <tr><td><a href="examples.html#pygame.examples.scaletest.main">pygame.examples.scaletest.main</a> - <font size=-1>interactively scale an image using smoothscale</font></td><td>interactively scale an image using smoothscale</td></tr>
   <tr><td><a href="examples.html#pygame.examples.midi.main">pygame.examples.midi.main</a> - <font size=-1>run a midi example</font></td><td>run a midi example</td></tr>
 </table></small></ul>
@@ -111,6 +119,25 @@
 <br></ul>
 
 
+<a name="pygame.examples.chimp.main">
+<big><b>pygame.examples.chimp.main</big></b><br><ul>
+  <i>hit the moving chimp</i><br>
+  <tt>pygame.examples.chimp.main(): return None</tt><br>
+<p>This simple example is derived from the line-by-line tutorial that comes with pygame. It is based on a 'popular' web banner. Note there are comments here, but for the full explanation, follow along in the tutorial. </p>
+<!--COMMENTS:pygame.examples.chimp.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.moveit.main">
+<big><b>pygame.examples.moveit.main</big></b><br><ul>
+  <i>display animated objects on the screen</i><br>
+  <tt>pygame.examples.moveit.main(): return None</tt><br>
+<p>This is the full and final example from the Pygame Tutorial, "How Do <tt>I</tt> Make It Move". It creates 10 objects and animates them on the screen. </p>
+<p>Note it's a bit scant on error checking, but it's easy to read. :] Fortunately, this is python, and we needn't wrestle with a pile of error codes. </p>
+<!--COMMENTS:pygame.examples.moveit.main--> &nbsp;<br> 
+<br></ul>
+
+
 <a name="pygame.examples.fonty.main">
 <big><b>pygame.examples.fonty.main</big></b><br><ul>
   <i>run a font rendering example</i><br>
@@ -126,6 +153,16 @@
   <tt>pygame.examples.vgrade.main(): return None</tt><br>
 <p>Demonstrates creating a vertical gradient with Numeric python. The app will create a new gradient every half second and report the time needed to create and display the image. If you're not prepared to start working with the Numeric arrays, don't worry about the source for this one :] </p>
 <!--COMMENTS:pygame.examples.vgrade.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.eventlist.main">
+<big><b>pygame.examples.eventlist.main</big></b><br><ul>
+  <i>display pygame events</i><br>
+  <tt>pygame.examples.eventlist.main(): return None</tt><br>
+<p>Eventlist is a sloppy style of pygame, but is a handy tool for learning about pygame events and input. At the top of the screen are the state of several device values, and a scrolling list of events are displayed on the bottom. </p>
+<p>This is not quality 'ui' code at all, but you can see how to implement very non-interactive status displays, or even a crude text output control. </p>
+<!--COMMENTS:pygame.examples.eventlist.main--> &nbsp;<br> 
 <br></ul>
 
 
@@ -147,6 +184,16 @@
 <p>If provided, use the audio file 'file_path', otherwise use a default file. </p>
 <p><tt>sound.py</tt> optional command line argument: an audio file </p>
 <!--COMMENTS:pygame.examples.sound.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.sound_array_demos.main">
+<big><b>pygame.examples.sound_array_demos.main</big></b><br><ul>
+  <i>play various sndarray effects</i><br>
+  <tt>pygame.examples.sound_array_demos.main(arraytype=None): return None</tt><br>
+<p>If arraytype is provided then use that array package. Valid values are 'numeric' or 'numpy'. Otherwise default to NumPy, or fall back on Numeric if NumPy is not installed. </p>
+<p>Uses sndarray and MumPy ( or Numeric) to create offset faded copies of the original sound. Currently it just uses hardcoded values for the number of echos and the delay. Easy for you to recreate as needed. Run as a program <tt>sound_array_demos.py</tt> takes an optional command line option, --numpy or --numeric, specifying which array package to use. </p>
+<!--COMMENTS:pygame.examples.sound_array_demos.main--> &nbsp;<br> 
 <br></ul>
 
 
@@ -189,8 +236,8 @@
 <br></ul>
 
 
-<a name="pygame.examples.teststrite.main">
-<big><b>pygame.examples.teststrite.main</big></b><br><ul>
+<a name="pygame.examples.testsprite.main">
+<big><b>pygame.examples.testsprite.main</big></b><br><ul>
   <i>show lots of sprites moving around</i><br>
   <tt>pygame.examples.testsprite.main(update_rects = True, use_static = False, use_FastRenderGroup = False, screen_dims = [640, 480], use_alpha = False, flags = 0): return None</tt><br>
 <p>Optional keyword arguments: </p>
@@ -202,7 +249,7 @@
     flags - additional display mode flags
 </pre><p>Like the <tt>testsprite.c</tt> that comes with sdl, this pygame version shows lots of sprites moving around. </p>
 <p>If run as a stand-alone program then no command line arguments are taken. </p>
-<!--COMMENTS:pygame.examples.teststrite.main--> &nbsp;<br> 
+<!--COMMENTS:pygame.examples.testsprite.main--> &nbsp;<br> 
 <br></ul>
 
 
@@ -225,6 +272,22 @@
 <br></ul>
 
 
+<a name="pygame.examples.fastevents.main">
+<big><b>pygame.examples.fastevents.main</big></b><br><ul>
+  <i>stress test the fastevents module</i><br>
+  <tt>pygame.examples.fastevents.main(): return None</tt><br>
+<p>This is a stress test for the fastevents module. </p>
+<ul>
+ <li>Fast events does not appear faster!</li>
+ <li> </li>
+</ul>
+<p>So far it looks like normal <tt>pygame.event</tt> is faster by up to two times. So maybe fastevent isn't fast at all. </p>
+<p>Tested on windowsXP sp2 athlon, and freebsd. </p>
+<p><tt>However..</tt>. on my debian duron 850 machine fastevents is faster. </p>
+<!--COMMENTS:pygame.examples.fastevents.main--> &nbsp;<br> 
+<br></ul>
+
+
 <a name="pygame.examples.overlay.main">
 <big><b>pygame.examples.overlay.main</big></b><br><ul>
   <i>play a .pgm video using overlays</i><br>
@@ -232,6 +295,33 @@
 <p>Play the .pgm video fila a path fname. </p>
 <p>If run as a program <tt>overlay.py</tt> takes the file name as a command line argument. </p>
 <!--COMMENTS:pygame.examples.overlay.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.blend_fill.main">
+<big><b>pygame.examples.blend_fill.main</big></b><br><ul>
+  <i>demonstrate the various surface.fill method blend options</i><br>
+  <tt>pygame.examples.blend_fill.main(): return None</tt><br>
+<p><tt>A</tt> interactive demo that lets one choose which BLEND_xxx option to apply to a surface. </p>
+<!--COMMENTS:pygame.examples.blend_fill.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.cursors.main">
+<big><b>pygame.examples.cursors.main</big></b><br><ul>
+  <i>display two different custom cursors</i><br>
+  <tt>pygame.examples.cursors.main(): return None</tt><br>
+<p>Display an arrow or circle with crossbar cursor. </p>
+<!--COMMENTS:pygame.examples.cursors.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.pixelarray.main">
+<big><b>pygame.examples.pixelarray.main</big></b><br><ul>
+  <i>display various pixelarray generated effects</i><br>
+  <tt>pygame.examples.pixelarray.main(): return None</tt><br>
+<p>Display various pixelarray generated effects. </p>
+<!--COMMENTS:pygame.examples.pixelarray.main--> &nbsp;<br> 
 <br></ul>
 
 

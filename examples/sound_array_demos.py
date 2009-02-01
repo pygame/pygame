@@ -2,14 +2,16 @@
 """
 Creates an echo effect an any Sound object.
 
-Uses sndarray and Numeric to create offset faded copies of the
+Uses sndarray and MumPy ( or Numeric) to create offset faded copies of the
 original sound. Currently it just uses hardcoded values for the
 number of echos and the delay. Easy for you to recreate as 
-needed.
+needed. The array packaged used can be specified by an optional
+--numpy or --numeric command line option.
 
 version 2. changes:
 - Should work with different sample rates now.
 - put into a function.
+- Uses NumPy by default, but falls back on Numeric.
 
 """
 
@@ -167,6 +169,8 @@ def main(arraytype=None):
 
     global zeros, int16, int32
 
+    main_dir = os.path.split(os.path.abspath(__file__))[0]
+    
     if arraytype is None:
         if 'numpy' in sndarray.get_arraytypes():
             sndarray.use_arraytype('numpy')
@@ -193,7 +197,7 @@ def main(arraytype=None):
 
     print ("-" * 30) + "\n"
     print "loading sound"
-    sound = mixer.Sound(os.path.join('data', 'car_door.wav'))
+    sound = mixer.Sound(os.path.join(main_dir, 'data', 'car_door.wav'))
 
 
 
@@ -255,7 +259,7 @@ def main(arraytype=None):
         pygame.time.wait(200)
 
 
-    sound = mixer.Sound(os.path.join('data', 'secosmic_lo.wav'))
+    sound = mixer.Sound(os.path.join(main_dir, 'data', 'secosmic_lo.wav'))
 
     t1 = time.time()
     sound3 = make_echo(sound, samples_per_second)
