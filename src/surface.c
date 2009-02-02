@@ -1103,7 +1103,7 @@ surf_convert (PyObject *self, PyObject *args)
             memcpy (&format, surf->format, sizeof (format));
             if (IntFromObj (argobject, &bpp))
             {
-                int Rmask, Gmask, Bmask, Amask;
+                Uint32 Rmask, Gmask, Bmask, Amask;
 
                 if (flags != -1 && flags & SDL_SRCALPHA)
                 {
@@ -1573,17 +1573,23 @@ static PyObject*
 surf_set_masks (PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
-    Uint32 r, g, b, a;
+    /* Need to use 64bit vars so this works on 64 bit pythons. */
+    Uint64 r, g, b, a;
 
     if (!PyArg_ParseTuple (args, "(kkkk)", &r, &g, &b, &a))
         return NULL;
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
-    surf->format->Rmask = r;
-	surf->format->Gmask = g;
-    surf->format->Bmask = b;
-	surf->format->Amask = a;
+    /*
+    printf("passed in: %d, %d, %d, %d\n", r,g,b,a );
+    printf("what are: %d, %d, %d, %d\n", surf->format->Rmask, surf->format->Gmask, surf->format->Bmask, surf->format->Amask);
+    */
+
+    surf->format->Rmask = (Uint32)r;
+    surf->format->Gmask = (Uint32)g;
+    surf->format->Bmask = (Uint32)b;
+    surf->format->Amask = (Uint32)a;
 
     Py_RETURN_NONE;
 }
@@ -1608,17 +1614,17 @@ static PyObject*
 surf_set_shifts (PyObject *self, PyObject *args)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
-    Uint32 r, g, b, a;
+    Uint64 r, g, b, a;
 
     if (!PyArg_ParseTuple (args, "(kkkk)", &r, &g, &b, &a))
         return NULL;
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
-    surf->format->Rshift = r;
-	surf->format->Gshift = g;
-    surf->format->Bshift = b;
-	surf->format->Ashift = a;
+    surf->format->Rshift = (Uint8)r;
+    surf->format->Gshift = (Uint8)g;
+    surf->format->Bshift = (Uint8)b;
+    surf->format->Ashift = (Uint8)a;
 
     Py_RETURN_NONE;
 }
