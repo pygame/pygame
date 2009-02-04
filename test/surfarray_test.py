@@ -243,7 +243,7 @@ class SurfarrayModuleTest (unittest.TestCase):
                             (surf.get_bitsize(), surf.get_flags()))
             surf.set_alpha(blacket_alpha)
 
-        # blanket alpha bug for per-pixel alpha surface when blanket alpha 0.
+        # Bug for per-pixel alpha surface when blanket alpha 0.
         for surf in targets:
             blanket_alpha = surf.get_alpha()
             surf.set_alpha(0)
