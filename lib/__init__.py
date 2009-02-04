@@ -129,6 +129,10 @@ except (ImportError,IOError), msg:threads=MissingModule("threads", msg, 1)
 
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
+else:
+    # Required by pygame.surface.
+    import pygame.bufferproxy
+
 
 try:
     import pygame.mask
@@ -166,6 +170,9 @@ except (ImportError,IOError):
 
 try: import pygame.mixer
 except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
+else:
+    # Required by pygame.mixer.
+    import pygame.bufferproxy
 
 try: import pygame.movie
 except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
