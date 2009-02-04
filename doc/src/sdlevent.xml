@@ -139,36 +139,117 @@
     </desc>
   </func>
   <func name="peep">
-    <call></call>
-    <desc></desc>
+    <call>peep (num, action, mask[, events]) -> int or list</call>
+    <desc>
+      Checks the event queue for events and optionally returns them.
+
+      peep() is an advanced event queue querying and manipulation
+      method. It allows to inspect the event queue, to receive events
+      from it or to add events.
+
+      TODO
+    </desc>
   </func>
   <func name="poll">
-    <call></call>
-    <desc></desc>
+    <call>poll () -> Event</call>
+    <desc>
+      Gets a single event from the event queue.
+
+      Returns a single event from the queue. If the event queue is
+      empty, None will be returned. If an event is available and
+      returned, it will be removed from the queue.
+    </desc>
   </func>
   <func name="pump">
-    <call></call>
-    <desc></desc>
+    <call>pump () -> None</call>
+    <desc>
+      Pumps the event queue, forcing it to gather pending events from
+      devices.
+
+      pump() gathers all pending events and input information from
+      devices and places them on the event queue.
+
+      It only has to be called, if you use peep() or a filter hook
+      without using another event function or no other event function at
+      all.
+    </desc>
   </func>
   <func name="push">
-    <call></call>
-    <desc></desc>
+    <call>push (Event) -> None</call>
+    <desc>
+      Places a new event at the end of the event queue.
+
+      This is usually used for placing user defined events on the event
+      queue. You also can push user created device events on the queue,
+      but this will not change the state of the device itself.
+    </desc>
   </func>
   <func name="set_blocked">
-    <call></call>
-    <desc></desc>
+    <call>set_blocked (type) -> None</call>
+    <desc>
+      Blocks a single or multiple event types.
+
+      This will block a single or multiple event types from being
+      processed by the event system and thus will exactly behave like
+      state(type, IGNORE).
+
+      In case other event types are already blocked, the block for them
+      will be reset.
+
+      To remove the block for all events, call set_blocked(None).
+    </desc>
   </func>
   <func name="set_filter">
-    <call></call>
-    <desc></desc>
+    <call>set_filter (filterhook) -> None</call>
+    <desc>
+      Sets up a filter hook for events.
+
+      This sets up a filter to process all events before they are posted
+      to the event queue. In order to process events correctly, the
+      filterhook must return True or False, indicating whether the event
+      processd by it, is allowed to be placed on the event queue or not.
+      It has to take a single argument, which will be the event to process. ::
+
+        def example_filter_hook (event):
+            if event.type == ... and ...:
+                # The event matches a certain scheme, do not allow it.
+                return False
+            # Any other event may pass.
+            return True
+      
+      In case the QUITEVENT is processed by the event filter, returning
+      True will cause the SDL window to be closed, otherwise, the window
+      will remain open, if possible.
+
+      Note: events pushed onto the event queue using push() or peep() do
+      not get passed through the filter.
+    </desc>
   </func>
   <func name="state">
-    <call></call>
-    <desc></desc>
+    <call>state (type, state) -> int</call>
+    <desc>
+      Sets the processing state of an event type.
+
+      This allows you to set the processing state of an event type.
+      If the state is set to IGNORE, events matching the type will be
+      automatically dropped from the event queue and will not be
+      filtered. This will behave similar to set_blocked().
+      If the state is set to ENABLE, events matching the type will be
+      processed normally.
+      If the state iset set to QUERY, state() will return the current
+      processing state of the specified event type (ENABLE or IGNORE).
+    </desc>
   </func>
   <func name="wait">
-    <call></call>
-    <desc></desc>
+    <call>wait () -> Event</call>
+    <desc>
+      Waits indefinitely for the next available event.
+
+      wait() is a blocking method, that only returns, if an event occurs
+      on the event queue. Once an even occurs, it will be returned to
+      the caller and removed from the queue. While the program is
+      waiting it will sleep in an idle state.
+    </desc>
   </func>
 </module>
 
