@@ -243,9 +243,11 @@ def array_alpha (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    if surface.get_bytesize () == 1 or not surface.get_alpha ():
-        # 1 bpp surfaces and surfaces without alpha are always fully
-        # opaque.
+    if (surface.get_bytesize () == 1 or
+        surface.get_alpha () is None or
+        surface.get_masks ()[3] == 0):
+        # 1 bpp surfaces and surfaces without per-pixel alpha are always
+        # fully opaque.
         array = numpy.empty (surface.get_width () * surface.get_height (),
                              numpy.uint8)
         array.fill (0xff)

@@ -156,7 +156,7 @@ class SurfarrayModuleTest (unittest.TestCase):
                                       surf.get_flags(), surf.get_bitsize(),
                                       (x, y)))
 
-            if surf.get_flags() & SRCALPHA:
+            if surf.get_masks()[3]:
                 surf.fill(alpha_color)
                 arr = pygame.surfarray.array2d(surf)
                 self.failUnlessEqual(arr[0, 0], map_rgb(alpha_color),
@@ -222,7 +222,7 @@ class SurfarrayModuleTest (unittest.TestCase):
             if surf.get_bitsize() == 16:
                 p = [surf.unmap_rgb(surf.map_rgb(c)) for c in p]
             arr = pygame.surfarray.array_alpha(surf)
-            if surf.get_flags() & SRCALPHA:
+            if surf.get_masks()[3]:
                 for (x, y), i in self.test_points:
                     self.failUnlessEqual(arr[x, y], p[i][3],
                                          ("%i != %i, posn: (%i, %i), "
@@ -232,6 +232,31 @@ class SurfarrayModuleTest (unittest.TestCase):
                                            surf.get_bitsize())))
             else:
                 self.failUnless(alltrue(arr == 255))
+
+        # No per-pixel alpha when blanket alpha is None.
+        for surf in targets:
+            blacket_alpha = surf.get_alpha()
+            surf.set_alpha(None)
+            arr = pygame.surfarray.array_alpha(surf)
+            self.failUnless(alltrue(arr == 255),
+                            "bitsize: %i, flags: %i" %
+                            (surf.get_bitsize(), surf.get_flags()))
+            surf.set_alpha(blacket_alpha)
+
+        # blanket alpha bug for per-pixel alpha surface when blanket alpha 0.
+        for surf in targets:
+            blanket_alpha = surf.get_alpha()
+            surf.set_alpha(0)
+            arr = pygame.surfarray.array_alpha(surf)
+            if surf.get_masks()[3]:
+                self.failIf(alltrue(arr == 255),
+                            "bitsize: %i, flags: %i" %
+                            (surf.get_bitsize(), surf.get_flags()))
+            else:
+                self.failUnless(alltrue(arr == 255),
+                                "bitsize: %i, flags: %i" %
+                                (surf.get_bitsize(), surf.get_flags()))
+            surf.set_alpha(blanket_alpha)
 
     def test_array_colorkey(self):
         if not arraytype:
@@ -337,13 +362,13 @@ class SurfarrayModuleTest (unittest.TestCase):
 
             if self.pixels2d[bitsize]:
                 surf.fill((0, 0, 0, 0))
-                s = self._make_src_surface(bitsize, surf.get_flags())
+                s = self._make_src_surface(bitsize, surf.get_flags() & SRCALPHA)
                 arr = pygame.surfarray.pixels2d(s)
                 pygame.surfarray.blit_array(surf, arr)
                 self._assert_surface(surf)
 
             if self.array2d[bitsize]:
-                s = self._make_src_surface(bitsize, surf.get_flags())
+                s = self._make_src_surface(bitsize, surf.get_flags() & SRCALPHA)
                 arr = pygame.surfarray.array2d(s)
                 for sz, dtype in dtypes:
                     surf.fill((0, 0, 0, 0))
