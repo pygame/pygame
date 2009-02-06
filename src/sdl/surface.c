@@ -25,7 +25,7 @@
 #include "tga.h"
 
 #ifdef HAVE_PNG
-#include "png.h"
+#include "pgpng.h"
 #endif
 
 static PyObject* _surface_new (PyTypeObject *type, PyObject *args,
