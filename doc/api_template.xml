@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <!DOCTYPE module [
-<!ELEMENT module (desc, (func | class)*)>
+<!ELEMENT module (short, desc, (func | class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 
 <!ELEMENT desc (#PCDATA)>
+<!ELEMENT short (#PCDATA)>
 <!ELEMENT call (#PCDATA)>
 
 <!ELEMENT func (call, desc)>
@@ -25,6 +26,7 @@
      RST/HTML documentation.
 -->
 <module name="NAME">
+  <short>SHORT DESC (single line)</short>
   <desc>DESCRIPTION</desc>
   
     <func name="METHODNAME">

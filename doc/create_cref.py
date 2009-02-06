@@ -7,16 +7,29 @@ except ImportError:
 
 def prepare_text (text):
     newtext = ""
+    tmptext = ""
     text = text.replace ("\"", "\\\"")
     lines = text.split ("\n")
     for l in lines:
         l = l.strip ().rstrip ("::")
-        newtext += l + "\\n"
-    newtext = newtext.strip ("\\n")
-    if len (newtext) > 2040:
+        if l.startswith ("|"):
+            # Peserve spacings.
+            l = l.replace (":const:", "       ")
+            l = l.replace (":class:", "       ")
+            l = l.replace ("`", " ")
+        else:
+            l = l.replace (":const:", "")
+            l = l.replace (":class:", "")
+            l = l.replace ("`", "")
+        
+        tmptext += l + "\\n"
+    tmptext = tmptext.strip ("\\n")
+    while len (tmptext) > 2040:
         # Split once after 2040 characters to avoid
         # problems with the Visual C++ 2048 character limit
-        newtext = newtext[:2040] + "\"\"" + newtext[2040:]
+        newtext += tmptext[:2040] + "\" \\\n\""
+        tmptext = tmptext[2040:]
+    newtext += tmptext
     return newtext
 
 def create_cref (dom, buf):
@@ -56,8 +69,10 @@ def create_class_refs (module, docprefix, buf):
     classes = module.getElementsByTagName ("class")
     for cls in classes:
         name = cls.getAttribute ("name").upper ()
-        constructor = cls.getElementsByTagName \
-                      ("constructor")[0].firstChild.nodeValue + "\n"
+        node = cls.getElementsByTagName ("constructor")
+        constructor = "TODO\n"
+        if node and node[0].firstChild:
+            constructor = node[0].firstChild.nodeValue + "\n"
         desc = constructor
         node = cls.getElementsByTagName ("desc")
         if node and node[0].firstChild:

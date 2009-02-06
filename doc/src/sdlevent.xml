@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE module [
-<!ELEMENT module (desc, (func|class)*)>
+<!ELEMENT module (short, desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT short (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT call (#PCDATA)>
 <!ELEMENT func (call, desc)>
@@ -15,7 +16,9 @@
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
+
 <module name="pygame2.sdl.event">
+  <short>SDL event wrapper</short>
   <desc>
     Pygame SDL event wrapper module. The event module manages the SDL
     related event system and allows one to receive, send and manipulate
@@ -32,40 +35,69 @@
       Creates a new event to be used in the event messaging system.
       
       The type can be one of the valid SDL event type constants. Each
-      event carries a certain set of atttributes, which are only
-      available for that event within the event object. Those are
+      event carries a certain set of attributes, which are only
+      available for that event within the event object.
       
-        * ACTIVEEVENT       state, gain
-        * KEYDOWN           state, scancode, sym, key, mod, unicode
-        * KEYUP             state, scancode, sym, key, mod, unicode
-        * MOUSEMOTION       state, x, y, xrel, yrel, pos, rel, buttons
-        * MOUSEBUTTONDOWN   state, x, y, pos, button
-        * MOUSEBUTTONUP     state, x, y, pos, button
-        * JOYAXISMOTION     which, joy, axis, value
-        * JOYBALLMOTION     which, joy, ball, xrel, yrel, rel
-        * JOYHATMOTION      which, joy, hat, value
-        * JOYBUTTONDOWN     which, joy, button, state
-        * JOYBUTTONUP       which, joy, button, state
-        * VIDEORESIZE       w, h, size
-        * VIDEOEXPOSE       [no attributes]
-        * QUIT              [no attributes]
+      +--------------------------+-------------------------------------------+
+      | Event type               | Attributes                                |
+      +==========================+===========================================+
+      | :const:`ACTIVEEVENT`     | `state`, `gain`                           |
+      +--------------------------+-------------------------------------------+
+      | :const:`KEYDOWN`         | `state`, `scancode`, `sym`, `key`, `mod`, |
+      |                          | `unicode`                                 |
+      +--------------------------+-------------------------------------------+
+      | :const:`KEYUP`           | `state`, `scancode`, `sym`, `key`, `mod`, |
+      |                          | `unicode`                                 |
+      +--------------------------+-------------------------------------------+
+      | :const:`MOUSEMOTION`     | `state`, `x`, `y`, `xrel`, `yrel`, `pos`, |
+      |                          | `rel`, `buttons`                          |
+      +--------------------------+-------------------------------------------+
+      | :const:`MOUSEBUTTONDOWN` | `state`, `x`, `y`, `pos`, `button`        |
+      +--------------------------+-------------------------------------------+
+      | :const:`MOUSEBUTTONUP`   | `state`, `x`, `y`, `pos`, `button`        |
+      +--------------------------+-------------------------------------------+
+      | :const:`JOYAXISMOTION`   | `which`, `joy`, `axis`, `value`           |
+      +--------------------------+-------------------------------------------+
+      | :const:`JOYBALLMOTION`   | `which`, `joy`, `ball`, `xrel`, `yrel`,   |
+      |                          | `rel`                                     |
+      +--------------------------+-------------------------------------------+
+      | :const:`JOYHATMOTION`    | `which`, `joy`, `hat`, `value`            |
+      +--------------------------+-------------------------------------------+
+      | :const:`JOYBUTTONDOWN`   | `which`, `joy`, `button`, `state`         |
+      +--------------------------+-------------------------------------------+
+      | :const:`JOYBUTTONUP`     | `which`, `joy`, `button`, `state`         |
+      +--------------------------+-------------------------------------------+
+      | :const:`VIDEORESIZE`     |  `w`, `h`, `size`                         | 
+      +--------------------------+-------------------------------------------+
+      | :const:`VIDEOEXPOSE`     | no attributes                             |
+      +--------------------------+-------------------------------------------+
+      | :const:`QUIT`            | no attributes                             |
+      +--------------------------+-------------------------------------------+
 
       Some events have special or system-dependent attributes.
       
-        * SYSWMEVENT        hwnd, msg, wparam, lparam [for Windows]
-        * SYSWMEVENT        event                     [for X11]
-        * SYSWMEVENT        [no attributes]           [for others]
+      +---------------------+-------------------------------------------------+
+      | Event type          | Attributes                                      |
+      +=====================+=================================================+
+      | :const:`SYSWMEVENT` | | `hwnd`, `msg`, `wparam`, `lparam` for Windows |
+      |                     | | `event`                           for X11     |
+      |                     | | no attributes                     for others  |
+      +---------------------+-------------------------------------------------+
       
-      For user-defiend events, there is the special USEREVENT type (and
+      For user-defiend events, there is the special :const:`USEREVENT` type (and
       above). User-defined events can carry their own type, which must
-      be in the range [USEREVENT, (NUMEVENTS - 1)]. If they are sent
-      from pygame code directly, they do not carry specific attributes,
+      be in the range [:const:`USEREVENT`, (:const:`NUMEVENTS` - 1)]. If they
+      are sent from pygame code directly, they do not carry specific attributes,
       just those given to them by the passed dictionary.
 
       If they come from another system (e.g. 3rd party library), they
       might carry the following attributes:
 
-        * USEREVENT         code, data1, data2
+      +--------------------+--------------------------+
+      | Event type         | Attributes               |
+      +====================+==========================+
+      | :const:`USEREVENT` | `code`, `data1`, `data2` |
+      +--------------------+--------------------------+
     </desc>
     <attr name="name">Gets the name of the Event.</attr>
     <attr name="type">Gets type id of the Event.</attr>
@@ -79,7 +111,7 @@
       Clears the event queue from certain event types. If no argument is
       passed, all current events are removed from the queue. Otherwise
       the argument can be a sequence or a bitmask combination of event
-      types to clear.
+      types to clear. 
     </desc>
   </func>
   <func name="get">
@@ -103,9 +135,9 @@
       Gets the current application state.
 
       Gets the current application state. This will be a bitmask
-      combination of the APPMOUSEFOCUS, APPINPUTFOCUS or APPACTIVE
-      masks, indicating whether the application currently is active and
-      has the mouse and keyboard input focus.
+      combination of the :const:`APPMOUSEFOCUS`, :const:`APPINPUTFOCUS` or
+      :const:`APPACTIVE` masks, indicating whether the application currently is
+      active and has the mouse and keyboard input focus.
     </desc>
   </func>
   <func name="get_blocked">
@@ -191,7 +223,7 @@
 
       This will block a single or multiple event types from being
       processed by the event system and thus will exactly behave like
-      state(type, IGNORE).
+      state(type, :const:`IGNORE`).
 
       In case other event types are already blocked, the block for them
       will be reset.
@@ -217,7 +249,7 @@
             # Any other event may pass.
             return True
       
-      In case the QUITEVENT is processed by the event filter, returning
+      In case the :const:`QUITEVENT` is processed by the event filter, returning
       True will cause the SDL window to be closed, otherwise, the window
       will remain open, if possible.
 
@@ -231,13 +263,14 @@
       Sets the processing state of an event type.
 
       This allows you to set the processing state of an event type.
-      If the state is set to IGNORE, events matching the type will be
+      If the state is set to :const:`IGNORE`, events matching the type will be
       automatically dropped from the event queue and will not be
       filtered. This will behave similar to set_blocked().
-      If the state is set to ENABLE, events matching the type will be
+      If the state is set to :const:`ENABLE`, events matching the type will be
       processed normally.
-      If the state iset set to QUERY, state() will return the current
-      processing state of the specified event type (ENABLE or IGNORE).
+      If the state iset set to :const:`QUERY`, state() will return the current
+      processing state of the specified event type (:const:`ENABLE` or
+      :const:`IGNORE`).
     </desc>
   </func>
   <func name="wait">

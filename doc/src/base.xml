@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE module [
-<!ELEMENT module (desc, (func|class)*)>
+<!ELEMENT module (short, desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT short (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT call (#PCDATA)>
 <!ELEMENT func (call, desc)>
@@ -16,36 +17,40 @@
 ]>
 
 <module name="pygame2.base">
+  <short>basic features used by pygame2</short>
   <desc>Base module for pygame2 that contains features shared and used
   throughout the whole pygame2 package.</desc>
 
   <class name="BufferProxy">
     <constructor>BufferProxy () -> BufferProxy</constructor>
-    <desc>Creates a new, empty BufferProxy.
+    <desc>Creates a new, empty :class:`BufferProxy`.
 
     A buffer interface object that acts as a proxy on classes and attributes
-    not featuring the buffer interface. A BufferProxy usually should be
-    constructed from C code, not Python.</desc>
+    not featuring the buffer interface. A :class:`BufferProxy` usually should
+    be constructed from C code, not Python.</desc>
     <attr name="length">Gets the size of the buffer data in bytes.</attr>
-    <attr name="raw">Gets the raw buffer data as string. The string may contain NUL bytes.</attr>
+    <attr name="raw">
+      Gets the raw buffer data as string. The string may contain NUL bytes.
+    </attr>
     <method name="write">
-      <call>B.write (bufferproxy, buffer, offset) -> None</call>
+      <call>write (buffer, offset) -> None</call>
       <desc>
-        Writes raw data to the BufferProxy.
+        Writes raw data to the :class:`BufferProxy`.
 
-        Writes the raw data from buffer to the BufferProxy object, starting at
-        the specified offset within the BufferProxy.  If the length of the
-        passed buffer exceeds the length of the BufferProxy (reduced by the
-        offset), an IndexError will be raised.
+        Writes the raw data from buffer to the :class:`BufferProxy` object,
+        starting at the specified offset within the :class:`BufferProxy`. If
+        the length of the passed buffer exceeds the length of the
+        :class:`BufferProxy` (reduced by the offset), an :exc:`IndexError` will
+        be raised.
       </desc>
     </method>
   </class>
 
   <class name="Color">
     <constructor>Color (...) ->Color</constructor>
-    <desc>Creates a new Color object.
+    <desc>Creates a new :class:`Color` object.
 
-    The Color class represents RGBA color values using a value range of
+    The :class:`Color` class represents RGBA color values using a value range of
     0-255. It allows basic arithmetic operations to create new colors,
     supports conversions to other color spaces such as HSV or HSL and lets
     you adjust single color channels. The following constructors are supported:
@@ -58,52 +63,52 @@
     * Color ("#RRGGBBAA")
     * Color ("name")
     </desc>
-    <attr name="a">Gets or sets the alpha value of the Color.</attr>
-    <attr name="b">Gets or sets the blue value of the Color.</attr>
-    <attr name="cmy">The CMY representation of the Color. The CMY components are in the
-    ranges C = [0, 1], M = [0, 1], Y = [0, 1]. Note that this will not
-    return the absolutely exact CMY values for the set RGB values in all
-    cases. Due to the RGB mapping from 0-255 and the CMY mapping from 0-1
+    <attr name="a">Gets or sets the alpha value of the :class:`Color`.</attr>
+    <attr name="b">Gets or sets the blue value of the :class:`Color`.</attr>
+    <attr name="cmy">The CMY representation of the :class:`Color`. The CMY
+    components are in the ranges C = [0, 1], M = [0, 1], Y = [0, 1]. Note that
+    this will not return the absolutely exact CMY values for the set RGB values
+    in all cases. Due to the RGB mapping from 0-255 and the CMY mapping from 0-1
     rounding errors may cause the CMY values to differ slightly from what
     you might expect.</attr>
     <method name="correct_gamma">
-      <call>Color.correct_gamma (gamma) -> Color</call>
+      <call>correct_gamma (gamma) -> Color</call>
       <desc>
-        Applies a certain gamma value to the Color.
+        Applies a certain gamma value to the :class:`Color`.
 
-        Applies a certain gamma value to the Color and returns a new Color with
-        the adjusted RGBA values.
+        Applies a certain gamma value to the :class:`Color` and returns a new
+        :class:`Color` with the adjusted RGBA values.
       </desc>
     </method>
-    <attr name="g">Gets or sets the green value of the Color.</attr>
-    <attr name="hsla">The HSLA representation of the Color. The HSLA components are in the
-    ranges H = [0, 360], S = [0, 100], L = [0, 100], A = [0, 100]. Note that
-    this will not return the absolutely exact HSL values for the set RGB
-    values in all cases. Due to the RGB mapping from 0-255 and the HSL
-    mapping from 0-100 and 0-360 rounding errors may cause the HSL values to
-    differ slightly from what you might expect.</attr>
-    <attr name="hsva">The HSVA representation of the Color. The HSVA components are in the
-    ranges H = [0, 360], S = [0, 100], V = [0, 100], A = [0, 100]. Note that
-    this will not return the absolutely exact HSV values for the set RGB
-    values in all cases. Due to the RGB mapping from 0-255 and the HSV
-    mapping from 0-100 and 0-360 rounding errors may cause the HSV values to
-    differ slightly from what you might expect.</attr>
-    <attr name="i1i2i3">The I1I2I3 representation of the Color. The I1I2I3 components are in the
-    ranges I1 = [0, 1], I2 = [-0.5, 0.5], I3 = [-0.5, 0.5]. Note that this
-    will not return the absolutely exact I1I2I3 values for the set RGB
-    values in all cases. Due to the RGB mapping from 0-255 and the I1I2I3
-    mapping from 0-1 rounding errors may cause the I1I2I3 values to differ
-    slightly from what you might expect.</attr>
+    <attr name="g">Gets or sets the green value of the :class:`Color`.</attr>
+    <attr name="hsla">The HSLA representation of the :class:`Color`. The HSLA
+    components are in the ranges H = [0, 360], S = [0, 100], L = [0, 100],
+    A = [0, 100]. Note that this will not return the absolutely exact HSL
+    values for the set RGB values in all cases. Due to the RGB mapping from
+    0-255 and the HSL mapping from 0-100 and 0-360 rounding errors may cause
+    the HSL values to differ slightly from what you might expect.</attr>
+    <attr name="hsva">The HSVA representation of the :class:`Color`. The HSVA
+    components are in the ranges H = [0, 360], S = [0, 100], V = [0, 100],
+    A = [0, 100]. Note that this will not return the absolutely exact HSV
+    values for the set RGB values in all cases. Due to the RGB mapping from
+    0-255 and the HSV mapping from 0-100 and 0-360 rounding errors may cause
+    the HSV values todiffer slightly from what you might expect.</attr>
+    <attr name="i1i2i3">The I1I2I3 representation of the :class:`Color`.
+    The I1I2I3 components are in the ranges I1 = [0, 1], I2 = [-0.5, 0.5],
+    I3 = [-0.5, 0.5]. Note that this will not return the absolutely exact
+    I1I2I3 values for the set RGB values in all cases. Due to the RGB mapping
+    from 0-255 and the I1I2I3 from 0-1 rounding errors may cause the I1I2I3
+    values to differ slightly from what you might expect.</attr>
     <method name="normalize">
-      <call>Color.normalize() -> tuple</call>
+      <call>normalize() -> tuple</call>
       <desc>
-        Returns the normalized RGBA values of the Color.
+        Returns the normalized RGBA values of the :class:`Color`.
 
-        Returns the normalized RGBA values of the Color as floating point
-        values.
+        Returns the normalized RGBA values of the :class:`Color` as floating
+        point values.
       </desc>
     </method>
-    <attr name="r">Gets or sets the red value of the Color.</attr>
+    <attr name="r">Gets or sets the red value of the :class:`Color`.</attr>
   </class>
 
   <class name="Error">
@@ -116,37 +121,40 @@
 
   <class name="FRect">
     <constructor>FRect (...) -> FRect</constructor>
-    <desc>A class for storing rectangular coordinates.
+    <desc>
+      A class for storing rectangular coordinates.
 
-    A FRect is used to store and manipulate rectangular coordinates.  TODO</desc>
-    <attr name="bottom">Gets or sets the bottom edge position of the FRect.</attr>
-    <attr name="bottomleft">Gets or sets the bottom left corner position of the FRect.</attr>
-    <attr name="bottomright">Gets or sets the bottom right corner position of the FRect.</attr>
+      A :class:`FRect` is used to store and manipulate rectangular coordinates.
+      TODO
+    </desc>
+    <attr name="bottom">Gets or sets the bottom edge position of the :class:`FRect`.</attr>
+    <attr name="bottomleft">Gets or sets the bottom left corner position of the :class:`FRect`.</attr>
+    <attr name="bottomright">Gets or sets the bottom right corner position of the :class:`FRect`.</attr>
     <method name="ceil">
-      <call>FRect.ceil () -> Rect</call>
+      <call>ceil () -> Rect</call>
       <desc>
-        Creates a Rect from the specified FRect.
+        Creates a :class:`Rect` from the specified :class:`FRect`.
 
-        This creates a Rect using the smallest integral values greater
-        or equal to the FRect floating point values.
+        This creates a :class:`Rect` using the smallest integral values greater
+        or equal to the :class:`FRect` floating point values.
       </desc>
     </method>
-    <attr name="center">Gets or sets the center position of the FRect.</attr>
-    <attr name="centerx">Gets or sets the horizontal center position of the FRect.</attr>
-    <attr name="centery">Gets or sets the vertical center position of the FRect.</attr>
+    <attr name="center">Gets or sets the center position of the :class:`FRect`.</attr>
+    <attr name="centerx">Gets or sets the horizontal center position of the :class:`FRect`.</attr>
+    <attr name="centery">Gets or sets the vertical center position of the :class:`FRect`.</attr>
     <method name="clamp">
-      <call>FRect.clamp (FRect) -> FRect</call>
+      <call>clamp (FRect) -> FRect</call>
       <desc>
         Moves the rectangle inside another.
 
         Returns a new rectangle that is moved to be completely inside
-        the argument FRect. If the rectangle is too large to fit inside,
-        it is centered inside the argument FRect, but its size is not
+        the argument :class:`FRect`. If the rectangle is too large to fit inside,
+        it is centered inside the argument :class:`FRect`, but its size is not
         changed.
       </desc>
     </method>
     <method name="clamp_ip">
-      <call>FRect.clamp_ip (FRect) -> None</call>
+      <call>clamp_ip (FRect) -> None</call>
       <desc>
         Moves the rectangle inside another, in place.
 
@@ -154,38 +162,38 @@
       </desc>
     </method>
     <method name="clip">
-      <call>FRect.clip (FRect) -> FRect</call>
+      <call>clip (FRect) -> FRect</call>
       <desc>
         Crops a rectangle inside another.
 
         Returns a new rectangle that is cropped to be completely inside
-        the argument FRect. If the two rectangles do not overlap to begin
-        with, a FRect with 0 size is returned. Thus it returns the area, in
+        the argument :class:`FRect`. If the two rectangles do not overlap to begin
+        with, a :class:`FRect` with 0 size is returned. Thus it returns the area, in
         which both rects overlap.
       </desc>
     </method>
     <method name="collidedict">
-      <call>FRect.collidedict (dict) -> (key, value)</call>
+      <call>collidedict (dict) -> (key, value)</call>
       <desc>
         Test if one rectangle in a dictionary intersects.
 
         Returns the key and value of the first dictionary value that
-        collides with the FRect. If no collisions are found, None is
-        returned. They keys of the passed dict must be FRect objects.
+        collides with the :class:`FRect`. If no collisions are found, None is
+        returned. They keys of the passed dict must be :class:`FRect` objects.
       </desc>
     </method>
     <method name="collidedictall">
-      <call>FRect.collidedictall (dict) -> [(key, value), ...]</call>
+      <call>collidedictall (dict) -> [(key, value), ...]</call>
       <desc>
         Test if all rectangles in a dictionary intersect.
 
         Returns a list of all the key and value pairs that intersect
-        with the FRect. If no collisions are found an empty list is
-        returned. They keys of the passed dict must be FRect objects.
+        with the :class:`FRect`. If no collisions are found an empty list is
+        returned. They keys of the passed dict must be :class:`FRect` objects.
       </desc>
     </method>
     <method name="collidelist">
-      <call>FRect.collidelist (list) -> index</call>
+      <call>collidelist (list) -> index</call>
       <desc>
         Test if one rectangle in a list intersects.
 
@@ -195,17 +203,17 @@
       </desc>
     </method>
     <method name="collidelistall">
-      <call>FRect.collidelistall (list) -> [index, ...]</call>
+      <call>collidelistall (list) -> [index, ...]</call>
       <desc>
         Test if all rectangles in a list intersect.
 
         Returns a list of all the indices that contain rectangles that
-        collide with the FRect. If no intersecting rectangles are found,
+        collide with the :class:`FRect`. If no intersecting rectangles are found,
         an empty list is returned.
       </desc>
     </method>
     <method name="collidepoint">
-      <call>FRect.collidepoint (x, y) -> bool</call>
+      <call>collidepoint (x, y) -> bool</call>
       <desc>
         Test if a point is inside a rectangle.
 
@@ -215,7 +223,7 @@
       </desc>
     </method>
     <method name="colliderect">
-      <call>FRect.colliderect (FRect) -> bool</call>
+      <call>colliderect (FRect) -> bool</call>
       <desc>
         Test if two rectangles overlap.
 
@@ -224,37 +232,37 @@
       </desc>
     </method>
     <method name="contains">
-      <call>FRect.contains (FRect) -> bool</call>
+      <call>contains (FRect) -> bool</call>
       <desc>
         Test if one rectangle is inside another.
 
         Returns true when the argument rectangle is completely inside
-        the FRect.
+        the :class:`FRect`.
       </desc>
     </method>
     <method name="fit">
-      <call>FRect.fit (FRect) -> FRect</call>
+      <call>fit (FRect) -> FRect</call>
       <desc>
         Resize and move a rectangle with aspect ratio.
 
         Returns a new rectangle that is moved and resized to fit
-        another. The aspect ratio of the original FRect is preserved, so
+        another. The aspect ratio of the original :class:`FRect` is preserved, so
         the new rectangle may be smaller than the target in either width
         or height.
       </desc>
     </method>
     <method name="floor">
-      <call>FRect.floor () -> Rect</call>
+      <call>floor () -> Rect</call>
       <desc>
-        Creates a Rect from the specified FRect.
+        Creates a :class:`Rect` from the specified :class:`FRect`.
 
-        This creates a Rect using the largest integral values less than
-        or equal to the FRect floating point values.
+        This creates a :class:`Rect` using the largest integral values less than
+        or equal to the :class:`FRect` floating point values.
       </desc>
     </method>
-    <attr name="height">Gets or sets the height of the FRect.</attr>
+    <attr name="height">Gets or sets the height of the :class:`FRect`.</attr>
     <method name="inflate">
-      <call>FRect.inflate (x, y) -> FRect</call>
+      <call>inflate (x, y) -> FRect</call>
       <desc>
         Grow or shrink the rectangle size.
 
@@ -264,20 +272,20 @@
       </desc>
     </method>
     <method name="inflate_ip">
-      <call>FRect.inflate_ip (x, y) -> None</call>
+      <call>inflate_ip (x, y) -> None</call>
       <desc>
         Grow or shrink the rectangle size, in place.
 
         Same as FRect.inflate(x, y), but operates in place.
       </desc>
     </method>
-    <attr name="left">Gets or sets the left edge position of the FRect.</attr>
-    <attr name="midbottom">Gets or sets the mid bottom edge position of the FRect.</attr>
-    <attr name="midleft">Gets or sets the mid left edge position of the FRect.</attr>
-    <attr name="midright">Gets or sets the mid right edge position of the FRect.</attr>
-    <attr name="midtop">Gets or sets the mid top edge position of the FRect.</attr>
+    <attr name="left">Gets or sets the left edge position of the :class:`FRect`.</attr>
+    <attr name="midbottom">Gets or sets the mid bottom edge position of the :class:`FRect`.</attr>
+    <attr name="midleft">Gets or sets the mid left edge position of the :class:`FRect`.</attr>
+    <attr name="midright">Gets or sets the mid right edge position of the :class:`FRect`.</attr>
+    <attr name="midtop">Gets or sets the mid top edge position of the :class:`FRect`.</attr>
     <method name="move">
-      <call>FRect.move (x, y) -> FRect</call>
+      <call>move (x, y) -> FRect</call>
       <desc>
         Moves the rectangle.
 
@@ -286,83 +294,83 @@
       </desc>
     </method>
     <method name="move_ip">
-      <call>FRect.move_ip (x, y) -> None</call>
+      <call>move_ip (x, y) -> None</call>
       <desc>
         Moves the rectangle, in place.
 
         Same as FRect.move (x, y), but operates in place.
       </desc>
     </method>
-    <attr name="right">Gets or sets the right position of the FRect.</attr>
+    <attr name="right">Gets or sets the right position of the :class:`FRect`.</attr>
     <method name="round">
-      <call>FRect.round () -> Rect</call>
+      <call>round () -> Rect</call>
       <desc>
-        Creates a Rect from the specified FRect.
+        Creates a :class:`Rect` from the specified :class:`FRect`.
 
-        This creates a Rect using the FRect floating point values
+        This creates a :class:`Rect` using the :class:`FRect` floating point values
         rounded to the nearest integral value.
       </desc>
     </method>
-    <attr name="size">Gets or sets the width and height of the FRect as 2-value tuple.</attr>
-    <attr name="top">Gets or sets the top edge position of the FRect.</attr>
-    <attr name="topleft">Gets or sets the top left corner position of the FRect.</attr>
-    <attr name="topright">Gets or sets the top right corner position of the FRect.</attr>
+    <attr name="size">Gets or sets the width and height of the :class:`FRect` as 2-value tuple.</attr>
+    <attr name="top">Gets or sets the top edge position of the :class:`FRect`.</attr>
+    <attr name="topleft">Gets or sets the top left corner position of the :class:`FRect`.</attr>
+    <attr name="topright">Gets or sets the top right corner position of the :class:`FRect`.</attr>
     <method name="trunc">
-      <call>FRect.trunc () -> Rect</call>
+      <call>trunc () -> Rect</call>
       <desc>
-        Creates a Rect from the specified FRect.
+        Creates a :class:`Rect` from the specified :class:`FRect`.
 
-        This creates a Rect using truncated integral values from the
-        Frect floating point values.
+        This creates a :class:`Rect` using truncated integral values from the
+        :class:`FRect` floating point values.
       </desc>
     </method>
     <method name="union">
-      <call>FRect.union (FRect) -> FRect</call>
+      <call>union (FRect) -> FRect</call>
       <desc>
         Joins two rectangles into one.
 
         Returns a new rectangle that completely covers the area of the
-        two provided rectangles. There may be area inside the new FRect
+        two provided rectangles. There may be area inside the new :class:`FRect`
         that is not covered by the originals.
       </desc>
     </method>
     <method name="union_ip">
-      <call>FRect.union_ip (FRect) -> FRect</call>
+      <call>union_ip (FRect) -> FRect</call>
       <desc>
         Joins two rectangles into one, in place.
 
         Same as FRect.union(FRect), but operates in place.
       </desc>
     </method>
-    <attr name="width">Gets or sets the width of the FRect.</attr>
-    <attr name="x">Gets or sets the horizontal top left position of the FRect.</attr>
-    <attr name="y">Gets or sets the vertical top left position of the FRect.</attr>
+    <attr name="width">Gets or sets the width of the :class:`FRect`.</attr>
+    <attr name="x">Gets or sets the horizontal top left position of the :class:`FRect`.</attr>
+    <attr name="y">Gets or sets the vertical top left position of the :class:`FRect`.</attr>
   </class>
 
   <class name="Rect">
     <constructor>Rect (...) -> Rect</constructor>
     <desc>A class for storing rectangular coordinates.
 
-    A Rect is used to store and manipulate rectangular coordinates.  TODO</desc>
-    <attr name="bottom">Gets or sets the bottom edge position of the Rect.</attr>
-    <attr name="bottomleft">Gets or sets the bottom left corner position of the Rect.</attr>
-    <attr name="bottomright">Gets or sets the bottom right corner position of the Rect.</attr>
-    <attr name="center">Gets or sets the center position of the Rect.</attr>
-    <attr name="centerx">Gets or sets the horizontal center position of the Rect.</attr>
-    <attr name="centery">Gets or sets the vertical center position of the Rect.</attr>
+    A :class:`Rect` is used to store and manipulate rectangular coordinates.  TODO</desc>
+    <attr name="bottom">Gets or sets the bottom edge position of the :class:`Rect`.</attr>
+    <attr name="bottomleft">Gets or sets the bottom left corner position of the :class:`Rect`.</attr>
+    <attr name="bottomright">Gets or sets the bottom right corner position of the :class:`Rect`.</attr>
+    <attr name="center">Gets or sets the center position of the :class:`Rect`.</attr>
+    <attr name="centerx">Gets or sets the horizontal center position of the :class:`Rect`.</attr>
+    <attr name="centery">Gets or sets the vertical center position of the :class:`Rect`.</attr>
     <method name="clamp">
-      <call>Rect.clamp (Rect) -> Rect</call>
+      <call>clamp (Rect) -> Rect</call>
       <desc>
         Moves the rectangle inside another.
 
         Returns a new rectangle that is moved to be completely inside
-        the argument Rect. If the rectangle is too large to fit inside,
-        it is centered inside the argument Rect, but its size is not
+        the argument :class:`Rect`. If the rectangle is too large to fit inside,
+        it is centered inside the argument :class:`Rect`, but its size is not
         changed.
       </desc>
     </method>
     <method name="clamp_ip">
-      <call>Rect.clamp_ip (Rect) -> None</call>
+      <call>clamp_ip (Rect) -> None</call>
       <desc>
         Moves the rectangle inside another, in place.
 
@@ -370,38 +378,38 @@
       </desc>
     </method>
     <method name="clip">
-      <call>Rect.clip (Rect) -> Rect</call>
+      <call>clip (Rect) -> Rect</call>
       <desc>
         Crops a rectangle inside another.
 
         Returns a new rectangle that is cropped to be completely inside
-        the argument Rect. If the two rectangles do not overlap to begin
-        with, a Rect with 0 size is returned. Thus it returns the area, in
+        the argument :class:`Rect`. If the two rectangles do not overlap to begin
+        with, a :class:`Rect` with 0 size is returned. Thus it returns the area, in
         which both rects overlap.
       </desc>
     </method>
     <method name="collidedict">
-      <call>Rect.collidedict (dict) -> (key, value)</call>
+      <call>collidedict (dict) -> (key, value)</call>
       <desc>
         Test if one rectangle in a dictionary intersects.
 
         Returns the key and value of the first dictionary value that
-        collides with the Rect. If no collisions are found, None is
-        returned. They keys of the passed dict must be Rect objects.
+        collides with the :class:`Rect`. If no collisions are found, None is
+        returned. They keys of the passed dict must be :class:`Rect` objects.
       </desc>
     </method>
     <method name="collidedictall">
-      <call>Rect.collidedictall (dict) -> [(key, value), ...]</call>
+      <call>collidedictall (dict) -> [(key, value), ...]</call>
       <desc>
         Test if all rectangles in a dictionary intersect.
 
         Returns a list of all the key and value pairs that intersect
-        with the Rect. If no collisions are found an empty list is
-        returned. They keys of the passed dict must be Rect objects.
+        with the :class:`Rect`. If no collisions are found an empty list is
+        returned. They keys of the passed dict must be :class:`Rect` objects.
       </desc>
     </method>
     <method name="collidelist">
-      <call>Rect.collidelist (list) -> index</call>
+      <call>collidelist (list) -> index</call>
       <desc>
         Test if one rectangle in a list intersects.
 
@@ -411,17 +419,17 @@
       </desc>
     </method>
     <method name="collidelistall">
-      <call>Rect.collidelistall (list) -> [index, ...]</call>
+      <call>collidelistall (list) -> [index, ...]</call>
       <desc>
         Test if all rectangles in a list intersect.
 
         Returns a list of all the indices that contain rectangles that
-        collide with the Rect. If no intersecting rectangles are found,
+        collide with the :class:`Rect`. If no intersecting rectangles are found,
         an empty list is returned.
       </desc>
     </method>
     <method name="collidepoint">
-      <call>Rect.collidepoint (x, y) -> bool</call>
+      <call>collidepoint (x, y) -> bool</call>
       <desc>
         Test if a point is inside a rectangle.
 
@@ -431,7 +439,7 @@
       </desc>
     </method>
     <method name="colliderect">
-      <call>Rect.colliderect (Rect) -> bool</call>
+      <call>colliderect (Rect) -> bool</call>
       <desc>
         Test if two rectangles overlap.
 
@@ -440,28 +448,28 @@
       </desc>
     </method>
     <method name="contains">
-      <call>Rect.contains (Rect) -> bool</call>
+      <call>contains (Rect) -> bool</call>
       <desc>
         Test if one rectangle is inside another.
 
         Returns true when the argument rectangle is completely inside
-        the Rect.
+        the :class:`Rect`.
       </desc>
     </method>
     <method name="fit">
-      <call>Rect.fit (Rect) -> Rect</call>
+      <call>fit (Rect) -> Rect</call>
       <desc>
         Resize and move a rectangle with aspect ratio.
 
         Returns a new rectangle that is moved and resized to fit
-        another. The aspect ratio of the original Rect is preserved, so
+        another. The aspect ratio of the original :class:`Rect` is preserved, so
         the new rectangle may be smaller than the target in either width
         or height.
       </desc>
     </method>
-    <attr name="height">Gets or sets the height of the Rect.</attr>
+    <attr name="height">Gets or sets the height of the :class:`Rect`.</attr>
     <method name="inflate">
-      <call>Rect.inflate (x, y) -> Rect</call>
+      <call>inflate (x, y) -> Rect</call>
       <desc>
         Grow or shrink the rectangle size.
 
@@ -471,20 +479,20 @@
       </desc>
     </method>
     <method name="inflate_ip">
-      <call>Rect.inflate_ip (x, y) -> None</call>
+      <call>inflate_ip (x, y) -> None</call>
       <desc>
         Grow or shrink the rectangle size, in place.
 
         Same as Rect.inflate(x, y), but operates in place.
       </desc>
     </method>
-    <attr name="left">Gets or sets the left edge position of the Rect.</attr>
-    <attr name="midbottom">Gets or sets the mid bottom edge position of the Rect.</attr>
-    <attr name="midleft">Gets or sets the mid left edge position of the Rect.</attr>
-    <attr name="midright">Gets or sets the mid right edge position of the Rect.</attr>
-    <attr name="midtop">Gets or sets the mid top edge position of the Rect.</attr>
+    <attr name="left">Gets or sets the left edge position of the :class:`Rect`.</attr>
+    <attr name="midbottom">Gets or sets the mid bottom edge position of the :class:`Rect`.</attr>
+    <attr name="midleft">Gets or sets the mid left edge position of the :class:`Rect`.</attr>
+    <attr name="midright">Gets or sets the mid right edge position of the :class:`Rect`.</attr>
+    <attr name="midtop">Gets or sets the mid top edge position of the :class:`Rect`.</attr>
     <method name="move">
-      <call>Rect.move (x, y) -> Rect</call>
+      <call>move (x, y) -> Rect</call>
       <desc>
         Moves the rectangle.
 
@@ -493,39 +501,39 @@
       </desc>
     </method>
     <method name="move_ip">
-      <call>Rect.move_ip (x, y) -> None</call>
+      <call>move_ip (x, y) -> None</call>
       <desc>
         Moves the rectangle, in place.
 
         Same as Rect.move (x, y), but operates in place.
       </desc>
     </method>
-    <attr name="right">Gets or sets the right position of the Rect.</attr>
-    <attr name="size">Gets or sets the width and height of the Rect as 2-value tuple.</attr>
-    <attr name="top">Gets or sets the top edge position of the Rect.</attr>
-    <attr name="topleft">Gets or sets the top left corner position of the Rect.</attr>
-    <attr name="topright">Gets or sets the top right corner position of the Rect.</attr>
+    <attr name="right">Gets or sets the right position of the :class:`Rect`.</attr>
+    <attr name="size">Gets or sets the width and height of the :class:`Rect` as 2-value tuple.</attr>
+    <attr name="top">Gets or sets the top edge position of the :class:`Rect`.</attr>
+    <attr name="topleft">Gets or sets the top left corner position of the :class:`Rect`.</attr>
+    <attr name="topright">Gets or sets the top right corner position of the :class:`Rect`.</attr>
     <method name="union">
-      <call>Rect.union (Rect) -> Rect</call>
+      <call>union (Rect) -> Rect</call>
       <desc>
         Joins two rectangles into one.
 
         Returns a new rectangle that completely covers the area of the
-        two provided rectangles. There may be area inside the new Rect
+        two provided rectangles. There may be area inside the new :class:`Rect`
         that is not covered by the originals.
       </desc>
     </method>
     <method name="union_ip">
-      <call>Rect.union_ip (Rect) -> Rect</call>
+      <call>union_ip (Rect) -> Rect</call>
       <desc>
         Joins two rectangles into one, in place.
 
         Same as Rect.union(Rect), but operates in place.
       </desc>
     </method>
-    <attr name="width">Gets or sets the width of the Rect.</attr>
-    <attr name="x">Gets or sets the horizontal top left position of the Rect.</attr>
-    <attr name="y">Gets or sets the vertical top left position of the Rect.</attr>
+    <attr name="width">Gets or sets the width of the :class:`Rect`.</attr>
+    <attr name="x">Gets or sets the horizontal top left position of the :class:`Rect`.</attr>
+    <attr name="y">Gets or sets the vertical top left position of the :class:`Rect`.</attr>
   </class>
 
 </module>

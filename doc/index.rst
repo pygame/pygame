@@ -8,6 +8,7 @@ Contents:
    :maxdepth: 2
 
    modules.rst
+   capi.rst
 
 Indices and tables
 ==================

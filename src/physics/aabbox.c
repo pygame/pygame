@@ -44,10 +44,10 @@ AABBox_Reset (AABBox* box)
         return;
     }
 
-    box->top = -DBL_MAX;
-    box->right = -DBL_MAX;
-    box->bottom = DBL_MAX;
+    box->top = DBL_MAX;
     box->left = DBL_MAX;
+    box->bottom = -DBL_MAX;
+    box->right = -DBL_MAX;
 }
 
 void
@@ -59,9 +59,9 @@ AABBox_ExpandTo (AABBox* box, PyVector2* p)
         return;
     }
     box->left = MIN (box->left, p->real);
+    box->top = MIN (box->top, p->imag);
     box->right = MAX (box->right, p->real);
-    box->bottom = MIN (box->bottom, p->imag);
-    box->top = MAX (box->top, p->imag);
+    box->bottom = MAX (box->bottom, p->imag);
 }
 
 int
@@ -105,7 +105,7 @@ AABBox_AsFRect (AABBox *box)
     }
 
     return PyFRect_New (box->left, box->top, box->right - box->left,
-        box->top - box->bottom);
+        box->bottom - box->top);
 }
 
 int

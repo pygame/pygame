@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE module [
-<!ELEMENT module (desc, (func|class)*)>
+<!ELEMENT module (short, desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT short (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT call (#PCDATA)>
 <!ELEMENT func (call, desc)>
@@ -15,7 +16,9 @@
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
+
 <module name="pygame2.sdl.cdrom">
+  <short>SDL CD-ROM management wrapper</short>
   <desc>
     The cdrom module manages the CD and DVD drives on a computer. It can
     also control the playback of audio cd's.

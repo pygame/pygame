@@ -43,7 +43,7 @@ Example:
 
 Make sure, the C API header does not conflict with another header to be
 installed. Headers used on the module scope only (internally used
-headers) can be named as you like. The C API headers should use the "pyg"
+headers) can be named as you like. The C API headers should use the "pg"
 prefix to avoid naming issues with system or 3rd party library headers.
 
 C API
@@ -97,10 +97,10 @@ Example:
 If the module has external dependencies, which cannot be guaranteed to
 be available on each platform, add a
 
-    WITH_MOD = False
+    WITH_MOD = istrue (os.getenv ("WITH_MOD", True))
 
 to the cfg.py configuration file so that users can enable/disable the
-module on demand.
+module on demand using the build and environment settings.
 
 Adjust the various config/config_XXX.py files to check for needed dependencies
 of your module and such. As this can vary from platform to platform,

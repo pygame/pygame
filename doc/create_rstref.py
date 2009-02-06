@@ -40,7 +40,8 @@ class Doc(object):
     def __init__ (self, filename):
         self.filename = filename
         self.modulename = None
-        self.description = ""
+        self.shortdesc = "TODO"
+        self.description = "TODO"
         self.classes = []
         self.functions = []
     
@@ -53,6 +54,9 @@ class Doc(object):
     def get_module_docs (self, dom):
         module = dom.getElementsByTagName ("module")[0]
         self.modulename = module.getAttribute ("name")
+        node = module.getElementsByTagName ("short")[0]
+        if node.firstChild:
+            self.shortdesc = node.firstChild.nodeValue
         node = module.getElementsByTagName ("desc")[0]
         if node.firstChild:
             self.description = node.firstChild.nodeValue
@@ -62,32 +66,36 @@ class Doc(object):
         functions = module.getElementsByTagName ("func")
         for func in functions:
             name = func.getAttribute ("name")
+            if len (name) == 0:
+                name = "TODO"
             node = func.getElementsByTagName ("call")[0]
             if node.firstChild:
                 call = node.firstChild.nodeValue
             else:
-                call = ""
+                call = "TODO"
             node = func.getElementsByTagName ("desc")[0]
             if node.firstChild:
                 desc = node.firstChild.nodeValue
             else:
-                desc = ""
+                desc = "TODO"
             self.functions.append (DocMethod (None, name, call, desc))
 
     def get_class_refs (self, module):
         classes = module.getElementsByTagName ("class")
         for cls in classes:
             name = cls.getAttribute ("name")
+            if len (name) == 0:
+                name = "TODO"
             node = cls.getElementsByTagName ("constructor")[0]
             if node.firstChild:
                 const = node.firstChild.nodeValue
             else:
-                const = ""
+                const = "TODO"
             node = cls.getElementsByTagName ("desc")[0]
             if node.firstChild:
                 desc = node.firstChild.nodeValue
             else:
-                desc = ""
+                desc = "TODO"
             clsdoc = DocClass (name, const, desc)
 
             attrs = cls.getElementsByTagName ("attr")
@@ -102,27 +110,31 @@ class Doc(object):
 
     def create_attr_ref (self, doccls, attr):
         name = attr.getAttribute ("name")
+        if len (name) == 0:
+            name = "TODO"
         if attr.firstChild:
             desc = attr.firstChild.nodeValue
         else:
-            desc = ""
+            desc = "TODO"
         doccls.attributes.append (DocAttribute (name, desc))
 
     def create_method_ref (self, doccls, method):
         name = method.getAttribute ("name")
+        if len (name) == 0:
+            name = "TODO"
         node = method.getElementsByTagName ("call")[0]
         if node.firstChild:
             call = node.firstChild.nodeValue
         else:
-            call = ""
+            call = "TODO"
         node = method.getElementsByTagName ("desc")[0]
         if node.firstChild:
             desc = node.firstChild.nodeValue
         else:
-            desc = ""
+            desc = "TODO"
         doccls.methods.append (DocMethod (doccls, name, call, desc))
 
-    def create_desc_rst (self, desc, refcache):
+    def create_desc_rst (self, desc, offset=0):
         written = 0
         data = ""
         cindent = indent = 0
@@ -147,76 +159,69 @@ class Doc(object):
                     # We are in a source code block. update the indentation
                     indent = cindent + 1
                     cindent += 1 # Set for following, empty lines.
-
+            
             if written > 0 and line == "":
                 data += "\n"
             elif line != "":
-                data += "\n" + line
+                data += "\n" + " " * offset + line
                 written += 1
         if written == 0:
             return ""
         return data + "\n\n"
     
-    def create_func_rst (self, func, refcache):
-        data = "**%s**\n" % (func.name)
-        data += "*%s*\n" % (func.call)
-        data += "%s\n" % self.create_desc_rst (func.description, refcache)
+    def create_func_rst (self, func):
+        data = ".. function:: %s\n" % func.call
+        data += "%s\n" % self.create_desc_rst (func.description, 2)
         return data
     
-    def create_rst (self, refcache):
+    def create_rst (self):
         fname = os.path.join ("ref", "%s.rst")
         fp = open (fname % self.modulename.replace (".", "_"), "w")
         fp.write (RST_HEADER)
         
-        fp.write ("%s\n" % self.modulename)
-        fp.write ("=" * len (self.modulename) + "\n")
-        fp.write ("%s\n\n" % self.create_desc_rst (self.description, refcache))
+        fp.write (":mod:`%s` -- %s\n" % (self.modulename, self.shortdesc))
+        fp.write ("%s\n" %
+                  ("=" * (11 + len (self.modulename) + len (self.shortdesc))))
+        fp.write ("%s" % self.create_desc_rst (self.description))
+        fp.write (".. module:: %s\n" % (self.modulename))
+        fp.write ("   :synopsis: %s\n\n" % (self.shortdesc))
         
         if len (self.functions) > 0:
-            fp.write ("\n")
             fp.write ("Module functions\n")
             fp.write ("----------------\n")
             for func in self.functions:
-                fp.write (self.create_func_rst (func, refcache))
+                fp.write (self.create_func_rst (func))
 
         if len (self.classes) > 0:
             for cls in self.classes:
                 fp.write (cls.name + "\n")
-                fp.write ("-" * len (cls.name) + "\n")
-                fp.write ("*" + cls.constructor + "*\n")
-                fp.write (self.create_desc_rst (cls.description, refcache))
+                fp.write ("%s\n" % ("-" * len (cls.name)))
+                fp.write (".. class:: %s\n" % cls.constructor)
+                fp.write (self.create_desc_rst (cls.description, 2))
                 if len (cls.attributes) > 0:
                         fp.write ("Attributes\n")
                         fp.write ("^^^^^^^^^^\n")
                         for attr in cls.attributes:
-                            fp.write ("**" + attr.name + "**")
-                            fp.write (self.create_desc_rst (attr.description,
-                                                            refcache))
+                            fp.write (".. attribute:: %s.%s\n"
+                                      % (cls.name, attr.name))
+                            fp.write (self.create_desc_rst (attr.description, 2))
                 if len (cls.methods) > 0:
                     fp.write ("Methods\n")
                     fp.write ("^^^^^^^\n")
                     for method in cls.methods:
-                        fp.write ("**" + method.name + "**\n")
-                        fp.write ("*" + method.call + "*\n")
-                        fp.write (self.create_desc_rst (method.description,
-                                                        refcache))
+                        fp.write (".. method:: %s.%s\n"
+                                  % (cls.name, method.call))
+                        fp.write (self.create_desc_rst (method.description, 2))
         fp.write ("\n")
         fp.write (RST_FOOTER)
         fp.close ()
         
 def create_rst (docs):
-    refcache = {}
     if not os.path.exists ("ref"):
         os.mkdir ("ref")
-
-    for doc in docs:
-        for cls in doc.classes:
-            refcache[cls.name] = doc.filename
-        for func in doc.functions:
-            refcache[func.name] = doc.filename
     for doc in docs:
         print ("Now writing RST for %s...." % doc.modulename)
-        doc.create_rst (refcache)
+        doc.create_rst ()
 
 def get_doc_files ():
     docs = []

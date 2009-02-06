@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE module [
-<!ELEMENT module (desc, (func|class)*)>
+<!ELEMENT module (short, desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT short (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT call (#PCDATA)>
 <!ELEMENT func (call, desc)>
@@ -15,18 +16,15 @@
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
-<module name="pygame2.sdlimage">
+<module name="pygame2.sdl.image">
+  <short>SDL image I/O wrapper module</short>
   <desc>None</desc>
 
-  <func name="get_error">
+  <func name="load_bmp">
     <call></call>
     <desc></desc>
   </func>
-  <func name="load">
-    <call></call>
-    <desc></desc>
-  </func>
-  <func name="read_xpm_from_array">
+  <func name="save_bmp">
     <call></call>
     <desc></desc>
   </func>

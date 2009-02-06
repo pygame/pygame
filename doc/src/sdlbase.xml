@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE module [
-<!ELEMENT module (desc, (func|class)*)>
+<!ELEMENT module (short, desc, (func|class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
+<!ELEMENT short (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT call (#PCDATA)>
 <!ELEMENT func (call, desc)>
@@ -15,7 +16,9 @@
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
+
 <module name="pygame2.sdl.base">
+  <short>basic SDL wrapper module</short>
   <desc>Pygame SDL wrapper module</desc>
 
   <func name="get_compiled_version">
@@ -32,10 +35,10 @@
   <func name="get_error">
     <call>get_error () -> pygame2.Error</call>
     <desc>
-      Gets the last pygame2 error occured.
+      Gets the last :exc:`pygame2.base.Error` occured.
 
       SDL maintains an internal error message. This message will usually
-      be given to you when a pygame2.Error is raised. You will rarely
+      be given to you when a :exc:`pygame2.base.Error` is raised. You will rarely
       need to call this function.
     </desc>
   </func>

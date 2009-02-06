@@ -14,6 +14,7 @@ Modules:
    ref/pygame2_sdl_cdrom
    ref/pygame2_sdl_event
    ref/pygame2_sdl_gl
+   ref/pygame2_sdl_image
    ref/pygame2_sdl_joystick
    ref/pygame2_sdl_keyboard
    ref/pygame2_sdl_mouse
@@ -30,7 +31,6 @@ Modules:
    ref/pygame2_sdlgfx_base
    ref/pygame2_sdlgfx_primitives
    ref/pygame2_sdlgfx_rotozoom
-   ref/pygame2_sdlimage
    ref/pygame2_sdlimage_base
    ref/pygame2_sdlmixer_base
    ref/pygame2_sdlmixer_channel
