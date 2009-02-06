@@ -67,7 +67,8 @@ cdef extern from "portmidi.h":
                            PmDeviceID outputDevice,
                            void *outputDriverInfo,
                            long bufferSize,
-                           long (*PmPtr) (), # long = PtTimestamp
+                           #long (*PmPtr) (), # long = PtTimestamp
+                           PmTimeProcPtr time_proc, # long = PtTimestamp
                            void *time_info,
                            long latency )
     PmError Pm_SetFilter( PortMidiStream* stream, long filters )
@@ -82,7 +83,7 @@ cdef extern from "portmidi.h":
     int Pm_Channel(int channel)
     PmError Pm_SetChannelMask(PortMidiStream *stream, int mask)
     PmError Pm_Write( PortMidiStream *stream, PmEvent *buffer, long length )
-    PmError Pm_WriteSysEx( PortMidiStream *stream, PmTimestamp when, char *msg)
+    PmError Pm_WriteSysEx( PortMidiStream *stream, PmTimestamp when, unsigned char *msg)
 
 cdef extern from "porttime.h":
     ctypedef enum PtError:
@@ -154,7 +155,10 @@ GetDeviceInfo(<device number>): returns 5 parameters
   - TRUE iff device stream is already open
     """
     cdef PmDeviceInfo *info
-    info = Pm_GetDeviceInfo(i)
+
+    # disregarding the constness from Pm_GetDeviceInfo, since pyrex doesn't do const.
+    info = <PmDeviceInfo *>Pm_GetDeviceInfo(i)
+
     if info <> NULL: return info.interf, info.name, info.input, info.output, info.opened
     else: return 
 
@@ -200,8 +204,9 @@ class Output:
 
     def __init__(self, OutputDevice, latency=0):
         
-        cdef PtTimestamp (*PmPtr) ()
         cdef PmError err
+        #cdef PtTimestamp (*PmPtr) ()
+        cdef PmTimeProcPtr PmPtr
 
         self.i = OutputDevice
         self.debug = 0
@@ -209,7 +214,7 @@ class Output:
         if latency == 0:
             PmPtr = NULL
         else:
-            PmPtr = &Pt_Time
+            PmPtr = <PmTimeProcPtr>&Pt_Time
         if self.debug: print "Opening Midi Output"
 	# Why is bufferSize 0 here?
         err = Pm_OpenOutput(&(self.midi), self.i, NULL, 0, PmPtr, NULL, latency)
@@ -301,12 +306,13 @@ WriteShort(status <, data1><, data2>)
             [0xF0, 0x7D, 0x10, 0x11, 0x12, 0x13, 0xF7])
         """
         cdef PmError err
-        cdef char *cmsg
+        cdef unsigned char *cmsg
         cdef PtTimestamp CurTime
 
         if type(msg) is list:
             msg = array.array('B',msg).tostring() # Markus Pfaff contribution
-        cmsg =  msg
+        cmsg = <unsigned char *> msg
+
         CurTime = Pt_Time()
         err = Pm_WriteSysEx(self.midi, when, cmsg)
         if err < 0 : raise Exception, Pm_GetErrorText(err)
