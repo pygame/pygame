@@ -1509,6 +1509,14 @@ void initrect (void)
     PyObject *module, *dict, *apiobj;
     static void* c_api[PYGAMEAPI_RECT_NUMSLOTS];
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
     /* Create the module and add the functions */
     PyType_Init (PyRect_Type);
     if (PyType_Ready (&PyRect_Type) < 0)
@@ -1528,7 +1536,4 @@ void initrect (void)
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
-
-    /*imported needed apis*/
-    import_pygame_base ();
 }

@@ -948,6 +948,15 @@ void initevent (void)
     PyObject *module, *dict, *apiobj;
     static void* c_api[PYGAMEAPI_EVENT_NUMSLOTS];
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     PyType_Init (PyEvent_Type);
 
     /* create the module */
@@ -965,7 +974,5 @@ void initevent (void)
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
 
-    /*imported needed apis*/
-    import_pygame_base ();
     PyGame_RegisterQuit (user_event_cleanup);
 }

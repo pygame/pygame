@@ -47,6 +47,14 @@ class MissingModule:
     def __init__(self, name, info='', urgent=0):
         self.name = name
         self.info = str(info)
+        try:
+            exc = sys.exc_info()
+            if exc[0] != None:
+                self.reason = "%s: %s" % (exc[0].__name__, str(exc[1]))
+            else:
+                self.reason = ""
+        finally:
+            del exc
         self.urgent = urgent
         if urgent:
             self.warn()
@@ -56,6 +64,8 @@ class MissingModule:
             self.warn()
             self.urgent = 1
         MissingPygameModule = "%s module not available" % self.name
+        if self.reason:
+            MissingPygameModule += "\n(%s)" % self.reason
         raise NotImplementedError, MissingPygameModule
 
     def __nonzero__(self):
@@ -65,6 +75,8 @@ class MissingModule:
         if self.urgent: type = 'import'
         else: type = 'use'
         message = '%s %s: %s' % (type, self.name, self.info)
+        if self.reason:
+            message += "\n(%s)" % self.reason
         try:
             import warnings
             if self.urgent: level = 4
@@ -129,9 +141,6 @@ except (ImportError,IOError), msg:threads=MissingModule("threads", msg, 1)
 
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
-else:
-    # Required by pygame.surface.
-    import pygame.bufferproxy
 
 
 try:
@@ -170,9 +179,6 @@ except (ImportError,IOError):
 
 try: import pygame.mixer
 except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
-else:
-    # Required by pygame.mixer.
-    import pygame.bufferproxy
 
 try: import pygame.movie
 except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
@@ -182,9 +188,6 @@ except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
 
 try: import pygame.scrap
 except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 0)
-
-try: import pygame.numpyarray
-except (ImportError,IOError), msg:numpyarray=MissingModule("numpyarray", msg, 0)
 
 try: import pygame.surfarray
 except (ImportError,IOError), msg:surfarray=MissingModule("surfarray", msg, 0)
@@ -205,6 +208,7 @@ def packager_imports():
     """
     Some additional things that py2app/py2exe will want to see
     """
+    import bufferproxy
     import Numeric
     import numpy
     import OpenGL.GL

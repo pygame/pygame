@@ -2035,6 +2035,23 @@ void initpixelarray (void)
     PyObject *apiobj;
     static void* c_api[PYGAMEAPI_PIXELARRAY_NUMSLOTS];
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_color();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     if (PyType_Ready (&PyPixelArray_Type) < 0)
         return;
     
@@ -2050,9 +2067,4 @@ void initpixelarray (void)
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_color();
-    import_pygame_surface ();
 }

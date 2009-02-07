@@ -260,14 +260,24 @@ initfastevent (void)
 {
     PyObject *module, *eventmodule, *dict;
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_event ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
     /* create the module */
     module = Py_InitModule3 ("fastevent", fastevent_builtins,
                              doc_fastevent_MODULE);
     dict = PyModule_GetDict (module);
 
-    /* imported needed apis */
-    import_pygame_base ();
-    import_pygame_event ();
+    /* add the event module functions if available */
     eventmodule = PyImport_ImportModule ("pygame.event");
     if (eventmodule)
     {

@@ -523,6 +523,27 @@ void initmovie (void)
 {
     PyObject *module, *dict;
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rect ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     PyType_Init (PyMovie_Type);
 
     /* create the module */
@@ -530,10 +551,4 @@ void initmovie (void)
     dict = PyModule_GetDict (module);
 
     PyDict_SetItemString (dict, "MovieType", (PyObject *)&PyMovie_Type);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_surface ();
-    import_pygame_rwobject ();
-    import_pygame_rect ();
 }
