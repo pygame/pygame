@@ -2058,6 +2058,49 @@ void initsurface(void)
     PyObject *module, *dict, *apiobj, *lockmodule;
     static void* c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
     
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_color ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rect ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_bufferproxy();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* import the surflock module manually */
+    lockmodule = PyImport_ImportModule ("pygame.surflock");
+    if (lockmodule != NULL)
+    {
+        PyObject *_dict = PyModule_GetDict (lockmodule);
+        PyObject *_c_api = PyDict_GetItemString (_dict, PYGAMEAPI_LOCAL_ENTRY);
+
+        if (PyCObject_Check (_c_api))
+        {
+            int i;
+            void **localptr = (void *)PyCObject_AsVoidPtr (_c_api);
+
+            for (i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i)
+                PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i];
+        }
+        Py_DECREF (lockmodule);
+    }
+    else
+    {
+	return;
+    }
+
+    /* type preparation */
     if (PyType_Ready(&PySurface_Type) < 0)
         return;
     
@@ -2077,28 +2120,4 @@ void initsurface(void)
     Py_DECREF (apiobj);
     /* Py_INCREF (PySurface_Type.tp_dict); INCREF's done in SetItemString */
     PyDict_SetItemString (dict, "_dict", PySurface_Type.tp_dict);
-
-    /* imported needed apis */
-    import_pygame_base ();
-    import_pygame_color ();
-    import_pygame_rect ();
-    import_pygame_bufferproxy();
-
-    /* import the surflock module manually */
-    lockmodule = PyImport_ImportModule ("pygame.surflock");
-    if (lockmodule != NULL)
-    {
-        PyObject *_dict = PyModule_GetDict (lockmodule);
-        PyObject *_c_api = PyDict_GetItemString (_dict, PYGAMEAPI_LOCAL_ENTRY);
-
-        if (PyCObject_Check (_c_api))
-        {
-            int i;
-            void **localptr = (void *)PyCObject_AsVoidPtr (_c_api);
-
-            for (i = 0; i < PYGAMEAPI_SURFLOCK_NUMSLOTS; ++i)
-                PyGAME_C_API[i + PYGAMEAPI_SURFLOCK_FIRSTSLOT] = localptr[i];
-        }
-        Py_DECREF (lockmodule);
-    }
 }

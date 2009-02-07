@@ -1104,6 +1104,25 @@ void initmixer (void)
 
     PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*this cleans an unused warning*/
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+
+    /*imported needed apis*/
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_bufferproxy ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     if (PyType_Ready (&PySound_Type) < 0)
         return;
     PyType_Init (PyChannel_Type);
@@ -1128,11 +1147,6 @@ void initmixer (void)
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_rwobject ();
-    import_pygame_bufferproxy ();
 
     music = PyImport_ImportModule("pygame.mixer_music");
     if (!music) {

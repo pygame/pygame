@@ -1569,17 +1569,30 @@ static PyMethodDef draw_builtins[] =
 PYGAME_EXPORT
 void initdraw(void)
 {
-	PyObject *module, *dict;
+        PyObject *module;
 
-    /* create the module */
-	module = Py_InitModule3("draw", draw_builtins, DOC_PYGAMEDRAW);
-	dict = PyModule_GetDict(module);
-
-	/*imported needed apis*/
+	/* imported needed apis; Do this first so if there is an error
+	   the module is not loaded.
+	*/
 	import_pygame_base();
-        import_pygame_color();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
+	import_pygame_color();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
 	import_pygame_rect();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
 	import_pygame_surface();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
+
+	/* create the module */
+	module = Py_InitModule3("draw", draw_builtins, DOC_PYGAMEDRAW);
 }
 
 

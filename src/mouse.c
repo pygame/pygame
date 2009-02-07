@@ -229,12 +229,16 @@ static PyMethodDef mouse_builtins[] =
 PYGAME_EXPORT
 void initmouse (void)
 {
-    PyObject *module, *dict;
+    PyObject *module;
+
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
 
     /* create the module */
     module = Py_InitModule3 ("mouse", mouse_builtins, DOC_PYGAMEMOUSE);
-    dict = PyModule_GetDict (module);
-
-    /*imported needed apis*/
-    import_pygame_base ();
 }

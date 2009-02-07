@@ -2671,14 +2671,30 @@ PYGAME_EXPORT
 void inittransform (void)
 {
     PyObject *module;
+
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_color ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rect ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* create the module */
     module = Py_InitModule3 ("transform", transform_builtins,
                              DOC_PYGAMETRANSFORM);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_color ();
-    import_pygame_rect ();
-    import_pygame_surface ();
 
     smoothscale_init();
 }
