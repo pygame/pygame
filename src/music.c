@@ -377,6 +377,19 @@ void initmixer_music (void)
     PyObject *module;
 
     PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*clean an unused warning*/
+
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
     /* create the module */
     module = Py_InitModule3 ("mixer_music", music_builtins,
                              DOC_PYGAMEMIXERMUSIC);
@@ -384,8 +397,4 @@ void initmixer_music (void)
                        PyCObject_FromVoidPtr (&current_music, NULL));
     PyModule_AddObject(module, "_QUEUE_POINTER",
                        PyCObject_FromVoidPtr (&queue_music, NULL));
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_rwobject ();
 }

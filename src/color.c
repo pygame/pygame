@@ -1555,15 +1555,13 @@ void initcolor (void)
     PyObject *apiobj;
     static void* c_api[PYGAMEAPI_COLOR_NUMSLOTS];
 
-    if (PyType_Ready (&PyColor_Type) < 0)
-        return;
-    
-    /* create the module */
-    module = Py_InitModule3 ("color", NULL, "color module for pygame");
-    PyColor_Type.tp_getattro = PyObject_GenericGetAttr;
-    Py_INCREF (&PyColor_Type);
-    PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type);
-    dict = PyModule_GetDict (module);
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
 
     colordict = PyImport_ImportModule ("pygame.colordict");
     if (colordict)
@@ -1571,13 +1569,29 @@ void initcolor (void)
         PyObject *_dict = PyModule_GetDict (colordict);
         PyObject *colors = PyDict_GetItemString (_dict, "THECOLORS");
         Py_INCREF (colors);
-        Py_INCREF (colors); /* Needed for the _AddObject call beneath */
         _COLORDICT = colors;
-        PyModule_AddObject (module, "THECOLORS", colors);
         Py_DECREF (colordict);
     }
+    else
+    {
+	return;
+    }
 
-    import_pygame_base ();
+    /* type preparation */
+    if (PyType_Ready (&PyColor_Type) < 0)
+    {
+	Py_DECREF (_COLORDICT);
+        return;
+    }
+    
+    /* create the module */
+    module = Py_InitModule3 ("color", NULL, "color module for pygame");
+    PyColor_Type.tp_getattro = PyObject_GenericGetAttr;
+    Py_INCREF (&PyColor_Type);
+    PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type);
+    Py_INCREF (_COLORDICT);
+    PyModule_AddObject (module, "THECOLORS", _COLORDICT);
+    dict = PyModule_GetDict (module);
 
     c_api[0] = &PyColor_Type;
     c_api[1] = PyColor_New;

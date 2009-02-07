@@ -396,11 +396,17 @@ void inittime (void)
 {
     PyObject *module;
     
+    /* need to import base module, just so SDL is happy. Do this first so if
+       the module is there is an error the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     PyType_Init (PyClock_Type);
     
     /* create the module */
     module = Py_InitModule3 ("time", time_builtins, DOC_PYGAMETIME);
-    
-    /*need to import base module, just so SDL is happy*/
-    import_pygame_base ();
 }

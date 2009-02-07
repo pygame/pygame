@@ -621,8 +621,29 @@ static PyObject* PyMovie_New(FFMovie* movie)
 PYGAME_EXPORT
 void initmovieext(void)
 {
-	PyObject *module, *dict;
+        PyObject *module, *dict;
 
+	/* imported needed apis; Do this first so if there is an error
+	   the module is not loaded.
+	*/
+	import_pygame_base();
+        if (PyErr_Occurred ()) {
+	    return;
+        }
+	import_pygame_surface();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
+	import_pygame_rwobject();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
+	import_pygame_rect();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
+    
+	/* type preparation */
 	PyType_Init(PyMovie_Type);
 
 	/* create the module */
@@ -633,10 +654,22 @@ void initmovieext(void)
 
         /*imported needed apis*/
 	import_pygame_base();
+        if (PyErr_Occurred ()) {
+	    return;
+        }
 	import_pygame_surface();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
 	import_pygame_rwobject();
+	if (PyErr_Occurred ()) {
+	    return;
+	}
 	import_pygame_rect();
-
+	if (PyErr_Occurred ()) {
+	    return;
+	}
+    
     PyGame_RegisterQuit(autoquit);
 }
 

@@ -585,11 +585,22 @@ static PyMethodDef image_builtins[] =
 PYGAME_EXPORT
 void initimageext (void)
 {
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
     /* create the module */
     Py_InitModule3 ("imageext", image_builtins, NULL);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_surface ();
-    import_pygame_rwobject ();
 }

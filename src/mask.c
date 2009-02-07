@@ -1409,6 +1409,26 @@ void initmask(void)
   PyObject *module, *dict, *apiobj;
   static void* c_api[PYGAMEAPI_MASK_NUMSLOTS];
 
+  /* imported needed apis; Do this first so if there is an error
+     the module is not loaded.
+  */
+  import_pygame_base ();
+  if (PyErr_Occurred ()) {
+    return;
+  } 
+  import_pygame_color ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+  import_pygame_surface ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+  import_pygame_rect ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+
   /* create the mask type */
   PyType_Init(PyMask_Type);
 
@@ -1422,11 +1442,5 @@ void initmask(void)
   c_api[0] = &PyMask_Type;
   apiobj   = PyCObject_FromVoidPtr (c_api, NULL);
   PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-
-  /* import other modules */
-  import_pygame_base ();
-  import_pygame_color ();
-  import_pygame_surface ();
-  import_pygame_rect ();
 }
 

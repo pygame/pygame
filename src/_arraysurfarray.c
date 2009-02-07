@@ -398,10 +398,17 @@ static PyMethodDef surfarray_builtins[] =
 PYGAME_EXPORT
 void init_arraysurfarray(void)
 {
-    PyObject *module;
-    
-    module = Py_InitModule3("_arraysurfarray", surfarray_builtins,
-                            DOC_PYGAMESURFARRAY);
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
     import_pygame_base();
+    if (PyErr_Occurred ()) {
+	return;
+    }
     import_pygame_surface();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    Py_InitModule3("_arraysurfarray", surfarray_builtins, DOC_PYGAMESURFARRAY);
 }
