@@ -1,11 +1,12 @@
-
+Import("*")
 
 # This file is generated with mmp2sconscript
 from scons_symbian import *
 
+
 target     = "libsft2"
 targettype = "lib"
-libraries  = ['euser', 'estlib', 'gdi', 'fbscli']
+libraries  = C_LIBRARY + ['euser', 'gdi', 'fbscli']
 
 # Static libs
 libraries += []
@@ -54,7 +55,7 @@ sources = ['deps/sft2/src/libsft2.cpp',
 
 
 includes    = ['deps/sft2/inc']
-sysincludes = [ EPOC32_INCLUDE +'/libc', EPOC32_INCLUDE, 'deps/sft2/inc/sys']
+sysincludes = [ C_INCLUDE, EPOC32_INCLUDE, 'deps/sft2/inc/sys']
 defines     = ['FT2_BUILD_LIBRARY', 
     #'LOGN_ENABLE', 
     #'LOGP_ENABLE', 

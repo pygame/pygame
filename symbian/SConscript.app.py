@@ -14,19 +14,19 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
                            "app/pygame_main.cpp"                           
                            ],
                 includes = ["app", "common",
-                join( EPOC32_INCLUDE, "SDL"), 
-                join( EPOC32_INCLUDE, "libc"),] + python_includes
+                            join( EPOC32_INCLUDE, "SDL"), 
+                            C_INCLUDE ] + python_includes
                 ,
                 defines = [
-                    #"__LOGMAN_ENABLED__", 
+                    "__LOGMAN_ENABLED__", 
                 ],
-                libraries = ["euser", "estlib", "avkon", "apparc", 
+                libraries = C_LIBRARY + ["euser", "avkon", "apparc", 
                              "cone","eikcore", "libGLES_CM",                             
                              PYTHON_LIB_NAME,
                              SDL_DLL_NAME,
                              "pygame.lib",
                              'pygame_libjpeg',
-                             #"LogMan"
+                             "LogMan"
                              ],
                 uid3=UID_PYGAMEAPP,
                 icons = [ ("../lib/pygame_icon.svg", "pygame") ],
@@ -34,6 +34,7 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
                 capabilities = CAPABILITIES,
                 epocheapsize = ( 0x5000, 0x200000 ),
                 epocstacksize = 0x14000,
+                winscw_options = "-w noempty",
 )
 
 # Install pygame app resources

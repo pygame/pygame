@@ -107,6 +107,7 @@ def build():
     args['appuid'] = hex(UID_PYGAMEAPP).replace("L","")
     args['sdluid'] = hex(UID_SDL).replace("L","")
     args['jpeguid']= hex(UID_JPEG).replace("L","")
+    args['pythoninclude'] = config.pythoninclude
     
     dobuild(args)
     

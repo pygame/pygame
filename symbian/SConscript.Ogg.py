@@ -1,3 +1,4 @@
+Import("*")
 
 # This file is generated with mmp2sconscript
 from scons_symbian import *
@@ -12,7 +13,7 @@ uid3 = 0
 sources = ['deps/ogg/src/bitwise.c', 'deps/ogg/src/framing.c']
 
 includes    = ['/SDLS60/symbian']
-sysincludes = [ EPOC32_INCLUDE, EPOC32_INCLUDE + '/libc', 'deps/ogg/include']
+sysincludes = [ EPOC32_INCLUDE, C_INCLUDE, 'deps/ogg/include']
 defines     = []
 
 SymbianProgram( target, targettype,

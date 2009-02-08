@@ -4,18 +4,34 @@ gcce.GCCE_OPTIMIZATION_FLAGS = "-O2 -fno-unit-at-a-time"
 
 # Pygame's installer package
 PACKAGE_NAME = ARGUMENTS.get( "package",    "pygame.sis" )
+
+#: Name of the title on installer.
 PACKAGE_TITLE = ARGUMENTS.get( "sisappname", "pygame for S60" )
+
 #: Name of the python dll to use
 PYTHON_LIB_NAME = ARGUMENTS.get( "pythondll", "pygame_python" )
+
 #: Path to the libraries of pygame
 PATH_PY_LIBS = ARGUMENTS.get( "pylibs", "data/pygame/libs" )
+
 #: Name of the used sdl.dll ( pygame_sdl.dll )
 SDL_DLL_NAME = ARGUMENTS.get( "sdldll", "pygame_sdl" )
+
 #: Name of the used jpeg.dll
 JPEG_DLL_NAME = ARGUMENTS.get( "jpegdll", "pygame_libjpeg" )
+
 #: Name of the used libpng.dll
 PNG_DLL_NAME = ARGUMENTS.get( "pngdll", "pygame_libpng" )
 
+#: Using OpenC or estlib?
+USE_OPENC = ARGUMENTS.get( "openc", True )
+if USE_OPENC:
+    C_LIBRARY = ["libc", "libm"]
+    C_INCLUDE = join( EPOC32_INCLUDE, "stdapis" )
+else:
+    C_LIBRARY = ["estlib"]
+    C_INCLUDE = join( EPOC32_INCLUDE, "libc" )
+     
 UID_PACKAGE    = ARGUMENTS.get( "sisuid" )
 UID_PYGAMEAPP  = ARGUMENTS.get( "appuid" )
 UID_SDL        = ARGUMENTS.get( "sdluid" )
@@ -47,10 +63,10 @@ if EMBEDDED_PYTHON_SIS.lower() != "none" and COMPILER != COMPILER_WINSCW:
     EMBEDDED_PYTHON_SIS_UID = hex(uids[2]).replace("L","")
     print "Read UID %s from '%s'" % ( EMBEDDED_PYTHON_SIS_UID, EMBEDDED_PYTHON_SIS  )
 else:
-    EMBEDDED_PYTHON_SIS = ""
+    EMBEDDED_PYTHON_SIS = None
     EMBEDDED_PYTHON_SIS_UID = 0x0
       
-Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS SDL_DLL_NAME CAPABILITIES PYTHON_INCLUDE")
+Export("PACKAGE_NAME PYTHON_LIB_NAME PATH_PY_LIBS SDL_DLL_NAME CAPABILITIES PYTHON_INCLUDE USE_OPENC C_LIBRARY C_INCLUDE")
 
 # Build external libraries. Conditional because needed only once and takes extra time after that.
 if ARGUMENTS.get( "buildlibs", True ):

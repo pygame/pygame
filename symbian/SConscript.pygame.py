@@ -1,8 +1,7 @@
+Import("*")
 
 from scons_symbian import *
 import glob
-
-Import("*")
 
 python_includes = [ PYTHON_INCLUDE ]
 
@@ -40,26 +39,33 @@ for x in removed:
 
 pygame_sources.append("common/builtins.c")
 
+if USE_OPENC:
+    C_LIB_INCLUDE = "OPENC"
+else:
+    C_LIB_INCLUDE = ""
+    
 # Build pygame library
 SymbianProgram( "pygame", TARGETTYPE_LIB,
                 sources = pygame_sources,
-                defines = [                    
+                defines = [ 
+                   C_LIB_INCLUDE                   
                 ],
                 includes = python_includes + [
                              "common",                             
                              join( "deps", "jpeg"),
                              join( "deps", "SDL_image"),
                              join( EPOC32_INCLUDE, "SDL"),
-                             join( EPOC32_INCLUDE, "libc"),                             
+                             C_INCLUDE,                             
                              #join( "..", "..", "tools", "debug" )
                            ],
                 package = PACKAGE_NAME,
-                libraries = [
-                     PYTHON_LIB_NAME,
-                     "euser", "estlib", "avkon", "apparc", 
+                libraries = C_LIBRARY + [
+                     PYTHON_LIB_NAME,                     
+                     "euser", "avkon", "apparc", 
                      "cone","eikcore", "libGLES_CM",                     
                      SDL_DLL_NAME,
                      ],
+                winscw_options = "-w noempty",
                 )
 
 # Install pygame python libraries

@@ -1,3 +1,5 @@
+Import("*")
+
 # This file is generated with mmp2sconscript
 from scons_symbian import *
 
@@ -37,12 +39,14 @@ sources = ['deps/vorbis/lib/analysis.c',
 
 
 includes    = ['deps/SDL/symbian', 'deps/vorbis/include', 'deps/vorbis/include/vorbis']
-sysincludes = [EPOC32_INCLUDE, EPOC32_INCLUDE + "/libc", 'deps/ogg/include', 'deps/ogg/symbian']
+sysincludes = [EPOC32_INCLUDE, C_INCLUDE, 'deps/ogg/include', 'deps/ogg/symbian']
 
 defines     = []
 if COMPILER == COMPILER_GCCE: 
-    defines     = ['alloca=__builtin_alloca']
-
+    defines += ['alloca=__builtin_alloca']
+if USE_OPENC:
+    defines += [ 'OPENC' ]
+    
 SymbianProgram( target, targettype,
     sources = sources,
     includes    = includes,
@@ -50,5 +54,6 @@ SymbianProgram( target, targettype,
     libraries   = libraries,
     defines     = defines,
     uid3 = uid3,
+    winscw_options = "-relax_pointers",   
 )
 

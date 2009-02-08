@@ -19,6 +19,13 @@ Checkout ogg to symbian/deps/ogg
 Checkout vorbis to symbian/deps/vorbis
 - IMPORTANT: Revision 7543
 - SVN: http://svn.xiph.org/trunk/vorbis
+- Changes for OpenC
+-- os.h:
+	#if defined(__SYMBIAN32__) && defined(__WINS__)
+	#include <sys/types.h> // <-- Add this
+	void* _alloca(size_t size);
+	#  define alloca _alloca
+	#endif
 
 Get SDL for Series60
 - Available at: http://koti.mbnet.fi/mertama/sdl.html
@@ -32,7 +39,11 @@ Get SDL_ttf to symbian/deps/SDL_ttf
 
 Get Symbian FreeType2 port to symbian/deps/sft2
 - SVN: https://sft2.svn.sourceforge.net/svnroot/sft2/trunk/sft2
-
+- Changes for OpenC
+-- libsft2.cpp:
+  #include <sys/reent.h> // <-- Remove
+  ...
+  CloseSTDLIB(); in ~CSymbianFreeType() // <-- Remove
 
 Get SDL_image to symbian/deps/SDL_image
 - http://www.libsdl.org/projects/SDL_image/

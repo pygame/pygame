@@ -21,8 +21,9 @@ def start():
         
     vars = [ x for x in dir(defaults) if not x.startswith("_") ]
     values = [ getattr( defaults, x ) for x in vars ]
-    defaults = zip( vars, values )
+    oldvalues = zip( vars, values )
     
+    print "=" * 79
     result = {}
     for name,value in args:
         if name not in vars:
@@ -30,31 +31,33 @@ def start():
             print "Possible configuration values are:\n", " | ".join( vars )
             raise SystemExit( )
         
+        old = getattr(defaults, name )
         try:
             # Evaluate booleans and integers
             result[name] = eval(value)
         except:
             result[name] = value
             
-        print name, "reconfigured to", value
+        print name, "reconfigured '%s' => '%s'" % ( str(old), str( value ))
     
-    for name, value in defaults:
+    for name, value in oldvalues:
         if name not in result:
             result[name] = value
     
     
     # Create the module
     print
+    print "-" * 79
     f=open("build_config.py",'w');
     keys = result.keys();keys.sort()
     for name in keys:
         value = result[name]
-        line = "%s = %s\n" % ( name, repr(value))
+        line = "%-15s = %s\n" % ( name, repr(value))
         print line.strip()
         f.write(line)
     f.close()
     
-    
+    print "=" * 79
     
 if __name__ == "__main__":
     start()    

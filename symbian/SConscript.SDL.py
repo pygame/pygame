@@ -1,7 +1,7 @@
+Import("*")
+
 # This file is generated with mmp2sconscript
 from scons_symbian import *
-
-Import("*")
 
 target     = TARGET_NAME
 targettype = "dll"
@@ -19,10 +19,10 @@ sysincludes = ['deps/SDL/include', '/epoc32/include',
                'inc', '/epoc32/include/SDL', 
                '/epoc32/include/gles', 
                '/epoc32/include/EGL', 
-               '/epoc32/include/libc', 
+               C_INCLUDE, 
                ]
 
-libraries  = ['euser',
+libraries  = C_LIBRARY + ['euser',
  'fbscli',
  'ws32',
  'gdi',
@@ -38,11 +38,11 @@ libraries  = ['euser',
  'hal',
 # 'libc',
 # 'libm',
- 'estlib']
+ ]
 
 # Static libraries
 staticlibs = [ 'vorbis.lib', 'ogg.lib', 
-             'SDL_ttf.lib', 
+             #'SDL_ttf.lib', 
              'libsft2.lib',
              'pygame_libjpeg'
              ]
@@ -141,21 +141,30 @@ sysincludes += [
     'deps/jpeg/',    
 ]
 
+C_LIB_DEFINE = ""
+if not USE_OPENC:
+    # Tell SDL to use "estlib" then
+    C_LIB_DEFINE = 'SYMBIANC'
+else:
+    C_LIB_DEFINE = 'OPENC'
+
+defines.append( C_LIB_DEFINE )
+    
 # png.h does not like __DLL__ define
 SymbianProgram( "pygame_SDL_libpng", TARGETTYPE_LIB,
                 sources = ["deps/SDL_Image/IMG_png.c"],
                 includes = includes,
                 sysincludes = sysincludes + ["deps/libpng"],
-                defines = ["LOAD_PNG"],                
+                defines = ["LOAD_PNG", C_LIB_DEFINE],                
                 )
 staticlibs += ["pygame_SDL_libpng.lib", "pygame_libpng.lib"]
 libraries  += ["ezlib"] # For libpng
 
-defines += ['SYMBIANC', 'SYMBIAN_SERIES60', 
+defines += ['SYMBIAN_SERIES60', 
                'NO_SIGNAL_H', 'ENABLE_EPOC', 
                'DISABLE_JOYSTICK', 'DISABLE_CDROM',                
                ]
-
+    
 includes += ["deps/SDL_ttf/", "deps/sft2/inc/sys"]
 
 SymbianProgram( target, targettype,

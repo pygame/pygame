@@ -1,3 +1,7 @@
+""" Defines project for PNG library """
+
+Import("*")
+
 # This file is generated with mmp2sconscript
 from scons_symbian import *
 from glob import glob
@@ -7,7 +11,7 @@ Import("TARGET_NAME UID3 PACKAGE_NAME")
 # Built as dll because needed by SDL and the application
 target     = TARGET_NAME
 targettype = TARGETTYPE_LIB
-libraries  = ['euser', 'estlib']
+libraries  = C_LIBRARY + ['euser']
 
 # Static libs
 libraries += []
@@ -19,7 +23,7 @@ sources = glob( "deps/libpng/png*.c")
 
 
 includes    = ['deps/libpng/']
-sysincludes = ['/epoc32/include', '/epoc32/include/libc']
+sysincludes = ['/epoc32/include', C_INCLUDE ]
 defines     = []
 
 SymbianProgram( target, targettype,

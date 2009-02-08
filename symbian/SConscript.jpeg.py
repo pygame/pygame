@@ -1,4 +1,6 @@
-# This file is generated with mmp2sconscript
+""" Defines project for JPEG library """
+Import("*")
+
 from scons_symbian import *
 
 Import("TARGET_NAME UID3 PACKAGE_NAME CAPABILITIES")
@@ -6,7 +8,7 @@ Import("TARGET_NAME UID3 PACKAGE_NAME CAPABILITIES")
 # Built as dll because needed by SDL and the application
 target     = TARGET_NAME
 targettype = "dll"
-libraries  = ['euser', 'estlib']
+libraries  = C_LIBRARY + ['euser']
 
 # Static libs
 libraries += []
@@ -63,7 +65,7 @@ sources = [
 
 
 includes    = []
-sysincludes = ['/epoc32/include', '/epoc32/include/libc']
+sysincludes = ['/epoc32/include', C_INCLUDE ]
 defines     = ['JPEG_DLL']
 
 SymbianProgram( target, targettype,
