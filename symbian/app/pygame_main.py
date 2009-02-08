@@ -4,8 +4,8 @@ pygame main script for S60
 import os
 import sys
 
-
-if os.name == "e32":
+f = None
+if sys.platform == "symbian_s60":
     f=open('/data/pygame/stdout.txt','w')
     sys.stdout = f
     sys.stderr = f
@@ -20,6 +20,6 @@ execfile(path_to_app, {'__builtins__': __builtins__,
                    '__name__': '__main__',
                    '__file__': path_to_app } )
 
-if os.name == "e32":
+if f is not None:
     sys.stdout.flush()
     sys.stdout.close()
