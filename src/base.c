@@ -47,8 +47,10 @@ QDGlobals qd;
 
 static PyObject* quitfunctions = NULL;
 static PyObject* PyExc_SDLError;
+static int sdl_was_init = 0;
 static void install_parachute (void);
 static void uninstall_parachute (void);
+static void _quit (void);
 static void atexit_quit (void);
 static int PyGame_Video_AutoInit (void);
 static void PyGame_Video_AutoQuit (void);
@@ -125,12 +127,12 @@ init (PyObject* self)
 
 
     /*nice to initialize timer, so startup time will reflec init() time*/
-    SDL_Init (
+    sdl_was_init = SDL_Init (
 #if defined(WITH_THREAD) && !defined(MS_WIN32) && defined(SDL_INIT_EVENTTHREAD)
         SDL_INIT_EVENTTHREAD |
 #endif
         SDL_INIT_TIMER |
-        SDL_INIT_NOPARACHUTE);
+        SDL_INIT_NOPARACHUTE) == 0;
 
 
     /* initialize all pygame modules */
@@ -173,34 +175,16 @@ init (PyObject* self)
 static void
 atexit_quit (void)
 {
-    PyObject* quit;
-    PyObject* privatefuncs;
-    int num;
-
-    if (!quitfunctions)
-        return;
-
-    privatefuncs = quitfunctions;
-    quitfunctions = NULL;
-
-    uninstall_parachute ();
-    num = PyList_Size (privatefuncs);
-
-    while (num--) /*quit in reverse order*/
-    {
-        quit = PyList_GET_ITEM (privatefuncs, num);
-        if (PyCallable_Check (quit))
-            PyObject_CallObject (quit, NULL);
-        else if (PyCObject_Check (quit))
-        {
-            void* ptr = PyCObject_AsVoidPtr (quit);
-            (*(void(*)(void)) ptr) ();
-        }
-    }
-    Py_DECREF (privatefuncs);
-
     PyGame_Video_AutoQuit ();
-    SDL_Quit ();
+
+    /* Maybe it is safe to call SDL_quit more than once after an SDL_Init,
+       but this is undocumented. So play it safe and only call after a
+       successful SDL_Init.
+    */
+    if (sdl_was_init) {
+	sdl_was_init = 0;
+	SDL_Quit ();
+    }
 }
 
 static PyObject*
@@ -221,8 +205,41 @@ get_sdl_byteorder (PyObject *self)
 static PyObject*
 quit (PyObject* self)
 {
-    atexit_quit ();
+    _quit ();
     Py_RETURN_NONE;
+}
+
+static void
+_quit (void)
+{
+    PyObject* quit;
+    PyObject* privatefuncs;
+    int num;
+
+    if (!quitfunctions) {
+        return;
+    }
+
+    privatefuncs = quitfunctions;
+    quitfunctions = NULL;
+
+    uninstall_parachute ();
+    num = PyList_Size (privatefuncs);
+
+    while (num--) /*quit in reverse order*/
+    {
+        quit = PyList_GET_ITEM (privatefuncs, num);
+        if (PyCallable_Check (quit))
+            PyObject_CallObject (quit, NULL);
+        else if (PyCObject_Check (quit))
+        {
+            void* ptr = PyCObject_AsVoidPtr (quit);
+            (*(void(*)(void)) ptr) ();
+        }
+    }
+    Py_DECREF (privatefuncs);
+
+    atexit_quit ();
 }
 
 /* internal C API utility functions */
@@ -466,7 +483,7 @@ pygame_parachute (int sig)
         break;
     }
 
-    atexit_quit ();
+    _quit ();
     Py_FatalError (signaltype);
 }
 
@@ -567,7 +584,21 @@ PYGAME_EXPORT
 void initbase (void)
 {
     PyObject *module, *dict, *apiobj;
+    PyObject *atexit, *atexit_register, *quit, *rval;
     static void* c_api[PYGAMEAPI_BASE_NUMSLOTS];
+
+    /* import need modules. Do this first so if there is an error
+       the module is not loaded.
+    */
+    atexit = PyImport_ImportModule ("atexit");
+    if (!atexit) {
+	return;
+    }
+    atexit_register = PyObject_GetAttrString (atexit, "register");
+    Py_DECREF (atexit);
+    if (!atexit_register) {
+	return;
+    }
 
     /* create the module */
     module = Py_InitModule3 ("base", init__builtins__, DOC_PYGAME);
@@ -597,7 +628,19 @@ void initbase (void)
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
 
-    /*some intiialization*/
+    /*some intialization*/
+    quit = PyObject_GetAttrString (module, "quit");
+    if (!quit) {  /* assertion */
+	Py_DECREF (atexit_register);
+	return;
+    }
+    rval = PyObject_CallFunctionObjArgs (atexit_register, quit, NULL);
+    Py_DECREF (atexit_register);
+    Py_DECREF (quit);
+    if (!rval) {
+	return;
+    }
+    Py_DECREF (rval);
     Py_AtExit (atexit_quit);
     install_parachute ();
 #ifdef MS_WIN32
