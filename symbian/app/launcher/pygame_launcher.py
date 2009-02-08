@@ -49,25 +49,28 @@ class SystemData:
         self.ticdiff  = 0
         self.tics     = 0
     
-    # SDL's wants to keep the font's file handle open.
-    # Symbian's c-library (estlib at least) does not let one to have
-    # multiple handles open to a single file (even though the Symbian's 
-    # RFile implementation does ).
-    # These functions should ensure that font is always closed
-    # after use. This, of course, causes performance issues due
-    # to repeated object instantation, file openings and reading. 
-    # The issue is handled here with TextCache class, which caches the surfaces
-    # of the rendered texts.
+        # Cache fonts to improve performance
+        # Fonts using the same font file works with OpenC only.
+        # SDL's wants to keep the font's file handle open.
+        # Symbian's c-library (estlib) does not let one to have
+        # multiple handles open to a single file.
+        # (even though the Symbian's RFile implementation does )
+        self.font_title  = pygame.font.Font(None, 36)        
+        self.font_small = pygame.font.Font(None, 18)
+        self.font_normal = pygame.font.Font(None, 25)
+        
+        self.font_normal_bold = pygame.font.Font(None, 25)
+        self.font_normal_bold.set_bold(True)
+        
+    # Used by TextCache class, which caches the surfaces of the rendered texts.
     def getFontTitle(self):
-        return pygame.font.Font(None, 36)
+        return self.font_title
     def getFontNormal(self):
-        return pygame.font.Font(None, 25)
+        return self.font_normal
     def getFontNormalBold(self):
-        f = self.getFontNormal()
-        f.set_bold(True)
-        return f
-    def get_font_small(self):
-        return pygame.font.Font(None, 18)
+        return self.font_normal_bold        
+    def getFontSmall(self):
+        return self.font_small
 
 class TextCache:
     """ Handles text rendering and caches the surfaces of the texts for speed.
@@ -138,7 +141,7 @@ class Background(pygame.sprite.Sprite):
         self.alphaval = 200.
         self.alphadir = -20. # per second
          
-    def update_alphaval(self):
+    def updateAlphaValue(self):
         """ Update the visibility of the logo """
         min = 200.
         max = 245.
@@ -158,7 +161,7 @@ class Background(pygame.sprite.Sprite):
         
     def update(self):
         
-        self.update_alphaval()
+        self.updateAlphaValue()
         
         self.background.fill(BLACK)
         
@@ -189,7 +192,7 @@ class TextField(pygame.sprite.Sprite):
         
         self.exit_callback = exit_callback
         
-    def update_text(self):
+    def updateText(self):
         """ Redraw text contents """
         if not self.text_changed: return
         
@@ -212,7 +215,7 @@ class TextField(pygame.sprite.Sprite):
         pygame.draw.rect(surf, TITLE_STROKE, rect, 2)
         
         #text = textwrap.dedent(text)
-        font = self.sysdata.get_font_small()
+        font = self.sysdata.getFontSmall()
         
         lines = text.split("\n")
         height = font.get_height()
@@ -256,7 +259,7 @@ class TextField(pygame.sprite.Sprite):
         
     def update(self):
         self.updateTitle()
-        self.update_text()
+        self.updateText()
         
         self.parent.blit(self.titlesurface, self.titlepos )
         self.parent.blit(self.textsurface, self.itemspos )
@@ -680,20 +683,20 @@ class Application(object):
     def mhExit(self):
         """ Menu handler for exit item """
         self.running = 0
-        
+    
     def mhSettings(self):
         """ Menu handler for settings item """
         self.sprites.remove(self.focused)
         self.focused = TextField(self.background.background, self.sysdata,
-                        exit_callback = self._exitAbout,
+                        exit_callback = self._exit_to_main,
                         title = "Settings",
                         text = "Begone! Nothing to see here!",
                         mode = TextField.MODE_CENTER
                         )
         self.sprites.add(self.focused)
     
-    def _exitAbout(self):
-        """ About view's exit handler"""
+    def _exit_to_main(self):
+        """ Callback to exit back to main menu """
         
         self.sprites.remove(self.focused)
         self.sprites.add(self._main_menu)
@@ -713,7 +716,7 @@ class Application(object):
         
         self.sprites.remove(self.focused)
         self.focused = TextField(self.background.background, self.sysdata,
-                        exit_callback = self._exitAbout,
+                        exit_callback = self._exit_to_main,
                         title = "About",
                         text = text,
                         mode = TextField.MODE_CENTER
