@@ -353,7 +353,7 @@ movie_render_frame (PyObject* self, PyObject* args)
 
 static PyMethodDef movie_builtins[] =
 {
-    { "play", movie_play, METH_NOARGS, DOC_MOVIEPLAY },
+    { "play", (PyCFunction)movie_play, METH_NOARGS, DOC_MOVIEPLAY },
     { "stop", (PyCFunction) movie_stop, METH_NOARGS, DOC_MOVIESTOP },
     { "pause", (PyCFunction) movie_pause, METH_NOARGS, DOC_MOVIEPAUSE },
     { "rewind", (PyCFunction) movie_rewind, METH_NOARGS, DOC_MOVIEREWIND },
