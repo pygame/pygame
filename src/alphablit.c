@@ -39,6 +39,8 @@ typedef struct
     SDL_PixelFormat *src;
     Uint8          *table;
     SDL_PixelFormat *dst;
+    Uint32          src_flags;
+    Uint32          dst_flags;
 } SDL_BlitInfo;
 
 static void alphablit_alpha (SDL_BlitInfo * info);
@@ -114,6 +116,8 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
         info.d_skip = dst->pitch - info.d_width * dst->format->BytesPerPixel;
         info.src = src->format;
         info.dst = dst->format;
+	info.src_flags = src->flags;
+	info.dst_flags = dst->flags;
 
         switch (the_args)
         {
@@ -155,8 +159,8 @@ SoftBlitPyGame (SDL_Surface * src, SDL_Rect * srcrect, SDL_Surface * dst,
 
         case PYGAME_BLEND_RGBA_ADD:
         {
-            blit_blend_rgba_add (&info);
-            break;
+	    blit_blend_rgba_add (&info);
+	    break;
         }
         case PYGAME_BLEND_RGBA_SUB:
         {
@@ -227,7 +231,18 @@ blit_blend_rgba_add (SDL_BlitInfo * info)
     Uint32          pixel;
     Uint32          tmp;
 
-    if (srcbpp == 4 && dstbpp == 4)
+    if (!(info->dst_flags & SDL_SRCALPHA && dstfmt->Amask))
+    {
+	blit_blend_add (info);
+	return;
+    }
+
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	info->src_flags & SDL_SRCALPHA)
     {
         while (height--)
         {
@@ -346,7 +361,18 @@ blit_blend_rgba_sub (SDL_BlitInfo * info)
     Uint32          pixel;
     Sint32          tmp2;
 
-    if (srcbpp == 4 && dstbpp == 4)
+    if (!(info->dst_flags & SDL_SRCALPHA && dstfmt->Amask))
+    {
+	blit_blend_sub (info);
+	return;
+    }
+
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	info->src_flags & SDL_SRCALPHA)
     {
         while (height--)
         {
@@ -465,7 +491,18 @@ blit_blend_rgba_mul (SDL_BlitInfo * info)
     Uint32          pixel;
     Uint32          tmp;
 
-    if (srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4)
+    if (!(info->dst_flags & SDL_SRCALPHA && dstfmt->Amask))
+    {
+	blit_blend_mul (info);
+	return;
+    }
+
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	info->src_flags & SDL_SRCALPHA)
     {
         while (height--)
         {
@@ -583,7 +620,18 @@ blit_blend_rgba_min (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
 
-    if (srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4)
+    if (!(info->dst_flags & SDL_SRCALPHA && dstfmt->Amask))
+    {
+	blit_blend_min (info);
+	return;
+    }
+
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	info->src_flags & SDL_SRCALPHA)
     {
         while (height--)
         {
@@ -701,7 +749,18 @@ blit_blend_rgba_max (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
 
-    if (srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4)
+    if (!(info->dst_flags & SDL_SRCALPHA && dstfmt->Amask))
+    {
+	blit_blend_max (info);
+	return;
+    }
+
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	info->src_flags & SDL_SRCALPHA)
     {
         while (height--)
         {
@@ -837,7 +896,12 @@ blit_blend_add (SDL_BlitInfo * info)
     Uint32          pixel;
     Uint32          tmp;
 
-    if (srcbpp == 4 && dstbpp == 4)
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	!(info->src_flags & SDL_SRCALPHA))
     {
         while (height--)
         {
@@ -881,7 +945,7 @@ blit_blend_add (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -943,7 +1007,7 @@ blit_blend_add (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -1003,7 +1067,12 @@ blit_blend_sub (SDL_BlitInfo * info)
     Uint32          pixel;
     Sint32          tmp2;
 
-    if (srcbpp == 4 && dstbpp == 4)
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	!(info->src_flags & SDL_SRCALPHA))
     {
         while (height--)
         {
@@ -1047,7 +1116,7 @@ blit_blend_sub (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -1109,7 +1178,7 @@ blit_blend_sub (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
         {
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
             while (height--)
             {
                 LOOP_UNROLLED4(
@@ -1169,7 +1238,12 @@ blit_blend_mul (SDL_BlitInfo * info)
     Uint32          pixel;
     Uint32          tmp;
 
-    if (srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4)
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	!(info->src_flags & SDL_SRCALPHA))
     {
         while (height--)
         {
@@ -1213,7 +1287,7 @@ blit_blend_mul (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -1275,7 +1349,7 @@ blit_blend_mul (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -1334,7 +1408,12 @@ blit_blend_min (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
 
-    if (srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4)
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	!(info->src_flags & SDL_SRCALPHA))
     {
         while (height--)
         {
@@ -1378,7 +1457,7 @@ blit_blend_min (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -1440,7 +1519,7 @@ blit_blend_min (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -1499,7 +1578,12 @@ blit_blend_max (SDL_BlitInfo * info)
     Uint8           dR, dG, dB, dA, sR, sG, sB, sA;
     Uint32          pixel;
 
-    if (srcfmt->BytesPerPixel == 4 && dstfmt->BytesPerPixel == 4)
+    if (srcbpp == 4 && dstbpp == 4 &&
+	srcfmt->Rmask == dstfmt->Rmask &&
+	srcfmt->Gmask == dstfmt->Gmask &&
+	srcfmt->Bmask == dstfmt->Bmask &&
+	srcfmt->Amask == dstfmt->Amask &&
+	!(info->src_flags & SDL_SRCALPHA))
     {
         while (height--)
         {
@@ -1544,7 +1628,7 @@ blit_blend_max (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
@@ -1606,7 +1690,7 @@ blit_blend_max (SDL_BlitInfo * info)
 	else if (dstbpp == 3)
 	{
 	    size_t offsetR, offsetG, offsetB;
-	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
 	    while (height--)
 	    {
 		LOOP_UNROLLED4(
