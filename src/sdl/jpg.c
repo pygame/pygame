@@ -20,6 +20,7 @@
 #ifdef HAVE_JPEG
 
 #include "jpg.h"
+#include <jpeglib.h>
 
 static int _write_jpeg (char *file_name, unsigned char** image_buffer,
     int image_width, int image_height, int quality);

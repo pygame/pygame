@@ -18,7 +18,7 @@
 
 */
 #include <math.h>
-#include "pgbase.h"
+#include "pgdefines.h"
 #include "draw.h"
 #include "surface.h"
 

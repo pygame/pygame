@@ -19,6 +19,7 @@
 */
 #ifdef HAVE_PNG
 
+#include <png.h>
 #include "pgpng.h"
 
 static int _write_png (char *file_name, png_bytep *rows, int w, int h,

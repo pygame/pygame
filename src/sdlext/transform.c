@@ -18,7 +18,7 @@
 
 */
 #include <math.h>
-#include "pgbase.h"
+#include "pgdefines.h"
 #include "transform.h"
 #include "filters.h"
 #include "surface.h"

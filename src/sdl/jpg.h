@@ -21,7 +21,6 @@
 #define _PYGAME_JPG_H_
 
 #include <SDL.h>
-#include <jpeglib.h>
 
 /**
  * \brief Saves a SDL_Surface as JPG image.

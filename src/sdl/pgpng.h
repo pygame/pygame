@@ -21,7 +21,6 @@
 #define _PYGAME_PNG_H_
 
 #include <SDL.h>
-#include <png.h>
 
 /**
  * \brief Saves a SDL_Surface as PNG image.
