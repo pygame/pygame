@@ -72,7 +72,7 @@
     break;                                        \
     }
 
-#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt)                    \
+#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt)		      \
     _sR = ((px & fmt->Rmask) >> fmt->Rshift);                         \
     _sR = (_sR << fmt->Rloss) + (_sR >> (8 - (fmt->Rloss << 1)));     \
     _sG = ((px & fmt->Gmask) >> fmt->Gshift);                         \
