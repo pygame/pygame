@@ -878,7 +878,29 @@ blit_blend_add (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -918,7 +940,30 @@ blit_blend_add (SDL_BlitInfo * info)
             }
 
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+		    GET_PIXEL(pixel, srcbpp, src);
+		    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -999,7 +1044,29 @@ blit_blend_sub (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -1039,7 +1106,30 @@ blit_blend_sub (SDL_BlitInfo * info)
             }
 
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+        {
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+            while (height--)
+            {
+                LOOP_UNROLLED4(
+                {
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt);
+                    GET_PIXEL (pixel, dstbpp, dst);
+                    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+                    BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+                    src += srcbpp;
+                    dst += dstbpp;
+                }, n, width);
+                src += srcskip;
+                dst += dstskip;
+            }
+        }
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -1120,7 +1210,29 @@ blit_blend_mul (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -1160,7 +1272,30 @@ blit_blend_mul (SDL_BlitInfo * info)
             }
 
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -1240,7 +1375,29 @@ blit_blend_min (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -1280,7 +1437,30 @@ blit_blend_min (SDL_BlitInfo * info)
             }
 
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -1361,7 +1541,29 @@ blit_blend_max (SDL_BlitInfo * info)
                 dst += dstskip;
             }
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+		    GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -1401,7 +1603,30 @@ blit_blend_max (SDL_BlitInfo * info)
             }
 
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24(offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt);
+		    BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcbpp;
+		    dst += dstbpp;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
