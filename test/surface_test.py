@@ -864,5 +864,111 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail()
 
+class SurfaceBlitBlendTest (unittest.TestCase):
+
+    test_palette = [(0, 0, 0, 255),
+                    (10, 30, 60, 255),
+                    (25, 75, 100, 255),
+                    (100, 150, 200, 255),
+                    (0, 100, 200, 255)]
+    surf_size = (10, 12)
+    test_points = [((0, 0), 1), ((4, 5), 1), ((9, 0), 2),
+                   ((5, 5), 2), ((0, 11), 3), ((4, 6), 3),
+                   ((9, 11), 4), ((5, 6), 4)]
+
+    def _make_surface(self, bitsize, srcalpha=False, palette=None):
+        if palette is None:
+            palette = self.test_palette
+        flags = 0
+        if srcalpha:
+            flags |= SRCALPHA
+        surf = pygame.Surface(self.surf_size, flags, bitsize)
+        if bitsize == 8:
+            surf.set_palette([c[:3] for c in palette])
+        return surf
+
+    def _fill_surface(self, surf, palette=None):
+        if palette is None:
+            palette = self.test_palette
+        surf.fill(palette[1], (0, 0, 5, 6))
+        surf.fill(palette[2], (5, 0, 5, 6))
+        surf.fill(palette[3], (0, 6, 5, 6))
+        surf.fill(palette[4], (5, 6, 5, 6))
+
+    def _make_src_surface(self, bitsize, srcalpha=False, palette=None):
+        surf = self._make_surface(bitsize, srcalpha, palette)
+        self._fill_surface(surf, palette)
+        return surf
+
+    def _assert_surface(self, surf, palette=None, msg=""):
+        if palette is None:
+            palette = self.test_palette
+        if surf.get_bitsize() == 16:
+            palette = [surf.unmap_rgb(surf.map_rgb(c)) for c in palette]
+        for posn, i in self.test_points:
+            self.failUnlessEqual(surf.get_at(posn), palette[i],
+                                 "%s != %s: flags: %i, bpp: %i, posn: %s%s" %
+                                 (surf.get_at(posn),
+                                  palette[i], surf.get_flags(),
+                                  surf.get_bitsize(), posn, msg))
+
+    def setUp(self):
+        # Needed for 8 bits-per-pixel color palette surface tests.
+        pygame.init()
+
+    def tearDown(self):
+        pygame.quit()
+
+    def test_blend(self):
+        sources = [self._make_src_surface(8),
+                   self._make_src_surface(16),
+                   self._make_src_surface(16, srcalpha=True),
+                   self._make_src_surface(24),
+                   self._make_src_surface(32),
+                   self._make_src_surface(32, srcalpha=True)]
+        destinations = [self._make_surface(16),
+                        self._make_surface(16, srcalpha=True),
+                        self._make_surface(24),
+                        self._make_surface(32),
+                        self._make_surface(32, srcalpha=True)]
+        blend = [('BLEND_ADD', (0, 25, 100, 255),
+                  lambda a, b: min(a + b, 255)),
+                 ('BLEND_SUB', (0, 25, 100, 255),
+                  lambda a, b: max(a - b, 0)),
+                 ('BLEND_MULT', (0, 7, 100, 255),
+                  lambda a, b: (a * b) // 256),
+                 ('BLEND_MIN', (0, 255, 0, 255), min),
+                 ('BLEND_MAX', (0, 255, 0, 255), max)]
+
+        dest_color = [0, 25, 100, 255]
+        for src in sources:
+            src_palette = [src.unmap_rgb(src.map_rgb(c))
+                           for c in self.test_palette]
+            for dest in destinations:
+                for blend_name, dest_color, op in blend:
+                    dc = dest.unmap_rgb(dest.map_rgb(dest_color))
+                    p = []
+                    for sc in src_palette:
+                        c = [op(dc[i], sc[i]) for i in range(3)]
+                        c.append(255)
+                        c = dest.unmap_rgb(dest.map_rgb(c))
+                        p.append(c)
+                    dest.fill(dest_color)
+                    dest.blit(src,
+                              (0, 0),
+                              special_flags=getattr(pygame, blend_name))
+                    self._assert_surface(dest, p,
+                                         (", op: %s, src bpp: %i"
+                                          ", src flags: %i" %
+                                          (blend_name,
+                                           src.get_bitsize(),
+                                           src.get_flags())))
+
+    def todo_test_blend_rgb(self):
+        self.fail()
+
+    def todo_test_blend_rgba(self):
+        self.fail()
+
 if __name__ == '__main__':
     unittest.main()

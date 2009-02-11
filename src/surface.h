@@ -49,6 +49,12 @@
 
 
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define GET_PIXEL_24(b) (b[0] + (b[1] << 8) + (b[2] << 16))
+#else
+#define GET_PIXEL_24(b) (b[2] + (b[1] << 8) + (b[0] << 16))
+#endif
+
 #define GET_PIXEL(pxl, bpp, source)               \
     switch (bpp)                                  \
     {                                             \
@@ -61,9 +67,7 @@
     default:                                      \
     {                                             \
         Uint8 *b = (Uint8 *) source;              \
-        pxl = (SDL_BYTEORDER == SDL_LIL_ENDIAN) ? \
-            b[0] + (b[1] << 8) + (b[2] << 16) :   \
-            (b[0] << 16) + (b[1] << 8) + b[2];    \
+        pxl = GET_PIXEL_24(b);			  \
     }                                             \
     break;                                        \
     }
@@ -95,6 +99,35 @@
 
 
 
+
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN               
+#define SET_OFFSETS_24(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0 ? 0 :                  \
+          fmt->Rshift == 8 ? 1 :                  \
+	                     2   );               \
+    og = (fmt->Gshift == 0 ? 0 :                  \
+          fmt->Gshift == 8 ? 1 :                  \
+	                     2   );               \
+    ob = (fmt->Bshift == 0 ? 0 :                  \
+          fmt->Bshift == 8 ? 1 :                  \
+	                     2   );               \
+    }
+#else
+#define SET_OFFSETS_24(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0 ? 2 :                  \
+          fmt->Rshift == 8 ? 1 :                  \
+	                     0   );               \
+    og = (fmt->Gshift == 0 ? 2 :                  \
+          fmt->Gshift == 8 ? 1 :                  \
+	                     0   );               \
+    ob = (fmt->Bshift == 0 ? 2 :                  \
+          fmt->Bshift == 8 ? 1 :                  \
+	                     0   );               \
+    }
+#endif
 
 
 #define CREATE_PIXEL(buf, r, g, b, a, bp, ft)     \
