@@ -621,6 +621,8 @@
 
 #define DOC_PYGAMERECT "pygame.Rect(left, top, width, height): return Rect\npygame.Rect((left, top), (width, height)): return Rect\npygame.Rect(object): return Rect\npygame object for storing rectangular coordinates"
 
+#define DOC_RECTCOPY "Rect.copy(): return Rect\ncopy the rectangle"
+
 #define DOC_RECTMOVE "Rect.move(x, y): return Rect\nmoves the rectangle"
 
 #define DOC_RECTMOVEIP "Rect.move_ip(x, y): return None\nmoves the rectangle, in place"
@@ -2851,6 +2853,12 @@ pygame.Rect
 pygame.Rect((left, top), (width, height)): return Rect
 pygame.Rect(object): return Rect
 pygame object for storing rectangular coordinates
+
+
+
+Rect.copy
+ Rect.copy(): return Rect
+copy the rectangle
 
 
 

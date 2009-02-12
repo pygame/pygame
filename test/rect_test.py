@@ -598,5 +598,10 @@ class RectTypeTest( unittest.TestCase ):
 
         self.fail() 
 
+    def test_copy(self):
+        r = Rect(1, 2, 10, 20)
+        c = r.copy()
+        self.failUnlessEqual(c, r)
+        
 if __name__ == '__main__':
     unittest.main()
