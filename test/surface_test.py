@@ -1046,7 +1046,7 @@ class SurfaceBlendTest (unittest.TestCase):
                      special_flags=getattr(pygame, blend_name))
             self._assert_surface(dst, p, ", %s" % blend_name)
 
-    def todo_test_GET_PIXELVALS(self):
+    def test_GET_PIXELVALS(self):
         # surface.h GET_PIXELVALS bug regarding whether of not
         # a surface has per-pixel alpha. Looking at the Amask
         # is not enough. The surface's SRCALPHA flag must also
