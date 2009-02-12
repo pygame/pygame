@@ -72,14 +72,14 @@
     break;                                        \
     }
 
-#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt)		      \
+#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, ppa)		      \
     _sR = ((px & fmt->Rmask) >> fmt->Rshift);                         \
     _sR = (_sR << fmt->Rloss) + (_sR >> (8 - (fmt->Rloss << 1)));     \
     _sG = ((px & fmt->Gmask) >> fmt->Gshift);                         \
     _sG = (_sG << fmt->Gloss) + (_sG >> (8 - (fmt->Gloss << 1)));     \
     _sB = ((px & fmt->Bmask) >> fmt->Bshift);                         \
     _sB = (_sB << fmt->Bloss) + (_sB >> (8 - (fmt->Bloss << 1)));     \
-    if (fmt->Amask)                                                   \
+    if (ppa)							      \
     {                                                                 \
         _sA = ((px & fmt->Amask) >> fmt->Ashift);                     \
         _sA = (_sA << fmt->Aloss) + (_sA >> (8 - (fmt->Aloss << 1))); \
