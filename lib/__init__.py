@@ -208,6 +208,8 @@ def packager_imports():
     """
     Some additional things that py2app/py2exe will want to see
     """
+    import atexit
+    import colordict
     import bufferproxy
     import Numeric
     import numpy
