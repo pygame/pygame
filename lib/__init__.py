@@ -209,13 +209,12 @@ def packager_imports():
     Some additional things that py2app/py2exe will want to see
     """
     import atexit
-    import colordict
-    import bufferproxy
     import Numeric
     import numpy
     import OpenGL.GL
     import pygame.macosx
     import pygame.mac_scrap
+    import pygame.bufferproxy
     import pygame.colordict
 
 #make Rects pickleable
