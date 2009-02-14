@@ -250,18 +250,18 @@
  * where all additions are done before the shift, is needed.
 */
 #if (-1 >> 1) < 0
-#define ALPHA_BLEND_COMP(sC, dC, dA) ((((sC - dC) * sA + sC) >> 8) + dC)
+#define ALPHA_BLEND_COMP(sC, dC, sA) ((((sC - dC) * sA + sC) >> 8) + dC)
 #else
-#define ALPHA_BLEND_COMP(sC, dC, dA) (((dC << 8) + (sC - dC) * sA + sC) >> 8)
+#define ALPHA_BLEND_COMP(sC, dC, sA) (((dC << 8) + (sC - dC) * sA + sC) >> 8)
 #endif
 
 #define ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB, dA) \
     do {                                            \
         if (dA)                                     \
         {                                           \
-            dR = ALPHA_BLEND_COMP(sR, dR, dA);      \
-            dG = ALPHA_BLEND_COMP(sG, dG, dA);      \
-            dB = ALPHA_BLEND_COMP(sB, dB, dA);      \
+            dR = ALPHA_BLEND_COMP(sR, dR, sA);      \
+            dG = ALPHA_BLEND_COMP(sG, dG, sA);      \
+            dB = ALPHA_BLEND_COMP(sB, dB, sA);      \
             dA = sA + dA - ((sA * dA) / 255);       \
         }                                           \
         else                                        \
