@@ -116,6 +116,46 @@ class TextCache:
                 del self.order[0]
         
         return surface
+
+class DrawUtils:
+    """ Utility class for drawing common UI components. """
+    
+    @classmethod
+    def drawRectWithText(cl, surf, size, bgcolor, fgcolor, textsurf = None, textpos = None):
+        """
+        @param surf: Surface to draw to
+        @param size: Size of the rect
+        @param bgcolor: Background color of the rect
+        @param fgcolor: Foreground color of the rect( Text and surrounding rect )
+        @param textsurf: Surface containing pre-rendered text
+        @param textpos: Position of the text surface on the 'surf'
+        """
+        
+        # Make the dimmer( alpha ) foreground color for faded border
+        dim = list(fgcolor)
+        dim[-1] *= 0.5
+        
+        titlebgrect = pygame.Rect( 4, 4, size[0]-7, size[1]-7)
+        
+        # Draw the background
+        pygame.draw.rect(surf, bgcolor, titlebgrect)
+        if textsurf is not None: 
+            surf.blit(textsurf, textpos )
+        
+        # Draw dim outer rect
+        pygame.draw.rect(surf, dim, titlebgrect, 1)
+        
+        # Draw the center rect
+        alpha_diff = abs( fgcolor[-1] - bgcolor[-1])
+        for x in xrange(0,3):
+            # Draw dim inner rect
+            color = list(fgcolor)
+            color[-1] -= ( alpha_diff / 3. * x )
+            offset = 5 + x
+            
+            titlebgrect = pygame.Rect( offset, offset, size[0]-(offset*2-1), size[1]-(offset*2-1))
+            pygame.draw.rect(surf, color, titlebgrect, 1)
+            
         
 class Background(pygame.sprite.Sprite):
     """Main background"""
@@ -199,7 +239,7 @@ class TextField(pygame.sprite.Sprite):
         text = self._text
         
         # Below title
-        startposy = self.titlesurface.get_size()[1] + 20
+        startposy = self.titlesurface.get_size()[1] + 10
         startposx = 10
         
         # Position on parent
@@ -210,10 +250,8 @@ class TextField(pygame.sprite.Sprite):
         surf = pygame.Surface(size, SRCALPHA)
         
         # Create text contents
-        rect = pygame.Rect( 5, 0, size[0]-10, size[1]-5)
-        pygame.draw.rect(surf, MENU_BG, rect)
-        pygame.draw.rect(surf, TITLE_STROKE, rect, 2)
-        
+        DrawUtils.drawRectWithText( surf, size, TITLE_BG, TITLE_STROKE, 
+                                    textsurf = None )
         #text = textwrap.dedent(text)
         font = self.sysdata.getFontSmall()
         
@@ -246,11 +284,10 @@ class TextField(pygame.sprite.Sprite):
         self.size = size = self.parent.get_size()
         size = ( size[0], 40 )
 
+        # Draw the surrounding rect
         surf = titlebg = pygame.Surface(size, SRCALPHA)
-        self.titlebgrect = titlebgrect = pygame.Rect( 5, 5, size[0]-10, size[1]-10)
-        pygame.draw.rect(surf, TITLE_BG, titlebgrect)
-        pygame.draw.rect(surf, TITLE_STROKE, titlebgrect, 2)
-        surf.blit(text, textpos )
+        DrawUtils.drawRectWithText( surf, size, TITLE_BG, TITLE_STROKE, 
+                                    textsurf = text, textpos = textpos )
         
         self.title_changed = False
         self.titlesurface = surf
@@ -468,7 +505,19 @@ class Menu(pygame.sprite.Sprite):
         
         self.parent.blit( self.titlesurface, self.titlepos )
         self.parent.blit( self.itemsurface,  self.itemspos )
+    
+    def _create_list_bg(self, size):
         
+        surf = pygame.Surface(size, SRCALPHA)
+        DrawUtils.drawRectWithText( surf, size, TITLE_BG, TITLE_STROKE, textsurf = None )
+        self.itemsurface = surf
+        return surf
+    
+    def _get_list_size(self):
+        psize = self.parent.get_size()
+        size  = ( psize[0], psize[1] - self.itemspos[1])
+        return size
+    
     def updateItems(self):
         """ Update list item surface """
         if not self.items_changed: return
@@ -476,34 +525,31 @@ class Menu(pygame.sprite.Sprite):
         items = self._items
         
         # Below title
-        startposy = self.titlesurface.get_size()[1] + 20
+        startposy = self.titlesurface.get_size()[1] + 10
         startposx = 10
         self.itemspos = ( 0, startposy )
         
         # Create and cache the list background
-        psize = self.parent.get_size()
-        size = ( psize[0], psize[1] - startposy)
-        surf = pygame.Surface(size, SRCALPHA)
-        self.itemsurface = surf
+        size            = self._get_list_size()
+        surf             = self._create_list_bg(size)
         self.shownitems  = self.computeVisibleItemCount()
         
-        rect = pygame.Rect( 5, 0, size[0]-10, size[1]-5)
-        pygame.draw.rect(surf, MENU_BG, rect)
-        pygame.draw.rect(surf, TITLE_STROKE, rect, 2)
-        
-        startposy = 0
-        
+        # Initialize data
+        startposy       = 5
         self.visibletop = min(self.visibletop, self._selected_index)
-        maximumpos = min(len(items), self.visibletop + self.shownitems )        
-        height = self.sysdata.getFontNormal().get_height()
-        spaceheight = height + 10
+        maximumpos      = min(len(items), self.visibletop + self.shownitems )
+        height          = self.sysdata.getFontNormal().get_height()
+        spaceheight     = height + 10
         
+        # Refresh positions of items for mouse support
         self._itemrects = []
+        
+        
         # Draw the items
         for x in xrange(self.visibletop,maximumpos):
-            i,cb,args = items[x]
-            
-            id = i
+            textdata,cb,args = items[x]
+            # Textcache id
+            id = textdata
             if x == self._selected_index:
                 font = self.sysdata.getFontNormalBold
                 color = ITEM_SELECTED_TEXT
@@ -518,7 +564,7 @@ class Menu(pygame.sprite.Sprite):
             pos  = ( startposx, startposy )
             
             # Use the text cache for speed.
-            text = self.textcache.render( id, i, font, ( 1, color))
+            text = self.textcache.render( id, textdata, font, ( 1, color))
             textpos = text.get_rect()
             textpos.centerx = self.parent.get_rect().centerx
             textpos.centery = pos[1] + s[1] / 2
@@ -546,14 +592,11 @@ class Menu(pygame.sprite.Sprite):
 
         # Render the final title surface with combined background and text 
         surf = pygame.Surface(size, SRCALPHA)
-        titlebgrect = pygame.Rect( 5, 5, size[0]-10, size[1]-10)
-        pygame.draw.rect(surf, TITLE_BG, titlebgrect)
-        pygame.draw.rect(surf, TITLE_STROKE, titlebgrect, 2)
-        surf.blit(text, textpos )
+        DrawUtils.drawRectWithText( surf, size , TITLE_BG, TITLE_STROKE, text, textpos )
         
         # Update data
         self.title_changed = False
-        self.titlesurface = surf
+        self.titlesurface  = surf
         
         # Position on parent
         self.titlepos = (0,0)
@@ -652,8 +695,9 @@ class Application(object):
         self.running = 0
         
     def mhApplications(self):
-        """ Menu handler for Applications item """
+        """ Menu handler for 'Applications' item """
         
+        # Get list of applications
         join = os.path.join
         appdir = join( THISDIR, "..", "apps" )
         apps = glob( join( appdir, "*.py" ) )
@@ -708,9 +752,10 @@ class Application(object):
         text = """
         -= pygame launcher =-
         
+        http://www.pygame.org
         
-        www.pygame.org
-        www.launchpad.net/pys60community
+        http://code.google.com/p/
+        pygame-symbian-s60/
         
         """
         
