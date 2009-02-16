@@ -1299,7 +1299,7 @@ PyMethodDef camera_builtins[] =
     { NULL, NULL, 0, NULL }
 };
  
-void initcamera(void)
+void init_camera(void)
 {
   PyObject *module, *dict;
   /* imported needed apis; Do this first so if there is an error
@@ -1318,7 +1318,7 @@ void initcamera(void)
   PyType_Init(PyCamera_Type);
   
   /* create the module */
-  module = Py_InitModule3("camera", camera_builtins, DOC_PYGAMECAMERA);
+  module = Py_InitModule3("_camera", camera_builtins, DOC_PYGAMECAMERA);
   dict = PyModule_GetDict(module);
   PyDict_SetItemString(dict, "CameraType", (PyObject *)&PyCamera_Type);
 }
