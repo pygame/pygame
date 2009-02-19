@@ -93,6 +93,20 @@ class SurfaceTypeTest(unittest.TestCase):
         if surf2.get_bitsize() == 32:
             self.assertEqual(surf2.get_flags() & SRCALPHA, SRCALPHA)
 
+    def test_flags(self):
+        def make_surf(bpp, flags, masks):
+            pygame.Surface((10, 10), flags, bpp, masks)
+        # With some masks SDL_CreateRGBSurface does not work properly.
+        masks = (0xFF000000, 0xFF0000, 0xFF00, 0)
+        self.failUnlessRaises(ValueError, make_surf, 32, 0, masks)
+        # For 24 and 32 bit surfaces Pygame assumes no losses.
+        masks = (0x7F0000, 0xFF00, 0xFF, 0)
+        self.failUnlessRaises(ValueError, make_surf, 24, 0, masks)
+        self.failUnlessRaises(ValueError, make_surf, 32, 0, masks)
+        # What contiguous bits in a mask.
+        masks = (0x6F0000, 0xFF00, 0xFF, 0)
+        self.failUnlessRaises(ValueError, make_surf, 32, 0, masks)
+        
     def test_get_buffer (self):
         surf = pygame.Surface ((70, 70), 0, 32)
         buf = surf.get_buffer ()
@@ -1077,7 +1091,7 @@ class SurfaceBlendTest (unittest.TestCase):
         src = self._make_src_surface(32, srcalpha=True)
         masks = src.get_masks()
         dst = pygame.Surface(src.get_size(), SRCALPHA, 32,
-                             [masks[1], masks[2], masks[3], masks[0]])
+                             (masks[1], masks[2], masks[3], masks[0]))
         for blend_name, dst_color, op in blend:
             p = [tuple([op(dst_color[i], src_color[i]) for i in range(4)])
                  for src_color in self.test_palette]
