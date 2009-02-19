@@ -908,26 +908,38 @@ blit_blend_add (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
-    if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	!(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
+	size_t srcoffsetR, srcoffsetG, srcoffsetB;
+	size_t dstoffsetR, dstoffsetG, dstoffsetB;
+	if (srcbpp == 3)
+	{
+	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	if (dstbpp == 3)
+	{
+	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
-                {
-                    tmp = (*dst) + (*src);
-                    (*dst) = (tmp <= 255 ? tmp : 255);
-                    src++;
-                    dst++;
-                });
-                src++;
-                dst++;
+		tmp = dst[dstoffsetR] + src[srcoffsetR];
+		dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
+		tmp = dst[dstoffsetG] + src[srcoffsetG];
+		dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
+		tmp = dst[dstoffsetB] + src[srcoffsetB];
+		dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
+                src += srcbpp;
+                dst += dstbpp;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -1081,26 +1093,38 @@ blit_blend_sub (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
-    if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	!(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
+	size_t srcoffsetR, srcoffsetG, srcoffsetB;
+	size_t dstoffsetR, dstoffsetG, dstoffsetB;
+	if (srcbpp == 3)
+	{
+	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	if (dstbpp == 3)
+	{
+	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
-                {
-                    tmp2 = (*dst) - (*src);
-                    (*dst) = (tmp2 >= 0 ? tmp2 : 0);
-                    src++;
-                    dst++;
-                });
-                src++;
-                dst++;
+		tmp2 = dst[dstoffsetR] - src[srcoffsetR];
+		dst[dstoffsetR] = (tmp2 >= 0 ? tmp2 : 0);
+		tmp2 = dst[dstoffsetG] - src[srcoffsetG];
+		dst[dstoffsetG] = (tmp2 >= 0 ? tmp2 : 0);
+		tmp2 = dst[dstoffsetB] - src[srcoffsetB];
+		dst[dstoffsetB] = (tmp2 >= 0 ? tmp2 : 0);
+                src += srcbpp;
+                dst += dstbpp;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -1254,26 +1278,41 @@ blit_blend_mul (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
-    if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	!(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
+	size_t srcoffsetR, srcoffsetG, srcoffsetB;
+	size_t dstoffsetR, dstoffsetG, dstoffsetB;
+	if (srcbpp == 3)
+	{
+	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	if (dstbpp == 3)
+	{
+	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
-                {
-                    tmp = ((*dst) && (*src)) ? ((*dst) * (*src)) >> 8 : 0;
-                    (*dst) = (tmp <= 255 ? tmp : 255);
-                    src++;
-                    dst++;
-                });
-                src++;
-                dst++;
+		tmp = ((dst[dstoffsetR] && src[srcoffsetR]) ?
+		       (dst[dstoffsetR] * src[srcoffsetR]) >> 8 : 0);
+		dst[dstoffsetR] = (tmp <= 255 ? tmp : 255);
+		tmp = ((dst[dstoffsetG] && src[srcoffsetG]) ?
+		       (dst[dstoffsetG] * src[srcoffsetG]) >> 8 : 0);
+		dst[dstoffsetG] = (tmp <= 255 ? tmp : 255);
+		tmp = ((dst[dstoffsetB] && src[srcoffsetB]) ?
+		       (dst[dstoffsetB] * src[srcoffsetB]) >> 8 : 0);
+		dst[dstoffsetB] = (tmp <= 255 ? tmp : 255);
+                src += srcbpp;
+                dst += dstbpp;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -1426,26 +1465,44 @@ blit_blend_min (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
-    if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	!(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
+	size_t srcoffsetR, srcoffsetG, srcoffsetB;
+	size_t dstoffsetR, dstoffsetG, dstoffsetB;
+	if (srcbpp == 3)
+	{
+	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	if (dstbpp == 3)
+	{
+	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
-                {
-                    if ((*src) < (*dst))
-                        (*dst) = (*src);
-                    src++;
-                    dst++;
-                });
-                src++;
-                dst++;
+		if (src[srcoffsetR] < dst[dstoffsetR])
+		{
+		    dst[dstoffsetR] = src[srcoffsetR];
+		}
+		if (src[srcoffsetG] < dst[dstoffsetG])
+		{
+		    dst[dstoffsetG] = src[srcoffsetG];
+		}
+		if (src[srcoffsetB] < dst[dstoffsetB])
+		{
+		    dst[dstoffsetB] = src[srcoffsetB];
+		}
+                src += srcbpp;
+                dst += dstbpp;
             }, n, width);
             src += srcskip;
             dst += dstskip;
@@ -1598,33 +1655,50 @@ blit_blend_max (SDL_BlitInfo * info)
     int             srcppa = (info->src_flags & SDL_SRCALPHA && srcfmt->Amask);
     int             dstppa = (info->dst_flags & SDL_SRCALPHA && dstfmt->Amask);
 
-    if (srcbpp == 4 && dstbpp == 4 &&
-	srcfmt->Rmask == dstfmt->Rmask &&
-	srcfmt->Gmask == dstfmt->Gmask &&
-	srcfmt->Bmask == dstfmt->Bmask &&
-	srcfmt->Amask == dstfmt->Amask &&
-	!(info->src_flags & SDL_SRCALPHA))
+    if (srcbpp >= 3 && dstbpp >= 3 && !(info->src_flags & SDL_SRCALPHA))
     {
+	size_t srcoffsetR, srcoffsetG, srcoffsetB;
+	size_t dstoffsetR, dstoffsetG, dstoffsetB;
+	if (srcbpp == 3)
+	{
+	    SET_OFFSETS_24 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (srcoffsetR, srcoffsetG, srcoffsetB, srcfmt);
+	}
+	if (dstbpp == 3)
+	{
+	    SET_OFFSETS_24 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
+	else
+	{
+	    SET_OFFSETS_32 (dstoffsetR, dstoffsetG, dstoffsetB, dstfmt);
+	}
         while (height--)
         {
             LOOP_UNROLLED4(
             {
-                REPEAT_3(
-                {
-                    if ((*src) > (*dst))
-                        (*dst) = (*src);
-                    src++;
-                    dst++;
-                });
-                src++;
-                dst++;
+		if (src[srcoffsetR] > dst[dstoffsetR])
+		{
+		    dst[dstoffsetR] = src[srcoffsetR];
+		}
+		if (src[srcoffsetG] > dst[dstoffsetG])
+		{
+		    dst[dstoffsetG] = src[srcoffsetG];
+		}
+		if (src[srcoffsetB] > dst[dstoffsetB])
+		{
+		    dst[dstoffsetB] = src[srcoffsetB];
+		}
+                src += srcbpp;
+                dst += dstbpp;
             }, n, width);
             src += srcskip;
             dst += dstskip;
         }
         return;
     }
-
 
     if (srcbpp == 1)
     {

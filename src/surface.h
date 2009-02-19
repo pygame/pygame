@@ -114,6 +114,22 @@
           fmt->Bshift == 8 ? 1 :                  \
 	                     2   );               \
     }
+
+#define SET_OFFSETS_32(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0  ? 0 :                 \
+          fmt->Rshift == 8  ? 1 :                 \
+          fmt->Rshift == 16 ? 2 :                 \
+	                      3   );              \
+    og = (fmt->Gshift == 0  ? 0 :                 \
+          fmt->Gshift == 8  ? 1 :                 \
+          fmt->Gshift == 16 ? 2 :                 \
+	                      3   );              \
+    ob = (fmt->Bshift == 0  ? 0 :                 \
+          fmt->Bshift == 8  ? 1 :                 \
+          fmt->Bshift == 16 ? 2 :                 \
+	                      3   );              \
+    }
 #else
 #define SET_OFFSETS_24(or, og, ob, fmt)           \
     {                                             \
@@ -126,6 +142,22 @@
     ob = (fmt->Bshift == 0 ? 2 :                  \
           fmt->Bshift == 8 ? 1 :                  \
 	                     0   );               \
+    }
+
+#define SET_OFFSETS_32(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0  ? 3 :                 \
+          fmt->Rshift == 8  ? 2 :                 \
+          fmt->Rshift == 16 ? 1 :                 \
+	                      0   );              \
+    og = (fmt->Gshift == 0  ? 3 :                 \
+          fmt->Gshift == 8  ? 2 :                 \
+          fmt->Gshift == 16 ? 1 :                 \
+	                      0   );              \
+    ob = (fmt->Bshift == 0  ? 3 :                 \
+          fmt->Bshift == 8  ? 2 :                 \
+          fmt->Bshift == 16 ? 1 :                 \
+	                      0   );              \
     }
 #endif
 

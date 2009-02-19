@@ -19,6 +19,18 @@ else:
 import pygame
 from pygame.locals import *
 
+def intify(i):
+    """If i is a long, cast to an int while preserving the bits"""
+    if 0x10000000 & i:
+        return int(~(0xFFFFFFFF ^ i))
+    return i
+
+def longify(i):
+    """If i in an int, cast to a long while preserving the bits"""
+    if i < 0:
+        return 0xFFFFFFFF & i
+    return long(i)
+
 class SurfaceTypeTest(unittest.TestCase):
     def test_set_clip( self ):
         """ see if surface.set_clip(None) works correctly.
@@ -873,7 +885,7 @@ class SurfaceBlendTest (unittest.TestCase):
     test_palette = [(0, 0, 0, 255),
                     (10, 30, 60, 0),
                     (25, 75, 100, 128),
-                    (100, 150, 200, 200),
+                    (200, 150, 100, 200),
                     (0, 100, 200, 255)]
     surf_size = (10, 12)
     test_points = [((0, 0), 1), ((4, 5), 1), ((9, 0), 2),
@@ -938,11 +950,11 @@ class SurfaceBlendTest (unittest.TestCase):
                         self._make_surface(32, srcalpha=True)]
         blend = [('BLEND_ADD', (0, 25, 100, 255),
                   lambda a, b: min(a + b, 255)),
-                 ('BLEND_SUB', (0, 25, 100, 100),
+                 ('BLEND_SUB', (100, 25, 0, 100),
                   lambda a, b: max(a - b, 0)),
-                 ('BLEND_MULT', (0, 7, 100, 0),
+                 ('BLEND_MULT', (100, 200, 0, 0),
                   lambda a, b: (a * b) // 256),
-                 ('BLEND_MIN', (0, 255, 0, 255), min),
+                 ('BLEND_MIN', (255, 0, 0, 255), min),
                  ('BLEND_MAX', (0, 255, 0, 255), max)]
 
         for src in sources:
@@ -975,6 +987,31 @@ class SurfaceBlendTest (unittest.TestCase):
         masks = src.get_masks()
         dst = pygame.Surface(src.get_size(), 0, 32,
                              [masks[1], masks[2], masks[0], masks[3]])
+        for blend_name, dst_color, op in blend:
+            p = []
+            for src_color in self.test_palette:
+                c = [op(dst_color[i], src_color[i]) for i in range(3)]
+                c.append(255)
+                p.append(tuple(c))
+            dst.fill(dst_color)
+            dst.blit(src,
+                     (0, 0),
+                     special_flags=getattr(pygame, blend_name))
+            self._assert_surface(dst, p, ", %s" % blend_name)
+
+        # Blend blits are special cased for 32 to 32 bit surfaces.
+        #
+        # Confirm that it works when the rgb bytes are not the
+        # least significant bytes.
+        pat = self._make_src_surface(32)
+        masks = pat.get_masks()
+        if min(masks) == intify(0xFF000000):
+            masks = [longify(m) >> 8 for m in masks]
+        else:
+            masks = [intify(m << 8) for m in masks]
+        src = pygame.Surface(pat.get_size(), 0, 32, masks)
+        self._fill_surface(src)
+        dst = pygame.Surface(src.get_size(), 0, 32, masks)
         for blend_name, dst_color, op in blend:
             p = []
             for src_color in self.test_palette:
@@ -1033,6 +1070,10 @@ class SurfaceBlendTest (unittest.TestCase):
                                            src.get_bitsize(),
                                            src.get_flags())))
 
+        # Blend blits are special cased for 32 to 32 bit surfaces
+        # with per-pixel alpha.
+        #
+        # Confirm the general case is used instead when the formats differ.
         src = self._make_src_surface(32, srcalpha=True)
         masks = src.get_masks()
         dst = pygame.Surface(src.get_size(), SRCALPHA, 32,
@@ -1046,11 +1087,35 @@ class SurfaceBlendTest (unittest.TestCase):
                      special_flags=getattr(pygame, blend_name))
             self._assert_surface(dst, p, ", %s" % blend_name)
 
+        # Confirm this special case handles subsurfaces.
+        src = pygame.Surface((8, 10), SRCALPHA, 32)
+        dst = pygame.Surface((8, 10), SRCALPHA, 32)
+        tst = pygame.Surface((8, 10), SRCALPHA, 32)
+        src.fill((1, 2, 3, 4))
+        dst.fill((40, 30, 20, 10))
+        subsrc = src.subsurface((2, 3, 4, 4))
+        try:
+            subdst = dst.subsurface((2, 3, 4, 4))
+            try:
+                subdst.blit(subsrc, (0, 0), special_flags=BLEND_RGBA_ADD)
+            finally:
+                del subdst
+        finally:
+            del subsrc
+        tst.fill((40, 30, 20, 10))
+        tst.fill((41, 32, 23, 14), (2, 3, 4, 4))
+        for x in range(8):
+            for y in range(10):
+                self.failUnlessEqual(dst.get_at((x, y)), tst.get_at((x, y)),
+                                     "%s != %s at (%i, %i)" %
+                                     (dst.get_at((x, y)), tst.get_at((x, y)),
+                                      x, y))
+
     def test_GET_PIXELVALS(self):
         # surface.h GET_PIXELVALS bug regarding whether of not
         # a surface has per-pixel alpha. Looking at the Amask
         # is not enough. The surface's SRCALPHA flag must also
-        # be considered.
+        # be considered. Fix rev. 1923.
         src = self._make_surface(32, srcalpha=True)
         src.fill((0, 0, 0, 128))
         src.set_alpha(None)  # Clear SRCALPHA flag.
