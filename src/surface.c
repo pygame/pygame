@@ -330,7 +330,7 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
     int bpp;
     Uint32 Rmask, Gmask, Bmask, Amask;
     SDL_Surface *surface;
-    SDL_PixelFormat default_format;
+    SDL_PixelFormat default_format, *format;
     int length;
 
     char *kwids[] = { "size", "flags", "depth", "masks", NULL };
@@ -505,6 +505,32 @@ surface_init (PySurfaceObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
     
+    if (masks)
+    {
+	/* Confirm the surface was created correctly (masks were valid).
+	   Also ensure that 24 and 32 bit surfaces have 8 bit fields
+	   (no losses).
+	*/
+	format = surface->format;
+	Rmask = (0xFF >> format->Rloss) << format->Rshift;
+	Gmask = (0xFF >> format->Gloss) << format->Gshift;
+	Bmask = (0xFF >> format->Bloss) << format->Bshift;
+	Amask = (0xFF >> format->Aloss) << format->Ashift;
+	if (format->Rmask != Rmask ||
+	    format->Gmask != Gmask ||
+	    format->Bmask != Bmask ||
+	    format->Amask != Amask ||
+	    (format->BytesPerPixel >= 3 &&
+	     (format->Rloss || format->Gloss || format->Bloss ||
+	      (surface->flags & SDL_SRCALPHA ?
+	       format->Aloss : format->Aloss != 8))))
+	{
+	    SDL_FreeSurface (surface);
+	    RAISE (PyExc_ValueError, "Invalid mask values");
+	    return -1;
+	}
+    }
+
     if (surface)
     {
         self->surf = surface;
