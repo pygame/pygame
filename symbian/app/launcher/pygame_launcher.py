@@ -88,15 +88,23 @@ class Effects(object):
         #: Called for each update to allow update of other surfaces.
         self.render_callback = render_callback
     
-    def tween_easeout(self, x):
-        return 1 - (1 - x) * (1 - x);
     
-    def tween_easeinout(self, x):
-        return ((x) * (x) * (3 - 2. * (x)))
+#===============================================================================
+#    @see: http://coderepos.org/share/browser/lang/javascript/jstweener/trunk/src/JSTweener.js
+#    @see: http://sol.gfxile.net/interpolation/index.html about tween animations
+#===============================================================================
+    def tweenEaseOutSine(self, t,b,c,d):
+        return c * math.sin(t/d *(math.pi/2)) + b
     
+    def tweenEaseInOutSine(self,t,b,c,d,s=1.70158):
+        return -c/2 *(math.cos(math.pi*t/d) - 1) + b;
+    
+    def tweenEaseInBack(self,t,b,c,d,s=1.70158):
+        t /= d
+        return c*(t)*t*((s+1)*t - s) + b;
+
     def _slide_and_replace(self, direction):
         
-        # See http://sol.gfxile.net/interpolation/index.html about tween animations
         r = self.surf1.get_rect()
         
         tween = self.tween
@@ -113,19 +121,19 @@ class Effects(object):
         start = time.time()
         end   = start + self.duration
         while time.time() < end:
-            v = ( time.time() - start ) / self.duration
+            t = time.time() - start
             #v = i / steps;
-            v = tween(v);
-            X = (A * v) + (B * (1 - v));
+            X = tween(t, A, B, self.duration)
+            #X = (A * v) + (B * (1 - v));
             #X = direction * X
             #print direction,X
             
-            if direction == -1: 
-                self.screen.blit( surfold, (B-X, 0 ) )
-                self.screen.blit( surfnew, ( -X, 0 ) )
-            elif direction == 1:
-                self.screen.blit( surfold, ((-B)+X, 0 ) )
-                self.screen.blit( surfnew, (X, 0 ) )
+            if direction == 1: 
+                self.screen.blit( surfnew, (B-X, 0 ) )
+                self.screen.blit( surfold, ( -X, 0 ) )
+            elif direction == -1:
+                self.screen.blit( surfnew, ((-B)+X, 0 ) )
+                self.screen.blit( surfold, (X, 0 ) )
             
             pygame.display.flip()
             self.clock.tick(tics)
@@ -140,7 +148,38 @@ class Effects(object):
     def effectSlideLeftReplace(self):
         """ Effect makes the old surface move left and the new slides in it's place """
         return self._slide_and_replace(-1)
+    
+    def effectZoomOut(self):
         
+        r = self.surf1.get_rect()
+        tween = self.tween
+        
+        tics  = 20
+        steps = 15.
+        A = 0 
+        surfold = self.surf2
+        surfnew = self.surf1
+
+        # Time per step
+        #for i in xrange(int(steps)):
+        start = time.time()
+        end   = start + self.duration
+        while time.time() < end:
+            t = time.time() - start
+            v = tween(t, A, 1, self.duration)
+            X = r.width * v
+             
+            self.screen.blit( surfold, (0, 0 ) )
+            
+            surfnew = pygame.transform.scale(self.surf1, (r.width * (1-v), r.height*(1-v) ) )
+            self.screen.blit( surfnew, (r.width / 2 * (v), r.height / 2 * (v ) ) )
+            
+            pygame.display.flip()
+            self.clock.tick(tics)
+            
+        if self.render_callback is not None:
+            self.render_callback()
+                
     def do(self, effect, tween, duration):
         """
         @param effect: Function of the main effect.
@@ -255,6 +294,7 @@ class Background(pygame.sprite.Sprite):
         screen_size = self.screen.get_size()
         # TODO: Rename to 'surface'
         self.background = pygame.Surface(screen_size, SRCALPHA)
+        self.surface = self.background
         self.background.fill(BLACK)
         
         self.rect = self.background.get_rect()
@@ -296,7 +336,6 @@ class Background(pygame.sprite.Sprite):
         
         self.background.blit( self.img_logo, self.img_pos )
         self.background.blit( self.alpha, self.img_pos )
-        
 
 class TextField(pygame.sprite.Sprite):
     """ Handles text rendering and updating when necessary """
@@ -511,7 +550,7 @@ class Menu(pygame.sprite.Sprite):
          
     def doSelect(self):
         """ Handle item selection by invoking its callback function """
-        title, callback,args = self._items[self._selected_index]
+        title, callback, args = self._items[self._selected_index]
         callback(*args)
     
     def cancel(self):
@@ -615,6 +654,7 @@ class Menu(pygame.sprite.Sprite):
         return c
     
     def update(self):
+        
         self.updateTitle()
         self.updateItems()
         
@@ -839,6 +879,20 @@ class Application(object):
             self.focused = self._main_menu
             return
         
+        # Start the tween animation
+        blacksurf = pygame.Surface(self.screen.get_size(), SRCALPHA)
+        blacksurf.fill(BLACK)
+        e = Effects(self.screen, self.clock, self.focused.parent, blacksurf,
+                    render_callback = None)
+
+        # Blocks for the duration of the animation
+        effect = e.effectZoomOut
+        e.do(effect, e.tweenEaseInBack, 0.75)
+        
+        # Remove so it won't flash at the end
+        self.sprites.remove(self.focused)
+        
+        self.focused = None
         self.app_to_run = app_path
         self.running = 0
     
@@ -861,7 +915,7 @@ class Application(object):
         
         # Blocks for the duration of the animation
         effect = [e.effectSlideLeftReplace,e.effectSlideRightReplace][dir]
-        e.do(effect, e.tween_easeout, 0.5)
+        e.do(effect, e.tweenEaseInOutSine, 0.5)
         
         # The animation completed. Set them for event handling.
         menu2.parent = self.background.background
