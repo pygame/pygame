@@ -154,8 +154,6 @@ def warn_unwanted_files():
     
 
     files = py_files + extension_files
-    print py_files
-
 
     unwanted_files = []
     for f in files:
