@@ -138,6 +138,29 @@ try: import pygame.threads
 except (ImportError,IOError), msg:threads=MissingModule("threads", msg, 1)
 
 
+def warn_unwanted_files():
+    # a temporary hack to warn about camera.so and camera.pyd.
+    install_path= os.path.split(pygame.__file__)[0]
+    files = ["camera.so", "camera.pyd"]
+
+    unwanted_files = []
+    for f in files:
+        unwanted_files.append( os.path.join( install_path, f ) )
+
+
+    for f in unwanted_files:
+        if os.path.exists(f):
+            message = "Detected old file.  Please remove the old unneeded file:%s:.   Leaving it there might break pygame.  Cheers!" % f
+            try:
+                import warnings
+                level = 4
+                warnings.warn(message, RuntimeWarning, level)
+            except ImportError:
+                print message
+        
+warn_unwanted_files()
+
+
 
 try: from pygame.surface import *
 except (ImportError,IOError):Surface = lambda:Missing_Function
