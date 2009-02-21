@@ -139,13 +139,21 @@ except (ImportError,IOError), msg:threads=MissingModule("threads", msg, 1)
 
 
 def warn_unwanted_files():
+    """ Used to warn about unneeded old files.
+    """
+
     # a temporary hack to warn about camera.so and camera.pyd.
     install_path= os.path.split(pygame.base.__file__)[0]
     extension_ext = os.path.splitext(pygame.base.__file__)[1]
 
+    # here are the .so/.pyd files we need to ask to remove.
     ext_to_remove = ["camera"]
+
+    # here are the .py/.pyo/.pyc files we need to ask to remove.
     py_to_remove = ["color"]
 
+
+    # See if any of the files are there.
     extension_files = map(lambda x:"%s%s" % (x,extension_ext), ext_to_remove)
 
     py_files = []
@@ -158,6 +166,7 @@ def warn_unwanted_files():
     unwanted_files = []
     for f in files:
         unwanted_files.append( os.path.join( install_path, f ) )
+
 
 
     ask_remove = []
