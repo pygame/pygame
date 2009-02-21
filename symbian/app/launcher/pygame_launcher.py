@@ -1,6 +1,7 @@
 """
 pygame launcher for S60 - Application for launching others
 """
+import time
 __author__ = "Jussi Toivola"
 
 from glob import glob
@@ -51,11 +52,11 @@ class SystemData:
     
         # Cache fonts to improve performance
         # Fonts using the same font file works with OpenC only.
-        # SDL's wants to keep the font's file handle open.
+        # SDL wants to keep the font's file handle open.
         # Symbian's c-library (estlib) does not let one to have
         # multiple handles open to a single file.
         # (even though the Symbian's RFile implementation does )
-        self.font_title  = pygame.font.Font(None, 36)        
+        self.font_title  = pygame.font.Font(None, 36)
         self.font_small = pygame.font.Font(None, 18)
         self.font_normal = pygame.font.Font(None, 25)
         
@@ -68,11 +69,89 @@ class SystemData:
     def getFontNormal(self):
         return self.font_normal
     def getFontNormalBold(self):
-        return self.font_normal_bold        
+        return self.font_normal_bold
     def getFontSmall(self):
         return self.font_small
 
-class TextCache:
+class Effects(object):
+    """ Class for generic effects"""
+    
+    def __init__(self, screen, clock, surf1, surf2, render_callback = None):
+        self.screen = screen
+        self.clock = clock
+        self.surf1 = surf1
+        self.surf2 = surf2 
+        
+        self.duration = 0
+        self.tween    = lambda x:None
+        
+        #: Called for each update to allow update of other surfaces.
+        self.render_callback = render_callback
+    
+    def tween_easeout(self, x):
+        return 1 - (1 - x) * (1 - x);
+    
+    def tween_easeinout(self, x):
+        return ((x) * (x) * (3 - 2. * (x)))
+    
+    def _slide_and_replace(self, direction):
+        
+        # See http://sol.gfxile.net/interpolation/index.html about tween animations
+        r = self.surf1.get_rect()
+        
+        tween = self.tween
+        
+        tics  = 20
+        steps = 15.
+        A = 0
+        B = -r.width
+        surfold = self.surf1
+        surfnew = self.surf2
+
+        # Time per step
+        #for i in xrange(int(steps)):
+        start = time.time()
+        end   = start + self.duration
+        while time.time() < end:
+            v = ( time.time() - start ) / self.duration
+            #v = i / steps;
+            v = tween(v);
+            X = (A * v) + (B * (1 - v));
+            #X = direction * X
+            #print direction,X
+            
+            if direction == -1: 
+                self.screen.blit( surfold, (B-X, 0 ) )
+                self.screen.blit( surfnew, ( -X, 0 ) )
+            elif direction == 1:
+                self.screen.blit( surfold, ((-B)+X, 0 ) )
+                self.screen.blit( surfnew, (X, 0 ) )
+            
+            pygame.display.flip()
+            self.clock.tick(tics)
+            
+            if self.render_callback is not None:
+                self.render_callback()
+            
+    def effectSlideRightReplace(self):
+        """ Effect makes the old surface move right and the new slides in it's place """
+        return self._slide_and_replace(1)
+    
+    def effectSlideLeftReplace(self):
+        """ Effect makes the old surface move left and the new slides in it's place """
+        return self._slide_and_replace(-1)
+        
+    def do(self, effect, tween, duration):
+        """
+        @param effect: Function of the main effect.
+        @param tween:  Function of transition effect.
+        @param duration: How long the effect takes in seconds( 1, 0.5, etc )
+        """
+        self.duration = duration
+        self.tween    = tween
+        return effect( )
+        
+class TextCache(object):
     """ Handles text rendering and caches the surfaces of the texts for speed.
     Suitable for small static texts, such as menu items and titles.
     To avoid memory problems with very long lists, maximum cache size can be set.
@@ -129,32 +208,40 @@ class DrawUtils:
         @param fgcolor: Foreground color of the rect( Text and surrounding rect )
         @param textsurf: Surface containing pre-rendered text
         @param textpos: Position of the text surface on the 'surf'
+        @param startpos: Start position
         """
         
         # Make the dimmer( alpha ) foreground color for faded border
         dim = list(fgcolor)
         dim[-1] *= 0.5
         
-        titlebgrect = pygame.Rect( 4, 4, size[0]-7, size[1]-7)
+        if len(size) == 2:
+            rect = pygame.Rect( 4, 4, size[0]-7, size[1]-7)
+        else:
+            rect = pygame.Rect( *size )
         
         # Draw the background
-        pygame.draw.rect(surf, bgcolor, titlebgrect)
+        pygame.draw.rect(surf, bgcolor, rect)
+        
+        # Blit the text surface if defined
         if textsurf is not None: 
             surf.blit(textsurf, textpos )
         
         # Draw dim outer rect
-        pygame.draw.rect(surf, dim, titlebgrect, 1)
+        pygame.draw.rect(surf, dim, rect, 1)
         
         # Draw the center rect
         alpha_diff = abs( fgcolor[-1] - bgcolor[-1])
+        
         for x in xrange(0,3):
             # Draw dim inner rect
             color = list(fgcolor)
             color[-1] -= ( alpha_diff / 3. * x )
-            offset = 5 + x
-            
-            titlebgrect = pygame.Rect( offset, offset, size[0]-(offset*2-1), size[1]-(offset*2-1))
-            pygame.draw.rect(surf, color, titlebgrect, 1)
+            offset = rect[0] + x
+
+            pos = pygame.Rect( rect[0] + x, rect[1] + x, rect[2]-(x*2-1), rect[3]-(x*2-1))
+            #print rect, pos
+            pygame.draw.rect(surf, color, pos, 1)
             
         
 class Background(pygame.sprite.Sprite):
@@ -166,7 +253,7 @@ class Background(pygame.sprite.Sprite):
         
         self.screen = sysdata.screen
         screen_size = self.screen.get_size()
-        
+        # TODO: Rename to 'surface'
         self.background = pygame.Surface(screen_size, SRCALPHA)
         self.background.fill(BLACK)
         
@@ -317,14 +404,17 @@ class TextField(pygame.sprite.Sprite):
     
 class Menu(pygame.sprite.Sprite):
     
-    def __init__(self, parent, sysdata, title, items, cancel_callback):
+    def __init__(self, bg, sysdata, title, items, cancel_callback):
         pygame.sprite.Sprite.__init__(self)
         
         #: General information about the system
         self.sysdata = sysdata
         
+        #: Background object
+        self.bg = bg
+        
         #: Parent surface where the menu contents are blit on.
-        self.parent = parent
+        self.parent = bg.background
         
         #: Text of the title
         self._title = title
@@ -341,7 +431,7 @@ class Menu(pygame.sprite.Sprite):
         #: Rects of list items to be used for mouse hit checking
         self._itemrects = []
         
-        #: If True, the surfaces are updated
+        #: If True, the item surfaces are updated
         self.items_changed = True
         
         #: Index of selected menu item
@@ -364,7 +454,12 @@ class Menu(pygame.sprite.Sprite):
         
         #: Flag to indicate if mouse/pen is down
         self._mousedown = False
-    
+        
+        #: Rect for scrollbar. Used to scroll the list with mouse/pen.
+        self._scrollbar_rect = Rect(0,0,0,0)
+        
+        #: Rect for scrollbar indicator. User can drag this around with mouse/pen.
+        self._scrollbar_indic_rect = Rect(0,0,0,0) 
 
     #------------------------------------------------ Selection property get/set
     def _set_selection(self,index):
@@ -441,14 +536,34 @@ class Menu(pygame.sprite.Sprite):
         menurect.top = self.itemspos[1]
         
         if menurect.collidepoint(event.pos):
-            for x in xrange(len(self._itemrects)):
-                r = Rect(self._itemrects[x])
-                r.top += self.itemspos[1]
-                if r.collidepoint(event.pos):
-                    self.selection = x
-                    return True
+            r = Rect(self._scrollbar_rect)
+            r.top += self.itemspos[1]
+            if r.collidepoint(event.pos):
+                print "scrollbar"
+                if event.type in [pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN]:
+                    r = Rect(self._scrollbar_indic_rect)
+                    r.top += self.itemspos[1]
+                    #self.visibletop = len(self.items) - 1
+                    #self.items_changed = True
+                    if r.collidepoint(event.pos):
+                        # TODO: Need to do something to get rid of current selection being mandatory
+                        # TODO: Handle indicator dragging
+                        
+                        print "Scrollbar indicator!"
+                        return 2
+                    else:
+                        print "Scrollbar!"
+                        # TODO: Handle user clicking empty scrollbar area to move the view area
+                        return 2
+            else:
+                for x in xrange(len(self._itemrects)):
+                    r = Rect(self._itemrects[x])
+                    r.top += self.itemspos[1]
+                    if r.collidepoint(event.pos):
+                        self.selection = x
+                        return 1
         
-        return False
+        return 0
     
     def handleEvent(self, event ):
         """ Handle events of this component """
@@ -485,7 +600,7 @@ class Menu(pygame.sprite.Sprite):
             self._mousedown = False
             
             # User can cancel selection by moving the pen outside of all items
-            if self.checkMouseCollision(event):
+            if self.checkMouseCollision(event) == 1:
                 self.doSelect()
         
         return False
@@ -518,6 +633,34 @@ class Menu(pygame.sprite.Sprite):
         size  = ( psize[0], psize[1] - self.itemspos[1])
         return size
     
+    def _draw_scrollbar(self, surf):
+        r = surf.get_rect()
+        xs = r[2] - 10
+        ys = r[1] + 10
+        h  = r[3] - 20
+        w  = 10
+        r = Rect(xs,ys,w,h)
+        
+        DrawUtils.drawRectWithText(surf, r, TITLE_BG, TITLE_STROKE, textsurf = None)
+        
+        # Compute the size of the scrollbar's indicator bar
+        # Visible items vs total items
+        factor = (float(self.shownitems)/float( len(self.items) ) )
+        indic_h = h - 4
+        indic_h *= min( 1.0, factor )
+        
+        # Compute the position of the scrollbar's indicator bar
+        # topmost item vs how many items
+        empty_h = h - indic_h - 4
+        factor = float(self.visibletop) / float(len(self.items) - self.shownitems)
+        ys += 2
+        ys += empty_h * factor
+        indic_r = Rect(xs+2,ys,6,indic_h)
+        DrawUtils.drawRectWithText(surf, indic_r, TITLE_STROKE, TITLE_STROKE, textsurf = None)
+        
+        self._scrollbar_rect = r 
+        self._scrollbar_indic_rect = indic_r
+        
     def updateItems(self):
         """ Update list item surface """
         if not self.items_changed: return
@@ -574,7 +717,9 @@ class Menu(pygame.sprite.Sprite):
             startposy = startposy + height
             
             self._itemrects.append(textpos)
-            
+        
+        self._draw_scrollbar(surf)
+        
         self.items_changed = False
         
     def updateTitle(self):
@@ -627,7 +772,7 @@ class Application(object):
                  ("Settings",self.mhSettings,()), 
                  ("About",self.mhAbout,()),
                  ("Exit",self.mhExit,()), ]
-        self._main_menu = Menu(self.background.background, self.sysdata, 
+        self._main_menu = Menu(self.background, self.sysdata, 
                         title = "pygame launcher",
                         items = items,
                         cancel_callback = ( self.mhExit, () )
@@ -685,6 +830,9 @@ class Application(object):
         
         if app_path is None:
             # Restore pygame launcher menu
+            
+            self.__handle_transition_animation(self.focused, self._main_menu, dir = 1 )
+            
             self.focused.clear()
             self.sprites.remove(self.focused)
             self.sprites.add(self._main_menu)
@@ -693,6 +841,36 @@ class Application(object):
         
         self.app_to_run = app_path
         self.running = 0
+    
+    def __handle_transition_animation(self, menu1, menu2, dir):
+        bg1 = menu1.bg
+        bg2 = menu2.bg
+        def render_callback():
+            # We'll need to update the logo in the background, 
+            # which depends on the tick counter.
+            tics = pygame.time.get_ticks()
+            self.sysdata.ticdiff = tics - self.sysdata.tics
+            self.sysdata.tics = tics
+            
+            bg2.update()
+            menu2.update()
+        
+        # Start the tween animation
+        e = Effects(self.screen, self.clock, bg1.background, bg2.background,
+                    render_callback = render_callback)
+        
+        # Blocks for the duration of the animation
+        effect = [e.effectSlideLeftReplace,e.effectSlideRightReplace][dir]
+        e.do(effect, e.tween_easeout, 0.5)
+        
+        # The animation completed. Set them for event handling.
+        menu2.parent = self.background.background
+        menu2.update()
+        
+        # Copy the alpha values to make the transition seem... smooth
+        bg1.alphaval = bg2.alphaval
+        bg1.alphadir = bg2.alphadir
+        bg1.background.blit(bg2.background, (0,0))
         
     def mhApplications(self):
         """ Menu handler for 'Applications' item """
@@ -712,16 +890,25 @@ class Application(object):
             
             i = ( name, self.mhLaunchApplication, (a,) )
             items.append(i)
-            
+        
+        # The last button for getting out of the menu
         items.append( ("Back", self.mhLaunchApplication, (None,)) )
+        
         self.sprites.remove(self.focused)
-        self.focused = Menu(self.background.background, self.sysdata, 
+        
+        # Create tween effect for transition
+        background = Background(self.sysdata)
+        
+        menu = Menu(background, self.sysdata, 
                         title = "Applications",
                         items = items,
                         cancel_callback = ( self.mhLaunchApplication, (None,) ),
                         )
-        self.focused.textcache.max_size = 24
+        menu.textcache.max_size = 24
+        menu.update()
+        self.__handle_transition_animation(self.focused, menu, dir = 0 )
         
+        self.focused = menu
         self.sprites.add(self.focused)
         
     def mhExit(self):
