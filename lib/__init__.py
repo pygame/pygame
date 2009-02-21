@@ -140,23 +140,47 @@ except (ImportError,IOError), msg:threads=MissingModule("threads", msg, 1)
 
 def warn_unwanted_files():
     # a temporary hack to warn about camera.so and camera.pyd.
-    install_path= os.path.split(pygame.__file__)[0]
-    files = ["camera.so", "camera.pyd"]
+    install_path= os.path.split(pygame.base.__file__)[0]
+    extension_ext = os.path.splitext(pygame.base.__file__)[1]
+
+    ext_to_remove = ["camera"]
+    py_to_remove = ["color"]
+
+    extension_files = map(lambda x:"%s%s" % (x,extension_ext), ext_to_remove)
+
+    py_files = []
+    for py_ext in [".py", ".pyc", ".pyo"]:
+        py_files.extend( map(lambda x:"%s%s" % (x,py_ext), py_to_remove) )
+    
+
+    files = py_files + extension_files
+    print py_files
+
 
     unwanted_files = []
     for f in files:
         unwanted_files.append( os.path.join( install_path, f ) )
 
 
+    ask_remove = []
     for f in unwanted_files:
         if os.path.exists(f):
-            message = "Detected old file.  Please remove the old unneeded file:%s:.   Leaving it there might break pygame.  Cheers!" % f
-            try:
-                import warnings
-                level = 4
-                warnings.warn(message, RuntimeWarning, level)
-            except ImportError:
-                print message
+            ask_remove.append(f)
+
+
+    if ask_remove:
+        message = "Detected old file(s).  Please remove the old files:\n"
+
+        for f in ask_remove:
+            message += "%s " % f
+        message += "\nLeaving them there might break pygame.  Cheers!\n\n"
+
+        try:
+            import warnings
+            level = 4
+            warnings.warn(message, RuntimeWarning, level)
+        except ImportError:
+            print message
         
 warn_unwanted_files()
 
