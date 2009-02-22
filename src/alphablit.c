@@ -2129,7 +2129,34 @@ alphablit_colorkey (SDL_BlitInfo * info)
             }
 
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+            /* This is interim code until SDL can properly handle self
+	       blits of surfaces with blanket alpha.
+	    */
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+		    sA = (pixel == colorkey) ? 0 : alpha;
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+		    ALPHA_BLEND (sR, sG, sB, sA, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcpxskip;
+		    dst += dstpxskip;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {
@@ -2237,7 +2264,33 @@ alphablit_solid (SDL_BlitInfo * info)
             }
 
         }
-        else /* dstbpp > 1 */
+	else if (dstbpp == 3)
+	{
+            /* This is interim code until SDL can properly handle self
+	       blits of surfaces with blanket alpha.
+	    */
+	    size_t offsetR, offsetG, offsetB;
+	    SET_OFFSETS_24 (offsetR, offsetG, offsetB, dstfmt);
+	    while (height--)
+	    {
+		LOOP_UNROLLED4(
+		{
+                    GET_PIXEL(pixel, srcbpp, src);
+                    GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
+		    GET_PIXEL (pixel, dstbpp, dst);
+		    GET_PIXELVALS (dR, dG, dB, dA, pixel, dstfmt, dstppa);
+		    ALPHA_BLEND (sR, sG, sB, alpha, dR, dG, dB, dA);
+		    dst[offsetR] = dR;
+		    dst[offsetG] = dG;
+		    dst[offsetB] = dB;
+		    src += srcpxskip;
+		    dst += dstpxskip;
+		}, n, width);
+		src += srcskip;
+		dst += dstskip;
+	    }
+	}
+        else /* even dstbpp */
         {
             while (height--)
             {

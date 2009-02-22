@@ -104,6 +104,9 @@ outside the destination Surface, or outside the clipping area.
 Pixel alphas will be ignored when blitting to an 8 bit Surface.
 
 special_flags new in pygame 1.8.
+
+For a surface with colorkey or blanket alpha, a blit to self may give slightly
+different colors than a non self-blit.
 <END>
 
 
