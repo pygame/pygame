@@ -31,11 +31,20 @@ class Camera:
             raise ValueError ("Could not open camera.  Sorry.")
 
 
+    def set_controls(self, **kwargs):
+        """
+        """
+
 
     def set_resolution(self, width, height):
         """Sets the capture resolution. (without dialog)
         """
         # nothing to do here.
+        pass
+    def query_image(self):
+        return True
+
+    def stop(self):
         pass
 
     def start(self):
