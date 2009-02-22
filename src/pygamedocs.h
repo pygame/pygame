@@ -271,6 +271,8 @@
 
 #define DOC_PYGAMEEXAMPLESMIDIMAIN "pygame.examples.midi.main(mode='output', device_id=None): return None\nrun a midi example"
 
+#define DOC_PYGAMEEXAMPLESSCROLLMAIN "pygame.examples.scroll.main(image_file=None): return None\nrun a Surface.scroll example that shows a magnified image"
+
 #define DOC_PYGAMEFONT "pygame module for loading and rendering fonts"
 
 #define DOC_PYGAMEFONTINIT "pygame.font.init(): return None\ninitialize the font module"
@@ -820,6 +822,8 @@
 #define DOC_SURFACECOPY "Surface.copy(): return Surface\ncreate a new copy of a Surface"
 
 #define DOC_SURFACEFILL "Surface.fill(color, rect=None, special_flags=0): return Rect\nfill Surface with a solid color"
+
+#define DOC_SURFACESCROLL "Surface.scroll(dx=0, dy=0): return None\nShift the surface image in place"
 
 #define DOC_SURFACESETCOLORKEY "Surface.set_colorkey(Color, flags=0): return None\nSurface.set_colorkey(None): return None\nSet the transparent colorkey"
 
@@ -1806,6 +1810,12 @@ interactively scale an image using smoothscale
 pygame.examples.midi.main
  pygame.examples.midi.main(mode='output', device_id=None): return None
 run a midi example
+
+
+
+pygame.examples.scroll.main
+ pygame.examples.scroll.main(image_file=None): return None
+run a Surface.scroll example that shows a magnified image
 
 
 
@@ -3454,6 +3464,12 @@ create a new copy of a Surface
 Surface.fill
  Surface.fill(color, rect=None, special_flags=0): return Rect
 fill Surface with a solid color
+
+
+
+Surface.scroll
+ Surface.scroll(dx=0, dy=0): return None
+Shift the surface image in place
 
 
 

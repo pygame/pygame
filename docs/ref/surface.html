@@ -59,6 +59,7 @@
   <tr><td><a href="surface.html#Surface.convert_alpha">Surface.convert_alpha</a> - <font size=-1>change the pixel format of an image including per pixel alphas</font></td><td>change the pixel format of an image including per pixel alphas</td></tr>
   <tr><td><a href="surface.html#Surface.copy">Surface.copy</a> - <font size=-1>create a new copy of a Surface</font></td><td>create a new copy of a Surface</td></tr>
   <tr><td><a href="surface.html#Surface.fill">Surface.fill</a> - <font size=-1>fill Surface with a solid color</font></td><td>fill Surface with a solid color</td></tr>
+  <tr><td><a href="surface.html#Surface.scroll">Surface.scroll</a> - <font size=-1>Shift the surface image in place</font></td><td>Shift the surface image in place</td></tr>
   <tr><td><a href="surface.html#Surface.set_colorkey">Surface.set_colorkey</a> - <font size=-1>Set the transparent colorkey</font></td><td>Set the transparent colorkey</td></tr>
   <tr><td><a href="surface.html#Surface.get_colorkey">Surface.get_colorkey</a> - <font size=-1>Get the current transparent colorkey</font></td><td>Get the current transparent colorkey</td></tr>
   <tr><td><a href="surface.html#Surface.set_alpha">Surface.set_alpha</a> - <font size=-1>set the alpha value for the full Surface image</font></td><td>set the alpha value for the full Surface image</td></tr>
@@ -176,6 +177,15 @@
 <p>An optional special_flags is for passing in new in <tt>1.8.0:</tt> <tt>BLEND_ADD</tt>, <tt>BLEND_SUB</tt>, <tt>BLEND_MULT</tt>, <tt>BLEND_MIN</tt>, <tt>BLEND_MAX</tt> new in <tt>1.8.1:</tt> <tt>BLEND_RGBA_ADD</tt>, <tt>BLEND_RGBA_SUB</tt>, <tt>BLEND_RGBA_MULT</tt>, <tt>BLEND_RGBA_MIN</tt>, <tt>BLEND_RGBA_MAX</tt> <tt>BLEND_RGB_ADD</tt>, <tt>BLEND_RGB_SUB</tt>, <tt>BLEND_RGB_MULT</tt>, <tt>BLEND_RGB_MIN</tt>, <tt>BLEND_RGB_MAX</tt> With other special blitting flags perhaps added in the future. </p>
 <p>This will return the affected Surface area. </p>
 <!--COMMENTS:Surface.fill--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Surface.scroll">
+<big><b>Surface.scroll</big></b><br><ul>
+  <i>Shift the surface image in place</i><br>
+  <tt>Surface.scroll(dx=0, dy=0): return None</tt><br>
+<p>Move the image by dx pixels right and dy pixels down. dx and dy may be negative for left and up scrolls respectively. Areas of the surface that are not overwritten retain their original pixel values. Scrolling is contained by the Surface clip area. It is safe to have dx and dy values that exceed the surface size. </p>
+<!--COMMENTS:Surface.scroll--> &nbsp;<br> 
 <br></ul>
 
 
