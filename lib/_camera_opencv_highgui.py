@@ -14,6 +14,11 @@ def list_cameras():
     # -1 for opencv means get any of them.
     return [-1]
 
+def init():
+    pass
+
+def quit():
+    pass
 
 
 class Camera:
@@ -22,6 +27,8 @@ class Camera:
         """
         """
         self.camera = highgui.cvCreateCameraCapture(device)
+        if not self.camera:
+            raise ValueError ("Could not open camera.  Sorry.")
 
 
 

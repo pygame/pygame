@@ -19,6 +19,8 @@ class VideoCapturePlayer(object):
 
        # gets a list of available cameras.
        self.clist = pygame.camera.list_cameras()
+       if not self.clist:
+           raise ValueError("Sorry, no cameras detected.")
 
        # creates the camera of the specified size and in RGB colorspace
        self.camera = pygame.camera.Camera(self.clist[0], self.size, "RGB")
