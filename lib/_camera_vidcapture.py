@@ -1,4 +1,3 @@
-import vidcap
 
 import pygame
 
@@ -12,6 +11,18 @@ def list_cameras():
         cameras.append(x)
 
     return cameras
+
+
+def init():
+    global vidcap
+    import vidcap as vc
+    vidcap = vc
+
+def quit():
+    global vidcap
+    pass
+    del vidcap
+
 
 
 class Camera:
