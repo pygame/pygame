@@ -4,7 +4,7 @@ import numpy
 
 import opencv
 #this is important for capturing/displaying images
-from opencv import highgui 
+from opencv import highgui
 
 
 
@@ -66,13 +66,13 @@ class Camera:
         #convert Ipl image to PIL image
         #print type(im)
         if im:
-            xx = opencv.adaptors.Ipl2NumPy(im) 
+            xx = opencv.adaptors.Ipl2NumPy(im)
             #print type(xx)
             #print xx.iscontiguous()
             #print dir(xx)
             #print xx.shape
             xxx = numpy.reshape(xx, (numpy.product(xx.shape),))
-      
+
             if xx.shape[2] != 3:
                 raise ValueError("not sure what to do about this size")
 
@@ -81,9 +81,9 @@ class Camera:
             # if there is a destination surface given, we blit onto that.
             if dest_surf:
                 dest_surf.blit(pg_img, (0,0))
-            return pg_img
-            #return xxx
-            #return opencv.adaptors.Ipl2PIL(im) 
+            return dest_surf
+            #return pg_img
+
 
 
 if __name__ == "__main__":
@@ -95,5 +95,4 @@ if __name__ == "__main__":
     pygame.camera.list_cameras = list_cameras
     pygame.examples.camera.main()
 
-    
 
