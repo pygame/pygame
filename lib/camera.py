@@ -117,6 +117,9 @@ class Camera:
         """
         """
 
+    def set_controls(self, **kwargs):
+        """
+        """
 
     def get_image(self, dest_surf = None):
         """
