@@ -2,6 +2,9 @@
 import pygame
 
 def list_cameras():
+    return [0]
+
+    # this just cycles through all the cameras trying to open them
     cameras = []
     for x in range(256):
         try:
@@ -27,7 +30,10 @@ def quit():
 
 class Camera:
 
-    def __init__(self, device =0, show_video_window=0):
+    def __init__(self, device =0,
+                       size = (640,480),
+                       mode = "RGB",
+                       show_video_window=0):
         """device:  VideoCapture enumerates the available video capture devices
                     on your system.  If you have more than one device, specify
                     the desired one here.  The device number starts from 0.
@@ -39,6 +45,8 @@ class Camera:
                             can not be closed or moved around.
         """
         self.dev = vidcap.new_Dev(device, show_video_window)
+        width, height = size
+        self.dev.setresolution(width, height)
 
     def display_capture_filter_properties(self):
         """Displays a dialog containing the property page of the capture filter.
@@ -66,8 +74,21 @@ class Camera:
         """
         return self.dev.getbuffer()
 
+    def start(self):
+        """
+        """
+    def set_controls(self, **kwargs):
+        """
+        """
 
-    def get_surface(self):
+    def stop(self):
+        """
+        """
+
+    def get_image(self, dest_surf = None):
+        return self.get_surface(dest_surf)
+
+    def get_surface(self, dest_surf = None):
         """Returns a pygame Surface.
         """
         abuffer, width, height = self.get_buffer()
@@ -84,6 +105,11 @@ class Camera:
 
                 surf = pygame.transform.flip(surf, 0,1)
 
+                # if there is a destination surface given, we blit onto that.
+                if dest_surf:
+                    dest_surf.blit(surf, (0,0))
+                return dest_surf
+
             else:
 
                 # Need to flip the image.
@@ -98,41 +124,10 @@ class Camera:
 
 
 if __name__ == "__main__":
+    import pygame.examples.camera
 
-    from pygame.locals import *
-    pygame.init()
-
-    #print list_cameras()
-    #raise ""
-
-
-    c = Camera(0)
-    c.set_resolution(640,480)
-    #c.display_capture_pin_properties()
-    #c.display_capture_filter_properties()
-
-
-
-
-    #import time
-    #time.sleep(1.0)
-    screen = pygame.display.set_mode((640,480))
-    clk = pygame.time.Clock()
-
-    going = True
-    while going:
-        events = pygame.event.get()
-        for e in events:
-            if e.type in [QUIT, KEYDOWN]:
-                going = False
-
-        asurf = c.get_surface()
-        screen.blit(asurf, (0,0))
-        pygame.display.flip()
-
-        clk.tick()
-        print clk.get_fps()
-
-
+    pygame.camera.Camera = Camera
+    pygame.camera.list_cameras = list_cameras
+    pygame.examples.camera.main()
 
 
