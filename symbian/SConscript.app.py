@@ -14,8 +14,10 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
                            "app/pygame_main.cpp"                           
                            ],
                 includes = ["app", "common",
-                            join( EPOC32_INCLUDE, "SDL"), 
+                            join( "deps", "SDL", "include"),                              
+                            join( "deps", "SDL", "symbian", "inc"),
                             C_INCLUDE ] + python_includes
+                            
                 ,
                 defines = [
                     "__LOGMAN_ENABLED__", 

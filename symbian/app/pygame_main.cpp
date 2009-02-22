@@ -1,3 +1,5 @@
+/** Creates Python interpreter and launches pygame's main script */
+
 #include <sdl.h>
 #include <Python.h>
 

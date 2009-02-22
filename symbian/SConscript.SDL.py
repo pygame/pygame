@@ -13,12 +13,14 @@ includes    = [ 'deps/SDL/src', 'deps/SDL/src/video',
                 'deps/SDL/src/video/symbian', 'deps/SDL/src/thread', 
                 'deps/SDL/src/thread/generic', 'deps/SDL/src/thread/symbian', 
                 'deps/SDL/src/timer', 'deps/SDL/src/joystick', 
-                'deps/SDL/symbian/inc', 'deps/SDL/inc/internal']
+                'deps/SDL/symbian/inc', 
+				'deps/SDL/symbian/inc/internal',
+				'deps/SDL/include',
+]
 
-sysincludes = ['deps/SDL/include', '/epoc32/include', 
-               'inc', '/epoc32/include/SDL', 
-               '/epoc32/include/gles', 
-               '/epoc32/include/EGL', 
+sysincludes = [EPOC32_INCLUDE,
+               join( EPOC32_INCLUDE, "gles"),
+               join( EPOC32_INCLUDE, "EGL"),
                C_INCLUDE, 
                ]
 
