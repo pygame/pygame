@@ -1214,20 +1214,22 @@ class SurfaceSelfBlitTest(unittest.TestCase):
                     (0, 255, 0, 255)]
     surf_size = (9, 6)
     
-    def _fill_surface(self, surf):
-        palette = self.test_palette
+    def _fill_surface(self, surf, palette=None):
+        if palette is None:
+            palette = self.test_palette
         surf.fill(palette[1])
         surf.fill(palette[2], (1, 2, 1, 2))
 
-    def _make_surface(self, bitsize, srcalpha=False):
-        palette = self.test_palette
+    def _make_surface(self, bitsize, srcalpha=False, palette=None):
+        if palette is None:
+            palette = self.test_palette
         flags = 0
         if srcalpha:
             flags |= SRCALPHA
         surf = pygame.Surface(self.surf_size, flags, bitsize)
         if bitsize == 8:
             surf.set_palette([c[:3] for c in palette])
-        self._fill_surface(surf)
+        self._fill_surface(surf, palette)
         return surf
 
     def _assert_same(self, a, b):
@@ -1247,6 +1249,12 @@ class SurfaceSelfBlitTest(unittest.TestCase):
         pygame.quit()
 
     def test_overlap_check(self):
+        # Ensure overlapping blits are properly detected. There are two
+        # places where this is done, within SoftBlitPyGame() in alphablit.c
+        # and PySurface_Blit() in surface.c. SoftBlitPyGame should catch the
+        # per-pixel alpha surface, PySurface_Blit the colorkey and blanket
+        # alpha surface. per-pixel alpha and blanket alpha self blits are
+        # not properly handled by SDL 1.2.13, so Pygame does them.
         bgc = (0, 0, 0, 255)
         rectc_left = (128, 64, 32, 255)
         rectc_right = (255, 255, 255, 255)
@@ -1256,40 +1264,58 @@ class SurfaceSelfBlitTest(unittest.TestCase):
                     (0, 0, 49, 49, (98, 98)),
                     (49, 0, 0, 1, (0, 2)),
                     (49, 0, 0, 49, (0, 98))]
-        surf = pygame.Surface((100, 100), SRCALPHA, 32)
-        for s_x, s_y, d_x, d_y, test_posn in overlaps:
-            surf.fill(bgc)
-            surf.fill(rectc_right, (25, 0, 25, 50))
-            surf.fill(rectc_left, (0, 0, 25, 50))
-            surf.blit(surf, (d_x, d_y), (s_x, s_y, 50, 50))
-            self.failUnlessEqual(surf.get_at(test_posn), rectc_right)
+        surfs = [pygame.Surface((100, 100), SRCALPHA, 32)]
+        surf = pygame.Surface((100, 100), 0, 32)
+        surf.set_alpha(255)
+        surfs.append(surf)
+        surf = pygame.Surface((100, 100), 0, 32)
+        surf.set_colorkey((0, 1, 0))
+        surfs.append(surf)
+        for surf in surfs:
+            for s_x, s_y, d_x, d_y, test_posn in overlaps:
+                surf.fill(bgc)
+                surf.fill(rectc_right, (25, 0, 25, 50))
+                surf.fill(rectc_left, (0, 0, 25, 50))
+                surf.blit(surf, (d_x, d_y), (s_x, s_y, 50, 50))
+                self.failUnlessEqual(surf.get_at(test_posn), rectc_right)
          
-    def todo_test_colorkey(self):
-        # This is actually an SDL problem.
-        # A workaround is needed.
+    def test_colorkey(self):
+        # Check a workaround for an SDL 1.2.13 surface self-blit problem
+        # (MotherHamster Bugzilla bug 19).
         bitsizes = [16, 24, 32] #[8, 16, 24, 32]
         for bitsize in bitsizes:
             surf = self._make_surface(bitsize)
             surf.set_colorkey(self.test_palette[1])
-            comp = self._make_surface(bitsize)
-            comp.set_colorkey(self.test_palette[1])
-            comp.blit(surf, (3, 0))
-            comp.set_colorkey()
             surf.blit(surf, (3, 0))
+            p = []
+            for c in self.test_palette:
+                c = surf.unmap_rgb(surf.map_rgb(c))
+                p.append(c)
+            p[1] = (p[1][0], p[1][1], p[1][2], 0)
+            tmp = self._make_surface(32, srcalpha=True, palette=p)
+            tmp.blit(tmp, (3, 0))
+            tmp.set_alpha(None)
+            comp = self._make_surface(bitsize)
+            comp.blit(tmp, (0, 0))
             self._assert_same(surf, comp)
 
-    def todo_test_blanket_alpha(self):
-        # This is actually an SDL problem.
-        # A workaround is needed.
+    def test_blanket_alpha(self):
+        # Check a workaround for an SDL 1.2.13 surface self-blit problem
+        # (MotherHamster Bugzilla bug 19).
         bitsizes = [16, 24, 32] #[8, 16, 24, 32]
         for bitsize in bitsizes:
             surf = self._make_surface(bitsize)
             surf.set_alpha(128)
-            comp = self._make_surface(bitsize)
-            comp.set_alpha(128)
-            comp.blit(surf, (3, 0))
-            comp.set_alpha()
             surf.blit(surf, (3, 0))
+            p = []
+            for c in self.test_palette:
+                c = surf.unmap_rgb(surf.map_rgb(c))
+                p.append((c[0], c[1], c[2], 128))
+            tmp = self._make_surface(32, srcalpha=True, palette=p)
+            tmp.blit(tmp, (3, 0))
+            tmp.set_alpha(None)
+            comp = self._make_surface(bitsize)
+            comp.blit(tmp, (0, 0))
             self._assert_same(surf, comp)
 
     def test_pixel_alpha(self):
@@ -1339,6 +1365,23 @@ class SurfaceSelfBlitTest(unittest.TestCase):
                           special_flags=getattr(pygame, blend))
                 self._assert_same(surf, comp)
 
+    def test_subsurface(self):
+        # Blitting a surface to its subsurface is allowed.
+        surf = self._make_surface(32, srcalpha=True)
+        comp = surf.copy()
+        comp.blit(surf, (3, 0))
+        sub = surf.subsurface((3, 0, 6, 6))
+        sub.blit(surf, (0, 0))
+        del sub
+        self._assert_same(surf, comp)
+        # Blitting a subsurface to its owner is forbidden because of
+        # lock conficts. This limitation allows the overlap check
+        # in PySurface_Blit of alphablit.c to be simplified.
+        def do_blit(d, s):
+            d.blit(s, (0, 0))
+        sub = surf.subsurface((1, 1, 2, 2))
+        self.failUnlessRaises(pygame.error, do_blit, surf, sub)
+        
 
 if __name__ == '__main__':
     unittest.main()

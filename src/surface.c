@@ -1975,6 +1975,111 @@ static PyObject
     return buffer;
 }
 
+static SDL_Surface *
+surface_find_owner(PyObject *surfobj)
+{
+    while (((PySurfaceObject *) surfobj)->subsurface)
+    {
+	surfobj = ((PySurfaceObject *) surfobj)->subsurface->owner;
+    }
+    return PySurface_AsSurface (surfobj);
+}
+
+static int
+surface_do_overlap (SDL_Surface *src, SDL_Rect *srcrect,
+		    SDL_Surface *dst, SDL_Rect *dstrect)
+{
+    Uint8 *srcpixels;
+    Uint8 *dstpixels;
+    int srcx = srcrect->x, srcy = srcrect->y;
+    int dstx = dstrect->x, dsty = dstrect->y;
+    int x, y;
+    int w = srcrect-> w, h= srcrect->h;
+    int maxw, maxh;
+    SDL_Rect *clip = &dst->clip_rect;
+    int span;
+    int dstoffset;
+
+    /* clip the source rectangle to the source surface */
+    if (srcx < 0)
+    {
+	w += srcx;
+	dstx -= srcx;
+	srcx = 0;
+    }
+    maxw = src->w - srcx;
+    if (maxw < w)
+    {
+	w = maxw;
+    }
+    srcy = srcrect->y;
+    if (srcy < 0)
+    {
+	h += srcy;
+	dsty -= srcy;
+	srcy = 0;
+    }
+    maxh = src->h - srcy;
+    if (maxh < h)
+    {
+	h = maxh;
+    }
+
+    /* clip the destination rectangle against the clip rectangle */
+    x = clip->x - dstx;
+    if (x > 0)
+    {
+	w -= x;
+	dstx += x;
+	srcx += x;
+    }
+    x = dstx + w - clip->x - clip->w;
+    if (x > 0)
+    {
+	w -= x;
+    }
+    y = clip->y - dsty;
+    if (y > 0)
+    {
+	h -= y;
+	dsty += y;
+	srcy += y;
+    }
+    y = dsty + h - clip->y - clip->h;
+    if (y > 0)
+    {
+	h -= y;
+    }
+
+    if (w <= 0 || h <= 0)
+    {
+	return 0;
+    }
+
+    srcpixels = ((Uint8 *) src->pixels + src->offset +
+		  srcy * src->pitch +
+		  srcx * src->format->BytesPerPixel);
+    dstpixels = ((Uint8 *) dst->pixels + src->offset +
+		  dsty * dst->pitch +
+		  dstx * dst->format->BytesPerPixel);
+
+    if (dstpixels <= srcpixels)
+    {
+	return 0;
+    }
+
+    span = w * src->format->BytesPerPixel;
+    
+    if (dstpixels >= srcpixels + (h - 1) * src->pitch + span)
+    {
+	return 0;
+    }
+
+    dstoffset = (dstpixels - srcpixels) % src->pitch;
+
+    return dstoffset < span || dstoffset > src->pitch - span;
+}
+
 /*this internal blit function is accessable through the C api*/
 int 
 PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
@@ -2024,7 +2129,6 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
     }
 
     PySurface_Prep (srcobj);
-    /* Py_BEGIN_ALLOW_THREADS */
 
     /* can't blit alpha to 8bit, crashes SDL */
     if (dst->format->BytesPerPixel == 1 &&
@@ -2040,21 +2144,34 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
         /* special case, SDL works */
         (dst->format->BytesPerPixel == 2 || dst->format->BytesPerPixel == 4))
     {
+	/* Py_BEGIN_ALLOW_THREADS */
         result = pygame_AlphaBlit (src, srcrect, dst, dstrect, the_args);
+	/* Py_END_ALLOW_THREADS */
     }
-    else if (the_args != 0)
+    else if (the_args != 0 ||
+	     (src->flags & (SDL_SRCALPHA | SDL_SRCCOLORKEY) &&
+	      /* This simplification is possible because a source subsurface
+		 is converted to its owner with a clip rect and a dst
+		 subsurface cannot be blitted to its owner because the
+		 owner is locked.
+	      */
+	      dst->pixels == src->pixels &&
+	      surface_do_overlap (src, srcrect, dst, dstrect)))
     {
+	/* Py_BEGIN_ALLOW_THREADS */
         result = pygame_Blit (src, srcrect, dst, dstrect, the_args);
+	/* Py_END_ALLOW_THREADS */
     }
     else
     {
+	/* Py_BEGIN_ALLOW_THREADS */
         result = SDL_BlitSurface (src, srcrect, dst, dstrect);
+	/* Py_END_ALLOW_THREADS */
     }
 
     if (didconvert)
         SDL_FreeSurface (src);
 
-    /* Py_END_ALLOW_THREADS */
     if (subsurface)
     {
         SDL_SetClipRect (subsurface, &orig_clip);
