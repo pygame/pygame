@@ -164,10 +164,15 @@ void initkey (void)
 {
     PyObject *module, *dict;
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
     /* create the module */
     module = Py_InitModule3 (MODPREFIX "key", key_builtins, DOC_PYGAMEKEY);
     dict = PyModule_GetDict (module);
-
-    /*imported needed apis*/
-    import_pygame_base ();
 }

@@ -409,6 +409,33 @@ static PyObject* mask_outline(PyObject* self, PyObject* args)
     return plist;
 }
 
+static PyObject* mask_convolve(PyObject* aobj, PyObject* args)
+{
+    PyObject *bobj, *oobj = Py_None;
+    bitmask_t    *a,    *b,    *o;
+    int xoffset = 0, yoffset = 0;
+
+    if (!PyArg_ParseTuple (args, "O!|O(ii)", &PyMask_Type, &bobj, &oobj, &xoffset, &yoffset))
+        return NULL;
+
+    a = PyMask_AsBitmap(aobj);
+    b = PyMask_AsBitmap(bobj);
+
+    if (oobj == Py_None) {
+        PyMaskObject *result = PyObject_New(PyMaskObject, &PyMask_Type);
+
+        result->mask = bitmask_create(a->w + b->w - 1, a->h + b->h - 1);
+        oobj = (PyObject*) result;
+    }
+    else
+        Py_INCREF(oobj);
+
+    o = PyMask_AsBitmap(oobj);
+
+    bitmask_convolve(a, b, o, xoffset, yoffset);
+    return oobj;
+}
+
 static PyObject* mask_from_surface(PyObject* self, PyObject* args)
 {
     bitmask_t *mask;
@@ -1296,6 +1323,7 @@ static PyMethodDef maskobj_builtins[] =
     { "centroid", mask_centroid, METH_NOARGS, DOC_MASKCENTROID },
     { "angle", mask_angle, METH_NOARGS, DOC_MASKANGLE },
     { "outline", mask_outline, METH_VARARGS, DOC_MASKOUTLINE },
+    { "convolve", mask_convolve, METH_VARARGS, DOC_MASKCONVOLVE },
     { "connected_component", mask_connected_component, METH_VARARGS,
       DOC_MASKCONNECTEDCOMPONENT },
     { "connected_components", mask_connected_components, METH_VARARGS,
@@ -1386,6 +1414,26 @@ void initmask(void)
   PyObject *module, *dict, *apiobj;
   static void* c_api[PYGAMEAPI_MASK_NUMSLOTS];
 
+  /* imported needed apis; Do this first so if there is an error
+     the module is not loaded.
+  */
+  import_pygame_base ();
+  if (PyErr_Occurred ()) {
+    return;
+  } 
+  import_pygame_color ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+  import_pygame_surface ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+  import_pygame_rect ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+
   /* create the mask type */
   PyType_Init(PyMask_Type);
 
@@ -1399,11 +1447,5 @@ void initmask(void)
   c_api[0] = &PyMask_Type;
   apiobj   = PyCObject_FromVoidPtr (c_api, NULL);
   PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-
-  /* import other modules */
-  import_pygame_base ();
-  import_pygame_color ();
-  import_pygame_surface ();
-  import_pygame_rect ();
 }
 

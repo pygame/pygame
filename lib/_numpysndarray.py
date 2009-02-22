@@ -49,9 +49,9 @@ def _array_samples(sound, raw):
     else:
         data = sound.get_buffer ()
 
-    shape = (len (data) / channels * fmtbytes, )
+    shape = (len (data) // fmtbytes, )
     if channels > 1:
-        shape = (shape[0], 2)
+        shape = (shape[0] // channels, channels)
 
     # mixer.init () does not support different formats from the ones below,
     # so MSB/LSB stuff is silently ignored.
@@ -90,12 +90,12 @@ def samples (sound):
     if not info:
         raise pygame.error, "Mixer not initialized"
     fmtbytes = (abs (info[1]) & 0xff) >> 3
-    channels = mixer.get_num_channels ()
+    channels = info[2]
     data = sound.get_buffer ()
 
-    shape = (data.length / channels * fmtbytes, )
+    shape = (data.length // fmtbytes, )
     if channels > 1:
-        shape = (shape[0], 2)
+        shape = (shape[0] // channels, channels)
         
     # mixer.init () does not support different formats from the ones below,
     # so MSB/LSB stuff is silently ignored.

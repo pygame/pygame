@@ -80,7 +80,7 @@ def prepdep(dep, basepath):
     else:
         dep.line = dep.name+' =' + inc + lid + ' ' + dep.cflags + libs
 
-def writesetupfile(deps, basepath):
+def writesetupfile(deps, basepath, additional_lines):
     "create a modified copy of Setup.in"
     origsetup = open('Setup.in', 'r')
     newsetup = open('Setup', 'w')
@@ -96,8 +96,9 @@ def writesetupfile(deps, basepath):
     for d in deps:
         newsetup.write(d.line + '\n')
 
-    while line:
-        line = origsetup.readline()
+    lines = origsetup.readlines()
+    lines.extend(additional_lines)
+    for line in lines:
         useit = 1
         if not line.startswith('COPYLIB'):
             for d in deps:
@@ -106,9 +107,10 @@ def writesetupfile(deps, basepath):
                     newsetup.write('#'+line)
                     break
         if useit:
-            newsetup.write(line)
+            newsetup.write(line)        
 
 def main():
+    additional_platform_setup = []
     if sys.platform == 'win32' and not is_msys_mingw():
         print_('Using WINDOWS configuration...\n')
         import config_win as CFG
@@ -118,6 +120,7 @@ def main():
     elif sys.platform == 'darwin':
         print_('Using Darwin configuration...\n')
         import config_darwin as CFG
+        additional_platform_setup = file("Setup_Darwin.in", "r").readlines()
     else:
         print_('Using UNIX configuration...\n')
         import config_unix as CFG
@@ -134,7 +137,7 @@ def main():
         basepath = None
         for d in deps:
             prepdep(d, basepath)
-        writesetupfile(deps, basepath)
+        writesetupfile(deps, basepath, additional_platform_setup)
         print_("""\nIf you get compiler errors during install, doublecheck
 the compiler flags in the "Setup" file.\n""")
     else:

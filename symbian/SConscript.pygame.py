@@ -10,6 +10,7 @@ python_includes = [ PYTHON_INCLUDE ]
 #font.c
 #imageext.c
 ignored = r"""
+pypm.c
 camera.c
 ffmovie.c
 movie.c

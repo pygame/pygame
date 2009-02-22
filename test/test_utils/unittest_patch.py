@@ -1,6 +1,9 @@
 ################################################################################
 
-import test.unittest as unittest
+if __name__.startswith('pygame.tests.'):
+    from pygame.tests.test_utils import unittest, import_submodule
+else:
+    from test.test_utils import unittest, import_submodule
 import re
 import time
 import sys 
@@ -170,7 +173,7 @@ class TestTags:
 
     def get_parent_module(self, class_):
         if class_ not in self.parent_modules:
-            self.parent_modules[class_] = __import__(class_.__module__)
+            self.parent_modules[class_] = import_submodule(class_.__module__)
         return self.parent_modules[class_]
 
     def __call__(self, obj):
@@ -243,28 +246,45 @@ def getTestCaseNames(self, testCaseClass):
 
 ################################################################################
 
-def patch(options):
+def patch(**kwds):
+    """Customize the unittest module according to the run-time options
+
+    Recognized keyword arguments:
+    incomplete, randomize, seed, exclude, timings and show_output
+    
+    """
+
+    option_incomplete = kwds.get('incomplete', False)
+    option_randomize = kwds.get('randomize', False)
+    try:
+        option_seed = kwds['seed'] is not None
+    except KeyError:
+        option_seed = False
+    option_exclude = kwds.get('exclude', 'interactive')
+    option_timings = kwds.get('timings', 1)
+    option_show_output = kwds.get('show_output', False)
+
     # Incomplete todo_xxx tests
-    if options.incomplete:
+    if option_incomplete:
         unittest.TestLoader.testMethodPrefix = (
             unittest.TestLoader.testMethodPrefix, 'todo_'
         )
     
     # Randomizing    
-    unittest.TestLoader.randomize_tests = options.randomize or options.seed
+    unittest.TestLoader.randomize_tests = option_randomize or option_seed
 
     unittest.TestLoader.getTestCaseNames = getTestCaseNames
     unittest.TestLoader.exclude = (
-        [e.strip() for e in options.exclude.split(',')] )
+        [e.strip() for e in option_exclude.split(',')] )
 
     # Timing
-    unittest.TestCase.times_run = options.timings
+    unittest.TestCase.times_run = option_timings
     unittest.TestCase.run = TestCase_run
     unittest.TestCase.dot_syntax_name = lambda self: (
         "%s.%s"% (self.__class__.__name__, self._testMethodName) )
 
     # Error logging
-    unittest.TestResult.show_redirected_on_errors = options.show_output
+    unittest.TestResult.show_redirected_on_errors = option_show_output
     unittest.TestResult.__init__   = TestResult___init__
     unittest.TestResult.addError   = errorHandling('errors')
     unittest.TestResult.addFailure = errorHandling('failures')
@@ -272,3 +292,4 @@ def patch(options):
     unittest._TextTestResult.printErrorList = printErrorList
     
 ################################################################################
+

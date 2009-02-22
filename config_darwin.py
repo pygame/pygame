@@ -93,7 +93,9 @@ DEPS = [
     FrameworkDependency('SMPEG', 'smpeg.h', 'libsmpeg', 'smpeg'),
     Dependency('PNG', 'png.h', 'libpng', ['png']),
     Dependency('JPEG', 'jpeglib.h', 'libjpeg', ['jpeg']),
-    Dependency('SCRAP', '','',[])
+    Dependency('SCRAP', '','',[]),
+    Dependency('PORTMIDI', 'portmidi.h', 'libportmidi', ['portmidi']),
+    FrameworkDependency('PORTTIME', 'CoreMidi.h', 'CoreMidi', 'CoreMidi'),
 ]
 
 
@@ -107,10 +109,6 @@ def main():
     for d in DEPS:
         d.configure(incdirs, libdirs)
     DEPS[0].cflags = '-Ddarwin '+ DEPS[0].cflags
-    try:
-        import objc
-    except ImportError:
-        raise SystemExit, "Pygame requires PyObjC version 1.1 or above."
     return DEPS
 
 

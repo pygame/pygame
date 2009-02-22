@@ -25,7 +25,6 @@ trackmod.begin(pattern=['pygame', 'pygame.*'],
 skip = set(['pygame.locals', 'pygame.constants',
             'pygame.base', 'pygame.threads'])
 
-sys.path.append('.')
 os.chdir('test')
 test_file = sys.argv[1]
 del sys.argv[1]

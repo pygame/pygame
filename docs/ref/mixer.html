@@ -21,6 +21,7 @@
 <a href="display.html">Display</a>&nbsp;||&nbsp;
 <a href="draw.html">Draw</a>&nbsp;||&nbsp;
 <a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="examples.html">Examples</a>&nbsp;||&nbsp;
 <a href="font.html">Font</a>&nbsp;||&nbsp;
 <a href="image.html">Image</a>&nbsp;||&nbsp;
 <a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
@@ -40,6 +41,7 @@
 <a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
 <a href="surface.html">Surface</a>&nbsp;||&nbsp;
 <a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="tests.html">Tests</a>&nbsp;||&nbsp;
 <a href="time.html">Time</a>&nbsp;||&nbsp;
 <a href="transform.html">Transform</a>
 </td></tr></table>
@@ -78,10 +80,11 @@
 <a name="pygame.mixer.init">
 <big><b>pygame.mixer.init</big></b><br><ul>
   <i>initialize the mixer module</i><br>
-  <tt>pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=3072): return None</tt><br>
-<p>Initialize the mixer module for Sound loading and playback. The default arguments can be overridden to provide specific audio mixing. The size argument represents how many bits are used for each audio sample. If the value is negative then signed sample values will be used. Positive values mean unsigned audio samples will be used. </p>
-<p>The channels argument is used to specify whether to use mono or stereo. 1 for mono and 2 for stereo. No other values are supported. </p>
-<p>The buffer argument controls the number of internal samples used in the sound mixer. The default value should work for most cases. It can be lowered to reduce latency, but sound dropout may occur. It can be raised to larger values to ensure playback never skips, but it will impose latency on sound playback. The buffer size must be a power of two. </p>
+  <tt>pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=4096): return None</tt><br>
+<p>Initialize the mixer module for Sound loading and playback. The default arguments can be overridden to provide specific audio mixing. Keyword arguments are accepted. For backward compatibility where an argument is set zero the default value is used (possible changed by a pre_init call). </p>
+<p>The size argument represents how many bits are used for each audio sample. If the value is negative then signed sample values will be used. Positive values mean unsigned audio samples will be used. An invalid value raises an exception. </p>
+<p>The channels argument is used to specify whether to use mono or stereo. 1 for mono and 2 for stereo. No other values are supported (negative values are treated as 1, values greater than 2 as 2). </p>
+<p>The buffer argument controls the number of internal samples used in the sound mixer. The default value should work for most cases. It can be lowered to reduce latency, but sound dropout may occur. It can be raised to larger values to ensure playback never skips, but it will impose latency on sound playback. The buffer size must be a power of two (if not it is rounded up to the next nearest power of 2). </p>
 <p>Some platforms require the <tt>pygame.mixer</tt> module to be initialized after the display modules have initialized. The top level <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt> takes care of this automatically, but cannot pass any arguments to the mixer init. To solve this, mixer has a function <tt><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a> - <font size=-1>preset the mixer init arguments</font></tt> to set the proper defaults before the toplevel init is used. </p>
 <p>It is safe to call this more than once, but after the mixer is initialized you cannot change the playback arguments without first calling <tt><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a> - <font size=-1>uninitialize the mixer</font></tt>. </p>
 <!--COMMENTS:pygame.mixer.init--> &nbsp;<br> 
@@ -91,8 +94,8 @@
 <a name="pygame.mixer.pre_init">
 <big><b>pygame.mixer.pre_init</big></b><br><ul>
   <i>preset the mixer init arguments</i><br>
-  <tt>pygame.mixer.pre_init(frequency=0, size=0, channels=0, buffersize=0): return None</tt><br>
-<p>Any nonzero arguments change the default values used when the real <tt><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a> - <font size=-1>initialize the mixer module</font></tt> is called. The best way to set custom mixer playback values is to call <tt><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a> - <font size=-1>preset the mixer init arguments</font></tt> before calling the top level <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt>. </p>
+  <tt>pygame.mixer.pre_init(frequency=22050, size=-16, channels=2, buffersize=4096): return None</tt><br>
+<p>Call pre_init to change the defaults used when the real <tt><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a> - <font size=-1>initialize the mixer module</font></tt> is called. Keyword arguments are accepted. The best way to set custom mixer playback values is to call <tt><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a> - <font size=-1>preset the mixer init arguments</font></tt> before calling the top level <tt><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></tt>. For backward compatibility argument values of zero is replaced with the startup defaults. </p>
 <!--COMMENTS:pygame.mixer.pre_init--> &nbsp;<br> 
 <br></ul>
 
@@ -101,7 +104,7 @@
 <big><b>pygame.mixer.quit</big></b><br><ul>
   <i>uninitialize the mixer</i><br>
   <tt>pygame.mixer.quit(): return None</tt><br>
-<p>This will uninitialize <tt>pygame.mixer</tt>. All playback will stop and any loaded Sound objects may not be compatable with the mixer if it is reinitialized later. </p>
+<p>This will uninitialize <tt>pygame.mixer</tt>. All playback will stop and any loaded Sound objects may not be compatible with the mixer if it is reinitialized later. </p>
 <!--COMMENTS:pygame.mixer.quit--> &nbsp;<br> 
 <br></ul>
 

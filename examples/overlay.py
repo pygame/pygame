@@ -43,13 +43,19 @@ def vPlayer( fName ):
                 return
 
 
+def main(fname):
+    """play video file fname"""
+    pygame.init()
+    try:
+        pygame.display.set_mode(SR)
+        vPlayer(fname)
+    finally:
+        pygame.quit()
+
 # Test all modules
 if __name__== '__main__':
     if len( sys.argv )!= 2:
         print "Usage: play_file <file_pattern>"
     else:
-        pygame.init()
-        pygame.display.set_mode(SR)
-        vPlayer(sys.argv[1])
-        pygame.quit()
+        main(sys.argv[1])
 

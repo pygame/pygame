@@ -703,6 +703,27 @@ void initfont (void)
 
     PyFONT_C_API[0] = PyFONT_C_API[0]; /*clean an unused warning*/
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_color ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     if (PyType_Ready (&PyFont_Type) < 0)
         return;
 
@@ -727,7 +748,16 @@ void initfont (void)
 
     /*imported needed apis*/
     import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
     import_pygame_color ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
     import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
     import_pygame_rwobject ();
 }

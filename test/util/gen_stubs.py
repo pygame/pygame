@@ -1,3 +1,18 @@
+usage_text = """
+$ %prog ROOT
+
+eg. 
+
+$ %prog sprite.Sprite
+
+def test_add(self):
+
+    # Doc string for pygame.sprite.Sprite:
+
+    ...
+"""
+
+
 #################################### IMPORTS ###################################
 
 from optparse import OptionParser
@@ -15,7 +30,7 @@ from os.path import normpath, join, dirname, abspath
 for relpath in ('../../','../'):
     sys.path.insert(0, abspath(normpath( join(dirname(__file__), relpath) )) )
 
-from test.unittest import TestCase
+from test.test_utils.unittest import TestCase
 from makeref import docs_as_dict
 from test_utils import trunk_relative_path
 
@@ -138,21 +153,9 @@ opt_parser.add_option (
      "-d",  "--docs", action = 'store_true',
      help   = "get (more detailed) docs using makeref.py" )
 
-opt_parser.set_usage(
-"""
-$ %prog ROOT
 
-eg. 
-
-$ %prog sprite.Sprite
-
-def test_add(self):
-
-    # Doc string for pygame.sprite.Sprite:
-
-    ...
-"""
-)
+# usage_text is assigned at the top of the module.
+opt_parser.set_usage(usage_text)
 
 ################################### FUNCTIONS ##################################
 
@@ -311,7 +314,13 @@ def already_tested_in_package(package):
 def get_stubs(root):
     module_root = module_re.search(root)
     if module_root:
-        module = getattr(pygame, module_root.group(1))
+        try:
+            module = getattr(pygame, module_root.group(1))
+        except AttributeError:
+            __import__( 'pygame.' + module_root.group(1) )
+            module = getattr(pygame, module_root.group(1))
+            
+
         stubs = module_stubs(module)
         tested = already_tested_in_module(module)
     else:
@@ -319,6 +328,13 @@ def get_stubs(root):
         tested = already_tested_in_package(pygame)
 
     return stubs, tested
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
     options, args = opt_parser.parse_args()

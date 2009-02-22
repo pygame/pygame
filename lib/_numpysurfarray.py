@@ -86,7 +86,7 @@ def array2d (surface):
             data = '\0' + data
         bpp = 4
 
-    typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[bpp - 1]
+    typecode = (numpy.uint8, numpy.uint16, None, numpy.int32)[bpp - 1]
     array = numpy.fromstring (data, typecode)
     array.shape = (surface.get_height (), width)
     array = numpy.transpose (array)
@@ -113,7 +113,7 @@ def pixels2d (surface):
     if bpp == 3 or bpp < 1 or bpp > 4:
         raise ValueError, "unsupported bit depth for 2D reference array"
 
-    typecode = (numpy.uint8, numpy.uint16, None, numpy.uint32)[bpp - 1]
+    typecode = (numpy.uint8, numpy.uint16, None, numpy.int32)[bpp - 1]
     array = numpy.frombuffer (surface.get_buffer (), typecode)
     array.shape = surface.get_height (), surface.get_pitch () / bpp
 
@@ -149,17 +149,30 @@ def array3d (surface):
         planes = [numpy.choose (array, pal_r),
                   numpy.choose (array, pal_g),
                   numpy.choose (array, pal_b)]
-        array = numpy.array (planes)
+        array = numpy.array (planes, numpy.uint8)
         array = numpy.transpose (array, (1, 2, 0))
         return array
+    elif bpp == 2:
+        # Taken from SDL_GetRGBA.
+        masks = surface.get_masks ()
+        shifts = surface.get_shifts ()
+        losses = surface.get_losses ()
+        vr = (array & masks[0]) >> shifts[0]
+        vg = (array & masks[1]) >> shifts[1]
+        vb = (array & masks[2]) >> shifts[2]
+        planes = [(vr << losses[0]) + (vr >> (8 - (losses[0] << 1))),
+                  (vg << losses[1]) + (vg >> (8 - (losses[1] << 1))),
+                  (vb << losses[2]) + (vb >> (8 - (losses[2] << 1)))]
+        array = numpy.array (planes, numpy.uint8)
+        return numpy.transpose (array, (1, 2, 0))
     else:
         masks = surface.get_masks ()
         shifts = surface.get_shifts ()
         losses = surface.get_losses ()
-        planes = [((array & masks[0]) >> shifts[0]) << losses[0],
-                  ((array & masks[1]) >> shifts[1]) << losses[1],
-                  ((array & masks[2]) >> shifts[2]) << losses[2]]
-        array = numpy.array (planes)
+        planes = [((array & masks[0]) >> shifts[0]), # << losses[0], Assume 0
+                  ((array & masks[1]) >> shifts[1]), # << losses[1],
+                  ((array & masks[2]) >> shifts[2])] # << losses[2]]
+        array = numpy.array (planes, numpy.uint8)
         return numpy.transpose (array, (1, 2, 0))
 
 def pixels3d (surface):
@@ -230,9 +243,11 @@ def array_alpha (surface):
     (see the Surface.lock - lock the Surface memory for pixel access
     method).
     """
-    if surface.get_bytesize () == 1 or not surface.get_alpha ():
-        # 1 bpp surfaces and surfaces without alpha are always fully
-        # opaque.
+    if (surface.get_bytesize () == 1 or
+        surface.get_alpha () is None or
+        surface.get_masks ()[3] == 0):
+        # 1 bpp surfaces and surfaces without per-pixel alpha are always
+        # fully opaque.
         array = numpy.empty (surface.get_width () * surface.get_height (),
                              numpy.uint8)
         array.fill (0xff)
@@ -240,9 +255,14 @@ def array_alpha (surface):
         return array
 
     array = array2d (surface)
-    # Those shifts match the results from the old numeric system
-    # exactly.
-    array = array >> surface.get_shifts ()[3] << surface.get_losses ()[3]
+    if surface.get_bytesize () == 2:
+        # Taken from SDL_GetRGBA.
+        va = (array & surface.get_masks ()[3]) >> surface.get_shifts ()[3]
+        array = ((va << surface.get_losses ()[3]) +
+                 (va >> (8 - (surface.get_losses ()[3] << 1))))
+    else:
+        # Taken from _numericsurfarray.c.
+        array = array >> surface.get_shifts ()[3] << surface.get_losses ()[3]
     array = array.astype (numpy.uint8)
     return array
 
@@ -433,7 +453,7 @@ def map_array (surface, array):
     # Taken from from Alex Holkner's pygame-ctypes package. Thanks a
     # lot.
     bpp = surface.get_bytesize ()
-    if bpp <= 0 or bpp > 4:
+    if bpp <= 1 or bpp > 4:
         raise ValueError, "unsupported bit depth for surface array"
 
     shape = array.shape
@@ -442,7 +462,11 @@ def map_array (surface, array):
 
     shifts = surface.get_shifts ()
     losses = surface.get_losses ()
-    array = (array[:,:,::3] >> losses[0] << shifts[0]) | \
-            (array[:,:,1::3] >> losses[1] << shifts[1]) | \
-            (array[:,:,2::3] >> losses[2] << shifts[2])
-    return array
+    if array.dtype != numpy.int32:
+        array = array.astype(numpy.int32)
+    out       = array[...,0] >> losses[0] << shifts[0]
+    out[...] |= array[...,1] >> losses[1] << shifts[1]
+    out[...] |= array[...,2] >> losses[2] << shifts[2]
+    if surface.get_flags() & pygame.SRCALPHA:
+        out[...] |= numpy.int32(255) >> losses[3] << shifts[3]
+    return out

@@ -29,8 +29,14 @@
 #include "mixer.h"
 
 
-/* 1024 * 3 seems to be the magic number to stop scratchy sound. On some systems.  */
-#define MIX_DEFAULT_CHUNKSIZE 3072
+/* Since they are documented, the default init values are defined here
+   rather than taken from SDL_mixer. It also means that the default
+   size is defined in Pygame, rather than SDL AUDIO_xxx, terms.
+ */
+#define PYGAME_MIXER_DEFAULT_FREQUENCY 22050
+#define PYGAME_MIXER_DEFAULT_SIZE -16
+#define PYGAME_MIXER_DEFAULT_CHANNELS 2
+#define PYGAME_MIXER_DEFAULT_CHUNKSIZE 4096
 
 staticforward PyTypeObject PySound_Type;
 staticforward PyTypeObject PyChannel_Type;
@@ -39,10 +45,11 @@ static PyObject* PyChannel_New (int);
 #define PySound_Check(x) ((x)->ob_type == &PySound_Type)
 #define PyChannel_Check(x) ((x)->ob_type == &PyChannel_Type)
 
-static int request_frequency = MIX_DEFAULT_FREQUENCY;
-static int request_size = MIX_DEFAULT_FORMAT;
-static int request_stereo = MIX_DEFAULT_CHANNELS;
-static int request_chunksize = MIX_DEFAULT_CHUNKSIZE;
+/* Zero values will be replaced with defaults by _init(). */
+static int request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
+static int request_size = PYGAME_MIXER_DEFAULT_SIZE;
+static int request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+static int request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
 
 static int sound_init (PyObject* self, PyObject* arg, PyObject* kwarg);
 
@@ -137,21 +144,23 @@ autoquit(void)
 }
 
 static PyObject*
-autoinit (PyObject* self, PyObject* arg)
+_init (int freq, int size, int stereo, int chunk)
 {
-    int freq, stereo, chunk;
+    Uint16 fmt = 0;
     int i;
-    int size;
-    Uint16 fmt;
 
-    freq = request_frequency;
-    size = request_size;
-    fmt = request_size;
-    stereo = request_stereo;
-    chunk = request_chunksize;
-
-    if (!PyArg_ParseTuple (arg, "|iiii", &freq, &size, &stereo, &chunk))
-        return NULL;
+    if (!freq) {
+	freq = request_frequency;
+    }
+    if (!size) {
+	size = request_size;
+    }
+    if (!stereo) {
+	stereo = request_stereo;
+    }
+    if (!chunk) {
+	chunk = request_chunksize;
+    }
     if (stereo >= 2)
         stereo = 2;
     else
@@ -159,15 +168,23 @@ autoinit (PyObject* self, PyObject* arg)
 
     /* printf("size:%d:\n", size); */
 
-    if (size == 8)
-        fmt = AUDIO_U8;
-    else if (size == -8)
-        fmt = AUDIO_S8;
-    else if (size == 16)
-        fmt = AUDIO_U16SYS;
-    else if (size == -16)
-        fmt = AUDIO_S16SYS;
-
+    switch (size) {
+    case 8:
+	fmt = AUDIO_U8;
+	break;
+    case -8:
+	fmt = AUDIO_S8;
+	break;
+    case 16:
+	fmt = AUDIO_U16SYS;
+	break;
+    case -16:
+	fmt = AUDIO_S16SYS;
+	break;
+    default:
+	PyErr_Format(PyExc_ValueError, "unsupported size %i", size);
+	return NULL;
+    }
 
     /* printf("size:%d:\n", size); */
 
@@ -229,6 +246,16 @@ autoinit (PyObject* self, PyObject* arg)
     return PyInt_FromLong (1);
 }
 
+static PyObject*
+autoinit (PyObject* self, PyObject* arg)
+{
+    int freq = 0, size = 0, stereo = 0, chunk = 0;
+
+    if (!PyArg_ParseTuple (arg, "|iiii", &freq, &size, &stereo, &chunk))
+        return NULL;
+
+    return _init (freq, size, stereo, chunk);
+}
 
 static PyObject*
 quit (PyObject* self)
@@ -238,12 +265,18 @@ quit (PyObject* self)
 }
 
 static PyObject*
-init (PyObject* self, PyObject* arg)
+init (PyObject* self, PyObject* args, PyObject* keywds)
 {
+    int freq = 0, size = 0, stereo = 0, chunk = 0;
     PyObject* result;
     int value;
 
-    result = autoinit (self, arg);
+    static char *kwids[] = {"frequency", "size", "channels", "buffer", NULL};
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "|iiii", kwids,
+				      &freq, &size, &stereo, &chunk)) {
+	return NULL;
+    }
+    result = _init (freq, size, stereo, chunk);
     if (!result)
         return NULL;
     value = PyObject_IsTrue (result);
@@ -273,16 +306,30 @@ get_init (PyObject* self)
 }
 
 static PyObject*
-pre_init (PyObject* self, PyObject* arg)
+pre_init (PyObject* self, PyObject* args, PyObject* keywds)
 {
-    request_frequency = MIX_DEFAULT_FREQUENCY;
-    request_size = MIX_DEFAULT_FORMAT;
-    request_stereo = MIX_DEFAULT_CHANNELS;
-    request_chunksize = MIX_DEFAULT_CHUNKSIZE;
+    static char *kwids[] = {"frequency", "size", "channels", "buffer", NULL};
 
-    if (!PyArg_ParseTuple (arg, "|iiii", &request_frequency, &request_size,
-                           &request_stereo, &request_chunksize))
+    request_frequency = 0;
+    request_size = 0;
+    request_stereo = 0;
+    request_chunksize = 0;
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "|iiii", kwids,
+				      &request_frequency, &request_size,
+				      &request_stereo, &request_chunksize))
         return NULL;
+    if (!request_frequency) {
+	request_frequency = PYGAME_MIXER_DEFAULT_FREQUENCY;
+    }
+    if (!request_size) {
+	request_size = PYGAME_MIXER_DEFAULT_SIZE;
+    }
+    if (!request_stereo) {
+	request_stereo = PYGAME_MIXER_DEFAULT_CHANNELS;
+    }
+    if (!request_chunksize) {
+	request_chunksize = PYGAME_MIXER_DEFAULT_CHUNKSIZE;
+    }
     Py_RETURN_NONE;
 }
 
@@ -992,11 +1039,12 @@ sound_init (PyObject* self, PyObject* arg, PyObject* kwarg)
 static PyMethodDef mixer_builtins[] =
 {
     { "__PYGAMEinit__", autoinit, METH_VARARGS, "auto initialize for mixer" },
-    { "init", init, METH_VARARGS, DOC_PYGAMEMIXERINIT },
+    { "init", (PyCFunction) init, METH_VARARGS | METH_KEYWORDS,
+      DOC_PYGAMEMIXERINIT },
     { "quit", (PyCFunction) quit, METH_NOARGS, DOC_PYGAMEMIXERQUIT },
     { "get_init", (PyCFunction) get_init, METH_NOARGS, DOC_PYGAMEMIXERGETINIT },
-    { "pre_init", pre_init, METH_VARARGS, DOC_PYGAMEMIXERPREINIT },
-
+    { "pre_init", (PyCFunction) pre_init, METH_VARARGS | METH_KEYWORDS,
+      DOC_PYGAMEMIXERPREINIT },
     { "get_num_channels", (PyCFunction) get_num_channels, METH_NOARGS,
       DOC_PYGAMEMIXERGETNUMCHANNELS },
     { "set_num_channels", set_num_channels, METH_VARARGS,
@@ -1056,6 +1104,25 @@ void initmixer (void)
 
     PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*this cleans an unused warning*/
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+
+    /*imported needed apis*/
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_bufferproxy ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     if (PyType_Ready (&PySound_Type) < 0)
         return;
     PyType_Init (PyChannel_Type);
@@ -1081,22 +1148,19 @@ void initmixer (void)
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
 
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_rwobject ();
-    import_pygame_bufferproxy ();
-
     music = PyImport_ImportModule (IMPPREFIX "mixer_music");
     if (!music) {
         /* try loading it under this name...
         */
         music = PyImport_ImportModule("mixer_music");
-        printf("NOTE3: here in mixer.c...\n");
+        /*printf("NOTE3: here in mixer.c...\n");
+         */
     }
 
     if (music) {
         PyObject* ptr, *_dict;
-        printf("NOTE: failed loading pygame.mixer_music in src/mixer.c\n");
+        /* printf("NOTE: failed loading pygame.mixer_music in src/mixer.c\n");
+         */
         PyModule_AddObject (module, "music", music);
         _dict = PyModule_GetDict (music);
         ptr = PyDict_GetItemString (_dict, "_MUSIC_POINTER");

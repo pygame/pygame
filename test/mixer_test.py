@@ -1,14 +1,25 @@
 #################################### IMPORTS ###################################
 
-import test_utils
-import test.unittest as unittest
+if __name__ == '__main__':
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+if is_pygame_pkg:
+    from pygame.tests.test_utils import test_not_implemented, unittest
+else:
+    from test.test_utils import test_not_implemented, unittest
 import pygame
-
 from pygame import mixer
-import os
 
-from test_utils import test_not_implemented
+import os
 
 ################################### CONSTANTS ##################################
 
@@ -20,27 +31,80 @@ BUFFERS     = [3024]
 ############################## MODULE LEVEL TESTS ##############################
 
 class MixerModuleTest(unittest.TestCase):
-    # def test_init__keyword_args(self):
-    #     configs = ( {'frequency' : f, 'size' : s, 'channels': c }
-    #                 for f in FREQUENCIES
-    #                 for s in SIZES
-    #                 for c in CHANNELS )
+    def test_init__keyword_args(self):
+        # Fails on a Mac; probably older SDL_mixer
+## Probably don't need to be so exhaustive. Besides being slow the repeated
+## init/quit calls may be causing problems on the Mac.
+##        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
+##                    for f in FREQUENCIES
+##                    for s in SIZES
+##                    for c in CHANNELS )
+####        configs = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
+        configs = [{'frequency' : 22050, 'size' : -16, 'channels' : 2}]
 
-    #     for kw_conf in configs:
-    #         mixer.init(*kw_conf)
+        for kw_conf in configs:
+            mixer.init(**kw_conf)
 
-    #         mixer_conf = mixer.get_init()
+            mixer_conf = mixer.get_init()
             
-    #         self.assertEquals(
-    #             mixer_conf,
-    #             (kw_conf['frequency'], kw_conf['size'] , kw_conf['channels'])
-    #         )
+            self.assertEquals(
+                # Not all "sizes" are supported on all systems.
+                (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
+                (kw_conf['frequency'],
+                 abs(kw_conf['size']),
+                 kw_conf['channels'])
+            )
             
-    #         mixer.quit()
+            mixer.quit()
     
-    # Documentation makes it seem as though init() takes kw args
-    # TypeError: init() takes no keyword arguments
-    
+    def todo_test_pre_init__keyword_args(self):
+        # Fails on Mac; probably older SDL_mixer
+## Probably don't need to be so exhaustive. Besides being slow the repeated
+## init/quit calls may be causing problems on the Mac.
+##        configs = ( {'frequency' : f, 'size' : s, 'channels': c }
+##                    for f in FREQUENCIES
+##                    for s in SIZES
+##                    for c in CHANNELS )
+        configs = [{'frequency' : 44100, 'size' : 16, 'channels' : 1}]
+
+        for kw_conf in configs:
+            mixer.pre_init(**kw_conf)
+            mixer.init()
+
+            mixer_conf = mixer.get_init()
+            
+            self.assertEquals(
+                # Not all "sizes" are supported on all systems.
+                (mixer_conf[0], abs(mixer_conf[1]), mixer_conf[2]),
+                (kw_conf['frequency'],
+                 abs(kw_conf['size']),
+                 kw_conf['channels'])
+            )
+            
+            mixer.quit()
+
+    def todo_test_pre_init__zero_values(self):
+        # Ensure that argument values of 0 are replaced with
+        # default values. No way to check buffer size though.
+        mixer.pre_init(44100, -8, 1)  # Non default values
+        mixer.pre_init(0, 0, 0)       # Should reset to default values
+        mixer.init()
+        try:
+            self.failUnlessEqual(mixer.get_init(), (22050, -16, 2))
+        finally:
+            mixer.quit()
+
+    def todo_test_init__zero_values(self):
+        # Ensure that argument values of 0 are replaced with
+        # preset values. No way to check buffer size though.
+        mixer.pre_init(44100, 8, 1)  # None default values
+        mixer.init(0, 0, 0)
+        try:
+            self.failUnlessEqual(mixer.get_init(), (44100, 8, 1))
+        finally:
+            mixer.quit()
+            mixer.pre_init(0, 0, 0, 0)
+
     def test_get_init__returns_exact_values_used_for_init(self):
         return 
         # fix in 1.9 - I think it's a SDL_mixer bug.

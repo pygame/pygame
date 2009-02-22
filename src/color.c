@@ -229,8 +229,8 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_init */
     0,                          /* tp_alloc */
     _color_new,                 /* tp_new */
-#ifndef __SYMBIAN32__ 
-    0,                          /* tp_free */
+#ifndef __SYMBIAN32__
+	0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
     0,                          /* tp_mro */
@@ -239,6 +239,7 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_weaklist */
     0                           /* tp_del */
 #endif    
+
 };
 
 #define PyColor_Check(o) \
@@ -465,61 +466,25 @@ _hexcolor (PyObject *color, Uint8 rgba[])
 }
 
 static int
-_coerce_obj(PyObject *obj, Uint8 rgba[])
+_coerce_obj (PyObject *obj, Uint8 rgba[])
 {
-    if (RGBAFromObj (obj, rgba))
+    if (PyType_IsSubtype (obj->ob_type, &PyColor_Type))
     {
-        return 1;
-    }
-    else if (PyErr_Occurred ())
-    {
-	return -1;
-    }
-    else if (PyString_Check (obj))
-    {
-	if (_hexcolor (obj, rgba))
-        {
-	    return 1;
-	}
-	if (PyErr_Occurred ())
-        {
-	    return -1;
-	}
-    }
-    else if (PyInt_Check (obj))
-    {
-	long color = PyInt_AsLong (obj);
-	if (color == -1 && PyErr_Occurred ())
-        {
-	    return -1;
-	}
-        rgba[0] = (Uint8) ((Uint32) color >> 24);
-        rgba[1] = (Uint8) ((Uint32) color >> 16);
-        rgba[2] = (Uint8) ((Uint32) color >> 8);
-        rgba[3] = (Uint8) color;
+	rgba[0] = ((PyColor *) obj)->r;
+	rgba[1] = ((PyColor *) obj)->g;
+	rgba[2] = ((PyColor *) obj)->b;
+	rgba[3] = ((PyColor *) obj)->a;
 	return 1;
     }
-    else if (PyLong_Check (obj))
+    else if (PyType_IsSubtype (obj->ob_type, &PyTuple_Type))
     {
-        unsigned long color = PyLong_AsUnsignedLong (obj);
-	if (PyErr_Occurred ())
+	if (RGBAFromObj (obj, rgba))
 	{
-            if (!PyErr_ExceptionMatches (PyExc_OverflowError))
-            {
-	        return -1;
-	    }
-	    else
-	    {
-		PyErr_Clear ();
-	    }
-	}
-	else
-	{
-            rgba[0] = (Uint8) (color >> 24);
-            rgba[1] = (Uint8) (color >> 16);
-            rgba[2] = (Uint8) (color >> 8);
-            rgba[3] = (Uint8) color;
 	    return 1;
+	}
+	else if (PyErr_Occurred ())
+	{
+	    return -1;
 	}
     }
 
@@ -1584,11 +1549,6 @@ RGBAFromColorObj (PyObject *color, Uint8 rgba[])
         return RGBAFromObj (color, rgba);
 }
 
-static PyMethodDef color_builtins[] =
-{ 
-    { NULL, NULL, 0, NULL }
-};
-
 PYGAME_EXPORT
 void initcolor (void)
 {
@@ -1598,30 +1558,43 @@ void initcolor (void)
     PyObject *apiobj;
     static void* c_api[PYGAMEAPI_COLOR_NUMSLOTS];
 
-    if (PyType_Ready (&PyColor_Type) < 0)
-        return;
-    
-    /* create the module */
-    module = Py_InitModule3 (MODPREFIX "color", color_builtins, "color module for pygame");
-    PyColor_Type.tp_getattro = PyObject_GenericGetAttr;
-    Py_INCREF (&PyColor_Type);
-    PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type);
-    dict = PyModule_GetDict (module);
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
 
-	// No IMPREFIX here. Not native module.
     colordict = PyImport_ImportModule ("pygame.colordict");
     if (colordict)
     {
         PyObject *_dict = PyModule_GetDict (colordict);
         PyObject *colors = PyDict_GetItemString (_dict, "THECOLORS");
         Py_INCREF (colors);
-        Py_INCREF (colors); /* Needed for the _AddObject call beneath */
         _COLORDICT = colors;
-        PyModule_AddObject (module, "THECOLORS", colors);
         Py_DECREF (colordict);
     }
+    else
+    {
+	return;
+    }
 
-    import_pygame_base ();
+    /* type preparation */
+    if (PyType_Ready (&PyColor_Type) < 0)
+    {
+	Py_DECREF (_COLORDICT);
+        return;
+    }
+    
+    /* create the module */
+    module = Py_InitModule3 (MODPREFIX "color", NULL, "color module for pygame");
+    PyColor_Type.tp_getattro = PyObject_GenericGetAttr;
+    Py_INCREF (&PyColor_Type);
+    PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type);
+    Py_INCREF (_COLORDICT);
+    PyModule_AddObject (module, "THECOLORS", _COLORDICT);
+    dict = PyModule_GetDict (module);
 
     c_api[0] = &PyColor_Type;
     c_api[1] = PyColor_New;

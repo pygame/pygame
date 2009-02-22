@@ -2,7 +2,7 @@
 """
 This simple example is used for the line-by-line tutorial
 that comes with pygame. It is based on a 'popular' web banner.
-Note there are comments here, but for the full explanation, 
+Note there are comments here, but for the full explanation,
 follow along in the tutorial.
 """
 
@@ -14,10 +14,12 @@ from pygame.locals import *
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, 'data')
 
 #functions to create our resources
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join(data_dir, name)
     try:
         image = pygame.image.load(fullname)
     except pygame.error, message:
@@ -35,14 +37,14 @@ def load_sound(name):
         def play(self): pass
     if not pygame.mixer or not pygame.mixer.get_init():
         return NoneSound()
-    fullname = os.path.join('data', name)
+    fullname = os.path.join(data_dir, name)
     try:
         sound = pygame.mixer.Sound(fullname)
     except pygame.error, message:
         print 'Cannot load sound:', fullname
         raise SystemExit, message
     return sound
-        
+
 
 #classes for our game objects
 class Fist(pygame.sprite.Sprite):
@@ -117,7 +119,7 @@ class Chimp(pygame.sprite.Sprite):
         if not self.dizzy:
             self.dizzy = 1
             self.original = self.image
-        
+
 
 def main():
     """this function is called when the program starts.
@@ -133,7 +135,7 @@ def main():
     background = pygame.Surface(screen.get_size())
     background = background.convert()
     background.fill((250, 250, 250))
-    
+
 #Put Text On The Background, Centered
     if pygame.font:
         font = pygame.font.Font(None, 36)
@@ -144,7 +146,7 @@ def main():
 #Display The Background
     screen.blit(background, (0, 0))
     pygame.display.flip()
-    
+
 #Prepare Game Objects
     clock = pygame.time.Clock()
     whiff_sound = load_sound('whiff.wav')
@@ -152,17 +154,19 @@ def main():
     chimp = Chimp()
     fist = Fist()
     allsprites = pygame.sprite.RenderPlain((fist, chimp))
-    
+
+
 #Main Loop
-    while 1:
+    going = True
+    while going:
         clock.tick(60)
 
-    #Handle Input Events
+        #Handle Input Events
         for event in pygame.event.get():
             if event.type == QUIT:
-                return
+                going = False
             elif event.type == KEYDOWN and event.key == K_ESCAPE:
-                return
+                going = False
             elif event.type == MOUSEBUTTONDOWN:
                 if fist.punch(chimp):
                     punch_sound.play() #punch
@@ -174,13 +178,16 @@ def main():
 
         allsprites.update()
 
-    #Draw Everything
+        #Draw Everything
         screen.blit(background, (0, 0))
         allsprites.draw(screen)
         pygame.display.flip()
+
+    pygame.quit()
 
 #Game Over
 
 
 #this calls the 'main' function when this script is executed
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    main()

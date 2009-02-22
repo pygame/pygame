@@ -233,6 +233,8 @@ def main():
         DependencyProg('SMPEG', 'SMPEG_CONFIG', 'smpeg-config', '0.4.3', m),
         Dependency('PNG', 'png.h', 'libpng12.dll.a'),
         Dependency('JPEG', 'jpeglib.h', 'libjpeg.dll.a'),
+        Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.dll.a'),
+        Dependency('PORTTIME', 'portmidi.h', 'libportmidi.dll.a'),
         DependencyDLL('TIFF'),
         DependencyDLL('VORBISFILE'),
         DependencyDLL('VORBIS'),

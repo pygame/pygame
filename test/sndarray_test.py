@@ -1,140 +1,223 @@
-import test_utils
-import test.unittest as unittest
+__tags__ = ['array']
 
-from test_utils import test_not_implemented
+if __name__ == '__main__':
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
 
+if is_pygame_pkg:
+    from pygame.tests.test_utils import test_not_implemented, unittest
+else:
+    from test.test_utils import test_not_implemented, unittest
 import pygame
 
+arraytype = ""
+try:
+    import pygame.sndarray
+except ImportError:
+    pass
+else:
+    arraytype = pygame.sndarray.get_arraytype()
+    if arraytype == 'numpy':
+        from numpy import \
+             int8, int16, uint8, uint16, array, alltrue
+    elif arraytype == 'numeric':
+        from Numeric import \
+             Int8 as int8, Int16 as int16, UInt8 as uint8, UInt16 as uint16, \
+             array, alltrue
+    else:
+        print ("Unknown array type %s; tests skipped" %
+               pygame.sndarray.get_arraytype())
+        arraytype = ""
+
+
 class SndarrayTest (unittest.TestCase):
+    if arraytype:
+        array_dtypes = {8: uint8, -8: int8, 16: uint16, -16: int16}
+
+    def _assert_compatible(self, arr, size):
+        dtype = self.array_dtypes[size]
+        if arraytype == 'numpy':
+            self.failUnlessEqual(arr.dtype, dtype)
+        else:
+            self.failUnlessEqual(arr.typecode(), dtype)
+
     def test_import(self):
         'does it import'
+        if not arraytype:
+            self.fail("no array package installed")
         import pygame.sndarray
 
-    def todo_test_array(self):
+    def test_array(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-        # __doc__ (as of 2008-08-02) for pygame.sndarray.array:
+        def check_array(size, channels, test_data):
+            pygame.mixer.init(22050, size, channels)
+            try:
+                # Not all sizes are supported on all systems.
+                __, sz, __ = pygame.mixer.get_init()
+                if sz == size:
+                    srcarr = array(test_data, self.array_dtypes[size])
+                    snd = pygame.sndarray.make_sound(srcarr)
+                    arr = pygame.sndarray.array(snd)
+                    self._assert_compatible(arr, size)
+                    self.failUnless(alltrue(arr == srcarr),
+                                    "size: %i\n%s\n%s" %
+                                    (size, arr, test_data))
+            finally:
+                pygame.mixer.quit()
 
-          # pygame.sndarray.array(Sound): return array
-          # 
-          # Copy Sound samples into an array.
-          # 
-          # Creates a new array for the sound data and copies the samples. The
-          # array will always be in the format returned from
-          # pygame.mixer.get_init().
-          # 
-          # Creates a new array for the sound data and copies the samples. The
-          # array will always be in the format returned from
-          # pygame.mixer.get_init().
-          # 
+        check_array(8, 1, [0, 0x0f, 0xf0, 0xff])
+        check_array(8, 2,
+                    [[0, 0x80], [0x2D, 0x41], [0x64, 0xA1], [0xff, 0x40]])
+        check_array(16, 1, [0, 0x00ff, 0xff00, 0xffff])
+        check_array(16, 2, [[0, 0xffff], [0xffff, 0],
+                            [0x00ff, 0xff00], [0x0f0f, 0xf0f0]])
+        check_array(-8, 1, [0, -0x80, 0x7f, 0x64])
+        check_array(-8, 2,
+                    [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xff, 0]])
+        check_array(-16, 1, [0, 0x7fff, -0x7fff, -1])
+        check_array(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
+                             [0x7fff, 0], [0, 0x7fff]])
 
-        self.fail() 
+    def test_get_arraytype(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-    def todo_test_get_arraytype(self):
+        self.failUnless((pygame.sndarray.get_arraytype() in
+                         ['numpy', 'numeric']),
+                        ("unknown array type %s" %
+                         pygame.sndarray.get_arraytype()))
 
-        # __doc__ (as of 2008-08-02) for pygame.sndarray.get_arraytype:
+    def test_get_arraytypes(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-          # pygame.sndarray.get_arraytype (): return str
-          # 
-          # Gets the currently active array type.
-          # 
-          # Returns the currently active array type. This will be a value of the
-          # get_arraytypes() tuple and indicates which type of array module is
-          # used for the array creation.
-          # 
-          # Returns the currently active array type. This will be a value of the
-          # get_arraytypes() tuple and indicates which type of array module is
-          # used for the array creation.
-          # 
-          # New in pygame 1.8 
+        arraytypes = pygame.sndarray.get_arraytypes()
+        try:
+            import numpy
+        except ImportError:
+            self.failIf('numpy' in arraytypes)
+        else:
+            self.failUnless('numpy' in arraytypes)
 
-        self.fail() 
+        try:
+            import Numeric
+        except ImportError:
+            self.failIf('numeric' in arraytypes)
+        else:
+            self.failUnless('numeric' in arraytypes)
 
-    def todo_test_get_arraytypes(self):
+        for atype in arraytypes:
+            self.failUnless(atype in ['numpy', 'numeric'],
+                            "unknown array type %s" % atype)
 
-        # __doc__ (as of 2008-08-02) for pygame.sndarray.get_arraytypes:
+    def test_make_sound(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-          # pygame.sndarray.get_arraytypes (): return tuple
-          # 
-          # Gets the array system types currently supported.
-          # 
-          # Checks, which array system types are available and returns them as a
-          # tuple of strings. The values of the tuple can be used directly in
-          # the use_arraytype () method.
-          # 
-          # If no supported array system could be found, None will be returned.
-          # 
-          # Checks, which array systems are available and returns them as a
-          # tuple of strings. The values of the tuple can be used directly in
-          # the pygame.sndarray.use_arraytype () method. If no supported array
-          # system could be found, None will be returned.
-          # 
-          # New in pygame 1.8. 
+        def check_sound(size, channels, test_data):
+            pygame.mixer.init(22050, size, channels)
+            try:
+                # Not all sizes are supported on all systems.
+                __, sz, __ = pygame.mixer.get_init()
+                if sz == size:
+                    srcarr = array(test_data, self.array_dtypes[size])
+                    snd = pygame.sndarray.make_sound(srcarr)
+                    arr = pygame.sndarray.samples(snd)
+                    self.failUnless(alltrue(arr == srcarr),
+                                    "size: %i\n%s\n%s" %
+                                    (size, arr, test_data))
+            finally:
+                pygame.mixer.quit()
 
-        self.fail() 
+        check_sound(8, 1, [0, 0x0f, 0xf0, 0xff])
+        check_sound(8, 2,
+                    [[0, 0x80], [0x2D, 0x41], [0x64, 0xA1], [0xff, 0x40]])
+        check_sound(16, 1, [0, 0x00ff, 0xff00, 0xffff])
+        check_sound(16, 2, [[0, 0xffff], [0xffff, 0],
+                            [0x00ff, 0xff00], [0x0f0f, 0xf0f0]])
+        check_sound(-8, 1, [0, -0x80, 0x7f, 0x64])
+        check_sound(-8, 2,
+                    [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xff, 0]])
+        check_sound(-16, 1, [0, 0x7fff, -0x7fff, -1])
+        check_sound(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
+                             [0x7fff, 0], [0, 0x7fff]])
 
-    def todo_test_make_sound(self):
+    def test_samples(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-        # __doc__ (as of 2008-08-02) for pygame.sndarray.make_sound:
+        def check_sample(size, channels, test_data):
+            pygame.mixer.init(22050, size, channels)
+            try:
+                # Not all sizes are supported on all systems.
+                __, sz, __ = pygame.mixer.get_init()
+                if sz == size:
+                    zeroed = '\0' * ((abs(size) // 8) *
+                                     len(test_data) *
+                                     channels)
+                    snd = pygame.mixer.Sound(buffer(zeroed))
+                    samples = pygame.sndarray.samples(snd)
+                    self._assert_compatible(samples, size)
+                    print 'X', samples.shape
+                    print 'Y', test_data
+                    samples[...] = test_data
+                    arr = pygame.sndarray.array(snd)
+                    self.failUnless(alltrue(samples == arr),
+                                    "size: %i\n%s\n%s" %
+                                    (size, arr, test_data))
+            finally:
+                pygame.mixer.quit()
 
-          # pygame.sndarray.make_sound(array): return Sound
-          # 
-          # Convert an array into a Sound object.
-          # 
-          # Create a new playable Sound object from an array. The mixer module
-          # must be initialized and the array format must be similar to the mixer
-          # audio format.
-          # 
-          # Create a new playable Sound object from an array. The mixer module
-          # must be initialized and the array format must be similar to the
-          # mixer audio format.
-          # 
+        check_sample(8, 1, [0, 0x0f, 0xf0, 0xff])
+        check_sample(8, 2,
+                    [[0, 0x80], [0x2D, 0x41], [0x64, 0xA1], [0xff, 0x40]])
+        check_sample(16, 1, [0, 0x00ff, 0xff00, 0xffff])
+        check_sample(16, 2, [[0, 0xffff], [0xffff, 0],
+                            [0x00ff, 0xff00], [0x0f0f, 0xf0f0]])
+        check_sample(-8, 1, [0, -0x80, 0x7f, 0x64])
+        check_sample(-8, 2,
+                    [[0, -0x80], [-0x64, 0x64], [0x25, -0x50], [0xff, 0]])
+        check_sample(-16, 1, [0, 0x7fff, -0x7fff, -1])
+        check_sample(-16, 2, [[0, -0x7fff], [-0x7fff, 0],
+                             [0x7fff, 0], [0, 0x7fff]])
 
-        self.fail() 
+    def test_use_arraytype(self):
+        if not arraytype:
+            self.fail("no array package installed")
 
-    def todo_test_samples(self):
+        def do_use_arraytype(atype):
+            pygame.sndarray.use_arraytype(atype)
 
-        # __doc__ (as of 2008-08-02) for pygame.sndarray.samples:
+        try:
+            import numpy
+        except ImportError:
+            self.failUnlessRaises(ValueError, do_use_arraytype, 'numpy')
+            self.failIfEqual(pygame.sndarray.get_arraytype(), 'numpy')
+        else:
+            pygame.sndarray.use_arraytype('numpy')
+            self.failUnlessEqual(pygame.sndarray.get_arraytype(), 'numpy')
 
-          # pygame.sndarray.samples(Sound): return array
-          # 
-          # Reference Sound samples into an array.
-          # 
-          # Creates a new array that directly references the samples in a Sound
-          # object. Modifying the array will change the Sound. The array will
-          # always be in the format returned from pygame.mixer.get_init().
-          # 
-          # Creates a new array that directly references the samples in a Sound
-          # object. Modifying the array will change the Sound. The array will
-          # always be in the format returned from pygame.mixer.get_init().
-          # 
+        try:
+            import Numeric
+        except ImportError:
+            self.failUnlessRaises(ValueError, do_use_arraytype, 'numeric')
+            self.failIfEqual(pygame.sndarray.get_arraytype(), 'numeric')
+        else:
+            pygame.sndarray.use_arraytype('numeric')
+            self.failUnlessEqual(pygame.sndarray.get_arraytype(), 'numeric')
 
-        self.fail() 
+        self.failUnlessRaises(ValueError, do_use_arraytype, 'not an option')
 
-    def todo_test_use_arraytype(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.sndarray.use_arraytype:
-
-          # pygame.sndarray.use_arraytype (arraytype): return None
-          # 
-          # Sets the array system to be used for sound arrays.
-          # 
-          # Uses the requested array type for the module functions.
-          # Currently supported array types are:
-          # 
-          #   numeric 
-          #   numpy
-          # 
-          # If the requested type is not available, a ValueError will be raised.
-          # 
-          # Uses the requested array type for the module functions. Currently
-          # supported array types are:
-          # 
-          #   numeric
-          #   numpy
-          # If the requested type is not available, a ValueError will be raised. 
-          # New in pygame 1.8. 
-
-        self.fail()
 
 if __name__ == '__main__':
     unittest.main()

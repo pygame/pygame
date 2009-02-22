@@ -227,17 +227,22 @@ static PyMethodDef sndarray_builtins[] =
 PYGAME_EXPORT
 void init_numericsndarray (void)
 {
-    PyObject *module, *dict;
-    
-    /* create the module */
-    module = Py_InitModule3 ("_numericsndarray", sndarray_builtins,
-        DOC_PYGAMESNDARRAY);
-    dict = PyModule_GetDict (module);
-        
-    /*imported needed apis*/
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
     import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
     import_pygame_mixer ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
     import_array ();
-    /*needed for Numeric in python2.3*/
-    PyImport_ImportModule ("Numeric");
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* create the module */
+    Py_InitModule3 ("_numericsndarray", sndarray_builtins, DOC_PYGAMESNDARRAY);
 }

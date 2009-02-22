@@ -49,6 +49,12 @@
 
 
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define GET_PIXEL_24(b) (b[0] + (b[1] << 8) + (b[2] << 16))
+#else
+#define GET_PIXEL_24(b) (b[2] + (b[1] << 8) + (b[0] << 16))
+#endif
+
 #define GET_PIXEL(pxl, bpp, source)               \
     switch (bpp)                                  \
     {                                             \
@@ -61,21 +67,19 @@
     default:                                      \
     {                                             \
         Uint8 *b = (Uint8 *) source;              \
-        pxl = (SDL_BYTEORDER == SDL_LIL_ENDIAN) ? \
-            b[0] + (b[1] << 8) + (b[2] << 16) :   \
-            (b[0] << 16) + (b[1] << 8) + b[2];    \
+        pxl = GET_PIXEL_24(b);			  \
     }                                             \
     break;                                        \
     }
 
-#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt)                    \
+#define GET_PIXELVALS(_sR, _sG, _sB, _sA, px, fmt, ppa)		      \
     _sR = ((px & fmt->Rmask) >> fmt->Rshift);                         \
     _sR = (_sR << fmt->Rloss) + (_sR >> (8 - (fmt->Rloss << 1)));     \
     _sG = ((px & fmt->Gmask) >> fmt->Gshift);                         \
     _sG = (_sG << fmt->Gloss) + (_sG >> (8 - (fmt->Gloss << 1)));     \
     _sB = ((px & fmt->Bmask) >> fmt->Bshift);                         \
     _sB = (_sB << fmt->Bloss) + (_sB >> (8 - (fmt->Bloss << 1)));     \
-    if (fmt->Amask)                                                   \
+    if (ppa)							      \
     {                                                                 \
         _sA = ((px & fmt->Amask) >> fmt->Ashift);                     \
         _sA = (_sA << fmt->Aloss) + (_sA >> (8 - (fmt->Aloss << 1))); \
@@ -95,6 +99,67 @@
 
 
 
+
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN               
+#define SET_OFFSETS_24(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0 ? 0 :                  \
+          fmt->Rshift == 8 ? 1 :                  \
+	                     2   );               \
+    og = (fmt->Gshift == 0 ? 0 :                  \
+          fmt->Gshift == 8 ? 1 :                  \
+	                     2   );               \
+    ob = (fmt->Bshift == 0 ? 0 :                  \
+          fmt->Bshift == 8 ? 1 :                  \
+	                     2   );               \
+    }
+
+#define SET_OFFSETS_32(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0  ? 0 :                 \
+          fmt->Rshift == 8  ? 1 :                 \
+          fmt->Rshift == 16 ? 2 :                 \
+	                      3   );              \
+    og = (fmt->Gshift == 0  ? 0 :                 \
+          fmt->Gshift == 8  ? 1 :                 \
+          fmt->Gshift == 16 ? 2 :                 \
+	                      3   );              \
+    ob = (fmt->Bshift == 0  ? 0 :                 \
+          fmt->Bshift == 8  ? 1 :                 \
+          fmt->Bshift == 16 ? 2 :                 \
+	                      3   );              \
+    }
+#else
+#define SET_OFFSETS_24(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0 ? 2 :                  \
+          fmt->Rshift == 8 ? 1 :                  \
+	                     0   );               \
+    og = (fmt->Gshift == 0 ? 2 :                  \
+          fmt->Gshift == 8 ? 1 :                  \
+	                     0   );               \
+    ob = (fmt->Bshift == 0 ? 2 :                  \
+          fmt->Bshift == 8 ? 1 :                  \
+	                     0   );               \
+    }
+
+#define SET_OFFSETS_32(or, og, ob, fmt)           \
+    {                                             \
+    or = (fmt->Rshift == 0  ? 3 :                 \
+          fmt->Rshift == 8  ? 2 :                 \
+          fmt->Rshift == 16 ? 1 :                 \
+	                      0   );              \
+    og = (fmt->Gshift == 0  ? 3 :                 \
+          fmt->Gshift == 8  ? 2 :                 \
+          fmt->Gshift == 16 ? 1 :                 \
+	                      0   );              \
+    ob = (fmt->Bshift == 0  ? 3 :                 \
+          fmt->Bshift == 8  ? 2 :                 \
+          fmt->Bshift == 16 ? 1 :                 \
+	                      0   );              \
+    }
+#endif
 
 
 #define CREATE_PIXEL(buf, r, g, b, a, bp, ft)     \
@@ -217,18 +282,18 @@
  * where all additions are done before the shift, is needed.
 */
 #if (-1 >> 1) < 0
-#define ALPHA_BLEND_COMP(sC, dC, dA) ((((sC - dC) * sA + sC) >> 8) + dC)
+#define ALPHA_BLEND_COMP(sC, dC, sA) ((((sC - dC) * sA + sC) >> 8) + dC)
 #else
-#define ALPHA_BLEND_COMP(sC, dC, dA) (((dC << 8) + (sC - dC) * sA + sC) >> 8)
+#define ALPHA_BLEND_COMP(sC, dC, sA) (((dC << 8) + (sC - dC) * sA + sC) >> 8)
 #endif
 
 #define ALPHA_BLEND(sR, sG, sB, sA, dR, dG, dB, dA) \
     do {                                            \
         if (dA)                                     \
         {                                           \
-            dR = ALPHA_BLEND_COMP(sR, dR, dA);      \
-            dG = ALPHA_BLEND_COMP(sG, dG, dA);      \
-            dB = ALPHA_BLEND_COMP(sB, dB, dA);      \
+            dR = ALPHA_BLEND_COMP(sR, dR, sA);      \
+            dG = ALPHA_BLEND_COMP(sG, dG, sA);      \
+            dB = ALPHA_BLEND_COMP(sB, dB, sA);      \
             dA = sA + dA - ((sA * dA) / 255);       \
         }                                           \
         else                                        \

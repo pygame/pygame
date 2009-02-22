@@ -14,12 +14,11 @@ only supports a single music stream at once.
 load
 Load a music file for playback
 pygame.mixer.music.load(filename): return None
+pygame.mixer.music.load(object): return None
 
-This will load a music file and prepare it for playback. If a music stream
-is already playing it will be stopped. This does not start the music playing.
-
-Music can only be loaded from filenames, not python file objects like the
-other pygame loading functions.
+This will load a music filename/file object and prepare it for playback. If a
+music stream is already playing it will be stopped. This does not start the music
+playing.
 <END>
 
 

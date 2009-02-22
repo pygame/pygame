@@ -1038,6 +1038,23 @@ void initdisplay (void)
     PyObject *module, *dict, *apiobj;
     static void* c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rect ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
+    /* type preparation */
     PyType_Init (PyVidInfo_Type);
 
     /* create the module */
@@ -1051,9 +1068,4 @@ void initdisplay (void)
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_rect ();
-    import_pygame_surface ();
 }

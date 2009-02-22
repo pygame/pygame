@@ -406,7 +406,7 @@ typedef struct {
     (*(int(*)(PyObject*,PyObject*,SDL_Rect*,SDL_Rect*,int))             \
      PyGAME_C_API[PYGAMEAPI_SURFACE_FIRSTSLOT + 2])
 
-#define import_pygame_surface() {                                   \
+#define import_pygame_surface() do {                                   \
 	PyObject *_module = PyImport_ImportModule(IMPPREFIX "surface"); \
 	if (_module != NULL) {                                       \
             PyObject *_dict = PyModule_GetDict(_module);                  \
@@ -417,11 +417,15 @@ typedef struct {
                 for(i = 0; i < PYGAMEAPI_SURFACE_NUMSLOTS; ++i)         \
                     PyGAME_C_API[i + PYGAMEAPI_SURFACE_FIRSTSLOT] =     \
                         localptr[i];                                    \
-            }                                                           \
-            Py_DECREF(_module);                                          \
-        }                                                               \
-	_module = PyImport_ImportModule(IMPPREFIX "surflock");              \
-	if (_module != NULL) {                                           \
+				}                                                           \
+				Py_DECREF(_module);                                          \
+			}                                                               \
+			else                                                            \
+			{                                                               \
+				break;                                                      \
+			}                                                               \
+			_module = PyImport_ImportModule(IMPPREFIX "surflock");          \
+			if (_module != NULL) {                                           \
             PyObject *_dict = PyModule_GetDict(_module);                  \
             PyObject *_c_api = PyDict_GetItemString(_dict,                \
                                                    PYGAMEAPI_LOCAL_ENTRY); \
@@ -433,7 +437,7 @@ typedef struct {
             }                                                           \
             Py_DECREF(_module);                                          \
         }                                                               \
-    }
+    } while (0)
 #endif
 
 

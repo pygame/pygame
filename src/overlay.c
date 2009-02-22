@@ -225,8 +225,7 @@ PYGAME_EXPORT
 void initoverlay (void)
 {
     PyObject *module;
-    module = Py_InitModule (MODPREFIX "overlay", overlay_methods );
-
+    /* imported needed apis; Do this first so if there is an error       the module is not loaded.    */    import_pygame_base ();    if (PyErr_Occurred ()) {	return;    }    import_pygame_rect ();        if (PyErr_Occurred ()) {	return;    }    /* create the module */    module = Py_InitModule ("overlay", overlay_methods );
     PyOverlay_Type.ob_type = &PyType_Type;
     PyOverlay_Type.tp_dealloc = (destructor) overlay_dealloc;
     PyOverlay_Type.tp_alloc =PyType_GenericAlloc;
@@ -236,7 +235,4 @@ void initoverlay (void)
 
     /* create the module reference */
     PyModule_AddObject (module, "Overlay", (PyObject *)&PyOverlay_Type);
-
-    import_pygame_base ();
-    import_pygame_rect ();    
 }

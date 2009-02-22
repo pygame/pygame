@@ -21,6 +21,7 @@
 <a href="display.html">Display</a>&nbsp;||&nbsp;
 <a href="draw.html">Draw</a>&nbsp;||&nbsp;
 <a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="examples.html">Examples</a>&nbsp;||&nbsp;
 <a href="font.html">Font</a>&nbsp;||&nbsp;
 <a href="image.html">Image</a>&nbsp;||&nbsp;
 <a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
@@ -40,6 +41,7 @@
 <a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
 <a href="surface.html">Surface</a>&nbsp;||&nbsp;
 <a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="tests.html">Tests</a>&nbsp;||&nbsp;
 <a href="time.html">Time</a>&nbsp;||&nbsp;
 <a href="transform.html">Transform</a>
 </td></tr></table>
@@ -100,6 +102,7 @@
   <tr><td><a href="mask.html#Mask.centroid">Mask.centroid</a> - <font size=-1>Returns the centroid of the pixels in a Mask</font></td><td>Returns the centroid of the pixels in a Mask</td></tr>
   <tr><td><a href="mask.html#Mask.angle">Mask.angle</a> - <font size=-1>Returns the orientation of the pixels</font></td><td>Returns the orientation of the pixels</td></tr>
   <tr><td><a href="mask.html#Mask.outline">Mask.outline</a> - <font size=-1>list of points outlining an object</font></td><td>list of points outlining an object</td></tr>
+  <tr><td><a href="mask.html#Mask.convolve">Mask.convolve</a> - <font size=-1>Return the convolution of self with another mask.</font></td><td>Return the convolution of self with another mask.</td></tr>
   <tr><td><a href="mask.html#Mask.connected_component">Mask.connected_component</a> - <font size=-1>Returns a mask of a connected region of pixels.</font></td><td>Returns a mask of a connected region of pixels.</td></tr>
   <tr><td><a href="mask.html#Mask.connected_components">Mask.connected_components</a> - <font size=-1>Returns a list of masks of connected regions of pixels.</font></td><td>Returns a list of masks of connected regions of pixels.</td></tr>
   <tr><td><a href="mask.html#Mask.get_bounding_rects">Mask.get_bounding_rects</a> - <font size=-1>Returns a list of bounding rects of regions of set pixels.</font></td><td>Returns a list of bounding rects of regions of set pixels.</td></tr>
@@ -260,6 +263,16 @@
   <tt>Mask.outline(every = 1) -> [(x,y), (x,y) ...]</tt><br>
 <p>Returns a list of points of the outline of the first object it comes across in a Mask. For this to be useful, there should probably only be one connected component of pixels in the Mask. The every option allows you to skip pixels in the outline. For example, setting it to 10 would return a list of every 10th pixel in the outline. </p>
 <!--COMMENTS:Mask.outline--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="Mask.convolve">
+<big><b>Mask.convolve</big></b><br><ul>
+  <i>Return the convolution of self with another mask.</i><br>
+  <tt>Mask.convolve(othermask, outputmask = None, offset = (0,0)) -> Mask</tt><br>
+<p>Returns a mask with the (i-offset[0],j-offset[1]) bit set if shifting othermask so that it's lower right corner pixel is at (i,j) would cause it to overlap with self. </p>
+<p>If an outputmask is specified, the output is drawn onto outputmask and outputmask is returned. Otherwise a mask of size <tt>self.get_size()</tt> + <tt>othermask.get_size()</tt> - (1,1) is created. </p>
+<!--COMMENTS:Mask.convolve--> &nbsp;<br> 
 <br></ul>
 
 

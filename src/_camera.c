@@ -1299,15 +1299,26 @@ PyMethodDef camera_builtins[] =
     { NULL, NULL, 0, NULL }
 };
  
-void initcamera(void)
+void init_camera(void)
 {
   PyObject *module, *dict;
+  /* imported needed apis; Do this first so if there is an error
+     the module is not loaded.
+  */
+  import_pygame_base ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+  import_pygame_surface ();
+  if (PyErr_Occurred ()) {
+    return;
+  }
+
+  /* type preparation */
   PyType_Init(PyCamera_Type);
   
   /* create the module */
-  module = Py_InitModule3("camera", camera_builtins, DOC_PYGAMECAMERA);
+  module = Py_InitModule3("_camera", camera_builtins, DOC_PYGAMECAMERA);
   dict = PyModule_GetDict(module);
   PyDict_SetItemString(dict, "CameraType", (PyObject *)&PyCamera_Type);
-  import_pygame_base ();
-  import_pygame_surface ();
 }

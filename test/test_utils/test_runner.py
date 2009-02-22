@@ -1,26 +1,45 @@
 ################################################################################
 
-import test.unittest as unittest
+if __name__ == '__main__':
+    
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
+
+if is_pygame_pkg:
+    from pygame.tests import test_utils
+    from pygame.tests.test_utils \
+         import unittest, unittest_patch, import_submodule
+    from pygame.tests.test_utils.unittest_patch import StringIOContents
+else:
+    from test import test_utils
+    from test.test_utils \
+         import unittest, unittest_patch, import_submodule
+    from test.test_utils.unittest_patch import StringIOContents
 
 import sys, os, re, StringIO, time, optparse
 from inspect import getdoc, getmembers, isclass
 from pprint import pformat
 
-import unittest_patch
-from unittest_patch import StringIOContents
 # from safe_eval import safe_eval as eval
 
 ################################################################################
 
 def prepare_test_env():
-    main_dir = os.path.split(os.path.abspath(__file__))[0]
-    test_subdir = os.path.join(main_dir, 'test')
+    test_subdir = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
+    main_dir = os.path.split(test_subdir)[0]
     sys.path.insert(0, test_subdir)
     fake_test_subdir = os.path.join(test_subdir, 'run_tests__tests')
     return main_dir, test_subdir, fake_test_subdir
 
 main_dir, test_subdir, fake_test_subdir = prepare_test_env()
-import test_utils
 
 ################################################################################
 # Set the command line options
@@ -35,16 +54,9 @@ opt_parser.add_option (
      help   = "fail incomplete tests" )
 
 opt_parser.add_option (
-     "-s",  "--subprocess", action = 'store_true',
-     help   = "run test suites in subprocesses (default: same process)" )
-
-opt_parser.add_option (
-     "-d",  "--dump", action = 'store_true',
-     help   = "dump failures/errors as dict ready to eval" )
-
-opt_parser.add_option (
-     "-F",  "--file",
-     help   = "dump failures/errors to a file" )
+     "-n",  "--nosubprocess", action = "store_true",
+     help   = "run everything in a single process "
+              " (default: use subprocesses)" )
 
 opt_parser.add_option (
      "-T",  "--timings", type = 'int', default = 1, metavar = 'T',
@@ -60,10 +72,6 @@ opt_parser.add_option (
      help   = "show silenced stderr/stdout on errors" )
 
 opt_parser.add_option (
-     "-a",  "--all", action = 'store_true',
-     help   = "dump all results not just errors eg. -da" )
-
-opt_parser.add_option (
      "-r",  "--randomize", action = 'store_true',
      help   = "randomize order of tests" )
 
@@ -71,25 +79,7 @@ opt_parser.add_option (
      "-S",  "--seed", type = 'int',
      help   = "seed randomizer" )
 
-opt_parser.add_option (
-     "-m",  "--multi_thread", metavar = 'THREADS', type = 'int',
-     help   = "run subprocessed tests in x THREADS" )
-
-opt_parser.add_option (
-     "-t",  "--time_out", metavar = 'SECONDS', type = 'int',
-     help   = "kill stalled subprocessed tests after SECONDS" )
-
-opt_parser.add_option (
-     "-f",  "--fake", metavar = "DIR",
-     help   = "run fake tests in run_tests__tests/$DIR" )
-
-opt_parser.add_option (
-     "-p",  "--python", metavar = "PYTHON",
-     help   = "path to python excutable to run subproccesed tests\n"
-              "default (sys.executable): %s" % sys.executable)
-
 ################################################################################
-
 # If an xxxx_test.py takes longer than TIME_OUT seconds it will be killed
 # This is only the default, can be over-ridden on command line
 
@@ -98,8 +88,6 @@ TIME_OUT = 30
 # DEFAULTS
 
 opt_parser.set_defaults (
-    python = sys.executable,
-    time_out = TIME_OUT,
     exclude = 'interactive',
 )
 
@@ -134,7 +122,7 @@ def combine_results(all_results, t):
     Return pieced together results in a form fit for human consumption. Don't
     rely on results if  piecing together subprocessed  results (single process
     mode is fine). Was originally meant for that  purpose but was found to be
-    unreliable.  See options.dump or options.human for reliable results.
+    unreliable.  See the dump option for reliable results.
 
     """
 
@@ -183,10 +171,11 @@ TEST_RESULTS_RE = re.compile('%s\n(.*)' % TEST_RESULTS_START, re.DOTALL | re.M)
 def get_test_results(raw_return):
     test_results = TEST_RESULTS_RE.search(raw_return)
     if test_results:
-        try:     return eval(test_results.group(1))
-        except:  raise Exception (
-            "BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1)
-        )
+        try:
+            return eval(test_results.group(1))
+        except:
+            print "BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1)
+            raise
 
 ################################################################################
 # ERRORS
@@ -241,11 +230,21 @@ RESULTS_TEMPLATE = {
 
 ################################################################################
 
-def run_test(module, options):
-    suite = unittest.TestSuite()
-    test_utils.fail_incomplete_tests = options.incomplete
+def run_test(module, **kwds):
+    """Run a unit test module
 
-    m = __import__(module)
+    Recognized keyword arguments:
+    incomplete, nosubprocess
+
+    """
+    
+    option_incomplete = kwds.get('incomplete', False)
+    option_nosubprocess = kwds.get('nosubprocess', False)
+
+    suite = unittest.TestSuite()
+    test_utils.fail_incomplete_tests = option_incomplete
+
+    m = import_submodule(module)
     if m.unittest is not unittest:
         raise ImportError(
             "%s is not using correct unittest\n\n" % module +
@@ -259,7 +258,7 @@ def run_test(module, options):
     suite.addTest(test)
 
     output = StringIO.StringIO()
-    runner = unittest.TextTestRunner(stream = output)
+    runner = unittest.TextTestRunner(stream=output)
 
     results = runner.run(suite)
     output  = StringIOContents(output)
@@ -271,7 +270,7 @@ def run_test(module, options):
 
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
 
-    if options.subprocess:
+    if not option_nosubprocess:
         print TEST_RESULTS_START
         print pformat(results)
     else:
@@ -281,8 +280,22 @@ def run_test(module, options):
 
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
-    unittest_patch.patch(options)
-    if not args: sys.exit('Called from run_tests.py, use that')
-    run_test(args[0], options)
+    unittest_patch.patch(incomplete=options.incomplete,
+                         randomize=options.randomize,
+                         seed=options.seed,
+                         exclude=options.exclude,
+                         timings=options.timings,
+                         show_output=options.show_output)
+    if not args:
+        
+        if is_pygame_pkg:
+            run_from = 'pygame.tests.go'
+        else:
+            run_from = os.path.join(main_dir, 'run_tests.py')
+        sys.exit('No test module provided; consider using %s instead' % run_from)
+    run_test(args[0],
+             incomplete=options.incomplete,
+             nosubprocess=options.nosubprocess)
 
 ################################################################################
+

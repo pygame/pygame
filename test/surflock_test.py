@@ -1,7 +1,22 @@
-import test_utils
-import test.unittest as unittest
-import sys, test_utils
+if __name__ == '__main__':
+    import sys
+    import os
+    pkg_dir = os.path.split(os.path.abspath(__file__))[0]
+    parent_dir, pkg_name = os.path.split(pkg_dir)
+    is_pygame_pkg = (pkg_name == 'tests' and
+                     os.path.split(parent_dir)[1] == 'pygame')
+    if not is_pygame_pkg:
+        sys.path.insert(0, parent_dir)
+else:
+    is_pygame_pkg = __name__.startswith('pygame.tests.')
+
+if is_pygame_pkg:
+    from pygame.tests.test_utils import test_not_implemented, unittest
+else:
+    from test.test_utils import test_not_implemented, unittest
 import pygame
+
+import sys
 
 class SurfaceLockTest (unittest.TestCase):
 
@@ -135,26 +150,6 @@ class SurfaceLockTest (unittest.TestCase):
         self.assertEquals (sf.get_locked (), False)
         self.assertEquals (sf.get_locks (), ())
 
-    def test_surfarray_ref (self):
-        sf = pygame.Surface ((5, 5), 32)
-        for atype in pygame.surfarray.get_arraytypes ():
-            pygame.surfarray.use_arraytype (atype)
-            
-            ar = pygame.surfarray.pixels2d (sf)
-            self.assertEquals (sf.get_locked (), True)
-
-            # Numpy uses the Surface's buffer.
-            if atype == "numeric":
-                self.assertEquals (sf.get_locks (), (ar,))
-
-            sf.unlock ()
-            self.assertEquals (sf.get_locked (), True)
-
-            del ar
-            self.assertEquals (sf.get_locked (), False)
-            self.assertEquals (sf.get_locks (), ())
-
-        #print "test_surfarray_ref - end"
 
 if __name__ == '__main__':
     unittest.main()

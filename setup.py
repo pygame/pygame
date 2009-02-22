@@ -57,10 +57,27 @@ if "-warnings" in sys.argv:
 
 import os.path, glob, stat
 import distutils.sysconfig
-from distutils.core import setup, Extension
+from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 
+
+def add_datafiles(data_files, dest_dir, pattern):
+    """Add directory structures to data files according to a pattern"""
+    src_dir, elements = pattern
+    def do_directory(root_dest_path, root_src_path, elements):
+        files = []
+        for e in elements:
+            if isinstance(e, list):
+                src_dir, elems = e
+                dest_path = '/'.join([root_dest_path, src_dir])
+                src_path = os.path.join(root_src_path, src_dir)
+                do_directory(dest_path, src_path, elems)
+            else:
+                files.extend(glob.glob(os.path.join(root_src_path, e)))
+        if files:
+            data_files.append((root_dest_path, files))
+    do_directory(dest_dir, src_dir, elements)
 
 # allow optionally using setuptools for bdist_egg.
 if "-setuptools" in sys.argv:
@@ -68,7 +85,7 @@ if "-setuptools" in sys.argv:
     sys.argv.remove ("-setuptools")
 
 
-# NOTE: the pyobjc, and bdist_mpkg_support is for darwin.
+# NOTE: the bdist_mpkg_support is for darwin.
 try:
     import bdist_mpkg_support
     from setuptools import setup, Extension
@@ -110,23 +127,77 @@ try:
 except:
     pass
 
-#get compile info for all extensions
-try: extensions = read_setup_file('Setup')
-except: raise SystemExit, """Error with the "Setup" file,
+# get compile info for all extensions
+try: 
+    extensions = read_setup_file('Setup')
+except: 
+    print """Error with the "Setup" file,
 perhaps make a clean copy from "Setup.in"."""
+    raise
 
 
 #extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
-data_files = []
+pygame_data_files = []
+data_files = [('pygame', pygame_data_files)]
 
+#add files in distribution directory
+pygame_data_files.append('LGPL')
+pygame_data_files.append('readme.html')
+pygame_data_files.append('install.html')
 
 #add non .py files in lib directory
 for f in glob.glob(os.path.join('lib', '*')):
     if not f[-3:] == '.py' and not f[-4:] == '.doc' and os.path.isfile(f):
-        data_files.append(f)
+        pygame_data_files.append(f)
 
-# Required. This will be filled if doing a Windows build.
+#tests/fixtures
+add_datafiles(data_files, 'pygame/tests',
+              ['test',
+                  [['fixtures',
+                      [['xbm_cursors',
+                          ['*.xbm']]]]]])
+
+#examples
+add_datafiles(data_files, 'pygame/examples',
+              ['examples',
+                  ['readme.txt',
+                   ['data',
+                       ['*']],
+                   ['macosx',
+                       ['*.py',
+                        ['aliens_app_example',
+                            ['*.py',
+                             'README.txt',
+                             ['English.lproj',
+                                 ['aliens.icns',
+                                  ['MainMenu.nib',
+                                      ['*']]]]]]]]]])
+
+#docs
+add_datafiles(data_files, 'pygame/docs',
+              ['docs',
+                  ['*.html',
+                   '*.gif',
+                   ['ref',
+                       ['*.html']],
+                   ['tut',
+                       ['*.html',
+                        ['chimp',
+                            ['*.html',
+                             '*.gif']],
+                        ['intro',
+                            ['*.html',
+                             '*.gif',
+                             '*.jpg']],
+                        ['surfarray',
+                            ['*.html',
+                             '*.jpg']],
+                        ['tom',
+                            ['*.html',
+                             '*.png']]]]]])
+              
+#required. This will be filled if doing a Windows build.
 cmdclass = {}
 
 #try to find DLLs and copy them too  (only on windows)
@@ -198,7 +269,7 @@ if sys.platform == 'win32':
         if f == '_':
             print "WARNING, DLL for %s library not found." % lib
         else:
-            data_files.append(f)
+            pygame_data_files.append(f)
 
     class WinBuildExt(build_ext):
         """This build_ext sets necessary environment variables for MinGW"""
@@ -320,17 +391,68 @@ if "bdist_msi" in sys.argv:
     cmdclass['bdist_msi'] = bdist_msi_overwrite_on_install
 
 
+
+
+
+# test command.  For doing 'python setup.py test'
+
+class TestCommand(Command):
+    user_options = [ ]
+
+    def initialize_options(self):
+        self._dir = os.getcwd()
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        '''
+        runs the tests with default options.
+        '''
+        import subprocess
+        return subprocess.call([sys.executable, "run_tests.py"])
+
+cmdclass['test'] = TestCommand
+
+# Prune empty file lists.
+date_files = [(path, files) for path, files in data_files if files]
+
+
+
+
+
+
+
+
+
+
 #finally,
 #call distutils with all needed info
 PACKAGEDATA = {
        "cmdclass":    cmdclass,
-       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads'],
+       "packages":    ['pygame', 'pygame.gp2x', 'pygame.threads',
+                       'pygame.tests',
+                       'pygame.tests.test_utils',
+                       'pygame.tests.run_tests__tests',
+                       'pygame.tests.run_tests__tests.all_ok',
+                       'pygame.tests.run_tests__tests.failures1',
+                       'pygame.tests.run_tests__tests.incomplete',
+                       'pygame.tests.run_tests__tests.infinite_loop',
+                       'pygame.tests.run_tests__tests.print_stderr',
+                       'pygame.tests.run_tests__tests.print_stdout',
+                       'pygame.tests.run_tests__tests.incomplete_todo',
+                       'pygame.tests.run_tests__tests.exclude',
+                       'pygame.tests.run_tests__tests.timeout',
+                       'pygame.tests.run_tests__tests.everything',
+                       'pygame.examples'],
        "package_dir": {'pygame': 'lib',
                        'pygame.threads': 'lib/threads',
-                       'pygame.gp2x': 'lib/gp2x'},
+                       'pygame.gp2x': 'lib/gp2x',
+                       'pygame.tests': 'test',
+                       'pygame.examples': 'examples'},
        "headers":     headers,
        "ext_modules": extensions,
-       "data_files":  [['pygame', data_files]],
+       "data_files":  data_files,
 }
 PACKAGEDATA.update(METADATA)
 PACKAGEDATA.update(EXTRAS)

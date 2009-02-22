@@ -167,6 +167,19 @@ the outline.  For example, setting it to 10 would return a list of every 10th
 pixel in the outline.
 <END>
 
+convolve
+Return the convolution of self with another mask.
+Mask.convolve(othermask, outputmask = None, offset = (0,0)) -> Mask
+
+Returns a mask with the (i-offset[0],j-offset[1]) bit set if shifting othermask
+so that it's lower right corner pixel is at (i,j) would cause it to overlap
+with self.
+
+If an outputmask is specified, the output is drawn onto outputmask and
+outputmask is returned.  Otherwise a mask of size self.get_size() +
+othermask.get_size() - (1,1) is created.
+<END>
+
 connected_component
 Returns a mask of a connected region of pixels.
 Mask.connected_component((x,y) = None) -> Mask

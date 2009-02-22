@@ -35,11 +35,11 @@ only has one.
 
 Supported array systems are
 
-  numeric
   numpy
+  numeric
 
-The default will be Numeric, if installed. Otherwise, numpy will be set
-as default if installed. If neither Numeric nor numpy are installed, the
+The default will be numpy, if installed. Otherwise, Numeric will be set
+as default if installed. If neither numpy nor Numeric are installed, the
 module will raise an ImportError.
 
 The array type to use can be changed at runtime using the use_arraytype()
@@ -63,19 +63,19 @@ __arraytype = None
 
 # Try to import the necessary modules.
 try:
-    import pygame._numericsndarray as numericsnd
-    __hasnumeric = True
-    __arraytype = "numeric"
-except ImportError, msg:
-    __hasnumeric = False
-
-try:
     import pygame._numpysndarray as numpysnd
     __hasnumpy = True
-    if not __hasnumeric:
-        __arraytype = "numpy"
-except ImportError:
+    __arraytype = "numpy"
+except ImportError, msg:
     __hasnumpy = False
+
+try:
+    import pygame._numericsndarray as numericsnd
+    __hasnumeric = True
+    if not __hasnumpy:
+        __arraytype = "numeric"
+except ImportError:
+    __hasnumeric = False
 
 if not __hasnumpy and not __hasnumeric:
     raise ImportError, "no module named numpy or Numeric found"

@@ -14,6 +14,8 @@ except:
 
 import time
         
+main_dir = os.path.split(os.path.abspath(__file__))[0]
+data_dir = os.path.join(main_dir, 'data')
 
 def main():
     pygame.init()
@@ -34,9 +36,9 @@ def main():
 
     images = {}
     images[K_1] = im2
-    images[K_2] = pygame.image.load(os.path.join("data", "chimp.bmp"))
-    images[K_3] = pygame.image.load(os.path.join("data", "alien3.gif"))
-    images[K_4] = pygame.image.load(os.path.join("data", "liquid.bmp"))
+    images[K_2] = pygame.image.load(os.path.join(data_dir, "chimp.bmp"))
+    images[K_3] = pygame.image.load(os.path.join(data_dir, "alien3.gif"))
+    images[K_4] = pygame.image.load(os.path.join(data_dir, "liquid.bmp"))
     img_to_blit = im2.convert()
     iaa = img_to_blit.convert_alpha()
 
@@ -61,18 +63,19 @@ def main():
     pygame.display.flip()
     clock = pygame.time.Clock()
     print "one pixel is:%s:" % [im1.get_at((0,0))]
-    
-    while 1:
+
+    going = True
+    while going:
         clock.tick(60)
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                return
+                going = False
             if event.type == KEYDOWN:
                 usage()
 
             if event.type == KEYDOWN and event.key == K_ESCAPE:
-                return
+                going = False
 
             elif event.type == KEYDOWN and event.key in images.keys():
                 img_to_blit = images[event.key]
@@ -176,6 +179,8 @@ def main():
 
         screen.blit(im1, (0, 0))
         pygame.display.flip()
+
+    pygame.quit()
 
 def usage():
     print "press keys 1-5 to change image to blit."

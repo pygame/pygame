@@ -250,21 +250,31 @@ SavePNG (SDL_Surface *surface, char *file)
 
 #ifdef JPEGLIB_H
 
-static int
-write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
-            int image_height, int quality)
-{
+#define NUM_LINES_TO_WRITE 500
+
+
+int write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
+            int image_height, int quality) {
+
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
     FILE * outfile;
-    JSAMPROW row_pointer[1];
+    JSAMPROW row_pointer[NUM_LINES_TO_WRITE];
     int row_stride;
+    int num_lines_to_write;
+    int lines_written;
+    int i;
+
+    row_stride = image_width * 3;
+
+    num_lines_to_write = NUM_LINES_TO_WRITE;
+
 
     cinfo.err = jpeg_std_error (&jerr);
     jpeg_create_compress (&cinfo);
 
-    if ((outfile = fopen (file_name, "wb")) == NULL)
-    {
+    if ((outfile = fopen (file_name, "wb")) == NULL) {
+
         SDL_SetError ("SaveJPEG: could not open %s", file_name);
         return -1;
     }
@@ -274,17 +284,42 @@ write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     cinfo.image_height = image_height;
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
+    /* cinfo.optimize_coding = FALSE;
+     */
   
+
+
     jpeg_set_defaults (&cinfo);
     jpeg_set_quality (&cinfo, quality, TRUE);
 
     jpeg_start_compress (&cinfo, TRUE);
-    row_stride = image_width * 3;
 
-    while (cinfo.next_scanline < cinfo.image_height)
-    {
+
+
+    /* try and write many scanlines at once.  */
+    while (cinfo.next_scanline < cinfo.image_height) {
+        if (num_lines_to_write > (cinfo.image_height - cinfo.next_scanline) -1) {
+            num_lines_to_write = (cinfo.image_height - cinfo.next_scanline);
+        }
+        /* copy the memory from the buffers */
+        for(i =0; i < num_lines_to_write; i++) {
+            row_pointer[i] = image_buffer[cinfo.next_scanline + i];
+        }
+
+
+        /*
+        num_lines_to_write = 1;
         row_pointer[0] = image_buffer[cinfo.next_scanline];
-        (void) jpeg_write_scanlines (&cinfo, row_pointer, 1);
+           printf("num_lines_to_write:%d:   cinfo.image_height:%d:  cinfo.next_scanline:%d:\n", num_lines_to_write, cinfo.image_height, cinfo.next_scanline);
+        */
+
+
+        lines_written = jpeg_write_scanlines (&cinfo, row_pointer, num_lines_to_write);
+
+        /*
+           printf("lines_written:%d:\n", lines_written);
+        */
+
     }
 
     jpeg_finish_compress (&cinfo);
@@ -293,9 +328,10 @@ write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     return 0;
 }
 
-static int
-SaveJPEG (SDL_Surface *surface, char *file)
-{
+
+
+int SaveJPEG (SDL_Surface *surface, char *file) {
+
     static unsigned char** ss_rows;
     static int ss_size;
     static int ss_w, ss_h;
@@ -304,6 +340,9 @@ SaveJPEG (SDL_Surface *surface, char *file)
     int r, i;
     int alpha = 0;
     int pixel_bits = 32;
+    int free_ss_surface = 1;
+
+
 
     ss_rows = 0;
     ss_size = 0;
@@ -315,7 +354,31 @@ SaveJPEG (SDL_Surface *surface, char *file)
     alpha = 0;
     pixel_bits = 24;
 
-    ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE|SDL_SRCALPHA,
+    if(!surface) {
+        return -1;
+    }
+
+    /* See if the Surface is suitable for using directly.
+       So no conversion is needed.  24bit, RGB
+    */
+
+    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) ) {
+        /*
+           printf("not creating...\n");
+        */
+        ss_surface = surface;
+
+        free_ss_surface = 0;
+    } else {
+        /*
+        printf("creating...\n");
+        */
+
+        /* If it is not, then we need to make a new surface.
+         */
+
+
+        ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
                                        ss_w, ss_h, pixel_bits,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                        0xff0000, 0xff00, 0xff, 0x000000ff
@@ -324,8 +387,9 @@ SaveJPEG (SDL_Surface *surface, char *file)
 #endif
         );
 
-    if (ss_surface == NULL)
+        if (ss_surface == NULL) {
         return -1;
+        }
 
     ss_rect.x = 0;
     ss_rect.y = 0;
@@ -333,16 +397,22 @@ SaveJPEG (SDL_Surface *surface, char *file)
     ss_rect.h = ss_h;
     SDL_BlitSurface (surface, &ss_rect, ss_surface, NULL);
 
+        free_ss_surface = 1;
+    }
+
 
     ss_size = ss_h;
     ss_rows = (unsigned char**) malloc (sizeof (unsigned char*) * ss_size);
     if(ss_rows == NULL) {
         /* clean up the allocated surface too */
+        if(free_ss_surface) {
         SDL_FreeSurface (ss_surface);
+        }
         return -1;
     }
 
-
+    /* copy pointers to the scanlines... since they might not be packed.
+     */
     for (i = 0; i < ss_h; i++) {
         ss_rows[i] = ((unsigned char*)ss_surface->pixels) +
             i * ss_surface->pitch;
@@ -351,8 +421,12 @@ SaveJPEG (SDL_Surface *surface, char *file)
 
 
     free (ss_rows);
+
+    if(free_ss_surface) {
     SDL_FreeSurface (ss_surface);
     ss_surface = NULL;
+    }
+
     return r;
 }
 
@@ -464,10 +538,14 @@ image_save_ext (PyObject* self, PyObject* arg)
               (name[namelen - 3]=='j' || name[namelen - 3]=='J'))))
         {
 #ifdef JPEGLIB_H
-            /* Png, and jpg save functions are not thread safe. */
-            /*Py_BEGIN_ALLOW_THREADS; */
+            /* jpg save functions seem *NOT* thread safe at least on windows. */
+            /*
+            Py_BEGIN_ALLOW_THREADS;
+            */
             result = SaveJPEG (surf, name);
-            /*Py_END_ALLOW_THREADS; */
+            /*
+            Py_END_ALLOW_THREADS;
+            */
 #else
             return RAISE (PyExc_SDLError, "No support for jpg compiled in.");
 #endif
@@ -514,11 +592,19 @@ static PyMethodDef image_builtins[] =
 PYGAME_EXPORT
 void initimageext (void)
 {
+    /* imported needed apis; Do this first so if there is an error       the module is not loaded.    */    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+}
+
     /* create the module */
     Py_InitModule3 (MODPREFIX "imageext", image_builtins, NULL);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_surface ();
-    import_pygame_rwobject ();
 }

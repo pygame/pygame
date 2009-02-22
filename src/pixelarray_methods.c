@@ -496,6 +496,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     case 2:
     {
         Uint16 *pixel;
+	int ppa = (surface->flags & SDL_SRCALPHA &&
+		   surface->format->Amask);
         while (posy < array->ylen)
         {
             x = array->xstart;
@@ -506,7 +508,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, (Uint32) *pixel,
-                        surface->format);
+				   surface->format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                         *pixel = (Uint16) rcolor;
@@ -526,6 +528,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         Uint8 *px;
         Uint32 pxcolor;
         SDL_PixelFormat *format = surface->format;
+	int ppa = (surface->flags & SDL_SRCALPHA && format->Amask);
         while (posy < array->ylen)
         {
             x = array->xstart;
@@ -537,7 +540,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
                 if (distance)
                 {
-                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                     {
@@ -556,7 +559,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pxcolor = (px[2]) + (px[1] << 8) + (px[0] << 16);
                 if (distance)
                 {
-                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                     {
@@ -585,6 +588,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     default:
     {
         Uint32 *pixel;
+	int ppa = (surface->flags & SDL_SRCALPHA &&
+		   surface->format->Amask);
         while (posy < array->ylen)
         {
             x = array->xstart;
@@ -594,7 +599,8 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pixel = ((Uint32 *) (pixels + y * surface->pitch) + x);
                 if (distance)
                 {
-                    GET_PIXELVALS (r2, g2, b2, a2, *pixel, surface->format);
+                    GET_PIXELVALS (r2, g2, b2, a2, *pixel,
+				   surface->format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                         *pixel = rcolor;
@@ -710,6 +716,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     case 2:
     {
         Uint16 *pixel;
+	int ppa = (surface->flags & SDL_SRCALPHA &&
+		   surface->format->Amask);
         while (posy < newarray->ylen)
         {
             x = newarray->xstart;
@@ -720,7 +728,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r2, g2, b2, a2, (Uint32) *pixel,
-                        surface->format);
+				   surface->format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                         *pixel = (Uint16) white;
@@ -743,6 +751,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         Uint8 *px;
         Uint32 pxcolor;
         SDL_PixelFormat *format = surface->format;
+	int ppa = (surface->flags & SDL_SRCALPHA && format->Amask);
         while (posy < newarray->ylen)
         {
             x = newarray->xstart;
@@ -754,7 +763,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pxcolor = (px[0]) + (px[1] << 8) + (px[2] << 16);
                 if (distance)
                 {
-                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                     {
@@ -785,7 +794,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pxcolor = (px[2]) + (px[1] << 8) + (px[0] << 16);
                 if (distance)
                 {
-                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, surface->format);
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor, format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                     {
@@ -828,6 +837,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     default:
     {
         Uint32 *pixel;
+	int ppa = (surface->flags & SDL_SRCALPHA &&
+		   surface->format->Amask);
         while (posy < newarray->ylen)
         {
             x = newarray->xstart;
@@ -837,7 +848,8 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pixel = ((Uint32 *) (pixels + y * surface->pitch) + x);
                 if (distance)
                 {
-                    GET_PIXELVALS (r2, g2, b2, a2, *pixel, surface->format);
+                    GET_PIXELVALS (r2, g2, b2, a2, *pixel,
+				   surface->format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) <=
                         distance)
                         *pixel = white;
@@ -976,6 +988,8 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
     case 2:
     {
         Uint16 *pixel1, *pixel2;
+	int ppa = (surface1->flags & SDL_SRCALPHA &&
+		   surface1->format->Amask);
         while (posy < newarray->ylen)
         {
             vx = array2->xstart;
@@ -988,9 +1002,9 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 if (distance)
                 {
                     GET_PIXELVALS (r1, g1, b1, a1, (Uint32) *pixel1,
-                        surface1->format);
+				   surface1->format, ppa);
                     GET_PIXELVALS (r2, g2, b2, a2, (Uint32) *pixel2,
-                        surface1->format);
+				   surface1->format, ppa);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) >
                         distance)
                         *pixel1 = (Uint16) white;
@@ -1015,6 +1029,10 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
         Uint8 *px1, *px2;
         Uint32 pxcolor1, pxcolor2;
         SDL_PixelFormat *format = surface1->format;
+	int ppa1 = (surface1->flags & SDL_SRCALPHA &&
+		    surface1->format->Amask);
+	int ppa2 = (surface2->flags & SDL_SRCALPHA &&
+		    surface2->format->Amask);
         while (posy < newarray->ylen)
         {
             vx = array2->xstart;
@@ -1029,8 +1047,10 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pxcolor2 = (px2[0]) + (px2[1] << 8) + (px2[2] << 16);
                 if (distance)
                 {
-                    GET_PIXELVALS (r1, g1, b1, a1, pxcolor1, surface1->format);
-                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor2, surface2->format);
+                    GET_PIXELVALS (r1, g1, b1, a1, pxcolor1,
+				   surface1->format, ppa1);
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor2,
+				   surface2->format, ppa2);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) >
                         distance)
                     {
@@ -1062,8 +1082,10 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pxcolor2 = (px2[2]) + (px2[1] << 8) + (px2[0] << 16);
                 if (distance)
                 {
-                    GET_PIXELVALS (r1, g1, b1, a1, pxcolor1, surface1->format);
-                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor2, surface2->format);
+                    GET_PIXELVALS (r1, g1, b1, a1, pxcolor1,
+				   surface1->format, ppa1);
+                    GET_PIXELVALS (r2, g2, b2, a2, pxcolor2,
+				   surface2->format, ppa2);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) >
                         distance)
                     {
@@ -1105,9 +1127,13 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
         }
         break;
     }
-    default:
+     default:
     {
         Uint32 *pixel1, *pixel2;
+	int ppa1 = (surface1->flags & SDL_SRCALPHA &&
+		    surface1->format->Amask);
+	int ppa2 = (surface2->flags & SDL_SRCALPHA &&
+		    surface2->format->Amask);
         while (posy < newarray->ylen)
         {
             vx = array2->xstart;
@@ -1119,8 +1145,10 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
                 pixel2 = ((Uint32 *) (pixels2 + vy * surface2->pitch) + vx);
                 if (distance)
                 {
-                    GET_PIXELVALS (r1, g1, b1, a1, *pixel1, surface1->format);
-                    GET_PIXELVALS (r2, g2, b2, a2, *pixel2, surface2->format);
+                    GET_PIXELVALS (r1, g1, b1, a1, *pixel1,
+				   surface1->format, ppa1);
+                    GET_PIXELVALS (r2, g2, b2, a2, *pixel2,
+				   surface2->format, ppa2);
                     if (COLOR_DIFF_RGB (wr, wg, wb, r1, g1, b1, r2, g2, b2) >
                         distance)
                         *pixel1 = white;

@@ -19,11 +19,11 @@ blue.
 
 Supported array systems are
 
-  numeric
   numpy
+  numeric
 
-The default will be Numeric, if installed. Otherwise, numpy will be set
-as default if installed. If neither Numeric nor numpy are installed, the
+The default will be numpy, if installed. Otherwise, Numeric will be set
+as default if installed. If neither numpy nor Numeric are installed, the
 module will raise an ImportError.
 
 The array type to use can be changed at runtime using the use_arraytype ()
@@ -156,7 +156,7 @@ pygame.surfarray.blit_array(Surface, array): return None
 Directly copy values from an array into a Surface. This is faster than
 converting the array into a Surface and blitting. The array must be the
 same dimensions as the Surface and will completely replace all pixel
-values.
+values. Only integer, ascii character and record arrays are accepted.
 
 This function will temporarily lock the Surface as the new values are
 copied.

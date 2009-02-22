@@ -93,6 +93,15 @@ def Run():
     for doc in justDocs:
         WriteDocHeader(outFile, doc, options.have_code_docs)
 
+
+    outFile.write("\n\n/* Docs in a comments... slightly easier to read. */\n\n\n/*")
+    # add the docs as comments to the header file.
+    for doc in justDocs:
+        WriteDocHeaderComments(outFile, doc)
+
+    outFile.write("\n\n*/\n\n")
+
+
     topDoc = LayoutDocs(justDocs)
 
     outFile = open(os.path.join("docs","ref","index.html"), "w")
@@ -256,6 +265,29 @@ def WriteDocHeader(f, doc, have_code_docs ):
     if doc.kids:
         for kid in doc.kids:
             WriteDocHeader(f, kid, have_code_docs)
+
+def WriteDocHeaderComments(f, doc):
+    name = doc.fullname
+
+    defineName = name
+    text = ""
+    if doc.protos:
+        text = "\n".join(doc.protos)
+    if doc.descr:
+        if text:
+            text += "\n"
+        text += doc.descr
+    text = text.replace("\\n", "\n")
+    #f.write('\n\n/*\n%s\n %s\n\n*/' % (defineName, text))
+    f.write('\n\n%s\n %s\n\n' % (defineName, text))
+
+    if doc.kids:
+        for kid in doc.kids:
+            WriteDocHeaderComments(f, kid)
+
+
+
+
 
 
 class Doc(object):

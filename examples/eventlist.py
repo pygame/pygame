@@ -85,13 +85,14 @@ def main():
         img = Font.render('No Joysticks to Initialize', 1, (50, 200, 50), (0, 0, 0))
         history.append(img)
 
-    while 1:
+    going = True
+    while going:
         for e in event.get():
             if e.type == QUIT:
-                return
+                going = False
             if e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
-                    return
+                    going = False
                 else:
                     global LastKey
                     LastKey = e.key
@@ -115,6 +116,8 @@ def main():
         display.flip()
         time.wait(10)
 
+    pygame.quit()
 
 
-if __name__ == '__main__': main()
+if __name__ == '__main__':
+    main()

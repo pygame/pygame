@@ -203,6 +203,8 @@ DEPS.add('MIXER', 'SDL_mixer', ['SDL_mixer-[1-9].*'], r'(lib){0,1}SDL_mixer\.dll
 DEPS.add('SMPEG', 'smpeg', ['smpeg-[0-9].*', 'smpeg'], r'smpeg\.dll$', ['SDL'])
 DEPS.add('PNG', 'png', ['libpng-[1-9].*'], r'(png|libpng13)\.dll$', ['z'])
 DEPS.add('JPEG', 'jpeg', ['jpeg-[6-9]*'], r'(lib){0,1}jpeg\.dll$')
+DEPS.add('PORTMIDI', 'portmidi', ['portmidi'], r'portmidi\.dll$')
+#DEPS.add('PORTTIME', 'porttime', ['porttime'], r'porttime\.dll$')
 DEPS.add_dll(r'(lib){0,1}tiff\.dll$', 'tiff', ['tiff-[3-9].*'], ['jpeg', 'z'])
 DEPS.add_dll(r'(z|zlib1)\.dll$', 'z', ['zlib-[1-9].*'])
 DEPS.add_dll(r'(libvorbis-0|vorbis)\.dll$', 'vorbis', ['libvorbis-[1-9].*'],
@@ -220,8 +222,7 @@ def setup_prebuilt():
         try:
             setup_win_in = open(os.path.join('prebuilt', 'Setup_Win.in'))
         except IOError:
-            # prebuilt lacks a Setup_Win.in. Use defaults.
-            setup_win_in = open('Default_Setup_Win.in')
+            raise IOError("prebuilt missing required Setup_Win.in")
 
         # Copy Setup.in to Setup, replacing the BeginConfig/EndConfig
         # block with prebuilt\Setup_Win.in .

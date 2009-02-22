@@ -1275,6 +1275,22 @@ void initimage (void)
     PyObject *module, *dict;
     PyObject *extmodule;
 
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+    import_pygame_rwobject ();
+    if (PyErr_Occurred ()) {
+	return;
+    }
+
     /* create the module */
     module = Py_InitModule3 (MODPREFIX "image", image_builtins, DOC_PYGAMEIMAGE);
     dict = PyModule_GetDict (module);
@@ -1314,9 +1330,4 @@ void initimage (void)
         */
         is_extended = 0;
     }
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    import_pygame_surface ();
-    import_pygame_rwobject ();
 }
