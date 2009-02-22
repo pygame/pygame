@@ -548,12 +548,20 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
      
     if (PyString_Check (fileobj) || PyUnicode_Check (fileobj))
     {
-        FILE* test;
+        FILE* test;        
+#ifdef __SYMBIAN32__        
+		// Fix for Symbian. filename is corrupted if the fileobj is destroyed. 
+        // FIXME: Possible bug on other platforms too.
+        char* _filename = PyString_AsString (fileobj);
+        char filename[513];
+        strncpy(filename,_filename, 512);
+        filename[512] = 0;
+#else
         char* filename = PyString_AsString (fileobj);
-#ifndef __SYMBIAN32__        
-        Py_DECREF (fileobj); 
-        fileobj = NULL;
-#endif        
+#endif	     
+        Py_DECREF (fileobj);
+		fileobj = NULL;
+       		
         if (!filename)
             return -1;
                 
@@ -575,13 +583,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
             Py_BEGIN_ALLOW_THREADS;
             font = TTF_OpenFont(filename, fontsize);
             Py_END_ALLOW_THREADS;
-        }
-#ifdef __SYMBIAN32__        
-		// Moved here for Symbian. filename is corrupted if the fileobj is destroyed. 
-        // Possible bug on other platforms too.
-        Py_DECREF (fileobj);
-        fileobj = NULL;
-#endif		
+        }	
     }
     if (!font)
     {

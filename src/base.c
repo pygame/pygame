@@ -496,7 +496,7 @@ install_parachute (void)
     /* Set a handler for any fatal signal not already handled */
     for (i = 0; fatal_signals[i]; ++i)
     {
-        ohandler = signal (fatal_signals[i], pygame_parachute);
+        ohandler = (void(*)(int))signal (fatal_signals[i], pygame_parachute);
         if (ohandler != SIG_DFL)
             signal (fatal_signals[i], ohandler);
     }
@@ -531,7 +531,7 @@ uninstall_parachute (void)
     /* Remove a handler for any fatal signal handled */
     for (i = 0; fatal_signals[i]; ++i)
     {
-        ohandler = signal (fatal_signals[i], SIG_DFL);
+        ohandler = (void(*)(int))signal (fatal_signals[i], SIG_DFL);
         if (ohandler != pygame_parachute)
             signal (fatal_signals[i], ohandler);
     }

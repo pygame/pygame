@@ -61,7 +61,23 @@
 #undef HAVE_SNPRINTF        /* remove GCC redefine warning */
 #endif
 
+// This must be before all else
+#if defined(__SYMBIAN32__) && defined( OPENC )
+#include <sys/types.h>
+
+#if defined(__WINS__)
+void* _alloca(size_t size);
+#  define alloca _alloca
+#endif
+
+#endif
+
 #include <Python.h>
+
+// No signal()
+#if defined(__SYMBIAN32__) && defined(HAVE_SIGNAL_H)
+#undef HAVE_SIGNAL_H
+#endif
 
 #if defined(HAVE_SNPRINTF)
 #undef HAVE_SNPRINTF
@@ -662,7 +678,7 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #define PYGAME_EXPORT
 #endif
 
-#ifdef __SYMBIAN32__
+#ifdef __SYMBIAN32__ && PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 2
 
 // These are missing from Python 2.2
 #ifndef Py_RETURN_NONE
@@ -670,6 +686,7 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #define Py_RETURN_NONE     return Py_INCREF(Py_None), Py_None
 #define Py_RETURN_TRUE     return Py_INCREF(Py_True), Py_True
 #define Py_RETURN_FALSE    return Py_INCREF(Py_False), Py_False
+
 #ifndef intrptr_t
 #define intptr_t int
 
@@ -688,8 +705,8 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #undef PyObject_DEL
 #define PyObject_DEL PyObject_Del
 
-#endif // Python 2.2.2
+#endif // intptr_t
 
-#endif // __SYMBIAN32__
+#endif // __SYMBIAN32__ Python 2.2.2
 
 #endif /* PYGAME_H */
