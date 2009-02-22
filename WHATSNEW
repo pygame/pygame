@@ -5,6 +5,13 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+[SVN 1952] Feb 22, 2009
+    Added Surface.scroll method along with the scroll.py example.
+
+[SVN 1947] Feb 21, 2009
+    Made colorkey and blanket alpha blits properly handle a surface blit
+    to itself. This addresses Bugzilla bug 19.
+
 [SVN 1820] Jan 11, 2009
     The Pygame documents and examples are now part of the Pygame package,
     directories docs and examples respectively.
