@@ -20,7 +20,7 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
                             
                 ,
                 defines = [
-                    "__LOGMAN_ENABLED__", 
+                    #"__LOGMAN_ENABLED__", 
                 ],
                 libraries = C_LIBRARY + ["euser", "avkon", "apparc", 
                              "cone","eikcore", "libGLES_CM",                             
@@ -28,7 +28,7 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
                              SDL_DLL_NAME,
                              "pygame.lib",
                              'pygame_libjpeg',
-                             "LogMan"
+                             #"LogMan"
                              ],
                 uid3=UID_PYGAMEAPP,
                 icons = [ ("../lib/pygame_icon.svg", "pygame") ],
