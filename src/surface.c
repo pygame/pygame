@@ -2198,7 +2198,6 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
     SDL_Surface *subsurface = NULL;
     int result, suboffsetx = 0, suboffsety = 0;
     SDL_Rect orig_clip, sub_clip;
-    int didconvert = 0;
 
     /* passthrough blits to the real surface */
     if (((PySurfaceObject *) dstobj)->subsurface)
@@ -2238,14 +2237,6 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
 
     PySurface_Prep (srcobj);
 
-    /* can't blit alpha to 8bit, crashes SDL */
-    if (dst->format->BytesPerPixel == 1 &&
-        (src->format->Amask || src->flags & SDL_SRCALPHA))
-    {
-        didconvert = 1;
-        src = SDL_DisplayFormat (src);
-    }
-
     /* see if we should handle alpha ourselves */
     if (dst->format->Amask && (dst->flags & SDL_SRCALPHA) &&
         !(src->format->Amask && !(src->flags & SDL_SRCALPHA)) &&
@@ -2270,15 +2261,36 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
         result = pygame_Blit (src, srcrect, dst, dstrect, the_args);
 	/* Py_END_ALLOW_THREADS */
     }
+    /* can't blit alpha to 8bit, crashes SDL */
+    else if (dst->format->BytesPerPixel == 1 &&
+	     (src->format->Amask || src->flags & SDL_SRCALPHA))
+    {
+	/* Py_BEGIN_ALLOW_THREADS */
+	if (src->format->BytesPerPixel == 1)
+	{
+	    result = pygame_Blit (src, srcrect, dst, dstrect, 0);
+	}
+	else
+	{
+	    src = SDL_DisplayFormat (src);
+	    if (src)
+	    {
+		result = SDL_BlitSurface (src, srcrect, dst, dstrect);
+		SDL_FreeSurface (src);
+	    }
+	    else
+	    {
+		result = -1;
+	    }
+	}
+	/* Py_END_ALLOW_THREADS */
+    }
     else
     {
 	/* Py_BEGIN_ALLOW_THREADS */
         result = SDL_BlitSurface (src, srcrect, dst, dstrect);
 	/* Py_END_ALLOW_THREADS */
     }
-
-    if (didconvert)
-        SDL_FreeSurface (src);
 
     if (subsurface)
     {

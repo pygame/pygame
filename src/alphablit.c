@@ -1025,7 +1025,7 @@ blit_blend_add (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1086,7 +1086,7 @@ blit_blend_add (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_ADD (tmp, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1212,7 +1212,7 @@ blit_blend_sub (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1273,7 +1273,7 @@ blit_blend_sub (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_SUB (tmp2, sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1402,7 +1402,7 @@ blit_blend_mul (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1463,7 +1463,7 @@ blit_blend_mul (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MULT (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1594,7 +1594,7 @@ blit_blend_min (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1655,7 +1655,7 @@ blit_blend_min (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MIN (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1786,7 +1786,7 @@ blit_blend_max (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -1847,7 +1847,7 @@ blit_blend_max (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     BLEND_MAX (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2079,7 +2079,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     sA = (*src == colorkey) ? 0 : alpha;
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2120,7 +2120,7 @@ alphablit_colorkey (SDL_BlitInfo * info)
                     sA = (pixel == colorkey) ? 0 : alpha;
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, sA, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2216,7 +2216,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     GET_PIXELVALS_1(sR, sG, sB, sA, src, srcfmt);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, alpha, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
@@ -2255,7 +2255,7 @@ alphablit_solid (SDL_BlitInfo * info)
                     GET_PIXELVALS (sR, sG, sB, sA, pixel, srcfmt, srcppa);
                     GET_PIXELVALS_1(dR, dG, dB, dA, dst, dstfmt);
                     ALPHA_BLEND (sR, sG, sB, alpha, dR, dG, dB, dA);
-                    CREATE_PIXEL(dst, dR, dG, dB, dA, dstbpp, dstfmt);
+		    *dst = (Uint8) SDL_MapRGB (dstfmt, dR, dG, dB);
                     src += srcpxskip;
                     dst += dstpxskip;
                 }, n, width);
