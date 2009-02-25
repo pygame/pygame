@@ -108,11 +108,16 @@ def main(image_file=None):
     background_color = Color('beige')
 
     pygame.init()
+
+    # set up key repeating so we can hold down the key to scroll.
+    old_k_delay, old_k_interval = pygame.key.get_repeat ()
+    pygame.key.set_repeat (500, 30)
+
     try:
         screen = pygame.display.set_mode(win_size)
         screen.fill(background_color)
         pygame.display.flip()
-    
+
         image = pygame.image.load(image_file).convert()
         image_w, image_h = image.get_size()
 
@@ -135,33 +140,50 @@ def main(image_file=None):
         screen.set_clip((margin, margin, zoom_view_size[0], zoom_view_size[1]))
 
         view_rect = Rect(0, 0, view_size[0], view_size[1])
-        
+
         scale(image.subsurface(view_rect), zoom_view_size,
               screen.subsurface(screen.get_clip()))
         pygame.display.flip()
 
-        while (1):
-            e = pygame.event.wait()
-            if e.type == KEYDOWN:
-                if e.key == K_ESCAPE:
-                    break
-                elif e.key == K_DOWN:
-                    scroll_view(screen, image, DIR_DOWN, view_rect)
-                elif e.key == K_UP:
-                    scroll_view(screen, image, DIR_UP, view_rect)
-                elif e.key == K_LEFT:
-                    scroll_view(screen, image, DIR_LEFT, view_rect)
-                elif e.key == K_RIGHT:
-                    scroll_view(screen, image, DIR_RIGHT, view_rect)
-            elif e.type == QUIT:
-                break
-            elif e.type == MOUSEBUTTONDOWN:
-                direction = regions.get_at(e.pos)[0]
-                if direction:
-                    scroll_view(screen, image, direction, view_rect)
-    finally:
-        pygame.quit()
 
+        # the direction we will scroll in.
+        direction = None
+
+        clock = pygame.time.Clock()
+        clock.tick()
+
+        going = True
+        while going:
+            # wait for events before doing anything.
+            #events = [pygame.event.wait()] + pygame.event.get()
+            events = pygame.event.get()
+
+            for e in events:
+                if e.type == KEYDOWN:
+                    if e.key == K_ESCAPE:
+                        going = False
+                    elif e.key == K_DOWN:
+                        scroll_view(screen, image, DIR_DOWN, view_rect)
+                    elif e.key == K_UP:
+                        scroll_view(screen, image, DIR_UP, view_rect)
+                    elif e.key == K_LEFT:
+                        scroll_view(screen, image, DIR_LEFT, view_rect)
+                    elif e.key == K_RIGHT:
+                        scroll_view(screen, image, DIR_RIGHT, view_rect)
+                elif e.type == QUIT:
+                    going = False
+                elif e.type == MOUSEBUTTONDOWN:
+                    direction = regions.get_at(e.pos)[0]
+                elif e.type == MOUSEBUTTONUP:
+                    direction = None
+
+            if direction:
+                scroll_view(screen, image, direction, view_rect)
+            clock.tick(30)
+
+    finally:
+        pygame.key.set_repeat (old_k_delay, old_k_interval)
+        pygame.quit()
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
