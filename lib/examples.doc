@@ -110,10 +110,10 @@ display a vertical gradient
 pygame.examples.vgrade.main(): return None
 
 Demonstrates creating a vertical gradient with
-Numeric python. The app will create a new gradient every half
+NumPy python. The app will create a new gradient every half
 second and report the time needed to create and display the
 image. If you're not prepared to start working with the
-Numeric arrays, don't worry about the source for this one :]
+NumPy arrays, don't worry about the source for this one :]
 <END>
 
 
@@ -175,7 +175,7 @@ If arraytype is provided then use that array package. Valid
 values are 'numeric' or 'numpy'. Otherwise default to NumPy,
 or fall back on Numeric if NumPy is not installed.
 
-Uses sndarray and MumPy ( or Numeric) to create offset faded copies of the
+Uses sndarray and NumPy ( or Numeric) to create offset faded copies of the
 original sound. Currently it just uses hardcoded values for the
 number of echos and the delay. Easy for you to recreate as 
 needed. Run as a program sound_array_demos.py takes an optional
