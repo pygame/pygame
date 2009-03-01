@@ -158,7 +158,7 @@ class Effects(object):
         
         w = int(r.width * (1 - v))
         h = int(r.height * (1 - v))
-        s = pygame.transform.scale(surf, (w, h))
+        s = pygame.transform.scale(surfold, (w, h))
         
         surf.blit(surfnew,(0,0))
         surf.blit(s, (r.width / 2 * (v), r.height / 2 * (v)))
@@ -202,9 +202,11 @@ class Effects(object):
                 
             i = 0
             for effect, tween in effect_tween:
-                
+                s = surf
+                if i == 0:
+                    s = self.surf1
                 v = tween(t, 0, 1, self.duration)
-                surf, x, y = effect( surf, self.surf1, self.surf2, v )
+                surf, x, y = effect( surf, s, self.surf2, v )
                 
                 i += 1
             
@@ -958,7 +960,7 @@ class Application(object):
         
         # Blocks for the duration of the animation
         effect = [e.effectSlideLeftReplace, e.effectSlideRightReplace, e.effectFadeTo][effect]
-        e.do([(effect, e.tweenEaseInBack)], 0.5)
+        e.do([(effect, lambda t, b, c, d, s=1.01:e.tweenEaseInBack(t, b, c, d, s))], 0.5)
         
         # The animation completed.
         menu2.bg = self.bg
