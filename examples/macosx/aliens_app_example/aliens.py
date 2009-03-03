@@ -219,7 +219,7 @@ def main(winstyle = 0):
     #load the sound effects
     boom_sound = load_sound('boom.wav')
     shoot_sound = load_sound('car_door.wav')
-    if pygame.mixer:
+    if pygame.mixer and pygame.mixer.music:
         music = os.path.join('data', 'house_lo.wav')
         pygame.mixer.music.load(music)
         pygame.mixer.music.play(-1)
@@ -314,7 +314,7 @@ def main(winstyle = 0):
         #cap the framerate
         clock.tick(40)
 
-    if pygame.mixer:
+    if pygame.mixer and pygame.mixer.music:
         pygame.mixer.music.fadeout(1000)
     pygame.time.wait(1000)
 
