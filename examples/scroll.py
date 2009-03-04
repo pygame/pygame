@@ -53,7 +53,7 @@ def scroll_view(screen, image, direction, view_rect):
     dx = dy = 0
     src_rect = None
     zoom_view_rect = screen.get_clip()
-    image_h, image_w = image.get_size()
+    image_w, image_h = image.get_size()
     if direction == DIR_UP:
         if view_rect.top > 0:
             screen.scroll(dy=zoom_factor)
