@@ -240,6 +240,15 @@
         the :class:`FRect`.
       </desc>
     </method>
+    <method name="copy">
+      <call>copy () -> FRect</call>
+      <desc>
+        Creates a copy of the :class:`FRect`.
+
+        Returns a new :class:`FRect`, that contains the same values as the
+        caller.
+      </desc>
+    </method>
     <method name="fit">
       <call>fit (FRect) -> FRect</call>
       <desc>
@@ -454,6 +463,15 @@
 
         Returns true when the argument rectangle is completely inside
         the :class:`Rect`.
+      </desc>
+    </method>
+    <method name="copy">
+      <call>copy () -> Rect</call>
+      <desc>
+        Creates a copy of the :class:`Rect`.
+
+        Returns a new :class:`Rect`, that contains the same values as the
+        caller.
       </desc>
     </method>
     <method name="fit">

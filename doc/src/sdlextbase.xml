@@ -24,9 +24,9 @@
   <class name="PixelArray">
     <constructor>PixelArray (surface) -> PixelArray</constructor>
     <desc>
-      Creates a new PixelArray from the specified pygame2.sdl.Surface.
+      Creates a new PixelArray from the specified :class:`pygame2.sdl.video.Surface`.
 
-      The PixelArray wraps up a Surface and provides a direct 2D array
+      The :class:`PixelArray` wraps up a :class:`pygame2.sdl.video.Surface` and provides a direct 2D array
       access to its pixels using the surface its rows as first and its
       columns as second axis. It supports slicing, row and pixel
       manipluation, slicing and slice assignments while inplace
@@ -34,10 +34,10 @@
       and so forth are not allowed.
 
       While it is possible to assign both, integer color values and
-      RGB(A) color tuples, the PixelArray will only use integers for the
+      RGB(A) color tuples, the :class:`PixelArray` will only use integers for the
       color representation. Thus, checking for certain colors has to be
-      done using the Surface.map_rgb() method of the surface , the
-      PixelArray was created for. ::
+      done using the :meth:`pygame2.sdl.video.Surface.map_rgb()` method of the surface, the
+      :class:`PixelArray` was created for. ::
 
         pxarray = pygame.PixelArray (surface)
         # Check, if the first pixel at the topleft corner is blue
@@ -89,14 +89,14 @@
       surface should perform operations in the same scope.
     </desc>
     <method name="compare">
-      <call>PixelArray.compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray</call>
+      <call>compare (array, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray</call>
       <desc>
-        Compares the PixelArray with another one.
+        Compares the :class:`PixelArray` with another one.
 
-        Compares the contents of the PixelArray with those from the
-        passed PixelArray. It returns a new PixelArray with a
+        Compares the contents of the :class:`PixelArray` with those from the
+        passed :class:`PixelArray`. It returns a new :class:`PixelArray` with a
         black/white color mask that indicates the differences (white) of
-        both arrays. Both PixelArray objects must have indentical bit
+        both arrays. Both :class:`PixelArray` objects must have indentical bit
         depths and dimensions.
 
         It uses a simple weighted euclidian distance formula to
@@ -107,13 +107,13 @@
       </desc>
     </method>
     <method name="extract">
-      <call>PixelArray.extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray</call>
+      <call>extract (color, distance=0, weights=(0.299, 0.587, 0.114)) -> PixelArray</call>
       <desc>
-        Extracts the passed color from the PixelArray.
+        Extracts the passed color from the :class:`PixelArray`.
 
         Extracts the passed color by changing all matching pixels to
         white, while non-matching pixels are changed to black. This
-        returns a new PixelArray with the black/white color mask. It
+        returns a new :class:`PixelArray` with the black/white color mask. It
         uses a simple weighted euclidian distance formula to calculate
         the distance between the colors. The distance space ranges from
         0.0 to 1.0 and is used as threshold for the color detection.
@@ -122,24 +122,24 @@
       </desc>
     </method>
     <method name="make_surface">
-      <call>PixelArray.make_surface () -> pygame2.sdl.Surface</call>
+      <call>make_surface () -> pygame2.sdl.Surface</call>
       <desc>
-        Creates a new Surface from the current PixelArray.
+        Creates a new Surface from the current :class:`PixelArray`.
 
-        Creates a new Surface from the current PixelArray. Depending on
+        Creates a new Surface from the current :class:`PixelArray`. Depending on
         the current PixelArray the size, pixel order etc. will be
-        different from the original Surface. ::
+        different from the original :class:`pygame2.sdl.video.Surface`. ::
 
           # Create a new surface flipped around the vertical axis.
           sf = pxarray[:,::-1].make_surface ()
       </desc>
     </method>
     <method name="replace">
-      <call>PixelArray.replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -> None</call>
+      <call>replace (color, repcolor, distance=0, weights=(0.299, 0.587, 0.114)) -> None</call>
       <desc>
-        Replaces the passed color in the PixelArray with another one.
+        Replaces the passed color in the :class:`PixelArray` with another one.
 
-        Replaces the pixels with the passed color in the PixelArray by
+        Replaces the pixels with the passed color in the :class:`PixelArray` by
         changing them them to the passed replacement color. It uses a
         simple weighted euclidian distance formula to calculate the
         distance between the colors. The distance space ranges from 0.0
@@ -148,10 +148,12 @@
         exactly identical color, into account as well.
 
         This is an in place operation that directly affects the pixels
-        of the PixelArray.
+        of the :class:`PixelArray`.
       </desc>
     </method>
-    <attr name="surface">Gets the pygame2.sdl.Surface the PixelArray uses.</attr>
+    <attr name="surface">
+      Gets the Surface the :class:`PixelArray` uses.
+    </attr>
   </class>
 
 </module>

@@ -73,6 +73,7 @@ static int _frect_setbottomright (PyObject *self, PyObject *value,
     void *closure);
 
 static PyObject* _frect_clip (PyObject* self, PyObject *args);
+static PyObject* _frect_copy (PyObject* self);
 static PyObject* _frect_move (PyObject* self, PyObject *args);
 static PyObject* _frect_move_ip (PyObject* self, PyObject *args);
 static PyObject* _frect_union (PyObject* self, PyObject *args);
@@ -101,6 +102,7 @@ static PyObject* _frect_richcompare (PyObject *o1, PyObject *o2, int opid);
  */
 static PyMethodDef _frect_methods[] = {
     { "clip", _frect_clip, METH_VARARGS, DOC_BASE_FRECT_CLIP },
+    { "copy", (PyCFunction)_frect_copy, METH_NOARGS, DOC_BASE_FRECT_COPY },
     { "move", _frect_move, METH_VARARGS, DOC_BASE_FRECT_MOVE },
     { "move_ip",  _frect_move_ip, METH_VARARGS, DOC_BASE_FRECT_MOVE_IP },
     { "union",  _frect_union, METH_VARARGS, DOC_BASE_FRECT_UNION},
@@ -781,6 +783,13 @@ _frect_clip (PyObject* self, PyObject *args)
         h = argbottom - y;
 
     return PyFRect_New (x, y, w, h);
+}
+
+static PyObject*
+_frect_copy (PyObject* self)
+{
+    return PyFRect_New (((PyFRect*)self)->x, ((PyFRect*)self)->y,
+        ((PyFRect*)self)->w, ((PyFRect*)self)->h);
 }
 
 static PyObject*

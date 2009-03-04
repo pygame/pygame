@@ -8,11 +8,10 @@
         ret = (q < 0) ? 0 : 1;         \
     else                               \
     {                                  \
-        double _val = q / p;           \
         if (p < 0)                     \
-            u1 = MAX (u1, _val);       \
+            u1 = MAX (u1, q / p);      \
         else                           \
-            u2 = MIN (u2, _val);       \
+            u2 = MIN (u2, q / p);      \
         ret = 1;                       \
     }
 
@@ -60,16 +59,17 @@ _clip_test (AABBox *box, PyVector2 *vertices, int count, _Collision *collision)
         u1 = 0.f;
         u2 = 1.f;
         dp = c_diff (vertices[i], vertices[i1]);
-        CLIP_LB (-dp.real, vertices[i].real - box->left, u1, u2, ret);
+        
+        CLIP_LB (dp.real, vertices[i].real - box->left, u1, u2, ret);
         if (!ret)
             continue;
-        CLIP_LB (dp.real, box->right - vertices[i].real, u1, u2, ret);
+        CLIP_LB (-dp.real, box->right - vertices[i].real, u1, u2, ret);
         if (!ret)
             continue;
-        CLIP_LB (-dp.imag, vertices[i].imag - box->bottom, u1, u2, ret);
+        CLIP_LB (dp.imag, vertices[i].imag - box->bottom, u1, u2, ret);
         if (!ret)
             continue;
-        CLIP_LB (dp.imag, box->top - vertices[i].imag, u1, u2, ret);
+        CLIP_LB (-dp.imag, box->top - vertices[i].imag, u1, u2, ret);
         if (!ret)
             continue;
         

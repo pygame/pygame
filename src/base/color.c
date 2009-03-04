@@ -117,7 +117,7 @@ static PyGetSetDef _color_getsets[] =
 
 static PyNumberMethods _color_as_number =
 {
-#if PY_VERSION_HEX < 0x03000000
+#ifndef IS_PYTHON_3
     (binaryfunc) _color_add, /* nb_add */
     (binaryfunc) _color_sub, /* nb_subtract */
     (binaryfunc) _color_mul, /* nb_multiply */
@@ -281,9 +281,7 @@ _get_color (PyObject *val, pguint32 *color)
     if (!val || !color)
         return 0;
 
-    if (IntFromObj (val, &intval))
-        *color = (pguint32) intval;
-    else if (PyLong_Check (val))
+    if (PyLong_Check (val))
     {
         unsigned long longval;
         PyErr_Clear (); /* Clear any error from IntFromObj */
@@ -297,6 +295,8 @@ _get_color (PyObject *val, pguint32 *color)
         *color = (pguint32) longval;
         return 1;
     }
+    else if (IntFromObj (val, &intval))
+        *color = (pguint32) intval;
     else
     {
         PyErr_SetString (PyExc_ValueError, "invalid color argument");

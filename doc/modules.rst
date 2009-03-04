@@ -2,6 +2,8 @@
 Pygame2 modules
 ===============
 
+This is the core documentation of the various python modules, Pygame2 offers.
+
 Modules:
 
 .. toctree::

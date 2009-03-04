@@ -617,21 +617,75 @@ class ColorTest (unittest.TestCase):
 
 ################################################################################
 
-    def todo_test_pygame2_base_Color_a(self):
+    def test_pygame2_base_Color_a(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Color.a:
 
         # Gets or sets the alpha value of the Color.
+        c = Color (100, 100, 100)
+        self.assertEquals (c.a, 255)
+        
+        c = Color (100, 100, 100, 100)
+        self.assertEquals (c.a, 100)
+        
+        c = Color (100, 100, 100)
+        self.assertEquals (c.a, 255)
+        c.a = 200
+        self.assertEquals (c.a, 200)
+        c.a += 22
+        self.assertEquals (c.a, 222)
+        
+        c = Color (0xAABBCCDD)
+        self.assertEquals (c.a, 0xAA)
+        
+        c = Color ("0xBBCCDD")
+        self.assertEquals (c.a, 0xFF)
+        c = Color ("0xAABBCCDD")
+        self.assertEquals (c.a, 0xDD)
+        
+        c = Color ("#AABBCCDD")
+        self.assertEquals (c.a, 0xDD)
+        c = Color ("#BBCCDD")
+        self.assertEquals (c.a, 0xFF)
+        
+        c = Color ("red")
+        self.assertEquals (c.a, 255)
 
-        self.fail() 
-
-    def todo_test_pygame2_base_Color_b(self):
+    def test_pygame2_base_Color_b(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Color.b:
 
         # Gets or sets the blue value of the Color.
-
-        self.fail() 
+        c = Color (100, 100, 100)
+        self.assertEquals (c.b, 100)
+        
+        c = Color (100, 100, 100, 100)
+        self.assertEquals (c.b, 100)
+        
+        c = Color (100, 100, 100)
+        self.assertEquals (c.b, 100)
+        c.b = 200
+        self.assertEquals (c.b, 200)
+        c.b += 22
+        self.assertEquals (c.b, 222)
+        
+        c = Color (0xAABBCCDD)
+        self.assertEquals (c.b, 0xDD)
+        
+        c = Color ("0xBBCCDD")
+        self.assertEquals (c.b, 0xDD)
+        c = Color ("0xAABBCCDD")
+        self.assertEquals (c.b, 0xCC)
+        
+        c = Color ("#AABBCCDD")
+        self.assertEquals (c.b, 0xCC)
+        c = Color ("#BBCCDD")
+        self.assertEquals (c.b, 0xDD)
+        
+        c = Color ("red")
+        self.assertEquals (c.b, 0)
+        c = Color ("blue")
+        self.assertEquals (c.b, 255)
 
     def todo_test_pygame2_base_Color_cmy(self):
 
@@ -660,13 +714,42 @@ class ColorTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_Color_g(self):
+    def test_pygame2_base_Color_g(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Color.g:
 
         # Gets or sets the green value of the Color.
 
-        self.fail() 
+        c = Color (100, 100, 100)
+        self.assertEquals (c.g, 100)
+        
+        c = Color (100, 100, 100, 100)
+        self.assertEquals (c.g, 100)
+        
+        c = Color (100, 100, 100)
+        self.assertEquals (c.g, 100)
+        c.g = 200
+        self.assertEquals (c.g, 200)
+        c.g += 22
+        self.assertEquals (c.g, 222)
+        
+        c = Color (0xAABBCCDD)
+        self.assertEquals (c.g, 0xCC)
+        
+        c = Color ("0xBBCCDD")
+        self.assertEquals (c.g, 0xCC)
+        c = Color ("0xAABBCCDD")
+        self.assertEquals (c.g, 0xBB)
+        
+        c = Color ("#AABBCCDD")
+        self.assertEquals (c.g, 0xBB)
+        c = Color ("#BBCCDD")
+        self.assertEquals (c.g, 0xCC)
+        
+        c = Color ("red")
+        self.assertEquals (c.g, 0)
+        c = Color ("green")
+        self.assertEquals (c.g, 255)
 
     def todo_test_pygame2_base_Color_hsla(self):
 
@@ -726,8 +809,37 @@ class ColorTest (unittest.TestCase):
         # __doc__ (as of 2008-10-17) for pygame2.base.Color.r:
 
         # Gets or sets the red value of the Color.
-
-        self.fail() 
+        
+        c = Color (100, 100, 100)
+        self.assertEquals (c.r, 100)
+        
+        c = Color (100, 100, 100, 100)
+        self.assertEquals (c.r, 100)
+        
+        c = Color (100, 100, 100)
+        self.assertEquals (c.r, 100)
+        c.r = 200
+        self.assertEquals (c.r, 200)
+        c.r += 22
+        self.assertEquals (c.r, 222)
+        
+        c = Color (0xAABBCCDD)
+        self.assertEquals (c.r, 0xBB)
+        
+        c = Color ("0xBBCCDD")
+        self.assertEquals (c.r, 0xBB)
+        c = Color ("0xAABBCCDD")
+        self.assertEquals (c.r, 0xAA)
+        
+        c = Color ("#AABBCCDD")
+        self.assertEquals (c.r, 0xAA)
+        c = Color ("#BBCCDD")
+        self.assertEquals (c.r, 0xBB)
+        
+        c = Color ("red")
+        self.assertEquals (c.r, 255)
+        c = Color ("blue")
+        self.assertEquals (c.r, 0)
 
 if __name__ == "__main__":
     unittest.main ()

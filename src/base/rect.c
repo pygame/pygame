@@ -72,6 +72,7 @@ static int _rect_setbottomright (PyObject *self, PyObject *value,
     void *closure);
 
 static PyObject* _rect_clip (PyObject* self, PyObject *args);
+static PyObject* _rect_copy (PyObject* self);
 static PyObject* _rect_move (PyObject* self, PyObject *args);
 static PyObject* _rect_move_ip (PyObject* self, PyObject *args);
 static PyObject* _rect_union (PyObject* self, PyObject *args);
@@ -96,6 +97,7 @@ static PyObject* _rect_richcompare (PyObject *o1, PyObject *o2, int opid);
  */
 static PyMethodDef _rect_methods[] = {
     { "clip", _rect_clip, METH_VARARGS, DOC_BASE_RECT_CLIP },
+    { "copy", (PyCFunction)_rect_copy, METH_NOARGS, DOC_BASE_RECT_COPY },
     { "move", _rect_move, METH_VARARGS, DOC_BASE_RECT_MOVE },
     { "move_ip",  _rect_move_ip, METH_VARARGS, DOC_BASE_RECT_MOVE_IP },
     { "union",  _rect_union, METH_VARARGS, DOC_BASE_RECT_UNION },
@@ -773,6 +775,13 @@ _rect_move (PyObject* self, PyObject *args)
     }
 
     return PyRect_New (rect->x + x, rect->y + y, rect->w, rect->h);
+}
+
+static PyObject*
+_rect_copy (PyObject* self)
+{
+    return PyRect_New (((PyRect*)self)->x, ((PyRect*)self)->y,
+        ((PyRect*)self)->w, ((PyRect*)self)->h);
 }
 
 static PyObject*

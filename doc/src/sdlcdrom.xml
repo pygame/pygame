@@ -36,7 +36,7 @@
       forth.
     </desc>
     <method name="close">
-      <call>CD.close () -> None</call>
+      <call>close () -> None</call>
       <desc>
         Releases the CD internals. Useful for e.g. switching CDs within
         the drive without the need to recreate the CD object. CD.open()
@@ -49,7 +49,7 @@
     </attr>
     <attr name="cur_track">The current track</attr>
     <method name="eject">
-      <call>CD.eject () -> None</call>
+      <call>eject () -> None</call>
       <desc>Ejects the CD or DVD.</desc>
     </method>
     <attr name="index">The drive index as specified in the constructor.</attr>
@@ -58,20 +58,20 @@
     </attr>
     <attr name="num_tracks">The total number of tracks on the CD or DVD</attr>
     <method name="open">
-      <call>CD.open () -> None</call>
+      <call>open () -> None</call>
       <desc>
         (Re-)Opens the CD and initialises the CD object internals after
         a CD.close() call.
       </desc>
     </method>
     <method name="pause">
-      <call>CD.pause () -> None</call>
+      <call>pause () -> None</call>
       <desc>
         Pauses the actual CD playback.
       </desc>
     </method>
     <method name="play">
-      <call>CD.play (start, length[, asfps]) -> None</call>
+      <call>play (start, length[, asfps]) -> None</call>
       <desc>
         Starts playing the current CD beginning at the give start time
         for a maximum of length seconds. The start and length arguments
@@ -80,9 +80,7 @@
       </desc>
     </method>
     <method name="play_tracks">
-      <call>
-        CD.play_tracks ([starttrack, ntracks, start, length, asfps]) -> None
-      </call>
+      <call>play_tracks ([starttrack, ntracks, start, length, asfps]) -> None</call>
       <desc>
         Plays a certain number of tracks beginning at the passed start
         track. If start and length are not 0, start determines the
@@ -94,12 +92,12 @@
       </desc>
     </method>
     <method name="resume">
-      <call>CD.resume () -> None</call>
+      <call>resume () -> None</call>
       <desc>Resumes a previously paused playback.</desc>
     </method>
     <attr name="status">Gets the current CD status.</attr>
     <method name="stop">
-      <call>CD.stop () -> None</call>
+      <call>stop () -> None</call>
       <desc>Stops the current playback.</desc>
     </method>
     <attr name="tracks">

@@ -419,6 +419,19 @@ class FRectTest (unittest.TestCase):
                      "r contains Rect(4,6,1,1)" )
         self.failIf( r.contains( FRect(4,6,0,0) ),
                      "r contains Rect(4,6,0,0)" )
+    
+    def todo_test_pygame2_base_FRect_copy(self):
+
+        # __doc__ (as of 2009-02-23) for pygame2.base.FRect.copy:
+
+        # copy () -> FRect
+        #
+        # Creates a copy of the FRect.
+        #
+        # Returns a new FRect, that contains the same values as the
+        # caller.
+
+        self.fail()
 
     def todo_test_pygame2_base_FRect_fit(self):
 

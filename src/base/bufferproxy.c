@@ -36,7 +36,7 @@ static PyObject* _bufferproxy_repr (PyBufferProxy *self);
 static PyObject* _bufferproxy_write (PyBufferProxy *buffer, PyObject *args);
 
 /* Buffer methods */
-#if PY_VERSION_HEX < 0x03000000
+#ifndef IS_PYTHON_3
 static Py_ssize_t _bufferproxy_getreadbuf (PyBufferProxy *buffer,
     Py_ssize_t _index, const void **ptr);
 static Py_ssize_t _bufferproxy_getwritebuf (PyBufferProxy *buffer,
@@ -72,7 +72,7 @@ static PyGetSetDef _bufferproxy_getsets[] =
     { NULL, NULL, NULL, NULL, NULL }
 };
 
-#if PY_VERSION_HEX < 0x03000000
+#ifndef IS_PYTHON_3
 /**
  * Buffer interface support for the PyBufferProxy.
  */
@@ -109,7 +109,7 @@ PyTypeObject PyBufferProxy_Type =
     0,                          /* tp_str */
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
-#if PY_VERSION_HEX < 0x03000000
+#ifndef IS_PYTHON_3
     &_bufferproxy_as_buffer,    /* tp_as_buffer */
 #else
     0, /* TODO */
@@ -259,7 +259,7 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
 }   
 
 /*Buffer interfaces */
-#if PY_VERSION_HEX < 0x03000000
+#ifndef IS_PYTHON_3
 
 static Py_ssize_t
 _bufferproxy_getreadbuf (PyBufferProxy *buffer, Py_ssize_t _index,
@@ -299,7 +299,7 @@ _bufferproxy_getsegcount (PyBufferProxy *buffer, Py_ssize_t *lenp)
     return 1;
 }
 
-#endif /* PY_VERSION_HEX < 0x03000000 */
+#endif /* #ifndef IS_PYTHON_3 */
 
 /* C API */
 static PyObject*

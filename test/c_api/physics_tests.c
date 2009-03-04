@@ -156,12 +156,12 @@ test_aabbox (void)
 
     AABBox_Reset (&b);
     if (b.left != DBL_MAX || b.right != -DBL_MAX || 
-        b.bottom != DBL_MAX || b.top != -DBL_MAX)
+        b.bottom != -DBL_MAX || b.top != DBL_MAX)
         ERROR ("Mismatch in AABBox_Reset");
 
     PyVector2_Set (v, 10, 10);
     AABBox_ExpandTo (&a, &v);
-    if (a.left != 1 || a.right != 10 || a.bottom != 3 || a.top != 10)
+    if (a.left != 1 || a.right != 10 || a.bottom != 10 || a.top != 4)
         ERROR ("Mismatch in AABBox_ExpandTo");
 
     b = AABBox_New (2, 4, 6, 8);
@@ -181,8 +181,8 @@ test_aabbox (void)
     rect = AABBox_AsFRect (&a);
     if (!rect || !PyFRect_Check (rect))
         ERROR ("Mismatch in AABBox_AsFRect return value");
-    if (((PyFRect*)rect)->x != 1 || ((PyFRect*)rect)->y != 10 ||
-        ((PyFRect*)rect)->w != 9 || ((PyFRect*)rect)->h != 7)
+    if (((PyFRect*)rect)->x != 1 || ((PyFRect*)rect)->y != 4 ||
+        ((PyFRect*)rect)->w != 9 || ((PyFRect*)rect)->h != 6)
         ERROR ("Mismatch in AABBox_AsFRect");
 
     seq = PyTuple_New (4);
@@ -197,8 +197,8 @@ test_aabbox (void)
 
     if (!AABBox_FromRect (rect, &c))
         ERROR ("Mismatch in AABBox_FromRect creation");
-    if (!IS_NEAR_ZERO (c.top - 10.f) || !IS_NEAR_ZERO (c.left - 1.f) ||
-        !IS_NEAR_ZERO (c.bottom - 17.f) || !IS_NEAR_ZERO (c.right - 10.f))
+    if (!IS_NEAR_ZERO (c.top - 4.f) || !IS_NEAR_ZERO (c.left - 1.f) ||
+        !IS_NEAR_ZERO (c.bottom - 10.f) || !IS_NEAR_ZERO (c.right - 10.f))
         ERROR ("Mismatch in AABBox_FromRect");
     
     Py_DECREF (rect);

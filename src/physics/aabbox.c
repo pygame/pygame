@@ -67,20 +67,19 @@ AABBox_ExpandTo (AABBox* box, PyVector2* p)
 int
 AABBox_Overlaps (AABBox* boxA, AABBox* boxB, double eps)
 {
-    double from_x, from_y, to_x, to_y;
-
     if (!boxA || !boxB)
     {
         PyErr_SetString (PyExc_TypeError, "arguments must not be NULL");
         return 0;
     }
 
-    from_x = MAX (boxA->left, boxB->left);
-    from_y = MAX (boxA->bottom, boxB->bottom);
-    to_x = MIN (boxA->right, boxB->right);
-    to_y = MIN (boxA->top, boxB->top);
-
-    return (from_x - eps <= to_x + eps) && (from_y - eps <= to_y + eps);
+    /* TODO: add eps threshold */
+    if (((boxA->left >= boxB->left && boxA->left < boxB->right)  ||
+         (boxB->left >= boxA->left && boxB->left < boxA->right)) &&
+        ((boxA->top >= boxB->top && boxA->top < boxB->bottom) ||
+        (boxB->top >= boxA->top && boxB->top < boxA->bottom)))
+        return 1;
+    return 0;
 }
 
 int
@@ -92,7 +91,7 @@ AABBox_Contains (AABBox* box, PyVector2* p, double eps)
         return 0;
     }
     return box->left - eps < p->real && p->real < box->right + eps
-        && box->bottom - eps < p->imag && p->imag < box->top + eps;
+        && box->bottom - eps > p->imag && p->imag > box->top + eps;
 }
 
 PyObject*

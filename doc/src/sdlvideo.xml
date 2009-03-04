@@ -71,8 +71,8 @@
   </class>
 
   <class name="Surface">
-    <constructor>TODO</constructor>
-    <desc></desc>
+    <constructor>Surface () -> Surface</constructor>
+    <desc>Creates a new Surface</desc>
     <method name="blit">
       <call></call>
       <desc></desc>

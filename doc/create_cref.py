@@ -16,10 +16,14 @@ def prepare_text (text):
             # Peserve spacings.
             l = l.replace (":const:", "       ")
             l = l.replace (":class:", "       ")
+            l = l.replace (":meth:", "      ")
+            l = l.replace (":ref:", "     ")
             l = l.replace ("`", " ")
         else:
             l = l.replace (":const:", "")
             l = l.replace (":class:", "")
+            l = l.replace (":meth:", "")
+            l = l.replace (":ref:", "")
             l = l.replace ("`", "")
         
         tmptext += l + "\\n"

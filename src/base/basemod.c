@@ -296,7 +296,7 @@ UTF8FromObject (PyObject *obj, char **text, PyObject **freeme)
     return 1;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_base (void)
 #else
 PyMODINIT_FUNC initbase (void)
@@ -304,7 +304,7 @@ PyMODINIT_FUNC initbase (void)
 {
     static void* c_api[PYGAME_BASE_SLOTS];
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _basemodule = {
         PyModuleDef_HEAD_INIT, "base", DOC_BASE, -1, _base_methods,
         NULL, NULL, NULL, NULL
@@ -331,10 +331,10 @@ PyMODINIT_FUNC initbase (void)
     Py_INCREF (&PyRect_Type);
     Py_INCREF (&PyBufferProxy_Type);
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("base", _base_methods, DOC_BASE);
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_basemodule);
+#else
+    mod = Py_InitModule3 ("base", _base_methods, DOC_BASE);
 #endif
     if (!mod)
         MODINIT_RETURN(NULL);
