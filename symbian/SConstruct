@@ -1,9 +1,33 @@
+import time
 from scons_symbian import *
 
+constants.SIGNSIS_OUTPUT_EXTENSION = ".sisx"
 gcce.GCCE_OPTIMIZATION_FLAGS = "-O2 -fno-unit-at-a-time"
 
+
+SVNREVISION = ""
+
+#-------------------------------------------------------------------Get SVN info
+try:
+    import pysvn
+    SVNCLIENT = pysvn.Client()
+    SVNREVISION = "_SVN-%d" % ( SVNCLIENT.info(".")["revision"].number )
+except ImportError:
+    pass
+
+#-------------------------------------------------------------Initialize globals
+
+DATE = list(time.gmtime()[:3])    
+DATE = [ str(x).zfill(2) for x in DATE ]
+DATE = "".join( DATE )    
+
 # Pygame's installer package
-PACKAGE_NAME = ARGUMENTS.get( "package",    "pygame.sis" )
+PACKAGE_NAME = ARGUMENTS.get( "package", "pygame-S60%(REVISION)s_%(DATE)s_%(COMPILER)s-%(RELEASE)s.sis" % \
+                            {   "DATE"     : DATE, 
+                                "REVISION" : SVNREVISION, 
+                                "COMPILER" : COMPILER.upper(), 
+                                "RELEASE"  : RELEASE.upper() 
+                            } )
 
 #: Name of the title on installer.
 PACKAGE_TITLE = ARGUMENTS.get( "sisappname", "pygame for S60" )
@@ -31,15 +55,11 @@ if USE_OPENC:
 else:
     C_LIBRARY = ["estlib"]
     C_INCLUDE = join( EPOC32_INCLUDE, "libc" )
-     
-UID_PACKAGE    = ARGUMENTS.get( "sisuid" )
-UID_PYGAMEAPP  = ARGUMENTS.get( "appuid" )
-UID_SDL        = ARGUMENTS.get( "sdluid" )
-UID_JPEG       = ARGUMENTS.get( "jpeguid" )
-UID_PNG        = ARGUMENTS.get( "pnguid" )
 
 CAPABILITIES  = ARGUMENTS.get( "capabilities", "").split("+")
-if len(CAPABILITIES) == 0: CAPABILITIES = CAPS_SELF_SIGNED
+if len(CAPABILITIES) == 0:
+    CAPABILITIES = CAPS_SELF_SIGNED
+    constants.SIGNSIS_OUTPUT_EXTENSION = "selfsigned.sisx"
 
 SISVERSION    = ARGUMENTS.get( "sisversion", "1,0,0").split(",")
 PYTHON_INCLUDE = ARGUMENTS.get( "pythoninclude", EPOC32_INCLUDE + "/python")
@@ -48,6 +68,13 @@ PYTHON_INCLUDE = ARGUMENTS.get( "pythoninclude", EPOC32_INCLUDE + "/python")
 CERT = ARGUMENTS.get("cert", None)
 KEY  = ARGUMENTS.get("privkey", None)
 PASSPHRASE  = ARGUMENTS.get("passphrase", "" )
+
+#-----------------------------------------------------------------------Get UIDs     
+UID_PACKAGE    = ARGUMENTS.get( "sisuid" )
+UID_PYGAMEAPP  = ARGUMENTS.get( "appuid" )
+UID_SDL        = ARGUMENTS.get( "sdluid" )
+UID_JPEG       = ARGUMENTS.get( "jpeguid" )
+UID_PNG        = ARGUMENTS.get( "pnguid" )
 
 
 EMBEDDED_PYTHON_SIS = ARGUMENTS.get( "pythonsis", "none" )

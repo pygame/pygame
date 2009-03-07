@@ -1,4 +1,6 @@
-""" Full build configuration for pygame """
+""" Full build configuration for pygame 
+For SVN support, install pysvn.
+"""
 
 import sys
 import time
@@ -9,6 +11,8 @@ import build_config as config
 
 from glob import glob
 from scons_symbian.config.constants import CAPS_SELF_SIGNED
+from scons_symbian.arguments import COMPILER, RELEASE
+
 
 BASE_CMD = "scons dosis=true"
 
@@ -100,8 +104,7 @@ def build():
     # Build pygame
     args["pythonsis"]  = sisname
     args["pythonsis"]  = sisname
-    args["sisappname"] = '"pygame for S60"'
-    args["package"]    = "pygame_%s.sis" % version
+    args["sisappname"] = '"pygame for S60"' 
     args['sisversion'] = '1,%d,%d%s' % ( int(version[2:4]), int( version[4:6]),version[6:])
     args['sisuid'] = hex(UID_PACKAGE).replace("L","")
     args['appuid'] = hex(UID_PYGAMEAPP).replace("L","")
