@@ -15,16 +15,16 @@ import pygame
 from pygame.locals import *
 from pygame import constants
 
-BLACK = 0, 0, 0, 255
-TRANSPARENT = 0, 0, 0, 0
-WHITE = 255, 255, 255, 255
-TITLE_BG = 0, 255, 0, 75
-TITLE_STROKE = 0, 255, 0, 200
+BLACK = 0, 0, 0
+TRANSPARENT = 0, 0, 0
+WHITE = 255, 255, 255
+TITLE_BG = 0, 64, 0
+TITLE_STROKE = 0, 255, 0
 DISPLAY_SIZE = 240, 320
-MENU_BG = 0, 255, 0, 75
-ITEM_UNSELECTED_TEXT = 0, 128, 0, 128
-ITEM_SELECTED_TEXT = 0, 255, 0, 128
-ITEM_UNSELECTED = 0, 128, 0, 128
+MENU_BG = 0, 128, 0
+ITEM_UNSELECTED_TEXT = 0, 128, 0
+ITEM_SELECTED_TEXT = 0, 255, 0
+ITEM_UNSELECTED = 0, 128, 0
 ITEM_SELECTED = TITLE_BG
 
 THISDIR = os.path.dirname(__file__)
@@ -140,11 +140,18 @@ class Effects(object):
         a1 = 255 * v
         a2 = 255 - a1 
         
+        #print "blend blit 1", time.time(),"->"
+        surfnew.set_alpha(a1)
         surf.blit(surfnew, (0, 0))
-        surf.fill((a1, a1, a1, a1), None, BLEND_RGBA_MULT)
+        #surf.fill((a1, a1, a1), None, BLEND_RGB_MULT)
+        #print time.time()
         
+        #print "blend blit 2", time.time(),"->"
+        surfold.set_alpha(a2)
         surf.blit(surfold, (0, 0))
-        surf.fill((a2, a2, a2, a2), None, BLEND_RGBA_MULT)
+        
+        #surf.fill((a2, a2, a2), None, BLEND_RGB_MULT)
+        #print time.time()
         
         return surf, 0, 0
     
@@ -158,10 +165,16 @@ class Effects(object):
         
         w = int(r.width * (1 - v))
         h = int(r.height * (1 - v))
-        s = pygame.transform.scale(surfold, (w, h))
         
+        #print "scale", time.time(),"->",
+        s = pygame.transform.scale(surfold, (w, h))
+        #print time.time()
+        
+        #print "blits", time.time(),"->"
         surf.blit(surfnew,(0,0))
+        #print 1,time.time()
         surf.blit(s, (r.width / 2 * (v), r.height / 2 * (v)))
+        #print 2,time.time()
         
         return surf, 0,0
     
@@ -187,33 +200,45 @@ class Effects(object):
         start = time.time()
         end = start + self.duration
         
-        surf = pygame.Surface(self.surf1.get_size(), SRCALPHA)
         
-        while True:
-            now = time.time()
-            if now >= end: break
-            
+        
+        exitnext = False
+        now = time.time()
+        while True: 
             t = now - start
             
-            surf.fill(BLACK)
-            
+            s = self.surf1
             if self.render_callback is not None:
-                self.render_callback(surf)
-                
-            i = 0
-            for effect, tween in effect_tween:
-                s = surf
-                if i == 0:
-                    s = self.surf1
-                v = tween(t, 0, 1, self.duration)
-                surf, x, y = effect( surf, s, self.surf2, v )
-                
-                i += 1
+                self.render_callback(s)
             
-            self.screen.blit(surf, (x,y))
+            for effect, tween in effect_tween:
+                #print "effect", time.time(),"->",
+                v = tween(t, 0, 1, self.duration)
+                surf = pygame.Surface(self.surf1.get_size(), )
+                surf, x, y = effect( surf, s, self.surf2, v )
+                s = surf
+                #print time.time()
+            
+            #print "blit", time.time(),"->",
+            self.screen.blit(s, (x,y))
+            #print time.time()
             
             pygame.display.flip()
+            #print "tick", time.time(),"->",
             self.clock.tick(30)
+            
+            if exitnext:
+                break
+            
+            now = time.time()
+            if now >= end:
+                # Let one more frame to draw, then exit 
+                exitnext = True
+                now = end
+            
+            #fps += 1
+        
+        #print "fps"
         
 class TextCache(object):
     """ Handles text rendering and caches the surfaces of the texts for speed.
@@ -246,7 +271,7 @@ class TextCache(object):
             return self.map[id]
         
         font = fontgetter()
-        surface = font.render(string, *renderargs).convert_alpha()
+        surface = font.render(string, *renderargs)
         self.map[id] = surface
         
         # Update cache's max size.
@@ -277,7 +302,9 @@ class DrawUtils:
         
         # Make the dimmer( alpha ) foreground color for faded border
         dim = list(fgcolor)
-        dim[ - 1] *= 0.5
+        dim[0] *= 0.5
+        dim[1] *= 0.5
+        dim[2] *= 0.5
         
         if len(size) == 2:
             rect = pygame.Rect(4, 4, size[0] - 7, size[1] - 7)
@@ -295,17 +322,26 @@ class DrawUtils:
         pygame.draw.rect(surf, dim, rect, 1)
         
         # Draw the center rect
-        alpha_diff = abs(fgcolor[ - 1] - bgcolor[ - 1])
+        diff = [0,0,0] 
+        diff[0] = abs( fgcolor[0] - bgcolor[0])
+        diff[1] = abs( fgcolor[1] - bgcolor[1])
+        diff[2] = abs( fgcolor[2] - bgcolor[2])
         
         for x in xrange(0, 3):
             # Draw dim inner rect
-            color = list(fgcolor)
-            color[ - 1] -= (alpha_diff / 3. * x)
+            #color = list(fgcolor)
+            #color[ - 1] -= (alpha_diff / 3. * x)
+            #print diff
+            dim = list(fgcolor)#[0,0,0]
+            dim[0] -= diff[0] / 3. * x
+            dim[1] -= diff[1] / 3. * x
+            dim[2] -= diff[2] / 3. * x
+            #print "dim", dim
             offset = rect[0] + x
-
+            
             pos = pygame.Rect(rect[0] + x, rect[1] + x, rect[2] - (x * 2 - 1), rect[3] - (x * 2 - 1))
             #print rect, pos
-            pygame.draw.rect(surf, color, pos, 1)
+            pygame.draw.rect(surf, dim, pos, 1)
             
 
 class BackgroundBase(pygame.sprite.Sprite):
@@ -314,16 +350,17 @@ class BackgroundBase(pygame.sprite.Sprite):
         self.sysdata = sysdata
         self.screen = sysdata.screen
         screen_size = self.screen.get_size()
-        self.surface = pygame.Surface(screen_size, SRCALPHA).convert_alpha()
+        self.surface = pygame.Surface(screen_size, )
 
 class BackgroundTransparent(BackgroundBase):
     
     def __init__(self, sysdata):
         BackgroundBase.__init__(self, sysdata) 
-        self.surface.fill(TRANSPARENT)
+        self.surface.fill(BLACK)
+        self.surface.set_alpha(200)
         
-    def update(self):
-        self.surface.fill(TRANSPARENT)
+    def update(self):pass
+        #self.surface.fill(TRANSPARENT)
         
 class Background(BackgroundBase):
     """Main background"""
@@ -342,15 +379,20 @@ class Background(BackgroundBase):
         self.img_pos = [ c[0] - r.w / 2, c[1] - r.h / 2 ]
         
         #: Make alpha the same size as the image
-        self.alpha = pygame.Surface(r.size, SRCALPHA)
+        #self.alpha = pygame.Surface(r.size, )
         
-        self.alphaval = 200.
-        self.alphadir = - 20. # per second
-         
+        self.alphaval = 0.
+        self.alphaprev = -1
+        self.alphadir = - 1. # per second
+        
+        self.surface.fill(BLACK)
+        self.surface.blit(self.img_logo, self.img_pos)
+        self.surface.set_alpha(10)
+        
     def updateAlphaValue(self):
         """ Update the visibility of the logo """
-        min = 200.
-        max = 245.
+        min = 6.
+        max = 12.
         
         s = self.sysdata.ticdiff / 1000.
         
@@ -363,18 +405,16 @@ class Background(BackgroundBase):
         if self.alphaval < min:
             self.alphaval = min
             self.alphadir = - self.alphadir
-        
+        return self.alphaval
+    
     def update(self):
+        self.surface.set_alpha(self.updateAlphaValue())
+        #print a
+        #a = self.alphaval
+        #self.surface.fill(BLACK)
+        #self.surface.blit(self.img_logo, self.img_pos)
+        #self.surface.fill( (a,a,a), None, BLEND_RGB_MULT )
         
-        self.updateAlphaValue()
-        
-        self.surface.fill(BLACK)
-        
-        self.alpha.fill((0, 0, 0, self.alphaval))
-        
-        self.surface.blit(self.img_logo, self.img_pos)
-        self.surface.blit(self.alpha, self.img_pos)
-
 class TextField(pygame.sprite.Sprite):
     """ Handles text rendering and updating when necessary """
     MODE_NONE = 0
@@ -411,7 +451,7 @@ class TextField(pygame.sprite.Sprite):
         
         psize = self.bg.surface.get_size()
         size = (psize[0], psize[1] - startposy)
-        surf = pygame.Surface(size, SRCALPHA)
+        surf = pygame.Surface(size, )
         
         # Create text contents
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE,
@@ -449,7 +489,7 @@ class TextField(pygame.sprite.Sprite):
         size = (size[0], 40)
 
         # Draw the surrounding rect
-        surf = titlebg = pygame.Surface(size, SRCALPHA)
+        surf = titlebg = pygame.Surface(size, )
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE,
                                     textsurf=text, textpos=textpos)
         
@@ -698,7 +738,7 @@ class Menu(pygame.sprite.Sprite):
     
     def _create_list_bg(self, size):
         
-        surf = pygame.Surface(size, SRCALPHA)
+        surf = pygame.Surface(size, )
         DrawUtils.drawRectWithText(surf, size, TITLE_BG, TITLE_STROKE, textsurf=None)
         self.itemsurface = surf
         return surf
@@ -730,7 +770,7 @@ class Menu(pygame.sprite.Sprite):
         factor = float(self.visibletop) / float(len(self.items) - self.shownitems)
         ys += 2
         ys += empty_h * factor
-        indic_r = Rect(xs + 2, ys, 6, indic_h)
+        indic_r = Rect(xs + 2, ys, 5, indic_h)
         DrawUtils.drawRectWithText(surf, indic_r, TITLE_STROKE, TITLE_STROKE, textsurf=None)
         
         self._scrollbar_rect = r 
@@ -796,7 +836,7 @@ class Menu(pygame.sprite.Sprite):
         self._draw_scrollbar(surf)
         
         self.items_changed = False
-        
+        #self.itemsurface = self.itemsurface
     def updateTitle(self):
         """ Update title surface """
         if not self.title_changed: return
@@ -811,7 +851,7 @@ class Menu(pygame.sprite.Sprite):
         size = (size[0], 40)
 
         # Render the final title surface with combined background and text 
-        surf = pygame.Surface(size, SRCALPHA)
+        surf = pygame.Surface(size, )
         DrawUtils.drawRectWithText(surf, size , TITLE_BG, TITLE_STROKE, text, textpos)
         
         # Update data
@@ -832,19 +872,22 @@ class Application(object):
     Takes care of system initialization and main application states.
     """
     def __init__(self):
-        if os.name == "e32":
-            size = pygame.display.list_modes()[0]
-            self.screen = pygame.display.set_mode(size, SRCALPHA)
+        
+        if sys.platform == "symbian_s60":
+            size = pygame.display.list_modes(16)[0]
+            self.screen = pygame.display.set_mode(size, )
         else:
-            self.screen = pygame.display.set_mode(DISPLAY_SIZE, SRCALPHA) 
+            self.screen = pygame.display.set_mode(DISPLAY_SIZE, 16) 
         
         self.sysdata = SystemData()
         self.sysdata.screen = self.screen
         
-        self.bg = Background(self.sysdata)
+        self.mainbg = Background(self.sysdata)
+        self.bg = BackgroundTransparent(self.sysdata)
         
         items = [("Applications", self.mhApplications, ()),
-                 ("Settings", self.mhSettings, ()),
+                 # TODO: Disabled settings for now...
+                 #("Settings", self.mhSettings, ()), 
                  ("About", self.mhAbout, ()),
                  ("Exit", self.mhExit, ()), ]
         self._main_menu = Menu(self.bg, self.sysdata,
@@ -854,6 +897,7 @@ class Application(object):
                         )
         self.focused = self._main_menu
         self.sprites = pygame.sprite.OrderedUpdates()
+        self.sprites.add(self.mainbg)
         self.sprites.add(self.bg)
         self.sprites.add(self.focused)
         self.running = True
@@ -871,6 +915,20 @@ class Application(object):
         """ Main application loop """
         self.initialize()       
         
+        # From black
+        black = pygame.Surface(self.screen.get_size(), )
+        self.sprites.update()
+        self.screen.blit(self.bg.surface, (0, 0))
+            
+        # Start the tween animation
+        e = Effects(self.screen, self.clock, black, self.bg.surface )
+        
+        # Blocks for the duration of the animation
+        e.do( [
+               (e.effectFadeTo, e.tweenEaseOutSine),
+               #(e.effectSlideRightReplace, e.tweenEaseInBack),
+               ], 0.5)
+        
         self.sysdata.tics = pygame.time.get_ticks()
         
         eventhandler = self.handleEvent
@@ -886,7 +944,10 @@ class Application(object):
             if self.is_foreground:
                 self.sprites.update()
             
+            self.screen.blit(self.mainbg.surface, (0, 0))
+            self.bg.surface.set_alpha(96) # This creates a nice fade effect for menu items
             self.screen.blit(self.bg.surface, (0, 0))
+            
             
             pygame.display.flip()
             
@@ -917,7 +978,7 @@ class Application(object):
             return
         
         # Start the tween animation
-        blacksurf = pygame.Surface(self.screen.get_size(), SRCALPHA)
+        blacksurf = pygame.Surface(self.screen.get_size(), )
         blacksurf.fill(BLACK)
         e = Effects(self.screen, self.clock, self.focused.bg.surface, blacksurf,
                     render_callback=None)
@@ -939,18 +1000,20 @@ class Application(object):
         menu1.bg = bg1
         menu2.bg = bg2
         
-        def render_callback(surf):
+        def render_callback(surf): 
             # We'll need to update the logo in the background, 
             # which depends on the tick counter.
-            tics = pygame.time.get_ticks()
-            self.sysdata.ticdiff = tics - self.sysdata.tics
-            self.sysdata.tics = tics
+            #tics = pygame.time.get_ticks()
+            #self.sysdata.ticdiff = tics - self.sysdata.tics
+            #self.sysdata.tics = tics
             
-            self.bg.update()
-            surf.blit(self.bg.surface, (0, 0))
+            #self.mainbg.update()
+            #self.screen.blit(self.mainbg.surface, (0, 0))
+            #surf.blit(self.bg.surface, (0, 0))
+            #surf.set_alpha(96)
             
-            bg1.update()
-            bg2.update()
+            #bg1.update()
+            #bg2.update()
             menu1.update()
             menu2.update()
         
@@ -960,12 +1023,15 @@ class Application(object):
         
         # Blocks for the duration of the animation
         effect = [e.effectSlideLeftReplace, e.effectSlideRightReplace, e.effectFadeTo][effect]
-        e.do([(effect, lambda t, b, c, d, s=1.01:e.tweenEaseInBack(t, b, c, d, s))], 0.5)
+        e.do([
+              (effect, lambda t, b, c, d, s=1.01:e.tweenEaseInOutSine(t, b, c, d, s)),
+              (e.effectFadeTo, e.tweenEaseOutSine),
+              ], 0.5)
         
         # The animation completed.
         menu2.bg = self.bg
         menu2.update()
-         
+        
         bg1.surface.blit(bg2.surface, (0, 0))
         
     def mhApplications(self):
@@ -1012,7 +1078,7 @@ class Application(object):
         self.running = 0
         
         # Fade to black
-        black = pygame.Surface(self.screen.get_size(), SRCALPHA).convert_alpha()
+        black = pygame.Surface(self.screen.get_size(), )
         
         # Start the tween animation
         e = Effects(self.screen, self.clock, self.bg.surface, black )
@@ -1020,7 +1086,7 @@ class Application(object):
         # Blocks for the duration of the animation
         e.do( [
                (e.effectFadeTo, e.tweenEaseOutSine),
-               (e.effectZoomOut, e.tweenEaseInBack),
+               (e.effectZoomOut, lambda t, b, c, d, s=3.70158:e.tweenEaseInBack(t,0,0.5,d,s)),
                ], 0.5)
         
         self.focused = None
@@ -1150,4 +1216,17 @@ def start():
     pygame.quit()
     
 if __name__ == "__main__":
-    start()
+    
+    if sys.platform == "symbian_s60":
+        start()
+    else:
+        import hotshot
+        prof = hotshot.Profile("hotshot_edi_stats")
+        prof.runcall(start)
+        prof.close()
+        
+        from hotshot import stats
+        s = stats.load("hotshot_edi_stats")
+        s.sort_stats("time").print_stats()
+    
+    
