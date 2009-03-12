@@ -729,14 +729,16 @@ void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* for
 }   
 
 /* convert from 4:2:2 YUYV interlaced to RGB */
+/* colorspace conversion routine from libv4l. Licensed LGPL 2.1
+   (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl> */
 void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format)
 {
     Uint8 *s, *d8;
     Uint16 *d16;
     Uint32 *d32;
     int i;
-    Uint8 r1, g1, b1, r2, b2, g2;
-    int rshift, gshift, bshift, rloss, gloss, bloss;
+    int r1, g1, b1, r2, b2, g2;
+    int rshift, gshift, bshift, rloss, gloss, bloss, y1, y2, u, v, u1, rg, v1;
 
     rshift = format->Rshift;
     gshift = format->Gshift;
@@ -751,16 +753,29 @@ void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* forma
     i = length >> 1;
     s = (Uint8 *) src;
 
+    /* yuyv packs 2 pixels into every 4 bytes, sharing the u and v color
+       terms between the 2, with each pixel having a unique y luminance term.
+       Thus, we will operate on 2 pixels at a time. */
     while (i--) {
-    /* FIXME: Currently unimplemented due to licensing issues in the previous
-              implementation. */
-        r1 = 0;
-        b1 = 0;
-        g1 = 0;
+        y1 = *s++;
+        u = *s++;
+        y2 = *s++;
+        v = *s++;
+        /* The lines from here to the switch statement are from libv4l */
+        u1 = (((u - 128) << 7) +  (u - 128)) >> 6;
+        rg = (((u - 128) << 1) +  (u - 128) + ((v - 128) << 2) +
+          ((v - 128) << 1)) >> 3;
+        v1 = (((v - 128) << 1) +  (v - 128)) >> 1;
 
-        r2 = 0;
-        b2 = 0;
-        g2 = 0;
+        r1 = SAT2(y1 + v1);
+        g1 = SAT2(y1 - rg);
+        b1 = SAT2(y1 + u1);
+  
+        r2 = SAT2(y2 + v1);
+        g2 = SAT2(y2 - rg);
+        b2 = SAT2(y2 + u1);
+
+        /* choose the right pixel packing for the destination surface depth */
         switch (format->BytesPerPixel) {
             case 1:
                *d8++ = ((r1 >> rloss) << rshift) | ((g1 >> gloss) << gshift) | ((b1 >> bloss) << bshift);
