@@ -15,8 +15,12 @@ extern "C" struct _inittab _PyGame_Inittab[];
 
 #ifndef PYGAME_MAIN_SCRIPT_PATH
 #define PYGAME_MAIN_SCRIPT_PATH "\\data\\pygame\\pygame_main.py"
+#define PYGAME_LAUNCHER_PATH    "\\data\\pygame\\launcher\\pygame_launcher.py"
 #endif
-static const char* gPygameMainScriptPath[1] = {PYGAME_MAIN_SCRIPT_PATH};
+static const char* gPygameMainScriptPath[2] = {
+		PYGAME_MAIN_SCRIPT_PATH,
+		PYGAME_LAUNCHER_PATH
+		};
 
 int main(int argc, char** argv)
 {
@@ -37,8 +41,12 @@ int main(int argc, char** argv)
 	TInt result = interp->RunScript(1, gPygameMainScriptPath);
 #else	
 	
-	LOGMAN_SENDLOGF8( "Opening file:%s", gPygameMainScriptPath[0] );
+	LOGMAN_SENDLOGF("Number of args:%d", argc);
+	if(argc > 1){
+		gPygameMainScriptPath[1] = argv[1];
+	}
 	
+	LOGMAN_SENDLOGF8( "Opening file:%s", gPygameMainScriptPath[0] );
 	FILE *fp = fopen(gPygameMainScriptPath[0], "r");
 	if (!fp) {
 		LOGMAN_SENDLOG( "Failed to open main script" );
@@ -46,12 +54,12 @@ int main(int argc, char** argv)
 	}
 	
 	// This allows us to retrieve the path of the main script in Python from sys.argv[0]
-	PySys_SetArgv(1, (char**)gPygameMainScriptPath);
+	PySys_SetArgv(2, (char**)gPygameMainScriptPath);
 	
 	int result = PyRun_SimpleFile(fp, gPygameMainScriptPath[0]);
 	fclose(fp);
 #endif
-		
+	
 	LOGMAN_SENDLOGF( "Interpreter result:%d", result )
 
 #if PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 2	

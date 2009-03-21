@@ -10,6 +10,7 @@ import math
 
 import sys
 import os
+from os.path import join
 
 import pygame
 from pygame.locals import *
@@ -1194,30 +1195,42 @@ def start():
         del a
         
         if path_to_app:
-            
-            # Run the application and restart launcher after app is completed.
-            try:
-                os.chdir(os.path.dirname(path_to_app))
-                execfile(path_to_app, {'__builtins__': __builtins__,
-                                       '__name__': '__main__',
-                                       '__file__': path_to_app,
-                                       'pygame' : pygame }
-                )
-            except:
-                import traceback
-                traceback.print_exc()
-                sys.stdout.flush()
-                        
-            
-        else:
-            # Exit launcher
-            break
+            path_to_app = os.path.abspath(path_to_app)
+            if sys.platform == "symbian_s60":
+                import e32
+                #if e32.in_emulator():
+                    # Run the application and restart launcher after app is completed.
+               #     execfile(path_to_app, {'__builtins__': __builtins__,
+               #                            '__name__': '__main__',
+                #                           '__file__': path_to_app,
+                #                           'pygame' : pygame }
+                #    )
+                #else:
+                # The application is started in it's own process on device.
+                # S60 SDL does not show the selected application correctly when using double buffering,
+                # but it is needed to make application hide correctly on device.
+                datapath = os.path.join( THISDIR, "startapp.txt" )
+                f = open(datapath,'w')
+                f.write(path_to_app)
+                f.close()
+                
+                # The launcher starts a new pygame.exe process for the selected application.
+                # This process must close before starting the new one.
+                p = os.path.abspath( join( THISDIR, "..", "pygame_main.py") )
+                e32.start_exe( "251_python_launcher.exe", p )
+
+            else:         
+                # TODO: Use subprocess
+                os.system("start pythonw " + join( THISDIR, "..", "pygame_main.py"))
+                
+        # Exit launcher
+        break
         
     pygame.quit()
     
 if __name__ == "__main__":
-    
-    if sys.platform == "symbian_s60":
+        
+    if "profile" not in sys.argv:
         start()
     else:
         import hotshot

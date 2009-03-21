@@ -111,7 +111,7 @@ def build():
     args['sdluid'] = hex(UID_SDL).replace("L","")
     args['jpeguid']= hex(UID_JPEG).replace("L","")
     args['pythoninclude'] = config.pythoninclude
-    args['defines'] = "STDERR_TO_STDOUT"
+    #args['defines'] = "STDERR_TO_STDOUT"
     args['winscw_options'] = "-nostderr" # Don't show the stdioserver output
     dobuild(args)
     

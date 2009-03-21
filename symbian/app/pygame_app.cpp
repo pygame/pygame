@@ -1,3 +1,5 @@
+/** pygame S60 application */
+#include <stddef.h>
 #include <coecntrl.h>
 #include <aknappui.h>
 #include <aknapp.h>
@@ -5,8 +7,9 @@
 #include <sdlepocapi.h>
 #include <aknnotewrappers.h>
 #include <eikstart.h>
-
 #include "pygame.hrh"
+
+#include <BACLINE.H>
 
 #include "logmanutils.h"
 
@@ -73,6 +76,7 @@ public:
 	~CSdlAppUi();
 private:
 	void HandleCommandL(TInt aCommand);
+	void HandleResourceChangeL( TInt aType );
 	void StartTestL(TInt aCmd);
 	void DoExit(TInt aErr);
 	void HandleWsEventL(const TWsEvent& aEvent, CCoeControl* aDestination);
@@ -133,7 +137,7 @@ void CSDLWin::Draw(const TRect& /*aRect*/) const
 	CWindowGc& gc = SystemGc();
 	gc.SetDrawMode( CGraphicsContext::EDrawModeWriteAlpha );
 	gc.Clear();
-	
+
 	gc.SetPenStyle(CGraphicsContext::ENullPen);
 	gc.SetPenColor(0x000000);
 	gc.SetBrushStyle(CGraphicsContext::ESolidBrush);
@@ -146,7 +150,7 @@ void CSDLWin::Draw(const TRect& /*aRect*/) const
  {
  TKeyResponse result = EKeyWasNotConsumed;
  if ( aKeyEvent.iScanCode == 164 )
- {		
+ {
  result = EKeyWasConsumed;
  }
  return result;
@@ -156,7 +160,7 @@ void CSDLWin::Draw(const TRect& /*aRect*/) const
 void CSdlAppUi::ConstructL()
 {
 	BaseConstructL(CAknAppUi::EAknEnableSkin /* | ENoScreenFurniture*/);
-
+	
 	iSDLWin = new (ELeave) CSDLWin;
 	iSDLWin->ConstructL(ApplicationRect());
 
@@ -167,24 +171,39 @@ void CSdlAppUi::ConstructL()
 
 void CSdlAppUi::HandleCommandL(TInt aCommand)
 {
-LOGMAN_SENDLOGF("HandleCommandL:%d", aCommand)
-#if(0)
-switch (aCommand)
-{
-	//case EAknCmdExit:
-	case EAknSoftkeyExit:
-	//case EEikCmdExit:
-	Done = 1;
-	iExit = ETrue;
-	if (iWait == NULL || !iWait->IsActive())
-	Exit();
-
-	break;
 }
 
-if(iSdl == NULL)
-StartTestL(aCommand);
-#endif	
+extern "C" {
+#include <SDL_events.h>
+}
+void CSdlAppUi::HandleResourceChangeL( TInt aType )
+{
+
+	//User::InfoPrint(_L("rect.Height()"));
+	if( aType == KEikDynamicLayoutVariantSwitch )
+	{
+		// Create SDL resize event
+		TRect rect;
+		AknLayoutUtils::LayoutMetricsRect( AknLayoutUtils::EApplicationWindow,rect);
+
+		SDL_Event event;
+		event.type = SDL_VIDEORESIZE;
+		event.resize.w = rect.Width();
+		event.resize.h = rect.Height();
+		//if ( (SDL_EventOK == NULL) || (*SDL_EventOK)(&event) ) {
+		SDL_PushEvent(&event);
+
+		iSDLWin->SetRect(rect);
+/*
+		iSdl->SetContainerWindowL(
+					iSDLWin->GetWindow(),
+					iEikonEnv->WsSession(),
+					*iEikonEnv->ScreenDevice());
+*/
+	}
+
+	CAknAppUi::HandleResourceChangeL(aType);
+
 }
 
 void CSdlAppUi::StartTestL(TInt aCmd)
@@ -192,21 +211,40 @@ void CSdlAppUi::StartTestL(TInt aCmd)
 
 	//TInt flags = CSDL::EDrawModeGdi | CSDL::EEnableFocusStop
 	//		| CSDL::EMainThread;// | CSDL::EAutoOrientation;
-		
+
 	TInt flags = 0;
-	// This seems to be required to support pygame launcher.
-	flags |= CSDL::EDrawModeDSBDoubleBuffer;
-	// Don't draw when in background. 
+
+	flags |= CSDL::EDrawModeDSB | CSDL::EDrawModeDSBDoubleBuffer;
+	// Don't draw when in background.
 	flags |= CSDL::EEnableFocusStop;
 	// This should be on by default anyway
 	flags |= CSDL::EMainThread;
 	
+	//Create CommandLine Arguments and read it.
+	CDesC8ArrayFlat *arr = new (ELeave) CDesC8ArrayFlat (1);
+	CleanupStack::PushL(arr);
+	
+	CCommandLineArguments* args=CCommandLineArguments::NewLC();
+	// The real args we are interested in start at the 2nd arg
+	for (TInt i=1; i<args->Count(); i++) 
+	{
+		TBuf8<256> arg;
+		arg.Copy(args->Arg(i) );
+		
+		arr->AppendL(arg);
+		//TPtrC argumentPrt(args->Arg(i));
+		//console->Printf(_L("Arg %d == %S\n"), i, &argumentPrt); 
+	}
+	
 	iSdl = CSDL::NewL(flags);
-
+	
 	iSdl->SetContainerWindowL(iSDLWin->GetWindow(), iEikonEnv->WsSession(),
 			*iEikonEnv->ScreenDevice());
-	iSdl->CallMainL(iWait->iStatus);
+	iSdl->CallMainL(iWait->iStatus, *arr, flags, 0x14000);
 	iWait->Start();
+	
+	arr->Reset();
+	CleanupStack::PopAndDestroy(2); // command line and arr
 }
 
 void CSdlAppUi::DoExit(TInt aErr)
@@ -285,14 +323,14 @@ LOCAL_C CApaApplication* NewApplication()
 GLDEF_C TInt E32Main()
 {
 	// TODO: Is this the only way to set heap size on emulator?
-	//#ifdef __WINS__	
+	//#ifdef __WINS__
 	RHeap *heap = UserHeap::ChunkHeap(0, 100000, 10000000, 100000);
 	User::SwitchHeap(heap);
-	//#endif	
+	//#endif
 	TInt result = EikStart::RunApplication(NewApplication);
-	//#ifdef __WINS__	
+	//#ifdef __WINS__
 	heap->Close();
-	//#endif	
+	//#endif
 	return result;
 }
 
