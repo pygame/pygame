@@ -775,7 +775,7 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
         }
         Py_DECREF (item);
         vx[i] = x;
-        vy[i] = x;
+        vy[i] = y;
     }
 
     Py_BEGIN_ALLOW_THREADS;
@@ -862,7 +862,7 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
         }
         Py_DECREF (item);
         vx[i] = x;
-        vy[i] = x;
+        vy[i] = y;
     }
 
     Py_BEGIN_ALLOW_THREADS;
@@ -950,7 +950,7 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
         }
         Py_DECREF (item);
         vx[i] = x;
-        vy[i] = x;
+        vy[i] = y;
     }
 
     Py_BEGIN_ALLOW_THREADS;
