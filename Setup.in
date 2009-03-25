@@ -37,10 +37,15 @@ scrap src/scrap.c $(SDL) $(SCRAP) $(DEBUG)
 _camera src/_camera.c src/camera_v4l2.c src/camera_v4l.c $(SDL) $(DEBUG)
 pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
+#proposed SDL_gfx module backported from pgreloaded. requires SDL_gfx.
+#if accepted, then move GFX def to StartConfig section and add SDL_gfx
+#search to configure modules for Unix, Darwin and Windows.
+GFX = -lSDL_gfx
+#gfxdraw src/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
+
 #experimental new movie movie. requires libavcodec and libavformat.
 #add any necessary compile flags to this line and uncomment.
 #movieext src/movie.c  src/ffmovie.c $(SDL) -lavcodec -lavformat
-
 
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered

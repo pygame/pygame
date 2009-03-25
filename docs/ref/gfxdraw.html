@@ -1,0 +1,283 @@
+
+<html>
+<title>gfxdraw - Pygame Documentation</title>
+<body bgcolor=#aaeebb text=#000000 link=#331111 vlink=#331111>
+
+
+<table cellpadding=0 cellspacing=0 border=0 style='border: 3px solid black;' width='100%'>
+<tr>
+<td bgcolor='#c2fc20' style='padding: 6px;' align=center valign=center><a href='http://www.pygame.org/'><img src='../pygame_tiny.gif' border=0 width=200 height=60></a><br><b>pygame documentation</b></td>
+<td bgcolor='#6aee28' style='border-left: 3px solid black; padding: 6px;' align=center valign=center>
+	||&nbsp;
+	<a href=http://www.pygame.org>Pygame Home</a> &nbsp;||&nbsp;
+	<a href=../index.html>Help Contents</a> &nbsp;||
+	<a href=index.html>Reference Index</a> &nbsp;||
+	<br>&nbsp;<br>
+	
+<a href="camera.html">Camera</a>&nbsp;||&nbsp;
+<a href="cdrom.html">Cdrom</a>&nbsp;||&nbsp;
+<a href="color.html">Color</a>&nbsp;||&nbsp;
+<a href="cursors.html">Cursors</a>&nbsp;||&nbsp;
+<a href="display.html">Display</a>&nbsp;||&nbsp;
+<a href="draw.html">Draw</a>&nbsp;||&nbsp;
+<a href="event.html">Event</a>&nbsp;||&nbsp;
+<a href="examples.html">Examples</a>&nbsp;||&nbsp;
+<a href="font.html">Font</a>&nbsp;||&nbsp;
+<a href="gfxdraw.html">Gfxdraw</a>&nbsp;||&nbsp;
+<a href="image.html">Image</a>&nbsp;||&nbsp;
+<a href="joystick.html">Joystick</a>&nbsp;||&nbsp;
+<a href="key.html">Key</a>&nbsp;||&nbsp;
+<a href="locals.html">Locals</a>&nbsp;||&nbsp;
+<a href="mask.html">Mask</a>&nbsp;||&nbsp;
+<a href="mixer.html">Mixer</a>&nbsp;||&nbsp;
+<a href="mouse.html">Mouse</a>&nbsp;||&nbsp;
+<a href="movie.html">Movie</a>&nbsp;||&nbsp;
+<a href="music.html">Music</a>&nbsp;||&nbsp;
+<a href="overlay.html">Overlay</a>&nbsp;||&nbsp;
+<a href="pixelarray.html">Pixelarray</a>&nbsp;||&nbsp;
+<a href="pygame.html">Pygame</a>&nbsp;||&nbsp;
+<a href="rect.html">Rect</a>&nbsp;||&nbsp;
+<a href="scrap.html">Scrap</a>&nbsp;||&nbsp;
+<a href="sndarray.html">Sndarray</a>&nbsp;||&nbsp;
+<a href="sprite.html">Sprite</a>&nbsp;||&nbsp;
+<a href="surface.html">Surface</a>&nbsp;||&nbsp;
+<a href="surfarray.html">Surfarray</a>&nbsp;||&nbsp;
+<a href="tests.html">Tests</a>&nbsp;||&nbsp;
+<a href="time.html">Time</a>&nbsp;||&nbsp;
+<a href="transform.html">Transform</a>
+</td></tr></table>
+<br>
+
+
+<a name="pygame.gfxdraw">
+<big><b>pygame.gfxdraw</big></b><br><ul>
+  <i>pygame module for drawing shapes</i><br>
+<ul><small><table>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.pixel">pygame.gfxdraw.pixel</a> - <font size=-1>place a pixel</font></td><td>place a pixel</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.hline">pygame.gfxdraw.hline</a> - <font size=-1>draw a horizontal line</font></td><td>draw a horizontal line</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.vline">pygame.gfxdraw.vline</a> - <font size=-1>draw a vertical line</font></td><td>draw a vertical line</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.rectangle">pygame.gfxdraw.rectangle</a> - <font size=-1>draw a rectangle</font></td><td>draw a rectangle</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.box">pygame.gfxdraw.box</a> - <font size=-1>draw a box</font></td><td>draw a box</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.line">pygame.gfxdraw.line</a> - <font size=-1>draw a line</font></td><td>draw a line</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.circle">pygame.gfxdraw.circle</a> - <font size=-1>draw a circle</font></td><td>draw a circle</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.arc">pygame.gfxdraw.arc</a> - <font size=-1>draw an arc</font></td><td>draw an arc</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.aacircle">pygame.gfxdraw.aacircle</a> - <font size=-1>draw an anti-aliased circle</font></td><td>draw an anti-aliased circle</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.filled_circle">pygame.gfxdraw.filled_circle</a> - <font size=-1>draw a filled circle</font></td><td>draw a filled circle</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.ellipse">pygame.gfxdraw.ellipse</a> - <font size=-1>draw an ellipse</font></td><td>draw an ellipse</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.aaellipse">pygame.gfxdraw.aaellipse</a> - <font size=-1>draw an anti-aliased ellipse</font></td><td>draw an anti-aliased ellipse</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.filled_ellipse">pygame.gfxdraw.filled_ellipse</a> - <font size=-1>draw a filled ellipse</font></td><td>draw a filled ellipse</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.pie">pygame.gfxdraw.pie</a> - <font size=-1>draw a pie</font></td><td>draw a pie</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.trigon">pygame.gfxdraw.trigon</a> - <font size=-1>draw a triangle</font></td><td>draw a triangle</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.aatrigon">pygame.gfxdraw.aatrigon</a> - <font size=-1>draw an anti-aliased triangle</font></td><td>draw an anti-aliased triangle</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.filled_trigon">pygame.gfxdraw.filled_trigon</a> - <font size=-1>draw a filled trigon</font></td><td>draw a filled trigon</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.polygon">pygame.gfxdraw.polygon</a> - <font size=-1>draw a polygon</font></td><td>draw a polygon</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.aapolygon">pygame.gfxdraw.aapolygon</a> - <font size=-1>draw an anti-aliased polygon</font></td><td>draw an anti-aliased polygon</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.filled_polygon">pygame.gfxdraw.filled_polygon</a> - <font size=-1>draw a filled polygon</font></td><td>draw a filled polygon</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.textured_polygon">pygame.gfxdraw.textured_polygon</a> - <font size=-1>draw a textured polygon</font></td><td>draw a textured polygon</td></tr>
+  <tr><td><a href="gfxdraw.html#pygame.gfxdraw.bezier">pygame.gfxdraw.bezier</a> - <font size=-1>draw a bezier curve</font></td><td>draw a bezier curve</td></tr>
+</table></small></ul>
+<p>Wraps SDL_gfx primatives. </p>
+<p>Most of the functions accept a color argument that is an <tt>RGB</tt> triplet. These can also accept an <tt>RGBA</tt> quadruplet. The color argument can also be an integer pixel value that is already mapped to the Surface's pixel format. </p>
+<p>For all functions the arguments are strictly positional. Only integers are accepted for coordinates and radii. </p>
+<!--COMMENTS:pygame.gfxdraw--> &nbsp;<br> 
+
+
+<a name="pygame.gfxdraw.pixel">
+<big><b>pygame.gfxdraw.pixel</big></b><br><ul>
+  <i>place a pixel</i><br>
+  <tt>pygame.gfxdraw.pixel(surface, x, y, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.pixel--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.hline">
+<big><b>pygame.gfxdraw.hline</big></b><br><ul>
+  <i>draw a horizontal line</i><br>
+  <tt>pygame.gfxdraw.hline(surface, x1, x2, y, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.hline--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.vline">
+<big><b>pygame.gfxdraw.vline</big></b><br><ul>
+  <i>draw a vertical line</i><br>
+  <tt>pgyame.gfxdraw.vline(surface, x, y1, y2, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.vline--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.rectangle">
+<big><b>pygame.gfxdraw.rectangle</big></b><br><ul>
+  <i>draw a rectangle</i><br>
+  <tt>pgyame.gfxdraw.rectangle(surface, rect, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.rectangle--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.box">
+<big><b>pygame.gfxdraw.box</big></b><br><ul>
+  <i>draw a box</i><br>
+  <tt>pgyame.gfxdraw.box(surface, rect, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.box--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.line">
+<big><b>pygame.gfxdraw.line</big></b><br><ul>
+  <i>draw a line</i><br>
+  <tt>pgyame.gfxdraw.line(surface, x1, y1, x2, y2, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.line--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.circle">
+<big><b>pygame.gfxdraw.circle</big></b><br><ul>
+  <i>draw a circle</i><br>
+  <tt>pgyame.gfxdraw.circle(surface, x, y, r, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.circle--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.arc">
+<big><b>pygame.gfxdraw.arc</big></b><br><ul>
+  <i>draw an arc</i><br>
+  <tt>pgyame.gfxdraw.arc(surface, x, y, r, start, end, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.arc--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.aacircle">
+<big><b>pygame.gfxdraw.aacircle</big></b><br><ul>
+  <i>draw an anti-aliased circle</i><br>
+  <tt>pgyame.gfxdraw.aacircle(surface, x, y, r, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.aacircle--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.filled_circle">
+<big><b>pygame.gfxdraw.filled_circle</big></b><br><ul>
+  <i>draw a filled circle</i><br>
+  <tt>pgyame.gfxdraw.filled_circle(surface, x, y, r, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.filled_circle--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.ellipse">
+<big><b>pygame.gfxdraw.ellipse</big></b><br><ul>
+  <i>draw an ellipse</i><br>
+  <tt>pgyame.gfxdraw.ellipse(surface, x, y, rx, ry, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.ellipse--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.aaellipse">
+<big><b>pygame.gfxdraw.aaellipse</big></b><br><ul>
+  <i>draw an anti-aliased ellipse</i><br>
+  <tt>pgyame.gfxdraw.aaellipse(surface, x, y, rx, ry, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.aaellipse--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.filled_ellipse">
+<big><b>pygame.gfxdraw.filled_ellipse</big></b><br><ul>
+  <i>draw a filled ellipse</i><br>
+  <tt>pgyame.gfxdraw.filled_ellipse(surface, x, y, rx, ry, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.filled_ellipse--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.pie">
+<big><b>pygame.gfxdraw.pie</big></b><br><ul>
+  <i>draw a pie</i><br>
+  <tt>pgyame.gfxdraw.pie(surface, x, y, r, start, end, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.pie--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.trigon">
+<big><b>pygame.gfxdraw.trigon</big></b><br><ul>
+  <i>draw a triangle</i><br>
+  <tt>pgyame.gfxdraw.trigon(surface, x1, y1, x2, y2, x3, y3, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.trigon--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.aatrigon">
+<big><b>pygame.gfxdraw.aatrigon</big></b><br><ul>
+  <i>draw an anti-aliased triangle</i><br>
+  <tt>pgyame.gfxdraw.aatrigon(surface, x1, y1, x2, y2, x3, y3, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.aatrigon--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.filled_trigon">
+<big><b>pygame.gfxdraw.filled_trigon</big></b><br><ul>
+  <i>draw a filled trigon</i><br>
+  <tt>pgyame.gfxdraw.filled_trigon(surface, x1, y1, x3, y2, x3, y3, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.filled_trigon--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.polygon">
+<big><b>pygame.gfxdraw.polygon</big></b><br><ul>
+  <i>draw a polygon</i><br>
+  <tt>pgyame.gfxdraw.polygon(surface, points, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.polygon--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.aapolygon">
+<big><b>pygame.gfxdraw.aapolygon</big></b><br><ul>
+  <i>draw an anti-aliased polygon</i><br>
+  <tt>pgyame.gfxdraw.aapolygon(surface, points, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.aapolygon--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.filled_polygon">
+<big><b>pygame.gfxdraw.filled_polygon</big></b><br><ul>
+  <i>draw a filled polygon</i><br>
+  <tt>pgyame.gfxdraw.filled_polygon(surface, points, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.filled_polygon--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.textured_polygon">
+<big><b>pygame.gfxdraw.textured_polygon</big></b><br><ul>
+  <i>draw a textured polygon</i><br>
+  <tt>pgyame.gfxdraw.textured_polygon(surface, points, texture, tx, ty): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.textured_polygon--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.gfxdraw.bezier">
+<big><b>pygame.gfxdraw.bezier</big></b><br><ul>
+  <i>draw a bezier curve</i><br>
+  <tt>pgyame.gfxdraw.bezier(surface, points, steps, color): return None</tt><br>
+ &nbsp;<br> 
+<!--COMMENTS:pygame.gfxdraw.bezier--> &nbsp;<br> 
+<br></ul>
+<br></ul>
+
+</body></html>
