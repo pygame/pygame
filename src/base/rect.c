@@ -175,7 +175,11 @@ PyTypeObject PyRect_Type =
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+#ifdef IS_PYTHON_3
+    0,                          /* tp_compare is now tp_rserved */
+#else
     (cmpfunc)_rect_compare,     /* tp_compare */
+#endif
     (reprfunc)_rect_repr,       /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
@@ -303,7 +307,7 @@ _rect_repr (PyObject *self)
 static PyObject*
 _rect_getx (PyObject *self, void *closure)
 {
-    return PyInt_FromLong (((PyRect*)self)->x);
+    return PyLong_FromLong (((PyRect*)self)->x);
 }
 
 static int
@@ -319,7 +323,7 @@ _rect_setx (PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _rect_gety (PyObject *self, void *closure)
 {
-    return PyInt_FromLong (((PyRect*)self)->y);
+    return PyLong_FromLong (((PyRect*)self)->y);
 }
 
 static int
@@ -335,7 +339,7 @@ _rect_sety (PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _rect_getwidth (PyObject *self, void *closure)
 {
-    return PyInt_FromLong (((PyRect*)self)->w);
+    return PyLong_FromUnsignedLong ((unsigned long)((PyRect*)self)->w);
 }
 
 static int
@@ -351,7 +355,7 @@ _rect_setwidth (PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _rect_getheight (PyObject *self, void *closure)
 {
-    return PyInt_FromLong (((PyRect*)self)->h);
+    return PyLong_FromUnsignedLong ((unsigned long)((PyRect*)self)->h);
 }
 
 static int
@@ -368,7 +372,7 @@ static PyObject*
 _rect_getbottom (PyObject *self, void *closure)
 {
     PyRect *r = (PyRect*) self;
-    return PyInt_FromLong (r->y + r->h);
+    return PyLong_FromUnsignedLong ((unsigned long) (r->y + r->h));
 }
 
 static int
@@ -385,7 +389,7 @@ static PyObject*
 _rect_getright (PyObject *self, void *closure)
 {
     PyRect *r = (PyRect*) self;
-    return PyInt_FromLong (r->x + r->w);
+    return PyLong_FromUnsignedLong ((unsigned long) (r->x + r->w));
 }
 
 static int
@@ -402,7 +406,7 @@ static PyObject*
 _rect_getcenterx (PyObject *self, void *closure)
 {
     PyRect *r = (PyRect*) self;
-    return PyInt_FromLong (r->x + (r->w >> 1));
+    return PyLong_FromUnsignedLong ((unsigned long) (r->x + (r->w >> 1)));
 }
 
 static int
@@ -421,7 +425,7 @@ static PyObject*
 _rect_getcentery (PyObject *self, void *closure)
 {
     PyRect *r = (PyRect*) self;
-    return PyInt_FromLong (r->y + (r->h >> 1));
+    return PyLong_FromUnsignedLong ((unsigned long) (r->y + (r->h >> 1)));
 }
 
 static int
@@ -1242,7 +1246,7 @@ _rect_collidelist (PyObject *self, PyObject *args)
         }
         Py_DECREF (rect);
     }
-    return PyInt_FromLong (-1);
+    return PyLong_FromLong (-1);
 }
 
 static PyObject*

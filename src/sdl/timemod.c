@@ -65,7 +65,7 @@ _sdl_timercallback (Uint32 interval)
     if (!_timerhook)
         return 1;
     
-    val = PyInt_FromLong (interval);
+    val = PyLong_FromUnsignedLong (interval);
     result = PyObject_CallObject (_timerhook, val);
     Py_DECREF (val);
 
@@ -95,7 +95,7 @@ _sdl_timerfunc (Uint32 interval, void *param)
     timer = (PyObject*) param;
     timerdata = (_TimerData*) PyCObject_AsVoidPtr (timer);
 
-    val = PyInt_FromLong (interval);
+    val = PyLong_FromUnsignedLong (interval);
     if (timerdata->param)
         result = PyObject_CallFunctionObjArgs (timerdata->callable, val,
             timerdata->param);
@@ -180,7 +180,7 @@ static PyObject*
 _sdl_timegetticks (PyObject *self)
 {
     ASSERT_TIME_INIT(NULL);
-    return PyInt_FromLong (SDL_GetTicks ());
+    return PyLong_FromUnsignedLong (SDL_GetTicks ());
 }
 
 static PyObject*

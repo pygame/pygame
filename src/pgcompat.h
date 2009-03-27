@@ -39,6 +39,7 @@ typedef getcharbufferproc charbufferproc;
 #define PyInt_AsUnsignedLongMask PyLong_AsUnsignedLongMask
 #define PyInt_AsUnsignedLongLongMask PyLong_AsUnsignedLongLongMask
 #define PyInt_AS_LONG PyLong_AS_LONG
+#define PyNumber_Int PyNumber_Long
 
 /* Weakrefs flags changed in 3.x */
 #define Py_TPFLAGS_HAVE_WEAKREFS 0

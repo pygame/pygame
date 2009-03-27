@@ -131,7 +131,7 @@ _make_surface(PyPixelArray *array)
     Uint32 absxstep;
     Uint32 absystep;
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
 
     /* Create the second surface. */
@@ -155,7 +155,7 @@ _make_surface(PyPixelArray *array)
     }
     SDL_FreeSurface (tmpsf);
     
-    newsf = PySurface_NewFromSDLSurface (newsurf);
+    newsf = PySDLSurface_NewFromSDLSurface (newsurf);
     if (!newsf)
     {
         SDL_FreeSurface (newsurf);
@@ -411,7 +411,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     if (!ColorFromObj (delcolor, surface->format, &dcolor) ||
         !ColorFromObj (replcolor, surface->format, &rcolor))
         return NULL;
@@ -419,7 +419,7 @@ _replace_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     if (!_get_weights (weights, &wr, &wg, &wb))
         return NULL;
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     pixels = surface->pixels;
     absxstep = ABS (array->xstep);
     absystep = ABS (array->ystep);
@@ -617,7 +617,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
     if (!_get_weights (weights, &wr, &wg, &wb))
         return NULL;
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     if (!ColorFromObj (excolor, surface->format, &color))
         return NULL;
 
@@ -631,7 +631,7 @@ _extract_color (PyPixelArray *array, PyObject *args, PyObject *kwds)
         Py_DECREF (sf);
         return NULL;
     }
-    surface = ((PySurface*)newarray->surface)->surface;
+    surface = ((PySDLSurface*)newarray->surface)->surface;
 
     black = SDL_MapRGBA (surface->format, 0, 0, 0, 255);
     white = SDL_MapRGBA (surface->format, 255, 255, 255, 255);
@@ -884,8 +884,8 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    surface1 = ((PySurface*) array->surface)->surface;
-    surface2 = ((PySurface*) array2->surface)->surface;
+    surface1 = ((PySDLSurface*) array->surface)->surface;
+    surface2 = ((PySDLSurface*) array2->surface)->surface;
     if (surface2->format->BytesPerPixel != surface1->format->BytesPerPixel)
     {
         PyErr_SetString (PyExc_ValueError, "bit depths do not match");
@@ -902,7 +902,7 @@ _compare (PyPixelArray *array, PyObject *args, PyObject *kwds)
         Py_DECREF (sf);
         return NULL;
     }
-    surface1 = ((PySurface*)newarray->surface)->surface;
+    surface1 = ((PySDLSurface*)newarray->surface)->surface;
     
     black = SDL_MapRGBA (surface1->format, 0, 0, 0, 255);
     white = SDL_MapRGBA (surface1->format, 255, 255, 255, 255);

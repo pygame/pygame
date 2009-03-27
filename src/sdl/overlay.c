@@ -164,7 +164,7 @@ _overlay_init (PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "Oiil", &surf, &width, &height, &format))
         return -1;
 
-    if (!PySurface_Check (surf))
+    if (!PySDLSurface_Check (surf))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return -1;
@@ -176,7 +176,7 @@ _overlay_init (PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    surface = ((PySurface*)surf)->surface;
+    surface = ((PySDLSurface*)surf)->surface;
     overlay = SDL_CreateYUVOverlay (width, height, format, surface);
     if (!overlay)
     {
@@ -215,7 +215,7 @@ _overlay_getformat (PyObject *self, void *closure)
     SDL_Overlay *overlay = ((PyOverlay*)self)->overlay;
     ASSERT_VIDEO_INIT(NULL);
     
-    return PyInt_FromLong (overlay->format);
+    return PyLong_FromUnsignedLong (overlay->format);
     
 }
 
@@ -374,7 +374,7 @@ PyOverlay_New (PyObject *surface, int width, int height, Uint32 format)
     SDL_Surface *sdlsurface;
     SDL_Overlay *sdloverlay;
 
-    if (!surface || !PySurface_Check (surface))
+    if (!surface || !PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
@@ -386,7 +386,7 @@ PyOverlay_New (PyObject *surface, int width, int height, Uint32 format)
         return NULL;
     }
 
-    sdlsurface = ((PySurface*)surface)->surface;
+    sdlsurface = ((PySDLSurface*)surface)->surface;
     sdloverlay = SDL_CreateYUVOverlay (width, height, format, sdlsurface);
     if (!sdloverlay)
     {

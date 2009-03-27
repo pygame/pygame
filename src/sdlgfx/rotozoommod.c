@@ -56,12 +56,12 @@ _gfx_rotozoom (PyObject *self, PyObject *args)
             &aa))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    orig = ((PySurface*)surface)->surface;
+    orig = ((PySDLSurface*)surface)->surface;
 
     if (aa)
     {
@@ -77,7 +77,7 @@ _gfx_rotozoom (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    retval = PySurface_NewFromSDLSurface (result);
+    retval = PySDLSurface_NewFromSDLSurface (result);
     if (!retval)
     {
         SDL_FreeSurface (result);
@@ -98,12 +98,12 @@ _gfx_rotozoomxy (PyObject *self, PyObject *args)
             &zoomx, &zoomy, &aa))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    orig = ((PySurface*)surface)->surface;
+    orig = ((PySDLSurface*)surface)->surface;
 
     if (aa)
     {
@@ -119,7 +119,7 @@ _gfx_rotozoomxy (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    retval = PySurface_NewFromSDLSurface (result);
+    retval = PySDLSurface_NewFromSDLSurface (result);
     if (!retval)
     {
         SDL_FreeSurface (result);
@@ -141,8 +141,8 @@ _gfx_rotozoomsize (PyObject *self, PyObject *args)
         if (PyArg_ParseTuple (args, "Odd:rotozoom_size", &surface, &angle,
                 &zoom))
         {
-            w = ((PySurface *)surface)->surface->w;
-            h = ((PySurface *)surface)->surface->w;
+            w = ((PySDLSurface *)surface)->surface->w;
+            h = ((PySDLSurface *)surface)->surface->w;
         }
         else
             return NULL;
@@ -165,8 +165,8 @@ _gfx_rotozoomsizexy (PyObject *self, PyObject *args)
         if (PyArg_ParseTuple (args, "Oddd:rotozoom_size", &surface, &angle,
                 &zoomx, &zoomy))
         {
-            w = ((PySurface *)surface)->surface->w;
-            h = ((PySurface *)surface)->surface->w;
+            w = ((PySDLSurface *)surface)->surface->w;
+            h = ((PySDLSurface *)surface)->surface->w;
         }
         else
             return NULL;
@@ -186,12 +186,12 @@ _gfx_zoom (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "Odd|O:zoom", &surface, &zoomx, &zoomy, &aa))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    orig = ((PySurface*)surface)->surface;
+    orig = ((PySDLSurface*)surface)->surface;
 
     if (aa)
     {
@@ -207,7 +207,7 @@ _gfx_zoom (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    retval = PySurface_NewFromSDLSurface (result);
+    retval = PySDLSurface_NewFromSDLSurface (result);
     if (!retval)
     {
         SDL_FreeSurface (result);
@@ -228,8 +228,8 @@ _gfx_zoomsize (PyObject *self, PyObject *args)
         PyErr_Clear ();
         if (PyArg_ParseTuple (args, "Odd:zoom_size", &surface, &zoomx, &zoomy))
         {
-            w = ((PySurface *)surface)->surface->w;
-            h = ((PySurface *)surface)->surface->w;
+            w = ((PySDLSurface *)surface)->surface->w;
+            h = ((PySDLSurface *)surface)->surface->w;
         }
         else
             return NULL;
@@ -248,12 +248,12 @@ _gfx_shrink (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "Oii:shrink", &surface, &facx, &facy))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    orig = ((PySurface*)surface)->surface;
+    orig = ((PySDLSurface*)surface)->surface;
 
     result = shrinkSurface (orig, facx, facy);
     if (!result)
@@ -262,7 +262,7 @@ _gfx_shrink (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    retval = PySurface_NewFromSDLSurface (result);
+    retval = PySDLSurface_NewFromSDLSurface (result);
     if (!retval)
     {
         SDL_FreeSurface (result);
@@ -281,12 +281,12 @@ _gfx_rotate90 (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "Oi:rotate_90", &surface, &times))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    orig = ((PySurface*)surface)->surface;
+    orig = ((PySDLSurface*)surface)->surface;
 
     result = rotateSurface90Degrees (orig, times);
     if (!result)
@@ -295,7 +295,7 @@ _gfx_rotate90 (PyObject *self, PyObject *args)
         return NULL;
     }
     
-    retval = PySurface_NewFromSDLSurface (result);
+    retval = PySDLSurface_NewFromSDLSurface (result);
     if (!retval)
     {
         SDL_FreeSurface (result);

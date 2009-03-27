@@ -61,12 +61,12 @@ _transform_scale (PyObject* self, PyObject* args)
     /*get all the arguments*/
     if (!PyArg_ParseTuple (args, "Oii|O", &srcobj, &width, &height, &dstobj))
         return NULL;
-    if (!PySurface_Check (srcobj))
+    if (!PySDLSurface_Check (srcobj))
     {
         PyErr_SetString (PyExc_TypeError, "source surface must be a Surface");
         return NULL;
     }
-    if (dstobj && !PySurface_Check (dstobj))
+    if (dstobj && !PySDLSurface_Check (dstobj))
     {
         PyErr_SetString (PyExc_TypeError,
             "destination surface must be a Surface");
@@ -78,10 +78,10 @@ _transform_scale (PyObject* self, PyObject* args)
         return NULL;
     }
 
-    srcsurface = ((PySurface*)srcobj)->surface;
+    srcsurface = ((PySDLSurface*)srcobj)->surface;
     if (dstobj)
     {
-        dstsurface = ((PySurface*)dstobj)->surface;
+        dstsurface = ((PySDLSurface*)dstobj)->surface;
         if (dstsurface->w != width || dstsurface->h != height)
         {
             PyErr_SetString (PyExc_ValueError,
@@ -105,7 +105,7 @@ _transform_scale (PyObject* self, PyObject* args)
         return dstobj;
     }
 
-    dstobj = PySurface_NewFromSDLSurface (dstsurface);
+    dstobj = PySDLSurface_NewFromSDLSurface (dstsurface);
     if (!dstobj)
     {
         SDL_FreeSurface (dstsurface);
@@ -124,13 +124,13 @@ _transform_rotate (PyObject* self, PyObject* args)
     
     if (!PyArg_ParseTuple (args, "Od", &surfobj, &angle))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
 
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
 
     if (fmod ((double)angle, (double)90.0f) == 0)
     {
@@ -143,7 +143,7 @@ _transform_rotate (PyObject* self, PyObject* args)
             return NULL;
         }
 
-        newsurf = PySurface_NewFromSDLSurface (newsurface);
+        newsurf = PySDLSurface_NewFromSDLSurface (newsurface);
         if (!newsurf)
         {
             SDL_FreeSurface (newsurface);
@@ -161,7 +161,7 @@ _transform_rotate (PyObject* self, PyObject* args)
         return NULL;
     }
 
-    newsurf = PySurface_NewFromSDLSurface (newsurface);
+    newsurf = PySDLSurface_NewFromSDLSurface (newsurface);
     if (!newsurf)
     {
         SDL_FreeSurface (newsurface);
@@ -179,7 +179,7 @@ _transform_flip (PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "OOO", &surfobj, &x, &y))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
@@ -192,12 +192,12 @@ _transform_flip (PyObject* self, PyObject* args)
     if (yaxis == -1)
         return NULL;
 
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!xaxis && !yaxis)
     {
         /* No changes. */
-        return PySurface_Clone (surfobj);
+        return PySDLSurface_Copy (surfobj);
     }
 
     Py_BEGIN_ALLOW_THREADS;
@@ -209,7 +209,7 @@ _transform_flip (PyObject* self, PyObject* args)
         return NULL;
     }
     
-    newsurf = PySurface_NewFromSDLSurface (newsurface);
+    newsurf = PySDLSurface_NewFromSDLSurface (newsurface);
     if (!newsurf)
     {
         SDL_FreeSurface (newsurface);
@@ -227,7 +227,7 @@ _transform_chop (PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "OO", &surfobj, &rectobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
@@ -235,7 +235,7 @@ _transform_chop (PyObject* self, PyObject* args)
     if (!SDLRect_FromRect (rectobj, &rect))
         return NULL;
 
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
 
     Py_BEGIN_ALLOW_THREADS;
     newsurface = pyg_transform_chop (surface, &rect);
@@ -246,7 +246,7 @@ _transform_chop (PyObject* self, PyObject* args)
         return NULL;
     }
     
-    newsurf = PySurface_NewFromSDLSurface (newsurface);
+    newsurf = PySDLSurface_NewFromSDLSurface (newsurface);
     if (!newsurf)
     {
         SDL_FreeSurface (newsurface);
@@ -263,21 +263,21 @@ _transform_scale2x (PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "O|O", &surfobj, &dstobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "source surface must be a Surface");
         return NULL;
     }
-    if (dstobj && !PySurface_Check (dstobj))
+    if (dstobj && !PySDLSurface_Check (dstobj))
     {
         PyErr_SetString (PyExc_TypeError,
             "destination surface must be a Surface");
         return NULL;
     }
     
-    src = ((PySurface*)surfobj)->surface;
+    src = ((PySDLSurface*)surfobj)->surface;
     if (dstobj)
-        dst = ((PySurface*)dstobj)->surface;
+        dst = ((PySDLSurface*)dstobj)->surface;
 
     Py_BEGIN_ALLOW_THREADS;
     dst = pyg_transform_scale2x (src, dst);
@@ -294,7 +294,7 @@ _transform_scale2x (PyObject* self, PyObject* args)
         return dstobj;
     }
 
-    dstobj = PySurface_NewFromSDLSurface (dst);
+    dstobj = PySDLSurface_NewFromSDLSurface (dst);
     if (!dstobj)
     {
         SDL_FreeSurface (dst);
@@ -312,7 +312,7 @@ _transform_smoothscale (PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "Oii|O", &surfobj, &width, &height, &dstobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "source surface must be a Surface");
         return NULL;
@@ -323,16 +323,16 @@ _transform_smoothscale (PyObject* self, PyObject* args)
             "width and height must not be negative");
         return NULL;
     }
-    if (dstobj && !PySurface_Check (dstobj))
+    if (dstobj && !PySDLSurface_Check (dstobj))
     {
         PyErr_SetString (PyExc_TypeError,
             "destination surface must be a Surface");
         return NULL;
     }
     
-    src = ((PySurface*)surfobj)->surface;
+    src = ((PySDLSurface*)surfobj)->surface;
     if (dstobj)
-        dst = ((PySurface*)dstobj)->surface;
+        dst = ((PySDLSurface*)dstobj)->surface;
 
     Py_BEGIN_ALLOW_THREADS;
     dst = pyg_transform_smoothscale (src, dst, width, height);
@@ -349,7 +349,7 @@ _transform_smoothscale (PyObject* self, PyObject* args)
         return dstobj;
     }
 
-    dstobj = PySurface_NewFromSDLSurface (dst);
+    dstobj = PySDLSurface_NewFromSDLSurface (dst);
     if (!dstobj)
     {
         SDL_FreeSurface (dst);
@@ -370,12 +370,12 @@ _transform_threshold (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO|O:threshold", &surfobj, &colorobj,
             &thresobj, &destobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "source surface must be a Surface");
         return NULL;
     }
-    if (!PySurface_Check (colorobj))
+    if (!PySDLSurface_Check (colorobj))
     {
         if (PyColor_Check (colorobj))
         {
@@ -391,23 +391,23 @@ _transform_threshold (PyObject* self, PyObject* args)
     }
     else
     {
-        diffsurface = ((PySurface*)colorobj)->surface;
+        diffsurface = ((PySDLSurface*)colorobj)->surface;
     }
     if (!PyColor_Check (thresobj))
     {
         PyErr_SetString (PyExc_TypeError, "threshold must be a Color");
         return NULL;
     }
-    if (destobj && !PySurface_Check (destobj))
+    if (destobj && !PySDLSurface_Check (destobj))
     {
         PyErr_SetString (PyExc_TypeError,
             "destination surface must be a Surface");
         return NULL;
     }
 
-    srcsurface = ((PySurface*)surfobj)->surface;
+    srcsurface = ((PySDLSurface*)surfobj)->surface;
     if (destobj)
-        dstsurface = ((PySurface*)destobj)->surface;
+        dstsurface = ((PySDLSurface*)destobj)->surface;
     threscolor = PyColor_AsNumber (thresobj);
 
     ARGB2FORMAT (diffcolor, srcsurface->format);
@@ -457,21 +457,21 @@ _transform_laplacian (PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "O|O", &surfobj, &dstobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "source surface must be a Surface");
         return NULL;
     }
-    if (dstobj && !PySurface_Check (dstobj))
+    if (dstobj && !PySDLSurface_Check (dstobj))
     {
         PyErr_SetString (PyExc_TypeError,
             "destination surface must be a Surface");
         return NULL;
     }
 
-    src = ((PySurface*)surfobj)->surface;
+    src = ((PySDLSurface*)surfobj)->surface;
     if (dstobj)
-        dst = ((PySurface*)dstobj)->surface;
+        dst = ((PySDLSurface*)dstobj)->surface;
 
     Py_BEGIN_ALLOW_THREADS;
     dst = pyg_transform_laplacian (src, dst);
@@ -488,7 +488,7 @@ _transform_laplacian (PyObject* self, PyObject* args)
         return dstobj;
     }
 
-    dstobj = PySurface_NewFromSDLSurface (dst);
+    dstobj = PySDLSurface_NewFromSDLSurface (dst);
     if (!dstobj)
     {
         SDL_FreeSurface (dst);
@@ -514,7 +514,7 @@ _transform_averagesurfaces (PyObject* self, PyObject* args)
             "surfaces must be a sequence of Surface objects");
         return NULL;
     }
-    if (dstobj && !PySurface_Check (dstobj))
+    if (dstobj && !PySDLSurface_Check (dstobj))
     {
         PyErr_SetString (PyExc_TypeError,
             "destination surface must be a Surface");
@@ -522,7 +522,7 @@ _transform_averagesurfaces (PyObject* self, PyObject* args)
     }
 
     if (dstobj)
-        dst = ((PySurface*)dstobj)->surface;
+        dst = ((PySDLSurface*)dstobj)->surface;
     
     count = PySequence_Size (list);
     surfaces = PyMem_New (SDL_Surface*, (size_t) count);
@@ -532,7 +532,7 @@ _transform_averagesurfaces (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         surfobj = PySequence_ITEM (list, i);
-        if (!PySurface_Check (surfobj))
+        if (!PySDLSurface_Check (surfobj))
         {
             Py_XDECREF (surfobj);
             PyMem_Free (surfaces);
@@ -540,7 +540,7 @@ _transform_averagesurfaces (PyObject* self, PyObject* args)
                 "surfaces must be a sequence of Surface objects");
             return NULL;
         }
-        surfaces[i] = ((PySurface*)surfobj)->surface;
+        surfaces[i] = ((PySDLSurface*)surfobj)->surface;
         width = MAX (surfaces[i]->w, width);
         height = MAX (surfaces[i]->w, width);
         Py_DECREF (surfobj);
@@ -576,7 +576,7 @@ _transform_averagesurfaces (PyObject* self, PyObject* args)
     if (!surface)
         return NULL;
 
-    dstobj = PySurface_NewFromSDLSurface (surface);
+    dstobj = PySDLSurface_NewFromSDLSurface (surface);
     if (!dstobj)
     {
         SDL_FreeSurface (surface);
@@ -596,7 +596,7 @@ _transform_averagecolor (PyObject* self, PyObject* args)
 
     if (!PyArg_ParseTuple (args, "O|O", &surfobj, &rectobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be Surface");
         return NULL;
@@ -604,7 +604,7 @@ _transform_averagecolor (PyObject* self, PyObject* args)
     if (rectobj && !SDLRect_FromRect (rectobj, &sdlrect))
         return NULL;
 
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     if (!rectobj)
     {
         sdlrect.x = sdlrect.y = 0;

@@ -80,7 +80,7 @@ _sdl_loadbmp (PyObject *self, PyObject *args)
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }
-    sf = PySurface_NewFromSDLSurface (surface);
+    sf = PySDLSurface_NewFromSDLSurface (surface);
     if (!sf)
     {
         SDL_FreeSurface (surface);
@@ -98,14 +98,14 @@ _sdl_savebmp (PyObject *self, PyObject *args)
     
     if (!PyArg_ParseTuple (args, "OO:save_bmp", &surface, &filename))
         return NULL;
-    if (!PySurface_Check (surface))
+    if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    _stat = SDL_SaveBMP (((PySurface*)surface)->surface, filename);
+    _stat = SDL_SaveBMP (((PySDLSurface*)surface)->surface, filename);
     Py_END_ALLOW_THREADS;
     
     if (_stat == -1)

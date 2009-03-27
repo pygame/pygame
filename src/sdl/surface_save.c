@@ -100,7 +100,7 @@ _convert_opengl_sdl (void)
 }
 
 int
-pyg_surface_save (SDL_Surface *surface, char *filename, char *type)
+pyg_sdlsurface_save (SDL_Surface *surface, char *filename, char *type)
 {    
     size_t len;
     int retval;
@@ -214,7 +214,7 @@ pyg_surface_save (SDL_Surface *surface, char *filename, char *type)
 }
 
 int
-pyg_surface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type)
+pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type)
 {
     int retval;
     size_t len;

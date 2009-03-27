@@ -114,7 +114,7 @@ _image_load (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    sf = PySurface_NewFromSDLSurface (surface);
+    sf = PySDLSurface_NewFromSDLSurface (surface);
     if (!sf)
     {
         SDL_FreeSurface (surface);
@@ -153,7 +153,7 @@ _image_readxpmfromarray (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    sf = PySurface_NewFromSDLSurface (surface);
+    sf = PySDLSurface_NewFromSDLSurface (surface);
     if (!sf)
     {
         SDL_FreeSurface (surface);

@@ -189,7 +189,11 @@ PyTypeObject PyFRect_Type =
     0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+#ifdef IS_PYTHON_3
+    0,                          /* tp_compare is now tp_reserved */
+#else
     (cmpfunc)_frect_compare,    /* tp_compare */
+#endif
     (reprfunc)_frect_repr,      /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */

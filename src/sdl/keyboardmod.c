@@ -77,7 +77,7 @@ static PyObject*
 _sdl_keygetmodstate (PyObject *self)
 {
     ASSERT_VIDEO_INIT (NULL);
-    return PyInt_FromLong (SDL_GetModState ());
+    return PyLong_FromUnsignedLong (SDL_GetModState ());
 }
 
 static PyObject*

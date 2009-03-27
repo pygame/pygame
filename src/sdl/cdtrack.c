@@ -143,13 +143,13 @@ _cdtrack_gettype (PyObject *self, void *closure)
 static PyObject*
 _cdtrack_getlength (PyObject *self, void *closure)
 {
-    return PyInt_FromLong (((PyCDTrack*)self)->track.length);
+    return PyLong_FromUnsignedLong (((PyCDTrack*)self)->track.length);
 }
 
 static PyObject*
 _cdtrack_getoffset (PyObject *self, void *closure)
 {
-    return PyInt_FromLong (((PyCDTrack*)self)->track.offset);
+    return PyLong_FromUnsignedLong (((PyCDTrack*)self)->track.offset);
 }
 
 static PyObject*

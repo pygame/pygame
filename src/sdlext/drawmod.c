@@ -64,12 +64,12 @@ _draw_aaline (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OO(ii)(ii)|i:aaline", &surfobj, &colorobj,
             &x1, &_y1, &x2, &y2, &blend))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -105,12 +105,12 @@ _draw_line (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OO(ii)(ii)|i:line", &surfobj, &colorobj, &x1,
             &_y1, &x2, &y2, &width))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -146,12 +146,12 @@ _draw_aalines (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO|i:aalines", &surfobj, &colorobj, &list,
             &blend))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -250,12 +250,12 @@ _draw_lines (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO|i:lines", &surfobj, &colorobj, &list,
             &width))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -358,12 +358,12 @@ _draw_ellipse (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO|i:ellipse", &surfobj, &colorobj, &rectobj,
             &width))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -431,12 +431,12 @@ _draw_arc (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOOdd|i:arc", &surfobj, &colorobj, &rectobj,
             &astart, &astop, &width))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -497,12 +497,12 @@ _draw_circle (PyObject* self, PyObject* args)
             &px, &py, &radius, &width))
         return NULL;
 
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -562,12 +562,12 @@ _draw_polygon (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO|i:polygon", &surfobj, &colorobj, &list,
             &width))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -672,12 +672,12 @@ _draw_aapolygon (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO|i:aapolygon", &surfobj, &colorobj, &list,
             &blendargs))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format, &color))
         return NULL;
@@ -766,12 +766,12 @@ _draw_rect (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OOO|i:rect", &surfobj, &colorobj, &rectobj,
             &width))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     
     if (!ColorFromObj (colorobj, surface->format,  &color))
         return NULL;

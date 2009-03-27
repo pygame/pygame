@@ -140,41 +140,41 @@ typedef struct
 {
     PyObject *surface;
     PyObject *lockobj;
-} SurfaceLock;
+} SDLSurfaceLock;
 
 typedef struct
 {
-    PyObject_HEAD
+    PySurface   pysurface;
     
     SDL_Surface *surface;
     PyObject    *dict;
     PyObject    *weakrefs;
     PyObject    *locklist;
     pguint16     intlocks; /* Internally hold locks */
-} PySurface;
-#define PySurface_AsSurface(x) (((PySurface*)x)->surface)
+} PySDLSurface;
+#define PySDLSurface_AsSurface(x) (((PySDLSurface*)x)->surface)
 #define PYGAME_SDLSURFACE_FIRSTSLOT                             \
     (PYGAME_SDLPXFMT_FIRSTSLOT + PYGAME_SDLPXFMT_NUMSLOTS)
 #define PYGAME_SDLSURFACE_NUMSLOTS 7
 #ifndef PYGAME_SDLSURFACE_INTERNAL
-#define PySurface_Type \
+#define PySDLSurface_Type \
     (*(PyTypeObject*)PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+0])
-#define PySurface_Check(x)                                              \
+#define PySDLSurface_Check(x)                                              \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+0]))
-#define PySurface_New                                                   \
+#define PySDLSurface_New                                                \
     (*(PyObject*(*)(int,int))PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+1])
-#define PySurface_NewFromSDLSurface                                     \
+#define PySDLSurface_NewFromSDLSurface                                  \
     (*(PyObject*(*)(SDL_Surface*))PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+2])
-#define PySurface_Clone                                                 \
+#define PySDLSurface_Copy                                               \
     (*(PyObject*(*)(PyObject*))PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+3])
 /* Note: this increments the surface refcount. */
-#define PySurface_AddRefLock                                            \
+#define PySDLSurface_AddRefLock                                         \
     (*(int(*)(PyObject*,PyObject*))PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+4])
 /* Note: this decrements the surface refcount. */
-#define PySurface_RemoveRefLock                                         \
+#define PySDLSurface_RemoveRefLock                                      \
     (*(int(*)(PyObject*,PyObject*))PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+5])
-#define PySurface_AcquireLockObj                                        \
+#define PySDLSurface_AcquireLockObj                                     \
     (*(PyObject*(*)(PyObject*,PyObject*))PyGameSDLVideo_C_API[PYGAME_SDLSURFACE_FIRSTSLOT+6])
 
 #endif /* PYGAME_SDLSURFACE_INTERNAL */

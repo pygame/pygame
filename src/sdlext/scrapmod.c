@@ -126,7 +126,8 @@ static PyObject*
 _scrap_get (PyObject* self, PyObject* args)
 {
     char *type, *data;
-    int size, result;
+    unsigned int size;
+    int result;
     PyObject *val;
 
     ASSERT_SCRAP_INIT (NULL);
@@ -172,7 +173,7 @@ static PyObject*
 _scrap_put (PyObject* self, PyObject* args)
 {
     char *type, *data;
-    int length;
+    unsigned int length;
     PyObject *tmp;
 
     ASSERT_SCRAP_INIT (NULL);
@@ -286,7 +287,7 @@ static PyObject*
 _scrap_getmode (PyObject* self)
 {
     ASSERT_SCRAP_INIT (NULL);
-    return PyInt_FromLong (pyg_scrap_get_mode ());
+    return PyLong_FromUnsignedLong (pyg_scrap_get_mode ());
 }
 
 #if PY_VERSION_HEX >= 0x03000000

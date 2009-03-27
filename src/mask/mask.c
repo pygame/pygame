@@ -220,7 +220,7 @@ static PyObject*
 _mask_count (PyObject* self, void *closure)
 {
     bitmask_t *m = PyMask_AsBitmask (self);
-    return PyInt_FromLong (bitmask_count (m));
+    return PyLong_FromUnsignedLong ((unsigned long) bitmask_count (m));
 }
 
 static PyObject*

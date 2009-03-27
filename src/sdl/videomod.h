@@ -28,14 +28,14 @@
 #define PYGAME_SDLPXFMT_INTERNAL
 #define PYGAME_SDLVIDEO_INTERNAL
 
-extern PyTypeObject PySurface_Type;
-#define PySurface_Check(x) (PyObject_TypeCheck (x, &PySurface_Type))
-PyObject* PySurface_New (int w, int h);
-PyObject* PySurface_NewFromSDLSurface (SDL_Surface *sf);
-PyObject* PySurface_Clone (PyObject *source);
-int PySurface_AddRefLock (PyObject *surface, PyObject *lock);
-int PySurface_RemoveRefLock (PyObject *surface, PyObject *lock);
-PyObject* PySurface_AcquireLockObj (PyObject *surface, PyObject *lock);
+extern PyTypeObject PySDLSurface_Type;
+#define PySDLSurface_Check(x) (PyObject_TypeCheck (x, &PySDLSurface_Type))
+PyObject* PySDLSurface_New (int w, int h);
+PyObject* PySDLSurface_NewFromSDLSurface (SDL_Surface *sf);
+PyObject* PySDLSurface_Copy (PyObject *source);
+int PySDLSurface_AddRefLock (PyObject *surface, PyObject *lock);
+int PySDLSurface_RemoveRefLock (PyObject *surface, PyObject *lock);
+PyObject* PySDLSurface_AcquireLockObj (PyObject *surface, PyObject *lock);
 
 extern PyTypeObject PyOverlay_Type;
 #define PyOverlay_Check(x) (PyObject_TypeCheck (x, &PyOverlay_Type))

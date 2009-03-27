@@ -29,6 +29,7 @@
 #define PYGAME_RECT_INTERNAL
 #define PYGAME_FRECT_INTERNAL
 #define PYGAME_BUFFERPROXY_INTERNAL
+#define PYGAME_SURFACE_INTERNAL
 
 extern PyObject* PyExc_PyGameError;
 
@@ -62,5 +63,10 @@ void floatrect_export_capi (void **capi);
 extern PyTypeObject PyBufferProxy_Type;
 #define PyBufferProxy_Check(x) (PyObject_TypeCheck(x, &PyBufferProxy_Type))
 void bufferproxy_export_capi (void **capi);
+
+extern PyTypeObject PySurface_Type;
+#define PySurface_Check(x) (PyObject_TypeCheck(x, &PySurface_Type))
+PyObject* PySurface_New (void);
+void surface_export_capi (void **capi);
 
 #endif /* _PYGAME_BASE_INTERNALS_H_ */

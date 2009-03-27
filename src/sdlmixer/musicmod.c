@@ -152,7 +152,7 @@ static PyObject*
 _music_fading (PyObject *self)
 {
     ASSERT_MIXER_OPEN (NULL);
-    return PyInt_FromLong (Mix_FadingMusic ());
+    return PyLong_FromUnsignedLong (Mix_FadingMusic ());
 }
 
 static PyObject*

@@ -78,7 +78,7 @@
       <desc></desc>
     </method>
     <attr name="clip_rect"></attr>
-    <method name="clone">
+    <method name="copy">
       <call></call>
       <desc></desc>
     </method>

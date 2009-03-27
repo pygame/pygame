@@ -90,11 +90,11 @@ _mask_fromsurface (PyObject* self, PyObject* args)
      *   surface, threshold
      */
 
-    if (!PyArg_ParseTuple (args, "O!|i", &PySurface_Type, &surfobj,
+    if (!PyArg_ParseTuple (args, "O!|i", &PySDLSurface_Type, &surfobj,
             &threshold))
         return NULL;
 
-    surf = PySurface_AsSurface (surfobj);
+    surf = PySDLSurface_AsSurface (surfobj);
 
     /* get the size from the surface, and create the mask. */
     mask = bitmask_create (surf->w, surf->h);
@@ -106,7 +106,7 @@ _mask_fromsurface (PyObject* self, PyObject* args)
     }
 
     /* lock the surface, release the GIL. */
-    lock = PySurface_AcquireLockObj (surfobj, (PyObject*)mask);
+    lock = PySDLSurface_AcquireLockObj (surfobj, (PyObject*)mask);
     if (!lock)
         return NULL;
 
@@ -180,14 +180,14 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
     surfobj2 = NULL;
     rgba_obj_threshold = NULL;
 
-    if (!PyArg_ParseTuple (args, "O!O|OO!", &PySurface_Type, &surfobj,
+    if (!PyArg_ParseTuple (args, "O!O|OO!", &PySDLSurface_Type, &surfobj,
             &rgba_obj_color,  &rgba_obj_threshold,
-            &PySurface_Type, &surfobj2))
+            &PySDLSurface_Type, &surfobj2))
         return NULL;
 
-    surf = PySurface_AsSurface (surfobj);
+    surf = PySDLSurface_AsSurface (surfobj);
     if (surfobj2)
-        surf2 = PySurface_AsSurface (surfobj2);
+        surf2 = PySDLSurface_AsSurface (surfobj2);
 
     if (!ColorFromObj (rgba_obj_color, surf->format, &color))
         return NULL;
@@ -217,7 +217,7 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
         return NULL;
     }
 
-    lock1 = PySurface_AcquireLockObj (surfobj, (PyObject*)maskobj);
+    lock1 = PySDLSurface_AcquireLockObj (surfobj, (PyObject*)maskobj);
     if (!lock1)
     {
         Py_DECREF (maskobj);
@@ -227,7 +227,7 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
 
     if (surfobj2)
     {
-        lock2 = PySurface_AcquireLockObj (surfobj2, (PyObject*)maskobj);
+        lock2 = PySDLSurface_AcquireLockObj (surfobj2, (PyObject*)maskobj);
         if (!lock2)
         {
             Py_DECREF (lock1);

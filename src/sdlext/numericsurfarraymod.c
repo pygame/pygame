@@ -127,12 +127,12 @@ _pixels3d (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "O", &surfobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
     
     if (surf->format->BytesPerPixel <= 2 || surf->format->BytesPerPixel > 4)
     {
@@ -173,7 +173,7 @@ _pixels3d (PyObject* self, PyObject* arg)
     if (!array)
         return NULL;
 
-    lifelock = PySurface_AcquireLockObj (surfobj, array);
+    lifelock = PySDLSurface_AcquireLockObj (surfobj, array);
     if (!lifelock)
     {
         Py_DECREF (array);
@@ -209,12 +209,12 @@ _pixels2d (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "O", &surfobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surf = ((PySurface*) surfobj)->surface;
+    surf = ((PySDLSurface*) surfobj)->surface;
     
     if (surf->format->BytesPerPixel == 3 || surf->format->BytesPerPixel < 1 
         || surf->format->BytesPerPixel > 4)
@@ -231,7 +231,7 @@ _pixels2d (PyObject* self, PyObject* arg)
     if (!array)
         return NULL;
 
-    lifelock = PySurface_AcquireLockObj (surfobj, array);
+    lifelock = PySDLSurface_AcquireLockObj (surfobj, array);
     if (!lifelock)
     {
         Py_DECREF (array);
@@ -260,12 +260,12 @@ _pixels_alpha (PyObject* self, PyObject* arg)
 
     if (!PyArg_ParseTuple(arg, "O", &surfobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
     
     if (surf->format->BytesPerPixel != 4)
     {
@@ -292,7 +292,7 @@ _pixels_alpha (PyObject* self, PyObject* arg)
     if (!array)
         return NULL;
     
-    lifelock = PySurface_AcquireLockObj (surfobj, array);
+    lifelock = PySDLSurface_AcquireLockObj (surfobj, array);
     if (!lifelock)
     {
         Py_DECREF (array);
@@ -319,12 +319,12 @@ _array2d (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "O", &surfobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
 
     dim[0] = surf->w;
     dim[1] = surf->h;
@@ -342,7 +342,7 @@ _array2d (PyObject* self, PyObject* arg)
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
 
-    if (!PySurface_AddRefLock (surfobj, array))
+    if (!PySDLSurface_AddRefLock (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -413,7 +413,7 @@ _array2d (PyObject* self, PyObject* arg)
 
     Py_END_ALLOW_THREADS;
 
-    PySurface_RemoveRefLock (surfobj, array);
+    PySDLSurface_RemoveRefLock (surfobj, array);
     return array;
 }
 
@@ -431,12 +431,12 @@ _array3d (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "O", &surfobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
     
     format = surf->format;
     dim[0] = surf->w;
@@ -476,7 +476,7 @@ _array3d (PyObject* self, PyObject* arg)
         }
     }
 
-    if (!PySurface_AddRefLock (surfobj, array))
+    if (!PySDLSurface_AddRefLock (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -565,7 +565,7 @@ _array3d (PyObject* self, PyObject* arg)
 
     Py_END_ALLOW_THREADS;
 
-    PySurface_RemoveRefLock (surfobj, array);
+    PySDLSurface_RemoveRefLock (surfobj, array);
     return array;
 }
 
@@ -582,12 +582,12 @@ _array_alpha (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "O", &surfobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
     
     dim[0] = surf->w;
     dim[1] = surf->h;
@@ -617,7 +617,7 @@ _array_alpha (PyObject* self, PyObject* arg)
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
     
-    if (!PySurface_AddRefLock (surfobj, array))
+    if (!PySDLSurface_AddRefLock (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -679,7 +679,7 @@ _array_alpha (PyObject* self, PyObject* arg)
 
     Py_END_ALLOW_THREADS;
     
-    PySurface_RemoveRefLock (surfobj, array);
+    PySDLSurface_RemoveRefLock (surfobj, array);
     return array;
 }
 
@@ -695,12 +695,12 @@ _array_colorkey (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "O", &surfobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
     
     dim[0] = surf->w;
     dim[1] = surf->h;
@@ -727,7 +727,7 @@ _array_colorkey (PyObject* self, PyObject* arg)
     stridex = ((PyArrayObject*) array)->strides[0];
     stridey = ((PyArrayObject*) array)->strides[1];
     
-    if (!PySurface_AddRefLock (surfobj, array))
+    if (!PySDLSurface_AddRefLock (surfobj, array))
     {
         Py_DECREF (array);
         return NULL;
@@ -802,7 +802,7 @@ _array_colorkey (PyObject* self, PyObject* arg)
 
     Py_END_ALLOW_THREADS;
 
-    PySurface_RemoveRefLock (surfobj, array);
+    PySDLSurface_RemoveRefLock (surfobj, array);
     return array;
 }
 
@@ -820,7 +820,7 @@ _map_array (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "OO", &surfobj, &arrayobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
@@ -831,7 +831,7 @@ _map_array (PyObject* self, PyObject* arg)
         return NULL;
     }
 
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
     format = surf->format;
     array = (PyArrayObject*) arrayobj;
     
@@ -976,7 +976,7 @@ _blit_array (PyObject* self, PyObject* arg)
     
     if (!PyArg_ParseTuple (arg, "OO", &surfobj, &arrayobj))
         return NULL;
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
@@ -987,7 +987,7 @@ _blit_array (PyObject* self, PyObject* arg)
         return NULL;
     }
 
-    surf = ((PySurface*)surfobj)->surface;
+    surf = ((PySDLSurface*)surfobj)->surface;
     format = surf->format;
     array = (PyArrayObject*) arrayobj;
     
@@ -1022,7 +1022,7 @@ _blit_array (PyObject* self, PyObject* arg)
         return NULL;
     }
 
-    if (!PySurface_AddRefLock (surfobj, (PyObject *) array))
+    if (!PySDLSurface_AddRefLock (surfobj, (PyObject *) array))
         return NULL;
     
     switch (surf->format->BytesPerPixel)
@@ -1045,7 +1045,7 @@ _blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D(Uint8, Uint64);
                 break;
             default:
-                PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+                PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
                 PyErr_SetString (PyExc_ValueError,
                     "unsupported datatype for array\n");
                 return NULL;
@@ -1070,7 +1070,7 @@ _blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D(Uint16, Uint64);
                 break;
             default:
-                PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+                PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
                 PyErr_SetString (PyExc_ValueError,
                     "unsupported datatype for array\n");
                 return NULL;
@@ -1093,7 +1093,7 @@ _blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_3D(Uint16, Uint64);
                 break;
             default:
-                PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+                PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
                 PyErr_SetString (PyExc_ValueError,
                     "unsupported datatype for array\n");
                 return NULL;
@@ -1118,7 +1118,7 @@ _blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D_24(Uint64);
                 break;
             default:
-                PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+                PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
                 PyErr_SetString (PyExc_ValueError,
                     "unsupported datatype for array\n");
                 return NULL;
@@ -1141,7 +1141,7 @@ _blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_3D_24(Uint64);
                 break;
             default:
-                PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+                PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
                 PyErr_SetString (PyExc_ValueError,
                     "unsupported datatype for array\n");
                 return NULL;
@@ -1166,7 +1166,7 @@ _blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_2D(Uint32, Uint64);
                 break;
             default:
-                PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+                PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
                 PyErr_SetString (PyExc_ValueError,
                     "unsupported datatype for array\n");
                 return NULL;
@@ -1189,7 +1189,7 @@ _blit_array (PyObject* self, PyObject* arg)
                 COPYMACRO_3D(Uint32, Uint64);
                 break;
             default:
-                PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+                PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
                 PyErr_SetString (PyExc_ValueError,
                     "unsupported datatype for array\n");
                 return NULL;
@@ -1197,12 +1197,12 @@ _blit_array (PyObject* self, PyObject* arg)
         }
         break;
     default:
-        PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+        PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
         PyErr_SetString (PyExc_RuntimeError, "unsupported bit depth for image");
         return NULL;
     }
     
-    PySurface_RemoveRefLock (surfobj, (PyObject *) array);
+    PySDLSurface_RemoveRefLock (surfobj, (PyObject *) array);
     Py_RETURN_NONE;
 }
 
@@ -1261,7 +1261,7 @@ _make_surface (PyObject* self, PyObject* arg)
         return NULL;
     }
 
-    surfobj = PySurface_NewFromSDLSurface (surf);
+    surfobj = PySDLSurface_NewFromSDLSurface (surf);
     if (!surfobj)
     {
         SDL_FreeSurface (surf);

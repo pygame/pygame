@@ -554,5 +554,33 @@
     <attr name="y">Gets or sets the vertical top left position of the :class:`Rect`.</attr>
   </class>
 
+  <class name="Surface">
+    <constructor>Surface () -> Surface</constructor>
+    <desc>
+      An abstract base class for arbitrary :class:`Surface` objects.
+    
+      You should not instantiate this class directly. 
+    </desc>
+    <method name="blit">
+      <call>blit (**kwds) -> object</call>
+      <desc>
+        Performs a blit operation on the :class:`Surface`.
+
+        The behaviour, arguments and return value depend on the concrete
+        :class:`Surface` implementation.
+      </desc>
+    </method>
+    <method name="copy">
+      <call>copy () -> Surface</call>
+      <desc>Creates a copy of this :class:`Surface`.</desc>
+    </method>
+    <attr name="height">Gets the height of the :class:`Surface`.</attr>
+    <attr name="pixels">
+      Gets a buffer with the pixels of the :class:`Surface`.
+    </attr>
+    <attr name="size">Gets the width and height of the :class:`Surface`.</attr>
+    <attr name="width">Gets the width of the :class:`Surface`.</attr>
+  </class>
+
 </module>
 

@@ -87,16 +87,16 @@ _sdl_wmseticon (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "O|O:set_icon", &surface, &mask))
         return NULL;
 
-    if (!PySurface_Check (surface))
+    if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
 
     if (mask)
-        sfmask = ((PySurface*)mask)->surface;
+        sfmask = ((PySDLSurface*)mask)->surface;
     /* TODO */
-    SDL_WM_SetIcon (((PySurface*)surface)->surface, NULL);
+    SDL_WM_SetIcon (((PySDLSurface*)surface)->surface, NULL);
     Py_RETURN_NONE;
 }
 
@@ -141,7 +141,7 @@ _sdl_wmgetinfo (PyObject *self)
     }
 
 #ifdef SDL_VIDEO_DRIVER_X11
-    tmp = PyInt_FromLong (info.info.x11.window);
+    tmp = PyLong_FromUnsignedLong (info.info.x11.window);
     PyDict_SetItemString (dict, "window", tmp);
     Py_DECREF (tmp);
 
@@ -157,11 +157,11 @@ _sdl_wmgetinfo (PyObject *self)
     PyDict_SetItemString (dict, "unlock_func", tmp);
     Py_DECREF (tmp);
 
-    tmp = PyInt_FromLong (info.info.x11.fswindow);
+    tmp = PyLong_FromUnsignedLong (info.info.x11.fswindow);
     PyDict_SetItemString (dict, "fswindow", tmp);
     Py_DECREF (tmp);
 
-    tmp = PyInt_FromLong (info.info.x11.wmwindow);
+    tmp = PyLong_FromUnsignedLong (info.info.x11.wmwindow);
     PyDict_SetItemString (dict, "wmwindow", tmp);
     Py_DECREF (tmp);
 

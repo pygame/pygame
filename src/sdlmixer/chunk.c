@@ -136,7 +136,7 @@ _chunk_init (PyObject *self, PyObject *args, PyObject *kwds)
     {
         PyObject *tmp;
         if (!UTF8FromObject (file, &filename, &tmp))
-            return NULL;
+            return -1;
 
         Py_BEGIN_ALLOW_THREADS;
         chunk = Mix_LoadWAV (filename);
@@ -193,7 +193,7 @@ static PyObject*
 _chunk_getlen (PyObject *self, void *closure)
 {
     ASSERT_MIXER_OPEN(NULL);
-    return PyInt_FromLong (((PyChunk*)self)->chunk->alen);
+    return PyLong_FromUnsignedLong (((PyChunk*)self)->chunk->alen);
 }
 
 static PyObject*

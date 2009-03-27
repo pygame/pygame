@@ -64,7 +64,7 @@ if __name__ == "__main__":
                         "-Wpointer-arith -Wcast-qual -Winline " + \
                         "-Wcast-align  -Wconversion -Wstrict-prototypes " + \
                         "-Wmissing-prototypes -Wmissing-declarations " + \
-                        "-Wnested-externs -Wshadow -Wredundant-decls -g"
+                        "-Wnested-externs -Wshadow -Wredundant-decls -g -pg"
 
     packages = [ "pygame2",
                  "pygame2.sprite",

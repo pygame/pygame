@@ -325,11 +325,15 @@ PyMODINIT_FUNC initbase (void)
         MODINIT_RETURN(NULL);
     if (PyType_Ready (&PyBufferProxy_Type) < 0)
         MODINIT_RETURN(NULL);
+    PySurface_Type.tp_new = PyType_GenericNew;
+    if (PyType_Ready (&PySurface_Type) < 0)
+        MODINIT_RETURN(NULL);
 
     Py_INCREF (&PyColor_Type);
     Py_INCREF (&PyFRect_Type);
     Py_INCREF (&PyRect_Type);
     Py_INCREF (&PyBufferProxy_Type);
+    Py_INCREF (&PySurface_Type);
 
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_basemodule);
@@ -343,6 +347,7 @@ PyMODINIT_FUNC initbase (void)
     PyModule_AddObject (mod, "Rect", (PyObject *) &PyRect_Type);
     PyModule_AddObject (mod, "FRect", (PyObject *) &PyFRect_Type);
     PyModule_AddObject (mod, "BufferProxy", (PyObject *) &PyBufferProxy_Type);
+    PyModule_AddObject (mod, "Surface", (PyObject *) &PySurface_Type);
     
     /* Setup the pygame exeption */
     PyExc_PyGameError = PyErr_NewException ("base.Error", NULL, NULL);
@@ -368,6 +373,7 @@ PyMODINIT_FUNC initbase (void)
     rect_export_capi (c_api);
     floatrect_export_capi (c_api);
     bufferproxy_export_capi (c_api);
+    surface_export_capi (c_api);
 
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)

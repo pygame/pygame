@@ -134,7 +134,7 @@ _sdl_getvideosurface (PyObject *self)
     surface = SDL_GetVideoSurface ();
     if (!surface)
         Py_RETURN_NONE;
-    return PySurface_NewFromSDLSurface (surface);
+    return PySDLSurface_NewFromSDLSurface (surface);
 }
 
 static PyObject*
@@ -422,7 +422,7 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    sf = PySurface_NewFromSDLSurface (surface);
+    sf = PySDLSurface_NewFromSDLSurface (surface);
     if (!sf)
     {
         SDL_FreeSurface (surface);
@@ -501,15 +501,21 @@ PyMODINIT_FUNC initvideo (void)
     };
 #endif
 
+    if (import_pygame2_base () < 0)
+        goto fail;
+    if (import_pygame2_sdl_base () < 0)
+        goto fail;
+
     /* Complete types */
-    if (PyType_Ready (&PySurface_Type) < 0)
+    PySDLSurface_Type.tp_base = &PySurface_Type;
+    if (PyType_Ready (&PySDLSurface_Type) < 0)
         goto fail;
     if (PyType_Ready (&PyOverlay_Type) < 0)
         goto fail;
     if (PyType_Ready (&PyPixelFormat_Type) < 0)
         goto fail;
 
-    Py_INCREF (&PySurface_Type);
+    Py_INCREF (&PySDLSurface_Type);
     Py_INCREF (&PyOverlay_Type);
     Py_INCREF (&PyPixelFormat_Type);
 
@@ -522,7 +528,7 @@ PyMODINIT_FUNC initvideo (void)
         goto fail;
     
     PyModule_AddObject (mod, "PixelFormat", (PyObject *) &PyPixelFormat_Type);
-    PyModule_AddObject (mod, "Surface", (PyObject *) &PySurface_Type);
+    PyModule_AddObject (mod, "Surface", (PyObject *) &PySDLSurface_Type);
     PyModule_AddObject (mod, "Overlay", (PyObject *) &PyOverlay_Type);
     
     c_api[PYGAME_SDLVIDEO_FIRSTSLOT+0] = ColorFromObj;
@@ -534,11 +540,6 @@ PyMODINIT_FUNC initvideo (void)
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
         PyModule_AddObject (mod, PYGAME_SDLVIDEO_ENTRY, c_api_obj);    
-
-    if (import_pygame2_base () < 0)
-        goto fail;
-    if (import_pygame2_sdl_base () < 0)
-        goto fail;
 
     RegisterQuitCallback (_quit);
     MODINIT_RETURN(mod);

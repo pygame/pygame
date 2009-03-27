@@ -195,7 +195,7 @@ _pixelarray_new_internal (PyTypeObject *type, PyObject *surface,
     if (!parent)
     {
         /* Initial PixelArray */
-        if (!PySurface_AddRefLock (surface, (PyObject*)self))
+        if (!PySDLSurface_AddRefLock (surface, (PyObject*)self))
         {
             ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
             return NULL;
@@ -229,7 +229,7 @@ _pixelarray_dealloc (PyPixelArray *self)
         PyObject_ClearWeakRefs ((PyObject *) self);
 
     if (!self->parent) /* Top-most array holding the lock. */
-        PySurface_RemoveRefLock (self->surface, (PyObject*)self);
+        PySDLSurface_RemoveRefLock (self->surface, (PyObject*)self);
 
     Py_XDECREF (self->parent);
     Py_XDECREF (self->dict);
@@ -249,13 +249,13 @@ _pixelarray_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "O", &surfobj))
         return NULL;
 
-    if (!PySurface_Check (surfobj))
+    if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
 
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     if (surface->format->BytesPerPixel < 1  ||
         surface->format->BytesPerPixel > 4)
     {
@@ -320,7 +320,7 @@ _pixelarray_repr (PyPixelArray *array)
     PyObject *tmp1, *tmp2;
 #endif
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
@@ -658,7 +658,7 @@ _pixelarray_item (PyPixelArray *array, Py_ssize_t _index)
         return NULL;
     }
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
 
      /* Access of a single column. */
@@ -738,7 +738,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     Sint32 absystep;
 
     /* Set the correct slice indices */
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
 
     if (array->xlen == 1)
     {
@@ -768,7 +768,7 @@ _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
         return -1;
     }
 
-    valsf = ((PySurface*)val->surface)->surface;
+    valsf = ((PySDLSurface*)val->surface)->surface;
     bpp = surface->format->BytesPerPixel;
     valbpp = valsf->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
@@ -945,7 +945,7 @@ _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
     Sint32 absxstep;
     Sint32 absystep;
 
-    surface = ((PySurface*) array->surface)->surface;
+    surface = ((PySDLSurface*) array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
@@ -1212,7 +1212,7 @@ _array_assign_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
     Sint32 absxstep;
     Sint32 absystep;
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
@@ -1350,7 +1350,7 @@ _pixelarray_ass_item (PyPixelArray *array, Py_ssize_t _index, PyObject *value)
     Sint32 absxstep;
     Sint32 absystep;
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
@@ -1514,7 +1514,7 @@ _pixelarray_ass_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
             high = array->ylen;
     }
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
 /*
     printf ("SLICE IS: %d:%d\n", low, high);
 */
@@ -1553,7 +1553,7 @@ _pixelarray_contains (PyPixelArray *array, PyObject *value)
     Sint32 absystep;
     int found = 0;
 
-    surface = ((PySurface*)array->surface)->surface;
+    surface = ((PySDLSurface*)array->surface)->surface;
     bpp = surface->format->BytesPerPixel;
     pixels = (Uint8 *) surface->pixels;
 
@@ -1742,7 +1742,7 @@ _get_subslice (PyObject *op, Py_ssize_t length, Py_ssize_t *start,
 static PyObject*
 _pixelarray_subscript (PyPixelArray *array, PyObject *op)
 {
-    SDL_Surface *surface = ((PySurface*)array->surface)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)array->surface)->surface;
 
     /* Note: order matters here.
      * First check array[x,y], then array[x:y:z], then array[x]
@@ -2106,13 +2106,13 @@ PyPixelArray_New (PyObject *surfobj)
 {
     SDL_Surface *surface;
 
-    if (!surfobj || !PySurface_Check (surfobj))
+    if (!surfobj || !PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "argument must be a Surface");
         return NULL;
     }
 
-    surface = ((PySurface*)surfobj)->surface;
+    surface = ((PySDLSurface*)surfobj)->surface;
     if (surface->format->BytesPerPixel < 1  ||
         surface->format->BytesPerPixel > 4)
     {

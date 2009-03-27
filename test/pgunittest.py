@@ -77,6 +77,9 @@ def _strclass(cls):
 
 __unittest = 1
 
+if sys.version_info[0] >= 3:
+    cmp = lambda x, y: (x > y) - (x < y)
+
 def CmpToKey(mycmp):
     'Convert a cmp= function into a key= function'
     class K(object):

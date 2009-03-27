@@ -1,9 +1,11 @@
 SOURCES = \
 	base_tests.c \
 	mask_tests.c \
-	physics_tests.c
+	physics_tests.c \
+	sdl_tests.c
+
 OBJECTS = $(SOURCES:%.c=%.o)
-TARGETS = base_tests mask_tests physics_tests
+TARGETS = base_tests mask_tests physics_tests sdl_tests
 
 CC ?= gcc
 CFLAGS = -W -Wall -g 
@@ -18,6 +20,9 @@ LIBS = -L/usr/local/lib -lpython2.5 -lm
 
 CFLAGS += $(INCLUDES)
 LDFLAGS += $(LIBS)
+
+SDLCFLAGS = `pkg-config --cflags sdl`
+SDLLDFLAGS = `pkg-config --libs sdl`
 
 all: $(OBJECTS) $(TARGETS)
 
@@ -35,6 +40,11 @@ physics_tests.o: physics_tests.c
 	$(CC) $(CFLAGS) -c -o $@ $*.c
 physics_tests: physics_tests.o
 	$(CC) physics_tests.o -o physics_tests $(LDFLAGS) 
+
+sdl_tests.o: sdl_tests.c
+	$(CC) $(CFLAGS) $(SDLCFLAGS) -c -o $@ $*.c
+sdl_tests: sdl_tests.o
+	$(CC) sdl_tests.o -o sdl_tests $(LDFLAGS) $(SDLLDFLAGS)
 
 clean:
 	rm -f *.o *.core *~ $(TARGETS)

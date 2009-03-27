@@ -333,14 +333,14 @@
 #endif
 
 int
-pyg_surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
+pyg_sdlsurface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
     int blendargs);
 
-int pyg_surface_save (SDL_Surface *surface, char *filename, char *type);
-int pyg_surface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type);
+int pyg_sdlsurface_save (SDL_Surface *surface, char *filename, char *type);
+int pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type);
 
 int
-pyg_software_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
+pyg_sdlsoftware_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     SDL_Rect *dstrect, int blitargs);
 
 

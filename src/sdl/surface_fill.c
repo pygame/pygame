@@ -686,7 +686,7 @@ surface_fill_blend_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
 }
 
 int
-pyg_surface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
+pyg_sdlsurface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
     int blendargs)
 {
     int result = -1;

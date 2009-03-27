@@ -31,7 +31,7 @@
 static PyObject* _surface_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static int _surface_init (PyObject *surface, PyObject *args, PyObject *kwds);
-static void _surface_dealloc (PySurface *self);
+static void _surface_dealloc (PySDLSurface *self);
 
 static PyObject* _surface_getdict (PyObject *self, void *closure);
 static PyObject* _surface_getcliprect (PyObject *self, void *closure);
@@ -59,7 +59,7 @@ static PyObject* _surface_getalpha (PyObject *self);
 static PyObject* _surface_setalpha (PyObject *self, PyObject *args);
 static PyObject* _surface_convert (PyObject *self, PyObject *args,
     PyObject *kwds);
-static PyObject* _surface_clone (PyObject *self);
+static PyObject* _surface_copy (PyObject *self);
 static PyObject* _surface_blit (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_fill (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_save (PyObject *self, PyObject *args);
@@ -86,7 +86,7 @@ static PyMethodDef _surface_methods[] = {
     { "set_at", _surface_setat, METH_VARARGS, "" },
     { "convert", (PyCFunction) _surface_convert, METH_VARARGS | METH_KEYWORDS,
         "" },
-    { "clone", (PyCFunction)_surface_clone, METH_NOARGS, "" },
+    { "copy", (PyCFunction)_surface_copy, METH_NOARGS, "" },
     { "blit", (PyCFunction)_surface_blit, METH_VARARGS | METH_KEYWORDS, "" },
     { "fill", (PyCFunction)_surface_fill, METH_VARARGS | METH_KEYWORDS, "" },
     { "save", _surface_save, METH_VARARGS, "" },
@@ -113,11 +113,11 @@ static PyGetSetDef _surface_getsets[] = {
 
 /**
  */
-PyTypeObject PySurface_Type =
+PyTypeObject PySDLSurface_Type =
 {
     TYPE_HEAD(NULL, 0)
     "video.Surface",              /* tp_name */
-    sizeof (PySurface),   /* tp_basicsize */
+    sizeof (PySDLSurface),   /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _surface_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
@@ -139,7 +139,7 @@ PyTypeObject PySurface_Type =
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
-    offsetof (PySurface, weakrefs), /* tp_weaklistoffset */
+    offsetof (PySDLSurface, weakrefs), /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
     _surface_methods,           /* tp_methods */
@@ -149,7 +149,7 @@ PyTypeObject PySurface_Type =
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
-    offsetof (PySurface, dict), /* tp_dictoffset */
+    offsetof (PySDLSurface, dict), /* tp_dictoffset */
     (initproc) _surface_init,   /* tp_init */
     0,                          /* tp_alloc */
     _surface_new,               /* tp_new */
@@ -167,7 +167,7 @@ PyTypeObject PySurface_Type =
 };
 
 static void
-_surface_dealloc (PySurface *self)
+_surface_dealloc (PySDLSurface *self)
 {
     Py_XDECREF (self->dict);
     Py_XDECREF (self->locklist);
@@ -177,13 +177,14 @@ _surface_dealloc (PySurface *self)
     if (self->surface)
         SDL_FreeSurface (self->surface);
 
-    ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
+    PyObject *obj = (PyObject*) &(self->pysurface);
+    obj->ob_type->tp_free ((PyObject*)self);
 }
 
 static PyObject*
 _surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PySurface *surface = (PySurface *)type->tp_alloc (type, 0);
+    PySDLSurface *surface = (PySDLSurface *)type->tp_alloc (type, 0);
     if (!surface)
         return NULL;
 
@@ -191,6 +192,14 @@ _surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     surface->dict = NULL;
     surface->weakrefs = NULL;
     surface->intlocks = 0;
+
+    surface->pysurface.get_width = _surface_getwidth;
+    surface->pysurface.get_height = _surface_getheight;
+    surface->pysurface.get_size = _surface_getsize;
+    surface->pysurface.get_pixels = _surface_getpixels;
+    surface->pysurface.blit = _surface_blit;
+    surface->pysurface.copy = _surface_copy;
+
     return (PyObject*) surface;
 }
 
@@ -207,6 +216,9 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
                             NULL };
 
     ASSERT_VIDEO_INIT (-1);
+
+    if (PySurface_Type.tp_init ((PyObject *) self, args, kwds) < 0)
+        return -1;
 
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "ii|ilO", keys, &width,
             &height, &depth, &flags, &masks))
@@ -289,7 +301,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
     if (!surface)
         return -1;
 
-    ((PySurface*)self)->surface = surface;
+    ((PySDLSurface*)self)->surface = surface;
     return 0;
 }
 
@@ -297,7 +309,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject*
 _surface_getdict (PyObject *self, void *closure)
 {
-    PySurface *surface = (PySurface*) self;
+    PySDLSurface *surface = (PySDLSurface*) self;
     if (!surface->dict)
     {
         surface->dict = PyDict_New ();
@@ -311,7 +323,7 @@ _surface_getdict (PyObject *self, void *closure)
 static PyObject*
 _surface_getcliprect (PyObject *self, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     SDL_Rect sdlrect;
 
     SDL_GetClipRect (surface, &sdlrect);
@@ -321,7 +333,7 @@ _surface_getcliprect (PyObject *self, void *closure)
 static int
 _surface_setcliprect (PyObject *self, PyObject *value, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     SDL_Rect rect;
     
     if (value == Py_None)
@@ -337,41 +349,41 @@ _surface_setcliprect (PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _surface_getwidth (PyObject *self, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     return PyInt_FromLong (surface->w);
 }
 static PyObject*
 _surface_getheight (PyObject *self, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     return PyInt_FromLong (surface->h);
 }
 
 static PyObject*
 _surface_getsize (PyObject *self, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     return Py_BuildValue ("(ii)", surface->w, surface->h);
 }
 
 static PyObject*
 _surface_getflags (PyObject *self, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     return PyLong_FromLong ((long)surface->flags);
 }
 
 static PyObject*
 _surface_getformat (PyObject *self, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     return PyPixelFormat_NewFromSDLPixelFormat (surface->format);
 }
 
 static PyObject*
 _surface_getpitch (PyObject *self, void *closure)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     return PyInt_FromLong (surface->pitch);
 }
 
@@ -379,12 +391,12 @@ static PyObject*
 _surface_getpixels (PyObject *self, void *closure)
 {
     PyObject *buffer;
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
 
-    buffer = PyBufferProxy_New (NULL, NULL, 0, PySurface_RemoveRefLock);
+    buffer = PyBufferProxy_New (NULL, NULL, 0, PySDLSurface_RemoveRefLock);
     if (!buffer)
         return NULL;
-    if (!PySurface_AddRefLock (self, buffer))
+    if (!PySDLSurface_AddRefLock (self, buffer))
         return NULL;
     ((PyBufferProxy*)buffer)->object = self;
     ((PyBufferProxy*)buffer)->buffer = surface->pixels;
@@ -396,7 +408,7 @@ _surface_getpixels (PyObject *self, void *closure)
 static PyObject*
 _surface_getlocked (PyObject *self, void *closure)
 {
-    PySurface *sf = (PySurface*) self;
+    PySDLSurface *sf = (PySDLSurface*) self;
 
     if (sf->intlocks != 0)
         Py_RETURN_TRUE;
@@ -421,7 +433,7 @@ _surface_update (PyObject *self, PyObject *args)
     {
         /* Single rect to update */
         Py_BEGIN_ALLOW_THREADS;
-        SDL_UpdateRect (((PySurface*)self)->surface, r.x, r.y, r.w, r.h);
+        SDL_UpdateRect (((PySDLSurface*)self)->surface, r.x, r.y, r.w, r.h);
         Py_END_ALLOW_THREADS;
         Py_RETURN_NONE;
     }
@@ -455,7 +467,7 @@ _surface_update (PyObject *self, PyObject *args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    SDL_UpdateRects (((PySurface*)self)->surface, (int)count, rects);
+    SDL_UpdateRects (((PySDLSurface*)self)->surface, (int)count, rects);
     Py_END_ALLOW_THREADS;
     PyMem_Free (rects);
 
@@ -468,7 +480,7 @@ _surface_flip (PyObject *self)
     int ret;
     
     Py_BEGIN_ALLOW_THREADS;
-    ret = SDL_Flip (((PySurface*)self)->surface);
+    ret = SDL_Flip (((PySDLSurface*)self)->surface);
     Py_END_ALLOW_THREADS;
     
     if (ret == -1)
@@ -518,7 +530,7 @@ _surface_setcolors (PyObject *self, PyObject *args)
         Py_DECREF (item);
     }
     
-    ret = SDL_SetColors (((PySurface*)self)->surface, colors, 0, (int)count);
+    ret = SDL_SetColors (((PySDLSurface*)self)->surface, colors, 0, (int)count);
     PyMem_Free (colors);
 
     if (!ret)
@@ -529,7 +541,7 @@ _surface_setcolors (PyObject *self, PyObject *args)
 static PyObject*
 _surface_getpalette (PyObject *self)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     SDL_Palette *pal = surface->format->palette;
     SDL_Color *c;
     PyObject *tuple, *color;
@@ -598,8 +610,8 @@ _surface_setpalette (PyObject *self, PyObject *args)
         Py_DECREF (item);
     }
     
-    ret = SDL_SetPalette (((PySurface*)self)->surface, (int)flags, palette, 0,
-        (int)count);
+    ret = SDL_SetPalette (((PySDLSurface*)self)->surface, (int)flags, palette,
+        0, (int)count);
     PyMem_Free (palette);
 
     if (!ret)
@@ -610,30 +622,30 @@ _surface_setpalette (PyObject *self, PyObject *args)
 static PyObject*
 _surface_lock (PyObject *self)
 {
-    if (SDL_LockSurface (((PySurface*)self)->surface) == -1)
+    if (SDL_LockSurface (((PySDLSurface*)self)->surface) == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }
-    ((PySurface*)self)->intlocks++;
+    ((PySDLSurface*)self)->intlocks++;
     Py_RETURN_NONE;
 }
 
 static PyObject*
 _surface_unlock (PyObject *self)
 {
-    if (((PySurface*)self)->intlocks == 0)
+    if (((PySDLSurface*)self)->intlocks == 0)
         Py_RETURN_NONE;
 
-    SDL_UnlockSurface (((PySurface*)self)->surface);
-    ((PySurface*)self)->intlocks--;
+    SDL_UnlockSurface (((PySDLSurface*)self)->surface);
+    ((PySDLSurface*)self)->intlocks--;
     Py_RETURN_NONE;
 }
 
 static PyObject*
 _surface_getcolorkey (PyObject *self)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     Uint8 r, g, b, a;
 
     if (!(surface->flags & SDL_SRCCOLORKEY))
@@ -657,8 +669,8 @@ _surface_setcolorkey (PyObject *self, PyObject *args)
     else if (!Uint32FromObj (colorkey, &key))
         return NULL;
 
-    RGB2FORMAT (key, ((PySurface*)self)->surface->format);
-    if (SDL_SetColorKey (((PySurface*)self)->surface, flags, key) == -1)
+    RGB2FORMAT (key, ((PySDLSurface*)self)->surface->format);
+    if (SDL_SetColorKey (((PySDLSurface*)self)->surface, flags, key) == -1)
         Py_RETURN_FALSE;
     Py_RETURN_TRUE;
 }
@@ -666,7 +678,7 @@ _surface_setcolorkey (PyObject *self, PyObject *args)
 static PyObject*
 _surface_getalpha (PyObject *self)
 {
-    SDL_Surface *surface = ((PySurface*)self)->surface;
+    SDL_Surface *surface = ((PySDLSurface*)self)->surface;
 
     if (surface->flags & SDL_SRCALPHA)
         return PyInt_FromLong (surface->format->alpha);
@@ -682,7 +694,7 @@ _surface_setalpha (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "lb:set_alpha", &flags, &alpha))
         return NULL;
 
-    if (SDL_SetAlpha (((PySurface*)self)->surface, flags, alpha) == -1)
+    if (SDL_SetAlpha (((PySDLSurface*)self)->surface, flags, alpha) == -1)
         Py_RETURN_FALSE;
     Py_RETURN_TRUE;
 }
@@ -708,22 +720,23 @@ _surface_convert (PyObject *self, PyObject *args, PyObject *kwds)
     
     if (!pxfmt && flags == 0)
     {
-        surface = SDL_DisplayFormat (((PySurface*)self)->surface);
+        surface = SDL_DisplayFormat (((PySDLSurface*)self)->surface);
     }
     else
     {
         if (pxfmt)
             fmt = ((PyPixelFormat*)pxfmt)->format;
         else
-            fmt = ((PySurface*)self)->surface->format;
+            fmt = ((PySDLSurface*)self)->surface->format;
 
-        surface = SDL_ConvertSurface (((PySurface*)self)->surface, fmt, flags);
+        surface = SDL_ConvertSurface (((PySDLSurface*)self)->surface, fmt,
+            flags);
     }
 
     if (!surface)
         return NULL;
     
-    sf = PySurface_NewFromSDLSurface (surface);
+    sf = PySDLSurface_NewFromSDLSurface (surface);
     if (!sf)
     {
         SDL_FreeSurface (surface);
@@ -736,7 +749,7 @@ static PyObject*
 _surface_getat (PyObject *self, PyObject *args)
 {
     int x, y;
-    SDL_Surface *surface = PySurface_AsSurface (self);
+    SDL_Surface *surface = PySDLSurface_AsSurface (self);
     SDL_PixelFormat *fmt = surface->format;
     Uint8 r, g, b, a;
     Uint32 value;
@@ -777,7 +790,7 @@ static PyObject*
 _surface_setat (PyObject *self, PyObject *args)
 {
     int x, y;
-    SDL_Surface *surface = PySurface_AsSurface (self);
+    SDL_Surface *surface = PySDLSurface_AsSurface (self);
     SDL_PixelFormat *fmt = surface->format;
     PyObject *color;
     Uint32 value;
@@ -818,9 +831,9 @@ _surface_setat (PyObject *self, PyObject *args)
 }
 
 static PyObject*
-_surface_clone (PyObject *self)
+_surface_copy (PyObject *self)
 {
-    return PySurface_Clone (self);
+    return PySDLSurface_Copy (self);
 }
 
 static PyObject*
@@ -837,7 +850,7 @@ _surface_blit (PyObject *self, PyObject *args, PyObject *kwds)
             &dstr, &srcr, &blitargs))
         return NULL;
    
-    if (!PySurface_Check (srcsf))
+    if (!PySDLSurface_Check (srcsf))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
@@ -853,8 +866,8 @@ _surface_blit (PyObject *self, PyObject *args, PyObject *kwds)
     if (dstr && !PointFromObject (dstr, (int*)&(dstrect.x), (int*)&(dstrect.y)))
         return NULL;
 
-    src = ((PySurface*)srcsf)->surface;
-    dst = ((PySurface*)self)->surface;
+    src = ((PySDLSurface*)srcsf)->surface;
+    dst = ((PySDLSurface*)self)->surface;
     
     if (!srcr)
     {
@@ -881,7 +894,7 @@ _surface_blit (PyObject *self, PyObject *args, PyObject *kwds)
     /* TODO: Check if all blit combinations work. */
     if (blitargs != 0)
     {
-        if (!pyg_software_blit (src, &srcrect, dst, &dstrect, blitargs))
+        if (!pyg_sdlsoftware_blit (src, &srcrect, dst, &dstrect, blitargs))
         {
             PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
             return NULL;
@@ -917,7 +930,7 @@ _surface_fill (PyObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
     
-    surface = ((PySurface*)self)->surface;
+    surface = ((PySDLSurface*)self)->surface;
     if (!dstrect)
     {
         rect.x = rect.y = 0;
@@ -932,7 +945,7 @@ _surface_fill (PyObject *self, PyObject *args, PyObject *kwds)
     if (blendargs == -1)
         ret = SDL_FillRect (surface, &rect, col);
     else
-        ret =  pyg_surface_fill_blend (surface, &rect, col, blendargs);
+        ret =  pyg_sdlsurface_fill_blend (surface, &rect, col, blendargs);
     Py_END_ALLOW_THREADS;
         
     if (ret == -1)
@@ -954,7 +967,7 @@ _surface_save (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "O|s", &file, &type))
         return NULL;
 
-    surface = ((PySurface*)self)->surface;
+    surface = ((PySDLSurface*)self)->surface;
 
     if (IsTextObj (file))
     {
@@ -963,7 +976,7 @@ _surface_save (PyObject *self, PyObject *args)
             return NULL;
         
         Py_BEGIN_ALLOW_THREADS;
-        retval = pyg_surface_save (surface, filename, type);
+        retval = pyg_sdlsurface_save (surface, filename, type);
         Py_END_ALLOW_THREADS;
         
         Py_XDECREF (tmp);
@@ -983,7 +996,7 @@ _surface_save (PyObject *self, PyObject *args)
         if (!(rw = RWopsFromPython (file)))
             return NULL;
         Py_BEGIN_ALLOW_THREADS;
-        retval = pyg_surface_save_rw (surface, rw, type);
+        retval = pyg_sdlsurface_save_rw (surface, rw, type);
         Py_END_ALLOW_THREADS;
     }
     else
@@ -1008,16 +1021,16 @@ _surface_save (PyObject *self, PyObject *args)
 static void
 _release_c_lock (void *ptr)
 {
-    SurfaceLock* c_lock = (SurfaceLock*) ptr;
+    SDLSurfaceLock* c_lock = (SDLSurfaceLock*) ptr;
 
-    SDL_UnlockSurface (((PySurface*)c_lock->surface)->surface);
+    SDL_UnlockSurface (((PySDLSurface*)c_lock->surface)->surface);
     Py_XDECREF (c_lock->surface);
     Py_XDECREF (c_lock->lockobj);
     PyMem_Free (c_lock);
 }
 
 PyObject*
-PySurface_New (int w, int h)
+PySDLSurface_New (int w, int h)
 {
     SDL_Surface *sf, *video;
     PyObject *surface;
@@ -1039,26 +1052,28 @@ PySurface_New (int w, int h)
         return NULL;
     }
 
-    surface = (PyObject*) PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
+    surface = (PyObject*) PySDLSurface_Type.tp_new
+        (&PySDLSurface_Type, NULL, NULL);
     if (!surface)
     {
         SDL_FreeSurface (sf);
         return NULL;
     }
-    ((PySurface*)surface)->surface = sf;
+    ((PySDLSurface*)surface)->surface = sf;
     return surface;
 }
 
 PyObject*
-PySurface_NewFromSDLSurface (SDL_Surface *sf)
+PySDLSurface_NewFromSDLSurface (SDL_Surface *sf)
 {
-    PySurface *surface;
+    PySDLSurface *surface;
     if (!sf)
     {
         PyErr_SetString (PyExc_TypeError, "sf must not be NULL");
         return NULL;
     }
-    surface = (PySurface*) PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
+    surface = (PySDLSurface*) PySDLSurface_Type.tp_new
+        (&PySDLSurface_Type, NULL, NULL);
     if (!surface)
         return NULL;
 
@@ -1067,12 +1082,12 @@ PySurface_NewFromSDLSurface (SDL_Surface *sf)
 }
 
 int
-PySurface_AddRefLock (PyObject *surface, PyObject *lock)
+PySDLSurface_AddRefLock (PyObject *surface, PyObject *lock)
 {
-    PySurface *sf = (PySurface*)surface;
+    PySDLSurface *sf = (PySDLSurface*)surface;
     PyObject *wkref;
 
-    if (!surface || !PySurface_Check (surface))
+    if (!surface || !PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return 0;
@@ -1108,9 +1123,9 @@ PySurface_AddRefLock (PyObject *surface, PyObject *lock)
 }
 
 int
-PySurface_RemoveRefLock (PyObject *surface, PyObject *lock)
+PySDLSurface_RemoveRefLock (PyObject *surface, PyObject *lock)
 {
-    PySurface *sf = (PySurface*)surface;
+    PySDLSurface *sf = (PySDLSurface*)surface;
     PyObject *ref, *item;
     Py_ssize_t size;
     int found = 0, noerror = 1;
@@ -1121,7 +1136,7 @@ PySurface_RemoveRefLock (PyObject *surface, PyObject *lock)
         return 0;
     }
 
-    if (!surface || !PySurface_Check (surface))
+    if (!surface || !PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return 0;
@@ -1172,10 +1187,10 @@ PySurface_RemoveRefLock (PyObject *surface, PyObject *lock)
 }
 
 PyObject*
-PySurface_AcquireLockObj (PyObject *surface, PyObject *lock)
+PySDLSurface_AcquireLockObj (PyObject *surface, PyObject *lock)
 {
     PyObject *cobj;
-    SurfaceLock *c_lock;
+    SDLSurfaceLock *c_lock;
 
     if (!lock)
     {
@@ -1183,13 +1198,13 @@ PySurface_AcquireLockObj (PyObject *surface, PyObject *lock)
         return 0;
     }
 
-    if (!surface || !PySurface_Check (surface))
+    if (!surface || !PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return 0;
     }
 
-    c_lock = PyMem_New (SurfaceLock, 1);
+    c_lock = PyMem_New (SDLSurfaceLock, 1);
     if (!c_lock)
         return NULL;
 
@@ -1198,7 +1213,7 @@ PySurface_AcquireLockObj (PyObject *surface, PyObject *lock)
     c_lock->surface = surface;
     c_lock->lockobj = lock;
 
-    if (SDL_LockSurface (((PySurface*)surface)->surface) == -1)
+    if (SDL_LockSurface (((PySDLSurface*)surface)->surface) == -1)
     {
         PyMem_Free (c_lock);
         Py_DECREF (surface);
@@ -1210,7 +1225,7 @@ PySurface_AcquireLockObj (PyObject *surface, PyObject *lock)
     cobj = PyCObject_FromVoidPtr (c_lock, _release_c_lock);
     if (!cobj)
     {
-        SDL_UnlockSurface (((PySurface*)surface)->surface);
+        SDL_UnlockSurface (((PySDLSurface*)surface)->surface);
         PyMem_Free (c_lock);
         Py_DECREF (surface);
         Py_XDECREF (lock);
@@ -1221,25 +1236,25 @@ PySurface_AcquireLockObj (PyObject *surface, PyObject *lock)
 }
 
 PyObject*
-PySurface_Clone (PyObject *source)
+PySDLSurface_Copy (PyObject *source)
 {
     PyObject *surfobj;
     SDL_Surface *surface, *newsurface;
 
-    if (!source || !PySurface_Check (source))
+    if (!source || !PySDLSurface_Check (source))
     {
         PyErr_SetString (PyExc_TypeError, "source must be a Surface");
         return NULL;
     }
 
-    surface = ((PySurface*)source)->surface;
+    surface = ((PySDLSurface*)source)->surface;
 
     /* TODO: does this really copy anything? */
     newsurface = SDL_ConvertSurface (surface, surface->format, surface->flags);
     if (!newsurface)
         return NULL;
 
-    surfobj = PySurface_NewFromSDLSurface (newsurface);
+    surfobj = PySDLSurface_NewFromSDLSurface (newsurface);
     if (!surfobj)
     {
         SDL_FreeSurface (newsurface);
@@ -1251,11 +1266,11 @@ PySurface_Clone (PyObject *source)
 void
 surface_export_capi (void **capi)
 {
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT] = &PySurface_Type;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+1] = PySurface_New;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+2] = PySurface_NewFromSDLSurface;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+3] = PySurface_Clone;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+4] = PySurface_AddRefLock;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+5] = PySurface_RemoveRefLock;
-    capi[PYGAME_SDLSURFACE_FIRSTSLOT+6] = PySurface_AcquireLockObj;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT] = &PySDLSurface_Type;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+1] = PySDLSurface_New;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+2] = PySDLSurface_NewFromSDLSurface;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+3] = PySDLSurface_Copy;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+4] = PySDLSurface_AddRefLock;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+5] = PySDLSurface_RemoveRefLock;
+    capi[PYGAME_SDLSURFACE_FIRSTSLOT+6] = PySDLSurface_AcquireLockObj;
 }

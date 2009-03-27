@@ -161,7 +161,7 @@ _font_init (PyObject *self, PyObject *args, PyObject *kwds)
         PyObject *tmp;
 
         if (!UTF8FromObject (file, &filename, &tmp))
-            return NULL;
+            return -1;
 
         Py_BEGIN_ALLOW_THREADS;
         if (_index == 0)
@@ -501,7 +501,7 @@ _font_render (PyObject *self, PyObject* args, PyObject *kwds)
             PyErr_SetString (PyExc_PyGameError, TTF_GetError ());
             return NULL;
         }
-        pysurf = PySurface_NewFromSDLSurface (surface);
+        pysurf = PySDLSurface_NewFromSDLSurface (surface);
         if (!pysurf)
         {
             PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
@@ -519,7 +519,7 @@ _font_render (PyObject *self, PyObject* args, PyObject *kwds)
         PyErr_SetString (PyExc_PyGameError, TTF_GetError ());
         return NULL;
     }
-    pysurf = PySurface_NewFromSDLSurface (surface);
+    pysurf = PySDLSurface_NewFromSDLSurface (surface);
     if (!pysurf)
     {
         SDL_FreeSurface (surface);

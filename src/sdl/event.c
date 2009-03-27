@@ -236,11 +236,14 @@ _create_dict_from_event (SDL_Event *event, int release)
         if (!_set_item (dict, "scancode",
                 PyInt_FromLong (event->key.keysym.scancode)))
             goto failed;
-        if (!_set_item (dict, "key", PyInt_FromLong (event->key.keysym.sym)))
+        if (!_set_item (dict, "key",
+                PyLong_FromUnsignedLong (event->key.keysym.sym)))
             goto failed;
-        if (!_set_item (dict, "sym", PyInt_FromLong (event->key.keysym.sym)))
+        if (!_set_item (dict, "sym",
+                PyLong_FromUnsignedLong (event->key.keysym.sym)))
             goto failed;
-        if (!_set_item (dict, "mod", PyInt_FromLong (event->key.keysym.mod)))
+        if (!_set_item (dict, "mod",
+                PyLong_FromUnsignedLong (event->key.keysym.mod)))
             goto failed;
         /* if SDL_EnableUNICODE() == 0, unicode will be a 0 character */
         if (!_set_item (dict, "unicode",

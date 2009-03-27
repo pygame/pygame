@@ -148,6 +148,31 @@ typedef struct
     (*(PyObject*(*)(PyObject*,void*,Py_ssize_t,bufferunlock_func))PyGameBase_C_API[PYGAME_BUFFERPROXY_FIRSTSLOT+1])
 #endif /* PYGAME_BUFFERPROXY_INTERNAL */
 
+typedef struct
+{
+    PyObject_HEAD
+
+    PyObject* (*get_width)(PyObject *self, void *closure);
+    PyObject* (*get_height) (PyObject *self, void *closure);
+    PyObject* (*get_size)(PyObject *self, void *closure);
+    PyObject* (*get_pixels)(PyObject *self, void *closure);
+    PyObject* (*blit)(PyObject *self, PyObject *args, PyObject *kwds); 
+    PyObject* (*copy)(PyObject *self); 
+} PySurface;
+
+#define PYGAME_SURFACE_FIRSTSLOT                                        \
+    (PYGAME_BUFFERPROXY_FIRSTSLOT + PYGAME_BUFFERPROXY_NUMSLOTS)
+#define PYGAME_SURFACE_NUMSLOTS 2
+#ifndef PYGAME_SURFACE_INTERNAL
+#define PySurface_Type \
+    (*(PyTypeObject*)PyGameBase_C_API[PYGAME_SURFACE_FIRSTSLOT+0])
+#define PySurface_Check(x)                                              \
+    (PyObject_TypeCheck(x,                                              \
+        (PyTypeObject*)PyGameBase_C_API[PYGAME_SURFACE_FIRSTSLOT+0]))
+#define PySurface_New                                               \
+    (*(PyObject*(*)(void))PyGameBase_C_API[PYGAME_SURFACE_FIRSTSLOT+1])
+#endif /* PYGAME_SURFACE_INTERNAL */
+
 /**
  * C API export.
  */
@@ -158,7 +183,7 @@ static void **PyGameBase_C_API;
 #endif
 
 #define PYGAME_BASE_SLOTS \
-    (PYGAME_BUFFERPROXY_FIRSTSLOT + PYGAME_BUFFERPROXY_NUMSLOTS)
+    (PYGAME_SURFACE_FIRSTSLOT + PYGAME_SURFACE_NUMSLOTS)
 #define PYGAME_BASE_ENTRY "_PYGAME_BASE_CAPI"
 
 static int

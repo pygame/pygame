@@ -238,7 +238,8 @@ static PyObject*
 _channel_getfading (PyObject *self, void *closure)
 {
     ASSERT_MIXER_OPEN(NULL);
-    return PyInt_FromLong (Mix_FadingChannel (((PyChannel*)self)->channel));
+    return PyLong_FromUnsignedLong (Mix_FadingChannel
+        (((PyChannel*)self)->channel));
 }
 
 /* Methods */

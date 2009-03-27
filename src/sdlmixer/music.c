@@ -138,7 +138,7 @@ _music_init (PyObject *self, PyObject *args, PyObject *kwds)
     {
         PyObject *tmp;
         if (!UTF8FromObject (file, &filename, &tmp))
-            return NULL;
+            return -1;
 
         Py_BEGIN_ALLOW_THREADS;
         music = Mix_LoadMUS (filename);
@@ -183,7 +183,7 @@ static PyObject*
 _music_gettype (PyObject *self, void *closure)
 {
     ASSERT_MIXER_OPEN(NULL);
-    return PyInt_FromLong (Mix_GetMusicType (((PyMusic*)self)->music));
+    return PyLong_FromUnsignedLong (Mix_GetMusicType (((PyMusic*)self)->music));
 }
 
 /* Methods */
