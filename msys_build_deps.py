@@ -31,13 +31,14 @@ SDL 1.2 (.13) revision 4114 from SVN
 SDL_image 1.2.6
 SDL_mixer 1.2 (.8) revision 3942 from SVN
 SDL_ttf 2.0.9
+SDL_gfx 2.0.18
 smpeg revision 370 from SVN
-freetype 2.3.5
+freetype 2.3.7
 libogg 1.1.3
 libvorbis 1.2.0
 FLAC 1.2.1
 tiff 3.8.2
-libpng 1.2.24
+libpng 1.2.32
 jpeg 6b
 zlib 1.2.3
 
@@ -119,7 +120,7 @@ def merge_strings(*args, **kwds):
     sep = kwds.get('sep', '')
     return sep.join([s for s in args if s])
 
-class BuildError(Exception):
+class BuildError(StandardError):
     """Raised for missing source paths and failed script runs"""
     pass
 
@@ -327,7 +328,7 @@ def set_environment_variables(msys, options):
     environ['CPATH'] = merge_strings(include_path, environ.get('CPATH', ''),
                                      sep=';')
 
-class ChooseError(Exception):
+class ChooseError(StandardError):
     """Failer to select dependencies"""
     pass
 
@@ -454,7 +455,7 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
 
 # This list includes the MSYS shell scripts to build each library. Each script
 # runs in an environment where MINGW_ROOT_DIRECTORY is defined and the MinGW
-# bin directory is in PATH. Three other environment variables are defined:
+# bin directory is in PATH. Four other environment variables are defined:
 # BDCONF, BDCOMP, BDINST and BDCLEAN. They are either '0' or '1'. They
 # represent configure, compile, install and clean respectively. When '1' the
 # corresponding action is performed. When '0' it is skipped. A final variable,
@@ -535,14 +536,16 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('FREETYPE', ['freetype-[2-9].*'], [], """
+    Dependency('FREETYPE', ['freetype-[2-9].*'], ['libfreetype-6.dll'], """
 
 set -e
 cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
-  # Will only install a static library, but that is all that is needed.
-  ./configure --disable-shared
+  # Need to define inline as freetypes is compiled as -pedentic
+  # yet stdlib.h is not.
+  export CPPFLAGS="-Dinline=__inline__ $CPPFLAGS"
+  ./configure
 fi
 
 if [ x$BDCOMP == x1 ]; then
@@ -551,6 +554,10 @@ fi
 
 if [ x$BDINST == x1 ]; then
   make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/libfreetype-6.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
@@ -584,47 +591,40 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
 fi
 """),
-    Dependency('PNG', ['libpng-[1-9].*'], ['libpng13.dll'], """
+    Dependency('PNG', ['libpng-[1-9].*'], ['libpng12-0.dll'], """
 
 set -e
 cd $BDWD
 
 if [ x$BDCONF == x1 ]; then
   # This will only build a static library.
-  ./configure --with-libpng-compat=no --disable-shared
+  ./configure --with-libpng-compat=no
 
   # Remove a duplicate entry in the def file.
-  sed '222 d' scripts/pngw32.def >in.def
+  BDDEF=scripts/pngw32.def
+  cp -f "$BDDEF" temp_
+  sed '222 s/^\\(  png_malloc_warn @195\\)/;\\1/' temp_ >"$BDDEF"
+  rm temp_
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Build the DLL as win32 gui.
   make
-  dlltool -D libpng13.dll -d in.def -l libpng.dll.a
-  ranlib libpng.dll.a
-  gcc -shared -s $LDFLAGS -def in.def -o libpng13.dll .libs/libpng12.a -lz
 fi
 
 if [ x$BDINST == x1 ]; then
-  # Only install the headers and import library, otherwise SDL_image will
-  # statically link to png.
-  make install-pkgincludeHEADERS
-  cp -fp png.h /usr/local/include
-  cp -fp pngconf.h /usr/local/include
-  cp -fp libpng.dll.a /usr/local/lib
-  cp -fp libpng13.dll /usr/local/bin
+  make install
+  
+  # Sorry, but no one else recognizes png12
+  cp -f /usr/local/lib/libpng12.dll.a /usr/local/lib/libpng.dll.a
 fi
 
 if [ x$BDSTRIP == x1 ]; then
-  strip --strip-all /usr/local/bin/libpng13.dll
+  strip --strip-all /usr/local/bin/libpng12-0.dll
 fi
 
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
-  rm -f in.def
-  rm -f libpng.dll.a
-  rm -f libpng13.dll
 fi
 """),
     Dependency('JPEG', ['jpeg-[6-9]*'], ['jpeg.dll'], """
@@ -638,7 +638,6 @@ if [ x$BDCONF == x1 ]; then
 fi
 
 if [ x$BDCOMP == x1 ]; then
-  # Build the DLL as a win32 gui.
   make
   dlltool --export-all-symbols -D jpeg.dll -l libjpeg.dll.a -z in.def libjpeg.a
   ranlib libjpeg.dll.a
@@ -649,6 +648,7 @@ if [ x$BDINST == x1 ]; then
   # Only install the headers and import library, otherwise SDL_image will
   # statically link to jpeg.
   make install-headers
+  cp -fp libjpeg.a /usr/local/lib
   cp -fp libjpeg.dll.a /usr/local/lib
   cp -fp jpeg.dll /usr/local/bin
   if [ x$? != x0 ]; then exit $?; fi
@@ -689,10 +689,11 @@ if [ x$BDCOMP == x1 ]; then
 fi
 
 if [ x$BDINST == x1 ]; then
-  # Only install the headers and import library, otherwise SDL_image will
+  # Don't install any libtools info files so SDL_image will not
   # statically link to jpeg.
   cd libtiff
   make install-data-am
+  cp -fp .libs/libtiff.a /usr/local/lib
   cp -fp libtiff.dll.a /usr/local/lib
   cp -fp libtiff.dll /usr/local/bin
   if [ x$? != x0 ]; then exit $?; fi
@@ -842,9 +843,9 @@ if [ x$BDCONF == x1 ]; then
     --disable-doxygen-docs
 fi
 
-#if [ x$BDCOMP == x1 ]; then
-#  make
-#fi
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
 
 if [ x$BDINST == x1 ]; then
   cp src/libFLAC/.libs/libFLAC.a /usr/local/lib
@@ -894,6 +895,184 @@ fi
 if [ x$BDCLEAN == x1 ]; then
   set +e
   make clean
+fi
+"""),
+    Dependency('PORTMIDI', ['portmidi', 'portmidi-[1-9].*'], ['portmidi.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  cat > GNUmakefile << 'THE_END'
+# Makefile for portmidi, generated for Pygame by msys_build_deps.py.
+
+target = /usr/local
+
+pmcom = pm_common
+pmwin = pm_win
+pt = porttime
+
+pmdll = portmidi.dll
+pmlib = libportmidi.a
+pmimplib = libportmidi.dll.a
+pmcomsrc = $(pmcom)/portmidi.c $(pmcom)/pmutil.c
+pmwinsrc = $(pmwin)/pmwin.c $(pmwin)/pmwinmm.c
+pmobj = portmidi.o pmutil.o pmwin.o pmwinmm.o
+pmsrc = $(pmcomsrc) $(pmwinsrc)
+pmreqhdr = $(pmcom)/portmidi.h $(pmcom)/pmutil.h
+pmhdr = $(pmreqhdr) $(pmcom)/pminternal.h $(pmwin)/pmwinmm.h
+
+ptsrc = $(pt)/porttime.c porttime/ptwinmm.c
+ptobj = porttime.o ptwinmm.o
+ptreqhdr = $(pt)/porttime.h
+pthdr = $(ptreqhdr)
+
+src = $(pmsrc) $(ptsrc)
+reqhdr = $(pmreqhdr) $(ptreqhdr)
+hdr = $(pmhdr) $(pthdr)
+obj = $(pmobj) $(ptobj)
+def = portmidi.def
+
+IHDR := -I$(pmcom) -I$(pmwin) -I$(pt)
+LIBS := $(LOADLIBES) $(LDLIBS) -lwinmm
+
+all : $(pmdll)
+.PHONY : all
+
+$(pmlib) : $(src) $(hdr)
+\t$(CC) $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
+\tar rc $(pmlib) $(obj)
+\tranlib $(pmlib)
+
+$(pmdll) : $(pmlib) $(def)
+\t$(CC) -shared $(LDFLAGS) -def $(def) $(pmlib) $(LIBS) -o $@
+\tdlltool -D $(pmdll) -d $(def) -l $(pmimplib)
+\tranlib $(pmimplib)
+
+.PHONY : install
+
+install : $(pmdll)
+\tcp -f --target-directory=$(target)/bin $<
+\tcp -f --target-directory=$(target)/lib $(pmlib)
+\tcp -f --target-directory=$(target)/lib $(pmimplib)
+\tcp -f --target-directory=$(target)/include $(reqhdr)
+
+.PHONY : clean
+
+clean :
+\trm -f $(obj) $(pmdll) $(pmimplib) $(pmlib)
+THE_END
+
+  cat > portmidi.def << 'THE_END'
+LIBRARY portmidi.dll
+EXPORTS
+Pm_Abort
+Pm_Close
+Pm_CountDevices
+Pm_Dequeue
+Pm_Enqueue
+Pm_GetDefaultInputDeviceID
+Pm_GetDefaultOutputDeviceID
+Pm_GetDeviceInfo
+Pm_GetErrorText
+Pm_GetHostErrorText
+Pm_HasHostError
+Pm_Initialize
+Pm_OpenInput
+Pm_OpenOutput
+Pm_Poll
+Pm_QueueCreate
+Pm_QueueDestroy
+Pm_QueueEmpty
+Pm_QueueFull
+Pm_QueuePeek
+Pm_Read
+Pm_SetChannelMask
+Pm_SetFilter
+Pm_SetOverflow
+Pm_Terminate
+Pm_Write
+Pm_WriteShort
+Pm_WriteSysEx
+Pt_Sleep
+Pt_Start
+Pt_Started
+Pt_Stop
+Pt_Time
+pm_add_device
+pm_alloc
+pm_descriptor_index DATA
+pm_descriptor_max DATA
+pm_fail_fn
+pm_fail_timestamp_fn
+pm_free
+pm_hosterror DATA
+pm_hosterror_text DATA
+pm_init
+pm_none_dictionary DATA
+pm_read_bytes
+pm_read_short
+pm_success_fn
+pm_term
+pm_winmm_in_dictionary DATA
+pm_winmm_init
+pm_winmm_out_dictionary DATA
+pm_winmm_term
+THE_END
+
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/portmidi.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+  rm -f GNUmakefile portmidi.def
+fi
+"""),
+    Dependency('GFX', ['SDL_gfx-[2-9].*'], ['SDL_gfx.dll'], """
+
+set -e
+cd $BDWD
+
+if [ x$BDCONF == x1 ]; then
+  # This will only build a static library.
+  ./configure
+fi
+
+if [ x$BDCOMP == x1 ]; then
+  make
+  gcc -shared $LDFLAGS -o SDL_gfx.dll -Wl,--out-implib=libSDL_gfx.dll.a \
+    *.o -lSDL
+  ranlib libSDL_gfx.dll.a
+fi
+
+if [ x$BDINST == x1 ]; then
+  make install
+  cp -fp libSDL_gfx.dll.a /usr/local/lib
+  cp -fp SDL_gfx.dll /usr/local/bin
+  if [ x$? != x0 ]; then exit $?; fi
+fi
+
+if [ x$BDSTRIP == x1 ]; then
+  strip --strip-all /usr/local/bin/SDL_gfx.dll
+fi
+
+if [ x$BDCLEAN == x1 ]; then
+  set +e
+  make clean
+  rm -f libSDL_gfx.dll.a
+  rm -f SDL_gfx.dll
 fi
 """),
     ]  # End dependencies = [.

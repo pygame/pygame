@@ -169,6 +169,8 @@ PyTypeObject PySDLSurface_Type =
 static void
 _surface_dealloc (PySDLSurface *self)
 {
+    PyObject *obj;
+    
     Py_XDECREF (self->dict);
     Py_XDECREF (self->locklist);
     if (self->weakrefs)
@@ -177,7 +179,7 @@ _surface_dealloc (PySDLSurface *self)
     if (self->surface)
         SDL_FreeSurface (self->surface);
 
-    PyObject *obj = (PyObject*) &(self->pysurface);
+    obj = (PyObject*) &(self->pysurface);
     obj->ob_type->tp_free ((PyObject*)self);
 }
 
