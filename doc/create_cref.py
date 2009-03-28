@@ -109,12 +109,12 @@ def create_method_ref (method, prefix, buf):
     node = method.getElementsByTagName ("call")
     if node and node[0].firstChild:
         call = node[0].firstChild.nodeValue + "\n"
-        desc = call
     node = method.getElementsByTagName ("desc")
     if node and node[0].firstChild:
         desc += node[0].firstChild.nodeValue
     desc = prepare_text (desc)
-    buf.write ("#define %s \"%s\"\n" % (prefix + name, desc))
+    call = prepare_text (call)
+    buf.write ("#define %s \"%s\\n\\n%s\"\n" % (prefix + name, call, desc))
 
 def create_c_header (infile, outfile):
     try:

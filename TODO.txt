@@ -17,6 +17,7 @@ Things to ADD:
 * (re)add tests
 * add examples
 * reorganise and add camera module
+* add portmidi wrapper.
 * Subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
 
 Things to FIX:
