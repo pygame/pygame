@@ -1,10 +1,21 @@
 """
-uses portmidi for putting midi into and out of pygame.
+TODO:
+    - write all docs as inline python docs.
+    - rewrite docs for pygame doc style.
+        - follow the format, and style of current docs.
+    - export docs from .py to .doc.
+    - create a background thread version for input threads.
+        - that can automatically inject input into the event queue
+          once the input object is running.  Like joysticks.
+    - generate test stubs (probably after docs are written)
+        - $ cd test/util/
+          $ python gen_stubs.py sprite.Sprite
+    - start writing tests.
+
+Uses portmidi library for putting midi into and out of pygame.
 
 This uses pyportmidi for now, but may use its own bindings at some
 point.
-
-
 """
 
 
@@ -136,9 +147,6 @@ class MidiException(Exception):
 
 class Input(object):
 
-    """
-    """
-
 
     def __init__(self, device_id, buffer_size=4096):
         """
@@ -191,58 +199,97 @@ class Output(object):
         along to the device driver or hardware. Latency may also help you 
         to synchronize midi data to audio data by matching midi latency to 
         the audio buffer latency.
-
-
-
         """
         self._output = pypm.Output(device_id, latency)
         self.device_id = device_id
 
     def write(self, data):
         """
+
+        output a series of MIDI information in the form of a list:
+             write([[[status <,data1><,data2><,data3>],timestamp],
+                    [[status <,data1><,data2><,data3>],timestamp],...])
+        <data> fields are optional
+        example: choose program change 1 at time 20000 and
+        send note 65 with velocity 100 500 ms later.
+             write([[[0xc0,0,0],20000],[[0x90,60,100],20500]])
+        notes:
+          1. timestamps will be ignored if latency = 0.
+          2. To get a note to play immediately, send MIDI info with
+             timestamp read from function Time.
+          3. understanding optional data fields:
+               write([[[0xc0,0,0],20000]]) is equivalent to
+               write([[[0xc0],20000]])
+
+        Can send up to 1024 elements in your data list, otherwise an 
+         IndexError exception is raised.
         """
         self._output.Write(data)
 
+
     def write_short(self, status, data1 = 0, data2 = 0):
-        """
+        """ write_short(status <, data1><, data2>)
+             output MIDI information of 3 bytes or less.
+             data fields are optional
+             status byte could be:
+                  0xc0 = program change
+                  0x90 = note on
+                  etc.
+                  data bytes are optional and assumed 0 if omitted
+             example: note 65 on with velocity 100
+                  WriteShort(0x90,65,100)
         """
         self._output.WriteShort(status, data1, data2)
 
+
     def write_sys_ex(self, when, msg):
-        """
+        """ write_sys_ex(<timestamp>,<msg>)
+        writes a timestamped system-exclusive midi message.
+        <msg> can be a *list* or a *string*
+        example:
+            (assuming y is an input MIDI stream)
+            y.write_sys_ex(0,'\\xF0\\x7D\\x10\\x11\\x12\\x13\\xF7')
+                              is equivalent to
+            y.write_sys_ex(pygame.midi.Time,
+            [0xF0, 0x7D, 0x10, 0x11, 0x12, 0x13, 0xF7])
         """
         self._output.WriteSysEx(when, msg)
 
 
-
     def note_on(self, note, velocity=None):
-        """
+        """ note_on(note, velocity=None)
+        Turn a note on in the output stream.
         """
         if velocity is None:
             velocity = 0
         self.write_short(0x90, note, velocity)
 
     def note_off(self, note, velocity=None):
-        """
+        """ note_off(note, velocity=None)
+        Turn a note off in the output stream.
         """
         if velocity is None:
             velocity = 0
         self.write_short(0x80, note, velocity)
 
     def set_instrument(self, instrument_id):
-        """
+        """ set_instrument(instrument_id)
+        Select an instrument, with a value between 0 and 127.
         """
         if not (0 <= instrument_id <= 127):
             raise ValueError("Undefined instrument id: %d" % instrument_id)
         self.write_short(0xc0, instrument_id)
 
 
-
+def time():
+    """ Returns the current time in ms of the PortMidi timer.
+    """
+    return pypm.Time()
 
 
 
 def midis2events(midis, device_id):
-    """ takes a sequence of midi events and returns pygame events.
+    """ takes a sequence of midi events and returns a list of pygame events.
     """
     evs = []
     for midi in midis:
