@@ -45,7 +45,7 @@ pypm src/pypm.c $(SDL) $(PORTMIDI) $(PORTTIME) $(DEBUG)
 
 #GFX = src/SDL_gfx/SDL_gfxPrimitives.c 
 #GFX = src/SDL_gfx/SDL_gfxBlitFunc.c src/SDL_gfx/SDL_gfxPrimitives.c 
-gfxdraw src/gfxdraw.c src/SDL_gfx/SDL_gfxPrimitives.c $(SDL) $(DEBUG)
+gfxdraw src/gfxdraw.c $(SDL) src/SDL_gfx/SDL_gfxPrimitives.c $(DEBUG)
 
 
 
