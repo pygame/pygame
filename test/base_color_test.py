@@ -804,7 +804,7 @@ class ColorTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_Color_r(self):
+    def test_pygame2_base_Color_r(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Color.r:
 

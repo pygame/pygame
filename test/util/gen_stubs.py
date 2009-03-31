@@ -159,9 +159,9 @@ def prep_method_name (methodname):
     separated = methodname.rfind('__')
     if separated != -1:
         methodname = methodname[:separated]
-    
+
     if methodname.startswith ('test_'):
-        return 'todo_'.join (methodname)
+        return 'todo_%s' % methodname
     else:
         return methodname
     
@@ -189,6 +189,7 @@ def get_tested ():
                (mth.__name__.startswith ('test_') or
                 mth.__name__.startswith ('todo_')):
                 tested.append (prep_method_name (mth.__name__))
+
     return tested
 
 if __name__ == "__main__":
