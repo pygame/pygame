@@ -243,6 +243,8 @@ test_shape (void)
         vertices[3].real != 10 || vertices[3].imag != 10)
         ERROR ("Mismatch in PyShape_GetVertices_FAST assignment");
     PyMem_Free (vertices);
+    Py_DECREF (shape1);
+
 }
 
 int

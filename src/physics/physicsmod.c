@@ -44,13 +44,13 @@ PyMODINIT_FUNC initphysics (void)
         goto fail;
     if (PyType_Ready (&PyBody_Type) < 0)
         goto fail;
-    PyShape_Type.tp_new = &PyType_GenericNew;
+    PyShape_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyShape_Type) < 0)
         goto fail;
     PyRectShape_Type.tp_base = &PyShape_Type;
     if (PyType_Ready (&PyRectShape_Type) < 0)
         goto fail;
-    PyJoint_Type.tp_new = &PyType_GenericNew;
+    PyJoint_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PyJoint_Type) < 0)
         goto fail;
     PyContact_Type.tp_base = &PyJoint_Type;

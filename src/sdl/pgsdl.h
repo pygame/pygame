@@ -152,7 +152,8 @@ typedef struct
     PyObject    *locklist;
     pguint16     intlocks; /* Internally hold locks */
 } PySDLSurface;
-#define PySDLSurface_AsSurface(x) (((PySDLSurface*)x)->surface)
+#define PySDLSurface_AsSDLSurface(x) (((PySDLSurface*)x)->surface)
+#define PySDLSurface_AsPySurface(x) (&(((PySDLSurface*)x)->pysurface))
 #define PYGAME_SDLSURFACE_FIRSTSLOT                             \
     (PYGAME_SDLPXFMT_FIRSTSLOT + PYGAME_SDLPXFMT_NUMSLOTS)
 #define PYGAME_SDLSURFACE_NUMSLOTS 7

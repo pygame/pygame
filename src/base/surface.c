@@ -23,8 +23,10 @@
 #include "pgbase.h"
 #include "base_doc.h"
 
+static PyObject* _surface_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
 static int _surface_init (PyObject *cursor, PyObject *args, PyObject *kwds);
-static void _surface_dealloc (PyRect *self);
+static void _surface_dealloc (PySurface *self);
 static PyObject* _surface_repr (PyObject *self);
 
 static PyObject* _surface_getwidth (PyObject *self, void *closure);
@@ -96,7 +98,7 @@ PyTypeObject PySurface_Type =
     0,                          /* tp_dictoffset */
     (initproc) _surface_init,   /* tp_init */
     0,                          /* tp_alloc */
-    0,                          /* tp_new */
+    _surface_new,               /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -110,8 +112,22 @@ PyTypeObject PySurface_Type =
 #endif
 };
 
+static PyObject*
+_surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PySurface* sf = (PySurface*) type->tp_alloc (type, 0);
+    if (!sf)
+        return NULL;
+    sf->get_width = NULL;
+    sf->get_height = NULL;
+    sf->get_size = NULL;
+    sf->get_pixels = NULL;
+    sf->get_size = NULL;
+    return (PyObject*) sf;
+}
+
 static void
-_surface_dealloc (PyRect *self)
+_surface_dealloc (PySurface *self)
 {
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
 }
@@ -125,8 +141,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject*
 _surface_repr (PyObject *self)
 {
-    char buf[256];
-    return Text_FromUTF8 (buf);
+    return Text_FromUTF8 ("Surface");
 }
 
 /* Surface getters/setters */
@@ -171,18 +186,7 @@ _surface_copy (PyObject* self)
 PyObject*
 PySurface_New (void)
 {
-    PySurface *sf = (PySurface*) PySurface_Type.tp_new (&PySurface_Type, NULL,
-        NULL);
-    if (!sf)
-        return NULL;
-    
-    sf->blit = NULL;
-    sf->get_width = NULL;
-    sf->get_height = NULL;
-    sf->get_size = NULL;
-    sf->copy = NULL;
-    
-    return (PyObject*) sf;
+    return PySurface_Type.tp_new (&PySurface_Type, NULL, NULL);
 }
 
 void

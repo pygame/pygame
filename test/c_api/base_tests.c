@@ -236,6 +236,22 @@ test_bufferproxy (void)
     Py_DECREF (buf);
 }
 
+static void
+test_surface (void)
+{
+    PyObject *surface;
+    PySurface *sf;
+
+    surface = PySurface_New ();
+    if (!PySurface_Check (surface))
+        ERROR ("Surface mismatch in PySurface_Check");
+    sf = (PySurface*) surface;
+    if (sf->get_width || sf->get_height || sf->get_size || sf->get_pixels ||
+        sf->blit || sf->copy)
+        ERROR ("Surface is not properly initialised");
+    Py_DECREF (sf);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -248,6 +264,7 @@ main (int argc, char *argv[])
     test_rect ();
     test_frect ();
     test_bufferproxy ();
+    test_surface ();
     Py_Finalize ();
     return 0;
 }

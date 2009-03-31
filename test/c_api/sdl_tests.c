@@ -34,7 +34,12 @@ test_surface (void)
 
     r1 = PyRect_New (0, 0, 640 ,480);
     r2 = PyRect_New (0, 0, 100 ,100);
-    PyObject_CallMethod (sf1, "blit", "OOOi", sf2, NULL, r2, 0x4);
+    PyObject_CallMethod (sf1, "blit", "OOOi", sf2, r1, r2, 0x4);
+
+    Py_DECREF (sf1);
+    Py_DECREF (sf2);
+    Py_DECREF (r1);
+    Py_DECREF (r2);
 }
 
 int

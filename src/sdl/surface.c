@@ -170,7 +170,7 @@ static void
 _surface_dealloc (PySDLSurface *self)
 {
     PyObject *obj;
-    
+
     Py_XDECREF (self->dict);
     Py_XDECREF (self->locklist);
     if (self->weakrefs)
@@ -751,7 +751,7 @@ static PyObject*
 _surface_getat (PyObject *self, PyObject *args)
 {
     int x, y;
-    SDL_Surface *surface = PySDLSurface_AsSurface (self);
+    SDL_Surface *surface = PySDLSurface_AsSDLSurface (self);
     SDL_PixelFormat *fmt = surface->format;
     Uint8 r, g, b, a;
     Uint32 value;
@@ -792,7 +792,7 @@ static PyObject*
 _surface_setat (PyObject *self, PyObject *args)
 {
     int x, y;
-    SDL_Surface *surface = PySDLSurface_AsSurface (self);
+    SDL_Surface *surface = PySDLSurface_AsSDLSurface (self);
     SDL_PixelFormat *fmt = surface->format;
     PyObject *color;
     Uint32 value;

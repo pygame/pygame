@@ -94,7 +94,7 @@ _mask_fromsurface (PyObject* self, PyObject* args)
             &threshold))
         return NULL;
 
-    surf = PySDLSurface_AsSurface (surfobj);
+    surf = PySDLSurface_AsSDLSurface (surfobj);
 
     /* get the size from the surface, and create the mask. */
     mask = bitmask_create (surf->w, surf->h);
@@ -185,9 +185,9 @@ _mask_fromthreshold (PyObject* self, PyObject* args)
             &PySDLSurface_Type, &surfobj2))
         return NULL;
 
-    surf = PySDLSurface_AsSurface (surfobj);
+    surf = PySDLSurface_AsSDLSurface (surfobj);
     if (surfobj2)
-        surf2 = PySDLSurface_AsSurface (surfobj2);
+        surf2 = PySDLSurface_AsSDLSurface (surfobj2);
 
     if (!ColorFromObj (rgba_obj_color, surf->format, &color))
         return NULL;

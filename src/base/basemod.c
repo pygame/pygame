@@ -325,7 +325,6 @@ PyMODINIT_FUNC initbase (void)
         MODINIT_RETURN(NULL);
     if (PyType_Ready (&PyBufferProxy_Type) < 0)
         MODINIT_RETURN(NULL);
-    PySurface_Type.tp_new = PyType_GenericNew;
     if (PyType_Ready (&PySurface_Type) < 0)
         MODINIT_RETURN(NULL);
 

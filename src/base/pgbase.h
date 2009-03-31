@@ -159,7 +159,6 @@ typedef struct
     PyObject* (*blit)(PyObject *self, PyObject *args, PyObject *kwds); 
     PyObject* (*copy)(PyObject *self); 
 } PySurface;
-
 #define PYGAME_SURFACE_FIRSTSLOT                                        \
     (PYGAME_BUFFERPROXY_FIRSTSLOT + PYGAME_BUFFERPROXY_NUMSLOTS)
 #define PYGAME_SURFACE_NUMSLOTS 2

@@ -6,7 +6,7 @@ import relative_indentation
 for relpath in ('../../','../'):
     sys.path.insert(0, os.path.abspath(os.path.normpath(os.path.join \
         (os.path.dirname(__file__), relpath))))
-import unittest
+import test.pgunittest as unittest
 
 if sys.version_info < (2, 5, 0):
     ismemberdescriptor = isdatadescriptor
@@ -176,7 +176,7 @@ def get_tested ():
         #    pass
         for what in dir (mod):
             obj = mod.__dict__[what]
-
+            
             if isclass (obj) and unittest.TestCase in obj.__bases__:
                 classes.append (obj)
     
@@ -186,7 +186,8 @@ def get_tested ():
                 continue
             mth = getattr (cls, what)
             if (ismethod (mth) or isfunction(mth)) and \
-                mth.__name__.startswith (('test_', 'todo_')):
+               (mth.__name__.startswith ('test_') or
+                mth.__name__.startswith ('todo_')):
                 tested.append (prep_method_name (mth.__name__))
     return tested
 
@@ -198,7 +199,10 @@ if __name__ == "__main__":
         sys.exit (opt_parser.print_help ())
 
     # This is the only pygame2 specific code portion :-D.
-    root = args[0] or 'pygame2'
+    if len (args) > 0:
+        root = args[0]
+    else:
+        root = 'pygame2'
     if not root.startswith('pygame2'):
         root = '%s.%s' % ('pygame2', root)
 
