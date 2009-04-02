@@ -894,6 +894,64 @@ class SurfaceTypeTest(unittest.TestCase):
 
         self.fail()
 
+    def test_scroll(self):
+        scrolls = [(8, 2, 3),
+                   (16, 2, 3),
+                   (24, 2, 3),
+                   (32, 2, 3),
+                   (32, -1, -3),
+                   (32, 0, 0),
+                   (32, 11, 0),
+                   (32, 0, 11),
+                   (32, -11, 0),
+                   (32, 0, -11),
+                   (32, -11, 2),
+                   (32, 2, -11)]
+        for bitsize, dx, dy in scrolls:
+            surf = pygame.Surface((10, 10), 0, bitsize)
+            surf.fill((255, 0, 0))
+            surf.fill((0, 255, 0), (2, 2, 2, 2,))
+            comp = surf.copy()
+            comp.blit(surf, (dx, dy))
+            surf.scroll(dx, dy)
+            w, h = surf.get_size()
+            for x in range(w):
+                for y in range(h):
+                    self.failUnlessEqual(surf.get_at((x, y)),
+                                         comp.get_at((x, y)),
+                                         "%s != %s, bpp:, %i, x: %i, y: %i" %
+                                         (surf.get_at((x, y)),
+                                          comp.get_at((x, y)),
+                                          bitsize, dx, dy))
+        # Confirm clip rect containment
+        surf = pygame.Surface((20, 13), 0, 32)
+        surf.fill((255, 0, 0))
+        surf.fill((0, 255, 0), (7, 1, 6, 6))
+        comp = surf.copy()
+        clip = Rect(3, 1, 8, 14)
+        surf.set_clip(clip)
+        comp.set_clip(clip)
+        comp.blit(surf, (clip.x + 2, clip.y + 3), surf.get_clip())
+        surf.scroll(2, 3)
+        w, h = surf.get_size()
+        for x in range(w):
+            for y in range(h):
+                self.failUnlessEqual(surf.get_at((x, y)),
+                                     comp.get_at((x, y)))
+        # Confirm keyword arguments and per-pixel alpha
+        spot_color = (0, 255, 0, 128)
+        surf = pygame.Surface((4, 4), pygame.SRCALPHA, 32)
+        surf.fill((255, 0, 0, 255))
+        surf.set_at((1, 1), spot_color)
+        surf.scroll(dx=1)
+        self.failUnlessEqual(surf.get_at((2, 1)), spot_color)
+        surf.scroll(dy=1)
+        self.failUnlessEqual(surf.get_at((2, 2)), spot_color)
+        surf.scroll(dy=1, dx=1)
+        self.failUnlessEqual(surf.get_at((3, 3)), spot_color)
+        surf.scroll(dx=-3, dy=-3)
+        self.failUnlessEqual(surf.get_at((0, 0)), spot_color)
+
 class SurfaceBlendTest (unittest.TestCase):
 
     test_palette = [(0, 0, 0, 255),
@@ -956,7 +1014,7 @@ class SurfaceBlendTest (unittest.TestCase):
                    self._make_src_surface(24),
                    self._make_src_surface(32),
                    self._make_src_surface(32, srcalpha=True)]
-        destinations = [#self._make_surface(8),
+        destinations = [self._make_surface(8),
                         self._make_surface(16),
                         self._make_surface(16, srcalpha=True),
                         self._make_surface(24),
@@ -1045,7 +1103,7 @@ class SurfaceBlendTest (unittest.TestCase):
                    self._make_src_surface(24),
                    self._make_src_surface(32),
                    self._make_src_surface(32, srcalpha=True)]
-        destinations = [#self._make_surface(8),
+        destinations = [self._make_surface(8),
                         self._make_surface(16),
                         self._make_surface(16, srcalpha=True),
                         self._make_surface(24),
@@ -1138,7 +1196,7 @@ class SurfaceBlendTest (unittest.TestCase):
         self.failUnlessEqual(dst.get_at((0, 0)), (0, 0, 0, 255))
         
     def test_fill_blend(self):
-        destinations = [#self._make_surface(8),
+        destinations = [self._make_surface(8),
                         self._make_surface(16),
                         self._make_surface(16, srcalpha=True),
                         self._make_surface(24),
@@ -1172,7 +1230,7 @@ class SurfaceBlendTest (unittest.TestCase):
                 self._assert_surface(dst, p, ", %s" % blend_name)
 
     def test_fill_blend_rgba(self):
-        destinations = [#self._make_surface(8),
+        destinations = [self._make_surface(8),
                         self._make_surface(16),
                         self._make_surface(16, srcalpha=True),
                         self._make_surface(24),
@@ -1282,7 +1340,8 @@ class SurfaceSelfBlitTest(unittest.TestCase):
     def test_colorkey(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
         # (MotherHamster Bugzilla bug 19).
-        bitsizes = [16, 24, 32] #[8, 16, 24, 32]
+        pygame.display.set_mode((100, 50))  # Needed for 8bit surface
+        bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
             surf = self._make_surface(bitsize)
             surf.set_colorkey(self.test_palette[1])
@@ -1302,7 +1361,8 @@ class SurfaceSelfBlitTest(unittest.TestCase):
     def test_blanket_alpha(self):
         # Check a workaround for an SDL 1.2.13 surface self-blit problem
         # (MotherHamster Bugzilla bug 19).
-        bitsizes = [16, 24, 32] #[8, 16, 24, 32]
+        pygame.display.set_mode((100, 50))  # Needed for 8bit surface
+        bitsizes = [8, 16, 24, 32]
         for bitsize in bitsizes:
             surf = self._make_surface(bitsize)
             surf.set_alpha(128)
@@ -1328,7 +1388,7 @@ class SurfaceSelfBlitTest(unittest.TestCase):
             self._assert_same(surf, comp)
 
     def test_blend(self):
-        bitsizes = [16, 24, 32] #[8, 16, 24, 32]
+        bitsizes = [8, 16, 24, 32]
         blends = ['BLEND_ADD',
                   'BLEND_SUB',
                   'BLEND_MULT',

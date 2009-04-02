@@ -728,16 +728,17 @@ void rgb444_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* for
     }
 }   
 
-/* convert from 4:2:2 YUYV interlaced to RGB24 */
-/* modified from OpenCV, based on ccvt_yuyv_bgr32() from camstream */
+/* convert from 4:2:2 YUYV interlaced to RGB */
+/* colorspace conversion routine from libv4l. Licensed LGPL 2.1
+   (C) 2008 Hans de Goede <j.w.r.degoede@hhs.nl> */
 void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* format)
 {
     Uint8 *s, *d8;
     Uint16 *d16;
     Uint32 *d32;
-    int i, cb, cg, cr;
-    Uint8 r1, g1, b1, r2, b2, g2, y1, y2;
-    int rshift, gshift, bshift, rloss, gloss, bloss;
+    int i;
+    int r1, g1, b1, r2, b2, g2;
+    int rshift, gshift, bshift, rloss, gloss, bloss, y1, y2, u, v, u1, rg, v1;
 
     rshift = format->Rshift;
     gshift = format->Gshift;
@@ -752,21 +753,29 @@ void yuyv_to_rgb (const void* src, void* dst, int length, SDL_PixelFormat* forma
     i = length >> 1;
     s = (Uint8 *) src;
 
+    /* yuyv packs 2 pixels into every 4 bytes, sharing the u and v color
+       terms between the 2, with each pixel having a unique y luminance term.
+       Thus, we will operate on 2 pixels at a time. */
     while (i--) {
         y1 = *s++;
-        cb = ((*s - 128) * 454) >> 8;
-        cg = (*s++ - 128) * 88;
+        u = *s++;
         y2 = *s++;
-        cr = ((*s - 128) * 359) >> 8;
-        cg = (cg + (*s++ - 128) * 183) >> 8;
+        v = *s++;
+        /* The lines from here to the switch statement are from libv4l */
+        u1 = (((u - 128) << 7) +  (u - 128)) >> 6;
+        rg = (((u - 128) << 1) +  (u - 128) + ((v - 128) << 2) +
+          ((v - 128) << 1)) >> 3;
+        v1 = (((v - 128) << 1) +  (v - 128)) >> 1;
 
-        r1 = SAT2(y1 + cr);
-        b1 = SAT2(y1 + cb);
-        g1 = SAT2(y1 - cg);
+        r1 = SAT2(y1 + v1);
+        g1 = SAT2(y1 - rg);
+        b1 = SAT2(y1 + u1);
+  
+        r2 = SAT2(y2 + v1);
+        g2 = SAT2(y2 - rg);
+        b2 = SAT2(y2 + u1);
 
-        r2 = SAT2(y2 + cr);
-        b2 = SAT2(y2 + cb);
-        g2 = SAT2(y2 - cg);
+        /* choose the right pixel packing for the destination surface depth */
         switch (format->BytesPerPixel) {
             case 1:
                *d8++ = ((r1 >> rloss) << rshift) | ((g1 >> gloss) << gshift) | ((b1 >> bloss) << bshift);
@@ -859,10 +868,33 @@ void yuyv_to_yuv (const void* src, void* dst, int length, SDL_PixelFormat* forma
     }
 }
 
-/* Converts from 8 bit Bayer (BA81) to rgb24 (RGB3) */
-/* from Sonix SN9C10x routines by Takafumi Mizuno <taka-qce@ls-a.jp> */
-/* FIXME: Seems to be grayscale and kind of dark on the OLPC XO */
-/*        Maybe the result of a different Bayer color order on the screen? */
+/* Converts from 8 bit Bayer (BA81) to rgb24 (RGB3), based on: 
+ * Sonix SN9C101 based webcam basic I/F routines
+ * Copyright (C) 2004 Takafumi Mizuno <taka-qce@ls-a.jp>
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+/* FIXME: Seems to be grayscale and kind of dark on the OLPC XO
+          Maybe the result of a different Bayer color order on the screen? */
 /* TODO: Certainly not the most efficient way of doing this conversion. */
 void sbggr8_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format)
 {
@@ -966,15 +998,14 @@ void sbggr8_to_rgb (const void* src, void* dst, int width, int height, SDL_Pixel
 
 
 /* convert from YUV 4:2:0 (YU12) to RGB24 */
-/* modified from ccvt_c2.c from camstream by Tony Hague */
+/* based on v4lconvert_yuv420_to_rgb24 in libv4l (C) 2008 Hans de Goede. LGPL */
 void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_PixelFormat* format)
 {
+    int rshift, gshift, bshift, rloss, gloss, bloss, i, j, u1, v1, rg, y;
     const Uint8 *y1, *y2, *u, *v;
-    Uint8 yp;
     Uint8 *d8_1, *d8_2;
     Uint16 *d16_1, *d16_2;
     Uint32 *d32_1, *d32_2;
-    int rshift, gshift, bshift, rloss, gloss, bloss, j, i, cr, cb, cg;
 
     rshift = format->Rshift;
     gshift = format->Gshift;
@@ -983,110 +1014,173 @@ void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_Pixel
     gloss = format->Gloss;
     bloss = format->Bloss;
     
+    /* see http://en.wikipedia.org/wiki/YUV for an explanation of YUV420 */
+    y1 = (Uint8*) src;
+    y2 = y1 + width;
+    u = y1 + width * height;
+    v = u + (width * height)/4;
+    j = height/2;
+    /* prepare the destination pointers for different surface depths. */
     d8_1 = (Uint8 *) dst;
+    /* the following is because d8 used for both 8 and 24 bit surfaces */
     d8_2 = d8_1 + (format->BytesPerPixel == 3 ? width*3 : 3);
     d16_1 = (Uint16 *) dst;
     d16_2 = d16_1 + width;
     d32_1 = (Uint32 *) dst;
     d32_2 = d32_1 + width;
-    y1 = (Uint8 *) src;
-    y2 = y1 + width;
-    u = y1 + width * height;
-    v = u + (width * height) / 4;    
-    j = height / 2;
 
-    switch (format->BytesPerPixel) {
+    
+    /* for the sake of speed, the nested while loops are inside of the switch
+      statement for the different surface bit depths */
+    switch(format->BytesPerPixel) {
         case 1:
-            while (j--) {
+            while(j--) {
                 i = width/2;
-                while (i--) {
-                    cb = ((*u-128) * 454)>>8;
-                    cr = ((*v-128) * 359)>>8;
-                    cg = ((*v++-128) * 183 + (*u++-128) * 88)>>8;
-                    yp = *y1++;
-                    *d8_1++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp - cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y1++;
-                    *d8_1++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y2++;
-                    *d8_2++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y2++;
-                    *d8_2++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
+                while(i--) {
+                    /* These formulas are from libv4l */
+                    u1 = (((*u - 128) << 7) +  (*u - 128)) >> 6;
+                    rg = (((*u - 128) << 1) +  (*u - 128) +
+                   		((*v - 128) << 2) + ((*v - 128) << 1)) >> 3;
+                    v1 = (((*v - 128) << 1) +  (*v - 128)) >> 1;
+                    u++;
+                    v++;
+                    /* do the pixels on row 1 */
+                    y = *y1++;
+                    *d8_1++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    y = *y1++;
+                    *d8_1++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    /* do the pixels on row 2 */
+                    y = *y2++;
+                    *d8_2++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    y = *y2++;
+                    *d8_2++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
                 }
+                /* y2 is at the beginning of a new row, make it the new row 1 */
                 y1 = y2;
+                /* and make row 2 one row further */
                 y2 += width;
                 d8_1 = d8_2;
                 d8_2 += width;
             }
             break;
         case 2:
-            while (j--) {
+            while(j--) {
                 i = width/2;
-                while (i--) {
-                    cb = ((*u-128) * 454)>>8;
-                    cr = ((*v-128) * 359)>>8;
-                    cg = ((*v++-128) * 183 + (*u++-128) * 88)>>8;
-                    yp = *y1++;
-                    *d16_1++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp - cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y1++;
-                    *d16_1++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y2++;
-                    *d16_2++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y2++;
-                    *d16_2++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
+                while(i--) {
+                    /* These formulas are from libv4l */
+                    u1 = (((*u - 128) << 7) +  (*u - 128)) >> 6;
+                    rg = (((*u - 128) << 1) +  (*u - 128) +
+                   		((*v - 128) << 2) + ((*v - 128) << 1)) >> 3;
+                    v1 = (((*v - 128) << 1) +  (*v - 128)) >> 1;
+                    u++;
+                    v++;
+                    /* do the pixels on row 1 */
+                    y = *y1++;
+                    *d16_1++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    y = *y1++;
+                    *d16_1++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    /* do the pixels on row 2 */
+                    y = *y2++;
+                    *d16_2++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    y = *y2++;
+                    *d16_2++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
                 }
+                /* y2 is at the beginning of a new row, make it the new row 1 */
                 y1 = y2;
+                /* and make row 2 one row further */
                 y2 += width;
                 d16_1 = d16_2;
                 d16_2 += width;
             }
             break;
         case 3:
-            while (j--) {
+            while(j--) {
                 i = width/2;
-                while (i--) {
-                    cb = ((*u-128) * 454)>>8;
-                    cr = ((*v-128) * 359)>>8;
-                    cg = ((*v++-128) * 183 + (*u++-128) * 88)>>8;
-                    yp = *y1++;
-                    *d8_1++ = SAT2(yp + cb);
-                    *d8_1++ = SAT2(yp - cg);
-                    *d8_1++ = SAT2(yp + cr);
-                    yp = *y1++;
-                    *d8_1++ = SAT2(yp + cb);
-                    *d8_1++ = SAT2(yp - cg);
-                    *d8_1++ = SAT2(yp + cr);
-                    yp = *y2++;
-                    *d8_2++ = SAT2(yp + cb);
-                    *d8_2++ = SAT2(yp - cg);
-                    *d8_2++ = SAT2(yp + cr);
-                    yp = *y2++;
-                    *d8_2++ = SAT2(yp + cb);
-                    *d8_2++ = SAT2(yp - cg);
-                    *d8_2++ = SAT2(yp + cr);
+                while(i--) {
+                    /* These formulas are from libv4l */
+                    u1 = (((*u - 128) << 7) +  (*u - 128)) >> 6;
+                    rg = (((*u - 128) << 1) +  (*u - 128) +
+                   		((*v - 128) << 2) + ((*v - 128) << 1)) >> 3;
+                    v1 = (((*v - 128) << 1) +  (*v - 128)) >> 1;
+                    u++;
+                    v++;
+                    /* do the pixels on row 1 */
+                    y = *y1++;
+                    *d8_1++ = SAT2(y + u1); 
+                    *d8_1++ = SAT2(y - rg);
+                    *d8_1++ = SAT2(y + v1);
+                    y = *y1++;
+                    *d8_1++ = SAT2(y + u1); 
+                    *d8_1++ = SAT2(y - rg);
+                    *d8_1++ = SAT2(y + v1);
+                    /* do the pixels on row 2 */
+                    y = *y2++;
+                    *d8_2++ = SAT2(y + u1); 
+                    *d8_2++ = SAT2(y - rg);
+                    *d8_2++ = SAT2(y + v1);
+                    y = *y2++;
+                    *d8_2++ = SAT2(y + u1); 
+                    *d8_2++ = SAT2(y - rg);
+                    *d8_2++ = SAT2(y + v1);
                 }
+                /* y2 is at the beginning of a new row, make it the new row 1 */
                 y1 = y2;
+                /* and make row 2 one row further */
                 y2 += width;
                 d8_1 = d8_2;
+                /* since it is 3 bytes per pixel */
                 d8_2 += width*3;
             }
             break;
         default:
-            while (j--) {
+            while(j--) {
                 i = width/2;
-                while (i--) {
-                    cb = ((*u-128) * 454)>>8;
-                    cr = ((*v-128) * 359)>>8;
-                    cg = ((*v++-128) * 183 + (*u++-128) * 88)>>8;
-                    yp = *y1++;
-                    *d32_1++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp - cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y1++;
-                    *d32_1++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y2++;
-                    *d32_2++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
-                    yp = *y2++;
-                    *d32_2++ = ((SAT2(yp + cr) >> rloss) << rshift) | ((SAT2(yp + cg) >> gloss) << gshift) | ((SAT2(yp + cb) >> bloss) << bshift);
+                while(i--) {
+                    /* These formulas are from libv4l */
+                    u1 = (((*u - 128) << 7) +  (*u - 128)) >> 6;
+                    rg = (((*u - 128) << 1) +  (*u - 128) +
+                   		((*v - 128) << 2) + ((*v - 128) << 1)) >> 3;
+                    v1 = (((*v - 128) << 1) +  (*v - 128)) >> 1;
+                    u++;
+                    v++;
+                    /* do the pixels on row 1 */
+                    y = *y1++;
+                    *d32_1++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    y = *y1++;
+                    *d32_1++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    /* do the pixels on row 2 */
+                    y = *y2++;
+                    *d32_2++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
+                    y = *y2++;
+                    *d32_2++ = ((SAT2(y + v1) >> rloss) << rshift) | 
+                      ((SAT2(y - rg) >> gloss) << gshift) | 
+                      ((SAT2(y + u1) >> bloss) << bshift);
                 }
+                /* y2 is at the beginning of a new row, make it the new row 1 */
                 y1 = y2;
+                /* and make row 2 one row further */
                 y2 += width;
                 d32_1 = d32_2;
                 d32_2 += width;
@@ -1097,7 +1191,7 @@ void yuv420_to_rgb (const void* src, void* dst, int width, int height, SDL_Pixel
 
 /* turn yuv420 into packed yuv. */
 void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_PixelFormat* format)
-{
+{   
     const Uint8 *y1, *y2, *u, *v;
     Uint8 *d8_1, *d8_2;
     Uint16 *d16_1, *d16_2;
@@ -1193,6 +1287,7 @@ void yuv420_to_yuv (const void* src, void* dst, int width, int height, SDL_Pixel
             }
             break;
     }
+
 }
 
 /*

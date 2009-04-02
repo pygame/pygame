@@ -453,7 +453,7 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
 
 # This list includes the MSYS shell scripts to build each library. Each script
 # runs in an environment where MINGW_ROOT_DIRECTORY is defined and the MinGW
-# bin directory is in PATH. Three other environment variables are defined:
+# bin directory is in PATH. Four other environment variables are defined:
 # BDCONF, BDCOMP, BDINST and BDCLEAN. They are either '0' or '1'. They
 # represent configure, compile, install and clean respectively. When '1' the
 # corresponding action is performed. When '0' it is skipped. A final variable,
@@ -688,7 +688,7 @@ if [ x$BDCOMP == x1 ]; then
 fi
 
 if [ x$BDINST == x1 ]; then
-  # Only install the headers and import library, otherwise SDL_image will
+  # Don't install any libtools info files so SDL_image will not
   # statically link to jpeg.
   cd libtiff
   make install-data-am

@@ -40,6 +40,8 @@ static intptr_t surface_init (PySurfaceObject *self, PyObject *args,
 static PyObject* surface_str (PyObject *self);
 static void surface_dealloc (PyObject *self);
 static void surface_cleanup (PySurfaceObject * self);
+static void surface_move (Uint8 *src, Uint8 *dst, int h,
+			  int span, int srcpitch, int dstpitch);
 
 static PyObject *surf_get_at (PyObject *self, PyObject *args);
 static PyObject *surf_set_at (PyObject *self, PyObject *args);
@@ -65,6 +67,8 @@ static PyObject *surf_set_clip (PyObject *self, PyObject *args);
 static PyObject *surf_get_clip (PyObject *self);
 static PyObject *surf_blit (PyObject *self, PyObject *args, PyObject *keywds);
 static PyObject *surf_fill (PyObject *self, PyObject *args, PyObject *keywds);
+static PyObject *surf_scroll (PyObject *self,
+			       PyObject *args, PyObject *keywds);
 static PyObject *surf_get_abs_offset (PyObject *self);
 static PyObject *surf_get_abs_parent (PyObject *self);
 static PyObject *surf_get_bitsize (PyObject *self);
@@ -133,6 +137,9 @@ static struct PyMethodDef surface_methods[] =
       DOC_SURFACEFILL },
     { "blit", (PyCFunction) surf_blit, METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACEBLIT },
+
+    { "scroll", (PyCFunction) surf_scroll, METH_VARARGS | METH_KEYWORDS,
+      DOC_SURFACESCROLL },
 
     { "get_flags", (PyCFunction) surf_get_flags, METH_NOARGS,
       DOC_SURFACEGETFLAGS },
@@ -1488,6 +1495,98 @@ surf_blit (PyObject *self, PyObject *args, PyObject *keywds)
 }
 
 static PyObject*
+surf_scroll (PyObject *self, PyObject *args, PyObject *keywds)
+{
+    int dx = 0, dy = 0;
+    SDL_Surface *surf;
+    int bpp;
+    int pitch;
+    SDL_Rect *clip_rect;
+    int w, h;
+    Uint8 *src, *dst;
+
+    static char *kwids[] = {"dx", "dy", NULL};
+    if (!PyArg_ParseTupleAndKeywords (args, keywds, "|ii", kwids, &dx, &dy))
+    {
+        return NULL;
+    }
+
+    surf = PySurface_AsSurface (self);
+    if (!surf)
+    {
+        return RAISE (PyExc_SDLError, "display Surface quit");
+    }
+
+    if (surf->flags & SDL_OPENGL &&
+        !(surf->flags & (SDL_OPENGLBLIT & ~SDL_OPENGL)))
+    {
+        return RAISE (PyExc_SDLError,
+                      "Cannot scroll an OPENGL Surfaces (OPENGLBLIT is ok)");
+    }
+
+    if (dx == 0 && dy == 0)
+    {
+	Py_RETURN_NONE;
+    }
+
+    clip_rect = &surf->clip_rect;
+    w = clip_rect->w;
+    h = clip_rect->h;
+    if (dx >= w || dx <= -w || dy >= h || dy <= -h)
+    {
+	Py_RETURN_NONE;
+    }
+
+    if (!PySurface_Lock (self))
+    {
+	return NULL;
+    }
+
+    bpp = surf->format->BytesPerPixel;
+    pitch = surf->pitch;
+    src = dst = (Uint8 *) surf->pixels +
+	        clip_rect->y * pitch + clip_rect->x * bpp;
+    if (dx >= 0)
+    {
+	w -= dx;
+	if (dy > 0)
+	{
+	    h -= dy;
+	    dst += dy * pitch + dx * bpp;
+	}
+	else
+	{
+	    h += dy;
+	    src -= dy * pitch;
+	    dst += dx * bpp;
+	}
+    }
+    else
+    {
+	w += dx;
+	if (dy > 0)
+	{
+	    h -= dy;
+	    src -= dx * bpp;
+	    dst += dy * pitch;
+	}
+	else
+	{
+	    h += dy;
+	    src -= dy * pitch + dx * bpp;
+	}
+    }
+    surface_move (src, dst, h, w * bpp, pitch, pitch);
+
+    if (!PySurface_Unlock (self))
+    {
+        return NULL;
+    }
+
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 surf_get_flags (PyObject *self)
 {
     SDL_Surface *surf = PySurface_AsSurface (self);
@@ -1975,14 +2074,23 @@ static PyObject
     return buffer;
 }
 
-static SDL_Surface *
-surface_find_owner(PyObject *surfobj)
+static void
+surface_move (Uint8 *src, Uint8 *dst, int h, int span,
+	      int srcpitch, int dstpitch)
 {
-    while (((PySurfaceObject *) surfobj)->subsurface)
+    if (src < dst)
     {
-	surfobj = ((PySurfaceObject *) surfobj)->subsurface->owner;
+	src += (h - 1) * srcpitch;
+	dst += (h - 1) * dstpitch;
+	srcpitch = -srcpitch;
+	dstpitch = -dstpitch;
     }
-    return PySurface_AsSurface (surfobj);
+    while (h--)
+    {
+	memmove(dst, src, span);
+	src += srcpitch;
+	dst += dstpitch;
+    }
 }
 
 static int
@@ -2090,7 +2198,6 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
     SDL_Surface *subsurface = NULL;
     int result, suboffsetx = 0, suboffsety = 0;
     SDL_Rect orig_clip, sub_clip;
-    int didconvert = 0;
 
     /* passthrough blits to the real surface */
     if (((PySurfaceObject *) dstobj)->subsurface)
@@ -2130,14 +2237,6 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
 
     PySurface_Prep (srcobj);
 
-    /* can't blit alpha to 8bit, crashes SDL */
-    if (dst->format->BytesPerPixel == 1 &&
-        (src->format->Amask || src->flags & SDL_SRCALPHA))
-    {
-        didconvert = 1;
-        src = SDL_DisplayFormat (src);
-    }
-
     /* see if we should handle alpha ourselves */
     if (dst->format->Amask && (dst->flags & SDL_SRCALPHA) &&
         !(src->format->Amask && !(src->flags & SDL_SRCALPHA)) &&
@@ -2162,15 +2261,36 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
         result = pygame_Blit (src, srcrect, dst, dstrect, the_args);
 	/* Py_END_ALLOW_THREADS */
     }
+    /* can't blit alpha to 8bit, crashes SDL */
+    else if (dst->format->BytesPerPixel == 1 &&
+	     (src->format->Amask || src->flags & SDL_SRCALPHA))
+    {
+	/* Py_BEGIN_ALLOW_THREADS */
+	if (src->format->BytesPerPixel == 1)
+	{
+	    result = pygame_Blit (src, srcrect, dst, dstrect, 0);
+	}
+    else
+    {
+	    src = SDL_DisplayFormat (src);
+	    if (src)
+	    {
+        result = SDL_BlitSurface (src, srcrect, dst, dstrect);
+		SDL_FreeSurface (src);
+    }
+	    else
+	    {
+		result = -1;
+	    }
+	}
+	/* Py_END_ALLOW_THREADS */
+    }
     else
     {
 	/* Py_BEGIN_ALLOW_THREADS */
         result = SDL_BlitSurface (src, srcrect, dst, dstrect);
 	/* Py_END_ALLOW_THREADS */
     }
-
-    if (didconvert)
-        SDL_FreeSurface (src);
 
     if (subsurface)
     {

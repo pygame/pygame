@@ -9,7 +9,7 @@ python_includes = [ PYTHON_INCLUDE ]
 #mixer.c
 #font.c
 #imageext.c
-ignored = r"""
+IGNORED = r"""
 pypm.c
 camera.c
 ffmovie.c
@@ -28,9 +28,10 @@ joystick.c
 cdrom.c""".split()
 
 pygame_sources = glob.glob( "../src/*.c" )
+pygame_sources += glob.glob( "../src/SDL_gfx/*.c" )
 removed = []
 for x in pygame_sources:
-    for y in ignored:        
+    for y in IGNORED:        
         if x.endswith(y):
             removed.append(x)
             break
@@ -52,7 +53,8 @@ SymbianProgram( "pygame", TARGETTYPE_LIB,
                    C_LIB_INCLUDE                   
                 ],
                 includes = python_includes + [
-                             "common",                             
+                             "common",
+                             join( "..", "src", "SDL_gfx"),                         
                              join( "deps", "jpeg"),
                              join( "deps", "SDL_image"),
                              join( "deps", "SDL_ttf"),

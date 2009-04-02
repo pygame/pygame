@@ -110,10 +110,10 @@ display a vertical gradient
 pygame.examples.vgrade.main(): return None
 
 Demonstrates creating a vertical gradient with
-Numeric python. The app will create a new gradient every half
+NumPy python. The app will create a new gradient every half
 second and report the time needed to create and display the
 image. If you're not prepared to start working with the
-Numeric arrays, don't worry about the source for this one :]
+NumPy arrays, don't worry about the source for this one :]
 <END>
 
 
@@ -175,7 +175,7 @@ If arraytype is provided then use that array package. Valid
 values are 'numeric' or 'numpy'. Otherwise default to NumPy,
 or fall back on Numeric if NumPy is not installed.
 
-Uses sndarray and MumPy ( or Numeric) to create offset faded copies of the
+Uses sndarray and NumPy ( or Numeric) to create offset faded copies of the
 original sound. Currently it just uses hardcoded values for the
 number of echos and the delay. Easy for you to recreate as 
 needed. Run as a program sound_array_demos.py takes an optional
@@ -384,3 +384,22 @@ on a console.
 
 new to pygame 1.9.0
 <END>
+
+
+
+scroll.main
+run a Surface.scroll example that shows a magnified image
+pygame.examples.scroll.main(image_file=None): return None
+
+This example shows a scrollable image that has a zoom factor of eight.
+It uses the Surface.scroll function to shift the image on the display
+surface. A clip rectangle protects a margin area. If called as a function,
+the example accepts an optional image file path. If run as a program
+it takes an optional file path command line argument. If no file
+is provided a default image file is used.
+
+When running click on a black triangle to move one pixel in the direction
+the triangle points. Or use the arrow keys. Close the window or press ESC
+to quit.
+<END>
+

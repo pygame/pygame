@@ -14,6 +14,7 @@ extern void initdraw(void);
 extern void initevent (void);
 extern void initfastevent (void);
 extern void initfont (void);
+extern void initgfxdraw(void);
 extern void initimage (void);
 extern void initimageext (void);
 extern void initkey (void);
@@ -30,7 +31,7 @@ extern void inittransform (void);
 
 struct _inittab _PyGame_Inittab[] = {
     {"pygame_base", initbase},
-    {"pygame_constants", initconstants}, 
+    {"pygame_constants", initconstants},
     {"pygame_rect", initrect},
     {"pygame_rwobject", initrwobject},
     {"pygame_bufferproxy", initbufferproxy},
@@ -41,6 +42,7 @@ struct _inittab _PyGame_Inittab[] = {
     {"pygame_event", initevent},
     {"pygame_fastevent", initfastevent},
     {"pygame_font", initfont},
+    {"pygame_gfxdraw", initgfxdraw},
     {"pygame_image", initimage},
     {"pygame_imageext", initimageext},
     {"pygame_key", initkey},
@@ -53,8 +55,6 @@ struct _inittab _PyGame_Inittab[] = {
     {"pygame_surface", initsurface},
     {"pygame_surflock", initsurflock},
     {"pygame_time", initpygame_time},
-    {"pygame_transform", inittransform},    
+    {"pygame_transform", inittransform},
     {0, 0}
 };
-
-    

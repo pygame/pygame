@@ -22,6 +22,7 @@ plist = dict(
 setup(
     data_files=['English.lproj', '../../data'],
     app=[
-        dict(script="aliens_bootstrap.py", plist=plist),
+        #dict(script="aliens_bootstrap.py", plist=plist),
+        dict(script="aliens.py", plist=plist),
     ],
 )
