@@ -575,7 +575,13 @@ class Menu(pygame.sprite.Sprite):
         
         #: Rect for scrollbar indicator. User can drag this around with mouse/pen.
         self._scrollbar_indic_rect = Rect(0, 0, 0, 0) 
-
+        
+        #: Flag to determine if user is dragging the scrollbar
+        self.scrollbar_dragged = False
+        
+        #: Last position of the drag so we know the direction
+        self.scrollbar_drag_pos = [0,0]
+        
     #------------------------------------------------ Selection property get/set
     def _set_selection(self, index):
         self._prev_index = self._selected_index
@@ -650,32 +656,52 @@ class Menu(pygame.sprite.Sprite):
         menurect = pygame.Rect(self.itemsurface.get_rect())
         menurect.top = self.itemspos[1]
         
+        # Handle indicator dragging
+        if event.type == pygame.MOUSEMOTION:
+            if self.scrollbar_dragged:
+                
+                # Determine direction by comparing to previous position
+                # We simply change the topmost item when dragging
+                # Not very fancy but works.
+                y = self.scrollbar_drag_pos[1]
+                diff = self.selection - self.visibletop
+                if y < event.pos[1]:
+                    # Down
+                    self.visibletop = min( len(self.items) - self.shownitems, self.visibletop + 1 )
+                    self.selection  = self.visibletop + diff
+                    
+                elif y > event.pos[1]:
+                    # Up
+                    self.visibletop = max( 0, self.visibletop - 1 )
+                    self.selection  = self.visibletop + diff
+                
+                self.scrollbar_drag_pos = event.pos
+                
+                return 2
+            
         if menurect.collidepoint(event.pos):
+            
+            # Check if user clicked the scrollbar
             r = Rect(self._scrollbar_rect)
             r.top += self.itemspos[1]
+            
             if r.collidepoint(event.pos):
-                print "scrollbar"
                 if event.type in [pygame.MOUSEBUTTONUP, pygame.MOUSEBUTTONDOWN]:
                     r = Rect(self._scrollbar_indic_rect)
                     r.top += self.itemspos[1]
-                    #self.visibletop = len(self.items) - 1
-                    #self.items_changed = True
                     if r.collidepoint(event.pos):
-                        # TODO: Need to do something to get rid of current selection being mandatory
-                        # TODO: Handle indicator dragging
-                        
-                        print "Scrollbar indicator!"
+                        # Start dragging the scrollbar
+                        self.scrollbar_dragged = ( event.type == pygame.MOUSEBUTTONDOWN )
                         return 2
                     else:
-                        print "Scrollbar!"
                         # TODO: Handle user clicking empty scrollbar area to move the view area
                         return 2
-            else:
+            elif not self.scrollbar_dragged:
                 for x in xrange(len(self._itemrects)):
                     r = Rect(self._itemrects[x])
                     r.top += self.itemspos[1]
                     if r.collidepoint(event.pos):
-                        self.selection = x
+                        self.selection = self.visibletop + x
                         return 1
         
         return 0
@@ -683,6 +709,10 @@ class Menu(pygame.sprite.Sprite):
     def handleEvent(self, event):
         """ Handle events of this component """
         
+        was_scrollbar_dragging = self.scrollbar_dragged
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.scrollbar_dragged = False
+            
         if event.type == pygame.KEYDOWN:
             if event.key == constants.K_DOWN:
                 self.selectNextItem()
@@ -711,7 +741,7 @@ class Menu(pygame.sprite.Sprite):
            self.checkMouseCollision(event)
         
         # Mouse button up selects the item
-        elif event.type == pygame.MOUSEBUTTONUP:
+        elif event.type == pygame.MOUSEBUTTONUP and not was_scrollbar_dragging:
             self._mousedown = False
             
             # User can cancel selection by moving the pen outside of all items
@@ -768,7 +798,11 @@ class Menu(pygame.sprite.Sprite):
         # Compute the position of the scrollbar's indicator bar
         # topmost item vs how many items
         empty_h = h - indic_h - 4
-        factor = float(self.visibletop) / float(len(self.items) - self.shownitems)
+        factor = float(len(self.items) - self.shownitems)
+        if factor != 0:
+            factor = float(self.visibletop) / factor
+        else:
+            factor = 1
         ys += 2
         ys += empty_h * factor
         indic_r = Rect(xs + 2, ys, 5, indic_h)
@@ -1183,6 +1217,7 @@ def start():
         path_to_app = a.run()
                   
         # Clear cyclic references and the launcher out of the way        
+        # Not needed in PyS60 1.9.x
         del a.bg.sysdata
         del a.bg
         del a._main_menu.sysdata
@@ -1219,11 +1254,12 @@ def start():
                     # The launcher starts a new pygame.exe process for the selected application.
                     # This process must close before starting the new one.
                     p = os.path.abspath( join( THISDIR, "..", "pygame_main.py") )
+                    #TODO: Use start_server
                     e32.start_exe( "251_python_launcher.exe", p )
 
             else:         
                 # TODO: Use subprocess
-                os.system("start pythonw " + join( THISDIR, "..", "pygame_main.py"))
+                os.system("start pythonw " + join( THISDIR, "..", "pygame_main.py") + " " + path_to_app )
                 
         # Exit launcher
         break
