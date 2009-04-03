@@ -76,7 +76,7 @@ public:
 	~CSdlAppUi();
 private:
 	void HandleCommandL(TInt aCommand);
-	void HandleResourceChangeL( TInt aType );
+	void HandleResourceChangeL(TInt aType);
 	void StartTestL(TInt aCmd);
 	void DoExit(TInt aErr);
 	void HandleWsEventL(const TWsEvent& aEvent, CCoeControl* aDestination);
@@ -135,7 +135,7 @@ void CSDLWin::Draw(const TRect& /*aRect*/) const
 	// Draw black( it will be white otherwise and that's even worse looking )
 	// TODO: Take a screenshot and maybe do some kind of fade thingy
 	CWindowGc& gc = SystemGc();
-	gc.SetDrawMode( CGraphicsContext::EDrawModeWriteAlpha );
+	gc.SetDrawMode(CGraphicsContext::EDrawModeWriteAlpha);
 	gc.Clear();
 
 	gc.SetPenStyle(CGraphicsContext::ENullPen);
@@ -160,7 +160,7 @@ void CSDLWin::Draw(const TRect& /*aRect*/) const
 void CSdlAppUi::ConstructL()
 {
 	BaseConstructL(CAknAppUi::EAknEnableSkin /* | ENoScreenFurniture*/);
-	
+
 	iSDLWin = new (ELeave) CSDLWin;
 	iSDLWin->ConstructL(ApplicationRect());
 
@@ -173,18 +173,20 @@ void CSdlAppUi::HandleCommandL(TInt aCommand)
 {
 }
 
-extern "C" {
+extern "C"
+{
 #include <SDL_events.h>
 }
-void CSdlAppUi::HandleResourceChangeL( TInt aType )
+void CSdlAppUi::HandleResourceChangeL(TInt aType)
 {
 
 	//User::InfoPrint(_L("rect.Height()"));
-	if( aType == KEikDynamicLayoutVariantSwitch )
+	if (aType == KEikDynamicLayoutVariantSwitch)
 	{
 		// Create SDL resize event
 		TRect rect;
-		AknLayoutUtils::LayoutMetricsRect( AknLayoutUtils::EApplicationWindow,rect);
+		AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EApplicationWindow,
+				rect);
 
 		SDL_Event event;
 		event.type = SDL_VIDEORESIZE;
@@ -194,12 +196,12 @@ void CSdlAppUi::HandleResourceChangeL( TInt aType )
 		SDL_PushEvent(&event);
 
 		iSDLWin->SetRect(rect);
-/*
-		iSdl->SetContainerWindowL(
-					iSDLWin->GetWindow(),
-					iEikonEnv->WsSession(),
-					*iEikonEnv->ScreenDevice());
-*/
+		/*
+		 iSdl->SetContainerWindowL(
+		 iSDLWin->GetWindow(),
+		 iEikonEnv->WsSession(),
+		 *iEikonEnv->ScreenDevice());
+		 */
 	}
 
 	CAknAppUi::HandleResourceChangeL(aType);
@@ -214,35 +216,37 @@ void CSdlAppUi::StartTestL(TInt aCmd)
 
 	TInt flags = 0;
 
-	flags |= CSDL::EDrawModeDSB | CSDL::EDrawModeDSBDoubleBuffer;
+	//flags |= CSDL::EDrawModeDSB | CSDL::EDrawModeDSBDoubleBuffer;
+	flags |= CSDL::EDrawModeGdi;
 	// Don't draw when in background.
-	flags |= CSDL::EEnableFocusStop;
+	//flags |= CSDL::EEnableFocusStop;
+	flags |= CSDL::EAutoOrientation;
 	// This should be on by default anyway
 	flags |= CSDL::EMainThread;
-	
+
 	//Create CommandLine Arguments and read it.
-	CDesC8ArrayFlat *arr = new (ELeave) CDesC8ArrayFlat (1);
+	CDesC8ArrayFlat *arr = new (ELeave) CDesC8ArrayFlat(1);
 	CleanupStack::PushL(arr);
-	
-	CCommandLineArguments* args=CCommandLineArguments::NewLC();
+
+	CCommandLineArguments* args = CCommandLineArguments::NewLC();
 	// The real args we are interested in start at the 2nd arg
-	for (TInt i=1; i<args->Count(); i++) 
+	for (TInt i = 1; i < args->Count(); i++)
 	{
 		TBuf8<256> arg;
-		arg.Copy(args->Arg(i) );
-		
+		arg.Copy(args->Arg(i));
+
 		arr->AppendL(arg);
 		//TPtrC argumentPrt(args->Arg(i));
-		//console->Printf(_L("Arg %d == %S\n"), i, &argumentPrt); 
+		//console->Printf(_L("Arg %d == %S\n"), i, &argumentPrt);
 	}
-	
+
 	iSdl = CSDL::NewL(flags);
-	
+
 	iSdl->SetContainerWindowL(iSDLWin->GetWindow(), iEikonEnv->WsSession(),
 			*iEikonEnv->ScreenDevice());
 	iSdl->CallMainL(iWait->iStatus, *arr, flags, 0x14000);
 	iWait->Start();
-	
+
 	arr->Reset();
 	CleanupStack::PopAndDestroy(2); // command line and arr
 }
@@ -282,8 +286,8 @@ void CSdlAppUi::DoExit(TInt aErr)
 	Exit();
 }
 
-void CSdlAppUi::HandleWsEventL(const TWsEvent& aEvent,
-		CCoeControl* aDestination)
+void CSdlAppUi::HandleWsEventL(
+		const TWsEvent& aEvent, CCoeControl* aDestination)
 {
 	if (iSdl != NULL)
 		iSdl->AppendWsEvent(aEvent);

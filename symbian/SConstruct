@@ -11,7 +11,7 @@ SVNREVISION = ""
 try:
     import pysvn
     SVNCLIENT = pysvn.Client()
-    SVNREVISION = "_SVN-%d" % ( SVNCLIENT.info(".")["revision"].number )
+    SVNREVISION = "SVN-%d" % ( SVNCLIENT.info(".")["revision"].number )
 except ImportError:
     pass
 
@@ -20,15 +20,7 @@ except ImportError:
 DATE = list(time.gmtime()[:3])    
 DATE = [ str(x).zfill(2) for x in DATE ]
 DATE = "".join( DATE )    
-
-# Pygame's installer package
-PACKAGE_NAME = ARGUMENTS.get( "package", "pygame-S60%(REVISION)s_%(DATE)s_%(COMPILER)s-%(RELEASE)s.sis" % \
-                            {   "DATE"     : DATE, 
-                                "REVISION" : SVNREVISION, 
-                                "COMPILER" : COMPILER.upper(), 
-                                "RELEASE"  : RELEASE.upper() 
-                            } )
-
+ 
 #: Name of the title on installer.
 PACKAGE_TITLE = ARGUMENTS.get( "sisappname", "pygame for S60" )
 
@@ -61,8 +53,20 @@ if len(CAPABILITIES) == 0:
     CAPABILITIES = CAPS_SELF_SIGNED
     constants.SIGNSIS_OUTPUT_EXTENSION = "selfsigned.sisx"
 
-SISVERSION    = ARGUMENTS.get( "sisversion", "1,0,0").split(",")
+SISVERSION     = ARGUMENTS.get( "sisversion", "1,0,0").split(",")
 PYTHON_INCLUDE = ARGUMENTS.get( "pythoninclude", EPOC32_INCLUDE + "/python")
+PYTHON_VERSION = PYTHON_INCLUDE[-2:] # epoc32/include/python25
+if not PYTHON_VERSION.isdigit(): # But missing on pre 1.9.x PyS60( Python 2.2 )
+    PYTHON_VERSION = "22"
+
+# Pygame's installer package
+PACKAGE_NAME = ARGUMENTS.get( "package", "pygame-S60_py%(PYVER)s_%(REVISION)s_%(DATE)s_%(COMPILER)s-%(RELEASE)s.sis" % \
+                            {   "DATE"     : DATE, 
+                                "REVISION" : SVNREVISION, 
+                                "COMPILER" : COMPILER.upper(), 
+                                "RELEASE"  : RELEASE.upper(),
+                                "PYVER"    : PYTHON_VERSION 
+                            } )
 
 # SIS certificate 
 CERT = ARGUMENTS.get("cert", None)

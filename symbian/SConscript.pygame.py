@@ -87,6 +87,9 @@ pygame_lib = join( PATH_PY_LIBS, "pygame" )
 for x in glob( "../lib/*.py"):
     to_package( source = x, target = pygame_lib )
 
+for x in glob( "../lib/threads/*.py"):
+    to_package( source = x, target = join( pygame_lib, "threads") )
+    
 # Copy Symbian specific libs
 for x in glob( "lib/*.py"): 
     to_package( source = x, target = pygame_lib )
