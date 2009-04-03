@@ -37,12 +37,24 @@ if len(sys.argv) < 2:
             
         
 else:
+
     path_to_app = sys.argv[1]
-    
-execfile(path_to_app, {'__builtins__': __builtins__,
+    if sys.platform == "symbian_s60" and "apps" in path_to_app:
+        # Use separate file so it won't be overwritten when the launcher restarts.
+        fold = f
+        f=open('/data/pygame/appout.txt','w')
+        sys.stdout = f
+        sys.stderr = f
+        fold.close()
+
+try:
+    execfile(path_to_app, {'__builtins__': __builtins__,
                    '__name__': '__main__',
                    '__file__': path_to_app } )
-
+except:
+    import traceback
+    traceback.print_exc()
+    
 if f is not None:
     sys.stdout.flush()
     sys.stdout.close()
