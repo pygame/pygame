@@ -48,7 +48,7 @@ def find_libdir (name):
         for g in _libdirs:
             p = os.path.join (d, g)
             f = os.path.join (p, name)
-            if filter (os.path.isfile, glob.glob (f + '*')):
+            if len (list (filter (os.path.isfile, glob.glob (f + '*')))) > 0:
                 return p
 
 def sdl_get_version ():

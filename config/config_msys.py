@@ -1,7 +1,11 @@
 import os, glob
 from config import sdlconfig, pkgconfig, msys, helpers, dll
 
-msys_obj = msys.Msys (require_mingw=False)
+try:
+    msys_obj = msys.Msys (require_mingw=False)
+except:
+    msys_obj = None
+
 _searchdirs = [ "/usr", "/usr/local", "/mingw" ]
 _incdirs = [ "include", "X11/include" ]
 _libdirs = [ "lib", "X11/lib" ]
