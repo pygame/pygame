@@ -78,6 +78,7 @@ get_standard_rwop (PyObject* obj)
         /* TODO: allow wb ops! */
         return SDL_RWFromFile (name, "rb");
     }
+#warning FIXME: Do not use the file descriptor, but a FILE* handle!
 #ifdef IS_PYTHON_3
     else if ((fd = PyObject_AsFileDescriptor (obj)) != -1)
         return SDL_RWFromFP (fd, 0);

@@ -1,4 +1,4 @@
-PYTHON = python
+PYTHON = python3.0
 top_srcdir = `pwd`
 SUBDIRS = \
 	$(top_srcdir)/config \
@@ -40,7 +40,7 @@ bdist: clean docs
 
 build:
 	@echo "Running build..."
-	@$(PYTHON) setup.py build -c mingw32
+	@$(PYTHON) setup.py build #-c mingw32
 	@echo "Build finished, invoke 'make install' to install."
 
 install:

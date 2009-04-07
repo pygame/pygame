@@ -23,7 +23,9 @@
 #include "pgsdlext.h"
 #include "pgsdl.h"
 #include "draw.h"
+#include "sdlextdraw_doc.h"
 #include "surface.h"
+
 
 static PyObject* _draw_aaline (PyObject* self, PyObject* args);
 static PyObject* _draw_line (PyObject* self, PyObject* args);
@@ -38,16 +40,16 @@ static PyObject* _draw_rect (PyObject* self, PyObject* args);
 
 static PyMethodDef _draw_methods[] =
 {
-    { "aaline", _draw_aaline, METH_VARARGS, "" },
-    { "line", _draw_line, METH_VARARGS, "" },
-    { "aalines", _draw_aalines, METH_VARARGS, "" },
-    { "lines", _draw_lines, METH_VARARGS, "" },
-    { "ellipse", _draw_ellipse, METH_VARARGS, "" },
-    { "arc", _draw_arc, METH_VARARGS, "" },
-    { "circle", _draw_circle, METH_VARARGS, "" },
-    { "polygon", _draw_polygon, METH_VARARGS, "" },
-    { "aapolygon", _draw_aapolygon, METH_VARARGS, "" },
-    { "rect", _draw_rect, METH_VARARGS, "" },
+    { "aaline", _draw_aaline, METH_VARARGS, DOC_DRAW_AALINE },
+    { "line", _draw_line, METH_VARARGS, DOC_DRAW_LINE },
+    { "aalines", _draw_aalines, METH_VARARGS, DOC_DRAW_AALINES },
+    { "lines", _draw_lines, METH_VARARGS, DOC_DRAW_LINES },
+    { "ellipse", _draw_ellipse, METH_VARARGS, DOC_DRAW_ELLIPSE },
+    { "arc", _draw_arc, METH_VARARGS, DOC_DRAW_ARC },
+    { "circle", _draw_circle, METH_VARARGS, DOC_DRAW_CIRCLE },
+    { "polygon", _draw_polygon, METH_VARARGS, DOC_DRAW_POLYGON },
+    { "aapolygon", _draw_aapolygon, METH_VARARGS, DOC_DRAW_AAPOLYGON },
+    { "rect", _draw_rect, METH_VARARGS, DOC_DRAW_RECT },
     { NULL, NULL, 0, NULL }
 };
 
@@ -814,14 +816,14 @@ PyMODINIT_FUNC initdraw (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "draw",
-        "",
+        DOC_DRAW,
         -1,
         _draw_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("draw", _draw_methods, NULL);
+    mod = Py_InitModule3 ("draw", _draw_methods, DOC_DRAW);
 #endif
     if (!mod)
         goto fail;

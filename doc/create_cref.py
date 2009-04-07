@@ -18,12 +18,14 @@ def prepare_text (text):
             l = l.replace (":class:", "       ")
             l = l.replace (":meth:", "      ")
             l = l.replace (":ref:", "     ")
+            l = l.replace (":exc:", "     ")
             l = l.replace ("`", " ")
         else:
             l = l.replace (":const:", "")
             l = l.replace (":class:", "")
             l = l.replace (":meth:", "")
             l = l.replace (":ref:", "")
+            l = l.replace (":exc:", "")
             l = l.replace ("`", "")
         
         tmptext += l + "\\n"
@@ -61,7 +63,10 @@ def create_func_refs (module, docprefix, buf):
     funcs = module.getElementsByTagName ("func")
     for func in funcs:
         name = func.getAttribute ("name").upper ()
-        call = func.getAttribute ("call") + "\n"
+        call = ""
+        node = func.getElementsByTagName ("call")
+        if node and node[0].firstChild:
+            call = node[0].firstChild.nodeValue + "\n"
         node = func.getElementsByTagName ("desc")
         desc = call
         if node and node[0].firstChild:
