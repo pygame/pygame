@@ -141,7 +141,7 @@ cdrommod_get_drive (int _index)
     return _cdrom_drives[_index];
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_cdrom (void)
 #else
 PyMODINIT_FUNC initcdrom (void)
@@ -151,7 +151,7 @@ PyMODINIT_FUNC initcdrom (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLCDROM_SLOTS];
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _cdrommodule = {
         PyModuleDef_HEAD_INIT, "cdrom", DOC_CDROM, -1, _cdrom_methods,
         NULL, NULL, NULL, NULL
@@ -167,10 +167,10 @@ PyMODINIT_FUNC initcdrom (void)
     Py_INCREF (&PyCD_Type);
     Py_INCREF (&PyCDTrack_Type);
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("cdrom", _cdrom_methods, DOC_CDROM);
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_cdrommodule);
+#else
+    mod = Py_InitModule3 ("cdrom", _cdrom_methods, DOC_CDROM);
 #endif
     if (!mod)
         goto fail;

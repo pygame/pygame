@@ -27,31 +27,76 @@
     <call>aaline (surface, color, (x1, y1), (x2, y2) [, blend]) -> Rect</call>
     <desc>Draws a fine anti-aliased line.
       
-      Draws an anti-aliased line on a surface. This will respect the
-      clipping rectangle. A bounding box of the affected area is returned
-      as a rectangle. If blend is true, the shades will be be blended with
-      existing pixel shades instead of overwriting them.
+      Draws an anti-aliased line on a surface. If blend is true, the shades
+      will be be blended with existing pixel shades instead of overwriting them.
+      
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
     </desc>
   </func>
   <func name="aalines">
-    <call></call>
-    <desc></desc>
+    <call>aalines (surface, color, ((x1, y2), (x2, y2), ...) [, blend]) -> Rect</call>
+    <desc>Draws multiple contiguous anti-aliased line segments on a surface.
+    
+      Draws a sequence of anti-aliased lines with a fixed width of 1px on a
+      surface. If blend is true, the shades will be be blended with
+      existing pixel shades instead of overwriting them.
+
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
   <func name="aapolygon">
-    <call></call>
-    <desc></desc>
+    <call>aapolygon (surface, color, ((x1, y2), (x2, y2), ...) [, blend]) -> Rect</call>
+    <desc>Draws a anti-aliased polygonal shape on a surface.
+    
+      Draws a polygonal shape on a surface with an fixed line width of 1px. If
+      blend is true, the shades will be be blended with existing pixel shades
+      instead of overwriting them.
+      
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
   <func name="arc">
-    <call></call>
-    <desc></desc>
+    <call>arc (surface, color, rect, startangle, stopangle[, width]) -> Rect</call>
+    <desc>Draws an elliptical arc on a surface.
+    
+      Draws an elliptical arc on a surface with an optionally specified line
+      width. If the width argument is omitted, the line will be 1px thick. If
+      the width is set to 0, a filled shape will be drawn. The startangle and
+      stopangle arguments are the initial and final angle in degrees.
+      
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
   <func name="circle">
-    <call></call>
-    <desc></desc>
+    <call>circle (surface, color, (x, y), radius[, width]) -> Rect</call>
+    <desc>Draws a circular shape on a surface.
+    
+      Draws a circular shape on a surface with an optionally specified line
+      width. If the width argument is omitted, the line will be 1px thick. If
+      the width is set to 0, a filled circular shape will be drawn. The (x, y)
+      tuple denotes the center of the circle.
+      
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
   <func name="ellipse">
-    <call></call>
-    <desc></desc>
+    <call>ellipse (surface, color, rect[, width]) -> Rect</call>
+    <desc>Draws an elliptical shape on a surface.
+    
+      Draws an elliptical shape on a surface with an optionally specified line
+      width. If the width argument is omitted, the line will be 1px thick. If
+      the width is set to 0, a filled elliptical shape will be drawn.
+      The passed :class:`pygame.Rect` denotes the area, the elliptical shape
+      will be drawn in.
+      
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
   <func name="line">
     <call>line (surface, color, (x1, y1), (x2, y2) [, width]) -> Rect</call>
@@ -60,19 +105,45 @@
       Draws a straight line segment on a surface with an optionally specified
       line width. If the width argument is omitted, the line will be 1px thick.
       There are no endcaps, the ends are squared off for thick lines.
+      
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
     </desc>
   </func>
   <func name="lines">
-    <call></call>
-    <desc></desc>
+    <call>lines (surface, color, ((x1, y2), (x2, y2), ...) [, width]) -> Rect</call>
+    <desc>Draws multiple contiguous line segments on a surface.
+    
+      Draws a sequence of lines on a surface with an optionally specified line
+      width. If the width argument is omitted, the lines will be 1px thick.
+
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
   <func name="polygon">
-    <call></call>
-    <desc></desc>
+    <call>polygon (surface, color, ((x1, y2), (x2, y2), ...) [, width]) -> Rect</call>
+    <desc>Draws a polygonal shape on a surface.
+    
+      Draws a polygonal shape on a surface with an optionally specified line
+      width. If the width argument is omitted, the line will be 1px thick. If
+      the width is set to 0, a filled polygon will be drawn.
+      
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
   <func name="rect">
-    <call></call>
-    <desc></desc>
+    <call>rect (surface, color, rect [, width]) -> Rect</call>
+    <desc>Draws a rectangular shape on a surface.
+    
+      Draws a rectangular shape on a surface with an optionally specified line
+      width. If the width argument is omitted, the line will be 1px thick. If
+      the width is set to 0, a filled rectangular shape will be drawn.
+
+      The returned :class:`pygame.Rect` describes the area affected by the
+      changes.
+    </desc>
   </func>
 </module>
 

@@ -624,7 +624,7 @@ _transform_averagecolor (PyObject* self, PyObject* args)
     return Py_BuildValue ("(bbbb)", r, g, b, a);
 }   
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_transform (void)
 #else
 PyMODINIT_FUNC inittransform (void)
@@ -632,7 +632,7 @@ PyMODINIT_FUNC inittransform (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "transform",
@@ -641,12 +641,9 @@ PyMODINIT_FUNC inittransform (void)
         _transform_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("transform", _transform_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("transform", _transform_methods, "");
 #endif
     if (!mod)
         goto fail;

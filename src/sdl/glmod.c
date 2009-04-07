@@ -122,7 +122,7 @@ _sdl_glswapbuffers (PyObject *self)
     Py_RETURN_NONE;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_gl (void)
 #else
 PyMODINIT_FUNC initgl (void)
@@ -131,17 +131,14 @@ PyMODINIT_FUNC initgl (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT, "gl", "", -1, _gl_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("gl", _gl_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("gl", _gl_methods, "");
 #endif
     if (!mod)
         goto fail;

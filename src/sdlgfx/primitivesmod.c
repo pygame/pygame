@@ -1135,7 +1135,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_primitives (void)
 #else
 PyMODINIT_FUNC initprimitives (void)
@@ -1143,7 +1143,7 @@ PyMODINIT_FUNC initprimitives (void)
 {
     PyObject *mod;
     
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "primitives",
@@ -1152,12 +1152,9 @@ PyMODINIT_FUNC initprimitives (void)
         _gfx_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("primitives", _gfx_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("primitives", _gfx_methods, "");
 #endif
     if (!mod)
         goto fail;

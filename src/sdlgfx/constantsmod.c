@@ -25,7 +25,7 @@
 /* macros used to create each constant */
 #define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (int) #x)
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_constants (void)
 #else
 PyMODINIT_FUNC initconstants (void)
@@ -33,7 +33,7 @@ PyMODINIT_FUNC initconstants (void)
 {
     PyObject *module;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "constants",
@@ -42,11 +42,9 @@ PyMODINIT_FUNC initconstants (void)
         NULL,
         NULL, NULL, NULL, NULL
     };
-#endif
-#if PY_VERSION_HEX < 0x03000000
-    module = Py_InitModule3 ("constants", NULL, "Pygame SDL GFX constants");
-#else
     module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("constants", NULL, "Pygame SDL GFX constants");
 #endif
     if (!module)
         goto fail;

@@ -43,6 +43,9 @@ static Py_ssize_t _bufferproxy_getwritebuf (PyBufferProxy *buffer,
     Py_ssize_t _index, const void **ptr);
 static Py_ssize_t _bufferproxy_getsegcount (PyBufferProxy *buffer,
     Py_ssize_t *lenp);
+#else
+static int _bufferproxy_getbuffer (PyBufferProxy *self, Py_buffer *view, int flags);
+static void _bufferproxy_releasebuffer (PyBufferProxy *self, Py_buffer *view);
 #endif
 
 /* C API interfaces */
@@ -72,10 +75,10 @@ static PyGetSetDef _bufferproxy_getsets[] =
     { NULL, NULL, NULL, NULL, NULL }
 };
 
-#ifndef IS_PYTHON_3
 /**
  * Buffer interface support for the PyBufferProxy.
  */
+#ifndef IS_PYTHON_3
 static PyBufferProcs _bufferproxy_as_buffer =
 {
     (readbufferproc) _bufferproxy_getreadbuf,
@@ -87,7 +90,13 @@ static PyBufferProcs _bufferproxy_as_buffer =
     NULL
 #endif
 };
-#endif
+#else /* IS_PYTHON_3 */
+static PyBufferProcs _bufferproxy_as_buffer =
+{
+    (getbufferproc) _bufferproxy_getbuffer,
+    (releasebufferproc) _bufferproxy_releasebuffer
+};
+#endif /* IS_PYTHON_3 */
 
 PyTypeObject PyBufferProxy_Type =
 {
@@ -109,11 +118,7 @@ PyTypeObject PyBufferProxy_Type =
     0,                          /* tp_str */
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
-#ifndef IS_PYTHON_3
     &_bufferproxy_as_buffer,    /* tp_as_buffer */
-#else
-    0, /* TODO */
-#endif
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
     DOC_BASE_BUFFERPROXY,
     0,                          /* tp_traverse */
@@ -260,7 +265,6 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
 
 /*Buffer interfaces */
 #ifndef IS_PYTHON_3
-
 static Py_ssize_t
 _bufferproxy_getreadbuf (PyBufferProxy *buffer, Py_ssize_t _index,
     const void **ptr)
@@ -299,7 +303,23 @@ _bufferproxy_getsegcount (PyBufferProxy *buffer, Py_ssize_t *lenp)
     return 1;
 }
 
-#endif /* #ifndef IS_PYTHON_3 */
+#else /* !IS_PYTHON_3 */
+static int
+_bufferproxy_getbuffer (PyBufferProxy *self, Py_buffer *view, int flags)
+{
+    if (!view)
+        return 0;
+    Py_INCREF (self); /* Guarantee that the object does not get destroyed */
+    return PyBuffer_FillInfo (view, (PyObject*)self, self->buffer,
+        self->length, 0, flags);
+}
+
+static void
+_bufferproxy_releasebuffer (PyBufferProxy *self, Py_buffer *view)
+{
+    Py_DECREF (self);
+}
+#endif /* IS_PYTHON_3 */
 
 /* C API */
 static PyObject*

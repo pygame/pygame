@@ -164,7 +164,7 @@ _sdl_keyenableunicode (PyObject *self, PyObject *args)
     Py_RETURN_FALSE;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_keyboard (void)
 #else
 PyMODINIT_FUNC initkeyboard (void)
@@ -172,17 +172,14 @@ PyMODINIT_FUNC initkeyboard (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT, "keyboard", "", -1, _key_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("keyboard", _key_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("keyboard", _key_methods, "");
 #endif
     if (!mod)
         goto fail;

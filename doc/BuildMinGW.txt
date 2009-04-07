@@ -55,14 +55,14 @@ packages:
 * SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
 * SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24           (http://www.libpng.org)
+* libjpeg >= 6b              (http://www.ijg.org/)
 
 And you will need the dependency packages for the packages above:
 
 * zlib >= 1.2.3              (http://www.zlib.net)
 * tiff >= 3.8.2              (http://libtiff.org)
-* libjpeg >= 6b              (http://www.ijg.org/)
-* libvorbis >= 1.2.0  	     (http://www.vorbis.com)
-* libogg >= 1.1.3            (http://www.vorbis.com)
+* libvorbis >= 1.2.0  	     (http://www.xiph.org/vorbis/)
+* libogg >= 1.1.3            (http://www.xiph.org/ogg/)
 * freetype >= 2.3.5          (http://www.freetype.org)
 * FLAC >= 1.2.1              (http://flac.sourceforge.net)
 

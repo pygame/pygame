@@ -22,12 +22,7 @@
 
 #include <math.h>
 #include <SDL.h>
-
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795
-#endif
-
-#define DEG2RAD(x) ((x) * M_PI / 180.0f)
+#include "pgdefines.h"
 
 #define LOCK_SURFACE(x,ret)                                             \
     if (SDL_MUSTLOCK (x))                                               \

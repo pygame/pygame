@@ -40,6 +40,7 @@ packages:
 * SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
 * SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24           (http://www.libpng.org)
+* libjpeg >= 6b              (http://www.ijg.org/)
 
 The Win32 build chain for Pygame2 does not support building all
 dependencies from scratch. Instead it relies on already built libraries,

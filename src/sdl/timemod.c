@@ -309,7 +309,7 @@ _sdl_removetimer (PyObject *self, PyObject *args)
     Py_RETURN_TRUE;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_time (void)
 #else
 PyMODINIT_FUNC inittime (void)
@@ -317,7 +317,7 @@ PyMODINIT_FUNC inittime (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "time",
@@ -326,12 +326,9 @@ PyMODINIT_FUNC inittime (void)
         _time_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("time", _time_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("time", _time_methods, "");
 #endif
     if (!mod)
         goto fail;

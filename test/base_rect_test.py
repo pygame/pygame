@@ -405,7 +405,7 @@ class RectTest (unittest.TestCase):
         self.failIf( r.contains( Rect(4,6,0,0) ),
                      "r contains Rect(4,6,0,0)" )
     
-    def todo_test_pygame2_base_Rect_copy(self):
+    def test_pygame2_base_Rect_copy(self):
 
         # __doc__ (as of 2009-02-23) for pygame2.base.Rect.copy:
 
@@ -415,8 +415,24 @@ class RectTest (unittest.TestCase):
         #
         # Returns a new Rect, that contains the same values as the
         # caller.
+        r = Rect( 1, 2, 3, 4 )
+        cp = r.copy ()
+        self.failUnless (r == cp, "r (1, 2, 3, 4) is not equal to its copy")
 
-        self.fail()
+        r = Rect( -10, 50, 10, 40 )
+        cp = r.copy ()
+        self.failUnless (r == cp,
+                         "r (-10, 50, 10, 40) is not equal to its copy")
+        
+        r = Rect( 2, -5, 10, 40 )
+        cp = r.copy ()
+        self.failUnless (r == cp,
+                         "r (2, -5, 10, 40) is not equal to its copy")
+        
+        r = Rect( -2, -5, 10, 40 )
+        cp = r.copy ()
+        self.failUnless (r == cp,
+                         "r (-2, -5, 10, 40) is not equal to its copy")
         
     def todo_test_pygame2_base_Rect_fit(self):
 

@@ -22,7 +22,7 @@
 #include "pgmixer.h"
 #include "numeric_arrayobject.h"
 
-#if PY_VERSION_HEX < 0x03000000
+#ifndef IS_PYTHON_3
 
 static PyObject* _sndarray_samples (PyObject* self, PyObject* arg);
 static PyObject* _sndarray_array (PyObject* self, PyObject* arg);
@@ -281,4 +281,4 @@ PyMODINIT_FUNC initnumericsndarray (void)
     import_array ();
 }
 
-#endif /* PY_VERSION_HEX < 0x03000000 */
+#endif /* !IS_PYTHON_3 */

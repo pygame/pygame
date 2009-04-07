@@ -480,7 +480,7 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
     return 0;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_video (void)
 #else
 PyMODINIT_FUNC initvideo (void)
@@ -490,7 +490,7 @@ PyMODINIT_FUNC initvideo (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLVIDEO_SLOTS];
     
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "video",
@@ -519,10 +519,10 @@ PyMODINIT_FUNC initvideo (void)
     Py_INCREF (&PyOverlay_Type);
     Py_INCREF (&PyPixelFormat_Type);
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("video", _video_methods, "");
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("video", _video_methods, "");
 #endif
     if (!mod)
         goto fail;

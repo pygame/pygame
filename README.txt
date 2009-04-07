@@ -90,13 +90,13 @@ of Pygame2.
 * Python 2.4, 2.5, 2.6, 3.0 supported   (http://www.python.org)
 
 [Optional dependencies]
-* SDL >= 1.2.10              (http://www.libsdl.org)
-* SDL_mixer >= 1.2.8         (http://www.libsdl.org/projects/SDL_mixer/)
-* SDL_ttf >= 2.0.9           (http://www.libsdl.org/projects/SDL_ttf/)
-* SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
-* SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
-* libpng >= 1.2.24           (http://www.libpng.org)
-* libjpeg >= 6b              (http://www.ijg.org/)
+* SDL >= 1.2.10             (http://www.libsdl.org)
+* SDL_mixer >= 1.2.8        (http://www.libsdl.org/projects/SDL_mixer/)
+* SDL_ttf >= 2.0.9          (http://www.libsdl.org/projects/SDL_ttf/)
+* SDL_image >= 1.2.6        (http://www.libsdl.org/projects/SDL_image/)
+* SDL_gfx >= 2.0.17         (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* libpng >= 1.2.24          (http://www.libpng.org)
+* libjpeg >= 6b             (http://www.ijg.org/)
 
 1.2 Notes on SVN usage
 ----------------------

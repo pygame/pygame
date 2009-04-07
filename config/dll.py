@@ -17,6 +17,7 @@ libraries = [
     ('SDL_mixer', r'(lib){0,1}SDL_mixer\.dll$', ['SDL', 'vorbisfile', 'smpeg']),
     ('SDL_image', r'(lib){0,1}SDL_image\.dll$', ['SDL', 'jpeg', 'png', 'tiff']),
     ('SDL_ttf', r'(lib){0,1}SDL_ttf\.dll$', ['SDL', 'z', 'freetype']),
+    ('SDL_gfx', r'(lib){0,1}SDL_gfx\.dll$', ['SDL']),
     ('freetype', r'(lib){0,1}freetype(-6){0,1}\.dll$', []),
     ('vorbisfile', r'(lib){0,1}vorbisfile(-3){0,1}\.dll$', ['vorbis']),
     ('vorbis', r'(lib){0,1}vorbis(-0){0,1}\.dll$', ['ogg']),
@@ -24,7 +25,7 @@ libraries = [
     ('smpeg', r'(lib){0,1}smpeg\.dll$', ['SDL']),
     ('tiff', r'(lib){0,1}tiff\.dll$',  ['jpeg', 'z']),
     ('jpeg', r'(lib){0,1}jpeg\.dll$', []),
-    ('png', r'(lib){0,1}png(1[23])\.dll$', ['z']),
+    ('png', r'(lib){0,1}png(1[23])(-0){0,1}\.dll$', ['z']),
     ('z', r'zlib1\.dll$', []),
 ]
 

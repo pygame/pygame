@@ -644,7 +644,7 @@ _sdl_eventgetappstate (PyObject *self)
     return PyInt_FromLong (SDL_GetAppState ());
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_event (void)
 #else
 PyMODINIT_FUNC initevent (void)
@@ -654,7 +654,7 @@ PyMODINIT_FUNC initevent (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLEVENT_SLOTS];
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT, "event", DOC_EVENT, -1, _event_methods,
         NULL, NULL, NULL, NULL
@@ -666,10 +666,10 @@ PyMODINIT_FUNC initevent (void)
         goto fail;
     Py_INCREF (&PyEvent_Type);
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("event", _event_methods, DOC_EVENT);
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("event", _event_methods, DOC_EVENT);
 #endif
     if (!mod)
         goto fail;

@@ -485,7 +485,7 @@ RWopsCheckPythonThreaded (SDL_RWops* rw)
 #endif
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_rwops (void)
 #else
 PyMODINIT_FUNC initrwops (void)
@@ -495,7 +495,7 @@ PyMODINIT_FUNC initrwops (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLRWOPS_SLOTS];
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "rwops",
@@ -506,10 +506,10 @@ PyMODINIT_FUNC initrwops (void)
     };
 #endif
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("rwops", NULL, "");
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("rwops", NULL, "");
 #endif
     if (!mod)
         goto fail;

@@ -468,7 +468,7 @@ _draw_arc (PyObject* self, PyObject* args)
     {
         pyg_draw_arc (surface, &surface->clip_rect, color,
             (int) (rect.x + w), (int)(rect.y + h), (int) (w - loop),
-            (int) (h - loop), astart, astop, NULL);
+            (int) (h - loop), DEG2RAD(astart), DEG2RAD(astop), NULL);
     }
     Py_END_ALLOW_THREADS;
 
@@ -802,7 +802,7 @@ _draw_rect (PyObject* self, PyObject* args)
     return PyRect_New (rect.x, rect.y, rect.w, rect.h);
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_draw (void)
 #else
 PyMODINIT_FUNC initdraw (void)
@@ -810,7 +810,7 @@ PyMODINIT_FUNC initdraw (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "draw",
@@ -819,12 +819,9 @@ PyMODINIT_FUNC initdraw (void)
         _draw_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("draw", _draw_methods, NULL);
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("draw", _draw_methods, NULL);
 #endif
     if (!mod)
         goto fail;

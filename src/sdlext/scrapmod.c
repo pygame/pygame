@@ -290,7 +290,7 @@ _scrap_getmode (PyObject* self)
     return PyLong_FromUnsignedLong (pyg_scrap_get_mode ());
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_scrap (void)
 #else
 PyMODINIT_FUNC initscrap (void)
@@ -298,7 +298,7 @@ PyMODINIT_FUNC initscrap (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "scrap",
@@ -307,12 +307,9 @@ PyMODINIT_FUNC initscrap (void)
         _scrap_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("scrap", _scrap_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("scrap", _scrap_methods, "");
 #endif
     if (!mod)
         goto fail;

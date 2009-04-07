@@ -152,7 +152,7 @@ _sdl_setcursor (PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_mouse (void)
 #else
 PyMODINIT_FUNC initmouse (void)
@@ -162,7 +162,7 @@ PyMODINIT_FUNC initmouse (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLMOUSE_SLOTS];
     
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "mouse",
@@ -179,10 +179,10 @@ PyMODINIT_FUNC initmouse (void)
     
     Py_INCREF (&PyCursor_Type);
     
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("mouse", _mouse_methods, "");
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("mouse", _mouse_methods, "");
 #endif
     if (!mod)
         goto fail;

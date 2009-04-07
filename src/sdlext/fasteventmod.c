@@ -212,7 +212,7 @@ _sdl_feventget (PyObject *self)
     return list;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_fastevent (void)
 #else
 PyMODINIT_FUNC initfastevent (void)
@@ -220,7 +220,7 @@ PyMODINIT_FUNC initfastevent (void)
 {
     PyObject *mod, *eventmod, *dict;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "fastevent",
@@ -229,12 +229,9 @@ PyMODINIT_FUNC initfastevent (void)
         _fevent_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("fastevent", _fevent_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("fastevent", _fevent_methods, "");
 #endif
     if (!mod)
         goto fail;

@@ -384,7 +384,7 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 
 #endif /* HAVE_PYGAME_SDL_VIDEO */
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_mask (void)
 #else
 PyMODINIT_FUNC initmask (void)
@@ -394,7 +394,7 @@ PyMODINIT_FUNC initmask (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_MASK_SLOTS];
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _maskmodule = {
         PyModuleDef_HEAD_INIT, "mask", DOC_MASK, -1, _mask_methods,
         NULL, NULL, NULL, NULL
@@ -407,10 +407,10 @@ PyMODINIT_FUNC initmask (void)
     
     Py_INCREF (&PyMask_Type);
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("mask", _mask_methods, DOC_MASK);
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_maskmodule);
+#else
+    mod = Py_InitModule3 ("mask", _mask_methods, DOC_MASK);
 #endif
     if (!mod)
         goto fail;

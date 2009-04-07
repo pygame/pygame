@@ -229,7 +229,7 @@ _sdl_wmgrabinput (PyObject *self, PyObject *args)
     return PyInt_FromLong (mode);
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_wm (void)
 #else
 PyMODINIT_FUNC initwm (void)
@@ -237,7 +237,7 @@ PyMODINIT_FUNC initwm (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "wm",
@@ -246,12 +246,9 @@ PyMODINIT_FUNC initwm (void)
         _wm_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("wm", _wm_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("wm", _wm_methods, "");
 #endif
     if (!mod)
         goto fail;

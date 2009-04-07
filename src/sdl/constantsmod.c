@@ -30,7 +30,7 @@
 #define DEC_CONSTS(x,y) PyModule_AddIntConstant(module, #x, (int) y)
 #define ADD_STRING_CONST(x) PyModule_AddStringConstant(module, #x, x)
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_constants (void)
 #else
 PyMODINIT_FUNC initconstants (void)
@@ -38,16 +38,14 @@ PyMODINIT_FUNC initconstants (void)
 {
     PyObject *module;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT, "constants", "Pygame SDL constants", -1, NULL,
         NULL, NULL, NULL, NULL
     };
-#endif
-#if PY_VERSION_HEX < 0x03000000
-    module = Py_InitModule3 ("constants", NULL, "Pygame SDL constants");
-#else
     module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("constants", NULL, "Pygame SDL constants");
 #endif
     if (!module)
         goto fail;

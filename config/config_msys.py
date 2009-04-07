@@ -87,6 +87,7 @@ def get_install_libs (cfg):
     
     if cfg.WITH_SDL:
         libraries.update (_hunt_libs ("SDL", dirs))
+        libraries.update (_hunt_libs ("SDL", dirs))
     if cfg.WITH_SDL_MIXER:
         libraries.update (_hunt_libs ("SDL_mixer", dirs))
     if cfg.WITH_SDL_IMAGE:

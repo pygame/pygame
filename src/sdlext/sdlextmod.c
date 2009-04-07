@@ -24,7 +24,7 @@
 #include "pgsdl.h"
 #include "sdlextbase_doc.h"
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_base (void)
 #else
 PyMODINIT_FUNC initbase (void)
@@ -34,7 +34,7 @@ PyMODINIT_FUNC initbase (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLEXT_SLOTS];
     
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "base",
@@ -49,10 +49,10 @@ PyMODINIT_FUNC initbase (void)
         goto fail;
     Py_INCREF (&PyPixelArray_Type);
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("base", NULL, DOC_BASE);
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("base", NULL, DOC_BASE);
 #endif
     if (!mod)
         goto fail;

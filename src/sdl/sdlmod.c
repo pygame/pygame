@@ -395,7 +395,7 @@ failed:
     return 0;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_base (void)
 #else
 PyMODINIT_FUNC initbase (void)
@@ -405,7 +405,7 @@ PyMODINIT_FUNC initbase (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLBASE_SLOTS];
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _sdlmodule = {
         PyModuleDef_HEAD_INIT,
         "base",
@@ -414,12 +414,9 @@ PyMODINIT_FUNC initbase (void)
         _sdl_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("base", _sdl_methods, DOC_BASE);
-#else
     mod = PyModule_Create (&_sdlmodule);
+#else
+    mod = Py_InitModule3 ("base", _sdl_methods, DOC_BASE);
 #endif
     if (!mod)
         goto fail;

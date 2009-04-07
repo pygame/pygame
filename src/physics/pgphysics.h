@@ -47,16 +47,6 @@ extern "C" {
 #define RELATIVE_ZERO 1e-6
 #define OVERLAP_ZERO 1e-8
 
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795
-#endif
-#ifndef DEG2RAD
-#define DEG2RAD(x) ((x) * M_PI / 180.0f)
-#endif
-#ifndef RAD2DEG
-#define RAD2DEG(x) (180.0f / M_PI * (x))
-#endif
-
 #define IS_NEAR_ZERO(num) (fabs(num) <= ZERO_EPSILON)
 #define CLAMP(x,low,high)                                               \
     ((x < high) ? ((x > low) ? x : low) : ((high > low) ? high : low))

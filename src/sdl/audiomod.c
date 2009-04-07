@@ -72,7 +72,7 @@ _sdl_audioquit (PyObject *self)
     Py_RETURN_NONE;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_audio (void)
 #else
 PyMODINIT_FUNC initaudio (void)
@@ -80,17 +80,14 @@ PyMODINIT_FUNC initaudio (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _audiomodule = {
         PyModuleDef_HEAD_INIT, "audio", DOC_AUDIO, -1, _audio_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("audio", _audio_methods, DOC_AUDIO);
-#else
     mod = PyModule_Create (&_audiomodule);
+#else
+    mod = Py_InitModule3 ("audio", _audio_methods, DOC_AUDIO);
 #endif
     if (!mod)
         goto fail;

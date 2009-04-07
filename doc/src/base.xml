@@ -173,7 +173,7 @@
       </desc>
     </method>
     <method name="collidedict">
-      <call>collidedict (dict) -> (key, value)</call>
+      <call>collidedict (dict) -> key, value</call>
       <desc>
         Test if one rectangle in a dictionary intersects.
 
@@ -398,7 +398,7 @@
       </desc>
     </method>
     <method name="collidedict">
-      <call>collidedict (dict) -> (key, value)</call>
+      <call>collidedict (dict) -> key, value</call>
       <desc>
         Test if one rectangle in a dictionary intersects.
 

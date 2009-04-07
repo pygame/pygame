@@ -19,7 +19,10 @@
 
 <module name="pygame2.sdl.rwops">
   <short>SDL RWops wrapper module</short>
-  <desc></desc>
+  <desc>
+    The SDL RWops wrapper module is for internal purposes and C API access only.
+    You won't need this module in Python code usually.
+  </desc>
 
 </module>
 

@@ -163,7 +163,7 @@ _image_readxpmfromarray (PyObject *self, PyObject *args)
     return sf;
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_base (void)
 #else
 PyMODINIT_FUNC initbase (void)
@@ -171,7 +171,7 @@ PyMODINIT_FUNC initbase (void)
 {
     PyObject *mod;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "base",
@@ -180,12 +180,9 @@ PyMODINIT_FUNC initbase (void)
         _image_methods,
         NULL, NULL, NULL, NULL
     };
-#endif
-
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("base", _image_methods, "");
-#else
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("base", _image_methods, "");
 #endif
     if (!mod)
         goto fail;

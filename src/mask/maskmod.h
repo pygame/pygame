@@ -26,10 +26,7 @@
 
 #include <Python.h>
 #include <math.h>
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#include "pgdefines.h"
 
 extern PyTypeObject PyMask_Type;
 #define PyMask_Check(x) (PyObject_TypeCheck (x, &PyMask_Type))

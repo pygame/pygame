@@ -37,6 +37,17 @@ static PyObject* _surface_getpixels (PyObject *self, void *closure);
 static PyObject* _surface_blit (PyObject* self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_copy (PyObject* self);
 
+/* Default implementations, which try to retrieve the python hooks.
+ * Those are used for default C API access on classes implemented in pure
+ *  python, while the python bindings try to use the C API bindings.
+ */
+static PyObject* _def_get_width (PyObject *self, void *closure);
+static PyObject* _def_get_height (PyObject *self, void *closure);
+static PyObject* _def_get_size (PyObject *self, void *closure);
+static PyObject* _def_get_pixels (PyObject *self, void *closure);
+static PyObject* _def_blit (PyObject *self, PyObject *args, PyObject *kwds); 
+static PyObject* _def_copy (PyObject *self); 
+
 /**
  */
 static PyMethodDef _surface_methods[] = {
@@ -118,11 +129,11 @@ _surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     PySurface* sf = (PySurface*) type->tp_alloc (type, 0);
     if (!sf)
         return NULL;
-    sf->get_width = NULL;
-    sf->get_height = NULL;
-    sf->get_size = NULL;
-    sf->get_pixels = NULL;
-    sf->get_size = NULL;
+    sf->get_width = _def_get_width;
+    sf->get_height = _def_get_height;
+    sf->get_size = _def_get_size;
+    sf->get_pixels = _def_get_pixels;
+    sf->get_size = _def_get_size;
     return (PyObject*) sf;
 }
 
@@ -148,38 +159,107 @@ _surface_repr (PyObject *self)
 static PyObject*
 _surface_getwidth (PyObject *self, void *closure)
 {
-    return ((PySurface*)self)->get_width (self, closure);
+    if (((PySurface*)self)->get_width &&
+        ((PySurface*)self)->get_width != _def_get_width)
+        return ((PySurface*)self)->get_width (self, closure);
+    PyErr_SetString (PyExc_NotImplementedError,
+        "width attribute not implemented");
+    return NULL;
 }
 
 static PyObject*
 _surface_getheight (PyObject *self, void *closure)
 {
-    return ((PySurface*)self)->get_height (self, closure);
+    if (((PySurface*)self)->get_height &&
+        ((PySurface*)self)->get_height != _def_get_height)
+        return ((PySurface*)self)->get_height (self, closure);
+    PyErr_SetString (PyExc_NotImplementedError,
+        "height attribute not implemented");
+    return NULL;
 }
 
 static PyObject*
 _surface_getsize (PyObject *self, void *closure)
 {
-    return ((PySurface*)self)->get_size (self, closure);
+    if (((PySurface*)self)->get_size &&
+        ((PySurface*)self)->get_size != _def_get_size)
+        return ((PySurface*)self)->get_size (self, closure);
+    PyErr_SetString (PyExc_NotImplementedError,
+        "size attribute not implemented");
+    return NULL;
 }
 
 static PyObject*
 _surface_getpixels (PyObject *self, void *closure)
 {
-    return ((PySurface*)self)->get_pixels (self, closure);
+    if (((PySurface*)self)->get_pixels &&
+        ((PySurface*)self)->get_pixels != _def_get_pixels)
+        return ((PySurface*)self)->get_pixels (self, closure);
+    PyErr_SetString (PyExc_NotImplementedError,
+        "pixels attribute not implemented");
+    return NULL;
 }
 
 /* Surface methods */
 static PyObject*
 _surface_blit (PyObject* self, PyObject *args, PyObject *kwds)
 {
-    return ((PySurface*)self)->blit (self, args, kwds);
+    if (((PySurface*)self)->blit && ((PySurface*)self)->blit != _def_blit)
+        return ((PySurface*)self)->blit (self, args, kwds);
+    PyErr_SetString (PyExc_NotImplementedError, "blit method not implemented");
+    return NULL;
 }
 
 static PyObject*
 _surface_copy (PyObject* self)
 {
-    return ((PySurface*)self)->copy (self);
+    if (((PySurface*)self)->copy && ((PySurface*)self)->copy != _def_copy)
+        return ((PySurface*)self)->copy (self);
+    PyErr_SetString (PyExc_NotImplementedError, "copy method not implemented");
+    return NULL;
+}
+
+static PyObject*
+_def_get_width (PyObject *self, void *closure)
+{
+    return PyObject_GetAttrString (self, "width");
+}
+
+static PyObject*
+_def_get_height (PyObject *self, void *closure)
+{
+    return PyObject_GetAttrString (self, "height");
+}
+
+static PyObject*
+_def_get_size (PyObject *self, void *closure)
+{
+    return PyObject_GetAttrString (self, "size");
+}
+
+static PyObject*
+_def_get_pixels (PyObject *self, void *closure)
+{
+    return PyObject_GetAttrString (self, "pixels");
+}
+
+static PyObject*
+_def_blit (PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *retval, *method;
+    
+    method = PyObject_GetAttrString (self, "blit");
+    if (!method)
+        return NULL;
+    retval = PyObject_Call (method, args, kwds);
+    Py_DECREF (method);
+    return retval;
+}
+
+static PyObject*
+_def_copy (PyObject *self)
+{
+    return PyObject_CallMethod (self, "copy", NULL, NULL);
 }
 
 /* C API */

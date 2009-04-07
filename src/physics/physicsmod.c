@@ -23,7 +23,7 @@
 #include "physicsmod.h"
 #include "pgphysics.h"
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_physics (void)
 #else
 PyMODINIT_FUNC initphysics (void)
@@ -32,7 +32,7 @@ PyMODINIT_FUNC initphysics (void)
     static void* c_api[PHYSICS_SLOTS];
     PyObject *mod = NULL, *c_api_obj;
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _physicsmodule = {
         PyModuleDef_HEAD_INIT, "physics", "", -1, NULL,
         NULL, NULL, NULL, NULL
@@ -64,10 +64,10 @@ PyMODINIT_FUNC initphysics (void)
     Py_INCREF (&PyShape_Type);
     Py_INCREF (&PyRectShape_Type);
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("physics", NULL, NULL);
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_physicsmodule);
+#else
+    mod = Py_InitModule3 ("physics", NULL, NULL);
 #endif
     if (!mod)
         goto fail;

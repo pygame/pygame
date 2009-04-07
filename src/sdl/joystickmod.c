@@ -176,7 +176,7 @@ joystickmod_get_joystick (int _index)
     return _joysticks[_index];
 }
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_joystick (void)
 #else
 PyMODINIT_FUNC initjoystick (void)
@@ -186,7 +186,7 @@ PyMODINIT_FUNC initjoystick (void)
     PyObject *c_api_obj;
     static void *c_api[PYGAME_SDLJOYSTICK_SLOTS];
 
-#if PY_VERSION_HEX >= 0x03000000
+#ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT, "joystick", "", -1, _joystick_methods,
         NULL, NULL, NULL, NULL
@@ -199,10 +199,10 @@ PyMODINIT_FUNC initjoystick (void)
     Py_INCREF (&PyJoystick_Type);
 
 
-#if PY_VERSION_HEX < 0x03000000
-    mod = Py_InitModule3 ("joystick", _joystick_methods, "");
-#else
+#ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
+#else
+    mod = Py_InitModule3 ("joystick", _joystick_methods, "");
 #endif
     if (!mod)
         goto fail;

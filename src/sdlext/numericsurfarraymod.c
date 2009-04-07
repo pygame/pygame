@@ -23,7 +23,7 @@
 #include "pgsdl.h"
 #include "numeric_arrayobject.h"
 
-#if PY_VERSION_HEX < 0x03000000
+#ifndef IS_PYTHON_3
 
 /*macros used to blit arrays*/
 #define COPYMACRO_2D(DST, SRC)                                          \
@@ -1298,4 +1298,4 @@ initnumericsurfarray (void)
     import_array ();
 }
 
-#endif /* PY_VERSION_HEX < 0x03000000 */
+#endif /* !IS_PYTHON_3 */
