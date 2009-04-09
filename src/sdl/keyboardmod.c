@@ -149,15 +149,13 @@ _sdl_keyenableunicode (PyObject *self, PyObject *args)
 
     if (val == Py_None)
         enable = SDL_EnableUNICODE (-1);
-    else if (val == Py_True)
-        enable = SDL_EnableUNICODE (1);
-    else if (val == Py_False)
-        enable = SDL_EnableUNICODE (0);
-    else
+    else 
     {
-        PyErr_SetString (PyExc_ValueError, "enable must be bool or None");
-        return NULL;
-    }
+        enable = PyObject_IsTrue (val);
+        if (enable == -1)
+            return NULL;
+        enable = SDL_EnableUNICODE (enable);
+    }        
     
     if (enable == 1)
         Py_RETURN_TRUE;

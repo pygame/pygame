@@ -21,6 +21,7 @@
 
 #include "gfxmod.h"
 #include "pggfx.h"
+#include "sdlgfxbase_doc.h"
 
 static PyObject* _fps_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static void _fps_dealloc (PyFPSmanager *self);
@@ -32,12 +33,14 @@ static PyObject* _fps_getframerate (PyObject *self, void *closure);
 static PyObject* _fps_delay (PyObject *self);
 
 static PyMethodDef _fps_methods[] = {
-    { "delay", (PyCFunction) _fps_delay, METH_NOARGS, "" },
+    { "delay", (PyCFunction) _fps_delay, METH_NOARGS,
+      DOC_BASE_FPSMANAGER_DELAY },
     { NULL, NULL, 0, NULL },
 };
 
 static PyGetSetDef _fps_getsets[] = {
-    { "framerate", _fps_getframerate, _fps_setframerate, "", NULL },
+    { "framerate", _fps_getframerate, _fps_setframerate,
+      DOC_BASE_FPSMANAGER_FRAMERATE, NULL },
     { NULL, NULL, NULL, NULL, NULL },
 };
 
@@ -65,7 +68,7 @@ PyTypeObject PyFPSmanager_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_BASE_FPSMANAGER,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

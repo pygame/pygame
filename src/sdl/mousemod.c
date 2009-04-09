@@ -52,7 +52,13 @@ _sdl_warpmouse (PyObject *self, PyObject *args)
     ASSERT_VIDEO_SURFACE_SET(NULL);
 
     if (!PyArg_ParseTuple (args, "ii:warp", &x, &y))
-        return NULL;
+    {
+        PyObject *pt;
+        if (!PyArg_ParseTuple (args, "O:warp", &pt))
+            return NULL;
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
     SDL_WarpMouse (x, y);
     Py_RETURN_NONE;
 }
@@ -113,7 +119,7 @@ _sdl_setvisible (PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "O:set_visible", &val))
         return NULL;
-
+    
     if (PyBool_Check (val))
     {
         if (val == Py_True)
@@ -125,7 +131,7 @@ _sdl_setvisible (PyObject *self, PyObject *args)
         state = SDL_ShowCursor (state);
     else
     {
-        PyErr_SetString (PyExc_TypeError, "argument must be a bool");
+        PyErr_SetString (PyExc_TypeError, "argument must be a bool or int");
         return NULL;
     }
 

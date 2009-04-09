@@ -423,7 +423,8 @@ PyMODINIT_FUNC initmask (void)
     if (c_api_obj)
         PyModule_AddObject (mod, PYGAME_MASK_ENTRY, c_api_obj);
 
-    import_pygame2_base ();
+    if (import_pygame2_base () < 0)
+        goto fail;
 
 #ifdef HAVE_PYGAME_SDL_VIDEO
     if (import_pygame2_sdl_base () < 0)

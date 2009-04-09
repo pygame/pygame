@@ -503,6 +503,8 @@ PyMODINIT_FUNC initvideo (void)
 
     if (import_pygame2_base () < 0)
         goto fail;
+    if (import_pygame2_sdl_rwops () < 0)
+        goto fail;
     if (import_pygame2_sdl_base () < 0)
         goto fail;
 

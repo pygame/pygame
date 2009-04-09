@@ -21,9 +21,10 @@
 
 #include "gfxmod.h"
 #include "pggfx.h"
+#include <SDL_rotozoom.h>
 
 /* macros used to create each constant */
-#define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (int) #x)
+#define DEC_CONSTN(x)  PyModule_AddIntConstant(module, #x, (int) x)
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_constants (void)
@@ -37,24 +38,24 @@ PyMODINIT_FUNC initconstants (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "constants",
-        "Pygame SDL GFX constants",
+        "Pygame SDL_gfx constants",
         -1,
         NULL,
         NULL, NULL, NULL, NULL
     };
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("constants", NULL, "Pygame SDL GFX constants");
+    module = Py_InitModule3 ("constants", NULL, "Pygame SDL_gfx constants");
 #endif
     if (!module)
         goto fail;
     
-    DEC_CONSTS(FPS_UPPER_LIMIT);
-    DEC_CONSTS(FPS_LOWER_LIMIT);
-    DEC_CONSTS(FPS_DEFAULT);
+    DEC_CONSTN(FPS_UPPER_LIMIT);
+    DEC_CONSTN(FPS_LOWER_LIMIT);
+    DEC_CONSTN(FPS_DEFAULT);
 
-    DEC_CONSTS(SMOOTHING_OFF);
-    DEC_CONSTS(SMOOTHING_ON);
+    DEC_CONSTN(SMOOTHING_OFF);
+    DEC_CONSTN(SMOOTHING_ON);
     
     MODINIT_RETURN(module);
 fail:

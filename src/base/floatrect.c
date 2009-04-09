@@ -473,16 +473,9 @@ static int
 _frect_setcenter (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError, "center must be a 2-value sequence");
+    if (!FPointFromObject (value, &x, &y))
         return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
-        return -1;
-
+    
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
     ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, (((PyFRect*)self)->h / 2));
     return 0;
@@ -500,14 +493,7 @@ _frect_setsize (PyObject *self, PyObject *value, void *closure)
 {
     double w, h;
 
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError, "size must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &w))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &h))
+    if (!FSizeFromObject (value, &w, &h))
         return -1;
 
     if (w < 0 || h < 0)
@@ -533,14 +519,7 @@ static int
 _frect_setmidtop (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError, "midtop must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
+    if (!FPointFromObject (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
@@ -559,15 +538,7 @@ static int
 _frect_setmidleft (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "midleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
+    if (!FPointFromObject (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = x;
@@ -586,17 +557,9 @@ static int
 _frect_setmidbottom (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "midbottom must be a 2-value sequence");
+    if (!FPointFromObject (value, &x, &y))
         return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
-        return -1;
-
+    
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, (((PyFRect*)self)->w / 2));
     ((PyFRect*)self)->y = DBL_SUB_LIMIT (y, ((PyFRect*)self)->h);
     return 0;
@@ -613,15 +576,7 @@ static int
 _frect_setmidright (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "midright must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
+    if (!FPointFromObject (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
@@ -639,15 +594,7 @@ static int
 _frect_settopleft (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "topleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
+    if (!FPointFromObject (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = x;
@@ -666,15 +613,7 @@ static int
 _frect_settopright (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "topright must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
+    if (!FPointFromObject (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);
@@ -693,15 +632,7 @@ static int
 _frect_setbottomleft (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "bottomleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
+    if (!FPointFromObject (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = x;
@@ -720,15 +651,7 @@ static int
 _frect_setbottomright (PyObject *self, PyObject *value, void *closure)
 {
     double x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "bottomleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!DoubleFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!DoubleFromSeqIndex (value, 1, &y))
+    if (!FPointFromObject (value, &x, &y))
         return -1;
 
     ((PyFRect*)self)->x = DBL_SUB_LIMIT (x, ((PyFRect*)self)->w);

@@ -162,8 +162,16 @@ _overlay_init (PyObject *self, PyObject *args, PyObject *kwds)
     ASSERT_VIDEO_INIT(-1);
     
     if (!PyArg_ParseTuple (args, "Oiil", &surf, &width, &height, &format))
-        return -1;
-
+    {
+        PyObject *size;
+        
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OOl", &surf, &size, &format))
+            return -1;
+        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+            return -1;
+    }
+    
     if (!PySDLSurface_Check (surf))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -216,7 +224,6 @@ _overlay_getformat (PyObject *self, void *closure)
     ASSERT_VIDEO_INIT(NULL);
     
     return PyLong_FromUnsignedLong (overlay->format);
-    
 }
 
 static PyObject*
@@ -312,7 +319,6 @@ _overlay_getlocked (PyObject *self, void *closure)
         Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
-
 
 /* Overlay methods */
 static PyObject*

@@ -28,13 +28,17 @@ def run_checks ():
                          "installed." % PYTHON_MINIMUM)
 
     buildsystem = None
+    buildcflags = None
     if sys.platform == "win32":
         if msys.is_msys ():
             buildsystem = "msys"
+            buildcflags = "-DIS_MSYS"
         else:
             buildsystem = "win"
+            buildcflags = "-DIS_WIN32"
     else:
         buildsystem = "unix"
+        buildcflags = "-DIS_UNIX"
 
     if cfg.WITH_SDL:
         sdlversion = config_modules.sdl_get_version (buildsystem)
@@ -44,13 +48,14 @@ def run_checks ():
     print ("\t Python: %d.%d.%d" % helpers.getversion ())
     if cfg.WITH_SDL:
         print ("\t SDL:    %s" % sdlversion)
-    return buildsystem
+    return buildsystem, buildcflags
 
 if __name__ == "__main__":
 
     buildsystem = None
+    buildcflags = None
     try:
-        buildsystem = run_checks ()
+        buildsystem, buildcflags = run_checks ()
     except:
         print (helpers.geterror ())
         sys.exit (1)
@@ -86,6 +91,7 @@ if __name__ == "__main__":
     headerfiles = []
     print ("The following modules will be built:")
     for ext in ext_modules:
+        ext.extra_compile_args.append (buildcflags)
         headerfiles += ext.basemodule.installheaders
         print ("\t%s" % ext.name)
 

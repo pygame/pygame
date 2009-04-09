@@ -20,13 +20,14 @@
 #define PYGAME_SDLIMAGE_INTERNAL
 
 #include "pgsdl.h"
+#include "sdlimage_doc.h"
 
 static PyObject* _sdl_loadbmp (PyObject *self, PyObject *args);
 static PyObject* _sdl_savebmp (PyObject *self, PyObject *args);
 
 static PyMethodDef _image_methods[] = {
-    { "load_bmp", _sdl_loadbmp, METH_VARARGS, "" },
-    { "save_bmp", _sdl_savebmp, METH_VARARGS, "" },
+    { "load_bmp", _sdl_loadbmp, METH_VARARGS, DOC_IMAGE_LOAD_BMP },
+    { "save_bmp", _sdl_savebmp, METH_VARARGS, DOC_IMAGE_SAVE_BMP },
     { NULL, NULL, 0, NULL }
 };
 
@@ -92,11 +93,11 @@ _sdl_loadbmp (PyObject *self, PyObject *args)
 static PyObject*
 _sdl_savebmp (PyObject *self, PyObject *args)
 {
-    PyObject *surface;
+    PyObject *surface, *file;
     char *filename;
     int _stat;
     
-    if (!PyArg_ParseTuple (args, "OO:save_bmp", &surface, &filename))
+    if (!PyArg_ParseTuple (args, "OO:save_bmp", &surface, &file))
         return NULL;
     if (!PySDLSurface_Check (surface))
     {
@@ -104,10 +105,41 @@ _sdl_savebmp (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    Py_BEGIN_ALLOW_THREADS;
-    _stat = SDL_SaveBMP (((PySDLSurface*)surface)->surface, filename);
-    Py_END_ALLOW_THREADS;
-    
+    if (IsTextObj (file))
+    {
+        PyObject *tmp;
+        if (!UTF8FromObject (file, &filename, &tmp))
+            return NULL;
+
+        Py_BEGIN_ALLOW_THREADS;
+        _stat = SDL_SaveBMP (((PySDLSurface*)surface)->surface, filename);
+        Py_END_ALLOW_THREADS;
+
+        Py_XDECREF (tmp);
+    }
+#ifdef IS_PYTHON_3
+    else if (PyObject_AsFileDescriptor (file) != -1)
+#else
+    else if (PyFile_Check (file))
+#endif
+    {
+        SDL_RWops *rw = RWopsFromPython (file);
+        if (!rw)
+            return NULL;
+
+        Py_BEGIN_ALLOW_THREADS;
+        _stat = SDL_SaveBMP_RW (((PySDLSurface*)surface)->surface, rw, 1);
+        Py_END_ALLOW_THREADS;
+    }
+    else
+    {
+#ifdef IS_PYTHON_3
+        PyErr_Clear (); /* Set by the PyObject_AsFileDescriptor() call */
+#endif
+        PyErr_SetString (PyExc_TypeError, "file must be a string or file");
+        return NULL;
+    }
+
     if (_stat == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
@@ -126,17 +158,19 @@ PyMODINIT_FUNC initimage (void)
 
 #ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT, "image", "", -1, _image_methods,
+        PyModuleDef_HEAD_INIT, "image", DOC_IMAGE, -1, _image_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("image", _image_methods, "");
+    mod = Py_InitModule3 ("image", _image_methods, DOC_IMAGE);
 #endif
     if (!mod)
         goto fail;
 
     if (import_pygame2_base () < 0)
+        goto fail;
+    if (import_pygame2_sdl_rwops () < 0)
         goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;

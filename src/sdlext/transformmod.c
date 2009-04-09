@@ -55,12 +55,23 @@ static PyObject*
 _transform_scale (PyObject* self, PyObject* args)
 {
     PyObject *srcobj, *dstobj = NULL;
+    PyObject *size;
     SDL_Surface *srcsurface, *dstsurface = NULL;
     int width, height;
 
     /*get all the arguments*/
-    if (!PyArg_ParseTuple (args, "Oii|O", &srcobj, &width, &height, &dstobj))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OO|O", &srcobj, &size, &dstobj))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "Oii|O", &srcobj, &width, &height, &dstobj))
+            return NULL;
+    }
+    else
+    {
+        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+            return NULL;
+    }
+    
     if (!PySDLSurface_Check (srcobj))
     {
         PyErr_SetString (PyExc_TypeError, "source surface must be a Surface");
@@ -307,11 +318,22 @@ static PyObject*
 _transform_smoothscale (PyObject* self, PyObject* args)
 {
     PyObject *surfobj, *dstobj = NULL;
+    PyObject *size;
     SDL_Surface *src, *dst = NULL;
     int width, height;
 
-    if (!PyArg_ParseTuple (args, "Oii|O", &surfobj, &width, &height, &dstobj))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OO|O", &surfobj, &size, &dstobj))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "Oii|O", &surfobj, &width, &height, &dstobj))
+            return NULL;
+    }
+    else
+    {
+        if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
+            return NULL;
+    }
+    
     if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "source surface must be a Surface");

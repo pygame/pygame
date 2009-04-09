@@ -57,15 +57,28 @@ static PyObject*
 _draw_aaline (PyObject* self, PyObject* args)
 {
     PyObject *surfobj, *colorobj;
+    PyObject *p1, *p2;
     SDL_Surface* surface;
     SDL_Rect area;
     Uint32 color;
     int x1, _y1, x2, y2, blend = 0;
     int drawn = 0;
     
-    if (!PyArg_ParseTuple (args, "OO(ii)(ii)|i:aaline", &surfobj, &colorobj,
-            &x1, &_y1, &x2, &y2, &blend))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOO|i:aaline", &surfobj, &colorobj, &p1,
+        &p2, &blend))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OOiiii|i:aaline", &surfobj, &colorobj,
+                &x1, &_y1, &x2, &y2, &blend))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (p1, &x1, &_y1) ||
+            !PointFromObject (p2, &x2, &y2))
+            return NULL;
+    }
+    
     if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -98,15 +111,28 @@ static PyObject*
 _draw_line (PyObject* self, PyObject* args)
 {
     PyObject *surfobj, *colorobj;
+    PyObject *p1, *p2;
     SDL_Surface* surface;
     SDL_Rect area;
     Uint32 color;
     int x1, _y1, x2, y2, width = 1;
     int drawn = 0;
     
-    if (!PyArg_ParseTuple (args, "OO(ii)(ii)|i:line", &surfobj, &colorobj, &x1,
-            &_y1, &x2, &y2, &width))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOO|i:line", &surfobj, &colorobj, &p1, &p2,
+        &width))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OOiiii|i:line", &surfobj, &colorobj, &x1,
+                &_y1, &x2, &y2, &width))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (p1, &x1, &_y1) ||
+            !PointFromObject (p2, &x2, &y2))
+            return NULL;
+    }
+    
     if (!PySDLSurface_Check (surfobj))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -489,15 +515,25 @@ static PyObject*
 _draw_circle (PyObject* self, PyObject* args)
 {
     PyObject *surfobj, *colorobj;
+    PyObject *pt;
     SDL_Surface* surface;
     Uint32 color;
     int px, py, radius, loop, width = 0;
     pgint16 l, t;
     pguint16 r, b;
 
-    if (!PyArg_ParseTuple (args, "OO(ii)i|i:circle", &surfobj, &colorobj,
-            &px, &py, &radius, &width))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOi|i:circle", &surfobj, &colorobj, &pt,
+        &radius, &width))
+    {
+        if (!PyArg_ParseTuple (args, "OOiii|i:circle", &surfobj, &colorobj,
+                &px, &py, &radius, &width))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, &px, &py))
+            return NULL;
+    }
 
     if (!PySDLSurface_Check (surfobj))
     {

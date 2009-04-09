@@ -125,9 +125,37 @@ _cursor_init (PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *databuf, *maskbuf;
     SDL_Cursor *cursor;
 
+    /* Cursor (buf, mask, w, h, x, y) */
     if (!PyArg_ParseTuple (args, "OOii|ii", &databuf, &maskbuf, &w, &h, 
             &hotx, &hoty))
-        return -1;
+    {
+        PyObject *size, *pt;
+        PyErr_Clear ();
+        
+        /* Cursor (buf, mask, size, x, y) */
+        if (!PyArg_ParseTuple (args, "OOO|ii", &databuf, &maskbuf, &size, 
+            &hotx, &hoty))
+        {
+            PyErr_Clear ();
+            /* Cursor (buf, mask, size, pt) */
+            if (!PyArg_ParseTuple (args, "OOO|O", &databuf, &maskbuf, &size,
+                &pt))
+            if (!SizeFromObject (size, (pgint32*)&w, (pgint32*)&h))
+                return -1;
+            if (!PointFromObject (pt, &hotx, &hoty))
+                return -1;
+        }            
+        else
+        {
+            PyErr_Clear ();
+            /* Cursor (buf, mask, w, h, pt) */
+            if (!PyArg_ParseTuple (args, "OOii|O", &databuf, &maskbuf, &w, &h,
+                &pt))
+                return -1;
+            if (!PointFromObject (pt, &hotx, &hoty))
+                return -1;
+        }
+    }
 
     if (w < 0 || h < 0)
     {

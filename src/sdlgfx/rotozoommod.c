@@ -21,6 +21,7 @@
 
 #include "pgsdl.h"
 #include "pggfx.h"
+#include "sdlgfxrotozoom_doc.h"
 #include <SDL_rotozoom.h>
 
 static PyObject* _gfx_rotozoom (PyObject *self, PyObject *args);
@@ -33,14 +34,20 @@ static PyObject* _gfx_shrink (PyObject *self, PyObject *args);
 static PyObject* _gfx_rotate90 (PyObject *self, PyObject *args);
 
 static PyMethodDef _gfx_methods[] = {
-    { "rotozoom", (PyCFunction) _gfx_rotozoom, METH_VARARGS, "" },
-    { "rotozoom_xy", (PyCFunction) _gfx_rotozoomxy, METH_VARARGS, "" },
-    { "rotozoom_size", (PyCFunction) _gfx_rotozoomsize, METH_VARARGS, "" },
-    { "rotozoom_size_xy", (PyCFunction) _gfx_rotozoomsizexy, METH_VARARGS, "" },
-    { "zoom", (PyCFunction) _gfx_zoom, METH_VARARGS, "" },
-    { "zoom_size", (PyCFunction) _gfx_zoomsize, METH_VARARGS, "" },
-    { "shrink", (PyCFunction) _gfx_shrink, METH_VARARGS, "" },
-    { "rotate_90", (PyCFunction) _gfx_rotate90, METH_VARARGS, "" },
+    { "rotozoom", (PyCFunction) _gfx_rotozoom, METH_VARARGS,
+      DOC_ROTOZOOM_ROTOZOOM },
+    { "rotozoom_xy", (PyCFunction) _gfx_rotozoomxy, METH_VARARGS,
+      DOC_ROTOZOOM_ROTOZOOM_XY },
+    { "rotozoom_size", (PyCFunction) _gfx_rotozoomsize, METH_VARARGS,
+      DOC_ROTOZOOM_ROTOZOOM_SIZE },
+    { "rotozoom_size_xy", (PyCFunction) _gfx_rotozoomsizexy, METH_VARARGS,
+      DOC_ROTOZOOM_ROTOZOOM_SIZE_XY },
+    { "zoom", (PyCFunction) _gfx_zoom, METH_VARARGS, DOC_ROTOZOOM_ZOOM },
+    { "zoom_size", (PyCFunction) _gfx_zoomsize, METH_VARARGS,
+      DOC_ROTOZOOM_ZOOM_SIZE },
+    { "shrink", (PyCFunction) _gfx_shrink, METH_VARARGS, DOC_ROTOZOOM_SHRINK },
+    { "rotate_90", (PyCFunction) _gfx_rotate90, METH_VARARGS,
+      DOC_ROTOZOOM_ROTATE_90 },
     { NULL, NULL, 0, NULL },
 };
 
@@ -94,7 +101,7 @@ _gfx_rotozoomxy (PyObject *self, PyObject *args)
     double angle, zoomx, zoomy;
     int smooth = 0;
 
-    if (!PyArg_ParseTuple (args, "Odddd|O:rotozoom_xy", &surface, &angle,
+    if (!PyArg_ParseTuple (args, "Oddd|O:rotozoom_xy", &surface, &angle,
             &zoomx, &zoomy, &aa))
         return NULL;
 
@@ -131,18 +138,25 @@ _gfx_rotozoomxy (PyObject *self, PyObject *args)
 static PyObject*
 _gfx_rotozoomsize (PyObject *self, PyObject *args)
 {
-    PyObject *surface = NULL;
+    PyObject *obj = NULL;
     int w, h, dstw, dsth;
     double angle, zoom;
 
     if (!PyArg_ParseTuple (args, "iidd:rotozoom_size", &w, &h, &angle, &zoom))
     {
         PyErr_Clear ();
-        if (PyArg_ParseTuple (args, "Odd:rotozoom_size", &surface, &angle,
-                &zoom))
+        if (PyArg_ParseTuple (args, "Odd:rotozoom_size", &obj, &angle, &zoom))
         {
-            w = ((PySDLSurface *)surface)->surface->w;
-            h = ((PySDLSurface *)surface)->surface->w;
+            if (PySDLSurface_Check (obj))
+            {
+                w = ((PySDLSurface *)obj)->surface->w;
+                h = ((PySDLSurface *)obj)->surface->w;
+            }
+            else
+            {
+                if (!SizeFromObject (obj, (pgint32*)&w, (pgint32*)&h))
+                    return NULL;
+            }
         }
         else
             return NULL;
@@ -154,7 +168,7 @@ _gfx_rotozoomsize (PyObject *self, PyObject *args)
 static PyObject*
 _gfx_rotozoomsizexy (PyObject *self, PyObject *args)
 {
-    PyObject *surface = NULL;
+    PyObject *obj = NULL;
     int w, h, dstw, dsth;
     double angle, zoomx, zoomy;
 
@@ -162,11 +176,19 @@ _gfx_rotozoomsizexy (PyObject *self, PyObject *args)
             &zoomx, &zoomy))
     {
         PyErr_Clear ();
-        if (PyArg_ParseTuple (args, "Oddd:rotozoom_size", &surface, &angle,
+        if (PyArg_ParseTuple (args, "Oddd:rotozoom_size", &obj, &angle,
                 &zoomx, &zoomy))
         {
-            w = ((PySDLSurface *)surface)->surface->w;
-            h = ((PySDLSurface *)surface)->surface->w;
+            if (PySDLSurface_Check (obj))
+            {
+                w = ((PySDLSurface *)obj)->surface->w;
+                h = ((PySDLSurface *)obj)->surface->w;
+            }
+            else
+            {
+                if (!SizeFromObject (obj, (pgint32*)&w, (pgint32*)&h))
+                    return NULL;
+            }
         }
         else
             return NULL;
@@ -219,17 +241,25 @@ _gfx_zoom (PyObject *self, PyObject *args)
 static PyObject*
 _gfx_zoomsize (PyObject *self, PyObject *args)
 {
-    PyObject *surface = NULL;
+    PyObject *obj = NULL;
     int w, h, dstw, dsth;
     double zoomx, zoomy;
 
     if (!PyArg_ParseTuple (args, "iidd:zoom_size", &w, &h, &zoomx, &zoomy))
     {
         PyErr_Clear ();
-        if (PyArg_ParseTuple (args, "Odd:zoom_size", &surface, &zoomx, &zoomy))
+        if (PyArg_ParseTuple (args, "Odd:zoom_size", &obj, &zoomx, &zoomy))
         {
-            w = ((PySDLSurface *)surface)->surface->w;
-            h = ((PySDLSurface *)surface)->surface->w;
+            if (PySDLSurface_Check (obj))
+            {
+                w = ((PySDLSurface *)obj)->surface->w;
+                h = ((PySDLSurface *)obj)->surface->w;
+            }
+            else
+            {
+                if (!SizeFromObject (obj, (pgint32*)&w, (pgint32*)&h))
+                    return NULL;
+            }
         }
         else
             return NULL;
@@ -316,14 +346,14 @@ PyMODINIT_FUNC initrotozoom (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "rotozoom",
-        "",
+        DOC_ROTOZOOM,
         -1,
         _gfx_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("rotozoom", _gfx_methods, "");
+    mod = Py_InitModule3 ("rotozoom", _gfx_methods, DOC_ROTOZOOM);
 #endif
     if (!mod)
         goto fail;

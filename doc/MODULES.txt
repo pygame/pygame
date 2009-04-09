@@ -135,6 +135,28 @@ To check for e.g. pygame.sdl.video, you can use
 Make sure, you load the correct modules within the module initialization
 function. Take a look at the src/mask/maskmod.c module file for an example.
 
+Build environment dependencies
+------------------------------
+If it is necessary to rely on certain features specific to a particular
+environment, you can check for the build system flags, which are automatically
+added at compile time. Currently, the following flags are available:
+
+  IS_WIN32      - Win32 build with Visual C++
+  IS_MSYS       - (Win32) Msys build with GCC
+  IS_UNIX       - Any other build plattform that successfully passes the
+                  preparations
+
+You can easily check for those flags in the C code using the usualy preprocessor
+magic:
+
+#ifdef IS_WIN32 
+  /* Visual C++ specific Win32 instructions */
+#elif defined(IS_MSYS)
+  /* GCC/Msys specific Win32 instructions */
+#elif defined(IS_UNIX)
+ /* Unix specific instructions */
+#endif
+
 Python modules
 --------------
 Python modules have no special restriction, but should follow the

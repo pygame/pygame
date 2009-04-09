@@ -19,21 +19,40 @@
 
 <module name="pygame2.sdlgfx.base">
   <short>basic SDL_gfx wrapper module</short>
-  <desc></desc>
+  <desc>Basic SDL_gfx library wrapper module</desc>
 
   <class name="FPSmanager">
-    <constructor>TODO</constructor>
-    <desc></desc>
+    <constructor>FPSManager (framerate) -> FPSManager</constructor>
+    <desc>
+      Creates a new FPSManager using the specified frame rate.
+      
+      The FPSManager takes care of measuring and keeping constant frame rates
+      for the application it is used with. On demand it automatically delays
+      the execution to keep the required frame rate.
+      
+      The desired frame rate must be within the range of constants.FPS_LOWER_LIMIT
+      and constants.FPS_UPPER_LIMIT.
+    </desc>
     <method name="delay">
-      <call></call>
-      <desc></desc>
+      <call>delay () -> None</call>
+      <desc>
+        Delays the execution of the application to keep up the desired frame
+        rate.
+      </desc>
     </method>
-    <attr name="framerate"></attr>
+    <attr name="framerate">Gets or sets the frame rate to keep.</attr>
   </class>
 
   <func name="get_compiled_version">
-    <call></call>
-    <desc></desc>
+    <call>get_compiled_version () -> tuple</call>
+    <desc>
+      Gets the SDL_gfx version pygame2 was compiled against as three-value tuple.
+
+      This version is built at compile time. It can be used to detect
+      which features may not be available through Pygame, if it is used
+      as precompiled package using a different version of the SDL_gfx
+      library.
+    </desc>
   </func>
 </module>
 

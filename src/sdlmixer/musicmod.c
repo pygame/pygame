@@ -208,6 +208,8 @@ PyMODINIT_FUNC initmusic (void)
         goto fail;
     if (import_pygame2_sdl_base () < 0)
         goto fail;
+    if (import_pygame2_sdl_rwops () < 0)
+        goto fail;
     if (import_pygame2_sdlmixer_base () < 0)
         goto fail;
     MODINIT_RETURN(mod);

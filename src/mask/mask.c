@@ -175,8 +175,14 @@ _mask_init (PyObject *mask, PyObject *args, PyObject *kwds)
     bitmask_t *m;
 
     if (!PyArg_ParseTuple (args, "ii", &w, &h))
-        return -1;
-
+    {
+        PyObject *size;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O", &size))
+            return -1;
+        if (!SizeFromObject (size, (pgint32*)&w, (pgint32*)&h))
+            return -1;
+    }
     if (w <= 0 || h <= 0)
     {
         PyErr_SetString (PyExc_ValueError,
@@ -309,7 +315,14 @@ _mask_getat (PyObject* self, PyObject* args)
     int x, y, val;
 
     if (!PyArg_ParseTuple (args, "ii", &x, &y))
-        return NULL;
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O", &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
 
     if (x >= 0 && x < mask->w && y >= 0 && y < mask->h)
     {
@@ -331,7 +344,14 @@ _mask_setat (PyObject* self, PyObject* args)
     int x, y, value = 1;
 
     if (!PyArg_ParseTuple (args, "ii|i", &x, &y, &value))
-        return NULL;
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O|i", &pt, &value))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
 
     if (x >= 0 && x < mask->w && y >= 0 && y < mask->h)
     {
@@ -361,8 +381,16 @@ _mask_overlap (PyObject* self, PyObject* args)
     int x, y, val;
     int xp,yp;
 
-    if (!PyArg_ParseTuple (args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "O!ii", &PyMask_Type, &maskobj, &x, &y))
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
+
     othermask = PyMask_AsBitmask(maskobj);
 
     val = bitmask_overlap_pos (mask, othermask, x, y, &xp, &yp);
@@ -380,8 +408,15 @@ _mask_overlaparea (PyObject* self, PyObject* args)
     PyObject *maskobj;
     int x, y, val;
 
-    if (!PyArg_ParseTuple (args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "O!ii", &PyMask_Type, &maskobj, &x, &y))
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
 
     othermask = PyMask_AsBitmask (maskobj);
 
@@ -399,8 +434,15 @@ _mask_overlapmask (PyObject* self, PyObject* args)
     PyObject *maskobj;
     PyMask *maskobj2;
 
-    if (!PyArg_ParseTuple (args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "O!ii", &PyMask_Type, &maskobj, &x, &y))
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
 
     output = bitmask_create (mask->w, mask->h);
     if (!output)
@@ -455,8 +497,15 @@ _mask_scale (PyObject* self, PyObject *args)
     bitmask_t *output;
     PyMask *maskobj;
     
-    if (!PyArg_ParseTuple (args, "(ii)", &x, &y))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "ii", &x, &y))
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O", &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
 
     maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
     maskobj->mask = NULL;
@@ -483,8 +532,15 @@ _mask_draw (PyObject* self, PyObject* args)
     PyObject *maskobj;
     int x, y;
 
-    if (!PyArg_ParseTuple (args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "O!ii", &PyMask_Type, &maskobj, &x, &y))
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
 
     othermask = PyMask_AsBitmask (maskobj);
     bitmask_draw(mask, othermask, x, y);
@@ -499,8 +555,15 @@ _mask_erase (PyObject* self, PyObject* args)
     PyObject *maskobj;
     int x, y;
 
-    if (!PyArg_ParseTuple (args, "O!(ii)", &PyMask_Type, &maskobj, &x, &y))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "O!ii", &PyMask_Type, &maskobj, &x, &y))
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O!O", &PyMask_Type, &maskobj, &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
     
     othermask = PyMask_AsBitmask(maskobj);
     bitmask_erase (mask, othermask, x, y);
@@ -730,7 +793,14 @@ _mask_connectedcomponent (PyObject* self, PyObject* args)
     y = x = -1;
 
     if (!PyArg_ParseTuple (args, "|ii", &x, &y))
-        return NULL;
+    {
+        PyObject *pt;
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "|O", &pt))
+            return NULL;
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
     
     output = bitmask_create (input->w, input->h);
     if (!output)

@@ -19,6 +19,8 @@ Things to ADD:
 * reorganise and add camera module
 * add portmidi wrapper.
 * Subsurfaces via surface[x:y,a:b]? Brought up by ctgPi via IRC
+* add filledPieColor wrapper for sdlgfx.primitives
+* add characterXXX wrappers for sdlgdfx
 
 Things to FIX:
 ==============
@@ -30,8 +32,12 @@ Things to FIX:
 * get rid of os.system() output under msys (2>/dev/null does not seem to work)
 * correct argument checks in pyg_scrap* functions
 * check for clipboard resource destruction within pygame.sdlext.scrap.
+* uniform method and argument layout (see sdlext.draw and sdlgfx.primitives
+  how not to do it)
 * SDL_gfx has to set the correct errors (SDL_SetError()). Fix that and
   merge it back to the SDL_gfx upstream
+* all methods taking or returning angles as arguments should use degrees, not
+  radians - an implicit conversion (DEG2RAD/RAD2DEG) will be done
 
 Things to WRAP:
 ===============

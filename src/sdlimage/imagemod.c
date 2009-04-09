@@ -21,15 +21,18 @@
 
 #include <SDL_image.h>
 #include "pgsdl.h"
+#include "sdlimagebase_doc.h"
 
 static PyObject* _image_geterror (PyObject *self);
 static PyObject* _image_load (PyObject *self, PyObject *args);
 static PyObject* _image_readxpmfromarray (PyObject *self, PyObject *args);
 
 static PyMethodDef _image_methods[] = {
-    { "get_error", (PyCFunction) _image_geterror, METH_NOARGS, "" },
-    { "load", _image_load, METH_VARARGS, "" },
-    { "read_xpm_from_array", _image_readxpmfromarray, METH_VARARGS, "" },
+    { "get_error", (PyCFunction) _image_geterror, METH_NOARGS,
+      DOC_BASE_GET_ERROR },
+    { "load", _image_load, METH_VARARGS, DOC_BASE_LOAD },
+    { "read_xpm_from_array", _image_readxpmfromarray, METH_VARARGS,
+      DOC_BASE_READ_XPM_FROM_ARRAY },
     { NULL, NULL, 0, NULL },
 };
 
@@ -175,20 +178,22 @@ PyMODINIT_FUNC initbase (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "base",
-        "",
+        DOC_BASE,
         -1,
         _image_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("base", _image_methods, "");
+    mod = Py_InitModule3 ("base", _image_methods, DOC_BASE);
 #endif
     if (!mod)
         goto fail;
     if (import_pygame2_base () < 0)
         goto fail;
     if (import_pygame2_sdl_base () < 0)
+        goto fail;
+    if (import_pygame2_sdl_rwops () < 0)
         goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;

@@ -270,7 +270,7 @@ _rect_init (PyObject *self, PyObject *args, PyObject *kwds)
             }
             else
             {
-                if (!PointFromObject (pt, &x, &y))
+                if (!PointFromObject (pt, (int*)&x, (int*)&y))
                     return -1;
                 if (!SizeFromObject (rect, &w, &h))
                     return -1;
@@ -451,14 +451,7 @@ static int
 _rect_setcenter (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError, "center must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
@@ -478,14 +471,7 @@ _rect_setsize (PyObject *self, PyObject *value, void *closure)
 {
     pguint16 w, h;
 
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError, "size must be a 2-value sequence");
-        return -1;
-    }
-    if (!UintFromSeqIndex (value, 0, &w))
-        return -1;
-    if (!UintFromSeqIndex (value, 1, &h))
+    if (!SizeFromObject (value, (pgint32*)&w, (pgint32*)&h))
         return -1;
 
     ((PyRect*)self)->w = w;
@@ -504,14 +490,7 @@ static int
 _rect_setmidtop (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError, "midtop must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
@@ -530,15 +509,7 @@ static int
 _rect_setmidleft (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "midleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     ((PyRect*)self)->x = x;
@@ -557,15 +528,7 @@ static int
 _rect_setmidbottom (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "midbottom must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, (((PyRect*)self)->w >> 1), ((PyRect*)self)->x);
@@ -584,15 +547,7 @@ static int
 _rect_setmidright (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "midright must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
@@ -610,15 +565,7 @@ static int
 _rect_settopleft (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "topleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     ((PyRect*)self)->x = x;
@@ -637,15 +584,7 @@ static int
 _rect_settopright (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "topright must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);
@@ -664,15 +603,7 @@ static int
 _rect_setbottomleft (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "bottomleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     ((PyRect*)self)->x = x;
@@ -691,15 +622,7 @@ static int
 _rect_setbottomright (PyObject *self, PyObject *value, void *closure)
 {
     pgint16 x, y;
-    if (!PySequence_Check (value) || PySequence_Size (value) != 2)
-    {
-        PyErr_SetString (PyExc_ValueError,
-            "bottomleft must be a 2-value sequence");
-        return -1;
-    }
-    if (!IntFromSeqIndex (value, 0, &x))
-        return -1;
-    if (!IntFromSeqIndex (value, 1, &y))
+    if (!PointFromObject (value, (int*)&x, (int*)&y))
         return -1;
 
     INT16_SUB_UINT16_LIMIT (x, ((PyRect*)self)->w, ((PyRect*)self)->x);

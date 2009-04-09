@@ -22,6 +22,7 @@
 #include "pgsdl.h"
 #include "pggfx.h"
 #include "surface.h"
+#include "sdlgfxprimitives_doc.h"
 #include <SDL_gfxPrimitives.h>
 
 static PyObject* _gfx_pixelcolor (PyObject *self, PyObject* args);
@@ -48,42 +49,57 @@ static PyObject* _gfx_texturedpolygon (PyObject *self, PyObject* args);
 static PyObject* _gfx_beziercolor (PyObject *self, PyObject* args);
 
 static PyMethodDef _gfx_methods[] = {
-    { "pixel", _gfx_pixelcolor, METH_VARARGS, "" },
-    { "hline", _gfx_hlinecolor, METH_VARARGS, "" },
-    { "vline", _gfx_vlinecolor, METH_VARARGS, "" },
-    { "rectangle", _gfx_rectanglecolor, METH_VARARGS, "" },
-    { "box", _gfx_boxcolor, METH_VARARGS, "" },
-    { "line", _gfx_linecolor, METH_VARARGS, "" },
-    { "arc", _gfx_arccolor, METH_VARARGS, "" },
-    { "circle", _gfx_circlecolor, METH_VARARGS, "" },
-    { "aacircle", _gfx_aacirclecolor, METH_VARARGS, "" },
-    { "filled_circle", _gfx_filledcirclecolor, METH_VARARGS, "" },
-    { "ellipse", _gfx_ellipsecolor, METH_VARARGS, "" },
-    { "aaellipse", _gfx_aaellipsecolor, METH_VARARGS, "" },
-    { "filled_ellipse", _gfx_filledellipsecolor, METH_VARARGS, "" },
-    { "pie", _gfx_piecolor, METH_VARARGS, "" },
-    { "trigon", _gfx_trigoncolor, METH_VARARGS, "" },
-    { "aatrigon", _gfx_aatrigoncolor, METH_VARARGS, "" },
-    { "filled_trigon", _gfx_filledtrigoncolor, METH_VARARGS, "" },
-    { "polygon", _gfx_polygoncolor, METH_VARARGS, "" },
-    { "aapolygon", _gfx_aapolygoncolor, METH_VARARGS, "" },
-    { "filled_polygon", _gfx_filledpolygoncolor, METH_VARARGS, "" },
-    { "textured_polygon", _gfx_texturedpolygon, METH_VARARGS, "" },
-    { "bezier", _gfx_beziercolor, METH_VARARGS, "" },
+    { "pixel", _gfx_pixelcolor, METH_VARARGS, DOC_PRIMITIVES_PIXEL },
+    { "hline", _gfx_hlinecolor, METH_VARARGS, DOC_PRIMITIVES_HLINE },
+    { "vline", _gfx_vlinecolor, METH_VARARGS, DOC_PRIMITIVES_VLINE },
+    { "rectangle", _gfx_rectanglecolor, METH_VARARGS, DOC_PRIMITIVES_RECTANGLE },
+    { "box", _gfx_boxcolor, METH_VARARGS, DOC_PRIMITIVES_BOX },
+    { "line", _gfx_linecolor, METH_VARARGS, DOC_PRIMITIVES_LINE },
+    { "arc", _gfx_arccolor, METH_VARARGS, DOC_PRIMITIVES_ARC },
+    { "circle", _gfx_circlecolor, METH_VARARGS, DOC_PRIMITIVES_CIRCLE },
+    { "aacircle", _gfx_aacirclecolor, METH_VARARGS, DOC_PRIMITIVES_AACIRCLE },
+    { "filled_circle", _gfx_filledcirclecolor, METH_VARARGS,
+      DOC_PRIMITIVES_FILLED_CIRCLE },
+    { "ellipse", _gfx_ellipsecolor, METH_VARARGS, DOC_PRIMITIVES_ELLIPSE },
+    { "aaellipse", _gfx_aaellipsecolor, METH_VARARGS,
+      DOC_PRIMITIVES_AAELLIPSE },
+    { "filled_ellipse", _gfx_filledellipsecolor, METH_VARARGS, 
+      DOC_PRIMITIVES_FILLED_ELLIPSE },
+    { "pie", _gfx_piecolor, METH_VARARGS, DOC_PRIMITIVES_PIE },
+    { "trigon", _gfx_trigoncolor, METH_VARARGS, DOC_PRIMITIVES_TRIGON },
+    { "aatrigon", _gfx_aatrigoncolor, METH_VARARGS, DOC_PRIMITIVES_AATRIGON },
+    { "filled_trigon", _gfx_filledtrigoncolor, METH_VARARGS,
+      DOC_PRIMITIVES_FILLED_TRIGON },
+    { "polygon", _gfx_polygoncolor, METH_VARARGS, DOC_PRIMITIVES_POLYGON },
+    { "aapolygon", _gfx_aapolygoncolor, METH_VARARGS,
+      DOC_PRIMITIVES_AAPOLYGON },
+    { "filled_polygon", _gfx_filledpolygoncolor, METH_VARARGS,
+      DOC_PRIMITIVES_FILLED_POLYGON },
+    { "textured_polygon", _gfx_texturedpolygon, METH_VARARGS,
+      DOC_PRIMITIVES_TEXTURED_POLYGON },
+    { "bezier", _gfx_beziercolor, METH_VARARGS, DOC_PRIMITIVES_BEZIER },
     { NULL, NULL, 0, NULL },
 };
 
 static PyObject*
 _gfx_pixelcolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt;
     Sint16 x, y;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiO:pixel", &surface, &x, &y, &color))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOO:pixel", &surface, &pt, &color))
+    {
+        if (!PyArg_ParseTuple (args, "OiiO:pixel", &surface, &x, &y, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -266,14 +282,25 @@ static PyObject*
 _gfx_linecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color;
+    PyObject *p1, *p2;
     Sint16 x1, x2, _y1, y2;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiO:line", &surface, &x1, &_y1, &x2, &y2,
-            &color))
+    if (!PyArg_ParseTuple (args, "OOOO:line", &surface, &p1, &p2, color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiO:line", &surface, &x1, &_y1,
+            &x2, &y2, &color))
         return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (p1, (int*)&x1, (int*)&_y1) ||
+            !PointFromObject (p2, (int*)&x2, (int*)&y2))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -300,14 +327,24 @@ _gfx_linecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_circlecolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt;
     Sint16 x, y, r;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiO:circle", &surface, &x, &y, &r, &color))
+    if (!PyArg_ParseTuple (args, "OOiO:circle", &surface, &pt, &r, &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiO:circle", &surface, &x, &y, &r,
+            &color))
         return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -334,16 +371,26 @@ _gfx_circlecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_arccolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt;
     Sint16 x, y, r, start, end;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiiO:arc", &surface, &x, &y, &r,
-            &start, &end, &color))
-        return NULL;
-    
+    if (!PyArg_ParseTuple (args, "OOiiiO:arc", &surface, &pt, &r, &start, &end,
+        &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiiO:arc", &surface, &x, &y, &r,
+                &start, &end, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
+
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -370,16 +417,24 @@ _gfx_arccolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_aacirclecolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt;
     Sint16 x, y, r;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiO:aacircle", &surface, &x, &y, &r,
-            &color))
-        return NULL;
-    
+    if (!PyArg_ParseTuple (args, "OOiO:aacircle", &surface, &pt, &r, &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiO:aacircle", &surface, &x, &y, &r,
+                &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -405,15 +460,25 @@ _gfx_aacirclecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_filledcirclecolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt;
     Sint16 x, y, r;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiO:filledcircle", &surface, &x, &y, &r,
-            &color))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOiO:filledcircle", &surface, &pt, &r,
+        &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiO:filledcircle", &surface, &x, &y,
+            &r, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -440,15 +505,25 @@ _gfx_filledcirclecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_ellipsecolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt, *rd;
     Sint16 x, y, rx, ry;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiO:ellipse", &surface, &x, &y, &rx, &ry,
-            &color))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOO:ellipse", &surface, &pt, &rd, &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiO:ellipse", &surface, &x, &y, &rx,
+            &ry, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y) ||
+            !PointFromObject (rd, (int*)&rx, (int*)&ry))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -475,15 +550,25 @@ _gfx_ellipsecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_aaellipsecolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt, *rd;
     Sint16 x, y, rx, ry;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiO:aaellipse", &surface, &x, &y, &rx, &ry,
-            &color))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOO:aaellipse", &surface, &pt, &rd, &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiO:aaellipse", &surface, &x, &y, &rx,
+            &ry, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y) ||
+            !PointFromObject (rd, (int*)&rx, (int*)&ry))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -511,16 +596,27 @@ _gfx_aaellipsecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_filledellipsecolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt, *rd;
     Sint16 x, y, rx, ry;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiO:filled_ellipse", &surface, &x, &y,
+    if (!PyArg_ParseTuple (args, "OOOO:filled_ellipse", &surface, &pt, &rd,
+        &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiO:filled_ellipse", &surface, &x, &y,
             &rx, &ry, &color))
-        return NULL;
-    
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y) ||
+            !PointFromObject (rd, (int*)&rx, (int*)&ry))
+            return NULL;
+    }
+
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -547,16 +643,25 @@ _gfx_filledellipsecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_piecolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *pt;
     Sint16 x, y, r, start, end;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiiO:pie", &surface, &x, &y, &r,
+    if (!PyArg_ParseTuple (args, "OOiiiO:pie", &surface, &pt, &r,
             &start, &end, &color))
-        return NULL;
-    
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiiO:pie", &surface, &x, &y, &r,
+                &start, &end, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
     if (!PySDLSurface_Check (surface))
     {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
@@ -583,15 +688,27 @@ _gfx_piecolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_trigoncolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *p1, *p2, *p3;
     Sint16 x1, x2, x3, _y1, y2, y3;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiiiO:trigon", &surface, &x1, &_y1, &x2,
-            &y2, &x3, &y3, &color))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOOO:trigon", &surface, &p1, &p2, &p3,
+        &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiiiO:trigon", &surface, &x1, &_y1,
+            &x2, &y2, &x3, &y3, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (p1, (int*)&x1, (int*)&_y1) ||
+            !PointFromObject (p2, (int*)&x2, (int*)&y2) ||
+            !PointFromObject (p3, (int*)&x3, (int*)&y3))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -619,15 +736,27 @@ _gfx_trigoncolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_aatrigoncolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *p1, *p2, *p3;
     Sint16 x1, x2, x3, _y1, y2, y3;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiiiO:aatrigon", &surface, &x1, &_y1, &x2,
-            &y2, &x3, &y3, &color))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOOO:aatrigon", &surface, &p1, &p2, &p3,
+        &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiiiO:aatrigon", &surface, &x1, &_y1,
+            &x2, &y2, &x3, &y3, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (p1, (int*)&x1, (int*)&_y1) ||
+            !PointFromObject (p2, (int*)&x2, (int*)&y2) ||
+            !PointFromObject (p3, (int*)&x3, (int*)&y3))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -655,15 +784,27 @@ _gfx_aatrigoncolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_filledtrigoncolor (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *color;
+    PyObject *surface, *color, *p1, *p2, *p3;
     Sint16 x1, x2, x3, _y1, y2, y3;
     Uint32 c;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OiiiiiiO:filled_trigon", &surface, &x1, &_y1,
-            &x2, &y2, &x3, &y3, &color))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOOO:filled_trigon", &surface, &p1, &p2, &p3,
+        &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiiiO:filled_trigon", &surface, &x1,
+            &_y1, &x2, &y2, &x3, &y3, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (p1, (int*)&x1, (int*)&_y1) ||
+            !PointFromObject (p2, (int*)&x2, (int*)&y2) ||
+            !PointFromObject (p3, (int*)&x3, (int*)&y3))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -959,16 +1100,26 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
 static PyObject*
 _gfx_texturedpolygon (PyObject *self, PyObject* args)
 {
-    PyObject *surface, *texture, *points, *item;
+    PyObject *surface, *texture, *points, *item, *pt;
     Sint16 *vx, *vy, x, y, tdx, tdy;
     Py_ssize_t count, i;
     int ret;
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OOOii:textured_polygon", &surface, &points,
-            &texture, &tdx, &tdy))
-        return NULL;
+    if (!PyArg_ParseTuple (args, "OOOO:textured_polygon", &surface, &points,
+            &texture, &pt))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OOOii:textured_polygon", &surface,
+            &points, &texture, &tdx, &tdy))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&tdx, (int*)&tdy))
+            return NULL;
+    }
     
     if (!PySDLSurface_Check (surface))
     {
@@ -1147,14 +1298,14 @@ PyMODINIT_FUNC initprimitives (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "primitives",
-        "",
+        DOC_PRIMITIVES,
         -1,
         _gfx_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("primitives", _gfx_methods, "");
+    mod = Py_InitModule3 ("primitives", _gfx_methods, DOC_PRIMITIVES);
 #endif
     if (!mod)
         goto fail;

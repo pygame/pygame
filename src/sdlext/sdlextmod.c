@@ -38,7 +38,7 @@ PyMODINIT_FUNC initbase (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "base",
-        "",
+        DOC_BASE,
         -1,
         NULL,
         NULL, NULL, NULL, NULL

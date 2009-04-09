@@ -23,12 +23,13 @@
 #include "gfxmod.h"
 #include "pggfx.h"
 #include "pgsdl.h"
+#include "sdlgfxbase_doc.h"
 
 static PyObject* _gfx_getcompiledversion (PyObject *self);
 
 static PyMethodDef _gfx_methods[] = {
     { "get_compiled_version", (PyCFunction) _gfx_getcompiledversion,
-      METH_NOARGS, "" },
+      METH_NOARGS, DOC_BASE_GET_COMPILED_VERSION },
     { NULL, NULL, 0, NULL },
 };
 
@@ -53,7 +54,7 @@ PyMODINIT_FUNC initbase (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "base",
-        "",
+        DOC_BASE,
         -1,
         _gfx_methods,
         NULL, NULL, NULL, NULL
@@ -67,7 +68,7 @@ PyMODINIT_FUNC initbase (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("base", _gfx_methods, "");
+    mod = Py_InitModule3 ("base", _gfx_methods, DOC_BASE);
 #endif
     if (!mod)
         goto fail;

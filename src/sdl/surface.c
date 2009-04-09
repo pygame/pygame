@@ -348,12 +348,14 @@ _surface_setcliprect (PyObject *self, PyObject *value, void *closure)
     SDL_SetClipRect (surface, &rect);
     return 0;
 }
+
 static PyObject*
 _surface_getwidth (PyObject *self, void *closure)
 {
     SDL_Surface *surface = ((PySDLSurface*)self)->surface;
     return PyInt_FromLong (surface->w);
 }
+
 static PyObject*
 _surface_getheight (PyObject *self, void *closure)
 {
