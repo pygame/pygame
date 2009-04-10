@@ -34,7 +34,7 @@
 
 #include "pygame.h"
 #include "surface.h"
-#include <SDL_gfxPrimitives.h>
+#include "SDL_gfx/SDL_gfxPrimitives.h"
 
 #if PY_VERSION_HEX >= 0x03000000
 #define PY3 1

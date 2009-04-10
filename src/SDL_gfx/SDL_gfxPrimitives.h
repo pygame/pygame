@@ -27,17 +27,9 @@ extern "C" {
 #define SDL_GFXPRIMITIVES_MINOR	0
 #define SDL_GFXPRIMITIVES_MICRO	19
 
-/* ----- W32 DLL interface */
+/* ----- Statically Linking so don't want a DLL interface */
 
-#ifdef WIN32
-#ifdef BUILD_DLL
-#define DLLINTERFACE __declspec(dllexport)
-#else
-#define DLLINTERFACE __declspec(dllimport)
-#endif
-#else
 #define DLLINTERFACE
-#endif
 
 /* ----- Prototypes */
 
