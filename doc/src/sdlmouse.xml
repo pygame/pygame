@@ -18,48 +18,105 @@
 
 <module name="pygame2.sdl.mouse">
   <short>SDL mouse I/O wrapper module</short>
-  <desc></desc>
+  <desc>SDL mouse I/O wrapper module</desc>
 
   <class name="Cursor">
-    <constructor>TODO</constructor>
-    <desc></desc>
+    <constructor>Cursor (data, mask, width, height[, hotx, hoty]) -> Cursor
+    Cursor (data, mask, size[, point]) -> Cursor
+    </constructor>
+    <desc>
+      Creates a new mouse cursor pointer.
+
+      Creates a new mouse cursor pointer from the specified pixel data
+      and pixel mask. The mask is used for applying transparency to the
+      data defining the mouse cursor.
+    </desc>
   </class>
 
   <func name="get_position">
-    <call></call>
-    <desc></desc>
+    <call>get_position () -> x, y</call>
+    <desc>
+      Gets the current mouse position on the main screen.
+    </desc>
   </func>
   <func name="get_rel_position">
-    <call></call>
-    <desc></desc>
+    <call>get_rel_position () -> x, y</call>
+    <desc>
+      Gets the relative mouse movement.
+
+      Gets the relative mouse movement since the last call to this
+      function.
+    </desc>
   </func>
   <func name="get_rel_state">
-    <call></call>
-    <desc></desc>
+    <call>get_rel_state () -> buttons, x, y</call>
+    <desc>
+      Gets the relative mouse state.
+      
+      Gets the relative mouse state since the last call to this
+      function.
+    </desc>
   </func>
   <func name="get_state">
-    <call></call>
-    <desc></desc>
+    <call>get_state () -> buttons, x, y</call>
+    <desc>
+      Gets the current mouse state.
+      
+      Gets the current mouse state. The returned buttons value
+      represents a bitmask with the pressed buttons.
+    </desc>
   </func>
   <func name="set_cursor">
-    <call></call>
-    <desc></desc>
+    <call>set_cursor (cursor) -> None</call>
+    <desc>
+      Sets the mouse cursor to be shown.
+    
+      Sets the mouse cursor to be displayed. The change will be visible
+      immediately.
+    </desc>
   </func>
   <func name="set_position">
-    <call></call>
-    <desc></desc>
+    <call>set_position (x, y) -> None
+    set_position (point) -> None</call>
+    <desc>
+      Sets the position of the mouse cursor.
+    
+    Sets the position of the mouse cursor on the main screen. This
+    behaves exactly as the :meth:`warp` method.
+    </desc>
   </func>
   <func name="set_visible">
-    <call></call>
-    <desc></desc>
+    <call>set_visible (show) -> state</call>
+    <desc>
+      Toggles whether the cursor is shown on the screen.
+    
+      Toggles whether the cursor is shown on the screen. This
+      behaves exactly as the :meth:`show_cursor` method.
+    </desc>
   </func>
   <func name="show_cursor">
-    <call></call>
-    <desc></desc>
+    <call>show_cursor (show) -> state</call>
+    <desc>
+      Toggles whether the cursor is shown on the screen.
+      
+      Toggles whether the cursor is shown on the screen. show can be a
+      boolean or one a value of ENABLE, DISABLE and QUERY. QUERY will
+      not change the visibility state but query, if the cursor is
+      currently shown or not.
+      
+      The state returned is a value of ENABLE and DISABLE, indicating,
+      whether the cursor is currently shown or not.
+    </desc>
   </func>
   <func name="warp">
-    <call></call>
-    <desc></desc>
+    <call>warp (x, y) -> None
+    warp (point) -> None</call>
+    <desc>
+      Sets the position of the mouse cursor.
+    
+      Sets the position of the mouse cursor on the main screen. This
+      also will generate a mouse motion event.
+    </desc>
   </func>
 </module>
 

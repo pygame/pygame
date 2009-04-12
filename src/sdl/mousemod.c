@@ -21,6 +21,7 @@
 
 #include "mousemod.h"
 #include "pgsdl.h"
+#include "sdlmouse_doc.h"
 
 static PyObject* _sdl_warpmouse (PyObject *self, PyObject *args);
 static PyObject* _sdl_getmousepos (PyObject *self);
@@ -31,16 +32,19 @@ static PyObject* _sdl_setvisible (PyObject *self, PyObject *args);
 static PyObject* _sdl_setcursor (PyObject *self, PyObject *args);
 
 static PyMethodDef _mouse_methods[] = {
-    { "warp", _sdl_warpmouse, METH_VARARGS, "" },
-    { "set_position", _sdl_warpmouse, METH_VARARGS, "" },
-    { "get_position", (PyCFunction)_sdl_getmousepos, METH_NOARGS, "" },
-    { "get_rel_position", (PyCFunction)_sdl_getrelativepos, METH_NOARGS, "" },
-    { "get_state", (PyCFunction)_sdl_getmousestate, METH_NOARGS, "" },
+    { "warp", _sdl_warpmouse, METH_VARARGS, DOC_MOUSE_WARP },
+    { "set_position", _sdl_warpmouse, METH_VARARGS, DOC_MOUSE_SET_POSITION },
+    { "get_position", (PyCFunction)_sdl_getmousepos, METH_NOARGS,
+      DOC_MOUSE_GET_POSITION },
+    { "get_rel_position", (PyCFunction)_sdl_getrelativepos, METH_NOARGS,
+      DOC_MOUSE_GET_REL_POSITION },
+    { "get_state", (PyCFunction)_sdl_getmousestate, METH_NOARGS, 
+      DOC_MOUSE_GET_STATE },
     { "get_rel_state", (PyCFunction)_sdl_getrelativemousestate, METH_NOARGS,
-      "" },
-    { "set_visible", _sdl_setvisible, METH_VARARGS, "" },
-    { "show_cursor", _sdl_setvisible, METH_VARARGS, "" },
-    { "set_cursor", _sdl_setcursor, METH_VARARGS, "" },
+      DOC_MOUSE_GET_REL_STATE },
+    { "set_visible", _sdl_setvisible, METH_VARARGS, DOC_MOUSE_SET_VISIBLE },
+    { "show_cursor", _sdl_setvisible, METH_VARARGS, DOC_MOUSE_SHOW_CURSOR },
+    { "set_cursor", _sdl_setcursor, METH_VARARGS, DOC_MOUSE_SET_CURSOR },
     { NULL, NULL, 0, NULL }
 };
 
@@ -172,7 +176,7 @@ PyMODINIT_FUNC initmouse (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "mouse",
-        "",
+        DOC_MOUSE,
         -1,
         _mouse_methods,
         NULL, NULL, NULL, NULL
@@ -188,7 +192,7 @@ PyMODINIT_FUNC initmouse (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("mouse", _mouse_methods, "");
+    mod = Py_InitModule3 ("mouse", _mouse_methods, DOC_MOUSE);
 #endif
     if (!mod)
         goto fail;

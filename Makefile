@@ -1,4 +1,4 @@
-PYTHON = python3.0
+PYTHON = python
 top_srcdir = `pwd`
 SUBDIRS = \
 	$(top_srcdir)/config \
