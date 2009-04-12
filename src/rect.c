@@ -493,10 +493,11 @@ rect_collidedict (PyObject* oself, PyObject* args)
     PyRectObject* self = (PyRectObject*)oself;
     GAME_Rect *argrect, temp;
     Py_ssize_t loop=0;
+    Py_ssize_t values=0;
     PyObject* dict, *key, *val;
     PyObject* ret = NULL;
 
-    if (!PyArg_ParseTuple (args, "O", &dict))
+    if (!PyArg_ParseTuple (args, "O|i", &dict, &values))
         return NULL;
     if (!PyDict_Check (dict))
         return RAISE (PyExc_TypeError,
@@ -504,12 +505,23 @@ rect_collidedict (PyObject* oself, PyObject* args)
 
     while (PyDict_Next (dict, &loop, &key, &val))
     {
-        if (!(argrect = GameRect_FromObject (key, &temp)))
-        {
-            RAISE (PyExc_TypeError,
-                   "Argument must be a dict with rectstyle keys.");
-            break;
+        if(values) {
+            if (!(argrect = GameRect_FromObject (val, &temp)))
+            {
+                RAISE (PyExc_TypeError,
+                       "Argument must be a dict with rectstyle values.");
+                break;
+            }
+        } else {
+            if (!(argrect = GameRect_FromObject (key, &temp)))
+            {
+                RAISE (PyExc_TypeError,
+                       "Argument must be a dict with rectstyle keys.");
+                break;
+            }
         }
+
+
         if (DoRectsIntersect (&self->r, argrect))
         {
             ret = Py_BuildValue ("(OO)", key, val);
@@ -528,10 +540,13 @@ rect_collidedictall (PyObject* oself, PyObject* args)
     PyRectObject* self = (PyRectObject*)oself;
     GAME_Rect *argrect, temp;
     Py_ssize_t loop=0;
+    /* should we use values or keys? */
+    Py_ssize_t values=0;
+
     PyObject* dict, *key, *val;
     PyObject* ret = NULL;
 
-    if (!PyArg_ParseTuple (args, "O", &dict))
+    if (!PyArg_ParseTuple (args, "O|i", &dict, &values))
         return NULL;
     if (!PyDict_Check (dict))
         return RAISE (PyExc_TypeError,
@@ -543,11 +558,20 @@ rect_collidedictall (PyObject* oself, PyObject* args)
 
     while (PyDict_Next (dict, &loop, &key, &val))
     {
-        if (!(argrect = GameRect_FromObject (key, &temp)))
-        {
-            Py_DECREF (ret);
-            return RAISE (PyExc_TypeError,
-                          "Argument must be a dict with rectstyle keys.");
+        if (values) {
+            if (!(argrect = GameRect_FromObject (val, &temp)))
+            {
+                Py_DECREF (ret);
+                return RAISE (PyExc_TypeError,
+                              "Argument must be a dict with rectstyle values.");
+            }
+        } else {
+            if (!(argrect = GameRect_FromObject (key, &temp)))
+            {
+                Py_DECREF (ret);
+                return RAISE (PyExc_TypeError,
+                              "Argument must be a dict with rectstyle keys.");
+            }
         }
 
         if (DoRectsIntersect (&self->r, argrect))
