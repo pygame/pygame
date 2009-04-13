@@ -20,6 +20,7 @@
 #define PYGAME_SDLKEYBOARD_INTERNAL
 
 #include "pgsdl.h"
+#include "sdlkeyboard_doc.h"
 
 static PyObject* _sdl_keygetkeystate (PyObject *self);
 static PyObject* _sdl_keygetmodstate (PyObject *self);
@@ -30,13 +31,20 @@ static PyObject* _sdl_keygetkeyrepeat (PyObject *self);
 static PyObject* _sdl_keyenableunicode (PyObject *self, PyObject *args);
 
 static PyMethodDef _key_methods[] = {
-    { "get_state", (PyCFunction) _sdl_keygetkeystate, METH_NOARGS, "" },
-    { "get_mod_state", (PyCFunction) _sdl_keygetmodstate, METH_NOARGS, "" },
-    { "set_mod_state", _sdl_keysetmodstate, METH_VARARGS, "" },
-    { "get_key_name", _sdl_keygetkeyname, METH_VARARGS, "" },
-    { "enable_repeat", _sdl_keyenablekeyrepeat, METH_VARARGS, "" },
-    { "get_repeat", (PyCFunction) _sdl_keygetkeyrepeat, METH_NOARGS, "" },
-    { "enable_unicode", _sdl_keyenableunicode, METH_VARARGS, "" },
+    { "get_state", (PyCFunction) _sdl_keygetkeystate, METH_NOARGS, 
+      DOC_KEYBOARD_GET_STATE },
+    { "get_mod_state", (PyCFunction) _sdl_keygetmodstate, METH_NOARGS,
+      DOC_KEYBOARD_GET_MOD_STATE },
+    { "set_mod_state", _sdl_keysetmodstate, METH_VARARGS,
+      DOC_KEYBOARD_SET_MOD_STATE },
+    { "get_key_name", _sdl_keygetkeyname, METH_VARARGS,
+      DOC_KEYBOARD_GET_KEY_NAME },
+    { "enable_repeat", _sdl_keyenablekeyrepeat, METH_VARARGS,
+      DOC_KEYBOARD_ENABLE_REPEAT },
+    { "get_repeat", (PyCFunction) _sdl_keygetkeyrepeat, METH_NOARGS,
+      DOC_KEYBOARD_GET_REPEAT },
+    { "enable_unicode", _sdl_keyenableunicode, METH_VARARGS,
+      DOC_KEYBOARD_ENABLE_UNICODE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -59,7 +67,7 @@ _sdl_keygetkeystate (PyObject *self)
     for (i = 0; i < count; i++)
     {
         key = PyInt_FromLong (i);
-        val = PyInt_FromLong (array[i]);
+        val = PyBool_FromLong (array[i]);
         if (!PyDict_SetItem (dict, key, val))
         {
             Py_DECREF (key);
@@ -141,15 +149,15 @@ _sdl_keygetkeyrepeat (PyObject *self)
 static PyObject*
 _sdl_keyenableunicode (PyObject *self, PyObject *args)
 {
-    PyObject *val;
+    PyObject *val = NULL;
     int enable;
 
-    if (!PyArg_ParseTuple (args, "O:enable_unicode", &val))
+    if (!PyArg_ParseTuple (args, "|O:enable_unicode", &val))
         return NULL;
 
-    if (val == Py_None)
+    if (val == NULL)
         enable = SDL_EnableUNICODE (-1);
-    else 
+    else
     {
         enable = PyObject_IsTrue (val);
         if (enable == -1)
@@ -172,12 +180,12 @@ PyMODINIT_FUNC initkeyboard (void)
 
 #ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT, "keyboard", "", -1, _key_methods,
+        PyModuleDef_HEAD_INIT, "keyboard", DOC_KEYBOARD, -1, _key_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("keyboard", _key_methods, "");
+    mod = Py_InitModule3 ("keyboard", _key_methods, DOC_KEYBOARD);
 #endif
     if (!mod)
         goto fail;

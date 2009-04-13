@@ -16,7 +16,6 @@
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
-
 <module name="pygame2.sdl.event">
   <short>SDL event wrapper</short>
   <desc>

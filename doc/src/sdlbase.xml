@@ -16,7 +16,6 @@
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
-
 <module name="pygame2.sdl.base">
   <short>basic SDL wrapper module</short>
   <desc>Pygame SDL wrapper module</desc>

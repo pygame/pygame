@@ -1235,10 +1235,11 @@ static PyObject*
 _frect_collidedict (PyObject *self, PyObject *args)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
-    PyObject *dict, *key, *val;
+    PyObject *dict, *key, *val, *check = NULL;
     Py_ssize_t pos = 0;
+    int cvalues = 0;
 
-    if (!PyArg_ParseTuple (args, "O:collidedict", &dict))
+    if (!PyArg_ParseTuple (args, "O|O:collidedict", &dict, &check))
         return NULL;
 
     if (!PyDict_Check (dict))
@@ -1247,17 +1248,36 @@ _frect_collidedict (PyObject *self, PyObject *args)
             "argument must be a dict with FRect keys.");
         return NULL;
     }
-    
+
+    if (check)
+    {
+        cvalues = PyObject_IsTrue (check);
+        if (cvalues == -1)
+            return NULL;
+    }
+
     while (PyDict_Next (dict, &pos, &key, &val))
     {
-        if (!PyFRect_Check (key))
+        if (cvalues)
         {
-            PyErr_SetString (PyExc_TypeError, 
-                "argument must be a dict with FRect keys.");
-            return NULL;
+            if (!PyFRect_Check (val))
+            {
+                PyErr_SetString (PyExc_TypeError, 
+                    "argument must be a dict with FRect values.");
+                return NULL;
+            }
+            rarg = (PyFRect*) val;
         }
-        rarg = (PyFRect*) key;
-
+        else
+        {
+            if (!PyFRect_Check (key))
+            {
+                PyErr_SetString (PyExc_TypeError, 
+                    "argument must be a dict with FRect keys.");
+                return NULL;
+            }
+            rarg = (PyFRect*) key;
+        }
         if (INTERSECT (rself, rarg))
             return Py_BuildValue ("(OO)", key, val);
     }
@@ -1268,10 +1288,11 @@ static PyObject*
 _frect_collidedictall (PyObject *self, PyObject *args)
 {
     PyFRect *rarg, *rself = (PyFRect*) self;
-    PyObject *dict, *key, *val, *list;
+    PyObject *dict, *key, *val, *list, *check = NULL;
     Py_ssize_t pos = 0;
+    int cvalues = 0;
 
-    if (!PyArg_ParseTuple (args, "O:collidedict", &dict))
+    if (!PyArg_ParseTuple (args, "O|O:collidedictall", &dict, &check))
         return NULL;
 
     if (!PyDict_Check (dict))
@@ -1280,6 +1301,12 @@ _frect_collidedictall (PyObject *self, PyObject *args)
             "argument must be a dict with FRect keys.");
         return NULL;
     }
+    if (check)
+    {
+        cvalues = PyObject_IsTrue (check);
+        if (cvalues == -1)
+            return NULL;
+    }
 
     list = PyList_New (0);
     if (!list)
@@ -1287,13 +1314,26 @@ _frect_collidedictall (PyObject *self, PyObject *args)
     
     while (PyDict_Next (dict, &pos, &key, &val))
     {
-        if (!PyFRect_Check (key))
+        if (cvalues)
         {
-            PyErr_SetString (PyExc_TypeError, 
-                "argument must be a dict with FRect keys.");
-            return NULL;
+            if (!PyFRect_Check (val))
+            {
+                PyErr_SetString (PyExc_TypeError, 
+                    "argument must be a dict with FRect values.");
+                return NULL;
+            }
+            rarg = (PyFRect*) val;
         }
-        rarg = (PyFRect*) key;
+        else
+        {
+            if (!PyFRect_Check (key))
+            {
+                PyErr_SetString (PyExc_TypeError, 
+                    "argument must be a dict with FRect keys.");
+                return NULL;
+            }
+            rarg = (PyFRect*) key;
+        }
 
         if (INTERSECT (rself, rarg))
         {

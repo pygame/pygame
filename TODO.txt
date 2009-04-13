@@ -38,6 +38,7 @@ Things to FIX:
   merge it back to the SDL_gfx upstream
 * all methods taking or returning angles as arguments should use degrees, not
   radians - an implicit conversion (DEG2RAD/RAD2DEG) will be done
+* fix installed pygame2.test suite
 
 Things to WRAP:
 ===============
@@ -47,4 +48,3 @@ Things to WRAP:
 * SDL_Audio*
 * SDL_Thread*
 * SDL_gfx image filter functions
-

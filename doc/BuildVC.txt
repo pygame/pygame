@@ -6,7 +6,6 @@ can start to make your own pygame2 package.
 
 Setting up Visual C++ and the environment
 -----------------------------------------
-
 First of all, you have to make sure, that you have at least a Microsoft
 Visual C++ compiler that matches your current Python version. For Python
 <= 2.5 this usually will be the Visual C++ 7.x compiler, shipped with

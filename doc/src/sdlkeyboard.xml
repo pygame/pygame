@@ -19,35 +19,82 @@
 
 <module name="pygame2.sdl.keyboard">
   <short>SDL keyboard I/O wrapper module</short>
-  <desc></desc>
+  <desc>SDL keyboard I/O wrapper module</desc>
 
   <func name="enable_repeat">
-    <call></call>
-    <desc></desc>
+    <call>enable_repeat (delay, interval) -> None</call>
+    <desc>
+      Enables or disables the keyboard repeat rate.
+
+      Enables or disables the keyboard repeat rate. delay specifies how
+      long a key must be pressed before the repeat begins. interval is
+      the speed with which it repeats. delay and interval are expressed
+      as milliseconds. Thus, after the initial delay has passed,
+      repeated KEYDOWN events are sent through the event queue, using
+      the specified interval.
+
+      Setting delay to 0 will disable repeating completely.
+    </desc>
   </func>
   <func name="enable_unicode">
-    <call></call>
-    <desc></desc>
+    <call>enable_unicode ([enable]) -> bool</call>
+    <desc>
+      Enables or disables unicode input handling.
+
+      Enables or disables unicode input handling. If the argument is
+      omitted, the function will return the current unicode handling
+      state.
+
+      By default unicode handling is enabled and for keyboard events,
+      the *unicode* member of the event will be filled with the
+      corresponding unicode character.
+    </desc>
   </func>
   <func name="get_key_name">
-    <call></call>
-    <desc></desc>
+    <call>get_key_name (key) -> str</call>
+    <desc>
+      Get the descriptive name for a key constant.
+    </desc>
   </func>
   <func name="get_mod_state">
-    <call></call>
-    <desc></desc>
+    <call>get_mod_state () -> state</call>
+    <desc>
+      Returns the current state of the modifier keys (CTRL, ALT, etc.).
+
+      Returns a single integer representing a bitmask of all the
+      modifier keys being held. Using bitwise operators you can test if
+      specific shift keys are pressed, the state of the capslock button,
+      and more.
+
+      The bitmask will consist of the various KMOD_* flags as specified
+      in the constants.
+    </desc>
   </func>
   <func name="get_repeat">
-    <call></call>
-    <desc></desc>
+    <call>get_repeat () -> delay, interval</call>
+    <desc>
+      Gets the currently set keyboard repeat delay and interval.
+    </desc>
   </func>
   <func name="get_state">
-    <call></call>
-    <desc></desc>
+    <call>get_state () -> dict</call>
+    <desc>
+      Gets the current keyboard state.
+
+      Gets a dictionary with the current keyboard state. The keys of the
+      dictionary are the key constants, the boolean values of the
+      dictionary indicate, whether a certain key is pressed or not.
+    </desc>
   </func>
   <func name="set_mod_state">
-    <call></call>
-    <desc></desc>
+    <call>set_mod_state (mod) -> None</call>
+    <desc>
+      Sets the current modifier key state.
+
+      Sets the current modifier key state. mod has to be a bitwise OR'd
+      combination of the KMOD_* flags as they are specified in the
+      constants.
+    </desc>
   </func>
 </module>
 

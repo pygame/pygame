@@ -267,7 +267,7 @@ class FRectTest (unittest.TestCase):
         self.assertEqual( r1, r1.clip( FRect(r1) ),
                           "r1 does not clip an identical rect to itself" )
 
-    def todo_test_pygame2_base_FRect_collidedict(self):
+    def test_pygame2_base_FRect_collidedict(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.collidedict:
 
@@ -280,10 +280,31 @@ class FRectTest (unittest.TestCase):
         # dictionary value that collides with the FRect. If no collisions are
         # found, None is returned. They keys of the passed dict must be FRect
         # objects.
+        r = FRect(1, 1, 10, 10)
+        r1 = FRect(1, 1, 10, 10)
+        r2 = FRect(50, 50, 10, 10)
+        r3 = FRect(70, 70, 10, 10)
+        r4 = FRect(61, 61, 10, 10)
 
-        self.fail() 
+        d = {1: r1, 2: r2, 3: r3}
 
-    def todo_test_pygame2_base_FRect_collidedictall(self):
+        rects_values = 1
+        val = r.collidedict(d, rects_values)
+        self.assertTrue(val)
+        self.assertEqual(len(val), 2)
+        self.assertEqual(val[0], 1)
+        self.assertEqual(val[1], r1)
+
+        none_d = {2: r2, 3: r3}
+        none_val = r.collidedict(none_d, rects_values)
+        self.assertFalse(none_val)
+
+        barely_d = {1: r1, 2: r2, 3: r3}
+        k3, v3 = r4.collidedict(barely_d, rects_values)
+        self.assertEqual(k3, 3)
+        self.assertEqual(v3, r3)
+
+    def test_pygame2_base_FRect_collidedictall(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.collidedictall:
 
@@ -297,7 +318,22 @@ class FRectTest (unittest.TestCase):
         # found an empty list is returned. They keys of the passed dict must
         # be FRect objects.
 
-        self.fail() 
+
+        r = FRect(1, 1, 10, 10)
+
+        r2 = FRect(1, 1, 10, 10)
+        r3 = FRect(5, 5, 10, 10)
+        r4 = FRect(10, 10, 10, 10)
+        r5 = FRect(50, 50, 10, 10)
+
+        rects_values = 1
+        d = {2: r2}
+        l = r.collidedictall(d, rects_values)
+        self.assertEqual(l, [(2, r2)])
+
+        d2 = {2: r2, 3: r3, 4: r4, 5: r5}
+        l2 = r.collidedictall(d2, rects_values)
+        self.assertEqual(l2, [(2, r2), (3, r3), (4, r4)])
 
     def test_pygame2_base_FRect_colliderect(self):
 
@@ -332,7 +368,7 @@ class FRectTest (unittest.TestCase):
         self.failIf( r1.colliderect( FRect(r1.right,r1.bottom,1,1) ),
                      "r1 collides with Rect(r1.right,r1.bottom,1,1)" )
 
-    def todo_test_pygame2_base_FRect_collidelist(self):
+    def test_pygame2_base_FRect_collidelist(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.collidelist:
 
@@ -345,9 +381,15 @@ class FRectTest (unittest.TestCase):
         # sequence of rectangles. The index of the first collision found is
         # returned. If no collisions are found an index of -1 is returned.
 
-        self.fail() 
+        r = FRect(1, 1, 10, 10)
+        l = [FRect(50, 50, 1, 1), FRect(5, 5, 10, 10), FRect(15, 15, 1, 1)]
 
-    def todo_test_pygame2_base_FRect_collidelistall(self):
+        self.assertEqual(r.collidelist(l), 1)
+
+        f = [FRect(50, 50, 1, 1), FRect(100, 100, 4, 4)]
+        self.assertEqual(r.collidelist(f), -1)
+
+    def test_pygame2_base_FRect_collidelistall(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.FRect.collidelistall:
 
@@ -360,7 +402,18 @@ class FRectTest (unittest.TestCase):
         # rectangles that collide with the FRect. If no intersecting
         # rectangles are found, an empty list is returned.
 
-        self.fail() 
+        r = FRect(1, 1, 10, 10)
+
+        l = [
+            FRect(1, 1, 10, 10), 
+            FRect(5, 5, 10, 10),
+            FRect(15, 15, 1, 1),
+            FRect(2, 2, 1, 1),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [FRect(50, 50, 1, 1), FRect(20, 20, 5, 5)]
+        self.assertFalse(r.collidelistall(f))
 
     def test_pygame2_base_FRect_collidepoint(self):
 
@@ -463,7 +516,15 @@ class FRectTest (unittest.TestCase):
         # new rectangle may be smaller than the target in either width or
         # height.
 
-        self.fail() 
+        r = FRect(10, 10, 30, 30)
+
+        r2 = FRect(30, 30, 15, 10)
+
+        f = r.fit(r2)
+        self.assertTrue(r2.contains(f))
+        
+        f2 = r2.fit(r)
+        self.assertTrue(r.contains(f2))
 
     def test_pygame2_base_FRect_floor(self):
 
