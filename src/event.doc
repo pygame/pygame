@@ -65,6 +65,8 @@ list of the Event members that are defined with each type.
     VIDEOEXPOSE      none
     USEREVENT        code
 
+Events support equality comparison. Two events are equal if they are the same
+type and have identical attribute values. Inequality checks also work.
 <SECTION>
 
 

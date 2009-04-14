@@ -201,6 +201,21 @@ class EventModuleTest(unittest.TestCase):
         pygame.event.set_grab(False)
         self.assert_(not pygame.event.get_grab())
 
+    def test_event_equality(self):
+        a = pygame.event.Event(1, a=1)
+        b = pygame.event.Event(1, a=1)
+        c = pygame.event.Event(2, a=1)
+        d = pygame.event.Event(1, a=2)
+
+        self.failUnless(a == a)
+        self.failIf(a != a)
+        self.failUnless(a == b)
+        self.failIf(a != b)
+        self.failUnless(a !=  c)
+        self.failIf(a == c)
+        self.failUnless(a != d)
+        self.failIf(a == d)
+        
     def todo_test_get_blocked(self):
 
         # __doc__ (as of 2008-08-02) for pygame.event.get_blocked:
