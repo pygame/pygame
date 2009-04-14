@@ -28,7 +28,7 @@ import sys, os, string
 
 # check if is old windows... if so use directx video driver by default.
 # if someone sets this respect their setting...
-if not os.environ.get('SDL_VIDEODRIVER', ''):
+if not 'SDL_VIDEODRIVER' in os.environ:
     # http://docs.python.org/lib/module-sys.html
     # 0 (VER_PLATFORM_WIN32s) 	Win32s on Windows 3.1
     # 1 (VER_PLATFORM_WIN32_WINDOWS) 	Windows 95/98/ME
@@ -66,7 +66,7 @@ class MissingModule:
         MissingPygameModule = "%s module not available" % self.name
         if self.reason:
             MissingPygameModule += "\n(%s)" % self.reason
-        raise NotImplementedError, MissingPygameModule
+        raise NotImplementedError(MissingPygameModule)
 
     def __nonzero__(self):
         return 0
@@ -83,7 +83,7 @@ class MissingModule:
             else: level = 3
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
-            print message
+            print (message)
 
 
 
@@ -95,6 +95,7 @@ from pygame.base import *
 from pygame.constants import *
 from pygame.version import *
 from pygame.rect import Rect
+from pygame.compat import geterror
 import pygame.rwobject
 import pygame.surflock
 import pygame.color
@@ -104,38 +105,38 @@ __version__ = ver
 #next, the "standard" modules
 #we still allow them to be missing for stripped down pygame distributions
 try: import pygame.cdrom
-except (ImportError,IOError), msg:cdrom=MissingModule("cdrom", msg, 1)
+except (ImportError,IOError):cdrom=MissingModule("cdrom", geterror(), 1)
 
 try: import pygame.cursors
-except (ImportError,IOError), msg:cursors=MissingModule("cursors", msg, 1)
+except (ImportError,IOError):cursors=MissingModule("cursors", geterror(), 1)
 
 try: import pygame.display
-except (ImportError,IOError), msg:display=MissingModule("display", msg, 1)
+except (ImportError,IOError):display=MissingModule("display", geterror(), 1)
 
 try: import pygame.draw
-except (ImportError,IOError), msg:draw=MissingModule("draw", msg, 1)
+except (ImportError,IOError):draw=MissingModule("draw", geterror(), 1)
 
 try: import pygame.event
-except (ImportError,IOError), msg:event=MissingModule("event", msg, 1)
+except (ImportError,IOError):event=MissingModule("event", geterror(), 1)
 
 try: import pygame.image
-except (ImportError,IOError), msg:image=MissingModule("image", msg, 1)
+except (ImportError,IOError):image=MissingModule("image", geterror(), 1)
 
 try: import pygame.joystick
-except (ImportError,IOError), msg:joystick=MissingModule("joystick", msg, 1)
+except (ImportError,IOError):joystick=MissingModule("joystick", geterror(), 1)
 
 try: import pygame.key
-except (ImportError,IOError), msg:key=MissingModule("key", msg, 1)
+except (ImportError,IOError):key=MissingModule("key", geterror(), 1)
 
 try: import pygame.mouse
-except (ImportError,IOError), msg:mouse=MissingModule("mouse", msg, 1)
+except (ImportError,IOError):mouse=MissingModule("mouse", geterror(), 1)
 
 try: import pygame.sprite
-except (ImportError,IOError), msg:sprite=MissingModule("sprite", msg, 1)
+except (ImportError,IOError):sprite=MissingModule("sprite", geterror(), 1)
 
 
 try: import pygame.threads
-except (ImportError,IOError), msg:threads=MissingModule("threads", msg, 1)
+except (ImportError,IOError):threads=MissingModule("threads", geterror(), 1)
 
 
 def warn_unwanted_files():
@@ -154,12 +155,11 @@ def warn_unwanted_files():
 
 
     # See if any of the files are there.
-    extension_files = map(lambda x:"%s%s" % (x,extension_ext), ext_to_remove)
+    extension_files = ["%s%s" % (x, extension_ext) for x in ext_to_remove]
 
-    py_files = []
-    for py_ext in [".py", ".pyc", ".pyo"]:
-        py_files.extend( map(lambda x:"%s%s" % (x,py_ext), py_to_remove) )
-    
+    py_files = ["%s%s" % (x, py_ext)
+                for py_ext in [".py", ".pyc", ".pyo"]
+                for x in py_to_remove]
 
     files = py_files + extension_files
 
@@ -187,7 +187,7 @@ def warn_unwanted_files():
             level = 4
             warnings.warn(message, RuntimeWarning, level)
         except ImportError:
-            print message
+            print (message)
         
 warn_unwanted_files()
 
@@ -209,10 +209,10 @@ try: from pygame.overlay import *
 except (ImportError,IOError):Overlay = lambda:Missing_Function
 
 try: import pygame.time
-except (ImportError,IOError), msg:time=MissingModule("time", msg, 1)
+except (ImportError,IOError):time=MissingModule("time", geterror(), 1)
 
 try: import pygame.transform
-except (ImportError,IOError), msg:transform=MissingModule("transform", msg, 1)
+except (ImportError,IOError):transform=MissingModule("transform", geterror(), 1)
 
 #lastly, the "optional" pygame modules
 try:
@@ -221,36 +221,36 @@ try:
     pygame.font.SysFont = pygame.sysfont.SysFont
     pygame.font.get_fonts = pygame.sysfont.get_fonts
     pygame.font.match_font = pygame.sysfont.match_font
-except (ImportError,IOError), msg:font=MissingModule("font", msg, 0)
+except (ImportError,IOError):font=MissingModule("font", geterror(), 0)
 
 # try and load pygame.mixer_music before mixer, for py2app...
 try:
     import pygame.mixer_music
     #del pygame.mixer_music
-    #print "NOTE2: failed importing pygame.mixer_music in lib/__init__.py"
+    #print ("NOTE2: failed importing pygame.mixer_music in lib/__init__.py")
 except (ImportError,IOError):
     pass
 
 try: import pygame.mixer
-except (ImportError,IOError), msg:mixer=MissingModule("mixer", msg, 0)
+except (ImportError,IOError):mixer=MissingModule("mixer", geterror(), 0)
 
 try: import pygame.movie
-except (ImportError,IOError), msg:movie=MissingModule("movie", msg, 0)
+except (ImportError,IOError):movie=MissingModule("movie", geterror(), 0)
 
 #try: import pygame.movieext
-#except (ImportError,IOError), msg:movieext=MissingModule("movieext", msg, 0)
+#except (ImportError,IOError):movieext=MissingModule("movieext", geterror(), 0)
 
 try: import pygame.scrap
-except (ImportError,IOError), msg:scrap=MissingModule("scrap", msg, 0)
+except (ImportError,IOError):scrap=MissingModule("scrap", geterror(), 0)
 
 try: import pygame.surfarray
-except (ImportError,IOError), msg:surfarray=MissingModule("surfarray", msg, 0)
+except (ImportError,IOError):surfarray=MissingModule("surfarray", geterror(), 0)
 
 try: import pygame.sndarray
-except (ImportError,IOError), msg:sndarray=MissingModule("sndarray", msg, 0)
+except (ImportError,IOError):sndarray=MissingModule("sndarray", geterror(), 0)
 
 try: import pygame.fastevent
-except (ImportError,IOError), msg:fastevent=MissingModule("fastevent", msg, 0)
+except (ImportError,IOError):fastevent=MissingModule("fastevent", geterror(), 0)
 
 #there's also a couple "internal" modules not needed
 #by users, but putting them here helps "dependency finder"
@@ -272,7 +272,10 @@ def packager_imports():
     import pygame.colordict
 
 #make Rects pickleable
-import copy_reg
+try:
+    import copy_reg
+except ImportError:
+    import copyreg as copy_reg
 def __rect_constructor(x,y,w,h):
 	return Rect(x,y,w,h)
 def __rect_reduce(r):
@@ -281,4 +284,4 @@ def __rect_reduce(r):
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 #cleanup namespace
-del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg
+del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg, geterror
