@@ -445,6 +445,8 @@
 
 #define DOC_MASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
 
+#define DOC_PYGAMEMIDI "send and receive midi messages"
+
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 
 #define DOC_PYGAMEMIXERINIT "pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=4096): return None\ninitialize the mixer module"
@@ -2324,6 +2326,11 @@ Returns a list of masks of connected regions of pixels.
 Mask.get_bounding_rects
  Mask.get_bounding_rects() -> Rects
 Returns a list of bounding rects of regions of set pixels.
+
+
+
+pygame.midi
+ send and receive midi messages
 
 
 
