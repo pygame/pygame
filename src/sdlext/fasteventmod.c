@@ -80,6 +80,11 @@ _sdl_feventinit (PyObject *self)
     PyErr_SetString (PyExc_PyGameError, "fastevent requires a threaded Python");
     return NULL;
 #else
+    if (FE_Init () != 0)
+    {
+        PyErr_SetString (PyExc_PyGameError, FE_GetError ());
+        return NULL;
+    }
     _fewasinit = 1;
     Py_RETURN_NONE;
 #endif
@@ -249,7 +254,7 @@ PyMODINIT_FUNC initfastevent (void)
     eventmod = PyImport_ImportModule ("pygame2.sdl.event");
     if (eventmod)
     {
-        char *NAMES[] = {"Event", NULL};
+        char *NAMES[] = { "Event", NULL };
         int  i;
 
         for (i = 0; NAMES[i]; i++)

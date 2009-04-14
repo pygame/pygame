@@ -139,7 +139,7 @@ PyTypeObject PyPixelArray_Type =
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     DOC_BASE_PIXELARRAY,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */

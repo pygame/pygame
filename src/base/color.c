@@ -1534,6 +1534,20 @@ PyColor_NewFromNumber (pguint32 val)
     return PyColor_New (rgba);
 }
 
+static PyObject*
+PyColor_NewFromRGBA (pgbyte r, pgbyte g, pgbyte b, pgbyte a)
+{
+    PyColor *color = (PyColor*) PyColor_Type.tp_new (&PyColor_Type, NULL, NULL);
+    if (!color)
+        return NULL;
+
+    color->r = r;
+    color->g = g;
+    color->b = b;
+    color->a = a;
+    return (PyObject*)color;
+}
+
 static pguint32
 PyColor_AsNumber (PyColor *color)
 {
@@ -1544,11 +1558,13 @@ PyColor_AsNumber (PyColor *color)
     return tmp;
 }
 
+
 void
 color_export_capi (void **capi)
 {
     capi[PYGAME_COLOR_FIRSTSLOT] = &PyColor_Type;
     capi[PYGAME_COLOR_FIRSTSLOT+1] = PyColor_New;
     capi[PYGAME_COLOR_FIRSTSLOT+2] = PyColor_NewFromNumber;
-    capi[PYGAME_COLOR_FIRSTSLOT+3] = PyColor_AsNumber;
+    capi[PYGAME_COLOR_FIRSTSLOT+3] = PyColor_NewFromRGBA;
+    capi[PYGAME_COLOR_FIRSTSLOT+4] = PyColor_AsNumber;
 }

@@ -19,39 +19,80 @@
 
 <module name="pygame2.sdl.time">
   <short>SDL time handling and measurement wrapper module</short>
-  <desc></desc>
+  <desc>SDL time handling and measurement wrapper module</desc>
 
   <func name="add_timer">
-    <call></call>
-    <desc></desc>
+    <call>add_timer (interval, callable[, data]) -> CObject</call>
+    <desc>
+      Adds a timer callback to be called peridiocally.
+      
+      Adds a timer callback to be called peridiocally using the specified
+      interval. callable can be any callable objet, method or function. On
+      invocation, the optional data will be passed to the callable.
+      
+      This will return an CObject that acts as unique id for the timer callback.
+    </desc>
   </func>
   <func name="delay">
-    <call></call>
-    <desc></desc>
+    <call>delay (time) -> None</call>
+    <desc>
+      Delays the execution for a specific time.
+      
+      Delays the program execution for a specific time. The time is expressed
+      in milliseconds.
+    </desc>
   </func>
   <func name="get_ticks">
-    <call></call>
-    <desc></desc>
+    <call>get_ticks () -> long</call>
+    <desc>
+      Gets the number of milliseconds since the initialisation of the underlying
+      SDL library.
+      
+      Gets the number of milliseconds since the initialisation of the underlying
+      SDL library. The value will wrap if the program runs for more than ~49
+      days.
+    </desc>
   </func>
   <func name="init">
-    <call></call>
-    <desc></desc>
+    <call>init () -> None</call>
+    <desc>
+      Initialises the timer subsystem of the SDL library.
+    </desc>
   </func>
   <func name="quit">
-    <call></call>
-    <desc></desc>
+    <call>quit () -> None</call>
+    <desc>
+      Shuts down the timer subsystem of the SDL library.
+
+      After calling this function, you should not invoke any class,
+      method or function related to the timer subsystem as they are
+      likely to fail or might give unpredictable results.
+    </desc>
   </func>
   <func name="remove_timer">
-    <call></call>
-    <desc></desc>
+    <call>remove_timer (timerobj) -> None</call>
+    <desc>
+      Removes a previously added timer callback.
+      
+      Removes a previously added timer callback and throws an exception, if the
+      passed object is not a matching timer object.
+    </desc>
   </func>
   <func name="set_timer">
-    <call></call>
-    <desc></desc>
+    <call>set_timer (interval, callable) -> None</call>
+    <desc>
+      Sets a single timer callback to be called peridiocally.
+      
+      Sets a single timer callback to be called peridiocally using the specified
+      interval in milliseconds. The timer callback can be reset by passing None
+      as callable object.
+    </desc>
   </func>
   <func name="was_init">
-    <call></call>
-    <desc></desc>
+    <call>was_init () -> bool</call>
+    <desc>
+      Returns, whether the timer subsystem of the SDL library is initialized.
+    </desc>
   </func>
 </module>
 

@@ -21,6 +21,7 @@
 
 #include "joystickmod.h"
 #include "pgsdl.h"
+#include "sdljoystick_doc.h"
 
 static PyObject* _joystick_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -45,25 +46,35 @@ static PyObject* _joystick_close (PyObject *self);
 /**
  */
 static PyMethodDef _joystick_methods[] = {
-    { "get_axis", _joystick_getaxis, METH_VARARGS, "" },
-    { "get_hat", _joystick_gethat, METH_VARARGS, "" },
-    { "get_button", _joystick_getbutton, METH_VARARGS, "" },
-    { "get_ball", _joystick_getball, METH_VARARGS, "" },
-    { "open", (PyCFunction)_joystick_open, METH_NOARGS, "" },
-    { "close", (PyCFunction)_joystick_close, METH_NOARGS, "" },
+    { "get_axis", _joystick_getaxis, METH_VARARGS,
+      DOC_JOYSTICK_JOYSTICK_GET_AXIS },
+    { "get_hat", _joystick_gethat, METH_VARARGS,
+      DOC_JOYSTICK_JOYSTICK_GET_HAT },
+    { "get_button", _joystick_getbutton, METH_VARARGS,
+      DOC_JOYSTICK_JOYSTICK_GET_BUTTON },
+    { "get_ball", _joystick_getball, METH_VARARGS,
+      DOC_JOYSTICK_JOYSTICK_GET_BALL },
+    { "open", (PyCFunction)_joystick_open, METH_NOARGS,
+      DOC_JOYSTICK_JOYSTICK_OPEN },
+    { "close", (PyCFunction)_joystick_close, METH_NOARGS,
+      DOC_JOYSTICK_JOYSTICK_CLOSE },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _joystick_getsets[] = {
-    { "name", _joystick_getname, NULL, "", NULL },
-    { "index", _joystick_getindex, NULL, "", NULL },
-    { "num_axes", _joystick_getnumaxes, NULL, "", NULL },
-    { "num_balls", _joystick_getnumballs, NULL, "", NULL },
-    { "num_hats", _joystick_getnumhats, NULL, "", NULL },
-    { "num_buttons", _joystick_getnumbuttons, NULL, "", NULL },
-    { "opened", _joystick_getopened, NULL, "", NULL },
+    { "name", _joystick_getname, NULL, DOC_JOYSTICK_JOYSTICK_NAME, NULL },
+    { "index", _joystick_getindex, NULL, DOC_JOYSTICK_JOYSTICK_INDEX, NULL },
+    { "num_axes", _joystick_getnumaxes, NULL, DOC_JOYSTICK_JOYSTICK_NUM_AXES,
+      NULL },
+    { "num_balls", _joystick_getnumballs, NULL,
+      DOC_JOYSTICK_JOYSTICK_NUM_BALLS, NULL },
+    { "num_hats", _joystick_getnumhats, NULL, DOC_JOYSTICK_JOYSTICK_NUM_HATS,
+      NULL },
+    { "num_buttons", _joystick_getnumbuttons, NULL,
+      DOC_JOYSTICK_JOYSTICK_NUM_BUTTONS, NULL },
+    { "opened", _joystick_getopened, NULL, DOC_JOYSTICK_JOYSTICK_OPENED, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -91,7 +102,7 @@ PyTypeObject PyJoystick_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_JOYSTICK_JOYSTICK,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

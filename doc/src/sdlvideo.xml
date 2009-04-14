@@ -16,114 +16,308 @@
 <!ATTLIST method name CDATA #REQUIRED>
 ]>
 
-
 <module name="pygame2.sdl.video">
   <short>SDL video display wrapper module.</short>
-  <desc></desc>
+  <desc>SDL video display wrapper module.</desc>
 
   <class name="Overlay">
-    <constructor>TODO</constructor>
-    <desc></desc>
+    <constructor>Overlay (surface, width, height, format) -> Overlay
+      Overlay (surface, size, format) -> Overlay
+    </constructor>
+    <desc>
+      Creates a new Overlay for a surface.
+      
+      The Overlay objects provide support for accessing hardware video overlays.
+      Video overlays do not use standard RGB pixel formats, and can use
+      multiple resolutions of data to create a single image.
+      
+      The Overlay objects represent lower level access to the display hardware.
+      To use the object you should understand the technical details of video
+      overlays.
+
+      The Overlay format determines the type of pixel data used. Not all
+      hardware will support all types of overlay formats. Supported format
+      types are
+
+      * YV12_OVERLAY
+      * IYUV_OVERLAY
+      * YUV2_OVERLAY
+      * UYVY_OVERLAY
+      * YVYU_OVERLAY
+
+      The width and height arguments control the size for the overlay image
+      data. The overlay image can be displayed at any size, not just the
+      resolution of the overlay and are always visible, and always show above
+      the regular display contents.
+    </desc>
     <method name="display">
-      <call></call>
-      <desc></desc>
+      <call>display ([rect]) -> None</call>
+      <desc>
+        Displays the current overlay data in the SDL overlay plane.
+      </desc>
     </method>
-    <attr name="format"></attr>
-    <attr name="h"></attr>
-    <attr name="height"></attr>
-    <attr name="hw_overlay"></attr>
+    <attr name="format">Gets the format of the Overlay.</attr>
+    <attr name="h">Gets the height of the Overlay.</attr>
+    <attr name="height">Gets the height of the Overlay.</attr>
+    <attr name="hw_overlay">Gets, whether the Overlay is hardware accelerated.
+    </attr>
     <method name="lock">
-      <call></call>
-      <desc></desc>
+      <call>lock () -> None</call>
+      <desc>
+        Locks the Overlay for a direct access to its internal pixel data.
+      </desc>
     </method>
-    <attr name="locked"></attr>
-    <attr name="pitches"></attr>
-    <attr name="pixels"></attr>
-    <attr name="planes"></attr>
-    <attr name="size"></attr>
+    <attr name="locked">Gets, whether the Overlay is currently locked.</attr>
+    <attr name="pitches">Gets the pitches (length in bytes) for all
+    planes of the Overlay.</attr>
+    <attr name="pixels">Gets the pixel buffers for all planes of the
+    Overlay.</attr>
+    <attr name="planes">Get the amount of planes for the Overlay.</attr>
+    <attr name="size">Gets the width and height of the Overlay</attr>
     <method name="unlock">
-      <call></call>
-      <desc></desc>
+      <call>unlock () -> None</call>
+      <desc>
+        Unlocks the Overlay, releasing the direct access to the pixel data.
+      </desc>
     </method>
-    <attr name="w"></attr>
-    <attr name="width"></attr>
+    <attr name="w">Gets the width of the Overlay.</attr>
+    <attr name="width">Gets the width of the Overlay</attr>
   </class>
 
   <class name="PixelFormat">
-    <constructor>TODO</constructor>
-    <desc></desc>
-    <attr name="alpha"></attr>
-    <attr name="bits_per_pixel"></attr>
-    <attr name="bytes_per_pixel"></attr>
-    <attr name="colorkey"></attr>
+    <constructor>PixelFormat () -> PixelFormat</constructor>
+    <desc>
+      Creates a new, empty PixelFormat.
+      
+      TODO
+    </desc>
+    <attr name="alpha">Gets or sets the overall surface alpha value in the
+      range [0, 255].</attr>
+    <attr name="bits_per_pixel">Gets or sets the bits per pixel to use for
+      storing a RGBA value.</attr>
+    <attr name="bytes_per_pixel">Gets or sets the bytes per pixel to use for
+      storing a RGBA value.</attr>
+    <attr name="colorkey">Gets or sets the RGBA value of transparent pixels.
+    </attr>
     <method name="get_rgba">
-      <call></call>
-      <desc></desc>
+      <call>get_rgba (color) -> int, int, int, int</call>
+      <desc>
+        Gets the RGBA values for the color.
+
+        Gets the single RGBA values for a color value, which fit the
+        PixelFormat best. This means that an internal conversion is done
+        on demand to match the passed color to the PixelFormat's
+        supported value ranges. If the PixelFormat does not have alpha
+        transparency support, the last RGBA integer will be set to fully
+        opaque (255).
+      </desc>
     </method>
-    <attr name="losses"></attr>
+    <attr name="losses">Gets or sets the precision loss of each RGBA color
+      component.</attr>
     <method name="map_rgba">
-      <call></call>
-      <desc></desc>
+      <call>map_rgba (r, g, b[, a]) -> Color
+        map_rgba (color) -> Color
+      </call>
+      <desc>
+        Converts a color to the best value matching the format.
+        
+        TODO
+      </desc>
     </method>
-    <attr name="masks"></attr>
-    <attr name="palette"></attr>
-    <attr name="shifts"></attr>
+    <attr name="masks">Gets or sets the binary mask used to retrieve individual
+      color values.</attr>
+    <attr name="palette">Gets the color palette (if any) used by the
+      PixelFormat. If the PixelFormat does not have any palette, None will be
+      returned.</attr>
+    <attr name="readonly">Gets, whether the PixelFormat is read-only (cannot be
+      changed).</attr>
+    <attr name="shifts">Gets the binary left shift of each color component in
+      the pixel value.</attr>
   </class>
 
   <class name="Surface">
-    <constructor>Surface () -> Surface</constructor>
-    <desc>Creates a new Surface</desc>
+    <constructor>Surface (width, height[, depth, flags, masks]) -> Surface
+      Surface (size[, depth, flags, masks]) -> Surface
+    </constructor>
+    <desc>
+      Creates a new Surface to represent images.
+      
+      TODO
+    </desc>
     <method name="blit">
-      <call></call>
-      <desc></desc>
+      <call>blit (srcsurface[, destrect, srcrect, blendargs]) -> Rect</call>
+      <desc>
+        Draws the passed source surface onto this surface.
+        
+        Draws the passed source surface onto this surface. The dstrect and
+        srcrect arguments are used for clipping the destionation area (on this
+        surface) and source area (on the source surface). For the destination 
+        rectangle, the width and height are ignored, only the position is taken
+        into account. For the source rectangle, all values, position as well as
+        the size are used for clipping.
+        
+        The optional blending arguments for the drawing operation perform
+        certain specialised pixel manipulations. For those, pixels on the same
+        position are evaluated and the result manipulated according to the
+        argument.
+        
+        +---------------------------+-----------------------------------------+
+        | Blend type                | Effect                                  |
+        +===========================+=========================================+
+        | BLEND_RGB_ADD             | The sum of both pixel values will be    |
+        |                           | set as resulting pixel.                 |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_SUB             | The difference of both pixel values     |
+        |                           | will be set as resulting pixel.         |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_MIN             | The minimum of each R, G and B channel  |
+        |                           | of the pixels will be set as result.    |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_MAX             | The maximum of each R, G and B channel  |
+        |                           | of the pixels will be set as result.    |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGB_MULT            | The result of a multiplication of both  |
+        |                           | pixel values will be used.              |
+        +---------------------------+-----------------------------------------+
+        
+        The BLEND_RGB_*** flags do not take the alpha channel into account and
+        thus are much faster for most blit operations without alpha
+        transparency. Whenever alpha transparency has to be taken into account,
+        the blending flags below should be used.
+        
+        +---------------------------+-----------------------------------------+
+        | Blend type                | Effect                                  |
+        +===========================+=========================================+
+        | BLEND_RGBA_ADD            | The sum of both pixel values will be    |
+        |                           | set as resulting pixel.                 |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGBA_SUB            | The difference of both pixel values     |
+        |                           | will be set as resulting pixel.         |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGBA_MIN            | The minimum of each R, G, B and A       |
+        |                           | channel of the pixels will be set as    |
+        |                           | result.                                 |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGBA_MAX            | The maximum of each R, G, B and A       |
+        |                           | channel of the pixels will be set as    |
+        |                           | result.                                 |
+        +---------------------------+-----------------------------------------+
+        | BLEND_RGBA_MULT           | The result of a multiplication of both  |
+        |                           | pixel values will be used.              |
+        +---------------------------+-----------------------------------------+
+      </desc>
     </method>
-    <attr name="clip_rect"></attr>
+    <attr name="clip_rect">Gets or sets the current clipping rectangle for
+      operations on the Surface.</attr>
     <method name="copy">
-      <call></call>
-      <desc></desc>
+      <call>copy () -> Surface </call>
+      <desc>
+        Creates an exact copy of the Surface and its image data.
+      </desc>
     </method>
     <method name="convert">
-      <call></call>
-      <desc></desc>
+      <call>convert ([pixelformat, flags]) -> Surface</call>
+      <desc>
+        Converts the Surface to the desired pixel format.
+        
+        Converts the Surface to the desired pixel format. If no format is
+        given, the active display format is used, which will be the fastest for
+        blit operations to the screen. The flags are the same as for surface
+        creation.
+        
+        This creates a new, converted surface and leaves the original one
+        untouched.
+      </desc>
     </method>
     <method name="fill">
-      <call></call>
-      <desc></desc>
+      <call>fill (color[, dstrect, blendargs]) -> None</call>
+      <desc>
+        Fills the Surface with a color.
+        
+        Fills the Surface with the desired color. The color does not need to
+        match the Surface's format, it will be converted implicitly to the
+        nearest appropriate color for its format.
+        
+        The optional destination rectangle limits the color fill to the
+        specified area. The blendargs are the same as for the :meth:`blit`
+        operation, but compare the color with the specific Surface pixel value.
+      </desc>
     </method>
-    <attr name="flags"></attr>
+    <attr name="flags">The currently set flags for the Surface.</attr>
     <method name="flip">
-      <call></call>
-      <desc></desc>
+      <call>flip () -> None</call>
+      <desc>
+        Swaps the screen buffers for the Surface.
+        
+        Swaps screen buffers for the Surface, causing a full update and redraw
+        of its whole area.  
+      </desc>
     </method>
-    <attr name="format"></attr>
+    <attr name="format">Gets the (read-only)
+    :class:`pygame2.sdl.video.PixelFormat` for this Surface.</attr>
     <method name="get_alpha">
-      <call></call>
-      <desc></desc>
+      <call>get_alpha () -> int</call>
+      <desc>
+        Gets the current overall alpha value of the Surface.
+        
+        Gets the current overall alpha value of the Surface. In case the
+        surface does not support alpha transparency (SRCALPHA flag not set),
+        None will be returned.
+      </desc>
     </method>
     <method name="get_at">
-      <call></call>
-      <desc></desc>
+      <call>get_at (x, y) -> Color
+        get_at (point) -> Color
+      </call>
+      <desc>
+        Gets the Surface pixel value at the specified point.
+      </desc>
     </method>
     <method name="get_colorkey">
-      <call></call>
-      <desc></desc>
+      <call>get_colorkey () -> Color</call>
+      <desc>
+        Gets the colorkey for the Surface.
+        
+        Gets the colorkey for the Surface or None in case it has no colorkey
+        (SRCCOLORKEY flag not set).
+      </desc>
     </method>
     <method name="get_palette">
-      <call></call>
+      <call>get_palette () -> (Color, Color, ...)</call>
       <desc></desc>
     </method>
-    <attr name="h"></attr>
-    <attr name="height"></attr>
+    <attr name="h">Gets the height of the Surface.</attr>
+    <attr name="height">Gets the height of the Surface.</attr>
     <method name="lock">
-      <call></call>
-      <desc></desc>
+      <call>lock () -> None</call>
+      <desc>
+        Locks the Surface for a direct access to its internal pixel data.
+      </desc>
     </method>
-    <attr name="locked"></attr>
-    <attr name="pitch"></attr>
-    <attr name="pixels"></attr>
+    <attr name="locked">Gets, whether the Surface is currently locked.</attr>
+    <attr name="pitch">Get the length of a surface scanline in bytes.</attr>
+    <attr name="pixels">Gets the pixel buffer of the Surface.</attr>
     <method name="save">
-      <call></call>
-      <desc></desc>
+      <call>save (file[, type]) -> None</call>
+      <desc>
+        Saves the Surface to a file.
+
+        Saves the Surface to a file. The file argument can be either a
+        file name or a file-like object to save the Surface to. The
+        optional type argument is required, if the file type cannot be
+        determined by the suffix.
+
+        Currently supported file types (suitable to pass as string for
+        the type argument) are:
+        
+        * BMP
+        * TGA
+        * PNG
+        * JPEG (JPG)
+
+        If no type information is supplied and the file type cannot be
+        determined either, it will use TGA.
+      </desc>
     </method>
     <method name="set_alpha">
       <call></call>

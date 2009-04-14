@@ -19,22 +19,32 @@
 
 <module name="pygame2.sdlext.fastevent">
   <short>fast SDL event handling module</short>
-  <desc></desc>
+  <desc>fast SDL event handling module</desc>
 
   <class name="Event">
-    <constructor>TODO</constructor>
-    <desc></desc>
-    <attr name="name"></attr>
-    <attr name="type"></attr>
+    <constructor>Event (type, dict) -> Event</constructor>
+    <desc>
+      Creates a new event to be used in the event messaging system.
+
+      This is exactly the same type as the
+      :class:`pygame2.sdl.event.Event` class. Take a look at its
+      documentation for more details.
+    </desc>
+    <attr name="name">Gets the name of the Event.</attr>
+    <attr name="type">Gets type id of the Event.</attr>
   </class>
 
   <func name="get">
-    <call></call>
-    <desc></desc>
+    <call>get () -> list</call>
+    <desc>
+      Gets the events from the event queue.
+    </desc>
   </func>
   <func name="init">
-    <call></call>
-    <desc></desc>
+    <call>init () -> None</call>
+    <desc>
+      Initialises the underlying fastevents system.
+    </desc>
   </func>
   <func name="poll">
     <call></call>

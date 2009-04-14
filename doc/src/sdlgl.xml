@@ -19,27 +19,46 @@
 
 <module name="pygame2.sdl.gl">
   <short>SDL OpenGL access wrapper module</short>
-  <desc></desc>
+  <desc>SDL OpenGL access wrapper module</desc>
 
   <func name="get_attribute">
-    <call></call>
-    <desc></desc>
+    <call>get_attribute (attribute) -> int</call>
+    <desc>
+      Gets an OpenGL attribute value.
+      
+      Gets the current value of the specified OpenGL attribute constant.
+    </desc>
   </func>
   <func name="get_proc_address">
-    <call></call>
-    <desc></desc>
+    <call>get_proc_address (procname) -> CObject</call>
+    <desc>
+      Gets the proc address of a function in the loaded OpenGL libraries.
+      
+      The proc address is an encapsuled function pointer and as such only
+      useful for ctypes bindings or other C API modules.
+    </desc>
   </func>
   <func name="load_library">
-    <call></call>
-    <desc></desc>
+    <call>load_library (libraryname) -> None</call>
+    <desc>
+      Loads the desired OpenGL library.
+      
+      Loads the desired OpenGL library specified by the passed full qualified
+      path. This must be called before any first call to
+      :meth:`pygame2.sdl.video.set_mode()` to have any effect.
+    </desc>
   </func>
   <func name="set_attribute">
-    <call></call>
-    <desc></desc>
+    <call>set_attribute (attribute, value) -> None</call>
+    <desc>
+      Sets an OpenGL attribute value.
+      
+      Sets the value of the specified OpenGL attribute.
+    </desc>
   </func>
   <func name="swap_buffers">
-    <call></call>
-    <desc></desc>
+    <call>swap_buffers () -> None</call>
+    <desc>Swap the OpenGL buffers, if double-buffering is supported.</desc>
   </func>
 </module>
 

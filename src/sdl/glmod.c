@@ -20,6 +20,7 @@
 #define PYGAME_SDLGL_INTERNAL
 
 #include "pgsdl.h"
+#include "sdlgl_doc.h"
 
 static PyObject* _sdl_glloadlibrary (PyObject *self, PyObject *args);
 static PyObject* _sdl_glgetprocaddress (PyObject *self, PyObject *args);
@@ -28,11 +29,15 @@ static PyObject* _sdl_glsetattribute (PyObject *self, PyObject *args);
 static PyObject* _sdl_glswapbuffers (PyObject *self);
 
 static PyMethodDef _gl_methods[] = {
-    { "load_library", _sdl_glloadlibrary, METH_VARARGS, "" },
-    { "get_proc_address", _sdl_glgetprocaddress, METH_VARARGS, "" },
-    { "get_attribute", _sdl_glgetattribute, METH_VARARGS, "" },
-    { "set_attribute", _sdl_glsetattribute, METH_VARARGS, "" },
-    { "swap_buffers", (PyCFunction) _sdl_glswapbuffers, METH_NOARGS, "" },
+    { "load_library", _sdl_glloadlibrary, METH_VARARGS, DOC_GL_LOAD_LIBRARY },
+    { "get_proc_address", _sdl_glgetprocaddress, METH_VARARGS,
+      DOC_GL_GET_PROC_ADDRESS },
+    { "get_attribute", _sdl_glgetattribute, METH_VARARGS,
+      DOC_GL_GET_ATTRIBUTE },
+    { "set_attribute", _sdl_glsetattribute, METH_VARARGS,
+      DOC_GL_SET_ATTRIBUTE },
+    { "swap_buffers", (PyCFunction) _sdl_glswapbuffers, METH_NOARGS,
+      DOC_GL_SWAP_BUFFERS },
     { NULL, NULL, 0, NULL }
 };
 
@@ -133,12 +138,16 @@ PyMODINIT_FUNC initgl (void)
 
 #ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT, "gl", "", -1, _gl_methods,
+        PyModuleDef_HEAD_INIT,
+        "gl",
+        DOC_GL,
+        -1,
+        _gl_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("gl", _gl_methods, "");
+    mod = Py_InitModule3 ("gl", _gl_methods, DOC_GL);
 #endif
     if (!mod)
         goto fail;

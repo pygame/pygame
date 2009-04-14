@@ -25,8 +25,6 @@
     <call>init () -> None</call>
     <desc>
       Initializes the audio subsystem of the SDL library.
-
-      Initializes the audio subsystem of the SDL library.
      </desc>
   </func>
   <func name="quit">

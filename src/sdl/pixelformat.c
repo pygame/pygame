@@ -22,6 +22,7 @@
 #include "videomod.h"
 #include "pgsdl.h"
 #include "surface.h"
+#include "sdlvideo_doc.h"
 
 #define IS_READONLY(x) (((PyPixelFormat*)(x))->readonly == 1)
 
@@ -52,6 +53,7 @@ static PyObject* _pixelformat_getalpha (PyObject *self, void *closure);
 static int _pixelformat_setalpha (PyObject *self, PyObject *value,
     void *closure);
 static PyObject* _pixelformat_getpalette (PyObject *self, void *closure);
+static PyObject* _pixelformat_getreadonly (PyObject *self, void *closure);
 
 static PyObject *_pixelformat_maprgba (PyObject *self, PyObject *args);
 static PyObject *_pixelformat_getrgba (PyObject *self, PyObject *args);
@@ -59,24 +61,34 @@ static PyObject *_pixelformat_getrgba (PyObject *self, PyObject *args);
 /**
  */
 static PyMethodDef _pixelformat_methods[] = {
-    { "map_rgba", _pixelformat_maprgba, METH_VARARGS, "" },
-    { "get_rgba", _pixelformat_getrgba, METH_VARARGS, "" },
+    { "map_rgba", _pixelformat_maprgba, METH_VARARGS,
+      DOC_VIDEO_PIXELFORMAT_MAP_RGBA },
+    { "get_rgba", _pixelformat_getrgba, METH_VARARGS,
+      DOC_VIDEO_PIXELFORMAT_GET_RGBA },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _pixelformat_getsets[] = {
-    { "palette", _pixelformat_getpalette, NULL, "", NULL },
-    { "bits_per_pixel", _pixelformat_getbpp, _pixelformat_setbpp, "", NULL },
-    { "bytes_per_pixel", _pixelformat_getbytes, _pixelformat_setbytes, "",
+    { "palette", _pixelformat_getpalette, NULL, DOC_VIDEO_PIXELFORMAT_PALETTE,
       NULL },
-    { "losses", _pixelformat_getlosses, _pixelformat_setlosses, "", NULL },
-    { "shifts", _pixelformat_getshifts, _pixelformat_setshifts, "", NULL },
-    { "masks", _pixelformat_getmasks, _pixelformat_setmasks, "", NULL },
-    { "colorkey", _pixelformat_getcolorkey, _pixelformat_setcolorkey, "",
-      NULL },
-    { "alpha", _pixelformat_getalpha, _pixelformat_setalpha, "", NULL },
+    { "bits_per_pixel", _pixelformat_getbpp, _pixelformat_setbpp,
+      DOC_VIDEO_PIXELFORMAT_BITS_PER_PIXEL, NULL },
+    { "bytes_per_pixel", _pixelformat_getbytes, _pixelformat_setbytes,
+      DOC_VIDEO_PIXELFORMAT_BYTES_PER_PIXEL, NULL },
+    { "losses", _pixelformat_getlosses, _pixelformat_setlosses,
+      DOC_VIDEO_PIXELFORMAT_LOSSES, NULL },
+    { "shifts", _pixelformat_getshifts, _pixelformat_setshifts,
+      DOC_VIDEO_PIXELFORMAT_SHIFTS, NULL },
+    { "masks", _pixelformat_getmasks, _pixelformat_setmasks,
+      DOC_VIDEO_PIXELFORMAT_MASKS, NULL },
+    { "colorkey", _pixelformat_getcolorkey, _pixelformat_setcolorkey,
+      DOC_VIDEO_PIXELFORMAT_COLORKEY, NULL },
+    { "alpha", _pixelformat_getalpha, _pixelformat_setalpha,
+      DOC_VIDEO_PIXELFORMAT_ALPHA, NULL },
+    { "readonly", _pixelformat_getreadonly, NULL,
+      DOC_VIDEO_PIXELFORMAT_READONLY, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -104,7 +116,7 @@ PyTypeObject PyPixelFormat_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_VIDEO_PIXELFORMAT,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -450,7 +462,8 @@ _pixelformat_getpalette (PyObject *self, void *closure)
     for (i = 0; i < pal->ncolors; i++)
     {
         c = &pal->colors[i];
-        color = Py_BuildValue ("(bbb)", c->r, c->g, c->b);
+        color = PyColor_NewFromRGBA ((pgbyte)c->r, (pgbyte)c->g, (pgbyte)c->b,
+            255);
         if (!color)
         {
             Py_DECREF (tuple);
@@ -461,6 +474,11 @@ _pixelformat_getpalette (PyObject *self, void *closure)
     return tuple;
 }
 
+static PyObject*
+_pixelformat_getreadonly (PyObject *self, void *closure)
+{
+    return PyBool_FromLong (IS_READONLY(self));
+}
 
 /* Methods */
 static PyObject*
@@ -498,7 +516,7 @@ _pixelformat_maprgba (PyObject *self, PyObject *args)
         val = SDL_MapRGB (((PyPixelFormat*)self)->format, r, g, b);
     else
         val = SDL_MapRGBA (((PyPixelFormat*)self)->format, r, g, b, a);
-    return PyLong_FromUnsignedLong ((unsigned long) val);
+    return PyColor_NewFromNumber ((pguint32)val);
 }
 
 static PyObject*

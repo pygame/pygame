@@ -20,6 +20,7 @@
 #define PYGAME_SDLTIME_INTERNAL
 
 #include "pgsdl.h"
+#include "sdltime_doc.h"
 
 typedef struct
 {
@@ -45,14 +46,16 @@ static PyObject* _sdl_addtimer (PyObject *self, PyObject *args);
 static PyObject* _sdl_removetimer (PyObject *self, PyObject *args);
 
 static PyMethodDef _time_methods[] = {
-    { "init", (PyCFunction) _sdl_timeinit, METH_NOARGS, "" },
-    { "was_init", (PyCFunction) _sdl_timewasinit, METH_NOARGS, "" },
-    { "quit", (PyCFunction) _sdl_timequit, METH_NOARGS, "" },
-    { "get_ticks", (PyCFunction) _sdl_timegetticks, METH_NOARGS, "" },
-    { "delay", _sdl_timedelay, METH_VARARGS, "" },
-    { "set_timer", _sdl_settimer, METH_VARARGS, "" },
-    { "add_timer", _sdl_addtimer, METH_VARARGS, "" },
-    { "remove_timer", _sdl_removetimer, METH_VARARGS, "" },
+    { "init", (PyCFunction) _sdl_timeinit, METH_NOARGS, DOC_TIME_INIT },
+    { "was_init", (PyCFunction) _sdl_timewasinit, METH_NOARGS,
+      DOC_TIME_WAS_INIT },
+    { "quit", (PyCFunction) _sdl_timequit, METH_NOARGS, DOC_TIME_QUIT },
+    { "get_ticks", (PyCFunction) _sdl_timegetticks, METH_NOARGS,
+      DOC_TIME_GET_TICKS },
+    { "delay", _sdl_timedelay, METH_VARARGS, DOC_TIME_DELAY },
+    { "set_timer", _sdl_settimer, METH_VARARGS, DOC_TIME_SET_TIMER },
+    { "add_timer", _sdl_addtimer, METH_VARARGS, DOC_TIME_ADD_TIMER },
+    { "remove_timer", _sdl_removetimer, METH_VARARGS, DOC_TIME_REMOVE_TIMER },
     { NULL, NULL, 0, NULL }
 };
 
@@ -280,30 +283,44 @@ _sdl_addtimer (PyObject *self, PyObject *args)
         return NULL;
     }
     Py_DECREF (retval); /* Decrease incremented refcount  */
-    return PyInt_FromSsize_t (PyList_Size (_timerlist));
+    return retval;
 }
 
 static PyObject*
 _sdl_removetimer (PyObject *self, PyObject *args)
 {
-    _TimerData *timerdata;
-    Py_ssize_t pos;
-    PyObject *val;
+    _TimerData *timerdata, *idobj;
+    int found = 0;
+    Py_ssize_t pos, count;
+    PyObject *val, *cobj;
     
-    if (!PyArg_ParseTuple (args, "n:remove_timer", &pos))
+    if (!PyArg_ParseTuple (args, "O:remove_timer", &cobj))
         return NULL;
 
-    if (!_timerlist || pos < 0 || pos >= PyList_Size (_timerlist))
+    if (!_timerlist  || !PyCObject_Check (cobj))
     {
         PyErr_SetString (PyExc_TypeError, "invalid timer id");
         return NULL;
     }
 
-    val = PyList_GET_ITEM (_timerlist, pos);
-    timerdata = (_TimerData*) PyCObject_AsVoidPtr (val);
-    if (!SDL_RemoveTimer (timerdata->id))
-        Py_RETURN_FALSE;
-
+    idobj = (_TimerData*) PyCObject_AsVoidPtr (cobj);
+    count = PyList_GET_SIZE (_timerlist);
+    for (pos = 0; pos < count; pos++)
+    {
+        val = PyList_GET_ITEM (_timerlist, pos);
+        timerdata = (_TimerData*) PyCObject_AsVoidPtr (val);
+        if (timerdata != idobj)
+            continue;
+        found = 1;
+        if (!SDL_RemoveTimer (timerdata->id))
+            Py_RETURN_FALSE;
+    }
+    if (!found)
+    {
+        PyErr_SetString (PyExc_TypeError, "invalid timer id");
+        return NULL;
+    }
+    
     timerdata->id = NULL;
     PySequence_DelItem (_timerlist, pos);
     Py_RETURN_TRUE;
@@ -321,14 +338,14 @@ PyMODINIT_FUNC inittime (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "time",
-        "",
+        DOC_TIME,
         -1,
         _time_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("time", _time_methods, "");
+    mod = Py_InitModule3 ("time", _time_methods, DOC_TIME);
 #endif
     if (!mod)
         goto fail;

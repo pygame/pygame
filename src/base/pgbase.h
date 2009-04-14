@@ -68,7 +68,7 @@ typedef struct
     pgbyte a;
 } PyColor;
 #define PYGAME_COLOR_FIRSTSLOT (PYGAME_BASE_FIRSTSLOT + PYGAME_BASE_NUMSLOTS)
-#define PYGAME_COLOR_NUMSLOTS 4
+#define PYGAME_COLOR_NUMSLOTS 5
 #ifndef PYGAME_COLOR_INTERNAL
 #define PyColor_Type \
     (*(PyTypeObject*)PyGameBase_C_API[PYGAME_COLOR_FIRSTSLOT+0])
@@ -79,8 +79,10 @@ typedef struct
     (*(PyObject*(*)(pgbyte*)) PyGameBase_C_API[PYGAME_COLOR_FIRSTSLOT+1])
 #define PyColor_NewFromNumber                                           \
     (*(PyObject*(*)(pguint32)) PyGameBase_C_API[PYGAME_COLOR_FIRSTSLOT+2])
+#define PyColor_NewFromRGBA                                             \
+    (*(PyObject*(*)(pgbyte,pgbyte,pgbyte,pgbyte)) PyGameBase_C_API[PYGAME_COLOR_FIRSTSLOT+3])
 #define PyColor_AsNumber                                                \
-    (*(pguint32(*)(PyObject*)) PyGameBase_C_API[PYGAME_COLOR_FIRSTSLOT+3])
+    (*(pguint32(*)(PyObject*)) PyGameBase_C_API[PYGAME_COLOR_FIRSTSLOT+4])
 #endif /* PYGAME_COLOR_INTERNAL */
 
 typedef struct

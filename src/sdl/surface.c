@@ -23,6 +23,7 @@
 #include "surface.h"
 #include "pgsdl.h"
 #include "tga.h"
+#include "sdlvideo_doc.h"
 
 #ifdef HAVE_PNG
 #include "pgpng.h"
@@ -71,25 +72,35 @@ static void _release_c_lock (void *ptr);
 /**
  */
 static PyMethodDef _surface_methods[] = {
-    { "update", _surface_update, METH_VARARGS, "" },
-    { "flip", (PyCFunction)_surface_flip, METH_NOARGS, "" },
-    { "set_colors", _surface_setcolors, METH_VARARGS, "" },
-    { "get_palette", (PyCFunction) _surface_getpalette, METH_NOARGS, "" },
-    { "set_palette", _surface_setpalette, METH_VARARGS, "" },
-    { "lock", (PyCFunction)_surface_lock, METH_NOARGS, "" },
-    { "unlock", (PyCFunction)_surface_unlock, METH_NOARGS, "" },
-    { "get_colorkey", (PyCFunction) _surface_getcolorkey, METH_NOARGS, "" },
-    { "set_colorkey", _surface_setcolorkey, METH_VARARGS, "" },
-    { "get_alpha", (PyCFunction) _surface_getalpha, METH_NOARGS, "" },
-    { "set_alpha", _surface_setalpha, METH_VARARGS, "" },
-    { "get_at", _surface_getat, METH_VARARGS, "" },
-    { "set_at", _surface_setat, METH_VARARGS, "" },
+    { "update", _surface_update, METH_VARARGS, DOC_VIDEO_SURFACE_UPDATE },
+    { "flip", (PyCFunction)_surface_flip, METH_NOARGS, DOC_VIDEO_SURFACE_FLIP },
+    { "set_colors", _surface_setcolors, METH_VARARGS,
+      DOC_VIDEO_SURFACE_SET_COLORS },
+    { "get_palette", (PyCFunction) _surface_getpalette, METH_NOARGS,
+      DOC_VIDEO_SURFACE_GET_PALETTE},
+    { "set_palette", _surface_setpalette, METH_VARARGS,
+      DOC_VIDEO_SURFACE_SET_PALETTE },
+    { "lock", (PyCFunction)_surface_lock, METH_NOARGS, DOC_VIDEO_SURFACE_LOCK },
+    { "unlock", (PyCFunction)_surface_unlock, METH_NOARGS,
+      DOC_VIDEO_SURFACE_UNLOCK },
+    { "get_colorkey", (PyCFunction) _surface_getcolorkey, METH_NOARGS,
+      DOC_VIDEO_SURFACE_GET_COLORKEY },
+    { "set_colorkey", _surface_setcolorkey, METH_VARARGS,
+      DOC_VIDEO_SURFACE_SET_COLORKEY },
+    { "get_alpha", (PyCFunction) _surface_getalpha, METH_NOARGS,
+      DOC_VIDEO_SURFACE_GET_ALPHA },
+    { "set_alpha", _surface_setalpha, METH_VARARGS,
+      DOC_VIDEO_SURFACE_SET_ALPHA },
+    { "get_at", _surface_getat, METH_VARARGS, DOC_VIDEO_SURFACE_GET_AT },
+    { "set_at", _surface_setat, METH_VARARGS, DOC_VIDEO_SURFACE_SET_AT },
     { "convert", (PyCFunction) _surface_convert, METH_VARARGS | METH_KEYWORDS,
-        "" },
-    { "copy", (PyCFunction)_surface_copy, METH_NOARGS, "" },
-    { "blit", (PyCFunction)_surface_blit, METH_VARARGS | METH_KEYWORDS, "" },
-    { "fill", (PyCFunction)_surface_fill, METH_VARARGS | METH_KEYWORDS, "" },
-    { "save", _surface_save, METH_VARARGS, "" },
+      DOC_VIDEO_SURFACE_CONVERT },
+    { "copy", (PyCFunction)_surface_copy, METH_NOARGS, DOC_VIDEO_SURFACE_COPY },
+    { "blit", (PyCFunction)_surface_blit, METH_VARARGS | METH_KEYWORDS,
+      DOC_VIDEO_SURFACE_BLIT },
+    { "fill", (PyCFunction)_surface_fill, METH_VARARGS | METH_KEYWORDS,
+      DOC_VIDEO_SURFACE_FILL },
+    { "save", _surface_save, METH_VARARGS, DOC_VIDEO_SURFACE_SAVE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -97,17 +108,18 @@ static PyMethodDef _surface_methods[] = {
  */
 static PyGetSetDef _surface_getsets[] = {
     { "__dict__", _surface_getdict, NULL, "", NULL },
-    { "clip_rect", _surface_getcliprect, _surface_setcliprect, "", NULL },
-    { "w", _surface_getwidth, NULL, "", NULL },
-    { "width", _surface_getwidth, NULL, "", NULL },
-    { "h", _surface_getheight, NULL, "", NULL },
-    { "height", _surface_getheight, NULL, "", NULL },
-    { "size", _surface_getsize, NULL, "", NULL },
-    { "flags", _surface_getflags, NULL, "", NULL },
-    { "format", _surface_getformat, NULL, "", NULL },
-    { "pitch", _surface_getpitch, NULL, "", NULL },
-    { "pixels", _surface_getpixels, NULL, "", NULL },
-    { "locked", _surface_getlocked, NULL, "", NULL },
+    { "clip_rect", _surface_getcliprect, _surface_setcliprect,
+      DOC_VIDEO_SURFACE_CLIP_RECT, NULL },
+    { "w", _surface_getwidth, NULL, DOC_VIDEO_SURFACE_W, NULL },
+    { "width", _surface_getwidth, NULL, DOC_VIDEO_SURFACE_WIDTH, NULL },
+    { "h", _surface_getheight, NULL, DOC_VIDEO_SURFACE_H, NULL },
+    { "height", _surface_getheight, NULL, DOC_VIDEO_SURFACE_HEIGHT, NULL },
+    { "size", _surface_getsize, NULL, DOC_VIDEO_SURFACE_SIZE, NULL },
+    { "flags", _surface_getflags, NULL, DOC_VIDEO_SURFACE_FLAGS, NULL },
+    { "format", _surface_getformat, NULL, DOC_VIDEO_SURFACE_FORMAT, NULL },
+    { "pitch", _surface_getpitch, NULL, DOC_VIDEO_SURFACE_PITCH, NULL },
+    { "pixels", _surface_getpixels, NULL, DOC_VIDEO_SURFACE_PIXELS, NULL },
+    { "locked", _surface_getlocked, NULL, DOC_VIDEO_SURFACE_LOCKED, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -135,7 +147,7 @@ PyTypeObject PySDLSurface_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
-    "",
+    DOC_VIDEO_SURFACE,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -561,7 +573,8 @@ _surface_getpalette (PyObject *self)
     for (i = 0; i < pal->ncolors; i++)
     {
         c = &pal->colors[i];
-        color = Py_BuildValue ("(bbb)", c->r, c->g, c->b);
+        color = PyColor_NewFromRGBA ((pgbyte)c->r, (pgbyte)c->g, (pgbyte)c->b,
+            255);
         if (!color)
         {
             Py_DECREF (tuple);
@@ -650,13 +663,14 @@ static PyObject*
 _surface_getcolorkey (PyObject *self)
 {
     SDL_Surface *surface = ((PySDLSurface*)self)->surface;
-    Uint8 r, g, b, a;
+    Uint8 rgba[4] = { 0 };
 
     if (!(surface->flags & SDL_SRCCOLORKEY))
         Py_RETURN_NONE;
 
-    SDL_GetRGBA (surface->format->colorkey, surface->format, &r, &g, &b, &a);
-    return Py_BuildValue ("(bbbb)", r, g, b, a);
+    SDL_GetRGBA (surface->format->colorkey, surface->format, &rgba[0],
+        &rgba[1], &rgba[2], &rgba[3]);
+    return PyColor_New ((pgbyte*)rgba);
 }
 
 static PyObject*
@@ -755,7 +769,7 @@ _surface_getat (PyObject *self, PyObject *args)
     int x, y;
     SDL_Surface *surface = PySDLSurface_AsSDLSurface (self);
     SDL_PixelFormat *fmt = surface->format;
-    Uint8 r, g, b, a;
+    Uint8 rgba[4] = { 0 };
     Uint32 value;
 
     if (!PyArg_ParseTuple (args, "ii", &x, &y))
@@ -786,8 +800,8 @@ _surface_getat (PyObject *self, PyObject *args)
     }
     GET_PIXEL_AT (value, surface, fmt->BytesPerPixel, x, y);
     SDL_UnlockSurface (surface);
-    SDL_GetRGBA (value, fmt, &r, &g, &b, &a);
-    return Py_BuildValue ("(bbbb)", r, g, b, a);
+    SDL_GetRGBA (value, fmt, &rgba[0], &rgba[1], &rgba[2], &rgba[3]);
+    return PyColor_New ((pgbyte*)rgba);
 }
 
 static PyObject*

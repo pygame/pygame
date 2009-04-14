@@ -78,17 +78,17 @@ get_standard_rwop (PyObject* obj)
         /* TODO: allow wb ops! */
         return SDL_RWFromFile (name, "rb");
     }
-
-#ifdef IS_WIN32
-#pragma message("FIXME: Do not use the file descriptor, but a FILE* handle!")
-#else
-#warning FIXME: Do not use the file descriptor, but a FILE* handle!
-#endif
-
 #ifdef IS_PYTHON_3
     else if ((fd = PyObject_AsFileDescriptor (obj)) != -1)
-        return SDL_RWFromFP (fd, 0);
-    PyErr_Clear ();
+    {
+        FILE *fp = fdopen (fd, "rb"); /* TODO: is that safe? */
+        if (!fp)
+        {
+            PyErr_SetString (PyExc_IOError, "could not open file");
+            return NULL;
+        }
+        return SDL_RWFromFP (fp, 1);
+    }
 #else
     else if (PyFile_Check(obj))
         return SDL_RWFromFP (PyFile_AsFile (obj), 0);

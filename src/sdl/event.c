@@ -37,6 +37,8 @@ static void _event_dealloc (PyEvent *self);
 static PyObject* _event_gettype (PyObject *self, void *closure);
 static PyObject* _event_getname (PyObject *self, void *closure);
 
+static PyObject* _event_richcompare (PyObject *o1, PyObject *o2, int opid);
+
 /**
  */
 /*
@@ -80,7 +82,7 @@ PyTypeObject PyEvent_Type =
     DOC_EVENT_EVENT,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
+    _event_richcompare,         /* tp_richcompare */
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
@@ -687,6 +689,38 @@ _event_getname (PyObject *self, void *closure)
         return Text_FromUTF8 ("UserEvent");
     return Text_FromUTF8 ("Unknown");
 }
+
+/* rich comparision */
+static PyObject*
+_event_richcompare (PyObject *o1, PyObject *o2, int opid)
+{
+    PyEvent *e1, *e2;
+
+    if (!PyEvent_Check (o1) || !PyEvent_Check (o2))
+    {
+        Py_INCREF (Py_NotImplemented);
+        return Py_NotImplemented;
+    }
+
+    e1 = (PyEvent*) o1;
+    e2 = (PyEvent*) o2;
+
+    switch (opid)
+    {
+    case Py_EQ:
+        return PyBool_FromLong (e1->type == e2->type &&
+            PyObject_RichCompareBool (e1->dict, e2->dict, Py_EQ) == 1);
+    case Py_NE:
+        return PyBool_FromLong (e1->type != e2->type ||
+            PyObject_RichCompareBool (e1->dict, e2->dict, Py_NE) == 1);
+    default:
+        break;
+    }
+
+    Py_INCREF (Py_NotImplemented);
+    return Py_NotImplemented;
+}
+
 
 /* C API */
 PyObject*

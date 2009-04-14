@@ -24,6 +24,7 @@
 #include "pgsdl.h"
 #include "transform.h"
 #include "surface.h"
+#include "sdlexttransform_doc.h"
 
 static PyObject* _transform_scale (PyObject* self, PyObject* args);
 static PyObject* _transform_rotate (PyObject* self, PyObject* args);
@@ -38,16 +39,21 @@ static PyObject* _transform_averagecolor (PyObject* self, PyObject* args);
 
 static PyMethodDef _transform_methods[] =
 {
-    { "scale", _transform_scale, METH_VARARGS, "" },
-    { "rotate", _transform_rotate, METH_VARARGS, "" },
-    { "flip", _transform_flip, METH_VARARGS, "" },
-    { "chop", _transform_chop, METH_VARARGS, "" },
-    { "scale2x", _transform_scale2x, METH_VARARGS, "" },
-    { "smoothscale", _transform_smoothscale, METH_VARARGS, "" },
-    { "threshold", _transform_threshold, METH_VARARGS, "" },
-    { "laplacian", _transform_laplacian, METH_VARARGS, "" },
-    { "average_surfaces", _transform_averagesurfaces, METH_VARARGS, "" },
-    { "average_color", _transform_averagecolor, METH_VARARGS, "" },
+    { "scale", _transform_scale, METH_VARARGS, DOC_TRANSFORM_SCALE },
+    { "rotate", _transform_rotate, METH_VARARGS, DOC_TRANSFORM_ROTATE },
+    { "flip", _transform_flip, METH_VARARGS, DOC_TRANSFORM_FLIP },
+    { "chop", _transform_chop, METH_VARARGS, DOC_TRANSFORM_CHOP},
+    { "scale2x", _transform_scale2x, METH_VARARGS, DOC_TRANSFORM_SCALE2X },
+    { "smoothscale", _transform_smoothscale, METH_VARARGS,
+      DOC_TRANSFORM_SMOOTHSCALE },
+    { "threshold", _transform_threshold, METH_VARARGS,
+      DOC_TRANSFORM_THRESHOLD },
+    { "laplacian", _transform_laplacian, METH_VARARGS,
+      DOC_TRANSFORM_LAPLACIAN },
+    { "average_surfaces", _transform_averagesurfaces, METH_VARARGS,
+      DOC_TRANSFORM_AVERAGE_SURFACES },
+    { "average_color", _transform_averagecolor, METH_VARARGS,
+      DOC_TRANSFORM_AVERAGE_COLOR },
     { NULL, NULL, 0, NULL }
 };
 
@@ -613,7 +619,7 @@ _transform_averagecolor (PyObject* self, PyObject* args)
     PyObject *surfobj, *rectobj = NULL;
     SDL_Surface* surface;
     SDL_Rect sdlrect;
-    Uint8 r, g, b, a;
+    Uint8 rgba[4] = { 0 };
     int retval;
 
     if (!PyArg_ParseTuple (args, "O|O", &surfobj, &rectobj))
@@ -635,7 +641,8 @@ _transform_averagecolor (PyObject* self, PyObject* args)
     }
     
     Py_BEGIN_ALLOW_THREADS;    
-    retval = pyg_transform_average_color (surface, &sdlrect, &r, &g, &b, &a);
+    retval = pyg_transform_average_color (surface, &sdlrect, &rgba[0],
+        &rgba[1], &rgba[2], &rgba[3]);
     Py_END_ALLOW_THREADS;
 
     if (!retval)
@@ -643,7 +650,7 @@ _transform_averagecolor (PyObject* self, PyObject* args)
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
     }
-    return Py_BuildValue ("(bbbb)", r, g, b, a);
+    return PyColor_New ((pgbyte*)rgba);
 }   
 
 #ifdef IS_PYTHON_3
@@ -658,14 +665,14 @@ PyMODINIT_FUNC inittransform (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "transform",
-        "",
+        DOC_TRANSFORM,
         -1,
         _transform_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("transform", _transform_methods, "");
+    mod = Py_InitModule3 ("transform", _transform_methods, DOC_TRANSFORM);
 #endif
     if (!mod)
         goto fail;

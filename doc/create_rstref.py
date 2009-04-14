@@ -27,7 +27,11 @@ class DocAttribute (object):
 class DocMethod (object):
     def __init__ (self, cls, name, call, description):
         self.name = name
-        self.call = call
+        self.calls = []
+        for line in call.split ("\n"):
+            line = line.strip ()
+            if len (line) > 0:
+                self.calls.append (line)
         self.cls = cls
         self.description = description
 
@@ -170,7 +174,9 @@ class Doc(object):
         return data + "\n\n"
     
     def create_func_rst (self, func):
-        data = ".. function:: %s\n" % func.call
+        data = ".. function:: %s\n" % func.calls[0]
+        for call in func.calls[1:]:
+            data += "              %s\n" % call
         data += "%s\n" % self.create_desc_rst (func.description, 2)
         return data
     
@@ -209,8 +215,10 @@ class Doc(object):
                     fp.write ("Methods\n")
                     fp.write ("^^^^^^^\n")
                     for method in cls.methods:
-                        fp.write (".. method:: %s.%s\n"
-                                  % (cls.name, method.call))
+                        fp.write (".. method:: %s.%s\n" %
+                                  (cls.name, method.calls[0]))
+                        for call in method.calls[1:]:
+                            fp.write ("            %s.%s\n" % (cls.name, call))
                         fp.write (self.create_desc_rst (method.description, 2))
         fp.write ("\n")
         fp.write (RST_FOOTER)

@@ -21,6 +21,7 @@
 
 #include "joystickmod.h"
 #include "pgsdl.h"
+#include "sdljoystick_doc.h"
 
 #define MAX_JOYSTICKS 32
 static SDL_Joystick *_joysticks[MAX_JOYSTICKS] = { NULL };
@@ -31,18 +32,22 @@ static PyObject* _sdl_joyquit (PyObject *self);
 static PyObject* _sdl_joynumjoysticks (PyObject *self);
 static PyObject* _sdl_joygetname (PyObject *self, PyObject *args);
 static PyObject* _sdl_joyupdate (PyObject *self);
-static PyObject* _sdl_joystate (PyObject *self, PyObject *args);
+static PyObject* _sdl_joyeventstate (PyObject *self, PyObject *args);
 static PyObject* _sdl_joyopened (PyObject *self, PyObject *args);
 
 static PyMethodDef _joystick_methods[] = {
-    { "init", (PyCFunction) _sdl_joyinit, METH_NOARGS, "" },
-    { "was_init", (PyCFunction) _sdl_joywasinit, METH_NOARGS, "" },
-    { "quit", (PyCFunction) _sdl_joyquit, METH_NOARGS, "" },
-    { "num_joysticks", (PyCFunction) _sdl_joynumjoysticks, METH_NOARGS, "" },
-    { "get_name", _sdl_joygetname, METH_VARARGS, "" },
-    { "update", (PyCFunction) _sdl_joyupdate, METH_NOARGS, "" },
-    { "state", _sdl_joystate, METH_VARARGS, "" },
-    { "opened", _sdl_joyopened, METH_VARARGS, "" },
+    { "init", (PyCFunction) _sdl_joyinit, METH_NOARGS, DOC_JOYSTICK_INIT },
+    { "was_init", (PyCFunction) _sdl_joywasinit, METH_NOARGS,
+      DOC_JOYSTICK_WAS_INIT },
+    { "quit", (PyCFunction) _sdl_joyquit, METH_NOARGS, DOC_JOYSTICK_QUIT },
+    { "num_joysticks", (PyCFunction) _sdl_joynumjoysticks, METH_NOARGS,
+      DOC_JOYSTICK_NUM_JOYSTICKS },
+    { "get_name", _sdl_joygetname, METH_VARARGS, DOC_JOYSTICK_GET_NAME },
+    { "update", (PyCFunction) _sdl_joyupdate, METH_NOARGS,
+      DOC_JOYSTICK_UPDATE },
+    { "event_state", _sdl_joyeventstate, METH_VARARGS,
+      DOC_JOYSTICK_EVENT_STATE },
+    { "opened", _sdl_joyopened, METH_VARARGS, DOC_JOYSTICK_OPENED },
     { NULL, NULL, 0, NULL }
 };
 
@@ -124,14 +129,14 @@ _sdl_joyupdate (PyObject *self)
 }
 
 static PyObject*
-_sdl_joystate (PyObject *self, PyObject *args)
+_sdl_joyeventstate (PyObject *self, PyObject *args)
 {
     int state;
 
     /* TODO: is that necessary? */
     /*ASSERT_VIDEO_INIT(NULL);*/
 
-    if (!PyArg_ParseTuple (args, "i:state", &state))
+    if (!PyArg_ParseTuple (args, "i:event_state", &state))
         return NULL;
     return PyInt_FromLong (SDL_JoystickEventState (state));
 }
@@ -188,7 +193,11 @@ PyMODINIT_FUNC initjoystick (void)
 
 #ifdef IS_PYTHON_3
     static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT, "joystick", "", -1, _joystick_methods,
+        PyModuleDef_HEAD_INIT,
+        "joystick",
+        DOC_JOYSTICK,
+        -1,
+        _joystick_methods,
         NULL, NULL, NULL, NULL
     };
 #endif
@@ -202,7 +211,7 @@ PyMODINIT_FUNC initjoystick (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("joystick", _joystick_methods, "");
+    mod = Py_InitModule3 ("joystick", _joystick_methods, DOC_JOYSTICK);
 #endif
     if (!mod)
         goto fail;

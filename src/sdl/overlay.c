@@ -21,6 +21,7 @@
 
 #include "videomod.h"
 #include "pgsdl.h"
+#include "sdlvideo_doc.h"
 
 static PyObject* _overlay_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -45,9 +46,12 @@ static PyObject* _overlay_display (PyObject *self, PyObject *args);
 /**
  */
 static PyMethodDef _overlay_methods[] = {
-    { "lock", (PyCFunction) _overlay_lock, METH_NOARGS, "" },
-    { "unlock", (PyCFunction) _overlay_unlock, METH_NOARGS, "" },
-    { "display", (PyCFunction) _overlay_display , METH_NOARGS, "" },
+    { "lock", (PyCFunction) _overlay_lock, METH_NOARGS,
+      DOC_VIDEO_OVERLAY_LOCK },
+    { "unlock", (PyCFunction) _overlay_unlock, METH_NOARGS,
+      DOC_VIDEO_OVERLAY_UNLOCK },
+    { "display", (PyCFunction) _overlay_display , METH_NOARGS,
+      DOC_VIDEO_OVERLAY_DISPLAY },
     { NULL, NULL, 0, NULL }
 };
 
@@ -55,17 +59,18 @@ static PyMethodDef _overlay_methods[] = {
  */
 static PyGetSetDef _overlay_getsets[] = {
     { "__dict__", _overlay_getdict, NULL, "", NULL },
-    { "format", _overlay_getformat, NULL, "", NULL },
-    { "w", _overlay_getwidth, NULL, "", NULL },
-    { "width", _overlay_getwidth, NULL, "", NULL },
-    { "h", _overlay_getheight, NULL, "", NULL },
-    { "height", _overlay_getheight, NULL, "", NULL },
-    { "size", _overlay_getsize, NULL, "", NULL },
-    { "planes", _overlay_getplanes, NULL, "", NULL },
-    { "pitches", _overlay_getpitches, NULL, "", NULL },
-    { "pixels", _overlay_getpixels, NULL, "", NULL },
-    { "hw_overlay", _overlay_gethwoverlay, NULL, "", NULL },
-    { "locked", _overlay_getlocked, NULL, "", NULL },
+    { "format", _overlay_getformat, NULL, DOC_VIDEO_OVERLAY_FORMAT, NULL },
+    { "w", _overlay_getwidth, NULL, DOC_VIDEO_OVERLAY_W, NULL },
+    { "width", _overlay_getwidth, NULL, DOC_VIDEO_OVERLAY_WIDTH, NULL },
+    { "h", _overlay_getheight, NULL, DOC_VIDEO_OVERLAY_H, NULL },
+    { "height", _overlay_getheight, NULL, DOC_VIDEO_OVERLAY_HEIGHT, NULL },
+    { "size", _overlay_getsize, NULL, DOC_VIDEO_OVERLAY_SIZE, NULL },
+    { "planes", _overlay_getplanes, NULL, DOC_VIDEO_OVERLAY_PLANES, NULL },
+    { "pitches", _overlay_getpitches, NULL, DOC_VIDEO_OVERLAY_PITCHES, NULL },
+    { "pixels", _overlay_getpixels, NULL, DOC_VIDEO_OVERLAY_PIXELS, NULL },
+    { "hw_overlay", _overlay_gethwoverlay, NULL, DOC_VIDEO_OVERLAY_HW_OVERLAY,
+      NULL },
+    { "locked", _overlay_getlocked, NULL, DOC_VIDEO_OVERLAY_LOCKED, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -93,7 +98,7 @@ PyTypeObject PyOverlay_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_WEAKREFS,
-    "",
+    DOC_VIDEO_OVERLAY,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -155,19 +160,20 @@ _overlay_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     int width, height;
     Uint32 format;
-    PyObject *surf;
+    PyObject *surf, *size;
     SDL_Overlay *overlay;
     SDL_Surface *surface;
 
     ASSERT_VIDEO_INIT(-1);
     
-    if (!PyArg_ParseTuple (args, "Oiil", &surf, &width, &height, &format))
+    if (!PyArg_ParseTuple (args, "OOl", &surf, &size, &format))
     {
-        PyObject *size;
-        
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "OOl", &surf, &size, &format))
+        if (!PyArg_ParseTuple (args, "Oiil", &surf, &width, &height, &format))
             return -1;
+    }
+    else
+    {
         if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
             return -1;
     }
@@ -284,21 +290,39 @@ _overlay_getpitches (PyObject *self, void *closure)
 static PyObject*
 _overlay_getpixels (PyObject *self, void *closure)
 {
-    PyObject *buffer;
+    PyObject *buffer, *tuple;
+    Py_ssize_t count, i;
+    
     SDL_Overlay *overlay = ((PyOverlay*)self)->overlay;
     ASSERT_VIDEO_INIT(NULL);
     
-    buffer = PyBufferProxy_New (NULL, NULL, 0, PyOverlay_RemoveRefLock);
-    if (!buffer)
+    count = (Py_ssize_t) overlay->planes;
+    tuple = PyTuple_New (count);
+    if (!tuple)
         return NULL;
-    if (!PyOverlay_AddRefLock (self, buffer))
-        return NULL;
-    
-    ((PyBufferProxy*)buffer)->object = self;
-    ((PyBufferProxy*)buffer)->buffer = overlay->pixels;
-    ((PyBufferProxy*)buffer)->length =
-        (Py_ssize_t) overlay->pitches * overlay->h;
-    return buffer;
+
+    for (i = 0; i < count; i++)
+    {
+        buffer = PyBufferProxy_New (NULL, NULL, 0, PyOverlay_RemoveRefLock);
+        if (!buffer)
+        {
+            Py_DECREF (tuple);
+            return NULL;
+        }
+        if (!PyOverlay_AddRefLock (self, buffer))
+        {
+            ((PyBufferProxy*)buffer)->unlock_func = NULL;
+            Py_DECREF (buffer);
+            Py_DECREF (tuple);
+            return NULL;
+        }
+        ((PyBufferProxy*)buffer)->object = self;
+        ((PyBufferProxy*)buffer)->buffer = overlay->pixels[i];
+        ((PyBufferProxy*)buffer)->length =
+            (Py_ssize_t) overlay->pitches[i] * overlay->h;
+        PyTuple_SET_ITEM (tuple, i, buffer);
+    }
+    return tuple;
 }
 
 static PyObject*
