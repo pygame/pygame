@@ -443,6 +443,43 @@ static PyNumberMethods event_as_number = {
     (unaryfunc)NULL,		/*hex*/
 };
 
+/*
+ * eventA == eventB
+ * eventA != eventB
+ */
+static PyObject*
+event_richcompare(PyObject *o1, PyObject *o2, int opid)
+{
+    PyEventObject *e1, *e2;
+
+    if (!PyEvent_Check(o1) || !PyEvent_Check(o2))
+    {
+	goto Unimplemented;
+    }
+
+    e1 = (PyEventObject *) o1;
+    e2 = (PyEventObject *) o2;
+    switch (opid)
+    {
+    case Py_EQ:
+        return PyBool_FromLong (e1->type == e2->type &&
+				PyObject_RichCompareBool (e1->dict,
+						          e2->dict,
+						          Py_EQ) == 1);
+    case Py_NE:
+        return PyBool_FromLong (e1->type != e2->type ||
+				PyObject_RichCompareBool (e1->dict,
+						          e2->dict,
+						          Py_NE) == 1);
+    default:
+        break;
+    }
+
+Unimplemented:
+    Py_INCREF (Py_NotImplemented);
+    return Py_NotImplemented;
+}
+
 
 static PyTypeObject PyEvent_Type =
 {
@@ -463,8 +500,14 @@ static PyTypeObject PyEvent_Type =
     (hashfunc)NULL, 		/*hash*/
     (ternaryfunc)NULL,		/*call*/
     (reprfunc)NULL, 		/*str*/
-    0L,0L,0L,0L,
-    DOC_PYGAMEEVENTEVENT /* Documentation string */
+    0,                          /* tp_getattro */
+    0,                          /* tp_setattro */
+    0,                          /* tp_as_buffer */
+    Py_TPFLAGS_HAVE_RICHCOMPARE,
+    DOC_PYGAMEEVENTEVENT, /* Documentation string */
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    event_richcompare,         /* tp_richcompare */
 };
 
 static PyObject*
