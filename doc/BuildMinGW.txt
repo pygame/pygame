@@ -1,11 +1,12 @@
+============================
 Building Pygame2 using MinGW
-----------------------------
+============================
 Using MinGW on Win32 platforms is probably the most comfortable way to build
 and install Pygame2, thanks to a handy script, that will do most of the work
 for you.
 
-NOTE: At http://pygame.org/wiki/MingW you can find more information and details
-      about the build and installation process.
+    NOTE: At http://pygame.org/wiki/MingW you can find more information and
+    details about the build and installation process.
 
 Setting up MSYS and MinGW
 -------------------------
@@ -17,33 +18,37 @@ The following setup has been tested to work well on several Win32
 installations:
 
 * MinGW 5.1.4 installer (or newer)
+
   http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=240780
 
-  On installing, make sure you install the C compiler, C++ compiler and win32api
-  packages. This is usually done by checking the options "MinGW base" and
-  "g++ Compiler".
+  On installing, make sure you install the C compiler, C++ compiler and
+  win32api packages. This is usually done by checking the options "MinGW base"
+  and "g++ Compiler".
 
 * Msys 1.0.10 installer (or newer)
+  
   http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=24963
 
   Simply follow the installation instructions. In the post install step, make
   sure you set up your MinGW/MSYS environment properly.
 
 * Msys DTK 1.0.1 installer (or newer)
+  
   http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=67879
 
   Simply follow the installation instructions.
 
-If anything went right, MSYS and MinGW should be set up correctly now. Now it's
-time to get the dependencies.
+If anything went right, MSYS and MinGW should be set up correctly now. Now
+it's time to get the dependencies.
 
 Building the dependencies
 -------------------------
-NOTE: The following list of dependencies might not be the most actual one.
-      Please check the README.txt file in the top source directory for the
-      most actual dependency list!
+    NOTE: The following list of dependencies might not be the most actual one.
+    Please check the README.txt file in the top source directory for the
+    most actual dependency list!
 
 Make sure, you have at least one of the following Python versions installed:
+
 * Python 2.4, 2.5, 2.6, 3.0 (http://www.python.org)
 
 To build anything, you will have to download the following additional source
@@ -70,11 +75,12 @@ Once you downloaded all source packages, unpack them and put them all into a
 common directory, where the msys_build_deps.py script can find them.
 The script will search the directory where it resides, the parent directory of
 it and a directory named 'deps' for the unpacked sources.
-NOTE: At this point, we strongly recommend a directory named 'deps' that is
-      created under the Pygame2 source directory.
-
+  
+    NOTE: At this point, we strongly recommend a directory named 'deps' that is
+    created under the Pygame2 source directory.
+ 
 Once anything's unpacked, move the Pygame2 source directory to your MSYS home
-directory (in a default installation this would be C:\msys\1.0\home\%USERNAME%).
+directory (in a default installation this would be C:\\msys\\1.0\\home\\%USERNAME%).
 Start the Msys shell and change to the Pygame2 source directory:
 
     cd pgreloaded

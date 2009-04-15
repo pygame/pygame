@@ -77,7 +77,7 @@ static PyObject* _color_richcompare (PyObject *o1, PyObject *o2, int opid);
 /* C API */
 static PyObject* PyColor_New (pgbyte rgba[]);
 static PyObject* PyColor_NewFromNumber (pguint32 val);
-static pguint32 PyColor_AsNumber (PyColor *color);
+static pguint32 PyColor_AsNumber (PyObject *color);
 
 /**
  * Methods, which are bound to the PyColor type.
@@ -1549,12 +1549,17 @@ PyColor_NewFromRGBA (pgbyte r, pgbyte g, pgbyte b, pgbyte a)
 }
 
 static pguint32
-PyColor_AsNumber (PyColor *color)
+PyColor_AsNumber (PyObject *color)
 {
     pguint32 tmp;
-    if (!color)
+    if (!color || !PyColor_Check (color))
+    {
+        PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return 0;
-    tmp = (color->a << 24) + (color->r << 16) + (color->g << 8) + color->b;
+    }
+
+    tmp = (((PyColor*)color)->a << 24) + (((PyColor*)color)->r << 16) +
+        (((PyColor*)color)->g << 8) + ((PyColor*)color)->b;
     return tmp;
 }
 

@@ -21,6 +21,7 @@
 
 #include "pgmixer.h"
 #include "pgsdl.h"
+#include "sdlmixerchannel_doc.h"
 
 static PyObject* _channel_allocate (PyObject *self, PyObject *args);
 static PyObject* _channel_opened (PyObject *self);
@@ -35,17 +36,22 @@ static PyObject* _channel_expire (PyObject *self, PyObject *args);
 static PyObject* _channel_fadeout (PyObject *self, PyObject *args);
 
 static PyMethodDef _channel_methods[] = {
-    { "allocate", _channel_allocate, METH_VARARGS, "" },
-    { "opened", (PyCFunction) _channel_opened, METH_NOARGS, "" },
-    { "set_volume", _channel_setvolume, METH_VARARGS, "" },
-    { "get_volume", (PyCFunction) _channel_getvolume, METH_NOARGS, "" },
-    { "pause", (PyCFunction) _channel_pause, METH_NOARGS, "" },
-    { "resume", (PyCFunction) _channel_resume, METH_NOARGS, "" },
-    { "halt", (PyCFunction) _channel_halt, METH_NOARGS, "" },
-    { "expire", _channel_expire, METH_VARARGS, "" },
-    { "fade_out", _channel_fadeout, METH_VARARGS, "" },
-    { "playing", (PyCFunction) _channel_playing, METH_NOARGS, "" },
-    { "paused", (PyCFunction) _channel_paused, METH_NOARGS, "" },
+    { "allocate", _channel_allocate, METH_VARARGS, DOC_CHANNEL_ALLOCATE },
+    { "opened", (PyCFunction) _channel_opened, METH_NOARGS,
+      DOC_CHANNEL_OPENED },
+    { "set_volume", _channel_setvolume, METH_VARARGS, DOC_CHANNEL_SET_VOLUME },
+    { "get_volume", (PyCFunction) _channel_getvolume, METH_NOARGS,
+      DOC_CHANNEL_GET_VOLUME },
+    { "pause", (PyCFunction) _channel_pause, METH_NOARGS, DOC_CHANNEL_PAUSE },
+    { "resume", (PyCFunction) _channel_resume, METH_NOARGS,
+      DOC_CHANNEL_RESUME },
+    { "halt", (PyCFunction) _channel_halt, METH_NOARGS, DOC_CHANNEL_HALT },
+    { "expire", _channel_expire, METH_VARARGS, DOC_CHANNEL_EXPIRE },
+    { "fade_out", _channel_fadeout, METH_VARARGS, DOC_CHANNEL_FADE_OUT },
+    { "playing", (PyCFunction) _channel_playing, METH_NOARGS,
+      DOC_CHANNEL_PLAYING },
+    { "paused", (PyCFunction) _channel_paused, METH_NOARGS,
+      DOC_CHANNEL_PAUSED },
     { NULL, NULL, 0, NULL },
 };
 
@@ -197,14 +203,14 @@ PyMODINIT_FUNC initchannel (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "channel",
-        "",
+        DOC_CHANNEL,
         -1,
         _channel_methods,
         NULL, NULL, NULL, NULL
     };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("channel", _channel_methods, "");
+    mod = Py_InitModule3 ("channel", _channel_methods, DOC_CHANNEL);
 #endif
     if (!mod)
         goto fail;

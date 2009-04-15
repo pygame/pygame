@@ -22,6 +22,7 @@
 #include "mixermod.h"
 #include "pgsdl.h"
 #include "pgmixer.h"
+#include "sdlmixerbase_doc.h"
 
 static PyObject* _chunk_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -36,9 +37,10 @@ static int _chunk_setvolume (PyObject *self, PyObject *value, void *closure);
 /**
  */
 static PyGetSetDef _chunk_getsets[] = {
-    { "buf", _chunk_getbuf, NULL, "", NULL },
-    { "len", _chunk_getlen, NULL, "", NULL },
-    { "volume", _chunk_getvolume, _chunk_setvolume, "", NULL },
+    { "buf", _chunk_getbuf, NULL, DOC_BASE_CHUNK_BUF, NULL },
+    { "len", _chunk_getlen, NULL, DOC_BASE_CHUNK_LEN, NULL },
+    { "volume", _chunk_getvolume, _chunk_setvolume, DOC_BASE_CHUNK_VOLUME,
+      NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -66,7 +68,7 @@ PyTypeObject PyChunk_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_BASE_CHUNK,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

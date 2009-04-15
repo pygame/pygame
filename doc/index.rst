@@ -7,6 +7,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   building.rst
    modules.rst
    capi.rst
 

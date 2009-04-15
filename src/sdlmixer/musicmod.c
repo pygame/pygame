@@ -21,6 +21,7 @@
 
 #include "pgmixer.h"
 #include "pgsdl.h"
+#include "sdlmixermusic_doc.h"
 
 static PyObject* _music_setvolume (PyObject *self, PyObject *args);
 static PyObject* _music_getvolume (PyObject *self);
@@ -35,17 +36,19 @@ static PyObject* _music_fading (PyObject *self);
 static PyObject* _music_setposition (PyObject *self, PyObject *args);
 
 static PyMethodDef _music_methods[] = {
-    { "set_volume", _music_setvolume, METH_VARARGS, "" },
-    { "get_volume", (PyCFunction) _music_getvolume, METH_NOARGS, "" },
-    { "pause", (PyCFunction) _music_pause, METH_NOARGS, "" },
-    { "resume", (PyCFunction) _music_resume, METH_NOARGS, "" },
-    { "halt", (PyCFunction) _music_halt, METH_NOARGS, "" },
-    { "halt", (PyCFunction) _music_rewind, METH_NOARGS, "" },
-    { "fade_out", _music_fadeout, METH_VARARGS, "" },
-    { "playing", (PyCFunction) _music_playing, METH_NOARGS, "" },
-    { "paused", (PyCFunction) _music_paused, METH_NOARGS, "" },
-    { "fading", (PyCFunction) _music_fading, METH_NOARGS, "" },
-    { "set_position", _music_setposition, METH_VARARGS, "" },
+    { "set_volume", _music_setvolume, METH_VARARGS, DOC_MUSIC_SET_VOLUME },
+    { "get_volume", (PyCFunction) _music_getvolume, METH_NOARGS,
+      DOC_MUSIC_GET_VOLUME },
+    { "pause", (PyCFunction) _music_pause, METH_NOARGS, DOC_MUSIC_PAUSE },
+    { "resume", (PyCFunction) _music_resume, METH_NOARGS, DOC_MUSIC_RESUME },
+    { "halt", (PyCFunction) _music_halt, METH_NOARGS, DOC_MUSIC_HALT },
+    { "rewind", (PyCFunction) _music_rewind, METH_NOARGS, DOC_MUSIC_REWIND},
+    { "fade_out", _music_fadeout, METH_VARARGS, DOC_MUSIC_FADE_OUT },
+    { "playing", (PyCFunction) _music_playing, METH_NOARGS, DOC_MUSIC_PLAYING },
+    { "paused", (PyCFunction) _music_paused, METH_NOARGS, DOC_MUSIC_PAUSED },
+    { "fading", (PyCFunction) _music_fading, METH_NOARGS, DOC_MUSIC_FADING },
+    { "set_position", _music_setposition, METH_VARARGS,
+      DOC_MUSIC_SET_POSITION },
     { NULL, NULL, 0, NULL },
 };
 
@@ -192,14 +195,14 @@ PyMODINIT_FUNC initmusic (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "music",
-        "",
+        DOC_MUSIC,
         -1,
         _music_methods,
          NULL, NULL, NULL, NULL
    };
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("music", _music_methods, "");
+    mod = Py_InitModule3 ("music", _music_methods, DOC_MUSIC);
 #endif
     if (!mod)
         goto fail;

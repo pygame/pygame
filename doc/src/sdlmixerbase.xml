@@ -70,6 +70,14 @@
   <class name="Music">
     <constructor>TODO</constructor>
     <desc></desc>
+    <method name="fade_in">
+      <call></call>
+      <desc></desc>
+    </method>
+    <method name="play">
+      <call></call>
+      <desc></desc>
+    </method>
     <attr name="type"></attr>
   </class>
 

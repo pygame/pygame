@@ -19,61 +19,143 @@
 
 <module name="pygame2.sdlttf.base">
   <short>basic SDL_ttf wrapper module</short>
-  <desc></desc>
+  <desc>basic SDL_ttf wrapper module</desc>
 
   <class name="Font">
-    <constructor>TODO</constructor>
-    <desc></desc>
-    <attr name="ascent"></attr>
-    <attr name="descent"></attr>
-    <attr name="faces"></attr>
-    <attr name="family_name"></attr>
+    <constructor>Font (file, size[, index]) -> Font</constructor>
+    <desc>
+      Creates a new Font from a TTF font file.
+      
+      Creates a new Font from a TTF font file using the specified size in
+      points. If the font features different faces, they can be chosen using
+      the optional index.
+    </desc>
+    <attr name="ascent">Gets the ascent of the Font.</attr>
+    <attr name="descent">Gets the descent of the Font.</attr>
+    <attr name="faces">Gets the amount of available font faces.</attr>
+    <attr name="family_name">Gets the font face family name.</attr>
     <method name="get_glyph_metrics">
-      <call></call>
-      <desc></desc>
+      <call>get_glyph_metrics (text) -> [(int,int,int,int,int), ...]</call>
+      <desc>
+        Gets the glyph metrics of a string.
+        
+        Gets the glyph metrics for each individual character of a string.
+        The metrics returned for each character consist of the xMin, yMin,
+        xMax, yMax and advance values. 
+        
+        http://freetype.sourceforge.net/freetype2/docs/tutorial/step2.html
+        contains a detailed description of those values.
+        
+        If no suitable character for getting the glyph extents could be found
+        in the font, a None value will be used instead of a 5-value tuple.
+      </desc>
     </method>
     <method name="get_size">
-      <call></call>
-      <desc></desc>
+      <call>get_size (text) -> int, int</call>
+      <desc>
+        Gets the size of a text for this Font.
+      </desc>
     </method>
-    <attr name="height"></attr>
-    <attr name="is_fixed_width"></attr>
-    <attr name="line_skip"></attr>
+    <attr name="height">Gets the height of the Font.</attr>
+    <attr name="is_fixed_width">Gets whether the chosen font face is a fixed
+      width one.</attr>
+    <attr name="line_skip">Gets the line skip of the Font.</attr>
     <method name="render">
-      <call></call>
-      <desc></desc>
+      <call>render (text, fgcolor[, bgcolor, renderflag]) -> Surface</call>
+      <desc>
+        Renders a text to a Surface.
+        
+        Renders the specified text to a Surface. The text will have the chosen
+        foreground color for the glyphs. The optional bgcolor argument denotes
+        the background color to use for the returned Surface, if - and only if -
+        the renderflag is RENDER_SHADED (the default). Otherwise the Surface
+        will be transparent except for the rendered glyphs.
+        
+        The renderflag argument can be set to the following constants:
+        
+        +----------------+-------------------------------------------------+
+        | Render flag    | Description                                     |
+        +================+=================================================+
+        | RENDER_SOLID   | Creates an 8-bit palettized surface and renders |
+        |                | the given text at fast quality with the given   |
+        |                | color. The 0 pixel is the colorkey, giving a    |
+        |                | transparent background, and the 1 pixel is set  |
+        |                | to the text color.                              |
+        +----------------+-------------------------------------------------+
+        | RENDER_SHADED  | Creates an 8-bit palettized surface and renders |
+        |                | the given text at high quality with the given   |
+        |                | colors. The 0 pixel is background, other pixels |
+        |                | have varying degrees of the foreground color.   |
+        +----------------+-------------------------------------------------+
+        | RENDER_BLENDED | Creates a 32-bit ARGB surface and renders the   |
+        |                | given text at high quality, alpha blending to   |
+        |                | dither the font with the given color.           |
+        +----------------+-------------------------------------------------+
+      </desc>
     </method>
-    <attr name="style"></attr>
-    <attr name="style_name"></attr>
+    <attr name="style">Gets or sets the style of the font. The style can be
+      a valid value of the STYLE_*** constants.</attr>
+    <attr name="style_name">Gets the currently set font style name.</attr>
   </class>
 
   <func name="get_compiled_version">
-    <call></call>
-    <desc></desc>
+    <call>get_compiled_version () -> tuple</call>
+    <desc>
+      Gets the SDL_ttf version pygame2 was compiled against as three-value tuple.
+
+      This version is built at compile time. It can be used to detect
+      which features may not be available through Pygame, if it is used
+      as precompiled package using a different version of the SDL_ttf
+      library.    
+    </desc>
   </func>
   <func name="get_error">
-    <call></call>
-    <desc></desc>
+    <call>get_error () -> pygame2.Error</call>
+    <desc>
+      Gets the last :exc:`pygame2.base.Error` occured.
+
+      SDL_ttf maintains an internal error message. This message will usually
+      be given to you when a :exc:`pygame2.base.Error` is raised. You will
+      rarely need to call this function.
+    </desc>
   </func>
   <func name="get_version">
-    <call></call>
-    <desc></desc>
+    <call>get_version () -> tuple</call>
+    <desc>
+      Gets the SDL version pygame2 currently uses as three-value tuple.
+
+      This version is detected at runtime. It can be used to detect
+      which features may not be available through Pygame, if it is used
+      as precompiled package using a different version of the SDL library.
+    </desc>
   </func>
   <func name="init">
-    <call></call>
-    <desc></desc>
+    <call>init () -> None</call>
+    <desc>
+      Initializes the SDL_ttf library.
+    </desc>
   </func>
   <func name="quit">
-    <call></call>
-    <desc></desc>
+    <call>quit () -> None</call>
+    <desc>
+      Shuts down the SDL_ttf library.
+
+      After calling this function, you should not invoke any class,
+      method or function related to the sdlttf module as they are likely to
+      fail or might give unpredictable results.
+    </desc>
   </func>
   <func name="set_byte_swapped_unicode">
-    <call></call>
-    <desc></desc>
+    <call>set_byte_swapped_unicode (swapped) -> None</call>
+    <desc>
+      Sets, whether unicode text should be handled with a swapped BOM.
+    </desc>
   </func>
   <func name="was_init">
-    <call></call>
-    <desc></desc>
+    <call>was_init () -> bool</call>
+    <desc>
+      Returns, whether the the SDL_ttf library is initialized.
+    </desc>
   </func>
 </module>
 

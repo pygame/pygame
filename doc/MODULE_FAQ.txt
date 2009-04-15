@@ -10,7 +10,7 @@ added at compile time. Currently, the following flags and macros are available:
 
   IS_WIN32      - Win32 build with Visual C++
   IS_MSYS       - (Win32) Msys build with GCC
-  IS_UNIX       - Any other build plattform that successfully passes the
+  IS_UNIX       - Any other build platform that successfully passes the
                   preparations
 
 base/pgdefines.h contains some useful numeric macros:
@@ -20,8 +20,8 @@ base/pgdefines.h contains some useful numeric macros:
   ABS(x)         - returns the absolute value
   trunc(x)       - truncates a number
   round(x)       - rounds a number
-  DEG2RAD        - converts degrees to radians
-  DEG2RAD        - converts radians to degrees
+  DEG2RAD(x)     - converts degrees to radians
+  DEG2RAD(x)     - converts radians to degrees
   ADD_LIMIT(x,y) - variable addition using overflow limits
   SUB_LIMIT(x,y) - variable subtraction using overflow limits
 

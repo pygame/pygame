@@ -22,6 +22,7 @@
 #include "mixermod.h"
 #include "pgsdl.h"
 #include "pgmixer.h"
+#include "sdlmixerbase_doc.h"
 
 static PyObject* _channel_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -47,25 +48,29 @@ static PyObject* _channel_getfading (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _channel_methods[] = {
-    { "play", (PyCFunction)_channel_play, METH_VARARGS | METH_KEYWORDS, "" },
-    { "pause", (PyCFunction) _channel_pause, METH_NOARGS, "" },
-    { "halt", (PyCFunction) _channel_halt, METH_NOARGS, "" },
-    { "resume", (PyCFunction) _channel_resume, METH_NOARGS, "" },
+    { "play", (PyCFunction)_channel_play, METH_VARARGS | METH_KEYWORDS,
+      DOC_BASE_CHANNEL_PLAY },
+    { "pause", (PyCFunction) _channel_pause, METH_NOARGS,
+      DOC_BASE_CHANNEL_PAUSE },
+    { "halt", (PyCFunction) _channel_halt, METH_NOARGS, DOC_BASE_CHANNEL_HALT },
+    { "resume", (PyCFunction) _channel_resume, METH_NOARGS,
+      DOC_BASE_CHANNEL_RESUME },
     { "fade_in", (PyCFunction)_channel_fadein, METH_VARARGS | METH_KEYWORDS,
-      "" },
-    { "fade_out", _channel_fadeout, METH_VARARGS, "" },
-    { "expire", _channel_expire, METH_VARARGS, "" },
+      DOC_BASE_CHANNEL_FADE_IN },
+    { "fade_out", _channel_fadeout, METH_VARARGS, DOC_BASE_CHANNEL_FADE_OUT },
+    { "expire", _channel_expire, METH_VARARGS, DOC_BASE_CHANNEL_EXPIRE },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _channel_getsets[] = {
-    { "chunk", _channel_getchunk, NULL, "", NULL },
-    { "volume", _channel_getvolume, _channel_setvolume, "", NULL },
-    { "playing", _channel_getplaying, NULL, "", NULL },
-    { "paused", _channel_getpaused, NULL, "", NULL },
-    { "fading", _channel_getfading, NULL, "", NULL },
+    { "chunk", _channel_getchunk, NULL, DOC_BASE_CHANNEL_CHUNK, NULL },
+    { "volume", _channel_getvolume, _channel_setvolume,
+      DOC_BASE_CHANNEL_VOLUME, NULL },
+    { "playing", _channel_getplaying, NULL, DOC_BASE_CHANNEL_PLAYING, NULL },
+    { "paused", _channel_getpaused, NULL, DOC_BASE_CHANNEL_PAUSED, NULL },
+    { "fading", _channel_getfading, NULL, DOC_BASE_CHANNEL_FADING, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -93,7 +98,7 @@ PyTypeObject PyChannel_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_BASE_CHANNEL,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */

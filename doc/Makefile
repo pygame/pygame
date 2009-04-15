@@ -13,6 +13,8 @@ ALLSPHINXOPTS   = -d sphinx/build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 rst: clean
 	@$(PYTHON) create_rstref.py
+	-cp -f BuildMinGW.txt buildmingw.rst
+	-cp -f BuildVC.txt buildvc.rst
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -26,6 +28,7 @@ help:
 
 clean:
 	-rm -rf sphinx/build *~ *.pyc ref html
+	-rm -f buildmingw.rst buildvc.rst 
 
 html: rst
 	mkdir -p sphinx/build/html sphinx/build/doctrees

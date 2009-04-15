@@ -22,6 +22,7 @@
 #include "ttfmod.h"
 #include "pgttf.h"
 #include "pgsdl.h"
+#include "sdlttfbase_doc.h"
 
 static void _quit (void);
 
@@ -34,14 +35,17 @@ static PyObject* _ttf_geterror (PyObject *self);
 static PyObject* _ttf_byteswappedunicode (PyObject *self, PyObject *args);
 
 static PyMethodDef _ttf_methods[] = {
-    { "init", (PyCFunction) _ttf_init, METH_NOARGS, "" },
-    { "was_init", (PyCFunction) _ttf_wasinit, METH_NOARGS, "" },
-    { "quit", (PyCFunction) _ttf_quit, METH_NOARGS, "" },
+    { "init", (PyCFunction) _ttf_init, METH_NOARGS, DOC_BASE_INIT },
+    { "was_init", (PyCFunction) _ttf_wasinit, METH_NOARGS, DOC_BASE_WAS_INIT },
+    { "quit", (PyCFunction) _ttf_quit, METH_NOARGS, DOC_BASE_QUIT },
     { "get_compiled_version", (PyCFunction) _ttf_getcompiledversion,
-      METH_NOARGS, "" },
-    { "get_version", (PyCFunction) _ttf_getversion, METH_NOARGS, "" },
-    { "get_error", (PyCFunction) _ttf_geterror, METH_NOARGS, "" },
-    { "set_byte_swapped_unicode", _ttf_byteswappedunicode, METH_VARARGS, "" },
+      METH_NOARGS, DOC_BASE_GET_COMPILED_VERSION },
+    { "get_version", (PyCFunction) _ttf_getversion, METH_NOARGS,
+      DOC_BASE_GET_VERSION },
+    { "get_error", (PyCFunction) _ttf_geterror, METH_NOARGS,
+      DOC_BASE_GET_ERROR },
+    { "set_byte_swapped_unicode", _ttf_byteswappedunicode, METH_VARARGS,
+      DOC_BASE_SET_BYTE_SWAPPED_UNICODE },
     { NULL, NULL, 0, NULL },
 };
 
@@ -135,7 +139,7 @@ PyMODINIT_FUNC initbase (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "base",
-        "",
+        DOC_BASE,
         -1,
         _ttf_methods,
         NULL, NULL, NULL, NULL
@@ -150,7 +154,7 @@ PyMODINIT_FUNC initbase (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("base", _ttf_methods, "");
+    mod = Py_InitModule3 ("base", _ttf_methods, DOC_BASE);
 #endif
     if (!mod)
         goto fail;

@@ -22,6 +22,7 @@
 #include "mixermod.h"
 #include "pgmixer.h"
 #include "pgsdl.h"
+#include "sdlmixerbase_doc.h"
 
 static void _quit (void);
 
@@ -36,16 +37,21 @@ static PyObject* _mixer_closeaudio (PyObject *self);
 static PyObject* _mixer_queryspec (PyObject *self);
 
 static PyMethodDef _mixer_methods[] = {
-    { "init", (PyCFunction) _mixer_init, METH_NOARGS, "" },
-    { "was_init", (PyCFunction) _mixer_wasinit, METH_NOARGS, "" },
-    { "quit", (PyCFunction) _mixer_quit, METH_NOARGS, "" },
+    { "init", (PyCFunction) _mixer_init, METH_NOARGS, DOC_BASE_INIT },
+    { "was_init", (PyCFunction) _mixer_wasinit, METH_NOARGS,
+      DOC_BASE_WAS_INIT },
+    { "quit", (PyCFunction) _mixer_quit, METH_NOARGS, DOC_BASE_QUIT },
     { "get_compiled_version", (PyCFunction) _mixer_getcompiledversion,
-      METH_NOARGS, "" },
-    { "get_version", (PyCFunction) _mixer_getversion, METH_NOARGS, "" },
-    { "get_error", (PyCFunction) _mixer_geterror, METH_NOARGS, "" },
-    { "open_audio", _mixer_openaudio, METH_VARARGS, "" },
-    { "close_audio", (PyCFunction) _mixer_closeaudio, METH_NOARGS, "" },
-    { "query_spec", (PyCFunction) _mixer_queryspec, METH_NOARGS, "" },
+      METH_NOARGS, DOC_BASE_GET_COMPILED_VERSION },
+    { "get_version", (PyCFunction) _mixer_getversion, METH_NOARGS,
+      DOC_BASE_GET_VERSION },
+    { "get_error", (PyCFunction) _mixer_geterror, METH_NOARGS,
+      DOC_BASE_GET_ERROR },
+    { "open_audio", _mixer_openaudio, METH_VARARGS, DOC_BASE_OPEN_AUDIO },
+    { "close_audio", (PyCFunction) _mixer_closeaudio, METH_NOARGS,
+      DOC_BASE_CLOSE_AUDIO },
+    { "query_spec", (PyCFunction) _mixer_queryspec, METH_NOARGS,
+      DOC_BASE_QUERY_SPEC },
     { NULL, NULL, 0, NULL },
 };
 
@@ -164,7 +170,7 @@ PyMODINIT_FUNC initbase (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "base",
-        "",
+        DOC_BASE,
         -1,
         _mixer_methods,
         NULL, NULL, NULL, NULL
@@ -185,7 +191,7 @@ PyMODINIT_FUNC initbase (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("base", _mixer_methods, "");
+    mod = Py_InitModule3 ("base", _mixer_methods, DOC_BASE);
 #endif
     if (!mod)
         goto fail;

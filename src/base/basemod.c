@@ -313,7 +313,7 @@ PyMODINIT_FUNC initbase (void)
         _base_methods,
         NULL,
         NULL,
-        NULL
+        NULL,
         NULL
     };
 #endif

@@ -22,6 +22,7 @@
 #include "ttfmod.h"
 #include "pgsdl.h"
 #include "pgttf.h"
+#include "sdlttfbase_doc.h"
 
 static PyObject *_font_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _font_init (PyObject *chunk, PyObject *args, PyObject *kwds);
@@ -45,24 +46,28 @@ static PyObject* _font_getstylename (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _font_methods[] = {
-    { "get_glyph_metrics", _font_glyphmetrics, METH_VARARGS, "" },
-    { "get_size", _font_getsize, METH_VARARGS, "" },
-    { "render", (PyCFunction)_font_render, METH_VARARGS | METH_KEYWORDS, "" },
+    { "get_glyph_metrics", _font_glyphmetrics, METH_VARARGS,
+      DOC_BASE_FONT_GET_GLYPH_METRICS },
+    { "get_size", _font_getsize, METH_VARARGS, DOC_BASE_FONT_GET_SIZE },
+    { "render", (PyCFunction)_font_render, METH_VARARGS | METH_KEYWORDS,
+      DOC_BASE_FONT_RENDER },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _font_getsets[] = {
-    { "style", _font_getstyle, _font_setstyle, "", NULL },
-    { "height", _font_getheight, NULL, "", NULL },
-    { "ascent", _font_getascent, NULL, "", NULL },
-    { "descent", _font_getdescent, NULL, "", NULL },
-    { "line_skip", _font_getlineskip, NULL, "", NULL },
-    { "faces", _font_getfaces, NULL, "", NULL },
-    { "is_fixed_width", _font_getisfixedwidth, NULL, "", NULL },
-    { "family_name", _font_getfamilyname, NULL, "", NULL },
-    { "style_name", _font_getstylename, NULL, "", NULL },
+    { "style", _font_getstyle, _font_setstyle, DOC_BASE_FONT_STYLE, NULL },
+    { "height", _font_getheight, NULL, DOC_BASE_FONT_HEIGHT, NULL },
+    { "ascent", _font_getascent, NULL, DOC_BASE_FONT_ASCENT, NULL },
+    { "descent", _font_getdescent, NULL, DOC_BASE_FONT_DESCENT, NULL },
+    { "line_skip", _font_getlineskip, NULL, DOC_BASE_FONT_LINE_SKIP, NULL },
+    { "faces", _font_getfaces, NULL, DOC_BASE_FONT_FACES, NULL },
+    { "is_fixed_width", _font_getisfixedwidth, NULL,
+      DOC_BASE_FONT_IS_FIXED_WIDTH, NULL },
+    { "family_name", _font_getfamilyname, NULL, DOC_BASE_FONT_FAMILY_NAME,
+      NULL },
+    { "style_name", _font_getstylename, NULL, DOC_BASE_FONT_STYLE_NAME, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -90,7 +95,7 @@ PyTypeObject PyFont_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_BASE_FONT,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
@@ -352,7 +357,7 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
         for (i = 0; i < length; i++)
         {
             /* 
-             * TTF_GlyphMetrics() seems to returns a value for any character,
+             * TTF_GlyphMetrics() seems to return a value for any character,
              * using the default invalid character, if the char is not found.
              */
             if (TTF_GlyphMetrics (font->font, (Uint16) ((char*) buf)[i], &minx,

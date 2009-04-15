@@ -52,6 +52,10 @@
     <call></call>
     <desc></desc>
   </func>
+  <func name="rewind">
+    <call></call>
+    <desc></desc>
+  </func>
   <func name="set_position">
     <call></call>
     <desc></desc>

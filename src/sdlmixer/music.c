@@ -22,6 +22,7 @@
 #include "mixermod.h"
 #include "pgsdl.h"
 #include "pgmixer.h"
+#include "sdlmixerbase_doc.h"
 
 static PyObject* _music_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
@@ -36,16 +37,16 @@ static PyObject* _music_gettype (PyObject *self, void *closure);
 /**
  */
 static PyMethodDef _music_methods[] = {
-    { "play", _music_play, METH_VARARGS, "" },
+    { "play", _music_play, METH_VARARGS, DOC_BASE_MUSIC_PLAY },
     { "fade_in", (PyCFunction) _music_fadein, METH_VARARGS | METH_KEYWORDS,
-      "" },
+      DOC_BASE_MUSIC_FADE_IN },
     { NULL, NULL, 0, NULL }
 };
 
 /**
  */
 static PyGetSetDef _music_getsets[] = {
-    { "type", _music_gettype, NULL, "", NULL },
+    { "type", _music_gettype, NULL, DOC_BASE_MUSIC_TYPE, NULL },
     { NULL, NULL, NULL, NULL, NULL }
 };
 
@@ -73,7 +74,7 @@ PyTypeObject PyMusic_Type =
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    "",
+    DOC_BASE_MUSIC,
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
