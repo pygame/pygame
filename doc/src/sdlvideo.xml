@@ -320,85 +320,291 @@
       </desc>
     </method>
     <method name="set_alpha">
-      <call></call>
-      <desc></desc>
+      <call>set_alpha (alpha[, flags]) -> None</call>
+      <desc>
+        Adjusts the alpha properties of the Surface.
+        
+        TODO
+      </desc>
     </method>
     <method name="set_at">
-      <call></call>
-      <desc></desc>
+      <call>set_at (x, y, color) -> None
+      set_at (point, color) -> None
+      </call>
+      <desc>
+        Sets the Surface pixel value at the specified point.
+      </desc>
     </method>
     <method name="set_colorkey">
-      <call></call>
-      <desc></desc>
+      <call>set_colorkey (colorkey[, flags]) -> None</call>
+      <desc>
+        Adjusts the colorkey of the Surface.
+        
+        TODO
+      </desc>
     </method>
     <method name="set_colors">
-      <call></call>
-      <desc></desc>
+      <call>set_colors ((color1, color2, ...)[, first]) -> bool</call>
+      <desc>
+        Sets a portion of the colormap palette for the 8-bit Surface.
+
+        Sets a portion of the colormap palette for the 8-bit Surface,
+        starting at the desired first position. If the first position
+        plus length of the passed colormap exceeds the Surface palette
+        size, the palette will be unchanged and False returned.
+
+        If any other error occurs, False will be returned and the
+        Surface palette should be inspected for any changes.
+      </desc>
     </method>
     <method name="set_palette">
-      <call></call>
-      <desc></desc>
+      <call>set_palette ((color1, color2, ...), flags[, first]) -> bool</call>
+      <desc>
+        Sets a portion of the palette for the given 8-bit surface.
+
+        Sets a portion of the color palette for the 8-bit Surface,
+        starting at the desired first position. If the first position
+        plus length of the passed colormap exceeds the Surface palette
+        size, the palette will be unchanged and False returned.
+
+        If any other error occurs, False will be returned and the
+        Surface palette should be inspected for any changes.
+      </desc>
     </method>
-    <attr name="size"></attr>
+    <attr name="size">Gets the size of the Surface.</attr>
     <method name="unlock">
-      <call></call>
-      <desc></desc>
+      <call>unlock () -> None</call>
+      <desc>
+        Unlocks the Surface, releasing the direct access to the pixel data.
+      </desc>
     </method>
     <method name="update">
-      <call></call>
-      <desc></desc>
+      <call>update ([rect]) -> None
+      update ([(rect1, rect2, ...)]) -> None</call>
+      <desc>
+        Updates the given area on the Surface.
+
+        Upates the given area (or areas, if a list of rects is passed)
+        on the Surface.
+      </desc>
     </method>
-    <attr name="w"></attr>
-    <attr name="width"></attr>
+    <attr name="w">Gets the width of the Surface.</attr>
+    <attr name="width">Gets the width of the Surface.</attr>
   </class>
 
   <func name="get_drivername">
-    <call></call>
-    <desc></desc>
+    <call>get_drivername () -> str</call>
+    <desc>
+      Gets the name of the video driver.
+      
+      Gets the name of the video driver or None, if the video system has
+      not been initialised or it could not be determined.
+    </desc>
   </func>
   <func name="get_gammaramp">
-    <call></call>
-    <desc></desc>
+    <call>get_gammaramp () -> (int, int, ...), (int, int, ...), (int, int, ...)
+    </call>
+    <desc>
+      Gets the color gamma lookup tables for the display.
+
+      Gets the color gamma lookup table for the display. This will
+      return three tuples for the red, green and blue gamma values. Each
+      tuple contains 256 values.
+    </desc>
   </func>
   <func name="get_info">
-    <call></call>
-    <desc></desc>
+    <call>get_info () -> dict</call>
+    <desc>
+      Gets information about the video hardware.
+
+      Gets information about the video hardware. The returned dictionary
+      contains the following entries.
+
+      +------------------------+---------------------------------------------+
+      | Entry                  | Meaning                                     |
+      +========================+=============================================+
+      | hw_available           | Is it possible to create hardware surfaces? |
+      +------------------------+---------------------------------------------+
+      | wm_available           | Is a window manager available?              |
+      +------------------------+---------------------------------------------+
+      | blit_hw                | Are hardware to hardware blits accelerated? |
+      +------------------------+---------------------------------------------+
+      | blit_hw_CC             | Are hardware to hardware colorkey blits     |
+      |                        | accelerated?                                |
+      +------------------------+---------------------------------------------+
+      | blit_hw_A              | Are hardware to hardware alpha blits        |
+      |                        | accelerated?                                |
+      +------------------------+---------------------------------------------+
+      | blit_sw                | Are software to hardware blits accelerated? |
+      +------------------------+---------------------------------------------+
+      | blit_sw_CC             | Are software to hardware colorkey blits     |
+      |                        | accelerated?                                |
+      +------------------------+---------------------------------------------+
+      | blit_sw_A              | Are software to hardware alpha blits        |
+      |                        | accelerated?                                |
+      +------------------------+---------------------------------------------+
+      | blit_fill              | Are color fills accelerated?                |
+      +------------------------+---------------------------------------------+
+      | video_mem              | Total amount of video memory in Kilobytes   |
+      +------------------------+---------------------------------------------+
+      | vfmt                   | Pixel format of the video device            |
+      +------------------------+---------------------------------------------+
+    </desc>
   </func>
   <func name="get_videosurface">
-    <call></call>
-    <desc></desc>
+    <call>get_videosurface () -> Surface</call>
+    <desc>
+      Gets the current display surface or None, if there is no such Surface.
+    </desc>
   </func>
   <func name="init">
-    <call></call>
-    <desc></desc>
+    <call>init () -> None</call>
+    <desc>
+      Initializes the video subsystem of the SDL library.
+    </desc>
   </func>
   <func name="is_mode_ok">
-    <call></call>
-    <desc></desc>
+    <call>is_mode_ok (width, height[, bpp, flags]) -> bool
+    is_mode_ok (size[, bpp, flags]) -> bool
+    </call>
+    <desc>
+      Checks, whether the requested video mode is supported.
+
+      Checks, whether the video mode is supported for the passed size,
+      bit depth and flags. If the bit depth (bpp) argument is omitted,
+      the current screen bit depth will be used. 
+      
+      The optional flags argument is the same as for :meth:`set_mode`.
+    </desc>
   </func>
   <func name="list_modes">
-    <call></call>
-    <desc></desc>
+    <call>list_modes ([, format, flags]) -> [rect, rect, ...]</call>
+    <desc>
+      Returns the supported modes for a specific format and flags.
+
+      Returns the supported modes for a specific format and flags.
+      The optional format argument must be a :class:`PixelFormat`
+      instance with the desired mode information. The optional flags
+      argument is the same as for :meth:`set_mode`.
+      
+      If both, the format and flags are omitted, all supported screen
+      resolutions for all supported formats and flags are returned.
+    </desc>
   </func>
   <func name="quit">
-    <call></call>
-    <desc></desc>
+    <call>quit () -> None</call>
+    <desc>
+      Shuts down the video subsystem of the SDL library.
+
+      After calling this function, you should not invoke any class,
+      method or function related to the video subsystem as they are
+      likely to fail or might give unpredictable results.
+    </desc>
   </func>
   <func name="set_gamma">
-    <call></call>
-    <desc></desc>
+    <call>set_gamma (red, green, blue) -> None</call>
+    <desc>
+      Sets the gamma values for all three color channels.
+      
+      Sets the gamma values for all three color channels. In case
+      adjusting the gamma is not supported, an exception will be raised.
+    </desc>
   </func>
   <func name="set_gammaramp">
-    <call></call>
-    <desc></desc>
+    <call>set_gammaramp (redtable, greentable, bluetable) -> None</call>
+    <desc>
+      Sets the color gamma lookup tables for the display.
+
+      Sets the color gamma lookup table for the display. The three
+      arguments must be sequences with 256 integer value enties for the
+      gamma ramps.
+    </desc>
   </func>
   <func name="set_mode">
-    <call></call>
-    <desc></desc>
+    <call>set_mode (width, height[, bpp, flags]) -> Surface
+    set_mode (size[, bpp, flags]) -> Surface
+    </call>
+    <desc>
+      Creates the main display Surface.
+
+      Creates the main display Surface using the specified size, bit
+      depth and flags. If the bit depth (bpp) argument is omitted, the
+      current screen bit depth will be used.
+
+      The optional flags argument can be a bitwise OR'd combination of
+      the constants below.
+
+      +-------------------+-----------------------------------------------+
+      | Flag              | Description                                   |
+      +===================+===============================================+
+      | SWSURFACE         | Create the video surface in system memory     |
+      +-------------------+-----------------------------------------------+
+      | HWSURFACE         | Create the video surface in video memory      |
+      +-------------------+-----------------------------------------------+
+      | ASYNCBLIT         | Enables the use of asynchronous updates of    |
+      |                   | the display surface. This will usually slow   |
+      |                   | down blitting on single CPU machines, but may |
+      |                   | provide a speed increase on SMP systems.      |
+      +-------------------+-----------------------------------------------+
+      | ANYFORMAT         | Normally, if a video surface of the requested |
+      |                   | bits-per-pixel (bpp) is not available, SDL    |
+      |                   | will emulate one with a shadow surface.       |
+      |                   | Passing ANYFORMAT prevents this and causes    |
+      |                   | SDL to use the video surface, regardless of   |
+      |                   | its pixel depth.                              |
+      +-------------------+-----------------------------------------------+
+      | HWPALETTE         | Give SDL exclusive palette access. Without    |
+      |                   | this flag you may not always get the the      |
+      |                   | colors you request with                       |
+      |                   | :meth:`Surface.set_colors` or                 |
+      |                   | :meth:`Surface.set_palette`.                  |
+      +-------------------+-----------------------------------------------+
+      | DOUBLEBUF         | Enable hardware double buffering; only valid  |
+      |                   | with HWSURFACE. Calling :meth:`Surface.flip`  |
+      |                   | will flip the buffers and update the screen.  |
+      |                   | All drawing will take place on the surface    |
+      |                   | that is not displayed at the moment. If       |
+      |                   | double buffering could not be enabled then    |
+      |                   | :meth:`Surface.flip` will just perform a      |
+      |                   | :meth:`Surface.update` on the entire screen.  |
+      +-------------------+-----------------------------------------------+
+      | FULLSCREEN        | SDL will attempt to use a fullscreen mode. If |
+      |                   | a hardware resolution change is not possible  |
+      |                   | (for whatever reason), the next higher        |
+      |                   | resolution will be used and the display       |
+      |                   | window centered on a black background.        |
+      +-------------------+-----------------------------------------------+
+      | OPENGL            | Create an OpenGL rendering context. You       |
+      |                   | should have previously set OpenGL video       |
+      |                   | attributes with                               |
+      |                   | :meth:`pygame2.sdl.gl.set_attribute`.         |
+      +-------------------+-----------------------------------------------+
+      | OPENGLBLIT        | Create an OpenGL rendering context, like      |
+      |                   | above, but allow normal blitting operations.  |
+      |                   | The screen (2D) surface may have an alpha     |
+      |                   | channel, and :meth:`Surface.update` must be   |
+      |                   | used for updating changes to the screen       |
+      |                   | surface. NOTE: This option is kept for        |
+      |                   | compatibility only, and is not recommended    |
+      |                   | for new code.                                 |
+      +-------------------+-----------------------------------------------+
+      | RESIZABLE         | Create a resizable window. When the window is |
+      |                   | resized by the user a VIDEORESIZE event is    |
+      |                   | generated and :meth:`set_mode` can be called  |
+      |                   | again with the new size.                      |
+      +-------------------+-----------------------------------------------+
+      | NOFRAME           | If possible, NOFRAME causes SDL to create a   |
+      |                   | window with no title bar or frame decoration. |
+      |                   | Fullscreen modes automatically have this flag |
+      |                   | set.                                          |
+      +-------------------+-----------------------------------------------+
+    </desc>
   </func>
   <func name="was_init">
-    <call></call>
-    <desc></desc>
+    <call>was_init () -> bool</call>
+    <desc>
+      Returns, whether the video subsystem of the SDL library is initialized.
+    </desc>
   </func>
 </module>
 

@@ -21,6 +21,7 @@
 
 #include "videomod.h"
 #include "pgsdl.h"
+#include "sdlvideo_doc.h"
 
 static void _quit (void);
 static int _seq_to_uint16 (PyObject *seq, Uint16 *array, Py_ssize_t array_size);
@@ -41,20 +42,26 @@ static PyObject* _sdl_setvideomode (PyObject *self, PyObject *args,
     PyObject *kwds);
 
 static PyMethodDef _video_methods[] = {
-    { "init", (PyCFunction) _sdl_videoinit, METH_NOARGS, "" },
-    { "was_init", (PyCFunction) _sdl_videowasinit, METH_NOARGS, "" },
-    { "quit", (PyCFunction) _sdl_videoquit, METH_NOARGS, "" },
-    { "get_videosurface", (PyCFunction)_sdl_getvideosurface, METH_NOARGS, "" },
-    { "get_info", (PyCFunction)_sdl_getvideoinfo, METH_NOARGS, "" },
-    { "get_drivername", (PyCFunction)_sdl_videodrivername, METH_NOARGS, "" },
-    { "set_gamma", _sdl_setgamma, METH_VARARGS, "" },
-    { "get_gammaramp", (PyCFunction)_sdl_getgammaramp, METH_NOARGS, "" },
-    { "set_gammaramp", _sdl_setgammaramp, METH_VARARGS, "" },
-    { "is_mode_ok", _sdl_videomodeok, METH_VARARGS, "" },
+    { "init", (PyCFunction) _sdl_videoinit, METH_NOARGS, DOC_VIDEO_INIT },
+    { "was_init", (PyCFunction) _sdl_videowasinit, METH_NOARGS,
+      DOC_VIDEO_WAS_INIT },
+    { "quit", (PyCFunction) _sdl_videoquit, METH_NOARGS, DOC_VIDEO_QUIT },
+    { "get_videosurface", (PyCFunction)_sdl_getvideosurface, METH_NOARGS,
+      DOC_VIDEO_GET_VIDEOSURFACE },
+    { "get_info", (PyCFunction)_sdl_getvideoinfo, METH_NOARGS,
+      DOC_VIDEO_GET_INFO },
+    { "get_drivername", (PyCFunction)_sdl_videodrivername, METH_NOARGS,
+      DOC_VIDEO_GET_DRIVERNAME },
+    { "set_gamma", _sdl_setgamma, METH_VARARGS, DOC_VIDEO_SET_GAMMA },
+    { "get_gammaramp", (PyCFunction)_sdl_getgammaramp, METH_NOARGS,
+      DOC_VIDEO_GET_GAMMARAMP },
+    { "set_gammaramp", _sdl_setgammaramp, METH_VARARGS,
+      DOC_VIDEO_SET_GAMMARAMP },
+    { "is_mode_ok", _sdl_videomodeok, METH_VARARGS, DOC_VIDEO_IS_MODE_OK },
     { "list_modes", (PyCFunction) _sdl_listmodes, METH_VARARGS | METH_KEYWORDS,
-      "" },
+      DOC_VIDEO_LIST_MODES },
     { "set_mode", (PyCFunction)_sdl_setvideomode, METH_VARARGS | METH_KEYWORDS,
-      "" },
+      DOC_VIDEO_SET_MODE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -304,18 +311,18 @@ static PyObject*
 _sdl_videomodeok (PyObject *self, PyObject *args)
 {
     int width, height;
-    int bpp;
-    Uint32 flags;
+    int bpp = 0;
+    Uint32 flags = 0;
     int retbpp;
 
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!PyArg_ParseTuple (args, "iiil:is_mode_ok", &width, &height, &bpp,
+    if (!PyArg_ParseTuple (args, "ii|il:is_mode_ok", &width, &height, &bpp,
             &flags))
     {
         PyObject *size;
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "Oil:is_mode_ok", &size, &bpp, &flags))
+        if (!PyArg_ParseTuple (args, "O|il:is_mode_ok", &size, &bpp, &flags))
             return NULL;
         if (!SizeFromObject (size, (pgint32*)&width, (pgint32*)&height))
             return NULL;
@@ -390,7 +397,7 @@ static PyObject*
 _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
 {
     int width, height;
-    int bpp = 32;
+    int bpp = 0;
     Uint32 flags = 0;
     SDL_Surface *surface;
     PyObject *sf;
@@ -494,7 +501,7 @@ PyMODINIT_FUNC initvideo (void)
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
         "video",
-        "",
+        DOC_VIDEO,
         -1,
         _video_methods,
         NULL, NULL, NULL, NULL
@@ -524,7 +531,7 @@ PyMODINIT_FUNC initvideo (void)
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("video", _video_methods, "");
+    mod = Py_InitModule3 ("video", _video_methods, DOC_VIDEO);
 #endif
     if (!mod)
         goto fail;

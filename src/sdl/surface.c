@@ -510,15 +510,22 @@ _surface_setcolors (PyObject *self, PyObject *args)
     PyObject *colorlist, *item;
     Py_ssize_t count, i;
     SDL_Color *colors;
-    int ret;
+    int ret, first = 0;
     
-    if (!PyArg_ParseTuple (args, "O:set_colors", &colorlist))
+    if (!PyArg_ParseTuple (args, "O|i:set_colors", &colorlist, &first))
         return NULL;
 
     if (!PySequence_Check (colorlist))
     {
         PyErr_SetString (PyExc_TypeError,
             "argument must be a list of Color objects");
+        return NULL;
+    }
+
+    if (first < 0)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "first position must not be negative");
         return NULL;
     }
 
@@ -546,7 +553,8 @@ _surface_setcolors (PyObject *self, PyObject *args)
         Py_DECREF (item);
     }
     
-    ret = SDL_SetColors (((PySDLSurface*)self)->surface, colors, 0, (int)count);
+    ret = SDL_SetColors (((PySDLSurface*)self)->surface, colors, first,
+        (int)count);
     PyMem_Free (colors);
 
     if (!ret)
@@ -591,9 +599,10 @@ _surface_setpalette (PyObject *self, PyObject *args)
     PyObject *colorlist, *item;
     Py_ssize_t count, i;
     SDL_Color *palette;
-    int ret, flags;
+    int ret, flags, first = 0;
 
-    if (!PyArg_ParseTuple (args, "Oi:set_palette", &colorlist, &flags))
+    if (!PyArg_ParseTuple (args, "Oi|i:set_palette", &colorlist, &flags,
+            &first))
         return NULL;
 
     if (!PySequence_Check (colorlist))
@@ -628,7 +637,7 @@ _surface_setpalette (PyObject *self, PyObject *args)
     }
     
     ret = SDL_SetPalette (((PySDLSurface*)self)->surface, (int)flags, palette,
-        0, (int)count);
+        first, (int)count);
     PyMem_Free (palette);
 
     if (!ret)
@@ -676,10 +685,10 @@ _surface_getcolorkey (PyObject *self)
 static PyObject*
 _surface_setcolorkey (PyObject *self, PyObject *args)
 {
-    Uint32 flags, key;
+    Uint32 flags = 0, key;
     PyObject *colorkey;
 
-    if (!PyArg_ParseTuple (args, "lO:set_colorkey", &flags, &colorkey))
+    if (!PyArg_ParseTuple (args, "O|l:set_colorkey", &colorkey, &flags))
         return NULL;
 
     if (PyColor_Check (colorkey))
@@ -706,10 +715,10 @@ _surface_getalpha (PyObject *self)
 static PyObject*
 _surface_setalpha (PyObject *self, PyObject *args)
 {
-    Uint32 flags;
+    Uint32 flags = 0;
     Uint8 alpha;
 
-    if (!PyArg_ParseTuple (args, "lb:set_alpha", &flags, &alpha))
+    if (!PyArg_ParseTuple (args, "b|l:set_alpha", &alpha, &flags))
         return NULL;
 
     if (SDL_SetAlpha (((PySDLSurface*)self)->surface, flags, alpha) == -1)

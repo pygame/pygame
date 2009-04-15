@@ -306,8 +306,15 @@ PyMODINIT_FUNC initbase (void)
 
 #ifdef IS_PYTHON_3
     static struct PyModuleDef _basemodule = {
-        PyModuleDef_HEAD_INIT, "base", DOC_BASE, -1, _base_methods,
-        NULL, NULL, NULL, NULL
+        PyModuleDef_HEAD_INIT,
+        "base",
+        DOC_BASE, 
+        -1,
+        _base_methods,
+        NULL,
+        NULL,
+        NULL
+        NULL
     };
 #endif
 
