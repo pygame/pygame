@@ -354,7 +354,9 @@ IsValidRect (PyObject* rect)
         return 1;
     }
 failed:
-    PyErr_SetString (PyExc_TypeError, "rect must be a Rect or FRect");
+    PyErr_Clear ();
+    PyErr_SetString (PyExc_TypeError,
+        "rect must be a Rect, FRect or 4-value sequence");
     return 0;
 }
 
@@ -390,6 +392,7 @@ SDLRect_FromRect (PyObject* rect, SDL_Rect *sdlrect)
         return 1;
     }
 failed:
+    PyErr_Clear ();
     PyErr_SetString (PyExc_TypeError,
         "rect must be a Rect, FRect or 4-value sequence");
     return 0;

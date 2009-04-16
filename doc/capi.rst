@@ -9,3 +9,7 @@ C API:
 .. toctree::
 
   capi/base.rst
+  capi/mask.rst
+  capi/sdlbase.rst
+  capi/sdlcdrom.rst
+  capi/sdlevent.rst

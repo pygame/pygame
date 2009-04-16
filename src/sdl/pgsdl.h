@@ -483,7 +483,7 @@ typedef struct
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyGameSDLCD_C_API[PYGAME_SDLCDTRACK_FIRSTSLOT+0]))
 #define PyCDTrack_New                                                   \
-    (*(PyObject*(*)(SDLCDtrack))PyGameSDLCD_C_API[PYGAME_SDLCDTRACK_FIRSTSLOT+1])
+    (*(PyObject*(*)(SDL_CDtrack))PyGameSDLCD_C_API[PYGAME_SDLCDTRACK_FIRSTSLOT+1])
 #endif /* PYGAME_SDLCDTRACK_INTERNAL */
 
 /**

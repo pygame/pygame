@@ -448,7 +448,6 @@ _sdl_eventget (PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-
 static PyObject*
 _sdl_eventpeek (PyObject *self, PyObject *args)
 {

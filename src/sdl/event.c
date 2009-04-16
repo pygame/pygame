@@ -764,7 +764,10 @@ int
 PyEvent_SDLEventFromEvent (PyObject *ev, SDL_Event *event)
 {
     if (!event)
+    {
+        PyErr_SetString (PyExc_ValueError, "event must not be NULL");
         return 0;
+    }
 
     if (!ev || !PyEvent_Check (ev))
     {

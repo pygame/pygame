@@ -27,6 +27,7 @@
 #include <Python.h>
 #include <math.h>
 #include "pgdefines.h"
+#include "bitmask.h"
 
 extern PyTypeObject PyMask_Type;
 #define PyMask_Check(x) (PyObject_TypeCheck (x, &PyMask_Type))
