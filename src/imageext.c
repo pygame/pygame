@@ -355,7 +355,7 @@ int SaveJPEG (SDL_Surface *surface, char *file) {
        So no conversion is needed.  24bit, RGB
     */
 
-    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) ) {
+    if((surface->format->BytesPerPixel == 3) && !(surface->flags & SDL_SRCALPHA) && (surface->format->Rshift == 0)) {
         /*
            printf("not creating...\n");
         */
