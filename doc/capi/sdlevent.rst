@@ -5,7 +5,9 @@ pygame2.sdl.event C API
 The :mod:`pygame2.sdl.event` C API contains objects and functions for
 accessing and manipulating the SDL event system queue.
 
-TODO: describe user event encapsulation!
+.. todo::
+   
+   Describe user event encapsulation!
 
 Import
 ------
@@ -20,12 +22,12 @@ Include headers::
 
 Macros
 ------
-.. cmacro:: PYGAME_USEREVENT
+.. data:: PYGAME_USEREVENT
 
   Constant for SDL user event types. This is usually placed into the
   :cmember:`SDL_Event.data1` field for :cmacro:`SDL_USEREVENT` events.
 
-.. cmacro:: PYGAME_USEREVENT_CODE
+.. data:: PYGAME_USEREVENT_CODE
 
   Constant for SDL user event types. This is usually placed into the
   :cmember:`SDL_Event.code` field for :cmacro:`SDL_USEREVENT` events.
@@ -64,7 +66,4 @@ Functions
 .. cfunction:: int PyEvent_SDLEventFromEvent (PyObject *obj, SDL_Event *event)
 
   Fills the passed :ctype:`SDL_Event` *event* with the information of
-  the :ctype:`PyEvent`. On success, this will return 1. If the passed
-  *event* is NULL, 0 will be returned and a :exc:`ValueError` be set, if
-  the passed *obj* is not a :ctype:`PyEvent` a :exc:`TypeError` be set.
-  On any other error an exception will be raised and 0 returned.
+  the :ctype:`PyEvent`. This returns 1 on success and 0 on failure.

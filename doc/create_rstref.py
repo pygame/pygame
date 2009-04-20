@@ -6,26 +6,28 @@ RST_HEADER = """"""
 RST_FOOTER = """"""
 
 class DocClass (object):
-    def __init__ (self, name, constructor, description):
+    def __init__ (self, name, constructor, description, example):
         self.name = name
         self.constructor = constructor
         self.description = description
         self.attributes = []
         self.methods = []
+        self.example = example
     
     def __repr__ (self):
         return "<DocClass '%s'>" % self.name
 
 class DocAttribute (object):
-    def __init__ (self, name, description):
+    def __init__ (self, name, description, example):
         self.name = name
         self.description = description
+        self.example = example
 
     def __repr__ (self):
         return "<DocAttribute '%s'>" % self.name
 
 class DocMethod (object):
-    def __init__ (self, cls, name, call, description):
+    def __init__ (self, cls, name, call, description, example):
         self.name = name
         self.calls = []
         for line in call.split ("\n"):
@@ -34,6 +36,7 @@ class DocMethod (object):
                 self.calls.append (line)
         self.cls = cls
         self.description = description
+        self.example = example
 
     def __repr__ (self):
         if self.cls:
@@ -46,6 +49,7 @@ class Doc(object):
         self.modulename = None
         self.shortdesc = "TODO"
         self.description = "TODO"
+        self.example = ""
         self.classes = []
         self.functions = []
     
@@ -61,9 +65,13 @@ class Doc(object):
         node = module.getElementsByTagName ("short")[0]
         if node.firstChild:
             self.shortdesc = node.firstChild.nodeValue
+            self.shortdesc = self.shortdesc.strip ()
         node = module.getElementsByTagName ("desc")[0]
         if node.firstChild:
             self.description = node.firstChild.nodeValue
+        node = module.getElementsByTagName ("example")
+        if node and node[0].parentNode == module and node[0].firstChild:
+            self.example = node[0].firstChild.nodeValue
         return module
     
     def get_module_funcs (self, module):
@@ -82,7 +90,12 @@ class Doc(object):
                 desc = node.firstChild.nodeValue
             else:
                 desc = "TODO"
-            self.functions.append (DocMethod (None, name, call, desc))
+            node = func.getElementsByTagName ("example")
+            if node and node[0].firstChild:
+                example = node[0].firstChild.nodeValue
+            else:
+                example = ""
+            self.functions.append (DocMethod (None, name, call, desc, example))
 
     def get_class_refs (self, module):
         classes = module.getElementsByTagName ("class")
@@ -100,7 +113,13 @@ class Doc(object):
                 desc = node.firstChild.nodeValue
             else:
                 desc = "TODO"
-            clsdoc = DocClass (name, const, desc)
+
+            node = cls.getElementsByTagName ("example")
+            if node and node[0].firstChild:
+                example = node[0].firstChild.nodeValue
+            else:
+                example = ""
+            clsdoc = DocClass (name, const, desc, example)
 
             attrs = cls.getElementsByTagName ("attr")
             for attr in attrs:
@@ -116,11 +135,17 @@ class Doc(object):
         name = attr.getAttribute ("name")
         if len (name) == 0:
             name = "TODO"
-        if attr.firstChild:
-            desc = attr.firstChild.nodeValue
+        node = attr.getElementsByTagName ("desc")[0]
+        if node.firstChild:
+            desc = node.firstChild.nodeValue
         else:
             desc = "TODO"
-        doccls.attributes.append (DocAttribute (name, desc))
+        node = attr.getElementsByTagName ("example")
+        if node and node[0].firstChild:
+            example = node[0].firstChild.nodeValue
+        else:
+            example = ""
+        doccls.attributes.append (DocAttribute (name, desc, example))
 
     def create_method_ref (self, doccls, method):
         name = method.getAttribute ("name")
@@ -136,7 +161,12 @@ class Doc(object):
             desc = node.firstChild.nodeValue
         else:
             desc = "TODO"
-        doccls.methods.append (DocMethod (doccls, name, call, desc))
+        node = method.getElementsByTagName ("example")
+        if node and node[0].firstChild:
+            example = node[0].firstChild.nodeValue
+        else:
+            example = ""
+        doccls.methods.append (DocMethod (doccls, name, call, desc, example))
 
     def create_desc_rst (self, desc, offset=0):
         written = 0
@@ -179,7 +209,33 @@ class Doc(object):
             data += "              %s\n" % call
         data += "%s\n" % self.create_desc_rst (func.description, 2)
         return data
-    
+
+    def create_example_rst (self, example, showex=False):
+        data = ""
+        if showex:
+            data = "  **Example:** ::\n"
+        else:
+            data = "  ::\n"
+
+        cindent = -1
+        for line in example.split ("\n"):
+            line = line.rstrip ()
+
+            if cindent < 0:
+                if len (line) != 0:
+                    # Prepare indentation stuff
+                    cindent = len (line) - len (line.lstrip ())
+
+            if len (line) != 0:
+                # Prepare indentation stuff
+                indent = len (line) - len (line.lstrip ())
+                line = line.lstrip ()
+                if indent > cindent:
+                    line = " " * (indent - cindent) + line
+
+            data += "    " + line + "\n"
+        return data + "\n"
+
     def create_rst (self):
         fname = os.path.join ("ref", "%s.rst")
         fp = open (fname % self.modulename.replace (".", "_"), "w")
@@ -191,12 +247,17 @@ class Doc(object):
         fp.write ("%s" % self.create_desc_rst (self.description))
         fp.write (".. module:: %s\n" % (self.modulename))
         fp.write ("   :synopsis: %s\n\n" % (self.shortdesc))
-        
+
+        if len (self.example) > 0:
+            fp.write (self.create_example_rst (self.example, True))
+
         if len (self.functions) > 0:
-            fp.write ("Module functions\n")
+            fp.write ("Module Functions\n")
             fp.write ("----------------\n")
             for func in self.functions:
                 fp.write (self.create_func_rst (func))
+                if len (func.example) > 0:
+                    fp.write (self.create_example_rst (func.example))
 
         if len (self.classes) > 0:
             for cls in self.classes:
@@ -204,13 +265,20 @@ class Doc(object):
                 fp.write ("%s\n" % ("-" * len (cls.name)))
                 fp.write (".. class:: %s\n" % cls.constructor)
                 fp.write (self.create_desc_rst (cls.description, 2))
+                if len (cls.example) > 0:
+                    fp.write (self.create_example_rst (cls.example, True))
                 if len (cls.attributes) > 0:
                         fp.write ("Attributes\n")
                         fp.write ("^^^^^^^^^^\n")
                         for attr in cls.attributes:
                             fp.write (".. attribute:: %s.%s\n"
                                       % (cls.name, attr.name))
-                            fp.write (self.create_desc_rst (attr.description, 2))
+                            fp.write (self.create_desc_rst \
+                                      (attr.description, 2))
+                            if len (attr.example) > 0:
+                                fp.write ("Example:\n")
+                                fp.write (self.create_example_rst \
+                                          (attr.example))
                 if len (cls.methods) > 0:
                     fp.write ("Methods\n")
                     fp.write ("^^^^^^^\n")
@@ -220,6 +288,10 @@ class Doc(object):
                         for call in method.calls[1:]:
                             fp.write ("            %s.%s\n" % (cls.name, call))
                         fp.write (self.create_desc_rst (method.description, 2))
+                        if len (method.example) > 0:
+                            fp.write ("Example:\n")
+                            fp.write (self.create_example_rst (method.example))
+
         fp.write ("\n")
         fp.write (RST_FOOTER)
         fp.close ()

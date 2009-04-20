@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.sdlext.font">
+  <short>Enhanced font rendering for SDL-based surfaces</short>
+  <desc>
+    Enhanced and specialised font rendering classes and functions for
+    SDL-based surfaces.
+  </desc>
+
+  <example></example>
+  <class name="BitmapFont">
+    <constructor>BitmapFont (surface, size, mapping=None) -> BitmapFont</constructor>
+    <desc>Creates a BitmapFont suitable for bitmap to character mappings.
+    
+    The BitmapFont class uses an image surface to find and render font
+    character glyphs for text. It requires a mapping table, which
+    denotes the characters available on the image.
+
+    The mapping table is a list of strings, where each string reflects a
+    'line' of characters on the image. Each character within each line
+    has the same size as specified by the size argument.
+
+    A typical mapping table might look like ::
+
+      [ '0123456789',
+        'ABCDEFGHIJ',
+        'KLMNOPQRST',
+        'UVWXYZ    ',
+        'abcdefghij',
+        'klmnopqrst',
+        'uvwxyz    ',
+        ',;.:!?+-()' ]
+    </desc>
+    <example></example>
+    <method name="can_render">
+      <call>can_render (text) -> bool</call>
+      <desc>
+        Checks, whether all characters in the passed text can be rendered.
+      </desc>
+      <example></example>
+    </method>
+    <method name="contains">
+      <call>contains (c) -> bool</call>
+      <desc>
+        Checks, whether a certain character exists in the font.
+      </desc>
+      <example></example>
+    </method>
+    <method name="render_on">
+      <call>render_on (surface, text, offset=(0, 0)) -> Rect</call>
+      <desc>
+        Renders a text on the passed surface, starting at offset.
+
+        Renders a text on the existing surface. The top-left start
+        position of the text will be the passed offset and a
+        :class:`pygame2.base.Rect` with the changed area will be
+        returned.
+      </desc>
+      <example></example>
+    </method>
+    <method name="render">
+      <call>render (text) -> Surface</call>
+      <desc>
+        Renders the passed text on a new
+        :class:`pygame2.sdl.videoSurface` and returns it.
+      </desc>
+      <example></example>
+    </method>
+  </class>
+</module>
+

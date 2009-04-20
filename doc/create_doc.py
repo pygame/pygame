@@ -28,26 +28,13 @@ def do_import (name):
     return mod
 
 def write_dtd (buf):
-    buf.write ("<!DOCTYPE module [\n")
-    buf.write ("<!ELEMENT module (desc, (func|class)*)>\n")
-    buf.write ("<!ATTLIST module name CDATA #REQUIRED>\n")
-    buf.write ("<!ELEMENT desc (#PCDATA)>\n")
-    buf.write ("<!ELEMENT call (#PCDATA)>\n")
-    buf.write ("<!ELEMENT func (call, desc)>\n")
-    buf.write ("<!ATTLIST func name CDATA #REQUIRED>\n")
-    buf.write ("<!ELEMENT class (constructor, desc, (attr|method)*)>\n")
-    buf.write ("<!ATTLIST class name CDATA #REQUIRED>\n")
-    buf.write ("<!ELEMENT constructor (#PCDATA)>\n")
-    buf.write ("<!ELEMENT attr (#PCDATA)>\n")
-    buf.write ("<!ATTLIST attr name CDATA #REQUIRED>\n")
-    buf.write ("<!ELEMENT method (call, desc)>\n")
-    buf.write ("<!ATTLIST method name CDATA #REQUIRED>\n")
-    buf.write ("]>\n\n")
+    buf.write ("<!DOCTYPE module SYSTEM \"api.dtd\">\n\n")
 
 def document_class (cls, buf):
     buf.write ("  <class name=\"%s\">\n" % cls.__name__)
     buf.write ("    <constructor>TODO</constructor>\n")
     buf.write ("    <desc>%s</desc>\n" % cls.__doc__)
+    buf.write ("    <example></example>\n")
     parts = dir (cls)
     for what in parts:
         # Skip private parts.
@@ -66,15 +53,18 @@ def document_class (cls, buf):
     buf.write ("  </class>\n\n")
 
 def document_attr (attr, buf, indent):
-    buf.write \
-        (" " * indent + "<attr name=\"%s\">%s</attr>\n" %
-         (attr.__name__, attr.__doc__))
+    iindent = indent + 2
+    buf.write (" " * indent + "<attr name=\"%s\">\n" % attr.__name__)
+    buf.write (" " * iindent + "<desc>%s</desc>\n" % attr.__doc__)
+    buf.write (" " * iindent + "<example></example>\n")
+    buf.write (" " * indent + "</attr>\n")
 
 def document_func (func, buf, indent):
     iindent = indent + 2
     buf.write (" " * indent + "<func name=\"%s\">\n" % func.__name__)
     buf.write (" " * iindent + "<call>%s</call>\n" % get_call_line (func))
     buf.write (" " * iindent + "<desc>%s</desc>\n" % get_desc_wo_call (func))
+    buf.write (" " * iindent + "<example></example>\n")
     buf.write (" " * indent + "</func>\n")
 
 def document_method (method, buf, indent):
@@ -82,6 +72,7 @@ def document_method (method, buf, indent):
     buf.write (" " * indent + "<method name=\"%s\">\n" % method.__name__)
     buf.write (" " * iindent + "<call>%s</call>\n" % get_call_line (method))
     buf.write (" " * iindent + "<desc>%s</desc>\n" % get_desc_wo_call (method))
+    buf.write (" " * iindent + "<example></example>\n")
     buf.write (" " * indent + "</method>\n")
 
 def get_call_line (obj):
@@ -124,7 +115,9 @@ def document_module (module, buf):
     write_dtd (buf)
     
     buf.write ("<module name=\"%s\">\n" % module.__name__)
+    buf.write ("  <short>TODO</short>\n")
     buf.write ("  <desc>%s</desc>\n\n" % module.__doc__)
+    buf.write ("  <example></example>\n")
 
     parts = dir (module)
     
@@ -145,6 +138,7 @@ def document_module (module, buf):
 if __name__ == "__main__":
     if len (sys.argv) < 2:
         print ("usage: %s module" % sys.argv[0])
+        sys.exit (1)
     mod = do_import (sys.argv[1])
     buf = stringio.StringIO ()
     document_module (mod, buf)

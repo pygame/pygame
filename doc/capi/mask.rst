@@ -58,8 +58,9 @@ Functions
 
 .. cfunction:: bitmask_t* PyMask_AsBitmask (PyObject *obj)
 
-  Macro for accessing the *mask* member of the :ctype:`PyMask`. This
-  does not perform any type checks.
+  Macro for accessing the *mask* member of the :ctype:`PyMask`.
+
+  This does not perform any type or argument checks.
 
 .. cfunction:: PyObject* PyMask_New (int width, int height)
 

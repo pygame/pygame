@@ -47,7 +47,7 @@ import numpy
 import re
 
 def array2d (surface):
-    """pygame2.numpyarray.array2d (Surface): return array
+    """pygame2.sdlext.numpyarray.array2d (Surface) -> array
 
     copy pixels into a 2d array
 
@@ -92,7 +92,7 @@ def array2d (surface):
     return array
 
 def pixels2d (surface):
-    """pygame2.numpyarray.pixels2d (Surface): return array
+    """pygame2.sdlext.numpyarray.pixels2d (Surface) -> array
 
     reference pixels into a 2d array
     
@@ -122,7 +122,7 @@ def pixels2d (surface):
     return array
 
 def array3d (surface):
-    """pygame2.numpyarray.array3d (Surface): return array
+    """pygame2.sdlext.numpyarray.array3d (Surface) -> array
 
     copy pixels into a 3d array
 
@@ -163,7 +163,7 @@ def array3d (surface):
         return numpy.transpose (array, (1, 2, 0))
 
 def pixels3d (surface):
-    """pygame2.numpyarray.pixels3d (Surface): return array
+    """pygame2.sdlext.numpyarray.pixels3d (Surface) -> array
 
     reference pixels into a 3d array
 
@@ -218,7 +218,7 @@ def pixels3d (surface):
     return array
 
 def array_alpha (surface):
-    """pygame2.numpyarray.array_alpha (Surface): return array
+    """pygame2.sdlext.numpyarray.array_alpha (Surface) -> array
 
     copy pixel alphas into a 2d array
 
@@ -248,7 +248,7 @@ def array_alpha (surface):
     return array
 
 def pixels_alpha (surface):
-    """pygame2.numpyarray.pixels_alpha (Surface): return array
+    """pygame2.sdlext.numpyarray.pixels_alpha (Surface) -> array
 
     reference pixel alphas into a 2d array
 
@@ -285,7 +285,7 @@ def pixels_alpha (surface):
     return array
 
 def array_colorkey (surface):
-    """pygame2.numpyarray.array_colorkey (Surface): return array
+    """pygame2.sdlext.numpyarray.array_colorkey (Surface) -> array
 
     copy the colorkey values into a 2d array
 
@@ -319,7 +319,7 @@ def array_colorkey (surface):
     return array
 
 def make_surface (array):
-    """pygame2.numpyarray.make_surface (array): return Surface
+    """pygame2.sdlext.numpyarray.make_surface (array) -> Surface
 
     copy an array to a new surface
 
@@ -350,7 +350,7 @@ def make_surface (array):
     return surface
 
 def blit_array (surface, array):
-    """pygame2.numpyarray.blit_array (Surface, array): return None
+    """pygame2.sdlext.numpyarray.blit_array (Surface, array) -> None
 
     blit directly from a array values
 
@@ -419,7 +419,7 @@ def blit_array (surface, array):
     surface.pixels.write (data, 0)
     
 def map_array (surface, array):
-    """pygame2.numpyarray.map_array (Surface, array3d): return array2d
+    """pygame2.sdlext.numpyarray.map_array (Surface, array3d) -> array2d
 
     map a 3d array into a 2d array
 

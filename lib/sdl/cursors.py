@@ -19,12 +19,19 @@
 """
 Set of cursor resources available for use. These cursors come in a
 sequence of values that are needed as the arguments for
-pygame2.mouse.set_cursor(). to dereference the sequence in place and
-create the cursor in one step, call like this;
-pygame2.mouse.set_cursor(*pygame2.cursors.arrow).
+pygame2.sdl.mouse.set_cursor(). To dereference the sequence in place and
+create the cursor in one step, call like this:
+
+  pygame2.sdl.mouse.set_cursor(*pygame2.sdl.cursors.arrow).
 
 Here is a list of available cursors:
-arrow, diamond, ball, broken_x, tri_left, tri_right
+
+  * arrow
+  * diamond
+  * ball
+  * broken_x
+  * tri_left
+  * tri_right
 
 There is also a sample string cursor named 'thickarrow_strings'.
 The compile() function can convert these string cursors into cursor byte
@@ -194,21 +201,22 @@ textmarker_strings = (               #sized 8x16
 
 def compile(strings, black='X', white='.',xor='o'):
    """pygame2.cursors.compile(strings, black, white,xor) -> data, mask
-compile cursor strings into cursor data
 
-This takes a set of strings with equal length and computes
-the binary data for that cursor. The string widths must be
-divisible by 8.
-
-The black and white arguments are single letter strings that
-tells which characters will represent black pixels, and which
-characters represent white pixels. All other characters are
-considered clear.
-
-This returns a tuple containing the cursor data and cursor mask
-data. Both these arguments are used when setting a cursor with
-pygame2.mouse.set_cursor().
-"""
+   Compile cursor strings into cursor data
+   
+   This takes a set of strings with equal length and computes
+   the binary data for that cursor. The string widths must be
+   divisible by 8.
+   
+   The black and white arguments are single letter strings that
+   tells which characters will represent black pixels, and which
+   characters represent white pixels. All other characters are
+   considered clear.
+   
+   This returns a tuple containing the cursor data and cursor mask
+   data. Both these arguments are used when setting a cursor with
+   pygame2.sdl.mouse.set_cursor().
+   """
 
    #first check for consistent lengths
    size = len(strings[0]), len(strings)
@@ -248,12 +256,13 @@ pygame2.mouse.set_cursor().
 
 def load_xbm(curs, mask):
     """pygame2.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
-reads a pair of XBM files into set_cursor arguments
 
-Arguments can either be filenames or filelike objects
-with the readlines method. Not largely tested, but
-should work with typical XBM files.
-"""
+    Reads a pair of XBM files into set_cursor arguments
+
+    Arguments can either be filenames or filelike objects
+    with the readlines method. Not largely tested, but
+    should work with typical XBM files.
+    """
     def bitswap(num):
         val = 0
         for x in range(8):

@@ -61,7 +61,7 @@ Functions
 .. cfunction:: SDL_CD* PyCD_AsCD (PyObject *obj)
 
   Macro for accessing the *cd* member of the :ctype:`PyCD`. This does
-  not perform any type checks.
+  not perform any type or argument checks.
 
 PyCDTrack
 ---------
@@ -92,4 +92,4 @@ Functions
 .. cfunction:: SDL_CDtrack* PyCDTrack_AsCDTrack (PyObject *obj)
 
   Macro for accessing the *track* member of the :ctype:`PyCDTrack`. This
-  does not perform any type checks.
+  does not perform any type or argument checks.

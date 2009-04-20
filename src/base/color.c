@@ -1509,8 +1509,10 @@ PyColor_New (pgbyte rgba[])
 {
     PyColor *color;
     if (!rgba)
+    {
+        PyErr_SetString (PyExc_TypeError, "rgba must not be NULL");
         return NULL;
-    
+    }
     color = (PyColor*) PyColor_Type.tp_new (&PyColor_Type, NULL, NULL);
     if (!color)
         return NULL;
@@ -1552,7 +1554,13 @@ static pguint32
 PyColor_AsNumber (PyObject *color)
 {
     pguint32 tmp;
-    if (!color || !PyColor_Check (color))
+    if (!color)
+    {
+        PyErr_SetString (PyExc_ValueError, "color must not be NULL");
+        return 0;
+    }
+
+    if(!PyColor_Check (color))
     {
         PyErr_SetString (PyExc_TypeError, "color must be a Color");
         return 0;
@@ -1562,7 +1570,6 @@ PyColor_AsNumber (PyObject *color)
         (((PyColor*)color)->g << 8) + ((PyColor*)color)->b;
     return tmp;
 }
-
 
 void
 color_export_capi (void **capi)

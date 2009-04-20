@@ -275,7 +275,6 @@ static PyObject *_sdl_getgammaramp (PyObject *self)
     return Py_BuildValue ("(NNN)", rr, rg, rb);
 }
 
-
 static PyObject*
 _sdl_setgammaramp (PyObject *self, PyObject *args)
 {
@@ -445,9 +444,28 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
     Uint8 rgba[4];
 
     if (!value || !format || !color)
+    {
+        if (!value)
+            PyErr_SetString (PyExc_ValueError, "value must not be NULL");
+        else if (!format)
+            PyErr_SetString (PyExc_ValueError, "format must not be NULL");
+        else
+            PyErr_SetString (PyExc_ValueError, "color must not be NULL");
         return 0;
+    }
+    
+    if (PyColor_Check (value))
+    {
+        rgba[0] = ((PyColor*)value)->r;
+        rgba[1] = ((PyColor*)value)->g;
+        rgba[2] = ((PyColor*)value)->b;
+        rgba[3] = ((PyColor*)value)->a;
 
-    if (PyInt_Check (value))
+        *color = (Uint32) SDL_MapRGBA
+            (format, rgba[0], rgba[1], rgba[2], rgba[3]);
+        return 1;
+    }
+    else if (PyInt_Check (value))
     {
         long intval = PyInt_AsLong (value);
         if (intval == -1 && PyErr_Occurred ())
@@ -471,19 +489,8 @@ ColorFromObj (PyObject *value, SDL_PixelFormat *format, Uint32 *color)
         *color = (Uint32) longval;
         return 1;
     }
-    else if (PyColor_Check (value))
-    {
-        rgba[0] = ((PyColor*)value)->r;
-        rgba[1] = ((PyColor*)value)->g;
-        rgba[2] = ((PyColor*)value)->b;
-        rgba[3] = ((PyColor*)value)->a;
-
-        *color = (Uint32) SDL_MapRGBA
-            (format, rgba[0], rgba[1], rgba[2], rgba[3]);
-        return 1;
-    }
     else
-        PyErr_SetString (PyExc_ValueError, "invalid color argument");
+        PyErr_SetString (PyExc_TypeError, "invalid color argument");
     return 0;
 }
 

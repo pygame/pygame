@@ -46,19 +46,19 @@ a small set of own types to be used for most of its functions.
 
   .. cmember:: pgint16 CRect.x
 
-    The topleft x coordinate of the CRect.
+    The topleft x coordinate of the :ctype:`CRect`.
 
   .. cmember:: pgint16 CRect.y
 
-    The topleft y coordinate of the CRect.
+    The topleft y coordinate of the :ctype:`CRect`.
 
   .. cmember:: pguint16 CRect.w
 
-    The width of the CRect.
+    The width of the :ctype:`CRect`.
 
   .. cmember:: pguint16 CRect.h
 
-    The height of the CRect.
+    The height of the :ctype:`CRect`.
 
 Macros
 ------
@@ -117,7 +117,7 @@ used heavily and should be relied on wherever possible.
                INT16_SUB_LIMIT(x,y)
 
    Adds and subtracts two integer values, but guarantees that the result will
-   not be smaller or larger than the INT_MIN and INT_MAX limits.
+   not be smaller or larger than the *INT_MIN* and *INT_MAX* limits.
 
 .. cfunction:: UINT_ADD_LIMIT(x,y)
                UINT_SUB_LIMIT(x,y)
@@ -125,7 +125,7 @@ used heavily and should be relied on wherever possible.
                UINT16_SUB_LIMIT(x,y)
 
    Adds and subtracts two unsigned integer values, but guarantees that the
-   result will not be smaller or larger than zero and UINT_MAX.
+   result will not be smaller or larger than zero and *UINT_MAX*.
 
 .. cfunction:: LONG_ADD_LIMIT(x,y)
                LONG_SUB_LIMIT(x,y)
@@ -133,7 +133,7 @@ used heavily and should be relied on wherever possible.
                INT32_SUB_LIMIT(x,y)
 
    Adds and subtracts two long integer values, but guarantees that the result
-   will not be smaller or larger than the LONG_MIN and LONG_MAX limits.
+   will not be smaller or larger than the *LONG_MIN* and *LONG_MAX* limits.
 
 .. cfunction:: ULONG_ADD_LIMIT(x,y)
                ULONG_SUB_LIMIT(x,y)
@@ -141,13 +141,13 @@ used heavily and should be relied on wherever possible.
                UINT32_SUB_LIMIT(x,y)
 
    Adds and subtracts two unsigned long integer values, but guarantees that the
-   result will not be smaller or larger than zero and ULONG_MAX.
+   result will not be smaller or larger than zero and *ULONG_MAX*.
 
 .. cfunction:: DBL_ADD_LIMIT(x,y)
                DBL_SUB_LIMIT(x,y)
 
    Adds and subtracts two floating point values, but guarantees that the result
-   will not be smaller or larger than the DBL_MIN and DBL_MAX limits.
+   will not be smaller or larger than the *DBL_MIN* and *DBL_MAX* limits.
 
 .. cfunction:: INT_ADD_UINT_LIMIT(x,y,z)
                INT_SUB_UINT_LIMIT(x,y,z)
@@ -155,8 +155,8 @@ used heavily and should be relied on wherever possible.
                INT16_SUB_UINT16_LIMIT(x,y,z)
 
     Adds and subtracts an unsigned integer *y* to an integer *x* and stores the
-    result in the integer *z*. If the operation will exceed the INT_MIN and
-    INT_MAX limits, *z* will be set to INT_MIN or INT_MAX.
+    result in the integer *z*. If the operation will exceed the *INT_MIN* and
+    *INT_MAX* limits, *z* will be set to *INT_MIN or *INT_MAX*.
 
 Errors
 ------
@@ -171,87 +171,101 @@ Functions
 .. cfunction:: int DoubleFromObj (PyObject* obj, double *val)
 
   Tries to convert the PyObject to a double and stores the result in *val*, if
-  successful. If it does not succeed, 0 will be returned and an exception be
-  set, otherwise it will return 1.
+  successful. This returns 1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int IntFromObj (PyObject* obj, int *val)
 
   Tries to convert the PyObject to an int and stores the result in *val*, if
-  successful. If it does not succeed, 0 will be returned and an exception be
-  set, otherwise it will return 1.
+  successful. This returns 1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int UintFromObj (PyObject* obj, unsigned int *val)
 
   Tries to convert the PyObject to an unsigned int and stores the result in
-  *val*, if successful. If it does not succeed, 0 will be returned and an
-  exception be set, otherwise it will return 1.
+  *val*, if successful. This returns 1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int DoubleFromSeqIndex (PyObject *seq, Py_ssize_t index, double *val)
 
   Tries to get the item at the desired *index* from the passed sequence object
-  and converts it to a double, which will be stored in *val*. If it does not
-  succeed, 0 will be returned and an exception be set, otherwise it will return
-  1.
+  and converts it to a double, which will be stored in *val*. This returns 1 on
+  success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int IntFromSeqIndex (PyObject *seq, Py_ssize_t index, int *val)
 
   Tries to get the item at the desired *index* from the passed sequence object
-  and converts it to an int, which will be stored in *val*. If it does not
-  succeed, 0 will be returned and an exception be set, otherwise it will return
-  1.
+  and converts it to an int, which will be stored in *val*. This returns 1 on
+  success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int UintFromSeqIndex (PyObject *seq, Py_ssize_t index, unsigned int *val)
 
   Tries to get the item at the desired *index* from the passed sequence object
-  and converts it to an unsigned int, which will be stored in *val*. If it does
-  not succeed, 0 will be returned and an exception be set, otherwise it will
-  return 1.
+  and converts it to an unsigned int, which will be stored in *val*. This
+  returns 1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int PointFromObject (PyObject *obj, int *x, int *y)
 
   Tries to get two int values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the topleft x and y values are taken,
-  if the object is a sequence type, the first two items are used.  If it does
-  not succeed, 0 will be returned and an exception be set, otherwise it will
-  return 1.
+  if the object is a sequence type, the first two items are used. This returns
+  1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int SizeFromObject (PyObject *obj, pgint32 *x, pgint32 *y)
 
   Tries to get two pgint32 values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the width and height values are taken,
-  if the object is a sequence type, the first two items are used. If it does
-  not succeed, 0 will be returned and an exception be set, otherwise it will
-  return 1.
+  if the object is a sequence type, the first two items are used. This returns
+  1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int FPointFromObject (PyObject *obj, double *x, double *y)
 
   Tries to get two double values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the topleft x and y values are taken,
-  if the object is a sequence type, the first two items are used.  If it does
-  not succeed, 0 will be returned and an exception be set, otherwise it will
-  return 1.
+  if the object is a sequence type, the first two items are used. This returns
+  1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int FSizeFromObject (PyObject *obj, double *x, double *y)
 
   Tries to get two double values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the width and height values are taken,
-  if the object is a sequence type, the first two items are used. If it does
-  not succeed, 0 will be returned and an exception be set, otherwise it will
-  return 1.
+  if the object is a sequence type, the first two items are used. This returns
+  1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int ASCIIFromObject (PyObject *obj, char** text, PyObject **convobj)
 
   Tries to get ASCII text from the passed object and stores the result in
   *text*. If the object has to be converted, the conversion result will be
   stored in *convobj* and needs to be freed by the caller, once *text* is not
-  required anymore.
+  required anymore. This returns 1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int UTF8FromObject (PyObject *obj, char** text, PyObject **convobj)
 
   Tries to get UTF-8 encoded text from the passed object and stores the result
   in *text*. If the object has to be converted, the conversion result will be
   stored in *convobj* and needs to be freed by the caller, once *text* is not
-  required anymore.
+  required anymore. This returns 1 on success and 0 on failure.
+
+  This will not check the arguments for being *NULL*.
 
 PyColor
 -------
@@ -287,7 +301,7 @@ Functions
   Returns true, if the argument is a :ctype:`PyColor` or a subclass of
   :ctype:`PyColor`.
 
-.. cfunction:: PyObject* PyColor_New (pgbyte[] rgba)
+.. cfunction:: PyObject* PyColor_New (pgbyte rgba[])
 
   Creates a new :ctype:`PyColor` object from the passed 4-value RGBA array. On
   failure, this returns NULL.
@@ -305,8 +319,8 @@ Functions
 .. cfunction:: pguint32 PyColor_AsNumber (PyObject *color)
 
   Returns the 32-bit ARGB integer representation of the :ctype:`PyColor` object.
-  If the passed *color* is not a :ctype:`PyColor` object, 0 will be returned
-  and a :exc:`TypeError` set.
+  On failure, this returns 0. As 0 might be a valid color, you should check
+  for an error explicitly using :cfunc:`PyErr_Occured`.
 
 PyRect
 ------
@@ -400,17 +414,17 @@ Members
 .. cmember:: void* PyBufferProxy.buffer
 
   A pointer to the underlying C buffer contents.
-  
+
 .. cmember:: Py_ssize_t PyBufferProxy.length
 
   The length of the buffer in bytes
-  
+
 .. cmember:: bufferunlock_func PyBufferProxy.unlock_func
 
   The unlock function callback hook. bufferunlock_func is defined as::
-  
+
     int (*bufferunlock_func)(PyObject* object, PyObject* buffer)
-  
+
 Functions
 ^^^^^^^^^
 .. cfunction:: int PyBufferProxy_Check (PyObject *obj)
@@ -419,9 +433,10 @@ Functions
   :ctype:`PyBufferProxy`.
 
 .. cfunction:: void* PyBufferProxy_AsBuffer (PyObject *obj)
-  
+
   Macro for accessing the *buffer* member of the :ctype:`PyBufferProxy`.
-  This does not perform any type checks.
+  
+  This does not perform any type or argument checks.
 
 .. cfunction:: PyObject* PyBufferProxy_New (PyObject *object, void *buffer, Py_ssize_t length, bufferunlock_func func)
 
@@ -462,25 +477,25 @@ inheriting classes and interfaces. Those are
   Gets the size of the :ctype:`PySurface` instance. *self* is the
   :ctype:`PySurface` itself, the *closure* argument is the same as for the
   Python C API getter definition.
-  
+
 .. cfunction:: PyObject* (*get_pixels) (PyObject *self, void *closure)
 
   Gets the raw pixels of the :ctype:`PySurface` instance. *self* is the
   :ctype:`PySurface` itself, the *closure* argument is the same as for the
   Python C API getter definition.
-  
+
 .. cfunction:: PyObject* (*blit)(PyObject *self, PyObject *args, PyObject *kwds)
 
   Blits the :ctype:`PySurface` onto some other :ctype:`PySurface` or whatever
   is appropriate for the concrete implementation. *self* is the
   :ctype:`PySurface` itself, the *args* and *kwds* arguments are the same as for
   the Python C API method definition.
-  
+
 .. cfunction:: PyObject* (*copy)(PyObject *self)
 
   Creates an exact copy of the :ctype:`PySurface`. *self* is the
   :ctype:`PySurface` itself.
-  
+
 Functions
 ^^^^^^^^^
 .. cfunction:: int PySurface_Check (PyObject *obj)

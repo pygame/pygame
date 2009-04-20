@@ -21,20 +21,8 @@
 #define _PYGAME_MASK_H_
 
 #include <Python.h>
+#include "bitmask.h"
 #include "pgbase.h"
-
-#ifndef PYGAME_MASK_INTERNAL
-/* Forward declaration from the internal header, so it is usable by
- * other C extentions.
- * The bitmask code is copyrighted [Copyright (C) 2002-2005 Ulf Ekstrom]
- * and distributed under the LGPL */
-typedef struct 
-{
-    int w;
-    int h;
-    unsigned long int bits[1];
-} bitmask_t;
-#endif
 
 typedef struct {
     PyObject_HEAD

@@ -70,9 +70,9 @@ static void **PyGameSDLExt_C_API;
 #define PYGAME_SDLEXT_ENTRY "_PYGAME_SDLEXT_CAPI"
     
 static int
-import_pygame2_sdlext (void)
+import_pygame2_sdlext_base (void)
 {
-    PyObject *_module = PyImport_ImportModule ("pygame2.sdlext");
+    PyObject *_module = PyImport_ImportModule ("pygame2.sdlext.base");
     if (_module != NULL)
     {
         PyObject *_capi = PyObject_GetAttrString(_module, PYGAME_SDLEXT_ENTRY);

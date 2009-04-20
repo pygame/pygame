@@ -55,7 +55,6 @@ static int RWopsCheckPython (SDL_RWops* rw);
 static SDL_RWops* RWopsFromPythonThreaded (PyObject* obj);
 static int RWopsCheckPythonThreaded (SDL_RWops* rw);
 
-
 static SDL_RWops*
 get_standard_rwop (PyObject* obj)
 {
@@ -441,6 +440,11 @@ RWopsFromPython (PyObject* obj)
 static int
 RWopsCheckPython (SDL_RWops* rw)
 {
+    if (!rw)
+    {
+        PyErr_SetString (PyExc_TypeError, "rw must not be NULL");
+        return -1;
+    }
     return rw->close == rw_close;
 }
 
@@ -486,6 +490,11 @@ static int
 RWopsCheckPythonThreaded (SDL_RWops* rw)
 {
 #ifdef WITH_THREAD
+    if (!rw)
+    {
+        PyErr_SetString (PyExc_TypeError, "rw must not be NULL");
+        return -1;
+    }
     return rw->close == rw_close_th;
 #else
     return 0;

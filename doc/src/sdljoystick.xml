@@ -1,28 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
-
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdl.joystick">
   <short>SDL joystick I/O wrapper wrapper module</short>
   <desc>
-    The joystick module manages the joystick devices on a computer (there can
-    be more than one). Joystick devices include trackballs and video-game-style
-    gamepads, and the module allows the use of multiple buttons and "hats".
+    The joystick module manages the joystick devices on a computer
+    (there can be more than one). Joystick devices include trackballs
+    and video-game-style gamepads, and the module allows the use of
+    multiple buttons and "hats".
   </desc>
 
   <class name="Joystick">
@@ -30,20 +15,23 @@
     <desc>
       Creates a new Joystick object for the specified physical device.
       
-      The Joystick object allows you to access information about the underlying
-      physical device, such as the axes, hats and button states.
+      The Joystick object allows you to access information about the
+      underlying physical device, such as the axes, hats and button
+      states.
       
-      The index must be in the range [0, :meth:`pygame2.sdl.joystick.num_joysticks` - 1].
-      This will also open the Joystick initially.
+      The index must be in the range [0,
+      :meth:`pygame2.sdl.joystick.num_joysticks` - 1].  This will also
+      open the Joystick initially.
     </desc>
     <method name="close">
       <call>close () -> None</call>
       <desc>
         Closes the access to the underlying joystick device.
         
-        Calling or accessing any other method or attribute of the Joystick after
-        closing it will cause an exception to be thrown. To reaccess the
-        Joystick, you have to :meth:`open` it again.
+        Calling or accessing any other method or attribute of the
+        Joystick after closing it will cause an exception to be
+        thrown. To reaccess the Joystick, you have to :meth:`open` it
+        again.
       </desc>
     </method>
     <method name="get_axis">
@@ -51,8 +39,9 @@
       <desc>
         Gets the current position of the specified axis.
         
-        Gets the current position of the specified axis. The axis index must be
-        a valid value within the range [0, :attr:`num_axes` - 1].
+        Gets the current position of the specified axis. The axis index
+        must be a valid value within the range [0, :attr:`num_axes` -
+        1].
       </desc>
     </method>
     <method name="get_ball">
@@ -70,8 +59,9 @@
       <desc>
         Gets the state of a button.
         
-        Gets the current pressed state of a button. The button index must be a
-        valid value within the range [0, :attr:`num_buttons` - 1].
+        Gets the current pressed state of a button. The button index
+        must be a valid value within the range [0, :attr:`num_buttons` -
+        1].
       </desc>
     </method>
     <method name="get_hat">
@@ -79,27 +69,42 @@
       <desc>
         Gets the state of a hat.
         
-        Gets the current state of a hat. The return value will be a bitwise OR'd
-        combination of the HAT_*** constants. The hat index must be a
-        valid value within the range [0, :attr:`num_hats` - 1].
+        Gets the current state of a hat. The return value will be a
+        bitwise OR'd combination of the HAT_*** constants. The hat index
+        must be a valid value within the range [0, :attr:`num_hats` -
+        1].
       </desc>
     </method>
-    <attr name="index">Gets the physical device index of the Joystick</attr>
-    <attr name="name">Gets the physical device name of the Joystick.</attr>
-    <attr name="num_axes">Gets the number of axes available on the Joystick.</attr>
-    <attr name="num_balls">Gets the number of balls available on the Joystick.</attr>
-    <attr name="num_buttons">Gets the number of buttons available on the Joystick.</attr>
-    <attr name="num_hats">Gets the number of hats available on the Joystick.</attr>
+    <attr name="index">
+      <desc>Gets the physical device index of the Joystick.</desc>
+    </attr>
+    <attr name="name">
+      <desc>Gets the physical device name of the Joystick.</desc>
+    </attr>
+    <attr name="num_axes">
+      <desc>Gets the number of axes available on the Joystick.</desc>
+    </attr>
+    <attr name="num_balls">
+      <desc>Gets the number of balls available on the Joystick.</desc>
+    </attr>
+    <attr name="num_buttons">
+      <desc>Gets the number of buttons available on the Joystick.</desc>
+    </attr>
+    <attr name="num_hats">
+      <desc>Gets the number of hats available on the Joystick.</desc>
+    </attr>
     <method name="open">
       <call>open () -> None</call>
       <desc>
         Opens the (closed) Joystick.
         
-        Opens the (closed) Joystick. If the Joystick is already open, this
-        method will have no effect.
+        Opens the (closed) Joystick. If the Joystick is already open,
+        this method will have no effect.
       </desc>
     </method>
-    <attr name="opened">Gets, whether the Joystick is open or not.</attr>
+    <attr name="opened">
+      <desc>Gets, whether the Joystick is open or not.</desc>
+    </attr>
   </class>
 
   <func name="get_name">
@@ -107,9 +112,9 @@
     <desc>
       Gets the physical device name of a Joystick.
       
-      Gets the physical device name of a Joystick. The index specifies the
-      device to get the name for and must be in the range
-      [0, :meth:`num_joysticks` - 1].
+      Gets the physical device name of a Joystick. The index specifies
+      the device to get the name for and must be in the range [0,
+      :meth:`num_joysticks` - 1].
     </desc>
   </func>
   <func name="init">
@@ -129,9 +134,9 @@
     <desc>
       Gets, whether the specified Joystick is opened for access or not.
       
-      Gets, whether the specified Joystick is opened for access or not. The
-      index specifies the joystick device to get the state for and must be in
-      the range [0, :meth:`num_joysticks` - 1].
+      Gets, whether the specified Joystick is opened for access or
+      not. The index specifies the joystick device to get the state for
+      and must be in the range [0, :meth:`num_joysticks` - 1].
     </desc>
   </func>
   <func name="quit">
@@ -152,15 +157,16 @@
     <desc>
       Enables or disable joystick event polling.
       
-      Enables or disables joystick event processing. If the joystick event
-      processing is disabled, you will have to update the joystick states
-      manually using :meth:`update` and read the information manually using the
-      specific attributes and methods. Otherwise, joystick events are consumed
-      and process by the :mod:`pygame2.sdl.event` module.
+      Enables or disables joystick event processing. If the joystick
+      event processing is disabled, you will have to update the joystick
+      states manually using :meth:`update` and read the information
+      manually using the specific attributes and methods. Otherwise,
+      joystick events are consumed and process by the
+      :mod:`pygame2.sdl.event` module.
       
-      The state argument can be ENABLE or IGNORE for enabling or disabling the
-      event processing or QUERY to receive the current state. The return value
-      also will be one of those three constants .
+      The state argument can be ENABLE or IGNORE for enabling or
+      disabling the event processing or QUERY to receive the current
+      state. The return value also will be one of those three constants.
     </desc>
   </func>
   <func name="update">
@@ -172,7 +178,8 @@
   <func name="was_init">
     <call>was_init () -> bool</call>
     <desc>
-      Returns, whether the joystick subsystem of the SDL library is initialized.
+      Returns, whether the joystick subsystem of the SDL library is
+      initialized.
     </desc>
   </func>
 </module>

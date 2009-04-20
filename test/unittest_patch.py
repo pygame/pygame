@@ -1,6 +1,9 @@
 ################################################################################
 
-import test.pgunittest as unittest
+try:
+    import pygame2.test.pgunittest as unittest
+except:
+    import pgunittest as unittest
 import re
 import time
 import sys

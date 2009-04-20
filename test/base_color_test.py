@@ -1,7 +1,8 @@
 try:
-    import test.pgunittest as unittest
+    import pygame2.test.pgunittest as unittest
 except:
     import pgunittest as unittest
+
 import sys
 import math
 from pygame2.base import Color
@@ -790,7 +791,7 @@ class ColorTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_base_Color_normalize(self):
+    def test_pygame2_base_Color_normalize(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Color.normalize:
 
@@ -801,8 +802,22 @@ class ColorTest (unittest.TestCase):
         # Color.normalize() -> tuple  Returns the normalized RGBA values of
         # the Color.  Returns the normalized RGBA values of the Color as
         # floating point values.
+        c = Color (255, 255, 255, 255)
+        self.assertEquals (c.normalize (), (1.0, 1.0, 1.0, 1.0))
+        c = Color (0, 0, 0, 0)
+        self.assertEquals (c.normalize (), (0.0, 0.0, 0.0, 0.0))
+        c = Color (128, 128, 128, 128)
+        t = c.normalize ()
+        for v in t:
+            self.assertAlmostEquals (v, 0.5, 2)
 
-        self.fail() 
+        c = Color (128, 255, 0, 52)
+        t = c.normalize ()
+        self.assertAlmostEquals (t[0], 0.5, 2)
+        self.assertEquals (t[1], 1.0)
+        self.assertEquals (t[2], 0.0)
+        # 52 / 255 ~= .20
+        self.assertAlmostEquals (t[3], 0.2, 2)
 
     def test_pygame2_base_Color_r(self):
 

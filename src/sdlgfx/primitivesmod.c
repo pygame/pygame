@@ -39,6 +39,7 @@ static PyObject* _gfx_ellipsecolor (PyObject *self, PyObject* args);
 static PyObject* _gfx_aaellipsecolor (PyObject *self, PyObject* args);
 static PyObject* _gfx_filledellipsecolor (PyObject *self, PyObject* args);
 static PyObject* _gfx_piecolor (PyObject *self, PyObject* args);
+static PyObject* _gfx_filledpiecolor (PyObject *self, PyObject* args);
 static PyObject* _gfx_trigoncolor (PyObject *self, PyObject* args);
 static PyObject* _gfx_aatrigoncolor (PyObject *self, PyObject* args);
 static PyObject* _gfx_filledtrigoncolor (PyObject *self, PyObject* args);
@@ -52,7 +53,8 @@ static PyMethodDef _gfx_methods[] = {
     { "pixel", _gfx_pixelcolor, METH_VARARGS, DOC_PRIMITIVES_PIXEL },
     { "hline", _gfx_hlinecolor, METH_VARARGS, DOC_PRIMITIVES_HLINE },
     { "vline", _gfx_vlinecolor, METH_VARARGS, DOC_PRIMITIVES_VLINE },
-    { "rectangle", _gfx_rectanglecolor, METH_VARARGS, DOC_PRIMITIVES_RECTANGLE },
+    { "rectangle", _gfx_rectanglecolor, METH_VARARGS,
+      DOC_PRIMITIVES_RECTANGLE },
     { "box", _gfx_boxcolor, METH_VARARGS, DOC_PRIMITIVES_BOX },
     { "line", _gfx_linecolor, METH_VARARGS, DOC_PRIMITIVES_LINE },
     { "arc", _gfx_arccolor, METH_VARARGS, DOC_PRIMITIVES_ARC },
@@ -66,6 +68,8 @@ static PyMethodDef _gfx_methods[] = {
     { "filled_ellipse", _gfx_filledellipsecolor, METH_VARARGS, 
       DOC_PRIMITIVES_FILLED_ELLIPSE },
     { "pie", _gfx_piecolor, METH_VARARGS, DOC_PRIMITIVES_PIE },
+    { "filled_pie", _gfx_filledpiecolor, METH_VARARGS,
+      DOC_PRIMITIVES_FILLED_PIE },
     { "trigon", _gfx_trigoncolor, METH_VARARGS, DOC_PRIMITIVES_TRIGON },
     { "aatrigon", _gfx_aatrigoncolor, METH_VARARGS, DOC_PRIMITIVES_AATRIGON },
     { "filled_trigon", _gfx_filledtrigoncolor, METH_VARARGS,
@@ -686,6 +690,51 @@ _gfx_piecolor (PyObject *self, PyObject* args)
 }
 
 static PyObject*
+_gfx_filledpiecolor (PyObject *self, PyObject* args)
+{
+    PyObject *surface, *color, *pt;
+    Sint16 x, y, r, start, end;
+    Uint32 c;
+
+    ASSERT_VIDEO_INIT (NULL);
+
+    if (!PyArg_ParseTuple (args, "OOiiiO:filled_pie", &surface, &pt, &r,
+            &start, &end, &color))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "OiiiiiO:filled_pie", &surface, &x, &y, &r,
+                &start, &end, &color))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, (int*)&x, (int*)&y))
+            return NULL;
+    }
+    if (!PySDLSurface_Check (surface))
+    {
+        PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
+        return NULL;
+    }
+    if (!PyColor_Check (color))
+    {
+        PyErr_SetString (PyExc_TypeError, "color must be a Color");
+        return NULL;
+    }
+
+    c = (Uint32) PyColor_AsNumber (color);
+    ARGB2FORMAT (c, ((PySDLSurface*)surface)->surface->format);
+
+    if (filledPieColor (((PySDLSurface*)surface)->surface, x, y, r, start,
+            end, c) == -1)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 _gfx_trigoncolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *p1, *p2, *p3;
@@ -883,14 +932,7 @@ _gfx_polygoncolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!Sint16FromSeqIndex (item, 0, &x))
-        {
-            PyMem_Free (vx);
-            PyMem_Free (vy);
-            Py_XDECREF (item);
-            return NULL;
-        }
-        if (!Sint16FromSeqIndex (item, 1, &y))
+        if (!PointFromObject (item, (int*)&x, (int*)&y))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -972,14 +1014,7 @@ _gfx_aapolygoncolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!Sint16FromSeqIndex (item, 0, &x))
-        {
-            PyMem_Free (vx);
-            PyMem_Free (vy);
-            Py_XDECREF (item);
-            return NULL;
-        }
-        if (!Sint16FromSeqIndex (item, 1, &y))
+        if (!PointFromObject (item, (int*)&x, (int*)&y))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -1062,14 +1097,7 @@ _gfx_filledpolygoncolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!Sint16FromSeqIndex (item, 0, &x))
-        {
-            PyMem_Free (vx);
-            PyMem_Free (vy);
-            Py_XDECREF (item);
-            return NULL;
-        }
-        if (!Sint16FromSeqIndex (item, 1, &y))
+        if (!PointFromObject (item, (int*)&x, (int*)&y))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -1159,14 +1187,7 @@ _gfx_texturedpolygon (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!Sint16FromSeqIndex (item, 0, &x))
-        {
-            PyMem_Free (vx);
-            PyMem_Free (vy);
-            Py_XDECREF (item);
-            return NULL;
-        }
-        if (!Sint16FromSeqIndex (item, 1, &y))
+        if (!PointFromObject (item, (int*)&x, (int*)&y))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);
@@ -1251,14 +1272,7 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (points, i);
-        if (!Sint16FromSeqIndex (item, 0, &x))
-        {
-            PyMem_Free (vx);
-            PyMem_Free (vy);
-            Py_XDECREF (item);
-            return NULL;
-        }
-        if (!Sint16FromSeqIndex (item, 1, &y))
+        if (!PointFromObject (item, (int*)&x, (int*)&y))
         {
             PyMem_Free (vx);
             PyMem_Free (vy);

@@ -1,0 +1,23 @@
+<!DOCTYPE module [
+<!ELEMENT module (short, desc, example?, (func | class)*)>
+<!ATTLIST module name CDATA #REQUIRED>
+
+<!ELEMENT desc (#PCDATA)>
+<!ELEMENT short (#PCDATA)>
+<!ELEMENT call (#PCDATA)>
+
+<!ELEMENT func (call, desc, example?)>
+<!ATTLIST func name CDATA #REQUIRED>
+
+<!ELEMENT class (constructor, desc, example?, (attr | method)*)>
+<!ATTLIST class name CDATA #REQUIRED>
+
+<!ELEMENT constructor (#PCDATA)>
+
+<!ELEMENT attr (desc, example?)>
+<!ATTLIST attr name CDATA #REQUIRED>
+
+<!ELEMENT method (call, desc, example*)>
+<!ATTLIST method name CDATA #REQUIRED>
+
+]>

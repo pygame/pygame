@@ -62,6 +62,7 @@ static PyObject* _mask_outline(PyObject* self, PyObject* args);
 static PyObject* _mask_connectedcomponent (PyObject* self, PyObject* args);
 static PyObject* _mask_connectedcomponents (PyObject* self, PyObject* args);
 static PyObject* _mask_getboundingrects (PyObject* self);
+static PyObject* _mask_convolve (PyObject* self, PyObject* args);
 
 static PyGetSetDef _mask_getsets[] = {
     { "size", _mask_getsize, NULL, DOC_MASK_MASK, NULL },
@@ -94,6 +95,7 @@ static PyMethodDef _mask_methods[] = {
       DOC_MASK_MASK_CONNECTED_COMPONENT },
     { "get_bounding_rects",(PyCFunction) _mask_getboundingrects, METH_NOARGS,
       DOC_MASK_MASK_GET_BOUNDING_RECTS },
+    { "convolve", _mask_convolve, METH_VARARGS, DOC_MASK_MASK_CONVOLVE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -749,7 +751,7 @@ _mask_connectedcomponents (PyObject* self, PyObject* args)
     if (!ret)
         return NULL;    
     
-    for (i=1; i <= num_components; i++)
+    for (i = 1; i <= num_components; i++)
     {
         maskobj = (PyMask*)PyMask_Type.tp_new (&PyMask_Type, NULL, NULL);
         if (!maskobj)
@@ -884,6 +886,51 @@ _mask_getboundingrects (PyObject* self)
     free (regions);
 
     return ret;
+}
+
+static PyObject*
+_mask_convolve (PyObject* self, PyObject* args)
+{
+    PyObject *pt, *cmask, *outmask = NULL;
+    bitmask_t *a, *b, *o;
+    int x = 0, y = 0;
+
+    if (!PyArg_ParseTuple (args, "O!|OO", &PyMask_Type, &cmask, &outmask, &pt))
+    {
+        PyErr_Clear ();
+        if (!PyArg_ParseTuple (args, "O|Oii", &cmask, &outmask, &x, &y))
+            return NULL;
+    }
+    else
+    {
+        if (!PointFromObject (pt, &x, &y))
+            return NULL;
+    }
+    
+    if (outmask && !PyMask_Check (outmask))
+    {
+        PyErr_SetString (PyExc_TypeError, "outmask must be a Mask");
+        return NULL;
+    }
+    a = PyMask_AsBitmask (self);
+    b = PyMask_AsBitmask (cmask);
+
+    /* outmask->w < a->w + b->w - 1 && outmask->h < a->h + b->h - 1 is
+     * automatically handled by the convolve/bitmask_draw functions */
+    if (!outmask)
+    {
+        outmask = PyMask_New (a->w + b->w - 1, a->h + b->h  - 1);
+        if (!outmask)
+            return NULL;
+    }
+    else
+        Py_INCREF (outmask);
+
+    o = PyMask_AsBitmask (outmask);
+    
+    bitmask_convolve(a, b, o, x, y);
+
+    return outmask;
 }
 
 /* Connected component labeling based on the SAUF algorithm by Kesheng Wu,

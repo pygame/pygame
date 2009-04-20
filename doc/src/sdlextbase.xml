@@ -1,32 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
-
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlext.base">
   <short>basic extensions for SDL modules</short>
-  <desc>Extension module for the pygame2 SDL wrapper.</desc>
+  <desc>
+    Extension module for the pygame2 SDL wrapper.
+  </desc>
 
   <class name="PixelArray">
     <constructor>PixelArray (surface) -> PixelArray</constructor>
     <desc>
-      Creates a new PixelArray from the specified :class:`pygame2.sdl.video.Surface`.
+      Creates a new PixelArray from the specified
+      :class:`pygame2.sdl.video.Surface`.
 
-      The :class:`PixelArray` wraps up a :class:`pygame2.sdl.video.Surface` and provides a direct 2D array
+      The :class:`PixelArray` wraps up a
+      :class:`pygame2.sdl.video.Surface` and provides a direct 2D array
       access to its pixels using the surface its rows as first and its
       columns as second axis. It supports slicing, row and pixel
       manipluation, slicing and slice assignments while inplace
@@ -34,10 +22,11 @@
       and so forth are not allowed.
 
       While it is possible to assign both, integer color values and
-      RGB(A) color tuples, the :class:`PixelArray` will only use integers for the
-      color representation. Thus, checking for certain colors has to be
-      done using the :meth:`pygame2.sdl.video.Surface.map_rgb()` method of the surface, the
-      :class:`PixelArray` was created for. ::
+      RGB(A) color tuples, the :class:`PixelArray` will only use
+      integers for the color representation. Thus, checking for certain
+      colors has to be done using the
+      :meth:`pygame2.sdl.video.Surface.map_rgb()` method of the surface,
+      the :class:`PixelArray` was created for. ::
 
         pxarray = pygame.PixelArray (surface)
         # Check, if the first pixel at the topleft corner is blue
@@ -152,7 +141,7 @@
       </desc>
     </method>
     <attr name="surface">
-      Gets the Surface the :class:`PixelArray` uses.
+      <desc>Gets the Surface the :class:`PixelArray` uses.</desc>
     </attr>
   </class>
 

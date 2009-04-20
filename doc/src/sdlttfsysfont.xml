@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.sdlttf.sysfont">
+  <short>SDL_ttf system font loader module</short>
+  <desc>SDL_ttf system font loader module</desc>
+  <func name="get_sys_font">
+    <call>get_sys_font (name, size, style=constants.STYLE_NORMAL) -> Font</call>
+    <desc>
+      Create a Font from system font resources
+
+      This will search the system fonts for the given font name. You can
+      also enable bold or italic styles, and the appropriate system font
+      will be selected if available.
+      
+      This will always return a valid Font object, and will fallback on
+      the builtin pygame font if the given font is not found.
+
+      Name can also be a comma separated list of names, in which case
+      set of names will be searched in order.
+    </desc>
+    <example></example>
+  </func>
+</module>

@@ -69,7 +69,8 @@ _transform_scale (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OO|O", &srcobj, &size, &dstobj))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "Oii|O", &srcobj, &width, &height, &dstobj))
+        if (!PyArg_ParseTuple (args, "Oii|O", &srcobj, &width, &height,
+                &dstobj))
             return NULL;
     }
     else
@@ -331,7 +332,8 @@ _transform_smoothscale (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "OO|O", &surfobj, &size, &dstobj))
     {
         PyErr_Clear ();
-        if (!PyArg_ParseTuple (args, "Oii|O", &surfobj, &width, &height, &dstobj))
+        if (!PyArg_ParseTuple (args, "Oii|O", &surfobj, &width, &height,
+                &dstobj))
             return NULL;
     }
     else

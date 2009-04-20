@@ -23,8 +23,10 @@ import os, sys
 Sysfonts = {}
 Sysalias = {}
 
-#create simple version of the font name
 def _simplename(name):
+    """
+    Create simple version of the font name
+    """
     for char in '_ -':
         name = name.replace(char, '')
     name = name.lower()
@@ -32,15 +34,19 @@ def _simplename(name):
     name = name.replace("'", '')
     return name
 
-#insert a font and style into the font dictionary
 def _addfont(name, bold, italic, font, fontdict):
+    """
+    insert a font and style into the font dictionary
+    """
     if not fontdict.has_key(name):
         fontdict[name] = {}
     fontdict[name][bold, italic] = font
 
 
-#read the fonts on windows
 def _initsysfonts_win32():
+    """
+    read the fonts on windows
+    """
     import _winreg
     fonts = {}
     mods = 'demibold', 'narrow', 'light', 'unicode', 'bt', 'mt'
@@ -110,9 +116,10 @@ def _initsysfonts_win32():
             _addfont(name, bold, italic, font, fonts)
     return fonts
 
-
-#read of the fonts on osx (fill me in!)
 def _initsysfonts_darwin():
+    """
+    read of the fonts on osx (fill me in!)
+    """
     paths = ['/Library/Fonts',
              '~/Library/Fonts',
              '/Local/Library/Fonts',
@@ -124,11 +131,10 @@ def _initsysfonts_darwin():
             #os.path.walk(p, _fontwalk, fonts)
     return fonts
 
-
-
-
-#read the fonts on unix
 def _initsysfonts_unix():
+    """
+    read the fonts on unix
+    """
     fonts = {}
 
     # we use the fc-list from fontconfig to get a list of fonts.
@@ -158,10 +164,10 @@ def _initsysfonts_unix():
 
     return fonts
 
-
-
-#create alias entries
 def _create_aliases():
+    """
+    create alias entries
+    """
     aliases = (
         ('monospace', 'misc-fixed', 'courier', 'couriernew', 'console',
          'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
@@ -187,8 +193,10 @@ def _create_aliases():
             if not Sysfonts.has_key(name):
                 Sysalias[name] = found
 
-#initialize it all, called once
 def _initsysfonts():
+    """
+    initialize it all, called once
+    """
     if sys.platform == 'win32':
         fonts = _initsysfonts_win32()
     elif sys.platform == 'darwin':
@@ -199,8 +207,6 @@ def _initsysfonts():
     _create_aliases()
     if not Sysfonts: #dummy so we don't try to reinit
         Sysfonts[None] = None
-
-
 
 #the exported functions
 
@@ -220,11 +226,11 @@ def get_fonts():
 
 def find_font(name, bold=False, italic=False):
     """
-    pygame2.font.find_font(name, bold=False, italic=False) -> name, italic, bold
+    pygame2.font.find_font(name, bold=False, italic=False) -> str, bool, bool
     
     Find the filename for the named system font.
 
-    This performs the same font search and it returns the path to the TTF file.
+    This performs a font search and it returns the path to the TTF file.
     The font name can be a comma separated list of font names to try.
     If no match is found, None is returned as fontname.
     """

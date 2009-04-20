@@ -1,5 +1,6 @@
-C API
------
+============
+C Module FAQ
+============
 The C API contains numerous macros and functions that ease the
 developer's life. In order to have a similar behaviour without
 implementing the same things again and again, those will be listed here.
@@ -8,22 +9,36 @@ If it is necessary to rely on certain features specific to a particular
 environment, you can check for the build system flags, which are automatically
 added at compile time. Currently, the following flags and macros are available:
 
-  IS_WIN32      - Win32 build with Visual C++
-  IS_MSYS       - (Win32) Msys build with GCC
-  IS_UNIX       - Any other build platform that successfully passes the
-                  preparations
+  +-----------+----------------------------------------+
+  |  IS_WIN32 | Win32 build with Visual C++            |
+  +-----------+----------------------------------------+
+  | IS_MSYS   | (Win32) Msys build with GCC            |
+  +-----------+----------------------------------------+
+  | IS_UNIX   | Any other build platform that          |
+  |           | successfully passes the preparations   |
+  +-----------+----------------------------------------+
 
 base/pgdefines.h contains some useful numeric macros:
 
-  MIN(x,y)       - returns the minimum of two values
-  MAX(x,y)       - returns the maximum of two values
-  ABS(x)         - returns the absolute value
-  trunc(x)       - truncates a number
-  round(x)       - rounds a number
-  DEG2RAD(x)     - converts degrees to radians
-  DEG2RAD(x)     - converts radians to degrees
-  ADD_LIMIT(x,y) - variable addition using overflow limits
-  SUB_LIMIT(x,y) - variable subtraction using overflow limits
+  +----------------+--------------------------------------------+
+  | MIN(x,y)       | Returns the minimum of two values          |
+  +----------------+--------------------------------------------+
+  | MAX(x,y)       | Returns the maximum of two values          |
+  +----------------+--------------------------------------------+
+  | ABS(x)         | Returns the absolute value                 |
+  +----------------+--------------------------------------------+
+  | trunc(x)       | Truncates a number                         |
+  +----------------+--------------------------------------------+
+  | round(x)       | Rounds a number                            |
+  +----------------+--------------------------------------------+
+  | DEG2RAD(x)     | Converts degrees to radians                |
+  +----------------+--------------------------------------------+
+  | DEG2RAD(x)     | Converts radians to degrees                |    
+  +----------------+--------------------------------------------+
+  | ADD_LIMIT(x,y) | Variable addition using overflow limits    |
+  +----------------+--------------------------------------------+
+  |SUB_LIMIT(x,y)  | variable subtraction using overflow limits |
+  +----------------+--------------------------------------------+
 
 Besides that it contains various ready-to-use macros for signed/unsigned
 integer and double additions and subtractions with overflow checking.
@@ -32,43 +47,43 @@ Additionally base/pgbase.h contains several functions to get an integer
 or floating point value from a PyObject. Those however require other
 modules to import the base module.
 
-* Text handling *
-
+Text Handling
+-------------
 For text guaranteed to be UTF-8 or ASCII, use the related Text_***() macros
 instead of the specific PyUnicode/PyString APIs. The Text_***() macros assure
 that for each Python version the current API is used.
 For other objects that contain text (but not necessarily UTF-8 or ASCII), use 
 the UTF8FromObject() and ASCIIFromObject() conversion functions.
 
-* Sizes and points *
-
+Sizes And Points
+----------------
 Whereever typical two-value tuples for denoting points or sizes are necessary
 or used, use the [F]PointFromObject() and [F]SizeFromObject() functions from 
 base/pgbase.h. Those guarantee interoperability with rectangular arguments,
 tuples, lists and any other sequence and take care of the most basic value
 checks.
 
-* SDL Rectangles *
-
+SDL Rectangles
+--------------
 sdl/pgsdl.h defines some handy routines to quickly get a SDL_Rect from
 the base.Rect and base.FRect classes, SDLRect_FromRect(). Use it
 wherever methods require a rectangular object. IsValidRect() checks only,
 whether the passed argument is a base.Rect or base.FRect.
 
-* SDL surface pixel manipulation *
-
+SDL Surface Pixel Manipulation
+------------------------------
 sdl/surface.h contains tons of macros to manipulate surface pixels. It
 should be your first address to look for a matching operation whenever
 you need it.
 
-* SDL color handling *
-
+SDL Color Handling
+------------------
 The Color class uses an ARGB layout for PyColor_AsNumber(). In order to
 prepare this value for color operations within the SDL functions or
 pixel manipulations, use the RGB2FORMAT() and ARGB2FORMAT() macros,
 defined in sdl/surface.h.
 
-* SDL subsystems *
-
+SDL Subsystems
+--------------
 Whenever you require a certain subsystem to be available, use the
 corresponding ASSERT_***_INIT() macro from sdl/pgsdl.h.

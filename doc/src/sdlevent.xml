@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdl.event">
   <short>SDL event wrapper</short>
@@ -98,8 +83,8 @@
       | :const:`USEREVENT` | `code`, `data1`, `data2` |
       +--------------------+--------------------------+
     </desc>
-    <attr name="name">Gets the name of the Event.</attr>
-    <attr name="type">Gets type id of the Event.</attr>
+    <attr name="name"><desc>Gets the name of the Event.</desc></attr>
+    <attr name="type"><desc>Gets type id of the Event.</desc></attr>
   </class>
 
   <func name="clear">

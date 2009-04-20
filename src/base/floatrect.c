@@ -1519,7 +1519,16 @@ _frect_richcompare (PyObject *o1, PyObject *o2, int opid)
 PyObject*
 PyFRect_New (double x, double y, double w, double h)
 {
-    PyFRect *frect = (PyFRect*) PyFRect_Type.tp_new (&PyFRect_Type, NULL, NULL);
+    PyFRect *frect;
+
+    if (w < 0 || h < 0)
+    {
+        PyErr_SetString (PyExc_ValueError,
+            "width and height must not be negative");
+        return NULL;
+    }
+
+    frect = (PyFRect*) PyFRect_Type.tp_new (&PyFRect_Type, NULL, NULL);
     if (!frect)
         return NULL;
 

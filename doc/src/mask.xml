@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
+<!DOCTYPE module SYSTEM "api.dtd">
 
 
 <module name="pygame2.mask">
@@ -25,18 +10,22 @@
   </desc>
 
   <class name="Mask">
-    <constructor>Mask (width, height) -> Mask</constructor>
-    <desc>Creates a new :class:`Mask` object with the specified width and height</desc>
+    <constructor>Mask (width, height) -> Mask
+    Mask (size) -> Mask</constructor>
+    <desc>Creates a new :class:`Mask` object with the specified width
+    and height
+    </desc>
     <attr name="angle">
-      Gets the orientation of the pixels. Finds the approximate orientation of
-      the pixels in the image from -90 to 90 degrees. This works best if
-      performed on one connected component of pixels. It will return 0.0 on an
-      empty :class:`Mask`.
+      <desc>Gets the orientation of the pixels. Finds the approximate
+      orientation of the pixels in the image from -90 to 90
+      degrees. This works best if performed on one connected component
+      of pixels. It will return 0.0 on an empty :class:`Mask`.</desc>
     </attr>
     <attr name="centroid">
-      Gets the centroid, the center of pixel mass, of the pixels in a :class:`Mask`.
-      Returns a coordinate tuple for the centroid of the :class:`Mask`. if the :class:`Mask` is
-      empty, it will return (0,0).
+      <desc>Gets the centroid, the center of pixel mass, of the pixels
+      in a :class:`Mask`.  Returns a coordinate tuple for the centroid
+      of the :class:`Mask`. if the :class:`Mask` is empty, it will
+      return (0,0).</desc>
     </attr>
     <method name="clear">
       <call>clear () -> None</call>
@@ -47,52 +36,69 @@
       </desc>
     </method>
     <method name="connected_component">
-      <call>connected_component (x=None, y=None) -> Mask</call>
+      <call>connected_component ([x, y]) -> Mask
+      connected_component ([point]) -> Mask</call>
       <desc>
         Returns a :class:`Mask` of a connected region of pixels.
 
         This uses the SAUF algorithm to find a connected component in
-        the :class:`Mask`. It checks 8 point connectivity. By default, it will
-        return the largest connected component in the image. Optionally,
-        a coordinate pair of a pixel can be specified, and the connected
-        component containing it will be returned. In the event the pixel
-        at that location is not set, the returned :class:`Mask` will be
-        empty. The :class:`Mask` returned is the same size as the original :class:`Mask`.
+        the :class:`Mask`. It checks 8 point connectivity. By default,
+        it will return the largest connected component in the
+        image. Optionally, a coordinate pair of a pixel can be
+        specified, and the connected component containing it will be
+        returned. In the event the pixel at that location is not set,
+        the returned :class:`Mask` will be empty. The :class:`Mask`
+        returned is the same size as the original :class:`Mask`.
       </desc>
     </method>
     <method name="connected_components">
-      <call>connected_component (x=None, y=None) -> Mask</call>
+      <call>connected_components ([min]) -> Mask</call>
       <desc>
         Returns a :class:`Mask` of a connected region of pixels.
 
-        This uses the SAUF algorithm to find a connected component in
-        the :class:`Mask`. It checks 8 point connectivity. By default, it will
-        return the largest connected component in the image. Optionally,
-        a coordinate pair of a pixel can be specified, and the connected
-        component containing it will be returned. In the event the pixel
-        at that location is not set, the returned :class:`Mask` will be
-        empty. The :class:`Mask` returned is the same size as the original :class:`Mask`.
+        Returns a list of masks of connected regions of pixels. An
+        optional minimum number of pixels per connected region can be
+        specified to filter out noise.
       </desc>
     </method>
-    <attr name="count">Gets the amount of bits in the :class:`Mask`.</attr>
+    <method name="convolve">
+      <call>convolve (mask[, outputmask, point]) -> Mask
+        convolve (mask[, outputmask, x, y]) -> Mask</call>
+      <desc>
+        Return the convolution with another :class:`Mask`.
+
+        Returns a :class:`Mask` with the [x-offset[0], y-offset[1]] bit
+        set if shifting *mask* so that it's lower right corner pixel is
+        at (x, y) would cause it to overlap with self.
+
+        If an *outputmask* is specified, the output is drawn onto
+        *outputmask* and *outputmask* is returned. Otherwise a mask of
+        size :attr:`size` + *mask*.:attr:`size` - (1, 1) is created.
+      </desc>
+    </method>
+    <attr name="count">
+      <desc>Gets the amount of bits in the :class:`Mask`.</desc>
+    </attr>
     <method name="draw">
-      <call>draw (mask, x, y) -> None</call>
+      <call>draw (mask, x, y) -> None
+      draw (mask, point) -> None</call>
       <desc>
         Draws the passed :class:`Mask` onto the :class:`Mask`.
         
-        This performs a bitwise OR operation upon the calling :class:`Mask`. The
-        passed mask's start offset for the draw operation will be the x and
-        y offset passed to the method.
+        This performs a bitwise OR operation upon the calling
+        :class:`Mask`. The passed mask's start offset for the draw
+        operation will be the x and y offset passed to the method.
       </desc>
     </method>
     <method name="erase">
-      <call>erase (mask, x, y) -> None</call>
+      <call>erase (mask, x, y) -> None
+      erase (mask, point) -> None</call>
       <desc>
         Erases the passed :class:`Mask` from the :class:`Mask`.
 
-        This performs a bitwise NAND operation upon the calling :class:`Mask`. The
-        passed mask's start offfset for the erase operation will be the x and
-        y offset passed to the method.
+        This performs a bitwise NAND operation upon the calling
+        :class:`Mask`. The passed mask's start offset for the erase
+        operation will be the x and y offset passed to the method.
       </desc>
     </method>
     <method name="fill">
@@ -102,7 +108,8 @@
       </desc>
     </method>
     <method name="get_at">
-      <call>get_at (x, y) -> int</call>
+      <call>get_at (x, y) -> int
+      get_at (point) -> int</call>
       <desc>
         Gets the bit value at the desired location.
       </desc>
@@ -116,7 +123,9 @@
         rect is one for which each of the connected pixels is inside the rect.
       </desc>
     </method>
-    <attr name="height">Gets the height of the :class:`Mask`.</attr>
+    <attr name="height">
+      <desc>Gets the height of the :class:`Mask`.</desc>
+    </attr>
     <method name="invert">
       <call>invert () -> None</call>
       <desc>
@@ -124,11 +133,21 @@
       </desc>
     </method>
     <method name="outline">
-      <call>TODO</call>
-      <desc>TODO</desc>
+      <call>outline ([skip]) -> [(x1, y1), (x2, y2), ...]</call>
+      <desc>
+        Gets the points outlining an object on the mask.
+        
+        Returns a list of points of the outline of the first object it
+        comes across in the :class:`Mask`.  For this to be useful, there
+        should probably only be one connected component of pixels in the
+        :class:`Mask`. The *skip* option allows you to skip pixels in
+        the outline. For example, setting it to 10 would return a list
+        of every 10th pixel in the outline.
+      </desc>
     </method>
     <method name="overlap">
-      <call>overlap (mask, x, y) -> int, int</call>
+      <call>overlap (mask, x, y) -> int, int
+      overlap (mask, point) -> int, int</call>
       <desc>
         Returns nonzero if the masks overlap with the given offset.
 
@@ -145,7 +164,8 @@
       </desc>
     </method>
     <method name="overlap_area">
-      <call>overlap_area (mask, x, y) -> int</call>
+      <call>overlap_area (mask, x, y) -> int
+      overlap_area (mask, point) -> int</call>
       <desc>
         Returns the number of overlapping bits of two Masks.
 
@@ -155,13 +175,15 @@
       </desc>
     </method>
     <method name="overlap_mask">
-      <call>overlap_mask (mask, x, y) -> Mask.</call>
+      <call>overlap_mask (mask, x, y) -> Mask
+      overlap_mask (mask, point) -> Mask</call>
       <desc>
         Returns a mask with the overlap of two other masks. A bitwise AND.
       </desc>
     </method>
     <method name="scale">
-      <call>scale (width, height) -> Mask</call>
+      <call>scale (width, height) -> Mask
+      scale (size) -> Mask</call>
       <desc>
         Creates a new scaled :class:`Mask` with the given width and height.
 
@@ -171,13 +193,18 @@
       </desc>
     </method>
     <method name="set_at">
-      <call>set_at (x, y) -> None</call>
+      <call>set_at (x, y) -> None
+      set_at (point) -> None</call>
       <desc>
         Sets the bit value at the desired location.
       </desc>
     </method>
-    <attr name="size">Gets the width and height of the :class:`Mask` as tuple.</attr>
-    <attr name="width">Gets the width of the :class:`Mask`</attr>
+    <attr name="size">
+      <desc>Gets the width and height of the :class:`Mask` as tuple.</desc>
+    </attr>
+    <attr name="width">
+      <desc>Gets the width of the :class:`Mask`.</desc>
+    </attr>
   </class>
 
   <func name="from_surface">
@@ -194,8 +221,18 @@
     </desc>
   </func>
   <func name="from_threshold">
-    <call>from_threshold () -> Mask</call>
-    <desc>TODO</desc>
+    <call>from_threshold (surface, color[, threshold, thressurface]) -> Mask</call>
+    <desc>
+      Creates a mask by thresholding surfaces.
+
+
+      This is a more featureful method of getting a :class:`Mask` from a
+      Surface.  If supplied with only one Surface, all pixels within the
+      threshold of the supplied *color* are set in the Mask. If given
+      the optional *thressurface*, all pixels in *surface* that are
+      within the *threshold* of the corresponding pixel in
+      *thressurface* are set in the :class:`Mask`.
+    </desc>
   </func>
 </module>
 

@@ -1,45 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
-
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlgfx.primitives">
   <short>SDL_gfx primitives drawing module</short>
   <desc>SDL_gfx primitives drawing module</desc>
 
   <func name="aacircle">
-    <call>aacircle (surface, (x, y), radius, color) -> None</call>
+    <call>aacircle (surface, x, y, radius, color) -> None
+    aacircle (surface, point, radius, color) -> None</call>
     <desc>Draws an anti-aliased circular shape on a surface.
     
-      Draws a anti-aliased circular shape on a surface with a fixed line width
-      of 1px. The (x, y) tuple denotes the center of the circle.
+      Draws a anti-aliased circular shape on a surface with a fixed line
+      width of 1px. The *x*, *y point denotes the center of the circle.
     </desc>
   </func>
   <func name="aaellipse">
-    <call>aaellipse (surface, (x, y), (rx, ry), color) -> None</call>
+    <call>aaellipse (surface, x, y, rx, ry, color) -> None
+    aaellipse (surface, point, radius, color) -> None</call>
     <desc>Draws an anti-aliased elliptical shape on a surface.
     
-      Draws an anti-aliased elliptical shape on a surface with a fixed line width
-      of 1px. The (x, y) tuple denotes the center of the ellipse, (rx, ry) the
-      radius for the x- and y-axis.
+      Draws an anti-aliased elliptical shape on a surface with a fixed
+      line width of 1px. The *x*, *y* tuple denotes the center of the
+      ellipse, *rx*, *ry* the radius for the x- and y-axis.
     </desc>
   </func>
   <func name="aapolygon">
-    <call>aapolygon (surface, ((x1, y2), (x2, y2), ...), color) -> None</call>
+    <call>aapolygon (surface, (point1, point2, ...), color) -> None</call>
     <desc>Draws an anti-aliased polygonal shape on a surface.
     
       Draws an anti-aliased polygonal shape on a surface with an fixed line
@@ -47,23 +33,27 @@
     </desc>
   </func>
   <func name="aatrigon">
-    <call>aatrigon (surface, (x1, y1), (x2, y2), (x3, y3), color) -> None</call>
+    <call>aatrigon (surface, x1, y1, x2, y2, x3, y3, color) -> None
+    aatrigon (surface, point1, point2, point3, color) -> None</call>
     <desc>Draws an anti-aliased triangular shape on a surface.
       
-      Draws an anti-aliased triangular shape on a surface with an fixed line
-      width of 1px. The three (x, y) tuples denote the edges of the triangle.
+      Draws an anti-aliased triangular shape on a surface with an fixed
+      line width of 1px. The three *x*, *y* points denote the edges of
+      the triangle.
     </desc>
   </func>
   <func name="arc">
-    <call>arc (surface, (x, y), radius, startangle, stopangle, color) -> None</call>
+    <call>arc (surface, x, y, radius, startangle, stopangle, color) -> None
+    arc (surface, point, radius, startangle, stopangle, color) -> None</call>
     <desc>Draws an elliptical arc on a surface.
     
-      Draws an elliptical arc on a surface. The startangle and stopangle
-      arguments are the initial and final angle in degrees.
+      Draws an elliptical arc on a surface. The *startangle* and
+      *stopangle* arguments are the initial and final angle in degrees.
     </desc>
   </func>
   <func name="bezier">
-    <call>bezier (surface, ((x1, y1), (x2, y2), ...), steps, color) -> None</call>
+    <call>bezier (surface, (point1, point2, ...), steps, color) -> None
+    </call>
     <desc>Draws a bezier curve on a surface.
       
       Draws a bezier curve through the given points on a surface. steps denotes
@@ -78,51 +68,69 @@
     </desc>
   </func>
   <func name="circle">
-    <call>circle (surface, (x, y), radius, color) -> None</call>
+    <call>circle (surface, x, y, radius, color) -> None
+    circle (surface, point, radius, color) -> None</call>
     <desc>Draws a circular shape on a surface.
     
-      Draws a circular shape on a surface with a fixed line width
-      of 1px. The (x, y) tuple denotes the center of the circle.
+      Draws a circular shape on a surface with a fixed line width of
+      1px. The *x*, *y* point denotes the center of the circle.
     </desc>
   </func>
   <func name="ellipse">
-    <call>ellipse (surface, (x, y), (rx, ry), color) -> None</call>
+    <call>ellipse (surface, x, y, rx, ry, color) -> None
+    ellipse (surface, point, radius, color) -> None</call>
     <desc>Draws an elliptical shape on a surface.
     
-      Draws an elliptical shape on a surface with a fixed line width of 1px.
-      The (x, y) tuple denotes the center of the ellipse, (rx, ry) the
-      radius for the x- and y-axis.
+      Draws an elliptical shape on a surface with a fixed line width of
+      1px.  The *x*, *y* point denotes the center of the ellipse, *rx*,
+      *ry* the radius for the x- and y-axis.
     </desc>
   </func>
   <func name="filled_circle">
-    <call>filled_circle (surface, (x, y), radius, color) -> None</call>
+    <call>filled_circle (surface, x, y, radius, color) -> None
+    filled_circle (surface, point, radius, color) -> None</call>
     <desc>Draws a filled circular shape on a surface.
     
-      Draws a filled circular shape on a surface. The (x, y) tuple denotes the
-      center of the circle.
+      Draws a filled circular shape on a surface. The *x*, *y* point
+      denotes the center of the circle.
     </desc>
   </func>
   <func name="filled_ellipse">
-    <call>filled_ellipse (surface, (x, y), (rx, ry), color) -> None</call>
+    <call>filled_ellipse (surface, x, y, rx, ry, color) -> None
+    filled_ellipse (surface, point, radius, color) -> None</call>
     <desc>Draws a filled elliptical shape on a surface.
     
-      Draws a filled elliptical shape on a surface. The (x, y) tuple denotes the
-      center of the ellipse, (rx, ry) the radius for the x- and y-axis.
+      Draws a filled elliptical shape on a surface. The *x*, *y* point
+      denotes the center of the ellipse, *rx*, *ry* the radius for the
+      x- and y-axis.
+    </desc>
+  </func>
+  <func name="filled_pie">
+    <call>filled_pie (surface, x, y, r, startangle, stopangle, color) -> None
+    filled_pie (surface, point, r, startangle, stopangle, color) -> None
+    </call>
+    <desc>Draws a filled pie-like shape on a surface.
+    
+      Draws a filled pie-like shape on a surface. The *x*, *y* point
+      denotes the center of the pie segment, *startangle* and
+      *stopangle* the initial and final angle in degrees.
     </desc>
   </func>
   <func name="filled_polygon">
-    <call>filled_polygon (surface, ((x1, y1), (x2, y2), ...), color) -> None</call>
+    <call>filled_polygon (surface, (point1, point2, ...), color) -> None
+    </call>
     <desc>Draws a filled polygonal shape on a surface.
     
       Draws a filled polygonal shape on a surface.
     </desc>
   </func>
   <func name="filled_trigon">
-    <call>filled_trigon (surface, (x1, y1), (x2, y2), (x3, y3), color) -> None</call>
+    <call>filled_trigon (surface, x1, y1, x2, y2, x3, y3, color) -> None
+    filled_trigon (surface, point1, point2, point3, color) -> None</call>
     <desc>Draws a filled triangular shape on a surface.
     
-      Draws a filled triangular shape on a surface. The three (x, y) tuples
-      denote the edges of the triangle.
+      Draws a filled triangular shape on a surface. The three *x*, *y*
+      points denote the edges of the triangle.
     </desc>
   </func>
   <func name="hline">
@@ -130,29 +138,32 @@
     <desc>Draws a horizontal line on a surface.
     
       Draws a horizontal line on a surface with the fixed width of 1 px.
-      x1 and x2 denote the start and end position on the x-axis, y the
-      vertical position of the line on the y-axis.
+      *x1* and *x2* denote the start and end position on the x-axis, *y*
+      the vertical position of the line on the y-axis.
     </desc>
   </func>
   <func name="line">
-    <call>line (surface, (x1, y1), (x2, y2), color) -> Nones</call>
+    <call>line (surface, x1, y1, x2, y2, color) -> None
+    line (surface, point1, point2, color) -> None</call>
     <desc>Draws a line on a surface.
     
-      Draws a line on a surface with a fixed width of 1px. The (x, y) tuples 
-      denote the start and end position of the line.
+      Draws a line on a surface with a fixed width of 1px. *x1*, *y1*
+      and *x2*, *y2* denote the start and end position of the line.
     </desc>
   </func>
   <func name="pie">
-    <call>pie (surface, (x, y), r, startangle, stopangle) -> None</call>
+    <call>pie (surface, x, y, r, startangle, stopangle, color) -> None
+    pie (surface, point, r, startangle, stopangle, color) -> None</call>
     <desc>Draws a pie-like shape on a surface.
     
-      Draws a pie-like shape on a surface with a fixed width of 1px. The (x, y)
-      tuple denotes the center of the pie segment, startangle and stopangle the
-      initial and final angle in degrees.
+      Draws a pie-like shape on a surface with a fixed width of 1px. The
+      *x*, *y* point denotes the center of the pie segment, *startangle*
+      and *stopangle* the initial and final angle in degrees.
     </desc>
   </func>
   <func name="pixel">
-    <call>pixel (surface, (x, y), color) -> None</call>
+    <call>pixel (surface, x, y, color) -> None
+    pixel (surface, point, color) -> None</call>
     <desc>Draws a single pixel on a surface.
       
       Draws a single pixel on a surface.
@@ -173,29 +184,33 @@
     </desc>
   </func>
   <func name="textured_polygon">
-    <call>textured_polygon (surface, ((x1, y1), (x2, y2), ...), texture, (tx, ty)) -> None</call>
+    <call>textured_polygon (surface, (point1, point2, ...), texture, tx, ty) -> None
+    textured_polygon (surface, (point1, point2, ...), texture, tpoint) -> None
+    </call>
     <desc>Draws a textured polygonal shape on a surface.
     
       Draws a textured polygonal shape on a surface. texture is a
       :class:`pygame2.sdl.video.Surface` to be used for filling the shape,
-      (tx, ty) are the offset of the texture relative to the screen.
+      *tx*, *ty* are the offset of the texture relative to the screen.
     </desc>
   </func>
   <func name="trigon">
-    <call>trigon (surface, (x1, y1), (x2, y2), (x3, y3), color) -> None</call>
+    <call>trigon (surface, x1, y1, x2, y2, x3, y3, color) -> None
+    trigon (surface, point1, point2, point3, color) -> None</call>
     <desc>Draws a triangular shape on a surface.
     
-      Draws a filled triangular shape on a surface with a fixed line width of
-      1px. The three (x, y) tuples denote the edges of the triangle.
+      Draws a filled triangular shape on a surface with a fixed line
+      width of 1px. The three *x*, *y* points denote the edges of the
+      triangle.
     </desc>
   </func>
   <func name="vline">
     <call>vline (surface, x, y1, y2, color) -> None</call>
     <desc>Draws a vertical line on a surface.
     
-      Draws a vertical line on a surface with a fixed width of 1px. y1 and y2
-      denote the start and end position on the y-axis, x the horizontal position
-      of the line on the x-axis.
+      Draws a vertical line on a surface with a fixed width of 1px. *y1*
+      and *y2* denote the start and end position on the y-axis, *x* the
+      horizontal position of the line on the x-axis.
     </desc>
   </func>
 </module>

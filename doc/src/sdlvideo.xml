@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdl.video">
   <short>SDL video display wrapper module.</short>
@@ -56,10 +41,11 @@
         Displays the current overlay data in the SDL overlay plane.
       </desc>
     </method>
-    <attr name="format">Gets the format of the Overlay.</attr>
-    <attr name="h">Gets the height of the Overlay.</attr>
-    <attr name="height">Gets the height of the Overlay.</attr>
-    <attr name="hw_overlay">Gets, whether the Overlay is hardware accelerated.
+    <attr name="format"><desc>Gets the format of the Overlay.</desc></attr>
+    <attr name="h"><desc>Gets the height of the Overlay.</desc></attr>
+    <attr name="height"><desc>Gets the height of the Overlay.</desc></attr>
+    <attr name="hw_overlay">
+      <desc>Gets, whether the Overlay is hardware accelerated.</desc>
     </attr>
     <method name="lock">
       <call>lock () -> None</call>
@@ -67,21 +53,31 @@
         Locks the Overlay for a direct access to its internal pixel data.
       </desc>
     </method>
-    <attr name="locked">Gets, whether the Overlay is currently locked.</attr>
-    <attr name="pitches">Gets the pitches (length in bytes) for all
-    planes of the Overlay.</attr>
-    <attr name="pixels">Gets the pixel buffers for all planes of the
-    Overlay.</attr>
-    <attr name="planes">Get the amount of planes for the Overlay.</attr>
-    <attr name="size">Gets the width and height of the Overlay</attr>
+    <attr name="locked">
+      <desc>Gets, whether the Overlay is currently locked.</desc>
+    </attr>
+    <attr name="pitches">
+      <desc>Gets the pitches (length in bytes) for all planes of the
+      Overlay.</desc>
+    </attr>
+    <attr name="pixels">
+      <desc>Gets the pixel buffers for all planes of the
+      Overlay.</desc>
+    </attr>
+    <attr name="planes">
+      <desc>Get the amount of planes for the Overlay.</desc>
+    </attr>
+    <attr name="size">
+      <desc>Gets the width and height of the Overlay.</desc>
+    </attr>
     <method name="unlock">
       <call>unlock () -> None</call>
       <desc>
         Unlocks the Overlay, releasing the direct access to the pixel data.
       </desc>
     </method>
-    <attr name="w">Gets the width of the Overlay.</attr>
-    <attr name="width">Gets the width of the Overlay</attr>
+    <attr name="w"><desc>Gets the width of the Overlay.</desc></attr>
+    <attr name="width"><desc>Gets the width of the Overlay.</desc></attr>
   </class>
 
   <class name="PixelFormat">
@@ -91,13 +87,20 @@
       
       TODO
     </desc>
-    <attr name="alpha">Gets or sets the overall surface alpha value in the
-      range [0, 255].</attr>
-    <attr name="bits_per_pixel">Gets or sets the bits per pixel to use for
-      storing a RGBA value.</attr>
-    <attr name="bytes_per_pixel">Gets or sets the bytes per pixel to use for
-      storing a RGBA value.</attr>
-    <attr name="colorkey">Gets or sets the RGBA value of transparent pixels.
+    <attr name="alpha">
+      <desc>Gets or sets the overall surface alpha value in the
+      range [0, 255].</desc>
+    </attr>
+    <attr name="bits_per_pixel">
+      <desc>Gets or sets the bits per pixel to use for
+      storing a RGBA value.</desc>
+    </attr>
+    <attr name="bytes_per_pixel">
+      <desc>Gets or sets the bytes per pixel to use for
+      storing a RGBA value.</desc>
+    </attr>
+    <attr name="colorkey">
+      <desc>Gets or sets the RGBA value of transparent pixels.</desc>
     </attr>
     <method name="get_rgba">
       <call>get_rgba (color) -> int, int, int, int</call>
@@ -112,8 +115,10 @@
         opaque (255).
       </desc>
     </method>
-    <attr name="losses">Gets or sets the precision loss of each RGBA color
-      component.</attr>
+    <attr name="losses">
+      <desc>Gets or sets the precision loss of each RGBA color
+      component.</desc>
+    </attr>
     <method name="map_rgba">
       <call>map_rgba (r, g, b[, a]) -> Color
         map_rgba (color) -> Color
@@ -124,15 +129,23 @@
         TODO
       </desc>
     </method>
-    <attr name="masks">Gets or sets the binary mask used to retrieve individual
-      color values.</attr>
-    <attr name="palette">Gets the color palette (if any) used by the
+    <attr name="masks">
+      <desc>Gets or sets the binary mask used to retrieve individual
+      color values.</desc>
+    </attr>
+    <attr name="palette">
+      <desc>Gets the color palette (if any) used by the
       PixelFormat. If the PixelFormat does not have any palette, None will be
-      returned.</attr>
-    <attr name="readonly">Gets, whether the PixelFormat is read-only (cannot be
-      changed).</attr>
-    <attr name="shifts">Gets the binary left shift of each color component in
-      the pixel value.</attr>
+      returned.</desc>
+    </attr>
+    <attr name="readonly">
+      <desc>Gets, whether the PixelFormat is read-only (cannot be
+      changed).</desc>
+    </attr>
+    <attr name="shifts">
+      <desc>Gets the binary left shift of each color component in
+      the pixel value.</desc>
+    </attr>
   </class>
 
   <class name="Surface">
@@ -207,8 +220,10 @@
         +---------------------------+-----------------------------------------+
       </desc>
     </method>
-    <attr name="clip_rect">Gets or sets the current clipping rectangle for
-      operations on the Surface.</attr>
+    <attr name="clip_rect">
+      <desc>Gets or sets the current clipping rectangle for
+      operations on the Surface.</desc>
+    </attr>
     <method name="copy">
       <call>copy () -> Surface </call>
       <desc>
@@ -243,7 +258,9 @@
         operation, but compare the color with the specific Surface pixel value.
       </desc>
     </method>
-    <attr name="flags">The currently set flags for the Surface.</attr>
+    <attr name="flags">
+      <desc>The currently set flags for the Surface.</desc>
+    </attr>
     <method name="flip">
       <call>flip () -> None</call>
       <desc>
@@ -253,8 +270,10 @@
         of its whole area.  
       </desc>
     </method>
-    <attr name="format">Gets the (read-only)
-    :class:`pygame2.sdl.video.PixelFormat` for this Surface.</attr>
+    <attr name="format">
+      <desc>Gets the (read-only)
+      :class:`pygame2.sdl.video.PixelFormat` for this Surface.</desc>
+    </attr>
     <method name="get_alpha">
       <call>get_alpha () -> int</call>
       <desc>
@@ -286,17 +305,23 @@
       <call>get_palette () -> (Color, Color, ...)</call>
       <desc></desc>
     </method>
-    <attr name="h">Gets the height of the Surface.</attr>
-    <attr name="height">Gets the height of the Surface.</attr>
+    <attr name="h"><desc>Gets the height of the Surface.</desc></attr>
+    <attr name="height"><desc>Gets the height of the Surface.</desc></attr>
     <method name="lock">
       <call>lock () -> None</call>
       <desc>
         Locks the Surface for a direct access to its internal pixel data.
       </desc>
     </method>
-    <attr name="locked">Gets, whether the Surface is currently locked.</attr>
-    <attr name="pitch">Get the length of a surface scanline in bytes.</attr>
-    <attr name="pixels">Gets the pixel buffer of the Surface.</attr>
+    <attr name="locked">
+      <desc>Gets, whether the Surface is currently locked.</desc>
+    </attr>
+    <attr name="pitch">
+      <desc>Get the length of a surface scanline in bytes.</desc>
+    </attr>
+    <attr name="pixels">
+      <desc>Gets the pixel buffer of the Surface.</desc>
+    </attr>
     <method name="save">
       <call>save (file[, type]) -> None</call>
       <desc>
@@ -371,7 +396,9 @@
         Surface palette should be inspected for any changes.
       </desc>
     </method>
-    <attr name="size">Gets the size of the Surface.</attr>
+    <attr name="size">
+      <desc>Gets the size of the Surface.</desc>
+    </attr>
     <method name="unlock">
       <call>unlock () -> None</call>
       <desc>
@@ -388,8 +415,8 @@
         on the Surface.
       </desc>
     </method>
-    <attr name="w">Gets the width of the Surface.</attr>
-    <attr name="width">Gets the width of the Surface.</attr>
+    <attr name="w"><desc>Gets the width of the Surface.</desc></attr>
+    <attr name="width"><desc>Gets the width of the Surface.</desc></attr>
   </class>
 
   <func name="get_drivername">

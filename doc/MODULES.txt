@@ -1,3 +1,7 @@
+============================
+Creating modules for Pygame2
+============================
+
 Creating a new module is a piece of cake. In order to maintain a similar
 layout for all modules, you should respect some minor rules.
 
@@ -10,24 +14,25 @@ You should use the Python 2.5 and 3.0 API for programming. In order to
 support Python 2.4, include the "pgcompat.h" header file, where
 appropriate.
 
-C module naming
+C Module Naming
 ---------------
 In case the module is a wrapper around an existing library, the module's
 should be similar to that of the library. The module name should be all
 lowercase and do not have any other characters besides a-z in its name.
 
-Example:
+Example: ::
+
   SDL_gfx  -> sdlgfx
   SDL      -> sdl
   MyOwnLib -> myownlib
   ...
 
 The module (or modules) source files should match the following naming
-conventions:
+conventions: ::
 
-Module C source:  MODULENAMEmod.c
-C API header:     pgMODULENAME.h
-Classes:          CLASSNAME.c
+  Module C source:  MODULENAMEmod.c
+  C API header:     pgMODULENAME.h
+  Classes:          CLASSNAME.c
 
 The file names are all lowercase, MODULENAME has to be replaced with the
 name of the module (see above), CLASSNAME is the name of the class to
@@ -35,11 +40,12 @@ wrap. Both are not absolutely strict in their convention, but it should
 be easy to determine the module header, module code and class code files
 on a first glance, without looking at the contents of the files.
 
-Example:
-   Module C source: sdlimage -> sdlimagemod.c, imagemod.c, ...
-   C API header:    sdlimage -> pgsdlimage.h, pgimage.h, ...
-   Classes:         Surface  -> surface.c
-                    Mask     -> mask.c
+Example: ::
+
+  Module C source: sdlimage -> sdlimagemod.c, imagemod.c, ...
+  C API header:    sdlimage -> pgsdlimage.h, pgimage.h, ...
+  Classes:         Surface -> surface.c,
+                   Mask -> mask.c
 
 Make sure, the C API header does not conflict with another header to be
 installed. Headers used on the module scope only (internally used
@@ -53,31 +59,35 @@ import_pygame2_MODULENAME() should be used, where MODULENAME has to be
 replaced with the name of the module and SUBMODULE with an existing
 submodule.
 
-Example:
-  pygame2.sdl.video -> import_pygame2_sdl_video()
-  pygame2.sdlttf    -> import_pygame2_sdlttf()
-  ...
+  +-------------------+----------------------------+
+  | pygame2.sdl.video | import_pygame2_sdl_video() |
+  +-------------------+----------------------------+
+  | pygame2.sdlttf    | import_pygame2_sdlttf()    |
+  +-------------------+----------------------------+
+  | ...               | ...                        |
+  +-------------------+----------------------------+  
 
 The rest of the C API should follow the Python naming conventions. You
 can take a look at the existing headers for examples on how to do it.
 If you have plain C functions you would like to become an own C library,
-use the pyg_ prefix to indicate it. Those functions must not have any reference
+use the pyg\_ prefix to indicate it. Those functions must not have any reference
 to the Python API and should be seperated from the rest of the code so that
 merging them into an own library is as easy as possible.
 
-Example (see src/sdlext, draw.c and draw.h):
+Example (see src/sdlext, draw.c and draw.h): ::
+
     int pyg_draw_aaline (...);
     int pyg_draw_line (...);
     ...
   
-C module build system
+C Module Build System
 ---------------------
 Add your newly created module to the modules list in modules.py. Doing
 that is pretty straight forward and should not be too complex. A new
-entry looks like this:
+entry looks like this: ::
 
-        Module ("MODULENAME", [ "SOURCEFILE.c", "SOURCEFILE.c", ... ],
-                [ "pgCAPIHEADER.h", "pgCAPIHEADER.h", ...], "DOCFILE.xml")
+  Module ("MODULENAME", [ "SOURCEFILE.c", "SOURCEFILE.c", ... ],
+          [ "pgCAPIHEADER.h", "pgCAPIHEADER.h", ...], "DOCFILE.xml")
 
 In case you have submodules, you would split anything according to your
 needs. You can see how submodules are added by looking at the various
@@ -90,14 +100,15 @@ install.
 DOCFILE.xml is the name of the documentation file to use, which is located
 under doc/src (see below, "Documenting").
 
-Example:
+Example: ::
+
   Module ("myownlib",[ "src/myownlib/myownlibmod.c", "src/myownlib/myclass.c" ],
                      [ "src/myownlib/pgmyownlib.h" ], "myownlib.xml")
 
 If the module has external dependencies, which cannot be guaranteed to
-be available on each platform, add a
+be available on each platform, add a ::
 
-    WITH_MOD = istrue (os.getenv ("WITH_MOD", True))
+  WITH_MOD = istrue (os.getenv ("WITH_MOD", True))
 
 to the cfg.py configuration file so that users can enable/disable the
 module on demand using the build and environment settings.
@@ -109,7 +120,8 @@ own checks as necessary. If the module features a WITH_MOD = ... entry
 within cfg.py, it MUST check for WITH_MOD and has to be enabled or disabled
 according to that entry.
 
-Example:
+Example: ::
+  
   if WITH_MYOWNLIB:
       # Module should be build. MyOwnLib is available according to the
       # user.
@@ -120,44 +132,43 @@ Example:
       # Disable the module.
       mod.canbuild = False
 
-C Module dependencies
+C Module Dependencies
 ---------------------
 If you have inter-module dependencies (e.g. parts of pygame.myownlib can make
 use of pygame.sdl.video), you have to check, whether the specific module is
 available. In your C code, you can test for certain defines, which ease this
 process. Each module creates a HAVE_PYGAME_MODULENAME define to test for.
-To check for e.g. pygame.sdl.video, you can use
+To check for e.g. pygame.sdl.video, you can use::
 
-#ifdef HAVE_PYGAME_SDL_VIDEO
-  /* Code that relies upon pygame.sdl.video */
-#endif
+  #ifdef HAVE_PYGAME_SDL_VIDEO
+    /* Code that relies upon pygame.sdl.video */
+  #endif
 
 Make sure, you load the correct modules within the module initialization
 function. Take a look at the src/mask/maskmod.c module file for an example.
 
-Build environment dependencies
+Build Environment Dependencies
 ------------------------------
 If it is necessary to rely on certain features specific to a particular
 environment, you can check for the build system flags, which are automatically
 added at compile time. Currently, the following flags are available:
 
-  IS_WIN32      - Win32 build with Visual C++
-  IS_MSYS       - (Win32) Msys build with GCC
-  IS_UNIX       - Any other build plattform that successfully passes the
-                  preparations
+  IS_WIN32 - Win32 build with Visual C++
+  IS_MSYS  - (Win32) Msys build with GCC
+  IS_UNIX  - Any other build plattform that successfully passes the preparations
 
 You can easily check for those flags in the C code using the usualy preprocessor
-magic:
+magic: ::
 
-#ifdef IS_WIN32 
-  /* Visual C++ specific Win32 instructions */
-#elif defined(IS_MSYS)
-  /* GCC/Msys specific Win32 instructions */
-#elif defined(IS_UNIX)
- /* Unix specific instructions */
-#endif
+  #ifdef IS_WIN32 
+    /* Visual C++ specific Win32 instructions */
+  #elif defined(IS_MSYS)
+    /* GCC/Msys specific Win32 instructions */
+  #elif defined(IS_UNIX)
+   /* Unix specific instructions */
+  #endif
 
-Python modules
+Python Modules
 --------------
 Python modules have no special restriction, but should follow the
 typical python conventions. The files should be named all lowercase and
@@ -169,9 +180,10 @@ As written above (see "C module build system"), the documentation files reside
 in doc/src/. They are all XML files and must have a ".xml" suffix in order to
 be recognized by the documentation build system.
 
-*** Python Modules ***
+Python Modules
+^^^^^^^^^^^^^^
 Once you have written your module, you can create a documentation template for
-it using the create_doc.py script. Simply type 
+it using the create_doc.py script. Simply type ::
 
   python create_doc.py pygame2.myownlib myownlib.xml
   
@@ -181,8 +193,8 @@ a skeleton with all classes, functions, methods and attributes of your module.
 If you documented your python code properly, there won't be any empty sections
 within the documentation ;-).
 
-*** C Modules *** 
-
+C Modules 
+^^^^^^^^^
 C Modules require the documentation to be available at compile time,
 which involves two steps to set up the initial documentation. The
 documentation system creates C header files from the XML files
@@ -195,7 +207,7 @@ to copy the api_template.xml file to your DOCFILE.xml and create the XML
 documentation as you develop the C code. See below for the C constants to use.
 
 If you have an already written module, integrate it first (as described above),
-then run the create_doc.py script on it:
+then run the create_doc.py script on it: ::
  
   python create_doc.py pygame2.myownlib myownlib.xml
 
@@ -206,14 +218,20 @@ by the documentation system.
 Include the "DOCFILE_doc.h" header file, then use the proper constants for all
 things to document.
 
-*** C documentation constants ***
-
+C Documentation Constants
+^^^^^^^^^^^^^^^^^^^^^^^^^
 The C constants are generated using the DOC_MODULENAME_CLASSNAME_NAME scheme.
 The following constants are used:
 
-DOC_MODULENAME             - The documentation for the module.
-DOC_MODULENAME_FUNCNAME    - The documentation for a module function.
-DOC_MODULENAME_CLASSNAME   - The documentation for a class.
-DOC_MODULENAME_CLASSNAME_X - The documentation for a class method or attribute.
+  +---------------------------+-------------------------------------------+
+  | DOC_MODULENAME            | The documentation for the module.         |
+  +---------------------------+-------------------------------------------+
+  | DOC_MODULENAME_FUNCNAME   | The documentation for a module function.  |
+  +---------------------------+-------------------------------------------+
+  | DOC_MODULENAME_CLASSNAME  | The documentation for a class.            |
+  +---------------------------+-------------------------------------------+
+  |DOC_MODULENAME_CLASSNAME_X | The documentation for a class method or   |
+  |                           | attribute.                                |
+  +---------------------------+-------------------------------------------+
 
 Take a look at the src/base code to learn more about it.

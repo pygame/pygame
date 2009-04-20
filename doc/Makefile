@@ -11,10 +11,15 @@ ALLSPHINXOPTS   = -d sphinx/build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 .PHONY: rst help clean html web pickle htmlhelp latex changes linkcheck
 
+all: help
+
 rst: clean
 	@$(PYTHON) create_rstref.py
 	-cp -f BuildMinGW.txt buildmingw.rst
 	-cp -f BuildVC.txt buildvc.rst
+	-cp -f BuildUnix.txt buildunix.rst
+	-cp -f MODULES.txt newmodules.rst
+	-cp -f MODULE_FAQ.txt module_faq.rst
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -28,7 +33,8 @@ help:
 
 clean:
 	-rm -rf sphinx/build *~ *.pyc ref html
-	-rm -f buildmingw.rst buildvc.rst 
+	-rm -f buildmingw.rst buildunix.rst buildvc.rst
+	-rm -f newmodules.rst module_faq.rst
 
 html: rst
 	mkdir -p sphinx/build/html sphinx/build/doctrees

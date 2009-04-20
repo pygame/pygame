@@ -8,6 +8,7 @@ import modules, cfg
 from config import *
 
 VERSION = "2.0.0"
+DEBUG= True
 
 # Minimum requirements.
 PYTHON_MINIMUM = (2, 4)
@@ -60,14 +61,14 @@ if __name__ == "__main__":
         print (helpers.geterror ())
         sys.exit (1)
 
-    if buildsystem in ("msys", "unix"):
+    if buildsystem in ("msys", "unix") and DEBUG:
         os.environ["CFLAGS"] = "-W -Wall -Wimplicit-int " + \
                         "-Wimplicit-function-declaration " + \
                         "-Wimplicit -Wmain -Wreturn-type -Wunused " + \
                         "-Wswitch -Wcomment -Wtrigraphs -Wformat " + \
                         "-Wchar-subscripts -Wuninitialized -Wparentheses " +\
                         "-Wpointer-arith -Wcast-qual -Winline " + \
-                        "-Wcast-align  -Wconversion -Wstrict-prototypes " + \
+                        "-Wcast-align -Wconversion -Wstrict-prototypes " + \
                         "-Wmissing-prototypes -Wmissing-declarations " + \
                         "-Wnested-externs -Wshadow -Wredundant-decls -g -pg"
 

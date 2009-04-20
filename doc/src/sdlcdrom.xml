@@ -1,21 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
-
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdl.cdrom">
   <short>SDL CD-ROM management wrapper</short>
@@ -45,18 +29,22 @@
       </desc>
     </method>
     <attr name="cur_frame">
-      The current frame offset within the curent track.
+      <desc>The current frame offset within the curent track.</desc>
     </attr>
-    <attr name="cur_track">The current track</attr>
+    <attr name="cur_track"><desc>The current track.</desc></attr>
     <method name="eject">
       <call>eject () -> None</call>
       <desc>Ejects the CD or DVD.</desc>
     </method>
-    <attr name="index">The drive index as specified in the constructor.</attr>
-    <attr name="name">
-      The system-dependent drive name (e.g. "/dev/cdrom" or "D:")
+    <attr name="index">
+      <desc>The drive index as specified in the constructor.</desc>
     </attr>
-    <attr name="num_tracks">The total number of tracks on the CD or DVD</attr>
+    <attr name="name">
+      <desc>The system-dependent drive name (e.g. "/dev/cdrom" or "D:").</desc>
+    </attr>
+    <attr name="num_tracks">
+      <desc>The total number of tracks on the CD or DVD.</desc>
+    </attr>
     <method name="open">
       <call>open () -> None</call>
       <desc>
@@ -95,13 +83,13 @@
       <call>resume () -> None</call>
       <desc>Resumes a previously paused playback.</desc>
     </method>
-    <attr name="status">Gets the current CD status.</attr>
+    <attr name="status"><desc>Gets the current CD status.</desc></attr>
     <method name="stop">
       <call>stop () -> None</call>
       <desc>Stops the current playback.</desc>
     </method>
     <attr name="tracks">
-      Gets a list of CDTrack objects with the CD track information.
+      <desc>Gets a list of CDTrack objects with the CD track information.</desc>
     </attr>
   </class>
 
@@ -111,15 +99,26 @@
       The CDTrack class provides information about the track contents of
       a CD or DVD. it should not be created within user code.
     </desc>
-    <attr name="id">Gets the CD track id.</attr>
-    <attr name="length">Gets the track length in frames.</attr>
-    <attr name="minutes">Gets the approximate track length in minutes.</attr>
-    <attr name="offset">Gets the frame offset of the track on the CD.</attr>
-    <attr name="seconds">Gets the approximate track length in seconds.</attr>
-    <attr name="time">
-      Gets the approximate track length in minutes and seconds as tuple.
+    <attr name="id"><desc>Gets the CD track id.</desc></attr>
+    <attr name="length">
+      <desc>Gets the track length in frames.</desc>
     </attr>
-    <attr name="type">Gets the track type (data or audio).</attr>
+    <attr name="minutes">
+      <desc>Gets the approximate track length in minutes.</desc>
+    </attr>
+    <attr name="offset">
+      <desc>Gets the frame offset of the track on the CD.</desc>
+    </attr>
+    <attr name="seconds">
+      <desc>Gets the approximate track length in seconds.</desc>
+    </attr>
+    <attr name="time">
+      <desc>Gets the approximate track length in minutes and seconds as
+      tuple.</desc>
+    </attr>
+    <attr name="type">
+      <desc>Gets the track type (data or audio).</desc>
+    </attr>
   </class>
 
   <func name="get_name">

@@ -1,28 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
-
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlgfx.rotozoom">
   <short>SDL_gfx rotozoom wrapper module</short>
   <desc>SDL_gfx rotozoom wrapper module</desc>
 
   <func name="rotate_90">
-    <call>rotate_90 (surface, times) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>rotate_90 (surface, times) -> :class:`pygame2.sdl.video.Surface`
+    </call>
     <desc>Rotates a surface clockwise by 90 degrees.
       
       Rotates the passed surface clockwise by 90 degrees and returns a new
@@ -35,14 +20,16 @@
     <desc>Rotates and zooms a surface.
     
       Rotates and zooms a surface at the same time and returns a new
-      :class:`pygame2.sdl.video.Surface` with the result. angle is the rotation
-      angle in degrees, zoom the zoom factor. The optional smooth argument is
-      used for smoothing the edges and pixels of the returned surface.
+      :class:`pygame2.sdl.video.Surface` with the result. *angle* is the
+      rotation angle in degrees, *zoom* the zoom factor. The optional
+      *smooth* argument is used for smoothing the edges and pixels of
+      the returned surface.
     </desc>
   </func>
   <func name="rotozoom_size">
     <call>rotozoom_size (width, height, angle, zoom) -> int, int
-          rotozoom_size (surface, angle, zoom) -> int, int
+    rotozoom_size (size, angle, zoom) -> int, int
+    rotozoom_size (surface, angle, zoom) -> int, int
     </call>
     <desc>Calculates the resulting surface size for a rotozoom operation.
       
@@ -52,7 +39,8 @@
   </func>
   <func name="rotozoom_size_xy">
     <call>rotozoom_size_xy (width, height, angle, zoomx, zoomy) -> int, int
-          rotozoom_size_xy (surface, angle, zoomx, zoomy) -> int, int
+    rotozoom_size_xy (size, angle, zoomx, zoomy) -> int, int
+    rotozoom_size_xy (surface, angle, zoomx, zoomy) -> int, int
     </call>
     <desc>Calculates the resulting surface size for a rotozoom operation.
       
@@ -65,29 +53,31 @@
     <desc>Rotates and zooms a surface with different scaling factors for the x- and y- axes.
     
       Rotates and zooms a surface at the same time and returns a new
-      :class:`pygame2.sdl.video.Surface` with the result. angle is the rotation
-      angle in degrees, zoomx and zoomy the zoom factors for the x- and y-axis.
-      The optional smooth argument is used for smoothing the edges and pixels
-      of the returned surface.
+      :class:`pygame2.sdl.video.Surface` with the result. *angle* is the
+      rotation angle in degrees, *zoomx* and *zoomy* the zoom factors
+      for the x- and y-axis. The optional *smooth* argument is used for
+      smoothing the edges and pixels of the returned surface.
     </desc>
   </func>
   <func name="shrink">
-    <call>zoom (surface, shrinkx, shrinky) -> :class:`pygame2.sdl.video.Surface`</call>
+    <call>zoom (surface, shrinkx, shrinky) -> :class:`pygame2.sdl.video.Surface`
+    </call>
     <desc>Shrinks a surface.
       
-      Shrinks a surface and returns new :class:`pygame2.sdl.video.Surface` with
-      the result. shrinkx and shrinky are the shrink factors for the x- and
-      y-axis.
+      Shrinks a surface and returns new
+      :class:`pygame2.sdl.video.Surface` with the result. *shrinkx* and
+      *shrinky* are the shrink factors for the x- and y-axis.
     </desc>
   </func>
   <func name="zoom">
     <call>zoom (surface, zoomx, zoomy[, smooth]) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>Zooms a surface.
     
-      Zooms a surface an returns a new :class:`pygame2.sdl.video.Surface` with
-      the result. zoomx and zoomy are the zoom factors for the x- and y-axis.
-      The optional smooth argument is used for smoothing the edges and pixels
-      of the returned surface.
+      Zooms a surface an returns a new
+      :class:`pygame2.sdl.video.Surface` with the result. *zoomx* and
+      *zoomy* are the zoom factors for the x- and y-axis. The optional
+      *smooth* argument is used for smoothing the edges and pixels of
+      the returned surface.
     </desc>
   </func>
   <func name="zoom_size">

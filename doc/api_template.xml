@@ -1,46 +1,34 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func | class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-
-<!ELEMENT class (constructor, desc, (attr | method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-
-]>
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <!-- 
-     Pygame C API template for generating the C code doc strings and 
+     Pygame2 C API template for generating the C code doc strings and 
      RST/HTML documentation.
 -->
+
 <module name="NAME">
   <short>SHORT DESC (single line)</short>
   <desc>DESCRIPTION</desc>
+  <example>EXAMPLE CODE</example>
   
-    <func name="METHODNAME">
-      <call>FUNC()</call>
+  <func name="METHODNAME">
+    <call>FUNC()</call>
+    <desc>DESCRIPTION</desc>
+    <example>EXAMPLE CODE</example>
+  </func>
+  
+  <class name="CLASSNAME">
+    <cosntructor>CLASS()</cosntructor>
+    <desc>DESCRIPTION</desc>
+    <example>EXAMPLE CODE</example>
+    <attr name="NAME">
       <desc>DESCRIPTION</desc>
-    </func>
-    
-    <class name="CLASSNAME">
-      <cosntructor>CLASS()</cosntructor>
+      <example>EXAMPLE CODE</example>
+    </attr>
+    <method name="METHODNAME">
+      <call>METHOD()</call>
       <desc>DESCRIPTION</desc>
-      <attr name="NAME">DESCRIPTION</attr>
-      <method name="METHODNAME">
-        <call>METHOD()</call>
-        <desc>DESCRIPTION</desc>
-      </method>
+      <example>EXAMPLE CODE</example>
+    </method>
     </class>
   </module>

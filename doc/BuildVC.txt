@@ -14,6 +14,8 @@ e.g. the VC Toolkit 2003 or Visual Studio.NET 2003.
 For later Python releases, Visual Studio.NET 2008 or Visual C++ 2008 Express
 are required. 
 
+.. note::
+
     NOTE: If you are going to use the VC Toolkit 2003, make sure, you have some
     proper registry keys set. Otherwise Python's distutils will not be able to
     detect the settings. Within the util/ directory you can find an example
@@ -23,6 +25,9 @@ are required.
 
 Setting up the dependencies
 ---------------------------
+
+.. note::
+
     NOTE: The following list of dependencies might not be the most actual
     one. Please check the README.txt file in the top source directory
     for the most actual dependency list!
@@ -39,7 +44,7 @@ packages:
 * SDL_mixer >= 1.2.8         (http://www.libsdl.org/projects/SDL_mixer/)
 * SDL_ttf >= 2.0.9           (http://www.libsdl.org/projects/SDL_ttf/)
 * SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
-* SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* SDL_gfx >= 2.0.18          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24           (http://www.libpng.org)
 * libjpeg >= 6b              (http://www.ijg.org/)
 
@@ -57,23 +62,32 @@ installed the dependencies to different locations, you should change the
 _searchdirs entry within the config/config_win.py script to include the
 directories.
 
-    NOTE: At this point, we strongly recommend a directory named 'prebuilt'
+.. note::
+
+    At this point, we strongly recommend a directory named 'prebuilt'
     that is created under the Pygame2 source directory.
 
-    NOTE: You can find a set of prebuilt dependencies at
-    http://www3.telus.net/len_l/pygame/
-    Simply download the matching Win32 prebuilt package and unpack it within the
-    source directory of pgreloaded.
+.. note::
 
-    NOTE: The 'prebuilt' directory should have the following layout:
-    prebuilt\include    -> Contains all header files and header subdirectories
+    You can find a set of prebuilt dependencies at
+    http://www3.telus.net/len_l/pygame/. Simply download the matching
+    Win32 prebuilt package and unpack it within the source directory of
+    pgreloaded.
+
+.. note::
+
+    The 'prebuilt' directory should have the following layout:
+
+    prebuilt\\include    -> Contains all header files and header subdirectories
     as installed by the dependencies.
-    prebuilt\lib        -> Contains all library files (both, .dll and .lib)
+
+    prebuilt\\lib        -> Contains all library files (both, .dll and .lib)
     as installed by the dependencies.
 
 Building Pygame2
 ----------------
-If anything you can proceed to build and install Pygame2 itself. Simply type:
+If anything you can proceed to build and install Pygame2 itself. Simply
+type: ::
 
     python setup.py build install
 
@@ -81,7 +95,7 @@ This will build and install Pygame2 in one step.
 
 You also can use the small build.bat batch script, which optionally can
 set up the VC++ include and library paths. Change it to your needs and
-then execute it using
+then execute it using ::
 
     build.bat
 

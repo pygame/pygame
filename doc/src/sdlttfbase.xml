@@ -1,25 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
-
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlttf.base">
   <short>basic SDL_ttf wrapper module</short>
-  <desc>basic SDL_ttf wrapper module</desc>
+  <desc>
+    Basic SDL_ttf wrapper module
+
+    All classes and functions listed here are incorporated from the
+    :mod:`pygame2.base` module.
+  </desc>
 
   <class name="Font">
     <constructor>Font (file, size[, index]) -> Font</constructor>
@@ -30,10 +19,18 @@
       points. If the font features different faces, they can be chosen using
       the optional index.
     </desc>
-    <attr name="ascent">Gets the ascent of the Font.</attr>
-    <attr name="descent">Gets the descent of the Font.</attr>
-    <attr name="faces">Gets the amount of available font faces.</attr>
-    <attr name="family_name">Gets the font face family name.</attr>
+    <attr name="ascent">
+      <desc>Gets the ascent of the Font.</desc>
+    </attr>
+    <attr name="descent">
+      <desc>Gets the descent of the Font.</desc>
+    </attr>
+    <attr name="faces">
+      <desc>Gets the amount of available font faces.</desc>
+    </attr>
+    <attr name="family_name">
+      <desc>Gets the font face family name.</desc>
+    </attr>
     <method name="get_glyph_metrics">
       <call>get_glyph_metrics (text) -> [(int,int,int,int,int), ...]</call>
       <desc>
@@ -56,10 +53,16 @@
         Gets the size of a text for this Font.
       </desc>
     </method>
-    <attr name="height">Gets the height of the Font.</attr>
-    <attr name="is_fixed_width">Gets whether the chosen font face is a fixed
-      width one.</attr>
-    <attr name="line_skip">Gets the line skip of the Font.</attr>
+    <attr name="height">
+      <desc>Gets the height of the Font.</desc>
+    </attr>
+    <attr name="is_fixed_width">
+      <desc>Gets whether the chosen font face is a fixed width
+      one.</desc>
+    </attr>
+    <attr name="line_skip">
+      <desc>Gets the line skip of the Font.</desc>
+    </attr>
     <method name="render">
       <call>render (text, fgcolor[, bgcolor, renderflag]) -> Surface</call>
       <desc>
@@ -93,15 +96,20 @@
         +----------------+-------------------------------------------------+
       </desc>
     </method>
-    <attr name="style">Gets or sets the style of the font. The style can be
-      a valid value of the STYLE_*** constants.</attr>
-    <attr name="style_name">Gets the currently set font style name.</attr>
+    <attr name="style">
+      <desc>Gets or sets the style of the font. The style can be a valid
+      value of the STYLE_*** constants.</desc>
+    </attr>
+    <attr name="style_name">
+      <desc>Gets the currently set font style name.</desc>
+    </attr>
   </class>
 
   <func name="get_compiled_version">
     <call>get_compiled_version () -> tuple</call>
     <desc>
-      Gets the SDL_ttf version pygame2 was compiled against as three-value tuple.
+      Gets the SDL_ttf version pygame2 was compiled against as
+      three-value tuple.
 
       This version is built at compile time. It can be used to detect
       which features may not be available through Pygame, if it is used

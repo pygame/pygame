@@ -1,11 +1,13 @@
 ============================
 Building Pygame2 using MinGW
 ============================
-Using MinGW on Win32 platforms is probably the most comfortable way to build
-and install Pygame2, thanks to a handy script, that will do most of the work
-for you.
+Using MinGW on Win32 platforms is probably the most comfortable way to
+build and install Pygame2 on Windows, thanks to a handy script, that
+will do most of the work for you.
 
-    NOTE: At http://pygame.org/wiki/MingW you can find more information and
+.. note::
+
+    At http://pygame.org/wiki/MingW you can find more information and
     details about the build and installation process.
 
 Setting up MSYS and MinGW
@@ -43,7 +45,9 @@ it's time to get the dependencies.
 
 Building the dependencies
 -------------------------
-    NOTE: The following list of dependencies might not be the most actual one.
+.. note::
+
+    The following list of dependencies might not be the most actual one.
     Please check the README.txt file in the top source directory for the
     most actual dependency list!
 
@@ -58,7 +62,7 @@ packages:
 * SDL_mixer >= 1.2.8         (http://www.libsdl.org/projects/SDL_mixer/)
 * SDL_ttf >= 2.0.9           (http://www.libsdl.org/projects/SDL_ttf/)
 * SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
-* SDL_gfx >= 2.0.17          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* SDL_gfx >= 2.0.18          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24           (http://www.libpng.org)
 * libjpeg >= 6b              (http://www.ijg.org/)
 
@@ -75,17 +79,19 @@ Once you downloaded all source packages, unpack them and put them all into a
 common directory, where the msys_build_deps.py script can find them.
 The script will search the directory where it resides, the parent directory of
 it and a directory named 'deps' for the unpacked sources.
-  
-    NOTE: At this point, we strongly recommend a directory named 'deps' that is
-    created under the Pygame2 source directory.
+
+.. note::
+
+    At this point, we strongly recommend a directory named 'deps' that
+    is created under the Pygame2 source directory.
  
 Once anything's unpacked, move the Pygame2 source directory to your MSYS home
 directory (in a default installation this would be C:\\msys\\1.0\\home\\%USERNAME%).
-Start the Msys shell and change to the Pygame2 source directory:
+Start the Msys shell and change to the Pygame2 source directory: ::
 
     cd pgreloaded
 
-Now start the msys_build_deps.py script:
+Now start the msys_build_deps.py script: ::
 
     python msys_build_deps.py --all
 
@@ -96,7 +102,7 @@ the newspaper.
 Building Pygame2
 ----------------
 Now that all dependencies are built and installed, you can proceed to build
-and install Pygame2 itself. Simply type:
+and install Pygame2 itself. Simply type: ::
 
     python setup.py build --compiler=mingw32 install
 

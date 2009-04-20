@@ -1,50 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlimage.base">
   <short>basic SDL_image wrapper module</short>
-  <desc>basic SDL_image wrapper module</desc>
+  <desc>
+    Basic SDL_image wrapper module
+  </desc>
 
   <func name="get_error">
     <call>get_error () -> pygame2.Error</call>
     <desc>
       Gets the last :exc:`pygame2.base.Error` occured.
 
-      SDL_image maintains an internal error message. This message will usually
-      be given to you when a :exc:`pygame2.base.Error` is raised. You will rarely
-      need to call this function.
+      SDL_image maintains an internal error message. This message will
+      usually be given to you when a :exc:`pygame2.base.Error` is
+      raised.
+
+      You will rarely need to call this function.
     </desc>
   </func>
   <func name="load">
     <call>load (file[, type]) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from it.
     
-      Loads an image file and creates a :class:`pygame2.sdl.video.Surface` from
-      it. The file argument can be a file object or filename. type is an
-      optional argument indicating the image type as string.
+      Loads an image file and creates a
+      :class:`pygame2.sdl.video.Surface` from it. The file argument can
+      be a file object or filename. type is an optional argument
+      indicating the image type as string.
     </desc>
   </func>
   <func name="read_xpm_from_array">
     <call>read_xpm_from_array (buffer) -> :class:`pygame2.sdl.video.Surface`</call>
     <desc>Creates a :class:`pygame2.sdl.video.Surface` from a XPM buffer.
     
-      Creates a :class:`pygame2.sdl.video.Surface` from a XPM buffer. The
-      buffer can be any type that can be used as character buffer.
+      Creates a :class:`pygame2.sdl.video.Surface` from a XPM
+      buffer. The buffer can be any type that can be used as character
+      buffer.
     </desc>
   </func>
 </module>

@@ -2,9 +2,9 @@ import pygame2.font
 from pygame2.sdlttf import constants
 from pygame2.sdlttf.base import Font
 
-def SysFont (name, size, style=constants.STYLE_NORMAL):
+def get_sys_font (name, size, style=constants.STYLE_NORMAL):
     """
-    pygame2.sdlttf.SysFont (name, size, style=constants.STYLE_NORMAL) -> Font
+    pygame2.sdlttf.get_sys_font (name, size, style=constants.STYLE_NORMAL) -> Font
     
     Create a Font from system font resources
 

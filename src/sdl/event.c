@@ -771,7 +771,7 @@ PyEvent_SDLEventFromEvent (PyObject *ev, SDL_Event *event)
 
     if (!ev || !PyEvent_Check (ev))
     {
-        PyErr_SetString (PyExc_TypeError, "event must be an Event");
+        PyErr_SetString (PyExc_TypeError, "ev must be an Event");
         return 0;
     }
     if (!((PyEvent*)ev)->dict)

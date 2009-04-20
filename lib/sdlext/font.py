@@ -17,6 +17,8 @@
 ##
 
 """
+Enhanced and specialised font rendering classes and functions for
+SDL-based surfaces.
 """
 
 from pygame2 import Rect, FRect, Color
@@ -36,7 +38,24 @@ class BitmapFont (object):
     
     Creates a BitmapFont suitable for bitmap to character mappings.
     
-    The BitmapFont class  
+    The BitmapFont class uses an image surface to find and render font
+    character glyphs for text. It requires a mapping table, which
+    denotes the characters available on the image.
+
+    The mapping table is a list of strings, where each string reflects a
+    'line' of characters on the image. Each character within each line
+    has the same size as specified by the size argument.
+
+    A typical mapping table might look like
+
+      [ '0123456789',
+        'ABCDEFGHIJ',
+        'KLMNOPQRST',
+        'UVWXYZ    ',
+        'abcdefghij',
+        'klmnopqrst',
+        'uvwxyz    ',
+        ',;.:!?+-()' ]
     """
     def __init__ (self, surface, size, mapping=None):
         if mapping is None:
@@ -69,7 +88,9 @@ class BitmapFont (object):
             y += h
 
     def render (self, text):
-        """
+        """B.render (text) -> Surface
+
+        Renders the passed text on a new Surface and returns it.
         """
         x, y = 0, 0
         tw, th = 0, 0
@@ -92,7 +113,13 @@ class BitmapFont (object):
         return surface
 
     def render_on (self, surface, text, offset=(0, 0)):
-        """
+        """B.render_on (surface, text, offset=(0, 0) -> Rect
+
+        Renders a text on the passed surface, starting at offset.
+
+        Renders a text on the existing surface. The top-left start
+        position of the text will be the passed offset and a Rect with
+        the changed area will be returned.
         """
         x, y = offset
         w, h = self.size
@@ -109,12 +136,16 @@ class BitmapFont (object):
         return Rect (offset, (x + w, y + h))
     
     def contains (self, c):
-        """
+        """B.contains (c) -> bool
+
+        Checks, whether a certain character exists in the font.
         """
         return c in self.offsets
     
     def can_render (self, text):
-        """
+        """B.can_render (text) -> bool
+
+        Checks, whether all characters in the passed text can be rendered.
         """
         lines = text.split ('\n')
         has_key = self.offsets.has_key

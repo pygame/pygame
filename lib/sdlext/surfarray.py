@@ -16,7 +16,7 @@
 ##    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ##
 
-"""pygame module for accessing surface pixel data using array interfaces
+"""pygame2 module for accessing surface pixel data using array interfaces
 
 Functions to convert pixel data between pygame Surfaces and arrays. This
 module will only be functional when pygame can use the external Numpy or
@@ -80,7 +80,7 @@ except ImportError:
 #    raise ImportError ("no module named numpy or Numeric found")
 
 def array2d (surface):
-    """pygame2.surfarray.array2d (Surface): return array
+    """pygame2.sdlext.surfarray.array2d (Surface) -> array
 
     Copy pixels into a 2d array.
 
@@ -99,7 +99,7 @@ def array2d (surface):
     raise NotImplementedError ("surface arrays are not supported")
 
 def pixels2d (surface):
-    """pygame2.surfarray.pixels2d (Surface): return array
+    """pygame2.sdlext.surfarray.pixels2d (Surface) -> array
 
     Reference pixels into a 2d array.
     
@@ -121,7 +121,7 @@ def pixels2d (surface):
     raise NotImplementedError ("surface arrays are not supported")
 
 def array3d (surface):
-    """pygame2.surfarray.array3d (Surface): return array
+    """pygame2.sdlext.surfarray.array3d (Surface) -> array
 
     Copy pixels into a 3d array.
 
@@ -140,7 +140,7 @@ def array3d (surface):
     raise NotImplementedError ("surface arrays are not supported")
 
 def pixels3d (surface):
-    """pygame2.surfarray.pixels3d (Surface): return array
+    """pygame2.sdlext.surfarray.pixels3d (Surface) -> array
 
     Reference pixels into a 3d array.
 
@@ -162,7 +162,7 @@ def pixels3d (surface):
     raise NotImplementedError ("surface arrays are not supported")
 
 def array_alpha (surface):
-    """pygame2.surfarray.array_alpha (Surface): return array
+    """pygame2.sdlext.surfarray.array_alpha (Surface) -> array
 
     Copy pixel alphas into a 2d array.
 
@@ -182,7 +182,7 @@ def array_alpha (surface):
     raise NotImplementedError ("surface arrays are not supported")
 
 def pixels_alpha (surface):
-    """pygame2.surfarray.pixels_alpha (Surface): return array
+    """pygame2.sdlext.surfarray.pixels_alpha (Surface) -> array
 
     Reference pixel alphas into a 2d array.
 
@@ -203,13 +203,13 @@ def pixels_alpha (surface):
     raise NotImplementedError  ("surface arrays are not supported")
 
 def array_colorkey (surface):
-    """pygame2.surfarray.array_colorkey (Surface): return array
+    """pygame2.sdlext.surfarray.array_colorkey (Surface) -> array
 
     Copy the colorkey values into a 2d array.
 
     Create a new array with the colorkey transparency value from each
     pixel. If the pixel matches the colorkey it will be fully
-    tranparent; otherwise it will be fully opaque.
+    transparent; otherwise it will be fully opaque.
 
     This will work on any type of Surface format. If the image has no
     colorkey a solid opaque array will be returned.
@@ -224,7 +224,7 @@ def array_colorkey (surface):
     raise NotImplementedError ("surface arrays are not supported")
 
 def make_surface (array):
-    """pygame2.surfarray.make_surface (array): return Surface
+    """pygame2.sdlext.surfarray.make_surface (array) -> Surface
 
     Copy an array to a new surface.
 
@@ -238,7 +238,7 @@ def make_surface (array):
     raise NotImplementedError ("surface arrays are not supported")
 
 def blit_array (surface, array):
-    """pygame2.surfarray.blit_array (Surface, array): return None
+    """pygame2.sdlext.surfarray.blit_array (Surface, array) -> None
 
     Blit directly from a array values.
 
@@ -257,7 +257,7 @@ def blit_array (surface, array):
     raise NotImplementedError ("surface arrays are not supported")
 
 def map_array (surface, array):
-    """pygame2.surfarray.map_array (Surface, array3d): return array2d
+    """pygame2.sdlext.surfarray.map_array (Surface, array3d) -> array2d
 
     Map a 3D array into a 2D array.
 
@@ -272,7 +272,7 @@ def map_array (surface, array):
     raise NotImplementedError ("surface arrays are not supported")
 
 def use_arraytype (arraytype):
-    """pygame2.surfarray.use_arraytype (arraytype): return None
+    """pygame2.sdlext.surfarray.use_arraytype (arraytype) -> None
 
     Sets the array system to be used for surface arrays.
 
@@ -302,7 +302,7 @@ def use_arraytype (arraytype):
         raise ValueError ("invalid array type")
 
 def get_arraytype ():
-    """pygame2.surfarray.get_arraytype (): return str
+    """pygame2.sdlext.surfarray.get_arraytype () -> str
 
     Gets the currently active array type.
 
@@ -313,7 +313,7 @@ def get_arraytype ():
     return __arraytype
 
 def get_arraytypes ():
-    """pygame2.surfarray.get_arraytypes (): return tuple
+    """pygame2.sdlext.surfarray.get_arraytypes () -> tuple
 
     Gets the array system types currently supported.
 
@@ -331,4 +331,3 @@ def get_arraytypes ():
     if len (vals) == 0:
         return None
     return tuple (vals)
-

@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdl.base">
   <short>basic SDL wrapper module</short>
-  <desc>Pygame SDL wrapper module</desc>
+  <desc>
+    Basic Pygame2 SDL wrapper module
+
+    All classes and functions listed here are incorporated from the
+    :mod:`pygame2.sdl.base` module.
+  </desc>
 
   <func name="get_compiled_version">
     <call>get_compiled_version () -> tuple</call>
@@ -37,8 +27,9 @@
       Gets the last :exc:`pygame2.base.Error` occured.
 
       SDL maintains an internal error message. This message will usually
-      be given to you when a :exc:`pygame2.base.Error` is raised. You will rarely
-      need to call this function.
+      be given to you when a :exc:`pygame2.base.Error` is raised.
+
+      You will rarely need to call this function.
     </desc>
   </func>
   <func name="get_version">

@@ -1,5 +1,5 @@
 try:
-    import test.pgunittest as unittest
+    import pygame2.test.pgunittest as unittest
 except:
     import pgunittest as unittest
 
@@ -847,21 +847,33 @@ class RectTest (unittest.TestCase):
         self.assertEqual( old_height, r.height )
         self.assertEqual( old_topleft, r.topleft )
 
-    def todo_test_pygame2_base_Rect_x(self):
+    def test_pygame2_base_Rect_x(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Rect.x:
 
         # Gets or sets the horizontal top left position of the Rect.
+        r = Rect (1, 2, 3, 4)
+        self.assertEquals (r.x, 1)
+        r.topleft = 32, 10
+        self.assertEquals (r.x, 32)
+        r.left = -44
+        self.assertEquals (r.x, -44)
+        r.move_ip (10, 33)
+        self.assertEquals (r.x, -34)
 
-        self.fail() 
-
-    def todo_test_pygame2_base_Rect_y(self):
+    def test_pygame2_base_Rect_y(self):
 
         # __doc__ (as of 2008-10-17) for pygame2.base.Rect.y:
 
         # Gets or sets the vertical top left position of the Rect.
-
-        self.fail() 
+        r = Rect (1, 2, 3, 4)
+        self.assertEquals (r.y, 2)
+        r.topleft = 32, 10
+        self.assertEquals (r.y, 10)
+        r.top = -44
+        self.assertEquals (r.y, -44)
+        r.move_ip (10, 33)
+        self.assertEquals (r.y, -11)
 
 if __name__ == "__main__":
     unittest.main ()

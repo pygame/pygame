@@ -462,8 +462,7 @@ _pixelformat_getpalette (PyObject *self, void *closure)
     for (i = 0; i < pal->ncolors; i++)
     {
         c = &pal->colors[i];
-        color = PyColor_NewFromRGBA ((pgbyte)c->r, (pgbyte)c->g, (pgbyte)c->b,
-            255);
+        color = PyColor_NewFromRGBA (c->r, c->g, c->b, 255);
         if (!color)
         {
             Py_DECREF (tuple);

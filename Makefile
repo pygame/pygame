@@ -72,8 +72,11 @@ docs:
 release: dist
 	@$(PYTHON) config/bundle_docs.py
 
+runtest:
+	@$(PYTHON) test/run_tests.py
+
 # Do not run these in production environments! They are for testing
-# only!
+# purposes only!
 
 buildall: clean
 	@python2.4 setup.py build
@@ -86,6 +89,18 @@ installall:
 	@python2.5 setup.py install
 	@python2.6 setup.py install
 	@python3.0 setup.py install
+
+testall:
+	@python2.4 test/run_tests.py
+	@python2.5 test/run_tests.py
+	@python2.6 test/run_tests.py
+	@python3.0 test/run_tests.py
+
+testall2:
+	@python2.4 -c "import pygame2.test; pygame2.test.run ()"
+	@python2.5 -c "import pygame2.test; pygame2.test.run ()"
+	@python2.6 -c "import pygame2.test; pygame2.test.run ()"
+	@python3.0 -c "import pygame2.test; pygame2.test.run ()"
 
 purge_installs:
 	rm -rf /usr/local/include/python2.4/pygame2*

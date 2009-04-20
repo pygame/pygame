@@ -44,7 +44,8 @@ static Py_ssize_t _bufferproxy_getwritebuf (PyBufferProxy *buffer,
 static Py_ssize_t _bufferproxy_getsegcount (PyBufferProxy *buffer,
     Py_ssize_t *lenp);
 #else
-static int _bufferproxy_getbuffer (PyBufferProxy *self, Py_buffer *view, int flags);
+static int _bufferproxy_getbuffer (PyBufferProxy *self, Py_buffer *view,
+    int flags);
 static void _bufferproxy_releasebuffer (PyBufferProxy *self, Py_buffer *view);
 #endif
 

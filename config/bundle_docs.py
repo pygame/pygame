@@ -5,7 +5,7 @@ Run this script from the Pygame source root directory.
 """
 
 import os, sys
-import tarfile
+import tarfile, zipfile
 import re
 
 sys.path.append (os.path.pardir)
@@ -14,13 +14,16 @@ sys.path.append (os.path.pardir)
 excludes = [ "create_cref.py", "create_rstref.py", "create_doc.py",
              "conf.py", "Makefile" ]
 
-def add_files (bundle, root, alias, file_names):
+def add_files (bundle, root, alias, file_names, iszip):
     for file_name in file_names:
         file_alias = os.path.join (alias, file_name)
-        print ("  %s --> %s" % (file_name, file_alias))
-        bundle.add (os.path.join (root, file_name), file_alias)
+        print ("%s --> %s" % (file_name, file_alias))
+        if iszip:
+            bundle.write (os.path.join (root, file_name), file_alias)
+        else:
+            bundle.add (os.path.join (root, file_name), file_alias)
 
-def add_directory (bundle, root, alias):
+def add_directory (bundle, root, alias, iszip):
     reject_dirs = re.compile (r'(sphinx)|(src)|(.svn)$')
 
     # Since it is the file extension that is of interest the reversed
@@ -32,7 +35,7 @@ def add_directory (bundle, root, alias):
                     if reject_files_reversed.match(f[-1::-1]) is None and \
                     f not in excludes]
         sub_alias = os.path.join (alias, sub_root[len (root)+1:])
-        add_files (bundle, sub_root, sub_alias, files)
+        add_files (bundle, sub_root, sub_alias, files, iszip)
 
 def main():
     bundle_name_elements = ['pygame', 'docs']
@@ -47,24 +50,35 @@ def main():
     else:
         version = '-%s' % match.group(1)
 
-    bundle_name = "dist/pygame2%s-docs-and-examples.tar.gz" % version
+    bundle_name = os.path.join ("dist",
+                                "pygame2%s-docs-and-examples.tar.gz" % version)
+    zip_name = os.path.join ("dist",
+                             "pygame2%s-docs-and-examples.zip" % version)
     print ("Creating bundle %s" % bundle_name)
 
     if not os.path.exists ("dist"):
         os.mkdir ("dist")
-        
+    
     bundle = tarfile.open (bundle_name, "w:gz")
+    zipbundle = zipfile.ZipFile (zip_name, "w", zipfile.ZIP_DEFLATED)
+    
     try:
         root = os.path.abspath (".")
         alias = "pygame2"
-        add_files (bundle, root, alias, ['README.txt', ])
+        add_files (bundle, root, alias, ['README.txt', ], False)
+        add_files (zipbundle, root, alias, ['README.txt', ], True)
         add_directory (bundle, os.path.join(root, 'doc'),
-                       os.path.join(alias, 'doc'))
+                       os.path.join(alias, 'doc'), False)
+        add_directory (zipbundle, os.path.join(root, 'doc'),
+                       os.path.join(alias, 'doc'), True)
         add_directory (bundle, os.path.join(root, 'examples'),
-                       os.path.join(alias, 'examples'))
-        print ("\nFinished: %s" % bundle_name)
+                       os.path.join(alias, 'examples'), False)
+        add_directory (zipbundle, os.path.join(root, 'examples'),
+                       os.path.join(alias, 'examples'), True)
+        print ("\nFinished: %s\n          %s\n" % (bundle_name, zip_name))
     finally:
         bundle.close()
+        zipbundle.close()
 
 if __name__ == '__main__':
     main()

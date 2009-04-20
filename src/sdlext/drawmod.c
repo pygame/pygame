@@ -223,7 +223,7 @@ _draw_aalines (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!IntFromSeqIndex (item, 0, &x))
+        if (!PointFromObject (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
@@ -235,14 +235,6 @@ _draw_aalines (PyObject* self, PyObject* args)
         right = MAX (x, right);
         xpts[i] = x;
 
-        if (!IntFromSeqIndex (item, 1, &y))
-        {
-            Py_XDECREF (item);
-            PyMem_Free (xpts);
-            PyMem_Free (ypts);
-            PyErr_SetString (PyExc_ValueError, "invalid point list");
-            return NULL;
-        }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
         ypts[i] = y;
@@ -332,7 +324,7 @@ _draw_lines (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!IntFromSeqIndex (item, 0, &x))
+        if (!PointFromObject (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
@@ -340,18 +332,11 @@ _draw_lines (PyObject* self, PyObject* args)
             PyErr_SetString (PyExc_ValueError, "invalid point list");
             return NULL;
         }
+
         left = MIN (x, left);
         right = MAX (x, right);
         xpts[i] = x;
 
-        if (!IntFromSeqIndex (item, 1, &y))
-        {
-            Py_XDECREF (item);
-            PyMem_Free (xpts);
-            PyMem_Free (ypts);
-            PyErr_SetString (PyExc_ValueError, "invalid point list");
-            return NULL;
-        }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
         ypts[i] = y;
@@ -646,27 +631,19 @@ _draw_polygon (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!IntFromSeqIndex (item, 0, &x))
+        if (!PointFromObject (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
             PyMem_Free (ypts);
-            /* TODO: makes the interpreter go booom */
             PyErr_SetString (PyExc_ValueError, "invalid point list");
             return NULL;
         }
+
         left = MIN (x, left);
         right = MAX (x, right);
         xpts[i] = x;
 
-        if (!IntFromSeqIndex (item, 1, &y))
-        {
-            Py_XDECREF (item);
-            PyMem_Free (xpts);
-            PyMem_Free (ypts);
-            PyErr_SetString (PyExc_ValueError, "invalid point list");
-            return NULL;
-        }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
         ypts[i] = y;
@@ -751,7 +728,7 @@ _draw_aapolygon (PyObject* self, PyObject* args)
     for (i = 0; i < count; i++)
     {
         item = PySequence_ITEM (list, i);
-        if (!IntFromSeqIndex (item, 0, &x))
+        if (!PointFromObject (item, &x, &y))
         {
             Py_XDECREF (item);
             PyMem_Free (xpts);
@@ -759,18 +736,11 @@ _draw_aapolygon (PyObject* self, PyObject* args)
             PyErr_SetString (PyExc_ValueError, "invalid point list");
             return NULL;
         }
+
         left = MIN (x, left);
         right = MAX (x, right);
         xpts[i] = x;
 
-        if (!IntFromSeqIndex (item, 1, &y))
-        {
-            Py_XDECREF (item);
-            PyMem_Free (xpts);
-            PyMem_Free (ypts);
-            PyErr_SetString (PyExc_ValueError, "invalid point list");
-            return NULL;
-        }
         top = MIN (y, top);
         bottom = MAX (y, bottom);
         ypts[i] = y;

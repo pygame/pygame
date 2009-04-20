@@ -3,11 +3,12 @@ Pygame2 Readme
 Content:
 --------
 0. Description
-1. Installation
+1. Quick Installation
     1.1 Dependencies
     1.2 Notes on SVN usage
     1.3 Notes for Windows users
     1.4 Notes for Mac OS users
+    1.5 Notes for Unix users
 2. Getting started
 3. Credits
 4. License
@@ -23,10 +24,11 @@ Pygame2 can be configured in numerous ways to tweak it to the specific needs
 of the target application and environment. It can make use of different
 3rd party libraries, such as SDL, to provide enhanced functionality.
 
-1. Installation
----------------
+1. Quick Installation
+---------------------
 You can either use the python way of installing the package or the make
 command using the Makefile.
+
 Simply type
 
   python setup.py install 
@@ -79,13 +81,12 @@ WITH_JPEG=[yes|no|1|True]       Example: make -DWITH_JPEG=False
 
     Build with JPEG format saving support for pygame2.sdl.
 
-
 1.1 Dependencies
 ----------------
-Pygame2 is designed to run in as many environments as possible. As such, the
-only absolutely necessary dependency is a working Python installation.
-Additionally other libraries are needed, if you want to enable certain features
-of Pygame2.
+Pygame2 is designed to run in as many environments as possible. As such,
+the only absolutely necessary dependency is a working Python
+installation. Additionally other libraries are needed, if you want to
+enable certain features of Pygame2.
 
 * Python 2.4, 2.5, 2.6, 3.0 supported   (http://www.python.org)
 
@@ -94,7 +95,7 @@ of Pygame2.
 * SDL_mixer >= 1.2.8        (http://www.libsdl.org/projects/SDL_mixer/)
 * SDL_ttf >= 2.0.9          (http://www.libsdl.org/projects/SDL_ttf/)
 * SDL_image >= 1.2.6        (http://www.libsdl.org/projects/SDL_image/)
-* SDL_gfx >= 2.0.17         (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* SDL_gfx >= 2.0.18         (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24          (http://www.libpng.org)
 * libjpeg >= 6b             (http://www.ijg.org/)
 
@@ -118,10 +119,17 @@ platform.
 --------------------------
 TODO
 
+1.5 Notes for Unix users
+------------------------
+Building Pygame2 from its source code usually happens as described above
+in 'Quick Installation'. You might want to take a look at the
+doc/BuildUnix.txt document for more details about it, though.
+
 2. Getting started
 ------------------
-To gain ground quickly, you can find many examples, the reference and tutorials
-within the doc/ directory.
+To gain ground quickly, you can find the reference and tutorials within
+the doc/ directory. A lot of examples demonstrating the abilities of
+Pygame2 are available in the examples/
 
 3. Credits
 ----------

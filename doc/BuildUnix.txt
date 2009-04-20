@@ -1,0 +1,63 @@
+========================
+Building Pygame2 on Unix
+========================
+Building Pygame2 on Unix compatible platforms, such as Linux or BSD, is
+probably the easiest way of having a fully featured multimedia framework
+
+Setting the environment
+-----------------------
+You will need a mostly C99 compatible compiler such as the GNU C
+Compiler and (optionally) a make utility such as GNU make or pmake.
+
+Building the dependencies
+-------------------------
+.. note::
+
+    The following list of dependencies might not be the most actual one.
+    Please check the README.txt file in the top source directory for the
+    most actual dependency list!
+
+Make sure, you have at least one of the following Python versions installed:
+
+* Python 2.4, 2.5, 2.6, 3.0 (http://www.python.org)
+
+To build anything, you will have to download the following additional source
+packages:
+
+* SDL >= 1.2.10              (http://www.libsdl.org)
+* SDL_mixer >= 1.2.8         (http://www.libsdl.org/projects/SDL_mixer/)
+* SDL_ttf >= 2.0.9           (http://www.libsdl.org/projects/SDL_ttf/)
+* SDL_image >= 1.2.6         (http://www.libsdl.org/projects/SDL_image/)
+* SDL_gfx >= 2.0.18          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
+* libpng >= 1.2.24           (http://www.libpng.org)
+* libjpeg >= 6b              (http://www.ijg.org/)
+
+And you will need the dependency packages for the packages above:
+
+* zlib >= 1.2.3              (http://www.zlib.net)
+* tiff >= 3.8.2              (http://libtiff.org)
+* libvorbis >= 1.2.0         (http://www.xiph.org/vorbis/)
+* libogg >= 1.1.3            (http://www.xiph.org/ogg/)
+* freetype >= 2.3.5          (http://www.freetype.org)
+* FLAC >= 1.2.1              (http://flac.sourceforge.net)
+
+The next step would be to build and install those dependencies in the
+correct order as required by your specific operating system. Once done
+with it, you can go on to build Pygame2.
+
+Building Pygame2
+----------------
+Now that all dependencies are built and installed, you can proceed to
+build and install Pygame2 itself. You can either use the python way of
+installing the package or the make command using the Makefile.
+
+Simply type ::
+
+  python setup.py install 
+
+for the traditional python way or ::
+
+  make install
+
+for using the Makefile. This will try to perform a default installation
+with as many features as possible.

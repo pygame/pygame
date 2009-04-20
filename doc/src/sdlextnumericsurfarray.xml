@@ -1,64 +1,194 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE module [
-<!ELEMENT module (short, desc, (func|class)*)>
-<!ATTLIST module name CDATA #REQUIRED>
-<!ELEMENT short (#PCDATA)>
-<!ELEMENT desc (#PCDATA)>
-<!ELEMENT call (#PCDATA)>
-<!ELEMENT func (call, desc)>
-<!ATTLIST func name CDATA #REQUIRED>
-<!ELEMENT class (constructor, desc, (attr|method)*)>
-<!ATTLIST class name CDATA #REQUIRED>
-<!ELEMENT constructor (#PCDATA)>
-<!ELEMENT attr (#PCDATA)>
-<!ATTLIST attr name CDATA #REQUIRED>
-<!ELEMENT method (call, desc)>
-<!ATTLIST method name CDATA #REQUIRED>
-]>
+<!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlext.numericsurfarray">
-  <short>SDL surface arrays using Numeric</short>
-  <desc></desc>
+  <short>pygame module for accessing surface pixel data using Numeric</short>
+  <desc>
+    .. note::
+
+      You should favour the usage :mod:`pygame2.sdlext.surfarray` over
+      directly using the numpy or Numeric surfarray modules, if you do
+      not require any special features of one of the packages. This
+      allows you to write compatible code for various platforms having
+      either Numeric *or* numpy installed.
+
+    Functions to convert pixel data between pygame Surfaces and Numeric
+    arrays. This module will only be available when pygame is built with
+    support for the external Numeric package.
+
+    Note, that numericsurfarray is an optional module. It requires that
+    Numeric is installed to be used. If not installed, an exception will
+    be raised when it is used. eg. ImportError: no module named Numeric
+    
+    Every pixel is stored as a single integer value to represent the
+    red, green, and blue colors. The 8bit images use a value that looks
+    into a colormap. Pixels with higher depth use a bit packing process
+    to place three or four values into a single number.
+
+    The Numeric arrays are indexed by the X axis first, followed by the Y
+    axis. Arrays that treat the pixels as a single integer are referred
+    to as 2D arrays. This module can also separate the red, green, and
+    blue color values into separate indices. These types of arrays are
+    referred to as 3D arrays, and the last index is 0 for red, 1 for
+    green, and 2 for blue.
+  </desc>
 
   <func name="array2d">
-    <call></call>
-    <desc></desc>
+    <call>array2d (Surface) -> array</call>
+    <desc>
+      Copy pixels into a 2d array.
+
+      Copy the pixels from a Surface into a 2D array. The bit depth of the
+      surface will control the size of the integer values, and will work
+      for any type of pixel format.
+
+      This function will temporarily lock the Surface as pixels are copied
+      (see the Surface.lock - lock the Surface memory for pixel access
+      method).
+    </desc>
+    <example></example>
   </func>
   <func name="array3d">
-    <call></call>
-    <desc></desc>
+    <call>array3d (Surface) -> array</call>
+    <desc>
+      Copy pixels into a 3d array.
+
+      Copy the pixels from a Surface into a 3D array. The bit depth of the
+      surface will control the size of the integer values, and will work
+      for any type of pixel format.
+      
+      This function will temporarily lock the Surface as pixels are copied
+      (see the Surface.lock - lock the Surface memory for pixel access
+      method).
+    </desc>
+    <example></example>
   </func>
   <func name="array_alpha">
-    <call></call>
-    <desc></desc>
+    <call>array_alpha (Surface) -> array</call>
+    <desc>
+      Copy pixel alphas into a 2d array.
+
+      Copy the pixel alpha values (degree of transparency) from a
+      Surface into a 2D array. This will work for any type of Surface
+      format. Surfaces without a pixel alpha will return an array with
+      all opaque values.
+
+      This function will temporarily lock the Surface as pixels are
+      copied (see the Surface.lock - lock the Surface memory for pixel
+      access method).
+    </desc>
+    <example></example>
   </func>
   <func name="array_colorkey">
-    <call></call>
-    <desc></desc>
+    <call>array_colorkey (Surface) -> array</call>
+    <desc>
+      Copy the colorkey values into a 2d array.
+
+      Create a new array with the colorkey transparency value from each
+      pixel. If the pixel matches the colorkey it will be fully
+      tranparent; otherwise it will be fully opaque.
+      
+      This will work on any type of Surface format. If the image has no
+      colorkey a solid opaque array will be returned.
+      
+      This function will temporarily lock the Surface as pixels are
+      copied.
+    </desc>
+    <example></example>
   </func>
   <func name="blit_array">
-    <call></call>
-    <desc></desc>
+    <call>blit_array (Surface, array) -> None</call>
+    <desc>
+      Blit directly from a array values
+
+      Directly copy values from an array into a Surface. This is faster
+      than converting the array into a Surface and blitting. The array
+      must be the same dimensions as the Surface and will completely
+      replace all pixel values.
+      
+      This function will temporarily lock the Surface as the new values
+      are copied.
+    </desc>
+    <example></example>
   </func>
   <func name="make_surface">
-    <call></call>
-    <desc></desc>
+    <call>make_surface (array) -> Surface</call>
+    <desc>
+      Copy an array to a new surface.
+      
+      Create a new Surface that best resembles the data and format on the
+      array. The array can be 2D or 3D with any sized integer values.
+    </desc>
+    <example></example>
   </func>
   <func name="map_array">
-    <call></call>
-    <desc></desc>
+    <call>map_array (Surface, array3d) -> array2d</call>
+    <desc>
+      Map a 3d array into a 2d array.
+
+      Convert a 3D array into a 2D array. This will use the given
+      Surface format to control the conversion. Palette surface formats
+      are not supported.
+
+      Note: arrays do not need to be 3D, as long as the minor axis has
+      three elements giving the component colours, any array shape can be
+      used (for example, a single colour can be mapped, or an array of
+      colours).
+    </desc>
+    <example></example>
   </func>
   <func name="pixels2d">
-    <call></call>
-    <desc></desc>
+    <call>pixels2d (Surface) -> array</call>
+    <desc>
+      Reference pixels into a 2d array.
+
+      Create a new 2D array that directly references the pixel values in a
+      Surface. Any changes to the array will affect the pixels in the
+      Surface. This is a fast operation since no data is copied.
+      
+      Pixels from a 24-bit Surface cannot be referenced, but all other
+      Surface bit depths can.
+      
+      The Surface this references will remain locked for the lifetime of
+      the array (see the Surface.lock - lock the Surface memory for pixel
+      access method).
+    </desc>
+    <example></example>
   </func>
   <func name="pixels3d">
-    <call></call>
-    <desc></desc>
+    <call>pixels3d (Surface) -> array</call>
+    <desc>
+      Reference pixels into a 3d array.
+
+      Create a new 3D array that directly references the pixel values in a
+      Surface. Any changes to the array will affect the pixels in the
+      Surface. This is a fast operation since no data is copied.
+      
+      This will only work on Surfaces that have 24-bit or 32-bit
+      formats. Lower pixel formats cannot be referenced.
+      
+      The Surface this references will remain locked for the lifetime of
+      the array (see the Surface.lock - lock the Surface memory for pixel
+      access method).
+    </desc>
+    <example></example>
   </func>
   <func name="pixels_alpha">
-    <call></call>
-    <desc></desc>
+    <call>pixels_alpha (Surface) -> array</call>
+    <desc>
+      Reference pixel alphas into a 2d array.
+
+      Create a new 2D array that directly references the alpha values
+      (degree of transparency) in a Surface. Any changes to the array will
+      affect the pixels in the Surface. This is a fast operation since no
+      data is copied.
+      
+      This can only work on 32-bit Surfaces with a per-pixel alpha value.
+      
+      The Surface this array references will remain locked for the
+      lifetime of the array.
+    </desc>
+    <example></example>
   </func>
 </module>
 

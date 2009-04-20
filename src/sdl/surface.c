@@ -581,8 +581,7 @@ _surface_getpalette (PyObject *self)
     for (i = 0; i < pal->ncolors; i++)
     {
         c = &pal->colors[i];
-        color = PyColor_NewFromRGBA ((pgbyte)c->r, (pgbyte)c->g, (pgbyte)c->b,
-            255);
+        color = PyColor_NewFromRGBA (c->r, c->g, c->b, 255);
         if (!color)
         {
             Py_DECREF (tuple);
@@ -1096,7 +1095,7 @@ PySDLSurface_NewFromSDLSurface (SDL_Surface *sf)
     PySDLSurface *surface;
     if (!sf)
     {
-        PyErr_SetString (PyExc_TypeError, "sf must not be NULL");
+        PyErr_SetString (PyExc_ValueError, "sf must not be NULL");
         return NULL;
     }
     surface = (PySDLSurface*) PySDLSurface_Type.tp_new
