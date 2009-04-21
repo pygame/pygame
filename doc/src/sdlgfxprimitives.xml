@@ -11,7 +11,7 @@
     <desc>Draws an anti-aliased circular shape on a surface.
     
       Draws a anti-aliased circular shape on a surface with a fixed line
-      width of 1px. The *x*, *y point denotes the center of the circle.
+      width of 1px. The *x*, *y* point denotes the center of the circle.
     </desc>
   </func>
   <func name="aaellipse">

@@ -18,6 +18,7 @@ Contents:
    :maxdepth: 1
 
    building.rst
+   tutorial/index.rst
    modules.rst
    extending.rst
    capi.rst
