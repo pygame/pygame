@@ -3,7 +3,7 @@
 import distutils.sysconfig
 from distutils.core import setup
 from distutils.command.install_data import install_data
-import os, sys, glob, time
+import os, sys, glob, time, re
 import modules, cfg
 from config import *
 
@@ -21,6 +21,21 @@ class SmartInstallData(install_data):
         install_cmd = self.get_finalized_command ('install')
         self.install_dir = getattr (install_cmd, 'install_lib')
         return install_data.run (self)
+
+def find_pkg_data (directory, excludedirs=[], excludefiles=[]):
+    pkgdata = []
+    nodirs = re.compile (r'(.svn)$')
+    nofilesrev = re.compile (r'((~.*)|(cyp\..*)|(yp\..*))')
+    dirtrim = os.path.join (directory, "")
+    for subd, directories, files in os.walk (directory):
+        directories[:] = [d for d in directories if nodirs.match (d) is None \
+                          and d not in excludedirs]
+        files[:] = [f for f in files if nofilesrev.match(f[-1::-1]) is None \
+                    and f not in excludefiles]
+        subd = subd.replace (dirtrim, "", 1)
+        for f in files:
+            pkgdata.append (os.path.join (subd, f))
+    return pkgdata
 
 def run_checks ():
     # Python version check.
@@ -73,17 +88,24 @@ if __name__ == "__main__":
                         "-Wnested-externs -Wshadow -Wredundant-decls -g -pg"
 
     packages = [ "pygame2",
+                 "pygame2.examples",
+                 "pygame2.examples.physics",
+                 "pygame2.examples.sdl",
                  "pygame2.sprite",
                  "pygame2.threads",
                  "pygame2.test",
                  "pygame2.dll",
                  ]
     package_dir = { "pygame2" : "lib",
+                    "pygame2.examples" : "examples",
                     "pygame2.sprite" : "lib/sprite",
                     "pygame2.threads" : "lib/threads",
                     "pygame2.test" : "test",
                     }
-    package_data = {}
+    package_data = {
+        "pygame2.examples" : find_pkg_data ("examples"),
+        "pygame2.test" : find_pkg_data ("test", ["c_api", "util"]),
+        }
     modules.update_packages (cfg, packages, package_dir, package_data)
 
     dllfiles = [ os.path.join ("pygame2", "dll"),

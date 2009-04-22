@@ -47,7 +47,7 @@ def tester (name):
         
         return match(file_name) is not None
 
-    match =  re.compile(regexs[name], re.I).match
+    match = re.compile(regexs[name], re.I).match
     test.library_name = name  # Available for debugging.
     return test
 
