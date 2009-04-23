@@ -174,12 +174,14 @@ def run ():
     screen.fill (color)
     blit_solid (screen)
     screen.flip ()
-    while True:
+
+    okay = True
+    while okay:
         for ev in event.get ():
             if ev.type == sdlconst.QUIT:
-                sys.exit ()
+                okay = False
             if ev.type == sdlconst.KEYDOWN and ev.key == sdlconst.K_ESCAPE:
-                sys.exit ()
+                okay = False
             if ev.type == sdlconst.MOUSEBUTTONDOWN:
                 curtype += 1
                 if curtype >= len (blittypes):
@@ -192,6 +194,7 @@ def run ():
                 screen.fill (color)
                 blittypes[curtype] (screen)
                 screen.flip ()
+    video.quit ()
 
 if __name__ == "__main__":
     run ()

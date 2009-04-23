@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import pygame2
 try:
     import pygame2.sdl.constants as constants
@@ -15,22 +15,29 @@ except ImportError:
     hassdlimage = False
     import pygame2.sdl.image as image
 
-video.init ()
+def run():
+    video.init ()
 
-surface = None
-if hassdlimage:
-    surface = image.load ("logo.gif")
-else:
-    surface = image.load_bmp ("logo.bmp")
+    imgdir = os.path.dirname (os.path.abspath (__file__))
+    surface = None
+    if hassdlimage:
+        surface = image.load (os.path.join (imgdir, "logo.gif"))
+    else:
+        surface = image.load_bmp (os.path.join (imgdir, "logo.bmp"))
 
-screen = video.set_mode (surface.w + 10, surface.h + 10)
-screen.fill (pygame2.Color (255, 255, 255))
-screen.blit (surface, (5, 5))
-screen.flip ()
+        screen = video.set_mode (surface.w + 10, surface.h + 10)
+        screen.fill (pygame2.Color (255, 255, 255))
+        screen.blit (surface, (5, 5))
+        screen.flip ()
 
-while True:
-    for ev in event.get ():
-        if ev.type == constants.QUIT:
-            sys.exit ()
-        if ev.type == constants.KEYDOWN and ev.key == constants.K_ESCAPE:
-            sys.exit ()
+    okay = True
+    while okay:
+        for ev in event.get ():
+            if ev.type == constants.QUIT:
+                okay = False
+            if ev.type == constants.KEYDOWN and ev.key == constants.K_ESCAPE:
+                okay = False
+    video.quit ()
+
+if __name__ == "__main__":
+    run ()

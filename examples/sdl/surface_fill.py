@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import pygame2
 try:
     import pygame2.sdl.constants as sdlconst
@@ -104,19 +104,22 @@ def run ():
     video.init ()
     
     screen = video.set_mode (760, 300, 32)
-    surface = image.load_bmp ("logo.bmp").convert (flags=sdlconst.SRCALPHA)
+    imgdir = os.path.dirname (os.path.abspath (__file__))
+    surface = image.load_bmp (os.path.join (imgdir, "logo.bmp"))
+    surface = surface.convert (flags=sdlconst.SRCALPHA)
     
     color = white
     screen.fill (color)
     screen.blit (surface, (40, 50))
     screen.flip ()
-    
-    while True:
+
+    okay = True
+    while okay:
         for ev in event.get ():
             if ev.type == sdlconst.QUIT:
-                sys.exit ()
+                okay = False
             if ev.type == sdlconst.KEYDOWN and ev.key == sdlconst.K_ESCAPE:
-                sys.exit ()
+                okay = False
             if ev.type == sdlconst.MOUSEBUTTONDOWN:
                 curtype += 1
                 if curtype >= len (filltypes):
@@ -130,6 +133,7 @@ def run ():
                 screen.blit (surface, (40, 50))
                 filltypes[curtype] (screen)
                 screen.flip ()
+    video.quit ()
 
 if __name__ == "__main__":
     run ()

@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import pygame2
 
 try:
@@ -13,23 +13,24 @@ except ImportError:
     print ("No pygame2.sdl support")
     sys.exit ()
 
-white = pygame2.Color (255, 255, 255)
-black = pygame2.Color (0, 0, 0)
-
-fontmap = [ u"0123456789",
-            u"ABCDEFGHIJ",
-            u"KLMNOPQRST",
-            u"UVWXYZ \xc4\xd6\xdc",
-            u"abcdefghij",
-            u"klmnopqrst",
-            u"uvwxyz \xe4\xf6\xfc",
-            u",;.:!?-+()" ]
-
 def run ():
-    
+    white = pygame2.Color (255, 255, 255)
+    black = pygame2.Color (0, 0, 0)
+
+    fontmap = [ "0123456789",
+                "ABCDEFGHIJ",
+                "KLMNOPQRST",
+                "UVWXYZ    ",
+                "abcdefghij",
+                "klmnopqrst",
+                "uvwxyz    ",
+                ",;.:!?-+()" ]
+
     video.init ()
 
-    bmpfont = BitmapFont (image.load_bmp ("font.bmp"), (32, 32), fontmap)
+    imgdir = os.path.dirname (os.path.abspath (__file__))
+    imgfont = image.load_bmp (os.path.join (imgdir, "font.bmp"))
+    bmpfont = BitmapFont (imgfont, (32, 32), fontmap)
     
     screen = video.set_mode (640, 480)
     screen.fill (white)
@@ -43,20 +44,22 @@ def run ():
     x = 0, 0
     pos = (310, 300)
     area = pygame2.Rect (300, 290, 50, 50)
-    while True:
+
+    okay = True
+    while okay:
         for ev in event.get ():
             if ev.type == sdlconst.QUIT:
-                sys.exit ()
+                okay = False
             if ev.type == sdlconst.KEYDOWN:
                 if ev.key == sdlconst.K_ESCAPE:
-                    sys.exit ()
+                    okay = False
                 elif bmpfont.contains (ev.unicode):
                     screen.fill (white)
                     screen.fill (black, area)
                     screen.blit (bmpfont.surface, center)
                     bmpfont.render_on (screen, ev.unicode, pos)
                     screen.flip ()
-                    
+    video.quit ()
 
 if __name__ == "__main__":
     run ()

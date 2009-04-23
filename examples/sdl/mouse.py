@@ -11,12 +11,12 @@ except ImportError:
     print ("No pygame2.sdl support")
     sys.exit ()
 
-black = pygame2.Color (0, 0, 0)
-white = pygame2.Color (255, 255, 255)
-green = pygame2.Color (0, 255, 0)
-red = pygame2.Color (255, 0, 0)
-
 def run ():
+    black = pygame2.Color (0, 0, 0)
+    white = pygame2.Color (255, 255, 255)
+    green = pygame2.Color (0, 255, 0)
+    red = pygame2.Color (255, 0, 0)
+    
     curcolor = black
     pressed = False
     lastpos = 0, 0
@@ -28,14 +28,14 @@ def run ():
     screen.flip ()
 
     wm.set_caption ("Mouse demo")
-    
-    while True:
-        
+
+    okay = True
+    while okay:
         for ev in event.get ():
             if ev.type == sdlconst.QUIT:
-                sys.exit ()
+                okay = False
             if ev.type == sdlconst.KEYDOWN and ev.key == sdlconst.K_ESCAPE:
-                sys.exit ()
+                okay = False
             if ev.type == sdlconst.MOUSEMOTION:
                 if pressed:
                     x, y = ev.pos
@@ -66,6 +66,7 @@ def run ():
                         curcolor = white
                         screen.fill (black)
                     screen.flip ()
+    video.quit ()
 
 if __name__ == "__main__":
     run ()

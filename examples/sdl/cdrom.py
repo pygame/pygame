@@ -8,7 +8,6 @@ except ImportError:
     print ("No pygame2.sdl support")
     sys.exit ()
 
-
 def run ():
     cdrom.init ()
     print ("Number of CDROM drives found: %d" % cdrom.num_drives ())
@@ -42,6 +41,7 @@ def run ():
             if track.type == sdlconst.DATA_TRACK:
                 ttype = "Data"
             print ("CD track type:    %s" % ttype)
+    cdrom.quit ()
 
 if __name__ == "__main__":
     run ()

@@ -55,13 +55,14 @@ def run ():
     screen = video.set_mode (800, 600)
     screen.fill (black)
     screen.flip ()
-    
-    while True:
+
+    okay = True
+    while okay:
         for ev in event.get ():
             if ev.type == sdlconst.QUIT:
-                sys.exit ()
+               okay = False 
             if ev.type == sdlconst.KEYDOWN and ev.key == sdlconst.K_ESCAPE:
-                sys.exit ()
+                okay = False
             screen.flip ()
         world.update (.2)
         time.delay (10)
@@ -69,7 +70,6 @@ def run ():
         for body in world.bodies:
             render_body (screen, body)
         screen.flip ()
-        
-            
+
 if __name__ == "__main__":
     run ()
