@@ -134,6 +134,9 @@ _surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     sf->get_size = _def_get_size;
     sf->get_pixels = _def_get_pixels;
     sf->get_size = _def_get_size;
+    sf->blit = _def_blit;
+    sf->copy = _def_copy;
+
     return (PyObject*) sf;
 }
 

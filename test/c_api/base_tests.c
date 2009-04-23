@@ -246,8 +246,8 @@ test_surface (void)
     if (!PySurface_Check (surface))
         ERROR ("Surface mismatch in PySurface_Check");
     sf = (PySurface*) surface;
-    if (sf->get_width || sf->get_height || sf->get_size || sf->get_pixels ||
-        sf->blit || sf->copy)
+    if (!sf->get_width || !sf->get_height || !sf->get_size ||
+        !sf->get_pixels || !sf->blit || !sf->copy)
         ERROR ("Surface is not properly initialised");
     Py_DECREF (sf);
 }
