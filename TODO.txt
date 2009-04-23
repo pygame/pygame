@@ -8,6 +8,7 @@ CRITICAL:
 * use copy.copy and copy.deepcopy for consistent object copies
 * Merge transform smooth scale changes in rev. 1715:1717
 * Rewrite and fix up numpysurfarray and numpysndarray
+* Add prebuilt package for Win32 VC++ builds.
 
 Things to ADD:
 ==============

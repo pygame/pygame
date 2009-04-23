@@ -51,6 +51,13 @@ Building the dependencies
     Please check the README.txt file in the top source directory for the
     most actual dependency list!
 
+.. note::
+
+    You can find a set of prebuilt dependencies at
+    http://www3.telus.net/len_l/pygame/. Simply download the matching
+    Win32 prebuilt package and unpack it within the source directory of
+    pgreloaded (and rename it correctly).
+
 Make sure, you have at least one of the following Python versions installed:
 
 * Python 2.4, 2.5, 2.6, 3.0 (http://www.python.org)
@@ -84,7 +91,7 @@ it and a directory named 'deps' for the unpacked sources.
 
     At this point, we strongly recommend a directory named 'deps' that
     is created under the Pygame2 source directory.
- 
+
 Once anything's unpacked, move the Pygame2 source directory to your MSYS home
 directory (in a default installation this would be C:\\msys\\1.0\\home\\%USERNAME%).
 Start the Msys shell and change to the Pygame2 source directory: ::

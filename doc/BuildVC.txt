@@ -69,13 +69,6 @@ directories.
 
 .. note::
 
-    You can find a set of prebuilt dependencies at
-    http://www3.telus.net/len_l/pygame/. Simply download the matching
-    Win32 prebuilt package and unpack it within the source directory of
-    pgreloaded.
-
-.. note::
-
     The 'prebuilt' directory should have the following layout:
 
     prebuilt\\include    -> Contains all header files and header subdirectories
