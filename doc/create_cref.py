@@ -33,11 +33,11 @@ def prepare_text (text):
 
         tmptext += l + "\\n"
     tmptext = tmptext.replace ("\\n", "")
-    while len (tmptext) > 2000:
+    while len (tmptext) > 1900:
         # Split after 2000 characters to avoid problems with the Visual
         # C++ 2048 character limit.
-        newtext += tmptext[:2000] + "\" \\\n\""
-        tmptext = tmptext[2000:]
+        newtext += tmptext[:1900] + "\" \\\n\""
+        tmptext = tmptext[1900:]
     newtext += tmptext
     return newtext
 

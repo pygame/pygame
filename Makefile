@@ -4,7 +4,9 @@ SUBDIRS = \
 	$(top_srcdir)/config \
 	$(top_srcdir)/examples \
 	$(top_srcdir)/doc \
+	$(top_srcdir)/doc/capi \
 	$(top_srcdir)/doc/src \
+	$(top_srcdir)/doc/tutorial \
 	$(top_srcdir)/test \
 	$(top_srcdir)/test/c_api \
 	$(top_srcdir)/test/util \

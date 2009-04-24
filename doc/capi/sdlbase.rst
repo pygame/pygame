@@ -40,6 +40,9 @@ Functions
   
     void (*quit_func)(void)
 
+  As the functions also will upon exiting the Python interpreter instance,
+  no Python specific objects or calls must be used.
+
   This will not check the argument for being *NULL*.
 
 .. cfunction:: int Uint8FromObj (PyObject *obj, Uint8 *val)
