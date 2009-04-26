@@ -51,7 +51,7 @@ install:
 
 clean:
 	@echo "Cleaning up in $(top_srcdir)/ ..."
-	@rm -f *.cache *.core *~ MANIFEST *.pyc
+	@rm -f *.cache *.core *~ MANIFEST *.pyc *.orig
 	@rm -rf src/doc
 	@rm -rf build dist
 
@@ -61,7 +61,7 @@ clean:
 		else \
 			cd $$dir; \
 			echo "Cleaning up in $$dir..."; \
-			rm -f *~ *.cache *.core *.pyc; \
+			rm -f *~ *.cache *.core *.pyc *.orig; \
 		fi \
 	done
 
