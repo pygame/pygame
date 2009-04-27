@@ -87,7 +87,8 @@ that is pretty straight forward and should not be too complex. A new
 entry looks like this: ::
 
   Module ("MODULENAME", [ "SOURCEFILE.c", "SOURCEFILE.c", ... ],
-          [ "pgCAPIHEADER.h", "pgCAPIHEADER.h", ...], "DOCFILE.xml")
+          [ "pgCAPIHEADER.h", "pgCAPIHEADER.h", ...], "DOCFILE.xml",
+          ['DEPENDENCY1', 'DEPENDENCY2', ...])
 
 In case you have submodules, you would split anything according to your
 needs. You can see how submodules are added by looking at the various
@@ -99,38 +100,37 @@ will be replaced with the name and full path of the header file(s) to
 install.
 DOCFILE.xml is the name of the documentation file to use, which is located
 under doc/src (see below, "Documenting").
+Each entry in the DEPENDENCYx list represents an external library reference
+which must be linked with the module. The names of these libraries can be
+found/modified in the config.config_modules file.
 
 Example: ::
 
   Module ("myownlib",[ "src/myownlib/myownlibmod.c", "src/myownlib/myclass.c" ],
-                     [ "src/myownlib/pgmyownlib.h" ], "myownlib.xml")
+                     [ "src/myownlib/pgmyownlib.h" ], "myownlib.xml", ['SDL'])
 
-If the module has external dependencies, which cannot be guaranteed to
-be available on each platform, add a ::
 
-  WITH_MOD = istrue (os.getenv ("WITH_MOD", True))
+If you need to define a new library reference, you may do so in the dependencies
+dictionary in config.config_modules ::
 
-to the cfg.py configuration file so that users can enable/disable the
-module on demand using the build and environment settings.
+    'dependency_name' : 
+        os_module.Dependency('header.h', 'library_id'),
 
-Adjust the various config/config_XXX.py files to check for needed dependencies
-of your module and such. As this can vary from platform to platform,
-it is recommended to look at the existing code within the files and add your
-own checks as necessary. If the module features a WITH_MOD = ... entry
-within cfg.py, it MUST check for WITH_MOD and has to be enabled or disabled
-according to that entry.
+When defining a new dependency, 'dependency_name' is its full name (as
+referenced when instantiating a new Module object), 'header.h' is a
+representative header for the library, and 'library_id' is the linking
+id for the library: For example, a library that is linked with the
+'-ljpeg' has 'jpeg' as its id.
 
-Example: ::
-  
-  if WITH_MYOWNLIB:
-      # Module should be build. MyOwnLib is available according to the
-      # user.
-      mod.canbuild = check_for_myownlib_needs()
-      mod.incdirs = ...
-      ...  
-  else:
-      # Disable the module.
-      mod.canbuild = False
+All the modules which depend on such library will be automatically
+configured and built using it.
+
+Additionally, you may disable/enable the compilation of such library
+(and hence of all the modules which rely on it) by adding an entry to
+the 'build' dictionary in the cfg.py module ::
+
+    build['dependency_name'] = False
+
 
 C Module Dependencies
 ---------------------
@@ -153,12 +153,19 @@ If it is necessary to rely on certain features specific to a particular
 environment, you can check for the build system flags, which are automatically
 added at compile time. Currently, the following flags are available:
 
-  IS_WIN32 - Win32 build with Visual C++
-  IS_MSYS  - (Win32) Msys build with GCC
-  IS_UNIX  - Any other build plattform that successfully passes the preparations
-
-You can easily check for those flags in the C code using the usualy preprocessor
-magic: ::
+  +-----------+----------------------------------------+
+  | IS_WIN32  | Win32 build with Visual C++            |
+  +-----------+----------------------------------------+
+  | IS_MSYS   | (Win32) Msys build with GCC            |
+  +-----------+----------------------------------------+
+  | IS_DARWIN | MacOS X and Darin-based platforms      |
+  +-----------+----------------------------------------+
+  | IS_UNIX   | Any other build platform that          |
+  |           | successfully passes the preparations   |
+  +-----------+----------------------------------------+
+  
+You can easily check for those flags in the C code using the usualy
+preprocessor magic: ::
 
   #ifdef IS_WIN32 
     /* Visual C++ specific Win32 instructions */
@@ -166,6 +173,8 @@ magic: ::
     /* GCC/Msys specific Win32 instructions */
   #elif defined(IS_UNIX)
    /* Unix specific instructions */
+  #elif defined(IS_DARWIN)
+   /* Darwin specific instructions */
   #endif
 
 Python Modules
@@ -176,9 +185,9 @@ be placed under lib.
 
 Documenting
 -----------
-As written above (see "C module build system"), the documentation files reside
-in doc/src/. They are all XML files and must have a ".xml" suffix in order to
-be recognized by the documentation build system.
+As written above (see "C module build system"), the documentation files
+reside in doc/src/. They are all XML files and must have a ".xml" suffix
+in order to be recognized by the documentation build system.
 
 Python Modules
 ^^^^^^^^^^^^^^
@@ -211,11 +220,11 @@ then run the create_doc.py script on it: ::
  
   python create_doc.py pygame2.myownlib myownlib.xml
 
-This will create a XML documentation file including the documentation you
-already wrote for the module. A second step now will require you to remove the
-documentation from the code and use the API constants which will be generated
-by the documentation system.
-Include the "DOCFILE_doc.h" header file, then use the proper constants for all
+This will create a XML documentation file including the documentation
+you already wrote for the module. A second step now will require you to
+remove the documentation from the code and use the API constants which
+will be generated by the documentation system. Include the
+"DOCFILE_doc.h" header file, then use the proper constants for all
 things to document.
 
 C Documentation Constants
@@ -223,15 +232,15 @@ C Documentation Constants
 The C constants are generated using the DOC_MODULENAME_CLASSNAME_NAME scheme.
 The following constants are used:
 
-  +---------------------------+-------------------------------------------+
-  | DOC_MODULENAME            | The documentation for the module.         |
-  +---------------------------+-------------------------------------------+
-  | DOC_MODULENAME_FUNCNAME   | The documentation for a module function.  |
-  +---------------------------+-------------------------------------------+
-  | DOC_MODULENAME_CLASSNAME  | The documentation for a class.            |
-  +---------------------------+-------------------------------------------+
-  |DOC_MODULENAME_CLASSNAME_X | The documentation for a class method or   |
-  |                           | attribute.                                |
-  +---------------------------+-------------------------------------------+
+  +----------------------------+-------------------------------------------+
+  | DOC_MODULENAME             | The documentation for the module.         |
+  +----------------------------+-------------------------------------------+
+  | DOC_MODULENAME_FUNCNAME    | The documentation for a module function.  |
+  +----------------------------+-------------------------------------------+
+  | DOC_MODULENAME_CLASSNAME   | The documentation for a class.            |
+  +----------------------------+-------------------------------------------+
+  | DOC_MODULENAME_CLASSNAME_X | The documentation for a class method or   |
+  |                            | attribute.                                |
+  +----------------------------+-------------------------------------------+
 
 Take a look at the src/base code to learn more about it.

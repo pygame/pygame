@@ -1,9 +1,16 @@
 import os, glob
 from config import sdlconfig, pkgconfig, helpers, dll
+from config import config_generic
 
-_searchdirs = [ "prebuilt", "..", "..\\.." ]
-_incdirs = [ "", "include" ]
-_libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release", "lib"]
+def sdl_get_version ():
+    # Gets the SDL version.
+    # TODO: Is there some way to detect the correct version?
+    return "Unknown"
+
+def get_sys_libs (module):
+    # Gets a list of system libraries to link the module against.
+    if module == "sdlext.scrap":
+        return [ "user32", "gdi32" ]
 
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries
@@ -32,37 +39,12 @@ def _get_libraries (name, directories):
                     libs[filename] = 1
     return libs
 
-
-def find_incdir (name):
-    # Gets the include directory for the specified header file.
-    for d in _searchdirs:
-        for g in _incdirs:
-            p = os.path.join (d, g)
-            f = os.path.join (p, name)
-            if os.path.isfile (f):
-                return p
-
-def find_libdir (name):
-    # Gets the library directory for the specified library file.
-    for d in _searchdirs:
-        for g in _libdirs:
-            p = os.path.join (d, g)
-            f = os.path.join (p, name)
-            if len (list (filter (os.path.isfile, glob.glob (f + '*')))) > 0:
-                return p
-
-def sdl_get_version ():
-    # Gets the SDL version.
-    # TODO: Is there some way to detect the correct version?
-    return "Unknown"
-
-def get_sys_libs (module):
-    # Gets a list of system libraries to link the module against.
-    if module == "sdlext.scrap":
-        return [ "user32", "gdi32" ]
-
 def get_install_libs (cfg):
     # Gets the libraries to install for the target platform.
+    _libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release",
+                 "lib"]
+    _searchdirs = [ "prebuilt", "..", "..\\.." ]
+
     libraries = {}
     values = {}
     dirs = []
@@ -71,18 +53,57 @@ def get_install_libs (cfg):
         for g in _libdirs:
             dirs.append (os.path.join (d, g))
     
-    if cfg.WITH_SDL:
+    if cfg.build['SDL']:
         libraries.update (_hunt_libs ("SDL", dirs))
-    if cfg.WITH_SDL_MIXER:
+    if cfg.build['SDL_MIXER']:
         libraries.update (_hunt_libs ("SDL_mixer", dirs))
-    if cfg.WITH_SDL_IMAGE:
+    if cfg.build['SDL_IMAGE']:
         libraries.update (_hunt_libs ("SDL_image", dirs))
-    if cfg.WITH_SDL_TTF:
+    if cfg.build['SDL_TTF']:
         libraries.update (_hunt_libs ("SDL_ttf", dirs))
-    if cfg.WITH_SDL_GFX:
+    if cfg.build['SDL_GFX']:
         libraries.update (_hunt_libs ("SDL_gfx", dirs))
-    if cfg.WITH_PNG:
+    if cfg.build['PNG']:
         libraries.update (_hunt_libs ("png", dirs))
-    if cfg.WITH_JPEG:
+    if cfg.build['JPEG']:
         libraries.update (_hunt_libs ("jpeg", dirs))
+
     return libraries.keys ()
+
+
+class Dependency (config_generic.Dependency):
+    _searchdirs = [ "prebuilt", "..", "..\\.." ]
+    _incdirs = [ "", "include" ]
+    _libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release",
+                 "lib"]
+
+    def _find_incdir(self, name):
+        # Gets the include directory for the specified header file.
+        for d in self._searchdirs:
+            for g in self._incdirs:
+                p = os.path.join (d, g)
+                f = os.path.join (p, name)
+                if os.path.isfile (f):
+                    return p
+
+    def _find_libdir(self, name):
+        # Gets the library directory for the specified library file.
+        for d in self._searchdirs:
+            for g in self._libdirs:
+                p = os.path.join (d, g)
+                f = os.path.join (p, name)
+                if len (list (filter (os.path.isfile, glob.glob (f + '*')))) > 0:
+                    return p
+
+class DependencySDL(config_generic.DependencySDL, Dependency):
+    def _configure_guess(self):
+        if super(DependencySDL, self)._configure_guess():
+            self.libs.append('SDLmain')
+            self.libdirs = [ self._find_libdir('SDL') ]
+            return True
+
+        return False
+
+    # Under windows, always guess the library position
+    _configure_guess.priority = 5
+

@@ -10,9 +10,11 @@ environment, you can check for the build system flags, which are automatically
 added at compile time. Currently, the following flags and macros are available:
 
   +-----------+----------------------------------------+
-  |  IS_WIN32 | Win32 build with Visual C++            |
+  | IS_WIN32  | Win32 build with Visual C++            |
   +-----------+----------------------------------------+
   | IS_MSYS   | (Win32) Msys build with GCC            |
+  +-----------+----------------------------------------+
+  | IS_DARWIN | MacOS X and Darin-based platforms      |
   +-----------+----------------------------------------+
   | IS_UNIX   | Any other build platform that          |
   |           | successfully passes the preparations   |

@@ -33,7 +33,7 @@ def get_version (package):
 def exists (package):
     pipe = os.popen ("pkg-config --exists %s" % package, "r")
     ret = pipe.close ()
-    return ret == None
+    return ret in (None, 0)
 
 def has_pkgconfig ():
     if msys.is_msys():

@@ -11,6 +11,8 @@ import os
 
 import sys
 
+build = {}
+
 if sys.version_info[0] >= 3:
     unicode = str
 
@@ -24,24 +26,24 @@ def istrue (val):
 
 # SDL support.
 # This MUST be enabled for the other SDL related modules.
-WITH_SDL = istrue (os.getenv ("WITH_SDL", True))
+build['SDL'] = istrue (os.getenv ("WITH_SDL", True))
 
 # SDL_mixer support
-WITH_SDL_MIXER = istrue (os.getenv ("WITH_SDL_MIXER", True)) and WITH_SDL
+build['SDL_MIXER'] = istrue (os.getenv ("WITH_SDL_MIXER", True)) and build['SDL']
 
 # SDL_image support
-WITH_SDL_IMAGE = istrue (os.getenv ("WITH_SDL_IMAGE", True)) and WITH_SDL
+build['SDL_IMAGE'] = istrue (os.getenv ("WITH_SDL_IMAGE", True)) and build['SDL']
 
 # SDL_ttf support
-WITH_SDL_TTF = istrue (os.getenv ("WITH_SDL_TTF", True)) and WITH_SDL
+build['SDL_TTF'] = istrue (os.getenv ("WITH_SDL_TTF", True)) and build['SDL']
 
 # SDL_gfx support
-WITH_SDL_GFX = istrue (os.getenv ("WITH_SDL_GFX", True)) and WITH_SDL
+build['SDL_GFX'] = istrue (os.getenv ("WITH_SDL_GFX", True)) and build['SDL']
 
 # libpng support
 # This is used by Surface.save() to enable PNG saving.
-WITH_PNG = istrue (os.getenv ("WITH_PNG", True))
+build['PNG'] = istrue (os.getenv ("WITH_PNG", True))
 
 # libjpeg support
 # This is used by Surface.save() to enable JPEG saving.
-WITH_JPEG = istrue (os.getenv ("WITH_JPEG", True))
+build['JPEG'] = istrue (os.getenv ("WITH_JPEG", True))

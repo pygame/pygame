@@ -32,7 +32,7 @@ help:
 	@echo "  linkcheck to check all external links for integrity"
 
 clean:
-	-rm -rf sphinx/build *~ *.pyc ref html
+	-rm -rf sphinx/build *~ *.pyc *.orig ref html
 	-rm -f buildmingw.rst buildunix.rst buildvc.rst
 	-rm -f newmodules.rst module_faq.rst
 

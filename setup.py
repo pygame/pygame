@@ -8,7 +8,7 @@ import modules, cfg
 from config import *
 
 VERSION = "2.0.0"
-DEBUG= True
+DEBUG = True
 
 # Minimum requirements.
 PYTHON_MINIMUM = (2, 4)
@@ -52,17 +52,20 @@ def run_checks ():
         else:
             buildsystem = "win"
             buildcflags = "-DIS_WIN32"
+    elif sys.platform == "darwin":
+        buildsystem = "darwin"
+        buildcflags = "-DIS_DARWIN"
     else:
         buildsystem = "unix"
         buildcflags = "-DIS_UNIX"
 
-    if cfg.WITH_SDL:
+    if cfg.build['SDL']:
         sdlversion = config_modules.sdl_get_version (buildsystem)
 
     print ("\nThe following information will be used to build Pygame:")
     print ("\t System: %s" % buildsystem)
     print ("\t Python: %d.%d.%d" % helpers.getversion ())
-    if cfg.WITH_SDL:
+    if cfg.build['SDL']:
         print ("\t SDL:    %s" % sdlversion)
     return buildsystem, buildcflags
 
@@ -76,8 +79,10 @@ if __name__ == "__main__":
         print (helpers.geterror ())
         sys.exit (1)
 
-    if buildsystem in ("msys", "unix") and DEBUG:
-        os.environ["CFLAGS"] = "-W -Wall -Wimplicit-int " + \
+    os.environ["CFLAGS"] = ""
+
+    if buildsystem in ("msys", "unix", "darwin") and DEBUG:
+        os.environ["CFLAGS"] += " -W -Wall -Wimplicit-int " + \
                         "-Wimplicit-function-declaration " + \
                         "-Wimplicit -Wmain -Wreturn-type -Wunused " + \
                         "-Wswitch -Wcomment -Wtrigraphs -Wformat " + \
@@ -86,6 +91,12 @@ if __name__ == "__main__":
                         "-Wcast-align -Wconversion -Wstrict-prototypes " + \
                         "-Wmissing-prototypes -Wmissing-declarations " + \
                         "-Wnested-externs -Wshadow -Wredundant-decls -g -pg"
+
+    # When building in Mac OS, we must make sure that all
+    # modules are built as universal binaries.
+    # FIXME: Find a better place for this?
+    if buildsystem == "darwin":
+        os.environ["CFLAGS"] += " -arch i386 -arch ppc"
 
     packages = [ "pygame2",
                  "pygame2.examples",
@@ -111,6 +122,7 @@ if __name__ == "__main__":
     dllfiles = [ os.path.join ("pygame2", "dll"),
                  config_modules.get_install_libs (buildsystem, cfg) ]
     ext_modules = modules.get_extensions (buildsystem)
+
     headerfiles = []
     print ("The following modules will be built:")
     for ext in ext_modules:

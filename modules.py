@@ -1,13 +1,28 @@
 from distutils.extension import Extension
 import sys, os
 import config, cfg
+from config import helpers
 
 # For create_cref.py
 sys.path.append ("doc")
 import create_cref
 
 class Module:
-    def __init__ (self, name, sources=None, instheaders=[], docfile=None):
+    def __init__ (self, name, sources=None, instheaders=[], docfile=None, depends=None, optional_dep=None):
+        """
+            Initializes the Module object.
+
+            name -  Name of this module
+            sources - List of all the C sources which make the module
+            instheaders - Additional C headers
+            docfile - XML file containing the documentation for the module
+            depends -   List of all the external libraries on which this 
+                        module depends.
+                        These libraries must be declared beforehand in 
+                        config.config_modules.DEPENDENCIES
+            optional_dep - List of optional libraries with which this module can be built.
+        """
+
         self.name = name
         self.sources = sources
         self.installheaders = instheaders
@@ -21,121 +36,279 @@ class Module:
         nn = name.upper ().replace (".", "_")
         self.cflags_avail = "-DHAVE_PYGAME_" + nn
 
+        self.depends = list (depends or [])
+        self.optional_dep = list(optional_dep or [])
+
 modules = [
-    Module ("base", [ "src/base/basemod.c",
-                      "src/base/bufferproxy.c",
-                      "src/base/color.c",
-                      "src/base/floatrect.c",
-                      "src/base/rect.c",
-                      "src/base/surface.c" ],
-            [ "src/pgcompat.h",
-              "src/base/pgbase.h",
-              "src/base/pgdefines.h",
-              "src/base/pgtypes.h" ], "base.xml"),
 
-    Module ("mask", [ "src/mask/bitmask.c",
-                      "src/mask/mask.c",
-                      "src/mask/maskmod.c" ],
-            [ "src/mask/bitmask.h",
-              "src/mask/pgmask.h" ], "mask.xml"),
+    Module ("base",
+        sources = [
+            "src/base/basemod.c",
+            "src/base/bufferproxy.c",
+            "src/base/color.c",
+            "src/base/floatrect.c",
+            "src/base/rect.c",
+            "src/base/surface.c" ],
 
-    Module ("physics", [ "src/physics/aabbox.c",
-                         "src/physics/body.c",
-                         "src/physics/collision.c",
-                         "src/physics/contact.c",
-                         "src/physics/joint.c",
-                         "src/physics/physicsmod.c",
-                         "src/physics/rectshape.c",
-                         "src/physics/shape.c",
-                         "src/physics/vector.c",
-                         "src/physics/world.c" ],
-           [ "src/physics/pgphysics.h" ], "physics.xml"),
+        instheaders = [
+            "src/pgcompat.h",
+            "src/base/pgbase.h",
+            "src/base/pgdefines.h",
+            "src/base/pgtypes.h" ],
+        
+        docfile = "base.xml"),
 
-    Module ("sdl.base", [ "src/sdl/sdlmod.c" ], [ "src/sdl/pgsdl.h" ],
-            "sdlbase.xml"),
-    Module ("sdl.audio", [ "src/sdl/audiomod.c" ], docfile="sdlaudio.xml"),
-    Module ("sdl.cdrom", [ "src/sdl/cdrommod.c",
-                           "src/sdl/cdrom.c",
-                           "src/sdl/cdtrack.c" ], docfile="sdlcdrom.xml"),
-    Module ("sdl.constants", [ "src/sdl/constantsmod.c" ]),
-    Module ("sdl.event", [ "src/sdl/eventmod.c",
-                           "src/sdl/event.c" ], docfile="sdlevent.xml"),
-    Module ("sdl.gl", [ "src/sdl/glmod.c" ], docfile="sdlgl.xml"),
-    Module ("sdl.image", [ "src/sdl/imagemod.c" ], docfile="sdlimage.xml"),
-    Module ("sdl.joystick", [ "src/sdl/joystickmod.c",
-                              "src/sdl/joystick.c" ],
-            docfile="sdljoystick.xml"),
-    Module ("sdl.keyboard", [ "src/sdl/keyboardmod.c" ],
-            docfile="sdlkeyboard.xml"),
-    Module ("sdl.mouse", [ "src/sdl/cursor.c",
-                           "src/sdl/mousemod.c" ], docfile="sdlmouse.xml"),
-    Module ("sdl.rwops", [ "src/sdl/rwopsmod.c" ], docfile="sdlrwops.xml"),
-    Module ("sdl.time", [ "src/sdl/timemod.c" ], docfile="sdltime.xml"),
-    Module ("sdl.video", [ "src/sdl/pixelformat.c",
-                           "src/sdl/surface_blit.c",
-                           "src/sdl/surface_fill.c",
-                           "src/sdl/surface_save.c",
-                           "src/sdl/surface.c",
-                           "src/sdl/tga.c",
-                           "src/sdl/png.c",
-                           "src/sdl/jpg.c",
-                           "src/sdl/overlay.c",
-                           "src/sdl/videomod.c" ], docfile="sdlvideo.xml"),
-    Module ("sdl.wm", [ "src/sdl/wmmod.c" ], docfile="sdlwm.xml"),
+    Module ("mask",
+        sources = [
+            "src/mask/bitmask.c",
+            "src/mask/mask.c",
+            "src/mask/maskmod.c" ],
 
-    Module ("sdlext.base", [ "src/sdlext/pixelarray.c",
-                             "src/sdlext/sdlextmod.c" ],
-            [ "src/sdlext/pgsdlext.h" ], "sdlextbase.xml"),
-    Module ("sdlext.constants", [ "src/sdlext/constantsmod.c" ]),
-    Module ("sdlext.draw", [ "src/sdlext/draw.c",
-                             "src/sdlext/drawmod.c" ],
-            docfile="sdlextdraw.xml"),
-    Module ("sdlext.fastevent", [ "src/sdlext/fasteventmod.c",
-                                  "src/sdlext/fastevents.c" ],
-            docfile="sdlextfastevent.xml"),
-    Module ("sdlext.numericsurfarray", [ "src/sdlext/numericsurfarraymod.c" ],
-            docfile="sdlextnumericsurfarray.xml"),
-    Module ("sdlext.scrap", [ "src/sdlext/scrapmod.c",
-                              "src/sdlext/scrap.c",
-                              "src/sdlext/scrap_x11.c",
-                              "src/sdlext/scrap_win.c" ],
-            docfile="sdlextscrap.xml"),
-    Module ("sdlext.transform", [ "src/sdlext/transform.c",
-                                  "src/sdlext/filters.c",
-                                  "src/sdlext/transformmod.c" ],
-            docfile="sdlexttransform.xml"),
+        instheaders = [
+            "src/mask/bitmask.h",
+            "src/mask/pgmask.h" ],
+        
+        docfile = "mask.xml",
+        optional_dep = ['SDL']),
 
-    Module ("sdlmixer.base", [ "src/sdlmixer/mixermod.c",
-                               "src/sdlmixer/chunk.c",
-                               "src/sdlmixer/channel.c",
-                               "src/sdlmixer/music.c" ],
-            [ "src/sdlmixer/pgmixer.h" ], "sdlmixerbase.xml"),
-    Module ("sdlmixer.constants", [ "src/sdlmixer/constantsmod.c" ]),
-    Module ("sdlmixer.channel", [ "src/sdlmixer/channelmod.c" ],
-            docfile="sdlmixerchannel.xml"),
-    Module ("sdlmixer.music", [ "src/sdlmixer/musicmod.c" ],
-            docfile="sdlmixermusic.xml"),
-    Module ("sdlmixer.numericsndarray",
-            [ "src/sdlmixer/numericsndarraymod.c" ],
-            docfile="sdlmixernumericsndarray.xml"),
+    Module ("physics",
+        sources = [
+            "src/physics/aabbox.c",
+            "src/physics/body.c",
+            "src/physics/collision.c",
+            "src/physics/contact.c",
+            "src/physics/joint.c",
+            "src/physics/physicsmod.c",
+            "src/physics/rectshape.c",
+            "src/physics/shape.c",
+            "src/physics/vector.c",
+            "src/physics/world.c" ],
 
-    Module ("sdlttf.base", [ "src/sdlttf/ttfmod.c",
-                             "src/sdlttf/font.c" ],
-            [ "src/sdlttf/pgttf.h" ], "sdlttfbase.xml"),
-    Module ("sdlttf.constants", [ "src/sdlttf/constantsmod.c" ]),
+        instheaders = [ "src/physics/pgphysics.h" ],
+        docfile = "physics.xml"),
 
-    Module ("sdlimage.base", [ "src/sdlimage/imagemod.c" ],
-            docfile="sdlimagebase.xml"),
+    Module ("sdl.base",
+        sources = [ "src/sdl/sdlmod.c" ],
+        instheaders = [ "src/sdl/pgsdl.h" ],
+        docfile = "sdlbase.xml",
+        depends = ['SDL']),
 
-    Module ("sdlgfx.base", [ "src/sdlgfx/fpsmanager.c",
-                             "src/sdlgfx/gfxmod.c" ],
-            [ "src/sdlgfx/pggfx.h" ], "sdlgfxbase.xml"),
-    Module ("sdlgfx.constants", [ "src/sdlgfx/constantsmod.c" ]),
-    Module ("sdlgfx.primitives", [ "src/sdlgfx/primitivesmod.c" ],
-            docfile="sdlgfxprimitives.xml"),
-    Module ("sdlgfx.rotozoom", [ "src/sdlgfx/rotozoommod.c" ],
-            docfile="sdlgfxrotozoom.xml"),
+    Module ("sdl.audio",
+        sources = [ "src/sdl/audiomod.c" ],
+        docfile = "sdlaudio.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.cdrom",
+        sources = [
+            "src/sdl/cdrommod.c",
+            "src/sdl/cdrom.c",
+            "src/sdl/cdtrack.c" ],
+
+        docfile="sdlcdrom.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.constants",
+        sources = [ "src/sdl/constantsmod.c" ],
+        depends = ['SDL']),
+
+    Module ("sdl.event",
+        sources = [
+            "src/sdl/eventmod.c",
+            "src/sdl/event.c" ],
+
+        docfile = "sdlevent.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.gl",
+        sources = [ "src/sdl/glmod.c" ],
+        docfile = "sdlgl.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.image",
+        sources = [ "src/sdl/imagemod.c" ],
+        docfile = "sdlimage.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.joystick",
+        sources = [
+            "src/sdl/joystickmod.c",
+            "src/sdl/joystick.c" ],
+
+        docfile="sdljoystick.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.keyboard",
+        sources = [ "src/sdl/keyboardmod.c" ],
+        docfile = "sdlkeyboard.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.mouse",
+        sources = [
+            "src/sdl/cursor.c",
+            "src/sdl/mousemod.c" ],
+        docfile = "sdlmouse.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.rwops",
+        sources = [ "src/sdl/rwopsmod.c" ],
+        docfile = "sdlrwops.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.time",
+        sources = [ "src/sdl/timemod.c" ],
+        docfile = "sdltime.xml",
+        depends = ['SDL']),
+
+    Module ("sdl.video",
+        sources = [
+            "src/sdl/pixelformat.c",
+            "src/sdl/surface_blit.c",
+            "src/sdl/surface_fill.c",
+            "src/sdl/surface_save.c",
+            "src/sdl/surface.c",
+            "src/sdl/tga.c",
+            "src/sdl/png.c",
+            "src/sdl/jpg.c",
+            "src/sdl/overlay.c",
+            "src/sdl/videomod.c" ],
+        
+        docfile = "sdlvideo.xml",
+        depends = ['SDL'],
+        optional_dep = ['jpeg', 'png']),
+
+    Module ("sdl.wm",
+        sources = [ "src/sdl/wmmod.c" ],
+        docfile = "sdlwm.xml",
+        depends = ['SDL']),
+
+    Module ("sdlext.base",
+        sources = [
+            "src/sdlext/pixelarray.c",
+            "src/sdlext/sdlextmod.c" ],
+        instheaders = [ "src/sdlext/pgsdlext.h" ],
+        docfile = "sdlextbase.xml",
+        depends = ['SDL']),
+
+    Module ("sdlext.constants",
+        sources = [ "src/sdlext/constantsmod.c" ],
+        depends = ['SDL']),
+
+    Module ("sdlext.draw",
+        sources = [
+            "src/sdlext/draw.c",
+            "src/sdlext/drawmod.c" ],
+
+        docfile = "sdlextdraw.xml",
+        depends = ['SDL']),
+
+    Module ("sdlext.fastevent",
+        sources = [
+            "src/sdlext/fasteventmod.c",
+            "src/sdlext/fastevents.c" ],
+
+        docfile = "sdlextfastevent.xml",
+        depends = ['SDL']),
+
+    Module ("sdlext.scrap",
+        sources = [
+            "src/sdlext/scrapmod.c",
+            "src/sdlext/scrap.c",
+            "src/sdlext/scrap_x11.c",
+            "src/sdlext/scrap_win.c" ],
+
+        docfile = "sdlextscrap.xml",
+        depends = ['SDL']),
+
+    Module ("sdlext.transform",
+        sources = [
+            "src/sdlext/transform.c",
+            "src/sdlext/filters.c",
+            "src/sdlext/transformmod.c" ],
+
+        docfile = "sdlexttransform.xml",
+        depends = ['SDL']),
+
+    Module ("sdlmixer.base",
+        sources = [
+            "src/sdlmixer/mixermod.c",
+            "src/sdlmixer/chunk.c",
+            "src/sdlmixer/channel.c",
+            "src/sdlmixer/music.c" ],
+
+        instheaders = [ "src/sdlmixer/pgmixer.h" ],
+        docfile = "sdlmixerbase.xml",
+        depends = ['SDL', 'SDL_mixer']),
+
+    Module ("sdlmixer.constants",
+        sources = [ "src/sdlmixer/constantsmod.c" ],
+        depends = ['SDL', 'SDL_mixer']),
+
+    Module ("sdlmixer.channel",
+        sources = [ "src/sdlmixer/channelmod.c" ],
+        docfile = "sdlmixerchannel.xml",
+        depends = ['SDL', 'SDL_mixer']),
+
+    Module ("sdlmixer.music",
+        sources = [ "src/sdlmixer/musicmod.c" ],
+        docfile = "sdlmixermusic.xml",
+        depends = ['SDL', 'SDL_mixer']),
+
+
+    Module ("sdlttf.base",
+        sources = [
+            "src/sdlttf/ttfmod.c",
+            "src/sdlttf/font.c" ],
+
+        instheaders = [ "src/sdlttf/pgttf.h" ],
+        docfile = "sdlttfbase.xml",
+        depends = ['SDL', 'SDL_ttf']),
+
+    Module ("sdlttf.constants",
+        sources = [ "src/sdlttf/constantsmod.c" ],
+        depends = ['SDL', 'SDL_ttf']),
+
+    Module ("sdlimage.base",
+        sources = [ "src/sdlimage/imagemod.c" ],
+        docfile = "sdlimagebase.xml",
+        depends = ['SDL', 'SDL_image']),
+
+    Module ("sdlgfx.base",
+        sources = [
+            "src/sdlgfx/fpsmanager.c",
+            "src/sdlgfx/gfxmod.c" ],
+
+        instheaders = [ "src/sdlgfx/pggfx.h" ],
+        docfile = "sdlgfxbase.xml",
+        depends = ['SDL', 'SDL_gfx']),
+
+    Module ("sdlgfx.constants",
+        sources = [ "src/sdlgfx/constantsmod.c" ],
+        depends = ['SDL', 'SDL_gfx']),
+
+    Module ("sdlgfx.primitives",
+        sources = [ "src/sdlgfx/primitivesmod.c" ],
+        docfile = "sdlgfxprimitives.xml",
+        depends = ['SDL', 'SDL_gfx']),
+
+    Module ("sdlgfx.rotozoom",
+        sources = [ "src/sdlgfx/rotozoommod.c" ],
+        docfile = "sdlgfxrotozoom.xml",
+        depends = ['SDL', 'SDL_gfx']),
+
     ]
+
+if helpers.getversion() < (3, 0, 0):
+    modules.append(
+        Module ("sdlmixer.numericsndarray",
+            sources = [ "src/sdlmixer/numericsndarraymod.c" ],
+            docfile = "sdlmixernumericsndarray.xml",
+            depends = ['SDL', 'SDL_mixer']))
+
+    modules.append(
+        Module ("sdlext.numericsurfarray",
+            sources = [ "src/sdlext/numericsurfarraymod.c" ],
+            docfile = "sdlextnumericsurfarray.xml",
+            depends = ['SDL']))
 
 def get_extensions (buildsystem):
     extensions = []
@@ -181,20 +354,20 @@ def create_docheader (module, docincpath):
                                  os.path.join (docincpath, incfile))
 
 def update_packages (cfg, packages, package_dir, package_data):
-    if cfg.WITH_SDL:
+    if cfg.build['SDL']:
         packages += [ "pygame2.sdl", "pygame2.sdlext" ]
         package_dir["pygame2.sdl"] = "lib/sdl"
         package_dir["pygame2.sdlext"] = "lib/sdlext"
         
-        if cfg.WITH_SDL_MIXER:
+        if cfg.build['SDL_MIXER']:
             packages += [ "pygame2.sdlmixer" ]
             package_dir["pygame2.sdlmixer"] = "lib/sdlmixer"
-        if cfg.WITH_SDL_TTF:
+        if cfg.build['SDL_TTF']:
             packages += [ "pygame2.sdlttf" ]
             package_dir["pygame2.sdlttf"] = "lib/sdlttf"
-        if cfg.WITH_SDL_IMAGE:
+        if cfg.build['SDL_IMAGE']:
             packages += [ "pygame2.sdlimage" ]
             package_dir["pygame2.sdlimage"] = "lib/sdlimage"
-        if cfg.WITH_SDL_GFX:
+        if cfg.build['SDL_GFX']:
             packages += [ "pygame2.sdlgfx" ]
             package_dir["pygame2.sdlgfx"] = "lib/sdlgfx"
