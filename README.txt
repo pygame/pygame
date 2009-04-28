@@ -117,7 +117,9 @@ platform.
 
 1.4 Notes for Mac OS users
 --------------------------
-TODO
+Mac OS X is considered an Unix system so building is pretty
+straighforward, although some exceptions apply. Details can be found on
+the doc/BuildDarwin.txt file.
 
 1.5 Notes for Unix users
 ------------------------

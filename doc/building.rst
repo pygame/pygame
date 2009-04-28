@@ -12,6 +12,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   builddarwin.rst
    buildmingw.rst
    buildvc.rst
    buildunix.rst

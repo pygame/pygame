@@ -89,12 +89,13 @@ class Dependency (object):
             system folders.
         """
         directory = self._find_incdir(self.header_file)
+        libdir = self._find_libdir (self.library_name)
 
-        if directory is None:
+        if directory is None or libdir is None:
             return False
 
         self.incdirs.append(directory)
-        self.libdirs.append(self._find_libdir(self.library_name))
+        self.libdirs.append(libdir)
         self.cflags.append("-DHAVE_" + self.library_id.upper())
         return True
 

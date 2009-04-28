@@ -15,6 +15,7 @@ all: help
 
 rst: clean
 	@$(PYTHON) create_rstref.py
+	-cp -f BuildDarwin.txt builddarwin.rst
 	-cp -f BuildMinGW.txt buildmingw.rst
 	-cp -f BuildVC.txt buildvc.rst
 	-cp -f BuildUnix.txt buildunix.rst
@@ -33,7 +34,7 @@ help:
 
 clean:
 	-rm -rf sphinx/build *~ *.pyc *.orig ref html
-	-rm -f buildmingw.rst buildunix.rst buildvc.rst
+	-rm -f builddarwin.rst buildmingw.rst buildunix.rst buildvc.rst
 	-rm -f newmodules.rst module_faq.rst
 
 html: rst

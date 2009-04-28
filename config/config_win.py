@@ -76,7 +76,11 @@ class Dependency (config_generic.Dependency):
     _incdirs = [ "", "include" ]
     _libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release",
                  "lib"]
-
+    
+    def __init__(self, header_file, library_link_id):
+        super (Dependency, self).__init__ (header_file, library_link_id)
+        self.library_name = library_link_id
+        
     def _find_incdir(self, name):
         # Gets the include directory for the specified header file.
         for d in self._searchdirs:
@@ -96,10 +100,16 @@ class Dependency (config_generic.Dependency):
                     return p
 
 class DependencySDL(config_generic.DependencySDL, Dependency):
+    def __init__(self, header_file, library_link_id):
+        super (DependencySDL, self).__init__ (header_file, library_link_id)
+        self.library_name = library_link_id
+    
     def _configure_guess(self):
         if super(DependencySDL, self)._configure_guess():
             self.libs.append('SDLmain')
-            self.libdirs = [ self._find_libdir('SDL') ]
+            ldir = self._find_libdir ('SDL')
+            if ldir is not None:
+                self.libdirs.append (ldir)
             return True
 
         return False

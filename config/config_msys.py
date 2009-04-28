@@ -15,8 +15,6 @@ def get_sys_libs (module):
     if module == "sdlext.scrap":
         return [ "user32", "gdi32" ]
 
-
-
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries
     # and returns them as dict.
@@ -45,6 +43,10 @@ def _get_libraries (name, directories):
     return libs
 
 def get_install_libs (cfg):
+    _searchdirs = [ "/usr", "/usr/local", "/mingw" ]
+    _incdirs = [ "include", "X11/include" ]
+    _libdirs = [ "lib", "X11/lib" ]
+    
     # Gets the libraries to install for the target platform.
     libraries = {}
     values = {}
@@ -104,6 +106,11 @@ class Dependency (config_unix.Dependency):
             that all the found paths are converted from MSYS to full
             Windows path.
         """
+        # self.incdirs and self.libdirs might be set already due to e.g.
+        # DependencySDL.
+        self.incdirs = [ msys_obj.msys_to_windows (d) for d in self.incdirs ]
+        self.libdirs = [ msys_obj.msys_to_windows (d) for d in self.libdirs ]
+        
         super(Dependency, self).configure(cfg)
 
         if self.configured:
@@ -114,7 +121,9 @@ class DependencySDL(config_unix.DependencySDL, Dependency):
     def _configure_guess(self):
         if super(Dependency, self)._configure_guess():
             self.libs.append('SDLmain')
-            self.libdirs.append(self._find_libdir('SDL'))
+            ldir = self._find_libdir ('SDL')
+            if ldir is not None:
+                self.libdirs.append (ldir)
             return True
 
         return False
