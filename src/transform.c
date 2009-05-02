@@ -25,27 +25,44 @@
  *  surface transformations for pygame
  */
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include <math.h>
 #include <string.h>
 #include "scale.h"
 
+
+typedef void (* SMOOTHSCALE_FILTER_P)(Uint8 *, Uint8 *, int, int, int, int, int);
+struct _module_state {
+    const char *filter_type;
+    SMOOTHSCALE_FILTER_P filter_shrink_X;
+    SMOOTHSCALE_FILTER_P filter_shrink_Y;
+    SMOOTHSCALE_FILTER_P filter_expand_X;
+    SMOOTHSCALE_FILTER_P filter_expand_Y;
+};
+
 #if defined(SCALE_MMX_SUPPORT)
+
 #include <SDL_cpuinfo.h>
 
-static const char *filter_type = 0;
-typedef void (* SMOOTHSCALE_FILTER_P)(Uint8 *, Uint8 *, int, int, int, int, int);
-static SMOOTHSCALE_FILTER_P filter_shrink_X = 0;
-static SMOOTHSCALE_FILTER_P filter_shrink_Y = 0;
-static SMOOTHSCALE_FILTER_P filter_expand_X = 0;
-static SMOOTHSCALE_FILTER_P filter_expand_Y = 0;
+#if PY3
+#define GETSTATE(m) PY3_GETSTATE (_module_state, m)
 #else
-#define filter_type "GENERIC"
-#define filter_shrink_X filter_shrink_X_ONLYC
-#define filter_shrink_Y filter_shrink_Y_ONLYC
-#define filter_expand_X filter_expand_X_ONLYC
-#define filter_expand_Y filter_expand_Y_ONLYC
-#define smoothscale_init()
+static struct _module_state _state = {0, 0, 0, 0, 0};
+#define GETSTATE(m) PY2_GETSTATE (_state)
+#endif
+
+#else /* if defined(SCALE_MMX_SUPPORT) */
+
+static _module_state _state = {
+    "GENERIC", 
+    filter_shrink_X_ONLYC,
+    filter_shrink_Y_ONLYC,
+    filter_expand_X_ONLYC,
+    filter_expand_Y_ONLYC};
+#define GETSTATE(m) PY2_GETSTATE (_state)
+#define smoothscale_init(st)
+
 #endif /* if defined(SCALE_MMX_SUPPORT) */
 
 void scale2x (SDL_Surface *src, SDL_Surface *dst);
@@ -1162,33 +1179,33 @@ static void filter_expand_Y_ONLYC(Uint8 *srcpix, Uint8 *dstpix, int width, int s
 
 #if defined(SCALE_MMX_SUPPORT)
 static void
-smoothscale_init ()
+smoothscale_init (struct _module_state *st)
 {
-    if (filter_shrink_X == 0)
+    if (st->filter_shrink_X == 0)
     {
 	if (SDL_HasSSE ())
 	{
-	    filter_type = "SSE";
-	    filter_shrink_X = filter_shrink_X_SSE;
-	    filter_shrink_Y = filter_shrink_Y_SSE;
-	    filter_expand_X = filter_expand_X_SSE;
-	    filter_expand_Y = filter_expand_Y_SSE;
+	    st->filter_type = "SSE";
+	    st->filter_shrink_X = filter_shrink_X_SSE;
+	    st->filter_shrink_Y = filter_shrink_Y_SSE;
+	    st->filter_expand_X = filter_expand_X_SSE;
+	    st->filter_expand_Y = filter_expand_Y_SSE;
 	}
 	else if (SDL_HasMMX ())
 	{
-	    filter_type = "MMX";
-	    filter_shrink_X = filter_shrink_X_MMX;
-	    filter_shrink_Y = filter_shrink_Y_MMX;
-	    filter_expand_X = filter_expand_X_MMX;
-	    filter_expand_Y = filter_expand_Y_MMX;
+	    st->filter_type = "MMX";
+	    st->filter_shrink_X = filter_shrink_X_MMX;
+	    st->filter_shrink_Y = filter_shrink_Y_MMX;
+	    st->filter_expand_X = filter_expand_X_MMX;
+	    st->filter_expand_Y = filter_expand_Y_MMX;
 	}
 	else
 	{
-	    filter_type = "GENERIC";
-	    filter_shrink_X = filter_shrink_X_ONLYC;
-	    filter_shrink_Y = filter_shrink_Y_ONLYC;
-	    filter_expand_X = filter_expand_X_ONLYC;
-	    filter_expand_Y = filter_expand_Y_ONLYC;
+	    st->filter_type = "GENERIC";
+	    st->filter_shrink_X = filter_shrink_X_ONLYC;
+	    st->filter_shrink_Y = filter_shrink_Y_ONLYC;
+	    st->filter_expand_X = filter_expand_X_ONLYC;
+	    st->filter_expand_Y = filter_expand_Y_ONLYC;
 	}
     }
 }
@@ -1234,7 +1251,9 @@ static void convert_32_24(Uint8 *srcpix, int srcpitch, Uint8 *dstpix, int dstpit
     }
 }
 
-static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
+static void
+scalesmooth(SDL_Surface *src, SDL_Surface *dst,
+            struct _module_state *st)
 {
     Uint8* srcpix = (Uint8*)src->pixels;
     Uint8* dstpix = (Uint8*)dst->pixels;
@@ -1295,31 +1314,31 @@ static void scalesmooth(SDL_Surface *src, SDL_Surface *dst)
     if (dstwidth < srcwidth) /* shrink */
     {
         if (srcheight != dstheight)
-            filter_shrink_X(srcpix, temppix, srcheight, srcpitch, temppitch, srcwidth, dstwidth);
+            st->filter_shrink_X(srcpix, temppix, srcheight, srcpitch, temppitch, srcwidth, dstwidth);
         else
-            filter_shrink_X(srcpix, dstpix, srcheight, srcpitch, dstpitch, srcwidth, dstwidth);
+            st->filter_shrink_X(srcpix, dstpix, srcheight, srcpitch, dstpitch, srcwidth, dstwidth);
     }
     else if (dstwidth > srcwidth) /* expand */
     {
         if (srcheight != dstheight)
-            filter_expand_X(srcpix, temppix, srcheight, srcpitch, temppitch, srcwidth, dstwidth);
+            st->filter_expand_X(srcpix, temppix, srcheight, srcpitch, temppitch, srcwidth, dstwidth);
         else
-            filter_expand_X(srcpix, dstpix, srcheight, srcpitch, dstpitch, srcwidth, dstwidth);
+            st->filter_expand_X(srcpix, dstpix, srcheight, srcpitch, dstpitch, srcwidth, dstwidth);
     }
     /* Now do the Y scale */
     if (dstheight < srcheight) /* shrink */
     {
         if (srcwidth != dstwidth)
-            filter_shrink_Y(temppix, dstpix, tempwidth, temppitch, dstpitch, srcheight, dstheight);
+            st->filter_shrink_Y(temppix, dstpix, tempwidth, temppitch, dstpitch, srcheight, dstheight);
         else
-            filter_shrink_Y(srcpix, dstpix, srcwidth, srcpitch, dstpitch, srcheight, dstheight);
+            st->filter_shrink_Y(srcpix, dstpix, srcwidth, srcpitch, dstpitch, srcheight, dstheight);
     }
     else if (dstheight > srcheight)  /* expand */
     {
         if (srcwidth != dstwidth)
-            filter_expand_Y(temppix, dstpix, tempwidth, temppitch, dstpitch, srcheight, dstheight);
+            st->filter_expand_Y(temppix, dstpix, tempwidth, temppitch, dstpitch, srcheight, dstheight);
         else
-            filter_expand_Y(srcpix, dstpix, srcwidth, srcpitch, dstpitch, srcheight, dstheight);
+            st->filter_expand_Y(srcpix, dstpix, srcwidth, srcpitch, dstpitch, srcheight, dstheight);
     }
 
     /* Convert back to 24-bit if necessary */
@@ -1394,7 +1413,7 @@ static PyObject* surf_scalesmooth(PyObject* self, PyObject* arg)
             }
         }
         else {
-            scalesmooth(surf, newsurf);
+            scalesmooth(surf, newsurf, GETSTATE (self));
         }
         Py_END_ALLOW_THREADS;
 
@@ -1413,14 +1432,15 @@ static PyObject* surf_scalesmooth(PyObject* self, PyObject* arg)
 }
 
 static PyObject *
-surf_get_smoothscale_backend ()
+surf_get_smoothscale_backend (PyObject *self)
 {
-    return PyString_FromString (filter_type);
+    return Text_FromUTF8 (GETSTATE (self)->filter_type);
 }
 
 static  PyObject *
 surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 {
+    struct _module_state *st = GETSTATE (self);
     char *keywords[] = {"type", NULL};
     const char *type;
 
@@ -1433,11 +1453,11 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 #if defined(SCALE_MMX_SUPPORT)
     if (strcmp (type, "GENERIC") == 0)
     {
-	filter_type = "GENERIC";
-	filter_shrink_X = filter_shrink_X_ONLYC;
-	filter_shrink_Y = filter_shrink_Y_ONLYC;
-	filter_expand_X = filter_expand_X_ONLYC;
-	filter_expand_Y = filter_expand_Y_ONLYC;
+	st->filter_type = "GENERIC";
+	st->filter_shrink_X = filter_shrink_X_ONLYC;
+	st->filter_shrink_Y = filter_shrink_Y_ONLYC;
+	st->filter_expand_X = filter_expand_X_ONLYC;
+	st->filter_expand_Y = filter_expand_Y_ONLYC;
     }
     else if (strcmp (type, "MMX") == 0)
     {
@@ -1446,11 +1466,11 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 	    return RAISE (PyExc_ValueError,
                           "MMX not supported on this machine");
 	}
-	filter_type = "MMX";
-	filter_shrink_X = filter_shrink_X_MMX;
-	filter_shrink_Y = filter_shrink_Y_MMX;
-	filter_expand_X = filter_expand_X_MMX;
-	filter_expand_Y = filter_expand_Y_MMX;
+	st->filter_type = "MMX";
+	st->filter_shrink_X = filter_shrink_X_MMX;
+	st->filter_shrink_Y = filter_shrink_Y_MMX;
+	st->filter_expand_X = filter_expand_X_MMX;
+	st->filter_expand_Y = filter_expand_Y_MMX;
     }
     else if (strcmp (type, "SSE") == 0)
     {
@@ -1459,11 +1479,11 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 	    return RAISE (PyExc_ValueError,
                           "SSE not supported on this machine");
 	}
-	filter_type = "SSE";
-	filter_shrink_X = filter_shrink_X_SSE;
-	filter_shrink_Y = filter_shrink_Y_SSE;
-	filter_expand_X = filter_expand_X_SSE;
-	filter_expand_Y = filter_expand_Y_SSE;
+	st->filter_type = "SSE";
+	st->filter_shrink_X = filter_shrink_X_SSE;
+	st->filter_shrink_Y = filter_shrink_Y_SSE;
+	st->filter_expand_X = filter_expand_X_SSE;
+	st->filter_expand_Y = filter_expand_Y_SSE;
     }
     else
     {
@@ -2645,7 +2665,7 @@ static PyObject* surf_average_color(PyObject* self, PyObject* arg)
     return Py_BuildValue ("(bbbb)", r, g, b, a);
 }   
 
-static PyMethodDef transform_builtins[] =
+static PyMethodDef _transform_methods[] =
 {
     { "scale", surf_scale, METH_VARARGS, DOC_PYGAMETRANSFORMSCALE },
     { "rotate", surf_rotate, METH_VARARGS, DOC_PYGAMETRANSFORMROTATE },
@@ -2667,34 +2687,58 @@ static PyMethodDef transform_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void inittransform (void)
+
+MODINIT_DEFINE (transform)
 {
     PyObject *module;
+    struct _module_state *st;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "transform",
+        DOC_PYGAMETRANSFORM,
+        sizeof (struct _module_state),
+        _transform_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_color ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rect ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* create the module */
-    module = Py_InitModule3 ("transform", transform_builtins,
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("transform", _transform_methods,
                              DOC_PYGAMETRANSFORM);
+#endif
 
-    smoothscale_init();
+    if (module == 0) {
+        MODINIT_ERROR;
+    }
+
+    st = GETSTATE (module);
+    if (st->filter_type == 0) {
+        smoothscale_init (st);
+    }
+    MODINIT_RETURN (module);
 }

@@ -33,7 +33,7 @@ if "bdist_msi" in sys.argv:
     
 
 if not hasattr(sys, 'version_info') or sys.version_info < (2,3):
-    raise SystemExit, "Pygame requires Python version 2.3 or above."
+    raise SystemExit("Pygame requires Python version 2.3 or above.")
 
 #get us to the correct directory
 import os, sys
@@ -61,6 +61,20 @@ from distutils.core import setup, Extension, Command
 from distutils.extension import read_setup_file
 from distutils.command.install_data import install_data
 
+# Python 3.0 patch
+if sys.version_info[0:2] == (3, 0):
+    import distutils.version
+    def _cmp(x, y):
+        try:
+            if x < y:
+                return -1
+            elif x == y:
+                return 0
+            return 1
+        except TypeError:
+            return NotImplemented
+    distutils.version.cmp = _cmp
+    del _cmp
 
 def add_datafiles(data_files, dest_dir, pattern):
     """Add directory structures to data files according to a pattern"""
@@ -113,17 +127,18 @@ if len(sys.argv) == 1:
 
 #make sure there is a Setup file
 if not os.path.isfile('Setup'):
-    print '\n\nWARNING, No "Setup" File Exists, Running "config.py"'
+    print ('\n\nWARNING, No "Setup" File Exists, Running "config.py"')
     import config
     config.main()
-    print '\nContinuing With "setup.py"'
+    print ('\nContinuing With "setup.py"')
 
 
 try:
     s_mtime = os.stat("Setup")[stat.ST_MTIME]
     sin_mtime = os.stat("Setup.in")[stat.ST_MTIME]
     if sin_mtime > s_mtime:
-        print '\n\nWARNING, "Setup.in" newer than "Setup", you might need to modify Setup."'
+        print ('\n\nWARNING, "Setup.in" newer than "Setup",'
+               'you might need to modify "Setup".')
 except:
     pass
 
@@ -131,8 +146,8 @@ except:
 try: 
     extensions = read_setup_file('Setup')
 except: 
-    print """Error with the "Setup" file,
-perhaps make a clean copy from "Setup.in"."""
+    print ("""Error with the "Setup" file,
+perhaps make a clean copy from "Setup.in".""")
     raise
 
 
@@ -214,9 +229,6 @@ if sys.platform == 'win32':
         mingw32_compilers = mingw32distutils.compilers
     if sys.version_info < (2, 4):
         try:
-            # !!! This part looks very outdated. distutils_mods does not
-            # even show up on a Google search. It can probably go at some
-            # point. It is not needed for Python 2.4 and higher.
             import config
             # a separate method for finding dlls with mingw.
             if config.is_msys_mingw():
@@ -267,7 +279,7 @@ if sys.platform == 'win32':
         #next DLL; a distutils bug requires the paths to have Windows separators
         f = the_dlls[lib].replace('/', os.sep)
         if f == '_':
-            print "WARNING, DLL for %s library not found." % lib
+            print ("WARNING, DLL for %s library not found." % lib)
         else:
             pygame_data_files.append(f)
 
@@ -383,8 +395,7 @@ if "bdist_msi" in sys.argv:
             # Overwrite outdated files.
             fullname = self.distribution.get_fullname()
             installer_name = self.get_installer_filename(fullname)           
-            print "changing",installer_name,"to overwrite files on install"
-            
+            print ("changing %s to overwrite files on install" % installer_name)
             msilib.add_data(self.db, "Property", [("REINSTALLMODE", "amus")])
             self.db.Commit()
     

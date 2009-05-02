@@ -17,6 +17,7 @@ else:
     from test.test_utils \
          import test_not_implemented, example_path, unittest
 import pygame, pygame.image, pygame.pkgdata
+from pygame.compat import xrange_, ord_
 
 import os
 import array
@@ -30,7 +31,7 @@ def test_magic(f, magic_hex):
         return 0
 
     for i in range(len(magic_hex)):
-        if magic_hex[i] != ord(data[i]):
+        if magic_hex[i] != ord_(data[i]):
             return 0
     
     return 1
@@ -91,7 +92,7 @@ class ImageModuleTest( unittest.TestCase ):
 
         formats = ["jpg", "png", "tga", "bmp"]
         # uppercase too... JPG
-        formats = formats + map(lambda x:x.upper(), formats)
+        formats = formats + [x.upper() for x in formats]
 
         for fmt in formats:
             try:
@@ -118,7 +119,7 @@ class ImageModuleTest( unittest.TestCase ):
         self.assertEqual(len(string1), len(string2))
         block_size = 20
         if string1 != string2:
-            for block_start in xrange(0, len(string1), block_size):
+            for block_start in xrange_(0, len(string1), block_size):
                 block_end = min(block_start + block_size, len(string1))
                 block1 = string1[block_start:block_end]
                 block2 = string2[block_start:block_end]
@@ -132,8 +133,8 @@ class ImageModuleTest( unittest.TestCase ):
         """
 
         def convertRGBAtoPremultiplied(surface_to_modify):
-            for x in xrange(surface_to_modify.get_width()):
-                for y in xrange(surface_to_modify.get_height()):
+            for x in xrange_(surface_to_modify.get_width()):
+                for y in xrange_(surface_to_modify.get_height()):
                     color = surface_to_modify.get_at((x, y))
                     premult_color = (color[0]*color[3]/255,
                                      color[1]*color[3]/255,
@@ -142,8 +143,8 @@ class ImageModuleTest( unittest.TestCase ):
                     surface_to_modify.set_at((x, y), premult_color)
             
         test_surface = pygame.Surface((256, 256), pygame.SRCALPHA, 32)
-        for x in xrange(test_surface.get_width()):
-            for y in xrange(test_surface.get_height()):
+        for x in xrange_(test_surface.get_width()):
+            for y in xrange_(test_surface.get_height()):
                 i = x + y*test_surface.get_width()
                 test_surface.set_at((x,y), ((i*7) % 256, (i*13) % 256, (i*27) % 256, y))
         premultiplied_copy = test_surface.copy()
@@ -166,8 +167,8 @@ class ImageModuleTest( unittest.TestCase ):
         def AreSurfacesIdentical(surf_a, surf_b):
             if surf_a.get_width() != surf_b.get_width() or surf_a.get_height() != surf_b.get_height():
                 return False
-            for y in xrange(surf_a.get_height()):
-                for x in xrange(surf_b.get_width()):
+            for y in xrange_(surf_a.get_height()):
+                for x in xrange_(surf_b.get_width()):
                     if surf_a.get_at((x,y)) != surf_b.get_at((x,y)):
                         return False
             return True
@@ -175,8 +176,8 @@ class ImageModuleTest( unittest.TestCase ):
         ####################################################################
         def RotateRGBAtoARGB(str_buf):
             byte_buf = array.array("B", str_buf)
-            num_quads = len(byte_buf)/4
-            for i in xrange(num_quads):
+            num_quads = len(byte_buf)//4
+            for i in xrange_(num_quads):
                 alpha = byte_buf[i*4 + 3]
                 byte_buf[i*4 + 3] = byte_buf[i*4 + 2]
                 byte_buf[i*4 + 2] = byte_buf[i*4 + 1]
@@ -187,8 +188,8 @@ class ImageModuleTest( unittest.TestCase ):
         ####################################################################
         def RotateARGBtoRGBA(str_buf):
             byte_buf = array.array("B", str_buf)
-            num_quads = len(byte_buf)/4
-            for i in xrange(num_quads):
+            num_quads = len(byte_buf)//4
+            for i in xrange_(num_quads):
                 alpha = byte_buf[i*4 + 0]
                 byte_buf[i*4 + 0] = byte_buf[i*4 + 1]
                 byte_buf[i*4 + 1] = byte_buf[i*4 + 2]
@@ -198,8 +199,8 @@ class ImageModuleTest( unittest.TestCase ):
                 
         ####################################################################
         test_surface = pygame.Surface((64, 256), flags=pygame.SRCALPHA, depth=32)
-        for i in xrange(256):
-            for j in xrange(16):
+        for i in xrange_(256):
+            for j in xrange_(16):
                 intensity = j*16 + 15
                 test_surface.set_at((j + 0, i), (intensity, i, i, i))
                 test_surface.set_at((j + 16, i), (i, intensity, i, i))

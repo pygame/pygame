@@ -42,8 +42,8 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( (r.left,r.bottom), r.bottomleft )
         self.assertEqual( (r.right,r.bottom), r.bottomright )
 
-        midx = r.left + r.width/2
-        midy = r.top + r.height/2
+        midx = r.left + r.width // 2
+        midy = r.top + r.height // 2
 
         self.assertEqual( midx, r.centerx )
         self.assertEqual( midy, r.centery )
