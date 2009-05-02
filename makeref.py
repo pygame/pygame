@@ -11,9 +11,9 @@ def sort_list_by_keyfunc(alist, akey):
          this is not inplace like list.sort()
     """
     # make a list of tupples with the key as the first.
-    keys_and_list = zip(map(akey, alist), alist)
+    keys_and_list = list( zip(map(akey, alist), alist) )
     keys_and_list.sort()
-    alist = map(lambda x:x[1], keys_and_list)
+    alist = list( map(lambda x:x[1], keys_and_list) )
     return alist
 
 def collect_doc_files():
@@ -49,7 +49,7 @@ def Run():
     files = collect_doc_files()
     for file in files:
         # print file
-        print os.path.basename(file)
+        print (os.path.basename(file))
     
     docs = []
     pages = []
@@ -217,7 +217,11 @@ def LayoutDocs(docs):
     for doc in docs:
         if doc is top:
             continue
-        parentName = doc.fullname.split(".")[-2]
+        #print (doc)
+        if doc.fullname:
+            parentName = doc.fullname.split(".")[-2]
+        else:
+            parentName = ""
         parent = levels.get(parentName)
         if parent is not None:
             parent.kids.append(doc)
@@ -231,7 +235,9 @@ def WriteIndex(outFile, index, doc):
     if doc.kids:
         outFile.write("<ul>\n")
         sortKids = list(doc.kids)
-        sortKids.sort()
+        #print(sortKids)
+        sortKids = sort_list_by_keyfunc(sortKids, lambda x: x.fullname)
+        #sortKids = sorted( sortKids )
         for kid in sortKids:
             WriteIndex(outFile, index, kid)
         outFile.write("</ul>\n")

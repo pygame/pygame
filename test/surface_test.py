@@ -18,6 +18,7 @@ else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
 from pygame.locals import *
+from pygame.compat import xrange_
 
 def intify(i):
     """If i is a long, cast to an int while preserving the bits"""
@@ -283,8 +284,8 @@ class SurfaceTypeTest(unittest.TestCase):
           # Surface.get_width(): return width
           # get the width of the Surface
         
-        for w in xrange(0, 255, 32):
-            for h in xrange(0, 127, 15):
+        for w in xrange_(0, 255, 32):
+            for h in xrange_(0, 127, 15):
                 s = pygame.Surface((w, h))
                 self.assertEquals(s.get_width(), w) 
                 self.assertEquals(s.get_height(), h) 

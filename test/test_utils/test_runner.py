@@ -24,7 +24,15 @@ else:
          import unittest, unittest_patch, import_submodule
     from test.test_utils.unittest_patch import StringIOContents
 
-import sys, os, re, StringIO, time, optparse
+import sys
+import os
+import re
+try:
+    import StringIO
+except ImportError:
+    import io as StringIO
+import time
+import optparse
 from inspect import getdoc, getmembers, isclass
 from pprint import pformat
 
@@ -174,7 +182,7 @@ def get_test_results(raw_return):
         try:
             return eval(test_results.group(1))
         except:
-            print "BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1)
+            print ("BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1))
             raise
 
 ################################################################################
@@ -252,7 +260,7 @@ def run_test(module, **kwds):
                                               m.unittest.__file__)
         )
     
-    print 'loading', module
+    print ('loading %s' % module)
 
     test = unittest.defaultTestLoader.loadTestsFromName(module)
     suite.addTest(test)
@@ -271,8 +279,8 @@ def run_test(module, **kwds):
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
 
     if not option_nosubprocess:
-        print TEST_RESULTS_START
-        print pformat(results)
+        print (TEST_RESULTS_START)
+        print (pformat(results))
     else:
         return results
 

@@ -24,6 +24,7 @@
  *  pygame mouse module
  */
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 
 /* mouse module functions */
@@ -205,7 +206,7 @@ mouse_get_cursor (PyObject* self)
     return Py_BuildValue ("((ii)(ii)NN)", w, h, spotx, spoty, xordata, anddata);
 }
 
-static PyMethodDef mouse_builtins[] =
+static PyMethodDef _mouse_methods[] =
 {
     { "set_pos", mouse_set_pos, METH_VARARGS, DOC_PYGAMEMOUSESETPOS },
     { "get_pos", (PyCFunction) mouse_get_pos, METH_VARARGS,
@@ -226,19 +227,37 @@ static PyMethodDef mouse_builtins[] =
 };
 
 
-PYGAME_EXPORT
-void initmouse (void)
+MODINIT_DEFINE (mouse)
 {
     PyObject *module;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "mouse",
+        DOC_PYGAMEMOUSE,
+        -1,
+        _mouse_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
 
     /* create the module */
-    module = Py_InitModule3 ("mouse", mouse_builtins, DOC_PYGAMEMOUSE);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("mouse", _mouse_methods, DOC_PYGAMEMOUSE);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }

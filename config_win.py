@@ -10,6 +10,11 @@ import re
 from glob import glob
 from distutils.sysconfig import get_python_inc
 
+try:
+    raw_input
+except NameError:
+    raw_input = input
+
 huntpaths = ['..', '..\\..', '..\\*', '..\\..\\*']
 
 
@@ -27,7 +32,7 @@ class Dependency(object):
         self.inc_dir = None
         self.lib_dir = None
         self.libs = libs
-        self.found = 0
+        self.found = False
         self.cflags = ''
                  
     def hunt(self):
@@ -45,17 +50,18 @@ class Dependency(object):
 
     def choosepath(self):
         if not self.paths:
-            print 'Path for ', self.name, 'not found.'
-            if self.required: print 'Too bad that is a requirement! Hand-fix the "Setup"'
+            print ("Path for %s not found." % self.name)
+            if self.required:
+                print ('Too bad that is a requirement! Hand-fix the "Setup"')
         elif len(self.paths) == 1:
             self.path = self.paths[0]
-            print 'Path for '+self.name+':', self.path
+            print ("Path for %s:' % self.name")
         else:
-            print 'Select path for '+self.name+':'
+            print ("Select path for %s:" % self.name)
             for i in range(len(self.paths)):
-                print '  ', i+1, '=', self.paths[i]
-            print '  ', 0, '= <Nothing>'
-            choice = raw_input('Select 0-'+`len(self.paths)`+' (1=default):')
+                print ("  %i=%s" % (i + 1, self.paths[i]))
+            print ("  %i = <Nothing>" % 0)
+            choice = raw_input("Select 0-%i (1=default):" % len(self.paths))
             if not choice: choice = 1
             else: choice = int(choice)
             if(choice):
@@ -72,7 +78,7 @@ class Dependency(object):
         self.hunt()
         self.choosepath()
         if self.path:
-            self.found = 1
+            self.found = True
             self.inc_dir = self.findhunt(self.path, Dependency.inc_hunt)
             self.lib_dir = self.findhunt(self.path, Dependency.lib_hunt)
 
@@ -84,18 +90,18 @@ class DependencyPython(object):
         self.inc_dir = ''
         self.libs = []
         self.cflags = ''
-        self.found = 0
+        self.found = False
         self.ver = '0'
         self.module = module
         self.header = header
  
     def configure(self):
-        self.found = 1
+        self.found = True
         if self.module:
             try:
                 self.ver = __import__(self.module).__version__
             except ImportError:
-                self.found = 0
+                self.found = False
         if self.found and self.header:
             fullpath = os.path.join(get_python_inc(0), self.header)
             if not os.path.isfile(fullpath):
@@ -103,9 +109,9 @@ class DependencyPython(object):
             else:
                 self.inc_dir = os.path.split(fullpath)[0]
         if self.found:
-            print self.name + '        '[len(self.name):] + ': found', self.ver
+            print ("%-8.8s: found %s" % (self.name, self.ver))
         else:
-            print self.name + '        '[len(self.name):] + ': not found'
+            print ("%-8.8s: not found" % self.name)
 
 
 class DependencyDLL(Dependency):
@@ -116,7 +122,7 @@ class DependencyDLL(Dependency):
         self.lib_name = lib
         self.test = re.compile(dll_regex, re.I).match
         self.lib_dir = '_'
-        self.found = 1
+        self.found = True
         self.link = link
 
     def configure(self):
@@ -140,9 +146,9 @@ class DependencyDLL(Dependency):
                     if self.test(e) and os.path.isfile(os.path.join(path, e)):
                         # Found
                         self.lib_dir = os.path.join(path, e).replace('\\', '/')
-                        print "DLL for %s is %s" % (self.lib_name, self.lib_dir)
+                        print ("DLL for %s is %s" % (self.lib_name, self.lib_dir))
                         return
-        print "DLL for %s not found" % self.lib_name
+        print ("DLL for %s not found" % self.lib_name)
 
 class DependencyWin(object):
     def __init__(self, name, cflags):
@@ -150,7 +156,7 @@ class DependencyWin(object):
         self.inc_dir = None
         self.lib_dir = None
         self.libs = []
-        self.found = 1
+        self.found = True
         self.cflags = cflags
         
     def configure(self):
@@ -265,6 +271,6 @@ def main():
     return list(DEPS)
 
 if __name__ == '__main__':
-    print """This is the configuration subscript for Windows.
-Please run "config.py" for full configuration."""
+    print ("""This is the configuration subscript for Windows.
+Please run "config.py" for full configuration.""")
 

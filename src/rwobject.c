@@ -26,6 +26,7 @@
 #define NO_PYGAME_C_API
 #define PYGAMEAPI_RWOBJECT_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 
 typedef struct
 {
@@ -55,15 +56,46 @@ static int rw_close_th (SDL_RWops* context);
 static SDL_RWops*
 get_standard_rwop (PyObject* obj)
 {
+#if PY3
+    if (PyUnicode_Check (obj)) {
+        int result;
+        char* name;
+        PyObject* tuple = PyTuple_New (1);
+        if (!tuple) {
+            return NULL;
+	}
+        Py_INCREF (obj);
+        PyTuple_SET_ITEM (tuple, 0, obj);
+        result = PyArg_ParseTuple (tuple, "s", &name);
+        Py_DECREF (tuple);
+        if (!result)
+            return NULL;
+        return SDL_RWFromFile (name, "rb");
+    }
+    else if (PyBytes_Check (obj)) {
+        int result;
+        char* name;
+        PyObject* tuple = PyTuple_New (1);
+        if (!tuple)
+            return NULL;
+        Py_INCREF (obj);
+        PyTuple_SET_ITEM (tuple, 0, obj);
+        result = PyArg_ParseTuple (tuple, "y", &name);
+        Py_DECREF (tuple);
+        if (!result)
+            return NULL;
+        return SDL_RWFromFile (name, "rb");
+    }
+#else
     if (PyString_Check (obj) || PyUnicode_Check (obj))
     {
         int result;
         char* name;
         PyObject* tuple = PyTuple_New (1);
-        PyTuple_SET_ITEM (tuple, 0, obj);
-        Py_INCREF (obj);
         if (!tuple)
             return NULL;
+        Py_INCREF (obj);
+        PyTuple_SET_ITEM (tuple, 0, obj);
         result = PyArg_ParseTuple (tuple, "s", &name);
         Py_DECREF (tuple);
         if (!result)
@@ -72,6 +104,7 @@ get_standard_rwop (PyObject* obj)
     }
     else if (PyFile_Check(obj))
         return SDL_RWFromFP (PyFile_AsFile (obj), 0);
+#endif
     return NULL;
 }
 
@@ -202,14 +235,14 @@ rw_read (SDL_RWops* context, void* ptr, int size, int maxnum)
     if (!result)
         return -1;
 
-    if (!PyString_Check (result))
+    if (!Bytes_Check (result))
     {
         Py_DECREF (result);
         return -1;
     }
 
-    retval = PyString_GET_SIZE (result);
-    memcpy (ptr, PyString_AsString (result), retval);
+    retval = Bytes_GET_SIZE (result);
+    memcpy (ptr, Bytes_AsString (result), retval);
     retval /= size;
 
     Py_DECREF (result);
@@ -369,7 +402,7 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
         goto end;
     }
 
-    if (!PyString_Check (result))
+    if (!Bytes_Check (result))
     {
         Py_DECREF (result);
         PyErr_Print();
@@ -377,8 +410,8 @@ rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
         goto end;
     }
 
-    retval = PyString_GET_SIZE (result);
-    memcpy (ptr, PyString_AsString (result), retval);
+    retval = Bytes_GET_SIZE (result);
+    memcpy (ptr, Bytes_AsString (result), retval);
     retval /= size;
 
     Py_DECREF (result);
@@ -463,20 +496,41 @@ rw_close_th (SDL_RWops* context)
 }
 #endif
 
-static PyMethodDef rwobject__builtins__[] =
+static PyMethodDef _rwobject_methods[] =
 {
     { NULL, NULL }
 };
 
-PYGAME_EXPORT
-void initrwobject (void)
+/*DOC*/ static char _rwobject_doc[] =
+/*DOC*/    "SDL_RWops support";
+
+MODINIT_DEFINE (rwobject)
 {
     PyObject *module, *dict, *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_RWOBJECT_NUMSLOTS];
 
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "rwobject",
+        _rwobject_doc,
+        -1,
+        _rwobject_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     /* Create the module and add the functions */
-    module = Py_InitModule3 ("rwobject", rwobject__builtins__,
-                             "SDL_RWops support");
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("rwobject", _rwobject_methods,
+                             _rwobject_doc);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
     /* export the c api */
@@ -485,6 +539,15 @@ void initrwobject (void)
     c_api[2] = RWopsFromPythonThreaded;
     c_api[3] = RWopsCheckPythonThreaded;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+	MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }

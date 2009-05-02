@@ -13,7 +13,14 @@ import time
 import subprocess
 import re
 import glob
-import _winreg
+try:
+    import _winreg
+except ImportError:
+    import winreg as _winreg
+
+# For Python 2.x/3.x compatibility
+def geterror():
+    return sys.exc_info()[1]
 
 FSTAB_REGEX = (r'^[ \t]*(?P<path>'
                r'([a-zA-Z]:){0,1}([\\/][^\s*^?:%\\/]+)+)'
@@ -74,8 +81,8 @@ def input_msys_dir():
         dir_path = os.path.abspath(dir_path)
         try:
             return find_msys_version_subdir(dir_path)
-        except MsysException, e:
-            msys_print(e)
+        except MsysException:
+            msys_print(geterror())
             
 def find_msys_registry():
     """Return the MSYS 1.0 directory path stored in the Windows registry

@@ -19,6 +19,7 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
+from pygame.compat import long_
 import math
 
 ################################### CONSTANTS ##################################
@@ -372,13 +373,13 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c2.b, 8)
         self.assertEquals (c2.a, 16)
 
-        c3 = c1 / c2
+        c3 = c1 // c2
         self.assertEquals (c3.r, 64)
         self.assertEquals (c3.g, 32)
         self.assertEquals (c3.b, 16)
         self.assertEquals (c3.a, 8)
 
-        c3 = c3 / c2
+        c3 = c3 // c2
         self.assertEquals (c3.r, 32)
         self.assertEquals (c3.g, 8)
         self.assertEquals (c3.b, 2)
@@ -508,7 +509,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c.g, 0)
         self.assertEquals (c.b, 204)
         self.assertEquals (c.a, 0)
-        self.assertEquals (long (c), long (0xCC00CC00))
+        self.assertEquals (long_ (c), long_ (0xCC00CC00))
 
         # This will be an int
         c = pygame.Color (0x33727592)
@@ -516,7 +517,7 @@ class ColorTypeTest (unittest.TestCase):
         self.assertEquals (c.g, 114)
         self.assertEquals (c.b, 117)
         self.assertEquals (c.a, 146)
-        self.assertEquals (long (c), long (0x33727592))
+        self.assertEquals (long_ (c), long_ (0x33727592))
 
     def test_normalize (self):
         c = pygame.Color (204, 38, 194, 55)
@@ -683,7 +684,7 @@ class ColorTypeTest (unittest.TestCase):
         "|tags:slow|"
         # gamma_correct defined at top of page
 
-        gammas = map(lambda i: i / 10.0, range(1, 31)) # [0.1 .. 3.0]
+        gammas = [i / 10.0 for i in range(1, 31)]  # [0.1 ... 3.0]
         gammas_len = len(gammas)
 
         for i, c in enumerate(rgba_combos_Color_generator()):

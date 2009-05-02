@@ -9,7 +9,19 @@ font management."""
 
 import pygame
 from pygame.locals import *
+from pygame.compat import unichr_, unicode_
+import sys
+import locale
 
+
+if sys.version_info >= (3,):
+    def print_unicode(s):
+        e = locale.getpreferredencoding()
+        print (s.encode(e, 'backslashreplace').decode())
+else:
+    def print_unicode(s):
+        e = locale.getpreferredencoding()
+        print (s.encode(e, 'backslashreplace'))
 
 def main():
     #initialize
@@ -17,10 +29,7 @@ def main():
     resolution = 400, 200
     screen = pygame.display.set_mode(resolution)
 
-    #the python 1.5.2 way to set the cursor
-    apply(pygame.mouse.set_cursor, pygame.cursors.diamond)
-    #the python 2.0 way to set the cursor
-    #pygame.mouse.set_cursor(*pygame.cursors.diamond)
+##    pygame.mouse.set_cursor(*pygame.cursors.diamond)
 
     fg = 250, 240, 230
     bg = 5, 5, 5
@@ -62,12 +71,14 @@ def main():
 
 
     # Get some metrics.
-    print "Font metrics for 'Fonty': ", a_sys_font.metrics (text)
-    print u"Font metrics for '\u3060': ".encode("utf-8"), \
-          a_sys_font.metrics (u"\u3060")
+    print ("Font metrics for 'Fonty':  %s" % a_sys_font.metrics (text))
+    ch = unicode_("%c") % 0x3060
+    msg = (unicode_("Font metrics for '%s':  %s") %
+           (ch, a_sys_font.metrics (ch)))
+    print_unicode(msg)
 
-
-    ##some_japanese_unicode = u"\u304b\u3070\u306b"
+    ## #some_japanese_unicode = u"\u304b\u3070\u306b"
+    ##some_japanese_unicode = unicode_('%c%c%c') % (0x304b, 0x3070, 0x306b)
     
     #AA, transparancy, italic
     ##ren = a_sys_font.render(some_japanese_unicode, 1, fg)

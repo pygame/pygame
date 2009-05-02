@@ -21,29 +21,61 @@
 */
 #define NO_PYGAME_C_API
 #include "pygame.h"
+#include "pgcompat.h"
 #include "scrap.h"
 
 /* macros used to create each constant */
-#define DEC_CONST(x)  PyModule_AddIntConstant(module, #x, (int) SDL_##x);
-#define DEC_CONSTK(x) PyModule_AddIntConstant(module, #x, (int) SDL##x);
-#define DEC_CONSTN(x) PyModule_AddIntConstant(module, #x, (int) x);
-#define DEC_CONSTS(x,y) PyModule_AddIntConstant(module, #x, (int) y);
+#define ADD_ERROR { DECREF_MOD (module); MODINIT_ERROR; }
+#define DEC_CONST(x) \
+    if (PyModule_AddIntConstant(module, #x, (int) SDL_##x)) ADD_ERROR
+#define DEC_CONSTK(x) \
+    if (PyModule_AddIntConstant(module, #x, (int) SDL##x)) ADD_ERROR
+#define DEC_CONSTN(x) \
+    if (PyModule_AddIntConstant(module, #x, (int) x)) ADD_ERROR
+#define DEC_CONSTS(x,y) \
+    if (PyModule_AddIntConstant(module, #x, (int) y)) ADD_ERROR
 
-#define ADD_STRING_CONST(x) PyModule_AddStringConstant(module, #x, x);
+#define ADD_STRING_CONST(x) \
+    if (PyModule_AddStringConstant(module, #x, x)) ADD_ERROR
 
-static PyMethodDef builtins[] =
+
+static PyMethodDef _constant_methods[] =
 {
     {NULL}
 };
 
-PYGAME_EXPORT
-void initconstants (void)
+/*DOC*/ static char _constants_doc[] =
+/*DOC*/     "Constants defined by SDL and needed in Pygame.\n";
+
+MODINIT_DEFINE(constants)
 {
     PyObject* module;
     
+
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "constants",
+        _constants_doc,
+        -1,
+        _constant_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
+
+
+
+#if PY3
+    module = PyModule_Create (&_module);
+#else
     module = Py_InitModule3
-        ("constants", builtins,
-         "Constants defined by SDL and needed in Pygame.\n");
+        ("constants", _constant_methods, _constants_doc);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
 
     DEC_CONST (LIL_ENDIAN);
     DEC_CONST (BIG_ENDIAN);
@@ -374,4 +406,7 @@ void initconstants (void)
     DEC_CONSTN(KMOD_SHIFT);
     DEC_CONSTN(KMOD_ALT);
     DEC_CONSTN(KMOD_META);
+
+    MODINIT_RETURN (module);
+
 }
