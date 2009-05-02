@@ -75,6 +75,17 @@ you when pygame.error is raised. You will rarely need to call this function.
 <END>
 
 
+
+set_error
+set the current error message
+pygame.set_error(error_msg): return None
+
+SDL maintains an internal error message. This message will usually be given to
+you when pygame.error is raised. You will rarely need to call this function.
+<END>
+
+
+
 get_sdl_version
 get the version number of SDL
 pygame.get_sdl_version(): return major, minor, patch

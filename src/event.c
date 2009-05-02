@@ -25,6 +25,7 @@
  */
 #define PYGAMEAPI_EVENT_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 
 // FIXME: The system message code is only tested on windows, so only
@@ -123,7 +124,7 @@ static int PyEvent_FillUserEvent (PyEventObject *e, SDL_Event *event)
     return 0;
 }
 
-staticforward PyTypeObject PyEvent_Type;
+static PyTypeObject PyEvent_Type;
 static PyObject* PyEvent_New (SDL_Event*);
 static PyObject* PyEvent_New2 (int, PyObject*);
 #define PyEvent_Check(x) ((x)->ob_type == &PyEvent_Type)
@@ -183,7 +184,7 @@ insobj (PyObject *dict, char *name, PyObject *v)
     }
 }
 
-#ifdef Py_USING_UNICODE
+#if defined(Py_USING_UNICODE)
 
 static PyObject*
 our_unichr (long uni)
@@ -194,8 +195,8 @@ our_unichr (long uni)
     {
         PyObject* bltins;
 
-        bltins = PyImport_ImportModule ("__builtin__");
-        bltin_unichr = PyObject_GetAttrString (bltins, "unichr");
+        bltins = PyImport_ImportModule (BUILTINS_MODULE);
+        bltin_unichr = PyObject_GetAttrString (bltins, BUILTINS_UNICHR);
         Py_DECREF (bltins);
     }
     return PyEval_CallFunction (bltin_unichr, "(l)", uni);
@@ -211,8 +212,8 @@ our_empty_ustr (void)
         PyObject* bltins;
         PyObject* bltin_unicode;
 
-        bltins = PyImport_ImportModule ("__builtin__");
-        bltin_unicode = PyObject_GetAttrString (bltins, "unicode");
+        bltins = PyImport_ImportModule (BUILTINS_MODULE);
+        bltin_unicode = PyObject_GetAttrString (bltins, BUILTINS_UNICODE);
         empty_ustr = PyEval_CallFunction (bltin_unicode, "(s)", "");
         Py_DECREF (bltin_unicode);
         Py_DECREF (bltins);
@@ -350,7 +351,7 @@ dict_from_event (SDL_Event* event)
 
         //printf("asdf :%d:", event->syswm.msg->event.xevent.type);
         insobj (dict,  "event",
-               PyString_FromStringAndSize
+               Text_FromUTF8AndSize
                 ((char*) & (event->syswm.msg->event.xevent), sizeof (XEvent)));
 #endif
 
@@ -402,13 +403,32 @@ event_str (PyObject* self)
     PyEventObject* e = (PyEventObject*)self;
     char str[1024];
     PyObject *strobj;
+    char *s;
+#if PY3
+    PyObject *encodedobj;
+#endif
 
     strobj = PyObject_Str (e->dict);
+    if (strobj == NULL) {
+	return NULL;
+    }
+#if PY3
+    encodedobj = PyUnicode_AsASCIIString (strobj);
+    Py_DECREF (strobj);
+    strobj = encodedobj;
+    encodedobj = NULL;
+    if (strobj == NULL) {
+	return NULL;
+    }
+    s = PyBytes_AsString (strobj);
+#else
+    s = PyString_AsString (strobj);
+#endif
     sprintf (str, "<Event(%d-%s %s)>", e->type, name_from_eventtype (e->type),
-             PyString_AsString (strobj));
+             s);
 
     Py_DECREF (strobj);
-    return PyString_FromString (str);
+    return Text_FromUTF8 (str);
 }
 
 static int
@@ -421,7 +441,9 @@ static PyNumberMethods event_as_number = {
     (binaryfunc)NULL,		/*add*/
     (binaryfunc)NULL,		/*subtract*/
     (binaryfunc)NULL,		/*multiply*/
+#if !PY3
     (binaryfunc)NULL,		/*divide*/
+#endif
     (binaryfunc)NULL,		/*remainder*/
     (binaryfunc)NULL,		/*divmod*/
     (ternaryfunc)NULL,		/*power*/
@@ -435,12 +457,14 @@ static PyNumberMethods event_as_number = {
     (binaryfunc)NULL,		/*and*/
     (binaryfunc)NULL,		/*xor*/
     (binaryfunc)NULL,		/*or*/
+#if !PY3
     (coercion)NULL,			/*coerce*/
+#endif
     (unaryfunc)NULL,		/*int*/
+#if !PY3
     (unaryfunc)NULL,		/*long*/
+#endif
     (unaryfunc)NULL,		/*float*/
-    (unaryfunc)NULL,		/*oct*/
-    (unaryfunc)NULL,		/*hex*/
 };
 
 /*
@@ -483,8 +507,7 @@ Unimplemented:
 
 static PyTypeObject PyEvent_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,						/*size*/
+    TYPE_HEAD (NULL, 0)
     "Event",				/*name*/
     sizeof(PyEventObject),	/*basic size*/
     0,						/*itemsize*/
@@ -503,7 +526,11 @@ static PyTypeObject PyEvent_Type =
     0,                          /* tp_getattro */
     0,                          /* tp_setattro */
     0,                          /* tp_as_buffer */
+#if PY3
+    0,
+#else
     Py_TPFLAGS_HAVE_RICHCOMPARE,
+#endif
     DOC_PYGAMEEVENTEVENT, /* Documentation string */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
@@ -585,7 +612,7 @@ event_name (PyObject* self, PyObject* arg)
     if (!PyArg_ParseTuple (arg, "i", &type))
         return NULL;
 
-    return PyString_FromString (name_from_eventtype (type));
+    return Text_FromUTF8 (name_from_eventtype (type));
 }
 
 static PyObject*
@@ -962,7 +989,7 @@ get_blocked (PyObject* self, PyObject* args)
     return PyInt_FromLong (isblocked);
 }
 
-static PyMethodDef event_builtins[] =
+static PyMethodDef _event_methods[] =
 {
     { "Event", (PyCFunction)Event, 3, DOC_PYGAMEEVENTEVENT },
     { "event_name", event_name, METH_VARARGS, DOC_PYGAMEEVENTEVENTNAME },
@@ -985,28 +1012,49 @@ static PyMethodDef event_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initevent (void)
+MODINIT_DEFINE (event)
 {
     PyObject *module, *dict, *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_EVENT_NUMSLOTS];
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "event",
+        DOC_PYGAMEEVENT,
+        -1,
+        _event_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* type preparation */
-    PyType_Init (PyEvent_Type);
+    if (PyType_Ready (&PyEvent_Type) < 0) {
+	MODINIT_ERROR;
+    }
 
     /* create the module */
-    module = Py_InitModule3 ("event", event_builtins, DOC_PYGAMEEVENT);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("event", _event_methods, DOC_PYGAMEEVENT);
+#endif
     dict = PyModule_GetDict (module);
 
-    PyDict_SetItemString (dict, "EventType", (PyObject *)&PyEvent_Type);
+    if (PyDict_SetItemString (dict, "EventType",
+			      (PyObject *)&PyEvent_Type) == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
     /* export the c api */
     c_api[0] = &PyEvent_Type;
@@ -1014,8 +1062,22 @@ void initevent (void)
     c_api[2] = PyEvent_New2;
     c_api[3] = PyEvent_FillUserEvent;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
-    PyGame_RegisterQuit (user_event_cleanup);
+    /* Assume if there are events in the user events list
+     * there is also a registered cleanup callback for them.
+     */
+    if (user_event_objects == NULL) {
+        PyGame_RegisterQuit (user_event_cleanup);
+    }
+    MODINIT_RETURN (module);
 }

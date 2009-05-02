@@ -20,7 +20,8 @@ object (such as StringIO).
 __all__ = ['getResource']
 import sys
 import os
-from cStringIO import StringIO
+from pygame.compat import get_BytesIO
+BytesIO = get_BytesIO()
 
 try:
     from pkg_resources import resource_stream, resource_exists
@@ -52,7 +53,7 @@ def getResource(identifier, pkgname=__name__):
     mod = sys.modules[pkgname]
     fn = getattr(mod, '__file__', None)
     if fn is None:
-        raise IOError, "%r has no __file__!"
+        raise IOError("%s has no __file__!" % repr(mod))
     path = os.path.join(os.path.dirname(fn), identifier)
     loader = getattr(mod, '__loader__', None)
     if loader is not None:
@@ -61,5 +62,5 @@ def getResource(identifier, pkgname=__name__):
         except IOError:
             pass
         else:
-            return StringIO(data)
-    return file(os.path.normpath(path), 'rb')
+            return BytesIO(data)
+    return open(os.path.normpath(path), 'rb')

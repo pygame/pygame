@@ -723,7 +723,7 @@ class LayeredGroupBase:
             spr = self.sprite()
             spr._layer = lay
             self.LG.add(spr)
-            if not sprites.has_key(lay):
+            if lay not in sprites:
                 sprites[lay] = []
             sprites[lay].append(spr)
             

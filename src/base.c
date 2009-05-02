@@ -22,6 +22,7 @@
 #define NO_PYGAME_C_API
 #define PYGAMEAPI_BASE_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include <signal.h>
 
@@ -45,9 +46,10 @@ QDGlobals qd;
 #endif
 #endif
 
+/* Only one instance of the state per process. */
 static PyObject* quitfunctions = NULL;
-static PyObject* PyExc_SDLError;
 static int sdl_was_init = 0;
+
 static void install_parachute (void);
 static void uninstall_parachute (void);
 static void _quit (void);
@@ -182,8 +184,8 @@ atexit_quit (void)
        successful SDL_Init.
     */
     if (sdl_was_init) {
-	sdl_was_init = 0;
-	SDL_Quit ();
+        sdl_was_init = 0;
+        SDL_Quit ();
     }
 }
 
@@ -397,8 +399,24 @@ RGBAFromObj (PyObject* obj, Uint8* RGBA)
 static PyObject*
 get_error (PyObject* self)
 {
-    return PyString_FromString (SDL_GetError ());
+    return Text_FromUTF8 (SDL_GetError ());
 }
+
+static PyObject*
+set_error (PyObject *s, PyObject *args)
+{
+    char *errstring = NULL;
+
+    if (!PyArg_ParseTuple (args, "s", &errstring))
+        return NULL;
+
+    SDL_SetError(errstring);
+
+    Py_RETURN_NONE;
+}
+
+
+
 
 /*video init needs to be here, because of it's
  *important init order priority
@@ -565,12 +583,13 @@ do_segfault (PyObject* self)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef init__builtins__[] =
+static PyMethodDef _base_methods[] =
 {
     { "init", (PyCFunction) init, METH_NOARGS, DOC_PYGAMEINIT },
     { "quit", (PyCFunction) quit, METH_NOARGS, DOC_PYGAMEQUIT },
     { "register_quit", register_quit, METH_VARARGS, DOC_PYGAMEREGISTERQUIT },
     { "get_error", (PyCFunction) get_error, METH_NOARGS, DOC_PYGAMEGETERROR },
+    { "set_error", (PyCFunction) set_error, METH_VARARGS, DOC_PYGAMESETERROR },
     { "get_sdl_version", (PyCFunction) get_sdl_version, METH_NOARGS,
       DOC_PYGAMEGETSDLVERSION },
     { "get_sdl_byteorder", (PyCFunction) get_sdl_byteorder, METH_NOARGS,
@@ -580,35 +599,67 @@ static PyMethodDef init__builtins__[] =
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initbase (void)
+MODINIT_DEFINE(base)
 {
+    static int is_loaded = 0;
     PyObject *module, *dict, *apiobj;
-    PyObject *atexit, *atexit_register, *quit, *rval;
+    PyObject *atexit, *atexit_register = NULL, *quit, *rval;
+    PyObject *PyExc_SDLError;
+    int ecode;
     static void* c_api[PYGAMEAPI_BASE_NUMSLOTS];
 
-    /* import need modules. Do this first so if there is an error
-       the module is not loaded.
-    */
-    atexit = PyImport_ImportModule ("atexit");
-    if (!atexit) {
-	return;
-    }
-    atexit_register = PyObject_GetAttrString (atexit, "register");
-    Py_DECREF (atexit);
-    if (!atexit_register) {
-	return;
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "base",
+        "",
+        -1,
+        _base_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
+    if (!is_loaded) {
+        /* import need modules. Do this first so if there is an error
+           the module is not loaded.
+        */
+        atexit = PyImport_ImportModule ("atexit");
+        if (!atexit) {
+            MODINIT_ERROR;
+        }
+        atexit_register = PyObject_GetAttrString (atexit, "register");
+        Py_DECREF (atexit);
+        if (!atexit_register) {
+            MODINIT_ERROR;
+        }
     }
 
     /* create the module */
-    module = Py_InitModule3 ("base", init__builtins__, DOC_PYGAME);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("base", _base_methods, DOC_PYGAME);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
     /* create the exceptions */
     PyExc_SDLError = PyErr_NewException ("pygame.error", PyExc_RuntimeError,
                                          NULL);
-    PyDict_SetItemString (dict, "error", PyExc_SDLError);
+    if (PyExc_SDLError == NULL) {
+        Py_XDECREF (atexit_register);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, "error", PyExc_SDLError);
     Py_DECREF (PyExc_SDLError);
+    if (ecode) {
+        Py_XDECREF (atexit_register);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
     /* export the c api */
     c_api[0] = PyExc_SDLError;
@@ -625,30 +676,46 @@ void initbase (void)
     c_api[11] = PyGame_Video_AutoInit;
     c_api[12] = RGBAFromObj;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        Py_XDECREF (atexit_register);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode) {
+        Py_XDECREF (atexit_register);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
-    /*some intialization*/
-    quit = PyObject_GetAttrString (module, "quit");
-    if (!quit) {  /* assertion */
-	Py_DECREF (atexit_register);
-	return;
-    }
-    rval = PyObject_CallFunctionObjArgs (atexit_register, quit, NULL);
-    Py_DECREF (atexit_register);
-    Py_DECREF (quit);
-    if (!rval) {
-	return;
-    }
-    Py_DECREF (rval);
-    Py_AtExit (atexit_quit);
-    install_parachute ();
+    if (!is_loaded) {
+        /*some intialization*/
+        quit = PyObject_GetAttrString (module, "quit");
+        if (quit == NULL) {  /* assertion */
+            Py_DECREF (atexit_register);
+            DECREF_MOD (module);
+            MODINIT_ERROR;
+        }
+        rval = PyObject_CallFunctionObjArgs (atexit_register, quit, NULL);
+        Py_DECREF (atexit_register);
+        Py_DECREF (quit);
+        if (rval == NULL) {
+            DECREF_MOD (module);
+            MODINIT_ERROR;
+        }
+        Py_DECREF (rval);
+        Py_AtExit (atexit_quit);
+        install_parachute ();
 #ifdef MS_WIN32
-    SDL_RegisterApp ("pygame", 0, GetModuleHandle (NULL));
+        SDL_RegisterApp ("pygame", 0, GetModuleHandle (NULL));
 #endif
 #if defined(macintosh)
 #if(!defined(__MWERKS__) && !TARGET_API_MAC_CARBON)
-    SDL_InitQuickDraw (&qd);
+        SDL_InitQuickDraw (&qd);
 #endif
 #endif
+        }
+    is_loaded = 1;
+    MODINIT_RETURN (module);
 }

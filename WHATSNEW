@@ -5,6 +5,11 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+[SVN 2047] May 1, 2009
+    Merge python3 branch back into trunk. This allows a minimal Pygame
+    system to be built for Python 3. It also improves error checking
+    in module init functions.
+
 [SVN 1952] Feb 22, 2009
     Added Surface.scroll method along with the scroll.py example.
 

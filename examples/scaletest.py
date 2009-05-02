@@ -68,7 +68,7 @@ def main(imagefile, convert_alpha=False, run_speed_test=False):
 
 
 def SpeedTest(image):
-    print "Smoothscale Speed Test - Image Size %s\n" % str(image.get_size())
+    print ("Smoothscale Speed Test - Image Size %s\n" % str(image.get_size()))
     imgsize = [image.get_width(), image.get_height()]
     duration = 0.0
     for i in range(128):
@@ -78,7 +78,7 @@ def SpeedTest(image):
         tempimg = pygame.transform.smoothscale(image, (shrinkx, shrinky))
         duration += (time.time() - start)
         del tempimg
-    print "Average smooth shrink time: %i milliseconds." % int((duration / 128) * 1000)
+    print ("Average smooth shrink time: %i milliseconds." % int((duration / 128) * 1000))
     duration = 0
     for i in range(128):
         expandx = (imgsize[0] * (i + 129)) / 128
@@ -87,7 +87,7 @@ def SpeedTest(image):
         tempimg = pygame.transform.smoothscale(image, (expandx, expandy))
         duration += (time.time() - start)
         del tempimg
-    print "Average smooth expand time: %i milliseconds." % int((duration / 128) * 1000)
+    print ("Average smooth expand time: %i milliseconds." % int((duration / 128) * 1000))
     duration = 0.0
     for i in range(128):
         shrinkx = (imgsize[0] * i) / 128
@@ -96,7 +96,7 @@ def SpeedTest(image):
         tempimg = pygame.transform.scale(image, (shrinkx, shrinky))
         duration += (time.time() - start)
         del tempimg
-    print "Average jaggy shrink time: %i milliseconds." % int((duration / 128) * 1000)
+    print ("Average jaggy shrink time: %i milliseconds." % int((duration / 128) * 1000))
     duration = 0
     for i in range(128):
         expandx = (imgsize[0] * (i + 129)) / 128
@@ -105,16 +105,16 @@ def SpeedTest(image):
         tempimg = pygame.transform.scale(image, (expandx, expandy))
         duration += (time.time() - start)
         del tempimg
-    print "Average jaggy expand time: %i milliseconds." % int((duration / 128) * 1000)
+    print ("Average jaggy expand time: %i milliseconds." % int((duration / 128) * 1000))
 
 
 
 if __name__ == '__main__':
     # check input parameters
     if len(sys.argv) < 2:
-        print"Usage: %s ImageFile [-t] [-convert_alpha]" % sys.argv[0]
-        print"       [-t] = Run Speed Test\n"
-        print"       [-convert_alpha] = Use convert_alpha() on the surf.\n"
+        print ("Usage: %s ImageFile [-t] [-convert_alpha]" % sys.argv[0])
+        print ("       [-t] = Run Speed Test\n")
+        print ("       [-convert_alpha] = Use convert_alpha() on the surf.\n")
     else:
         main(sys.argv[1],
              convert_alpha = '-convert_alpha' in sys.argv,

@@ -6,8 +6,11 @@ else:
     from test.test_utils import unittest, import_submodule
 import re
 import time
-import sys 
-import StringIO
+import sys
+try: 
+    import StringIO
+except ImportError:
+    import io as StringIO
 import random
 
 from inspect import getdoc

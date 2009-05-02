@@ -16,6 +16,9 @@ def main():
             event = pygame.event.wait()
             if event.type == pygame.QUIT:
                 break
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE or event.unicode == 'q':
+                    break
             pygame.display.flip()
     finally:
         pygame.quit()

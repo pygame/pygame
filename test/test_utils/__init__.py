@@ -7,6 +7,10 @@ else:
     from test.test_utils import unittest
 
 import tempfile, sys, pygame, time, os
+try:
+    xrange_ = xrange
+except NameError:
+    xrange_ = range
 
 ################################################################################
 
@@ -86,8 +90,8 @@ def gradient(width, height):
 
     """
 
-    for l in xrange(width):
-        for t in xrange(height):
+    for l in xrange_(width):
+        for t in xrange_(height):
             yield (l,t), tuple(map(rgba_between, (l, t, l, l+t)))
 
 def unordered_equality(seq1, seq2):
@@ -112,8 +116,8 @@ def unordered_equality(seq1, seq2):
     return True
 
 def rect_area_pts(rect):
-    for l in xrange(rect.left, rect.right):
-        for t in xrange(rect.top, rect.bottom):
+    for l in xrange_(rect.left, rect.right):
+        for t in xrange_(rect.top, rect.bottom):
             yield l, t
 
 def rect_perimeter_pts(rect):
@@ -132,10 +136,10 @@ def rect_perimeter_pts(rect):
 
     """
     clock_wise_from_top_left = (
-      ((l,       rect.top) for l in xrange(rect.left,      rect.right)      ),
-      ((rect.right -1,  t) for t in xrange(rect.top   + 1, rect.bottom)     ),
-      ((l, rect.bottom -1) for l in xrange(rect.right  -2, rect.left -1, -1)), 
-      ((rect.left,      t) for t in xrange(rect.bottom -2, rect.top,     -1))
+      ((l,       rect.top) for l in xrange_(rect.left,      rect.right)      ),
+      ((rect.right -1,  t) for t in xrange_(rect.top   + 1, rect.bottom)     ),
+      ((l, rect.bottom -1) for l in xrange_(rect.right  -2, rect.left -1, -1)), 
+      ((rect.left,      t) for t in xrange_(rect.bottom -2, rect.top,     -1))
     )
     
     for line in clock_wise_from_top_left:
@@ -197,6 +201,6 @@ def test():
         module = 'test.test_utils.unittest'
     assert import_submodule(module) is unittest
     
-    print 'Tests: OK'
+    print ('Tests: OK')
 
 ################################################################################

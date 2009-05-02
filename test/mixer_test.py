@@ -18,6 +18,7 @@ else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
 from pygame import mixer
+from pygame.compat import xrange_
 
 import os
 
@@ -119,11 +120,11 @@ class MixerModuleTest(unittest.TestCase):
                 for c in CHANNELS:
                     configs.append ((f,s,c))
 
-        print configs
+        print (configs)
     
 
         for init_conf in configs:
-            print init_conf
+            print (init_conf)
             f,s,c = init_conf
             if (f,s) == (22050,16):continue
             mixer.init(f,s,c)
@@ -154,7 +155,7 @@ class MixerModuleTest(unittest.TestCase):
     def test_set_num_channels(self):
         mixer.init()
 
-        for i in xrange(1, mixer.get_num_channels() + 1):
+        for i in xrange_(1, mixer.get_num_channels() + 1):
             mixer.set_num_channels(i)
             self.assert_(mixer.get_num_channels() == i)
 

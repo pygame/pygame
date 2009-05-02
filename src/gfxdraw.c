@@ -34,15 +34,9 @@
 
 #include "pygame.h"
 #include "surface.h"
+#include "pgcompat.h"
 #include "SDL_gfx/SDL_gfxPrimitives.h"
 
-#if PY_VERSION_HEX >= 0x03000000
-#define PY3 1
-#define MODINIT_RETURN(x) return x
-#else
-#define PY3 0
-#define MODINIT_RETURN(x) return
-#endif
 
 static PyObject* _gfx_pixelcolor (PyObject *self, PyObject* args);
 static PyObject* _gfx_hlinecolor (PyObject *self, PyObject* args);
@@ -1146,13 +1140,9 @@ _gfx_beziercolor (PyObject *self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-#if PY3
-PyMODINIT_FUNC PyInit_gfxdraw (void)
-#else
-PyMODINIT_FUNC initgfxdraw (void)
-#endif
+MODINIT_DEFINE(gfxdraw)
 {
-    PyObject *mod;
+    PyObject *module;
     
 #if PY3
     static struct PyModuleDef _module = {
@@ -1170,26 +1160,26 @@ PyMODINIT_FUNC initgfxdraw (void)
     */
     import_pygame_base();
     if (PyErr_Occurred ()) {
-	MODINIT_RETURN (NULL);
+        MODINIT_ERROR;
     }
     import_pygame_color();
     if (PyErr_Occurred ()) {
-	MODINIT_RETURN (NULL);
+        MODINIT_ERROR;
     }
     import_pygame_rect();
     if (PyErr_Occurred ()) {
-	MODINIT_RETURN (NULL);
+        MODINIT_ERROR;
     }
     import_pygame_surface();
     if (PyErr_Occurred ()) {
-	MODINIT_RETURN (NULL);
+        MODINIT_ERROR;
     }
 
 #if PY3
-    mod = PyModule_Create (&_module);
+    module = PyModule_Create (&_module);
 #else
-    mod = Py_InitModule3 ("gfxdraw", _gfxdraw_methods, "");
+    module = Py_InitModule3 ("gfxdraw", _gfxdraw_methods, "");
 #endif
 
-    MODINIT_RETURN (mod);
+    MODINIT_RETURN (module);
 }

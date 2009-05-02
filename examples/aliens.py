@@ -8,7 +8,7 @@ from pygame.locals import *
 
 #see if we can load more than standard BMP
 if not pygame.image.get_extended():
-    raise SystemExit, "Sorry, extended image module required"
+    raise SystemExit("Sorry, extended image module required")
 
 
 #game constants
@@ -27,7 +27,7 @@ def load_image(file):
     try:
         surface = pygame.image.load(file)
     except pygame.error:
-        raise SystemExit, 'Could not load image "%s" %s'%(file, pygame.get_error())
+        raise SystemExit('Could not load image "%s" %s'%(file, pygame.get_error()))
     return surface.convert()
 
 def load_images(*files):
@@ -47,7 +47,7 @@ def load_sound(file):
         sound = pygame.mixer.Sound(file)
         return sound
     except pygame.error:
-        print 'Warning, unable to load,', file
+        print ('Warning, unable to load, %s' % file)
     return dummysound()
 
 
@@ -82,7 +82,7 @@ class Player(pygame.sprite.Sprite):
             self.image = self.images[0]
         elif direction > 0:
             self.image = self.images[1]
-        self.rect.top = self.origtop - (self.rect.left/self.bounce%2)
+        self.rect.top = self.origtop - (self.rect.left//self.bounce%2)
 
     def gunpos(self):
         pos = self.facing*self.gun_offset + self.rect.centerx
@@ -109,7 +109,7 @@ class Alien(pygame.sprite.Sprite):
             self.rect.top = self.rect.bottom + 1
             self.rect = self.rect.clamp(SCREENRECT)
         self.frame = self.frame + 1
-        self.image = self.images[self.frame/self.animcycle%3]
+        self.image = self.images[self.frame//self.animcycle%3]
 
 
 class Explosion(pygame.sprite.Sprite):
@@ -124,7 +124,7 @@ class Explosion(pygame.sprite.Sprite):
 
     def update(self):
         self.life = self.life - 1
-        self.image = self.images[self.life/self.animcycle%2]
+        self.image = self.images[self.life//self.animcycle%2]
         if self.life <= 0: self.kill()
 
 
@@ -180,7 +180,7 @@ def main(winstyle = 0):
     # Initialize pygame
     pygame.init()
     if pygame.mixer and not pygame.mixer.get_init():
-        print 'Warning, no sound'
+        print ('Warning, no sound')
         pygame.mixer = None
 
     # Set the display mode

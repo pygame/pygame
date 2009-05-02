@@ -28,6 +28,10 @@
  */
 #include <png.h>
 #include <jpeglib.h>
+/* Keep a stray macro from conflicting with python.h */
+#if defined(HAVE_PROTOTYPES)
+#undef HAVE_PROTOTYPES
+#endif
 /* Remove GCC macro redefine warnings. */
 #if defined(HAVE_STDDEF_H)  /* also defined in pygame.h (python.h) */
 #undef HAVE_STDDEF_H
@@ -36,6 +40,7 @@
 #undef HAVE_STDLIB_H
 #endif
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "pgopengl.h"
 #include <SDL_image.h>
@@ -57,13 +62,20 @@ find_extension (char* fullname)
 static PyObject*
 image_load_ext (PyObject* self, PyObject* arg)
 {
-    PyObject* file, *final;
+    PyObject *file, *final;
+#if PY3
+    PyObject *oname, *odecoded = NULL;
+#endif
     char* name = NULL;
     SDL_Surface* surf;
     SDL_RWops *rw;
     if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
         return NULL;
+#if PY3
+    if (PyUnicode_Check (file))
+#else
     if (PyString_Check (file) || PyUnicode_Check (file))
+#endif
     {
         if (!PyArg_ParseTuple (arg, "s|O", &name, &file))
             return NULL;
@@ -71,12 +83,49 @@ image_load_ext (PyObject* self, PyObject* arg)
         surf = IMG_Load (name);
         Py_END_ALLOW_THREADS;
     }
+#if PY3
+    else if (PyBytes_Check (file)) {
+        name = PyBytes_AsString (file);
+	if (name == NULL) {
+	    return NULL;
+	}
+        Py_BEGIN_ALLOW_THREADS;
+        surf = IMG_Load (name);
+        Py_END_ALLOW_THREADS;
+    }
+#endif
     else
     {
+#if PY3
+        if (name == NULL) {
+            oname = PyObject_GetAttrString (file, "name");
+            if (oname == NULL) {
+	        PyErr_Clear ();
+            }
+            else {
+	        if (PyUnicode_Check (oname)) {
+	            odecoded = PyUnicode_AsASCIIString (oname);
+	            Py_DECREF (oname);
+	            if (odecoded == NULL) {
+	                return NULL;
+		    }
+	  	    name = PyBytes_AsString (odecoded);
+	        }
+		else if (PyBytes_Check (oname)) {
+		    name = PyBytes_AsString (oname);
+		}
+	    }
+        }
+#else
         if (!name && PyFile_Check (file))
             name = PyString_AsString (PyFile_Name (file));
-        if (!(rw = RWopsFromPython (file)))
+#endif
+        if (!(rw = RWopsFromPython (file))) {
+#if PY3
+	    Py_XDECREF (odecoded);
+#endif
             return NULL;
+	}
         if (RWopsCheckPython (rw))
         {
             surf = IMG_LoadTyped_RW (rw, 1, find_extension (name));
@@ -87,6 +136,9 @@ image_load_ext (PyObject* self, PyObject* arg)
             surf = IMG_LoadTyped_RW (rw, 1, find_extension (name));
             Py_END_ALLOW_THREADS;
         }
+#if PY3
+	Py_XDECREF (odecoded);
+#endif
     }
 
     if (!surf)
@@ -431,7 +483,7 @@ int SaveJPEG (SDL_Surface *surface, char *file) {
 
 
 static SDL_Surface*
-opengltosdl ()
+opengltosdl (void)
 {
     /*we need to get ahold of the pyopengl glReadPixels function*/
     /*we use pyopengl's so we don't need to link with opengl at compiletime*/
@@ -514,10 +566,22 @@ image_save_ext (PyObject* self, PyObject* arg)
     else
         PySurface_Prep (surfobj);
 
+#if PY3
+    if (PyUnicode_Check (file) || PyBytes_Check (file))
+#else
     if (PyString_Check (file) || PyUnicode_Check (file))
+#endif
     {
         int namelen;
         char* name;
+#if PY3
+        if (PyBytes_Check (file)) {
+	    if (!PyArg_ParseTuple (arg, "0|y", &file, &name)) {
+	        return NULL;
+	    }
+	}
+	else
+#endif
         if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
             return NULL;
         namelen = strlen (name);
@@ -575,32 +639,53 @@ image_save_ext (PyObject* self, PyObject* arg)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef image_builtins[] =
+static PyMethodDef _imageext_methods[] =
 {
     { "load_extended", image_load_ext, METH_VARARGS, DOC_PYGAMEIMAGE },
     { "save_extended", image_save_ext, METH_VARARGS, DOC_PYGAMEIMAGE },
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initimageext (void)
+
+/*DOC*/ static char _imageext_doc[] =
+/*DOC*/    "additional image loaders";
+
+MODINIT_DEFINE (imageext)
 {
+    PyObject *module;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "imageext",
+        _imageext_doc,
+        -1,
+        _imageext_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
 
     /* create the module */
-    Py_InitModule3 ("imageext", image_builtins, NULL);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("imageext", _imageext_methods, _imageext_doc);
+#endif
+    MODINIT_RETURN (module);
 }

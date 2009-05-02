@@ -21,6 +21,7 @@
 */
 
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 
 #define WORST_CLOCK_ACCURACY 12
@@ -270,7 +271,7 @@ clock_tick_busy_loop (PyObject* self, PyObject* arg)
 }
 
 static PyObject*
-clock_get_fps (PyObject* self)
+clock_get_fps (PyObject* self, PyObject* args)
 {
     PyClockObject* _clock = (PyClockObject*) self;
     return PyFloat_FromDouble (_clock->fps);
@@ -296,7 +297,8 @@ static struct PyMethodDef clock_methods[] =
 {
     { "tick", clock_tick, METH_VARARGS, DOC_CLOCKTICK },
     { "get_fps", (PyCFunction) clock_get_fps, METH_NOARGS, DOC_CLOCKGETFPS },
-    { "get_time", (PyCFunction) clock_get_time, METH_NOARGS, DOC_CLOCKGETTIME },
+    { "get_time", (PyCFunction) clock_get_time, METH_NOARGS,
+      DOC_CLOCKGETTIME },
     { "get_rawtime", (PyCFunction) clock_get_rawtime, METH_NOARGS,
       DOC_CLOCKGETRAWTIME },
     { "tick_busy_loop", clock_tick_busy_loop, METH_VARARGS,
@@ -312,12 +314,6 @@ clock_dealloc (PyObject* self)
     PyObject_DEL (self);	
 }
 
-static PyObject*
-clock_getattr (PyObject *self, char *name)
-{
-    return Py_FindMethod (clock_methods, self, name);
-}
-
 PyObject*
 clock_str (PyObject* self)
 {
@@ -326,41 +322,59 @@ clock_str (PyObject* self)
     
     sprintf (str, "<Clock(fps=%.2f)>", (float) _clock->fps);
     
-    return PyString_FromString (str);
+    return Text_FromUTF8 (str);
 }
 
 static PyTypeObject PyClock_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,				/*size*/
-    "Clock",			/*name*/
-    sizeof(PyClockObject),          /*basic size*/
-    0,				/*itemsize*/
-    clock_dealloc,		        /*dealloc*/
-    0,				/*print*/
-    clock_getattr,		        /*getattr*/
-    NULL,				/*setattr*/
-    NULL,				/*compare*/
-    clock_str,			/*repr*/
-    NULL,				/*as_number*/
-    NULL,				/*as_sequence*/
-    NULL,				/*as_mapping*/
-    (hashfunc)NULL, 		/*hash*/
-    (ternaryfunc)NULL,		/*call*/
-    clock_str, 		        /*str*/
-    /* Space for future expansion */
-    0L,0L,0L,0L,
-    DOC_PYGAMETIMECLOCK /* Documentation string */
+    TYPE_HEAD (NULL, 0)
+    "Clock",                    /* name */
+    sizeof(PyClockObject),      /* basic size */
+    0,                          /* itemsize */
+    clock_dealloc,              /* dealloc */
+    0,                          /* print */
+    0,                          /* getattr */
+    0,                          /* setattr */
+    0,                          /* compare */
+    clock_str,                  /* repr */
+    0,                          /* as_number */
+    0,                          /* as_sequence */
+    0,                          /* as_mapping */
+    (hashfunc)0,                /* hash */
+    (ternaryfunc)0,             /* call */
+    clock_str,                  /* str */
+    0,                          /* tp_getattro */
+    0,                          /* tp_setattro */
+    0,                          /* tp_as_buffer */
+    0,                          /* flags */
+    DOC_PYGAMETIMECLOCK,        /* Documentation string */
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_richcompare */
+    0,                          /* tp_weaklistoffset */
+    0,	                        /* tp_iter */
+    0,                          /* tp_iternext */
+    clock_methods,              /* tp_methods */
+    0,                          /* tp_members */
+    0,                          /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    0,                          /* tp_descr_get */
+    0,                          /* tp_descr_set */
+    0,                          /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,				/* tp_alloc */
+    0,			        /* tp_new */
 };
 
 PyObject*
 ClockInit (PyObject* self)
 {
-    PyClockObject* _clock;
-    
-    _clock = PyObject_NEW (PyClockObject, &PyClock_Type);
-    if (!_clock)
+    PyClockObject* _clock = PyObject_NEW (PyClockObject, &PyClock_Type);
+
+    if (!_clock) {
         return NULL;
+    }
     
     /*just doublecheck that timer is initialized*/
     if (!SDL_WasInit (SDL_INIT_TIMER))
@@ -378,7 +392,7 @@ ClockInit (PyObject* self)
     return (PyObject*) _clock;
 }
 
-static PyMethodDef time_builtins[] =
+static PyMethodDef _time_methods[] =
 {
     { "get_ticks", (PyCFunction) time_get_ticks, METH_NOARGS,
       DOC_PYGAMETIMEGETTICKS },
@@ -391,22 +405,39 @@ static PyMethodDef time_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void inittime (void)
+MODINIT_DEFINE (time)
 {
     PyObject *module;
     
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "time",
+        DOC_PYGAMETIME,
+        -1,
+        _time_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     /* need to import base module, just so SDL is happy. Do this first so if
        the module is there is an error the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* type preparation */
-    PyType_Init (PyClock_Type);
+    if (PyType_Ready (&PyClock_Type) < 0) {
+        MODINIT_ERROR;
+    }
     
     /* create the module */
-    module = Py_InitModule3 ("time", time_builtins, DOC_PYGAMETIME);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("time", _time_methods, DOC_PYGAMETIME);
+#endif
+    MODINIT_RETURN (module);
 }

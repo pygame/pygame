@@ -9,6 +9,8 @@
 
 #define DOC_PYGAMEGETERROR "pygame.get_error(): return errorstr\nget the current error message"
 
+#define DOC_PYGAMESETERROR "pygame.set_error(error_msg): return None\nset the current error message"
+
 #define DOC_PYGAMEGETSDLVERSION "pygame.get_sdl_version(): return major, minor, patch\nget the version number of SDL"
 
 #define DOC_PYGAMEGETSDLBYTEORDER "pygame.get_sdl_byteorder(): return int\nget the byte order of SDL"
@@ -1020,6 +1022,12 @@ standard pygame exception
 pygame.get_error
  pygame.get_error(): return errorstr
 get the current error message
+
+
+
+pygame.set_error
+ pygame.set_error(error_msg): return None
+set the current error message
 
 
 

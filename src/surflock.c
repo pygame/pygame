@@ -26,6 +26,7 @@
  */
 #define PYGAMEAPI_SURFLOCK_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 
 static int PySurface_Lock (PyObject* surfobj);
 static int PySurface_Unlock (PyObject* surfobj);
@@ -158,8 +159,7 @@ PySurface_UnlockBy (PyObject* surfobj, PyObject* lockobj)
 
 static PyTypeObject PyLifetimeLock_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,                          /*size*/
+    TYPE_HEAD (NULL, 0)
     "SurfLifeLock",             /*name*/
     sizeof(PyLifetimeLock),     /*basic size*/
     0,                          /* tp_itemsize */
@@ -241,22 +241,44 @@ PySurface_LockLifetime (PyObject* surfobj, PyObject *lockobj)
     return (PyObject*) life;
 }
 
-static PyMethodDef surflock__builtins__[] =
+static PyMethodDef _surflock_methods[] =
 {
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initsurflock (void)
+/*DOC*/ static char _surflock_doc[] =
+/*DOC*/     "Surface locking support";
+
+MODINIT_DEFINE (surflock)
 {
     PyObject *module, *dict, *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_SURFLOCK_NUMSLOTS];
     
-    PyType_Init (PyLifetimeLock_Type);
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "surflock",
+        _surflock_doc,
+        -1,
+        _surflock_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
+    if (PyType_Ready (&PyLifetimeLock_Type) < 0) {
+        MODINIT_ERROR;
+    }
 
     /* Create the module and add the functions */
-    module = Py_InitModule3 ("surflock", surflock__builtins__,
-                             "Surface locking support");
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("surflock", _surflock_methods, _surflock_doc);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
     
     /* export the c api */
@@ -269,6 +291,15 @@ void initsurflock (void)
     c_api[6] = PySurface_UnlockBy;
     c_api[7] = PySurface_LockLifetime;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }

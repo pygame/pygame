@@ -10,5 +10,32 @@ def geterror ():
 try:
     long_ = long
 except NameError:
-    def long_(n):
-        int(n)
+    long_ = int
+
+try:
+    xrange_ = xrange
+except NameError:
+    xrange_ = range
+
+def get_BytesIO():
+    try:
+        from cStringIO import StringIO as BytesIO
+    except ImportError:
+        from io import BytesIO
+    return BytesIO
+
+def ord_(o):
+    try:
+        return ord(o)
+    except TypeError:
+        return o
+
+try:
+    unichr_ = unichr
+except NameError:
+    unichr_ = chr
+
+try:
+    unicode_ = unicode
+except NameError:
+    unicode_ = str

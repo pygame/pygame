@@ -78,6 +78,10 @@ import sys
 from glob import glob
 import time
 
+# For Python 2.x/3.x compatibility
+def geterror():
+    return sys.exc_info()[1]
+
 #
 #   Generic declarations
 #
@@ -118,7 +122,7 @@ def merge_strings(*args, **kwds):
     sep = kwds.get('sep', '')
     return sep.join([s for s in args if s])
 
-class BuildError(StandardError):
+class BuildError(Exception):
     """Raised for missing source paths and failed script runs"""
     pass
 
@@ -208,8 +212,8 @@ def configure(dependencies):
     for dep in dependencies:
         try:
             dep.configure(hunt_paths)
-        except BuildError, e:
-            print_(e)
+        except BuildError:
+            print_(geterror())
             success = False
         else:
             if dep.path:
@@ -326,7 +330,7 @@ def set_environment_variables(msys, options):
     environ['CPATH'] = merge_strings(include_path, environ.get('CPATH', ''),
                                      sep=';')
 
-class ChooseError(StandardError):
+class ChooseError(Exception):
     """Failer to select dependencies"""
     pass
 
@@ -401,8 +405,8 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
         return 0
     try:
         chosen_deps = choose_dependencies(dependencies, options, args)
-    except ChooseError, e:
-        print_(e)
+    except ChooseError:
+        print_(geterror())
         return 1
     if not chosen_deps:
         if not args:
@@ -415,23 +419,23 @@ def main(dependencies, msvcr71_preparation, msys_preparation):
         chosen_deps.insert(0, msys_preparation)
     try:
         m = msys.Msys(options.msys_directory)
-    except msys.MsysException, e:
-        print_(e)
+    except msys.MsysException:
+        print_(geterror())
         return 1
     start_time = None
     return_code = 1
     set_environment_variables(m, options)
     try:
         configure(chosen_deps)
-    except BuildError, e:
-        print_("Build aborted:", e)
+    except BuildError:
+        print_("Build aborted:", geterror())
     else:
         print_("\n=== Starting build ===")
         start_time = time.time()  # For file timestamp checks.
         try:
             build(chosen_deps, m)
-        except BuildError, e:
-            print_("Build aborted:", e)
+        except BuildError:
+            print_("Build aborted:", geterror())
         else:
             # A successful build!
             return_code = 0

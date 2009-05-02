@@ -169,7 +169,7 @@ def run(*args, **kwds):
         if option_seed is None:
             option_seed = time.time()
         meta['random_seed'] = option_seed
-        print "\nRANDOM SEED USED: %s\n" % option_seed
+        print ("\nRANDOM SEED USED: %s\n" % option_seed)
         random.seed(option_seed)
         random.shuffle(test_modules)
 
@@ -205,7 +205,7 @@ def run(*args, **kwds):
                 pass_on_args.append('--%s' % option)
 
         def sub_test(module):
-            print 'loading', module
+            print ('loading %s' % module)
 
             cmd = [option_python, test_runner_py, module ] + pass_on_args
 
@@ -260,11 +260,11 @@ def run(*args, **kwds):
         assert total == untrusty_total
 
     if not option_dump:
-        print combined
+        print (combined)
     else:
         results = option_all and results or fails
-        print TEST_RESULTS_START
-        print pformat(results)
+        print (TEST_RESULTS_START)
+        print (pformat(results))
 
     if option_file is not None:
         results_file = open(option_file, 'w')

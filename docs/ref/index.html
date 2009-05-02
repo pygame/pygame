@@ -51,11 +51,105 @@
 
 <li><a href="pygame.html#pygame">pygame</a> - <font size=-1>the top level pygame package</font></li>
 <ul>
-<li><a href="pygame.html#pygame.error">pygame.error</a> - <font size=-1>standard pygame exception</font></li>
-<li><a href="pygame.html#pygame.get_error">pygame.get_error</a> - <font size=-1>get the current error message</font></li>
-<li><a href="pygame.html#pygame.get_sdl_byteorder">pygame.get_sdl_byteorder</a> - <font size=-1>get the byte order of SDL</font></li>
-<li><a href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a> - <font size=-1>get the version number of SDL</font></li>
-<li><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></li>
+<li><a href="color.html#pygame.Color">pygame.Color</a> - <font size=-1>pygame object for color representations</font></li>
+<ul>
+<li><a href="color.html#Color.a">Color.a</a> - <font size=-1>Gets or sets the alpha value of the Color.</font></li>
+<li><a href="color.html#Color.b">Color.b</a> - <font size=-1>Gets or sets the blue value of the Color.</font></li>
+<li><a href="color.html#Color.cmy">Color.cmy</a> - <font size=-1>Gets or sets the CMY representation of the Color.</font></li>
+<li><a href="color.html#Color.correct_gamma">Color.correct_gamma</a> - <font size=-1>Applies a certain gamma value to the Color.</font></li>
+<li><a href="color.html#Color.g">Color.g</a> - <font size=-1>Gets or sets the green value of the Color.</font></li>
+<li><a href="color.html#Color.hsla">Color.hsla</a> - <font size=-1>Gets or sets the HSLA representation of the Color.</font></li>
+<li><a href="color.html#Color.hsva">Color.hsva</a> - <font size=-1>Gets or sets the HSVA representation of the Color.</font></li>
+<li><a href="color.html#Color.i1i2i3">Color.i1i2i3</a> - <font size=-1>Gets or sets the I1I2I3 representation of the Color.</font></li>
+<li><a href="color.html#Color.normalize">Color.normalize</a> - <font size=-1>Returns the normalized RGBA values of the Color.</font></li>
+<li><a href="color.html#Color.r">Color.r</a> - <font size=-1>Gets or sets the red value of the Color.</font></li>
+</ul>
+<li><a href="overlay.html#pygame.Overlay">pygame.Overlay</a> - <font size=-1>pygame object for video overlay graphics</font></li>
+<ul>
+<li><a href="overlay.html#Overlay.display">Overlay.display</a> - <font size=-1>set the overlay pixel data</font></li>
+<li><a href="overlay.html#Overlay.get_hardware">Overlay.get_hardware</a> - <font size=-1>test if the Overlay is hardware accelerated</font></li>
+<li><a href="overlay.html#Overlay.set_location">Overlay.set_location</a> - <font size=-1>control where the overlay is displayed</font></li>
+</ul>
+<li><a href="pixelarray.html#pygame.PixelArray">pygame.PixelArray</a> - <font size=-1>pygame object for direct pixel access of surfaces</font></li>
+<ul>
+<li><a href="pixelarray.html#PixelArray.compare">PixelArray.compare</a> - <font size=-1>Compares the PixelArray with another one.</font></li>
+<li><a href="pixelarray.html#PixelArray.extract">PixelArray.extract</a> - <font size=-1>Extracts the passed color from the PixelArray.</font></li>
+<li><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a> - <font size=-1>Creates a new Surface from the current PixelArray.</font></li>
+<li><a href="pixelarray.html#PixelArray.replace">PixelArray.replace</a> - <font size=-1>Replaces the passed color in the PixelArray with another one.</font></li>
+<li><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface the PixelArray uses.</font></li>
+</ul>
+<li><a href="rect.html#pygame.Rect">pygame.Rect</a> - <font size=-1>pygame object for storing rectangular coordinates</font></li>
+<ul>
+<li><a href="rect.html#Rect.clamp">Rect.clamp</a> - <font size=-1>moves the rectangle inside another</font></li>
+<li><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a> - <font size=-1>moves the rectangle inside another, in place</font></li>
+<li><a href="rect.html#Rect.clip">Rect.clip</a> - <font size=-1>crops a rectangle inside another</font></li>
+<li><a href="rect.html#Rect.collidedict">Rect.collidedict</a> - <font size=-1>test if one rectangle in a dictionary intersects</font></li>
+<li><a href="rect.html#Rect.collidedictall">Rect.collidedictall</a> - <font size=-1>test if all rectangles in a dictionary intersect</font></li>
+<li><a href="rect.html#Rect.collidelist">Rect.collidelist</a> - <font size=-1>test if one rectangle in a list intersects</font></li>
+<li><a href="rect.html#Rect.collidelistall">Rect.collidelistall</a> - <font size=-1>test if all rectangles in a list intersect</font></li>
+<li><a href="rect.html#Rect.collidepoint">Rect.collidepoint</a> - <font size=-1>test if a point is inside a rectangle</font></li>
+<li><a href="rect.html#Rect.colliderect">Rect.colliderect</a> - <font size=-1>test if two rectangles overlap</font></li>
+<li><a href="rect.html#Rect.contains">Rect.contains</a> - <font size=-1>test if one rectangle is inside another</font></li>
+<li><a href="rect.html#Rect.copy">Rect.copy</a> - <font size=-1>copy the rectangle</font></li>
+<li><a href="rect.html#Rect.fit">Rect.fit</a> - <font size=-1>resize and move a rectangle with aspect ratio</font></li>
+<li><a href="rect.html#Rect.inflate">Rect.inflate</a> - <font size=-1>grow or shrink the rectangle size</font></li>
+<li><a href="rect.html#Rect.inflate_ip">Rect.inflate_ip</a> - <font size=-1>grow or shrink the rectangle size, in place</font></li>
+<li><a href="rect.html#Rect.move">Rect.move</a> - <font size=-1>moves the rectangle</font></li>
+<li><a href="rect.html#Rect.move_ip">Rect.move_ip</a> - <font size=-1>moves the rectangle, in place</font></li>
+<li><a href="rect.html#Rect.normalize">Rect.normalize</a> - <font size=-1>correct negative sizes</font></li>
+<li><a href="rect.html#Rect.union">Rect.union</a> - <font size=-1>joins two rectangles into one</font></li>
+<li><a href="rect.html#Rect.union_ip">Rect.union_ip</a> - <font size=-1>joins two rectangles into one, in place</font></li>
+<li><a href="rect.html#Rect.unionall">Rect.unionall</a> - <font size=-1>the union of many rectangles</font></li>
+<li><a href="rect.html#Rect.unionall_ip">Rect.unionall_ip</a> - <font size=-1>the union of many rectangles, in place</font></li>
+</ul>
+<li><a href="surface.html#pygame.Surface">pygame.Surface</a> - <font size=-1>pygame object for representing images</font></li>
+<ul>
+<li><a href="surface.html#Surface.blit">Surface.blit</a> - <font size=-1>draw one image onto another</font></li>
+<li><a href="surface.html#Surface.convert">Surface.convert</a> - <font size=-1>change the pixel format of an image</font></li>
+<li><a href="surface.html#Surface.convert_alpha">Surface.convert_alpha</a> - <font size=-1>change the pixel format of an image including per pixel alphas</font></li>
+<li><a href="surface.html#Surface.copy">Surface.copy</a> - <font size=-1>create a new copy of a Surface</font></li>
+<li><a href="surface.html#Surface.fill">Surface.fill</a> - <font size=-1>fill Surface with a solid color</font></li>
+<li><a href="surface.html#Surface.get_abs_offset">Surface.get_abs_offset</a> - <font size=-1>find the absolute position of a child subsurface inside its top level parent</font></li>
+<li><a href="surface.html#Surface.get_abs_parent">Surface.get_abs_parent</a> - <font size=-1>find the top level parent of a subsurface</font></li>
+<li><a href="surface.html#Surface.get_alpha">Surface.get_alpha</a> - <font size=-1>get the current Surface transparency value</font></li>
+<li><a href="surface.html#Surface.get_at">Surface.get_at</a> - <font size=-1>get the color value at a single pixel</font></li>
+<li><a href="surface.html#Surface.get_bitsize">Surface.get_bitsize</a> - <font size=-1>get the bit depth of the Surface pixel format</font></li>
+<li><a href="surface.html#Surface.get_bounding_rect">Surface.get_bounding_rect</a> - <font size=-1>find the smallest rect containing data</font></li>
+<li><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></li>
+<li><a href="surface.html#Surface.get_bytesize">Surface.get_bytesize</a> - <font size=-1>get the bytes used per Surface pixel</font></li>
+<li><a href="surface.html#Surface.get_clip">Surface.get_clip</a> - <font size=-1>get the current clipping area of the Surface</font></li>
+<li><a href="surface.html#Surface.get_colorkey">Surface.get_colorkey</a> - <font size=-1>Get the current transparent colorkey</font></li>
+<li><a href="surface.html#Surface.get_flags">Surface.get_flags</a> - <font size=-1>get the additional flags used for the Surface</font></li>
+<li><a href="surface.html#Surface.get_height">Surface.get_height</a> - <font size=-1>get the height of the Surface</font></li>
+<li><a href="surface.html#Surface.get_locked">Surface.get_locked</a> - <font size=-1>test if the Surface is current locked</font></li>
+<li><a href="surface.html#Surface.get_locks">Surface.get_locks</a> - <font size=-1>Gets the locks for the Surface</font></li>
+<li><a href="surface.html#Surface.get_losses">Surface.get_losses</a> - <font size=-1>the significant bits used to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.get_masks">Surface.get_masks</a> - <font size=-1>the bitmasks needed to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.get_offset">Surface.get_offset</a> - <font size=-1>find the position of a child subsurface inside a parent</font></li>
+<li><a href="surface.html#Surface.get_palette">Surface.get_palette</a> - <font size=-1>get the color index palette for an 8bit Surface</font></li>
+<li><a href="surface.html#Surface.get_palette_at">Surface.get_palette_at</a> - <font size=-1>get the color for a single entry in a palette</font></li>
+<li><a href="surface.html#Surface.get_parent">Surface.get_parent</a> - <font size=-1>find the parent of a subsurface</font></li>
+<li><a href="surface.html#Surface.get_pitch">Surface.get_pitch</a> - <font size=-1>get the number of bytes used per Surface row</font></li>
+<li><a href="surface.html#Surface.get_rect">Surface.get_rect</a> - <font size=-1>get the rectangular area of the Surface</font></li>
+<li><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a> - <font size=-1>the bit shifts needed to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.get_size">Surface.get_size</a> - <font size=-1>get the dimensions of the Surface</font></li>
+<li><a href="surface.html#Surface.get_width">Surface.get_width</a> - <font size=-1>get the width of the Surface</font></li>
+<li><a href="surface.html#Surface.lock">Surface.lock</a> - <font size=-1>lock the Surface memory for pixel access</font></li>
+<li><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></li>
+<li><a href="surface.html#Surface.mustlock">Surface.mustlock</a> - <font size=-1>test if the Surface requires locking</font></li>
+<li><a href="surface.html#Surface.scroll">Surface.scroll</a> - <font size=-1>Shift the surface image in place</font></li>
+<li><a href="surface.html#Surface.set_alpha">Surface.set_alpha</a> - <font size=-1>set the alpha value for the full Surface image</font></li>
+<li><a href="surface.html#Surface.set_at">Surface.set_at</a> - <font size=-1>set the color value for a single pixel</font></li>
+<li><a href="surface.html#Surface.set_clip">Surface.set_clip</a> - <font size=-1>set the current clipping area of the Surface</font></li>
+<li><a href="surface.html#Surface.set_colorkey">Surface.set_colorkey</a> - <font size=-1>Set the transparent colorkey</font></li>
+<li><a href="surface.html#Surface.set_masks">Surface.set_masks</a> - <font size=-1>set the bitmasks needed to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.set_palette">Surface.set_palette</a> - <font size=-1>set the color palette for an 8bit Surface</font></li>
+<li><a href="surface.html#Surface.set_palette_at">Surface.set_palette_at</a> - <font size=-1>set the color for a single index in an 8bit Surface palette</font></li>
+<li><a href="surface.html#Surface.set_shifts">Surface.set_shifts</a> - <font size=-1>sets the bit shifts needed to convert between a color and a mapped integer</font></li>
+<li><a href="surface.html#Surface.subsurface">Surface.subsurface</a> - <font size=-1>create a new surface that references its parent</font></li>
+<li><a href="surface.html#Surface.unlock">Surface.unlock</a> - <font size=-1>unlock the Surface memory from pixel access</font></li>
+<li><a href="surface.html#Surface.unmap_rgb">Surface.unmap_rgb</a> - <font size=-1>convert a mapped integer color value into a Color</font></li>
+</ul>
 <li><a href="camera.html#pygame.camera">pygame.camera</a> - <font size=-1>pygame module for camera use</font></li>
 <ul>
 <li><a href="camera.html#pygame.camera.Camera">pygame.camera.Camera</a> - <font size=-1>load a camera</font></li>
@@ -101,19 +195,6 @@
 <li><a href="cdrom.html#pygame.cdrom.init">pygame.cdrom.init</a> - <font size=-1>initialize the cdrom module</font></li>
 <li><a href="cdrom.html#pygame.cdrom.quit">pygame.cdrom.quit</a> - <font size=-1>uninitialize the cdrom module</font></li>
 </ul>
-<li><a href="color.html#pygame.Color">pygame.Color</a> - <font size=-1>pygame object for color representations</font></li>
-<ul>
-<li><a href="color.html#Color.a">Color.a</a> - <font size=-1>Gets or sets the alpha value of the Color.</font></li>
-<li><a href="color.html#Color.b">Color.b</a> - <font size=-1>Gets or sets the blue value of the Color.</font></li>
-<li><a href="color.html#Color.cmy">Color.cmy</a> - <font size=-1>Gets or sets the CMY representation of the Color.</font></li>
-<li><a href="color.html#Color.correct_gamma">Color.correct_gamma</a> - <font size=-1>Applies a certain gamma value to the Color.</font></li>
-<li><a href="color.html#Color.g">Color.g</a> - <font size=-1>Gets or sets the green value of the Color.</font></li>
-<li><a href="color.html#Color.hsla">Color.hsla</a> - <font size=-1>Gets or sets the HSLA representation of the Color.</font></li>
-<li><a href="color.html#Color.hsva">Color.hsva</a> - <font size=-1>Gets or sets the HSVA representation of the Color.</font></li>
-<li><a href="color.html#Color.i1i2i3">Color.i1i2i3</a> - <font size=-1>Gets or sets the I1I2I3 representation of the Color.</font></li>
-<li><a href="color.html#Color.normalize">Color.normalize</a> - <font size=-1>Returns the normalized RGBA values of the Color.</font></li>
-<li><a href="color.html#Color.r">Color.r</a> - <font size=-1>Gets or sets the red value of the Color.</font></li>
-</ul>
 <li><a href="locals.html#pygame.contants">pygame.contants</a> - <font size=-1>Pygame constants</font></li>
 <ul>
 <li><a href="locals.html#display">display</a> - <font size=-1>The following constants are used by the display module and Surfaces</font></li>
@@ -129,6 +210,7 @@
 </ul>
 <li><a href="display.html#pygame.display">pygame.display</a> - <font size=-1>pygame module to control the display window and screen</font></li>
 <ul>
+<li><a href="display.html#pygame.display.Info">pygame.display.Info</a> - <font size=-1>Create a video display information object</font></li>
 <li><a href="display.html#pygame.display.flip">pygame.display.flip</a> - <font size=-1>update the full display Surface to the screen</font></li>
 <li><a href="display.html#pygame.display.get_active">pygame.display.get_active</a> - <font size=-1>true when the display is active on the display</font></li>
 <li><a href="display.html#pygame.display.get_caption">pygame.display.get_caption</a> - <font size=-1>get the current window caption</font></li>
@@ -139,7 +221,6 @@
 <li><a href="display.html#pygame.display.gl_get_attribute">pygame.display.gl_get_attribute</a> - <font size=-1>get the value for an opengl flag for the current display</font></li>
 <li><a href="display.html#pygame.display.gl_set_attribute">pygame.display.gl_set_attribute</a> - <font size=-1>request an opengl display attribute for the display mode</font></li>
 <li><a href="display.html#pygame.display.iconify">pygame.display.iconify</a> - <font size=-1>iconify the display surface</font></li>
-<li><a href="display.html#pygame.display.Info">pygame.display.Info</a> - <font size=-1>Create a video display information object</font></li>
 <li><a href="display.html#pygame.display.init">pygame.display.init</a> - <font size=-1>initialize the display module</font></li>
 <li><a href="display.html#pygame.display.list_modes">pygame.display.list_modes</a> - <font size=-1>get list of available fullscreen modes</font></li>
 <li><a href="display.html#pygame.display.mode_ok">pygame.display.mode_ok</a> - <font size=-1>pick the best color depth for a display mode</font></li>
@@ -165,10 +246,11 @@
 <li><a href="draw.html#pygame.draw.polygon">pygame.draw.polygon</a> - <font size=-1>draw a shape with any number of sides</font></li>
 <li><a href="draw.html#pygame.draw.rect">pygame.draw.rect</a> - <font size=-1>draw a rectangle shape</font></li>
 </ul>
+<li><a href="pygame.html#pygame.error">pygame.error</a> - <font size=-1>standard pygame exception</font></li>
 <li><a href="event.html#pygame.event">pygame.event</a> - <font size=-1>pygame module for interacting with events and queues</font></li>
 <ul>
-<li><a href="event.html#pygame.event.clear">pygame.event.clear</a> - <font size=-1>remove all events from the queue</font></li>
 <li><a href="event.html#pygame.event.Event">pygame.event.Event</a> - <font size=-1>create a new event object</font></li>
+<li><a href="event.html#pygame.event.clear">pygame.event.clear</a> - <font size=-1>remove all events from the queue</font></li>
 <li><a href="event.html#pygame.event.event_name">pygame.event.event_name</a> - <font size=-1>get the string name from and event id</font></li>
 <li><a href="event.html#pygame.event.get">pygame.event.get</a> - <font size=-1>get events from the queue</font></li>
 <li><a href="event.html#pygame.event.get_blocked">pygame.event.get_blocked</a> - <font size=-1>test if a type of event is blocked from the queue</font></li>
@@ -228,14 +310,17 @@
 <li><a href="font.html#Font.set_underline">Font.set_underline</a> - <font size=-1>control if text is rendered with an underline</font></li>
 <li><a href="font.html#Font.size">Font.size</a> - <font size=-1>determine the amount of space needed to render text</font></li>
 </ul>
+<li><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a> - <font size=-1>create a Font object from the system fonts</font></li>
 <li><a href="font.html#pygame.font.get_default_font">pygame.font.get_default_font</a> - <font size=-1>get the filename of the default font</font></li>
 <li><a href="font.html#pygame.font.get_fonts">pygame.font.get_fonts</a> - <font size=-1>get all available fonts</font></li>
 <li><a href="font.html#pygame.font.get_init">pygame.font.get_init</a> - <font size=-1>true if the font module is initialized</font></li>
 <li><a href="font.html#pygame.font.init">pygame.font.init</a> - <font size=-1>initialize the font module</font></li>
 <li><a href="font.html#pygame.font.match_font">pygame.font.match_font</a> - <font size=-1>find a specific font on the system</font></li>
 <li><a href="font.html#pygame.font.quit">pygame.font.quit</a> - <font size=-1>uninitialize the font module</font></li>
-<li><a href="font.html#pygame.font.SysFont">pygame.font.SysFont</a> - <font size=-1>create a Font object from the system fonts</font></li>
 </ul>
+<li><a href="pygame.html#pygame.get_error">pygame.get_error</a> - <font size=-1>get the current error message</font></li>
+<li><a href="pygame.html#pygame.get_sdl_byteorder">pygame.get_sdl_byteorder</a> - <font size=-1>get the byte order of SDL</font></li>
+<li><a href="pygame.html#pygame.get_sdl_version">pygame.get_sdl_version</a> - <font size=-1>get the version number of SDL</font></li>
 <li><a href="image.html#pygame.image">pygame.image</a> - <font size=-1>pygame module for image transfer</font></li>
 <ul>
 <li><a href="image.html#pygame.image.frombuffer">pygame.image.frombuffer</a> - <font size=-1>create a new Surface that shares data inside a string buffer</font></li>
@@ -245,11 +330,9 @@
 <li><a href="image.html#pygame.image.save">pygame.image.save</a> - <font size=-1>save an image to disk</font></li>
 <li><a href="image.html#pygame.image.tostring">pygame.image.tostring</a> - <font size=-1>transfer image to string buffer</font></li>
 </ul>
+<li><a href="pygame.html#pygame.init">pygame.init</a> - <font size=-1>initialize all imported pygame modules</font></li>
 <li><a href="joystick.html#pygame.joystick">pygame.joystick</a> - <font size=-1>pygame module for interacting with joystick devices</font></li>
 <ul>
-<li><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a> - <font size=-1>number of joysticks on the system</font></li>
-<li><a href="joystick.html#pygame.joystick.get_init">pygame.joystick.get_init</a> - <font size=-1>true if the joystick module is initialized</font></li>
-<li><a href="joystick.html#pygame.joystick.init">pygame.joystick.init</a> - <font size=-1>initialize the joystick module</font></li>
 <li><a href="joystick.html#pygame.joystick.Joystick">pygame.joystick.Joystick</a> - <font size=-1>create a new Joystick object</font></li>
 <ul>
 <li><a href="joystick.html#Joystick.get_axis">Joystick.get_axis</a> - <font size=-1>get the current position of an axis</font></li>
@@ -266,6 +349,9 @@
 <li><a href="joystick.html#Joystick.init">Joystick.init</a> - <font size=-1>initialize the Joystick</font></li>
 <li><a href="joystick.html#Joystick.quit">Joystick.quit</a> - <font size=-1>uninitialize the Joystick</font></li>
 </ul>
+<li><a href="joystick.html#pygame.joystick.get_count">pygame.joystick.get_count</a> - <font size=-1>number of joysticks on the system</font></li>
+<li><a href="joystick.html#pygame.joystick.get_init">pygame.joystick.get_init</a> - <font size=-1>true if the joystick module is initialized</font></li>
+<li><a href="joystick.html#pygame.joystick.init">pygame.joystick.init</a> - <font size=-1>initialize the joystick module</font></li>
 <li><a href="joystick.html#pygame.joystick.quit">pygame.joystick.quit</a> - <font size=-1>uninitialize the joystick module</font></li>
 </ul>
 <li><a href="key.html#pygame.key">pygame.key</a> - <font size=-1>pygame module to work with the keyboard</font></li>
@@ -280,8 +366,6 @@
 </ul>
 <li><a href="mask.html#pygame.mask">pygame.mask</a> - <font size=-1>pygame module for image masks.</font></li>
 <ul>
-<li><a href="mask.html#pygame.mask.from_surface">pygame.mask.from_surface</a> - <font size=-1>Returns a Mask from the given surface.</font></li>
-<li><a href="mask.html#pygame.mask.from_threshold">pygame.mask.from_threshold</a> - <font size=-1>Creates a mask by thresholding Surfaces</font></li>
 <li><a href="mask.html#pygame.mask.Mask">pygame.mask.Mask</a> - <font size=-1>pygame object for representing 2d bitmasks</font></li>
 <ul>
 <li><a href="mask.html#Mask.angle">Mask.angle</a> - <font size=-1>Returns the orientation of the pixels</font></li>
@@ -305,6 +389,8 @@
 <li><a href="mask.html#Mask.scale">Mask.scale</a> - <font size=-1>Resizes a mask</font></li>
 <li><a href="mask.html#Mask.set_at">Mask.set_at</a> - <font size=-1>Sets the position in the mask given by x and y.</font></li>
 </ul>
+<li><a href="mask.html#pygame.mask.from_surface">pygame.mask.from_surface</a> - <font size=-1>Returns a Mask from the given surface.</font></li>
+<li><a href="mask.html#pygame.mask.from_threshold">pygame.mask.from_threshold</a> - <font size=-1>Creates a mask by thresholding Surfaces</font></li>
 </ul>
 <li><a href="midi.html#pygame.midi">pygame.midi</a> - <font size=-1>send and receive midi messages</font></li>
 <li><a href="mixer.html#pygame.mixer">pygame.mixer</a> - <font size=-1>pygame module for loading and playing sounds</font></li>
@@ -325,14 +411,23 @@
 <li><a href="mixer.html#Channel.stop">Channel.stop</a> - <font size=-1>stop playback on a Channel</font></li>
 <li><a href="mixer.html#Channel.unpause">Channel.unpause</a> - <font size=-1>resume pause playback of a channel</font></li>
 </ul>
+<li><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a> - <font size=-1>Create a new Sound object from a file</font></li>
+<ul>
+<li><a href="mixer.html#Sound.fadeout">Sound.fadeout</a> - <font size=-1>stop sound playback after fading out</font></li>
+<li><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a> - <font size=-1>acquires a buffer object for the sameples of the Sound.</font></li>
+<li><a href="mixer.html#Sound.get_length">Sound.get_length</a> - <font size=-1>get the length of the Sound</font></li>
+<li><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a> - <font size=-1>count how many times this Sound is playing</font></li>
+<li><a href="mixer.html#Sound.get_volume">Sound.get_volume</a> - <font size=-1>get the playback volume</font></li>
+<li><a href="mixer.html#Sound.play">Sound.play</a> - <font size=-1>begin sound playback</font></li>
+<li><a href="mixer.html#Sound.set_volume">Sound.set_volume</a> - <font size=-1>set the playback volume for this Sound</font></li>
+<li><a href="mixer.html#Sound.stop">Sound.stop</a> - <font size=-1>stop sound playback</font></li>
+</ul>
 <li><a href="mixer.html#pygame.mixer.fadeout">pygame.mixer.fadeout</a> - <font size=-1>fade out the volume on all sounds before stopping</font></li>
 <li><a href="mixer.html#pygame.mixer.find_channel">pygame.mixer.find_channel</a> - <font size=-1>find an unused channel</font></li>
 <li><a href="mixer.html#pygame.mixer.get_busy">pygame.mixer.get_busy</a> - <font size=-1>test if any sound is being mixed</font></li>
 <li><a href="mixer.html#pygame.mixer.get_init">pygame.mixer.get_init</a> - <font size=-1>test if the mixer is initialized</font></li>
 <li><a href="mixer.html#pygame.mixer.get_num_channels">pygame.mixer.get_num_channels</a> - <font size=-1>get the total number of playback channels</font></li>
 <li><a href="mixer.html#pygame.mixer.init">pygame.mixer.init</a> - <font size=-1>initialize the mixer module</font></li>
-<li><a href="mixer.html#pygame.mixer.pause">pygame.mixer.pause</a> - <font size=-1>temporarily stop playback of all sound channels</font></li>
-<li><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a> - <font size=-1>preset the mixer init arguments</font></li>
 <li><a href="music.html#pygame.mixer.music">pygame.mixer.music</a> - <font size=-1>pygame module for controlling streamed audio</font></li>
 <ul>
 <li><a href="music.html#pygame.mixer.music.fadeout">pygame.mixer.music.fadeout</a> - <font size=-1>stop music playback after fading out</font></li>
@@ -350,20 +445,11 @@
 <li><a href="music.html#pygame.mixer.music.stop">pygame.mixer.music.stop</a> - <font size=-1>stop the music playback</font></li>
 <li><a href="music.html#pygame.mixer.music.unpause">pygame.mixer.music.unpause</a> - <font size=-1>resume paused music</font></li>
 </ul>
+<li><a href="mixer.html#pygame.mixer.pause">pygame.mixer.pause</a> - <font size=-1>temporarily stop playback of all sound channels</font></li>
+<li><a href="mixer.html#pygame.mixer.pre_init">pygame.mixer.pre_init</a> - <font size=-1>preset the mixer init arguments</font></li>
 <li><a href="mixer.html#pygame.mixer.quit">pygame.mixer.quit</a> - <font size=-1>uninitialize the mixer</font></li>
 <li><a href="mixer.html#pygame.mixer.set_num_channels">pygame.mixer.set_num_channels</a> - <font size=-1>set the total number of playback channels</font></li>
 <li><a href="mixer.html#pygame.mixer.set_reserved">pygame.mixer.set_reserved</a> - <font size=-1>reserve channels from being automatically used</font></li>
-<li><a href="mixer.html#pygame.mixer.Sound">pygame.mixer.Sound</a> - <font size=-1>Create a new Sound object from a file</font></li>
-<ul>
-<li><a href="mixer.html#Sound.fadeout">Sound.fadeout</a> - <font size=-1>stop sound playback after fading out</font></li>
-<li><a href="mixer.html#Sound.get_buffer">Sound.get_buffer</a> - <font size=-1>acquires a buffer object for the sameples of the Sound.</font></li>
-<li><a href="mixer.html#Sound.get_length">Sound.get_length</a> - <font size=-1>get the length of the Sound</font></li>
-<li><a href="mixer.html#Sound.get_num_channels">Sound.get_num_channels</a> - <font size=-1>count how many times this Sound is playing</font></li>
-<li><a href="mixer.html#Sound.get_volume">Sound.get_volume</a> - <font size=-1>get the playback volume</font></li>
-<li><a href="mixer.html#Sound.play">Sound.play</a> - <font size=-1>begin sound playback</font></li>
-<li><a href="mixer.html#Sound.set_volume">Sound.set_volume</a> - <font size=-1>set the playback volume for this Sound</font></li>
-<li><a href="mixer.html#Sound.stop">Sound.stop</a> - <font size=-1>stop sound playback</font></li>
-</ul>
 <li><a href="mixer.html#pygame.mixer.stop">pygame.mixer.stop</a> - <font size=-1>stop playback of all sound channels</font></li>
 <li><a href="mixer.html#pygame.mixer.unpause">pygame.mixer.unpause</a> - <font size=-1>resume paused playback of sound channels</font></li>
 </ul>
@@ -399,44 +485,8 @@
 <li><a href="movie.html#Movie.stop">Movie.stop</a> - <font size=-1>stop movie playback</font></li>
 </ul>
 </ul>
-<li><a href="overlay.html#pygame.Overlay">pygame.Overlay</a> - <font size=-1>pygame object for video overlay graphics</font></li>
-<ul>
-<li><a href="overlay.html#Overlay.display">Overlay.display</a> - <font size=-1>set the overlay pixel data</font></li>
-<li><a href="overlay.html#Overlay.get_hardware">Overlay.get_hardware</a> - <font size=-1>test if the Overlay is hardware accelerated</font></li>
-<li><a href="overlay.html#Overlay.set_location">Overlay.set_location</a> - <font size=-1>control where the overlay is displayed</font></li>
-</ul>
-<li><a href="pixelarray.html#pygame.PixelArray">pygame.PixelArray</a> - <font size=-1>pygame object for direct pixel access of surfaces</font></li>
-<ul>
-<li><a href="pixelarray.html#PixelArray.compare">PixelArray.compare</a> - <font size=-1>Compares the PixelArray with another one.</font></li>
-<li><a href="pixelarray.html#PixelArray.extract">PixelArray.extract</a> - <font size=-1>Extracts the passed color from the PixelArray.</font></li>
-<li><a href="pixelarray.html#PixelArray.make_surface">PixelArray.make_surface</a> - <font size=-1>Creates a new Surface from the current PixelArray.</font></li>
-<li><a href="pixelarray.html#PixelArray.replace">PixelArray.replace</a> - <font size=-1>Replaces the passed color in the PixelArray with another one.</font></li>
-<li><a href="pixelarray.html#PixelArray.surface">PixelArray.surface</a> - <font size=-1>Gets the Surface the PixelArray uses.</font></li>
-</ul>
-<li><a href="rect.html#pygame.Rect">pygame.Rect</a> - <font size=-1>pygame object for storing rectangular coordinates</font></li>
-<ul>
-<li><a href="rect.html#Rect.clamp">Rect.clamp</a> - <font size=-1>moves the rectangle inside another</font></li>
-<li><a href="rect.html#Rect.clamp_ip">Rect.clamp_ip</a> - <font size=-1>moves the rectangle inside another, in place</font></li>
-<li><a href="rect.html#Rect.clip">Rect.clip</a> - <font size=-1>crops a rectangle inside another</font></li>
-<li><a href="rect.html#Rect.collidedict">Rect.collidedict</a> - <font size=-1>test if one rectangle in a dictionary intersects</font></li>
-<li><a href="rect.html#Rect.collidedictall">Rect.collidedictall</a> - <font size=-1>test if all rectangles in a dictionary intersect</font></li>
-<li><a href="rect.html#Rect.collidelist">Rect.collidelist</a> - <font size=-1>test if one rectangle in a list intersects</font></li>
-<li><a href="rect.html#Rect.collidelistall">Rect.collidelistall</a> - <font size=-1>test if all rectangles in a list intersect</font></li>
-<li><a href="rect.html#Rect.collidepoint">Rect.collidepoint</a> - <font size=-1>test if a point is inside a rectangle</font></li>
-<li><a href="rect.html#Rect.colliderect">Rect.colliderect</a> - <font size=-1>test if two rectangles overlap</font></li>
-<li><a href="rect.html#Rect.contains">Rect.contains</a> - <font size=-1>test if one rectangle is inside another</font></li>
-<li><a href="rect.html#Rect.copy">Rect.copy</a> - <font size=-1>copy the rectangle</font></li>
-<li><a href="rect.html#Rect.fit">Rect.fit</a> - <font size=-1>resize and move a rectangle with aspect ratio</font></li>
-<li><a href="rect.html#Rect.inflate">Rect.inflate</a> - <font size=-1>grow or shrink the rectangle size</font></li>
-<li><a href="rect.html#Rect.inflate_ip">Rect.inflate_ip</a> - <font size=-1>grow or shrink the rectangle size, in place</font></li>
-<li><a href="rect.html#Rect.move">Rect.move</a> - <font size=-1>moves the rectangle</font></li>
-<li><a href="rect.html#Rect.move_ip">Rect.move_ip</a> - <font size=-1>moves the rectangle, in place</font></li>
-<li><a href="rect.html#Rect.normalize">Rect.normalize</a> - <font size=-1>correct negative sizes</font></li>
-<li><a href="rect.html#Rect.union">Rect.union</a> - <font size=-1>joins two rectangles into one</font></li>
-<li><a href="rect.html#Rect.union_ip">Rect.union_ip</a> - <font size=-1>joins two rectangles into one, in place</font></li>
-<li><a href="rect.html#Rect.unionall">Rect.unionall</a> - <font size=-1>the union of many rectangles</font></li>
-<li><a href="rect.html#Rect.unionall_ip">Rect.unionall_ip</a> - <font size=-1>the union of many rectangles, in place</font></li>
-</ul>
+<li><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></li>
+<li><a href="pygame.html#pygame.register_quit">pygame.register_quit</a> - <font size=-1>register a function to be called when pygame quits</font></li>
 <li><a href="scrap.html#pygame.scrap">pygame.scrap</a> - <font size=-1>pygame module for clipboard support.</font></li>
 <ul>
 <li><a href="scrap.html#pygame.scrap.contains">pygame.scrap.contains</a> - <font size=-1>Checks, whether a certain type is available in the clipboard.</font></li>
@@ -447,6 +497,7 @@
 <li><a href="scrap.html#pygame.scrap.put">pygame.scrap.put</a> - <font size=-1>Places data into the clipboard.</font></li>
 <li><a href="scrap.html#pygame.scrap.set_mode">pygame.scrap.set_mode</a> - <font size=-1>Sets the clipboard access mode.</font></li>
 </ul>
+<li><a href="pygame.html#pygame.set_error">pygame.set_error</a> - <font size=-1>set the current error message</font></li>
 <li><a href="sndarray.html#pygame.sndarray">pygame.sndarray</a> - <font size=-1>pygame module for accessing sound sample data</font></li>
 <ul>
 <li><a href="sndarray.html#pygame.sndarray.array">pygame.sndarray.array</a> - <font size=-1>copy Sound samples into an array</font></li>
@@ -459,11 +510,6 @@
 <li><a href="sprite.html#pygame.sprite">pygame.sprite</a> - <font size=-1>pygame module with basic game object classes</font></li>
 <ul>
 <li></li>
-<li><a href="sprite.html#pygame.sprite.collide_circle">pygame.sprite.collide_circle</a> - <font size=-1>collision detection between two sprites, using circles.</font></li>
-<li><a href="sprite.html#pygame.sprite.collide_circle_ratio">pygame.sprite.collide_circle_ratio</a> - <font size=-1>collision detection between two sprites, using circles scaled to a ratio.</font></li>
-<li><a href="sprite.html#pygame.sprite.collide_mask">pygame.sprite.collide_mask</a> - <font size=-1>collision detection between two sprites, using masks.</font></li>
-<li><a href="sprite.html#pygame.sprite.collide_rect">pygame.sprite.collide_rect</a> - <font size=-1>collision detection between two sprites, using rects.</font></li>
-<li><a href="sprite.html#pygame.sprite.collide_rect_ratio">pygame.sprite.collide_rect_ratio</a> - <font size=-1>collision detection between two sprites, using rects scaled to a ratio.</font></li>
 <li><a href="sprite.html#pygame.sprite.DirtySprite">pygame.sprite.DirtySprite</a> - <font size=-1>a more featureful subclass of Sprite with more attributes</font></li>
 <ul>
 <li></li>
@@ -480,7 +526,6 @@
 <li><a href="sprite.html#Group.sprites">Group.sprites</a> - <font size=-1>list of the Sprites this Group contains</font></li>
 <li><a href="sprite.html#Group.update">Group.update</a> - <font size=-1>call the update method on contained Sprites</font></li>
 </ul>
-<li><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a> - <font size=-1>find all Sprites that collide between two Groups</font></li>
 <li><a href="sprite.html#pygame.sprite.GroupSingle">pygame.sprite.GroupSingle</a> - <font size=-1>Group container that holds a single Sprite</font></li>
 <li><a href="sprite.html#pygame.sprite.LayeredDirty">pygame.sprite.LayeredDirty</a> - <font size=-1>LayeredDirty Group is for DirtySprites.  Subclasses LayeredUpdates.</font></li>
 <ul>
@@ -525,56 +570,14 @@
 <li><a href="sprite.html#Sprite.remove">Sprite.remove</a> - <font size=-1>remove the sprite from groups</font></li>
 <li><a href="sprite.html#Sprite.update">Sprite.update</a> - <font size=-1>method to control sprite behavior</font></li>
 </ul>
+<li><a href="sprite.html#pygame.sprite.collide_circle">pygame.sprite.collide_circle</a> - <font size=-1>collision detection between two sprites, using circles.</font></li>
+<li><a href="sprite.html#pygame.sprite.collide_circle_ratio">pygame.sprite.collide_circle_ratio</a> - <font size=-1>collision detection between two sprites, using circles scaled to a ratio.</font></li>
+<li><a href="sprite.html#pygame.sprite.collide_mask">pygame.sprite.collide_mask</a> - <font size=-1>collision detection between two sprites, using masks.</font></li>
+<li><a href="sprite.html#pygame.sprite.collide_rect">pygame.sprite.collide_rect</a> - <font size=-1>collision detection between two sprites, using rects.</font></li>
+<li><a href="sprite.html#pygame.sprite.collide_rect_ratio">pygame.sprite.collide_rect_ratio</a> - <font size=-1>collision detection between two sprites, using rects scaled to a ratio.</font></li>
+<li><a href="sprite.html#pygame.sprite.groupcollide">pygame.sprite.groupcollide</a> - <font size=-1>find all Sprites that collide between two Groups</font></li>
 <li><a href="sprite.html#pygame.sprite.spritecollide">pygame.sprite.spritecollide</a> - <font size=-1>find Sprites in a Group that intersect another Sprite</font></li>
 <li><a href="sprite.html#pygame.sprite.spritecollideany">pygame.sprite.spritecollideany</a> - <font size=-1>simple test if a Sprite intersects anything in a Group</font></li>
-</ul>
-<li><a href="surface.html#pygame.Surface">pygame.Surface</a> - <font size=-1>pygame object for representing images</font></li>
-<ul>
-<li><a href="surface.html#Surface.blit">Surface.blit</a> - <font size=-1>draw one image onto another</font></li>
-<li><a href="surface.html#Surface.convert">Surface.convert</a> - <font size=-1>change the pixel format of an image</font></li>
-<li><a href="surface.html#Surface.convert_alpha">Surface.convert_alpha</a> - <font size=-1>change the pixel format of an image including per pixel alphas</font></li>
-<li><a href="surface.html#Surface.copy">Surface.copy</a> - <font size=-1>create a new copy of a Surface</font></li>
-<li><a href="surface.html#Surface.fill">Surface.fill</a> - <font size=-1>fill Surface with a solid color</font></li>
-<li><a href="surface.html#Surface.get_abs_offset">Surface.get_abs_offset</a> - <font size=-1>find the absolute position of a child subsurface inside its top level parent</font></li>
-<li><a href="surface.html#Surface.get_abs_parent">Surface.get_abs_parent</a> - <font size=-1>find the top level parent of a subsurface</font></li>
-<li><a href="surface.html#Surface.get_alpha">Surface.get_alpha</a> - <font size=-1>get the current Surface transparency value</font></li>
-<li><a href="surface.html#Surface.get_at">Surface.get_at</a> - <font size=-1>get the color value at a single pixel</font></li>
-<li><a href="surface.html#Surface.get_bitsize">Surface.get_bitsize</a> - <font size=-1>get the bit depth of the Surface pixel format</font></li>
-<li><a href="surface.html#Surface.get_bounding_rect">Surface.get_bounding_rect</a> - <font size=-1>find the smallest rect containing data</font></li>
-<li><a href="surface.html#Surface.get_buffer">Surface.get_buffer</a> - <font size=-1>acquires a buffer object for the pixels of the Surface.</font></li>
-<li><a href="surface.html#Surface.get_bytesize">Surface.get_bytesize</a> - <font size=-1>get the bytes used per Surface pixel</font></li>
-<li><a href="surface.html#Surface.get_clip">Surface.get_clip</a> - <font size=-1>get the current clipping area of the Surface</font></li>
-<li><a href="surface.html#Surface.get_colorkey">Surface.get_colorkey</a> - <font size=-1>Get the current transparent colorkey</font></li>
-<li><a href="surface.html#Surface.get_flags">Surface.get_flags</a> - <font size=-1>get the additional flags used for the Surface</font></li>
-<li><a href="surface.html#Surface.get_height">Surface.get_height</a> - <font size=-1>get the height of the Surface</font></li>
-<li><a href="surface.html#Surface.get_locked">Surface.get_locked</a> - <font size=-1>test if the Surface is current locked</font></li>
-<li><a href="surface.html#Surface.get_locks">Surface.get_locks</a> - <font size=-1>Gets the locks for the Surface</font></li>
-<li><a href="surface.html#Surface.get_losses">Surface.get_losses</a> - <font size=-1>the significant bits used to convert between a color and a mapped integer</font></li>
-<li><a href="surface.html#Surface.get_masks">Surface.get_masks</a> - <font size=-1>the bitmasks needed to convert between a color and a mapped integer</font></li>
-<li><a href="surface.html#Surface.get_offset">Surface.get_offset</a> - <font size=-1>find the position of a child subsurface inside a parent</font></li>
-<li><a href="surface.html#Surface.get_palette">Surface.get_palette</a> - <font size=-1>get the color index palette for an 8bit Surface</font></li>
-<li><a href="surface.html#Surface.get_palette_at">Surface.get_palette_at</a> - <font size=-1>get the color for a single entry in a palette</font></li>
-<li><a href="surface.html#Surface.get_parent">Surface.get_parent</a> - <font size=-1>find the parent of a subsurface</font></li>
-<li><a href="surface.html#Surface.get_pitch">Surface.get_pitch</a> - <font size=-1>get the number of bytes used per Surface row</font></li>
-<li><a href="surface.html#Surface.get_rect">Surface.get_rect</a> - <font size=-1>get the rectangular area of the Surface</font></li>
-<li><a href="surface.html#Surface.get_shifts">Surface.get_shifts</a> - <font size=-1>the bit shifts needed to convert between a color and a mapped integer</font></li>
-<li><a href="surface.html#Surface.get_size">Surface.get_size</a> - <font size=-1>get the dimensions of the Surface</font></li>
-<li><a href="surface.html#Surface.get_width">Surface.get_width</a> - <font size=-1>get the width of the Surface</font></li>
-<li><a href="surface.html#Surface.lock">Surface.lock</a> - <font size=-1>lock the Surface memory for pixel access</font></li>
-<li><a href="surface.html#Surface.map_rgb">Surface.map_rgb</a> - <font size=-1>convert a color into a mapped color value</font></li>
-<li><a href="surface.html#Surface.mustlock">Surface.mustlock</a> - <font size=-1>test if the Surface requires locking</font></li>
-<li><a href="surface.html#Surface.scroll">Surface.scroll</a> - <font size=-1>Shift the surface image in place</font></li>
-<li><a href="surface.html#Surface.set_alpha">Surface.set_alpha</a> - <font size=-1>set the alpha value for the full Surface image</font></li>
-<li><a href="surface.html#Surface.set_at">Surface.set_at</a> - <font size=-1>set the color value for a single pixel</font></li>
-<li><a href="surface.html#Surface.set_clip">Surface.set_clip</a> - <font size=-1>set the current clipping area of the Surface</font></li>
-<li><a href="surface.html#Surface.set_colorkey">Surface.set_colorkey</a> - <font size=-1>Set the transparent colorkey</font></li>
-<li><a href="surface.html#Surface.set_masks">Surface.set_masks</a> - <font size=-1>set the bitmasks needed to convert between a color and a mapped integer</font></li>
-<li><a href="surface.html#Surface.set_palette">Surface.set_palette</a> - <font size=-1>set the color palette for an 8bit Surface</font></li>
-<li><a href="surface.html#Surface.set_palette_at">Surface.set_palette_at</a> - <font size=-1>set the color for a single index in an 8bit Surface palette</font></li>
-<li><a href="surface.html#Surface.set_shifts">Surface.set_shifts</a> - <font size=-1>sets the bit shifts needed to convert between a color and a mapped integer</font></li>
-<li><a href="surface.html#Surface.subsurface">Surface.subsurface</a> - <font size=-1>create a new surface that references its parent</font></li>
-<li><a href="surface.html#Surface.unlock">Surface.unlock</a> - <font size=-1>unlock the Surface memory from pixel access</font></li>
-<li><a href="surface.html#Surface.unmap_rgb">Surface.unmap_rgb</a> - <font size=-1>convert a mapped integer color value into a Color</font></li>
 </ul>
 <li><a href="surfarray.html#pygame.surfarray">pygame.surfarray</a> - <font size=-1>pygame module for accessing surface pixel data using array interfaces</font></li>
 <ul>
@@ -627,8 +630,6 @@
 <li><a href="transform.html#pygame.transform.smoothscale">pygame.transform.smoothscale</a> - <font size=-1>scale a surface to an arbitrary size smoothly</font></li>
 <li><a href="transform.html#pygame.transform.threshold">pygame.transform.threshold</a> - <font size=-1>finds which, and how many pixels in a surface are within a threshold of a color.</font></li>
 </ul>
-<li><a href="pygame.html#pygame.quit">pygame.quit</a> - <font size=-1>uninitialize all pygame modules</font></li>
-<li><a href="pygame.html#pygame.register_quit">pygame.register_quit</a> - <font size=-1>register a function to be called when pygame quits</font></li>
 <li><a href="pygame.html#pygame.version">pygame.version</a> - <font size=-1>small module containing version information</font></li>
 <ul>
 <li><a href="pygame.html#pygame.version.ver">pygame.version.ver</a> - <font size=-1>version number as a string</font></li>

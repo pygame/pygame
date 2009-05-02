@@ -14,7 +14,12 @@ __license__ = 'Python license'
 
 import traceback, sys
 
-if (sys.version_info[0] == 2 and sys.version_info[1] < 5):
+from pygame.compat import geterror
+
+if sys.version_info[0] == 3:
+    from multiprocessing import Queue
+    from queue import Empty
+elif (sys.version_info[0] == 2 and sys.version_info[1] < 5):
     from Py25Queue import Queue
     from Py25Queue import Empty
 else:
@@ -118,7 +123,7 @@ def benchmark_workers(a_bench_func = None, the_data = None):
         wq = WorkerQueue(num_workers)
         t1 = time.time()
         for xx in range(20):
-	    print "active count:%s" % threading.activeCount()
+            print ("active count:%s" % threading.activeCount())
             results = tmap(doit, thedata, worker_queue = wq)
         t2 = time.time()
 
@@ -126,7 +131,7 @@ def benchmark_workers(a_bench_func = None, the_data = None):
 
 
         total_time = t2 - t1
-        print "total time num_workers:%s: time:%s:" % (num_workers, total_time)
+        print ("total time num_workers:%s: time:%s:" % (num_workers, total_time))
 
         if total_time < best:
             last_best = best_number
@@ -224,8 +229,8 @@ class FuncResult:
             self.result = self.f(*args, **kwargs)
             if self.callback:
                 self.callback(self.result)
-        except Exception, e:
-            self.exception = e
+        except Exception:
+            self.exception = geterror()
             if self.errback:
                 self.errback(self.exception)
 
@@ -258,7 +263,7 @@ def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_o
     if len(wq.pool) == 0:
         return map(f, seq_args)
 
-    #print "queue size:%s" % wq.queue.qsize()
+    #print ("queue size:%s" % wq.queue.qsize())
 
 
     #TODO: divide the data (seq_args) into even chunks and 
@@ -276,15 +281,15 @@ def tmap(f, seq_args, num_workers = 20, worker_queue = None, wait = True, stop_o
     #wq.stop()
 
     if wait:
-        #print "wait"
+        #print ("wait")
         wq.wait()
-        #print "after wait"
-        #print "queue size:%s" % wq.queue.qsize()
+        #print ("after wait")
+        #print ("queue size:%s" % wq.queue.qsize())
         if wq.queue.qsize():
             raise Exception("buggy threadmap")
         # if we created a worker queue, we need to stop it.
         if not worker_queue and not _wq:
-            #print "stoping"
+            #print ("stoping")
             wq.stop()
             if wq.queue.qsize():
                 um = wq.queue.get()

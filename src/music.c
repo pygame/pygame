@@ -25,6 +25,7 @@
  */
 #define PYGAMEAPI_MUSIC_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "mixer.h"
 
@@ -254,7 +255,7 @@ music_load (PyObject* self, PyObject* args)
     MIXER_INIT_CHECK ();
 
     #if (MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL) >= 10208
-    if(!PyString_Check(file) && !PyUnicode_Check(file))
+    if(!Bytes_Check(file) && !PyUnicode_Check(file))
     {
         rw = RWopsFromPythonThreaded(file);
         if(!rw)
@@ -266,8 +267,21 @@ music_load (PyObject* self, PyObject* args)
     else
     #endif
     {
+#if PY3
+        if (PyUnicode_Check(file)) {
+            if (!PyArg_ParseTuple(args, "s", &name)) {
+                return NULL;
+            }
+        }
+        else {
+            if (!PyArg_ParseTuple(args, "y", &name)) {
+                return NULL;
+            }
+        }
+#else
         if(!PyArg_ParseTuple(args, "s", &name))
             return NULL;
+#endif
         Py_BEGIN_ALLOW_THREADS
         new_music = Mix_LoadMUS(name);
         Py_END_ALLOW_THREADS
@@ -306,7 +320,7 @@ music_queue (PyObject* self, PyObject* args)
     MIXER_INIT_CHECK ();
 
     #if MIX_MAJOR_VERSION*100*100 + MIX_MINOR_VERSION*100 + MIX_PATCHLEVEL >= 10208
-    if(!PyString_Check(file) && !PyUnicode_Check(file))
+    if(!Bytes_Check(file) && !PyUnicode_Check(file))
     {
         rw = RWopsFromPythonThreaded(file);
         if(!rw)
@@ -318,8 +332,21 @@ music_queue (PyObject* self, PyObject* args)
     else
     #endif
     {
+#if PY3
+        if (PyUnicode_Check(file)) {
+            if (!PyArg_ParseTuple(args, "s", &name)) {
+                return NULL;
+            }
+        }
+        else {
+            if (!PyArg_ParseTuple(args, "y", &name)) {
+                return NULL;
+            }
+        }
+#else
         if(!PyArg_ParseTuple(args, "s", &name))
             return NULL;
+#endif
         Py_BEGIN_ALLOW_THREADS
         new_music = Mix_LoadMUS(name);
         Py_END_ALLOW_THREADS
@@ -340,7 +367,7 @@ music_queue (PyObject* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef music_builtins[] =
+static PyMethodDef _music_methods[] =
 {
     { "set_endevent", music_set_endevent, METH_VARARGS,
       DOC_PYGAMEMIXERMUSICSETENDEVENT },
@@ -371,10 +398,21 @@ static PyMethodDef music_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initmixer_music (void)
+MODINIT_DEFINE (mixer_music)
 {
     PyObject *module;
+    PyObject *cobj;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "mixer_music",
+        DOC_PYGAMEMIXERMUSIC,
+        -1,
+        _music_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     PyMIXER_C_API[0] = PyMIXER_C_API[0]; /*clean an unused warning*/
 
@@ -383,18 +421,42 @@ void initmixer_music (void)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* create the module */
-    module = Py_InitModule3 ("mixer_music", music_builtins,
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("mixer_music", _music_methods,
                              DOC_PYGAMEMIXERMUSIC);
-    PyModule_AddObject(module, "_MUSIC_POINTER",
-                       PyCObject_FromVoidPtr (&current_music, NULL));
-    PyModule_AddObject(module, "_QUEUE_POINTER",
-                       PyCObject_FromVoidPtr (&queue_music, NULL));
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
+    cobj = PyCObject_FromVoidPtr (&current_music, NULL);
+    if (cobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    if (PyModule_AddObject(module, "_MUSIC_POINTER", cobj) < 0) {
+        Py_DECREF (cobj);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    cobj = PyCObject_FromVoidPtr (&queue_music, NULL);
+    if (cobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    if (PyModule_AddObject(module, "_QUEUE_POINTER", cobj) < 0) {
+        Py_DECREF (cobj);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }
