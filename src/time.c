@@ -410,7 +410,6 @@ static PyMethodDef _time_methods[] =
 PYGAME_EXPORT
 void initpygame_time (void)
 #else
-void inittime (void)
 MODINIT_DEFINE (time)
 #endif    
 {
