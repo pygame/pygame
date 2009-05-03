@@ -25,12 +25,12 @@
  */
 #define PYGAMEAPI_DISPLAY_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include <SDL_syswm.h>
 
 
-static PyObject* self_module = NULL;
-staticforward PyTypeObject PyVidInfo_Type;
+static PyTypeObject PyVidInfo_Type;
 static PyObject* PyVidInfo_New (const SDL_VideoInfo* info);
 static void do_set_icon (PyObject *surface);
 static PyObject* DisplaySurfaceObject = NULL;
@@ -52,6 +52,9 @@ display_resource (char *filename)
     PyObject* resourcefunc = NULL;
     PyObject* fresult = NULL;
     PyObject* result = NULL;
+#if PY3
+    PyObject* name = NULL;
+#endif
 
     pkgdatamodule = PyImport_ImportModule (pkgdatamodule_name);
     if (!pkgdatamodule)
@@ -74,12 +77,26 @@ display_resource (char *filename)
     if (!fresult)
         goto display_resource_end;
 
+#if PY3
+    name = PyObject_GetAttrString (fresult, "name");
+    if (name != NULL) {
+        if (Text_Check (name)) {
+	    Py_DECREF (fresult);
+            fresult = name;
+	    name = NULL;
+        }
+    }
+    else {
+        PyErr_Clear ();
+    }
+#else
     if (PyFile_Check (fresult)) {
         PyObject *tmp = PyFile_Name (fresult);
         Py_INCREF (tmp);
         Py_DECREF (fresult);
         fresult = tmp;
     }
+#endif
 
     result = PyObject_CallFunction (load_basicfunc, "O", fresult);
     if (!result) goto display_resource_end;
@@ -90,6 +107,9 @@ display_resource_end:
     Py_XDECREF (imagemodule);
     Py_XDECREF (load_basicfunc);
     Py_XDECREF (fresult);
+#if PY3
+    Py_XDECREF (name);
+#endif
     return result;
 }
 #endif
@@ -249,13 +269,12 @@ vidinfo_str (PyObject* self)
              info->vfmt->Rloss, info->vfmt->Gloss, info->vfmt->Bloss,
              info->vfmt->Aloss,
              current_w, current_h);
-    return PyString_FromString (str);
+    return Text_FromUTF8 (str);
 }
 
 static PyTypeObject PyVidInfo_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,                       /*size*/
+    TYPE_HEAD (NULL, 0)
     "VidInfo",               /*name*/
     sizeof(PyVidInfoObject), /*basic size*/
     0,                       /*itemsize*/
@@ -299,7 +318,7 @@ get_driver (PyObject* self, PyObject* args)
 
     if (!SDL_VideoDriverName (buf, sizeof (buf)))
         Py_RETURN_NONE;
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 static PyObject*
@@ -982,7 +1001,7 @@ toggle_fullscreen (PyObject* self, PyObject* arg)
     return PyInt_FromLong (result != 0);
 }
 
-static PyMethodDef display_builtins[] =
+static PyMethodDef _display_methods[] =
 {
     { "__PYGAMEinit__", display_autoinit, 1,
       "auto initialize function for display." },
@@ -1032,40 +1051,68 @@ static PyMethodDef display_builtins[] =
 };
 
 
-PYGAME_EXPORT
-void initdisplay (void)
+MODINIT_DEFINE (display)
 {
     PyObject *module, *dict, *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_DISPLAY_NUMSLOTS];
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "display",
+        DOC_PYGAMEDISPLAY,
+        -1,
+        _display_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rect ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* type preparation */
-    PyType_Init (PyVidInfo_Type);
+    if (PyType_Ready (&PyVidInfo_Type) < 0) {
+        MODINIT_ERROR;
+    }
 
     /* create the module */
-    module = Py_InitModule3 (MODPREFIX "display", display_builtins, DOC_PYGAMEDISPLAY);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "display", _display_methods, DOC_PYGAMEDISPLAY);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
-    self_module = module;
 
     /* export the c api */
     c_api[0] = &PyVidInfo_Type;
     c_api[1] = PyVidInfo_New;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+}
+    MODINIT_RETURN (module);
 }

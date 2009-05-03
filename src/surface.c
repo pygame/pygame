@@ -26,6 +26,7 @@
 #include "surface.h"
 #include "pygamedocs.h"
 #include "structmember.h"
+#include "pgcompat.h"
 
 int
 PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
@@ -88,7 +89,9 @@ static PyObject *surf_set_masks (PyObject *self, PyObject *args);
 static PyObject *surf_get_offset (PyObject *self);
 static PyObject *surf_get_parent (PyObject *self);
 static PyObject *surf_subsurface (PyObject *self, PyObject *args);
+#if !PY3
 static PyObject *surf_get_buffer (PyObject *self);
+#endif
 static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
                                           PyObject *kwargs);
 
@@ -149,7 +152,7 @@ static struct PyMethodDef surface_methods[] =
       DOC_SURFACEGETWIDTH },
     { "get_height", (PyCFunction) surf_get_height, METH_NOARGS,
       DOC_SURFACEGETHEIGHT },
-    { "get_rect", (PyCFunction) surf_get_rect, METH_KEYWORDS,
+    { "get_rect", (PyCFunction) surf_get_rect, METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACEGETRECT },
     { "get_pitch", (PyCFunction) surf_get_pitch, METH_NOARGS,
       DOC_SURFACEGETPITCH },
@@ -178,18 +181,20 @@ static struct PyMethodDef surface_methods[] =
       DOC_SURFACEGETPARENT },
     { "get_abs_parent", (PyCFunction) surf_get_abs_parent, METH_NOARGS,
       DOC_SURFACEGETABSPARENT },
-    { "get_bounding_rect", (PyCFunction) surf_get_bounding_rect, METH_KEYWORDS,
+    { "get_bounding_rect", (PyCFunction) surf_get_bounding_rect,
+      METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACEGETBOUNDINGRECT},
+#if !PY3
     { "get_buffer", (PyCFunction) surf_get_buffer, METH_NOARGS,
       DOC_SURFACEGETBUFFER},
+#endif
 
     { NULL, NULL, 0, NULL }
 };
 
 static PyTypeObject PySurface_Type =
 {
-    PyObject_HEAD_INIT (NULL)
-    0,                         /* size */
+    TYPE_HEAD (NULL, 0)
     "pygame.Surface",          /* name */
     sizeof (PySurfaceObject),  /* basic size */
     0,                         /* itemsize */
@@ -325,7 +330,7 @@ surface_str (PyObject *self)
         strcpy (str, "<Surface(Dead Display)>");
     }
 
-    return PyString_FromString (str);
+    return Text_FromUTF8 (str);
 }
 
 static intptr_t 
@@ -1642,6 +1647,12 @@ surf_get_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *rect;
     SDL_Surface *surf = PySurface_AsSurface (self);
 
+    if (PyTuple_GET_SIZE (args) > 0) {
+        return PyErr_Format (PyExc_TypeError,
+                             "get_rect only accepts keyword arguments",
+                             PyTuple_GET_SIZE (args));
+    }
+
     if (!surf)
         return RAISE (PyExc_SDLError, "display Surface quit");
 
@@ -2045,6 +2056,7 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     return rect;
 }
 
+#if !PY3
 static PyObject
 *surf_get_buffer (PyObject *self)
 {
@@ -2073,6 +2085,7 @@ static PyObject
 
     return buffer;
 }
+#endif
 
 static void
 surface_move (Uint8 *src, Uint8 *dst, int h, int span,
@@ -2310,35 +2323,48 @@ PySurface_Blit (PyObject * dstobj, PyObject * srcobj, SDL_Rect * dstrect,
     return result != 0;
 }
 
-static PyMethodDef surface_builtins[] =
+static PyMethodDef _surface_methods[] =
 {
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initsurface(void)
+MODINIT_DEFINE (surface)
 {
     PyObject *module, *dict, *apiobj, *lockmodule;
+    int ecode;
     static void* c_api[PYGAMEAPI_SURFACE_NUMSLOTS];
     
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "surface",
+        DOC_PYGAMESURFACE,
+        -1,
+        _surface_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-        return;
+        MODINIT_ERROR;
     }    import_pygame_color ();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
     import_pygame_rect ();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
+    #if !PY3
     import_pygame_bufferproxy();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
+    #endif
 
     /* import the surflock module manually */
     lockmodule = PyImport_ImportModule (IMPPREFIX "surflock");
@@ -2359,27 +2385,53 @@ void initsurface(void)
     }
     else
     {
-	return;
+        MODINIT_ERROR;
 }
 
     /* type preparation */
-    if (PyType_Ready(&PySurface_Type) < 0)
-        return;
+    if (PyType_Ready(&PySurface_Type) < 0) {
+        MODINIT_ERROR;
+    }
     
     /* create the module */
-    module = Py_InitModule3 (MODPREFIX "surface", surface_builtins, DOC_PYGAMESURFACE);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "surface", _surface_methods, DOC_PYGAMESURFACE);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
-    PyDict_SetItemString (dict, "SurfaceType", (PyObject *) &PySurface_Type);
-    PyDict_SetItemString (dict, "Surface", (PyObject *) &PySurface_Type);
+    if (PyDict_SetItemString (dict, "SurfaceType", (PyObject *) &PySurface_Type)) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    if (PyDict_SetItemString (dict, "Surface", (PyObject *) &PySurface_Type)) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
     /* export the c api */
     c_api[0] = &PySurface_Type;
     c_api[1] = PySurface_New;
     c_api[2] = PySurface_Blit;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
     /* Py_INCREF (PySurface_Type.tp_dict); INCREF's done in SetItemString */
-    PyDict_SetItemString (dict, "_dict", PySurface_Type.tp_dict);
+    if (PyDict_SetItemString (dict, "_dict", PySurface_Type.tp_dict)) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+}
+    MODINIT_RETURN (module);
 }

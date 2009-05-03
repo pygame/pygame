@@ -100,8 +100,8 @@ class DisplayModuleTest( unittest.TestCase ):
         
             pygame.init()
             inf = pygame.display.Info()
-            print "before a display mode has been set"
-            print inf
+            print ("before a display mode has been set")
+            print (inf)
         
             self.assertNotEqual(inf.current_h, -1)
             self.assertNotEqual(inf.current_w, -1)
@@ -110,7 +110,7 @@ class DisplayModuleTest( unittest.TestCase ):
             screen = pygame.display.set_mode((100,100))
             inf = pygame.display.Info()
         
-            print inf
+            print (inf)
         
             self.assertNotEqual(inf.current_h, -1)
             self.assertEqual(inf.current_h, 100)

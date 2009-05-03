@@ -24,6 +24,7 @@
  *  pygame keyboard module
  */
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 
 /* keyboard module functions */
@@ -110,7 +111,7 @@ key_name (PyObject* self, PyObject* args)
     if (!PyArg_ParseTuple (args, "i", &key))
         return NULL;
 
-    return PyString_FromString (SDL_GetKeyName (key));	
+    return Text_FromUTF8 (SDL_GetKeyName (key));	
 }
 
 static PyObject*
@@ -143,7 +144,7 @@ key_get_focused (PyObject* self)
     return PyInt_FromLong ((SDL_GetAppState () & SDL_APPINPUTFOCUS) != 0);
 }
 
-static PyMethodDef key_builtins[] =
+static PyMethodDef _key_methods[] =
 {
     { "set_repeat", key_set_repeat, METH_VARARGS, DOC_PYGAMEKEYSETREPEAT },
     { "get_repeat", key_get_repeat, METH_NOARGS, DOC_PYGAMEKEYGETREPEAT },
@@ -159,20 +160,37 @@ static PyMethodDef key_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initkey (void)
+MODINIT_DEFINE (key)
 {
-    PyObject *module, *dict;
+    PyObject *module;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "key",
+        DOC_PYGAMEKEY,
+        -1,
+        _key_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* create the module */
-    module = Py_InitModule3 (MODPREFIX "key", key_builtins, DOC_PYGAMEKEY);
-    dict = PyModule_GetDict (module);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "key", _key_methods, DOC_PYGAMEKEY);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+}
+    MODINIT_RETURN (module);
 }

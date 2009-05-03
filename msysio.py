@@ -9,6 +9,15 @@
 import sys
 import os
 
+__all__ = ['raw_input_', 'print_', 'is_msys']
+
+# 2.x/3.x compatibility stuff
+try:
+    raw_input
+except NameError:
+    raw_input = input
+
+# Exported functions
 def raw_input_(prompt=None):
     """Prompt for user input in an MSYS console friendly way"""
     if prompt is None:
@@ -42,4 +51,4 @@ def is_msys():
     try:
         return os.environ['OSTYPE'] == 'msys'
     except KeyError:
-        return 0
+        return False

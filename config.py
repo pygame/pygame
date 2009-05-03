@@ -18,7 +18,7 @@ cflags: extra compile flags
 
 import msysio
 import mingwcfg
-import sys, os, shutil, string
+import sys, os, shutil
 
 def print_(*args, **kwds):
     """Simular to the Python 3.0 print function"""
@@ -29,9 +29,9 @@ def print_(*args, **kwds):
 def confirm(message):
     "ask a yes/no question, return result"
     reply = msysio.raw_input_("\n%s [Y/n]:" % message)
-    if reply and string.lower(reply[0]) == 'n':
-        return 0
-    return 1
+    if reply and reply[0].lower() == 'n':
+        return False
+    return True
 
 def is_msys_mingw():
     """Return true if this in an MinGW/MSYS build
@@ -111,7 +111,9 @@ def writesetupfile(deps, basepath, additional_lines):
 
 def main():
     additional_platform_setup = []
-    if sys.platform == 'win32' and not is_msys_mingw():
+    if (sys.platform == 'win32' and
+        # Note that msys builds supported for 2.6 and greater. Use prebuilt.
+        (sys.version_info >= (2, 6) or not is_msys_mingw())):
         print_('Using WINDOWS configuration...\n')
         import config_win as CFG
     elif sys.platform == 'win32':

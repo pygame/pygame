@@ -29,27 +29,36 @@
 #include <stdio.h>
 #include <string.h>
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "structmember.h"
 
-staticforward PyTypeObject PyFont_Type;
+static PyTypeObject PyFont_Type;
 static PyObject* PyFont_New (TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-static char* font_defaultname = "freesansbold.ttf";
-static PyObject* self_module = NULL;
-
-static char* pkgdatamodule_name = "pygame.pkgdata";
-static char* resourcefunc_name = "getResource";
+#ifndef __SYMBIAN32__
+static const char const *font_defaultname = "freesansbold.ttf";
+static const char const *pkgdatamodule_name = "pygame.pkgdata";
+static const char const *resourcefunc_name = "getResource";
+#else
+/// Symbian GCCE does not like the second const
+static const char *font_defaultname = "freesansbold.ttf";
+static const char *pkgdatamodule_name = "pygame.pkgdata";
+static const char *resourcefunc_name = "getResource";
+#endif
 
 static PyObject*
-font_resource (char *filename)
+font_resource (const char *filename)
 {
     PyObject* load_basicfunc = NULL;
     PyObject* pkgdatamodule = NULL;
     PyObject* resourcefunc = NULL;
     PyObject* result = NULL;
+#if PY3
+    PyObject* tmp;
+#endif
 
     pkgdatamodule = PyImport_ImportModule (pkgdatamodule_name);
     if (!pkgdatamodule)
@@ -63,6 +72,16 @@ font_resource (char *filename)
     if (!result)
         goto font_resource_end;
 
+#if PY3
+    tmp = PyObject_GetAttrString (result, "name");
+    if (tmp != NULL) {
+        Py_DECREF (result);
+        result = tmp;
+    }
+    else {
+        PyErr_Clear ();
+    }
+#else
     if (PyFile_Check (result))
     {		
         PyObject *tmp = PyFile_Name (result);        
@@ -70,6 +89,7 @@ font_resource (char *filename)
         Py_DECREF (result);
         result = tmp;
     }
+#endif
 
 font_resource_end:
     Py_XDECREF (pkgdatamodule);
@@ -301,7 +321,7 @@ font_render (PyObject* self, PyObject* args)
     else if (PyUnicode_Check (text))
     {
         PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
-        char *astring = PyString_AsString (strob);
+        char *astring = Bytes_AsString (strob);
 
         if (aa)
         {
@@ -315,9 +335,9 @@ font_render (PyObject* self, PyObject* args)
 
         Py_DECREF (strob);
     }
-    else if (PyString_Check (text))
+    else if (Bytes_Check (text))
     {
-        char* astring = PyString_AsString (text);
+        char* astring = Bytes_AsString (text);
 
         if (aa)
         {
@@ -363,14 +383,14 @@ font_size (PyObject* self, PyObject* args)
     {
         //PyObject* strob = PyUnicode_AsEncodedObject(text, "utf-8", "replace");
         PyObject* strob = PyUnicode_AsEncodedString (text, "utf-8", "replace");
-        char *string = PyString_AsString (strob);
+        char *string = Bytes_AsString (strob);
 
         TTF_SizeUTF8 (font, string, &w, &h);
         Py_DECREF (strob);
     }
-    else if (PyString_Check (text))
+    else if (Bytes_Check (text))
     {
-        char* string = PyString_AsString (text);
+        char* string = Bytes_AsString (text);
         TTF_SizeText (font, string, &w, &h);
     }
     else
@@ -403,8 +423,8 @@ font_metrics (PyObject* self, PyObject* args)
         buf = PyUnicode_AsUnicode (textobj);
         isunicode = 1;
     }
-    else if (PyString_Check (textobj))
-        buf = PyString_AsString (textobj);
+    else if (Bytes_Check (textobj))
+        buf = Bytes_AsString (textobj);
     else
         return RAISE (PyExc_TypeError, "text must be a string or unicode");
 
@@ -414,7 +434,7 @@ font_metrics (PyObject* self, PyObject* args)
     if (isunicode)
         length = PyUnicode_GetSize (textobj);
     else
-        length = PyString_Size (textobj);
+        length = Bytes_Size (textobj);
 
     if (length == 0)
         Py_RETURN_NONE;
@@ -504,7 +524,7 @@ font_dealloc (PyFontObject* self)
 
     if (self->weakreflist)
         PyObject_ClearWeakRefs ((PyObject*) self);
-    self->ob_type->tp_free ((PyObject*) self);
+    Py_TYPE(self)->tp_free ((PyObject*) self);
 }
 
 static int
@@ -531,7 +551,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
 
     if (fileobj == Py_None)
     {
-        Py_DECREF (fileobj);
+
         fileobj = font_resource (font_defaultname);
         if (!fileobj)
         {
@@ -539,42 +559,43 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
             PyOS_snprintf (error, 1024, "default font not found '%s'",
                       font_defaultname);
             RAISE (PyExc_RuntimeError, error);
-            return -1;
+            goto error;
         }
         fontsize = (int) (fontsize * .6875);
         if (fontsize <= 1)
             fontsize = 1;
     }
      
-    if (PyString_Check (fileobj) || PyUnicode_Check (fileobj))
+    if (PyUnicode_Check (fileobj)) {
+        PyObject* tmp = PyUnicode_AsASCIIString (fileobj);
+
+        if (tmp == NULL) {
+            goto error;
+        }
+        fileobj = tmp;
+    }
+
+    if (Bytes_Check (fileobj))
     {
         FILE* test;        
-#ifdef __SYMBIAN32__        
-		// Fix for Symbian. filename is corrupted if the fileobj is destroyed. 
-        // FIXME: Possible bug on other platforms too.
-        char* _filename = PyString_AsString (fileobj);
-        char filename[513];
-        strncpy(filename,_filename, 512);
-        filename[512] = 0;
-#else
-        char* filename = PyString_AsString (fileobj);
-#endif	     
-        Py_DECREF (fileobj);
-		fileobj = NULL;
+        char* filename = Bytes_AsString (fileobj);
        		
-        if (!filename)
-            return -1;
+        if (!filename) {
+            goto error;
+        }
                 
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = fopen (filename, "rb");
         if(!test)
         {
-            if (!strcmp (filename, font_defaultname))
+            if (!strcmp (filename, font_defaultname)) {
+                Py_DECREF (fileobj);
                 fileobj = font_resource (font_defaultname);
+            }
             if (!fileobj)
             {
                 PyErr_SetString (PyExc_IOError, "unable to read font filename");
-                return -1;
+                goto error;
             }
         }
         else
@@ -592,34 +613,36 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         rw = RWopsFromPython (fileobj);
         if (!rw)
         {
-            Py_DECREF (fileobj);
-            return -1;
+            goto error;
         }
         Py_BEGIN_ALLOW_THREADS;
         font = TTF_OpenFontIndexRW (rw, 1, fontsize, 0);
         Py_END_ALLOW_THREADS;
 #else
-        Py_DECREF (fileobj);
         RAISE (PyExc_NotImplementedError,
                "nonstring fonts require SDL_ttf-2.0.6");
-        return -1;
+        goto error;
 #endif
     }
 
     if (!font)
     {
         RAISE (PyExc_RuntimeError, SDL_GetError ());
-        return -1;
+        goto error;
     }
 
+    Py_DECREF (fileobj);
     self->font = font;
     return 0;
+
+error:
+    Py_DECREF (fileobj);
+    return -1;
 }
 
 static PyTypeObject PyFont_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,
+    TYPE_HEAD (NULL, 0)
     "pygame.font.Font",
     sizeof(PyFontObject),
     0,
@@ -666,7 +689,7 @@ get_default_font (PyObject* self)
     return PyString_FromString (font_defaultname);
 }
 
-static PyMethodDef font_builtins[] =
+static PyMethodDef _font_methods[] =
 {
     { "__PYGAMEinit__", (PyCFunction) font_autoinit, METH_NOARGS,
       "auto initialize function for font" },
@@ -695,11 +718,21 @@ PyFont_New (TTF_Font* font)
     return (PyObject*) fontobj;
 }
 
-PYGAME_EXPORT
-void initfont (void)
+MODINIT_DEFINE (font)
 {
     PyObject *module, *apiobj;
     static void* c_api[PYGAMEAPI_FONT_NUMSLOTS];
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "font",
+        DOC_PYGAMEFONT,
+        -1,
+        _font_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     PyFONT_C_API[0] = PyFONT_C_API[0]; /*clean an unused warning*/
 
@@ -708,56 +741,66 @@ void initfont (void)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_color ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* type preparation */
-    if (PyType_Ready (&PyFont_Type) < 0)
-        return;
+    if (PyType_Ready (&PyFont_Type) < 0) {
+        MODINIT_ERROR;
+    }
+    PyFont_Type.tp_new = PyType_GenericNew;
 
-    /* create the module */
-    PyFont_Type.ob_type = &PyType_Type;
-    PyFont_Type.tp_new = &PyType_GenericNew;
-
-    module = Py_InitModule3 (MODPREFIX "font", font_builtins, DOC_PYGAMEFONT);
-    self_module = module;
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "font", _font_methods, DOC_PYGAMEFONT);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
 
     Py_INCREF ((PyObject*) &PyFont_Type);
-    PyModule_AddObject (module, "FontType", (PyObject *) &PyFont_Type);
+    if (PyModule_AddObject (module,
+                            "FontType",
+                            (PyObject *) &PyFont_Type) == -1) {
+        Py_DECREF ((PyObject *) &PyFont_Type);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+
     Py_INCREF ((PyObject*) &PyFont_Type);
-    PyModule_AddObject (module, "Font", (PyObject *) &PyFont_Type);
+    if (PyModule_AddObject (module,
+                            "Font",
+                            (PyObject *) &PyFont_Type) == -1) {
+        Py_DECREF ((PyObject *) &PyFont_Type);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
     /* export the c api */
     c_api[0] = &PyFont_Type;
     c_api[1] = PyFont_New;
     c_api[2] = &font_initialized;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj);
-
-    /*imported needed apis*/
-    import_pygame_base ();
-    if (PyErr_Occurred ()) {
-	return;
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
     }
-    import_pygame_color ();
-    if (PyErr_Occurred ()) {
-	return;
+    if (PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
     }
-    import_pygame_surface ();
-    if (PyErr_Occurred ()) {
-	return;
+    MODINIT_RETURN (module);
     }
-    import_pygame_rwobject ();
-}

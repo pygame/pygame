@@ -5,16 +5,22 @@ try:
 except pkg_resources.DistributionNotFound:
     raise ImportError
 
+try:
+    unicode
+except NameError:
+    def unicode(s):
+        return s
+
 FRAMEWORKS = ['SDL', 'SDL_ttf', 'SDL_image', 'SDL_mixer', 'smpeg']
 
 CUSTOM_SCHEMES = dict(
     examples=dict(
-        description=u'(Optional) pygame example code',
+        description=unicode('(Optional) pygame example code'),
         prefix='/Developer/Python/pygame/Examples',
         source='examples',
     ),
     docs=dict(
-        description=u'(Optional) pygame documentation',
+        description=unicode('(Optional) pygame documentation'),
         prefix='/Developer/Python/pygame/Documentation',
         source='docs',
     ),
@@ -22,7 +28,7 @@ CUSTOM_SCHEMES = dict(
 
 for framework in FRAMEWORKS:
     CUSTOM_SCHEMES[framework] = dict(
-        description=u'(Required) %s.framework' % (framework,),
+        description=unicode('(Required) %s.framework') % (framework,),
         prefix='/Library/Frameworks/%s.framework' % (framework,),
         source='/Library/Frameworks/%s.framework' % (framework,),
     )

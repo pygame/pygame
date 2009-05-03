@@ -1,0 +1,7 @@
+pygame.midi
+send and receive midi messages
+
+=== Under Development ===
+
+See examples\midi.py for the current status the midi module api.
+<END>

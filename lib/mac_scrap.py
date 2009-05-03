@@ -45,9 +45,12 @@ def get(scrap_type):
         rep = NSBitmapImageRep.alloc().initWithData_(data)
         if rep is None:
             return None
-        data = rep.representationUsingType_properties_(NSBMPFileType, None)
+
+        # bug with bmp, out of memory error... so we use png.
+        #data = rep.representationUsingType_properties_(NSBMPFileType, None)
+        data = rep.representationUsingType_properties_(NSPNGFileType, None)
         bmp = StringIO(data)
-        return pygame.image.load(bmp, "scrap.bmp")
+        return pygame.image.load(bmp, "scrap.png")
     #elif scrap_type in board.types:
     elif scrap_type == SCRAP_BMP:
         return board.dataForType_(scrap_type)

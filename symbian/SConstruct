@@ -74,11 +74,11 @@ KEY  = ARGUMENTS.get("privkey", None)
 PASSPHRASE  = ARGUMENTS.get("passphrase", "" )
 
 #-----------------------------------------------------------------------Get UIDs     
-UID_PACKAGE    = ARGUMENTS.get( "sisuid" )
-UID_PYGAMEAPP  = ARGUMENTS.get( "appuid" )
-UID_SDL        = ARGUMENTS.get( "sdluid" )
-UID_JPEG       = ARGUMENTS.get( "jpeguid" )
-UID_PNG        = ARGUMENTS.get( "pnguid" )
+UID_PACKAGE    = ARGUMENTS["sisuid"] 
+UID_PYGAMEAPP  = ARGUMENTS["appuid"] 
+UID_SDL        = ARGUMENTS["sdluid"] 
+UID_JPEG       = ARGUMENTS["jpeguid"]
+UID_PNG        = 0#ARGUMENTS["pnguid"] 
 
 
 EMBEDDED_PYTHON_SIS = ARGUMENTS.get( "pythonsis", "none" )

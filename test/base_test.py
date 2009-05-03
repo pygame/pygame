@@ -71,7 +71,7 @@ class BaseModuleTest(unittest.TestCase):
         self.assert_(pygame.mixer.get_init())
         self.assert_(pygame.font.get_init())
 
-    def todo_test_quit__and_init(self):
+    def test_quit__and_init(self):
         # __doc__ (as of 2008-06-25) for pygame.base.quit:
 
           # pygame.quit(): return None
@@ -107,7 +107,7 @@ class BaseModuleTest(unittest.TestCase):
 
         self.assert_(quit_hook_ran)
 
-    def todo_test_get_error(self):
+    def test_get_error(self):
 
         # __doc__ (as of 2008-08-02) for pygame.base.get_error:
 
@@ -119,9 +119,25 @@ class BaseModuleTest(unittest.TestCase):
           # call this function.
           # 
 
-        self.fail() 
+        self.assertEqual(pygame.get_error(), "")
+        pygame.set_error("hi")
+        self.assertEqual(pygame.get_error(), "hi")
+        pygame.set_error("")
+        self.assertEqual(pygame.get_error(), "")
 
-    def todo_test_init(self):
+
+
+    def test_set_error(self):
+
+        self.assertEqual(pygame.get_error(), "")
+        pygame.set_error("hi")
+        self.assertEqual(pygame.get_error(), "hi")
+        pygame.set_error("")
+        self.assertEqual(pygame.get_error(), "")
+
+
+
+    def test_init(self):
 
         # __doc__ (as of 2008-08-02) for pygame.base.init:
 
@@ -143,7 +159,23 @@ class BaseModuleTest(unittest.TestCase):
           # modules.
           # 
 
-        self.fail() 
+
+
+        # Make sure everything is not init
+        self.not_init_assertions()
+    
+        # Initiate it
+        pygame.init()
+        
+        # Check
+        self.init_assertions()
+
+        # Quit
+        pygame.quit()
+        
+        # All modules have quit
+        self.not_init_assertions()
+
 
     def todo_test_segfault(self):
 

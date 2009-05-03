@@ -27,8 +27,9 @@
 #include "pygame.h"
 #include "pygamedocs.h"
 #include "structmember.h"
+#include "pgcompat.h"
 
-staticforward PyTypeObject PyRect_Type;
+static PyTypeObject PyRect_Type;
 #define PyRect_Check(x) ((x)->ob_type == &PyRect_Type)
 
 static PyObject* rect_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
@@ -493,10 +494,11 @@ rect_collidedict (PyObject* oself, PyObject* args)
     PyRectObject* self = (PyRectObject*)oself;
     GAME_Rect *argrect, temp;
     Py_ssize_t loop=0;
+    Py_ssize_t values=0;
     PyObject* dict, *key, *val;
     PyObject* ret = NULL;
 
-    if (!PyArg_ParseTuple (args, "O", &dict))
+    if (!PyArg_ParseTuple (args, "O|i", &dict, &values))
         return NULL;
     if (!PyDict_Check (dict))
         return RAISE (PyExc_TypeError,
@@ -504,12 +506,23 @@ rect_collidedict (PyObject* oself, PyObject* args)
 
     while (PyDict_Next (dict, &loop, &key, &val))
     {
+        if(values) {
+            if (!(argrect = GameRect_FromObject (val, &temp)))
+            {
+                RAISE (PyExc_TypeError,
+                       "Argument must be a dict with rectstyle values.");
+                break;
+            }
+        } else {
         if (!(argrect = GameRect_FromObject (key, &temp)))
         {
             RAISE (PyExc_TypeError,
                    "Argument must be a dict with rectstyle keys.");
             break;
         }
+        }
+
+
         if (DoRectsIntersect (&self->r, argrect))
         {
             ret = Py_BuildValue ("(OO)", key, val);
@@ -528,10 +541,13 @@ rect_collidedictall (PyObject* oself, PyObject* args)
     PyRectObject* self = (PyRectObject*)oself;
     GAME_Rect *argrect, temp;
     Py_ssize_t loop=0;
+    /* should we use values or keys? */
+    Py_ssize_t values=0;
+
     PyObject* dict, *key, *val;
     PyObject* ret = NULL;
 
-    if (!PyArg_ParseTuple (args, "O", &dict))
+    if (!PyArg_ParseTuple (args, "O|i", &dict, &values))
         return NULL;
     if (!PyDict_Check (dict))
         return RAISE (PyExc_TypeError,
@@ -543,11 +559,20 @@ rect_collidedictall (PyObject* oself, PyObject* args)
 
     while (PyDict_Next (dict, &loop, &key, &val))
     {
+        if (values) {
+            if (!(argrect = GameRect_FromObject (val, &temp)))
+            {
+                Py_DECREF (ret);
+                return RAISE (PyExc_TypeError,
+                              "Argument must be a dict with rectstyle values.");
+            }
+        } else {
         if (!(argrect = GameRect_FromObject (key, &temp)))
         {
             Py_DECREF (ret);
             return RAISE (PyExc_TypeError,
                           "Argument must be a dict with rectstyle keys.");
+        }
         }
 
         if (DoRectsIntersect (&self->r, argrect))
@@ -902,6 +927,7 @@ rect_nonzero (PyRectObject *self)
     return self->r.w != 0 && self->r.h != 0;
 }
 
+#if !PY3
 static int
 rect_coerce (PyObject** o1, PyObject** o2)
 {
@@ -936,32 +962,37 @@ rect_coerce (PyObject** o1, PyObject** o2)
     *o2 = new2;
     return 0;
 }
+#endif
 
 static PyNumberMethods rect_as_number =
 {
     (binaryfunc)NULL,		/*add*/
     (binaryfunc)NULL,		/*subtract*/
     (binaryfunc)NULL,		/*multiply*/
+#if !PY3
     (binaryfunc)NULL,		/*divide*/
+#endif
     (binaryfunc)NULL,		/*remainder*/
     (binaryfunc)NULL,		/*divmod*/
     (ternaryfunc)NULL,		/*power*/
     (unaryfunc)NULL,		/*negative*/
     (unaryfunc)NULL,		/*pos*/
     (unaryfunc)NULL,		/*abs*/
-    (inquiry)rect_nonzero,	/*nonzero*/
+    (inquiry)rect_nonzero,	/*nonzero / bool*/
     (unaryfunc)NULL,		/*invert*/
     (binaryfunc)NULL,		/*lshift*/
     (binaryfunc)NULL,		/*rshift*/
     (binaryfunc)NULL,		/*and*/
     (binaryfunc)NULL,		/*xor*/
     (binaryfunc)NULL,		/*or*/
+#if !PY3
     (coercion)rect_coerce,	/*coerce*/
+#endif
     (unaryfunc)NULL,		/*int*/
+#if !PY3
     (unaryfunc)NULL,		/*long*/
+#endif
     (unaryfunc)NULL,		/*float*/
-    (unaryfunc)NULL,		/*oct*/
-    (unaryfunc)NULL,		/*hex*/
 };
 
 /* object type functions */
@@ -970,7 +1001,7 @@ rect_dealloc (PyRectObject *self)
 {
     if (self->weakreflist)
         PyObject_ClearWeakRefs ((PyObject*)self);
-    self->ob_type->tp_free ((PyObject*)self);
+    Py_TYPE(self)->tp_free ((PyObject*)self);
 }
 
 static PyObject*
@@ -979,7 +1010,7 @@ rect_repr (PyRectObject *self)
     char string[256];
     sprintf (string, "<rect(%d, %d, %d, %d)>", self->r.x, self->r.y,
              self->r.w, self->r.h);
-    return PyString_FromString (string);
+    return Text_FromUTF8 (string);
 }
 
 static PyObject*
@@ -988,28 +1019,59 @@ rect_str (PyRectObject *self)
     return rect_repr (self);
 }
 
-static int
-rect_compare (PyRectObject *self, PyObject *other)
+static PyObject*
+rect_richcompare(PyObject *o1, PyObject *o2, int opid)
 {
-    GAME_Rect *orect, temp;
+    GAME_Rect *o1rect, *o2rect, temp1, temp2;
+    int cmp;
 
-    orect = GameRect_FromObject (other, &temp);
-    if (!orect)
+    o1rect = GameRect_FromObject (o1, &temp1);
+    if (!o1rect) {
+        goto Unimplemented;
+    }
+    o2rect = GameRect_FromObject (o2, &temp2);
+    if (!o2rect)
     {
-        RAISE (PyExc_TypeError, "must compare rect with rect style object");
-        return -1;
+        goto Unimplemented;
     }
 
-    if (self->r.x != orect->x)
-        return self->r.x < orect->x ? -1 : 1;
-    if (self->r.y != orect->y)
-        return self->r.y < orect->y ? -1 : 1;
-    if (self->r.w != orect->w)
-        return self->r.w < orect->w ? -1 : 1;
-    if (self->r.h != orect->h)
-        return self->r.h < orect->h ? -1 : 1;
+    if (o1rect->x != o2rect->x) {
+        cmp = o1rect->x < o2rect->x ? -1 : 1;
+    }
+    else if (o1rect->y != o2rect->y) {
+        cmp = o1rect->y < o2rect->y ? -1 : 1;
+    }
+    else if (o1rect->w != o2rect->w) {
+        cmp = o1rect->w < o2rect->w ? -1 : 1;
+    }
+    else if (o1rect->h != o2rect->h) {
+        cmp = o1rect->h < o2rect->h ? -1 : 1;
+    }
+    else {
+        cmp = 0;
+    }
 
-    return 0;
+    switch (opid)
+    {
+    case Py_LT:
+        return PyBool_FromLong (cmp < 0);
+    case Py_LE:
+        return PyBool_FromLong (cmp <= 0);
+    case Py_EQ:
+        return PyBool_FromLong (cmp == 0);
+    case Py_NE:
+        return PyBool_FromLong (cmp != 0);
+    case Py_GT:
+        return PyBool_FromLong (cmp > 0);
+    case Py_GE:
+        return PyBool_FromLong (cmp >= 0);
+    default:
+        break;
+}
+
+Unimplemented:
+    Py_INCREF (Py_NotImplemented);
+    return Py_NotImplemented;
 }
 
 /*width*/
@@ -1423,8 +1485,7 @@ static PyGetSetDef rect_getsets[] = {
 
 static PyTypeObject PyRect_Type =
 {
-    PyObject_HEAD_INIT(0)
-    0,					/*size*/
+    TYPE_HEAD (NULL, 0)
     "pygame.Rect", 				/*name*/
     sizeof(PyRectObject),		        /*basicsize*/
     0,					/*itemsize*/
@@ -1433,7 +1494,7 @@ static PyTypeObject PyRect_Type =
     (printfunc)NULL,			/*print*/
     NULL,	                                /*getattr*/
     NULL,	                                /*setattr*/
-    (cmpfunc)rect_compare,		        /*compare*/
+    NULL,                               /*compare/reserved*/
     (reprfunc)rect_repr,		        /*repr*/
     &rect_as_number,			/*as_number*/
     &rect_as_sequence,			/*as_sequence*/
@@ -1448,7 +1509,7 @@ static PyTypeObject PyRect_Type =
     DOC_PYGAMERECT,                        /* Documentation string */
     0,					/* tp_traverse */
     0,					/* tp_clear */
-    0,					/* tp_richcompare */
+    (richcmpfunc)rect_richcompare,			/* tp_richcompare */
     offsetof(PyRectObject, weakreflist),    /* tp_weaklistoffset */
     0,					/* tp_iter */
     0,					/* tp_iternext */
@@ -1496,38 +1557,62 @@ rect_init (PyRectObject *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-static PyMethodDef rect__builtins__[] =
+static PyMethodDef _rect_methods[] =
 {
     {NULL, NULL, 0, NULL}
 };
 
-/*DOC*/ static char rectangle_doc[] =
+/*DOC*/ static char _rectangle_doc[] =
 /*DOC*/    "Module for the rectangle object\n";
 
-PYGAME_EXPORT
-void initrect (void)
+MODINIT_DEFINE (rect)
 {
     PyObject *module, *dict, *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_RECT_NUMSLOTS];
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "rect",
+        _rectangle_doc,
+        -1,
+        _rect_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
 
     /* Create the module and add the functions */
-    PyType_Init (PyRect_Type);
-    if (PyType_Ready (&PyRect_Type) < 0)
-        return;
+    if (PyType_Ready (&PyRect_Type) < 0) {
+        MODINIT_ERROR;
+    }
 
-    module = Py_InitModule3 (MODPREFIX "rect", rect__builtins__, rectangle_doc);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "rect", _rect_methods, _rectangle_doc);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
-    PyDict_SetItemString (dict, "RectType", (PyObject *)&PyRect_Type);
-    PyDict_SetItemString (dict, "Rect", (PyObject *)&PyRect_Type);
+    if (PyDict_SetItemString (dict, "RectType", (PyObject *)&PyRect_Type)) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    if (PyDict_SetItemString (dict, "Rect", (PyObject *)&PyRect_Type)) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
     /* export the c api */
     c_api[0] = &PyRect_Type;
@@ -1535,6 +1620,15 @@ void initrect (void)
     c_api[2] = PyRect_New4;
     c_api[3] = GameRect_FromObject;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+}
+    MODINIT_RETURN (module);
 }

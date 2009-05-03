@@ -42,8 +42,8 @@ class RectTypeTest( unittest.TestCase ):
         self.assertEqual( (r.left,r.bottom), r.bottomleft )
         self.assertEqual( (r.right,r.bottom), r.bottomright )
 
-        midx = r.left + r.width/2
-        midy = r.top + r.height/2
+        midx = r.left + r.width // 2
+        midy = r.top + r.height // 2
 
         self.assertEqual( midx, r.centerx )
         self.assertEqual( midy, r.centery )
@@ -527,7 +527,7 @@ class RectTypeTest( unittest.TestCase ):
         rect_list.remove(r2)
         self.assertRaises(ValueError, rect_list.remove, r2)
 
-    def todo_test_collidedict(self):
+    def test_collidedict(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidedict:
 
@@ -541,9 +541,32 @@ class RectTypeTest( unittest.TestCase ):
           # Rect objects are not hashable and cannot be used as keys in a
           # dictionary, only as values.
 
-        self.fail() 
+        r = Rect(1, 1, 10, 10)
+        r1 = Rect(1, 1, 10, 10)
+        r2 = Rect(50, 50, 10, 10)
+        r3 = Rect(70, 70, 10, 10)
+        r4 = Rect(61, 61, 10, 10)
 
-    def todo_test_collidedictall(self):
+        d = {1: r1, 2: r2, 3: r3}
+
+        rects_values = 1
+        val = r.collidedict(d, rects_values)
+        self.assertTrue(val)
+        self.assertEqual(len(val), 2)
+        self.assertEqual(val[0], 1)
+        self.assertEqual(val[1], r1)
+
+        none_d = {2: r2, 3: r3}
+        none_val = r.collidedict(none_d, rects_values)
+        self.assertFalse(none_val)
+
+        barely_d = {1: r1, 2: r2, 3: r3}
+        k3, v3 = r4.collidedict(barely_d, rects_values)
+        self.assertEqual(k3, 3)
+        self.assertEqual(v3, r3)
+
+
+    def test_collidedictall(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidedictall:
 
@@ -557,9 +580,23 @@ class RectTypeTest( unittest.TestCase ):
           # Rect objects are not hashable and cannot be used as keys in a
           # dictionary, only as values.
 
-        self.fail() 
+        r = Rect(1, 1, 10, 10)
 
-    def todo_test_collidelist(self):
+        r2 = Rect(1, 1, 10, 10)
+        r3 = Rect(5, 5, 10, 10)
+        r4 = Rect(10, 10, 10, 10)
+        r5 = Rect(50, 50, 10, 10)
+
+        rects_values = 1
+        d = {2: r2}
+        l = r.collidedictall(d, rects_values)
+        self.assertEqual(l, [(2, r2)])
+
+        d2 = {2: r2, 3: r3, 4: r4, 5: r5}
+        l2 = r.collidedictall(d2, rects_values)
+        self.assertEqual(l2, [(2, r2), (3, r3), (4, r4)])
+        
+    def test_collidelist(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelist:
 
@@ -570,9 +607,16 @@ class RectTypeTest( unittest.TestCase ):
           # rectangles. The index of the first collision found is returned. If
           # no collisions are found an index of -1 is returned.
 
-        self.fail() 
+        r = Rect(1, 1, 10, 10)
+        l = [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(15, 15, 1, 1)]
 
-    def todo_test_collidelistall(self):
+        self.assertEqual(r.collidelist(l), 1)
+
+        f = [Rect(50, 50, 1, 1), (100, 100, 4, 4)]
+        self.assertEqual(r.collidelist(f), -1)
+        
+
+    def test_collidelistall(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.collidelistall:
 
@@ -583,9 +627,21 @@ class RectTypeTest( unittest.TestCase ):
           # collide with the Rect. If no intersecting rectangles are found, an
           # empty list is returned.
 
-        self.fail() 
+        r = Rect(1, 1, 10, 10)
 
-    def todo_test_fit(self):
+        l = [
+            Rect(1, 1, 10, 10), 
+            Rect(5, 5, 10, 10),
+            Rect(15, 15, 1, 1),
+            Rect(2, 2, 1, 1),
+        ]
+        self.assertEqual(r.collidelistall(l), [0, 1, 3])
+
+        f = [Rect(50, 50, 1, 1), Rect(20, 20, 5, 5)]
+        self.assertFalse(r.collidelistall(f))
+
+
+    def test_fit(self):
 
         # __doc__ (as of 2008-08-02) for pygame.rect.Rect.fit:
 
@@ -596,7 +652,17 @@ class RectTypeTest( unittest.TestCase ):
           # The aspect ratio of the original Rect is preserved, so the new
           # rectangle may be smaller than the target in either width or height.
 
-        self.fail() 
+        r = Rect(10, 10, 30, 30)
+
+        r2 = Rect(30, 30, 15, 10)
+
+        f = r.fit(r2)
+        self.assertTrue(r2.contains(f))
+        
+        f2 = r2.fit(r)
+        self.assertTrue(r.contains(f2))
+
+
 
     def test_copy(self):
         r = Rect(1, 2, 10, 20)

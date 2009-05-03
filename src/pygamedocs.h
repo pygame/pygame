@@ -9,6 +9,8 @@
 
 #define DOC_PYGAMEGETERROR "pygame.get_error(): return errorstr\nget the current error message"
 
+#define DOC_PYGAMESETERROR "pygame.set_error(error_msg): return None\nset the current error message"
+
 #define DOC_PYGAMEGETSDLVERSION "pygame.get_sdl_version(): return major, minor, patch\nget the version number of SDL"
 
 #define DOC_PYGAMEGETSDLBYTEORDER "pygame.get_sdl_byteorder(): return int\nget the byte order of SDL"
@@ -444,6 +446,8 @@
 #define DOC_MASKCONNECTEDCOMPONENTS "Mask.connected_components(min = 0) -> [Masks]\nReturns a list of masks of connected regions of pixels."
 
 #define DOC_MASKGETBOUNDINGRECTS "Mask.get_bounding_rects() -> Rects\nReturns a list of bounding rects of regions of set pixels."
+
+#define DOC_PYGAMEMIDI "send and receive midi messages"
 
 #define DOC_PYGAMEMIXER "pygame module for loading and playing sounds"
 
@@ -1018,6 +1022,12 @@ standard pygame exception
 pygame.get_error
  pygame.get_error(): return errorstr
 get the current error message
+
+
+
+pygame.set_error
+ pygame.set_error(error_msg): return None
+set the current error message
 
 
 
@@ -2324,6 +2334,11 @@ Returns a list of masks of connected regions of pixels.
 Mask.get_bounding_rects
  Mask.get_bounding_rects() -> Rects
 Returns a list of bounding rects of regions of set pixels.
+
+
+
+pygame.midi
+ send and receive midi messages
 
 
 

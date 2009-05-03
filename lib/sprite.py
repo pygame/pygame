@@ -120,7 +120,7 @@ class Sprite(object):
         Any number of Group instances can be passed as arguments. The 
         Sprite will be added to the Groups it is not already a member of.
         """
-        has = self.__g.has_key
+        has = self.__g.__contains__
         for group in groups:
             if hasattr(group, '_spritegroup'):
                 if not has(group):
@@ -135,7 +135,7 @@ class Sprite(object):
         Any number of Group instances can be passed as arguments. The Sprite will
         be removed from the Groups it is currently a member of.
         """
-        has = self.__g.has_key
+        has = self.__g.__contains__
         for group in groups:
             if hasattr(group, '_spritegroup'):
                 if has(group):
@@ -276,7 +276,7 @@ class AbstractGroup(object):
            (For now it is always a list, but newer version of Python
            could return different iterators.) You can also iterate directly
            over the sprite group."""
-        return self.spritedict.keys()
+        return list(self.spritedict.keys())
 
     def add_internal(self, sprite):
         self.spritedict[sprite] = 0
@@ -288,7 +288,7 @@ class AbstractGroup(object):
         del(self.spritedict[sprite])
 
     def has_internal(self, sprite):
-        return self.spritedict.has_key(sprite)
+        return sprite in self.spritedict
 
     def copy(self):
         """copy()
@@ -418,17 +418,21 @@ class AbstractGroup(object):
            dimensions as the surface. The bgd can also be
            a function which gets called with the passed
            surface and the area to be cleared."""
-        if callable(bgd):
+        try:
+            bgd.__call__
+        except AttributeError:
+            pass
+        else:
             for r in self.lostsprites:
                 bgd(surface, r)
             for r in self.spritedict.values():
                 if r is not 0: bgd(surface, r)
-        else:
-            surface_blit = surface.blit
-            for r in self.lostsprites:
-                surface_blit(bgd, r, r)
-            for r in self.spritedict.values():
-                if r is not 0: surface_blit(bgd, r, r)
+            return
+        surface_blit = surface.blit
+        for r in self.lostsprites:
+            surface_blit(bgd, r, r)
+        for r in self.spritedict.values():
+            if r is not 0: surface_blit(bgd, r, r)
 
     def empty(self):
         """empty()
@@ -555,10 +559,7 @@ class LayeredUpdates(AbstractGroup):
         self._spritelayers = {}
         self._spritelist = []
         AbstractGroup.__init__(self)
-        if kwargs.has_key('default_layer'):
-            self._default_layer = kwargs['default_layer']
-        else:
-            self._default_layer = 0
+        self._default_layer = kwargs.get('default_layer', 0)
             
         self.add(*sprites, **kwargs)
     
@@ -570,9 +571,9 @@ class LayeredUpdates(AbstractGroup):
         self.spritedict[sprite] = Rect(0, 0, 0, 0) # add a old rect
         
         if layer is None:
-            if hasattr(sprite, '_layer'):
+            try:
                 layer = sprite._layer
-            else:
+            except AttributeError:
                 layer = self._default_layer
                 
                 
@@ -589,7 +590,7 @@ class LayeredUpdates(AbstractGroup):
         high = leng-1
         mid = low
         while(low<=high):
-            mid = low + (high-low)/2
+            mid = low + (high-low)//2
             if(sprites_layers[sprites[mid]]<=layer):
                 low = mid+1
             else:
@@ -610,9 +611,9 @@ class LayeredUpdates(AbstractGroup):
         added to the default layer.
         """
         layer = None
-        if kwargs.has_key('layer'):
+        if 'layer' in kwargs:
             layer = kwargs['layer']
-        if sprites is None or len(sprites)==0:
+        if sprites is None or not sprites:
             return
         for sprite in sprites:
             # It's possible that some sprite is also an iterator.
@@ -745,7 +746,7 @@ class LayeredUpdates(AbstractGroup):
         high = leng-1
         mid = low
         while(low<=high):
-            mid = low + (high-low)/2
+            mid = low + (high-low)//2
             if(sprites_layers[sprites[mid]]<=new_layer):
                 low = mid+1
             else:

@@ -25,10 +25,21 @@
  *  image module for pygame
  */
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "pgopengl.h"
 
-static int is_extended = 0;
+struct _module_state {
+    int is_extended;
+};
+
+#if PY3
+#define GETSTATE(m) PY3_GETSTATE (_module_state, m)
+#else
+static struct _module_state _state = { 0 };
+#define GETSTATE(m) PY2_GETSTATE (_state)
+#endif
+
 static int SaveTGA (SDL_Surface *surface, char *file, int rle);
 static int SaveTGA_RW (SDL_Surface *surface, SDL_RWops *out, int rle);
 static SDL_Surface* opengltosdl (void);
@@ -47,6 +58,22 @@ image_load_basic (PyObject* self, PyObject* arg)
     if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
         return NULL;
 
+#if PY3
+    if (PyUnicode_Check (file)) {
+        if (!PyArg_ParseTuple (arg, "s|O", &name, &file))
+            return NULL;
+        Py_BEGIN_ALLOW_THREADS;
+        surf = SDL_LoadBMP (name);
+        Py_END_ALLOW_THREADS;
+    }
+    else if (PyBytes_Check (file)) {
+        if (!PyArg_ParseTuple (arg, "y|O", &name, &file))
+            return NULL;
+        Py_BEGIN_ALLOW_THREADS;
+        surf = SDL_LoadBMP (name);
+        Py_END_ALLOW_THREADS;
+    }
+#else
     if (PyString_Check (file) || PyUnicode_Check (file))
     {
         if (!PyArg_ParseTuple (arg, "s|O", &name, &file))
@@ -55,11 +82,9 @@ image_load_basic (PyObject* self, PyObject* arg)
         surf = SDL_LoadBMP (name);
         Py_END_ALLOW_THREADS;
     }
+#endif
     else
     {
-        if (!name && PyFile_Check (file))
-            name = PyString_AsString (PyFile_Name (file));
-
         if (!(rw = RWopsFromPython (file)))
             return NULL;
         if (RWopsCheckPython (rw))
@@ -172,14 +197,31 @@ image_save (PyObject* self, PyObject* arg)
     else
         PySurface_Prep (surfobj);
 
+#if PY3
+    if (PyBytes_Check (file) || PyUnicode_Check (file))
+#else
     if (PyString_Check (file) || PyUnicode_Check (file))
+#endif
     {
         int namelen;
         char* name;
         int written = 0;
 
+#if PY3
+        if (PyUnicode_Check (file)) {
+            if (!PyArg_ParseTuple (arg, "O|s", &file, &name)) {
+                return NULL;
+            }
+        }
+        else {
+            if (!PyArg_ParseTuple (arg, "O|y", &file, &name)) {
+                return NULL;
+            }
+        }
+#else
         if (!PyArg_ParseTuple (arg, "O|s", &file, &name))
             return NULL;
+#endif
         namelen = strlen (name);
         if (namelen > 3)
         {
@@ -261,7 +303,7 @@ image_save (PyObject* self, PyObject* arg)
 PyObject*
 image_get_extended (PyObject* self, PyObject* arg)
 {
-    return PyInt_FromLong (is_extended);
+    return PyInt_FromLong (GETSTATE (self)->is_extended);
 }
 
 PyObject*
@@ -309,10 +351,10 @@ image_tostring (PyObject* self, PyObject* arg)
             return RAISE
                 (PyExc_ValueError,
                  "Can only create \"P\" format data with 8bit Surfaces");
-        string = PyString_FromStringAndSize (NULL, surf->w * surf->h);
+        string = Bytes_FromStringAndSize (NULL, surf->w * surf->h);
         if (!string)
             return NULL;
-        PyString_AsStringAndSize (string, &data, &len);
+        Bytes_AsStringAndSize (string, &data, &len);
 
         PySurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
@@ -323,10 +365,10 @@ image_tostring (PyObject* self, PyObject* arg)
     }
     else if (!strcmp (format, "RGB"))
     {
-        string = PyString_FromStringAndSize (NULL, surf->w * surf->h * 3);
+        string = Bytes_FromStringAndSize (NULL, surf->w * surf->h * 3);
         if (!string)
             return NULL;
-        PyString_AsStringAndSize (string, &data, &len);
+        Bytes_AsStringAndSize (string, &data, &len);
 
         if (!temp)
             PySurface_Lock (surfobj);
@@ -407,10 +449,10 @@ image_tostring (PyObject* self, PyObject* arg)
         if (strcmp (format, "RGBA"))
             hascolorkey = 0;
 
-        string = PyString_FromStringAndSize (NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize (NULL, surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        PyString_AsStringAndSize (string, &data, &len);
+        Bytes_AsStringAndSize (string, &data, &len);
 
         PySurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
@@ -499,10 +541,10 @@ image_tostring (PyObject* self, PyObject* arg)
     {
         hascolorkey = 0;
 
-        string = PyString_FromStringAndSize (NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize (NULL, surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        PyString_AsStringAndSize (string, &data, &len);
+        Bytes_AsStringAndSize (string, &data, &len);
 
         PySurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
@@ -596,10 +638,10 @@ image_tostring (PyObject* self, PyObject* arg)
 
         hascolorkey = 0;
 
-        string = PyString_FromStringAndSize (NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize (NULL, surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        PyString_AsStringAndSize (string, &data, &len);
+        Bytes_AsStringAndSize (string, &data, &len);
 
         PySurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
@@ -680,10 +722,10 @@ image_tostring (PyObject* self, PyObject* arg)
 
         hascolorkey = 0;
 
-        string = PyString_FromStringAndSize (NULL, surf->w * surf->h * 4);
+        string = Bytes_FromStringAndSize (NULL, surf->w * surf->h * 4);
         if (!string)
             return NULL;
-        PyString_AsStringAndSize (string, &data, &len);
+        Bytes_AsStringAndSize (string, &data, &len);
 
         PySurface_Lock (surfobj);
         pixels = (char*) surf->pixels;
@@ -777,14 +819,14 @@ image_fromstring (PyObject* self, PyObject* arg)
     Py_ssize_t len;
     int loopw, looph;
 
-    if (!PyArg_ParseTuple (arg, "O!(ii)s|i", &PyString_Type, &string, &w, &h,
+    if (!PyArg_ParseTuple (arg, "O!(ii)s|i", &Bytes_Type, &string, &w, &h,
                            &format, &flipped))
         return NULL;
 
     if (w < 1 || h < 1)
         return RAISE (PyExc_ValueError, "Resolution must be positive values");
 
-    PyString_AsStringAndSize (string, &data, &len);
+    Bytes_AsStringAndSize (string, &data, &len);
 
     if (!strcmp (format, "P"))
     {
@@ -1254,7 +1296,7 @@ SaveTGA (SDL_Surface *surface, char *file, int rle)
     return ret;
 }
 
-static PyMethodDef image_builtins[] =
+static PyMethodDef _image_methods[] =
 {
     { "load_basic", image_load_basic, METH_VARARGS, DOC_PYGAMEIMAGELOAD },
     { "save", image_save, METH_VARARGS, DOC_PYGAMEIMAGESAVE },
@@ -1269,30 +1311,49 @@ static PyMethodDef image_builtins[] =
 };
 
 
-PYGAME_EXPORT
-void initimage (void)
+MODINIT_DEFINE (image)
 {
     PyObject *module, *dict;
     PyObject *extmodule;
+    struct _module_state *st;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "image",
+        DOC_PYGAMEIMAGE,
+        sizeof (struct _module_state),
+        _image_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;;
     }
 
     /* create the module */
-    module = Py_InitModule3 (MODPREFIX "image", image_builtins, DOC_PYGAMEIMAGE);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "image", _image_methods, DOC_PYGAMEIMAGE);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
+    st = GETSTATE (module);
     dict = PyModule_GetDict (module);
 
 
@@ -1313,7 +1374,7 @@ void initimage (void)
           Py_INCREF(extload);
         */
         Py_DECREF (extmodule);
-        is_extended = 1;
+        st->is_extended = 1;
     }
     else
     {
@@ -1328,6 +1389,7 @@ void initimage (void)
           Py_INCREF(Py_None);
           Py_INCREF(basicload);
         */
-        is_extended = 0;
+        st->is_extended = 0;
     }
+    MODINIT_RETURN (module);
 }

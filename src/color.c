@@ -21,6 +21,7 @@
 
 #include "pygamedocs.h"
 #include "pygame.h"
+#include "pgcompat.h"
 #include <ctype.h>
 
 typedef struct
@@ -33,12 +34,18 @@ typedef struct
     Uint8 a;
 } PyColor;
 
+typedef enum {
+    TRISTATE_SUCCESS,
+    TRISTATE_FAIL,
+    TRISTATE_ERROR
+} tristate;
+
 static PyObject *_COLORDICT = NULL;
 
 static int _get_double (PyObject *obj, double *val);
 static int _get_color (PyObject *val, Uint32 *color);
 static int _hextoint (char *hex, Uint8 *val);
-static int _hexcolor (PyObject *color, Uint8 rgba[]);
+static tristate _hexcolor (PyObject *color, Uint8 rgba[]);
 static int _coerce_obj(PyObject *obj, Uint8 rgba[]);
 
 static PyColor* _color_new_internal (PyTypeObject *type, Uint8 rgba[]);
@@ -74,12 +81,16 @@ static PyObject* _color_mul (PyColor *color1, PyColor *color2);
 static PyObject* _color_div (PyColor *color1, PyColor *color2);
 static PyObject* _color_mod (PyColor *color1, PyColor *color2);
 static PyObject* _color_inv (PyColor *color);
+#if !PY3
 static int _color_coerce (PyObject **pv, PyObject **pw);
+#endif
 static PyObject* _color_int (PyColor *color);
 static PyObject* _color_long (PyColor *color);
 static PyObject* _color_float (PyColor *color);
+#if !PY3
 static PyObject* _color_oct (PyColor *color);
 static PyObject* _color_hex (PyColor *color);
+#endif
 
 /* Sequence protocol methods */
 static Py_ssize_t _color_length (PyColor *color);
@@ -131,30 +142,38 @@ static PyNumberMethods _color_as_number =
     (binaryfunc) _color_add, /* nb_add */
     (binaryfunc) _color_sub, /* nb_subtract */
     (binaryfunc) _color_mul, /* nb_multiply */
+#if !PY3
     (binaryfunc) _color_div, /* nb_divide */
+#endif
     (binaryfunc) _color_mod, /* nb_remainder */
     0,                       /* nb_divmod */
     0,                       /* nb_power */
     0,                       /* nb_negative */
     0,                       /* nb_positive */
     0,                       /* nb_absolute */
-    0,                       /* nb_nonzero */
+    0,                       /* nb_nonzero / nb_bool*/
     (unaryfunc) _color_inv,  /* nb_invert */
     0,                       /* nb_lshift */
     0,                       /* nb_rshift */
     0,                       /* nb_and */
     0,                       /* nb_xor */
     0,                       /* nb_or */
+#if !PY3
     _color_coerce,           /* nb_coerce */
+#endif
     (unaryfunc) _color_int,  /* nb_int */
     (unaryfunc) _color_long, /* nb_long */
     (unaryfunc) _color_float,/* nb_float */
+#if !PY3
     (unaryfunc) _color_oct,  /* nb_oct */
     (unaryfunc) _color_hex,  /* nb_hex */
+#endif
     0,                       /* nb_inplace_add */
     0,                       /* nb_inplace_subtract */
     0,                       /* nb_inplace_multiply */
+#if !PY3
     0,                       /* nb_inplace_divide */
+#endif
     0,                       /* nb_inplace_remainder */
     0,                       /* nb_inplace_power */
     0,                       /* nb_inplace_lshift */
@@ -190,8 +209,7 @@ static PySequenceMethods _color_as_sequence =
 
 static PyTypeObject PyColor_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,
+    TYPE_HEAD (NULL, 0)
     "pygame.Color",             /* tp_name */
     sizeof (PyColor),           /* tp_basicsize */
     0,                          /* tp_itemsize */
@@ -268,6 +286,7 @@ _get_color (PyObject *val, Uint32 *color)
     if (!val || !color)
         return 0;
 
+#if !PY3
     if (PyInt_Check (val))
     {
         long intval = PyInt_AsLong (val);
@@ -279,7 +298,8 @@ _get_color (PyObject *val, Uint32 *color)
         *color = (Uint32) intval;
         return 1;
     }
-    else if (PyLong_Check (val))
+#endif
+    if (PyLong_Check (val))
     {
         unsigned long longval = PyLong_AsUnsignedLong (val);
         if (PyErr_Occurred ())
@@ -290,7 +310,8 @@ _get_color (PyObject *val, Uint32 *color)
         *color = (Uint32) longval;
         return 1;
     }
-    else
+    
+    /* Failed */
         PyErr_SetString (PyExc_ValueError, "invalid color argument");
     return 0;
 }
@@ -414,13 +435,25 @@ _hextoint (char *hex, Uint8 *val)
     return 1;
 }
 
-static int
+static tristate
 _hexcolor (PyObject *color, Uint8 rgba[])
 {
     size_t len;
-    char *name = PyString_AsString (color);
-    if (!name)
-        return 0;
+    tristate rcode = TRISTATE_FAIL;
+    char *name;
+#if PY3
+    PyObject* ascii = PyUnicode_AsASCIIString (color);
+    if (ascii == NULL) {
+        rcode = TRISTATE_ERROR;
+        goto Fail;
+    }
+    name = PyBytes_AsString (ascii);
+#else
+    name = PyString_AsString (color);
+#endif
+    if (name == NULL) {
+        goto Fail;
+    }
 
     len = strlen (name);
     /* hex colors can be
@@ -429,40 +462,49 @@ _hexcolor (PyObject *color, Uint8 rgba[])
      * 0xRRGGBB
      * 0xRRGGBBAA
      */
-    if (len < 7)
-        return 0;
+    if (len < 7) {
+        goto Fail;
+    }
 
     if (name[0] == '#')
     {
         if (len != 7 && len != 9)
-            return 0;
+            goto Fail;
         if (!_hextoint (name + 1, &rgba[0]))
-            return 0;
+            goto Fail;
         if (!_hextoint (name + 3, &rgba[1]))
-            return 0;
+            goto Fail;
         if (!_hextoint (name + 5, &rgba[2]))
-            return 0;
+            goto Fail;
         rgba[3] = 255;
         if (len == 9 && !_hextoint (name + 7, &rgba[3]))
-            return 0;
-        return 1;
+            goto Fail;
+        goto Success;
     }
     else if (name[0] == '0' && name[1] == 'x')
     {
         if (len != 8 && len != 10)
-            return 0;
+            goto Fail;
         if (!_hextoint (name + 2, &rgba[0]))
-            return 0;
+            goto Fail;
         if (!_hextoint (name + 4, &rgba[1]))
-            return 0;
+            goto Fail;
         if (!_hextoint (name + 6, &rgba[2]))
-            return 0;
+            goto Fail;
         rgba[3] = 255;
         if (len == 10 && !_hextoint (name + 8, &rgba[3]))
-            return 0;
-        return 1;
+            goto Fail;
+        goto Success;
     }
-    return 0;
+    goto Fail;
+
+Success:
+    rcode = TRISTATE_SUCCESS;
+Fail:
+#if PY3
+    Py_XDECREF (ascii);
+#endif
+    return rcode;
 }
 
 static int
@@ -518,7 +560,7 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "O|OOO", &obj, &obj1, &obj2, &obj3))
         return NULL;
 
-    if (PyString_Check (obj))
+    if (Text_Check (obj))
     {
         /* Named color */
         PyObject *color = NULL;
@@ -541,9 +583,14 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_DECREF(name2);
         if (!color)
         {
-            if (!_hexcolor (obj, rgba))
+            switch (_hexcolor (obj, rgba))
 	    {
+                case TRISTATE_FAIL:
                 return RAISE (PyExc_ValueError, "invalid color name");
+                case TRISTATE_ERROR:
+                return NULL;
+                default:
+                break;
             }
         }
         else if (!RGBAFromObj (color, rgba))
@@ -603,7 +650,7 @@ _color_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 _color_dealloc (PyColor *color)
 {
-    color->ob_type->tp_free ((PyObject *) color);
+    Py_TYPE(color)->tp_free ((PyObject *) color);
 }
 
 /**
@@ -616,7 +663,7 @@ _color_repr (PyColor *color)
     char buf[21];
     PyOS_snprintf (buf, sizeof (buf), "(%d, %d, %d, %d)",
         color->r, color->g, color->b, color->a);
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
 
 /**
@@ -1340,6 +1387,7 @@ _color_inv (PyColor *color)
     return (PyObject*) _color_new_internal (&PyColor_Type, rgba);
 }
 
+#if !PY3
 /**
  * coerce (color1, color2)
  */
@@ -1354,6 +1402,7 @@ _color_coerce (PyObject **pv, PyObject **pw)
     }
     return 1;
 }
+#endif
 
 /**
  * int(color)
@@ -1363,8 +1412,10 @@ _color_int (PyColor *color)
 {
     unsigned long tmp = (color->r << 24) + (color->g << 16) + (color->b << 8) +
         color->a;
+#if !PY3
     if (tmp < INT_MAX)
         return PyInt_FromLong ((long) tmp);
+#endif
     return PyLong_FromUnsignedLong (tmp);
 }
 
@@ -1390,6 +1441,7 @@ _color_float (PyColor *color)
     return PyFloat_FromDouble ((double) tmp);
 }
 
+#if !PY3
 /**
  * oct(color)
  */
@@ -1426,8 +1478,9 @@ _color_hex (PyColor *color)
         PyOS_snprintf (buf, sizeof (buf), "0x%lXL", tmp);
 #endif
     }
-    return PyString_FromString (buf);
+    return Text_FromUTF8 (buf);
 }
+#endif
 
 /* Sequence protocol methods */
 
@@ -1549,8 +1602,10 @@ RGBAFromColorObj (PyObject *color, Uint8 rgba[])
         return RGBAFromObj (color, rgba);
 }
 
-PYGAME_EXPORT
-void initcolor (void)
+/*DOC*/ static char _color_doc[] =
+/*DOC*/    "color module for pygame";
+
+MODINIT_DEFINE (color)
 {
     PyObject *colordict;
     PyObject *module;
@@ -1558,12 +1613,23 @@ void initcolor (void)
     PyObject *apiobj;
     static void* c_api[PYGAMEAPI_COLOR_NUMSLOTS];
 
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "color",
+        _color_doc,
+        -1,
+        _color_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+        MODINIT_ERROR;
     }
 
     colordict = PyImport_ImportModule ("pygame.colordict");
@@ -1577,23 +1643,39 @@ void initcolor (void)
     }
     else
     {
-	return;
+        MODINIT_ERROR;
     }
 
     /* type preparation */
     if (PyType_Ready (&PyColor_Type) < 0)
     {
 	Py_DECREF (_COLORDICT);
-        return;
+        MODINIT_ERROR;
     }
     
     /* create the module */
-    module = Py_InitModule3 (MODPREFIX "color", NULL, "color module for pygame");
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 (MODPREFIX "color", NULL, _color_doc);
+#endif
+    if (module == NULL) {
+        Py_DECREF (_COLORDICT);
+        MODINIT_ERROR;
+    }
     PyColor_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF (&PyColor_Type);
-    PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type);
+    if (PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type)) {
+        Py_DECREF (&PyColor_Type);
+        Py_DECREF (_COLORDICT);
+        MODINIT_ERROR;
+    }
     Py_INCREF (_COLORDICT);
-    PyModule_AddObject (module, "THECOLORS", _COLORDICT);
+    if (PyModule_AddObject (module, "THECOLORS", _COLORDICT)) {
+        Py_DECREF (_COLORDICT);
+        Py_DECREF (_COLORDICT);
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
     c_api[0] = &PyColor_Type;
@@ -1601,6 +1683,14 @@ void initcolor (void)
     c_api[2] = RGBAFromColorObj;
 
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        Py_DECREF (_COLORDICT);
+        MODINIT_ERROR;
+    }
+    if (PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
+        Py_DECREF (_COLORDICT);
+        MODINIT_ERROR;
+    }
     Py_DECREF (apiobj);
+    MODINIT_RETURN (module);
 }

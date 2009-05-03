@@ -3027,7 +3027,7 @@ int ellipseRGBA(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uin
 /* Win32 does not have lrint, so provide a local inline version */
 /* sweetlilmre: added hack to detect MinGW and avoid function */
 
-#if defined(WIN32) && !defined(__MINGW_H)
+#if defined(_WIN32) && !defined(__MINGW_H) && !defined(__SYMBIAN32__)
 
 __inline long int
 lrint (double flt)
