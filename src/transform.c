@@ -54,7 +54,7 @@ static struct _module_state _state = {0, 0, 0, 0, 0};
 
 #else /* if defined(SCALE_MMX_SUPPORT) */
 
-static _module_state _state = {
+static struct _module_state _state = {
     "GENERIC", 
     filter_shrink_X_ONLYC,
     filter_shrink_Y_ONLYC,
