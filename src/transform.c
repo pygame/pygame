@@ -54,6 +54,11 @@ static struct _module_state _state = {0, 0, 0, 0, 0};
 
 #else /* if defined(SCALE_MMX_SUPPORT) */
 
+static void filter_shrink_X_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
+static void filter_shrink_Y_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
+static void filter_expand_X_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
+static void filter_expand_Y_ONLYC(Uint8 *, Uint8 *, int, int, int, int, int);
+
 static struct _module_state _state = {
     "GENERIC", 
     filter_shrink_X_ONLYC,
@@ -1494,8 +1499,8 @@ surf_set_smoothscale_backend (PyObject *self, PyObject *args, PyObject *kwds)
 #else /* Not an x86 processor */
     if (strcmp (type, "GENERIC") != 0)
     {
-	if (strcmp (filter_type, "MMX") == 0 ||
-	    strcmp (filter_type, "SSE") == 0    )
+	if (strcmp (st->filter_type, "MMX") == 0 ||
+	    strcmp (st->filter_type, "SSE") == 0    )
 	{
 	    return PyErr_Format (PyExc_ValueError,
                                  "%s not supported on this machine", type);
