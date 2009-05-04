@@ -60,8 +60,13 @@ class BaseModuleTest(unittest.TestCase):
         self.assert_(not pygame.display.get_init(),  "display shouldn't be initialized" )
         self.assert_(not pygame.mixer.get_init(),  "mixer shouldn't be initialized" )
         self.assert_(not pygame.font.get_init(),  "init shouldn't be initialized" )
-        
-        self.assertRaises(pygame.error, pygame.scrap.get)
+
+        try:
+            pygame.scrap
+        except AttributeError:
+            pass
+        else:
+            self.assertRaises(pygame.error, pygame.scrap.get)
         
         # pygame.cdrom
         # pygame.joystick
