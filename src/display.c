@@ -154,13 +154,13 @@ init (PyObject* self)
 }
 
 static PyObject*
-get_init (PyObject* self, PyObject* arg)
+get_init (PyObject* self)
 {
     return PyInt_FromLong (SDL_WasInit (SDL_INIT_VIDEO) != 0);
 }
 
 static PyObject*
-get_active (PyObject* self, PyObject* arg)
+get_active (PyObject* self)
 {
     return PyInt_FromLong ((SDL_GetAppState () & SDL_APPACTIVE) != 0);
 }
@@ -310,7 +310,7 @@ PyVidInfo_New (const SDL_VideoInfo* i)
 
 /* display functions */
 static PyObject*
-get_driver (PyObject* self, PyObject* args)
+get_driver (PyObject* self)
 {
     char buf[256];
 
@@ -977,7 +977,7 @@ set_icon (PyObject* self, PyObject* arg)
 }
 
 static PyObject*
-iconify (PyObject* self, PyObject* arg)
+iconify (PyObject* self)
 {
     int result;
 
@@ -987,7 +987,7 @@ iconify (PyObject* self, PyObject* arg)
 }
 
 static PyObject*
-toggle_fullscreen (PyObject* self, PyObject* arg)
+toggle_fullscreen (PyObject* self)
 {
     SDL_Surface* screen;
     int result;
