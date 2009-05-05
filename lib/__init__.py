@@ -93,19 +93,19 @@ class MissingModule:
 #first, the "required" modules
 from pygame.base import *
 from pygame.constants import *
-from pygame.version import *
+###from pygame.version import *
 from pygame.rect import Rect
 from pygame.compat import geterror
 import pygame.rwobject
 import pygame.surflock
 import pygame.color
 Color = color.Color
-__version__ = ver
+#__version__ = ver
 
 #next, the "standard" modules
 #we still allow them to be missing for stripped down pygame distributions
-try: import pygame.cdrom
-except (ImportError,IOError):cdrom=MissingModule("cdrom", geterror(), 1)
+###try: import pygame.cdrom
+###except (ImportError,IOError):cdrom=MissingModule("cdrom", geterror(), 1)
 
 try: import pygame.cursors
 except (ImportError,IOError):cursors=MissingModule("cursors", geterror(), 1)
@@ -122,8 +122,8 @@ except (ImportError,IOError):event=MissingModule("event", geterror(), 1)
 try: import pygame.image
 except (ImportError,IOError):image=MissingModule("image", geterror(), 1)
 
-try: import pygame.joystick
-except (ImportError,IOError):joystick=MissingModule("joystick", geterror(), 1)
+###try: import pygame.joystick
+###except (ImportError,IOError):joystick=MissingModule("joystick", geterror(), 1)
 
 try: import pygame.key
 except (ImportError,IOError):key=MissingModule("key", geterror(), 1)
@@ -135,8 +135,8 @@ try: import pygame.sprite
 except (ImportError,IOError):sprite=MissingModule("sprite", geterror(), 1)
 
 
-try: import pygame.threads
-except (ImportError,IOError):threads=MissingModule("threads", geterror(), 1)
+###try: import pygame.threads
+###except (ImportError,IOError):threads=MissingModule("threads", geterror(), 1)
 
 
 def warn_unwanted_files():
@@ -243,11 +243,11 @@ except (ImportError,IOError):movie=MissingModule("movie", geterror(), 0)
 try: import pygame.scrap
 except (ImportError,IOError):scrap=MissingModule("scrap", geterror(), 0)
 
-try: import pygame.surfarray
-except (ImportError,IOError):surfarray=MissingModule("surfarray", geterror(), 0)
+###try: import pygame.surfarray
+###except (ImportError,IOError):surfarray=MissingModule("surfarray", geterror(), 0)
 
-try: import pygame.sndarray
-except (ImportError,IOError):sndarray=MissingModule("sndarray", geterror(), 0)
+###try: import pygame.sndarray
+###except (ImportError,IOError):sndarray=MissingModule("sndarray", geterror(), 0)
 
 try: import pygame.fastevent
 except (ImportError,IOError):fastevent=MissingModule("fastevent", geterror(), 0)
@@ -255,8 +255,8 @@ except (ImportError,IOError):fastevent=MissingModule("fastevent", geterror(), 0)
 #there's also a couple "internal" modules not needed
 #by users, but putting them here helps "dependency finder"
 #programs get everything they need (like py2exe)
-try: import pygame.imageext; del pygame.imageext
-except (ImportError,IOError):pass
+###try: import pygame.imageext; del pygame.imageext
+###except (ImportError,IOError):pass
 
 def packager_imports():
     """
@@ -270,6 +270,7 @@ def packager_imports():
     import pygame.mac_scrap
     import pygame.bufferproxy
     import pygame.colordict
+    import pygame.compat
 
 #make Rects pickleable
 try:
@@ -284,4 +285,5 @@ def __rect_reduce(r):
 copy_reg.pickle(Rect, __rect_reduce, __rect_constructor)
 
 #cleanup namespace
-del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg, geterror
+###del pygame, os, sys, rwobject, surflock, MissingModule, copy_reg, geterror
+del pygame, os, sys, MissingModule, copy_reg, geterror

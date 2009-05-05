@@ -38,10 +38,10 @@ static PyObject* PyFont_New (TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
-static const char const *font_defaultname = "freesansbold.ttf";
+static const char *font_defaultname = "freesansbold.ttf";
 
-static const char const *pkgdatamodule_name = "pygame.pkgdata";
-static const char const *resourcefunc_name = "getResource";
+static const char *pkgdatamodule_name = "pygame.pkgdata";
+static const char *resourcefunc_name = "getResource";
 
 static PyObject*
 font_resource (const char *filename)
@@ -680,7 +680,7 @@ static PyTypeObject PyFont_Type =
 static PyObject*
 get_default_font (PyObject* self)
 {
-    return PyString_FromString (font_defaultname);
+    return Text_FromUTF8 (font_defaultname);
 }
 
 static PyMethodDef _font_methods[] =
