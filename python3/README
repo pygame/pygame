@@ -4,12 +4,13 @@ Pygame is provided. Just replace the existing Setup.in and
 lib/__init__.py files with these, then run "python config.py" and 
 "python setup.py ..." as usual.
 
-The build will generate some error messages on install, and not all 
-installed modules or programs will work. But the following modules do: 
-display, image, mixer, mixer.music, transform, gfxdraw, font, event, key 
-and sprites. The Surface, Rect and Color types are also available. The 
-following example programs have also been ported: aliens.py, chimp.py, 
-stars.py, fonty.py and scaletest.py.
+Though all Python modules (.py file) will install and compile without
+error, some may still not work correctly. installed modules or programs
+will work. But the following modules do: display, image, mixer, mixer.music,
+transform, gfxdraw, font, event, key, sprites, mask, cursor and fastevent.
+The Surface, Rect and Color types are also available. The following example
+programs have also been ported: aliens.py, chimp.py, stars.py, fonty.py,
+scaletest.py, scroll.py, mask.py, fastevents.py, cursors.py and moveit.py.
 
-May 1, 2009
+May 5, 2009
 
