@@ -25,6 +25,7 @@
  */
 #define PYGAMEAPI_FASTEVENT_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 #include "fastevents.h"
 
 static int FE_WasInit = 0;
@@ -211,18 +212,20 @@ fastevent_get (PyObject * self)
 /*DOC*/ "main thread of an SDL program.\n"
 /*DOC*/ ;
 static PyObject *
-fastevent_post (PyObject * self, PyObject * args)
+fastevent_post (PyObject * self, PyObject * arg)
 {
-    PyEventObject *e;
     SDL_Event     event;
     int           status;
 
-    if (!PyArg_ParseTuple (args, "O!", &PyEvent_Type, &e))
+    if (!PyObject_IsInstance (arg, (PyObject *) &PyEvent_Type)) {
+        PyErr_Format (PyExc_TypeError, "argument 1 must be %s, not %s",
+                      PyEvent_Type.tp_name, Py_TYPE(arg)->tp_name);
         return NULL;
+    }
 
     FE_INIT_CHECK ();
 
-    if (PyEvent_FillUserEvent (e, &event))
+    if (PyEvent_FillUserEvent ((PyEventObject *) arg, &event))
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -235,14 +238,14 @@ fastevent_post (PyObject * self, PyObject * args)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef fastevent_builtins[] =
+static PyMethodDef _fastevent_methods[] =
 {
     {"init", (PyCFunction) fastevent_init, METH_NOARGS, doc_init},
     {"get", (PyCFunction) fastevent_get, METH_NOARGS, doc_get},
     {"pump", (PyCFunction) fastevent_pump, METH_NOARGS, doc_pump},
     {"wait", (PyCFunction) fastevent_wait, METH_NOARGS, doc_wait},
     {"poll", (PyCFunction) fastevent_poll, METH_NOARGS, doc_poll},
-    {"post", fastevent_post, METH_VARARGS, doc_post},
+    {"post", fastevent_post, METH_O, doc_post},
 
     {NULL, NULL, 0, NULL}
 };
@@ -254,27 +257,44 @@ static PyMethodDef fastevent_builtins[] =
 /*DOC*/ "any of the pump, wait, poll, post, get, peek, etc. functions\n"
 /*DOC*/ "from pygame.event, but you should use the Event objects.\n"
 /*DOC*/ ;
-PYGAME_EXPORT
-void 
-initfastevent (void)
+MODINIT_DEFINE (fastevent)
 {
     PyObject *module, *eventmodule, *dict;
+    int ecode;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "fastevent",
+        doc_fastevent_MODULE,
+        -1,
+        _fastevent_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_event ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* create the module */
-    module = Py_InitModule3 ("fastevent", fastevent_builtins,
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("fastevent", _fastevent_methods,
                              doc_fastevent_MODULE);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
     /* add the event module functions if available */
@@ -289,11 +309,19 @@ initfastevent (void)
             PyObject *ref = PyObject_GetAttrString (eventmodule, NAMES[i]);
             if (ref)
             {
-                PyDict_SetItemString (dict, NAMES[i], ref);
+                ecode = PyDict_SetItemString (dict, NAMES[i], ref);
                 Py_DECREF (ref);
+                if (ecode == -1) {
+                    MODINIT_ERROR;
+                }
             }
             else
                 PyErr_Clear ();
         }
     }
+    else
+    {
+        PyErr_Clear ();
+    }
+    MODINIT_RETURN (module);
 }

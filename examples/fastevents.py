@@ -93,7 +93,7 @@ def main():
         #for x in range(200):
         #    ee = event.Event(USEREVENT)
         #    r = event_module.post(ee)
-        #    print r
+        #    print (r)
 
         #for e in event_module.get():
         event_list = []
@@ -101,20 +101,20 @@ def main():
 
         for e in event_list:
             if e.type == QUIT:
-                print c.get_fps()
+                print (c.get_fps())
                 poster.stop.append(1)
                 going = False
             if e.type == KEYDOWN:
                 if e.key == K_ESCAPE:
-                    print c.get_fps()
+                    print (c.get_fps())
                     poster.stop.append(1)
                     going = False
         if poster.done:
-            print c.get_fps()
-            print c
+            print (c.get_fps())
+            print (c)
             t2 = pytime.time()
-            print "total time:%s" % (t2 - t1)
-            print "events/second:%s" % (NUM_EVENTS_TO_POST / (t2 - t1))
+            print ("total time:%s" % (t2 - t1))
+            print ("events/second:%s" % (NUM_EVENTS_TO_POST / (t2 - t1)))
             going = False
         if with_display:
             display.flip()
