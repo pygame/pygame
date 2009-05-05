@@ -60,7 +60,7 @@ class Sprite:
     def collide(self,s):
         """Test if the sprites are colliding and
         resolve the collision in this case."""
-        offset = map(int,vsub(s.pos,self.pos))
+        offset = [int(x) for x in vsub(s.pos,self.pos)]
         overlap = self.mask.overlap_area(s.mask,offset)
         if overlap == 0:
             return
@@ -105,7 +105,7 @@ def main(*args):
     
     if len(args) == 0:
         raise ValueError("Require at least one image file name: non given")
-    print 'Press any key to quit'
+    print ('Press any key to quit')
     screen = pygame.display.set_mode((640,480))
     images = []
     masks = []
@@ -120,14 +120,14 @@ def main(*args):
         m = maskFromSurface(images[-1])
     t2 = time.time()
 
-    print "python maskFromSurface :%s" % (t2-t1)
+    print ("python maskFromSurface :%s" % (t2-t1))
 
     t1 = time.time()
     for x in range(numtimes):
         m = pygame.mask.from_surface(images[-1])
     t2 = time.time()
 
-    print "C pygame.mask.from_surface :%s" % (t2-t1)
+    print ("C pygame.mask.from_surface :%s" % (t2-t1))
 
     sprites = []
     for i in range(20):
@@ -165,9 +165,9 @@ def main(*args):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print 'Usage: mask.py <IMAGE> [<IMAGE> ...]'
-        print 'Let many copies of IMAGE(s) bounce against each other'
-        print 'Press any key to quit'
+        print ('Usage: mask.py <IMAGE> [<IMAGE> ...]')
+        print ('Let many copies of IMAGE(s) bounce against each other')
+        print ('Press any key to quit')
     else:
         main(*sys.argv[1:])
 
