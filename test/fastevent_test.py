@@ -20,6 +20,7 @@ else:
     from test.event_test import race_condition_notification
 import pygame
 from pygame import event, fastevent
+from pygame.compat import geterror
 
 ################################################################################
 
@@ -96,6 +97,17 @@ class FasteventModuleTest(unittest.TestCase):
             [e.type for e in event.get()], [pygame.USEREVENT] * 10,
             race_condition_notification
         )
+
+        try:
+            # Special case for post: METH_O.
+            fastevent.post(1)
+        except TypeError:
+            e = geterror()
+            msg = ("argument 1 must be %s, not %s" %
+                   (fastevent.Event.__name__, type(1).__name__))
+            self.failUnlessEqual(str(e), msg)
+        else:
+            self.fail()
     
     def todo_test_pump(self):
     
