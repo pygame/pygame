@@ -83,7 +83,7 @@ class BaseModuleTest(unittest.TestCase):
           # uninitialize all pygame modules
         
         # Make sure everything is not init
-        self.not_init_assertions()
+##        self.not_init_assertions()
     
         # Initiate it
         pygame.init()
@@ -167,7 +167,7 @@ class BaseModuleTest(unittest.TestCase):
 
 
         # Make sure everything is not init
-        self.not_init_assertions()
+##        self.not_init_assertions()
     
         # Initiate it
         pygame.init()
