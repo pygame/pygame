@@ -113,8 +113,8 @@ except (ImportError,IOError):cursors=MissingModule("cursors", geterror(), 1)
 try: import pygame.display
 except (ImportError,IOError):display=MissingModule("display", geterror(), 1)
 
-###try: import pygame.draw
-###except (ImportError,IOError):draw=MissingModule("draw", geterror(), 1)
+try: import pygame.draw
+except (ImportError,IOError):draw=MissingModule("draw", geterror(), 1)
 
 try: import pygame.event
 except (ImportError,IOError):event=MissingModule("event", geterror(), 1)
