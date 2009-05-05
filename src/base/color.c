@@ -280,7 +280,7 @@ _get_color (PyObject *val, pguint32 *color)
 
     if (!val || !color)
         return 0;
-
+    
     if (PyLong_Check (val))
     {
         unsigned long longval;
@@ -295,13 +295,10 @@ _get_color (PyObject *val, pguint32 *color)
         *color = (pguint32) longval;
         return 1;
     }
-    else if (IntFromObj (val, &intval))
+    else if (UintFromObj (val, &intval))
         *color = (pguint32) intval;
     else
-    {
-        PyErr_SetString (PyExc_ValueError, "invalid color argument");
         return 0;
-    }
     return 1;
 }
 
@@ -1243,10 +1240,10 @@ static PyObject*
 _color_add (PyColor *color1, PyColor *color2)
 {
     pgbyte rgba[4];
-    rgba[0] = MIN (color1->r + color2->r, 255);
-    rgba[1] = MIN (color1->g + color2->g, 255);
-    rgba[2] = MIN (color1->b + color2->b, 255);
-    rgba[3] = MIN (color1->a + color2->a, 255);
+    rgba[0] = (pgbyte) MIN (color1->r + color2->r, 255);
+    rgba[1] = (pgbyte) MIN (color1->g + color2->g, 255);
+    rgba[2] = (pgbyte) MIN (color1->b + color2->b, 255);
+    rgba[3] = (pgbyte) MIN (color1->a + color2->a, 255);
     return PyColor_New (rgba);
 }
 
@@ -1257,10 +1254,10 @@ static PyObject*
 _color_sub (PyColor *color1, PyColor *color2)
 {
     pgbyte rgba[4];
-    rgba[0] = MAX (color1->r - color2->r, 0);
-    rgba[1] = MAX (color1->g - color2->g, 0);
-    rgba[2] = MAX (color1->b - color2->b, 0);
-    rgba[3] = MAX (color1->a - color2->a, 0);
+    rgba[0] = (pgbyte) MAX (color1->r - color2->r, 0);
+    rgba[1] = (pgbyte) MAX (color1->g - color2->g, 0);
+    rgba[2] = (pgbyte) MAX (color1->b - color2->b, 0);
+    rgba[3] = (pgbyte) MAX (color1->a - color2->a, 0);
     return PyColor_New (rgba);
 }
 
@@ -1271,10 +1268,10 @@ static PyObject*
 _color_mul (PyColor *color1, PyColor *color2)
 {
     pgbyte rgba[4];
-    rgba[0] = MIN (color1->r * color2->r, 255);
-    rgba[1] = MIN (color1->g * color2->g, 255);
-    rgba[2] = MIN (color1->b * color2->b, 255);
-    rgba[3] = MIN (color1->a * color2->a, 255);
+    rgba[0] = (pgbyte) MIN (color1->r * color2->r, 255);
+    rgba[1] = (pgbyte) MIN (color1->g * color2->g, 255);
+    rgba[2] = (pgbyte) MIN (color1->b * color2->b, 255);
+    rgba[3] = (pgbyte) MIN (color1->a * color2->a, 255);
     return PyColor_New (rgba);
 }
 
@@ -1317,10 +1314,10 @@ static PyObject*
 _color_inv (PyColor *color)
 {
     pgbyte rgba[4];
-    rgba[0] = 255 - color->r;
-    rgba[1] = 255 - color->g;
-    rgba[2] = 255 - color->b;
-    rgba[3] = 255 - color->a;
+    rgba[0] = (pgbyte) (255 - color->r);
+    rgba[1] = (pgbyte) (255 - color->g);
+    rgba[2] = (pgbyte) (255 - color->b);
+    rgba[3] = (pgbyte) (255 - color->a);
     return PyColor_New (rgba);
 }
 
@@ -1345,8 +1342,10 @@ _color_coerce (PyObject **pv, PyObject **pw)
 static PyObject*
 _color_int (PyColor *color)
 {
-    unsigned long tmp = (color->a << 24) + (color->r << 16) + (color->g << 8) +
-        color->b;
+    unsigned long tmp = ((unsigned long) color->a << 24) +
+        ((unsigned long) color->r << 16) +
+        ((unsigned long) color->g << 8) +
+        (unsigned long) color->b;
     if (tmp < INT_MAX)
         return PyInt_FromLong ((long) tmp);
     return PyLong_FromUnsignedLong (tmp);
@@ -1358,8 +1357,10 @@ _color_int (PyColor *color)
 static PyObject*
 _color_long (PyColor *color)
 {
-    unsigned long tmp = (color->a << 24) + (color->r << 16) + (color->g << 8) +
-        color->b;
+    unsigned long tmp = ((unsigned long) color->a << 24) +
+        ((unsigned long) color->r << 16) +
+        ((unsigned long) color->g << 8) +
+        (unsigned long) color->b;
     return PyLong_FromUnsignedLong (tmp);
 }
 
@@ -1369,8 +1370,10 @@ _color_long (PyColor *color)
 static PyObject*
 _color_float (PyColor *color)
 {
-    unsigned long tmp = (color->a << 24) + (color->r << 16) + (color->g << 8) +
-        color->b;
+    unsigned long tmp = ((unsigned long) color->a << 24) +
+        ((unsigned long) color->r << 16) +
+        ((unsigned long) color->g << 8) +
+        (unsigned long) color->b;
     return PyFloat_FromDouble ((double) tmp);
 }
 
@@ -1381,9 +1384,11 @@ static PyObject*
 _color_oct (PyColor *color)
 {
     char buf[100];
-    unsigned long tmp = (color->a << 24) + (color->r << 16) + (color->g << 8) +
-        color->b;
-    if (tmp < INT_MAX)
+    unsigned long tmp = ((unsigned long) color->a << 24) +
+        ((unsigned long) color->r << 16) +
+        ((unsigned long) color->g << 8) +
+        (unsigned long) color->b;
+    if (tmp < LONG_MAX)
         PyOS_snprintf (buf, sizeof (buf), "0%lo", tmp);
     else
         PyOS_snprintf (buf, sizeof (buf), "0%loL", tmp);
@@ -1397,9 +1402,11 @@ static PyObject*
 _color_hex (PyColor *color)
 {
     char buf[100];
-    unsigned long tmp = (color->a << 24) + (color->r << 16) + (color->g << 8) +
-        color->b;
-    if (tmp < INT_MAX)
+    unsigned long tmp = ((unsigned long) color->a << 24) +
+        ((unsigned long) color->r << 16) +
+        ((unsigned long) color->g << 8) +
+        (unsigned long) color->b;
+    if (tmp < LONG_MAX)
         PyOS_snprintf (buf, sizeof (buf), "0x%lx", tmp);
     else
     {
@@ -1553,7 +1560,9 @@ PyColor_NewFromRGBA (pgbyte r, pgbyte g, pgbyte b, pgbyte a)
 static pguint32
 PyColor_AsNumber (PyObject *color)
 {
-    pguint32 tmp;
+    pguint32 tmp = 0;
+    PyColor *c = (PyColor*) color;
+    
     if (!color)
     {
         PyErr_SetString (PyExc_ValueError, "color must not be NULL");
@@ -1566,8 +1575,8 @@ PyColor_AsNumber (PyObject *color)
         return 0;
     }
 
-    tmp = (((PyColor*)color)->a << 24) + (((PyColor*)color)->r << 16) +
-        (((PyColor*)color)->g << 8) + ((PyColor*)color)->b;
+    tmp = ((pguint32) c->a << 24) + ((pguint32) c->r << 16) +
+        ((pguint32) c->g << 8) + (pguint32) c->b;
     return tmp;
 }
 

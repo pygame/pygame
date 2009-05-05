@@ -63,9 +63,15 @@ IntFromObj (PyObject* obj, int* val)
         Py_DECREF (intobj);
         if (tmp == -1 && PyErr_Occurred ())
             return 0;
-        *val = tmp;
+        if (tmp > INT_MAX)
+        {
+            PyErr_SetString (PyExc_ValueError, "value exceeds allowed range");
+            return 0;
+        }
+        *val = (int)tmp;
         return 1;
     }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
     return 0;
 }
 
@@ -88,9 +94,16 @@ UintFromObj (PyObject* obj, unsigned int* val)
             PyErr_SetString (PyExc_ValueError, "value must not be negative");
             return 0;
         }
+        if (tmp > UINT_MAX)
+        {
+            PyErr_SetString (PyExc_ValueError, "value exceeds allowed range");
+            return 0;
+        }
+
         *val = tmp;
         return 1;
     }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
     return 0;
 }
 

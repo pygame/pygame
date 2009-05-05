@@ -493,7 +493,7 @@ class ColorTest (unittest.TestCase):
         # Now try some 'invalid' ones
         self.assertRaises (ValueError, _assign_item, c, 1, -83)
         self.assertEquals (c[1], 48)
-        self.assertRaises (ValueError, _assign_item, c, 2, "Hello")
+        self.assertRaises (TypeError, _assign_item, c, 2, "Hello")
         self.assertEquals (c[2], 173)
 
 ########## HSLA, HSVA, CMY, I1I2I3 ALL ELEMENTS WITHIN SPECIFIED RANGE #########

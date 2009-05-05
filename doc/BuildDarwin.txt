@@ -1,6 +1,6 @@
-=========================
+==========================
 Building Pygame2 on Darwin
-=========================
+==========================
 Building PyGame 2 on Darwin platforms (e.g. Mac OS X) is quite similar
 to building it in any other Unix-based platform with the following
 exceptions:

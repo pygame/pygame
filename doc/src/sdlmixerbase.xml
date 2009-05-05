@@ -3,7 +3,13 @@
 
 <module name="pygame2.sdlmixer.base">
   <short>basic SDL_mixer wrapper module</short>
-  <desc></desc>
+  <desc>
+    .. note::
+      
+      Do not use :mod:`pygame2.sdlmixer` and :mod:`pygame2.sdl.audio` at the
+      same time. As they both deal with audio hardware access, this can lead
+      to problems and weird behaviour.
+  </desc>
 
   <class name="Channel">
     <constructor>TODO</constructor>

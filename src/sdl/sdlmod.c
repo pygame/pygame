@@ -212,6 +212,7 @@ Uint8FromObj (PyObject *item, Uint8 *val)
         *val = (Uint8)tmp;
         return 1;
     }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
     return 0;
 }
 
@@ -237,6 +238,7 @@ Uint16FromObj (PyObject *item, Uint16 *val)
         *val = (Uint16)tmp;
         return 1;
     }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
     return 0;
 }
 
@@ -257,6 +259,7 @@ Sint16FromObj (PyObject *item, Sint16 *val)
         *val = (Sint16)tmp;
         return 1;
     }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
     return 0;
 }
 
@@ -277,6 +280,7 @@ Uint32FromObj (PyObject *item, Uint32 *val)
         *val = (Uint32)tmp;
         return 1;
     }
+    PyErr_SetString (PyExc_TypeError, "value must be a number object");
     return 0;
 }
 

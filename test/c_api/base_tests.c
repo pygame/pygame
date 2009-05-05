@@ -16,7 +16,7 @@ static void
 test_helpers (void)
 {
     PyObject *val, *seq, *string, *tmp;
-    pgint32 sw, sh;
+    pgint32 sw = 0, sh = 0;
     double d, e;
     int i, j;
     unsigned int u;
@@ -115,7 +115,7 @@ test_colors (void)
     PyObject *color;
     pgbyte rgba[4] = { 255, 155, 55, 5 };
     pguint32 rgba_int = 0x05ff9b37;
-    pguint32 tmp;
+    pguint32 tmp = 0;
 
     color = PyColor_New (rgba);
     if (!PyColor_Check (color))
@@ -144,9 +144,9 @@ static void
 test_rect (void)
 {
     PyObject *rect;
-    double dx, dy, dw, dh;
-    pgint32 x, y;
-    pgint32 w, h;
+    double dx = 0, dy = 0, dw = 0, dh = 0;
+    pgint32 x = 0, y = 0;
+    pgint32 w = 0, h = 0;
 
     rect = PyRect_New (1, 2, 3, 4);
     if (!PyRect_Check (rect))

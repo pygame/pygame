@@ -4,7 +4,14 @@
 
 <module name="pygame2.sdl.audio">
   <short>SDL audio subsystem wrapper</short>
-  <desc>Pygame SDL audio subsystem wrapper module.</desc>
+  <desc>Pygame SDL audio subsystem wrapper module.
+
+    .. note::
+
+      Do not use :mod:`pygame2.sdlmixer` and :mod:`pygame2.sdl.audio` at the
+      same time. As they both deal with audio hardware access, this can lead
+      to problems and weird behaviour.
+  </desc>
 
   <func name="init">
     <call>init () -> None</call>

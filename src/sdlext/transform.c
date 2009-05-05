@@ -296,7 +296,7 @@ SDL_Surface*
 pyg_transform_rotate (SDL_Surface *surface, double angle)
 {
     SDL_Surface *newsurface;
-    double radangle, sangle, cangle;
+    double sangle, cangle;
     double x, y, cx, cy, sx, sy;
     Uint32 bgcolor;
     Uint8 *srcpix, *dstrow;
@@ -310,9 +310,8 @@ pyg_transform_rotate (SDL_Surface *surface, double angle)
         return NULL;
     }
 
-    radangle = DEG2RAD (angle);
-    sangle = sin (radangle);
-    cangle = cos (radangle);
+    sangle = sin (angle);
+    cangle = cos (angle);
 
     x = surface->w;
     y = surface->h;

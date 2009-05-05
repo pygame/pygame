@@ -171,7 +171,7 @@ _transform_rotate (PyObject* self, PyObject* args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    newsurface = pyg_transform_rotate (surface, (double)angle);
+    newsurface = pyg_transform_rotate (surface, DEG2RAD(angle));
     Py_END_ALLOW_THREADS;
     if (!newsurface)
     {
