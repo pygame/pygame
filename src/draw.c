@@ -24,6 +24,7 @@
  *  drawing module for pygame
  */
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include <math.h>
 
@@ -1550,7 +1551,7 @@ static void draw_fillpoly(SDL_Surface *dst, int *vx, int *vy, int n, Uint32 colo
 
 
 
-static PyMethodDef draw_builtins[] =
+static PyMethodDef _draw_methods[] =
 {
 	{ "aaline", aaline, METH_VARARGS, DOC_PYGAMEDRAWAALINE },
 	{ "line", line, METH_VARARGS, DOC_PYGAMEDRAWLINE },
@@ -1566,33 +1567,48 @@ static PyMethodDef draw_builtins[] =
 };
 
 
-PYGAME_EXPORT
-void initdraw(void)
+MODINIT_DEFINE (draw)
 {
         PyObject *module;
+
+#if PY3
+        static struct PyModuleDef _module = {
+            PyModuleDef_HEAD_INIT,
+            "draw",
+            DOC_PYGAMEDRAW,
+            -1,
+            _draw_methods,
+            NULL, NULL, NULL, NULL
+        };
+#endif
 
 	/* imported needed apis; Do this first so if there is an error
 	   the module is not loaded.
 	*/
 	import_pygame_base();
 	if (PyErr_Occurred ()) {
-	    return;
+	    MODINIT_ERROR;
 	}
 	import_pygame_color();
 	if (PyErr_Occurred ()) {
-	    return;
+	    MODINIT_ERROR;
 	}
 	import_pygame_rect();
 	if (PyErr_Occurred ()) {
-	    return;
+	    MODINIT_ERROR;
 	}
 	import_pygame_surface();
 	if (PyErr_Occurred ()) {
-	    return;
+	    MODINIT_ERROR;
 	}
 
 	/* create the module */
-	module = Py_InitModule3("draw", draw_builtins, DOC_PYGAMEDRAW);
+#if PY3
+        module = PyModule_Create (&_module);
+#else
+	module = Py_InitModule3("draw", _draw_methods, DOC_PYGAMEDRAW);
+#endif
+        MODINIT_RETURN (module);
 }
 
 
