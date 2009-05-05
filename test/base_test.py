@@ -57,11 +57,14 @@ class BaseModuleTest(unittest.TestCase):
         self.assert_( len(pygame.get_sdl_version()) == 3) 
 
     def not_init_assertions(self):
-        return  ## !!!Need to figure out OS X problem with this test.
-##        self.assert_(not pygame.display.get_init(),  "display shouldn't be initialized" )
-##        self.assert_(not pygame.mixer.get_init(),  "mixer shouldn't be initialized" )
-##        self.assert_(not pygame.font.get_init(),  "init shouldn't be initialized" )
+        self.assert_(not pygame.display.get_init(),
+                     "display shouldn't be initialized" )
+        self.assert_(not pygame.mixer.get_init(),
+                     "mixer shouldn't be initialized" )
+        self.assert_(not pygame.font.get_init(),
+                     "init shouldn't be initialized" )
 
+        return  ## !!!Need to figure out OS X problem with this test.
         try:
             pygame.scrap
         except AttributeError:
