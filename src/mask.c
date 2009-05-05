@@ -29,6 +29,7 @@
 #define PYGAMEAPI_MASK_INTERNAL 1
 #include "mask.h"
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "structmember.h"
 #include "bitmask.h"
@@ -38,7 +39,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-staticforward PyTypeObject PyMask_Type;
+static PyTypeObject PyMask_Type;
 
 /* mask object methods */
 
@@ -1300,7 +1301,7 @@ static PyObject* mask_connected_component(PyObject* self, PyObject* args)
 }
 
 
-static PyMethodDef maskobj_builtins[] =
+static PyMethodDef mask_methods[] =
 {
     { "get_size", mask_get_size, METH_VARARGS, DOC_MASKGETSIZE},
     { "get_at", mask_get_at, METH_VARARGS, DOC_MASKGETAT },
@@ -1341,22 +1342,16 @@ static void mask_dealloc(PyObject* self)
 }
 
 
-static PyObject* mask_getattr(PyObject* self, char* attrname)
-{
-    return Py_FindMethod(maskobj_builtins, self, attrname);
-}
-
 
 static PyTypeObject PyMask_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,
+    TYPE_HEAD (NULL, 0)
     "pygame.mask.Mask",
     sizeof(PyMaskObject),
     0,
     mask_dealloc,
     0,
-    mask_getattr,
+    0,
     0,
     0,
     0,
@@ -1367,7 +1362,24 @@ static PyTypeObject PyMask_Type =
     (ternaryfunc)NULL,
     (reprfunc)NULL,
     0L,0L,0L,0L,
-    DOC_PYGAMEMASKMASK /* Documentation string */
+    DOC_PYGAMEMASKMASK,                 /* Documentation string */
+    0,                                  /* tp_traverse */
+    0,				        /* tp_clear */
+    0,				        /* tp_richcompare */
+    0,                                  /* tp_weaklistoffset */
+    0,				        /* tp_iter */
+    0,				        /* tp_iternext */
+    mask_methods,                       /* tp_methods */
+    0,                                  /* tp_members */
+    0,                                  /* tp_getset */
+    0,                                  /* tp_base */
+    0,			                /* tp_dict */
+    0,                                  /* tp_descr_get */
+    0,                                  /* tp_descr_set */
+    0,					/* tp_dictoffset */
+    0,                                  /* tp_init */
+    0,					/* tp_alloc */
+    0,                                  /* tp_new */
 };
 
 
@@ -1394,7 +1406,7 @@ static PyObject* Mask(PyObject* self, PyObject* args)
 
 
 
-static PyMethodDef mask_builtins[] =
+static PyMethodDef _mask_methods[] =
 {
     { "Mask", Mask, METH_VARARGS, DOC_PYGAMEMASKMASK },
     { "from_surface", mask_from_surface, METH_VARARGS,
@@ -1404,43 +1416,72 @@ static PyMethodDef mask_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-void initmask(void)
+MODINIT_DEFINE (mask)
 {
-  PyObject *module, *dict, *apiobj;
-  static void* c_api[PYGAMEAPI_MASK_NUMSLOTS];
+    PyObject *module, *dict, *apiobj;
+    static void* c_api[PYGAMEAPI_MASK_NUMSLOTS];
 
-  /* imported needed apis; Do this first so if there is an error
-     the module is not loaded.
-  */
-  import_pygame_base ();
-  if (PyErr_Occurred ()) {
-    return;
-  } 
-  import_pygame_color ();
-  if (PyErr_Occurred ()) {
-    return;
-  }
-  import_pygame_surface ();
-  if (PyErr_Occurred ()) {
-    return;
-  }
-  import_pygame_rect ();
-  if (PyErr_Occurred ()) {
-    return;
-  }
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "mask",
+        DOC_PYGAMEMASK,
+        -1,
+        _mask_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
-  /* create the mask type */
-  PyType_Init(PyMask_Type);
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    } 
+    import_pygame_color ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+    import_pygame_surface ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+    import_pygame_rect ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
 
-  /* create the module */
-  module = Py_InitModule3("mask", mask_builtins, DOC_PYGAMEMASK);
-  dict = PyModule_GetDict(module);
-  PyDict_SetItemString(dict, "MaskType", (PyObject *)&PyMask_Type);
+    /* create the mask type */
+    if (PyType_Ready (&PyMask_Type) < 0) {
+        MODINIT_ERROR;
+    }
 
-  /* export the c api */
-  Py_INCREF((PyObject*) &PyMask_Type);
-  c_api[0] = &PyMask_Type;
-  apiobj   = PyCObject_FromVoidPtr (c_api, NULL);
-  PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    /* create the module */
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3("mask", _mask_methods, DOC_PYGAMEMASK);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
+    dict = PyModule_GetDict(module);
+    if (PyDict_SetItemString (dict, "MaskType",
+                              (PyObject *)&PyMask_Type) == -1) {
+        MODINIT_ERROR;
+    }
+    /* export the c api */
+    c_api[0] = &PyMask_Type;
+    apiobj = PyCObject_FromVoidPtr (c_api, NULL);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    if (PyModule_AddObject (module, PYGAMEAPI_LOCAL_ENTRY, apiobj) == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }
 

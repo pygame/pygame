@@ -207,10 +207,11 @@ pygame.mouse.set_cursor().
    #first check for consistent lengths
    size = len(strings[0]), len(strings)
    if size[0] % 8 or size[1] % 8:
-       raise ValueError, "cursor string sizes must be divisible by 8 "+`size`
+       raise ValueError("cursor string sizes must be divisible by 8 %s" %
+                        size)
    for s in strings[1:]:
        if len(s) != size[0]:
-           raise ValueError, "Cursor strings are inconsistent lengths"
+           raise ValueError("Cursor strings are inconsistent lengths")
 
    #create the data arrays.
    #this could stand a little optimizing
