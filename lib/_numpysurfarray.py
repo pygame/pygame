@@ -63,7 +63,7 @@ def array2d (surface):
     """
     bpp = surface.get_bytesize ()
     if bpp <= 0 or bpp > 4:
-        raise ValueError, "unsupported bit depth for 2D array"
+        raise ValueError("unsupported bit depth for 2D array")
 
     # Taken from Alex Holkner's pygame-ctypes package. Thanks a lot.
     data = surface.get_buffer ().raw
@@ -111,7 +111,7 @@ def pixels2d (surface):
     """
     bpp = surface.get_bytesize ()
     if bpp == 3 or bpp < 1 or bpp > 4:
-        raise ValueError, "unsupported bit depth for 2D reference array"
+        raise ValueError("unsupported bit depth for 2D reference array")
 
     typecode = (numpy.uint8, numpy.uint16, None, numpy.int32)[bpp - 1]
     array = numpy.frombuffer (surface.get_buffer (), typecode)
@@ -193,7 +193,7 @@ def pixels3d (surface):
     """
     bpp = surface.get_bytesize ()
     if bpp < 3 or bpp > 4:
-        raise ValueError, "unsupported bit depth for 3D reference array"
+        raise ValueError("unsupported bit depth for 3D reference array")
     lilendian = pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN
 
     start = 0
@@ -218,7 +218,7 @@ def pixels3d (surface):
             start = 2
             step = -1
     else:
-        raise ValueError, "unsupported colormasks for 3D reference array"
+        raise ValueError("unsupported colormasks for 3D reference array")
 
     if bpp == 4 and not lilendian:
         start += 1
@@ -282,7 +282,7 @@ def pixels_alpha (surface):
     lifetime of the array.
     """
     if surface.get_bytesize () != 4:
-        raise ValueError, "unsupported bit depth for alpha reference array"
+        raise ValueError("unsupported bit depth for alpha reference array")
     lilendian = pygame.get_sdl_byteorder () == pygame.LIL_ENDIAN
 
     # ARGB surface.
@@ -294,7 +294,7 @@ def pixels_alpha (surface):
     elif surface.get_shifts ()[3] == 0 and not lilendian:
         start = 3
     else:
-        raise ValueError, "unsupported colormasks for alpha reference array"
+        raise ValueError("unsupported colormasks for alpha reference array")
 
     array = numpy.ndarray \
             (shape=(surface.get_width (), surface.get_height ()),
@@ -362,7 +362,7 @@ def make_surface (array):
         g = 0xff << 8
         b = 0xff
     else:
-        raise ValueError, "must be a valid 2d or 3d array"
+        raise ValueError("must be a valid 2d or 3d array")
 
     surface = pygame.Surface ((shape[0], shape[1]), 0, bpp, (r, g, b, 0))
     blit_array (surface, array)
@@ -383,7 +383,7 @@ def blit_array (surface, array):
     """
     bpp = surface.get_bytesize ()
     if bpp <= 0 or bpp > 4:
-        raise ValueError, "unsupported bit depth for surface"
+        raise ValueError("unsupported bit depth for surface")
     
     shape = array.shape
     width = surface.get_width ()
@@ -403,10 +403,10 @@ def blit_array (surface, array):
     elif len (shape) == 2:
         array = numpy.transpose (array)
     else:
-        raise ValueError, "must be a valid 2d or 3d array"
+        raise ValueError("must be a valid 2d or 3d array")
 
     if width != shape[0] or surface.get_height () != shape[1]:
-        raise ValueError, "array must match the surface dimensions"
+        raise ValueError("array must match the surface dimensions")
 
     itemsize = array.itemsize
     data = array.tostring ()
@@ -454,11 +454,11 @@ def map_array (surface, array):
     # lot.
     bpp = surface.get_bytesize ()
     if bpp <= 1 or bpp > 4:
-        raise ValueError, "unsupported bit depth for surface array"
+        raise ValueError("unsupported bit depth for surface array")
 
     shape = array.shape
     if shape[-1] != 3:
-        raise ValueError, "array must be a 3d array of 3-value color data"
+        raise ValueError("array must be a 3d array of 3-value color data")
 
     shifts = surface.get_shifts ()
     losses = surface.get_losses ()

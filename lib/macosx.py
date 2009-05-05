@@ -11,7 +11,7 @@ def Video_AutoInit():
        just before the display module is initialized"""
     if not MacOS.WMAvailable():
         if not sdlmain_osx.WMEnable():
-            raise ImportError, "Can not access the window manager.  Use py2app or execute with the pythonw script."
+            raise ImportError("Can not access the window manager.  Use py2app or execute with the pythonw script.")
     if not sdlmain_osx.RunningFromBundleWithNSApplication():
         try:
             default_icon_data = getResource('pygame_icon.tiff').read()

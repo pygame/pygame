@@ -697,11 +697,11 @@ class SurfarrayModuleTest (unittest.TestCase):
             self.assertEquals (sf.get_locked (), False)
             self.assertEquals (sf.get_locks (), ())
 
-        #print "test_surf_lock - end"
+        #print ("test_surf_lock - end")
 
 
 if __name__ == '__main__':
     if not arraytype:
-        print "No array package is installed. Cannot run unit tests."
+        print ("No array package is installed. Cannot run unit tests.")
     else:
         unittest.main()
