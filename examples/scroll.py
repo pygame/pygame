@@ -122,8 +122,8 @@ def main(image_file=None):
         image_w, image_h = image.get_size()
 
         if image_w < view_size[0] or image_h < view_size[1]:
-            print "The source image is too small for this example."
-            print "A %i by %i or larger image is required." % zoom_view_size
+            print ("The source image is too small for this example.")
+            print ("A %i by %i or larger image is required." % zoom_view_size)
             return
 
         regions = pygame.Surface(win_size, 0, 24)
