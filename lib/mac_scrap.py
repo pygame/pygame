@@ -9,8 +9,9 @@ import tempfile
 import pygame.image
 from pygame.locals import SCRAP_TEXT, SCRAP_BMP, SCRAP_SELECTION, SCRAP_CLIPBOARD
 from cStringIO import StringIO
+from pygame.compat import unicode_
 
-ScrapPboardType = u'org.pygame.scrap'
+ScrapPboardType = unicode_('org.pygame.scrap')
 
 
 err = "Only text has been implemented for scrap on mac. See lib/mac_scrap.py to debug."
@@ -24,10 +25,10 @@ def get(scrap_type):
     board = NSPasteboard.generalPasteboard()
     
     if 0:
-        print board.types
-        print dir(board.types)
-        print dir(board)
-        print board.__doc__
+        print (board.types)
+        print (dir(board.types))
+        print (dir(board))
+        print (board.__doc__)
 
     if scrap_type == SCRAP_TEXT:
         return board.stringForType_(NSStringPboardType)
@@ -66,7 +67,7 @@ def put(scrap_type, thing):
         else:
             text_thing = unicode(thing, 'utf-8')
         board.setString_forType_(text_thing, NSStringPboardType)
-        board.setString_forType_(u'', ScrapPboardType)
+        board.setString_forType_(unicode_(''), ScrapPboardType)
     elif 1:
         raise NotImplementedError(err)
 
@@ -92,7 +93,7 @@ def put(scrap_type, thing):
         fh.close()
         board.declareTypes_owner_([NSTIFFPboardType, ScrapPboardType], None)
         board.setData_forType_(tiff, NSTIFFPboardType)
-        board.setString_forType_(u'', ScrapPboardType)
+        board.setString_forType_(unicode_(''), ScrapPboardType)
     elif scrap_type == SCRAP_BMP:
         
         other_type = scrap_type

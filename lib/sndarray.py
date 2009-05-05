@@ -66,7 +66,7 @@ try:
     import pygame._numpysndarray as numpysnd
     __hasnumpy = True
     __arraytype = "numpy"
-except ImportError, msg:
+except ImportError:
     __hasnumpy = False
 
 try:
@@ -78,7 +78,7 @@ except ImportError:
     __hasnumeric = False
 
 if not __hasnumpy and not __hasnumeric:
-    raise ImportError, "no module named numpy or Numeric found"
+    raise ImportError("no module named numpy or Numeric found")
 
 def array (sound):
     """pygame.sndarray.array(Sound): return array
@@ -93,7 +93,7 @@ def array (sound):
         return numericsnd.array (sound)
     elif __arraytype == "numpy":
         return numpysnd.array (sound)
-    raise NotImplementedError, "sound arrays are not supported"
+    raise NotImplementedError("sound arrays are not supported")
 
 def samples (sound):
     """pygame.sndarray.samples(Sound): return array
@@ -108,7 +108,7 @@ def samples (sound):
         return numericsnd.samples (sound)
     elif __arraytype == "numpy":
         return numpysnd.samples (sound)
-    raise NotImplementedError, "sound arrays are not supported"
+    raise NotImplementedError("sound arrays are not supported")
 
 def make_sound (array):
     """pygame.sndarray.make_sound(array): return Sound
@@ -123,7 +123,7 @@ def make_sound (array):
         return numericsnd.make_sound (array)
     elif __arraytype == "numpy":
         return numpysnd.make_sound (array)
-    raise NotImplementedError, "sound arrays are not supported"
+    raise NotImplementedError("sound arrays are not supported")
 
 def use_arraytype (arraytype):
     """pygame.sndarray.use_arraytype (arraytype): return None
@@ -145,15 +145,15 @@ def use_arraytype (arraytype):
         if __hasnumeric:
             __arraytype = arraytype
         else:
-            raise ValueError, "Numeric arrays are not available"
+            raise ValueError("Numeric arrays are not available")
         
     elif arraytype == "numpy":
         if __hasnumpy:
             __arraytype = arraytype
         else:
-            raise ValueError, "numpy arrays are not available"
+            raise ValueError("numpy arrays are not available")
     else:
-        raise ValueError, "invalid array type"
+        raise ValueError("invalid array type")
 
 def get_arraytype ():
     """pygame.sndarray.get_arraytype (): return str

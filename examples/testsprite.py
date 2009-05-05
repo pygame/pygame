@@ -17,7 +17,7 @@ if "-psyco" in sys.argv:
         import psyco
         psyco.full()
     except Exception:
-        print "No psyco for you!  psyco failed to import and run."
+        print ("No psyco for you!  psyco failed to import and run.")
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, 'data')
@@ -78,7 +78,7 @@ if "-alpha" in sys.argv:
 else:
     use_alpha = False
 
-print screen_dims
+print (screen_dims)
 
 
 ##class Thingy(pygame.sprite.Sprite):
@@ -199,7 +199,7 @@ def main(update_rects = True,
     if len(sys.argv) > 1:
         try:
             numsprites = int(sys.argv[-1])
-        except:
+        except Exception:
             numsprites = 100
     else:
         numsprites = 100
@@ -252,7 +252,7 @@ def main(update_rects = True,
 
         frames += 1
     end = time()
-    print "FPS: %f" % (frames / ((end - start)))
+    print ("FPS: %f" % (frames / ((end - start))))
     pygame.quit()
 
 
