@@ -77,11 +77,11 @@ try:
     __hasnumeric = True
     if not __hasnumpy:
         __arraytype = "numeric"
-except ImportError, msg:
+except ImportError:
     __hasnumeric = False
 
 if not __hasnumpy and not __hasnumeric:
-    raise ImportError, "no module named numpy or Numeric found"
+    raise ImportError("no module named numpy or Numeric found")
 
 from _arraysurfarray import blit_array
 
@@ -102,7 +102,7 @@ def array2d (surface):
         return numericsf.array2d (surface)
     elif __arraytype == "numpy":
         return numpysf.array2d (surface)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def pixels2d (surface):
     """pygame.surfarray.pixels2d (Surface): return array
@@ -124,7 +124,7 @@ def pixels2d (surface):
         return numericsf.pixels2d (surface)
     elif __arraytype == "numpy":
         return numpysf.pixels2d (surface)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def array3d (surface):
     """pygame.surfarray.array3d (Surface): return array
@@ -143,7 +143,7 @@ def array3d (surface):
         return numericsf.array3d (surface)
     elif __arraytype == "numpy":
         return numpysf.array3d (surface)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def pixels3d (surface):
     """pygame.surfarray.pixels3d (Surface): return array
@@ -165,7 +165,7 @@ def pixels3d (surface):
         return numericsf.pixels3d (surface)
     elif __arraytype == "numpy":
         return numpysf.pixels3d (surface)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def array_alpha (surface):
     """pygame.surfarray.array_alpha (Surface): return array
@@ -185,7 +185,7 @@ def array_alpha (surface):
         return numericsf.array_alpha (surface)
     elif __arraytype == "numpy":
         return numpysf.array_alpha (surface)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def pixels_alpha (surface):
     """pygame.surfarray.pixels_alpha (Surface): return array
@@ -206,7 +206,7 @@ def pixels_alpha (surface):
         return numericsf.pixels_alpha (surface)
     elif __arraytype == "numpy":
         return numpysf.pixels_alpha (surface)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def array_colorkey (surface):
     """pygame.surfarray.array_colorkey (Surface): return array
@@ -227,7 +227,7 @@ def array_colorkey (surface):
         return numericsf.array_colorkey (surface)
     elif __arraytype == "numpy":
         return numpysf.array_colorkey (surface)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def make_surface (array):
     """pygame.surfarray.make_surface (array): return Surface
@@ -241,7 +241,7 @@ def make_surface (array):
         return numericsf.make_surface (array)
     elif __arraytype == "numpy":
         return numpysf.make_surface (array)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 ##def blit_array (surface, array):
 ##    """pygame.surfarray.blit_array (Surface, array): return None
@@ -260,7 +260,7 @@ def make_surface (array):
 ##        return numericsf.blit_array (surface, array)
 ##    elif __arraytype == "numpy":
 ##        return numpysf.blit_array (surface, array)
-##    raise NotImplementedError, "surface arrays are not supported"
+##    raise NotImplementedError("surface arrays are not supported")
 
 def map_array (surface, array):
     """pygame.surfarray.map_array (Surface, array3d): return array2d
@@ -275,7 +275,7 @@ def map_array (surface, array):
         return numericsf.map_array (surface, array)
     elif __arraytype == "numpy":
         return numpysf.map_array (surface, array)
-    raise NotImplementedError, "surface arrays are not supported"
+    raise NotImplementedError("surface arrays are not supported")
 
 def use_arraytype (arraytype):
     """pygame.surfarray.use_arraytype (arraytype): return None
@@ -297,15 +297,15 @@ def use_arraytype (arraytype):
         if __hasnumeric:
             __arraytype = arraytype
         else:
-            raise ValueError, "Numeric arrays are not available"
+            raise ValueError("Numeric arrays are not available")
         
     elif arraytype == "numpy":
         if __hasnumpy:
             __arraytype = arraytype
         else:
-            raise ValueError, "numpy arrays are not available"
+            raise ValueError("numpy arrays are not available")
     else:
-        raise ValueError, "invalid array type"
+        raise ValueError("invalid array type")
 
 def get_arraytype ():
     """pygame.surfarray.get_arraytype (): return str
