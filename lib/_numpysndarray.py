@@ -41,7 +41,7 @@ def _array_samples(sound, raw):
     # Info is a (freq, format, stereo) tuple
     info = mixer.get_init ()
     if not info:
-        raise pygame.error, "Mixer not initialized"
+        raise pygame.error("Mixer not initialized")
     fmtbytes = (abs (info[1]) & 0xff) >> 3
     channels = info[2]
     if raw:
@@ -88,7 +88,7 @@ def samples (sound):
     # Info is a (freq, format, stereo) tuple
     info = pygame.mixer.get_init ()
     if not info:
-        raise pygame.error, "Mixer not initialized"
+        raise pygame.error("Mixer not initialized")
     fmtbytes = (abs (info[1]) & 0xff) >> 3
     channels = info[2]
     data = sound.get_buffer ()
@@ -121,16 +121,16 @@ def make_sound (array):
     # Info is a (freq, format, stereo) tuple
     info = pygame.mixer.get_init ()
     if not info:
-        raise pygame.error, "Mixer not initialized"
+        raise pygame.error("Mixer not initialized")
     channels = info[2]
 
     shape = array.shape
     if channels == 1:
         if len (shape) != 1:
-            raise ValueError, "Array must be 1-dimensional for mono mixer"
+            raise ValueError("Array must be 1-dimensional for mono mixer")
     else:
         if len (shape) != 2:
-            raise ValueError, "Array must be 2-dimensional for stereo mixer"
+            raise ValueError("Array must be 2-dimensional for stereo mixer")
         elif shape[1] != channels:
-            raise ValueError, "Array depth must match number of mixer channels"
+            raise ValueError("Array depth must match number of mixer channels")
     return mixer.Sound (array)

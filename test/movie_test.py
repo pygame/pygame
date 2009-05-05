@@ -29,9 +29,9 @@ def within(a,b, error_range):
 
 def within_seq(a,b,error_range):
     for x,y in zip(a,b):
-	#print x,y
-	if not within(x,y,error_range):
-	    return 0
+        #print x,y
+        if not within(x,y,error_range):
+            return 0
     return 1
 
 class MovieTypeTest( unittest.TestCase ):            
