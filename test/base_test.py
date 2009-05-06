@@ -64,11 +64,12 @@ class BaseModuleTest(unittest.TestCase):
         self.assert_(not pygame.font.get_init(),
                      "init shouldn't be initialized" )
 
-        return  ## !!!Need to figure out OS X problem with this test.
         try:
+            ## Remove this test with scrap ready for OS X
             pygame.scrap
-        except AttributeError:
-            pass
+        except Exception:
+            if sys.platform != 'darwin':
+                raise
         else:
             self.assertRaises(pygame.error, pygame.scrap.get)
         
