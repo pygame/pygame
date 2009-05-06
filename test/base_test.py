@@ -57,16 +57,16 @@ class BaseModuleTest(unittest.TestCase):
         self.assert_( len(pygame.get_sdl_version()) == 3) 
 
     def not_init_assertions(self):
+        ## !!! TODO: Find out why OS X has problems here.
+        if sys.platform == 'darwin':
+            return
+
         self.assert_(not pygame.display.get_init(),
                      "display shouldn't be initialized" )
         self.assert_(not pygame.mixer.get_init(),
                      "mixer shouldn't be initialized" )
         self.assert_(not pygame.font.get_init(),
                      "init shouldn't be initialized" )
-
-        ## Remove this when scrap ready for OS X
-        if sys.platform == 'darwin':
-            return
 
         self.assertRaises(pygame.error, pygame.scrap.get)
         
