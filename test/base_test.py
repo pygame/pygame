@@ -64,8 +64,12 @@ class BaseModuleTest(unittest.TestCase):
         self.assert_(not pygame.font.get_init(),
                      "init shouldn't be initialized" )
 
-        ## !!! TODO : Fix this for OS X
-        ##self.assertRaises(pygame.error, pygame.scrap.get)
+        ## !!! TODO : Remove when scrap works for OS X
+        import platform
+        if platform.system().startswith('Darwin'):
+            return
+        
+        self.assertRaises(pygame.error, pygame.scrap.get)
         
         # pygame.cdrom
         # pygame.joystick
