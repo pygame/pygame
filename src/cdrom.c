@@ -22,11 +22,12 @@
 
 #define PYGAMEAPI_CDROM_INTERNAL
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 
 #define CDROM_MAXDRIVES 32
 static SDL_CD* cdrom_drivedata[CDROM_MAXDRIVES] = {NULL};
-staticforward PyTypeObject PyCD_Type;
+static PyTypeObject PyCD_Type;
 static PyObject* PyCD_New(int id);
 #define PyCD_Check(x) ((x)->ob_type == &PyCD_Type)
 
@@ -34,26 +35,25 @@ static void
 cdrom_autoquit (void)
 {
     int loop;
-    for (loop = 0; loop < CDROM_MAXDRIVES; ++loop)
-    {
-        if (cdrom_drivedata[loop])
-        {
+    for (loop = 0; loop < CDROM_MAXDRIVES; ++loop) {
+        if (cdrom_drivedata[loop]) {
             SDL_CDClose (cdrom_drivedata[loop]);
             cdrom_drivedata[loop] = NULL;
         }
     }
 
-    if (SDL_WasInit (SDL_INIT_CDROM))
+    if (SDL_WasInit (SDL_INIT_CDROM)) {
         SDL_QuitSubSystem (SDL_INIT_CDROM);
+    }
 }
 
 static PyObject*
 cdrom_autoinit (PyObject* self)
 {
-    if (!SDL_WasInit (SDL_INIT_CDROM))
-    {
-        if (SDL_InitSubSystem (SDL_INIT_CDROM))
+    if (!SDL_WasInit (SDL_INIT_CDROM)) {
+        if (SDL_InitSubSystem (SDL_INIT_CDROM)) {
             return PyInt_FromLong (0);
+        }
         PyGame_RegisterQuit (cdrom_autoquit);
     }
     return PyInt_FromLong (1);
@@ -75,8 +75,9 @@ cdrom_init (PyObject* self)
     result = cdrom_autoinit (self);
     istrue = PyObject_IsTrue (result);
     Py_DECREF (result);
-    if (!istrue)
+    if (!istrue) {
         return RAISE (PyExc_SDLError, SDL_GetError ());
+    }
     Py_RETURN_NONE;
 }
 
@@ -96,8 +97,9 @@ static PyObject*
 CD (PyObject* self, PyObject* args)
 {
     int id;
-    if (!PyArg_ParseTuple (args, "i", &id))
+    if (!PyArg_ParseTuple (args, "i", &id)) {
         return NULL;
+    }
 
     CDROM_INIT_CHECK ();
     return PyCD_New (id);
@@ -116,11 +118,11 @@ cd_init (PyObject* self)
     int cd_id = PyCD_AsID (self);
 
     CDROM_INIT_CHECK ();
-    if (!cdrom_drivedata[cd_id])
-    {
+    if (!cdrom_drivedata[cd_id]) {
         cdrom_drivedata[cd_id] = SDL_CDOpen (cd_id);
-        if (!cdrom_drivedata[cd_id])
+        if (!cdrom_drivedata[cd_id]) {
             return RAISE (PyExc_SDLError, "Cannot initialize device");
+        }
     }
     Py_RETURN_NONE;
 }
@@ -132,8 +134,7 @@ cd_quit (PyObject* self)
 
     CDROM_INIT_CHECK ();
 
-    if (cdrom_drivedata[cd_id])
-    {
+    if (cdrom_drivedata[cd_id]) {
         SDL_CDClose (cdrom_drivedata[cd_id]);
         cdrom_drivedata[cd_id] = NULL;
     }
@@ -156,43 +157,56 @@ cd_play (PyObject* self, PyObject* args)
     float start=0.0f, end=0.0f;
     PyObject *endobject=NULL;
 
-    if (!PyArg_ParseTuple (args, "i|fO", &track, &start, &endobject))
+    if (!PyArg_ParseTuple (args, "i|fO", &track, &start, &endobject)) {
         return NULL;
-    if (endobject == Py_None)
+    }
+    if (endobject == Py_None) {
         playforever = 1;
-    else if (!PyArg_ParseTuple (args, "i|ff", &track, &start, &end))
+    }
+    else if (!PyArg_ParseTuple (args, "i|ff", &track, &start, &end)) {
         return NULL;
+    }
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
     SDL_CDStatus (cdrom);
-    if (track < 0 || track >= cdrom->numtracks)
+    if (track < 0 || track >= cdrom->numtracks) {
         return RAISE (PyExc_IndexError, "Invalid track number");
-    if (cdrom->track[track].type != SDL_AUDIO_TRACK)
+    }
+    if (cdrom->track[track].type != SDL_AUDIO_TRACK) {
         return RAISE (PyExc_SDLError, "CD track type is not audio");
+    }
 	
     /*validate times*/
-    if (playforever)
+    if (playforever) {
         end = start;
-    else if (start == end && start != 0.0f)
+    }
+    else if (start == end && start != 0.0f) {
         Py_RETURN_NONE;
+    }
 	
     startframe = (int)(start * CD_FPS);
     numframes = 0;
-    if (startframe < 0)
+    if (startframe < 0) {
         startframe = 0;
-    if (end)
+    }
+    if (end) {
         numframes = (int) ((end-start) * CD_FPS);
-    else
+    }
+    else {
         numframes = cdrom->track[track].length - startframe;
+    }
     if (numframes < 0 ||
-        startframe > (int) (cdrom->track[track].length * CD_FPS))
+        startframe > (int) (cdrom->track[track].length * CD_FPS)) {
         Py_RETURN_NONE;
+    }
 
     result = SDL_CDPlayTracks (cdrom, track, startframe, 0, numframes);
-    if (result == -1)
+    if (result == -1) {
         return RAISE (PyExc_SDLError, SDL_GetError ());
+    }
 
     Py_RETURN_NONE;
 }
@@ -205,12 +219,14 @@ cd_pause (PyObject* self)
     int result;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     result = SDL_CDPause (cdrom);
-    if (result == -1)
+    if (result == -1) {
         return RAISE (PyExc_SDLError, SDL_GetError ());
+    }
     Py_RETURN_NONE;
 }
 
@@ -222,12 +238,14 @@ cd_resume (PyObject* self)
     int result;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     result = SDL_CDResume (cdrom);
-    if (result == -1)
+    if (result == -1) {
         return RAISE (PyExc_SDLError, SDL_GetError ());
+    }
     Py_RETURN_NONE;
 }
 
@@ -239,12 +257,14 @@ cd_stop (PyObject* self)
     int result;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     result = SDL_CDStop (cdrom);
-    if (result == -1)
+    if (result == -1) {
         return RAISE (PyExc_SDLError, SDL_GetError ());
+    }
     Py_RETURN_NONE;
 }
 
@@ -256,12 +276,14 @@ cd_eject (PyObject* self)
     int result;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     result = SDL_CDEject (cdrom);
-    if (result == -1)
+    if (result == -1) {
         return RAISE (PyExc_SDLError, SDL_GetError ());
+    }
 
     Py_RETURN_NONE;
 }
@@ -274,8 +296,9 @@ cd_get_empty (PyObject* self)
     int status;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     status = SDL_CDStatus (cdrom);
     return PyInt_FromLong (status == CD_TRAYEMPTY);
@@ -289,8 +312,9 @@ cd_get_busy (PyObject* self)
     int status;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     status = SDL_CDStatus (cdrom);
     return PyInt_FromLong (status == CD_PLAYING);
@@ -304,8 +328,9 @@ cd_get_paused (PyObject* self)
     int status;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     status = SDL_CDStatus (cdrom);
     return PyInt_FromLong (status == CD_PAUSED);
@@ -321,8 +346,9 @@ cd_get_current (PyObject* self)
     float seconds;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     SDL_CDStatus (cdrom);
     track = cdrom->cur_track;
@@ -338,8 +364,9 @@ cd_get_numtracks (PyObject* self)
     SDL_CD* cdrom = cdrom_drivedata[cd_id];
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     SDL_CDStatus (cdrom);
     return PyInt_FromLong (cdrom->numtracks);
@@ -357,7 +384,7 @@ cd_get_name (PyObject* self)
 {
     int cd_id = PyCD_AsID (self);
     CDROM_INIT_CHECK ();
-    return PyString_FromString (SDL_CDName (cd_id));
+    return Text_FromUTF8 (SDL_CDName (cd_id));
 }
 
 static PyObject*
@@ -367,15 +394,18 @@ cd_get_track_audio (PyObject* self, PyObject* args)
     SDL_CD* cdrom = cdrom_drivedata[cd_id];
     int track;
 
-    if (!PyArg_ParseTuple (args, "i", &track))
+    if (!PyArg_ParseTuple (args, "i", &track)) {
         return NULL;
+    }
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
     SDL_CDStatus (cdrom);
-    if (track < 0 || track >= cdrom->numtracks)
+    if (track < 0 || track >= cdrom->numtracks) {
         return RAISE (PyExc_IndexError, "Invalid track number");
+    }
 
     return PyInt_FromLong (cdrom->track[track].type == SDL_AUDIO_TRACK);
 }
@@ -387,17 +417,21 @@ cd_get_track_length (PyObject* self, PyObject* args)
     SDL_CD* cdrom = cdrom_drivedata[cd_id];
     int track;
 
-    if (!PyArg_ParseTuple (args, "i", &track))
+    if (!PyArg_ParseTuple (args, "i", &track)) {
         return NULL;
+    }
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
     SDL_CDStatus (cdrom);
-    if (track < 0 || track >= cdrom->numtracks)
+    if (track < 0 || track >= cdrom->numtracks) {
         return RAISE (PyExc_IndexError, "Invalid track number");
-    if (cdrom->track[track].type != SDL_AUDIO_TRACK)
+    }
+    if (cdrom->track[track].type != SDL_AUDIO_TRACK) {
         return PyFloat_FromDouble (0.0);
+    }
 
     return PyFloat_FromDouble (cdrom->track[track].length / (double) CD_FPS);
 }
@@ -409,15 +443,18 @@ cd_get_track_start (PyObject* self, PyObject* args)
     SDL_CD* cdrom = cdrom_drivedata[cd_id];
     int track;
 
-    if (!PyArg_ParseTuple (args, "i", &track))
+    if (!PyArg_ParseTuple (args, "i", &track)) {
         return NULL;
+    }
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
     SDL_CDStatus (cdrom);
-    if (track < 0 || track >= cdrom->numtracks)
+    if (track < 0 || track >= cdrom->numtracks) {
         return RAISE (PyExc_IndexError, "Invalid track number");
+    }
 
     return PyFloat_FromDouble (cdrom->track[track].offset / (double) CD_FPS);
 }
@@ -431,22 +468,22 @@ cd_get_all (PyObject* self, PyObject* args)
     PyObject *tuple, *item;
 
     CDROM_INIT_CHECK ();
-    if (!cdrom)
+    if (!cdrom) {
         return RAISE (PyExc_SDLError, "CD drive not initialized");
+    }
 
     SDL_CDStatus (cdrom);
     tuple = PyTuple_New (cdrom->numtracks);
-    if (!tuple)
+    if (!tuple) {
         return NULL;
-    for (track=0; track < cdrom->numtracks; track++)
-    {
+    }
+    for (track=0; track < cdrom->numtracks; track++) {
         int audio = cdrom->track[track].type == SDL_AUDIO_TRACK;
         double start = cdrom->track[track].offset / (double) CD_FPS;
         double length = cdrom->track[track].length / (double) CD_FPS;
         double end = start + length;
         item = PyTuple_New (4);
-        if (!item)
-        {
+        if (!item) {
             Py_DECREF (tuple);
             return NULL;
         }
@@ -459,7 +496,7 @@ cd_get_all (PyObject* self, PyObject* args)
     return tuple;
 }
 
-static PyMethodDef cd_builtins[] =
+static PyMethodDef cd_methods[] =
 {
     { "init", (PyCFunction) cd_init, METH_NOARGS, DOC_CDINIT },
     { "quit", (PyCFunction) cd_quit, METH_NOARGS, DOC_CDQUIT },
@@ -492,33 +529,46 @@ static PyMethodDef cd_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-static PyObject*
-cd_getattr (PyObject* self, char* attrname)
-{
-    return Py_FindMethod (cd_builtins, self, attrname);
-}
-
 static PyTypeObject PyCD_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,
-    "CD",
-    sizeof(PyCDObject),
-    0,
-    cd_dealloc,
-    0,
-    cd_getattr,
-    0,
-    0,
-    0,
-    0,
-    NULL,
-    0,
-    (hashfunc)NULL,
-    (ternaryfunc)NULL,
-    (reprfunc)NULL,
-    0L,0L,0L,0L,
-    DOC_PYGAMECDROMCD /* Documentation string */
+    TYPE_HEAD (NULL, 0)
+    "CD",                       /* name */
+    sizeof(PyCDObject),         /* basic size */
+    0,                          /* itemsize */
+    cd_dealloc,                 /* dealloc */
+    0,                          /* print */
+    0,                          /* getattr */
+    0,                          /* setattr */
+    0,                          /* compare */
+    0,                          /* repr */
+    0,                          /* as_number */
+    0,                          /* as_sequence */
+    0,                          /* as_mapping */
+    0,                          /* hash */
+    0,                          /* call */
+    0,                          /* str */
+    0,                          /* tp_getattro */
+    0,                          /* tp_setattro */
+    0,                          /* tp_as_buffer */
+    0,                          /* flags */
+    DOC_PYGAMECDROMCD,          /* Documentation string */
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_richcompare */
+    0,                          /* tp_weaklistoffset */
+    0,	                        /* tp_iter */
+    0,                          /* tp_iternext */
+    cd_methods,                 /* tp_methods */
+    0,                          /* tp_members */
+    0,                          /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    0,                          /* tp_descr_get */
+    0,                          /* tp_descr_set */
+    0,                          /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,				/* tp_alloc */
+    0,			        /* tp_new */
 };
 
 static PyObject*
@@ -526,19 +576,21 @@ PyCD_New (int id)
 {
     PyCDObject* cd;
 
-    if (id < 0 || id >= CDROM_MAXDRIVES || id >= SDL_CDNumDrives ())
+    if (id < 0 || id >= CDROM_MAXDRIVES || id >= SDL_CDNumDrives ()) {
         return RAISE (PyExc_SDLError, "Invalid cdrom device number");
+    }
 
     cd = PyObject_NEW (PyCDObject, &PyCD_Type);
-    if(!cd)
+    if(!cd) {
         return NULL;
+    }
 
     cd->id = id;
 
     return (PyObject*)cd;
 }
 
-static PyMethodDef cdrom_builtins[] =
+static PyMethodDef _cdrom_methods[] =
 {
     { "__PYGAMEinit__", (PyCFunction) cdrom_autoinit, METH_NOARGS,
       "auto initialize function" },
@@ -551,33 +603,65 @@ static PyMethodDef cdrom_builtins[] =
     { NULL, NULL, 0, NULL }
 };
 
-PYGAME_EXPORT
-void initcdrom (void)
+MODINIT_DEFINE (cdrom)
 {
     PyObject *module, *dict, *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_CDROM_NUMSLOTS];
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "cdrom",
+        DOC_PYGAMECDROM,
+        -1,
+        _cdrom_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* type preparation */
-    PyType_Init (PyCD_Type);
+    if (PyType_Ready (&PyCD_Type) == -1) {
+        MODINIT_ERROR;
+    }
 
     /* create the module */
-    module = Py_InitModule3 ("cdrom", cdrom_builtins, DOC_PYGAMECDROM);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("cdrom", _cdrom_methods, DOC_PYGAMECDROM);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
-    PyDict_SetItemString (dict, "CDType", (PyObject *)&PyCD_Type);
+    if (PyDict_SetItemString (dict, "CDType", (PyObject *)&PyCD_Type) == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
 
     /* export the c api */
     c_api[0] = &PyCD_Type;
     c_api[1] = PyCD_New;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }
