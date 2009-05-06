@@ -25,6 +25,7 @@
 
 #include <Python.h>
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 
 typedef struct
@@ -174,12 +175,11 @@ static PyMethodDef Overlay_methods[] = {
 
 PyTypeObject PyOverlay_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    TYPE_HEAD (NULL, 0)
     "pygame.overlay",        /*tp_name*/
     sizeof(PyGameOverlay),      /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    0,				/*tp_dealloc*/
+    (destructor) overlay_dealloc,	/*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
@@ -215,39 +215,60 @@ PyTypeObject PyOverlay_Type =
     Overlay_New,			   /* tp_new */
 };
 
-static PyMethodDef overlay_methods[] =
+static PyMethodDef _overlay_methods[] =
 {
     { NULL, NULL, 0, NULL }
 };
 
 
-PYGAME_EXPORT
-void initoverlay (void)
+MODINIT_DEFINE (overlay)
 {
     PyObject *module;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "overlay",
+        NULL,
+        -1,
+        _overlay_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rect ();    
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
+    }
+
+    if (PyType_Ready (&PyOverlay_Type) == -1) {
+        MODINIT_ERROR;
     }
 
     /* create the module */
-    module = Py_InitModule ("overlay", overlay_methods );
-
-    PyOverlay_Type.ob_type = &PyType_Type;
-    PyOverlay_Type.tp_dealloc = (destructor) overlay_dealloc;
-    PyOverlay_Type.tp_alloc =PyType_GenericAlloc;
-    PyOverlay_Type.tp_getattro = PyObject_GenericGetAttr;
-    Py_INCREF ((PyObject *)&PyOverlay_Type);
-    PyType_Init (PyOverlay_Type);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule ("overlay", _overlay_methods );
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
 
     /* create the module reference */
-    PyModule_AddObject (module, "Overlay", (PyObject *)&PyOverlay_Type);
+    Py_INCREF ((PyObject *)&PyOverlay_Type);
+    if (PyModule_AddObject (module, "Overlay",
+                            (PyObject *)&PyOverlay_Type) == -1) {
+      Py_DECREF ((PyObject *)&PyOverlay_Type);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }
