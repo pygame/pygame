@@ -2,6 +2,7 @@
 
 import sys
 import pygame
+from pygame.compat import xrange_
 
 SR= (800,600)
 ovl= None
@@ -15,7 +16,7 @@ def vPlayer( fName ):
     res= f.readline().strip()
     col= f.readline().strip()
     if fmt!= "P5":
-        print 'Unknown format( len %d ). Exiting...' % len( fmt )
+        print ('Unknown format( len %d ). Exiting...' % len( fmt ))
         return
     
     w,h= [ int(x) for x in res.split( ' ' ) ]
@@ -24,7 +25,7 @@ def vPlayer( fName ):
     y= f.read( w*h )
     u= []
     v= []
-    for i in xrange( 0, h/2 ):
+    for i in xrange_( 0, h/2 ):
         u.append( f.read( w/2 ))
         v.append( f.read( w/2 ))
     
@@ -55,7 +56,7 @@ def main(fname):
 # Test all modules
 if __name__== '__main__':
     if len( sys.argv )!= 2:
-        print "Usage: play_file <file_pattern>"
+        print ("Usage: play_file <file_pattern>")
     else:
         main(sys.argv[1])
 
