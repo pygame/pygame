@@ -8,6 +8,7 @@ from pygame.locals import *
 from random import randint
 from time import time
 import pygame.joystick
+from pygame.compat import xrange_
 
 ##import FastRenderGroup as FRG
 import pygame.sprite as FRG
@@ -213,7 +214,7 @@ def main(update_rects = True,
         else:
             sprites = pygame.sprite.Group()
 
-    for i in xrange(0, numsprites):
+    for i in xrange_(0, numsprites):
         if use_static and i%2==0:
             sprites.add(Static())
         sprites.add(Thingy())
