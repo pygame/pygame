@@ -12,6 +12,11 @@ try:
 except NameError:
     xrange_ = range
 
+try:
+    raw_input_ = raw_input
+except NameError:
+    raw_input_ = input
+
 ################################################################################
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
@@ -51,10 +56,10 @@ def get_tmp_dir():
 ################################################################################
 
 def question(q):
-    return raw_input('%s ' % q.rstrip(' ')).lower().strip() == 'y'
+    return raw_input_('%s ' % q.rstrip(' ')).lower().strip() == 'y'
 
 def prompt(p):
-    return raw_input('%s (and press enter to continue) ' % p.rstrip(' '))
+    return raw_input_('%s (and press enter to continue) ' % p.rstrip(' '))
 
 #################################### HELPERS ###################################
 

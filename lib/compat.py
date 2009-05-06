@@ -39,3 +39,8 @@ try:
     unicode_ = unicode
 except NameError:
     unicode_ = str
+
+try:
+    raw_input_ = raw_input
+except NameError:
+    raw_input_ = input

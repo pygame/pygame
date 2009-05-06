@@ -93,19 +93,19 @@ class MissingModule:
 #first, the "required" modules
 from pygame.base import *
 from pygame.constants import *
-###from pygame.version import *
+from pygame.version import *
 from pygame.rect import Rect
 from pygame.compat import geterror
 import pygame.rwobject
 import pygame.surflock
 import pygame.color
 Color = color.Color
-#__version__ = ver
+__version__ = ver
 
 #next, the "standard" modules
 #we still allow them to be missing for stripped down pygame distributions
-###try: import pygame.cdrom
-###except (ImportError,IOError):cdrom=MissingModule("cdrom", geterror(), 1)
+try: import pygame.cdrom
+except (ImportError,IOError):cdrom=MissingModule("cdrom", geterror(), 1)
 
 try: import pygame.cursors
 except (ImportError,IOError):cursors=MissingModule("cursors", geterror(), 1)
@@ -122,8 +122,8 @@ except (ImportError,IOError):event=MissingModule("event", geterror(), 1)
 try: import pygame.image
 except (ImportError,IOError):image=MissingModule("image", geterror(), 1)
 
-###try: import pygame.joystick
-###except (ImportError,IOError):joystick=MissingModule("joystick", geterror(), 1)
+try: import pygame.joystick
+except (ImportError,IOError):joystick=MissingModule("joystick", geterror(), 1)
 
 try: import pygame.key
 except (ImportError,IOError):key=MissingModule("key", geterror(), 1)
