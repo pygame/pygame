@@ -48,7 +48,7 @@ if __name__ == "__main__":
         w, h = map(int, [w,h])
         main(fin, fout, w,h)
     else:
-        print useage
+        print (useage)
 
 
 

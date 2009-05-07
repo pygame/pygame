@@ -446,7 +446,6 @@ snd_get_length (PyObject* self)
     return PyFloat_FromDouble ((float)numsamples / (float)freq);
 }
 
-#if !PY3 /* Not ready for the Python 3 buffer interface just yet. */
 static PyObject*
 snd_get_buffer (PyObject* self)
 {
@@ -461,7 +460,6 @@ snd_get_buffer (PyObject* self)
         return RAISE (PyExc_SDLError, "could acquire a buffer for the sound");
     return buffer;
 }
-#endif
 
 static PyMethodDef sound_methods[] =
 {
@@ -476,10 +474,8 @@ static PyMethodDef sound_methods[] =
       DOC_SOUNDGETVOLUME },
     { "get_length", (PyCFunction) snd_get_length, METH_NOARGS,
       DOC_SOUNDGETLENGTH },
-#if !PY3 /* Not ready for Python 3 buffer interface just yet. */
     { "get_buffer", (PyCFunction) snd_get_buffer, METH_NOARGS,
       DOC_SOUNDGETBUFFER },
-#endif
     { NULL, NULL, 0, NULL }
 };
 
@@ -1171,12 +1167,10 @@ MODINIT_DEFINE (mixer)
     if (PyErr_Occurred ()) {
 	MODINIT_ERROR;
     }
-#if !PY3 /* Not ready for the Python 3 buffer interface just yet. */
     import_pygame_bufferproxy ();
     if (PyErr_Occurred ()) {
 	MODINIT_ERROR;
     }
-#endif
 
     /* type preparation */
     if (PyType_Ready (&PySound_Type) < 0) {

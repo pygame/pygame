@@ -4,10 +4,10 @@ import pygame
 from pygame.locals import *
 
 def usage ():
-    print "Press R, G, B to increase the color channel values,"
-    print "1-9 to set the step range for the increment,"
-    print "A - ADD, S- SUB, M- MULT, - MIN, + MAX"
-    print "  to change the blend modes"
+    print ("Press R, G, B to increase the color channel values,")
+    print ("1-9 to set the step range for the increment,")
+    print ("A - ADD, S- SUB, M- MULT, - MIN, + MAX")
+    print ("  to change the blend modes")
 
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
@@ -88,8 +88,9 @@ def main():
                 #blendimage.fill (color, (0, 0, 20, 20), blendtype)
                 blendimage.fill (color, None, blendtype)
                 screen.blit (blendimage, (200, 10))
-                print "Color: %s, Pixel (0,0): %s" % (tuple(color),
-                                                      [blendimage.get_at ((0, 0))])
+                print ("Color: %s, Pixel (0,0): %s" %
+                       (tuple(color),
+                        [blendimage.get_at ((0, 0))]))
                 changed = False
                 pygame.display.flip ()
 

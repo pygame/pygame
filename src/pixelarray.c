@@ -21,6 +21,7 @@
 #define PYGAMEAPI_PIXELARRAY_INTERNAL
 
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "surface.h"
 
@@ -63,8 +64,10 @@ static PyObject* _array_slice_internal (PyPixelArray *array, Sint32 _start,
 /* Sequence methods */
 static Py_ssize_t _pxarray_length (PyPixelArray *array);
 static PyObject* _pxarray_item (PyPixelArray *array, Py_ssize_t _index);
+#if !PY3
 static PyObject* _pxarray_slice (PyPixelArray *array, Py_ssize_t low,
     Py_ssize_t high);
+#endif
 static int _array_assign_array (PyPixelArray *array, Py_ssize_t low,
     Py_ssize_t high, PyPixelArray *val);
 static int _array_assign_sequence (PyPixelArray *array, Py_ssize_t low,
@@ -91,9 +94,9 @@ static PyObject* PyPixelArray_New (PyObject *surfobj);
 /* Incomplete forward declaration so we can use it in the methods included
  * below.
  */
-staticforward PyTypeObject PyPixelArray_Type;
+static PyTypeObject PyPixelArray_Type;
 #define PyPixelArray_Check(o) \
-    ((o)->ob_type == (PyTypeObject *) &PyPixelArray_Type)
+    (Py_TYPE (o) == (PyTypeObject *) &PyPixelArray_Type)
 
 #define SURFACE_EQUALS(x,y) \
     (((PyPixelArray *)x)->surface == ((PyPixelArray *)y)->surface)
@@ -105,16 +108,36 @@ staticforward PyTypeObject PyPixelArray_Type;
  */
 static PyMethodDef _pxarray_methods[] =
 {
-    { "compare", (PyCFunction) _compare, METH_KEYWORDS,
+    { "compare", (PyCFunction) _compare, METH_VARARGS | METH_KEYWORDS,
       DOC_PIXELARRAYCOMPARE },
-    { "extract", (PyCFunction) _extract_color, METH_KEYWORDS,
+    { "extract", (PyCFunction) _extract_color, METH_VARARGS | METH_KEYWORDS,
       DOC_PIXELARRAYEXTRACT },
-    { "make_surface", (PyCFunction) _make_surface, METH_NOARGS,
+    { "make_surface", (PyCFunction) _make_surface, METH_VARARGS | METH_NOARGS,
       DOC_PIXELARRAYMAKESURFACE },
-    { "replace", (PyCFunction) _replace_color, METH_KEYWORDS,
+    { "replace", (PyCFunction) _replace_color, METH_VARARGS | METH_KEYWORDS,
       DOC_PIXELARRAYREPLACE },
     { NULL, NULL, 0, NULL }
 };
+
+#if PY3
+static void
+Text_ConcatAndDel (PyObject **string, PyObject *newpart)
+{
+    PyObject *result = NULL;
+    if (*string != NULL && newpart != NULL) {
+        PyUnicode_Concat (*string, newpart);
+        Py_DECREF (*string);
+        Py_DECREF (newpart);
+    }
+    else {
+        Py_XDECREF (*string);
+        Py_XDECREF (newpart);
+    }
+    *string = result;
+}
+#else
+#define Text_ConcatAndDel PyString_ConcatAndDel
+#endif
 
 /**
  * Getters and setters for the PyPixelArray.
@@ -138,9 +161,17 @@ static PySequenceMethods _pxarray_sequence =
     NULL, /*sq_concat*/
     NULL, /*sq_repeat*/
     (ssizeargfunc) _pxarray_item,               /*sq_item*/
+#if PY3
+    NULL,
+#else
     (ssizessizeargfunc) _pxarray_slice,         /*sq_slice*/
+#endif
     (ssizeobjargproc) _pxarray_ass_item,        /*sq_ass_item*/
+#if PY3
+    NULL,
+#else
     (ssizessizeobjargproc) _pxarray_ass_slice,  /*sq_ass_slice*/
+#endif
     (objobjproc) _pxarray_contains,             /*sq_contains*/
     NULL, /*sq_inplace_concat*/
     NULL, /*sq_inplace_repeat*/
@@ -158,8 +189,7 @@ static PyMappingMethods _pxarray_mapping =
 
 static PyTypeObject PyPixelArray_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,
+    TYPE_HEAD (NULL, 0)
     "pygame.PixelArray",        /* tp_name */
     sizeof (PyPixelArray),      /* tp_basicsize */
     0,                          /* tp_itemsize */
@@ -230,7 +260,7 @@ _pxarray_new_internal (PyTypeObject *type, PyObject *surface,
             if (!self->lock)
             {
                 Py_DECREF (surface);
-                self->ob_type->tp_free ((PyObject *) self);
+                Py_TYPE (self)->tp_free ((PyObject *) self);
                 return NULL;
             }
         }
@@ -290,7 +320,7 @@ _pxarray_dealloc (PyPixelArray *self)
     Py_XDECREF (self->parent);
     Py_XDECREF (self->dict);
     Py_DECREF (self->surface);
-    self->ob_type->tp_free ((PyObject *) self);
+    Py_TYPE (self)->tp_free ((PyObject *) self);
 }
 
 /**** Getter and setter access ****/
@@ -353,7 +383,7 @@ _pxarray_repr (PyPixelArray *array)
         array->xstart, array->xlen, array->xstep, array->ystart, 
         array->ylen, array->ystep, array->padding);
 */
-    string = PyString_FromString ("PixelArray(");
+    string = Text_FromUTF8 ("PixelArray(");
 
     absxstep = ABS (array->xstep);
     absystep = ABS (array->ystep);
@@ -367,21 +397,33 @@ _pxarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
-            PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+            Text_ConcatAndDel (&string, Text_FromUTF8 ("\n  ["));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
             {
                 /* Construct the columns */
                 pixel = (Uint32) *((Uint8 *) pixels + x + y * array->padding);
-                PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", (long)pixel));
+                Text_ConcatAndDel (&string,
+                                   Text_FromFormat ("%ld, ", (long)pixel));
+                if (string == NULL)
+                {
+                    return NULL;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = (Uint32) *((Uint8 *) pixels + x + y * array->padding);
-            PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", (long)pixel));
+            Text_ConcatAndDel (&string,
+                               Text_FromFormat ("%ld]", (long)pixel));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             y += array->ystep;
             posy += absystep;
         }
@@ -390,7 +432,11 @@ _pxarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
-            PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+            Text_ConcatAndDel (&string, Text_FromUTF8 ("\n  ["));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
@@ -398,14 +444,22 @@ _pxarray_repr (PyPixelArray *array)
                 /* Construct the columns */
                 pixel = (Uint32)
                     *((Uint16 *) (pixels + y * array->padding) + x);
-                PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", (long)pixel));
+                Text_ConcatAndDel (&string,
+                                   Text_FromFormat ("%ld, ", (long)pixel));
+                if (string == NULL)
+                {
+                    return NULL;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = (Uint32) *((Uint16 *) (pixels + y * array->padding) + x);
-            PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", (long)pixel));
+            Text_ConcatAndDel (&string,
+                               Text_FromFormat ("%ld]", (long)pixel));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             y += array->ystep;
             posy += absystep;
         }
@@ -414,7 +468,11 @@ _pxarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
-            PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+            Text_ConcatAndDel (&string, Text_FromUTF8 ("\n  ["));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
@@ -426,8 +484,12 @@ _pxarray_repr (PyPixelArray *array)
 #else
                 pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
 #endif
-                PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", (long)pixel));
+                Text_ConcatAndDel (&string,
+                                   Text_FromFormat ("%ld, ", (long)pixel));
+                if (string == NULL)
+                {
+                    return NULL;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
@@ -437,8 +499,12 @@ _pxarray_repr (PyPixelArray *array)
 #else
             pixel = (px24[2]) + (px24[1] << 8) + (px24[0] << 16);
 #endif
-            PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", (long)pixel));
+            Text_ConcatAndDel (&string,
+                               Text_FromFormat ("%ld]", (long)pixel));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             y += array->ystep;
             posy += absystep;
         }
@@ -447,27 +513,39 @@ _pxarray_repr (PyPixelArray *array)
         while (posy < array->ylen)
         {
             /* Construct the rows */
-            PyString_ConcatAndDel (&string, PyString_FromString ("\n  ["));
+            Text_ConcatAndDel (&string, Text_FromUTF8 ("\n  ["));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             posx = 0;
             x = array->xstart;
             while (posx < (Uint32)xlen)
             {
                 /* Construct the columns */
                 pixel = *((Uint32 *) (pixels + y * array->padding) + x);
-                PyString_ConcatAndDel (&string, PyString_FromFormat
-                    ("%ld, ", (long)pixel));
+                Text_ConcatAndDel (&string,
+                                   Text_FromFormat ("%ld, ", (long)pixel));
+                if (string == NULL)
+                {
+                    return NULL;
+                }
                 x += array->xstep;
                 posx += absxstep;
             }
             pixel = *((Uint32 *) (pixels + y * array->padding) + x);
-            PyString_ConcatAndDel (&string,
-                PyString_FromFormat ("%ld]", (long)pixel));
+            Text_ConcatAndDel (&string,
+                               Text_FromFormat ("%ld]", (long)pixel));
+            if (string == NULL)
+            {
+                return NULL;
+            }
             y += array->ystep;
             posy += absystep;
         }
         break;
     }
-    PyString_ConcatAndDel (&string, PyString_FromString ("\n)"));
+    Text_ConcatAndDel (&string, Text_FromUTF8 ("\n)"));
     return string;
 }
 
@@ -579,6 +657,7 @@ _pxarray_item (PyPixelArray *array, Py_ssize_t _index)
     return _array_slice_internal (array, _index, _index + 1, 1);
 }
 
+#if !PY3
 /**
  * array[x:y]
  */
@@ -600,6 +679,7 @@ _pxarray_slice (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high)
 
     return _array_slice_internal (array, low, high, 1);
 }
+#endif
 
 static int
 _array_assign_array (PyPixelArray *array, Py_ssize_t low, Py_ssize_t high,
@@ -2027,44 +2107,81 @@ static PyObject* PyPixelArray_New (PyObject *surfobj)
             (Uint32) surface->pitch, NULL);
 }
 
-PYGAME_EXPORT
-void initpixelarray (void)
+MODINIT_DEFINE (pixelarray)
 {
     PyObject *module;
     PyObject *dict;
     PyObject *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_PIXELARRAY_NUMSLOTS];
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "pixelarray",
+        NULL,
+        -1,
+        NULL,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_color();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* type preparation */
     if (PyType_Ready (&PyPixelArray_Type) < 0)
-        return;
+    {
+        MODINIT_ERROR;
+    }
     
     /* create the module */
+#if PY3
+    module = PyModule_Create (&_module);
+#else
     module = Py_InitModule3 ("pixelarray", NULL, NULL);
+#endif
+    if (module == NULL)
+    {
+        MODINIT_ERROR;
+    }
     Py_INCREF (&PyPixelArray_Type);
-    PyModule_AddObject (module, "PixelArray", (PyObject *) &PyPixelArray_Type);
+    if (PyModule_AddObject (module, "PixelArray",
+                            (PyObject *) &PyPixelArray_Type) == -1)
+    {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
     PyPixelArray_Type.tp_getattro = PyObject_GenericGetAttr;
     dict = PyModule_GetDict (module);
 
     c_api[0] = &PyPixelArray_Type;
     c_api[1] = PyPixelArray_New;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL)
+    {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode == -1)
+    {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }

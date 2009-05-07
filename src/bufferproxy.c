@@ -21,6 +21,7 @@
 #define PYGAMEAPI_BUFFERPROXY_INTERNAL
 
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 
 static PyObject* _bufferproxy_new (PyTypeObject *type, PyObject *args,
@@ -33,6 +34,11 @@ static PyObject* _bufferproxy_repr (PyBufferProxy *self);
 static PyObject* _bufferproxy_write (PyBufferProxy *buffer, PyObject *args);
 
 /* Buffer methods */
+#if PY3
+static int _bufferproxy_getbuffer (PyBufferProxy *self, Py_buffer *view,
+                                   int flags);
+static void _bufferproxy_releasebuffer (PyBufferProxy *self, Py_buffer *view);
+#else
 static Py_ssize_t _bufferproxy_getreadbuf (PyBufferProxy *buffer,
                                            Py_ssize_t _index,
                                            const void **ptr);
@@ -41,6 +47,7 @@ static Py_ssize_t _bufferproxy_getwritebuf (PyBufferProxy *buffer,
                                             const void **ptr);
 static Py_ssize_t _bufferproxy_getsegcount (PyBufferProxy *buffer,
                                             Py_ssize_t *lenp);
+#endif
 
 /* C API interfaces */
 static PyObject* PyBufferProxy_New (PyObject *parent, void *buffer,
@@ -79,18 +86,29 @@ static PyGetSetDef _bufferproxy_getsets[] =
 /**
  * Buffer interface support for the PyBufferProxy.
  */
+#if PY3
 static PyBufferProcs _bufferproxy_as_buffer =
 {
-        (readbufferproc) _bufferproxy_getreadbuf,
-        (writebufferproc) _bufferproxy_getwritebuf,
-        (segcountproc) _bufferproxy_getsegcount,
-        NULL,
+    (getbufferproc) _bufferproxy_getbuffer,
+    (releasebufferproc) _bufferproxy_releasebuffer
 };
+#else
+static PyBufferProcs _bufferproxy_as_buffer =
+{
+    (readbufferproc) _bufferproxy_getreadbuf,
+    (writebufferproc) _bufferproxy_getwritebuf,
+    (segcountproc) _bufferproxy_getsegcount,
+    NULL,
+#if PY_VERSION_HEX >= 0x02060000
+    NULL,
+    NULL
+#endif
+};
+#endif
 
 static PyTypeObject PyBufferProxy_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,
+    TYPE_HEAD (NULL, 0)
     "pygame.bufferproxy.BufferProxy", /* tp_name */
     sizeof (PyBufferProxy),     /* tp_basicsize */
     0,                          /* tp_itemsize */
@@ -169,7 +187,7 @@ _bufferproxy_dealloc (PyBufferProxy *self)
 
     Py_XDECREF (self->lock);
     Py_XDECREF (self->dict);
-    self->ob_type->tp_free ((PyObject *) self);
+    Py_TYPE(self)->tp_free ((PyObject *) self);
 }
 
 /**** Getter and setter access ****/
@@ -197,7 +215,7 @@ _bufferproxy_get_dict (PyBufferProxy *self, void *closure)
 static PyObject*
 _bufferproxy_get_raw (PyBufferProxy *self, void *closure)
 {
-    return PyString_FromStringAndSize (self->buffer, self->length);
+    return Bytes_FromStringAndSize (self->buffer, self->length);
 }
 
 /**
@@ -221,7 +239,7 @@ _bufferproxy_repr (PyBufferProxy *self)
 #if PY_VERSION_HEX < 0x02050000
     return PyString_FromFormat("<BufferProxy(%d)>", self->length);
 #else
-    return PyString_FromFormat("<BufferProxy(%zd)>", self->length);
+    return Text_FromFormat("<BufferProxy(%zd)>", self->length);
 #endif
 }
 
@@ -250,6 +268,23 @@ _bufferproxy_write (PyBufferProxy *buffer, PyObject *args)
 
 /**** Buffer interfaces ****/
 
+#if PY3
+static int
+_bufferproxy_getbuffer (PyBufferProxy *self, Py_buffer *view, int flags)
+{
+    if (!view)
+        return 0;
+    Py_INCREF (self); /* Guarantee that the object does not get destroyed */
+    return PyBuffer_FillInfo (view, (PyObject*)self, self->buffer,
+                              self->length, 0, flags);
+}
+
+static void
+_bufferproxy_releasebuffer (PyBufferProxy *self, Py_buffer *view)
+{
+    Py_DECREF (self);
+}
+#else /* PY3 */
 static Py_ssize_t
 _bufferproxy_getreadbuf (PyBufferProxy *buffer, Py_ssize_t _index,
                          const void **ptr)
@@ -305,6 +340,7 @@ _bufferproxy_getsegcount (PyBufferProxy *buffer, Py_ssize_t *lenp)
         *lenp = buffer->length;
     return 1;
 }
+#endif /* PY3 */
 
 static PyObject*
 PyBufferProxy_New (PyObject *parent, void *buffer, Py_ssize_t length,
@@ -323,29 +359,60 @@ PyBufferProxy_New (PyObject *parent, void *buffer, Py_ssize_t length,
     return (PyObject *) buf;
 }
 
-PYGAME_EXPORT
-void initbufferproxy (void)
+/*DOC*/ static char _bufferproxy_doc[] =
+/*DOC*/    "A generic proxy module that can spend arbitrary " \
+/*DOC*/    "objects a buffer interface";
+
+MODINIT_DEFINE (bufferproxy)
 {
     PyObject *module;
     PyObject *dict;
     PyObject *apiobj;
+    int ecode;
     static void* c_api[PYGAMEAPI_BUFFERPROXY_NUMSLOTS];
 
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "bufferproxy",
+        _bufferproxy_doc,
+        -1,
+        _bufferproxy_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     if (PyType_Ready (&PyBufferProxy_Type) < 0)
-        return;
+        MODINIT_ERROR;
 
     /* create the module */
-    module = Py_InitModule3 ("bufferproxy", NULL,
-        "A generic proxy module that can spend arbitrary " \
-        "objects a buffer interface");
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("bufferproxy", NULL, _bufferproxy_doc);
+#endif
     PyBufferProxy_Type.tp_getattro = PyObject_GenericGetAttr;
     Py_INCREF (&PyBufferProxy_Type);
-    PyModule_AddObject (module, "BufferProxy", (PyObject *)&PyBufferProxy_Type);
+    if (PyModule_AddObject (module, "BufferProxy",
+                            (PyObject *)&PyBufferProxy_Type) == -1) {
+        Py_DECREF ((PyObject *)&PyBufferProxy_Type);
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
     c_api[0] = &PyBufferProxy_Type;
     c_api[1] = PyBufferProxy_New;
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
-    PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
+    if (apiobj == NULL) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+    if (ecode == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+    MODINIT_RETURN (module);
 }
