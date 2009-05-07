@@ -40,15 +40,15 @@ def main(file_path=None):
 
 
     #start playing
-    print 'Playing Sound...'
+    print ('Playing Sound...')
     channel = sound.play()
 
 
     #poll until finished
     while channel.get_busy(): #still playing
-        print '  ...still going...'
+        print ('  ...still going...')
         time.wait(1000)
-    print '...Finished'
+    print ('...Finished')
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:

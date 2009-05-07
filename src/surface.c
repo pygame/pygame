@@ -89,9 +89,7 @@ static PyObject *surf_set_masks (PyObject *self, PyObject *args);
 static PyObject *surf_get_offset (PyObject *self);
 static PyObject *surf_get_parent (PyObject *self);
 static PyObject *surf_subsurface (PyObject *self, PyObject *args);
-#if !PY3
 static PyObject *surf_get_buffer (PyObject *self);
-#endif
 static PyObject *surf_get_bounding_rect (PyObject *self, PyObject *args,
                                           PyObject *kwargs);
 
@@ -184,10 +182,8 @@ static struct PyMethodDef surface_methods[] =
     { "get_bounding_rect", (PyCFunction) surf_get_bounding_rect,
       METH_VARARGS | METH_KEYWORDS,
       DOC_SURFACEGETBOUNDINGRECT},
-#if !PY3
     { "get_buffer", (PyCFunction) surf_get_buffer, METH_NOARGS,
       DOC_SURFACEGETBUFFER},
-#endif
 
     { NULL, NULL, 0, NULL }
 };
@@ -1648,9 +1644,8 @@ surf_get_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     SDL_Surface *surf = PySurface_AsSurface (self);
 
     if (PyTuple_GET_SIZE (args) > 0) {
-        return PyErr_Format (PyExc_TypeError,
-                             "get_rect only accepts keyword arguments",
-                             PyTuple_GET_SIZE (args));
+        return RAISE (PyExc_TypeError,
+                      "get_rect only accepts keyword arguments");
     }
 
     if (!surf)
@@ -2056,7 +2051,6 @@ surf_get_bounding_rect (PyObject *self, PyObject *args, PyObject *kwargs)
     return rect;
 }
 
-#if !PY3
 static PyObject
 *surf_get_buffer (PyObject *self)
 {
@@ -2085,7 +2079,6 @@ static PyObject
 
     return buffer;
 }
-#endif
 
 static void
 surface_move (Uint8 *src, Uint8 *dst, int h, int span,
@@ -2360,12 +2353,10 @@ MODINIT_DEFINE (surface)
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
-    #if !PY3
     import_pygame_bufferproxy();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
-    #endif
 
     /* import the surflock module manually */
     lockmodule = PyImport_ImportModule ("pygame.surflock");

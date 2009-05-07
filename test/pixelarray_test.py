@@ -1,5 +1,5 @@
+import sys
 if __name__ == '__main__':
-    import sys
     import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
@@ -15,6 +15,9 @@ if is_pygame_pkg:
 else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
+from pygame.compat import xrange_
+
+PY3 = sys.version_info >= (3, 0, 0)
 
 class PixelArrayTypeTest (unittest.TestCase):
     def todo_test_compare(self):
@@ -64,9 +67,9 @@ class PixelArrayTypeTest (unittest.TestCase):
         for bpp in (8, 16, 24, 32):
             sf = pygame.Surface ((10, 20), 0, bpp)
             sf.fill ((0, 0, 255))
-            for x in xrange (20):
+            for x in xrange_ (20):
                 sf.set_at ((1, x), (0, 0, 11))
-            for x in xrange (10):
+            for x in xrange_ (10):
                 sf.set_at ((x, 1), (0, 0, 11))
 
             ar = pygame.PixelArray (sf)
@@ -147,13 +150,21 @@ class PixelArrayTypeTest (unittest.TestCase):
             sf = pygame.Surface ((10, 20), 0, bpp)
             sf.fill ((0, 0, 0))
             ar = pygame.PixelArray (sf)
+
+            if PY3:
+                self.assertEqual (len (ar[0:2]), 2)
+                self.assertEqual (len (ar[3:7][3]), 20)
+
+                self.assertEqual (ar[0:0], None)
+                self.assertEqual (ar[5:5], None)
+                self.assertEqual (ar[9:9], None)
+            else:
+                self.assertEqual (len (ar.__getslice__ (0, 2)), 2)
+                self.assertEqual (len (ar.__getslice__ (3, 7)[3]), 20)
         
-            self.assertEqual (len (ar.__getslice__ (0, 2)), 2)
-            self.assertEqual (len (ar.__getslice__ (3, 7)[3]), 20)
-        
-            self.assertEqual (ar.__getslice__ (0, 0), None)
-            self.assertEqual (ar.__getslice__ (5, 5), None)
-            self.assertEqual (ar.__getslice__ (9, 9), None)
+                self.assertEqual (ar.__getslice__ (0, 0), None)
+                self.assertEqual (ar.__getslice__ (5, 5), None)
+                self.assertEqual (ar.__getslice__ (9, 9), None)
         
             # Has to resolve to ar[7:8]
             self.assertEqual (len (ar[-3:-2]), 20)
@@ -161,11 +172,18 @@ class PixelArrayTypeTest (unittest.TestCase):
             # Try assignments.
 
             # 2D assignment.
-            ar.__setslice__ (2, 5, (255, 255, 255))
+            if PY3:
+                ar[2:5] = (255, 255, 255)
+            else:
+                ar.__setslice__ (2, 5, (255, 255, 255))
             self.assertEqual (ar[3][3], sf.map_rgb ((255, 255, 255)))
 
             # 1D assignment
-            ar[3].__setslice__ (3, 7, (10, 10, 10))
+            if PY3:
+                ar[3][3:7] = (10, 10, 10)
+            else:
+                ar[3].__setslice__ (3, 7, (10, 10, 10))
+                
             self.assertEqual (ar[3][5], sf.map_rgb ((10, 10, 10)))
             self.assertEqual (ar[3][6], sf.map_rgb ((10, 10, 10)))
 
@@ -202,7 +220,10 @@ class PixelArrayTypeTest (unittest.TestCase):
 
             # Test single value assignment
             val = sf.map_rgb ((128, 128, 128))
-            ar.__setslice__ (0, 2, val)
+            if PY3:
+                ar[0:2] = val
+            else:
+                ar.__setslice__ (0, 2, val)
             self.assertEqual (ar[0][0], val)
             self.assertEqual (ar[0][1], val)
             self.assertEqual (ar[1][0], val)
@@ -220,7 +241,10 @@ class PixelArrayTypeTest (unittest.TestCase):
 
             # Test list assignment, this is a vertical assignment.
             val = sf.map_rgb ((0, 255, 0))
-            ar.__setslice__ (2, 4, [val] * 8)
+            if PY3:
+                ar[2:4] = [val] * 8
+            else:
+                ar.__setslice__ (2, 4, [val] * 8)
             self.assertEqual (ar[2][0], val)
             self.assertEqual (ar[2][1], val)
             self.assertEqual (ar[2][4], val)
@@ -233,7 +257,10 @@ class PixelArrayTypeTest (unittest.TestCase):
             # And the horizontal assignment.
             val = sf.map_rgb ((255, 0, 0))
             val2 = sf.map_rgb ((128, 0, 255))
-            ar.__setslice__ (0, 2, [val, val2])
+            if PY3:
+                ar[0:2] = [val, val2]
+            else:
+                ar.__setslice__ (0, 2, [val, val2])
             self.assertEqual (ar[0][0], val)
             self.assertEqual (ar[1][0], val2)
             self.assertEqual (ar[0][1], val)

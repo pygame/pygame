@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os, pygame
+from pygame.compat import xrange_
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, 'data')
@@ -28,7 +29,7 @@ def main():
     ar = pygame.PixelArray (surface)
     r, g, b = 0, 0, 0
     # Do some easy gradient effect.
-    for y in xrange (255):
+    for y in xrange_ (255):
         r, g, b = y, y, y
         ar[:,y] = (r, g, b)
     del ar

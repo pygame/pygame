@@ -24,6 +24,7 @@
  *  movie playback for pygame
  */
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "smpeg.h"
 
@@ -36,7 +37,7 @@ typedef struct
 } PyMovieObject;
 #define PyMovie_AsSMPEG(x) (((PyMovieObject*)x)->movie)
 
-staticforward PyTypeObject PyMovie_Type;
+static PyTypeObject PyMovie_Type;
 static PyObject* PyMovie_New (SMPEG*);
 #define PyMovie_Check(x) ((x)->ob_type == &PyMovie_Type)
 
@@ -351,7 +352,7 @@ movie_render_frame (PyObject* self, PyObject* args)
     return PyInt_FromLong (info.current_frame);
 }
 
-static PyMethodDef movie_builtins[] =
+static PyMethodDef movie_methods[] =
 {
     { "play", (PyCFunction)movie_play, METH_NOARGS, DOC_MOVIEPLAY },
     { "stop", (PyCFunction) movie_stop, METH_NOARGS, DOC_MOVIESTOP },
@@ -392,33 +393,46 @@ movie_dealloc (PyObject* self)
     PyObject_DEL (self);
 }
 
-static PyObject*
-movie_getattr (PyObject* self, char* attrname)
-{
-    return Py_FindMethod (movie_builtins, self, attrname);
-}
-
 static PyTypeObject PyMovie_Type =
 {
-    PyObject_HEAD_INIT(NULL)
-    0,
-    "Movie",
-    sizeof(PyMovieObject),
-    0,
-    movie_dealloc,
-    0,
-    movie_getattr,
-    NULL,					/*setattr*/
-    NULL,					/*compare*/
-    NULL,					/*repr*/
-    NULL,					/*as_number*/
-    NULL,					/*as_sequence*/
-    NULL,					/*as_mapping*/
-    (hashfunc)NULL, 		/*hash*/
-    (ternaryfunc)NULL,		/*call*/
-    (reprfunc)NULL, 		/*str*/
-    0L,0L,0L,0L,
-    DOC_PYGAMEMOVIEMOVIE /* Documentation string */
+    TYPE_HEAD (NULL, 0)
+    "movie",                    /* name */
+    sizeof(PyMovieObject),      /* basic size */
+    0,                          /* itemsize */
+    movie_dealloc,              /* dealloc */
+    0,                          /* print */
+    0,                          /* getattr */
+    0,                          /* setattr */
+    0,                          /* compare */
+    0,                          /* repr */
+    0,                          /* as_number */
+    0,                          /* as_sequence */
+    0,                          /* as_mapping */
+    0,                          /* hash */
+    0,                          /* call */
+    0,                          /* str */
+    0,                          /* tp_getattro */
+    0,                          /* tp_setattro */
+    0,                          /* tp_as_buffer */
+    0,                          /* flags */
+    DOC_PYGAMEMOVIEMOVIE,       /* Documentation string */
+    0,                          /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_richcompare */
+    0,                          /* tp_weaklistoffset */
+    0,	                        /* tp_iter */
+    0,                          /* tp_iternext */
+    movie_methods,              /* tp_methods */
+    0,                          /* tp_members */
+    0,                          /* tp_getset */
+    0,                          /* tp_base */
+    0,                          /* tp_dict */
+    0,                          /* tp_descr_get */
+    0,                          /* tp_descr_set */
+    0,                          /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,				/* tp_alloc */
+    0,			        /* tp_new */
 };
 
 /*movie module methods*/
@@ -443,12 +457,13 @@ Movie (PyObject* self, PyObject* arg)
     if (!SDL_WasInit (SDL_INIT_AUDIO))
         audioavail = 1;
 
-    if (PyString_Check (file) || PyUnicode_Check (file))
+    if (Bytes_Check (file) || PyUnicode_Check (file))
     {
         if (!PyArg_ParseTuple (arg, "s", &name))
             return NULL;
         movie = SMPEG_new (name, &info, audioavail);
     }
+#if !PY3
     else if (PyFile_Check (file))
     {
         SDL_RWops *rw = SDL_RWFromFP (PyFile_AsFile (file), 0);
@@ -456,6 +471,7 @@ Movie (PyObject* self, PyObject* arg)
         filesource = file;
         Py_INCREF (file);
     }
+#endif
     else
     {
         SDL_RWops *rw;
@@ -494,7 +510,7 @@ Movie (PyObject* self, PyObject* arg)
     return final;
 }
 
-static PyMethodDef mixer_builtins[] =
+static PyMethodDef _movie_methods[] =
 {
     { "Movie", Movie, METH_VARARGS, DOC_PYGAMEMOVIEMOVIE },
     { NULL, NULL, 0, NULL }
@@ -518,37 +534,62 @@ PyMovie_New (SMPEG* movie)
     return (PyObject*)movieobj;
 }
 
-PYGAME_EXPORT
-void initmovie (void)
+MODINIT_DEFINE (movie)
 {
     PyObject *module, *dict;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "movie",
+        DOC_PYGAMEMOVIE,
+        -1,
+        _movie_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_rect ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* type preparation */
-    PyType_Init (PyMovie_Type);
+    if (PyType_Ready (&PyMovie_Type) == -1) {
+        MODINIT_ERROR;
+    }
 
     /* create the module */
-    module = Py_InitModule3 ("movie", mixer_builtins, DOC_PYGAMEMOVIE);
+#if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ("movie", _movie_methods, DOC_PYGAMEMOVIE);
+#endif
+    if (module == NULL) {
+        MODINIT_ERROR;
+    }
     dict = PyModule_GetDict (module);
 
-    PyDict_SetItemString (dict, "MovieType", (PyObject *)&PyMovie_Type);
+    if (PyDict_SetItemString (dict, "MovieType",
+                              (PyObject *)&PyMovie_Type) == -1) {
+        DECREF_MOD (module);
+        MODINIT_ERROR;
+    }
+
+    MODINIT_RETURN (module);
 }
