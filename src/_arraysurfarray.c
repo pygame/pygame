@@ -22,6 +22,7 @@
 
 #include <stddef.h>
 #include "pygame.h"
+#include "pgcompat.h"
 #include "pygamedocs.h"
 #include "pgarrinter.h"
 #include <SDL_byteorder.h>
@@ -389,26 +390,45 @@ blit_array(PyObject* self, PyObject* arg)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef surfarray_builtins[] =
+static PyMethodDef _arraysurfarray_methods[] =
 {
     { "blit_array", blit_array, METH_VARARGS, DOC_PYGAMESURFARRAYBLITARRAY },
     { NULL, NULL, 0, NULL}
 };
 
-PYGAME_EXPORT
-void init_arraysurfarray(void)
+MODINIT_DEFINE (_arraysurfarray)
 {
+    PyObject *module;
+
+#if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "_arraysurfarray",
+        DOC_PYGAMESURFARRAY,
+        -1,
+        _arraysurfarray_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
     import_pygame_base();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_surface();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
-    Py_InitModule3("_arraysurfarray", surfarray_builtins, DOC_PYGAMESURFARRAY);
+#if PY3
+    module = PyModule_Create(&_module);
+#else
+    module = Py_InitModule3("_arraysurfarray",
+                            _arraysurfarray_methods,
+                            DOC_PYGAMESURFARRAY);
+#endif
+    MODINIT_RETURN(module);
 }

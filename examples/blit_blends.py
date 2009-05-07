@@ -10,7 +10,7 @@ try:
     import pygame.surfarray
     import Numeric
 except:
-    print "no surfarray for you!  install Numeric"
+    print ("no surfarray for you!  install Numeric")
 
 import time
         
@@ -62,7 +62,7 @@ def main():
     screen.blit(im1, (0, 0))
     pygame.display.flip()
     clock = pygame.time.Clock()
-    print "one pixel is:%s:" % [im1.get_at((0,0))]
+    print ("one pixel is:%s:" % [im1.get_at((0,0))])
 
     going = True
     while going:
@@ -86,8 +86,8 @@ def main():
                 # blits is a dict keyed with key -> blit flag.  eg BLEND_ADD.
                 im1.blit(img_to_blit, (0,0), None, blits[event.key])
                 t2 = time.time()
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
-                print "time to do:%s:" % (t2-t1)
+                print ("one pixel is:%s:" % [im1.get_at((0,0))])
+                print ("time to do:%s:" % (t2-t1))
 
 
             elif event.type == KEYDOWN and event.key in [K_t]:
@@ -102,7 +102,7 @@ def main():
 
                     # show which key we're doing...
                     onedoing = blitsn[bkey]
-                    print "time to do :%s: is :%s:" % (onedoing, t2-t1)
+                    print ("time to do :%s: is :%s:" % (onedoing, t2-t1))
 
 
             elif event.type == KEYDOWN and event.key in [K_o]:
@@ -110,8 +110,8 @@ def main():
                 # blits is a dict keyed with key -> blit flag.  eg BLEND_ADD.
                 im1.blit(iaa, (0,0))
                 t2 = time.time()
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
-                print "time to do:%s:" % (t2-t1)
+                print ("one pixel is:%s:" % [im1.get_at((0,0))])
+                print ("time to do:%s:" % (t2-t1))
 
 
             elif event.type == KEYDOWN and event.key == K_SPACE:
@@ -127,8 +127,8 @@ def main():
                 del im1p
                 del im2p
                 t2 = time.time()
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
-                print "time to do:%s:" % (t2-t1)
+                print ("one pixel is:%s:" % [im1.get_at((0,0))])
+                print ("time to do:%s:" % (t2-t1))
 
             elif event.type == KEYDOWN and event.key in [K_z]:
                 t1 = time.time()
@@ -143,8 +143,8 @@ def main():
                 del im1p
                 del im2p
                 t2 = time.time()
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
-                print "time to do:%s:" % (t2-t1)
+                print ("one pixel is:%s:" % [im1.get_at((0,0))])
+                print ("time to do:%s:" % (t2-t1))
 
             elif event.type == KEYDOWN and event.key in [K_r, K_g, K_b]:
                 # this adds one to each pixel.
@@ -155,10 +155,10 @@ def main():
                 im1p = pygame.surfarray.pixels2d(im1)
                 im1p += colmap[event.key]
                 del im1p
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
+                print ("one pixel is:%s:" % [im1.get_at((0,0))])
 
             elif event.type == KEYDOWN and event.key == K_p:
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
+                print ("one pixel is:%s:" % [im1.get_at((0,0))])
 
 
 
@@ -173,8 +173,8 @@ def main():
                 im1.set_alpha(255)
 
                 t2 = time.time()
-                print "one pixel is:%s:" % [im1.get_at((0,0))]
-                print "time to do:%s:" % (t2-t1)
+                print ("one pixel is:%s:" % [im1.get_at((0,0))])
+                print ("time to do:%s:" % (t2-t1))
 
 
         screen.blit(im1, (0, 0))
@@ -183,9 +183,9 @@ def main():
     pygame.quit()
 
 def usage():
-    print "press keys 1-5 to change image to blit."
-    print "A - ADD, S- SUB, M- MULT, - MIN, + MAX"
-    print "T - timing test for special blend modes."
+    print ("press keys 1-5 to change image to blit.")
+    print ("A - ADD, S- SUB, M- MULT, - MIN, + MAX")
+    print ("T - timing test for special blend modes.")
 
 if __name__ == '__main__': 
     usage()

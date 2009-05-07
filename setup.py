@@ -150,6 +150,24 @@ except:
 perhaps make a clean copy from "Setup.in".""")
     raise
 
+#python 3.x: remove modules not yet ported
+if sys.version_info >= (3, 0, 0):
+    python3_skip = ['scrap',
+                    '_camera',
+                    'pypm',
+                    'movieext',
+                    '_numericsurfarray',
+                    '_numericsndarray',
+                    ]
+    tmp_extensions = extensions
+    extensions = []
+    for e in tmp_extensions:
+        if e.name in python3_skip:
+            print ("Skipping module %s for Python %s build." %
+                   (e.name, sys.version))
+        else:
+            extensions.append(e)
+    del tmp_extensions
 
 #extra files to install
 data_path = os.path.join(distutils.sysconfig.get_python_lib(), 'pygame')
