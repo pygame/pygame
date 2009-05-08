@@ -1461,7 +1461,7 @@ MODINIT_DEFINE (mask)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3("mask", _mask_methods, DOC_PYGAMEMASK);
+    module = Py_InitModule3(MODPREFIX "mask", _mask_methods, DOC_PYGAMEMASK);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
