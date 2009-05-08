@@ -471,6 +471,7 @@ PyGame_Video_AutoInit (void)
 static void
 pygame_parachute (int sig)
 {
+#ifdef HAVE_SIGNAL_H
     char* signaltype;
     
     signal (sig, SIG_DFL);
@@ -503,7 +504,9 @@ pygame_parachute (int sig)
 
     _quit ();
     Py_FatalError (signaltype);
+#endif    
 }
+
 
 static int fatal_signals[] =
 {
@@ -524,6 +527,7 @@ static int parachute_installed = 0;
 static void
 install_parachute (void)
 {
+#ifdef HAVE_SIGNAL_H
     int i;
     void (*ohandler)(int);
 
@@ -534,11 +538,12 @@ install_parachute (void)
     /* Set a handler for any fatal signal not already handled */
     for (i = 0; fatal_signals[i]; ++i)
     {
-        ohandler = signal (fatal_signals[i], pygame_parachute);
+        ohandler = (void(*)(int))signal (fatal_signals[i], pygame_parachute);
         if (ohandler != SIG_DFL)
             signal (fatal_signals[i], ohandler);
     }
-#ifdef SIGALRM
+    
+#if defined(SIGALRM) && defined(HAVE_SIGACTION) 
     {/* Set SIGALRM to be ignored -- necessary on Solaris */
         struct sigaction action, oaction;
         /* Set SIG_IGN action */
@@ -550,12 +555,14 @@ install_parachute (void)
             sigaction (SIGALRM, &oaction, NULL);
     }
 #endif
+#endif    
     return;
 }
 
 static void
 uninstall_parachute (void)
 {
+#ifdef HAVE_SIGNAL_H
     int i;
     void (*ohandler)(int);
 
@@ -566,10 +573,11 @@ uninstall_parachute (void)
     /* Remove a handler for any fatal signal handled */
     for (i = 0; fatal_signals[i]; ++i)
     {
-        ohandler = signal (fatal_signals[i], SIG_DFL);
+        ohandler = (void(*)(int))signal (fatal_signals[i], SIG_DFL);
         if (ohandler != pygame_parachute)
             signal (fatal_signals[i], ohandler);
     }
+#endif    
 }
 
 /* bind functions to python */
@@ -638,7 +646,7 @@ MODINIT_DEFINE(base)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("base", _base_methods, DOC_PYGAME);
+    module = Py_InitModule3 (MIDOREFIX "base", _base_methods, DOC_PYGAME);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
@@ -706,7 +714,11 @@ MODINIT_DEFINE(base)
         }
         Py_DECREF (rval);
         Py_AtExit (atexit_quit);
+#ifdef HAVE_SIGNAL_H    
         install_parachute ();
+#endif
+
+
 #ifdef MS_WIN32
         SDL_RegisterApp ("pygame", 0, GetModuleHandle (NULL));
 #endif

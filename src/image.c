@@ -247,7 +247,7 @@ image_save (PyObject* self, PyObject* arg)
             {
                 /* If it is .png .jpg .jpeg use the extended module. */
                 /* try to get extended formats */
-                imgext = PyImport_ImportModule ("pygame.imageext");
+                imgext = PyImport_ImportModule (IMPPREFIX "imageext");
                 if (imgext)
                 {
                     PyObject *extdict = PyModule_GetDict (imgext);
@@ -1022,7 +1022,7 @@ image_frombuffer (PyObject* self, PyObject* arg)
 }
 
 /*******************************************************/
-/* tga code by Mattias Engdegård, in the public domain */
+/* tga code by Mattias Engdegard, in the public domain */
 /*******************************************************/
 struct TGAheader
 {
@@ -1348,7 +1348,7 @@ MODINIT_DEFINE (image)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("image", _image_methods, DOC_PYGAMEIMAGE);
+    module = Py_InitModule3 (MODPREFIX "image", _image_methods, DOC_PYGAMEIMAGE);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
@@ -1358,7 +1358,7 @@ MODINIT_DEFINE (image)
 
 
     /* try to get extended formats */
-    extmodule = PyImport_ImportModule ("pygame.imageext");
+    extmodule = PyImport_ImportModule (IMPPREFIX "imageext");
     if (extmodule)
     {
         PyObject *extdict = PyModule_GetDict (extmodule);

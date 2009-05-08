@@ -55,7 +55,7 @@ typedef struct {
 #define PyMixer_AutoInit (*(PyObject*(*)(PyObject*, PyObject*))PyMIXER_C_API[5])
 #define PyMixer_AutoQuit (*(void(*)(void))PyMIXER_C_API[6])
 #define import_pygame_mixer() { \
-	PyObject *_module = PyImport_ImportModule("pygame.mixer"); \
+	PyObject *_module = PyImport_ImportModule(IMPPREFIX "mixer"); \
 	if (_module != NULL) { \
 		PyObject *_dict = PyModule_GetDict(_module); \
 		PyObject *_c_api = PyDict_GetItemString(_dict, PYGAMEAPI_LOCAL_ENTRY); \
