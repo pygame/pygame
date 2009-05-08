@@ -1185,7 +1185,7 @@ MODINIT_DEFINE (mixer)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("mixer", _mixer_methods, DOC_PYGAMEMIXER);
+    module = Py_InitModule3 (MODPREFIX "mixer", _mixer_methods, DOC_PYGAMEMIXER);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
@@ -1231,7 +1231,7 @@ MODINIT_DEFINE (mixer)
         MODINIT_ERROR;
     }
 
-    music = PyImport_ImportModule("pygame.mixer_music");
+    music = PyImport_ImportModule(IMPPREFIX "mixer_music");
     if (!music) {
         PyErr_Clear ();
         /* try loading it under this name...
