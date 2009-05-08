@@ -26,7 +26,12 @@
  *  the extended load and save functions, which are autmatically used
  *  by the normal pygame.image module if it is available.
  */
+// This is temporal until PNG support is done for Symbian
+#ifdef __SYMBIAN32__
+#include <stdio.h>
+#else
 #include <png.h>
+#endif
 #include <jpeglib.h>
 /* Keep a stray macro from conflicting with python.h */
 #if defined(HAVE_PROTOTYPES)
@@ -63,6 +68,9 @@ static PyObject*
 image_load_ext (PyObject* self, PyObject* arg)
 {
     PyObject *file, *final;
+#if PY3
+    PyObject *oname, *odecoded = NULL;
+#endif
 #if PY3
     PyObject *oname, *odecoded = NULL;
 #endif
@@ -331,9 +339,9 @@ int write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     cinfo.in_color_space = JCS_RGB;
     /* cinfo.optimize_coding = FALSE;
      */
-
-
-
+    /* cinfo.optimize_coding = FALSE;
+     */
+  
     jpeg_set_defaults (&cinfo);
     jpeg_set_quality (&cinfo, quality, TRUE);
 
@@ -424,7 +432,7 @@ int SaveJPEG (SDL_Surface *surface, char *file) {
 
 
         ss_surface = SDL_CreateRGBSurface (SDL_SWSURFACE,
-                                           ss_w, ss_h, pixel_bits,
+                                       ss_w, ss_h, pixel_bits,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
                                        0xff0000, 0xff00, 0xff, 0x000000ff
 #else
@@ -471,13 +479,12 @@ int SaveJPEG (SDL_Surface *surface, char *file) {
         SDL_FreeSurface (ss_surface);
         ss_surface = NULL;
     }
-
     return r;
 }
 
 #endif /* end if JPEGLIB_H */
 
-/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c
+/* NOTE XX HACK TODO FIXME: this opengltosdl is also in image.c  
    need to share it between both.
 */
 
@@ -494,7 +501,7 @@ opengltosdl (void)
 
     GL_glReadPixels_Func p_glReadPixels= NULL;
 
-    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress ("glReadPixels"); 
+    p_glReadPixels = (GL_glReadPixels_Func) SDL_GL_GetProcAddress("glReadPixels"); 
 
     surf = SDL_GetVideoSurface ();
 
@@ -507,7 +514,7 @@ opengltosdl (void)
         return NULL;
     }
 
-    pixels = (unsigned char*) malloc (surf->w * surf->h * 3);
+    pixels = (unsigned char*) malloc(surf->w * surf->h * 3);
 
     if(!pixels) {
         RAISE (PyExc_MemoryError, "Cannot allocate enough memory for pixels.");
@@ -515,7 +522,7 @@ opengltosdl (void)
     }
 
     /* GL_RGB, GL_UNSIGNED_BYTE */
-    p_glReadPixels (0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
+    p_glReadPixels(0, 0, surf->w, surf->h, 0x1907, 0x1401, pixels);
 
     if (SDL_BYTEORDER == SDL_LIL_ENDIAN) {
         rmask=0x000000FF;
@@ -529,7 +536,7 @@ opengltosdl (void)
     surf = SDL_CreateRGBSurface (SDL_SWSURFACE, surf->w, surf->h, 24,
                                  rmask, gmask, bmask, 0);
     if (!surf) {
-        free (pixels);
+        free(pixels);
         RAISE (PyExc_SDLError, SDL_GetError ());
         return NULL;
     }
@@ -540,7 +547,7 @@ opengltosdl (void)
     }
 
 
-    free (pixels);
+    free(pixels);
     return surf;
 }
 
@@ -677,6 +684,8 @@ MODINIT_DEFINE (imageext)
 	MODINIT_ERROR;
     }
     import_pygame_rwobject ();
+
+
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
@@ -685,7 +694,9 @@ MODINIT_DEFINE (imageext)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("imageext", _imageext_methods, _imageext_doc);
+    module = Py_InitModule3(MODPREFIX "imageext", 
+                            _imageext_methods, 
+                            _imageext_doc);
 #endif
     MODINIT_RETURN (module);
 }

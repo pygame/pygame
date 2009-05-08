@@ -1046,7 +1046,7 @@ MODINIT_DEFINE (event)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("event", _event_methods, DOC_PYGAMEEVENT);
+    module = Py_InitModule3 (MODPREFIX "event", _event_methods, DOC_PYGAMEEVENT);
 #endif
     dict = PyModule_GetDict (module);
 

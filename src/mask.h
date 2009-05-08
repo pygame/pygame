@@ -17,7 +17,7 @@ typedef struct {
 #define PyMask_Check(x) ((x)->ob_type == &PyMask_Type)
 
 #define import_pygame_mask() {                                                                 \
-	PyObject *module = PyImport_ImportModule("pygame.mask");                               \
+	PyObject *module = PyImport_ImportModule(IMPPREFIX "mask");                               \
 	if (module != NULL) {                                                                  \
 		PyObject *dict  = PyModule_GetDict(module);                                    \
 		PyObject *c_api = PyDict_GetItemString(dict, PYGAMEAPI_LOCAL_ENTRY);           \

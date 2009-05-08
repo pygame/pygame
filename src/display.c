@@ -1093,7 +1093,9 @@ MODINIT_DEFINE (display)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("display", _display_methods, DOC_PYGAMEDISPLAY);
+    module = Py_InitModule3 (MODPREFIX "display", 
+                             _display_methods, 
+                             DOC_PYGAMEDISPLAY);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
