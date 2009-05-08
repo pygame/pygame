@@ -620,6 +620,7 @@ MODINIT_DEFINE (cdrom)
     };
 #endif
 
+
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
@@ -637,7 +638,9 @@ MODINIT_DEFINE (cdrom)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("cdrom", _cdrom_methods, DOC_PYGAMECDROM);
+    module = Py_InitModule3 (MODPREFIX "cdrom", 
+                             _cdrom_methods, 
+                             DOC_PYGAMECDROM);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
@@ -659,6 +662,8 @@ MODINIT_DEFINE (cdrom)
     }
     ecode = PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj);
     Py_DECREF (apiobj);
+
+
     if (ecode == -1) {
         DECREF_MOD (module);
         MODINIT_ERROR;

@@ -38,10 +38,17 @@ static PyObject* PyFont_New (TTF_Font*);
 #define PyFont_Check(x) ((x)->ob_type == &PyFont_Type)
 
 static int font_initialized = 0;
+#ifndef __SYMBIAN32__
+static const char const *font_defaultname = "freesansbold.ttf";
+static const char const *pkgdatamodule_name = "pygame.pkgdata";
+static const char const *resourcefunc_name = "getResource";
+#else
+/// Symbian GCCE does not like the second const
 static const char *font_defaultname = "freesansbold.ttf";
-
 static const char *pkgdatamodule_name = "pygame.pkgdata";
 static const char *resourcefunc_name = "getResource";
+#endif
+
 
 static PyObject*
 font_resource (const char *filename)
@@ -77,8 +84,8 @@ font_resource (const char *filename)
     }
 #else
     if (PyFile_Check (result))
-    {
-        PyObject *tmp = PyFile_Name (result);
+    {		
+        PyObject *tmp = PyFile_Name (result);        
         Py_INCREF (tmp);
         Py_DECREF (result);
         result = tmp;
@@ -527,7 +534,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
     int fontsize;
     TTF_Font* font = NULL;
     PyObject* fileobj;
-	
+    
     self->font = NULL;
     if (!PyArg_ParseTuple (args, "Oi", &fileobj, &fontsize))
         return -1;
@@ -550,7 +557,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         if (!fileobj)
         {
             char error[1024];
-            snprintf (error, 1024, "default font not found '%s'",
+            PyOS_snprintf (error, 1024, "default font not found '%s'",
                       font_defaultname);
             RAISE (PyExc_RuntimeError, error);
             goto error;
@@ -559,7 +566,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         if (fontsize <= 1)
             fontsize = 1;
     }
-
+     
     if (PyUnicode_Check (fileobj)) {
         PyObject* tmp = PyUnicode_AsASCIIString (fileobj);
 
@@ -571,13 +578,13 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
 
     if (Bytes_Check (fileobj))
     {
-        FILE* test;
+        FILE* test;        
         char* filename = Bytes_AsString (fileobj);
-
+       		
         if (!filename) {
             goto error;
         }
-
+                
         /*check if it is a valid file, else SDL_ttf segfaults*/
         test = fopen (filename, "rb");
         if(!test)
@@ -598,7 +605,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
             Py_BEGIN_ALLOW_THREADS;
             font = TTF_OpenFont(filename, fontsize);
             Py_END_ALLOW_THREADS;
-        }
+        }	
     }
     if (!font)
     {
@@ -759,7 +766,9 @@ MODINIT_DEFINE (font)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("font", _font_methods, DOC_PYGAMEFONT);
+    module = Py_InitModule3 (MODPREFIX "font", 
+                             _font_methods, 
+                             DOC_PYGAMEFONT);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
