@@ -70,8 +70,9 @@ MODINIT_DEFINE(constants)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3
-        ("constants", _constant_methods, _constants_doc);
+    module = Py_InitModule3 (MODPREFIX "constants", 
+                             _constant_methods, 
+                             _constants_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
