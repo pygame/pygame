@@ -1178,7 +1178,7 @@ MODINIT_DEFINE(gfxdraw)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("gfxdraw", _gfxdraw_methods, "");
+    module = Py_InitModule3 (MODPREFIX "gfxdraw", _gfxdraw_methods, "");
 #endif
 
     MODINIT_RETURN (module);
