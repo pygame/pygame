@@ -646,7 +646,7 @@ MODINIT_DEFINE(base)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 (MIDOREFIX "base", _base_methods, DOC_PYGAME);
+    module = Py_InitModule3 (MODPREFIX "base", _base_methods, DOC_PYGAME);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
