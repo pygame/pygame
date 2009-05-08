@@ -682,7 +682,7 @@ static void* PyGAME_C_API[PYGAMEAPI_TOTALSLOTS] = { NULL };
 #define PYGAME_EXPORT
 #endif
 
-#ifdef __SYMBIAN32__ && PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 2
+#if defined(__SYMBIAN32__) && PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION == 2
 
 // These are missing from Python 2.2
 #ifndef Py_RETURN_NONE

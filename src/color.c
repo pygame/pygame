@@ -1631,7 +1631,7 @@ MODINIT_DEFINE (color)
         MODINIT_ERROR;
     }
 
-    colordict = PyImport_ImportModule (MODPREFIX "colordict");
+    colordict = PyImport_ImportModule (IMPPREFIX "colordict");
     if (colordict)
     {
         PyObject *_dict = PyModule_GetDict (colordict);
