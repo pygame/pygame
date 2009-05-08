@@ -71,9 +71,6 @@ image_load_ext (PyObject* self, PyObject* arg)
 #if PY3
     PyObject *oname, *odecoded = NULL;
 #endif
-#if PY3
-    PyObject *oname, *odecoded = NULL;
-#endif
     char* name = NULL;
     SDL_Surface* surf;
     SDL_RWops *rw;

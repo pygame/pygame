@@ -299,7 +299,7 @@ MODINIT_DEFINE (fastevent)
     dict = PyModule_GetDict (module);
 
     /* add the event module functions if available */
-    eventmodule = PyImport_ImportModule (IMPPREFIX "pygame.event");
+    eventmodule = PyImport_ImportModule (IMPPREFIX "event");
     if (eventmodule)
     {
         char *NAMES[] = {"Event", "event_name", NULL};
