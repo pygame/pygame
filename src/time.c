@@ -405,7 +405,12 @@ static PyMethodDef _time_methods[] =
     { NULL, NULL, 0, NULL }
 };
 
+#ifdef __SYMBIAN32__
+PYGAME_EXPORT
+void initpygame_time (void)
+#else
 MODINIT_DEFINE (time)
+#endif    
 {
     PyObject *module;
     
@@ -437,7 +442,7 @@ MODINIT_DEFINE (time)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("time", _time_methods, DOC_PYGAMETIME);
+    module = Py_InitModule3 (MODPREFIX "time", _time_methods, DOC_PYGAMETIME);
 #endif
     MODINIT_RETURN (module);
 }
