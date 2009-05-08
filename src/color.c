@@ -247,6 +247,7 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_init */
     0,                          /* tp_alloc */
     _color_new,                 /* tp_new */
+#ifndef __SYMBIAN32__
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -255,6 +256,7 @@ static PyTypeObject PyColor_Type =
     0,                          /* tp_subclasses */
     0,                          /* tp_weaklist */
     0                           /* tp_del */
+#endif    
 };
 
 #define PyColor_Check(o) \
@@ -1629,7 +1631,7 @@ MODINIT_DEFINE (color)
         MODINIT_ERROR;
     }
 
-    colordict = PyImport_ImportModule ("pygame.colordict");
+    colordict = PyImport_ImportModule (MODPREFIX "colordict");
     if (colordict)
     {
         PyObject *_dict = PyModule_GetDict (colordict);
