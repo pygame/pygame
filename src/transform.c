@@ -2733,7 +2733,8 @@ MODINIT_DEFINE (transform)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("transform", _transform_methods,
+    module = Py_InitModule3 (MODPREFIX "transform", 
+                             _transform_methods,
                              DOC_PYGAMETRANSFORM);
 #endif
 
