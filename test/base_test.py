@@ -68,8 +68,12 @@ class BaseModuleTest(unittest.TestCase):
         import platform
         if platform.system().startswith('Darwin'):
             return
-        
-        self.assertRaises(pygame.error, pygame.scrap.get)
+
+        try:
+            self.assertRaises(pygame.error, pygame.scrap.get)
+        except NotImplementedError:
+            # Scrap is optional.
+            pass
         
         # pygame.cdrom
         # pygame.joystick

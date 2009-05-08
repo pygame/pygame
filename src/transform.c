@@ -1776,38 +1776,21 @@ static int get_threshold (SDL_Surface *destsurf, SDL_Surface *surf,
 
 static PyObject* surf_threshold(PyObject* self, PyObject* arg)
 {
-    PyObject *surfobj, *surfobj2, *surfobj3;
-    SDL_Surface* surf, *destsurf, *surf2;
-    int bpp, change_return, inverse;
-    int num_threshold_pixels;
+    PyObject *surfobj, *surfobj2 = NULL, *surfobj3 = NULL;
+    SDL_Surface* surf = NULL, *destsurf = NULL, *surf2 = NULL;
+    int bpp, change_return = 1, inverse = 0;
+    int num_threshold_pixels = 0;
 
-
-    PyObject *rgba_obj_color, *rgba_obj_threshold, *rgba_obj_diff_color;
+    PyObject *rgba_obj_color;
+    PyObject *rgba_obj_threshold = NULL;
+    PyObject *rgba_obj_diff_color = NULL;
     Uint8 rgba_color[4];
-    Uint8 rgba_threshold[4];
-    Uint8 rgba_diff_color[4];
+    Uint8 rgba_threshold[4] = {0, 0, 0, 255};
+    Uint8 rgba_diff_color[4] = {0, 0, 0, 255};
 
     Uint32 color;
     Uint32 color_threshold;
     Uint32 color_diff_color;
-
-    surf2 = destsurf = surf = NULL;
-
-    surfobj2 = NULL;
-    surfobj3 = NULL;
-
-
-
-    /* Set some defaults */
-    rgba_obj_threshold = NULL;
-    rgba_obj_diff_color = NULL;
-
-    num_threshold_pixels = 0;
-    change_return = 1;
-    inverse = 0;
-
-    rgba_threshold[0] = 0; rgba_threshold[1] = 0; rgba_threshold[2] = 0; rgba_threshold[3] = 255;
-    rgba_diff_color[0] = 0; rgba_diff_color[1] = 0; rgba_diff_color[2] = 0; rgba_diff_color[3] = 255;
 
     /*get all the arguments*/
     if (!PyArg_ParseTuple (arg, "O!O!O|OOiO!i", &PySurface_Type, &surfobj,
@@ -1846,27 +1829,43 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
             color_threshold = (Uint32) PyLong_AsUnsignedLong
                 (rgba_obj_threshold);
         else if (RGBAFromColorObj (rgba_obj_threshold, rgba_threshold))
-            color_threshold = SDL_MapRGBA (surf->format, rgba_threshold[0], rgba_threshold[1], rgba_threshold[2], rgba_threshold[3]);
+            color_threshold = SDL_MapRGBA (surf->format,
+                                           rgba_threshold[0], 
+                                           rgba_threshold[1],
+                                           rgba_threshold[2], 
+                                           rgba_threshold[3]);
         else
             return RAISE (PyExc_TypeError, "invalid threshold argument");
 
     } else {
-        color_threshold = SDL_MapRGBA (surf->format, rgba_threshold[0], rgba_threshold[1], rgba_threshold[2], rgba_threshold[3]);
+        color_threshold = SDL_MapRGBA (surf->format,
+                                       rgba_threshold[0],
+                                       rgba_threshold[1],
+                                       rgba_threshold[2],
+                                       rgba_threshold[3]);
     }
 
     if(rgba_obj_diff_color) {
 
         if (PyInt_Check (rgba_obj_diff_color))
             color_diff_color = (Uint32) PyInt_AsLong (rgba_obj_diff_color);
-        else if (PyLong_Check (rgba_obj_threshold))
+        else if (PyLong_Check (rgba_obj_diff_color))
             color_diff_color = (Uint32) PyLong_AsUnsignedLong
                 (rgba_obj_diff_color);
         else if (RGBAFromColorObj (rgba_obj_diff_color, rgba_diff_color))
-            color_diff_color = SDL_MapRGBA (surf->format, rgba_diff_color[0], rgba_diff_color[1], rgba_diff_color[2], rgba_diff_color[3]);
+            color_diff_color = SDL_MapRGBA (surf->format,
+                                            rgba_diff_color[0],
+                                            rgba_diff_color[1],
+                                            rgba_diff_color[2],
+                                            rgba_diff_color[3]);
         else
             return RAISE (PyExc_TypeError, "invalid diff_color argument");
     } else {
-        color_diff_color = SDL_MapRGBA (surf->format, rgba_diff_color[0], rgba_diff_color[1], rgba_diff_color[2], rgba_diff_color[3]);
+        color_diff_color = SDL_MapRGBA (surf->format,
+                                        rgba_diff_color[0],
+                                        rgba_diff_color[1],
+                                        rgba_diff_color[2],
+                                        rgba_diff_color[3]);
     }
 
     bpp = surf->format->BytesPerPixel;
@@ -1880,7 +1879,14 @@ static PyObject* surf_threshold(PyObject* self, PyObject* arg)
     Py_BEGIN_ALLOW_THREADS;
 
 
-    num_threshold_pixels = get_threshold (destsurf, surf, surf2, color,  color_threshold,  color_diff_color, change_return, inverse);
+    num_threshold_pixels = get_threshold (destsurf,
+                                          surf,
+                                          surf2,
+                                          color,
+                                          color_threshold,
+                                          color_diff_color,
+                                          change_return,
+                                          inverse);
 
 
     Py_END_ALLOW_THREADS;

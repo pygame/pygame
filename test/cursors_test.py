@@ -61,7 +61,7 @@ class CursorsModuleTest(unittest.TestCase):
         cursor = pygame.cursors.load_xbm(cursorfile, maskfile)
         
         # Test that load_xbm will take file objects as arguments
-        cursorfile, maskfile = map(file, (cursorfile, maskfile))
+        cursorfile, maskfile = [open(pth) for pth in (cursorfile, maskfile)]
         cursor = pygame.cursors.load_xbm(cursorfile, maskfile)
 
         # Is it in a format that mouse.set_cursor won't blow up on?
