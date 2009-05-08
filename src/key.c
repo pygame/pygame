@@ -187,7 +187,9 @@ MODINIT_DEFINE (key)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("key", _key_methods, DOC_PYGAMEKEY);
+    module = Py_InitModule3 (MODPREFIX "key", 
+                             _key_methods, 
+                             DOC_PYGAMEKEY);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
