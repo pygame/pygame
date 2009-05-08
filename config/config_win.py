@@ -9,8 +9,15 @@ def sdl_get_version ():
 
 def get_sys_libs (module):
     # Gets a list of system libraries to link the module against.
+    libs = []
+
     if module == "sdlext.scrap":
-        return [ "user32", "gdi32" ]
+       libs += [ "user32", "gdi32" ]
+
+    if module.startswith("sdl"):
+        libs += ["SDLmain"]
+
+    return libs
 
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries
@@ -76,44 +83,5 @@ class Dependency (config_generic.Dependency):
     _incdirs = [ "", "include" ]
     _libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release",
                  "lib"]
-    
-    def __init__(self, header_file, library_link_id):
-        super (Dependency, self).__init__ (header_file, library_link_id)
-        self.library_name = library_link_id
-        
-    def _find_incdir(self, name):
-        # Gets the include directory for the specified header file.
-        for d in self._searchdirs:
-            for g in self._incdirs:
-                p = os.path.join (d, g)
-                f = os.path.join (p, name)
-                if os.path.isfile (f):
-                    return p
-
-    def _find_libdir(self, name):
-        # Gets the library directory for the specified library file.
-        for d in self._searchdirs:
-            for g in self._libdirs:
-                p = os.path.join (d, g)
-                f = os.path.join (p, name)
-                if len (list (filter (os.path.isfile, glob.glob (f + '*')))) > 0:
-                    return p
-
-class DependencySDL(config_generic.DependencySDL, Dependency):
-    def __init__(self, header_file, library_link_id):
-        super (DependencySDL, self).__init__ (header_file, library_link_id)
-        self.library_name = library_link_id
-    
-    def _configure_guess(self):
-        if super(DependencySDL, self)._configure_guess():
-            self.libs.append('SDLmain')
-            ldir = self._find_libdir ('SDL')
-            if ldir is not None:
-                self.libdirs.append (ldir)
-            return True
-
-        return False
-
-    # Under windows, always guess the library position
-    _configure_guess.priority = 5
+    _libprefix = ""
 

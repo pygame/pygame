@@ -1,6 +1,6 @@
 import os, glob
 from config import sdlconfig, pkgconfig, msys, helpers, dll
-from config import config_unix, config_generic
+from config import config_unix, config_generic, config_win
 
 try:
     msys_obj = msys.Msys (require_mingw=False)
@@ -11,9 +11,7 @@ def sdl_get_version ():
     return config_unix.sdl_get_version()
 
 def get_sys_libs (module):
-    # Gets a list of system libraries to link the module against.
-    if module == "sdlext.scrap":
-        return [ "user32", "gdi32" ]
+    return config_win.get_sys_libs()
 
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries
@@ -81,6 +79,7 @@ class Dependency (config_unix.Dependency):
     _searchdirs = [ "/usr", "/usr/local", "/mingw" ]
     _incdirs = [ "include", "X11/include" ]
     _libdirs = [ "lib", "X11/lib" ]
+    _libprefix = ""
 
     def _find_incdir (self, name):
         # Gets the include directory for the specified header file.
@@ -116,18 +115,3 @@ class Dependency (config_unix.Dependency):
         if self.configured:
             self.incdirs = [ msys_obj.msys_to_windows (d) for d in self.incdirs ]
             self.libdirs = [ msys_obj.msys_to_windows (d) for d in self.libdirs ]
-
-class DependencySDL(config_unix.DependencySDL, Dependency):
-    def _configure_guess(self):
-        if super(Dependency, self)._configure_guess():
-            self.libs.append('SDLmain')
-            ldir = self._find_libdir ('SDL')
-            if ldir is not None:
-                self.libdirs.append (ldir)
-            return True
-
-        return False
-
-    # Always attempt to configure first
-    _configure_guess.priority = 5
-

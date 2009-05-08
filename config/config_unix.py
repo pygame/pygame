@@ -1,5 +1,5 @@
 import os, glob
-from config import config_generic, sdlconfig, pkgconfig, helpers
+from config import config_generic, libconfig, pkgconfig, helpers
 
 def get_sys_libs (module):
     # Gets a list of system libraries to link the module against.
@@ -14,8 +14,8 @@ def sdl_get_version():
     """
     if pkgconfig.has_pkgconfig ():
         return pkgconfig.get_version ("sdl")[0]
-    elif sdlconfig.has_sdlconfig ():
-        return sdlconfig.get_version ()[0]
+    elif libconfig.has_sdlconfig("sdl"):
+        return libconfig.get_version("sdl")[0]
 
     # TODO: SDL may be installed manually (i.e. compiled from
     # source). any way to find the version?
@@ -29,89 +29,55 @@ class Dependency (config_generic.Dependency):
     _searchdirs = [ "/usr", "/usr/local" ]
     _incdirs = [ "include", "X11/include" ]
     _libdirs = [ "lib", "X11/lib" ]
-
-    def _find_incdir(self, name):
-        # Gets the include directory for the specified header file.
-        for d in self._searchdirs:
-            for g in self._incdirs:
-                p = os.path.join (d, g)
-                f = os.path.join (p, name)
-                if os.path.isfile (f):
-                    return p
-
-    def _find_libdir(self, name):
-        # Gets the library directory for the specified library file.
-        for d in self._searchdirs:
-            for g in self._libdirs:
-                p = os.path.join (d, g)
-                f = os.path.join (p, name)
-                if filter (os.path.isfile, glob.glob (f + '*')):
-                    return p
+    _libprefix = "lib"
 
     def _configure_pkgconfig(self):
         """
             Configuration callback using the 'pkgconfig' tool
         """
-        if (not pkgconfig.has_pkgconfig() or 
-            not pkgconfig.exists(self.library_name)):
+
+        pkg = self.pkgconfig_name
+
+        if (not pkg or
+            not pkgconfig.has_pkgconfig() or 
+            not pkgconfig.exists(pkg)):
             return False
 
-        self.incdirs += pkgconfig.get_incdirs(self.library_name)
-        self.libdirs += pkgconfig.get_libdirs(self.library_name)
-        self.libs += pkgconfig.get_libs(self.library_name)
-        self.cflags += pkgconfig.get_cflags(self.library_name)
-        self.lflags += pkgconfig.get_lflags(self.library_name)
+        self.incdirs += pkgconfig.get_incdirs(pkg)
+        self.libdirs += pkgconfig.get_libdirs(pkg)
+        self.libs += pkgconfig.get_libs(pkg)
+        self.cflags += pkgconfig.get_cflags(pkg)
+        self.lflags += pkgconfig.get_lflags(pkg)
         return True
 
     _configure_pkgconfig.priority = 1
 
-class DependencySDL (config_generic.DependencySDL, Dependency):
-    # look in the SDL subdir for headers
-    _incdirs = [ "include", "X11/include", "include/SDL", "X11/include/SDL" ]
+    def _configure_libconfig(self):
+        """
+            Configuration callback using a generic CONFIG tool
+        """
 
-    def _configure_pkgconfig(self):
-        """
-            Configuration callback using the 'pkgconfig' tool.
-            Note that all the SDL-based libraries don't show up
-            as such under pkgconfig, hence we need to always look
-            for SDL.
-        """
-        if (not pkgconfig.has_pkgconfig() or 
-            not pkgconfig.exists('sdl')):
+        lc = self.library_config_program
+        found_header = False
+
+        if not lc or not libconfig.has_libconfig(lc):
             return False
 
-        if not self._find_incdir(self.header_file):
+        incdirs = libconfig.get_incdirs(lc)
+
+        for d in incdirs:
+            if os.path.isfile(os.path.join(d, self.header_file)):
+                found_header = True
+
+        if not found_header:
             return False
 
-        self.incdirs += pkgconfig.get_incdirs('sdl')
-        self.libdirs += pkgconfig.get_libdirs('sdl')
-        self.libs += pkgconfig.get_libs('sdl')
-        self.cflags += pkgconfig.get_cflags('sdl')
-        self.lflags += pkgconfig.get_lflags('sdl')
+        self.incdirs += incdirs
+        self.libdirs += libconfig.get_libdirs(lc)
+        self.libs += libconfig.get_libs(lc)
+        self.cflags += libconfig.get_cflags(lc)
+        self.lflags += libconfig.get_lflags(lc)
         return True
 
-    _configure_pkgconfig.priority = 1
-
-    def _configure_sdlconfig(self):
-        """
-            Configuration callback using the 'sdl-config' tool
-        """
-        if not sdlconfig.has_sdlconfig():
-            return False
-
-        # SDL-config returns valid values for all the sdl-based
-        # libraries (sdl_ttf, sdl_mixer, etc) even if the library
-        # is not installed. Make sure at least that its header
-        # exists!
-        if not self._find_incdir(self.header_file):
-            return False
-
-        self.incdirs += sdlconfig.get_incdirs ()
-        self.libdirs += sdlconfig.get_libdirs ()
-        self.libs += sdlconfig.get_libs ()
-        self.cflags += sdlconfig.get_cflags ()
-        self.lflags += sdlconfig.get_lflags ()
-        return True
-
-    _configure_sdlconfig.priority = 2
+    _configure_libconfig.priority = 2
 

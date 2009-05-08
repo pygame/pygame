@@ -1,25 +1,25 @@
 import os
 from config import msys
 
-def exec_sdlconfig (flags):
+def exec_config(libconfig, flags):
     if msys.is_msys ():
-        pipe = os.popen ("sh sdl-config %s " % flags, "r")
+        pipe = os.popen ("sh %s %s " % (libconfig, flags), "r")
     else:
-        pipe = os.popen ("sdl-config %s " % flags, "r")
+        pipe = os.popen ("%s %s " % (libconfig, flags), "r")
     data = pipe.readline ().strip ()
     pipe.close ()
     return data.split ()
 
-def get_incdirs ():
-    flags = exec_sdlconfig ("--cflags")
+def get_incdirs(libconfig):
+    flags = exec_config (libconfig, "--cflags")
     newflags = []
     for f in flags:
         if f.startswith ('-I'):
             newflags.append (f[2:])
     return newflags
 
-def get_cflags ():
-    flags = exec_sdlconfig ("--cflags")
+def get_cflags(libconfig):
+    flags = exec_config (libconfig, "--cflags")
     newflags = []
     for f in flags:
         if f.startswith ('-I'):
@@ -27,24 +27,24 @@ def get_cflags ():
         newflags.append (f)
     return newflags
 
-def get_libdirs ():
-    flags = exec_sdlconfig ("--libs")
+def get_libdirs(libconfig):
+    flags = exec_config (libconfig, "--libs")
     newflags = []
     for f in flags:
         if f.startswith ('-L'):
             newflags.append (f[2:])
     return newflags
 
-def get_libs ():
-    flags = exec_sdlconfig ("--libs")
+def get_libs(libconfig):
+    flags = exec_config (libconfig, "--libs")
     newflags = []
     for f in flags:
         if f.startswith ('-l'):
             newflags.append (f[2:])
     return newflags
 
-def get_lflags ():
-    flags = exec_sdlconfig ("--libs")
+def get_lflags(libconfig):
+    flags = exec_config (libconfig, "--libs")
     newflags = []
     for f in flags:
         if f.startswith ('-l') or f.startswith ('-L'):
@@ -52,11 +52,11 @@ def get_lflags ():
         newflags.append (f)
     return newflags
 
-def get_version ():
-    return exec_sdlconfig ("--version")
+def get_version(libconfig):
+    return exec_config(libconfig, "--version")
 
-def has_sdlconfig ():
+def has_libconfig(libconfig):
     if msys.is_msys ():
-        return os.system ("sh sdl-config --version") == 0
+        return os.system ("sh %s --version" % libconfig) == 0
     else:
-        return os.system ("sdl-config --version > /dev/null 2>&1") == 0
+        return os.system ("%s --version > /dev/null 2>&1" % libconfig) == 0

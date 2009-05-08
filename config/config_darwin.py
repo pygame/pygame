@@ -56,14 +56,7 @@ class Dependency (config_unix.Dependency):
     _searchdirs = ['/usr', '/usr/local', '/opt/local']
     _incdirs = ['include']
     _libdirs = ['lib']
-
-class DependencySDL (config_unix.DependencySDL, Dependency):
-    """
-        Mac OS X SDL Library Dependency.
-
-        The SDL library under Mac OS is mainly distributed via
-        Framework bundles, so we have to handle this case.
-    """
+    _libprefix = "lib"
 
     def _configure_frameworks(self):
         """
@@ -83,4 +76,3 @@ class DependencySDL (config_unix.DependencySDL, Dependency):
         return True
 
     _configure_frameworks.priority = 4
-

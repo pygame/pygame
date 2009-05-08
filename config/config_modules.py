@@ -1,7 +1,7 @@
 import os, sys
 from config import sdlconfig, pkgconfig, helpers
 from config import config_msys, config_unix, config_win, config_darwin
-from config.config_generic import Dependency, DependencySDL
+from config.config_generic import Dependency
 
 OS_MODULES = {
     'win'   : config_win,
@@ -20,17 +20,52 @@ def get_dependencies(buildsystem, cfg):
         will be passed to all the modules which rely on such
         library.
     """
-    os_module = OS_MODULES[buildsystem]
+    dep = OS_MODULES[buildsystem].Dependency
+    pygame_sdl_path = os.path.join ("src", "sdl")
 
     DEPENDENCIES = {
-    #   extern_name : dep_class               (header,            lib_ids       ),
-        'sdl'       : os_module.DependencySDL ('SDL.h',           'SDL'         ),
-        'sdl_mixer' : os_module.DependencySDL ('SDL_mixer.h',     'SDL_mixer',  ),
-        'sdl_ttf'   : os_module.DependencySDL ('SDL_ttf.h',       'SDL_ttf',    ),
-        'sdl_gfx'   : os_module.DependencySDL ('SDL_framerate.h', 'SDL_gfx',    ),
-        'sdl_image' : os_module.DependencySDL ('SDL_image.h',     'SDL_image',  ),
-        'png'       : os_module.Dependency    ('png.h',           'png'         ),
-        'jpeg'      : os_module.Dependency    ('jpeglib.h',       'jpeg'        ),
+        'sdl' : dep(
+            'SDL.h', 'SDL',
+            config_program='sdl-config',
+            pkgconfig_name='sdl',
+            extra_include_dirs = [pygame_sdl_path]),
+
+        'sdl_mixer' : dep(
+            'SDL_mixer.h', 'SDL_mixer',
+            config_program='sdl-config',
+            pkgconfig_name='sdl',
+            extra_include_dirs = [pygame_sdl_path]),
+
+        'sdl_ttf' : dep(
+            'SDL_ttf.h', 'SDL_ttf',
+            config_program='sdl-config',
+            pkgconfig_name='sdl',
+            extra_include_dirs = [pygame_sdl_path]),
+
+        'sdl_gfx' : dep(
+            'SDL_framerate.h', 'SDL_gfx',
+            config_program='sdl-config',
+            pkgconfig_name='sdl',
+            extra_include_dirs = [pygame_sdl_path]),
+
+        'sdl_image' : dep(
+            'SDL_image.h', 'SDL_image',
+            config_program='sdl-config',
+            pkgconfig_name='sdl',
+            extra_include_dirs = [pygame_sdl_path]),
+
+        'png' : dep(
+            'png.h', 'png',
+            pkgconfig_name='libpng'),
+
+        'jpeg' : dep(
+            'jpeglib.h', 'jpeg',
+            pkgconfig_name='libjpeg'),
+
+        'freetype' : dep(
+            'freetype.h', 'freetype',
+            pkgconfig_name='freetype2',
+            config_program='freetype-config'),
     }
 
     for (dep_name, dep) in DEPENDENCIES.items():

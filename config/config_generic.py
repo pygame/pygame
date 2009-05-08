@@ -1,4 +1,4 @@
-import os
+import os, glob
 
 class Dependency (object):
     """
@@ -55,12 +55,23 @@ class Dependency (object):
             config.config_win
     """
 
-    def __init__(self, header_file, library_link_id):
-        self.header_file = header_file
-        self.library_name = 'lib' + library_link_id
-        self.library_id = library_link_id
+    _incdirs = []
+    _libdirs = []
+    _searchdirs = []
+    _libprefix = ""
 
-        self.incdirs = []
+    def __init__(self, header_file, library_link_id,
+            config_program = None, pkgconfig_name = None,
+            extra_include_dirs = []):
+
+        self.header_file = header_file
+
+        self.library_name = self._libprefix + library_link_id
+        self.library_id = library_link_id
+        self.library_config_program = config_program
+        self.pkgconfig_name = pkgconfig_name
+
+        self.incdirs = [] + extra_include_dirs
         self.libdirs = []
         self.libs = [self.library_id]
         self.cflags = []
@@ -81,6 +92,37 @@ class Dependency (object):
         # if the library doesn't show up on cfg.py, we assume that the user
         # wants to actually compile it.
         return True
+
+    def _find_libdir(self, name):
+        """
+            Searches the library folders for the specified library
+            file.
+        """
+        for d in self._searchdirs:
+            for g in self._libdirs:
+                p = os.path.join (d, g)
+                f = os.path.join (p, name)
+                if filter (os.path.isfile, glob.glob (f + '*')):
+                    return p
+
+    def _find_incdir(self, name):
+        """
+            Recursively search all include dirs for the specified
+            header file.
+        """
+
+        def _fi_recurse(top):
+            for (path, dirnames, filenames) in os.walk(top):
+                if name in filenames:
+                    return path
+
+                for subfolder in dirnames:
+                    _fi_recurse(os.path.join(path, subfolder))
+
+        for d in self._searchdirs:
+            for g in self._incdirs:
+                p = _fi_recurse(os.path.join(d, g))
+                if p: return p
 
     def _configure_guess(self):
         """
@@ -131,7 +173,8 @@ class Dependency (object):
             callback_name = callback.__name__[11:].title()
 
             if callback():
-                print (("Attempting to configure with %s..." % callback_name).ljust(50) + "Success!")
+                print (("Attempting to configure with %s..." % callback_name).ljust(50)
+                        + "Success!")
                 self.configured = True
 
                 self.cflags = list(set(self.cflags))
@@ -152,7 +195,8 @@ class Dependency (object):
                 # callback, stop trying to configure it again
                 return
                 
-            print (("Attempting to configure with %s..." % callback_name).ljust(50) + "Failure.")
+            print (("Attempting to configure with %s..." % callback_name).ljust(50) 
+                    + "Failure.")
 
         print ("\tFailed to configure library %s.\n" % self.library_id)
 
@@ -179,34 +223,8 @@ class Dependency (object):
             return
         
         # update compiler/linker args for the module
-        module.cflags += list(self.cflags)
-        module.lflags += list(self.lflags)
-        module.incdirs += list(self.incdirs)
-        module.libdirs += list(self.libdirs)
-        module.libs += list(self.libs)
-
-
-class DependencySDL (Dependency):
-    """
-        Generic SDL Dependency class.
-
-        This class represents a SDL-based library which must be linked with
-        a module. The main difference between a normal dependency and a SDL
-        dependency is that the later must always contain our custom 'src/sdl'
-        include dir.
-
-        Additionally, some platforms implement custom SDL configuration callbacks: 
-            Unix and Msys use the 'sdl-config' utility and Windows uses some special
-            handling when linking SDL libraries.
-
-        See: 
-            config.config_unix.DependencySDL._configure_sdlconfig
-            config.config_win.DependencySDL._configure_guess
-    """
-
-    def __init__(self, header_file, library_id):
-        Dependency.__init__(self, header_file, library_id)
-
-        # custom SDL include directory
-        self.incdirs.append(os.path.join ("src", "sdl"))
-
+        module.cflags += self.cflags
+        module.lflags += self.lflags
+        module.incdirs += self.incdirs
+        module.libdirs += self.libdirs
+        module.libs += self.libs
