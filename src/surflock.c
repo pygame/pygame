@@ -274,7 +274,9 @@ MODINIT_DEFINE (surflock)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("surflock", _surflock_methods, _surflock_doc);
+    module = Py_InitModule3 (MODPREFIX "surflock", 
+                             _surflock_methods, 
+                             _surflock_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
