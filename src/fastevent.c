@@ -262,7 +262,6 @@ MODINIT_DEFINE (fastevent)
     PyObject *module, *eventmodule, *dict;
     int ecode;
 
-
 #if PY3
     static struct PyModuleDef _module = {
         PyModuleDef_HEAD_INIT,
@@ -279,18 +278,19 @@ MODINIT_DEFINE (fastevent)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
     import_pygame_event ();
     if (PyErr_Occurred ()) {
-	return;
+	MODINIT_ERROR;
     }
 
     /* create the module */
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ( MODPREFIX "fastevent", fastevent_builtins,
+    module = Py_InitModule3 (MODPREFIX "fastevent", 
+                             _fastevent_methods,
                              doc_fastevent_MODULE);
 #endif
     if (module == NULL) {
@@ -299,7 +299,7 @@ MODINIT_DEFINE (fastevent)
     dict = PyModule_GetDict (module);
 
     /* add the event module functions if available */
-    eventmodule = PyImport_ImportModule (IMPPREFIX "event");
+    eventmodule = PyImport_ImportModule (IMPPREFIX "pygame.event");
     if (eventmodule)
     {
         char *NAMES[] = {"Event", "event_name", NULL};
