@@ -337,5 +337,5 @@ void initscrap (void)
     }
 
     /* create the module */
-    mod = Py_InitModule3 ("scrap", scrap_builtins, NULL);
+    mod = Py_InitModule3 (MODPREFIX "scrap", scrap_builtins, NULL);
 }
