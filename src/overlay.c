@@ -256,7 +256,7 @@ MODINIT_DEFINE (overlay)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule ("overlay", _overlay_methods );
+    module = Py_InitModule (MODPREFIX "overlay", _overlay_methods );
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
