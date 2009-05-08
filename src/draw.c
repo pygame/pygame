@@ -1606,7 +1606,7 @@ MODINIT_DEFINE (draw)
 #if PY3
         module = PyModule_Create (&_module);
 #else
-	module = Py_InitModule3("draw", _draw_methods, DOC_PYGAMEDRAW);
+	module = Py_InitModule3(MODPREFIX "draw", _draw_methods, DOC_PYGAMEDRAW);
 #endif
         MODINIT_RETURN (module);
 }
