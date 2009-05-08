@@ -2359,7 +2359,7 @@ MODINIT_DEFINE (surface)
     }
 
     /* import the surflock module manually */
-    lockmodule = PyImport_ImportModule ("pygame.surflock");
+    lockmodule = PyImport_ImportModule (IMPPREFIX "surflock");
     if (lockmodule != NULL)
     {
         PyObject *_dict = PyModule_GetDict (lockmodule);
@@ -2389,7 +2389,7 @@ MODINIT_DEFINE (surface)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("surface", _surface_methods, DOC_PYGAMESURFACE);
+    module = Py_InitModule3 (MODPREFIX "surface", _surface_methods, DOC_PYGAMESURFACE);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
