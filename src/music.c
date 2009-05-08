@@ -432,7 +432,8 @@ MODINIT_DEFINE (mixer_music)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("mixer_music", _music_methods,
+    module = Py_InitModule3 (MODPREFIX "mixer_music", 
+                             _music_methods,
                              DOC_PYGAMEMIXERMUSIC);
 #endif
     if (module == NULL) {
