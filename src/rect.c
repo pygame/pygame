@@ -1598,7 +1598,7 @@ MODINIT_DEFINE (rect)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("rect", _rect_methods, _rectangle_doc);
+    module = Py_InitModule3 (MODPREFIX "rect", _rect_methods, _rectangle_doc);
 #endif
     if (module == NULL) {
         MODINIT_ERROR;
