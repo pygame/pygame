@@ -105,7 +105,7 @@ def run(*args, **kwds):
     option_randomize = options.get('randomize', False)
     option_seed = options.get('seed', None)
     option_multi_thread = options.pop('multi_thread', 1)
-    option_time_out = options.pop('time_out', 60)
+    option_time_out = options.pop('time_out', 120)
     option_fake = options.pop('fake', None)
     option_python = options.pop('python', sys.executable)
 
