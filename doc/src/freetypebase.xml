@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.freetype.base">
+  <short>Wrapping module for the FreeType 2 font library</short>
+  <desc>
+      This module wraps the FreeType 2 font library to add
+      improvent font drawing capabilities to PyGame2, such as
+      new font formats, etc
+  </desc>
+
+  <func name="get_version">
+    <call>get_version () -> tuple</call>
+    <desc>
+        Gets the version of the FreeType2 library which was used to build
+        the 'freetype' module.
+    </desc>
+  </func>
+  <func name="init">
+    <call>init () -> None</call>
+    <desc>
+      Initializes the underlying FreeType 2 library.
+      This method must be called before trying to use any of the functionality
+      of the 'freetype' module.
+    </desc>
+  </func>
+  <func name="quit">
+    <call>quit () -> None</call>
+    <desc>
+      Shuts down the underlying FreeType 2 library.
+
+      After calling this function, you should not invoke any class,
+      method or function related to the 'freetype' module as they are likely to
+      fail or might give unpredictable results.
+    </desc>
+  </func>
+  <func name="was_init">
+    <call>was_init () -> bool</call>
+    <desc>
+      Returns whether the the FreeType 2 library is initialized.
+    </desc>
+  </func>
+</module>
+
