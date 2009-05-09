@@ -295,6 +295,11 @@ modules = [
         docfile = "sdlgfxrotozoom.xml",
         depends = ['SDL', 'SDL_gfx']),
 
+    Module ("freetype.base",
+        sources = ["src/freetype/ft_mod.c"],
+        docfile = "freetypebase.xml",
+        depends = ['freetype', 'SDL']),
+
     ]
 
 if helpers.getversion() < (3, 0, 0):
