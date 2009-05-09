@@ -137,7 +137,6 @@ _sat_collision (PyVector2 *pos1, double rot1, PyVector2 *pos2, double rot2,
     ppos[1] = incpos[0] = *pos2;
     prot[1] = incrot[0] = rot2;
 
-
     /*
      * Now we appoint selfBody to be the reference body and incBody
      * to be the incident body for computing min_dep[0]. And vice versa for
@@ -208,8 +207,10 @@ _sat_collision (PyVector2 *pos1, double rot1, PyVector2 *pos2, double rot2,
                 collision->contacts[collision->contact_size++] = conts[k][i];
          break;
     default:
-        assert(0);
+        assert (0);
+        break;
      }
+
     /*
      * We are nearly reaching the destination except for three things:
      *
@@ -271,11 +272,12 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
         retval = NULL;
         goto back;
     }
+    /* TODO: problem here! */
     PyVector2_TransformMultiple (vertices2, inpos2, count2, pos1, rot1, pos2,
         rot2);
     PyVector2_TransformMultiple (vertices1, inpos1, count1, pos2, rot2, pos1,
         rot1);
-    
+  
     if (!_clip_test (&box1, inpos2, count2, &collision))
     {
         retval = Py_None;
@@ -283,14 +285,14 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
         goto back;
     }
 
-    if (AABBox_Contains (&box2, &vertices1[0], 0.f))
-        collision.contacts[collision.contact_size++] = rsh1->bottomleft;
-    if (AABBox_Contains (&box2, &vertices1[1], 0.f))
-        collision.contacts[collision.contact_size++] = rsh1->bottomright;
-    if (AABBox_Contains (&box2, &vertices1[2], 0.f))
-        collision.contacts[collision.contact_size++] = rsh1->topright;
-    if (AABBox_Contains (&box2, &vertices1[3], 0.f))
-        collision.contacts[collision.contact_size++] = rsh1->topleft;
+/*     if (AABBox_Contains (&box2, &vertices1[0], 0.f)) */
+/*         collision.contacts[collision.contact_size++] = rsh1->bottomleft; */
+/*     if (AABBox_Contains (&box2, &vertices1[1], 0.f)) */
+/*         collision.contacts[collision.contact_size++] = rsh1->bottomright; */
+/*     if (AABBox_Contains (&box2, &vertices1[2], 0.f)) */
+/*         collision.contacts[collision.contact_size++] = rsh1->topright; */
+/*     if (AABBox_Contains (&box2, &vertices1[3], 0.f)) */
+/*         collision.contacts[collision.contact_size++] = rsh1->topleft; */
 
     _sat_collision (&pos1, rot1, &pos2, rot2, &box1, &box2, &collision);
 

@@ -30,16 +30,6 @@
 extern "C" {
 #endif
 
-#ifndef MIN
-#define MIN(x,y) (((x) < (y)) ? (x) : (y))
-#endif
-#ifndef MAX
-#define MAX(x,y) (((x) > (y)) ? (x) : (y))
-#endif
-#ifndef ABS
-#define ABS(x) (((x) < 0) ? -(x) : (x))
-#endif
-
 /**
  * Zero tolerance constants for vector calculations.
  */
@@ -48,8 +38,6 @@ extern "C" {
 #define OVERLAP_ZERO 1e-8
 
 #define IS_NEAR_ZERO(num) (fabs(num) <= ZERO_EPSILON)
-#define CLAMP(x,low,high)                                               \
-    ((x < high) ? ((x > low) ? x : low) : ((high > low) ? high : low))
 
 /**
  * 2D vector definition.

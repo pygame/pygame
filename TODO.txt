@@ -33,8 +33,6 @@ Things to FIX:
   how not to do it)
 * SDL_gfx has to set the correct errors (SDL_SetError()). Fix that and
   merge it back to the SDL_gfx upstream
-* all methods taking or returning angles as arguments should use degrees, not
-  radians - an implicit conversion (DEG2RAD/RAD2DEG) will be done
 
 Things to WRAP:
 ===============

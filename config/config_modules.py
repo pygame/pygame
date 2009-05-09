@@ -1,5 +1,5 @@
 import os, sys
-from config import sdlconfig, pkgconfig, helpers
+from config import helpers
 from config import config_msys, config_unix, config_win, config_darwin
 from config.config_generic import Dependency
 

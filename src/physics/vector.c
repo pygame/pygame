@@ -170,6 +170,8 @@ PyVector2_TransformMultiple (PyVector2 *vin, PyVector2 *vout, int count,
     double rotation = -(vrotation - trotation);
     int i;
 
+/*CHECK IF CORRECT */
+
     trans = c_diff (tlocal, vlocal);
     PyVector2_Rotate (&trans, -vrotation);
 

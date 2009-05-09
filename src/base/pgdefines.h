@@ -45,6 +45,12 @@
 #define round(d) (((d) > 0.0) ? (floor ((d) + .5)) : (ceil (d - .5)))
 #endif
 
+#ifndef CLAMP
+#define CLAMP(x,low,high)                                               \
+    (((x) < (high)) ? (((x) > (low)) ? (x) : (low)) :                   \
+        (((high) > (low)) ? (high) : (low)))
+#endif
+
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
 #endif

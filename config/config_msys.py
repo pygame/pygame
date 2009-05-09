@@ -1,5 +1,5 @@
 import os, glob
-from config import sdlconfig, pkgconfig, msys, helpers, dll
+from config import msys, helpers, dll
 from config import config_unix, config_generic, config_win
 
 try:

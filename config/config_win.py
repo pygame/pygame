@@ -1,5 +1,5 @@
 import os, glob
-from config import sdlconfig, pkgconfig, helpers, dll
+from config import helpers, dll
 from config import config_generic
 
 def sdl_get_version ():

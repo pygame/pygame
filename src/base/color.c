@@ -276,7 +276,7 @@ PyTypeObject PyColor_Type =
 static int
 _get_color (PyObject *val, pguint32 *color)
 {
-    int intval;
+    unsigned int intval;
 
     if (!val || !color)
         return 0;
@@ -284,7 +284,6 @@ _get_color (PyObject *val, pguint32 *color)
     if (PyLong_Check (val))
     {
         unsigned long longval;
-        PyErr_Clear (); /* Clear any error from IntFromObj */
         longval = PyLong_AsUnsignedLong (val);
         if (PyErr_Occurred ())
         {
