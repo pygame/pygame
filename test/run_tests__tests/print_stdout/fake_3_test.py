@@ -1,5 +1,5 @@
+import sys
 if __name__ == '__main__':
-    import sys
     import os
     pkg_dir = (os.path.split(
                    os.path.split(
@@ -28,11 +28,11 @@ class KeyModuleTest(unittest.TestCase):
         self.assert_(True) 
 
     def test_get_pressed(self):
-        print 'jibberish ruins everything'
+        sys.stdout.write("jibberish ruins everything\n")
         self.assert_(False) 
 
     def test_name(self):
-        print 'forgot to remove debug crap'
+        sys.stdout.write("forgot to remove debug crap\n")
         self.assert_(True) 
 
     def test_set_mods(self):

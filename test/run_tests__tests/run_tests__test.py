@@ -18,7 +18,7 @@ NORMALIZERS = (
 def norm_result(result):
     "normalize differences, such as timing between output"
     for normalizer, replacement in NORMALIZERS:
-        if callable(normalizer):
+        if hasattr(normalizer, '__call__'):
             result = normalizer(result)
         else:
             result = re.sub(normalizer, replacement, result)
@@ -31,7 +31,7 @@ def call_proc(cmd, cd=None):
 	universal_newlines = True,
     )
     if proc.wait():
-        print cmd, proc.wait()
+        print ("%s %s" % (cmd, proc.wait()))
         raise Exception(proc.stdout.read())
 
     return proc.stdout.read()
@@ -63,9 +63,9 @@ test_suite_dirs = [x for x in os.listdir(main_dir)
 
 def assert_on_results(suite, single, sub):
     test = globals().get('%s_test' % suite)
-    if callable(test):
+    if hasattr(test, '__call_'):
         test(suite, single, sub)
-        print "assertions on %s OK" % suite
+        print ("assertions on %s OK" % (suite,))
 
 def incomplete_test(suite, *args):
     for results in args:
@@ -90,9 +90,9 @@ def failures1_test(suite, *args):
 
 base_cmd = [sys.executable, 'run_tests.py', '-i']
 
-cmd = base_cmd + ['-f']
-sub_cmd = base_cmd + ['-s', '-f']
-time_out_cmd =  base_cmd  + ['-t', '4', '-s', '-f', 'infinite_loop' ]
+cmd = base_cmd + ['-n', '-f']
+sub_cmd = base_cmd + ['-f']
+time_out_cmd =  base_cmd  + ['-t', '4', '-f', 'infinite_loop' ]
 
 passes = 0
 failed = False
@@ -105,30 +105,30 @@ for suite in test_suite_dirs:
 
     failed = normed_single != normed_subs
     if failed:
-        print '%s suite comparison FAILED\n' % suite
+        print ('%s suite comparison FAILED\n' % (suite,))
     else:
         passes += 1
-        print '%s suite comparison OK' % suite
+        print ('%s suite comparison OK' % (suite,))
     
     assert_on_results(suite, single, subs)
 
     if verbose or failed:
-        print "difflib.Differ().compare(single, suprocessed):\n"
-        print ''.join ( list(
+        print ("difflib.Differ().compare(single, suprocessed):\n")
+        print (''.join ( list(
             difflib.Differ().compare (
                 (unnormed_diff and single or normed_single).splitlines(1),
                 (unnormed_diff and subs or normed_subs).splitlines(1)
             ))
-        )
+        ))
 
-print "infinite_loop suite (subprocess mode timeout)",
+sys.stdout.write("infinite_loop suite (subprocess mode timeout) ")
 loop_test = call_proc(time_out_cmd, trunk_dir)
 assert "successfully terminated" in loop_test
 passes += 1
-print "OK"
+print ("OK")
 
-print "\n%s/%s suites pass" % (passes, len(test_suite_dirs) + 1)
+print ("\n%s/%s suites pass" % (passes, len(test_suite_dirs) + 1))
 
-print "\n-h for help"
+print ("\n-h for help")
 
 ################################################################################

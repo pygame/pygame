@@ -54,7 +54,7 @@ def TestCase_run(self, result=None):
         
         tests = result.tests[self.dot_syntax_name()]
         (realerr, realout), (stderr, stdout) =  redirect_output()
-        test_tags = list(get_tags(testMethod))
+        test_tags = list(get_tags(self.__class__, testMethod))
 
         if 0 or 'interactive' in test_tags:       # DEBUG
             restore_output(realerr, realout)
@@ -179,15 +179,15 @@ class TestTags:
             self.parent_modules[class_] = import_submodule(class_.__module__)
         return self.parent_modules[class_]
 
-    def __call__(self, obj):
-        if obj not in self.memoized:
-            parent_class  = obj.im_class
+    def __call__(self, parent_class, meth):
+        key = (parent_class, meth.__name__)
+        if key not in self.memoized:
             parent_module = self.get_parent_module(parent_class)
 
             module_tags = getattr(parent_module, '__tags__', [])
             class_tags  = getattr(parent_class,  '__tags__', [])
 
-            tags = TAGS_RE.search(getdoc(obj) or '')
+            tags = TAGS_RE.search(getdoc(meth) or '')
             if tags: test_tags = [t.strip() for t in tags.group(1).split(',')]
             else:    test_tags = []
         
@@ -201,15 +201,24 @@ class TestTags:
                 if add:     combined.update(add)
                 if remove:  combined.difference_update(remove)
     
-            self.memoized[obj] = combined
+            self.memoized[key] = combined
 
-        return self.memoized[obj]
+        return self.memoized[key]
 
 get_tags = TestTags()
 
 ################################################################################
 # unittest.TestLoader
 #
+def CmpToKey(mycmp):
+    'Convert a cmp= function into a key= function'
+    class K(object):
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) == -1
+    return K
+
 def getTestCaseNames(self, testCaseClass):
     def test_wanted(attrname, testCaseClass=testCaseClass,
                               prefix=self.testMethodPrefix):
@@ -217,8 +226,9 @@ def getTestCaseNames(self, testCaseClass):
         else:
             actual_attr = getattr(testCaseClass, attrname)
             return (
-                 callable(actual_attr) and
-                 not [t for t in  get_tags(actual_attr) if t in self.exclude]
+                 hasattr(actual_attr, '__call__') and
+                 not [t for t in  get_tags(testCaseClass, actual_attr)
+                      if t in self.exclude]
             )
 
     # TODO:
@@ -232,8 +242,8 @@ def getTestCaseNames(self, testCaseClass):
     #    def (test_[^ ]+)((?:\s+#.*\n?)+\s+)self\.assert_\(test_not_implemented\(\)\)
     # REPLACE:
     #    def todo_\1\2self.fail()
-    
-    testFnNames = filter(test_wanted, dir(testCaseClass))
+
+    testFnNames = [c for c in dir(testCaseClass) if test_wanted(c)]
 
     for baseclass in testCaseClass.__bases__:
         for testFnName in self.getTestCaseNames(baseclass):
@@ -243,7 +253,7 @@ def getTestCaseNames(self, testCaseClass):
     if self.randomize_tests: 
         random.shuffle(testFnNames)
     elif self.sortTestMethodsUsing:
-        testFnNames.sort(self.sortTestMethodsUsing)
+        testFnNames.sort(key=CmpToKey(self.sortTestMethodsUsing))
 
     return testFnNames
 
