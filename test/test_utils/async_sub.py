@@ -15,6 +15,9 @@ import sys
 import unittest
 import tempfile
 
+def geterror ():
+    return sys.exc_info()[1]
+
 if subprocess.mswindows:
     try:
         import ctypes
@@ -129,8 +132,8 @@ class Popen(subprocess.Popen):
                 (errCode, written) = WriteFile(x, input)
             except ValueError:
                 return self._close('stdin')
-            except (subprocess.pywintypes.error, Exception), why:
-                if why[0] in (109, errno.ESHUTDOWN):
+            except (subprocess.pywintypes.error, Exception):
+                if geterror()[0] in (109, errno.ESHUTDOWN):
                     return self._close('stdin')
                 raise
 
@@ -150,13 +153,16 @@ class Popen(subprocess.Popen):
                     (errCode, read) = ReadFile(x, nAvail, None)
             except ValueError:
                 return self._close(which)
-            except (subprocess.pywintypes.error, Exception), why:
-                if why[0] in (109, errno.ESHUTDOWN):
+            except (subprocess.pywintypes.error, Exception):
+                if geterror()[0] in (109, errno.ESHUTDOWN):
                     return self._close(which)
                 raise
             
             if self.universal_newlines:
-                read = self._translate_newlines(read)
+                # Translate newlines. For Python 3.x assume read is text.
+                # If bytes then another solution is needed.
+##                read = self._translate_newlines(read)
+                read = read.replace("\r\n", "\n").replace("\r", "\n")
             return read
 
     else:
@@ -177,8 +183,8 @@ class Popen(subprocess.Popen):
 
             try:
                 written = os.write(self.stdin.fileno(), input)
-            except OSError, why:
-                if why[0] == errno.EPIPE: #broken pipe
+            except OSError:
+                if geterror()[0] == errno.EPIPE: #broken pipe
                     return self._close('stdin')
                 raise
 
@@ -202,7 +208,7 @@ class Popen(subprocess.Popen):
                     return self._close(which)
     
                 if self.universal_newlines:
-                    r = self._translate_newlines(r)
+                    r = r.replace("\r\n", "\n").replace("\r", "\n")
                 return r
             finally:
                 if not conn.closed:
@@ -230,8 +236,9 @@ def proc_in_time_or_kill(cmd, time_out, wd = None, env = None):
         try:
             proc.kill()
             ret_code += 'and was successfully terminated"'
-        except Exception, e:
-            ret_code += 'and termination failed (exception: %s)"' % e
+        except Exception:
+            ret_code += ('and termination failed (exception: %s)"' %
+                         (geterror(),))
 
     return ret_code, ''.join(response)
 
@@ -255,12 +262,14 @@ def _example():
         shell, commands, tail = ('sh', ('ls', 'echo HELLO WORLD'), '\n')
     
     a = Popen(shell, stdin=PIPE, stdout=PIPE)
-    print a.read_async(),
+    sys.stdout.write(a.read_async())
+    sys.stdout.write(" ")
     for cmd in commands:
         a.send_all(cmd + tail)
-        print a.read_async(),
+        sys.stdout.write(a.read_async())
+        sys.stdout.write(" ")
     a.send_all('exit' + tail)
-    print a.read_async(e=0)
+    print (a.read_async(e=0))
     a.wait()
 
 ################################################################################
