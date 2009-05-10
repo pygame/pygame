@@ -1,13 +1,3 @@
-__tags__ = []
-
-try:
-    import pygame.font
-except NotImplementedError:
-    print ("pygame.font not included in this build.")
-    __tags__.append('not_implemented')
-except Exception:
-    pass
-
 if __name__ == '__main__':
     import sys
     import os

@@ -96,7 +96,7 @@ TIME_OUT = 30
 # DEFAULTS
 
 opt_parser.set_defaults (
-    exclude = 'interactive, not_implemented'
+    exclude = 'interactive',
 )
 
 ################################################################################
