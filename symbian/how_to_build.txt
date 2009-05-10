@@ -62,17 +62,25 @@ Checkout PNG library to symbian/deps/libpng
 
 === Building ===
 
-==== Using the release building script ====
-- Go to pygame/symbian directory
+==== Basic configuration ====
+
+1. Get certificates for the installer.
+-- http://wiki.forum.nokia.com/index.php/Creating_and_using_self-signed_certificate
+2. Go to pygame/symbian directory
+3. Run configure.py
+-- python configure.py cert=<path to .cer> privkey=<path to .key> passphrase=<password>
+-- Now you don't need to give this information each time you build.
+
+==== Optional configurations ====
 
 The pygame can be built against the official(or any) pys60 version. 
-Initialize the release script by giving it information about the python dll to be linked with
-and the sis file to be embedded.( UID is read directly from the sis package )
-- TODO: Not implemented yet!!
-- configure.py pythondll=python222 pys60_sis=Python_1.4.5_3rdEd.sis
-- configure.py pythondll=python25  pys60_sis=Python_1.9.0_3rdEd.sis
+
+- Initialize the release script by giving it information about the python dll to be linked with
+- Optionally the sis file to be embedded.( UID is read directly from the sis package )
+configure.py pythondll=python25 pys60_sis=Python_1.9.0_3rdEd.sis
 
 or
+!!! DEPRECATED. PyS60 CE based on Python 2.2 and not supported anymore. Maybe in the future.
 
 - Use BuildPygameRelease.py script to build the 'pygame_python' with PyS60 Community Edition,
   the depended libraries and the pygame itself. All in one.
@@ -87,6 +95,7 @@ configure.py pys60_ce_src=\projects\pys60ce\trunk\src
 # Use existing python sis. Need to configure the python dll for linker.
 configure.py build_python=False pys60_sis=official_python.sisx pythondll=python222.dll
 
+
 ==== Do the build ====
 
 Emulator:
@@ -94,7 +103,6 @@ Emulator:
 
 Device:
 - Run: BuildPygameRelease.py compiler=gcce release=urel
--- NOTE: The you can set your certificate information with configure.py
 
 
 === Misc info ===
