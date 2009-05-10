@@ -83,8 +83,11 @@ def run(*args, **kwds):
 
     Individual test modules may have a __tags__ attribute, a list of tag strings
     used to selectively omit modules from a run. By default only 'interactive'
-    modules such as cdrom_test are ignored. An interactive module must be run
-    from the console as a Python program.
+    and 'not_implemented' modules are ignored. An interactive module such as
+    cdrom takes user input. A 'not_implemented' module tests a pygame module
+    not available in the current build, either because it was not built, or
+    because some external dependency was not found. These have to be run from
+    the system console as a Python programs.
 
     This function can only be called once per Python session. It is not
     reentrant.
