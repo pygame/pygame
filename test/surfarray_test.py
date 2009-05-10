@@ -1,5 +1,13 @@
 __tags__ = ['array']
 
+try:
+    import numpy
+except ImportError:
+    try:
+        import Numeric
+    except ImportError:
+        __tags__.append('not_implemented')
+
 if __name__ == '__main__':
     import sys
     import os
