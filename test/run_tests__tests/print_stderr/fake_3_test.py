@@ -1,5 +1,5 @@
+import sys
 if __name__ == '__main__':
-    import sys
     import os
     pkg_dir = (os.path.split(
                    os.path.split(
@@ -19,7 +19,6 @@ if is_pygame_pkg:
 else:
     from test import test_utils
     from test.test_utils import unittest
-import sys
 
 class KeyModuleTest(unittest.TestCase):
     def test_get_focused(self):
@@ -32,7 +31,7 @@ class KeyModuleTest(unittest.TestCase):
         self.assert_(True) 
 
     def test_name(self):
-        print >> sys.stderr, 'jibberish messes things up'
+        sys.stderr.write("jibberish messes things up\n")
         self.assert_(False)
 
     def test_set_mods(self):
