@@ -1631,7 +1631,7 @@ MODINIT_DEFINE (color)
         MODINIT_ERROR;
     }
 
-    colordict = PyImport_ImportModule (IMPPREFIX "colordict");
+    colordict = PyImport_ImportModule ("pygame.colordict");
     if (colordict)
     {
         PyObject *_dict = PyModule_GetDict (colordict);
@@ -1656,7 +1656,7 @@ MODINIT_DEFINE (color)
 #if PY3
     module = PyModule_Create (&_module);
 #else
-    module = Py_InitModule3 ("color", NULL, _color_doc);
+    module = Py_InitModule3 ( MODPREFIX "color", NULL, _color_doc);
 #endif
     if (module == NULL) {
         Py_DECREF (_COLORDICT);
