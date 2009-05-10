@@ -1,14 +1,5 @@
 __tags__ = ['array']
 
-try:
-    import numpy
-except ImportError:
-    try:
-        import Numeric
-    except ImportError:
-        print ("no array package found")
-        __tags__.append('not_implemented')
-
 if __name__ == '__main__':
     import sys
     import os

@@ -1,13 +1,3 @@
-__tags__ = []
-
-try:
-    import pygame.mixer
-except NotImplementedError:
-    print ("pygame.mixer not included in this build.")
-    __tags__.append('not_implemented')
-except Exception:
-    pass
-
 #################################### IMPORTS ###################################
 
 if __name__ == '__main__':
