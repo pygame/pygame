@@ -59,7 +59,7 @@ class VideoCapturePlayer(object):
 
            self.get_and_flip()
            self.clock.tick()
-           print self.clock.get_fps()
+           print (self.clock.get_fps())
 
 def main():
     pygame.init()

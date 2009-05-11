@@ -27,8 +27,9 @@ try:
     from Numeric import *
     from RandomArray import *
 except ImportError:
-    raise SystemExit, 'This example requires Numeric and the pygame surfarray module'
+    raise SystemExit('This example requires Numeric and the pygame surfarray module')
 
+pygame.surfarray.use_arraytype('numeric')
 
 timer = 0
 def stopwatch(message = None):
@@ -39,7 +40,8 @@ def stopwatch(message = None):
         return
     now = pygame.time.get_ticks()
     runtime = (now - timer)/1000.0 + .001
-    print message, runtime, ('seconds\t(%.2ffps)'%(1.0/runtime))
+    print ("%s %s %s" %
+           (message, runtime, ('seconds\t(%.2ffps)'%(1.0/runtime))))
     timer = now
 
 

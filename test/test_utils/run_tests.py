@@ -7,15 +7,17 @@ if __name__ == '__main__':
 test_pkg_name = '.'.join(__name__.split('.')[0:-2])
 is_pygame_pkg = test_pkg_name == 'pygame.tests'
 if is_pygame_pkg:
-    from pygame.tests import test_utils, IGNORE, SUBPROCESS_IGNORE
-    from pygame.tests.test_utils import unittest, unittest_patch
+    from pygame.tests import test_utils
+    from pygame.tests.test_utils \
+         import unittest, unittest_patch, import_submodule
     from pygame.tests.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, test_failures, \
                 get_test_results, from_namespace, TEST_RESULTS_START, \
                 opt_parser
 else:
-    from test import test_utils, IGNORE, SUBPROCESS_IGNORE
-    from test.test_utils import unittest, unittest_patch
+    from test import test_utils
+    from test.test_utils \
+         import unittest, unittest_patch, import_submodule
     from test.test_utils.test_runner \
          import prepare_test_env, run_test, combine_results, test_failures, \
                 get_test_results, from_namespace, TEST_RESULTS_START, \
@@ -108,6 +110,16 @@ def run(*args, **kwds):
     option_time_out = options.pop('time_out', 120)
     option_fake = options.pop('fake', None)
     option_python = options.pop('python', sys.executable)
+    option_exclude = options.pop('exclude', ())
+
+    if 'interactive' not in option_exclude:
+        option_exclude += ('interactive',)
+    if not option_nosubprocess and 'subprocess_ignore' not in option_exclude:
+        option_exclude += ('subprocess_ignore',)
+    elif 'ignore' not in option_exclude:
+        option_exclude += ('ignore',)
+    if 'not_implemented' not in option_exclude:
+        option_exclude += ('not_implemented',)
 
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
     test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
@@ -144,16 +156,36 @@ def run(*args, **kwds):
             m.endswith('_test') and (fmt1 % m) or (fmt2 % m) for m in args
         ]
     else:
-        if option_nosubprocess:
-            ignore = IGNORE
-        else:
-            ignore = SUBPROCESS_IGNORE
-
         test_modules = []
         for f in sorted(os.listdir(test_subdir)):
             for match in TEST_MODULE_RE.findall(f):
-                if match not in ignore:
-                    test_modules.append(fmt1 % match)
+                test_modules.append(fmt1 % (match,))
+
+    ###########################################################################
+    # Remove modules to be excluded.
+
+    tmp = test_modules
+    test_modules = []
+    for name in tmp:
+        tag_module_name = "%s_tags" % (name[0:-5],)
+        try:
+            tag_module = import_submodule(tag_module_name)
+        except ImportError:
+            test_modules.append(name)
+        else:
+            try:
+                tags = tag_module.__tags__
+            except AttributeError:
+                print ("%s has no tags: ignoring" % (tag_module_name,))
+                test_module.append(name)
+            else:
+                for tag in tags:
+                    if tag in option_exclude:
+                        print ("skipping %s (tag '%s')" % (name, tag))
+                        break
+                else:
+                    test_modules.append(name)
+    del tmp, tag_module_name, name
 
     ###########################################################################
     # Meta results
@@ -177,11 +209,12 @@ def run(*args, **kwds):
     # Single process mode
 
     if option_nosubprocess:
-        unittest_patch.patch(**kwds)
+        unittest_patch.patch(**options)
 
+        options['exclude'] = option_exclude
         t = time.time()
         for module in test_modules:
-            results.update(run_test(module, **kwds))
+            results.update(run_test(module, **options))
         t = time.time() - t
 
     ###########################################################################
@@ -194,8 +227,8 @@ def run(*args, **kwds):
         else:
             from test.test_utils.async_sub import proc_in_time_or_kill
 
-        pass_on_args = []
-        for option in ['timings', 'exclude', 'seed']:
+        pass_on_args = ['--exclude', ','.join(option_exclude)]
+        for option in ['timings', 'seed']:
             value = options.pop(option, None)
             if value is not None:
                 pass_on_args.append('--%s' % option)
