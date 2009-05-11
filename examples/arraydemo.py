@@ -7,7 +7,7 @@ try:
     from pygame import surfarray
     from pygame.locals import *
 except ImportError:
-    raise ImportError, 'Error Importing Pygame/surfarray'
+    raise ImportError('Error Importing Pygame/surfarray')
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
@@ -26,7 +26,7 @@ def main(arraytype=None):
         elif 'numeric' in surfarray.get_arraytype():
             surfarray.use_arraytype('numeric')
         else:
-            raise ImportError, 'No array package is installed'
+            raise ImportError('No array package is installed')
     else:
         surfarray.use_arraytype(arraytype)
 
@@ -38,9 +38,9 @@ def main(arraytype=None):
         from Numeric import Int32 as int32
 
     pygame.init()
-    print 'Using', surfarray.get_arraytype().capitalize()
-    print 'Press the mouse button to advance image.'
-    print 'Press the "s" key to save the current image.'
+    print ('Using %s' % surfarray.get_arraytype().capitalize())
+    print ('Press the mouse button to advance image.')
+    print ('Press the "s" key to save the current image.')
 
     def surfdemo_show(array_img, name):
         "displays a surface, waits for user to continue"
@@ -64,7 +64,7 @@ def main(arraytype=None):
                 #pygame.image.save(s, name+'.tga')
                 pygame.image.save(screen, name+'.png')
             elif e.type == QUIT:
-                raise SystemExit
+                raise SystemExit()
 
     #allblack
     allblack = N.zeros((128, 128), int32)
@@ -143,9 +143,9 @@ def main(arraytype=None):
     pygame.quit()
 
 def usage():
-    print "Usage: command line option [--numpy|--numeric]"
-    print "  The default is to use NumPy if installed,"
-    print "  otherwise Numeric"
+    print ("Usage: command line option [--numpy|--numeric]")
+    print ("  The default is to use NumPy if installed,")
+    print ("  otherwise Numeric")
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:

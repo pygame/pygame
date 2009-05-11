@@ -20,16 +20,6 @@ though test/go.py can be run directly.
 
 """
 
-# Any tests in IGNORE will not be run
-IGNORE = set ([
-    "scrap_test",
-])
-
-# Subprocess has less of a need to worry about interference between tests
-SUBPROCESS_IGNORE = set ([
-    "scrap_test",
-])
-
 if __name__ == 'pygame.tests':
     from pygame.tests.test_utils.run_tests import run
 else:

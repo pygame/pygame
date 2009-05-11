@@ -85,6 +85,9 @@ try:
 except NameError:
     basestring = str
 
+def geterror():
+    return sys.exc_info()[1]
+
 ##############################################################################
 # Exported classes and functions
 ##############################################################################

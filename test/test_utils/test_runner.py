@@ -55,6 +55,16 @@ main_dir, test_subdir, fake_test_subdir = prepare_test_env()
 # options are shared with run_tests.py so make sure not to conflict
 # in time more will be added here
 
+TAG_PAT = r'-?[a-zA-Z0-9_]+'
+TAG_RE = re.compile(TAG_PAT)
+EXCLUDE_RE = re.compile("(%s,?\s*)+$" % (TAG_PAT,))
+
+def exclude_callback(option, opt, value, parser):
+    if EXCLUDE_RE.match(value) is None:
+        raise opt_parser.OptionValueError("%s argument has invalid value" %
+                                          (opt,))
+    parser.values.exclude = TAG_RE.findall(value)
+
 opt_parser = optparse.OptionParser()
 
 opt_parser.add_option (
@@ -73,7 +83,10 @@ opt_parser.add_option (
 
 opt_parser.add_option (
      "-e",  "--exclude",
-     help   = "exclude tests containing any of TAGS" )
+     action = 'callback',
+     type   = 'string',
+     help   = "exclude tests containing any of TAGS",
+     callback = exclude_callback)
 
 opt_parser.add_option (
      "-w",  "--show_output", action = 'store_true',
@@ -94,10 +107,6 @@ opt_parser.add_option (
 TIME_OUT = 30
 
 # DEFAULTS
-
-opt_parser.set_defaults (
-    exclude = 'interactive',
-)
 
 ################################################################################
 # Human readable output

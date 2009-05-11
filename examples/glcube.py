@@ -16,7 +16,7 @@ try:
     from OpenGL.GL import *
     from OpenGL.GLU import *
 except:
-    print 'The GLCUBE example requires PyOpenGL'
+    print ('The GLCUBE example requires PyOpenGL')
     raise SystemExit
 
 
