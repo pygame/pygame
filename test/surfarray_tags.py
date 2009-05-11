@@ -18,4 +18,4 @@ else:
         exclude = True
 
 if exclude:
-    __tags__.append('not_implemented')
+    __tags__.extend(('ignore', 'subprocess_ignore'))

@@ -40,8 +40,8 @@ def run(*args, **kwds):
     """Run the Pygame unit test suite and return (total tests run, fails dict)
 
     Positional arguments (optional):
-    The names of tests to include. If omitted then all tests are run. Test names
-    need not include the trailing '_test'.
+    The names of tests to include. If omitted then all tests are run. Test
+    names need not include the trailing '_test'.
 
     Keyword arguments:
     incomplete - fail incomplete tests (default False)
@@ -51,7 +51,8 @@ def run(*args, **kwds):
     file - if provided, the name of a file into which to dump failures/errors
     timings - if provided, the number of times to run each individual test to
               get an average run time (default is run each test once)
-    exclude - A list of TAG names to exclude from the run
+    exclude - A list of TAG names to exclude from the run. The items may be
+              comma or space separated.
     show_output - show silenced stderr/stdout on errors (default False)
     all - dump all results, not just errors (default False)
     randomize - randomize order of tests (default False)
@@ -67,26 +68,31 @@ def run(*args, **kwds):
              (default sys.executable)
 
     Return value:
-    A tuple of total number of tests run, dictionary of error information.
-    The dictionary is empty if no errors were recorded.
+    A tuple of total number of tests run, dictionary of error information. The
+    dictionary is empty if no errors were recorded.
 
-    By default individual test modules are run in separate subprocesses.
-    This recreates normal Pygame usage where pygame.init() and pygame.quit()
-    are called only once per program execution, and avoids unfortunate
-    interactions between test modules. Also, a time limit is placed on
-    test execution, so frozen tests are killed when there time allotment
-    expired. Use the single process option if threading is not working
-    properly or if tests are taking too long. It is not guaranteed that
-    all tests will pass in single process mode.
+    By default individual test modules are run in separate subprocesses. This
+    recreates normal Pygame usage where pygame.init() and pygame.quit() are
+    called only once per program execution, and avoids unfortunate
+    interactions between test modules. Also, a time limit is placed on test
+    execution, so frozen tests are killed when there time allotment expired.
+    Use the single process option if threading is not working properly or if
+    tests are taking too long. It is not guaranteed that all tests will pass
+    in single process mode.
 
-    Tests are run in a randomized order if the randomize argument is True
-    or a seed argument is provided. If no seed integer is provided then
-    the system time is used.
+    Tests are run in a randomized order if the randomize argument is True or a
+    seed argument is provided. If no seed integer is provided then the system
+    time is used.
 
-    Individual test modules may have a __tags__ attribute, a list of tag strings
-    used to selectively omit modules from a run. By default only 'interactive'
-    modules such as cdrom_test are ignored. An interactive module must be run
-    from the console as a Python program.
+    Individual test modules may have a corresponding *_tags.py module,
+    defining a __tags__ attribute, a list of tag strings used to selectively
+    omit modules from a run. By default only the 'interactive', 'ignore', and
+    'subprocess_ignore' tags are ignored. 'interactive' is for modules that
+    take user input, like cdrom_test.py. 'ignore' and 'subprocess_ignore' for
+    for disabling modules for foreground and subprocess modes respectively.
+    These are for disabling tests on optional modules or for experimental
+    modules with known problems. These modules can be run from the console as
+    a Python program.
 
     This function can only be called once per Python session. It is not
     reentrant.
@@ -118,8 +124,6 @@ def run(*args, **kwds):
         option_exclude += ('subprocess_ignore',)
     elif 'ignore' not in option_exclude:
         option_exclude += ('ignore',)
-    if 'not_implemented' not in option_exclude:
-        option_exclude += ('not_implemented',)
 
     main_dir, test_subdir, fake_test_subdir = prepare_test_env()
     test_runner_py = os.path.join(test_subdir, "test_utils", "test_runner.py")
