@@ -17,7 +17,7 @@ import traceback, sys
 from pygame.compat import geterror
 
 if sys.version_info[0] == 3:
-    from multiprocessing import Queue
+    from multiprocessing import JoinableQueue as Queue
     from queue import Empty
 elif (sys.version_info[0] == 2 and sys.version_info[1] < 5):
     from Py25Queue import Queue

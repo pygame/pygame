@@ -273,7 +273,7 @@ def patch(**kwds):
         option_seed = kwds['seed'] is not None
     except KeyError:
         option_seed = False
-    option_exclude = kwds.get('exclude', 'interactive')
+    option_exclude = kwds.get('exclude', ('interactive',))
     option_timings = kwds.get('timings', 1)
     option_show_output = kwds.get('show_output', False)
 
@@ -287,8 +287,7 @@ def patch(**kwds):
     unittest.TestLoader.randomize_tests = option_randomize or option_seed
 
     unittest.TestLoader.getTestCaseNames = getTestCaseNames
-    unittest.TestLoader.exclude = (
-        [e.strip() for e in option_exclude.split(',')] )
+    unittest.TestLoader.exclude = option_exclude
 
     # Timing
     unittest.TestCase.times_run = option_timings

@@ -20,6 +20,15 @@ import pygame
 from pygame import scrap
 
 class ScrapModuleTest(unittest.TestCase):
+    not_initialized = True
+
+    def setUp(self):
+        if self.not_initialized:
+            pygame.init ()
+            pygame.display.set_mode ((1, 1))
+            scrap.init ()
+            self.not_initialized = False
+
     def todo_test_contains(self):
 
         # __doc__ (as of 2008-08-02) for pygame.scrap.contains:
@@ -133,7 +142,4 @@ class ScrapModuleTest(unittest.TestCase):
         self.assertEquals (r, "buf")
 
 if __name__ == '__main__':
-    pygame.init ()
-    pygame.display.set_mode ((1, 1))
-    scrap.init ()
     unittest.main()

@@ -52,7 +52,7 @@ def input_main(device_id = None):
     else:
         input_id = device_id
 
-    print "using input_id :%s:" % input_id 
+    print ("using input_id :%s:" % input_id)
     i = pygame.midi.Input( input_id )
 
     pygame.display.set_mode((1,1))
@@ -68,7 +68,7 @@ def input_main(device_id = None):
             if e.type in [KEYDOWN]:
                 going = False
             if e.type in [pygame.midi.MIDIIN]:
-                print e
+                print (e)
 
         if i.poll():
             midi_events = i.read(10)
@@ -151,7 +151,7 @@ def output_main(device_id = None):
     else:
         port = device_id
 
-    print "using output_id :%s:" % port
+    print ("using output_id :%s:" % port)
 
 
 
@@ -769,9 +769,9 @@ def is_white_key(note):
 
 
 def usage():
-    print "--input [device_id] : Midi message logger"
-    print "--output [device_id] : Midi piano keyboard"
-    print "--list : list available midi devices"
+    print ("--input [device_id] : Midi message logger")
+    print ("--output [device_id] : Midi piano keyboard")
+    print ("--list : list available midi devices")
 
 def main(mode='output', device_id=None):
     """Run a Midi example
