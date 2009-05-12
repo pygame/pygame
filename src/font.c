@@ -593,6 +593,10 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
                 Py_DECREF (fileobj);
                 fileobj = font_resource (font_defaultname);
             }
+            else {
+                Py_DECREF (fileobj);
+                fileobj = NULL;
+            }
             if (!fileobj)
             {
                 PyErr_SetString (PyExc_IOError, "unable to read font filename");
@@ -637,7 +641,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
     return 0;
 
 error:
-    Py_DECREF (fileobj);
+    Py_XDECREF (fileobj);
     return -1;
 }
 
