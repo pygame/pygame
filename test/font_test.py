@@ -16,6 +16,7 @@ else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
 
+
 class FontModuleTest( unittest.TestCase ):
     def testFontRendering( self ):
         """ 
@@ -376,6 +377,16 @@ class FontTypeTest( unittest.TestCase ):
 
         self.fail() 
 
+    def test_font_file_not_found(self):
+        # A per BUG reported by Bo Jangeborg on pygame-user mailing list,
+        # http://www.mail-archive.com/pygame-users@seul.org/msg11675.html
+
+        pygame.font.init()
+
+        def fetch():
+            font = pygame.font.Font('some-fictional-font.ttf', 20)
+        self.failUnlessRaises(IOError, fetch)
+        
 
 if __name__ == '__main__':
     unittest.main()
