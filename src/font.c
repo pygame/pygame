@@ -589,19 +589,19 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
         test = fopen (filename, "rb");
         if(!test)
         {
+            PyObject *tmp = NULL;
+
             if (!strcmp (filename, font_defaultname)) {
-                Py_DECREF (fileobj);
-                fileobj = font_resource (font_defaultname);
+                tmp = font_resource (font_defaultname);
             }
-            else {
-                Py_DECREF (fileobj);
-                fileobj = NULL;
-            }
-            if (!fileobj)
+            if (!tmp)
             {
-                PyErr_SetString (PyExc_IOError, "unable to read font filename");
+                PyErr_SetString (PyExc_IOError,
+                                 "unable to read font filename");
                 goto error;
             }
+            Py_DECREF (fileobj);
+            fileobj = tmp;
         }
         else
         {
@@ -641,7 +641,7 @@ font_init (PyFontObject *self, PyObject *args, PyObject *kwds)
     return 0;
 
 error:
-    Py_XDECREF (fileobj);
+    Py_DECREF (fileobj);
     return -1;
 }
 
