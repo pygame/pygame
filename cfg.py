@@ -47,3 +47,6 @@ build['PNG'] = istrue (os.getenv ("WITH_PNG", True))
 # libjpeg support
 # This is used by Surface.save() to enable JPEG saving.
 build['JPEG'] = istrue (os.getenv ("WITH_JPEG", True))
+
+# freetype (module) support
+build['FREETYPE'] = istrue (os.getenv ("WITH_FREETYPE", True))

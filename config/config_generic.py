@@ -60,11 +60,11 @@ class Dependency (object):
     _searchdirs = []
     _libprefix = ""
 
-    def __init__(self, header_file, library_link_id,
+    def __init__(self, header_files, library_link_id,
             config_program = None, pkgconfig_name = None,
             extra_include_dirs = []):
 
-        self.header_file = header_file
+        self.header_files = header_files
 
         self.library_name = self._libprefix + library_link_id
         self.library_id = library_link_id
@@ -110,7 +110,6 @@ class Dependency (object):
             Recursively search all include dirs for the specified
             header file.
         """
-
         def _fi_recurse(top):
             for (path, dirnames, filenames) in os.walk(top):
                 if name in filenames:
@@ -130,13 +129,18 @@ class Dependency (object):
             the required headers and libraries in some default
             system folders.
         """
-        directory = self._find_incdir(self.header_file)
+        dirs = []
+        for h in self.header_files:
+            directory = self._find_incdir (h)
+            if directory is None:
+                return False
+            dirs.append (directory)
+        
         libdir = self._find_libdir (self.library_name)
-
-        if directory is None or libdir is None:
+        if libdir is None:
             return False
 
-        self.incdirs.append(directory)
+        self.incdirs.extend(dirs)
         self.libdirs.append(libdir)
         self.cflags.append("-DHAVE_" + self.library_id.upper())
         return True

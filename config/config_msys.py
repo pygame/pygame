@@ -1,6 +1,6 @@
 import os, glob
 from config import msys, helpers, dll
-from config import config_unix, config_generic, config_win
+from config import config_unix, config_generic, config_win, libconfig
 
 try:
     msys_obj = msys.Msys (require_mingw=False)
@@ -11,7 +11,7 @@ def sdl_get_version ():
     return config_unix.sdl_get_version()
 
 def get_sys_libs (module):
-    return config_win.get_sys_libs()
+    return config_win.get_sys_libs(module)
 
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries
@@ -76,28 +76,65 @@ def get_install_libs (cfg):
 
 
 class Dependency (config_unix.Dependency):
-    _searchdirs = [ "/usr", "/usr/local", "/mingw" ]
+    _searchdirs = [ "/usr", "/usr/local"]#, "/mingw" ]
     _incdirs = [ "include", "X11/include" ]
     _libdirs = [ "lib", "X11/lib" ]
-    _libprefix = ""
+    _libprefix = "lib"
 
     def _find_incdir (self, name):
         # Gets the include directory for the specified header file.
+        def _fi_recurse(top):
+            top = msys_obj.msys_to_windows (top)
+            for (path, dirnames, filenames) in os.walk (top):
+                if name in filenames:
+                    return path
+                for subfolder in dirnames:
+                    _fi_recurse(os.path.join (path, subfolder))
+
         for d in self._searchdirs:
             for g in self._incdirs:
-                p = msys_obj.msys_to_windows (os.path.join (d, g))
-                f = os.path.join (p, name)
-                if os.path.isfile (f):
-                    return p
-
+                p = _fi_recurse(os.path.join(d, g))
+                if p:
+                    return msys_obj.msys_to_windows (p)
+        
     def _find_libdir (self, name):
         # Gets the library directory for the specified library file.
         for d in self._searchdirs:
             for g in self._libdirs:
                 p = msys_obj.msys_to_windows (os.path.join (d, g))
-                f = os.path.join (p, name)
+                f = msys_obj.msys_to_windows (os.path.join (p, name))
                 if filter (os.path.isfile, glob.glob (f + '*')):
                     return p
+
+    def _configure_libconfig(self):
+        """
+            Configuration callback using a generic CONFIG tool
+        """
+        lc = self.library_config_program
+        found_header = False
+
+        if not lc or not libconfig.has_libconfig(lc):
+            return False
+
+        incdirs = libconfig.get_incdirs(lc)
+        for d in incdirs:
+            for h in self.header_files:
+                p = msys_obj.msys_to_windows (os.path.join(d, h))
+                if os.path.isfile(p):
+                    found_header = True
+                else:
+                    found_header = False
+        if not found_header:
+            return False
+
+        self.incdirs += incdirs
+        self.libdirs += libconfig.get_libdirs(lc)
+        self.libs += libconfig.get_libs(lc)
+        self.cflags += libconfig.get_cflags(lc)
+        self.lflags += libconfig.get_lflags(lc)
+        return True
+
+    _configure_libconfig.priority = 2
 
     def configure(self, cfg):
         """
@@ -105,8 +142,6 @@ class Dependency (config_unix.Dependency):
             that all the found paths are converted from MSYS to full
             Windows path.
         """
-        # self.incdirs and self.libdirs might be set already due to e.g.
-        # DependencySDL.
         self.incdirs = [ msys_obj.msys_to_windows (d) for d in self.incdirs ]
         self.libdirs = [ msys_obj.msys_to_windows (d) for d in self.libdirs ]
         

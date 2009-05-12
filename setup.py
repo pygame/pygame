@@ -77,6 +77,7 @@ if __name__ == "__main__":
         buildsystem, buildcflags = run_checks ()
     except:
         print (helpers.geterror ())
+        print (helpers.gettraceback ())
         sys.exit (1)
 
     os.environ["CFLAGS"] = ""

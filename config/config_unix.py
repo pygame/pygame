@@ -14,8 +14,8 @@ def sdl_get_version():
     """
     if pkgconfig.has_pkgconfig ():
         return pkgconfig.get_version ("sdl")[0]
-    elif libconfig.has_sdlconfig("sdl"):
-        return libconfig.get_version("sdl")[0]
+    elif libconfig.has_libconfig("sdl-config"):
+        return libconfig.get_version("sdl-config")[0]
 
     # TODO: SDL may be installed manually (i.e. compiled from
     # source). any way to find the version?
@@ -56,7 +56,6 @@ class Dependency (config_generic.Dependency):
         """
             Configuration callback using a generic CONFIG tool
         """
-
         lc = self.library_config_program
         found_header = False
 
@@ -64,11 +63,12 @@ class Dependency (config_generic.Dependency):
             return False
 
         incdirs = libconfig.get_incdirs(lc)
-
         for d in incdirs:
-            if os.path.isfile(os.path.join(d, self.header_file)):
-                found_header = True
-
+            for h in self.header_files:
+                if os.path.isfile(os.path.join(d, h)):
+                    found_header = True
+                else:
+                    found_header = False
         if not found_header:
             return False
 

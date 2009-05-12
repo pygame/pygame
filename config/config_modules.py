@@ -25,45 +25,45 @@ def get_dependencies(buildsystem, cfg):
 
     DEPENDENCIES = {
         'sdl' : dep(
-            'SDL.h', 'SDL',
+            ['SDL.h'], 'SDL',
             config_program='sdl-config',
             pkgconfig_name='sdl',
             extra_include_dirs = [pygame_sdl_path]),
 
         'sdl_mixer' : dep(
-            'SDL_mixer.h', 'SDL_mixer',
+            ['SDL_mixer.h'], 'SDL_mixer',
             config_program='sdl-config',
             pkgconfig_name='sdl',
             extra_include_dirs = [pygame_sdl_path]),
 
         'sdl_ttf' : dep(
-            'SDL_ttf.h', 'SDL_ttf',
+            ['SDL_ttf.h'], 'SDL_ttf',
             config_program='sdl-config',
             pkgconfig_name='sdl',
             extra_include_dirs = [pygame_sdl_path]),
 
         'sdl_gfx' : dep(
-            'SDL_framerate.h', 'SDL_gfx',
+            ['SDL_framerate.h'], 'SDL_gfx',
             config_program='sdl-config',
             pkgconfig_name='sdl',
             extra_include_dirs = [pygame_sdl_path]),
 
         'sdl_image' : dep(
-            'SDL_image.h', 'SDL_image',
+            ['SDL_image.h'], 'SDL_image',
             config_program='sdl-config',
             pkgconfig_name='sdl',
             extra_include_dirs = [pygame_sdl_path]),
 
         'png' : dep(
-            'png.h', 'png',
+            ['png.h'], 'png',
             pkgconfig_name='libpng'),
 
         'jpeg' : dep(
-            'jpeglib.h', 'jpeg',
+            ['jpeglib.h'], 'jpeg',
             pkgconfig_name='libjpeg'),
 
         'freetype' : dep(
-            'freetype.h', 'freetype',
+            ['freetype.h', 'ft2build.h'], 'freetype',
             pkgconfig_name='freetype2',
             config_program='freetype-config'),
     }

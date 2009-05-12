@@ -26,7 +26,6 @@ Things to FIX:
 * sdl.mouse.cursors, NOT pygame2.sdl.cursors or whatever
 * sdlext.transform.threshod_* -> clip_rect, surfaces with different sizes
 * documentation
-* get rid of os.system() output under msys (2>/dev/null does not seem to work)
 * correct argument checks in pyg_scrap* functions
 * check for clipboard resource destruction within pygame.sdlext.scrap.
 * uniform method and argument layout (see sdlext.draw and sdlgfx.primitives
