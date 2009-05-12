@@ -3,13 +3,32 @@ try:
 except:
     import pgunittest as unittest
 
+import random
 import pygame2
 import pygame2.mask
 from pygame2.mask import Mask
 import pygame2.sdl.video as video
 import pygame2.sdl.constants as sdlconst
 
+
+def random_mask(size = (100,100)):
+    """random_mask(size=(100,100)): return Mask
+    Create a mask of the given size, with roughly half the bits set at
+    random."""
+    m = Mask(size)
+    for i in range(size[0] * size[1] // 2):
+        x, y = random.randint(0,size[0] - 1), random.randint(0, size[1] - 1)
+        m.set_at((x,y))
+    return m
+
 class MaskTest (unittest.TestCase):
+
+    def assertMaskEquals(self, m1, m2):
+        self.assertEquals(m1.size, m2.size)
+        for i in range(m1.size[0]):
+            for j in range(m1.size[1]):
+                self.assertEquals(m1.get_at((i,j)), m2.get_at((i,j)))
+
     def todo_test_pygame2_mask_Mask_angle(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.angle:
@@ -112,6 +131,7 @@ class MaskTest (unittest.TestCase):
         self.assertEquals(len(comps2), 1)
         self.assertEquals(len(comps3), 0)
 
+
     def todo_test_pygame2_mask_Mask_count(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.count:
@@ -119,6 +139,27 @@ class MaskTest (unittest.TestCase):
         # Gets the amount of bits in the Mask.
 
         self.fail() 
+
+    def test_pygame2_mask_Mask_convolve(self):
+
+        # __doc__ (as of 2009-05-11) for pygame2.mask.Mask.convolve:
+
+        # Mask.convolve (mask[, outputmask, point]) -> Mask
+        #
+        # Return the convolution with another Mask.Returns a Mask with
+        # the [x-offset[0], y-offset[1]] bitset if shifting *mask* so
+        # that it's lower right corner pixel isat (x, y) would cause it
+        # to overlap with self.If an *outputmask* is specified, the
+        # output is drawn onto*outputmask* and *outputmask* is
+        # returned. Otherwise a mask ofsize size + *mask*.size - (1, 1)
+        # is created.
+        m1 = random_mask((100,100))
+        m2 = random_mask((100,100))
+        conv = m1.convolve(m2)
+        for i in range(conv.size[0]):
+            for j in range(conv.size[1]):
+                self.assertEquals(conv.get_at((i,j)) == 0,
+                                  m1.overlap(m2, (i - 99, j - 99)) is None)
 
     def test_pygame2_mask_Mask_draw(self):
 
@@ -167,15 +208,18 @@ class MaskTest (unittest.TestCase):
 
         self.fail() 
 
-    def todo_test_pygame2_mask_Mask_fill(self):
+    def test_pygame2_mask_Mask_fill(self):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.Mask.fill:
 
         # Mask.fill () -> None
         # 
         # Sets all bits to 1 within the Mask.
-
-        self.fail() 
+        m = Mask((100,100))
+        self.assertEqual(m.count, 0)
+        
+        m.fill()
+        self.assertEqual(m.count, 10000)
 
     def todo_test_pygame2_mask_Mask_get_at(self):
 
@@ -511,6 +555,80 @@ class MaskTest (unittest.TestCase):
             self.assertEqual (mask.count, 100)
             self.assertEqual (mask.get_bounding_rects(),
                               [pygame2.Rect (40, 40, 10, 10)])
+
+    def test_drawing (self):
+        """ Test fill, clear, invert, draw, erase
+        """
+        m = Mask((100,100))
+        self.assertEqual(m.count, 0)
+        
+        m.fill()
+        self.assertEqual(m.count, 10000)
+
+        m2 = Mask((10,10))
+        m2.fill()
+        m.erase(m2, (50,50))
+        self.assertEqual(m.count, 9900)
+        
+        m.invert()
+        self.assertEqual(m.count, 100)
+        
+        m.draw(m2, (0,0))
+        self.assertEqual(m.count, 200)    
+        
+        m.clear()
+        self.assertEqual(m.count, 0)
+
+
+    def test_convolve__size(self):
+        sizes = [(1,1), (31,31), (32,32), (100,100)]
+        for s1 in sizes:
+            m1 = Mask(s1)
+            for s2 in sizes:
+                m2 = Mask(s2)
+                o = m1.convolve(m2)
+                for i in (0,1):
+                    self.assertEquals(o.size[i], m1.size[i] + m2.size[i] - 1)
+
+    def test_convolve__point_identities(self):
+        """Convolving with a single point is the identity, while
+        convolving a point with something flips it."""
+        m = random_mask((100,100))
+        k = Mask((1,1))
+        k.set_at((0,0))
+
+        self.assertMaskEquals(m,m.convolve(k))
+        self.assertMaskEquals(m,k.convolve(k.convolve(m)))
+
+    def test_convolve__with_output(self):
+        """checks that convolution modifies only the correct portion of
+        the output"""
+        m = random_mask((10,10))
+        k = Mask((2,2))
+        k.set_at((0,0))
+
+        o = Mask((50,50))
+        test = Mask((50,50))
+
+        m.convolve(k,o)
+        test.draw(m,(1,1))
+        self.assertMaskEquals(o, test)
+
+        o.clear()
+        test.clear()
+
+        m.convolve(k,o, (10,10))
+        test.draw(m,(11,11))
+        self.assertMaskEquals(o, test)
+
+    def test_convolve__out_of_range(self):
+        full = Mask((2,2))
+        full.fill()
+
+        self.assertEquals(full.convolve(full, None, ( 0,  3)).count, 0)
+        self.assertEquals(full.convolve(full, None, ( 0,  2)).count, 3)
+        self.assertEquals(full.convolve(full, None, (-2, -2)).count, 1)
+        self.assertEquals(full.convolve(full, None, (-3, -3)).count, 0)
 
 if __name__ == "__main__":
     unittest.main ()

@@ -35,6 +35,12 @@ DoubleFromObj (PyObject* obj, double* val)
     PyObject* floatobj;
     double tmp;
 
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyNumber_Check (obj))
     {
         if (!(floatobj = PyNumber_Float (obj)))
@@ -54,6 +60,12 @@ IntFromObj (PyObject* obj, int* val)
 {
     PyObject* intobj;
     long tmp;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
     
     if (PyNumber_Check (obj))
     {
@@ -81,6 +93,12 @@ UintFromObj (PyObject* obj, unsigned int* val)
     PyObject* intobj;
     long tmp;
     
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyNumber_Check (obj))
     {
         if (!(intobj = PyNumber_Int (obj)))
@@ -112,6 +130,13 @@ IntFromSeqIndex (PyObject* obj, Py_ssize_t _index, int* val)
 {
     int result = 0;
     PyObject* item;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     item = PySequence_GetItem (obj, _index);
     if (item)
     {
@@ -126,6 +151,13 @@ UintFromSeqIndex (PyObject* obj, Py_ssize_t _index, unsigned int* val)
 {
     int result = 0;
     PyObject* item;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     item = PySequence_GetItem (obj, _index);
     if (item)
     {
@@ -140,6 +172,13 @@ DoubleFromSeqIndex (PyObject* obj, Py_ssize_t _index, double* val)
 {
     int result = 0;
     PyObject* item;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     item = PySequence_GetItem (obj, _index);
     if (item)
     {
@@ -152,6 +191,12 @@ DoubleFromSeqIndex (PyObject* obj, Py_ssize_t _index, double* val)
 int
 PointFromObject (PyObject *obj, int *x, int *y)
 {
+    if (!obj || !x || !y)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyRect_Check (obj))
     {
         *x = (int) ((PyRect*)obj)->x;
@@ -181,6 +226,12 @@ failed:
 int
 FPointFromObject (PyObject *obj, double *x, double *y)
 {
+    if (!obj || !x || !y)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyRect_Check (obj))
     {
         *x = (double) ((PyRect*)obj)->x;
@@ -210,6 +261,12 @@ failed:
 int
 SizeFromObject (PyObject *obj, pgint32 *w, pgint32 *h)
 {
+    if (!obj || !w || !h)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyRect_Check (obj))
     {
         *w = (pgint32) ((PyRect*)obj)->w;
@@ -240,6 +297,12 @@ failed:
 int
 FSizeFromObject (PyObject *obj, double *w, double *h)
 {
+    if (!obj || !w || !h)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyRect_Check (obj))
     {
         *w = (double) ((PyRect*)obj)->w;
@@ -270,6 +333,12 @@ failed:
 int
 ASCIIFromObject (PyObject *obj, char **text, PyObject **freeme)
 {
+    if (!obj || !text || !freeme)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     *freeme = NULL;
     *text = NULL;
 
@@ -291,6 +360,12 @@ ASCIIFromObject (PyObject *obj, char **text, PyObject **freeme)
 int
 UTF8FromObject (PyObject *obj, char **text, PyObject **freeme)
 {
+    if (!obj || !text || !freeme)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     *freeme = NULL;
     *text = NULL;
 

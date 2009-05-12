@@ -196,6 +196,12 @@ Uint8FromObj (PyObject *item, Uint8 *val)
     PyObject* intobj;
     long tmp;
     
+    if (!item || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyNumber_Check (item))
     {
         if (!(intobj = PyNumber_Int (item)))
@@ -222,6 +228,12 @@ Uint16FromObj (PyObject *item, Uint16 *val)
     PyObject* intobj;
     long tmp;
     
+    if (!item || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyNumber_Check (item))
     {
         if (!(intobj = PyNumber_Int (item)))
@@ -248,6 +260,12 @@ Sint16FromObj (PyObject *item, Sint16 *val)
     PyObject* intobj;
     long tmp;
     
+    if (!item || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyNumber_Check (item))
     {
         if (!(intobj = PyNumber_Int (item)))
@@ -269,6 +287,12 @@ Uint32FromObj (PyObject *item, Uint32 *val)
     PyObject* longobj;
     unsigned long tmp;
     
+    if (!item || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyNumber_Check (item))
     {
         if (!(longobj = PyNumber_Long (item)))
@@ -289,6 +313,13 @@ Uint8FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint8* val)
 {
     int result = 0;
     PyObject* item;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     item = PySequence_GetItem (obj, _index);
     if (item)
     {
@@ -303,6 +334,13 @@ Uint16FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint16* val)
 {
     int result = 0;
     PyObject* item;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     item = PySequence_GetItem (obj, _index);
     if (item)
     {
@@ -317,6 +355,13 @@ Sint16FromSeqIndex (PyObject* obj, Py_ssize_t _index, Sint16* val)
 {
     int result = 0;
     PyObject* item;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     item = PySequence_GetItem (obj, _index);
     if (item)
     {
@@ -331,6 +376,13 @@ Uint32FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint32* val)
 {
     int result = 0;
     PyObject* item;
+
+    if (!obj || !val)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     item = PySequence_GetItem (obj, _index);
     if (item)
     {
@@ -343,6 +395,12 @@ Uint32FromSeqIndex (PyObject* obj, Py_ssize_t _index, Uint32* val)
 static int
 IsValidRect (PyObject* rect)
 {
+    if (!rect)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+    
     if (PyRect_Check (rect) || PyFRect_Check (rect))
         return 1;
     else if (PySequence_Check (rect) && PySequence_Size (rect) == 4)
@@ -369,6 +427,12 @@ failed:
 static int
 SDLRect_FromRect (PyObject* rect, SDL_Rect *sdlrect)
 {
+    if (!rect || !sdlrect)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return 0;
+    }
+
     if (PyRect_Check (rect))
     {
         sdlrect->x = (Sint16) ((PyRect*)rect)->x;

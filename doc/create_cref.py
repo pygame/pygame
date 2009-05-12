@@ -5,12 +5,14 @@ try:
 except ImportError:
     import io as stringio
 
-def prepare_text (text):
+def prepare_text (text, stripbefore=False):
     newtext = ""
     tmptext = ""
+    if stripbefore:
+        text = text.strip ("\n")
     text = text.replace ("\"", "\\\"")
     lines = text.split ("\n")
-    nn = "normalize" in text
+    
         
     for l in lines:
         l = l.strip ().replace ("::", "")
@@ -19,6 +21,7 @@ def prepare_text (text):
             l = l.replace (":const:", "       ")
             l = l.replace (":class:", "       ")
             l = l.replace (":meth:", "      ")
+            l = l.replace (":attr:", "      ")
             l = l.replace (":ref:", "     ")
             l = l.replace (":exc:", "     ")
             l = l.replace ("`", " ")
@@ -26,13 +29,14 @@ def prepare_text (text):
             l = l.replace (":const:", "")
             l = l.replace (":class:", "")
             l = l.replace (":meth:", "")
+            l = l.replace (":attr:", "")
             l = l.replace (":ref:", "")
             l = l.replace (":exc:", "")
             l = l.replace ("`", "")
         l = l.replace (".. note::", "NOTE:")
 
         tmptext += l + "\\n"
-    tmptext = tmptext.replace ("\\n", "")
+    tmptext = tmptext.strip ("\\n")
     while len (tmptext) > 1900:
         # Split after 2000 characters to avoid problems with the Visual
         # C++ 2048 character limit.
@@ -51,7 +55,7 @@ def create_cref (dom, buf):
     node = module.getElementsByTagName ("desc")
     if node and node[0].firstChild:
         desc = node[0].firstChild.nodeValue
-        desc = prepare_text (desc)
+        desc = prepare_text (desc, True)
     
     buf.write ("#ifndef _PYGAME2_DOC%s_H_\n" % headname)
     buf.write ("#define _PYGAME2_DOC%s_H_\n\n" % headname)
@@ -69,13 +73,15 @@ def create_func_refs (module, docprefix, buf):
         call = ""
         node = func.getElementsByTagName ("call")
         if node and node[0].firstChild:
-            call = node[0].firstChild.nodeValue + "\n"
+            call = node[0].firstChild.nodeValue
         node = func.getElementsByTagName ("desc")
-        desc = call
+        desc = ""
         if node and node[0].firstChild:
             desc += node[0].firstChild.nodeValue
         desc = prepare_text (desc)
-        buf.write ("#define %s \"%s\"\n" % (docprefix + name, desc))
+        call = prepare_text (call, True)
+        buf.write ("#define %s \"%s\\n\\n%s\"\n" % \
+                   (docprefix + name, call, desc))
     
 def create_class_refs (module, docprefix, buf):
     classes = module.getElementsByTagName ("class")
@@ -84,13 +90,16 @@ def create_class_refs (module, docprefix, buf):
         node = cls.getElementsByTagName ("constructor")
         constructor = "TODO\n"
         if node and node[0].firstChild:
-            constructor = node[0].firstChild.nodeValue + "\n"
-        desc = constructor
+            constructor = node[0].firstChild.nodeValue
+            constructor = prepare_text (constructor, True)
+        desc = ""
         node = cls.getElementsByTagName ("desc")
         if node and node[0].firstChild:
             desc += node[0].firstChild.nodeValue
         desc = prepare_text (desc)
-        buf.write ("#define %s \"%s\"\n" % (docprefix + name, desc))
+        constructor
+        buf.write ("#define %s \"%s\\n\\n%s\"\n" % \
+                   (docprefix + name, constructor, desc))
 
         attrs = cls.getElementsByTagName ("attr")
         attrprefix = docprefix + name + "_"
@@ -117,12 +126,12 @@ def create_method_ref (method, prefix, buf):
     desc = ""
     node = method.getElementsByTagName ("call")
     if node and node[0].firstChild:
-        call = node[0].firstChild.nodeValue + "\n"
+        call = node[0].firstChild.nodeValue
     node = method.getElementsByTagName ("desc")
     if node and node[0].firstChild:
         desc += node[0].firstChild.nodeValue
     desc = prepare_text (desc)
-    call = prepare_text (call)
+    call = prepare_text (call, True)
     buf.write ("#define %s \"%s\\n\\n%s\"\n" % (prefix + name, call, desc))
 
 def create_c_header (infile, outfile):

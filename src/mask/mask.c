@@ -891,33 +891,40 @@ _mask_getboundingrects (PyObject* self)
 static PyObject*
 _mask_convolve (PyObject* self, PyObject* args)
 {
-    PyObject *pt, *cmask, *outmask = NULL;
+    PyObject *pt = NULL, *cmask, *outmask = NULL;
     bitmask_t *a, *b, *o;
     int x = 0, y = 0;
 
-    if (!PyArg_ParseTuple (args, "O!|OO", &PyMask_Type, &cmask, &outmask, &pt))
+    if (!PyArg_ParseTuple (args, "O|OO", &cmask, &outmask, &pt))
     {
         PyErr_Clear ();
         if (!PyArg_ParseTuple (args, "O|Oii", &cmask, &outmask, &x, &y))
             return NULL;
     }
-    else
+    else if (pt)
     {
         if (!PointFromObject (pt, &x, &y))
             return NULL;
     }
     
-    if (outmask && !PyMask_Check (outmask))
+    if (cmask && !PyMask_Check (cmask))
     {
-        PyErr_SetString (PyExc_TypeError, "outmask must be a Mask");
+        PyErr_SetString (PyExc_TypeError, "mask must be a Mask");
         return NULL;
     }
+
+    if (outmask && outmask != Py_None && !PyMask_Check (outmask))
+    {
+        PyErr_SetString (PyExc_TypeError, "outputmask must be a Mask");
+        return NULL;
+    }
+
     a = PyMask_AsBitmask (self);
     b = PyMask_AsBitmask (cmask);
 
     /* outmask->w < a->w + b->w - 1 && outmask->h < a->h + b->h - 1 is
      * automatically handled by the convolve/bitmask_draw functions */
-    if (!outmask)
+    if (!outmask || outmask == Py_None)
     {
         outmask = PyMask_New (a->w + b->w - 1, a->h + b->h  - 1);
         if (!outmask)
@@ -927,7 +934,7 @@ _mask_convolve (PyObject* self, PyObject* args)
         Py_INCREF (outmask);
 
     o = PyMask_AsBitmask (outmask);
-    
+
     bitmask_convolve(a, b, o, x, y);
 
     return outmask;
