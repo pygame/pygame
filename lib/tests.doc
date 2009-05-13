@@ -2,9 +2,9 @@ pygame.tests
 Pygame unit test suite package
 
 A quick way to run the test suite package from the command line
-is by importing the go submodule:
+is to import the go submodule with the Python -m option:
 
-python -c "import pygame.tests.go" [&lt;test options&gt;]
+  python -m pygame.tests.go [&lt;test options&gt;]
 
 Command line option --help displays a usage message. Available options
 correspond to the pygame.tests.run arguments.
@@ -16,6 +16,18 @@ useful if the test, such as cdrom_test, is interactive.
 For Pygame development the test suite can be run from a Pygame 
 distribution root directory. Program run_tests.py is provided for convenience,
 though test/go.py can be run directly.
+
+Module level tags control which modules are included in a unit test run.
+Tags are assigned to a unit test module with a corresponding &lt;name&gt;_tags.py
+module. The tags module has the global __tags__, a list of tag names. For
+example, cdrom_test.py has a tag file cdrom_tags.py containing a tags list
+that has the 'interactive' string. The 'interactive' tag indicates
+cdrom_test.py expects user input. It is excluded from a run_tests.py or
+pygame.tests.go run. Two other tags that are excluded are 'ignore' and
+'subprocess_ignore'. These two tags indicate unit tests that will not run
+on a particular platform, or for which no corresponding Pygame module is
+available. The test runner will list each excluded module along with the
+tag responsible.
 <SECTION>
 
 
