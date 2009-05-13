@@ -84,4 +84,3 @@ class Dependency (config_generic.Dependency):
     _libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release",
                  "lib"]
     _libprefix = ""
-

@@ -24,7 +24,6 @@ def sdl_get_version():
 def get_install_libs(cfg):
     return []
 
-
 class Dependency (config_generic.Dependency):
     _searchdirs = [ "/usr", "/usr/local" ]
     _incdirs = [ "include", "X11/include" ]
@@ -67,8 +66,6 @@ class Dependency (config_generic.Dependency):
             for h in self.header_files:
                 if os.path.isfile(os.path.join(d, h)):
                     found_header = True
-                else:
-                    found_header = False
         if not found_header:
             return False
 

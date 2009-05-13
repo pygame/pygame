@@ -1,13 +1,24 @@
-import os
-from config import msys
+import subprocess
+from config import msys, helpers
+try:
+    msys_obj = msys.Msys (require_mingw=False)
+except:
+    msys_obj = None
+
+def run_command (cmd):
+    if msys.is_msys():
+        return msys_obj.run_shell_command (cmd)
+    else:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        output = p.communicate()[0]
+        if helpers.getversion()[0] >= 3:
+            output = str (output, "ascii")
+        return p.returncode, output
 
 def exec_pkgconfig (package, flags, repl=None):
-    if msys.is_msys ():
-        pipe = os.popen ("sh pkg-config %s %s" % (flags, package), "r")
-    else:
-        pipe = os.popen ("pkg-config %s %s" % (flags, package), "r")
-    data = pipe.readline ().strip ()
-    pipe.close ()
+    cmd = ["pkg-config", flags, package]
+    data = run_command (cmd)[1]
     if data and repl:
         return data.replace (repl, "").split ()
     return data.split ()
@@ -31,12 +42,10 @@ def get_version (package):
     return exec_pkgconfig (package, "--modversion")
 
 def exists (package):
-    pipe = os.popen ("pkg-config --exists %s" % package, "r")
-    ret = pipe.close ()
-    return ret in (None, 0)
+    cmd = ["pkg-config", "--exists", package]
+    return run_command (cmd)[0] in (None, 0)
 
 def has_pkgconfig ():
-    if msys.is_msys():
-        return os.system ("sh pkg-config --version") == 0
-    else:
-        return os.system ("pkg-config --version > /dev/null 2>&1") == 0
+    cmd = ["pkg-config", "--version"]
+    return run_command (cmd)[0] == 0
+    return True

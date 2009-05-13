@@ -122,8 +122,6 @@ class Dependency (config_unix.Dependency):
                 p = msys_obj.msys_to_windows (os.path.join(d, h))
                 if os.path.isfile(p):
                     found_header = True
-                else:
-                    found_header = False
         if not found_header:
             return False
 

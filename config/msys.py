@@ -6,7 +6,7 @@
 exports msys_raw_input, MsysException, Msys
 """
 
-from config import helpers
+#from config.helpers import *
 from config.msysio import raw_input_ as msys_raw_input, print_ as msys_print
 from config.msysio import is_msys
 import os
@@ -288,18 +288,19 @@ class Msys(object):
         The first list entry  must be the MSYS path name of a bash shell
         script file.
         """
-        
         args = [self.shell]
         if not self._is_msys:
             args.append('--login')
         args.extend(command)
         previous_cwd = os.getcwd()
         try:
-            return subprocess.Popen(args,
-                                    stdout=subprocess.PIPE,
-                                    env=self.environ).communicate()[0]
+            p = subprocess.Popen(args, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 env=self.environ)
+            output = p.communicate()[0]
+            return p.returncode, output
         finally:
-            time.sleep(3)  # Allow shell subprocesses to terminate.
+            #time.sleep(3)  # Allow shell subprocesses to terminate.
             os.chdir(previous_cwd)
 
 __all__ = ['Msys', 'msys_raw_input', 'msys_print', 'MsysException']

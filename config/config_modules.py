@@ -1,6 +1,6 @@
 import os, sys
 from config import helpers
-from config import config_msys, config_unix, config_win, config_darwin
+from config import config_unix, config_win, config_darwin, config_msys
 from config.config_generic import Dependency
 
 OS_MODULES = {

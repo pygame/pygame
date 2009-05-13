@@ -1,14 +1,24 @@
-import os
-from config import msys
+import subprocess
+from config import msys, helpers
+try:
+    msys_obj = msys.Msys (require_mingw=False)
+except:
+    msys_obj = None
+
+def run_command (cmd):
+    if msys.is_msys():
+        return msys_obj.run_shell_command (cmd)
+    else:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        output = p.communicate()[0]
+        if helpers.getversion()[0] >= 3:
+            output = str (output, "ascii")
+        return p.returncode, output
 
 def exec_config(libconfig, flags):
-    if msys.is_msys ():
-        pipe = os.popen ("sh %s %s " % (libconfig, flags), "r")
-    else:
-        pipe = os.popen ("%s %s " % (libconfig, flags), "r")
-    data = pipe.readline ().strip ()
-    pipe.close ()
-    return data.split ()
+    cmd = [libconfig, flags]
+    return run_command (cmd)[1].split ()
 
 def get_incdirs(libconfig):
     flags = exec_config (libconfig, "--cflags")
@@ -56,7 +66,5 @@ def get_version(libconfig):
     return exec_config(libconfig, "--version")
 
 def has_libconfig(libconfig):
-    if msys.is_msys ():
-        return os.system ("sh %s --version" % libconfig) == 0
-    else:
-        return os.system ("%s --version > /dev/null 2>&1" % libconfig) == 0
+    cmd = [libconfig, "--version"]
+    return run_command (cmd)[0] == 0
