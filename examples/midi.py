@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """Contains an example of midi input, and a separate example of midi output.
 
 By default it runs the output example.
