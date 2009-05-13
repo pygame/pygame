@@ -5,8 +5,16 @@ These examples should help get you started with pygame. Here is a
 brief rundown of what you get. The source code for these examples
 is in the public domain. Feel free to use for your own projects.
 
-These examples can be run as stand-alone programs, or as described
-below, by importing the module and calling its main().
+There are several ways to run the examples. First they can be run
+as stand-alone programs. Second they can be imported and their
+main() methods called (see below). Finally, the prefered way is
+with the pygame.examples.go module:
+
+python -c "import pygame.examples.go" <example name> <example arguments>
+
+To list available examples:
+
+python -c "import pygame.examples.go" --list
 
 Resources for the examples are found in the pygame/examples/data
 subdirectory.
