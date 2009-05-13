@@ -7,14 +7,14 @@ is in the public domain. Feel free to use for your own projects.
 
 There are several ways to run the examples. First they can be run
 as stand-alone programs. Second they can be imported and their
-main() methods called (see below). Finally, the prefered way is
-with the pygame.examples.go module:
+main() methods called (see below). Finally, the easiest way is
+to use the python -m option:
 
-python -c "import pygame.examples.go" <example name> <example arguments>
+   python -m pygame.examples.&lt;example name&gt; &lt;example arguments&gt;
 
-To list available examples:
+eg:
 
-python -c "import pygame.examples.go" --list
+   python -m pygame.examples.scaletest someimage.png
 
 Resources for the examples are found in the pygame/examples/data
 subdirectory.
