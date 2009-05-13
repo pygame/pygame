@@ -5,26 +5,143 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+[SVN 2118] May 12, 2009
+    [BUG] Fixed bug in font.c where pygame.font.Font returned the wrong
+    exception type and message when a font file was not found.
+    Thanks Bo Jangeborg.
+
+[SVN 2114] May 10, 2009
+    Add <module>_tags.py modules to pygame.tests. This is an alternative
+    module level __tags__ globals in the unit test <module>_test.py files
+    themselves. The __tags__ global is placed in the corresponding
+    <module>_tags.py file instead. This means test modules can be skipped
+    by the pygame.tests.go test framework without actually loading the
+    test module and running possibly problematic code. It also means
+    the test framework can report on which test modules were skipped
+    and why.
+
+[SVN 2104] May 9, 2009
+    [BUG] pygame.transform.threshold behaved incorrectly when passed a
+    Python long for the threshold argument.
+
+[SVN 2112] May 9, 2009
+    Pygame unit test framework now works with Python 3.1. This includes the
+    run_tests__tests submodule.
+
+[SVN 2080] May 7, 2009
+    Increase timeout limit to 2 min. for run_tests.py subprocesses.
+    This allows surface_test.py more time to complete (timed out on
+    automated build sites Mac.)
+
+[SVN 2078] May 7, 2009
+    All standard Pygame extension modules compile and run with Python 3.
+    For a Python 3 build setup.py skips unsupported modules.
+
+[SVN 2075] May 6, 2009
+    For OS X Skip scrap test in base_test.py which was causing some unit
+    tests to fail. scrap not properly supported on OS X anyway.
+ 
 [SVN 2047] May 1, 2009
     Merge python3 branch back into trunk. This allows a minimal Pygame
     system to be built for Python 3. It also improves error checking
     in module init functions.
 
+[SVN 2040] Apr 24, 2009
+    SDL_gfx module officially added to Pygame. 
+   
+[SVN 2046]
+    [BUG] SDL_gfx used WIN32 macro instead of _WIN32 to detected Windows.
+
+[SVN 2017] Apr 13, 2009
+    Add equality/inequality Event comparison as per mailing list request.
+
+[SVN 1953] Feb 22, 2009
+    Add 8 bit-per-pixel support to Surface.blit blends.
+
 [SVN 1952] Feb 22, 2009
     Added Surface.scroll method along with the scroll.py example.
 
 [SVN 1947] Feb 21, 2009
-    Made colorkey and blanket alpha blits properly handle a surface blit
-    to itself. This addresses Bugzilla bug 19.
+    Made colorkey and blanket alpha blits handle a surface blit to self.
+    This addresses Bugzilla bug 19.
 
-[SVN 1820] Jan 11, 2009
+[SVN 1937] Feb 19, 2009
+    Add self-blit capacity to Pygame surfaces.
+
+[SVN 1934] Feb 18, 2009
+    Surface raises a ValueError if the mask argument is rejected by SDL.
+    Before this the mangled, and invalid, SDL value was used.
+
+[SVN 1924] Feb 12, 2009
+    Add Rect.copy method as per Bugzilla feature request 25.
+
+[SVN 1923] Feb 11, 2009
+    [BUG] Fix per-pixel-alpha unpacking in surface fill-blends.
+
+[SVN 1922] Feb 11, 2009
+    [BUG] Fix 24 bit-per-pixel fill-blends.
+
+[SVN 1920] Feb 11, 2009
     The Pygame documents and examples are now part of the Pygame package,
     directories docs and examples respectively.
 
-[SVN 1812:1814] Jan 09, 2009
+[SVN 1916] Feb 8, 2009
+    [BUG] Fix segmentation fault with register_quit, Bugzilla bug 20.
+
+[SVN 1912] Feb 6, 2009
+    [BUG] Extension modules failed to raise an error when required modules
+    failed to import, as can happen with an incomplete py2exe/py2app
+    executable. This would later lead to mysterious segfaults. Extension
+    modules now forward import errors in the init function.
+
+[SVN 1903] Feb 3, 2009
+    [BUG] _numpysurfarray.array_alpha() when a per-pixel alpha surface also
+    has blanket alpha.
+
+[SVN 1893] Jan 29, 2009
+    [BUG] Documentation infers that mixer.init and mixer.pre_init have keyword
+    arguments. Added as per Bugzilla issue 6.
+    [BUG] Documentation states that mixer buffer sizes must be a power of 2.
+    New default buffer size is 4096. This was the implicit size anyway as
+    buffer size values were rounded up the the nearest power of 2.
+
+[SVN 1889] Jan 29, 2009
+    sound_array_demos.py now uses either NumPy or Numeric.
+
+[SVN 1881] Jan 26, 2009
+    For 16 bit surfaces make surfarray.array_alpha values consistent with those
+    returned by Surface.unmap_rgb.
+
+[SVN 1859] Jan 22, 2009
+    NumPy now preferred over Numeric by surfarray and sndarray.
+
+[SVN 1852] Jan 22, 2009
+    [BUG] Fix Bugzilla bug 24 where surfarray.blit_array fails with a
+    24 bit surface. A new blit_array, using the array structure interface,
+    was added to a new _arraysurfarray extension module.
+
+[SVN 1846] Jan 18, 2009
+    The Pygame examples is now a Pygame subpackage. Example programs can be
+    imported as modules and run by their main functions. The package
+    documentation is now part of the Pygame module docs.
+
+[SVN 1839] Jan 14, 2009
+    Color objects now support equality/inequality comparison with other
+    Color objects and color tuples.
+
+[SVN 1820] Jan 11, 2009
+    Pygame documents now installed as part of the pygame package directory.
+
+[SVN 1814] Jan 09, 2009
     Pygame unit test suite is now the pygame.tests package. For Pygame
     development the unit tests still run from test in the installation
-    directory without conficts.
+    directory without conflicts.
+
+[SVN 1803] Jan 6, 2009
+    Add midi.py keyboard example.
+
+[SVN 1794] Jan 3, 2009
+    Add scripts to build Python 2.6/3.0 Windows dependencies linked to msvcr90.
 
 Dec 05, 2008
     exposed mask C API from Michael George.  Thanks!
