@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """An zoomed image viewer that demonstrates Surface.scroll
 
 This example shows a scrollable image that has a zoom factor of eight.
