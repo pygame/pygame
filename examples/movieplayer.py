@@ -18,6 +18,7 @@ the pygame.movie module. The window adjusts to the size of the movie image. It
 is given a boarder to demonstrate that a movie can play autonomously in a sub-
 window. Also, the file is copied to a file like object to show that not just
 Python files can be used as a movie source.
+
 """
 
 def main(filepath):
