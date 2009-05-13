@@ -275,6 +275,8 @@
 
 #define DOC_PYGAMEEXAMPLESSCROLLMAIN "pygame.examples.scroll.main(image_file=None): return None\nrun a Surface.scroll example that shows a magnified image"
 
+#define DOC_PYGAMEEXAMPLESMOVIEPLAYERMAIN "pygame.examples.moveplayer.main(filepath): return None\nplay an MPEG movie"
+
 #define DOC_PYGAMEFONT "pygame module for loading and rendering fonts"
 
 #define DOC_PYGAMEFONTINIT "pygame.font.init(): return None\ninitialize the font module"
@@ -1826,6 +1828,12 @@ run a midi example
 pygame.examples.scroll.main
  pygame.examples.scroll.main(image_file=None): return None
 run a Surface.scroll example that shows a magnified image
+
+
+
+pygame.examples.movieplayer.main
+ pygame.examples.moveplayer.main(filepath): return None
+play an MPEG movie
 
 
 

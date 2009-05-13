@@ -78,6 +78,7 @@
   <tr><td><a href="examples.html#pygame.examples.scaletest.main">pygame.examples.scaletest.main</a> - <font size=-1>interactively scale an image using smoothscale</font></td><td>interactively scale an image using smoothscale</td></tr>
   <tr><td><a href="examples.html#pygame.examples.midi.main">pygame.examples.midi.main</a> - <font size=-1>run a midi example</font></td><td>run a midi example</td></tr>
   <tr><td><a href="examples.html#pygame.examples.scroll.main">pygame.examples.scroll.main</a> - <font size=-1>run a Surface.scroll example that shows a magnified image</font></td><td>run a Surface.scroll example that shows a magnified image</td></tr>
+  <tr><td><a href="examples.html#pygame.examples.movieplayer.main">pygame.examples.movieplayer.main</a> - <font size=-1>play an MPEG movie</font></td><td>play an MPEG movie</td></tr>
 </table></small></ul>
 <p>These examples should help get you started with pygame. Here is a brief rundown of what you get. The source code for these examples is in the public domain. Feel free to use for your own projects. </p>
 <p>There are several ways to run the examples. First they can be run as stand-alone programs. Second they can be imported and their main() methods called (see below). Finally, the prefered way is with the <tt>pygame.examples.go</tt> module: </p>
@@ -374,6 +375,16 @@
 <p>This example shows a scrollable image that has a zoom factor of eight. It uses the <tt>Surface.scroll</tt> function to shift the image on the display surface. <tt>A</tt> clip rectangle protects a margin area. If called as a function, the example accepts an optional image file path. If run as a program it takes an optional file path command line argument. If no file is provided a default image file is used. </p>
 <p>When running click on a black triangle to move one pixel in the direction the triangle points. Or use the arrow keys. Close the window or press <tt>ESC</tt> to quit. </p>
 <!--COMMENTS:pygame.examples.scroll.main--> &nbsp;<br> 
+<br></ul>
+
+
+<a name="pygame.examples.movieplayer.main">
+<big><b>pygame.examples.movieplayer.main</big></b><br><ul>
+  <i>play an MPEG movie</i><br>
+  <tt>pygame.examples.moveplayer.main(filepath): return None</tt><br>
+<p><tt>A</tt> simple movie player that plays an <tt>MPEG</tt> movie in a Pygame window. It showcases the <tt>pygame.movie</tt> module. The window adjusts to the size of the movie image. It is given a boarder to demonstrate that a movie can play autonomously in a sub- window. Also, the file is copied to a file like object to show that not just Python files can be used as a movie source. </p>
+<p>The <tt>pygame.movie</tt> module is problematic and may not work on all systems. It is intended to replace it with an ffmpeg based version. </p>
+<!--COMMENTS:pygame.examples.movieplayer.main--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
