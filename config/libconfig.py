@@ -6,15 +6,18 @@ except:
     msys_obj = None
 
 def run_command (cmd):
-    if msys.is_msys():
-        return msys_obj.run_shell_command (cmd)
-    else:
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        output = p.communicate()[0]
-        if helpers.getversion()[0] >= 3:
-            output = str (output, "ascii")
-        return p.returncode, output
+    try:
+        if msys.is_msys():
+            return msys_obj.run_shell_command (cmd)
+        else:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+            output = p.communicate()[0]
+            if helpers.getversion()[0] >= 3:
+                output = str (output, "ascii")
+            return p.returncode, output
+    except OSError:
+        return -1, None
 
 def exec_config(libconfig, flags):
     cmd = [libconfig, flags]
