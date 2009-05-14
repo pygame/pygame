@@ -56,7 +56,7 @@
   <tr><td><a href="tests.html#pygame.tests.run">pygame.tests.run</a> - <font size=-1>Run the Pygame unit test suite</font></td><td>Run the Pygame unit test suite</td></tr>
 </table></small></ul>
 <p><tt>A</tt> quick way to run the test suite package from the command line is to import the go submodule with the Python -m option: </p>
-<pre>  python -m pygame.tests.go [&lt;test options&gt;]
+<pre>  python -m pygame.tests [&lt;test options&gt;]
 </pre><p>Command line option --help displays a usage message. Available options correspond to the <tt>pygame.tests.run</tt> arguments. </p>
 <p>The xxxx_test submodules of the tests package are unit test suites for individual parts of Pygame. Each can also be run as a main program. This is useful if the test, such as cdrom_test, is interactive. </p>
 <p>For Pygame development the test suite can be run from a Pygame distribution root directory. Program <tt>run_tests.py</tt> is provided for convenience, though <tt>test/go.py</tt> can be run directly. </p>

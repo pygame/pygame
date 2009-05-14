@@ -4,7 +4,7 @@ Pygame unit test suite package
 A quick way to run the test suite package from the command line
 is to import the go submodule with the Python -m option:
 
-  python -m pygame.tests.go [&lt;test options&gt;]
+  python -m pygame.tests [&lt;test options&gt;]
 
 Command line option --help displays a usage message. Available options
 correspond to the pygame.tests.run arguments.
