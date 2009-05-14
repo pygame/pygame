@@ -22,6 +22,8 @@ though test/go.py can be run directly.
 
 if __name__ == 'pygame.tests':
     from pygame.tests.test_utils.run_tests import run
+elif __name__ == '__main__':
+    import pygame.tests.go
 else:
     from test.test_utils.run_tests import run
 
