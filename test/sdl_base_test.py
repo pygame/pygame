@@ -74,9 +74,9 @@ class SDLTest (unittest.TestCase):
         # combination of the INIT_* constants.  In case an error occured,
         # False will be returned. The detailled error can be received using
         # pygame2.sdl.get_error().
-        self.assertEquals (base.init (constants.INIT_VIDEO), True)
+        self.assertEquals (base.init (constants.INIT_CDROM), True)
         self.assertEquals (base.init
-                           (constants.INIT_VIDEO | constants.INIT_AUDIO), True)
+                           (constants.INIT_CDROM | constants.INIT_AUDIO), True)
 
     def test_pygame2_sdl_base_init_subsystem(self):
 
@@ -133,6 +133,6 @@ class SDLTest (unittest.TestCase):
         # Gets a bitwise OR'ed combination of the initialized SDL subsystems.
         # Returns a bitwise combination of the currently initialized SDL
         # subsystems.
-        base.init (constants.INIT_VIDEO)
-        v = base.was_init (constants.INIT_VIDEO) & constants.INIT_VIDEO
-        self.assert_ (v == constants.INIT_VIDEO)
+        base.init (constants.INIT_JOYSTICK)
+        v = base.was_init (constants.INIT_JOYSTICK) & constants.INIT_JOYSTICK
+        self.assert_ (v == constants.INIT_JOYSTICK)

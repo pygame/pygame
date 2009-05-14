@@ -49,29 +49,21 @@ Functions
 
   Tries to convert the PyObject to a Uint8 and stores the result in
   *val*, if successful. This returns 1 on success and 0 on failure.
-  
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int Uint16FromObj (PyObject *obj, Uint16 *val)
 
   Tries to convert the PyObject to a Uint16 and stores the result in
   *val*, if successful. This returns 1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int Sint16FromObj (PyObject *obj, Sint16 *val)
 
   Tries to convert the PyObject to a Sint16 and stores the result in
   *val*, if successful. This returns 1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int Uint32FromObj (PyObject *obj, Uint32 *val)
 
   Tries to convert the PyObject to a Uint32 and stores the result in
   *val*, if successful. This returns 1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int Uint8FromSeqIndex (PyObject *obj, Py_ssize_t index, Uint8 *val)
 
@@ -79,15 +71,11 @@ Functions
   object and converts it to a Uint8, which will be stored in *val*. This
   returns 1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int Uint16FromSeqIndex (PyObject *obj, Py_ssize_t index, Uint16 *val)
 
   Tries to get the item at the desired *index* from the passed sequence
   object and converts it to a Uint16, which will be stored in *val*. This
   returns 1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int Sint16FromSeqIndex (PyObject *obj, Py_ssize_t index, Sint16 *val)
 
@@ -95,15 +83,11 @@ Functions
   object and converts it to a Sint16, which will be stored in *val*. This
   returns 1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int Uint32FromSeqIndex (PyObject *obj, Py_ssize_t index, Uint32 *val)
 
   Tries to get the item at the desired *index* from the passed sequence
   object and converts it to a Uint32, which will be stored in *val*. This
   returns 1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int IsValidRect (PyObject *obj)
 

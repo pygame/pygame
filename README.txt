@@ -81,6 +81,11 @@ WITH_JPEG=[yes|no|1|True]       Example: make -DWITH_JPEG=False
 
     Build with JPEG format saving support for pygame2.sdl.
 
+WITH_FREETYPE=[yes|no|1|True]   Example: make -WITH_FREETYPE=False
+    
+    Build and install the pygame2.freetype module. This wraps the
+    FreeType2 library.
+
 1.1 Dependencies
 ----------------
 Pygame2 is designed to run in as many environments as possible. As such,
@@ -98,6 +103,7 @@ enable certain features of Pygame2.
 * SDL_gfx >= 2.0.18         (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24          (http://www.libpng.org)
 * libjpeg >= 6b             (http://www.ijg.org/)
+* freetype >= 2.3.5         (http://www.freetype.org)
 
 1.2 Notes on SVN usage
 ----------------------

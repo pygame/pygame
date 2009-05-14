@@ -995,6 +995,7 @@ _surface_save (PyObject *self, PyObject *args)
 
     surface = ((PySDLSurface*)self)->surface;
 
+    /* TODO: full RWops support for all types! */
     if (IsTextObj (file))
     {
         PyObject *tmp;
@@ -1014,16 +1015,21 @@ _surface_save (PyObject *self, PyObject *args)
 #endif
     {
         SDL_RWops* rw;
+        int autoclose;
         
         /* If the type is NULL, we assume TGA saving. */
         if (!type)
             type = "TGA";
 
-        if (!(rw = RWopsFromPython (file)))
+        rw = PyRWops_NewRW (file, &autoclose);
+        if (!rw)
             return NULL;
         Py_BEGIN_ALLOW_THREADS;
         retval = pyg_sdlsurface_save_rw (surface, rw, type);
         Py_END_ALLOW_THREADS;
+        
+        if (!autoclose)
+            PyRWops_Close (rw, autoclose);
     }
     else
     {

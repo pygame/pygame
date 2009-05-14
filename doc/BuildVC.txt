@@ -16,7 +16,7 @@ are required.
 
 .. note::
 
-    NOTE: If you are going to use the VC Toolkit 2003, make sure, you have some
+    If you are going to use the VC Toolkit 2003, make sure, you have some
     proper registry keys set. Otherwise Python's distutils will not be able to
     detect the settings. Within the util/ directory you can find an example
     registry key. Change the paths within it according to your system
@@ -28,7 +28,7 @@ Setting up the dependencies
 
 .. note::
 
-    NOTE: The following list of dependencies might not be the most actual
+    The following list of dependencies might not be the most actual
     one. Please check the README.txt file in the top source directory
     for the most actual dependency list!
 
@@ -47,6 +47,7 @@ packages:
 * SDL_gfx >= 2.0.18          (http://www.ferzkopp.net/Software/SDL_gfx-2.0/)
 * libpng >= 1.2.24           (http://www.libpng.org)
 * libjpeg >= 6b              (http://www.ijg.org/)
+* freetype >= 2.3.5          (http://www.freetype.org)
 
 The Win32 build chain for Pygame2 does not support building all
 dependencies from scratch. Instead it relies on already built libraries,

@@ -129,52 +129,31 @@ _music_init (PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *file;
     char *filename;
     Mix_Music *music;
+    SDL_RWops *rw;
+    int autoclose;
     
     ASSERT_MIXER_OPEN (-1);
     
     if (!PyArg_ParseTuple (args, "O", &file))
         return -1;
 
-    if (IsTextObj (file))
-    {
-        PyObject *tmp;
-        if (!UTF8FromObject (file, &filename, &tmp))
-            return -1;
-
-        Py_BEGIN_ALLOW_THREADS;
-        music = Mix_LoadMUS (filename);
-        Py_END_ALLOW_THREADS;
-        Py_XDECREF (tmp);
-    }
-#ifdef IS_PYTHON_3
-    else if (PyObject_AsFileDescriptor (file) != -1)
-#else
-    else if (PyFile_Check (file))
-#endif
-    {
-        SDL_RWops *rw = RWopsFromPython (file);
-        if (!rw)
-            return -1;
-
-        Py_BEGIN_ALLOW_THREADS;
-        music = Mix_LoadMUS_RW (rw);
-        Py_END_ALLOW_THREADS;
-    }
-    else
-    {
-#ifdef IS_PYTHON_3
-        PyErr_Clear (); /* Set by PyObject_AsFileDescriptor(). */
-#endif
-        PyErr_SetString (PyExc_TypeError, "file must be a string or file");
+    rw = PyRWops_NewRO (file, &autoclose);
+    if (!rw)
         return -1;
-    }
 
+    Py_BEGIN_ALLOW_THREADS;
+    music = Mix_LoadMUS_RW (rw);
+    Py_END_ALLOW_THREADS;
+
+    if (!autoclose)
+        PyRWops_Close (rw, autoclose);
+    
     if (!music)
     {
         PyErr_SetString (PyExc_PyGameError, Mix_GetError ());
         return -1;
     }
-    
+
     ((PyMusic*)self)->music = music;
     return 0;
 }

@@ -173,21 +173,15 @@ Functions
   Tries to convert the PyObject to a double and stores the result in *val*, if
   successful. This returns 1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int IntFromObj (PyObject* obj, int *val)
 
   Tries to convert the PyObject to an int and stores the result in *val*, if
   successful. This returns 1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int UintFromObj (PyObject* obj, unsigned int *val)
 
   Tries to convert the PyObject to an unsigned int and stores the result in
   *val*, if successful. This returns 1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int DoubleFromSeqIndex (PyObject *seq, Py_ssize_t index, double *val)
 
@@ -195,23 +189,17 @@ Functions
   and converts it to a double, which will be stored in *val*. This returns 1 on
   success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int IntFromSeqIndex (PyObject *seq, Py_ssize_t index, int *val)
 
   Tries to get the item at the desired *index* from the passed sequence object
   and converts it to an int, which will be stored in *val*. This returns 1 on
   success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int UintFromSeqIndex (PyObject *seq, Py_ssize_t index, unsigned int *val)
 
   Tries to get the item at the desired *index* from the passed sequence object
   and converts it to an unsigned int, which will be stored in *val*. This
   returns 1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int PointFromObject (PyObject *obj, int *x, int *y)
 
@@ -220,16 +208,12 @@ Functions
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int SizeFromObject (PyObject *obj, pgint32 *x, pgint32 *y)
 
   Tries to get two pgint32 values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the width and height values are taken,
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int FPointFromObject (PyObject *obj, double *x, double *y)
 
@@ -238,16 +222,12 @@ Functions
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int FSizeFromObject (PyObject *obj, double *x, double *y)
 
   Tries to get two double values from the passed object. If the object is a
   :ctype:`PyRect` or :ctype:`PyFRect`, the width and height values are taken,
   if the object is a sequence type, the first two items are used. This returns
   1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 .. cfunction:: int ASCIIFromObject (PyObject *obj, char** text, PyObject **convobj)
 
@@ -256,16 +236,12 @@ Functions
   stored in *convobj* and needs to be freed by the caller, once *text* is not
   required anymore. This returns 1 on success and 0 on failure.
 
-  This will not check the arguments for being *NULL*.
-
 .. cfunction:: int UTF8FromObject (PyObject *obj, char** text, PyObject **convobj)
 
   Tries to get UTF-8 encoded text from the passed object and stores the result
   in *text*. If the object has to be converted, the conversion result will be
   stored in *convobj* and needs to be freed by the caller, once *text* is not
   required anymore. This returns 1 on success and 0 on failure.
-
-  This will not check the arguments for being *NULL*.
 
 PyColor
 -------

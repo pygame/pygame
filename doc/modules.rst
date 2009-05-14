@@ -14,6 +14,7 @@ Modules:
 
    ref/pygame2_base.rst
    ref/pygame2_font.rst
+   ref/pygame2_freetype_base.rst
    ref/pygame2_mask.rst
    ref/pygame2_physics.rst
    ref/pygame2_sdl_audio.rst

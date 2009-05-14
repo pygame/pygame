@@ -23,198 +23,138 @@
 
 typedef struct
 {
-    PyObject* read;
-    PyObject* write;
-    PyObject* seek;
-    PyObject* tell;
-    PyObject* close;
-#ifdef WITH_THREAD
-    PyThreadState* thread;
-#endif
-} _RWHelper;
+    PyObject *read;
+    PyObject *write;
+    PyObject *seek;
+    PyObject *tell;
+    PyObject *close;
+} _RWWrapper;
 
-static SDL_RWops* get_standard_rwop (PyObject* obj);
-static void fetch_object_methods (_RWHelper* helper, PyObject* obj);
-
-static int rw_seek (SDL_RWops* context, int offset, int whence);
-static int rw_read (SDL_RWops* context, void* ptr, int size, int maxnum);
-static int rw_write (SDL_RWops* context, const void* ptr, int size, int maxnum);
-static int rw_close (SDL_RWops* context);
-
-#ifdef WITH_THREAD
-static int rw_seek_th (SDL_RWops* context, int offset, int whence);
-static int rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum);
-static int rw_write_th (SDL_RWops* context, const void* ptr, int size,
-                        int maxnum);
-static int rw_close_th (SDL_RWops* context);
-#endif
-
-/* C API */
-static SDL_RWops* RWopsFromPython (PyObject* obj);
-static int RWopsCheckPython (SDL_RWops* rw);
-static SDL_RWops* RWopsFromPythonThreaded (PyObject* obj);
-static int RWopsCheckPythonThreaded (SDL_RWops* rw);
-
-static SDL_RWops*
-get_standard_rwop (PyObject* obj)
-{
-#ifdef IS_PYTHON_3
-    int fd;
-#endif
-    if (IsTextObj (obj))
-    {
-        int result;
-        char* name;
-        PyObject* tuple = PyTuple_New (1);
-        PyTuple_SET_ITEM (tuple, 0, obj);
-        Py_INCREF (obj);
-        if (!tuple)
-            return NULL;
-        result = PyArg_ParseTuple (tuple, "s", &name);
-        Py_DECREF (tuple);
-        if (!result)
-            return NULL;
-        /* TODO: allow wb ops! */
-        return SDL_RWFromFile (name, "rb");
-    }
-#ifdef IS_PYTHON_3
-    else if ((fd = PyObject_AsFileDescriptor (obj)) != -1)
-    {
-        FILE *fp = fdopen (fd, "rb"); /* TODO: is that safe? */
-        if (!fp)
-        {
-            PyErr_SetString (PyExc_IOError, "could not open file");
-            return NULL;
-        }
-        return SDL_RWFromFP (fp, 1);
-    }
-#else
-    else if (PyFile_Check(obj))
-        return SDL_RWFromFP (PyFile_AsFile (obj), 0);
-#endif
-    return NULL;
-}
+static void _bind_python_methods (_RWWrapper *wrapper, PyObject *obj);
+static int _pyobj_read (SDL_RWops *ops, void* ptr, int size, int num);
+static int _pyobj_seek (SDL_RWops *ops, int offset, int whence);
+static int _pyobj_write (SDL_RWops *ops, const void* ptr, int size, int num);
+static int _pyobj_close (SDL_RWops *ops);
 
 static void
-fetch_object_methods (_RWHelper* helper, PyObject* obj)
+_bind_python_methods (_RWWrapper *wrapper, PyObject *obj)
 {
-    helper->read = helper->write = helper->seek = helper->tell =
-        helper->close = NULL;
-
+    wrapper->read = NULL;
+    wrapper->write = NULL;
+    wrapper->seek = NULL;
+    wrapper->tell = NULL;
+    wrapper->close = NULL;
+    
     if (PyObject_HasAttrString (obj, "read"))
     {
-        helper->read = PyObject_GetAttrString (obj, "read");
-        if(helper->read && !PyCallable_Check (helper->read))
+        wrapper->read = PyObject_GetAttrString (obj, "read");
+        if (wrapper->read && !PyCallable_Check (wrapper->read))
         {
-            Py_DECREF (helper->read);
-            helper->read = NULL;
+            Py_DECREF (wrapper->read);
+            wrapper->read = NULL;
         }
     }
     if (PyObject_HasAttrString (obj, "write"))
     {
-        helper->write = PyObject_GetAttrString (obj, "write");
-        if (helper->write && !PyCallable_Check (helper->write))
+        wrapper->write = PyObject_GetAttrString (obj, "write");
+        if (wrapper->write&& !PyCallable_Check (wrapper->write))
         {
-            Py_DECREF (helper->write);
-            helper->write = NULL;
+            Py_DECREF (wrapper->write);
+            wrapper->write = NULL;
         }
     }
     if (PyObject_HasAttrString (obj, "seek"))
     {
-        helper->seek = PyObject_GetAttrString (obj, "seek");
-        if (helper->seek && !PyCallable_Check (helper->seek))
+        wrapper->seek = PyObject_GetAttrString (obj, "seek");
+        if (wrapper->seek && !PyCallable_Check (wrapper->seek))
         {
-            Py_DECREF (helper->seek);
-            helper->seek = NULL;
+            Py_DECREF (wrapper->seek);
+            wrapper->seek = NULL;
         }
     }
     if (PyObject_HasAttrString (obj, "tell"))
     {
-        helper->tell = PyObject_GetAttrString (obj, "tell");
-        if (helper->tell && !PyCallable_Check (helper->tell))
+        wrapper->tell = PyObject_GetAttrString (obj, "tell");
+        if (wrapper->tell && !PyCallable_Check (wrapper->tell))
         {
-            Py_DECREF (helper->tell);
-            helper->tell = NULL;
+            Py_DECREF (wrapper->tell);
+            wrapper->tell = NULL;
         }
     }
-    if(PyObject_HasAttrString(obj, "close"))
+    if (PyObject_HasAttrString (obj, "close"))
     {
-        helper->close = PyObject_GetAttrString (obj, "close");
-        if (helper->close && !PyCallable_Check (helper->close))
+        wrapper->close = PyObject_GetAttrString (obj, "close");
+        if (wrapper->close && !PyCallable_Check (wrapper->close))
         {
-            Py_DECREF (helper->close);
-            helper->close = NULL;
+            Py_DECREF (wrapper->close);
+            wrapper->close = NULL;
         }
     }
 }
 
 static int
-rw_seek (SDL_RWops* context, int offset, int whence)
+_pyobj_read (SDL_RWops *ops, void* ptr, int size, int maxnum)
 {
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
-    PyObject* result;
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+    PyObject *result;
     int retval;
-
-    if (!helper->seek || !helper->tell)
+    
+    if (!wrapper->read)
         return -1;
-
-    if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
-    {
-        result = PyObject_CallFunction (helper->seek, "ii", offset, whence);
-        if (!result)
-            return -1;
-        Py_DECREF (result);
-    }
-
-    result = PyObject_CallFunction (helper->tell, NULL);
+    result = PyObject_CallFunction (wrapper->read, "i", size * maxnum);
     if (!result)
         return -1;
-
-    retval = PyInt_AsLong (result);
-    Py_DECREF (result);
-
-    return retval;
-}
-
-static int
-rw_read (SDL_RWops* context, void* ptr, int size, int maxnum)
-{
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
-    PyObject* result;
-    int retval;
-
-    if (!helper->read)
-        return -1;
-
-    result = PyObject_CallFunction (helper->read, "i", size * maxnum);
-    if (!result)
-        return -1;
-
     if (!Bytes_Check (result))
     {
         Py_DECREF (result);
         return -1;
     }
-
     retval = Bytes_GET_SIZE (result);
     memcpy (ptr, Bytes_AS_STRING (result), (size_t) retval);
     retval /= size;
-
+    
     Py_DECREF (result);
     return retval;
 }
 
 static int
-rw_write (SDL_RWops* context, const void* ptr, int size, int num)
+_pyobj_seek (SDL_RWops *ops, int offset, int whence)
 {
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
     PyObject* result;
+    int retval;
 
-    if (!helper->write)
+    if (!wrapper->seek || !wrapper->tell)
         return -1;
 
-    result = PyObject_CallFunction (helper->write, "s#", ptr, size * num);
-    if(!result)
+    if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
+    {
+        result = PyObject_CallFunction (wrapper->seek, "ii", offset, whence);
+        if (!result)
+            return -1;
+        Py_DECREF (result);
+    }
+
+    result = PyObject_CallFunction (wrapper->tell, NULL);
+    if (!result)
+        return -1;
+
+    retval = PyInt_AsLong (result);
+    Py_DECREF (result);
+    return retval;
+}
+
+static int
+_pyobj_write (SDL_RWops *ops, const void* ptr, int size, int num)
+{
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+    PyObject *result;
+
+    if (!wrapper->write)
+        return -1;
+
+    result = PyObject_CallFunction (wrapper->write, "s#", ptr, size * num);
+    if (!result)
         return -1;
 
     Py_DECREF (result);
@@ -222,283 +162,138 @@ rw_write (SDL_RWops* context, const void* ptr, int size, int num)
 }
 
 static int
-rw_close (SDL_RWops* context)
+_pyobj_close (SDL_RWops *ops)
 {
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
-    PyObject* result;
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+    PyObject *result;
     int retval = 0;
 
-    if (helper->close)
+    if (wrapper->close)
     {
-        result = PyObject_CallFunction (helper->close, NULL);
+        result = PyObject_CallFunction (wrapper->close, NULL);
         if (result)
             retval = -1;
         Py_XDECREF (result);
     }
 
-    Py_XDECREF (helper->seek);
-    Py_XDECREF (helper->tell);
-    Py_XDECREF (helper->write);
-    Py_XDECREF (helper->read);
-    Py_XDECREF (helper->close);
-    PyMem_Del (helper);
-    SDL_FreeRW (context);
+    Py_XDECREF (wrapper->seek);
+    Py_XDECREF (wrapper->tell);
+    Py_XDECREF (wrapper->write);
+    Py_XDECREF (wrapper->read);
+    Py_XDECREF (wrapper->close);
+    PyMem_Del (wrapper);
+    SDL_FreeRW (ops);
     return retval;
 }
-
-#ifdef WITH_THREAD
-static int
-rw_seek_th (SDL_RWops* context, int offset, int whence)
-{
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
-    PyObject* result;
-    int retval;
-    PyThreadState* oldstate;
-
-    if (!helper->seek || !helper->tell)
-        return -1;
-
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
-
-    /* being seek'd, not just tell'd */
-    if (!(offset == 0 && whence == SEEK_CUR))
-    {
-        result = PyObject_CallFunction (helper->seek, "ii", offset, whence);
-        if(!result)
-        {
-            PyErr_Print();
-            retval = -1;
-            goto end;
-        }
-        Py_DECREF (result);
-    }
-
-    result = PyObject_CallFunction (helper->tell, NULL);
-    if (!result)
-    {
-        PyErr_Print();
-        retval = -1;
-        goto end;
-    }
-
-    retval = PyInt_AsLong (result);
-    Py_DECREF (result);
-
-end:
-    PyThreadState_Swap (oldstate);
-    PyEval_ReleaseLock ();
-
-    return retval;
-}
-
-static int
-rw_read_th (SDL_RWops* context, void* ptr, int size, int maxnum)
-{
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
-    PyObject* result;
-    int retval;
-    PyThreadState* oldstate;
-
-    if (!helper->read)
-        return -1;
-
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
-
-    result = PyObject_CallFunction (helper->read, "i", size * maxnum);
-    if (!result)
-    {
-        PyErr_Print();
-        retval = -1;
-        goto end;
-    }
-
-    if (!Bytes_Check (result))
-    {
-        Py_DECREF (result);
-        PyErr_Print();
-        retval = -1;
-        goto end;
-    }
-
-    retval = Bytes_GET_SIZE (result);
-    memcpy (ptr, Bytes_AS_STRING (result), (size_t) retval);
-    retval /= size;
-
-    Py_DECREF (result);
-
-end:
-    PyThreadState_Swap (oldstate);
-    PyEval_ReleaseLock ();
-
-    return retval;
-}
-
-static int
-rw_write_th (SDL_RWops* context, const void* ptr, int size, int num)
-{
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
-    PyObject* result;
-    int retval;
-    PyThreadState* oldstate;
-
-    if (!helper->write)
-        return -1;
-
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
-
-    result = PyObject_CallFunction (helper->write, "s#", ptr, size * num);
-    if (!result)
-    {
-        PyErr_Print();
-        retval = -1;
-        goto end;
-    }
-
-    Py_DECREF (result);
-    retval = num;
-
-end:
-    PyThreadState_Swap (oldstate);
-    PyEval_ReleaseLock ();
-
-    return retval;
-}
-
-static int
-rw_close_th (SDL_RWops* context)
-{
-    _RWHelper* helper = (_RWHelper*) context->hidden.unknown.data1;
-    PyObject* result;
-    int retval = 0;
-    PyThreadState* oldstate;
-
-    PyEval_AcquireLock ();
-    oldstate = PyThreadState_Swap (helper->thread);
-
-    if (helper->close)
-    {
-        result = PyObject_CallFunction (helper->close, NULL);
-        if (!result)
-        {
-            PyErr_Print();
-            retval = -1;
-        }
-        Py_XDECREF (result);
-    }
-
-    Py_XDECREF (helper->seek);
-    Py_XDECREF (helper->tell);
-    Py_XDECREF (helper->write);
-    Py_XDECREF (helper->read);
-    Py_XDECREF (helper->close);
-
-    PyThreadState_Swap (oldstate);
-    PyThreadState_Clear (helper->thread);
-    PyThreadState_Delete (helper->thread);
-
-    PyMem_Del (helper);
-
-    PyEval_ReleaseLock ();
-
-    SDL_FreeRW (context);
-    return retval;
-}
-#endif
 
 /* C API */
 static SDL_RWops*
-RWopsFromPython (PyObject* obj)
+PyRWops_NewRO (PyObject *obj, int *canautoclose)
 {
-    SDL_RWops* rw;
-    _RWHelper* helper;
-
-    if (!obj)
+    _RWWrapper *wrapper;
+    SDL_RWops *ops;
+    
+    if (!obj || !canautoclose)
     {
-        PyErr_SetString (PyExc_TypeError, "Invalid filetype object");
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
         return NULL;
     }
-    rw = get_standard_rwop (obj);
-    if (rw)
-        return rw;
-
-    helper = PyMem_New (_RWHelper, 1);
-    fetch_object_methods (helper, obj);
-
-    rw = SDL_AllocRW ();
-    rw->hidden.unknown.data1 = (void*) helper;
-    rw->seek = rw_seek;
-    rw->read = rw_read;
-    rw->write = rw_write;
-    rw->close = rw_close;
-
-    return rw;
-}
-
-static int
-RWopsCheckPython (SDL_RWops* rw)
-{
-    if (!rw)
+    
+    /* If we have a text object, assume it is a file, which is automatically
+     * closed. */
+    if (IsTextObj (obj))
     {
-        PyErr_SetString (PyExc_TypeError, "rw must not be NULL");
-        return -1;
+        PyObject *tmp;
+        char *filename;
+        if (!UTF8FromObject (obj, &filename, &tmp))
+            return NULL;
+        Py_XDECREF (tmp);
+        *canautoclose = 1;
+        return SDL_RWFromFile ((const char *)filename, "rb");
     }
-    return rw->close == rw_close;
+
+    /* No text object, so its a buffer or something like that. Try to get the
+     * necessary information. */
+    ops = SDL_AllocRW ();
+    if (!ops)
+        return NULL;
+    wrapper = PyMem_New (_RWWrapper, 1);
+    if (!wrapper)
+    {
+        SDL_FreeRW (ops);
+        return NULL;
+    }
+    _bind_python_methods (wrapper, obj);
+    
+    ops->read = _pyobj_read;
+    ops->write = _pyobj_write;
+    ops->seek = _pyobj_seek;
+    ops->close = _pyobj_close;
+    ops->hidden.unknown.data1 = (void*) wrapper;
+    *canautoclose = 0;
+    return ops;
 }
 
 static SDL_RWops*
-RWopsFromPythonThreaded (PyObject* obj)
+PyRWops_NewRW (PyObject *obj, int *canautoclose)
 {
-    SDL_RWops* rw;
-    _RWHelper* helper;
-    PyInterpreterState* interp;
-    PyThreadState* thread;
-
-    if (!obj)
+    _RWWrapper *wrapper;
+    SDL_RWops *ops;
+    
+    if (!obj || !canautoclose)
     {
-        PyErr_SetString (PyExc_TypeError, "Invalid filetype object");
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
         return NULL;
     }
+    
+    /* If we have a text object, assume it is a file, which is automatically
+     * closed. */
+    if (IsTextObj (obj))
+    {
+        PyObject *tmp;
+        char *filename;
+        if (!UTF8FromObject (obj, &filename, &tmp))
+            return NULL;
+        Py_XDECREF (tmp);
+        *canautoclose = 1;
+        return SDL_RWFromFile ((const char *)filename, "wb");
+    }
 
-#ifndef WITH_THREAD
-    PyErr_SetString (PyExc_NotImplementedError,
-        "Python built without thread support");
-    return NULL;
-#else
-    helper = PyMem_New (_RWHelper, 1);
-    fetch_object_methods (helper, obj);
-
-    rw = SDL_AllocRW ();
-    rw->hidden.unknown.data1 = (void*) helper;
-    rw->seek = rw_seek_th;
-    rw->read = rw_read_th;
-    rw->write = rw_write_th;
-    rw->close = rw_close_th;
-
-    PyEval_InitThreads ();
-    thread = PyThreadState_Get ();
-    interp = thread->interp;
-    helper->thread = PyThreadState_New (interp);
-
-    return rw;
-#endif
+    /* No text object, so its a buffer or something like that. Try to get the
+     * necessary information. */
+    ops = SDL_AllocRW ();
+    if (!ops)
+        return NULL;
+    wrapper = PyMem_New (_RWWrapper, 1);
+    if (!wrapper)
+    {
+        SDL_FreeRW (ops);
+        return NULL;
+    }
+    _bind_python_methods (wrapper, obj);
+    ops->read = _pyobj_read;
+    ops->write = _pyobj_write;
+    ops->seek = _pyobj_seek;
+    ops->close = _pyobj_close;
+    ops->hidden.unknown.data1 = (void*) wrapper;
+    *canautoclose = 0;
+    return ops;
 }
 
-static int
-RWopsCheckPythonThreaded (SDL_RWops* rw)
+static void
+PyRWops_Close (SDL_RWops *ops, int canautoclose)
 {
-#ifdef WITH_THREAD
-    if (!rw)
+    /* internal _RWWrapper? */
+    if (ops->close == _pyobj_close)
     {
-        PyErr_SetString (PyExc_TypeError, "rw must not be NULL");
-        return -1;
+        if (!canautoclose) /* Do not close the underlying object. */
+        {
+            _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+            Py_DECREF (wrapper->close);
+            wrapper->close = NULL;
+        }
     }
-    return rw->close == rw_close_th;
-#else
-    return 0;
-#endif
+    SDL_RWclose (ops);
 }
 
 #ifdef IS_PYTHON_3
@@ -530,14 +325,16 @@ PyMODINIT_FUNC initrwops (void)
     if (!mod)
         goto fail;
 
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+0] = RWopsFromPython;
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+1] = RWopsCheckPython;
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+2] = RWopsFromPythonThreaded;
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+3] = RWopsCheckPythonThreaded;
-
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT] = PyRWops_NewRO;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+1] = PyRWops_NewRW;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+2] = PyRWops_Close;
+    
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
         PyModule_AddObject (mod, PYGAME_SDLRWOPS_ENTRY, c_api_obj);    
+
+    if (import_pygame2_base () < 0)
+        goto fail;
 
     MODINIT_RETURN(mod);
 fail:

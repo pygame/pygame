@@ -25,10 +25,10 @@ def run():
     else:
         surface = image.load_bmp (os.path.join (imgdir, "logo.bmp"))
 
-        screen = video.set_mode (surface.w + 10, surface.h + 10)
-        screen.fill (pygame2.Color (255, 255, 255))
-        screen.blit (surface, (5, 5))
-        screen.flip ()
+    screen = video.set_mode (surface.w + 10, surface.h + 10)
+    screen.fill (pygame2.Color (255, 255, 255))
+    screen.blit (surface, (5, 5))
+    screen.flip ()
 
     okay = True
     while okay:

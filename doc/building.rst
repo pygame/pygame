@@ -68,5 +68,9 @@ Build with PNG format saving support for
   WITH_JPEG=[yes|no|1|True]               Example: make -DWITH_JPEG=False
 
 Build with JPEG format saving support for
-:meth:`pygame2.sdl.video.Surface.save`.
+:meth:`pygame2.sdl.video.Surface.save`. ::
 
+  WITH_FREETYPE=[yes|no|1|True]           Example: make -DWITH_FREETYPE=False
+
+Build and install the :mod:`pygame2.freetype` module. This wraps the
+FreeType2 library.

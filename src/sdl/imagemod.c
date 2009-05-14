@@ -35,46 +35,24 @@ static PyObject*
 _sdl_loadbmp (PyObject *self, PyObject *args)
 {
     SDL_Surface *surface;
+    SDL_RWops *rw;
+    int autoclose;
     PyObject *sf, *file;
     char *filename;
 
     if (!PyArg_ParseTuple (args, "O:load_bmp", &file))
         return NULL;
 
-    if (IsTextObj (file))
-    {
-        PyObject *tmp;
-        if (!UTF8FromObject (file, &filename, &tmp))
-            return NULL;
-
-        Py_BEGIN_ALLOW_THREADS;
-        surface = SDL_LoadBMP ((const char*)filename);
-        Py_END_ALLOW_THREADS;
-
-        Py_XDECREF (tmp);
-    }
-#ifdef IS_PYTHON_3
-    else if (PyObject_AsFileDescriptor (file) != -1)
-#else
-    else if (PyFile_Check (file))
-#endif
-    {
-        SDL_RWops *rw = RWopsFromPython (file);
-        if (!rw)
-            return NULL;
-
-        Py_BEGIN_ALLOW_THREADS;
-        surface = SDL_LoadBMP_RW (rw, 1);
-        Py_END_ALLOW_THREADS;
-    }
-    else
-    {
-#ifdef IS_PYTHON_3
-        PyErr_Clear (); /* Set by the PyObject_AsFileDescriptor() call */
-#endif
-        PyErr_SetString (PyExc_TypeError, "file must be a string or file");
+    rw = PyRWops_NewRO (file, &autoclose);
+    if (!rw)
         return NULL;
-    }
+
+    Py_BEGIN_ALLOW_THREADS;
+    surface = SDL_LoadBMP_RW (rw, autoclose);
+    Py_END_ALLOW_THREADS;
+    
+    if (!autoclose)
+        PyRWops_Close (rw, autoclose);
 
     if (!surface)
     {
@@ -94,8 +72,9 @@ static PyObject*
 _sdl_savebmp (PyObject *self, PyObject *args)
 {
     PyObject *surface, *file;
+    SDL_RWops *rw;
     char *filename;
-    int _stat;
+    int _stat, autoclose;
     
     if (!PyArg_ParseTuple (args, "OO:save_bmp", &surface, &file))
         return NULL;
@@ -105,41 +84,17 @@ _sdl_savebmp (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    if (IsTextObj (file))
-    {
-        PyObject *tmp;
-        if (!UTF8FromObject (file, &filename, &tmp))
-            return NULL;
-
-        Py_BEGIN_ALLOW_THREADS;
-        _stat = SDL_SaveBMP (((PySDLSurface*)surface)->surface, filename);
-        Py_END_ALLOW_THREADS;
-
-        Py_XDECREF (tmp);
-    }
-#ifdef IS_PYTHON_3
-    else if (PyObject_AsFileDescriptor (file) != -1)
-#else
-    else if (PyFile_Check (file))
-#endif
-    {
-        SDL_RWops *rw = RWopsFromPython (file);
-        if (!rw)
-            return NULL;
-
-        Py_BEGIN_ALLOW_THREADS;
-        _stat = SDL_SaveBMP_RW (((PySDLSurface*)surface)->surface, rw, 1);
-        Py_END_ALLOW_THREADS;
-    }
-    else
-    {
-#ifdef IS_PYTHON_3
-        PyErr_Clear (); /* Set by the PyObject_AsFileDescriptor() call */
-#endif
-        PyErr_SetString (PyExc_TypeError, "file must be a string or file");
+    rw = PyRWops_NewRW (file, &autoclose);
+    if (!rw)
         return NULL;
-    }
-
+    
+    Py_BEGIN_ALLOW_THREADS;
+    _stat = SDL_SaveBMP_RW (((PySDLSurface*)surface)->surface, rw, autoclose);
+    Py_END_ALLOW_THREADS;
+    
+    if (!autoclose)
+        PyRWops_Close (rw, autoclose);
+    
     if (_stat == -1)
     {
         PyErr_SetString (PyExc_PyGameError, SDL_GetError ());

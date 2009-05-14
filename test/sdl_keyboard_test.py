@@ -47,8 +47,8 @@ class SDLKeyboardTest (unittest.TestCase):
         # handling state.  By default unicode handling is enabled and for
         # keyboard events, the *unicode* member of the event will be filled
         # with the corresponding unicode character.
-        self.assert_ (keyboard.enable_unicode () == False)
-        self.assert_ (keyboard.enable_unicode (True) == False)
+        self.assert_ (keyboard.enable_unicode () == True)
+        self.assert_ (keyboard.enable_unicode (True) == True)
         self.assert_ (keyboard.enable_unicode (False) == True)
         self.assert_ (keyboard.enable_unicode (True) == False)
         self.assert_ (keyboard.enable_unicode (True) == True)
@@ -107,7 +107,7 @@ class SDLKeyboardTest (unittest.TestCase):
         keyboard.enable_repeat (7, 0)
         self.assert_ (keyboard.get_repeat () == (7, 0))
 
-    def todo_test_pygame2_sdl_keyboard_get_state(self):
+    def test_pygame2_sdl_keyboard_get_state(self):
 
         # __doc__ (as of 2009-05-13) for pygame2.sdl.keyboard.get_state:
 
@@ -119,8 +119,11 @@ class SDLKeyboardTest (unittest.TestCase):
         # dictionary with the current keyboard state. The keys of the
         # dictionary are the key constants, the boolean values of the
         # dictionary indicate, whether a certain key is pressed or not.
-
-        self.fail() 
+        self.assert_ (type (keyboard.get_state ()) == dict)
+        self.assert_ (constants.K_a in keyboard.get_state ().keys ())
+        self.assert_ (constants.K_b in keyboard.get_state ().keys ())
+        self.assert_ (constants.K_q in keyboard.get_state ().keys ())
+        self.assert_ (constants.K_KP4 in keyboard.get_state ().keys ())
 
     def todo_test_pygame2_sdl_keyboard_set_mod_state(self):
 

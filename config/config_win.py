@@ -1,4 +1,4 @@
-import os, glob
+import os, glob, sys
 from config import helpers, dll
 from config import config_generic
 
@@ -50,7 +50,7 @@ def get_install_libs (cfg):
     # Gets the libraries to install for the target platform.
     _libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release",
                  "lib"]
-    _searchdirs = [ "prebuilt", "..", "..\\.." ]
+    _searchdirs = [ "prebuilt", "..", "..\\..", sys.prefix ]
 
     libraries = {}
     values = {}
@@ -77,10 +77,24 @@ def get_install_libs (cfg):
 
     return libraries.keys ()
 
-
 class Dependency (config_generic.Dependency):
-    _searchdirs = [ "prebuilt", "..", "..\\.." ]
+    _searchdirs = [ "prebuilt", "..", "..\\..", sys.prefix ]
     _incdirs = [ "", "include" ]
     _libdirs = [ "", "VisualC\\SDL\\Release", "VisualC\\Release", "Release",
                  "lib"]
     _libprefix = ""
+
+    def configure (self, cfg):
+        super(Dependency, self).configure (cfg)
+        
+        # HACK: freetype.h is in freetype2\\freetype, but we need
+        # freetype2\\.
+        if self.library_id != "freetype":
+            return
+        incs = []
+        for d in self.incdirs:
+            if d.endswith ("freetype2\\freetype"):
+                incs.append (d.replace ("freetype2\\freetype", "freetype2"))
+            else:
+                incs.append (d)
+        self.incdirs = incs

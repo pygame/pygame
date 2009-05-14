@@ -149,6 +149,8 @@ _font_init (PyObject *self, PyObject *args, PyObject *kwds)
     PyObject *file;
     int ptsize, _index = 0;
     TTF_Font *font;
+    SDL_RWops *rw;
+    int autoclose;
 
     ASSERT_TTF_INIT (-1);
     if (!PyArg_ParseTuple (args, "Oi|i", &file, &ptsize, &_index))
@@ -160,49 +162,20 @@ _font_init (PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if (IsTextObj (file))
-    {
-        char *filename;
-        PyObject *tmp;
-
-        if (!UTF8FromObject (file, &filename, &tmp))
-            return -1;
-
-        Py_BEGIN_ALLOW_THREADS;
-        if (_index == 0)
-            font = TTF_OpenFont (filename, ptsize);
-        else
-            font = TTF_OpenFontIndex (filename, ptsize, _index);
-        Py_END_ALLOW_THREADS;
-
-        Py_XDECREF (tmp);
-    }
-#ifdef IS_PYTHON_3
-    else if (PyObject_AsFileDescriptor (file) != -1)
-#else
-    else if (PyFile_Check (file))
-#endif
-    {
-        SDL_RWops *rw = RWopsFromPython (file);
-        if (!rw)
-            return -1;
-
-        Py_BEGIN_ALLOW_THREADS;
-        if (_index == 0)
-            font = TTF_OpenFontRW (rw, 1, ptsize);
-        else
-            font = TTF_OpenFontIndexRW (rw, 1, ptsize, _index);
-        Py_END_ALLOW_THREADS;
-    }
-    else
-    {
-#ifdef IS_PYTHON_3
-        PyErr_Clear (); /* Set by PyObject_AsFileDescriptor() */
-#endif
-        PyErr_SetString (PyExc_TypeError, "file must be a string or file");
+    rw = PyRWops_NewRO (file, &autoclose);
+    if (!rw)
         return -1;
-    }
 
+    Py_BEGIN_ALLOW_THREADS;
+    if (_index == 0)
+        font = TTF_OpenFontRW (rw, autoclose, ptsize);
+    else
+        font = TTF_OpenFontIndexRW (rw, autoclose, ptsize, _index);
+    Py_END_ALLOW_THREADS;
+    
+    if (!autoclose)
+        PyRWops_Close (rw, autoclose);
+    
     if (!font)
     {
         PyErr_SetString (PyExc_PyGameError, TTF_GetError ());

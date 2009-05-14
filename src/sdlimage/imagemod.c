@@ -51,66 +51,35 @@ _image_load (PyObject *self, PyObject *args)
     char *filename, *type = NULL;
     SDL_Surface *surface = NULL;
     PyObject *sf, *file;
+    SDL_RWops *rw;
+    int autoclose;
     
     ASSERT_VIDEO_INIT (NULL);
     
     if (!PyArg_ParseTuple (args, "O|s:load", &file, &type))
         return NULL;
 
-    if (IsTextObj (file))
-    {
-        PyObject *tmp;
-        if (!UTF8FromObject (file, &filename, &tmp))
-            return NULL;
+    rw = PyRWops_NewRO (file, &autoclose);
+    if (!rw)
+        return -1;
 
-        if (type)
-        {
-            /* If the type's set, it has precedence over the filename. */
-            Py_BEGIN_ALLOW_THREADS;
-            surface = IMG_LoadTyped_RW (SDL_RWFromFile (filename, "rb"), 1,
-                type);
-            Py_END_ALLOW_THREADS;
-        }
-        else
-        {
-            Py_BEGIN_ALLOW_THREADS;
-            surface = IMG_Load (filename);
-            Py_END_ALLOW_THREADS;
-        }
-        Py_XDECREF (tmp);
-    }
-#ifdef IS_PYTHON_3
-    else if (PyObject_AsFileDescriptor (file) != -1)
-#else
-    else if (PyFile_Check (file))
-#endif
+    if (type)
     {
-        SDL_RWops *rw = RWopsFromPython (file);
-        if (!rw)
-            return NULL;
-
-        if (type)
-        {
-            Py_BEGIN_ALLOW_THREADS;
-            surface = IMG_LoadTyped_RW (rw, 1, type);
-            Py_END_ALLOW_THREADS;
-        }
-        else
-        {
-            Py_BEGIN_ALLOW_THREADS;
-            surface = IMG_Load_RW (rw, 1);
-            Py_END_ALLOW_THREADS;
-        }
+        /* If the type's set, it has precedence over the filename. */
+        Py_BEGIN_ALLOW_THREADS;
+        surface = IMG_LoadTyped_RW (rw, autoclose, type);
+        Py_END_ALLOW_THREADS;
     }
     else
     {
-#ifdef IS_PYTHON_3
-        PyErr_Clear (); /* Set by PyObject_AsFileDescriptor() */
-#endif
-        PyErr_SetString (PyExc_TypeError, "file must be a string or file");
-        return NULL;
+        Py_BEGIN_ALLOW_THREADS;
+        surface = IMG_Load_RW (rw, autoclose);
+        Py_END_ALLOW_THREADS;
     }
-
+    
+    if (!autoclose)
+        PyRWops_Close (rw, autoclose);
+    
     if (!surface)
     {
         PyErr_SetString (PyExc_PyGameError, IMG_GetError ());

@@ -55,12 +55,11 @@ _sdl_keygetkeystate (PyObject *self)
     int count, i;
     PyObject *dict, *key, *val;
     
-    ASSERT_VIDEO_INIT (NULL);
+    /*ASSERT_VIDEO_INIT (NULL);*/
     
     dict = PyDict_New ();
     if (!dict)
         return NULL;
-    
     SDL_PumpEvents ();
     array = SDL_GetKeyState (&count);
     
@@ -68,7 +67,7 @@ _sdl_keygetkeystate (PyObject *self)
     {
         key = PyInt_FromLong (i);
         val = PyBool_FromLong (array[i]);
-        if (!PyDict_SetItem (dict, key, val))
+        if (PyDict_SetItem (dict, key, val) == -1)
         {
             Py_DECREF (key);
             Py_DECREF (val);
@@ -84,7 +83,7 @@ _sdl_keygetkeystate (PyObject *self)
 static PyObject*
 _sdl_keygetmodstate (PyObject *self)
 {
-    ASSERT_VIDEO_INIT (NULL);
+    /*ASSERT_VIDEO_INIT (NULL);*/
     return PyLong_FromUnsignedLong (SDL_GetModState ());
 }
 
@@ -92,7 +91,7 @@ static PyObject*
 _sdl_keysetmodstate (PyObject *self, PyObject *args)
 {
     SDLMod mod;
-    ASSERT_VIDEO_INIT (NULL);
+    /*ASSERT_VIDEO_INIT (NULL);*/
     
     if (!PyArg_ParseTuple (args, "i:set_mod_state", &mod))
         return NULL;
@@ -105,7 +104,7 @@ _sdl_keygetkeyname (PyObject *self, PyObject *args)
 {
     int key;
     
-    ASSERT_VIDEO_INIT (NULL);
+    /*ASSERT_VIDEO_INIT (NULL);*/
     
     if (!PyArg_ParseTuple (args, "i:get_key_name", &key))
         return NULL;

@@ -1,4 +1,4 @@
-import os, glob
+import os, glob, sys
 from config import config_generic, libconfig, pkgconfig, helpers
 
 def get_sys_libs (module):
@@ -25,7 +25,7 @@ def get_install_libs(cfg):
     return []
 
 class Dependency (config_generic.Dependency):
-    _searchdirs = [ "/usr", "/usr/local" ]
+    _searchdirs = [ "/usr", "/usr/local", sys.prefix ]
     _incdirs = [ "include", "X11/include" ]
     _libdirs = [ "lib", "X11/lib" ]
     _libprefix = "lib"
@@ -56,20 +56,10 @@ class Dependency (config_generic.Dependency):
             Configuration callback using a generic CONFIG tool
         """
         lc = self.library_config_program
-        found_header = False
-
         if not lc or not libconfig.has_libconfig(lc):
             return False
 
-        incdirs = libconfig.get_incdirs(lc)
-        for d in incdirs:
-            for h in self.header_files:
-                if os.path.isfile(os.path.join(d, h)):
-                    found_header = True
-        if not found_header:
-            return False
-
-        self.incdirs += incdirs
+        self.incdirs += libconfig.get_incdirs(lc)
         self.libdirs += libconfig.get_libdirs(lc)
         self.libs += libconfig.get_libs(lc)
         self.cflags += libconfig.get_cflags(lc)

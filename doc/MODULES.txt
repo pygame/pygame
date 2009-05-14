@@ -114,12 +114,12 @@ If you need to define a new library reference, you may do so in the dependencies
 dictionary in config.config_modules ::
 
     'dependency_name' : 
-        os_module.Dependency('header.h', 'library_id'),
+        dep(['header.h', header2.h, ...], 'library_id', ...),
 
 When defining a new dependency, 'dependency_name' is its full name (as
-referenced when instantiating a new Module object), 'header.h' is a
-representative header for the library, and 'library_id' is the linking
-id for the library: For example, a library that is linked with the
+referenced when instantiating a new Module object), [ 'header.h', ... ] is a
+representative list of required headers for the library, and 'library_id' is
+the linking id for the library: For example, a library that is linked with
 '-ljpeg' has 'jpeg' as its id.
 
 All the modules which depend on such library will be automatically
@@ -130,7 +130,6 @@ Additionally, you may disable/enable the compilation of such library
 the 'build' dictionary in the cfg.py module ::
 
     build['dependency_name'] = False
-
 
 C Module Dependencies
 ---------------------

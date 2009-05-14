@@ -76,7 +76,7 @@ def get_install_libs (cfg):
 
 
 class Dependency (config_unix.Dependency):
-    _searchdirs = [ "/usr", "/usr/local"]#, "/mingw" ]
+    _searchdirs = [ "/usr", "/usr/local", "/mingw" ]
     _incdirs = [ "include", "X11/include" ]
     _libdirs = [ "lib", "X11/lib" ]
     _libprefix = "lib"

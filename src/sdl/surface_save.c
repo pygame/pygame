@@ -261,7 +261,7 @@ pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type)
         }
         else
         {
-            SDL_SetError ("unknown file type");
+            SDL_SetError ("unsupported file type for RWops saving");
             if (tmpsf)
                 SDL_FreeSurface (tmpsf);
             return 0;
