@@ -48,7 +48,8 @@ modules = [
             "src/base/color.c",
             "src/base/floatrect.c",
             "src/base/rect.c",
-            "src/base/surface.c" ],
+            "src/base/surface.c",
+            "src/base/font.c"],
 
         instheaders = [
             "src/pgcompat.h",

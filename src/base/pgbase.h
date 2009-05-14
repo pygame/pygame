@@ -174,6 +174,35 @@ typedef struct
     (*(PyObject*(*)(void))PyGameBase_C_API[PYGAME_SURFACE_FIRSTSLOT+1])
 #endif /* PYGAME_SURFACE_INTERNAL */
 
+typedef struct
+{
+    PyObject_HEAD
+
+    PyObject* (*get_height)(PyObject *self, void *closure);
+    PyObject* (*get_size)(PyObject *self, void *closure);
+    PyObject* (*get_name)(PyObject *self, void *closure);
+    PyObject* (*get_style)(PyObject *self, void *closure);
+    int       (*set_style)(PyObject *self, PyObject *attr, void *closure);
+
+    PyObject* (*render)(PyObject *self, PyObject *args, PyObject *kwds);
+    PyObject* (*copy)(PyObject *self);
+} PyGenericFont;
+
+#define PYGAME_FONT_FIRSTSLOT   \
+    (PYGAME_SURFACE_FIRSTSLOT + PYGAME_SURFACE_NUMSLOTS)
+#define PYGAME_FONT_NUMSLOTS 2
+
+#ifndef PYGAME_FONT_INTERNAL
+#define PyGenericFont_Type \
+    (*(PyTypeObject*)PyGameBase_C_API[PYGAME_FONT_FIRSTSLOT+0])
+#define PyGenericFont_Check(x) \
+    (PyObject_TypeCheck(x, \
+        (PyTypeObject*)PyGameBase_C_API[PYGAME_FONT_FIRSTSLOT+0]))
+#define PyGenericFont_New \
+    (*(PyObject*(*)(void))PyGameBase_C_API[PYGAME_FONT_FIRSTSLOT+1])
+#endif /* PYGAME_FONT_INTERNAL */
+
+
 /**
  * C API export.
  */
@@ -184,7 +213,7 @@ static void **PyGameBase_C_API;
 #endif
 
 #define PYGAME_BASE_SLOTS \
-    (PYGAME_SURFACE_FIRSTSLOT + PYGAME_SURFACE_NUMSLOTS)
+    (PYGAME_FONT_FIRSTSLOT + PYGAME_FONT_NUMSLOTS)
 #define PYGAME_BASE_ENTRY "_PYGAME_BASE_CAPI"
 
 static int

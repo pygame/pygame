@@ -100,11 +100,13 @@ _init(void)
  *
  * Bindings for initialization/cleanup functions
  *
- * FIXME: Do we really need to export bindings for init() and
- * quit() functions? The init function can be automatically
- * called when importing the module, and the quit function is
- * automatically called when unloading the module. Will the user
- * ever need to manually unload the FT library?
+ * Explicit init/quit functions are required to work around
+ * some issues regarding module caching and multi-threaded apps.
+ * It's always good to let the user choose when to initialize
+ * the module.
+ *
+ * TODO: These bindings can be removed once proper threading
+ * support is in place.
  *
  ***************************************************************/
 static PyObject *

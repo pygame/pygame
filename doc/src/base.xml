@@ -717,5 +717,39 @@
     </attr>
   </class>
 
+
+  <class name="Font">
+    <constructor>Font () -> Font</constructor>
+    <desc>
+      An abstract base class for arbitrary :class:`Font` objects.
+    
+      You should not instantiate this class directly.
+    </desc>
+    <method name="render">
+      <call>render (**kwds) -> object</call>
+      <desc>
+          Renders the specified text using the Font object. The exact input
+          arguments and return value is dependand on each specific Font
+          implementation.
+      </desc>
+    </method>
+    <method name="copy">
+      <call>copy () -> Font</call>
+      <desc>Creates a copy of this :class:`Font`.</desc>
+    </method>
+    <attr name="height">
+      <desc>Gets the standard height of the :class:`Font` typography.</desc>
+    </attr>
+    <attr name="size">
+      <desc>Gets the width and height of the :class:`Font` typography.</desc>
+    </attr>
+    <attr name="name">
+      <desc>Gets the name of the loaded :class:`Font`.</desc>
+    </attr>
+    <attr name="style">
+      <desc>Gets or sets the style used to render the :class:`Font`.</desc>
+    </attr>
+  </class>
+
 </module>
 
