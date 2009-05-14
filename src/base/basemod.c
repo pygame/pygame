@@ -422,12 +422,15 @@ PyMODINIT_FUNC initbase (void)
         MODINIT_RETURN(NULL);
     if (PyType_Ready (&PySurface_Type) < 0)
         MODINIT_RETURN(NULL);
+    if (PyType_Ready(&PyGenericFont_Type) < 0)
+        MODINIT_RETURN(NULL);
 
     Py_INCREF (&PyColor_Type);
     Py_INCREF (&PyFRect_Type);
     Py_INCREF (&PyRect_Type);
     Py_INCREF (&PyBufferProxy_Type);
     Py_INCREF (&PySurface_Type);
+    Py_INCREF (&PyGenericFont_Type);
 
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_basemodule);
@@ -442,6 +445,7 @@ PyMODINIT_FUNC initbase (void)
     PyModule_AddObject (mod, "FRect", (PyObject *) &PyFRect_Type);
     PyModule_AddObject (mod, "BufferProxy", (PyObject *) &PyBufferProxy_Type);
     PyModule_AddObject (mod, "Surface", (PyObject *) &PySurface_Type);
+    PyModule_AddObject (mod, "Font", (PyObject *) &PyGenericFont_Type);
     
     /* Setup the pygame exeption */
     PyExc_PyGameError = PyErr_NewException ("base.Error", NULL, NULL);

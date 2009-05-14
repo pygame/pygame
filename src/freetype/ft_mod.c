@@ -1,6 +1,8 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001 Pete Shinners, 2008 Marcus von Appen
+  Copyright (C) 2000-2001 Pete Shinners
+  Copyright (C) 2008 Marcus von Appen
+  Copyright (C) 2009 Vicent Marti
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -185,11 +187,11 @@ PyMODINIT_FUNC
 
     /*  
 
-    if (PyType_Ready(&PyFont_Type) < 0)
+    if (PyType_Ready(&PySDLFont_TTF_Type) < 0)
         goto fail;
 
-    Py_INCREF (&PyFont_Type);
-    PyModule_AddObject (mod, "Font", (PyObject *) &PyFont_Type); 
+    Py_INCREF (&PySDLFont_TTF_Type);
+    PyModule_AddObject (mod, "Font", (PyObject *) &PySDLFont_TTF_Type); 
     
     */
 
