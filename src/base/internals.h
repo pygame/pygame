@@ -30,6 +30,7 @@
 #define PYGAME_FRECT_INTERNAL
 #define PYGAME_BUFFERPROXY_INTERNAL
 #define PYGAME_SURFACE_INTERNAL
+#define PYGAME_FONT_INTERNAL
 
 extern PyObject* PyExc_PyGameError;
 
@@ -68,5 +69,10 @@ extern PyTypeObject PySurface_Type;
 #define PySurface_Check(x) (PyObject_TypeCheck(x, &PySurface_Type))
 PyObject* PySurface_New (void);
 void surface_export_capi (void **capi);
+
+extern PyTypeObject PyGenericFont_Type;
+#define PyGenericFont_Check(x) (PyObject_TypeCheck(x, &PyGenericFont_Type))
+PyObject* PyGenericFont_New(void);
+void font_export_capi(void **capi);
 
 #endif /* _PYGAME_BASE_INTERNALS_H_ */
