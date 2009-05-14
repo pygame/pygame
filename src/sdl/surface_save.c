@@ -103,8 +103,8 @@ int
 pyg_sdlsurface_save (SDL_Surface *surface, char *filename, char *type)
 {    
     size_t len;
-    int retval;
     SDL_Surface *tmpsf = NULL;
+    SDL_RWops *rw;
 
     if (!surface)
     {
@@ -127,17 +127,6 @@ pyg_sdlsurface_save (SDL_Surface *surface, char *filename, char *type)
         }
         type = filename + (len - 3);
     }
-    
-    /* Convert an OpenGL surface on demand. */
-    if (surface->flags & SDL_OPENGL)
-    {
-        /* TODO: _convert_opengl_sdl() acquires the video surface -
-         * is this correct? */
-        tmpsf = _convert_opengl_sdl ();
-        if (!tmpsf)
-            return 0;
-        surface = tmpsf;
-    }
 
     len = strlen (type);
     if (len < 3 || len > 4)
@@ -147,74 +136,17 @@ pyg_sdlsurface_save (SDL_Surface *surface, char *filename, char *type)
             SDL_FreeSurface (tmpsf);
         return 0;
     }
-    
-    if (len == 3)
-    {
-        /* Can be BMP, TGA, PNG, JPG */
-        if ((type[0] == 'B' || type[0] == 'b') &&
-            (type[1] == 'M' || type[1] == 'm') &&
-            (type[2] == 'P' || type[2] == 'p'))
-        {
-            retval = SDL_SaveBMP (surface, filename);
-        }
-        else if ((type[0] == 'T' || type[0] == 't') &&
-            (type[1] == 'G' || type[1] == 'g') &&
-            (type[2] == 'A' || type[2] == 'a'))
-        {
-            /* TGA saving */
-            retval = pyg_save_tga (surface, filename, 1);
-        }
-#ifdef HAVE_PNG
-        else if ((type[0] == 'P' || type[0] == 'p') &&
-            (type[1] == 'N' || type[1] == 'n') &&
-            (type[2] == 'G' || type[2] == 'g'))
-        {
-            /* PNG saving. */
-            retval = pyg_save_png (surface, filename);
-        }
-#endif /* HAVE_PNG */
-#ifdef HAVE_JPEG
-        else if ((type[0] == 'J' || type[0] == 'j') &&
-            (type[1] == 'P' || type[1] == 'p') &&
-            (type[2] == 'G' || type[2] == 'g'))
-        {
-            /* JPG saving */
-            retval = pyg_save_jpeg (surface, filename);
-        }
-#endif /* HAVE_JPEG */
-        else
-        {
-            SDL_SetError ("unknown file type");
-            if (tmpsf)
-                SDL_FreeSurface (tmpsf);
-            return 0;
-        }
-    }
-    else
-    {
-#ifdef HAVE_JPEG
-        /* JPEG */
-        if ((type[0] == 'J' || type[0] == 'j') &&
-            (type[1] == 'P' || type[1] == 'p') &&
-            (type[2] == 'E' || type[2] == 'e') &&
-            (type[3] == 'G' || type[3] == 'g'))
-        {
-            retval = pyg_save_jpeg (surface, filename);
-        }
-        else
-#endif /* HAVE_JPEG */
-        {
-            SDL_SetError ("unknown file type");
-            if (tmpsf)
-                SDL_FreeSurface (tmpsf);
-            return 0;
-        }
-    }
-    return retval;
+
+    rw = SDL_RWFromFile (filename, "wb");
+    if (!rw)
+        return 0;
+
+    return pyg_sdlsurface_save_rw (surface, rw, type, 1);
 }
 
 int
-pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type)
+pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type,
+    int freerw)
 {
     int retval;
     size_t len;
@@ -237,7 +169,7 @@ pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type)
         SDL_SetError ("unknown file type");
         return 0;
     }
-
+    
     /* Convert an OpenGL surface on demand. */
     if (surface->flags & SDL_OPENGL)
     {
@@ -251,17 +183,41 @@ pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type)
 
     if (len == 3)
     {
-        /* Can be TGA only at the moment :-/ */
-        if ((type[0] == 'T' || type[0] == 't') &&
+        /* Can be BMP, TGA, PNG, JPG */
+        if ((type[0] == 'B' || type[0] == 'b') &&
+            (type[1] == 'M' || type[1] == 'm') &&
+            (type[2] == 'P' || type[2] == 'p'))
+        {
+            retval = SDL_SaveBMP_RW (surface, rw, freerw);
+        }
+        else if ((type[0] == 'T' || type[0] == 't') &&
             (type[1] == 'G' || type[1] == 'g') &&
             (type[2] == 'A' || type[2] == 'a'))
         {
             /* TGA saving */
-            retval = pyg_save_tga_rw (surface, rw, 1);
+            retval = pyg_save_tga_rw (surface, rw, 1, freerw);
         }
+#ifdef HAVE_PNG
+        else if ((type[0] == 'P' || type[0] == 'p') &&
+            (type[1] == 'N' || type[1] == 'n') &&
+            (type[2] == 'G' || type[2] == 'g'))
+        {
+            /* PNG saving. */
+            retval = pyg_save_png_rw (surface, rw, freerw);
+        }
+#endif /* HAVE_PNG */
+#ifdef HAVE_JPEG
+        else if ((type[0] == 'J' || type[0] == 'j') &&
+            (type[1] == 'P' || type[1] == 'p') &&
+            (type[2] == 'G' || type[2] == 'g'))
+        {
+            /* JPG saving */
+            retval = pyg_save_jpeg_rw (surface, rw, freerw);
+        }
+#endif /* HAVE_JPEG */
         else
         {
-            SDL_SetError ("unsupported file type for RWops saving");
+            SDL_SetError ("unknown file type");
             if (tmpsf)
                 SDL_FreeSurface (tmpsf);
             return 0;
@@ -269,10 +225,24 @@ pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type)
     }
     else
     {
-        SDL_SetError ("unknown file type");
-        if (tmpsf)
-            SDL_FreeSurface (tmpsf);
-        return 0;
+#ifdef HAVE_JPEG
+        /* JPEG */
+        if ((type[0] == 'J' || type[0] == 'j') &&
+            (type[1] == 'P' || type[1] == 'p') &&
+            (type[2] == 'E' || type[2] == 'e') &&
+            (type[3] == 'G' || type[3] == 'g'))
+        {
+            retval = pyg_save_jpeg_rw (surface, rw, freerw);
+        }
+        else
+#endif /* HAVE_JPEG */
+        {
+            SDL_SetError ("unknown file type");
+            if (tmpsf)
+                SDL_FreeSurface (tmpsf);
+            return 0;
+        }
     }
+
     return retval;
 }

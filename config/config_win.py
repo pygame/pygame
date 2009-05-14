@@ -97,4 +97,4 @@ class Dependency (config_generic.Dependency):
                 incs.append (d.replace ("freetype2\\freetype", "freetype2"))
             else:
                 incs.append (d)
-        self.incdirs = incs
+        self.incdirs = incs

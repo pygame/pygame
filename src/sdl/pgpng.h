@@ -32,4 +32,15 @@
 int
 pyg_save_png (SDL_Surface *surface, char *file);
 
+/**
+ * \brief Saves a SDL_Surface as PNG image.
+ *
+ * @param surface The SDL_Surface to save.
+ * @param rw The SDL_RWops to save the surface to.
+ * @param freerw Indicates, whether the SDL_RWops shall be freed.
+ * @return 0 on failure, !0 on success.
+ */
+int
+pyg_save_png_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw);
+
 #endif /* _PYGAME_PNG_H_ */

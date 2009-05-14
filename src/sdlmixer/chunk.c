@@ -125,7 +125,6 @@ _chunk_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 _chunk_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
-    char *filename;
     PyObject *file;
     Mix_Chunk *chunk;
     SDL_RWops *rw;

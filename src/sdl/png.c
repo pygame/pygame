@@ -22,41 +22,40 @@
 #include <png.h>
 #include "pgpng.h"
 
-static int _write_png (char *file_name, png_bytep *rows, int w, int h,
+static void _write_data (png_structp png_ptr, png_bytep data,
+    png_size_t length);
+static int _write_png (SDL_RWops *rw, png_bytep *rows, int w, int h,
     int colortype, int bitdepth);
 
+static void
+_write_data (png_structp png_ptr, png_bytep data, png_size_t length)
+{
+    SDL_RWops* dst = (SDL_RWops*) png_get_io_ptr (png_ptr);
+    SDL_RWwrite(dst, data, 1, length);
+} 
+
 static int
-_write_png (char *file_name, png_bytep *rows, int w, int h, int colortype,
+_write_png (SDL_RWops *rw, png_bytep *rows, int w, int h, int colortype,
     int bitdepth)
 {
     png_structp png_ptr;
     png_infop info_ptr;
-    FILE *fp = NULL;
     char *doing = "open for writing";
-
-    if (!(fp = fopen (file_name, "wb")))
-        goto fail;
 
     doing = "create png write struct";
     if (!(png_ptr = png_create_write_struct
           (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL)))
-    {
-        fclose (fp);
         goto fail;
-    }
+
     doing = "create png info struct";
     if (!(info_ptr = png_create_info_struct (png_ptr)))
-    {
-        fclose (fp);
         goto fail;
-    }
+
     if (setjmp (png_jmpbuf (png_ptr)))
-    {
-        fclose (fp);
         goto fail;
-    }
+
     doing = "init IO";
-    png_init_io (png_ptr, fp);
+    png_set_write_fn (png_ptr, rw, png_write_data, NULL);
 
     doing = "write header";
     png_set_IHDR (png_ptr, info_ptr, (png_uint_32)w, (png_uint_32)h,
@@ -73,9 +72,7 @@ _write_png (char *file_name, png_bytep *rows, int w, int h, int colortype,
     png_write_end (png_ptr, NULL);
 
     doing = "closing file";
-    if(0 != fclose (fp))
-        goto fail;
-    return 0;
+    return 1;
 
 fail:
     SDL_SetError ("could not %s", doing);
@@ -84,6 +81,27 @@ fail:
 
 int
 pyg_save_png (SDL_Surface *surface, char *file)
+{
+    SDL_RWops *out;
+
+    if (!surface)
+    {
+        SDL_SetError ("surface argument NULL");
+        return 0;
+    }
+    if (!file)
+    {
+        SDL_SetError ("file argument NULL");
+        return 0;
+    }
+    out = SDL_RWFromFile (file, "wb");
+    if (!out)
+        return 0;
+    return pyg_save_png_rw (surface, out, 1);
+}
+
+int
+pyg_save_png_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
 {
     static unsigned char** ss_rows;
     static int ss_size;
@@ -102,9 +120,9 @@ pyg_save_png (SDL_Surface *surface, char *file)
         SDL_SetError ("surface argument NULL");
         return 0;
     }
-    if (!file)
+    if (!rw)
     {
-        SDL_SetError ("file argument NULL");
+        SDL_SetError ("rw argument NULL");
         return 0;
     }
 
@@ -182,6 +200,8 @@ pyg_save_png (SDL_Surface *surface, char *file)
     free (ss_rows);
     SDL_FreeSurface (ss_surface);
     ss_surface = NULL;
+    if (freerw)
+        SDL_RWclose (rw);
     return r;
 }
 

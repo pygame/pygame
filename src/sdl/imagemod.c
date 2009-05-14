@@ -38,7 +38,6 @@ _sdl_loadbmp (PyObject *self, PyObject *args)
     SDL_RWops *rw;
     int autoclose;
     PyObject *sf, *file;
-    char *filename;
 
     if (!PyArg_ParseTuple (args, "O:load_bmp", &file))
         return NULL;
@@ -73,7 +72,6 @@ _sdl_savebmp (PyObject *self, PyObject *args)
 {
     PyObject *surface, *file;
     SDL_RWops *rw;
-    char *filename;
     int _stat, autoclose;
     
     if (!PyArg_ParseTuple (args, "OO:save_bmp", &surface, &file))

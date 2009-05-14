@@ -456,7 +456,7 @@ _get_data_as (Atom source, Atom format, char **data, unsigned int *size)
      */
     if (!scrap_lost_x11 ())
     {
-        char *fmt, *value;
+        char *fmt;
 
         fmt = _atom_to_string (format);
         /* TODO */

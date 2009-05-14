@@ -22,36 +22,87 @@
 #include "jpg.h"
 #include <jpeglib.h>
 
-static int _write_jpeg (char *file_name, unsigned char** image_buffer,
+#define OUTPUT_SIZE 4096
+
+struct dest_mgr
+{
+    struct jpeg_destination_mgr  pub;
+    SDL_RWops                   *rw;
+    Uint8                       buf[OUTPUT_SIZE];
+};
+
+static void _init_jpegdest (j_compress_ptr cinfo);
+static boolean _empty_jpegbuffer (j_compress_ptr cinfo);
+static void _term_jpegdest (j_compress_ptr cinfo);
+static int _write_jpeg (SDL_RWops *rw, unsigned char** image_buffer,
     int image_width, int image_height, int quality);
 
+static void
+_init_jpegdest (j_compress_ptr cinfo)
+{
+    struct dest_mgr *dest = (struct dest_mgr *) cinfo->dest;
+    dest->pub.next_output_byte = dest->buf;
+    dest->pub.free_in_buffer = OUTPUT_SIZE;
+}
+
+static boolean
+_empty_jpegbuffer (j_compress_ptr cinfo)
+{
+    struct dest_mgr *dest = (struct dest_mgr *) cinfo->dest;
+    int size;
+    
+    size = SDL_RWwrite (dest->rw, dest->buf, 1, OUTPUT_SIZE);
+    if (size != OUTPUT_SIZE)
+        return FALSE;
+    dest->pub.next_output_byte = dest->buf;
+    dest->pub.free_in_buffer = OUTPUT_SIZE;
+    return TRUE;
+}
+
+static void
+_term_jpegdest (j_compress_ptr cinfo)
+{
+    struct dest_mgr *dest = (struct dest_mgr *) cinfo->dest;
+    SDL_RWwrite (dest->rw, dest->buf, 1,
+        OUTPUT_SIZE - dest->pub.free_in_buffer);
+}
+
 static int
-_write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
+_write_jpeg (SDL_RWops *rw, unsigned char** image_buffer, int image_width,
     int image_height, int quality)
 {
     struct jpeg_compress_struct cinfo;
     struct jpeg_error_mgr jerr;
-    FILE * outfile;
+    struct dest_mgr *dest;
     JSAMPROW row_pointer[1];
     int row_stride;
 
     cinfo.err = jpeg_std_error (&jerr);
     jpeg_create_compress (&cinfo);
 
-    if ((outfile = fopen (file_name, "wb")) == NULL)
-    {
-        SDL_SetError ("could not open %s", file_name);
-        return 0;
-    }
-    jpeg_stdio_dest (&cinfo, outfile);
+    /*jpeg_stdio_dest (&cinfo, outfile);*/
 
     cinfo.image_width = image_width;
     cinfo.image_height = image_height;
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
-  
+
     jpeg_set_defaults (&cinfo);
     jpeg_set_quality (&cinfo, quality, TRUE);
+
+    cinfo.dest = (struct jpeg_destination_mgr *)
+        (*cinfo.mem->alloc_small) ((j_common_ptr) &cinfo, JPOOL_PERMANENT,
+            sizeof(struct dest_mgr));
+    if (!cinfo.dest)
+        return 0;
+
+    dest = (struct dest_mgr *) cinfo.dest;
+    dest->pub.init_destination = _init_jpegdest;
+    dest->pub.term_destination = _term_jpegdest;
+    dest->pub.empty_output_buffer = _empty_jpegbuffer;
+    dest->rw = rw;
+    dest->pub.free_in_buffer = 0;
+    dest->pub.next_output_byte = NULL;
 
     jpeg_start_compress (&cinfo, TRUE);
     row_stride = image_width * 3;
@@ -63,13 +114,34 @@ _write_jpeg (char *file_name, unsigned char** image_buffer,  int image_width,
     }
 
     jpeg_finish_compress (&cinfo);
-    fclose (outfile);
     jpeg_destroy_compress (&cinfo);
     return 1;
 }
 
 int
 pyg_save_jpeg (SDL_Surface *surface, char *file)
+{
+    SDL_RWops *out;
+
+    if (!surface)
+    {
+        SDL_SetError ("surface argument NULL");
+        return 0;
+    }
+    if (!file)
+    {
+        SDL_SetError ("file argument NULL");
+        return 0;
+    }
+
+    out = SDL_RWFromFile (file, "wb");
+    if (!out)
+        return 0;
+    return pyg_save_jpeg_rw (surface, out, 1);
+}
+
+int
+pyg_save_jpeg_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
 {
     static unsigned char** ss_rows;
     static int ss_size;
@@ -85,9 +157,9 @@ pyg_save_jpeg (SDL_Surface *surface, char *file)
         SDL_SetError ("surface argument NULL");
         return 0;
     }
-    if (!file)
+    if (!rw)
     {
-        SDL_SetError ("file argument NULL");
+        SDL_SetError ("rw argument NULL");
         return 0;
     }
 
@@ -134,11 +206,13 @@ pyg_save_jpeg (SDL_Surface *surface, char *file)
         ss_rows[i] = ((unsigned char*)ss_surface->pixels) +
             i * ss_surface->pitch;
     }
-    r = _write_jpeg (file, ss_rows, surface->w, surface->h, 85);
+    r = _write_jpeg (rw, ss_rows, surface->w, surface->h, 85);
 
     free (ss_rows);
     SDL_FreeSurface (ss_surface);
     ss_surface = NULL;
+    if (freerw)
+        SDL_RWclose (rw);
     return r;
 }
 

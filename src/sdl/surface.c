@@ -987,59 +987,26 @@ _surface_save (PyObject *self, PyObject *args)
 {
     SDL_Surface *surface;
     PyObject *file;
-    char *filename, *type = NULL;
+    char *type = NULL;
     int retval;
+    SDL_RWops *rw;
+    int autoclose;
 
     if (!PyArg_ParseTuple (args, "O|s", &file, &type))
         return NULL;
 
     surface = ((PySDLSurface*)self)->surface;
 
-    /* TODO: full RWops support for all types! */
-    if (IsTextObj (file))
-    {
-        PyObject *tmp;
-        if (!UTF8FromObject (file, &filename, &tmp))
-            return NULL;
-        
-        Py_BEGIN_ALLOW_THREADS;
-        retval = pyg_sdlsurface_save (surface, filename, type);
-        Py_END_ALLOW_THREADS;
-        
-        Py_XDECREF (tmp);
-    }
-#ifdef IS_PYTHON_3
-    else if (PyObject_AsFileDescriptor (file) != -1)
-#else
-    else if (PyFile_Check (file))
-#endif
-    {
-        SDL_RWops* rw;
-        int autoclose;
-        
-        /* If the type is NULL, we assume TGA saving. */
-        if (!type)
-            type = "TGA";
-
-        rw = PyRWops_NewRW (file, &autoclose);
-        if (!rw)
-            return NULL;
-        Py_BEGIN_ALLOW_THREADS;
-        retval = pyg_sdlsurface_save_rw (surface, rw, type);
-        Py_END_ALLOW_THREADS;
-        
-        if (!autoclose)
-            PyRWops_Close (rw, autoclose);
-    }
-    else
-    {
-#ifdef IS_PYTHON_3
-        PyErr_Clear (); /* Set by PyObject_AsFileDescriptor() */
-#endif
-        PyErr_SetString (PyExc_TypeError,
-            "file must be file-like object or a string");
+    rw = PyRWops_NewRW (file, &autoclose);
+    if (!rw)
         return NULL;
-    }
+    
+    Py_BEGIN_ALLOW_THREADS;
+    retval = pyg_sdlsurface_save_rw (surface, rw, type, autoclose);
+    Py_END_ALLOW_THREADS;
+        
+    if (!autoclose)
+        PyRWops_Close (rw, autoclose);
     
     if (!retval)
     {

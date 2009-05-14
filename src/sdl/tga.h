@@ -29,10 +29,11 @@
  * @param out The SDL_RWops to save the SDL_Surface to.
  * @param rle 0, if run length encoding should be disabled, !0, if it should
  * be used.
+ * @param freerw Indicates, whether the SDL_RWops shall be freed.
  * @return 0 on failure, !0 on success.
  */
 int
-pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle);
+pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle, int freerw);
 
 /**
  * \brief Saves a SDL_Surface as TGA image.

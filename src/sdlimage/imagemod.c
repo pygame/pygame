@@ -48,7 +48,7 @@ _image_geterror (PyObject *self)
 static PyObject*
 _image_load (PyObject *self, PyObject *args)
 {
-    char *filename, *type = NULL;
+    char *type = NULL;
     SDL_Surface *surface = NULL;
     PyObject *sf, *file;
     SDL_RWops *rw;
@@ -61,7 +61,7 @@ _image_load (PyObject *self, PyObject *args)
 
     rw = PyRWops_NewRO (file, &autoclose);
     if (!rw)
-        return -1;
+        return NULL;
 
     if (type)
     {

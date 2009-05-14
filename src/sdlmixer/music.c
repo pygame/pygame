@@ -127,7 +127,6 @@ static int
 _music_init (PyObject *self, PyObject *args, PyObject *kwds)
 {
     PyObject *file;
-    char *filename;
     Mix_Music *music;
     SDL_RWops *rw;
     int autoclose;

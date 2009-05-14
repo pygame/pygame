@@ -113,7 +113,7 @@ _rle_line (Uint8 *src, Uint8 *dst, int w, int bpp)
 }
 
 int
-pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle)
+pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle, int freerw)
 {
     SDL_Surface *linebuf = NULL;
     int alpha = 0;
@@ -278,10 +278,14 @@ pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle)
     if (surf_flags & SDL_SRCCOLORKEY)
         SDL_SetColorKey (surface, SDL_SRCCOLORKEY, surface->format->colorkey);
 
+    if (freerw)
+        SDL_RWclose (out);
+
 error:
     if (rlebuf)
         free (rlebuf);
     SDL_FreeSurface (linebuf);
+    
     return 0;
 }
 
@@ -302,12 +306,11 @@ pyg_save_tga (SDL_Surface *surface, char *file, int rle)
         return 0;
     }
 
-
     out = SDL_RWFromFile (file, "wb");
     if (!out)
         return 0;
 
-    ret = pyg_save_tga_rw (surface, out, rle);
+    ret = pyg_save_tga_rw (surface, out, rle, 1);
     SDL_RWclose (out);
     return ret;
 }
