@@ -161,6 +161,9 @@ _font_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     font->get_size =    _def_f_getsize;
     font->render =      _def_f_render;
     font->copy =        _def_f_copy;
+    font->get_name =    _def_f_getname;
+    font->get_style =   _def_f_getstyle;
+    font->set_style =   _def_f_setstyle;
 
     return (PyObject*) font;
 }
