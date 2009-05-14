@@ -70,9 +70,9 @@ extern PyTypeObject PySurface_Type;
 PyObject* PySurface_New (void);
 void surface_export_capi (void **capi);
 
-extern PyTypeObject PyGenericFont_Type;
-#define PyGenericFont_Check(x) (PyObject_TypeCheck(x, &PyGenericFont_Type))
-PyObject* PyGenericFont_New(void);
+extern PyTypeObject PyFont_Type;
+#define PyFont_Check(x) (PyObject_TypeCheck(x, &PyFont_Type))
+PyObject* PyFont_New(void);
 void font_export_capi(void **capi);
 
 #endif /* _PYGAME_BASE_INTERNALS_H_ */

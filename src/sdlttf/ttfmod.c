@@ -146,10 +146,10 @@ PyMODINIT_FUNC initbase (void)
     };
 #endif
 
-    if (PyType_Ready (&PyFont_Type) < 0)
+    if (PyType_Ready (&PySDLFont_TTF_Type) < 0)
         goto fail;
 
-    Py_INCREF (&PyFont_Type);
+    Py_INCREF (&PySDLFont_TTF_Type);
 
 #ifdef IS_PYTHON_3
     mod = PyModule_Create (&_module);
@@ -159,7 +159,7 @@ PyMODINIT_FUNC initbase (void)
     if (!mod)
         goto fail;
     
-    PyModule_AddObject (mod, "Font", (PyObject *) &PyFont_Type);
+    PyModule_AddObject (mod, "Font", (PyObject *) &PySDLFont_TTF_Type);
 
     /* Export C API */
     font_export_capi (c_api);

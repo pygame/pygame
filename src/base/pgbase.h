@@ -186,19 +186,19 @@ typedef struct
 
     PyObject* (*render)(PyObject *self, PyObject *args, PyObject *kwds);
     PyObject* (*copy)(PyObject *self);
-} PyGenericFont;
+} PyFont;
 
 #define PYGAME_FONT_FIRSTSLOT   \
     (PYGAME_SURFACE_FIRSTSLOT + PYGAME_SURFACE_NUMSLOTS)
 #define PYGAME_FONT_NUMSLOTS 2
 
 #ifndef PYGAME_FONT_INTERNAL
-#define PyGenericFont_Type \
+#define PyFont_Type \
     (*(PyTypeObject*)PyGameBase_C_API[PYGAME_FONT_FIRSTSLOT+0])
-#define PyGenericFont_Check(x) \
+#define PyFont_Check(x) \
     (PyObject_TypeCheck(x, \
         (PyTypeObject*)PyGameBase_C_API[PYGAME_FONT_FIRSTSLOT+0]))
-#define PyGenericFont_New \
+#define PyFont_New \
     (*(PyObject*(*)(void))PyGameBase_C_API[PYGAME_FONT_FIRSTSLOT+1])
 #endif /* PYGAME_FONT_INTERNAL */
 

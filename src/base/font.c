@@ -28,7 +28,7 @@
 
 static PyObject* _font_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _font_init(PyObject *cursor, PyObject *args, PyObject *kwds);
-static void _font_dealloc(PyGenericFont *self);
+static void _font_dealloc(PyFont *self);
 static PyObject* _font_repr(PyObject *self);
 
 
@@ -98,11 +98,11 @@ static PyGetSetDef _font_getsets[] = {
 /*
  * TYPE OBJECT TABLE
  */
-PyTypeObject PyGenericFont_Type =
+PyTypeObject PyFont_Type =
 {
     TYPE_HEAD(NULL, 0)
     "base.Font",                /* tp_name */
-    sizeof (PyGenericFont),            /* tp_basicsize */
+    sizeof (PyFont),            /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _font_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
@@ -154,7 +154,7 @@ PyTypeObject PyGenericFont_Type =
 static PyObject*
 _font_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyGenericFont *font = (PyGenericFont *)type->tp_alloc(type, 0);
+    PyFont *font = (PyFont *)type->tp_alloc(type, 0);
 
     if (!font)
         return NULL;
@@ -171,7 +171,7 @@ _font_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static void
-_font_dealloc(PyGenericFont *self)
+_font_dealloc(PyFont *self)
 {
     ((PyObject*)self)->ob_type->tp_free((PyObject *)self);
 }
@@ -192,9 +192,9 @@ _font_repr(PyObject *self)
 static PyObject*
 _font_getheight(PyObject *self, void *closure)
 {
-    if (((PyGenericFont *)self)->get_height &&
-        ((PyGenericFont *)self)->get_height != _def_f_getheight)
-        return ((PyGenericFont *)self)->get_height(self, closure);
+    if (((PyFont *)self)->get_height &&
+        ((PyFont *)self)->get_height != _def_f_getheight)
+        return ((PyFont *)self)->get_height(self, closure);
 
     PyErr_SetString(PyExc_NotImplementedError,
         "height attribute not implemented");
@@ -205,9 +205,9 @@ _font_getheight(PyObject *self, void *closure)
 static PyObject*
 _font_getsize(PyObject *self, void *closure)
 {
-    if (((PyGenericFont *)self)->get_size &&
-        ((PyGenericFont *)self)->get_size != _def_f_getsize)
-        return ((PyGenericFont *)self)->get_size (self, closure);
+    if (((PyFont *)self)->get_size &&
+        ((PyFont *)self)->get_size != _def_f_getsize)
+        return ((PyFont *)self)->get_size (self, closure);
 
     PyErr_SetString (PyExc_NotImplementedError,
         "size attribute not implemented");
@@ -218,9 +218,9 @@ _font_getsize(PyObject *self, void *closure)
 static PyObject*
 _font_getname(PyObject *self, void *closure)
 {
-    if (((PyGenericFont *)self)->get_name &&
-        ((PyGenericFont *)self)->get_name != _def_f_getname)
-        return ((PyGenericFont *)self)->get_name(self, closure);
+    if (((PyFont *)self)->get_name &&
+        ((PyFont *)self)->get_name != _def_f_getname)
+        return ((PyFont *)self)->get_name(self, closure);
 
     PyErr_SetString (PyExc_NotImplementedError,
         "name attribute not implemented");
@@ -231,9 +231,9 @@ _font_getname(PyObject *self, void *closure)
 static PyObject*
 _font_getstyle(PyObject *self, void *closure)
 {
-    if (((PyGenericFont *)self)->get_style &&
-        ((PyGenericFont *)self)->get_style != _def_f_getstyle)
-        return ((PyGenericFont *)self)->get_style(self, closure);
+    if (((PyFont *)self)->get_style &&
+        ((PyFont *)self)->get_style != _def_f_getstyle)
+        return ((PyFont *)self)->get_style(self, closure);
 
     PyErr_SetString (PyExc_NotImplementedError,
         "style attribute not implemented");
@@ -244,9 +244,9 @@ _font_getstyle(PyObject *self, void *closure)
 static int
 _font_setstyle(PyObject *self, PyObject *args, void *closure)
 {
-    if (((PyGenericFont *)self)->set_style &&
-        ((PyGenericFont *)self)->set_style != _def_f_setstyle)
-        return ((PyGenericFont *)self)->set_style(self, args, closure);
+    if (((PyFont *)self)->set_style &&
+        ((PyFont *)self)->set_style != _def_f_setstyle)
+        return ((PyFont *)self)->set_style(self, args, closure);
 
     PyErr_SetString (PyExc_NotImplementedError,
         "style attribute not implemented");
@@ -260,8 +260,8 @@ _font_setstyle(PyObject *self, PyObject *args, void *closure)
 static PyObject*
 _font_render(PyObject* self, PyObject *args, PyObject *kwds)
 {
-    if (((PyGenericFont *)self)->render && ((PyGenericFont *)self)->render != _def_f_render)
-        return ((PyGenericFont *)self)->render(self, args, kwds);
+    if (((PyFont *)self)->render && ((PyFont *)self)->render != _def_f_render)
+        return ((PyFont *)self)->render(self, args, kwds);
 
     PyErr_SetString(PyExc_NotImplementedError, "render method not implemented");
 
@@ -271,8 +271,8 @@ _font_render(PyObject* self, PyObject *args, PyObject *kwds)
 static PyObject*
 _font_copy(PyObject* self)
 {
-    if (((PyGenericFont *)self)->copy && ((PyGenericFont *)self)->copy != _def_f_copy)
-        return ((PyGenericFont *)self)->copy (self);
+    if (((PyFont *)self)->copy && ((PyFont *)self)->copy != _def_f_copy)
+        return ((PyFont *)self)->copy (self);
 
     PyErr_SetString(PyExc_NotImplementedError, "copy method not implemented");
 
@@ -333,14 +333,14 @@ _def_f_copy (PyObject *self)
 
 /* C API */
 PyObject*
-PyGenericFont_New(void)
+PyFont_New(void)
 {
-    return PyGenericFont_Type.tp_new(&PyGenericFont_Type, NULL, NULL);
+    return PyFont_Type.tp_new(&PyFont_Type, NULL, NULL);
 }
 
 void
 font_export_capi(void **capi)
 {
-    capi[PYGAME_FONT_FIRSTSLOT + 0] = &PyGenericFont_Type;
-    capi[PYGAME_FONT_FIRSTSLOT + 1] = PyGenericFont_New;
+    capi[PYGAME_FONT_FIRSTSLOT + 0] = &PyFont_Type;
+    capi[PYGAME_FONT_FIRSTSLOT + 1] = PyFont_New;
 }

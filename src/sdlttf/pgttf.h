@@ -46,18 +46,18 @@ typedef struct
 {
     PyObject_HEAD
     TTF_Font *font;
-} PyFont;
-#define PyFont_AsFont(x) (((PyFont*)x)->font)
+} PySDLFont_TTF;
+#define PySDLFont_TTF_AsFont(x) (((PySDLFont_TTF*)x)->font)
 #define PYGAME_SDLTTFFONT_FIRSTSLOT \
     (PYGAME_SDLTTF_FIRSTSLOT + PYGAME_SDLTTF_NUMSLOTS)
 #define PYGAME_SDLTTFFONT_NUMSLOTS 1
 #ifndef PYGAME_SDLTTFFONT_INTERNAL
-#define PyFont_Type \
+#define PySDLFont_TTF_Type \
     (*(PyTypeObject*)PyGameSDLTTF_C_API[PYGAME_SDLTTFFONT_FIRSTSLOT+0])
-#define PyFont_Check(x)                                                 \
+#define PySDLFont_TTF_Check(x)                                                 \
     (PyObject_TypeCheck(x,                                              \
         (PyTypeObject*)PyGameSDLTTF_C_API[PYGAME_SDLTTFFONT_FIRSTSLOT+0]))
-#define PyFont_New                                                   \
+#define PySDLFont_TTF_New                                                   \
     (*(PyObject*(*)(char*,int))PyGameSDLTTF_C_API[PYGAME_SDLTTFFONT_FIRSTSLOT+1])
 #endif /* PYGAME_SDLTTFFONT_INTERNAL */
 

@@ -30,9 +30,9 @@
 #define RENDER_SHADED 1
 #define RENDER_BLENDED 2
 
-extern PyTypeObject PyFont_Type;
-#define PyFont_Check(x) (PyObject_TypeCheck (x, &PyFont_Type))
-PyObject* PyFont_New (char *file, int ptsize);
+extern PyTypeObject PySDLFont_TTF_Type;
+#define PySDLFont_TTF_Check(x) (PyObject_TypeCheck (x, &PySDLFont_TTF_Type))
+PyObject* PySDLFont_TTF_New (char *file, int ptsize);
 void font_export_capi (void **capi);
 
 #endif /* _PYGAME_SDLTTFMOD_H_ */

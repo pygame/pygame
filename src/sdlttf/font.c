@@ -26,7 +26,7 @@
 
 static PyObject *_font_new (PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _font_init (PyObject *chunk, PyObject *args, PyObject *kwds);
-static void _font_dealloc (PyFont *self);
+static void _font_dealloc (PySDLFont_TTF *self);
 
 static PyObject* _font_glyphmetrics (PyObject *self, PyObject* args);
 static PyObject* _font_getsize (PyObject *self, PyObject* args);
@@ -73,11 +73,11 @@ static PyGetSetDef _font_getsets[] = {
 
 /**
  */
-PyTypeObject PyFont_Type =
+PyTypeObject PySDLFont_TTF_Type =
 {
     TYPE_HEAD(NULL,0)
     "sdlttf.Font",              /* tp_name */
-    sizeof (PyFont),            /* tp_basicsize */
+    sizeof (PySDLFont_TTF),            /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _font_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
@@ -127,7 +127,7 @@ PyTypeObject PyFont_Type =
 };
 
 static void
-_font_dealloc (PyFont *self)
+_font_dealloc (PySDLFont_TTF *self)
 {
     TTF_CloseFont (self->font);
     ((PyObject*)self)->ob_type->tp_free ((PyObject *) self);
@@ -136,7 +136,7 @@ _font_dealloc (PyFont *self)
 static PyObject*
 _font_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyFont *font = (PyFont*) type->tp_alloc (type, 0);
+    PySDLFont_TTF *font = (PySDLFont_TTF*) type->tp_alloc (type, 0);
     if (!font)
         return NULL;
     font->font = NULL;
@@ -181,7 +181,7 @@ _font_init (PyObject *self, PyObject *args, PyObject *kwds)
         PyErr_SetString (PyExc_PyGameError, TTF_GetError ());
         return -1;
     }
-    ((PyFont*)self)->font = font;
+    ((PySDLFont_TTF*)self)->font = font;
     return 0;
 }
 
@@ -190,7 +190,7 @@ static PyObject*
 _font_getstyle (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyInt_FromLong (TTF_GetFontStyle (((PyFont*)self)->font));
+    return PyInt_FromLong (TTF_GetFontStyle (((PySDLFont_TTF*)self)->font));
 }
 
 static int
@@ -202,7 +202,7 @@ _font_setstyle (PyObject *self, PyObject *value, void *closure)
     if (!IntFromObj (value, &style))
         return -1;
     
-    TTF_SetFontStyle (((PyFont*)self)->font, style);
+    TTF_SetFontStyle (((PySDLFont_TTF*)self)->font, style);
     return 0;
 }
 
@@ -210,63 +210,63 @@ static PyObject*
 _font_getheight (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyInt_FromLong (TTF_FontHeight (((PyFont*)self)->font));
+    return PyInt_FromLong (TTF_FontHeight (((PySDLFont_TTF*)self)->font));
 }
 
 static PyObject*
 _font_getascent (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyInt_FromLong (TTF_FontAscent (((PyFont*)self)->font));
+    return PyInt_FromLong (TTF_FontAscent (((PySDLFont_TTF*)self)->font));
 }
 
 static PyObject*
 _font_getdescent (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyInt_FromLong (TTF_FontDescent (((PyFont*)self)->font));
+    return PyInt_FromLong (TTF_FontDescent (((PySDLFont_TTF*)self)->font));
 }
 
 static PyObject*
 _font_getlineskip (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyInt_FromLong (TTF_FontLineSkip (((PyFont*)self)->font));
+    return PyInt_FromLong (TTF_FontLineSkip (((PySDLFont_TTF*)self)->font));
 }
 
 static PyObject*
 _font_getfaces (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyLong_FromLong (TTF_FontFaces (((PyFont*)self)->font));
+    return PyLong_FromLong (TTF_FontFaces (((PySDLFont_TTF*)self)->font));
 }
 
 static PyObject*
 _font_getisfixedwidth (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return PyBool_FromLong (TTF_FontFaceIsFixedWidth (((PyFont*)self)->font));
+    return PyBool_FromLong (TTF_FontFaceIsFixedWidth (((PySDLFont_TTF*)self)->font));
 }
 
 static PyObject*
 _font_getfamilyname (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return Text_FromUTF8 (TTF_FontFaceFamilyName (((PyFont*)self)->font));
+    return Text_FromUTF8 (TTF_FontFaceFamilyName (((PySDLFont_TTF*)self)->font));
 }
 
 static PyObject*
 _font_getstylename (PyObject *self, void *closure)
 {
     ASSERT_TTF_INIT (NULL);
-    return Text_FromUTF8 (TTF_FontFaceStyleName (((PyFont*)self)->font));
+    return Text_FromUTF8 (TTF_FontFaceStyleName (((PySDLFont_TTF*)self)->font));
 }
 
 /* Methods */
 static PyObject*
 _font_glyphmetrics (PyObject *self, PyObject* args)
 {
-    PyFont *font = (PyFont*) self;
+    PySDLFont_TTF *font = (PySDLFont_TTF*) self;
     int minx, miny, maxx, maxy, advance, isunicode = 0, i;
     PyObject *textobj, *list;
     Py_ssize_t length;
@@ -352,7 +352,7 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
 static PyObject*
 _font_getsize (PyObject *self, PyObject* args)
 {
-    PyFont *font = (PyFont*) self;
+    PySDLFont_TTF *font = (PySDLFont_TTF*) self;
     PyObject *text;
     int w, h;
     
@@ -393,7 +393,7 @@ _font_getsize (PyObject *self, PyObject* args)
 static PyObject*
 _font_render (PyObject *self, PyObject* args, PyObject *kwds)
 {
-    PyFont *font = (PyFont*) self;
+    PySDLFont_TTF *font = (PySDLFont_TTF*) self;
     PyObject *text, *colorfg, *pysurf, *colorbg = NULL;
     SDL_Surface *surface = NULL;
     SDL_Color fgcolor, bgcolor;
@@ -509,9 +509,9 @@ _font_render (PyObject *self, PyObject* args, PyObject *kwds)
 
 /* C API */
 PyObject*
-PyFont_New (char *file, int ptsize)
+PySDLFont_TTF_New (char *file, int ptsize)
 {
-    PyFont *font;
+    PySDLFont_TTF *font;
     TTF_Font *ttf;
 
     ASSERT_TTF_INIT (NULL);
@@ -519,7 +519,7 @@ PyFont_New (char *file, int ptsize)
     if (!file)
         return NULL;
 
-    font = (PyFont*) PyFont_Type.tp_new (&PyFont_Type, NULL, NULL);
+    font = (PySDLFont_TTF*) PySDLFont_TTF_Type.tp_new (&PySDLFont_TTF_Type, NULL, NULL);
     if (!font)
         return NULL;
 
@@ -537,6 +537,6 @@ PyFont_New (char *file, int ptsize)
 void
 font_export_capi (void **capi)
 {
-    capi[PYGAME_SDLTTFFONT_FIRSTSLOT] = &PyFont_Type;
-    capi[PYGAME_SDLTTFFONT_FIRSTSLOT+1] = &PyFont_New;
+    capi[PYGAME_SDLTTFFONT_FIRSTSLOT] = &PySDLFont_TTF_Type;
+    capi[PYGAME_SDLTTFFONT_FIRSTSLOT+1] = &PySDLFont_TTF_New;
 }
