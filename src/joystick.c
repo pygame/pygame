@@ -201,6 +201,9 @@ joy_get_axis (PyObject* self, PyObject* args)
     }
 
     value = SDL_JoystickGetAxis (joy, axis);
+    printf("SDL_JoystickGetAxis value:%d:\n", value);
+
+
     return PyFloat_FromDouble (value / 32768.0);
 }
 
@@ -238,6 +241,8 @@ joy_get_button (PyObject* self, PyObject* args)
     }
 
     value = SDL_JoystickGetButton (joy, _index);
+    printf("SDL_JoystickGetButton value:%d:\n", value);
+
     return PyInt_FromLong (value);
 }
 
@@ -261,6 +266,7 @@ joy_get_ball (PyObject* self, PyObject* args)
     int joy_id = PyJoystick_AsID (self);
     SDL_Joystick* joy = joystick_stickdata[joy_id];
     int _index, dx, dy;
+    Uint32 value;
 	
     if (!PyArg_ParseTuple (args, "i", &_index)) {
         return NULL;
@@ -270,7 +276,10 @@ joy_get_ball (PyObject* self, PyObject* args)
     if (!joy) {
         return RAISE (PyExc_SDLError, "Joystick not initialized");
     }
-    if (_index < 0 || _index >= SDL_JoystickNumBalls (joy)) {
+    value = SDL_JoystickNumBalls (joy);
+    printf("SDL_JoystickNumBalls value:%d:\n", value);
+
+    if (_index < 0 || _index >= value) {
         return RAISE (PyExc_SDLError, "Invalid joystick trackball");
     }
 
@@ -282,6 +291,7 @@ static PyObject*
 joy_get_numhats (PyObject* self)
 {
     int joy_id = PyJoystick_AsID (self);
+    Uint32 value;
     SDL_Joystick* joy = joystick_stickdata[joy_id];
 
     JOYSTICK_INIT_CHECK ();
@@ -289,7 +299,10 @@ joy_get_numhats (PyObject* self)
         return RAISE (PyExc_SDLError, "Joystick not initialized");
     }
 
-    return PyInt_FromLong (SDL_JoystickNumHats (joy));
+    value = SDL_JoystickNumHats (joy);
+    printf("SDL_JoystickNumHats value:%d:\n", value);
+
+    return PyInt_FromLong (value);
 }
 
 static PyObject*
@@ -298,7 +311,7 @@ joy_get_hat (PyObject* self, PyObject* args)
     int joy_id = PyJoystick_AsID (self);
     SDL_Joystick* joy = joystick_stickdata[joy_id];
     int _index, px, py;
-    Uint8 value;
+    Uint32 value;
 
     if (!PyArg_ParseTuple (args, "i", &_index)) {
         return NULL;
@@ -314,6 +327,8 @@ joy_get_hat (PyObject* self, PyObject* args)
 
     px = py = 0;
     value = SDL_JoystickGetHat (joy, _index);
+    printf("SDL_JoystickGetHat value:%d:\n", value);
+
     if (value & SDL_HAT_UP) {
         py = 1;
     }
