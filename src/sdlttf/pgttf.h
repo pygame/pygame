@@ -26,6 +26,7 @@
 
 #include "pgbase.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,7 +45,7 @@ extern "C" {
 
 typedef struct
 {
-    PyObject_HEAD
+    PyFont pyfont;
     TTF_Font *font;
 } PySDLFont_TTF;
 #define PySDLFont_TTF_AsFont(x) (((PySDLFont_TTF*)x)->font)

@@ -36,7 +36,6 @@ static PyObject* _font_repr(PyObject *self);
  * Get/set attributes
  */
 static PyObject* _font_getheight(PyObject *self, void *closure);
-static PyObject* _font_getsize(PyObject *self, void *closure);
 static PyObject* _font_getname(PyObject *self, void *closure);
 static PyObject* _font_getstyle(PyObject *self, void *closure);
 static int       _font_setstyle(PyObject *self, PyObject *arg, void *closure);
@@ -44,6 +43,7 @@ static int       _font_setstyle(PyObject *self, PyObject *arg, void *closure);
 /*
  * Class methods
  */
+static PyObject* _font_getsize(PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _font_render(PyObject* self, PyObject *args, PyObject *kwds);
 static PyObject* _font_copy(PyObject* self);
 
@@ -51,7 +51,6 @@ static PyObject* _font_copy(PyObject* self);
  * Get/set attributes (default fallbacks)
  */
 static PyObject* _def_f_getheight(PyObject *self, void *closure);
-static PyObject* _def_f_getsize(PyObject *self, void *closure);
 static PyObject* _def_f_getname(PyObject *self, void *closure);
 static PyObject* _def_f_getstyle(PyObject *self, void *closure);
 static int       _def_f_setstyle(PyObject *self, PyObject *arg, void *closure);
@@ -59,6 +58,7 @@ static int       _def_f_setstyle(PyObject *self, PyObject *arg, void *closure);
 /*
  * Class methods (default fallbacks)
  */
+static PyObject* _def_f_getsize(PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _def_f_render (PyObject *self, PyObject *args, PyObject *kwds); 
 static PyObject* _def_f_copy (PyObject *self); 
 
@@ -75,6 +75,12 @@ static PyMethodDef _font_methods[] =
         DOC_BASE_FONT_RENDER 
     },
     {
+        "get_size", 
+        (PyCFunction) _font_getsize, 
+        METH_VARARGS | METH_KEYWORDS,
+        DOC_BASE_FONT_SIZE 
+    },
+    {
         "copy", 
         (PyCFunction) _font_copy, 
         METH_NOARGS, 
@@ -88,7 +94,6 @@ static PyMethodDef _font_methods[] =
  */
 static PyGetSetDef _font_getsets[] = {
     { "height", _font_getheight,    NULL, DOC_BASE_FONT_HEIGHT, NULL },
-    { "size",   _font_getsize,      NULL, DOC_BASE_FONT_SIZE,   NULL },
     { "name",   _font_getname,      NULL, DOC_BASE_FONT_NAME,   NULL },
     { "style",  _font_getstyle,     _font_setstyle, DOC_BASE_FONT_STYLE, NULL },
     { NULL, NULL, NULL, NULL, NULL }
@@ -202,18 +207,6 @@ _font_getheight(PyObject *self, void *closure)
     return NULL;
 }
 
-static PyObject*
-_font_getsize(PyObject *self, void *closure)
-{
-    if (((PyFont *)self)->get_size &&
-        ((PyFont *)self)->get_size != _def_f_getsize)
-        return ((PyFont *)self)->get_size (self, closure);
-
-    PyErr_SetString (PyExc_NotImplementedError,
-        "size attribute not implemented");
-
-    return NULL;
-}
 
 static PyObject*
 _font_getname(PyObject *self, void *closure)
@@ -279,17 +272,28 @@ _font_copy(PyObject* self)
     return NULL;
 }
 
+static PyObject*
+_font_getsize(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    if (((PyFont *)self)->get_size &&
+        ((PyFont *)self)->get_size != _def_f_getsize)
+        return ((PyFont *)self)->get_size(self, args, kwds);
+
+    PyErr_SetString (PyExc_NotImplementedError,
+        "size attribute not implemented");
+
+    return NULL;
+}
+
+
+/*
+ * Default fallbacks 
+ */
 
 static PyObject*
 _def_f_getheight(PyObject *self, void *closure)
 {
     return PyObject_GetAttrString(self, "height");
-}
-
-static PyObject*
-_def_f_getsize (PyObject *self, void *closure)
-{
-    return PyObject_GetAttrString(self, "size");
 }
 
 static PyObject*
@@ -326,10 +330,26 @@ _def_f_render(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject*
-_def_f_copy (PyObject *self)
+_def_f_copy(PyObject *self)
 {
     return PyObject_CallMethod(self, "copy", NULL, NULL);
 }
+
+static PyObject*
+_def_f_getsize(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *retval, *method;
+    
+    method = PyObject_GetAttrString(self, "getsize");
+
+    if (!method)
+        return NULL;
+
+    retval = PyObject_Call(method, args, kwds);
+    Py_DECREF (method);
+    return retval;
+}
+
 
 /* C API */
 PyObject*

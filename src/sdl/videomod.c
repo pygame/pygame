@@ -523,7 +523,7 @@ PyMODINIT_FUNC initvideo (void)
         goto fail;
 
     /* Complete types */
-    PySDLSurface_Type.tp_base = &PySurface_Type;
+    PySDLSurface_Type.tp_base = &PySurface_Type; 
     if (PyType_Ready (&PySDLSurface_Type) < 0)
         goto fail;
     if (PyType_Ready (&PyOverlay_Type) < 0)

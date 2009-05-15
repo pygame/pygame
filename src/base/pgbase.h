@@ -179,11 +179,12 @@ typedef struct
     PyObject_HEAD
 
     PyObject* (*get_height)(PyObject *self, void *closure);
-    PyObject* (*get_size)(PyObject *self, void *closure);
     PyObject* (*get_name)(PyObject *self, void *closure);
     PyObject* (*get_style)(PyObject *self, void *closure);
     int       (*set_style)(PyObject *self, PyObject *attr, void *closure);
+    
 
+    PyObject* (*get_size)(PyObject *self, PyObject *args, PyObject *kwds);
     PyObject* (*render)(PyObject *self, PyObject *args, PyObject *kwds);
     PyObject* (*copy)(PyObject *self);
 } PyFont;

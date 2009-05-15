@@ -17,6 +17,7 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
+
 #define PYGAME_SDLTTFFONT_INTERNAL
 
 #include "ttfmod.h"
@@ -77,7 +78,7 @@ PyTypeObject PySDLFont_TTF_Type =
 {
     TYPE_HEAD(NULL,0)
     "sdlttf.Font",              /* tp_name */
-    sizeof (PySDLFont_TTF),            /* tp_basicsize */
+    sizeof (PySDLFont_TTF),     /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _font_dealloc, /* tp_dealloc */
     0,                          /* tp_print */
@@ -99,7 +100,14 @@ PyTypeObject PySDLFont_TTF_Type =
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
-    0,                          /* tp_weaklistoffset */
+
+    /* 
+     * tp_weaklistoffset
+     * FIXME: Weakrefs? Do we need those? 
+     */
+/*    offsetof(PySDLFont_TTF, weakrefs) */
+    0, 
+
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
     _font_methods,              /* tp_methods */
@@ -109,7 +117,14 @@ PyTypeObject PySDLFont_TTF_Type =
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
-    0,                          /* tp_dictoffset */
+
+    /* 
+     * tp_dictoffset
+     * FIXME: What about the dictionary? Hueuh...
+     */
+/*    offsetof(PySDLFont_TTF, dict) */
+    0, 
+
     (initproc) _font_init,      /* tp_init */
     0,                          /* tp_alloc */
     _font_new,                  /* tp_new */
@@ -139,7 +154,19 @@ _font_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     PySDLFont_TTF *font = (PySDLFont_TTF*) type->tp_alloc (type, 0);
     if (!font)
         return NULL;
+
     font->font = NULL;
+
+    font->pyfont.get_height = _font_getheight;
+
+    // TODO: Which get name? We've got family name and style name.
+    font->pyfont.get_name = NULL;
+    font->pyfont.get_style = _font_getstyle;
+    font->pyfont.set_style = _font_setstyle;
+    font->pyfont.get_size = _font_getsize;
+    font->pyfont.render = _font_render;
+    font->pyfont.copy = NULL; // TODO
+
     return (PyObject*) font;
 }
 

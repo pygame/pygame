@@ -18,11 +18,13 @@
 
 */
 #define PYGAME_SDLTTF_INTERNAL
+//#define PYGAME_FONT_INTERNAL
 
 #include "ttfmod.h"
 #include "pgttf.h"
 #include "pgsdl.h"
 #include "sdlttfbase_doc.h"
+
 
 static void _quit (void);
 
@@ -146,6 +148,11 @@ PyMODINIT_FUNC initbase (void)
     };
 #endif
 
+    /* Import Pygame2 Base API to access PyFont_Type */
+    if (import_pygame2_base () < 0)
+        goto fail;
+
+    PySDLFont_TTF_Type.tp_base = &PyFont_Type;
     if (PyType_Ready (&PySDLFont_TTF_Type) < 0)
         goto fail;
 
@@ -168,8 +175,6 @@ PyMODINIT_FUNC initbase (void)
     if (c_api_obj)
         PyModule_AddObject (mod, PYGAME_SDLTTF_ENTRY, c_api_obj);    
 
-    if (import_pygame2_base () < 0)
-        goto fail;
     if (import_pygame2_sdl_base () < 0)
         goto fail;
     if (import_pygame2_sdl_rwops () < 0)
