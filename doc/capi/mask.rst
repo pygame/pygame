@@ -1,6 +1,6 @@
-==================
-pygame2.mask C API
-==================
+============
+pygame2.mask
+============
 
 The :mod:`pygame2.mask` C API contains some objects and functions for
 bitmask operations.

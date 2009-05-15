@@ -1,6 +1,6 @@
-=======================
-pygame2.sdl.video C API
-=======================
+=================
+pygame2.sdl.video
+=================
 
 The :mod:`pygame2.sdl.video` C API contains fundamental objects and functions
 for accessing and manipulating the screen display, image surface objects and

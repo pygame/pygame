@@ -7,10 +7,20 @@ functions, pygame2 offers. If you want a quick module overview, use the
 :ref:`modindex`. If you just want to look up a specific class, attribute
 method or function, use the :ref:`genindex` or :ref:`search`.
 
-Modules:
+General Notes for Reading
+-------------------------
+
+.. note::
+
+  Whenever the API documentation refers to file-like objects, those
+  *must* support binary read and write access. This is especially
+  important for Python 3.x users and the new :mod:`io` module.
+
+Modules
+---------
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    ref/pygame2_base.rst
    ref/pygame2_font.rst

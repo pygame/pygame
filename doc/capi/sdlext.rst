@@ -1,6 +1,6 @@
-=========================
-pygame2.sdlext.base C API
-=========================
+===================
+pygame2.sdlext.base
+===================
 
 The :mod:`pygame2.sdlext.base` C API contains objects and functions for
 accessing and manipulating :mod:`pygame2.sdl` objects in a specialised

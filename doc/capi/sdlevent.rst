@@ -1,6 +1,6 @@
-=======================
-pygame2.sdl.event C API
-=======================
+=================
+pygame2.sdl.event
+=================
 
 The :mod:`pygame2.sdl.event` C API contains objects and functions for
 accessing and manipulating the SDL event system queue.

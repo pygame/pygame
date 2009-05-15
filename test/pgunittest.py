@@ -570,7 +570,7 @@ class TestLoader:
                 if testFnName not in testFnNames:  # handle overridden methods
                     testFnNames.append(testFnName)
         if self.sortTestMethodsUsing:
-            testFnNames.sort(key=CmpToKey(self.sortTestMethodsUsing))
+            testFnNames.sort(key=CmpToKey(cmp))
         return testFnNames
 
 

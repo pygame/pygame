@@ -18,6 +18,11 @@
       Creates a new Font from a TTF font file using the specified size in
       points. If the font features different faces, they can be chosen using
       the optional index.
+
+      .. note::
+
+        The file object *must* support binary read and write
+        access. This is especially important for Python 3.x users.
     </desc>
     <attr name="ascent">
       <desc>Gets the ascent of the Font.</desc>

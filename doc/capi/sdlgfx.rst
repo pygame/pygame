@@ -1,6 +1,6 @@
-=========================
-pygame2.sdlgfx.base C API
-=========================
+===================
+pygame2.sdlgfx.base
+===================
 
 The :mod:`pygame2.sdlgfx.base` C API contains objects for managing
 constant frame rates and update steps for SDL based screen surfaces.

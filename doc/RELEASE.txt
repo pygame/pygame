@@ -56,6 +56,10 @@ Before a new release takes place, the following steps have to be made:
 * update README.txt and doc/BuildXXX.txt to point to the latest required
   dependency versions.
 
+Releasing
+---------
+TODO
+
 Postprocessing
 --------------
 

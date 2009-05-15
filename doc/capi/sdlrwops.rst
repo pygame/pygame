@@ -1,10 +1,16 @@
-=======================
-pygame2.sdl.rwops C API
-=======================
+=================
+pygame2.sdl.rwops
+=================
 
 The :mod:`pygame2.sdl.rwops` C API contains objects for
 accessing :ctype:`SDL_RWops` from Python objects.
 
+.. note::
+
+  All Python objects to be used by the :mod:`pygame2.sdl.rwops` API
+  *must* support binary read and write access. This is especially
+  important for Python 3.x users.
+ 
 Import
 ------
 Include headers::
@@ -81,4 +87,4 @@ Functions
   Closes a :ctype:`SDL_RWops` object. if *autoclose* is not 0, the bound data
   source will be closed, too (if it is a Python object). Otherwise it will be
   kept open.
- 
+ 

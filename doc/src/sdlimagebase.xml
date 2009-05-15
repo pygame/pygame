@@ -27,6 +27,12 @@
       :class:`pygame2.sdl.video.Surface` from it. The file argument can
       be a file object or filename. type is an optional argument
       indicating the image type as string.
+
+      .. note::
+      
+        The file object *must* support binary read and write
+        access. This is especially important for Python 3.x users.
+
     </desc>
   </func>
   <func name="read_xpm_from_array">

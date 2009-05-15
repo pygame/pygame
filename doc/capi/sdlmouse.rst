@@ -1,6 +1,6 @@
-=======================
-pygame2.sdl.mouse C API
-=======================
+=================
+pygame2.sdl.mouse
+=================
 
 The :mod:`pygame2.sdl.mouse` C API contains objects and functions for
 accessing and manipulating the mouse input device and cursor design.

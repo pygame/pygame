@@ -1,4 +1,4 @@
-import os
+import os, sys
 try:
     import StringIO as stringio
 except ImportError:
@@ -44,7 +44,11 @@ class SDLImageTest (unittest.TestCase):
         # can be a filename or file object.
         imgdir = os.path.dirname (os.path.abspath (__file__))
         sf = image.load_bmp (os.path.join (imgdir, "test.bmp"))
-        buf = stringio.StringIO ()
+        buf = None
+        if sys.version_info[0] >= 3:
+            buf = stringio.BytesIO ()
+        else:
+            buf = stringio.StringIO ()
         self.assert_ (image.save_bmp (sf, buf) == None)
         self.assertEquals (os.stat (os.path.join (imgdir, "test.bmp")).st_size,
                            len (buf.getvalue ()))

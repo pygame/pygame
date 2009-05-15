@@ -1,6 +1,6 @@
-==========================
-pygame2.sdl.joystick C API
-==========================
+====================
+pygame2.sdl.joystick
+====================
 
 The :mod:`pygame2.sdl.joystick` C API contains objects and functions for
 accessing the physical joystick input devices of the computer.

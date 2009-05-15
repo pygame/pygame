@@ -31,7 +31,7 @@ static void
 _write_data (png_structp png_ptr, png_bytep data, png_size_t length)
 {
     SDL_RWops* dst = (SDL_RWops*) png_get_io_ptr (png_ptr);
-    SDL_RWwrite(dst, data, 1, length);
+    SDL_RWwrite (dst, data, 1, length);
 } 
 
 static int

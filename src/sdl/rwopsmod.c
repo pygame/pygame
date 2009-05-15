@@ -171,7 +171,11 @@ _pyobj_write (SDL_RWops *ops, const void* ptr, int size, int num)
     if (!wrapper->write)
         return -1;
 
+#ifdef IS_PYTHON_3
+    result = PyObject_CallFunction (wrapper->write, "y#", ptr, size * num);
+#else
     result = PyObject_CallFunction (wrapper->write, "s#", ptr, size * num);
+#endif
     if (!result)
         return -1;
 
@@ -303,7 +307,11 @@ _pyobj_write_threaded (SDL_RWops *ops, const void* ptr, int size, int num)
     PyEval_AcquireLock ();
     oldstate = PyThreadState_Swap (wrapper->thread);
 
+#ifdef IS_PYTHON_3
+    result = PyObject_CallFunction (wrapper->write, "y#", ptr, size * num);
+#else
     result = PyObject_CallFunction (wrapper->write, "s#", ptr, size * num);
+#endif
     if (!result)
     {
         PyErr_Print ();

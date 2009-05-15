@@ -1,6 +1,6 @@
-=======================
-pygame2.sdl.cdrom C API
-=======================
+=================
+pygame2.sdl.cdrom
+=================
 
 The :mod:`pygame2.sdl.cdrom` C API contains objects and functions for
 accessing the physical CD- and DVD-ROMS of the computer.

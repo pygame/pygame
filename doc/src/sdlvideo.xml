@@ -342,6 +342,11 @@
 
         If no type information is supplied and the file type cannot be
         determined either, it will use TGA.
+
+        .. note::
+      
+          The file object *must* support binary read and write
+          access. This is especially important for Python 3.x users.
       </desc>
     </method>
     <method name="set_alpha">

@@ -1,6 +1,6 @@
-==================
-pygame2.base C API
-==================
+============
+pygame2.base
+============
 
 The :mod:`pygame2.base` C API contains fundamental core objects and
 functions used throughout nearly all :mod:`pygame2` modules. As such, it

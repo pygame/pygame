@@ -1,6 +1,6 @@
-======================
-pygame2.sdl.base C API
-======================
+================
+pygame2.sdl.base
+================
 
 The :mod:`pygame2.sdl.base` C API contains fundamental core functions
 used throughout nearly all :mod:`pygame2.sdl` related modules. As such,

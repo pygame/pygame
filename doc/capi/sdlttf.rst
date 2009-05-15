@@ -1,6 +1,6 @@
-=========================
-pygame2.sdlttf.base C API
-=========================
+===================
+pygame2.sdlttf.base
+===================
 
 The :mod:`pygame2.sdlttf.base` C API contains objects and functions for
 accessing TrueType font rendering on SDL surfaces.

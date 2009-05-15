@@ -61,7 +61,13 @@
 
   <class name="Chunk">
     <constructor>TODO</constructor>
-    <desc></desc>
+    <desc>
+
+      .. note::
+
+        The file object *must* support binary read and write
+        access. This is especially important for Python 3.x users.
+    </desc>
     <attr name="buf">
       <desc></desc>
     </attr>
@@ -75,7 +81,13 @@
 
   <class name="Music">
     <constructor>TODO</constructor>
-    <desc></desc>
+    <desc>
+
+      .. note::
+
+        The file object *must* support binary read and write
+        access. This is especially important for Python 3.x users.
+    </desc>
     <method name="fade_in">
       <call></call>
       <desc></desc>

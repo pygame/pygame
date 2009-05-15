@@ -1,3 +1,4 @@
+import sys
 try:
     import pygame2.test.pgunittest as unittest
 except:
@@ -341,8 +342,12 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         video.init ()
         sf1 = video.Surface (16, 16, 32)
         sf1.fill (pygame2.Color ("red"))
-        buf = stringio.StringIO ()
-        
+        bufcreat = None
+        if sys.version_info[0] >= 3:
+            bufcreat = stringio.BytesIO
+        else:
+            bufcreat = stringio.StringIO
+        buf = bufcreat ()
         
         sf1.save (buf, "bmp")
         buf.seek (0)
@@ -355,20 +360,20 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         self.assert_ (sf1.size == sf2.size)
         self.assert_ (cmppixels (sf1, sf2) == True)
 
-        buf = stringio.StringIO ()
+        buf = bufcreat ()
         sf1.save (buf, "jpg")
         buf.seek (0)
         sf2 = sdlimage.load (buf, "jpg")
         self.assert_ (sf1.size == sf2.size)
 
-        buf = stringio.StringIO ()
+        buf = bufcreat ()
         sf1.save (buf, "png")
         buf.seek (0)
         sf2 = sdlimage.load (buf, "png")
         self.assert_ (sf1.size == sf2.size)
         self.assert_ (cmppixels (sf1, sf2) == True)
 
-        buf = stringio.StringIO ()
+        buf = bufcreat ()
         sf1.save (buf, "tga")
         buf.seek (0)
         sf2 = sdlimage.load (buf, "tga")

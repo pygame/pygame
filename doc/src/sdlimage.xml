@@ -11,6 +11,12 @@
     
       Loads a BMP file and creates a :class:`pygame2.sdl.video.Surface` from it.
       The file argument can be either a file object or the filename.
+
+      .. note::
+      
+        The file object *must* support binary read and write
+        access. This is especially important for Python 3.x users.
+
     </desc>
   </func>
   <func name="save_bmp">
@@ -19,6 +25,11 @@
 
       Saves a :class:`pygame2.sdl.video.Surface` to the specified file, where
       file can be a filename or file object.
+
+      .. note::
+      
+        The file object *must* support binary read and write
+        access. This is especially important for Python 3.x users.
     </desc>
   </func>
 </module>
