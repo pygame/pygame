@@ -195,7 +195,10 @@ pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type,
             (type[1] == 'M' || type[1] == 'm') &&
             (type[2] == 'P' || type[2] == 'p'))
         {
-            retval = SDL_SaveBMP_RW (surface, rw, freerw);
+            if (SDL_SaveBMP_RW (surface, rw, freerw) == 0)
+                retval = 1;
+            else
+                retval = 0;
         }
         else if ((type[0] == 'T' || type[0] == 't') &&
             (type[1] == 'G' || type[1] == 'g') &&

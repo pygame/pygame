@@ -520,7 +520,7 @@ import_pygame2_sdl_cdrom (void)
 
 /* RWops */
 #define PYGAME_SDLRWOPS_FIRSTSLOT 0
-#define PYGAME_SDLRWOPS_NUMSLOTS 3
+#define PYGAME_SDLRWOPS_NUMSLOTS 5
 #ifndef PYGAME_SDLRWOPS_INTERNAL
 #define PyRWops_NewRO                                                 \
     (*(SDL_RWops*(*)(PyObject*,int*))PyGameSDLRWops_C_API[PYGAME_SDLRWOPS_FIRSTSLOT])
@@ -528,6 +528,10 @@ import_pygame2_sdl_cdrom (void)
     (*(SDL_RWops*(*)(PyObject*,int*))PyGameSDLRWops_C_API[PYGAME_SDLRWOPS_FIRSTSLOT+1])
 #define PyRWops_Close                                                 \
     (*(void(*)(SDL_RWops*,int))PyGameSDLRWops_C_API[PYGAME_SDLRWOPS_FIRSTSLOT+2])
+#define PyRWops_NewRO_Threaded                                        \
+    (*(SDL_RWops*(*)(PyObject*,int*))PyGameSDLRWops_C_API[PYGAME_SDLRWOPS_FIRSTSLOT+3])
+#define PyRWops_NewRW_Threaded                                        \
+    (*(SDL_RWops*(*)(PyObject*,int*))PyGameSDLRWops_C_API[PYGAME_SDLRWOPS_FIRSTSLOT+4])
 #endif /* PYGAME_SDLRWOPS_INTERNAL */
 
 /**

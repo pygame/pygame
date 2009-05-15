@@ -129,7 +129,9 @@ static PyGetSetDef _rect_getsets[] = {
     { "x", _rect_getx, _rect_setx, DOC_BASE_RECT_X, NULL },
     { "y", _rect_gety, _rect_sety, DOC_BASE_RECT_Y, NULL },
     { "width", _rect_getwidth, _rect_setwidth, DOC_BASE_RECT_WIDTH, NULL },
+    { "w", _rect_getwidth, _rect_setwidth, DOC_BASE_RECT_WIDTH, NULL },
     { "height", _rect_getheight, _rect_setheight, DOC_BASE_RECT_HEIGHT, NULL },
+    { "h", _rect_getwidth, _rect_setwidth, DOC_BASE_RECT_WIDTH, NULL },
     { "size", _rect_getsize, _rect_setsize, DOC_BASE_RECT_SIZE, NULL },
 
     { "left", _rect_getx, _rect_setx, DOC_BASE_RECT_LEFT, NULL },

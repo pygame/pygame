@@ -28,6 +28,9 @@ typedef struct
     PyObject *seek;
     PyObject *tell;
     PyObject *close;
+#ifdef WITH_THREAD
+    PyThreadState *thread;
+#endif
 } _RWWrapper;
 
 static void _bind_python_methods (_RWWrapper *wrapper, PyObject *obj);
@@ -35,6 +38,21 @@ static int _pyobj_read (SDL_RWops *ops, void* ptr, int size, int num);
 static int _pyobj_seek (SDL_RWops *ops, int offset, int whence);
 static int _pyobj_write (SDL_RWops *ops, const void* ptr, int size, int num);
 static int _pyobj_close (SDL_RWops *ops);
+#ifdef WITH_THREAD
+static int _pyobj_read_threaded (SDL_RWops *ops, void* ptr, int size, int num);
+static int _pyobj_seek_threaded (SDL_RWops *ops, int offset, int whence);
+static int _pyobj_write_threaded (SDL_RWops *ops, const void* ptr, int size,
+    int num);
+static int _pyobj_close_threaded (SDL_RWops *ops);
+#endif
+
+/* C API */
+static SDL_RWops* PyRWops_NewRO (PyObject *obj, int *canautoclose);
+static SDL_RWops* PyRWops_NewRO_Threaded (PyObject *obj, int *canautoclose);
+static SDL_RWops* PyRWops_NewRW (PyObject *obj, int *canautoclose);
+static SDL_RWops* PyRWops_NewRW_Threaded (PyObject *obj, int *canautoclose);
+static void PyRWops_Close (SDL_RWops *ops, int canautoclose);
+static void PyRWops_Close_Threaded (SDL_RWops *ops, int canautoclose);
 
 static void
 _bind_python_methods (_RWWrapper *wrapper, PyObject *obj)
@@ -57,7 +75,7 @@ _bind_python_methods (_RWWrapper *wrapper, PyObject *obj)
     if (PyObject_HasAttrString (obj, "write"))
     {
         wrapper->write = PyObject_GetAttrString (obj, "write");
-        if (wrapper->write&& !PyCallable_Check (wrapper->write))
+        if (wrapper->write && !PyCallable_Check (wrapper->write))
         {
             Py_DECREF (wrapper->write);
             wrapper->write = NULL;
@@ -93,7 +111,7 @@ _bind_python_methods (_RWWrapper *wrapper, PyObject *obj)
 }
 
 static int
-_pyobj_read (SDL_RWops *ops, void* ptr, int size, int maxnum)
+_pyobj_read (SDL_RWops *ops, void* ptr, int size, int num)
 {
     _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
     PyObject *result;
@@ -101,7 +119,7 @@ _pyobj_read (SDL_RWops *ops, void* ptr, int size, int maxnum)
     
     if (!wrapper->read)
         return -1;
-    result = PyObject_CallFunction (wrapper->read, "i", size * maxnum);
+    result = PyObject_CallFunction (wrapper->read, "i", size * num);
     if (!result)
         return -1;
     if (!Bytes_Check (result))
@@ -171,7 +189,7 @@ _pyobj_close (SDL_RWops *ops)
     if (wrapper->close)
     {
         result = PyObject_CallFunction (wrapper->close, NULL);
-        if (result)
+        if (!result)
             retval = -1;
         Py_XDECREF (result);
     }
@@ -185,6 +203,161 @@ _pyobj_close (SDL_RWops *ops)
     SDL_FreeRW (ops);
     return retval;
 }
+
+#ifdef WITH_THREAD
+static int
+_pyobj_read_threaded (SDL_RWops *ops, void* ptr, int size, int num)
+{
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+    PyObject *result;
+    int retval;
+    PyThreadState* oldstate;
+    
+    if (!wrapper->read)
+        return -1;
+    
+    PyEval_AcquireLock ();
+    oldstate = PyThreadState_Swap (wrapper->thread);
+        
+    result = PyObject_CallFunction (wrapper->read, "i", size * num);
+    if (!result)
+    {
+        PyErr_Print ();
+        retval = -1;
+        goto end;
+    }
+    
+    if (!Bytes_Check (result))
+    {
+        Py_DECREF (result);
+        PyErr_Print ();
+        retval = -1;
+        goto end;
+    }
+    
+    retval = Bytes_GET_SIZE (result);
+    memcpy (ptr, Bytes_AS_STRING (result), (size_t) retval);
+    retval /= size;
+    
+    Py_DECREF (result);
+
+end:
+    PyThreadState_Swap (oldstate);
+    PyEval_ReleaseLock ();
+    return retval;
+}
+
+static int
+_pyobj_seek_threaded (SDL_RWops *ops, int offset, int whence)
+{
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+    PyObject* result;
+    int retval;
+    PyThreadState* oldstate;
+
+    if (!wrapper->seek || !wrapper->tell)
+        return -1;
+
+    PyEval_AcquireLock ();
+    oldstate = PyThreadState_Swap (wrapper->thread);
+
+    if (!(offset == 0 && whence == SEEK_CUR)) /*being called only for 'tell'*/
+    {
+        result = PyObject_CallFunction (wrapper->seek, "ii", offset, whence);
+        if (!result)
+        {
+            PyErr_Print();
+            retval = -1;
+            goto end;
+        }
+        Py_DECREF (result);
+    }
+
+    result = PyObject_CallFunction (wrapper->tell, NULL);
+    if (!result)
+    {
+        PyErr_Print ();
+        retval = -1;
+        goto end;
+    }
+    retval = PyInt_AsLong (result);
+    Py_DECREF (result);
+
+end:
+    PyThreadState_Swap (oldstate);
+    PyEval_ReleaseLock ();
+    return retval;
+}
+
+static int
+_pyobj_write_threaded (SDL_RWops *ops, const void* ptr, int size, int num)
+{
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+    PyObject *result;
+    int retval;
+    PyThreadState* oldstate;
+
+    if (!wrapper->write)
+        return -1;
+
+    PyEval_AcquireLock ();
+    oldstate = PyThreadState_Swap (wrapper->thread);
+
+    result = PyObject_CallFunction (wrapper->write, "s#", ptr, size * num);
+    if (!result)
+    {
+        PyErr_Print ();
+        retval = -1;
+        goto end;
+    }
+    Py_DECREF (result);
+    retval = num;
+    
+end:
+    PyThreadState_Swap (oldstate);
+    PyEval_ReleaseLock ();
+    return retval;
+}
+
+static int
+_pyobj_close_threaded (SDL_RWops *ops)
+{
+    _RWWrapper *wrapper = (_RWWrapper *) ops->hidden.unknown.data1;
+    PyObject *result;
+    int retval = 0;
+    PyThreadState* oldstate;
+
+    PyEval_AcquireLock ();
+    oldstate = PyThreadState_Swap (wrapper->thread);
+
+    if (wrapper->close)
+    {
+        result = PyObject_CallFunction (wrapper->close, NULL);
+        if (!result)
+        {
+            PyErr_Print ();
+            retval = -1;
+        }
+        Py_XDECREF (result);
+    }
+
+    Py_XDECREF (wrapper->seek);
+    Py_XDECREF (wrapper->tell);
+    Py_XDECREF (wrapper->write);
+    Py_XDECREF (wrapper->read);
+    Py_XDECREF (wrapper->close);
+    
+    PyThreadState_Swap (oldstate);
+    PyThreadState_Clear (wrapper->thread);
+    PyThreadState_Delete (wrapper->thread);
+    PyMem_Del (wrapper);
+    
+    PyEval_ReleaseLock ();
+    
+    SDL_FreeRW (ops);
+    return retval;
+}
+#endif
 
 /* C API */
 static SDL_RWops*
@@ -209,14 +382,20 @@ PyRWops_NewRO (PyObject *obj, int *canautoclose)
             return NULL;
         Py_XDECREF (tmp);
         *canautoclose = 1;
-        return SDL_RWFromFile ((const char *)filename, "rb");
+        ops = SDL_RWFromFile ((const char *)filename, "rb");
+        if (!ops)
+            PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return ops;
     }
 
     /* No text object, so its a buffer or something like that. Try to get the
      * necessary information. */
     ops = SDL_AllocRW ();
     if (!ops)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
+    }
     wrapper = PyMem_New (_RWWrapper, 1);
     if (!wrapper)
     {
@@ -256,14 +435,21 @@ PyRWops_NewRW (PyObject *obj, int *canautoclose)
             return NULL;
         Py_XDECREF (tmp);
         *canautoclose = 1;
-        return SDL_RWFromFile ((const char *)filename, "wb");
+        ops = SDL_RWFromFile ((const char *)filename, "wb");
+        if (!ops)
+            PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return ops;
+
     }
 
     /* No text object, so its a buffer or something like that. Try to get the
      * necessary information. */
     ops = SDL_AllocRW ();
     if (!ops)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return NULL;
+    }
     wrapper = PyMem_New (_RWWrapper, 1);
     if (!wrapper)
     {
@@ -284,7 +470,11 @@ static void
 PyRWops_Close (SDL_RWops *ops, int canautoclose)
 {
     /* internal _RWWrapper? */
+#ifdef WITH_THREAD
+    if (ops->close == _pyobj_close || ops->close == _pyobj_close_threaded)
+#else
     if (ops->close == _pyobj_close)
+#endif
     {
         if (!canautoclose) /* Do not close the underlying object. */
         {
@@ -293,8 +483,148 @@ PyRWops_Close (SDL_RWops *ops, int canautoclose)
             wrapper->close = NULL;
         }
     }
+#ifdef WITH_THREAD
+    Py_BEGIN_ALLOW_THREADS;
     SDL_RWclose (ops);
+    Py_END_ALLOW_THREADS;
+#else
+    SDL_RWclose (ops);
+#endif
 }
+
+static SDL_RWops*
+PyRWops_NewRO_Threaded (PyObject *obj, int *canautoclose)
+{
+#ifndef WITH_THREAD
+    /* Fall back to the non-threaded implementation */
+    return PyRWops_NewRO (obj, canautoclose);
+#else
+    _RWWrapper *wrapper;
+    SDL_RWops *ops;
+    PyInterpreterState* interp;
+    PyThreadState* thread;
+    
+    if (!obj || !canautoclose)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return NULL;
+    }
+    
+    /* If we have a text object, assume it is a file, which is automatically
+     * closed. */
+    if (IsTextObj (obj))
+    {
+        PyObject *tmp;
+        char *filename;
+        if (!UTF8FromObject (obj, &filename, &tmp))
+            return NULL;
+        Py_XDECREF (tmp);
+        *canautoclose = 1;
+        ops = SDL_RWFromFile ((const char *)filename, "rb");
+        if (!ops)
+            PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return ops;
+
+    }
+
+    /* No text object, so its a buffer or something like that. Try to get the
+     * necessary information. */
+    ops = SDL_AllocRW ();
+    if (!ops)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return NULL;
+    }
+    wrapper = PyMem_New (_RWWrapper, 1);
+    if (!wrapper)
+    {
+        SDL_FreeRW (ops);
+        return NULL;
+    }
+    _bind_python_methods (wrapper, obj);
+    
+    ops->read = _pyobj_read_threaded;
+    ops->write = _pyobj_write_threaded;
+    ops->seek = _pyobj_seek_threaded;
+    ops->close = _pyobj_close_threaded;
+    ops->hidden.unknown.data1 = (void*) wrapper;
+    
+    PyEval_InitThreads ();
+    thread = PyThreadState_Get ();
+    interp = thread->interp;
+    wrapper->thread = PyThreadState_New (interp);
+
+    *canautoclose = 0;
+    return ops;
+#endif
+}
+
+static SDL_RWops*
+PyRWops_NewRW_Threaded (PyObject *obj, int *canautoclose)
+{
+#ifndef WITH_THREAD
+    /* Fall back to the non-threaded implementation */
+    return PyRWops_NewRW (obj, canautoclose);
+#else
+    _RWWrapper *wrapper;
+    SDL_RWops *ops;
+    PyInterpreterState* interp;
+    PyThreadState* thread;
+    
+    if (!obj || !canautoclose)
+    {
+        PyErr_SetString (PyExc_TypeError, "argument is NULL");
+        return NULL;
+    }
+    
+    /* If we have a text object, assume it is a file, which is automatically
+     * closed. */
+    if (IsTextObj (obj))
+    {
+        PyObject *tmp;
+        char *filename;
+        if (!UTF8FromObject (obj, &filename, &tmp))
+            return NULL;
+        Py_XDECREF (tmp);
+        *canautoclose = 1;
+        ops = SDL_RWFromFile ((const char *)filename, "wb");
+        if (!ops)
+            PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return ops;
+
+    }
+
+    /* No text object, so its a buffer or something like that. Try to get the
+     * necessary information. */
+    ops = SDL_AllocRW ();
+    if (!ops)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return NULL;
+    }
+    wrapper = PyMem_New (_RWWrapper, 1);
+    if (!wrapper)
+    {
+        SDL_FreeRW (ops);
+        return NULL;
+    }
+    _bind_python_methods (wrapper, obj);
+    ops->read = _pyobj_read_threaded;
+    ops->write = _pyobj_write_threaded;
+    ops->seek = _pyobj_seek_threaded;
+    ops->close = _pyobj_close_threaded;
+    ops->hidden.unknown.data1 = (void*) wrapper;
+    
+    PyEval_InitThreads ();
+    thread = PyThreadState_Get ();
+    interp = thread->interp;
+    wrapper->thread = PyThreadState_New (interp);
+    
+    *canautoclose = 0;
+    return ops;
+#endif
+}
+
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_rwops (void)
@@ -325,10 +655,12 @@ PyMODINIT_FUNC initrwops (void)
     if (!mod)
         goto fail;
 
-    c_api[PYGAME_SDLRWOPS_FIRSTSLOT] = PyRWops_NewRO;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+0] = PyRWops_NewRO;
     c_api[PYGAME_SDLRWOPS_FIRSTSLOT+1] = PyRWops_NewRW;
     c_api[PYGAME_SDLRWOPS_FIRSTSLOT+2] = PyRWops_Close;
-    
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+3] = PyRWops_NewRO_Threaded;
+    c_api[PYGAME_SDLRWOPS_FIRSTSLOT+4] = PyRWops_NewRW_Threaded;
+
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
         PyModule_AddObject (mod, PYGAME_SDLRWOPS_ENTRY, c_api_obj);    

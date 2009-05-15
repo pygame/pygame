@@ -7,7 +7,7 @@ import os, sys, glob, time, re
 import modules, cfg
 from config import helpers, msys, config_modules
 
-VERSION = "2.0.0"
+VERSION = "2.0.0-alpha1"
 DEBUG = True
 
 # Minimum requirements.
@@ -26,13 +26,13 @@ def find_pkg_data (directory, excludedirs=[], excludefiles=[]):
     pkgdata = []
     nodirs = re.compile (r'(.svn)$')
     nofilesrev = re.compile (r'((~.*)|(cyp\..*)|(yp\..*))')
-    dirtrim = os.path.join (directory, "")
     for subd, directories, files in os.walk (directory):
         directories[:] = [d for d in directories if nodirs.match (d) is None \
                           and d not in excludedirs]
         files[:] = [f for f in files if nofilesrev.match(f[-1::-1]) is None \
                     and f not in excludefiles]
-        subd = subd.replace (dirtrim, "", 1)
+        subd = subd.replace (directory, "", 1)
+        subd.lstrip (os.path.sep)
         for f in files:
             pkgdata.append (os.path.join (subd, f))
     return pkgdata
@@ -81,6 +81,11 @@ if __name__ == "__main__":
         sys.exit (1)
 
     os.environ["CFLAGS"] = ""
+
+    if "bdist_msi" in sys.argv:
+        # hack the version name to a format msi doesn't have trouble with
+        VERSION = VERSION.replace("-alpha", "a")
+        VERSION = VERSION.replace("-rc", "r")
 
     if buildsystem in ("msys", "unix", "darwin") and DEBUG:
         os.environ["CFLAGS"] += " -W -Wall -Wimplicit-int " + \

@@ -41,8 +41,8 @@ _sdl_loadbmp (PyObject *self, PyObject *args)
 
     if (!PyArg_ParseTuple (args, "O:load_bmp", &file))
         return NULL;
-
-    rw = PyRWops_NewRO (file, &autoclose);
+    
+    rw = PyRWops_NewRO_Threaded (file, &autoclose);
     if (!rw)
         return NULL;
 
@@ -82,7 +82,7 @@ _sdl_savebmp (PyObject *self, PyObject *args)
         return NULL;
     }
 
-    rw = PyRWops_NewRW (file, &autoclose);
+    rw = PyRWops_NewRW_Threaded (file, &autoclose);
     if (!rw)
         return NULL;
     

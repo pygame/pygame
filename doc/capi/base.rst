@@ -90,6 +90,13 @@ used heavily and should be relied on wherever possible.
   Rounds a floating point value to the nearest integer. The own implementation
   will only be used, if no system-specific one was found.
 
+.. cfunction:: CLAMP(x,low,high)
+  
+  Checks, whether *x* is within the boundaries of *low* and *high* and returns
+  it. If *x* is not within the boundaries, either *low* or *high* will be
+  returned, depending on which of them is larger. The own implementation will
+  only be used, if no system-specific one was found.
+
 .. cmacro:: M_PI
 
   The pi constant with 31 digits. The own definition will only be used, if no
@@ -425,7 +432,7 @@ Functions
 PySurface
 ---------
 .. ctype:: PySurface
-.. ctype:: PySurface_type
+.. ctype:: PySurface_Type
 
 The PySurface object is some sort of abstract base class, to be used by
 inheriting classes and other interfaces, so it is guaranteed that surface-like

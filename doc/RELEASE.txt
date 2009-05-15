@@ -1,0 +1,90 @@
+##########################
+Pygame2 release management
+##########################
+
+The following sections will deal with a quick guide about what to take care
+of before issueing a new release.
+
+General
+-------
+Releases are split into three phases usually, *alpha*, *rc* and *final*.
+
+Alpha phase
+^^^^^^^^^^^
+The *alpha* phase usually takes place as soon as a *final* release was made and
+can feature as many releases as necessary. *alpha* releases should be made
+whenever large changes were made, which change the behaviour, API interfaces or
+add completely new stuff.
+
+*alpha* release versions are tagged with a *-alphaXXX* suffix, where *XXX* is
+the *XXXth* release within that alpha phase. There is no limit to the amount of
+releases to be made.
+
+Release Candidate phase
+^^^^^^^^^^^^^^^^^^^^^^^
+The *rc* phase (short for Release Candidate) enters a beta testing cycle, where
+no new features should be added, but only bug fixes be committed. It is also
+the right time for proof-reading the documentation, running the unit tests on
+all platforms again and again and to recheck all examples.
+
+*rc* release versions are tagged with a *-rcXX* suffix, where *XXX* is
+the *XXXth* release within that *rc* phase. There should not be more than 3
+*rc* releases by default and they should be released on a weekly basis, allowing
+adopters to have a minimum of one week and maximum of 3 weeks before the final
+release is made.
+
+Final phase
+^^^^^^^^^^^
+This is not directly a phase on its own, but simply the day of the final release
+for the specific version. The *final* release usually should be the same as the
+last *rc* release, but only differ by the version number and release date.
+
+Preparations for a release
+--------------------------
+Before a new release takes place, the following steps have to be made:
+
+* increase version number (see Postprocessing) in ::
+  
+    setup.py
+    doc/conf.py
+    lib/__init__.py
+    
+* update NEWS.txt with the chagnes since the last version (only for final
+  release - alpha and rc should contain the information, but not be tagged
+  explicitly)
+
+* update README.txt and doc/BuildXXX.txt to point to the latest required
+  dependency versions.
+
+Postprocessing
+--------------
+
+Right after a release has been made and the tree was tagged correctly, the
+version numbers should be increased (and revised just before the next release).
+
+The release number is split into three parts, a *MAJOR*, *MINOR* and *BUGFIX*
+part.
+
+* *BUGFIX* should be increased by one, whenever bug fixes have been made
+  between two releases.
+
+* *MINOR* should be increased, whenever changes or additions to the API were
+  made. This also will cause *BUGFIX* to be set back to 0.
+
+* *MAJOR* should be increased, whenever outstanding additions or changes to the
+  API were made, which legitimate it.
+
+How does that look like in practice? ::
+
+  Event/Action                     Version number
+  -----------------------------------------------
+  Initial release                      2.0.0
+  Some fixes done                      2.0.1
+  More fixes done                      2.0.2
+  Some additions                       2.1.0
+  Some fixes (again)                   2.1.1
+  More fixes                           2.1.2
+  More fixes                           2.1.3
+  Some additions                       2.2.0
+  Important major changes              3.0.0
+  ...                                   ...

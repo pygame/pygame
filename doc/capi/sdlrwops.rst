@@ -18,28 +18,67 @@ Include headers::
 
 Functions
 ---------
-.. cfunction:: SDL_RWops* RWopsFromPython (PyObject *obj)
+.. cfunction:: SDL_RWops* PyRWops_NewRO (PyObject *obj, int *canautoclose)
 
-  Creates a :ctype:`SDL_RWops` object from the passed Python object.
+  Creates a read-only :ctype:`SDL_RWops` object from the passed Python object.
   *obj* must be some file-like or buffer-like object supporting the binary read,
-  write, seek, tell and close methods to be fully usable as :ctype:`SDL_RWops`.
-  On failure, this returns NULL.
-
-.. cfunction:: int RWopsCheckPython (SDL_RWops *rw)
-
-  Checks, whether the passed :ctype:`SDL_RWops` was created from a Python
-  object. This returns 1 for a Python object, 0 if it is not a Python object and
-  -1 on failure.
-
-.. cfunction:: SDL_RWops* RWopsFromPythonThreaded (PyObject *obj)
+  seek, tell and close methods to be fully usable as :ctype:`SDL_RWops`.
+  *canautoclose* indicates, whether the object can be automatically closed by
+  the matching RW function. If not, a manual call to :cfunc:`PyRWops_Close` will
+  be required.
+  On failure, this returns *NULL*.
   
-  Creates a :ctype:`SDL_RWops` object with threading support from the passed
-  Python object. *obj* must be some file-like or buffer-like object supporting
-  the binary read, write, seek, tell and close methods to be fully usable as
-  :ctype:`SDL_RWops`. On failure, this returns NULL.
+  .. note::
 
-.. cfunction:: int RWopsCheckPythonThreaded (SDL_RWops *rw)
+    This function is not suitable for threaded usage.
 
-  Checks, whether the passed :ctype:`SDL_RWops` was created from a Python
-  object. This returns 1 for a Python object, 0 if it is not a Python object and
-  -1 on failure.
+.. cfunction:: SDL_RWops* PyRWops_NewRW (PyObject *obj, int *canautoclose)
+
+  Creates a read-write :ctype:`SDL_RWops` object from the passed Python object.
+  *obj* must be some file-like or buffer-like object supporting the binary read,
+  seek, tell and close methods to be fully usable as :ctype:`SDL_RWops`.
+  *canautoclose* indicates, whether the object can be automatically closed by
+  the matching RW function. If not, a manual call to :cfunc:`PyRWops_Close` will
+  be required.
+  On failure, this returns *NULL*.
+  
+  .. note::
+
+    This function is not suitable for threaded usage.
+
+.. cfunction:: SDL_RWops* PyRWops_NewRO_Threaded (PyObject *obj, int *canautoclose)
+
+  Creates a read-only :ctype:`SDL_RWops` object from the passed Python object.
+  *obj* must be some file-like or buffer-like object supporting the binary read,
+  seek, tell and close methods to be fully usable as :ctype:`SDL_RWops`.
+  *canautoclose* indicates, whether the object can be automatically closed by
+  the matching RW function. If not, a manual call to :cfunc:`PyRWops_Close` will
+  be required.
+  On failure, this returns *NULL*.
+  
+  .. note::
+  
+    If Python was built without thread support, this will default to
+    :cfunc:`PyRWops_NewRO`.
+
+.. cfunction:: SDL_RWops* PyRWops_NewRW_Threaded (PyObject *obj, int *canautoclose)
+
+  Creates a read-write :ctype:`SDL_RWops` object from the passed Python object.
+  *obj* must be some file-like or buffer-like object supporting the binary read,
+  seek, tell and close methods to be fully usable as :ctype:`SDL_RWops`.
+  *canautoclose* indicates, whether the object can be automatically closed by
+  the matching RW function. If not, a manual call to :cfunc:`PyRWops_Close` will
+  be required.
+  On failure, this returns *NULL*.
+  
+  .. note::
+  
+    If Python was built without thread support, this will default to
+    :cfunc:`PyRWops_NewRO`.
+
+.. cfunction:: void PyRWops_Close (SDL_RWops *rw, int autoclose)
+
+  Closes a :ctype:`SDL_RWops` object. if *autoclose* is not 0, the bound data
+  source will be closed, too (if it is a Python object). Otherwise it will be
+  kept open.
+ 

@@ -59,7 +59,7 @@ _image_load (PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple (args, "O|s:load", &file, &type))
         return NULL;
 
-    rw = PyRWops_NewRO (file, &autoclose);
+    rw = PyRWops_NewRO_Threaded (file, &autoclose);
     if (!rw)
         return NULL;
 

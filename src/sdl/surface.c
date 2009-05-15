@@ -997,7 +997,7 @@ _surface_save (PyObject *self, PyObject *args)
 
     surface = ((PySDLSurface*)self)->surface;
 
-    rw = PyRWops_NewRW (file, &autoclose);
+    rw = PyRWops_NewRW_Threaded (file, &autoclose);
     if (!rw)
         return NULL;
 
@@ -1023,7 +1023,7 @@ _surface_save (PyObject *self, PyObject *args)
     Py_BEGIN_ALLOW_THREADS;
     retval = pyg_sdlsurface_save_rw (surface, rw, type, autoclose);
     Py_END_ALLOW_THREADS;
-        
+
     if (!autoclose)
         PyRWops_Close (rw, autoclose);
     

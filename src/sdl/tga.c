@@ -116,6 +116,7 @@ int
 pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle, int freerw)
 {
     SDL_Surface *linebuf = NULL;
+    int retval = 0;
     int alpha = 0;
     int ckey = -1;
     struct TGAheader h;
@@ -137,7 +138,6 @@ pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle, int freerw)
         SDL_SetError ("out argument NULL");
         return 0;
     }
-
 
     h.infolen = 0;
     SETLE16 (h.cmap_start, 0);
@@ -280,13 +280,14 @@ pyg_save_tga_rw (SDL_Surface *surface, SDL_RWops *out, int rle, int freerw)
 
     if (freerw)
         SDL_RWclose (out);
+    retval = 1;
 
 error:
     if (rlebuf)
         free (rlebuf);
     SDL_FreeSurface (linebuf);
     
-    return 0;
+    return retval;
 }
 
 int
@@ -310,7 +311,5 @@ pyg_save_tga (SDL_Surface *surface, char *file, int rle)
     if (!out)
         return 0;
 
-    ret = pyg_save_tga_rw (surface, out, rle, 1);
-    SDL_RWclose (out);
-    return ret;
+    return pyg_save_tga_rw (surface, out, rle, 1);
 }

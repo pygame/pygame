@@ -189,7 +189,7 @@ _font_init (PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    rw = PyRWops_NewRO (file, &autoclose);
+    rw = PyRWops_NewRO_Threaded (file, &autoclose);
     if (!rw)
         return -1;
 

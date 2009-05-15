@@ -135,7 +135,7 @@ _chunk_init (PyObject *self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple (args, "O", &file))
         return -1;
 
-    rw = PyRWops_NewRO (file, &autoclose);
+    rw = PyRWops_NewRO_Threaded (file, &autoclose);
     if (!rw)
         return -1;
 

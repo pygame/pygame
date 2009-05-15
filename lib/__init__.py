@@ -3,7 +3,7 @@ Pygame2 is a set of Python modules designed for writing games.
 It is written on top of the excellent SDL library. This allows you
 to create fully featured games and multimedia programs in the python
 language. The package is highly portable, with games running on
-Windows, MacOS, OS X, BeOS, FreeBSD, IRIX, and Linux.
+Windows, MacOS X, *BSD, Linux and others.
 """
 
 import os

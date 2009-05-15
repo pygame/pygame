@@ -206,7 +206,7 @@ pyg_save_jpeg_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
         ss_rows[i] = ((unsigned char*)ss_surface->pixels) +
             i * ss_surface->pitch;
     }
-    r = _write_jpeg (rw, ss_rows, surface->w, surface->h, 85);
+    r = _write_jpeg (rw, ss_rows, surface->w, surface->h, 100);
 
     free (ss_rows);
     SDL_FreeSurface (ss_surface);

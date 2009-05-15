@@ -139,8 +139,10 @@ static PyGetSetDef _frect_getsets[] = {
     { "x", _frect_getx, _frect_setx, DOC_BASE_FRECT_X, NULL },
     { "y", _frect_gety, _frect_sety, DOC_BASE_FRECT_Y, NULL },
     { "width", _frect_getwidth, _frect_setwidth, DOC_BASE_FRECT_WIDTH, NULL },
+    { "w", _frect_getwidth, _frect_setwidth, DOC_BASE_FRECT_WIDTH, NULL },
     { "height", _frect_getheight, _frect_setheight, DOC_BASE_FRECT_HEIGHT,
       NULL },
+    { "h", _frect_getheight, _frect_setheight, DOC_BASE_FRECT_HEIGHT, NULL },
     { "size", _frect_getsize, _frect_setsize, DOC_BASE_FRECT_SIZE, NULL },
 
     { "left", _frect_getx, _frect_setx, DOC_BASE_FRECT_LEFT, NULL },

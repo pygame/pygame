@@ -304,6 +304,9 @@
         or equal to the :class:`FRect` floating point values.
       </desc>
     </method>
+    <attr name="h">
+      <desc>Gets or sets the height of the :class:`FRect`.</desc>
+    </attr>
     <attr name="height">
       <desc>Gets or sets the height of the :class:`FRect`.</desc>
     </attr>
@@ -414,6 +417,9 @@
         Same as FRect.union(FRect), but operates in place.
       </desc>
     </method>
+    <attr name="w">
+      <desc>Gets or sets the width of the :class:`FRect`.</desc>
+    </attr>
     <attr name="width">
       <desc>Gets or sets the width of the :class:`FRect`.</desc>
     </attr>
@@ -578,6 +584,9 @@
         or height.
       </desc>
     </method>
+    <attr name="h">
+      <desc>Gets or sets the height of the :class:`FRect`.</desc>
+    </attr>
     <attr name="height">
       <desc>Gets or sets the height of the :class:`Rect`.</desc>
     </attr>
@@ -670,6 +679,9 @@
         Same as Rect.union(Rect), but operates in place.
       </desc>
     </method>
+    <attr name="w">
+      <desc>Gets or sets the width of the :class:`Rect`.</desc>
+    </attr>
     <attr name="width">
       <desc>Gets or sets the width of the :class:`Rect`.</desc>
     </attr>
@@ -716,7 +728,6 @@
       <desc>Gets the width of the :class:`Surface`.</desc>
     </attr>
   </class>
-
 
   <class name="Font">
     <constructor>Font () -> Font</constructor>

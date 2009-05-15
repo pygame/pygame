@@ -6,6 +6,10 @@
   <desc>
     .. note::
 
+      This module is not supported under Python 3.x.
+
+    .. note::
+
       You should favour the usage :mod:`pygame2.sdlext.surfarray` over
       directly using the numpy or Numeric surfarray modules, if you do
       not require any special features of one of the packages. This
