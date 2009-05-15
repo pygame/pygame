@@ -197,7 +197,6 @@ class RectTest (unittest.TestCase):
         # 
         # Moves the rectangle inside another.
         # 
-        # Rect.clamp (Rect) -> Rect  Moves the rectangle inside another.
         # Returns a new rectangle that is moved to be completely inside the
         # argument Rect. If the rectangle is too large to fit inside, it is
         # centered inside the argument Rect, but its size is not changed.
@@ -239,11 +238,10 @@ class RectTest (unittest.TestCase):
         # 
         # Crops a rectangle inside another.
         # 
-        # Rect.clip (Rect) -> Rect  Crops a rectangle inside another.  Returns
-        # a new rectangle that is cropped to be completely inside the argument
-        # Rect. If the two rectangles do not overlap to begin with, a Rect
-        # with 0 size is returned. Thus it returns the area, in which both
-        # rects overlap.
+        # Returns a new rectangle that is cropped to be completely
+        # inside the argument Rect. If the two rectangles do not overlap
+        # to begin with, a Rect with 0 size is returned. Thus it returns
+        # the area, in which both rects overlap.
         r1 = Rect( 1, 2, 3, 4 )
         self.assertEqual( Rect( 1, 2, 2, 2 ), r1.clip( Rect(0,0,3,4) ) )
         self.assertEqual( Rect( 2, 2, 2, 4 ), r1.clip( Rect(2,2,10,20) ) )
@@ -260,11 +258,9 @@ class RectTest (unittest.TestCase):
         # 
         # Test if one rectangle in a dictionary intersects.
         # 
-        # Rect.collidedict (dict) -> (key, value)  Test if one rectangle in a
-        # dictionary intersects.  Returns the key and value of the first
-        # dictionary value that collides with the Rect. If no collisions are
-        # found, None is returned. They keys of the passed dict must be Rect
-        # objects.
+        # Returns the key and value of the first dictionary value that
+        # collides with the Rect. If no collisions are found, None is
+        # returned. They keys of the passed dict must be Rect objects.
 
         r = Rect(1, 1, 10, 10)
         r1 = Rect(1, 1, 10, 10)
@@ -298,11 +294,9 @@ class RectTest (unittest.TestCase):
         # 
         # Test if all rectangles in a dictionary intersect.
         # 
-        # Rect.collidedictall (dict) -> [(key, value), ...]  Test if all
-        # rectangles in a dictionary intersect.  Returns a list of all the key
-        # and value pairs that intersect with the Rect. If no collisions are
-        # found an empty list is returned. They keys of the passed dict must
-        # be Rect objects.
+        # Returns a list of all the key and value pairs that intersect
+        # with the Rect. If no collisions are found an empty list is
+        # returned. They keys of the passed dict must be Rect objects.
 
         r = Rect(1, 1, 10, 10)
 
@@ -328,10 +322,10 @@ class RectTest (unittest.TestCase):
         # 
         # Test if one rectangle in a list intersects.
         # 
-        # Rect.collidelist (list) -> index  Test if one rectangle in a list
-        # intersects.  Test whether the rectangle collides with any in a
-        # sequence of rectangles. The index of the first collision found is
-        # returned. If no collisions are found an index of -1 is returned.
+        # Test whether the rectangle collides with any in a sequence of
+        # rectangles. The index of the first collision found is
+        # returned. If no collisions are found an index of -1 is
+        # returned.
 
         r = Rect(1, 1, 10, 10)
         l = [Rect(50, 50, 1, 1), Rect(5, 5, 10, 10), Rect(15, 15, 1, 1)]
@@ -349,10 +343,9 @@ class RectTest (unittest.TestCase):
         # 
         # Test if all rectangles in a list intersect.
         # 
-        # Rect.collidelistall (list) -> [index, ...]  Test if all rectangles
-        # in a list intersect.  Returns a list of all the indices that contain
-        # rectangles that collide with the Rect. If no intersecting rectangles
-        # are found, an empty list is returned.
+        # Returns a list of all the indices that contain rectangles that
+        # collide with the Rect. If no intersecting rectangles are
+        # found, an empty list is returned.
         r = Rect(1, 1, 10, 10)
 
         l = [
@@ -374,9 +367,8 @@ class RectTest (unittest.TestCase):
         # 
         # Test if a point is inside a rectangle.
         # 
-        # Rect.collidepoint (x, y) -> bool  Test if a point is inside a
-        # rectangle.  Returns true if the given point is inside the rectangle.
-        # A point along the right or bottom edge is not considered to be
+        # Returns true if the given point is inside the rectangle.  A
+        # point along the right or bottom edge is not considered to be
         # inside the rectangle.
         r = Rect( 1, 2, 3, 4 )
         
@@ -406,7 +398,6 @@ class RectTest (unittest.TestCase):
         # 
         # Test if two rectangles overlap.
         # 
-        # Rect.colliderect (Rect) -> bool  Test if two rectangles overlap.
         # Returns true if any portion of either rectangle overlap (except the
         # top+bottom or left+right edges).
         r1 = Rect(1,2,3,4)
@@ -439,9 +430,8 @@ class RectTest (unittest.TestCase):
         # 
         # Test if one rectangle is inside another.
         # 
-        # Rect.contains (Rect) -> bool  Test if one rectangle is inside
-        # another.  Returns true when the argument rectangle is completely
-        # inside the Rect.
+        # Returns true when the argument rectangle is completely inside
+        # the Rect.
         r = Rect( 1, 2, 3, 4 )
         
         self.failUnless( r.contains( Rect( 2, 3, 1, 1 ) ),
@@ -494,11 +484,10 @@ class RectTest (unittest.TestCase):
         # 
         # Resize and move a rectangle with aspect ratio.
         # 
-        # Rect.fit (Rect) -> Rect  Resize and move a rectangle with aspect
-        # ratio.  Returns a new rectangle that is moved and resized to fit
-        # another. The aspect ratio of the original Rect is preserved, so the
-        # new rectangle may be smaller than the target in either width or
-        # height.
+        # Returns a new rectangle that is moved and resized to fit
+        # another. The aspect ratio of the original Rect is preserved,
+        # so the new rectangle may be smaller than the target in either
+        # width or height.
 
         r = Rect(10, 10, 30, 30)
 
@@ -533,7 +522,6 @@ class RectTest (unittest.TestCase):
         # 
         # Grow or shrink the rectangle size.
         # 
-        # Rect.inflate (x, y) -> Rect  Grow or shrink the rectangle size.
         # Returns a new rectangle with the size changed by the given offset.
         # The rectangle remains centered around its current center. Negative
         # values will shrink the rectangle.
@@ -686,9 +674,9 @@ class RectTest (unittest.TestCase):
         # 
         # Moves the rectangle.
         # 
-        # Rect.move (x, y) -> Rect  Moves the rectangle.  Returns a new
-        # rectangle that is moved by the given offset. The x and y arguments
-        # can be any integer value, positive or negative.
+        # Returns a new rectangle that is moved by the given offset. The
+        # x and y arguments can be any integer value, positive or
+        # negative.
         r = Rect( 1, 2, 3, 4 )
         move_x = 10
         move_y = 20
@@ -790,10 +778,9 @@ class RectTest (unittest.TestCase):
         # 
         # Joins two rectangles into one.
         # 
-        # Rect.union (Rect) -> Rect  Joins two rectangles into one.  Returns a
-        # new rectangle that completely covers the area of the two provided
-        # rectangles. There may be area inside the new Rect that is not
-        # covered by the originals.
+        # Returns a new rectangle that completely covers the area of the
+        # two provided rectangles. There may be area inside the new Rect
+        # that is not covered by the originals.
         r1 = Rect( 1, 1, 1, 2 )
         r2 = Rect( -2, -2, 1, 2 )
         self.assertEqual( Rect( -2, -2, 4, 5 ), r1.union(r2) )

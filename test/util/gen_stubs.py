@@ -26,14 +26,16 @@ STUB_TEMPLATE = relative_indentation.Template ( '''
 )
 
 def py_comment (input_str):
-    lines = []
-    for line in input_str.split ('\n\n'):
-        if len (line) > 68:
-            lines += textwrap.wrap (input_str, 68)
-        else:
-            lines += [line]
-        lines += ['']
-    return '\n'.join ([('# ' + l) for l in lines]).rstrip ('\n# ')
+    #lines = []
+    #for line in input_str.split ('\n\n'):
+    #    if len (line) > 68:
+    #        lines += textwrap.wrap (input_str, 68)
+    #    else:
+    #        lines += [line]
+    #    lines += ['']
+    #return '\n'.join ([('# ' + l) for l in lines]).rstrip ('\n# ')
+    return '\n'.join ([('# ' + l) for l in input_str.split ('\n')]).rstrip \
+           ('\n# ')
 
 def do_import (name):
     components = name.split ('.')

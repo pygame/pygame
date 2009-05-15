@@ -21,11 +21,12 @@ class Dependency (object):
         The process of 'configuring' this Dependency implies setting the
         following lists with the information relevant to the library:
             
-            self.incdirs (all the directories which contain the include files)
-            self.libdirs (the directory(s) which contain the library itself)
-            self.libs    (the name of the library files which must be linked)
-            self.cflags  (all the flags which must be passed to the C compiler)
-            self.lflags  (all the flags which must be passed to the C linker)
+            self.incdirs  (all the directories which contain the include files)
+            self.libdirs  (the directory(s) which contain the library itself)
+            self.libs     (the name of the library files which must be linked)
+            self.cflags   (all the flags which must be passed to the C compiler)
+            self.gdefines (all the defines which to be passed to the C compiler)
+            self.lflags   (all the flags which must be passed to the C linker)
 
         Configuration is done by executing 'configuration callbacks'
         (each one implementing a different configuration method) until
@@ -76,6 +77,7 @@ class Dependency (object):
         self.libs = [self.library_id]
         self.cflags = []
         self.lflags = []
+        self.gdefines = []
 
         self.configured = False
 
@@ -142,7 +144,6 @@ class Dependency (object):
 
         self.incdirs.extend(dirs)
         self.libdirs.append(libdir)
-        self.cflags.append("-DHAVE_" + self.library_id.upper())
         return True
 
     _configure_guess.priority = 0
@@ -186,6 +187,7 @@ class Dependency (object):
                 self.incdirs = list(set(self.incdirs))
                 self.libdirs = list(set(self.libdirs))
                 self.libs = list(set(self.libs))
+                self.gdefines.append(("HAVE_" + self.library_id.upper(), None))
 
                 print ("")
                 print ("\tCFlags : " + repr(self.cflags))
@@ -231,4 +233,5 @@ class Dependency (object):
         module.lflags += self.lflags
         module.incdirs += self.incdirs
         module.libdirs += self.libdirs
+        module.globaldefines += self.gdefines 
         module.libs += self.libs

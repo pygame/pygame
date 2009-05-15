@@ -55,7 +55,7 @@ _write_png (SDL_RWops *rw, png_bytep *rows, int w, int h, int colortype,
         goto fail;
 
     doing = "init IO";
-    png_set_write_fn (png_ptr, rw, png_write_data, NULL);
+    png_set_write_fn (png_ptr, rw, _write_data, NULL);
 
     doing = "write header";
     png_set_IHDR (png_ptr, info_ptr, (png_uint_32)w, (png_uint_32)h,
@@ -188,12 +188,12 @@ pyg_save_png_rw (SDL_Surface *surface, SDL_RWops *rw, int freerw)
 
     if (alpha)
     {
-        r = _write_png (file, ss_rows, surface->w, surface->h,
+        r = _write_png (rw, ss_rows, surface->w, surface->h,
             PNG_COLOR_TYPE_RGB_ALPHA, 8);
     }
     else
     {
-        r = _write_png (file, ss_rows, surface->w, surface->h,
+        r = _write_png (rw, ss_rows, surface->w, surface->h,
             PNG_COLOR_TYPE_RGB, 8);
     }
 

@@ -8,7 +8,8 @@ sys.path.append ("doc")
 import create_cref
 
 class Module:
-    def __init__ (self, name, sources=None, instheaders=[], docfile=None, depends=None, optional_dep=None):
+    def __init__ (self, name, sources=None, instheaders=[], docfile=None,
+                  depends=None, optional_dep=None):
         """
             Initializes the Module object.
 
@@ -20,7 +21,8 @@ class Module:
                         module depends.
                         These libraries must be declared beforehand in 
                         config.config_modules.DEPENDENCIES
-            optional_dep - List of optional libraries with which this module can be built.
+            optional_dep - List of optional libraries with which this module
+                           can be built.
         """
 
         self.name = name
@@ -34,7 +36,7 @@ class Module:
         self.docfile = docfile
         self.canbuild = True
         nn = name.upper ().replace (".", "_")
-        self.cflags_avail = "-DHAVE_PYGAME_" + nn
+        self.globaldefines = [("HAVE_PYGAME_" + nn, None)]
 
         self.depends = list (depends or [])
         self.optional_dep = list(optional_dep or [])
@@ -325,20 +327,24 @@ def get_extensions (buildsystem):
 
     config.config_modules.prepare_modules (buildsystem, modules, cfg)
     
-    allmodcflags = []
+    alldefines = []
     for mod in modules:
-        # Build the availability cflags
+        # Build the availability defines
         if mod.canbuild:
-            allmodcflags += [ mod.cflags_avail ]
-
+            for entry in mod.globaldefines:
+                if entry not in alldefines:
+                    alldefines.append (entry)
+    
     # Create the extensions
     for mod in modules:
         if not mod.canbuild:
             print ("Skipping module '%s'" % mod.name)
             continue
         ext = Extension ("pygame2." + mod.name, sources=mod.sources)
-        ext.extra_compile_args = [ "-DPYGAME_INTERNAL" ] + mod.cflags + \
-                                 allmodcflags
+        ext.define_macros.append (("PYGAME_INTERNAL", None))
+        for entry in alldefines:
+            ext.define_macros.append (entry)
+        ext.extra_compile_args = mod.cflags
         ext.extra_link_args = mod.lflags
         ext.include_dirs = mod.incdirs + [ baseincpath, compatpath, docpath ]
         ext.library_dirs = mod.libdirs

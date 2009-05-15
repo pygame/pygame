@@ -10,8 +10,6 @@ CRITICAL:
 * Rewrite and fix up numpysurfarray and numpysndarray
 * Add prebuilt package for Win32 VC++ builds.
 * Refine quitting for SDL_QuitSubSystem wrapper.
-* Rewrite RWops wrapper code to make it suitable for buffer-like objects and
-  to avoid unnecessary closes.
 
 Things to ADD:
 ==============

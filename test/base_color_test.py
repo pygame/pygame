@@ -709,9 +709,8 @@ class ColorTest (unittest.TestCase):
         # 
         # Applies a certain gamma value to the Color.
         # 
-        # Color.correct_gamma (gamma) -> Color  Applies a certain gamma value
-        # to the Color.  Applies a certain gamma value to the Color and
-        # returns a new Color with the adjusted RGBA values.
+        # Applies a certain gamma value to the Color and returns a new
+        # Color with the adjusted RGBA values.
 
         self.fail() 
 
@@ -799,9 +798,8 @@ class ColorTest (unittest.TestCase):
         # 
         # Returns the normalized RGBA values of the Color.
         # 
-        # Color.normalize() -> tuple  Returns the normalized RGBA values of
-        # the Color.  Returns the normalized RGBA values of the Color as
-        # floating point values.
+        # Returns the normalized RGBA values of the Color as floating
+        # point values.
         c = Color (255, 255, 255, 255)
         self.assertEquals (c.normalize (), (1.0, 1.0, 1.0, 1.0))
         c = Color (0, 0, 0, 0)

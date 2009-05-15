@@ -1000,7 +1000,26 @@ _surface_save (PyObject *self, PyObject *args)
     rw = PyRWops_NewRW (file, &autoclose);
     if (!rw)
         return NULL;
-    
+
+    if (IsTextObj (file) && !type)
+    {
+        char *filename;
+        size_t len;
+        PyObject *tmp;
+
+        if (!UTF8FromObject (file, &filename, &tmp))
+            return NULL;
+        Py_XDECREF (tmp);
+
+        len = strlen (filename);
+        if (len < 4)
+        {
+            PyErr_SetString (PyExc_PyGameError, "unknown file type");
+            return NULL;
+        }
+        type = filename + (len - 3);
+    }
+
     Py_BEGIN_ALLOW_THREADS;
     retval = pyg_sdlsurface_save_rw (surface, rw, type, autoclose);
     Py_END_ALLOW_THREADS;

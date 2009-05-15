@@ -42,7 +42,6 @@ class SurfaceTest (unittest.TestCase):
         # 
         # Performs a blit operation on the Surface.
         # 
-        # blit (**kwds) -> object  Performs a blit operation on the Surface.
         # The behaviour, arguments and return value depend on the concrete
         # Surface implementation.
 

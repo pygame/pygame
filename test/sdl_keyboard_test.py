@@ -16,14 +16,13 @@ class SDLKeyboardTest (unittest.TestCase):
         # 
         # Enables or disables the keyboard repeat rate.
         # 
-        # enable_repeat (delay, interval) -> None  Enables or disables the
-        # keyboard repeat rate.  Enables or disables the keyboard repeat rate.
-        # delay specifies how long a key must be pressed before the repeat
-        # begins. interval is the speed with which it repeats. delay and
-        # interval are expressed as milliseconds. Thus, after the initial
-        # delay has passed, repeated KEYDOWN events are sent through the event
-        # queue, using the specified interval.  Setting delay to 0 will
-        # disable repeating completely.
+        # delay specifies how long a key must be pressed before the
+        # repeat begins. interval is the speed with which it
+        # repeats. delay and interval are expressed as
+        # milliseconds. Thus, after the initial delay has passed,
+        # repeated KEYDOWN events are sent through the event queue,
+        # using the specified interval.  Setting delay to 0 will disable
+        # repeating completely.
         # 
         # Setting delay to 0 will disable repeating completely.
         self.assert_ (keyboard.enable_repeat (0, 0) == None)
@@ -41,12 +40,11 @@ class SDLKeyboardTest (unittest.TestCase):
         # 
         # Enables or disables unicode input handling.
         # 
-        # enable_unicode ([enable]) -> bool  Enables or disables unicode input
-        # handling.  Enables or disables unicode input handling. If the
-        # argument is omitted, the function will return the current unicode
-        # handling state.  By default unicode handling is enabled and for
-        # keyboard events, the *unicode* member of the event will be filled
-        # with the corresponding unicode character.
+        # Enables or disables unicode input handling. If the argument is
+        # omitted, the function will return the current unicode handling
+        # state.  By default unicode handling is enabled and for
+        # keyboard events, the *unicode* member of the event will be
+        # filled with the corresponding unicode character.
         self.assert_ (keyboard.enable_unicode () == True)
         self.assert_ (keyboard.enable_unicode (True) == True)
         self.assert_ (keyboard.enable_unicode (False) == True)
@@ -80,11 +78,10 @@ class SDLKeyboardTest (unittest.TestCase):
         # 
         # Returns the current state of the modifier keys (CTRL, ALT, etc.).
         # 
-        # get_mod_state () -> state  Returns the current state of the modifier
-        # keys (CTRL, ALT, etc.).  Returns a single integer representing a
-        # bitmask of all the modifier keys being held. Using bitwise operators
-        # you can test if specific shift keys are pressed, the state of the
-        # capslock button, and more.  The bitmask will consist of the various
+        # Returns a single integer representing a bitmask of all the
+        # modifier keys being held. Using bitwise operators you can test
+        # if specific shift keys are pressed, the state of the capslock
+        # button, and more.  The bitmask will consist of the various
         # KMOD_* flags as specified in the constants.
 
         self.fail() 
@@ -115,10 +112,10 @@ class SDLKeyboardTest (unittest.TestCase):
         # 
         # Gets the current keyboard state.
         # 
-        # get_state () -> dict  Gets the current keyboard state.  Gets a
-        # dictionary with the current keyboard state. The keys of the
-        # dictionary are the key constants, the boolean values of the
-        # dictionary indicate, whether a certain key is pressed or not.
+        # Gets a dictionary with the current keyboard state. The keys of
+        # the dictionary are the key constants, the boolean values of
+        # the dictionary indicate, whether a certain key is pressed or
+        # not.
         self.assert_ (type (keyboard.get_state ()) == dict)
         self.assert_ (constants.K_a in keyboard.get_state ().keys ())
         self.assert_ (constants.K_b in keyboard.get_state ().keys ())
@@ -133,9 +130,11 @@ class SDLKeyboardTest (unittest.TestCase):
         # 
         # Sets the current modifier key state.
         # 
-        # set_mod_state (mod) -> None  Sets the current modifier key state.
         # Sets the current modifier key state. mod has to be a bitwise OR'd
         # combination of the KMOD_* flags as they are specified in the
         # constants.
 
         self.fail() 
+
+if __name__ == "__main__":
+    unittest.main ()

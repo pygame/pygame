@@ -152,7 +152,6 @@ class FRectTest (unittest.TestCase):
         #
         # Creates a Rect from the specified FRect.
         # 
-        # FRect.ceil () -> Rect Creates a Rect from the specified FRect.
         # This creates a Rect using the smallest integral values greater
         # or equal to the FRect floating point values.
         r = FRect (2.1, -2.9, 5.8, 3.01)
@@ -211,7 +210,6 @@ class FRectTest (unittest.TestCase):
         # 
         # Moves the rectangle inside another.
         # 
-        # FRect.clamp (FRect) -> FRect  Moves the rectangle inside another.
         # Returns a new rectangle that is moved to be completely inside the
         # argument FRect. If the rectangle is too large to fit inside, it is
         # centered inside the argument FRect, but its size is not changed.
@@ -254,7 +252,6 @@ class FRectTest (unittest.TestCase):
         # 
         # Crops a rectangle inside another.
         # 
-        # FRect.clip (FRect) -> FRect  Crops a rectangle inside another.
         # Returns a new rectangle that is cropped to be completely inside the
         # argument FRect. If the two rectangles do not overlap to begin with,
         # a FRect with 0 size is returned. Thus it returns the area, in which
@@ -275,11 +272,9 @@ class FRectTest (unittest.TestCase):
         # 
         # Test if one rectangle in a dictionary intersects.
         # 
-        # FRect.collidedict (dict) -> (key, value)  Test if one rectangle in a
-        # dictionary intersects.  Returns the key and value of the first
-        # dictionary value that collides with the FRect. If no collisions are
-        # found, None is returned. They keys of the passed dict must be FRect
-        # objects.
+        # Returns the key and value of the first dictionary value that
+        # collides with the FRect. If no collisions are found, None is
+        # returned. They keys of the passed dict must be FRect objects.
         r = FRect(1, 1, 10, 10)
         r1 = FRect(1, 1, 10, 10)
         r2 = FRect(50, 50, 10, 10)
@@ -312,12 +307,9 @@ class FRectTest (unittest.TestCase):
         # 
         # Test if all rectangles in a dictionary intersect.
         # 
-        # FRect.collidedictall (dict) -> [(key, value), ...]  Test if all
-        # rectangles in a dictionary intersect.  Returns a list of all the key
-        # and value pairs that intersect with the FRect. If no collisions are
-        # found an empty list is returned. They keys of the passed dict must
-        # be FRect objects.
-
+        # Returns a list of all the key and value pairs that intersect
+        # with the FRect. If no collisions are found an empty list is
+        # returned. They keys of the passed dict must be FRect objects.
 
         r = FRect(1, 1, 10, 10)
 
@@ -343,7 +335,6 @@ class FRectTest (unittest.TestCase):
         # 
         # Test if two rectangles overlap.
         # 
-        # FRect.colliderect (FRect) -> bool  Test if two rectangles overlap.
         # Returns true if any portion of either rectangle overlap (except the
         # top+bottom or left+right edges).
         r1 = FRect(1,2,3,4)
@@ -376,10 +367,10 @@ class FRectTest (unittest.TestCase):
         # 
         # Test if one rectangle in a list intersects.
         # 
-        # FRect.collidelist (list) -> index  Test if one rectangle in a list
-        # intersects.  Test whether the rectangle collides with any in a
-        # sequence of rectangles. The index of the first collision found is
-        # returned. If no collisions are found an index of -1 is returned.
+        # Test whether the rectangle collides with any in a sequence of
+        # rectangles. The index of the first collision found is
+        # returned. If no collisions are found an index of -1 is
+        # returned.
 
         r = FRect(1, 1, 10, 10)
         l = [FRect(50, 50, 1, 1), FRect(5, 5, 10, 10), FRect(15, 15, 1, 1)]
@@ -397,10 +388,9 @@ class FRectTest (unittest.TestCase):
         # 
         # Test if all rectangles in a list intersect.
         # 
-        # FRect.collidelistall (list) -> [index, ...]  Test if all rectangles
-        # in a list intersect.  Returns a list of all the indices that contain
-        # rectangles that collide with the FRect. If no intersecting
-        # rectangles are found, an empty list is returned.
+        # Returns a list of all the indices that contain rectangles that
+        # collide with the FRect. If no intersecting rectangles are
+        # found, an empty list is returned.
 
         r = FRect(1, 1, 10, 10)
 
@@ -423,9 +413,8 @@ class FRectTest (unittest.TestCase):
         # 
         # Test if a point is inside a rectangle.
         # 
-        # FRect.collidepoint (x, y) -> bool  Test if a point is inside a
-        # rectangle.  Returns true if the given point is inside the rectangle.
-        # A point along the right or bottom edge is not considered to be
+        # Returns true if the given point is inside the rectangle.  A
+        # point along the right or bottom edge is not considered to be
         # inside the rectangle.
         r = FRect( 1, 2, 3, 4 )
         
@@ -455,8 +444,7 @@ class FRectTest (unittest.TestCase):
         # 
         # Test if one rectangle is inside another.
         # 
-        # FRect.contains (FRect) -> bool  Test if one rectangle is inside
-        # another.  Returns true when the argument rectangle is completely
+        # Returns true when the argument rectangle is completely
         # inside the FRect.
         r = FRect( 1, 2, 3, 4 )
         
@@ -510,8 +498,7 @@ class FRectTest (unittest.TestCase):
         # 
         # Resize and move a rectangle with aspect ratio.
         # 
-        # FRect.fit (FRect) -> FRect  Resize and move a rectangle with aspect
-        # ratio.  Returns a new rectangle that is moved and resized to fit
+        # Returns a new rectangle that is moved and resized to fit
         # another. The aspect ratio of the original FRect is preserved, so the
         # new rectangle may be smaller than the target in either width or
         # height.
@@ -534,7 +521,6 @@ class FRectTest (unittest.TestCase):
         #
         # Creates a Rect from the specified FRect.
         #
-        # FRect.floor () -> Rect Creates a Rect from the specified FRect.
         # This creates a Rect using the largest integral values less than
         # or equal to the FRect floating point values.
         r = FRect (2.1, -2.9, 5.8, 3.01)
@@ -617,7 +603,6 @@ class FRectTest (unittest.TestCase):
         # 
         # Grow or shrink the rectangle size.
         # 
-        # FRect.inflate (x, y) -> FRect  Grow or shrink the rectangle size.
         # Returns a new rectangle with the size changed by the given offset.
         # The rectangle remains centered around its current center. Negative
         # values will shrink the rectangle.
@@ -716,9 +701,9 @@ class FRectTest (unittest.TestCase):
         # 
         # Moves the rectangle.
         # 
-        # FRect.move (x, y) -> FRect  Moves the rectangle.  Returns a new
-        # rectangle that is moved by the given offset. The x and y arguments
-        # can be any integer value, positive or negative.
+        # Returns a new rectangle that is moved by the given offset. The
+        # x and y arguments can be any integer value, positive or
+        # negative.
         r = FRect( 1, 2, 3, 4 )
         move_x = 10
         move_y = 20
@@ -766,7 +751,6 @@ class FRectTest (unittest.TestCase):
         # 
         # Creates a Rect from the specified FRect.
         # 
-        # FRect.round () -> Rect Creates a Rect from the specified FRect.
         # This creates a Rect using the FRect floating point values
         # rounded to the nearest integral value.
         r = FRect (2.1, -2.9, 5.8, 3.01)
@@ -832,8 +816,7 @@ class FRectTest (unittest.TestCase):
         # FRect.trunc () -> Rect
         #
         # Creates a Rect from the specified FRect.
-
-        # FRect.trunc() -> Rect. Creates a Rect from the specified FRect.
+        #
         # This creates a Rect using truncated integral values from the 
         # Frect floating point values.
         r = FRect (-1.57, 2.99, 8.1, 5.77)
@@ -847,7 +830,6 @@ class FRectTest (unittest.TestCase):
         # 
         # Joins two rectangles into one.
         # 
-        # FRect.union (FRect) -> FRect  Joins two rectangles into one.
         # Returns a new rectangle that completely covers the area of the two
         # provided rectangles. There may be area inside the new FRect that is
         # not covered by the originals.

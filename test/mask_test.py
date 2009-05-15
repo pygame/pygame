@@ -70,14 +70,14 @@ class MaskTest (unittest.TestCase):
         # 
         # Returns a Mask of a connected region of pixels.
         # 
-        # Mask.connected_component (x=None, y=None) -> Mask  Returns a Mask of
-        # a connected region of pixels.  This uses the SAUF algorithm to find
-        # a connected component in the Mask. It checks 8 point connectivity.
-        # By default, it will return the largest connected component in the
-        # image. Optionally, a coordinate pair of a pixel can be specified,
-        # and the connected component containing it will be returned. In the
-        # event the pixel at that location is not set, the returned Mask will
-        # be empty. The Mask returned is the same size as the original Mask.
+        # This uses the SAUF algorithm to find a connected component in
+        # the Mask. It checks 8 point connectivity.  By default, it will
+        # return the largest connected component in the
+        # image. Optionally, a coordinate pair of a pixel can be
+        # specified, and the connected component containing it will be
+        # returned. In the event the pixel at that location is not set,
+        # the returned Mask will be empty. The Mask returned is the same
+        # size as the original Mask.
 
         self.fail() 
 
@@ -89,14 +89,14 @@ class MaskTest (unittest.TestCase):
         # 
         # Returns a Mask of a connected region of pixels.
         # 
-        # Mask.connected_component (x=None, y=None) -> Mask  Returns a Mask of
-        # a connected region of pixels.  This uses the SAUF algorithm to find
-        # a connected component in the Mask. It checks 8 point connectivity.
-        # By default, it will return the largest connected component in the
-        # image. Optionally, a coordinate pair of a pixel can be specified,
-        # and the connected component containing it will be returned. In the
-        # event the pixel at that location is not set, the returned Mask will
-        # be empty. The Mask returned is the same size as the original Mask.
+        # This uses the SAUF algorithm to find a connected component in
+        # the Mask. It checks 8 point connectivity.  By default, it will
+        # return the largest connected component in the
+        # image. Optionally, a coordinate pair of a pixel can be
+        # specified, and the connected component containing it will be
+        # returned. In the event the pixel at that location is not set,
+        # the returned Mask will be empty. The Mask returned is the same
+        # size as the original Mask.
         m = Mask(10,10)
         self.assertEquals(repr(m.connected_components()), "[]")
         
@@ -146,13 +146,14 @@ class MaskTest (unittest.TestCase):
 
         # Mask.convolve (mask[, outputmask, point]) -> Mask
         #
-        # Return the convolution with another Mask.Returns a Mask with
-        # the [x-offset[0], y-offset[1]] bitset if shifting *mask* so
-        # that it's lower right corner pixel isat (x, y) would cause it
-        # to overlap with self.If an *outputmask* is specified, the
-        # output is drawn onto*outputmask* and *outputmask* is
-        # returned. Otherwise a mask ofsize size + *mask*.size - (1, 1)
-        # is created.
+        # Return the convolution with another Mask.
+        #
+        # Returns a Mask with the [x-offset[0], y-offset[1]] bitset if
+        # shifting *mask* so that it's lower right corner pixel isat (x,
+        # y) would cause it to overlap with self.If an *outputmask* is
+        # specified, the output is drawn onto *outputmask* and
+        # *outputmask* is returned. Otherwise a mask ofsize size +
+        # *mask*.size - (1, 1) is created.
         m1 = random_mask((100,100))
         m2 = random_mask((100,100))
         conv = m1.convolve(m2)
@@ -169,7 +170,6 @@ class MaskTest (unittest.TestCase):
         # 
         # Draws the passed Mask onto the Mask.
         # 
-        # Mask.draw (mask, x, y) -> None  Draws the passed Mask onto the Mask.
         # This performs a bitwise OR operation upon the calling Mask. The
         # passed mask's start offset for the draw operation will be the x and
         # y offset passed to the method.
@@ -201,10 +201,9 @@ class MaskTest (unittest.TestCase):
         # 
         # Erases the passed Mask from the Mask.
         # 
-        # Mask.erase (mask, x, y) -> None  Erases the passed Mask from the
-        # Mask.  This performs a bitwise NAND operation upon the calling Mask.
-        # The passed mask's start offfset for the erase operation will be the
-        # x and y offset passed to the method.
+        # This performs a bitwise NAND operation upon the calling Mask.
+        # The passed mask's start offfset for the erase operation will
+        # be the x and y offset passed to the method.
 
         self.fail() 
 
@@ -239,10 +238,9 @@ class MaskTest (unittest.TestCase):
         # 
         # Returns a list of bounding rects of regions of set pixels.
         # 
-        # Mask.get_bounding_rects () -> [Mask, Mask ...]  Returns a list of
-        # bounding rects of regions of set pixels.  This gets a bounding rect
-        # of connected regions of set bits. A bounding rect is one for which
-        # each of the connected pixels is inside the rect.
+        # This gets a bounding rect of connected regions of set bits. A
+        # bounding rect is one for which each of the connected pixels is
+        # inside the rect.
         m = Mask (10, 10)
         m.set_at(0, 0, 1)
         m.set_at(1, 0, 1)
@@ -383,16 +381,16 @@ class MaskTest (unittest.TestCase):
         # 
         # Returns nonzero if the masks overlap with the given offset.
         # 
-        # Mask.overlap (mask, x, y) -> int, int  Returns nonzero if the masks
-        # overlap with the given offset.  The overlap tests uses the following
-        # offsets (which may be negative):  +----+----------.. |A   | yoffset
-        # |  +-+----------.. +--|B |xoffset |  | :  :
-        # 
-        # Mask.overlap (mask, x, y) -> int, int  Returns nonzero if the masks
-        # overlap with the given offset.  The overlap tests uses the following
-        # offsets (which may be negative):  +----+----------.. |A   | yoffset
-        # |  +-+----------.. +--|B |xoffset |  | :  :
-
+        # The overlap tests uses the following offsets (which may be
+        # negative):
+        # +----+----------...
+        # |A   | yoffset
+        # |  +-+----------...
+        # +--|B
+        # |xoffset
+        # |  |
+        # |  |
+        # :  :
         self.fail() 
 
     def todo_test_pygame2_mask_Mask_overlap_area(self):
@@ -403,10 +401,9 @@ class MaskTest (unittest.TestCase):
         # 
         # Returns the number of overlapping bits of two Masks.
         # 
-        # Mask.overlap_area (mask, x, y) -> int  Returns the number of
-        # overlapping bits of two Masks.  This returns how many pixels overlap
-        # with the other mask given. It can be used to see in which direction
-        # things collide, or to see how much the two masks collide.
+        # This returns how many pixels overlap with the other mask
+        # given. It can be used to see in which direction things
+        # collide, or to see how much the two masks collide.
 
         self.fail() 
 
@@ -428,10 +425,9 @@ class MaskTest (unittest.TestCase):
         # 
         # Creates a new scaled Mask with the given width and height.
         # 
-        # Mask.scale (width, height) -> Mask  Creates a new scaled Mask with
-        # the given width and height.  The quality of the scaling may not be
-        # perfect for all circumstances, but it should be reasonable. If
-        # either w or h is 0 a clear 1x1 mask is returned.
+        # The quality of the scaling may not be perfect for all
+        # circumstances, but it should be reasonable. If either w or h
+        # is 0 a clear 1x1 mask is returned.
 
         self.fail() 
 
@@ -462,10 +458,9 @@ class MaskTest (unittest.TestCase):
         # 
         # Creates a new, empty Mask with the desired dimensions.
         # 
-        # Mask (width, height) -> Mask  Creates a new, empty Mask with the
-        # desired dimensions.  The Mask is a 2D array using single bits to
-        # represent states within a x,y matrix. This makes it suitable for
-        # pixel-perfect overlap handling of image buffers.
+        # The Mask is a 2D array using single bits to represent states
+        # within a x,y matrix. This makes it suitable for pixel-perfect
+        # overlap handling of image buffers.
 
         self.fail() 
 
@@ -485,13 +480,11 @@ class MaskTest (unittest.TestCase):
         # 
         # Returns a Mask from the given pygame2.sdl.video.Surface.
         # 
-        # pygame2.mask.from_surface (surface, threshold) -> Mask  Returns a
-        # Mask from the given pygame2.sdl.video.Surface.  Makes the
-        # transparent parts of the Surface not set, and the opaque parts set.
-        # The alpha of each pixel is checked to see if it is greater than the
-        # given threshold. If the Surface is color keyed, then threshold is
-        # not used.  This requires pygame2 to be built with SDL support
-        # enabled.
+        # Makes the transparent parts of the Surface not set, and the
+        # opaque parts set. The alpha of each pixel is checked to see
+        # if it is greater than the given threshold. If the Surface is
+        # color keyed, then threshold is not used.  This requires
+        # pygame2 to be built with SDL support enabled.
         # 
         # This requires pygame2 to be built with SDL support enabled.
         video.init ()
@@ -526,7 +519,17 @@ class MaskTest (unittest.TestCase):
 
         # __doc__ (as of 2008-11-03) for pygame2.mask.from_threshold:
 
-        # TODO
+        # pygame2.mask.from_threshold (surface, color[, threshold, thressurface]) -> Mask
+        # 
+        # Creates a mask by thresholding surfaces.
+        # 
+        # This is a more featureful method of getting a Mask from a
+        # Surface.  If supplied with only one Surface, all pixels within the
+        # threshold of the supplied *color* are set in the Mask. If given
+        # the optional *thressurface*, all pixels in *surface* that are
+        # within the *threshold* of the corresponding pixel in
+        # *thressurface* are set in the Mask.
+
         video.init ()
         a = [16, 24, 32]
         

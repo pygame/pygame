@@ -157,6 +157,13 @@ pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type,
         SDL_SetError ("surface argument NULL");
         return 0;
     }
+
+    if (!type)
+    {
+        SDL_SetError ("type argument NULL");
+        return 0;
+    }
+
     if (!rw)
     {
         SDL_SetError ("rw argument NULL");

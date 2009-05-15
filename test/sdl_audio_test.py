@@ -25,7 +25,6 @@ class SDLAudioTest (unittest.TestCase):
         # 
         # Shuts down the audio subsystem of the SDL library.
         # 
-        # quit () -> None  Shuts down the audio subsystem of the SDL library.
         # After calling this function, you should not invoke any class, method
         # or function related to the audio subsystem as they are likely to
         # fail or might give unpredictable results.
@@ -37,8 +36,8 @@ class SDLAudioTest (unittest.TestCase):
 
         # was_init () -> bool
         # 
-        # was_init () -> bool  Returns, whether the audio subsystem of the SDL
-        # library is initialized.
+        # Returns whether the audio subsystem of the SDL library is
+        # initialized.
 
         audio.quit ()
         self.assertEquals (audio.was_init (), False)
@@ -46,3 +45,6 @@ class SDLAudioTest (unittest.TestCase):
         self.assertEquals (audio.was_init (), True)
         audio.quit ()
         self.assertEquals (audio.was_init (), False)
+
+if __name__ == "__main__":
+    unittest.main ()

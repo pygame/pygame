@@ -44,20 +44,20 @@ def run_checks ():
                          "installed." % PYTHON_MINIMUM)
 
     buildsystem = None
-    buildcflags = None
+    builddefines = []
     if sys.platform == "win32":
         if msys.is_msys ():
             buildsystem = "msys"
-            buildcflags = "-DIS_MSYS"
+            builddefines.append (("IS_MSYS", None))
         else:
             buildsystem = "win"
-            buildcflags = "-DIS_WIN32"
+            builddefines.append (("IS_WIN32", None))
     elif sys.platform == "darwin":
         buildsystem = "darwin"
-        buildcflags = "-DIS_DARWIN"
+        builddefines.append (("IS_DARWIN", None))
     else:
         buildsystem = "unix"
-        buildcflags = "-DIS_UNIX"
+        builddefines.append (("IS_UNIX", None))
 
     if cfg.build['SDL']:
         sdlversion = config_modules.sdl_get_version (buildsystem)
@@ -67,14 +67,14 @@ def run_checks ():
     print ("\t Python: %d.%d.%d" % helpers.getversion ())
     if cfg.build['SDL']:
         print ("\t SDL:    %s" % sdlversion)
-    return buildsystem, buildcflags
+    return buildsystem, builddefines
 
 if __name__ == "__main__":
 
     buildsystem = None
     buildcflags = None
     try:
-        buildsystem, buildcflags = run_checks ()
+        buildsystem, builddefines = run_checks ()
     except:
         print (helpers.geterror ())
         print (helpers.gettraceback ())
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     headerfiles = []
     print ("The following modules will be built:")
     for ext in ext_modules:
-        ext.extra_compile_args.append (buildcflags)
+        ext.define_macros.extend (builddefines)
         headerfiles += ext.basemodule.installheaders
         print ("\t%s" % ext.name)
 
