@@ -6,11 +6,11 @@ The following sections will deal with a quick guide about what to take care
 of before issueing a new release.
 
 General
--------
+=======
 Releases are split into three phases usually, *alpha*, *rc* and *final*.
 
 Alpha phase
-^^^^^^^^^^^
+-----------
 The *alpha* phase usually takes place as soon as a *final* release was made and
 can feature as many releases as necessary. *alpha* releases should be made
 whenever large changes were made, which change the behaviour, API interfaces or
@@ -21,7 +21,7 @@ the *XXXth* release within that alpha phase. There is no limit to the amount of
 releases to be made.
 
 Release Candidate phase
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 The *rc* phase (short for Release Candidate) enters a beta testing cycle, where
 no new features should be added, but only bug fixes be committed. It is also
 the right time for proof-reading the documentation, running the unit tests on
@@ -34,35 +34,64 @@ adopters to have a minimum of one week and maximum of 3 weeks before the final
 release is made.
 
 Final phase
-^^^^^^^^^^^
+-----------
 This is not directly a phase on its own, but simply the day of the final release
 for the specific version. The *final* release usually should be the same as the
 last *rc* release, but only differ by the version number and release date.
 
-Preparations for a release
---------------------------
+Preparations
+============
 Before a new release takes place, the following steps have to be made:
 
-* increase version number (see Postprocessing) in ::
+* increase version number (see :ref:`Postprocessing`) in ::
   
     setup.py
     doc/conf.py
     lib/__init__.py
     
-* update NEWS.txt with the chagnes since the last version (only for final
+* update NEWS.txt with the changes since the last version (only for final
   release - alpha and rc should contain the information, but not be tagged
-  explicitly)
+  explicitly). See :ref:`Editing News` for more information.
 
 * update README.txt and doc/BuildXXX.txt to point to the latest required
   dependency versions.
 
+
+Editing News
+============
+The NEWS.txt file contains information about the changes between two
+*final* releases. If possible, it should be always up to date with the
+latest SVN changes.
+
+For adding a new release entry, the following layout is used: ::
+
+  VERSION DATE
+  ============
+
+  [Change list]
+
+
+Each important change that has any impact on the API (be it bug fixes,
+behaviour changes or whatever else), should be described here. If it was
+a user-submitted fix or change, credits are given to the user. If it was
+a fix for some user-submitted bug report, a short pointer to the report
+location should be given. If it was a fix for some bug tracker entry, the
+tracker id should be added. ::
+
+  2.99.4 2034-12-20
+  =================
+
+  * Added foo.morefoo class.
+  * Bug: Fixed foo.bar () misbehaviour for string arguments (via mailing list).
+  * Added foo.barbaz () method for whatever (thanks to Emily Doe).
+  * Bug #1234: Fixed foo.foobar() return value.
+
 Releasing
----------
+=========
 TODO
 
 Postprocessing
---------------
-
+==============
 Right after a release has been made and the tree was tagged correctly, the
 version numbers should be increased (and revised just before the next release).
 

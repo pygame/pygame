@@ -21,6 +21,7 @@ rst: clean
 	-cp -f BuildUnix.txt buildunix.rst
 	-cp -f MODULES.txt newmodules.rst
 	-cp -f MODULE_FAQ.txt module_faq.rst
+	-cp -f ../NEWS.txt news.rst
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -32,10 +33,13 @@ help:
 	@echo "  changes   to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck to check all external links for integrity"
 
-clean:
-	-rm -rf sphinx/build *~ *.pyc *.orig ref html
+docclean:
+	-rm -rf sphinx/build *~ *.pyc *.orig ref
 	-rm -f builddarwin.rst buildmingw.rst buildunix.rst buildvc.rst
-	-rm -f newmodules.rst module_faq.rst
+	-rm -f newmodules.rst module_faq.rst news.rst
+
+clean: docclean
+	-rm -rf html
 
 html: rst
 	mkdir -p sphinx/build/html sphinx/build/doctrees

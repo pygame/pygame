@@ -1,6 +1,6 @@
-###############
-Pygame2 modules
-###############
+####################
+Module Documentation
+####################
 
 This is the core documentation of the various modules, classes and
 functions, pygame2 offers. If you want a quick module overview, use the
@@ -8,7 +8,7 @@ functions, pygame2 offers. If you want a quick module overview, use the
 method or function, use the :ref:`genindex` or :ref:`search`.
 
 General Notes for Reading
--------------------------
+=========================
 
 .. note::
 
@@ -17,7 +17,7 @@ General Notes for Reading
   important for Python 3.x users and the new :mod:`io` module.
 
 Modules
----------
+=======
 
 .. toctree::
    :maxdepth: 2

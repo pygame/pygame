@@ -34,7 +34,8 @@ all: clean build
 
 dist: clean docs
 	@echo "Creating dist..."
-	@$(PYTHON) setup.py sdist
+	@$(PYTHON) setup.py sdist --format gztar
+	@$(PYTHON) setup.py sdist --format zip
 
 bdist: clean docs
 	@echo "Creating bdist..."
@@ -70,6 +71,7 @@ docs:
 	@cd doc && make html
 	@mv doc/sphinx/build/html doc/html
 	@rm -rf doc/sphinx/build
+	@cd doc && make docclean
 
 release: dist
 	@$(PYTHON) config/bundle_docs.py

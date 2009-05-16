@@ -17,11 +17,12 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
+   news.rst
    building.rst
    tutorial/index.rst
    modules.rst
-   extending.rst
    capi.rst
+   extending.rst
 
 .. todolist::
 

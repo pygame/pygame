@@ -1,6 +1,6 @@
-#############
-Pygame2 C API
-#############
+###################
+C API Documentation
+###################
 
 The following sections cover the internal C API of Pygame2. The C API is useful
 for implementing your own C extension or if you require some Python to C
