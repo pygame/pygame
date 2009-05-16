@@ -7,3 +7,4 @@ recursive-include examples *
 recursive-include lib *
 recursive-include src *
 recursive-include test *
+recursive-include util *
