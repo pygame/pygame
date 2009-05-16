@@ -47,6 +47,7 @@ class Doc(object):
     def __init__ (self, filename):
         self.filename = filename
         self.modulename = None
+        self.modulealias = None
         self.shortdesc = "TODO"
         self.description = "TODO"
         self.example = ""
@@ -62,6 +63,10 @@ class Doc(object):
     def get_module_docs (self, dom):
         module = dom.getElementsByTagName ("module")[0]
         self.modulename = module.getAttribute ("name")
+        node = module.getElementsByTagName ("alias")
+        if node and node[0].firstChild:
+            self.modulealias = node[0].firstChild.nodeValue
+            self.modulealias = self.modulealias.strip ()
         node = module.getElementsByTagName ("short")[0]
         if node.firstChild:
             self.shortdesc = node.firstChild.nodeValue
@@ -240,12 +245,15 @@ class Doc(object):
         fname = os.path.join ("ref", "%s.rst")
         fp = open (fname % self.modulename.replace (".", "_"), "w")
         fp.write (RST_HEADER)
-        
-        fp.write (":mod:`%s` -- %s\n" % (self.modulename, self.shortdesc))
-        fp.write ("%s\n" %
-                  ("=" * (11 + len (self.modulename) + len (self.shortdesc))))
+
+        name = self.modulename
+        if self.modulealias:
+            name = self.modulealias
+
+        fp.write (":mod:`%s` -- %s\n" % (name, self.shortdesc))
+        fp.write ("%s\n" % ("=" * (11 + len (name) + len (self.shortdesc))))
         fp.write ("%s" % self.create_desc_rst (self.description))
-        fp.write (".. module:: %s\n" % (self.modulename))
+        fp.write (".. module:: %s\n" % (name))
         fp.write ("   :synopsis: %s\n\n" % (self.shortdesc))
 
         if len (self.example) > 0:

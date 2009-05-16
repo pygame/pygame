@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE module SYSTEM "api.dtd">
 
-
 <module name="pygame2.mask">
   <short>image masks for fast pixel-perfect overlap checks</short>
   <desc>

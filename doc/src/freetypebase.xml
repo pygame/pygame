@@ -2,6 +2,7 @@
 <!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.freetype.base">
+  <alias>pygame2.freetype</alias>
   <short>Wrapping module for the FreeType 2 font library</short>
   <desc>
       This module wraps the FreeType 2 font library to add

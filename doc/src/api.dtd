@@ -1,7 +1,8 @@
 <!DOCTYPE module [
-<!ELEMENT module (short, desc, example?, (func | class)*)>
+<!ELEMENT module (alias?, short, desc, example?, (func | class)*)>
 <!ATTLIST module name CDATA #REQUIRED>
 
+<!ELEMENT alias (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT short (#PCDATA)>
 <!ELEMENT call (#PCDATA)>

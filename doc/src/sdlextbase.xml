@@ -2,6 +2,7 @@
 <!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlext.base">
+  <alias>pygame2.sdlext</alias>
   <short>basic extensions for SDL modules</short>
   <desc>
     Extension module for the pygame2 SDL wrapper.

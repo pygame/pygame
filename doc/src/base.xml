@@ -2,6 +2,7 @@
 <!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.base">
+  <alias>pygame2</alias>
   <short>basic features used by pygame2</short>
   <desc>
     Base features for pygame2 that are shared shared and used throughout

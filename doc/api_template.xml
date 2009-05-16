@@ -7,6 +7,7 @@
 -->
 
 <module name="NAME">
+  <alias>ALIAS</alias>
   <short>SHORT DESC (single line)</short>
   <desc>DESCRIPTION</desc>
   <example>EXAMPLE CODE</example>
