@@ -147,6 +147,8 @@ typedef struct
     PySurface   pysurface;
     
     SDL_Surface *surface;
+    int         isdisplay : 1;
+
     PyObject    *dict;
     PyObject    *weakrefs;
     PyObject    *locklist;

@@ -11,6 +11,8 @@ CRITICAL:
 * Add prebuilt package for Win32 VC++ builds.
 * Refine quitting for SDL_QuitSubSystem wrapper.
 * Rewrite RST generator to support aliased imports correctly.
+* Check display surface tracking for multiple calls to set_mode using
+  different return variables.
 
 Things to ADD:
 ==============

@@ -406,7 +406,7 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
     /* Not necessary usually. SDL_SetVideoMode() seems to do that
      * implicitly for recent versions of SDL. Though we'll force users
      * to do it explicitly. */
-    ASSERT_VIDEO_INIT(NULL);
+    ASSERT_VIDEO_INIT (NULL);
 
     if (!PyArg_ParseTupleAndKeywords (args, kwds, "ii|il:set_mode", kwlist,
         &width, &height, &bpp, &flags))
@@ -434,6 +434,8 @@ _sdl_setvideomode (PyObject *self, PyObject *args, PyObject *kwds)
         SDL_FreeSurface (surface);
         return NULL;
     }
+    ((PySDLSurface*)sf)->isdisplay = 1;
+
     return sf;
 }
 

@@ -188,8 +188,9 @@ _surface_dealloc (PySDLSurface *self)
     if (self->weakrefs)
         PyObject_ClearWeakRefs ((PyObject *) self);
 
-    if (self->surface)
+    if (self->surface && !self->isdisplay)
         SDL_FreeSurface (self->surface);
+    self->surface = NULL;
 
     obj = (PyObject*) &(self->pysurface);
     obj->ob_type->tp_free ((PyObject*)self);
@@ -206,6 +207,7 @@ _surface_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
     surface->dict = NULL;
     surface->weakrefs = NULL;
     surface->intlocks = 0;
+    surface->isdisplay = 0;
 
     surface->pysurface.get_width = _surface_getwidth;
     surface->pysurface.get_height = _surface_getheight;
