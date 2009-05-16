@@ -123,11 +123,11 @@ if __name__ == "__main__":
         "pygame2.examples" : find_pkg_data ("examples"),
         "pygame2.test" : find_pkg_data ("test", ["c_api", "util"]),
         }
-    modules.update_packages (cfg, packages, package_dir, package_data)
 
     dllfiles = [ os.path.join ("pygame2", "dll"),
                  config_modules.get_install_libs (buildsystem, cfg) ]
     ext_modules = modules.get_extensions (buildsystem)
+    modules.update_packages (ext_modules, packages, package_dir, package_data)
 
     headerfiles = []
     print ("The following modules will be built:")

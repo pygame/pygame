@@ -365,21 +365,15 @@ def create_docheader (module, docincpath):
     create_cref.create_c_header (os.path.join (docpath, docfile),
                                  os.path.join (docincpath, incfile))
 
-def update_packages (cfg, packages, package_dir, package_data):
-    if cfg.build['SDL']:
-        packages += [ "pygame2.sdl", "pygame2.sdlext" ]
-        package_dir["pygame2.sdl"] = "lib/sdl"
-        package_dir["pygame2.sdlext"] = "lib/sdlext"
-        
-        if cfg.build['SDL_MIXER']:
-            packages += [ "pygame2.sdlmixer" ]
-            package_dir["pygame2.sdlmixer"] = "lib/sdlmixer"
-        if cfg.build['SDL_TTF']:
-            packages += [ "pygame2.sdlttf" ]
-            package_dir["pygame2.sdlttf"] = "lib/sdlttf"
-        if cfg.build['SDL_IMAGE']:
-            packages += [ "pygame2.sdlimage" ]
-            package_dir["pygame2.sdlimage"] = "lib/sdlimage"
-        if cfg.build['SDL_GFX']:
-            packages += [ "pygame2.sdlgfx" ]
-            package_dir["pygame2.sdlgfx"] = "lib/sdlgfx"
+def update_packages (modules, packages, package_dir, package_data):
+
+    pkg_list = set([m.name.split('.')[1] for m in modules])
+
+    for p in pkg_list:
+        pkg_name = "pygame2." + p
+        pkg_dir = os.path.join("lib", p)
+
+        if os.path.isdir(pkg_dir):
+            packages.append(pkg_name)
+            package_dir[pkg_name] = pkg_dir
+
