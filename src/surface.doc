@@ -111,8 +111,6 @@ different colors than a non self-blit.
 
 
 
-
-
 convert
 change the pixel format of an image
 Surface.convert(Surface): return Surface
@@ -186,6 +184,7 @@ This will return the affected Surface area.
 <END>
 
 
+
 scroll
 Shift the surface image in place
 Surface.scroll(dx=0, dy=0): return None
@@ -196,6 +195,7 @@ overwritten retain their original pixel values. Scrolling is contained
 by the Surface clip area. It is safe to have dx and dy values that exceed
 the surface size.
 <END>
+
 
 
 set_colorkey
@@ -324,6 +324,7 @@ inside a lock and unlock pair.
 <END>
 
 
+
 get_locked
 test if the Surface is current locked
 Surface.get_locked(): return bool
@@ -333,12 +334,14 @@ the Surface is locked.
 <END>
 
 
+
 get_locks
 Gets the locks for the Surface
 Surface.get_locks(): return tuple
 
 Returns the currently existing locks for the Surface. 
 <END>
+
 
 
 get_at
@@ -373,6 +376,7 @@ This function will temporarily lock and unlock the Surface as needed.
 <END>
 
 
+
 get_palette
 get the color index palette for an 8bit Surface
 Surface.get_palette(): return [RGB, RGB, RGB, ...]
@@ -381,6 +385,7 @@ Return a list of up to 256 color elements that represent the indexed colors
 used in an 8bit Surface. The returned list is a copy of the palette, and 
 changes will have no effect on the Surface.
 <END>
+
 
 
 get_palette_at
@@ -513,6 +518,7 @@ Surface.get_abs_parent(): return Surface
 Returns the parent Surface of a subsurface. If this is not a subsurface
 then this surface will be returned.
 <END>
+
 
 
 get_offset
@@ -685,6 +691,7 @@ Surface.get_shifts((r,g,b,a)): return None
 This is not needed for normal Pygame usage.
 New in pygame 1.8.1
 <END>
+
 
 
 get_losses
