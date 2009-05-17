@@ -121,7 +121,10 @@ _ft_quit(PyObject *self)
 static PyObject *
 _ft_init(PyObject *self)
 {
-    if (_init())
+    if (g_freetype_lib)
+        Py_RETURN_NONE;
+    
+    if (_init() == 0)
     {
         /* TODO: More accurate error message */
         PyErr_SetString(PyExc_PyGameError, 
