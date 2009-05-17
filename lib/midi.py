@@ -256,16 +256,16 @@ class Output(object):
         self._output.WriteSysEx(when, msg)
 
 
-    def note_on(self, note, velocity=None):
-        """ note_on(note, velocity=None, channel = 1)
+    def note_on(self, note, velocity=None, channel = 0):
+        """ note_on(note, velocity=None, channel = 0)
         Turn a note on in the output stream.
         """
         if velocity is None:
             velocity = 0
         self.write_short(0x90+channel, note, velocity)
 
-    def note_off(self, note, velocity=None, channel = 1):
-        """ note_off(note, velocity=None, channel = 1)
+    def note_off(self, note, velocity=None, channel = 0):
+        """ note_off(note, velocity=None, channel = 0)
         Turn a note off in the output stream.
         """
         if velocity is None:
@@ -274,13 +274,13 @@ class Output(object):
         self.write_short(0x80 + channel, note, velocity)
 
 
-    def set_instrument(self, instrument_id):
-        """ set_instrument(instrument_id)
+    def set_instrument(self, instrument_id, channel = 0):
+        """ set_instrument(instrument_id, channel = 0)
         Select an instrument, with a value between 0 and 127.
         """
         if not (0 <= instrument_id <= 127):
             raise ValueError("Undefined instrument id: %d" % instrument_id)
-        self.write_short(0xc0, instrument_id)
+        self.write_short(0xc0+channel, instrument_id)
 
 
 def time():
