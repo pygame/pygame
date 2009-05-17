@@ -257,20 +257,22 @@ class Output(object):
 
 
     def note_on(self, note, velocity=None):
-        """ note_on(note, velocity=None)
+        """ note_on(note, velocity=None, channel = 1)
         Turn a note on in the output stream.
         """
         if velocity is None:
             velocity = 0
-        self.write_short(0x90, note, velocity)
+        self.write_short(0x90+channel, note, velocity)
 
-    def note_off(self, note, velocity=None):
-        """ note_off(note, velocity=None)
+    def note_off(self, note, velocity=None, channel = 1):
+        """ note_off(note, velocity=None, channel = 1)
         Turn a note off in the output stream.
         """
         if velocity is None:
             velocity = 0
-        self.write_short(0x80, note, velocity)
+
+        self.write_short(0x80 + channel, note, velocity)
+
 
     def set_instrument(self, instrument_id):
         """ set_instrument(instrument_id)
