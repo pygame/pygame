@@ -22,6 +22,7 @@ except NameError:
 
 
 def print_device_info():
+    pygame.midi.init()
     for i in range( pygame.midi.get_count() ):
         r = pygame.midi.get_device_info(i)
         (interf, name, input, output, opened) = r
@@ -34,6 +35,7 @@ def print_device_info():
 
         print ("%2i: interface :%s:, name :%s:, opened :%s:  %s" %
                (i, interf, name, opened, in_out))
+    pygame.midi.quit()
         
 
 
