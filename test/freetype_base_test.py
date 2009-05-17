@@ -27,8 +27,8 @@ class FreeTypeTest(unittest.TestCase):
 
         # init () -> None
         # 
-        # Initializes the underlying FreeType 2 library.
-        # This method must be called before trying to use any of the functionality
+        # Initializes the underlying FreeType 2 library.  This method
+        # must be called before trying to use any of the functionality
         # of the 'freetype' module.
 
         # init()

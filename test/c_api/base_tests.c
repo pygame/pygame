@@ -252,6 +252,22 @@ test_surface (void)
     Py_DECREF (sf);
 }
 
+static void
+test_font (void)
+{
+    PyObject *font;
+    PyFont *ft;
+
+    font = PyFont_New ();
+    if (!PyFont_Check (font))
+        ERROR ("Font mismatch in PyFont_Check");
+    ft = (PyFont*) font;
+    if (!ft->get_height || !ft->get_name || !ft->get_style ||
+        !ft->set_style || !ft->get_size || !ft->render || !ft->copy)
+        ERROR ("Font is not properly initialised");
+    Py_DECREF (ft);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -265,6 +281,7 @@ main (int argc, char *argv[])
     test_frect ();
     test_bufferproxy ();
     test_surface ();
+    test_font ();
     Py_Finalize ();
     return 0;
 }
