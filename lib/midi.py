@@ -1,4 +1,19 @@
-"""
+"""pygame.midi
+pygame module for interacting with midi input and output.
+
+The midi module can send output to midi devices, and get input
+from midi devices.  It can also list midi devices on the system.
+
+Including real midi devices, and virtual ones.
+
+It uses the portmidi library.  Is portable to which ever platforms
+portmidi supports (currently windows, OSX, and linux).
+
+New in pygame 1.9.0.
+
+
+
+
 TODO:
     - write all docs as inline python docs.
     - rewrite docs for pygame doc style.
@@ -36,7 +51,12 @@ _init = False
 
 
 def init():
-    """ Call the initialisation function before using the midi module.
+    """initialize the midi module
+    pygame.midi.init(): return None
+    
+    Call the initialisation function before using the midi module.
+    
+    It is safe to call this more than once.
     """
     global _init, pypm
     if not _init:
@@ -48,9 +68,12 @@ def init():
         atexit.register(quit)
 
 def quit():
-    """ Call this to quit the midi module.
+    """uninitialize the midi module
+    pygame.midi.quit(): return None
 
-        Called automatically atexit if you don't call it.
+    Called automatically atexit if you don't call it.
+
+    It is safe to call this function more than once.
     """
     global _init, pypm
     if _init:
