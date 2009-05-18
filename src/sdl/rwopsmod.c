@@ -52,7 +52,6 @@ static SDL_RWops* PyRWops_NewRO_Threaded (PyObject *obj, int *canautoclose);
 static SDL_RWops* PyRWops_NewRW (PyObject *obj, int *canautoclose);
 static SDL_RWops* PyRWops_NewRW_Threaded (PyObject *obj, int *canautoclose);
 static void PyRWops_Close (SDL_RWops *ops, int canautoclose);
-static void PyRWops_Close_Threaded (SDL_RWops *ops, int canautoclose);
 
 static void
 _bind_python_methods (_RWWrapper *wrapper, PyObject *obj)

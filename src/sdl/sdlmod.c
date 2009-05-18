@@ -80,8 +80,9 @@ static void
 _quit (void)
 {
     int i;
-    for (i = 0; i < _quitcount; i++)
-        (*_quitcallbacks[i])();
+    if (_quitcallbacks != NULL)
+        for (i = 0; i < _quitcount; i++)
+            (*_quitcallbacks[i])();
     SDL_Quit ();
 }
 

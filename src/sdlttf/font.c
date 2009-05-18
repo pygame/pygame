@@ -30,7 +30,7 @@ static int _font_init (PyObject *chunk, PyObject *args, PyObject *kwds);
 static void _font_dealloc (PySDLFont_TTF *self);
 
 static PyObject* _font_glyphmetrics (PyObject *self, PyObject* args);
-static PyObject* _font_getsize (PyObject *self, PyObject* args);
+static PyObject* _font_getsize (PyObject *self, PyObject* args, PyObject *kwds);
 static PyObject* _font_render (PyObject *self, PyObject* args, PyObject *kwds);
 
 static PyObject* _font_getstyle (PyObject *self, void *closure);
@@ -49,7 +49,8 @@ static PyObject* _font_getstylename (PyObject *self, void *closure);
 static PyMethodDef _font_methods[] = {
     { "get_glyph_metrics", _font_glyphmetrics, METH_VARARGS,
       DOC_BASE_FONT_GET_GLYPH_METRICS },
-    { "get_size", _font_getsize, METH_VARARGS, DOC_BASE_FONT_GET_SIZE },
+    { "get_size", (PyCFunction) _font_getsize, METH_VARARGS | METH_KEYWORDS,
+      DOC_BASE_FONT_GET_SIZE },
     { "render", (PyCFunction)_font_render, METH_VARARGS | METH_KEYWORDS,
       DOC_BASE_FONT_RENDER },
     { NULL, NULL, 0, NULL }
@@ -377,7 +378,7 @@ _font_glyphmetrics (PyObject *self, PyObject* args)
 }
 
 static PyObject*
-_font_getsize (PyObject *self, PyObject* args)
+_font_getsize (PyObject *self, PyObject* args, PyObject *kwds)
 {
     PySDLFont_TTF *font = (PySDLFont_TTF*) self;
     PyObject *text;
@@ -546,7 +547,8 @@ PySDLFont_TTF_New (char *file, int ptsize)
     if (!file)
         return NULL;
 
-    font = (PySDLFont_TTF*) PySDLFont_TTF_Type.tp_new (&PySDLFont_TTF_Type, NULL, NULL);
+    font = (PySDLFont_TTF*) PySDLFont_TTF_Type.tp_new (&PySDLFont_TTF_Type,
+        NULL, NULL);
     if (!font)
         return NULL;
 

@@ -13,6 +13,7 @@ CRITICAL:
 * Rewrite RST generator to support aliased imports correctly.
 * Check display surface tracking for multiple calls to set_mode using
   different return variables.
+* Argument parsing must handle 64-bit conversions correctly.
 
 Things to ADD:
 ==============
@@ -45,3 +46,4 @@ Things to WRAP:
 * SDL_Thread*
 * SDL_gfx image filter functions
 * characterXXX wrappers for sdlgdfx
+
