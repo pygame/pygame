@@ -16,4 +16,11 @@ do
   chmod a+x "$name"
 done
 
+# Also make sure none of the files in lib/ are executable...
+#   like the font file which was in the 1.8.1release.
+chmod -x lib/*.ttf
+chmod -x lib/*.py
+chmod -x lib/threads/*.py
+chmod -x lib/gp2x/*.py
+
 
