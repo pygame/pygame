@@ -100,11 +100,12 @@ def output_main(device_id = None):
     absolute key position instead of value.) The white keys are on the second
     row, TAB to BACKSLASH, starting with note F3. The black keys map to the top
     row, '1' to BACKSPACE, starting with F#3. 'r' is middle C. Close the
-    window or pressing ESCAPE to quit the program. Key velocity (note
+    window or press ESCAPE to quit the program. Key velocity (note
     amplitude) varies vertically on the keyboard image, with minimum velocity
     at the top of a key and maximum velocity at bottom.
 
-    Midi output is to the default midi output device for the computer.
+    Default Midi output, no device_id given, is to the default output device
+    for the computer.
     
     """
 
