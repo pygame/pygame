@@ -43,10 +43,6 @@ gfxdraw src/gfxdraw.c $(SDL) $(GFX) $(DEBUG)
 
 
 
-#experimental new movie movie. requires libavcodec and libavformat.
-#add any necessary compile flags to this line and uncomment.
-#movieext src/movie.c  src/ffmovie.c $(SDL) -lavcodec -lavformat
-
 #these modules are required for pygame to run. they only require
 #SDL as a dependency. these should not be altered
 
