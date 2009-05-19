@@ -3,6 +3,12 @@ pygame module for camera use
 
 Pygame currently supports only Linux and v4l2 cameras.
 
+EXPERIMENTAL!: meaning this api may change, or dissapear in later 
+pygame releases.  If you use this, your code will break with the 
+next pygame release.
+
+
+
 The Bayer to RGB function is based on:
  Sonix SN9C101 based webcam basic I/F routines
  Copyright (C) 2004 Takafumi Mizuno <taka-qce@ls-a.jp>
@@ -28,6 +34,8 @@ The Bayer to RGB function is based on:
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  SUCH DAMAGE.
 
+
+New in pygame 1.9.0.
 <SECTION>
 
 colorspace
