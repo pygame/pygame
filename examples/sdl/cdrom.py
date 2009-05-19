@@ -11,7 +11,7 @@ except ImportError:
 def run ():
     cdrom.init ()
     print ("Number of CDROM drives found: %d" % cdrom.num_drives ())
-    for index in xrange (cdrom.num_drives ()):
+    for index in range (cdrom.num_drives ()):
         # Loop over all drives to get one with a CD inside
         cd = cdrom.CD (index)
         print ("CD system name: %s" % cd.name)
