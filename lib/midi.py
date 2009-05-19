@@ -239,8 +239,10 @@ class Input(object):
         return self._input.Read(length)
 
     def poll(self):
-        """ returns true if there's data, or false if not.
-            Otherwise it raises a MidiException.
+        """returns true if there's data, or false if not.
+        Input.poll()
+
+        raises a MidiException on error.
         """
         r = self._input.Poll()
         if r == pypm.TRUE:
@@ -257,6 +259,11 @@ class Input(object):
 class Output(object):
     def __init__(self, device_id, latency = 0, buffer_size = 4096):
         """
+        Output(device_id)
+        Output(device_id, latency = 0)
+        Output(device_id, buffer_size = 4096)
+        Output(device_id, latency, buffer_size)
+
         The buffer_size specifies the number of output events to be 
         buffered waiting for output.  (In some cases -- see below -- 
         PortMidi does not buffer output at all and merely passes data 
@@ -280,9 +287,10 @@ class Output(object):
         self.device_id = device_id
 
     def write(self, data):
-        """
+        """writes a list of midi data to the Output.
+        Output.write(data)
 
-        output a series of MIDI information in the form of a list:
+        writes series of MIDI information in the form of a list:
              write([[[status <,data1><,data2><,data3>],timestamp],
                     [[status <,data1><,data2><,data3>],timestamp],...])
         <data> fields are optional
@@ -305,58 +313,83 @@ class Output(object):
 
     def write_short(self, status, data1 = 0, data2 = 0):
         """ write_short(status <, data1><, data2>)
-             output MIDI information of 3 bytes or less.
-             data fields are optional
-             status byte could be:
-                  0xc0 = program change
-                  0x90 = note on
-                  etc.
-                  data bytes are optional and assumed 0 if omitted
-             example: note 65 on with velocity 100
-                  WriteShort(0x90,65,100)
+        Output.write_short(status)
+        Output.write_short(status, data1 = 0, data2 = 0)
+
+        output MIDI information of 3 bytes or less.
+        data fields are optional
+        status byte could be:
+             0xc0 = program change
+             0x90 = note on
+             etc.
+             data bytes are optional and assumed 0 if omitted
+        example: note 65 on with velocity 100
+             write_short(0x90,65,100)
         """
         self._output.WriteShort(status, data1, data2)
 
 
     def write_sys_ex(self, when, msg):
-        """ write_sys_ex(<timestamp>,<msg>)
-        writes a timestamped system-exclusive midi message.
-        <msg> can be a *list* or a *string*
+        """writes a timestamped system-exclusive midi message.
+        Output.write_sys_ex(when, msg)
+
+        write_sys_ex(<timestamp>,<msg>)
+
+        msg - can be a *list* or a *string*
         example:
-            (assuming y is an input MIDI stream)
-            y.write_sys_ex(0,'\\xF0\\x7D\\x10\\x11\\x12\\x13\\xF7')
-                              is equivalent to
-            y.write_sys_ex(pygame.midi.Time,
-            [0xF0, 0x7D, 0x10, 0x11, 0x12, 0x13, 0xF7])
+          (assuming o is an onput MIDI stream)
+            o.write_sys_ex(0,'\\xF0\\x7D\\x10\\x11\\x12\\x13\\xF7')
+          is equivalent to
+            o.write_sys_ex(pygame.midi.Time,
+                           [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
         """
         self._output.WriteSysEx(when, msg)
 
 
     def note_on(self, note, velocity=None, channel = 0):
-        """ note_on(note, velocity=None, channel = 0)
-        Turn a note on in the output stream.
+        """ turns a midi note on.  Note must be off.
+        Output.note_on(note, velocity=None, channel = 0)
+
+        Turn a note on in the output stream.  The note must already
+        be off for this to work correctly.
         """
         if velocity is None:
             velocity = 0
+
+        if not (0 <= channel <= 15):
+            raise ValueError("Channel not between 0 and 15.")
+
         self.write_short(0x90+channel, note, velocity)
 
     def note_off(self, note, velocity=None, channel = 0):
-        """ note_off(note, velocity=None, channel = 0)
-        Turn a note off in the output stream.
+        """ turns a midi note off.  Note must be on.
+        Output.note_off(note, velocity=None, channel = 0)
+
+        Turn a note off in the output stream.  The note must already
+        be on for this to work correctly.
         """
         if velocity is None:
             velocity = 0
+
+        if not (0 <= channel <= 15):
+            raise ValueError("Channel not between 0 and 15.")
 
         self.write_short(0x80 + channel, note, velocity)
 
 
     def set_instrument(self, instrument_id, channel = 0):
-        """ set_instrument(instrument_id, channel = 0)
-        Select an instrument, with a value between 0 and 127.
+        """ Select an instrument, with a value between 0 and 127.
+        Output.set_instrument(instrument_id, channel = 0)
+
         """
         if not (0 <= instrument_id <= 127):
             raise ValueError("Undefined instrument id: %d" % instrument_id)
+
+        if not (0 <= channel <= 15):
+            raise ValueError("Channel not between 0 and 15.")
+
         self.write_short(0xc0+channel, instrument_id)
+
 
 
 def time():
