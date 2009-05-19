@@ -7,9 +7,6 @@ else:
     from test.test_utils import unittest
 
 import tempfile, sys, pygame, time, os
-
-################################################################################
-# Python 3.x compatibility
 try:
     xrange_ = xrange
 except NameError:
@@ -19,9 +16,6 @@ try:
     raw_input_ = raw_input
 except NameError:
     raw_input_ = input
-
-def geterror():
-    return sys.exc_info()[1]
 
 ################################################################################
 
