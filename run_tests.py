@@ -6,5 +6,5 @@ For command line options use the --help option.
 
 """
 
-import test.go
+import test.__main__
 
