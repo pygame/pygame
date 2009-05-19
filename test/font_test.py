@@ -1,5 +1,5 @@
-import sys
 if __name__ == '__main__':
+    import sys
     import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
@@ -11,24 +11,18 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest, \
-                                        geterror
+    from pygame.tests.test_utils import test_not_implemented, unittest
 else:
-    from test.test_utils import test_not_implemented, unittest, geterror
+    from test.test_utils import test_not_implemented, unittest
 import pygame
 
 
 class FontModuleTest( unittest.TestCase ):
-    def setUp(self):
-        pygame.font.init()
-
-    def tearDown(self):
-        pygame.font.quit()
-
     def testFontRendering( self ):
         """ 
         """
         #print __file__
+        pygame.font.init ()
         f = pygame.font.Font(None, 20)
         s = f.render("foo", True, [0, 0, 0], [255, 255, 255])
         s = f.render("xxx", True, [0, 0, 0], [255, 255, 255])
@@ -88,21 +82,51 @@ class FontModuleTest( unittest.TestCase ):
 
         self.fail() 
 
-    def test_get_fonts(self):
-        fnts = pygame.font.get_fonts()
-        self.failUnless(fnts)
-        for name in fnts:
-            self.failUnless(isinstance(name, str))
-            self.failUnless(name.islower(), name)
-            self.failUnless(name.isalnum(), name)
+    def todo_test_get_fonts(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.font.get_fonts:
+
+          # pygame.font.get_fonts() -> list
+          # get a list of system font names
+          # 
+          # Returns the list of all found system fonts. Note that
+          # the names of the fonts will be all lowercase with spaces
+          # removed. This is how pygame internally stores the font
+          # names for matching.
+          # 
+          # Returns a list of all the fonts available on the system. The names
+          # of the fonts will be set to lowercase with all spaces and
+          # punctuation removed. This works on most systems, but some will
+          # return an empty list if they cannot find fonts.
+          # 
+
+        self.fail() 
 
     def todo_test_get_init(self):
-        self.failUnless(pygame.font.get_init())
-        pygame.font.quit()
-        self.failIf(pygame.font.get_init())
 
-    def test_init(self):
-        pygame.font.init()
+        # __doc__ (as of 2008-08-02) for pygame.font.get_init:
+
+          # pygame.font.get_init(): return bool
+          # true if the font module is initialized
+          # 
+          # Test if the font module is initialized or not. 
+
+        self.fail() 
+
+    def todo_test_init(self):
+
+        # __doc__ (as of 2008-08-02) for pygame.font.init:
+
+          # pygame.font.init(): return None
+          # initialize the font module
+          # 
+          # This method is called automatically by pygame.init(). It initializes
+          # the font module. The module must be initialized before any other
+          # functions will work.
+          # 
+          # It is safe to call this function more than once. 
+
+        self.fail() 
 
     def todo_test_match_font(self):
 
@@ -133,8 +157,18 @@ class FontModuleTest( unittest.TestCase ):
         self.fail() 
 
     def todo_test_quit(self):
-        pygame.font.quit()
 
+        # __doc__ (as of 2008-08-02) for pygame.font.quit:
+
+          # pygame.font.quit(): return None
+          # uninitialize the font module
+          # 
+          # Manually uninitialize SDL_ttf's font system. This is called
+          # automatically by pygame.quit().
+          # 
+          # It is safe to call this function even if font is currently not initialized. 
+
+        self.fail() 
 
 class FontTypeTest( unittest.TestCase ):
     def todo_test_get_ascent(self):
