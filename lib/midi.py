@@ -9,29 +9,22 @@ Including real midi devices, and virtual ones.
 It uses the portmidi library.  Is portable to which ever platforms
 portmidi supports (currently windows, OSX, and linux).
 
-New in pygame 1.9.0.
-
-
-
-
-TODO:
-    - write all docs as inline python docs.
-    - rewrite docs for pygame doc style.
-        - follow the format, and style of current docs.
-    - export docs from .py to .doc.
-    - create a background thread version for input threads.
-        - that can automatically inject input into the event queue
-          once the input object is running.  Like joysticks.
-    - generate test stubs (probably after docs are written)
-        - $ cd test/util/
-          $ python gen_stubs.py sprite.Sprite
-    - start writing tests.
-
-Uses portmidi library for putting midi into and out of pygame.
-
 This uses pyportmidi for now, but may use its own bindings at some
-point.
+point soon.
+
+New in pygame 1.9.0.
 """
+
+
+#TODO:
+#    - export docs from .py to .doc.
+#    - generate test stubs (probably after docs are written)
+#        - $ cd test/util/
+#          $ python gen_stubs.py sprite.Sprite
+#    - start writing tests.
+#    - create a background thread version for input threads.
+#        - that can automatically inject input into the event queue
+#          once the input object is running.  Like joysticks.
 
 
 
@@ -216,7 +209,7 @@ class MidiException(Exception):
 
 
 class Input(object):
-    """ An Input object is used to get midi input from midi devices.
+    """Input is used to get midi input from midi devices.
     Input(device_id)
     Input(device_id, buffer_size)
 
@@ -233,14 +226,20 @@ class Input(object):
         self.device_id = device_id
 
 
-    def read(self, length):
-        """ [[status,data1,data2,data3],timestamp]
+    def read(self, num_events):
+        """reads num_events midi events from the buffer.
+        Input.read(num_events): return midi_event_list
+
+        Reads from the Input buffer and gives back midi events.
+        [[[status,data1,data2,data3],timestamp],
+         [[status,data1,data2,data3],timestamp],...]
         """
-        return self._input.Read(length)
+        return self._input.Read(num_events)
+
 
     def poll(self):
         """returns true if there's data, or false if not.
-        Input.poll()
+        Input.poll(): return Bool
 
         raises a MidiException on error.
         """
@@ -393,14 +392,18 @@ class Output(object):
 
 
 def time():
-    """ Returns the current time in ms of the PortMidi timer.
+    """returns the current time in ms of the PortMidi timer
+    pygame.midi.time(): return time
     """
     return pypm.Time()
 
 
 
 def midis2events(midis, device_id):
-    """ takes a sequence of midi events and returns a list of pygame events.
+    """converts midi events to pygame events
+    pygame.midi.midis2events(midis, device_id): return [Event, ...]
+
+    Takes a sequence of midi events and returns list of pygame events.
     """
     evs = []
     for midi in midis:
