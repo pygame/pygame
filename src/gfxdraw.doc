@@ -3,12 +3,19 @@ pygame module for drawing shapes
 
 Wraps SDL_gfx primatives.
 
+EXPERIMENTAL!: meaning this api may change, or dissapear in later 
+pygame releases.  If you use this, your code will break with the 
+next pygame release.
+
+
 Most of the functions accept a color argument that is an RGB triplet.
 These can also accept an RGBA quadruplet. The color argument can also be an
 integer pixel value that is already mapped to the Surface's pixel format.
 
 For all functions the arguments are strictly positional. Only integers are
 accepted for coordinates and radii.
+
+New in pygame 1.9.0.
 <SECTION>
 
 

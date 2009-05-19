@@ -1,6 +1,12 @@
 pygame.scrap
 pygame module for clipboard support.
 
+
+EXPERIMENTAL!: meaning this api may change, or dissapear in later 
+pygame releases.  If you use this, your code will break with the 
+next pygame release.
+
+
 The scrap module is for getting and putting stuff from the clipboard.
 So you can copy and paste things between pygame, and other application
 types. It defines some basic own data types 
@@ -50,7 +56,6 @@ the clipboard using
 can only be used by applications, which query the clipboard for the
 "own_data" type.
 
-EXPERIMENTAL!
 
 New in pygame 1.8. Only works for Windows, X11 and Mac OS X so far.  On
 Mac OSX only text works at the moment - other types will be supported in
