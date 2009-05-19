@@ -11,6 +11,7 @@ SUBDIRS = \
 	$(top_srcdir)/test/c_api \
 	$(top_srcdir)/test/util \
 	$(top_srcdir)/lib \
+	$(top_srcdir)/lib/freetype \
 	$(top_srcdir)/lib/sdl \
 	$(top_srcdir)/lib/sdlext \
 	$(top_srcdir)/lib/sdlgfx \
@@ -21,6 +22,7 @@ SUBDIRS = \
 	$(top_srcdir)/lib/threads \
 	$(top_srcdir)/src \
 	$(top_srcdir)/src/base \
+	$(top_srcdir)/src/freetype \
 	$(top_srcdir)/src/mask \
 	$(top_srcdir)/src/physics \
 	$(top_srcdir)/src/sdl \

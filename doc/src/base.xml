@@ -7,6 +7,9 @@
   <desc>
     Base features for pygame2 that are shared shared and used throughout
     the whole pygame2 package.
+  
+    All classes and functions listed here are incorporated from the
+    :mod:`pygame2.base` module.
   </desc>
 
   <class name="BufferProxy">

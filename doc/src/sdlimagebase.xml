@@ -6,15 +6,18 @@
   <short>basic SDL_image wrapper module</short>
   <desc>
     Basic SDL_image wrapper module
+  
+    All classes and functions listed here are incorporated from the
+    :mod:`pygame2.sdlimage.base` module.
   </desc>
 
   <func name="get_error">
     <call>get_error () -> pygame2.Error</call>
     <desc>
-      Gets the last :exc:`pygame2.base.Error` occured.
+      Gets the last :exc:`pygame2.Error` occured.
 
       SDL_image maintains an internal error message. This message will
-      usually be given to you when a :exc:`pygame2.base.Error` is
+      usually be given to you when a :exc:`pygame2.Error` is
       raised.
 
       You will rarely need to call this function.

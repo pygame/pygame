@@ -54,7 +54,7 @@
 
         Renders a text on the existing surface. The top-left start
         position of the text will be the passed offset and a
-        :class:`pygame2.base.Rect` with the changed area will be
+        :class:`pygame2.Rect` with the changed area will be
         returned.
       </desc>
       <example></example>

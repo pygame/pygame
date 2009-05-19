@@ -7,15 +7,17 @@ except:
 
 def run_command (cmd):
     try:
+        retcode, output = 0, None
         if msys.is_msys():
-            return msys_obj.run_shell_command (cmd)
+            retcode, output = msys_obj.run_shell_command (cmd)
         else:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE)
             output = p.communicate()[0]
-            if helpers.getversion()[0] >= 3:
-                output = str (output, "ascii")
-            return p.returncode, output
+            retcode = p.returncode
+        if helpers.getversion()[0] >= 3:
+            output = str (output, "ascii")
+        return retcode, output
     except OSError:
         return -1, None
 

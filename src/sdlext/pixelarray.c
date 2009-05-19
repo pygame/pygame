@@ -67,13 +67,13 @@ static int _pixelarray_ass_subscript (PyPixelArray *array, PyObject* op,
 /**
  */
 static PyMethodDef _pixelarray_methods[] = {
-    { "compare", (PyCFunction) _compare, METH_KEYWORDS,
+    { "compare", (PyCFunction) _compare, METH_VARARGS | METH_KEYWORDS,
       DOC_BASE_PIXELARRAY_COMPARE },
-    { "extract", (PyCFunction) _extract_color, METH_KEYWORDS,
+    { "extract", (PyCFunction) _extract_color, METH_VARARGS | METH_KEYWORDS,
       DOC_BASE_PIXELARRAY_EXTRACT },
     { "make_surface", (PyCFunction) _make_surface, METH_NOARGS,
       DOC_BASE_PIXELARRAY_MAKE_SURFACE },
-    { "replace", (PyCFunction) _replace_color, METH_KEYWORDS,
+    { "replace", (PyCFunction) _replace_color, METH_VARARGS | METH_KEYWORDS,
       DOC_BASE_PIXELARRAY_REPLACE },
     { NULL, NULL, 0, NULL }
 };

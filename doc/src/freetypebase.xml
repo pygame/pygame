@@ -7,7 +7,10 @@
   <desc>
       This module wraps the FreeType 2 font library to add
       improvent font drawing capabilities to PyGame2, such as
-      new font formats, etc
+      new font formats, etc.
+  
+    All classes and functions listed here are incorporated from the
+    :mod:`pygame2.freetype.base` module.
   </desc>
 
   <func name="get_version">

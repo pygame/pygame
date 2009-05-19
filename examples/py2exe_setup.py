@@ -10,7 +10,7 @@ import pygame2
 os.environ['PATH'] += ";%s" % pygame2.DLLPATH
 
 # ALWAYS include pygame2.sdl.rwops if you are using some pygame2.sdl or related
-# module that can load or save files or file-like object. Otherwise it might
+# module that can load or save files or file-like objects. Otherwise it might
 # happen that pygame2.sdl.rwops is not included in the final exe/Library.zip,
 # which in turn causes the application to fail badly.
 

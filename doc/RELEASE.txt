@@ -43,19 +43,20 @@ Preparations
 ============
 Before a new release takes place, the following steps have to be made:
 
-* increase version number (see :ref:`Postprocessing`) in ::
+* Increase version number (see :ref:`Postprocessing`) in ::
   
     setup.py
     doc/conf.py
     lib/__init__.py
     
-* update NEWS.txt with the changes since the last version (only for final
+* Update NEWS.txt with the changes since the last version (only for final
   release - alpha and rc should contain the information, but not be tagged
   explicitly). See :ref:`Editing News` for more information.
 
-* update README.txt and doc/BuildXXX.txt to point to the latest required
+* Update README.txt and doc/BuildXXX.txt to point to the latest required
   dependency versions.
 
+* Make sure, all tests for all supported Python versions work.
 
 Editing News
 ============
@@ -65,11 +66,15 @@ latest SVN changes.
 
 For adding a new release entry, the following layout is used: ::
 
-  VERSION DATE
-  ============
-
+  VERSION
+  =======
+  Released on DATE.
+  
   [Change list]
 
+  Test releases:
+  
+  [Release list with revisions]
 
 Each important change that has any impact on the API (be it bug fixes,
 behaviour changes or whatever else), should be described here. If it was
@@ -78,17 +83,25 @@ a fix for some user-submitted bug report, a short pointer to the report
 location should be given. If it was a fix for some bug tracker entry, the
 tracker id should be added. ::
 
-  2.99.4 2034-12-20
-  =================
-
+  2.99.4
+  ======
+  Released on 2034-12-20.
+  
   * Added foo.morefoo class.
   * Bug: Fixed foo.bar () misbehaviour for string arguments (via mailing list).
   * Added foo.barbaz () method for whatever (thanks to Emily Doe).
   * Bug #1234: Fixed foo.foobar() return value.
 
+  Test releases:
+  
+  * alpha 1 (rev. 73213)
+  * alpha 2 (rev. 73237)
+  * rc 1 (rev. 73244)
+
 Releasing
 =========
-TODO
+Once anything's tested, updated written down, the required packages have to be
+built. TODO
 
 Postprocessing
 ==============

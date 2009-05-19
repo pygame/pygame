@@ -6,6 +6,9 @@
   <short>basic extensions for SDL modules</short>
   <desc>
     Extension module for the pygame2 SDL wrapper.
+
+    All classes and functions listed here are incorporated from the
+    :mod:`pygame2.sdlext.base` module.
   </desc>
 
   <class name="PixelArray">
