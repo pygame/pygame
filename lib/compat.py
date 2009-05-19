@@ -2,7 +2,8 @@
 
 import sys
 
-__all__ = ['geterror']
+__all__ = ['geterror', 'long_', 'xrange_', 'ord_', 'unichr_',
+           'unicode_', 'raw_input_']
 
 def geterror ():
     return sys.exc_info()[1]
