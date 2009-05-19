@@ -6,7 +6,10 @@ control the playback of music in the sound mixer.
 
 The difference between the music playback and regular Sound playback is that
 the music is streamed, and never actually loaded all at once. The mixer system
-only supports a single music stream at once. 
+only supports a single music stream at once.
+
+Be aware that MP3 support is limited. On some systems an unsupported format
+can crash the program, e.g. Debian Linux. Consider using OGG instead.
 <SECTION>
 
 
