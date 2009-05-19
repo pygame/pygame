@@ -12,4 +12,4 @@ Released on 2009-XX-XX.
 
 Test releases:
 
-* alpha1 (rev. 21)
+* alpha1 (rev. 2176)

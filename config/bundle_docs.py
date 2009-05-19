@@ -41,7 +41,8 @@ def main():
     bundle_name_elements = ['pygame', 'docs']
     fp = open ("setup.py", "r")
     try:
-        match = re.search (r'VERSION = "([0-9]+\.[0-9]+\.[0-9])"', fp.read ())
+        match = re.search (r'VERSION = "([0-9]+\.[0-9]+\.[0-9]+(\-\w+){0,1})"',
+                           fp.read ())
     finally:
         fp.close ()
     if match is None:
