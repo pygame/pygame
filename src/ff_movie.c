@@ -36,9 +36,9 @@ static int frame_height = 0;
 static enum PixelFormat frame_pix_fmt = PIX_FMT_NONE;
 static int audio_disable;
 static int video_disable;
-static int wanted_audio_stream= 0;
-static int wanted_video_stream= 0;
-static int wanted_subtitle_stream= -1;
+static int wanted_audio_stream= 1;
+static int wanted_video_stream= 1;
+static int wanted_subtitle_stream= 0;
 static int seek_by_bytes;
 static int display_disable;
 static int show_status;
@@ -747,8 +747,7 @@ static void stream_seek(PyMovie *is, int64_t pos, int rel)
     if (!is->seek_req) {
         is->seek_pos = pos;
         is->seek_flags = rel < 0 ? AVSEEK_FLAG_BACKWARD : 0;
-        if (seek_by_bytes)
-            is->seek_flags |= AVSEEK_FLAG_BYTE;
+
         is->seek_req = 1;
     }
 }
@@ -1580,7 +1579,7 @@ static int stream_component_open(PyMovie *is, int stream_index)
 
     PyAudioStream* pas; 
     PyVideoStream* pvs;
-    PySubStream*   pss;
+    PySubtitleStream*   pss;
 
     if (stream_index < 0 || stream_index >= ic->nb_streams)
         return -1;
@@ -1771,18 +1770,21 @@ static void stream_component_close(PyMovie *is, int stream_index)
     switch(enc->codec_type) {
     case CODEC_TYPE_AUDIO:
         pas->audio_st = NULL;
+        PySequence_SetItem(is->streams, (Py_ssize_t)is->audio_stream, PyNone);
         is->audio_stream = -1;
         Py_DECREF((PyObject *) pas);
         _dealloc_aud_stream(pas);
         break;
     case CODEC_TYPE_VIDEO:
         pvs->video_st = NULL;
+        PySequence_SetItem(is->streams, (Py_ssize_t)is->video_stream, PyNone);
         is->video_stream = -1;
         Py_DECREF((PyObject *) pvs);
         _dealloc_vid_stream(pvs);
         break;
     case CODEC_TYPE_SUBTITLE:
         pss->subtitle_st = NULL;
+        PySequence_SetItem(is->streams, (Py_ssize_t)is->subtitle_stream, PyNone);
         Py_DECREF(pss);
         is->subtitle_stream = -1;
         _dealloc_sub_stream(pss);
@@ -1907,7 +1909,9 @@ static int decode_thread(void *arg)
     }
 
     for(;;) {
+        SDL_LockMutex(is->general_mutex);        
         if (is->abort_request)
+            SDL_UnlockMutex(is->general_mutex);
             break;
         if (is->paused != is->last_paused) {
             is->last_paused = is->paused;
@@ -1921,6 +1925,7 @@ static int decode_thread(void *arg)
             /* wait 10 ms to avoid trying to get another packet */
             /* XXX: horrible */
             SDL_Delay(10);
+            SDL_UnlockMutex(is->general_mutex);
             continue;
         }
 #endif
@@ -1952,6 +1957,8 @@ static int decode_thread(void *arg)
         
                     packet_queue_flush(&pas->audioq);
                     packet_queue_put(&pas->audioq, &flush_pkt);
+                    Py_DECREF((PyObject *)pas);
+                    pas = NULL;
                 }
                 if (is->subtitle_stream >= 0) {
                     pss = (PySubtitleStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->subtitle_stream);
@@ -1959,6 +1966,8 @@ static int decode_thread(void *arg)
 
                     packet_queue_flush(&pss->subtitleq);
                     packet_queue_put(&pss->subtitleq, &flush_pkt);
+                    Py_DECREF((PyObject *)pss);
+                    pss = NULL;
                 }
                 if (is->video_stream >= 0) {
                     pvs = (PyVideoStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->video_stream);
@@ -1966,6 +1975,8 @@ static int decode_thread(void *arg)
 
                     packet_queue_flush(&pvs->videoq);
                     packet_queue_put(&pvs->videoq, &flush_pkt);
+                    Py_DECREF((PyObject *)pvs);
+                    pvs = NULL;
                 }
             }
             is->seek_req = 0;
@@ -1973,17 +1984,17 @@ static int decode_thread(void *arg)
         if(!pas)
         {
             pas = (PyAudioStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->audio_stream);
-            Py_INCREF((PyObject *)pas);
+            Py_XINCREF((PyObject *)pas);
         }
         if(!pss)
         {
             pss = (PySubtitleStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->subtitle_stream);
-            Py_INCREF((PyObject *) pss);
+            Py_XINCREF((PyObject *) pss);
         }
         if(!pvs)
         {
             pvs = (PyVideoStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->video_stream);
-            Py_INCREF((PyObject *)pvs);
+            Py_XINCREF((PyObject *)pvs);
         }
         /* if the queue are full, no need to read more */
         if ((pas !=NULL && pas->audioq.size > MAX_AUDIOQ_SIZE) || //yay for short circuit logic testing
@@ -1991,6 +2002,10 @@ static int decode_thread(void *arg)
             (pss !=NULL && pss->subtitleq.size > MAX_SUBTITLEQ_SIZE)) {
             /* wait 10 ms */
             SDL_Delay(10);
+            Py_XDECREF((PyObject *) pas);
+            Py_XDECREF((PyObject *) pvs);
+            Py_XDECREF((PyObject *) pss);
+            SDL_UnlockMutex(is->general_mutex);
             continue;
         }
         if(url_feof(ic->pb)) {
@@ -1999,14 +2014,23 @@ static int decode_thread(void *arg)
             pkt->size=0;
             pkt->stream_index= pvs->video_stream;
             packet_queue_put(&pvs->videoq, pkt);
+            Py_XDECREF((PyObject *) pas);
+            Py_XDECREF((PyObject *) pvs);
+            Py_XDECREF((PyObject *) pss);
+            SDL_UnlockMutex(is->general_mutex);
             continue;
         }
         ret = av_read_frame(ic, pkt);
         if (ret < 0) {
             if (ret != AVERROR_EOF && url_ferror(ic->pb) == 0) {
+                Py_XDECREF((PyObject *) pas);
+                Py_XDECREF((PyObject *) pvs);
+                Py_XDECREF((PyObject *) pss);         
+                SDL_UnlockMutex(is->general_mutex);       
                 SDL_Delay(100); /* wait for user event */
                 continue;
             } else
+                SDL_UnlockMutex(is->general_mutex);
                 break;
         }
         if (pkt->stream_index == is->aud_stream_ix) {
@@ -2018,7 +2042,12 @@ static int decode_thread(void *arg)
         } else {
             av_free_packet(pkt);
         }
+        Py_XDECREF((PyObject *) pas);
+        Py_XDECREF((PyObject *) pvs);
+        Py_XDECREF((PyObject *) pss);
+        SDL_UnlockMutex(is->general_mutex);
     }
+    
     /* wait until the end */
     while (!is->abort_request) {
         SDL_Delay(100);
@@ -2052,14 +2081,23 @@ static int decode_thread(void *arg)
     Py_XDECREF((PyObject *)pas);
     Py_XDECREF((PyObject *)pvs);
     Py_XDECREF((PyObject *)pss);
+    if(is->loops<0)
+    {
+        schedule_refresh(is, 40);
+        is->parse_tid = SDL_CreateThread(decode_thread, is);
+    }
+    else if (is->loops>0)
+    {   
+        schedule_refresh(is, 40);
+        is->loops--;
+        is->parse_tid = SDL_CreateThread(decode_thread, is);
+    }
     return 0;
 }
 
-static PyMovie *stream_open(const char *filename, AVInputFormat *iformat)
+static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
 {
-    PyMovie *is;
 
-    is = (PyMovie *)PyMem_Malloc(sizeof(VideoState));
     if (!is)
         return NULL;
     av_strlcpy(is->filename, filename, sizeof(is->filename));
@@ -2082,6 +2120,7 @@ static PyMovie *stream_open(const char *filename, AVInputFormat *iformat)
     is->av_sync_type = av_sync_type;
     is->parse_tid = SDL_CreateThread(decode_thread, is);
     if (!is->parse_tid) {
+        Py_DECREF((PyObject *) is);
         PyMem_Free((void *)is);
         return NULL;
     }
@@ -2125,12 +2164,17 @@ static void stream_close(PyMovie *is)
             SDL_FreeSurface(pvs->out_surf);
         }
     }
-    
-    SDL_DestroyMutex(pvs->pictq_mutex);
-    SDL_DestroyCond(pvs->pictq_cond);
-    SDL_DestroyMutex(pss->subpq_mutex);
-    SDL_DestroyCond(pss->subpq_cond);
-   
+    if(pvs)
+    {
+        SDL_DestroyMutex(pvs->pictq_mutex);
+        SDL_DestroyCond(pvs->pictq_cond);
+    }
+    if(pss)
+    {    
+        SDL_DestroyMutex(pss->subpq_mutex);
+        SDL_DestroyCond(pss->subpq_cond);
+    }
+
     Py_XDECREF((PyObject *)pvs);
     Py_XDECREF((PyObject *)pss);
     Py_XDECREF((PyObject *)pas);
@@ -2380,12 +2424,120 @@ static PyObject* _movie_get_playing (PyMovie *movie, void *closure);
 static PyObject* PyMovie_New (char *fname);
 */
 
-static PyMovie* _movie_new_internal(PyTypeObject *type, PyObject* fle, PyObject* surface)
+static PyMovie* _movie_new_internal(PyTypeObject *type, char *filename, PyObject* surface)
 {
+    /*Expects filename. If surface is null, then it sets overlay to >0. */
     PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
-    if (!movie)
-        return NULL;
     
+    if (!movie)
+        Py_RETURN_NONE;
 
+    Py_INCREF((PyObject *)movie);
 
+    if(!surface)
+    {
+        SDL_Surface *surf;
+        surf = PySurface_AsSurface(surface);
+        movie->out_surf=surf;
+        movie->overlay=1;
+    else
+    {
+        movie->overlay=0;
+    }
+    AVInputFormat *iformat;
+    movie->general_mutex=SDL_CreateMutex();
+    movie = stream_open(movie, filename, iformat); 
+    if(!movie)
+    {
+        Py_DECREF((PyObject *) movie);
+        Py_RETURN_NONE;
+    }
+    Py_DECREF((PyObject *) movie);
+    return movie;
+}
+    
+static PyObject* _movie_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyObject *obj, obj2;
+    if (!PyArg_ParseTuple (args, "sO|s", &obj, &obj2))
+        Py_RETURN_NONE;
+    if(!PyString_Check(obj))
+    {
+        PyErr_SetString(PyExc_TypeError, "Could not find a filename.");
+        Py_RETURN_NONE;
+    }
+    return _movie_new_internal(type, obj, obj2);
+    
+}
 
+static void _movie_dealloc(PyMovie *movie)
+{
+    stream_close(movie);
+}
+
+static PyObject* _movie_repr (PyMovie *movie)
+{
+    /*Eventually add a time-code call */
+    char buf[1035];
+    PyOS_snprintf(buf, sizeof(buf), "(Movie: %s)", movie->filename);
+    return PyString_FromString(buf);
+}
+
+static PyObject* _movie_str(PyMovie *movie)
+{
+    return _movie_repr(movie);
+}
+
+static PyObject* _movie_play(PyMovie *movie, PyObject* args)
+{
+    PyObject *obj;
+    int loops;
+    PyArg_ParseTuple(args, "i", &obj)
+    if(!obj)
+    {
+        loops =1;
+    }
+    SDL_LockMutex(movie->general_mutex);
+    movie->loops =loops;
+    movie->paused = 0;
+    movie->playing = 1;
+    SDL_UnlockMutex(movie->general_mutex);
+    Py_RETURN_NONE;
+}
+
+static PyObject* _movie_stop(PyMovie *movie)
+{
+    SDL_LockMutex(movie->general_mutex);
+    stream_pause(movie);
+    movie->seek_req = 1;
+    movie->seek_pos = 0;
+    movie->seek_flags =AVSEEK_FLAG_BACKWARD;
+    SDL_UnlockMutex(movie->general_mutex);  
+    Py_RETURN_NONE;
+}  
+
+static PyObject* _movie_pause(PyMovie *movie)
+{
+    stream_pause(movie); 
+    Py_RETURN_NONE;
+}
+
+static PyObject* _movie_rewind(PyMovie *movie, PyObject* args)
+{
+    /* For now, just alias rewind to stop */
+    return _movie_stop(movie);
+}
+
+static PyObject* _movie_get_paused (PyMovie *movie, void *closure)
+{
+    return PyInt_FromInt(movie->paused);
+}
+static PyObject* _movie_get_playing (PyMovie *movie, void *closure)
+{
+    return PyInt_FromInt(movie->playing);
+}
+
+static PyObject* PyMovie_New (char *fname, SDL_Surface *surf)
+{
+    return _movie_new_internal(PyMovie_Type, fname, surf);
+}

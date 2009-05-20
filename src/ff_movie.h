@@ -317,6 +317,9 @@ typedef struct
     int overlay; //>0 if we are to use the overlay, otherwise <=0
 
     int ytop, xleft;
+    int loops;
+
+    SDL_mutex *general_mutex;
 } PyMovie;
 
 /*class methods and internals */
