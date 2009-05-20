@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.sdlext">
+  <alias>pygame2.sdlext</alias>
+  <short>basic extensions for SDL modules</short>
+  <desc>
+    Extension module for the pygame2 SDL wrapper.
+  </desc>
+  <include>pygame2_sdlext_base.rst</include>
+ 
+</module>

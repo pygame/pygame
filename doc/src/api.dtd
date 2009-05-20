@@ -1,11 +1,15 @@
 <!DOCTYPE module [
-<!ELEMENT module (alias?, short, desc, example?, (func | class)*)>
+<!ELEMENT module
+          (show?, alias?, short, desc, example?, (func | class)*, include*)>
 <!ATTLIST module name CDATA #REQUIRED>
 
+<!ELEMENT show (0 | 1) "1">
 <!ELEMENT alias (#PCDATA)>
 <!ELEMENT desc (#PCDATA)>
 <!ELEMENT short (#PCDATA)>
+
 <!ELEMENT call (#PCDATA)>
+<!ELEMENT include (#PCDATA)>
 
 <!ELEMENT func (call, desc, example?)>
 <!ATTLIST func name CDATA #REQUIRED>

@@ -46,6 +46,7 @@ class DocMethod (object):
 class Doc(object):
     def __init__ (self, filename):
         self.filename = filename
+        self.showhead = True
         self.modulename = None
         self.modulealias = None
         self.shortdesc = "TODO"
@@ -53,20 +54,31 @@ class Doc(object):
         self.example = ""
         self.classes = []
         self.functions = []
+        self.includes = []
     
     def parse_content (self):
         dom = parse (self.filename)
         module = self.get_module_docs (dom)
         self.get_module_funcs (module)
         self.get_class_refs (module)
+        self.get_includes (module)
+
+    def get_includes (self, module):
+        incs = module.getElementsByTagName ("include")
+        for node in incs:
+            self.includes.append (node.firstChild.nodeValue)
     
     def get_module_docs (self, dom):
         module = dom.getElementsByTagName ("module")[0]
         self.modulename = module.getAttribute ("name")
+        node = module.getElementsByTagName ("show")
+        if node and node[0].firstChild.nodeValue:
+            self.showhead = node[0].firstChild.nodeValue == "1"
         node = module.getElementsByTagName ("alias")
         if node and node[0].firstChild:
             self.modulealias = node[0].firstChild.nodeValue
             self.modulealias = self.modulealias.strip ()
+
         node = module.getElementsByTagName ("short")[0]
         if node.firstChild:
             self.shortdesc = node.firstChild.nodeValue
@@ -250,11 +262,12 @@ class Doc(object):
         if self.modulealias:
             name = self.modulealias
 
-        fp.write (":mod:`%s` -- %s\n" % (name, self.shortdesc))
-        fp.write ("%s\n" % ("=" * (11 + len (name) + len (self.shortdesc))))
-        fp.write ("%s" % self.create_desc_rst (self.description))
-        fp.write (".. module:: %s\n" % (name))
-        fp.write ("   :synopsis: %s\n\n" % (self.shortdesc))
+        if self.showhead:
+            fp.write (":mod:`%s` -- %s\n" % (name, self.shortdesc))
+            fp.write ("%s\n" % ("=" * (11 + len (name) + len (self.shortdesc))))
+            fp.write ("%s" % self.create_desc_rst (self.description))
+            fp.write (".. module:: %s\n" % (name))
+            fp.write ("   :synopsis: %s\n\n" % (self.shortdesc))
 
         if len (self.example) > 0:
             fp.write (self.create_example_rst (self.example, True))
@@ -301,6 +314,8 @@ class Doc(object):
                             fp.write (self.create_example_rst (method.example))
 
         fp.write ("\n")
+        for include in self.includes:
+            fp.write (".. include:: %s\n" % include)
         fp.write (RST_FOOTER)
         fp.close ()
         

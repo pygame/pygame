@@ -35,6 +35,7 @@ help:
 
 docclean:
 	-rm -rf sphinx/build *~ *.pyc *.orig ref/pygame2_*
+	-rm -f ref/pygame2.rst
 	-rm -f builddarwin.rst buildmingw.rst buildunix.rst buildvc.rst
 	-rm -f newmodules.rst module_faq.rst news.rst
 

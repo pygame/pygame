@@ -2,12 +2,10 @@
 <!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlmixer.base">
-  <alias>pygame2.sdlmixer</alias>
+  <show>0</show>
+  <alias>pygame2.sdlmixer.base</alias>
   <short>basic SDL_mixer wrapper module</short>
   <desc>
-    All classes and functions listed here are incorporated from the
-    :mod:`pygame2.sdlmixer.base` module.
-    
     .. note::
       
       Do not use :mod:`pygame2.sdlmixer` and :mod:`pygame2.sdl.audio` at the

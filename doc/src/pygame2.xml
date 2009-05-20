@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2">
+  <alias>pygame2</alias>
+  <short>basic features used by pygame2</short>
+  <desc>
+    Base features for pygame2 that are shared shared and used throughout
+    the whole pygame2 package.
+  </desc>
+
+  <include>pygame2_base.rst</include>
+</module>

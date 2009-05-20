@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE module SYSTEM "api.dtd">
+
+<module name="pygame2.sdlttf">
+  <alias>pygame2.sdlttf</alias>
+  <short>basic SDL_ttf wrapper module</short>
+  <desc>
+    Basic SDL_ttf wrapper module
+  </desc>
+  <include>pygame2_sdlttf_base.rst</include>
+</module>

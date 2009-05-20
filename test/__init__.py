@@ -1,3 +1,11 @@
+"""Unit tests for Pygame2.
+
+This package contains the unit tests for Pygame2. You can execute the
+unit tests using
+
+    python -m pygame2.test
+
+"""
 import sys
 
 #
@@ -10,3 +18,6 @@ else:
     def run ():
         import pygame2.test.run_tests
         pygame2.test.run_tests.run ()
+
+if __name__ == "__main__":
+    run ()

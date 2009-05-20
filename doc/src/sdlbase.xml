@@ -2,13 +2,11 @@
 <!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdl.base">
-  <alias>pygame2.sdl</alias>
+  <show>0</show>
+  <alias>pygame2.sdl.base</alias>
   <short>basic SDL wrapper module</short>
   <desc>
-    Basic Pygame2 SDL wrapper module
-
-    All classes and functions listed here are incorporated from the
-    :mod:`pygame2.sdl.base` module.
+    Basic Pygame2 SDL wrapper functions.
   </desc>
 
   <func name="get_compiled_version">

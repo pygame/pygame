@@ -2,13 +2,11 @@
 <!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlimage.base">
-  <alias>pygame2.sdlimage</alias>
+  <show>0</show>
+  <alias>pygame2.sdlimage.base</alias>
   <short>basic SDL_image wrapper module</short>
   <desc>
     Basic SDL_image wrapper module
-  
-    All classes and functions listed here are incorporated from the
-    :mod:`pygame2.sdlimage.base` module.
   </desc>
 
   <func name="get_error">

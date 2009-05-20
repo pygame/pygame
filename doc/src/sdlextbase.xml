@@ -2,13 +2,11 @@
 <!DOCTYPE module SYSTEM "api.dtd">
 
 <module name="pygame2.sdlext.base">
-  <alias>pygame2.sdlext</alias>
+  <show>0</show>
+  <alias>pygame2.sdlext.base</alias>
   <short>basic extensions for SDL modules</short>
   <desc>
-    Extension module for the pygame2 SDL wrapper.
-
-    All classes and functions listed here are incorporated from the
-    :mod:`pygame2.sdlext.base` module.
+    Basic extensions for the pygame2 SDL wrapper.
   </desc>
 
   <class name="PixelArray">
