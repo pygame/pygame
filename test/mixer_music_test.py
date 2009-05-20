@@ -32,7 +32,7 @@ class MixerMusicModuleTest(unittest.TestCase):
 
         # The mp3 test file can crash smpeg on some systems.
         ## formats = ['mp3', 'ogg', 'wav']
-        format = ['ogg', 'wav']
+        formats = ['ogg', 'wav']
 
         for f in formats:
             musfn = os.path.join(data_fname, 'house_lo.%s' % f)
