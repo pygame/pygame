@@ -16,7 +16,7 @@ localbase = os.environ.get('LOCALBASE', '')
 
 #these get prefixes with '/usr' and '/usr/local' or the $LOCALBASE
 origincdirs = ['/include', '/include/SDL', '/include/SDL',
-               '/include/smpeg' ]
+               '/include/smpeg', 'include/ffmpeg']
 origlibdirs = ['/lib','/lib64','/X11R6/lib']
 
 def confirm(message):
@@ -147,6 +147,12 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
+        Dependency('FFMPEG', 'ffmpeg/avformat.h', 'libavformat.so', ['avformat', 'avdevice', 'avcodec',  'avutil', 'swscale']),        
+        #Dependency('FFMPEG', 'ffmpeg/avformat.h',  'libavformat.so', ['avformat']) ,
+        #Dependency('FFMPEG', 'ffmpeg/avstring.h',  'libavstring.so', ['avstring']) ,
+        #Dependency('FFMPEG', 'ffmpeg/swscale.h',  'libswscale.so', ['swscale']) ,
+        #Dependency('FFMPEG', 'ffmpeg/avcodec.h',  'libavcodec.so', ['avcodec']) ,
+        #Dependency('FFMPEG', 'libavdevice/avdevice.h',  'libavdevice.so', ['avdevice']) ,
         #Dependency('GFX', 'SDL_gfxPrimitives.h', 'libSDL_gfx.so', ['SDL_gfx']),
     ]
     if not DEPS[0].found:

@@ -5,14 +5,13 @@
  * Imported by movie.py(hopefully)
  */
 
-#include <ctype.h>
-#include <Python.h>
-#include <math.h>
-#include <limits.h>
+
+#include <ffmpeg/avcodec.h>
+#include <ffmpeg/avformat.h>
 #include <ffmpeg/avstring.h>
-#include <ffmpeg/rtsp.h>
+//#include <ffmpeg/rtsp.h>
 #include <ffmpeg/swscale.h>
-#include <ffmpeg/opt.h>
+//#include <ffmpeg/opt.h>
 #include <libavdevice/avdevice.h>
 
 #include "pygamedocs.h"
@@ -69,34 +68,10 @@ static AVPacket flush_pkt;
 #define FF_REFRESH_EVENT (SDL_USEREVENT + 1)
 #define FF_QUIT_EVENT    (SDL_USEREVENT + 2)
 
+//static int sws_flags = SWS_BICUBIC;
+
 
 /*internal functions for video playing. Not accessible to Python */
-
-int __Y[256];
-int __CrtoR[256];
-int __CrtoG[256];
-int __CbtoG[256];
-int __CbtoB[256];
-
-void initializeLookupTables() {
-
-    float f;
-    int i;
-
-    for(i=0; i<256; i++) {
-
-        f = ( float)i;
-
-        __Y[i] = (int)( 1.164 * ( f-16.0) );
-
-        __CrtoR[i] = (int)( 1.596 * ( f-128.0) );
-
-        __CrtoG[i] = (int)( 0.813 * ( f-128.0) );
-        __CbtoG[i] = (int)( 0.392 * ( f-128.0) );
-
-        __CbtoB[i] = (int)( 2.017 * ( f-128.0) );
-    }
-}
 
 
 /* packet queue handling */
@@ -209,6 +184,8 @@ static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block)
     SDL_UnlockMutex(q->mutex);
     return ret;
 }
+
+#define BPP 1
 
 static void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, int imgh)
 {
@@ -409,7 +386,6 @@ static void blend_subrect(AVPicture *dst, const AVSubtitleRect *rect, int imgw, 
         }
     }
 }
-
 static void free_subpicture(SubPicture *sp)
 {
     int i;
@@ -438,7 +414,7 @@ static void video_image_display(PyMovie *is)
 
     //vp = &is->pictq[is->pictq_rindex];
     PyVideoStream *pvs = (PyVideoStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->video_stream);
-    PyINCREF((PyObject *)pvs);
+    Py_INCREF((PyObject *)pvs);
     
     vp = &pvs->pictq[pvs->pictq_rindex];
     if (pvs->out_surf || pvs->bmp) {
@@ -491,13 +467,13 @@ static void video_image_display(PyMovie *is)
         {
             PySubtitleStream *pss;
             pss = (PySubtitleStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->subtitle_stream);
-            PyINCREF((PyObject *)pss);
+            Py_INCREF((PyObject *)pss);
             
             if (pss->subpq_size > 0)
             {
                 sp = &pss->subpq[pss->subpq_rindex];
 
-                if (pvs->pts >= pss->pts + ((float) pss->sub.start_display_time / 1000))
+                if (pvs->pts >= pss->pts + ((float) sp->sub.start_display_time / 1000))
                 {
 
                     if(is->overlay>0)
@@ -512,17 +488,17 @@ static void video_image_display(PyMovie *is)
                         pict.linesize[1] = pvs->bmp->pitches[2];
                         pict.linesize[2] = pvs->bmp->pitches[1];
 
-                        for (i = 0; i < pss->sub.num_rects; i++)
-                            blend_subrect(&pict, pss->sub.rects[i],
+                        for (i = 0; i < sp->sub.num_rects; i++)
+                            blend_subrect(&pict, sp->sub.rects[i],
                                           pvs->bmp->w, pvs->bmp->h);
 
                         SDL_UnlockYUVOverlay (pvs->bmp);
                     }
                     else
                     {
-                        if (pvs->out_surf->flags & SDL_OPENGL && !(pvs->out_surf->flags & (SDL_OPENGLBLIT & ~SDL_OPENGL)))
+                        /*if (pvs->out_surf->flags & SDL_OPENGL && !(pvs->out_surf->flags & (SDL_OPENGLBLIT & ~SDL_OPENGL)))
                                 return RAISE (PyExc_SDLError,
-                                              "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");
+                                              "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");*/
                         SDL_LockSurface(pvs->out_surf);
                         pict.data[0] = pvs->out_surf->pixels[0];
                         pict.data[1] = pvs->out_surf->pixels[1];
@@ -532,12 +508,12 @@ static void video_image_display(PyMovie *is)
                         pict.linesize[1] = pvs->out_surf->pitch;
                         pict.linesize[2] = pvs->out_surf->pitch;
 
-                        for (i = 0; i < pss->sub.num_rects; i++)
+                        for (i = 0; i < sp->sub.num_rects; i++)
                             //TODO:check if blend_subrect works with RGB
-                            blend_subrect(&pict, pss->sub.rects[i],
+                            blend_subrect(&pict, sp->sub.rects[i],
                                           pvs->out_surf->w, pvs->out_surf->h);
                                               
-                        
+                        SDL_UnlockSurface(pvs->out_surf);
                     }
                 }
             }
@@ -589,7 +565,7 @@ static int video_open(PyMovie *is){
 
     PyVideoStream *pvs;
     pvs = (PyVideoStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->video_stream);
-    PyINCREF((PyObject *) pvs);
+    Py_INCREF((PyObject *) pvs);
     
     w = pvs->video_st->codec->width;
     h = pvs->video_st->codec->height;
@@ -609,9 +585,10 @@ static int video_open(PyMovie *is){
         if (!pvs->bmp)
             return RAISE (PyExc_SDLError, "Cannot create overlay");
 
-        
+    } 
     else if (!pvs->out_surf && is->overlay<=0)
     {
+        int flags = SDL_HWSURFACE|SDL_ASYNCBLIT|SDL_HWACCEL;
         //we create a pygame surface
         SDL_Surface *screen;
         #ifndef __APPLE__
@@ -628,7 +605,7 @@ static int video_open(PyMovie *is){
 
     pvs->width = w;
     pvs->height = h;
-    PyDECREF((PyObject *) pvs);
+    Py_DECREF((PyObject *) pvs);
     return 0;
 }
 
@@ -660,6 +637,15 @@ static void schedule_refresh(PyMovie *is, int delay)
 {
     if(!delay) delay=1; //SDL seems to be buggy when the delay is 0
     SDL_AddTimer(delay, sdl_refresh_timer_cb, is);
+}
+
+static int audio_write_get_buf_size(PyMovie *is)
+{
+    PyAudioStream *pas = (PyAudioStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->audio_stream);
+    Py_INCREF((PyObject *) pas);
+    int temp = pas->audio_buf_size - pas->audio_buf_index;
+    Py_DECREF((PyObject *) pas);
+    return temp;
 }
 
 /* get the current audio clock value */
@@ -757,7 +743,8 @@ static void stream_pause(PyMovie *is)
 {
     is->paused = !is->paused;
     if (!is->paused) {
-        PyObject *pvs;
+        PyVideoStream *pvs;
+        PyAudioStream *pas;
         pvs = (PyVideoStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->video_stream);
         Py_INCREF((PyObject *)pvs);
         
@@ -885,8 +872,8 @@ static void video_refresh_timer(void *opaque)
                     }
                     pss->subtitle_stream_changed = 0;
 
-                    SDL_CondSignal(is->subpq_cond);
-                    SDL_UnlockMutex(is->subpq_mutex);
+                    SDL_CondSignal(pss->subpq_cond);
+                    SDL_UnlockMutex(pss->subpq_mutex);
                 } else {
                     if (pss->subpq_size > 0) {
                         sp = &pss->subpq[pss->subpq_rindex];
@@ -981,6 +968,7 @@ static void alloc_picture(void *opaque)
 #endif
     if(is->overlay>0)
     {
+        SDL_Surface *screen = SDL_GetVideoSurface ();
         pvs->bmp = SDL_CreateYUVOverlay(pvs->video_st->codec->width,
                                    pvs->video_st->codec->height,
                                    SDL_YV12_OVERLAY,
@@ -988,7 +976,7 @@ static void alloc_picture(void *opaque)
     }
     else
     {
-        
+        pvs->out_surf= SDL_GetVideoSurface ();
     }
     vp->width = pvs->video_st->codec->width;
     vp->height = pvs->video_st->codec->height;
@@ -1071,7 +1059,7 @@ static int queue_picture(PyMovie *is, AVFrame *src_frame, double pts)
             pict.linesize[0] = pvs->bmp->pitches[0];
             pict.linesize[1] = pvs->bmp->pitches[2];
             pict.linesize[2] = pvs->bmp->pitches[1];
-            sws_flags = av_get_int(sws_opts, "sws_flags", NULL);
+            //sws_flags = av_get_int(sws_opts, "sws_flags", NULL);
             img_convert_ctx = sws_getCachedContext(img_convert_ctx,
                 pvs->video_st->codec->width, pvs->video_st->codec->height,
                 pvs->video_st->codec->pix_fmt,
@@ -1088,7 +1076,7 @@ static int queue_picture(PyMovie *is, AVFrame *src_frame, double pts)
         }
         else
         {
-            dst_pix_fmt = PIX_FMT_RGB48;
+            dst_pix_fmt = PIX_FMT_RGB24;
               
             SDL_LockSurface (pvs->out_surf);
 
@@ -1099,7 +1087,7 @@ static int queue_picture(PyMovie *is, AVFrame *src_frame, double pts)
             pict.linesize[0] = pvs->out_surf->pitch;
             pict.linesize[1] = pvs->out_surf->pitch;
             pict.linesize[2] = pvs->out_surf->pitch;
-            sws_flags = av_get_int(sws_opts, "sws_flags", NULL);
+            //sws_flags = av_get_int(sws_opts, "sws_flags", NULL);
             img_convert_ctx = sws_getCachedContext(img_convert_ctx,
                 pvs->video_st->codec->width, pvs->video_st->codec->height,
                 pvs->video_st->codec->pix_fmt,
@@ -1236,7 +1224,7 @@ static int video_thread(void *arg)
 
 static int subtitle_thread(void *arg)
 {
-    VideoState *is = arg;
+    PyMovie *is = arg;
     SubPicture *sp;
     AVPacket pkt1, *pkt = &pkt1;
     int len1, got_subtitle;
@@ -1513,20 +1501,7 @@ static int audio_decode_frame(PyMovie *is, double *pts_ptr)
     Py_DECREF((PyObject *) pas);
 }
 
-/* get the current audio output buffer size, in samples. With SDL, we
-   cannot have a precise information */
-static int audio_write_get_buf_size(PyMovie *is)
-{
 
-    PyAudioStream   *pas;
-
-    pas = (PyAudioStream *)PySequence_GetItem(is->streams, (Py_ssize_t) is->audio_stream);
-    Py_INCREF((PyObject *)pas);
-    
-    int temp = pas->audio_buf_size - pas->audio_buf_index;
-    Py_DECREF((PyObject *) pas);
-    return temp;
-}
 
 /* prepare a new audio buffer */
 static void sdl_audio_callback(void *opaque, Uint8 *stream, int len)
@@ -1608,7 +1583,7 @@ static int stream_component_open(PyMovie *is, int stream_index)
     enc->error_recognition= error_recognition;
     enc->error_concealment= error_concealment;
 
-    set_context_opts(enc, avctx_opts[enc->codec_type], 0);
+    //set_context_opts(enc, avctx_opts[enc->codec_type], 0);
 
     if (!codec ||
         avcodec_open(enc, codec) < 0)
@@ -1770,21 +1745,21 @@ static void stream_component_close(PyMovie *is, int stream_index)
     switch(enc->codec_type) {
     case CODEC_TYPE_AUDIO:
         pas->audio_st = NULL;
-        PySequence_SetItem(is->streams, (Py_ssize_t)is->audio_stream, PyNone);
+        PySequence_SetItem(is->streams, (Py_ssize_t)is->audio_stream, Py_None);
         is->audio_stream = -1;
         Py_DECREF((PyObject *) pas);
         _dealloc_aud_stream(pas);
         break;
     case CODEC_TYPE_VIDEO:
         pvs->video_st = NULL;
-        PySequence_SetItem(is->streams, (Py_ssize_t)is->video_stream, PyNone);
+        PySequence_SetItem(is->streams, (Py_ssize_t)is->video_stream, Py_None);
         is->video_stream = -1;
         Py_DECREF((PyObject *) pvs);
         _dealloc_vid_stream(pvs);
         break;
     case CODEC_TYPE_SUBTITLE:
         pss->subtitle_st = NULL;
-        PySequence_SetItem(is->streams, (Py_ssize_t)is->subtitle_stream, PyNone);
+        PySequence_SetItem(is->streams, (Py_ssize_t)is->subtitle_stream, Py_None);
         Py_DECREF(pss);
         is->subtitle_stream = -1;
         _dealloc_sub_stream(pss);
@@ -1817,7 +1792,7 @@ static int decode_thread(void *arg)
 
     PyAudioStream* pas;
     PyVideoStream* pvs;
-    PySubStream*   pss;
+    PySubtitleStream*   pss;
 
     url_set_interrupt_cb(decode_interrupt_cb);
 
@@ -2037,7 +2012,7 @@ static int decode_thread(void *arg)
             packet_queue_put(&pas->audioq, pkt);
         } else if (pkt->stream_index == is->vid_stream_ix) {
             packet_queue_put(&pvs->videoq, pkt);
-        } else if (pkt->stream_index == is->subt_stream_ix) {
+        } else if (pkt->stream_index == is->sub_stream_ix) {
             packet_queue_put(&pss->subtitleq, pkt);
         } else {
             av_free_packet(pkt);
@@ -2063,7 +2038,7 @@ static int decode_thread(void *arg)
         stream_component_close(is, is->aud_stream_ix);
     if (is->vid_stream_ix >= 0)
         stream_component_close(is, is->vid_stream_ix);
-    if (is->subt_stream_ix >= 0)
+    if (is->sub_stream_ix >= 0)
         stream_component_close(is, is->sub_stream_ix);
     if (is->ic) {
         av_close_input_file(is->ic);
@@ -2181,15 +2156,15 @@ static void stream_close(PyMovie *is)
     
     if(is->audio_stream)
     {
-        PyList_SetItem(is->streams, (Py_ssize_t)is->audio_stream, PyNone) 
+        PyList_SetItem(is->streams, (Py_ssize_t)is->audio_stream, Py_None);
     }
     if(is->video_stream)
     {
-        PyList_SetItem(is->streams, (Py_ssize_t)is->video_stream, PyNone)
+        PyList_SetItem(is->streams, (Py_ssize_t)is->video_stream, Py_None);
     }
     if(is->subtitle_stream)
     {
-        PyList_SetItem(is->streams, (Py_ssize_t)is->subtitle_stream, PyNone)
+        PyList_SetItem(is->streams, (Py_ssize_t)is->subtitle_stream, Py_None);
     }
     
     _dealloc_vid_stream(pvs);
@@ -2383,7 +2358,7 @@ static PyTypeObject PyMovie_Type =
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    &Movie_methods,             /* tp_methods */
+    *Movie_methods,             /* tp_methods */
     0,                          /* tp_members */
     _movie_getsets,             /* tp_getset */
     0,                          /* tp_base */
@@ -2404,27 +2379,9 @@ static PyTypeObject PyMovie_Type =
     0                           /* tp_del */
 };
 
-/*class methods and internals 
-static PyMovie * _movie_new_internal(PyTypeObject *type, PyObject* fle, PyObject* surface); //expects file to have been opened in _movie_new
-static PyObject* _movie_new (PyTypeObject *type, PyObject *args,
-    PyObject *kwds);
-static void _movie_dealloc (PyMovie *movie);
-static PyObject* _movie_repr (PyMovie *movie);
-static PyObject* _movie_str (PyMovie *movie);
-static PyObject* _movie_play(PyMovie *movie, PyObject* args);
-static PyObject* _movie_stop(PyMovie *movie);
-static PyObject* _movie_pause(PyMovie *movie);
-static PyObject* _movie_rewind(PyMovie *movie, PyObject* args);
 
-/* Getters/setters 
-static PyObject* _movie_get_paused (PyMovie *movie, void *closure);
-static PyObject* _movie_get_playing (PyMovie *movie, void *closure);
 
-/* C API interfaces 
-static PyObject* PyMovie_New (char *fname);
-*/
-
-static PyMovie* _movie_new_internal(PyTypeObject *type, char *filename, PyObject* surface)
+static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObject* surface)
 {
     /*Expects filename. If surface is null, then it sets overlay to >0. */
     PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
@@ -2440,6 +2397,7 @@ static PyMovie* _movie_new_internal(PyTypeObject *type, char *filename, PyObject
         surf = PySurface_AsSurface(surface);
         movie->out_surf=surf;
         movie->overlay=1;
+    
     else
     {
         movie->overlay=0;
@@ -2453,7 +2411,7 @@ static PyMovie* _movie_new_internal(PyTypeObject *type, char *filename, PyObject
         Py_RETURN_NONE;
     }
     Py_DECREF((PyObject *) movie);
-    return movie;
+    return (PyObject *)movie;
 }
     
 static PyObject* _movie_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -2492,7 +2450,7 @@ static PyObject* _movie_play(PyMovie *movie, PyObject* args)
 {
     PyObject *obj;
     int loops;
-    PyArg_ParseTuple(args, "i", &obj)
+    PyArg_ParseTuple(args, "i", &obj);
     if(!obj)
     {
         loops =1;
@@ -2534,10 +2492,64 @@ static PyObject* _movie_get_paused (PyMovie *movie, void *closure)
 }
 static PyObject* _movie_get_playing (PyMovie *movie, void *closure)
 {
-    return PyInt_FromInt(movie->playing);
+    PyObject *pyo;
+    pyo= PyInt_FromInt(movie->playing);
+    return pyo;
 }
 
 static PyObject* PyMovie_New (char *fname, SDL_Surface *surf)
 {
-    return _movie_new_internal(PyMovie_Type, fname, surf);
+    return _movie_new_internal(&PyMovie_Type, fname, PySurface_FromSurface(surf));
+}
+
+void
+initmovie(void)
+{
+    PyObject* module;
+
+    #if PY3
+    static struct PyModuleDef _module = {
+        PyModuleDef_HEAD_INIT,
+        "movie",
+        NULL,
+        -1,
+        Movie_methods,
+        NULL, NULL, NULL, NULL
+    };
+#endif
+
+    /* imported needed apis; Do this first so if there is an error
+       the module is not loaded.
+    */
+    import_pygame_base ();
+    if (PyErr_Occurred ()) {
+        MODINIT_ERROR;
+    }
+
+   // Create the module
+   #if PY3
+    module = PyModule_Create (&_module);
+#else
+    module = Py_InitModule3 ( MODPREFIX "movie", NULL, NULL); //movie doc needed
+#endif
+   if (module == NULL) {
+      return;
+   }
+
+   // Fill in some slots in the type, and make it ready
+   //PyVector_Type.tp_new = PyType_GenericNew;
+   if (PyType_Ready(&PyMovie_Type) < 0) {
+      MODINIT_ERROR;
+   }
+   //Register all the fun stuff for movies.
+   avcodec_register_all();
+   avdevice_register_all();
+   av_register_all();
+
+   av_init_packet(&flush_pkt);
+   flush_pkt.data= "FLUSH";
+
+   // Add the type to the module.
+   Py_INCREF(&PyMovie_Type);
+   PyModule_AddObject(module, "Movie", (PyObject*)&PyMovie_Type);
 }

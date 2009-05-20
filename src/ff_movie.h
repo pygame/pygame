@@ -168,7 +168,7 @@ typedef struct
     //    QETimer *video_timer;
     int width, height, xleft, ytop;
 
-    
+    int pts;
 
 } PyVideoStream;
 
@@ -205,7 +205,7 @@ typedef struct
     AVPacket audio_pkt;
     uint8_t *audio_pkt_data;
     int audio_pkt_size;
-    enum SampleFormat audio_src_fmt;
+    enum SampleFormat *audio_src_fmt;
     AVAudioConvert *reformat_ctx;
 
     /*time-keeping values
@@ -224,7 +224,7 @@ typedef struct
     double frame_last_pts;
     double frame_last_delay;
     double frame_offset;
-    
+    int pts;
 
 } PyAudioStream;
 
@@ -272,6 +272,8 @@ typedef struct
     double frame_last_pts;
     double frame_last_delay;
     double frame_offset;
+    
+    int pts;
 
 } PySubtitleStream;
 
@@ -283,6 +285,8 @@ typedef struct
     AVInputFormat *iformat; /* contains information about the file */
     int abort_request;      /* lets other threads know to stop. */
     AVFormatContext *ic;    /* context information about the format of the video file */
+
+    SDL_Surface *out_surf;
 
     /* General seek/pause state variables */
     int paused;
@@ -323,7 +327,7 @@ typedef struct
 } PyMovie;
 
 /*class methods and internals */
-static PyMovie * _movie_new_internal(PyTypeObject *type, PyObject* fle, PyObject* surface); //expects file to have been opened in _movie_new
+static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObject* surface); //expects file to have been opened in _movie_new
 static PyObject* _movie_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
 static void _movie_dealloc (PyMovie *movie);
@@ -339,14 +343,15 @@ static PyObject* _movie_get_paused (PyMovie *movie, void *closure);
 static PyObject* _movie_get_playing (PyMovie *movie, void *closure);
 
 /* C API interfaces */
-static PyObject* PyMovie_New (char *fname);
+static PyObject* PyMovie_New (char *fname, SDL_Surface *surf);
 
 /*internals */
-static PyAudioStream* _get_audio_stream(PyObject* stream);
-static PyVideoStream* _get_video_stream(PyObject* stream);
-static PySubStream* _get_sub_stream(PyObject* stream);
+static PyAudioStream* _new_audio_stream();
+static PyVideoStream* _new_video_stream();
+static PySubtitleStream* _new_sub_stream();
 
-static int _if_audio_stream(PyObject* stream);
-static int _if_video_stream(PyObject* stream);
-static int _if_sub_stream(PyObject* stream);
+static void _dealloc_aud_stream(PyAudioStream *pas);
+static void _dealloc_vid_stream(PyVideoStream *pvs);
+static void _dealloc_sub_stream(PySubtitleStream *pss);
+
 

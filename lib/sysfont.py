@@ -22,15 +22,19 @@
 
 import os, sys
 
+#Python 3 compatibility
+try:
+    bytes
+except NameError:
+    def toascii(raw):
+        return raw.decode('ascii', 'ignore').encode('ascii')
+else:
+    def toascii(raw):
+        return raw.decode('ascii', 'ignore')
 
 #create simple version of the font name
 def _simplename(name):
-    for char in '_ -':
-        name = name.replace(char, '')
-    name = name.lower()
-    name = name.replace('-', '')
-    name = name.replace("'", '')
-    return name
+    return ''.join([c.lower() for c in name if c.isalnum()])
 
 
 #insert a font and style into the font dictionary
@@ -117,6 +121,12 @@ def initsysfonts_win32():
 
 #read of the fonts on osx (fill me in!)
 def initsysfonts_darwin():
+    # if the X11 binary exists... try and use that.
+    #  TODO: Not likely to be there on pre 10.4.x ...
+    #    so still need to do other OSX specific method.
+    if os.path.exists("/usr/X11/bin/fc-list"):
+        return initsysfonts_unix()
+
     paths = ['/Library/Fonts',
              '~/Library/Fonts',
              '/Local/Library/Fonts',
@@ -133,29 +143,40 @@ def initsysfonts_darwin():
 
 #read the fonts on unix
 def initsysfonts_unix():
+    import subprocess
+
     fonts = {}
 
     # we use the fc-list from fontconfig to get a list of fonts.
 
     try:
-        # note, we use popen3 for if fc-list isn't there to stop stderr printing.
-        flin, flout, flerr = os.popen3('fc-list : file family style')
-    except:
+        # note, we capture stderr so if fc-list isn't there to stop stderr printing.
+        flout, flerr = subprocess.Popen('fc-list : file family style', shell=True,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                        close_fds=True).communicate()
+    except Exception:
         return fonts
 
+    entries = toascii(flout)
     try:
-        for line in flout:
+        for line in entries.split('\n'):
             try:
                 filename, family, style = line.split(':', 2)
                 if filename[-4:].lower() in ['.ttf', '.ttc']:
                     bold = style.find('Bold') >= 0
                     italic = style.find('Italic') >= 0
                     oblique = style.find('Oblique') >= 0
-                    _addfont(_simplename(family), bold, italic or oblique, filename, fonts)
-            except:
+                    for name in family.split(','):
+                        if name:
+                            break
+                    else:
+                        name = os.path.splitext(os.path.basename(filename))[0]
+                    _addfont(_simplename(name),
+                             bold, italic or oblique, filename, fonts)
+            except Exception:
                 # try the next one.
                 pass
-    except:
+    except Exception:
         pass
 
     return fonts
@@ -273,7 +294,7 @@ def get_fonts():
     """
     if not Sysfonts:
         initsysfonts()
-    return Sysfonts.keys()
+    return list(Sysfonts.keys())
 
 
 def match_font(name, bold=0, italic=0):
@@ -305,7 +326,7 @@ def match_font(name, bold=0, italic=0):
                 elif bold:
                     bold = 0
                 elif not fontname:
-                    fontname = styles.values()[0]
+                    fontname = list(styles.values())[0]
         if fontname: break
     return fontname
 
