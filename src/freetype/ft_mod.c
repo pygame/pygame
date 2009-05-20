@@ -1,7 +1,5 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001 Pete Shinners
-  Copyright (C) 2008 Marcus von Appen
   Copyright (C) 2009 Vicent Marti
 
   This library is free software; you can redistribute it and/or
@@ -21,7 +19,6 @@
 */
 
 #include "ft_mod.h"
-#include "pgsdl.h"
 #include "freetypebase_doc.h"
 
 static FT_Library g_freetype_lib = NULL;
@@ -182,7 +179,6 @@ PyMODINIT_FUNC
     if (!mod)
         goto fail;
 
-
     /* 
      * Insert our base Font class into the main module 
      * TODO: We need a font class hawhaw
@@ -212,18 +208,6 @@ PyMODINIT_FUNC
        if (c_api_obj)
        PyModule_AddObject (mod, PYGAME_SDLTTF_ENTRY, c_api_obj);    
        */
-
-    /* Import PyGame2 modules */
-    if (import_pygame2_base() < 0)
-        goto fail;
-    if (import_pygame2_sdl_base() < 0)
-        goto fail;
-    if (import_pygame2_sdl_rwops() < 0)
-        goto fail;
-    if (import_pygame2_sdl_video() < 0)
-        goto fail;
-
-    RegisterQuitCallback(_quit);
     MODINIT_RETURN(mod);
 
 fail:

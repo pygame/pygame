@@ -1,6 +1,6 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001 Pete Shinners, 2008 Marcus von Appen
+  Copyright (C) 2009 Vicent Marti
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Library General Public
@@ -20,8 +20,7 @@
 #ifndef _PYGAME_FONTS_H_
 #define _PYGAME_FONTS_H_
 
-#include <Python.h>
-#include <SDL.h>
+#include "pgbase.h"
 
 #include <ft2build.h>  
 #include FT_FREETYPE_H 
