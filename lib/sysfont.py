@@ -117,6 +117,12 @@ def initsysfonts_win32():
 
 #read of the fonts on osx (fill me in!)
 def initsysfonts_darwin():
+    # if the X11 binary exists... try and use that.
+    #  TODO: Not likely to be there on pre 10.4.x ...
+    #    so still need to do other OSX specific method.
+    if os.path.exists("/usr/X11/bin/fc-list"):
+        return initsysfonts_unix()
+
     paths = ['/Library/Fonts',
              '~/Library/Fonts',
              '/Local/Library/Fonts',
