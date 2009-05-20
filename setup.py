@@ -32,7 +32,7 @@ def find_pkg_data (directory, excludedirs=[], excludefiles=[]):
         files[:] = [f for f in files if nofilesrev.match(f[-1::-1]) is None \
                     and f not in excludefiles]
         subd = subd.replace (directory, "", 1)
-        subd.lstrip (os.path.sep)
+        subd = subd.lstrip (os.path.sep)
         for f in files:
             pkgdata.append (os.path.join (subd, f))
     return pkgdata
@@ -108,6 +108,7 @@ if __name__ == "__main__":
                  "pygame2.examples",
                  "pygame2.examples.physics",
                  "pygame2.examples.sdl",
+                 "pygame2.examples.sdlext",
                  "pygame2.sprite",
                  "pygame2.threads",
                  "pygame2.test",
