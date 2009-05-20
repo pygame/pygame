@@ -1,6 +1,6 @@
+import sys
+import os
 if __name__ == '__main__':
-    import sys
-    import os
     pkg_dir = os.path.split(os.path.abspath(__file__))[0]
     parent_dir, pkg_name = os.path.split(pkg_dir)
     is_pygame_pkg = (pkg_name == 'tests' and
@@ -11,164 +11,87 @@ else:
     is_pygame_pkg = __name__.startswith('pygame.tests.')
 
 if is_pygame_pkg:
-    from pygame.tests.test_utils import test_not_implemented, unittest
+    from pygame.tests.test_utils import test_not_implemented, unittest, \
+                                        geterror
 else:
-    from test.test_utils import test_not_implemented, unittest
+    from test.test_utils import test_not_implemented, unittest, geterror
 import pygame
 
 
 class FontModuleTest( unittest.TestCase ):
-    def testFontRendering( self ):
-        """ 
-        """
-        #print __file__
-        pygame.font.init ()
-        f = pygame.font.Font(None, 20)
-        s = f.render("foo", True, [0, 0, 0], [255, 255, 255])
-        s = f.render("xxx", True, [0, 0, 0], [255, 255, 255])
-        s = f.render("", True, [0, 0, 0], [255, 255, 255])
-        s = f.render("foo", False, [0, 0, 0], [255, 255, 255])
-        s = f.render("xxx", False, [0, 0, 0], [255, 255, 255])
-        s = f.render("xxx", False, [0, 0, 0])
-        s = f.render("   ", False, [0, 0, 0])
-        s = f.render("   ", False, [0, 0, 0], [255, 255, 255])
-        # null text should be 1 pixel wide.
-        s = f.render("", False, [0, 0, 0], [255, 255, 255])
-        self.assertEqual(s.get_size()[0], 1)
-        #print "fonttest done"
-        pygame.font.quit ()
+    def setUp(self):
+        pygame.font.init()
 
-    def todo_test_SysFont(self):
+    def tearDown(self):
+        pygame.font.quit()
 
-        # __doc__ (as of 2008-08-02) for pygame.font.SysFont:
+    def test_SysFont(self):
+        # Can only check that a font object is returned.
+        fonts = pygame.font.get_fonts()
+        o = pygame.font.SysFont(fonts[0], 20)
+        self.failUnless(isinstance(o, pygame.font.FontType))
+        o = pygame.font.SysFont(fonts[0], 20, italic=True)
+        self.failUnless(isinstance(o, pygame.font.FontType))
+        o = pygame.font.SysFont(fonts[0], 20, bold=True)
+        self.failUnless(isinstance(o, pygame.font.FontType))
+        o = pygame.font.SysFont('thisisnotafont', 20)
+        self.failUnless(isinstance(o, pygame.font.FontType))
 
-          # pygame.font.SysFont(name, size, bold=False, italic=False) -> Font
-          # create a pygame Font from system font resources
-          # 
-          # This will search the system fonts for the given font
-          # name. You can also enable bold or italic styles, and
-          # the appropriate system font will be selected if available.
-          # 
-          # This will always return a valid Font object, and will
-          # fallback on the builtin pygame font if the given font
-          # is not found.
-          # 
-          # Name can also be a comma separated list of names, in
-          # which case set of names will be searched in order. Pygame
-          # uses a small set of common font aliases, if the specific
-          # font you ask for is not available, a reasonable alternative
-          # may be used.
-          # 
-          # Return a new Font object that is loaded from the system fonts. The
-          # font will match the requested bold and italic flags. If a suitable
-          # system font is not found this will fallback on loading the default
-          # pygame font. The font name can be a comma separated list of font
-          # names to look for.
-          # 
+    def test_get_default_font(self):
+        self.failUnlessEqual(pygame.font.get_default_font(), 'freesansbold.ttf')
 
-        self.fail() 
+    def test_get_fonts(self):
+        fnts = pygame.font.get_fonts()
+        self.failUnless(fnts)
+        for name in fnts:
+            self.failUnless(isinstance(name, str))
+            self.failUnless(name.islower(), name)
+            self.failUnless(name.isalnum(), name)
 
-    def todo_test_get_default_font(self):
+    def test_get_init(self):
+        self.failUnless(pygame.font.get_init())
+        pygame.font.quit()
+        self.failIf(pygame.font.get_init())
 
-        # __doc__ (as of 2008-08-02) for pygame.font.get_default_font:
+    def test_init(self):
+        pygame.font.init()
 
-          # pygame.font.get_default_font(): return string
-          # get the filename of the default font
-          # 
-          # Return the filename of the system font. This is not the full path to
-          # the file. This file can usually be found in the same directory as
-          # the font module, but it can also be bundled in separate archives.
-          # 
+    def test_match_font(self):
+        fonts = pygame.font.get_fonts()
 
-        self.fail() 
+        # Ensure all listed fonts are in fact available, and the returned file
+        # name is a full path.
+        for font in fonts:
+            path = pygame.font.match_font(font)
+            self.failIf(path is None)
+            self.failUnless(os.path.isabs(path))
 
-    def todo_test_get_fonts(self):
+        # Look for a bold font.
+        for font in fonts:
+            if pygame.font.match_font(font, bold=True) is not None:
+                break
+        else:
+            self.fail()
 
-        # __doc__ (as of 2008-08-02) for pygame.font.get_fonts:
+        # Look for an italic font.
+        for font in fonts:
+            if pygame.font.match_font(font, italic=True) is not None:
+                break
+        else:
+            self.fail()
 
-          # pygame.font.get_fonts() -> list
-          # get a list of system font names
-          # 
-          # Returns the list of all found system fonts. Note that
-          # the names of the fonts will be all lowercase with spaces
-          # removed. This is how pygame internally stores the font
-          # names for matching.
-          # 
-          # Returns a list of all the fonts available on the system. The names
-          # of the fonts will be set to lowercase with all spaces and
-          # punctuation removed. This works on most systems, but some will
-          # return an empty list if they cannot find fonts.
-          # 
+        # Check for not found.
+        self.failUnless(pygame.font.match_font('thisisnotafont') is None)
 
-        self.fail() 
+        # Check comma separated list.
+        names = ','.join(['thisisnotafont', fonts[-1], 'anothernonfont'])
+        self.failIf(pygame.font.match_font(names) is None)
+        names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
+        self.failUnless(pygame.font.match_font(names) is None)
 
-    def todo_test_get_init(self):
+    def test_quit(self):
+        pygame.font.quit()
 
-        # __doc__ (as of 2008-08-02) for pygame.font.get_init:
-
-          # pygame.font.get_init(): return bool
-          # true if the font module is initialized
-          # 
-          # Test if the font module is initialized or not. 
-
-        self.fail() 
-
-    def todo_test_init(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.init:
-
-          # pygame.font.init(): return None
-          # initialize the font module
-          # 
-          # This method is called automatically by pygame.init(). It initializes
-          # the font module. The module must be initialized before any other
-          # functions will work.
-          # 
-          # It is safe to call this function more than once. 
-
-        self.fail() 
-
-    def todo_test_match_font(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.match_font:
-
-          # pygame.font.match_font(name, bold=0, italic=0) -> name
-          # find the filename for the named system font
-          # 
-          # This performs the same font search as the SysFont()
-          # function, only it returns the path to the TTF file
-          # that would be loaded. The font name can be a comma
-          # separated list of font names to try.
-          # 
-          # If no match is found, None is returned.
-          # 
-          # Returns the full path to a font file on the system. If bold or
-          # italic are set to true, this will attempt to find the correct family
-          # of font.
-          # 
-          # The font name can actually be a comma separated list of font names
-          # to try. If none of the given names are found, None is returned.
-          # 
-          # Example: 
-          #     print pygame.font.match_font('bitstreamverasans')
-          #     # output is: /usr/share/fonts/truetype/ttf-bitstream-vera/Vera.ttf
-          #     # (but only if you have Vera on your system)
-
-        self.fail() 
-
-    def todo_test_quit(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.quit:
-
-          # pygame.font.quit(): return None
-          # uninitialize the font module
-          # 
-          # Manually uninitialize SDL_ttf's font system. This is called
-          # automatically by pygame.quit().
-          # 
-          # It is safe to call this function even if font is currently not initialized. 
-
-        self.fail() 
 
 class FontTypeTest( unittest.TestCase ):
     def todo_test_get_ascent(self):
@@ -181,17 +104,6 @@ class FontTypeTest( unittest.TestCase ):
           # Return the height in pixels for the font ascent. The ascent is the
           # number of pixels from the font baseline to the top of the font.
           # 
-
-        self.fail() 
-
-    def todo_test_get_bold(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_bold:
-
-          # Font.get_bold(): return bool
-          # check if text will be rendered bold
-          # 
-          # Return True when the font bold rendering mode is enabled. 
 
         self.fail() 
 
@@ -219,17 +131,6 @@ class FontTypeTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_get_italic(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_italic:
-
-          # Font.get_italic(): return bool
-          # check if the text will be rendered italic
-          # 
-          # Return True when the font italic rendering mode is enabled. 
-
-        self.fail() 
-
     def todo_test_get_linesize(self):
 
         # __doc__ (as of 2008-08-02) for pygame.font.Font.get_linesize:
@@ -240,17 +141,6 @@ class FontTypeTest( unittest.TestCase ):
           # Return the height in pixels for a line of text with the font. When
           # rendering multiple lines of text this is the recommended amount of
           # space between lines.
-
-        self.fail() 
-
-    def todo_test_get_underline(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_underline:
-
-          # Font.get_underline(): return bool
-          # check if text will be rendered with an underline
-          # 
-          # Return True when the font underline is enabled. 
 
         self.fail() 
 
@@ -270,6 +160,21 @@ class FontTypeTest( unittest.TestCase ):
         self.fail() 
 
     def todo_test_render(self):
+        """ 
+        """
+
+        f = pygame.font.Font(None, 20)
+        s = f.render("foo", True, [0, 0, 0], [255, 255, 255])
+        s = f.render("xxx", True, [0, 0, 0], [255, 255, 255])
+        s = f.render("", True, [0, 0, 0], [255, 255, 255])
+        s = f.render("foo", False, [0, 0, 0], [255, 255, 255])
+        s = f.render("xxx", False, [0, 0, 0], [255, 255, 255])
+        s = f.render("xxx", False, [0, 0, 0])
+        s = f.render("   ", False, [0, 0, 0])
+        s = f.render("   ", False, [0, 0, 0], [255, 255, 255])
+        # null text should be 1 pixel wide.
+        s = f.render("", False, [0, 0, 0], [255, 255, 255])
+        self.assertEqual(s.get_size()[0], 1)
 
         # __doc__ (as of 2008-08-02) for pygame.font.Font.render:
 
@@ -314,50 +219,30 @@ class FontTypeTest( unittest.TestCase ):
           # Font rendering is not thread safe: only a single thread can render
           # text any time.
 
-        self.fail() 
 
-    def todo_test_set_bold(self):
+    def test_set_bold(self):
+        f = pygame.font.Font(None, 20)
+        self.failIf(f.get_bold())
+        f.set_bold(True)
+        self.failUnless(f.get_bold())
+        f.set_bold(False)
+        self.failIf(f.get_bold())
 
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.set_bold:
+    def test_set_italic(self):
+        f = pygame.font.Font(None, 20)
+        self.failIf(f.get_italic())
+        f.set_italic(True)
+        self.failUnless(f.get_italic())
+        f.set_italic(False)
+        self.failIf(f.get_bold())
 
-          # Font.set_bold(bool): return None
-          # enable fake rendering of bold text
-          # 
-          # Enables the bold rendering of text. This is a fake stretching of the
-          # font that doesn't look good on many font types. If possible load the
-          # font from a real bold font file. While bold, the font will have a
-          # different width than when normal. This can be mixed with the italic
-          # and underline modes.
-
-        self.fail() 
-
-    def todo_test_set_italic(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.set_italic:
-
-          # Font.set_bold(bool): return None
-          # enable fake rendering of italic text
-          # 
-          # Enables fake rendering of italic text. This is a fake skewing of the
-          # font that doesn't look good on many font types. If possible load the
-          # font from a real italic font file. While italic the font will have a
-          # different width than when normal. This can be mixed with the bold
-          # and underline modes.
-
-        self.fail() 
-
-    def todo_test_set_underline(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.set_underline:
-
-          # Font.set_underline(bool): return None
-          # control if text is rendered with an underline
-          # 
-          # When enabled, all rendered fonts will include an underline. The
-          # underline is always one pixel thick, regardless of font size. This
-          # can be mixed with the bold and italic modes.
-
-        self.fail() 
+    def test_set_underline(self):
+        f = pygame.font.Font(None, 20)
+        self.failIf(f.get_underline())
+        f.set_underline(True)
+        self.failUnless(f.get_underline())
+        f.set_underline(False)
+        self.failIf(f.get_underline())
 
     def todo_test_size(self):
 
