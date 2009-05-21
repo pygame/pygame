@@ -490,8 +490,10 @@ static void video_image_display(PyMovie *is)
                         /*if (pvs->out_surf->flags & SDL_OPENGL && !(pvs->out_surf->flags & (SDL_OPENGLBLIT & ~SDL_OPENGL)))
                                 return RAISE (PyExc_SDLError,
                                               "Cannot blit to OPENGL Surfaces (OPENGLBLIT is ok)");*/
+                        //TODO:fix blitting to surface, and blend_subrect
+                        #if 0
                         SDL_LockSurface(pvs->out_surf);
-                        pict.data[0] = pvs->out_surf->pixels[0];
+                        pict.data[0] = (Uint8 *)pvs->out_surf->pixels[0];
                         pict.data[1] = pvs->out_surf->pixels[1];
                         pict.data[2] = pvs->out_surf->pixels[2];
 
@@ -505,6 +507,7 @@ static void video_image_display(PyMovie *is)
                                           pvs->out_surf->w, pvs->out_surf->h);
                                               
                         SDL_UnlockSurface(pvs->out_surf);
+                        #endif
                     }
                 }
             }
@@ -1067,6 +1070,8 @@ static int queue_picture(PyMovie *is, AVFrame *src_frame, double pts)
         }
         else
         {
+            //TODO:fix this as well
+            #if 0
             dst_pix_fmt = PIX_FMT_RGB24;
               
             SDL_LockSurface (pvs->out_surf);
@@ -1094,6 +1099,7 @@ static int queue_picture(PyMovie *is, AVFrame *src_frame, double pts)
                       0, pvs->video_st->codec->height, pict.data, pict.linesize);
             /* update the bitmap content */
             SDL_UnlockSurface(pvs->out_surf);
+            #endif
         }
         
         vp->pts = pts;
@@ -1797,7 +1803,8 @@ static int decode_thread(void *arg)
     err = av_open_input_file(&ic, is->filename, is->iformat, 0, ap);
     if (err < 0) {
         //TODO:Python exception here please
-        print_error(is->filename, err);
+        PyErr_Format(PyExc_IOError, "There was a problem opening up %s", is->filename);
+        //print_error(is->filename, err);
         ret = -1;
         goto fail;
     }
@@ -1978,7 +1985,7 @@ static int decode_thread(void *arg)
             av_init_packet(pkt);
             pkt->data=NULL;
             pkt->size=0;
-            pkt->stream_index= pvs->video_stream;
+            pkt->stream_index= is->vid_stream_ix;
             packet_queue_put(&pvs->videoq, pkt);
             Py_XDECREF((PyObject *) pas);
             Py_XDECREF((PyObject *) pvs);
@@ -2299,8 +2306,7 @@ static void _dealloc_sub_stream(PySubtitleStream *pss)
 
 /* Python C-API stuff */
 
-static PyMethodDef
-Movie_methods[] = {
+static PyMethodDef _movie_methods[] = {
    { "play",    (PyCFunction) _movie_play, METH_VARARGS,
                "Play the movie file from current time-mark. If loop<0, then it will loop infinitely. If there is no loop value, then it will play once." },
    { "stop", (PyCFunction) _movie_stop, METH_NOARGS,
@@ -2349,7 +2355,7 @@ static PyTypeObject PyMovie_Type =
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    *Movie_methods,             /* tp_methods */
+    _movie_methods,             /* tp_methods */
     0,                          /* tp_members */
     _movie_getsets,             /* tp_getset */
     0,                          /* tp_base */
@@ -2359,7 +2365,7 @@ static PyTypeObject PyMovie_Type =
     0,                          /* tp_dictoffset */
     0,                          /* tp_init */
     0,                          /* tp_alloc */
-    _movie_new,                 /* tp_new */
+    (newfunc )_movie_new,                 /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -2388,7 +2394,7 @@ static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObjec
         surf = PySurface_AsSurface(surface);
         movie->out_surf=surf;
         movie->overlay=1;
-    
+    }
     else
     {
         movie->overlay=0;
@@ -2407,7 +2413,8 @@ static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObjec
     
 static PyObject* _movie_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *obj, obj2;
+    PyObject *obj;
+    PyObject *obj2;
     if (!PyArg_ParseTuple (args, "sO|s", &obj, &obj2))
         Py_RETURN_NONE;
     if(!PyString_Check(obj))
@@ -2415,7 +2422,7 @@ static PyObject* _movie_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyErr_SetString(PyExc_TypeError, "Could not find a filename.");
         Py_RETURN_NONE;
     }
-    return _movie_new_internal(type, obj, obj2);
+    return _movie_new_internal(type, &obj, &obj2);
     
 }
 
@@ -2479,12 +2486,12 @@ static PyObject* _movie_rewind(PyMovie *movie, PyObject* args)
 
 static PyObject* _movie_get_paused (PyMovie *movie, void *closure)
 {
-    return PyInt_FromInt(movie->paused);
+    return PyInt_FromLong((long)movie->paused);
 }
 static PyObject* _movie_get_playing (PyMovie *movie, void *closure)
 {
     PyObject *pyo;
-    pyo= PyInt_FromInt(movie->playing);
+    pyo= PyInt_FromLong((long)movie->playing);
     return pyo;
 }
 

@@ -1,7 +1,7 @@
 
 #include <libavutil/avstring.h>
 
-#include <ffmpeg/swscale.h>
+#include <libswscale/swscale.h>
 
 #include <libavdevice/avdevice.h>
 
@@ -15,6 +15,7 @@
 #include <SDL_thread.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
 
 
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
@@ -84,9 +85,24 @@
 
 #define BPP 1
 
+#define __GNUC__
+#if defined(__ICC) || defined(__SUNPRO_C)
+    #define DECLARE_ALIGNED(n,t,v)      t v __attribute__ ((aligned (n)))
+    #define DECLARE_ASM_CONST(n,t,v)    const t __attribute__ ((aligned (n))) v
+#elif defined(__GNUC__)
+    #define DECLARE_ALIGNED(n,t,v)      t v __attribute__ ((aligned (n)))
+    #define DECLARE_ASM_CONST(n,t,v)    static const t v attribute_used __attribute__ ((aligned (n)))
+#elif defined(_MSC_VER)
+    #define DECLARE_ALIGNED(n,t,v)      __declspec(align(n)) t v
+    #define DECLARE_ASM_CONST(n,t,v)    __declspec(align(n)) static const t v
+#elif HAVE_INLINE_ASM
+    #error The asm code needs alignment, but we do not know how to do it for this compiler.
+#else
+    #define DECLARE_ALIGNED(n,t,v)      t v
+    #define DECLARE_ASM_CONST(n,t,v)    static const t v
+#endif
+
 static int sws_flags = SWS_BICUBIC;
-
-
 
 //packet queue, as per ffplay, to hold packets for audio/video/subtitle streams. 
 typedef struct PacketQueue {
@@ -218,7 +234,7 @@ typedef struct PyAudioStream
     AVPacket audio_pkt;
     uint8_t *audio_pkt_data;
     int audio_pkt_size;
-    enum SampleFormat *audio_src_fmt;
+    enum SampleFormat audio_src_fmt;
     AVAudioConvert *reformat_ctx;
 
     /*time-keeping values
