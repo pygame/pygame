@@ -183,7 +183,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
  * GETTERS/SETTERS
  ****************************************************/
 static PyObject*
-_font_getstyle (PyObject *self, void *closure)
+_ftfont_getstyle (PyObject *self, void *closure)
 {
     /* TODO */
 }

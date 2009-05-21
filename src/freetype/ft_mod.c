@@ -221,7 +221,7 @@ PyMODINIT_FUNC
     if (c_api_obj)
         PyModule_AddObject(mod, PYGAME_FREETYPE_ENTRY, c_api_obj);    
 
-    RegisterQuitCallback(_quit);
+/*    RegisterQuitCallback(_quit); */
 
     MODINIT_RETURN(mod);
 
