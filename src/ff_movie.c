@@ -5,18 +5,7 @@
  * Imported by movie.py(hopefully)
  */
 
-
-#include <libavutil/avstring.h>
-//#include <ffmpeg/rtsp.h>
-#include <ffmpeg/swscale.h>
-//#include <ffmpeg/opt.h>
-#include <libavdevice/avdevice.h>
-
-#include "pygamedocs.h"
-#include "pygame.h"
-#include "pgcompat.h"
 #include "ff_movie.h"
-#include "audioconvert.h"
 
 #ifdef __MINGW32__
 #undef main /* We don't want SDL to override our main() */

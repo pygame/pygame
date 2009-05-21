@@ -29,7 +29,7 @@
  */
 
 
-#include <ffmpeg/avcodec.h>
+#include <libavcodec/avcodec.h>
 
 
 /**

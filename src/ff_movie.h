@@ -1,10 +1,21 @@
 
+#include <libavutil/avstring.h>
+
+#include <ffmpeg/swscale.h>
+
+#include <libavdevice/avdevice.h>
+
+#include "pygamedocs.h"
+#include "pygame.h"
+#include "pgcompat.h"
+#include "audioconvert.h"
+
 #include <Python.h>
 #include <SDL.h>
 #include <SDL_thread.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
-#include "audioconvert.h"
+
 
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
