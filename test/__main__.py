@@ -85,6 +85,10 @@ opt_parser.add_option (
      help   = "path to python excutable to run subproccesed tests\n"
               "default (sys.executable): %s" % sys.executable)
 
+opt_parser.add_option (
+     "-I",  "--interactive", action = 'store_true',
+     help   = "include tests requiring user input")
+
 TIME_OUT = 30
 
 # DEFAULTS
@@ -128,6 +132,8 @@ if options.fake:
     kwds['fake'] = options.fake
 if options.python:
     kwds['python'] = options.python
+if options.interactive:
+    kwds['interactive'] = True
 
 ###########################################################################
 # Run the test suite.
