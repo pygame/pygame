@@ -162,19 +162,74 @@ PyTypeObject PyFreeTypeFont_Type =
 static void
 _ftfont_dealloc(PyFreeTypeFont *self)
 {
-    /* TODO */
+    FreeTypeInstance *ft;
+
+    if ((ft = _get_freetype()) != NULL)
+        PGFT_UnloadFont(ft, self);
+
+    ((PyObject*)self)->ob_type->tp_free((PyObject *)self);
 }
 
 static PyObject*
 _ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    /* TODO */
+    PyFreeTypeFont *font = (PyFreeTypeFont*)type->tp_alloc(type, 0);
+
+    if (!font)
+        return NULL;
+
+    font->rwops = NULL;
+
+    font->pyfont.get_height = _ftfont_getheight;
+    font->pyfont.get_name = _ftfont_getname;
+    font->pyfont.get_style = _ftfont_getstyle;
+    font->pyfont.set_style = _ftfont_setstyle;
+    font->pyfont.get_size = _ftfont_getsize;
+    font->pyfont.render = _ftfont_render;
+    font->pyfont.copy = NULL; /* TODO */
+
+    return (PyObject*)font;
 }
 
 static int
 _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    /* TODO */
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    
+    PyObject *file;
+    int face_index = 0;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, -1);
+
+    if (!PyArg_ParseTuple(args, "O|i", &file, &face_index))
+        return -1;
+
+    if (face_index < 0)
+    {
+        PyErr_SetString(PyExc_ValueError, "Face index cannot be negative");
+        return -1;
+    }
+
+    font->face_index = face_index;
+    font->rwops = PyRWops_NewRO_Threaded(file, &font->autoclose);
+    if (!font->rwops)
+        return -1;
+
+    /*
+     * TODO: Do we have to close it later if autoclose
+     * it 1 or will SLD_RWops handle it?
+     */
+    if (!font->autoclose)
+        PyRWops_Close(font->rwops, font->autoclose);
+
+    if (!font)
+    {
+        PyErr_SetString(PyExc_PyGameError, PGFT_GetError());
+        return -1;
+    }
+
+    return 0;
 }
 
 

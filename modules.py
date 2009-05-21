@@ -301,8 +301,9 @@ modules = [
     Module ("freetype.base",
         sources = [
             "src/freetype/ft_mod.c",
-            "src/freetype/ft_font.c"
-            ],
+            "src/freetype/ft_font.c",
+            "src/freetype/ft_wrap.c"
+        ],
         instheaders = ["src/freetype/pgfreetype.h"],
         docfile = "freetypebase.xml",
         depends = ['freetype', 'SDL']),

@@ -25,7 +25,7 @@
 #include "pgsdl.h"
 #include "freetypebase_doc.h"
 
-static FT_Library g_freetype_lib = NULL;
+static FreeTypeInstance *__freetype = NULL;
 
 static int _init(void);
 static void _quit(void);
@@ -76,10 +76,10 @@ static PyMethodDef _ft_methods[] =
  * libraries based on the active thread to prevent multi-
  * threading issues.
  */
-static FT_Library
+FreeTypeInstance *
 _get_freetype(void)
 {
-    return g_freetype_lib;
+    return __freetype;
 }
 
 /*
@@ -88,28 +88,27 @@ _get_freetype(void)
 static void
 _quit(void)
 {
-    if (g_freetype_lib)
+    if (__freetype)
     {
-        FT_Done_FreeType(g_freetype_lib);
-        g_freetype_lib = NULL;
+        PGFT_Quit(__freetype);
+        __freetype = NULL;
     }
 }
 
 /*
  * Initialize the FreeType library.
- * Return 1 if initialization was successful, 0 otherwise.
  */
 static int
 _init(void)
 {
     FT_Error error;
 
-    if (g_freetype_lib)
-        return 1;
+    if (__freetype)
+        return 0;
 
-    error = FT_Init_FreeType(&g_freetype_lib);
+    error = PGFT_Init(&__freetype);
 
-    return (error == 0);
+    return (error);
 }
 
 /***************************************************************
@@ -135,10 +134,7 @@ _ft_quit(PyObject *self)
 static PyObject *
 _ft_init(PyObject *self)
 {
-    if (g_freetype_lib)
-        Py_RETURN_NONE;
-    
-    if (_init() == 0)
+    if (_init() != 0)
     {
         /* TODO: More accurate error message */
         PyErr_SetString(PyExc_PyGameError, 
@@ -160,7 +156,7 @@ _ft_get_version(PyObject *self)
 static PyObject *
 _ft_was_init(PyObject *self)
 {
-    return PyBool_FromLong((g_freetype_lib != 0));
+    return PyBool_FromLong((__freetype != 0));
 }
 
 PyMODINIT_FUNC

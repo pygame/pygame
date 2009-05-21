@@ -20,23 +20,34 @@
 #ifndef _PYGAME_FONTS_H_
 #define _PYGAME_FONTS_H_
 
+#include <SDL.h>
 #include "pgbase.h"
 
 #include <ft2build.h>  
 #include FT_FREETYPE_H 
+#include FT_CACHE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-static FT_Library _get_freetype(void);
+typedef struct
+{
+    FT_Library library;
+    FTC_Manager cache_manager;
+    FTC_SBitCache cache_bitmap;
+    FTC_CMapCache cache_charmap;
+} FreeTypeInstance;
 
-#define ASSERT_FREETYPE_INIT(x)                                 \
-    if (_get_freetype() == NULL)                                \
+FreeTypeInstance *_get_freetype(void);
+
+#define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
+    ft_ptr = _get_freetype();                                   \
+    if (ft_ptr == NULL)                                         \
     {                                                           \
         PyErr_SetString(PyExc_PyGameError,                      \
             "The FreeType 2 library hasn't been initialized");  \
-        return (x);                                             \
+        return (rvalue);                                        \
     }
 
 #define PYGAME_FREETYPE_FIRSTSLOT 0
@@ -48,13 +59,11 @@ static FT_Library _get_freetype(void);
 typedef struct
 {
     PyFont pyfont;
-    
-    /*
-     * TODO: Add pointer to our FT font!
-     *
-     * FT_Face *font;
-     */
 
+    int face_index;
+    SDL_RWops *rwops;
+    int autoclose;
+    FT_Open_Args open_args;
 } PyFreeTypeFont;
 
 #define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)
