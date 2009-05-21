@@ -94,57 +94,49 @@ class FontModuleTest( unittest.TestCase ):
 
 
 class FontTypeTest( unittest.TestCase ):
-    def todo_test_get_ascent(self):
+    def setUp(self):
+        pygame.font.init()
 
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_ascent:
+    def tearDown(self):
+        pygame.font.quit()
 
-          # Font.get_ascent(): return int
-          # get the ascent of the font
-          # 
-          # Return the height in pixels for the font ascent. The ascent is the
-          # number of pixels from the font baseline to the top of the font.
-          # 
+    def test_get_ascent(self):
+        # Ckecking ascent would need a custom test font to do properly.
+        f = pygame.font.Font(None, 20)
+        ascent = f.get_ascent()
+        self.failUnless(isinstance(ascent, int))
+        self.failUnless(ascent > 0)
+        s = f.render("X", False, (255, 255, 255))
+        self.failUnless(s.get_size()[1] > ascent)
 
-        self.fail() 
+    def test_get_descent(self):
+        # Ckecking descent would need a custom test font to do properly.
+        f = pygame.font.Font(None, 20)
+        descent = f.get_descent()
+        self.failUnless(isinstance(descent, int))
+        self.failUnless(descent < 0)
 
-    def todo_test_get_descent(self):
+    def test_get_height(self):
+        # Ckecking height would need a custom test font to do properly.
+        f = pygame.font.Font(None, 20)
+        height = f.get_height()
+        self.failUnless(isinstance(height, int))
+        self.failUnless(height > 0)
+        s = f.render("X", False, (255, 255, 255))
+        self.failUnless(s.get_size()[1] == height)
 
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_descent:
-
-          # Font.get_descent(): return int
-          # get the descent of the font
-          # 
-          # Return the height in pixels for the font descent. The descent is the
-          # number of pixels from the font baseline to the bottom of the font.
-
-        self.fail() 
-
-    def todo_test_get_height(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_height:
-
-          # Font.get_height(): return int
-          # get the height of the font
-          # 
-          # Return the height in pixels of the actual rendered text. This is the
-          # average size for each glyph in the font.
-
-        self.fail() 
-
-    def todo_test_get_linesize(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.get_linesize:
-
-          # Font.get_linesize(): return int
-          # get the line space of the font text
-          # 
-          # Return the height in pixels for a line of text with the font. When
-          # rendering multiple lines of text this is the recommended amount of
-          # space between lines.
-
-        self.fail() 
+    def test_get_linesize(self):
+        # Ckecking linesize would need a custom test font to do properly.
+        # Questions: How do linesize, height and descent relate?
+        f = pygame.font.Font(None, 20)
+        linesize = f.get_linesize()
+        self.failUnless(isinstance(linesize, int))
+        self.failUnless(linesize > 0)
 
     def todo_test_metrics(self):
+        # The documentation is useless here. How large a list?
+        # How do list positions relate to character codes?
+        # What about unicode characters?
 
         # __doc__ (as of 2008-08-02) for pygame.font.Font.metrics:
 
@@ -159,7 +151,7 @@ class FontTypeTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_render(self):
+    def test_render(self):
         """ 
         """
 
@@ -175,6 +167,9 @@ class FontTypeTest( unittest.TestCase ):
         # null text should be 1 pixel wide.
         s = f.render("", False, [0, 0, 0], [255, 255, 255])
         self.assertEqual(s.get_size()[0], 1)
+        # is background transparent for antialiasing?
+        s = f.render(".", True, [255, 255, 255])
+        self.failUnlessEqual(s.get_at((0, 0))[3], 0)
 
         # __doc__ (as of 2008-08-02) for pygame.font.Font.render:
 
@@ -244,23 +239,14 @@ class FontTypeTest( unittest.TestCase ):
         f.set_underline(False)
         self.failIf(f.get_underline())
 
-    def todo_test_size(self):
-
-        # __doc__ (as of 2008-08-02) for pygame.font.Font.size:
-
-          # Font.size(text): return (width, height)
-          # determine the amount of space needed to render text
-          # 
-          # Returns the dimensions needed to render the text. This can be used
-          # to help determine the positioning needed for text before it is
-          # rendered. It can also be used for wordwrapping and other layout
-          # effects.
-          # 
-          # Be aware that most fonts use kerning which adjusts the widths for
-          # specific letter pairs. For example, the width for "ae" will not
-          # always match the width for "a" + "e".
-
-        self.fail() 
+    def test_size(self):
+        f = pygame.font.Font(None, 20)
+        text = "Xg"
+        size = f.size(text)
+        w, h = size
+        self.failUnless(isinstance(w, int) and isinstance(h, int))
+        s = f.render(text, False, (255, 255, 255))
+        self.failUnlessEqual(size, s.get_size())
 
     def test_font_file_not_found(self):
         # A per BUG reported by Bo Jangeborg on pygame-user mailing list,
