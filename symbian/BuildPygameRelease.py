@@ -67,7 +67,7 @@ def build():
              'sisversion'   : '"(1,%d,%d%s)"' % ( int(version[2:4]), int( version[4:6]),version[6:]),
              'pythonsis'    : sisname,
              'libpath'      : "data/pygame/libs",
-             'pycompiler'   : "d:\\python22\\python.exe"
+             'pycompiler'   : config.pycompiler
              }
     
     # Add certificate stuff

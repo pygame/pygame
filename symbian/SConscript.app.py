@@ -1,3 +1,5 @@
+"""This is the build recipe for the pygame launcher application"""
+
 from scons_symbian import *
 
 # Import all from main SConstruct
@@ -43,17 +45,22 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
 # Install pygame app resources
 from glob import glob
 
-def to_package(**kwargs):
+def doPackage(**kwargs):
     kwargs["source"] = abspath( kwargs["source"] )
     #kwargs["target"] = abspath( kwargs["target"] )
     ToPackage( package = PACKAGE_NAME, **kwargs )
 
-#for x in glob("*.bmp"):
-#    to_package( source = x, target = "data/pygame")
+def packagePyS60Stdlib(**kwargs):
+    kwargs["source"] = join( "deps/PythonForS60/module-repo/standard-modules", kwargs["source"] )
+    doPackage( **kwargs )
 
-to_package( source = "app/pygame_main.py", target = "data/pygame" )
-to_package( source = "app/launcher/logo.jpg", target = "data/pygame/launcher" )
-to_package( source = "app/launcher/pygame_launcher.py", target = "data/pygame/launcher" )
-to_package( source = "app/apps/liquid_s60.py", target = "data/pygame/apps" )
+
+doPackage( source = "app/pygame_main.py", target = "data/pygame", dopycompile=False )
+doPackage( source = "app/launcher/pygame_launcher.py", target = "data/pygame/launcher" )
+
+doPackage( source = "app/launcher/logo.jpg", target = "data/pygame/launcher" )
+doPackage( source = "app/apps/liquid_s60.py", target = "data/pygame/apps" )
+packagePyS60Stdlib( source = "glob.py",    target = "data/pygame/libs" )
+packagePyS60Stdlib( source = "fnmatch.py", target = "data/pygame/libs" )
 
 
