@@ -66,6 +66,7 @@ def run(*args, **kwds):
            Pygame tests
     python - the path to a python executable to run subprocessed tests
              (default sys.executable)
+    interative - allow tests tagged 'interative'.
 
     Return value:
     A tuple of total number of tests run, dictionary of error information. The
@@ -117,8 +118,9 @@ def run(*args, **kwds):
     option_fake = options.pop('fake', None)
     option_python = options.pop('python', sys.executable)
     option_exclude = options.pop('exclude', ())
+    option_interactive = options.pop('interactive', False)
 
-    if 'interactive' not in option_exclude:
+    if not option_interactive and 'interactive' not in option_exclude:
         option_exclude += ('interactive',)
     if not option_nosubprocess and 'subprocess_ignore' not in option_exclude:
         option_exclude += ('subprocess_ignore',)

@@ -435,17 +435,7 @@
 
 #define DOC_PYGAMEKEYNAME "pygame.key.name(key): return string\nget the name of a key identifier"
 
-#define DOC_PYGAMECONTANTS "Pygame constants"
-
-#define DOC_DISPLAY "The following constants are used by the display module and Surfaces"
-
-#define DOC_EVENTS "These constants define the various event types"
-
-#define DOC_KEYBOARD "These constants represent the keys on the keyboard."
-
-#define DOC_MODIFIERS "These constants represent the modifier keys on the keyboard."
-
-#define DOC_TIME "These constants define the various time constants"
+#define DOC_PYGAMELOCALS "pygame constants"
 
 #define DOC_PYGAMEMASK "pygame module for image masks."
 
@@ -2355,33 +2345,8 @@ get the name of a key identifier
 
 
 
-pygame.contants
- Pygame constants
-
-
-
-display
- The following constants are used by the display module and Surfaces
-
-
-
-events
- These constants define the various event types
-
-
-
-keyboard
- These constants represent the keys on the keyboard.
-
-
-
-modifiers
- These constants represent the modifier keys on the keyboard.
-
-
-
-time
- These constants define the various time constants
+pygame.locals
+ pygame constants
 
 
 
