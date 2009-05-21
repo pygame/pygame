@@ -381,4 +381,17 @@ static void _dealloc_aud_stream(PyAudioStream *pas);
 static void _dealloc_vid_stream(PyVideoStream *pvs);
 static void _dealloc_sub_stream(PySubtitleStream *pss);
 
+/* stream python stuff 
+
+static PyObject* _vid_stream_new_internal(PyTypeObject *type, char *filename, PyObject* surface); //expects file to have been opened in _vid_stream_new
+static PyObject* _vid_stream_new (PyTypeObject *type, PyObject *args,
+    PyObject *kwds);
+static void _vid_stream_dealloc (PyVideoStream *video);
+static PyObject* _vid_stream_repr (PyVideoStream *video);
+static PyObject* _vid_stream_str (PyVideoStream *video);
+static PyObject* _vid_stream_play(PyVideoStream *video, PyObject* args);
+static PyObject* _vid_stream_stop(PyVideoStream *video);
+static PyObject* _vid_stream_pause(PyVideoStream *video);
+static PyObject* _vid_stream_rewind(PyVideoStream *video, PyObject* args);
+*/
 

@@ -2291,11 +2291,24 @@ static PySubtitleStream* _new_sub_stream(void)
 
 static void _dealloc_aud_stream(PyAudioStream *pas)
 {
+    
     PyMem_Free((void *)pas);
 }
 
 static void _dealloc_vid_stream(PyVideoStream *pvs)
 {
+    if(!pvs)
+        return;
+    if(pvs->out_surf)
+    { 
+        SDL_FreeSurface(pvs->out_surf);
+        pvs->out_surf=NULL;
+    }
+    if(pvs->bmp)
+    {
+        SDL_FreeYUVOverlay(pvs->bmp);
+        pvs->bmp=NULL;
+    }
     PyMem_Free((void *) pvs);
 }
 

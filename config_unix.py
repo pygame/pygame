@@ -147,7 +147,7 @@ def main():
         Dependency('SCRAP', '', 'libX11', ['X11']),
         Dependency('PORTMIDI', 'portmidi.h', 'libportmidi.so', ['portmidi']),
         Dependency('PORTTIME', 'porttime.h', 'libporttime.so', ['porttime']),
-        Dependency('FFMPEG', 'libavformat/avformat.h', 'libavformat.so', ['avformat', 'avdevice', 'avcodec',  'avutil', 'swscale']),        
+        Dependency('FFMPEG', 'libavformat/avformat.h', 'libavformat.a', ['avformat', 'avdevice', 'avcodec',  'avutil', 'swscale']),        
         #Dependency('FFMPEG', 'ffmpeg/avformat.h',  'libavformat.so', ['avformat']) ,
         #Dependency('FFMPEG', 'ffmpeg/avstring.h',  'libavstring.so', ['avstring']) ,
         #Dependency('FFMPEG', 'ffmpeg/swscale.h',  'libswscale.so', ['swscale']) ,
