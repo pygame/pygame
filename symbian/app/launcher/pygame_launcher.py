@@ -1254,8 +1254,7 @@ def start():
                     # The launcher starts a new pygame.exe process for the selected application.
                     # This process must close before starting the new one.
                     p = os.path.abspath( join( THISDIR, "..", "pygame_main.py") )
-                    #TODO: Use start_server
-                    e32.start_exe( "251_python_launcher.exe", p )
+                    e32.start_server( p )
 
             else:         
                 # TODO: Use subprocess
@@ -1265,9 +1264,8 @@ def start():
         break
         
     pygame.quit()
-    
+
 if __name__ == "__main__":
-        
     if "profile" not in sys.argv:
         start()
     else:

@@ -2,6 +2,8 @@
 pygame main script for S60. This initializes some system defaults and 
 calls the pygame script given in sys.argv[1]
 """
+import imp
+import time
 import os
 import sys
 
@@ -15,6 +17,7 @@ __file__ = sys.argv[0]
 
 THISDIR = os.path.dirname( __file__ )
 sys.path.append( os.path.join( THISDIR, "libs") )
+
 if len(sys.argv) < 2:
     path_to_app = os.path.join( THISDIR, "launcher", "pygame_launcher.py" )
     if sys.platform == "symbian_s60":
@@ -28,14 +31,11 @@ if len(sys.argv) < 2:
             path_to_app = data.strip()
             
             # TODO: Make sure previous pygame.exe has closed first
-            import time
-            time.sleep(1)
-                         
+            time.sleep(1)                        
             e32.start_exe( "pygame.exe", path_to_app, 1)
             
             e32.start_exe( "pygame.exe", "")
-            
-        
+                    
 else:
 
     path_to_app = sys.argv[1]
@@ -48,9 +48,21 @@ else:
         fold.close()
 
 try:
-    execfile(path_to_app, {'__builtins__': __builtins__,
-                   '__name__': '__main__',
-                   '__file__': path_to_app } )
+    
+    # Import the application module. This works with .pyc files as well unlike execfile
+    sys.path.append( os.path.dirname( path_to_app) )
+    
+    filename = os.path.basename(path_to_app)
+    filename = filename.split(".")
+    module  = ".".join( filename[:-1] )
+    
+    fp, pathname, stuff = imp.find_module(module)
+    try:
+        m = imp.load_module("__main__", fp, pathname, stuff)
+    finally:
+        if fp: fp.close()
+    
+        
 except:
     import traceback
     traceback.print_exc()
