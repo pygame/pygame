@@ -53,6 +53,7 @@ class Doc(object):
         self.description = "TODO"
         self.example = ""
         self.classes = []
+        self.data = {}
         self.functions = []
         self.includes = []
     
@@ -61,7 +62,15 @@ class Doc(object):
         module = self.get_module_docs (dom)
         self.get_module_funcs (module)
         self.get_class_refs (module)
+        self.get_data (module)
         self.get_includes (module)
+
+    def get_data (self, module):
+        data = module.getElementsByTagName ("data")
+        for entry in data:
+            name = entry.getAttribute ("name")
+            val = entry.firstChild.nodeValue.strip ()
+            self.data[name] = val
 
     def get_includes (self, module):
         incs = module.getElementsByTagName ("include")
@@ -271,6 +280,13 @@ class Doc(object):
 
         if len (self.example) > 0:
             fp.write (self.create_example_rst (self.example, True))
+
+        if len (self.data) > 0:
+            fp.write ("Data Fields\n")
+            fp.write ("-----------\n")
+            for key in self.data.keys ():
+                fp.write (".. data:: %s\n" % key)
+                fp.write (self.create_desc_rst (self.data[key], 2))
 
         if len (self.functions) > 0:
             fp.write ("Module Functions\n")

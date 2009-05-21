@@ -4,16 +4,13 @@ from pygame2.sdlttf.base import Font
 
 def get_sys_font (name, size, style=constants.STYLE_NORMAL):
     """
-    pygame2.sdlttf.get_sys_font (name, size, style=constants.STYLE_NORMAL) -> Font
+    get_sys_font (name, size, style=constants.STYLE_NORMAL) -> Font
     
     Create a Font from system font resources
 
     This will search the system fonts for the given font name. You can also
     enable bold or italic styles, and the appropriate system font will be
     selected if available.
-
-    This will always return a valid Font object, and will fallback on the
-    builtin pygame font if the given font is not found.
 
     Name can also be a comma separated list of names, in which case set of
     names will be searched in order.
@@ -27,9 +24,8 @@ def get_sys_font (name, size, style=constants.STYLE_NORMAL):
         fontname, gotbold, gotitalic = \
             pygame2.font.find_font (name, bold, italic)
     if not fontname:
-        # TODO: default font!
-        pass
-
+        return None
+        
     font = Font (fontname, size)
 
     setstyle = constants.STYLE_NORMAL

@@ -148,7 +148,7 @@ _sdl_quitsubsystem (PyObject *self, PyObject *args)
     Uint32 flags;
     if (!PyArg_ParseTuple (args, "l:quit_subsystem", &flags))
         return NULL;
-    /* TODO: SDL related modules does not quit correctly, etc. as the
+    /* TODO: SDL related modules do not quit correctly, etc. as the
      * _quit() hooks are not called! */
     SDL_QuitSubSystem (flags);
     Py_RETURN_NONE;

@@ -101,14 +101,7 @@ PyTypeObject PySDLFont_TTF_Type =
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_richcompare */
-
-    /* 
-     * tp_weaklistoffset
-     * FIXME: Weakrefs? Do we need those? 
-     */
-/*    offsetof(PySDLFont_TTF, weakrefs) */
-    0, 
-
+    0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
     _font_methods,              /* tp_methods */
@@ -118,14 +111,7 @@ PyTypeObject PySDLFont_TTF_Type =
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
-
-    /* 
-     * tp_dictoffset
-     * FIXME: What about the dictionary? Hueuh...
-     */
-/*    offsetof(PySDLFont_TTF, dict) */
-    0, 
-
+    0,                          /* tp_dictoffset */
     (initproc) _font_init,      /* tp_init */
     0,                          /* tp_alloc */
     _font_new,                  /* tp_new */
@@ -160,13 +146,12 @@ _font_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     font->pyfont.get_height = _font_getheight;
 
-    // TODO: Which get name? We've got family name and style name.
-    font->pyfont.get_name = NULL;
+    font->pyfont.get_name = _font_getfamilyname;
     font->pyfont.get_style = _font_getstyle;
     font->pyfont.set_style = _font_setstyle;
     font->pyfont.get_size = _font_getsize;
     font->pyfont.render = _font_render;
-    font->pyfont.copy = NULL; // TODO
+    font->pyfont.copy = NULL; /* TODO */
 
     return (PyObject*) font;
 }

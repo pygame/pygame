@@ -10,6 +10,16 @@
     the whole pygame2 package.
   </desc>
 
+  <data name="__version__">
+    The version of the Pygame2 package as string.
+  </data>
+
+  <data name="version_info">
+    The version of the Pygame2 package as value tuple. The tuple is of
+    the form ``('major', 'minor', 'micro', 'releaselevel')``, where all
+    values except the *releaselevel* are integers.
+  </data>
+
   <class name="BufferProxy">
     <constructor>BufferProxy () -> BufferProxy</constructor>
     <desc>Creates a new, empty :class:`BufferProxy`.
@@ -142,7 +152,6 @@
       A class for storing rectangular coordinates.
 
       A :class:`FRect` is used to store and manipulate rectangular coordinates.
-      TODO
     </desc>
     <attr name="bottom">
       <desc>Gets or sets the bottom edge position of the :class:`FRect`.</desc>
@@ -440,7 +449,7 @@
     <desc>A class for storing rectangular coordinates.
 
     A :class:`Rect` is used to store and manipulate rectangular
-    coordinates.  TODO
+    coordinates.
     </desc>
     <attr name="bottom">
       <desc>Gets or sets the bottom edge position of the :class:`Rect`.</desc>
