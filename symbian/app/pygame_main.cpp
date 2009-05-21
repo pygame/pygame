@@ -15,7 +15,7 @@ extern "C" struct _inittab _PyGame_Inittab[];
 
 #ifndef PYGAME_MAIN_SCRIPT_PATH
 #define PYGAME_MAIN_SCRIPT_PATH "\\data\\pygame\\pygame_main.py"
-#define PYGAME_LAUNCHER_PATH    "\\data\\pygame\\launcher\\pygame_launcher.py"
+#define PYGAME_LAUNCHER_PATH    "\\data\\pygame\\launcher\\pygame_launcher.pyc"
 #endif
 static const char* gPygameMainScriptPath[2] = {
 		PYGAME_MAIN_SCRIPT_PATH,
