@@ -2,7 +2,9 @@
 #include <Python.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-#include <ffmpeg/avformat.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include "audioconvert.h"
 
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
@@ -109,7 +111,7 @@ enum {
     AV_SYNC_EXTERNAL_CLOCK, /* synchronize to an external clock */
 };
 
-typedef struct
+typedef struct PyVideoStream
 {
     PyObject_HEAD
 
@@ -172,7 +174,7 @@ typedef struct
 
 } PyVideoStream;
 
-typedef struct
+typedef struct PyAudioStream
 {
     PyObject_HEAD
 
@@ -228,7 +230,7 @@ typedef struct
 
 } PyAudioStream;
 
-typedef struct
+typedef struct PySubtitleStream
 {
     PyObject_HEAD
 
@@ -277,7 +279,7 @@ typedef struct
 
 } PySubtitleStream;
 
-typedef struct
+typedef struct PyMovie
 {
     PyObject_HEAD
     PyObject *streams;      /* lists object for all the streams of the video file. */
@@ -346,9 +348,7 @@ static PyObject* _movie_get_playing (PyMovie *movie, void *closure);
 static PyObject* PyMovie_New (char *fname, SDL_Surface *surf);
 
 /*internals */
-static PyAudioStream* _new_audio_stream();
-static PyVideoStream* _new_video_stream();
-static PySubtitleStream* _new_sub_stream();
+
 
 static void _dealloc_aud_stream(PyAudioStream *pas);
 static void _dealloc_vid_stream(PyVideoStream *pvs);

@@ -6,9 +6,7 @@
  */
 
 
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
-#include <ffmpeg/avstring.h>
+#include <libavutil/avstring.h>
 //#include <ffmpeg/rtsp.h>
 #include <ffmpeg/swscale.h>
 //#include <ffmpeg/opt.h>
@@ -67,6 +65,10 @@ static AVPacket flush_pkt;
 #define FF_ALLOC_EVENT   (SDL_USEREVENT)
 #define FF_REFRESH_EVENT (SDL_USEREVENT + 1)
 #define FF_QUIT_EVENT    (SDL_USEREVENT + 2)
+
+static PyAudioStream* _new_audio_stream();
+static PyVideoStream* _new_video_stream();
+static PySubtitleStream* _new_sub_stream();
 
 //static int sws_flags = SWS_BICUBIC;
 
