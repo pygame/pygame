@@ -18,7 +18,11 @@
 
 */
 
+#define PYGAME_FREETYPE_INTERNAL
+
 #include "ft_mod.h"
+#include "pgfreetype.h"
+#include "pgsdl.h"
 #include "freetypebase_doc.h"
 
 static FT_Library g_freetype_lib = NULL;
@@ -64,6 +68,19 @@ static PyMethodDef _ft_methods[] =
     },
     { NULL, NULL, 0, NULL },
 };
+
+/*
+ * Get a pointer to the active FT library
+ *
+ * TODO: Someday this should automatically handle returning
+ * libraries based on the active thread to prevent multi-
+ * threading issues.
+ */
+static FT_Library
+_get_freetype(void)
+{
+    return g_freetype_lib;
+}
 
 /*
  * Deinitialize the FreeType library.
@@ -154,6 +171,8 @@ PyMODINIT_FUNC
 #endif
 {
     PyObject *mod = NULL;
+    PyObject *c_api_obj;
+    static void *c_api[PYGAME_FREETYPE_SLOTS];
 
 #ifdef IS_PYTHON_3
 
@@ -179,35 +198,31 @@ PyMODINIT_FUNC
     if (!mod)
         goto fail;
 
-    /* 
-     * Insert our base Font class into the main module 
-     * TODO: We need a font class hawhaw
-     */
 
-    /*  
-
-    if (PyType_Ready(&PySDLFont_TTF_Type) < 0)
+    /* Import Pygame2 Base API to access PyFont_Type */
+    if (import_pygame2_base() < 0)
         goto fail;
 
-    Py_INCREF (&PySDLFont_TTF_Type);
-    PyModule_AddObject (mod, "Font", (PyObject *) &PySDLFont_TTF_Type); 
-    
-    */
+    PyFreeTypeFont_Type.tp_base = &PyFont_Type;
+    if (PyType_Ready(&PyFreeTypeFont_Type) < 0)
+        goto fail;
+
+    Py_INCREF(&PyFreeTypeFont_Type);
+    PyModule_AddObject(mod, "Font", (PyObject *)&PyFreeTypeFont_Type); 
 
     /* 
      * Export C API.
-     *
-     * FIXME: What does this exactly do? 
-     * Why do we need to export the base C API to python? 
      */
 
-    /*
-       font_export_capi (c_api);
+    ftfont_export_capi(c_api);
 
-       c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
-       if (c_api_obj)
-       PyModule_AddObject (mod, PYGAME_SDLTTF_ENTRY, c_api_obj);    
-       */
+    c_api_obj = PyCObject_FromVoidPtr((void *) c_api, NULL);
+
+    if (c_api_obj)
+        PyModule_AddObject(mod, PYGAME_FREETYPE_ENTRY, c_api_obj);    
+
+    RegisterQuitCallback(_quit);
+
     MODINIT_RETURN(mod);
 
 fail:

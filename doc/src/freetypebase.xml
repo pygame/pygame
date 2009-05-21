@@ -44,5 +44,40 @@
       Returns whether the the FreeType 2 library is initialized.
     </desc>
   </func>
+
+
+  <class name="Font">
+    <constructor>Font(file, size[, index]) -> Font</constructor>
+    <desc>
+        Creates a new Font from a supported font file.
+
+        *TODO*
+    </desc>
+    <attr name="name">
+      <desc>Gets the name of the font face.</desc>
+    </attr>
+    <method name="get_size">
+      <call>get_size(text) -> int, int</call>
+      <desc>
+          Gets the size which 'text' will occupy when rendered using 
+          this Font.
+      </desc>
+    </method>
+    <attr name="height">
+      <desc>Gets the height of the Font.</desc>
+    </attr>
+    <method name="render">
+      <call>render(text, fgcolor[, bgcolor, renderflag]) -> Surface</call>
+      <desc>
+        Renders a text to a Surface.
+
+        *TODO*
+      </desc>
+    </method>
+    <attr name="style">
+      <desc>Gets or sets the style of the font. *TODO*</desc>
+    </attr>
+  </class>
+  
 </module>
 

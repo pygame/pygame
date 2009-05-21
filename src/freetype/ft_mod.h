@@ -1,5 +1,7 @@
 /*
   pygame - Python Game Library
+  Copyright (C) 2000-2001 Pete Shinners
+  Copyright (C) 2008 Marcus von Appen
   Copyright (C) 2009 Vicent Marti
 
   This library is free software; you can redistribute it and/or
@@ -17,12 +19,17 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-#ifndef _PYGAME_FONTS_H_
-#define _PYGAME_FONTS_H_
+#ifndef _PYGAME_FREETYPEMOD_H_
+#define _PYGAME_FREETYPEMOD_H_
 
-#include "pgbase.h"
+#include <Python.h>
 
-#include <ft2build.h>  
-#include FT_FREETYPE_H 
+#define PYGAME_FREETYPE_INTERNAL
+#define PYGAME_FREETYPE_FONT_INTERNAL
 
-#endif /* _PYGAME_FONTS_H_ */
+extern PyTypeObject PyFreeTypeFont_Type;
+#define PyFreeTypeFont_Check(x) (PyObject_TypeCheck(x, &PyFreeTypeFont_Type))
+PyObject* PyFreeTypeFont_New(char *file, int ptsize);
+void ftfont_export_capi (void **capi);
+
+#endif /* _PYGAME_FREETYPEMOD_H_ */

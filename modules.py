@@ -299,7 +299,11 @@ modules = [
         depends = ['SDL', 'SDL_gfx']),
 
     Module ("freetype.base",
-        sources = ["src/freetype/ft_mod.c"],
+        sources = [
+            "src/freetype/ft_mod.c",
+            "src/freetype/ft_font.c"
+            ],
+        instheaders = ["src/freetype/pgfreetype.h"],
         docfile = "freetypebase.xml",
         depends = ['freetype', 'SDL']),
 
