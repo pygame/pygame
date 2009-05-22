@@ -313,6 +313,7 @@ MODINIT_DEFINE (fastevent)
                 ecode = PyDict_SetItemString (dict, NAMES[i], ref);
                 Py_DECREF (ref);
                 if (ecode == -1) {
+                    DECREF_MOD(module);
                     MODINIT_ERROR;
                 }
             }

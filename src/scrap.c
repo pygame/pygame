@@ -333,7 +333,7 @@ void initscrap (void)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	return;
+        return;
     }
 
     /* create the module */

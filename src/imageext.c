@@ -678,7 +678,7 @@ MODINIT_DEFINE (imageext)
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
     import_pygame_rwobject ();
 
