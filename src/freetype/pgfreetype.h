@@ -40,7 +40,6 @@ extern "C" {
 
 typedef struct
 {
-    PyObject *file_ptr;
     int face_index;
     FT_Open_Args open_args;
 } FontId;

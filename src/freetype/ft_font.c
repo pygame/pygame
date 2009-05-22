@@ -28,16 +28,13 @@
 #include "pgfreetype.h"
 #include "freetypebase_doc.h"
 
-/* Externs */
-extern int PyFile_Check(PyObject *);
-extern PyObject* PyFile_FromString(char *, char *);
-
 /*
  * Constructor/init/destructor
  */
 static PyObject *_ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int _ftfont_init(PyObject *chunk, PyObject *args, PyObject *kwds);
 static void _ftfont_dealloc(PyFreeTypeFont *self);
+static PyObject *_ftfont_repr(PyObject *self);
 
 /*
  * Main methods
@@ -117,7 +114,7 @@ PyTypeObject PyFreeTypeFont_Type =
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_compare */
-    0,                          /* tp_repr */
+    (reprfunc)_ftfont_repr,     /* tp_repr */
     0,                          /* tp_as_number */
     0,                          /* tp_as_sequence */
     0,                          /* tp_as_mapping */
@@ -172,8 +169,6 @@ _ftfont_dealloc(PyFreeTypeFont *self)
     if ((ft = _get_freetype()) != NULL)
         PGFT_UnloadFont(ft, self);
 
-    Py_XDECREF(self->id.file_ptr);
-
     ((PyObject*)self)->ob_type->tp_free((PyObject *)self);
 }
 
@@ -220,12 +215,11 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 
     font->id.face_index = face_index;
 
-    if (PyFile_Check(file))
-    {
-        Py_INCREF(file);
-        font->id.file_ptr = file;
-    }
-    else if (IsTextObj(file))
+    /*
+     * TODO: Handle file-like objects
+     */
+
+    if (IsTextObj(file))
     {
         PyObject *tmp;
         char *filename;
@@ -236,13 +230,14 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
             return -1;
         }
         
-        font->id.file_ptr = PyFile_FromString(filename, "rb");
+        font->id.open_args.flags = FT_OPEN_PATHNAME;
+        font->id.open_args.pathname = filename; 
         Py_XDECREF(tmp);
     }
     else
     {
         PyErr_SetString(PyExc_ValueError, 
-                "Invalid 'file' parameter (must be a File object or a file name");
+                "Invalid 'file' parameter (must be a File object or a file name)");
         return -1;
     }
 
@@ -250,13 +245,19 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     if (PGFT_TryLoadFont(ft, font) != 0)
     {
         /* TODO: Get a proper error string */
-        PyErr_SetString(PyExc_ValueError, "Failed to load font");
+        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
         return -1;
     }
 
     return 0;
 }
 
+static PyObject*
+_ftfont_repr(PyObject *self)
+{
+    /* TODO: Print actual information about the font */
+    return Text_FromUTF8("FreeType Font");
+}
 
 
 /****************************************************

@@ -28,36 +28,7 @@
 #include "pgsdl.h"
 #include "freetypebase_doc.h"
 
-/* Externals */
-FILE *PyFile_AsFile(PyObject *p);
-
-
-void    _PGTF_SetError(const char *error_msg, FT_Error error_id);
-
-
-static unsigned long 
-_RWread(FT_Stream stream, 
-        unsigned long offset, 
-        unsigned char* buffer, 
-        unsigned long count)
-{
-    PyObject *obj;
-    FILE *file;
-    unsigned long readc;
-
-    obj = (PyObject *)stream->descriptor.pointer;
-
-    Py_BEGIN_ALLOW_THREADS;
-
-        file = PyFile_AsFile(obj);
-        fseek(file, (long int)offset, SEEK_SET);
-
-        readc = count ? fread(buffer, 1, count, file) : 0;
-
-    Py_END_ALLOW_THREADS;
-
-    return readc;
-}
+void    _PGTF_SetError(FreeTypeInstance *, const char *, FT_Error);
 
 static FT_Error
 _PGTF_face_request(FTC_FaceID face_id, 
@@ -66,50 +37,52 @@ _PGTF_face_request(FTC_FaceID face_id,
         FT_Face *aface)
 {
     FontId *id = GET_FONT_ID(face_id); 
-
     FT_Error error = 0;
-    FT_Stream stream = NULL;
-    FILE *file;
-
-    stream = malloc(sizeof(FT_Stream));
-
-	if (stream == NULL) 
-        goto error_cleanup;
-
-	memset(stream, 0, sizeof(FT_Stream));
-
-	stream->read = _RWread;
-    /* do not let FT close the stream, Python will take care of it */
-    stream->close = NULL; 
-
-	stream->descriptor.pointer = id->file_ptr;
-
+    
     Py_BEGIN_ALLOW_THREADS;
-        file = PyFile_AsFile(id->file_ptr);
-        
-        stream->size = (unsigned long)fseek(file, 0, SEEK_END);
-        stream->pos = (unsigned long)fseek(file, 0, SEEK_SET);
+        error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
     Py_END_ALLOW_THREADS;
 
-	id->open_args.flags = FT_OPEN_STREAM;
-	id->open_args.stream = stream;
-
-	error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
-
-    if (error)
-        goto error_cleanup;
-
-    return 0;
-
-error_cleanup:
-    free(stream);
-    return error ? error : -1;
+    return error;
 }
 
 void
-_PGTF_SetError(const char *error_msg, FT_Error error_id)
+_PGTF_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
 {
+#undef __FTERRORS_H__
+#define FT_ERRORDEF( e, v, s )  { e, s },
+#define FT_ERROR_START_LIST     {
+#define FT_ERROR_END_LIST       {0, 0}};
+	static const struct
+	{
+	  int          err_code;
+	  const char*  err_msg;
+	} ft_errors[] = 
+#include FT_ERRORS_H
 
+	int i;
+	const char *ft_msg;
+
+	ft_msg = NULL;
+	for (i = 0; ft_errors[i].err_msg != NULL; ++i)
+    {
+		if (error_id == ft_errors[i].err_code) 
+        {
+			ft_msg = ft_errors[i].err_msg;
+			break;
+		}
+	}
+
+	if (ft_msg)
+        sprintf(ft->_error_msg, "%s: %s", error_msg, ft_msg);
+    else
+        strcpy(ft->_error_msg, error_msg);
+}
+
+const char *
+PGFT_GetError(FreeTypeInstance *ft)
+{
+    return ft->_error_msg;
 }
 
 int
@@ -122,7 +95,7 @@ PGFT_TryLoadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 
     if (error)
     {
-        _PGTF_SetError("Failed to load font", error);
+        _PGTF_SetError(ft, "Failed to load font", error);
         return error;
     }
 
@@ -145,6 +118,8 @@ PGFT_Quit(FreeTypeInstance *ft)
 
     FTC_Manager_Done(ft->cache_manager);
     FT_Done_FreeType(ft->library);
+
+    free(ft->_error_msg);
     free(ft);
 }
 
@@ -158,6 +133,9 @@ PGFT_Init(FreeTypeInstance **_instance)
 
     if (!inst)
         goto error_cleanup;
+
+    memset(inst, 0, sizeof(FreeTypeInstance));
+    inst->_error_msg = malloc(1024);
     
     error = FT_Init_FreeType(&inst->library);
 
@@ -174,11 +152,12 @@ PGFT_Init(FreeTypeInstance **_instance)
     if (error)
         goto error_cleanup;
 
+    *_instance = inst;
     return 0;
 
 error_cleanup:
     free(inst);
     *_instance = NULL;
 
-    return error;
+    return error ? error : -1;
 }

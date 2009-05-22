@@ -32,6 +32,8 @@ typedef struct
     FTC_Manager cache_manager;
     FTC_SBitCache cache_bitmap;
     FTC_CMapCache cache_charmap;
+
+    char *_error_msg;
 } FreeTypeInstance;
 
 FreeTypeInstance *_get_freetype(void);
@@ -47,10 +49,10 @@ FreeTypeInstance *_get_freetype(void);
 
 #define GET_FONT_ID(f) (&((PyFreeTypeFont *)f)->id)
 
-
+const char *PGFT_GetError(FreeTypeInstance *);
 void    PGFT_Quit(FreeTypeInstance *);
 int     PGFT_Init(FreeTypeInstance **);
-int     PGFT_TryLoadFont(FreeTypeInstance *ft, PyFreeTypeFont *font);
+int     PGFT_TryLoadFont(FreeTypeInstance *, PyFreeTypeFont *);
 void    PGFT_UnloadFont(FreeTypeInstance *, PyFreeTypeFont *);
 
 
