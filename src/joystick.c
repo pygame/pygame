@@ -469,7 +469,7 @@ MODINIT_DEFINE (joystick)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* type preparation */

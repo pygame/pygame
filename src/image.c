@@ -1333,15 +1333,15 @@ MODINIT_DEFINE (image)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;;
+        MODINIT_ERROR;
     }
     import_pygame_surface ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;;
+        MODINIT_ERROR;
     }
     import_pygame_rwobject ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;;
+        MODINIT_ERROR;
     }
 
     /* create the module */
