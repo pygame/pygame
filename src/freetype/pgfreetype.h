@@ -1,5 +1,7 @@
 /*
   pygame - Python Game Library
+  Copyright (C) 2000-2001 Pete Shinners
+  Copyright (C) 2008 Marcus von Appen
   Copyright (C) 2009 Vicent Marti
 
   This library is free software; you can redistribute it and/or
@@ -17,10 +19,9 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-#ifndef _PYGAME_FONTS_H_
-#define _PYGAME_FONTS_H_
+#ifndef _PYGAME_FREETYPE_H_
+#define _PYGAME_FREETYPE_H_
 
-#include <SDL.h>
 #include "pgbase.h"
 
 #include <ft2build.h>  
@@ -31,25 +32,6 @@
 extern "C" {
 #endif
 
-typedef struct
-{
-    FT_Library library;
-    FTC_Manager cache_manager;
-    FTC_SBitCache cache_bitmap;
-    FTC_CMapCache cache_charmap;
-} FreeTypeInstance;
-
-FreeTypeInstance *_get_freetype(void);
-
-#define ASSERT_GRAB_FREETYPE(ft_ptr, rvalue)                    \
-    ft_ptr = _get_freetype();                                   \
-    if (ft_ptr == NULL)                                         \
-    {                                                           \
-        PyErr_SetString(PyExc_PyGameError,                      \
-            "The FreeType 2 library hasn't been initialized");  \
-        return (rvalue);                                        \
-    }
-
 #define PYGAME_FREETYPE_FIRSTSLOT 0
 #define PYGAME_FREETYPE_NUMSLOTS 0
 
@@ -58,12 +40,16 @@ FreeTypeInstance *_get_freetype(void);
 
 typedef struct
 {
-    PyFont pyfont;
-
+    PyObject *file_ptr;
     int face_index;
-    SDL_RWops *rwops;
-    int autoclose;
     FT_Open_Args open_args;
+} FontId;
+
+typedef struct
+{
+    PyFont pyfont;
+    FontId id;
+
 } PyFreeTypeFont;
 
 #define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)

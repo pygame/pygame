@@ -21,6 +21,7 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_mod.h"
+#include "ft_wrap.h"
 #include "pgfreetype.h"
 #include "pgsdl.h"
 #include "freetypebase_doc.h"

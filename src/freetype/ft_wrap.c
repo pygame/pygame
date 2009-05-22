@@ -23,17 +23,16 @@
 #define PYGAME_FREETYPE_INTERNAL
 
 #include "ft_mod.h"
+#include "ft_wrap.h"
 #include "pgfreetype.h"
 #include "pgsdl.h"
 #include "freetypebase_doc.h"
 
-void    PGFT_Quit(FreeTypeInstance *);
-int     PGFT_Init(FreeTypeInstance **);
-int     PGFT_TryLoadFont(FreeTypeInstance *ft, PyFreeTypeFont *font);
-void    PGFT_UnloadFont(FreeTypeInstance *, PyFreeTypeFont *);
+/* Externals */
+FILE *PyFile_AsFile(PyObject *p);
+
 
 void    _PGTF_SetError(const char *error_msg, FT_Error error_id);
-
 
 
 static unsigned long 
@@ -42,18 +41,23 @@ _RWread(FT_Stream stream,
         unsigned char* buffer, 
         unsigned long count)
 {
-	SDL_RWops *src;
+    PyObject *obj;
+    FILE *file;
+    unsigned long readc;
 
-	src = (SDL_RWops *)stream->descriptor.pointer;
-	SDL_RWseek(src, (int)offset, SEEK_SET);
+    obj = (PyObject *)stream->descriptor.pointer;
 
-	if (count == 0)
-		return 0;
+    Py_BEGIN_ALLOW_THREADS;
 
-	return SDL_RWread(src, buffer, 1, (int)count);
+        file = PyFile_AsFile(obj);
+        fseek(file, (long int)offset, SEEK_SET);
+
+        readc = count ? fread(buffer, 1, count, file) : 0;
+
+    Py_END_ALLOW_THREADS;
+
+    return readc;
 }
-
-
 
 static FT_Error
 _PGTF_face_request(FTC_FaceID face_id, 
@@ -61,16 +65,11 @@ _PGTF_face_request(FTC_FaceID face_id,
         FT_Pointer request_data, 
         FT_Face *aface)
 {
-    PyFreeTypeFont *font = (PyFreeTypeFont *)face_id;
+    FontId *id = GET_FONT_ID(face_id); 
 
     FT_Error error = 0;
     FT_Stream stream = NULL;
-    int position;
-    
-	position = SDL_RWtell(font->rwops);
-
-	if (position < 0)
-        goto error_cleanup;
+    FILE *file;
 
     stream = malloc(sizeof(FT_Stream));
 
@@ -80,16 +79,22 @@ _PGTF_face_request(FTC_FaceID face_id,
 	memset(stream, 0, sizeof(FT_Stream));
 
 	stream->read = _RWread;
-	stream->descriptor.pointer = font->rwops;
-	stream->pos = (unsigned long)position;
-	SDL_RWseek(font->rwops, 0, SEEK_END);
-	stream->size = (unsigned long)(SDL_RWtell(font->rwops) - position);
-	SDL_RWseek(font->rwops, position, SEEK_SET);
+    /* do not let FT close the stream, Python will take care of it */
+    stream->close = NULL; 
 
-	font->open_args.flags = FT_OPEN_STREAM;
-	font->open_args.stream = stream;
+	stream->descriptor.pointer = id->file_ptr;
 
-	error = FT_Open_Face(library, &font->open_args, font->face_index, aface);
+    Py_BEGIN_ALLOW_THREADS;
+        file = PyFile_AsFile(id->file_ptr);
+        
+        stream->size = (unsigned long)fseek(file, 0, SEEK_END);
+        stream->pos = (unsigned long)fseek(file, 0, SEEK_SET);
+    Py_END_ALLOW_THREADS;
+
+	id->open_args.flags = FT_OPEN_STREAM;
+	id->open_args.stream = stream;
+
+	error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
 
     if (error)
         goto error_cleanup;

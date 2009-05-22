@@ -24,8 +24,13 @@
 #define PYGAME_FREETYPE_FONT_INTERNAL
 
 #include "ft_mod.h"
+#include "ft_wrap.h"
 #include "pgfreetype.h"
 #include "freetypebase_doc.h"
+
+/* Externs */
+extern int PyFile_Check(PyObject *);
+extern PyObject* PyFile_FromString(char *, char *);
 
 /*
  * Constructor/init/destructor
@@ -167,6 +172,8 @@ _ftfont_dealloc(PyFreeTypeFont *self)
     if ((ft = _get_freetype()) != NULL)
         PGFT_UnloadFont(ft, self);
 
+    Py_XDECREF(self->id.file_ptr);
+
     ((PyObject*)self)->ob_type->tp_free((PyObject *)self);
 }
 
@@ -178,7 +185,7 @@ _ftfont_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!font)
         return NULL;
 
-    font->rwops = NULL;
+    memset(&font->id, 0, sizeof(FontId));
 
     font->pyfont.get_height = _ftfont_getheight;
     font->pyfont.get_name = _ftfont_getname;
@@ -211,21 +218,39 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    font->face_index = face_index;
-    font->rwops = PyRWops_NewRO_Threaded(file, &font->autoclose);
-    if (!font->rwops)
-        return -1;
+    font->id.face_index = face_index;
 
-    /*
-     * TODO: Do we have to close it later if autoclose
-     * it 1 or will SLD_RWops handle it?
-     */
-    if (!font->autoclose)
-        PyRWops_Close(font->rwops, font->autoclose);
-
-    if (!font)
+    if (PyFile_Check(file))
     {
-        PyErr_SetString(PyExc_PyGameError, PGFT_GetError());
+        Py_INCREF(file);
+        font->id.file_ptr = file;
+    }
+    else if (IsTextObj(file))
+    {
+        PyObject *tmp;
+        char *filename;
+
+        if (!UTF8FromObject(file, &filename, &tmp))
+        {
+            PyErr_SetString(PyExc_ValueError, "Failed to decode file name");
+            return -1;
+        }
+        
+        font->id.file_ptr = PyFile_FromString(filename, "rb");
+        Py_XDECREF(tmp);
+    }
+    else
+    {
+        PyErr_SetString(PyExc_ValueError, 
+                "Invalid 'file' parameter (must be a File object or a file name");
+        return -1;
+    }
+
+
+    if (PGFT_TryLoadFont(ft, font) != 0)
+    {
+        /* TODO: Get a proper error string */
+        PyErr_SetString(PyExc_ValueError, "Failed to load font");
         return -1;
     }
 
@@ -287,10 +312,12 @@ PyObject*
 PyFreeTypeFont_New(char *file, int ptsize)
 {
     /* TODO */
+    return NULL;
 }
 
 void
 ftfont_export_capi(void **capi)
 {
-    /* TODO */
+    capi[PYGAME_FREETYPE_FONT_FIRSTSLOT + 0] = &PyFreeTypeFont_Type;
+    capi[PYGAME_FREETYPE_FONT_FIRSTSLOT + 1] = &PyFreeTypeFont_New;
 }
