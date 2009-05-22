@@ -235,7 +235,8 @@ def initsysfonts_win32():
     #find valid registry keys containing font information.
     possible_keys = [
         r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts",
-        r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+        r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts",
+        r"SOFTWARE\Microsoft\Windows[NT]\CurrentVersion\Fonts",
         ]
 
     for key_name in possible_keys:
