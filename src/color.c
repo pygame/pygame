@@ -1667,12 +1667,14 @@ MODINIT_DEFINE (color)
     if (PyModule_AddObject (module, "Color", (PyObject *) &PyColor_Type)) {
         Py_DECREF (&PyColor_Type);
         Py_DECREF (_COLORDICT);
+        DECREF_MOD(module);
         MODINIT_ERROR;
     }
     Py_INCREF (_COLORDICT);
     if (PyModule_AddObject (module, "THECOLORS", _COLORDICT)) {
         Py_DECREF (_COLORDICT);
         Py_DECREF (_COLORDICT);
+        DECREF_MOD(module);
         MODINIT_ERROR;
     }
     dict = PyModule_GetDict (module);
@@ -1684,10 +1686,12 @@ MODINIT_DEFINE (color)
     apiobj = PyCObject_FromVoidPtr (c_api, NULL);
     if (apiobj == NULL) {
         Py_DECREF (_COLORDICT);
+        DECREF_MOD(module);
         MODINIT_ERROR;
     }
     if (PyDict_SetItemString (dict, PYGAMEAPI_LOCAL_ENTRY, apiobj)) {
         Py_DECREF (_COLORDICT);
+        DECREF_MOD(module);
         MODINIT_ERROR;
     }
     Py_DECREF (apiobj);

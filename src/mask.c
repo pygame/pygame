@@ -1469,6 +1469,7 @@ MODINIT_DEFINE (mask)
     dict = PyModule_GetDict(module);
     if (PyDict_SetItemString (dict, "MaskType",
                               (PyObject *)&PyMask_Type) == -1) {
+        DECREF_MOD(module);
         MODINIT_ERROR;
     }
     /* export the c api */

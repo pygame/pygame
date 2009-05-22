@@ -180,7 +180,7 @@ MODINIT_DEFINE (key)
     */
     import_pygame_base ();
     if (PyErr_Occurred ()) {
-	MODINIT_ERROR;
+        MODINIT_ERROR;
     }
 
     /* create the module */
