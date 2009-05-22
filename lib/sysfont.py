@@ -195,9 +195,18 @@ def initsysfonts_win32():
         import _winreg
     except ImportError:
         import winreg as _winreg
+
+    if os.environ.has_key('WINDIR'):
+        windir = os.environ['WINDIR']
+    elif os.environ.has_key('windir'):
+        windir = os.environ['windir']
+    else:
+        windir = "C:\\Windows\\"
+
+
     fonts = {}
     mods = 'demibold', 'narrow', 'light', 'unicode', 'bt', 'mt'
-    fontdir = os.path.join(os.environ['WINDIR'], "Fonts")
+    fontdir = os.path.join(windir, "Fonts")
 
     #this is a list of registry keys containing information
     #about fonts installed on the system.
@@ -209,7 +218,7 @@ def initsysfonts_win32():
         [(font.lower(), (_simplename(name), face))
          for font, name, face in XP_default_font_files])
 
-    font_dir_path = os.path.join(os.environ['windir'], 'fonts')
+    font_dir_path = os.path.join(windir, 'fonts')
     try:
         font_file_paths = glob.glob(os.path.join(font_dir_path, '*.tt?'))
     except Exception:
