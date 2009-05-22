@@ -16,6 +16,7 @@
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
+#include <libavutil/random.h>
 
 
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
