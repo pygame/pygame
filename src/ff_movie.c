@@ -2124,6 +2124,7 @@ static int decode_thread(void *arg)
 
 static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat)
 {
+    PySys_WriteStdout("Within stream_open\n");
 
     if (!is)
         return NULL;
@@ -2142,11 +2143,14 @@ static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *if
     */
 
     /* add the refresh timer to draw the picture */
+    PySys_WriteStdout("stream_open: Before schedule_refesh\n");
     schedule_refresh(is, 40);
 
     is->av_sync_type = av_sync_type;
     Py_INCREF((PyObject *) is);
+    PySys_WriteStdout("stream_open: Before launch of decode_thread\n");
     is->parse_tid = SDL_CreateThread(decode_thread, is);
+    PySys_WriteStdout("stream_open: After launch of decode_thread\n");
     if (!is->parse_tid) {
         PyErr_SetString(PyExc_MemoryError, "Could not spawn a new thread.");
         Py_DECREF((PyObject *) is);
@@ -2154,6 +2158,7 @@ static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *if
         //PyMem_Free((void *)is);
         return NULL;
     }
+    PySys_WriteStdout("stream_open: Returning from within stream_open\n");
     return is;
 }
 
@@ -2452,22 +2457,26 @@ static PyTypeObject PyMovie_Type =
 static PyObject* _movie_init_internal(PyTypeObject *type, char *filename, PyObject* surface)
 {
     /*Expects filename. If surface is null, then it sets overlay to >0. */
-    PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
-    
+    PySys_WriteStdout("Within _movie_init_internal\n");    
+    //PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
+    PyMovie *movie = (PyMovie *)PyMem_Malloc(sizeof(PyMovie));    
+    PySys_WriteStdout("_movie_init_internal: after tp->alloc\n");
     if (!movie)
     {
         PyErr_SetString(PyExc_TypeError, "Did not work.");
         Py_RETURN_NONE;
     }
+    PySys_WriteStdout("_movie_init_internal: after check for null\n");
     Py_INCREF((PyObject *)movie);
 
     if(!surface)
     {
-        
+        PySys_WriteStdout("_movie_init_internal: Overlay=True\n");
         movie->overlay=1;
     }
     else
     {
+        PySys_WriteStdout("_movie_init_internal: Overlay=False\n");
         SDL_Surface *surf;
         surf = PySurface_AsSurface(surface);
         movie->out_surf=surf;
@@ -2475,7 +2484,9 @@ static PyObject* _movie_init_internal(PyTypeObject *type, char *filename, PyObje
     }
     AVInputFormat *iformat;
     movie->general_mutex=SDL_CreateMutex();
-    movie = stream_open(movie, filename, iformat); 
+    PySys_WriteStdout("_movie_init_internal: Before stream_open with argument: %s\n", filename);
+    movie = stream_open(movie, filename, iformat);
+    PySys_WriteStdout("_movie_init_internal: After stream_open with argument: %s\n", filename);
     if(!movie)
     {
         PyErr_SetString(PyExc_IOError, "stream_open failed");
@@ -2484,6 +2495,7 @@ static PyObject* _movie_init_internal(PyTypeObject *type, char *filename, PyObje
         Py_RETURN_NONE;
     }
     //Py_DECREF((PyObject *) movie);
+    PySys_WriteStdout("_movie_init_internal: Returning from _movie_init_internal\n");
     return (PyObject *)movie;
 }
     
@@ -2491,18 +2503,25 @@ static int _movie_init (PyTypeObject *type, PyObject *args)
 {
     PyObject *obj;
     PyObject *obj2;
-    if (!PyArg_ParseTuple (args, "sO|s", &obj, &obj2))
+    PySys_WriteStdout("Within _movie_init\n");
+    if (!PyArg_ParseTuple (args, "s|sO", &obj, &obj2))
     {
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
         Py_RETURN_NONE;
     }
-    if(!PyString_Check(obj))
+    PySys_WriteStdout("_movie_init: after PyArg_ParseTuple\n");
+    
+    if(!obj)
     {
-        PyErr_SetString(PyExc_TypeError, "Could not find a filename.");
-        Py_RETURN_NONE;
+        PySys_WriteStdout("_movie_init: No obj found\n");
     }
+    
     PyObject *mov;
-    mov = _movie_init_internal(type, &obj, &obj2);
+    char *s;
+    s=PyString_AsString(obj);
+    PySys_WriteStdout("_movie_init: Before _movie_init_internal\n");
+    mov = _movie_init_internal(type, s, obj2);
+    PySys_WriteStdout("_movie_init: After _movie_init_internal\n");
     PyObject *er;
     er = PyErr_Occurred();
     if(er)
@@ -2514,7 +2533,7 @@ static int _movie_init (PyTypeObject *type, PyObject *args)
         PyErr_SetString(PyExc_IOError, "No movie object created.");
         PyErr_Print();
     }
-    
+    PySys_WriteStdout("Returning from _movie_init\n");
     return 0;
 }   
 
