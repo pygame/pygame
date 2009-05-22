@@ -357,9 +357,8 @@ typedef struct PyMovie
 } PyMovie;
 
 /*class methods and internals */
-static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObject* surface); //expects file to have been opened in _movie_new
-static PyObject* _movie_new (PyTypeObject *type, PyObject *args,
-    PyObject *kwds);
+static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObject* surface); 
+static PyObject* _movie_new (PyTypeObject *type, PyObject *args);
 static void _movie_dealloc (PyMovie *movie);
 static PyObject* _movie_repr (PyMovie *movie);
 static PyObject* _movie_str (PyMovie *movie);

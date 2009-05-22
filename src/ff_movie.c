@@ -2093,6 +2093,7 @@ static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *if
     is->av_sync_type = av_sync_type;
     is->parse_tid = SDL_CreateThread(decode_thread, is);
     if (!is->parse_tid) {
+        PyErr_SetString(PyExc_MemoryError, "Could not spawn a new thread.");
         Py_DECREF((PyObject *) is);
         PyMem_Free((void *)is);
         return NULL;
@@ -2328,7 +2329,7 @@ static PyMethodDef _movie_methods[] = {
                 "Pause movie."},
    { "rewind", (PyCFunction) _movie_rewind, METH_VARARGS,
                 "Rewind movie to time_pos. If there is no time_pos, same as stop."},
-   { NULL }
+   { NULL, NULL, 0, NULL }
 };
 
 static PyGetSetDef _movie_getsets[] =
@@ -2342,7 +2343,7 @@ static PyTypeObject PyMovie_Type =
 {
     PyObject_HEAD_INIT(NULL)
     0, 
-    "pygame._ffMovie",          /* tp_name */
+    "pygame.gmovie.Movie",          /* tp_name */
     sizeof (PyMovie),           /* tp_basicsize */
     0,                          /* tp_itemsize */
     (destructor) _movie_dealloc,/* tp_dealloc */
@@ -2397,19 +2398,22 @@ static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObjec
     PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
     
     if (!movie)
+    {
+        PyErr_SetString(PyExc_TypeError, "Did not work.");
         Py_RETURN_NONE;
-
+    }
     Py_INCREF((PyObject *)movie);
 
     if(!surface)
     {
-        SDL_Surface *surf;
-        surf = PySurface_AsSurface(surface);
-        movie->out_surf=surf;
+        
         movie->overlay=1;
     }
     else
     {
+        SDL_Surface *surf;
+        surf = PySurface_AsSurface(surface);
+        movie->out_surf=surf;
         movie->overlay=0;
     }
     AVInputFormat *iformat;
@@ -2417,19 +2421,24 @@ static PyObject* _movie_new_internal(PyTypeObject *type, char *filename, PyObjec
     movie = stream_open(movie, filename, iformat); 
     if(!movie)
     {
+        PyErr_SetString(PyExc_IOError, "stream_open failed");
+        //printf(stdout, "stream_open failed.\n");
         Py_DECREF((PyObject *) movie);
         Py_RETURN_NONE;
     }
-    Py_DECREF((PyObject *) movie);
+    //Py_DECREF((PyObject *) movie);
     return (PyObject *)movie;
 }
     
-static PyObject* _movie_new (PyTypeObject *type, PyObject *args, PyObject *kwds)
+static PyObject* _movie_new (PyTypeObject *type, PyObject *args)
 {
     PyObject *obj;
     PyObject *obj2;
     if (!PyArg_ParseTuple (args, "sO|s", &obj, &obj2))
+    {
+        PyErr_SetString(PyExc_TypeError, "No valid arguments");
         Py_RETURN_NONE;
+    }
     if(!PyString_Check(obj))
     {
         PyErr_SetString(PyExc_TypeError, "Could not find a filename.");
@@ -2513,52 +2522,42 @@ static PyObject* PyMovie_New (char *fname, SDL_Surface *surf)
     return _movie_new_internal(&PyMovie_Type, fname, PySurface_FromSurface(surf));
 }
 
-void
-initmovie(void)
+PyMODINIT_FUNC
+initgmovie(void)
 {
     PyObject* module;
-
-    #if PY3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "movie",
-        NULL,
-        -1,
-        Movie_methods,
-        NULL, NULL, NULL, NULL
-    };
-#endif
 
     /* imported needed apis; Do this first so if there is an error
        the module is not loaded.
     */
-    import_pygame_base ();
+    //import_pygame_base ();
     if (PyErr_Occurred ()) {
         MODINIT_ERROR;
     }
 
-   // Create the module
-   #if PY3
-    module = PyModule_Create (&_module);
-#else
-    module = Py_InitModule3 ( MODPREFIX "movie", NULL, NULL); //movie doc needed
-#endif
-   if (module == NULL) {
-      return;
-   }
-
-   // Fill in some slots in the type, and make it ready
+    // Fill in some slots in the type, and make it ready
    //PyVector_Type.tp_new = PyType_GenericNew;
    if (PyType_Ready(&PyMovie_Type) < 0) {
       MODINIT_ERROR;
    }
+
+   // Create the module
+   
+   module = Py_InitModule3 ("gmovie", NULL, "pygame.gmovie plays movies and streams."); //movie doc needed
+
+   if (module == NULL) {
+      return;
+   }
+
+   
    //Register all the fun stuff for movies.
    avcodec_register_all();
    avdevice_register_all();
    av_register_all();
 
    av_init_packet(&flush_pkt);
-   flush_pkt.data= "FLUSH";
+   uint8_t *s = (uint8_t *)"FLUSH";
+   flush_pkt.data= s;
 
    // Add the type to the module.
    Py_INCREF(&PyMovie_Type);
