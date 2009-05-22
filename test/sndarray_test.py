@@ -58,9 +58,12 @@ class SndarrayTest (unittest.TestCase):
             self.fail("no array package installed")
 
         def check_array(size, channels, test_data):
-            pygame.mixer.init(22050, size, channels)
             try:
+                pygame.mixer.init(22050, size, channels)
+            except pygame.error:
                 # Not all sizes are supported on all systems.
+                return
+            try:
                 __, sz, __ = pygame.mixer.get_init()
                 if sz == size:
                     srcarr = array(test_data, self.array_dtypes[size])
@@ -123,9 +126,12 @@ class SndarrayTest (unittest.TestCase):
             self.fail("no array package installed")
 
         def check_sound(size, channels, test_data):
-            pygame.mixer.init(22050, size, channels)
             try:
+                pygame.mixer.init(22050, size, channels)
+            except pygame.error:
                 # Not all sizes are supported on all systems.
+                return
+            try:
                 __, sz, __ = pygame.mixer.get_init()
                 if sz == size:
                     srcarr = array(test_data, self.array_dtypes[size])
@@ -155,9 +161,12 @@ class SndarrayTest (unittest.TestCase):
             self.fail("no array package installed")
 
         def check_sample(size, channels, test_data):
-            pygame.mixer.init(22050, size, channels)
             try:
+                pygame.mixer.init(22050, size, channels)
+            except pygame.error:
                 # Not all sizes are supported on all systems.
+                return
+            try:
                 __, sz, __ = pygame.mixer.get_init()
                 if sz == size:
                     zeroed = '\0' * ((abs(size) // 8) *
