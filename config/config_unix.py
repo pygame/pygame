@@ -1,10 +1,12 @@
 import os, glob, sys
 from config import config_generic, libconfig, pkgconfig, helpers
 
-def get_sys_libs (module):
-    # Gets a list of system libraries to link the module against.
-    if module == "sdlext.scrap":
-        return [ "X11" ]
+def update_sys_deps (deps):
+    deps["x11"] = Dependency (['Xutil.h'], 'X11', pkgconfig_name='x11')
+
+def add_sys_deps (module):
+    if module.name == "sdlext.scrap":
+        module.depends.append ("x11")
 
 def sdl_get_version():
     """

@@ -10,8 +10,11 @@ except:
 def sdl_get_version ():
     return config_unix.sdl_get_version()
 
-def get_sys_libs (module):
-    return config_win.get_sys_libs(module)
+def add_sys_deps (module):
+    config_win.add_sys_deps(module)
+
+def update_sys_deps (deps):
+    config_win.update_sys_deps(deps)
 
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries

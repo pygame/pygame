@@ -78,6 +78,7 @@ class Dependency (object):
         self.cflags = []
         self.lflags = []
         self.gdefines = []
+        self.nocheck = False
 
         self.configured = False
 
@@ -154,16 +155,30 @@ class Dependency (object):
             to configure this library.
         """
         print ("Configuring library '%s':" % self.library_id)
+        if self.nocheck:
+            # Avoid any check and assume, the dependency is already in shape.
+            self.configured = True
+            print ("Configuration not needed...")
+            self.gdefines.append(("HAVE_" + self.library_id.upper(), None))
+            print ("")
+            print ("\tCFlags : " + repr(self.cflags))
+            print ("\tLFlags : " + repr(self.lflags))
+            print ("\tIncDirs: " + repr(self.incdirs))
+            print ("\tLibDirs: " + repr(self.libdirs))
+            print ("\tLibs   : " + repr(self.libs))
+            print ("")
+            return
 
         if not self._canbuild(cfg):
             print ("\tLibrary '%s' has been manually disabled.\n" % self.library_id)
             return
 
+
         # find all configuration callbacks
         configure_callbacks = [ getattr(self, attr)
                                 for attr in dir(self)
                                 if attr.startswith('_configure_') ]
-
+        
         # helper method for sort
         def _get_priority(cb):
             if hasattr(cb, 'priority'):

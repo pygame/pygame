@@ -68,6 +68,8 @@ def get_dependencies(buildsystem, cfg):
             config_program='freetype-config'),
     }
 
+    OS_MODULES[buildsystem].update_sys_deps (DEPENDENCIES)
+
     for (dep_name, dep) in DEPENDENCIES.items():
         dep.configure(cfg)
 
@@ -78,13 +80,6 @@ def sdl_get_version(buildsystem):
         Returns the version of the installed SDL library
     """
     return OS_MODULES[buildsystem].sdl_get_version()
-
-def get_sys_libs(buildsystem, module):
-    """
-        Return a list with any system-specific libraries
-        which must be linked together with a module
-    """
-    return OS_MODULES[buildsystem].get_sys_libs(module)
 
 def get_install_libs(buildsystem, cfg):
     """
@@ -112,6 +107,9 @@ def prepare_modules(buildsystem, modules, cfg):
     for mod in modules:
         mod.canbuild = True
 
+        # Pull in OS-specific dependencies.
+        os_config.add_sys_deps (mod)
+
         # add build/link information for the library dependencies 
         # on which mod relies.
         # if one of the required libraries cannot be found,
@@ -136,6 +134,3 @@ def prepare_modules(buildsystem, modules, cfg):
             if dep_name in dependencies:
                 dep = dependencies[dep_name]
                 dep.setup_module(mod, True)
-
-        # add any OS-specific libraries
-        mod.libs += os_config.get_sys_libs(mod.name) or []

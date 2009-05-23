@@ -7,17 +7,18 @@ def sdl_get_version ():
     # TODO: Is there some way to detect the correct version?
     return "Unknown"
 
-def get_sys_libs (module):
-    # Gets a list of system libraries to link the module against.
-    libs = []
+def update_sys_deps (deps):
+    deps["user32"] = Dependency ([], 'user32')
+    deps["user32"].nocheck = True
+    deps["gdi32"] = Dependency ([], 'user32')
+    deps["gdi32"].nocheck = True
 
-    if module == "sdlext.scrap":
-       libs += [ "user32", "gdi32" ]
-
-    if module.startswith("sdl"):
-        libs += ["SDLmain"]
-
-    return libs
+def add_sys_deps (module):
+    if module.name.startswith("sdl"):
+        module.libs += ["SDLmain"]
+    if module.name == "sdlext.scrap":
+        module.depends.append ("user32")
+        module.depends.append ("gdi32")
 
 def _hunt_libs (name, dirs):
     # Used by get_install_libs(). It resolves the dependency libraries
