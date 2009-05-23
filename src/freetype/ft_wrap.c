@@ -1,7 +1,5 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001 Pete Shinners
-  Copyright (C) 2008 Marcus von Appen
   Copyright (C) 2009 Vicent Marti
 
   This library is free software; you can redistribute it and/or
@@ -25,22 +23,21 @@
 #include "ft_mod.h"
 #include "ft_wrap.h"
 #include "pgfreetype.h"
-#include "pgsdl.h"
 #include "freetypebase_doc.h"
 
 void    _PGTF_SetError(FreeTypeInstance *, const char *, FT_Error);
 
 static FT_Error
 _PGTF_face_request(FTC_FaceID face_id, 
-        FT_Library library, 
-        FT_Pointer request_data, 
-        FT_Face *aface)
+    FT_Library library, 
+    FT_Pointer request_data, 
+    FT_Face *aface)
 {
     FontId *id = GET_FONT_ID(face_id); 
     FT_Error error = 0;
     
     Py_BEGIN_ALLOW_THREADS;
-        error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
+    error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
     Py_END_ALLOW_THREADS;
 
     return error;
@@ -53,27 +50,27 @@ _PGTF_SetError(FreeTypeInstance *ft, const char *error_msg, FT_Error error_id)
 #define FT_ERRORDEF( e, v, s )  { e, s },
 #define FT_ERROR_START_LIST     {
 #define FT_ERROR_END_LIST       {0, 0}};
-	static const struct
-	{
-	  int          err_code;
-	  const char*  err_msg;
-	} ft_errors[] = 
+    static const struct
+    {
+        int          err_code;
+        const char*  err_msg;
+    } ft_errors[] = 
 #include FT_ERRORS_H
 
-	int i;
-	const char *ft_msg;
+          int i;
+    const char *ft_msg;
 
-	ft_msg = NULL;
-	for (i = 0; ft_errors[i].err_msg != NULL; ++i)
+    ft_msg = NULL;
+    for (i = 0; ft_errors[i].err_msg != NULL; ++i)
     {
-		if (error_id == ft_errors[i].err_code) 
+        if (error_id == ft_errors[i].err_code)
         {
-			ft_msg = ft_errors[i].err_msg;
-			break;
-		}
-	}
+            ft_msg = ft_errors[i].err_msg;
+            break;
+        }
+    }
 
-	if (ft_msg)
+    if (ft_msg)
         sprintf(ft->_error_msg, "%s: %s", error_msg, ft_msg);
     else
         strcpy(ft->_error_msg, error_msg);
@@ -101,9 +98,8 @@ PGFT_Face_GetName(PyFreeTypeFont *font)
 const char *
 PGFT_Face_GetFormat(PyFreeTypeFont *font)
 {
-    return FT_Get_X11_Font_Format(font->face);
+    return FT_Get_X11_Font_Format(font->face); /* FIXME: Portable? */
 }
-
 
 int
 PGFT_Face_GetHeight(PyFreeTypeFont *font)
@@ -171,10 +167,9 @@ PGFT_Init(FreeTypeInstance **_instance)
         goto error_cleanup;
 
     error = FTC_Manager_New(
-            inst->library, 
-            0, 0, 0, 
-            &_PGTF_face_request, 
-            NULL, 
+        inst->library, 0, 0, 0,
+            &_PGTF_face_request,
+            NULL,
             &inst->cache_manager);
 
     if (error)
@@ -184,6 +179,7 @@ PGFT_Init(FreeTypeInstance **_instance)
     return 0;
 
 error_cleanup:
+    free (inst->_error_msg); /* FIXME: Needed? */
     free(inst);
     *_instance = NULL;
 

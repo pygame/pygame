@@ -212,7 +212,7 @@ def _initsysfonts():
 
 def get_fonts():
     """
-    pygame2.font.get_fonts() -> list
+    get_fonts () -> list
     
     Get a list of system font names.
 
@@ -226,7 +226,7 @@ def get_fonts():
 
 def find_font(name, bold=False, italic=False):
     """
-    pygame2.font.find_font(name, bold=False, italic=False) -> str, bool, bool
+    find_font (name, bold=False, italic=False) -> str, bool, bool
     
     Find the filename for the named system font.
 

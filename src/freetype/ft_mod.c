@@ -23,7 +23,6 @@
 #include "ft_mod.h"
 #include "ft_wrap.h"
 #include "pgfreetype.h"
-#include "pgsdl.h"
 #include "freetypebase_doc.h"
 
 static FreeTypeInstance *__freetype = NULL;

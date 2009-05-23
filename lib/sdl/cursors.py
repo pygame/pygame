@@ -200,7 +200,7 @@ textmarker_strings = (               #sized 8x16
 
 
 def compile(strings, black='X', white='.',xor='o'):
-   """pygame2.cursors.compile(strings, black, white,xor) -> data, mask
+   """compile(strings, black, white,xor) -> data, mask
 
    Compile cursor strings into cursor data
    
@@ -255,7 +255,7 @@ def compile(strings, black='X', white='.',xor='o'):
 
 
 def load_xbm(curs, mask):
-    """pygame2.cursors.load_xbm(cursorfile, maskfile) -> cursor_args
+    """load_xbm(cursorfile, maskfile) -> cursor_args
 
     Reads a pair of XBM files into set_cursor arguments
 

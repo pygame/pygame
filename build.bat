@@ -2,7 +2,7 @@ rem In case you are using the VC++ Toolkit
 rem --------------------------------------
 rem Set the PATH, INCLUDE and LIB to include the Platform SDK and VC++ Toolkit,
 rem and .NET Framework SDK 1.1 VC++ library paths of your system, in case they
-rem  are not already.
+rem are not already.
 rem
 
 Set PATH=%VCToolkitInstallDir%\bin;%MSSdk%\Bin;%PATH%

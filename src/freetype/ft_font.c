@@ -1,7 +1,5 @@
 /*
   pygame - Python Game Library
-  Copyright (C) 2000-2001 Pete Shinners
-  Copyright (C) 2008 Marcus von Appen
   Copyright (C) 2009 Vicent Marti
 
   This library is free software; you can redistribute it and/or
@@ -245,7 +243,7 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     else
     {
         PyErr_SetString(PyExc_ValueError, 
-                "Invalid 'file' parameter (must be a File object or a file name)");
+            "Invalid 'file' parameter (must be a File object or a file name)");
         return -1;
     }
 
@@ -264,8 +262,8 @@ static PyObject*
 _ftfont_repr(PyObject *self)
 {
     return Text_FromFormat("%s (FreeType %s font)", 
-            PGFT_Face_GetName((PyFreeTypeFont *)self),
-            PGFT_Face_GetFormat((PyFreeTypeFont *)self));
+        PGFT_Face_GetName((PyFreeTypeFont *)self),
+        PGFT_Face_GetFormat((PyFreeTypeFont *)self));
 }
 
 
