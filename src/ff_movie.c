@@ -1827,6 +1827,7 @@ static int decode_interrupt_cb(void)
 /* this thread gets the stream from the disk or the network */
 static int decode_thread(void *arg)
 {
+    PySys_WriteStdout("decode_thread: inside.\n"); 
     PyMovie *is = arg;
     Py_INCREF((PyObject *) is);
     AVFormatContext *ic;
@@ -1853,7 +1854,7 @@ static int decode_thread(void *arg)
     ap->height= frame_height;
     ap->time_base= (AVRational){1, 25};
     ap->pix_fmt = frame_pix_fmt;
-
+    PySys_WriteStdout("decode_thread: About to open_input_file\n");
     err = av_open_input_file(&ic, is->filename, is->iformat, 0, ap);
     if (err < 0) {
         PyErr_Format(PyExc_IOError, "There was a problem opening up %s", is->filename);
@@ -1861,18 +1862,21 @@ static int decode_thread(void *arg)
         ret = -1;
         goto fail;
     }
+    PySys_WriteStdout("decode_thread: av_open_input_file worked. \n");
     is->ic = ic;
 
     if(genpts)
         ic->flags |= AVFMT_FLAG_GENPTS;
-
+    PySys_WriteStdout("decode_thread: Before av_find_stream_info\n");
     err = av_find_stream_info(ic);
+    PySys_WriteStdout("decode_thread: After1 av_find_stream_info\n");
     if (err < 0) {
         PyErr_Format(PyExc_IOError, "%s: could not find codec parameters", is->filename);
         //fprintf(stderr, "%s: could not find codec parameters\n", is->filename);
         ret = -1;
         goto fail;
     }
+    PySys_WriteStdout("decode_thread: After2 av_find_stream_info\n");
     if(ic->pb)
         ic->pb->eof_reached= 0; //FIXME hack, ffplay maybe should not use url_feof() to test for the end
 
@@ -2128,7 +2132,9 @@ static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *if
 
     if (!is)
         return NULL;
+    PySys_WriteStdout("stream_open: %10s\n", filename);
     av_strlcpy(is->filename, filename, sizeof(is->filename));
+    PySys_WriteStdout("stream_open: %10s\n", is->filename); 
     is->iformat = iformat;
     is->ytop = 0;
     is->xleft = 0;
@@ -2158,6 +2164,7 @@ static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *if
         //PyMem_Free((void *)is);
         return NULL;
     }
+    PySys_WriteStdout("stream_open2: %10s\n", is->filename); 
     PySys_WriteStdout("stream_open: Returning from within stream_open\n");
     return is;
 }
@@ -2486,7 +2493,7 @@ static PyObject* _movie_init_internal(PyTypeObject *type, char *filename, PyObje
     movie->general_mutex=SDL_CreateMutex();
     PySys_WriteStdout("_movie_init_internal: Before stream_open with argument: %s\n", filename);
     movie = stream_open(movie, filename, iformat);
-    PySys_WriteStdout("_movie_init_internal: After stream_open with argument: %s\n", filename);
+    PySys_WriteStdout("_movie_init_internal: After stream_open with argument: %s\n", movie->filename);
     if(!movie)
     {
         PyErr_SetString(PyExc_IOError, "stream_open failed");
@@ -2501,27 +2508,23 @@ static PyObject* _movie_init_internal(PyTypeObject *type, char *filename, PyObje
     
 static int _movie_init (PyTypeObject *type, PyObject *args)
 {
-    PyObject *obj;
-    PyObject *obj2;
+    const char *c;
+    PyObject *obj2=NULL;
     PySys_WriteStdout("Within _movie_init\n");
-    if (!PyArg_ParseTuple (args, "s|sO", &obj, &obj2))
+    if (!PyArg_ParseTuple (args, "s", &c))
     {
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
         Py_RETURN_NONE;
     }
-    PySys_WriteStdout("_movie_init: after PyArg_ParseTuple\n");
-    
-    if(!obj)
-    {
-        PySys_WriteStdout("_movie_init: No obj found\n");
-    }
+    PySys_WriteStdout("_movie_init: after PyArg_ParseTuple\n"); 
     
     PyObject *mov;
-    char *s;
-    s=PyString_AsString(obj);
+
     PySys_WriteStdout("_movie_init: Before _movie_init_internal\n");
-    mov = _movie_init_internal(type, s, obj2);
-    PySys_WriteStdout("_movie_init: After _movie_init_internal\n");
+    mov = _movie_init_internal(type, c, obj2);
+    PyMovie *movie;
+    movie=(PyMovie *)mov;
+    PySys_WriteStdout("_movie_init: After _movie_init_internal with argument: %s\n", movie->filename);
     PyObject *er;
     er = PyErr_Occurred();
     if(er)
@@ -2546,7 +2549,8 @@ static void _movie_dealloc(PyMovie *movie)
 static PyObject* _movie_repr (PyMovie *movie)
 {
     /*Eventually add a time-code call */
-    char buf[1035];
+    char buf[100];
+    PySys_WriteStdout("_movie_repr: %10s\n", movie->filename); 
     PyOS_snprintf(buf, sizeof(buf), "(Movie: %s)", movie->filename);
     return PyString_FromString(buf);
 }
@@ -2558,18 +2562,23 @@ static PyObject* _movie_str(PyMovie *movie)
 
 static PyObject* _movie_play(PyMovie *movie, PyObject* args)
 {
-    PyObject *obj;
+    PySys_WriteStdout("In _movie_play\n");
     int loops;
-    PyArg_ParseTuple(args, "i", &obj);
-    if(!obj)
+    if(!PyArg_ParseTuple(args, "i", &loops))
     {
-        loops =1;
+        PyErr_SetString(PyExc_TypeError, "Not a valid argument.");
+        Py_RETURN_NONE;
     }
+    PySys_WriteStdout("_movie_play: loops set to: %i\n", loops);
+    PySys_WriteStdout("_movie_play: Before mutex locked.\n");
     SDL_LockMutex(movie->general_mutex);
+    PySys_WriteStdout("_movie_play: After mutex locked.\n");
     movie->loops =loops;
     movie->paused = 0;
     movie->playing = 1;
+    PySys_WriteStdout("_movie_play: Before mutex unlocked.\n");
     SDL_UnlockMutex(movie->general_mutex);
+    PySys_WriteStdout("_movie_play: after mutex unlocked.\n");
     Py_RETURN_NONE;
 }
 
