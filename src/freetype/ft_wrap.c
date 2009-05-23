@@ -86,6 +86,33 @@ PGFT_GetError(FreeTypeInstance *ft)
 }
 
 int
+PGFT_Face_IsFixedWidth(PyFreeTypeFont *font)
+{
+    return FT_IS_FIXED_WIDTH(font->face);
+}
+
+const char *
+PGFT_Face_GetName(PyFreeTypeFont *font)
+{
+    return font->face->family_name;
+}
+
+
+const char *
+PGFT_Face_GetFormat(PyFreeTypeFont *font)
+{
+    return FT_Get_X11_Font_Format(font->face);
+}
+
+
+int
+PGFT_Face_GetHeight(PyFreeTypeFont *font)
+{
+    return font->face->height;
+}
+
+
+int
 PGFT_TryLoadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
     FT_Face face;
@@ -99,6 +126,7 @@ PGFT_TryLoadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
         return error;
     }
 
+    font->face = face;
     return 0;
 }
 

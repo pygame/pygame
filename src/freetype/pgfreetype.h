@@ -27,6 +27,7 @@
 #include <ft2build.h>  
 #include FT_FREETYPE_H 
 #include FT_CACHE_H
+#include FT_XFREE86_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,7 +49,7 @@ typedef struct
 {
     PyFont pyfont;
     FontId id;
-
+    FT_Face face;
 } PyFreeTypeFont;
 
 #define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)

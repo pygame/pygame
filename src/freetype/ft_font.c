@@ -50,6 +50,7 @@ static PyObject* _ftfont_getstyle(PyObject *self, void *closure);
 static int _ftfont_setstyle(PyObject *self, PyObject *value, void *closure);
 static PyObject* _ftfont_getheight(PyObject *self, void *closure);
 static PyObject* _ftfont_getname(PyObject *self, void *closure);
+static PyObject* _ftfont_getfixedwidth(PyObject *self, void *closure);
 
 /*
  * FREETYPE FONT METHODS TABLE
@@ -96,6 +97,13 @@ static PyGetSetDef _ftfont_getsets[] =
         NULL,
         DOC_BASE_FONT_NAME, 
         NULL 
+    },
+    {
+        "fixed_width",
+        _ftfont_getfixedwidth,
+        NULL,
+        DOC_BASE_FONT_FIXED_WIDTH,
+        NULL
     },
     { NULL, NULL, NULL, NULL, NULL }
 };
@@ -255,8 +263,9 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject*
 _ftfont_repr(PyObject *self)
 {
-    /* TODO: Print actual information about the font */
-    return Text_FromUTF8("FreeType Font");
+    return Text_FromFormat("%s (FreeType %s font)", 
+            PGFT_Face_GetName((PyFreeTypeFont *)self),
+            PGFT_Face_GetFormat((PyFreeTypeFont *)self));
 }
 
 
@@ -278,13 +287,19 @@ _ftfont_setstyle(PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _ftfont_getheight(PyObject *self, void *closure)
 {
-    /* TODO */
+    return PyInt_FromLong(PGFT_Face_GetHeight((PyFreeTypeFont *)self));
 }
 
 static PyObject*
 _ftfont_getname(PyObject *self, void *closure)
 {
-    /* TODO */
+    return Text_FromUTF8(PGFT_Face_GetName((PyFreeTypeFont *)self));
+}
+
+static PyObject*
+_ftfont_getfixedwidth(PyObject *self, void *closure)
+{
+    return PyBool_FromLong(PGFT_Face_IsFixedWidth((PyFreeTypeFont *)self));
 }
 
 

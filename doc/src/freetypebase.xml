@@ -47,7 +47,7 @@
 
 
   <class name="Font">
-    <constructor>Font(file, size[, index]) -> Font</constructor>
+    <constructor>Font(file [, index]) -> Font</constructor>
     <desc>
         Creates a new Font from a supported font file.
 
@@ -76,6 +76,9 @@
     </method>
     <attr name="style">
       <desc>Gets or sets the style of the font. *TODO*</desc>
+    </attr>
+    <attr name="fixed_width">
+      <desc>Returns whether this font is a fixed-width (bitmap) font</desc>
     </attr>
   </class>
   
