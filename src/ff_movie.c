@@ -1854,8 +1854,10 @@ static int decode_thread(void *arg)
     ap->height= frame_height;
     ap->time_base= (AVRational){1, 25};
     ap->pix_fmt = frame_pix_fmt;
+    PySys_WriteStdout("decode_thread: argument: %s\n", is->filename);
     PySys_WriteStdout("decode_thread: About to open_input_file\n");
     err = av_open_input_file(&ic, is->filename, is->iformat, 0, ap);
+    PySys_WriteStdout("decode_thread: finished open_input_file\n");
     if (err < 0) {
         PyErr_Format(PyExc_IOError, "There was a problem opening up %s", is->filename);
         //print_error(is->filename, err);
@@ -2150,7 +2152,7 @@ static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *if
 
     /* add the refresh timer to draw the picture */
     PySys_WriteStdout("stream_open: Before schedule_refesh\n");
-    schedule_refresh(is, 40);
+    schedule_refresh(is, 200);
 
     is->av_sync_type = av_sync_type;
     Py_INCREF((PyObject *) is);
