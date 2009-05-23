@@ -28,7 +28,8 @@ typedef struct
 {
     FT_Library library;
     FTC_Manager cache_manager;
-    FTC_SBitCache cache_bitmap;
+    FTC_SBitCache cache_sbit;
+    FTC_ImageCache cache_img;
     FTC_CMapCache cache_charmap;
 
     char *_error_msg;
@@ -47,6 +48,9 @@ FreeTypeInstance *_get_freetype(void);
 
 #define GET_FONT_ID(f) (&((PyFreeTypeFont *)f)->id)
 
+#define FT_FLOOR(X)	((X & -64) / 64)
+#define FT_CEIL(X)	(((X + 63) & -64) / 64)
+
 const char *PGFT_GetError(FreeTypeInstance *);
 void    PGFT_Quit(FreeTypeInstance *);
 int     PGFT_Init(FreeTypeInstance **);
@@ -58,5 +62,13 @@ int     PGFT_Face_IsFixedWidth(PyFreeTypeFont *);
 const char * PGFT_Face_GetName(PyFreeTypeFont *);
 const char * PGFT_Face_GetFormat(PyFreeTypeFont *);
 
+FT_UInt16 *PGFT_BuildUnicodeString(PyObject *, int *);
+
+int     PGFT_GetTextSize(FreeTypeInstance *, PyFreeTypeFont *,
+            const FT_UInt16 *, int, int *, int *);
+
+int     PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
+            int character, int font_size, 
+            int *minx, int *maxx, int *miny, int *maxy, int *advance);
 
 #endif

@@ -57,10 +57,16 @@
       <desc>Gets the name of the font face.</desc>
     </attr>
     <method name="get_size">
-      <call>get_size(text) -> int, int</call>
+      <call>get_size(pt, text) -> int, int</call>
       <desc>
           Gets the size which 'text' will occupy when rendered using 
           this Font.
+      </desc>
+    </method>
+    <method name="get_metrics">
+      <call>get_metrics(pt, text) -> [(int, int, int ...), ...]</call>
+      <desc>
+          Returns the glyph metrics for each character in 'text'.
       </desc>
     </method>
     <attr name="height">

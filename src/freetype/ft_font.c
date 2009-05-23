@@ -39,6 +39,7 @@ static PyObject *_ftfont_repr(PyObject *self);
  */
 static PyObject* _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds);
 static PyObject* _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds);
+static PyObject* _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds);
 /* static PyObject* _ftfont_copy(PyObject *self); */
 
 /*
@@ -60,6 +61,12 @@ static PyMethodDef _ftfont_methods[] =
         (PyCFunction) _ftfont_getsize,
         METH_VARARGS | METH_KEYWORDS,
         DOC_BASE_FONT_GET_SIZE 
+    },
+    {
+        "get_metrics", 
+        (PyCFunction) _ftfont_getmetrics,
+        METH_VARARGS | METH_KEYWORDS,
+        DOC_BASE_FONT_GET_METRICS 
     },
     { 
         "render", 
@@ -308,7 +315,108 @@ _ftfont_getfixedwidth(PyObject *self, void *closure)
 static PyObject*
 _ftfont_getsize(PyObject *self, PyObject* args, PyObject *kwds)
 {
-    /* TODO */
+    PyObject *text, *rtuple = NULL;
+    FT_Error error;
+    int text_size, free_buffer;
+    int width, height;
+    FT_UInt16 *text_buffer = NULL;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    if (!PyArg_ParseTuple(args, "iO", &text_size, &text))
+        return NULL;
+
+    text_buffer = PGFT_BuildUnicodeString(text, &free_buffer);
+
+    if (!text_buffer)
+    {
+        PyErr_SetString(PyExc_ValueError, "Expecting unicode/bytes string");
+        return NULL;
+    }
+
+    error = PGFT_GetTextSize(ft, (PyFreeTypeFont *)self, 
+            text_buffer, text_size, &width, &height);
+
+    if (error)
+        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+    else
+        rtuple = Py_BuildValue ("(ii)", width, height);
+
+    if (free_buffer)
+        free(text_buffer);
+
+    return rtuple;
+}
+
+static PyObject *
+_ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
+{
+    PyObject *text, *list;
+    void *buf;
+    int isunicode = 0;
+    int text_size, char_id, length, i;
+    int minx, miny, maxx, maxy, advance;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    if (!PyArg_ParseTuple(args, "iO", &text_size, &text))
+        return NULL;
+
+    if (PyUnicode_Check(text))
+    {
+        buf = PyUnicode_AsUnicode(text);
+        isunicode = 1;
+    }
+    else if (Bytes_Check(text))
+    {
+        buf = Bytes_AS_STRING(text);
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError,
+            "argument must be a string or unicode");
+    }
+
+    if (!buf)
+        return NULL;
+
+    if (isunicode)
+        length = PyUnicode_GetSize(text);
+    else
+        length = Bytes_Size(text);
+
+    if (length == 0)
+        Py_RETURN_NONE;
+
+    list = PyList_New(length);
+    if (!list)
+        return NULL;
+
+    for (i = 0; i < length; i++)
+    {
+        if (isunicode)
+            char_id = ((Py_UNICODE *)buf)[i];
+        else
+            char_id = ((char *)buf)[i];
+
+        printf("Character %d \n", char_id);
+
+        if (PGFT_GetMetrics(ft, (PyFreeTypeFont *)self, char_id, 
+                    text_size, &minx, &maxx, &miny, &maxy, &advance) == 0)
+        {
+            PyList_SetItem (list, i, Py_BuildValue(
+                        "(iiiii)", minx, maxx, miny, maxy, advance));
+        }
+        else
+        {
+            Py_INCREF (Py_None);
+            PyList_SetItem (list, i, Py_None); 
+        }
+    }
+
+    return list;
 }
 
 static PyObject*
