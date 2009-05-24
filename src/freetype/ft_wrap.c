@@ -26,18 +26,15 @@
 #include "pgtypes.h"
 #include "freetypebase_doc.h"
 
+#include FT_MODULE_H
+
 void    _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
 void    _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
-int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, FTC_Scaler, int);
+int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, FTC_Scaler, int, FT_Glyph *);
+void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, int *, int *, int *, int *, int *);
 
-
-void _PGFT_GetMetrics_FIXED(FT_Glyph_Metrics *, 
-        int *, int *, int *, int *, int *);
-
-void _PGFT_GetMetrics_SCALABLE(FT_Glyph_Metrics *, 
-        int *, int *, int *, int *, int *);
 
 static FT_Error
 _PGFT_face_request(FTC_FaceID face_id, 
@@ -232,10 +229,9 @@ int
 _PGFT_LoadGlyph(FreeTypeInstance *ft, 
         PyFreeTypeFont *font,
         FTC_Scaler scale, 
-        int character)
+        int character, FT_Glyph *glyph)
 {
     FT_Error error;
-    FT_Glyph glyph;
     FT_UInt32 char_index;
 
     char_index = FTC_CMapCache_Lookup(
@@ -251,34 +247,38 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
             scale,
             FT_LOAD_DEFAULT, /* TODO: proper load flags */
             char_index,
-            &glyph, NULL);
+            glyph, NULL);
 
     return error;
 }
 
-void _PGFT_GetMetrics_SCALABLE(FT_Glyph_Metrics *metrics, 
+void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, 
         int *minx, int *maxx, int *miny, int *maxy, int *advance)
 {
-    *minx = FT_FLOOR(metrics->horiBearingX);
-    *maxx = *minx + FT_CEIL(metrics->width);
+    FT_BBox box;
 
-    *maxy = FT_FLOOR(metrics->horiBearingY);
-    *miny = *maxy - FT_CEIL(metrics->height);
+    /*
+     * FIXME: We need to return pixel-based coordinates...
+     * It would make sense to use FT_GLYPH_BBOX_TRUNCATE
+     * to get the fixed point coordinates truncated, but
+     * the results are usually off by 1 pixel from what we
+     * get from SDL_TTF.
+     *
+     * Using FT_GLYPH_BBOX_PIXELS (truncated + grid fitted
+     * coordinates) we get exactly the same results as
+     * SDL_TTF, but does SDL actually do this properly?
+     * 
+     * Which are the *right* results? 
+     */
+    FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_PIXELS, &box);
 
-    *advance = FT_CEIL(metrics->horiAdvance);
+    *minx = box.xMin;
+    *maxx = box.xMax;
+    *miny = box.yMin;
+    *maxy = box.yMax;
+    *advance = (glyph->advance.x >> 16);
 }
 
-void _PGFT_GetMetrics_FIXED(FT_Glyph_Metrics *metrics, 
-        int *minx, int *maxx, int *miny, int *maxy, int *advance)
-{
-    *minx = FT_FLOOR(metrics->horiBearingX);
-    *maxx = *minx + FT_CEIL(metrics->horiAdvance);
-
-    *maxy = FT_FLOOR(metrics->horiBearingY);
-    *miny = *maxy - FT_CEIL(metrics->height);
-
-    *advance = FT_CEIL(metrics->horiAdvance);
-}
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         int character, int font_size, 
@@ -287,11 +287,12 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Face face;
+    FT_Glyph glyph;
 
     _PGFT_BuildScaler(font, &scale, font_size);
     face = font->face;
 
-    error = _PGFT_LoadGlyph(ft, font, &scale, character);
+    error = _PGFT_LoadGlyph(ft, font, &scale, character, &glyph);
 
     if (error)
     {
@@ -299,17 +300,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return error;
     }
 
-    if (FT_IS_SCALABLE(face))
-    {
-        _PGFT_GetMetrics_SCALABLE(&face->glyph->metrics, 
-                minx, maxx, miny, maxy, advance);
-    }
-    else
-    {
-        _PGFT_GetMetrics_FIXED(&face->glyph->metrics, 
-                minx, maxx, miny, maxy, advance);
-    }
-
+    _PGFT_GetMetrics_INTERNAL(glyph, minx, maxx, miny, maxy, advance);
     return 0;
 }
 
@@ -324,6 +315,7 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
     int swapped;
     FTC_ScalerRec scale;
     FT_Face face;
+    FT_Glyph glyph;
 
     int minx, maxx, miny, maxy, x, z;
     int gl_maxx, gl_maxy, gl_minx, gl_miny, gl_advance;
@@ -354,21 +346,13 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (swapped)
             c = (FT_UInt16)((c << 8) | (c >> 8));
 
-        if (_PGFT_LoadGlyph(ft, font, &scale, c) != 0)
+        if (_PGFT_LoadGlyph(ft, font, &scale, c, &glyph) != 0)
             continue;
 
         /* TODO: Handle kerning */
 
-        if (FT_IS_SCALABLE(face))
-        {
-            _PGFT_GetMetrics_SCALABLE(&face->glyph->metrics, 
-                    &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
-        }
-        else
-        {
-            _PGFT_GetMetrics_FIXED(&face->glyph->metrics, 
-                    &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
-        }
+        _PGFT_GetMetrics_INTERNAL(glyph, 
+                &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
 
         z = x + gl_minx;
 		if (minx > z) 
