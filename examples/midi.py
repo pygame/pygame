@@ -55,7 +55,7 @@ def input_main(device_id = None):
 
 
     if device_id is None:
-        input_id = pygame.midi.get_default_input_device_id()
+        input_id = pygame.midi.get_default_input_id()
     else:
         input_id = device_id
 
@@ -155,7 +155,7 @@ def output_main(device_id = None):
     _print_device_info()
 
     if device_id is None:
-        port = pygame.midi.get_default_output_device_id()
+        port = pygame.midi.get_default_device_id()
     else:
         port = device_id
 

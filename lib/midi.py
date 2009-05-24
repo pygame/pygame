@@ -17,11 +17,8 @@ New in pygame 1.9.0.
 
 
 #TODO:
-#    - export docs from .py to .doc.
-#    - generate test stubs (probably after docs are written)
-#        - $ cd test/util/
-#          $ python gen_stubs.py sprite.Sprite
-#    - start writing tests.
+#    - finish writing tests.
+#        - likely as interactive tests... so you'd need to plug in a midi device.
 #    - create a background thread version for input threads.
 #        - that can automatically inject input into the event queue
 #          once the input object is running.  Like joysticks.
@@ -114,9 +111,9 @@ def get_count():
 
 
 
-def get_default_input_device_id():
+def get_default_input_id():
     """gets the device number of the default input device.
-    pygame.midi.get_default_input_device_id(): return default_id
+    pygame.midi.get_default_input_id(): return default_id
     
     
     Return the default device ID or -1 if there are no devices.
@@ -165,9 +162,9 @@ def get_default_input_device_id():
 
 
 
-def get_default_output_device_id():
+def get_default_output_id():
     """get the device number of the default output device.
-    pygame.midi.get_default_output_device_id(): return default_id
+    pygame.midi.get_default_output_id(): return default_id
     
     
     Return the default device ID or -1 if there are no devices.
@@ -227,16 +224,6 @@ def get_device_info(an_id):
     If the id is out of range, the function returns None.
     """
     return _pypm.GetDeviceInfo(an_id) 
-
-
-class MidiException(Exception):
-    """MidiException is the specific exception that pygame.midi can raise.
-
-    """
-    def __init__(self, value):
-        self.parameter = value
-    def __str__(self):
-        return repr(self.parameter)
 
 
 class Input(object):
@@ -480,6 +467,16 @@ def midis2events(midis, device_id):
 
 
 
+
+
+class MidiException(Exception):
+    """MidiException is the specific exception that pygame.midi can raise.
+
+    """
+    def __init__(self, value):
+        self.parameter = value
+    def __str__(self):
+        return repr(self.parameter)
 
 
 
