@@ -155,7 +155,6 @@ if sys.version_info >= (3, 0, 0):
     python3_skip = ['scrap',
                     '_camera',
                     'pypm',
-                    'movieext',
                     '_numericsurfarray',
                     '_numericsndarray',
                     ]
