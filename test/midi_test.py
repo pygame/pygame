@@ -308,6 +308,10 @@ class MidiTest( unittest.TestCase ):
 
         an_id = pygame.midi.get_default_output_device_id() 
         interf, name, input, output, opened = pygame.midi.get_device_info(an_id)
+        print interf
+        print name
+        print input, output, opened
+
         self.assertEqual(output, 1)
         self.assertEqual(input, 0)
         self.assertEqual(opened, 0)
