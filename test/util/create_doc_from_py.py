@@ -69,8 +69,8 @@ def get_docs(the_object, all_attrs, find_children = 1):
         text = parts[0] + "\n" + textwrap.dedent( "\n".join(parts[1:]))
 
 
-        out += [d, text , "<END>\n\n\n"]
-        #out += [d, text]
+        #out += [d, text , "<END>\n\n\n"]
+        out += [d, text]
 
 
         # get any children...
@@ -86,6 +86,9 @@ def get_docs(the_object, all_attrs, find_children = 1):
             else:
                 pass
                 #out += ["<END>\n\n\n"]
+                out += ["<END>\n\n\n"]
+        else:
+            out += ["<END>\n\n\n"]
 
 
     return out
