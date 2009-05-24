@@ -295,7 +295,7 @@ class MidiTest( unittest.TestCase ):
 
 
 
-    def todo_test_get_device_info(self):
+    def test_get_device_info(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.get_device_info:
 
@@ -306,7 +306,23 @@ class MidiTest( unittest.TestCase ):
           # 
           # If the id is out of range, the function returns None.
 
-        self.fail() 
+        an_id = pygame.midi.get_default_output_device_id() 
+        interf, name, input, output, opened = pygame.midi.get_device_info(an_id)
+        self.assertEqual(output, 1)
+        self.assertEqual(input, 0)
+        self.assertEqual(opened, 0)
+
+
+        an_in_id = pygame.midi.get_default_input_device_id() 
+        interf, name, input, output, opened = pygame.midi.get_device_info(an_in_id)
+        self.assertEqual(output, 0)
+        self.assertEqual(input, 1)
+        self.assertEqual(opened, 0)
+
+
+
+
+
 
     def test_init(self):
 
@@ -339,7 +355,7 @@ class MidiTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_quit(self):
+    def test_quit(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.quit:
 
@@ -351,16 +367,28 @@ class MidiTest( unittest.TestCase ):
           # 
           # It is safe to call this function more than once.
 
-        self.fail() 
 
-    def todo_test_time(self):
+          # It is safe to call this more than once.
+        pygame.midi.quit()
+        pygame.midi.init()
+        pygame.midi.quit()
+        pygame.midi.quit()
+        pygame.midi.init()
+        pygame.midi.init()
+        pygame.midi.quit()
+
+    def test_time(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.time:
 
           # returns the current time in ms of the PortMidi timer
           # pygame.midi.time(): return time
 
-        self.fail() 
+        t = pygame.midi.time()
+        self.assertEqual(type(t), type(1))
+        # should be close to 2-3... since the timer is just init'd.
+        self.failUnless(t >= 0 and t < 100)
+
 
  
 if __name__ == '__main__':
