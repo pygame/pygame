@@ -144,8 +144,8 @@ if __name__ == "__main__":
     docincpath = os.path.join ("src", "doc")
     if not os.path.exists (docincpath):
         os.mkdir (docincpath)
-        for ext in ext_modules:
-            modules.create_docheader (ext.basemodule, docincpath)
+    for ext in ext_modules:
+        modules.create_docheader (ext.basemodule, docincpath)
 
     setupdata = {
         "cmdclass" : { "install_data" : SmartInstallData },

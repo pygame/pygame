@@ -159,11 +159,11 @@ PGFT_Face_GetName(PyFreeTypeFont *font)
 const char *
 PGFT_Face_GetFormat(PyFreeTypeFont *font)
 {
-    /* 
-     * Disregard the X11, this function is portable
-     * across all supported platforms
-     */
-    return FT_Get_X11_Font_Format(font->face); 
+#ifdef HAS_X11
+    return FT_Get_X11_Font_Format(font->face);
+#else
+    return ""; /* FIXME: Find a portable solution for native Win32 freetype */
+#endif
 }
 
 int

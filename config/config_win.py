@@ -10,7 +10,7 @@ def sdl_get_version ():
 def update_sys_deps (deps):
     deps["user32"] = Dependency ([], 'user32')
     deps["user32"].nocheck = True
-    deps["gdi32"] = Dependency ([], 'user32')
+    deps["gdi32"] = Dependency ([], 'gdi32')
     deps["gdi32"].nocheck = True
 
 def add_sys_deps (module):

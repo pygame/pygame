@@ -366,7 +366,6 @@ def create_docheader (module, docincpath):
 
     incfile = "%s.h" % docfile.replace (".xml", "_doc")
     docpath = os.path.join ("doc", "src")
-    
     create_cref.create_c_header (os.path.join (docpath, docfile),
                                  os.path.join (docincpath, incfile))
 
