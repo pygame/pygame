@@ -437,6 +437,8 @@ class Output(object):
 def time():
     """returns the current time in ms of the PortMidi timer
     pygame.midi.time(): return time
+
+    The time is reset to 0, when the module is inited.
     """
     return _pypm.Time()
 
