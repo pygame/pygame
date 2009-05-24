@@ -414,26 +414,24 @@
 </ul>
 <li><a href="midi.html#pygame.midi">pygame.midi</a> - <font size=-1>pygame module for interacting with midi input and output.</font></li>
 <ul>
-<li></li>
-<ul>
-<li><a href="midi.html#poll">poll</a> - <font size=-1>returns true if there's data, or false if not.</font></li>
-<li><a href="midi.html#read">read</a> - <font size=-1>reads num_events midi events from the buffer.</font></li>
-</ul>
-<li></li>
-<ul>
-<li><a href="midi.html#note_off">note_off</a> - <font size=-1> turns a midi note off.  Note must be on.</font></li>
-<li><a href="midi.html#note_on">note_on</a> - <font size=-1> turns a midi note on.  Note must be off.</font></li>
-<li><a href="midi.html#set_instrument">set_instrument</a> - <font size=-1> Select an instrument, with a value between 0 and 127.</font></li>
-<li><a href="midi.html#write">write</a> - <font size=-1>writes a list of midi data to the Output.</font></li>
-<li><a href="midi.html#write_short">write_short</a> - <font size=-1> write_short(status <, data1><, data2>)</font></li>
-<li><a href="midi.html#write_sys_ex">write_sys_ex</a> - <font size=-1>writes a timestamped system-exclusive midi message.</font></li>
-</ul>
 <li><a href="midi.html#pygame.midi.Input">pygame.midi.Input</a> - <font size=-1>Input is used to get midi input from midi devices.</font></li>
-<li><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> - <font size=-1>MidiException is the specific exception that pygame.midi can raise.</font></li>
-<li><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> - <font size=-1>Output(device_id)</font></li>
+<ul>
+<li><a href="midi.html#Input.poll">Input.poll</a> - <font size=-1>returns true if there's data, or false if not.</font></li>
+<li><a href="midi.html#Input.read">Input.read</a> - <font size=-1>reads num_events midi events from the buffer.</font></li>
+</ul>
+<li><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> - <font size=-1>exception that pygame.midi functions and classes can raise</font></li>
+<li><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> - <font size=-1>Output is used to send midi to an output device</font></li>
+<ul>
+<li><a href="midi.html#Output.note_off">Output.note_off</a> - <font size=-1>turns a midi note off.  Note must be on.</font></li>
+<li><a href="midi.html#Output.note_on">Output.note_on</a> - <font size=-1>turns a midi note on.  Note must be off.</font></li>
+<li><a href="midi.html#Output.set_instrument">Output.set_instrument</a> - <font size=-1>select an instrument, with a value between 0 and 127</font></li>
+<li><a href="midi.html#Output.write">Output.write</a> - <font size=-1>writes a list of midi data to the Output</font></li>
+<li><a href="midi.html#Output.write_short">Output.write_short</a> - <font size=-1>write_short(status <, data1><, data2>)</font></li>
+<li><a href="midi.html#Output.write_sys_ex">Output.write_sys_ex</a> - <font size=-1>writes a timestamped system-exclusive midi message.</font></li>
+</ul>
 <li><a href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a> - <font size=-1>gets the number of devices.</font></li>
-<li><a href="midi.html#pygame.midi.get_default_input_device_id">pygame.midi.get_default_input_device_id</a> - <font size=-1>gets the device number of the default input device.</font></li>
-<li><a href="midi.html#pygame.midi.get_default_output_device_id">pygame.midi.get_default_output_device_id</a> - <font size=-1>get the device number of the default output device.</font></li>
+<li><a href="midi.html#pygame.midi.get_default_input_id">pygame.midi.get_default_input_id</a> - <font size=-1>gets default input device number</font></li>
+<li><a href="midi.html#pygame.midi.get_default_output_id">pygame.midi.get_default_output_id</a> - <font size=-1>gets default output device number</font></li>
 <li><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a> - <font size=-1> returns information about a midi device</font></li>
 <li><a href="midi.html#pygame.midi.init">pygame.midi.init</a> - <font size=-1>initialize the midi module</font></li>
 <li><a href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a> - <font size=-1>converts midi events to pygame events</font></li>

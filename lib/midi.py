@@ -10,7 +10,7 @@ It uses the portmidi library.  Is portable to which ever platforms
 portmidi supports (currently windows, OSX, and linux).
 
 This uses pyportmidi for now, but may use its own bindings at some
-point soon.
+point in the future.
 
 New in pygame 1.9.0.
 """
@@ -46,8 +46,8 @@ __all__ = [ "Input",
             "MidiException",
             "Output",
             "get_count",
-            "get_default_input_device_id",
-            "get_default_output_device_id",
+            "get_default_input_id",
+            "get_default_output_id",
             "get_device_info",
             "init",
             "midis2events",
@@ -112,7 +112,7 @@ def get_count():
 
 
 def get_default_input_id():
-    """gets the device number of the default input device.
+    """gets default input device number
     pygame.midi.get_default_input_id(): return default_id
     
     
@@ -163,7 +163,7 @@ def get_default_input_id():
 
 
 def get_default_output_id():
-    """get the device number of the default output device.
+    """gets default output device number
     pygame.midi.get_default_output_id(): return default_id
     
     
@@ -274,7 +274,8 @@ class Input(object):
 
 
 class Output(object):
-    """Output(device_id)
+    """Output is used to send midi to an output device
+    Output(device_id)
     Output(device_id, latency = 0)
     Output(device_id, buffer_size = 4096)
     Output(device_id, latency, buffer_size)
@@ -375,14 +376,13 @@ class Output(object):
         """writes a timestamped system-exclusive midi message.
         Output.write_sys_ex(when, msg)
 
-        write_sys_ex(<timestamp>,<msg>)
-
         msg - can be a *list* or a *string*
+        when - a timestamp in miliseconds
         example:
           (assuming o is an onput MIDI stream)
             o.write_sys_ex(0,'\\xF0\\x7D\\x10\\x11\\x12\\x13\\xF7')
           is equivalent to
-            o.write_sys_ex(pygame.midi.Time,
+            o.write_sys_ex(pygame.midi.time(),
                            [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
         """
         self._output.WriteSysEx(when, msg)
@@ -470,8 +470,8 @@ def midis2events(midis, device_id):
 
 
 class MidiException(Exception):
-    """MidiException is the specific exception that pygame.midi can raise.
-
+    """exception that pygame.midi functions and classes can raise
+    MidiException(errno)
     """
     def __init__(self, value):
         self.parameter = value
