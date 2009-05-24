@@ -40,7 +40,7 @@ MIDIIN = pygame.locals.USEREVENT + 10
 MIDIOUT = pygame.locals.USEREVENT + 11
 
 _init = False
-
+pypm = None
 
 
 def init():
@@ -60,6 +60,8 @@ def init():
         _init = True
         atexit.register(quit)
 
+
+
 def quit():
     """uninitialize the midi module
     pygame.midi.quit(): return None
@@ -75,10 +77,11 @@ def quit():
         pypm.Terminate()
         _init = False
         del pypm
-        del pygame.pypm
+        #del pygame.pypm
 
-
-
+def _check_init():
+    if not _init:
+        raise RuntimeError("pygame.midi not initialised.")
 
 def get_count():
     """gets the number of devices.
@@ -87,6 +90,7 @@ def get_count():
 
     Device ids range from 0 to get_count() -1
     """
+    _check_init()
     return pypm.CountDevices()
 
 
