@@ -412,7 +412,34 @@
 <li><a href="mask.html#pygame.mask.from_surface">pygame.mask.from_surface</a> - <font size=-1>Returns a Mask from the given surface.</font></li>
 <li><a href="mask.html#pygame.mask.from_threshold">pygame.mask.from_threshold</a> - <font size=-1>Creates a mask by thresholding Surfaces</font></li>
 </ul>
-<li><a href="midi.html#pygame.midi">pygame.midi</a> - <font size=-1>send and receive midi messages</font></li>
+<li><a href="midi.html#pygame.midi">pygame.midi</a> - <font size=-1>pygame module for interacting with midi input and output.</font></li>
+<ul>
+<li></li>
+<ul>
+<li><a href="midi.html#poll">poll</a> - <font size=-1>returns true if there's data, or false if not.</font></li>
+<li><a href="midi.html#read">read</a> - <font size=-1>reads num_events midi events from the buffer.</font></li>
+</ul>
+<li></li>
+<ul>
+<li><a href="midi.html#note_off">note_off</a> - <font size=-1> turns a midi note off.  Note must be on.</font></li>
+<li><a href="midi.html#note_on">note_on</a> - <font size=-1> turns a midi note on.  Note must be off.</font></li>
+<li><a href="midi.html#set_instrument">set_instrument</a> - <font size=-1> Select an instrument, with a value between 0 and 127.</font></li>
+<li><a href="midi.html#write">write</a> - <font size=-1>writes a list of midi data to the Output.</font></li>
+<li><a href="midi.html#write_short">write_short</a> - <font size=-1> write_short(status <, data1><, data2>)</font></li>
+<li><a href="midi.html#write_sys_ex">write_sys_ex</a> - <font size=-1>writes a timestamped system-exclusive midi message.</font></li>
+</ul>
+<li><a href="midi.html#pygame.midi.Input">pygame.midi.Input</a> - <font size=-1>Input is used to get midi input from midi devices.</font></li>
+<li><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> - <font size=-1>MidiException is the specific exception that pygame.midi can raise.</font></li>
+<li><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> - <font size=-1>Output(device_id)</font></li>
+<li><a href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a> - <font size=-1>gets the number of devices.</font></li>
+<li><a href="midi.html#pygame.midi.get_default_input_device_id">pygame.midi.get_default_input_device_id</a> - <font size=-1>gets the device number of the default input device.</font></li>
+<li><a href="midi.html#pygame.midi.get_default_output_device_id">pygame.midi.get_default_output_device_id</a> - <font size=-1>get the device number of the default output device.</font></li>
+<li><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a> - <font size=-1> returns information about a midi device</font></li>
+<li><a href="midi.html#pygame.midi.init">pygame.midi.init</a> - <font size=-1>initialize the midi module</font></li>
+<li><a href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a> - <font size=-1>converts midi events to pygame events</font></li>
+<li><a href="midi.html#pygame.midi.quit">pygame.midi.quit</a> - <font size=-1>uninitialize the midi module</font></li>
+<li><a href="midi.html#pygame.midi.time">pygame.midi.time</a> - <font size=-1>returns the current time in ms of the PortMidi timer</font></li>
+</ul>
 <li><a href="mixer.html#pygame.mixer">pygame.mixer</a> - <font size=-1>pygame module for loading and playing sounds</font></li>
 <ul>
 <li><a href="mixer.html#pygame.mixer.Channel">pygame.mixer.Channel</a> - <font size=-1>Create a Channel object for controlling playback</font></li>
