@@ -185,7 +185,7 @@ class MidiTest( unittest.TestCase ):
 
 
 
-    def test_get_default_input_device_id(self):
+    def test_get_default_input_id(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.get_default_input_device_id:
 
@@ -234,12 +234,12 @@ class MidiTest( unittest.TestCase ):
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
-        c = pygame.midi.get_default_input_device_id() 
+        c = pygame.midi.get_default_input_id() 
         self.assertEqual(type(c), type(1))
         self.failUnless(c >= 0)
 
 
-    def test_get_default_output_device_id(self):
+    def test_get_default_output_id(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.get_default_output_device_id:
 
@@ -288,7 +288,7 @@ class MidiTest( unittest.TestCase ):
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
-        c = pygame.midi.get_default_output_device_id() 
+        c = pygame.midi.get_default_output_id() 
         self.assertEqual(type(c), type(1))
         self.failUnless(c >= 0)
 
@@ -306,18 +306,18 @@ class MidiTest( unittest.TestCase ):
           # 
           # If the id is out of range, the function returns None.
 
-        an_id = pygame.midi.get_default_output_device_id() 
+        an_id = pygame.midi.get_default_output_id() 
         interf, name, input, output, opened = pygame.midi.get_device_info(an_id)
-        print interf
-        print name
-        print input, output, opened
+        #print interf
+        #print name
+        #print input, output, opened
 
         self.assertEqual(output, 1)
         self.assertEqual(input, 0)
         self.assertEqual(opened, 0)
 
 
-        an_in_id = pygame.midi.get_default_input_device_id() 
+        an_in_id = pygame.midi.get_default_input_id() 
         interf, name, input, output, opened = pygame.midi.get_device_info(an_in_id)
         self.assertEqual(output, 0)
         self.assertEqual(input, 1)
