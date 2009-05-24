@@ -331,6 +331,8 @@ It is safe to call this function more than once.
 time
 returns the current time in ms of the PortMidi timer
 pygame.midi.time(): return time
+
+The time is reset to 0, when the module is inited.
 <END>
 
 
