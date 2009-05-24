@@ -17,12 +17,16 @@ else:
     from test import test_utils
     from test.test_utils import test_not_implemented, unittest
 import pygame
-import pygame.movie
+import pygame.midi
 from pygame.locals import *
+
 
 import os
 import sys
 import time
+
+
+
 
 
 class MidiTest( unittest.TestCase ):            
@@ -158,7 +162,14 @@ class MidiTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_get_count(self):
+
+    def tearDown(self):
+        pygame.midi.quit()
+
+    def setUp(self):
+        pygame.midi.init()
+
+    def test_get_count(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.get_count:
 
@@ -168,9 +179,13 @@ class MidiTest( unittest.TestCase ):
           # 
           # Device ids range from 0 to get_count() -1
 
-        self.fail() 
+        c = pygame.midi.get_count()
+        self.assertEqual(type(c), type(1))
+        self.failUnless(c >= 0)
 
-    def todo_test_get_default_input_device_id(self):
+
+
+    def test_get_default_input_device_id(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.get_default_input_device_id:
 
@@ -219,9 +234,12 @@ class MidiTest( unittest.TestCase ):
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
-        self.fail() 
+        c = pygame.midi.get_default_input_device_id() 
+        self.assertEqual(type(c), type(1))
+        self.failUnless(c >= 0)
 
-    def todo_test_get_default_output_device_id(self):
+
+    def test_get_default_output_device_id(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.get_default_output_device_id:
 
@@ -270,7 +288,12 @@ class MidiTest( unittest.TestCase ):
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
-        self.fail() 
+        c = pygame.midi.get_default_output_device_id() 
+        self.assertEqual(type(c), type(1))
+        self.failUnless(c >= 0)
+
+
+
 
     def todo_test_get_device_info(self):
 
@@ -285,7 +308,7 @@ class MidiTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_init(self):
+    def test_init(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.init:
 
@@ -295,8 +318,15 @@ class MidiTest( unittest.TestCase ):
           # Call the initialisation function before using the midi module.
           # 
           # It is safe to call this more than once.
+        pygame.midi.quit()
+        self.assertRaises(RuntimeError, pygame.midi.get_count)
+        # initialising many times should be fine.
+        pygame.midi.init()
+        pygame.midi.init()
+        pygame.midi.init()
+        pygame.midi.init()
 
-        self.fail() 
+
 
     def todo_test_midis2events(self):
 
