@@ -55,13 +55,11 @@
   <i>pygame module for interacting with midi input and output.</i><br>
 <ul><small><table>
   <tr><td><a href="midi.html#pygame.midi.Input">pygame.midi.Input</a> - <font size=-1>Input is used to get midi input from midi devices.</font></td><td>Input is used to get midi input from midi devices.</td></tr>
-  <tr><td>None</td><td></td></tr>
-  <tr><td><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> - <font size=-1>MidiException is the specific exception that pygame.midi can raise.</font></td><td>MidiException is the specific exception that pygame.midi can raise.</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> - <font size=-1>Output(device_id)</font></td><td>Output(device_id)</td></tr>
-  <tr><td>None</td><td></td></tr>
+  <tr><td><a href="midi.html#pygame.midi.MidiException">pygame.midi.MidiException</a> - <font size=-1>exception that pygame.midi functions and classes can raise</font></td><td>exception that pygame.midi functions and classes can raise</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.Output">pygame.midi.Output</a> - <font size=-1>Output is used to send midi to an output device</font></td><td>Output is used to send midi to an output device</td></tr>
   <tr><td><a href="midi.html#pygame.midi.get_count">pygame.midi.get_count</a> - <font size=-1>gets the number of devices.</font></td><td>gets the number of devices.</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.get_default_input_device_id">pygame.midi.get_default_input_device_id</a> - <font size=-1>gets the device number of the default input device.</font></td><td>gets the device number of the default input device.</td></tr>
-  <tr><td><a href="midi.html#pygame.midi.get_default_output_device_id">pygame.midi.get_default_output_device_id</a> - <font size=-1>get the device number of the default output device.</font></td><td>get the device number of the default output device.</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.get_default_input_id">pygame.midi.get_default_input_id</a> - <font size=-1>gets default input device number</font></td><td>gets default input device number</td></tr>
+  <tr><td><a href="midi.html#pygame.midi.get_default_output_id">pygame.midi.get_default_output_id</a> - <font size=-1>gets default output device number</font></td><td>gets default output device number</td></tr>
   <tr><td><a href="midi.html#pygame.midi.get_device_info">pygame.midi.get_device_info</a> - <font size=-1> returns information about a midi device</font></td><td> returns information about a midi device</td></tr>
   <tr><td><a href="midi.html#pygame.midi.init">pygame.midi.init</a> - <font size=-1>initialize the midi module</font></td><td>initialize the midi module</td></tr>
   <tr><td><a href="midi.html#pygame.midi.midis2events">pygame.midi.midis2events</a> - <font size=-1>converts midi events to pygame events</font></td><td>converts midi events to pygame events</td></tr>
@@ -71,7 +69,7 @@
 <p>The midi module can send output to midi devices, and get input from midi devices. It can also list midi devices on the system. </p>
 <p>Including real midi devices, and virtual ones. </p>
 <p>It uses the portmidi library. Is portable to which ever platforms portmidi supports (currently windows, <tt>OSX</tt>, and linux). </p>
-<p>This uses pyportmidi for now, but may use its own bindings at some point soon. </p>
+<p>This uses pyportmidi for now, but may use its own bindings at some point in the future. </p>
 <p>New in pygame <tt>1.9.0</tt>. </p>
 <!--COMMENTS:pygame.midi--> &nbsp;<br> 
 
@@ -81,47 +79,41 @@
   <i>Input is used to get midi input from midi devices.</i><br>
   <tt>Input(device_id)</tt><br>
   <tt>Input(device_id, buffer_size)</tt><br>
+<ul><small><table>
+  <tr><td><a href="midi.html#Input.poll">Input.poll</a> - <font size=-1>returns true if there's data, or false if not.</font></td><td>returns true if there's data, or false if not.</td></tr>
+  <tr><td><a href="midi.html#Input.read">Input.read</a> - <font size=-1>reads num_events midi events from the buffer.</font></td><td>reads num_events midi events from the buffer.</td></tr>
+</table></small></ul>
 <p>buffer_size -the number of input events to be buffered waiting to </p>
 <pre>  be read using Input.read()
 </pre>
 <!--COMMENTS:pygame.midi.Input--> &nbsp;<br> 
-<br></ul>
 
 
-<a name="">
-<big><b></big></b><br><ul>
-<ul><small><table>
-  <tr><td><a href="midi.html#poll">poll</a> - <font size=-1>returns true if there's data, or false if not.</font></td><td>returns true if there's data, or false if not.</td></tr>
-  <tr><td><a href="midi.html#read">read</a> - <font size=-1>reads num_events midi events from the buffer.</font></td><td>reads num_events midi events from the buffer.</td></tr>
-</table></small></ul>
- &nbsp;<br> 
-<!--COMMENTS:--> &nbsp;<br> 
-
-
-<a name="poll">
-<big><b>poll</big></b><br><ul>
+<a name="Input.poll">
+<big><b>Input.poll</big></b><br><ul>
   <i>returns true if there's data, or false if not.</i><br>
   <tt>Input.poll(): return Bool</tt><br>
 <p>raises a MidiException on error. </p>
-<!--COMMENTS:poll--> &nbsp;<br> 
+<!--COMMENTS:Input.poll--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="read">
-<big><b>read</big></b><br><ul>
+<a name="Input.read">
+<big><b>Input.read</big></b><br><ul>
   <i>reads num_events midi events from the buffer.</i><br>
   <tt>Input.read(num_events): return midi_event_list</tt><br>
 <p>Reads from the Input buffer and gives back midi events. [[[status,data1,data2,data3],timestamp], </p>
 <pre> [[status,data1,data2,data3],timestamp],...]
 </pre>
-<!--COMMENTS:read--> &nbsp;<br> 
+<!--COMMENTS:Input.read--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
 
 <a name="pygame.midi.MidiException">
 <big><b>pygame.midi.MidiException</big></b><br><ul>
-  <i>MidiException is the specific exception that pygame.midi can raise.</i><br>
+  <i>exception that pygame.midi functions and classes can raise</i><br>
+  <tt>MidiException(errno)</tt><br>
  &nbsp;<br> 
 <!--COMMENTS:pygame.midi.MidiException--> &nbsp;<br> 
 <br></ul>
@@ -129,61 +121,55 @@
 
 <a name="pygame.midi.Output">
 <big><b>pygame.midi.Output</big></b><br><ul>
-  <i>Output(device_id)</i><br>
+  <i>Output is used to send midi to an output device</i><br>
+  <tt>Output(device_id)</tt><br>
   <tt>Output(device_id, latency = 0)</tt><br>
   <tt>Output(device_id, buffer_size = 4096)</tt><br>
   <tt>Output(device_id, latency, buffer_size)</tt><br>
+<ul><small><table>
+  <tr><td><a href="midi.html#Output.note_off">Output.note_off</a> - <font size=-1>turns a midi note off.  Note must be on.</font></td><td>turns a midi note off.  Note must be on.</td></tr>
+  <tr><td><a href="midi.html#Output.note_on">Output.note_on</a> - <font size=-1>turns a midi note on.  Note must be off.</font></td><td>turns a midi note on.  Note must be off.</td></tr>
+  <tr><td><a href="midi.html#Output.set_instrument">Output.set_instrument</a> - <font size=-1>select an instrument, with a value between 0 and 127</font></td><td>select an instrument, with a value between 0 and 127</td></tr>
+  <tr><td><a href="midi.html#Output.write">Output.write</a> - <font size=-1>writes a list of midi data to the Output</font></td><td>writes a list of midi data to the Output</td></tr>
+  <tr><td><a href="midi.html#Output.write_short">Output.write_short</a> - <font size=-1>write_short(status <, data1><, data2>)</font></td><td>write_short(status <, data1><, data2>)</td></tr>
+  <tr><td><a href="midi.html#Output.write_sys_ex">Output.write_sys_ex</a> - <font size=-1>writes a timestamped system-exclusive midi message.</font></td><td>writes a timestamped system-exclusive midi message.</td></tr>
+</table></small></ul>
 <p>The buffer_size specifies the number of output events to be buffered waiting for output. (In some cases -- see below -- PortMidi does not buffer output at all and merely passes data to a lower-level <tt>API</tt>, in which case buffersize is <tt>ignored.)</tt> </p>
 <p>latency is the delay in milliseconds applied to timestamps to determine when the output should actually occur. (If latency is < 0, 0 is <tt>assumed.)</tt> </p>
 <p>If latency is zero, timestamps are ignored and all output is delivered immediately. If latency is greater than zero, output is delayed until the message timestamp plus the latency. <tt>(NOTE:</tt> time is measured relative to the time source indicated by time_proc. Timestamps are absolute, not relative delays or <tt>offsets.)</tt> In some cases, PortMidi can obtain better timing than your application by passing timestamps along to the device driver or hardware. Latency may also help you to synchronize midi data to audio data by matching midi latency to the audio buffer latency. </p>
 <!--COMMENTS:pygame.midi.Output--> &nbsp;<br> 
-<br></ul>
 
 
-<a name="">
-<big><b></big></b><br><ul>
-<ul><small><table>
-  <tr><td><a href="midi.html#note_off">note_off</a> - <font size=-1> turns a midi note off.  Note must be on.</font></td><td> turns a midi note off.  Note must be on.</td></tr>
-  <tr><td><a href="midi.html#note_on">note_on</a> - <font size=-1> turns a midi note on.  Note must be off.</font></td><td> turns a midi note on.  Note must be off.</td></tr>
-  <tr><td><a href="midi.html#set_instrument">set_instrument</a> - <font size=-1> Select an instrument, with a value between 0 and 127.</font></td><td> Select an instrument, with a value between 0 and 127.</td></tr>
-  <tr><td><a href="midi.html#write">write</a> - <font size=-1>writes a list of midi data to the Output.</font></td><td>writes a list of midi data to the Output.</td></tr>
-  <tr><td><a href="midi.html#write_short">write_short</a> - <font size=-1> write_short(status <, data1><, data2>)</font></td><td> write_short(status <, data1><, data2>)</td></tr>
-  <tr><td><a href="midi.html#write_sys_ex">write_sys_ex</a> - <font size=-1>writes a timestamped system-exclusive midi message.</font></td><td>writes a timestamped system-exclusive midi message.</td></tr>
-</table></small></ul>
- &nbsp;<br> 
-<!--COMMENTS:--> &nbsp;<br> 
-
-
-<a name="note_off">
-<big><b>note_off</big></b><br><ul>
-  <i> turns a midi note off.  Note must be on.</i><br>
+<a name="Output.note_off">
+<big><b>Output.note_off</big></b><br><ul>
+  <i>turns a midi note off.  Note must be on.</i><br>
   <tt>Output.note_off(note, velocity=None, channel = 0)</tt><br>
 <p>Turn a note off in the output stream. The note must already be on for this to work correctly. </p>
-<!--COMMENTS:note_off--> &nbsp;<br> 
+<!--COMMENTS:Output.note_off--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="note_on">
-<big><b>note_on</big></b><br><ul>
-  <i> turns a midi note on.  Note must be off.</i><br>
+<a name="Output.note_on">
+<big><b>Output.note_on</big></b><br><ul>
+  <i>turns a midi note on.  Note must be off.</i><br>
   <tt>Output.note_on(note, velocity=None, channel = 0)</tt><br>
 <p>Turn a note on in the output stream. The note must already be off for this to work correctly. </p>
-<!--COMMENTS:note_on--> &nbsp;<br> 
+<!--COMMENTS:Output.note_on--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="set_instrument">
-<big><b>set_instrument</big></b><br><ul>
-  <i> Select an instrument, with a value between 0 and 127.</i><br>
+<a name="Output.set_instrument">
+<big><b>Output.set_instrument</big></b><br><ul>
+  <i>select an instrument, with a value between 0 and 127</i><br>
   <tt>Output.set_instrument(instrument_id, channel = 0)</tt><br>
  &nbsp;<br> 
-<!--COMMENTS:set_instrument--> &nbsp;<br> 
+<!--COMMENTS:Output.set_instrument--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="write">
-<big><b>write</big></b><br><ul>
-  <i>writes a list of midi data to the Output.</i><br>
+<a name="Output.write">
+<big><b>Output.write</big></b><br><ul>
+  <i>writes a list of midi data to the Output</i><br>
   <tt>Output.write(data)</tt><br>
 <p>writes series of <tt>MIDI</tt> information in the form of a list: </p>
 <pre>     write([[[status <,data1><,data2><,data3>],timestamp],
@@ -200,13 +186,13 @@
 </pre><p>Can send up to 1024 elements in your data list, otherwise an </p>
 <pre> IndexError exception is raised.
 </pre>
-<!--COMMENTS:write--> &nbsp;<br> 
+<!--COMMENTS:Output.write--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="write_short">
-<big><b>write_short</big></b><br><ul>
-  <i> write_short(status <, data1><, data2>)</i><br>
+<a name="Output.write_short">
+<big><b>Output.write_short</big></b><br><ul>
+  <i>write_short(status <, data1><, data2>)</i><br>
   <tt>Output.write_short(status)</tt><br>
   <tt>Output.write_short(status, data1 = 0, data2 = 0)</tt><br>
 <p>output <tt>MIDI</tt> information of 3 bytes or less. data fields are optional status byte could be: </p>
@@ -217,23 +203,22 @@
 </pre><p>example: note 65 on with velocity 100 </p>
 <pre>     write_short(0x90,65,100)
 </pre>
-<!--COMMENTS:write_short--> &nbsp;<br> 
+<!--COMMENTS:Output.write_short--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="write_sys_ex">
-<big><b>write_sys_ex</big></b><br><ul>
+<a name="Output.write_sys_ex">
+<big><b>Output.write_sys_ex</big></b><br><ul>
   <i>writes a timestamped system-exclusive midi message.</i><br>
   <tt>Output.write_sys_ex(when, msg)</tt><br>
-<p>write_sys_ex(<timestamp>,<msg>) </p>
-<p>msg - can be a *list* or a *string* example: </p>
+<p>msg - can be a *list* or a *string* when - a timestamp in miliseconds example: </p>
 <pre>  (assuming o is an onput MIDI stream)
     o.write_sys_ex(0,'\xF0\x7D\x10\x11\x12\x13\xF7')
   is equivalent to
-    o.write_sys_ex(pygame.midi.Time,
+    o.write_sys_ex(pygame.midi.time(),
                    [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
 </pre>
-<!--COMMENTS:write_sys_ex--> &nbsp;<br> 
+<!--COMMENTS:Output.write_sys_ex--> &nbsp;<br> 
 <br></ul>
 <br></ul>
 
@@ -247,10 +232,10 @@
 <br></ul>
 
 
-<a name="pygame.midi.get_default_input_device_id">
-<big><b>pygame.midi.get_default_input_device_id</big></b><br><ul>
-  <i>gets the device number of the default input device.</i><br>
-  <tt>pygame.midi.get_default_input_device_id(): return default_id</tt><br>
+<a name="pygame.midi.get_default_input_id">
+<big><b>pygame.midi.get_default_input_id</big></b><br><ul>
+  <i>gets default input device number</i><br>
+  <tt>pygame.midi.get_default_input_id(): return default_id</tt><br>
 <p>Return the default device <tt>ID</tt> or -1 if there are no devices. The result can be passed to the Input()/Ouput() class. </p>
 <p>On the <tt>PC</tt>, the user can specify a default device by setting an environment variable. For example, to use device #1. </p>
 <pre>    set PM_RECOMMENDED_INPUT_DEVICE=1
@@ -262,14 +247,14 @@
 <pre>    MMSystem, In USB MidiSport 1x1
 </pre><p>In this case, the string before the comma must be a substring of the "interf" string, and the string after the space must be a substring of the "name" name string in order to match the device. </p>
 <p>Note: in the current release, the default is simply the first device (the input or output device with the lowest PmDeviceID). </p>
-<!--COMMENTS:pygame.midi.get_default_input_device_id--> &nbsp;<br> 
+<!--COMMENTS:pygame.midi.get_default_input_id--> &nbsp;<br> 
 <br></ul>
 
 
-<a name="pygame.midi.get_default_output_device_id">
-<big><b>pygame.midi.get_default_output_device_id</big></b><br><ul>
-  <i>get the device number of the default output device.</i><br>
-  <tt>pygame.midi.get_default_output_device_id(): return default_id</tt><br>
+<a name="pygame.midi.get_default_output_id">
+<big><b>pygame.midi.get_default_output_id</big></b><br><ul>
+  <i>gets default output device number</i><br>
+  <tt>pygame.midi.get_default_output_id(): return default_id</tt><br>
 <p>Return the default device <tt>ID</tt> or -1 if there are no devices. The result can be passed to the Input()/Ouput() class. </p>
 <p>On the <tt>PC</tt>, the user can specify a default device by setting an environment variable. For example, to use device #1. </p>
 <pre>    set PM_RECOMMENDED_OUTPUT_DEVICE=1
@@ -281,7 +266,7 @@
 <pre>    MMSystem, In USB MidiSport 1x1
 </pre><p>In this case, the string before the comma must be a substring of the "interf" string, and the string after the space must be a substring of the "name" name string in order to match the device. </p>
 <p>Note: in the current release, the default is simply the first device (the input or output device with the lowest PmDeviceID). </p>
-<!--COMMENTS:pygame.midi.get_default_output_device_id--> &nbsp;<br> 
+<!--COMMENTS:pygame.midi.get_default_output_id--> &nbsp;<br> 
 <br></ul>
 
 

@@ -489,35 +489,31 @@
 
 #define DOC_PYGAMEMIDIINPUT "Input(device_id)\nInput(device_id, buffer_size)\nInput is used to get midi input from midi devices."
 
-#define DOC_ ""
+#define DOC_INPUTPOLL "Input.poll(): return Bool\nreturns true if there's data, or false if not."
 
-#define DOC_POLL "Input.poll(): return Bool\nreturns true if there's data, or false if not."
+#define DOC_INPUTREAD "Input.read(num_events): return midi_event_list\nreads num_events midi events from the buffer."
 
-#define DOC_READ "Input.read(num_events): return midi_event_list\nreads num_events midi events from the buffer."
+#define DOC_PYGAMEMIDIMIDIEXCEPTION "MidiException(errno)\nexception that pygame.midi functions and classes can raise"
 
-#define DOC_PYGAMEMIDIMIDIEXCEPTION "MidiException is the specific exception that pygame.midi can raise."
+#define DOC_PYGAMEMIDIOUTPUT "Output(device_id)\nOutput(device_id, latency = 0)\nOutput(device_id, buffer_size = 4096)\nOutput(device_id, latency, buffer_size)\nOutput is used to send midi to an output device"
 
-#define DOC_PYGAMEMIDIOUTPUT "Output(device_id, latency = 0)\nOutput(device_id, buffer_size = 4096)\nOutput(device_id, latency, buffer_size)\nOutput(device_id)"
+#define DOC_OUTPUTNOTEOFF "Output.note_off(note, velocity=None, channel = 0)\nturns a midi note off.  Note must be on."
 
-#define DOC_ ""
+#define DOC_OUTPUTNOTEON "Output.note_on(note, velocity=None, channel = 0)\nturns a midi note on.  Note must be off."
 
-#define DOC_NOTEOFF "Output.note_off(note, velocity=None, channel = 0)\n turns a midi note off.  Note must be on."
+#define DOC_OUTPUTSETINSTRUMENT "Output.set_instrument(instrument_id, channel = 0)\nselect an instrument, with a value between 0 and 127"
 
-#define DOC_NOTEON "Output.note_on(note, velocity=None, channel = 0)\n turns a midi note on.  Note must be off."
+#define DOC_OUTPUTWRITE "Output.write(data)\nwrites a list of midi data to the Output"
 
-#define DOC_SETINSTRUMENT "Output.set_instrument(instrument_id, channel = 0)\n Select an instrument, with a value between 0 and 127."
+#define DOC_OUTPUTWRITESHORT "Output.write_short(status)\nOutput.write_short(status, data1 = 0, data2 = 0)\nwrite_short(status <, data1><, data2>)"
 
-#define DOC_WRITE "Output.write(data)\nwrites a list of midi data to the Output."
-
-#define DOC_WRITESHORT "Output.write_short(status)\nOutput.write_short(status, data1 = 0, data2 = 0)\n write_short(status <, data1><, data2>)"
-
-#define DOC_WRITESYSEX "Output.write_sys_ex(when, msg)\nwrites a timestamped system-exclusive midi message."
+#define DOC_OUTPUTWRITESYSEX "Output.write_sys_ex(when, msg)\nwrites a timestamped system-exclusive midi message."
 
 #define DOC_PYGAMEMIDIGETCOUNT "pygame.midi.get_count(): return num_devices\ngets the number of devices."
 
-#define DOC_PYGAMEMIDIGETDEFAULTINPUTDEVICEID "pygame.midi.get_default_input_device_id(): return default_id\ngets the device number of the default input device."
+#define DOC_PYGAMEMIDIGETDEFAULTINPUTID "pygame.midi.get_default_input_id(): return default_id\ngets default input device number"
 
-#define DOC_PYGAMEMIDIGETDEFAULTOUTPUTDEVICEID "pygame.midi.get_default_output_device_id(): return default_id\nget the device number of the default output device."
+#define DOC_PYGAMEMIDIGETDEFAULTOUTPUTID "pygame.midi.get_default_output_id(): return default_id\ngets default output device number"
 
 #define DOC_PYGAMEMIDIGETDEVICEINFO "pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)\n returns information about a midi device"
 
@@ -2547,73 +2543,65 @@ Input is used to get midi input from midi devices.
 
 
 
-
- 
-
-
-
-poll
+Input.poll
  Input.poll(): return Bool
 returns true if there's data, or false if not.
 
 
 
-read
+Input.read
  Input.read(num_events): return midi_event_list
 reads num_events midi events from the buffer.
 
 
 
 pygame.midi.MidiException
- MidiException is the specific exception that pygame.midi can raise.
+ MidiException(errno)
+exception that pygame.midi functions and classes can raise
 
 
 
 pygame.midi.Output
- Output(device_id, latency = 0)
+ Output(device_id)
+Output(device_id, latency = 0)
 Output(device_id, buffer_size = 4096)
 Output(device_id, latency, buffer_size)
-Output(device_id)
+Output is used to send midi to an output device
 
 
 
-
- 
-
-
-
-note_off
+Output.note_off
  Output.note_off(note, velocity=None, channel = 0)
- turns a midi note off.  Note must be on.
+turns a midi note off.  Note must be on.
 
 
 
-note_on
+Output.note_on
  Output.note_on(note, velocity=None, channel = 0)
- turns a midi note on.  Note must be off.
+turns a midi note on.  Note must be off.
 
 
 
-set_instrument
+Output.set_instrument
  Output.set_instrument(instrument_id, channel = 0)
- Select an instrument, with a value between 0 and 127.
+select an instrument, with a value between 0 and 127
 
 
 
-write
+Output.write
  Output.write(data)
-writes a list of midi data to the Output.
+writes a list of midi data to the Output
 
 
 
-write_short
+Output.write_short
  Output.write_short(status)
 Output.write_short(status, data1 = 0, data2 = 0)
- write_short(status <, data1><, data2>)
+write_short(status <, data1><, data2>)
 
 
 
-write_sys_ex
+Output.write_sys_ex
  Output.write_sys_ex(when, msg)
 writes a timestamped system-exclusive midi message.
 
@@ -2625,15 +2613,15 @@ gets the number of devices.
 
 
 
-pygame.midi.get_default_input_device_id
- pygame.midi.get_default_input_device_id(): return default_id
-gets the device number of the default input device.
+pygame.midi.get_default_input_id
+ pygame.midi.get_default_input_id(): return default_id
+gets default input device number
 
 
 
-pygame.midi.get_default_output_device_id
- pygame.midi.get_default_output_device_id(): return default_id
-get the device number of the default output device.
+pygame.midi.get_default_output_id
+ pygame.midi.get_default_output_id(): return default_id
+gets default output device number
 
 
 
