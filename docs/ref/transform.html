@@ -175,9 +175,11 @@
 <a name="pygame.transform.average_surfaces">
 <big><b>pygame.transform.average_surfaces</big></b><br><ul>
   <i>find the average surface from many surfaces.</i><br>
-  <tt>pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface</tt><br>
+  <tt>pygame.transform.average_surfaces(Surfaces, DestSurface = None, palette_colors = 1): return Surface</tt><br>
 <p>Takes a sequence of surfaces and returns a surface with average colors from each of the surfaces. </p>
-<p>New in pygame <tt>1.8</tt> </p>
+<p>palette_colors - if true we average the colors in palette, otherwise we average the pixel values. This is useful if the surface is actually greyscale colors, and not palette colors. </p>
+<p>Note, this function currently does not handle palette using surfaces correctly. </p>
+<p>New in pygame <tt>1.8</tt> palette_colors argument new in pygame <tt>1.9</tt> </p>
 <!--COMMENTS:pygame.transform.average_surfaces--> &nbsp;<br> 
 <br></ul>
 
