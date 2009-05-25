@@ -35,9 +35,9 @@
 
 #define DOC_CAMERASTOP "Camera.stop(): return None\nstops, uninitializes, and closes the camera"
 
-#define DOC_CAMERAGETCONTROLS "Camera.get_controls(): return (hflip = bool, vflip = bool)\ngets current values of user controls"
+#define DOC_CAMERAGETCONTROLS "Camera.get_controls(): return (hflip = bool, vflip = bool, brightness)\ngets current values of user controls"
 
-#define DOC_CAMERASETCONTROLS "Camera.set_controls(hflip = bool, vflip = bool): return (hflip = bool, vflip = bool)\nchanges camera settings if supported by the camera"
+#define DOC_CAMERASETCONTROLS "Camera.set_controls(hflip = bool, vflip = bool, brightness): return (hflip = bool, vflip = bool, brightness)\nchanges camera settings if supported by the camera"
 
 #define DOC_CAMERAGETSIZE "Camera.get_size(): return (width, height)\nreturns the dimensions of the images being recorded"
 
@@ -1059,7 +1059,7 @@
 
 #define DOC_PYGAMETRANSFORMLAPLACIAN "pygame.transform.laplacian(Surface, DestSurface = None): return Surface\nfind edges in a surface"
 
-#define DOC_PYGAMETRANSFORMAVERAGESURFACES "pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface\nfind the average surface from many surfaces."
+#define DOC_PYGAMETRANSFORMAVERAGESURFACES "pygame.transform.average_surfaces(Surfaces, DestSurface = None, palette_colors = 1): return Surface\nfind the average surface from many surfaces."
 
 #define DOC_PYGAMETRANSFORMAVERAGECOLOR "pygame.transform.average_color(Surface, Rect = None): return Color\nfinds the average color of a surface"
 
@@ -1179,13 +1179,13 @@ stops, uninitializes, and closes the camera
 
 
 Camera.get_controls
- Camera.get_controls(): return (hflip = bool, vflip = bool)
+ Camera.get_controls(): return (hflip = bool, vflip = bool, brightness)
 gets current values of user controls
 
 
 
 Camera.set_controls
- Camera.set_controls(hflip = bool, vflip = bool): return (hflip = bool, vflip = bool)
+ Camera.set_controls(hflip = bool, vflip = bool, brightness): return (hflip = bool, vflip = bool, brightness)
 changes camera settings if supported by the camera
 
 
@@ -4265,7 +4265,7 @@ find edges in a surface
 
 
 pygame.transform.average_surfaces
- pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface
+ pygame.transform.average_surfaces(Surfaces, DestSurface = None, palette_colors = 1): return Surface
 find the average surface from many surfaces.
 
 

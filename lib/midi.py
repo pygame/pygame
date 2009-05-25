@@ -10,18 +10,15 @@ It uses the portmidi library.  Is portable to which ever platforms
 portmidi supports (currently windows, OSX, and linux).
 
 This uses pyportmidi for now, but may use its own bindings at some
-point soon.
+point in the future.
 
 New in pygame 1.9.0.
 """
 
 
 #TODO:
-#    - export docs from .py to .doc.
-#    - generate test stubs (probably after docs are written)
-#        - $ cd test/util/
-#          $ python gen_stubs.py sprite.Sprite
-#    - start writing tests.
+#    - finish writing tests.
+#        - likely as interactive tests... so you'd need to plug in a midi device.
 #    - create a background thread version for input threads.
 #        - that can automatically inject input into the event queue
 #          once the input object is running.  Like joysticks.
@@ -40,7 +37,25 @@ MIDIIN = pygame.locals.USEREVENT + 10
 MIDIOUT = pygame.locals.USEREVENT + 11
 
 _init = False
-pypm = None
+_pypm = None
+
+
+__all__ = [ "Input",
+            "MIDIIN",
+            "MIDIOUT",
+            "MidiException",
+            "Output",
+            "get_count",
+            "get_default_input_id",
+            "get_default_output_id",
+            "get_device_info",
+            "init",
+            "midis2events",
+            "quit",
+            "time",
+           ]
+
+__theclasses__ = ["Input", "Output"]
 
 
 def init():
@@ -51,12 +66,12 @@ def init():
     
     It is safe to call this more than once.
     """
-    global _init, pypm
+    global _init, _pypm
     if not _init:
         import pygame.pypm
-        pypm = pygame.pypm
+        _pypm = pygame.pypm
 
-        pypm.Initialize()
+        _pypm.Initialize()
         _init = True
         atexit.register(quit)
 
@@ -71,13 +86,13 @@ def quit():
 
     It is safe to call this function more than once.
     """
-    global _init, pypm
+    global _init, _pypm
     if _init:
         # TODO: find all Input and Output classes and close them first?
-        pypm.Terminate()
+        _pypm.Terminate()
         _init = False
-        del pypm
-        #del pygame.pypm
+        del _pypm
+        #del pygame._pypm
 
 def _check_init():
     if not _init:
@@ -91,27 +106,27 @@ def get_count():
     Device ids range from 0 to get_count() -1
     """
     _check_init()
-    return pypm.CountDevices()
+    return _pypm.CountDevices()
 
 
 
 
-def get_default_input_device_id():
-    """gets the device number of the default input device.
-    pygame.midi.get_default_input_device_id(): return default_id
-
-
+def get_default_input_id():
+    """gets default input device number
+    pygame.midi.get_default_input_id(): return default_id
+    
+    
     Return the default device ID or -1 if there are no devices.
     The result can be passed to the Input()/Ouput() class.
-
+    
     On the PC, the user can specify a default device by
     setting an environment variable. For example, to use device #1.
-
+    
         set PM_RECOMMENDED_INPUT_DEVICE=1
-
+    
     The user should first determine the available device ID by using
     the supplied application "testin" or "testout".
-
+    
     In general, the registry is a better place for this kind of info,
     and with USB devices that can come and go, using integers is not
     very reliable for device identification. Under Windows, if
@@ -125,44 +140,44 @@ def get_default_input_device_id():
     in the registry is "USB", and device 1 is named
     "In USB MidiSport 1x1", then that will be the default
     input because it contains the string "USB".
-
+    
     In addition to the name, get_device_info() returns "interf", which
     is the interface name. (The "interface" is the underlying software
-	system or API used by PortMidi to access devices. Examples are
-	MMSystem, DirectX (not implemented), ALSA, OSS (not implemented), etc.)
-	At present, the only Win32 interface is "MMSystem", the only Linux
-	interface is "ALSA", and the only Max OS X interface is "CoreMIDI".
+    system or API used by PortMidi to access devices. Examples are
+    MMSystem, DirectX (not implemented), ALSA, OSS (not implemented), etc.)
+    At present, the only Win32 interface is "MMSystem", the only Linux
+    interface is "ALSA", and the only Max OS X interface is "CoreMIDI".
     To specify both the interface and the device name in the registry,
     separate the two with a comma and a space, e.g.:
         MMSystem, In USB MidiSport 1x1
     In this case, the string before the comma must be a substring of
     the "interf" string, and the string after the space must be a
     substring of the "name" name string in order to match the device.
-
+    
     Note: in the current release, the default is simply the first device
-	(the input or output device with the lowest PmDeviceID).
+    (the input or output device with the lowest PmDeviceID).
     """
-    return pypm.GetDefaultInputDeviceID()
+    return _pypm.GetDefaultInputDeviceID()
 
 
 
 
-def get_default_output_device_id():
-    """get the device number of the default output device.
-    pygame.midi.get_default_output_device_id(): return default_id
-
-
+def get_default_output_id():
+    """gets default output device number
+    pygame.midi.get_default_output_id(): return default_id
+    
+    
     Return the default device ID or -1 if there are no devices.
     The result can be passed to the Input()/Ouput() class.
-
+    
     On the PC, the user can specify a default device by
     setting an environment variable. For example, to use device #1.
-
+    
         set PM_RECOMMENDED_OUTPUT_DEVICE=1
-
+    
     The user should first determine the available device ID by using
     the supplied application "testin" or "testout".
-
+    
     In general, the registry is a better place for this kind of info,
     and with USB devices that can come and go, using integers is not
     very reliable for device identification. Under Windows, if
@@ -176,40 +191,39 @@ def get_default_output_device_id():
     in the registry is "USB", and device 1 is named
     "In USB MidiSport 1x1", then that will be the default
     input because it contains the string "USB".
-
+    
     In addition to the name, get_device_info() returns "interf", which
     is the interface name. (The "interface" is the underlying software
-	system or API used by PortMidi to access devices. Examples are
-	MMSystem, DirectX (not implemented), ALSA, OSS (not implemented), etc.)
-	At present, the only Win32 interface is "MMSystem", the only Linux
-	interface is "ALSA", and the only Max OS X interface is "CoreMIDI".
+    system or API used by PortMidi to access devices. Examples are
+    MMSystem, DirectX (not implemented), ALSA, OSS (not implemented), etc.)
+    At present, the only Win32 interface is "MMSystem", the only Linux
+    interface is "ALSA", and the only Max OS X interface is "CoreMIDI".
     To specify both the interface and the device name in the registry,
     separate the two with a comma and a space, e.g.:
         MMSystem, In USB MidiSport 1x1
     In this case, the string before the comma must be a substring of
     the "interf" string, and the string after the space must be a
     substring of the "name" name string in order to match the device.
-
+    
     Note: in the current release, the default is simply the first device
-	(the input or output device with the lowest PmDeviceID).
+    (the input or output device with the lowest PmDeviceID).
     """
-    return pypm.GetDefaultOutputDeviceID()
+    return _pypm.GetDefaultOutputDeviceID()
 
 
 def get_device_info(an_id):
-    """ returns (interf, name, input, output, opened)
+    """ returns information about a midi device
     pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened) 
+
+    interf - a text string describing the device interface, eg 'ALSA'.
+    name - a text string for the name of the device, eg 'Midi Through Port-0'
+    input - 0, or 1 if the device is an input device.
+    output - 0, or 1 if the device is an output device.
+    opened - 0, or 1 if the device is opened.
 
     If the id is out of range, the function returns None.
     """
-    return pypm.GetDeviceInfo(an_id) 
-
-
-class MidiException(Exception):
-    def __init__(self, value):
-        self.parameter = value
-    def __str__(self):
-        return repr(self.parameter)
+    return _pypm.GetDeviceInfo(an_id) 
 
 
 class Input(object):
@@ -226,7 +240,7 @@ class Input(object):
         The buffer_size specifies the number of input events to be buffered 
         waiting to be read using Input.read().
         """
-        self._input = pypm.Input(device_id, buffer_size)
+        self._input = _pypm.Input(device_id, buffer_size)
         self.device_id = device_id
 
 
@@ -248,9 +262,9 @@ class Input(object):
         raises a MidiException on error.
         """
         r = self._input.Poll()
-        if r == pypm.TRUE:
+        if r == _pypm.TRUE:
             return True
-        elif r == pypm.FALSE:
+        elif r == _pypm.FALSE:
             return False
         else:
             err_text = GetErrorText(r)
@@ -260,9 +274,35 @@ class Input(object):
 
 
 class Output(object):
+    """Output is used to send midi to an output device
+    Output(device_id)
+    Output(device_id, latency = 0)
+    Output(device_id, buffer_size = 4096)
+    Output(device_id, latency, buffer_size)
+
+    The buffer_size specifies the number of output events to be 
+    buffered waiting for output.  (In some cases -- see below -- 
+    PortMidi does not buffer output at all and merely passes data 
+    to a lower-level API, in which case buffersize is ignored.)
+
+    latency is the delay in milliseconds applied to timestamps to determine
+    when the output should actually occur. (If latency is < 0, 0 is 
+    assumed.)
+
+    If latency is zero, timestamps are ignored and all output is delivered
+    immediately. If latency is greater than zero, output is delayed until
+    the message timestamp plus the latency. (NOTE: time is measured 
+    relative to the time source indicated by time_proc. Timestamps are 
+    absolute, not relative delays or offsets.) In some cases, PortMidi 
+    can obtain better timing than your application by passing timestamps 
+    along to the device driver or hardware. Latency may also help you 
+    to synchronize midi data to audio data by matching midi latency to 
+    the audio buffer latency.
+
+    """
+
     def __init__(self, device_id, latency = 0, buffer_size = 4096):
-        """
-        Output(device_id)
+        """Output(device_id)
         Output(device_id, latency = 0)
         Output(device_id, buffer_size = 4096)
         Output(device_id, latency, buffer_size)
@@ -286,11 +326,11 @@ class Output(object):
         to synchronize midi data to audio data by matching midi latency to 
         the audio buffer latency.
         """
-        self._output = pypm.Output(device_id, latency)
+        self._output = _pypm.Output(device_id, latency)
         self.device_id = device_id
 
     def write(self, data):
-        """writes a list of midi data to the Output.
+        """writes a list of midi data to the Output
         Output.write(data)
 
         writes series of MIDI information in the form of a list:
@@ -315,7 +355,7 @@ class Output(object):
 
 
     def write_short(self, status, data1 = 0, data2 = 0):
-        """ write_short(status <, data1><, data2>)
+        """write_short(status <, data1><, data2>)
         Output.write_short(status)
         Output.write_short(status, data1 = 0, data2 = 0)
 
@@ -336,21 +376,20 @@ class Output(object):
         """writes a timestamped system-exclusive midi message.
         Output.write_sys_ex(when, msg)
 
-        write_sys_ex(<timestamp>,<msg>)
-
         msg - can be a *list* or a *string*
+        when - a timestamp in miliseconds
         example:
           (assuming o is an onput MIDI stream)
             o.write_sys_ex(0,'\\xF0\\x7D\\x10\\x11\\x12\\x13\\xF7')
           is equivalent to
-            o.write_sys_ex(pygame.midi.Time,
+            o.write_sys_ex(pygame.midi.time(),
                            [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
         """
         self._output.WriteSysEx(when, msg)
 
 
     def note_on(self, note, velocity=None, channel = 0):
-        """ turns a midi note on.  Note must be off.
+        """turns a midi note on.  Note must be off.
         Output.note_on(note, velocity=None, channel = 0)
 
         Turn a note on in the output stream.  The note must already
@@ -365,7 +404,7 @@ class Output(object):
         self.write_short(0x90+channel, note, velocity)
 
     def note_off(self, note, velocity=None, channel = 0):
-        """ turns a midi note off.  Note must be on.
+        """turns a midi note off.  Note must be on.
         Output.note_off(note, velocity=None, channel = 0)
 
         Turn a note off in the output stream.  The note must already
@@ -381,7 +420,7 @@ class Output(object):
 
 
     def set_instrument(self, instrument_id, channel = 0):
-        """ Select an instrument, with a value between 0 and 127.
+        """select an instrument, with a value between 0 and 127
         Output.set_instrument(instrument_id, channel = 0)
 
         """
@@ -398,8 +437,10 @@ class Output(object):
 def time():
     """returns the current time in ms of the PortMidi timer
     pygame.midi.time(): return time
+
+    The time is reset to 0, when the module is inited.
     """
-    return pypm.Time()
+    return _pypm.Time()
 
 
 
@@ -428,6 +469,16 @@ def midis2events(midis, device_id):
 
 
 
+
+
+class MidiException(Exception):
+    """exception that pygame.midi functions and classes can raise
+    MidiException(errno)
+    """
+    def __init__(self, value):
+        self.parameter = value
+    def __str__(self):
+        return repr(self.parameter)
 
 
 
