@@ -919,8 +919,8 @@ pmdll = portmidi.dll
 pmlib = libportmidi.a
 pmimplib = libportmidi.dll.a
 pmcomsrc = $(pmcom)/portmidi.c $(pmcom)/pmutil.c
-pmwinsrc = $(pmwin)/pmwin.c $(pmwin)/pmwinmm.c
-pmobj = portmidi.o pmutil.o pmwin.o pmwinmm.o
+pmwinsrc = $(pmwin)/pmwin.c $(pmwin)/pmwinmm_.c
+pmobj = portmidi.o pmutil.o pmwin.o pmwinmm_.o
 pmsrc = $(pmcomsrc) $(pmwinsrc)
 pmreqhdr = $(pmcom)/portmidi.h $(pmcom)/pmutil.h
 pmhdr = $(pmreqhdr) $(pmcom)/pminternal.h $(pmwin)/pmwinmm.h
@@ -941,6 +941,9 @@ LIBS := $(LOADLIBES) $(LDLIBS) -lwinmm
 
 all : $(pmdll)
 .PHONY : all
+
+$(pmwin)/pmwinmm_.c : $(pmwin)/pmwinmm.c
+\tsed 's_#define DEBUG.*$$_/*&*/_' < "$<" > "$@"
 
 $(pmlib) : $(src) $(hdr)
 \t$(CC) $(CPPFLAGS) $(IHDR) -c $(CFLAGS) $(src)
@@ -963,7 +966,7 @@ install : $(pmdll)
 .PHONY : clean
 
 clean :
-\trm -f $(obj) $(pmdll) $(pmimplib) $(pmlib)
+\trm -f $(obj) $(pmdll) $(pmimplib) $(pmlib) $(pmwin)/pmwinmm_.c
 THE_END
 
   cat > portmidi.def << 'THE_END'
@@ -1042,6 +1045,8 @@ if [ x$BDCLEAN == x1 ]; then
   make clean
   rm -f GNUmakefile portmidi.def
 fi
+
+exit 0
 """),
     ]  # End dependencies = [.
 
