@@ -17,6 +17,7 @@ __file__ = sys.argv[0]
 
 THISDIR = os.path.dirname( __file__ )
 sys.path.append( os.path.join( THISDIR, "libs") )
+sys.path.append( os.path.join( THISDIR, "libs", "pygame.zip") )
 
 if len(sys.argv) < 2:
     path_to_app = os.path.join( THISDIR, "launcher", "pygame_launcher.py" )

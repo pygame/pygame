@@ -12,6 +12,15 @@ Run 'makeref.py --no-code-docs'
 
 Create symbian/deps directory
 
+Get PyS60 SDK from Maemo Garage
+- https://garage.maemo.org/frs/?group_id=854&release_id=2673
+-- Unzip the stuff to your Symbian epocroot
+
+Get PyS60 packaging tool
+- Use the installer or get the tar.gz package.
+-- Copy the PythonForS60 folder to 'deps'
+
+
 Checkout ogg to symbian/deps/ogg
 - IMPORTANT: Revision 7524
 - SVN: http://svn.xiph.org/trunk/ogg 
@@ -29,7 +38,7 @@ Checkout vorbis to symbian/deps/vorbis
 
 Get SDL for Series60
 - Available at: http://koti.mbnet.fi/mertama/sdl.html
-- Follow the instructions and copy the pathced SDL S60 folder to symbian/deps/SDL
+- Follow the instructions and copy the patched SDL S60 folder to symbian/deps/SDL
 
 Get SDL_mixer to symbian/deps/SDL_mixer
 - http://www.libsdl.org/projects/SDL_mixer/
