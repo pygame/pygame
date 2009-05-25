@@ -37,7 +37,8 @@ SymbianProgram( "pygame", TARGETTYPE_EXE,
                 icons = [ ("../lib/pygame_icon.svg", "pygame") ],
                 package=PACKAGE_NAME,
                 capabilities = CAPABILITIES,
-                epocheapsize = ( 0x5000, 0x200000 ),
+                # 100k, 4MB
+                epocheapsize = ( 0x19000, 0x400000 ),
                 epocstacksize = 0x14000,
                 winscw_options = "-w noempty",
 )
@@ -50,17 +51,13 @@ def doPackage(**kwargs):
     #kwargs["target"] = abspath( kwargs["target"] )
     ToPackage( package = PACKAGE_NAME, **kwargs )
 
-def packagePyS60Stdlib(**kwargs):
-    kwargs["source"] = join( "deps/PythonForS60/module-repo/standard-modules", kwargs["source"] )
-    doPackage( **kwargs )
 
-
-doPackage( source = "app/pygame_main.py", target = "data/pygame", dopycompile=False )
-doPackage( source = "app/launcher/pygame_launcher.py", target = "data/pygame/launcher" )
-
+doPackage( source = "app/pygame_main.py", target = "data/pygame", 
+           dopycompile=False )
+doPackage( source = "app/launcher/pygame_launcher.py", target = "data/pygame/launcher", 
+           dopycompile=False )
+doPackage( source = "app/apps/liquid_s60.py", target = "data/pygame/apps", 
+           dopycompile=False )
 doPackage( source = "app/launcher/logo.jpg", target = "data/pygame/launcher" )
-doPackage( source = "app/apps/liquid_s60.py", target = "data/pygame/apps" )
-packagePyS60Stdlib( source = "glob.py",    target = "data/pygame/libs" )
-packagePyS60Stdlib( source = "fnmatch.py", target = "data/pygame/libs" )
 
 

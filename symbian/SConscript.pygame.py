@@ -77,15 +77,21 @@ SymbianProgram( "pygame", TARGETTYPE_LIB,
 # Install pygame python libraries
 from glob import glob
 
+pylibzip = "data/pygame/libs/pygame.zip"
 def to_package(**kwargs):
     kwargs["source"] = abspath( kwargs["source"] )
-    ToPackage( package = PACKAGE_NAME, **kwargs )
+    return ToPackage( package = PACKAGE_NAME, pylibzip = pylibzip, 
+               dopycompile = ".pyc", **kwargs )
 
 pygame_lib = join( PATH_PY_LIBS, "pygame" )
 
 # Copy main pygame libs
+IGNORED_FILES = ["camera.py"]
 for x in glob( "../lib/*.py"):
-    to_package( source = x, target = pygame_lib )
+    for i in IGNORED_FILES:
+        if x.endswith( i ): break 
+    else:
+        to_package( source = x, target = pygame_lib )
 
 for x in glob( "../lib/threads/*.py"):
     to_package( source = x, target = join( pygame_lib, "threads") )
@@ -95,4 +101,15 @@ for x in glob( "lib/*.py"):
     to_package( source = x, target = pygame_lib )
     
 # Install default font
-to_package( source = "../lib/freesansbold.ttf", target = pygame_lib )
+#to_package( source = "../lib/freesansbold.ttf", target = pygame_lib )
+
+
+
+def packagePyS60Stdlib(**kwargs):
+    kwargs["source"] = join( "deps/PythonForS60/module-repo/standard-modules", kwargs["source"] )
+    return to_package( **kwargs )
+
+packagePyS60Stdlib( source = "glob.py",    target = "data/pygame/libs" )
+zippath = packagePyS60Stdlib( source = "fnmatch.py", target = "data/pygame/libs" )
+
+File2Zip( zippath, "../lib/freesansbold.ttf", "pygame/freesansbold.ttf" )
