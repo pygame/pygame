@@ -2167,6 +2167,10 @@ static PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *if
         return NULL;
     }
     PySys_WriteStdout("stream_open2: %10s\n", is->filename); 
+    
+    PyObject *list;
+    list = PyList_New((Py_ssize_t)0);
+    is->streams = list;
     PySys_WriteStdout("stream_open: Returning from within stream_open\n");
     return is;
 }
@@ -2196,17 +2200,19 @@ static void stream_close(PyMovie *is)
 
     pas = (PyAudioStream *)PySequence_GetItem(is->streams, (Py_ssize_t)is->audio_stream);
     Py_XINCREF((PyObject *)pas);
-    
-    for(i=0;i<VIDEO_PICTURE_QUEUE_SIZE; i++) {
-        vp = &pvs->pictq[i];
-        if (pvs->bmp) {
-            SDL_FreeYUVOverlay(pvs->bmp);
-            pvs->bmp = NULL;
-        }
-        if(pvs->out_surf)
-        {
-            SDL_FreeSurface(pvs->out_surf);
-        }
+    if(pvs)
+    {
+    	for(i=0;i<VIDEO_PICTURE_QUEUE_SIZE; i++) {
+        	vp = &pvs->pictq[i];
+        	if (pvs->bmp) {
+            	SDL_FreeYUVOverlay(pvs->bmp);
+            	pvs->bmp = NULL;
+        	}
+        	if(pvs->out_surf)
+        	{
+            	SDL_FreeSurface(pvs->out_surf);
+        	}
+    	}
     }
     if(pvs)
     {
