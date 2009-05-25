@@ -169,13 +169,22 @@ New in pygame 1.8
 
 average_surfaces
 find the average surface from many surfaces.
-pygame.transform.average_surfaces(Surfaces, DestSurface = None): return Surface
+pygame.transform.average_surfaces(Surfaces, DestSurface = None, palette_colors = 1): return Surface
 
 Takes a sequence of surfaces and returns a surface with average colors from each
 of the surfaces.
 
+palette_colors - if true we average the colors in palette, otherwise we
+average the pixel values.  This is useful if the surface is actually greyscale 
+colors, and not palette colors.
+
+Note, this function currently does not handle palette using surfaces correctly.
+
 New in pygame 1.8
+palette_colors argument new in pygame 1.9
 <END>
+
+
 
 average_color
 finds the average color of a surface
@@ -184,6 +193,8 @@ pygame.transform.average_color(Surface, Rect = None): return Color
 Finds the average color of a Surface or a region of a surface specified by a
 Rect, and returns it as a Color.
 <END>
+
+
 
 threshold
 finds which, and how many pixels in a surface are within a threshold of a color.
