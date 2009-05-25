@@ -23,6 +23,7 @@
 #include <math.h>
 #include <SDL.h>
 #include "pgdefines.h"
+#include "filters.h"
 
 #define LOCK_SURFACE(x,ret)                                             \
     if (SDL_MUSTLOCK (x))                                               \
@@ -56,7 +57,7 @@ pyg_transform_scale2x (SDL_Surface *srcsurface, SDL_Surface *dstsurface);
 
 SDL_Surface*
 pyg_transform_smoothscale (SDL_Surface *srcsurface, SDL_Surface *dstsurface,
-    int width, int height);
+    int width, int height, FilterFuncs *filters);
 
 SDL_Surface*
 pyg_transform_laplacian (SDL_Surface *srcsurface, SDL_Surface *dstsurface);

@@ -135,15 +135,16 @@ def _initsysfonts_unix():
     """
     read the fonts on unix
     """
+    import subprocess
     fonts = {}
 
     # we use the fc-list from fontconfig to get a list of fonts.
 
     try:
-        # note, we use popen3 for if fc-list isn't there to stop stderr
-        # printing.
-        flin, flout, flerr = os.popen3('fc-list : file family style')
-    except:
+        flout, flerr = subprocess.Popen('fc-list : file family style', shell=True,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                        close_fds=True).communicate()
+    except Exception:
         return fonts
 
     try:

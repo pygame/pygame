@@ -426,8 +426,6 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
     /* TODO */
 }
 
-
-
 /****************************************************
  * C API CALLS
  ****************************************************/

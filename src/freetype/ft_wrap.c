@@ -124,6 +124,8 @@ PGFT_BuildUnicodeString(PyObject *obj, int *must_free)
         len = strlen(latin1_buffer);
 
         utf16_buffer = malloc((len + 1) * sizeof(FT_UInt16));
+        if (!utf16_buffer)
+            return NULL;
 
         for (i = 0; i < len; ++i)
             utf16_buffer[i] = (FT_UInt16)latin1_buffer[i];
@@ -446,8 +448,10 @@ PGFT_Quit(FreeTypeInstance *ft)
     if (ft->library)
         FT_Done_FreeType(ft->library);
 
-    free(ft->_error_msg);
-    free(ft);
+    if (ft->_error_msg)
+        free (ft->_error_msg);
+    
+    free (ft);
 }
 
 int

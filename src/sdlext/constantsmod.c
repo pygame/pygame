@@ -22,6 +22,7 @@
 #include "sdlextmod.h"
 #include "pgsdlext.h"
 #include "scrap.h"
+#include "filters.h"
 
 /* macros used to create each constant */
 #define DEC_CONSTS(x)  PyModule_AddIntConstant(module, #x, (int) #x)
@@ -59,6 +60,10 @@ PyMODINIT_FUNC initconstants (void)
     ADD_STRING_CONST (SCRAP_FORMAT_PPM);
     ADD_STRING_CONST (SCRAP_FORMAT_PBM);
 
+    DEC_CONSTS (FILTER_C);
+    DEC_CONSTS (FILTER_MMX);
+    DEC_CONSTS (FILTER_SSE);
+    
     MODINIT_RETURN(module);
 fail:
     Py_XDECREF (module);

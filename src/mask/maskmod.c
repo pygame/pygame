@@ -252,7 +252,7 @@ static void
 _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2, 
     Uint32 color,  Uint32 threshold)
 {
-    int x, y, rshift, gshift, bshift, rshift2, gshift2, bshift2;
+    int x, y, rshift, gshift, bshift, rshift2, gshift2, bshift2, bpp1, bpp2;
     int rloss, gloss, bloss, rloss2, gloss2, bloss2;
     Uint8 *pixels, *pixels2;
     SDL_PixelFormat *format, *format2;
@@ -272,6 +272,7 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
     rloss = format->Rloss;
     gloss = format->Gloss;
     bloss = format->Bloss;
+    bpp1 = format->BytesPerPixel;
 
     if (surf2)
     {
@@ -286,6 +287,7 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         gloss2 = format2->Gloss;
         bloss2 = format2->Bloss;
         pixels2 = (Uint8 *) surf2->pixels;
+        bpp2 = format2->BytesPerPixel;
     }
     else
     {
@@ -295,6 +297,7 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         rloss2 = gloss2 = bloss2 = 0;
         format2 = NULL;
         pixels2 = NULL;
+        bpp2 = 0;
     }
 
     SDL_GetRGBA (color, format, &r, &g, &b, &a);
@@ -311,7 +314,7 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
         for (x=0; x < surf->w; x++)
         {
             /* the_color = surf->get_at(x,y) */
-            switch (format->BytesPerPixel)
+            switch (bpp1)
             {
             case 1:
                 the_color = (Uint32)*((Uint8 *) pixels);
@@ -338,7 +341,7 @@ _bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
 
             if (surf2)
             {
-                switch (format2->BytesPerPixel)
+                switch (bpp2)
                 {
                 case 1:
                     the_color2 = (Uint32)*((Uint8 *) pixels2);

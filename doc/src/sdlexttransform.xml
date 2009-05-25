@@ -67,6 +67,20 @@
       :class:`pygame2.sdl.video.Surface` with the same dimensions. 
     </desc>
   </func>
+  <func name="get_filtertype">
+    <call>get_filtertype () -> int</call>
+    <desc>
+      Gets the currently set filter type.
+    </desc>
+  </func>
+  <func name="set_filtertype">
+    <call>set_filtertype (type) -> int</call>
+    <desc>
+      Sets the filters to use to one of the supported filter types.
+      
+      TODO
+    </desc>
+  </func>
   <func name="laplacian">
     <call>laplacian (surface[, destsurface]) -> Surface</call>
     <desc>

@@ -23,20 +23,31 @@
 
 #include <SDL.h>
 
+typedef enum
+{
+    FILTER_C,
+    FILTER_MMX,
+    FILTER_SSE
+} FilterType;
+
+typedef struct
+{
+    FilterType type;
+    void       (*shrink_X)(Uint8 *, Uint8 *, int, int, int, int, int);
+    void       (*shrink_Y)(Uint8 *, Uint8 *, int, int, int, int, int);
+    void       (*expand_X)(Uint8 *, Uint8 *, int, int, int, int, int);
+    void       (*expand_Y)(Uint8 *, Uint8 *, int, int, int, int, int);
+} FilterFuncs;
+
+FilterType
+pyg_filter_init_filterfuncs (FilterFuncs *filters, FilterType type);
+
 void
 pyg_filter_shrink_X_C (Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     int dstpitch, int srcwidth, int dstwidth);
 
 void
-pyg_filter_shrink_X_MMX (Uint8 *srcpix, Uint8 *dstpix, int height,
-    int srcpitch, int dstpitch, int srcwidth, int dstwidth);
-
-void
 pyg_filter_shrink_Y_C (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
-    int dstpitch, int srcheight, int dstheight);
-
-void
-pyg_filter_shrink_Y_MMX (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     int dstpitch, int srcheight, int dstheight);
 
 void
@@ -44,15 +55,45 @@ pyg_filter_expand_X_C (Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
     int dstpitch, int srcwidth, int dstwidth);
 
 void
+pyg_filter_expand_Y_C (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+    int dstpitch, int srcheight, int dstheight);
+
+#if defined(__GNUC__) && (defined(__x86_64__) || defined(__i386__))
+#define FILTERS_SUPPORT_MMX
+#define FILTERS_SUPPORT_SSE
+
+void
+pyg_filter_shrink_X_MMX (Uint8 *srcpix, Uint8 *dstpix, int height,
+    int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+
+void
+pyg_filter_shrink_Y_MMX (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+    int dstpitch, int srcheight, int dstheight);
+
+void
 pyg_filter_expand_X_MMX (Uint8 *srcpix, Uint8 *dstpix, int height,
     int srcpitch, int dstpitch, int srcwidth, int dstwidth);
 
 void
-pyg_filter_expand_Y_C (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+pyg_filter_expand_Y_MMX (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     int dstpitch, int srcheight, int dstheight);
 
 void
-pyg_filter_expand_Y_MMX (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+pyg_filter_shrink_X_SSE (Uint8 *srcpix, Uint8 *dstpix, int height,
+    int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+
+void
+pyg_filter_shrink_Y_SSE (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
     int dstpitch, int srcheight, int dstheight);
+
+void
+pyg_filter_expand_X_SSE (Uint8 *srcpix, Uint8 *dstpix, int height,
+    int srcpitch, int dstpitch, int srcwidth, int dstwidth);
+
+void
+pyg_filter_expand_Y_SSE (Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+    int dstpitch, int srcheight, int dstheight);
+
+#endif /* __GNUC__ */
 
 #endif /* _PYGAME_FILTERS_H_ */

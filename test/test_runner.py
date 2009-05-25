@@ -45,8 +45,8 @@ opt_parser.add_option (
      help   = "fail incomplete tests" )
 
 opt_parser.add_option (
-     "-s",  "--subprocess", action = 'store_true',
-     help   = "run test suites in subprocesses (default: same process)" )
+     "-n",  "--nosubprocess", action = 'store_true',
+     help   = "run everything in a single process (default: subprocesses)" )
 
 opt_parser.add_option (
      "-d",  "--dump", action = 'store_true',
@@ -194,9 +194,9 @@ def get_test_results(raw_return):
     test_results = TEST_RESULTS_RE.search(raw_return)
     if test_results:
         try:     return eval(test_results.group(1))
-        except:  raise Exception (
-            "BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1)
-        )
+        except:
+            print ("BUGGY TEST RESULTS EVAL:\n %s" % test_results.group(1))
+            raise
 
 ################################################################################
 # ERRORS
@@ -283,11 +283,11 @@ def run_test(module, options):
 
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
 
-    if options.subprocess:
+    if options.nosubprocess:
+        return results
+    else:
         print (TEST_RESULTS_START)
         print (pformat(results))
-    else:
-        return results
 
 ################################################################################
 

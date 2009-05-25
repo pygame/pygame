@@ -1099,7 +1099,7 @@ pyg_transform_scale2x (SDL_Surface *srcsurface, SDL_Surface *dstsurface)
 
 SDL_Surface*
 pyg_transform_smoothscale (SDL_Surface *srcsurface, SDL_Surface *dstsurface,
-    int width, int height)
+    int width, int height, FilterFuncs *filters)
 {
     Uint8* srcpix, *dstpix, *dst32 = NULL;
     int srcpitch, dstpitch;
@@ -1254,95 +1254,46 @@ pyg_transform_smoothscale (SDL_Surface *srcsurface, SDL_Surface *dstsurface,
         }
     }
     
-    /* MMX routines will only compile in GCC */
-#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)) 
-    if (SDL_HasMMX ())
+    /* Start the filter by doing X-scaling */
+    if (dstwidth < srcwidth) /* shrink */
     {
-        /* Start the filter by doing X-scaling */
-        if (dstwidth < srcwidth) /* shrink */
-        {
-            if (srcheight != dstheight)
-                pyg_filter_shrink_X_MMX (srcpix, temppix, srcheight, srcpitch,
-                    temppitch, srcwidth, dstwidth);
-            else
-                pyg_filter_shrink_X_MMX (srcpix, dstpix, srcheight, srcpitch,
-                    dstpitch, srcwidth, dstwidth);
-        }
-        else if (dstwidth > srcwidth) /* expand */
-        {
-            if (srcheight != dstheight)
-                pyg_filter_expand_X_MMX (srcpix, temppix, srcheight, srcpitch,
-                    temppitch, srcwidth, dstwidth);
-            else
-                pyg_filter_expand_X_MMX (srcpix, dstpix, srcheight, srcpitch,
-                    dstpitch, srcwidth, dstwidth);
-        }
+        if (srcheight != dstheight)
+            filters->shrink_X (srcpix, temppix, srcheight, srcpitch,
+                temppitch, srcwidth, dstwidth);
+        else
+            filters->shrink_X (srcpix, dstpix, srcheight, srcpitch,
+                dstpitch, srcwidth, dstwidth);
+    }
+    else if (dstwidth > srcwidth) /* expand */
+    {
+        if (srcheight != dstheight)
+            filters->expand_X (srcpix, temppix, srcheight, srcpitch,
+                temppitch, srcwidth, dstwidth);
+        else
+            filters->expand_X (srcpix, dstpix, srcheight, srcpitch,
+                dstpitch, srcwidth, dstwidth);
+    }
       
-        /* Now do the Y scale */
-        if (dstheight < srcheight) /* shrink */
-        {
-            if (srcwidth != dstwidth)
-                pyg_filter_shrink_Y_MMX (temppix, dstpix, tempwidth, temppitch,
-                    dstpitch, srcheight, dstheight);
-            else
-                pyg_filter_shrink_Y_MMX (srcpix, dstpix, srcwidth, srcpitch,
-                    dstpitch, srcheight, dstheight);
-        }
-        else if (dstheight > srcheight)  /* expand */
-        {
-            if (srcwidth != dstwidth)
-                pyg_filter_expand_Y_MMX (temppix, dstpix, tempwidth, temppitch,
-                    dstpitch, srcheight, dstheight);
-            else
-                pyg_filter_expand_Y_MMX (srcpix, dstpix, srcwidth, srcpitch,
-                    dstpitch, srcheight, dstheight);
-        }
-    }
-    else
-#endif /* HAS_MMX */
+    /* Now do the Y scale */
+    if (dstheight < srcheight) /* shrink */
     {
-        /* No MMX -- use the C versions */
-        /* Start the filter by doing X-scaling */
-        if (dstwidth < srcwidth) /* shrink */
-        {
-            if (srcheight != dstheight)
-                pyg_filter_shrink_X_C (srcpix, temppix, srcheight, srcpitch,
-                    temppitch, srcwidth, dstwidth);
-            else
-                pyg_filter_shrink_X_C (srcpix, dstpix, srcheight, srcpitch,
-                    dstpitch, srcwidth, dstwidth);
-        }
-        else if (dstwidth > srcwidth) /* expand */
-        {
-            if (srcheight != dstheight)
-                pyg_filter_expand_X_C (srcpix, temppix, srcheight, srcpitch,
-                    temppitch, srcwidth, dstwidth);
-            else
-                pyg_filter_expand_X_C (srcpix, dstpix, srcheight, srcpitch,
-                    dstpitch, srcwidth, dstwidth);
-        }
-
-        /* Now do the Y scale */
-        if (dstheight < srcheight) /* shrink */
-        {
-            if (srcwidth != dstwidth)
-                pyg_filter_shrink_Y_C (temppix, dstpix, tempwidth, temppitch,
-                    dstpitch, srcheight, dstheight);
-            else
-                pyg_filter_shrink_Y_C (srcpix, dstpix, srcwidth, srcpitch,
-                    dstpitch, srcheight, dstheight);
-        }
-        else if (dstheight > srcheight)  /* expand */
-        {
-            if (srcwidth != dstwidth)
-                pyg_filter_expand_Y_C (temppix, dstpix, tempwidth, temppitch,
-                    dstpitch, srcheight, dstheight);
-            else
-                pyg_filter_expand_Y_C (srcpix, dstpix, srcwidth, srcpitch,
-                    dstpitch, srcheight, dstheight);
-        }
+        if (srcwidth != dstwidth)
+            filters->shrink_Y (temppix, dstpix, tempwidth, temppitch,
+                dstpitch, srcheight, dstheight);
+        else
+            filters->shrink_Y (srcpix, dstpix, srcwidth, srcpitch,
+                dstpitch, srcheight, dstheight);
     }
-    
+    else if (dstheight > srcheight)  /* expand */
+    {
+        if (srcwidth != dstwidth)
+            filters->expand_Y (temppix, dstpix, tempwidth, temppitch,
+                dstpitch, srcheight, dstheight);
+        else
+            filters->expand_Y (srcpix, dstpix, srcwidth, srcpitch,
+                dstpitch, srcheight, dstheight);
+    }
+
     /* Convert back to 24-bit if necessary */
     if (bpp == 3)
     {
@@ -1647,7 +1598,7 @@ pyg_transform_average_surfaces (SDL_Surface **surfaces, int count,
     }
 
     /*  blit the accumulated array back to the destination surface. */
-    div_inv = 1. / count;
+    div_inv = (float) (1.0L / count);
     the_idx = accumulate;
 
     if (SDL_MUSTLOCK (dstsurface) && SDL_LockSurface (dstsurface) == -1)

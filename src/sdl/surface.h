@@ -81,6 +81,18 @@
             ((Uint8)((argb & 0xff000000) >> 24)));                      \
     }
 
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define SET_PIXEL24(buf,format,rgb)                                     \
+    *((buf) + ((format)->Rshift >> 3)) = (rgb)[0];                      \
+    *((buf) + ((format)->Gshift >> 3)) = (rgb)[1];                      \
+    *((buf) + ((format)->Bshift >> 3)) = (rgb)[2];
+#else
+#define SET_PIXEL24(buf,format,rgb)                                     \
+    *((buf) + 2 - ((format)->Rshift >> 3)) = (rgb)[0];                  \
+    *((buf) + 2 - ((format)->Gshift >> 3)) = (rgb)[1];                  \
+    *((buf) + 2 - ((format)->Bshift >> 3)) = (rgb)[2];
+#endif
+
 #define SET_PIXEL_AT(surface,format,_x,_y,color)                        \
     if ((_x) >= (surface)->clip_rect.x &&                               \
         (_x) <= (surface)->clip_rect.x + (surface)->clip_rect.w &&      \
@@ -107,22 +119,17 @@
             SDL_GetRGB ((color), (format), _rgb, _rgb+1, _rgb+2);       \
             _buf = (Uint8*)(((Uint8*)(surface)->pixels) + (_y) *        \
                 (surface)->pitch) + (_x) * 3;                           \
-            if (SDL_BYTEORDER == SDL_LIL_ENDIAN)                        \
-            {                                                           \
-                *(_buf + ((format)->Rshift >> 3)) = _rgb[0];            \
-                *(_buf + ((format)->Gshift >> 3)) = _rgb[1];            \
-                *(_buf + ((format)->Bshift >> 3)) = _rgb[2];            \
-            }                                                           \
-            else                                                        \
-            {                                                           \
-                *(_buf + 2 - ((format)->Rshift >> 3)) = _rgb[0];        \
-                *(_buf + 2 - ((format)->Gshift >> 3)) = _rgb[1];        \
-                *(_buf + 2 - ((format)->Bshift >> 3)) = _rgb[2];        \
-            }                                                           \
+            SET_PIXEL24(_buf, format, rgb);                             \
             break;                                                      \
         }                                                               \
         }                                                               \
     }
+
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define GET_PIXEL_24(b) (b[0] + (b[1] << 8) + (b[2] << 16))
+#else
+#define GET_PIXEL_24(b) (b[2] + (b[1] << 8) + (b[0] << 16))
+#endif
 
 #define GET_PIXEL_AT(pxl,surface,bpp,_x,_y)                             \
     switch ((bpp))                                                      \
@@ -143,9 +150,7 @@
     {                                                                   \
         Uint8* buf = ((Uint8 *) (((Uint8*)(surface)->pixels) + (_y) *   \
                 (surface)->pitch) + (_x) * 3);                          \
-        pxl = (SDL_BYTEORDER == SDL_LIL_ENDIAN) ?                       \
-            buf[0] + (buf[1] << 8) + (buf[2] << 16) :                   \
-            (buf[0] << 16) + (buf[1] << 8) + buf[2];                    \
+        pxl = GET_PIXEL_24(b);                                          \
         break;                                                          \
     }                                                                   \
     }
@@ -166,9 +171,7 @@
     default:                                      \
     {                                             \
         Uint8 *b = (Uint8 *) source;              \
-        pxl = (SDL_BYTEORDER == SDL_LIL_ENDIAN) ? \
-            b[0] + (b[1] << 8) + (b[2] << 16) :   \
-            (b[0] << 16) + (b[1] << 8) + b[2];    \
+        pxl = GET_PIXEL_24(b);                    \
     }                                             \
     break;                                        \
     }

@@ -23,8 +23,11 @@
 #include "pgsdlext.h"
 #include "pgsdl.h"
 #include "transform.h"
+#include "filters.h"
 #include "surface.h"
 #include "sdlexttransform_doc.h"
+
+static FilterFuncs _filterfuncs = { 0, 0, 0, 0, 0 };
 
 static PyObject* _transform_scale (PyObject* self, PyObject* args);
 static PyObject* _transform_rotate (PyObject* self, PyObject* args);
@@ -36,6 +39,8 @@ static PyObject* _transform_threshold (PyObject* self, PyObject* args);
 static PyObject* _transform_laplacian (PyObject* self, PyObject* args);
 static PyObject* _transform_averagesurfaces (PyObject* self, PyObject* args);
 static PyObject* _transform_averagecolor (PyObject* self, PyObject* args);
+static PyObject* _transform_getfiltertype (PyObject* self);
+static PyObject* _transform_setfiltertype (PyObject* self, PyObject* args);
 
 static PyMethodDef _transform_methods[] =
 {
@@ -54,6 +59,10 @@ static PyMethodDef _transform_methods[] =
       DOC_TRANSFORM_AVERAGE_SURFACES },
     { "average_color", _transform_averagecolor, METH_VARARGS,
       DOC_TRANSFORM_AVERAGE_COLOR },
+    { "get_filtertype", (PyCFunction)_transform_getfiltertype, METH_NOARGS,
+      DOC_TRANSFORM_GET_FILTERTYPE },
+    { "set_filtertype", _transform_setfiltertype, METH_VARARGS,
+      DOC_TRANSFORM_SET_FILTERTYPE },
     { NULL, NULL, 0, NULL }
 };
 
@@ -365,7 +374,7 @@ _transform_smoothscale (PyObject* self, PyObject* args)
         dst = ((PySDLSurface*)dstobj)->surface;
 
     Py_BEGIN_ALLOW_THREADS;
-    dst = pyg_transform_smoothscale (src, dst, width, height);
+    dst = pyg_transform_smoothscale (src, dst, width, height, &_filterfuncs);
     Py_END_ALLOW_THREADS;
     if (!dst)
     {
@@ -655,6 +664,21 @@ _transform_averagecolor (PyObject* self, PyObject* args)
     return PyColor_New ((pgbyte*)rgba);
 }   
 
+static PyObject*
+_transform_getfiltertype (PyObject* self)
+{
+    return PyInt_FromLong (_filterfuncs.type);
+}
+
+static PyObject*
+_transform_setfiltertype (PyObject* self, PyObject* args)
+{
+    FilterType type;
+    if (!PyArg_ParseTuple (args, "i", &type))
+        return NULL;
+    return PyInt_FromLong (pyg_filter_init_filterfuncs (&_filterfuncs, type));
+}
+
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_transform (void)
 #else
@@ -682,6 +706,9 @@ PyMODINIT_FUNC inittransform (void)
         goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;
+    
+    pyg_filter_init_filterfuncs (&_filterfuncs, FILTER_C);
+    
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);
