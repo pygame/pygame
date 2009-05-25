@@ -101,7 +101,7 @@ class Effects(object):
         return c * math.sin(t / d * (math.pi / 2)) + b
     
     def tweenEaseInOutSine(self, t, b, c, d, s=1.70158):
-        return - c / 2 * (math.cos(math.pi * t / d) - 1) + b;
+        return ( - c / 2 * (math.cos(math.pi * t / d) - 1) ) / 2 + b;
     
     def tweenEaseInBack(self, t, b, c, d, s=1.7158):
         t /= d
@@ -115,7 +115,7 @@ class Effects(object):
           
         B = - r.width
         X = B * v 
-        
+        #print B, X, v
         if direction == 1: 
             surf.blit(surfnew, (B - X, 0))
             surf.blit(surfold, (-X, 0))
@@ -141,19 +141,12 @@ class Effects(object):
         a1 = 255 * v
         a2 = 255 - a1 
         
-        #print "blend blit 1", time.time(),"->"
         surfnew.set_alpha(a1)
         surf.blit(surfnew, (0, 0))
-        #surf.fill((a1, a1, a1), None, BLEND_RGB_MULT)
-        #print time.time()
         
-        #print "blend blit 2", time.time(),"->"
         surfold.set_alpha(a2)
         surf.blit(surfold, (0, 0))
-        
-        #surf.fill((a2, a2, a2), None, BLEND_RGB_MULT)
-        #print time.time()
-        
+                
         return surf, 0, 0
     
     def effectZoomOut(self, surf, surfold, surfnew, v):
@@ -167,15 +160,11 @@ class Effects(object):
         w = int(r.width * (1 - v))
         h = int(r.height * (1 - v))
         
-        #print "scale", time.time(),"->",
         s = pygame.transform.scale(surfold, (w, h))
-        #print time.time()
         
-        #print "blits", time.time(),"->"
         surf.blit(surfnew,(0,0))
-        #print 1,time.time()
-        surf.blit(s, (r.width / 2 * (v), r.height / 2 * (v)))
-        #print 2,time.time()
+
+        surf.blit(s, (r.width / 2 * (v), r.height / 2 * (v)))        
         
         return surf, 0,0
     
@@ -200,11 +189,13 @@ class Effects(object):
         
         start = time.time()
         end = start + self.duration
-        
-        
-        
+         
         exitnext = False
         now = time.time()
+        
+        # The animation buffer
+        #surf = pygame.Surface(self.surf1.get_size(), )
+        
         while True: 
             t = now - start
             
@@ -213,19 +204,13 @@ class Effects(object):
                 self.render_callback(s)
             
             for effect, tween in effect_tween:
-                #print "effect", time.time(),"->",
                 v = tween(t, 0, 1, self.duration)
-                surf = pygame.Surface(self.surf1.get_size(), )
-                surf, x, y = effect( surf, s, self.surf2, v )
-                s = surf
-                #print time.time()
+                _surf, x, y = effect( self.screen, s, self.surf2, v )
             
-            #print "blit", time.time(),"->",
-            self.screen.blit(s, (x,y))
-            #print time.time()
+            #self.screen.blit(surf, (x,y))
             
             pygame.display.flip()
-            #print "tick", time.time(),"->",
+            
             self.clock.tick(30)
             
             if exitnext:
@@ -239,7 +224,6 @@ class Effects(object):
             
             #fps += 1
         
-        #print "fps"
         
 class TextCache(object):
     """ Handles text rendering and caches the surfaces of the texts for speed.
@@ -1036,19 +1020,6 @@ class Application(object):
         menu2.bg = bg2
         
         def render_callback(surf): 
-            # We'll need to update the logo in the background, 
-            # which depends on the tick counter.
-            #tics = pygame.time.get_ticks()
-            #self.sysdata.ticdiff = tics - self.sysdata.tics
-            #self.sysdata.tics = tics
-            
-            #self.mainbg.update()
-            #self.screen.blit(self.mainbg.surface, (0, 0))
-            #surf.blit(self.bg.surface, (0, 0))
-            #surf.set_alpha(96)
-            
-            #bg1.update()
-            #bg2.update()
             menu1.update()
             menu2.update()
         
@@ -1059,8 +1030,8 @@ class Application(object):
         # Blocks for the duration of the animation
         effect = [e.effectSlideLeftReplace, e.effectSlideRightReplace, e.effectFadeTo][effect]
         e.do([
-              (effect, lambda t, b, c, d, s=1.01:e.tweenEaseInOutSine(t, b, c, d, s)),
-              (e.effectFadeTo, e.tweenEaseOutSine),
+              (effect, lambda t, b, c, d, s=0.5:e.tweenEaseInOutSine(t, b, c, d, s)),
+              #(e.effectFadeTo, e.tweenEaseOutSine),
               ], 0.5)
         
         # The animation completed.
