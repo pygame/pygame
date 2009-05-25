@@ -153,7 +153,9 @@ def warn_unwanted_files():
 
     # here are the .py/.pyo/.pyc files we need to ask to remove.
     py_to_remove = ["color"]
-
+    
+    if os.name == "e32": # Don't warn on Symbian. The color.py is used as a wrapper.
+        py_to_remove = []
 
     # See if any of the files are there.
     extension_files = ["%s%s" % (x, extension_ext) for x in ext_to_remove]
