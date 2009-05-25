@@ -145,7 +145,7 @@ def run ():
         from async_sub import proc_in_time_or_kill
 
         def sub_test(module):
-            print ('loading', module)
+            print ('loading %s' % module)
 
             pass_on_args = [a for a in sys.argv[1:] if a not in args]
             cmd = [options.python, test_runner_py, module ] + pass_on_args

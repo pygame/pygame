@@ -14,7 +14,7 @@ from inspect import getdoc, getmembers, isclass
 from pprint import pformat
 
 try:
-    import pygame2.test.unittest_patch
+    import pygame2.test.unittest_patch as unittest_patch
     from pygame2.test.unittest_patch import StringIOContents
 except:
     import unittest_patch
@@ -284,16 +284,16 @@ def run_test(module, options):
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
 
     if options.nosubprocess:
-        return results
+        return (results)
     else:
         print (TEST_RESULTS_START)
-        print (pformat(results))
+        print (pformat (results))
 
 ################################################################################
 
 if __name__ == '__main__':
     options, args = opt_parser.parse_args()
-    test.unittest_patch.patch(options)
+    unittest_patch.patch(options)
     if not args: sys.exit('Called from run_tests.py, use that')
     run_test(args[0], options)
 
