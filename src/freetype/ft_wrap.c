@@ -32,7 +32,8 @@ void    _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
 void    _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
-int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, FTC_Scaler, int, FT_Glyph *);
+int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, 
+                        FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
 void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, int *, int *, int *, int *, int *);
 
 
@@ -229,9 +230,11 @@ int
 _PGFT_LoadGlyph(FreeTypeInstance *ft, 
         PyFreeTypeFont *font,
         FTC_Scaler scale, 
-        int character, FT_Glyph *glyph)
+        int character, 
+        FT_Glyph *glyph, 
+        FT_UInt32 *_index)
 {
-    FT_Error error;
+    FT_Error error = 0;
     FT_UInt32 char_index;
 
     char_index = FTC_CMapCache_Lookup(
@@ -239,15 +242,21 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
             (FTC_FaceID)font,
             -1, (FT_UInt32)character);
 
+    if (_index)
+        *_index = char_index;
+
     if (char_index == 0)
         return -1;
 
-    error = FTC_ImageCache_LookupScaler(
-            ft->cache_img,
-            scale,
-            FT_LOAD_DEFAULT, /* TODO: proper load flags */
-            char_index,
-            glyph, NULL);
+    if (glyph)
+    {
+        error = FTC_ImageCache_LookupScaler(
+                ft->cache_img,
+                scale,
+                FT_LOAD_DEFAULT, /* TODO: proper load flags */
+                char_index,
+                glyph, NULL);
+    }
 
     return error;
 }
@@ -292,7 +301,7 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
     _PGFT_BuildScaler(font, &scale, font_size);
     face = font->face;
 
-    error = _PGFT_LoadGlyph(ft, font, &scale, character, &glyph);
+    error = _PGFT_LoadGlyph(ft, font, &scale, character, &glyph, NULL);
 
     if (error)
     {
@@ -312,10 +321,11 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 #define UNICODE_BOM_SWAPPED	0xFFFE
 
     const FT_UInt16 *ch;
-    int swapped;
+    int swapped, use_kerning;
     FTC_ScalerRec scale;
     FT_Face face;
     FT_Glyph glyph;
+    FT_UInt32 prev_index, cur_index;
 
     int minx, maxx, miny, maxy, x, z;
     int gl_maxx, gl_maxy, gl_minx, gl_miny, gl_advance;
@@ -329,6 +339,9 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
     minx = maxx = 0;
     miny = maxy = 0;
+    prev_index = 0;
+
+    use_kerning = FT_HAS_KERNING(face);
 
     for (ch = text; *ch; ++ch)
     {
@@ -346,32 +359,44 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (swapped)
             c = (FT_UInt16)((c << 8) | (c >> 8));
 
-        if (_PGFT_LoadGlyph(ft, font, &scale, c, &glyph) != 0)
+        if (_PGFT_LoadGlyph(ft, font, &scale, c, &glyph, &cur_index) != 0)
             continue;
-
-        /* TODO: Handle kerning */
 
         _PGFT_GetMetrics_INTERNAL(glyph, 
                 &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
 
+        if (use_kerning && prev_index)
+        {
+			FT_Vector delta;
+			FT_Get_Kerning(face, prev_index, cur_index, ft_kerning_default, &delta); 
+			x += delta.x >> 6;
+		}
+
         z = x + gl_minx;
-		if (minx > z) 
-            minx = z;
+		if (minx > z)
+			minx = z;
+		
+        /* TODO: Handle bold fonts */
 
-        z = x + (gl_advance > gl_maxx) ? gl_advance : gl_maxx;
-		if (maxx < z) 
-            maxx = z;
+        z = x + MAX(gl_maxx, gl_advance);
+		if (maxx < z)
+			maxx = z;
 
-        if (gl_miny < miny)
-            miny = gl_miny;
-
-        if (gl_maxy > maxy)
-            maxy = gl_maxy;
+        miny = MIN(gl_miny, miny);
+        maxy = MAX(gl_maxy, maxy);
 
 		x += gl_advance;
+        prev_index = cur_index;
     }
 
     *w = (maxx - minx);
+
+    /* 
+     * FIXME: According to SDL_TTF, the *real* height for the 
+     * text seems to break some applications (?) but it seems
+     * more sane to me having the real height than the max
+     * height based on ascent/descent of all glyphs.
+     */
     *h = (maxy - miny);
     return 0;
 }

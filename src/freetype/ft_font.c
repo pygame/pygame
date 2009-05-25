@@ -401,8 +401,6 @@ _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
         else
             char_id = ((char *)buf)[i];
 
-        printf("Character %d \n", char_id);
-
         if (PGFT_GetMetrics(ft, (PyFreeTypeFont *)self, char_id, 
                     text_size, &minx, &maxx, &miny, &maxy, &advance) == 0)
         {
