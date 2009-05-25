@@ -67,7 +67,7 @@ typedef struct
         (PyTypeObject*)PyGameFreeType_C_API[PYGAME_FREETYPE_FONT_FIRSTSLOT + 0]))
 
 #   define PyFreeTypeFont_New \
-    (*(PyObject*(*)(char*,int))PyGameFreeType_C_API[PYGAME_FREETYPE_FONT_FIRSTSLOT + 1])
+    (*(PyObject*(*)(const char*,int))PyGameFreeType_C_API[PYGAME_FREETYPE_FONT_FIRSTSLOT + 1])
 #endif /* PYGAME_FREETYPE_FONT_INTERNAL */
 
 /*

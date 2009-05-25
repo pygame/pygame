@@ -402,15 +402,34 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 
 
 int
-PGFT_TryLoadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
+PGFT_TryLoadFont_Filename(FreeTypeInstance *ft, 
+        PyFreeTypeFont *font, 
+        const char *filename, 
+        int face_index)
 {
+    char *filename_alloc;
+    size_t file_len;
+
+    file_len = strlen(filename);
+    filename_alloc = malloc(file_len + 1);
+
+    strcpy(filename_alloc, filename);
+    filename_alloc[file_len] = 0;
+
+    font->id.face_index = face_index;
+    font->id.open_args.flags = FT_OPEN_PATHNAME;
+    font->id.open_args.pathname = filename_alloc;
+
     return _PGFT_GetFace(ft, font) ? 0 : -1;
 }
 
 void
 PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
+    if (ft != NULL)
+        FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
+
+    free(font->id.open_args.pathname);
 }
 
 void

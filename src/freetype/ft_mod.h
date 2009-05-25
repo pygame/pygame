@@ -27,7 +27,7 @@
 
 extern PyTypeObject PyFreeTypeFont_Type;
 #define PyFreeTypeFont_Check(x) (PyObject_TypeCheck(x, &PyFreeTypeFont_Type))
-PyObject* PyFreeTypeFont_New(char *file, int ptsize);
+PyObject* PyFreeTypeFont_New(const char *file, int face_index);
 void ftfont_export_capi (void **capi);
 
 #endif /* _PYGAME_FREETYPEMOD_H_ */

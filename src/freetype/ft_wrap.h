@@ -54,13 +54,13 @@ FreeTypeInstance *_get_freetype(void);
 const char *PGFT_GetError(FreeTypeInstance *);
 void    PGFT_Quit(FreeTypeInstance *);
 int     PGFT_Init(FreeTypeInstance **);
-int     PGFT_TryLoadFont(FreeTypeInstance *, PyFreeTypeFont *);
+int     PGFT_TryLoadFont_Filename(FreeTypeInstance *, 
+            PyFreeTypeFont *, const char *, int);
 void    PGFT_UnloadFont(FreeTypeInstance *, PyFreeTypeFont *);
 
 int     PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *);
 int     PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *);
 const char * PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *);
-const char * PGFT_Face_GetFormat(FreeTypeInstance *ft, PyFreeTypeFont *);
 
 FT_UInt16 *PGFT_BuildUnicodeString(PyObject *, int *);
 

@@ -177,12 +177,9 @@ PyTypeObject PyFreeTypeFont_Type =
 static void
 _ftfont_dealloc(PyFreeTypeFont *self)
 {
-    FreeTypeInstance *ft;
-
-    if ((ft = _get_freetype()) != NULL)
-        PGFT_UnloadFont(ft, self);
-
-    free(self->id.open_args.pathname);
+    /* Always try to unload the font even if we cannot grab
+     * a freetype instance. */
+    PGFT_UnloadFont(_get_freetype(), self);
 
     ((PyObject*)self)->ob_type->tp_free((PyObject *)self);
 }
@@ -228,8 +225,6 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    font->id.face_index = face_index;
-
     /*
      * TODO: Handle file-like objects
      */
@@ -246,28 +241,18 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
             return -1;
         }
 
-        file_len = strlen(filename);
-        filename_alloc = malloc(file_len + 1);
-
-        strcpy(filename_alloc, filename);
-        filename_alloc[file_len] = 0;
-        
-        font->id.open_args.flags = FT_OPEN_PATHNAME;
-        font->id.open_args.pathname = filename_alloc;
         Py_XDECREF(tmp);
+
+        if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
+        {
+            PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+            return -1;
+        }
     }
     else
     {
         PyErr_SetString(PyExc_ValueError, 
             "Invalid 'file' parameter (must be a File object or a file name)");
-        return -1;
-    }
-
-
-    if (PGFT_TryLoadFont(ft, font) != 0)
-    {
-        /* TODO: Get a proper error string */
-        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
         return -1;
     }
 
@@ -277,10 +262,9 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject*
 _ftfont_repr(PyObject *self)
 {
-    return Text_FromUTF8("font");
-/*    return Text_FromFormat("%s (FreeType %s font)", 
-        PGFT_Face_GetName((PyFreeTypeFont *)self),
-        PGFT_Face_GetFormat((PyFreeTypeFont *)self)); */
+    PyFreeTypeFont *font = (PyFreeTypeFont *)self;
+    return Text_FromFormat("FreeType Font (%s)", 
+            font->id.open_args.pathname);
 }
 
 
@@ -448,10 +432,29 @@ _ftfont_render(PyObject *self, PyObject* args, PyObject *kwds)
  * C API CALLS
  ****************************************************/
 PyObject*
-PyFreeTypeFont_New(char *file, int ptsize)
+PyFreeTypeFont_New(const char *filename, int face_index)
 {
-    /* TODO */
-    return NULL;
+    PyFreeTypeFont *font;
+
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    if (!filename)
+        return NULL;
+
+    font = (PyFreeTypeFont *)PyFreeTypeFont_Type.tp_new(
+            &PyFreeTypeFont_Type, NULL, NULL);
+
+    if (!font)
+        return NULL;
+
+    if (PGFT_TryLoadFont_Filename(ft, font, filename, face_index) != 0)
+    {
+        PyErr_SetString(PyExc_RuntimeError, PGFT_GetError(ft));
+        return NULL;
+    }
+
+    return (PyObject*) font;
 }
 
 void
