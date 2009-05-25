@@ -34,10 +34,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-/* These functions implement an area-averaging shrinking filter in the X-dimension.
+/* These functions implement an area-averaging shrinking filter in the
+ * X-dimension.
  */
 void
-pyg_filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+pyg_filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+    int dstpitch, int srcwidth, int dstwidth)
 {
     int srcdiff = srcpitch - (srcwidth * 4);
     int dstdiff = dstpitch - (dstwidth * 4);
@@ -118,13 +120,14 @@ pyg_filter_shrink_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, 
         " emms;                                      "
         : "+r"(srcpix), "+r"(dstpix)                   /* outputs */
         : "m"(One64),   "m"(height), "m"(srcwidth),
-          "m"(xspace),  "m"(xrecip), "m"(srcdiff),  "m"(dstdiff)  /* input */
+        "m"(xspace),  "m"(xrecip), "m"(srcdiff),  "m"(dstdiff)  /* input */
         : "%ecx","%edx"     /* clobbered */
         );
 }
 
 void
-pyg_filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+pyg_filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+    int dstpitch, int srcwidth, int dstwidth)
 {
     int srcdiff = srcpitch - (srcwidth * 4);
     int dstdiff = dstpitch - (dstwidth * 4);
@@ -180,15 +183,17 @@ pyg_filter_shrink_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, 
         " emms;                                      "
         : "+r"(srcpix), "+r"(dstpix)                   /* outputs */
         : "m"(One64),   "m"(height), "m"(srcwidth),
-          "m"(xspace),  "m"(xrecip), "m"(srcdiff),  "m"(dstdiff)  /* input */
+        "m"(xspace),  "m"(xrecip), "m"(srcdiff),  "m"(dstdiff)  /* input */
         : "%ecx","%edx"     /* clobbered */
         );
 }
 
-/* These functions implement an area-averaging shrinking filter in the Y-dimension.
+/* These functions implement an area-averaging shrinking filter in the
+ * Y-dimension.
  */
 void
-pyg_filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+pyg_filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+    int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
     int srcdiff = srcpitch - (width * 4);
@@ -198,8 +203,9 @@ pyg_filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
     long long One64 = 0x4000400040004000ULL;
 
     /* allocate and clear a memory area for storing the accumulator line */
-    templine = (Uint16 *) malloc(dstpitch * 2);
-    if (templine == 0) return;
+    templine = (Uint16 *) malloc((size_t)(dstpitch * 2));
+    if (templine == 0)
+        return;
     memset(templine, 0, dstpitch * 2);
 
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
@@ -285,7 +291,7 @@ pyg_filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
         " emms;                                      "
         : "+r"(srcpix),  "+r"(dstpix)     /* outputs */
         : "m"(templine), "m"(srcheight), "m"(width),  "m"(yspace),
-          "m"(yrecip),   "m"(srcdiff),   "m"(dstdiff),"m"(One64)  /* input */
+        "m"(yrecip),   "m"(srcdiff),   "m"(dstdiff),"m"(One64)  /* input */
         : "%ecx","%edx","%eax"           /* clobbered */
         );
 
@@ -294,7 +300,8 @@ pyg_filter_shrink_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
 }
 
 void
-pyg_filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+pyg_filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+    int dstpitch, int srcheight, int dstheight)
 {
     Uint16 *templine;
     int srcdiff = srcpitch - (width * 4);
@@ -304,8 +311,9 @@ pyg_filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
     long long One64 = 0x4000400040004000ULL;
 
     /* allocate and clear a memory area for storing the accumulator line */
-    templine = (Uint16 *) malloc(dstpitch * 2);
-    if (templine == 0) return;
+    templine = (Uint16 *) malloc((size_t)(dstpitch * 2));
+    if (templine == 0)
+        return;
     memset(templine, 0, dstpitch * 2);
     asm __volatile__(" /* MMX code for Y-shrink area average filter */ "
         " movl             %5,      %%ecx;           " /* ecx == ycounter */
@@ -363,7 +371,7 @@ pyg_filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
         " emms;                                      "
         : "+r"(srcpix),  "+r"(dstpix)     /* outputs */
         : "m"(templine), "m"(srcheight), "m"(width),  "m"(yspace),
-          "m"(yrecip),   "m"(srcdiff),   "m"(dstdiff),"m"(One64)  /* input */
+        "m"(yrecip),   "m"(srcdiff),   "m"(dstdiff),"m"(One64)  /* input */
         : "%ecx","%edx","%eax"           /* clobbered */
         );
 
@@ -374,18 +382,19 @@ pyg_filter_shrink_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
 /* These functions implement a bilinear filter in the X-dimension.
  */
 void
-pyg_filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+pyg_filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+    int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int x, y;
     int factorwidth = 8;
-  	long long One64 = 0x0100010001000100ULL;
+    long long One64 = 0x0100010001000100ULL;
 
     /* Allocate memory for factors */
-    xidx0 = malloc(dstwidth * 4);
+    xidx0 = malloc((size_t)(dstwidth * 4));
     if (xidx0 == 0) return;
-    xmult0 = (int *) malloc(dstwidth * factorwidth);
-    xmult1 = (int *) malloc(dstwidth * factorwidth);
+    xmult0 = (int *) malloc((size_t)(dstwidth * factorwidth));
+    xmult1 = (int *) malloc((size_t)(dstwidth * factorwidth));
     if (xmult0 == 0 || xmult1 == 0)
     {
         free(xidx0);
@@ -414,33 +423,33 @@ pyg_filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, 
         int *x0 = xidx0;
     	int width = dstwidth;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
-             " pxor          %%mm0,      %%mm0;           "
-             " movq             %5,      %%mm7;           "
-             "1:                                          "
-             " movl           (%2),      %%eax;           " /* get xidx0[x] */
-             " add              $4,         %2;           "
-             " movq          %%mm7,      %%mm2;           "
-             " movq           (%0),      %%mm1;           " /* load mult0 */
-             " add              $8,         %0;           "
-             " psubw         %%mm1,      %%mm2;           " /* load mult1 */
-             " movd   (%4,%%eax,4),      %%mm4;           "
-             " movd  4(%4,%%eax,4),      %%mm5;           "
-             " punpcklbw     %%mm0,      %%mm4;           "
-             " punpcklbw     %%mm0,      %%mm5;           "
-             " pmullw        %%mm1,      %%mm4;           "
-             " pmullw        %%mm2,      %%mm5;           "
-             " paddw         %%mm4,      %%mm5;           "
-             " psrlw            $8,      %%mm5;           "
-             " packuswb      %%mm0,      %%mm5;           "
-             " movd          %%mm5,       (%1);           "
-             " add              $4,         %1;           "
-             " decl             %3;                       "
-             " jne              1b;                       "
-             " emms;                                      "
-             : "+r"(xm0),    "+r"(dstrow), "+r"(x0), "+m"(width)  /* outputs */
-             : "S"(srcrow0), "m"(One64)    /* input */
-             : "%eax"            /* clobbered */
-             );
+            " pxor          %%mm0,      %%mm0;           "
+            " movq             %5,      %%mm7;           "
+            "1:                                          "
+            " movl           (%2),      %%eax;           " /* get xidx0[x] */
+            " add              $4,         %2;           "
+            " movq          %%mm7,      %%mm2;           "
+            " movq           (%0),      %%mm1;           " /* load mult0 */
+            " add              $8,         %0;           "
+            " psubw         %%mm1,      %%mm2;           " /* load mult1 */
+            " movd   (%4,%%eax,4),      %%mm4;           "
+            " movd  4(%4,%%eax,4),      %%mm5;           "
+            " punpcklbw     %%mm0,      %%mm4;           "
+            " punpcklbw     %%mm0,      %%mm5;           "
+            " pmullw        %%mm1,      %%mm4;           "
+            " pmullw        %%mm2,      %%mm5;           "
+            " paddw         %%mm4,      %%mm5;           "
+            " psrlw            $8,      %%mm5;           "
+            " packuswb      %%mm0,      %%mm5;           "
+            " movd          %%mm5,       (%1);           "
+            " add              $4,         %1;           "
+            " decl             %3;                       "
+            " jne              1b;                       "
+            " emms;                                      "
+            : "+r"(xm0),    "+r"(dstrow), "+r"(x0), "+m"(width)  /* outputs */
+            : "S"(srcrow0), "m"(One64)    /* input */
+            : "%eax"            /* clobbered */
+            );
     }
 
     /* free memory */
@@ -450,18 +459,19 @@ pyg_filter_expand_X_MMX(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, 
 }
 
 void
-pyg_filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, int dstpitch, int srcwidth, int dstwidth)
+pyg_filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch,
+    int dstpitch, int srcwidth, int dstwidth)
 {
     int *xidx0, *xmult0, *xmult1;
     int x, y;
     int factorwidth = 8;
-  	long long One64 = 0x0100010001000100ULL;
+    long long One64 = 0x0100010001000100ULL;
 
     /* Allocate memory for factors */
-    xidx0 = malloc(dstwidth * 4);
+    xidx0 = malloc((size_t)(dstwidth * 4));
     if (xidx0 == 0) return;
-    xmult0 = (int *) malloc(dstwidth * factorwidth);
-    xmult1 = (int *) malloc(dstwidth * factorwidth);
+    xmult0 = (int *) malloc((size_t)(dstwidth * factorwidth));
+    xmult1 = (int *) malloc((size_t)(dstwidth * factorwidth));
     if (xmult0 == 0 || xmult1 == 0)
     {
         free(xidx0);
@@ -490,33 +500,33 @@ pyg_filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, 
         int *x0 = xidx0;
     	int width = dstwidth;
         asm __volatile__( " /* MMX code for inner loop of X bilinear filter */ "
-             " pxor          %%mm0,      %%mm0;           "
-             " movq             %5,      %%mm7;           "
-             "1:                                          "
-             " movl           (%2),      %%eax;           " /* get xidx0[x] */
-             " add              $4,         %2;           "
-             " movq          %%mm7,      %%mm2;           "
-             " movq           (%0),      %%mm1;           " /* load mult0 */
-             " add              $8,         %0;           "
-             " psubw         %%mm1,      %%mm2;           " /* load mult1 */
-             " movd   (%4,%%eax,4),      %%mm4;           "
-             " movd  4(%4,%%eax,4),      %%mm5;           "
-             " punpcklbw     %%mm0,      %%mm4;           "
-             " punpcklbw     %%mm0,      %%mm5;           "
-             " pmullw        %%mm1,      %%mm4;           "
-             " pmullw        %%mm2,      %%mm5;           "
-             " paddw         %%mm4,      %%mm5;           "
-             " psrlw            $8,      %%mm5;           "
-             " packuswb      %%mm0,      %%mm5;           "
-             " movd          %%mm5,       (%1);           "
-             " add              $4,         %1;           "
-             " decl             %3;                       "
-             " jne              1b;                       "
-             " emms;                                      "
-             : "+r"(xm0),    "+r"(dstrow), "+r"(x0), "+m"(width)  /* outputs */
-             : "S"(srcrow0), "m"(One64)    /* input */
-             : "%eax"            /* clobbered */
-             );
+            " pxor          %%mm0,      %%mm0;           "
+            " movq             %5,      %%mm7;           "
+            "1:                                          "
+            " movl           (%2),      %%eax;           " /* get xidx0[x] */
+            " add              $4,         %2;           "
+            " movq          %%mm7,      %%mm2;           "
+            " movq           (%0),      %%mm1;           " /* load mult0 */
+            " add              $8,         %0;           "
+            " psubw         %%mm1,      %%mm2;           " /* load mult1 */
+            " movd   (%4,%%eax,4),      %%mm4;           "
+            " movd  4(%4,%%eax,4),      %%mm5;           "
+            " punpcklbw     %%mm0,      %%mm4;           "
+            " punpcklbw     %%mm0,      %%mm5;           "
+            " pmullw        %%mm1,      %%mm4;           "
+            " pmullw        %%mm2,      %%mm5;           "
+            " paddw         %%mm4,      %%mm5;           "
+            " psrlw            $8,      %%mm5;           "
+            " packuswb      %%mm0,      %%mm5;           "
+            " movd          %%mm5,       (%1);           "
+            " add              $4,         %1;           "
+            " decl             %3;                       "
+            " jne              1b;                       "
+            " emms;                                      "
+            : "+r"(xm0),    "+r"(dstrow), "+r"(x0), "+m"(width)  /* outputs */
+            : "S"(srcrow0), "m"(One64)    /* input */
+            : "%eax"            /* clobbered */
+            );
     }
 
     /* free memory */
@@ -528,7 +538,8 @@ pyg_filter_expand_X_SSE(Uint8 *srcpix, Uint8 *dstpix, int height, int srcpitch, 
 /* These functions implement a bilinear filter in the Y-dimension.
  */
 void
-pyg_filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+pyg_filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+    int dstpitch, int srcheight, int dstheight)
 {
     int y;
 
@@ -541,40 +552,41 @@ pyg_filter_expand_Y_MMX(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
         int ymult0 = 0x0100 - ymult1;
         Uint8 *dstrow = dstpix + y * dstpitch;
         asm __volatile__( " /* MMX code for inner loop of Y bilinear filter */ "
-             " movl          %5,      %%eax;                      "
-             " movd          %3,      %%mm1;                      "
-             " movd          %4,      %%mm2;                      "
-             " pxor       %%mm0,      %%mm0;                      "
-             " punpcklwd  %%mm1,      %%mm1;                      "
-             " punpckldq  %%mm1,      %%mm1;                      "
-             " punpcklwd  %%mm2,      %%mm2;                      "
-             " punpckldq  %%mm2,      %%mm2;                      "
-             "1:                                                  "
-             " movd        (%0),      %%mm4;                      "
-             " add           $4,         %0;                      "
-             " movd        (%1),      %%mm5;                      "
-             " add           $4,         %1;                      "
-             " punpcklbw  %%mm0,     %%mm4;                       "
-             " punpcklbw  %%mm0,     %%mm5;                       "
-             " pmullw     %%mm1,     %%mm4;                       "
-             " pmullw     %%mm2,     %%mm5;                       "
-             " paddw      %%mm4,     %%mm5;                       "
-             " psrlw         $8,     %%mm5;                       "
-             " packuswb   %%mm0,     %%mm5;                       "
-             " movd       %%mm5,      (%2);                       "
-             " add           $4,        %2;                       "
-             " decl       %%eax;                                  "
-             " jne           1b;                                  "
-             " emms;                                              "
-             : "+r"(srcrow0), "+r"(srcrow1),"+r"(dstrow)   /* no outputs */
-             : "m"(ymult0),   "m"(ymult1),  "m"(width)    /* input */
-             : "%eax"        /* clobbered */
-             );
+            " movl          %5,      %%eax;                      "
+            " movd          %3,      %%mm1;                      "
+            " movd          %4,      %%mm2;                      "
+            " pxor       %%mm0,      %%mm0;                      "
+            " punpcklwd  %%mm1,      %%mm1;                      "
+            " punpckldq  %%mm1,      %%mm1;                      "
+            " punpcklwd  %%mm2,      %%mm2;                      "
+            " punpckldq  %%mm2,      %%mm2;                      "
+            "1:                                                  "
+            " movd        (%0),      %%mm4;                      "
+            " add           $4,         %0;                      "
+            " movd        (%1),      %%mm5;                      "
+            " add           $4,         %1;                      "
+            " punpcklbw  %%mm0,     %%mm4;                       "
+            " punpcklbw  %%mm0,     %%mm5;                       "
+            " pmullw     %%mm1,     %%mm4;                       "
+            " pmullw     %%mm2,     %%mm5;                       "
+            " paddw      %%mm4,     %%mm5;                       "
+            " psrlw         $8,     %%mm5;                       "
+            " packuswb   %%mm0,     %%mm5;                       "
+            " movd       %%mm5,      (%2);                       "
+            " add           $4,        %2;                       "
+            " decl       %%eax;                                  "
+            " jne           1b;                                  "
+            " emms;                                              "
+            : "+r"(srcrow0), "+r"(srcrow1),"+r"(dstrow)   /* no outputs */
+            : "m"(ymult0),   "m"(ymult1),  "m"(width)    /* input */
+            : "%eax"        /* clobbered */
+            );
     }
 }
 
 void
-pyg_filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, int dstpitch, int srcheight, int dstheight)
+pyg_filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch,
+    int dstpitch, int srcheight, int dstheight)
 {
     int y;
 
@@ -587,32 +599,32 @@ pyg_filter_expand_Y_SSE(Uint8 *srcpix, Uint8 *dstpix, int width, int srcpitch, i
         int ymult0 = 0x0100 - ymult1;
         Uint8 *dstrow = dstpix + y * dstpitch;
         asm __volatile__( " /* MMX code for inner loop of Y bilinear filter */ "
-             " movl          %5,      %%eax;                      "
-             " movd          %3,      %%mm1;                      "
-             " movd          %4,      %%mm2;                      "
-             " pxor       %%mm0,      %%mm0;                      "
-             " pshufw      $0, %%mm1, %%mm1;                      "
-             " pshufw      $0, %%mm2, %%mm2;                      "
-             "1:                                                  "
-             " movd        (%0),      %%mm4;                      "
-             " add           $4,         %0;                      "
-             " movd        (%1),      %%mm5;                      "
-             " add           $4,         %1;                      "
-             " punpcklbw  %%mm0,     %%mm4;                       "
-             " punpcklbw  %%mm0,     %%mm5;                       "
-             " pmullw     %%mm1,     %%mm4;                       "
-             " pmullw     %%mm2,     %%mm5;                       "
-             " paddw      %%mm4,     %%mm5;                       "
-             " psrlw         $8,     %%mm5;                       "
-             " packuswb   %%mm0,     %%mm5;                       "
-             " movd       %%mm5,      (%2);                       "
-             " add           $4,        %2;                       "
-             " decl       %%eax;                                  "
-             " jne           1b;                                  "
-             " emms;                                              "
-             : "+r"(srcrow0), "+r"(srcrow1),"+r"(dstrow)   /* no outputs */
-             : "m"(ymult0),   "m"(ymult1),  "m"(width)    /* input */
-             : "%eax"        /* clobbered */
-             );
+            " movl          %5,      %%eax;                      "
+            " movd          %3,      %%mm1;                      "
+            " movd          %4,      %%mm2;                      "
+            " pxor       %%mm0,      %%mm0;                      "
+            " pshufw      $0, %%mm1, %%mm1;                      "
+            " pshufw      $0, %%mm2, %%mm2;                      "
+            "1:                                                  "
+            " movd        (%0),      %%mm4;                      "
+            " add           $4,         %0;                      "
+            " movd        (%1),      %%mm5;                      "
+            " add           $4,         %1;                      "
+            " punpcklbw  %%mm0,     %%mm4;                       "
+            " punpcklbw  %%mm0,     %%mm5;                       "
+            " pmullw     %%mm1,     %%mm4;                       "
+            " pmullw     %%mm2,     %%mm5;                       "
+            " paddw      %%mm4,     %%mm5;                       "
+            " psrlw         $8,     %%mm5;                       "
+            " packuswb   %%mm0,     %%mm5;                       "
+            " movd       %%mm5,      (%2);                       "
+            " add           $4,        %2;                       "
+            " decl       %%eax;                                  "
+            " jne           1b;                                  "
+            " emms;                                              "
+            : "+r"(srcrow0), "+r"(srcrow1),"+r"(dstrow)   /* no outputs */
+            : "m"(ymult0),   "m"(ymult1),  "m"(width)    /* input */
+            : "%eax"        /* clobbered */
+            );
     }
 }

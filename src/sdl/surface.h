@@ -119,7 +119,7 @@
             SDL_GetRGB ((color), (format), _rgb, _rgb+1, _rgb+2);       \
             _buf = (Uint8*)(((Uint8*)(surface)->pixels) + (_y) *        \
                 (surface)->pitch) + (_x) * 3;                           \
-            SET_PIXEL24(_buf, format, rgb);                             \
+            SET_PIXEL24(_buf, format, _rgb);                            \
             break;                                                      \
         }                                                               \
         }                                                               \
@@ -150,7 +150,7 @@
     {                                                                   \
         Uint8* buf = ((Uint8 *) (((Uint8*)(surface)->pixels) + (_y) *   \
                 (surface)->pitch) + (_x) * 3);                          \
-        pxl = GET_PIXEL_24(b);                                          \
+        pxl = GET_PIXEL_24(buf);                                          \
         break;                                                          \
     }                                                                   \
     }
