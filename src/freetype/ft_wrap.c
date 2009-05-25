@@ -43,8 +43,8 @@ _PGFT_face_request(FTC_FaceID face_id,
     FT_Pointer request_data, 
     FT_Face *aface)
 {
-    FontId *id = GET_FONT_ID(face_id); 
-    FT_Error error = 0;
+    FontId *id = (FontId *)face_id; 
+    FT_Error error;
     
     Py_BEGIN_ALLOW_THREADS;
         error = FT_Open_Face(library, &id->open_args, id->face_index, aface);
@@ -142,32 +142,30 @@ PGFT_GetError(FreeTypeInstance *ft)
 }
 
 int
-PGFT_Face_IsFixedWidth(PyFreeTypeFont *font)
+PGFT_Face_IsFixedWidth(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    return FT_IS_FIXED_WIDTH(font->face);
+    FT_Face face;
+    face = _PGFT_GetFace(ft, font);
+
+    return face ? FT_IS_FIXED_WIDTH(face) : 0;
 }
 
 const char *
-PGFT_Face_GetName(PyFreeTypeFont *font)
+PGFT_Face_GetName(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    return font->face->family_name;
-}
+    FT_Face face;
+    face = _PGFT_GetFace(ft, font);
 
-
-const char *
-PGFT_Face_GetFormat(PyFreeTypeFont *font)
-{
-#ifdef HAS_X11
-    return FT_Get_X11_Font_Format(font->face);
-#else
-    return ""; /* FIXME: Find a portable solution for native Win32 freetype */
-#endif
+    return face ? face->family_name : ""; 
 }
 
 int
-PGFT_Face_GetHeight(PyFreeTypeFont *font)
+PGFT_Face_GetHeight(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    return font->face->height;
+    FT_Face face;
+    face = _PGFT_GetFace(ft, font);
+
+    return face ? face->height : 0;
 }
 
 FT_Face
@@ -178,7 +176,7 @@ _PGFT_GetFace(FreeTypeInstance *ft,
     FT_Face face;
 
     error = FTC_Manager_LookupFace(ft->cache_manager,
-            (FTC_FaceID)font,
+            (FTC_FaceID)(&font->id),
             &face);
 
     if (error)
@@ -193,7 +191,7 @@ _PGFT_GetFace(FreeTypeInstance *ft,
 void
 _PGFT_BuildScaler(PyFreeTypeFont *font, FTC_Scaler scale, int size)
 {
-    scale->face_id = (FTC_FaceID)font;
+    scale->face_id = (FTC_FaceID)(&font->id);
     scale->width = scale->height = (pguint32)(size * 64);
     scale->pixel = 0;
     scale->x_res = scale->y_res = 0;
@@ -239,7 +237,7 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
 
     char_index = FTC_CMapCache_Lookup(
             ft->cache_charmap, 
-            (FTC_FaceID)font,
+            (FTC_FaceID)(&font->id),
             -1, (FT_UInt32)character);
 
     if (_index)
@@ -295,11 +293,9 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
 {
     FT_Error error;
     FTC_ScalerRec scale;
-    FT_Face face;
     FT_Glyph glyph;
 
     _PGFT_BuildScaler(font, &scale, font_size);
-    face = font->face;
 
     error = _PGFT_LoadGlyph(ft, font, &scale, character, &glyph, NULL);
 
@@ -335,7 +331,10 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
     /* FIXME: Some way to set the system's default ? */
     swapped = 0;
     x = 0;
-    face = font->face;
+    face = _PGFT_GetFace(ft, font);
+
+    if (!face)
+        return -1;
 
     minx = maxx = 0;
     miny = maxy = 0;
@@ -405,20 +404,13 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
 int
 PGFT_TryLoadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    FT_Face face;
-    face = _PGFT_GetFace(ft, font);
-
-    if (!face)
-        return -1;
-
-    font->face = face;
-    return 0;
+    return _PGFT_GetFace(ft, font) ? 0 : -1;
 }
 
 void
 PGFT_UnloadFont(FreeTypeInstance *ft, PyFreeTypeFont *font)
 {
-    FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)font);
+    FTC_Manager_RemoveFaceID(ft->cache_manager, (FTC_FaceID)(&font->id));
 }
 
 void

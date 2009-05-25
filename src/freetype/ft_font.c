@@ -182,6 +182,8 @@ _ftfont_dealloc(PyFreeTypeFont *self)
     if ((ft = _get_freetype()) != NULL)
         PGFT_UnloadFont(ft, self);
 
+    free(self->id.open_args.pathname);
+
     ((PyObject*)self)->ob_type->tp_free((PyObject *)self);
 }
 
@@ -235,16 +237,23 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
     if (IsTextObj(file))
     {
         PyObject *tmp;
-        char *filename;
+        char *filename, *filename_alloc;
+        size_t file_len;
 
         if (!UTF8FromObject(file, &filename, &tmp))
         {
             PyErr_SetString(PyExc_ValueError, "Failed to decode file name");
             return -1;
         }
+
+        file_len = strlen(filename);
+        filename_alloc = malloc(file_len + 1);
+
+        strcpy(filename_alloc, filename);
+        filename_alloc[file_len] = 0;
         
         font->id.open_args.flags = FT_OPEN_PATHNAME;
-        font->id.open_args.pathname = filename; 
+        font->id.open_args.pathname = filename_alloc;
         Py_XDECREF(tmp);
     }
     else
@@ -268,9 +277,10 @@ _ftfont_init(PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject*
 _ftfont_repr(PyObject *self)
 {
-    return Text_FromFormat("%s (FreeType %s font)", 
+    return Text_FromUTF8("font");
+/*    return Text_FromFormat("%s (FreeType %s font)", 
         PGFT_Face_GetName((PyFreeTypeFont *)self),
-        PGFT_Face_GetFormat((PyFreeTypeFont *)self));
+        PGFT_Face_GetFormat((PyFreeTypeFont *)self)); */
 }
 
 
@@ -292,19 +302,28 @@ _ftfont_setstyle(PyObject *self, PyObject *value, void *closure)
 static PyObject*
 _ftfont_getheight(PyObject *self, void *closure)
 {
-    return PyInt_FromLong(PGFT_Face_GetHeight((PyFreeTypeFont *)self));
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    return PyInt_FromLong(PGFT_Face_GetHeight(ft, (PyFreeTypeFont *)self));
 }
 
 static PyObject*
 _ftfont_getname(PyObject *self, void *closure)
 {
-    return Text_FromUTF8(PGFT_Face_GetName((PyFreeTypeFont *)self));
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    return Text_FromUTF8(PGFT_Face_GetName(ft, (PyFreeTypeFont *)self));
 }
 
 static PyObject*
 _ftfont_getfixedwidth(PyObject *self, void *closure)
 {
-    return PyBool_FromLong(PGFT_Face_IsFixedWidth((PyFreeTypeFont *)self));
+    FreeTypeInstance *ft;
+    ASSERT_GRAB_FREETYPE(ft, NULL);
+
+    return PyBool_FromLong(PGFT_Face_IsFixedWidth(ft, (PyFreeTypeFont *)self));
 }
 
 
@@ -353,7 +372,7 @@ static PyObject *
 _ftfont_getmetrics(PyObject *self, PyObject* args, PyObject *kwds)
 {
     PyObject *text, *list;
-    void *buf;
+    void *buf = NULL;
     int isunicode = 0;
     int text_size, char_id, length, i;
     int minx, miny, maxx, maxy, advance;
