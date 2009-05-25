@@ -93,7 +93,7 @@ cdef extern from "porttime.h":
         ptAlreadyStopped,
         ptInsufficientMemory
     ctypedef long PtTimestamp
-    ctypedef void (PtCallback)( PtTimestamp timestamp, void *userData )
+    ctypedef void (* PtCallback)( PtTimestamp timestamp, void *userData )
     PtError Pt_Start(int resolution, PtCallback *callback, void *userData)
     PtTimestamp Pt_Time()
 
@@ -306,15 +306,15 @@ WriteShort(status <, data1><, data2>)
             [0xF0, 0x7D, 0x10, 0x11, 0x12, 0x13, 0xF7])
         """
         cdef PmError err
-        cdef unsigned char *cmsg
+        cdef char *cmsg
         cdef PtTimestamp CurTime
 
         if type(msg) is list:
             msg = array.array('B',msg).tostring() # Markus Pfaff contribution
-        cmsg = <unsigned char *> msg
+        cmsg = msg
 
         CurTime = Pt_Time()
-        err = Pm_WriteSysEx(self.midi, when, cmsg)
+        err = Pm_WriteSysEx(self.midi, when, <unsigned char *> cmsg)
         if err < 0 : raise Exception, Pm_GetErrorText(err)
         while Pt_Time() == CurTime: # wait for SysEx to go thru or...my
             pass                    # win32 machine crashes w/ multiple SysEx

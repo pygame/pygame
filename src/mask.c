@@ -1079,6 +1079,13 @@ static PyObject* mask_get_bounding_rects(PyObject* self, PyObject* args)
     return ret;
 }
 
+
+/*
+returns the number of connected components.
+returns -2 on memory allocation error.
+Allocates memory for components.
+
+*/
 static int get_connected_components(bitmask_t *mask, bitmask_t ***components, int min)
 {
     unsigned int *image, *ufind, *largest, *buf;
@@ -1097,10 +1104,17 @@ static int get_connected_components(bitmask_t *mask, bitmask_t ***components, in
     /* allocate enough space for the maximum possible connected components */
     /* the union-find array. see wikipedia for info on union find */
     ufind = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
-    if(!ufind) { return -2; }
+    if(!ufind) { 
+        free(image);
+        return -2; 
+    }
 
     largest = (unsigned int *) malloc(sizeof(int)*(w/2 + 1)*(h/2 + 1));
-    if(!largest) { return -2; }
+    if(!largest) { 
+        free(image);
+        free(ufind);
+        return -2; 
+    }
 
     /* do the initial labelling */
     label = cc_label(mask, image, ufind, largest);
@@ -1138,7 +1152,12 @@ static int get_connected_components(bitmask_t *mask, bitmask_t ***components, in
 
     /* allocate space for the mask array */
     comps = (bitmask_t **) malloc(sizeof(bitmask_t *) * (relabel +1));
-    if(!comps) { return -2; }
+    if(!comps) { 
+        free(image);
+        free(ufind);
+        free(largest);
+        return -2; 
+    }
 
     /* create the empty masks */
     for (x = 1; x <= relabel; x++) {
@@ -1213,6 +1232,11 @@ static PyObject* mask_connected_components(PyObject* self, PyObject* args)
    This implementation also tracks the number of pixels in each label, finding
    the biggest one while flattening the union-find equivalence array.  It then
    writes an output mask containing only the largest connected component. */
+
+
+/*
+returns -2 on memory allocation error.
+*/
 static int largest_connected_comp(bitmask_t* input, bitmask_t* output, int ccx, int ccy)
 {
     unsigned int *image, *ufind, *largest, *buf;

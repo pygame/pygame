@@ -2251,11 +2251,19 @@ surf_laplacian (PyObject* self, PyObject* arg)
 
 
 
-int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *destsurf) {
+int average_surfaces(SDL_Surface **surfaces, 
+                     int num_surfaces, 
+                     SDL_Surface *destsurf,
+                     int palette_colors) {
     /*
         returns the average surface from the ones given.
 
         All surfaces need to be the same size.
+
+        palette_colors - if true we average the colors in palette, otherwise we
+            average the pixel values.  This is useful if the surface is
+            actually greyscale colors, and not palette colors.
+
     */
 
 
@@ -2267,6 +2275,9 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
 
     float div_inv;
 
+
+
+
     
     SDL_PixelFormat *format, *destformat;
     Uint8 *pixels, *destpixels;
@@ -2275,6 +2286,7 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
     
     Uint32 rmask, gmask, bmask;
     int rshift, gshift, bshift, rloss, gloss, bloss;
+    int num_elements;
 
     if(!num_surfaces) { return 0; }
     
@@ -2285,8 +2297,22 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
     destformat = destsurf->format; 
 
 
-    /* allocate an array to accumulate them all. */
-    accumulate = (Uint32 *) calloc(1, sizeof(Uint32) * height * width * 3 );
+    /* allocate an array to accumulate them all. 
+
+    If we're using 1 byte per pixel, then only need to average on that much.
+    */
+
+    if((destformat->BytesPerPixel == 1) &&
+       (destformat->palette) &&
+       (!palette_colors)) {
+        num_elements = 1;
+    } else {
+        num_elements = 3;
+    }
+
+    accumulate = (Uint32 *) calloc(1, sizeof(Uint32) * height * width * num_elements );
+
+
 
     if(!accumulate) { return -1; }
     
@@ -2309,16 +2335,46 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
         bloss = format->Bloss;
     
         the_idx = accumulate;
-        for(y=0;y<height;y++) {
-            for(x=0;x<width;x++) {
-                SURF_GET_AT(the_color, surf, x, y, pixels, format, pix);
-        
-                *(the_idx) += ((the_color & rmask) >> rshift) << rloss;
-                *(the_idx + 1) += ((the_color & gmask) >> gshift) << gloss;
-                *(the_idx + 2) += ((the_color & bmask) >> bshift) << bloss;
-                the_idx += 3;
+        /* If palette surface, we use a different code path... */
+
+        if((format->BytesPerPixel == 1 && destformat->BytesPerPixel == 1) 
+            && (format->palette) && (destformat->palette) && (!palette_colors)
+          ) {
+            /* 
+            This is useful if the surface is actually greyscale colors,  
+            and not palette colors.
+            */
+            for(y=0;y<height;y++) {
+                for(x=0;x<width;x++) {
+                    SURF_GET_AT(the_color, surf, x, y, pixels, format, pix);
+                    *(the_idx) += the_color;
+                    the_idx++;
+                }
+            }
+
+
+        } else {
+            /* TODO: This doesn't work correctly for palette surfaces yet, when the
+                    source is paletted.  Probably need to use something
+                    like GET_PIXELVALS_1 from surface.h
+            */
+
+
+            /* for non palette surfaces, we do this... */
+            for(y=0;y<height;y++) {
+                for(x=0;x<width;x++) {
+                    SURF_GET_AT(the_color, surf, x, y, pixels, format, pix);
+            
+                    *(the_idx) += ((the_color & rmask) >> rshift) << rloss;
+                    *(the_idx + 1) += ((the_color & gmask) >> gshift) << gloss;
+                    *(the_idx + 2) += ((the_color & bmask) >> bshift) << bloss;
+                    the_idx += 3;
+                }
             }
         }
+
+
+
     }
     
     
@@ -2329,20 +2385,38 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
     
     the_idx = accumulate;
     
-    for(y=0;y<height;y++) {
-        for(x=0;x<width;x++) {
-            
-            the_color = SDL_MapRGB (destformat, 
-                                    (Uint8) (*(the_idx) * div_inv + .5f),
-                                    (Uint8) (*(the_idx + 1) * div_inv + .5f),
-                                    (Uint8) (*(the_idx + 2) * div_inv + .5f));
-            
-            SURF_SET_AT(the_color, destsurf, x, y, destpixels, destformat, byte_buf);
-            
-            the_idx += 3;
+    if(num_elements == 1 && (!palette_colors)) {
+        /* this is where we are using the palette surface without using its
+        colors from the palette.
+        */
+        for(y=0;y<height;y++) {
+            for(x=0;x<width;x++) {
+                the_color = (*(the_idx) * div_inv + .5f);
+                SURF_SET_AT(the_color, destsurf, x, y, destpixels, destformat, byte_buf);
+                the_idx++;
+            }
         }
+    /* TODO: will need to handle palette colors.
+    */
+
+    } else if (num_elements == 3) {
+        for(y=0;y<height;y++) {
+            for(x=0;x<width;x++) {
+                
+                the_color = SDL_MapRGB (destformat, 
+                                        (Uint8) (*(the_idx) * div_inv + .5f),
+                                        (Uint8) (*(the_idx + 1) * div_inv + .5f),
+                                        (Uint8) (*(the_idx + 2) * div_inv + .5f));
+                
+                SURF_SET_AT(the_color, destsurf, x, y, destpixels, destformat, byte_buf);
+                
+                the_idx += 3;
+            }
+        }
+    } else {
+        free(accumulate);
+        return -4;
     }
-    
     
     free(accumulate);
     
@@ -2358,8 +2432,16 @@ int average_surfaces(SDL_Surface **surfaces, int num_surfaces, SDL_Surface *dest
 
 
 
+/*
+    returns the average surface from the ones given.
 
+    All surfaces need to be the same size.
 
+    palette_colors - if true we average the colors in palette, otherwise we
+        average the pixel values.  This is useful if the surface is
+        actually greyscale colors, and not palette colors.
+
+*/
 static PyObject*
 surf_average_surfaces (PyObject* self, PyObject* arg)
 {
@@ -2370,7 +2452,8 @@ surf_average_surfaces (PyObject* self, PyObject* arg)
     int width, height;
     int an_error;
     size_t size, loop, loop_up_to;
-    
+    int palette_colors = 1;
+
     PyObject* list, *obj;
     PyObject* ret = NULL;
     
@@ -2380,7 +2463,7 @@ surf_average_surfaces (PyObject* self, PyObject* arg)
     surfobj2 = NULL;
     newsurf = NULL;
 
-    if (!PyArg_ParseTuple (arg, "O|O!", &list, &PySurface_Type, &surfobj2))
+    if (!PyArg_ParseTuple (arg, "O|O!i", &list, &PySurface_Type, &surfobj2, &palette_colors ))
         return NULL;
 
     if (!PySequence_Check (list))
@@ -2498,7 +2581,7 @@ surf_average_surfaces (PyObject* self, PyObject* arg)
         SDL_LockSurface (newsurf);
         
         Py_BEGIN_ALLOW_THREADS;
-        average_surfaces (surfaces, size, newsurf);
+        average_surfaces (surfaces, size, newsurf, palette_colors);
         Py_END_ALLOW_THREADS;
         
         SDL_UnlockSurface (newsurf);
