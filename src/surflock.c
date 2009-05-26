@@ -89,6 +89,7 @@ PySurface_LockBy (PyObject* surfobj, PyObject* lockobj)
         return 0;
     }
     PyList_Append (surf->locklist, ref);
+    Py_DECREF (ref);
 
     if (surf->subsurface)
         PySurface_Prep (surfobj);
