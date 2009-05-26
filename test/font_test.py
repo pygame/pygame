@@ -40,7 +40,7 @@ class FontModuleTest( unittest.TestCase ):
     def test_get_default_font(self):
         self.failUnlessEqual(pygame.font.get_default_font(), 'freesansbold.ttf')
 
-    def Xtest_get_fonts(self):
+    def test_get_fonts(self):
         fnts = pygame.font.get_fonts()
         self.failUnless(fnts)
         for name in fnts:
@@ -56,7 +56,7 @@ class FontModuleTest( unittest.TestCase ):
     def test_init(self):
         pygame.font.init()
 
-    def Xtest_match_font(self):
+    def test_match_font(self):
         fonts = pygame.font.get_fonts()
 
         # Ensure all listed fonts are in fact available, and the returned file
