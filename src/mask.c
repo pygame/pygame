@@ -549,8 +549,22 @@ static PyObject* mask_from_surface(PyObject* self, PyObject* args)
     return (PyObject*)maskobj;
 }
 
-void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
-                        Uint32 color,  Uint32 threshold)
+
+/*
+
+palette_colors - this only affects surfaces with a palette 
+    if true we look at the colors from the palette, 
+    otherwise we threshold the pixel values.  This is useful if 
+    the surface is actually greyscale colors, and not palette colors.
+
+*/
+
+void bitmask_threshold (bitmask_t *m, 
+                        SDL_Surface *surf, 
+                        SDL_Surface *surf2,
+                        Uint32 color,  
+                        Uint32 threshold,
+                        int palette_colors)
 {
     int x, y, rshift, gshift, bshift, rshift2, gshift2, bshift2;
     int rloss, gloss, bloss, rloss2, gloss2, bloss2;
@@ -658,12 +672,30 @@ void bitmask_threshold (bitmask_t *m, SDL_Surface *surf, SDL_Surface *surf2,
                         pixels2 += 4;
                         break;
                 }
-                if ((abs((((the_color2 & rmask2) >> rshift2) << rloss2) - (((the_color & rmask) >> rshift) << rloss)) < tr) &
+                /* TODO: will need to handle surfaces with palette colors.
+                */
+                if((bpp2 == 1) && (bpp1 == 1) && (!palette_colors)) {
+                    /* Don't look at the color of the surface, just use the
+                       value. This is useful for 8bit images that aren't
+                       actually using the palette.
+                    */
+                    if (  (abs( (the_color2) - (the_color)) < tr )  ) {
+                        
+                        /* this pixel is within the threshold of othersurface. */
+                        bitmask_setbit(m, x, y);
+                    }
+                    
+                } else if ((abs((((the_color2 & rmask2) >> rshift2) << rloss2) - (((the_color & rmask) >> rshift) << rloss)) < tr) &
                     (abs((((the_color2 & gmask2) >> gshift2) << gloss2) - (((the_color & gmask) >> gshift) << gloss)) < tg) &
                     (abs((((the_color2 & bmask2) >> bshift2) << bloss2) - (((the_color & bmask) >> bshift) << bloss)) < tb)) {
                     /* this pixel is within the threshold of othersurface. */
                     bitmask_setbit(m, x, y);
                 }
+
+            /* TODO: will need to handle surfaces with palette colors.
+               TODO: will need to handle the case where palette_colors == 0
+            */
+
             } else if ((abs((((the_color & rmask) >> rshift) << rloss) - r) < tr) &
                        (abs((((the_color & gmask) >> gshift) << gloss) - g) < tg) &
                        (abs((((the_color & bmask) >> bshift) << bloss) - b) < tb)) {
@@ -686,10 +718,12 @@ static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
     Uint8 rgba_threshold[4] = {0, 0, 0, 255};
     Uint32 color;
     Uint32 color_threshold;
+    int palette_colors = 1;
 
-    if (!PyArg_ParseTuple (args, "O!O|OO!", &PySurface_Type, &surfobj,
+
+    if (!PyArg_ParseTuple (args, "O!O|OO!i", &PySurface_Type, &surfobj,
                            &rgba_obj_color,  &rgba_obj_threshold,
-                           &PySurface_Type, &surfobj2))
+                           &PySurface_Type, &surfobj2, &palette_colors))
         return NULL;
 
     surf = PySurface_AsSurface (surfobj);
@@ -731,7 +765,7 @@ static PyObject* mask_from_threshold(PyObject* self, PyObject* args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    bitmask_threshold (m, surf, surf2, color,  color_threshold);
+    bitmask_threshold (m, surf, surf2, color, color_threshold, palette_colors);
     Py_END_ALLOW_THREADS;
 
     PySurface_Unlock(surfobj);
