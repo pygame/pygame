@@ -16,7 +16,6 @@ CRITICAL:
 * Add palette color support to sdlext.transform (trunk rev. 2242).
 * Check trunk rev. 1918, 1921, 1922, 1933, 1953 (blit blend operations).
 * Check trunk rev. 1937, 1947 (blit blend for self).
-* Add surface.scroll (trunk rev. 1951).
 
 Things to ADD:
 ==============

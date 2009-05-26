@@ -473,6 +473,7 @@ PyOverlay_AddRefLock (PyObject *overlay, PyObject *lock)
         Py_DECREF (wkref);
         return 0;
     }
+    Py_DECREF (wkref);
 
     return 1;
 }

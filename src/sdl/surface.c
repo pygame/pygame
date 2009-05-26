@@ -66,6 +66,8 @@ static PyObject* _surface_fill (PyObject *self, PyObject *args, PyObject *kwds);
 static PyObject* _surface_save (PyObject *self, PyObject *args);
 static PyObject* _surface_getat (PyObject *self, PyObject *args);
 static PyObject* _surface_setat (PyObject *self, PyObject *args);
+static PyObject* _surface_scroll (PyObject *self, PyObject *args,
+    PyObject *kwds);
 
 static void _release_c_lock (void *ptr);
 
@@ -101,6 +103,8 @@ static PyMethodDef _surface_methods[] = {
     { "fill", (PyCFunction)_surface_fill, METH_VARARGS | METH_KEYWORDS,
       DOC_VIDEO_SURFACE_FILL },
     { "save", _surface_save, METH_VARARGS, DOC_VIDEO_SURFACE_SAVE },
+    { "scroll", (PyCFunction) _surface_scroll, METH_VARARGS | METH_KEYWORDS,
+      DOC_VIDEO_SURFACE_SCROLL },
     { NULL, NULL, 0, NULL }
 };
 
@@ -1037,6 +1041,27 @@ _surface_save (PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+_surface_scroll (PyObject *self, PyObject *args, PyObject *kwds)
+{
+    int dx = 0, dy = 0;
+    SDL_Surface *surface;
+    
+    static char *keys[] = { "dx", "dy", NULL };
+    if (!PyArg_ParseTupleAndKeywords (args, kwds, "|ii", keys, &dx, &dy))
+        return NULL;
+
+    surface = PySDLSurface_AsSDLSurface (self);
+
+    if (!pyg_sdlsurface_scroll (surface, dx, dy))
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return NULL;
+    }
+    Py_RETURN_NONE;
+                    
+}
+
 /* C API */
 static void
 _release_c_lock (void *ptr)
@@ -1138,6 +1163,7 @@ PySDLSurface_AddRefLock (PyObject *surface, PyObject *lock)
         Py_DECREF (wkref);
         return 0;
     }
+    Py_DECREF (wkref);
 
     return 1;
 }

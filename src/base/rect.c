@@ -1348,6 +1348,7 @@ _rect_collidedictall (PyObject *self, PyObject *args)
                 Py_DECREF (list);
                 return NULL;
             }
+            Py_DECREF (obj);
         }
     }
     return list;

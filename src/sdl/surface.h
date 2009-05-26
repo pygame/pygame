@@ -347,5 +347,6 @@ int
 pyg_sdlsoftware_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     SDL_Rect *dstrect, int blitargs);
 
+int pyg_sdlsurface_scroll (SDL_Surface *surface, int dx, int dy);
 
 #endif /* _PYGAME_SDLSURFACE_H_ */

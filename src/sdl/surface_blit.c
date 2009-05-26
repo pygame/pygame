@@ -1771,3 +1771,100 @@ pyg_sdlsoftware_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
     /* Blit is done! */
     return (okay ? 1 : 0);
 }
+
+int
+pyg_sdlsurface_scroll (SDL_Surface *surface, int dx, int dy)
+{
+    int bpp, pitch, w, h;
+    int locked = 0;
+    SDL_Rect *cliprect;
+    Uint8 *src, *dst;
+
+    if (!surface)
+    {
+        SDL_SetError ("passed a NULL surface");
+        return 0;
+    }
+    if (surface->locked)
+    {
+        SDL_SetError ("surface must not be locked during scroll");
+        return 0;
+    }
+
+    if ((surface->flags & SDL_OPENGL) &&
+        !(surface->flags & (SDL_OPENGLBLIT & ~SDL_OPENGL)))
+    {
+        SDL_SetError ("cannot scroll an OPENGL Surface (OPENGLBLIT is ok)");
+        return 0;
+    }
+
+    if (dx == 0 && dy == 0)
+        return 1;
+
+    cliprect = &surface->clip_rect;
+    w = cliprect->w;
+    h = cliprect->h;
+    if (dx >= w || dx <= -w || dy >= h || dy <= -h)
+        return 1;
+
+    if (SDL_MUSTLOCK (surface))
+    {
+        if (SDL_LockSurface (surface) < 0)
+            return 0;
+        else
+            locked = 1;
+    }
+
+    bpp = surface->format->BytesPerPixel;
+    pitch = surface->pitch;
+    src = dst = (Uint8 *) surface->pixels +
+                cliprect->y * pitch + cliprect->x * bpp;
+    if (dx >= 0)
+    {
+        w -= dx;
+        if (dy > 0)
+        {
+            h -= dy;
+            dst += dy * pitch + dx * bpp;
+        }
+        else
+        {
+            h += dy;
+            src -= dy * pitch;
+            dst += dx * bpp;
+        }
+    }
+    else
+    {
+        w += dx;
+        if (dy > 0)
+        {
+            h -= dy;
+            src -= dx * bpp;
+            dst += dy * pitch;
+        }
+        else
+        {
+            h += dy;
+            src -= dy * pitch + dx * bpp;
+        }
+    }
+
+    if (src < dst)
+    {
+        src += (h - 1) * pitch;
+        dst += (h - 1) * pitch;
+        pitch = -pitch;
+    }
+    while (h--)
+    {
+        memmove (dst, src, (size_t) (w * bpp));
+        src += pitch;
+        dst += pitch;
+    }
+
+    if (locked)
+        SDL_UnlockSurface (surface);
+
+    return 1;
+}

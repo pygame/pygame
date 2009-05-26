@@ -349,6 +349,19 @@
           access. This is especially important for Python 3.x users.
       </desc>
     </method>
+    <method name="scroll">
+      <call>scroll ([dx, dy]) -> None</call>
+      <desc>
+        Scrolls the Surface in place.
+        
+        Move the Surface contents by *dx* pixels right and *dy* pixels
+        down. dx and dy may be negative for left and up scrolls
+        respectively. Areas of the surface that are not overwritten
+        retain their original pixel values. Scrolling is contained by
+        the Surface clip area. It is safe to have *dx* and *dy* values
+        that exceed the surface size.
+      </desc>
+    </method>
     <method name="set_alpha">
       <call>set_alpha (alpha[, flags]) -> None</call>
       <desc>

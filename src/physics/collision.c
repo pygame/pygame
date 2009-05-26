@@ -326,6 +326,7 @@ _collide_rect_rect (PyShape* shape1, PyVector2 pos1, double rot1,
             retval = NULL;
             goto back;
         }
+        Py_DECREF ((PyObject*)contact);
     }
     
     *refid = collision.refno;

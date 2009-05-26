@@ -765,6 +765,7 @@ _mask_connectedcomponents (PyObject* self, PyObject* args)
             free (components);
             return NULL;
         }
+
         maskobj->mask = components[i];
         if (PyList_Append (ret, (PyObject *) maskobj) == -1)
         {
@@ -778,6 +779,7 @@ _mask_connectedcomponents (PyObject* self, PyObject* args)
             free (components);
             return NULL;
         }
+        Py_DECREF (maskobj);
     }
     
     free (components);
