@@ -548,9 +548,12 @@ class TransformModuleTest( unittest.TestCase ):
         self.assertEqual( sr.get_flags(), s1.get_flags() )
         self.assertEqual( sr.get_losses(), s1.get_losses() )
 
-        #print ( sr.get_masks(), s1.get_masks() )
-        #print ( sr.get_flags(), s1.get_flags() )
-        #print ( sr.get_losses(), s1.get_losses() )
+        if 0:
+            print ( sr, s1 )
+            print ( sr.get_masks(), s1.get_masks() )
+            print ( sr.get_flags(), s1.get_flags() )
+            print ( sr.get_losses(), s1.get_losses() )
+            print ( sr.get_shifts(), s1.get_shifts() )
 
         self.assertEqual(sr.get_at((0,0)), (10,53,50,255))
 

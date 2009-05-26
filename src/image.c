@@ -977,6 +977,17 @@ image_frombuffer (PyObject* self, PyObject* arg)
                  "Buffer length does not equal format and resolution size");
         surf = SDL_CreateRGBSurfaceFrom (data, w, h, 24, w * 3,
                                          0xFF, 0xFF<<8, 0xFF<<16, 0);
+/*
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                                         0xFF, 0xFF<<8, 0xFF<<16, 0xFF<<24
+#else
+                                         0xFF<<24, 0xFF<<16, 0xFF<<8, 0xFF
+#endif
+               );
+
+*/
+
+
     }
     else if (!strcmp (format, "RGBA") || !strcmp (format, "RGBX"))
     {

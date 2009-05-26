@@ -2407,7 +2407,15 @@ int average_surfaces(SDL_Surface **surfaces,
                                         (Uint8) (*(the_idx) * div_inv + .5f),
                                         (Uint8) (*(the_idx + 1) * div_inv + .5f),
                                         (Uint8) (*(the_idx + 2) * div_inv + .5f));
-                
+
+                /* TODO: should it take into consideration the output
+                    shifts/masks/losses?  Or does SDL_MapRGB do that correctly?
+
+                    *(the_idx) += ((the_color & rmask) >> rshift) << rloss;
+                    *(the_idx + 1) += ((the_color & gmask) >> gshift) << gloss;
+                    *(the_idx + 2) += ((the_color & bmask) >> bshift) << bloss;
+                */
+
                 SURF_SET_AT(the_color, destsurf, x, y, destpixels, destformat, byte_buf);
                 
                 the_idx += 3;
