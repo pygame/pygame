@@ -28,13 +28,17 @@
 
 #include FT_MODULE_H
 
+#define FP_1616_FLOAT(i)    ((float)((int)(i) / 65536.0f))
+#define FP_248_FLOAT(i)     ((float)((int)(i) / 256.0f))
+#define FP_266_FLOAT(i)     ((float)((int)(i) / 64.0f))
+
 void    _PGFT_SetError(FreeTypeInstance *, const char *, FT_Error);
 FT_Face _PGFT_GetFace(FreeTypeInstance *, PyFreeTypeFont *);
 FT_Face _PGFT_GetFaceSized(FreeTypeInstance *, PyFreeTypeFont *, int);
 void    _PGFT_BuildScaler(PyFreeTypeFont *, FTC_Scaler, int);
 int     _PGFT_LoadGlyph(FreeTypeInstance *, PyFreeTypeFont *, 
                         FTC_Scaler, int, FT_Glyph *, FT_UInt32 *);
-void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, int *, int *, int *, int *, int *);
+void    _PGFT_GetMetrics_INTERNAL(FT_Glyph, FT_UInt, int *, int *, int *, int *, int *);
 
 
 static FT_Error
@@ -261,41 +265,32 @@ _PGFT_LoadGlyph(FreeTypeInstance *ft,
     return error;
 }
 
-void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, 
+void _PGFT_GetMetrics_INTERNAL(FT_Glyph glyph, FT_UInt bbmode,
         int *minx, int *maxx, int *miny, int *maxy, int *advance)
 {
     FT_BBox box;
-
-    /*
-     * FIXME: We need to return pixel-based coordinates...
-     * It would make sense to use FT_GLYPH_BBOX_TRUNCATE
-     * to get the fixed point coordinates truncated, but
-     * the results are usually off by 1 pixel from what we
-     * get from SDL_TTF.
-     *
-     * Using FT_GLYPH_BBOX_PIXELS (truncated + grid fitted
-     * coordinates) we get exactly the same results as
-     * SDL_TTF, but does SDL actually do this properly?
-     * 
-     * Which are the *right* results? 
-     */
-    FT_Glyph_Get_CBox(glyph, FT_GLYPH_BBOX_PIXELS, &box);
+    FT_Glyph_Get_CBox(glyph, bbmode, &box);
 
     *minx = box.xMin;
     *maxx = box.xMax;
     *miny = box.yMin;
     *maxy = box.yMax;
-    *advance = (glyph->advance.x >> 16);
+    *advance = glyph->advance.x;
+
+    if (bbmode == FT_GLYPH_BBOX_TRUNCATE ||
+        bbmode == FT_GLYPH_BBOX_PIXELS)
+        *advance >>= 16;
 }
 
 
 int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-        int character, int font_size, 
-        int *minx, int *maxx, int *miny, int *maxy, int *advance)
+        int character, int font_size, int pixel_coords, int grid_fitted,
+        void *minx, void *maxx, void *miny, void *maxy, void *advance)
 {
     FT_Error error;
     FTC_ScalerRec scale;
     FT_Glyph glyph;
+    FT_UInt bbmode;
 
     _PGFT_BuildScaler(font, &scale, font_size);
 
@@ -307,7 +302,25 @@ int PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
         return error;
     }
 
-    _PGFT_GetMetrics_INTERNAL(glyph, minx, maxx, miny, maxy, advance);
+    /*
+     * FT_GLYPH_BBOX_SUBPIXELS = 0,
+     * FT_GLYPH_BBOX_GRIDFIT   = 1,
+     * FT_GLYPH_BBOX_TRUNCATE  = 2,
+     * FT_GLYPH_BBOX_PIXELS    = 3
+     */
+    bbmode = (pixel_coords << 1) | grid_fitted;
+
+    _PGFT_GetMetrics_INTERNAL(glyph, bbmode, minx, maxx, miny, maxy, advance);
+
+    if (pixel_coords == 0)
+    {
+        *(float *)minx = (float)(FP_266_FLOAT(*(int *)minx));
+        *(float *)miny = (float)(FP_266_FLOAT(*(int *)miny));
+        *(float *)maxx = (float)(FP_266_FLOAT(*(int *)maxx));
+        *(float *)maxy = (float)(FP_266_FLOAT(*(int *)maxy));
+        *(float *)advance = (float)(FP_1616_FLOAT(*(int *)advance));
+    }
+
     return 0;
 }
 
@@ -363,7 +376,7 @@ PGFT_GetTextSize(FreeTypeInstance *ft, PyFreeTypeFont *font,
         if (_PGFT_LoadGlyph(ft, font, &scale, c, &glyph, &cur_index) != 0)
             continue;
 
-        _PGFT_GetMetrics_INTERNAL(glyph, 
+        _PGFT_GetMetrics_INTERNAL(glyph, FT_GLYPH_BBOX_PIXELS,
                 &gl_minx, &gl_maxx, &gl_miny, &gl_maxy, &gl_advance);
 
         if (use_kerning && prev_index)

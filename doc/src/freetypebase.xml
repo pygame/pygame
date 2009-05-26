@@ -47,26 +47,59 @@
 
 
   <class name="Font">
-    <constructor>Font(file [, index]) -> Font</constructor>
+    <constructor>Font(file [, ptsize, index]) -> Font</constructor>
     <desc>
-        Creates a new Font from a supported font file.
+        Creates a new Font from a supported font file. File can be
+        either a string representing the font's filename or a file-like
+        object containing the font.
 
-        *TODO*
+        Optionally, a 'ptsize' argument may be specified to set the
+        default size in points which will be used to render the font. 
+        Such size can also be specified manually on each method call.
+        Because of the way the caching system works, specifying a
+        default size on the constructor doesn't imply a performance
+        gain over manually passing the size on each function call.
+
+        If the font file has more than one face, the 'index'
+        parameter may be specified to specify which face index to load.
+        Defaults to 0; font loading will fail if the given index is
+        not contained in the font.
     </desc>
     <attr name="name">
       <desc>Gets the name of the font face.</desc>
     </attr>
     <method name="get_size">
-      <call>get_size(pt, text) -> int, int</call>
+      <call>get_size(text [, ptsize]) -> int, int</call>
       <desc>
-          Gets the size which 'text' will occupy when rendered using 
+          Gets the size in pixels which 'text' will occupy when rendered using 
           this Font.
+
+          Returns a tuple containing the width/height of the text's bounding
+          box. 
+          
+          The calculations are done using the font's default size in points.
+          Optionally you may specify another point size to use.
       </desc>
     </method>
     <method name="get_metrics">
-      <call>get_metrics(pt, text) -> [(int, int, int ...), ...]</call>
+      <call>get_metrics(text, [, ptsize, pixel_coords, grid_fitted]) -> [(...), ...]</call>
       <desc>
           Returns the glyph metrics for each character in 'text'.
+
+          The glyph metrics are returned inside a list; each character will
+          be represented as a tuple inside the list with the following values:
+
+                (min_x, max_x, min_y, max_y, horizontal_advance)
+
+            By default, these values are returned as grid-fitted pixel coordinates
+            (ints). More precision can be obtained by setting pixel_coords to False,
+            to obtain decimal numbers instead of ints, and by setting grid_fitted
+            to False, which will return unfitted coordinates (i.e. the ones used by
+            the subhinting engine).
+        
+          The calculations are done using the font's default size in points.
+          Optionally you may specify another point size to use.
+
       </desc>
     </method>
     <attr name="height">
@@ -84,7 +117,12 @@
       <desc>Gets or sets the style of the font. *TODO*</desc>
     </attr>
     <attr name="fixed_width">
-      <desc>Returns whether this font is a fixed-width (bitmap) font</desc>
+        <desc>
+            Returns whether this font is a fixed-width (bitmap) font.
+            
+            Note that scalable fonts whose glyphs are all the same width 
+            (i.e. TTF fonts used for programming) are not considered fixed width.
+        </desc>
     </attr>
   </class>
   

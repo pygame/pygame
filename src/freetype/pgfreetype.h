@@ -47,6 +47,7 @@ typedef struct
 {
     PyFont pyfont;
     FontId id;
+    int default_ptsize;
 } PyFreeTypeFont;
 
 #define PyFreeTypeFont_AsFont(x) (((PyFreeTypeFont *)x)->font)

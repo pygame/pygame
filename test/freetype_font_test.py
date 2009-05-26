@@ -103,11 +103,11 @@ class FreeTypeFontTest(unittest.TestCase):
 
         f = self._TEST_FONTS['fixed']
         for (ptsize, test_data) in TEST_VALUES_FIXED.items():
-            self.assertEquals(f.get_metrics(ptsize, 'ABCDabcd'), test_data)
+            self.assertEquals(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
 
         f = self._TEST_FONTS['sans']
         for (ptsize, test_data) in TEST_VALUES_SANS.items():
-            self.assertEquals(f.get_metrics(ptsize, 'ABCDabcd'), test_data)
+            self.assertEquals(f.get_metrics('ABCDabcd', ptsize=ptsize), test_data)
 
     def todo_test_pygame2_freetype_Font_get_size(self):
 

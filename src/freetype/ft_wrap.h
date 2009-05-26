@@ -68,7 +68,7 @@ int     PGFT_GetTextSize(FreeTypeInstance *, PyFreeTypeFont *,
             const FT_UInt16 *, int, int *, int *);
 
 int     PGFT_GetMetrics(FreeTypeInstance *ft, PyFreeTypeFont *font,
-            int character, int font_size, 
-            int *minx, int *maxx, int *miny, int *maxy, int *advance);
+            int character, int font_size, int pixel_coords, int grid_fitted,
+            void *minx, void *maxx, void *miny, void *maxy, void *advance);
 
 #endif
