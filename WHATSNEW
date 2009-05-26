@@ -5,6 +5,11 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+
+[SVN 2259] May 26, 2009
+    [BUG] surflock.c PySurface_LockBy was leaking weakrefs.
+    Thanks Tom Rothamel for the patch!
+
 [SVN 2118] May 12, 2009
     [BUG] Fixed bug in font.c where pygame.font.Font returned the wrong
     exception type and message when a font file was not found.
