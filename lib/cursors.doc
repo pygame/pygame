@@ -88,7 +88,8 @@ of cursor strings looks like this
 
 load_xbm
 load cursor data from an xbm file
-pygame.cursors.load_xbm(cursorfile, maskfile=None): return cursor_args
+pygame.cursors.load_xbm(cursorfile): return cursor_args
+pygame.cursors.load_xbm(cursorfile, maskfile): return cursor_args
 
 This loads cursors for a simple subset of XBM files. XBM files are traditionally
 used to store cursors on unix systems, they are an ascii format used to
