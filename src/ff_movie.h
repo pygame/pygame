@@ -1,14 +1,8 @@
-
-#include <libavutil/avstring.h>
-
-#include <libswscale/swscale.h>
-
-#include <libavdevice/avdevice.h>
-
 #include "pygamedocs.h"
 #include "pygame.h"
 #include "pgcompat.h"
 #include "audioconvert.h"
+#include "surface.h"
 
 #include <Python.h>
 #include <SDL.h>
@@ -17,7 +11,9 @@
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
 #include <libavutil/random.h>
-
+#include <libavutil/avstring.h>
+#include <libswscale/swscale.h>
+#include <libavdevice/avdevice.h>
 
 #define MAX_VIDEOQ_SIZE (5 * 256 * 1024)
 #define MAX_AUDIOQ_SIZE (5 * 16 * 1024)
@@ -86,7 +82,9 @@
 
 #define BPP 1
 
+
 #define __GNUC__
+
 #if defined(__ICC) || defined(__SUNPRO_C)
     #define DECLARE_ALIGNED(n,t,v)      t v __attribute__ ((aligned (n)))
     #define DECLARE_ASM_CONST(n,t,v)    const t __attribute__ ((aligned (n))) v
@@ -157,13 +155,6 @@ typedef struct PyVideoStream
     int seek_req;
     int seek_flags;
     int64_t seek_pos;
-    
-
-    /* //shows audio sample rate on title bar. Not needed.
-    int show_audio; // if true, display audio samples //
-    int16_t sample_array[SAMPLE_ARRAY_SIZE];
-    int sample_array_index;
-    int last_i_start; */
 
     /*time-keeping values
      *By default, all operating streams work on the same external clock
@@ -262,13 +253,13 @@ typedef struct PySubtitleStream
 {
     PyObject_HEAD
 
+	/*not yet currently used */ 
     SDL_Surface *out_surf; /*surface to output subtitle to. If surface is the display surface, 
                          * then we can use overlay code. Otherwise, we use the python interface.
                          * Can be different from PyVideoStream's output object.
                          */
 
-    int same_as_vid;      //true if the surface is the same as the video stream
-    //state variables for pause/seek
+    int same_as_vid;      //true if the surface is the same as the video stream   //state variables for pause/seek
     int paused;
     int last_paused;
     int seek_req;
@@ -357,7 +348,7 @@ typedef struct PyMovie
 } PyMovie;
 
 /*class methods and internals */
-static PyObject* _movie_init_internal(PyTypeObject *type, char *filename, PyObject* surface); 
+static PyObject* _movie_init_internal(PyTypeObject *type,const char *filename, PyObject* surface); 
 static int _movie_init (PyTypeObject *type, PyObject *args);
 static void _movie_dealloc (PyMovie *movie);
 static PyObject* _movie_repr (PyMovie *movie);
@@ -376,22 +367,24 @@ static PyObject* PyMovie_New (char *fname, SDL_Surface *surf);
 
 /*internals */
 
-
 static void _dealloc_aud_stream(PyAudioStream *pas);
 static void _dealloc_vid_stream(PyVideoStream *pvs);
 static void _dealloc_sub_stream(PySubtitleStream *pss);
 
-/* stream python stuff 
+// stream python stuff 
 
-static PyObject* _vid_stream_new_internal(PyTypeObject *type, char *filename, PyObject* surface); //expects file to have been opened in _vid_stream_new
+static PyObject* _vid_stream_new_internal(PyTypeObject *type,  PyObject* surface); //expects file to have been opened in _vid_stream_new
 static PyObject* _vid_stream_new (PyTypeObject *type, PyObject *args,
     PyObject *kwds);
-static void _vid_stream_dealloc (PyVideoStream *video);
+//static void _vid_stream_dealloc (PyVideoStream *video);
+static void _dealloc_vid_stream(PyVideoStream *pvs);
 static PyObject* _vid_stream_repr (PyVideoStream *video);
-static PyObject* _vid_stream_str (PyVideoStream *video);
+//static PyObject* _vid_stream_str (PyVideoStream *video);
 static PyObject* _vid_stream_play(PyVideoStream *video, PyObject* args);
 static PyObject* _vid_stream_stop(PyVideoStream *video);
 static PyObject* _vid_stream_pause(PyVideoStream *video);
 static PyObject* _vid_stream_rewind(PyVideoStream *video, PyObject* args);
-*/
 
+/* Getters/setters */
+static PyObject* _vid_stream_get_paused (PyVideoStream *pvs, void *closure);
+static PyObject* _vid_stream_get_playing (PyVideoStream *pvs, void *closure);
