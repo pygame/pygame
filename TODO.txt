@@ -8,7 +8,6 @@ CRITICAL:
 * Rewrite and fix up numpysurfarray and numpysndarray
 * Add prebuilt package for Win32 VC++ builds.
 * Refine quitting for SDL_QuitSubSystem wrapper.
-* Rewrite RST generator to support aliased imports correctly.
 * Check display surface tracking for multiple calls to set_mode using
   different return variables.
 * Argument parsing must handle 64-bit conversions correctly.
@@ -16,6 +15,9 @@ CRITICAL:
 * Add palette color support to sdlext.transform (trunk rev. 2242).
 * Check trunk rev. 1918, 1921, 1922, 1933, 1953 (blit blend operations).
 * Check trunk rev. 1937, 1947 (blit blend for self).
+* Add FT_GLYPH_BBOX_XXX exports in a  freetype.constants module ->
+  freetype.Font.get_metrics (text, ptsize, FT_GLYPH_XXX)
+* Mark methods, which are limited to certain bpp ranges.
 
 Things to ADD:
 ==============

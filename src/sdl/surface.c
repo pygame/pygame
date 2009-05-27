@@ -235,6 +235,9 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
     static char *keys[] = { "width", "height", "depth", "flags", "masks",
                             NULL };
 
+    /* The SDL docs require SDL_SetVideoMode() to be called beforehand. It
+     * works nicely without for SDL >= 1.2.10, though */
+    /* ASSERT_VIDEO_SURFACE_SET (-1); */
     ASSERT_VIDEO_INIT (-1);
 
     if (PySurface_Type.tp_init ((PyObject *) self, args, kwds) < 0)
@@ -275,7 +278,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
         if (flags & SDL_SRCALPHA)
         {
             /* The user wants an alpha component. In that case we will
-             * set a default RGBA mask. */
+             * set a default RGBA mask for 16 and 32 bpp. */
             switch (depth)
             {
             case 16:
@@ -292,7 +295,7 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
                 break;
             default:
                 PyErr_SetString (PyExc_PyGameError,
-                    "Per-pixel alpha not supported for that depth");
+                    "Per-pixel alpha requires masks for that depth");
                 return -1;
             }
         }
@@ -319,8 +322,11 @@ _surface_init (PyObject *self, PyObject *args, PyObject *kwds)
     surface = SDL_CreateRGBSurface (flags, width, height, depth, rmask, gmask,
         bmask, amask);
     if (!surface)
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
         return -1;
-
+    }
+    
     ((PySDLSurface*)self)->surface = surface;
     return 0;
 }
@@ -506,8 +512,11 @@ _surface_flip (PyObject *self)
     Py_END_ALLOW_THREADS;
     
     if (ret == -1)
-        Py_RETURN_FALSE;
-    Py_RETURN_TRUE;
+    {
+        PyErr_SetString (PyExc_PyGameError, SDL_GetError ());
+        return NULL;
+    }
+    Py_RETURN_NONE;
 }
 
 static PyObject*

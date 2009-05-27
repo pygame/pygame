@@ -21,21 +21,29 @@
 #define _PYGAME_TYPES_H_
 
 /**
- * Guarantee 8 bit usage.
+ * Guarantee at least 8 bit usage.
  */
 typedef unsigned char pgbyte;
-    
+
+#define PGBYTE_MASKED(x) ((x) & 0xFF)
+
 /**
- * Guarantee 16 bit usage.
+ * Guarantee at least 16 bit usage.
  */
 typedef unsigned int pguint16;
 typedef int pgint16;
 
+#define PGINT16_MASKED(x) ((x) & 0xFFFF)
+#define PGUINT16_MASKED(x) PGINT16_MASKED(x)
+
 /**
- * Guarantee 32 bit usage.
+ * Guarantee at least 32 bit usage.
  */
 typedef unsigned long int pguint32;
 typedef long int pgint32;
+
+#define PGINT32_MASKED(x) ((x) & 0xFFFFFFFF)
+#define PGUINT32_MASKED(x) PGINT32_MASKED(x)
 
 /**
  * Simple rectangle structure similiar to PyRect - but usable within pure C

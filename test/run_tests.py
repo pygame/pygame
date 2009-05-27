@@ -98,10 +98,10 @@ def run ():
             m.endswith('_test') and m or ('%s_test' % m) for m in args
             ]
     else:
-        if options.nosubprocess:
-            ignore = IGNORE
-        else:
+        if options.subprocess:
             ignore = SUBPROCESS_IGNORE
+        else:
+            ignore = IGNORE
 
         test_modules = []
         for f in sorted(os.listdir(test_subdir)):
@@ -129,7 +129,7 @@ def run ():
     #######################################################################
     # Single process mode
 
-    if options.nosubprocess:
+    if not options.subprocess:
         unittest_patch.patch(options)
 
         t = time.time()
@@ -141,7 +141,7 @@ def run ():
     # Subprocess mode
     #
 
-    if not options.nosubprocess:
+    if options.subprocess:
         from async_sub import proc_in_time_or_kill
 
         def sub_test(module):
@@ -193,7 +193,7 @@ def run ():
     meta['combined'] = combined
     results.update(meta_results)
 
-    if options.nosubprocess:
+    if not options.subprocess:
         assert total == untrusty_total
 
     if not options.dump:

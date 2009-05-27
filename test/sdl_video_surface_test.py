@@ -110,7 +110,8 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # | BLEND_RGBA_MULT           | The result of a multiplication of both |
         # |                           | pixel values will be used.             |
         # +---------------------------+----------------------------------------+
-        video.init ()
+        
+        # This is done in sdl_video_surface_blit_test.py
         self.fail() 
 
     def todo_test_pygame2_sdl_video_Surface_clip_rect(self):
@@ -159,6 +160,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         sf.fill (pygame2.Color (200, 100, 0))
         sfcopy = sf.copy ()
         self.assert_ (cmppixels (sf, sfcopy) == True)
+        video.quit ()
 
     def test_pygame2_sdl_video_Surface_fill(self):
 
@@ -189,16 +191,47 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         sf.fill (pygame2.Color ("yellow"), pygame2.Rect (5, 5, 4, 5))
         self.assert_ (cmpcolor (sf, pygame2.Color ("yellow"),
                       pygame2.Rect (5, 5, 4, 5)) == True)
+        video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_flags(self):
+    def test_pygame2_sdl_video_Surface_flags(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.flags:
 
         # The currently set flags for the Surface.
         video.init ()
-        self.fail() 
+        
+        c = constants
+        
+        sf = video.Surface (10, 10, flags=c.SWSURFACE)
+        self.assert_ ((sf.flags & c.SWSURFACE) == c.SWSURFACE)
 
-    def todo_test_pygame2_sdl_video_Surface_flip(self):
+        # HWSURFACE solely depends on the underlying hardware, additional
+        # flags and whatever else, so we won't test for it here.
+        
+        # SDL does not set SRCCOLORKEY instantly on creation. Instead it is
+        # set on applying a color key.
+        sf = video.Surface (10, 10, flags=c.SRCCOLORKEY)
+        self.assert_ ((sf.flags & c.SRCCOLORKEY) == 0)
+        
+        sf = video.Surface (10, 10, flags=c.SRCALPHA)
+        self.assert_ ((sf.flags & c.SRCALPHA) == c.SRCALPHA)
+
+        sf = video.Surface (10, 10, flags=c.SWSURFACE|c.SRCALPHA)
+        self.assert_ ((sf.flags & c.SWSURFACE) == c.SWSURFACE)
+        self.assert_ ((sf.flags & c.SRCALPHA) == c.SRCALPHA)
+
+        sf = video.Surface (10, 10, flags=c.SRCCOLORKEY|c.SRCALPHA)
+        self.assert_ ((sf.flags & c.SRCCOLORKEY) == 0)
+        self.assert_ ((sf.flags & c.SRCALPHA) == c.SRCALPHA)
+        
+        sf = video.Surface (10, 10, flags=c.SWSURFACE|c.SRCCOLORKEY|c.SRCALPHA)
+        self.assert_ ((sf.flags & c.SRCCOLORKEY) == 0)
+        self.assert_ ((sf.flags & c.SWSURFACE) == c.SWSURFACE)
+        self.assert_ ((sf.flags & c.SRCALPHA) == c.SRCALPHA)
+
+        video.quit ()
+
+    def test_pygame2_sdl_video_Surface_flip(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.flip:
 
@@ -209,7 +242,9 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # Swaps screen buffers for the Surface, causing a full update
         # and redraw of its whole area.
         video.init ()
-        self.fail() 
+        sf = video.Surface (10, 10)
+        self.assert_ (sf.flip () == None)
+        video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_format(self):
 
@@ -266,23 +301,41 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         video.init ()
         self.fail() 
 
-    def todo_test_pygame2_sdl_video_Surface_h(self):
+    def test_pygame2_sdl_video_Surface_h(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.h:
 
         # Gets the height of the Surface.
         video.init ()
-        self.fail() 
+        self.assert_ (video.Surface (10, 10).h == 10)
+        self.assert_ (video.Surface (10, 1).h == 1)
+        self.assert_ (video.Surface (10, 100).h == 100)
+        self.assert_ (video.Surface (0, 0).h == 0)
+        self.assert_ (video.Surface (0, 10).h == 10)
+        self.assert_ (video.Surface (10, 0).h == 0)
+        self.assert_ (video.Surface (2, 65535).h == 65535)
+        self.assertRaises (ValueError, video.Surface, -10, 10)
+        self.assertRaises (pygame2.Error, video.Surface, 68000, 10)
+        video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_height(self):
+    def test_pygame2_sdl_video_Surface_height(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.height:
 
         # Gets the height of the Surface.
         video.init ()
-        self.fail() 
+        self.assert_ (video.Surface (10, 10).height == 10)
+        self.assert_ (video.Surface (10, 1).height == 1)
+        self.assert_ (video.Surface (10, 100).height == 100)
+        self.assert_ (video.Surface (0, 0).height == 0)
+        self.assert_ (video.Surface (0, 10).height == 10)
+        self.assert_ (video.Surface (10, 0).height == 0)
+        self.assert_ (video.Surface (2, 65535).height == 65535)
+        self.assertRaises (ValueError, video.Surface, -10, 10)
+        self.assertRaises (pygame2.Error, video.Surface, 68000, 10)
+        video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_lock(self):
+    def test_pygame2_sdl_video_Surface_lock(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.lock:
 
@@ -290,15 +343,36 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Locks the Surface for a direct access to its internal pixel data.
         video.init ()
-        self.fail() 
+        sf = video.Surface (10, 10)
+        self.assert_ (sf.lock () == None)
+        self.assert_ (sf.unlock () == None)
+        video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_locked(self):
+    def test_pygame2_sdl_video_Surface_locked(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.locked:
 
         # Gets, whether the Surface is currently locked.
         video.init ()
-        self.fail() 
+        sf = video.Surface (10, 10)
+        sf.lock ()
+        self.assert_ (sf.locked == True)
+        sf.unlock ()
+        self.assert_ (sf.locked == False)
+
+        for i in range (4):
+            sf.lock () 
+            self.assert_ (sf.locked == True)
+        self.assert_ (sf.locked == True)
+        
+        for i in range (3):
+            sf.unlock ()
+            self.assert_ (sf.locked == True)
+        sf.unlock ()
+        self.assert_ (sf.locked == False)
+        sf.unlock ()
+        self.assert_ (sf.locked == False)
+        video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_pitch(self):
 
@@ -379,6 +453,7 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         sf2 = sdlimage.load (buf, "tga")
         self.assert_ (sf1.size == sf2.size)
         self.assert_ (cmppixels (sf1, sf2) == True)
+        video.quit ()
 
     def todo_test_pygame2_sdl_video_Surface_set_alpha(self):
 
@@ -451,15 +526,24 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         video.init ()
         self.fail() 
 
-    def todo_test_pygame2_sdl_video_Surface_size(self):
+    def test_pygame2_sdl_video_Surface_size(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.size:
 
         # Gets the size of the Surface.
         video.init ()
-        self.fail() 
+        self.assert_ (video.Surface (10, 10).size == (10, 10))
+        self.assert_ (video.Surface (1, 10).size == (1, 10))
+        self.assert_ (video.Surface (100, 10).size == (100, 10))
+        self.assert_ (video.Surface (0, 0).size == (0, 0))
+        self.assert_ (video.Surface (0, 10).size == (0, 10))
+        self.assert_ (video.Surface (16383, 2).size == (16383, 2))
+        self.assert_ (video.Surface (2, 65535).size == (2, 65535))
+        self.assertRaises (ValueError, video.Surface, -10, 10)
+        self.assertRaises (pygame2.Error, video.Surface, 68000, 10)
+        video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_unlock(self):
+    def test_pygame2_sdl_video_Surface_unlock(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.unlock:
 
@@ -467,7 +551,11 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         # 
         # Unlocks the Surface, releasing the direct access to the pixel data.
         video.init ()
-        self.fail() 
+        sf = video.Surface (10, 10)
+        self.assert_ (sf.lock () == None)
+        self.assert_ (sf.unlock () == None)
+        video.quit ()
+
 
     def todo_test_pygame2_sdl_video_Surface_update(self):
 
@@ -483,21 +571,39 @@ class SDLVideoSurfaceTest (unittest.TestCase):
         video.init ()
         self.fail() 
 
-    def todo_test_pygame2_sdl_video_Surface_w(self):
+    def test_pygame2_sdl_video_Surface_w(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.w:
 
         # Gets the width of the Surface.
         video.init ()
-        self.fail() 
+        self.assert_ (video.Surface (10, 10).w == 10)
+        self.assert_ (video.Surface (1, 10).w == 1)
+        self.assert_ (video.Surface (100, 10).w == 100)
+        self.assert_ (video.Surface (0, 0).w == 0)
+        self.assert_ (video.Surface (0, 10).w == 0)
+        self.assert_ (video.Surface (10, 0).w == 10)
+        self.assert_ (video.Surface (16383, 2).w == 16383)
+        self.assertRaises (ValueError, video.Surface, -10, 10)
+        self.assertRaises (pygame2.Error, video.Surface, 68000, 10)
+        video.quit ()
 
-    def todo_test_pygame2_sdl_video_Surface_width(self):
+    def test_pygame2_sdl_video_Surface_width(self):
 
         # __doc__ (as of 2009-05-15) for pygame2.sdl.video.Surface.width:
 
         # Gets the width of the Surface.
         video.init ()
-        self.fail() 
+        self.assert_ (video.Surface (10, 10).width == 10)
+        self.assert_ (video.Surface (1, 10).width == 1)
+        self.assert_ (video.Surface (100, 10).width == 100)
+        self.assert_ (video.Surface (0, 0).width == 0)
+        self.assert_ (video.Surface (0, 10).width == 0)
+        self.assert_ (video.Surface (10, 0).width == 10)
+        self.assert_ (video.Surface (16383, 2).width == 16383)
+        self.assertRaises (ValueError, video.Surface, -10, 10)
+        self.assertRaises (pygame2.Error, video.Surface, 68000, 10)
+        video.quit ()
 
 if __name__ == "__main__":
     unittest.main ()

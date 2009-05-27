@@ -45,8 +45,8 @@ opt_parser.add_option (
      help   = "fail incomplete tests" )
 
 opt_parser.add_option (
-     "-n",  "--nosubprocess", action = 'store_true',
-     help   = "run everything in a single process (default: subprocesses)" )
+     "-s",  "--subprocess", action = 'store_true',
+     help   = "run everything in an own subprocess (default: single process)" )
 
 opt_parser.add_option (
      "-d",  "--dump", action = 'store_true',
@@ -283,11 +283,11 @@ def run_test(module, options):
 
     results   = {module:from_namespace(locals(), RESULTS_TEMPLATE)}
 
-    if options.nosubprocess:
-        return (results)
-    else:
+    if options.subprocess:
         print (TEST_RESULTS_START)
         print (pformat (results))
+    else:
+        return (results)
 
 ################################################################################
 

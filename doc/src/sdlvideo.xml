@@ -267,7 +267,7 @@
         Swaps the screen buffers for the Surface.
         
         Swaps screen buffers for the Surface, causing a full update and redraw
-        of its whole area.  
+        of its whole area.
       </desc>
     </method>
     <attr name="format">

@@ -514,6 +514,7 @@ class MaskTest (unittest.TestCase):
         surf.fill(pygame2.Color(255,255,255,0))
         amask = mask_from_surface(surf)
         self.assertEqual(amask.get_at(0, 0), 0)
+        video.quit ()
 
     def test_pygame2_mask_from_threshold(self):
 
@@ -558,6 +559,7 @@ class MaskTest (unittest.TestCase):
             self.assertEqual (mask.count, 100)
             self.assertEqual (mask.get_bounding_rects(),
                               [pygame2.Rect (40, 40, 10, 10)])
+        video.quit ()
 
     def test_drawing (self):
         """ Test fill, clear, invert, draw, erase

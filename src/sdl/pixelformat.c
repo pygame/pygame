@@ -511,10 +511,16 @@ _pixelformat_maprgba (PyObject *self, PyObject *args)
         a = (Uint8) ((PyColor*)color)->a;
     }
 
-    if (a == -1)
-        val = SDL_MapRGB (((PyPixelFormat*)self)->format, r, g, b);
-    else
+    /* Only check for the alpha value, if there is a per-pixel alpha mask set
+     * and an alpha value was requested.
+     */
+    if (((PyPixelFormat*)self)->format->Amask != 0 && a != -1)
         val = SDL_MapRGBA (((PyPixelFormat*)self)->format, r, g, b, a);
+    else
+    {
+        val = SDL_MapRGB (((PyPixelFormat*)self)->format, r, g, b);
+        val |= 0xFF000000; /* Set the alpha portion fully opaque. */
+    }
     return PyColor_NewFromNumber ((pguint32)val);
 }
 
