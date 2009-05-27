@@ -5,6 +5,8 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+[SVN 2268] May 27, 2009
+    updated docs for cursors.load_xbm, thanks Saul Spatz, and Thomas Ibbotson
 
 [SVN 2259] May 26, 2009
     [BUG] surflock.c PySurface_LockBy was leaking weakrefs.
