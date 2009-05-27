@@ -1861,6 +1861,12 @@ static int decode_thread(void *arg)
 
     memset(ap, 0, sizeof(*ap));
 
+	if(!is->streams)
+	{
+		is->streams = PyList_New((Py_ssize_t)0);
+		Py_INCREF(is->streams);	
+	}
+
     ap->width = frame_width;
     ap->height= frame_height;
     ap->time_base= (AVRational){1, 25};
@@ -2485,75 +2491,7 @@ static PyTypeObject PyMovie_Type =
 };
 
 
-static PyMethodDef _video_methods[] = {
-   { "play",    (PyCFunction) _vid_stream_play, METH_VARARGS,
-               "Play the movie file from current time-mark. If loop<0, then it will loop infinitely. If there is no loop value, then it will play once." },
-   { "stop", (PyCFunction) _vid_stream_stop, METH_NOARGS,
-                "Stop the movie, and set time-mark to 0:0"},
-   { "pause", (PyCFunction) _vid_stream_pause, METH_NOARGS,
-                "Pause movie."},
-   { "rewind", (PyCFunction) _vid_stream_rewind, METH_VARARGS,
-                "Rewind movie to time_pos. If there is no time_pos, same as stop."},
-   { NULL, NULL, 0, NULL }
-};
 
-static PyGetSetDef _video_getsets[] =
-{
-    { "paused", (getter) _vid_stream_get_paused, NULL, NULL, NULL },
-    { "playing", (getter) _vid_stream_get_playing, NULL, NULL, NULL },
-    { NULL, NULL, NULL, NULL, NULL }
-};
-
-static PyTypeObject PyVideo_Type =
-{
-    PyObject_HEAD_INIT(NULL)
-    0, 
-    "pygame.gmovie.VideoStream",          /* tp_name */
-    sizeof (PyVideoStream),           /* tp_basicsize */
-    0,                          /* tp_itemsize */
-    (destructor) _dealloc_vid_stream,/* tp_dealloc */
-    0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_compare */
-    (reprfunc) _vid_stream_repr,     /* tp_repr */
-    0,                          /* tp_as_number */
-    0,                          /* tp_as_sequence */
-    0,                          /* tp_as_mapping */
-    0,                          /* tp_hash */
-    0,                          /* tp_call */
-    0,                          /* tp_str */
-    0,                          /* tp_getattro */
-    0,                          /* tp_setattro */
-    0,                          /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-    0,                          /* tp_doc */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_richcompare */
-    0,                          /* tp_weaklistoffset */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    _video_methods,             /* tp_methods */
-    0,                          /* tp_members */
-    _video_getsets,             /* tp_getset */
-    0,                          /* tp_base */
-    0,                          /* tp_dict */
-    0,                          /* tp_descr_get */
-    0,                          /* tp_descr_set */
-    0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
-    0,                          /* tp_alloc */
-    (newfunc)_vid_stream_new,                 /* tp_new */
-    0,                          /* tp_free */
-    0,                          /* tp_is_gc */
-    0,                          /* tp_bases */
-    0,                          /* tp_mro */
-    0,                          /* tp_cache */
-    0,                          /* tp_subclasses */
-    0,                          /* tp_weaklist */
-    0                           /* tp_del */
-};
 
 static PyObject* _movie_init_internal(PyTypeObject *type, const char *filename, PyObject* surface)
 {
@@ -2722,85 +2660,8 @@ static PyObject* PyMovie_New (char *fname, SDL_Surface *surf)
 		Py_RETURN_NONE;
 		
 }
-/*
-static PyObject* _vid_stream_new_internal(PyTypeObject *type, char *filename, PyObject* surface); //expects file to have been opened in _vid_stream_new
-static PyObject* _vid_stream_new (PyTypeObject *type, PyObject *args,
-    PyObject *kwds);
-static void _vid_stream_dealloc (PyVideoStream *video);
-static PyObject* _vid_stream_repr (PyVideoStream *video);
-static PyObject* _vid_stream_str (PyVideoStream *video);
-static PyObject* _vid_stream_play(PyVideoStream *video, PyObject* args);
-static PyObject* _vid_stream_stop(PyVideoStream *video);
-static PyObject* _vid_stream_pause(PyVideoStream *video);
-static PyObject* _vid_stream_rewind(PyVideoStream *video, PyObject* args);
-*/
 
-static PyObject* _vid_stream_new_internal(PyTypeObject *type, PyObject *surface)
-{
-	    /*Expects filename. If surface is null, then it sets overlay to >0. */
-    PySys_WriteStdout("Within _vid_stream_init_internal\n");    
-    //PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
-    PyVideoStream *pvs = (PyVideoStream *)PyMem_Malloc(sizeof(PyVideoStream));    
-    PySys_WriteStdout("_vid_stream_init_internal: after tp->alloc\n");
-    if (!pvs)
-    {
-        PyErr_SetString(PyExc_TypeError, "Did not work.");
-        Py_RETURN_NONE;
-    }
-    PySys_WriteStdout("_vid_stream_init_internal: after check for null\n");
-    Py_INCREF(pvs);
 
-    if(!surface)
-    {
-        PySys_WriteStdout("_vid_stream_init_internal: Overlay=True\n");
-        pvs->overlay=1;
-    }
-    else
-    {
-        PySys_WriteStdout("_vid_stream_init_internal: Overlay=False\n");
-        SDL_Surface *surf;
-        surf = PySurface_AsSurface(surface);
-        pvs->out_surf=surf;
-        pvs->overlay=0;
-    }
-    
-    //Py_DECREF((PyObject *) movie);
-    PySys_WriteStdout("_vid_stream_init_internal: Returning from _vid_stream_init_internal\n");
-    return (PyObject *)pvs;
-}
-
-static PyObject* _vid_stream_new(PyTypeObject *type, PyObject *args)
-{
-	Py_INCREF(type);
-    PyObject *obj1;
-    PySys_WriteStdout("Within _vid_stream_init\n");
-    if (!PyArg_ParseTuple (args, "O", &obj1))
-    {
-        PyErr_SetString(PyExc_TypeError, "No valid arguments");
-        //Py_RETURN_NONE;
-    	return 0;
-    }
-    PySys_WriteStdout("_vid_stream_init: after PyArg_ParseTuple\n"); 
-    
-    PyObject *pvs;
-
-    PySys_WriteStdout("_vid_stream_init: Before _vid_stream_init_internal\n");
-    pvs = _vid_stream_new_internal(type, &obj1);
-    PySys_WriteStdout("_vid_stream_init: After _vid_stream_init_internal\n");
-    PyObject *er;
-    er = PyErr_Occurred();
-    if(er)
-    {
-        PyErr_Print();
-    }
-    if(!pvs)
-    {
-        PyErr_SetString(PyExc_IOError, "No video stream created.");
-        PyErr_Print();
-    }
-    PySys_WriteStdout("Returning from _vid_stream_init\n");
-    return pvs;
-}
 PyMODINIT_FUNC
 initgmovie(void)
 {
