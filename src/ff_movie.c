@@ -2341,6 +2341,7 @@ static PyVideoStream* _new_video_stream(void)
 {
     PyVideoStream *pvs;
     pvs=(PyVideoStream *)PyMem_Malloc(sizeof(PyVideoStream));
+    Py_INCREF(pvs);
     pvs->paused      =0;
     pvs->last_paused =0;
     pvs->seek_req    =0;
@@ -2353,6 +2354,7 @@ static PyVideoStream* _new_video_stream(void)
     pvs->frame_last_pts  =0;
     pvs->frame_last_delay=0;
     pvs->frame_offset    =0;
+    Py_DECREF(pvs);
     return pvs;
 
 }
@@ -2734,42 +2736,71 @@ static PyObject* _vid_stream_rewind(PyVideoStream *video, PyObject* args);
 */
 
 static PyObject* _vid_stream_new_internal(PyTypeObject *type, PyObject *surface)
-{}
+{
+	    /*Expects filename. If surface is null, then it sets overlay to >0. */
+    PySys_WriteStdout("Within _vid_stream_init_internal\n");    
+    //PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
+    PyVideoStream *pvs = (PyVideoStream *)PyMem_Malloc(sizeof(PyVideoStream));    
+    PySys_WriteStdout("_vid_stream_init_internal: after tp->alloc\n");
+    if (!pvs)
+    {
+        PyErr_SetString(PyExc_TypeError, "Did not work.");
+        Py_RETURN_NONE;
+    }
+    PySys_WriteStdout("_vid_stream_init_internal: after check for null\n");
+    Py_INCREF(pvs);
+
+    if(!surface)
+    {
+        PySys_WriteStdout("_vid_stream_init_internal: Overlay=True\n");
+        pvs->overlay=1;
+    }
+    else
+    {
+        PySys_WriteStdout("_vid_stream_init_internal: Overlay=False\n");
+        SDL_Surface *surf;
+        surf = PySurface_AsSurface(surface);
+        pvs->out_surf=surf;
+        pvs->overlay=0;
+    }
+    
+    //Py_DECREF((PyObject *) movie);
+    PySys_WriteStdout("_vid_stream_init_internal: Returning from _vid_stream_init_internal\n");
+    return (PyObject *)pvs;
+}
 
 static PyObject* _vid_stream_new(PyTypeObject *type, PyObject *args)
 {
 	Py_INCREF(type);
-    const char *c;
+    PyObject *obj1;
     PySys_WriteStdout("Within _vid_stream_init\n");
-    if (!PyArg_ParseTuple (args, "s", &c))
+    if (!PyArg_ParseTuple (args, "O", &obj1))
     {
         PyErr_SetString(PyExc_TypeError, "No valid arguments");
         //Py_RETURN_NONE;
     	return 0;
     }
-    PySys_WriteStdout("_movie_init: after PyArg_ParseTuple\n"); 
+    PySys_WriteStdout("_vid_stream_init: after PyArg_ParseTuple\n"); 
     
-    PyObject *mov;
+    PyObject *pvs;
 
-    PySys_WriteStdout("_movie_init: Before _movie_init_internal\n");
-    mov = _movie_init_internal(type, c, obj2);
-    PyMovie *movie;
-    movie=(PyMovie *)mov;
-    PySys_WriteStdout("_movie_init: After _movie_init_internal with argument: %s\n", movie->filename);
+    PySys_WriteStdout("_vid_stream_init: Before _vid_stream_init_internal\n");
+    pvs = _vid_stream_new_internal(type, &obj1);
+    PySys_WriteStdout("_vid_stream_init: After _vid_stream_init_internal\n");
     PyObject *er;
     er = PyErr_Occurred();
     if(er)
     {
         PyErr_Print();
     }
-    if(!mov)
+    if(!pvs)
     {
-        PyErr_SetString(PyExc_IOError, "No movie object created.");
+        PyErr_SetString(PyExc_IOError, "No video stream created.");
         PyErr_Print();
     }
-    PySys_WriteStdout("Returning from _movie_init\n");
-    return 0;
-
+    PySys_WriteStdout("Returning from _vid_stream_init\n");
+    return pvs;
+}
 PyMODINIT_FUNC
 initgmovie(void)
 {

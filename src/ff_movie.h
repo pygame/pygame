@@ -190,6 +190,8 @@ typedef struct PyVideoStream
     int width, height, xleft, ytop;
 
     int pts;
+    
+    int overlay;
 
 } PyVideoStream;
 
@@ -374,8 +376,7 @@ static void _dealloc_sub_stream(PySubtitleStream *pss);
 // stream python stuff 
 
 static PyObject* _vid_stream_new_internal(PyTypeObject *type,  PyObject* surface); //expects file to have been opened in _vid_stream_new
-static PyObject* _vid_stream_new (PyTypeObject *type, PyObject *args,
-    PyObject *kwds);
+static PyObject* _vid_stream_new (PyTypeObject *type, PyObject *args);
 //static void _vid_stream_dealloc (PyVideoStream *video);
 static void _dealloc_vid_stream(PyVideoStream *pvs);
 static PyObject* _vid_stream_repr (PyVideoStream *video);
