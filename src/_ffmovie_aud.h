@@ -69,10 +69,10 @@ typedef struct PyAudioStream
 
 // stream python stuff 
 
-static PyObject* _aud_stream_new_internal(PyTypeObject *type); //expects file to have been opened in _aud_stream_new
-static PyObject* _aud_stream_new (PyTypeObject *type, PyObject *args);
+static PyObject* _aud_stream_init_internal(PyObject *self); //expects file to have been opened in _aud_stream_new
+static PyObject* _aud_stream_init (PyObject *self, PyObject *args, PyObject *kwds);
 //static void _aud_stream_dealloc (PyAudioStream *audio);
-static void _dealloc_aud_stream(PyAudioStream *pvs);
+static void _dealloc_aud_stream(PyAudioStream *pas);
 static PyObject* _aud_stream_repr (PyAudioStream *audio);
 //static PyObject* _aud_stream_str (PyAudioStream *audio);
 static PyObject* _aud_stream_play(PyAudioStream *audio, PyObject* args);
@@ -84,7 +84,7 @@ static PyObject* _aud_stream_rewind(PyAudioStream *audio, PyObject* args);
 static PyObject* _aud_stream_get_paused (PyAudioStream *pvs, void *closure);
 static PyObject* _aud_stream_get_playing (PyAudioStream *pvs, void *closure);
 
-static PyMethodDef _audeo_methods[] = {
+static PyMethodDef _audio_methods[] = {
    { "play",    (PyCFunction) _aud_stream_play, METH_VARARGS,
                "Play the movie file from current time-mark. If loop<0, then it will loop infinitely. If there is no loop value, then it will play once." },
    { "stop", (PyCFunction) _aud_stream_stop, METH_NOARGS,
@@ -96,7 +96,7 @@ static PyMethodDef _audeo_methods[] = {
    { NULL, NULL, 0, NULL }
 };
 
-static PyGetSetDef _audeo_getsets[] =
+static PyGetSetDef _audio_getsets[] =
 {
     { "paused", (getter) _aud_stream_get_paused, NULL, NULL, NULL },
     { "playing", (getter) _aud_stream_get_playing, NULL, NULL, NULL },
@@ -133,17 +133,17 @@ static PyTypeObject PyAudioStream_Type =
     0,                          /* tp_weaklistoffset */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    _audeo_methods,             /* tp_methods */
+    _audio_methods,             /* tp_methods */
     0,                          /* tp_members */
-    _audeo_getsets,             /* tp_getset */
+    _audio_getsets,             /* tp_getset */
     0,                          /* tp_base */
     0,                          /* tp_dict */
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
+    (initproc) _aud_stream_init,                          /* tp_init */
     0,                          /* tp_alloc */
-    (newfunc)_aud_stream_new,                 /* tp_new */
+    0,                 /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -155,38 +155,28 @@ static PyTypeObject PyAudioStream_Type =
 };
 
 
-static PyObject* _aud_stream_new_internal(PyTypeObject *type)
+static PyObject* _aud_stream_init_internal(PyObject *self)
 {
 	    /*Expects filename. If surface is null, then it sets overlay to >0. */
     PySys_WriteStdout("Within _aud_stream_init_internal\n");    
-    //PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
-    PyAudioStream *pvs = (PyAudioStream *)PyMem_Malloc(sizeof(PyAudioStream));    
-    PySys_WriteStdout("_aud_stream_init_internal: after tp->alloc\n");
-    if (!pvs)
-    {
-        PyErr_SetString(PyExc_TypeError, "Did not work.");
-        Py_RETURN_NONE;
-    }
-    PySys_WriteStdout("_aud_stream_init_internal: after check for null\n");
-    Py_INCREF(pvs);
-
+    
+    Py_INCREF(self);
+	//do stuff
+    
     
     //Py_DECREF((PyObject *) movie);
     PySys_WriteStdout("_aud_stream_init_internal: Returning from _aud_stream_init_internal\n");
-    return (PyObject *)pvs;
+    Py_DECREF(self);
+    return self;
 }
 
-static PyObject* _aud_stream_new(PyTypeObject *type, PyObject *args)
+static PyObject* _aud_stream_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	Py_INCREF(type);
+	Py_INCREF(self);
     PySys_WriteStdout("Within _aud_stream_init\n");
-    
-    PySys_WriteStdout("_aud_stream_init: after PyArg_ParseTuple\n"); 
-    
-    PyObject *pvs;
 
     PySys_WriteStdout("_aud_stream_init: Before _aud_stream_init_internal\n");
-    pvs = _aud_stream_new_internal(type);
+    self = _aud_stream_init_internal(self);
     PySys_WriteStdout("_aud_stream_init: After _aud_stream_init_internal\n");
     PyObject *er;
     er = PyErr_Occurred();
@@ -194,13 +184,15 @@ static PyObject* _aud_stream_new(PyTypeObject *type, PyObject *args)
     {
         PyErr_Print();
     }
-    if(!pvs)
+    if(!self)
     {
         PyErr_SetString(PyExc_IOError, "No audio stream created.");
         PyErr_Print();
+        Py_XDECREF(self);
+        Py_RETURN_NONE;
     }
     PySys_WriteStdout("Returning from _aud_stream_init\n");
-    return pvs;
+    return self;
 }
 
 static PyObject* _aud_stream_repr (PyAudioStream *audio)
@@ -261,14 +253,6 @@ static PyObject* _aud_stream_get_playing (PyAudioStream *audio, void *closure)
     return pyo;
 }
 
-static PyObject* PyAudioStream_New (SDL_Surface *surf)
-{
-	if(surf)
-    	return _aud_stream_new_internal(&PyAudioStream_Type);
-	else if(!surf)
-		return _aud_stream_new_internal(&PyAudioStream_Type);
-	
-		
-}
+
 
 #endif /*_FFMOVIE_AUD_H_*/

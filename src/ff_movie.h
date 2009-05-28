@@ -204,8 +204,8 @@ typedef struct PyMovie
 } PyMovie;
 
 /*class methods and internals */
-static PyObject* _movie_init_internal(PyTypeObject *type,const char *filename, PyObject* surface); 
-static int _movie_init (PyTypeObject *type, PyObject *args);
+static PyObject* _movie_init_internal(PyMovie *movie,const char *filename, PyObject* surface); 
+static int _movie_init (PyObject *self, PyObject *args, PyObject *kwds);
 static void _movie_dealloc (PyMovie *movie);
 static PyObject* _movie_repr (PyMovie *movie);
 static PyObject* _movie_str (PyMovie *movie);
@@ -217,9 +217,7 @@ static PyObject* _movie_rewind(PyMovie *movie, PyObject* args);
 /* Getters/setters */
 static PyObject* _movie_get_paused (PyMovie *movie, void *closure);
 static PyObject* _movie_get_playing (PyMovie *movie, void *closure);
-
-/* C API interfaces */
-static PyObject* PyMovie_New (char *fname, SDL_Surface *surf);
+static PyObject* _movie_get_streams(PyMovie *movie, void *closure);
 
 /*internals */
 

@@ -79,8 +79,8 @@ typedef struct PyVideoStream
 
 // stream python stuff 
 
-static PyObject* _vid_stream_new_internal(PyTypeObject *type,  PyObject* surface); //expects file to have been opened in _vid_stream_new
-static PyObject* _vid_stream_new (PyTypeObject *type, PyObject *args);
+static PyObject* _vid_stream_init_internal(PyObject *self,  PyObject* surface); //expects file to have been opened in _vid_stream_new
+static PyObject* _vid_stream_init (PyObject *self, PyObject *args, PyObject *kwds);
 //static void _vid_stream_dealloc (PyVideoStream *video);
 static void _dealloc_vid_stream(PyVideoStream *pvs);
 static PyObject* _vid_stream_repr (PyVideoStream *video);
@@ -151,9 +151,9 @@ static PyTypeObject PyVideoStream_Type =
     0,                          /* tp_descr_get */
     0,                          /* tp_descr_set */
     0,                          /* tp_dictoffset */
-    0,                          /* tp_init */
+    (initproc)_vid_stream_init,                          /* tp_init */
     0,                          /* tp_alloc */
-    (newfunc)_vid_stream_new,                 /* tp_new */
+    0,                 /* tp_new */
     0,                          /* tp_free */
     0,                          /* tp_is_gc */
     0,                          /* tp_bases */
@@ -165,21 +165,14 @@ static PyTypeObject PyVideoStream_Type =
 };
 
 
-static PyObject* _vid_stream_new_internal(PyTypeObject *type, PyObject *surface)
+static PyObject* _vid_stream_init_internal(PyObject *self, PyObject *surface)
 {
 	    /*Expects filename. If surface is null, then it sets overlay to >0. */
     PySys_WriteStdout("Within _vid_stream_init_internal\n");    
-    //PyMovie *movie  = (PyMovie *)type->tp_alloc (type, 0);
-    PyVideoStream *pvs = (PyVideoStream *)PyMem_Malloc(sizeof(PyVideoStream));    
-    PySys_WriteStdout("_vid_stream_init_internal: after tp->alloc\n");
-    if (!pvs)
-    {
-        PyErr_SetString(PyExc_TypeError, "Did not work.");
-        Py_RETURN_NONE;
-    }
-    PySys_WriteStdout("_vid_stream_init_internal: after check for null\n");
-    Py_INCREF(pvs);
-
+    Py_INCREF(self);
+	PyVideoStream *pvs;
+	pvs=(PyVideoStream *)self;
+	Py_INCREF(pvs);
     if(!surface)
     {
         PySys_WriteStdout("_vid_stream_init_internal: Overlay=True\n");
@@ -195,13 +188,15 @@ static PyObject* _vid_stream_new_internal(PyTypeObject *type, PyObject *surface)
     }
     
     //Py_DECREF((PyObject *) movie);
+    Py_DECREF(pvs);
+    Py_DECREF(self);
     PySys_WriteStdout("_vid_stream_init_internal: Returning from _vid_stream_init_internal\n");
     return (PyObject *)pvs;
 }
 
-static PyObject* _vid_stream_new(PyTypeObject *type, PyObject *args)
+static PyObject* _vid_stream_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	Py_INCREF(type);
+	Py_INCREF(self);
     PyObject *obj1;
     PySys_WriteStdout("Within _vid_stream_init\n");
     if (!PyArg_ParseTuple (args, "O", &obj1))
@@ -211,11 +206,9 @@ static PyObject* _vid_stream_new(PyTypeObject *type, PyObject *args)
     	return 0;
     }
     PySys_WriteStdout("_vid_stream_init: after PyArg_ParseTuple\n"); 
-    
-    PyObject *pvs;
 
     PySys_WriteStdout("_vid_stream_init: Before _vid_stream_init_internal\n");
-    pvs = _vid_stream_new_internal(type, obj1);
+    self = _vid_stream_init_internal(self, obj1);
     PySys_WriteStdout("_vid_stream_init: After _vid_stream_init_internal\n");
     PyObject *er;
     er = PyErr_Occurred();
@@ -223,13 +216,13 @@ static PyObject* _vid_stream_new(PyTypeObject *type, PyObject *args)
     {
         PyErr_Print();
     }
-    if(!pvs)
+    if(!self)
     {
         PyErr_SetString(PyExc_IOError, "No video stream created.");
         PyErr_Print();
     }
     PySys_WriteStdout("Returning from _vid_stream_init\n");
-    return pvs;
+    return self;
 }
 
 static PyObject* _vid_stream_repr (PyVideoStream *video)
@@ -290,15 +283,8 @@ static PyObject* _vid_stream_get_playing (PyVideoStream *video, void *closure)
     return pyo;
 }
 
-static PyObject* PyVideoStream_New (SDL_Surface *surf)
-{
-	if(surf)
-    	return _vid_stream_new_internal(&PyVideoStream_Type,  (PyObject *)PySurface_New(surf));
-	else if(!surf)
-		return _vid_stream_new_internal(&PyVideoStream_Type,  NULL);
 	
-		
-}
+
 
 
 #endif /*_FFMOVIE_VID_H_*/
