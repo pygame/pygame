@@ -22,8 +22,6 @@
 #include "pgsdl.h"
 #include "sdlaudio_doc.h"
 
-static void _quit (void);
-
 static PyObject* _sdl_audioinit (PyObject *self);
 static PyObject* _sdl_audiowasinit (PyObject *self);
 static PyObject* _sdl_audioquit (PyObject *self);
@@ -35,13 +33,6 @@ static PyMethodDef _audio_methods[] = {
     { "quit", (PyCFunction) _sdl_audioquit, METH_NOARGS, DOC_AUDIO_QUIT },
     { NULL, NULL, 0, NULL }
 };
-
-static void
-_quit (void)
-{
-    if (SDL_WasInit (SDL_INIT_AUDIO))
-        SDL_QuitSubSystem (SDL_INIT_AUDIO);
-}
 
 static PyObject*
 _sdl_audioinit (PyObject *self)
@@ -68,7 +59,8 @@ _sdl_audiowasinit (PyObject *self)
 static PyObject*
 _sdl_audioquit (PyObject *self)
 {
-    _quit ();
+    if (SDL_WasInit (SDL_INIT_AUDIO))
+        SDL_QuitSubSystem (SDL_INIT_AUDIO);
     Py_RETURN_NONE;
 }
 
@@ -97,7 +89,6 @@ PyMODINIT_FUNC initaudio (void)
     if (import_pygame2_sdl_base () < 0)
         goto fail;
     
-    RegisterQuitCallback (_quit);
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

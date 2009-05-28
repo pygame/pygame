@@ -32,19 +32,6 @@ SDL subsystems are properly set and initialised.
 Functions
 ---------
 
-.. cfunction:: int RegisterQuitCallback (quit_func)
-
-  Registers a callback to be invoked before SDL's *SDL_Quit()* function
-  is raised to shutdown the SDL library. The quit function callback
-  hook, *quit_func* is defined as::
-  
-    void (*quit_func)(void)
-
-  As the functions also will upon exiting the Python interpreter instance,
-  no Python specific objects or calls must be used.
-
-  This will not check the argument for being *NULL*.
-
 .. cfunction:: int Uint8FromObj (PyObject *obj, Uint8 *val)
 
   Tries to convert the PyObject to a Uint8 and stores the result in

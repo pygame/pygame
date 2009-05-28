@@ -23,7 +23,6 @@
 #include "pgsdl.h"
 #include "sdlvideo_doc.h"
 
-static void _quit (void);
 static int _seq_to_uint16 (PyObject *seq, Uint16 *array, Py_ssize_t array_size);
 
 static PyObject* _sdl_videoinit (PyObject *self);
@@ -64,13 +63,6 @@ static PyMethodDef _video_methods[] = {
       DOC_VIDEO_SET_MODE },
     { NULL, NULL, 0, NULL }
 };
-
-static void
-_quit (void)
-{
-    if (SDL_WasInit (SDL_INIT_VIDEO))
-        SDL_QuitSubSystem (SDL_INIT_VIDEO);
-}
 
 static int
 _seq_to_uint16 (PyObject *seq, Uint16 *array, Py_ssize_t array_size)
@@ -127,7 +119,8 @@ _sdl_videowasinit (PyObject *self)
 static PyObject*
 _sdl_videoquit (PyObject *self)
 {
-    _quit ();
+    if (SDL_WasInit (SDL_INIT_VIDEO))
+        SDL_QuitSubSystem (SDL_INIT_VIDEO);
     Py_RETURN_NONE;
 }
 
@@ -519,9 +512,9 @@ PyMODINIT_FUNC initvideo (void)
 
     if (import_pygame2_base () < 0)
         goto fail;
-    if (import_pygame2_sdl_rwops () < 0)
-        goto fail;
     if (import_pygame2_sdl_base () < 0)
+        goto fail;
+    if (import_pygame2_sdl_rwops () < 0)
         goto fail;
 
     /* Complete types */
@@ -559,7 +552,6 @@ PyMODINIT_FUNC initvideo (void)
     if (c_api_obj)
         PyModule_AddObject (mod, PYGAME_SDLVIDEO_ENTRY, c_api_obj);    
 
-    RegisterQuitCallback (_quit);
     MODINIT_RETURN(mod);
 
 fail:

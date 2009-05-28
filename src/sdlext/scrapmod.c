@@ -34,8 +34,6 @@
 static PyObject *_scrapselection = NULL;
 static PyObject *_scrapclipboard = NULL;
 
-static void _quit (void);
-
 static PyObject* _scrap_init (PyObject* self);
 static PyObject* _scrap_quit (PyObject* self);
 static PyObject* _scrap_wasinit (PyObject* self);
@@ -62,13 +60,6 @@ static PyMethodDef _scrap_methods[] =
     { NULL, NULL, 0, NULL }
 };
 
-static void
-_quit (void)
-{
-    if (pyg_scrap_was_init ())
-        pyg_scrap_quit ();
-}
-
 static PyObject*
 _scrap_init (PyObject* self)
 {
@@ -90,7 +81,8 @@ _scrap_quit (PyObject* self)
     _scrapclipboard = NULL;
     _scrapselection = NULL;
 
-    _quit ();
+    if (pyg_scrap_was_init ())
+        pyg_scrap_quit ();
     Py_RETURN_NONE;
 }
 
@@ -319,7 +311,6 @@ PyMODINIT_FUNC initscrap (void)
         goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;
-    RegisterQuitCallback (_quit);
     MODINIT_RETURN (mod);
 fail:
     Py_XDECREF (mod);

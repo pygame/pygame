@@ -32,7 +32,20 @@
 #define PYGAME_SURFACE_INTERNAL
 #define PYGAME_FONT_INTERNAL
 
-extern PyObject* PyExc_PyGameError;
+typedef struct {
+    PyObject* error;
+} _BaseState;
+
+#ifdef IS_PYTHON_3
+extern struct PyModuleDef _basemodule;
+#define BASE_MOD_STATE(mod) ((_BaseState*)PyModule_GetState(mod))
+#define BASE_STATE BASE_MOD_STATE(PyState_FindModule(&_basemodule))
+#else
+extern _BaseState _modstate;
+#define BASE_MOD_STATE(mod) (&_modstate)
+#define BASE_STATE BASE_MOD_STATE(NULL)
+#endif
+#define PyExc_PyGameError (BASE_STATE->error)
 
 int DoubleFromObj (PyObject* obj, double* val);
 int IntFromObj (PyObject* obj, int* val);

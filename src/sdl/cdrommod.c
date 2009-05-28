@@ -23,10 +23,7 @@
 #include "pgsdl.h"
 #include "sdlcdrom_doc.h"
 
-#define MAX_CDROMS 32
-static SDL_CD *_cdrom_drives[MAX_CDROMS] = { NULL };
-
-static void _quit (void);
+static int _cdrom_clear (PyObject *mod);
 
 static PyObject* _sdl_cdinit (PyObject *self);
 static PyObject* _sdl_cdwasinit (PyObject *self);
@@ -44,24 +41,6 @@ static PyMethodDef _cdrom_methods[] = {
     { "get_name", _sdl_cdgetname, METH_VARARGS, DOC_CDROM_GET_NAME },
     { NULL, NULL, 0, NULL }
 };
-
-static void
-_quit (void)
-{
-    int i;
-    for (i = 0; i < MAX_CDROMS; i++)
-    {
-        /* Close all open cdroms. */
-        if (_cdrom_drives[i])
-        {
-            SDL_CDClose (_cdrom_drives[i]);
-            _cdrom_drives[i] = NULL;
-        }
-    }
-
-    if (SDL_WasInit (SDL_INIT_CDROM))
-        SDL_QuitSubSystem (SDL_INIT_CDROM);
-}
 
 static PyObject*
 _sdl_cdinit (PyObject *self)
@@ -88,7 +67,19 @@ _sdl_cdwasinit (PyObject *self)
 static PyObject*
 _sdl_cdquit (PyObject *self)
 {
-    _quit ();
+    int i;
+    for (i = 0; i < MAX_CDROMS; i++)
+    {
+        /* Close all open cdroms. */
+        if (SDLCDROM_MOD_STATE(self)->cdrom_drives[i])
+        {
+            SDL_CDClose (SDLCDROM_MOD_STATE(self)->cdrom_drives[i]);
+            SDLCDROM_MOD_STATE(self)->cdrom_drives[i] = NULL;
+        }
+    }
+
+    if (SDL_WasInit (SDL_INIT_CDROM))
+        SDL_QuitSubSystem (SDL_INIT_CDROM);
     Py_RETURN_NONE;
 }
 
@@ -117,12 +108,28 @@ _sdl_cdgetname (PyObject *self, PyObject *args)
     return Text_FromUTF8 (SDL_CDName (drive));
 }
 
+static int
+_cdrom_clear (PyObject *mod)
+{
+    int i;
+    for (i = 0; i < MAX_CDROMS; i++)
+    {
+        /* Close all open cdroms. */
+        if (SDLCDROM_MOD_STATE(mod)->cdrom_drives[i])
+        {
+            SDL_CDClose (SDLCDROM_MOD_STATE(mod)->cdrom_drives[i]);
+            SDLCDROM_MOD_STATE(mod)->cdrom_drives[i] = NULL;
+        }
+    }
+    return 0;
+}
+
 void
 cdrommod_add_drive (int _index, SDL_CD *cdrom)
 {
     if (_index < 0 || _index >= MAX_CDROMS)
         return;
-    _cdrom_drives[_index] = cdrom;
+    SDLCDROM_STATE->cdrom_drives[_index] = cdrom;
 }
 
 void
@@ -130,7 +137,7 @@ cdrommod_remove_drive (int _index)
 {
     if (_index < 0 || _index >= MAX_CDROMS)
         return;
-    _cdrom_drives[_index] = NULL;
+    SDLCDROM_STATE->cdrom_drives[_index] = NULL;
 }
 
 SDL_CD*
@@ -138,8 +145,25 @@ cdrommod_get_drive (int _index)
 {
     if (_index < 0 || _index >= MAX_CDROMS)
         return NULL;
-    return _cdrom_drives[_index];
+    return SDLCDROM_STATE->cdrom_drives[_index];
 }
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _cdrommodule = {
+    PyModuleDef_HEAD_INIT,
+    "cdrom",
+    DOC_CDROM,
+    sizeof (_SDLCDromState),
+    _cdrom_methods,
+    NULL,
+    NULL,
+    _cdrom_clear,
+    NULL
+};
+#else
+_SDLCDromState _modstate;
+#endif
+
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_cdrom (void)
@@ -147,16 +171,12 @@ PyMODINIT_FUNC PyInit_cdrom (void)
 PyMODINIT_FUNC initcdrom (void)
 #endif
 {
+    int i;
     PyObject *mod = NULL;
     PyObject *c_api_obj;
-    static void *c_api[PYGAME_SDLCDROM_SLOTS];
+    _SDLCDromState *state;
 
-#ifdef IS_PYTHON_3
-    static struct PyModuleDef _cdrommodule = {
-        PyModuleDef_HEAD_INIT, "cdrom", DOC_CDROM, -1, _cdrom_methods,
-        NULL, NULL, NULL, NULL
-    };
-#endif
+    static void *c_api[PYGAME_SDLCDROM_SLOTS];
     
     /* Complete types */
     if (PyType_Ready (&PyCD_Type) < 0)
@@ -175,6 +195,10 @@ PyMODINIT_FUNC initcdrom (void)
     if (!mod)
         goto fail;
 
+    state = BASE_MOD_STATE(mod);
+    for (i = 0; i < MAX_CDROMS; i++)
+        state->cdrom_drives[i] = NULL;
+
     PyModule_AddObject (mod, "CD", (PyObject *) &PyCD_Type);
     PyModule_AddObject (mod, "CDTrack", (PyObject *) &PyCDTrack_Type);
 
@@ -190,7 +214,6 @@ PyMODINIT_FUNC initcdrom (void)
     if (import_pygame2_sdl_base () < 0)
         goto fail;
     
-    RegisterQuitCallback (_quit);
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

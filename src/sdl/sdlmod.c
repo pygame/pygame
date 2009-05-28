@@ -22,9 +22,6 @@
 #include "pgsdl.h"
 #include "sdlbase_doc.h"
 
-static int _quitcount = 0;
-static quit_func *_quitcallbacks = NULL;
-static int _register_quitcallback (quit_func func);
 static void _quit (void);
 static int _check_sdl (void);
 
@@ -54,35 +51,9 @@ static PyMethodDef _sdl_methods[] = {
     { NULL, NULL, 0, NULL },
 };
 
-static int
-_register_quitcallback (quit_func func)
-{
-    if (_quitcount == 0)
-    {
-        _quitcallbacks = malloc (sizeof (quit_func));
-        if (!_quitcallbacks)
-            return 0;
-    }
-    else
-    {
-        void *tmp = _quitcallbacks;
-        tmp = realloc (_quitcallbacks, sizeof (quit_func) * (_quitcount + 1));
-        if (!tmp)
-            return 0;
-        _quitcallbacks = tmp;
-    }
-    _quitcallbacks[_quitcount] = func;
-    _quitcount++;
-    return 1;
-}
-
 static void
 _quit (void)
 {
-    int i;
-    if (_quitcallbacks != NULL)
-        for (i = 0; i < _quitcount; i++)
-            (*_quitcallbacks[i])();
     SDL_Quit ();
 }
 
@@ -486,7 +457,10 @@ PyMODINIT_FUNC initbase (void)
         DOC_BASE,
         -1,
         _sdl_methods,
-        NULL, NULL, NULL, NULL
+        NULL,
+        NULL,
+        NULL,
+        NULL
     };
     mod = PyModule_Create (&_sdlmodule);
 #else
@@ -496,23 +470,23 @@ PyMODINIT_FUNC initbase (void)
         goto fail;
     
     /* Export C API */
-    c_api[PYGAME_SDLBASE_FIRSTSLOT] = _register_quitcallback;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+1] = Uint8FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+2] = Uint16FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+3] = Sint16FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+4] = Uint32FromObj;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+5] = Uint8FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+6] = Uint16FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+7] = Sint16FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+8] = Uint32FromSeqIndex;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+9] = IsValidRect;
-    c_api[PYGAME_SDLBASE_FIRSTSLOT+10] = SDLRect_FromRect;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT] = Uint8FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+1] = Uint16FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+2] = Sint16FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+3] = Uint32FromObj;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+4] = Uint8FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+5] = Uint16FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+6] = Sint16FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+7] = Uint32FromSeqIndex;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+8] = IsValidRect;
+    c_api[PYGAME_SDLBASE_FIRSTSLOT+9] = SDLRect_FromRect;
    
     c_api_obj = PyCObject_FromVoidPtr ((void *) c_api, NULL);
     if (c_api_obj)
         PyModule_AddObject (mod, PYGAME_SDLBASE_ENTRY, c_api_obj);    
 
     Py_AtExit (_quit);
+
     if (import_pygame2_base () < 0)
         goto fail;
 

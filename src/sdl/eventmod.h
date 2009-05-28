@@ -25,6 +25,20 @@
 
 #define PYGAME_SDLEVENT_INTERNAL
 
+typedef struct {
+    PyObject *filterhook;
+} _SDLEventState;
+
+#ifdef IS_PYTHON_3
+extern struct PyModuleDef _eventmodule;
+#define SDLEVENT_MOD_STATE(mod) ((_SDLEventState*)PyModule_GetState(mod))
+#define SDLEVENT_STATE SDLEVENT_MOD_STATE(PyState_FindModule(&_eventmodule))
+#else
+extern _SDLEventState _modstate;
+#define SDLEVENT_MOD_STATE(mod) (&_modstate)
+#define SDLEVENT_STATE SDLEVENT_MOD_STATE(NULL)
+#endif
+
 extern PyTypeObject PyEvent_Type;
 
 #define PyEvent_Check(x) (PyObject_TypeCheck (x, &PyEvent_Type))

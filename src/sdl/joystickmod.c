@@ -51,24 +51,6 @@ static PyMethodDef _joystick_methods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-static void
-_quit (void)
-{
-    int i;
-    for (i = 0; i < MAX_JOYSTICKS; i++)
-    {
-        /* Close all open joysticks. */
-        if (_joysticks[i])
-        {
-            SDL_JoystickClose (_joysticks[i]);
-            _joysticks[i] = NULL;
-        }
-    }
-
-    if (SDL_WasInit (SDL_INIT_JOYSTICK))
-        SDL_QuitSubSystem (SDL_INIT_JOYSTICK);
-}
-
 static PyObject*
 _sdl_joyinit (PyObject *self)
 {
@@ -94,7 +76,19 @@ _sdl_joywasinit (PyObject *self)
 static PyObject*
 _sdl_joyquit (PyObject *self)
 {
-    _quit ();
+    int i;
+    for (i = 0; i < MAX_JOYSTICKS; i++)
+    {
+        /* Close all open joysticks. */
+        if (_joysticks[i])
+        {
+            SDL_JoystickClose (_joysticks[i]);
+            _joysticks[i] = NULL;
+        }
+    }
+
+    if (SDL_WasInit (SDL_INIT_JOYSTICK))
+        SDL_QuitSubSystem (SDL_INIT_JOYSTICK);
     Py_RETURN_NONE;
 }
 
@@ -229,7 +223,6 @@ PyMODINIT_FUNC initjoystick (void)
     if (import_pygame2_sdl_base () < 0)
         goto fail;
 
-    RegisterQuitCallback (_quit);
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

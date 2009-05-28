@@ -7,7 +7,6 @@ CRITICAL:
 * use copy.copy and copy.deepcopy for consistent object copies
 * Rewrite and fix up numpysurfarray and numpysndarray
 * Add prebuilt package for Win32 VC++ builds.
-* Refine quitting for SDL_QuitSubSystem wrapper.
 * Check display surface tracking for multiple calls to set_mode using
   different return variables.
 * Argument parsing must handle 64-bit conversions correctly.

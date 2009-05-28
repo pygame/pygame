@@ -100,6 +100,8 @@ typedef getcharbufferproc charbufferproc;
 
 #define IsTextObj(x) (PyString_Check(x) || PyUnicode_Check(x))
 
+#define PyState_FindModule(obj) (NULL)
+
 #endif  /* PY_VERSION_HEX >= 0x03000000 */ 
 
 #endif /* _PYGAME_PYTHONCOMPAT_H_ */

@@ -39,8 +39,6 @@ static int _fewasinit = 0;
         return (x);                                                     \
     }
 
-static void _quit (void);
-
 static PyObject* _sdl_feventinit (PyObject *self);
 static PyObject* _sdl_feventquit (PyObject *self);
 static PyObject* _sdl_feventpump (PyObject *self);
@@ -58,15 +56,6 @@ static PyMethodDef _fevent_methods[] = {
     { "get", (PyCFunction)_sdl_feventget, METH_NOARGS, "" },
     { NULL, NULL, 0, NULL }
 };
-
-static void 
-_quit (void)
-{
-    if (!_fewasinit)
-        return;
-    FE_Quit ();
-    _fewasinit = 0;
-}
 
 static PyObject*
 _sdl_feventinit (PyObject *self)
@@ -93,7 +82,10 @@ _sdl_feventinit (PyObject *self)
 static PyObject*
 _sdl_feventquit (PyObject *self)
 {
-    _quit ();
+    if (!_fewasinit)
+        return;
+    FE_Quit ();
+    _fewasinit = 0;
     Py_RETURN_NONE;
 }
 
@@ -270,7 +262,6 @@ PyMODINIT_FUNC initfastevent (void)
         }
     }
 
-    RegisterQuitCallback (_quit);
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

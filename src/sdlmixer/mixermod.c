@@ -24,8 +24,6 @@
 #include "pgsdl.h"
 #include "sdlmixerbase_doc.h"
 
-static void _quit (void);
-
 static PyObject* _mixer_init (PyObject *self);
 static PyObject* _mixer_wasinit (PyObject *self);
 static PyObject* _mixer_quit (PyObject *self);
@@ -55,13 +53,6 @@ static PyMethodDef _mixer_methods[] = {
     { NULL, NULL, 0, NULL },
 };
 
-static void
-_quit (void)
-{
-    if (SDL_WasInit (SDL_INIT_AUDIO))
-        SDL_QuitSubSystem (SDL_INIT_AUDIO);
-}
-
 static PyObject*
 _mixer_init (PyObject *self)
 {
@@ -87,7 +78,8 @@ _mixer_wasinit (PyObject *self)
 static PyObject*
 _mixer_quit (PyObject *self)
 {
-    _quit ();
+    if (SDL_WasInit (SDL_INIT_AUDIO))
+        SDL_QuitSubSystem (SDL_INIT_AUDIO);
     Py_RETURN_NONE;
 }
 
@@ -213,7 +205,6 @@ PyMODINIT_FUNC initbase (void)
         goto fail;
     if (import_pygame2_sdl_rwops () < 0)
         goto fail;
-    RegisterQuitCallback (_quit);
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

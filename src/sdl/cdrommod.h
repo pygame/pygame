@@ -29,6 +29,21 @@
 extern PyTypeObject PyCD_Type;
 extern PyTypeObject PyCDTrack_Type;
 
+#define MAX_CDROMS 32
+typedef struct {
+    SDL_CD *cdrom_drives[MAX_CDROMS];
+} _SDLCDromState;
+
+#ifdef IS_PYTHON_3
+extern struct PyModuleDef _cdrommodule;
+#define SDLCDROM_MOD_STATE(mod) ((_SDLCDromState*)PyModule_GetState(mod))
+#define SDLCDROM_STATE SDLCDROM_MOD_STATE(PyState_FindModule(&_cdrommodule))
+#else
+extern _SDLCDromState _modstate;
+#define SDLCDROM_MOD_STATE(mod) (&_modstate)
+#define SDLCDROM_STATE SDLCDROM_MOD_STATE(NULL)
+#endif
+
 #define PyCD_Check(x) (PyObject_TypeCheck (x, &PyCD_Type))
 #define PyCDTrack_Check(x) (PyObject_TypeCheck (x, &PyCDTrack_Type))
 PyObject* PyCD_New (int index);

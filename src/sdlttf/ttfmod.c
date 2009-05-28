@@ -25,9 +25,6 @@
 #include "pgsdl.h"
 #include "sdlttfbase_doc.h"
 
-
-static void _quit (void);
-
 static PyObject* _ttf_init (PyObject *self);
 static PyObject* _ttf_wasinit (PyObject *self);
 static PyObject* _ttf_quit (PyObject *self);
@@ -50,13 +47,6 @@ static PyMethodDef _ttf_methods[] = {
       DOC_BASE_SET_BYTE_SWAPPED_UNICODE },
     { NULL, NULL, 0, NULL },
 };
-
-static void
-_quit (void)
-{
-    if (TTF_WasInit ())
-        TTF_Quit ();
-}
 
 static PyObject*
 _ttf_init (PyObject *self)
@@ -82,7 +72,8 @@ _ttf_wasinit (PyObject *self)
 static PyObject*
 _ttf_quit (PyObject *self)
 {
-    _quit ();
+    if (TTF_WasInit ())
+        TTF_Quit ();
     Py_RETURN_NONE;
 }
 
@@ -181,7 +172,7 @@ PyMODINIT_FUNC initbase (void)
         goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;
-    RegisterQuitCallback (_quit);
+
     MODINIT_RETURN(mod);
 fail:
     Py_XDECREF (mod);

@@ -23,7 +23,9 @@
 #include "pgsdl.h"
 #include "sdlevent_doc.h"
 
-static PyObject *_filterhook = NULL;
+static int _event_traverse (PyObject *mod, visitproc visit, void *arg);
+static int _event_clear (PyObject *mod);
+
 static int _sdl_filter_events (const SDL_Event *event);
 
 static PyObject* _sdl_eventpump (PyObject *self);
@@ -69,14 +71,14 @@ _sdl_filter_events (const SDL_Event *event)
     PyObject *result, *ev;
     int retval;
 
-    if (!_filterhook)
+    if (!SDLEVENT_STATE->filterhook)
         return 1;
     
     ev = PyEvent_New ((SDL_Event*)event);
     if (!ev)
         return 0;
 
-    result = PyObject_CallObject (_filterhook, ev);
+    result = PyObject_CallObject (SDLEVENT_STATE->filterhook, ev);
     Py_DECREF (ev);
 
     retval = PyObject_IsTrue (result);
@@ -606,9 +608,9 @@ _sdl_eventsetfilter (PyObject *self, PyObject *args)
     if (hook == Py_None)
     {
         /* Reset the filter hook */
-        Py_XDECREF (_filterhook);
+        Py_XDECREF (SDLEVENT_MOD_STATE(self)->filterhook);
         SDL_SetEventFilter (NULL);
-        _filterhook = NULL;
+        SDLEVENT_MOD_STATE(self)->filterhook = NULL;
         Py_RETURN_NONE;
     }
 
@@ -619,7 +621,7 @@ _sdl_eventsetfilter (PyObject *self, PyObject *args)
     }
 
     Py_INCREF (hook);
-    _filterhook = hook;
+    SDLEVENT_MOD_STATE(self)->filterhook = hook;
     SDL_SetEventFilter (_sdl_filter_events);
 
     Py_RETURN_NONE;
@@ -630,10 +632,10 @@ _sdl_eventgetfilter (PyObject *self)
 {
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!_filterhook)
+    if (!SDLEVENT_MOD_STATE(self)->filterhook)
         Py_RETURN_NONE;
-    Py_INCREF (_filterhook);
-    return _filterhook;
+    Py_INCREF (SDLEVENT_MOD_STATE(self)->filterhook);
+    return SDLEVENT_MOD_STATE(self)->filterhook;
 }
 
 static PyObject*
@@ -643,6 +645,36 @@ _sdl_eventgetappstate (PyObject *self)
     return PyInt_FromLong (SDL_GetAppState ());
 }
 
+static int
+_event_traverse (PyObject *mod, visitproc visit, void *arg)
+{
+    Py_VISIT (SDLEVENT_MOD_STATE(mod)->filterhook);
+    return 0;
+}
+
+static int
+_event_clear (PyObject *mod)
+{
+    Py_CLEAR (SDLEVENT_MOD_STATE(mod)->filterhook);
+    return 0;
+}
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _module = {
+    PyModuleDef_HEAD_INIT,
+    "event",
+    DOC_EVENT,
+    -1,
+    _event_methods,
+    NULL,
+    _event_traverse,
+    _event_clear,
+    NULL
+};
+#else
+_SDLEventState _modstate;
+#endif
+
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_event (void)
 #else
@@ -651,14 +683,8 @@ PyMODINIT_FUNC initevent (void)
 {
     PyObject *mod = NULL;
     PyObject *c_api_obj;
+    _SDLEventState *state;
     static void *c_api[PYGAME_SDLEVENT_SLOTS];
-
-#ifdef IS_PYTHON_3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT, "event", DOC_EVENT, -1, _event_methods,
-        NULL, NULL, NULL, NULL
-    };
-#endif
 
     /* Complete types */
     if (PyType_Ready (&PyEvent_Type) < 0)
@@ -672,6 +698,8 @@ PyMODINIT_FUNC initevent (void)
 #endif
     if (!mod)
         goto fail;
+    state = SDLEVENT_MOD_STATE(mod);
+    state->filterhook = NULL;
 
     PyModule_AddObject (mod, "Event", (PyObject *) &PyEvent_Type);
 

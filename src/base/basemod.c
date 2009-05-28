@@ -23,7 +23,8 @@
 #include "pgbase.h"
 #include "base_doc.h"
 
-PyObject* PyExc_PyGameError;
+static int _base_traverse (PyObject *mod, visitproc visit, void *arg);
+static int _base_clear (PyObject *mod);
 
 static PyMethodDef _base_methods[] = {
     { NULL, NULL, 0, NULL }
@@ -384,6 +385,36 @@ UTF8FromObject (PyObject *obj, char **text, PyObject **freeme)
     return 1;
 }
 
+static int
+_base_traverse (PyObject *mod, visitproc visit, void *arg)
+{
+    Py_VISIT (BASE_MOD_STATE(mod)->error);
+    return 0;
+}
+
+static int
+_base_clear (PyObject *mod)
+{
+    Py_CLEAR (BASE_MOD_STATE(mod)->error);
+    return 0;
+}
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _basemodule = {
+    PyModuleDef_HEAD_INIT,
+    "base",
+    DOC_BASE, 
+    sizeof (_BaseState),
+    _base_methods,
+    NULL,
+    _base_traverse,
+    _base_clear,
+    NULL
+};
+#else
+_BaseState _modstate;
+#endif
+
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_base (void)
 #else
@@ -391,21 +422,7 @@ PyMODINIT_FUNC initbase (void)
 #endif
 {
     static void* c_api[PYGAME_BASE_SLOTS];
-
-#ifdef IS_PYTHON_3
-    static struct PyModuleDef _basemodule = {
-        PyModuleDef_HEAD_INIT,
-        "base",
-        DOC_BASE, 
-        -1,
-        _base_methods,
-        NULL,
-        NULL,
-        NULL,
-        NULL
-    };
-#endif
-
+    _BaseState *state;
     PyObject *mod, *c_api_obj;
     
     /* Complete types */
@@ -439,6 +456,18 @@ PyMODINIT_FUNC initbase (void)
 #endif
     if (!mod)
         MODINIT_RETURN(NULL);
+    state = BASE_MOD_STATE(mod);
+
+    /* Setup the pygame exeption */
+    state->error = PyErr_NewException ("base.Error", NULL, NULL);
+    if (!state->error)
+    {
+        Py_DECREF (mod);
+        MODINIT_RETURN(NULL);
+    }
+
+    Py_INCREF(state->error);
+    PyModule_AddObject (mod, "Error", state->error);
 
     PyModule_AddObject (mod, "Color", (PyObject *) &PyColor_Type);
     PyModule_AddObject (mod, "Rect", (PyObject *) &PyRect_Type);
@@ -447,13 +476,8 @@ PyMODINIT_FUNC initbase (void)
     PyModule_AddObject (mod, "Surface", (PyObject *) &PySurface_Type);
     PyModule_AddObject (mod, "Font", (PyObject *) &PyFont_Type);
     
-    /* Setup the pygame exeption */
-    PyExc_PyGameError = PyErr_NewException ("base.Error", NULL, NULL);
-    Py_INCREF(PyExc_PyGameError);
-    PyModule_AddObject (mod, "Error", PyExc_PyGameError);
-    
     /* Export C API */
-    c_api[PYGAME_BASE_FIRSTSLOT] = PyExc_PyGameError;
+    c_api[PYGAME_BASE_FIRSTSLOT] = state->error;
     c_api[PYGAME_BASE_FIRSTSLOT+1] = DoubleFromObj;
     c_api[PYGAME_BASE_FIRSTSLOT+2] = IntFromObj;
     c_api[PYGAME_BASE_FIRSTSLOT+3] = UintFromObj;

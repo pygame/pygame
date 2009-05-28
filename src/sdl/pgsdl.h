@@ -29,33 +29,29 @@
 extern "C" {
 #endif
 
-typedef void (*quit_func)(void);
-
 #define PYGAME_SDLBASE_FIRSTSLOT 0
-#define PYGAME_SDLBASE_NUMSLOTS 11
+#define PYGAME_SDLBASE_NUMSLOTS 10
 #ifndef PYGAME_SDLBASE_INTERNAL
-#define RegisterQuitCallback                                            \
-    (*(int(*)(quit_func))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT])
 #define Uint8FromObj                                                    \
-    (*(int(*)(PyObject*,Uint8*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+1])
+    (*(int(*)(PyObject*,Uint8*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT])
 #define Uint16FromObj                                                   \
-    (*(int(*)(PyObject*,Uint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+2])
+    (*(int(*)(PyObject*,Uint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+1])
 #define Sint16FromObj                                                   \
-    (*(int(*)(PyObject*,Sint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+3])
+    (*(int(*)(PyObject*,Sint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+2])
 #define Uint32FromObj                                                   \
-    (*(int(*)(PyObject*,Uint32*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+4])
+    (*(int(*)(PyObject*,Uint32*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+3])
 #define Uint8FromSeqIndex                                               \
-    (*(int(*)(PyObject*,Py_ssize_t,Uint8*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+5])
+    (*(int(*)(PyObject*,Py_ssize_t,Uint8*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+4])
 #define Uint16FromSeqIndex                                              \
-    (*(int(*)(PyObject*,Py_ssize_t,Uint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+6])
+    (*(int(*)(PyObject*,Py_ssize_t,Uint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+5])
 #define Sint16FromSeqIndex                                              \
-    (*(int(*)(PyObject*,Py_ssize_t,Sint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+7])
+    (*(int(*)(PyObject*,Py_ssize_t,Sint16*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+6])
 #define Uint32FromSeqIndex                                              \
-    (*(int(*)(PyObject*,Py_ssize_t,Uint32*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+8])
+    (*(int(*)(PyObject*,Py_ssize_t,Uint32*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+7])
 #define IsValidRect                                                     \
-    (*(int(*)(PyObject*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+9])
+    (*(int(*)(PyObject*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+8])
 #define SDLRect_FromRect                                                \
-    (*(int(*)(PyObject*,SDL_Rect*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+10])
+    (*(int(*)(PyObject*,SDL_Rect*))PyGameSDLBase_C_API[PYGAME_SDLBASE_FIRSTSLOT+9])
 #endif /* PYGAME_SDLBASE_INTERNAL */
 
 /**
