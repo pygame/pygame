@@ -234,9 +234,11 @@ class MidiTest( unittest.TestCase ):
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
-        c = pygame.midi.get_default_input_id() 
+        c = pygame.midi.get_default_input_id()
+        # if there is a not None return make sure it is an int.
         self.assertEqual(type(c), type(1))
-        self.failUnless(c >= 0)
+        self.failUnless(c >= 0 or c == -1)
+
 
 
     def test_get_default_output_id(self):
@@ -288,9 +290,12 @@ class MidiTest( unittest.TestCase ):
           # Note: in the current release, the default is simply the first device
           #     (the input or output device with the lowest PmDeviceID).
 
-        c = pygame.midi.get_default_output_id() 
-        self.assertEqual(type(c), type(1))
-        self.failUnless(c >= 0)
+        c = pygame.midi.get_default_output_id()
+        if not (c is None):
+            # if there is a not None return make sure it is an int.
+
+            self.assertEqual(type(c), type(1))
+            self.failUnless(c >= 0 or c == -1)
 
 
 
@@ -306,22 +311,24 @@ class MidiTest( unittest.TestCase ):
           # 
           # If the id is out of range, the function returns None.
 
-        an_id = pygame.midi.get_default_output_id() 
-        interf, name, input, output, opened = pygame.midi.get_device_info(an_id)
-        #print interf
-        #print name
-        #print input, output, opened
+        an_id = pygame.midi.get_default_output_id()
+        if an_id != -1:
+            interf, name, input, output, opened = pygame.midi.get_device_info(an_id)
+            #print interf
+            #print name
+            #print input, output, opened
 
-        self.assertEqual(output, 1)
-        self.assertEqual(input, 0)
-        self.assertEqual(opened, 0)
+            self.assertEqual(output, 1)
+            self.assertEqual(input, 0)
+            self.assertEqual(opened, 0)
 
 
         an_in_id = pygame.midi.get_default_input_id() 
-        interf, name, input, output, opened = pygame.midi.get_device_info(an_in_id)
-        self.assertEqual(output, 0)
-        self.assertEqual(input, 1)
-        self.assertEqual(opened, 0)
+        if an_id != -1:
+            interf, name, input, output, opened = pygame.midi.get_device_info(an_in_id)
+            self.assertEqual(output, 0)
+            self.assertEqual(input, 1)
+            self.assertEqual(opened, 0)
 
 
 
