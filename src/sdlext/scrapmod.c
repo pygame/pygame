@@ -31,8 +31,22 @@
         return (x);                                                     \
     }
 
-static PyObject *_scrapselection = NULL;
-static PyObject *_scrapclipboard = NULL;
+typedef struct {
+    PyObject *scrapselection;
+    PyObject *scrapclipboard;
+} _ScrapState;
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _scrapmodule; /* Forward declaration */
+#define SCRAP_MOD_STATE(mod) ((_ScrapState*)PyModule_GetState(mod))
+#define SCRAP_STATE SCRAP_MOD_STATE(PyState_FindModule(&_scrapmodule))
+#else
+static _ScrapState _modstate;
+#define SCRAP_MOD_STATE(mod) (&_modstate)
+#define SCRAP_STATE SCRAP_MOD_STATE(NULL)
+#endif
+static int _scrap_traverse (PyObject *mod, visitproc visit, void *arg);
+static int _scrap_clear (PyObject *mod);
 
 static PyObject* _scrap_init (PyObject* self);
 static PyObject* _scrap_quit (PyObject* self);
@@ -76,10 +90,11 @@ _scrap_init (PyObject* self)
 static PyObject*
 _scrap_quit (PyObject* self)
 {
-    Py_XDECREF (_scrapclipboard);
-    Py_XDECREF (_scrapselection);
-    _scrapclipboard = NULL;
-    _scrapselection = NULL;
+    _ScrapState *state = SCRAP_MOD_STATE (self);
+    Py_XDECREF (state->scrapclipboard);
+    Py_XDECREF (state->scrapselection);
+    state->scrapclipboard = NULL;
+    state->scrapselection = NULL;
 
     if (pyg_scrap_was_init ())
         pyg_scrap_quit ();
@@ -121,6 +136,7 @@ _scrap_get (PyObject* self, PyObject* args)
     unsigned int size;
     int result;
     PyObject *val;
+    _ScrapState *state = SCRAP_MOD_STATE (self);
 
     ASSERT_SCRAP_INIT (NULL);
 
@@ -135,11 +151,11 @@ _scrap_get (PyObject* self, PyObject* args)
         switch (pyg_scrap_get_mode ())
         {
         case SCRAP_SELECTION:
-            val = PyDict_GetItemString (_scrapselection, type);
+            val = PyDict_GetItemString (state->scrapselection, type);
             break;
         case SCRAP_CLIPBOARD:
         default:
-            val = PyDict_GetItemString (_scrapclipboard, type);
+            val = PyDict_GetItemString (state->scrapclipboard, type);
             break;
         }
         if (!val)
@@ -167,6 +183,7 @@ _scrap_put (PyObject* self, PyObject* args)
     char *type, *data;
     unsigned int length;
     PyObject *tmp;
+    _ScrapState *state = SCRAP_MOD_STATE (self);
 
     ASSERT_SCRAP_INIT (NULL);
     
@@ -185,7 +202,7 @@ _scrap_put (PyObject* self, PyObject* args)
     case SCRAP_SELECTION:
     {
         tmp = Text_FromUTF8AndSize (data, length);
-        PyDict_SetItemString (_scrapselection, type, tmp);
+        PyDict_SetItemString (state->scrapselection, type, tmp);
         Py_DECREF (tmp);
         break;
     }
@@ -193,7 +210,7 @@ _scrap_put (PyObject* self, PyObject* args)
     default:
     {
         tmp = Text_FromUTF8AndSize (data, length);
-        PyDict_SetItemString (_scrapclipboard, type, tmp);
+        PyDict_SetItemString (state->scrapclipboard, type, tmp);
         Py_DECREF (tmp);
         break;
     }
@@ -207,7 +224,8 @@ _scrap_gettypes (PyObject* self)
     int i = 0, result;
     char **types = NULL;
     PyObject *list, *item;
-    
+    _ScrapState *state = SCRAP_MOD_STATE (self);
+
     ASSERT_SCRAP_INIT (NULL);
     
     if (!pyg_scrap_lost ())
@@ -215,10 +233,10 @@ _scrap_gettypes (PyObject* self)
         switch (pyg_scrap_get_mode ())
         {
         case SCRAP_SELECTION:
-            return PyDict_Keys (_scrapselection);
+            return PyDict_Keys (state->scrapselection);
         case SCRAP_CLIPBOARD:
         default:
-            return PyDict_Keys (_scrapclipboard);
+            return PyDict_Keys (state->scrapclipboard);
         }
     }
 
@@ -282,6 +300,37 @@ _scrap_getmode (PyObject* self)
     return PyLong_FromUnsignedLong (pyg_scrap_get_mode ());
 }
 
+static int
+_scrap_traverse (PyObject *mod, visitproc visit, void *arg)
+{
+    _ScrapState *state = SCRAP_MOD_STATE (mod);
+    Py_VISIT (state->scrapselection);
+    Py_VISIT (state->scrapclipboard);
+    return 0;
+}
+static int
+_scrap_clear (PyObject *mod)
+{
+    _ScrapState *state = SCRAP_MOD_STATE (mod);
+    Py_CLEAR (state->scrapselection);
+    Py_CLEAR (state->scrapclipboard);
+    return 0;
+}
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _scrapmodule = {
+    PyModuleDef_HEAD_INIT,
+    "scrap",
+    "",
+    -1,
+    _scrap_methods,
+    NULL,
+    _scrap_traverse,
+    _scrap_clear,
+    NULL
+};
+#endif
+
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_scrap (void)
 #else
@@ -289,22 +338,19 @@ PyMODINIT_FUNC initscrap (void)
 #endif
 {
     PyObject *mod;
+    _ScrapState *state;
 
 #ifdef IS_PYTHON_3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "scrap",
-        "",
-        -1,
-        _scrap_methods,
-        NULL, NULL, NULL, NULL
-    };
-    mod = PyModule_Create (&_module);
+    mod = PyModule_Create (&_scrapmodule);
 #else
     mod = Py_InitModule3 ("scrap", _scrap_methods, "");
 #endif
     if (!mod)
         goto fail;
+    state = SCRAP_MOD_STATE (mod);
+    state->scrapselection = NULL;
+    state->scrapclipboard = NULL;
+
     if (import_pygame2_base () < 0)
         goto fail;
     if (import_pygame2_sdl_base () < 0)

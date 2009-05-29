@@ -17,6 +17,7 @@ CRITICAL:
 * Add FT_GLYPH_BBOX_XXX exports in a  freetype.constants module ->
   freetype.Font.get_metrics (text, ptsize, FT_GLYPH_XXX)
 * Mark methods, which are limited to certain bpp ranges.
+* Add doc notes about quit() behaviour of the various modules.
 
 Things to ADD:
 ==============

@@ -26,7 +26,6 @@
 #include "sdlextdraw_doc.h"
 #include "surface.h"
 
-
 static PyObject* _draw_aaline (PyObject* self, PyObject* args);
 static PyObject* _draw_line (PyObject* self, PyObject* args);
 static PyObject* _draw_aalines (PyObject* self, PyObject* args);

@@ -27,7 +27,20 @@
 #include "surface.h"
 #include "sdlexttransform_doc.h"
 
-static FilterFuncs _filterfuncs = { 0, 0, 0, 0, 0 };
+typedef struct {
+    FilterFuncs filterfuncs;
+} _TransformState;
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _transformmodule; /* Forward declaration */
+#define TRANSFORM_MOD_STATE(mod) ((_TransformState*)PyModule_GetState(mod))
+#define TRANSFORM_STATE \
+    TRANSFORM_MOD_STATE(PyState_FindModule(&_transformmodule))
+#else
+static _TransformState _modstate;
+#define TRANSFORM_MOD_STATE(mod) (&_modstate)
+#define TRANSFORM_STATE TRANSFORM_MOD_STATE(NULL)
+#endif
 
 static PyObject* _transform_scale (PyObject* self, PyObject* args);
 static PyObject* _transform_rotate (PyObject* self, PyObject* args);
@@ -374,7 +387,8 @@ _transform_smoothscale (PyObject* self, PyObject* args)
         dst = ((PySDLSurface*)dstobj)->surface;
 
     Py_BEGIN_ALLOW_THREADS;
-    dst = pyg_transform_smoothscale (src, dst, width, height, &_filterfuncs);
+    dst = pyg_transform_smoothscale (src, dst, width, height,
+        &(TRANSFORM_MOD_STATE (self)->filterfuncs));
     Py_END_ALLOW_THREADS;
     if (!dst)
     {
@@ -667,7 +681,7 @@ _transform_averagecolor (PyObject* self, PyObject* args)
 static PyObject*
 _transform_getfiltertype (PyObject* self)
 {
-    return PyInt_FromLong (_filterfuncs.type);
+    return PyInt_FromLong (TRANSFORM_MOD_STATE (self)->filterfuncs.type);
 }
 
 static PyObject*
@@ -676,8 +690,23 @@ _transform_setfiltertype (PyObject* self, PyObject* args)
     FilterType type;
     if (!PyArg_ParseTuple (args, "i", &type))
         return NULL;
-    return PyInt_FromLong (pyg_filter_init_filterfuncs (&_filterfuncs, type));
+    return PyInt_FromLong (pyg_filter_init_filterfuncs
+        (&(TRANSFORM_MOD_STATE (self)->filterfuncs), type));
 }
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _transformmodule = {
+    PyModuleDef_HEAD_INIT,
+    "transform",
+    DOC_TRANSFORM,
+    sizeof (_TransformState),
+    _transform_methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+#endif
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_transform (void)
@@ -686,28 +715,23 @@ PyMODINIT_FUNC inittransform (void)
 #endif
 {
     PyObject *mod;
+    _TransformState *state;
 
 #ifdef IS_PYTHON_3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "transform",
-        DOC_TRANSFORM,
-        -1,
-        _transform_methods,
-        NULL, NULL, NULL, NULL
-    };
-    mod = PyModule_Create (&_module);
+    mod = PyModule_Create (&_transformmodule);
 #else
     mod = Py_InitModule3 ("transform", _transform_methods, DOC_TRANSFORM);
 #endif
     if (!mod)
         goto fail;
+    state = TRANSFORM_MOD_STATE (mod);
+    
     if (import_pygame2_base () < 0)
         goto fail;
     if (import_pygame2_sdl_video () < 0)
         goto fail;
     
-    pyg_filter_init_filterfuncs (&_filterfuncs, FILTER_C);
+    pyg_filter_init_filterfuncs (&(state->filterfuncs), FILTER_C);
     
     MODINIT_RETURN(mod);
 fail:

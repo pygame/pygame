@@ -599,6 +599,7 @@ static PyObject*
 _sdl_eventsetfilter (PyObject *self, PyObject *args)
 {
     PyObject *hook;
+    _SDLEventState *state = SDLEVENT_MOD_STATE(self);
 
     ASSERT_VIDEO_INIT(NULL);
 
@@ -608,9 +609,9 @@ _sdl_eventsetfilter (PyObject *self, PyObject *args)
     if (hook == Py_None)
     {
         /* Reset the filter hook */
-        Py_XDECREF (SDLEVENT_MOD_STATE(self)->filterhook);
+        Py_XDECREF (state->filterhook);
         SDL_SetEventFilter (NULL);
-        SDLEVENT_MOD_STATE(self)->filterhook = NULL;
+        state->filterhook = NULL;
         Py_RETURN_NONE;
     }
 
@@ -621,7 +622,7 @@ _sdl_eventsetfilter (PyObject *self, PyObject *args)
     }
 
     Py_INCREF (hook);
-    SDLEVENT_MOD_STATE(self)->filterhook = hook;
+    state->filterhook = hook;
     SDL_SetEventFilter (_sdl_filter_events);
 
     Py_RETURN_NONE;
@@ -630,12 +631,14 @@ _sdl_eventsetfilter (PyObject *self, PyObject *args)
 static PyObject*
 _sdl_eventgetfilter (PyObject *self)
 {
+    _SDLEventState *state = SDLEVENT_MOD_STATE(self);
+
     ASSERT_VIDEO_INIT(NULL);
 
-    if (!SDLEVENT_MOD_STATE(self)->filterhook)
+    if (!state->filterhook)
         Py_RETURN_NONE;
-    Py_INCREF (SDLEVENT_MOD_STATE(self)->filterhook);
-    return SDLEVENT_MOD_STATE(self)->filterhook;
+    Py_INCREF (state->filterhook);
+    return state->filterhook;
 }
 
 static PyObject*

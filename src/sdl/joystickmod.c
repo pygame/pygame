@@ -23,8 +23,7 @@
 #include "pgsdl.h"
 #include "sdljoystick_doc.h"
 
-#define MAX_JOYSTICKS 32
-static SDL_Joystick *_joysticks[MAX_JOYSTICKS] = { NULL };
+static int _joystick_clear (PyObject *mod);
 
 static PyObject* _sdl_joyinit (PyObject *self);
 static PyObject* _sdl_joywasinit (PyObject *self);
@@ -77,13 +76,15 @@ static PyObject*
 _sdl_joyquit (PyObject *self)
 {
     int i;
+    _SDLJoystickState *state = SDLJOYSTICK_MOD_STATE (self);
+
     for (i = 0; i < MAX_JOYSTICKS; i++)
     {
         /* Close all open joysticks. */
-        if (_joysticks[i])
+        if (state->joysticks[i])
         {
-            SDL_JoystickClose (_joysticks[i]);
-            _joysticks[i] = NULL;
+            SDL_JoystickClose (state->joysticks[i]);
+            state->joysticks[i] = NULL;
         }
     }
 
@@ -151,12 +152,29 @@ _sdl_joyopened (PyObject *self, PyObject *args)
     return PyBool_FromLong (SDL_JoystickOpened (joy));
 }
 
+static int
+_joystick_clear (PyObject *mod)
+{
+    int i;
+    _SDLJoystickState *state = SDLJOYSTICK_MOD_STATE (mod);
+    for (i = 0; i < MAX_JOYSTICKS; i++)
+    {
+        /* Close all open joysticks. */
+        if (state->joysticks[i])
+        {
+            SDL_JoystickClose (state->joysticks[i]);
+            state->joysticks[i] = NULL;
+        }
+    }
+    return 0;
+}
+
 void
 joystickmod_add_joystick (int _index, SDL_Joystick *joystick)
 {
     if (_index < 0 || _index >= MAX_JOYSTICKS)
         return;
-    _joysticks[_index] = joystick;
+    SDLJOYSTICK_STATE->joysticks[_index] = joystick;
 }
 
 void
@@ -164,7 +182,7 @@ joystickmod_remove_joystick (int _index)
 {
     if (_index < 0 || _index >= MAX_JOYSTICKS)
         return;
-    _joysticks[_index] = NULL;
+    SDLJOYSTICK_STATE->joysticks[_index] = NULL;
 }
 
 SDL_Joystick*
@@ -172,8 +190,25 @@ joystickmod_get_joystick (int _index)
 {
     if (_index < 0 || _index >= MAX_JOYSTICKS)
         return NULL;
-    return _joysticks[_index];
+    return SDLJOYSTICK_STATE->joysticks[_index];
 }
+
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _joystickmodule = {
+    PyModuleDef_HEAD_INIT,
+    "joystick",
+    DOC_JOYSTICK,
+    sizeof (_SDLJoystickState),
+    _joystick_methods,
+    NULL,
+    NULL,
+    _joystick_clear,
+    NULL
+    };
+#else
+_SDLJoystickState _modstate;
+#endif
 
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_joystick (void)
@@ -183,18 +218,9 @@ PyMODINIT_FUNC initjoystick (void)
 {
     PyObject *mod = NULL;
     PyObject *c_api_obj;
+    int i;
+    _SDLJoystickState *state;
     static void *c_api[PYGAME_SDLJOYSTICK_SLOTS];
-
-#ifdef IS_PYTHON_3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "joystick",
-        DOC_JOYSTICK,
-        -1,
-        _joystick_methods,
-        NULL, NULL, NULL, NULL
-    };
-#endif
 
     /* Complete types */
     if (PyType_Ready (&PyJoystick_Type) < 0)
@@ -203,12 +229,16 @@ PyMODINIT_FUNC initjoystick (void)
 
 
 #ifdef IS_PYTHON_3
-    mod = PyModule_Create (&_module);
+    mod = PyModule_Create (&_joystickmodule);
 #else
     mod = Py_InitModule3 ("joystick", _joystick_methods, DOC_JOYSTICK);
 #endif
     if (!mod)
         goto fail;
+
+    state = SDLJOYSTICK_MOD_STATE(mod);
+    for (i = 0; i < MAX_JOYSTICKS; i++)
+        state->joysticks[i] = NULL;
 
     PyModule_AddObject (mod, "Joystick", (PyObject *) &PyJoystick_Type);
 

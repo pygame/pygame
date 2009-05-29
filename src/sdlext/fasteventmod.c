@@ -29,10 +29,24 @@
 #include "pgsdl.h"
 #include "fastevents.h"
 
-static int _fewasinit = 0;
+typedef struct {
+    int fewasinit;
+} _FastEventState;
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _feventmodule; /* Forward declaration */
+#define FASTEVENT_MOD_STATE(mod) ((_FastEventState*)PyModule_GetState(mod))
+#define FASTEVENT_STATE FASTEVENT_MOD_STATE(PyState_FindModule(&_feventmodule))
+#else
+static _FastEventState _modstate;
+#define FASTEVENT_MOD_STATE(mod) (&_modstate)
+#define FASTEVENT_STATE FASTEVENT_MOD_STATE(NULL)
+#endif
+static int _fastevent_clear (PyObject *mod);
+
 #define ASSERT_FASTEVENT_INIT(x)                                        \
     ASSERT_VIDEO_INIT(x);                                               \
-    if (!_fewasinit)                                                    \
+    if (!FASTEVENT_STATE->fewasinit)                                    \
     {                                                                   \
         PyErr_SetString(PyExc_PyGameError,                              \
             "fastevent subsystem not initialized");                     \
@@ -60,9 +74,10 @@ static PyMethodDef _fevent_methods[] = {
 static PyObject*
 _sdl_feventinit (PyObject *self)
 {
+    _FastEventState *state = FASTEVENT_MOD_STATE (self);
     ASSERT_VIDEO_INIT (NULL);
 
-    if (_fewasinit)
+    if (state->fewasinit)
         Py_RETURN_NONE;
 
 #ifndef WITH_THREAD
@@ -74,7 +89,7 @@ _sdl_feventinit (PyObject *self)
         PyErr_SetString (PyExc_PyGameError, FE_GetError ());
         return NULL;
     }
-    _fewasinit = 1;
+    state->fewasinit = 1;
     Py_RETURN_NONE;
 #endif
 }
@@ -82,10 +97,11 @@ _sdl_feventinit (PyObject *self)
 static PyObject*
 _sdl_feventquit (PyObject *self)
 {
-    if (!_fewasinit)
-        return;
+    _FastEventState *state = FASTEVENT_MOD_STATE (self);
+    if (!state->fewasinit)
+        Py_RETURN_NONE;
     FE_Quit ();
-    _fewasinit = 0;
+    state->fewasinit = 0;
     Py_RETURN_NONE;
 }
 
@@ -209,6 +225,31 @@ _sdl_feventget (PyObject *self)
     return list;
 }
 
+static int
+_fastevent_clear (PyObject *mod)
+{
+    _FastEventState *state = FASTEVENT_MOD_STATE (mod);
+    if (!state->fewasinit)
+        return 0;
+    FE_Quit ();
+    state->fewasinit = 0;
+    return 0;
+}
+
+#ifdef IS_PYTHON_3
+struct PyModuleDef _module = {
+    PyModuleDef_HEAD_INIT,
+    "fastevent",
+    "",
+    sizeof (_FastEventState),
+    _fevent_methods,
+    NULL,
+    NULL,
+    _fastevent_clear,
+    NULL
+};
+#endif
+
 #ifdef IS_PYTHON_3
 PyMODINIT_FUNC PyInit_fastevent (void)
 #else
@@ -216,22 +257,18 @@ PyMODINIT_FUNC initfastevent (void)
 #endif
 {
     PyObject *mod, *eventmod, *dict;
+    _FastEventState *state;
 
 #ifdef IS_PYTHON_3
-    static struct PyModuleDef _module = {
-        PyModuleDef_HEAD_INIT,
-        "fastevent",
-        "",
-        -1,
-        _fevent_methods,
-        NULL, NULL, NULL, NULL
-    };
     mod = PyModule_Create (&_module);
 #else
     mod = Py_InitModule3 ("fastevent", _fevent_methods, "");
 #endif
     if (!mod)
         goto fail;
+    state = FASTEVENT_MOD_STATE (mod);
+    state->fewasinit = 0;
+
     dict = PyModule_GetDict (mod);
 
     if (import_pygame2_base () < 0)

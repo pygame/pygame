@@ -25,6 +25,22 @@
 
 #define PYGAME_SDLJOYSTICK_INTERNAL
 
+#define MAX_JOYSTICKS 32
+typedef struct {
+    SDL_Joystick *joysticks[MAX_JOYSTICKS];
+} _SDLJoystickState;
+
+#ifdef IS_PYTHON_3
+extern struct PyModuleDef _joystickmodule;
+#define SDLJOYSTICK_MOD_STATE(mod) ((_SDLJoystickState*)PyModule_GetState(mod))
+#define SDLJOYSTICK_STATE \
+    SDLJOYSTICK_MOD_STATE(PyState_FindModule(&_joystickmodule))
+#else
+extern _SDLJoystickState _modstate;
+#define SDLJOYSTICK_MOD_STATE(mod) (&_modstate)
+#define SDLJOYSTICK_STATE SDLJOYSTICK_MOD_STATE(NULL)
+#endif
+
 extern PyTypeObject PyJoystick_Type;
 
 #define PyJoystick_Check(x) (PyObject_TypeCheck (x, &PyJoystick_Type))

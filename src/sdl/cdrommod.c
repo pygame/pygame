@@ -68,13 +68,14 @@ static PyObject*
 _sdl_cdquit (PyObject *self)
 {
     int i;
+    _SDLCDromState *state = SDLCDROM_MOD_STATE(self);
     for (i = 0; i < MAX_CDROMS; i++)
     {
         /* Close all open cdroms. */
-        if (SDLCDROM_MOD_STATE(self)->cdrom_drives[i])
+        if (state->cdrom_drives[i])
         {
-            SDL_CDClose (SDLCDROM_MOD_STATE(self)->cdrom_drives[i]);
-            SDLCDROM_MOD_STATE(self)->cdrom_drives[i] = NULL;
+            SDL_CDClose (state->cdrom_drives[i]);
+            state->cdrom_drives[i] = NULL;
         }
     }
 
@@ -112,13 +113,14 @@ static int
 _cdrom_clear (PyObject *mod)
 {
     int i;
+    _SDLCDromState *state = SDLCDROM_MOD_STATE(self);
     for (i = 0; i < MAX_CDROMS; i++)
     {
         /* Close all open cdroms. */
-        if (SDLCDROM_MOD_STATE(mod)->cdrom_drives[i])
+        if (state->cdrom_drives[i])
         {
-            SDL_CDClose (SDLCDROM_MOD_STATE(mod)->cdrom_drives[i]);
-            SDLCDROM_MOD_STATE(mod)->cdrom_drives[i] = NULL;
+            SDL_CDClose (state->cdrom_drives[i]);
+            state->cdrom_drives[i] = NULL;
         }
     }
     return 0;
@@ -195,7 +197,7 @@ PyMODINIT_FUNC initcdrom (void)
     if (!mod)
         goto fail;
 
-    state = BASE_MOD_STATE(mod);
+    state = SDLCDROM_MOD_STATE(mod);
     for (i = 0; i < MAX_CDROMS; i++)
         state->cdrom_drives[i] = NULL;
 
