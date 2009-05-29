@@ -71,7 +71,7 @@ surface_fill_blend_rgba_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_ADD (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_ADD (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -92,7 +92,7 @@ surface_fill_blend_rgba_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_ADD (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_ADD (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -136,7 +136,7 @@ surface_fill_blend_rgba_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_SUB (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_SUB (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -157,7 +157,7 @@ surface_fill_blend_rgba_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_SUB (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_SUB (tmp, cR, cG, cB, cA, sR, sG, sB, sA);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -201,7 +201,7 @@ surface_fill_blend_rgba_mult (SDL_Surface *surface, SDL_Rect *rect,
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_MULT (cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_MULT (cR, cG, cB, cA, sR, sG, sB, sA);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -222,7 +222,7 @@ surface_fill_blend_rgba_mult (SDL_Surface *surface, SDL_Rect *rect,
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_MULT (cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_MULT (cR, cG, cB, cA, sR, sG, sB, sA);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -265,7 +265,7 @@ surface_fill_blend_rgba_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_MIN (cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_MIN (cR, cG, cB, cA, sR, sG, sB, sA);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -286,7 +286,7 @@ surface_fill_blend_rgba_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_MIN (cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_MIN (cR, cG, cB, cA, sR, sG, sB, sA);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -329,7 +329,7 @@ surface_fill_blend_rgba_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_MAX (cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_MAX (cR, cG, cB, cA, sR, sG, sB, sA);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -350,7 +350,7 @@ surface_fill_blend_rgba_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_RGBA_MAX (cR, cG, cB, cA, sR, sG, sB, sA);
+                D_BLEND_RGBA_MAX (cR, cG, cB, cA, sR, sG, sB, sA);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -394,7 +394,7 @@ surface_fill_blend_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_ADD (tmp, cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_ADD (tmp, cR, cG, cB, sR, sG, sB);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -415,7 +415,7 @@ surface_fill_blend_add (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_ADD (tmp, cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_ADD (tmp, cR, cG, cB, sR, sG, sB);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -459,7 +459,7 @@ surface_fill_blend_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_SUB (tmp, cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_SUB (tmp, cR, cG, cB, sR, sG, sB);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -480,7 +480,7 @@ surface_fill_blend_sub (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_SUB (tmp, cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_SUB (tmp, cR, cG, cB, sR, sG, sB);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -523,7 +523,7 @@ surface_fill_blend_mult (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_MULT (cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_MULT (cR, cG, cB, sR, sG, sB);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -544,7 +544,7 @@ surface_fill_blend_mult (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_MULT (cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_MULT (cR, cG, cB, sR, sG, sB);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -587,7 +587,7 @@ surface_fill_blend_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_MIN (cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_MIN (cR, cG, cB, sR, sG, sB);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -608,7 +608,7 @@ surface_fill_blend_min (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_MIN (cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_MIN (cR, cG, cB, sR, sG, sB);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -651,7 +651,7 @@ surface_fill_blend_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             LOOP_UNROLLED4(
             {
                 GET_PALETTE_VALS (pixels, fmt, sR, sG, sB, sA);
-                BLEND_MAX (cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_MAX (cR, cG, cB, sR, sG, sB);
                 *pixels = SDL_MapRGBA (fmt, sR, sG, sB, sA);
                 pixels += bpp;
             }, n, width);
@@ -672,7 +672,7 @@ surface_fill_blend_max (SDL_Surface *surface, SDL_Rect *rect, Uint32 color)
             {
                 GET_PIXEL (pixel, bpp, pixels);
                 GET_RGB_VALS (pixel, fmt, sR, sG, sB, sA);
-                BLEND_MAX (cR, cG, cB, sR, sG, sB);
+                D_BLEND_RGB_MAX (cR, cG, cB, sR, sG, sB);
                 CREATE_PIXEL(pixels, sR, sG, sB, sA, bpp, fmt);
                 pixels += bpp;
             }, n, width);
@@ -713,52 +713,52 @@ pyg_sdlsurface_fill_blend (SDL_Surface *surface, SDL_Rect *rect, Uint32 color,
 
     switch (blendargs)
     {
-    case PYGAME_BLEND_ADD:
+    case BLEND_RGB_ADD:
     {
         result = surface_fill_blend_add (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_SUB:
+    case BLEND_RGB_SUB:
     {
         result = surface_fill_blend_sub (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_MULT:
+    case BLEND_RGB_MULT:
     {
         result = surface_fill_blend_mult (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_MIN:
+    case BLEND_RGB_MIN:
     {
         result = surface_fill_blend_min (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_MAX:
+    case BLEND_RGB_MAX:
     {
         result = surface_fill_blend_max (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_RGBA_ADD:
+    case BLEND_RGBA_ADD:
     {
         result = surface_fill_blend_rgba_add (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_RGBA_SUB:
+    case BLEND_RGBA_SUB:
     {
         result = surface_fill_blend_rgba_sub (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_RGBA_MULT:
+    case BLEND_RGBA_MULT:
     {
         result = surface_fill_blend_rgba_mult (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_RGBA_MIN:
+    case BLEND_RGBA_MIN:
     {
         result = surface_fill_blend_rgba_min (surface, rect, color);
         break;
     }
-    case PYGAME_BLEND_RGBA_MAX:
+    case BLEND_RGBA_MAX:
     {
         result = surface_fill_blend_rgba_max (surface, rect, color);
         break;

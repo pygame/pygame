@@ -484,11 +484,12 @@ static PyObject*
 _pixelformat_maprgba (PyObject *self, PyObject *args)
 {
     PyObject *color = NULL;
-    Uint8 r, g, b;
-    int a = -1;
+    Uint8 r, g, b, a;
+    
+    int _a = -1;
     Uint32 val;
 
-    if (!PyArg_ParseTuple (args, "iii|i:map_rgba", &r, &g, &b, &a))
+    if (!PyArg_ParseTuple (args, "iii|i:map_rgba", &r, &g, &b, &_a))
     {
         PyErr_Clear ();
         if (PyArg_ParseTuple (args, "O:map_rgba", &color))
@@ -508,20 +509,24 @@ _pixelformat_maprgba (PyObject *self, PyObject *args)
         r = (Uint8) ((PyColor*)color)->r;
         g = (Uint8) ((PyColor*)color)->g;
         b = (Uint8) ((PyColor*)color)->b;
-        a = (Uint8) ((PyColor*)color)->a;
+        _a = a = (Uint8) ((PyColor*)color)->a;
     }
 
     /* Only check for the alpha value, if there is a per-pixel alpha mask set
      * and an alpha value was requested.
      */
-    if (((PyPixelFormat*)self)->format->Amask != 0 && a != -1)
+    if (((PyPixelFormat*)self)->format->Amask != 0 && _a != -1)
+    {
         val = SDL_MapRGBA (((PyPixelFormat*)self)->format, r, g, b, a);
+        SDL_GetRGBA (val, ((PyPixelFormat*)self)->format, &r, &g, &b, &a);
+    }
     else
     {
         val = SDL_MapRGB (((PyPixelFormat*)self)->format, r, g, b);
-        val |= 0xFF000000; /* Set the alpha portion fully opaque. */
+        a = 255; /* Set the alpha portion fully opaque. */
+        GET_RGB_VALS (val, ((PyPixelFormat*)self)->format, r, g, b, a);
     }
-    return PyColor_NewFromNumber ((pguint32)val);
+    return PyColor_NewFromRGBA ((pgbyte)r, (pgbyte)g, (pgbyte)b, (pgbyte)a);
 }
 
 static PyObject*

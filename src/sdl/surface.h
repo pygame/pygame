@@ -21,24 +21,28 @@
 #define _PYGAME_SDLSURFACE_H_
 
 #include <SDL.h>
+#include "pgdefines.h"
 
-#define PYGAME_BLEND_RGB_ADD  0x1
-#define PYGAME_BLEND_RGB_SUB  0x2
-#define PYGAME_BLEND_RGB_MULT 0x3
-#define PYGAME_BLEND_RGB_MIN  0x4
-#define PYGAME_BLEND_RGB_MAX  0x5
-
-#define PYGAME_BLEND_ADD  PYGAME_BLEND_RGB_ADD
-#define PYGAME_BLEND_SUB  PYGAME_BLEND_RGB_SUB
-#define PYGAME_BLEND_MULT PYGAME_BLEND_RGB_MULT
-#define PYGAME_BLEND_MIN  PYGAME_BLEND_RGB_MIN
-#define PYGAME_BLEND_MAX  PYGAME_BLEND_RGB_MAX
-
-#define PYGAME_BLEND_RGBA_ADD  0x6
-#define PYGAME_BLEND_RGBA_SUB  0x7
-#define PYGAME_BLEND_RGBA_MULT 0x8
-#define PYGAME_BLEND_RGBA_MIN  0x9
-#define PYGAME_BLEND_RGBA_MAX  0x10
+typedef enum
+{
+    BLEND_RGB_ADD = 1,
+    BLEND_RGB_SUB,
+    BLEND_RGB_MULT,
+    BLEND_RGB_MIN,
+    BLEND_RGB_MAX,
+    BLEND_RGB_AND,
+    BLEND_RGB_OR,
+    BLEND_RGB_XOR,
+    BLEND_RGB_DIFF,
+    BLEND_RGB_SCREEN,
+    BLEND_RGB_AVG,
+    
+    BLEND_RGBA_ADD,
+    BLEND_RGBA_SUB,
+    BLEND_RGBA_MULT,
+    BLEND_RGBA_MIN,
+    BLEND_RGBA_MAX
+} BlendMode;
 
 #define RGB2FORMAT(rgb,format)                                          \
     if (format->palette == NULL)                                        \
@@ -81,12 +85,43 @@
             ((Uint8)((argb & 0xff000000) >> 24)));                      \
     }
 
+#define GET_RGB_VALS(pixel, fmt, r, g, b, a)                            \
+        r = (pixel & fmt->Rmask) >> fmt->Rshift;                        \
+        r = (r << fmt->Rloss) + (r >> (8 - (fmt->Rloss << 1)));         \
+        g = (pixel & fmt->Gmask) >> fmt->Gshift;                        \
+        g = (g << fmt->Gloss) + (g >> (8 - (fmt->Gloss << 1)));         \
+        b = (pixel & fmt->Bmask) >> fmt->Bshift;                        \
+        b = (b << fmt->Bloss) + (b >> (8 - (fmt->Bloss << 1)));         \
+        if (fmt->Amask)                                                 \
+        {                                                               \
+            a = (pixel & fmt->Amask) >> fmt->Ashift;                    \
+            a = (a << fmt->Aloss) + (a >> (8 - (fmt->Aloss << 1)));     \
+        }                                                               \
+        else                                                            \
+            a = 255;
+
+#define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa)       \
+    sr = fmt->palette->colors[*((Uint8 *) (pixel))].r;     \
+    sg = fmt->palette->colors[*((Uint8 *) (pixel))].g;     \
+    sb = fmt->palette->colors[*((Uint8 *) (pixel))].b;     \
+    sa = 255;
+
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
+#define GET_PIXEL24(b) (b[0] + (b[1] << 8) + (b[2] << 16))
+#define SET_PIXEL24_RGB(buf,format,r,g,b)                               \
+    *((buf) + ((format)->Rshift >> 3)) = r;                             \
+    *((buf) + ((format)->Gshift >> 3)) = g;                             \
+    *((buf) + ((format)->Bshift >> 3)) = b;
 #define SET_PIXEL24(buf,format,rgb)                                     \
     *((buf) + ((format)->Rshift >> 3)) = (rgb)[0];                      \
     *((buf) + ((format)->Gshift >> 3)) = (rgb)[1];                      \
     *((buf) + ((format)->Bshift >> 3)) = (rgb)[2];
 #else
+#define GET_PIXEL24(b) (b[2] + (b[1] << 8) + (b[0] << 16))
+#define SET_PIXEL24_RGB(buf,format,r,g,b)                               \
+    *((buf) + 2 - ((format)->Rshift >> 3)) = r;                         \
+    *((buf) + 2 - ((format)->Gshift >> 3)) = g;                         \
+    *((buf) + 2 - ((format)->Bshift >> 3)) = b;
 #define SET_PIXEL24(buf,format,rgb)                                     \
     *((buf) + 2 - ((format)->Rshift >> 3)) = (rgb)[0];                  \
     *((buf) + 2 - ((format)->Gshift >> 3)) = (rgb)[1];                  \
@@ -125,12 +160,6 @@
         }                                                               \
     }
 
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-#define GET_PIXEL_24(b) (b[0] + (b[1] << 8) + (b[2] << 16))
-#else
-#define GET_PIXEL_24(b) (b[2] + (b[1] << 8) + (b[0] << 16))
-#endif
-
 #define GET_PIXEL_AT(pxl,surface,bpp,_x,_y)                             \
     switch ((bpp))                                                      \
     {                                                                   \
@@ -150,11 +179,10 @@
     {                                                                   \
         Uint8* buf = ((Uint8 *) (((Uint8*)(surface)->pixels) + (_y) *   \
                 (surface)->pitch) + (_x) * 3);                          \
-        pxl = GET_PIXEL_24(buf);                                          \
+        pxl = GET_PIXEL24(buf);                                         \
         break;                                                          \
     }                                                                   \
     }
-
 
 #define GET_PIXEL(pxl, bpp, source)               \
     switch (bpp)                                  \
@@ -171,44 +199,34 @@
     default:                                      \
     {                                             \
         Uint8 *b = (Uint8 *) source;              \
-        pxl = GET_PIXEL_24(b);                    \
+        pxl = GET_PIXEL24(b);                     \
+        break;                                    \
     }                                             \
-    break;                                        \
     }
 
-#define CREATE_PIXEL(buf, r, g, b, a, bp, ft)     \
-    switch (bp)                                   \
-    {                                             \
-    case 2:                                       \
-        *((Uint16 *) (buf)) =                     \
-            ((r >> ft->Rloss) << ft->Rshift) |    \
-            ((g >> ft->Gloss) << ft->Gshift) |    \
-            ((b >> ft->Bloss) << ft->Bshift) |    \
-            ((a >> ft->Aloss) << ft->Ashift);     \
-        break;                                    \
-    case 4:                                       \
-        *((Uint32 *) (buf)) =                     \
-            ((r >> ft->Rloss) << ft->Rshift) |    \
-            ((g >> ft->Gloss) << ft->Gshift) |    \
-            ((b >> ft->Bloss) << ft->Bshift) |    \
-            ((a >> ft->Aloss) << ft->Ashift);     \
-        break;                                    \
+#define CREATE_PIXEL(buf, r, g, b, a, bp, ft)                   \
+    switch (bp)                                                 \
+    {                                                           \
+    case 2:                                                     \
+        *((Uint16 *) (buf)) =                                   \
+            ((r >> ft->Rloss) << ft->Rshift) |                  \
+            ((g >> ft->Gloss) << ft->Gshift) |                  \
+            ((b >> ft->Bloss) << ft->Bshift) |                  \
+            ((a >> ft->Aloss) << ft->Ashift & ft->Amask);       \
+        break;                                                  \
+    case 4:                                                     \
+        *((Uint32 *) (buf)) =                                   \
+            ((r >> ft->Rloss) << ft->Rshift) |                  \
+            ((g >> ft->Gloss) << ft->Gshift) |                  \
+            ((b >> ft->Bloss) << ft->Bshift) |                  \
+            ((a >> ft->Aloss) << ft->Ashift & ft->Amask);       \
+        break;                                                  \
+    default:                                                    \
+    {                                                           \
+        SET_PIXEL24_RGB(buf, ft, r,g,b);                        \
+        break;                                                  \
+    }                                                           \
     }
-
-#define GET_RGB_VALS(pixel, fmt, r, g, b, a)                            \
-    r = (((pixel & fmt->Rmask) >> fmt->Rshift) << fmt->Rloss);          \
-    g = (((pixel & fmt->Gmask) >> fmt->Gshift) << fmt->Gloss);          \
-    b = (((pixel & fmt->Bmask) >> fmt->Bshift) << fmt->Bloss);          \
-    if (fmt->Amask)                                                     \
-        a = (((pixel & fmt->Amask) >> fmt->Ashift) << fmt->Aloss);      \
-    else                                                                \
-        a =  255;
-
-#define GET_PALETTE_VALS(pixel, fmt, sr, sg, sb, sa)       \
-    sr = fmt->palette->colors[*((Uint8 *) (pixel))].r;     \
-    sg = fmt->palette->colors[*((Uint8 *) (pixel))].g;     \
-    sb = fmt->palette->colors[*((Uint8 *) (pixel))].b;     \
-    sa = 255;
 
 #define LOOP_UNROLLED4(code, n, width) \
     n = (width + 3) / 4;               \
@@ -232,59 +250,89 @@
     code;              \
     code;
 
-#define BLEND_ADD(tmp, sR, sG, sB, dR, dG, dB)          \
+#define D_BLEND_RGB_ADD(tmp, sR, sG, sB, dR, dG, dB)    \
     tmp = dR + sR; dR = (tmp <= 255 ? tmp : 255);       \
     tmp = dG + sG; dG = (tmp <= 255 ? tmp : 255);       \
     tmp = dB + sB; dB = (tmp <= 255 ? tmp : 255);
 
-#define BLEND_SUB(tmp, sR, sG, sB, dR, dG, dB)         \
-    tmp = dR - sR; dR = (tmp > 0 ? tmp : 0);           \
-    tmp = dG - sG; dG = (tmp > 0 ? tmp : 0);           \
+#define D_BLEND_RGB_SUB(tmp, sR, sG, sB, dR, dG, dB)    \
+    tmp = dR - sR; dR = (tmp > 0 ? tmp : 0);            \
+    tmp = dG - sG; dG = (tmp > 0 ? tmp : 0);            \
     tmp = dB - sB; dB = (tmp > 0 ? tmp : 0);
 
-#define BLEND_MULT(sR, sG, sB, dR, dG, dB)         \
-    dR = (dR && sR) ? (dR * sR) >> 8 : 0;          \
-    dG = (dG && sG) ? (dG * sG) >> 8 : 0;          \
+#define D_BLEND_RGB_MULT(sR, sG, sB, dR, dG, dB)    \
+    dR = (dR && sR) ? (dR * sR) >> 8 : 0;           \
+    dG = (dG && sG) ? (dG * sG) >> 8 : 0;           \
     dB = (dB && sB) ? (dB * sB) >> 8 : 0;
 
-#define BLEND_MIN(sR, sG, sB, dR, dG, dB)         \
-    if(sR < dR) { dR = sR; }                      \
-    if(sG < dG) { dG = sG; }                      \
+#define D_BLEND_RGB_MIN(sR, sG, sB, dR, dG, dB)     \
+    if(sR < dR) { dR = sR; }                        \
+    if(sG < dG) { dG = sG; }                        \
     if(sB < dB) { dB = sB; }
 
-#define BLEND_MAX(sR, sG, sB, dR, dG, dB)         \
-    if(sR > dR) { dR = sR; }                      \
-    if(sG > dG) { dG = sG; }                      \
+#define D_BLEND_RGB_MAX(sR, sG, sB, dR, dG, dB)     \
+    if(sR > dR) { dR = sR; }                        \
+    if(sG > dG) { dG = sG; }                        \
     if(sB > dB) { dB = sB; }
 
-#define BLEND_RGBA_ADD(tmp, sR, sG, sB, sA, dR, dG, dB, dA)     \
-    tmp = dR + sR; dR = (tmp <= 255 ? tmp : 255);               \
-    tmp = dG + sG; dG = (tmp <= 255 ? tmp : 255);               \
-    tmp = dB + sB; dB = (tmp <= 255 ? tmp : 255);               \
+#define D_BLEND_RGB_XOR(sR, sG, sB, dR, dG, dB)     \
+    dR = MIN (255, MAX(sR ^ dR, 0));                \
+    dG = MIN (255, MAX(sG ^ dG, 0));                \
+    dB = MIN (255, MAX(sB ^ dB, 0));
+
+#define D_BLEND_RGB_AND(sR, sG, sB, dR, dG, dB)     \
+    dR = MIN (255, MAX(sR & dR, 0));                \
+    dG = MIN (255, MAX(sG & dG, 0));                \
+    dB = MIN (255, MAX(sB & dB, 0));
+
+#define D_BLEND_RGB_OR(sR, sG, sB, dR, dG, dB)      \
+    dR = MIN (255, MAX(sR | dR, 0));                \
+    dG = MIN (255, MAX(sG | dG, 0));                \
+    dB = MIN (255, MAX(sB | dB, 0));
+
+#define D_BLEND_RGB_DIFF(sR, sG, sB, dR, dG, dB)    \
+    dR = ABS((int)sR - (int)dR);                    \
+    dG = ABS((int)sG - (int)dG);                    \
+    dB = ABS((int)sB - (int)dB);
+
+#define D_BLEND_RGB_SCREEN(sR, sG, sB, dR, dG, dB)  \
+    dR = 255 - ((255 - sR) * (255 - dR) >> 8);      \
+    dG = 255 - ((255 - sG) * (255 - dG) >> 8);      \
+    dB = 255 - ((255 - sB) * (255 - dB) >> 8);
+
+#define D_BLEND_RGB_AVG(sR, sG, sB, dR, dG, dB) \
+    dR = (sR + dR) >> 1;                        \
+    dG = (sG + dG) >> 1;                        \
+    dB = (sB + dB) >> 1;
+    
+#define D_BLEND_RGBA_ADD(tmp, sR, sG, sB, sA, dR, dG, dB, dA)       \
+    tmp = dR + sR; dR = (tmp <= 255 ? tmp : 255);                   \
+    tmp = dG + sG; dG = (tmp <= 255 ? tmp : 255);                   \
+    tmp = dB + sB; dB = (tmp <= 255 ? tmp : 255);                   \
     tmp = dA + sA; dA = (tmp <= 255 ? tmp : 255);
 
-#define BLEND_RGBA_SUB(tmp, sR, sG, sB, sA, dR, dG, dB, dA)     \
-    tmp = dR - sR; dR = (tmp > 0 ? tmp : 0);                    \
-    tmp = dG - sG; dG = (tmp > 0 ? tmp : 0);                    \
-    tmp = dB - sB; dB = (tmp > 0 ? tmp : 0);                    \
+#define D_BLEND_RGBA_SUB(tmp, sR, sG, sB, sA, dR, dG, dB, dA)       \
+    tmp = dR - sR; dR = (tmp > 0 ? tmp : 0);                        \
+    tmp = dG - sG; dG = (tmp > 0 ? tmp : 0);                        \
+    tmp = dB - sB; dB = (tmp > 0 ? tmp : 0);                        \
     tmp = dA - sA; dA = (tmp > 0 ? tmp : 0);
 
-#define BLEND_RGBA_MULT(sR, sG, sB, sA, dR, dG, dB, dA) \
-    dR = (dR && sR) ? (dR * sR) >> 8 : 0;               \
-    dG = (dG && sG) ? (dG * sG) >> 8 : 0;               \
-    dB = (dB && sB) ? (dB * sB) >> 8 : 0;               \
+#define D_BLEND_RGBA_MULT(sR, sG, sB, sA, dR, dG, dB, dA)   \
+    dR = (dR && sR) ? (dR * sR) >> 8 : 0;                   \
+    dG = (dG && sG) ? (dG * sG) >> 8 : 0;                   \
+    dB = (dB && sB) ? (dB * sB) >> 8 : 0;                   \
     dA = (dA && sA) ? (dA * sA) >> 8 : 0;
 
-#define BLEND_RGBA_MIN(sR, sG, sB, sA, dR, dG, dB, dA) \
-    if(sR < dR) { dR = sR; }                           \
-    if(sG < dG) { dG = sG; }                           \
-    if(sB < dB) { dB = sB; }                           \
+#define D_BLEND_RGBA_MIN(sR, sG, sB, sA, dR, dG, dB, dA)    \
+    if(sR < dR) { dR = sR; }                                \
+    if(sG < dG) { dG = sG; }                                \
+    if(sB < dB) { dB = sB; }                                \
     if(sA < dA) { dA = sA; }
 
-#define BLEND_RGBA_MAX(sR, sG, sB, sA, dR, dG, dB, dA) \
-    if(sR > dR) { dR = sR; }                           \
-    if(sG > dG) { dG = sG; }                           \
-    if(sB > dB) { dB = sB; }                           \
+#define D_BLEND_RGBA_MAX(sR, sG, sB, sA, dR, dG, dB, dA)    \
+    if(sR > dR) { dR = sR; }                                \
+    if(sG > dG) { dG = sG; }                                \
+    if(sB > dB) { dB = sB; }                                \
     if(sA > dA) { dA = sA; }
 
 #if 1
@@ -345,7 +393,7 @@ int pyg_sdlsurface_save_rw (SDL_Surface *surface, SDL_RWops *rw, char *type,
 
 int
 pyg_sdlsoftware_blit (SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst,
-    SDL_Rect *dstrect, int blitargs);
+    SDL_Rect *dstrect, BlendMode blitargs);
 
 int pyg_sdlsurface_scroll (SDL_Surface *surface, int dx, int dy);
 
