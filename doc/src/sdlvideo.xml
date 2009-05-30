@@ -103,16 +103,15 @@
       <desc>Gets or sets the RGBA value of transparent pixels.</desc>
     </attr>
     <method name="get_rgba">
-      <call>get_rgba (color) -> int, int, int, int</call>
+      <call>get_rgba (color) -> Color</call>
       <desc>
-        Gets the RGBA values for the color.
+        Gets the best matching Color for the color.
 
-        Gets the single RGBA values for a color value, which fit the
-        PixelFormat best. This means that an internal conversion is done
-        on demand to match the passed color to the PixelFormat's
-        supported value ranges. If the PixelFormat does not have alpha
-        transparency support, the last RGBA integer will be set to fully
-        opaque (255).
+        Gets a color value, which fits the PixelFormat best. This means
+        that an internal conversion is done on demand to match the
+        passed color to the PixelFormat's supported value ranges. If the
+        PixelFormat does not have alpha transparency support, the
+        Color's alpha value will be set to fully opaque (255).
       </desc>
     </method>
     <attr name="losses">
@@ -120,8 +119,8 @@
       component.</desc>
     </attr>
     <method name="map_rgba">
-      <call>map_rgba (r, g, b[, a]) -> Color
-        map_rgba (color) -> Color
+      <call>map_rgba (r, g, b[, a]) -> long
+        map_rgba (color) -> long
       </call>
       <desc>
         Converts a color to the best value matching the format.

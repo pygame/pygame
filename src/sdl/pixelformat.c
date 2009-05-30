@@ -484,7 +484,7 @@ static PyObject*
 _pixelformat_maprgba (PyObject *self, PyObject *args)
 {
     PyObject *color = NULL;
-    Uint8 r, g, b, a;
+    Uint8 r, g, b, a = 0;
     
     int _a = -1;
     Uint32 val;
@@ -516,24 +516,18 @@ _pixelformat_maprgba (PyObject *self, PyObject *args)
      * and an alpha value was requested.
      */
     if (((PyPixelFormat*)self)->format->Amask != 0 && _a != -1)
-    {
         val = SDL_MapRGBA (((PyPixelFormat*)self)->format, r, g, b, a);
-        SDL_GetRGBA (val, ((PyPixelFormat*)self)->format, &r, &g, &b, &a);
-    }
     else
-    {
         val = SDL_MapRGB (((PyPixelFormat*)self)->format, r, g, b);
-        a = 255; /* Set the alpha portion fully opaque. */
-        GET_RGB_VALS (val, ((PyPixelFormat*)self)->format, r, g, b, a);
-    }
-    return PyColor_NewFromRGBA ((pgbyte)r, (pgbyte)g, (pgbyte)b, (pgbyte)a);
+
+    return PyLong_FromUnsignedLong ((unsigned long) val);
 }
 
 static PyObject*
 _pixelformat_getrgba (PyObject *self, PyObject *args)
 {
     PyObject *color = NULL;
-    Uint8 r, g, b, a;
+    Uint8 r = 0, g = 0, b = 0, a = 255;
     Uint32 val;
 
     if (!PyArg_ParseTuple (args, "O:get_rgba", &color))
@@ -541,10 +535,17 @@ _pixelformat_getrgba (PyObject *self, PyObject *args)
 
     if (!Uint32FromObj (color, &val))
         return NULL;
+    if (PyColor_Check (color))
+    {
+        ARGB2FORMAT (val, ((PyPixelFormat*)self)->format);
+    }
 
-    SDL_GetRGBA (val, ((PyPixelFormat*)self)->format, &r, &g, &b, &a);
-    
-    return Py_BuildValue ("(iiii)", r, g, b, a);
+    if (((PyPixelFormat*)self)->format->Amask != 0)
+        SDL_GetRGBA (val, ((PyPixelFormat*)self)->format, &r, &g, &b, &a);
+    else
+        SDL_GetRGB (val, ((PyPixelFormat*)self)->format, &r, &g, &b);
+
+    return PyColor_NewFromRGBA ((pgbyte)r, (pgbyte)g, (pgbyte)b, (pgbyte)a);
 }
 
 /* C API */

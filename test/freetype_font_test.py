@@ -1,3 +1,4 @@
+import os
 try:
     import pygame2.test.pgunittest as unittest
 except:
@@ -8,21 +9,23 @@ import pygame2.freetype as ft
 
 ft.init()
 
+FONTDIR = os.path.dirname (os.path.abspath (__file__))
+
 class FreeTypeFontTest(unittest.TestCase):
     _TEST_FONTS = {
             # Inconsolata is an open-source font designed by Raph Levien
             # Licensed under the Open Font License
             # http://www.levien.com/type/myfonts/inconsolata.html
-            'fixed' : ft.Font('test_fixed.otf'),
+            'fixed' : ft.Font(os.path.join (FONTDIR, 'test_fixed.otf')),
 
             # Liberation Sans is an open-source font designed by Steve Matteson
             # Licensed under the GNU GPL
             # https://fedorahosted.org/liberation-fonts/
-            'sans'  : ft.Font('test_sans.ttf'),
+            'sans'  : ft.Font(os.path.join (FONTDIR, 'test_sans.ttf')),
     }
 
     def test_pygame2_freetype_Font_init(self):
-        self.assertRaises(RuntimeError, ft.Font, 'nonexistant.ttf')
+        self.assertRaises(RuntimeError, ft.Font, os.path.join (FONTDIR, 'nonexistant.ttf'))
 
         f = self._TEST_FONTS['sans']
         self.assertTrue(isinstance(f, pygame2.base.Font))

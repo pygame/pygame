@@ -291,9 +291,9 @@ typedef enum
     dB = MIN (255, MAX(sB | dB, 0));
 
 #define D_BLEND_RGB_DIFF(sR, sG, sB, dR, dG, dB)    \
-    dR = ABS((int)sR - (int)dR);                    \
-    dG = ABS((int)sG - (int)dG);                    \
-    dB = ABS((int)sB - (int)dB);
+    dR = ABS((int)dR - (int)sR);                    \
+    dG = ABS((int)dG - (int)sG);                    \
+    dB = ABS((int)dB - (int)sB);
 
 #define D_BLEND_RGB_SCREEN(sR, sG, sB, dR, dG, dB)  \
     dR = 255 - ((255 - sR) * (255 - dR) >> 8);      \
