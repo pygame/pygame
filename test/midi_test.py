@@ -291,11 +291,8 @@ class MidiTest( unittest.TestCase ):
           #     (the input or output device with the lowest PmDeviceID).
 
         c = pygame.midi.get_default_output_id()
-        if not (c is None):
-            # if there is a not None return make sure it is an int.
-
-            self.assertEqual(type(c), type(1))
-            self.failUnless(c >= 0 or c == -1)
+        self.assertEqual(type(c), type(1))
+        self.failUnless(c >= 0 or c == -1)
 
 
 
