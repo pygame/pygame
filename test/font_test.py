@@ -43,8 +43,14 @@ class FontModuleTest( unittest.TestCase ):
     def test_get_fonts(self):
         fnts = pygame.font.get_fonts()
         self.failUnless(fnts)
+        try:
+            unicode
+        except NameError:
+            unicode = str
+
         for name in fnts:
-            self.failUnless(isinstance(name, str))
+            # note, on ubuntu 2.6 they are all unicode strings.
+            self.failUnless(isinstance(name, (str, unicode)))
             self.failUnless(name.islower(), name)
             self.failUnless(name.isalnum(), name)
 
