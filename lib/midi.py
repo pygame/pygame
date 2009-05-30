@@ -240,8 +240,44 @@ class Input(object):
         The buffer_size specifies the number of input events to be buffered 
         waiting to be read using Input.read().
         """
-        self._input = _pypm.Input(device_id, buffer_size)
-        self.device_id = device_id
+ 
+        if device_id == -1:
+            raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
+            
+        try:
+            r = get_device_info(device_id)
+        except TypeError:
+            raise TypeError("an integer is required")
+        except OverflowError:
+            raise OverflowError("long int too large to convert to int")
+
+        # and now some nasty looking error checking, to provide nice error 
+        #   messages to the kind, lovely, midi using people of whereever.
+        if r:
+            interf, name, input, output, opened = r
+            if input:
+                try:
+                    self._input = _pypm.Input(device_id, buffer_size)
+                except TypeError:
+                    raise TypeError("an integer is required")
+                self.device_id = device_id
+
+            elif output:
+                raise MidiException("Device id given is not a valid input id, it is an output id.")
+            else:
+                raise MidiException("Device id given is not a valid input id.")
+        else:
+            raise MidiException("Device id invalid, out of range.")
+
+
+
+
+
+
+
+
+
+
 
 
     def read(self, num_events):
@@ -326,8 +362,36 @@ class Output(object):
         to synchronize midi data to audio data by matching midi latency to 
         the audio buffer latency.
         """
-        self._output = _pypm.Output(device_id, latency)
-        self.device_id = device_id
+     
+        if device_id == -1:
+            raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
+            
+        try:
+            r = get_device_info(device_id)
+        except TypeError:
+            raise TypeError("an integer is required")
+        except OverflowError:
+            raise OverflowError("long int too large to convert to int")
+
+        # and now some nasty looking error checking, to provide nice error 
+        #   messages to the kind, lovely, midi using people of whereever.
+        if r:
+            interf, name, input, output, opened = r
+            if output:
+                try:
+                    self._output = _pypm.Output(device_id, latency)
+                except TypeError:
+                    raise TypeError("an integer is required")
+                self.device_id = device_id
+
+            elif input:
+                raise MidiException("Device id given is not a valid output id, it is an input id.")
+            else:
+                raise MidiException("Device id given is not a valid output id.")
+        else:
+            raise MidiException("Device id invalid, out of range.")
+
+
 
     def write(self, data):
         """writes a list of midi data to the Output
