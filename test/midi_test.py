@@ -55,15 +55,23 @@ class MidiTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_message(self):
+    def test_MidiException(self):
 
         # __doc__ (as of 2009-05-19) for pygame.midi.MidiException.message:
 
-          
+        def raiseit():
+            raise pygame.midi.MidiException(0)
 
-        self.fail() 
+        self.assertRaises(pygame.midi.MidiException, raiseit)
+        try:
+            raise pygame.midi.MidiException(0) 
+        except pygame.midi.MidiException, e: 
+            self.assertEqual(e.parameter, 0)
 
-    def todo_test_note_off(self):
+
+    def test_note_off(self):
+        """|tags: interactive|
+        """
 
         # __doc__ (as of 2009-05-19) for pygame.midi.Output.note_off:
 
@@ -73,9 +81,17 @@ class MidiTest( unittest.TestCase ):
           # Turn a note off in the output stream.  The note must already
           # be on for this to work correctly.
 
-        self.fail() 
+        i = pygame.midi.get_default_output_id()
+        if i != -1:
+            o = pygame.midi.Output(i)
+            o.note_on(5, 30, 0)
+            o.note_off(5, 30, 0)
 
-    def todo_test_note_on(self):
+
+
+    def test_note_on(self):
+        """|tags: interactive|
+        """
 
         # __doc__ (as of 2009-05-19) for pygame.midi.Output.note_on:
 
@@ -85,7 +101,12 @@ class MidiTest( unittest.TestCase ):
           # Turn a note on in the output stream.  The note must already
           # be off for this to work correctly.
 
-        self.fail() 
+
+        i = pygame.midi.get_default_output_id()
+        if i != -1:
+            o = pygame.midi.Output(i)
+            o.note_on(5, 30, 0)
+
 
     def todo_test_set_instrument(self):
 
@@ -123,8 +144,9 @@ class MidiTest( unittest.TestCase ):
 
         self.fail() 
 
-    def todo_test_write_short(self):
-
+    def test_write_short(self):
+        """|tags: interactive|
+        """
         # __doc__ (as of 2009-05-19) for pygame.midi.Output.write_short:
 
           # write_short(status <, data1><, data2>)
@@ -141,7 +163,54 @@ class MidiTest( unittest.TestCase ):
           # example: note 65 on with velocity 100
           #      write_short(0x90,65,100)
 
-        self.fail() 
+        i = pygame.midi.get_default_output_id()
+        if i != -1:
+            o = pygame.midi.Output(i)
+            # put a note on, then off.
+            o.write_short(0x90,65,100)
+            o.write_short(0x80,65,100)
+
+
+
+
+    def test_Input(self):
+        """|tags: interactive|
+        """
+
+        i = pygame.midi.get_default_input_id()
+        if i != -1:
+            o = pygame.midi.Input(i)
+            del o
+
+        # try feeding it an input id.
+        i = pygame.midi.get_default_output_id()
+
+        # can handle some invalid input too.
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, i)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, 9009)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Input, -1)
+        self.assertRaises(TypeError, pygame.midi.Input,"1234")
+        self.assertRaises(OverflowError, pygame.midi.Input, pow(2,99))
+
+
+    def test_Output(self):
+        """|tags: interactive|
+        """
+        i = pygame.midi.get_default_output_id()
+        if i != -1:
+            o = pygame.midi.Output(i)
+            del o
+
+        # try feeding it an input id.
+        i = pygame.midi.get_default_input_id()
+
+        # can handle some invalid input too.
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, i)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, 9009)
+        self.assertRaises(pygame.midi.MidiException, pygame.midi.Output, -1)
+        self.assertRaises(TypeError, pygame.midi.Output,"1234")
+        self.assertRaises(OverflowError, pygame.midi.Output, pow(2,99))
+
 
     def todo_test_write_sys_ex(self):
 
