@@ -15,6 +15,11 @@ integer pixel value that is already mapped to the Surface's pixel format.
 For all functions the arguments are strictly positional. Only integers are
 accepted for coordinates and radii.
 
+For functions like rectangle that accept a rect argument any (x, y, w, h)
+sequence is accepted, though pygame.Rect instances are prefered. Note that
+for a pygame.Rect the drawing will not include Rect.bottomright. The right
+and bottom attributes of a Rect lie one pixel outside of the Rect's boarder.
+
 New in pygame 1.9.0.
 <SECTION>
 
@@ -163,6 +168,10 @@ pgyame.gfxdraw.filled_polygon(surface, points, color): return None
 textured_polygon
 draw a textured polygon
 pgyame.gfxdraw.textured_polygon(surface, points, texture, tx, ty): return None
+
+A per-pixel alpha texture blit to a per-pixel alpha surface will differ from a
+Surface.blit() blit. Also, a per-pixel alpha texture cannot be used with an
+8-bit per pixel destination.
 <END>
 
 
