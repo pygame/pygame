@@ -89,15 +89,6 @@ opt_parser.add_option (
      "-I",  "--interactive", action = 'store_true',
      help   = "include tests requiring user input")
 
-TIME_OUT = 30
-
-# DEFAULTS
-
-opt_parser.set_defaults (
-    python = sys.executable,
-    time_out = TIME_OUT,
-)
-
 ###########################################################################
 # Set run() keyword arguements according to command line arguemnts.
 # args will be the test module list, passed as positional argumemts.
