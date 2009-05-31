@@ -123,7 +123,7 @@
 
 #define DOC_PYGAMECURSORSCOMPILE "pygame.cursor.compile(strings, black='X', white='.', xor='o'): return data, mask\ncreate binary cursor data from simple strings"
 
-#define DOC_PYGAMECURSORSLOADXBM "pygame.cursors.load_xbm(cursorfile, maskfile=None): return cursor_args\nload cursor data from an xbm file"
+#define DOC_PYGAMECURSORSLOADXBM "pygame.cursors.load_xbm(cursorfile): return cursor_args\npygame.cursors.load_xbm(cursorfile, maskfile): return cursor_args\nload cursor data from an xbm file"
 
 #define DOC_PYGAMEDISPLAY "pygame module to control the display window and screen"
 
@@ -441,7 +441,7 @@
 
 #define DOC_PYGAMEMASKFROMSURFACE "pygame.mask.from_surface(Surface, threshold = 127) -> Mask\nReturns a Mask from the given surface."
 
-#define DOC_PYGAMEMASKFROMTHRESHOLD "pygame.mask.from_surface(Surface, color, threshold = (0,0,0,255), othersurface = None) -> Mask\nCreates a mask by thresholding Surfaces"
+#define DOC_PYGAMEMASKFROMTHRESHOLD "pygame.mask.from_surface(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask\nCreates a mask by thresholding Surfaces"
 
 #define DOC_PYGAMEMASKMASK "pygame.Mask((width, height)): return Mask\npygame object for representing 2d bitmasks"
 
@@ -1443,7 +1443,8 @@ create binary cursor data from simple strings
 
 
 pygame.cursors.load_xbm
- pygame.cursors.load_xbm(cursorfile, maskfile=None): return cursor_args
+ pygame.cursors.load_xbm(cursorfile): return cursor_args
+pygame.cursors.load_xbm(cursorfile, maskfile): return cursor_args
 load cursor data from an xbm file
 
 
@@ -2400,7 +2401,7 @@ Returns a Mask from the given surface.
 
 
 pygame.mask.from_threshold
- pygame.mask.from_surface(Surface, color, threshold = (0,0,0,255), othersurface = None) -> Mask
+ pygame.mask.from_surface(Surface, color, threshold = (0,0,0,255), othersurface = None, palette_colors = 1) -> Mask
 Creates a mask by thresholding Surfaces
 
 
