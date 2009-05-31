@@ -645,7 +645,7 @@ typedef struct
     ((x)->ob_type == (PyTypeObject*)                                    \
         PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 0])
 #define PyColor_New                                                     \
-    (*(PyObject*(*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
+    (*(PyObject *(*)(Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 1])
 #define RGBAFromColorObj                                                \
     (*(int(*)(PyObject*, Uint8*)) PyGAME_C_API[PYGAMEAPI_COLOR_FIRSTSLOT + 2])
 #define import_pygame_color()                                           \

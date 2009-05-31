@@ -224,38 +224,38 @@ static PyObject*
 _gfx_rectanglecolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect sdlrect;
+    GAME_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OOO:rectangle", &surface, &rect, &color))
+    if (!PyArg_ParseTuple (args, "OOO:rectangle", &surface, &rect, &color)) {
         return NULL;
+    }
     
-    if (!PySurface_Check (surface))
-    {
+    if (!PySurface_Check (surface)) {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!GameRect_FromObject (rect, &sdlrect))
+    sdlrect = GameRect_FromObject (rect, &temprect);
+    if (sdlrect == NULL) {
         return NULL;
+    }
 
-    if (!RGBAFromObj (color, rgba))
-    {
+    if (!RGBAFromObj (color, rgba)) {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    x1 = sdlrect.x;
-    _y1 = sdlrect.y;
-    x2 = (Sint16) (sdlrect.x + sdlrect.w);
-    y2 = (Sint16) (sdlrect.y + sdlrect.h);
+    x1 = sdlrect->x;
+    _y1 = sdlrect->y;
+    x2 = (Sint16) (sdlrect->x + sdlrect->w - 1);
+    y2 = (Sint16) (sdlrect->y + sdlrect->h - 1);
 
-    if (rectangleRGBA (PySurface_AsSurface (surface), x1, x2, _y1, y2,
+    if (rectangleRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2,
 		       rgba[0], rgba[1], rgba[2], rgba[3]) ==
-        -1)
-    {
+        -1) {
         PyErr_SetString (PyExc_SDLError, SDL_GetError ());
         return NULL;
     }
@@ -266,38 +266,37 @@ static PyObject*
 _gfx_boxcolor (PyObject *self, PyObject* args)
 {
     PyObject *surface, *color, *rect;
-    GAME_Rect sdlrect;
+    GAME_Rect temprect, *sdlrect;
     Sint16 x1, x2, _y1, y2;
     Uint8 rgba[4];
 
     ASSERT_VIDEO_INIT (NULL);
 
-    if (!PyArg_ParseTuple (args, "OOO:box", &surface, &rect, &color))
+    if (!PyArg_ParseTuple (args, "OOO:box", &surface, &rect, &color)) {
         return NULL;
+    }
     
-    if (!PySurface_Check (surface))
-    {
+    if (!PySurface_Check (surface)) {
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
-    if (!GameRect_FromObject (rect, &sdlrect))
+    sdlrect = GameRect_FromObject (rect, &temprect);
+    if (sdlrect == NULL) {
         return NULL;
-
-    if (!RGBAFromObj (color, rgba))
-    {
+    }
+    if (!RGBAFromObj (color, rgba)) {
         PyErr_SetString (PyExc_TypeError, "invalid color argument");
         return NULL;
     }
 
-    x1 = sdlrect.x;
-    _y1 = sdlrect.y;
-    x2 = (Sint16) (sdlrect.x + sdlrect.w);
-    y2 = (Sint16) (sdlrect.y + sdlrect.h);
+    x1 = sdlrect->x;
+    _y1 = sdlrect->y;
+    x2 = (Sint16) (sdlrect->x + sdlrect->w - 1);
+    y2 = (Sint16) (sdlrect->y + sdlrect->h - 1);
 
-    if (rectangleRGBA (PySurface_AsSurface (surface), x1, x2, _y1, y2,
+    if (boxRGBA (PySurface_AsSurface (surface), x1, _y1, x2, y2,
 		       rgba[0], rgba[1], rgba[2], rgba[3]) ==
-        -1)
-    {
+        -1) {
         PyErr_SetString (PyExc_SDLError, SDL_GetError ());
         return NULL;
     }
@@ -967,6 +966,7 @@ static PyObject*
 _gfx_texturedpolygon (PyObject *self, PyObject* args)
 {
     PyObject *surface, *texture, *points, *item;
+    SDL_Surface *s_surface, *s_texture;
     Sint16 *vx, *vy, x, y, tdx, tdy;
     Py_ssize_t count, i;
     int ret;
@@ -982,14 +982,23 @@ _gfx_texturedpolygon (PyObject *self, PyObject* args)
         PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
         return NULL;
     }
+    s_surface = PySurface_AsSurface (surface);
     if (!PySurface_Check (texture))
     {
         PyErr_SetString (PyExc_TypeError, "texture must be a Surface");
         return NULL;
     }
+    s_texture = PySurface_AsSurface (texture);
     if (!PySequence_Check (points))
     {
         PyErr_SetString (PyExc_TypeError, "points must be a sequence");
+        return NULL;
+    }
+    if (s_surface->format->BytesPerPixel == 1 &&
+        (s_texture->format->Amask || s_texture->flags & SDL_SRCALPHA)) {
+        PyErr_SetString (PyExc_ValueError,
+                           "Per-byte alpha texture unsupported "
+                           "for 8 bit surfaces");
         return NULL;
     }
 
@@ -1035,8 +1044,8 @@ _gfx_texturedpolygon (PyObject *self, PyObject* args)
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    ret = texturedPolygon (PySurface_AsSurface (surface), vx, vy, (int)count,
-			   PySurface_AsSurface (texture), tdx, tdy);
+    ret = texturedPolygon (s_surface, vx, vy, (int)count,
+                           s_texture, tdx, tdy);
     Py_END_ALLOW_THREADS;
 
     PyMem_Free (vx);
