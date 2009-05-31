@@ -18,6 +18,7 @@ else:
     from test.test_utils import test_not_implemented, unittest
 import pygame
 import pygame.midi
+import pygame.compat
 from pygame.locals import *
 
 
@@ -65,7 +66,8 @@ class MidiTest( unittest.TestCase ):
         self.assertRaises(pygame.midi.MidiException, raiseit)
         try:
             raise pygame.midi.MidiException(0) 
-        except pygame.midi.MidiException, e: 
+        except pygame.midi.MidiException:
+            e = pygame.compat.geterror()
             self.assertEqual(e.parameter, 0)
 
 
