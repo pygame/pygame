@@ -10,7 +10,7 @@ It uses the portmidi library.  Is portable to which ever platforms
 portmidi supports (currently windows, OSX, and linux).
 
 This uses pyportmidi for now, but may use its own bindings at some
-point in the future.
+point in the future.  The pyportmidi bindings are included with pygame.
 
 New in pygame 1.9.0.
 """
@@ -74,7 +74,6 @@ def init():
         _pypm.Initialize()
         _init = True
         atexit.register(quit)
-
 
 
 def quit():
@@ -208,6 +207,7 @@ def get_default_output_id():
     Note: in the current release, the default is simply the first device
     (the input or output device with the lowest PmDeviceID).
     """
+    _check_init()
     return _pypm.GetDefaultOutputDeviceID()
 
 
@@ -223,6 +223,7 @@ def get_device_info(an_id):
 
     If the id is out of range, the function returns None.
     """
+    _check_init()
     return _pypm.GetDeviceInfo(an_id) 
 
 
@@ -240,6 +241,7 @@ class Input(object):
         The buffer_size specifies the number of input events to be buffered 
         waiting to be read using Input.read().
         """
+        _check_init()
  
         if device_id == -1:
             raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
@@ -272,11 +274,23 @@ class Input(object):
 
 
 
+    def _check_open(self):
+        if self._input is None:
+            raise MidiException("midi not open.")
 
 
 
+    def close(self):
+        """ closes a midi stream, flushing any pending buffers.
+        Input.close(): return None
 
-
+        PortMidi attempts to close open streams when the application
+        exits -- this is particularly difficult under Windows.
+        """
+        _check_init()
+        if not (self._input is None):
+            self._input.Close()
+        self._input = None
 
 
 
@@ -288,6 +302,8 @@ class Input(object):
         [[[status,data1,data2,data3],timestamp],
          [[status,data1,data2,data3],timestamp],...]
         """
+        _check_init()
+        self._check_open()
         return self._input.Read(num_events)
 
 
@@ -297,6 +313,9 @@ class Input(object):
 
         raises a MidiException on error.
         """
+        _check_init()
+        self._check_open()
+
         r = self._input.Poll()
         if r == _pypm.TRUE:
             return True
@@ -363,6 +382,9 @@ class Output(object):
         the audio buffer latency.
         """
      
+        _check_init()
+        self._aborted = 0
+
         if device_id == -1:
             raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
             
@@ -391,6 +413,44 @@ class Output(object):
         else:
             raise MidiException("Device id invalid, out of range.")
 
+    def _check_open(self):
+        if self._output is None:
+            raise MidiException("midi not open.")
+
+        if self._aborted:
+            raise MidiException("midi aborted.")
+
+
+    def close(self):
+        """ closes a midi stream, flushing any pending buffers.
+        Output.close(): return None
+
+        PortMidi attempts to close open streams when the application
+        exits -- this is particularly difficult under Windows.
+        """
+        _check_init()
+        if not (self._output is None):
+            self._output.Close()
+        self._output = None
+
+    def abort(self):
+        """ terminates outgoing messages immediately
+        Output.abort(): return None
+
+        The caller should immediately close the output port;
+        this call may result in transmission of a partial midi message.
+        There is no abort for Midi input because the user can simply
+        ignore messages in the buffer and close an input device at
+        any time.
+        """
+
+        _check_init()
+        if self._output:
+            self._output.Abort()
+        self._aborted = 1
+
+
+
 
 
     def write(self, data):
@@ -415,6 +475,9 @@ class Output(object):
         Can send up to 1024 elements in your data list, otherwise an 
          IndexError exception is raised.
         """
+        _check_init()
+        self._check_open()
+
         self._output.Write(data)
 
 
@@ -433,6 +496,8 @@ class Output(object):
         example: note 65 on with velocity 100
              write_short(0x90,65,100)
         """
+        _check_init()
+        self._check_open()
         self._output.WriteShort(status, data1, data2)
 
 
@@ -449,6 +514,8 @@ class Output(object):
             o.write_sys_ex(pygame.midi.time(),
                            [0xF0,0x7D,0x10,0x11,0x12,0x13,0xF7])
         """
+        _check_init()
+        self._check_open()
         self._output.WriteSysEx(when, msg)
 
 

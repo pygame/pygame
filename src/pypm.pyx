@@ -4,11 +4,19 @@
 # http://sound.media.mit.edu/~harrison
 # harrison@media.mit.edu
 # written in Pyrex
-__version__="0.03"
+__version__="0.05"
 
 import array
 
 # CHANGES:
+
+# 0.0.5: (June 1st, 2009)
+#   Output no longer calls abort when it deallocates.
+#   Added abort and close methods.
+#   Need to call Abort() explicityly if you want that to happen.
+
+
+#
 # 0.0.3: (March 15, 2005)
 #   changed everything from tuples to lists
 #   return 4 values for PmRead instead of 3 (for SysEx)
@@ -201,6 +209,7 @@ class Output:
     cdef int i
     cdef PmStream *midi
     cdef int debug
+    cdef int _aborted
 
     def __init__(self, OutputDevice, latency=0):
         
@@ -210,6 +219,7 @@ class Output:
 
         self.i = OutputDevice
         self.debug = 0
+        self._aborted = 0
         
         if latency == 0:
             PmPtr = NULL
@@ -229,11 +239,57 @@ class Output:
 
     def __dealloc__(self):
         if self.debug: print "Closing MIDI output stream and destroying instance"
-        err = Pm_Abort(self.midi)
-        if err < 0: raise Exception, Pm_GetErrorText(err)
+        #err = Pm_Abort(self.midi)
+        #if err < 0: raise Exception, Pm_GetErrorText(err)
         err = Pm_Close(self.midi)
-        if err < 0: raise Exception, Pm_GetErrorText(err)
-        
+        if err < 0: raise Exception, Pm_GetErrorText(err) 
+
+
+    def _check_open(self):
+        """ checks to see if the midi is open, and if not, raises an error.
+        """
+
+        if self.midi == NULL:
+            raise Exception, "midi Output not open."
+
+        if self._aborted:
+            raise Exception, "midi Output aborted.  Need to call Close after Abort."
+
+    def Close(self):
+        """
+Close()
+    closes a midi stream, flushing any pending buffers.
+    (PortMidi attempts to close open streams when the application
+    exits -- this is particularly difficult under Windows.)
+        """
+        #if not self.midi:
+        #    return
+
+        err = Pm_Close(self.midi)
+        if err < 0:
+            raise Exception, Pm_GetErrorText(err)
+        #self.midi = NULL
+
+
+    def Abort(self):
+        """
+Abort() terminates outgoing messages immediately
+    The caller should immediately close the output port;
+    this call may result in transmission of a partial midi message.
+    There is no abort for Midi input because the user can simply
+    ignore messages in the buffer and close an input device at
+    any time.
+        """
+        #if not self.midi:
+        #    return
+
+        err = Pm_Abort(self.midi)
+        if err < 0:
+            raise Exception, Pm_GetErrorText(err)
+
+        self._aborted = 1
+
+
     def Write(self, data):
         """
 Write(data)
@@ -255,6 +311,9 @@ Write(data)
         cdef PmEvent buffer[1024]
         cdef PmError err
         cdef int i
+
+        self._check_open()
+
 
         if len(data) > 1024: raise IndexError, 'maximum list length is 1024'
         else:
@@ -286,7 +345,8 @@ WriteShort(status <, data1><, data2>)
         """
         cdef PmEvent buffer[1]
         cdef PmError err
-        
+        self._check_open()
+
         buffer[0].timestamp = Pt_Time()
         buffer[0].message = ((((data2) << 16) & 0xFF0000) | (((data1) << 8) & 0xFF00) | ((status) & 0xFF))
         if self.debug: print "Writing to MIDI buffer"
@@ -309,6 +369,8 @@ WriteShort(status <, data1><, data2>)
         cdef char *cmsg
         cdef PtTimestamp CurTime
 
+        self._check_open()
+
         if type(msg) is list:
             msg = array.array('B',msg).tostring() # Markus Pfaff contribution
         cmsg = msg
@@ -318,6 +380,16 @@ WriteShort(status <, data1><, data2>)
         if err < 0 : raise Exception, Pm_GetErrorText(err)
         while Pt_Time() == CurTime: # wait for SysEx to go thru or...my
             pass                    # win32 machine crashes w/ multiple SysEx
+
+
+
+
+
+
+
+
+
+
 
 cdef class Input:
     """
@@ -340,12 +412,38 @@ class Input:
     def __dealloc__(self):
         cdef PmError err
         if self.debug: print "Closing MIDI input stream and destroying instance"
-	# DO NOT CALL Pm_Abort on Inputs!
-        # err = Pm_Abort(self.midi)
-        # if err < 0: raise Exception, Pm_GetErrorText(err)
+
         err = Pm_Close(self.midi)
-        if err < 0: raise Exception, Pm_GetErrorText(err)
-        
+        if err < 0:
+            raise Exception, Pm_GetErrorText(err)
+
+
+
+    def _check_open(self):
+        """ checks to see if the midi is open, and if not, raises an error.
+        """
+
+        if self.midi == NULL:
+            raise Exception, "midi Input not open."
+
+
+    def Close(self):
+        """
+Close()
+    closes a midi stream, flushing any pending buffers.
+    (PortMidi attempts to close open streams when the application
+    exits -- this is particularly difficult under Windows.)
+        """
+        #if not self.midi:
+        #    return
+
+        err = Pm_Close(self.midi)
+        if err < 0:
+            raise Exception, Pm_GetErrorText(err)
+        #self.midi = NULL
+
+
+
     def SetFilter(self, filters):
         """
     SetFilter(<filters>) sets filters on an open input stream
@@ -367,7 +465,10 @@ class Input:
         """
         cdef PmEvent buffer[1]
         cdef PmError err
-        
+
+        self._check_open()
+
+
         err = Pm_SetFilter(self.midi, filters)
 
         if err < 0: raise Exception, Pm_GetErrorText(err)
@@ -392,6 +493,9 @@ class Input:
           all numbered from 0 to 15 instead of 1 to 16.
         """
         cdef PmError err
+
+        self._check_open()
+
         err = Pm_SetChannelMask(self.midi,mask)
         if err < 0: raise Exception, Pm_GetErrorText(err)
         
@@ -401,6 +505,8 @@ class Input:
     returning TRUE, FALSE, or an error value.
         """
         cdef PmError err
+        self._check_open()
+
         err = Pm_Poll(self.midi)
         if err < 0: raise Exception, Pm_GetErrorText(err)
         return err
@@ -415,6 +521,9 @@ example: Read(50) returns all the events in the buffer,
          up to 50 events.
         """
         cdef PmEvent buffer[1024]
+        
+        self._check_open()
+
         x = []
         
         if length > 1024: raise IndexError, 'maximum buffer length is 1024'
