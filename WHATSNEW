@@ -5,6 +5,13 @@
 # BUG    = fixed a bug that was (or could have been) crashing
 #
 #
+
+[SVN 2295] June 1, 2009
+    Added abort() and close() to midi Output/Input.  Only close on __dealloc__
+
+[SVN 2290] May 31, 2009
+    let Surface methods accept and return Color instances 
+
 [SVN 2268] May 27, 2009
     updated docs for cursors.load_xbm, thanks Saul Spatz, and Thomas Ibbotson
 

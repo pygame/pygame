@@ -393,7 +393,12 @@ class MidiTest( unittest.TestCase ):
 
         an_in_id = pygame.midi.get_default_input_id() 
         if an_id != -1:
-            interf, name, input, output, opened = pygame.midi.get_device_info(an_in_id)
+            try:
+                r = pygame.midi.get_device_info(an_in_id)
+                interf, name, input, output, opened = r
+            except TypeError:
+                raise Exception(repr(r))
+
             self.assertEqual(output, 0)
             self.assertEqual(input, 1)
             self.assertEqual(opened, 0)
