@@ -292,6 +292,7 @@
 <p>Return the <tt>RGBA</tt> color value at the given pixel. If the Surface has no per pixel alpha, then the alpha value will always be 255 (opaque). If the pixel position is outside the area of the Surface an IndexError exception will be raised. </p>
 <p>Getting and setting pixels one at a time is generally too slow to be used in a game or realtime situation. </p>
 <p>This function will temporarily lock and unlock the Surface as needed. </p>
+<p>Returning a Color instead of tuple, New in pygame <tt>1.9.0</tt>. Use <tt>tuple(surf.get_at((x,y)))</tt> if you want a tuple, and not a Color. This should only matter if you want to use the color as a key in a dict. </p>
 <!--COMMENTS:Surface.get_at--> &nbsp;<br> 
 <br></ul>
 
@@ -312,6 +313,7 @@
   <i>get the color index palette for an 8bit Surface</i><br>
   <tt>Surface.get_palette(): return [RGB, RGB, RGB, ...]</tt><br>
 <p>Return a list of up to 256 color elements that represent the indexed colors used in an 8bit Surface. The returned list is a copy of the palette, and changes will have no effect on the Surface. </p>
+<p>Returning a list of Color instances instead of tuples, New in pygame <tt>1.9.0</tt> </p>
 <!--COMMENTS:Surface.get_palette--> &nbsp;<br> 
 <br></ul>
 
@@ -321,6 +323,7 @@
   <i>get the color for a single entry in a palette</i><br>
   <tt>Surface.get_palette_at(index): return RGB</tt><br>
 <p>Returns the red, green, and blue color values for a single index in a Surface palette. The index should be a value from 0 to 255. </p>
+<p>Returning Color instance instead of a tuple, New in pygame <tt>1.9.0</tt> </p>
 <!--COMMENTS:Surface.get_palette_at--> &nbsp;<br> 
 <br></ul>
 
