@@ -4,6 +4,11 @@ reads a svn log, and generates output for the WHATSNEW.
 Should still edit the WHATSNEW to make it more human readable.
 
 
+TODO: 
+- group the changes on one day into a group.
+- for many changes on one day list the svn as ranges [SVN 2000-2005]
+
+
 
 """
 import sys,os,glob

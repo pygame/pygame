@@ -7,7 +7,10 @@
 #
 
 [SVN 2295] June 1, 2009
-    Added abort() and close() to midi Output/Input.  Only close on __dealloc__
+    Added abort() and close() to midi Output/Input. Only close on __dealloc__
+    Sysfont tests pass ok on OSX now(and windows+linux etc).
+    Added a little tool to help with creating WHATSNEW from svn logs.
+       test/util/svn_log_to_whatsnew.py 
 
 [SVN 2290] May 31, 2009
     let Surface methods accept and return Color instances 
@@ -164,6 +167,13 @@ Dec 05, 2008
 Aug 30, 2008
     [BUG] Fixed CREATE_PIXEL macro's use of Aloss
     which was making surface.fill with surfaces with no alpha go green 
+
+
+
+
+
+
+
 
 Jul 18, 2008
     Added Surface.set_masks and .set_shifts useful for using data in
