@@ -434,7 +434,7 @@ class Output(object):
         self._output = None
 
     def abort(self):
-        """ terminates outgoing messages immediately
+        """terminates outgoing messages immediately
         Output.abort(): return None
 
         The caller should immediately close the output port;
