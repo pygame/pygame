@@ -357,6 +357,10 @@ Getting and setting pixels one at a time is generally too slow to be used
 in a game or realtime situation.
 
 This function will temporarily lock and unlock the Surface as needed.
+
+Returning a Color instead of tuple, New in pygame 1.9.0.
+Use tuple(surf.get_at((x,y))) if you want a tuple, and not a Color.
+This should only matter if you want to use the color as a key in a dict.
 <END>
 
 
@@ -384,6 +388,8 @@ Surface.get_palette(): return [RGB, RGB, RGB, ...]
 Return a list of up to 256 color elements that represent the indexed colors
 used in an 8bit Surface. The returned list is a copy of the palette, and 
 changes will have no effect on the Surface.
+
+Returning a list of Color instances instead of tuples, New in pygame 1.9.0
 <END>
 
 
@@ -394,6 +400,8 @@ Surface.get_palette_at(index): return RGB
 
 Returns the red, green, and blue color values for a single index in a Surface
 palette. The index should be a value from 0 to 255.
+
+Returning Color instance instead of a tuple, New in pygame 1.9.0
 <END>
 
 
