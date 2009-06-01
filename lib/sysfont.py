@@ -416,9 +416,9 @@ def initsysfonts_darwin():
     #  Not likely to be there on pre 10.4.x ...
     #    so still need to do other OSX specific method below.
     if os.path.exists("/usr/X11/bin/fc-list"):
-        return initsysfonts_unix()
+        fonts = initsysfonts_unix()
     
-    # otherwise we look for the default paths.
+    # we look for the default paths.
     _search_osx_font_paths(fonts)
     
     return fonts
