@@ -15,6 +15,7 @@
 		self->overlay = 0;
 		self->dest_surface=surf;
 	}
+	self->start_time = AV_NOPTS_VALUE;
 	AVInputFormat *iformat;
 	self=stream_open(self, filename, iformat);
 	if(!self)
@@ -40,6 +41,8 @@
     	return -1;
     }	
 	self = _movie_init_internal((PyMovie *)self, c, NULL);
+	PyGILState_STATE gstate;
+	gstate = PyGILState_Ensure();
 	PyObject *er;
     er = PyErr_Occurred();
     if(er)
@@ -51,17 +54,22 @@
         PyErr_SetString(PyExc_IOError, "No movie object created.");
         PyErr_Print();
         Py_DECREF(self);
+		PyGILState_Release(gstate);
         return -1;
     }
     Py_DECREF(self);
     PySys_WriteStdout("Returning from _movie_init\n");
+	if(gstate!=PyGILState_UNLOCKED)PyGILState_Release(gstate);
     return 0;
 }   
 
  void _movie_dealloc(PyMovie *movie)
 {
+ 	PyGILState_STATE gstate;
+ 	gstate=PyGILState_Ensure();
     stream_close(movie);
     movie->ob_type->tp_free((PyObject *) movie);
+	PyGILState_Release(gstate);
 }
 
  PyObject* _movie_repr (PyMovie *movie)

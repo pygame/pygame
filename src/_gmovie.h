@@ -87,6 +87,7 @@
     ((uint32_t *)(d))[0] = (a << 24) | (y << 16) | (u << 8) | v;\
 }
 
+#define THREADFREE 1
 
 #define BPP 1
 
@@ -230,7 +231,7 @@ typedef struct PyMovie {
     
     int audio_disable;
     
-    const char *filename;
+    char filename[1024];
     
     int overlay; //>0 if we are to use the overlay, otherwise <=0
  
@@ -271,6 +272,7 @@ void packet_queue_init(PacketQueue *q);
  void video_image_display(PyMovie *is);
  void video_display(PyMovie *is);
  int video_thread(void *arg);
+ int video_render(PyMovie *movie);
  int queue_picture(PyMovie *is, AVFrame *src_frame);
  void update_video_clock(PyMovie *movie, AVFrame* frame, double pts);
  void video_refresh_timer(PyMovie *movie); //unlike in ffplay, this does the job of compute_frame_delay
@@ -293,6 +295,7 @@ void packet_queue_init(PacketQueue *q);
  int stream_component_open(PyMovie *is, int stream_index); //TODO: break down into separate functions
  void stream_component_close(PyMovie *is, int stream_index);
  int decode_thread(void *arg);
+ int decoder(PyMovie *is);
  PyMovie *stream_open(PyMovie *is, const char *filename, AVInputFormat *iformat);
  void stream_close(PyMovie *is);
  void stream_cycle_channel(PyMovie *is, int codec_type);
